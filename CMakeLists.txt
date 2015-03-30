@@ -249,7 +249,7 @@ IF(WIN32)
         
 				
         
-        SET(N_EXT_LIBS ${FMOD_LIBRARIES} FW1FontWrapper.lib;libfreetype)
+        SET(N_EXT_LIBS ${FMOD_LIBRARIES})
 		IF(N_BUILD_NVTT)
 			SET(NEBULA_TOOLKIT_LIBS ${FBX_LIBRARY} nvcore nvtt nvimage nvmath posh squish nvthread bc6h bc7) 
 		ELSE()
