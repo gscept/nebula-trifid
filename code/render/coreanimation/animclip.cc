@@ -161,15 +161,12 @@ AnimClip::PrecomputeKeySliceValues()
     on the event array.
 */
 SizeT
-AnimClip::GetEventsInRange(Timing::Tick startTime, Timing::Tick endTime, float timeFactor, IndexT& outStartEventIndex) const
+AnimClip::GetEventsInRange(Timing::Tick startTime, Timing::Tick endTime, float timeFactorInv, IndexT& outStartEventIndex) const
 {
     outStartEventIndex = InvalidIndex;
 
     // find start index
     SizeT numEvents = this->events.Size();
-
-	// calculate inverse time factor and scaled time
-	float timeFactorInv = 1 / timeFactor;
 
     // skip all events which lay before starttime
     IndexT i = 0;

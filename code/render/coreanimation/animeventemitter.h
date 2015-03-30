@@ -23,7 +23,7 @@ namespace CoreAnimation
 class AnimEventEmitter
 {
 public:
-    static Util::Array<AnimEvent> EmitAnimEvents(const AnimClip& clip, Timing::Tick start, Timing::Tick end, float timeFactor, bool isInfinite);
+	static Util::Array<AnimEvent> EmitAnimEvents(const AnimClip& clip, Timing::Tick start, Timing::Tick end, float timeFactorInv, bool isInfinite);
 };
 
 } // namespace CoreAnimation
