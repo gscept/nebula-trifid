@@ -1,4 +1,7 @@
 
+All folders and files below this folder are suspect to the following licensing terms
+
+
 ====================================================================================================
                        Start Of Nebula Trifid Qt Toolkit Licensing Terms
 ====================================================================================================
