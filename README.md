@@ -24,9 +24,12 @@ A more detailed list of features in Nebula Trifid can be seen here:
 - Smart pointers.
 - Messaging infrastructure.
 - Call stack information on assertions.
+- Code generation for flyweight classes such as messages and script hooks.
+- FourCC system which allows classes to be instantiated by name. 
 
 # Rendering
 - OpenGL 4.
+- Custom shader language built on GLSL.
 - Particles.
 - Deferred rendering.
   * Physically based.
@@ -57,6 +60,8 @@ A more detailed list of features in Nebula Trifid can be seen here:
 - Job execution for skeletal animations, visibility queries and particle calculation.
 - Dynamically resizable render context.
 - Scriptable rendering paths through XML. 
+- Tessellation.
+- Render plugins.
 
 # Game
 - Modular entity system.
