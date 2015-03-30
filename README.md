@@ -73,5 +73,8 @@ Is not really a browser as much as it is a *content editor*. This tool is used t
 # Level editor
 The level editor is exactly what it sounds like. It allows you to create levels by placing game entities in a scene, alter their values (called attributes). It can also place entities which are purely graphical (called environment entities) lights as well as light probes for reflection and irradiance gathering. The level editor also allow you to modify level-specific post effects such as bloom, DoF, ambient occlusion, fog and skybox. The level can then be played by pressing the play button, which will open a new window in which the level can be tested. 
 
+# Getting started
+We currently do not have a complete documentation about how to setup your projects, but there is some documentation available at http://nebulatrifid.org/documentation/wiki/ that should get you started.
+
 # NOTE
 Have in mind that Nebula Trifid is constantly under development, which might mean that some of the features doesn't behave as intended, might not be implemented yet, or might be misleading in how they are supposed to work. The development can be followed on the blog at: http://nebulatrifid.org/developer-blog/
