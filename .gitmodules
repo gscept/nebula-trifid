@@ -1,30 +1,37 @@
 [submodule "code/extlibs/raknet"]
 	path = code/extlibs/raknet
 	url = https://github.com/gscept/RakNet.git
+	branch = master
 [submodule "code/extlibs/imgui"]
 	path = code/extlibs/imgui
-	url = https://github.com/gscept/imgui.git		
+	url = https://github.com/gscept/imgui.git
+	branch = master
 [submodule "code/extlibs/anyfx/exts/eastl"]
 	path = code/extlibs/anyfx/exts/eastl
 	url = https://github.com/gscept/EASTL.git
 [submodule "code/extlibs/DevIL"]
 	path = code/extlibs/DevIL
 	url = https://github.com/gscept/DevIL.git
+	branch = master
 [submodule "code/extlibs/CubeMapGen"]
 	path = code/extlibs/CubeMapGen
 	url = https://github.com/gscept/CubeMapGen.git
+	branch = master
 [submodule "code/extlibs/glfw"]
 	path = code/extlibs/glfw
 	url = https://github.com/gscept/glfw.git
+	branch = master
 [submodule "code/extlibs/jansson"]
 	path = code/extlibs/jansson
 	url = https://github.com/akheron/jansson.git
 [submodule "code/extlibs/miniupnp"]
 	path = code/extlibs/miniupnp
 	url = https://github.com/gscept/miniupnp.git
+	branch = master
 [submodule "code/extlibs/glew"]
 	path = code/extlibs/glew
 	url = https://github.com/gscept/glew.git
+	branch = master
 [submodule "code/extlibs/recastnavigation"]
 	path = code/extlibs/recastnavigation
 	url = https://github.com/gscept/recastnavigation.git
