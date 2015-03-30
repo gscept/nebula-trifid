@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Nebula3 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="D:\nebula3\schemas\interface.xsd">
+	<Library name="EffectsCommands">
+		<Dependency header="effects/effectsfeatureunit.h"/>		        
+		
+		<Command name="CamShakeEffect" fourcc="csef" desc="Generate a camera shake effect">
+			<InArg name="Intensity" type="float4"/>
+      <InArg name="Rotation" type="float4"/>
+      <InArg name="Range" type="float"/>
+      <InArg name="Duration" type="float"/>            
+			<Code>
+        EffectsFeature::EffectsFeatureUnit::Instance()->EmitCameraShakeEffect(Intensity,Rotation,Duration,Range);
+      </Code>
+		</Command>
+    <Command name="AudioEffect" fourcc="auef" desc="Generate an audio effect">      
+      <InArg name="Volume" type="float"/>
+      <InArg name="Resource" type="string"/>
+      <InArg name="Duration" type="float"/>
+      <InArg name="Position" type="float4"/>
+      <Code>
+        EffectsFeature::EffectsFeatureUnit::Instance()->EmitAudioEffect(Position,Volume,Resource,Duration);
+      </Code>
+    </Command>
+    <Command name="GraphicsEffect" fourcc="gref" desc="Generate a graphics effect">
+      <InArg name="Resource" type="string"/>
+      <InArg name="Duration" type="float"/>      
+      <InArg name="Transform" type="matrix44"/>
+      <Code>
+        EffectsFeature::EffectsFeatureUnit::Instance()->EmitGraphicsEffect(Transform,"mdl:" + Resource + ".n3",Duration);
+      </Code>
+    </Command>
+	</Library>
+</Nebula3>

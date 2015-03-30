@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Nebula3>
+  <AttributeLib>
+
+    <!--  *** dialog attributes *** -->
+
+    <!-- table _Story_Dialogs-->
+    <Attribute name="DialogGUID" fourcc="DUID" accessMode="ReadWrite" type="Guid" />
+    <Attribute name="DialogId" fourcc="DIID" accessMode="ReadWrite" type="String" />
+    <Attribute name="DialogSpeaker" fourcc="DISP" accessMode="ReadWrite" type="String" />
+    <Attribute name="DialogGroup" fourcc="DIGR" accessMode="ReadWrite" type="String" />
+    <Attribute name="DialogLocked" fourcc="DILO" accessMode="ReadWrite" type="Bool" />
+    <Attribute name="DialogAsConversation" fourcc="DIAC" accessMode="ReadWrite" type="Bool" />
+
+    <!-- table _Story_DialogTakes-->
+    <Attribute name="TakeGUID" fourcc="TUID" accessMode="ReadWrite" type="Guid" />
+    <Attribute name="TakeId" fourcc="TAID" accessMode="ReadWrite" type="String" />
+    <Attribute name="TakeSpeaker" fourcc="TASP" accessMode="ReadWrite" type="String" />
+    <Attribute name="TakeType" fourcc="TATY" accessMode="ReadWrite" type="String" />
+    <Attribute name="TakeEmote" fourcc="TAEM" accessMode="ReadWrite" type="String" />
+    <Attribute name="TakeSound" fourcc="TASN" accessMode="ReadWrite" type="String" />
+    <Attribute name="TakeStatus" fourcc="TAST" accessMode="ReadWrite" type="Bool" />
+    <Attribute name="TakeSoundActiv" fourcc="TASA" accessMode="ReadWrite" type="Bool" />
+    <Attribute name="TakeTimeStamp" fourcc="TATS" accessMode="ReadWrite" type="Float" />
+    <Attribute name="TakeLocaId" fourcc="TALI" accessMode="ReadWrite" type="Guid" />
+    <Attribute name="TakeShortTextLocaId" fourcc="TSTL" accessMode="ReadWrite" type="Guid" />
+
+    <!-- table _Story_DialogTakeChildMapping-->
+    <Attribute name="TakeChildId" fourcc="TACI" accessMode="ReadWrite" type="String" />
+    <Attribute name="TakeChildPosition" fourcc="TACP" accessMode="ReadWrite" type="Int" />
+
+    <!-- table _Scripts_Conditions-->
+    <Attribute name="ConditionGUID" fourcc="COID" accessMode="ReadWrite" type="Guid" />
+    <Attribute name="ConditionType" fourcc="COTY" accessMode="ReadWrite" type="String" />
+    <Attribute name="ConditionContent" fourcc="COCO" accessMode="ReadWrite" type="String" />
+    <Attribute name="ConditionBlockGUID" fourcc="COBI" accessMode="ReadWrite" type="Guid" />
+    <Attribute name="ConditionStatementGUID" fourcc="COSI" accessMode="ReadWrite" type="Guid" />
+    <Attribute name="ConditionRef" fourcc="CORE" accessMode="ReadWrite" type="Guid" />
+    <Attribute name="ConditionBlock" fourcc="COBL" accessMode="ReadWrite" type="Guid" />
+
+    <!-- table _Scripts_Statements-->
+    <Attribute name="StatementGUID" fourcc="STID" accessMode="ReadWrite" type="Guid" />
+    <Attribute name="StatementType" fourcc="STTY" accessMode="ReadWrite" type="String" />
+    <Attribute name="StatementContent" fourcc="STCO" accessMode="ReadWrite" type="String" />
+    <Attribute name="StatementBlock" fourcc="STBL" accessMode="ReadWrite" type="Guid" />
+    <Attribute name="StatementRef" fourcc="STRF" accessMode="ReadWrite" type="Guid" />
+    <Attribute name="StatementBlockGUID" fourcc="STBI" accessMode="ReadWrite" type="Guid" />
+    <Attribute name="ScriptName" fourcc="SCNA" accessMode="ReadWrite" type="String" />
+
+    <!-- table _Story_DialogActions-->
+    <Attribute name="ActionContent" fourcc="ACCO" accessMode="ReadWrite" type="String" />
+
+    <!--  *** quest attributes *** -->
+
+    <!-- table _Scripts_Statements-->
+    <Attribute name="QuestGuid" fourcc="QUID" accessMode="ReadWrite" type="Guid" />
+    <Attribute name="TaskGUID" fourcc="TGID" accessMode="ReadWrite" type="Guid" />
+    <Attribute name="TaskId" fourcc="TASI" accessMode="ReadWrite" type="String" />
+    <Attribute name="TaskState" fourcc="TASS" accessMode="ReadWrite" type="String" />
+    <Attribute name="TaskViewed" fourcc="TASV" accessMode="ReadWrite" type="Bool" />
+    <Attribute name="TaskParentGuid" fourcc="TAPG" accessMode="ReadWrite" type="Guid" />
+
+    <Attribute name="CloseConditionBlock" fourcc="CCBL" accessMode="ReadWrite" type="Guid" />
+    <Attribute name="CloseConditionRef" fourcc="CCRF" accessMode="ReadWrite" type="Guid" />
+    <Attribute name="OpenConditionBlock" fourcc="OCBL" accessMode="ReadWrite" type="Guid" />
+    <Attribute name="OpenConditionRef" fourcc="OCRF" accessMode="ReadWrite" type="Guid" />
+    <Attribute name="FailConditionBlock" fourcc="FCBL" accessMode="ReadWrite" type="Guid" />
+    <Attribute name="FailConditionRef" fourcc="FCRF" accessMode="ReadWrite" type="Guid" />
+
+    <Attribute name="OpenStatementBlock" fourcc="OSBL" accessMode="ReadWrite" type="Guid" />
+    <Attribute name="CloseStatementBlock" fourcc="CSBL" accessMode="ReadWrite" type="Guid" />
+    <Attribute name="FailStatementBlock" fourcc="FSBL" accessMode="ReadWrite" type="Guid" />
+    <Attribute name="OpenStatementRef" fourcc="OSRF" accessMode="ReadWrite" type="Guid" />
+    <Attribute name="CloseStatementRef" fourcc="CSRF" accessMode="ReadWrite" type="Guid" />
+    <Attribute name="FailStatementRef" fourcc="FSRF" accessMode="ReadWrite" type="Guid" />
+
+    <Attribute name="TaskTargetEntity" fourcc="TTEN" accessMode="ReadWrite" type="String" />
+    <Attribute name="TaskTitleLocaId" fourcc="TTLI" accessMode="ReadWrite" type="Guid" />
+    <Attribute name="TaskOpenTextLocaId" fourcc="TOTL" accessMode="ReadWrite" type="Guid" />
+    <Attribute name="TaskCloseTextLocaId" fourcc="TCTL" accessMode="ReadWrite" type="Guid" />
+    <Attribute name="TaskFailedTextLocaId" fourcc="TFTL" accessMode="ReadWrite" type="Guid" />
+
+    <Attribute name="StateName" fourcc="STNA" accessMode="ReadWrite" type="String" />
+    <Attribute name="OnEntryStatementRef" fourcc="STER" accessMode="ReadWrite" type="Guid" />
+    <Attribute name="OnEntryStatementBlock" fourcc="ESTB" accessMode="ReadWrite" type="Guid" />
+    <Attribute name="OnFrameStatementRef" fourcc="STFR" accessMode="ReadWrite" type="Guid" />
+    <Attribute name="OnFrameStatementBlock" fourcc="STFB" accessMode="ReadWrite" type="Guid" />
+    <Attribute name="OnExitStatementRef" fourcc="SEXR" accessMode="ReadWrite" type="Guid" />
+    <Attribute name="OnExitStatementBlock" fourcc="SEXB" accessMode="ReadWrite" type="Guid" />
+    <Attribute name="MachineName" fourcc="MANA" accessMode="ReadWrite" type="String" />
+    <Attribute name="StartState" fourcc="STST" accessMode="ReadWrite" type="String" />
+    <Attribute name="ToState" fourcc="TOST" accessMode="ReadWrite" type="String" />
+  
+    <Attribute name="Behaviour" fourcc="BEHV" accessMode="ReadWrite" type="String" />
+  
+  </AttributeLib>
+    <Property name="FSM::BehaviourProperty" header="scriptfeature/fsm/behaviourproperty.h">
+      <Attribute name="Behaviour" />
+    </Property>
+</Nebula3>		

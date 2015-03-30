@@ -1,0 +1,11 @@
+<Shady>
+	<SuperVariation desc="Typical deferred shader. Outputs to diffuse, emissive, specular, roughness and godray projection." defines="">
+		<Input type="vec3" name="Diffuse" result="pixel" defines="USE_CUSTOM_DIFFUSE"/>
+		<Input type="vec3" name="Normal" result="pixel" defines="USE_CUSTOM_NORMAL"/>
+		<Input type="vec3" name="Emissive" result="pixel" defines="USE_CUSTOM_EMISSIVE"/>
+		<Input type="vec3" name="Specular" result="pixel" defines="USE_CUSTOM_SPECULAR"/>
+		<Input type="float" name="Roughness" result="pixel" defines="USE_CUSTOM_ROUGHNESS"/>
+		<Input type="vec3" name="Godrays" result="pixel" defines="USE_CUSTOM_GODRAYS"/>
+		<Source type="GLSL" template="toolkit:work/shady/supervariations/templates/glsltemplate.fxh" header="toolkit:work/shady/supervariations/templates/glslheader.fxh"/>
+	</SuperVariation>
+</Shady>

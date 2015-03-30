@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Nebula3>
+    <Protocol namespace="Debug" name="DebugRenderProtocol">
+        <!-- dependencies -->
+        <Dependency header="util/array.h"/>
+        <Dependency header="threading/threadid.h"/>
+        <Dependency header="coregraphics/textelement.h"/>
+        <Dependency header="debugrender/debugshaperenderer.h"/>
+        <Dependency header="coregraphics/shadervariable.h"/>
+
+        <!-- render text string on screen for debugging -->
+        <Message name="RenderDebugText" fourcc="rdtx">            
+            <InArg name="ThreadId" type="Threading::ThreadId"/>
+            <InArg name="TextElements" type="Util::Array<CoreGraphics::TextElement>" />
+        </Message>
+
+        <!-- render debug shapes -->
+        <Message name="RenderDebugShapes" fourcc="rdds">
+            <InArg name="ThreadId" type="Threading::ThreadId"/>
+            <InArg name="Shapes" type="Util::Array<CoreGraphics::RenderShape>" />
+        </Message>
+      
+        <!-- render view debug-->
+        <Message name="RenderDebugView" fourcc="rdvi">
+            <InArg name="ThreadId" type="Threading::ThreadId"/>
+            <InArg name="EnableDebugRendering" type="bool"/>
+        </Message>
+
+        <!-- render view debug-->
+        <Message name="IncrDebugShaderLayer" fourcc="idsl">
+           <InArg name="ThreadId" type="Threading::ThreadId"/>          
+        </Message>
+      
+        <!-- set a float shader variable with a specified semantic -->
+        <Message name="SetFloatShaderVariable" fourcc="sshv">
+            <InArg name="Semantic" type="CoreGraphics::ShaderVariable::Semantic"/>
+            <InArg name="Value" type="float"/>
+        </Message>
+        
+        <!-- enable/disable the performance hud -->
+        <Message name="ControlPerfHUD" fourcc="cphd">
+            <InArg name="Toggle" type="bool" default="false"/>
+            <InArg name="Enable" type="bool" default="false"/>
+        </Message>
+      
+    </Protocol>
+</Nebula3>    
+    

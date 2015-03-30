@@ -1,0 +1,596 @@
+*{
+background-color: rgb(68,68,68);
+alternate-background-color: rgb(60, 60, 60);
+color: rgb(200, 200, 200);
+font-family: "Arial";
+}
+
+
+
+QMenu::item:selected
+{
+	background-color:  qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, 
+								   stop: 0 rgb(89, 123, 155), stop: 1 rgb(113, 155, 196));
+	color: white;
+}
+
+QMenu
+{
+	border: 1px solid rgb(38, 38, 38);
+}
+
+QMenuBar::item
+{
+	background-color: rgb(68,68,68);
+	color: rgb(200, 200, 200);
+	font-family: "Arial";
+
+	padding-top: 2px;
+	padding-bottom: 2px;
+	padding-left: 8px;
+	padding-right: 8px;
+}
+
+
+QMenuBar::item:selected
+{
+	border-image: url(:/MayaIcons/icons/maya/thinborder.png) 2 2 2 2 tile tile;
+	border: 2px transparent inset;
+}
+
+QMenuBar::item:pressed
+{
+	border: 2px solid rgb(38, 38, 38);
+	background-color: rgb(80, 80, 80);
+}
+
+QRadioButton:disabled
+{
+	color: gray;
+}
+
+QRadioButton::indicator
+{
+	background-image: url(:/MayaIcons/icons/maya/radiobutton.png);
+	background-position: center;
+	selection-color: rgb(0,0,0);
+}
+
+QRadioButton::indicator:on
+{
+	width:13px;
+	height:13px;
+	image: url(:/MayaIcons/icons/maya/radiobuttonchecked.png); 
+	image-position:center;
+}
+
+QRadioButton::indicator:hover
+{
+	background-image: url(:/MayaIcons/icons/maya/radiobuttonhover.png);
+	background-position: center;
+	background-repeat: none;
+	border-radius: 2px;	
+}
+
+QRadioButton::indicator:pressed
+{
+
+	background-position: center;
+	background-repeat: none;
+}
+
+
+QCheckBox:disabled
+{
+	color: gray;
+}
+
+QCheckBox::indicator
+{
+	background-color: rgb(39, 39, 39);
+	background-position: center;
+	border-radius: 2px;
+	selection-color: rgb(0,0,0);
+}
+
+QCheckBox::indicator:on
+{
+	width:13px;
+	height:13px;
+	background-color: rgb(39, 39, 39);
+	image: url(:/MayaIcons/icons/maya/check.png); 
+	image-position:center;
+}
+
+QCheckBox::indicator:hover
+{
+	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, 
+						 stop: 0 rgb(46, 49, 51), stop: 1  rgb(55, 65, 75))
+	   					 url(:/MayaIcons/icons/maya/checkboxhover.png);
+	background-position: center;
+	background-repeat: none;
+	border-radius: 2px;	
+}
+
+QCheckBox::indicator:pressed
+{
+	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, 
+						 stop: 0 rgb(46, 49, 51), stop: 1  rgb(55, 65, 75))
+	  					 url(:/MayaIcons/icons/maya/checkboxhovercheck.png);
+	background-position: center;
+	background-repeat: none;
+}
+
+QGroupBox
+{
+	border-image: url(:/MayaIcons/icons/maya/bordersclean.png) 4 4 4 4 tile stretch;
+	border: 4px transparent;
+}
+
+
+QSpinBox
+{
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-top: 3px;
+	padding-bottom: 3px;
+	background-color: rgb(90, 90, 90);
+	border: outset;
+	border-color: rgb(30, 30, 30);
+	border-width: 1px;
+	border-radius: 2px;
+}
+
+QSpinBox::up-button
+{
+	border-left: 1px solid rgb(50, 50, 50);
+	border-bottom: 1px solid rgb(50, 50, 50);
+	background-position: center;
+	background-image:url(:/MayaIcons/icons/maya/arrowUp.png);
+	background-repeat: none;
+	background-origin: content;
+	padding-bottom: 1px;
+	width: 13px;
+}
+
+QSpinBox::down-button
+{
+
+	border-left: 1px solid rgb(50, 50, 50);
+	background-position: center;
+	background-image:url(:/MayaIcons/icons/maya/arrowDown.png);
+	background-repeat: none;
+	background-origin: content;
+	padding-top: 1px;
+	width: 13px;
+}
+
+QDoubleSpinBox
+{
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-top: 3px;
+	padding-bottom: 3px;
+	background-color: rgb(90, 90, 90);
+	border: outset;
+	border-color: rgb(30, 30, 30);
+	border-width: 1px;
+	border-radius: 2px;
+}
+
+QDoubleSpinBox::up-button
+{
+	border-left: 1px solid rgb(50, 50, 50);
+	border-bottom: 1px solid rgb(50, 50, 50);
+	background-position: center;
+	background-image:url(:/MayaIcons/icons/maya/arrowUp.png);
+	background-repeat: none;
+	background-origin: content;
+	padding-bottom: 1px;
+	width: 13px;
+}
+
+QDoubleSpinBox::down-button
+{
+
+	border-left: 1px solid rgb(50, 50, 50);
+	background-position: center;
+	background-image:url(:/MayaIcons/icons/maya/arrowDown.png);
+	background-repeat: none;
+	background-origin: content;
+	padding-top: 1px;
+	width: 13px;
+}
+
+
+
+QComboBox
+{
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-top: 3px;
+	padding-bottom: 3px;
+
+	border: outset;
+	border-color: rgb(30, 30, 30);
+	border-width: 1px;
+	border-radius: 2px;
+}
+
+QComboBox QAbstractItemView 
+{
+	background-color: rgb(50, 50, 50);
+	selection-background-color: rgb(103, 141, 178);
+    border-image: url(:/MayaIcons/icons/maya/simpleborder.png) 2 2 2 2 tile stretch;
+	border: 2px transparent;
+ }
+
+QComboBox:!open
+{
+	background-color: rgb(90, 90, 90);
+}
+
+QComboBox::drop-down
+{
+	background-position: center;
+	background-image:url(:/MayaIcons/icons/maya/arrowDown.png);
+	background-origin: content;
+	background-repeat: none;
+	border-left: 1px solid rgb(50, 50, 50);
+	border-top-right-radius: 2px;
+	border-bottom-right-radius: 2px;
+}
+
+QComboBox:open
+{
+	margin-top: 2px;
+	margin-left: 2px;
+	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, 
+	stop: 0 rgb(70, 70, 70), stop: 1 rgb(90, 90, 90));
+}
+
+QComboBox:hover
+{
+	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, 
+	stop: 0 rgb(103, 141, 178), stop: 0.2 rgb(90, 90, 90),
+	stop: 0.8 rgb(90, 90, 90), stop: 1 rgb(103, 141, 178));
+}
+
+QToolButton
+{
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-top: 3px;
+	padding-bottom: 3px;
+	background-color: rgb(90, 90, 90);
+	border: 1px solid rgb(50, 50, 50);
+	border-radius: 2px;
+}
+
+QToolButton:disabled
+{
+	background-color: rgb(140, 140, 140);
+	color: rgb(40, 40, 40);
+}
+
+QToolButton::hover
+{
+	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, 
+	stop: 0 rgb(103, 141, 178), stop: 0.2 rgb(90, 90, 90),
+	stop: 0.8 rgb(90, 90, 90), stop: 1 rgb(103, 141, 178));
+}
+
+QToolButton::pressed
+{
+	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, 
+	stop: 0 rgb(70, 70, 70), stop: 1 rgb(90, 90, 90));
+	margin-top: 2px;
+	margin-left: 2px;
+}
+
+QPushButton
+{
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-top: 3px;
+	padding-bottom: 3px;
+	background-color: rgb(90, 90, 90);
+	border: 1px solid rgb(50, 50, 50);
+	border-radius: 2px;
+}
+
+QPushButton:disabled
+{
+	background-color: rgb(140, 140, 140);
+	color: rgb(40, 40, 40);
+}
+
+QPushButton::hover
+{
+	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, 
+	stop: 0 rgb(103, 141, 178), stop: 0.2 rgb(90, 90, 90),
+	stop: 0.8 rgb(90, 90, 90), stop: 1 rgb(103, 141, 178));
+}
+
+QPushButton::pressed
+{
+	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, 
+	stop: 0 rgb(70, 70, 70), stop: 1 rgb(90, 90, 90));
+	margin-top: 2px;
+	margin-left: 2px;
+}
+
+QLineEdit
+{
+	border: 1px solid gray;
+}
+QTableView
+{
+	padding: 1px;
+	selection-background-color: transparent;
+	selection-color: rgb(181, 181, 181);
+}
+
+QTreeView::item:selected:!active {
+	background: rgb(168, 168, 168);
+	color: rgb(0, 0, 0);
+}
+
+QTreeView::item:selected:active {
+	background: rgb(120, 120, 120);
+	color: rgb(0, 0, 0);
+}
+
+QListView::item:selected:!active {
+	background: rgb(168, 168, 168);
+	color: rgb(0, 0, 0);
+}
+
+QListView::item:selected:active {
+	background: rgb(120, 120, 120);
+	color: rgb(0, 0, 0);
+}
+
+QTabWidget
+{
+	border: 1px solid rgb(50, 50, 50);
+}
+
+QTabWidget::tab-bar
+{
+	background-color: rgb(70,70,70);
+	left: 5px;
+}
+
+QTabWidget::pane
+{
+	border: 1px solid rgb(100, 100, 100);
+	border-top: 2px solid rgb(90,90,90);
+	border-radius: 4px;
+}
+
+QTabBar::tab
+{
+	background-color: rgb(70,70,70);
+	border: 1px solid rgb(50, 50, 50);
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-top: 4px;
+	padding-bottom: 4px;
+}
+
+QTabBar::tab:!selected
+{
+	margin-top: 4px;
+}
+
+QTabBar::tab:hover
+{
+	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, 
+	stop: 0 rgb(103, 141, 178), stop: 0.2 rgb(70, 70, 70));
+}
+
+QTabBar::tab:selected
+{
+	background-color: rgb(90, 90, 90);
+	border-bottom-color: rgb(90, 90, 90);
+	border-bottom-width: 3px;
+}
+
+QTabBar::tab:disabled
+{
+	background-color: rgb(50,50,50);
+	margin-top: 6px;
+}
+
+QTableCornerButton::Section
+{
+	border: 0px;
+	background-color: rgb(70, 70, 70);
+}
+
+QHeaderView
+{
+	background-color: rgb(70, 70, 70);
+}
+
+QHeaderView::section
+{
+	background-color: rgb(70,70,70);
+	border: 1px solid rgb(30, 30, 30);
+	border-bottom-left-radius: 2px;
+	border-bottom-right-radius: 2px;
+}
+
+QTabWidget::pane
+{
+	background-color: rgb(70,70,70);
+}
+
+QListWidget
+{
+	show-decoration-selected: 1;
+}
+
+QListWidget::item:alternate
+{
+	background: #EEEEEE;
+}
+
+QListWidget::item:selected
+{
+	border: 1px solid #6a6ea9;
+}
+
+QListWidget::item:selected:!active
+{
+	background: rgb(168, 168, 168);
+	color: rgb(0, 0, 0);
+}
+
+QListWidget::item:selected:active
+{
+	background: rgb(120, 120, 120);
+	color: rgb(0, 0, 0);
+}
+
+QListWidget::item:hover
+{
+	background-color: rgb(200, 200, 200);
+	color: rgb(0,0,0);
+}
+
+
+QScrollBar:vertical 
+{
+	background: rgb(70,70,70);
+    margin: 16px 0 16px 0;
+	width: 18px;
+}
+
+QScrollBar::handle:vertical
+{
+    background:  qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, 
+						  stop: 0 rgb(102, 102, 102), stop: 1 rgb(95, 95, 95))
+	 url(:/MayaIcons/icons/maya/slidervertdarktrans.png);
+	background-position: center;
+	background-repeat: none;
+	border: 1px solid  rgb(38, 38, 38);	
+    min-height: 20px;
+	width: 1px;
+}
+
+QScrollBar::add-line:vertical
+{
+	background: rgb(70,70,70);
+	height: 16px;
+	subcontrol-position: bottom;
+	subcontrol-origin: margin;
+}
+
+QScrollBar::sub-line:vertical
+{
+	background:  rgb(70,70,70);
+	height: 16px;
+	subcontrol-position: top;
+	subcontrol-origin: margin;
+}
+
+
+QScrollBar::up-arrow:vertical
+{
+	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, 
+						 stop: 0 rgb(102, 102, 102), stop: 1 rgb(95, 95, 95))
+						 url(:/MayaIcons/icons/maya/simpleArrowUp.png);
+	border: 1px solid  rgb(38, 38, 38);	
+	border-top-left-radius: 2px;
+	border-top-right-radius: 2px;
+	background-position: center;
+	background-repeat: none;
+}
+
+QScrollBar::down-arrow:vertical
+{
+	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, 
+						 stop: 0 rgb(102, 102, 102), stop: 1 rgb(95, 95, 95))
+						 url(:/MayaIcons/icons/maya/simpleArrowDown.png);
+	border: 1px solid  rgb(38, 38, 38);	
+	border-bottom-left-radius: 2px;
+	border-bottom-right-radius: 2px;
+	background-position: center;
+	background-repeat: none;
+}
+
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical
+{
+	background: none;
+}
+
+
+
+QScrollBar:horizontal
+{
+	background: rgb(70,70,70);
+	margin: 0px 16px 0px 16px;
+	height: 18px;
+}
+
+QScrollBar::handle:horizontal 
+{
+	border: 1px solid rgb(38, 38, 38);
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, 
+						 stop: 0 rgb(102, 102, 102), stop: 1 rgb(95, 95,95))
+						 url(:/MayaIcons/icons/maya/sliderhoridarktrans.png);
+	background-position: center;
+	background-repeat: none;
+    min-width: 20px;
+}
+
+QScrollBar::add-line:horizontal
+{
+	background: rgb(70,70,70);
+	width: 16px;
+	subcontrol-position: right;
+	subcontrol-origin: margin;
+}
+
+QScrollBar::sub-line:horizontal
+{
+	background:  rgb(70,70,70);
+	width: 16px;
+	subcontrol-position: left;
+	subcontrol-origin: margin;
+}
+
+
+QScrollBar::left-arrow:horizontal
+{
+	
+	background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, 
+						 stop: 0 rgb(102, 102, 102), stop: 1 rgb(95, 95, 95))
+						 url(:/MayaIcons/icons/maya/simpleArrowLeft.png);
+	border: 1px solid  rgb(38, 38, 38);	
+	border-top-left-radius: 2px;
+	border-bottom-left-radius: 2px;
+	background-position: center;
+	background-repeat: none;
+}
+
+QScrollBar::right-arrow:horizontal
+{
+	background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, 
+						 stop: 0 rgb(102, 102, 102), stop: 1 rgb(95, 95, 95))
+						 url(:/MayaIcons/icons/maya/simpleArrowRight.png);
+	border: 1px solid  rgb(38, 38, 38);	
+	border-top-right-radius: 2px;
+	border-bottom-right-radius: 2px;
+	background-position: center;
+	background-repeat: none;
+}
+
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal 
+{
+    background: none;
+}

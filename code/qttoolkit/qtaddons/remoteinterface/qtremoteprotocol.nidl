@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Nebula3>
+  <Protocol namespace="QtRemoteInterfaceAddon" name="QtRemoteProtocol">
+    <!-- dependencies -->
+    
+    <!-- base message for graphics, every message of this type will be sent to the graphics interface -->
+    <Message name="GraphicsMessage" fourcc="GRPM">
+    </Message>
+
+    <!-- response message -->
+    <Message name="ResponseMessage" fourcc="RSPM">
+      <InArg name="Success" type="bool" serialize="true"/>
+    </Message>
+    
+    <!-- calls remote end -->
+    <Message name="RefreshResource" fourcc="RERS" derivedFrom="GraphicsMessage">
+      <InArg name="Resource" type="Util::String" serialize="true"/>
+    </Message>
+
+    <Message name="LoadLevel" fourcc="LOAD">
+      <InArg name="Level" type="Util::String" serialize="true"/>
+    </Message>
+
+    <Message name="KeepAlive" fourcc="KEAL">
+    </Message>
+  </Protocol>    
+</Nebula3>

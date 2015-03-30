@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Nebula3>
+    <Protocol namespace="Remote" name="RemoteProtocol">
+
+      <!-- dependencies -->
+      <Dependency header="remote/remoterequesthandler.h"/>
+      <Dependency header="remote/remotecommandhandler.h"/>
+
+      <!-- attach a xml RemoteRequestHandler -->
+      <Message name="AttachRequestHandler" fourcc="arrq">
+        <InArg name="RequestHandler" type="Ptr<Remote::RemoteRequestHandler>"/>            
+      </Message>
+
+      <!-- remove a xml RemoteRequestHandler -->
+      <Message name="RemoveRequestHandler" fourcc="rrrq">
+        <InArg name="RequestHandler" type="Ptr<Remote::RemoteRequestHandler>"/>              
+      </Message>
+
+      <!-- attach a non-xml CommandHandler -->
+      <Message name="AttachCommandHandler" fourcc="acoh">
+        <InArg name="CommandHandler" type="Ptr<Remote::RemoteCommandHandler>"/>            
+      </Message>
+
+      <!-- remove an non-xml command hanlder -->
+      <Message name="RemoveCommandHandler" fourcc="rcoh">
+        <InArg name="CommandHandler" type="Ptr<Remote::RemoteCommandHandler>"/>              
+      </Message>
+      
+      <!-- send message containing a stream to the remotecontrol -->
+      <Message name="SendToQt" fourcc="stqt">
+        <InArg name="SendStream" type="Ptr<IO::Stream>"/>
+      </Message>
+    </Protocol>
+    
+</Nebula3>    
+    

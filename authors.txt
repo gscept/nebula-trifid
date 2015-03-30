@@ -1,0 +1,7 @@
+The authors of Nebula Trifid in no particular order
+
+Radon Labs GmbH, Berlin/Germany
+
+Johannes Hirche (johannes@gscept.com)
+Gustav Sterbrant (gustav@gscept.com)
+Joel Marklund (joel@gscept.com)

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Nebula3 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="D:\nebula3\schemas\interface.xsd">
+	<Library name="StdLibrary">
+        
+        <!-- ListCmds -->
+        <Command name="ListCmds" fourcc="LSCD" desc="List registered script commands.">
+            <Code>
+                Scripting::ScriptServer::Instance()->PrintCommandList();
+            </Code>
+        </Command>
+
+        <!-- Help -->
+        <Command name="Help" fourcc="HELP" desc="Show help for a command.">
+            <InArg name="cmdName" type="string"/>
+            <Code>
+                Scripting::ScriptServer::Instance()->PrintCommandHelp(cmdName);
+            </Code>            
+        </Command>
+
+    </Library>
+</Nebula3>

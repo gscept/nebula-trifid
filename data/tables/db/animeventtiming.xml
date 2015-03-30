@@ -1,0 +1,5 @@
+<AnimEventTiming IsVirtualCategory="true">
+ <Attributes AnimEventName="string" TimeFactor="float" Attack="float" Sustain="float" Release="float"/>
+  <Item AnimEventName="knight_lightattack_04" TimeFactor="0.19" Attack="0.07" Sustain="0.1" Release="0.05"/>
+  <Item AnimEventName="pitch" TimeFactor="1.22" Attack="2" Sustain="3" Release="2"/>
+</AnimEventTiming>

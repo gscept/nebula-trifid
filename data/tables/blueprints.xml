@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<BluePrints>
+    <Entity cppclass="Entity" type="AnimatedPhysics" desc="an animated physics entity">
+        <Property type="GraphicsFeature::GraphicsProperty" />
+        <Property type="PhysicsFeature::AnimatedPhysicsProperty" />
+        <Property type="ScriptingFeature::ScriptingProperty" />
+    </Entity>
+    <Entity cppclass="Entity" type="Camera" desc="a camera entity with like maya input">
+        <Property type="GraphicsFeature::MayaCameraProperty" />
+        <Property type="GraphicsFeature::InputProperty" masterOnly="true"/>
+    </Entity>
+    <Entity cppclass="Entity" type="CameraGripper" desc="a camera entity with like maya input and mousegripper">
+        <Property type="GraphicsFeature::MayaCameraProperty" />
+        <Property type="PhysicsFeature::MouseGripperProperty" />
+    </Entity>
+    <Entity cppclass="Entity" type="EmptyEntity" desc="Empty entity with no properties" />
+    <Entity cppclass="Entity" type="Graphics" desc="a graphics only entity">
+        <Property type="GraphicsFeature::GraphicsProperty" />
+    </Entity>
+    <Entity cppclass="Entity" type="Light" desc="a light entity">
+        <Property type="BaseGameFeature::TimeProperty" />
+        <Property type="GraphicsFeature::LightProperty" />
+    </Entity>
+	<Entity cppclass="Entity" type="LightProbe" desc="A light probe entity used to project reflections and irradiance into the scene">
+        <Property type="GraphicsFeature::LightProbeProperty" />
+    </Entity>
+    <Entity cppclass="Entity" type="Player">
+        <Property type="GraphicsFeature::InputProperty" masterOnly="true"/>
+        <Property type="GraphicsFeature::ChaseCameraProperty" />
+        <Property type="GraphicsFeature::ActorGraphicsProperty" />
+        <Property type="PhysicsFeature::ActorPhysicsProperty" />
+        <Property type="GraphicsFeature::AnimationControlProperty" />
+        <Property type="ScriptingFeature::ScriptingProperty" />
+    </Entity>
+    <Entity cppclass="Entity" type="PostEffectBubble" desc="a bubble of post effects">
+        <Property type="BaseGameFeature::TransformableProperty" />
+        <Property type="GraphicsFeature::AmbienceBubbleProperty" />
+    </Entity>
+    <Entity cppclass="Entity" type="RemoteCamera" desc="remote controlled camera for level editor " />
+    <Entity cppclass="Entity" type="Simple" desc="a simple entity with graphics and physics">
+        <Property type="GraphicsFeature::GraphicsProperty" />
+        <Property type="PhysicsFeature::PhysicsProperty" />
+    </Entity>
+    <Entity cppclass="Entity" type="SimpleScripted" desc="a simple scripted entity">
+        <Property type="GraphicsFeature::GraphicsProperty" />
+        <Property type="PhysicsFeature::PhysicsProperty" />
+        <Property type="ScriptingFeature::ScriptingProperty" />
+    </Entity>
+    <Entity cppclass="Entity" type="StateObject" desc="stateobject entity">
+        <Property type="StateObjectFeature::StateGraphicsProperty" />
+    </Entity>
+    <Entity cppclass="Entity" type="Trigger" desc="trigger entity with scripting support">
+        <Property type="PhysicsFeature::TriggerProperty" />
+        <Property type="ScriptingFeature::ScriptingTriggerProperty" />
+    </Entity>   
+</BluePrints>

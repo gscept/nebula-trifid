@@ -1,0 +1,8 @@
+/bin/win32/logfiles
+export_win32
+/out
+/intermediate
+*.bak
+*.public.*
+*.debug.*
+

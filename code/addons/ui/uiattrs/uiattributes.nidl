@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Nebula3>
+  <AttributeLib>
+    <Attribute name="UIFontFile" fourcc="UIFF" accessMode="ReadWrite" type="String"/>
+    <Attribute name="UIFontFamily" fourcc="UIFA" accessMode="ReadWrite" type="String"/>
+    <Attribute name="UIFontWeight" fourcc="UIFW" accessMode="ReadWrite" type="Int"/>
+    <Attribute name="UIFontStyle" fourcc="UIFS" accessMode="ReadWrite" type="Int"/>
+    <Attribute name="UILayoutFile" fourcc="UILF" accessMode="ReadWrite" type="String"/>
+    <Attribute name="UIScriptFile" fourcc="UISF" accessMode="ReadWrite" type="String"/>
+    <Attribute name="UILayout" fourcc="ULAY" accessMode="ReadWrite" type="String"/>    
+  </AttributeLib>
+</Nebula3>		

@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Nebula3>
+    <Protocol namespace="Vibration" name="VibrationProtocol">
+        <!-- dependencies -->
+        <Dependency header="timing/time.h"/>
+                
+        <!-- clear vibrations -->
+        <Message name="ClearVibration" fourcc="clrv">
+          <InArg name="HighFreq" type="bool" default="true"/>
+          <InArg name="LowFreq" type="bool" default="true"/>
+          <InArg name="PlayerIndex" type="IndexT"/>
+          <InArg name="ReleaseTime" type="Timing::Time" default="0"/>
+        </Message>
+        
+        <!-- set vibration effect-->
+        <Message name="AddEnvelopeVibration" fourcc="addv">
+          <InArg name="PlayerIndex" type="IndexT"/>
+          <InArg name="LowFreqAmount" type="float"/>
+          <InArg name="LowFreqAttack" type="Timing::Time"/>
+          <InArg name="LowFreqSustain" type="Timing::Time"/>
+          <InArg name="LowFreqRelease" type="Timing::Time"/>
+          <InArg name="HighFreqAmount" type="float"/>
+          <InArg name="HighFreqAttack" type="Timing::Time"/>
+          <InArg name="HighFreqSustain" type="Timing::Time"/>
+          <InArg name="HighFreqRelease" type="Timing::Time"/>          
+        </Message>                
+    </Protocol>    
+</Nebula3>

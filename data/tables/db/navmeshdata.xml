@@ -1,0 +1,3 @@
+<NavMeshData IsVirtualCategory="true">
+<Attributes Id="string" Guid="guid" _Level="string" MaxEdgeLength="int" RegionMinSize="int" RegionMergeSize="int" AgentRadius="float" AgentHeight="float" MaxEdgeError="float" DetailSampleDist="float" DetailSampleMaxError="float" MaxSlope="float" CellHeight="float" CellSize="float" AgentMaxClimb="float" NavMeshData="string" EntityReferences="string" />
+</NavMeshData>

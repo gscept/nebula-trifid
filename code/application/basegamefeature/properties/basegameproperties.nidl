@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Nebula3>
+  <AttributeLib>
+    <Dependency header="basegamefeature/basegameattr/basegameattributes.h" />
+  </AttributeLib>
+  <Property name="BaseGameFeature::TimeProperty" header="basegamefeature/properties/timeproperty.h">
+  <Attribute name="Time" />
+  </Property>
+  <Property name="BaseGameFeature::TransformableProperty" header="basegamefeature/properties/transformableproperty.h">
+    <Attribute name="Transform" serialize="true"/>
+  </Property>
+</Nebula3>
+	

@@ -1,0 +1,246 @@
+/**
+@mainpage The Nebula Device 3
+
+Nebula3 is the next version of <b>The Nebula Device</b> Open Source game engine. 
+Nebula3 is a clean rewrite and represents the essence of 12 years of professional
+game development experience at Radon Labs.
+
+@section Nebula3Content Content
+
+- @ref Nebula3Foreword
+- @ref Nebula3ExtLibs
+- @ref Nebula3Compiling
+- @ref Nebula3Motivation
+- @ref Nebula3Architecture
+- @ref FoundationLayer
+- @ref RenderLayer
+- @ref ApplicationLayer
+- @ref Nebula3Compiling
+
+@section Nebula3Foreword Foreword
+
+Please note that this is (until further notice) a very early preview of what Nebula3 will be. Everything
+in this SDK is work in progress, and there's not much to play around with
+yet.
+
+Compatibility is not gracefully handled yet. You will get assertions or even crashes (well, hopefully
+not crashes...), if your hardware doesn't meet the requirements (most notably if your graphics
+cards isn't shader model 3.0).
+
+I try to update my blog regularly with news about the Nebula3 progress, code examples
+and design decisions. Check here: http://flohofwoe.blogspot.com
+
+Enjoy!
+-Floh.
+
+@section Nebula3ExtLibs 3rd Party Lib and Licensing Information
+
+Nebula3 depends on the following excellent 3rd Party Open Source libraries:
+
+- LUA (http://www.lua.org, license: http://www.lua.org/license.html)
+- SQLite (http://www.sqlite.org, license: http://www.sqlite.org/copyright.html)
+- TinyXML (http://www.grinninglizard.com/tinyxml, license: http://www.grinninglizard.com/tinyxmldocs/index.html)
+- ZLib (http://www.zlib.net, license: http://www.zlib.net/zlib_license.html)
+- ODE / OPCODE / GIMPACT (http://www.ode.org, http://www.ode.org/ode-license.html)
+- SQLite (http://www.sqlite.org/, license http://www.sqlite.org/copyright.html)
+- RakNet (http://www.jenkinssoftware.com/, non-commercial license: http://creativecommons.org/licenses/by-nc/3.0/)
+- FMOD Sound System by Firelight Technologies (http://www.fmod.org/, licensing information here: http://www.fmod.org/index.php/sales)
+
+Kudos to them.
+
+The source code to those packages has been included with the Nebula3 SDK under INSTALLDIR/code/extlibs.
+This was done for better integration with the Nebula3 build process and to prevent any
+version incompatibilities. 
+
+As far as I'm aware, the licenses of those projects are all compatible with the Nebula3 license (except
+RakNet, see below!), so there shouldn't arise any problems for projects using Nebula3.
+
+<b>*** RAKNET SPECIAL CASE NOTICE ***</b>
+
+Please be aware that RakNet has both a non-commercial and commercial license, basically,
+if you want to use RakNet for a commercial project, you need to obtain a license from
+the RakNet creator. License fees are very reasonable though :)
+
+To get a clean RakNet-less application, do not use the network add-on (code/addons/network, namespaces
+are InternalMultiplayer, Multiplayer and Multiplayerfeature), and don't link against RakNetLibStatic.lib.
+
+<b>*** RAKNET SPECIAL CASE NOTICE ***</b>
+
+
+<b>*** FMOD SPECIAL CASE NOTICE ***</b>
+
+Please be also aware, that FMod has both a non-commercial and commercial licence, basically,
+if you want to use FMod for a commercial project, you need to obtain a licence from the 
+Firelight Technologies Pty, Ltd. (http://fmod.org) 
+
+<b>*** FMOD SPECIAL CASE NOTICE ***</b>
+
+
+<b>TinyXML modification:</b>
+There is also a small change to TinyXML's IO code so that it works 
+directly with Nebula3 streams. The affected methods are TiXmlDocument::LoadStream()
+and TiXmlDocument::SaveStream().
+
+Test sounds are taken from here: http://www.pacdv.com/sounds/index.html
+
+
+@section Nebula3Motivation Motivation
+
+Here's why Nebula3 is needed:
+
+    - Nebula2 was mainly a rewrite of Nebula's higher level area. 
+      The kernel and low level code was largely unchanged from Nebula1, so some of the low-level code in 
+      Nebula1 is nearly 8 years old, and it shows.
+    - Some Nebula2 features which were "cool" in its days have become irrelevant (at least for Radon Labs). 
+      For instance being able to switch between OpenGL and D3D rendering at runtime, the fine-grained scripting support, etc...
+    - More real-world experience shows how to better arrange certain subsystems, moving them 
+      up or down in the Nebula layer model.
+    - Nebula is hard to grasp for beginners, partly caused by its somewhat esoteric object model and 
+      other design decisions. Also, experience shows that application programmers work with the high level 
+      game framework interfaces (Mangalore), and hardly work with Nebula directly. Thus, Nebula becomes more of 
+      a platform abstraction layer for the high level game framework code. Nebula3 will respect this paradigm shift.
+    - Nebula2 is hard to scale upwards and downwards (modern multi-core hardware and DirectX10 on the upper 
+      end, Nintendo DS on the lower end). Now, its probably not a good idea trying to write an engine that scales 
+      unchanged from a next-gen console down to a Nintendo DS, but it should be possible to at least use a common 
+      engine core, which is slim enough for handhelds, while still being a good foundation for a next-gen 
+      engine (a small memory footprint and good performance doesn't hurt on bigger hardware either).
+    - Better multithreading infrastructure. Nebula3 is designed with multi-core hardware in mind, and 
+      provides a programming model where the programmer doesn't have to care too much about running 
+      in a multithreaded environment.
+    - Better networking infrastructure. Networking was bolted into Nebula2 as an afterthought. Nebula3 
+      will offer networking support from the ground up (from direct TCP/UDP communication and direct 
+      support for HTTP and FTP on the low-end to session management and builtin multiplayer support for 
+      Nebula applications on the high end).
+    - Nebula2 doesn't provide a proper high-level game framework, that's why we wrote Mangalore. 
+      This split approach caused much confusion, Nebula3 will be designed into 3 layers, where the 
+      highest layer provides a complete application framework, thus integrating Mangalore back into Nebula.
+      
+@section Nebula3Architecture Architecture Overview
+
+    - Nebula3 will be divided into 3 layers, where each layer builds on top of each other:
+          - Foundation Layer: the lowest level layer, this provides a basic platform abstraction 
+            layer below rendering and audio. The Foundation Layer can be used as a platform 
+            abstraction for any type of application, not just real-time 3d apps.
+          - Render Layer: this is the medium layer, which adds more meat to the Foundation 
+            Layer, like 3d rendering, audio, physics, and scene management.
+          - Application Layer: this is the highest layer and provides a complete game framework which 
+            lets the programmer concentrate on the game logic instead of caring about all the little 
+            details necessary for being a well-mannered game application.
+    - Nebula3 will integrate Mangalore completely, the subsystems from Mangalore will be integrated 
+      into different Nebula3 layers where they fit best.
+    - Nebula3 will be more "C++-ish" then Nebula2, and doesn't try so much using C++ for stuff it wasn't intended for.
+    - Nebula3 implements object lifetime management through refcounting and smart pointers
+    - Nebula3's new object model uses a base class with 4 byte instance data instead of the 70+ bytes in Nebula2.
+    - RTTI is higher performance and easier to use
+    - Nebula3 still doesn't use C++ excecptions, C++ RTTI and the STL (all of these either degrade performance and/or reduce portability).
+    - creating objects by class name is faster and easier to use
+    - Nebula3 will be largely clib clean, no complex clib functions (like file i/o or multithreading) are allowed, 
+      removing an additional code layer.
+    - Nebula3 uses LUA as its standard scripting language, instead of TCL (however, it's still possible to add 
+      support for other scripting languages)
+      
+@section GettingStarted Getting Started
+
+To get a grasp of basic Nebula3 concepts I recommend working through the following
+documentation pages:
+
+    - @ref Core
+    - @ref Util
+    - @ref IO
+    - @ref App
+    - @ref Graphics
+    - @ref Audio
+
+@section FoundationLayer Foundation Layer Subsystems
+
+    - @ref App
+    - @ref Attr
+    - @ref Core
+    - @ref Debug
+    - @ref Http
+    - @ref IO
+    - @ref Math
+    - @ref Memory
+    - @ref Messaging
+    - @ref Net
+    - @ref Remote
+    - @ref Scripting
+    - @ref System
+    - @ref Threading
+    - @ref Timing
+    - @ref Util
+    
+@section RenderLayer Render Layer Subsystems
+
+    - @ref Graphics
+    - @ref Audio    
+    - @ref CoreGraphics
+    - @ref CoreAudio
+    - @ref Frame
+    - @ref Input
+    - @ref Lighting
+    - @ref Models
+    - @ref RenderUtil
+    - @ref Resources
+
+@section ApplicationLayer Application Layer Subsystems
+      
+Nothing to see here at the moment.
+
+@section Nebula3Compiling How To Compile
+
+To compile the Nebula3 SDK source code you need at least the following:
+
+- Visual Studio 2005 with Service Pack 1 (http://msdn.microsoft.com/vs)
+- A recent DirectX SDK (http://msdn.microsoft.com/directx)
+
+To make full use of the SDK the following tools should also be present:
+
+- TCL (http://www.tcl.tk/)
+- MSBuild, not sure where I got that from, it's probably part of the .NET framework
+- Doxygen (http://www.doxygen.org)
+- NSIS (http://nsis.sourceforge.net)
+- Microsoft HTML Help 1.4 SDK (http://msdn.microsoft.com/library/default.asp?url=/library/en-us/htmlhelp/html/hworiHTMLHelpStartPage.asp)
+- UnxUtils for zip.exe (http://unxutils.sourceforge.net/)
+
+Make sure the following executables are in the path:
+
+- tclsh
+- msbuild
+- doxygen
+- makensis
+- hhc
+
+I recommend using the "Visual Studio Command Prompt" (in the Visual Studio start menu), since this
+already has all the environment variables set to use Visual Studio from the command line.
+
+Pre-generated VisualStudio solutions can be found in INSTALLDIR/code/vs8.0. Those should work out of
+the box.
+
+To compile everything from the command line, go to the SDK root directory and execute:
+
+<b>msbuild compile.msbuild</b>
+
+This will do a normal Debug build.
+
+Check the msbuild script for additional options. For instance to do a Release build:
+
+<b>msbuild compile.msbuild /p:Config=Release</b>
+
+To just build the API documentation, do a
+
+<b>msbuild makedocs.msbuild</b>
+
+You can also re-build the complete SDK installer:
+
+<b>msbuild makesdk.msbuild</b>
+
+To build assets (this currently only works with the N2 Toolkit For Maya):
+
+<b>msbuild buildassets_win32.msbuild</b>
+
+When adding or removing source files, go to INSTALLDIR/code and do a <b>tclsh update.tcl</b>.
+This will rebuild the Visual Studio solution files under INSTALLDIR/code/vs8.0. When adding
+new source code directories you need to add the directory to one of the epk files under
+INSTALLDIR/code accordingly.
+*/

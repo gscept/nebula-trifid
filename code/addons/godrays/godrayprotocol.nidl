@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Nebula3>
+    <Protocol namespace="Godrays" name="GodrayProtocol">
+      <Dependency header="math/float4.h"/>
+      <Dependency header="resources/resourceid.h"/>
+      <Dependency header="threading/objectref.h"/>
+        
+      <!-- sets sun texture -->
+      <Message name="SetSunTexture" fourcc="SSTX">
+        <InArg name="Texture" type="Resources::ResourceId"/>
+      </Message>
+        
+      <!-- sets sun color -->
+      <Message name="SetSunColor" fourcc="SSUC">
+        <InArg name="Color" type="Math::float4"/>  
+      </Message>
+
+      <!-- sets whether or not the sun should be relative to the global light -->
+      <Message name="SetSunGlobalLightRelative" fourcc="SGLR">
+        <InArg name="IsRelative" type="bool"/>
+      </Message>
+      
+      <!-- sets the position of the sun if it's not relative to the global light -->
+      <Message name="SetSunPosition" fourcc="SPOS">
+        <InArg name="Position" type="Math::float4"/>
+      </Message>
+    </Protocol>
+</Nebula3>

@@ -1,0 +1,4 @@
+<PostEffectBubble IsVirtualCategory="false"> 
+ <Item Id="sphere" Graphics="system/triggersphere" PEShapeType="sphere" Name="Post Effect Sphere" />
+ <Item Id="box" Graphics="system/triggerbox" PEShapeType="box" Name="Post Effect Box" />
+</PostEffectBubble>

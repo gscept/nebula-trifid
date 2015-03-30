@@ -1,0 +1,1258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ImporterQtClass</class>
+ <widget class="QMainWindow" name="ImporterQtClass">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>863</width>
+    <height>758</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Nebula 3 FBX Importer[*]</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">*{
+background-color: rgb(68,68,68);
+alternate-background-color: rgb(60, 60, 60);
+color: rgb(200, 200, 200);
+font-family: &quot;Arial&quot;;
+}
+
+
+
+QMenu::item:selected
+{
+	background-color:  qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, 
+								   stop: 0 rgb(89, 123, 155), stop: 1 rgb(113, 155, 196));
+	color: white;
+}
+
+QMenu
+{
+	border: 1px solid rgb(38, 38, 38);
+}
+
+QMenuBar::item
+{
+	background-color: rgb(68,68,68);
+	color: rgb(200, 200, 200);
+	font-family: &quot;Arial&quot;;
+
+	padding-top: 2px;
+	padding-bottom: 2px;
+	padding-left: 8px;
+	padding-right: 8px;
+}
+
+
+QMenuBar::item:selected
+{
+	border-image: url(:/MayaIcons/icons/maya/thinborder.png) 2 2 2 2 tile tile;
+	border: 2px transparent inset;
+}
+
+QMenuBar::item:pressed
+{
+	border: 2px solid rgb(38, 38, 38);
+	background-color: rgb(80, 80, 80);
+}
+
+QRadioButton:disabled
+{
+	color: gray;
+}
+
+QRadioButton::indicator
+{
+	background-image: url(:/MayaIcons/icons/maya/radiobutton.png);
+	background-position: center;
+	selection-color: rgb(0,0,0);
+}
+
+QRadioButton::indicator:on
+{
+	width:13px;
+	height:13px;
+	image: url(:/MayaIcons/icons/maya/radiobuttonchecked.png); 
+	image-position:center;
+}
+
+QRadioButton::indicator:hover
+{
+	background-image: url(:/MayaIcons/icons/maya/radiobuttonhover.png);
+	background-position: center;
+	background-repeat: none;
+	border-radius: 2px;	
+}
+
+QRadioButton::indicator:pressed
+{
+
+	background-position: center;
+	background-repeat: none;
+}
+
+
+QCheckBox:disabled
+{
+	color: gray;
+}
+
+QCheckBox::indicator
+{
+	background-color: rgb(39, 39, 39);
+	background-position: center;
+	border-radius: 2px;
+	selection-color: rgb(0,0,0);
+}
+
+QCheckBox::indicator:on
+{
+	width:13px;
+	height:13px;
+	background-color: rgb(39, 39, 39);
+	image: url(:/MayaIcons/icons/maya/check.png); 
+	image-position:center;
+}
+
+QCheckBox::indicator:hover
+{
+	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, 
+						 stop: 0 rgb(46, 49, 51), stop: 1  rgb(55, 65, 75))
+	   					 url(:/MayaIcons/icons/maya/checkboxhover.png);
+	background-position: center;
+	background-repeat: none;
+	border-radius: 2px;	
+}
+
+QCheckBox::indicator:pressed
+{
+	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, 
+						 stop: 0 rgb(46, 49, 51), stop: 1  rgb(55, 65, 75))
+	  					 url(:/MayaIcons/icons/maya/checkboxhovercheck.png);
+	background-position: center;
+	background-repeat: none;
+}
+
+QGroupBox
+{
+	border-image: url(:/MayaIcons/icons/maya/bordersclean.png) 4 4 4 4 tile stretch;
+	border: 4px transparent;
+}
+
+
+QSpinBox
+{
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-top: 3px;
+	padding-bottom: 3px;
+	background-color: rgb(90, 90, 90);
+	border: outset;
+	border-color: rgb(30, 30, 30);
+	border-width: 1px;
+	border-radius: 2px;
+}
+
+QSpinBox::up-button
+{
+	border-left: 1px solid rgb(50, 50, 50);
+	border-bottom: 1px solid rgb(50, 50, 50);
+	background-position: center;
+	background-image:url(:/MayaIcons/icons/maya/arrowUp.png);
+	background-repeat: none;
+	background-origin: content;
+	padding-bottom: 1px;
+	width: 13px;
+}
+
+QSpinBox::down-button
+{
+
+	border-left: 1px solid rgb(50, 50, 50);
+	background-position: center;
+	background-image:url(:/MayaIcons/icons/maya/arrowDown.png);
+	background-repeat: none;
+	background-origin: content;
+	padding-top: 1px;
+	width: 13px;
+}
+
+QDoubleSpinBox
+{
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-top: 3px;
+	padding-bottom: 3px;
+	background-color: rgb(90, 90, 90);
+	border: outset;
+	border-color: rgb(30, 30, 30);
+	border-width: 1px;
+	border-radius: 2px;
+}
+
+QDoubleSpinBox::up-button
+{
+	border-left: 1px solid rgb(50, 50, 50);
+	border-bottom: 1px solid rgb(50, 50, 50);
+	background-position: center;
+	background-image:url(:/MayaIcons/icons/maya/arrowUp.png);
+	background-repeat: none;
+	background-origin: content;
+	padding-bottom: 1px;
+	width: 13px;
+}
+
+QDoubleSpinBox::down-button
+{
+
+	border-left: 1px solid rgb(50, 50, 50);
+	background-position: center;
+	background-image:url(:/MayaIcons/icons/maya/arrowDown.png);
+	background-repeat: none;
+	background-origin: content;
+	padding-top: 1px;
+	width: 13px;
+}
+
+
+
+QComboBox
+{
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-top: 3px;
+	padding-bottom: 3px;
+
+	border: outset;
+	border-color: rgb(30, 30, 30);
+	border-width: 1px;
+	border-radius: 2px;
+}
+
+QComboBox QAbstractItemView 
+{
+	background-color: rgb(50, 50, 50);
+	selection-background-color: rgb(103, 141, 178);
+    border-image: url(:/MayaIcons/icons/maya/simpleborder.png) 2 2 2 2 tile stretch;
+	border: 2px transparent;
+ }
+
+QComboBox:!open
+{
+	background-color: rgb(90, 90, 90);
+}
+
+QComboBox::drop-down
+{
+	background-position: center;
+	background-image:url(:/MayaIcons/icons/maya/arrowDown.png);
+	background-origin: content;
+	background-repeat: none;
+	border-left: 1px solid rgb(50, 50, 50);
+	border-top-right-radius: 2px;
+	border-bottom-right-radius: 2px;
+}
+
+QComboBox:open
+{
+	margin-top: 2px;
+	margin-left: 2px;
+	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, 
+	stop: 0 rgb(70, 70, 70), stop: 1 rgb(90, 90, 90));
+}
+
+QComboBox:hover
+{
+	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, 
+	stop: 0 rgb(103, 141, 178), stop: 0.2 rgb(90, 90, 90),
+	stop: 0.8 rgb(90, 90, 90), stop: 1 rgb(103, 141, 178));
+}
+
+QToolButton
+{
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-top: 3px;
+	padding-bottom: 3px;
+	background-color: rgb(90, 90, 90);
+	border: 1px solid rgb(50, 50, 50);
+	border-radius: 2px;
+}
+
+QToolButton:disabled
+{
+	background-color: rgb(140, 140, 140);
+	color: rgb(40, 40, 40);
+}
+
+QToolButton::hover
+{
+	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, 
+	stop: 0 rgb(103, 141, 178), stop: 0.2 rgb(90, 90, 90),
+	stop: 0.8 rgb(90, 90, 90), stop: 1 rgb(103, 141, 178));
+}
+
+QToolButton::pressed
+{
+	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, 
+	stop: 0 rgb(70, 70, 70), stop: 1 rgb(90, 90, 90));
+	margin-top: 2px;
+	margin-left: 2px;
+}
+
+QPushButton
+{
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-top: 3px;
+	padding-bottom: 3px;
+	background-color: rgb(90, 90, 90);
+	border: 1px solid rgb(50, 50, 50);
+	border-radius: 2px;
+}
+
+QPushButton:disabled
+{
+	background-color: rgb(140, 140, 140);
+	color: rgb(40, 40, 40);
+}
+
+QPushButton::hover
+{
+	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, 
+	stop: 0 rgb(103, 141, 178), stop: 0.2 rgb(90, 90, 90),
+	stop: 0.8 rgb(90, 90, 90), stop: 1 rgb(103, 141, 178));
+}
+
+QPushButton::pressed
+{
+	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, 
+	stop: 0 rgb(70, 70, 70), stop: 1 rgb(90, 90, 90));
+	margin-top: 2px;
+	margin-left: 2px;
+}
+
+QLineEdit
+{
+	border: 1px solid gray;
+}
+QTableView
+{
+	padding: 1px;
+	selection-background-color: transparent;
+	selection-color: rgb(181, 181, 181);
+}
+
+QTreeView::item:selected:!active {
+	background: rgb(168, 168, 168);
+	color: rgb(0, 0, 0);
+}
+
+QTreeView::item:selected:active {
+	background: rgb(120, 120, 120);
+	color: rgb(0, 0, 0);
+}
+
+QListView::item:selected:!active {
+	background: rgb(168, 168, 168);
+	color: rgb(0, 0, 0);
+}
+
+QListView::item:selected:active {
+	background: rgb(120, 120, 120);
+	color: rgb(0, 0, 0);
+}
+
+QTabWidget
+{
+	border: 1px solid rgb(50, 50, 50);
+}
+
+QTabWidget::tab-bar
+{
+	background-color: rgb(70,70,70);
+	left: 5px;
+}
+
+QTabWidget::pane
+{
+	border: 1px solid rgb(100, 100, 100);
+	border-top: 2px solid rgb(90,90,90);
+	border-radius: 4px;
+}
+
+QTabBar::tab
+{
+	background-color: rgb(70,70,70);
+	border: 1px solid rgb(50, 50, 50);
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-top: 4px;
+	padding-bottom: 4px;
+}
+
+QTabBar::tab:!selected
+{
+	margin-top: 4px;
+}
+
+QTabBar::tab:hover
+{
+	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, 
+	stop: 0 rgb(103, 141, 178), stop: 0.2 rgb(70, 70, 70));
+}
+
+QTabBar::tab:selected
+{
+	background-color: rgb(90, 90, 90);
+	border-bottom-color: rgb(90, 90, 90);
+	border-bottom-width: 3px;
+}
+
+QTabBar::tab:disabled
+{
+	background-color: rgb(50,50,50);
+	margin-top: 6px;
+}
+
+QTableCornerButton::Section
+{
+	border: 0px;
+	background-color: rgb(70, 70, 70);
+}
+
+QHeaderView
+{
+	background-color: rgb(70, 70, 70);
+}
+
+QHeaderView::section
+{
+	background-color: rgb(70,70,70);
+	border: 1px solid rgb(30, 30, 30);
+	border-bottom-left-radius: 2px;
+	border-bottom-right-radius: 2px;
+}
+
+QTabWidget::pane
+{
+	background-color: rgb(70,70,70);
+}
+
+QListWidget
+{
+	show-decoration-selected: 1;
+}
+
+QListWidget::item:alternate
+{
+	background: #EEEEEE;
+}
+
+QListWidget::item:selected
+{
+	border: 1px solid #6a6ea9;
+}
+
+QListWidget::item:selected:!active
+{
+	background: rgb(168, 168, 168);
+	color: rgb(0, 0, 0);
+}
+
+QListWidget::item:selected:active
+{
+	background: rgb(120, 120, 120);
+	color: rgb(0, 0, 0);
+}
+
+QListWidget::item:hover
+{
+	background-color: rgb(200, 200, 200);
+	color: rgb(0,0,0);
+}
+
+
+QScrollBar:vertical 
+{
+	background: rgb(70,70,70);
+    margin: 16px 0 16px 0;
+	width: 18px;
+}
+
+QScrollBar::handle:vertical
+{
+    background:  qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, 
+						  stop: 0 rgb(102, 102, 102), stop: 1 rgb(95, 95, 95))
+	 url(:/MayaIcons/icons/maya/slidervertdarktrans.png);
+	background-position: center;
+	background-repeat: none;
+	border: 1px solid  rgb(38, 38, 38);	
+    min-height: 20px;
+	width: 1px;
+}
+
+QScrollBar::add-line:vertical
+{
+	background: rgb(70,70,70);
+	height: 16px;
+	subcontrol-position: bottom;
+	subcontrol-origin: margin;
+}
+
+QScrollBar::sub-line:vertical
+{
+	background:  rgb(70,70,70);
+	height: 16px;
+	subcontrol-position: top;
+	subcontrol-origin: margin;
+}
+
+
+QScrollBar::up-arrow:vertical
+{
+	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, 
+						 stop: 0 rgb(102, 102, 102), stop: 1 rgb(95, 95, 95))
+						 url(:/MayaIcons/icons/maya/simpleArrowUp.png);
+	border: 1px solid  rgb(38, 38, 38);	
+	border-top-left-radius: 2px;
+	border-top-right-radius: 2px;
+	background-position: center;
+	background-repeat: none;
+}
+
+QScrollBar::down-arrow:vertical
+{
+	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, 
+						 stop: 0 rgb(102, 102, 102), stop: 1 rgb(95, 95, 95))
+						 url(:/MayaIcons/icons/maya/simpleArrowDown.png);
+	border: 1px solid  rgb(38, 38, 38);	
+	border-bottom-left-radius: 2px;
+	border-bottom-right-radius: 2px;
+	background-position: center;
+	background-repeat: none;
+}
+
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical
+{
+	background: none;
+}
+
+
+
+QScrollBar:horizontal
+{
+	background: rgb(70,70,70);
+	margin: 0px 16px 0px 16px;
+	height: 18px;
+}
+
+QScrollBar::handle:horizontal 
+{
+	border: 1px solid rgb(38, 38, 38);
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, 
+						 stop: 0 rgb(102, 102, 102), stop: 1 rgb(95, 95,95))
+						 url(:/MayaIcons/icons/maya/sliderhoridarktrans.png);
+	background-position: center;
+	background-repeat: none;
+    min-width: 20px;
+}
+
+QScrollBar::add-line:horizontal
+{
+	background: rgb(70,70,70);
+	width: 16px;
+	subcontrol-position: right;
+	subcontrol-origin: margin;
+}
+
+QScrollBar::sub-line:horizontal
+{
+	background:  rgb(70,70,70);
+	width: 16px;
+	subcontrol-position: left;
+	subcontrol-origin: margin;
+}
+
+
+QScrollBar::left-arrow:horizontal
+{
+	
+	background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, 
+						 stop: 0 rgb(102, 102, 102), stop: 1 rgb(95, 95, 95))
+						 url(:/MayaIcons/icons/maya/simpleArrowLeft.png);
+	border: 1px solid  rgb(38, 38, 38);	
+	border-top-left-radius: 2px;
+	border-bottom-left-radius: 2px;
+	background-position: center;
+	background-repeat: none;
+}
+
+QScrollBar::right-arrow:horizontal
+{
+	background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, 
+						 stop: 0 rgb(102, 102, 102), stop: 1 rgb(95, 95, 95))
+						 url(:/MayaIcons/icons/maya/simpleArrowRight.png);
+	border: 1px solid  rgb(38, 38, 38);	
+	border-top-right-radius: 2px;
+	border-bottom-right-radius: 2px;
+	background-position: center;
+	background-repeat: none;
+}
+
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal 
+{
+    background: none;
+}</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="1" column="0">
+     <widget class="QFrame" name="frame_2">
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="3" column="0">
+        <widget class="QPushButton" name="importButton">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Import</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QProgressBar" name="loadProgress">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+         <property name="textVisible">
+          <bool>false</bool>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="invertedAppearance">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="status">
+         <property name="text">
+          <string>Progress</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QTabWidget" name="tabWidget">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="tabPosition">
+          <enum>QTabWidget::North</enum>
+         </property>
+         <property name="tabShape">
+          <enum>QTabWidget::Rounded</enum>
+         </property>
+         <property name="currentIndex">
+          <number>1</number>
+         </property>
+         <property name="elideMode">
+          <enum>Qt::ElideMiddle</enum>
+         </property>
+         <property name="usesScrollButtons">
+          <bool>true</bool>
+         </property>
+         <property name="documentMode">
+          <bool>false</bool>
+         </property>
+         <property name="tabsClosable">
+          <bool>false</bool>
+         </property>
+         <property name="movable">
+          <bool>false</bool>
+         </property>
+         <widget class="QWidget" name="info">
+          <attribute name="title">
+           <string>Information</string>
+          </attribute>
+          <layout class="QGridLayout" name="gridLayout_5">
+           <item row="0" column="0">
+            <widget class="QGroupBox" name="groupBox_4">
+             <layout class="QGridLayout" name="gridLayout_7">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_3">
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>10</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Information</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QTextEdit" name="infoText">
+                <property name="styleSheet">
+                 <string notr="true"/>
+                </property>
+                <property name="frameShape">
+                 <enum>QFrame::Box</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <property name="verticalScrollBarPolicy">
+                 <enum>Qt::ScrollBarAsNeeded</enum>
+                </property>
+                <property name="html">
+                 <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Arial'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'MS Shell Dlg 2'; font-size:8pt;&quot;&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="cursorWidth">
+                 <number>0</number>
+                </property>
+                <property name="textInteractionFlags">
+                 <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="anim">
+          <attribute name="title">
+           <string>Animation</string>
+          </attribute>
+          <layout class="QGridLayout" name="gridLayout_4">
+           <item row="0" column="0">
+            <widget class="QGroupBox" name="groupBox_3">
+             <layout class="QGridLayout" name="gridLayout_6">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_2">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>10</pointsize>
+                  <weight>75</weight>
+                  <italic>false</italic>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="contextMenuPolicy">
+                 <enum>Qt::ActionsContextMenu</enum>
+                </property>
+                <property name="layoutDirection">
+                 <enum>Qt::LeftToRight</enum>
+                </property>
+                <property name="autoFillBackground">
+                 <bool>false</bool>
+                </property>
+                <property name="text">
+                 <string>Animation Options</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QFrame" name="frame">
+                <property name="styleSheet">
+                 <string notr="true"/>
+                </property>
+                <property name="frameShape">
+                 <enum>QFrame::Box</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QGridLayout" name="gridLayout_2">
+                 <item row="6" column="0">
+                  <widget class="QPushButton" name="removeClip">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>Remove clip</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="0">
+                  <widget class="QListWidget" name="takes">
+                   <property name="verticalScrollBarPolicy">
+                    <enum>Qt::ScrollBarAsNeeded</enum>
+                   </property>
+                   <property name="horizontalScrollBarPolicy">
+                    <enum>Qt::ScrollBarAsNeeded</enum>
+                   </property>
+                   <property name="selectionMode">
+                    <enum>QAbstractItemView::SingleSelection</enum>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="7" column="0">
+                  <widget class="QTableView" name="clipView">
+                   <property name="styleSheet">
+                    <string notr="true"/>
+                   </property>
+                   <property name="alternatingRowColors">
+                    <bool>true</bool>
+                   </property>
+                   <property name="selectionMode">
+                    <enum>QAbstractItemView::SingleSelection</enum>
+                   </property>
+                   <property name="cornerButtonEnabled">
+                    <bool>false</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="label">
+                   <property name="styleSheet">
+                    <string notr="true">border: 0px;</string>
+                   </property>
+                   <property name="text">
+                    <string>Takes</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="0">
+                  <spacer name="verticalSpacer">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>20</width>
+                     <height>40</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item row="5" column="0">
+                  <widget class="QPushButton" name="addClip">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true"/>
+                   </property>
+                   <property name="text">
+                    <string>Add clip</string>
+                   </property>
+                   <property name="default">
+                    <bool>false</bool>
+                   </property>
+                   <property name="flat">
+                    <bool>false</bool>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tab_3">
+          <attribute name="title">
+           <string>Mesh</string>
+          </attribute>
+          <layout class="QGridLayout" name="gridLayout_14">
+           <item row="0" column="0">
+            <widget class="QGroupBox" name="groupBox_6">
+             <layout class="QGridLayout" name="gridLayout_13">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_6">
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>10</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Mesh Settings</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QFrame" name="frame_3">
+                <property name="frameShape">
+                 <enum>QFrame::Box</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QGridLayout" name="gridLayout_15">
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="label_7">
+                   <property name="font">
+                    <font>
+                     <family>Arial</family>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Import Options</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="Line" name="line_4">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="0">
+                  <widget class="QRadioButton" name="staticImport">
+                   <property name="text">
+                    <string>Import as static mesh</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="0">
+                  <widget class="QRadioButton" name="skeletalImport">
+                   <property name="text">
+                    <string>Import as skeletal mesh</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QFrame" name="frame_4">
+                <property name="frameShape">
+                 <enum>QFrame::Box</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QGridLayout" name="gridLayout_16">
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="label_8">
+                   <property name="font">
+                    <font>
+                     <family>Arial</family>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Mesh Options</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="Line" name="line_3">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="0">
+                  <widget class="QCheckBox" name="merge">
+                   <property name="text">
+                    <string>Merge meshes</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="0">
+                  <widget class="QCheckBox" name="removeRedudant">
+                   <property name="text">
+                    <string>Remove reduntant vertices (minimizes mesh size but may have unexpected results on tessellated meshes)</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <spacer name="verticalSpacer_3">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tab_2">
+          <attribute name="title">
+           <string>Skins</string>
+          </attribute>
+          <layout class="QGridLayout" name="gridLayout_9">
+           <item row="0" column="0">
+            <widget class="QGroupBox" name="groupBox_5">
+             <layout class="QGridLayout" name="gridLayout_10">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_5">
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>10</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Skin Options</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0" colspan="2">
+               <widget class="QFrame" name="frame_6">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true"/>
+                </property>
+                <property name="frameShape">
+                 <enum>QFrame::Box</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QPushButton" name="addSkin">
+                <property name="text">
+                 <string>Add Skin (browse)</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QPushButton" name="removeSkin">
+                <property name="text">
+                 <string>Remove Skin</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tab">
+          <attribute name="title">
+           <string>Material</string>
+          </attribute>
+          <layout class="QGridLayout" name="gridLayout_8">
+           <item row="0" column="0">
+            <widget class="QGroupBox" name="groupBox_7">
+             <layout class="QGridLayout" name="gridLayout_11">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_4">
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>10</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Material Options</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QFrame" name="frame_8">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true"/>
+                </property>
+                <property name="frameShape">
+                 <enum>QFrame::Box</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QGridLayout" name="gridLayout_12">
+                 <item row="0" column="0">
+                  <widget class="QRadioButton" name="resetmaterials">
+                   <property name="text">
+                    <string>Reset materials</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="0" colspan="2">
+                  <widget class="QComboBox" name="materiallist">
+                   <property name="sizeAdjustPolicy">
+                    <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QRadioButton" name="keepmaterials">
+                   <property name="text">
+                    <string>Keep materials</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="0" colspan="2">
+                  <spacer name="verticalSpacer_2">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>20</width>
+                     <height>40</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item row="2" column="0" colspan="2">
+                  <widget class="Line" name="line_2">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="lod">
+          <attribute name="title">
+           <string>LOD (not available)</string>
+          </attribute>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <widget class="Line" name="line">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>863</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="nativeMenuBar">
+    <bool>true</bool>
+   </property>
+   <widget class="QMenu" name="menuOpen">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionOpen"/>
+    <addaction name="actionSave"/>
+   </widget>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+   </widget>
+   <addaction name="menuOpen"/>
+   <addaction name="menuFile"/>
+  </widget>
+  <action name="actionOpen">
+   <property name="text">
+    <string>Open</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="text">
+    <string>Save</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="../../../qttools/ui/qttoolkit.qrc"/>
+ </resources>
+ <connections/>
+</ui>

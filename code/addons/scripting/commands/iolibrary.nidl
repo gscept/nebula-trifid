@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Nebula3 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="D:\nebula3\schemas\interface.xsd">
+	<Library name="IOLibrary">
+		<Dependency header="io/ioserver.h"/>
+		<Dependency header="io/assign.h"/>
+        <Dependency header="io/console.h"/>
+        <Dependency header="io/assignregistry.h"/>
+        
+		<!-- SetAssign -->
+		<Command name="SetAssign" fourcc="sasn" desc="Define a new filesystem assign.">
+			<InArg name="assign" type="string"/>
+			<InArg name="path" type="string"/>
+			<Code>
+				IO::AssignRegistry::Instance()->SetAssign(IO::Assign(assign, path));
+			</Code>
+		</Command>
+		
+		<!-- GetAssign -->
+		<Command name="GetAssign" fourcc="gasn" desc="Get a filesystem assign.">
+			<InArg name="assign" type="string"/>
+			<OutArg name="path" type="string"/>
+			<Code>
+				return IO::AssignRegistry::Instance()->GetAssign(assign);
+			</Code>
+		</Command>
+		
+		<!-- HasAssign -->
+		<Command name="HasAssign" fourcc="hasn" desc="Return true if an assign exists.">
+			<InArg name="assign" type="string"/>
+			<OutArg name="exists" type="bool"/>			
+			<Code>
+				return IO::AssignRegistry::Instance()->HasAssign(assign);
+			</Code>
+		</Command>
+		
+		<!-- ClearAssign -->
+		<Command name="ClearAssign" fourcc="casn" desc="Clears an existing assign.">
+			<InArg name="assign" type="string"/>
+			<Code>
+				IO::AssignRegistry::Instance()->ClearAssign(assign);
+			</Code>
+		</Command>
+		
+		<!-- ResolveAssigns -->
+		<Command name="ResolveAssigns" fourcc="rpth" desc="Resolve a path with assigns into a native path.">
+			<InArg name="path" type="string"/>
+			<OutArg name="nativePath" type="string"/>
+			<Code>
+				return IO::AssignRegistry::Instance()->ResolveAssigns(path).AsString();
+			</Code>
+		</Command>
+		
+		<!-- CreateDirectory -->
+		<Command name="CreateDirectory" fourcc="cdir" desc="Create a directory.">
+			<InArg name="path" type="string"/>
+			<OutArg name="result" type="bool"/>
+			<Code>
+				return IO::IoServer::Instance()->CreateDirectory(path);
+			</Code>
+		</Command>
+
+		<!-- CopyFile -->
+		<Command name="CopyFile" fourcc="cpfl" desc="Copy a source file to a target file.">
+			<InArg name="sourceFile" type="string"/>
+			<InArg name="targetFile" type="string"/>
+			<OutArg name="success" type="bool"/>
+			<Code>
+				return IO::IoServer::Instance()->CopyFile(sourceFile, targetFile);
+			</Code>
+		</Command>
+
+		<!-- DeleteFile -->
+		<Command name="DeleteFile" fourcc="dlfl" desc="Delete a file.">
+			<InArg name="fileName" type="string"/>
+			<OutArg name="success" type="bool"/>
+			<Code>
+				return IO::IoServer::Instance()->DeleteFile(fileName);
+			</Code>
+		</Command>
+		
+		<!-- DeleteDirectory -->
+		<Command name="DeleteDirectory" fourcc="dldr" desc="Delete a directory.">
+			<InArg name="path" type="string"/>
+			<OutArg name="success" type="bool"/>
+			<Code>
+				return IO::IoServer::Instance()->DeleteDirectory(path);
+			</Code>
+		</Command>
+		
+		<!-- FileExists -->
+		<Command name="FileExists" fourcc="fexs" desc="Check if a file exists.">
+			<InArg name="file" type="string"/>
+			<OutArg name="exists" type="bool"/>
+			<Code>
+				return IO::IoServer::Instance()->FileExists(file);
+			</Code>
+		</Command>
+		
+		<!-- ListFiles -->
+		<Command name="ListFiles" fourcc="lsfl" desc="List files in a directory.">
+			<InArg name="path" type="string"/>
+			<InArg name="pattern" type="string"/>
+			<OutArg name="result" type="stringArray"/>
+			<Code>
+				return IO::IoServer::Instance()->ListFiles(path, pattern);
+			</Code>
+		</Command>
+	
+		<!-- ListDirectories -->
+		<Command name="ListDirectories" fourcc="lsdr" desc="List directories in a directory.">
+			<InArg name="path" type="string"/>
+			<InArg name="pattern" type="string"/>
+			<OutArg name="result" type="stringArray"/>
+			<Code>
+				return IO::IoServer::Instance()->ListDirectories(path, pattern);
+			</Code>
+		</Command>
+
+        <!-- Print -->
+        <Command name="Print" fourcc="prnt" desc="Output string to stdout.">
+            <InArg name="str" type="string"/>
+            <Code>
+                IO::Console::Instance()->Print("%s\n", str.AsCharPtr());
+            </Code>            
+        </Command>
+        
+	</Library>
+</Nebula3>

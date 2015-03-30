@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Nebula3>
+  <AttributeLib>
+    <Attribute name="EntityScript" fourcc="ENTS" accessMode="ReadWrite" type="String" editType="resource" edit="true" resourceBase="scr" fileSuffix="lua"/>
+  </AttributeLib>
+  <Property name="ScriptingFeature::ScriptingProperty" header="scriptingfeature/properties/scriptingproperty.h">
+    <Attribute name="EntityScript"/>
+  </Property>
+  <Property name="ScriptingFeature::ScriptingTriggerProperty" derivedFrom="ScriptingFeature::ScriptingProperty" header="scriptingfeature/properties/scriptingtriggerproperty.h" />
+  
+  <Protocol namespace="ScriptingFeature" name="ScriptingProtocol">
+
+    <!-- dependencies -->
+    <Dependency header="scriptingfeature/scriptingfeature.h"/>
+    <Dependency header="scriptingfeature/scriptingcommands.h"/>
+
+    <!-- loads a script from file -->
+    <Message name="LoadScript" fourcc="LDSC">
+      <InArg name="Script" type="Util::String"/>
+    </Message>
+
+    <!-- loads script directly from string -->
+    <Message name="OverrideScript" fourcc="OVRS">
+      <InArg name="Script" type="Util::String"/>
+    </Message>     
+  </Protocol>
+
+</Nebula3>

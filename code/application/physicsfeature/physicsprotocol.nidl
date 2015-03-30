@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Nebula3>
+  <Protocol namespace="PhysicsFeature" name="PhysicsProtocol">
+
+    <!-- dependencies -->
+    <Dependency header="game/entity.h"/>
+    <Dependency header="math/vector.h"/>
+    <Dependency header="physics/physicsobject.h"/>    
+
+    <Message name="Collision" fourcc="COLW">      
+      <InArg name="OtherEntity" type="Ptr<Game::Entity> &" />
+      <InArg name="Contact" type="Ptr<Physics::Contact> &" />
+    </Message>
+    -->
+     
+    <!-- Apply an impulse vector at a position in the global coordinate frame to the
+         physics entity of the game entity. -->
+    <Message name="ApplyImpulseAtPos" fourcc="MAP2" scripted="true">
+      <InArg name="Impulse" type="Math::vector"/>
+      <InArg name="Position" type="Math::vector"/>
+      <InArg name="MultiplyByMass" type="bool"/>
+      <Desc>
+        Apply an impulse vector at a position in the global coordinate frame to the
+        physics entity of the game entity.
+      </Desc>
+    </Message>
+    
+    <!-- Returns the Physics entity used by a game entity. -->
+    <Message name="GetPhysicsObject" fourcc="MGP2">
+      <InArg name="Object" type="Ptr<Physics::PhysicsObject>"/>
+    </Message>
+
+    <Message name="EnableCollisionCallback" fourcc="ENCC">
+      <InArg name="EnableCallback" type="bool"/>
+    </Message>
+
+    <Message name="SetCollideCategory" fourcc="SCCB">
+      <InArg name="Category" type="Physics::CollideCategory"/>
+    </Message>
+    <Message name="SetCollideCategoryMask" fourcc="SCCM">
+      <InArg name="CategoryMask" type="unsigned int"/>
+    </Message>
+    
+    <!-- Sets the trigger property active/inactive-->
+    <Message name="SetTriggerActive" fourcc="STA2" scripted="true">
+      <InArg name="Active" type="bool"/>
+      <Desc>Sets active state of a trigger.</Desc>
+    </Message>
+    
+    <!-- Returns the active/inactive state of the trigger-->
+    <Message name="IsTriggerActive" fourcc="IST2" scripted="true">
+      <OutArg name="Active" type="bool"/>
+      <Desc>Checks active state of a trigger.</Desc>
+    </Message>
+    
+    <!-- Sets the trigger scale-->
+    <Message name="SetTriggerScale" fourcc="STS2" scripted="true">
+      <InArg name="Scale" type="Math::vector"/>
+      <Desc>Sets scale of trigger</Desc>
+    </Message>
+    
+    <Message name="EnteredTrigger" fourcc="TREN">
+      <InArg name="Entity" type="Ptr<Game::Entity>" />
+    </Message>
+    
+    <Message name="InsideTrigger" fourcc="TRIN">
+      <InArg name="Entity" type="Ptr<Game::Entity>" /> 
+    </Message>
+
+    <Message name="ExitTrigger" fourcc="TREX">
+      <InArg name="Entity" type="Ptr<Game::Entity>" />    
+    </Message>
+
+    <Message name="SetLinearVelocity" fourcc="STVE" scripted="true">
+      <InArg name="Velocity" type="Math::vector"/>
+      <Desc>Sets linear velocity of object</Desc>
+    </Message>    
+    <Message name="SetKinematic" fourcc="SCFL" scripted="true">
+      <InArg name="Enabled" type="bool"/>
+    </Message>
+    <Message name="ConnectToAnimation" fourcc="CTAN" scripted="false">
+      <InArg name="JointArray" type="Util::Array<Util::String>" />
+      <InArg name="BodyArray" type="Util::Array<Util::String>" />
+      <Desc>Connects the list of joints in the first argument to the list of bodies in the second.</Desc>
+    </Message>
+  </Protocol>
+
+</Nebula3>

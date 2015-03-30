@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Nebula3>
+  <Protocol namespace="Audio2" name="AudioProtocol">
+    
+    <!-- dependencies -->
+    <Dependency header="io/uri.h"/>
+    <Dependency header="util/array.h"/>
+    <Dependency header="math/matrix44.h"/>
+    <Dependency header="math/vector.h"/>
+    <Dependency header="audio2/fmodeventprojectid.h"/>
+    <Dependency header="audio2/fmodeventid.h"/>
+    <Dependency header="audio2/fmodeventhandle.h"/>
+    <Dependency header="audio2/fmodeventstate.h"/>
+    <Dependency header="audio2/fmodeventcategoryid.h"/>
+    <Dependency header="audio2/fmodeventparameterid.h"/>
+    <Dependency header="audio2/fmodpitchunit.h"/>
+                
+    <!-- setup the audio subsystem -->
+    <Message name="SetupAudio" fourcc="saud">
+    </Message>
+
+    <!-- set the 3D-listener parameters -->
+    <Message name="UpdateListener" fourcc="updl">
+        <InArg name="Transform" type="Math::matrix44"/>
+        <InArg name="Velocity" type="Math::vector"/>
+    </Message>
+
+    <!-- load an fmod event project -->
+    <Message name="LoadEventProject" fourcc="levr">
+      <InArg name="ProjectId" type="Audio2::FmodEventProjectId"/>
+    </Message>
+
+    <!-- unload an fmod event project -->
+    <Message name="UnloadEventProject" fourcc="uevp">
+      <InArg name="ProjectId" type="Audio2::FmodEventProjectId"/>
+    </Message>
+
+    <!-- discard all active events -->
+    <Message name="DiscardAllEvents" fourcc="daev">
+    </Message>
+
+    <!-- play a fire and forget event -->
+    <Message name="EventPlayFireAndForget" fourcc="epff">
+      <InArg name="EventId" type="Audio2::FmodEventId"/>
+      <InArg name="Volume" type="float"/>
+    </Message>
+
+    <!-- play a fire and forget event -->
+    <Message name="EventPlayFireAndForget3D" fourcc="epfd">
+      <InArg name="EventId" type="Audio2::FmodEventId"/>
+      <InArg name="Transform" type="Math::matrix44"/>
+      <InArg name="Velocity" type="Math::vector"/>
+      <InArg name="Volume" type="float"/>
+    </Message>
+
+    <!-- set ambient music volume -->
+    <Message name="MusicSetVolume" fourcc="mssv">
+      <InArg name="Volume" type="float"/>
+    </Message>
+
+    <!-- base for event category control messages -->
+    <Message name="EventCategoryControlBase" fourcc="eccb">
+      <InArg name="CategoryId" type="Audio2::FmodEventCategoryId"/>
+    </Message>
+
+    <!-- set event category volume -->
+    <Message name="EventCategorySetVolume" fourcc="ecsv" derivedFrom="EventCategoryControlBase">
+      <InArg name="Volume" type="float"/>
+    </Message>
+       
+    <!-- set event category pause -->
+    <Message name="EventCategorySetPaused" fourcc="ecsp" derivedFrom="EventCategoryControlBase">
+      <InArg name="Paused" type="bool"/>
+    </Message>
+
+    <!-- set event category pitch -->
+    <Message name="EventCategorySetPitch" fourcc="ecpi" derivedFrom="EventCategoryControlBase">
+      <InArg name="Pitch" type="float"/>
+      <InArg name="PitchUnit" type="Audio2::FmodPitchUnit" default="Audio2::PitchUnitUnknown"/>
+    </Message>
+
+    <!-- create an fmod event -->
+    <Message name="EventCreate" fourcc="crev">
+      <InArg name="EventId" type="Audio2::FmodEventId"/>
+      <OutArg name="EventHandle" type="Audio2::FmodEventHandle"/>
+    </Message>
+
+    <!-- base for event-control messages -->
+    <Message name="EventControlBase" fourcc="ceba">
+      <InArg name="EventHandle" type="Audio2::FmodEventHandle"/>
+    </Message>
+
+    <!-- state update message -->
+    <Message name="EventUpdateState" fourcc="evus" derivedFrom="EventControlBase">
+      <OutArg name="State" type="Audio2::FmodEventState" default="Audio2::EventStateUnknown"/>
+    </Message>
+    
+    <!-- discard an event -->
+    <Message name="EventDiscard" fourcc="evdi" derivedFrom="EventControlBase">
+    </Message>
+
+    <!-- play an event -->
+    <Message name="EventPlay" fourcc="evpl" derivedFrom="EventControlBase">
+    </Message>
+
+    <!-- play a programmers sound -->
+    <Message name="EventPlayProgrammerSound" fourcc="epps" derivedFrom="EventControlBase">
+      <InArg name="Name" type="Util::String"/>   
+    </Message>
+
+    <!-- stop an event -->
+    <Message name="EventStop" fourcc="evst" derivedFrom="EventControlBase">
+    </Message>
+
+    <!-- pause an event -->
+    <Message name="EventPause" fourcc="evpa" derivedFrom="EventControlBase">
+    </Message>
+
+    <!-- resume an event -->
+    <Message name="EventResume" fourcc="evre" derivedFrom="EventControlBase">
+    </Message>
+
+    <!-- send 3D data for an event -->
+    <Message name="EventUpdate3D" fourcc="evud" derivedFrom="EventControlBase">
+      <InArg name="Position" type="Math::vector"/>
+      <InArg name="Velocity" type="Math::vector"/>
+      <InArg name="HasOrientation" type="bool"/>
+      <InArg name="Orientation" type="Math::vector"/>
+    </Message>
+
+    <!-- set a custom event parameter -->
+    <Message name="EventSetParameter" fourcc="evsp" derivedFrom="EventControlBase">
+      <InArg name="ParameterId" type="Audio2::FmodEventParameterId"/>
+      <InArg name="Value" type="float"/>
+    </Message>
+
+    <!-- set event volume -->
+    <Message name="EventSetVolume" fourcc="evsv" derivedFrom="EventControlBase">
+      <InArg name="ParameterId" type="Audio2::FmodEventParameterId"/>
+      <InArg name="Volume" type="float"/>
+    </Message>
+
+    <!-- set auditioning enabled/disabled -->
+    <Message name="SetAuditioningEnabled" fourcc="esae">
+      <InArg name="Enabled" type="bool"/>
+    </Message>
+
+    <!-- base for cue messages -->
+    <Message name="CueBase" fourcc="cuba">
+      <InArg name="CueId" type="int"/>
+    </Message>
+    
+    <!-- trigger the lifespan of a cue -->
+    <Message name="PlayCue" fourcc="plcu" derivedFrom="CueBase">
+    </Message>
+
+    <!-- ends the lifespan of a cue -->
+    <Message name="StopCue" fourcc="stcu" derivedFrom="CueBase">
+    </Message>
+ 
+  </Protocol>    
+</Nebula3>

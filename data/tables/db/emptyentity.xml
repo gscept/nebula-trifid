@@ -1,0 +1,3 @@
+<EmptyEntity IsVirtualCategory="false">
+  <Item Id="tiger" Name="A Tiger" Graphics="examples/tiger" Physics="examples/tiger"/>
+</EmptyEntity>

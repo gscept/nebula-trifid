@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Nebula3>
+    <Protocol namespace="PostEffect" name="PostEffectProtocol">
+        <!-- dependencies -->
+        <Dependency header="timing/time.h"/>
+        <Dependency header="posteffect/rt/params/colorparams.h"/>
+        <Dependency header="posteffect/rt/params/depthoffieldparams.h"/>
+        <Dependency header="posteffect/rt/params/fogparams.h"/>
+        <Dependency header="posteffect/rt/params/hdrparams.h"/>
+        <Dependency header="posteffect/rt/params/lightparams.h"/>
+        <Dependency header="posteffect/rt/params/skyparams.h"/>
+        <Dependency header="graphics/graphicsentity.h"/>
+        
+        <!-- create and setup render-side posteffect system -->
+        <Message name="SetupPostEffectSystem" fourcc="sepe"/>        
+      
+        <!-- reset the posteffect subsystem-->
+        <Message name="ResetPostEffectSystem" fourcc="rpse"/>
+        
+        <!-- preload sky texture-->
+        <Message name="PreloadTexture" fourcc="pret">
+          <InArg name="Resource" type="Util::String"/>
+        </Message>
+        
+        <!-- unload sky texture-->
+        <Message name="UnloadTexture" fourcc="unlt">
+          <InArg name="Resource" type="Util::String"/>
+        </Message>
+        
+        <!-- parent class for post effect fading messages-->
+        <Message name="BlendBase" fourcc="faba">
+          <InArg name="BlendTime" type="Timing::Time"/>
+        </Message>
+      
+        <!-- fade screen from value start to value target -->
+        <Message name="Fade" fourcc="fade" derivedFrom="BlendBase">
+          <InArg name="Start" type="float"/>
+          <InArg name="Target" type="float"/>
+        </Message>
+      
+        <!-- sets the sky entity -->
+        <Message name="SetSkyEntity" fourcc="SSYE">
+          <InArg name="Entity" type="Ptr<Graphics::GraphicsEntity>"/>    
+        </Message>
+
+        <!-- set color parameters-->
+        <Message name="BlendColor" fourcc="setc" derivedFrom="BlendBase">
+          <InArg name="Saturation" type="float"/>
+          <InArg name="MaxLuminance" type="float"/>
+		      <InArg name="Balance" type="Math::float4"/>          
+        </Message>
+
+        <!-- set depth of field parameters-->
+        <Message name="BlendDepthOfField" fourcc="setd" derivedFrom="BlendBase">
+          <InArg name="FocusDistance" type="float"/>
+		      <InArg name="FocusLength" type="float"/>
+		      <InArg name="FilterSize" type="float"/>
+        </Message>
+
+        <!-- set fog parameters-->
+        <Message name="BlendFog" fourcc="setf" derivedFrom="BlendBase">
+          <InArg name="NearDistance" type="float"/>
+		      <InArg name="FarDistance" type="float"/>
+		      <InArg name="Height" type="float"/>
+		      <InArg name="Color" type="Math::float4"/>
+        </Message>
+
+        <!-- set hdr parameters-->
+        <Message name="BlendHdr" fourcc="seth" derivedFrom="BlendBase">
+          <InArg name="BloomIntensity" type="float"/>
+		      <InArg name="BloomThreshold" type="float"/>
+		      <InArg name="BloomColor" type="Math::float4"/>
+        </Message>
+
+        <!-- set light parameters-->
+        <Message name="BlendLight" fourcc="setl" derivedFrom="BlendBase">
+          <InArg name="LightTransform" type="Math::matrix44"/>
+	      <InArg name="BackLightFactor" type="float"/>
+	      <InArg name="ShadowIntensity" type="float"/>
+          <InArg name="ShadowBias" type="float"/>
+          <InArg name="CastShadows" type="bool"/>
+	      <InArg name="LightColor" type="Math::float4"/>
+	      <InArg name="LightOppositeColor" type="Math::float4"/>
+	      <InArg name="LightAmbientColor" type="Math::float4"/>
+          <InArg name="LightIntensity" type="float"/>
+        </Message>
+
+        <!-- set sky parameters-->
+        <Message name="BlendSky" fourcc="sets" derivedFrom="BlendBase">
+		      <InArg name="Contrast" type="float"/>
+		      <InArg name="Brightness" type="float"/>
+		      <InArg name="Texture" type="Util::String"/>
+        </Message>
+      
+    </Protocol>
+</Nebula3>    
+    

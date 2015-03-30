@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Nebula3>
+  <Protocol namespace="GraphicsFeature" name="GraphicsFeatureProtocol">
+
+    <!-- dependencies -->
+    <Dependency header="graphics/modelentity.h"/>
+    <Dependency header="graphics/abstractlightentity.h"/>
+    <Dependency header="lighting/environmentprobe.h"/>
+    <Dependency header="game/entity.h"/>
+    <Dependency header="util/variant.h"/>
+
+    <!-- Change the distance of a 3rd camera to its lookat point. -->
+    <Message name="CameraDistance" fourcc="MCAD" scripted="true">
+        <InArg name="RelativeDistanceChange" type="float" default="0.0f"/>
+      <Desc>Sets the camera distance.</Desc>
+    </Message>
+      
+    <!-- Message for obtaining camera focus. -->
+    <Message name="CameraFocus" fourcc="CAFC" scripted="true">
+        <InArg name="ObtainFocus" type="bool"/>
+      <Desc>Gives Camera focus to the game entity. The entity needs to have a cameraproperty on it which will be activated.</Desc>
+    </Message>
+      
+    <!-- A camera orbit rotation message. -->
+    <Message name="CameraOrbit" fourcc="MCAO" scripted="true">
+        <InArg name="HorizontalRotation" type="float" default="0.0f"/>
+        <InArg name="VerticalRotation" type="float" default="0.0f"/>
+    </Message>
+      
+    <!-- A camera reset message. -->
+    <Message name="CameraReset" fourcc="CARE" scripted="true">
+      <Desc>Resets the camera</Desc>
+    </Message>
+      
+    <!-- Returns the graphics entities used by a game entity for rendering. -->
+    <Message name="GetModelEntity" fourcc="GGEN">
+        <InArg name="Entity" type="Ptr<Graphics::ModelEntity>"/>
+    </Message>
+
+    <!-- Returns the graphics entities used by a light entity -->
+    <Message name="GetLightEntity" fourcc="GLEN">
+        <InArg name="Entity" type="Ptr<Graphics::AbstractLightEntity>"/>
+    </Message>
+              
+    <Message name="InputFocus" fourcc="INFC" scripted="true">
+        <InArg name="ObtainFocus" type="bool" default="true"/>
+      <Desc>Sets input focus on specified game entity</Desc>
+    </Message>
+      
+    <!-- Shows or hides all graphics entities of a game entity. -->
+    <Message name="SetGraphicsVisible" fourcc="MGFV" scripted="true">
+        <InArg name="Visible" type="bool" serialize="true"/>
+      <Desc>Shows or hides all graphics entities of a game entity.</Desc>
+    </Message>
+
+    <!-- Set an overwrite color -->
+    <Message name="SetOverwriteColor" fourcc="SEOC" scripted="true">
+        <InArg name="Color" type="Math::float4" serialize="true"/>
+        <InArg name="NodeName" type="Util::String" serialize="true"/>
+    </Message>
+
+    <!-- Set an overwrite color -->
+    <Message name="SetShaderVariable" fourcc="SSHV">      
+        <InArg name="ShaderVarName" type="Util::String"/>
+        <InArg name="Value" type="Util::Variant"/>
+        <InArg name="NodeName" type="Util::String"/>
+    </Message>
+    
+    <!-- Set a material variable -->
+    <Message name="SetMaterialVariable" fourcc="SMVB">
+        <InArg name="MaterialVarName" type="Util::String" />
+        <InArg name="Value" type="Util::Variant" />
+        <InArg name="NodeName" type="Util::String" />
+    </Message>
+
+    <!-- Play animation clip -->
+    <Message name="PlayAnimClip" fourcc="PACL" scripted="true">
+      <InArg name="Clip" type="Util::String" serialize="true"/>      
+      <InArg name="LoopCount" type="float" serialize="true"/>
+      <InArg name="Queue" type="bool"  serialize="true"/>
+      <Desc>Play animation clip</Desc>
+    </Message>
+
+    <Message name="PlayAnimClipFull" fourcc="PACF" scripted="true">
+      <InArg name="ClipName" type="Util::String"/>
+      <InArg name="TrackIndex" type="int" default="0"/>
+      <InArg name="LoopCount" type="float" default="1.0f"/>
+      <InArg name="StartTime" type="int" default="0"/>
+      <InArg name="FadeInTime" type="int" default="200"/>
+      <InArg name="FadeOutTime" type="int" default="200"/>
+      <InArg name="TimeOffset" type="int" default="0"/>
+      <InArg name="TimeFactor" type="float" default="1.0f"/>
+      <InArg name="BlendWeight" type="float" default="1.0f"/>      
+      <InArg name="EnqueueMode" type="Util::String" default='"Intercept"'/>
+      <Desc>Play animation clip with all parameters, EnqueueMode can be Intercept, Append, IgnoreIfSame</Desc>
+    </Message>
+
+    <Message name="PauseAllAnims" fourcc="PAAN" scripted="true">
+      <Desc>Toggle pause on all animation clips on entity</Desc>
+    </Message>
+
+    
+    <!-- Show a skin -->
+    <Message name="SetSkinVisible" fourcc="SSKV" scripted="true">
+      <InArg name="Skin" type="Util::String" serialize="true"/>
+      <InArg name="Visible" type="bool" serialize="true"/>
+      <Desc>Show a skin for a character model</Desc>
+    </Message>
+    
+    <!-- Play animation (not character animation) -->
+    <Message name="AnimPlay" fourcc="ANPL" scripted="false"/>   
+
+    <!-- Rewind animation back to the start -->
+    <Message name="AnimRewind" fourcc="ANRE" scripted="false"/>
+
+    <!-- Stop the animation in its tracks, will retain the current value -->
+    <Message name="AnimStop" fourcc="ANST" scripted="false"/>
+
+    <!-- Change the animation resource -->
+    <Message name="AnimUpdate" fourcc="ANUP" scripted="false">
+      <InArg name="AnimPath" type="Util::String"/>
+    </Message>
+    
+    <!-- Select the anim track being used -->
+    <Message name="AnimTrack" fourcc="ANTR" scripted="true">
+      <InArg name="Track" type="Util::String"/>
+    </Message>
+
+    <!-- Cutscene command message -->
+    <Message name="CutsceneControl" fourcc="CUCO">
+        <InArg name="Command" type="int"/>
+    </Message>
+      
+    <!-- Spawns a graphics effect on a point using an upvector as reference -->
+    <Message name="CreateGraphicsEffectUpVec" fourcc="CGEU" scripted="true">
+        <InArg name="Point" type="Math::float4" serialize="true"/>
+        <InArg name="UpVec" type="Math::float4" serialize="true"/>
+        <InArg name="Resource" type="Util::String" serialize="true"/>
+        <InArg name="Duration" type="float" serialize="true"/>
+        <Desc>
+            Create a graphics effect on a point with an incident up vector.\n
+            Resource is the full resource name to attach, i.e 'mdl:system/placeholder.n3'.\n
+        </Desc>
+    </Message>
+
+    <!-- Spawns an attachment effect which attaches an graphics entity to a joint -->
+    <Message name="CreateAttachmentEffect" fourcc="CRAE" scripted="true">
+        <InArg name="Resource" type="Util::String" serialize="true"/>
+        <InArg name="Joint" type="Util::String" serialize="true"/>
+        <InArg name="Duration" type="uint" serialize="true"/>
+        <InArg name="Delay" type="uint" serialize="true"/>
+        <InArg name="KeepLocal" type="bool" serialize="true"/>
+        <InArg name="RotationMode" type="int" serialize="true"/>
+        <Desc>
+            Create an attachment effect which uses this entity and attaches an effect to a joint with a name.\n
+            Resource is the full resource name to attach, i.e 'mdl:system/placeholder.n3'.\n
+            Joint is a string matching the name of a joint.\n
+            Duration is the time during which the effect should be active.\n
+            Delay is the time it takes until the effect itself is applied.\n
+            RotationMode can be one of the three:\n
+                1 = Local.\n
+                2 = World.\n
+                3 = Entity.\n
+        </Desc>
+    </Message>
+      
+    <!-- Sent whenever an entity receives an animation event -->
+    <Message name="AnimEventTriggered" fourcc="ANET">
+        <InArg name="Name" type="Util::String"/>
+        <InArg name="Category" type="Util::String"/>
+        <InArg name="Time" type="int"/>
+    </Message>
+
+    <!-- check graphics entity resources -->
+    <Message name="AreGraphicsEntityResourcesLoaded" fourcc="AGEL">
+      <InArg name="ResourcesLoaded" type="bool"/>
+    </Message>
+
+    <!-- This message is used to tell the entity that the graphics is ready and the bounding box is setup.
+		It's necessary to do this if one wishes to setup physics from the graphics. -->
+    <Message name="GraphicsReady" fourcc="GRRY">
+      <InArg name="EntityId" type="Game::Entity::EntityId" default="0"/>
+    </Message>
+    
+    <!-- Set light probe influence -->
+    <Message name="UpdateProbeInfluence" fourcc="UPRI">
+      <InArg name="EnvironmentProbe" type="Ptr<Lighting::EnvironmentProbe>" default="0"/>
+    </Message>
+
+  </Protocol>
+
+</Nebula3>

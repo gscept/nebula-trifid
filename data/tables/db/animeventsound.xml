@@ -1,0 +1,4 @@
+<AnimEventSound IsVirtualCategory="true">
+ <Attributes AnimEventName="string" EventName="string" EventProjectId="string"/>
+  <Item AnimEventName="test" EventName="test" EventProjectId="test"/>
+</AnimEventSound>

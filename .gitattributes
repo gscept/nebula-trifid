@@ -1,0 +1,7 @@
+# default behaviour for text
+#* text=auto
+*.attributes text eol=lf
+*.physics text eol=lf
+*.constants text eol=lf
+*.xml text eol=lf
+*.ui text eol=lf

@@ -1,0 +1,6 @@
+/**
+@namespace Game
+
+The Game namespace contains all base classes for game logic such
+as entities, property and manager.
+*/

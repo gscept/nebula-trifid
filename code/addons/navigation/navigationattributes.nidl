@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Nebula3>
+  <AttributeLib>
+    <Dependency header="physicsfeature/physicsattr/physicsattributes.h"/>
+    <Attribute name="NavigationSeparationWeight" fourcc="NSWH" accessMode="ReadWrite" type="Float" default="3.0f"/>
+    <Attribute name="NavigationQueryRange" fourcc="NAQR" accessMode="ReadWrite" type="Float" default="10.0f"/>
+    <Attribute name="AgentNavMesh" fourcc="AGNV" accessMode="ReadWrite" type="String" />
+    <Attribute name="AvoidanceQuality" fourcc="AVQL" accessMode="ReadWrite" type="Int" default="2"/>
+    <Attribute name="TargetPos" fourcc="TARG" accessMode="ReadWrite" type="Float4"/>    
+    <Attribute name="MaxEdgeLength" fourcc="MELG" accessMode="ReadWrite" type="Int" default="12"/>
+    <Attribute name="RegionMinSize" fourcc="RMIS" accessMode="ReadWrite" type="Int" default="8"/>
+    <Attribute name="RegionMergeSize" fourcc="RMXS" accessMode="ReadWrite" type="Int" default="20"/>
+
+    <Attribute name="AgentRadius" fourcc="AGRA" accessMode="ReadWrite" type="Float" default="0.5"/>
+    <Attribute name="AgentHeight" fourcc="AGHE" accessMode="ReadWrite" type="Float" default="2.0"/>
+    <Attribute name="AgentMaxClimb" fourcc="AMXL" accessMode="ReadWrite" type="Float" default="0.2"/>
+
+    <Attribute name="MaxEdgeError" fourcc="MXER" accessMode="ReadWrite" type="Float" default="1.3"/>
+    <Attribute name="DetailSampleDist" fourcc="DSDI" accessMode="ReadWrite" type="Float" default="6.0"/>
+    <Attribute name="DetailSampleMaxError" fourcc="DSMX" accessMode="ReadWrite" type="Float" default="1.0"/>
+    <Attribute name="MaxSlope" fourcc="MXSL" accessMode="ReadWrite" type="Float" default="45.0f"/>
+    <Attribute name="CellHeight" fourcc="CLHG" accessMode="ReadWrite" type="Float" default="0.2f"/>
+    <Attribute name="CellSize" fourcc="CLSI" accessMode="ReadWrite" type="Float" default="0.3f"/>
+
+    <Attribute name="EntityReferences" fourcc="ENRF" accessMode="ReadWrite" type="String" system="1" />
+    <Attribute name="NavMeshMeshString" fourcc="NVMS" accessMode="ReadWrite" type="String" system="1"/>
+    <Attribute name="NavMeshCenter" fourcc="NVMC" accessMode="ReadWrite" type="Float4" system="1"/>
+    <Attribute name="NavMeshExtends" fourcc="NVEX" accessMode="ReadWrite" type="Float4" system="1"/>
+  </AttributeLib>
+  
+  <Property name="Navigation::NavigatedProperty" derivedFrom="BaseGameFeature::TransformableProperty" header="navigation/navigatedproperty.h">
+    <Attribute name="CapsuleRadius"/>    
+    <Attribute name="CapsuleHeight"/>
+    <Attribute name="MaxVelocity"/>
+    <Attribute name="RelVelocity"/>
+    <Attribute name="NavigationSeparationWeight"/>
+    <Attribute name="NavigationQueryRange"/>
+    <Attribute name="AgentNavMesh"/>
+    <Attribute name="AvoidanceQuality"/>
+    <Attribute name="TargetPos"/>
+  </Property>
+
+  <Protocol namespace="Navigation" name="NavigationProtocol">
+
+    <!-- dependencies -->
+    <Dependency header="game/entity.h"/>
+    <Dependency header="math/vector.h"/>
+    <Dependency header="basegamefeature/basegameattr/basegameattributes.h"/>    
+
+    <Message name="UpdateAgentTarget" fourcc="UPAG" scripted="true">
+      <InArg name="Position" type="Math::vector" />      
+      <Desc>
+        Sets a new navigation target for a crowd controlled agent
+      </Desc>
+    </Message>
+    <Message name="UpdateAgentSpeed" fourcc="UPAS" scripted="true">
+      <InArg name="Speed" type="float" />
+      <Desc>
+        Sets a new speed for a crowd controlled agent
+      </Desc>
+    </Message>
+    <Message name="StopAgent" fourcc="ASTP" scripted="true">
+      <Desc>Stop the agent from moving until a new target is set</Desc>
+    </Message>
+    <Message name="DisableAgent" fourcc="DSGT" scripted="true">
+      <Desc>Removes agent from crowd managment until re-added</Desc>
+    </Message>
+    <Message name="EnableAgent" fourcc="ENGT" scripted="true">
+      <Desc>Adds an agent to crowd managment</Desc>
+    </Message>
+    </Protocol>
+</Nebula3>		

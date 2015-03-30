@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Nebula3>
+  <AttributeLib>
+    <Attribute name="EntityTriggerRadius" fourcc="ETRR" accessMode="ReadWrite" type="Float"/>
+    <Attribute name="TestFloatAttr" fourcc="TFLT" accessMode="ReadWrite" type="Float"/>
+    <Attribute name="TestIntAttr" fourcc="TINT" accessMode="ReadWrite" type="Int"/>
+    <Attribute name="TestStringAttr" fourcc="TSTR" accessMode="ReadWrite" type="String"/>
+    <Attribute name="TestFloat4Attr" fourcc="TFL4" accessMode="ReadWrite" type="Float4"/>
+    <Attribute name="TestBoolAttr" fourcc="TBOL" accessMode="ReadWrite" type="Bool"/>
+
+    <Attribute name="_Type" fourcc="_TYP" accessMode="ReadOnly" type="String" system="1"/>
+    <Attribute name="_Level" fourcc="_LEV" accessMode="ReadOnly" type="String" system="1"/>
+    <Attribute name="_Layers" fourcc="_LAY" accessMode="ReadOnly" type="String" system="1" default="Default"/>
+    <Attribute name="_ID" fourcc="_ID_" accessMode="ReadOnly" type="String" system="1"/>
+    <Attribute name="_DefaultLevel" fourcc="DFVL" accessMode="ReadWrite" type="String" system="1"/>
+    <Attribute name="_LevelEntity" fourcc="LVEN" accessMode="ReadOnly" type="Bool" system="1"/>
+    <Attribute name="IsMaster" fourcc="ISMA" accessMode="ReadWrite" type="Bool" system="1"/>
+
+    <Attribute name="Guid" fourcc="GUID" accessMode="ReadWrite" type="Guid" system="1"/>
+    <Attribute name="Id" fourcc="IDEN" accessMode="ReadWrite" type="String" />
+    <Attribute name="Name" fourcc="NAME" accessMode="ReadWrite" type="String" />
+    <Attribute name="Placeholder" fourcc="PLHO" accessMode="ReadWrite" type="String" system="1"/>
+    <Attribute name="Transform" fourcc="TRAN" accessMode="ReadWrite" type="Matrix44"/>
+    <Attribute name="Dummy" fourcc="DUMY" accessMode="ReadWrite" type="String" system="1"/>
+    <Attribute name="StartLevel" fourcc="STLV" accessMode="ReadWrite" type="Bool" system="1"/>    
+    <Attribute name="CurrentLevel" fourcc="CLEV" accessMode="ReadWrite" type="String" system="1"/>
+    
+
+    <Attribute name="Time" fourcc="TIME" accessMode="ReadWrite" type="Float"/>
+    <Attribute name="TimeSourceId" fourcc="TIID" accessMode="ReadWrite" type="String"/>
+    <Attribute name="TimeSourceTime" fourcc="TIST" accessMode="ReadWrite" type="Float"/>
+    <Attribute name="TimeSourceFactor" fourcc="TIFA" accessMode="ReadWrite" type="Float" default="1.0f"/>
+    <Attribute name="TimeSourceFrameId" fourcc="TFID" accessMode="ReadWrite" type="Int"/>
+
+    <Attribute name="NavMeshData" fourcc="NVMD" accessMode="ReadWrite" type="String" system="1"/>
+  </AttributeLib>  
+</Nebula3>
+	

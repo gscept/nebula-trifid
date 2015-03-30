@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Nebula3>
+  <AttributeLib>
+    <Dependency header="navigationattributes.h"/>
+    <Dependency header="graphicsfeature/graphicsattr/graphicsattributes.h"/>
+  </AttributeLib>
+  <Property name="LevelEditor2::EditorNavMeshProperty" header="properties/editornavmeshproperty.h">
+    <Attribute name="MaxEdgeLength" />
+    <Attribute name="RegionMinSize" />
+    <Attribute name="RegionMergeSize" />
+    <Attribute name="AgentRadius" />
+    <Attribute name="AgentHeight" />
+    <Attribute name="MaxEdgeError" />
+    <Attribute name="DetailSampleDist" />
+    <Attribute name="DetailSampleMaxError" />
+    <Attribute name="MaxSlope" />
+    <Attribute name="CellHeight" />
+    <Attribute name="CellSize" />
+    <Attribute name="AgentMaxClimb" />
+    <Attribute name="NavMeshData" />
+    <Attribute name="EntityReferences" />
+    <Attribute name="NavMeshMeshString" />
+    <Attribute name="NavMeshCenter" />
+    <Attribute name="NavMeshExtends" />
+  </Property>
+
+  <Property name="LevelEditor2::EditorLightProbeProperty" header="lighting/editorlightprobeproperty.h" derivedFrom="GraphicsFeature::LightProbeProperty">
+    <Attribute name="ProbeName"/>
+    <Attribute name="ProbeResolutionWidth"/>
+    <Attribute name="ProbeResolutionHeight"/>
+    <Attribute name="ProbeBuildReflections"/>
+    <Attribute name="ProbeBuildIrradiance"/>
+    <Attribute name="ProbeGenerateMipmaps"/>
+    <Attribute name="ProbeAutoAssignMaps"/>
+    <Attribute name="ProbeOutputFolder"/>
+    <Attribute name="ProbeOutputFilename"/>
+  </Property>
+  <Protocol namespace="LevelEditor2" name="LevelEditor2Protocol">
+
+    <!-- dependencies? -->
+    <Dependency header="util/string.h"/>
+    <Dependency header="game/entity.h"/>
+    <Dependency header="basegamefeature/basegameattr/basegameattributes.h"/>
+    <Dependency header="core/rtti.h"/>
+    <Dependency header="attr/attributecontainer.h"/>
+
+    <!-- LoadLevel message nood -->
+    <Message name="EntitySelected" fourcc="ENSE">
+      <InArg name="Selected" type="bool"/>
+    </Message>
+    <Message name="GetEntityValues" fourcc="GETV">
+      <OutArg name="Attrs" type="Attr::AttributeContainer"/>
+      <OutArg name="Props" type="Util::Array<Core::Rtti*>"/>
+    </Message>
+    <Message name="SetAttributes" fourcc="SRAT">
+      <InArg name="Attrs" type="Attr::AttributeContainer"/>
+    </Message>
+    <Message name="SetProperties" fourcc="SETP">
+      <InArg name="Props" type="Util::Array<Core::Rtti*>"/>
+    </Message>
+    <Message name="UpdateChildrenTransforms" fourcc="UTRC">
+      <InArg name="BaseTransform" type="Math::matrix44"/>
+      <InArg name="InvBaseTransform" type="Math::matrix44"/>
+      <InArg name="DeltaTransform" type="Math::matrix44"/>
+    </Message>
+    <Message name="CreateNavMesh" fourcc="CRNM">
+      <InArg name="Entities" type="Util::Array<Ptr<Game::Entity>>"/>
+    </Message>
+    <Message name="UpdateNavMesh" fourcc="UPNM" />
+    <Message name="SaveNavMesh" fourcc="SVNM" />
+    
+  </Protocol>    
+</Nebula3>

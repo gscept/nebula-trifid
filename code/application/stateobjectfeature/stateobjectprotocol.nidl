@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Nebula3>
+  <AttributeLib>
+    <Attribute name="State" fourcc="STAT" accessMode="ReadWrite" type="String"/>
+    <Attribute name="StateBaseTransform" fourcc="STBT" accessMode="ReadWrite" type="Matrix44"/>
+    <Attribute name="StateBaseTransformSet" fourcc="SBTS" accessMode="ReadWrite" type="Bool" default="false" />
+    <Attribute name="StateFilename" fourcc="STFN" accessMode="ReadWrite" type="String"/>
+  </AttributeLib>
+  <Property name="StateObjectFeature::StateGraphicsProperty" derivedFrom="GraphicsFeature::GraphicsProperty" header="stateobjectfeature/properties/stategraphicsproperty.h">
+    <Attribute name="Graphics"/>
+  </Property>
+  
+  <Protocol namespace="StateObjectFeature" name="StateObjectProtocol">
+
+    <!-- dependencies -->
+    <Dependency header="stateobjectfeature/properties/stateinfo.h"/>
+    
+    <!-- Returns if entity contains given state. -->
+    <Message name="ContainsState" fourcc="CONT">
+      <InArg name="StateName" type="Util::String"/>
+      <InArg name="Result" type="bool"/>
+    </Message>
+    
+    <!-- Returns the active state. -->
+    <Message name="GetActiveState" fourcc="GEAC">
+      <InArg name="StateName" type="Util::String"/>
+    </Message>
+    
+    <!-- Used internally in state property to message subsystems -->
+    <Message name="InternalSwitchActiveState" fourcc="ISAS">
+      <InArg name="StateName" type="Util::String"/>
+    </Message>
+    
+    <!-- Switch to different state -->
+    <Message name="SwitchActiveState" fourcc="SAST">
+      <InArg name="StateName" type="Util::String"/>
+    </Message>
+
+    <!-- Sets the state resources -->
+    <Message name="Resources" fourcc="RESO">
+      <InArg name="Resources" type="Util::Dictionary<Util::String, StateInfo>"/>
+    </Message>
+  </Protocol>
+
+</Nebula3>

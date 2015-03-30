@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Nebula3>
+    <Protocol namespace="Forest" name="ForestProtocol">
+        <!-- dependencies -->
+        <Dependency header="util/stringatom.h"/>
+        <Dependency header="math/bbox.h"/>
+        <Dependency header="math/matrix44.h"/>
+        
+        <!-- create and setup render-side forest system -->
+        <Message name="LoadLevel" fourcc="llvl">
+            <InArg name="BoundingBox" type="Math::bbox"/>
+        </Message>
+      
+        <!-- reset the forest subsystem-->
+        <Message name="ExitLevel" fourcc="elvl">
+        </Message>
+
+        <!-- reset the forest subsystem-->
+        <Message name="CreateTreeInstance" fourcc="ctri">
+            <InArg name="ResourceId" type="Util::StringAtom"/>
+            <InArg name="TreeId" type="Util::StringAtom"/>
+            <InArg name="Transform" type="Math::matrix44"/>
+            <InArg name="CollideFile" type="Util::StringAtom"/>
+        </Message>
+
+        <!-- reset the forest subsystem-->
+        <Message name="SetupCollideMesh" fourcc="secm">
+        </Message>
+    </Protocol>
+</Nebula3>    
+    

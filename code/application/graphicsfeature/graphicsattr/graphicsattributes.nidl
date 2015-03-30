@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Nebula3>
+  <AttributeLib>
+    <Attribute name="Graphics" fourcc="GRAP" accessMode="ReadWrite" type="String" editType="resource" resourceBase="mdl" fileSuffix="n3" />
+    <Attribute name="LoadSynced" fourcc="GRLS" accessMode="ReadWrite" type="Bool" default="false"/>
+    <Attribute name="AnimSet" fourcc="ANMS" accessMode="ReadWrite" type="String"/>
+	  <Attribute name="CharacterSet" fourcc="CHRS" accessMode="ReadWrite" type="String"/>
+	  <Attribute name="StartAnimation" fourcc="STAM" accessMode="ReadWrite" type="String" editType="animclip" />
+	  <Attribute name="IdleAnim" fourcc="IDAN" accessMode="ReadWrite" type="String" editType="animclip" />
+	  <Attribute name="WalkAnim" fourcc="WAAN" accessMode="ReadWrite" type="String" editType="animclip" />
+    <Attribute name="BackAnim" fourcc="BAAN" accessMode="ReadWrite" type="String" editType="animclip" />
+    <Attribute name="RunAnim" fourcc="RUAN" accessMode="ReadWrite" type="String" editType="animclip" />
+    <Attribute name="StrafeRightAnim" fourcc="SRRA" accessMode="ReadWrite" type="String" editType="animclip" />
+    <Attribute name="StrafeLeftAnim" fourcc="SRLA" accessMode="ReadWrite" type="String" editType="animclip" />
+    <Attribute name="UseStrafeAnim" fourcc="USRN" accessMode="ReadWrite" type="Bool" default="false" />
+    <Attribute name="JumpAnim" fourcc="JUAN" accessMode="ReadWrite" type="String" editType="animclip" />
+    <Attribute name="DeathAnim" fourcc="DEAN" accessMode="ReadWrite" type="String" editType="animclip" />    
+    <Attribute name="UseAnim" fourcc="USAN" accessMode="ReadWrite" type="String" editType="animclip" />
+    <Attribute name="UseReversedAnim" fourcc="USRA" accessMode="ReadWrite" type="Bool" default="false"/>
+    <Attribute name="UseFallbackAnim" fourcc="USFA" accessMode="ReadWrite" type="Bool" default="true"/>
+	  <Attribute name="LoopStartAnimation" fourcc="LOST" accessMode="ReadWrite" type="Bool"/>    
+    <Attribute name="AmbienceBubbleEnabled" fourcc="ABEN" accessMode="ReadWrite" default="true" type="Bool"/>
+    <Attribute name="AmbienceBubblePriority" fourcc="ABPR" accessMode="ReadWrite" type="Int"/>
+    <Attribute name="Instanced" fourcc="INST" accessMode="ReadWrite" type="Bool" default="false" />
+    <Attribute name="CastShadows" fourcc="CASD" accessMode="ReadWrite" type="Bool" default="true" />
+    <Attribute name="Static" fourcc="STIC" accessMode="ReadWrite" type="Bool" default="false" />
+    <Attribute name="CameraFocus" fourcc="CAMF" accessMode="ReadWrite" type="Bool" default="true" />
+    <Attribute name="InputFocus" fourcc="IFOC" accessMode="ReadWrite" type="Bool" default="true" />
+	  <Attribute name="IsBillboard" fourcc="IBLB" accessMode="ReadOnly" type="Bool" default="false" />
+    <Attribute name="LightType" fourcc="LITY" accessMode="ReadOnly" type="Int" default="1" system="1"/>
+    <Attribute name="LightColor" fourcc="LCOL" accessMode="ReadWrite" type="Float4" editType="colour" default="1.0,1.0,1.0,1.0"/>
+    <Attribute name="LightOppositeColor" fourcc="LOCL" accessMode="ReadWrite" type="Float4" editType="colour" default="0.1,0.1,0.2,1.0"/>
+    <Attribute name="LightIntensity" fourcc="LINT" accessMode="ReadWrite" type="Float" default="1.0f"/>    
+    <Attribute name="LightRange" fourcc="LRAN" accessMode="ReadWrite" type="Float" minValue="0.01f" default="10.0f"/>
+    <Attribute name="LightAmbient" fourcc="LAMB" accessMode="ReadWrite" type="Float4" editType="colour" default="0.1,0.1,0.1,1.0"/>
+    <Attribute name="LightCastShadows" fourcc="LCAS" accessMode="ReadWrite" type="Bool" default="true" />
+    <Attribute name="LightShadowIntensity" fourcc="LSHI" accessMode="ReadWrite" type="Float" default="1.0f" />
+    <Attribute name="LightShadowBias" fourcc="LSHB" accessMode="ReadWrite" type="Float" default="0.0001f" />
+    <Attribute name="LightFlickerEnable" fourcc="LFLE" accessMode="ReadWrite" type="Bool" default="false" advanced="true"/>
+	  <Attribute name="LightProjectionMap" fourcc="LPRM" accessMode="ReadWrite" type="String" editType="resource" resourceBase="tex" fileSuffix="dds" advanced="true"/>
+	  <Attribute name="LightVolumetric" fourcc="LIVO" accessMode="ReadWrite" type="Bool" default="false" advanced="true" system="1"/>
+	  <Attribute name="LightVolumetricScale" fourcc="LIVS" accessMode="ReadWrite" type="Float" default="1.0f" advanced="true" system="1"/>
+	  <Attribute name="LightVolumetricIntensity" fourcc="LIVI" accessMode="ReadWrite" type="Float" default="0.14f" advanced="true" system="1"/>
+    <Attribute name="LightFlickerFrequency" fourcc="LFLF" accessMode="ReadWrite" type="Float" default="5.0f" advanced="true"/>
+    <Attribute name="LightFlickerIntensity" fourcc="LFLI" accessMode="ReadWrite" type="Float" default="0.5f" advanced="true"/>
+    <Attribute name="LightFlickerPosition" fourcc="LFLP" accessMode="ReadWrite" type="Float" default="0.25f" advanced="true"/>
+    <Attribute name="LightConeAngle" fourcc="LCOA" accessMode="ReadWrite" type="Float" minValue="1.0f" maxValue="90.0f" default="45.0f"/>
+    <Attribute name="AnimEvents" fourcc="ANEM" accessMode="ReadWrite" type="Bool"/>
+    <Attribute name="AnimPath" fourcc="ANPA" accessMode="ReadWrite" type="String"/>
+    <Attribute name="AnimRelative" fourcc="ANRE" accessMode="ReadWrite" type="Bool"/>
+    <Attribute name="AnimLoop" fourcc="ANLO" accessMode="ReadWrite" type="Bool" default="true"/>
+    <Attribute name="AnimPlaying" fourcc="ANPL" accessMode="ReadWrite" type="Bool" />
+    <Attribute name="AnimPathOffset" fourcc="ANPO" accessMode="ReadWrite" type="Float4" default="0,0,0,0"/>
+
+    <Attribute name="CameraDistance" fourcc="CADI" accessMode="ReadWrite" type="Float" minValue="1.0f" default="15.0"/>
+    <Attribute name="CameraMinDistance" fourcc="CMID" accessMode="ReadWrite" type="Float" default="1.0"/>
+    <Attribute name="CameraMaxDistance" fourcc="CMAD" accessMode="ReadWrite" type="Float" default="125.0"/>
+    <Attribute name="CameraDistanceStep" fourcc="CDST" accessMode="ReadWrite" type="Float" default="1.0"/>
+    <Attribute name="CameraOffset" fourcc="COFF" accessMode="ReadWrite" type="Float4" default="0.0,1.5,0.0,0.0"/>
+    <Attribute name="CameraLowStop" fourcc="CLOS" accessMode="ReadWrite" type="Float" default="-45.0"/>
+    <Attribute name="CameraHighStop" fourcc="CHIS" accessMode="ReadWrite" type="Float" default="45.0"/>
+    <Attribute name="CameraAngularVelocity" fourcc="CAVE" accessMode="ReadWrite" type="Float" default="0.2"/>
+    <Attribute name="CameraLinearGain" fourcc="CLIG" accessMode="ReadWrite" type="Float" default="-30.0"/>
+    <Attribute name="CameraAngularGain" fourcc="CAGE" accessMode="ReadWrite" type="Float" default="-50.0"/>
+    <Attribute name="CameraDefaultTheta" fourcc="CTHE" accessMode="ReadWrite" type="Float" default="-0.35"/>
+    <Attribute name="CameraDefaultRho" fourcc="CRHO" accessMode="ReadWrite" type="Float" default="0.175"/>
+    <Attribute name="InputMouseGrab" fourcc="IPGM" accessMode="ReadWrite" type="Bool" default="false"/>
+    <Attribute name="MayaCameraCenterOfInterest" fourcc="MCCI" accessMode="ReadWrite" type="Float4" />
+    <Attribute name="MayaCameraDefaultUpVec" fourcc="MCDU" accessMode="ReadWrite" type="Float4" default="0.0,1.0,0.0,1.0"/>
+	  <Attribute name="MayaCameraRenderCenterOfInterest" fourcc="MCRI" accessMode="ReadWrite" type="Bool" default="false" />
+
+    <Attribute name="ProbeReflectionMap" fourcc="PRFM" accessMode="ReadWrite" type="String" editType="resource" resourceBase="tex" fileSuffix="dds" default="system/sky"/>
+    <Attribute name="ProbeIrradianceMap" fourcc="PIRM" accessMode="ReadWrite" type="String" editType="resource" resourceBase="tex" fileSuffix="dds" default="system/sky_irr"/>
+    <Attribute name="ProbeInfluenceShapeType" fourcc="PIST" accessMode="ReadWrite" type="String" editType="list" default="sphere" listValues="sphere;box"/>
+    <Attribute name="ProbeInfluenceLayer" fourcc="PINP" accessMode="ReadWrite" type="Int"/>
+    <Attribute name="ProbeInfluenceFalloff" fourcc="PIFF" accessMode="ReadWrite" type="Float" minValue="0.01f" maxValue="1.0f" default="0.2f"/>
+    <Attribute name="ProbeInfluencePower" fourcc="PIFP" accessMode="ReadWrite" type="Float" minValue="0.0" maxValue="256.0f" default="16.0f"/>
+
+    <Attribute name="ProbeParallaxCorrected" fourcc="PRPC" accessMode="ReadWrite" type="Bool" default="false"/>
+    <Attribute name="ProbeBBExtents" fourcc="PRMN" accessMode="ReadWrite" type="Float4" default="1,1,1,0"/>
+    
+    <Attribute name="ProbeName" fourcc="PRNA" accessMode="ReadWrite" type="String"/>
+    <Attribute name="ProbeResolutionWidth" fourcc="PRRW" accessMode="ReadWrite" type="Int" default="256"/>
+    <Attribute name="ProbeResolutionHeight" fourcc="PRRH" accessMode="ReadWrite" type="Int" default="256"/>
+
+    <Attribute name="ProbeBuildReflections" fourcc="PRBR" accessMode="ReadWrite" type="Bool" default="true"/>
+    <Attribute name="ProbeBuildIrradiance" fourcc="PRBI" accessMode="ReadWrite" type="Bool" default="true"/>    
+    <Attribute name="ProbeGenerateMipmaps" fourcc="PRGM" accessMode="ReadWrite" type="Bool" default="true"/>    
+    
+    <Attribute name="ProbeOutputFolder" fourcc="PROF" accessMode="ReadWrite" type="String" default="#LEVEL#"/>
+    <Attribute name="ProbeOutputFilename" fourcc="PRFI" accessMode="ReadWrite" type="String" default="#NAME#_#TYPE#"/>
+    <Attribute name="ProbeAutoAssignMaps" fourcc="PRAM" accessMode="ReadWrite" type="Bool" default="true"/>    
+
+  </AttributeLib>
+  <AttributeLib name="LevelAttributes">
+    <Attribute name="PEDefaultEntity" fourcc="PEDE" accessMode="ReadWrite" type="Bool" default="false" system="1"/>
+    <Attribute name="PEShapeType" fourcc="PEST" accessMode="ReadWrite" type="String" default="sphere" editType="list" listValues="sphere;box"/>
+    <Attribute name="PEBlendTime" fourcc="BLTI" accessMode="ReadWrite" type="Float" default="2.0f"/>
+    <Attribute name="GlobalLightTransform" fourcc="GLTR" accessMode="ReadWrite" type="Matrix44"/>
+    <Attribute name="GlobalLightDiffuse" fourcc="GLCO" accessMode="ReadWrite" type="Float4" default="1.0,1.0,1.0,1.0"/>
+    <Attribute name="GlobalLightOpposite" fourcc="GLOC" accessMode="ReadWrite" type="Float4" default="0.1,0.1,0.2,1.0"/>
+    <Attribute name="GlobalLightAmbient" fourcc="GLAM" accessMode="ReadWrite" type="Float4" default="0.1,0.1,0.1,1.0"/>
+    <Attribute name="GlobalLightCastShadows" fourcc="GLCS" accessMode="ReadWrite" type="Bool" default="true" />
+    <Attribute name="GlobalLightShadowIntensity" fourcc="GLSI" accessMode="ReadWrite" type="Float" default="0.2f" />
+    <Attribute name="GlobalLightIntensity" fourcc="GLIS" accessMode="ReadWrite" type="Float" default="0.5f" />
+    <Attribute name="GlobalLightBacklightFactor" fourcc="GLBF" accessMode="ReadWrite" type="Float" default="0.0f" />
+    <Attribute name="GlobalLightShadowBias" fourcc="GLSB" accessMode="ReadWrite" type="Float" default="0.005f" />
+    <Attribute name="Saturation" fourcc="ASAT" accessMode="ReadWrite" type="Float" default="1"/>
+    <Attribute name="Balance" fourcc="BALA" accessMode="ReadWrite" type="Float4" default="1.0,1.0,1.0,1.0"/>
+    <Attribute name="Luminance" fourcc="LUMI" accessMode="ReadWrite" type="Float4" default="0.299,0.587,0.114,0.0"/>
+    <Attribute name="MaxLuminance" fourcc="MLUM" accessMode="ReadWrite" type="Float" default="1.0f"/>
+    <Attribute name="BloomScale" fourcc="BLSC" accessMode="ReadWrite" type="Float" default="1.0"/>
+    <Attribute name="BloomColor" fourcc="BCOL" accessMode="ReadWrite" type="Float4" default="1.0,1.0,1.0,1.0"/>
+    <Attribute name="BloomThreshold" fourcc="BRPT" accessMode="ReadWrite" type="Float" default="1.0"/>
+    <Attribute name="FogNearDist" fourcc="FNDI" accessMode="ReadWrite" type="Float" default="0"/>
+    <Attribute name="FogFarDist" fourcc="FFDI" accessMode="ReadWrite" type="Float" default="5000"/>
+    <Attribute name="FogHeight" fourcc="FHEI" accessMode="ReadWrite" type="Float"/>
+    <Attribute name="FogColor" fourcc="FOGC" accessMode="ReadWrite" type="Float4" default="0.5,0.5,0.5,1"/>
+    <Attribute name="FocusDistance" fourcc="DOFD" accessMode="ReadWrite" type="Float" default="1"/>
+    <Attribute name="FocusLength" fourcc="DOFL" accessMode="ReadWrite" type="Float" default="100"/>
+    <Attribute name="FocusRadius" fourcc="DOFR" accessMode="ReadWrite" type="Float" default="0"/>
+    <Attribute name="SkyContrast" fourcc="SKYC" accessMode="ReadWrite" type="Float" default="1"/>
+    <Attribute name="SkyBrightness" fourcc="SKYB" accessMode="ReadWrite" type="Float" default="1"/>
+    <Attribute name="SkyTexture" fourcc="SKYT" accessMode="ReadWrite" type="String" default="tex:system/sky" editType="resource" resourceBase="tex" fileSuffix="dds" />
+    <Attribute name="SkyModel" fourcc="SKYM" accessMode="ReadWrite" type="String" default="system/skybox" />
+    <Attribute name="BackLightFactor" fourcc="BLFA" accessMode="ReadWrite" type="Float"/>
+    <Attribute name="WorldCenter" fourcc="WOCE" accessMode="ReadOnly" type="Float4" default="0,0,0,0"/>
+    <Attribute name="WorldExtents" fourcc="WOEX" accessMode="ReadOnly" type="Float4" default="1000, 1000, 1000, 0"/>
+    <Attribute name="AOStrength" fourcc="AOST" accessMode="ReadWrite" type="Float" default="2.0f"/>
+    <Attribute name="AORadius" fourcc="AORA" accessMode="ReadWrite" type="Float" default="12.0f"/>
+    <Attribute name="AOPower" fourcc="AOPO" accessMode="ReadWrite" type="Float" default="1.5f"/>
+    <Attribute name="AOAngleBias" fourcc="AOAB" accessMode="ReadWrite" type="Float" default="10.0f"/>
+    <Attribute name="PostEffectPreset" fourcc="PXPR" accessMode="ReadWrite" type="String" default="Default"/>
+  </AttributeLib>
+  <Property name="GraphicsFeature::GraphicsProperty" header="graphicsfeature/properties/graphicsproperty.h">
+    <Attribute name="Transform"/>
+    <Attribute name="Graphics"/>
+    <Attribute name="Instanced"/>
+    <Attribute name="Placeholder"/>
+    <Attribute name="AnimEvents"/>
+    <Attribute name="CastShadows"/>
+    <Attribute name="Static"/>
+    <Attribute name="LoadSynced"/>
+   </Property>
+  <Property name="GraphicsFeature::PathAnimProperty" header="graphicsfeature/properties/pathanimproperty.h">
+    <Attribute name="AnimPath"/>
+    <Attribute name="AnimRelative"/>
+    <Attribute name="AnimLoop"/>
+    <Attribute name="AnimPlaying"/>
+    <Attribute name="AnimPathOffset"/>
+    <Attribute name="EntityTriggerRadius"/>
+  </Property>
+  <Property name="GraphicsFeature::AnimPathProperty" header="graphicsfeature/properties/animpathproperty.h">
+    <Attribute name="Transform"/>
+    <Attribute name="AnimPath"/>
+  </Property>
+  <Property name="GraphicsFeature::LightProperty" header="graphicsfeature/properties/lightproperty.h">
+    <Attribute name="Transform"/>
+    <Attribute name="LightType" accessMode="ReadOnly" />	
+    <Attribute name="LightColor"/>
+	  <Attribute name="LightIntensity"/>
+	  <Attribute name="LightAmbient"/>	
+    <Attribute name="LightOppositeColor"/>
+    <Attribute name="LightRange"/>
+	  <Attribute name="LightConeAngle"/>
+    <Attribute name="LightCastShadows"/>
+    <Attribute name="LightShadowIntensity"/>
+    <Attribute name="LightShadowBias"/>
+    <Attribute name="LightFlickerEnable"/>
+    <Attribute name="LightFlickerFrequency"/>
+    <Attribute name="LightFlickerIntensity"/>
+    <Attribute name="LightFlickerPosition"/>
+    
+    
+	  <Attribute name="LightProjectionMap"/>
+	  <Attribute name="LightVolumetric"/>
+	  <Attribute name="LightVolumetricScale"/>
+	  <Attribute name="LightVolumetricIntensity"/>
+  </Property>
+  <Property name="GraphicsFeature::LightProbeProperty" header="graphicsfeature/properties/lightprobeproperty.h">
+    <Attribute name="ProbeReflectionMap"/>
+    <Attribute name="ProbeIrradianceMap"/>
+    <Attribute name="ProbeInfluenceShapeType"/>
+    <Attribute name="ProbeInfluenceLayer"/>
+    <Attribute name="ProbeInfluenceFalloff"/>
+    <Attribute name="ProbeInfluencePower"/>
+    <Attribute name="ProbeBBExtents"/>
+    <Attribute name="ProbeInfluencePower"/>
+    <Attribute name="ProbeParallaxCorrected"/>    
+  </Property>
+  <Property name="GraphicsFeature::CameraProperty" header="graphicsfeature/properties/cameraproperty.h">
+    <Attribute name="CameraFocus" />
+    <Attribute name="Transform" />
+  </Property>
+  <Property name="GraphicsFeature::ChaseCameraProperty" derivedFrom="GraphicsFeature::CameraProperty" header="graphicsfeature/properties/chasecameraproperty.h">
+    <Attribute name="CameraDistance"/>
+    <Attribute name="CameraMinDistance"/>
+    <Attribute name="CameraMaxDistance"/>
+    <Attribute name="CameraOffset"/>
+    <Attribute name="CameraLowStop"/>
+    <Attribute name="CameraHighStop"/>
+    <Attribute name="CameraAngularVelocity"/>
+    <Attribute name="CameraDistanceStep"/>
+    <Attribute name="CameraLinearGain"/>
+    <Attribute name="CameraAngularGain"/>
+    <Attribute name="CameraDefaultRho"/>
+    <Attribute name="CameraDefaultTheta"/>
+  </Property>
+  <Property name="GraphicsFeature::MayaCameraProperty" derivedFrom="GraphicsFeature::CameraProperty" header="graphicsfeature/properties/mayacameraproperty.h">
+    <Attribute name="MayaCameraCenterOfInterest"/>
+    <Attribute name="MayaCameraDefaultUpVec"/>
+	<Attribute name="MayaCameraRenderCenterOfInterest"/>
+  </Property>
+  <Property name="GraphicsFeature::AnimationControlProperty" header="graphicsfeature/properties/animationcontrolproperty.h">
+    <Attribute name="IdleAnim"/>
+    <Attribute name="WalkAnim"/>
+    <Attribute name="BackAnim"/>
+    <Attribute name="UseAnim"/>
+    <Attribute name="DeathAnim"/>
+    <Attribute name="JumpAnim"/>
+    <Attribute name="StrafeRightAnim"/>
+    <Attribute name="StrafeLeftAnim"/>
+    <Attribute name="UseStrafeAnim"/>
+    <Attribute name="UseFallbackAnim"/>
+    <Attribute name="UseReversedAnim"/>    
+  </Property>
+  <Property name="GraphicsFeature::AmbienceBubbleProperty" header="graphicsfeature/properties/ambiencebubbleproperty.h">
+    <Attribute name="PEBlendTime"/>
+    <Attribute name="PEDefaultEntity"/>
+    <Attribute name="AmbienceBubbleEnabled"/>
+    <Attribute name="AmbienceBubblePriority"/>
+    <Attribute name="Graphics"/>
+    <Attribute name="PEShapeType"/>
+    <Attribute name="PostEffectPreset"/>
+  </Property>
+  <Property name="GraphicsFeature::ActorGraphicsProperty" derivedFrom="GraphicsFeature::GraphicsProperty" header="graphicsfeature/properties/actorgraphicsproperty.h">
+    <Attribute name="AnimSet"/>
+    <Attribute name="CharacterSet"/>
+    <Attribute name="StartAnimation"/>
+    <Attribute name="LoopStartAnimation"/>
+  </Property>
+  <Property name="GraphicsFeature::InputProperty" header="graphicsfeature/properties/inputproperty.h">
+    <Attribute name="InputFocus"/>
+    <Attribute name="InputMouseGrab" />
+  </Property>
+</Nebula3>		

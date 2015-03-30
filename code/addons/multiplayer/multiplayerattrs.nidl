@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Nebula3>
+  <AttributeLib>
+    <Attribute name="RoomName" fourcc="RMNA" accessMode="ReadWrite" type="String" />    
+    <Attribute name="GameID" fourcc="GAMI" accessMode="ReadWrite" type="String" />
+    <Attribute name="GameRow" fourcc="GAMR" accessMode="ReadWrite" type="Int" />
+    <Attribute name="GameAge" fourcc="GAMA" accessMode="ReadWrite" type="Int" />
+    <Attribute name="MaxPlayers" fourcc="GMXP" accessMode="ReadWrite" type="Int" />
+    <Attribute name="CurrentPlayers" fourcc="GCPS" accessMode="ReadWrite" type="Int" />
+    <Attribute name="GameServerAddress" fourcc="GAMS" accessMode="ReadWrite" type="String" />    
+  </AttributeLib>
+  <Protocol namespace="MultiplayerFeature" name="MultiplayerProtocol">
+    <Message name="StartLevel" fourcc="SRLV">
+      <InArg name="Level" type="Util::String" serialize="true"/>
+      <InArg name="State" type="Util::String" serialize="true"/>
+    </Message>
+  </Protocol>
+</Nebula3>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Globals>
+  <Attribute name="TestStringAttr" type="string" value="testing"/>
+  <Attribute name="TestFloat4Attr" type="float4" value="1,2,3,4"/>
+</Globals>

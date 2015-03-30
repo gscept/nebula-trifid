@@ -1,0 +1,45 @@
+Download
+
+First you need to download the Havok SDK from http://software.intel.com/sites/havok/en/ , there you fill a small survey in order to access the downloads. After the survey you must accept the license terms (make sure to read them), then you will get access to the download links.
+The currently supported version in N3 is 2011.3.1, later version should work but there might be conflicts. When downloading the SDK make sure to get the right one for which version of Visual Studio you are using, for example for VS2008 make sure to choose "Havok Physics and Havok Animation SDKs for Programmers (2011.3.1, VS2008 w/ SIMD)".
+
+License
+
+If you have serious plans on making a game that is using havok, you should definitely read the license. It will be displayed to you before you get to the download page.
+
+Setup and introduction
+
+In CMake you need to change N_PHYSICS to N_BUILD_HAVOK of course, then you must add two new path entries:
+Havok_LIB_DIR to the library directory in your havok folder, for example C:/Havok/Lib/win32_net_9-0/,
+Havok_SOURCE_DIR to your equivalent of C:/Havok/Source
+
+Make sure to get the right slashes at the end of the paths.
+
+## note: this has been changed, only HAVOC_DIR is used instead which should point directly to the havok dir, for example C:/n3/libs/contrib/hk2011_3_1_r1 ##
+
+After the VS solution has been generated, a full rebuild is generally needed.
+
+Code examples
+
+There's a great amount of examples in the Demo/Demos folds in your Havok directory.
+
+Visual Debugger
+
+Havok has a very practical visual debugger in Tools/VisualDebugger, where you can see the physics representation of your game without any other graphics. Your game will connect to the debugger via the network, meaning you can have the debugger running on some other machine.
+It is possible to draw debug info such as arrows or text, to do this you simply use the Physics::VisualDebuggerServer singleton.
+
+Memory Management
+- hkRefPtr
+- Check havok error report on application close
+
+Errors and warnings
+For havok errors and warnings, check the error report in the visual studio output window.
+
+Resource Management
+FIXME: Create folder "havok_mopp" in export, generate mopp files upon batching
+
+Misc notes:
+
+- When using the "Fulldebug" Havok libraries you will get hundreds of warnings like these:
+"hkBase.lib(hk1AxisSweep.obj) : warning LNK4099: PDB 'hkbase.pdb' was not found with '..\..\..\..\libs\contrib\hk2011_3_1_r1\Lib\win32_net_9-0\fulldebug_multithreaded\hkBase.lib' or at 'C:\n3_2\_cmake\pdb\hkbase.pdb'; linking object as if no debug info"
+These errors can be avoided by switching to the "Debug" libraries. The differences between the libraries can of course be found in the documentation, see 1.5.4 Linking with Havok in the quickstart guide.

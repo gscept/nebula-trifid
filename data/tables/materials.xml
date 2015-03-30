@@ -1,0 +1,1719 @@
+<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+ <DocumentProperties xmlns="urn:schemas-microsoft-com:office:office">
+  <Author>floh</Author>
+  <LastAuthor>MartinSE</LastAuthor>
+  <Created>2004-06-29T09:20:46Z</Created>
+  <LastSaved>2007-11-13T13:28:54Z</LastSaved>
+  <Company>Graceland</Company>
+  <Version>12.00</Version>
+ </DocumentProperties>
+ <OfficeDocumentSettings xmlns="urn:schemas-microsoft-com:office:office">
+  <DownloadComponents/>
+  <LocationOfComponents HRef="file:///D:\"/>
+ </OfficeDocumentSettings>
+ <ExcelWorkbook xmlns="urn:schemas-microsoft-com:office:excel">
+  <WindowHeight>3855</WindowHeight>
+  <WindowWidth>5010</WindowWidth>
+  <WindowTopX>480</WindowTopX>
+  <WindowTopY>105</WindowTopY>
+  <TabRatio>338</TabRatio>
+  <ProtectStructure>False</ProtectStructure>
+  <ProtectWindows>False</ProtectWindows>
+ </ExcelWorkbook>
+ <Styles>
+  <Style ss:ID="Default" ss:Name="Normal">
+   <Alignment ss:Vertical="Bottom"/>
+   <Borders/>
+   <Font ss:FontName="Arial"/>
+   <Interior/>
+   <NumberFormat/>
+   <Protection/>
+  </Style>
+  <Style ss:ID="s62">
+   <Borders>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+   </Borders>
+  </Style>
+  <Style ss:ID="s63">
+   <Borders>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+   </Borders>
+  </Style>
+  <Style ss:ID="s64">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Bottom"/>
+   <Borders/>
+   <Font ss:FontName="Arial" x:Family="Swiss" ss:Size="8" ss:Bold="1"/>
+   <Interior ss:Color="#FFFF00" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="s65">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Bottom"/>
+   <Borders>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+   </Borders>
+   <Font ss:FontName="Arial" x:Family="Swiss" ss:Size="8" ss:Bold="1"/>
+   <Interior ss:Color="#FFFF00" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="s66">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Bottom"/>
+   <Borders>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+   </Borders>
+   <Font ss:FontName="Arial" x:Family="Swiss" ss:Size="8" ss:Bold="1"/>
+   <Interior ss:Color="#FFFF00" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="s67">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Bottom"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="2"/>
+    <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+   </Borders>
+   <Font ss:FontName="Arial" x:Family="Swiss" ss:Size="8" ss:Bold="1"/>
+   <Interior ss:Color="#FFFF00" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="s68">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Bottom"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="2"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+   </Borders>
+   <Font ss:FontName="Arial" x:Family="Swiss" ss:Size="8" ss:Bold="1"/>
+   <Interior ss:Color="#FFFF00" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="s69">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Bottom"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="2"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+   </Borders>
+   <Font ss:FontName="Arial" x:Family="Swiss" ss:Size="8" ss:Bold="1"/>
+   <Interior ss:Color="#FFFF00" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="s70">
+   <Borders>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+   </Borders>
+   <NumberFormat ss:Format="@"/>
+  </Style>
+  <Style ss:ID="s71">
+   <Borders>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+   </Borders>
+   <Interior ss:Color="#FFFF00" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="s72">
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+   </Borders>
+   <Interior ss:Color="#FFFF00" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="s73">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Bottom"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+   </Borders>
+   <Font ss:FontName="Arial" x:Family="Swiss" ss:Bold="1"/>
+   <Interior ss:Color="#FFFF00" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="s74">
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+   </Borders>
+   <Interior ss:Color="#FFFF00" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="s75">
+   <NumberFormat ss:Format="@"/>
+  </Style>
+  <Style ss:ID="s76">
+   <Interior ss:Color="#C0C0C0" ss:Pattern="Solid"/>
+   <NumberFormat ss:Format="@"/>
+  </Style>
+  <Style ss:ID="s77">
+   <Borders/>
+  </Style>
+ </Styles>
+ <Worksheet ss:Name="materials">
+  <Table ss:ExpandedColumnCount="9" ss:ExpandedRowCount="20" x:FullColumns="1"
+   x:FullRows="1" ss:DefaultColumnWidth="60" ss:DefaultRowHeight="13.3125">
+   <Column ss:StyleID="s62" ss:Width="68.25"/>
+   <Column ss:StyleID="s63" ss:AutoFitWidth="0" ss:Width="101.25"/>
+   <Column ss:StyleID="s63" ss:AutoFitWidth="0" ss:Width="232.5"/>
+   <Column ss:Index="9" ss:AutoFitWidth="0" ss:Width="71.25"/>
+   <Row ss:AutoFitHeight="0" ss:Height="11.25" ss:StyleID="s64">
+    <Cell ss:StyleID="s65"><Data ss:Type="String">Name</Data><Comment
+      ss:Author="Enno Cramer"><ss:Data xmlns="http://www.w3.org/TR/REC-html40"><B><Font
+         html:Face="Tahoma" html:Size="8" html:Color="#000000">Enno Cramer:</Font></B><Font
+        html:Face="Tahoma" html:Size="8" html:Color="#000000">&#10;Unique identifier</Font></ss:Data></Comment></Cell>
+    <Cell ss:StyleID="s66"><Data ss:Type="String">Density</Data><Comment
+      ss:Author="Enno Cramer"><ss:Data xmlns="http://www.w3.org/TR/REC-html40"><B><Font
+         html:Face="Tahoma" html:Size="8" html:Color="#000000">Enno Cramer:</Font></B><Font
+        html:Face="Tahoma" html:Size="8" html:Color="#000000">&#10;Material density in t/m^3</Font></ss:Data></Comment></Cell>
+    <Cell ss:StyleID="s66"><Data ss:Type="String">Comment</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0" ss:Height="12" ss:StyleID="s67">
+    <Cell ss:StyleID="s68"><Data ss:Type="String">string</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">float</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">string</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">EmptyWood</Data></Cell>
+    <Cell ss:StyleID="s70"><Data ss:Type="String">4.0</Data></Cell>
+    <Cell ss:StyleID="s70"><Data ss:Type="String">Wood for empty cases based on &quot;Wood&quot; (450 x 0.2)</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Wood</Data></Cell>
+    <Cell ss:StyleID="s70"><Data ss:Type="String">4.0</Data></Cell>
+    <Cell ss:StyleID="s70"><Data ss:Type="String">Redwood (American)</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Asphalt</Data></Cell>
+    <Cell ss:StyleID="s70"><Data ss:Type="String">0.721</Data></Cell>
+    <Cell ss:StyleID="s70"><Data ss:Type="String">Asphalt, crushed</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Ice</Data></Cell>
+    <Cell ss:StyleID="s70"><Data ss:Type="String">0.919</Data></Cell>
+    <Cell ss:StyleID="s70"><Data ss:Type="String">Ice, solid</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Water</Data></Cell>
+    <Cell ss:StyleID="s70"><Data ss:Type="String">1.00</Data></Cell>
+    <Cell ss:StyleID="s70"><Data ss:Type="String">Water</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Character</Data></Cell>
+    <Cell ss:StyleID="s70"><Data ss:Type="String">1.00</Data></Cell>
+    <Cell ss:StyleID="s70"><Data ss:Type="String">Special material for characters.</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Glass</Data></Cell>
+    <Cell ss:StyleID="s70"><Data ss:Type="String">2.579</Data></Cell>
+    <Cell ss:StyleID="s70"><Data ss:Type="String">Glass, window</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Stone</Data></Cell>
+    <Cell ss:StyleID="s70"><Data ss:Type="String">2.691</Data></Cell>
+    <Cell ss:StyleID="s70"><Data ss:Type="String">Granite, solid</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Metal</Data></Cell>
+    <Cell ss:StyleID="s70"><Data ss:Type="String">7.300</Data></Cell>
+    <Cell ss:StyleID="s70"><Data ss:Type="String">Cast iron</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Soil</Data></Cell>
+    <Cell ss:StyleID="s70"><Data ss:Type="String">10.0</Data></Cell>
+    <Cell ss:StyleID="s70"><Data ss:Type="String">Earth, dense : 2.002</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Gold</Data></Cell>
+    <Cell ss:StyleID="s70"><Data ss:Type="String">19.32</Data></Cell>
+    <Cell ss:StyleID="s70"><Data ss:Type="String">Gold</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Flesh</Data></Cell>
+    <Cell ss:StyleID="s70"><Data ss:Type="String">19.32</Data></Cell>
+    <Cell ss:StyleID="s70"><Data ss:Type="String">copy of gold for now</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Probe</Data></Cell>
+    <Cell ss:StyleID="s70"><Data ss:Type="String">1.00</Data></Cell>
+    <Cell ss:StyleID="s70"><Data ss:Type="String">Special material for probes</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Pickable</Data></Cell>
+    <Cell><Data ss:Type="String">1.00</Data></Cell>
+    <Cell><Data ss:Type="String">Special material for picking</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Selection</Data></Cell>
+    <Cell><Data ss:Type="String">1.00</Data></Cell>
+    <Cell><Data ss:Type="String">Special material for character picking</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">NoGoArea</Data></Cell>
+    <Cell><Data ss:Type="String">1.00</Data></Cell>
+    <Cell><Data ss:Type="String">Special material for navigation no-go-areas</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Trigger</Data></Cell>
+    <Cell><Data ss:Type="String">1.00</Data></Cell>
+    <Cell><Data ss:Type="String">Special material for a Trigger</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">NavMapBorder</Data></Cell>
+    <Cell><Data ss:Type="String">1.00</Data></Cell>
+    <Cell><Data ss:Type="String">Special material for navigation borders</Data></Cell>
+   </Row>
+  </Table>
+  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
+   <PageSetup>
+    <Header x:Margin="0.4921259845"/>
+    <Footer x:Margin="0.4921259845"/>
+    <PageMargins x:Bottom="0.984251969" x:Left="0.78740157499999996"
+     x:Right="0.78740157499999996" x:Top="0.984251969"/>
+   </PageSetup>
+   <Unsynced/>
+   <Print>
+    <ValidPrinterInfo/>
+    <PaperSizeIndex>9</PaperSizeIndex>
+    <HorizontalResolution>300</HorizontalResolution>
+    <VerticalResolution>300</VerticalResolution>
+   </Print>
+   <Selected/>
+   <FreezePanes/>
+   <SplitHorizontal>2</SplitHorizontal>
+   <TopRowBottomPane>2</TopRowBottomPane>
+   <SplitVertical>1</SplitVertical>
+   <LeftColumnRightPane>1</LeftColumnRightPane>
+   <ActivePane>0</ActivePane>
+   <Panes>
+    <Pane>
+     <Number>3</Number>
+    </Pane>
+    <Pane>
+     <Number>2</Number>
+    </Pane>
+    <Pane>
+     <Number>1</Number>
+    </Pane>
+    <Pane>
+     <Number>0</Number>
+     <ActiveRow>13</ActiveRow>
+     <ActiveCol>2</ActiveCol>
+    </Pane>
+   </Panes>
+   <ProtectObjects>False</ProtectObjects>
+   <ProtectScenarios>False</ProtectScenarios>
+  </WorksheetOptions>
+  <DataValidation xmlns="urn:schemas-microsoft-com:office:excel">
+   <Range>R2C11:R2C256,R2C1:R2C3</Range>
+   <Type>List</Type>
+   <CellRangeList/>
+   <Value>&quot;string,int,float,bool,vector3&quot;</Value>
+  </DataValidation>
+ </Worksheet>
+ <Worksheet ss:Name="friction">
+  <Table ss:ExpandedColumnCount="19" ss:ExpandedRowCount="20" x:FullColumns="1"
+   x:FullRows="1" ss:DefaultColumnWidth="60" ss:DefaultRowHeight="13.3125">
+   <Column ss:StyleID="s71" ss:Width="68.25"/>
+   <Column ss:Index="3" ss:AutoFitWidth="0" ss:Width="33.75"/>
+   <Column ss:AutoFitWidth="0" ss:Width="42.75"/>
+   <Column ss:AutoFitWidth="0" ss:Width="27.75"/>
+   <Column ss:AutoFitWidth="0" ss:Width="35.25"/>
+   <Column ss:AutoFitWidth="0" ss:Width="48.75"/>
+   <Column ss:AutoFitWidth="0" ss:Width="35.25"/>
+   <Column ss:AutoFitWidth="0" ss:Width="34.5"/>
+   <Column ss:AutoFitWidth="0" ss:Width="31.5"/>
+   <Column ss:AutoFitWidth="0" ss:Width="28.5"/>
+   <Column ss:AutoFitWidth="0" ss:Width="32.25"/>
+   <Column ss:AutoFitWidth="0" ss:Width="41.25" ss:Span="1"/>
+   <Column ss:Index="15" ss:Width="42.75" ss:Span="2"/>
+   <Row ss:AutoFitHeight="0" ss:StyleID="s72">
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Friction</Data><Comment
+      ss:Author="Enno Cramer"><ss:Data xmlns="http://www.w3.org/TR/REC-html40"><B><Font
+         html:Face="Tahoma" html:Size="8" html:Color="#000000">Enno Cramer:</Font></B><Font
+        html:Face="Tahoma" html:Size="8" html:Color="#000000">&#10;Friction between material combinations. Fill upper triangle matrix only.</Font></ss:Data></Comment></Cell>
+    <Cell><Data ss:Type="String">EmptyWood</Data></Cell>
+    <Cell><Data ss:Type="String">Wood</Data></Cell>
+    <Cell><Data ss:Type="String">Asphalt</Data></Cell>
+    <Cell><Data ss:Type="String">Ice</Data></Cell>
+    <Cell><Data ss:Type="String">Water</Data></Cell>
+    <Cell><Data ss:Type="String">Character</Data></Cell>
+    <Cell><Data ss:Type="String">Glass</Data></Cell>
+    <Cell><Data ss:Type="String">Stone</Data></Cell>
+    <Cell><Data ss:Type="String">Metal</Data></Cell>
+    <Cell><Data ss:Type="String">Soil</Data></Cell>
+    <Cell><Data ss:Type="String">Gold</Data></Cell>
+    <Cell><Data ss:Type="String">Flesh</Data></Cell>
+    <Cell><Data ss:Type="String">Probe</Data></Cell>
+    <Cell ss:StyleID="s71"><Data ss:Type="String">Pickable</Data></Cell>
+    <Cell ss:StyleID="s71"><Data ss:Type="String">Selection</Data></Cell>
+    <Cell ss:StyleID="s71"><Data ss:Type="String">NoGoArea</Data></Cell>
+    <Cell ss:StyleID="s74"><Data ss:Type="String">Trigger</Data></Cell>
+    <Cell ss:StyleID="s71"><Data ss:Type="String">NavMapBorder</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0" ss:Height="12" ss:StyleID="s67">
+    <Cell ss:StyleID="s68"><Data ss:Type="String">string</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">float</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">float</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">float</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">float</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">float</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">float</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">float</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">float</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">float</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">float</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">float</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">float</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">float</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">float</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">float</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">float</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">float</Data></Cell>
+    <Cell><Data ss:Type="String">float</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">EmptyWood</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Wood</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Asphalt</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Ice</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Water</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Character</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Glass</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Stone</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Metal</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Soil</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Gold</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Flesh</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Probe</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Pickable</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Selection</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">NoGoArea</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Trigger</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">NavMapBorder</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">2.0</Data></Cell>
+   </Row>
+  </Table>
+  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
+   <PageSetup>
+    <Header x:Margin="0.4921259845"/>
+    <Footer x:Margin="0.4921259845"/>
+    <PageMargins x:Bottom="0.984251969" x:Left="0.78740157499999996"
+     x:Right="0.78740157499999996" x:Top="0.984251969"/>
+   </PageSetup>
+   <Unsynced/>
+   <Print>
+    <ValidPrinterInfo/>
+    <PaperSizeIndex>9</PaperSizeIndex>
+    <HorizontalResolution>300</HorizontalResolution>
+    <VerticalResolution>300</VerticalResolution>
+   </Print>
+   <FreezePanes/>
+   <SplitHorizontal>2</SplitHorizontal>
+   <TopRowBottomPane>2</TopRowBottomPane>
+   <SplitVertical>1</SplitVertical>
+   <LeftColumnRightPane>1</LeftColumnRightPane>
+   <ActivePane>0</ActivePane>
+   <Panes>
+    <Pane>
+     <Number>3</Number>
+    </Pane>
+    <Pane>
+     <Number>2</Number>
+    </Pane>
+    <Pane>
+     <Number>1</Number>
+    </Pane>
+    <Pane>
+     <Number>0</Number>
+     <ActiveRow>18</ActiveRow>
+     <ActiveCol>14</ActiveCol>
+    </Pane>
+   </Panes>
+   <ProtectObjects>False</ProtectObjects>
+   <ProtectScenarios>False</ProtectScenarios>
+  </WorksheetOptions>
+  <DataValidation xmlns="urn:schemas-microsoft-com:office:excel">
+   <Range>R2</Range>
+   <Type>List</Type>
+   <CellRangeList/>
+   <Value>&quot;string,int,float,bool,vector3&quot;</Value>
+  </DataValidation>
+ </Worksheet>
+ <Worksheet ss:Name="bouncyness">
+  <Table ss:ExpandedColumnCount="19" ss:ExpandedRowCount="20" x:FullColumns="1"
+   x:FullRows="1" ss:DefaultColumnWidth="60" ss:DefaultRowHeight="13.3125">
+   <Column ss:StyleID="s71" ss:Width="68.25"/>
+   <Column ss:Index="3" ss:AutoFitWidth="0" ss:Width="33.75"/>
+   <Column ss:AutoFitWidth="0" ss:Width="42.75"/>
+   <Column ss:AutoFitWidth="0" ss:Width="27.75"/>
+   <Column ss:AutoFitWidth="0" ss:Width="35.25"/>
+   <Column ss:AutoFitWidth="0" ss:Width="48.75"/>
+   <Column ss:AutoFitWidth="0" ss:Width="35.25"/>
+   <Column ss:AutoFitWidth="0" ss:Width="34.5"/>
+   <Column ss:AutoFitWidth="0" ss:Width="31.5"/>
+   <Column ss:AutoFitWidth="0" ss:Width="28.5"/>
+   <Column ss:AutoFitWidth="0" ss:Width="32.25"/>
+   <Column ss:AutoFitWidth="0" ss:Width="35.25"/>
+   <Column ss:Index="15" ss:Width="42.75" ss:Span="2"/>
+   <Column ss:Index="18" ss:AutoFitWidth="0" ss:Width="41.25"/>
+   <Row ss:AutoFitHeight="0" ss:StyleID="s72">
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Bouncyness</Data><Comment
+      ss:Author="Enno Cramer"><ss:Data xmlns="http://www.w3.org/TR/REC-html40"><B><Font
+         html:Face="Tahoma" html:Size="8" html:Color="#000000">Enno Cramer:</Font></B><Font
+        html:Face="Tahoma" html:Size="8" html:Color="#000000">&#10;Bouncyness of contacts between material combinations. Fill upper triangle matrix only.</Font></ss:Data></Comment></Cell>
+    <Cell><Data ss:Type="String">EmptyWood</Data></Cell>
+    <Cell><Data ss:Type="String">Wood</Data></Cell>
+    <Cell><Data ss:Type="String">Asphalt</Data></Cell>
+    <Cell><Data ss:Type="String">Ice</Data></Cell>
+    <Cell><Data ss:Type="String">Water</Data></Cell>
+    <Cell><Data ss:Type="String">Character</Data></Cell>
+    <Cell><Data ss:Type="String">Glass</Data></Cell>
+    <Cell><Data ss:Type="String">Stone</Data></Cell>
+    <Cell><Data ss:Type="String">Metal</Data></Cell>
+    <Cell><Data ss:Type="String">Soil</Data></Cell>
+    <Cell><Data ss:Type="String">Gold</Data></Cell>
+    <Cell><Data ss:Type="String">Flesh</Data></Cell>
+    <Cell><Data ss:Type="String">Probe</Data></Cell>
+    <Cell ss:StyleID="s71"><Data ss:Type="String">Pickable</Data></Cell>
+    <Cell ss:StyleID="s71"><Data ss:Type="String">Selection</Data></Cell>
+    <Cell ss:StyleID="s71"><Data ss:Type="String">NoGoArea</Data></Cell>
+    <Cell ss:StyleID="s74"><Data ss:Type="String">Trigger</Data></Cell>
+    <Cell ss:StyleID="s71"><Data ss:Type="String">NavMapBorder</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0" ss:Height="12" ss:StyleID="s67">
+    <Cell ss:StyleID="s68"><Data ss:Type="String">string</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">float</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">float</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">float</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">float</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">float</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">float</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">float</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">float</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">float</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">float</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">float</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">float</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">float</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">float</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">float</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">float</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">float</Data></Cell>
+    <Cell><Data ss:Type="String">float</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">EmptyWood</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Wood</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Asphalt</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Ice</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Water</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Character</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.0</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Glass</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Stone</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Metal</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Soil</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Gold</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Flesh</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Probe</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Pickable</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Selection</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">NoGoArea</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Trigger</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">NavMapBorder</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">0.5</Data></Cell>
+   </Row>
+  </Table>
+  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
+   <PageSetup>
+    <Header x:Margin="0.4921259845"/>
+    <Footer x:Margin="0.4921259845"/>
+    <PageMargins x:Bottom="0.984251969" x:Left="0.78740157499999996"
+     x:Right="0.78740157499999996" x:Top="0.984251969"/>
+   </PageSetup>
+   <Unsynced/>
+   <Print>
+    <ValidPrinterInfo/>
+    <PaperSizeIndex>9</PaperSizeIndex>
+    <HorizontalResolution>300</HorizontalResolution>
+    <VerticalResolution>300</VerticalResolution>
+   </Print>
+   <FreezePanes/>
+   <SplitHorizontal>2</SplitHorizontal>
+   <TopRowBottomPane>2</TopRowBottomPane>
+   <SplitVertical>1</SplitVertical>
+   <LeftColumnRightPane>1</LeftColumnRightPane>
+   <ActivePane>0</ActivePane>
+   <Panes>
+    <Pane>
+     <Number>3</Number>
+    </Pane>
+    <Pane>
+     <Number>2</Number>
+    </Pane>
+    <Pane>
+     <Number>1</Number>
+    </Pane>
+    <Pane>
+     <Number>0</Number>
+     <ActiveRow>12</ActiveRow>
+     <ActiveCol>11</ActiveCol>
+    </Pane>
+   </Panes>
+   <ProtectObjects>False</ProtectObjects>
+   <ProtectScenarios>False</ProtectScenarios>
+  </WorksheetOptions>
+  <DataValidation xmlns="urn:schemas-microsoft-com:office:excel">
+   <Range>R2</Range>
+   <Type>List</Type>
+   <CellRangeList/>
+   <Value>&quot;string,int,float,bool,vector3&quot;</Value>
+  </DataValidation>
+ </Worksheet>
+ <Worksheet ss:Name="sound">
+  <Table ss:ExpandedColumnCount="19" ss:ExpandedRowCount="20" x:FullColumns="1"
+   x:FullRows="1" ss:DefaultColumnWidth="60" ss:DefaultRowHeight="13.3125">
+   <Column ss:StyleID="s71" ss:Width="68.25"/>
+   <Column ss:Index="3" ss:AutoFitWidth="0" ss:Width="59.25"/>
+   <Column ss:AutoFitWidth="0" ss:Width="57.75" ss:Span="1"/>
+   <Column ss:Index="6" ss:AutoFitWidth="0" ss:Width="57"/>
+   <Column ss:AutoFitWidth="0" ss:Width="63.75"/>
+   <Column ss:AutoFitWidth="0" ss:Width="58.5"/>
+   <Column ss:AutoFitWidth="0" ss:Width="66.75"/>
+   <Column ss:AutoFitWidth="0" ss:Width="96"/>
+   <Column ss:AutoFitWidth="0" ss:Width="101.25"/>
+   <Column ss:AutoFitWidth="0" ss:Width="91.5"/>
+   <Column ss:AutoFitWidth="0" ss:Width="88.5"/>
+   <Column ss:Index="15" ss:AutoFitWidth="0" ss:Width="54.75"/>
+   <Column ss:AutoFitWidth="0" ss:Width="55.5"/>
+   <Column ss:AutoFitWidth="0" ss:Width="62.25"/>
+   <Row ss:AutoFitHeight="0" ss:StyleID="s72">
+    <Cell ss:StyleID="s73"><Data ss:Type="String">Sound</Data><Comment
+      ss:Author="Enno Cramer"><ss:Data xmlns="http://www.w3.org/TR/REC-html40"><B><Font
+         html:Face="Tahoma" html:Size="8" html:Color="#000000">Enno Cramer:</Font></B><Font
+        html:Face="Tahoma" html:Size="8" html:Color="#000000">&#10;Bouncyness of contacts between material combinations. Fill upper triangle matrix only.</Font></ss:Data></Comment></Cell>
+    <Cell><Data ss:Type="String">EmptyWood</Data></Cell>
+    <Cell><Data ss:Type="String">Wood</Data></Cell>
+    <Cell><Data ss:Type="String">Asphalt</Data></Cell>
+    <Cell><Data ss:Type="String">Ice</Data></Cell>
+    <Cell><Data ss:Type="String">Water</Data></Cell>
+    <Cell><Data ss:Type="String">Character</Data></Cell>
+    <Cell><Data ss:Type="String">Glass</Data></Cell>
+    <Cell><Data ss:Type="String">Stone</Data></Cell>
+    <Cell><Data ss:Type="String">Metal</Data></Cell>
+    <Cell><Data ss:Type="String">Soil</Data></Cell>
+    <Cell><Data ss:Type="String">Gold</Data></Cell>
+    <Cell><Data ss:Type="String">Flesh</Data></Cell>
+    <Cell><Data ss:Type="String">Probe</Data></Cell>
+    <Cell><Data ss:Type="String">Pickable</Data></Cell>
+    <Cell><Data ss:Type="String">Selection</Data></Cell>
+    <Cell><Data ss:Type="String">NoGoArea</Data></Cell>
+    <Cell><Data ss:Type="String">Trigger</Data></Cell>
+    <Cell ss:StyleID="s71"><Data ss:Type="String">NavMapBorder</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0" ss:Height="12" ss:StyleID="s67">
+    <Cell ss:StyleID="s68"><Data ss:Type="String">string</Data></Cell>
+    <Cell ss:StyleID="s68"><Data ss:Type="String">string</Data></Cell>
+    <Cell ss:StyleID="s68"><Data ss:Type="String">string</Data></Cell>
+    <Cell ss:StyleID="s68"><Data ss:Type="String">string</Data></Cell>
+    <Cell ss:StyleID="s68"><Data ss:Type="String">string</Data></Cell>
+    <Cell ss:StyleID="s68"><Data ss:Type="String">string</Data></Cell>
+    <Cell ss:StyleID="s68"><Data ss:Type="String">string</Data></Cell>
+    <Cell ss:StyleID="s68"><Data ss:Type="String">string</Data></Cell>
+    <Cell ss:StyleID="s68"><Data ss:Type="String">string</Data></Cell>
+    <Cell ss:StyleID="s68"><Data ss:Type="String">string</Data></Cell>
+    <Cell ss:StyleID="s68"><Data ss:Type="String">string</Data></Cell>
+    <Cell ss:StyleID="s68"><Data ss:Type="String">string</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">string</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">string</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">string</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">string</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">string</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">string</Data></Cell>
+    <Cell><Data ss:Type="String">string</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">EmptyWood</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">phys_wood</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">phys_wood</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">phys_wood</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">phys_wood</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">phys_wood</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">phys_wood</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">phys_wood</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">phys_wood</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">phys_wood</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">phys_wood</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">phys_wood</Data></Cell>
+    <Cell><Data ss:Type="String">phys_body_ground</Data></Cell>
+    <Cell ss:Index="15" ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Wood</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">phys_wood</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">phys_wood</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">phys_wood</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">phys_wood</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">phys_wood</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">phys_wood</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">phys_wood</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">phys_wood</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">phys_wood</Data></Cell>
+    <Cell ss:StyleID="s75"><Data ss:Type="String">phys_wood</Data></Cell>
+    <Cell><Data ss:Type="String">phys_body_ground</Data></Cell>
+    <Cell ss:Index="15" ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Asphalt</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">phys_metal_ground</Data></Cell>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell><Data ss:Type="String">phys_body_ground</Data></Cell>
+    <Cell ss:Index="15" ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Ice</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">phys_metal_ground</Data></Cell>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell><Data ss:Type="String">phys_body_ground</Data></Cell>
+    <Cell ss:Index="15" ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Water</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">phys_metal_ground</Data></Cell>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell><Data ss:Type="String">phys_body_ground</Data></Cell>
+    <Cell ss:Index="15" ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Character</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s77"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:Index="15" ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Glass</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">phys_metal_ground</Data></Cell>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell><Data ss:Type="String">phys_body_ground</Data></Cell>
+    <Cell ss:Index="15" ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Stone</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">phys_metal_ground</Data></Cell>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell><Data ss:Type="String">phys_body_ground</Data></Cell>
+    <Cell ss:Index="15" ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Metal</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s77"><Data ss:Type="String">phys_metal_ground</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">phys_metal_ground</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">phys_metal_ground</Data></Cell>
+    <Cell><Data ss:Type="String">phys_body_ground</Data></Cell>
+    <Cell ss:Index="15" ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Soil</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell><Data ss:Type="String">phys_body_ground</Data></Cell>
+    <Cell ss:Index="15" ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Gold</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell><Data ss:Type="String">phys_body_ground</Data></Cell>
+    <Cell ss:Index="15" ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Flesh</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:Index="15" ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Probe</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:Index="15" ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Pickable</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+    <Cell ss:StyleID="s75"/>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Selection</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">NoGoArea</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">Trigger</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell><Data ss:Type="String">NavMapBorder</Data></Cell>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s76"/>
+    <Cell ss:StyleID="s75"/>
+   </Row>
+  </Table>
+  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
+   <PageSetup>
+    <Header x:Margin="0.4921259845"/>
+    <Footer x:Margin="0.4921259845"/>
+    <PageMargins x:Bottom="0.984251969" x:Left="0.78740157499999996"
+     x:Right="0.78740157499999996" x:Top="0.984251969"/>
+   </PageSetup>
+   <Unsynced/>
+   <Print>
+    <ValidPrinterInfo/>
+    <PaperSizeIndex>9</PaperSizeIndex>
+    <HorizontalResolution>300</HorizontalResolution>
+    <VerticalResolution>300</VerticalResolution>
+   </Print>
+   <FreezePanes/>
+   <SplitHorizontal>2</SplitHorizontal>
+   <TopRowBottomPane>2</TopRowBottomPane>
+   <SplitVertical>1</SplitVertical>
+   <LeftColumnRightPane>5</LeftColumnRightPane>
+   <ActivePane>0</ActivePane>
+   <Panes>
+    <Pane>
+     <Number>3</Number>
+    </Pane>
+    <Pane>
+     <Number>2</Number>
+    </Pane>
+    <Pane>
+     <Number>1</Number>
+     <ActiveCol>1</ActiveCol>
+    </Pane>
+    <Pane>
+     <Number>0</Number>
+     <ActiveRow>8</ActiveRow>
+     <ActiveCol>8</ActiveCol>
+    </Pane>
+   </Panes>
+   <ProtectObjects>False</ProtectObjects>
+   <ProtectScenarios>False</ProtectScenarios>
+  </WorksheetOptions>
+  <DataValidation xmlns="urn:schemas-microsoft-com:office:excel">
+   <Range>R2</Range>
+   <Type>List</Type>
+   <CellRangeList/>
+   <Value>&quot;string,int,float,bool,vector3&quot;</Value>
+  </DataValidation>
+ </Worksheet>
+</Workbook>

@@ -1,0 +1,5 @@
+/**
+@namespace Physics
+
+The Physics namespace contains all classes for using of external physicsystems like ODE.
+*/

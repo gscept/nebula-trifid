@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Nebula3>
+  <Protocol namespace="BaseGameFeature" name="BaseGameProtocol">
+
+    <!-- dependencies -->
+    <Dependency header="game/entity.h"/>
+    <Dependency header="math/vector.h"/>
+    <Dependency header="basegamefeature/basegameattr/basegameattributes.h"/>
+    <Dependency header="math/quaternion.h"/>
+
+    <Message name="MoveDirection" fourcc="MOVD" scripted="true">
+      <InArg name="Direction" type="Math::vector" default="1.0f, 0.0f, 0.0f"/>
+      <InArg name="MaxMovement" type="float" default="1.0f"/>
+      <InArg name="CameraRelative" type="bool" default="false"/>
+      <Desc>
+        A MoveDirection message. Expected behaviour is that the entity
+        starts to move into the specified direction. The direction vector
+        can be defined as camera relative or absolute. The velocity settings
+        should be interpreted as a factor.
+      </Desc> 
+    </Message>
+    <!-- A MoveFollow message. The expected behaviour is that the entity which
+    receives this Message follows the target entity (defined by the
+    target entity's unique id) until told otherwise. -->
+    <Message name="MoveFollow" fourcc="MOVF">
+      <InArg name="TargetEntityId" type="Game::Entity::EntityId" default="0"/>
+      <InArg name="Distance" type="float" default="1.0f"/>
+    </Message>
+    <!-- A highlevel MoveGoto Messaging. The expected behaviour is that an entity
+    should move to the target point defined by the move goto Messaging
+    and stop there. If possible, the entity should steer around obstacles
+    and use pathfinding to reach the target point. -->
+    <Message name="MoveGoto" fourcc="MOVG" scripted="true">
+      <InArg name="Position" type="Math::vector"/>
+      <InArg name="Distance" type="float" default="0.5f"/>
+    </Message>    
+    <Message name="MoveRotate" fourcc="MMRO" scripted="true">
+      <InArg name="Angle" type="float" default="0.0f"/>
+      <Desc>
+        Commands an entity rotate around the y-axis for a new heading.
+      </Desc>
+    </Message>
+    <Message name="MoveSetVelocity" fourcc="MMSV" scripted="true">
+      <InArg name="RelVelocity" type="float" default="1.0f"/>
+      <Desc>
+        Set the (relative) linear velocity of an entity between 0.0 and 1.0.
+        The actual resulting velocity also depends on the MaxVelocity
+        attribute attached to the entity.
+      </Desc>
+    </Message>    
+    <Message name="MoveStop" fourcc="MOVS" scripted="true">
+      <Desc>
+        A MoveStop message. The expected behaviour is that an entity which
+        receives this messages stops immediately.
+      </Desc>
+    </Message>    
+    <Message name="MoveJump" fourcc="MOVJ" scripted="true">
+      <Desc>Makes a character jump.</Desc>
+    </Message>
+    <Message name="MoveTurn" fourcc="MOVT" scripted="true">
+      <InArg name="Direction" type="Math::vector" default="1.0f, 0.0f, 0.0f"/>      
+      <InArg name="CameraRelative" type="bool" default="false"/>
+      <Desc>
+        Commands an entity to turn into the specified direction defined
+        by a 3d vector. The direction vector can be absolute or camera relative.
+      </Desc>
+    </Message>
+    <Message name="Crouch" fourcc="CROU" scripted="true">
+      <Desc>Makes a character crouch.</Desc>
+      <InArg name="Enable" type="bool"/>
+    </Message>
+    <Message name="PlayerUse" fourcc="PLYU" scripted="true">
+      <Desc>Player use something</Desc>
+    </Message>
+    <Message name="PlayerDeath" fourcc="DEAT" scripted="true">
+      <Desc>Player dies</Desc>
+    </Message>
+    <Message name="PlayerEnable" fourcc="PLEN" scripted="true">
+      <InArg name="Enabled" type="bool" />
+      <Desc>Enable/Disable Player, affects all processing</Desc>
+    </Message>
+    <!-- Updates the transform of a entity, does not set the physics tranform.
+    All property that need to update when entity transformation changes need
+    listen to this messags.
+    To set the transformation of a entity (including the physics) use the SetTransform message. -->
+    <Message name="UpdateTransform" fourcc="UPTR">
+      <InArg name="Matrix" type="Math::matrix44" serialize="true"/>      
+    </Message>
+    <!-- Set the complete transform of a entity, including the  physics tranform.
+    Don't use per Frame, the physics engine won't like it! -->
+    <Message name="SetTransform" fourcc="MOST" derivedFrom="UpdateTransform">
+    </Message>
+    <!-- Enable the ambience bubble-->
+    <Message name="EnableAmbienceBubble" fourcc="EABU">
+      <InArg name="Enabled" type="bool"/>
+    </Message>
+          
+    <!-- entity attributes have changed -->
+    <Message name="AttributesUpdated" fourcc="ATUP">
+    </Message>
+    <Message name="SetAttribute" fourcc="STTR">
+      <InArg name="Attr" type="Attr::Attribute"/>
+    </Message>
+    <Message name="GetAttribute" fourcc="GTTR">
+      <InArg name="AttributeId" type="Attr::AttrId"/>
+      <OutArg name="Attr" type="Attr::Attribute"/>
+    </Message>    
+  </Protocol>
+
+</Nebula3>

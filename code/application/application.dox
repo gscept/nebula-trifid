@@ -1,0 +1,5 @@
+/**
+@namespace Application
+
+The Application namespace contains all base classes for game logic.
+*/

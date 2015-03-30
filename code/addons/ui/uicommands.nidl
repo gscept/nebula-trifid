@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Nebula3 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="D:\nebula3\schemas\interface.xsd">
+	<Library name="UICommands">
+    <Dependency header="scriptingfeature/scriptingfeature.h"/>
+    <Dependency header="ui/uifeatureunit.h"/>
+    <Dependency header="ui/uilayout.h"/>
+    
+    <Command name="LoadUIFont" fourcc="LUIF" desc="Loads an ui font">
+		<InArg name="File" type="string"/>
+		<InArg name="family" type="string"/>
+		<InArg name="style" type="string"/>		
+      <InArg name="weight" type="string"/>		
+        <Code>
+          UI::FontStyle ustyle = UI::NormalStyle;
+          UI::FontWeight uweight = UI::NormalWeight;
+          if(style == "Italic")
+          {
+            ustyle = UI::ItalicStyle;
+           }
+          if(weight == "Bold")
+          {
+            uweight = UI::BoldWeight;
+          }
+          UI::UiFeatureUnit::Instance()->LoadFont(File,family,ustyle,uweight);          
+        </Code>
+     </Command>    
+   <Command name="AddLayout" fourcc="CRLA" desc="Loads a layout file and gives it an internal name">
+		<InArg name="identifier" type="string"/>
+		<InArg name="filename" type="string"/>				
+    <Code>
+         UI::UiFeatureUnit::Instance()->CreateLayout(identifier,filename);
+    </Code>
+    </Command>    
+  <Command name="RemoveLayout" fourcc="RMLA" desc="Unloads a layout">
+		<InArg name="identifier" type="string"/>		
+    <Code>
+         UI::UiFeatureUnit::Instance()->FreeLayout(identifier);
+    </Code>
+    </Command>    
+  <Command name="ShowLayout" fourcc="SWLA" desc="Shows a layout">
+		<InArg name="identifier" type="string"/>		
+    <Code>
+      <![CDATA[
+         Ptr<UI::UiLayout> layout = UI::UiFeatureUnit::Instance()->GetLayout(identifier);
+         layout->Show();
+         ]]>
+    </Code>
+    </Command>    
+    <Command name="HideLayout" fourcc="HDLA" desc="Hides a layout">
+		<InArg name="identifier" type="string"/>		
+    <Code>
+      <![CDATA[
+         Ptr<UI::UiLayout> layout = UI::UiFeatureUnit::Instance()->GetLayout(identifier);
+         layout->Hide();
+         ]]>
+    </Code>
+    </Command>
+    <Command name="SetInputValue" fourcc="seva" desc="Sets a layout input element value">
+      <InArg name="layout" type="string"/>
+      <InArg name="element" type="string"/>
+      <InArg name="value" type="string"/>
+      <Code>
+        <![CDATA[
+         Ptr<UI::UiLayout> lay = UI::UiFeatureUnit::Instance()->GetLayout(layout);
+         const Ptr<UI::UiElement>& el = lay->GetElement(element);
+         el->SetInputValue(value);
+        ]]>
+      </Code>
+    </Command>
+    <Command name="SetElementText" fourcc="seet" desc="Sets a layout element text">
+      <InArg name="layout" type="string"/>
+      <InArg name="element" type="string"/>
+      <InArg name="value" type="string"/>
+      <Code>
+        <![CDATA[
+         Ptr<UI::UiLayout> lay = UI::UiFeatureUnit::Instance()->GetLayout(layout);
+         const Ptr<UI::UiElement>& el = lay->GetElement(element);
+         el->SetText(value);
+        ]]>
+      </Code>
+    </Command>
+    <Command name="SetElementVisible" fourcc="seev" desc="Sets layout element visibility">
+      <InArg name="layout" type="string"/>
+      <InArg name="element" type="string"/>
+      <InArg name="value" type="bool"/>
+      <Code>
+        <![CDATA[
+         Ptr<UI::UiLayout> lay = UI::UiFeatureUnit::Instance()->GetLayout(layout);
+         const Ptr<UI::UiElement>& el = lay->GetElement(element);
+         if(value)
+         {
+          el->Show();
+         }
+         else
+         {
+         el->Hide();
+         }        
+        ]]>
+      </Code>
+    </Command>
+    <Command name="GetElementVisible" fourcc="geev" desc="gets layout element visibility">
+      <InArg name="layout" type="string"/>
+      <InArg name="element" type="string"/>
+      <OutArg name="value" type="bool"/>
+      <Code>
+        <![CDATA[
+         Ptr<UI::UiLayout> lay = UI::UiFeatureUnit::Instance()->GetLayout(layout);
+         const Ptr<UI::UiElement>& el = lay->GetElement(element);
+         return el->GetVisible();                 
+        ]]>
+      </Code>
+    </Command>
+  </Library>  
+</Nebula3>

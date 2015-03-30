@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Nebula3>
+    <Protocol namespace="Video" name="VideoProtocol">
+      <!-- dependencies -->
+      <Dependency header="util/stringatom.h"/>     
+    
+      <!-- start the video -->
+      <Message name="PlayVideo" fourcc="pvid">
+        <InArg name="ResourceName" type="Util::StringAtom"/>
+        <InArg name="FromFile" type="bool"/>
+        <InArg name="AutoDelete" type="bool"/>
+        <InArg name="Loop" type="bool"/>
+        <InArg name="UpperLeftCorner" type="Math::float2"/>
+        <InArg name="UpperRightCorner" type="Math::float2"/>
+        <InArg name="LowerLeftCorner" type="Math::float2"/>
+        <InArg name="LowerRightCorner" type="Math::float2"/>
+      </Message>
+
+      <!-- stop the video -->
+      <Message name="StopVideo" fourcc="stvi">
+        <InArg name="ResourceName" type="Util::StringAtom"/>
+        <InArg name="DeleteVideo" type="bool"/>
+      </Message>
+    
+      <!-- pause the video-->
+      <Message name="PauseVideo" fourcc="pavi">
+        <InArg name="ResourceName" type="Util::StringAtom"/>  
+      </Message>
+      
+      <!-- resume the video-->
+      <Message name="ResumeVideo" fourcc="resv">
+        <InArg name="ResourceName" type="Util::StringAtom"/>
+      </Message>
+
+      <!-- delete the video-->
+      <Message name="DeleteVideo" fourcc="delv">
+        <InArg name="ResourceName" type="Util::StringAtom"/>
+      </Message>
+
+      <!-- is video playing?-->
+      <Message name="IsVideoPlaying" fourcc="isvp">
+        <InArg name="ResourceName" type="Util::StringAtom"/>
+        <OutArg name="Playing" type="bool"/>
+      </Message>
+    </Protocol>
+</Nebula3>    
+    

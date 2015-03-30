@@ -1,0 +1,6 @@
+/**
+@namespace PhysicsFeature
+
+The PhysicsFeature namespace contains properties and messages
+for using collision and physics with the entity system of the game application.
+*/

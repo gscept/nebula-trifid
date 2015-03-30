@@ -1,0 +1,4 @@
+<Trigger> 
+ <Item TriggerPhaseTime="0.0" OneWayTrigger="false" ReactivateTrigger="false" ReactivateTriggerTime="0.0" Id="DefaultTriggerSphere" Name="TriggerSphere" Graphics="system/triggersphere" TriggerActive="true" Shape="sphere"/>
+ <Item TriggerPhaseTime="0.0" OneWayTrigger="false" ReactivateTrigger="false" ReactivateTriggerTime="0.0" Id="DefaultTriggerBox" Name="TriggerBox" Graphics="system/triggerbox" TriggerActive="true" Shape="box"/>
+</Trigger>

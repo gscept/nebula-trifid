@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Nebula3>
+  <AttributeLib>
+    <Attribute name="AutoPlay" fourcc="AUPL" accessMode="ReadWrite" type="Bool" default="true"/>
+    <Attribute name="AudioEvent" fourcc="AEVE" accessMode="ReadWrite" type="String"/>
+  </AttributeLib>
+
+  <Property name="FAudio::AudioEmitterProperty" header="faudio/audioemitterproperty.h">
+    <Attribute name="AutoPlay"/>
+    <Attribute name="AudioEvent"/>
+  </Property>
+
+  <Protocol namespace="FAudio" name="AudioProtocol">
+    
+    <!-- dependencies -->
+    <Dependency header="io/uri.h"/>
+    <Dependency header="util/array.h"/>
+    <Dependency header="math/matrix44.h"/>
+    <Dependency header="math/vector.h"/>
+    <Dependency header="faudio/eventid.h"/>
+    <Dependency header="faudio/busid.h"/>
+    <Dependency header="faudio/audiodevice.h"/>
+
+    <!-- set the 3D-listener parameters -->
+    <Message name="UpdateListener" fourcc="updl">
+        <InArg name="Transform" type="Math::matrix44"/>
+        <InArg name="Velocity" type="Math::vector"/>
+    </Message>
+
+    <!-- load an fmod event project -->
+    <Message name="LoadBankFile" fourcc="lbfl">
+      <InArg name="Bank" type="Util::String"/>
+      <InArg name="Blocking" type="bool"/>
+    </Message>
+
+    <!-- unload an fmod event project -->
+    <Message name="UnloadBankFile" fourcc="uevp">
+      <InArg name="Bank" type="Util::String"/>
+    </Message>
+
+    <!-- discard all active events -->
+    <Message name="DiscardAllEvents" fourcc="daev">
+    </Message>
+
+    <!-- play a fire and forget event -->
+    <Message name="EventPlayFireAndForget" fourcc="epff">
+      <InArg name="EventId" type="Util::String"/>
+      <InArg name="Volume" type="float"/>
+    </Message>
+
+    <!-- play a fire and forget event -->
+    <Message name="EventPlayFireAndForget3DMatrix" fourcc="epfd">
+      <InArg name="EventId" type="Util::String"/>
+      <InArg name="Transform" type="Math::matrix44"/>
+      <InArg name="Velocity" type="Math::vector"/>
+      <InArg name="Volume" type="float"/>
+    </Message>
+    
+        <!-- play a fire and forget event -->
+    <Message name="EventPlayFireAndForget3D" fourcc="epfs">
+      <InArg name="EventId" type="Util::String"/>
+      <InArg name="Position" type="Math::float4"/>
+      <InArg name="Forward" type="Math::vector"/>
+      <InArg name="Up" type="Math::vector"/>
+      <InArg name="Velocity" type="Math::vector"/>
+      <InArg name="Volume" type="float"/>
+    </Message>
+
+    <!-- base for event bus control messages -->
+    <Message name="BusControlBase" fourcc="eccb">
+      <InArg name="BusId" type="Util::String"/>
+    </Message>
+
+    <!-- set bus volume -->
+    <Message name="VCASetVolume" fourcc="vcsv" >
+      <InArg name="VCAId" type="Util::String"/>
+      <InArg name="Volume" type="float"/>
+    </Message>
+    <!-- set vca volume -->
+    <Message name="BusSetVolume" fourcc="esvo" derivedFrom="BusControlBase">
+      <InArg name="Volume" type="float"/>
+    </Message>
+
+
+    <!-- set bus paused -->
+    <Message name="BusSetPaused" fourcc="ecsp" derivedFrom="BusControlBase">
+      <InArg name="Paused" type="bool"/>
+    </Message>
+    <!-- entity messages -->
+    <Message name="EmitterPlay" fourcc="EMPL">
+      <InArg name="Enable" type="bool"/>
+    </Message>
+    <Message name="PlayEvent" fourcc="PYVE">
+      <InArg name="Event" type="Util::String"/>
+      <InArg name="Volume" type="float"/>
+    </Message>
+  </Protocol>
+  <Library name="AudioCommands">
+    <Command name="PlaySound" fourcc="PLSO" desc="Plays an audio event">
+      <InArg name="event" type="string"/>
+      <InArg name="volume" type="float"/>
+      <Code>
+        FAudio::AudioDevice::Instance()->EventPlayFireAndForget(event,volume);
+      </Code>
+    </Command>
+    <Command name="PlaySound3D" fourcc="PLS3" desc="Plays an audio event with transform">
+      <InArg name="event" type="string"/>
+      <InArg name="transform" type="matrix44"/>
+      <InArg name="volume" type="float"/>
+      <Code>
+        FAudio::AudioDevice::Instance()->EventPlayFireAndForget3D(event,transform,Math::vector(0,0,0),volume);
+      </Code>
+    </Command>
+
+    <Command name="SetVCAVolume" fourcc="VCAS" desc="Sets the volume level of a VCA">
+      <InArg name="vcaid" type="string"/>      
+      <InArg name="volume" type="float"/>
+      <Code>
+        FAudio::AudioDevice::Instance()->SetVCAVolume(volume, vcaid);
+      </Code>
+    </Command>
+    <Command name="SetBusVolume" fourcc="BUSS" desc="Sets the volume level of a bus">
+      <InArg name="busid" type="string"/>
+      <InArg name="volume" type="float"/>
+      <Code>
+        FAudio::AudioDevice::Instance()->SetBusVolume(volume, busid);
+      </Code>
+    </Command>
+    <Command name="SetMasterVolume" fourcc="SMRS" desc="Sets the master volume">      
+      <InArg name="volume" type="float"/>
+      <Code>
+        FAudio::AudioDevice::Instance()->SetMasterVolume(volume);
+      </Code>
+    </Command>
+  </Library>
+  </Nebula3>

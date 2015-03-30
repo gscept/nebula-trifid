@@ -1,0 +1,1306 @@
+\documentclass{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{tabularx}
+\usepackage{fancybox}
+\usepackage{amsmath}
+\usepackage{color}
+\usepackage[parfill]{parskip}
+\usepackage{listings}
+\usepackage{graphicx,xcolor}
+\definecolor{shadercolor}{rgb}{1,0.8,0.3}
+
+\lstdefinestyle{FX}
+{
+	language=C, 
+	backgroundcolor=\color{white},
+	morekeywords={float4, vec4, vec2, mat4, sampler2D, state, varblock, in, out, vs, ps, hs, ds, gs, cs, program, state, new, const, write, image2D, rgba32f}, 
+	frame=single, 
+	keywordstyle=\color{blue},
+	breaklines=true,
+	tabsize = 2,
+}
+
+\lstdefinestyle{Syntax}
+{
+	language=C,
+	breaklines = true,
+	frame=single, 
+	morekeywords={type, name, Mandatory, Optional, ;},
+	keywordstyle=\bfseries\color{black},
+	backgroundcolor=\color{red},
+	tabsize = 2
+}
+
+\lstset{escapechar=@, style=FX}
+
+\newcommand{\SyntaxBox}[1]
+{	
+	\begin{center}
+	\colorbox{orange!60}
+	{
+		\begin{minipage}{\linewidth}
+		\hfill
+		\begin{tabbing}
+		#1
+		\end{tabbing}
+		\end{minipage}
+	}
+	\end{center}
+}
+
+\lstnewenvironment{CodeBox}[1][]%
+{
+   \noindent
+   \minipage{\linewidth} 
+   \vspace{0.5\baselineskip}
+   \lstset{basicstyle=\footnotesize,frame=single,#1}}
+{\endminipage}
+
+\begin{document}
+\title{The AnyFX Effects Language specification, version 1.5}
+\author{Gustav Sterbrant}
+\date{}
+\maketitle
+
+\clearpage
+\tableofcontents
+\clearpage
+
+\section{Compiler}
+This section describes the grammar, keywords and structure which complies to the AnyFX language. For future reference, syntax definition will look as such:
+
+\SyntaxBox
+{
+	\textbf{Mandatory} \textit{Optional} Keyword
+}
+
+\subsection{Keywords}
+AnyFX reserves some keywords, these keywords can be found in Table~\ref{table:keywords}.
+
+\begin{table}[hp]
+\centering
+\caption{Keywords}
+\label{table:keywords}
+\makebox[\linewidth]
+{
+\begin{tabular} { | c | }
+	\hline
+	const \\ \hline
+	true \\ \hline
+	false \\ \hline
+	in \\ \hline
+	out \\ \hline
+	inout \\ \hline
+	program \\ \hline
+	samplerstate \\ \hline
+	state \\ \hline
+	struct \\ \hline
+	varblock \\ \hline
+	patch \\ \hline
+\end{tabular}
+}
+\end{table}
+
+\subsection{Expressions}
+The compiler can perform static expression evaluation. This may comes in handy when using preprocessor macros which may alter the result of the effect during compile time. Expressions can use values in any of the default types, that is \textit{float, bool} and \textit{int}. An example of expression usage could be:
+
+\begin{CodeBox}
+#define NUM_INSTANCES 5
+
+[inputprimitive] = triangles
+[outputprimitive] = triangle_strip
+[maxvertexcount] = 3 * NUM_INSTANCES
+
+shader
+void
+gsStatic(in vec3 Position[], in vec2 inUV[], out vec2 outUV, out vec3 outTriDistance)
+{
+...
+\end{CodeBox}
+
+For the mathematical types  \textit{float} and \textit{int}, the binary operators \textit{+, -, *, /, \textless, \textgreater, \textless=, \textgreater=, !=, ==} are supported. The compiler will statically evalute and implicitly convert between float, double and int. Unary operator \textit{-} is also supported for these types.
+
+Booleans have a smaller subset of operators, namely \textit{!=} and \textit{==}. The only unary operator supported for booleans is \textit{!} which gets the conjugate of the boolean.
+
+\subsection{Profile}
+Since AnyFX doesn't analyze the executing code by itself, it needs to be provided a target language to which AnyFX code can be translated into. Table ~\ref{table:profiles} shows the currently implemented translation targets.
+
+\begin{table}[hp]
+\centering
+\caption{Profiles}
+\label{table:profiles}
+\makebox[\linewidth]
+{
+\begin{tabular} { | c | c | c | }
+	\hline
+	\textbf{Status} & \textbf{Target} & \textbf{Version} \\ \hline
+	\textbf{Implemented} & gl44 & OpenGL 4.4 \\ \hline
+	\textbf{Implemented} & gl43 & OpenGL 4.3\\ \hline
+	\textbf{Implemented} & gl42 & OpenGL 4.2 \\ \hline
+	\textbf{Implemented} & gl41 & OpenGL 4.1 \\ \hline
+	\textbf{Implemented} & gl40 & OpenGL 4.0 \\ \hline
+	Not implemented & gl33 & OpenGL 3.3 \\ \hline
+	Not implemented & gl32 & OpenGL 3.2 \\ \hline
+	Not implemented & gl31 & OpenGL 3.1 \\ \hline
+	Not implemented & gl30 & OpenGL 3.0 \\ \hline
+	Not implemented & gl20 & OpenGL 2.0 \\ \hline
+	Not implemented & gl21 & OpenGL 2.1 \\ \hline
+	Not implemented & gl15 & OpenGL 1.5 \\ \hline
+	Not implemented & gl14 & OpenGL 1.4 \\ \hline
+	Not implemented & gl13 & OpenGL 1.3 \\ \hline
+	Not implemented & gl12 & OpenGL 1.2 \\ \hline
+	Not implemented & gl121 & OpenGL 1.2.1 \\ \hline
+	Not implemented & gl11 & OpenGL 1.1 \\ \hline
+	Not implemented & gl10 & OpenGL 1.0 \\ \hline
+	Not implemented & dx11 & DirectX 11 \\ \hline
+	Not implemented & dx10 & DirectX 10 \\ \hline
+	Not implemented & dx9 & DirectX 9 \\ \hline
+	Not implemented & ps4 & Playstation 4 \\ \hline
+	Not implemented & ps3 & Playstation 3 \\ \hline
+	Not implemented & wiiu & Wii U \\ \hline
+	Not implemented & wii & Wii \\ \hline
+\end{tabular}
+}
+\end{table}
+
+\subsection{Variables}
+
+Variables are declared using the syntax:
+
+\SyntaxBox
+{
+	\textit{qualifier}0 ... \textit{qualifier}N type \textbf{name} \textit{[ Annotation ]} \textbf{;}
+}
+
+Here, \textbf{type} can be any of the entries in Table ~\ref{table:vartypes}. For future reference, whenever the \textbf{type} keyword is encountered, it is assumed to be any value in this table. Variables supports qualifiers, and the two currently existing qualifiers are image format qualifiers and data access qualifiers. 
+
+\clearpage
+\begin{table}[hp]
+\centering
+\caption{Variable types}
+\label{table:vartypes}
+\makebox[\linewidth]
+{
+\begin{tabular} { | c | c | c | }
+	\hline
+	\textbf{AnyFX Type} & \textbf{OpenGL} & \textbf{DirectX} \\ \hline
+	\textbf{float} & float & float \\ \hline
+	\textbf{float[2]} & vec2 & float2 \\ \hline
+	\textbf{float[3]} & vec3 & float3 \\ \hline
+	\textbf{float[4]} & vec4 & float4 \\ \hline
+	\textbf{double} & double & double \\ \hline
+	\textbf{double[2]} & dvec2 & double2 \\ \hline
+	\textbf{double[3]} & dvec3 & double3 \\ \hline
+	\textbf{double[4]} & dvec4 & double4 \\ \hline
+	\textbf{int} & int & int \\ \hline
+	\textbf{int[2]} & ivec2 & int2 \\ \hline
+	\textbf{int[3]} & ivec3 & int3 \\ \hline
+	\textbf{int[4]} & ivec4 & int4 \\ \hline
+	\textbf{unsigned int} & uint & uint \\ \hline
+	\textbf{unsigned int[2]} &uvec2 & uint2 \\ \hline
+	\textbf{unsigned int[3]} &uvec3 & uint3 \\ \hline
+	\textbf{unsigned int[4]} &uvec4 & uint4 \\ \hline
+	\textbf{short} & short & short \\ \hline
+	\textbf{short[2]} & svec2 & short2 \\ \hline
+	\textbf{short[3]} & svec3 & short3 \\ \hline
+	\textbf{short[4]} & svec4 & short4 \\ \hline
+	\textbf{bool} & bool & bool \\ \hline
+	\textbf{bool[2]} & bvec2 & bool2 \\ \hline
+	\textbf{bool[3]} & bvec3 & bool3 \\ \hline
+	\textbf{bool[4]} & bvec4 & bool4 \\ \hline
+	\textbf{matrix 2x2 (float[4])} & mat2x2 (alternatively mat2) & float2x2 \\ \hline
+	\textbf{matrix 2x3 (float[6])} & mat2x3 & float2x3 \\ \hline
+	\textbf{matrix 2x4 (float[8])} & mat2x4 & float2x4 \\ \hline
+	\textbf{matrix 3x2 (float[6])} & mat3x2 & float3x2 \\ \hline
+	\textbf{matrix 3x3 (float[9])} & mat3x3 (alternatively mat3) & float3x3 \\ \hline
+	\textbf{matrix 3x4 (float[12])} & mat3x4 & float3x4 \\ \hline
+	\textbf{matrix 4x2 (float[8])} & mat4x2 & float4x2 \\ \hline
+	\textbf{matrix 4x3 (float[12])} & mat4x3 & float4x3 \\ \hline
+	\textbf{matrix 4x4 (float[16])} & mat4x4 (alternatively mat4) & float4x4 \\ \hline
+	\textbf{1D Texture object} & sampler1D & Texture1D \\ \hline
+	\textbf{1D Texture object array} & sampler1DArray & Texture1DArray \\ \hline
+	\textbf{2D Texture object} & sampler2D & Texture2D \\ \hline
+	\textbf{2D Texture object array} & sampler2DArray & Texture2DArray \\ \hline
+	\textbf{2D Texture object multisampled} & sampler2DMS & Texture2DMS \\ \hline
+	\textbf{2D Texture object multisampled array} & sampler2DMSArray & Texture2DMSArray \\ \hline
+	\textbf{3D Texture object} & sampler3D & Texture3D \\ \hline
+	\textbf{Cube Texture object} & samplerCube & TextureCube \\ \hline
+	\textbf{Cube Texture object array} & samplerCubeArray & TextureCubeArray \\ \hline
+	\textbf{1D Read-Write access image} & image1D & RWTexture1D \\ \hline
+	\textbf{1D Read-Write access image array} & image1DArray & RWTexture1DArray \\ \hline
+	\textbf{2D Read-Write access image} & image2D & RWTexture2D \\ \hline
+	\textbf{2D Read-Write access image array} & image2DArray & RWTexture2DArray \\ \hline
+	\textbf{2D Read-Write access image multisampled} & image2DMS & \textit{not available in DirectX} \\ \hline
+	\textbf{2D Read-Write access image multisampled array} & image2DMSArray & \textit{not available in DirectX} \\ \hline
+	\textbf{3D Read-Write access image} & image3D & RWTexture3D \\ \hline
+	\textbf{3D Read-Write access image array} & image3DArray & \textit{not available in DirectX} \\ \hline
+	\textbf{Cube Read-Write access image} & imageCube & \textit{not available in DirectX} \\ \hline
+	\textbf{Cube Read-Write access image array} & imageCubeArray & \textit{not available in DirectX} \\ \hline
+	\textbf{Compute shader atomic counter} & atomic\_uint & \textit{not available in DirectX} \\ \hline
+\end{tabular}
+}
+\end{table}
+
+Note that we have two sets of definitions at the moment, one for OpenGL and one for DirectX. AnyFX doesn't care about which 'style' you use, although it will throw a warning if compiled with a mismatching profile, so as to inform the user that they are using a perhaps confusing variable syntax. An example of this would be:
+
+\begin{CodeBox}
+	float4 color;
+	...
+	vec4 func()
+	{
+		return color;
+	}
+\end{CodeBox}
+
+In which we combine DirectX style variables (\textbf{float4}) with OpenGL style functions (\textbf{vec4}). This will cause a warning. 
+
+\subsubsection{Initialization}
+Variables can also be initialized with a default value, for which the syntax is:
+
+\SyntaxBox
+{
+	type \textbf{name} \textit{[ Annotation ]} \textbf{= type(expressions) ;}
+}
+
+Here, \textit{expressions} is a linear list of data, an example of an initializiation list would be:
+
+\begin{CodeBox}
+	vec4 color = vec4(1.0f, 0.0f, 0.0f, 1.0f);
+\end{CodeBox}
+
+Which gives us a float vector of size 4 where:
+\[
+	\left(
+	\begin{array}{c}
+	x = 1.0 \\
+	y = 0.0 \\ 
+	z = 0.0 \\
+	w = 1.0 \\
+	\end{array}
+	\right)
+\]
+
+We can also apply the initializer shorthand, which only works for the default types \textit{float, double, int, bool, short, uint}. It follows this syntax
+
+\SyntaxBox
+{
+	type \textbf{name} \textit{[ Annotation ]} \textbf{= expression;}
+}
+
+Here, \textit{expression} is assumed to be the same as \textit{type}. If this is not the case, an compilation error will be thrown. Example code could be:
+
+\begin{CodeBox}
+	float f = 1.0f;
+\end{CodeBox}
+
+
+Do also note that whenever a variable gets set from the API, the default value gets replaced and cannot be retrieved, and thus only exists as a convenient way to represent a 'default' state of the variable.
+
+\subsubsection{Arrays}
+Variables can also be of array type, for which the syntax is:
+
+\SyntaxBox
+{
+	type \textbf{name} \textit{[ Annotation ]} \textbf{[ size expression ];}
+}
+
+Note that arrays can also be initialized using this syntax:
+
+\SyntaxBox
+{
+	type \textbf{name} \textit{[ Annotation ]} \textbf{[} \textit{size expression} \textbf{] = \{ type(\textbf{expression1}), type(\textbf{expression2}), type(\textbf{expression3}) \} ;}
+}
+
+We can also initialize variable lists with basic type, for which we don't need to specify which type each element is. The syntax is:
+\SyntaxBox
+{
+	type \textbf{name} \textit{[ Annotation ]} \textbf{[} \textit{size expression} \textbf{] = \{ \textbf{expression1}, \textbf{expression2}, \textbf{expression3} \} ;}
+}
+
+However, this is only valid for the basic types \textit{int, bool} and \textit{float}. These array initializers use the verbose syntax, meaning that the size expression must be equal to the number of qualifiers. We can also initialize arrays by omitting the \textit{size} expression, which tells AnyFX to create an array with a size equal to the number of initializers. An example could be:
+
+\begin{CodeBox}
+float verboseArray[4]	= { 1.0f, 2.0f, 3.0f, 4.0f };
+float lazyArray[]			= { 1.0f, 2.0f, 3.0f, 4.0f };
+\end{CodeBox}
+
+These two arrays are equal in size and data, however \textit{verboseArray} explicitly defines the size, while \textit{lazyArray} implicitly defines it.
+
+\subsubsection{Compute shader variables}
+Some variable types, namely the image types are considered specialized for compute shaders. An image variable denotes a buffer which is treated as a texture, however it can be accessed and written to using special methods. As such, an image denotes a texture-backed data buffer, which can be used for data storage and reads from a compute shader.
+
+Every compute shader variable (as of version 1.0, this only applies to images) has a special qualifier called an \textit{access qualifier}. The access qualifier can be any of the values in Table~\ref{table:access}
+
+\begin{table}[hp]
+\centering
+\caption{Access modes}
+\label{table:access}
+\makebox[\linewidth]
+{
+\begin{tabular} {| c | c |}
+	\hline
+	\textbf{Syntax} & \textbf{Functionality} \\ \hline
+	read & Image can only be read from \\ \hline
+	write & Image can only be written to \\ \hline
+	readwrite & Image supports both reads and writes \\ \hline
+\end{tabular}
+}
+\end{table}
+
+Also, image variables has yet another special qualifier called an \textit{image format qualifier}. They are used by the shaders to explain how each pixel should be interpreted by the compute shader. Valid values are shown in Table~\ref{table:imageformat}.
+
+\begin{table}[hp]
+\centering
+\caption{Image formats}
+\label{table:imageformat}
+\makebox[\linewidth]
+{
+\begin{tabular} {| c | c |}
+	\hline
+	\textbf{Syntax} & \textbf{Functionality} \\ \hline
+	rgba32f & 32-bit RGBA floating point texture \\ \hline
+	rgba16f & 16-bit RGBA floating point texture \\ \hline
+	rg32f & 32-bit RG floating point texture \\ \hline
+	rg16f & 16-bit RGBA floating point texture \\ \hline
+	r11g11b10f & 11-bit R 11-bit G 10-bit B floating point texture \\ \hline
+	r32f & 32-bit R floating point texture \\ \hline
+	r16f & 16-bit R floating point texture \\ \hline
+	rgba16 & 16-bit RGBA untyped texture \\ \hline
+	rgb10a2 & 10-bit RGB 2-bit A untyped texture \\ \hline
+	rg16 & 16-bit RG untyped texture \\ \hline
+	rg8 & 8-bit RG untyped texture \\ \hline
+	r16 & 16-bit R untyped texture \\ \hline
+	r8 & 8-bit R untyped texture \\ \hline
+	rgba16snorm & 16-bit RGBA untyped normalized texture \\ \hline
+	rgba8snorm & 8-bit RGBA untyped normalized texture \\ \hline
+	rg16snorm & 16-bit RG untyped normalized texture \\ \hline
+	rg8snorm & 8-bit RG untyped normalized texture \\ \hline
+	r16snorm & 16-bit R untyped normalized texture \\ \hline
+	r8snorm & 8-bit R untyped normalized texture \\ \hline
+	rgba32i & 32-bit RGBA integer texture \\ \hline
+	rgba16i & 16-bit RGBA integer texture \\ \hline
+	rgba8i & 8-bit RGBA integer texture \\ \hline
+	rg32i & 32-bit RG integer texture \\ \hline
+	rg16i & 16-bit RG integer texture \\ \hline
+	rg8i & 8-bit RG integer texture \\ \hline
+	r32i & 32-bit R integer texture \\ \hline
+	r16i & 16-bit R integer texture \\ \hline
+	r8i & 8-bit R integer texture \\ \hline
+	rgba32ui & 32-bit RGBA unsigned integer texture \\ \hline
+	rgba16ui & 16-bit RGBA unsigned integer texture \\ \hline
+	rgb10a2ui & 10-bit RGB 2-bit a unsigned integer texture \\ \hline
+	rgba8ui & 8-bit RGBA unsigned integer texture \\ \hline
+	rg32ui & 32-bit RG unsigned integer texture \\ \hline
+	rg16ui & 16-bit RG unsigned integer texture \\ \hline
+	rg8ui & 8-bit RG unsigned integer texture \\ \hline
+	r32ui & 32-bit R unsigned integer texture \\ \hline
+	r16ui & 16-bit R unsigned integer texture \\ \hline
+	r8ui & 8-bit R unsigned integer texture \\ \hline
+\end{tabular}
+}
+\end{table}
+
+An example declaration of an image variable may look like this:
+
+\begin{CodeBox}
+write rgba32f image2D img;
+\end{CodeBox}
+
+\subsection{Constants}
+Sometimes, we might want to declare constant values in our shaders which lie outside the scope of any function or shader body. The syntax for this is very similar to the C standard:
+
+\SyntaxBox
+{
+	const type \textbf{name} = type(\textbf{expression});
+}
+
+Constant values can be initiated simpler for single-member types, namely \textit{float}, \textit{int} and \textit{bool}  like so:
+
+\SyntaxBox
+{
+	const type \textbf{name} = \textbf{expression};
+}
+
+For array constants, use the following syntax:
+
+\SyntaxBox
+{
+	const type \textbf{name[}\textit{size expression}\textbf{]} = \{ type(\textbf{expression1}), type(\textbf{expression2}), type(\textbf{expression3}), ... \};
+}
+
+This syntax demands that we initialize every element, that is the number of values in the initializer list be equal to \textit{size}.
+
+Or more simplified for the basic types \textit{int, bool} and \textit{float} etc:
+
+\SyntaxBox
+{
+	const type \textbf{name[}\textit{size expression}\textbf{]} = \textbf{ expression1, expression2, expression3}, ...;
+}
+
+
+AnyFX will throw an error if the constant isn't completely initialized, if any value is of incorrect type. We can also chose to avoid the verbosity with constant arrays as demonstrated with variable arrays. If we omit the \textit{size expression}, AnyFX will automatically evaluate the size of the array based on the amount of initializers. 
+
+\subsection{Transform feedback}
+In order to perform transform feedback from vertex, hull, domain or geometry shaders, AnyFX supports transform feedbacks to be bound within a shader program. This is done using a qualifier put on the output parameters of a shader function.
+
+\SyntaxBox
+{
+	[feedback = (\textbf{expression}, \textbf{expression})] \\
+}
+
+In usage, it can be illustrated as such:
+
+\SyntaxBox
+{
+	shader \\
+	void \\
+	vsTransform(\=\textbf{[feedback=(0, 0)]} out vec3 OutPos, \\
+		\> \textbf{[feedback=(0, 12)]} out vec3 OutNormal) \\
+	\{ \= \\
+	\>... \\
+	\}
+}
+
+The qualifier \textit{feedback} describes two values, the first represents the feedback transform buffer being attached when the shader program executes, and the second describes the offset into that buffer.
+
+\subsection{Render states}
+A render state describes an object encapsulating a render state for the graphics card. As such, it's essential to define a render state if we want to perform features like alpha-blending, stencil-testing and such. There are two different definitions for render states, the first being:
+
+\begin{center}
+\SyntaxBox
+{
+	state \textbf{name} \textit{[ Annotation ]}\textbf{;}
+}
+\end{center}
+
+This creates a default render state. The default values are explained in Table~\ref{table:renderstateflags}. 
+
+The other syntax is:
+
+\SyntaxBox
+{
+		state \textbf{name} \textit{[ Annotation ]} \\
+		\textbf{\{} \= \\
+			\> \textit{flag} = value; \\
+			\> ... \\
+			\> \textit{flag} = value; \\
+		\textbf{\};}
+}
+
+A \textit{state} object can have any number of flags, although it is highly recommended to assign a value to a flag only once. If a flag is set more than once, the previous value of the flag will be overwritten by the latter. The available flags and their values can be seen in Table~\ref{table:renderstateflags}.
+
+\begin{table}[float]
+\centering
+\caption{Render State Flags}
+\label{table:renderstateflags}
+\makebox[\linewidth]
+{
+\begin{tabular} {| c | c | c | }
+	\hline
+	\textbf{Flag} & \textbf{Default Value} & \textbf{Type} \\ \hline
+	DepthEnabled & true & bool \\ \hline
+	DepthWrite & true & bool \\ \hline
+	DepthClamp & true & bool \\ \hline
+	SeparateBlend & false & bool \\ \hline
+	StencilEnabled & false & bool \\ \hline
+	StencilReadMask & 0 & int \\ \hline
+	StencilWriteMask & 0 & int \\ \hline
+	AlphaToCoverageEnabled & false & bool \\ \hline
+	MultisampleEnabled & false & bool \\ \hline
+	DepthFunc & Less & Comparison Function \\ \hline
+	RasterizerMode & Fill & Rasterizer Mode \\ \hline
+	CullMode & Back & Cull Mode \\ \hline
+	StencilFrontFunc & Always & Comparison Function \\ \hline
+	StencilBackFunc & Always & Comparison Function \\ \hline
+	StencilFrontFailOp & Keep & Stencil Op \\ \hline
+	StencilBackFailOp & Keep & Stencil Op \\ \hline
+	StencilFrontPassOp & Keep & Stencil Op \\ \hline
+	StencilBackPassOp & Keep & Stencil Op \\ \hline
+	StencilFrontRef & 0 & int \\ \hline
+	StencilBackRef & 0 & int \\ \hline
+	BlendEnabled[i] & false & bool \\ \hline
+	SrcBlend[i] & One & Blend Mode \\ \hline
+	DstBlend[i] & Zero & Blend Mode \\ \hline
+	BlendOp[i] & Add & Blend Op \\ \hline
+	SrcBlendAlpha[i] & One & Blend Mode \\ \hline
+	DstBlendAlpha[i] & Zero & Blend Mode \\ \hline
+	BlendOpAlpha[i] & Add & Blend Op \\ \hline
+\end{tabular}
+}
+\end{table}
+
+The semantic describes two allowed syntaxes, either the one with double camel case, and the other with all lower case. You may notice that for some settings we have an array-like accessor, for example \textit{BlendEnabled[i]}. Here, \textit{i} stands for the render target index to which we apply the setting. If such a state is not defined explicitly, the default value is chosen for that render target. The different special types, such as \textit{Comparison Function, Rasterizer Mode, Cull Mode, Stencil Op, Blend Mode} and \textit{Blend Op} can take on special values. Values for \textit{Comparison Function} can be found in Table ~\ref{table:comparisonfunction}. Values for \textit{Rasterizer Mode} can be found in Table ~\ref{table:rasterizermode}. Values for \textit{Cull Mode} can be found in Table ~\ref{table:cullmode}. Values for \textit{Stencil Op} can be found in Table ~\ref{table:stencilop}. Values for \textit{Blend Mode} can be found in Table ~\ref{table:blendmode}. Values for \textit{Blend Op} can be found in Table ~\ref{table:blendop}. 
+
+\begin{table}[float]
+\caption{Comparison Function}
+\label{table:comparisonfunction}
+\makebox[\linewidth]
+{
+\begin{tabular} {| c | c |}
+	\hline
+	\textbf{Semantic} & \textbf{Meaning} \\ \hline
+	Never & Always fails \\ \hline
+	Less & Pass if less \\ \hline
+	LEqual & Pass if less or equal \\ \hline
+	Greater & Pass if greater \\ \hline
+	GEqual & Pass if greater or equal \\ \hline
+	Equal & Pass if equal \\ \hline
+	NEqual & Pass if not equal \\ \hline
+	Always & Always pass \\ \hline
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[float]
+\caption{Rasterizer Mode}
+\label{table:rasterizermode}
+\makebox[\linewidth]
+{
+\begin{tabular} {| c | c |}
+	\hline
+	\textbf{Semantic} & \textbf{Meaning} \\ \hline
+	Fill & Fills polygons \\ \hline
+	Line & Draws polygons as line segments \\ \hline
+	Point & Draws polygons as points \\ \hline
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[float]
+\caption{Cull Mode}
+\label{table:cullmode}
+\makebox[\linewidth]
+{
+\begin{tabular} {| c | c |}
+	\hline
+	\textbf{Semantic} & \textbf{Meaning} \\ \hline
+	Back & Culls faces facing away \\ \hline
+	Front & Culls faces facing towards \\ \hline
+	None & Disables culling \\ \hline
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[float]
+\caption{Stencil Op}
+\label{table:stencilop}
+\makebox[\linewidth]
+{
+\begin{tabular} {| c | c |}
+	\hline
+	\textbf{Semantic} & \textbf{Meaning} \\ \hline
+	Keep & Keep current stencil value \\ \hline
+	Zero & Write 0 to stencil buffer \\ \hline
+	Replace & Replace stencil value with reference value \\ \hline
+	Increase & Increase stencil value \\ \hline
+	IncreaseWrap & Increase stencil value and clamp \\ \hline
+	Decrease & Decrease stencil value \\ \hline
+	DecreaseWrap & Decrease stencil value and wrap \\ \hline
+	Invert & Invert stencil data \\ \hline
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[float]
+\caption{Blend Mode}
+\label{table:blendmode}
+\makebox[\linewidth]
+{
+\begin{tabular} {| c | c |}
+	\hline
+	\textbf{Semantic} & \textbf{Meaning} \\ \hline
+	Zero & Multiplies blend value with 0 \\ \hline
+	One & Multiplies blend value with 1 \\ \hline
+	SrcColor & Uses source color (shader result) \\ \hline
+	OneMinusSrcColor & Uses 1 - source color (shader result) \\ \hline
+	DstColor & Uses destination color (render target value) \\ \hline
+	OneMinusDstColor & Uses 1 - destination color (render target value) \\ \hline
+	SrcAlpha & Uses source alpha \\ \hline
+	OneMinusSrcAlpha  & Uses 1 - source alpha \\ \hline
+	DstAlpha & Uses destination alpha \\ \hline
+	OneMinusDstAlpha & Uses 1 - destination alpha \\ \hline
+	SrcAlphaSaturate & Uses saturated source alpha \\ \hline
+	ConstantColor & Uses constant color \\ \hline
+	OneMinusConstantColor & Uses 1 - constant color \\ \hline
+	ConstantAlpha & Uses constant alpha \\ \hline
+	OneMinusConstantAlpha & Uses 1 - constant alpha \\ \hline
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[float]
+\caption{Blend Op}
+\label{table:blendop}
+\makebox[\linewidth]
+{
+\begin{tabular} {| c | c |}
+	\hline
+	\textbf{Semantic} & \textbf{Meaning} \\ \hline
+	Add & Adds colors \\ \hline
+	Sub & Subtracts colors \\ \hline
+	InvSub & Subtracts by 1 - SrcColor \\ \hline
+	Min & Selects minimum value \\ \hline
+	Max & Selects maximum value \\ \hline	
+\end{tabular}
+}
+\end{table}
+
+\textbf{IMPORTANT}: The render state name \textit{placeholder} is reserved for AnyFX internally, and is therefore not allowed to use.
+
+\subsection{Functions}
+Functions are treated specially. Although they follow the standard C syntax, they have some additions which allows for shader linkage and system variable access. As per the C standard, a function is defined as:
+
+\SyntaxBox
+{
+	\textit{[attribute]} \\
+	\textit{shader} \\
+	type \textbf{name(parameters)} \\
+	\textbf{\{ } \= \\
+	\>	\textit{body} \\
+	\textbf{\} } \\
+}
+
+Here, \textit{type} defines the return value of the function, \textit{name} describes an identifier, and \textit{parameters} defines a list of parameters. We will explain parameters later, right now we will focus on the \textit{body} part of the function. The \textit{qualifier} can be any value defined in Table ~\ref{table:funcattribute}, although some qualifiers are only applicable on function bodies which will be used as a shader stage, and only some types of shaders support some types of qualifiers.
+
+The \textit{shader} qualifier tells AnyFX this function should be bound as a shader. This is required if this function is to be bound to a program object. This is required because in OpenGL, only the shader main functions have access to the built in GLSL variables.
+
+\begin{table}[float]
+\caption{Function Attributes}
+\label{table:funcattribute}
+\makebox[\linewidth]
+{
+\begin{tabular} {| c | c | c |}
+	\hline
+	\textbf{Semantic} & \textbf{Functionality} & \textbf{Compatibility} \\ \hline
+	[topology] = \textbf{Topology} & Defines tessellation input topology & OpenGL and DirectX \textbf{(ds)} \\ \hline
+	[winding] = \textbf{Winding} & Defines tessellation geometry winding order & OpenGL and DirectX \textbf{(ds)} \\ \hline
+	[partition] = \textbf{Partitioning} & Defines tessellation partitioning method & OpenGL and DirectX \textbf{(ds)} \\ \hline
+	[maxvertexcount] = int & Defines geometry shader maximum vertex outputs & OpenGL and DirectX \textbf{(gs)} \\ \hline
+	[inputprimitive] = \textbf{InputPrimitive} & Defines geometry shader input primitive & OpenGL and DirectX \textbf{(gs)} \\ \hline
+	[outputprimitive] = \textbf{OutputPrimitive} & Defines geometry shader output primitive & OpenGL and DirectX \textbf{(gs)} \\ \hline
+	[maxtess] = int/float & Defines maximum tessellation amount & optional in DirectX \textbf{(hs)} \\ \hline
+	[patchfunction] = string & Defines constant patch function & DirectX \textbf{(hs)} \\ \hline
+	[inputvertices] = int & Defines tessellation input control points & OpenGL and DirectX \textbf{(hs)} and \textbf{(ds)} \\ \hline
+	[outputvertices] = int & Defines tessellation output control points & OpenGL and DirectX \textbf{(hs)} \\ \hline
+	[instances] = int & Defines geometry shader instance invocations & OpenGL and DirectX \textbf{(gs)} \\ \hline
+	[earlydepth] & Enables pixel/fragment shader early depth testing & OpenGL and DirectX \textbf{(ps)} \\ \hline
+	[localsizex] = int & Sets compute shader local dimension in x & OpenGL and DirectX \textbf{(cs)} \\ \hline 
+	[localsizey] = int & Sets compute shader local dimension in y & OpenGL and DirectX \textbf{(cs)} \\ \hline
+	[localsizez] = int & Sets compute shader local dimension in z & OpenGL and DirectX \textbf{(cs)} \\ \hline
+	
+\end{tabular}
+}
+\end{table}
+
+The possible values for \textit{Topology} can be found in Table~\ref{table:topology}, values for \textit{Winding} in Table~\ref{table:winding}, values for \textit{Partitioning} in Table~\ref{table:partitioning}, \textit{InputPrimitive} in Table~\ref{table:inputprimitive} and lastly \textit{OutputPrimitive} in Table~\ref{table:outputprimitive}. 
+
+\begin{table}[float]
+\caption{Topology}
+\label{table:topology}
+\makebox[\linewidth]
+{
+\begin{tabular} {| c | c |}
+	\hline
+	\textbf{Semantic} & \textbf{Functionality} \\ \hline
+	triangle & Treats geometry as triangles \\ \hline
+	quad & Treats geometry as quads \\ \hline
+	line & Treats geometry as lines \\ \hline
+	point & Treats geometry as points \\ \hline
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[float]
+\caption{Winding Order}
+\label{table:winding}
+\makebox[\linewidth]
+{
+\begin{tabular} {| c | c |}
+	\hline
+	\textbf{Semantic} & \textbf{Functionality} \\ \hline
+	cw & Treats geometry winding order to be in clockwise order \\ \hline
+	ccw & Treats geometry winding order to be in counter clockwise order \\ \hline
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[float]
+\caption{Partitioning Method}
+\label{table:partitioning}
+\makebox[\linewidth]
+{
+\begin{tabular} {| c | c |}
+	\hline
+	\textbf{Semantic} & \textbf{Functionality} \\ \hline
+	integer & Performs tessellation through integer division pattern \\ \hline
+	even & Performs tessellation through even floating point division pattern \\ \hline
+	odd & Performs tessellation through odd floating point division pattern \\ \hline
+	pow & Performs tessellation through power function pattern \\ \hline
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[float]
+\caption{Input Primitive}
+\label{table:inputprimitive}
+\makebox[\linewidth]
+{
+\begin{tabular} {| c | c |}
+	\hline
+	\textbf{Semantic} & \textbf{Functionality} \\ \hline
+	points & Treats input geometry as a series of points \\ \hline
+	lines & Treats input geometry as a series of lines \\ \hline
+	lines\_adjacent & Treats input geometry as a series of adjacent lines \\ \hline
+	triangles & Treats input geometry as a series of triangles \\ \hline
+	triangles\_adjacent & Treats input geometry as a series of adjacent triangles \\ \hline
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[float]
+\caption{Output Primitive}
+\label{table:outputprimitive}
+\makebox[\linewidth]
+{
+\begin{tabular} {| c | c |}
+	\hline
+	\textbf{Semantic} & \textbf{Functionality} \\ \hline
+	points & Outputs geometry as a series of points \\ \hline
+	line\_strip & Outputs geometry as a strip of lines \\ \hline
+	triangle\_strip & Outputs geometry as a strip of triangles \\ \hline
+\end{tabular}
+}
+\end{table}
+
+The body of the function is written in target-language specific code. This means that if we want a OpenGL compatible shader, we have to implement the function bodies in OpenGL. An example could be:
+
+\begin{CodeBox}
+vec4
+func(vec4 color)
+{
+	return color + vec4(1,1,1,1);
+}
+\end{CodeBox}
+
+Now, if we were to compile with DirectX as our target, this would obviously fail. 
+
+System variables are accessed in different ways depending on the implementation target. We can always declare parameter attributes, although in OpenGL we have to directly implement them as such:
+
+\begin{CodeBox}
+mat4 model;
+mat4 view;
+mat4 projection;
+
+shader
+void
+vsMain(in vec4 position)
+{
+	gl_Position = projection * view * model * position;
+}
+\end{CodeBox}
+
+In DirectX we must supply function attributes to tell AnyFX and DirectX what usage our parameter should have. Since DirectX has no global variables such as \textit{gl\_Position}, we must declare how DirectX should bind this specific parameter during compilation. A parameter to a function follows this syntax:
+
+\SyntaxBox
+{
+	...,  \textit{[attribute]} \textit{qualifier}0 ... \textit{qualifier}N type \textbf{name}, ...
+}
+
+The qualifiers which can be provided to a parameter can be either \textit{const}, an input/output qualifier or \textit{patch}. The input/output qualifier can be one of the following: \textit{in}, \textit{out}, \textit{inout}. The input/output qualifier explains how the variable should be treated, where \textit{in} means input, \textit{out} means output, and \textit{inout} means both input and output. Be careful with the use of \textit{inout} since it won't be possible to apply on variables which requires different qualifiers. The \textit{attribute} can be any of the values defined in Table~\ref{table:varattributes}. The \textit{patch} qualifier is optional, and is only available in hull/control as outputs and in domain/evaluation shaders as inputs. The \textit{patch} qualifier tells the GPU that the variable should be per-patch instead of per-vertex. The \textit{const} qualifier is only available for helper functions, and tells ensured that the parameter is never changed within the context of the function.
+
+Whenever parameters needs to be inputs in forms of arrays, which is required for example in a Hull/Control shader, Domain/Evaluation shader and/or Geometry shader, the name of the parameter should include '[]'. Example syntax:
+
+\begin{CodeBox}
+//-------------------------------------------
+/**
+	Simple hull shader with application defined tessellation levels
+*/
+[inputvertices] = 3
+[outputvertices] = 3
+
+shader
+void
+hsStatic(in vec3 inPosition[], in vec2 inUV[], out vec3 outPosition[], out vec2 outUV[])
+{
+	outPosition[gl_InvocationID] = inPosition[gl_InvocationID];
+	outUV[gl_InvocationID] = inUV[gl_InvocationID];
+	gl_TessLevelInner[0] = TessFactorInner;
+	gl_TessLevelOuter[0] = TessFactorOuter;
+	gl_TessLevelOuter[1] = TessFactorOuter;
+	gl_TessLevelOuter[2] = TessFactorOuter;
+}
+\end{CodeBox}
+
+The size of the input arrays is determined for Hull/Control and Domain/Evaluation shaders by the '[inputvertices]' attribute. The size of the output arrays is determined by the '[outputvertices]' attribute, however this attribute is only legit for the Hull/Control shader. If any linking is attempted between a Hull/Control shader and a Domain/Evaluation shader where the \textit{outputvertices} from the Hull/Control shader is mismatched with the \textit{inputvertices} value of the Domain/Evaluation shader, then linking will fail. AnyFX will automatically resolve the size of the input variable arrays (if necessary), depending on either the \textit{[outputvertices]} or \textit{[inputvertices]} attribute or the geometry shader input primitive type.
+
+\begin{table}[float]
+\caption{Variable Attributes}
+\label{table:varattributes}
+\makebox[\linewidth]
+{
+\begin{tabular} {| c | c |}
+	\hline
+	\textbf{Semantic} & \textbf{Functionality} \\ \hline
+	drawinstanceID & CPU invoked instance ID for instanced rendering \\ \hline
+	vertexID & Vertex ID of current vertex \\ \hline
+	primitiveID & Primitive ID of current geometry shaded primitive \\ \hline
+	invocationID & Invocation ID of current geometry shader invocation \\ \hline
+	viewportID & Viewport ID of current geometry shader invocation \\ \hline
+	rendertargetID & Render target ID of current geometry shader invocation \\ \hline
+	innertessellation & Inner tessellation factor in hull shader \\ \hline
+	outertessellation & Outer tessellation factor in hull shader \\ \hline
+	position & Vertex position from vertex shader \\ \hline
+	pointsize & CPU assigned point size \\ \hline
+	clipdistance & Rasterizer clip distance \\ \hline
+	frontface & Holds if the current pixel is facing front \\ \hline
+	coordinate & Screen space pixel coordinate \\ \hline
+	depth & Depth buffer write output \\ \hline
+	color0 & Render target 0 write output \\ \hline
+	color1 & Render target 1 write output \\ \hline
+	color2 & Render target 2 write output \\ \hline
+	color3 & Render target 3 write output \\ \hline
+	color4 & Render target 4 write output \\ \hline
+	color5 & Render target 5 write output \\ \hline
+	color6 & Render target 6 write output \\ \hline
+	color7 & Render target 7 write output \\ \hline
+	workgroupID & Workgroup execution ID for compute shaders \\ \hline
+	numgroups & Number of groups in current invocation of compute shader \\ \hline
+	localID & Local ID of invocation in compute shader \\ \hline
+	localIndex & Local index of invocation in compute shader \\ \hline
+	globalID & Global ID of invocation in compute shader \\ \hline
+\end{tabular}
+}
+\end{table}
+
+A parameter to a function may have one or none of these qualifiers. An example of a function utilizing all of the above features may look like:
+
+\begin{CodeBox}
+sampler2D DiffuseTexture;
+
+[earlydepth]
+
+shader
+void 
+psMain(in vec2 uv, [color0] out vec4 Color)
+{
+	Color = texture(DiffuseTexture, uv);
+}
+\end{CodeBox}
+
+This function can be bound as a pixel shader, which performs an early depth-test predication before executing the actual shader. It samples a texture from a texture resource and writes it to the 0'th render target. 
+
+If the target is OpenGL, then most of these parameter attributes can be omitted, since most system-variables can be accessed through the 'gl\_\textless systemvar\textgreater' syntax. Since we AnyFX doesn't bother with code analysis, it is left to the programmer to handle system variables. However it is still allowed to assign a attribute to a variable, however the result will be that the attribute will be ignored unless it serves some functionality in AnyFX. Although, if a pixel/fragment shader has any parameter which doesn't supply the \textit{[colorX]} attribute, an error will be thrown since binding color outputs to render targets must be done explicitly.
+
+\subsection{Subroutines}
+\label{sec:subroutines}
+Subroutines is a feature introduced in OpenGL 4.0 and DirectX 11. They work pretty much like function pointers in the sense that they allow you  to exchange the function without having to switch shaders. This can allow you to avoid unnecessary shader switches and only perform an incremental update of the shader. Remember that subroutines only exchange functions, and can as such not change the input/outputs between shaders, meaning subroutine bindings takes place after linking is done. The syntax for subroutines is twofold, first a declaration and then a definition.
+
+\SyntaxBox
+{
+	prototype  \textbf{type} \textbf{name} ( \textit{arg}0, ..., \textit{arg}N );
+}
+
+This declares a subroutine prototype which can be implemented using the following syntax:
+
+\SyntaxBox
+{
+	subroutine ( \textbf{prototype} ) \textbf{type} \textbf{name} ( \textit{arg}0, ..., \textit{arg}N ) \\
+	\{ \\
+		... \\
+	\}
+}
+
+This declares a possible implementation of a prototype. Here, the prototype argument must match a previously declared prototype. When this is done, we can simply declare a subroutine variable as such:
+
+\SyntaxBox
+{
+	\textbf{type} \textbf{name};
+}
+
+Which follows the standard variable declaration syntax, however \textbf{type} must be a previously defined prototype. In order to assign an implementation to a subroutine variable, we put it inside the paranthesis declared in each program shader. It follows the following syntax:
+
+\SyntaxBox
+{
+	prototype vec4 SomePrototype(); \\
+	subroutine (SomePrototype) SomeSubroutine() \\
+	\{ \= \\
+	\>	return vec4(0); \\
+	\} \\
+	\\
+	SomePrototype someSubroutineVariable; \\
+	program SubroutineProgram \\
+	\{ \= \\
+	\>	... \\
+	\>	VertexShader = vsStatic(someSubroutineVariable = SomeSubroutineImplementation); \\
+	\>	... \\
+	\}
+}
+
+\subsection{Varblocks}
+Variable blocks lets us group variables into buffers, which allows for efficient updating of variables through chunks. The syntax for a varblock is:
+
+\SyntaxBox
+{
+	\textit{qualifier}0 ... \textit{qualifier}N \textit{buffers = X} varblock \textbf{name} \textit{[ Annotation ]} \\
+	\textbf{\{} \= \\
+	\>	\textit{variable} \\
+	\>	...	\\
+	\>	\textit{variable} \\
+	\textbf{\};}
+}
+
+In this definition, \textit{variable} is a variable as described earlier in this chapter. \textit{name} is the name of the varblock. In the varblock, we can define as many variables as we wish. This variable declaration works just like the ordinary one explained earlier in the chapter, meaning each variable can also be initialized with a default value. The number of variables defined in a varblock is arbitrary, although it's good practice to group variables in the order and frequency they need be updated. It is highly recommended to use varblocks for object-independent variable assignments such as camera view and projection matrices, focus depth, etc. For example, if we render a series of object using the same program, it's somewhat unnecessary to set the view and projection matrices per each render. Instead, it's much simpler to just set the view and projection matrices before the render, and then just update the model matrix and material variables. This could be done using two varblocks, a per-pass varblock and a per-model varblock. 
+
+Varblocks can be internally buffered by a defined amount of buffers. The more buffers in use, the less the application has to wait for each buffer to be successfully updated before continuing rendering, so more buffers results in a slower per-object latency. This amount is denoted by the \textit{buffers = X} qualifier, in which \textit{X} represents the amount of backing buffers. Note that when the amount of buffers increase, so does also the memory it occupies. Varblocks also need to declare the qualifier \textit{shared} if the user wants AnyFX to only allocate one actual varblock which can be shared by all others in the application. This allows for updating a single varblock instead of many, and can result in simplicity of programming since one doesn't have to redundantly set variables for each shader, but can rather apply them once and have them retain over the course of a pass. The allowed qualifiers can be seen in Table~\ref{table:varblockqualifiers}.
+
+\begin{table}[hp]
+\centering
+\caption{Varblock qualifiers}
+\label{table:varblockqualifiers}
+\makebox[\linewidth]
+{
+\begin{tabular} {| c | p{15cm} |}
+	\hline
+	\textbf{Syntax} & \textbf{Functionality} \\ \hline
+	shared & Varblock only has one API representation during application execution. This varblock is then shared by all effects implementing an identical varblock (name of block and members). \\ \hline
+	nosync & Allows the buffer do be updated without waiting for synchronization. This may cause an increase in performance, however if the buffer size doesn't cover the total number of updates per frame you will risk getting the data being written to twice in the same frame. May result in undefined behavior if used without care. \\ \hline
+\end{tabular}
+}
+\end{table}
+
+\subsection{Varbuffers}
+Varbuffers work very similar to varblocks, however they provide an interface which lets us leave the buffer size undefined in the shader. Instead, we can tell a varbuffer to allocate the internal buffer with a certain size. This allows us to modify the size in the application. We can also retreive the buffer handle so we may use it outside of AnyFX, for example as an input to some other shader. Varbuffers are equal to shader storage blocks in OpenGL, or RWBuffers in DirectX, and allows the shader to read and \textbf{write} to the buffer. The syntax is also similar to a varblock, except variables may be of an unsized array type. It follows the following syntax:
+
+\SyntaxBox
+{
+	\textit{qualifier}0 ... \textit{qualifier}N varbuffer \textbf{name} \textit{[ Annotation ]} \\
+	\textbf{\{} \= \\
+	\>	\textit{variable} \\
+	\>	...	\\
+	\>	\textit{variable} \\
+	\textbf{\};}
+}
+
+We can as afortmentioned also do something like this:
+
+\SyntaxBox
+{
+	\textit{qualifier}0 ... \textit{qualifier}N varbuffer \textbf{name} \textit{[ Annotation ]} \\
+	\textbf{\{} \= \\
+	\>	\textit{variable} \\
+	\>	...	\\
+	\>	\textit{variable[]} \\
+	\textbf{\};}
+}
+
+In which case we can allocate dynamic amount of size by calling the varbuffer in the API and have it allocate a set amount of space. Note that this amount is not in bytes, but in number of elements, so if we for example have an array of a struct, we will allocate said amount of structs in the varbuffer. The qualifiers available for varbuffers can be seen in Table~\ref{table:varbufferqualifiers}.
+
+\begin{table}[hp]
+\centering
+\caption{Varbuffer qualifiers}
+\label{table:varbufferqualifiers}
+\makebox[\linewidth]
+{
+\begin{tabular} {| c | p{15cm} |}
+	\hline
+	\textbf{Syntax} & \textbf{Functionality} \\ \hline
+	shared & Varblock only has one API representation during application execution. This varblock is then shared by all effects implementing an identical varbuffer (name of block and members). \\ \hline
+\end{tabular}
+}
+\end{table}
+
+\subsection{Programs}
+The last structure you can define in an AnyFX file is a program. Programs follow the following syntax:
+
+\SyntaxBox
+{
+	program \textbf{name} \textit{ [ Annotation ] } \\
+	\textbf{\{} \= \\
+	\>	\textit{VertexShader = func();} \\
+	\>	\textit{PixelShader = func();} \\ 
+	\>	\textit{HullShader = func();} \\ 
+	\>	\textit{DomainShader = func();} \\ 
+	\>	\textit{GeometryShader = func();} \\
+	\>	\textit{ComputeShader = func();} \\
+	\>	\textit{RenderState = state;} \\
+	\textbf{\}}
+}
+
+The program object has 7 'slots'. Each slot except for \textit{RenderState} are used for shader function assignments. Here, the symbolic name \textit{func()} is the name of the function we want to attach to the given shader slot. This converts the function to a shader entry point, which also removes it from the list of helper functions, making it inaccessible to call from another shader program. The \textit{state} flag is the identifying name of a render state object as described earlier. Although all shader slots are optional, some of them are dependent on others. The dependencies shown in Table~\ref{table:shaderdeps} declare what prerequisites each shader has. The shaders are only pair-wise dependent and as such are oblivious to whatever shader is attached further down the pipeline. If the \textit{RenderState} field is not declared explicitly, a default render state will be used for the program.
+
+Subroutines are bound to a certain shader stage by putting the assignment in the argument list in \textit{func()}. See section~\ref{sec:subroutines} for a complete syntax explanation.
+
+\begin{table}[float]
+\caption{Shader dependencies}
+\label{table:shaderdeps}
+\makebox[\linewidth]
+{
+\begin{tabular} {| c | c |}
+	\hline
+	\textbf{Shader} & \textbf{Dependency(ies)} \\ \hline
+	Vertex shader (\textbf{vs}) & None \\ \hline
+	Pixel/Fragment shader (\textbf{ps}) & Vertex shader (\textbf{vs}) and optionally Geometry shader (\textbf{gs}) and/or Hull-Domain shaders (\textbf{hs - ds}) \\ \hline
+	Hull/Control shader (\textbf{hs}) & Vertex shader (\textbf{vs}) and Domain/Evaluation shader (\textbf{ds}) \\ \hline
+	Domain/Evaluation shader (\textbf{ds}) & Vertex shader (\textbf{vs}) and Hull/Control shader (\textbf{hs}) \\ \hline
+	Geometry shader (\textbf{gs}) & Vertex shader (\textbf{vs}) and optionally Hull-Domain shaders (\textbf{hs - ds}) \\ \hline
+	Compute shader (\textbf{cs}) & None \\ \hline
+\end{tabular}
+}
+\end{table}
+
+An example program, with a render state and a pixel shader and vertex shader could look something like this:
+\begin{CodeBox}
+state AlphaState
+{
+	DepthEnabled = false;
+	BlendEnabled[0] = true;
+	SrcBlend[0] = One;
+	DstBlend[0] = OneMinusSrcAlpha;
+	CullMode = None;
+};
+
+//-------------------------------------------------------
+/**
+*/
+shader
+void
+vsStatic(in vec3 position, in vec2 uv, out vec2 UV)
+{
+	gl_Position = Projection * View * Model * vec4(position, 1.0f);
+	UV = uv;
+}
+
+//--------------------------------------------------------
+/**
+*/
+[earlydepth]
+
+shader
+void 
+psStatic(in vec2 uv, [color0] out vec4 Color)
+{
+	vec4 color = texture(DiffuseTexture, uv) * vec4(2.0f, 1, 1, 1);
+	Color =  color;
+}
+
+//--------------------------------------------------------
+/**
+*/
+program Alpha
+{
+	vs = vsStatic();
+	ps = psStatic();
+	state = AlphaState;
+};
+\end{CodeBox}
+
+
+\subsection{Structures}
+Structures can be defined as described with the C-standard. It follows the following syntax.
+
+\SyntaxBox
+{
+	struct \textbf{name} \\
+	\{ \= \\
+		\> \textit{type \textbf{member name}}; \\
+		\>... \\
+		\> \textit{type \textbf{member name}}; \\
+	\};
+}
+
+Structures can be used as inputs, outputs and function local objects. The GLSL shader storage buffer functionality is currently unsupported. Example of a structure can look as such:
+
+\begin{CodeBox}
+struct Data
+{
+	float multiplier;
+	int divider;
+};
+\end{CodeBox}
+
+\subsection{Samplers}
+Samplers serves as objects which controls sampling from textures. The point of a sampler is to enable sampling a single texture using several sampling methods. Since samplers has multiple forms of definition and implementation, some functionality is not necessary for some languages. In OpenGL, samplers are purely CPU-based, meaning a C object is responsible for modifying the sampler state. In HLSL version 4 and up, a sampler state object is used together with a texture object in the HLSL code, meaning the sampler has to be declared and used in the shader code as an individual object. AnyFX supports letting a single sampler handling several textures, this is done by assigning more than one texture to a sampler state. An example could be:
+
+\begin{CodeBox}
+sampler2D DiffuseMap;
+sampler2D SpecularMap;
+sampler2D EmissiveMap;
+
+samplerstate DefaultSampler
+{
+	Samplers = { DiffuseMap, SpecularMap, EmissiveMap }; 
+	BorderColor = { 1.0f, 0.0f, 0.0f, 1.0f };
+	AddressU = Border;
+	AddressV = Border;
+};
+\end{CodeBox}
+
+This feature is of course only available and useful on platforms where samplers are not separate shader objects and has to be assigned. If a sampler is assigned to a texture which was already assigned by another sampler, the last defined sampler will take precedence. 
+
+A sampler can use the fields declared in Table~\ref{table:sampler}. The \textit{Texture} field is only necessary for implementations where the sampler is purely CPU-located. In HLSL, this field is still valid, although it serves no purpose since the texture-sampler coupling is done when sampling the texture rather than before rendering occurs. However, for GLSL and other languages in which a sampler needs a texture to have any use at all, the \textit{Texture} field has to be defined. The \textit{AddressU/V/W} field can be provided with any value in the Table~\ref{table:addressmode}. The \textit{Filter} field can be provided with any value in Table~\ref{table:filtermode}. All filter modes which begins with \textit{Comparison} turns the sampler into a comparison sampler, meaning it will produce no result unless it is used as a comparison sampler in the shader code. This can be used for hardware-accelerated shadow mapping, for example. The values in Table~\ref{table:sampler} in bold font represent enumeration values defined in the tables listed above.
+
+The filter mode \textit{Anisotropic} is equal to \textit{MinMagMipLinear}
+
+\begin{table}[float]
+\caption{Sampler settings}
+\label{table:sampler}
+\makebox[\linewidth]
+{
+\begin{tabular} {| c | c | c | c |}
+	\hline
+	\textbf{Argument} & \textbf{Functionality}  & \textbf{Data type} & \textbf{Default value} \\ \hline
+	Samplers & Assigns sampler to sampler or list of samplers & string list & \{\} \\ \hline
+	Filter & Determines filtering method & \textbf{Filter Mode} & MinMagMipLinear \\ \hline
+	AddressU & Address mode in U-dimension & \textbf{Address Mode} & Wrap \\ \hline
+	AddressV & Address mode in V-dimension & \textbf{Address Mode} & Wrap \\ \hline
+	AddressW & Address mode in W-dimension & \textbf{Address Mode} & Wrap \\ \hline
+	Comparison & Sets if the sampler should be a comparison sample & bool & false \\ \hline
+	CompFunc & Comparison function & \textbf{Comparison Function} & Less\\ \hline
+	LodBias & LOD bias for mip-maps & float & 0.0f \\ \hline
+	MinLod & Minimum LOD level for mip-maps & float & -FLT\_MAX \\ \hline
+	MaxLod & Maximum LOD level for mip-maps & float & FLT\_MAX \\ \hline
+	Border & Border color & 4-component float list & \{ 0.0f, 0.0f, 0.0f, 0.0f \} \\ \hline 
+\end{tabular}
+}
+\end{table}
+
+The syntax for the string list and 4-component float list looks as follows:
+
+\SyntaxBox
+{
+	\{ expression\textbf{0}, ..., expression\textbf{N} \}
+	or
+	\{ identifier\textbf{0}, ..., identifier\textbf{N} \}
+}
+
+An example of how this looks can be seen in the above code example. In the case for \textbf{BorderColor}, \textit{element} are expressions. In the case with \textbf{Samplers}, \textit{element} are sampler identifiers.
+
+\begin{table}[float]
+\caption{Address mode}
+\label{table:addressmode}
+\makebox[\linewidth]
+{
+\begin{tabular} {| c | c |}
+	\hline
+	\textbf{Value} & \textbf{Functionality} \\ \hline
+	Wrap & Repeats texture \\ \hline
+	Mirror & Repeats texture mirrored \\ \hline
+	Clamp & Clamps border values \\ \hline
+	Border & Applies border color \\ \hline
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[float]
+\caption{Filter mode}
+\label{table:filtermode}
+\makebox[\linewidth]
+{
+\begin{tabular} {| c | c |}
+	\hline
+	\textbf{Value} & \textbf{Functionality} \\ \hline
+	MinMagMipPoint & Performs full point sampling (no interpolation) \\ \hline
+	MinMagMipLinear & Performs full linear sampling \\ \hline
+	MinMagPointMipLinear & Point sampling on minification and mag, linear on mip \\ \hline
+	MinMipPointMagLinear & Point sampling on minification and mip, linear on magnification \\ \hline
+	MinPointMipMagLinear & Point sampling on minification, linear on mip and magnification \\ \hline
+	MinLinearMipMagPoint & Linear on minification, point on mip and magnification \\ \hline
+	MinMipLinearMagPoint & Linear on minification and mip, point on magnification \\ \hline
+	MinMagLinearMipPoint & Linear on minification and magnification, point on mip \\ \hline
+	Anisotropic & Performs anisotropic filtering \\ \hline
+	Linear & Performs linear filtering without mipmapping \\ \hline
+	Point & Performs point filtering without mipmapping \\ \hline
+\end{tabular}
+}
+\end{table}
+
+\subsection{Annotations}
+Variables, Varblocks, Programs and RenderStates may have an alternative annotation field. Note that these are optional, and therefore doesn't have to be declared. They also have no impact on target code, but exists solemnly to attach arbitrary data to identifiers so that they can be read in the API. Annotations works by assigning arbitrary data with a name using the following syntax:
+
+\SyntaxBox
+{
+	[..., type \textbf{name = expression}; ...]
+}
+
+The type field can be \textit{string}, \textit{int}, \textit{bool}, \textit{float}, \textit{double}. The name can be any name not already defined in this annotation field. A real application of an annotation can look like this:
+
+\begin{CodeBox}
+	[ string Mask = "Opaque"; ]
+\end{CodeBox}
+
+Annotations must be declared directly after the object name as explained in the subsections for each AnyFX type. An example of a program with an annotation may look like the following:
+
+\begin{CodeBox}
+program Solid [ string Mask = "Opaque"; ]
+{
+	vs = vsStatic();
+	ps = psStatic();
+	state = OpaqueState;
+};
+\end{CodeBox}
+
+\subsection{Usage}
+The compiler can be invoked with the command line arguments found in Table~\ref{table:cmdlineargs}.
+
+\begin{table}[float]
+\caption{Shader Dependencies}
+\label{table:cmdlineargs}
+\makebox[\linewidth]
+{
+\begin{tabular} {| c | c | c |}
+	\hline
+	\textbf{Argument} & \textbf{Functionality}  & \textbf{Required}\\ \hline
+	-f \textless file name\textgreater & Input raw AnyFX-formatted fx-file & Yes \\ \hline
+	-o \textless output path\textgreater & Outputs compiled AnyFX binary blob & Yes \\ \hline
+	-target \textless supported target language\textgreater & AnyFX target language & Yes \\ \hline
+	-D \textless name\textgreater & mcpp preprocessor definition & No \\ \hline
+\end{tabular}
+}
+\end{table}
+
+Note that the absence of any of the required argument will cause a compiler error, and will abort before type checking, code generation and compilation takes place. The -D arguments can be more than one, providing each as a definition for preprocessing. 
+
+As of version 1.0, the compiler may generate the same error multiple times. This is because beneath the hood, AnyFX simply copies all variables and helper functions into every shader it generates. As such, if there is an error outside a shader function, this error will appear for each shader, causing a plethora of errors. Unfortunately, we don't perform any type of code analysis, so this problem will remain as long as AnyFX doesn't support it.
+
+\clearpage
+\section{API}
+\subsection{Initialization}
+To initialize AnyFX, you need to create an EffectFactory. To get access to it, simply include the anyfxapi.h provided in the AnyFX source. Then, it's a simple matter of loading an effect, either from file or from a memory blob. It can look something like this:
+
+\begin{CodeBox}
+	AnyFX::EffectFactory* factory = new AnyFX::EffectFactory;
+	AnyFX::Effect* effect = factory->CreateEffectFromFile("C:/demo/effect.afx");
+\end{CodeBox}
+
+Done!
+
+\subsection{Effect}
+The effect object contains all the information declared in an effect. The interfaces one can access from the API are \textit{EffectProgram}, \textit{EffectShader}, \textit{EffectRenderState}, \textit{EffectVariable} and \textit{EffectVarblock}. Each and every of these interfaces can be fetched using their identifying name in the AnyFX code, or through indexing.
+
+\subsubsection{EffectProgram}
+The \textit{EffectProgram} interface holds a program. The main functions for this are \textbf{Apply()} and \textbf{Commit()}. The \textbf{Apply()} function applies the \textit{EffectProgram}, meaning it sets the GPU render state and shaders in order to prepare it for rendering. The \textbf{Commit()} function flushes all data currently accumulated in the varblocks parented by the \textit{EffectProgram}, as such, it updates the variables in a chunk like manner. Note that \textbf{Commit()} must be called before rendering if one wishes to apply the currently assigned shader variables.
+
+\subsubsection{EffectShader}
+The \textit{EffectShader} interface supplies basic access to shader name, native shader code and, if any, the shader compilation error. If for some reason there is a compilation error, then this is a bug in the compiler, since the compiler shouldn't let any compilation errors pass through. 
+
+\subsubsection{EffectRenderState}
+If one wants to change the behaviour of a render state during runtime, the \textit{EffectRenderState} supplies this functionality. Also note that the \textit{EffectRenderState} can be applied without the need to apply an \textit{EffectProgram}, meaning we can force apply a render state anytime we want. We can also modify the render state itself by setting any of the render state flags, stencil reference values etc.
+
+\subsubsection{EffectVariable}
+The \textit{EffectVariable} supplies an interface to a variable. Note that setting a variable has no direct effect in the back-end, and will thus not be set in the shader until \textbf{Commit()} gets called on the variable, or the program. Calling \textbf{Commit()} on the program causes all variables currently set to be 'flushed' to GPU memory, meaning that for each variable with a handle in the currently applied program, the variable will be properly set.
+
+\subsubsection{EffectVarblock}
+Varblocks using modern graphics APIs implements a method for mapping a buffer to CPU memory, and have it be synced only in the very instant it is required to render. Therefore, some buffers may not be updated until some other API call takes place, which makes the updating of the buffer hard to determine. In order to disable this functionality, one must explicitly get the varblock in question, and call \textbf{SetFlushManually(true)}. Then, whenever the buffer is supposed to be flushed, one has to call \textbf{FlushBuffer()}.
+
+\textit{EffectVariable} instances which are written in the shader code as a member of a \textit{EffectVarblock} are automatically assigned to its block. As such, setting a variable inside an \textit{EffectVarblock} doesn't require any manipulation of said object. 
+
+\subsubsection{EffectVarbuffer}
+The \textit{EffectVarbuffer} represents an AnyFX varbuffer shader object. The \textit{EffectVarbuffer} class can allocate, reallocate and deallocate the back-end storage buffer used in the shader. It sports three functions, \textbf{Allocate()} which takes a set amount of elements to allocate, \textbf{Reallocate()} which takes the same arguments as \textbf{Allocate()}, except it allocates a new buffer and copies the new data over. The \textbf{Deallocate()} function is used to completely nullify the buffer, meaning it cannot be used in any useful fashion, so it's recommended this is executed whenever the varbuffer variable is no longer needed.  
+
+\subsubsection{EffectSubroutine}
+This class only contains information about a subroutine, but doesn't provide anything useful or assignable. Subroutines are set from inside the EffectProgram object. This class should mainly be used for shader debugging.
+
+\subsubsection{Annotations}
+\textit{EffectProgram}, \textit{EffectRenderState} and \textit{EffectVariable} has annotations, which can be get through \textit{GetAnnotationX} where X is the type of annotation data requested. The type of data here can be \textit{Int}, \textit{Bool}, \textit{Float}, \textit{Double}, \textit{String}. All annotation getter methods must be provided with a string which should be the name of the string declared in the original source file. If a type is mismatched with the function, the behavior is undefined so be cautious with this. 
+
+\end{document}

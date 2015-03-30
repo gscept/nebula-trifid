@@ -1,0 +1,438 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Nebula3 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="D:\nebula3\schemas\interface.xsd">
+	<Library name="ScriptingCommands">
+    <Dependency header="scriptingfeature/scriptingfeature.h"/>
+    <Dependency header="scriptingfeature/scriptingprotocol.h"/>
+    <Dependency header="basegamefeature/basegameprotocol.h"/>
+    <Dependency header="appgame/gameapplication.h"/>
+    <Dependency header="input/keyboard.h"/>
+    <Dependency header="input/inputserver.h"/>
+    <Dependency header="framesync/framesynctimer.h"/>
+    <Dependency header="graphicsfeature/managers/attachmentmanager.h"/>
+    <Dependency header="graphicsfeature/properties/graphicsproperty.h"/>
+    <Dependency header="graphicsfeature/graphicsfeatureunit.h"/>
+    <Dependency header="graphics/graphicsprotocol.h"/>
+    <Dependency header="graphics/modelentity.h"/>
+    <Dependency header="coregraphics/displaydevice.h"/>
+    <Command name="SetAttribute" fourcc="SETA" desc="Sets an attribute on an entity by name">
+		<InArg name="entityid" type="uint"/>
+		<InArg name="attribute" type="string"/>
+		<InArg name="value" type="string"/>		
+        <Code>
+          ScriptingFeature::ScriptingFeatureUnit::Instance()->SetAttribute(entityid,attribute,value);
+        </Code>
+     </Command>
+    <Command name="GetAttribute" fourcc="GETA" desc="Gets an entity attribute">
+      <InArg name="entityid" type="uint"/>
+			<InArg name="attribute" type="string"/>  
+      <OutArg name="attr" type="string"/>
+      <Code>
+        return ScriptingFeature::ScriptingFeatureUnit::Instance()->GetAttribute(entityid,attribute);
+      </Code>	  
+    </Command>
+    <Command name="GetPosition" fourcc="GETP" desc="Retrieves an entities position">
+      <InArg name="entityid" type="uint"/>
+      <OutArg name="Position" type="float4"/>
+      <Code>
+        Ptr&lt;Game::Entity&gt; ents = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(entityid);
+        Math::matrix44 m = ents->GetMatrix44(Attr::Transform);
+        return m.get_position();
+      </Code>
+    </Command>
+    <Command name="GetTransform" fourcc="GRTT" desc="Retrieves an entities transform matrix">
+      <InArg name="entityid" type="uint"/>
+      <OutArg name="Position" type="matrix44"/>
+      <Code>
+        Ptr&lt;Game::Entity&gt; ents = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(entityid);
+        Math::matrix44 m = ents->GetMatrix44(Attr::Transform);
+        return m;
+      </Code>
+    </Command>
+    <Command name="createentitybytemplate" fourcc="CEBT" desc="Creates an entity by category and template">
+      <InArg name="category" type="string"/>
+      <InArg name="templ" type="string"/>
+      <OutArg name="entityid" type="uint"/>
+      <Code>
+        return ScriptingFeature::ScriptingFeatureUnit::Instance()->CreateEntityByTemplate(category,templ);
+      </Code>
+    </Command>
+    <Command name="AddAttachment" fourcc="ADTM" desc="Adds an attachment onto a joint with duration (-1 for infinite)">
+      <InArg name="entityid" type="uint"/>
+      <InArg name="Joint" type="string"/>
+      <InArg name="AttachmentModel" type="string"/>
+      <InArg name="Duration" type="float"/>
+      <Code>
+        Ptr&lt;Game::Entity&gt; ents = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(entityid);
+        GraphicsFeature::AttachmentManager::Instance()->AddGraphicsAttachmentTemporary(Joint,ents,"mdl:" + AttachmentModel + ".n3",Math::matrix44::identity(),true,Graphics::AttachmentServer::Local,Duration);
+      </Code>
+    </Command>
+    <Command name="ClearAttachments" fourcc="CLTT" desc="Removes all attachments from entity">
+      <InArg name="entityid" type="uint"/>
+      <Code>
+        Ptr&lt;Game::Entity&gt; ents = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(entityid);
+        GraphicsFeature::AttachmentManager::Instance()->ClearAttachmentsOnEntity(ents);
+      </Code>
+    </Command>
+    <Command name="CreateTrigger" fourcc="PCTR" desc="Creates a trigger entity at given position and size">
+        <InArg name="Position" type="float4"/>
+        <InArg name="Radius" type="float"/>
+        <InArg name="Scripts" type="string"/>
+        <OutArg name="EntityId" type="uint"/>
+        <Code>
+        Util::Array &lt;Attr::Attribute&gt; attrs;
+        Math::matrix44 mat;
+        mat.scale(Math::float4(1,1,Radius,1));
+        mat.set_position(Position);
+        attrs.Append(Attr::Attribute(Attr::Transform,mat));
+        attrs.Append(Attr::Attribute(Attr::Shape,"sphere"));
+        attrs.Append(Attr::Attribute(Attr::EntityScript,Scripts));
+        Ptr &lt;Game::Entity &gt; ent = BaseGameFeature::FactoryManager::Instance()->CreateEntityByAttrs("Trigger",attrs);
+            BaseGameFeature::EntityManager::Instance()->AttachEntity(ent);
+        return ent->GetUniqueId();        
+        </Code>
+    </Command>
+    <Command name="CreateModel" fourcc="CRGP" desc="Creates a model entity at a given position">
+        <InArg name="Position" type="float4"/>
+        <InArg name="Forward" type="float4"/>
+        <InArg name="Resource" type="string"/>
+        <Code>
+            <![CDATA[
+            Math::matrix44 mat = Math::matrix44::lookatrh(Position, Position + Forward, Math::vector(0, 1, 0));
+            Ptr<Graphics::ModelEntity> entity = Graphics::ModelEntity::Create();
+            entity->SetResourceId(Resource);
+            entity->SetTransform(mat);
+            GraphicsFeature::GraphicsFeatureUnit::Instance()->GetDefaultStage()->AttachEntity(entity.cast<Graphics::GraphicsEntity>());
+            ]]>
+        </Code>
+    </Command>
+    <Command name="GetFrameTime" fourcc="GETT" desc="gets current frame time">
+      <OutArg name="Time" type="float"/>
+      <Code>
+        return (float)FrameSync::FrameSyncTimer::Instance()->GetFrameTime();
+      </Code>        
+    </Command>
+    <Command name="GetGameTime" fourcc="GEGT" desc="gets current game time">
+      <OutArg name="Time" type="float"/>
+      <Code>
+        return (float)FrameSync::FrameSyncTimer::Instance()->GetTime();
+      </Code>
+    </Command>
+    <Command name="GetEntityByName" fourcc="GEBN" desc="Retrieves an entity unique id for use in scripts">
+      <InArg name="Name" type="string"/>
+      <OutArg name="EntityID" type="uint"/>
+      <Code>
+        Util::Array&lt;Ptr&lt;Game::Entity&gt;&gt; ents = BaseGameFeature::EntityManager::Instance()->GetEntitiesByAttr(Attr::Attribute(Attr::Id,Name), true);
+        if(ents.Size() == 0)
+        {
+          Util::String errstr;
+          errstr.Format("Could not find entity by name %s, check name and make sure it is a, actual game entity",Name.AsCharPtr());
+          n_error(errstr.AsCharPtr());
+        }        
+        return ents[0]->GetUniqueId();
+      </Code>
+    </Command>
+    <Command name="GetCategory" fourcc="GETC" desc="Retrieves the entity category">
+      <InArg name="EntityID" type="uint"/>
+      <OutArg name="Category" type="string"/>
+      <Code>
+        Ptr&lt;Game::Entity&gt; ents = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(EntityID);
+        return ents->GetCategory();
+      </Code>
+    </Command>
+    <Command name="IsGameEntity" fourcc="IGET" desc="tests if entity is an active game entity">
+      <InArg name="EntityID" type="uint"/>
+      <OutArg name="isentity" type="bool"/>
+      <Code>
+        Ptr&lt;Game::Entity&gt; ents = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(EntityID);
+        if(ents.isvalid())
+        {
+          if(ents->GetCategory() != "_Environment")
+          {
+            return true;
+          }
+        }
+        return false;
+      </Code>
+    </Command>
+    <Command name="KeyPressed" fourcc="KYPR" desc="Checks if a key is pressed">
+      <InArg name="PressedKey" type="string"/>
+      <OutArg name="result" type="bool"/>
+      <Code>
+        Input::InputServer* inputServer = Input::InputServer::Instance();
+        const Ptr&lt;Input::Keyboard&gt; &amp; kbd = inputServer->GetDefaultKeyboard();
+        return kbd->KeyPressed(Input::Key::FromString(PressedKey));
+      </Code>
+    </Command>
+    <Command name="KeyDown" fourcc="KYDW" desc="Checks if a key was pressed this frame">
+        <InArg name="PressedKey" type="string"/>
+        <OutArg name="result" type="bool"/>
+        <Code>
+            Input::InputServer* inputServer = Input::InputServer::Instance();
+            const Ptr&lt;Input::Keyboard&gt; &amp; kbd = inputServer->GetDefaultKeyboard();
+            return kbd->KeyDown(Input::Key::FromString(PressedKey));
+        </Code>
+    </Command>
+    <Command name="KeyUp" fourcc="KYUP" desc="Checks if a key got released this frame">
+        <InArg name="PressedKey" type="string"/>
+        <OutArg name="result" type="bool"/>
+        <Code>
+            Input::InputServer* inputServer = Input::InputServer::Instance();
+            const Ptr&lt;Input::Keyboard&gt; &amp; kbd = inputServer->GetDefaultKeyboard();
+            return kbd->KeyUp(Input::Key::FromString(PressedKey));
+        </Code>
+    </Command>  
+    <Command name="SetFloatMatVariable" fourcc="SFMV" desc="Sets a float material variable">
+        <InArg name="EntityID" type="uint"/>
+        <InArg name="node" type="string"/>
+        <InArg name="name" type="string"/>
+        <InArg name="value" type="float"/>
+        <Code>
+          <![CDATA[
+            Ptr<Game::Entity> ents = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(EntityID);
+            if(ents.isvalid())
+            {
+              Ptr<GraphicsFeature::SetMaterialVariable> msg = GraphicsFeature::SetMaterialVariable::Create();
+              msg->SetMaterialVarName(name);
+              msg->SetValue(value);
+              msg->SetNodeName("*/"+node);
+              __SendSync(ents,msg);
+            }
+          ]]>          
+        </Code>
+    </Command>
+  <Command name="SetBoolMatVariable" fourcc="SBMV" desc="Sets a float material variable">
+        <InArg name="EntityID" type="uint"/>
+        <InArg name="node" type="string"/>
+        <InArg name="name" type="string"/>
+        <InArg name="value" type="bool"/>
+        <Code>
+          <![CDATA[
+            Ptr<Game::Entity> ents = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(EntityID);
+            if(ents.isvalid())
+            {
+              Ptr<GraphicsFeature::SetMaterialVariable> msg = GraphicsFeature::SetMaterialVariable::Create();
+              msg->SetMaterialVarName(name);
+              msg->SetValue(value);
+              msg->SetNodeName("*/"+node);
+              __SendSync(ents,msg);
+            }
+          ]]>          
+        </Code>
+    </Command>
+    <Command name="SetIntMatVariable" fourcc="SIMV" desc="Sets a float material variable">
+        <InArg name="EntityID" type="uint"/>
+        <InArg name="node" type="string"/>
+        <InArg name="name" type="string"/>
+        <InArg name="value" type="int"/>
+        <Code>
+          <![CDATA[
+            Ptr<Game::Entity> ents = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(EntityID);
+            if(ents.isvalid())
+            {
+              Ptr<GraphicsFeature::SetMaterialVariable> msg = GraphicsFeature::SetMaterialVariable::Create();
+              msg->SetMaterialVarName(name);
+              msg->SetValue(value);
+              msg->SetNodeName("*/"+node);
+              __SendSync(ents,msg);
+            }
+          ]]>          
+        </Code>
+    </Command>    
+  <Command name="SetFloat4MatVariable" fourcc="SF4M" desc="Sets a float material variable">
+        <InArg name="EntityID" type="uint"/>
+        <InArg name="node" type="string"/>
+        <InArg name="name" type="string"/>
+        <InArg name="value" type="float4"/>
+        <Code>
+          <![CDATA[
+            Ptr<Game::Entity> ents = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(EntityID);
+            if(ents.isvalid())
+            {
+              Ptr<GraphicsFeature::SetMaterialVariable> msg = GraphicsFeature::SetMaterialVariable::Create();
+              msg->SetMaterialVarName(name);
+              msg->SetValue(value);
+              msg->SetNodeName("*/"+node);
+              __SendSync(ents,msg);
+            }
+          ]]>          
+        </Code>
+    </Command>
+    <Command name="GetFullscreen" fourcc="GFSR" desc="Gets the current fullscreen setting">
+      <OutArg name="fullscreen" type="bool"/>
+      <Code>
+        <![CDATA[
+        //FIXME should be a better way for this
+        return CoreGraphics::DisplayDevice::Instance()->IsFullscreen();
+        ]]>
+      </Code>
+    </Command>
+    <Command name="SetDisplayMode" fourcc="STPL" desc="Sets the current display mode">
+      <InArg name="width" type="uint"/>
+      <InArg name="height" type="uint"/>
+      <InArg name="fullscreen" type="bool"/>
+      <Code>
+        <![CDATA[          
+          
+        
+          if(!CoreGraphics::DisplayDevice::Instance()->IsFullscreen())
+          {          
+            CoreGraphics::DisplayMode& mode = GraphicsFeature::GraphicsFeatureUnit::Instance()->DisplayMode();
+	        
+	          mode.SetWidth(width);
+	          mode.SetHeight(height);
+	          mode.SetAspectRatio(width / float(height));          
+            GraphicsFeature::GraphicsFeatureUnit::Instance()->ApplyDisplaySettings();
+          }
+          
+          ]]>
+      </Code>
+    </Command>
+    <Command name="SetFullscreen" fourcc="SFSC" desc="sets fullscreen mode">      
+      <InArg name="fullscreen" type="bool"/>
+      <Code>
+        <![CDATA[          
+          GraphicsFeature::GraphicsFeatureUnit::Instance()->SetFullscreen(fullscreen);
+          GraphicsFeature::GraphicsFeatureUnit::Instance()->ApplyDisplaySettings();          
+          ]]>
+      </Code>
+    </Command>
+    <Command name="SetPosition" fourcc="SEPO" desc="Sets a entities position">
+      <InArg name="EntityID" type="uint"/>      
+      <InArg name="position" type="float4"/>
+      <Code>
+        <![CDATA[
+            Ptr<Game::Entity> ents = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(EntityID);
+            if(ents.isvalid())
+            {
+              Math::matrix44 mat = ents->GetMatrix44(Attr::Transform);
+              mat.set_position(position);
+              Ptr<BaseGameFeature::SetTransform> msg = BaseGameFeature::SetTransform::Create();
+              msg->SetMatrix(mat);
+              __SendSync(ents,msg);
+            }
+          ]]>
+      </Code>
+    </Command>
+    <Command name="Translate" fourcc="TRSL" desc="translates an entity">
+      <InArg name="EntityID" type="uint"/>
+      <InArg name="translation" type="float4"/>
+      <Code>
+        <![CDATA[
+            Ptr<Game::Entity> ents = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(EntityID);
+            if(ents.isvalid())
+            {
+              Math::matrix44 mat = ents->GetMatrix44(Attr::Transform);
+              mat.translate(translation);
+              Ptr<BaseGameFeature::SetTransform> msg = BaseGameFeature::SetTransform::Create();
+              msg->SetMatrix(mat);
+              __SendSync(ents,msg);
+            }
+          ]]>
+      </Code>
+    </Command>
+    <Command name="SetOrientation" fourcc="SEOR" desc="Sets a entities orientation">
+      <InArg name="EntityID" type="uint"/>
+      <InArg name="xangle" type="float"/>
+      <InArg name="yangle" type="float"/>
+      <InArg name="zangle" type="float"/>
+      <Code>
+        <![CDATA[
+            Ptr<Game::Entity> ents = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(EntityID);
+            if(ents.isvalid())
+            {
+              Math::matrix44 mat = ents->GetMatrix44(Attr::Transform);
+              Math::matrix44 rot = Math::matrix44::multiply(Math::matrix44::multiply(Math::matrix44::rotationx(xangle),Math::matrix44::rotationy(yangle)),Math::matrix44::rotationz(zangle));
+              rot.set_position(mat.get_position());
+              Ptr<BaseGameFeature::SetTransform> msg = BaseGameFeature::SetTransform::Create();
+              msg->SetMatrix(rot);
+              __SendSync(ents,msg);
+            }
+          ]]>
+      </Code>
+    </Command>
+    <Command name="SetLookorientation" fourcc="SELR" desc="Sets a entities orientation using a looking direction">
+      <InArg name="EntityID" type="uint"/>
+      <InArg name="forward" type="float4"/>      
+      <Code>
+        <![CDATA[
+            Ptr<Game::Entity> ents = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(EntityID);
+            if(ents.isvalid())
+            {
+              Math::matrix44 mat = ents->GetMatrix44(Attr::Transform);
+              Math::matrix44 rot = Math::matrix44::lookatrh(mat.get_position(), mat.get_position() + forward, Math::vector(0, 1, 0));              
+              Ptr<BaseGameFeature::SetTransform> msg = BaseGameFeature::SetTransform::Create();
+              msg->SetMatrix(rot);
+              __SendSync(ents,msg);
+            }
+          ]]>
+      </Code>
+    </Command>
+    <Command name="RotateX" fourcc="ROEX" desc="rotates an object around the x axis">
+      <InArg name="EntityID" type="uint"/>
+      <InArg name="angle" type="float"/>      
+      <Code>
+        <![CDATA[
+            Ptr<Game::Entity> ents = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(EntityID);
+            if(ents.isvalid())
+            {
+              Math::matrix44 mat = ents->GetMatrix44(Attr::Transform);
+              Math::float4 pos = mat.get_position();
+              mat.set_position(Math::float4(0,0,0,1));
+              Math::matrix44 rot = Math::matrix44::multiply(mat,Math::matrix44::rotationx(angle));              
+              rot.set_position(pos);
+              Ptr<BaseGameFeature::SetTransform> msg = BaseGameFeature::SetTransform::Create();
+              msg->SetMatrix(rot);
+              __SendSync(ents,msg);
+            }
+          ]]>
+      </Code>
+    </Command>
+    <Command name="RotateY" fourcc="ROEY" desc="rotates an object around the y axis">
+      <InArg name="EntityID" type="uint"/>
+      <InArg name="angle" type="float"/>
+      <Code>
+        <![CDATA[
+            Ptr<Game::Entity> ents = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(EntityID);
+            if(ents.isvalid())
+            {
+              Math::matrix44 mat = ents->GetMatrix44(Attr::Transform);
+              Math::float4 pos = mat.get_position();
+              mat.set_position(Math::float4(0,0,0,1));
+              Math::matrix44 rot = Math::matrix44::multiply(mat,Math::matrix44::rotationy(angle));              
+              rot.set_position(pos);
+              Ptr<BaseGameFeature::SetTransform> msg = BaseGameFeature::SetTransform::Create();
+              msg->SetMatrix(rot);
+              __SendSync(ents,msg);
+            }
+          ]]>
+      </Code>
+    </Command>
+    <Command name="RotateZ" fourcc="ROEZ" desc="rotates an object around the z axis">
+      <InArg name="EntityID" type="uint"/>
+      <InArg name="angle" type="float"/>
+      <Code>
+        <![CDATA[
+            Ptr<Game::Entity> ents = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(EntityID);
+            if(ents.isvalid())
+            {
+              Math::matrix44 mat = ents->GetMatrix44(Attr::Transform);
+              Math::float4 pos = mat.get_position();
+              mat.set_position(Math::float4(0,0,0,1));
+              Math::matrix44 rot = Math::matrix44::multiply(mat,Math::matrix44::rotationz(angle));              
+              rot.set_position(pos);
+              Ptr<BaseGameFeature::SetTransform> msg = BaseGameFeature::SetTransform::Create();
+              msg->SetMatrix(rot);
+              __SendSync(ents,msg);
+            }
+          ]]>
+      </Code>
+    </Command>
+    <Command name="exit" fourcc="exit" desc="Exits the program">
+      <Code>
+        <![CDATA[
+          App::GameApplication::Instance()->RequestState("Exit");
+        ]]>
+      </Code>
+    </Command>
+  </Library>  
+</Nebula3>

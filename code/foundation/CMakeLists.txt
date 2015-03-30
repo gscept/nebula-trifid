@@ -1,0 +1,691 @@
+#-------------------------------------------------------------------------------
+# Foundation
+#-------------------------------------------------------------------------------
+INCLUDE_DIRECTORIES(${Nebula3_SOURCE_DIR}/code/foundation/
+                    ${Nebula3_SOURCE_DIR}/code/extlibs/
+                    ${Nebula3_SOURCE_DIR}/code)
+
+
+IF(WIN32)
+SET(foundation_core_OS
+	core/win32/precompiled.h
+	core/win32/win32singleton.h
+	core/win32/win32sysfunc.cc
+	core/win32/win32sysfunc.h
+)
+ELSE(WIN32)
+SET(foundation_core_OS
+	core/posix/precompiled.h
+	core/posix/posixsingleton.h
+	core/posix/posixsysfunc.cc
+	core/posix/posixsysfunc.h
+)
+ENDIF(WIN32)
+SET(foundation_core_src
+	core/config.h
+	core/coreserver.cc
+	core/coreserver.h
+	core/debug.cc
+	core/debug.h
+	core/exithandler.cc
+	core/exithandler.h
+	core/factory.cc
+	core/factory.h
+	core/ptr.h
+	core/refcounted.cc
+	core/refcounted.h
+	core/refcountedlist.cc
+	core/refcountedlist.h
+	core/rtti.cc
+	core/rtti.h
+	core/rttimacros.h
+	core/singleton.h
+	core/sysfunc.h
+	core/types.h
+	core/weakptr.h	
+	core/debug/corepagehandler.cc
+	core/debug/corepagehandler.h
+	core/debug/stringatompagehandler.cc
+	core/debug/stringatompagehandler.h
+	${foundation_core_OS}
+)
+IF(WIN32)					
+SET(foundation_memory_OS
+	memory/win32/win32memory.h
+	memory/win360/win360heap.cc
+	memory/win360/win360heap.h
+	memory/win360/win360memory.cc
+	memory/win360/win360memory.h
+	memory/win360/win360memoryconfig.cc
+	memory/win360/win360memoryconfig.h
+	memory/win360/win360memorypool.cc	
+)
+ELSE(WIN32)
+SET(foundation_memory_OS
+	memory/posix/posixmemory.h
+	memory/posix/posixheap.cc
+	memory/posix/posixheap.h
+	memory/posix/posixmemory.cc
+	memory/posix/posixmemory.h
+	memory/posix/posixmemoryconfig.cc
+	memory/posix/posixmemoryconfig.h
+	memory/posix/posixmemorypool.cc	
+)
+ENDIF(WIN32)
+SET(foundation_memory_src
+	memory/heap.h
+	memory/memory.h
+	memory/memorypool.h
+	memory/poolarrayallocator.cc
+	memory/poolarrayallocator.h
+	memory/win360/win360memorypool.h
+	memory/debug/memorypagehandler.cc
+	memory/debug/memorypagehandler.h
+	${foundation_memory_OS}
+)
+
+IF(WIN32)					
+SET(foundation_debug_OS
+	debug/win32/win32minidump.cc
+	debug/win32/win32minidump.h
+	debug/win32/win32stacktrace.cc
+	debug/win32/win32stacktrace.h
+)
+ENDIF(WIN32)
+
+SET(foundation_debug_src
+	debug/debugcounter.cc
+	debug/debugcounter.h
+	debug/debugfloat.h
+	debug/debughandler.cc
+	debug/debughandler.h
+	debug/debuginterface.cc
+	debug/debuginterface.h
+	debug/debugpagehandler.cc
+	debug/debugpagehandler.h
+	debug/debugserver.cc
+	debug/debugserver.h
+	debug/debugtimer.cc
+	debug/debugtimer.h
+	debug/minidump.h
+	debug/stacktrace.h
+	${foundation_debug_OS}
+)
+
+IF(WIN32)					
+SET(foundation_util_OS
+	util/win32/win32guid.cc
+	util/win32/win32guid.h
+	util/win32/win32stringconverter.cc
+	util/win32/win32stringconverter.h
+)
+ELSE(WIN32)
+SET(foundation_util_OS
+	util/posix/posixguid.cc
+	util/posix/posixguid.h
+)
+ENDIF(WIN32)
+SET(foundation_util_src
+	util/array.h
+	util/bitfield.h
+	util/blob.cc
+	util/blob.h
+	util/commandlineargs.cc
+	util/commandlineargs.h
+	util/crc.cc
+	util/crc.h
+	util/delegate.h
+	util/dictionary.h
+	util/fixedarray.h
+	util/fixedtable.h
+	util/fourcc.h
+	util/globalstringatomtable.cc
+	util/globalstringatomtable.h
+	util/guid.h
+	util/hashtable.h
+	util/keyvaluepair.h
+	util/list.h
+	util/localstringatomtable.cc
+	util/localstringatomtable.h
+	util/priorityarray.h
+	util/quadtree.h
+	util/queue.h
+	util/randomnumbertable.cc
+	util/randomnumbertable.h
+	util/ringbuffer.h
+	util/round.h
+	util/runlengthcodec.cc
+	util/runlengthcodec.h
+	util/simpletree.h
+	util/sparsetable.h
+	util/stack.h
+	util/string.cc	
+	util/string.h
+	util/stringatom.cc
+	util/stringatom.h
+	util/stringatomtablebase.cc
+	util/stringatomtablebase.h
+	util/stringbuffer.cc
+	util/stringbuffer.h
+	util/typepunning.h
+	util/variant.h
+	${foundation_util_OS}	
+)
+SET(foundation_interface_src
+	interface/interfacebase.cc
+	interface/interfacebase.h
+	interface/interfacehandlerbase.cc
+	interface/interfacehandlerbase.h
+)
+
+IF(WIN32)
+SET(foundation_io_OS
+	io/win32/win32consolehandler.cc
+	io/win32/win32consolehandler.h
+	io/win360/win360filetime.cc
+	io/win360/win360filetime.h
+	io/win360/win360fswrapper.cc
+	io/win360/win360fswrapper.h
+)
+ELSE(WIN32)
+SET(foundation_io_OS
+	io/posix/posixconsolehandler.cc
+	io/posix/posixconsolehandler.h	
+	io/posix/posixfiletime.h
+	io/posix/posixfswrapper.cc
+	io/posix/posixfswrapper.h
+)
+ENDIF(WIN32)
+
+SET(foundation_io_src
+	io/assign.h
+	io/assignregistry.cc
+	io/assignregistry.h
+	io/binaryreader.cc
+	io/binaryreader.h
+	io/binarywriter.cc
+	io/binarywriter.h
+	io/bxmlreader.cc
+	io/bxmlreader.h
+	io/console.cc
+	io/console.h
+	io/consolehandler.cc
+	io/consolehandler.h
+	io/excelxmlreader.cc
+	io/excelxmlreader.h
+	io/filestream.cc
+	io/filestream.h
+	io/filetime.h
+	io/fswrapper.h
+	io/gamecontentserver.cc
+	io/gamecontentserver.h
+	io/historyconsolehandler.cc
+	io/historyconsolehandler.h
+	io/ioserver.cc
+	io/ioserver.h
+	io/logfileconsolehandler.cc
+	io/logfileconsolehandler.h
+	io/mediatype.h
+	io/memorystream.cc
+	io/memorystream.h
+	io/schemeregistry.cc
+	io/schemeregistry.h
+	io/stream.cc
+	io/stream.h
+	io/streamreader.cc
+	io/streamreader.h
+	io/streamwriter.cc
+	io/streamwriter.h
+	io/textreader.cc
+	io/textreader.h
+	io/textwriter.cc
+	io/textwriter.h
+	io/uri.cc
+	io/uri.h
+	io/xmlreader.cc
+	io/xmlreader.h
+	io/xmlwriter.cc
+	io/xmlwriter.h
+	io/base/gamecontentserverbase.cc
+	io/base/gamecontentserverbase.h	
+	io/zipfs/ziparchive.cc
+	io/zipfs/ziparchive.h
+	io/zipfs/zipdirentry.cc
+	io/zipfs/zipdirentry.h
+	io/zipfs/zipfileentry.cc
+	io/zipfs/zipfileentry.h
+	io/zipfs/zipfilestream.cc
+	io/zipfs/zipfilestream.h
+	io/zipfs/zipfilesystem.cc
+	io/zipfs/zipfilesystem.h
+	io/debug/consolepagehandler.cc
+	io/debug/consolepagehandler.h
+	io/debug/iopagehandler.cc
+	io/debug/iopagehandler.h
+	io/archfs/archive.cc
+	io/archfs/archive.h
+	io/archfs/archivebase.cc
+	io/archfs/archivebase.h
+	io/archfs/archivefilesystem.cc
+	io/archfs/archivefilesystem.h
+	io/archfs/archivefilesystembase.cc
+	io/archfs/archivefilesystembase.h
+	io/util/bxmlfilestructs.h
+	io/util/bxmlloaderutil.cc
+	io/util/bxmlloaderutil.h
+	${foundation_io_OS}
+)
+
+if(N_MATH_XNA)
+SET(foundation_math_OS
+	math/xnamath/xna_float4.cc
+	math/xnamath/xna_float4.h
+	math/xnamath/xna_matrix44.cc
+	math/xnamath/xna_matrix44.h
+	math/xnamath/xna_plane.cc
+	math/xnamath/xna_plane.h
+	math/xnamath/xna_point.h
+	math/xnamath/xna_quaternion.cc
+	math/xnamath/xna_quaternion.h
+	math/xnamath/xna_scalar.h
+	math/xnamath/xna_vector.h
+)
+ELSE(N_MATH_XNA)
+SET(foundation_math_OS
+	math/vecmath/vec_float4.cc
+	math/vecmath/vec_float4.h
+	math/vecmath/vec_matrix44.cc
+	math/vecmath/vec_matrix44.h
+	math/vecmath/vec_quaternion.cc
+	math/vecmath/vec_quaternion.h
+	math/vecmath/vec_plane.cc
+	math/vecmath/vec_plane.h
+	math/vecmath/vec_point.h
+	math/vecmath/vec_scalar.h
+	math/vecmath/vec_vector.h
+)
+ENDIF(N_MATH_XNA)
+
+SET(foundation_math_src
+	math/angularpfeedbackloop.h
+	math/bbox.cc
+	math/bbox.h
+	math/clipstatus.h
+	math/extrapolator.h
+	math/float2.h
+	math/float4.h
+	math/frustum.h
+	math/line.cc
+	math/line.h
+	math/matrix44.h
+	math/noise.h
+	math/pfeedbackloop.h
+	math/pidfeedbackloop.h
+	math/plane.h
+	math/point.h
+	math/polar.h
+	math/quaternion.h
+	math/rectangle.h
+	math/scalar.h
+	math/sphere_.cc
+	math/sphere_.h
+	math/transform44.h
+	math/vector.h
+	${foundation_math_OS}
+)
+SET(foundation_messaging_src
+	messaging/asyncport.cc
+	messaging/asyncport.h
+	messaging/batchmessage.cc
+	messaging/batchmessage.h
+	messaging/blockinghandlerthread.cc
+	messaging/blockinghandlerthread.h
+	messaging/delegatetable.cc
+	messaging/delegatetable.h
+	messaging/dispatcher.cc
+	messaging/dispatcher.h
+	messaging/handler.cc
+	messaging/handler.h
+	messaging/handlerthreadbase.cc
+	messaging/handlerthreadbase.h
+	messaging/id.h
+	messaging/message.cc
+	messaging/message.h
+	messaging/messagereader.cc
+	messaging/messagereader.h
+	messaging/messagewriter.cc
+	messaging/messagewriter.h
+	messaging/messagecallbackhandler.h
+	messaging/messagecallbackhandler.cc
+	messaging/port.cc
+	messaging/port.h
+	messaging/runthroughhandlerthread.cc
+	messaging/runthroughhandlerthread.h
+	messaging/staticmessagehandler.cc
+	messaging/staticmessagehandler.h
+)
+
+IF(WIN32)
+SET(foundation_threading_OS
+	threading/win360/win360barrier.h
+	threading/win360/win360criticalsection.cc
+	threading/win360/win360criticalsection.h
+	threading/win360/win360event.h
+	threading/win360/win360interlocked.h
+	threading/win360/win360thread.cc
+	threading/win360/win360thread.h
+	threading/win360/win360threadbarrier.h
+	threading/win360/win360threadid.h
+	threading/win360/win360rendezvous.h
+)
+ELSEIF(LINUX)
+SET(foundation_threading_OS
+        threading/linux/linuxinterlocked.h
+        threading/linux/linuxbarrier.h
+        threading/linux/linuxcriticalsection.h
+        threading/linux/linuxevent.h
+        threading/linux/linuxthread.cc
+        threading/linux/linuxthread.h
+)
+ELSE()
+SET(foundation_threading_OS
+		#threading/darwin/darwininterlocked.h
+		threading/posix/posixinterlocked.h
+        threading/posix/posixbarrier.h
+        threading/posix/posixcriticalsection.h
+        threading/posix/posixevent.h
+        threading/posix/posixthread.cc
+        threading/posix/posixthread.h
+)
+ENDIF(WIN32)
+
+SET(foundation_threading_src
+	threading/barrier.h
+	threading/criticalsection.h
+	threading/event.h
+	threading/interlocked.h
+	threading/objectref.cc
+	threading/objectref.h
+	threading/safeflag.h
+	threading/safepriorityqueue.h
+	threading/safequeue.h
+	threading/thread.cc
+	threading/thread.h
+	threading/threadbarrier.h
+	threading/threadid.h
+	threading/rendezvous.h
+	threading/debug/threadpagehandler.cc
+	threading/debug/threadpagehandler.h
+	${foundation_threading_OS}
+)
+
+IF(WIN32)
+SET(foundation_timing_OS
+	timing/win360/win360calendartime.cc
+	timing/win360/win360calendartime.h
+	timing/win360/win360timer.cc
+	timing/win360/win360timer.h
+)
+ELSE(WIN32)
+SET(foundation_timing_OS
+	timing/posix/posixtimer.cc
+	timing/posix/posixtimer.h
+	timing/posix/posixcalendartime.cc
+	timing/posix/posixcalendartime.h
+)
+ENDIF(WIN32)
+
+SET(foundation_timing_src
+	timing/calendartime.h
+	timing/time.h
+	timing/timer.h
+	timing/base/calendartimebase.cc
+	timing/base/calendartimebase.h
+	${foundation_timing_OS}	
+)
+
+IF(WIN32)
+SET(foundation_net_OS
+	net/win360/win360ipaddress.cc
+	net/win360/win360ipaddress.h
+	net/win360/win360socket.cc
+	net/win360/win360socket.h
+)
+ELSE(WIN32)
+SET(foundation_net_OS
+	net/posix/posixipaddress.cc
+	net/posix/posixipaddress.h
+	net/posix/posixsocket.cc
+	net/posix/posixsocket.h
+)
+ENDIF(WIN32)
+SET(foundation_net_src
+	net/debugmessage.h
+	net/debugpacket.cc
+	net/debugpacket.h
+	net/messageclient.cc
+	net/messageclient.h
+	net/messageclientconnection.cc
+	net/messageclientconnection.h
+	net/tcpclient.cc
+	net/tcpclient.h
+	net/tcpclientconnection.cc
+	net/tcpclientconnection.h
+	net/tcpmessagecodec.cc
+	net/tcpmessagecodec.h
+	net/tcpserver.cc
+	net/tcpserver.h
+	net/socket/ipaddress.h
+	net/socket/socket.cc
+	net/socket/socket.h
+	net/tcp/stdtcpclient.cc
+	net/tcp/stdtcpclient.h
+	net/tcp/stdtcpclientconnection.cc
+	net/tcp/stdtcpclientconnection.h
+	net/tcp/stdtcpserver.cc
+	net/tcp/stdtcpserver.h
+	${foundation_net_OS}
+)
+
+IF(WIN32)
+SET(foundation_system_OS
+	system/win32/win32cpu.h
+	system/win32/win32environment.cc
+	system/win32/win32environment.h
+	system/win32/win32registry.cc
+	system/win32/win32registry.h
+	system/win32/win32systeminfo.cc
+	system/win32/win32systeminfo.h
+)
+ELSE()
+SET(foundation_system_OS
+	system/posix/posixcpu.h
+	system/posix/posixsysteminfo.h
+	system/posix/posixsysteminfo.cc
+	system/posix/posixenvironment.cc
+	system/posix/posixenvironment.h
+	system/posix/posixsettings.cc
+        system/posix/posixsettings.h
+)
+ENDIF()
+SET(foundation_system_src
+	system/appentry.h
+	system/byteorder.h
+	system/cpu.h
+	system/systeminfo.h
+	system/base/systeminfobase.cc
+	system/base/systeminfobase.h
+	${foundation_system_OS}
+)
+SET(foundation_app_src
+	app/application.cc
+	app/application.h
+	app/consoleapplication.cc
+	app/consoleapplication.h
+)
+
+SET(foundation_http_src
+	http/defaulthttprequesthandler.cc
+	http/defaulthttprequesthandler.h
+	http/httpclient.cc
+	http/httpclient.h
+	http/httpclientregistry.cc
+	http/httpclientregistry.h
+	http/httpmethod.h
+	http/httpnzstream.cc
+	http/httpnzstream.h	
+	http/httprequest.cc
+	http/httprequest.h
+	http/httprequesthandler.cc
+	http/httprequesthandler.h
+	http/httprequestreader.cc
+	http/httprequestreader.h
+	http/httprequestwriter.cc
+	http/httprequestwriter.h
+	http/httpresponsereader.cc
+	http/httpresponsereader.h
+	http/httpresponsewriter.cc
+	http/httpresponsewriter.h
+	http/httpserver.cc
+	http/httpserver.h
+	http/httpstatus.cc
+	http/httpstatus.h
+	http/httpstream.cc
+	http/httpstream.h
+	http/debug/helloworldrequesthandler.cc
+	http/debug/helloworldrequesthandler.h
+	http/debug/svgtestpagehandler.cc
+	http/debug/svgtestpagehandler.h
+	http/html/htmlelement.cc
+	http/html/htmlelement.h
+	http/html/htmlpagewriter.cc
+	http/html/htmlpagewriter.h
+	http/svg/svglinechartwriter.cc
+	http/svg/svglinechartwriter.h
+	http/svg/svgpagewriter.cc
+	http/svg/svgpagewriter.h
+)
+SET(foundation_jobs_src
+	jobs/job.cc
+	jobs/job.h
+	jobs/jobdatadesc.h
+	jobs/jobfunccontext.h
+	jobs/jobfuncdesc.h
+	jobs/jobport.cc
+	jobs/jobport.h
+	jobs/jobsystem.cc
+	jobs/jobsystem.h
+	jobs/jobuniformdesc.h
+	jobs/stdjob.h
+	jobs/base/jobbase.cc
+	jobs/base/jobbase.h
+	jobs/base/jobfuncdescbase.h
+	jobs/base/jobportbase.cc
+	jobs/base/jobportbase.h
+	jobs/base/jobsystembase.cc
+	jobs/base/jobsystembase.h
+	jobs/tp/tpjob.cc
+	jobs/tp/tpjob.h
+	jobs/tp/tpjobcommand.h
+	jobs/tp/tpjobfuncdesc.h
+	jobs/tp/tpjobport.cc
+	jobs/tp/tpjobport.h
+	jobs/tp/tpjobslice.cc
+	jobs/tp/tpjobslice.h
+	jobs/tp/tpjobsystem.cc
+	jobs/tp/tpjobsystem.h
+	jobs/tp/tpjobthreadpool.cc
+	jobs/tp/tpjobthreadpool.h
+	jobs/tp/tpworkerthread.cc
+	jobs/tp/tpworkerthread.h
+)
+SET(foundation_framesync_src
+	framesync/framesynctimer.cc
+	framesync/framesynctimer.h
+)																
+					
+					
+SET(foundation_precompiled_src
+    stdneb.cc
+    stdneb.h
+)
+SOURCE_GROUP("Precompiled" FILES ${foundation_precompiled_src})
+IF(N_BUILD_FIRSTTIME)
+	SET(SOURCES_NIDLS )
+	SET(foundation_firsttime_excludes_src )
+ELSE()
+	SET(foundation_NIDLS
+		io/iointerfaceprotocol.nidl
+		http/httpprotocol.nidl	
+	)
+	N_WRAP_NIDL_FILES(foundation_NIDLS ${foundation_NIDLS})
+	SET(foundation_firsttime_excludes_src
+	  io/iointerface.cc
+	  io/iointerface.h
+	  io/iointerfacehandler.cc
+	  io/iointerfacehandler.h		
+	http/httpinterface.cc
+	http/httpinterface.h
+	http/httpmessagehandler.cc
+	http/httpmessagehandler.h
+	http/httpserverproxy.cc
+	http/httpserverproxy.h
+
+	)
+ENDIF()
+
+SET(Nebula3Foundation_SRCS
+	${foundation_core_src}
+	${foundation_memory_src}
+	${foundation_debug_src}
+	${foundation_util_src}
+	${foundation_interface_src}
+	${foundation_io_src}
+	${foundation_firsttime_excludes_src}
+	${foundation_math_src}
+	${foundation_messaging_src}
+	${foundation_threading_src}
+	${foundation_timing_src}
+	${foundation_net_src}
+	${foundation_system_src}
+	${foundation_app_src}
+	${foundation_http_src}
+	${foundation_jobs_src}
+	${foundation_framesync_src}
+	${foundation_precompiled_src}	
+	)
+
+
+
+
+IF(WIN32)
+  
+
+SOURCE_GROUP(core        FILES  ${foundation_core_src})
+SOURCE_GROUP(memory      FILES  ${foundation_memory_src})
+SOURCE_GROUP(debug       FILES  ${foundation_debug_src})
+SOURCE_GROUP(util        FILES  ${foundation_util_src})
+SOURCE_GROUP(interface   FILES  ${foundation_interface_src})
+SOURCE_GROUP(io          FILES  ${foundation_io_src})
+SOURCE_GROUP(math        FILES  ${foundation_math_src})
+SOURCE_GROUP(messaging   FILES  ${foundation_messaging_src})
+SOURCE_GROUP(threading   FILES  ${foundation_threading_src})
+SOURCE_GROUP(timing      FILES  ${foundation_timing_src})
+SOURCE_GROUP(net         FILES  ${foundation_net_src})
+SOURCE_GROUP(system      FILES  ${foundation_system_src})
+SOURCE_GROUP(framesync   FILES  ${foundation_framesync_src})
+SOURCE_GROUP(app         FILES  ${foundation_app_src})
+SOURCE_GROUP(http        FILES  ${foundation_http_src})
+SOURCE_GROUP(jobs        FILES  ${foundation_jobs_src})
+ENDIF()
+
+ADD_LIBRARY(foundation STATIC ${Nebula3Foundation_SRCS})
+IF(NOT N_BUILD_FIRSTTIME)
+add_dependencies(foundation foundation_NIDLS)
+ENDIF()
+SET_TARGET_PROPERTIES(foundation PROPERTIES FOLDER "N3SDK/N3")
+
+N_SET_COMPILER_DEFAULTS()
+IF(N_USE_PRECOMPILED_HEADERS)
+    N_SET_PCH(foundation stdneb.h stdneb.cc)
+ENDIF()

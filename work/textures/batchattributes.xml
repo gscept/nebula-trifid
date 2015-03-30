@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Textures>
+    <Texture pattern="system/black.dds" comment="" maxHeight="4096" maxWidth="4096" mipFilter="Kaiser" mipMaps="Yes" mipSharpen="None" quality="Low" rgb="dxt1c" rgba="dxt3" scaleFilter="Kaiser" scaleX="1.000000" scaleY="1.000000" />
+    <Texture pattern="system/cloud.dds" comment="" maxHeight="4096" maxWidth="4096" mipFilter="Kaiser" mipMaps="Yes" mipSharpen="None" quality="Low" rgb="dxt1c" rgba="dxt3" scaleFilter="Kaiser" scaleX="1.000000" scaleY="1.000000" />
+    <Texture pattern="system/colorhexagon.dds" comment="" maxHeight="4096" maxWidth="4096" mipFilter="Kaiser" mipMaps="Yes" mipSharpen="None" quality="Low" rgb="dxt1c" rgba="dxt3" scaleFilter="Kaiser" scaleX="1.000000" scaleY="1.000000" />
+    <Texture pattern="system/cube.dds" comment="" maxHeight="4096" maxWidth="4096" mipFilter="Kaiser" mipMaps="Yes" mipSharpen="None" quality="Low" rgb="dxt1c" rgba="dxt3" scaleFilter="Kaiser" scaleX="1.000000" scaleY="1.000000" />
+    <Texture pattern="system/defcube.dds" comment="" maxHeight="4096" maxWidth="4096" mipFilter="Kaiser" mipMaps="Yes" mipSharpen="None" quality="Low" rgb="dxt1c" rgba="dxt3" scaleFilter="Kaiser" scaleX="1.000000" scaleY="1.000000" />    
+    <Texture pattern="system/nobump.psd" comment="" maxHeight="4096" maxWidth="4096" mipFilter="Kaiser" mipMaps="Yes" mipSharpen="None" quality="Low" rgb="dxt1c" rgba="dxt3" scaleFilter="Kaiser" scaleX="1.000000" scaleY="1.000000" />
+    <Texture pattern="system/noise.psd" comment="" maxHeight="4096" maxWidth="4096" mipFilter="Kaiser" mipMaps="Yes" mipSharpen="None" quality="Low" rgb="dxt1c" rgba="dxt3" scaleFilter="Kaiser" scaleX="1.000000" scaleY="1.000000" />    
+    <Texture pattern="system/shadowmod.dds" comment="" maxHeight="4096" maxWidth="4096" mipFilter="Kaiser" mipMaps="Yes" mipSharpen="None" quality="Low" rgb="dxt1c" rgba="dxt3" scaleFilter="Kaiser" scaleX="1.000000" scaleY="1.000000" />    
+    <Texture pattern="system/specmap.dds" comment="" maxHeight="4096" maxWidth="4096" mipFilter="Kaiser" mipMaps="Yes" mipSharpen="None" quality="Low" rgb="dxt1c" rgba="dxt3" scaleFilter="Kaiser" scaleX="1.000000" scaleY="1.000000" />
+    <Texture pattern="system/spotlight.dds" comment="" maxHeight="4096" maxWidth="4096" mipFilter="Kaiser" mipMaps="Yes" mipSharpen="None" quality="Low" rgb="dxt1c" rgba="dxt3" scaleFilter="Kaiser" scaleX="1.000000" scaleY="1.000000" />    
+    <Texture pattern="system/white.dds" comment="" maxHeight="4096" maxWidth="4096" mipFilter="Kaiser" mipMaps="Yes" mipSharpen="None" quality="Low" rgb="dxt1c" rgba="dxt3" scaleFilter="Kaiser" scaleX="1.000000" scaleY="1.000000" />
+    <Texture pattern="system/nebulalogo.png" comment="" maxHeight="256" maxWidth="256" mipFilter="Point" mipMaps="Yes" mipSharpen="None" quality="Low" rgb="dxt1c" rgba="dxt3" scaleFilter="Kaiser" scaleX="1.000000" scaleY="1.000000" />    
+    <Texture pattern="*/*" comment="Default attribute" maxHeight="4096" maxWidth="4096" mipFilter="Kaiser" mipMaps="Yes" mipSharpen="None" quality="Low" rgb="dxt1c" rgba="dxt3" scaleFilter="Kaiser" scaleX="1.000000" scaleY="1.000000" />
+</Textures>

@@ -1,0 +1,527 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TextureImporterWindow</class>
+ <widget class="QDialog" name="TextureImporterWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>676</width>
+    <height>590</height>
+   </rect>
+  </property>
+  <property name="font">
+   <font>
+    <family>Segoe UI</family>
+   </font>
+  </property>
+  <property name="windowTitle">
+   <string>Texture Importer</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="0">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Texture Importer</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="8" column="4">
+       <widget class="Line" name="line_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="0" colspan="4">
+       <widget class="QPushButton" name="importButton">
+        <property name="text">
+         <string>Import</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0" colspan="4">
+       <widget class="QProgressBar" name="loadProgress">
+        <property name="value">
+         <number>24</number>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2" rowspan="6">
+       <widget class="Line" name="line">
+        <property name="frameShadow">
+         <enum>QFrame::Plain</enum>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" rowspan="6" colspan="2">
+       <widget class="QGroupBox" name="settingsGroup">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="title">
+         <string/>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_7">
+         <item row="12" column="0" colspan="2">
+          <widget class="QComboBox" name="formatBoxRgba">
+           <item>
+            <property name="text">
+             <string>DXT1c (no alpha)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>DXT1a (only alpha)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>DXT3</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>DXT5</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>DXT5nm (normal map)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>U1555 (1 bit alpha, 5 bits red/green/blue)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>U4444 (4 bits alpha/red/green/blue)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>U565 (5 bits red, 6 bits green, 5 bits blue, no alpha)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>U8888 (uncompressed, with alpha)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>U888 (uncompressed, no alpha)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>V8U8</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="6" column="0" colspan="2">
+          <widget class="QComboBox" name="filterBox">
+           <property name="currentIndex">
+            <number>5</number>
+           </property>
+           <item>
+            <property name="text">
+             <string>Point</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Box</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Triangle</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Quadratic</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Cubic</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Kaiser</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="8" column="0" colspan="2">
+          <widget class="QComboBox" name="qualityBox">
+           <property name="currentIndex">
+            <number>0</number>
+           </property>
+           <property name="maxVisibleItems">
+            <number>10</number>
+           </property>
+           <property name="maxCount">
+            <number>2147483647</number>
+           </property>
+           <item>
+            <property name="text">
+             <string>Low</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Normal</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>High</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="10" column="0" colspan="2">
+          <widget class="QComboBox" name="formatBoxRgb">
+           <item>
+            <property name="text">
+             <string>DXT1c (no alpha)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>DXT1a (only alpha)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>DXT3</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>DXT5</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>DXT5nm (normal map)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>U1555 (1 bit alpha, 5 bits red/green/blue)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>U4444 (4 bits alpha/red/green/blue)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>U565 (5 bits red, 6 bits green, 5 bits blue, no alpha)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>U8888 (uncompressed, with alpha)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>U888 (uncompressed, no alpha)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>V8U8</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QSpinBox" name="heightBox">
+           <property name="maximum">
+            <number>8192</number>
+           </property>
+           <property name="value">
+            <number>300</number>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="0" colspan="2">
+          <widget class="QLabel" name="label_11">
+           <property name="text">
+            <string>Quality</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0" colspan="2">
+          <widget class="QLabel" name="label_10">
+           <property name="text">
+            <string>Filter</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_9">
+           <property name="text">
+            <string>Max Width (clamp to)</string>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="0">
+          <widget class="QLabel" name="label_14">
+           <property name="text">
+            <string>Format (if source is RGBA)</string>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="0" colspan="2">
+          <widget class="QLabel" name="label_12">
+           <property name="text">
+            <string>Format (if source is RGB)</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_8">
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Compression</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QSpinBox" name="widthBox">
+           <property name="maximum">
+            <number>8192</number>
+           </property>
+           <property name="value">
+            <number>300</number>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLabel" name="label_13">
+           <property name="text">
+            <string>Max Height (clamp to)</string>
+           </property>
+          </widget>
+         </item>
+         <item row="14" column="0" colspan="2">
+          <widget class="QCheckBox" name="genMipMaps">
+           <property name="text">
+            <string>Generate Mip Maps?</string>
+           </property>
+          </widget>
+         </item>
+         <item row="16" column="0" colspan="2">
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="15" column="0" colspan="2">
+          <widget class="QCheckBox" name="linearBox">
+           <property name="text">
+            <string>Linear?</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="0" column="3" rowspan="6">
+       <widget class="QGroupBox" name="textureGroup">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_3">
+         <item row="3" column="0">
+          <layout class="QGridLayout" name="gridLayout_4">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>Width:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>Height:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_5">
+             <property name="text">
+              <string>Depth:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_6">
+             <property name="text">
+              <string>Format:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="label_7">
+             <property name="text">
+              <string>Size:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLabel" name="widthLabel">
+             <property name="text">
+              <string>300px</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLabel" name="heightLabel">
+             <property name="text">
+              <string>300px</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLabel" name="depthLabel">
+             <property name="text">
+              <string>32 bit</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QLabel" name="formatLabel">
+             <property name="text">
+              <string>PNG</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QLabel" name="sizeLabel">
+             <property name="text">
+              <string>85.4 KB</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>Channels:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QLabel" name="channelLabel">
+             <property name="text">
+              <string>RGBA</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="textureLabel">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>300</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="pixmap">
+            <pixmap resource="../../qttools/ui/qttoolkit.qrc">:/Nebula/nebulalogo.png</pixmap>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="Line" name="line_4">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="nameLabel">
+           <property name="text">
+            <string>TextLabel</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="6" column="0" colspan="4">
+       <widget class="QLabel" name="status">
+        <property name="text">
+         <string>TextLabel</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>widthBox</tabstop>
+  <tabstop>heightBox</tabstop>
+  <tabstop>filterBox</tabstop>
+  <tabstop>qualityBox</tabstop>
+  <tabstop>formatBoxRgb</tabstop>
+  <tabstop>formatBoxRgba</tabstop>
+  <tabstop>genMipMaps</tabstop>
+  <tabstop>importButton</tabstop>
+ </tabstops>
+ <resources>
+  <include location="../../qttools/ui/qttoolkit.qrc"/>
+ </resources>
+ <connections/>
+</ui>

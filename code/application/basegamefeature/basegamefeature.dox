@@ -1,0 +1,8 @@
+/**
+@namespace BaseGameFeature
+
+The BaseGameFeature offers classes for loading and saving entities from and to the database.
+It allows creating of entities from categories defined in the blueprint.xml (entity and factorymanager).
+Furthermore the basegamefeature creates managers for focusing entities, using global attributes (from globals.xml),
+creating enviornment entities.
+*/

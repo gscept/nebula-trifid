@@ -1,0 +1,12 @@
+<AnimEventVibration IsVirtualCategory="true">
+ <Attributes AnimEventName="string" HighFreqIntensity="float" HighFreqDuration="float" LowFreqIntensity="float" LowFreqDuration="float" PlayerIndex="int"/>
+  <Item AnimEventName="code_emitted_player_hit_light" HighFreqIntensity="5" HighFreqDuration="0.2" LowFreqIntensity="0" LowFreqDuration="0" PlayerIndex="-1"/>
+  <Item AnimEventName="code_emitted_player_hit_heavy" HighFreqIntensity="0" HighFreqDuration="0" LowFreqIntensity="0" LowFreqDuration="0" PlayerIndex="-1"/>
+  <Item AnimEventName="code_emitted_player_attack" HighFreqIntensity="0" HighFreqDuration="0" LowFreqIntensity="0" LowFreqDuration="0" PlayerIndex="-1"/>
+  <Item AnimEventName="code_emitted_player_death" HighFreqIntensity="0" HighFreqDuration="0" LowFreqIntensity="0" LowFreqDuration="0" PlayerIndex="-1"/>
+  <Item AnimEventName="code_emitted_enemy_hit_light" HighFreqIntensity="0" HighFreqDuration="0" LowFreqIntensity="5" LowFreqDuration="0.2" PlayerIndex="-1"/>
+  <Item AnimEventName="code_emitted_enemy_hit_heavy" HighFreqIntensity="0" HighFreqDuration="0" LowFreqIntensity="0" LowFreqDuration="0" PlayerIndex="-1"/>
+  <Item AnimEventName="code_emitted_enemy_attack" HighFreqIntensity="0" HighFreqDuration="0" LowFreqIntensity="0" LowFreqDuration="0" PlayerIndex="-1"/>
+  <Item AnimEventName="code_emitted_enemy_death" HighFreqIntensity="0" HighFreqDuration="0" LowFreqIntensity="0" LowFreqDuration="0" PlayerIndex="-1"/>
+  <Item AnimEventName="jump_attack_smash" HighFreqIntensity="5" HighFreqDuration="0.1" LowFreqIntensity="5" LowFreqDuration="0.2" PlayerIndex="-1"/>
+</AnimEventVibration>

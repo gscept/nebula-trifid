@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Nebula3>
+  <AttributeLib>    
+    <Dependency header="minimap/minimapproperty.h"/>
+ 
+    <Attribute name="MinimapIcon" fourcc="MIIC" accessMode="ReadWrite" type="String" />
+    <Attribute name="MinimapIconSize" fourcc="MIIS" accessMode="ReadWrite" type="Float4" />
+    <Attribute name="MinimapIconColor" fourcc="MICC" accessMode="ReadWrite" type="Float4" />
+  </AttributeLib>
+  
+  <Property name="Minimap::MinimapProperty" derivedFrom="Game::Property" header="game/property.h">
+    <Attribute name="MinimapIcon"/>    
+    <Attribute name="MinimapIconSize"/>
+    <Attribute name="MinimapIconColor"/>
+  </Property>  
+</Nebula3>		

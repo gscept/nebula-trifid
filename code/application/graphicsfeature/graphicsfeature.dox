@@ -1,0 +1,6 @@
+/**
+@namespace GraphicsFeature
+
+The GraphicsFeature namespace contains properties and messages
+for using renderable graphics with the entity system of the game application.
+*/

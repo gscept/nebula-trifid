@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Nebula3>
+  <Protocol namespace="ScriptFeature" name="ScriptProtocol">
+
+    <!-- dependencies -->
+    <Dependency header="util/string.h"/>
+    <Dependency header="util/stringatom.h"/>
+
+    <!-- TODO -->
+    <Message name="StartDialog" fourcc="STDI">
+      <InArg name="Speaker" type="Util::String"/>
+    </Message>
+    
+    <!-- TODO -->
+    <Message name="ChooseResponse" fourcc="CHOR">
+      <InArg name="Response" type="int"/>
+    </Message>
+    
+    <!-- TODO -->
+    <Message name="CancelDialog" fourcc="CAND">      
+    </Message>
+
+    <!-- switch finite state machine -->
+    <Message name="SwitchFSM" fourcc="SFSM">
+      <InArg name="StateMachineName" type="Util::String"/>      
+    </Message>
+
+    <!-- get current state name -->
+    <Message name="GetCurrentState" fourcc="GCST">
+      <InArg name="StateName" type="Util::StringAtom"/>
+    </Message>
+    
+  </Protocol>
+
+</Nebula3>

@@ -1,0 +1,300 @@
+#pragma once
+//------------------------------------------------------------------------------
+/**
+    @class Materials::Material
+    
+    Describes a material, which is a collection of shaders. 
+	A material has a set of variables, which can be instanced, and then applied, 
+	which in turn applies it to all the shaders having that variable.
+
+	As such, we can effectively instanciate a material, apply a variable, 
+	and the variable will be activated for that entity when the material is applied.
+    
+    (C) 2013-2015 Individual contributors, see AUTHORS file
+*/
+//------------------------------------------------------------------------------
+
+#include "core/refcounted.h"
+#include "coregraphics/shader.h"
+#include "util/array.h"
+#include "util/keyvaluepair.h"
+#include "util/variant.h"
+#include "util/stringatom.h"
+#include "models/modelnodematerial.h"
+#include "models/modelnodetype.h"
+#include "materialfeature.h"
+
+
+namespace Materials
+{
+
+class MaterialInstance;
+class Material : public Core::RefCounted
+{
+	__DeclareClass(Material);
+public:
+
+	struct MaterialParameter
+	{
+		enum EditType
+		{
+			EditRaw,
+			EditColor,
+
+			NumEditTypes
+		};
+
+		static EditType EditTypeFromString(const Util::String& str)
+		{
+			if (str == "raw") return EditRaw;
+			else if (str == "color") return EditColor;
+			else return EditRaw;
+		}
+
+		Util::String name;
+        Util::String desc;
+		Util::Variant defaultVal;
+		Util::Variant min;
+		Util::Variant max;        
+		EditType editType;
+		bool system;
+	};
+
+	/// constructor-
+	Material();
+	/// destructor
+	virtual ~Material();
+
+	/// sets the name for the material
+	void SetName(const Util::StringAtom& name);
+	/// gets the name for the material
+	const Util::StringAtom& GetName() const;
+	/// set description
+	void SetDescription(const Util::String& description);
+	/// get description
+	const Util::String& GetDescription() const;
+	/// sets the type of the material
+	void SetFeatures(const MaterialFeature::Mask& type);
+	/// gets the type of the material
+	const MaterialFeature::Mask& GetFeatures() const;
+	/// sets the batch type
+	void SetCode(const Models::ModelNodeMaterial::Code& code);
+	/// get the batch type
+	const Models::ModelNodeMaterial::Code& GetCode() const;
+	/// set the material to be virtual
+	void SetVirtual(bool b);
+	/// get if the material is virtual
+	const bool GetVirtual() const;
+
+	/// setup material from list of list of shaders with variations
+	void Setup();
+	/// cleans up the material
+	void Unload();	
+	/// discards the material and all its instances
+	void Discard();
+
+	/// create a material instance
+	Ptr<MaterialInstance> CreateMaterialInstance();
+	/// discard material instance
+	void DiscardMaterialInstance(const Ptr<MaterialInstance>& inst);
+
+	/// get all material instances
+	const Util::Array<Ptr<MaterialInstance> >& GetAllMaterialInstances() const;
+
+	/// get the amount of shaders
+	SizeT GetNumPasses();
+
+	/// add a shader to the material
+	void AddPass(const Models::ModelNodeType::Code& code, const Ptr<CoreGraphics::Shader>& shader, const CoreGraphics::ShaderFeature::Mask& mask);
+	/// get shader by pass type
+	const Ptr<CoreGraphics::Shader>& GetShader(const Models::ModelNodeType::Code& code) const;
+	/// get features by pass type
+	const CoreGraphics::ShaderFeature::Mask& GetFeatureMask(const Models::ModelNodeType::Code& type) const;
+	/// get pass type by index
+	const Models::ModelNodeType::Code& GetBatchType(const IndexT index) const;
+
+    /// adds parameter
+    void AddParam(const Util::String& name, const Material::MaterialParameter& param);
+
+	/// gets the number of parameters
+	const SizeT GetNumParameters() const;
+	/// gets the dictionary of parameters and their default values
+	const Util::Dictionary<Util::StringAtom, MaterialParameter>& GetParameters() const;
+
+private:
+	friend class MaterialLoader;
+
+    /// load material inherited from another
+    void LoadInherited(const Ptr<Material>& material);
+
+	bool isVirtual;
+	Util::Array<Ptr<Material>> inheritedMaterials;
+	Util::StringAtom name;
+	Util::String description;
+	MaterialFeature::Mask type;
+	Models::ModelNodeMaterial::Code code;
+	Util::Dictionary<Util::StringAtom, MaterialParameter> materialParameters;
+	Util::Dictionary<Models::ModelNodeType::Code, Ptr<CoreGraphics::Shader> > materialShaders;
+	Util::Dictionary<Models::ModelNodeType::Code, CoreGraphics::ShaderFeature::Mask> materialFeatures;
+	Util::Array<Ptr<MaterialInstance> > materialInstances;
+
+}; 
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+Material::SetName(const Util::StringAtom& name)
+{
+	this->name = name;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Util::StringAtom& 
+Material::GetName() const
+{
+	return this->name;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void 
+Material::SetDescription( const Util::String& description )
+{
+	this->description = description;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Util::String& 
+Material::GetDescription() const
+{
+	return this->description;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void 
+Material::SetFeatures( const Materials::MaterialFeature::Mask& type )
+{
+	this->type = type;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Materials::MaterialFeature::Mask& 
+Material::GetFeatures() const
+{
+	return this->type;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void 
+Material::SetCode( const Models::ModelNodeType::Code& code )
+{
+	this->code = code;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Models::ModelNodeType::Code& 
+Material::GetCode() const
+{
+	return this->code;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+Material::SetVirtual(bool b)
+{
+	this->isVirtual = b;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const bool
+Material::GetVirtual() const
+{
+	return this->isVirtual;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Util::Array<Ptr<MaterialInstance> >&
+Material::GetAllMaterialInstances() const
+{
+	return this->materialInstances;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const SizeT 
+Material::GetNumParameters() const
+{
+	return this->materialParameters.Size();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Util::Dictionary<Util::StringAtom, Material::MaterialParameter>& 
+Material::GetParameters() const
+{
+	return this->materialParameters;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline SizeT 
+Material::GetNumPasses()
+{
+	return this->materialShaders.Size();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const CoreGraphics::ShaderFeature::Mask& 
+Material::GetFeatureMask( const Models::ModelNodeType::Code& code ) const
+{
+	n_assert(this->materialFeatures.Contains(code));
+	return this->materialFeatures[code];
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Ptr<CoreGraphics::Shader>& 
+Material::GetShader( const Models::ModelNodeType::Code& code ) const
+{
+	n_assert(this->materialShaders.Contains(code));
+	return this->materialShaders[code];
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Models::ModelNodeType::Code& 
+Material::GetBatchType( const IndexT index ) const
+{
+	n_assert(this->materialShaders.Size() > index);
+	return this->materialShaders.KeyAtIndex(index);
+}
+
+} // namespace Materials
+//------------------------------------------------------------------------------

@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Nebula3>
+  <AttributeLib>
+    <Attribute name="AnimEventName" fourcc="aeen" accessMode="ReadOnly" type="String"/>
+    <Attribute name="Resource" fourcc="aers" accessMode="ReadOnly" type="String"/>
+    <Attribute name="Joint" fourcc="aejo" accessMode="ReadOnly" type="String"/>
+    <Attribute name="Duration" fourcc="aedu" accessMode="ReadOnly" type="Float"/>
+    <Attribute name="KeepLocalPosition" fourcc="aekl" accessMode="ReadOnly" type="Bool"/>
+    <Attribute name="Rotation" fourcc="aero" accessMode="ReadOnly" type="String"/>
+
+    <Attribute name="IntensityX" fourcc="aeix" accessMode="ReadOnly" type="Float"/>
+    <Attribute name="IntensityY" fourcc="aeiy" accessMode="ReadOnly" type="Float"/>
+    <Attribute name="IntensityZ" fourcc="aeiz" accessMode="ReadOnly" type="Float"/>
+    <Attribute name="RotationX" fourcc="aerx" accessMode="ReadOnly" type="Float"/>
+    <Attribute name="RotationY" fourcc="aery" accessMode="ReadOnly" type="Float"/>
+    <Attribute name="RotationZ" fourcc="aerz" accessMode="ReadOnly" type="Float"/>
+    <Attribute name="Range" fourcc="aera" accessMode="ReadOnly" type="Float"/>
+
+
+    <Attribute name="EventName" fourcc="aeev" accessMode="ReadOnly" type="String"/>
+    <Attribute name="EventProjectId" fourcc="aeep" accessMode="ReadOnly" type="String"/>
+
+    <Attribute name="TimeFactor" fourcc="aetf" accessMode="ReadOnly" type="Float"/>
+    <Attribute name="Attack" fourcc="aeat" accessMode="ReadOnly" type="Float"/>
+    <Attribute name="Sustain" fourcc="aess" accessMode="ReadOnly" type="Float"/>
+    <Attribute name="Release" fourcc="aere" accessMode="ReadOnly" type="Float"/>
+
+    <Attribute name="HighFreqDuration" fourcc="aehf" accessMode="ReadOnly" type="Float"/>
+    <Attribute name="HighFreqIntensity" fourcc="aehi" accessMode="ReadOnly" type="Float"/>
+    <Attribute name="LowFreqDuration" fourcc="aelf" accessMode="ReadOnly" type="Float"/>
+    <Attribute name="LowFreqIntensity" fourcc="aeli" accessMode="ReadOnly" type="Float"/>
+    <Attribute name="PlayerIndex" fourcc="aepi" accessMode="ReadOnly" type="Int"/>
+  </AttributeLib>
+</Nebula3>    
+    

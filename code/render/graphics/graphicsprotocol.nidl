@@ -1,0 +1,654 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Nebula3>
+    <Protocol namespace="Graphics" name="GraphicsProtocol">
+        <!-- dependencies -->
+        <Dependency header="util/stringatom.h"/>
+        <Dependency header="util/variant.h"/>
+        <Dependency header="util/blob.h"/>
+        <Dependency header="core/rtti.h"/>
+        <Dependency header="coregraphics/displaymode.h"/>
+        <Dependency header="coregraphics/adapter.h"/>
+        <Dependency header="events/event.h"/>
+        <Dependency header="coregraphics/antialiasquality.h"/>
+        <Dependency header="coregraphics/pixelformat.h"/>
+        <Dependency header="coregraphics/adapterinfo.h"/>
+        <Dependency header="coregraphics/displayeventhandler.h"/>
+        <Dependency header="coregraphics/rendereventhandler.h"/>
+        <Dependency header="graphics/attachmentserver.h"/>
+        <Dependency header="graphics/graphicsentity.h"/>
+        <Dependency header="visibility/visibilitysystems/visibilitysystembase.h"/>
+        <Dependency header="resources/resourceid.h"/>
+        <Dependency header="math/matrix44.h"/>
+        <Dependency header="math/float4.h"/>
+        <Dependency header="math/rectangle.h"/>
+        <Dependency header="math/quaternion.h"/>
+        <Dependency header="math/clipstatus.h"/>
+        <Dependency header="threading/objectref.h"/>
+        <Dependency header="timing/time.h"/>
+        <Dependency header="animation/animeventhandlerbase.h"/>
+        <Dependency header="coregraphics/mousepointer.h"/>
+        <Dependency header="resources/resourcemapper.h"/>
+        <Dependency header="graphics/camerasettings.h"/>
+        <Dependency header="animation/animjobenqueuemode.h"/>
+        <Dependency header="materials/materialvariable.h"/>
+        <Dependency header="materials/material.h"/>
+        <Dependency header="util/dictionary.h"/>
+        <Dependency header="models/modelnode.h"/>
+        <Dependency header="resources/resourceid.h"/>
+        <Dependency header="particles/emitterattrs.h"/>
+        
+        <!-- register a render-thread plugin -->
+        <Message name="RegisterRTPlugin" fourcc="RRTP">
+            <InArg name="Type" type="const Core::Rtti*"/>
+        </Message>
+        
+        <!-- unregister a render-thread plugin -->
+        <Message name="UnregisterRTPlugin" fourcc="URTP">
+            <InArg name="Type" type="const Core::Rtti*"/>
+        </Message>
+        
+        <!-- setup the asynchronous graphics runtime -->
+        <Message name="SetupGraphics" fourcc="SUPG">
+            <InArg name="Adapter" type="CoreGraphics::Adapter::Code"/>
+            <InArg name="DisplayMode" type="CoreGraphics::DisplayMode"/>
+            <InArg name="AntiAliasQuality" type="CoreGraphics::AntiAliasQuality::Code"/>
+            <InArg name="Fullscreen" type="bool"/>
+            <InArg name="DisplayModeSwitchEnabled" type="bool"/>
+            <InArg name="TripleBufferingEnabled" type="bool"/>
+            <InArg name="AlwaysOnTop" type="bool"/>
+            <InArg name="VerticalSyncEnabled" type="bool"/>
+            <InArg name="IconName" type="Util::String"/>
+            <InArg name="WindowTitle" type="Util::String"/>
+            <InArg name="WindowData" type="Util::Blob"/>
+            <InArg name="Embedded" type="bool"/>
+            <InArg name="Decorated" type="bool"/>
+            <InArg name="Resizable" type="bool"/>
+			      <InArg name="MultithreadedRendering" type="bool"/>
+            <InArg name="ResourceMappers" type="Util::Array<Ptr<Resources::ResourceMapper> >"/>
+            <OutArg name="Success" type="bool"/>
+            <OutArg name="ActualDisplayMode" type="CoreGraphics::DisplayMode"/>
+            <OutArg name="ActualFullscreen" type="bool"/>
+            <OutArg name="ActualAdapter" type="CoreGraphics::Adapter::Code"/>
+        </Message>
+      
+        <!-- updates display, which enables resolution changing and fullscreen-to-windowed switching -->
+        <Message name="UpdateDisplay" fourcc="INDS">
+          <InArg name="DisplayMode" type="CoreGraphics::DisplayMode"/>
+          <InArg name="AntiAliasQuality" type="CoreGraphics::AntiAliasQuality::Code" default="CoreGraphics::AntiAliasQuality::None"/>
+          <InArg name="Fullscreen" type="bool"/>
+          <InArg name="WindowData" type="Util::Blob" default="0"/>
+          <InArg name="TripleBufferingEnabled" type="bool"/>
+          <OutArg name="Success" type="bool"/>
+        </Message>
+      
+        <!-- post a window event -->
+        <Message name="PostWindowEvent" fourcc="POEV">
+          <InArg name="WindowEvent" type="Event"/>
+        </Message>
+      
+        <!-- sets the resource manager to enable/disable asynchronous loading -->
+        <Message name="EnableResourcesAsync" fourcc="REAS">
+          <InArg name="Enabled" type="bool"/>    
+        </Message>
+      
+        <!-- reloads resource -->
+        <Message name="ReloadResource" fourcc="RLRC">
+          <InArg name="ResourceName" type="Util::String" serialize="true"/>    
+        </Message>
+
+        <!-- same as above but doesn't assert if resource isn't in use yet -->
+        <Message name="ReloadResourceIfExists" fourcc="RRIE">
+          <InArg name="ResourceName" type="Util::String" serialize="true"/>    
+        </Message>
+            
+        <!-- enables/disables picking -->
+        <Message name="EnablePicking" fourcc="ENPI">
+          <InArg name="Enabled" type="bool"/>    
+        </Message>
+      
+        <!-- Attach/Detach all environment modules -->
+        <Message name="SetEnvironmentAttached" fourcc="SENA">
+          <InArg name="Attached" type="bool"/>
+        </Message>
+      
+        <!-- sends position to picking server, returns index of item -->
+        <Message name="ItemAtPosition" fourcc="ITAP">
+          <InArg name="Position" type="Math::float2"/>
+          <OutArg name="Item" type="IndexT"/>
+        </Message>
+      
+        <!-- sends rectangle to picking server, returns list of items -->
+        <Message name="ItemsAtPosition" fourcc="ISAP">
+          <InArg name="Rectangle" type="Math::rectangle<float>"/>
+          <OutArg name="Items" type="Util::Array<IndexT>"/>
+        </Message>
+      
+        <!-- sends position to picking server, returns depth at pixel -->
+        <Message name="DepthAtPosition" fourcc="DPAP">
+          <InArg name="Position" type="Math::float2"/>
+          <OutArg name="Depth" type="float"/>
+        </Message>
+      
+        <!-- sends position to picking server, returns normal at pixel-->
+        <Message name="NormalAtPosition" fourcc="NOAP">
+          <InArg name="Position" type="Math::float2"/>
+          <OutArg name="Normal" type="Math::float4"/>
+        </Message>
+      
+        <!-- enables/disables Wireframe -->
+        <Message name="EnableWireframe" fourcc="WIRE">
+          <InArg name="Enabled" type="bool"/>      
+        </Message>
+
+        <!-- gets all registred rendermaterials from the materialserver-->
+        <Message name="GetRenderMaterials" fourcc="GRMM">
+          <OutArg name="Materials" type="Util::Array<Ptr<Materials::Material> >"/>
+        </Message>                
+
+        <!-- sets a texture for an entire model node -->
+        <Message name="SetModelNodeTexture" fourcc="SMNT">
+          <InArg name="TextureName" type="Util::String"/>
+          <InArg name="TextureResource" type="Util::String"/>
+          <InArg name="ModelName" type="Util::String"/>
+          <InArg name="ModelNodeName" type="Util::String"/>
+        </Message>
+
+        <!-- sets a variable for an entire model node -->
+        <Message name="SetModelNodeVariable" fourcc="SMNV">
+          <InArg name="VariableName" type="Util::String"/>
+          <InArg name="VariableValue" type="Util::Variant"/>
+          <InArg name="ModelName" type="Util::String"/>
+          <InArg name="ModelNodeName" type="Util::String"/>
+        </Message>
+            
+        <!-- test if adapter exists -->
+        <Message name="AdapterExists" fourcc="AEXT">
+            <InArg name="Adapter" type="CoreGraphics::Adapter::Code"/>
+            <OutArg name="Result" type="bool"/>
+        </Message>
+            
+        <!-- get available display modes -->
+        <Message name="GetAvailableDisplayModes" fourcc="GADM">
+            <InArg name="Adapter" type="CoreGraphics::Adapter::Code"/>
+            <InArg name="PixelFormat" type="CoreGraphics::PixelFormat::Code"/>
+            <OutArg name="Result" type="Util::Array<CoreGraphics::DisplayMode>"/>
+        </Message>
+        
+        <!-- check if a display mode is supported -->
+        <Message name="SupportsDisplayMode" fourcc="SPDM">
+            <InArg name="Adapter" type="CoreGraphics::Adapter::Code"/>
+            <InArg name="DisplayMode" type="CoreGraphics::DisplayMode"/>
+            <OutArg name="Result" type="bool"/>
+        </Message>
+        
+        <!-- get current adapter display mode -->
+        <Message name="GetCurrentAdapterDisplayMode" fourcc="GCDM">
+            <InArg name="Adapter" type="CoreGraphics::Adapter::Code"/>
+            <OutArg name="Result" type="CoreGraphics::DisplayMode"/>
+        </Message>
+        
+        <!-- get adapter info -->
+        <Message name="GetAdapterInfo" fourcc="GADI">
+            <InArg name="Adapter" type="CoreGraphics::Adapter::Code"/>
+            <OutArg name="Result" type="CoreGraphics::AdapterInfo"/>
+        </Message>
+        
+        <!-- attach a thread-safe display event handler -->
+        <Message name="AttachDisplayEventHandler" fourcc="ADEH">
+            <InArg name="Handler" type="Ptr<CoreGraphics::DisplayEventHandler>"/>
+        </Message>
+        
+        <!-- remove a thread-safe display event handler -->
+        <Message name="RemoveDisplayEventHandler" fourcc="RDEH">
+            <InArg name="Handler" type="Ptr<CoreGraphics::DisplayEventHandler>"/>            
+        </Message>
+        
+        <!-- attach a thread-safe render event handler -->
+        <Message name="AttachRenderEventHandler" fourcc="AREH">
+            <InArg name="Handler" type="Ptr<CoreGraphics::RenderEventHandler>"/>
+        </Message>
+            
+        <!-- remove a thread-safe render event handler -->
+        <Message name="RemoveRenderEventHandler" fourcc="RREH">
+            <InArg name="Handler" type="Ptr<CoreGraphics::RenderEventHandler>"/>
+        </Message>
+        
+        <!-- create a graphics stage -->
+        <Message name="CreateGraphicsStage" fourcc="CGST">
+            <InArg name="Name" type="Util::StringAtom"/>
+            <InArg name="VisibleSystems" type="Util::Array<Ptr<Visibility::VisibilitySystemBase> >"/>
+            <InArg name="ObjectRef" type="Ptr<Threading::ObjectRef>"/>
+        </Message>
+        
+        <!--- discard a graphics stage -->
+        <Message name="DiscardGraphicsStage" fourcc="DIGS">
+            <InArg name="ObjectRef" type="Ptr<Threading::ObjectRef>"/>
+        </Message>
+                    
+        <!-- create a graphics view -->
+        <Message name="CreateGraphicsView" fourcc="CGVW">
+            <InArg name="ViewClass" type="const Core::Rtti*" default="0"/>
+            <InArg name="Name" type="Util::StringAtom"/>
+            <InArg name="StageName" type="Util::StringAtom"/>
+            <InArg name="FrameShaderName" type="Resources::ResourceId"/>
+            <InArg name="DefaultView" type="bool" default="false"/>
+            <InArg name="UseResolveRect" type="bool" default="false"/>
+            <InArg name="ResolveRect" type="Math::rectangle<int>" />
+            <InArg name="ObjectRef" type="Ptr<Threading::ObjectRef>"/>
+        </Message>
+        
+        <!-- discard a graphics view -->
+        <Message name="DiscardGraphicsView" fourcc="DGVW">
+            <InArg name="ObjectRef" type="Ptr<Threading::ObjectRef>"/>
+        </Message>
+
+        <!-- sets the default graphics view -->
+        <Message name="SetDefaultGraphicsView" fourcc="SGVW">
+            <InArg name="ObjectRef" type="Ptr<Threading::ObjectRef>"/>
+        </Message>
+        
+        <!-- base class for graphics entity creation -->
+        <Message name="CreateGraphicsEntity" fourcc="CGET">
+            <InArg name="StageName" type="Util::StringAtom"/>
+            <InArg name="Transform" type="Math::matrix44"/>
+            <InArg name="Visible" type="bool" default="true"/>
+            <InArg name="ObjectRef" type="Ptr<Threading::ObjectRef>"/>
+        </Message>
+
+        <!-- gets the node names of one or more models -->
+        <Message name="GetModelNodes" fourcc="GGNM">
+          <InArg name="ModelName" type="Util::String"/>
+          <OutArg name="NodeList" type="Util::Array<Util::String>"/>
+        </Message>        
+      
+        <!-- gets model bounding box -->
+        <Message name="GetBoundingBox" fourcc="GBOX">
+          <OutArg name="Box" type="Math::bbox"/>
+        </Message>
+      
+        <!-- create a ModelEntity -->
+        <Message name="CreateModelEntity" fourcc="CMDE" derivedFrom="CreateGraphicsEntity">
+            <InArg name="ResourceId" type="Resources::ResourceId"/>
+            <InArg name="RootNodePath" type="Util::StringAtom"/>
+            <InArg name="RootNodeOffsetMatrix" type="Math::matrix44"/>
+            <InArg name="AnimDrivenMotionEnabled" type="bool" default="false"/>
+            <InArg name="AnimDrivenMotionJointName" type="Util::StringAtom"/>
+            <InArg name="AnimEventsEnabled" type="bool" default="false"/>
+            <InArg name="AnimEventsOnlyDominatingClip" type="bool" default="true"/>
+            <InArg name="CharJointTrackingEnabled" type="bool" default="false"/>
+            <InArg name="TrackedCharJointNames" type="Util::Array<Util::StringAtom>" />
+            <InArg name="PickingId" type="IndexT"/>
+            <InArg name="Instanced" type="bool" default="false"/>
+            <InArg name="InstanceCode" type="IndexT" default="-1"/>
+        </Message>            
+
+        <!-- create a CameraEntity with perspective fov -->
+        <Message name="CreateCameraEntity" fourcc="CPCE" derivedFrom="CreateGraphicsEntity">
+            <InArg name="CameraSettings" type="Graphics::CameraSettings"/>
+        </Message>
+        
+        <!-- create a global light entity -->
+        <Message name="CreateGlobalLightEntity" fourcc="CGLE" derivedFrom="CreateGraphicsEntity">
+            <InArg name="LightColor" type="Math::float4"/>
+            <InArg name="ProjMapUvOffsetAndScale" type="Math::float4"/>
+            <InArg name="CastShadows" type="bool"/>
+            <InArg name="BackLightColor" type="Math::float4"/>
+            <InArg name="AmbientLightColor" type="Math::float4"/>
+            <InArg name="BackLightOffset" type="float"/>
+            <InArg name="ShadowIntensity" type="float"/>
+			<InArg name="Volumetric" type="bool"/>
+			<InArg name="VolumetricScale" type="float"/>
+			<InArg name="VolumetricIntensity" type="float"/>
+        </Message>
+
+        <!-- create a spotlight entity -->
+        <Message name="CreateSpotLightEntity" fourcc="CSLE" derivedFrom="CreateGraphicsEntity">
+            <InArg name="LightColor" type="Math::float4"/>
+            <InArg name="ProjMapUvOffsetAndScale" type="Math::float4"/>
+            <InArg name="CastShadows" type="bool"/>
+            <InArg name="ShadowIntensity" type="float"/>
+			<InArg name="Volumetric" type="bool"/>
+			<InArg name="VolumetricScale" type="float"/>
+			<InArg name="VolumetricIntensity" type="float"/>
+        </Message>
+      
+        <!-- create a pointlight entity-->
+        <Message name="CreatePointLightEntity" fourcc="CPLE" derivedFrom="CreateGraphicsEntity">
+            <InArg name="LightColor" type="Math::float4"/>
+            <InArg name="ProjMapUvOffsetAndScale" type="Math::float4"/>
+            <InArg name="CastShadows" type="bool"/>
+            <InArg name="ShadowIntensity" type="float"/>
+			<InArg name="Volumetric" type="bool"/>
+			<InArg name="VolumetricScale" type="float"/>
+			<InArg name="VolumetricIntensity" type="float"/>
+        </Message>             
+      
+        <!-- create a billboard entity -->
+        <Message name="CreateBillboardEntity" fourcc="CBBE" derivedFrom="CreateGraphicsEntity">
+            <InArg name="Size" type="Math::float2"/>
+            <InArg name="ViewAligned" type="bool"/>
+            <InArg name="PickingId" type="IndexT"/>
+            <InArg name="ResourceId" type="Resources::ResourceId"/>
+            <InArg name="Color" type="Math::float4"/>
+        </Message>
+        
+        <!-- a generic graphics entity message -->
+        <Message name="GraphicsEntityMessage" fourcc="GEMG">
+            <InArg name="Entity" type="Ptr<Graphics::GraphicsEntity>"/>
+        </Message>
+                             
+        <!-- discard a graphics entity -->
+        <Message name="DiscardGraphicsEntity" fourcc="DCGE" derivedFrom="GraphicsEntityMessage">
+        </Message>
+
+        <!-- add a tracked character joint -->
+        <Message name="AddTrackedCharJoint" fourcc="ATCJ" derivedFrom="GraphicsEntityMessage">
+            <InArg name="JointName" type="Util::StringAtom"/>
+        </Message>
+        
+        <!-- update light color -->
+        <Message name="SetLightColor" fourcc="SLCL" derivedFrom="GraphicsEntityMessage">
+            <InArg name="Color" type="Math::float4"/>
+        </Message>
+
+        <!-- update light cast shadows flag -->
+        <Message name="SetLightCastShadows" fourcc="SLCS" derivedFrom="GraphicsEntityMessage">
+            <InArg name="CastShadows" type="bool"/>
+        </Message>
+      
+        <!-- update light shadow intensity -->
+        <Message name="SetLightShadowIntensity" fourcc="SSIN" derivedFrom="GraphicsEntityMessage">
+            <InArg name="Intensity" type="float"/>
+        </Message>
+      
+        <!-- update light shadow bias -->
+        <Message name="SetLightShadowBias" fourcc="SSSB" derivedFrom="GraphicsEntityMessage">
+            <InArg name="Bias" type="float"/>    
+        </Message>
+              
+        <!-- update global back-light color -->
+        <Message name="SetGlobalBackLightColor" fourcc="SGBL" derivedFrom="GraphicsEntityMessage">
+            <InArg name="Color" type="Math::float4"/>
+        </Message>
+        
+        <!-- update global ambient color -->
+        <Message name="SetGlobalAmbientLightColor" fourcc="SGAL" derivedFrom="GraphicsEntityMessage">
+            <InArg name="Color" type="Math::float4"/>
+        </Message>
+        
+        <!-- update global back light offset -->
+        <Message name="SetGlobalBackLightOffset" fourcc="SGBO" derivedFrom="GraphicsEntityMessage">
+            <InArg name="Offset" type="float"/>
+        </Message>
+		
+		<!-- sets light to render volumetrically -->
+		<Message name="SetLightVolumetric" fourcc="SLRV" derivedFrom="GraphicsEntityMessage">
+			<InArg name="Enabled" type="bool"/>
+		</Message>
+
+		<!-- sets light volumetric radius -->
+		<Message name="SetLightVolumetricScale" fourcc="SLVS" derivedFrom="GraphicsEntityMessage">
+			<InArg name="Scale" type="float"/>
+		</Message>
+
+		<!-- sets light volumetric intensity -->
+		<Message name="SetLightVolumetricIntensity" fourcc="SLVI" derivedFrom="GraphicsEntityMessage">
+			<InArg name="Intensity" type="float"/>
+		</Message>
+        
+        <!-- update all global light attributes at once -->
+        <Message name="SetGlobalLightParams" fourcc="SGLP" derivedFrom="GraphicsEntityMessage">
+            <InArg name="LightColor" type="Math::float4"/>
+            <InArg name="BackLightColor" type="Math::float4"/>
+            <InArg name="AmbientLightColor" type="Math::float4"/>
+            <InArg name="BackLightOffset" type="float"/>
+            <InArg name="CastShadows" type="bool"/>
+        </Message>
+
+        <!-- set a character to render its skeleton -->
+        <Message name="SetRenderSkeleton" fourcc="SRSK" derivedFrom="GraphicsEntityMessage">
+            <InArg name="Render" type="bool"/>    
+        </Message>
+
+        <!-- update global light colors -->
+        <Message name="SetGlobalLightColor" fourcc="SGLC" derivedFrom="GraphicsEntityMessage">
+            <InArg name="BackLightColor" type="Math::float4"/>
+            <InArg name="AmbientLightColor" type="Math::float4"/>
+            <InArg name="BackLightOffset" type="Math::float4"/>
+        </Message>
+		
+		<!-- update light projection map -->
+		<Message name="SetLightProjectionTexture" fourcc="SLPT" derivedFrom="GraphicsEntityMessage">
+			<InArg name="Texture" type="Resources::ResourceId"/>
+		</Message>
+
+        <!-- update entity transform -->
+        <Message name="UpdateTransform" fourcc="SETR" derivedFrom="GraphicsEntityMessage">
+            <InArg name="Transform" type="Math::matrix44"/>
+        </Message>
+      
+        <!-- set entity visibility -->
+        <Message name="SetVisibility" fourcc="SVSB" derivedFrom="GraphicsEntityMessage">
+            <InArg name="Visible" type="bool"/>
+        </Message>
+
+        <!-- attach a camera to a view -->
+        <Message name="AttachCameraToView" fourcc="ACTV" derivedFrom="GraphicsEntityMessage">
+            <InArg name="ViewName" type="Util::StringAtom"/>
+        </Message>
+
+        <!-- remove a camera from its view -->
+        <Message name="RemoveCameraFromView" fourcc="RCFV" derivedFrom="GraphicsEntityMessage">
+            <InArg name="ViewName" type="Util::StringAtom"/>
+        </Message>
+      
+        <!-- update material variable instance -->
+        <Message name="UpdModelNodeInstanceMaterialVariable" fourcc="UMMV" derivedFrom="GraphicsEntityMessage">
+            <InArg name="ModelNodeInstanceName" type="Util::StringAtom"/>
+            <InArg name="Semantic" type="Util::StringAtom"/>
+            <InArg name="Value" type="Util::Variant"/>
+        </Message>
+
+      <!-- update material variable instance -->
+      <Message name="UpdMaterialVariable" fourcc="UPMV" derivedFrom="GraphicsEntityMessage">
+        <InArg name="Semantic" type="Util::StringAtom"/>
+        <InArg name="Value" type="Util::Variant"/>
+      </Message>
+
+        <!-- set visibility of ModelNodeInstance node -->
+        <Message name="UpdModelNodeInstanceVisibility" fourcc="SMSV" derivedFrom="GraphicsEntityMessage">
+            <InArg name="ModelNodeInstanceName" type="Util::StringAtom"/>
+            <InArg name="Visible" type="bool"/>
+        </Message>   
+              
+        <!-- update shared shader variable -->
+        <Message name="UpdateSharedShaderVariable" fourcc="USSV" >            
+            <InArg name="Semantic" type="Util::StringAtom"/>
+            <InArg name="Value" type="Util::Variant"/>
+        </Message>
+        
+        <!-- set graphics entity color -->
+        <Message name="SetOverlayColor" fourcc="SOCL" derivedFrom="GraphicsEntityMessage">
+            <InArg name="Color" type="Math::float4"/>
+        </Message>
+        
+        <!-- play an animation clip -->
+        <Message name="AnimPlayClip" fourcc="ANPC" derivedFrom="GraphicsEntityMessage">
+            <InArg name="ClipName" type="Util::StringAtom" serialize="true"/>
+            <InArg name="TrackIndex" type="IndexT" default="0" serialize="true"/>
+            <InArg name="LoopCount" type="float" default="1.0f" serialize="true"/>
+            <InArg name="StartTime" type="Timing::Tick" default="0" serialize="true"/>
+            <InArg name="FadeInTime" type="Timing::Tick" default="200" serialize="true"/>
+            <InArg name="FadeOutTime" type="Timing::Tick" default="200" serialize="true"/>
+            <InArg name="TimeOffset" type="Timing::Tick" default="0" serialize="true"/>
+            <InArg name="TimeFactor" type="float" default="1.0f" serialize="true"/>
+            <InArg name="BlendWeight" type="float" default="1.0f" serialize="true"/>
+            <InArg name="ExclusiveTag" type="IndexT" default="InvalidIndex" serialize="true"/>
+            <InArg name="EnqueueMode" type="Animation::AnimJobEnqueueMode::Code" default="Animation::AnimJobEnqueueMode::Intercept" wrappedType="int" serialize="true"/>
+        </Message>
+      
+        <!-- gets animation clips -->
+        <Message name="FetchClips" fourcc="ANGC" derivedFrom="GraphicsEntityMessage">
+            <OutArg name="Clips" type="Util::Array<Util::StringAtom>" />
+            <OutArg name="Lenghts" type="Util::Array<SizeT>" />
+        </Message>
+        
+        <!-- stop an individual animation track -->
+        <Message name="AnimStopTrack" fourcc="ASTR" derivedFrom="GraphicsEntityMessage">
+            <InArg name="TrackIndex" type="IndexT" default="0" serialize="true"/>
+            <InArg name="AllowFadeOut" type="bool" default="true" serialize="true"/>
+        </Message>
+        
+        <!-- stop all animation tracks -->
+        <Message name="AnimStopAllTracks" fourcc="ASAT" derivedFrom="GraphicsEntityMessage">
+            <InArg name="AllowFadeOut" type="bool" default="true" serialize="true"/>
+        </Message>
+      
+        <!-- pauses an individual animation track -->
+        <Message name="AnimPauseTrack" fourcc="ANPT" derivedFrom="GraphicsEntityMessage">
+            <InArg name="TrackIndex" type="IndexT" default="0"/>
+            <InArg name="AllowFadeOut" type="bool" default="true"/>
+        </Message>
+      
+        <!-- pauses all animation tracks -->
+        <Message name="AnimPauseAllTracks" fourcc="APAT" derivedFrom="GraphicsEntityMessage">
+        </Message>
+      
+        <!-- sets the current time for an animation -->
+        <Message name="AnimSeek" fourcc="ANSE" derivedFrom="GraphicsEntityMessage">
+             <InArg name="Time" type="Timing::Tick"/>    
+        </Message>
+      
+        <!-- gets the current time for an animation -->
+        <Message name="AnimTime" fourcc="ANTI" derivedFrom="GraphicsEntityMessage">
+             <InArg name="Time" type="Timing::Tick"/>    
+        </Message>
+
+        <!-- modify blend weight of animations on given track -->
+        <Message name="AnimModifyBlendWeight" fourcc="ANMB" derivedFrom="GraphicsEntityMessage">
+            <InArg name="TrackIndex" type="IndexT" default="0" serialize="true"/>
+            <InArg name="BlendWeight" type="float" default="1.0f" serialize="true"/>
+        </Message>
+
+        <!-- modify time factor of animations on given track -->
+        <Message name="AnimModifyTimeFactor" fourcc="ANMT" derivedFrom="GraphicsEntityMessage">
+            <InArg name="TrackIndex" type="IndexT" default="0" serialize="true"/>
+            <InArg name="TimeFactor" type="float" default="1.0" serialize="true"/>
+        </Message>
+        
+        <!-- test if a clip is currently playing on any track -->
+        <Message name="AnimIsClipPlaying" fourcc="AISP" derivedFrom="GraphicsEntityMessage">
+            <InArg name="ClipName" type="Util::StringAtom" serialize="true"/>
+            <OutArg name="Playing" type="bool" serialize="true"/>
+        </Message>
+        
+        <!-- apply character skin list -->
+        <Message name="ApplySkinList" fourcc="ASKL" derivedFrom="GraphicsEntityMessage">
+            <InArg name="SkinList" type="Util::StringAtom" serialize="true"/>
+        </Message>
+      
+        <!-- get character skin list -->
+        <Message name="FetchSkinList" fourcc="GSKL" derivedFrom="GraphicsEntityMessage">
+            <OutArg name="Skins" type="Util::Array<Util::StringAtom>" />    
+        </Message>
+        
+        <!-- show a single character skin -->
+        <Message name="ShowSkin" fourcc="SWSK" derivedFrom="GraphicsEntityMessage">
+            <InArg name="Skin" type="Util::StringAtom" serialize="true"/>            
+        </Message>
+        
+        <!-- hide a single character skin -->
+        <Message name="HideSkin" fourcc="HDSK" derivedFrom="GraphicsEntityMessage">
+            <InArg name="Skin" type="Util::StringAtom" serialize="true"/>
+        </Message>
+      
+        <!-- set a character variation -->
+        <Message name="SetVariation" fourcc="SEVA" derivedFrom="GraphicsEntityMessage">
+            <InArg name="VariationName" type="Util::StringAtom"/>
+        </Message>
+
+        <!-- set timing factor -->
+        <Message name="SetTimeFactor" fourcc="STIF">
+            <InArg name="Factor" type="float"/>
+        </Message>
+
+        <!-- clear attachments -->
+        <Message name="UnbindAttachment" fourcc="CLAT" derivedFrom="GraphicsEntityMessage">
+            <InArg name="EntityToAttach"          type="Ptr<Graphics::GraphicsEntity>"/>
+            <InArg name="Joint"                   type="Util::StringAtom"/>
+            <InArg name="ClearType"               type="Graphics::AttachmentServer::ClearType" default="Graphics::AttachmentServer::ClearNone"/>
+        </Message>
+                
+        <!-- attach a new entity on an other entity -->
+        <Message name="BindAttachment" fourcc="ATEN" derivedFrom="UnbindAttachment">
+            <InArg name="KeepLocal" type="bool"/>
+            <InArg name="Rotation"  type="Graphics::AttachmentServer::AttachmentRotation"/>
+            <InArg name="Offset"    type="Math::matrix44"/>          
+        </Message>
+
+        <!-- switch a entity to another joint -->
+        <Message name="SwitchAttachmentToNewJoint" fourcc="SWAT" derivedFrom="BindAttachment">
+            <InArg name="NewJoint" type="Util::StringAtom"/>
+        </Message>
+
+        <!-- base class of anim events -->
+        <Message name="BaseAnimEventMessage" fourcc="BEAV" derivedFrom="GraphicsEntityMessage"/>
+      
+        <!-- register a new animevent handler-->
+        <Message name="RegisterAnimEventHandler" fourcc="REAH">
+            <InArg name="AnimEventHandler" type="Ptr<Animation::AnimEventHandlerBase>"/>
+        </Message>
+        
+        <!-- unregister an animeventhandler by category name-->
+        <Message name="UnregisterAnimEventHandler" fourcc="UREH">
+            <InArg name="CategoryName" type="Util::StringAtom"/>
+        </Message>
+
+        <!-- preload mouse pointer textures -->
+        <Message name="PreloadMousePointerTextures" fourcc="PLPT">
+            <InArg name="ResourceIds" type="Util::Array<Resources::ResourceId>"/>           
+        </Message>
+        
+        <!-- update mouse pointer(s) -->
+        <Message name="UpdateMousePointers" fourcc="UNPT">
+            <InArg name="Pointers" type="Util::Array<CoreGraphics::MousePointer>"/>
+        </Message>
+
+        <!-- hold shared resources, increments its use count, so its not unloaded automatically  -->
+        <Message name="HoldSharedResources" fourcc="HORE"/>        
+        
+        <!-- release shared resources, decrements its use count and deletes it if no one uses it anymore (UnregisterResource)-->
+        <Message name="ReleaseSharedResources" fourcc="RLRE"/>
+
+        <!-- set the animator nodes frame, and stop animation at this frame-->
+        <Message name="SetAnimatorTime" fourcc="SAFR" derivedFrom="GraphicsEntityMessage">
+            <InArg name="NodeInstanceName" type="Util::StringAtom"/>
+            <InArg name="Time" type="Timing::Time"/>
+        </Message>
+
+       <!-- update a CameraEntity with perspective fov -->
+        <Message name="UpdateCameraEntity" fourcc="UPCE" derivedFrom="GraphicsEntityMessage">
+            <InArg name="CameraSettings" type="Graphics::CameraSettings"/>
+        </Message>
+      
+        <!-- set point of interest for shadow castzing lightsw-->
+        <Message name="SetShadowPointOfInterest" fourcc="SSPO" >
+            <InArg name="Poi" type="Math::point"/>          
+        </Message>
+
+        <!-- sets particle system playing mode-->
+        <Message name="SetParticleSystemPlaying" fourcc="SPSP" derivedFrom="GraphicsEntityMessage">
+          <InArg name="Node" type="Util::String"/>
+          <InArg name="Playing" type="bool"/>    
+        </Message>
+
+        <!-- toggles particle system play mode -->
+        <Message name="ToggleParticleSystemPlaying" fourcc="TPSP" derivedFrom="GraphicsEntityMessage">
+          <InArg name="Node" type="Util::String"/>
+        </Message>
+      
+        <Message name="ShowSystemCursor" fourcc="SSCU">
+          <InArg name="Visible" type="bool"/>
+        </Message>
+      </Protocol>    
+</Nebula3>
