@@ -1,0 +1,1 @@
+This folder contains external libraries, often slightly modified in order to compile without warnings or to cleanly integrate with other nebula subsystems, additionally some projects are pulled via git submodules as well.

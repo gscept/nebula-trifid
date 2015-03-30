@@ -24,9 +24,12 @@ A more detailed list of features in Nebula Trifid can be seen here:
 - Smart pointers.
 - Messaging infrastructure.
 - Call stack information on assertions.
+- Code generation for flyweight classes such as messages and script hooks.
+- FourCC system which allows classes to be instantiated by name. 
 
 # Rendering
 - OpenGL 4.
+- Custom shader language built on GLSL.
 - Particles.
 - Deferred rendering.
   * Physically based.
@@ -57,6 +60,8 @@ A more detailed list of features in Nebula Trifid can be seen here:
 - Job execution for skeletal animations, visibility queries and particle calculation.
 - Dynamically resizable render context.
 - Scriptable rendering paths through XML. 
+- Tessellation.
+- Render plugins.
 
 # Game
 - Modular entity system.
@@ -70,8 +75,12 @@ With Nebula Trifid comes three main tools which should be used by game developer
 # Content browser
 Is not really a browser as much as it is a *content editor*. This tool is used to get an overview of all the content currently present in the working project, as well as give a preview of said content. The content browser is also used to modify information related to shading, particles, texture compression and filtering, as well as information extraction from FBX based models. 
 
+![alt tag](http://nebulatrifid.org/wp-content/uploads/2015/03/cb.png)
+
 # Level editor
 The level editor is exactly what it sounds like. It allows you to create levels by placing game entities in a scene, alter their values (called attributes). It can also place entities which are purely graphical (called environment entities) lights as well as light probes for reflection and irradiance gathering. The level editor also allow you to modify level-specific post effects such as bloom, DoF, ambient occlusion, fog and skybox. The level can then be played by pressing the play button, which will open a new window in which the level can be tested. 
+
+![alt tag](http://nebulatrifid.org/wp-content/uploads/2015/03/LE.png)
 
 # Getting started
 We currently do not have a complete documentation about how to setup your projects, but there is some documentation available at http://nebulatrifid.org/documentation/wiki/ that should get you started.
