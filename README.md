@@ -82,6 +82,9 @@ The level editor is exactly what it sounds like. It allows you to create levels 
 
 ![alt tag](http://nebulatrifid.org/wp-content/uploads/2015/03/LE.png)
 
+# Batch exporter
+The batch exporter is used to keep a built version of your game project up to date. Whenever you setup a new project, or get new assets from someone else, the batch exporter is there to make everything up to date. 
+
 # Getting started
 We currently do not have a complete documentation about how to setup your projects, but there is some documentation available at http://nebulatrifid.org/documentation/wiki/ that should get you started.
 
