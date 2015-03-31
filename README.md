@@ -85,5 +85,16 @@ The level editor is exactly what it sounds like. It allows you to create levels 
 # Getting started
 We currently do not have a complete documentation about how to setup your projects, but there is some documentation available at http://nebulatrifid.org/documentation/wiki/ that should get you started.
 
+# What's left to do?
+We already have a comprehensive list of the stuff we want to implement or fix. The list contains the following:
+- Forward lighting for alpha rendered materials.
+  * Translucent materials
+- Detach materials from models, and make materials into a reusable resource.
+  * This indirectly allow us to switch materials on models without having to rewrite the entire model node. Like live.
+- Integrate content browser with level editor to have one singular application.
+- Convert all the different resource browsers (in the tree view) into cascaded file browsers with thumbnails.
+- Redesign how content is stored, instead of having a work/textures and work/gfxlib, we should have the content grouped by asset package.
+- And a lot more... Which is one of the beauties with this project, it doesn't have a definite end.
+
 # NOTE
 Have in mind that Nebula Trifid is constantly under development, which might mean that some of the features doesn't behave as intended, might not be implemented yet, or might be misleading in how they are supposed to work. The development can be followed on the blog at: http://nebulatrifid.org/developer-blog/
