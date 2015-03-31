@@ -1,6 +1,6 @@
 # Nebula Trifid
 
-Nebula Trifid is an open source, free to use, free to redistribute and free to modify. It's originally based on the Nebula 3 Device used by RadonLabs to produce games.
+Nebula Trifid is an open source, free to use, free to redistribute and free to modify game engine. It's originally based on the Nebula 3 Device used by RadonLabs to produce games.
 
 Nebula Trifid features a fully capable OpenGL4 rendering system, a modular component based entity system, networking through RakNet, several physics implementations (Bullet or Havok), an FBX content pipeline which is subversion friendly, interactive audio using Fmod, game UI using LibRocket, and toolkit UI using Qt, sophisticated AI and pathfinding using Detour and Recast and finally GLFW for window and OpenGL context management.
 
