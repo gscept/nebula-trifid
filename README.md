@@ -34,7 +34,6 @@ A more detailed list of features in Nebula Trifid can be seen here:
 - Deferred rendering.
   * Physically based.
   * IBL.
-- Reflections and irradiance.
 - HBAO.
 - Screen space subsurface scattering.
 - DoF.
