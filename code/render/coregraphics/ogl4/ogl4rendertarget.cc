@@ -357,8 +357,8 @@ OGL4RenderTarget::OnDisplayResized(SizeT w, SizeT h)
 	// save depth stencil
 	if (this->ogl4ResolveTexture && this->relativeSizeValid)
 	{
-		this->SetWidth(SizeT(w * this->relWidth));
-		this->SetHeight(SizeT(h * this->relHeight));
+		this->width = SizeT(Math::n_floor(w * this->relWidth));
+		this->height = SizeT(Math::n_floor(h * this->relHeight));
 
         glInvalidateTexImage(this->ogl4ResolveTexture, 0);
 		if (this->msCount > 1)
@@ -392,8 +392,8 @@ OGL4RenderTarget::OnDisplayResized(SizeT w, SizeT h)
 		}
 
         // do not set left or top since they may be set prior to this
-		this->resolveRect.right = this->width;
-		this->resolveRect.bottom = this->height;
+		this->resolveRect.right = this->resolveRect.left + this->width;
+		this->resolveRect.bottom = this->resolveRect.top + this->height;
 
 		if (this->msCount > 1)
 		{

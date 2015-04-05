@@ -20,6 +20,13 @@ ParticleEnvelopeWidget::ParticleEnvelopeWidget(QWidget* parent) :
 	// setup ui
 	this->ui.setupUi(this);
 
+	this->ui.xVal->setSingleStep(0.01f);
+	this->ui.yVal->setSingleStep(0.01f);
+	this->ui.min->setSingleStep(0.01f);
+	this->ui.max->setSingleStep(0.01f);
+	this->ui.frequency->setSingleStep(0.01f);
+	this->ui.amplitude->setSingleStep(0.01f);
+
 	connect(this->ui.xVal, SIGNAL(valueChanged(double)), this, SLOT(PointValueChanged()));
 	connect(this->ui.yVal, SIGNAL(valueChanged(double)), this, SLOT(PointValueChanged()));
 

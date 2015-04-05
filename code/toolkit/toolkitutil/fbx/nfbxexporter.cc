@@ -156,7 +156,7 @@ NFbxExporter::StartExport( const IO::URI& file )
 		importStatus = importer->Import(this->fbxScene);
 		if (!importStatus)
 		{
-			n_printf("    [Could not open for reading for reading! Something went terribly wrong!]\n\n", localPath.AsCharPtr());
+			n_printf("    [Could not open for reading! Something went terribly wrong!]\n\n", localPath.AsCharPtr());
 			this->SetHasErrors(true);
 			return false;
 		}

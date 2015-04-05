@@ -137,18 +137,18 @@ OGL4DepthStencilTarget::OnDisplayResized(SizeT width, SizeT height)
 	// if we have a relative size on the dept-stencil target, calculate actual size
 	if (this->useRelativeSize)
 	{		
-		this->SetWidth(SizeT(width * this->relWidth));
-		this->SetHeight(SizeT(height * this->relHeight));
-	}
+		this->width = SizeT(Math::n_floor(width * this->relWidth));
+		this->height = SizeT(Math::n_floor(height * this->relHeight));
 
-	// bind buffer and bind a new storage
-	glBindRenderbuffer(GL_RENDERBUFFER, this->ogl4DepthStencilRenderbuffer);
-	glRenderbufferStorage(
-		GL_RENDERBUFFER,
-		GL_DEPTH24_STENCIL8,
-		this->width,
-		this->height);
-	glBindRenderbuffer(GL_RENDERBUFFER, 0);
-	n_assert(GLSUCCESS);
+		// bind buffer and bind a new storage
+		glBindRenderbuffer(GL_RENDERBUFFER, this->ogl4DepthStencilRenderbuffer);
+		glRenderbufferStorage(
+			GL_RENDERBUFFER,
+			GL_DEPTH24_STENCIL8,
+			this->width,
+			this->height);
+		glBindRenderbuffer(GL_RENDERBUFFER, 0);
+		n_assert(GLSUCCESS);
+	}
 }
 } // namespace OpenGL4

@@ -132,9 +132,10 @@ GLFWDisplayDevice::Reopen()
 {
 	n_assert(this->IsOpen());
 
-    // set to full screen if we should
+    // just ignore full screen if this window is embedded
     if (!this->embedded)
     {
+		// if we toggle full screen, select monitor (just selects primary for the moment) and apply full screen
 		if (this->fullscreen)
 		{
 			GLFWmonitor* monitor = glfwGetPrimaryMonitor();
@@ -145,6 +146,7 @@ GLFWDisplayDevice::Reopen()
 		}
 		else
 		{
+			// if not, set the window state and detach from the monitor
 			glfwSetWindowMonitor(this->window, NULL, this->displayMode.GetWidth(), this->displayMode.GetHeight());
 		}
     }    
@@ -341,7 +343,6 @@ GLFWDisplayDevice::OpenWindow()
 
 	// create window
 	this->window = glfwCreateWindow(this->displayMode.GetWidth(), this->displayMode.GetHeight(), this->windowTitle.AsCharPtr(), this->fullscreen ? glfwGetPrimaryMonitor() : NULL, NULL);
-    glViewport(0, 0, this->displayMode.GetWidth(), this->displayMode.GetHeight());
 	if (!this->fullscreen) glfwSetWindowPos(this->window, this->displayMode.GetXPos(), this->displayMode.GetYPos());
 	glfwMakeContextCurrent(this->window);
 
@@ -393,9 +394,6 @@ GLFWDisplayDevice::EmbedWindow()
     this->displayMode.SetWidth(width);
     this->displayMode.SetHeight(height);
 	this->displayMode.SetAspectRatio(width / float(height));
-
-	// update main camera
-	//Graphics::GraphicsServer::Instance()->GetDefaultView()->GetCameraEntity()->OnDisplayResized();
 
     if (this->verticalSync)
     {
@@ -736,6 +734,7 @@ GLFWDisplayDevice::ResizeFunc( GLFWwindow* window, int width, int height )
 	{
 		this->displayMode.SetWidth(width);
 		this->displayMode.SetHeight(height);
+		this->displayMode.SetAspectRatio(width / float(height));
 
 		// resize render targets and such
 		DisplayDeviceBase::Reopen();
