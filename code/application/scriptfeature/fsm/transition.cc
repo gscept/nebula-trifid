@@ -21,6 +21,7 @@ __ImplementClass(FSM::Transition, 'FSMR', Core::RefCounted);
 Transition::Transition()
 {
 	this->actionList = Actions::SequenceAction::Create();
+	this->conditionBlock = Conditions::And::Create();
 }
 
 //------------------------------------------------------------------------------
@@ -29,6 +30,7 @@ Transition::Transition()
 Transition::~Transition()
 {
 	this->actionList = 0;
+	this->conditionBlock = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -112,7 +114,7 @@ void
 Transition::AddCondition(const Ptr<Conditions::Condition>& condition)
 {
     n_assert(0 != condition);
-    this->conditionBlock = condition;
+    this->conditionBlock->AddCondition(condition);
 }
 
 //------------------------------------------------------------------------------
