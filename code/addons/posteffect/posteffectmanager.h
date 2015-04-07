@@ -42,12 +42,6 @@ public:
     /// reset posteffect manager and trigger render thread to reset the server
     void ResetPostEffectSystem();
 
-    /// set the main directional light which should be influenced by post effect entities
-    /// (this is set from lightentity on creation of global light entity)
-    void SetGlobalLightEntity(const Ptr<Graphics::GlobalLightEntity>& l);
-    /// get the main directional light (may return 0)
-    const Ptr<Graphics::GlobalLightEntity>& GetGlobalLightEntity() const;
-
     /// set the graphics entities which represent the sky (optional)
     void SetSkyEntity(const Ptr<Graphics::ModelEntity>& e);
     /// get the graphics entities which represent the sky (optional)
@@ -124,8 +118,7 @@ private:
     Ptr<PostEffectEntity> defaultEntity;
 
     Math::point pointOfInterest;
-
-    Ptr<Graphics::GlobalLightEntity> globalLightEntity;     // the global directional light source
+    
 	Ptr<Graphics::ModelEntity> skyEntity;
       
     Ptr<DepthOfFieldParams> curDepthOfFieldParams;
@@ -145,24 +138,6 @@ inline const Ptr<PostEffectEntity>&
 PostEffectManager::GetDefaultEntity() const
 {
 	return this->defaultEntity;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void
-PostEffectManager::SetGlobalLightEntity(const Ptr<Graphics::GlobalLightEntity>& l)
-{
-    this->globalLightEntity = l;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline const Ptr<Graphics::GlobalLightEntity>&
-PostEffectManager::GetGlobalLightEntity() const
-{
-    return this->globalLightEntity;
 }
 
 //------------------------------------------------------------------------------

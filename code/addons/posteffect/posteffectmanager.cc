@@ -49,8 +49,7 @@ PostEffectManager::OnActivate()
 {
     n_assert(this->entities.IsEmpty());
     n_assert(!this->defaultEntity.isvalid());
-    n_assert(!this->currentEntity.isvalid());
-    n_assert(!this->globalLightEntity.isvalid());
+    n_assert(!this->currentEntity.isvalid());    
 	n_assert(!this->skyEntity.isvalid());
 
     // Register the posteffect render-thread plugin
@@ -224,7 +223,6 @@ PostEffectManager::Cleanup()
     n_assert(!this->currentEntity.isvalid());
 
     // release special graphics entities
-    this->globalLightEntity = 0;
     this->skyEntity = 0;
 }
 

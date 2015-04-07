@@ -240,8 +240,8 @@ PostEffectServer::OnFrame(Timing::Time time)
     //   (can be used for setting a new, in case of changing the view
     //    the old one should be reseted and here we will find the new one)
     if(!this->globalLight.isvalid())
-    {
-        this->globalLight = Graphics::GraphicsServer::Instance()->GetCurrentGlobalLightEntity();
+    {        
+		this->globalLight = Graphics::GraphicsServer::Instance()->GetCurrentGlobalLightEntity();
         // return, the light still can be invalid
         return;
     }
@@ -642,5 +642,6 @@ PostEffectServer::SetSkyEntity( const Ptr<Graphics::ModelEntity>& entity )
 	this->skyEntity = entity;
 	this->skyEntity->SetAlwaysVisible(true);
 }
+
 
 } // namespace PostEffect

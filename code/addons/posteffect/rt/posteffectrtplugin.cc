@@ -76,4 +76,13 @@ PostEffectRTPlugin::OnRenderBefore(IndexT frameId, Timing::Time time)
     this->postEffectServer->OnFrame(time);
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PostEffectRTPlugin::OnDiscardStage(const Ptr<Graphics::Stage>& stage)
+{
+	this->postEffectServer->SetGlobalLightEntity(0);
+}
+
 } // namespace PostEffect

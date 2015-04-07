@@ -49,6 +49,7 @@ ADD_DEPENDENCIES(gamebatcher3
 	zlib
 	toolkitutil
 	tinyxml
+	${NEBULA_DEFAULT_LIBS}
 	editorfeatures
 	)
 TARGET_LINK_LIBRARIES(gamebatcher3 

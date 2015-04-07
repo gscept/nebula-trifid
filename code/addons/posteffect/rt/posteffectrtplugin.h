@@ -30,6 +30,8 @@ public:
     virtual void OnUnregister();
     /// Called before rendering
     virtual void OnRenderBefore(IndexT frameId, Timing::Time time);
+	/// called when a stage is discarded
+	virtual void OnDiscardStage(const Ptr<Graphics::Stage>& stage);
 
 private:
     

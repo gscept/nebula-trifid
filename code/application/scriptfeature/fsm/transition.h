@@ -12,6 +12,7 @@
 */
 #include "core/refcounted.h"
 #include "../actions/action.h"
+#include "../conditions/and.h"
 
 namespace Conditions
 {
@@ -62,7 +63,7 @@ public:
 
 private:
     Util::String targetState;
-    Ptr<Conditions::Condition> conditionBlock;
+    Ptr<Conditions::And> conditionBlock;
     Ptr<Actions::SequenceAction> actionList;
 };
 __RegisterClass(Transition)

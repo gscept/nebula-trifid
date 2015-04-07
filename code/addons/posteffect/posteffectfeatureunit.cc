@@ -53,9 +53,6 @@ PostEffectFeatureUnit::OnActivate()
 	this->postEffectManager->ResetPostEffectSystem();
 	this->postEffectManager->AttachEntity(this->defaultPostEffect);
 
-	// assign global light to post effects
-	this->postEffectManager->SetGlobalLightEntity(GraphicsFeature::GraphicsFeatureUnit::Instance()->GetGlobalLightEntity());
-
 	// set name to default until something else is applied
 	this->lastPreset = "Default";
 }
@@ -122,8 +119,7 @@ PostEffectFeatureUnit::SetupDefaultWorld()
 */
 void
 PostEffectFeatureUnit::CleanupDefaultWorld()
-{
-
+{	
 	Ptr<Graphics::Stage> stage = GraphicsFeature::GraphicsFeatureUnit::Instance()->GetDefaultStage();
 	if (stage.isvalid())
 	{
