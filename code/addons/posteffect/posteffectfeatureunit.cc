@@ -112,9 +112,6 @@ PostEffectFeatureUnit::SetupDefaultWorld()
 
 	// set sky entity in post effect manager
 	this->postEffectManager->SetSkyEntity(this->skyEntity);
-
-	// assign global light to post effects
-	this->postEffectManager->SetGlobalLightEntity(GraphicsFeature::GraphicsFeatureUnit::Instance()->GetGlobalLightEntity());
 }
 
 //------------------------------------------------------------------------------
@@ -122,9 +119,7 @@ PostEffectFeatureUnit::SetupDefaultWorld()
 */
 void
 PostEffectFeatureUnit::CleanupDefaultWorld()
-{
-	// clear global light in effectmanager
-	this->postEffectManager->SetGlobalLightEntity(0);
+{	
 	Ptr<Graphics::Stage> stage = GraphicsFeature::GraphicsFeatureUnit::Instance()->GetDefaultStage();
 	if (stage.isvalid())
 	{

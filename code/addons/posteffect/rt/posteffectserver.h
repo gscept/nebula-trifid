@@ -106,9 +106,9 @@ public:
 	/// retreive texture by name
 	Ptr<Resources::ManagedTexture> FindTexture(const Util::String& resource);
 
-	/// set global light entity
+	/// set global light entity post effect system uses
 	void SetGlobalLightEntity(const Ptr<Graphics::GlobalLightEntity>& l);
-	/// get global light entity post effect system uses
+	/// get global light entity post effect system uses, can be null
 	const Ptr<Graphics::GlobalLightEntity>& GetGlobalLightEntity();
 
 private:

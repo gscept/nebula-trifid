@@ -241,6 +241,7 @@ PostEffectServer::OnFrame(Timing::Time time)
     //    the old one should be reseted and here we will find the new one)
     if(!this->globalLight.isvalid())
     {        
+		this->globalLight = Graphics::GraphicsServer::Instance()->GetCurrentGlobalLightEntity();
         // return, the light still can be invalid
         return;
     }
