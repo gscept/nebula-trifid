@@ -124,8 +124,7 @@ private:
     Ptr<PostEffectEntity> defaultEntity;
 
     Math::point pointOfInterest;
-
-    Ptr<Graphics::GlobalLightEntity> globalLightEntity;     // the global directional light source
+    
 	Ptr<Graphics::ModelEntity> skyEntity;
       
     Ptr<DepthOfFieldParams> curDepthOfFieldParams;
@@ -153,7 +152,7 @@ PostEffectManager::GetDefaultEntity() const
 inline void
 PostEffectManager::SetGlobalLightEntity(const Ptr<Graphics::GlobalLightEntity>& l)
 {
-    this->globalLightEntity = l;
+    PostEffectServer::Instance()->SetGlobalLightEntity(l);
 }
 
 //------------------------------------------------------------------------------
@@ -162,7 +161,7 @@ PostEffectManager::SetGlobalLightEntity(const Ptr<Graphics::GlobalLightEntity>& 
 inline const Ptr<Graphics::GlobalLightEntity>&
 PostEffectManager::GetGlobalLightEntity() const
 {
-    return this->globalLightEntity;
+	return PostEffectServer::Instance()->GetGlobalLightEntity();
 }
 
 //------------------------------------------------------------------------------

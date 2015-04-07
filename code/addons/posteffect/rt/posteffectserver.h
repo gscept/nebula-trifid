@@ -106,6 +106,11 @@ public:
 	/// retreive texture by name
 	Ptr<Resources::ManagedTexture> FindTexture(const Util::String& resource);
 
+	/// set global light entity
+	void SetGlobalLightEntity(const Ptr<Graphics::GlobalLightEntity>& l);
+	/// get global light entity post effect system uses
+	const Ptr<Graphics::GlobalLightEntity>& GetGlobalLightEntity();
+
 private:
     /// apply special parameter
     void ApplyParameters(PostEffectType type);
@@ -149,8 +154,7 @@ private:
     };
 
     /// compute fade values, returns true if something changed
-    bool ComputeBlending(PostEffectType type);
-
+    bool ComputeBlending(PostEffectType type);	
     /// holds all of the parameter sets
     Util::FixedArray<ParameterSet> postEffects;
 
@@ -219,6 +223,25 @@ inline PostEffectServer::FadeMode
 PostEffectServer::GetFadeMode() const
 {
     return this->curFadeMode;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+PostEffectServer::SetGlobalLightEntity(const Ptr<Graphics::GlobalLightEntity>& l)
+{
+	this->globalLight = l;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline
+const Ptr<Graphics::GlobalLightEntity>&
+PostEffectServer::GetGlobalLightEntity()
+{
+	return this->globalLight;
 }
 
 } // namespace Debug
