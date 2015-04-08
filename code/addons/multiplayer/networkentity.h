@@ -12,8 +12,8 @@ The networked game entity class.
 #include "game/entity.h"
 #include "ReplicaManager3.h"
 
-#define __SendNetworkMessage(OBJ, MSG) n_assert2(OBJ->IsA(MultiplayerFeature::NetworkEntity::RTTI.GetFourCC()), "Not a NetworkEntity");OBJ.cast<MultiplayerFeature::NetworkEntity>()->SendNetwork(MSG);
-#define __DistributeNetworkMessage(OBJ,MSG) if(MSG->IsLocal() && OBJ->IsA(MultiplayerFeature::NetworkEntity::RTTI.GetFourCC())){OBJ.cast<MultiplayerFeature::NetworkEntity>()->SendNetwork(MSG);}
+#define __SendNetworkMessage(OBJ, MSG) n_assert2(OBJ->IsA(MultiplayerFeature::NetworkEntity::RTTI.GetFourCC()), "Not a NetworkEntity");OBJ.cast<MultiplayerFeature::NetworkEntity>()->SendNetwork(MSG.cast<Messaging::Message>());
+#define __DistributeNetworkMessage(OBJ,MSG) if(MSG->IsLocal() && OBJ->IsA(MultiplayerFeature::NetworkEntity::RTTI.GetFourCC())){OBJ.cast<MultiplayerFeature::NetworkEntity>()->SendNetwork(MSG.cast<Messaging::Message>());}
 		
 
 

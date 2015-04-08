@@ -362,7 +362,7 @@ AttachmentManager::AttachPending()
 			this->attachments.Append(attach);			
 			iter = this->delayedAttachments.Erase(iter);
 		}
-		else if (base->IsMarkedForRemove() || !base->IsValid())
+		else if (base->IsMarkedForRemove() || !base->IsAttachedToStage())
 		{
 			// we have been removed before we managed to attach
 			if (iter->type == GraphicsToJoint)

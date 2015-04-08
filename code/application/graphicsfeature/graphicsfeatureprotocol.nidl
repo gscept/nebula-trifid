@@ -187,6 +187,22 @@
       <InArg name="EnvironmentProbe" type="Ptr<Lighting::EnvironmentProbe>" default="0"/>
     </Message>
 
+    <Message name="AddGraphicsAttachment" fourcc="ADAT" scripted="true">      
+      <InArg name="Resource" type="Util::String" serialize="true"/>
+      <InArg name="Offset" type="Math::matrix44" serialize="true"/>      
+    </Message>
+    <Message name="AddGraphicsAttachmentOnJoint" fourcc="ADJT" derivedFrom="AddGraphicsAttachment" scripted="true">
+      <InArg name="Joint" type="Util::String" serialize="true"/>
+      <InArg name="Rotation" type="int" serialize="true"/>
+    </Message>
+
+    <Message name="ClearAttachmentsOnEntity" fourcc="CLAT" scripted="true">      
+    </Message>
+    
+    <Message name="ClearAttachmentsOnJoint" fourcc="CLJT" scripted="true">      
+      <InArg name="Joint" type="Util::String" serialize="true"/>
+    </Message>
+
   </Protocol>
 
 </Nebula3>
