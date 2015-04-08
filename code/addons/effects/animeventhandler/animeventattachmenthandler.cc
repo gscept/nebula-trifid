@@ -8,7 +8,6 @@
 #include "characters/character.h"
 #include "effects/animeventregistry.h"
 #include "graphics/graphicsserver.h"
-#include "graphics/attachmentserver.h"
 #include "graphics/modelentity.h"
 #include "graphics/stage.h"
 #include "../effectsfeatureunit.h"

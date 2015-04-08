@@ -12,6 +12,7 @@
 #include "effects/effect.h"
 #include "mixer/effectmixer.h"
 #include "graphicsfeature/managers/attachmentmanager.h"
+#include "resources/resourceid.h"
 
 namespace EffectsFeature
 {

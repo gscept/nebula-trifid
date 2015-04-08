@@ -13,7 +13,6 @@
 #include "coregraphics/displaydevice.h"
 #include "coregraphics/shaperenderer.h"
 #include "graphics/globallightentity.h"
-#include "graphics/attachmentserver.h"
 #include "coregraphics/shadersemantics.h"
 #include "lighting/lightserver.h"
 #include "characters/characterserver.h"
@@ -509,9 +508,6 @@ GraphicsServer::OnFrame(Timing::Time curTime, Timing::Time globalTimeFactor)
 				{                
 					this->timeShaderVar->SetFloat((float)curTime);
 				}
-
-				// FIXME: update attachments
-				AttachmentServer::Instance()->OnFrame(curTime);
 
                 // perform debug rendering if enabled
                 if (this->renderDebug)

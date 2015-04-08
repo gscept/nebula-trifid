@@ -12,8 +12,8 @@
 #include "resources/resourceid.h"
 #include "game/entity.h"
 #include "math/matrix44.h"
-#include "graphics/attachmentserver.h"
 #include "graphicsfeature/managers/attachmentmanager.h"
+
 namespace EffectsFeature
 {
 class AttachmentEffect : public Effect
