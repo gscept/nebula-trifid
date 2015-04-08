@@ -121,7 +121,7 @@ EditorLightProperty::OnActivate()
         {
             Property::OnActivate();
             matrix44 trans = PostEffect::PostEffectManager::Instance()->GetDefaultEntity()->Params().light->GetLightTransform();
-            this->lightEntity = PostEffect::PostEffectManager::Instance()->GetGlobalLightEntity();
+            this->lightEntity = PostEffect::PostEffectServer::Instance()->GetGlobalLightEntity();
             this->lightEntity->SetTransform(trans);
             this->lightFlickerUtil.SetLightEntity(this->lightEntity);
 			this->lightFlickerUtil.SetEnabled(false);

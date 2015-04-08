@@ -23,6 +23,7 @@
 #include "rendermodules/rendermodule.h"
 #include "debug/debugtimer.h"
 #include "visibility/visibilitysystems/visibilitysystembase.h"
+#include "globallightentity.h"
 
 //------------------------------------------------------------------------------
 namespace Graphics

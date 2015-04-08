@@ -68,13 +68,7 @@ LightProperty::OnActivate()
     switch (lightType)
     {
         case LightType::Global:
-            this->lightEntity = GlobalLightEntity::Create();
-            // broadcast global light entity to posteffectmanager
-            if(PostEffect::PostEffectManager::HasInstance())
-            {
-                PostEffect::PostEffectManager::Instance()->SetGlobalLightEntity(this->lightEntity.cast<Graphics::GlobalLightEntity>());
-            }
-			
+            this->lightEntity = GlobalLightEntity::Create();            
             break;
         case LightType::Spot:
             {

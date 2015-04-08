@@ -110,7 +110,7 @@ PreviewState::SetUseWorklight( bool enable )
 inline const Ptr<Graphics::GlobalLightEntity>& 
 PreviewState::GetLight() const
 {
-	return PostEffect::PostEffectManager::Instance()->GetGlobalLightEntity();
+	return PostEffect::PostEffectServer::Instance()->GetGlobalLightEntity();
 }
 
 } // namespace ContentBrowser
