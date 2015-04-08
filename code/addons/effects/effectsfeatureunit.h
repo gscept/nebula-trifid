@@ -11,6 +11,7 @@
 #include "vibration/vibrationplayer.h"
 #include "effects/effect.h"
 #include "mixer/effectmixer.h"
+#include "graphicsfeature/managers/attachmentmanager.h"
 
 namespace EffectsFeature
 {
@@ -59,13 +60,12 @@ public:
 							Timing::Time duration);
 
 	/// create and send event effect
-	void EmitAttachmentEvent(const Ptr<Game::Entity>& entity,
-						     const Resources::ResourceId& attachment,
-						     const Util::StringAtom& joint,
-						     Timing::Time duration,
-						     Timing::Time delay,
-						     bool keepLocal,
-						     Graphics::AttachmentServer::AttachmentRotation rotationMode);
+	void EmitAttachmentEvent(const Ptr<Graphics::GraphicsEntity>& entity,
+							const Resources::ResourceId& attachment,
+							const Util::StringAtom& joint,
+							Timing::Time duration,
+							Timing::Time delay,
+							GraphicsFeature::AttachmentManager::AttachmentRotation rotationMode);
 
 	/// add a effect directly
 	void AttachEffect(const Ptr<EffectsFeature::Effect> & effect);

@@ -5,6 +5,9 @@
 #include "stdneb.h"
 #include "attachmenteffect.h"
 #include "graphicsfeature/managers/attachmentmanager.h"
+#include "graphics/modelentity.h"
+#include "graphicsfeature/graphicsfeatureunit.h"
+#include "graphicsfeature/graphicsfeatureprotocol.h"
 
 namespace EffectsFeature
 {
@@ -15,7 +18,7 @@ __ImplementClass(EffectsFeature::AttachmentEffect, 'ATEF', EffectsFeature::Effec
 */
 AttachmentEffect::AttachmentEffect() :
 	baseEntity(0),
-	rotation(Graphics::AttachmentServer::Local)
+	rotation(GraphicsFeature::AttachmentManager::Joint)
 {
 	// empty
 }
@@ -34,7 +37,27 @@ AttachmentEffect::~AttachmentEffect()
 void 
 AttachmentEffect::OnStart( Timing::Time time )
 {
-	GraphicsFeature::AttachmentManager::Instance()->AddGraphicsAttachmentTemporary(this->joint, this->baseEntity, this->attachment, this->offset, this->keepLocal, this->rotation, this->duration);
+	 // create attachment model entity
+    Ptr<Graphics::ModelEntity> attachedEntity = Graphics::ModelEntity::Create();
+    attachedEntity->SetResourceId(this->attachment);        
+    const Ptr<Graphics::Stage>& stage = GraphicsFeature::GraphicsFeatureUnit::Instance()->GetDefaultStage();
+	this->graphicsEntity = attachedEntity.cast<Graphics::GraphicsEntity>();
+    stage->AttachEntity(this->graphicsEntity);
+	GraphicsFeature::AttachmentManager::Instance()->Attach(this->baseEntity, this->joint, this->graphicsEntity, this->offset, this->rotation);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+AttachmentEffect::OnDeactivate()
+{	
+	if (this->graphicsEntity->IsValid() && !this->graphicsEntity->IsMarkedForRemove())
+	{
+		this->graphicsEntity->MarkRemove();
+	}
+	this->graphicsEntity = 0;
+	this->baseEntity = 0;
 }
 
 } // namespace EffectsFeature
