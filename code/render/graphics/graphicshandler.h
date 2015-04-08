@@ -143,7 +143,6 @@ private:
     Ptr<Resources::ResourceManager> resourceManager;
     Ptr<Models::ModelServer> modelServer;
     Ptr<Graphics::GraphicsServer> graphicsServer;
-    Ptr<Graphics::AttachmentServer> attachmentServer;
     Ptr<Lighting::LightServer> lightServer;
     Ptr<Lighting::ShadowServer> shadowServer;
 	Ptr<Picking::PickingServer> pickingServer;

@@ -184,24 +184,22 @@ EffectsFeatureUnit::EmitGraphicsEffect( const Math::matrix44& transform, const R
 /**
 */
 void 
-EffectsFeatureUnit::EmitAttachmentEvent( const Ptr<Game::Entity>& entity,
+EffectsFeatureUnit::EmitAttachmentEvent( const Ptr<Graphics::GraphicsEntity>& entity,
 									 const Resources::ResourceId& attachment, 
 									 const Util::StringAtom& joint, 
 									 Timing::Time duration, 
-									 Timing::Time delay, 
-									 bool keepLocal, 
-									 Graphics::AttachmentServer::AttachmentRotation rotationMode )
+									 Timing::Time delay, 									 
+									 GraphicsFeature::AttachmentManager::AttachmentRotation rotationMode )
 {
 	Ptr<AttachmentEffect> effect = AttachmentEffect::Create();
 	effect->SetJoint(joint);
-	effect->SetBaseEntity(entity);
+	effect->SetBaseEntity(entity.cast<Graphics::ModelEntity>());
 	effect->SetAttachmentResource(attachment);
 	effect->SetStartDelay(delay);
 	effect->SetDuration(duration);
-	effect->SetKeepLocal(keepLocal);
 	effect->SetRotation(rotationMode);
 
-	// add affect
+	// add effect
 	effect->OnActivate(this->curTime);
 	this->activeEffects.Append(effect.upcast<Effect>());
 }

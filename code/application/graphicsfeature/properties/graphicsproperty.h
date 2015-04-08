@@ -81,7 +81,7 @@ protected:
 	/// set material variable
 	void OnSetMaterialVariable(const Ptr<SetMaterialVariable>& msg);
 	/// handles receving the model node list
-	void OnReceiveModelNodes(const Ptr<Graphics::GetModelNodes>& msg);
+	void OnReceiveModelNodes(const Ptr<Graphics::GetModelNodes>& msg);	
 	
     Ptr<Graphics::ModelEntity> modelEntity;
 	Util::Array<Util::String> modelNodeNames;

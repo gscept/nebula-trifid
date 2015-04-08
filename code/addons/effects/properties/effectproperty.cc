@@ -10,6 +10,7 @@
 #include "basegamefeature/basegametiming/timemanager.h"
 #include "../effectsfeatureunit.h"
 #include "faudio/audiodevice.h"
+#include "graphicsfeature/graphicsfeatureprotocol.h"
 
 namespace EffectsFeature
 {
@@ -59,9 +60,11 @@ EffectProperty::EmitAttachmentEvent(const Util::StringAtom& eventName) const
 
 	// get event
     const AnimEventRegistry::AttachmentEvent& event = AnimEventRegistry::Instance()->GetAttachmentEvent(eventName);
-
+	
+	Ptr<GraphicsFeature::GetModelEntity> msg = GraphicsFeature::GetModelEntity::Create();
+	__SendSync(this->GetEntity(), msg);
 	// emit
-	EffectsFeatureUnit::Instance()->EmitAttachmentEvent(this->GetEntity(), event.resource, event.jointName, event.duration, 0, event.keepLocal, event.rotation);
+	EffectsFeatureUnit::Instance()->EmitAttachmentEvent(msg->GetEntity().cast<Graphics::GraphicsEntity>(), event.resource, event.jointName, event.duration, 0, event.rotation);
 }
 
 //------------------------------------------------------------------------------

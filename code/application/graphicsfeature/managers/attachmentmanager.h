@@ -3,23 +3,23 @@
 /**
     @class GraphicsFeature::AttachmentManager
     
-    Main thread side manager (frontend) for managing attachments. 
+    Manager for attachment on game entities    
 
-    (C) 2008 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file	
+    (C) 2015 Individual contributors, see AUTHORS file	
 */
 #include "game/manager.h"
 #include "core/singleton.h"
 #include "util/string.h"
 #include "math/matrix44.h"
-#include "graphics/attachmentserver.h"
-#include "graphics/pointlightentity.h"
+#include "util/stringatom.h"
+#include "graphics/graphicsentity.h"
+#include "math/matrix44.h"
 
-// forward decl
 namespace Graphics
 {
-    class GraphicsEntity;
-};
+	class GraphicsEntity;
+	class ModelEntity;
+}
 
 namespace Game
 {
@@ -35,102 +35,93 @@ class AttachmentManager : public Game::Manager
     __DeclareSingleton(AttachmentManager);
 
 public:
+
+	/// how to rotate the attached entity
+	enum AttachmentRotation
+	{
+		/// apply offset, joint translation, and rotation
+		Joint,
+		/// apply offset and joint translation
+		JointTranslationOnly,		
+		/// apply offset to base transform
+		TransformOnly,
+	};
+
 	/// constructor
     AttachmentManager();
     /// destructor
     virtual ~AttachmentManager();
 
     /// trigger
-    virtual void OnFrame();
+    virtual void OnBeginFrame();
 
-    /// add an attachment by supplying a resource id which creates the entity
-    void AddGraphicsAttachment( const Util::StringAtom& jointName,
-                                const Ptr<Game::Entity>& baseEntityPtr,
-                                const Resources::ResourceId& entityToAttachResId,
-                                const Math::matrix44& offset,
-                                bool keepLocal,
-                                Graphics::AttachmentServer::AttachmentRotation rotation);
+    /// attach graphics entity onto other graphics entity, uses baseEntity transform as reference, ownership is transferred to attachmentmanager
+	void Attach(const Ptr<Graphics::GraphicsEntity>& baseEntity,  
+				const Ptr<Graphics::GraphicsEntity>& entityToAttach, 
+				const Math::matrix44& offset,				
+				AttachmentRotation rotation);
 
-	/// add an attachment with an already created graphics entity
-	void AddGraphicsAttachment( const Util::StringAtom& jointName,
-								const Ptr<Game::Entity>& baseEntityPtr,
-								const Ptr<Graphics::GraphicsEntity>& entityToAttach,
-								const Math::matrix44& offset,
-								bool keepLocal,
-								Graphics::AttachmentServer::AttachmentRotation rotation);
+	/// attach graphics entity onto other modelentity, uses joint as reference, ownership is transferred to attachmentmanager
+	void Attach(const Ptr<Graphics::ModelEntity>& baseEntity,
+				const Util::StringAtom& joint,
+				const Ptr<Graphics::GraphicsEntity>& entityToAttach,
+				const Math::matrix44& offset,				
+				AttachmentRotation rotation);
 
-	/// add an attachment which is automatically deleted after a certain of time, takes an already created entity to attach
-	void AddGraphicsAttachmentTemporary( const Util::StringAtom& jointName,
-								const Ptr<Game::Entity>& baseEntityPtr,
-								const Ptr<Graphics::GraphicsEntity>& entityToAttach,
-								const Math::matrix44& offset,
-								bool keepLocal,
-								Graphics::AttachmentServer::AttachmentRotation rotation,
-								Timing::Time duration);
+	/// attach game entity onto graphics entity, uses baseEntity transform as reference, will send message to entityToAttach upon detach
+	void Attach(const Ptr<Graphics::GraphicsEntity>& baseEntity,
+				const Ptr<Game::Entity>& entityToAttach,
+				const Math::matrix44& offset,				
+				AttachmentRotation rotation);
 
-    /// attach a attachment temporary which is automatically deleted after a certain time, takes a resource id to which to attach
-    void AddGraphicsAttachmentTemporary( const Util::StringAtom& jointName,
-                                         const Ptr<Game::Entity>& baseEntityPtr,
-                                         const Resources::ResourceId& entityToAttachResId,
-                                         const Math::matrix44& offset,
-                                         bool keepLocal,
-                                         Graphics::AttachmentServer::AttachmentRotation rotation,
-                                         Timing::Time duration);
-
-    /// add a light attachment
-    void AddLightAttachment( const Util::StringAtom& jointName,
-                                const Ptr<Game::Entity>& baseEntityPtr,
-                                const Ptr<Graphics::AbstractLightEntity>& light,
-                                const Math::matrix44& offset,
-                                bool keepLocal,
-                                Graphics::AttachmentServer::AttachmentRotation rotation);
-
-	/// attach a light temporary, will be removed after the given duration
-	void AddLightAttachmentTemporary( const Util::StringAtom& jointName,
-										const Ptr<Game::Entity>& baseEntityPtr,
-										const Ptr<Graphics::AbstractLightEntity>& light,
-										const Math::matrix44& offset,
-										bool keepLocal,
-										Graphics::AttachmentServer::AttachmentRotation rotation,
-										Timing::Time duration);
-
-    /// clear attachments
-    void ClearAttachments();
-
-    /// remove all attachments on given base entity
-    void ClearAttachmentsOnEntity(const Ptr<Game::Entity>& baseEntity);
+	/// attach game entity onto model entity, uses joint as reference, will send message to entityToAttach upon detach
+	void Attach(const Ptr<Graphics::ModelEntity>& baseEntity,
+				const Util::StringAtom& joint,
+				const Ptr<Game::Entity>& entityToAttach,
+				const Math::matrix44& offset,				
+				AttachmentRotation rotation);
+		
+	/// detaches a graphics entity from the base model, will not remove it from the system
+	void Detach(const Ptr<Graphics::GraphicsEntity>& entityToDetach);
+	/// detaches a game entity from the base model, will not remove it from the system
+	void Detach(const Ptr<Game::Entity>& entityToDetach);
     
-	/// Clear Joint
-	void ClearAttachmentsOnJoint(const Util::StringAtom& joint,const Ptr<Game::Entity>& baseEntity);
+    /// remove all attachments on given base entity, non-game entities will be removed from the stage as well
+	void ClearAttachmentsOnEntity(const Ptr<Graphics::GraphicsEntity>& baseEntity);
     
-private:
+	/// remove all attachments on a joint
+	void ClearAttachmentsOnJoint(const Util::StringAtom& joint, const Ptr<Graphics::GraphicsEntity>& baseEntity);
+    
+private:	
+	enum AttachmentType
+	{
+		GraphicsToGraphics,
+		GraphicsToJoint,
+		GameToGraphics,
+		GameToJoint
+	};
+
     /// attachment description
     struct Attachment
     {
+		AttachmentType type;		
         Ptr<Graphics::GraphicsEntity> baseEntity;
-        Ptr<Graphics::GraphicsEntity> attachedEntity;
-        Util::StringAtom joint;        
-        Math::matrix44 offset;
-        bool keepLocal;
-        Graphics::AttachmentServer::AttachmentRotation rotation;
-        Timing::Time duration;
-        Timing::Time startTime;
-        Util::StringAtom newJoint;
+		Ptr<Core::RefCounted> attachedEntity;		
+		IndexT jointIndex;
+		Util::StringAtom joint;
+        Math::matrix44 offset;        
+        AttachmentRotation rotation;        
     };
 
-    /// get a graphics entity by base entity
-    Ptr<Graphics::GraphicsEntity> GetAttachmentGfxEntity(const Ptr<Graphics::GraphicsEntity>& gfxBaseEntity, const Util::StringAtom& jointName) const;
+	/// calculate updated transform depending on attachment type
+	Math::matrix44 CalculateTransform(const Attachment& attach);
+	/// try to attach pending attachments
+	void AttachPending();
+	/// clear expired attachments
+	void ClearInvalid();
 
-    /// check if we have to delete some attachments
-    void CheckTemporaryAttachments();
-
-    /// send final attachment to render thread
-    void SendAttachmentMessage( const Attachment& attachment );
-
-    /// send final detachment to render thread
-    void SendDetachmentMessage( const Attachment& detachment );
-
-    Util::Array<Attachment> attachments;                 // they are still attached
+	Util::Array<Attachment> attachments;
+	Util::Array<Attachment> delayedAttachments;
 }; 
 
 } // namespace GraphicsFeature

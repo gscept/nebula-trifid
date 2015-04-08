@@ -12,7 +12,8 @@
 #include "resources/resourceid.h"
 #include "game/entity.h"
 #include "math/matrix44.h"
-#include "graphics/attachmentserver.h"
+#include "graphicsfeature/managers/attachmentmanager.h"
+
 namespace EffectsFeature
 {
 class AttachmentEffect : public Effect
@@ -23,18 +24,20 @@ public:
 	AttachmentEffect();
 	/// destructor
 	virtual ~AttachmentEffect();
-
+	
 	/// start attachment
 	void OnStart(Timing::Time time);
+	/// deactivate the effect
+	virtual void OnDeactivate();
 
 	/// sets the joint name
 	void SetJoint(const Util::StringAtom& joint);
 	/// get the joint name
 	const Util::StringAtom& GetJoint();
 	/// sets the base entity
-	void SetBaseEntity(const Ptr<Game::Entity>& entity);
+	void SetBaseEntity(const Ptr<Graphics::ModelEntity>& entity);
 	/// get the base entity
-	const Ptr<Game::Entity>& GetBaseEntity();
+	const Ptr<Graphics::ModelEntity>& GetBaseEntity();
 	/// set attachment resource
 	void SetAttachmentResource(const Resources::ResourceId& res);
 	/// get attachment resources
@@ -43,22 +46,18 @@ public:
 	void SetOffset(const Math::matrix44& offset);
 	/// get offset
 	const Math::matrix44& GetOffset() const;
-	/// sets the keep local flag
-	void SetKeepLocal(bool b);
-	///get the keep local flag
-	bool GetKeepLocal() const;
 	/// set rotation mode
-	void SetRotation(const Graphics::AttachmentServer::AttachmentRotation& rotation);
+	void SetRotation(const GraphicsFeature::AttachmentManager::AttachmentRotation& rotation);
 	/// get rotation mode
-	const Graphics::AttachmentServer::AttachmentRotation& GetRotation();
+	const GraphicsFeature::AttachmentManager::AttachmentRotation& GetRotation();
 
 private:
 	Util::StringAtom joint;
-	Ptr<Game::Entity> baseEntity;
+	Ptr<Graphics::ModelEntity> baseEntity;
+	Ptr<Graphics::GraphicsEntity> graphicsEntity;
 	Resources::ResourceId attachment;
-	Math::matrix44 offset;
-	bool keepLocal;
-	Graphics::AttachmentServer::AttachmentRotation rotation;
+	Math::matrix44 offset;	
+	GraphicsFeature::AttachmentManager::AttachmentRotation rotation;
 }; 
 
 //------------------------------------------------------------------------------
@@ -83,7 +82,7 @@ AttachmentEffect::GetJoint()
 /**
 */
 inline void 
-AttachmentEffect::SetBaseEntity( const Ptr<Game::Entity>& entity )
+AttachmentEffect::SetBaseEntity(const Ptr<Graphics::ModelEntity>& entity)
 {
 	n_assert(entity.isvalid());
 	this->baseEntity = entity;
@@ -92,7 +91,7 @@ AttachmentEffect::SetBaseEntity( const Ptr<Game::Entity>& entity )
 //------------------------------------------------------------------------------
 /**
 */
-inline const Ptr<Game::Entity>& 
+inline const Ptr<Graphics::ModelEntity>&
 AttachmentEffect::GetBaseEntity()
 {
 	return this->baseEntity;
@@ -138,25 +137,7 @@ AttachmentEffect::GetOffset() const
 /**
 */
 inline void 
-AttachmentEffect::SetKeepLocal( bool b )
-{
-	this->keepLocal = b;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline bool 
-AttachmentEffect::GetKeepLocal() const
-{
-	return this->keepLocal;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void 
-AttachmentEffect::SetRotation( const Graphics::AttachmentServer::AttachmentRotation& rotation )
+AttachmentEffect::SetRotation(const GraphicsFeature::AttachmentManager::AttachmentRotation& rotation)
 {
 	this->rotation = rotation;
 }
@@ -164,7 +145,7 @@ AttachmentEffect::SetRotation( const Graphics::AttachmentServer::AttachmentRotat
 //------------------------------------------------------------------------------
 /**
 */
-inline const Graphics::AttachmentServer::AttachmentRotation& 
+inline const GraphicsFeature::AttachmentManager::AttachmentRotation&
 AttachmentEffect::GetRotation()
 {
 	return this->rotation;

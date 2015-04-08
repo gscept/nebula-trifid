@@ -148,7 +148,6 @@ GraphicsHandler::Open()
 	this->instanceServer = InstanceServer::Create();
     this->frameServer = FrameServer::Create();
 	this->materialServer = MaterialServer::Create();
-    this->attachmentServer = AttachmentServer::Create();
     this->animEventServer = Animation::AnimEventServer::Create();
     this->characterServer = Characters::CharacterServer::Create();
     this->mouseRenderDevice = MouseRenderDevice::Create();
@@ -195,7 +194,6 @@ GraphicsHandler::Close()
     this->displayDevice = 0;
     this->renderDevice = 0;
     this->textRenderer = 0;
-    this->attachmentServer = 0;
     this->animEventServer = 0;
 
 #if __NEBULA3_HTTP__
@@ -237,7 +235,6 @@ GraphicsHandler::SetupGraphicsRuntime(const Ptr<SetupGraphics>& msg)
 	n_assert(!this->pickingServer->IsOpen());
 	n_assert(!this->instanceServer->IsOpen());
 	n_assert(!this->materialServer->IsOpen());
-    n_assert(!this->attachmentServer->IsOpen());
     n_assert(!this->characterServer->IsValid());
     
     if (!this->displayDevice->Open())
@@ -273,7 +270,6 @@ GraphicsHandler::SetupGraphicsRuntime(const Ptr<SetupGraphics>& msg)
     this->graphicsServer->Open();
     this->lightServer->Open();
     this->shadowServer->Open();    
-    this->attachmentServer->Open();
     this->particleServer->Open();    
 	this->frameServer->Open();	
 	this->pickingServer->Open();
@@ -318,7 +314,6 @@ GraphicsHandler::ShutdownGraphicsRuntime()
     this->vertexLayoutServer->Close();
     this->renderDevice->Close();
     this->displayDevice->Close();
-    this->attachmentServer->Close();
 }
 
 //------------------------------------------------------------------------------

@@ -16,6 +16,7 @@
 #include "debugrender/debugrender.h"
 #include "effects/effectsfeatureunit.h"
 #include "multiplayer/networkentity.h"
+#include "graphicsutil/attachmentutil.h"
 
 namespace GraphicsFeature
 {
@@ -145,6 +146,10 @@ GraphicsProperty::SetupAcceptedMessages()
     this->RegisterMessage(GraphicsFeature::CreateGraphicsEffectUpVec::Id);
 	this->RegisterMessage(GraphicsFeature::UpdateProbeInfluence::Id);
 	this->RegisterMessage(GraphicsFeature::SetAttribute::Id);
+	this->RegisterMessage(GraphicsFeature::AddGraphicsAttachment::Id);
+	this->RegisterMessage(GraphicsFeature::AddGraphicsAttachmentOnJoint::Id);	
+	this->RegisterMessage(GraphicsFeature::ClearAttachmentsOnEntity::Id);
+	this->RegisterMessage(GraphicsFeature::ClearAttachmentsOnJoint::Id);
     Property::SetupAcceptedMessages();
 }
 
@@ -277,6 +282,30 @@ GraphicsProperty::HandleMessage(const Ptr<Messaging::Message>& msg)
 		this->modelEntity->SetCastsShadows(this->entity->GetBool(Attr::CastShadows));
 		this->modelEntity->SetInstanced(this->entity->GetBool(Attr::Instanced));
 	}
+	else if (msg->CheckId(AddGraphicsAttachment::Id))
+	{
+		Ptr<AddGraphicsAttachment> amsg = msg.cast<AddGraphicsAttachment>();
+		GraphicsFeature::AttachmentUtil::AddAttachment(this->entity, amsg->GetResource(), amsg->GetOffset());
+		__DistributeNetworkMessage(this->entity, msg);
+	}
+	else if (msg->CheckId(AddGraphicsAttachmentOnJoint::Id))
+	{
+		Ptr<AddGraphicsAttachmentOnJoint> amsg = msg.cast<AddGraphicsAttachmentOnJoint>();
+		GraphicsFeature::AttachmentUtil::AddAttachment(this->entity, amsg->GetJoint(), amsg->GetResource(), amsg->GetOffset(), (GraphicsFeature::AttachmentManager::AttachmentRotation)amsg->GetRotation());
+		__DistributeNetworkMessage(this->entity, msg);
+	}
+	else if (msg->CheckId(ClearAttachmentsOnEntity::Id))
+	{
+		Ptr<ClearAttachmentsOnEntity> amsg = msg.cast<ClearAttachmentsOnEntity>();
+		GraphicsFeature::AttachmentManager::Instance()->ClearAttachmentsOnEntity(this->modelEntity.cast<Graphics::GraphicsEntity>());
+		__DistributeNetworkMessage(this->entity, msg);
+	}
+	else if (msg->CheckId(ClearAttachmentsOnJoint::Id))
+	{
+		Ptr<ClearAttachmentsOnJoint> amsg = msg.cast<ClearAttachmentsOnJoint>();
+		GraphicsFeature::AttachmentManager::Instance()->ClearAttachmentsOnJoint(amsg->GetJoint(), this->modelEntity.cast<Graphics::GraphicsEntity>());
+		__DistributeNetworkMessage(this->entity, msg);
+	}	
     else
     {
         Property::HandleMessage(msg);

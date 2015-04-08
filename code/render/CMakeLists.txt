@@ -720,9 +720,7 @@ ENDIF()
 
     set(Render_files_graphics
       graphics/abstractlightentity.cc
-      graphics/abstractlightentity.h
-	  graphics/attachmentserver.cc
-	  graphics/attachmentserver.h
+      graphics/abstractlightentity.h	  
       graphics/cameraentity.cc
       graphics/cameraentity.h
 	  graphics/camerasettings.cc

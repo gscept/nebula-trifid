@@ -178,6 +178,8 @@ INCLUDE_DIRECTORIES(${Nebula3_SOURCE_DIR}/code
         graphicsfeature/graphicsutil/segmentedgfxutil.h
 		graphicsfeature/graphicsutil/animutil.cc
 		graphicsfeature/graphicsutil/animutil.h
+		graphicsfeature/graphicsutil/attachmentutil.cc
+		graphicsfeature/graphicsutil/attachmentutil.h		
       )
       source_group("graphicsfeature\\graphicsutil" FILES ${application_files_graphicsfeature__graphicsutil})
 

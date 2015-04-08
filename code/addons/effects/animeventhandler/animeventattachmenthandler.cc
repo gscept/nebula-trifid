@@ -8,9 +8,9 @@
 #include "characters/character.h"
 #include "effects/animeventregistry.h"
 #include "graphics/graphicsserver.h"
-#include "graphics/attachmentserver.h"
 #include "graphics/modelentity.h"
 #include "graphics/stage.h"
+#include "../effectsfeatureunit.h"
 
 namespace EffectsFeature
 {
@@ -48,30 +48,13 @@ AnimEventAttachmentHandler::HandleEvent(const Animation::AnimEventInfo& event)
         // get desired effect
         const AnimEventRegistry::AttachmentEvent& effect = AnimEventRegistry::Instance()->GetAttachmentEvent(event.GetAnimEvent().GetName());
         
+		
         // lookup stage from base entity and attach entity
 		// hmm, if this becomes a const ref, the same bug found in stage.cc row 193 occurs, which leaves this ptr as NULL
         Ptr<ModelEntity> baseEntity = GraphicsServer::Instance()->GetEntityById(event.GetEntityId()).cast<ModelEntity>();
         n_assert(baseEntity.isvalid());
 
-        // create
-        Ptr<ModelEntity> modelEntity = ModelEntity::Create();        
-        modelEntity->SetResourceId(effect.resource);
-        modelEntity->SetVisible(false);
-
-        // attach
-        const Ptr<Stage>& stage = baseEntity->GetStage();
-        stage->AttachEntity(modelEntity.cast<GraphicsEntity>());
-
-        // attach on base entity
-        AttachmentServer::Instance()->AttachEntityTemporary(matrix44::identity(), 
-															AttachmentServer::ClearNone,
-                                                            effect.jointName.Value(), 
-                                                            modelEntity.cast<GraphicsEntity>(),
-                                                            baseEntity,
-                                                            effect.keepLocal,
-                                                            effect.duration,
-                                                            effect.rotation,
-                                                            false);
+		EffectsFeature::EffectsFeatureUnit::Instance()->EmitAttachmentEvent(baseEntity.cast<GraphicsEntity>(), effect.resource, effect.jointName, effect.duration, 0.0f, effect.rotation);        
         return true;
     }
 

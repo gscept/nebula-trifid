@@ -156,10 +156,7 @@ GraphicsFeatureUnit::DiscardDefaultGraphicsWorld()
 	n_assert(this->IsActive());
     n_assert(this->defaultStage.isvalid());
     n_assert(this->defaultView.isvalid());
-    n_assert(this->defaultCamera.isvalid());
-
-    // cleanup attachmentmanager
-    this->attachmentManager->ClearAttachments();
+    n_assert(this->defaultCamera.isvalid());    
 	
     this->defaultStage->RemoveEntity(this->defaultCamera.cast<GraphicsEntity>());
     this->defaultCamera = 0;

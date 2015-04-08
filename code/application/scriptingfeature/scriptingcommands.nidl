@@ -13,6 +13,7 @@
     <Dependency header="graphicsfeature/graphicsfeatureunit.h"/>
     <Dependency header="graphics/graphicsprotocol.h"/>
     <Dependency header="graphics/modelentity.h"/>
+    <Dependency header="effects/effectsfeatureunit.h"/>
     <Dependency header="coregraphics/displaydevice.h"/>
     <Command name="SetAttribute" fourcc="SETA" desc="Sets an attribute on an entity by name">
 		<InArg name="entityid" type="uint"/>
@@ -62,15 +63,36 @@
       <InArg name="AttachmentModel" type="string"/>
       <InArg name="Duration" type="float"/>
       <Code>
-        Ptr&lt;Game::Entity&gt; ents = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(entityid);
-        GraphicsFeature::AttachmentManager::Instance()->AddGraphicsAttachmentTemporary(Joint,ents,"mdl:" + AttachmentModel + ".n3",Math::matrix44::identity(),true,Graphics::AttachmentServer::Local,Duration);
+        <![CDATA[
+          Ptr<Game::Entity> ents = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(entityid);
+          Ptr<GraphicsFeature::GetModelEntity> msg = GraphicsFeature::GetModelEntity::Create();
+	        __SendSync(ents, msg);
+          if(Duration <= 0.0f)
+          {
+            EffectsFeature::EffectsFeatureUnit::Instance()->EmitAttachmentEvent(msg->GetEntity().cast<Graphics::GraphicsEntity>(), "mdl:" + AttachmentModel + ".n3", Joint, Duration, 0.0f, GraphicsFeature::AttachmentManager::Joint);
+          }
+          else
+          {           	
+	          // create attachment model entity
+            Ptr<Graphics::ModelEntity> attachedEntity = Graphics::ModelEntity::Create();
+            attachedEntity->SetResourceId(AttachmentModel);        
+            const Ptr<Graphics::Stage>& stage = GraphicsFeature::GraphicsFeatureUnit::Instance()->GetDefaultStage();	          
+            stage->AttachEntity(attachedEntity.cast<Graphics::GraphicsEntity>());
+	          GraphicsFeature::AttachmentManager::Instance()->Attach(msg->GetEntity(), Joint, attachedEntity.cast<Graphics::GraphicsEntity>(), Math::matrix44::identity(), GraphicsFeature::AttachmentManager::Joint);
+          }
+        ]]>                
       </Code>
     </Command>
     <Command name="ClearAttachments" fourcc="CLTT" desc="Removes all attachments from entity">
       <InArg name="entityid" type="uint"/>
       <Code>
-        Ptr&lt;Game::Entity&gt; ents = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(entityid);
-        GraphicsFeature::AttachmentManager::Instance()->ClearAttachmentsOnEntity(ents);
+        <![CDATA[
+          Ptr<Game::Entity> ents = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(entityid);
+          Ptr<GraphicsFeature::GetModelEntity> msg = GraphicsFeature::GetModelEntity::Create();
+	        __SendSync(ents, msg);
+        GraphicsFeature::AttachmentManager::Instance()->ClearAttachmentsOnEntity(msg->GetEntity().cast<Graphics::GraphicsEntity>());  
+        ]]>        
+        
       </Code>
     </Command>
     <Command name="CreateTrigger" fourcc="PCTR" desc="Creates a trigger entity at given position and size">

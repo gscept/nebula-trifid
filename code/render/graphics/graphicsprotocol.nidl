@@ -13,8 +13,7 @@
         <Dependency header="coregraphics/pixelformat.h"/>
         <Dependency header="coregraphics/adapterinfo.h"/>
         <Dependency header="coregraphics/displayeventhandler.h"/>
-        <Dependency header="coregraphics/rendereventhandler.h"/>
-        <Dependency header="graphics/attachmentserver.h"/>
+        <Dependency header="coregraphics/rendereventhandler.h"/>        
         <Dependency header="graphics/graphicsentity.h"/>
         <Dependency header="visibility/visibilitysystems/visibilitysystembase.h"/>
         <Dependency header="resources/resourceid.h"/>
@@ -570,26 +569,7 @@
         <!-- set timing factor -->
         <Message name="SetTimeFactor" fourcc="STIF">
             <InArg name="Factor" type="float"/>
-        </Message>
-
-        <!-- clear attachments -->
-        <Message name="UnbindAttachment" fourcc="CLAT" derivedFrom="GraphicsEntityMessage">
-            <InArg name="EntityToAttach"          type="Ptr<Graphics::GraphicsEntity>"/>
-            <InArg name="Joint"                   type="Util::StringAtom"/>
-            <InArg name="ClearType"               type="Graphics::AttachmentServer::ClearType" default="Graphics::AttachmentServer::ClearNone"/>
-        </Message>
-                
-        <!-- attach a new entity on an other entity -->
-        <Message name="BindAttachment" fourcc="ATEN" derivedFrom="UnbindAttachment">
-            <InArg name="KeepLocal" type="bool"/>
-            <InArg name="Rotation"  type="Graphics::AttachmentServer::AttachmentRotation"/>
-            <InArg name="Offset"    type="Math::matrix44"/>          
-        </Message>
-
-        <!-- switch a entity to another joint -->
-        <Message name="SwitchAttachmentToNewJoint" fourcc="SWAT" derivedFrom="BindAttachment">
-            <InArg name="NewJoint" type="Util::StringAtom"/>
-        </Message>
+        </Message>        
 
         <!-- base class of anim events -->
         <Message name="BaseAnimEventMessage" fourcc="BEAV" derivedFrom="GraphicsEntityMessage"/>

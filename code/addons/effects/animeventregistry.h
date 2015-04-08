@@ -18,10 +18,10 @@
 #include "util/stringatom.h"
 #include "util/dictionary.h"
 #include "timing/time.h"
-#include "graphics/attachmentserver.h"
 #include "attr/attribute.h"
 #include "faudio/eventid.h"
 #include "animation/animeventhandlerbase.h"
+#include "graphicsfeature/managers/attachmentmanager.h"
 
 
 //------------------------------------------------------------------------------
@@ -42,15 +42,13 @@ public:
         Util::StringAtom name;
         Util::StringAtom resource;
         Util::StringAtom jointName;
-        Timing::Time duration;
-        bool keepLocal;
-        Graphics::AttachmentServer::AttachmentRotation rotation;
+        Timing::Time duration;        
+		GraphicsFeature::AttachmentManager::AttachmentRotation rotation;
 
         AttachmentEvent()
 		{
-			duration = 0; 
-            keepLocal = false; 
-            rotation = Graphics::AttachmentServer::Local;
+			duration = 0;             
+			rotation = GraphicsFeature::AttachmentManager::Joint;
 		};
     };
 

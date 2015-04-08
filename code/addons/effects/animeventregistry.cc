@@ -155,18 +155,17 @@ AnimEventRegistry::LoadAttachmentEvents(const Util::StringAtom &tableName)
         newEffect.resource = res;
         newEffect.jointName = joint;
         newEffect.duration = time;
-        newEffect.keepLocal = keepLocal;
-        if ("local" == rotation)
+        if ("joint" == rotation)
         {
-            newEffect.rotation = Graphics::AttachmentServer::Local;
+            newEffect.rotation = GraphicsFeature::AttachmentManager::Joint;
         } 
-        else if ("world" == rotation)
+        else if ("jointTranslate" == rotation)
         {
-            newEffect.rotation = Graphics::AttachmentServer::World;
+			newEffect.rotation = GraphicsFeature::AttachmentManager::JointTranslationOnly;
         }
-        else if ("entity" == rotation)
+        else if ("translate" == rotation)
         {
-            newEffect.rotation = Graphics::AttachmentServer::Entity;
+			newEffect.rotation = GraphicsFeature::AttachmentManager::TransformOnly;
         }
         else
         {

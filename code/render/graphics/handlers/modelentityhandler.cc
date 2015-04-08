@@ -73,9 +73,6 @@ __StaticHandler(CreateModelEntity)
 __Handler(ModelEntity, SetVisibility)
 {
     obj->SetVisible(msg->GetVisible());
-
-    // also need to hide any attachments
-    AttachmentServer::Instance()->SetVisibilityOnAttachments(obj, msg->GetVisible());
 }
 
 
@@ -567,68 +564,6 @@ __Handler(ModelEntity, AddTrackedCharJoint)
 
 //------------------------------------------------------------------------------
 /**
-*/
-__Handler(ModelEntity, BindAttachment)
-{
-	if (!obj->IsValid())
-	{
-		obj->AddDeferredMessage(msg.cast<Message>());
-	}
-	else
-	{
-		Ptr<GraphicsEntity> attachment = msg->GetEntityToAttach();
-		AttachmentServer::Instance()->AttachEntity(msg->GetOffset(),
-												   msg->GetClearType(),
-												   msg->GetJoint(),
-												   attachment,
-												   obj,
-												   msg->GetKeepLocal(),
-												   msg->GetRotation(),
-												   true);
-	}
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-__Handler(ModelEntity, UnbindAttachment)
-{
-	if (!obj->IsValid())
-	{
-		obj->AddDeferredMessage(msg.cast<Message>());
-	}
-	else
-	{
-		Ptr<GraphicsEntity> attachment = msg->GetEntityToAttach();
-		AttachmentServer::Instance()->DetachEntity(msg->GetClearType(),
-												   msg->GetJoint(),
-												   attachment,
-												   obj);
-	}
-}
-
-
-//------------------------------------------------------------------------------
-/**
-*/
-__Handler(ModelEntity, SwitchAttachmentToNewJoint)
-{
-	if (!obj->IsValid())
-	{
-		obj->AddDeferredMessage(msg.cast<Message>());
-	}
-	else
-	{
-		const Ptr<GraphicsEntity>& attachment = msg->GetEntityToAttach();
-		AttachmentServer::Instance()->SwitchEntity(msg->GetJoint(),
-												   msg->GetNewJoint(),
-												   obj,
-												   attachment);
-	}
-}
-
-//------------------------------------------------------------------------------
-/**
     Special case, AnimEventMessages must be forwarded to the 
     AnimEventServer, but only when the ModelEntity has loaded
     its resources (the character must be valid).
@@ -700,9 +635,6 @@ __Dispatcher(ModelEntity)
 	__Handle(ModelEntity, FetchSkinList);
     __Handle(ModelEntity, ShowSkin);
     __Handle(ModelEntity, HideSkin);
-    __Handle(ModelEntity, BindAttachment);
-    __Handle(ModelEntity, UnbindAttachment);
-    __Handle(ModelEntity, SwitchAttachmentToNewJoint);
     __Handle(ModelEntity, SetAnimatorTime);
     __Handle(ModelEntity, AddTrackedCharJoint);
     __Handle(ModelEntity, SetVariation);
