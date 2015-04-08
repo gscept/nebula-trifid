@@ -12,6 +12,9 @@
 #include "framesync/framesynctimer.h"
 #include "physics/filterset.h"
 #include "physics/bullet/raycallbacks.h"
+#include "coregraphics/primitivetopology.h"
+#include "coregraphics/shaperenderer.h"
+#include "debugrender/debugshaperenderer.h"
 
 
 namespace Bullet
@@ -64,6 +67,7 @@ BulletScene::OnActivate()
         btIDebugDraw::DBG_DrawWireframe +
         btIDebugDraw::DBG_DrawContactPoints +
         btIDebugDraw::DBG_DrawConstraints + btIDebugDraw::DBG_DrawConstraintLimits);
+	this->debugDrawer->SetScene(this);
     this->physics.dynamicsWorld->setDebugDrawer(this->debugDrawer);
 	this->physics.dynamicsWorld->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
 	this->lastUpdate = -1.0f;
@@ -391,9 +395,15 @@ BulletScene::RayCheck(const Math::vector& pos, const Math::vector& dir, const Ph
 void
 BulletScene::RenderDebug()
 {
+	// reset primitives list, this will be filled whenever the debugDrawer performs 'drawLine'
+	this->debugPrimitives.Clear();
+	this->debugPrimitives.Reserve(65535);
 	this->physics.dynamicsWorld->debugDrawWorld();
-	BaseScene::RenderDebug();
+	BaseScene::RenderDebug();	
+
+	// draw buffered primitives
+	Debug::DebugShapeRenderer::Instance()->DrawPrimitives(matrix44::identity(), CoreGraphics::PrimitiveTopology::LineList, this->debugPrimitives.Size() / 2, &this->debugPrimitives[0], 4, float4(1, 0, 0, 0.75f));
 }
 
 
-}
+} // namespace Bullet

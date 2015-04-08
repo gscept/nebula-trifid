@@ -37,9 +37,9 @@ public:
     void DrawShapes();
 
 	/// maximum amount of vertices to be rendered by drawprimitives and drawindexedprimitives
-	static const int MaxNumVertices = 4096;
+	static const int MaxNumVertices = 65535;
 	/// maximum amount of indices to be rendered by drawprimitives and drawindexedprimitives
-	static const int MaxNumIndices = 4096;
+	static const int MaxNumIndices = 65535;
 
     /// maximum size for primitive size (4 floats for position, 4 floats for color)
     static const int MaxVertexWidth = 4 * sizeof(float);
