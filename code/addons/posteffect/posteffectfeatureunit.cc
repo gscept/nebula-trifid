@@ -112,6 +112,9 @@ PostEffectFeatureUnit::SetupDefaultWorld()
 
 	// set sky entity in post effect manager
 	this->postEffectManager->SetSkyEntity(this->skyEntity);
+
+	// set global light entity
+	PostEffect::PostEffectServer::Instance()->SetGlobalLightEntity(Graphics::GraphicsServer::Instance()->GetCurrentGlobalLightEntity());
 }
 
 //------------------------------------------------------------------------------
@@ -126,5 +129,6 @@ PostEffectFeatureUnit::CleanupDefaultWorld()
 		stage->RemoveEntity(this->skyEntity.cast<Graphics::GraphicsEntity>());
 	}
 	this->skyEntity = 0;
+	PostEffect::PostEffectServer::Instance()->SetGlobalLightEntity(0);
 }
 };
