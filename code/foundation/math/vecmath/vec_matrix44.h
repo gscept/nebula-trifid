@@ -97,6 +97,14 @@ public:
     const float4& getrow2() const;
     /// read-only access to w component
     const float4& getrow3() const;
+	/// read-write access to x component
+	float4& row0() const;
+	/// read-write access to y component
+	float4& row1() const;
+	/// read-write access to z component
+	float4& row2() const;
+	/// read-write access to w component
+	float4& row3() const;
 
     /// write access to x component
     void set_xaxis(float4 const &x);
@@ -230,17 +238,6 @@ matrix44::matrix44(float4 const &row0, float4 const &row1, float4 const &row2, f
 	this->mat.r[3].vec = row3.vec;
 }
 
-//------------------------------------------------------------------------------
-/**
-*/
-/*
-__forceinline
-matrix44::matrix44(const matrix44& rhs) :
-    mx(rhs.mx)
-{
-    // empty
-}
-*/
 
 //------------------------------------------------------------------------------
 /**
@@ -375,7 +372,7 @@ matrix44::setrow0(float4 const &r)
 __forceinline const float4&
 matrix44::getrow0() const
 {
-    return *(float4*)&(this->mat.r[0]);
+	return *(float4*)&(this->mat.r[0]);
 }
 
 //------------------------------------------------------------------------------
@@ -430,6 +427,42 @@ __forceinline const float4&
 matrix44::getrow3() const
 {
     return *(float4*)&(this->mat.r[3]);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+__forceinline float4&
+matrix44::row0() const
+{
+	return *(float4*)&(this->mat.r[0]);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+__forceinline float4&
+matrix44::row1() const
+{
+	return *(float4*)&(this->mat.r[1]);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+__forceinline float4&
+matrix44::row2() const
+{
+	return *(float4*)&(this->mat.r[2]);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+__forceinline float4&
+matrix44::row3() const
+{
+	return *(float4*)&(this->mat.r[3]);
 }
 
 //------------------------------------------------------------------------------

@@ -75,6 +75,14 @@ public:
     const float4& getrow2() const;
     /// read-only access to w component
     const float4& getrow3() const;
+	/// read-write access to x component
+	float4& row0() const;
+	/// read-write access to y component
+	float4& row1() const;
+	/// read-write access to z component
+	float4& row2() const;
+	/// read-write access to w component
+	float4& row3() const;
 
     /// write access to x component
     void set_xaxis(float4 const &x);
@@ -411,6 +419,42 @@ __forceinline const float4&
 matrix44::getrow3() const
 {
     return *(float4*)&(this->mx.r[3]);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+__forceinline float4&
+matrix44::row0() const
+{
+	return *(float4*)&(this->mx.r[0]);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+__forceinline float4&
+matrix44::row1() const
+{
+	return *(float4*)&(this->mx.r[1]);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+__forceinline float4&
+matrix44::row2() const
+{
+	return *(float4*)&(this->mx.r[2]);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+__forceinline float4&
+matrix44::row3() const
+{
+	return *(float4*)&(this->mx.r[3]);
 }
 
 //------------------------------------------------------------------------------
