@@ -495,7 +495,7 @@ NetworkEntity::Deserialize(RakNet::DeserializeParameters *deserializeParameters)
 		Util::FourCC fcc = reader->ReadUInt();
 		Ptr<Core::RefCounted> cmsg = Core::Factory::Instance()->Create(fcc);
 		Ptr<Messaging::Message> msg = cmsg.cast<Messaging::Message>();
-		msg->SetLocal(false);
+		msg->SetDistribute(false);
 		msg->Decode(breader);
 		this->SendSync(msg);		
 	}

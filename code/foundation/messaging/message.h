@@ -65,15 +65,15 @@ public:
     void SetDeferredHandled(bool b);
     /// get the deferred handled flag
     bool DeferredHandled() const;
-	/// did the message originate from this system (or network)
-	bool IsLocal() const;
-	/// set the origin flag
-	void SetLocal(bool b);
+	/// should this message be distributed over the network
+	bool GetDistribute() const;
+	/// enable distribution over network
+	void SetDistribute(bool b);
 protected:
     volatile int handled;
     bool deferred;
     bool deferredHandled;
-	bool localOrigin;
+	bool distribute;
 };
 
 //------------------------------------------------------------------------------
@@ -143,18 +143,18 @@ Message::DeferredHandled() const
 /**
 */
 inline bool
-Message::IsLocal() const
+Message::GetDistribute() const
 {
-	return localOrigin;
+	return distribute;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 inline void
-Message::SetLocal(bool b)
+Message::SetDistribute(bool b)
 {
-	this->localOrigin = b;
+	this->distribute = b;
 }
 
 } // namespace Messaging

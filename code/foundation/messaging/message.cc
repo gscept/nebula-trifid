@@ -19,7 +19,7 @@ Message::Message() :
     handled(0),
     deferred(false),
     deferredHandled(false),
-	localOrigin(true)
+	distribute(true)
 {
     // empty
 }
