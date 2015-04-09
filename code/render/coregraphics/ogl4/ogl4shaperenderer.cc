@@ -297,6 +297,7 @@ OGL4ShapeRenderer::DrawPrimitives(const matrix44& modelTransform,
 
 	// calculate vertex count
     SizeT vertexCount = PrimitiveTopology::NumberOfVertices(topology, numPrimitives);
+	vertexCount = Math::n_min(vertexCount, MaxNumVertices);
 
     // unlock buffer to avoid stomping data
 	this->vboLock->WaitForRange(MaxNumVertices * MaxVertexWidth * this->vbBufferIndex, vertexCount * vertexWidth * sizeof(float));
@@ -352,11 +353,13 @@ OGL4ShapeRenderer::DrawIndexedPrimitives(const matrix44& modelTransform,
 	// calculate index count and size of index type
     SizeT indexCount = PrimitiveTopology::NumberOfVertices(topology, numPrimitives);
 	SizeT indexSize = CoreGraphics::IndexType::SizeOf(indexType);
+	SizeT vertexCount = Math::n_min(numVertices, MaxNumVertices);
+	indexCount = Math::n_min(indexCount, MaxNumIndices);
 
     // unlock buffer and copy data
-	this->vboLock->WaitForRange(MaxNumVertices * MaxVertexWidth * this->vbBufferIndex, numVertices * vertexWidth * sizeof(float));
+	this->vboLock->WaitForRange(MaxNumVertices * MaxVertexWidth * this->vbBufferIndex, vertexCount * vertexWidth * sizeof(float));
 	this->iboLock->WaitForRange(MaxNumIndices * MaxIndexWidth * this->ibBufferIndex, indexCount * indexSize);
-    memcpy(this->vertexBufferPtr + MaxNumVertices * MaxVertexWidth * this->vbBufferIndex, vertices, numVertices * vertexWidth * sizeof(float));
+	memcpy(this->vertexBufferPtr + MaxNumVertices * MaxVertexWidth * this->vbBufferIndex, vertices, vertexCount * vertexWidth * sizeof(float));
 	memcpy(this->indexBufferPtr + MaxNumIndices * MaxIndexWidth * this->ibBufferIndex, indices, indexCount * indexSize);
 
     // resolve model-view-projection matrix and update shader

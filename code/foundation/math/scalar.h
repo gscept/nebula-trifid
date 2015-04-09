@@ -183,6 +183,26 @@ n_iclamp(int val, int minVal, int maxVal)
 
 //------------------------------------------------------------------------------
 /**
+	Floating point ceiling
+*/
+__forceinline float
+n_ceil(float val)
+{
+	return ceilf(val);
+}
+
+//------------------------------------------------------------------------------
+/**
+	Floating point flooring
+*/
+__forceinline float
+n_floor(float val)
+{
+	return floorf(val);
+}
+
+//------------------------------------------------------------------------------
+/**
     A fuzzy floating point less-then check.
 */
 __forceinline bool

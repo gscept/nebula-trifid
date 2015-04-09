@@ -9,6 +9,10 @@
 
 #include "LinearMath/btIDebugDraw.h"
 
+namespace Bullet
+{
+
+class BulletScene;
 class DebugDrawer : public btIDebugDraw
 {
 public:
@@ -36,7 +40,11 @@ public:
 	virtual void	setDebugMode(int debugMode);	
 	virtual int		getDebugMode() const;
 
+	/// set the scene from which this debug drawer was created
+	void SetScene(BulletScene* scene);
+
 private:
+	BulletScene* scene;
     int m_debugMode;
 };
 
@@ -57,3 +65,14 @@ DebugDrawer::getDebugMode() const
 {
     return this->m_debugMode;
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+DebugDrawer::SetScene(BulletScene* scene)
+{
+	this->scene = scene;
+}
+
+} // namespace Bullet

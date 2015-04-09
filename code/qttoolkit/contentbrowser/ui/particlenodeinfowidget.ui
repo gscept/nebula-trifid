@@ -496,7 +496,7 @@
           </palette>
          </property>
          <property name="currentIndex">
-          <number>4</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tab">
           <property name="palette">
@@ -1820,7 +1820,7 @@
                   <string>Starting delay when particles should start emitting.</string>
                  </property>
                  <property name="singleStep">
-                  <double>0.020000000000000</double>
+                  <double>0.010000000000000</double>
                  </property>
                 </widget>
                </item>
@@ -1837,13 +1837,13 @@
                   <string>The time during which particles should be emitted.</string>
                  </property>
                  <property name="minimum">
-                  <double>0.000000000000000</double>
+                  <double>0.010000000000000</double>
                  </property>
                  <property name="maximum">
                   <double>1000.000000000000000</double>
                  </property>
                  <property name="singleStep">
-                  <double>1.000000000000000</double>
+                  <double>0.010000000000000</double>
                  </property>
                  <property name="value">
                   <double>1.000000000000000</double>
@@ -1873,7 +1873,7 @@
                   <double>50.000000000000000</double>
                  </property>
                  <property name="singleStep">
-                  <double>0.020000000000000</double>
+                  <double>0.010000000000000</double>
                  </property>
                 </widget>
                </item>
@@ -2538,11 +2538,14 @@
                  <property name="toolTip">
                   <string>Seed to use for randomly generating initial velocity.</string>
                  </property>
+                 <property name="minimum">
+                  <double>-100.000000000000000</double>
+                 </property>
                  <property name="maximum">
                   <double>100.000000000000000</double>
                  </property>
                  <property name="singleStep">
-                  <double>0.020000000000000</double>
+                  <double>0.010000000000000</double>
                  </property>
                 </widget>
                </item>
@@ -2565,7 +2568,7 @@
                   <double>50.000000000000000</double>
                  </property>
                  <property name="singleStep">
-                  <double>0.020000000000000</double>
+                  <double>0.010000000000000</double>
                  </property>
                  <property name="value">
                   <double>-9.810000000000000</double>
@@ -2599,8 +2602,14 @@
                    <property name="toolTip">
                     <string>Wind direction in the X axis.</string>
                    </property>
+                   <property name="minimum">
+                    <double>-1.000000000000000</double>
+                   </property>
                    <property name="maximum">
                     <double>1.000000000000000</double>
+                   </property>
+                   <property name="singleStep">
+                    <double>0.010000000000000</double>
                    </property>
                   </widget>
                  </item>
@@ -2609,8 +2618,14 @@
                    <property name="toolTip">
                     <string>Wind direction in the Y axis.</string>
                    </property>
+                   <property name="minimum">
+                    <double>-1.000000000000000</double>
+                   </property>
                    <property name="maximum">
                     <double>1.000000000000000</double>
+                   </property>
+                   <property name="singleStep">
+                    <double>0.010000000000000</double>
                    </property>
                   </widget>
                  </item>
@@ -2619,8 +2634,14 @@
                    <property name="toolTip">
                     <string>Wind direction in the Z axis.</string>
                    </property>
+                   <property name="minimum">
+                    <double>-1.000000000000000</double>
+                   </property>
                    <property name="maximum">
                     <double>1.000000000000000</double>
+                   </property>
+                   <property name="singleStep">
+                    <double>0.010000000000000</double>
                    </property>
                   </widget>
                  </item>
@@ -3165,7 +3186,7 @@
                   <double>360.000000000000000</double>
                  </property>
                  <property name="singleStep">
-                  <double>0.020000000000000</double>
+                  <double>0.010000000000000</double>
                  </property>
                 </widget>
                </item>
@@ -3181,7 +3202,7 @@
                   <double>360.000000000000000</double>
                  </property>
                  <property name="singleStep">
-                  <double>0.020000000000000</double>
+                  <double>0.010000000000000</double>
                  </property>
                 </widget>
                </item>
@@ -3204,8 +3225,11 @@
                  <property name="toolTip">
                   <string>Seed to use for random rotations.</string>
                  </property>
+                 <property name="maximum">
+                  <double>1000.000000000000000</double>
+                 </property>
                  <property name="singleStep">
-                  <double>0.020000000000000</double>
+                  <double>0.010000000000000</double>
                  </property>
                 </widget>
                </item>
@@ -3235,8 +3259,11 @@
                  <property name="toolTip">
                   <string>Seed to use for random sizes</string>
                  </property>
+                 <property name="maximum">
+                  <double>1000.000000000000000</double>
+                 </property>
                  <property name="singleStep">
-                  <double>0.020000000000000</double>
+                  <double>0.010000000000000</double>
                  </property>
                 </widget>
                </item>
@@ -3260,7 +3287,7 @@
                   <double>3.000000000000000</double>
                  </property>
                  <property name="singleStep">
-                  <double>0.020000000000000</double>
+                  <double>0.010000000000000</double>
                  </property>
                 </widget>
                </item>
@@ -3280,7 +3307,7 @@
                   <double>100000.000000000000000</double>
                  </property>
                  <property name="singleStep">
-                  <double>0.020000000000000</double>
+                  <double>1.000000000000000</double>
                  </property>
                 </widget>
                </item>

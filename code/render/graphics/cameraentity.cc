@@ -107,7 +107,7 @@ void
 CameraEntity::OnDisplayResized()
 {
 	float aspectRatio = DisplayDevice::Instance()->GetDisplayMode().GetAspectRatio();
-	this->camSettings.SetupPerspectiveFov(this->camSettings.GetFov(), aspectRatio, 0.1f, 2500.0f);
+	this->camSettings.SetupPerspectiveFov(this->camSettings.GetFov(), aspectRatio, this->camSettings.GetZNear(), this->camSettings.GetZFar());
 }
 
 //------------------------------------------------------------------------------
