@@ -496,7 +496,7 @@
           </palette>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>4</number>
          </property>
          <widget class="QWidget" name="tab">
           <property name="palette">
@@ -1142,6 +1142,9 @@
                   </item>
                   <item row="3" column="0">
                    <widget class="Line" name="line">
+                    <property name="frameShadow">
+                     <enum>QFrame::Plain</enum>
+                    </property>
                     <property name="orientation">
                      <enum>Qt::Horizontal</enum>
                     </property>
@@ -1149,6 +1152,9 @@
                   </item>
                   <item row="9" column="0">
                    <widget class="Line" name="line_3">
+                    <property name="frameShadow">
+                     <enum>QFrame::Plain</enum>
+                    </property>
                     <property name="orientation">
                      <enum>Qt::Horizontal</enum>
                     </property>
@@ -1156,6 +1162,9 @@
                   </item>
                   <item row="6" column="0">
                    <widget class="Line" name="line_2">
+                    <property name="frameShadow">
+                     <enum>QFrame::Plain</enum>
+                    </property>
                     <property name="orientation">
                      <enum>Qt::Horizontal</enum>
                     </property>
@@ -3818,6 +3827,12 @@
               <layout class="QGridLayout" name="gridLayout_25">
                <item row="2" column="0">
                 <widget class="QScrollArea" name="scrollArea_7">
+                 <property name="frameShape">
+                  <enum>QFrame::StyledPanel</enum>
+                 </property>
+                 <property name="frameShadow">
+                  <enum>QFrame::Plain</enum>
+                 </property>
                  <property name="widgetResizable">
                   <bool>true</bool>
                  </property>

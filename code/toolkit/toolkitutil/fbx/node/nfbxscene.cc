@@ -459,7 +459,7 @@ void
 NFbxScene::Flatten()
 {
 	// create dictionary containing meshes
-	Dictionary<String, Array<Ptr<NFbxMeshNode> > > meshes;
+	Dictionary<String, Array<Ptr<NFbxMeshNode> > > meshNodes;
 	IndexT numRoots = this->rootNodes.Size();
 	IndexT rootIndex;
 
@@ -467,7 +467,7 @@ NFbxScene::Flatten()
 	for (rootIndex = 0; rootIndex < numRoots; rootIndex++)
 	{
 		Ptr<NFbxNode> rootNode = this->rootNodes[rootIndex];
-		rootNode->MergeChildren(meshes);
+		rootNode->MergeChildren(meshNodes);
 	}
 
 	// we should now be able to remove our meshes from the scene
@@ -479,11 +479,14 @@ NFbxScene::Flatten()
 	// create group index
 	IndexT groupIndex = 0;
 
+	// create group index for physics
+	IndexT physicsGroupIndex = 0;
+
 	// the hierarchy is now flat, next task is to merge meshes with the same material
 	IndexT i;
-	for (i = 0; i < meshes.Size(); i++)
+	for (i = 0; i < meshNodes.Size(); i++)
 	{
-		bool physics = meshes.KeyAtIndex(i) == "physics";
+		bool physics = meshNodes.KeyAtIndex(i) == "physics";
 
 		// pick mesh source
 		if (physics)
@@ -496,7 +499,7 @@ NFbxScene::Flatten()
 		}
 		
 		// get list of meshes for material
-		Array<Ptr<NFbxMeshNode> > meshList = meshes.ValueAtIndex(i);
+		Array<Ptr<NFbxMeshNode> > meshList = meshNodes.ValueAtIndex(i);
 
 		// create list of lod nodes
 		Array<Ptr<NFbxMeshNode> > lodList;
@@ -513,7 +516,7 @@ NFbxScene::Flatten()
 		mergedBox.begin_extend();
 
 		// create counter for physics
-		IndexT physicsCounter = 0;
+		IndexT physicsNodeIndex = 0;
 
 		// keep track of if the last node as a LODded node
 		bool previousWasLOD = false;
@@ -538,12 +541,10 @@ NFbxScene::Flatten()
 			if (physics)
 			{
 				// set new group id for physics
-				meshNode->SetGroupId(physicsCounter);
+				meshNode->SetGroupId(physicsNodeIndex);
 
 				// then add node to physics node
 				this->physicsNodes.Append(meshNode);
-
-				physicsCounter++;
 			}
 			
 			MeshBuilder* meshSource = meshNode->GetMesh();
@@ -611,7 +612,14 @@ NFbxScene::Flatten()
 
 				if (fragments.Size() == 0)
 				{
-					tri.SetGroupId(groupIndex);
+					if (physics)
+					{
+						tri.SetGroupId(physicsGroupIndex);
+					}
+					else
+					{
+						tri.SetGroupId(groupIndex);
+					}
 				}
 
 				// add triangle to mesh
@@ -628,6 +636,12 @@ NFbxScene::Flatten()
 			{
 				previousWasLOD = false;
 			}
+
+			if (physics)
+			{
+				physicsGroupIndex++;
+				physicsNodeIndex++;
+			}
 		}
 
 		// clear mesh list
@@ -642,7 +656,8 @@ NFbxScene::Flatten()
 		// delete physics from node list
 		if (physics)
 		{
-			meshes.EraseAtIndex(i--);		
+			meshNodes.EraseAtIndex(i--);
+			physicsGroupIndex++;
 		}
 		else
 		{
@@ -658,7 +673,7 @@ NFbxScene::Flatten()
 			meshList.AppendArray(lodList);
 
 			// now set list back
-			meshes[meshes.KeyAtIndex(i)] = meshList;
+			meshNodes[meshNodes.KeyAtIndex(i)] = meshList;
 
 			// add lod nodes if present
 			if (!lodList.IsEmpty())
