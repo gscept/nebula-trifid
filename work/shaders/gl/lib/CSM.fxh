@@ -194,7 +194,7 @@ CSMPS(in vec4 TexShadow,
 	
 	// finally clamp all shadow values 0.5, this avoids any weird color differences when blending between cascades
 	Debug = DebugColors[cascadeIndex];
-	//return smoothstep(0.95f, 1.0f, occlusion);
+	//return smoothstep(0.25f, 0.65f, occlusion);
 	return occlusion;
 }
 

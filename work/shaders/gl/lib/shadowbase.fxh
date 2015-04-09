@@ -521,6 +521,33 @@ psShadowAlpha(in vec2 UV,
 [earlydepth]
 shader
 void
+psESM(in vec2 UV,
+	  in vec4 ProjPos,
+	  [color0] out float ShadowColor)
+{
+	ShadowColor = (ProjPos.z/ProjPos.w) * ShadowConstant;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+shader
+void
+psESMAlpha(in vec2 UV,
+	  in vec4 ProjPos,
+	  [color0] out float ShadowColor)
+{
+	float alpha = texture(DiffuseMap, UV).a;
+	if (alpha < AlphaSensitivity) discard;
+	ShadowColor = (ProjPos.z/ProjPos.w) * ShadowConstant;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+[earlydepth]
+shader
+void
 psVSM(in vec2 UV,
 	in vec4 ProjPos,
 	[color0] out vec2 ShadowColor) 
@@ -613,4 +640,18 @@ ChebyshevUpperBound(vec2 Moments, float t, float tolerance)
 	return p_max;  
 } 
 
+
+const float DepthScaling = 100.0f;
+const float DarkeningFactor = 100.0f;
+//------------------------------------------------------------------------------
+/**
+*/
+float
+ExponentialShadowSample(float mapDepth, float depth, float bias)
+{
+	float receiverDepth = DepthScaling * depth - bias;
+    float occluderReceiverDistance = mapDepth - receiverDepth;
+    float occlusion = saturate(exp(DarkeningFactor * occluderReceiverDistance));  
+    return occlusion;
+}
 #endif // SHADOWBASE_FXH

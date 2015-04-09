@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="icons">
+    <file>icons/stefan.jpg</file>
     <file>qtaddons/resourcebrowser/ui/folder_512.png</file>
     <file>icons/grid.png</file>
     <file>contentbrowser/code/NCB.ico</file>

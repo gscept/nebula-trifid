@@ -392,7 +392,7 @@
           <x>0</x>
           <y>0</y>
           <width>259</width>
-          <height>566</height>
+          <height>222</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -496,7 +496,7 @@
           <x>0</x>
           <y>0</y>
           <width>259</width>
-          <height>241</height>
+          <height>585</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout">
@@ -614,6 +614,10 @@
    <property name="enabled">
     <bool>false</bool>
    </property>
+   <property name="icon">
+    <iconset resource="../../resources.qrc">
+     <normaloff>:/icons/icons/stefan.jpg</normaloff>:/icons/icons/stefan.jpg</iconset>
+   </property>
    <property name="text">
     <string>Save</string>
    </property>
@@ -625,6 +629,10 @@
    <property name="checkable">
     <bool>false</bool>
    </property>
+   <property name="icon">
+    <iconset resource="../../resources.qrc">
+     <normaloff>:/icons/icons/stefan.jpg</normaloff>:/icons/icons/stefan.jpg</iconset>
+   </property>
    <property name="text">
     <string>Save As...</string>
    </property>
@@ -633,6 +641,10 @@
    </property>
   </action>
   <action name="actionLoad">
+   <property name="icon">
+    <iconset resource="../../resources.qrc">
+     <normaloff>:/icons/icons/stefan.jpg</normaloff>:/icons/icons/stefan.jpg</iconset>
+   </property>
    <property name="text">
     <string>Load</string>
    </property>
@@ -955,7 +967,6 @@
  </customwidgets>
  <resources>
   <include location="../../resources.qrc"/>
-  <include location="../../../../../Users/Gustav/resources.qrc"/>
  </resources>
  <connections/>
 </ui>
