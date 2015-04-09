@@ -157,13 +157,13 @@ DebugDrawer::drawBox(const btVector3& bbMin, const btVector3& bbMax, const btVec
 */
 void	
 DebugDrawer::drawBox(const btVector3& bbMin, const btVector3& bbMax, const btTransform& trans, const btVector3& color)
-{
-	btVector3 halfExtents = (bbMax-bbMin)* 0.5f;
-	btVector3 center = (bbMax+bbMin) *0.5f;
-	point bcenter(center.x(),center.y(),center.z());
-	bbox box(bcenter,Bt2NebVector(halfExtents));
-	box.transform(Bt2NebTransform(trans));
-	DebugShapeRenderer::Instance()->DrawBox(box.to_matrix44(), float4(color.x(),color.y(),color.z(),1),CoreGraphics::RenderShape::Wireframe);
+{	
+	bbox box;
+	box.pmin = Bt2NebVector(bbMin);
+	box.pmax = Bt2NebVector(bbMax);
+	matrix44 boxShape = box.to_matrix44();
+	boxShape = matrix44::multiply(boxShape, Bt2NebTransform(trans));
+	DebugShapeRenderer::Instance()->DrawBox(boxShape, float4(color.x(),color.y(),color.z(),1),CoreGraphics::RenderShape::Wireframe);
 }
 
 } // namespace Bullet
