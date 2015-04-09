@@ -78,7 +78,7 @@ private:
 
 	Timing::Time lastUpdate;
 	DebugDrawer* debugDrawer;
-	Util::Array<Math::float4> debugPrimtives;
+	Util::Array<Math::float4> debugPrimitives;
 
 
 	btDynamicsWorld * GetWorld();
