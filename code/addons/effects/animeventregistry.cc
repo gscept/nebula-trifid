@@ -140,8 +140,7 @@ AnimEventRegistry::LoadAttachmentEvents(const Util::StringAtom &tableName)
 
         Util::StringAtom id = reader->GetString(Attr::AnimEventName);
         Util::StringAtom res = reader->GetString(Attr::Resource);
-        Util::StringAtom joint = reader->GetString(Attr::Joint);
-        bool keepLocal = reader->GetBool(Attr::KeepLocalPosition);
+        Util::StringAtom joint = reader->GetString(Attr::Joint);        
         Util::String rotation = reader->GetString(Attr::Rotation);
         Timing::Time time = reader->GetFloat(Attr::Duration);
 
