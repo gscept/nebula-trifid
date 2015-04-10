@@ -5,7 +5,7 @@
   
     Specialized managed resource for physics meshes.
     
-    (C) 2012 Johannes Hirche
+	(C) 2012-2015 Individual contributors, see AUTHORS file
 */
 #include "resources/managedresource.h"
 #include "physics/resource/physicsmesh.h"

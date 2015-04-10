@@ -6,7 +6,7 @@
     Provides static helper functions to convert from and to Direct3D
     data types and enumerations.
     
-    (C) 2007 Radon Labs GmbH
+    (C) 2012-2015 Individual contributors, see AUTHORS file
 */
 #include "core/types.h"
 #include "coregraphics/pixelformat.h"

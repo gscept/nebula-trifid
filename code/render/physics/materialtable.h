@@ -6,7 +6,8 @@
 
     Contains material properties and friction coefficients.
     
-    (C) 2012 Johannes Hirche
+	(C) 2003 RadonLabs GmbH
+	(C) 2012-2015 Individual contributors, see AUTHORS file
 */
 #include "core/types.h"
 #include "util/string.h"

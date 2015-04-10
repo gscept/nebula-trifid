@@ -1,3 +1,7 @@
+//------------------------------------------------------------------------------
+//  bulletslider.cc
+//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "btBulletCollisionCommon.h"
 #include "btBulletDynamicsCommon.h"
@@ -20,7 +24,9 @@ BulletSlider::BulletSlider()
 	/// empty
 }
 
-
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 BulletSlider::Setup(const Math::matrix44 & frameA, const Math::matrix44 & frameB)
 {
@@ -31,7 +37,9 @@ BulletSlider::Setup(const Math::matrix44 & frameA, const Math::matrix44 & frameB
 
 }
 
-
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 BulletSlider::SetAngularLimits(float low, float high)
 {
@@ -40,6 +48,9 @@ BulletSlider::SetAngularLimits(float low, float high)
 	((btSliderConstraint*)this->constraint)->setUpperAngLimit(high);
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 BulletSlider::SetLinearLimits(float low, float high)
 {
@@ -48,7 +59,9 @@ BulletSlider::SetLinearLimits(float low, float high)
 	((btSliderConstraint*)this->constraint)->setUpperLinLimit(high);
 }
 
-
+//------------------------------------------------------------------------------
+/**
+*/
 float 
 BulletSlider::GetAngularLowLimit()
 {
@@ -56,13 +69,18 @@ BulletSlider::GetAngularLowLimit()
 	return ((btSliderConstraint*)this->constraint)->getLowerAngLimit();
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 float 
 BulletSlider::GetAngularHighLimit()
 {
 	return ((btSliderConstraint*)this->constraint)->getUpperAngLimit();
 }
 
-
+//------------------------------------------------------------------------------
+/**
+*/
 float 
 BulletSlider::GetLinearLowLimit()
 {
@@ -70,13 +88,18 @@ BulletSlider::GetLinearLowLimit()
 	return ((btSliderConstraint*)this->constraint)->getLowerLinLimit();
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 float 
 BulletSlider::GetLinearHighLimit()
 {
 	return ((btSliderConstraint*)this->constraint)->getUpperLinLimit();
 }
 
-
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 BulletSlider::SetAngularMotor(float targetVelocity, float maxImpulse)
 {
@@ -86,6 +109,9 @@ BulletSlider::SetAngularMotor(float targetVelocity, float maxImpulse)
 
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 BulletSlider::SetEnableAngularMotor(bool enable)
 {
@@ -93,6 +119,9 @@ BulletSlider::SetEnableAngularMotor(bool enable)
 	((btSliderConstraint*)this->constraint)->setPoweredAngMotor(enable);
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 BulletSlider::SetLinearMotor(float targetVelocity, float maxImpulse)
 {
@@ -102,7 +131,9 @@ BulletSlider::SetLinearMotor(float targetVelocity, float maxImpulse)
 
 }
 
-
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 BulletSlider::SetEnableLinearMotor(bool enable)
 {
@@ -117,7 +148,9 @@ BulletSlider::GetLinearPosition()
 	n_assert(this->constraint != NULL);
 	return ((btSliderConstraint*)this->constraint)->getLinearPos();
 }
-
+//------------------------------------------------------------------------------
+/**
+*/
 float 
 BulletSlider::GetAngularPosition()
 {
@@ -125,4 +158,4 @@ BulletSlider::GetAngularPosition()
 	return ((btSliderConstraint*)this->constraint)->getAngularPos();
 }
 
-} // namespace
+} // namespace Bullet

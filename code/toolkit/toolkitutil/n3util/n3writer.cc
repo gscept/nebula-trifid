@@ -715,6 +715,22 @@ N3Writer::BeginPhysicsNode(const Util::String& name)
 //------------------------------------------------------------------------------
 /**
 */
+void
+N3Writer::BeginColliders()
+{
+	this->modelWriter->BeginColliderNode();
+}
+//------------------------------------------------------------------------------
+/**
+*/
+void
+N3Writer::EndColliders()
+{
+	this->modelWriter->EndColliderNode();
+}
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 N3Writer::WritePhysicsColliders(const Util::String& name, const Util::Array<Physics::ColliderDescription> & colliders)
 {

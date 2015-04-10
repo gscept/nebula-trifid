@@ -138,6 +138,15 @@ BinaryModelWriter::BeginPhysicsNode(const Util::String& name)
 /**
 */
 void
+BinaryModelWriter::BeginColliderNode()
+{
+	this->writer->WriteUInt(FourCC('>CLR').AsUInt());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 BinaryModelWriter::EndPhysicsNode()
 {
 	this->writer->WriteUInt(FourCC('<PHN').AsUInt());
@@ -169,6 +178,15 @@ void
 BinaryModelWriter::EndTag()
 {
     // empty
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+BinaryModelWriter::EndColliderNode()
+{
+	this->writer->WriteUInt(FourCC('<CLR').AsUInt());
 }
 
 //------------------------------------------------------------------------------

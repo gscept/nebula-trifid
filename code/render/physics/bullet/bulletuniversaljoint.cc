@@ -1,27 +1,32 @@
+//------------------------------------------------------------------------------
+//  bulletuniversaljoint.cc
+//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "btBulletCollisionCommon.h"
 #include "btBulletDynamicsCommon.h"
 #include "physics/bullet/conversion.h"
 #include "physics/bullet/bulletuniversaljoint.h"
 
-
-namespace Bullet
-{
-
 using namespace Math;
 using namespace Physics;
 
+namespace Bullet
+{
+__ImplementClass(Bullet::BulletUniversalJoint, 'PBUN', Physics::BaseUniversalJoint);
 
-	__ImplementClass(Bullet::BulletUniversalJoint, 'PBUN', Physics::BaseUniversalJoint);
 
-
+//------------------------------------------------------------------------------
+/**
+*/
 BulletUniversalJoint::BulletUniversalJoint()
 {
 	/// empty
 }
 
-
-
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 BulletUniversalJoint::Setup(const Math::vector & anchor, const Math::vector & axisA, const Math::vector & axisB)
 {
@@ -30,6 +35,9 @@ BulletUniversalJoint::Setup(const Math::vector & anchor, const Math::vector & ax
 		Neb2BtVector(anchor),Neb2BtVector(axisA),Neb2BtVector(axisB)));
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 float 
 BulletUniversalJoint::GetAxisAngleA()
 {
@@ -37,6 +45,9 @@ BulletUniversalJoint::GetAxisAngleA()
 	return ((btUniversalConstraint*)this->constraint)->getAngle1();
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 float 
 BulletUniversalJoint::GetAxisAngleB()
 {
@@ -44,7 +55,9 @@ BulletUniversalJoint::GetAxisAngleB()
 	return ((btUniversalConstraint*)this->constraint)->getAngle2();
 }
 
-
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 BulletUniversalJoint::SetLowLimits(float A, float B)
 {
@@ -52,12 +65,13 @@ BulletUniversalJoint::SetLowLimits(float A, float B)
 	((btUniversalConstraint*)this->constraint)->setLowerLimit(A,B);
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 BulletUniversalJoint::SetHighLimits(float A, float B)
 {
 	n_assert(this->constraint != NULL);
 	((btUniversalConstraint*)this->constraint)->setUpperLimit(A,B);
 }
-
-
 }

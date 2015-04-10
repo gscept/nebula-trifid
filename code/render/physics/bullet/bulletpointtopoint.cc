@@ -1,26 +1,32 @@
+//------------------------------------------------------------------------------
+//  bulletpointpoint.cc
+//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "btBulletCollisionCommon.h"
 #include "btBulletDynamicsCommon.h"
 #include "physics/bullet/conversion.h"
 #include "physics/bullet/bulletpointtopoint.h"
 
-
-namespace Bullet
-{
-
 using namespace Math;
 using namespace Physics;
 
+namespace Bullet
+{
+__ImplementClass(Bullet::BulletPointToPoint, 'PBPP', Physics::BasePointToPoint);
 
-	__ImplementClass(Bullet::BulletPointToPoint, 'PBPP', Physics::BasePointToPoint);
 
-
+//------------------------------------------------------------------------------
+/**
+*/
 BulletPointToPoint::BulletPointToPoint()
 {
 	/// empty
 }
 
-
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 BulletPointToPoint::Setup(const Math::vector & pivot)
 {
@@ -29,6 +35,9 @@ BulletPointToPoint::Setup(const Math::vector & pivot)
 
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 BulletPointToPoint::Setup(const Math::vector & pivotA, const Math::vector & pivotB)
 {
@@ -38,7 +47,9 @@ BulletPointToPoint::Setup(const Math::vector & pivotA, const Math::vector & pivo
 		Neb2BtVector(pivotB)));
 }
 
-
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 BulletPointToPoint::SetPivotA(const Math::vector & pivot)
 {
@@ -46,6 +57,9 @@ BulletPointToPoint::SetPivotA(const Math::vector & pivot)
 	((btPoint2PointConstraint*)this->constraint)->setPivotA(Neb2BtVector(pivot));
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 BulletPointToPoint::SetPivotB(const Math::vector & pivot)
 {
@@ -53,6 +67,9 @@ BulletPointToPoint::SetPivotB(const Math::vector & pivot)
 	((btPoint2PointConstraint*)this->constraint)->setPivotB(Neb2BtVector(pivot));
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 Math::vector
 BulletPointToPoint::GetPivotA()
 {
@@ -62,6 +79,9 @@ BulletPointToPoint::GetPivotA()
 
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 Math::vector  
 BulletPointToPoint::GetPivotB()
 {
@@ -71,7 +91,9 @@ BulletPointToPoint::GetPivotB()
 
 }
 
-
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 BulletPointToPoint::SetJointParams(float tau, float damping, float impulseclamp)
 {

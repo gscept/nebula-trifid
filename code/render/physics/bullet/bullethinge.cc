@@ -1,3 +1,7 @@
+//------------------------------------------------------------------------------
+//  bullethinge.cc
+//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "btBulletCollisionCommon.h"
 #include "btBulletDynamicsCommon.h"
@@ -20,7 +24,9 @@ BulletHinge::BulletHinge()
 	/// empty
 }
 
-
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 BulletHinge::Setup(const Math::vector & pivot, const Math::vector & axis )
 {
@@ -29,6 +35,9 @@ BulletHinge::Setup(const Math::vector & pivot, const Math::vector & axis )
 
 }
 	
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 BulletHinge::Setup(const Math::vector & pivotA, const Math::vector & axisInA, const Math::vector & pivotB, const Math::vector & axisInB)
 {
@@ -39,7 +48,9 @@ BulletHinge::Setup(const Math::vector & pivotA, const Math::vector & axisInA, co
 		
 }
 
-
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 BulletHinge::SetLimits(float low, float high)
 {
@@ -47,6 +58,9 @@ BulletHinge::SetLimits(float low, float high)
 	((btHingeConstraint*)this->constraint)->setLimit(low,high);
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 float 
 BulletHinge::GetLowLimit()
 {
@@ -54,6 +68,9 @@ BulletHinge::GetLowLimit()
 	return ((btHingeConstraint*)this->constraint)->getLowerLimit();
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 float 
 BulletHinge::GetHighLimit()
 {
@@ -68,6 +85,9 @@ BulletHinge::SetAxis(const Math::vector & axis)
 	((btHingeConstraint*)this->constraint)->setAxis(ax);
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 BulletHinge::SetAngularMotor(float targetVelocity, float maxImpulse)
 {
@@ -75,6 +95,9 @@ BulletHinge::SetAngularMotor(float targetVelocity, float maxImpulse)
 	((btHingeConstraint*)this->constraint)->enableAngularMotor(false, targetVelocity,maxImpulse);
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 BulletHinge::SetEnableAngularMotor(bool enable)
 {
@@ -83,6 +106,9 @@ BulletHinge::SetEnableAngularMotor(bool enable)
 
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 float 
 BulletHinge::GetHingeAngle()
 {
@@ -91,4 +117,4 @@ BulletHinge::GetHingeAngle()
 
 }
 
-} // namespace
+} // namespace Bullet

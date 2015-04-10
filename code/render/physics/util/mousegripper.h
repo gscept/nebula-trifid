@@ -8,7 +8,7 @@
     attached to the mouse, so that the user can intuitively manipulate
     the physics objects around him.
     
-    (C) 2012 Johannes Hirche, LTU Skelleftea
+    (C) 2012-2015 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
 #include "core/ptr.h"
@@ -69,6 +69,7 @@ public:
 
 	/// attach to center of object instead of the actual contact point
 	void SetUseCenter(bool center);
+	///
 	bool GetUseCenter() const;
 
 private:

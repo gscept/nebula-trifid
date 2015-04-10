@@ -1,4 +1,9 @@
 #pragma once
+//------------------------------------------------------------------------------
+/**
+
+	(C) 2012-2015 Individual contributors, see AUTHORS file
+*/
 #include "math/vector.h"
 #include "util/string.h"
 #include "physics/materialtable.h"

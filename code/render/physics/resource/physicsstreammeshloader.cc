@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  physicsstreammeshloader.cc
-//  (C) 2012 Johannes Hirche
+//  (C) 2012-2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "physics/resource/physicsstreammeshloader.h"
@@ -45,11 +45,11 @@ PhysicsStreamMeshLoader::SetupResourceFromStream(const Ptr<Stream>& stream)
 
 		float *vertexData = nvx2Reader->GetVertexData();
 		uint *indexData = (uint*)nvx2Reader->GetIndexData(); 
-
+		res->SetMeshData(vertexData, nvx2Reader->GetNumVertices(), nvx2Reader->GetVertexWidth(), indexData, nvx2Reader->GetNumIndices());
 		for(int i=0;i < groups.Size();i++)
 		{
 			n_assert2(groups[i].GetPrimitiveTopology() == PrimitiveTopology::TriangleList,"Only triangle lists are supported");
-			res->AddMeshComponent(i,&(vertexData[groups[i].GetBaseVertex()]),groups[i].GetNumVertices(),nvx2Reader->GetVertexWidth(),&(indexData[groups[i].GetBaseIndex()]),groups[i].GetNumPrimitives());		
+			res->AddMeshComponent(i, groups[i]);
 		}		
         nvx2Reader->Close();
         return true;

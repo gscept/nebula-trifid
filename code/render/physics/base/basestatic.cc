@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-//  physics/basestatic.cc
+//  basestatic.cc
 //  (C) 2013-2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
@@ -8,8 +8,11 @@
 
 namespace Physics
 {
-	__ImplementAbstractClass(Physics::BaseStatic, 'PBBS', Physics::PhysicsObject);
+__ImplementAbstractClass(Physics::BaseStatic, 'PBBS', Physics::PhysicsObject);
 
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 BaseStatic::SetupFromTemplate(const PhysicsCommon & templ)
 {

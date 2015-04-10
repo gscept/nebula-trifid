@@ -1,4 +1,10 @@
 #pragma once
+//------------------------------------------------------------------------------
+/**
+	@class Bullet::BulletStatic
+	
+	(C) 2012-2015 Individual contributors, see AUTHORS file
+*/
 #include "physics/base/basestatic.h"
 
 
@@ -24,8 +30,11 @@ public:
 	/// destructor
 	virtual ~BulletStatic();
 
+	/// set collider category
 	void SetCollideCategory(Physics::CollideCategory coll);
+	/// set collision filter
 	void SetCollideFilter(uint mask);
+	/// update transform
 	virtual void SetTransform(const Math::matrix44 & trans);
 
 	
@@ -33,7 +42,9 @@ public:
 protected:
 	friend class Scene;
 
+	///
 	void Attach(Physics::BaseScene * inWorld);
+	///
 	void Detach();
 
 	btDynamicsWorld * world;

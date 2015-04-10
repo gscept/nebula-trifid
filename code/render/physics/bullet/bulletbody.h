@@ -1,4 +1,10 @@
 #pragma once
+//------------------------------------------------------------------------------
+/**
+	@class Bullet::BulletBody
+
+	(C) 2012-2015 Individual contributors, see AUTHORS file
+*/
 #include "physics/base/basebody.h"
 
 

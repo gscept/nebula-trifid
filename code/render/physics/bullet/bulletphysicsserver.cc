@@ -1,3 +1,7 @@
+//------------------------------------------------------------------------------
+//  bulletphysicsserver.cc
+//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "btBulletCollisionCommon.h"
 #include "btBulletDynamicsCommon.h"
@@ -17,6 +21,9 @@ __ImplementClass(Bullet::BulletPhysicsServer, 'PBPS', Physics::BasePhysicsServer
 using namespace Math;
 using namespace Physics;
 
+//------------------------------------------------------------------------------
+/**
+*/
 void
 BulletPhysicsServer::HandleCollisions()
 {

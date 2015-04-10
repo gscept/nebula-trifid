@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-//  physics/physicsserverbase.cc
+//  physicsserverbase.cc
 //  (C) 2013-2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"

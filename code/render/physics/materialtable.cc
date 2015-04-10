@@ -1,6 +1,7 @@
 //------------------------------------------------------------------------------
 //  physics/materialtable.cc
 //  (C) 2003 RadonLabs GmbH
+//  (C) 2012-2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "physics/materialtable.h"

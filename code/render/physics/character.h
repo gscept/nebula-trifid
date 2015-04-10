@@ -3,7 +3,7 @@
 /**
 	Physics::Character
 
-    (C) 2013 Gustav Sterbrant
+	(C) 2013-2015 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #if (__USE_BULLET__)

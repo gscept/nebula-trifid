@@ -1,5 +1,10 @@
 #pragma once
+//------------------------------------------------------------------------------
+/**
+	@class Physics::PhysicsModel
 
+	(C) 2012-2015 Individual contributors, see AUTHORS file
+*/
 #include "resources/resource.h"
 #include "physics/physicsobject.h"
 #include "physics/physicsbody.h"
@@ -22,13 +27,16 @@ public:
     /// tries to create an instance from the resource using provided descriptions in the resource, will assert if only colliders
     Util::Array<Ptr<Physics::PhysicsObject>> CreateInstance();
 
+	/// return if model contains any physics objects
     bool HasObjects();
 
+	/// set name of object
     void SetName(const Util::String & name);
+	///
     const Util::String & GetName();
+	/// retrieve colliders contained in model
     const Util::HashTable<Util::String, Ptr<Physics::Collider>> & GetColliders();
-
-
+	
 protected:
     friend class PhysicsStreamModelLoader;
     Util::String name;

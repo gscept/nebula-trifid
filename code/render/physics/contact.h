@@ -3,7 +3,7 @@
 /**
     Contact stub
 
-	(C) 2013 gscept
+	(C) 2013-2015 Individual contributors, see AUTHORS file
 */
 #if (__USE_BULLET__)
 #include "physics/base/basecontact.h"

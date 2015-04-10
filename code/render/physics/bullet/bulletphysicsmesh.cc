@@ -1,3 +1,7 @@
+//------------------------------------------------------------------------------
+//  bulletphysicsmesh.cc
+//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "btBulletCollisionCommon.h"
 #include "btBulletDynamicsCommon.h"
@@ -5,28 +9,32 @@
 #include "physics/bullet/bulletphysicsmesh.h"
 #include "BulletCollision/Gimpact/btGImpactShape.h"
 
+using namespace Physics;
+
 namespace Bullet
 {
 
-	using namespace Physics;
-
 __ImplementClass(Bullet::BulletPhysicsMesh,'PBPM', Physics::PhysicsMeshBase);
 
+//------------------------------------------------------------------------------
+/**
+*/
 BulletPhysicsMesh::BulletPhysicsMesh() 
 {
 
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
 BulletPhysicsMesh::~BulletPhysicsMesh()
 {
-	Util::Array<btIndexedMesh> meshdata = this->meshes.ValuesAsArray();
-	for(int i=0;i<meshdata.Size();i++)
-	{
-		Memory::Free(Memory::PhysicsHeap,(void*)meshdata[i].m_triangleIndexBase);
-		Memory::Free(Memory::PhysicsHeap,(void*)meshdata[i].m_vertexBase);
-	}
 	this->meshes.Clear();
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 btCollisionShape* 
 BulletPhysicsMesh::GetShape(int primGroup, MeshTopologyType meshType)
 {
@@ -82,35 +90,33 @@ BulletPhysicsMesh::GetShape(int primGroup, MeshTopologyType meshType)
 		n_error("Not implemented mesh topology type");
 
 	}
-
-
 	return shape;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 void
-BulletPhysicsMesh::AddMeshComponent(int id, float * vertexData, uint numVertices, uint verticeStride, uint * indexData, uint numTriangles)
+BulletPhysicsMesh::AddMeshComponent(int id, const CoreGraphics::PrimitiveGroup& group)
 {
 	
 	btIndexedMesh meshData;
 	meshData.m_indexType = PHY_INTEGER;
 	
-	meshData.m_numTriangles = numTriangles;
-	meshData.m_numVertices = numVertices;
+	meshData.m_numTriangles = group.GetNumPrimitives();
+	meshData.m_numVertices = group.GetNumVertices();
 
-	size_t indexbytes = numTriangles * sizeof(uint) * 3;
-	meshData.m_triangleIndexBase = (unsigned char*)Memory::Alloc(Memory::PhysicsHeap, indexbytes );
-	Memory::Copy(indexData,(void*)meshData.m_triangleIndexBase,indexbytes);
+	size_t indexbytes = meshData.m_numTriangles * sizeof(uint) * 3;
+	meshData.m_triangleIndexBase = (const unsigned char*)&(this->indexData[group.GetBaseIndex()]);	
 				
-	size_t vertexbytes = numVertices * verticeStride * sizeof(float);
-	meshData.m_vertexBase = (unsigned char*)Memory::Alloc(Memory::PhysicsHeap,vertexbytes);
-	Memory::Copy(vertexData,(void*)meshData.m_vertexBase,vertexbytes);
+	size_t vertexbytes = meshData.m_numVertices * this->vertexStride * sizeof(float);
+	meshData.m_vertexBase = (const unsigned char*)this->vertexData;
+	
 	meshData.m_triangleIndexStride = 3 * sizeof(uint);
-	meshData.m_vertexStride = verticeStride * sizeof(float);
+	meshData.m_vertexStride = this->vertexStride * sizeof(float);
 	meshData.m_vertexType = PHY_FLOAT;
 			
-	this->meshes.Add(id,meshData);
-	
+	this->meshes.Add(id,meshData);	
 }
-
 
 }

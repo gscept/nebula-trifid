@@ -1,4 +1,10 @@
 #pragma once
+//------------------------------------------------------------------------------
+/**
+	@class Bullet::BulletProbe
+
+	(C) 2012-2015 Individual contributors, see AUTHORS file
+*/
 #include "physics/base/baseprobe.h"
 
 

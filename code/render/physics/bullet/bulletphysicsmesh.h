@@ -1,7 +1,13 @@
 #pragma once
+//------------------------------------------------------------------------------
+/**
+	@class Bullet::BulletPhysicsMesh
 
+	(C) 2012-2015 Individual contributors, see AUTHORS file
+*/
 #include "physics/resource/physicsmeshbase.h"
 #include "physics/model/templates.h"
+#include "coregraphics/primitivegroup.h"
 
 class btCollisionShape;
 class btBvhTriangleMeshShape;
@@ -16,14 +22,17 @@ class BulletPhysicsMesh : public Physics::PhysicsMeshBase
 {
 	__DeclareClass(BulletPhysicsMesh);
 public:
+	/// constructor
 	BulletPhysicsMesh();
+	/// destructor
 	~BulletPhysicsMesh();
 	
-	virtual void AddMeshComponent(int id, float * vertexData, uint numVertices, uint verticeStride, uint * indexData,  uint numTriangles);
-
-	btCollisionShape* GetShape(int primGroup,Physics::MeshTopologyType meshtype);
+	/// define a mesh component (primitivegroup)
+	virtual void AddMeshComponent(int id, const CoreGraphics::PrimitiveGroup& group);
+	/// create a collisionshape object from a primitivegroup
+	btCollisionShape* GetShape(int primGroup, Physics::MeshTopologyType meshtype);
 private:	
-		Util::Dictionary<int,btIndexedMesh> meshes;
+	Util::Dictionary<int,btIndexedMesh> meshes;
 
 };
 }	

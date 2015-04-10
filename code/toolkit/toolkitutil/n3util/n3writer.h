@@ -70,6 +70,10 @@ public:
 	void BeginParticleModel(const Util::String& name, const Transform& transform, const Util::String& meshResource, const State& state, const Util::String& material,  const Particles::EmitterAttrs& emitterAttrs );
 	/// wrapper function for writing  a physics node
 	void BeginPhysicsNode(const Util::String& name);
+	/// begins colliders section
+	void BeginColliders();
+	/// end colliders
+	void EndColliders();
 	/// writes physics colliders
 	void WritePhysicsColliders(const Util::String& name, const Util::Array<Physics::ColliderDescription> & colliders);	
 	/// writes physics objects
