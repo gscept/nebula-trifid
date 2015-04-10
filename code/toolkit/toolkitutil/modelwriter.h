@@ -39,6 +39,8 @@ public:
     virtual bool BeginModelNode(const Util::String& className, Util::FourCC classFourCC, const Util::String& name) = 0;
 	/// begin writing a physics node
 	virtual bool BeginPhysicsNode(const Util::String& name) = 0;
+	/// begin collider node
+	virtual void BeginColliderNode() = 0;
     /// begin a data tag
     virtual void BeginTag(const Util::String& name, Util::FourCC tagFourCC) = 0;
     /// write int value
@@ -57,6 +59,8 @@ public:
     virtual void WriteIntArray(const Util::Array<int>& a) = 0;
     /// end a data tag
     virtual void EndTag() = 0;
+	/// end a collider node
+	virtual void EndColliderNode() = 0;
 	/// end a physics node
 	virtual void EndPhysicsNode() = 0;
     /// end a model node

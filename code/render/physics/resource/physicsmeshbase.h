@@ -1,7 +1,12 @@
 #pragma once
+//------------------------------------------------------------------------------
+/**
+	@class Physics::PhysicsMeshBase
 
+	(C) 2012-2015 Individual contributors, see AUTHORS file
+*/
 #include "resources/resource.h"
-#include "coregraphics/indextype.h"
+#include "coregraphics/primitivegroup.h"
 
 
 namespace Physics
@@ -11,10 +16,19 @@ class PhysicsMeshBase : public Resources::Resource
 {
 	__DeclareClass(PhysicsMeshBase);
 public:
-	PhysicsMeshBase(){}
-	virtual ~PhysicsMeshBase(){};
+	/// constructor
+	PhysicsMeshBase();
+	/// destructor
+	virtual ~PhysicsMeshBase();
 	
-	virtual void AddMeshComponent(int id, float * vertexData, uint numVertices, uint verticeStride, uint * indexData, uint numTriangles) = 0;
+	/// copy vertex and index buffers to mesh object
+	virtual void SetMeshData(float * vertexData, uint numVertices, uint verticeStride, uint * indexData, uint numIndices);
+	/// declare a mesh component
+	virtual void AddMeshComponent(int id, const CoreGraphics::PrimitiveGroup& group) = 0;
+protected:
+	uint * indexData;
+	float * vertexData;
+	uint vertexStride;
 };
 
 }

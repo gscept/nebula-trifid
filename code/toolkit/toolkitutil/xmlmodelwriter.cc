@@ -127,6 +127,15 @@ XmlModelWriter::BeginPhysicsNode(const String& name)
 /**
 */
 void
+XmlModelWriter::BeginColliderNode()
+{
+	this->writer->BeginNode("ColliderNode");
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 XmlModelWriter::EndPhysicsNode()
 {
 	this->writer->EndNode();
@@ -160,6 +169,15 @@ void
 XmlModelWriter::EndTag()
 {
     this->writer->EndNode();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+XmlModelWriter::EndColliderNode()
+{
+	this->writer->EndNode();
 }
 
 //------------------------------------------------------------------------------

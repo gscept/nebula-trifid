@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  physicsstreammodelloader.cc
-//  (C) 2012 Johannes Hirche
+//  (C) 2012-2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "physics/resource/physicsstreammodelloader.h"
@@ -119,12 +119,16 @@ PhysicsStreamModelLoader::ParseData(const Ptr<Physics::PhysicsModel>& model,cons
 		FourCC tag = reader->ReadUInt();
 		if(tag == FourCC('>MND'))
 			continue;					
+		if (tag == FourCC('>CLR'))
+			continue;
+		if (tag == FourCC('<MND'))
+			continue;
 		if(tag == FourCC('CLGR'))
 		{
 			String name = reader->ReadString();
 			this->ParseCollider(model,name,reader);					
 		}
-		else if(tag == FourCC('<MND'))
+		else if(tag == FourCC('<CLR'))
 		{
 			done = true;
 		}

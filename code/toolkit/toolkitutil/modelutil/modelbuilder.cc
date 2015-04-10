@@ -196,6 +196,7 @@ void
 ModelBuilder::WritePhysics( const Ptr<N3Writer>& writer )
 {
 	writer->BeginPhysicsNode("physics");	
+	writer->BeginColliders();
 	switch(this->physics->GetExportMode())
 	{
 		case UseBoundingBox:
@@ -362,7 +363,7 @@ ModelBuilder::WritePhysics( const Ptr<N3Writer>& writer )
 		default:
 			n_error("not implemented");
 	}
-	
+	writer->EndColliders();
 	writer->EndPhysicsNode();
 }
 

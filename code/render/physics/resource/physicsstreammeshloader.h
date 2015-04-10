@@ -8,7 +8,7 @@
     - nvx3 (Nebula3 binary mesh file format)
     
     
-    (C) 2012 Johannes Hirche
+    (C) 2012-2015 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "resources/streamresourceloader.h"
