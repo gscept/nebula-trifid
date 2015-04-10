@@ -8,19 +8,19 @@
   <!-- deferred geometry for opaque geometry -->
   <DeclareRenderTarget format="A8R8G8B8" relHeight="1" msaa="false" relWidth="1" name="NormalBuffer"/>
   <DeclareRenderTarget format="R32F" relHeight="1" msaa="false" relWidth="1" name="DepthBuffer"/>  
-  <DeclareRenderTarget format="A16B16G16R16F" depthTarget="DefaultDepthBuffer" relHeight="1" msaa="true" relWidth="1" name="AlbedoBuffer"/>
-  <DeclareRenderTarget format="A16B16G16R16F" relHeight="1" msaa="true" relWidth="1" name="SpecularBuffer"/>
+  <DeclareRenderTarget format="A8R8G8B8" depthTarget="DefaultDepthBuffer" relHeight="1" msaa="true" relWidth="1" name="AlbedoBuffer"/>
+  <DeclareRenderTarget format="A8R8G8B8" relHeight="1" msaa="true" relWidth="1" name="SpecularBuffer"/>
   <DeclareRenderTarget format="A16B16G16R16F" relHeight="1" msaa="true" relWidth="1" name="EmissiveBuffer"/>
   <DeclareRenderTarget format="A16B16G16R16F" depthTarget="DefaultDepthBuffer" relHeight="1" msaa="false" relWidth="1" name="LightBuffer"/>  
   
   <!-- buffer used for god ray projection -->
-  <DeclareRenderTarget format="A16B16G16R16F" depthTarget="DefaultDepthBuffer" relHeight="1" msaa="false" relWidth="1" name="UnshadedBuffer"/>
+  <DeclareRenderTarget format="A8R8G8B8" depthTarget="DefaultDepthBuffer" relHeight="1" msaa="false" relWidth="1" name="UnshadedBuffer"/>
   
   <!-- deferred geometry for alpha geometry -->
   <DeclareRenderTarget format="A8R8G8B8" relHeight="1" msaa="false" relWidth="1" name="AlphaNormalBuffer"/>
   <DeclareRenderTarget format="R32F" relHeight="1" msaa="false" relWidth="1" name="AlphaDepthBuffer"/>  
-  <DeclareRenderTarget format="A16B16G16R16F" relHeight="1" msaa="false" relWidth="1" name="AlphaAlbedoBuffer"/>
-  <DeclareRenderTarget format="A16B16G16R16F" relHeight="1" msaa="false" relWidth="1" name="AlphaSpecularBuffer"/>  
+  <DeclareRenderTarget format="A8R8G8B8" relHeight="1" msaa="false" relWidth="1" name="AlphaAlbedoBuffer"/>
+  <DeclareRenderTarget format="A8R8G8B8" relHeight="1" msaa="false" relWidth="1" name="AlphaSpecularBuffer"/>  
   <DeclareRenderTarget format="A16B16G16R16F" relHeight="1" msaa="false" relWidth="1" name="AlphaEmissiveBuffer"/>
   <DeclareRenderTarget format="A16B16G16R16F" relHeight="1" msaa="false" relWidth="1" name="AlphaLightBuffer"/>
   
