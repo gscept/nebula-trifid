@@ -5,7 +5,7 @@
 
 	Abstract class for most physics-object classes to derive from.
         
-    (C) 2012 Johannes Hirche, LTU Skelleftea
+	(C) 2012-2015 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
 #include "math/matrix44.h"
@@ -29,9 +29,14 @@ class PhysicsUserData : public Core::RefCounted
 {	
 	__DeclareClass(PhysicsUserData);
 public:
+	/// constructor
 	PhysicsUserData():physicsObject(NULL),enableCollisionCallback(false){}
+
+	/// pointer to physics object used in simulation
 	PhysicsObject* physicsObject;
+	/// pointer to object used on nebulas side, can be 0
 	Ptr<Core::RefCounted> object;
+	/// enabling collision callbacks 
 	bool enableCollisionCallback;
 };
 
@@ -44,23 +49,30 @@ public:
 	/// an unique physics id
 	typedef unsigned int Id;
 
+	/// constructor
 	PhysicsObject();
+	/// destructor
 	virtual ~PhysicsObject();
-
-
-
+	
+	/// render debug representation of object
 	virtual void RenderDebug();
 
+	/// set transform
 	virtual void SetTransform(const Math::matrix44 & trans);
+	/// get transform
 	virtual const Math::matrix44 & GetTransform();
 
 	/// get pointer to Collider we are attached to
 	const Ptr<Collider>& GetCollider() const;
 
+	/// set collider category
 	virtual void SetCollideCategory(CollideCategory coll);
+	/// get collider category
 	CollideCategory GetCollideCategory() const;	
 
+	/// set collision filter
 	virtual void SetCollideFilter(uint mask);
+	/// get collision filter
 	uint GetCollideFilter() const;
 
 	/// get the objects unique id
@@ -86,34 +98,45 @@ public:
 	/// get enabled/disabled state of the object
 	virtual bool IsEnabled() const;
 
+	/// set material
 	void SetMaterialType(MaterialType t);
+	/// get material
 	MaterialType GetMaterialType() const;
+	/// set user data (normally a PhysicsUserData object
 	void SetUserData(const Ptr<RefCounted> & object);
+	/// get user data
 	PhysicsUserData* GetUserData() const;
 
+	/// enable collision feedback (enable callbacks)
 	virtual void SetEnableCollisionCallback(bool enable);
+	/// callbacks enabled
 	bool GetEnableCollisionCallback();
 
+	/// create a object from stream, will create subclass depending on resource
 	static Util::Array<Ptr<PhysicsObject>> CreateFromStream(const Util::String & filename, const Math::matrix44 & transform);
+	/// create a new physics object using the descripting in the template
 	static Ptr<PhysicsObject> CreateFromTemplate(const PhysicsCommon & tmpl);	
+	/// get template used for creation
 	PhysicsCommon & GetTemplate();
 
 protected:
-
 	friend class BaseScene;
+	///
 	virtual void Attach(BaseScene * world) = 0;
+	///
 	virtual void Detach() = 0;
+	///
 	virtual void SetupFromTemplate(const PhysicsCommon & tmpl);
-	bool enabled;
-	Ptr<PhysicsUserData> userData;
-	Math::matrix44 transform;
+
 	
+	Ptr<PhysicsUserData> userData;
+	Math::matrix44 transform;	
 	Id uniqueId;
 	PhysicsCommon common;
+	bool enabled;
 	bool attached;
 private:
-	static Id uniqueIdCounter;
-	
+	static Id uniqueIdCounter;	
 };
 
 inline PhysicsCommon & 

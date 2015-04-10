@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-//  Physics/baseprobe.cc
+//  baseprobe.cc
 //  (C) 2013-2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
@@ -10,6 +10,9 @@ namespace Physics
 {
 	__ImplementAbstractClass(Physics::BaseProbe, 'PBPR', Physics::StaticObject);
 
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 BaseProbe::Init(const Ptr<Collider> & coll, const Math::matrix44 & trans)
 {

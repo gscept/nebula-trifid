@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  physics/explosionareaimpulse.cc
-//  (C) 2012 Johannes Hirche, LTU Skelleftea
+//  (C) 2012-2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "physics/util/explosionareaimpulse.h"

@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
-//  Physics/bullet/bulletstatic.cc
-//  (C) Johannes Hirche, LTU Skelleftea
+//  bulletstatic.cc
+//  (C) 2012-2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "physics/bullet/bulletstatic.h"
@@ -36,6 +36,9 @@ BulletStatic::~BulletStatic()
 	this->common.collider = 0;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 BulletStatic::Attach(Physics::BaseScene * inWorld)
 {
@@ -54,6 +57,9 @@ BulletStatic::Attach(Physics::BaseScene * inWorld)
 	this->attached = true;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 void
 BulletStatic::Detach()
 {
@@ -64,12 +70,18 @@ BulletStatic::Detach()
 	this->attached = false;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 BulletStatic::SetCollideCategory(Physics::CollideCategory coll)
 {
 	PhysicsObject::SetCollideCategory(coll);
 	this->collObj->getBroadphaseHandle()->m_collisionFilterGroup = coll;
 }
+//------------------------------------------------------------------------------
+/**
+*/
 
 void 
 BulletStatic::SetCollideFilter(uint mask)
@@ -79,6 +91,9 @@ BulletStatic::SetCollideFilter(uint mask)
 
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 void
 BulletStatic::SetTransform(const Math::matrix44 & itrans)
 {

@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
-//  Physics/bullet/bulletstatic.cc
-//  (C) Johannes Hirche, LTU Skelleftea
+//  bulletprobe.cc
+//  (C) 2012-2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "physics/bullet/bulletprobe.h"
@@ -13,23 +13,24 @@
 #include "physics/physicsprobe.h"
 #include <typeinfo>
 
-
-namespace Bullet
-{
-
 using namespace Physics;
 using namespace Util;
 
+namespace Bullet
+{
 __ImplementClass(Bullet::BulletProbe, 'PBRO', Physics::BaseStatic);
 
-	//------------------------------------------------------------------------------
-	/**
-	*/
+//------------------------------------------------------------------------------
+/**
+*/
 BulletProbe::BulletProbe() : ghost(NULL)    
 {	
 	this->common.type = Physics::PhysicsProbe::RTTI.GetFourCC();
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 BulletProbe::~BulletProbe()
 {
 	if(this->attached)
@@ -38,6 +39,10 @@ BulletProbe::~BulletProbe()
 	}
 	this->common.collider = 0;
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 BulletProbe::Attach(Physics::BaseScene * inWorld)
 {
@@ -60,6 +65,9 @@ BulletProbe::Attach(Physics::BaseScene * inWorld)
 	this->common.collideFilterMask = this->ghost->getBroadphaseHandle()->m_collisionFilterMask;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 Util::Array<Ptr<Core::RefCounted>> 
 BulletProbe::GetOverlappingObjects()
 {	
@@ -83,6 +91,9 @@ BulletProbe::GetOverlappingObjects()
 	return ret;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 void
 BulletProbe::Detach()
 {
@@ -92,6 +103,9 @@ BulletProbe::Detach()
 	this->ghost = 0;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 BulletProbe::SetCollideCategory(Physics::CollideCategory coll)
 {
@@ -99,6 +113,9 @@ BulletProbe::SetCollideCategory(Physics::CollideCategory coll)
 	this->ghost->getBroadphaseHandle()->m_collisionFilterGroup = coll;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 BulletProbe::SetCollideFilter(uint mask)
 {
@@ -107,6 +124,9 @@ BulletProbe::SetCollideFilter(uint mask)
 
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 void
 BulletProbe::SetTransform(const Math::matrix44 & itrans)
 {

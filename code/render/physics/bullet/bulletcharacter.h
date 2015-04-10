@@ -5,7 +5,7 @@
     
     Implements a bullet-specific character
     
-    (C) 2013 Individual contributors, see AUTHORS file
+    (C) 2013-2015 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "physics/base/basecharacter.h"
@@ -53,7 +53,9 @@ public:
     /// set crouching
     void SetCrouching(bool enable);
 	
+	/// set collide category
 	void SetCollideCategory(Physics::CollideCategory coll);
+	/// set collide filter
 	void SetCollideFilter(uint mask);
 
 protected:

@@ -1,5 +1,10 @@
 #pragma once
+//------------------------------------------------------------------------------
+/**
+	@class Bullet::BulletPhysicsServer
 
+	(C) 2012-2015 Individual contributors, see AUTHORS file
+*/
 #include "physics/base/physicsserverbase.h"
 
 namespace Bullet

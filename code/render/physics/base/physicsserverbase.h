@@ -1,10 +1,9 @@
-#ifndef PHYSICS_SERVER_H
-#define PHYSICS_SERVER_H
+#pragma once
 //------------------------------------------------------------------------------
 /**
-    @class Physics::PhysicsServer
+    @class Physics::BasePhysicsServer
 
-    The physics subsystem server object.
+    The physics subsystem server object base class.
 
     (C) 2013-2015 Individual contributors, see AUTHORS file
 */
@@ -224,5 +223,3 @@ BasePhysicsServer::GetInitVisualDebuggerFlag() const
 
 }; // namespace Physics
 //------------------------------------------------------------------------------
-#endif
-

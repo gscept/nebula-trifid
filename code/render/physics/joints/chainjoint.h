@@ -5,7 +5,7 @@
 
     A physics Joint
 
-    (C) 2013 gscept, LTU Skelleftea
+	(C) 2013-2015 Individual contributors, see AUTHORS file
 */
 
 #if (__USE_BULLET__)

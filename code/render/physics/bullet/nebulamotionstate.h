@@ -1,9 +1,9 @@
 #pragma once
 //------------------------------------------------------------------------------
 /**
-    @class NebulaMotionState
+    @class Bullet::NebulaMotionState
 
-    (C) 2012 Johannes Hirche
+    (C) 2012-2015 Individual contributors, see AUTHORS file
 */
 
 #include "LinearMath/btMotionState.h"
@@ -15,16 +15,18 @@ namespace Bullet
 class NebulaMotionState : public btMotionState
 {
 public:	
+	/// constructor
 	NebulaMotionState(BulletBody*b): body(b) {}
 
-	~NebulaMotionState()
-	{		
-	}
+	/// destructor
+	~NebulaMotionState(){}
+	
+	/// get current world transform
 	virtual void getWorldTransform(btTransform& worldTrans) const
 	{
 		worldTrans = Neb2BtM44Transform(this->transform);
 	}
-	
+	/// set world transform, called by bullets simulation
 	virtual void setWorldTransform(const btTransform& worldTransform)
 	{
         this->transform = Bt2NebTransform(worldTransform);		

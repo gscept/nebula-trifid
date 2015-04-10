@@ -1,4 +1,10 @@
 #pragma once
+//------------------------------------------------------------------------------
+/**
+	@class Bullet::BulletJoint
+
+	(C) 2012-2015 Individual contributors, see AUTHORS file
+*/
 #include "physics/base/basejoint.h"
 #include "physics/base/basescene.h"
 
@@ -33,26 +39,38 @@ public:
 	/// render debug visualization
 	virtual void RenderDebug();
 
-
+	/// enable joint
 	void SetEnabled(bool b);
 
+	/// is enabled
 	bool IsEnabled() const;
 
+	/// setup joint object from description data
 	bool Setup(const Physics::JointDescription & desc);
 
+	/// set breaking threshhold
 	void SetBreakThreshold(float threshold);
+	/// get breaking threshold
 	float GetBreakThreshold();
 
+	///
 	void SetERP(float ERP, int axis = 0 );
+	///
 	void SetCFM(float CFM, int axis = 0);
 
+	///
 	void SetStoppingERP(float ERP, int axis = 0);
+	///
 	void SetStoppingCFM(float CFM, int axis = 0);
 
+	///
 	float GetERP(int axis = 0);
+	///
 	float GetCFM(int axis = 0);
 
+	///
 	float GetStoppingERP(int axis = 0);
+	///
 	float GetStoppingCFM(int axis = 0);
 
 

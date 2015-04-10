@@ -1,3 +1,7 @@
+//------------------------------------------------------------------------------
+//  bulletjoint.cc
+//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "btBulletCollisionCommon.h"
 #include "btBulletDynamicsCommon.h"
@@ -14,13 +18,17 @@ namespace Bullet
 using namespace Math;
 using namespace Physics;
 
+//------------------------------------------------------------------------------
+/**
+*/
 BulletJoint::BulletJoint() : constraint(NULL)
 {
 	/// empty
 }
 
-
-
+//------------------------------------------------------------------------------
+/**
+*/
 BulletJoint::~BulletJoint() 
 {
 	if (this->IsAttached())
@@ -29,7 +37,9 @@ BulletJoint::~BulletJoint()
 	}
 }
 
-
+//------------------------------------------------------------------------------
+/**
+*/
 bool 
 BulletJoint::Setup(const Physics::JointDescription & desc)
 {
@@ -90,6 +100,9 @@ BulletJoint::Setup(const Physics::JointDescription & desc)
 	return false;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 void BulletJoint::Attach(BaseScene* world)
 {
 	n_assert(this->constraint);
@@ -99,12 +112,18 @@ void BulletJoint::Attach(BaseScene* world)
 	this->isAttached = true;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 void BulletJoint::SetEnabled(bool b)
 {
 	n_assert(this->constraint);
 	this->constraint->setEnabled(b);
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 bool BulletJoint::IsEnabled() const
 {
 	n_assert(this->constraint);
@@ -140,6 +159,9 @@ BulletJoint::UpdateTransform(const Math::matrix44& m)
     // empty
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 BulletJoint::SetBreakThreshold(float threshold)
 {
@@ -147,6 +169,9 @@ BulletJoint::SetBreakThreshold(float threshold)
 	this->constraint->setBreakingImpulseThreshold(threshold);
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 float 
 BulletJoint::GetBreakThreshold()
 {
@@ -154,13 +179,18 @@ BulletJoint::GetBreakThreshold()
 	return this->constraint->getBreakingImpulseThreshold();
 }
 
-
+//------------------------------------------------------------------------------
+/**
+*/
 void
 BulletJoint::RenderDebug()
 {
-
+	// empty
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 BulletJoint::SetERP(float ERP, int axis )
 {
@@ -169,6 +199,9 @@ BulletJoint::SetERP(float ERP, int axis )
 
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 BulletJoint::SetCFM(float CFM, int axis  )
 {
@@ -177,6 +210,9 @@ BulletJoint::SetCFM(float CFM, int axis  )
 
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 BulletJoint::SetStoppingCFM(float CFM, int axis  )
 {
@@ -185,7 +221,9 @@ BulletJoint::SetStoppingCFM(float CFM, int axis  )
 
 }
 
-
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 BulletJoint::SetStoppingERP(float ERP, int axis  )
 {
@@ -194,7 +232,9 @@ BulletJoint::SetStoppingERP(float ERP, int axis  )
 
 }
 
-
+//------------------------------------------------------------------------------
+/**
+*/
 float
 BulletJoint::GetERP(int axis  )
 {
@@ -203,7 +243,9 @@ BulletJoint::GetERP(int axis  )
 
 }
 
-
+//------------------------------------------------------------------------------
+/**
+*/
 float
 BulletJoint::GetCFM(int axis )
 {
@@ -212,6 +254,9 @@ BulletJoint::GetCFM(int axis )
 
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 float
 BulletJoint::GetStoppingERP(int axis )
 {
@@ -220,7 +265,9 @@ BulletJoint::GetStoppingERP(int axis )
 
 }
 
-
+//------------------------------------------------------------------------------
+/**
+*/
 float
 BulletJoint::GetStoppingCFM(int axis  )
 {

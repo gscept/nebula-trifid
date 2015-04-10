@@ -1,4 +1,10 @@
 #pragma once
+//------------------------------------------------------------------------------
+/**
+@class Bullet::BulletHinge
+
+(C) 2012-2015 Individual contributors, see AUTHORS file
+*/
 #include "physics/joints/basehinge.h"
 #include "physics/base/basescene.h"
 

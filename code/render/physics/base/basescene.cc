@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-//  Physics/basescene.cc
+//  basescene.cc
 //  (C) 2013-2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 
@@ -7,9 +7,10 @@
 #include "physics/base/basescene.h"
 #include "physics/physicsbody.h"
 #include "physics/collider.h"
+
 namespace Physics
 {
-	__ImplementAbstractClass(Physics::BaseScene, 'PBSB', Core::RefCounted);
+__ImplementAbstractClass(Physics::BaseScene, 'PBSB', Core::RefCounted);
 
 //------------------------------------------------------------------------------
 /**

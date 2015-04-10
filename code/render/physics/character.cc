@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  physicsbody.cc
-//  (C) 2013 Gustav Sterbrant
+//  (C) 2013-2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "physics/character.h"

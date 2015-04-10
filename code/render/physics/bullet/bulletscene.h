@@ -1,5 +1,10 @@
 #pragma once
+//------------------------------------------------------------------------------
+/**
+	@class Bullet::BulletScene
 
+	(C) 2012-2015 Individual contributors, see AUTHORS file
+*/
 #include "physics/base/basescene.h"
 #include "physics/physicsobject.h"
 

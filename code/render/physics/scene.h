@@ -5,7 +5,7 @@
 
     A physics Scene
 
-    (C) 2012 Johannes Hirche, LTU Skelleftea
+    (C) 2012-2015 Individual contributors, see AUTHORS file
 */
 #if (__USE_BULLET__)
 #include "physics/bullet/bulletscene.h"

@@ -4,7 +4,7 @@
     Bullet Raycallback overloads supporting filtersets
 	pretty much copy paste from btcollisionworld. not really pretty but it seems to be the only way
     
-    (C) 2013 Johannes Hirche, LTU Skelleftea
+    (C) 2013-2015 Individual contributors, see AUTHORS file
 */
 
 #include "BulletCollision/CollisionDispatch/btCollisionWorld.h"

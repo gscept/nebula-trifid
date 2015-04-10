@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  chainjoint.cc
-//  (C) 2013 gscept, LTU Skelleftea
+//  (C) 2012-2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "physics/joints/chainjoint.h"
