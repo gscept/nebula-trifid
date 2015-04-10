@@ -8,8 +8,8 @@
 #include "lib/techniques.fxh"
 
 vec2 UVToViewA = vec2(0.0f, 0.0f);
-vec2 AOResolution = vec2(0.0f, 0.0f);
 vec2 UVToViewB = vec2(0.0f, 0.0f);
+vec2 AOResolution = vec2(0.0f, 0.0f);
 vec2 InvAOResolution = vec2(0.0f, 0.0f);
 float TanAngleBias = 0.0f;
 float Strength = 0.0f;
@@ -27,7 +27,6 @@ float R2 = 0.0f;
 
 sampler2D DepthBuffer;
 sampler2D RandomMap;
-sampler2D FirstPassAO;
 readwrite r16f image2D HBAO0;
 write rg16f image2D HBAO1;
 
@@ -200,8 +199,9 @@ csMainX()
         float2 T = MinDiff(P, Pr, Pl);
 
         float ao = ComputeHBAO(P, T, centerId);
-		imageStore(HBAO0, int2(ox, oy), vec4(ao, 0, 0, 0));
+		imageStore(HBAO0, int2(ox, oy), vec4(ao, 1, 0, 0));
     }
+	imageStore(HBAO0, int2(writePos, gl_WorkGroupID.y), vec4(1, 1, 0, 0));
 }
 
 //------------------------------------------------------------------------------

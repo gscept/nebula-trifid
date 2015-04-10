@@ -253,7 +253,7 @@ SM50ShadowServer::Open()
 	// create pass
 	this->globalLightHotPass = FramePass::Create();
 	this->globalLightHotPass->SetRenderTarget(this->globalLightShadowBuffer);
-	this->globalLightHotPass->SetClearColor(float4(0, 0, 0, 0));
+	this->globalLightHotPass->SetClearColor(float4(-1, 0, 0, 0));
 	this->globalLightHotPass->SetClearDepth(1);
 	this->globalLightHotPass->SetClearFlags(RenderTarget::ClearColor | DepthStencilTarget::ClearDepth);
 	this->globalLightHotPass->SetName("GlobalLightHotPass");

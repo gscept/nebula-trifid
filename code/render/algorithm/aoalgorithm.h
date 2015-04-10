@@ -15,6 +15,10 @@
 #include "algorithmbase.h"
 #include "renderutil/drawfullscreenquad.h"
 
+// define this to use compute shaders for HBAO instead of pixel shader using a full screen quad
+//#define HBAO_COMPUTE 1
+
+
 namespace CoreGraphics
 {
 	class ShaderInstance;
@@ -62,28 +66,37 @@ private:
 	Ptr<CoreGraphics::ShaderInstance> hbao;
 	Ptr<CoreGraphics::ShaderInstance> blur;
 	Ptr<CoreGraphics::ShaderVariable> depthTextureVar;
-	Ptr<CoreGraphics::ShaderVariable> randomTextureVar;
+
+#ifdef HBAO_COMPUTE
+	Ptr<CoreGraphics::ShaderVariable> hbao0Var;
+	Ptr<CoreGraphics::ShaderVariable> hbao1Var;
+	Ptr<CoreGraphics::ShaderVariable> hbaoBlur0Var;
+	Ptr<CoreGraphics::ShaderVariable> hbaoBlur1Var;
+#else
 	Ptr<CoreGraphics::ShaderVariable> hbaoTextureVar;
     Ptr<CoreGraphics::ShaderVariable> hbaoBlurredTextureVar;
     Ptr<CoreGraphics::ShaderVariable> hbaoFinalTextureVar;
+	Ptr<CoreGraphics::ShaderVariable> randomTextureVar;
+	Ptr<CoreGraphics::Texture> randomTexture;
+	Ptr<CoreGraphics::ShaderVariable> rVar;
+	Ptr<CoreGraphics::ShaderVariable> focalLengthVar;
+	Ptr<CoreGraphics::ShaderVariable> maxRadiusPixelsVar;
+	Ptr<CoreGraphics::ShaderVariable> negInvR2Var;
+
+#endif
 
     Ptr<CoreGraphics::RenderTarget> internalTargets[2];
 	Ptr<CoreGraphics::RenderTarget> target;
 	Ptr<CoreGraphics::RenderTarget> output;
-	Ptr<CoreGraphics::Texture> randomTexture;
+	CoreGraphics::ShaderFeature::Mask xDirection;
+	CoreGraphics::ShaderFeature::Mask yDirection;
 
-    CoreGraphics::ShaderFeature::Mask xBlurShaderFeature;
-    CoreGraphics::ShaderFeature::Mask yBlurShaderFeature;
 
 	Ptr<CoreGraphics::ShaderVariable> uvToViewAVar;
 	Ptr<CoreGraphics::ShaderVariable> uvToViewBVar;
-	Ptr<CoreGraphics::ShaderVariable> rVar;
 	Ptr<CoreGraphics::ShaderVariable> r2Var;
-	Ptr<CoreGraphics::ShaderVariable> negInvR2Var;
-	Ptr<CoreGraphics::ShaderVariable> focalLengthVar;
 	Ptr<CoreGraphics::ShaderVariable> aoResolutionVar;
 	Ptr<CoreGraphics::ShaderVariable> invAOResolutionVar;
-	Ptr<CoreGraphics::ShaderVariable> maxRadiusPixelsVar;
 	Ptr<CoreGraphics::ShaderVariable> strengthVar;
 	Ptr<CoreGraphics::ShaderVariable> tanAngleBiasVar;
 	Ptr<CoreGraphics::ShaderVariable> powerExponentVar;

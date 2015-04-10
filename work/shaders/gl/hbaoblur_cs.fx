@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
-//  hbaoblur.fx
-//  (C) 2012 Gustav Sterbrant
+//  hbaoblur_cs.fx
+//  (C) 2014 Gustav Sterbrant
 //------------------------------------------------------------------------------
 
 #include "lib/std.fxh"
@@ -11,25 +11,8 @@ float PowerExponent = 1.0f;
 float BlurFalloff;
 float BlurDepthThreshold;
 
-sampler2D HBAOBuffer;
-write rg16f image2D HBAOBlurred;
-write r16f image2D HBAOFinal;
-
-samplerstate HBAOSampler
-{
-	Samplers = { HBAOBuffer };
-	AddressU = Border;
-	AddressV = Border;
-	Filter = Point;
-	BorderColor = { 0,0,0,0 };
-};
-
-state HBAOBlurState
-{
-	CullMode = Back;
-	DepthEnabled = false;
-	DepthWrite = false;
-};
+readwrite rg16f image2D HBAO0;
+write r16f image2D HBAO1;
 
 #define KERNEL_RADIUS 16
 #define HALF_KERNEL_RADIUS (KERNEL_RADIUS/2)
@@ -54,7 +37,7 @@ void
 csMainX() 
 {
 	// get full resolution and inverse full resolution
-	vec2 size = textureSize(HBAOBuffer, 0);
+	vec2 size = imageSize(HBAO0);
 	vec2 inverseSize = 1 / size;
 	
 	// calculate offsets
@@ -66,8 +49,8 @@ csMainX()
 	
 	const float x = apronStart + float(gl_LocalInvocationID.x) + 0.5f;
 	const float y = row;
-	const vec2 uv = (vec2(x,y) + 0.5f) * inverseSize;
-	SharedMemory[gl_LocalInvocationID.x] = textureLod(HBAOBuffer, uv, 0).rg;
+	const ivec2 uv = ivec2(vec2(x,y) + 0.5f);
+	SharedMemory[gl_LocalInvocationID.x] = imageLoad(HBAO0, uv).rg;
 	groupMemoryBarrier();
 	
 	const float writePos = tileStart + float(gl_LocalInvocationID.x);
@@ -77,7 +60,7 @@ csMainX()
 	{
 		// Fetch (ao,z) at the kernel center
 		vec2 uv = vec2(writePos, y);
-		vec2 AoDepth = texelFetch(HBAOBuffer, ivec2(uv), 0).rg;
+		vec2 AoDepth = imageLoad(HBAO0, ivec2(uv)).rg;
 		float ao_total = AoDepth.x;
 		float center_d = AoDepth.y;
 		float w_total = 1;
@@ -108,7 +91,7 @@ csMainX()
 		}
 		
 		float ao = ao_total / w_total;
-		imageStore(HBAOBlurred, int2(writePos, gl_WorkGroupID.y), vec4(ao, center_d, 0, 0));
+		imageStore(HBAO0, int2(writePos, gl_WorkGroupID.y), vec4(ao, center_d, 0, 0));
 	}
 }
 
@@ -122,7 +105,7 @@ void
 csMainY() 
 {
 	// get full resolution and inverse full resolution
-	vec2 size = textureSize(HBAOBuffer,  0);
+	vec2 size = imageSize(HBAO0);
 	vec2 inverseSize = 1 / size;
 	
 	// calculate offsets
@@ -134,8 +117,8 @@ csMainY()
 	
 	const float x = col;
 	const float y = apronStart + float(gl_LocalInvocationID.x) + 0.5f;
-	const vec2 uv = (vec2(x,y) + 0.5f) * inverseSize;
-	SharedMemory[gl_LocalInvocationID.x] = textureLod(HBAOBuffer, uv, 0).rg;
+	const ivec2 uv = ivec2(vec2(x,y) + 0.5f);
+	SharedMemory[gl_LocalInvocationID.x] = imageLoad(HBAO0, uv).rg;
 	groupMemoryBarrier();
 	
 	const float writePos = tileStart + float(gl_LocalInvocationID.x);
@@ -145,7 +128,7 @@ csMainY()
 	{
 		// Fetch (ao,z) at the kernel center
 		vec2 uv = vec2(x, writePos);
-		vec2 AoDepth = texelFetch(HBAOBuffer, ivec2(uv), 0).rg;
+		vec2 AoDepth = imageLoad(HBAO0, ivec2(uv)).rg;
 		float ao_total = AoDepth.x;
 		float center_d = AoDepth.y;
 		float w_total = 1;
@@ -176,7 +159,7 @@ csMainY()
 		}
 		
 		float ao = ao_total / w_total;
-		imageStore(HBAOFinal, int2(gl_WorkGroupID.y, writePos), vec4(pow(ao, PowerExponent),0,0,0));
+		imageStore(HBAO1, int2(gl_WorkGroupID.y, writePos), vec4(pow(ao, PowerExponent),0,0,0));
 	}
 }
 
