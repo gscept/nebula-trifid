@@ -10,7 +10,7 @@
 #include "physics/base/basecontact.h"
 
 #include <Common/Base/hkBase.h>
-#include <Physics/Dynamics/Collide/ContactListener/hkpContactPointEvent.h>
+#include <Physics2012/Dynamics/Collide/ContactListener/hkpContactPointEvent.h>
 //------------------------------------------------------------------------------
 namespace Havok
 {

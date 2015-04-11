@@ -1518,55 +1518,9 @@ ENDIF()
 		${Havok_SOURCE_DIR}/common/base/system/io/oarchive/hkoarchive.h
 		${Havok_SOURCE_DIR}/common/base/system/io/iarchive/hkiarchive.h
 		${Havok_SOURCE_DIR}/common/base/math/vector/hksimdreal.h
-		${Havok_SOURCE_DIR}/common/base/container/hkcontainerallocators.h
-
-		${Havok_SOURCE_DIR}/common/base/thread/job/threadpool/cpu/hkcpujobthreadpool.h
-		${Havok_SOURCE_DIR}/common/base/thread/job/threadpool/spu/hkspujobthreadpool.h
+		${Havok_SOURCE_DIR}/common/base/container/hkcontainerallocators.h		
 		${Havok_SOURCE_DIR}/common/base/thread/jobqueue/hkjobqueue.h
-		${Havok_SOURCE_DIR}/common/visualize/hkvisualdebugger.h
-		${Havok_SOURCE_DIR}/physics/utilities/visualdebugger/hkpphysicscontext.h
-		${Havok_SOURCE_DIR}/physics/utilities/visualdebugger/viewer/dynamics/hkpconstraintviewer.h
-
-		${Havok_SOURCE_DIR}/physics/collide/hkpcollide.h
-		${Havok_SOURCE_DIR}/physics/collide/agent/convexagent/spherebox/hkpsphereboxagent.h
-		${Havok_SOURCE_DIR}/physics/collide/shape/convex/box/hkpboxshape.h
-		${Havok_SOURCE_DIR}/physics/collide/shape/convex/cylinder/hkpcylindershape.h
-		${Havok_SOURCE_DIR}/physics/collide/shape/convex/capsule/hkpcapsuleshape.h
-		${Havok_SOURCE_DIR}/physics/collide/shape/convex/sphere/hkpsphereshape.h
-		${Havok_SOURCE_DIR}/physics/collide/shape/compound/collection/list/hkplistshape.h
-		${Havok_SOURCE_DIR}/physics/collide/shape/compound/tree/mopp/hkpmoppbvtreeshape.h
-		${Havok_SOURCE_DIR}/physics/collide/shape/compound/tree/mopp/hkpmopputility.h
-		${Havok_SOURCE_DIR}/physics/collide/shape/compound/collection/extendedmeshshape/hkpextendedmeshshape.h
-		${Havok_SOURCE_DIR}/physics/collide/shape/misc/transform/hkptransformshape.h
-		${Havok_SOURCE_DIR}/physics/collide/dispatch/hkpagentregisterutil.h
-		${Havok_SOURCE_DIR}/physics/utilities/collide/shapeutils/moppcodestreamer/hkpmoppcodestreamer.h
-		
-		${Havok_SOURCE_DIR}/physics/utilities/charactercontrol/hkpcharactercontrol.h
-		${Havok_SOURCE_DIR}/physics/utilities/charactercontrol/characterproxy/hkpcharacterproxy.h
-		${Havok_SOURCE_DIR}/physics/utilities/charactercontrol/statemachine/hkpcharactercontext.h
-		${Havok_SOURCE_DIR}/physics/utilities/charactercontrol/characterrigidbody/hkpcharacterrigidbody.h
-		${Havok_SOURCE_DIR}/physics/utilities/charactercontrol/characterrigidbody/hkpcharacterrigidbodycinfo.h
-        
-		
-		${Havok_SOURCE_DIR}/physics/collide/query/castutil/hkpworldraycastinput.h			
-		${Havok_SOURCE_DIR}/physics/collide/query/castutil/hkpworldraycastoutput.h		
-		${Havok_SOURCE_DIR}/physics/collide/query/collector/raycollector/hkpclosestrayhitcollector.h
-
-		${Havok_SOURCE_DIR}/physics/dynamics/collide/filter/constraint/hkpconstraintcollisionfilter.h
-		${Havok_SOURCE_DIR}/physics/dynamics/collide/contactlistener/hkpcontactlistener.h
-        
-        ${Havok_SOURCE_DIR}/physics/dynamics/constraint/bilateral/pointtoplane/hkppointtoplaneconstraintdata.h
-		${Havok_SOURCE_DIR}/physics/dynamics/constraint/bilateral/ragdoll/hkpragdollconstraintdata.h
-		${Havok_SOURCE_DIR}/physics/dynamics/constraint/bilateral/prismatic/hkpprismaticconstraintdata.h
-		${Havok_SOURCE_DIR}/physics/dynamics/constraint/motor/position/hkppositionconstraintmotor.h
-		${Havok_SOURCE_DIR}/physics/dynamics/constraint/chain/hkpconstraintchaininstance.h
-        ${Havok_SOURCE_DIR}/physics/dynamics/constraint/motor/velocity/hkpvelocityconstraintmotor.h
-
-		${Havok_SOURCE_DIR}/physics/dynamics/world/hkpworld.h
-		${Havok_SOURCE_DIR}/physics/dynamics/entity/hkprigidbody.h
-		${Havok_SOURCE_DIR}/physics/dynamics/constraint/hkpconstraintinstance.h
-		${Havok_SOURCE_DIR}/physics/utilities/dynamics/inertia/hkpinertiatensorcomputer.h
-
+		${Havok_SOURCE_DIR}/common/visualize/hkvisualdebugger.h		
 	)
 
 	SET(SOURCES_files_havok

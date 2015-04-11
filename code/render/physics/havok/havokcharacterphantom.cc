@@ -11,8 +11,8 @@
 #include "physics/scene.h"
 #include "debugrender/debugrender.h"
 
-#include <Physics/Dynamics/Phantom/hkpSimpleShapePhantom.h>
-#include <Physics/Utilities/CharacterControl/CharacterProxy/hkpCharacterProxy.h>
+#include <Physics2012/Dynamics/Phantom/hkpSimpleShapePhantom.h>
+#include <Physics2012/Utilities/CharacterControl/CharacterProxy/hkpCharacterProxy.h>
 #include "conversion.h"
 
 using namespace Math;

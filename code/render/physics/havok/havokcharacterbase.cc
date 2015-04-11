@@ -11,16 +11,16 @@
 #include "physics/scene.h"
 #include "debugrender/debugrender.h"
 
-#include <Physics/Collide/Shape/Convex/Capsule/hkpCapsuleShape.h>
-#include <Physics/Collide/Shape/Convex/Cylinder/hkpCylinderShape.h>
+#include <Physics2012/Collide/Shape/Convex/Capsule/hkpCapsuleShape.h>
+#include <Physics2012/Collide/Shape/Convex/Cylinder/hkpCylinderShape.h>
 
-#include <Physics/Collide/Filter/Group/hkpGroupFilter.h>
-#include <Physics/Utilities/CharacterControl/StateMachine/hkpCharacterContext.h>
-#include <Physics/Utilities/CharacterControl/StateMachine/hkpCharacterStateManager.h>
-#include <Physics/Utilities/CharacterControl/StateMachine/hkpCharacterState.h>
-#include <Physics/Utilities/CharacterControl/StateMachine/OnGround/hkpCharacterStateOnGround.h>
-#include <Physics/Utilities/CharacterControl/StateMachine/InAir/hkpCharacterStateInAir.h>
-#include <Physics/Utilities/CharacterControl/StateMachine/Jumping/hkpCharacterStateJumping.h>
+#include <Physics2012/Collide/Filter/Group/hkpGroupFilter.h>
+#include <Physics2012/Utilities/CharacterControl/StateMachine/hkpCharacterContext.h>
+#include <Physics2012/Utilities/CharacterControl/StateMachine/hkpCharacterStateManager.h>
+#include <Physics2012/Utilities/CharacterControl/StateMachine/hkpCharacterState.h>
+#include <Physics2012/Utilities/CharacterControl/StateMachine/OnGround/hkpCharacterStateOnGround.h>
+#include <Physics2012/Utilities/CharacterControl/StateMachine/InAir/hkpCharacterStateInAir.h>
+#include <Physics2012/Utilities/CharacterControl/StateMachine/Jumping/hkpCharacterStateJumping.h>
 
 namespace Havok
 {

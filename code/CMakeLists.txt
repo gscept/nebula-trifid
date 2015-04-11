@@ -88,28 +88,28 @@ IF(N_BUILD_HAVOK)
 		SET(Havok_LIB_DIR ${HAVOC_DIR}/Lib/win32_net_9-0)
 	ELSEIF(MSVC10)
 		SET(Havok_LIB_DIR ${HAVOC_DIR}/Lib/win32_vs2010)
+	ELSEIF(MSVC11)
+		SET(Havok_LIB_DIR ${HAVOC_DIR}/Lib/win32_vs2012_win7)
 	ENDIF()
 	
     # add the option to choose fulldebug/debug libraries
-    SET(HAVOK_DEFAULT_DEBUG_LIBS "fulldebug_multithreaded")
-    SET(HAVOK_DEBUG_LIBS ${HAVOK_DEFAULT_DEBUG_LIBS} CACHE STRING "Fulldebug supposedly allows debugging the havok source, but it produces hundreds of warnings when building in VS. See 1.5.4 Linking with Havok in the Quickstart Guide documentation for details about the fulldebug/debug libraries.")
-    SET_PROPERTY(CACHE HAVOK_DEBUG_LIBS PROPERTY STRINGS "debug_multithreaded" "fulldebug_multithreaded")
+    SET(HAVOK_DEFAULT_DEBUG_LIBS "dev")
+    SET(HAVOK_DEBUG_LIBS ${HAVOK_DEFAULT_DEBUG_LIBS} CACHE STRING "")
+    SET_PROPERTY(CACHE HAVOK_DEBUG_LIBS PROPERTY STRINGS "dev" "debug")
     SET(${HAVOK_DEBUG_LIBS} ON)
     
 	SET(Havok_dbg_lib ${Havok_LIB_DIR}/${HAVOK_DEBUG_LIBS})
-    SET(Havok_rel_lib ${Havok_LIB_DIR}/release_multithreaded)
+    SET(Havok_rel_lib ${Havok_LIB_DIR}/release)
 	
 	#FIXME this is fairly fugly but well, dont see any other way at the moment
 	
-	SET(N_LIBS ${N_LIBS} 
-	optimized ${Havok_rel_lib}/hctSdkUtils.lib
-	debug ${Havok_dbg_lib}/hctSdkUtils.lib
+	SET(N_LIBS ${N_LIBS} 	
 	optimized ${Havok_rel_lib}/hkaAnimation.lib
 	debug ${Havok_dbg_lib}/hkaAnimation.lib
 	optimized ${Havok_rel_lib}/hkaInternal.lib
 	debug ${Havok_dbg_lib}/hkaInternal.lib
-	optimized ${Havok_rel_lib}/hkaRagdoll.lib
-	debug ${Havok_dbg_lib}/hkaRagdoll.lib
+	optimized ${Havok_rel_lib}/hkaPhysics2012Bridge.lib
+	debug ${Havok_dbg_lib}/hkaPhysics2012Bridge.lib
 	optimized ${Havok_rel_lib}/hkBase.lib
 	debug ${Havok_dbg_lib}/hkBase.lib
 	optimized ${Havok_rel_lib}/hkcdCollide.lib
@@ -121,14 +121,15 @@ IF(N_BUILD_HAVOK)
 	optimized ${Havok_rel_lib}/hkgBridge.lib
 	debug ${Havok_dbg_lib}/hkgBridge.lib
 	optimized ${Havok_rel_lib}/hkgCommon.lib	
-	debug ${Havok_dbg_lib}/hkgCommon.lib	
-	
+	debug ${Havok_dbg_lib}/hkgCommon.lib		
 	optimized ${Havok_rel_lib}/hkGeometryUtilities.lib
 	debug ${Havok_dbg_lib}/hkGeometryUtilities.lib
 	optimized ${Havok_rel_lib}/hkInternal.lib
 	debug ${Havok_dbg_lib}/hkInternal.lib
 	optimized ${Havok_rel_lib}/hkpCollide.lib
 	debug ${Havok_dbg_lib}/hkpCollide.lib
+	optimized ${Havok_rel_lib}/hkpConstraint.lib
+	debug ${Havok_dbg_lib}/hkpConstraint.lib
 	optimized ${Havok_rel_lib}/hkpConstraintSolver.lib
 	debug ${Havok_dbg_lib}/hkpConstraintSolver.lib
 	optimized ${Havok_rel_lib}/hkpDynamics.lib

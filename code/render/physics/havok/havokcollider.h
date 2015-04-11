@@ -16,7 +16,7 @@
 #include "physics/model/templates.h"
 
 #include <Common/Base/hkBase.h>
-#include <Physics/Dynamics/Entity/hkpRigidBodyCinfo.h>
+#include <Physics2012/Dynamics/Entity/hkpRigidBodyCinfo.h>
 #include "Common/Base/Types/Geometry/hkGeometry.h"
 #include "havokdebugdrawer.h"
 

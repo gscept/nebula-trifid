@@ -13,8 +13,8 @@
 #include "physics/base/basecharacter.h"
 
 #include <Common/Base/Types/hkRefPtr.h>
-#include <Physics/Utilities/CharacterControl/CharacterProxy/hkpCharacterProxyCinfo.h>
-#include <Physics/Utilities/CharacterControl/StateMachine/hkpCharacterContext.h>
+#include <Physics2012/Utilities/CharacterControl/CharacterProxy/hkpCharacterProxyCinfo.h>
+#include <Physics2012/Utilities/CharacterControl/StateMachine/hkpCharacterContext.h>
 
 class hkpWorld;
 class hkpCharacterContext;

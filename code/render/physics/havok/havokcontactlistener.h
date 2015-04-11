@@ -13,7 +13,7 @@
 
 #include <Common/Base/hkBase.h>
 #include <Common/Base/Object/hkReferencedObject.h>
-#include <Physics/Dynamics/Collide/ContactListener/hkpContactListener.h>
+#include <Physics2012/Dynamics/Collide/ContactListener/hkpContactListener.h>
 //------------------------------------------------------------------------------
 
 namespace Physics

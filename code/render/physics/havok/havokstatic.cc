@@ -7,7 +7,7 @@
 #include "havokcontactlistener.h"
 #include "havokscene.h"
 
-#include <Physics/Collide/Shape/Compound/Collection/List/hkpListShape.h>
+#include <Physics2012/Collide/Shape/Compound/Collection/List/hkpListShape.h>
 
 namespace Havok
 {

@@ -10,9 +10,9 @@
 #include "debugrender/debugshaperenderer.h"
 #include "coregraphics/rendershape.h"
 
-#include <Physics/Dynamics/Entity/hkpRigidBody.h>
-#include <Physics/Collide/Shape/Compound/Collection/List/hkpListShape.h>
-#include <Physics/Utilities/Dynamics/Inertia/hkpInertiaTensorComputer.h>
+#include <Physics2012/Dynamics/Entity/hkpRigidBody.h>
+#include <Physics2012/Collide/Shape/Compound/Collection/List/hkpListShape.h>
+#include <Physics2012/Utilities/Dynamics/Inertia/hkpInertiaTensorComputer.h>
 
 namespace Havok
 {
@@ -106,7 +106,7 @@ HavokBody::SetupFromTemplate(const PhysicsCommon& templ)
 	if (-1 != templ.restitution) bodyInfo.m_restitution = templ.restitution;
 
 	//FIXME: This can be optimized so it the same shapelist isn't computed more than once
-	hkpMassProperties massResult;
+	hkMassProperties massResult;
 	this->ComputeMassProperties(bodyInfo.m_shape, templ.mass, massResult);
 	bodyInfo.m_centerOfMass = massResult.m_centerOfMass;
 	bodyInfo.m_inertiaTensor = massResult.m_inertiaTensor;
@@ -216,7 +216,7 @@ HavokBody::GetCenterOfMassWorld()
 /**
 */
 void 
-HavokBody::ComputeMassProperties(const hkpShape* shape, float mass, hkpMassProperties& outResult)
+HavokBody::ComputeMassProperties(const hkpShape* shape, float mass, hkMassProperties& outResult)
 {
 	n_assert(HK_NULL != shape);
 	hkpInertiaTensorComputer::computeShapeVolumeMassProperties(shape, mass, outResult);

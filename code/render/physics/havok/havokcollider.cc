@@ -7,18 +7,18 @@
 #include "havokdebugdrawer.h"
 #include "conversion.h"
 	
-#include <Physics/Collide/Shape/Convex/hkpConvexShape.h>							
-#include <Physics/Collide/Shape/Convex/Box/hkpBoxShape.h>					
-#include <Physics/Collide/Shape/Convex/Cylinder/hkpCylinderShape.h>
-#include <Physics/Collide/Shape/Convex/Capsule/hkpCapsuleShape.h>
-#include <Physics/Collide/Shape/Convex/Sphere/hkpSphereShape.h>
-#include <Physics/Collide/Shape/Misc/Transform/hkpTransformShape.h>	
-#include <Physics/Collide/Shape/Convex/ConvexTransform/hkpConvexTransformShape.h>
-#include <Physics/Collide/Shape/HeightField/Plane/hkpPlaneShape.h>
-#include <Physics/Internal/Collide/BvCompressedMesh/hkpBvCompressedMeshShape.h>
-#include <Physics/Collide/Shape/Convex/ConvexVertices/hkpConvexVerticesShape.h>
-#include <Physics/Collide/Shape/Convex/ConvexVertices/hkpConvexVerticesConnectivity.h>
-#include <Physics/Collide/Shape/Convex/ConvexVertices/hkpConvexVerticesConnectivityUtil.h>
+#include <Physics2012/Collide/Shape/Convex/hkpConvexShape.h>							
+#include <Physics2012/Collide/Shape/Convex/Box/hkpBoxShape.h>					
+#include <Physics2012/Collide/Shape/Convex/Cylinder/hkpCylinderShape.h>
+#include <Physics2012/Collide/Shape/Convex/Capsule/hkpCapsuleShape.h>
+#include <Physics2012/Collide/Shape/Convex/Sphere/hkpSphereShape.h>
+#include <Physics2012/Collide/Shape/Misc/Transform/hkpTransformShape.h>	
+#include <Physics2012/Collide/Shape/Convex/ConvexTransform/hkpConvexTransformShape.h>
+#include <Physics2012/Collide/Shape/HeightField/Plane/hkpPlaneShape.h>
+#include <Physics2012/Internal/Collide/BvCompressedMesh/hkpBvCompressedMeshShape.h>
+#include <Physics2012/Collide/Shape/Convex/ConvexVertices/hkpConvexVerticesShape.h>
+#include <Physics2012/Collide/Shape/Convex/ConvexVertices/hkpConvexVerticesConnectivity.h>
+#include <Physics2012/Collide/Shape/Convex/ConvexVertices/hkpConvexVerticesConnectivityUtil.h>
 
 namespace Havok
 {
