@@ -1691,7 +1691,8 @@ TARGET_LINK_LIBRARIES(render PUBLIC render_animjobsample render_animjobsamplemix
 
 IF(N_BUILD_HAVOK)
 	
-	FIND_PATH(HAVOC_DIR "Havok Limited Use License Agreement for PC XS 03-20-2013.txt"	${Nebula3_SOURCE_DIR}/libs/)				
+	#FIXME fugly, need a real havok detection
+	FIND_PATH(HAVOC_DIR "Havok Limited Use License Agreement for PC XS 03-20-2013.txt"	${Nebula3_SOURCE_DIR}/libs/hk2013_1_0_r1)				
 	SET(Havok_SOURCE_DIR ${HAVOC_DIR}/Source)	
 	if(MSVC90)
 		SET(Havok_LIB_DIR ${HAVOC_DIR}/Lib/win32_net_9-0)
