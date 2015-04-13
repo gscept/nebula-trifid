@@ -11,7 +11,7 @@
 #include "io/debug/iopagehandler.h"
 #include "io/logfileconsolehandler.h"
 #include "io/debug/consolepagehandler.h"
-#include "render/render_classregistry.h"
+#include "render_classregistry.h"
 #include "commandhandlers/createentitycommand.h"
 #include "messaging/messagecallbackhandler.h"
 #include "system/nebulasettings.h"

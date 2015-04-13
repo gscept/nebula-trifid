@@ -12,10 +12,10 @@
 #include "havokscene.h"
 #include "debugrender/debugrender.h"
 
-#include <Physics/Dynamics/Entity/hkpRigidBody.h>
-#include <Physics/Collide/Filter/Group/hkpGroupFilter.h>
-#include <Physics/Utilities/CharacterControl/StateMachine/hkpCharacterContext.h>
-#include <Physics/Utilities/CharacterControl/CharacterRigidBody/hkpCharacterRigidBody.h>
+#include <Physics2012/Dynamics/Entity/hkpRigidBody.h>
+#include <Physics2012/Collide/Filter/Group/hkpGroupFilter.h>
+#include <Physics2012/Utilities/CharacterControl/StateMachine/hkpCharacterContext.h>
+#include <Physics2012/Utilities/CharacterControl/CharacterRigidBody/hkpCharacterRigidBody.h>
 
 using namespace Math;
 

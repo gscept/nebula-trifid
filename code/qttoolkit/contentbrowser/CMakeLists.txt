@@ -164,8 +164,7 @@ ENDIF()
 N_SET_EXE_SUBSYSTEM(contentbrowser Windows)
 		
 
-ADD_DEPENDENCIES(contentbrowser
-	${NEBULA_DEFAULT_LIBS}
+ADD_DEPENDENCIES(contentbrowser	
 	libqimg
 	posteffectcontroller
 	splash
@@ -173,14 +172,12 @@ ADD_DEPENDENCIES(contentbrowser
 	shady
 	resourcebrowser
 	toolkitutil
-	remoteinterface
-	remoteinterface_NIDLS
-	qttoolkitutil
+	remoteinterface	
+	qttools
 	editorfeatures
 )
 
-TARGET_LINK_LIBRARIES(contentbrowser 
-	
+TARGET_LINK_LIBRARIES(contentbrowser 	
 	qtfeature
 	posteffectcontroller
 	libqimg
@@ -190,14 +187,9 @@ TARGET_LINK_LIBRARIES(contentbrowser
 	resourcebrowser
 	miniexporter
 	remoteinterface
-	remoteinterface_NIDLS
-	qttoolkitutil
+	qttools
 	editorfeatures
-	toolkitutil
-	${NEBULA_DEFAULT_LIBS}
-	${NEBULA_TOOLKIT_LIBS}
-	${N_FBX_LIBS}
-	${QT_WIN_LIBS}
-	${N_LIBS}
+	toolkitutil	
+	${QT_WIN_LIBS}	
 	${QT_LIBRARIES} ${QT_QTMAIN_LIBRARY}	
 )

@@ -26,7 +26,7 @@
 #include "instancing/instanceserver.h"
 #include "materials/materialserver.h"
 #include "coregraphics/transformdevice.h"
-#include "addons/ui/uiserver.h"
+
 
 namespace Frame
 {
@@ -40,7 +40,6 @@ using namespace Util;
 using namespace Lighting;
 using namespace FrameSync;
 using namespace Materials;
-using namespace UI;
 
 //------------------------------------------------------------------------------
 /**

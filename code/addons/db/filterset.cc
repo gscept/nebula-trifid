@@ -4,7 +4,7 @@
 //  (C) 2013-2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "addons/db/filterset.h"
+#include "db/filterset.h"
 
 namespace Db
 {

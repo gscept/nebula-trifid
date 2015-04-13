@@ -27,7 +27,7 @@ public:
 	virtual ~HavokPhysicsMesh();
 
 	/// add mesh component
-	void AddMeshComponent(int id, float * vertexData, uint numVertices, uint verticeStride, uint * indexData, uint numTriangles);
+	void AddMeshComponent(int id, const CoreGraphics::PrimitiveGroup& group);
 
 	/// get shape
 	hkpShape* GetShape(int primGroup, Physics::MeshTopologyType meshType);	

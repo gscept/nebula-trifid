@@ -12,7 +12,7 @@
 #include "timing/time.h"
 #include "../filterset.h"
 
-#include <Physics/Dynamics/World/hkpWorld.h>
+#include <Physics2012/Dynamics/World/hkpWorld.h>
 
 class hkpRigidBody;
 class hkpGroupFilter;

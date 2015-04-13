@@ -10,7 +10,7 @@
 
 */
 #include "havokcharacterbase.h"
-#include <Physics/Utilities/CharacterControl/CharacterRigidBody/hkpCharacterRigidBody.h>
+#include <Physics2012/Utilities/CharacterControl/CharacterRigidBody/hkpCharacterRigidBody.h>
 //------------------------------------------------------------------------------
 
 namespace Havok

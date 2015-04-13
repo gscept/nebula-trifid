@@ -5,9 +5,9 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "basegametiming/timemanager.h"
-#include "addons/db/dbserver.h"
-#include "addons/db/reader.h"
-#include "addons/db/writer.h"
+#include "db/dbserver.h"
+#include "db/reader.h"
+#include "db/writer.h"
 #include "math/scalar.h"
 #include "timing/time.h"
 #include "graphics/graphicsprotocol.h"

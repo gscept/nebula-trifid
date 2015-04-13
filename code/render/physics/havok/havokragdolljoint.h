@@ -14,8 +14,8 @@
 
 #include "physics/joints/baseragdolljoint.h"
 
-#include <Physics/Dynamics/Constraint/Bilateral/Ragdoll/hkpRagdollConstraintData.h>
-#include <Physics/Dynamics/Constraint/Motor/Position/hkpPositionConstraintMotor.h>
+#include <Physics/Constraint/Data/Ragdoll/hkpRagdollConstraintData.h>
+#include <Physics/Constraint/Motor/Position/hkpPositionConstraintMotor.h>
 
 namespace Physics
 {

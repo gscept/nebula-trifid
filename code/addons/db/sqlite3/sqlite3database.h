@@ -12,8 +12,8 @@
 */
 #include "core/config.h"
 #include "attr/attribute.h"
-#include "addons/db/database.h"
-#include "extlibs/sqlite/sqlite3.h"
+#include "db/database.h"
+#include "sqlite3.h"
 
 //------------------------------------------------------------------------------
 namespace Attr

@@ -11,9 +11,9 @@
 */
 #include "core/refcounted.h"
 #include "attr/attrid.h"
-#include "addons/db/column.h"
-#include "addons/db/valuetable.h"
-#include "addons/db/database.h"
+#include "db/column.h"
+#include "db/valuetable.h"
+#include "db/database.h"
 
 //------------------------------------------------------------------------------
 namespace Db

@@ -11,8 +11,8 @@
 */
 #include "core/refcounted.h"
 #include "core/singleton.h"
-#include "addons/db/database.h"
-#include "addons/db/sqlite3/sqlite3factory.h"
+#include "db/database.h"
+#include "db/sqlite3/sqlite3factory.h"
 
 //------------------------------------------------------------------------------
 namespace Db

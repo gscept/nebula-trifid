@@ -21,32 +21,32 @@
 
 //FIXME: all of these includes are not necessary, clean
 // Dynamics includes
-#include <Physics/Collide/hkpCollide.h>										
-#include <Physics/Collide/Agent/ConvexAgent/SphereBox/hkpSphereBoxAgent.h>	
-#include <Physics/Collide/Shape/Convex/Box/hkpBoxShape.h>					
-#include <Physics/Collide/Shape/Convex/Cylinder/hkpCylinderShape.h>
-#include <Physics/Collide/Shape/Convex/Capsule/hkpCapsuleShape.h>
-#include <Physics/Collide/Shape/Convex/Sphere/hkpSphereShape.h>				
-#include <Physics/Collide/Dispatch/hkpAgentRegisterUtil.h>		
+#include <Physics2012/Collide/hkpCollide.h>										
+#include <Physics2012/Collide/Agent/ConvexAgent/SphereBox/hkpSphereBoxAgent.h>	
+#include <Physics2012/Collide/Shape/Convex/Box/hkpBoxShape.h>					
+#include <Physics2012/Collide/Shape/Convex/Cylinder/hkpCylinderShape.h>
+#include <Physics2012/Collide/Shape/Convex/Capsule/hkpCapsuleShape.h>
+#include <Physics2012/Collide/Shape/Convex/Sphere/hkpSphereShape.h>				
+#include <Physics2012/Collide/Dispatch/hkpAgentRegisterUtil.h>		
 
-#include <Physics/Dynamics/Collide/Filter/Constraint/hkpConstraintCollisionFilter.h>
-#include <Physics/Dynamics/Constraint/Bilateral/Ragdoll/hkpRagdollConstraintData.h>
-#include <Physics/Dynamics/Constraint/Bilateral/Prismatic/hkpPrismaticConstraintData.h>
-#include <Physics/Dynamics/Constraint/Motor/Position/hkpPositionConstraintMotor.h>
+#include <Physics2012/Dynamics/Collide/Filter/Constraint/hkpConstraintCollisionFilter.h>
+#include <Physics/Constraint/Data/Ragdoll/hkpRagdollConstraintData.h>
+#include <Physics/Constraint/Data/Prismatic/hkpPrismaticConstraintData.h>
+#include <Physics/Constraint/Motor/Position/hkpPositionConstraintMotor.h>
 
-#include <Physics/Collide/Query/CastUtil/hkpWorldRayCastInput.h>			
-#include <Physics/Collide/Query/CastUtil/hkpWorldRayCastOutput.h>			
+#include <Physics2012/Collide/Query/CastUtil/hkpWorldRayCastInput.h>			
+#include <Physics2012/Collide/Query/CastUtil/hkpWorldRayCastOutput.h>			
 
-#include <Physics/Dynamics/World/hkpWorld.h>								
-#include <Physics/Dynamics/Entity/hkpRigidBody.h>		
-#include <Physics/Dynamics/Constraint/hkpConstraintInstance.h>
-#include <Physics/Utilities/Dynamics/Inertia/hkpInertiaTensorComputer.h>	
+#include <Physics2012/Dynamics/World/hkpWorld.h>								
+#include <Physics2012/Dynamics/Entity/hkpRigidBody.h>		
+#include <Physics2012/Dynamics/Constraint/hkpConstraintInstance.h>
+#include <Physics2012/Utilities/Dynamics/Inertia/hkpInertiaTensorComputer.h>	
 #include "physics/havok/havokcontactlistener.h"
 
-#include <Physics/Utilities/VisualDebugger/Viewer/Dynamics/hkpConstraintViewer.h>
+#include <Physics2012/Utilities/VisualDebugger/Viewer/Dynamics/hkpConstraintViewer.h>
 
 #include <Common/Base/Thread/Job/ThreadPool/Cpu/hkCpuJobThreadPool.h>
-#include <Common/Base/Thread/Job/ThreadPool/Spu/hkSpuJobThreadPool.h>
+//#include <Common/Base/Thread/Job/ThreadPool/Spu/hkSpuJobThreadPool.h>
 #include <Common/Base/Thread/JobQueue/hkJobQueue.h>
 
 // for som reason this caused compiler errors (not anymore): Error	1	error C3861: 'hkpHeightFieldAgent_registerSelf': identifier not found	c:\havok\source\common\base\config\hkproductfeatures.cxx	105

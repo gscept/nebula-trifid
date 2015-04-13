@@ -5,7 +5,7 @@
     
 	Writes a binary model/character/particle
 */
-#include "toolkit/toolkitutil/modelwriter.h"
+#include "toolkitutil/modelwriter.h"
 #include "util/stringatom.h"
 #include "util/variant.h"
 #include "math/bbox.h"

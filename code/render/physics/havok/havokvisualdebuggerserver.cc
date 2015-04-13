@@ -9,7 +9,7 @@
 
 // Visual Debugger includes
 #include <Common/Visualize/hkVisualDebugger.h>
-#include <Physics/Utilities/VisualDebugger/hkpPhysicsContext.h>	
+#include <Physics2012/Utilities/VisualDebugger/hkpPhysicsContext.h>	
 
 using namespace Math;
 

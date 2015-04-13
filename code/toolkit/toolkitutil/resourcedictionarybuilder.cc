@@ -6,7 +6,7 @@
 #include "stdneb.h"
 
 #include "core/refcounted.h"
-#include "render/resources/streaming/resourceinfo.h"
+#include "resources/streaming/resourceinfo.h"
 #include "coregraphics/pixelformat.h"
 #include "resourcedictionarybuilder.h"
 #include "io/ioserver.h"
@@ -15,8 +15,8 @@
 #include "io/uri.h"
 #include "util/stringatom.h"
 #include "system/byteorder.h"
-#include "render/resources/streaming/textureinfo.h"
-#include "render/resources/streaming/poolresourcemapper.h"
+#include "resources/streaming/textureinfo.h"
+#include "resources/streaming/poolresourcemapper.h"
 #include "io/xmlwriter.h"
 
 namespace ToolkitUtil

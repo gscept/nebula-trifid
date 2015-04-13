@@ -9,11 +9,11 @@
 #include "havokdebugdrawer.h"
 #include "havokvisualdebuggerserver.h"
 
-#include <Physics/Dynamics/Phantom/hkpSimpleShapePhantom.h>
-#include <Physics/Collide/Query/Collector/BodyPairCollector/hkpAllCdBodyPairCollector.h>
+#include <Physics2012/Dynamics/Phantom/hkpSimpleShapePhantom.h>
+#include <Physics2012/Collide/Query/Collector/BodyPairCollector/hkpAllCdBodyPairCollector.h>
 #include <Geometry/Collide/Shapes/hkcdShape.h>
-#include <Physics/Collide/Shape/Convex/Box/hkpBoxShape.h>
-#include <Physics/Collide/Shape/Convex/Sphere/hkpSphereShape.h>
+#include <Physics2012/Collide/Shape/Convex/Box/hkpBoxShape.h>
+#include <Physics2012/Collide/Shape/Convex/Sphere/hkpSphereShape.h>
 
 namespace Havok
 {

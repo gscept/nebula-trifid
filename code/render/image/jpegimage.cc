@@ -4,7 +4,7 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "jpegimage.h"
-#include "extlibs/libjpeg/jpeglib.h"
+#include "libjpeg/jpeglib.h"
 
 namespace Image
 {

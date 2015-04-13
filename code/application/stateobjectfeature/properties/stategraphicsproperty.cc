@@ -4,7 +4,7 @@
 //  (C) 2013-2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "properties/stategraphicsproperty.h"
+#include "stateobjectfeature/properties/stategraphicsproperty.h"
 #include "game/entity.h"
 #include "graphicsutil/segmentedgfxutil.h"
 #include "graphics/stage.h"

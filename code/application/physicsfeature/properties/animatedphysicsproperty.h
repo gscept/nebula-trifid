@@ -12,7 +12,7 @@
 #include "properties/transformableproperty.h"
 #include "physics/physicsbody.h"
 #include "physicsfeature/physicsattr/physicsattributes.h"
-#include "render/graphics/modelentity.h"
+#include "graphics/modelentity.h"
 
 //------------------------------------------------------------------------------
 namespace PhysicsFeature
@@ -65,9 +65,10 @@ protected:
 	bool enabled;	
 
 	Util::Array<Ptr<Physics::PhysicsBody>> physicsEntities;
-	Util::Array<Util::String> trackedJoints;
-	Util::HashTable<Util::String,Ptr<Physics::PhysicsBody>> bodyHash;
-	Util::HashTable<Util::String,Ptr<Physics::PhysicsBody>> jointHash;
+	Util::Array<Util::StringAtom> trackedJoints;
+	Util::Dictionary<Util::StringAtom, Ptr<Physics::PhysicsBody>> bodyHash;
+	Util::Dictionary<Util::StringAtom, Ptr<Physics::PhysicsBody>> jointHash;
+	Util::Dictionary<Util::StringAtom, Math::matrix44> jointOffsets;
 	Ptr<Graphics::ModelEntity> trackedModel;
 	bool linked;
 

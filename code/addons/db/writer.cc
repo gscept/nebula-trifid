@@ -4,10 +4,10 @@
 //  (C) 2013-2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "addons/db/writer.h"
-#include "addons/db/dbserver.h"
-#include "addons/db/database.h"
-#include "addons/db/dbfactory.h"
+#include "db/writer.h"
+#include "db/dbserver.h"
+#include "db/database.h"
+#include "db/dbfactory.h"
 
 namespace Db
 {

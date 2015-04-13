@@ -10,7 +10,7 @@
 */
 #include "util/string.h"
 #include "core/refcounted.h"
-#include "addons/db/valuetable.h"
+#include "db/valuetable.h"
 
 //------------------------------------------------------------------------------
 namespace BaseGameFeature

@@ -10,7 +10,7 @@
 #include "threading/thread.h"
 
 #define STB_TRUETYPE_IMPLEMENTATION 
-#include "extlibs/stb/stb_truetype.h"
+#include "stb/stb_truetype.h"
 #include "coregraphics/shaderserver.h"
 #include "coregraphics/memorytextureloader.h"
 #include "resources/resourcemanager.h"

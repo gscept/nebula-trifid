@@ -1,10 +1,6 @@
 #-------------------------------------------------------------------------------
 # Foundation
 #-------------------------------------------------------------------------------
-INCLUDE_DIRECTORIES(${Nebula3_SOURCE_DIR}/code/foundation/
-                    ${Nebula3_SOURCE_DIR}/code/extlibs/
-                    ${Nebula3_SOURCE_DIR}/code)
-
 
 IF(WIN32)
 SET(foundation_core_OS
@@ -380,22 +376,21 @@ SET(foundation_threading_OS
 )
 ELSEIF(LINUX)
 SET(foundation_threading_OS
-        threading/linux/linuxinterlocked.h
-        threading/linux/linuxbarrier.h
-        threading/linux/linuxcriticalsection.h
-        threading/linux/linuxevent.h
-        threading/linux/linuxthread.cc
-        threading/linux/linuxthread.h
+	threading/linux/linuxinterlocked.h
+	threading/linux/linuxbarrier.h
+	threading/linux/linuxcriticalsection.h
+	threading/linux/linuxevent.h
+	threading/linux/linuxthread.cc
+threading/linux/linuxthread.h
 )
 ELSE()
 SET(foundation_threading_OS
-		#threading/darwin/darwininterlocked.h
-		threading/posix/posixinterlocked.h
-        threading/posix/posixbarrier.h
-        threading/posix/posixcriticalsection.h
-        threading/posix/posixevent.h
-        threading/posix/posixthread.cc
-        threading/posix/posixthread.h
+	threading/posix/posixinterlocked.h
+	threading/posix/posixbarrier.h
+	threading/posix/posixcriticalsection.h
+	threading/posix/posixevent.h
+	threading/posix/posixthread.cc
+	threading/posix/posixthread.h
 )
 ENDIF(WIN32)
 
@@ -599,38 +594,41 @@ SET(foundation_jobs_src
 	jobs/tp/tpworkerthread.cc
 	jobs/tp/tpworkerthread.h
 )
+
 SET(foundation_framesync_src
 	framesync/framesynctimer.cc
 	framesync/framesynctimer.h
 )																
-					
-					
+
 SET(foundation_precompiled_src
     stdneb.cc
     stdneb.h
 )
+
 SOURCE_GROUP("Precompiled" FILES ${foundation_precompiled_src})
+
 IF(N_BUILD_FIRSTTIME)
-	SET(SOURCES_NIDLS )
-	SET(foundation_firsttime_excludes_src )
+	SET(SOURCES_NIDLS)
+	SET(foundation_firsttime_excludes_src)
 ELSE()
 	SET(foundation_NIDLS
 		io/iointerfaceprotocol.nidl
 		http/httpprotocol.nidl	
 	)
+	
 	N_WRAP_NIDL_FILES(foundation_NIDLS ${foundation_NIDLS})
+	
 	SET(foundation_firsttime_excludes_src
-	  io/iointerface.cc
-	  io/iointerface.h
-	  io/iointerfacehandler.cc
-	  io/iointerfacehandler.h		
-	http/httpinterface.cc
-	http/httpinterface.h
-	http/httpmessagehandler.cc
-	http/httpmessagehandler.h
-	http/httpserverproxy.cc
-	http/httpserverproxy.h
-
+		io/iointerface.cc
+		io/iointerface.h
+		io/iointerfacehandler.cc
+		io/iointerfacehandler.h		
+		http/httpinterface.cc
+		http/httpinterface.h
+		http/httpmessagehandler.cc
+		http/httpmessagehandler.h
+		http/httpserverproxy.cc
+		http/httpserverproxy.h
 	)
 ENDIF()
 
@@ -653,39 +651,59 @@ SET(Nebula3Foundation_SRCS
 	${foundation_jobs_src}
 	${foundation_framesync_src}
 	${foundation_precompiled_src}	
-	)
-
-
-
+)
 
 IF(WIN32)
-  
-
-SOURCE_GROUP(core        FILES  ${foundation_core_src})
-SOURCE_GROUP(memory      FILES  ${foundation_memory_src})
-SOURCE_GROUP(debug       FILES  ${foundation_debug_src})
-SOURCE_GROUP(util        FILES  ${foundation_util_src})
-SOURCE_GROUP(interface   FILES  ${foundation_interface_src})
-SOURCE_GROUP(io          FILES  ${foundation_io_src})
-SOURCE_GROUP(math        FILES  ${foundation_math_src})
-SOURCE_GROUP(messaging   FILES  ${foundation_messaging_src})
-SOURCE_GROUP(threading   FILES  ${foundation_threading_src})
-SOURCE_GROUP(timing      FILES  ${foundation_timing_src})
-SOURCE_GROUP(net         FILES  ${foundation_net_src})
-SOURCE_GROUP(system      FILES  ${foundation_system_src})
-SOURCE_GROUP(framesync   FILES  ${foundation_framesync_src})
-SOURCE_GROUP(app         FILES  ${foundation_app_src})
-SOURCE_GROUP(http        FILES  ${foundation_http_src})
-SOURCE_GROUP(jobs        FILES  ${foundation_jobs_src})
+	SOURCE_GROUP(core        FILES  ${foundation_core_src})
+	SOURCE_GROUP(memory      FILES  ${foundation_memory_src})
+	SOURCE_GROUP(debug       FILES  ${foundation_debug_src})
+	SOURCE_GROUP(util        FILES  ${foundation_util_src})
+	SOURCE_GROUP(interface   FILES  ${foundation_interface_src})
+	SOURCE_GROUP(io          FILES  ${foundation_io_src})
+	SOURCE_GROUP(math        FILES  ${foundation_math_src})
+	SOURCE_GROUP(messaging   FILES  ${foundation_messaging_src})
+	SOURCE_GROUP(threading   FILES  ${foundation_threading_src})
+	SOURCE_GROUP(timing      FILES  ${foundation_timing_src})
+	SOURCE_GROUP(net         FILES  ${foundation_net_src})
+	SOURCE_GROUP(system      FILES  ${foundation_system_src})
+	SOURCE_GROUP(framesync   FILES  ${foundation_framesync_src})
+	SOURCE_GROUP(app         FILES  ${foundation_app_src})
+	SOURCE_GROUP(http        FILES  ${foundation_http_src})
+	SOURCE_GROUP(jobs        FILES  ${foundation_jobs_src})
 ENDIF()
 
 ADD_LIBRARY(foundation STATIC ${Nebula3Foundation_SRCS})
+TARGET_LINK_LIBRARIES(foundation PUBLIC tinyxml zlib StackWalker foundation_NIDLS base64 wsock32.lib rpcrt4.lib wininet.lib dbghelp.lib)
+TARGET_INCLUDE_DIRECTORIES(foundation PUBLIC ${Nebula3_SOURCE_DIR}/code/foundation ${Nebula3_SOURCE_DIR}/code/addons)
+TARGET_INCLUDE_DIRECTORIES(foundation_NIDLS PUBLIC ${Nebula3_SOURCE_DIR}/code/foundation)
+
 IF(NOT N_BUILD_FIRSTTIME)
-add_dependencies(foundation foundation_NIDLS)
+add_dependencies(foundation tinyxml zlib StackWalker foundation_NIDLS base64)
 ENDIF()
 SET_TARGET_PROPERTIES(foundation PROPERTIES FOLDER "N3SDK/N3")
 
 N_SET_COMPILER_DEFAULTS()
 IF(N_USE_PRECOMPILED_HEADERS)
     N_SET_PCH(foundation stdneb.h stdneb.cc)
+ENDIF()
+
+IF(N_BUILD_DX11)
+        SET(PLATFORM_PROJECTS Effects11)
+        INCLUDE_DIRECTORIES($ENV{DXSDK_DIR}/include)
+        INCLUDE_DIRECTORIES(${N3ROOT}/code/extlibs/Effects11)
+ELSEIF(N_BUILD_DX9)
+        INCLUDE_DIRECTORIES($ENV{DXSDK_DIR}/include)
+ELSEIF(N_BUILD_OGL4)
+	
+	TARGET_INCLUDE_DIRECTORIES(foundation PUBLIC
+												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/api/code
+												${Nebula3_SOURCE_DIR}/code/extlibs/glew/include
+												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/api/code
+												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/util/code
+												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/compiler/code
+												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/exts/eastl/include
+												${Nebula3_SOURCE_DIR}/code/extlibs/glfw/include)
+	TARGET_LINK_LIBRARIES(foundation PUBLIC compiler api glew EASTL SOIL glfw	
+												$<$<PLATFORM_ID:Windows>:glu32.lib opengl32.lib $<$<BOOL:${N_MATH_XNA}>:dxguid.lib d3d9.lib d3dx9.lib dinput8.lib xinput.lib dxerr.lib x3daudio.lib d3dx11.lib dxgi.lib d2d1.lib dwrite.lib d3dcompiler.lib d3d11.lib>>												
+												$<$<PLATFORM_ID:Linux>:GL Xi Xrandr Xxf86vm pthread ${UUID} ${LIBC} ${LIBDL}> )       
 ENDIF()

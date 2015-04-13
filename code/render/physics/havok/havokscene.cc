@@ -14,22 +14,22 @@
 #include "conversion.h"
 #include "havokutil.h"
 
-#include <Physics/Dynamics/World/hkpWorld.h>
-#include <Physics/Collide/Dispatch/hkpAgentRegisterUtil.h>
-#include <Physics/Dynamics/Entity/hkpRigidBody.h>
-#include <Physics/Collide/Query/CastUtil/hkpWorldRayCastInput.h>
-#include <Physics/Collide/Shape/hkpShapeBase.h>
-#include <Physics/Collide/Query/Collector/RayCollector/hkpClosestRayHitCollector.h>
-#include <Physics/Dynamics/Collide/Filter/Pair/hkpPairCollisionFilter.h>
-#include <Physics/Collide/Query/Collector/RayCollector/hkpAllRayHitCollector.h>
-#include <Physics/Collide/Shape/Convex/Sphere/hkpSphereShape.h>
-#include <Physics/Collide/Shape/Convex/Box/hkpBoxShape.h>
-#include <Physics/Collide/Agent/Query/hkpCdBodyPairCollector.h>
-#include <Physics/Collide/Agent/Collidable/hkpCollidable.h>
-#include <Physics/Collide/Query/Collector/BodyPairCollector/hkpAllCdBodyPairCollector.h>
-#include <Physics/Collide/Agent/hkpProcessCollisionInput.h>
-#include <Physics/Collide/Filter/Group/hkpGroupFilter.h>
-#include <Physics/Collide/Filter/Group/hkpGroupFilterSetup.h>
+#include <Physics2012/Dynamics/World/hkpWorld.h>
+#include <Physics2012/Collide/Dispatch/hkpAgentRegisterUtil.h>
+#include <Physics2012/Dynamics/Entity/hkpRigidBody.h>
+#include <Physics2012/Collide/Query/CastUtil/hkpWorldRayCastInput.h>
+#include <Physics2012/Collide/Shape/hkpShapeBase.h>
+#include <Physics2012/Collide/Query/Collector/RayCollector/hkpClosestRayHitCollector.h>
+#include <Physics2012/Dynamics/Collide/Filter/Pair/hkpPairCollisionFilter.h>
+#include <Physics2012/Collide/Query/Collector/RayCollector/hkpAllRayHitCollector.h>
+#include <Physics2012/Collide/Shape/Convex/Sphere/hkpSphereShape.h>
+#include <Physics2012/Collide/Shape/Convex/Box/hkpBoxShape.h>
+#include <Physics2012/Collide/Agent/Query/hkpCdBodyPairCollector.h>
+#include <Physics2012/Collide/Agent/Collidable/hkpCollidable.h>
+#include <Physics2012/Collide/Query/Collector/BodyPairCollector/hkpAllCdBodyPairCollector.h>
+#include <Physics2012/Collide/Agent/hkpProcessCollisionInput.h>
+#include <Physics2012/Collide/Filter/Group/hkpGroupFilter.h>
+#include <Physics2012/Collide/Filter/Group/hkpGroupFilterSetup.h>
 
 using namespace Physics;
 using namespace Math;

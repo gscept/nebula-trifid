@@ -4,9 +4,9 @@
 //  (C) 2013-2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "addons/db/dataset.h"
-#include "addons/db/database.h"
-#include "addons/db/dbfactory.h"
+#include "db/dataset.h"
+#include "db/database.h"
+#include "db/dbfactory.h"
 
 namespace Db
 {

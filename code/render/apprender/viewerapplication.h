@@ -19,7 +19,7 @@
 #include "debugrender/debugshaperenderer.h"
 #include "debugrender/debugtextrenderer.h"
 #ifdef _QT_NEB_SUPPORT
-#include "addons/qtfeature/qtserver.h"
+#include "qtfeature/qtserver.h"
 #endif
 
 //------------------------------------------------------------------------------

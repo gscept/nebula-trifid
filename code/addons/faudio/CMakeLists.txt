@@ -2,66 +2,57 @@
 # faudio
 #-------------------------------------------------------------------------------
 
+set(SOURCES_files_faudio
+	audiointerface.cc
+	audiointerface.h
+	audiolistener.cc
+	audiolistener.h		
+	audioserver.cc
+	audioserver.h
+	fmodstudiopagehandler.cc
+	fmodstudiopagehandler.h
+	fmoderror.cc
+	fmoderror.h
+	eventid.h
+	eventinstance.cc
+	eventinstance.h
+	eventstate.h
+	eventparameterid.h
+	busid.h
+	audiohandler.cc
+	audiohandler.h
+	audiodevice.cc
+	audiodevice.h
+	audioemitterproperty.cc
+	audioemitterproperty.h
+)
+source_group("audio" FILES ${SOURCES_files_audio})
 
-INCLUDE_DIRECTORIES(${Nebula3_SOURCE_DIR}/code
-					${Nebula3_SOURCE_DIR}/code/addons/
-					${Nebula3_SOURCE_DIR}/code/foundation/
-					${Nebula3_SOURCE_DIR}/code/application/
-					${Nebula3_SOURCE_DIR}/code/render/
-					${Nebula3_SOURCE_DIR}/code/extlibs/			
-					)
+set(faudio_NIDLS audioprotocol.nidl)
+		  
+set(SOURCES_faudio      
+	${SOURCES_files_faudio}	  
+)
 
-    
-
-    set(SOURCES_files_faudio
-		audiointerface.cc
-		audiointerface.h
-		audiolistener.cc
-		audiolistener.h		
-		audioserver.cc
-		audioserver.h
-		fmodstudiopagehandler.cc
-		fmodstudiopagehandler.h
-		fmoderror.cc
-		fmoderror.h
-		eventid.h
-		eventinstance.cc
-		eventinstance.h
-		eventstate.h
-		eventparameterid.h
-		busid.h
-		audiohandler.cc
-		audiohandler.h
-		audiodevice.cc
-		audiodevice.h
-		audioemitterproperty.cc
-		audioemitterproperty.h
-    )
-    source_group("audio" FILES ${SOURCES_files_audio})
-
-	set(faudio_NIDLS audioprotocol.nidl)
+set(SOURCES_files
+	../stdneb.h
+	../stdneb.cc
+)
 	
-	N_WRAP_NIDL_FILES(faudio_NIDLS ${faudio_NIDLS})
-	  
-    set(SOURCES_faudio      
-      ${SOURCES_files_faudio}	  
-    )
+SOURCE_GROUP("Precompiled" FILES ${SOURCES_files})
+set(SOURCES_SRCS
+	${SOURCES_faudio}
+	${SOURCES_files}
+)
 
-	set(SOURCES_files
-            ../stdneb.h
-	    ../stdneb.cc
-	)
-	
-	SOURCE_GROUP("Precompiled" FILES ${SOURCES_files})
-	set(SOURCES_SRCS
-	    ${SOURCES_faudio}
-	    ${SOURCES_files}
-	)
+N_WRAP_ADD_NIDL_FILES(SOURCES_SRCS ${faudio_NIDLS})
+ 
+FIND_PACKAGE(FmodStudio REQUIRED)
 
-
-  
 add_library( faudio STATIC ${SOURCES_SRCS} )
-add_dependencies(faudio faudio_NIDLS)
+TARGET_LINK_LIBRARIES(faudio ${FMOD_LIBRARIES} application)
+TARGET_INCLUDE_DIRECTORIES(faudio PUBLIC ${FMOD_INCLUDE_DIRS})
+add_dependencies(faudio application)
 SET_TARGET_PROPERTIES(faudio PROPERTIES FOLDER "N3SDK/addons")
 
 N_SET_COMPILER_DEFAULTS()

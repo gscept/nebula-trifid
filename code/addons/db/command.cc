@@ -4,8 +4,8 @@
 //  (C) 2013-2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "addons/db/command.h"
-#include "addons/db/database.h"
+#include "db/command.h"
+#include "db/database.h"
 
 namespace Db
 {

@@ -4,8 +4,8 @@
 //  (C) 2013-2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "addons/db/dbserver.h"
-#include "addons/db/dbfactory.h"
+#include "db/dbserver.h"
+#include "db/dbfactory.h"
 #include "io/ioserver.h"
 
 namespace Db

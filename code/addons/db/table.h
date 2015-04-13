@@ -16,12 +16,12 @@
     (C) 2013-2015 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
-#include "addons/db/column.h"
+#include "db/column.h"
 #include "util/array.h"
 #include "util/string.h"
 #include "util/dictionary.h"
 #include "util/hashtable.h"
-#include "addons/db/valuetable.h"
+#include "db/valuetable.h"
 
 //------------------------------------------------------------------------------
 namespace Db

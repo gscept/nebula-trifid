@@ -10,8 +10,8 @@
     (C) 2006 Radon Labs GmbH
     (C) 2013-2015 Individual contributors, see AUTHORS file
 */
-#include "addons/db/command.h"
-#include "extlibs/sqlite/sqlite3.h"
+#include "db/command.h"
+#include "sqlite3.h"
 
 //------------------------------------------------------------------------------
 namespace Db

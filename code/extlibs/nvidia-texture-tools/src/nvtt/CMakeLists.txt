@@ -54,7 +54,8 @@ SET_TARGET_PROPERTIES(nvtt PROPERTIES FOLDER "extlibs/nvtex")
 
 
 
-TARGET_LINK_LIBRARIES(nvtt ${LIBS} nvcore nvmath nvimage nvthread squish bc6h bc7)
+TARGET_LINK_LIBRARIES(nvtt PUBLIC ${LIBS} nvcore nvmath nvimage nvthread squish bc6h bc7)
+TARGET_INCLUDE_DIRECTORIES(nvtt PUBLIC ${NV_SOURCE_DIR}/src)
 
 INSTALL(TARGETS nvtt 
     RUNTIME DESTINATION bin
