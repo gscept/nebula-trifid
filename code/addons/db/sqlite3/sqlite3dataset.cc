@@ -4,11 +4,11 @@
 //  (C) 2013-2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "addons/db/sqlite3/sqlite3dataset.h"
-#include "addons/db/command.h"
-#include "addons/db/dbfactory.h"
-#include "addons/db/database.h"
-#include "addons/db/table.h"
+#include "db/sqlite3/sqlite3dataset.h"
+#include "db/command.h"
+#include "db/dbfactory.h"
+#include "db/database.h"
+#include "db/table.h"
 
 namespace Db
 {

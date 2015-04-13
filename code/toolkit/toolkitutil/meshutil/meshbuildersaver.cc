@@ -5,8 +5,8 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "toolkitutil/meshutil/meshbuildersaver.h"
-#include "render/coregraphics/legacy/nvx2fileformatstructs.h"
-#include "render/coregraphics/nvx3fileformatstructs.h"
+#include "coregraphics/legacy/nvx2fileformatstructs.h"
+#include "coregraphics/nvx3fileformatstructs.h"
 #include "io/ioserver.h"
 
 namespace ToolkitUtil

@@ -21,7 +21,7 @@
 #include "game/manager.h"
 #include "game/property.h"
 #include "game/entity.h"
-#include "addons/db/valuetable.h"
+#include "db/valuetable.h"
 
 //------------------------------------------------------------------------------
 namespace BaseGameFeature

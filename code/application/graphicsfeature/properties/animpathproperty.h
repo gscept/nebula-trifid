@@ -10,8 +10,8 @@
 //------------------------------------------------------------------------------
 #include "game/property.h"
 #include "math/float4.h"
-#include "animpath/pathanimation.h"
-#include "animpath/managedpathanimation.h"
+#include "graphicsfeature/animpath/pathanimation.h"
+#include "graphicsfeature/animpath/managedpathanimation.h"
 
 namespace GraphicsFeature
 {

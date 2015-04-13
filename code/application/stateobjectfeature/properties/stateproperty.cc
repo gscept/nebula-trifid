@@ -4,7 +4,7 @@
 //  (C) 2013-2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "properties/stateproperty.h"
+#include "stateobjectfeature/properties/stateproperty.h"
 #include "basegamefeature/basegameprotocol.h"
 #include "io/ioserver.h"
 #include "input/keyboard.h"

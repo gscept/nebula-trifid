@@ -4,11 +4,11 @@
 //  (C) 2013-2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "addons/db/dataset.h"
-#include "addons/db/sqlite3/sqlite3database.h"
-#include "addons/db/sqlite3/sqlite3command.h"
-#include "addons/db/sqlite3/sqlite3table.h"
-#include "addons/db/sqlite3/sqlite3factory.h"
+#include "db/dataset.h"
+#include "db/sqlite3/sqlite3database.h"
+#include "db/sqlite3/sqlite3command.h"
+#include "db/sqlite3/sqlite3table.h"
+#include "db/sqlite3/sqlite3factory.h"
 #include "io/ioserver.h"
 #include "attr/attributedefinitionbase.h"
 

@@ -1,10 +1,7 @@
 #-------------------------------------------------------------------------------
 # ZLib
 #-------------------------------------------------------------------------------
-INCLUDE_DIRECTORIES(
-    ${Nebula3_SOURCE_DIR}/code/foundation/
-    ${Nebula3_SOURCE_DIR}/code/extlibs/
-)
+
 SET(extlibs_zlib_SRCS
     adler32.c
     compress.c
@@ -39,10 +36,10 @@ SET(extlibs_zlib_SRCS
 SOURCE_GROUP(zlib FILES ${extlibs_zlib_SRCS})
 
 ADD_LIBRARY(zlib STATIC ${extlibs_zlib_SRCS})
+TARGET_INCLUDE_DIRECTORIES(zlib PUBLIC ${Nebula3_SOURCE_DIR}/code/extlibs ${Nebula3_SOURCE_DIR}/code/foundation)
 SET_TARGET_PROPERTIES(zlib PROPERTIES FOLDER "extlibs")
 
 N_SET_COMPILER_DEFAULTS()
 IF(MSVC)
     ADD_DEFINITIONS(/D_CRT_SECURE_NO_WARNINGS)
 ENDIF()
-ADD_DEPENDENCIES(zlib foundation)

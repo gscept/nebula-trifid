@@ -50,15 +50,16 @@ INCLUDE_DIRECTORIES(
   
 	set(P_NIDL_FILES remoteprotocol.nidl)
   
-	N_WRAP_NIDL_FILES(remote_NIDLS ${P_NIDL_FILES})
+	
   
 	set(SOURCES_
 		${SOURCES_remote}
 		${SOURCES_files}		
 	)
+	N_WRAP_ADD_NIDL_FILES(SOURCES_ ${P_NIDL_FILES})
 
   add_library( remote STATIC ${SOURCES_} )
-  add_dependencies(remote remote_NIDLS)
+  add_dependencies(remote foundation)
   SET_TARGET_PROPERTIES(remote PROPERTIES FOLDER "N3SDK/addons")
     
 

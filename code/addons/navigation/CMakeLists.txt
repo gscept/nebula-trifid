@@ -61,14 +61,14 @@ INCLUDE_DIRECTORIES(..
 	    ${SOURCES_files}		
 	)
 
-N_WRAP_NIDL_FILES(navigation_NIDLS navigationattributes.nidl)
+N_WRAP_ADD_NIDL_FILES(SOURCES_SRCS navigationattributes.nidl)
 
-add_library( navigation STATIC ${SOURCES_SRCS} )
+add_library(navigation STATIC ${SOURCES_SRCS} )
+TARGET_LINK_LIBRARIES(navigation render Detour DebugUtils DetourCrowd DetourTileCache Recast )
 SET_TARGET_PROPERTIES(navigation PROPERTIES FOLDER "N3SDK/addons")
 N_SET_COMPILER_DEFAULTS()
 IF(N_USE_PRECOMPILED_HEADERS)
     N_SET_PCH(navigation stdneb.h stdneb.cc ../)
 ENDIF()
-ADD_DEPENDENCIES(navigation navigation_NIDLS)
-ADD_DEPENDENCIES(navigation_NIDLS application_NIDLS)
+ADD_DEPENDENCIES(navigation application)
 

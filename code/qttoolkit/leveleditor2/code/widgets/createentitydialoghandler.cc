@@ -8,7 +8,7 @@
 #include "leveleditor2entitymanager.h"
 #include "managers/categorymanager.h"
 #include "actions/actionmanager.h"
-#include "qttoolkitutil/style/graypalette.h"
+#include "style/graypalette.h"
 #include <QListWidget>
 #include <QPushButton>
 #include <QBoxLayout>

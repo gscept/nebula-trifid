@@ -4,10 +4,10 @@
 //  (C) 2013-2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "addons/db/sqlite3/sqlite3table.h"
-#include "addons/db/sqlite3/sqlite3database.h"
-#include "addons/db/command.h"
-#include "addons/db/sqlite3/sqlite3factory.h"
+#include "db/sqlite3/sqlite3table.h"
+#include "db/sqlite3/sqlite3database.h"
+#include "db/command.h"
+#include "db/sqlite3/sqlite3factory.h"
 #include "attr/valuetype.h"
 #include "attr/attrid.h"
 

@@ -1,13 +1,6 @@
 #-------------------------------------------------------------------------------
-# Tools
+# idlc
 #-------------------------------------------------------------------------------
-INCLUDE_DIRECTORIES(				
-									${Nebula3_SOURCE_DIR}/code/foundation																		
-									${Nebula3_SOURCE_DIR}/code/tools	
-									${Nebula3_SOURCE_DIR}/code/toolkit
-									${Nebula3_SOURCE_DIR}/code/extlibs
-									${Nebula3_SOURCE_DIR}/code
-					)
 
 FILE(GLOB SRC "*.cc")
 FILE(GLOB HEAD "*.h")
@@ -28,22 +21,8 @@ IF(N_USE_PRECOMPILED_HEADERS)
 	N_SET_PCH(idlc stdneb.h stdneb.cc ../)
 ENDIF()
 
-ADD_DEPENDENCIES(idlc
-	foundation
-	zlib
-	tinyxml
-	base64
-	toolkitutil
-	)
-TARGET_LINK_LIBRARIES(idlc 
-	foundation
-	zlib
-	toolkitutil
-	tinyxml
-	base64
-	StackWalker
-	${N_LIBS}
-)
+ADD_DEPENDENCIES(idlc toolkitutil)
+TARGET_LINK_LIBRARIES(idlc toolkitutil)
 
 IF(N_BUILD_FIRSTTIME)
 	SET_TARGET_PROPERTIES(idlc PROPERTIES RELEASE_POSTFIX ".toolkit")

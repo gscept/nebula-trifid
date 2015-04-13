@@ -9,12 +9,12 @@
     (C) 2013-2015 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
-#include "toolkit/toolkitutil/platform.h"
+#include "toolkitutil/platform.h"
 #include "io/uri.h"
 #include "util/stringatom.h"
-#include "render/resources/streaming/textureinfo.h"
+#include "resources/streaming/textureinfo.h"
 #include "io/stream.h"
-#include "render/resources/streaming/poolresourcemapper.h"
+#include "resources/streaming/poolresourcemapper.h"
 
 #define DEBUG_RES_DICT_BUILDER (1)
 

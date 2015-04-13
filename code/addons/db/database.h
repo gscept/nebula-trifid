@@ -10,8 +10,8 @@
 #include "core/refcounted.h"
 #include "io/uri.h"
 #include "util/dictionary.h"
-#include "addons/db/table.h"
-#include "addons/db/command.h"
+#include "db/table.h"
+#include "db/command.h"
 
 //------------------------------------------------------------------------------
 namespace Attr

@@ -14,7 +14,7 @@
 #include "core/refcounted.h"
 #include "attr/attrid.h"
 #include "util/string.h"
-#include "addons/db/valuetable.h"
+#include "db/valuetable.h"
 
 //------------------------------------------------------------------------------
 namespace Db

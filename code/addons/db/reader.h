@@ -11,8 +11,8 @@
 */
 #include "core/refcounted.h"
 #include "attr/attribute.h"
-#include "addons/db/dataset.h"
-#include "addons/db/valuetable.h"
+#include "db/dataset.h"
+#include "db/valuetable.h"
 #include "util/guid.h"
 #include "util/blob.h"
 #include "db/database.h"

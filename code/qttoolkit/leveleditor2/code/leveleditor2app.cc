@@ -28,7 +28,7 @@
 #include "actions/duplicateaction.h"
 #include "entityutils/placementutil.h"
 #include "properties/mayacameraproperty.h"
-#include "qttoolkitutil/style/graypalette.h"
+#include "style/graypalette.h"
 #include <QPlastiqueStyle>
 
 

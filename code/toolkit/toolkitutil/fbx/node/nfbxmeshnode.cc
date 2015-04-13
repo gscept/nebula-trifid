@@ -6,8 +6,6 @@
 #include "fbx/node/nfbxmeshnode.h"
 #include "meshutil/meshbuildervertex.h"
 #include "nfbxscene.h"
-#include "qttoolkit/contentbrowser/code/progressreporter.h"
-
 
 namespace Fbx
 {

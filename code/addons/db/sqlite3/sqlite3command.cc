@@ -4,8 +4,8 @@
 //  (C) 2013-2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "addons/db/sqlite3/sqlite3command.h"
-#include "addons/db/sqlite3/sqlite3database.h"
+#include "db/sqlite3/sqlite3command.h"
+#include "db/sqlite3/sqlite3database.h"
 #include "system/byteorder.h"
 
 namespace Db

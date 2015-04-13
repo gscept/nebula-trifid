@@ -2,7 +2,6 @@
 # librocket
 #-------------------------------------------------------------------------------
 
-INCLUDE_DIRECTORIES(${Nebula3_SOURCE_DIR}/code/extlibs/librocket ${Nebula3_SOURCE_DIR}/code/extlibs/libfreetype ${Nebula3_SOURCE_DIR}/code/foundation ${Nebula3_SOURCE_DIR}/code )
 IF(NOT WIN32)
 	INCLUDE_DIRECTORIES(${Nebula3_SOURCE_DIR}/code/extlibs/librocket/Rocket/Core)
 ENDIF()
@@ -10,7 +9,7 @@ ENDIF()
 FILE(GLOB_RECURSE SRC "Rocket/*.cpp")
 FILE(GLOB_RECURSE HEAD "Rocket/*.h")
 ADD_LIBRARY(librocket STATIC ${SRC} ${HEAD})
-
+TARGET_INCLUDE_DIRECTORIES(librocket PUBLIC ${Nebula3_SOURCE_DIR}/code/extlibs/librocket private ${Nebula3_SOURCE_DIR}/code/extlibs/libfreetype ${Nebula3_SOURCE_DIR}/code/foundation ${Nebula3_SOURCE_DIR}/code)
 ADD_DEFINITIONS(/DSTATIC_LIB=1)
 SET_TARGET_PROPERTIES(librocket PROPERTIES FOLDER "extlibs")
 N_SET_COMPILER_DEFAULTS()

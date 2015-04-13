@@ -9,7 +9,7 @@
 */
 #include "coregraphics/base/streamtexturesaverbase.h"
 #include "coregraphics/texture.h"
-#include "extlibs/DevIL/DevIL/include/IL/il.h"
+#include "IL/il.h"
 
 //------------------------------------------------------------------------------
 namespace OpenGL4

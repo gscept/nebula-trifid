@@ -1,11 +1,11 @@
 #pragma once
 //------------------------------------------------------------------------------
 /**
-    @class ContentBrowser::GrayPalette
+    @class QtToolkitUtil::GrayPalette
     
     Implements a gray palette.
     
-    (C) 2012 Gustav Sterbrant
+    (C) 2012-2015 Gustav Sterbrant
 */
 //------------------------------------------------------------------------------
 #include <QPalette>
@@ -19,5 +19,6 @@ public:
 	/// destructor
 	virtual ~GrayPalette();
 }; 
-} // namespace ContentBrowser
+
+} // namespace QtToolkitUtil
 //------------------------------------------------------------------------------

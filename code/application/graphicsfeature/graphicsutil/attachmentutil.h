@@ -10,7 +10,7 @@
 #include "graphics/graphicsprotocol.h"
 #include "game/entity.h"
 #include "graphics/graphicsentity.h"
-#include "managers/attachmentmanager.h"
+#include "graphicsfeature/managers/attachmentmanager.h"
 
 
 //------------------------------------------------------------------------------

@@ -28,9 +28,9 @@
     (C) 2013-2015 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
-#include "addons/db/filterset.h"
-#include "addons/db/valuetable.h"
-#include "addons/db/relation.h"
+#include "db/filterset.h"
+#include "db/valuetable.h"
+#include "db/relation.h"
 
 //------------------------------------------------------------------------------
 namespace Db

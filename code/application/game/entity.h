@@ -20,12 +20,12 @@
 */
 #include "core/refcounted.h"
 #include "core/ptr.h"
-#include "foundation/messaging/message.h"
+#include "messaging/message.h"
 #include "messaging/dispatcher.h"
 #include "game/property.h"
 #include "util/dictionary.h"
 #include "appgame/appconfig.h"
-#include "addons/db/valuetable.h"
+#include "db/valuetable.h"
 #include "basegamefeature/managers/categorymanager.h"
 #include "debug/debugtimer.h"
 

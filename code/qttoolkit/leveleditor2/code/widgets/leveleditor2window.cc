@@ -21,7 +21,7 @@
 #include "blueprinthandler.h"
 #include "applauncher.h"
 #include "qmessagebox.h"
-#include "qtaddons/remoteinterface/qtremoteclient.h"
+#include "remoteinterface/qtremoteclient.h"
 #include "qtremoteprotocol.h"
 #include "toolkitversion.h"
 #include "qurl.h"

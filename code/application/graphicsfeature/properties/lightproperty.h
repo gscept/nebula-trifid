@@ -13,7 +13,7 @@
 #include "graphics/abstractlightentity.h"
 #include "graphics/billboardentity.h"
 #include "basegamefeature/basegameattr/basegameattributes.h"
-#include "graphicsutil/lightflickerutil.h"
+#include "graphicsfeature/graphicsutil/lightflickerutil.h"
 
 
 //------------------------------------------------------------------------------

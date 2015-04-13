@@ -8,7 +8,7 @@
     (C) 2006 Radon Labs GmbH
     (C) 2013-2015 Individual contributors, see AUTHORS file
 */
-#include "addons/db/table.h"
+#include "db/table.h"
 
 //------------------------------------------------------------------------------
 namespace Db

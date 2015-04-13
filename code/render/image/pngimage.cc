@@ -4,7 +4,7 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "pngimage.h"
-#include "extlibs/libpng/png.h"
+#include "libpng/png.h"
 
 namespace Image
 {
