@@ -1372,11 +1372,11 @@ ModelNodeHandler::SetupTextureSlotHelper( QLineEdit* textureField, QPushButton* 
             if (resource.IsValid())
             {
                 URI texFile = resource;
-                pixmap.load(texFile.GetHostAndLocalPath().AsCharPtr());
+                pixmap.load(texFile.LocalPath().AsCharPtr());
                 int width = n_min(pixmap.width(), 512);
                 int height = n_min(pixmap.height(), 512);
                 pixmap = pixmap.scaled(QSize(24, 24), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);            
-                textureButton->setToolTip("<html><img height=" + QString::number(height) + " width=" + QString::number(width) + " src=" + QString(texFile.GetHostAndLocalPath().AsCharPtr()) + "/></html>");
+				textureButton->setToolTip("<html><img height=" + QString::number(height) + " width=" + QString::number(width) + " src=\"" + QString(texFile.LocalPath().AsCharPtr()) + "\"/></html>");
 
                 textureField->blockSignals(true);
                 textureField->setText(resource.AsCharPtr());
@@ -1390,11 +1390,11 @@ ModelNodeHandler::SetupTextureSlotHelper( QLineEdit* textureField, QPushButton* 
             textureField->blockSignals(false);
 
 			URI texFile = defaultResource;
-            pixmap.load(texFile.GetHostAndLocalPath().AsCharPtr());
+            pixmap.load(texFile.LocalPath().AsCharPtr());
             int width = n_min(pixmap.width(), 512);
             int height = n_min(pixmap.height(), 512);
             pixmap = pixmap.scaled(QSize(24, 24), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);            
-            textureButton->setToolTip("<html><img height=" + QString::number(height) + " width=" + QString::number(width) + " src=" + QString(texFile.GetHostAndLocalPath().AsCharPtr()) + "/></html>");
+			textureButton->setToolTip("<html><img height=" + QString::number(height) + " width=" + QString::number(width) + " src=\"" + QString(texFile.LocalPath().AsCharPtr()) + "\"/></html>");
 
             QPalette pal;
             pal.setColor(QPalette::Text, Qt::red);
@@ -1407,11 +1407,11 @@ ModelNodeHandler::SetupTextureSlotHelper( QLineEdit* textureField, QPushButton* 
 		// set resource to the default one
 		resource = defaultResource;
 		URI texFile = resource;
-        pixmap.load(texFile.GetHostAndLocalPath().AsCharPtr());
+        pixmap.load(texFile.LocalPath().AsCharPtr());
         int width = n_min(pixmap.width(), 512);
         int height = n_min(pixmap.height(), 512);
         pixmap = pixmap.scaled(QSize(24, 24), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);            
-        textureButton->setToolTip("<html><img height=" + QString::number(height) + " width=" + QString::number(width) + " src=" + QString(texFile.GetHostAndLocalPath().AsCharPtr()) + "/></html>");
+		textureButton->setToolTip("<html><img height=" + QString::number(height) + " width=" + QString::number(width) + " src=\"" + QString(texFile.LocalPath().AsCharPtr()) + "\"/></html>");
 
         textureField->blockSignals(true);
 		textureField->setText(resource.AsCharPtr());

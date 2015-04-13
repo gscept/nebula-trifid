@@ -275,6 +275,7 @@ OGL4RenderDevice::OpenOpenGL4Context()
     this->SetInitialDeviceState();
 
 	// get number of texture slots available
+	glGetIntegerv(GL_MAX_IMAGE_UNITS, &this->maxNumImageTextures);
 	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &this->maxNumTextures);
 
 
@@ -907,5 +908,21 @@ OGL4RenderDevice::SetViewport(const Math::rectangle<int>& rect, int index)
 	glViewportIndexedf(index, (float)rect.left, (float)rect.top, (float)rect.width(), (float)rect.height());
 }
 
+//------------------------------------------------------------------------------
+/**
+	This function basically tries to flush ALL pending commands in the GL command queue so that we can resize the render targets.
+*/
+void
+OGL4RenderDevice::DisplayResized(SizeT width, SizeT height)
+{
+	glFinish();
+	glMemoryBarrier(GL_ALL_BARRIER_BITS);
+	glBindImageTextures(0, this->maxNumImageTextures, NULL);
+	glBindTextures(0, this->maxNumTextures, NULL);
+	glBindSamplers(0, this->maxNumTextures, NULL);
+	GLsync sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+	glClientWaitSync(sync, GL_SYNC_FLUSH_COMMANDS_BIT, 1000000000);
+	Base::RenderDeviceBase::DisplayResized(width, height);
+}
 
 } // namespace CoreGraphics

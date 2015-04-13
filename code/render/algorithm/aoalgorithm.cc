@@ -354,7 +354,6 @@ AOAlgorithm::Execute()
 		RenderDevice* renderDevice = RenderDevice::Instance();
 		ShaderServer* shaderServer = ShaderServer::Instance();
 	
-
 #ifdef HBAO_COMPUTE
 #define TILE_WIDTH 320
 		// calculate execution dimensions
@@ -375,6 +374,39 @@ AOAlgorithm::Execute()
 		this->hbao->EndPass();
 		this->hbao->End();
 
+		this->hbao->SelectActiveVariation(this->yDirection);
+		this->hbao->Begin();
+		this->hbao->BeginPass(0);
+		this->hbao0Var->SetTexture(this->internalTargets[0]->GetResolveTexture());
+		this->hbao1Var->SetTexture(this->internalTargets[1]->GetResolveTexture());
+		this->hbao->Commit();
+		renderDevice->Compute(numGroupsY1, numGroupsX2, 1);
+		this->hbao->PostDraw();
+		this->hbao->EndPass();
+		this->hbao->End();
+
+		/*
+		this->blur->SelectActiveVariation(this->xDirection);
+		this->blur->Begin();
+		this->blur->BeginPass(0);
+		this->hbaoBlur0Var->SetTexture(this->internalTargets[1]->GetResolveTexture());
+		this->blur->Commit();
+		renderDevice->Compute(numGroupsX1, numGroupsY2, 1);
+		this->blur->PostDraw();
+		this->blur->EndPass();
+		this->blur->End();
+
+		this->blur->SelectActiveVariation(this->yDirection);
+		this->blur->Begin();
+		this->blur->BeginPass(0);
+		this->hbaoBlur0Var->SetTexture(this->internalTargets[1]->GetResolveTexture());
+		this->hbaoBlur1Var->SetTexture(this->output->GetResolveTexture());
+		this->blur->Commit();
+		renderDevice->Compute(numGroupsY1, numGroupsX2, 1);
+		this->blur->PostDraw();
+		this->blur->EndPass();
+		this->blur->End();
+		*/
 #else
 
 		// first render ao
