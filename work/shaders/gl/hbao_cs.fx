@@ -227,7 +227,7 @@ csMainY()
     memoryBarrierShared();
 
     const uint writePos = tileStart + gl_LocalInvocationID.x;
-    const uint tileEndClamped = min(tileEnd, int(AOResolution.y));
+    const uint tileEndClamped = min(tileEnd, int(AOResolution.x));
     
     if (writePos < tileEndClamped)
     {
@@ -244,7 +244,7 @@ csMainY()
         float2 T = MinDiff(P, Pt, Pb);
 
         float aoy = ComputeHBAO(P, T, centerId);
-        float aox = imageLoad(HBAO0, int2(gl_WorkGroupID.y, writePos)).r;
+        float aox = imageLoad(HBAO0, int2(gl_WorkGroupID.y, writePos)).x;
         float ao = (aox + aoy) * 0.25f;
 
         ao = saturate(ao * Strength);

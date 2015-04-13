@@ -90,9 +90,10 @@ AOAlgorithm::Setup()
 
 	this->hbao0Var = this->hbao->GetVariableByName("HBAO0");
 	this->hbao1Var = this->hbao->GetVariableByName("HBAO1");
-	this->hbaoBlur0Var = this->blur->GetVariableByName("HBAO0");
-	this->hbaoBlur1Var = this->blur->GetVariableByName("HBAO1");
-	this->hbaoBlur2Var = this->blur->GetVariableByName("HBAO2");
+	this->hbaoBlurLinearVar = this->blur->GetVariableByName("HBAOReadLinear");
+	this->hbaoBlurPointVar = this->blur->GetVariableByName("HBAOReadPoint");
+	this->hbaoBlurRGVar = this->blur->GetVariableByName("HBAORG");
+	this->hbaoBlurRVar = this->blur->GetVariableByName("HBAOR");
 #else
 	// setup shaders
 	this->hbao = ShaderServer::Instance()->CreateShaderInstance("shd:hbao");
@@ -266,9 +267,10 @@ AOAlgorithm::Discard()
 #ifdef HBAO_COMPUTE
 	this->hbao0Var = 0;
 	this->hbao1Var = 0;
-	this->hbaoBlur0Var = 0;
-	this->hbaoBlur1Var = 0;
-	this->hbaoBlur2Var = 0;
+	this->hbaoBlurLinearVar = 0;
+	this->hbaoBlurPointVar = 0;
+	this->hbaoBlurRGVar = 0;
+	this->hbaoBlurRVar = 0;
 #else
 	this->hbaoTextureVar = 0;
 	this->randomTextureVar = 0;
@@ -389,21 +391,23 @@ AOAlgorithm::Execute()
 		this->blur->SelectActiveVariation(this->xDirection);
 		this->blur->Begin();
 		this->blur->BeginPass(0);
-		this->hbaoBlur0Var->SetTexture(this->internalTargets[1]->GetResolveTexture());
-		this->hbaoBlur1Var->SetTexture(this->internalTargets[0]->GetResolveTexture());
-		this->hbaoBlur2Var->SetTexture(NULL);
+		this->hbaoBlurLinearVar->SetTexture(this->internalTargets[1]->GetResolveTexture());
+		this->hbaoBlurPointVar->SetTexture(this->internalTargets[1]->GetResolveTexture());
+		this->hbaoBlurRGVar->SetTexture(this->internalTargets[0]->GetResolveTexture());
+		this->hbaoBlurRVar->SetTexture(NULL);
 		this->blur->Commit();
 		renderDevice->Compute(numGroupsX1, numGroupsY2, 1);
 		this->blur->PostDraw();
 		this->blur->EndPass();
 		this->blur->End();
-
+		
 		this->blur->SelectActiveVariation(this->yDirection);
 		this->blur->Begin();
 		this->blur->BeginPass(0);
-		this->hbaoBlur0Var->SetTexture(this->internalTargets[0]->GetResolveTexture());
-		this->hbaoBlur1Var->SetTexture(NULL);
-		this->hbaoBlur2Var->SetTexture(this->output->GetResolveTexture());
+		this->hbaoBlurLinearVar->SetTexture(this->internalTargets[0]->GetResolveTexture());
+		this->hbaoBlurPointVar->SetTexture(this->internalTargets[0]->GetResolveTexture());
+		this->hbaoBlurRGVar->SetTexture(NULL);
+		this->hbaoBlurRVar->SetTexture(this->output->GetResolveTexture());
 		this->blur->Commit();
 		renderDevice->Compute(numGroupsY1, numGroupsX2, 1);
 		this->blur->PostDraw();

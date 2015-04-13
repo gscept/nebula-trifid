@@ -11,15 +11,34 @@ float PowerExponent = 1.0f;
 float BlurFalloff;
 float BlurDepthThreshold;
 
-readwrite rg16f image2D HBAO0;
-readwrite rg16f image2D HBAO1;
-readwrite r16f image2D HBAO2;
+sampler2D HBAOReadLinear;
+sampler2D HBAOReadPoint;
+
+samplerstate LinearState
+{
+	Samplers = {HBAOReadLinear};
+	Filter = Linear;
+	AddressU = Clamp;
+	AddressV = Clamp;
+};
+
+samplerstate PointState
+{
+	Samplers = {HBAOReadPoint};
+	Filter = Point;
+	AddressU = Clamp;
+	AddressV = Clamp;
+};
+
+
+write rg16f image2D HBAORG;
+write r16f image2D HBAOR;
 
 #define KERNEL_RADIUS 16
-#define HALF_KERNEL_RADIUS (KERNEL_RADIUS/2)
+#define HALF_KERNEL_RADIUS (KERNEL_RADIUS/2.0f)
 
 #define HBAO_TILE_WIDTH 320
-#define SHARED_MEM_SIZE KERNEL_RADIUS + HBAO_TILE_WIDTH + KERNEL_RADIUS
+#define SHARED_MEM_SIZE (KERNEL_RADIUS + HBAO_TILE_WIDTH + KERNEL_RADIUS)
 groupshared vec2 SharedMemory[SHARED_MEM_SIZE];
 
 //------------------------------------------------------------------------------
@@ -35,25 +54,25 @@ CrossBilateralWeight(float r, float d, float d0)
 /**
 */
 [localsizex] = SHARED_MEM_SIZE
-[localsizey] = 1
 shader
 void
 csMainX() 
 {
 	// get full resolution and inverse full resolution
-	vec2 size = imageSize(HBAO0);
+	vec2 size = textureSize(HBAOReadLinear, 0);
 	vec2 inverseSize = 1 / size;
 	
 	// calculate offsets
-	const uint         tileStart = gl_WorkGroupID.x * HBAO_TILE_WIDTH;
-	const uint           tileEnd = tileStart + HBAO_TILE_WIDTH;
-	const uint        apronStart = tileStart - KERNEL_RADIUS;
-	const uint          apronEnd = tileEnd   + KERNEL_RADIUS;
+	const int         tileStart = int(gl_WorkGroupID.x) * HBAO_TILE_WIDTH;
+	const int           tileEnd = tileStart + HBAO_TILE_WIDTH;
+	const int        apronStart = tileStart - KERNEL_RADIUS;
+	const int          apronEnd = tileEnd   + KERNEL_RADIUS;
 	
-	const uint x = apronStart + gl_LocalInvocationID.x;
-	const uint y = gl_WorkGroupID.y;
-	const ivec2 uv = ivec2(x, y);
-	SharedMemory[gl_LocalInvocationID.x] = imageLoad(HBAO0, uv).rg;
+	const int x = apronStart + int(gl_LocalInvocationID.x);
+	const int y = int(gl_WorkGroupID.y);
+	const vec2 uv = vec2(x, y) * inverseSize;
+	memoryBarrierImage();
+	SharedMemory[gl_LocalInvocationID.x] = textureLod(HBAOReadLinear, uv, 0).xy;
 	memoryBarrierShared();
 	
 	const uint writePos = tileStart + gl_LocalInvocationID.x;
@@ -62,8 +81,8 @@ csMainX()
 	if (writePos < tileEndClamped)
 	{
 		// Fetch (ao,z) at the kernel center
-		ivec2 uv = ivec2(writePos, y);
-		vec2 AoDepth = imageLoad(HBAO0, uv).rg;
+		vec2 uv = vec2(writePos, y) * inverseSize;
+		vec2 AoDepth = textureLod(HBAOReadPoint, uv, 0).xy;
 		float ao_total = AoDepth.x;
 		float center_d = AoDepth.y;
 		float w_total = 1;
@@ -94,7 +113,7 @@ csMainX()
 		}
 		
 		float ao = ao_total / w_total;
-		imageStore(HBAO1, int2(writePos, gl_WorkGroupID.y), vec4(ao, center_d, 0, 0));
+		imageStore(HBAORG, int2(writePos, gl_WorkGroupID.y), vec4(ao, center_d, 0, 0));
 	}
 }
 
@@ -102,35 +121,35 @@ csMainX()
 /**
 */
 [localsizex] = SHARED_MEM_SIZE
-[localsizey] = 1
 shader
 void
 csMainY() 
 {
 	// get full resolution and inverse full resolution
-	vec2 size = imageSize(HBAO0);
+	vec2 size = textureSize(HBAOReadLinear, 0);
 	vec2 inverseSize = 1 / size;
 	
 	// calculate offsets
-	const uint         tileStart = gl_WorkGroupID.x * HBAO_TILE_WIDTH;
-	const uint           tileEnd = tileStart + HBAO_TILE_WIDTH;
-	const uint        apronStart = tileStart - KERNEL_RADIUS;
-	const uint          apronEnd = tileEnd   + KERNEL_RADIUS;
+	const int         tileStart = int(gl_WorkGroupID.x) * HBAO_TILE_WIDTH;
+	const int           tileEnd = tileStart + HBAO_TILE_WIDTH;
+	const int        apronStart = tileStart - KERNEL_RADIUS;
+	const int          apronEnd = tileEnd   + KERNEL_RADIUS;
 	
-	const uint x = gl_WorkGroupID.y;
-	const uint y = apronStart + gl_LocalInvocationID.x;
-	const ivec2 uv = ivec2(x, y);
-	SharedMemory[gl_LocalInvocationID.x] = imageLoad(HBAO0, uv).rg;
+	const int x = int(gl_WorkGroupID.y);
+	const int y = apronStart + int(gl_LocalInvocationID.x);
+	const vec2 uv = vec2(x, y) * inverseSize;
+	memoryBarrierImage();
+	SharedMemory[gl_LocalInvocationID.x] = textureLod(HBAOReadLinear, uv, 0).xy;
 	memoryBarrierShared();
 	
 	const uint writePos = tileStart + gl_LocalInvocationID.x;
-	const uint tileEndClamped = min(tileEnd, int(size.y));
+	const uint tileEndClamped = min(tileEnd, int(size.x));
 	
 	if (writePos < tileEndClamped)
 	{
 		// Fetch (ao,z) at the kernel center
-		ivec2 uv = ivec2(x, writePos);
-		vec2 AoDepth = imageLoad(HBAO0, uv).rg;
+		vec2 uv = vec2(x, writePos) * inverseSize;
+		vec2 AoDepth = textureLod(HBAOReadPoint, uv, 0).xy;
 		float ao_total = AoDepth.x;
 		float center_d = AoDepth.y;
 		float w_total = 1;
@@ -161,7 +180,7 @@ csMainY()
 		}
 		
 		float ao = ao_total / w_total;
-		imageStore(HBAO2, int2(gl_WorkGroupID.y, writePos), vec4(pow(ao, PowerExponent),0,0,0));
+		imageStore(HBAOR, int2(gl_WorkGroupID.y, writePos), vec4(pow(ao, PowerExponent),0,0,0));
 	}
 }
 
