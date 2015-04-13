@@ -506,7 +506,7 @@ TARGET_INCLUDE_DIRECTORIES(application PUBLIC ${Nebula3_SOURCE_DIR}/code/applica
 TARGET_INCLUDE_DIRECTORIES(application_NIDLS PUBLIC $<TARGET_PROPERTY:application,INTERFACE_INCLUDE_DIRECTORIES>)
 SET_TARGET_PROPERTIES(application PROPERTIES FOLDER "N3SDK/N3")
 
-ADD_DEPENDENCIES(application application_NIDLS foundation render attr db sqlite tinyxml zlib ${PHYSICS_DEPENDENCIES})
+ADD_DEPENDENCIES(application application_NIDLS multiplayer_NIDLS foundation render attr db sqlite tinyxml zlib ${PHYSICS_DEPENDENCIES})
 ADD_DEPENDENCIES(application_NIDLS render_NIDLS)
 
 TARGET_LINK_LIBRARIES(application_NIDLS render)

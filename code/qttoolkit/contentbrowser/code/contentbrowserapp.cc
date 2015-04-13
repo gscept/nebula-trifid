@@ -12,7 +12,7 @@
 #include "resources/resource.h"
 #include "graphics/graphicsprotocol.h"
 #include "graphics/graphicsinterface.h"
-#include "qttoolkitutil/style/graypalette.h"
+#include "style/graypalette.h"
 #include "qtremoteprotocol.h"
 #include "editorfeatures/editorbasegamefeature.h"
 #include "platform.h"

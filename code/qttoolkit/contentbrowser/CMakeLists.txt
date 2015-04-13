@@ -164,8 +164,7 @@ ENDIF()
 N_SET_EXE_SUBSYSTEM(contentbrowser Windows)
 		
 
-ADD_DEPENDENCIES(contentbrowser
-	
+ADD_DEPENDENCIES(contentbrowser	
 	libqimg
 	posteffectcontroller
 	splash
@@ -174,7 +173,7 @@ ADD_DEPENDENCIES(contentbrowser
 	resourcebrowser
 	toolkitutil
 	remoteinterface	
-	qttoolkitutil
+	qttools
 	editorfeatures
 )
 
@@ -188,10 +187,9 @@ TARGET_LINK_LIBRARIES(contentbrowser
 	resourcebrowser
 	miniexporter
 	remoteinterface
-	qttoolkitutil
+	qttools
 	editorfeatures
-	toolkitutil
-	
+	toolkitutil	
 	${QT_WIN_LIBS}	
 	${QT_LIBRARIES} ${QT_QTMAIN_LIBRARY}	
 )
