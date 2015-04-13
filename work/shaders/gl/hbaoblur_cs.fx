@@ -12,17 +12,21 @@ float BlurFalloff;
 float BlurDepthThreshold;
 
 readwrite rg16f image2D HBAO0;
-write r16f image2D HBAO1;
+readwrite rg16f image2D HBAO1;
+readwrite r16f image2D HBAO2;
 
 #define KERNEL_RADIUS 16
 #define HALF_KERNEL_RADIUS (KERNEL_RADIUS/2)
 
-#define ROW_TILE_WIDTH 320
-#define SHARED_MEM_SIZE KERNEL_RADIUS + ROW_TILE_WIDTH + KERNEL_RADIUS
+#define HBAO_TILE_WIDTH 320
+#define SHARED_MEM_SIZE KERNEL_RADIUS + HBAO_TILE_WIDTH + KERNEL_RADIUS
 groupshared vec2 SharedMemory[SHARED_MEM_SIZE];
 
-//----------------------------------------------------------------------------------
-float CrossBilateralWeight(float r, float d, float d0)
+//------------------------------------------------------------------------------
+/**
+*/
+float
+CrossBilateralWeight(float r, float d, float d0)
 {
     return exp2(-r*r*BlurFalloff) * float(abs(d - d0) < BlurDepthThreshold);
 }
@@ -41,26 +45,25 @@ csMainX()
 	vec2 inverseSize = 1 / size;
 	
 	// calculate offsets
-	const float               row = float(gl_WorkGroupID.y);
-	const float         tileStart = float(gl_WorkGroupID.x) * ROW_TILE_WIDTH;
-	const float           tileEnd = tileStart + ROW_TILE_WIDTH;
-	const float        apronStart = tileStart - KERNEL_RADIUS;
-	const float          apronEnd = tileEnd   + KERNEL_RADIUS;
+	const uint         tileStart = gl_WorkGroupID.x * HBAO_TILE_WIDTH;
+	const uint           tileEnd = tileStart + HBAO_TILE_WIDTH;
+	const uint        apronStart = tileStart - KERNEL_RADIUS;
+	const uint          apronEnd = tileEnd   + KERNEL_RADIUS;
 	
-	const float x = apronStart + float(gl_LocalInvocationID.x) + 0.5f;
-	const float y = row;
-	const ivec2 uv = ivec2(vec2(x,y) + 0.5f);
+	const uint x = apronStart + gl_LocalInvocationID.x;
+	const uint y = gl_WorkGroupID.y;
+	const ivec2 uv = ivec2(x, y);
 	SharedMemory[gl_LocalInvocationID.x] = imageLoad(HBAO0, uv).rg;
 	groupMemoryBarrier();
 	
-	const float writePos = tileStart + float(gl_LocalInvocationID.x);
-	const float tileEndClamped = min(tileEnd, size.x);
+	const uint writePos = tileStart + gl_LocalInvocationID.x;
+	const uint tileEndClamped = min(tileEnd, int(size.x));
 	
 	if (writePos < tileEndClamped)
 	{
 		// Fetch (ao,z) at the kernel center
-		vec2 uv = vec2(writePos, y);
-		vec2 AoDepth = imageLoad(HBAO0, ivec2(uv)).rg;
+		ivec2 uv = ivec2(writePos, y);
+		vec2 AoDepth = imageLoad(HBAO0, uv).rg;
 		float ao_total = AoDepth.x;
 		float center_d = AoDepth.y;
 		float w_total = 1;
@@ -91,7 +94,7 @@ csMainX()
 		}
 		
 		float ao = ao_total / w_total;
-		imageStore(HBAO0, int2(writePos, gl_WorkGroupID.y), vec4(ao, center_d, 0, 0));
+		imageStore(HBAO1, int2(writePos, gl_WorkGroupID.y), vec4(ao, center_d, 0, 0));
 	}
 }
 
@@ -109,26 +112,25 @@ csMainY()
 	vec2 inverseSize = 1 / size;
 	
 	// calculate offsets
-	const float               col = float(gl_WorkGroupID.y);
-	const float         tileStart = float(gl_WorkGroupID.x) * ROW_TILE_WIDTH;
-	const float           tileEnd = tileStart + ROW_TILE_WIDTH;
-	const float        apronStart = tileStart - KERNEL_RADIUS;
-	const float          apronEnd = tileEnd   + KERNEL_RADIUS;
+	const uint         tileStart = gl_WorkGroupID.x * HBAO_TILE_WIDTH;
+	const uint           tileEnd = tileStart + HBAO_TILE_WIDTH;
+	const uint        apronStart = tileStart - KERNEL_RADIUS;
+	const uint          apronEnd = tileEnd   + KERNEL_RADIUS;
 	
-	const float x = col;
-	const float y = apronStart + float(gl_LocalInvocationID.x) + 0.5f;
-	const ivec2 uv = ivec2(vec2(x,y) + 0.5f);
+	const uint x = gl_WorkGroupID.y;
+	const uint y = apronStart + gl_LocalInvocationID.x;
+	const ivec2 uv = ivec2(x, y);
 	SharedMemory[gl_LocalInvocationID.x] = imageLoad(HBAO0, uv).rg;
 	groupMemoryBarrier();
 	
-	const float writePos = tileStart + float(gl_LocalInvocationID.x);
-	const float tileEndClamped = min(tileEnd, size.x);
+	const uint writePos = tileStart + gl_LocalInvocationID.x;
+	const uint tileEndClamped = min(tileEnd, int(size.y));
 	
 	if (writePos < tileEndClamped)
 	{
 		// Fetch (ao,z) at the kernel center
-		vec2 uv = vec2(x, writePos);
-		vec2 AoDepth = imageLoad(HBAO0, ivec2(uv)).rg;
+		ivec2 uv = ivec2(x, writePos);
+		vec2 AoDepth = imageLoad(HBAO0, uv).rg;
 		float ao_total = AoDepth.x;
 		float center_d = AoDepth.y;
 		float w_total = 1;
@@ -159,7 +161,7 @@ csMainY()
 		}
 		
 		float ao = ao_total / w_total;
-		imageStore(HBAO1, int2(gl_WorkGroupID.y, writePos), vec4(pow(ao, PowerExponent),0,0,0));
+		imageStore(HBAO2, int2(gl_WorkGroupID.y, writePos), vec4(pow(ao, PowerExponent),0,0,0));
 	}
 }
 
