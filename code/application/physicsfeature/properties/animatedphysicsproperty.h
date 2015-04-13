@@ -66,8 +66,8 @@ protected:
 
 	Util::Array<Ptr<Physics::PhysicsBody>> physicsEntities;
 	Util::Array<Util::StringAtom> trackedJoints;
-	Util::Dictionary<Util::StringAtom, Ptr<Physics::StaticObject>> bodyHash;
-	Util::Dictionary<Util::StringAtom, Ptr<Physics::StaticObject>> jointHash;
+	Util::Dictionary<Util::StringAtom, Ptr<Physics::PhysicsBody>> bodyHash;
+	Util::Dictionary<Util::StringAtom, Ptr<Physics::PhysicsBody>> jointHash;
 	Util::Dictionary<Util::StringAtom, Math::matrix44> jointOffsets;
 	Ptr<Graphics::ModelEntity> trackedModel;
 	bool linked;
