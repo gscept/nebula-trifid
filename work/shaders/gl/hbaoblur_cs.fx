@@ -51,7 +51,7 @@ csMainX()
 	const float y = row;
 	const ivec2 uv = ivec2(vec2(x,y) + 0.5f);
 	SharedMemory[gl_LocalInvocationID.x] = imageLoad(HBAO0, uv).rg;
-	groupMemoryBarrier();
+	memoryBarrierShared();
 	
 	const float writePos = tileStart + float(gl_LocalInvocationID.x);
 	const float tileEndClamped = min(tileEnd, size.x);
@@ -119,7 +119,7 @@ csMainY()
 	const float y = apronStart + float(gl_LocalInvocationID.x) + 0.5f;
 	const ivec2 uv = ivec2(vec2(x,y) + 0.5f);
 	SharedMemory[gl_LocalInvocationID.x] = imageLoad(HBAO0, uv).rg;
-	groupMemoryBarrier();
+	memoryBarrierShared();
 	
 	const float writePos = tileStart + float(gl_LocalInvocationID.x);
 	const float tileEndClamped = min(tileEnd, size.x);

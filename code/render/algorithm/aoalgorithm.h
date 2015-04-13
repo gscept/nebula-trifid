@@ -16,7 +16,7 @@
 #include "renderutil/drawfullscreenquad.h"
 
 // define this to use compute shaders for HBAO instead of pixel shader using a full screen quad
-//#define HBAO_COMPUTE 1
+#define HBAO_COMPUTE 1
 
 
 namespace CoreGraphics

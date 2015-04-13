@@ -385,7 +385,6 @@ AOAlgorithm::Execute()
 		this->hbao->EndPass();
 		this->hbao->End();
 
-		/*
 		this->blur->SelectActiveVariation(this->xDirection);
 		this->blur->Begin();
 		this->blur->BeginPass(0);
@@ -406,7 +405,6 @@ AOAlgorithm::Execute()
 		this->blur->PostDraw();
 		this->blur->EndPass();
 		this->blur->End();
-		*/
 #else
 
 		// first render ao

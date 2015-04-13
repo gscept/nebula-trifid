@@ -25,11 +25,12 @@ float R2 = 0.0f;
 #define NUM_STEPS 8
 #endif
 
-sampler2D DepthBuffer;
-sampler2D RandomMap;
+read r32f image2D DepthBuffer;
+//sampler2D RandomMap;
 readwrite rg16f image2D HBAO0;
 write rg16f image2D HBAO1;
 
+/*
 samplerstate DepthSampler
 {
 	Samplers = { DepthBuffer };
@@ -37,18 +38,19 @@ samplerstate DepthSampler
 	AddressU = Clamp;
 	AddressV = Clamp;
 };
+*/
 
 // Maximum kernel radius in number of pixels
-#define KERNEL_RADIUS NUM_STEPS*STEP_SIZE
+#define KERNEL_RADIUS (NUM_STEPS*STEP_SIZE)
 
 // The last sample has weight = exp(-KERNEL_FALLOFF)
 #define KERNEL_FALLOFF 3.0f
 
-// Must match the HBAO_TILE_WIDTH value from HBAO_DX11_LIB.cpp
+// Must match the HBAO_TILE_WIDTH value from AOAlgorithm
 #define HBAO_TILE_WIDTH 320
 
-#define SHARED_MEM_SIZE KERNEL_RADIUS + HBAO_TILE_WIDTH + KERNEL_RADIUS
-groupshared vec2 SharedMemory[SHARED_MEM_SIZE];
+#define SHARED_MEM_SIZE (KERNEL_RADIUS + HBAO_TILE_WIDTH + KERNEL_RADIUS)
+groupshared vec2 SharedMemory[SHARED_MEM_SIZE]; 
 
 //----------------------------------------------------------------------------------
 float Tangent(float2 V)
@@ -83,7 +85,7 @@ vec2 MinDiff(vec2 P, vec2 Pr, vec2 Pl)
 // Load (X,Z) view-space coordinates from shared memory.
 // On Fermi, such strided 64-bit accesses should not have any bank conflicts.
 //----------------------------------------------------------------------------------
-vec2 SharedMemoryLoad(uint centerId, uint x)
+vec2 SharedMemoryLoad(int centerId, int x)
 {
     return SharedMemory[centerId + x];
 }
@@ -91,10 +93,10 @@ vec2 SharedMemoryLoad(uint centerId, uint x)
 //----------------------------------------------------------------------------------
 // Compute (X,Z) view-space coordinates from the depth texture.
 //----------------------------------------------------------------------------------
-vec2 LoadXZFromTexture(uint x, uint y)
+vec2 LoadXZFromTexture(int x, int y)
 { 
     vec2 uv = (vec2(x, y)) * InvAOResolution;
-    float z_eye = texelFetch(DepthBuffer, ivec2(x, y), 0).r;
+    float z_eye = imageLoad(DepthBuffer, ivec2(x, y)).r;
     float x_eye = (UVToViewA.x * uv.x + UVToViewB.x) * z_eye;
     return vec2(x_eye, z_eye);
 }
@@ -102,10 +104,10 @@ vec2 LoadXZFromTexture(uint x, uint y)
 //----------------------------------------------------------------------------------
 // Compute (Y,Z) view-space coordinates from the depth texture.
 //----------------------------------------------------------------------------------
-vec2 LoadYZFromTexture(uint x, uint y)
+vec2 LoadYZFromTexture(int x, int y)
 {
     vec2 uv = (vec2(x, y)) * InvAOResolution;
-    float z_eye = texelFetch(DepthBuffer, ivec2(x, y), 0).r;
+    float z_eye = imageLoad(DepthBuffer, ivec2(x, y)).r;
     float y_eye = (UVToViewA.y * uv.y + UVToViewB.y) * z_eye;
     return vec2(y_eye, z_eye);
 }
@@ -116,18 +118,19 @@ vec2 LoadYZFromTexture(uint x, uint y)
 // - (X,Z) for the horizontal directions (approximating Y by a constant).
 // - (Y,Z) for the vertical directions (approximating X by a constant).
 //----------------------------------------------------------------------------------
-void IntegrateDirection(out float ao,
+void IntegrateDirection(inout float ao,
                         vec2 P,
                         float tanT,
-                        uint threadId,
-                        uint X0,
-                        uint deltaX)
+                        int threadId,
+                        int X0,
+                        int deltaX)
 {
     float tanH = tanT;
     float sinH = TanToSin(tanH);
     float sinT = TanToSin(tanT);
 
-    for (uint sampleId = 0; sampleId < NUM_STEPS; ++sampleId)
+	#pragma unroll
+    for (int sampleId = 0; sampleId < NUM_STEPS; ++sampleId)
     {
         vec2 S = SharedMemoryLoad(threadId, sampleId * deltaX + X0);
         vec2 V = S - P;
@@ -150,7 +153,7 @@ void IntegrateDirection(out float ao,
 //----------------------------------------------------------------------------------
 // Bias tangent angle and compute HBAO in the +X/-X or +Y/-Y directions.
 //----------------------------------------------------------------------------------
-float ComputeHBAO(vec2 P, vec2 T, uint centerId)
+float ComputeHBAO(vec2 P, vec2 T, int centerId)
 {
     float ao = 0;
     float tanT = Tangent(T);
@@ -163,31 +166,30 @@ float ComputeHBAO(vec2 P, vec2 T, uint centerId)
 /**
 */
 [localsizex] = HBAO_TILE_WIDTH
-[localsizey] = 1
 shader
 void
 csMainX() 
 {
-    const uint         tileStart = gl_WorkGroupID.x * HBAO_TILE_WIDTH;
-    const uint           tileEnd = tileStart + HBAO_TILE_WIDTH;
-    const uint        apronStart = tileStart - KERNEL_RADIUS;
-    const uint          apronEnd = tileEnd   + KERNEL_RADIUS;
+    const int         tileStart = int(gl_WorkGroupID.x) * HBAO_TILE_WIDTH;
+    const int           tileEnd = tileStart + HBAO_TILE_WIDTH;
+    const int        apronStart = tileStart - KERNEL_RADIUS;
+    const int          apronEnd = tileEnd   + KERNEL_RADIUS;
 
-    const uint x = apronStart + gl_LocalInvocationID.x;
-    const uint y = gl_WorkGroupID.y;
+    const int x = apronStart + int(gl_LocalInvocationID.x);
+    const int y = int(gl_WorkGroupID.y);
 
     // Load float2 samples into shared memory
     SharedMemory[gl_LocalInvocationID.x] = LoadXZFromTexture(x,y);
     SharedMemory[min(2 * KERNEL_RADIUS + gl_LocalInvocationID.x, SHARED_MEM_SIZE - 1)] = LoadXZFromTexture(2 * KERNEL_RADIUS + x, y);
-    groupMemoryBarrier();
+    memoryBarrierShared();
 
-    const uint writePos = tileStart + gl_LocalInvocationID.x;
-    const uint tileEndClamped = min(tileEnd, int(AOResolution.x));
+    const int writePos = tileStart + int(gl_LocalInvocationID.x);
+    const int tileEndClamped = min(tileEnd, int(AOResolution.x));
     
     if (writePos < tileEndClamped)
     {
-        uint centerId = gl_LocalInvocationID.x + KERNEL_RADIUS;
-        uint ox = writePos;
+        int centerId = int(gl_LocalInvocationID.x) + KERNEL_RADIUS;
+        uint ox = writePos; 
         uint oy = gl_WorkGroupID.y;
 
         // Fetch the 2D coordinates of the center point and its nearest neighbors
@@ -207,30 +209,29 @@ csMainX()
 /**
 */
 [localsizex] = HBAO_TILE_WIDTH
-[localsizey] = 1
 shader
 void
 csMainY() 
 {
-	const uint         tileStart = gl_WorkGroupID.x * HBAO_TILE_WIDTH;
-    const uint           tileEnd = tileStart + HBAO_TILE_WIDTH;
-    const uint        apronStart = tileStart - KERNEL_RADIUS;
-    const uint          apronEnd = tileEnd   + KERNEL_RADIUS;
+	const int         tileStart = int(gl_WorkGroupID.x) * HBAO_TILE_WIDTH;
+    const int           tileEnd = tileStart + HBAO_TILE_WIDTH;
+    const int        apronStart = tileStart - KERNEL_RADIUS;
+    const int          apronEnd = tileEnd   + KERNEL_RADIUS;
 
-    const uint x = gl_WorkGroupID.y;
-    const uint y = apronStart + gl_LocalInvocationID.x;
+    const int x = int(gl_WorkGroupID.y);
+    const int y = apronStart + int(gl_LocalInvocationID.x);
 
     // Load float2 samples into shared memory
     SharedMemory[gl_LocalInvocationID.x] = LoadYZFromTexture(x,y);
     SharedMemory[min(2 * KERNEL_RADIUS + gl_LocalInvocationID.x, SHARED_MEM_SIZE - 1)] = LoadYZFromTexture(x, 2 * KERNEL_RADIUS + y);
-    groupMemoryBarrier();
+    memoryBarrierShared();
 
     const uint writePos = tileStart + gl_LocalInvocationID.x;
     const uint tileEndClamped = min(tileEnd, int(AOResolution.y));
     
     if (writePos < tileEndClamped)
     {
-        uint centerId = gl_LocalInvocationID.x + KERNEL_RADIUS;
+        int centerId = int(gl_LocalInvocationID.x) + KERNEL_RADIUS;
         uint ox = gl_WorkGroupID.y;
         uint oy = writePos;
 
@@ -244,7 +245,7 @@ csMainY()
 
         float aoy = ComputeHBAO(P, T, centerId);
         float aox = imageLoad(HBAO0, int2(gl_WorkGroupID.y, writePos)).r;
-        float ao = (aox + aoy) * 0.25;
+        float ao = (aox + aoy) * 0.25f;
 
         ao = saturate(ao * Strength);
 		imageStore(HBAO1, int2(ox, oy), vec4(ao, P.y, 0, 0));

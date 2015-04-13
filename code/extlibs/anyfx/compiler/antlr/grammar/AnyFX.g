@@ -3,6 +3,7 @@ grammar AnyFX;
 options 
 {
 	language=C;
+	backtrack = true;
 }
 
 
@@ -18,6 +19,7 @@ options
 
 @lexer::members
 {
+
 int preprocessorRowLexer = 0;
 const char* includeFileNameLexer = 0;
 
@@ -75,7 +77,6 @@ EmitPreprocessedToken(pANTLR3_LEXER lexer)
 @lexer::includes
 {
 #include <string>
-
 struct LexerErrorPackage
 {
 	const char* file;
@@ -232,6 +233,10 @@ string	returns [ std::string val ]
 	;
 		
 boolean returns [ bool val ]
+	@init
+	{
+		val = false;
+	}
 	:	'true' { $val = true; }
 	|	'false' { $val = false; }
 	;
@@ -463,6 +468,10 @@ constant	returns [ Constant constant ]
 
 // parameter modifiers denotes variables with special use, such as vertex position output, instance id input etc
 parameterAttribute	returns [ Parameter::Attribute attribute ]
+		@init
+		{
+			$attribute = Parameter::NoAttribute;
+		}
 		: LL IDENTIFIER RR
 		{
 			std::string identifierString((const char*)$IDENTIFIER.text->chars);
@@ -712,6 +721,10 @@ program		returns [ Program program ]
 
 // an expression in AnyFX is a constant time expression which can be evaluated during compile time
 expression	returns [ Expression* tree ]
+					@init
+					{
+						tree = 0;
+					}
 	:	binaryexp7 { $tree = $binaryexp7.tree; }
 	;
 	
@@ -720,6 +733,7 @@ binaryexp7	returns [ Expression* tree ]
 					@init
 					{
 						Expression* prev = 0;
+						tree = 0;
 					}
 					:
 					e1 = binaryexp6 { $tree = $e1.tree;	$tree->SetLine(LT(1)->line); $tree->SetPosition(LT(1)->charPosition); } ( ( LOGICOR ) e2 = binaryexp6
@@ -750,6 +764,7 @@ binaryexp6			returns [ Expression* tree ]
 					@init
 					{
 						Expression* prev = 0;
+						tree = 0;
 					}
 					:
 					e1 = binaryexp5 { $tree = $e1.tree;	$tree->SetLine(LT(1)->line); $tree->SetPosition(LT(1)->charPosition); } ( ( LOGICAND ) e2 = binaryexp5
@@ -780,6 +795,7 @@ binaryexp5			returns [ Expression* tree ]
 					@init
 					{
 						Expression* prev = 0;
+						tree = 0;
 					}
 					: 
 					e1 = binaryexp4 { $tree = $e1.tree;	$tree->SetLine(LT(1)->line); $tree->SetPosition(LT(1)->charPosition); } ( op = ( LOGICEQ | NOTEQ ) e2 = binaryexp4
@@ -810,6 +826,7 @@ binaryexp4			returns [ Expression* tree ]
 					@init
 					{
 						Expression* prev = 0;
+						tree = 0;
 					}
 					:
 					e1 = binaryexp3 { $tree = $e1.tree;	$tree->SetLine(LT(1)->line); $tree->SetPosition(LT(1)->charPosition); } ( op = ( LESS | GREATER | LESSEQ | GREATEREQ ) e2 = binaryexp3
@@ -840,6 +857,7 @@ binaryexp3			returns [ Expression* tree ]
 					@init
 					{
 						Expression* prev = 0;
+						tree = 0;
 					}
 					:					
 					e1 = binaryexp2 { $tree = $e1.tree; $tree->SetLine(LT(1)->line); $tree->SetPosition(LT(1)->charPosition); } ( op = ( ADD | SUB ) e2 = binaryexp2
@@ -870,6 +888,7 @@ binaryexp2			returns [ Expression* tree ]
 					@init
 					{
 						Expression* prev = 0;
+						tree = 0;
 					}
 					:
 					e1 = binaryexp1 { $tree = $e1.tree; $tree->SetLine(LT(1)->line); $tree->SetPosition(LT(1)->charPosition); } ( op = ( MUL | DIV ) e2 = binaryexp1
@@ -900,6 +919,7 @@ binaryexp1			returns [ Expression* tree ]
 					@init
 					{
 						char operat = 0;
+						tree = 0;
 					}
 					:
 					( op = (SUB | NOT)  )? e1 = binaryexpatom
@@ -923,6 +943,10 @@ binaryexp1			returns [ Expression* tree ]
 
 // end of binary expansion, in the end, every expression can be expressed as either an ID or a new expression surrounded by paranthesis.
 binaryexpatom		returns [ Expression* tree ]
+					@init
+					{
+						tree = 0;
+					}
 					:
 					INTEGERLITERAL  	{ $tree = new IntExpression(atoi((const char*)$INTEGERLITERAL.text->chars)); $tree->SetLine(LT(1)->line); $tree->SetPosition(LT(1)->charPosition); }
 					| FLOATLITERAL  	{ $tree = new FloatExpression(atof((const char*)$FLOATLITERAL.text->chars)); $tree->SetLine(LT(1)->line); $tree->SetPosition(LT(1)->charPosition); }
@@ -934,10 +958,15 @@ binaryexpatom		returns [ Expression* tree ]
 						$tree->SetPosition(LT(1)->charPosition);
 						$tree->SetFile((const char*)LT(-1)->custom);
 					}
+					| parantexpression { $tree = $parantexpression.tree; }
 					;
 					
 // expands an expression surrounded by paranthesis
 parantexpression	returns [ Expression* tree ]
+					@init
+					{
+						tree = 0;
+					}
 					:
 					LP expression RP { $tree = $expression.tree; }
 					;
