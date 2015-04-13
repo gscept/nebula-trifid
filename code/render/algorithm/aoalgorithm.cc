@@ -91,7 +91,8 @@ AOAlgorithm::Setup()
 	this->hbao0Var = this->hbao->GetVariableByName("HBAO0");
 	this->hbao1Var = this->hbao->GetVariableByName("HBAO1");
 	this->hbaoBlur0Var = this->blur->GetVariableByName("HBAO0");
-	this->hbaoBlur1Var = this->blur->GetVariableByName("HBAO0");
+	this->hbaoBlur1Var = this->blur->GetVariableByName("HBAO1");
+	this->hbaoBlur2Var = this->blur->GetVariableByName("HBAO2");
 #else
 	// setup shaders
 	this->hbao = ShaderServer::Instance()->CreateShaderInstance("shd:hbao");
@@ -260,19 +261,6 @@ AOAlgorithm::Discard()
 	this->blur->Discard();
 	this->blur = 0;
 
-	// unload render targets
-    IndexT i;
-    for (i = 0; i < 2; i++)
-    {
-        this->internalTargets[i]->Discard();
-        this->internalTargets[i] = 0;
-    }
-	this->output->Discard();
-	this->output = 0;
-
-	// unload quad
-	this->quad.Discard();
-
 	// free variables
 	this->depthTextureVar = 0;
 #ifdef HBAO_COMPUTE
@@ -280,6 +268,7 @@ AOAlgorithm::Discard()
 	this->hbao1Var = 0;
 	this->hbaoBlur0Var = 0;
 	this->hbaoBlur1Var = 0;
+	this->hbaoBlur2Var = 0;
 #else
 	this->hbaoTextureVar = 0;
 	this->randomTextureVar = 0;
@@ -292,9 +281,8 @@ AOAlgorithm::Discard()
 	this->focalLengthVar = 0;
 	this->maxRadiusPixelsVar = 0;
 	this->negInvR2Var = 0;
-
 #endif
-	
+
 	this->uvToViewAVar = 0;
 	this->uvToViewBVar = 0;
 	this->r2Var = 0;
@@ -303,6 +291,19 @@ AOAlgorithm::Discard()
 	this->strengthVar = 0;
 	this->tanAngleBiasVar = 0;
 	this->powerExponentVar = 0;
+
+	// unload render targets
+    IndexT i;
+    for (i = 0; i < 2; i++)
+    {
+        this->internalTargets[i]->Discard();
+        this->internalTargets[i] = 0;
+    }
+	this->output->Discard();
+	this->output = 0;
+
+	// unload quad
+	this->quad.Discard();
 }
 
 //------------------------------------------------------------------------------
@@ -389,6 +390,8 @@ AOAlgorithm::Execute()
 		this->blur->Begin();
 		this->blur->BeginPass(0);
 		this->hbaoBlur0Var->SetTexture(this->internalTargets[1]->GetResolveTexture());
+		this->hbaoBlur1Var->SetTexture(this->internalTargets[0]->GetResolveTexture());
+		this->hbaoBlur2Var->SetTexture(NULL);
 		this->blur->Commit();
 		renderDevice->Compute(numGroupsX1, numGroupsY2, 1);
 		this->blur->PostDraw();
@@ -398,8 +401,9 @@ AOAlgorithm::Execute()
 		this->blur->SelectActiveVariation(this->yDirection);
 		this->blur->Begin();
 		this->blur->BeginPass(0);
-		this->hbaoBlur0Var->SetTexture(this->internalTargets[1]->GetResolveTexture());
-		this->hbaoBlur1Var->SetTexture(this->output->GetResolveTexture());
+		this->hbaoBlur0Var->SetTexture(this->internalTargets[0]->GetResolveTexture());
+		this->hbaoBlur1Var->SetTexture(NULL);
+		this->hbaoBlur2Var->SetTexture(this->output->GetResolveTexture());
 		this->blur->Commit();
 		renderDevice->Compute(numGroupsY1, numGroupsX2, 1);
 		this->blur->PostDraw();

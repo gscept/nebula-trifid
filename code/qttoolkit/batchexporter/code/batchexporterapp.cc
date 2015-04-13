@@ -11,7 +11,7 @@
 #include "batchexporterapp.h"
 #include "ui_about.h"
 #include "tools/progressnotifier.h"
-#include "qttoolkitutil/style/graypalette.h"
+#include "style/graypalette.h"
 #include "util/string.h"
 #include "system/nebulasettings.h"
 #include "io/fswrapper.h"

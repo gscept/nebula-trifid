@@ -1,21 +1,6 @@
 #-------------------------------------------------------------------------------
-# Toolkit
+# audiobatcher
 #-------------------------------------------------------------------------------
-INCLUDE_DIRECTORIES(				${Nebula3_SOURCE_DIR}/code/application
-									${Nebula3_SOURCE_DIR}/code/addons									
-									${Nebula3_SOURCE_DIR}/code/application/basegamefeature
-									${Nebula3_SOURCE_DIR}/code/application/corefeature
-									${Nebula3_SOURCE_DIR}/code/application/graphicsfeature
-									${Nebula3_SOURCE_DIR}/code/application/physicsfeature
-									${Nebula3_SOURCE_DIR}/code/extlibs
-									${Nebula3_SOURCE_DIR}/code/extlibs/ode
-									${Nebula3_SOURCE_DIR}/code/foundation
-									${Nebula3_SOURCE_DIR}/code/render
-									${Nebula3_SOURCE_DIR}/code/sui
-									${Nebula3_SOURCE_DIR}/code/tools		
-									${Nebula3_SOURCE_DIR}/code/toolkit
-									${Nebula3_SOURCE_DIR}/code
-					)
 
 FILE(GLOB SRC "*.cc")
 FILE(GLOB HEAD "*.h")
@@ -38,13 +23,5 @@ N_SET_EXE_SUBSYSTEM(audiobatcher3 Console)
 IF(N_USE_PRECOMPILED_HEADERS)
 	N_SET_PCH(audiobatcher3 stdneb.h stdneb.cc ../)
 ENDIF()
-ADD_DEPENDENCIES(audiobatcher3
-	foundation
-	zlib
-	toolkitutil
-	tinyxml
-	)
-TARGET_LINK_LIBRARIES(audiobatcher3 	
-	toolkitutil	
-	${NEBULA_DEFAULT_LIBS}
-)
+ADD_DEPENDENCIES(audiobatcher3 toolkitutil)
+TARGET_LINK_LIBRARIES(audiobatcher3 toolkitutil	)

@@ -4,7 +4,7 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "posteffectfeatureunit.h"
-#include "graphicsfeatureunit.h"
+#include "graphicsfeature/graphicsfeatureunit.h"
 #include "graphics/modelentity.h"
 
 

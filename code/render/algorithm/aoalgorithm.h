@@ -72,6 +72,7 @@ private:
 	Ptr<CoreGraphics::ShaderVariable> hbao1Var;
 	Ptr<CoreGraphics::ShaderVariable> hbaoBlur0Var;
 	Ptr<CoreGraphics::ShaderVariable> hbaoBlur1Var;
+	Ptr<CoreGraphics::ShaderVariable> hbaoBlur2Var;
 #else
 	Ptr<CoreGraphics::ShaderVariable> hbaoTextureVar;
     Ptr<CoreGraphics::ShaderVariable> hbaoBlurredTextureVar;

@@ -220,7 +220,7 @@ AnimatedPhysicsProperty::OnRender()
 			const Characters::CharJointInfo* joint = this->trackedModel->GetTrackedCharJointInfo(trackedJoints[i]);
 			if(joint)
 			{
-				this->jointHash[trackedJoints[i]]->SetTransform(Math::matrix44::multiply(joint->GetGlobalMatrix(),trans));
+				this->jointHash[trackedJoints[i]]->SetTransform(matrix44::multiply(this->jointOffsets[trackedJoints[i]], matrix44::multiply(joint->GetGlobalMatrix(), trans)));
 			}
 		}
 	}	
@@ -323,17 +323,18 @@ AnimatedPhysicsProperty::AttachByNames()
 		if(imodel->GetModelInstance().isvalid())
 		{
 			n_assert2(imodel->HasCharacter(), (Util::String("AnimatedPhysics model ") + imodel->GetResourceId().Value() + "has no skeleton!").AsCharPtr());
-			const Characters::CharacterSkeleton & skeleton = imodel->GetCharacter()->Skeleton();
-			Util::Array<Util::String> joints;
+			const Characters::CharacterSkeleton & skeleton = imodel->GetCharacter()->Skeleton();			
 			IndexT i;
 			for(i=0;i<skeleton.GetNumJoints();i++)
 			{
-				Util::String jointname = skeleton.GetJoint(i).GetName().AsString();
+				const Characters::CharacterJoint& joint = skeleton.GetJoint(i);
+				Util::StringAtom jointname = joint.GetName();
 				if(this->bodyHash.Contains(jointname))
 				{
 					this->trackedModel->AddTrackedCharJoint(jointname);
 					this->trackedJoints.Append(jointname);
 					this->jointHash.Add(jointname,bodyHash[jointname]);
+					this->jointOffsets.Add(jointname, joint.GetInvPoseMatrix());
 				}
 			}
 			this->linked = true;		

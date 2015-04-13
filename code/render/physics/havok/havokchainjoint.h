@@ -9,9 +9,9 @@
 */
 #include "physics/joints/basechainjoint.h"
 
-#include <Physics/Dynamics/Constraint/Chain/hkpConstraintChainInstance.h>
-#include <Physics/Dynamics/Constraint/Chain/Powered/hkpPoweredChainData.h>
-#include <Physics/Dynamics/Constraint/Motor/Position/hkpPositionConstraintMotor.h>
+#include <Physics2012/Dynamics/Constraint/Chain/hkpConstraintChainInstance.h>
+#include <Physics2012/Dynamics/Constraint/Chain/Powered/hkpPoweredChainData.h>
+#include <Physics/Constraint/Motor/Position/hkpPositionConstraintMotor.h>
 //------------------------------------------------------------------------------
 
 namespace Physics

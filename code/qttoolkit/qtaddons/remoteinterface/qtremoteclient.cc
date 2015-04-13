@@ -6,7 +6,7 @@
 #include "qtremoteclient.h"
 #include "io/memorystream.h"
 #include "io/binarywriter.h"
-#include "socket/ipaddress.h"
+#include "net/socket/ipaddress.h"
 #include "qtremoteprotocol.h"
 
 using namespace Net;

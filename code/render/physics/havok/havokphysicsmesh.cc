@@ -7,12 +7,12 @@
 #include "io/uri.h"
 
 #include <Common/Base/hkBase.h>
-#include <Physics/Collide/Shape/Compound/Tree/Mopp/hkpMoppBvTreeShape.h>
-#include <Physics/Collide/Shape/Compound/Tree/Mopp/hkpMoppUtility.h>
-#include <Physics/Collide/Shape/Compound/Collection/ExtendedMeshShape/hkpExtendedMeshShape.h>
-#include <Physics/Collide/Shape/Convex/ConvexVertices/hkpConvexVerticesShape.h>
-#include <Physics/Utilities/Collide/ShapeUtils/MoppCodeStreamer/hkpMoppCodeStreamer.h>
-#include <Physics/Internal/Collide/BvCompressedMesh/hkpBvCompressedMeshShapeCinfo.h>
+#include <Physics2012/Collide/Shape/Compound/Tree/Mopp/hkpMoppBvTreeShape.h>
+#include <Physics2012/Collide/Shape/Compound/Tree/Mopp/hkpMoppUtility.h>
+#include <Physics2012/Collide/Shape/Compound/Collection/ExtendedMeshShape/hkpExtendedMeshShape.h>
+#include <Physics2012/Collide/Shape/Convex/ConvexVertices/hkpConvexVerticesShape.h>
+#include <Physics2012/Utilities/Collide/ShapeUtils/MoppCodeStreamer/hkpMoppCodeStreamer.h>
+#include <Physics2012/Internal/Collide/BvCompressedMesh/hkpBvCompressedMeshShapeCinfo.h>
 #include <Common/Base/Types/Geometry/hkStridedVertices.h> 
 #include <Common/Base/System/Io/OArchive/hkOArchive.h>
 #include <Common/Base/System/Io/IArchive/hkIArchive.h>
@@ -41,19 +41,16 @@ HavokPhysicsMesh::~HavokPhysicsMesh()
 /**
 */
 void 
-HavokPhysicsMesh::AddMeshComponent(int id, float * vertexData, uint numVertices, uint verticeStride, uint * indexData, uint numTriangles)
+HavokPhysicsMesh::AddMeshComponent(int id, const CoreGraphics::PrimitiveGroup& group)
 {
 	n_assert(!this->meshes.Contains(id));
 
-    size_t vertexBufferSize = numVertices * verticeStride * sizeof(float);
-    float *v = (float*)Memory::Alloc(Memory::PhysicsHeap, vertexBufferSize);
-    Memory::Copy(vertexData,(void*)v, vertexBufferSize);
+    size_t vertexBufferSize = group.GetNumVertices() * this->vertexStride * sizeof(float);
+        
+    size_t indexBufferSize = group.GetNumPrimitives() * 3 * sizeof(uint);    
+    
 
-    size_t indexBufferSize = numTriangles * 3 * sizeof(uint);
-    uint * idx = (uint*)Memory::Alloc(Memory::PhysicsHeap, indexBufferSize);
-    Memory::Copy(indexData,(void*)idx, indexBufferSize);
-
-    meshData mdata = {v, numVertices, verticeStride, idx, numTriangles};
+    meshData mdata = {this->vertexData, group.GetNumVertices() , this->vertexStride, &(this->indexData[group.GetBaseIndex()]), group.GetNumPrimitives()};
     this->meshes.Add(id, mdata);
     /*
 

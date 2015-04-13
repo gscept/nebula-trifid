@@ -4,15 +4,15 @@
 //  (C) 2013-2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "addons/db/dbfactory.h"
-#include "addons/db/database.h"
-#include "addons/db/command.h"
-#include "addons/db/table.h"
-#include "addons/db/dataset.h"
-#include "addons/db/reader.h"
-#include "addons/db/writer.h"
-#include "addons/db/relation.h"
-#include "addons/db/valuetable.h"
+#include "db/dbfactory.h"
+#include "db/database.h"
+#include "db/command.h"
+#include "db/table.h"
+#include "db/dataset.h"
+#include "db/reader.h"
+#include "db/writer.h"
+#include "db/relation.h"
+#include "db/valuetable.h"
 
 namespace Db
 {

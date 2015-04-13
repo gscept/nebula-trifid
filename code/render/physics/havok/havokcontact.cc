@@ -6,7 +6,7 @@
 #include "havokcontact.h"
 #include "physics/physicsobject.h"
 #include "havokutil.h"
-#include "Physics/Dynamics/Entity/hkpRigidBody.h"
+#include "Physics2012/Dynamics/Entity/hkpRigidBody.h"
 
 namespace Havok
 {

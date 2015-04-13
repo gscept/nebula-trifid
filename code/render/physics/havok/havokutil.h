@@ -9,7 +9,7 @@
 */
 #include <Common/Base/Types/hkBaseTypes.h>
 #include <Common/Base/hkBase.h>
-#include <Physics/Dynamics/Entity/hkpRigidBody.h>
+#include <Physics2012/Dynamics/Entity/hkpRigidBody.h>
 #include "core/ptr.h"
 //------------------------------------------------------------------------------
 

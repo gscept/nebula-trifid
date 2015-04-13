@@ -1,21 +1,6 @@
 #-------------------------------------------------------------------------------
 # Toolkit
 #-------------------------------------------------------------------------------
-INCLUDE_DIRECTORIES(${Nebula3_SOURCE_DIR}/code/application
-                    ${Nebula3_SOURCE_DIR}/code/addons
-                    ${Nebula3_SOURCE_DIR}/code/application/basegamefeature
-                    ${Nebula3_SOURCE_DIR}/code/application/corefeature
-                    ${Nebula3_SOURCE_DIR}/code/application/graphicsfeature
-                    ${Nebula3_SOURCE_DIR}/code/application/physicsfeature
-                    ${Nebula3_SOURCE_DIR}/code/extlibs
-                    ${Nebula3_SOURCE_DIR}/code/foundation
-                    ${Nebula3_SOURCE_DIR}/code/render
-                    ${Nebula3_SOURCE_DIR}/code/sui
-                    ${Nebula3_SOURCE_DIR}/code/tools
-                    ${Nebula3_SOURCE_DIR}/code/toolkit
-                    ${Nebula3_SOURCE_DIR}/code/tests/
-                    ${Nebula3_SOURCE_DIR}/code
-)
 
 FILE(GLOB SRC "gamestates/*.cc")
 FILE(GLOB HEAD "gamestates/*.h")
@@ -44,23 +29,12 @@ IF(N_USE_PRECOMPILED_HEADERS)
 	N_SET_PCH(levelviewer stdneb.h stdneb.cc ../)
 ENDIF()
 ADD_DEPENDENCIES(levelviewer
-	${NEBULA_DEFAULT_LIBS}	
-	${ROCKET}
+	application
 	remoteinterface
+	dynui
 	)
 TARGET_LINK_LIBRARIES(levelviewer 	
 	remoteinterface
-	remoteinterface_NIDLS
-	scripting_NIDLS
-	scripting
-	${N_LIBS}
-	${ROCKET}
-	${NEBULA_DEFAULT_LIBS}	
-	${NEBULA_DEFAULT_LIBS}
-	db
-	sqlite
-	attr
-	scripting_NIDLS
-	scripting
-	lua
+	application	
+	dynui
 )

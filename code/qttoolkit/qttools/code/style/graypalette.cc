@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  graypalette.cc
-//  (C) 2012 Gustav Sterbrant
+//  (C) 2012-2015 Gustav Sterbrant
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "graypalette.h"
@@ -48,4 +48,4 @@ GrayPalette::~GrayPalette()
 }
 
 
-} // namespace ContentBrowser
+} // namespace QtToolkitUtil

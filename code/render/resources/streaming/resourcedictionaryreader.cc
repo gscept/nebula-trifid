@@ -9,7 +9,6 @@
 #include "io/ioserver.h"
 #include "io/stream.h"
 #include "io/binaryreader.h"
-#include "toolkit/toolkitutil/platform.h"
 
 namespace Resources
 {

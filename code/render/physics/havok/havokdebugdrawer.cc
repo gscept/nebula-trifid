@@ -8,14 +8,14 @@
 #include "conversion.h"
 #include "math/float4.h"
 
-#include <Physics/Collide/Shape/hkpShape.h>
-#include <Physics/Collide/Shape/Convex/Sphere/hkpSphereShape.h>
-#include <Physics/Collide/Shape/Convex/Box/hkpBoxShape.h>
-#include <Physics/Collide/Shape/Compound/Tree/Mopp/hkpMoppBvTreeShape.h>
-#include <Physics/Collide/Shape/Compound/Collection/ExtendedMeshShape/hkpExtendedMeshShape.h>
-#include <Physics/Collide/Shape/Convex/Cylinder/hkpCylinderShape.h>
-#include <Physics/Collide/Shape/Convex/Capsule/hkpCapsuleShape.h>
-#include <Physics/Collide/Shape/HeightField/Plane/hkpPlaneShape.h>
+#include <Physics2012/Collide/Shape/hkpShape.h>
+#include <Physics2012/Collide/Shape/Convex/Sphere/hkpSphereShape.h>
+#include <Physics2012/Collide/Shape/Convex/Box/hkpBoxShape.h>
+#include <Physics2012/Collide/Shape/Compound/Tree/Mopp/hkpMoppBvTreeShape.h>
+#include <Physics2012/Collide/Shape/Compound/Collection/ExtendedMeshShape/hkpExtendedMeshShape.h>
+#include <Physics2012/Collide/Shape/Convex/Cylinder/hkpCylinderShape.h>
+#include <Physics2012/Collide/Shape/Convex/Capsule/hkpCapsuleShape.h>
+#include <Physics2012/Collide/Shape/HeightField/Plane/hkpPlaneShape.h>
 
 using namespace Debug;
 using namespace Math;

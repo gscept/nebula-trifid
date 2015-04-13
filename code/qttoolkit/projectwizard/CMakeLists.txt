@@ -55,20 +55,15 @@ N_SET_EXE_SUBSYSTEM(projectwizard Windows)
 
 ADD_DEPENDENCIES(projectwizard
 	foundation
-	qttoolkitutil
-	base64
-	toolkitutil	
-	
+	qttools	
+	toolkitutil		
 )
 
 TARGET_LINK_LIBRARIES(projectwizard 
 	foundation
-	qttoolkitutil
-	toolkitutil
-	base64
-	StackWalker
-	${QT_WIN_LIBS}
-	${N_LIBS}
+	qttools
+	toolkitutil		
+	${QT_WIN_LIBS}	
 	${QT_LIBRARIES} ${QT_QTMAIN_LIBRARY}
 )
 

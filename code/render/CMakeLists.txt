@@ -1,13 +1,6 @@
 #-------------------------------------------------------------------------------
 # Render
 #-------------------------------------------------------------------------------
-INCLUDE_DIRECTORIES(${Nebula3_SOURCE_DIR}/code
-					${Nebula3_SOURCE_DIR}/code/addons/
-					${Nebula3_SOURCE_DIR}/code/render/
-					${Nebula3_SOURCE_DIR}/code/foundation/
-					${Nebula3_SOURCE_DIR}/code/extlibs/
-					${Nebula3_SOURCE_DIR}/code/extlibs/DevIL/DevIL/include
-					)
 
 IF(N_BUILD_DX11)
 	INCLUDE_DIRECTORIES(${N3ROOT}/extlibs/fw1)
@@ -1500,75 +1493,6 @@ ENDIF()
 		physics/bullet/raycallbacks.h
 	)
 
-    SET(SOURCES_files_havok_source
-		${Havok_SOURCE_DIR}/common/base/types/hkrefptr.h
-		${Havok_SOURCE_DIR}/common/base/keycode.h
-		${Havok_SOURCE_DIR}/common/serialize/classlist/hkclasses.h
-		${Havok_SOURCE_DIR}/common/visualize/hkvisualdebugger.h
-		${Havok_SOURCE_DIR}/common/base/hkbase.h
-		${Havok_SOURCE_DIR}/common/base/system/hkbasesystem.h
-		${Havok_SOURCE_DIR}/common/base/system/error/hkdefaulterror.h
-		${Havok_SOURCE_DIR}/common/base/memory/system/util/hkmemoryinitutil.h
-		${Havok_SOURCE_DIR}/common/base/memory/system/hkmemorysystem.h
-		${Havok_SOURCE_DIR}/common/base/memory/allocator/malloc/hkmallocallocator.h
-		${Havok_SOURCE_DIR}/common/base/memory/allocator/hkmemoryallocator.h
-		${Havok_SOURCE_DIR}/common/base/monitor/hkmonitorstream.h
-		${Havok_SOURCE_DIR}/common/base/types/physics/contactpoint/hkcontactpoint.h
-		${Havok_SOURCE_DIR}/common/base/config/hkconfigsimd.h
-		${Havok_SOURCE_DIR}/common/base/system/io/oarchive/hkoarchive.h
-		${Havok_SOURCE_DIR}/common/base/system/io/iarchive/hkiarchive.h
-		${Havok_SOURCE_DIR}/common/base/math/vector/hksimdreal.h
-		${Havok_SOURCE_DIR}/common/base/container/hkcontainerallocators.h
-
-		${Havok_SOURCE_DIR}/common/base/thread/job/threadpool/cpu/hkcpujobthreadpool.h
-		${Havok_SOURCE_DIR}/common/base/thread/job/threadpool/spu/hkspujobthreadpool.h
-		${Havok_SOURCE_DIR}/common/base/thread/jobqueue/hkjobqueue.h
-		${Havok_SOURCE_DIR}/common/visualize/hkvisualdebugger.h
-		${Havok_SOURCE_DIR}/physics/utilities/visualdebugger/hkpphysicscontext.h
-		${Havok_SOURCE_DIR}/physics/utilities/visualdebugger/viewer/dynamics/hkpconstraintviewer.h
-
-		${Havok_SOURCE_DIR}/physics/collide/hkpcollide.h
-		${Havok_SOURCE_DIR}/physics/collide/agent/convexagent/spherebox/hkpsphereboxagent.h
-		${Havok_SOURCE_DIR}/physics/collide/shape/convex/box/hkpboxshape.h
-		${Havok_SOURCE_DIR}/physics/collide/shape/convex/cylinder/hkpcylindershape.h
-		${Havok_SOURCE_DIR}/physics/collide/shape/convex/capsule/hkpcapsuleshape.h
-		${Havok_SOURCE_DIR}/physics/collide/shape/convex/sphere/hkpsphereshape.h
-		${Havok_SOURCE_DIR}/physics/collide/shape/compound/collection/list/hkplistshape.h
-		${Havok_SOURCE_DIR}/physics/collide/shape/compound/tree/mopp/hkpmoppbvtreeshape.h
-		${Havok_SOURCE_DIR}/physics/collide/shape/compound/tree/mopp/hkpmopputility.h
-		${Havok_SOURCE_DIR}/physics/collide/shape/compound/collection/extendedmeshshape/hkpextendedmeshshape.h
-		${Havok_SOURCE_DIR}/physics/collide/shape/misc/transform/hkptransformshape.h
-		${Havok_SOURCE_DIR}/physics/collide/dispatch/hkpagentregisterutil.h
-		${Havok_SOURCE_DIR}/physics/utilities/collide/shapeutils/moppcodestreamer/hkpmoppcodestreamer.h
-		
-		${Havok_SOURCE_DIR}/physics/utilities/charactercontrol/hkpcharactercontrol.h
-		${Havok_SOURCE_DIR}/physics/utilities/charactercontrol/characterproxy/hkpcharacterproxy.h
-		${Havok_SOURCE_DIR}/physics/utilities/charactercontrol/statemachine/hkpcharactercontext.h
-		${Havok_SOURCE_DIR}/physics/utilities/charactercontrol/characterrigidbody/hkpcharacterrigidbody.h
-		${Havok_SOURCE_DIR}/physics/utilities/charactercontrol/characterrigidbody/hkpcharacterrigidbodycinfo.h
-        
-		
-		${Havok_SOURCE_DIR}/physics/collide/query/castutil/hkpworldraycastinput.h			
-		${Havok_SOURCE_DIR}/physics/collide/query/castutil/hkpworldraycastoutput.h		
-		${Havok_SOURCE_DIR}/physics/collide/query/collector/raycollector/hkpclosestrayhitcollector.h
-
-		${Havok_SOURCE_DIR}/physics/dynamics/collide/filter/constraint/hkpconstraintcollisionfilter.h
-		${Havok_SOURCE_DIR}/physics/dynamics/collide/contactlistener/hkpcontactlistener.h
-        
-        ${Havok_SOURCE_DIR}/physics/dynamics/constraint/bilateral/pointtoplane/hkppointtoplaneconstraintdata.h
-		${Havok_SOURCE_DIR}/physics/dynamics/constraint/bilateral/ragdoll/hkpragdollconstraintdata.h
-		${Havok_SOURCE_DIR}/physics/dynamics/constraint/bilateral/prismatic/hkpprismaticconstraintdata.h
-		${Havok_SOURCE_DIR}/physics/dynamics/constraint/motor/position/hkppositionconstraintmotor.h
-		${Havok_SOURCE_DIR}/physics/dynamics/constraint/chain/hkpconstraintchaininstance.h
-        ${Havok_SOURCE_DIR}/physics/dynamics/constraint/motor/velocity/hkpvelocityconstraintmotor.h
-
-		${Havok_SOURCE_DIR}/physics/dynamics/world/hkpworld.h
-		${Havok_SOURCE_DIR}/physics/dynamics/entity/hkprigidbody.h
-		${Havok_SOURCE_DIR}/physics/dynamics/constraint/hkpconstraintinstance.h
-		${Havok_SOURCE_DIR}/physics/utilities/dynamics/inertia/hkpinertiatensorcomputer.h
-
-	)
-
 	SET(SOURCES_files_havok
 		physics/havok/conversion.h
 		physics/havok/havokutil.cc
@@ -1653,8 +1577,7 @@ ENDIF()
     source_group("physics" FILES ${SOURCES_files_physics})
     source_group("physics\\resource" FILES ${SOURCES_files_physics_resource})
     source_group("physics\\bullet" FILES ${SOURCES_files_bullet})
-	source_group("physics\\havok" FILES ${SOURCES_files_havok})
-    source_group("physics\\havoksource" FILES ${SOURCES_files_havok_source})
+	source_group("physics\\havok" FILES ${SOURCES_files_havok})    
     source_group("physics\\base" FILES ${SOURCES_files_physics_base})
 	source_group("physics\\util" FILES ${SOURCES_files_physics_util})
 	source_group("physics\\joints" FILES ${SOURCES_files_physics_joints})
@@ -1711,7 +1634,7 @@ ENDIF()
 		algorithm/algorithmprotocol.nidl
 		visibility/visibilityprotocol.nidl
 	)
-	N_WRAP_NIDL_FILES(render_NIDLS ${Render_NIDLS})
+	
 
 
 
@@ -1749,15 +1672,65 @@ ELSE()
 	ADD_DEFINITIONS(-DGLFW_EXPOSE_NATIVE_X11 -DGLFW_EXPOSE_NATIVE_GLX)
 ENDIF()
   
-  
+N_WRAP_NIDL_FILES(render_NIDLS ${Render_NIDLS})
+
+
 add_library(render STATIC ${Render_SRCS} )
+TARGET_INCLUDE_DIRECTORIES(render 	PUBLIC ${Nebula3_SOURCE_DIR}/code/render/ 
+									${Nebula3_SOURCE_DIR}/code/extlibs/DevIL/DevIL/include)
+
+TARGET_LINK_LIBRARIES(render PUBLIC foundation render_NIDLS libjpeg libpng api  )
 SET_TARGET_PROPERTIES(render PROPERTIES FOLDER "N3SDK/N3")
 
 ADD_DEPENDENCIES(render foundation_NIDLS render_NIDLS ${PHYSICS_DEPENDENCIES})
 
-
+TARGET_INCLUDE_DIRECTORIES(render_NIDLS PUBLIC $<TARGET_PROPERTY:render,INTERFACE_INCLUDE_DIRECTORIES>)
 ADD_SUBDIRECTORY(jobs)
+TARGET_LINK_LIBRARIES(render PUBLIC render_animjobsample render_animjobsamplemix render_charevalskeletonjob render_particlejob render_visibilityboxsystemjob render_visibilityquadtreejob)
 
+
+IF(N_BUILD_HAVOK)
+	
+	FIND_PATH(HAVOC_DIR "Havok Limited Use License Agreement for PC XS 03-20-2013.txt"	${Nebula3_SOURCE_DIR}/libs/)				
+	SET(Havok_SOURCE_DIR ${HAVOC_DIR}/Source)	
+	if(MSVC90)
+		SET(Havok_LIB_DIR ${HAVOC_DIR}/Lib/win32_net_9-0)
+	ELSEIF(MSVC10)
+		SET(Havok_LIB_DIR ${HAVOC_DIR}/Lib/win32_vs2010)
+	ELSEIF(MSVC11)
+		SET(Havok_LIB_DIR ${HAVOC_DIR}/Lib/win32_vs2012_win7)
+	ENDIF()
+
+	SET(HAVOK_LIBS hkaAnimation.lib hkaInternal.lib hkaPhysics2012Bridge.lib hkBase.lib hkcdCollide.lib hkcdInternal.lib hkCompat.lib
+					hkgBridge.lib hkgCommon.lib hkGeometryUtilities.lib hkInternal.lib hkpCollide.lib hkpConstraint.lib hkpConstraintSolver.lib
+					hkpDynamics.lib hkpInternal.lib hkpUtilities.lib hkpVehicle.lib hkSceneData.lib hkSerialize.lib hkVisualize.lib)
+	
+	SET(HAVOK_DBG_LIBS)	
+	FOREACH(CUR_LIB ${HAVOK_LIBS})
+		LIST(APPEND HAVOK_DBG_LIBS ${Havok_LIB_DIR}/debug/${CUR_LIB})
+	ENDFOREACH()
+	
+	SET(HAVOK_RELEASE_LIBS)
+	FOREACH(CUR_LIB ${HAVOK_LIBS})
+		LIST(APPEND HAVOK_RELEASE_LIBS ${Havok_LIB_DIR}/dev/${CUR_LIB})
+	ENDFOREACH()
+	SET(HAVOK_PUBLIC_LIBS)
+	FOREACH(CUR_LIB ${HAVOK_LIBS})
+		LIST(APPEND HAVOK_PUBLIC_LIBS ${Havok_LIB_DIR}/release/${CUR_LIB})
+	ENDFOREACH()
+
+	TARGET_LINK_LIBRARIES(render PUBLIC $<$<CONFIG:Debug>:${HAVOK_DBG_LIBS}> $<$<CONFIG:Release>:${HAVOK_PUBLIC_LIBS}> $<$<CONFIG:RelWithDebInfo>:${HAVOK_RELEASE_LIBS}>)
+
+ELSEIF(N_BUILD_BULLET)
+	ADD_DEPENDENCIES(render BulletDynamics BulletCollision LinearMath)
+	TARGET_LINK_LIBRARIES(render PUBLIC $<$<BOOL:${N_BUILD_BULLET}>:BulletDynamics BulletCollision LinearMath> )
+ENDIF()
+
+
+TARGET_INCLUDE_DIRECTORIES(render PUBLIC $<$<BOOL:${N_BUILD_HAVOK}>:${Havok_SOURCE_DIR}>)
+
+
+TARGET_LINK_LIBRARIES(render PUBLIC $<$<BOOL:${N_BUILD_OGL4}>: DevIL ILU ILUT> )
 
 N_SET_COMPILER_DEFAULTS()
 IF(N_USE_PRECOMPILED_HEADERS)

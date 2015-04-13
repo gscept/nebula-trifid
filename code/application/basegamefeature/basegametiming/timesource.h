@@ -28,8 +28,8 @@
 */
 #include "core/refcounted.h"
 #include "basegamefeature/basegameattr/basegameattributes.h"
-#include "addons/db/reader.h"
-#include "addons/db/writer.h"
+#include "db/reader.h"
+#include "db/writer.h"
 #include "timing/time.h"
 
 

@@ -20,7 +20,7 @@
     (C) 2008 Radon Labs GmbH
     (C) 2013-2015 Individual contributors, see AUTHORS file	
 */
-#include "properties/physicsproperty.h"
+#include "physicsfeature/properties/physicsproperty.h"
 #include "physicsfeature/physicsprotocol.h"
 #include "basegamefeature/basegameprotocol.h"
 #include "game/entity.h"

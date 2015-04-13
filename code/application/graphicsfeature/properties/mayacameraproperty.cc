@@ -4,7 +4,7 @@
 //  (C) 2013-2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "properties/mayacameraproperty.h"
+#include "graphicsfeature/properties/mayacameraproperty.h"
 #include "managers/focusmanager.h"
 #include "graphics/cameraentity.h"
 #include "game/entity.h"

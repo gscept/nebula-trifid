@@ -4,8 +4,8 @@
 //  (C) 2013-2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "addons/db/reader.h"
-#include "addons/db/dbserver.h"
+#include "db/reader.h"
+#include "db/dbserver.h"
 
 namespace Db
 {

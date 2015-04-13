@@ -119,7 +119,7 @@ HavokRagdollJoint::ActivateMotors(hkRefPtr<hkpPositionConstraintMotor> twistMoto
 	this->joint->setTwistMotor(twistMotor); 
 	this->joint->setPlaneMotor(planeMotor); 
 	this->joint->setConeMotor(coneMotor); 
-	this->joint->setMotorsActive(this->constraint, true);
+	this->joint->setMotorsEnabled(this->constraint->getRuntime(), true);
 
 	this->motorInitialized = true;
 }
@@ -512,7 +512,7 @@ float
 HavokRagdollJoint::GetMaxLinearImpulse() const
 {
 	// when this equals HK_REAL_MAX (= 3.40282e+38f, currently for this version) there is no limit
-	return this->joint->getMaxLinearImpulse();
+	return this->joint->getBreachImpulse();
 }
 
 //------------------------------------------------------------------------------
@@ -521,7 +521,7 @@ HavokRagdollJoint::GetMaxLinearImpulse() const
 void 
 HavokRagdollJoint::SetMaxLinearImpulse(float maxImpulse)
 {
-	this->joint->setMaxLinearImpulse(maxImpulse);
+	this->joint->setBreachImpulse(maxImpulse);
 }
 
 //------------------------------------------------------------------------------

@@ -1,30 +1,6 @@
 #-------------------------------------------------------------------------------
 # Toolkit
 #-------------------------------------------------------------------------------
-INCLUDE_DIRECTORIES(${Nebula3_SOURCE_DIR}/code/application
-                    ${Nebula3_SOURCE_DIR}/code/addons
-                    ${Nebula3_SOURCE_DIR}/code/application/basegamefeature
-                    ${Nebula3_SOURCE_DIR}/code/application/corefeature
-                    ${Nebula3_SOURCE_DIR}/code/application/graphicsfeature
-                    ${Nebula3_SOURCE_DIR}/code/application/physicsfeature
-                    ${Nebula3_SOURCE_DIR}/code/extlibs
-					${Nebula3_SOURCE_DIR}/code/extlibs/DevIL/DevIL/include
-                    ${Nebula3_SOURCE_DIR}/code/extlibs/fbx
-                    ${Nebula3_SOURCE_DIR}/code/foundation
-                    ${Nebula3_SOURCE_DIR}/code/render
-                    ${Nebula3_SOURCE_DIR}/code/sui
-                    ${Nebula3_SOURCE_DIR}/code/tools
-                    ${Nebula3_SOURCE_DIR}/code/toolkit
-                    ${Nebula3_SOURCE_DIR}/code/toolkit/toolkitutil
-                    ${Nebula3_SOURCE_DIR}/code/extlibs/recastnavigation/Recast/Include
-                    ${Nebula3_SOURCE_DIR}/code/extlibs/recastnavigation/Detour/Include
-                    ${Nebula3_SOURCE_DIR}/code/extlibs/nvidia-texture-tools/src
-                    ${Nebula3_SOURCE_DIR}/code/extlibs/nvidia-texture-tools/extern/poshlib
-                    ${CMAKE_BINARY_DIR}/code/extlibs/nvidia-texture-tools/src
-                    ${Nebula3_SOURCE_DIR}/code                    
-                    ${Physics_SOURCE_DIR}
-)
-
 
 IF(NOT N_BUILD_FIRSTTIME)
 
@@ -160,9 +136,10 @@ SOURCE_GROUP("Precompiled" FILES ${PCH_files})
 
 LIST(APPEND ALLSRCS ${SRCST} ${SRCSA} ${SRCSM}  ${SRCSPFX} ${SRCSN} ${SRCSX}  ${SRCSG} ${SRCSGUI}  ${SRCSB}  ${SRCSF} ${SRCSFS} ${SRCSND}  ${SRCSDD} ${SRCSD} ${SRCSMOD} ${SRCSIDL} ${SRCSREC} ${PCH_files} ${SRCAPPLAUNCH})
 
-ADD_DEFINITIONS(-DNVTT_EXPORTS)
-
 add_library(toolkitutil STATIC ${ALLSRCS} )
+TARGET_LINK_LIBRARIES(toolkitutil foundation render application sqlite compiler editorfeatures ${FBX_LIBRARY} $<$<BOOL:${N_BUILD_NVTT}>:nvcore nvtt nvimage nvmath posh squish nvthread bc6h bc7>)
+TARGET_COMPILE_DEFINITIONS(toolkitutil PUBLIC $<$<BOOL:${N_BUILD_NVTT}>:NVTT_EXPORTS> FBXSDK_NEW_API)
+TARGET_INCLUDE_DIRECTORIES(toolkitutil PUBLIC ${Nebula3_SOURCE_DIR}/code/toolkit ${Nebula3_SOURCE_DIR}/code/toolkit/toolkitutil)
 SET_TARGET_PROPERTIES(toolkitutil PROPERTIES FOLDER "N3SDK/Toolkit")
 N_SET_COMPILER_DEFAULTS()
 IF(N_USE_PRECOMPILED_HEADERS)

@@ -9,7 +9,7 @@
     (C) 2008 Radon Labs GmbH
     (C) 2013-2015 Individual contributors, see AUTHORS file
 */
-#include "properties/cameraproperty.h"
+#include "graphicsfeature/properties/cameraproperty.h"
 #include "renderutil/mayacamerautil.h"
 #include "graphicsfeature/graphicsattr/graphicsattributes.h"
 #include "math/pfeedbackloop.h"

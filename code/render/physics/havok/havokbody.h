@@ -10,9 +10,9 @@
 #include "physics/base/basebody.h"
 #include "conversion.h"
 
-#include <Physics/Dynamics/Entity/hkpRigidBody.h>
+#include <Physics2012/Dynamics/Entity/hkpRigidBody.h>
 #include <Common/GeometryUtilities/Inertia/hkInertiaTensorComputer.h>
-#include <Physics/Collide/Agent/Collidable/hkpCollidableQualityType.h>
+#include <Physics2012/Collide/Agent/Collidable/hkpCollidableQualityType.h>
 
 
 namespace Physics
@@ -102,7 +102,7 @@ protected:
 	virtual void SetupFromTemplate(const Physics::PhysicsCommon& templ);
 
 	/// compute mass properties
-	static void ComputeMassProperties(const hkpShape* shape, float mass, hkpMassProperties& outResult);
+	static void ComputeMassProperties(const hkpShape* shape, float mass, hkMassProperties& outResult);
 
 	hkRefPtr<hkpRigidBody> rigidBody;
 	hkRefPtr<hkpWorld> world;

@@ -12,7 +12,7 @@
     (C) 2013-2015 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
-#include "addons/db/table.h"
+#include "db/table.h"
 
 //------------------------------------------------------------------------------
 namespace Db

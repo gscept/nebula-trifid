@@ -9,7 +9,7 @@
     (C) 2008 Radon Labs GmbH
     (C) 2013-2015 Individual contributors, see AUTHORS file
 */
-#include "properties/inputproperty.h"
+#include "graphicsfeature/properties/inputproperty.h"
 #include "physics/util/mousegripper.h"
 
 //------------------------------------------------------------------------------

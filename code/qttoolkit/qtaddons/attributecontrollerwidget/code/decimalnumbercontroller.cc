@@ -8,7 +8,7 @@
 #include "db/valuetable.h"
 #include "ui_decimalnumbercontroller.h"
 #include "basegamefeature/basegameprotocol.h"
-#include "editorfeatures/editorblueprintmanager.h"
+#include "editorblueprintmanager.h"
 
 using namespace Util;
 

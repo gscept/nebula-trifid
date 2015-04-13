@@ -20,7 +20,7 @@
 #include "characters/characterserver.h"
 #if __WIN32__                                                
 #include "resources/streaming/streamingtexturepagehandler.h"
-#include "render/resources/streaming/poolresourcemapper.h"
+#include "resources/streaming/poolresourcemapper.h"
 #endif
 #if __PS3__
 #include "coregraphics/ps3/ps3dynamicgeometryserver.h"

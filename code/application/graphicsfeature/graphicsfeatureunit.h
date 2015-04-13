@@ -34,7 +34,7 @@
 #include "resources/resourcemanager.h"
 #include "util/blob.h"
 #include "graphicsutil/animutil.h"
-#include "addons/posteffect/posteffectmanager.h"
+#include "posteffect/posteffectmanager.h"
 #include "gameanimeventhandler.h"
 #include "resources/simpleresourcemapper.h"
 

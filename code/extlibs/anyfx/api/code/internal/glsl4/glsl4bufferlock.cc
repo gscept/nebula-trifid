@@ -73,7 +73,8 @@ GLSL4BufferLock::LockRange(size_t start, size_t length)
 {
 	BufferRange range = { start, length };
 	GLsync sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-	this->locks.push_back({ range, sync });
+    BufferRangeSync rangsync = { range, sync };
+	this->locks.push_back(rangsync);
 }
 
 //------------------------------------------------------------------------------
@@ -86,7 +87,8 @@ GLSL4BufferLock::LockAccumulatedRanges()
 	for (eastl::vector<BufferRange>::iterator it = this->accumulatedRanges.begin(); it != this->accumulatedRanges.end(); it++)
 	{
 		//this->locks[*it] = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-		this->locks.push_back({ *it, glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0) });
+        BufferRangeSync rangsync = { *it, glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0) };
+		this->locks.push_back(rangsync);
 	}
 	this->accumulatedRanges.clear();
 }

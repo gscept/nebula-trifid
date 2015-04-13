@@ -10,7 +10,7 @@
 #include "io/xmlreader.h"
 #include "io/ioserver.h"
 #include "resources/resourcemanager.h"
-#include "animpath/pathanimation.h"
+#include "graphicsfeature/animpath/pathanimation.h"
 #include "framesync/framesynctimer.h"
 
 using namespace Math;

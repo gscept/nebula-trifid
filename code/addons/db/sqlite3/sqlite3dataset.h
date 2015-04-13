@@ -10,7 +10,7 @@
     (C) 2006 Radon Labs GmbH
     (C) 2013-2015 Individual contributors, see AUTHORS file
 */
-#include "addons/db/dataset.h"
+#include "db/dataset.h"
 
 //------------------------------------------------------------------------------
 namespace Db
