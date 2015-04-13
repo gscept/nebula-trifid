@@ -138,7 +138,7 @@ LIST(APPEND ALLSRCS ${SRCST} ${SRCSA} ${SRCSM}  ${SRCSPFX} ${SRCSN} ${SRCSX}  ${
 
 add_library(toolkitutil STATIC ${ALLSRCS} )
 TARGET_LINK_LIBRARIES(toolkitutil foundation render application sqlite compiler editorfeatures ${FBX_LIBRARY} $<$<BOOL:${N_BUILD_NVTT}>:nvcore nvtt nvimage nvmath posh squish nvthread bc6h bc7>)
-TARGET_COMPILE_DEFINITIONS(toolkitutil PUBLIC $<$<BOOL:${N_BUILD_NVTT}>:NVTT_EXPORTS>)
+TARGET_COMPILE_DEFINITIONS(toolkitutil PUBLIC $<$<BOOL:${N_BUILD_NVTT}>:NVTT_EXPORTS> FBXSDK_NEW_API)
 TARGET_INCLUDE_DIRECTORIES(toolkitutil PUBLIC ${Nebula3_SOURCE_DIR}/code/toolkit ${Nebula3_SOURCE_DIR}/code/toolkit/toolkitutil)
 SET_TARGET_PROPERTIES(toolkitutil PROPERTIES FOLDER "N3SDK/Toolkit")
 N_SET_COMPILER_DEFAULTS()

@@ -703,6 +703,7 @@ ELSEIF(N_BUILD_OGL4)
 												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/compiler/code
 												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/exts/eastl/include
 												${Nebula3_SOURCE_DIR}/code/extlibs/glfw/include)
-	TARGET_LINK_LIBRARIES(foundation PUBLIC compiler api glew EASTL SOIL glfw	$<$<PLATFORM_ID:Windows>:glu32.lib opengl32.lib> 
-																			$<$<PLATFORM_ID:Linux>:GL Xi Xrandr Xxf86vm> )       
+	TARGET_LINK_LIBRARIES(foundation PUBLIC compiler api glew EASTL SOIL glfw	
+												$<$<PLATFORM_ID:Windows>:glu32.lib opengl32.lib $<$<BOOL:${N_MATH_XNA}>:dxguid.lib d3d9.lib d3dx9.lib dinput8.lib xinput.lib dxerr.lib x3daudio.lib d3dx11.lib dxgi.lib d2d1.lib dwrite.lib d3dcompiler.lib d3d11.lib>>												
+												$<$<PLATFORM_ID:Linux>:GL Xi Xrandr Xxf86vm pthread ${UUID} ${LIBC} ${LIBDL}> )       
 ENDIF()

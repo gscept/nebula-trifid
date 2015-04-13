@@ -31,7 +31,7 @@ IF(N_MATH_XNA)
 	ADD_DEFINITIONS(-D__USE_XNA)
 ELSE()
 	ADD_DEFINITIONS(-D__USE_VECMATH)
-	INCLUDE_DIRECTORIES(${Nebula3_SOURCE_DIR}/code/extlibs/bullet/bullet/src)
+	INCLUDE_DIRECTORIES(${Nebula3_SOURCE_DIR}/code/extlibs/bullet/bullet/src)	
 ENDIF()
 
 
@@ -51,15 +51,6 @@ OPTION(N_BUILD_EXTERNAL_PROJECTS "Include projects included in the projects fold
 
 IF(!MSVC) 
 	SET(N_BUILD_NVTT ON)
-ENDIF()
-
-IF(N_BUILD_DX11 AND N_BUILD_OGL4)
-	MESSAGE(FATAL_ERROR "Both DirectX 11 and OpenGL4 can't be picked as renderers")
-ENDIF()
-
-IF(NOT CMAKE_MAJOR_VERSION VERSION_LESS 3)
-# disable warnings related to trying to perform ADD_DEFINITIONS on unknown libs
-CMAKE_POLICY(SET CMP0046 OLD)
 ENDIF()
 
 
@@ -107,31 +98,50 @@ INCLUDE_DIRECTORIES(${Nebula3_SOURCE_DIR}/code/extlibs/raknet/source)
 
 IF(WIN32)
 		
-        INCLUDE_DIRECTORIES($ENV{DXSDK_DIR}/include)
-        IF(MSVC90)
-                SET(MSVCFOLDER "vs9")
-        ELSEIF(MSVC10)
-                SET(MSVCFOLDER "vs10")
-        ENDIF()
+	INCLUDE_DIRECTORIES($ENV{DXSDK_DIR}/include)
+	IF(MSVC90)
+			SET(MSVCFOLDER "vs9")
+	ELSEIF(MSVC10)
+			SET(MSVCFOLDER "vs10")
+	ENDIF()
 
-        if(CMAKE_CL_64)
-                LINK_DIRECTORIES($ENV{DXSDK_DIR}/lib/x64)
-        ELSE()
-                LINK_DIRECTORIES($ENV{DXSDK_DIR}/lib/x86)
-        ENDIF()
-        SET(PROJECTBINDIR ${N3ROOT}/bin/win32)	
-        ADD_DEFINITIONS(-DFBXSDK_NEW_API)	
+	if(CMAKE_CL_64)
+			LINK_DIRECTORIES($ENV{DXSDK_DIR}/lib/x64)
+	ELSE()
+			LINK_DIRECTORIES($ENV{DXSDK_DIR}/lib/x86)
+	ENDIF()
+	SET(PROJECTBINDIR ${N3ROOT}/bin/win32)	        
 ELSEIF(UNIX)
+	OPTION(N_BUILD_OGL4 "Build using OpenGL 4 renderer" ON)
 	
-        ADD_DEFINITIONS(-DFBXSDK_NEW_API)
-
-        LINK_DIRECTORIES(/usr/lib/;/usr/lib/x86_64-linux-gnu/)
-        SET(PROJECTBINDIR ${N3ROOT}/bin/posix)		
-		SET(NEBULA_TOOLKIT_LIBS ${FBX_LIBRARY} nvcore nvtt nvimage nvmath posh squish nvthread bc6h bc7)
-       
+	FIND_LIBRARY(UUID NAMES libuuid.so) #uuid lib
+	FIND_LIBRARY(LIBC NAMES libc.so) #libc
+	FIND_LIBRARY(LIBDL NAMES libdl.so) #lib for dynamic linkage
+	FIND_PACKAGE(Freetype )
+	FIND_PACKAGE(JPEG)
+	FIND_PACKAGE(PNG)
+	FIND_PACKAGE(Boost REQUIRED)
+	LINK_DIRECTORIES(/usr/lib/;/usr/lib/x86_64-linux-gnu/)
+	SET(PROJECTBINDIR ${N3ROOT}/bin/posix)	
+	IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    # Linux specific code
+		SET(LINUX true)
+	ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")		
 ENDIF()
+
+
+IF(N_BUILD_QT AND NOT N_BUILD_FIRSTTIME)
+	FIND_PACKAGE(Qt4 REQUIRED QtCore QtGui QtXml QtNetwork)
+	IF(N_QT_NEB_SUPPORT)
+		ADD_DEFINITIONS(-D_QT_NEB_SUPPORT)
+		INCLUDE(${QT_USE_FILE})
+		ADD_DEFINITIONS(${QT_DEFINITIONS})		
+	ENDIF()
+ENDIF()
+
+# help find the nidl files that live in the binary directory now
+INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}/nidl/)
 
 SET(CMAKE_INCLUDE_CURRENT_DIR_IN_INTERFACE ON)
 
-#include(libs/CMakeLists.txt)
 ADD_SUBDIRECTORY(code)
