@@ -329,6 +329,7 @@ GLFWDisplayDevice::OpenWindow()
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 	glfwSetErrorCallback(NebulaGLFWErrorCallback);    
 	glEnable(GL_DEBUG_OUTPUT);
+	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
     n_printf("Creating OpenGL debug context\n");
 #else
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_FALSE);
@@ -372,6 +373,7 @@ GLFWDisplayDevice::EmbedWindow()
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 	glfwSetErrorCallback(NebulaGLFWErrorCallback);
 	glEnable(GL_DEBUG_OUTPUT);
+	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 	n_printf("Creating OpenGL debug context\n");
 #else
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_FALSE);

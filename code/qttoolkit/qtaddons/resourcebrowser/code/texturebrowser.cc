@@ -114,21 +114,21 @@ TextureBrowser::OnDirectoryClicked(const QString& dir)
 
 	// find all accepted file types, note that we are looking in work, not export!
 	Ptr<IoServer> ioServer = IoServer::Instance();
-	String catPath("src:textures/" + String(dir.toUtf8().constData()));
-	Array<String> texFiles = ioServer->ListFiles(catPath, "*.png");
-	texFiles.AppendArray(ioServer->ListFiles(catPath, "*.tga"));
-	texFiles.AppendArray(ioServer->ListFiles(catPath, "*.bmp"));
-	texFiles.AppendArray(ioServer->ListFiles(catPath, "*.psd"));
-	texFiles.AppendArray(ioServer->ListFiles(catPath, "*.dds"));
+	String texPath("src:textures/" + String(dir.toUtf8().constData()));
+	Array<String> texFiles = ioServer->ListFiles(texPath, "*.png");
+	texFiles.AppendArray(ioServer->ListFiles(texPath, "*.tga"));
+	texFiles.AppendArray(ioServer->ListFiles(texPath, "*.bmp"));
+	texFiles.AppendArray(ioServer->ListFiles(texPath, "*.psd"));
+	texFiles.AppendArray(ioServer->ListFiles(texPath, "*.dds"));
 
-	catPath = "src:gfxlib/" + String(dir.toUtf8().constData());
-	Array<String> fbxFiles = ioServer->ListFiles(catPath, "*.fbx");
+	String gfxPath = "src:gfxlib/" + String(dir.toUtf8().constData());
+	Array<String> fbxFiles = ioServer->ListFiles(gfxPath, "*.fbx");
 
 	IndexT i;
 	for (i = 0; i < texFiles.Size(); i++)
 	{
 		const String& file = texFiles[i];
-		String textureFile = catPath + "/" + file;
+		String textureFile = texPath + "/" + file;
 
 		// create new texture item
 		TiledTextureItem* item = new TiledTextureItem;
@@ -141,10 +141,11 @@ TextureBrowser::OnDirectoryClicked(const QString& dir)
 		connect(item, SIGNAL(OnSelected(const QString&)), this, SLOT(OnTextureClicked(const QString&)));
 	}
 
+	/*
 	for (i = 0; i < fbxFiles.Size(); i++)
 	{
 		const String& file = fbxFiles[i];
-		String fbxFile = catPath + "/" + file;
+		String fbxFile = gfxPath + "/" + file;
 
 		// create new texture item
 		TiledTextureItem* item = new TiledTextureItem;
@@ -156,6 +157,7 @@ TextureBrowser::OnDirectoryClicked(const QString& dir)
 		// connect with browser to handle directory navigation
 		connect(item, SIGNAL(OnSelected(const QString&)), this, SLOT(OnGfxClicked(const QString&)));
 	}
+	*/
 
 	// rearrange browser window
 	this->ui->texturePreview->Rearrange();

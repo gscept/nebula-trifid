@@ -21,6 +21,13 @@
   <property name="windowTitle">
    <string>Frame</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">QToolTip
+{
+background-color: transparent;
+border: 0;
+}</string>
+  </property>
   <property name="frameShape">
    <enum>QFrame::NoFrame</enum>
   </property>
@@ -939,8 +946,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>797</width>
-                <height>680</height>
+                <width>237</width>
+                <height>434</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_22">
@@ -1683,8 +1690,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>797</width>
-                <height>680</height>
+                <width>195</width>
+                <height>382</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_21">
@@ -2365,8 +2372,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>797</width>
-                <height>680</height>
+                <width>333</width>
+                <height>420</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_23">
@@ -3112,8 +3119,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>797</width>
-                <height>680</height>
+                <width>230</width>
+                <height>437</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_24">

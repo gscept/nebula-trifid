@@ -27,7 +27,7 @@ float R2 = 0.0f;
 
 sampler2D DepthBuffer;
 sampler2D RandomMap;
-readwrite r16f image2D HBAO0;
+readwrite rg16f image2D HBAO0;
 write rg16f image2D HBAO1;
 
 samplerstate DepthSampler
@@ -93,8 +93,8 @@ vec2 SharedMemoryLoad(uint centerId, uint x)
 //----------------------------------------------------------------------------------
 vec2 LoadXZFromTexture(uint x, uint y)
 { 
-    vec2 uv = (vec2(x, y) + vec2(0.5f)) * InvAOResolution;
-    float z_eye = textureLod(DepthBuffer, uv, 0).r;
+    vec2 uv = (vec2(x, y)) * InvAOResolution;
+    float z_eye = texelFetch(DepthBuffer, ivec2(x, y), 0).r;
     float x_eye = (UVToViewA.x * uv.x + UVToViewB.x) * z_eye;
     return vec2(x_eye, z_eye);
 }
@@ -104,8 +104,8 @@ vec2 LoadXZFromTexture(uint x, uint y)
 //----------------------------------------------------------------------------------
 vec2 LoadYZFromTexture(uint x, uint y)
 {
-    vec2 uv = (vec2(x, y) + vec2(0.5f)) * InvAOResolution;
-    float z_eye = textureLod(DepthBuffer, uv, 0).r;
+    vec2 uv = (vec2(x, y)) * InvAOResolution;
+    float z_eye = texelFetch(DepthBuffer, ivec2(x, y), 0).r;
     float y_eye = (UVToViewA.y * uv.y + UVToViewB.y) * z_eye;
     return vec2(y_eye, z_eye);
 }
@@ -199,9 +199,8 @@ csMainX()
         float2 T = MinDiff(P, Pr, Pl);
 
         float ao = ComputeHBAO(P, T, centerId);
-		imageStore(HBAO0, int2(ox, oy), vec4(ao, 1, 0, 0));
+		imageStore(HBAO0, int2(ox, oy), vec4(ao, 0, 0, 0));
     }
-	imageStore(HBAO0, int2(writePos, gl_WorkGroupID.y), vec4(1, 1, 0, 0));
 }
 
 //------------------------------------------------------------------------------

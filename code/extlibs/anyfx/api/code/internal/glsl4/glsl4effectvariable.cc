@@ -374,15 +374,18 @@ GLSL4EffectVariable::Commit()
                 // unpack data
                 EffectVariable::OpenGLTexture* obj = (EffectVariable::OpenGLTexture*)this->currentValue;
 
+				//glBindImageTextures(this->textureUnit, 1, (GLuint*)&obj->handle);
+				
                 if (obj && obj->textureType == this->textureType)
                 {
                     // bind the texture to the image unit, this is a bit sensitive since if the texture object doesn't match the image format, the GL will output an error.
-					glBindImageTexture(this->textureUnit, obj->handle, 0, GL_FALSE, 0, this->glAccessMode, this->glImageFormat);
+					glBindImageTexture(this->textureUnit, obj->handle, 0, GL_TRUE, 0, GL_READ_WRITE, this->glImageFormat);
                 }
                 else
                 {
                     glBindImageTexture(this->textureUnit, 0, 0, GL_FALSE, 0, this->glAccessMode, this->glImageFormat);
                 }
+				
 
                 break;
             }
@@ -403,7 +406,7 @@ GLSL4EffectVariable::Commit()
                 }
                 else
                 {
-                    glBindImageTexture(this->textureUnit, 0, 0, GL_TRUE, 0, this->glAccessMode, this->glImageFormat);
+					glBindImageTexture(this->textureUnit, 0, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R8);
                 }
 				
 				break;
