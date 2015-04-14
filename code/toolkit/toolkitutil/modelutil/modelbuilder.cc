@@ -298,9 +298,10 @@ ModelBuilder::WritePhysics( const Ptr<N3Writer>& writer )
 			{
 				// get list of shapes
 				const Array<ModelConstants::ShapeNode>& shapes = this->constants->GetShapeNodes();
-				Array<Physics::ColliderDescription> colls;								
+				
 				for(int i=0;i<shapes.Size();i++)
 				{
+					Array<Physics::ColliderDescription> colls;								
 					Physics::ColliderDescription coll;
 					coll.type = Physics::ColliderMesh;
 					String temp = shapes[i].mesh;
@@ -316,8 +317,8 @@ ModelBuilder::WritePhysics( const Ptr<N3Writer>& writer )
 					t.setscalepivot(shapes[i].transform.scalePivot);
 					coll.transform = t.getmatrix();
 					colls.Append(coll);
-				}														
-				writer->WritePhysicsColliders("DefaultCollider",colls);					
+					writer->WritePhysicsColliders(shapes[i].name,colls);					
+				}																		
 			}
 			break;
 		case UsePhysics:
