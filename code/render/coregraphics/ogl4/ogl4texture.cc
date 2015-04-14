@@ -104,7 +104,7 @@ OGL4Texture::Map(IndexT mipLevel, MapType mapType, MapInfo& outMapInfo)
 		GLint mipHeight;
 		glGetTexLevelParameteriv(GL_TEXTURE_2D, mipLevel, GL_TEXTURE_WIDTH, &mipWidth);
 		glGetTexLevelParameteriv(GL_TEXTURE_2D, mipLevel, GL_TEXTURE_HEIGHT, &mipHeight);
-		
+
 		GLint size;
 		size = PixelFormat::ToSize(this->pixelFormat);
 

@@ -71,9 +71,8 @@ csMainX()
 	const int x = apronStart + int(gl_LocalInvocationID.x);
 	const int y = int(gl_WorkGroupID.y);
 	const vec2 uv = vec2(x, y) * inverseSize;
-	memoryBarrierImage();
 	SharedMemory[gl_LocalInvocationID.x] = textureLod(HBAOReadLinear, uv, 0).xy;
-	memoryBarrierShared();
+	groupMemoryBarrier();
 	
 	const uint writePos = tileStart + gl_LocalInvocationID.x;
 	const uint tileEndClamped = min(tileEnd, int(size.x));
@@ -138,9 +137,8 @@ csMainY()
 	const int x = int(gl_WorkGroupID.y);
 	const int y = apronStart + int(gl_LocalInvocationID.x);
 	const vec2 uv = vec2(x, y) * inverseSize;
-	memoryBarrierImage();
 	SharedMemory[gl_LocalInvocationID.x] = textureLod(HBAOReadLinear, uv, 0).xy;
-	memoryBarrierShared();
+	groupMemoryBarrier();
 	
 	const uint writePos = tileStart + gl_LocalInvocationID.x;
 	const uint tileEndClamped = min(tileEnd, int(size.x));

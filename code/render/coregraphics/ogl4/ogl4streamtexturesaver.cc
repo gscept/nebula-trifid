@@ -73,18 +73,6 @@ OGL4StreamTextureSaver::SaveTexture2D(const Ptr<CoreGraphics::Texture>& tex, ILe
 		mipLevelToSave = maxLevels - 1;
 	}
 
-	// calculate size
-	GLenum components = OGL4Types::AsOGL4PixelComponents(tex->GetPixelFormat());
-	uint byteSize = PixelFormat::ToSize(tex->GetPixelFormat());
-
-	// get dimensions of mip
-	GLint mippedWidth;
-	GLint mippedHeight;
-	glBindTexture(tex->GetOGL4TextureTarget(), tex->GetOGL4Texture());
-	glGetTexLevelParameteriv(tex->GetOGL4TextureTarget(), mipLevelToSave, GL_TEXTURE_WIDTH, &mippedWidth);
-	glGetTexLevelParameteriv(tex->GetOGL4TextureTarget(), mipLevelToSave, GL_TEXTURE_HEIGHT, &mippedHeight);
-	glBindTexture(tex->GetOGL4TextureTarget(), 0);
-
 	// create il image
 	ILint image = ilGenImage();
 	ilBindImage(image);
@@ -100,22 +88,21 @@ OGL4StreamTextureSaver::SaveTexture2D(const Ptr<CoreGraphics::Texture>& tex, ILe
 	tex->Map(mipLevelToSave, ResourceBase::MapRead, mapInfo);
 
 	// create image
-	ILboolean result = ilTexImage(mippedWidth, mippedHeight, 1, channels, format, type, (ILubyte*)mapInfo.data);
+	ILboolean result = ilTexImage(mapInfo.mipWidth, mapInfo.mipHeight, 1, channels, format, type, (ILubyte*)mapInfo.data);
 	n_assert(result == IL_TRUE);
 
 	// flip image if it's a GL texture
-	//if (!tex->IsRenderTargetAttachment())
-	//{
+	if (!tex->IsRenderTargetAttachment())
+	{
 		iluFlipImage();
-	//}
-
-	tex->Unmap(mipLevelToSave);	
+	}
 
 	// now save as PNG (will give us proper alpha)
 	ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
 	ILint size = ilSaveL(imageFileType, NULL, 0);
 	ILbyte* data = new ILbyte[size];
 	ilSaveL(imageFileType, data, size);
+	tex->Unmap(mipLevelToSave);
 
 	// write result to stream
 	this->stream->SetAccessMode(Stream::WriteAccess);

@@ -209,8 +209,8 @@ OGL4Types::AsOGL4PixelType( CoreGraphics::PixelFormat::Code p )
 	case PixelFormat::BC7:				return GL_UNSIGNED_BYTE;
 	case PixelFormat::BC7sRGB:			return GL_UNSIGNED_BYTE;
 	case PixelFormat::SRGBA8:			return GL_UNSIGNED_BYTE;
-	case PixelFormat::R11G11B10F:		return GL_FLOAT;
-	case PixelFormat::R16F:             return GL_SHORT;
+	case PixelFormat::R11G11B10F:		return GL_R11F_G11F_B10F;
+	case PixelFormat::R16F:             return GL_HALF_FLOAT;
 	case PixelFormat::G16R16:			return GL_SHORT;
 	case PixelFormat::G16R16F:          return GL_HALF_FLOAT;
 	case PixelFormat::G32R32F:			return GL_FLOAT;
