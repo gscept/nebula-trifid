@@ -404,9 +404,11 @@ BulletScene::RenderDebug()
 	this->debugPrimitives.Reserve(65535);
 	this->physics.dynamicsWorld->debugDrawWorld();
 	BaseScene::RenderDebug();	
-
-	// draw buffered primitives
-	Debug::DebugShapeRenderer::Instance()->DrawPrimitives(matrix44::identity(), CoreGraphics::PrimitiveTopology::LineList, this->debugPrimitives.Size() / 2, &this->debugPrimitives[0], 4, float4(1, 0, 0, 0.75f));
+	if(!this->debugPrimitives.IsEmpty())
+	{
+		// draw buffered primitives
+		Debug::DebugShapeRenderer::Instance()->DrawPrimitives(matrix44::identity(), CoreGraphics::PrimitiveTopology::LineList, this->debugPrimitives.Size() / 2, &this->debugPrimitives[0], 4, float4(1, 0, 0, 0.75f));
+	}
 }
 
 
