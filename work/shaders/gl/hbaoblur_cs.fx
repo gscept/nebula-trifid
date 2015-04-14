@@ -68,11 +68,11 @@ csMainX()
 	const int        apronStart = tileStart - KERNEL_RADIUS;
 	const int          apronEnd = tileEnd   + KERNEL_RADIUS;
 	
-	const int x = apronStart + int(gl_LocalInvocationID.x);
-	const int y = int(gl_WorkGroupID.y);
-	const vec2 uv = vec2(x, y) * inverseSize;
+	const float x = apronStart + float(gl_LocalInvocationID.x) + 0.5f;
+	const float y = float(gl_WorkGroupID.y);
+	const vec2 uv = (vec2(x, y) + 0.5f) * inverseSize;
 	SharedMemory[gl_LocalInvocationID.x] = textureLod(HBAOReadLinear, uv, 0).xy;
-	groupMemoryBarrier();
+	barrier();
 	
 	const uint writePos = tileStart + gl_LocalInvocationID.x;
 	const uint tileEndClamped = min(tileEnd, int(size.x));
@@ -80,7 +80,7 @@ csMainX()
 	if (writePos < tileEndClamped)
 	{
 		// Fetch (ao,z) at the kernel center
-		vec2 uv = vec2(writePos, y) * inverseSize;
+		vec2 uv = (vec2(writePos, y) + 0.5f) * inverseSize;
 		vec2 AoDepth = textureLod(HBAOReadPoint, uv, 0).xy;
 		float ao_total = AoDepth.x;
 		float center_d = AoDepth.y;
@@ -134,11 +134,11 @@ csMainY()
 	const int        apronStart = tileStart - KERNEL_RADIUS;
 	const int          apronEnd = tileEnd   + KERNEL_RADIUS;
 	
-	const int x = int(gl_WorkGroupID.y);
-	const int y = apronStart + int(gl_LocalInvocationID.x);
-	const vec2 uv = vec2(x, y) * inverseSize;
-	SharedMemory[gl_LocalInvocationID.x] = textureLod(HBAOReadLinear, uv, 0).xy;
-	groupMemoryBarrier();
+	const float x = float(gl_WorkGroupID.y);
+	const float y = apronStart + float(gl_LocalInvocationID.x) + 0.5f;
+	const vec2 uv = (vec2(x, y) + 0.5f) * inverseSize;
+	SharedMemory[gl_LocalInvocationID.x] = textureLod(HBAOReadLinear, uv, 0).xy;	
+	barrier();
 	
 	const uint writePos = tileStart + gl_LocalInvocationID.x;
 	const uint tileEndClamped = min(tileEnd, int(size.x));
@@ -146,7 +146,7 @@ csMainY()
 	if (writePos < tileEndClamped)
 	{
 		// Fetch (ao,z) at the kernel center
-		vec2 uv = vec2(x, writePos) * inverseSize;
+		vec2 uv = (vec2(x, writePos) + 0.5f) * inverseSize;
 		vec2 AoDepth = textureLod(HBAOReadPoint, uv, 0).xy;
 		float ao_total = AoDepth.x;
 		float center_d = AoDepth.y;

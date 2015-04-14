@@ -16,7 +16,7 @@
 #include "renderutil/drawfullscreenquad.h"
 
 // define this to use compute shaders for HBAO instead of pixel shader using a full screen quad
-//#define HBAO_COMPUTE 1
+#define HBAO_COMPUTE 1
 
 
 namespace CoreGraphics
@@ -80,7 +80,6 @@ private:
     Ptr<CoreGraphics::ShaderVariable> hbaoFinalTextureVar;
 	Ptr<CoreGraphics::ShaderVariable> randomTextureVar;
 	Ptr<CoreGraphics::Texture> randomTexture;
-	Ptr<CoreGraphics::ShaderVariable> rVar;
 	Ptr<CoreGraphics::ShaderVariable> focalLengthVar;
 	Ptr<CoreGraphics::ShaderVariable> maxRadiusPixelsVar;
 	Ptr<CoreGraphics::ShaderVariable> negInvR2Var;
@@ -97,6 +96,7 @@ private:
 	Ptr<CoreGraphics::ShaderVariable> uvToViewAVar;
 	Ptr<CoreGraphics::ShaderVariable> uvToViewBVar;
 	Ptr<CoreGraphics::ShaderVariable> r2Var;
+	Ptr<CoreGraphics::ShaderVariable> rVar;
 	Ptr<CoreGraphics::ShaderVariable> aoResolutionVar;
 	Ptr<CoreGraphics::ShaderVariable> invAOResolutionVar;
 	Ptr<CoreGraphics::ShaderVariable> strengthVar;

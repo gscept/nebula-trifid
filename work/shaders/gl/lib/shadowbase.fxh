@@ -213,6 +213,7 @@ gsCSM(in vec2 uv[], in vec4 pos[], flat in int instance[], out vec2 UV, out vec4
 	ProjPos = pos[2];
 	gl_Position = ProjPos;
 	EmitVertex();
+	EndPrimitive();
 	/*
 	for (int instance = 0; instance < 4; instance++)
 	{
@@ -552,11 +553,11 @@ psVSM(in vec2 UV,
 	in vec4 ProjPos,
 	[color0] out vec2 ShadowColor) 
 {
-	float depth = ProjPos.z;
+	float depth = ProjPos.z / ProjPos.w;
 	float moment1 = depth;
 	float moment2 = depth * depth;
 	
-		// Adjusting moments (this is sort of bias per pixel) using derivative
+	// Adjusting moments (this is sort of bias per pixel) using derivative
 	float dx = dFdx(depth);
 	float dy = dFdy(depth);
 	moment2 += 0.25f*(dx*dx+dy*dy);
@@ -576,11 +577,11 @@ psVSMAlpha(in vec2 UV,
 	float alpha = texture(DiffuseMap, UV).a;
 	if (alpha < AlphaSensitivity) discard;
 	
-	float depth = ProjPos.z;
+	float depth = ProjPos.z / ProjPos.w;
 	float moment1 = depth;
 	float moment2 = depth * depth;
 	
-		// Adjusting moments (this is sort of bias per pixel) using derivative
+	// Adjusting moments (this is sort of bias per pixel) using derivative
 	float dx = dFdx(depth);
 	float dy = dFdy(depth);
 	moment2 += 0.25f*(dx*dx+dy*dy);

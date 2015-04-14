@@ -161,7 +161,7 @@ CSMPS(in vec4 TexShadow,
     for (i = 0; i < 13; i++)
     {
 		vec2 uvSample = sampleCoord.xy + sampleOffsetWeights[i] * pixelSize.xy;
-		vec2 currentSample = textureGrad(ShadowProjMap, uvSample, ddx * CascadeScale[cascadeIndex].xy, ddy * CascadeScale[cascadeIndex].xy).rg;
+		vec2 currentSample = textureLod(ShadowProjMap, uvSample, 0).rg;
 		mapDepth += currentSample;
 	}	
 	mapDepth /= 13;
@@ -184,7 +184,7 @@ CSMPS(in vec4 TexShadow,
 			sampleCoord.xy *= ShadowPartitionSize;
 			sampleCoord.xy += vec2(mod(nextCascade, SplitsPerRow) * ShadowPartitionSize, (nextCascade / SplitsPerColumn) * ShadowPartitionSize);
 					
-			mapDepth = textureGrad(ShadowProjMap, sampleCoord.xy, ddx * CascadeScale[nextCascade].xy, ddy * CascadeScale[nextCascade].xy).rg;
+			mapDepth = textureLod(ShadowProjMap, sampleCoord.xy, 0).rg;
 			occlusionBlend = ChebyshevUpperBound(mapDepth, depth, 0.000002f);		
 		}
 		

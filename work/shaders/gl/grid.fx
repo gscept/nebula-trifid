@@ -28,6 +28,9 @@ state GridState
 	CullMode = None;
 	DepthClamp = false;
 	DepthWrite = false;
+	PolygonOffsetEnabled = true;
+	PolygonOffsetFactor = 1.0f;
+	PolygonOffsetUnits = 2.0f;
 };
 
 //------------------------------------------------------------------------------

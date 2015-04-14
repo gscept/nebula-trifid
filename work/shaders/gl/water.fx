@@ -326,7 +326,7 @@ psDefault(
 	float conservative_refraction_depth = GetConservativeRefractionDepth(screenUv + refraction_disturbance);
 	float conservative_water_depth = conservative_refraction_depth - depth;
 
-	if(conservative_water_depth < 0)
+	if (conservative_water_depth < 0)
 	{
 		refraction_disturbance = vec2(0);
 		water_depth = nondisplaced_water_depth;

@@ -114,12 +114,8 @@ OGL4Texture::Map(IndexT mipLevel, MapType mapType, MapInfo& outMapInfo)
 		outMapInfo.rowPitch = size * mipWidth;
 		outMapInfo.depthPitch = 0;
 		
-		//glBindBuffer(GL_PIXEL_PACK_BUFFER, this->ogl4PixelBuffer);
-		//glBufferData(GL_PIXEL_PACK_BUFFER, size * mipWidth * mipHeight, NULL, flags);
 		this->mappedData = new byte[mipWidth * mipHeight * size];
 		glGetTexImage(this->target, mipLevel, components, type, this->mappedData);
-		//this->mappedData = (GLubyte*)glMapBuffer(GL_PIXEL_PACK_BUFFER, flags);
-		//glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 
 		outMapInfo.data = this->mappedData;
 		retval = GLSUCCESS;
@@ -143,12 +139,8 @@ OGL4Texture::Map(IndexT mipLevel, MapType mapType, MapInfo& outMapInfo)
 		outMapInfo.rowPitch = size * mipWidth;
 		outMapInfo.depthPitch = 0;		
 
-		//glBindBuffer(GL_PIXEL_PACK_BUFFER, this->ogl4PixelBuffer);
-		//glBufferData(GL_PIXEL_PACK_BUFFER, size * mipWidth * mipHeight, NULL, flags);
 		this->mappedData = new byte[mipWidth * mipHeight * mipDepth * size];
 		glGetTexImage(this->target, mipLevel, components, type, this->mappedData);
-		//this->mappedData = (GLubyte*)glMapBuffer(GL_PIXEL_PACK_BUFFER, flags);
-		//glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 
 		outMapInfo.data = this->mappedData;
 		retval = GLSUCCESS;
@@ -264,11 +256,7 @@ OGL4Texture::MapCubeFace(CubeFace face, IndexT mipLevel, MapType mapType, MapInf
 	outMapInfo.depthPitch = 0;
 
 	this->mappedData = new byte[mipWidth * mipHeight * size];
-	//glBindBuffer(GL_PIXEL_PACK_BUFFER, this->ogl4PixelBuffer);
-	//glBufferData(GL_PIXEL_PACK_BUFFER, size * mipWidth * mipHeight, NULL, flags);
 	glGetTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X  + face, mipLevel, components, type, this->mappedData);
-	//this->mappedData = (GLubyte*)glMapBuffer(GL_PIXEL_PACK_BUFFER, flags);
-	//glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 
 	outMapInfo.data = this->mappedData;
 	retval = GLSUCCESS;

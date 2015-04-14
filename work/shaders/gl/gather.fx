@@ -71,14 +71,12 @@ psMain(in vec2 UV,
 	vec4 sssLight = DecodeHDR(texture(SSSTexture, UV));
 	vec4 light = DecodeHDR(texture(LightTexture, UV));
 	vec4 emissiveColor = texture(EmissiveTexture, UV);
-	
-	// blend non-blurred light with SSS light
-	light.rgb = lerp(light.rgb + emissiveColor.rgb, sssLight.rgb, sssLight.a);	
-	vec4 color = light;
-	
 	float ssao = texture(SSAOTexture, UV).r;
 	
-	color.rgb *= 1 - saturate(ssao);
+	// blend non-blurred light with SSS light
+	light.rgb = lerp(light.rgb + emissiveColor.rgb, sssLight.rgb, sssLight.a) * (1.0f - ssao);	
+	vec4 color = light;
+	
 	float depth = texture(DepthTexture, UV).r;
 	color = psFog(depth, color);
 	MergedColor = EncodeHDR(color);

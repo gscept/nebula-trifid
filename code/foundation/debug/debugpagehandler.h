@@ -25,9 +25,9 @@ public:
 
 protected:
     /// compute the min, max and average time from an array of times
-    void ComputeMinMaxAvgTimes(const Util::Array<Timing::Time>& times, Timing::Time& outMin, Timing::Time& outMax, Timing::Time& outAvg) const;
+    void ComputeMinMaxAvgTimes(const Util::Array<Timing::Time>& times, Timing::Time& outMin, Timing::Time& outMax, Timing::Time& outAvg, Timing::Time& outCur) const;
     /// compute min, max and average values from an array of counter samples
-    void ComputeMinMaxAvgCounts(const Util::Array<int>& counterValues, int& outMin, int& outMax, int& outAvg) const;
+    void ComputeMinMaxAvgCounts(const Util::Array<int>& counterValues, int& outMin, int& outMax, int& outAvg, int& outCur) const;
 
 private:
     /// handle HTTP request for a debug timer

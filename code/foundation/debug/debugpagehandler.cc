@@ -100,6 +100,10 @@ DebugPageHandler::HandleRequest(const Ptr<HttpRequest>& request)
                 htmlWriter->AddAttr("href", "/debug?TimerTableSort=Avg");
                 htmlWriter->Element(HtmlElement::Anchor, "Avg");
                 htmlWriter->End(HtmlElement::TableData);
+				htmlWriter->Begin(HtmlElement::TableData);
+				htmlWriter->AddAttr("href", "/debug?TimerTableSort=Cur");
+				htmlWriter->Element(HtmlElement::Anchor, "Cur");
+				htmlWriter->End(HtmlElement::TableData);
             htmlWriter->End(HtmlElement::TableRow);
 
             // iterate through all debug timers
@@ -111,8 +115,8 @@ DebugPageHandler::HandleRequest(const Ptr<HttpRequest>& request)
             for (idx = 0; idx < debugTimers.Size(); ++idx)
             {
                 Array<Time> history = debugTimers[idx]->GetHistory();
-                Time minTime, maxTime, avgTime;
-                this->ComputeMinMaxAvgTimes(history, minTime, maxTime, avgTime);
+                Time minTime, maxTime, avgTime, curTime;
+                this->ComputeMinMaxAvgTimes(history, minTime, maxTime, avgTime, curTime);
                 if (this->sortByColumn == "Name")
                 {
             	    sortedTimer.Add(debugTimers[idx]->GetName().Value(), debugTimers[idx]);
@@ -129,6 +133,10 @@ DebugPageHandler::HandleRequest(const Ptr<HttpRequest>& request)
                 {
                     sortedTimer.Add(float(avgTime), debugTimers[idx]);
                 }
+				else if (this->sortByColumn == "Cur")
+				{
+					sortedTimer.Add(float(curTime), debugTimers[idx]);
+				}
             }
             sortedTimer.EndBulkAdd();
             debugTimers = sortedTimer.ValuesAsArray();
@@ -138,8 +146,8 @@ DebugPageHandler::HandleRequest(const Ptr<HttpRequest>& request)
             {
                 StringAtom name = debugTimers[i]->GetName();
                 Array<Time> history = debugTimers[i]->GetHistory();
-                Time minTime, maxTime, avgTime;
-                this->ComputeMinMaxAvgTimes(history, minTime, maxTime, avgTime);
+                Time minTime, maxTime, avgTime, curTime;
+                this->ComputeMinMaxAvgTimes(history, minTime, maxTime, avgTime, curTime);
                 htmlWriter->Begin(HtmlElement::TableRow);
                     htmlWriter->Begin(HtmlElement::TableData);
                         htmlWriter->AddAttr("href", "/debug?timer=" + name.AsString());
@@ -148,6 +156,7 @@ DebugPageHandler::HandleRequest(const Ptr<HttpRequest>& request)
                     htmlWriter->Element(HtmlElement::TableData, String::FromFloat(float(minTime)));
                     htmlWriter->Element(HtmlElement::TableData, String::FromFloat(float(maxTime)));
                     htmlWriter->Element(HtmlElement::TableData, String::FromFloat(float(avgTime)));
+					htmlWriter->Element(HtmlElement::TableData, String::FromFloat(float(curTime)));
                 htmlWriter->End(HtmlElement::TableRow);
             }
         htmlWriter->End(HtmlElement::Table);
@@ -163,6 +172,7 @@ DebugPageHandler::HandleRequest(const Ptr<HttpRequest>& request)
                 htmlWriter->Element(HtmlElement::TableHeader, "Min");
                 htmlWriter->Element(HtmlElement::TableHeader, "Max");
                 htmlWriter->Element(HtmlElement::TableHeader, "Avg");
+				htmlWriter->Element(HtmlElement::TableHeader, "Cur");
             htmlWriter->End(HtmlElement::TableRow);
 
             // iterate through all debug counters
@@ -171,8 +181,8 @@ DebugPageHandler::HandleRequest(const Ptr<HttpRequest>& request)
             {
                 StringAtom name = debugCounters[i]->GetName();
                 Array<int> history = debugCounters[i]->GetHistory();
-                int minCount, maxCount, avgCount;
-                this->ComputeMinMaxAvgCounts(history, minCount, maxCount, avgCount);
+                int minCount, maxCount, avgCount, curCount;
+                this->ComputeMinMaxAvgCounts(history, minCount, maxCount, avgCount, curCount);
                 htmlWriter->Begin(HtmlElement::TableRow);
                     htmlWriter->Begin(HtmlElement::TableData);
                         htmlWriter->AddAttr("href", "/debug?counter=" + name.AsString());
@@ -181,6 +191,7 @@ DebugPageHandler::HandleRequest(const Ptr<HttpRequest>& request)
                     htmlWriter->Element(HtmlElement::TableData, String::FromInt(minCount));
                     htmlWriter->Element(HtmlElement::TableData, String::FromInt(maxCount));
                     htmlWriter->Element(HtmlElement::TableData, String::FromInt(avgCount));
+					htmlWriter->Element(HtmlElement::TableData, String::FromInt(curCount));
                 htmlWriter->End(HtmlElement::TableRow);
             }
         htmlWriter->End(HtmlElement::Table);
@@ -199,13 +210,14 @@ DebugPageHandler::HandleRequest(const Ptr<HttpRequest>& request)
     Gets the min/max/avg time from an array of Time samples.
 */
 void
-DebugPageHandler::ComputeMinMaxAvgTimes(const Array<Time>& times, Time& outMin, Time& outMax, Time& outAvg) const
+DebugPageHandler::ComputeMinMaxAvgTimes(const Array<Time>& times, Time& outMin, Time& outMax, Time& outAvg, Timing::Time& outCur) const
 {
     if (times.Size() > 0)
     {
         outMin = 10000000.0f;
         outMax = -10000000.0f;
         outAvg = 0.0;
+		outCur = times.Back();
         IndexT i;
         for (i = 0; i < times.Size(); i++)
         {
@@ -220,6 +232,7 @@ DebugPageHandler::ComputeMinMaxAvgTimes(const Array<Time>& times, Time& outMin, 
         outMin = 0.0;
         outMax = 0.0;
         outAvg = 0.0;
+		outCur = 0.0;
     }
 }
 
@@ -228,13 +241,14 @@ DebugPageHandler::ComputeMinMaxAvgTimes(const Array<Time>& times, Time& outMin, 
     Gets the min/max/avg counter values from an array of counter samples.
 */
 void
-DebugPageHandler::ComputeMinMaxAvgCounts(const Array<int>& counterValues, int& outMin, int& outMax, int& outAvg) const
+DebugPageHandler::ComputeMinMaxAvgCounts(const Array<int>& counterValues, int& outMin, int& outMax, int& outAvg, int& outCur) const
 {
     if (counterValues.Size() > 0)
     {
         outMin = (1<<30);
         outMax = -(1<<30);
         outAvg = 0;
+		outCur = counterValues.Back();
         IndexT i;
         for (i = 0; i < counterValues.Size(); i++)
         {
@@ -249,6 +263,7 @@ DebugPageHandler::ComputeMinMaxAvgCounts(const Array<int>& counterValues, int& o
         outMin = 0;
         outMax = 0;
         outAvg = 0;
+		outCur = 0;
     }
 }
 
@@ -330,8 +345,8 @@ DebugPageHandler::HandleTimerChartRequest(const String& timerName, const Ptr<Htt
         {
             // get min/max/avg times, convert time to float array
             Array<Time> timeArray = debugTimer->GetHistory();
-            Time minTime, maxTime, avgTime;
-            this->ComputeMinMaxAvgTimes(timeArray, minTime, maxTime, avgTime);
+            Time minTime, maxTime, avgTime, curTime;
+            this->ComputeMinMaxAvgTimes(timeArray, minTime, maxTime, avgTime, curTime);
             Array<float> floatArray(timeArray.Size(), 0);
             IndexT i;
             for (i = 0; i < timeArray.Size(); i++)
@@ -375,8 +390,8 @@ DebugPageHandler::HandleCounterChartRequest(const String& counterName, const Ptr
             Array<int> intArray = debugCounter->GetHistory();
             if (intArray.Size() > 0)
             {        
-                int minVal, maxVal, avgVal;
-                this->ComputeMinMaxAvgCounts(intArray, minVal, maxVal, avgVal);
+                int minVal, maxVal, avgVal, curVal;
+                this->ComputeMinMaxAvgCounts(intArray, minVal, maxVal, avgVal, curVal);
 
                 // for maxVal == minVal set valid maxVal
                 if (minVal == maxVal) maxVal = minVal + 1;
