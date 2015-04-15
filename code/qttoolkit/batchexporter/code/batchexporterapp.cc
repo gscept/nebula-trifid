@@ -75,6 +75,8 @@ BatchExporterApp::BatchExporterApp(const CommandLineArgs& args) :
 		this->ShowFirstTimeHelpDialog();
 	}
 	
+	this->UpdateTitle();
+
 	this->projInfo.SetCurrentPlatform(DEFAULTPLATFORM);
 	this->projInfo.Setup();
 	
@@ -492,7 +494,9 @@ BatchExporterApp::PickWorkingDir()
         if(QFile::exists(directory.path() + "/projectinfo.xml"))
         {
             this->workDir = directory.absolutePath();
-            System::NebulaSettings::WriteString("gscept","ToolkitShared","workdir",this->workDir.toAscii().constData());    		
+            System::NebulaSettings::WriteString("gscept","ToolkitShared","workdir",this->workDir.toAscii().constData());    
+			this->projInfo.Discard();
+			this->projInfo.Setup();
         }
         else
         {
@@ -502,6 +506,7 @@ BatchExporterApp::PickWorkingDir()
             box.exec();
         }
 	}
+	this->UpdateTitle();
 }
 
 
@@ -530,7 +535,9 @@ BatchExporterApp::PickToolkitDir()
         if(QFile::exists(directory.path() + "/projectinfo.xml"))
         {
             this->toolDir = directory.absolutePath();
-            System::NebulaSettings::WriteString("gscept","ToolkitShared","path",this->toolDir.toAscii().constData());    		
+            System::NebulaSettings::WriteString("gscept","ToolkitShared","path",this->toolDir.toAscii().constData());  
+			this->projInfo.Discard();
+			this->projInfo.Setup();
         }
         else
         {
@@ -540,6 +547,7 @@ BatchExporterApp::PickToolkitDir()
             box.exec();
         }        
 	}
+	this->UpdateTitle();
 }
 
 //------------------------------------------------------------------------------
@@ -677,6 +685,17 @@ BatchExporterApp::OutputStandardMessage( const QString& message )
 
     QScrollBar* sb = this->ui.outputText->verticalScrollBar();
     sb->setSliderPosition(sb->maximum());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+BatchExporterApp::UpdateTitle()
+{
+	QString title = "Nebula Batch Exporter - ";
+	this->window()->setWindowTitle(title + this->workDir);
+	this->ui.toolkitLabel->setText("Using toolkit: '" + this->toolDir + "'");	
 }
 
 //------------------------------------------------------------------------------
