@@ -32,7 +32,7 @@ public:
 	/// discard buffer
 	void Discard();
 
-	/// update buffer
+	/// update buffer region (offset = 0, length = size means the entire buffer)
 	void UpdateBuffer(void* data, SizeT offset, SizeT length);
 
 	/// return handle

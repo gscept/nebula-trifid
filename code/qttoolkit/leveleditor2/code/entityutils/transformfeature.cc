@@ -145,9 +145,9 @@ TransformFeature::ReleaseDrag()
     of StartDrag() and ReleaseDrag()
 */
 void
-TransformFeature::SetInitialMatrix(Math::matrix44& i_mMatrix)
+TransformFeature::SetInitialMatrix(Math::matrix44& mat)
 {
-    this->initialMatrix = i_mMatrix;
+    this->initialMatrix = mat;
 
     // reset delta matrix
 	this->deltaMatrix = Math::matrix44::identity();
@@ -190,19 +190,19 @@ TransformFeature::UpdateTransform(const Math::matrix44 & transform)
 /**
 */
 Math::vector 
-TransformFeature::findorthoforme( Math::vector& i_v )
+TransformFeature::FindOrtho( Math::vector& v )
 {
-	if (0.0 != i_v.x())
+	if (0.0 != v.x())
 	{
-		return Math::vector((-i_v.y() - i_v.z()) / i_v.x(), 1.0, 1.0);
+		return Math::vector((-v.y() - v.z()) / v.x(), 1.0, 1.0);
 	}
-	else if (0.0 != i_v.y())
+	else if (0.0 != v.y())
 	{
-		return Math::vector(1.0, (-i_v.x() - i_v.z()) / i_v.y(), 1.0);
+		return Math::vector(1.0, (-v.x() - v.z()) / v.y(), 1.0);
 	}
-	else if (0.0 != i_v.z())
+	else if (0.0 != v.z())
 	{
-		return Math::vector(1.0, 1.0, (-i_v.x() - i_v.y()) / i_v.z());
+		return Math::vector(1.0, 1.0, (-v.x() - v.y()) / v.z());
 	}
 	else
 	{

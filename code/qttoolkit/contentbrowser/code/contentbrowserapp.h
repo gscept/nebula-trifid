@@ -26,6 +26,7 @@
 #include "../../splash/code/splash.h"
 #include "posteffect/posteffectfeatureunit.h"
 #include "effects/effectsfeatureunit.h"
+#include "scriptingfeature/scriptingfeature.h"
 
 namespace ContentBrowser
 {
@@ -79,6 +80,7 @@ private:
 	Ptr<PostEffect::PostEffectFeatureUnit> postEffectFeature;
 	Ptr<PostEffect::PostEffectEntity> postEffectEntity;
 	Ptr<EffectsFeature::EffectsFeatureUnit> effectsFeature;
+	Ptr<ScriptingFeature::ScriptingFeatureUnit> scriptFeature;
 	ContentBrowserWindow* browserWindow;
 
 	Ptr<QtRemoteInterfaceAddon::QtRemoteServer> remoteServer;

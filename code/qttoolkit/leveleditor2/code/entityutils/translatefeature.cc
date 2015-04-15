@@ -65,7 +65,7 @@ TranslateFeature::GetMouseHandle( const Math::line& worldMouseRay )
 	float nearestHandle = FLT_MAX;
 
 	DragMode modes[] = { X_AXIS, Y_AXIS, Z_AXIS };
-	vector handles[] = { x_handle, y_handle, z_handle };
+	vector handles[] = { xAxis, yAxis, zAxis };
 	vector handlePointSize[] = { vector(this->handleScale, 0, 0), vector(0, this->handleScale, 0), vector(0, 0, this->handleScale) };
 	DragMode retval = NONE;
 
@@ -74,7 +74,7 @@ TranslateFeature::GetMouseHandle( const Math::line& worldMouseRay )
 	for (i = 0; i < 3; i++)
 	{
 		// check z handle
-		axis.set(this->o_handle + handlePointSize[i] * 0.5f, handles[i] + handlePointSize[i]);
+		axis.set(this->origin + handlePointSize[i] * 0.5f, handles[i] + handlePointSize[i]);
 		worldMouseRay.intersect(axis, rayPoint, handlePoint);
 		axis_t = axis.closestpoint(rayPoint);
 		distance = axis.distance(rayPoint);
@@ -86,7 +86,7 @@ TranslateFeature::GetMouseHandle( const Math::line& worldMouseRay )
 	}
 
 	// check origin handle
-	distance = worldMouseRay.distance(this->o_handle);
+	distance = worldMouseRay.distance(this->origin);
 	if (distance < activationDistance)
 	{
 		retval = ORIGIN;
@@ -120,12 +120,12 @@ TranslateFeature::StartDrag()
     {
         line centerViewLine = envQueryManager->ComputeMouseWorldRay(float2(0.5f,0.5f), 1, defaultView);
         vector viewVector = centerViewLine.vec();
-		vector v1 = findorthoforme(viewVector);
+		vector v1 = FindOrtho(viewVector);
 		vector v2 = vector::cross3(viewVector, v1);
-        plane translatePlane(this->o_handle,this->o_handle+v1,this->o_handle+v2);
+        plane translatePlane(this->origin,this->origin+v1,this->origin+v2);
 		float4 t;
         translatePlane.intersectline(worldMouseRay.start(), worldMouseRay.end(), t);
-        this->dragStartMouseRayOffset = (float4(this->o_handle) - t);
+        this->dragStartMouseRayOffset = (float4(this->origin) - t);
         return;
     }
 
@@ -139,8 +139,8 @@ TranslateFeature::StartDrag()
     {
         // set drag plane offset
         this->dragPlaneOffset = this->handleDistance * this->handleScale;
-        worldMouseRay.intersect(line(this->o_handle, this->x_handle + vector(this->handleScale, 0, 0)), rayPoint, handlePoint);
-        this->dragStartMouseRayOffset = (rayPoint - this->x_handle);
+        worldMouseRay.intersect(line(this->origin, this->xAxis + vector(this->handleScale, 0, 0)), rayPoint, handlePoint);
+        this->dragStartMouseRayOffset = (rayPoint - this->xAxis);
 		zaxis.set_x(0);
 		lockedAxis.set_y(0);
 		lockedAxis.set_z(0);
@@ -150,8 +150,8 @@ TranslateFeature::StartDrag()
     {
         // set drag plane offset
         this->dragPlaneOffset = this->handleDistance * this->handleScale;
-        worldMouseRay.intersect(line(this->o_handle, this->y_handle + vector(0, this->handleScale, 0)), rayPoint, handlePoint);
-        this->dragStartMouseRayOffset = (rayPoint -  this->y_handle);
+        worldMouseRay.intersect(line(this->origin, this->yAxis + vector(0, this->handleScale, 0)), rayPoint, handlePoint);
+        this->dragStartMouseRayOffset = (rayPoint -  this->yAxis);
 		zaxis.set_y(0);
 		lockedAxis.set_x(0);
 		lockedAxis.set_z(0);
@@ -161,8 +161,8 @@ TranslateFeature::StartDrag()
     {
         // set drag plane offset
         this->dragPlaneOffset = this->handleDistance * this->handleScale;
-        worldMouseRay.intersect(line(this->o_handle, this->z_handle + vector(0, 0, this->handleScale)), rayPoint, handlePoint);
-        this->dragStartMouseRayOffset = (rayPoint - this->z_handle);
+        worldMouseRay.intersect(line(this->origin, this->zAxis + vector(0, 0, this->handleScale)), rayPoint, handlePoint);
+        this->dragStartMouseRayOffset = (rayPoint - this->zAxis);
 		zaxis.set_z(0);
 		lockedAxis.set_x(0);
 		lockedAxis.set_y(0);
@@ -178,7 +178,7 @@ TranslateFeature::StartDrag()
     // if we are in relative mode, we must project the dragstart back to the relative axis
     if (this->relativeMode)
     {
-		plane viewPlane = this->view_plane;
+		plane viewPlane = this->viewPlane;
 		viewPlane = plane::normalize(viewPlane);
 
 		viewPlane.intersectline(worldMouseRay.start(), worldMouseRay.end(), axispoint);
@@ -209,11 +209,11 @@ TranslateFeature::StartDrag()
 		// calculate drag start position
 		plane axisplane;
 
-		axisplane.setup_from_point_and_normal(this->o_handle, zaxis);
+		axisplane.setup_from_point_and_normal(this->origin, zaxis);
 		axisplane.intersectline(worldMouseRay.start(), worldMouseRay.end(), axispoint);
 		this->dragStart = axispoint - point(this->initialMatrix.get_position());
 
-		axisplane.setup_from_point_and_normal(this->o_handle, lockedAxis);
+		axisplane.setup_from_point_and_normal(this->origin, lockedAxis);
 		axisplane.intersectline(worldMouseRay.start(), worldMouseRay.end(), axispoint);
 		this->lockedDragStart = axispoint - point(this->initialMatrix.get_position());
 	}
@@ -248,7 +248,7 @@ TranslateFeature::Drag()
     line worldMouseRay = envQueryManager->ComputeMouseWorldRay(mousePos, rayLength, defaultView);
     vector translation;
 
-	plane viewPlane = this->view_plane;
+	plane viewPlane = this->viewPlane;
 	viewPlane = plane::normalize(viewPlane);
 
     matrix44 cameraTrans = defaultView->GetCameraEntity()->GetTransform();
@@ -445,7 +445,7 @@ TranslateFeature::Drag()
         // the feature and is parallel to the camera clip planes
         line centerViewLine = envQueryManager->ComputeMouseWorldRay(float2(0.5f,0.5f), 1, defaultView);
         vector viewVector = centerViewLine.vec();
-		vector v1 = findorthoforme(viewVector);
+		vector v1 = FindOrtho(viewVector);
 		vector v2 = vector::cross3(viewVector, v1);
         plane translatePlane(this->startDragMatrix.get_position(), this->startDragMatrix.get_position() + v1, this->startDragMatrix.get_position() + v2);
 
@@ -515,7 +515,7 @@ TranslateFeature::RenderHandles()
 	
 	m = matrix44::identity();
     m.scale(vector(this->handleScale, this->handleScale, this->handleScale));
-    m.set_position(this->o_handle);
+    m.set_position(this->origin);
 	Debug::DebugShapeRenderer::Instance()->DrawSphere(m, color, CoreGraphics::RenderShape::AlwaysOnTop);
 
     // draw X axis + handle
@@ -537,11 +537,11 @@ TranslateFeature::RenderHandles()
     }
 	//m = matrix44::multiply(matrix44::rotationx(n_deg2rad(90)), m);
 	m.scale(vector(this->handleScale, this->handleScale, this->handleScale));
-	m.set_position(this->x_handle);
+	m.set_position(this->xAxis);
 	Debug::DebugShapeRenderer::Instance()->DrawCone(m, color, CoreGraphics::RenderShape::AlwaysOnTop);
 
-	line[0] = this->o_handle;
-	line[1] = this->x_handle;
+	line[0] = this->origin;
+	line[1] = this->xAxis;
 	Debug::DebugShapeRenderer::Instance()->DrawPrimitives(matrix44::identity(), CoreGraphics::PrimitiveTopology::LineList, 1, line, 4, color, CoreGraphics::RenderShape::AlwaysOnTop);
 
     // draw Y axis + handle  
@@ -563,12 +563,12 @@ TranslateFeature::RenderHandles()
     }
 	//m = matrix44::multiply(matrix44::rotationx(n_deg2rad(90)), m);
 	m.scale(vector(this->handleScale, this->handleScale, this->handleScale));
-	m.set_position(this->y_handle);
+	m.set_position(this->yAxis);
 	Debug::DebugShapeRenderer::Instance()->DrawCone(m, color, CoreGraphics::RenderShape::AlwaysOnTop);
 	
 	m = matrix44::identity();
-	line[0] = this->o_handle;
-	line[1] = this->y_handle;
+	line[0] = this->origin;
+	line[1] = this->yAxis;
 	Debug::DebugShapeRenderer::Instance()->DrawPrimitives(m, CoreGraphics::PrimitiveTopology::LineList, 1, line, 4, color, CoreGraphics::RenderShape::AlwaysOnTop);
 
     // draw Z axis + handle    
@@ -590,12 +590,12 @@ TranslateFeature::RenderHandles()
     }
 	//m = matrix44::multiply(matrix44::rotationx(n_deg2rad(90)), m);
     m.scale(vector(this->handleScale, this->handleScale, this->handleScale));
-    m.set_position(this->z_handle);
+    m.set_position(this->zAxis);
 	Debug::DebugShapeRenderer::Instance()->DrawCone(m, color, CoreGraphics::RenderShape::AlwaysOnTop);
 	
 	m = matrix44::identity();
-	line[0] = this->o_handle;
-	line[1] = this->z_handle;
+	line[0] = this->origin;
+	line[1] = this->zAxis;
 	Debug::DebugShapeRenderer::Instance()->DrawPrimitives(m, CoreGraphics::PrimitiveTopology::LineList, 1, line, 4, color, CoreGraphics::RenderShape::AlwaysOnTop);
 }
 
@@ -609,8 +609,8 @@ void
 TranslateFeature::UpdateHandlePositions()
 {
     // compute origin position of feature
-    this->o_handle = this->initialMatrix.get_position() + this->deltaMatrix.get_position();
-    this->o_handle.set_w(1);
+    this->origin = this->initialMatrix.get_position() + this->deltaMatrix.get_position();
+    this->origin.set_w(1);
 
     // compute the scale factor
     vector cameraPosition;
@@ -620,7 +620,7 @@ TranslateFeature::UpdateHandlePositions()
 	const matrix44 camTrans = cameraEntity->GetMatrix44(Attr::Transform);
     cameraPosition = camTrans.get_position();
     
-	vector v = (cameraPosition - this->o_handle);
+	vector v = (cameraPosition - this->origin);
 	distanceToView = v.length();
     
     this->handleScale = distanceToView;
@@ -645,9 +645,9 @@ TranslateFeature::UpdateHandlePositions()
     }   
 
     // scale handles
-    this->x_handle = this->o_handle + xdir;
-    this->y_handle = this->o_handle + ydir;
-    this->z_handle = this->o_handle + zdir;
+    this->xAxis = this->origin + xdir;
+    this->yAxis = this->origin + ydir;
+    this->zAxis = this->origin + zdir;
 
 	// create view plane
 	Ptr<BaseGameFeature::EnvQueryManager> envQueryManager = BaseGameFeature::EnvQueryManager::Instance();
@@ -655,7 +655,7 @@ TranslateFeature::UpdateHandlePositions()
     vector forward(0, 0, -1);
     matrix44 cameraTrans = defaultView->GetCameraEntity()->GetTransform();
     forward = matrix44::transform(forward, cameraTrans);
-	this->view_plane.setup_from_point_and_normal(this->o_handle, forward);
+	this->viewPlane.setup_from_point_and_normal(this->origin, forward);
 }
 
 //------------------------------------------------------------------------------

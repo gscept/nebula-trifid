@@ -147,14 +147,14 @@ PlacementUtil::HandleInput()
 	bool retval = false;
     this->currentPlacementState = IDLE;
 
-    if(this->translateFeature.isvalid())
+    if (this->translateFeature.isvalid())
     {
         this->translateFeature->ActivateRelativeMode(keyboard->KeyPressed(this->activateGroundPlacementKey));
         this->translateFeature->ActivateSnapMode(keyboard->KeyPressed(this->activateSnapPlacementKey));
         this->translateFeature->ActivateAxisLocking(keyboard->KeyPressed(this->activateAxisLockKey));
     }
 
-    if(this->scaleFeature.isvalid())
+    if (this->scaleFeature.isvalid())
     {
         this->scaleFeature->ActivateAxisLocking(keyboard->KeyPressed(this->activateAxisLockKey));
     }
@@ -204,15 +204,15 @@ PlacementUtil::ToggleTransformMode(PlacementUtil::TransformMode mode)
         }
     }
 
-    if(NONE == mode)
+    if (NONE == mode)
     {
         this->currentTransformMode = mode;
         this->currentTransformFeature = 0;
     }
-    else if(TRANSLATE == mode)
+    else if (TRANSLATE == mode)
     {
         // ignore double activation
-        if(TRANSLATE != this->currentTransformMode)
+        if (TRANSLATE != this->currentTransformMode)
         {
             // activate translate mode
             this->currentTransformMode = TRANSLATE;
@@ -232,7 +232,7 @@ PlacementUtil::ToggleTransformMode(PlacementUtil::TransformMode mode)
     else if(SCALE == mode)
     {
         // ignore double activation
-        if(SCALE != this->currentTransformMode)
+        if (SCALE != this->currentTransformMode)
         {
             IndexT i;
             for (i=0; i<this->selectedMatrices.Size(); i++)
@@ -257,10 +257,10 @@ PlacementUtil::ToggleTransformMode(PlacementUtil::TransformMode mode)
             this->UpdateCurrentFeature();
         }
     }
-    else if(ROTATE == mode)
+    else if (ROTATE == mode)
     {
         // ignore double activation
-        if(ROTATE != this->currentTransformMode)
+        if (ROTATE != this->currentTransformMode)
         {
             IndexT i;
             for (i=0; i<this->selectedMatrices.Size(); i++)
@@ -285,8 +285,8 @@ PlacementUtil::ToggleTransformMode(PlacementUtil::TransformMode mode)
             this->UpdateCurrentFeature();
         }
     }
-
 }
+
 //------------------------------------------------------------------------------
 /**
 	Returns current transform mode.
@@ -328,17 +328,17 @@ PlacementUtil::ApplyTransformFeatureToMatrices()
                 // Without that it is impossible to scale or rotate the current matrix in their
                 // local coordinate system.
 
-                if(TRANSLATE == this->currentTransformMode)
+                if (TRANSLATE == this->currentTransformMode)
                 {
 					this->selectedMatrices[i] = Math::matrix44::multiply(this->selectedInitialMatrices[i], transformDelta);
                 }
-                else if(SCALE == this->currentTransformMode)
+                else if (SCALE == this->currentTransformMode)
                 {
                     this->selectedMatrices[i] =  Math::matrix44::multiply(transformDelta, this->selectedInitialMatrices[i]);
                 }
-                else if(ROTATE == this->currentTransformMode)
+                else if (ROTATE == this->currentTransformMode)
                 {
-					if( !this->groupMode )
+					if (!this->groupMode)
 					{
 						// special way to rotate scaled matrices to prevent sheared results.
 						// translate to global origin, rotate, then translate back
@@ -394,10 +394,10 @@ void
 PlacementUtil::Render()
 {
     // if anything is selected
-    if(this->selectedMatrices.Size() > 0)
+    if (this->selectedMatrices.Size() > 0)
     {
         // render transform feature
-        if(this->currentTransformFeature.isvalid())
+        if (this->currentTransformFeature.isvalid())
         {
             this->currentTransformFeature->UpdateHandlePositions();
             this->currentTransformFeature->RenderHandles();
@@ -412,7 +412,7 @@ PlacementUtil::Render()
 void
 PlacementUtil::UpdateCurrentFeature()
 {
-    if(this->currentTransformFeature.isvalid())
+    if (this->currentTransformFeature.isvalid())
     {
 		IndexT i;
 		for (i = 0; i<this->selectedMatrices.Size(); i++)
@@ -423,7 +423,7 @@ PlacementUtil::UpdateCurrentFeature()
 			}
 		}
 
-		if(this->groupMode)
+		if (this->groupMode)
 		{
 			this->currentTransformFeature->SetInitialMatrix(this->selectionInitialGroupMatrix);
 		}
@@ -440,7 +440,7 @@ PlacementUtil::UpdateCurrentFeature()
 Math::float4 
 PlacementUtil::GetAngleRotation( Ptr<Game::Entity> entity )
 {
-	if(!this->rotationFeature.isvalid())
+	if (!this->rotationFeature.isvalid())
 	{
 		TransformMode currMode = this->currentTransformMode;
 		this->ToggleTransformMode(ROTATE);
@@ -462,7 +462,7 @@ PlacementUtil::GetAngleRotation( Ptr<Game::Entity> entity )
 Math::float4
 PlacementUtil::GetAngleRotation( Math::matrix44& matrix )
 {
-	if(!this->rotationFeature.isvalid())
+	if (!this->rotationFeature.isvalid())
 	{
 		TransformMode currMode = this->currentTransformMode;
 		this->ToggleTransformMode(ROTATE);
@@ -482,7 +482,7 @@ PlacementUtil::GetAngleRotation( Math::matrix44& matrix )
 void
 PlacementUtil::SetSelectionFocusByIndex( const int index )
 {
-	if( selectedMatrices.Size() > index )
+	if (selectedMatrices.Size() > index)
 	{
 		this->selectionFocusMatrix = this->selectedMatrices[index]; 
 		this->selectionFocusIndex = index;
@@ -528,10 +528,10 @@ PlacementUtil::SetSelectionMatrix(const IndexT& index, const Math::matrix44& mat
 	n_assert(index < this->selectedMatrices.Size());
 	
 	this->selectedMatrices[index] = matrix;	
-	if(index == this->selectionFocusIndex)
+	if (index == this->selectionFocusIndex)
 	{
 		this->selectionFocusMatrix = this->selectedMatrices[this->selectionFocusIndex];
-		if(this->currentTransformFeature.isvalid())
+		if (this->currentTransformFeature.isvalid())
 		{			
 			this->currentTransformFeature->UpdateTransform(matrix);			
 		}

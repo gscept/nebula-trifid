@@ -64,10 +64,10 @@ private:
     Math::matrix44 decomposedRotation;
 
 
-	Math::point x_handle;
-	Math::point y_handle;
-	Math::point z_handle;
-	Math::point o_handle;
+	Math::point xAxis;
+	Math::point yAxis;
+	Math::point zAxis;
+	Math::point origin;
 
     float handleScale;
 

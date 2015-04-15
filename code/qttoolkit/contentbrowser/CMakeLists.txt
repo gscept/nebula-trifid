@@ -170,6 +170,7 @@ ADD_DEPENDENCIES(contentbrowser
 	splash
 	nody
 	shady
+	shady_NIDLS
 	resourcebrowser
 	toolkitutil
 	remoteinterface	
@@ -184,6 +185,7 @@ TARGET_LINK_LIBRARIES(contentbrowser
 	splash
 	nody
 	shady
+	shady_NIDLS
 	resourcebrowser
 	miniexporter
 	remoteinterface

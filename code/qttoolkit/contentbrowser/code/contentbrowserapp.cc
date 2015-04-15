@@ -19,6 +19,7 @@
 #include "qtaddons/miniexporter/code/miniexporter.h"
 #include <QPlastiqueStyle>
 #include "resources/resourcemanager.h"
+#include "code/simulation/simulationcommands.h"
 
 using namespace QtToolkitUtil;
 using namespace QtRemoteInterfaceAddon;
@@ -179,6 +180,11 @@ ContentBrowserApp::SetupGameFeatures()
 	this->physicsFeature->SetInitVisualDebuggerFlag(false);
     this->gameServer->AttachGameFeature(this->physicsFeature.upcast<Game::FeatureUnit>());
 
+	// setup scripting
+	this->scriptFeature = ScriptingFeature::ScriptingFeatureUnit::Create();
+	this->gameServer->AttachGameFeature(this->scriptFeature.upcast<Game::FeatureUnit>());
+	Commands::SimulationCommands::Register();
+
     // create material database
     this->materialDatabase = MaterialDatabase::Create();
     this->materialDatabase->Open();
@@ -229,6 +235,8 @@ ContentBrowserApp::CleanupGameFeatures()
 	this->postEffectFeature = 0;
 	this->gameServer->RemoveGameFeature(this->uiFeature.upcast<Game::FeatureUnit>());
 	this->uiFeature = 0;
+	this->gameServer->RemoveGameFeature(this->scriptFeature.upcast<Game::FeatureUnit>());
+	this->scriptFeature = 0;
 	this->gameServer->RemoveGameFeature(this->physicsFeature.upcast<Game::FeatureUnit>());
 	this->physicsFeature = 0;
 	this->gameServer->RemoveGameFeature(this->baseFeature.upcast<Game::FeatureUnit>());

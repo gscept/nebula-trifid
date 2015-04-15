@@ -69,11 +69,11 @@ private:
 	/// returns the handle above which the mouse is currently over
 	DragMode GetMouseHandle(const Math::line& worldMouseRay);
 
-	Math::point x_handle;
-	Math::point y_handle;
-	Math::point z_handle;
-    Math::point o_handle;
-	Math::plane view_plane;
+	Math::point xAxis;
+	Math::point yAxis;
+	Math::point zAxis;
+    Math::point origin;
+	Math::plane viewPlane;
 
 	float snapOffset;
     float handleScale;

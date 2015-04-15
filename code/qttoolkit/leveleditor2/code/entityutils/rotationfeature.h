@@ -64,26 +64,26 @@ private:
     Math::vector decomposedScale;
     Math::matrix44 decomposedRotation;
 
-    Math::vector x_axis;             // handle axes
-    Math::vector y_axis;
-    Math::vector z_axis;
-	Math::vector view_axis;
-    Math::point o_handle;
+    Math::vector xAxis;             // handle axes
+    Math::vector yAxis;
+    Math::vector zAxis;
+	Math::vector viewAxis;
+    Math::point origin;
 
-    float handle_scale;
+    float handleScale;
     float outerCircleScale;
     Math::vector startDragOrientation;
 
-    Math::vector dragStart_x_axis;
-    Math::vector dragStart_y_axis;
-    Math::vector dragStart_z_axis;
+    Math::vector xDragStart;
+    Math::vector yDragStart;
+    Math::vector zDragStart;
 
     float handleDistance;
 
-    Math::plane x_plane;              // planes orthogonal to the handle axes
-    Math::plane y_plane;
-    Math::plane z_plane;
-    Math::plane view_plane;
+    Math::plane xPlane;              // planes orthogonal to the handle axes
+    Math::plane yPlane;
+    Math::plane zPlane;
+    Math::plane viewPlane;
 };
 
 

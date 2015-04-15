@@ -87,18 +87,18 @@ SelectionUtil::HandleInput()
     this->multiSelect = false;
 
     // Handle keyboard input, if a valid handler is available
-    if(keyboard.isvalid())
+    if (keyboard.isvalid())
     {
-        if(keyboard->KeyPressed(this->keyMultiSelection))
+        if (keyboard->KeyPressed(this->keyMultiSelection))
         {
             this->multiSelect = true;
         }
     }
 
     // Handle mouse input, if a valid handler is available
-    if(mouse.isvalid())
+    if (mouse.isvalid())
     {
-        if(mouse->ButtonDown(Input::MouseButton::LeftButton))
+        if (mouse->ButtonDown(Input::MouseButton::LeftButton))
         {
             this->GetEntityUnderMouse();
 			return true;
