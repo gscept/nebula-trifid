@@ -55,7 +55,7 @@ ScaleFeature::GetMouseHandle(const Math::line& worldMouseRay)
 	float nearestHandle = FLT_MAX;
 
 	DragMode modes[] = { X_AXIS, Y_AXIS, Z_AXIS };
-	vector handles[] = { x_handle, y_handle, z_handle };
+	vector handles[] = { this->xAxis, this->yAxis, this->zAxis };
 	vector handlePointSize[] = { vector(this->handleScale, 0, 0), vector(0, this->handleScale, 0), vector(0, 0, this->handleScale) };
 	DragMode retval = NONE;
 
@@ -64,7 +64,7 @@ ScaleFeature::GetMouseHandle(const Math::line& worldMouseRay)
 	for (i = 0; i < 3; i++)
 	{
 		// check z handle
-		axis.set(this->o_handle + handlePointSize[i] * 0.5f, handles[i] + handlePointSize[i]);
+		axis.set(this->origin + handlePointSize[i] * 0.5f, handles[i] + handlePointSize[i]);
 		worldMouseRay.intersect(axis, rayPoint, handlePoint);
 		axis_t = axis.closestpoint(rayPoint);
 		distance = axis.distance(rayPoint);
@@ -76,7 +76,7 @@ ScaleFeature::GetMouseHandle(const Math::line& worldMouseRay)
 	}
 
 	// check origin handle
-	distance = worldMouseRay.distance(this->o_handle);
+	distance = worldMouseRay.distance(this->origin);
 	if (distance < activationDistance)
 	{
 		retval = ORIGIN;
@@ -105,13 +105,13 @@ ScaleFeature::IsMouseOverHandle(DragMode handle,const line& worldMouseRay)
 
     if (ORIGIN == handle)
     {
-        distance = worldMouseRay.distance(this->o_handle);
+        distance = worldMouseRay.distance(this->origin);
         return (distance < activationDistance * this->handleScale);
     }
     else if (X_AXIS == handle)
     {
         // check x handle
-        axis.set(this->o_handle,this->x_handle+vector(this->handleScale,0,0));
+        axis.set(this->origin,this->xAxis+vector(this->handleScale,0,0));
         worldMouseRay.intersect(axis,rayPoint,handlePoint);
         axis_t = axis.closestpoint(rayPoint);
         distance = axis.distance(rayPoint);
@@ -120,7 +120,7 @@ ScaleFeature::IsMouseOverHandle(DragMode handle,const line& worldMouseRay)
     else if (Y_AXIS == handle)
     {
         // check y handle
-        axis.set(this->o_handle,this->y_handle+vector(0,this->handleScale,0));
+        axis.set(this->origin,this->yAxis+vector(0,this->handleScale,0));
         worldMouseRay.intersect(axis,rayPoint,handlePoint);
         axis_t = axis.closestpoint(rayPoint);
         distance = axis.distance(rayPoint);
@@ -129,7 +129,7 @@ ScaleFeature::IsMouseOverHandle(DragMode handle,const line& worldMouseRay)
     else if (Z_AXIS == handle)
     {
         // check z handle
-        axis.set(this->o_handle,this->z_handle+vector(0,0,this->handleScale));
+        axis.set(this->origin,this->zAxis+vector(0,0,this->handleScale));
         worldMouseRay.intersect(axis,rayPoint,handlePoint);
         axis_t = axis.closestpoint(rayPoint);
         distance = axis.distance(rayPoint);
@@ -173,10 +173,10 @@ ScaleFeature::StartDrag()
     // check x handle
     if (this->IsMouseOverHandle(X_AXIS,worldMouseRay))
     {
-        worldMouseRay.intersect(line(this->o_handle,this->x_handle),rayPoint,handlePoint);
+        worldMouseRay.intersect(line(this->origin,this->xAxis),rayPoint,handlePoint);
         this->dragStartMouseRayOffset = (
             rayPoint -
-            this->x_handle
+            this->xAxis
             );
 		this->currentDragMode = X_AXIS;
         this->isInDragMode = true;
@@ -186,10 +186,10 @@ ScaleFeature::StartDrag()
     // check y handle
     if (this->IsMouseOverHandle(Y_AXIS,worldMouseRay))
     {
-        worldMouseRay.intersect(line(this->o_handle,this->y_handle),rayPoint,handlePoint);
+        worldMouseRay.intersect(line(this->origin,this->yAxis),rayPoint,handlePoint);
         this->dragStartMouseRayOffset = (
             rayPoint -
-            this->y_handle
+            this->yAxis
             );
 		this->currentDragMode = Y_AXIS;
         this->isInDragMode = true;
@@ -199,10 +199,10 @@ ScaleFeature::StartDrag()
     // check z handle
     if (this->IsMouseOverHandle(Z_AXIS,worldMouseRay))
     {
-        worldMouseRay.intersect(line(this->o_handle,this->z_handle),rayPoint,handlePoint);
+        worldMouseRay.intersect(line(this->origin,this->zAxis),rayPoint,handlePoint);
         this->dragStartMouseRayOffset = (
             rayPoint -
-            this->z_handle
+            this->zAxis
             );
 		this->currentDragMode = Z_AXIS;
         this->isInDragMode = true;
@@ -234,7 +234,7 @@ ScaleFeature::Drag()
     // update in X direction
     if (X_AXIS == this->currentDragMode)
     {
-        line x_axis(this->o_handle,this->x_handle);
+        line x_axis(this->origin,this->xAxis);
         point mouseraypoint;
         point x_axispoint;
         x_axis.intersect(worldMouseRay,x_axispoint,mouseraypoint);
@@ -260,7 +260,7 @@ ScaleFeature::Drag()
     // update in Y direction
     if (Y_AXIS == this->currentDragMode)
     {
-        line y_axis(this->o_handle,this->y_handle);
+        line y_axis(this->origin,this->yAxis);
         point mouseraypoint;
         point y_axispoint;
         y_axis.intersect(worldMouseRay,y_axispoint,mouseraypoint);
@@ -286,7 +286,7 @@ ScaleFeature::Drag()
     // update in Z direction
     if (Z_AXIS == this->currentDragMode)
     {
-        line z_axis(this->o_handle,this->z_handle);
+        line z_axis(this->origin,this->zAxis);
         point mouseraypoint;
         point z_axispoint;
         z_axis.intersect(worldMouseRay,z_axispoint,mouseraypoint);
@@ -391,7 +391,7 @@ ScaleFeature::RenderHandles()
     m = matrix44::identity();
     m.scale(vector(this->handleScale,this->handleScale,this->handleScale));
     m = matrix44::multiply(m, this->decomposedRotation); // m*= this->decomposedRotation;
-    m.set_position(this->o_handle);
+    m.set_position(this->origin);
 	Debug::DebugShapeRenderer::Instance()->DrawBox(m, color, CoreGraphics::RenderShape::AlwaysOnTop);
 
     // draw X axis + handle
@@ -408,12 +408,12 @@ ScaleFeature::RenderHandles()
     m = matrix44::identity();
     m.scale(vector(this->handleScale,this->handleScale,this->handleScale));
 	m = matrix44::multiply(m, this->decomposedRotation);
-    m.set_position(this->x_handle);
+    m.set_position(this->xAxis);
 	Debug::DebugShapeRenderer::Instance()->DrawBox(m, color, CoreGraphics::RenderShape::AlwaysOnTop);
     
 	m = matrix44::identity();
-	line[0] = this->o_handle;
-	line[1] = this->x_handle;
+	line[0] = this->origin;
+	line[1] = this->xAxis;
     Debug::DebugShapeRenderer::Instance()->DrawPrimitives(matrix44::identity(),
         CoreGraphics::PrimitiveTopology::LineList,
         1,
@@ -437,11 +437,11 @@ ScaleFeature::RenderHandles()
     m.scale(vector(this->handleScale,this->handleScale,this->handleScale));
 	m = matrix44::multiply(m, matrix44::rotationz(N_PI/2.0f));
     m = matrix44::multiply(m, this->decomposedRotation);
-    m.set_position(this->y_handle);
+    m.set_position(this->yAxis);
 	Debug::DebugShapeRenderer::Instance()->DrawBox(m, color, CoreGraphics::RenderShape::AlwaysOnTop);
 
-	line[0] = this->o_handle;
-	line[1] = this->y_handle;
+	line[0] = this->origin;
+	line[1] = this->yAxis;
     Debug::DebugShapeRenderer::Instance()->DrawPrimitives(matrix44::identity(),
         CoreGraphics::PrimitiveTopology::LineList,
         1,
@@ -465,13 +465,13 @@ ScaleFeature::RenderHandles()
     m.scale(vector(this->handleScale,this->handleScale,this->handleScale));
     m = matrix44::multiply(m, matrix44::rotationy(-N_PI/2.0f));
     m = matrix44::multiply(m, this->decomposedRotation);
-    m.set_position(this->z_handle);
+    m.set_position(this->zAxis);
 	Debug::DebugShapeRenderer::Instance()->DrawBox(m,
         color,
         CoreGraphics::RenderShape::AlwaysOnTop);
 
-	line[0] = this->o_handle;
-	line[1] = this->z_handle;
+	line[0] = this->origin;
+	line[1] = this->zAxis;
 	Debug::DebugShapeRenderer::Instance()->DrawPrimitives(matrix44::identity(),
         CoreGraphics::PrimitiveTopology::LineList,
         1,
@@ -491,8 +491,8 @@ ScaleFeature::UpdateHandlePositions()
     this->DecomposeInitialMatrix();
     
     // compute origin position of feature
-    this->o_handle = (this->decomposedTranslation);
-	o_handle.set_w(1);
+    this->origin = (this->decomposedTranslation);
+	this->origin.set_w(1);
     
     // compute the scale factor
     vector cameraPosition;
@@ -502,7 +502,7 @@ ScaleFeature::UpdateHandlePositions()
     const matrix44 camTrans = cameraEntity->GetMatrix44(Attr::Transform);
     cameraPosition = camTrans.get_position();
 
-	vector v(this->o_handle - cameraPosition);
+	vector v(this->origin - cameraPosition);
     distanceToView = v.length();
 
     this->handleScale = distanceToView;
@@ -510,13 +510,13 @@ ScaleFeature::UpdateHandlePositions()
     this->handleScale *= 0.025f;
     
     // set x handle transform
-    this->x_handle = this->o_handle + transform_coordMatrix(this->decomposedRotation, vector(this->handleDistance * this->handleScale * this->scale.x(), 0.0f, 0.0f));
+    this->xAxis = this->origin + transform_coordMatrix(this->decomposedRotation, vector(this->handleDistance * this->handleScale * this->scale.x(), 0.0f, 0.0f));
 
     // set y handle transform
-    this->y_handle = this->o_handle + transform_coordMatrix(this->decomposedRotation, vector(0.0f, this->handleDistance * this->handleScale * this->scale.y(), 0.0f));
+    this->yAxis = this->origin + transform_coordMatrix(this->decomposedRotation, vector(0.0f, this->handleDistance * this->handleScale * this->scale.y(), 0.0f));
 
     // set z handle transform
-    this->z_handle = this->o_handle + transform_coordMatrix(this->decomposedRotation, vector(0.0f, 0.0f, this->handleDistance * this->handleScale * this->scale.z()));
+    this->zAxis = this->origin + transform_coordMatrix(this->decomposedRotation, vector(0.0f, 0.0f, this->handleDistance * this->handleScale * this->scale.z()));
 }
 
 //------------------------------------------------------------------------------
