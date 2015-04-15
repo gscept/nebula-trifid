@@ -105,7 +105,9 @@ private:
     void OutputErrorMessage(const QString& message);
     /// helper function to output standard message
     void OutputStandardMessage(const QString& message);
-	
+	/// update title string with current project directory
+	void UpdateTitle();
+
 	QQueue<QPair<ExportBits, QString> > executionQueue;
 	QProcess remoteProcess;
 	QtTools::CommandLineArgs args;
