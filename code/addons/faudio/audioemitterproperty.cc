@@ -38,9 +38,9 @@ AudioEmitterProperty::~AudioEmitterProperty()
 /**
 */
 void
-AudioEmitterProperty::OnActivate()
+AudioEmitterProperty::OnStart()
 {
-	Property::OnActivate();
+	Property::OnStart();
 	EventId id = this->entity->GetString(Attr::AudioEvent);
 	this->eventInstance = AudioDevice::Instance()->CreateEvent(id);
 	this->Update3DParameters();

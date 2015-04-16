@@ -17,6 +17,7 @@
 #include "dynui/imguiaddon.h"
 #include "dynui/console/imguiconsole.h"
 #include "dynui/console/imguiconsolehandler.h"
+#include "levelviewerfactorymanager.h"
 
 //------------------------------------------------------------------------------
 /**
@@ -51,7 +52,7 @@ private:
 
 	Ptr<QtRemoteInterfaceAddon::QtRemoteServer> remoteServer;
 	Ptr<QtRemoteInterfaceAddon::QtRemoteClient> remoteClient;
-
+    
 	Ptr<PhysicsFeature::PhysicsFeatureUnit> physicsFeature;
 	Ptr<GraphicsFeature::GraphicsFeatureUnit> graphicsFeature;
 	Ptr<BaseGameFeature::BaseGameFeatureUnit> baseGameFeature;

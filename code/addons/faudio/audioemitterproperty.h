@@ -25,9 +25,10 @@ public:
 	/// destructor
 	virtual ~AudioEmitterProperty();
 
-	/// called from Entity::ActivateProperties()
-	virtual void OnActivate();
-	/// called from Entity::DeactivateProperties()
+    /// called from within Entity::OnStart() after OnLoad when the complete world exist
+    /// will create the actual sound event
+    virtual void OnStart();
+	/// called from Entity::DeactivateProperties(), discards the sound event
 	virtual void OnDeactivate();
 	/// called when entity moves out of activity zone
 	virtual void OnLoseActivity();

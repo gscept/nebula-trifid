@@ -174,17 +174,20 @@ public:
     /// add blob attribute if not exists
     void AddBlob(const Attr::BlobAttrId& attrId);
 
+    /// these can only be called when the entity is not active
+    /// mainly public to make custom factory managers easier
+    /// attach a property to the entity
+    void AttachProperty(const Ptr<Property>& prop);
+    /// remove a property from the entity
+    void RemoveProperty(const Ptr<Property>& prop);
+
 private:
     friend class BaseGameFeature::FactoryManager;		
     friend class BaseGameFeature::EntityManager;    
     friend class BaseGameFeature::EnvEntityManager;
 
     /// set entity category
-    void SetCategory(const Util::String& cat);
-    /// attach a property to the entity
-    void AttachProperty(const Ptr<Property>& prop);
-    /// remove a property from the entity
-    void RemoveProperty(const Ptr<Property>& prop);
+    void SetCategory(const Util::String& cat);    
     /// set the instance attribute table row index for the entity
     void SetAttrTableRowIndex(IndexT i);
     /// set the instance attribute table for the entity

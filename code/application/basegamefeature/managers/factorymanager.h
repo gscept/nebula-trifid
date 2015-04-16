@@ -56,7 +56,7 @@ public:
     /// create a new property by type name, extend in subclass for new types
     virtual Ptr<Game::Property> CreateProperty(const Util::String& type) const;
     /// add properties to entity according to blue print
-	void AddProperties(const Ptr<Game::Entity>& entity, const Util::String& categoryName, bool isMaster) const;
+	virtual void AddProperties(const Ptr<Game::Entity>& entity, const Util::String& categoryName, bool isMaster) const;
     /// set a optional blueprints.xml, which is used instead of standard blueprint.xml
 	static void SetBlueprintsFilename(const Util::String& name, const Util::String& folder);
     /// setup attributes on properties

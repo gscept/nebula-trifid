@@ -133,7 +133,7 @@ LevelViewerGameStateApplication::SetupGameFeatures()
 
 	// game features
 	this->baseGameFeature = BaseGameFeatureUnit::Create();
-	Ptr<FactoryManager> factory = FactoryManager::Create();
+	Ptr<LevelViewer::LevelViewerFactoryManager> factory = LevelViewer::LevelViewerFactoryManager::Create();    
 	this->baseGameFeature->SetFactoryManager(factory.cast<FactoryManager>());
 
 	// create and attach core features
