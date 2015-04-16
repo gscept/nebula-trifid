@@ -127,6 +127,9 @@ ModelHandler::Setup()
 {
 	n_assert(this->ui);
 
+	// enable the UI again
+	this->ui->frame->setDisabled(false);
+
 	// call base class
 	BaseHandler::Setup();	
 
@@ -395,6 +398,15 @@ ModelHandler::DiscardNoCancel()
 	// disconnect stuff
 	disconnect(this->ui->saveButton, SIGNAL(clicked()), this, SLOT(Save()));
 	disconnect(this->ui->saveAsButton, SIGNAL(clicked()), this, SLOT(SaveAs()));
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ModelHandler::Mute()
+{
+	this->ui->frame->setDisabled(true);
 }
 
 //------------------------------------------------------------------------------

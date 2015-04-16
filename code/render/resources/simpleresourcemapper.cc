@@ -155,16 +155,16 @@ SimpleResourceMapper::OnCreateManagedResource(const Rtti& resType, const Resourc
     resource->Load();
 
     // if loading failed, keep the resource pointer as 0
-    if (resource->IsLoaded())
-    {
-        // synchronous loading succeeded (or failed)
-        managedResource->SetResource(resource); 
-    }
-    else if (resource->IsPending())
+    if (resource->IsPending())
     {
         // asynchronous load initiayed and pending
         this->pendingResources.Add(resId, resource);
     }    
+	else
+	{
+		// synchronous loading succeeded (or failed)
+		managedResource->SetResource(resource);
+	}
     return managedResource;
 }
 
