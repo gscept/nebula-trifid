@@ -1,0 +1,3 @@
+<LightProbe IsVirtualCategory="true">
+ <Attributes ProbeReflectionMap="string" ProbeIrradianceMap="string" ProbeInfluenceShapeType="string" ProbeInfluenceLayer="int" ProbeInfluenceFalloff="float"/> 
+</LightProbe>
