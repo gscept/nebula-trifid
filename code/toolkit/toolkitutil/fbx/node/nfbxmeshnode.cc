@@ -26,7 +26,7 @@ NFbxMeshNode::NFbxMeshNode() :
 	lod(0),
 	lodIndex(-1),
 	meshFlags(NoMeshFlags),
-	exportFlags(RemoveRedundant),
+	exportFlags(ToolkitUtil::FlipUVs),
 	exportMode(Static)
 {
 	this->type = NFbxNode::Mesh;
