@@ -191,7 +191,6 @@ Model::CheckPendingResources()
             result = state;
         }
     }
-	this->state = result;
     if (Resource::Loaded == result)
     {
         if (!this->resourcesLoaded)

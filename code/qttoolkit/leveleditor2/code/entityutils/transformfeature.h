@@ -83,6 +83,12 @@ protected:
 	/// returns the handle above which the mouse is currently over
 	virtual DragMode GetMouseHandle(const Math::line& worldMouseRay);
 
+	/// decomposes the current transform matrix in translation vector, scale vector and rotation matrix.
+	void DecomposeInitialMatrix();
+
+	Math::vector decomposedTranslation;
+	Math::vector decomposedScale;
+	Math::matrix44 decomposedRotation;
     
 	Ptr<Game::Entity> cameraEntity;
     bool isInDragMode;

@@ -45,24 +45,14 @@ public:
 
 
 private:
-
-	Math::vector transform_coordMatrix(Math::matrix44& m, const Math::vector& v);
         
     /// returns true, if mouse is pointing on a handle
 	bool IsMouseOverHandle(DragMode handle, const Math::line& worldMouseRay);
 	/// returns the handle above which the mouse is currently over
 	DragMode GetMouseHandle(const Math::line& worldMouseRay);
 
-    /// decomposes the current transform matrix in translation vector, scale vector and rotation matrix.
-    void DecomposeInitialMatrix();
     /// checks current initial matrix and feature scale to compute handle positions in space.
     void UpdateHandlePositions();
-	
-
-	Math::vector decomposedTranslation;
-    Math::vector decomposedScale;
-    Math::matrix44 decomposedRotation;
-
 
 	Math::point xAxis;
 	Math::point yAxis;

@@ -510,53 +510,13 @@ ScaleFeature::UpdateHandlePositions()
     this->handleScale *= 0.025f;
     
     // set x handle transform
-    this->xAxis = this->origin + transform_coordMatrix(this->decomposedRotation, vector(this->handleDistance * this->handleScale * this->scale.x(), 0.0f, 0.0f));
+	this->xAxis = this->origin + matrix44::transform(vector(this->handleDistance * this->handleScale * this->scale.x(), 0.0f, 0.0f), this->decomposedRotation);
 
     // set y handle transform
-    this->yAxis = this->origin + transform_coordMatrix(this->decomposedRotation, vector(0.0f, this->handleDistance * this->handleScale * this->scale.y(), 0.0f));
+	this->yAxis = this->origin + matrix44::transform(vector(0.0f, this->handleDistance * this->handleScale * this->scale.y(), 0.0f), this->decomposedRotation);
 
     // set z handle transform
-    this->zAxis = this->origin + transform_coordMatrix(this->decomposedRotation, vector(0.0f, 0.0f, this->handleDistance * this->handleScale * this->scale.z()));
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-ScaleFeature::DecomposeInitialMatrix()
-{
-    // get translation
-    this->decomposedTranslation = (this->initialMatrix.get_position());
-
-    // get scale
-    this->decomposedScale.set 
-        (
-        vector(this->initialMatrix.getrow0().x(), this->initialMatrix.getrow0().y(), this->initialMatrix.getrow0().z()).length(),// m[0][0],this->initialMatrix.m[0][1],this->initialMatrix.m[0][2]).len(),
-        vector(this->initialMatrix.getrow1().x(), this->initialMatrix.getrow1().y(), this->initialMatrix.getrow1().z()).length(),
-        vector(this->initialMatrix.getrow2().x(), this->initialMatrix.getrow2().y(), this->initialMatrix.getrow2().z()).length()
-        );
-
-    // get rotation
-    this->decomposedRotation.set
-		(
-		float4(this->initialMatrix.getrow0().x() / this->decomposedScale.x(), this->initialMatrix.getrow0().y() / this->decomposedScale.x(), this->initialMatrix.getrow0().z() / this->decomposedScale.x(), 0),
-        float4(this->initialMatrix.getrow1().x() / this->decomposedScale.y(), this->initialMatrix.getrow1().y() / this->decomposedScale.y(), this->initialMatrix.getrow1().z() / this->decomposedScale.y(), 0),
-        float4(this->initialMatrix.getrow2().x() / this->decomposedScale.z(), this->initialMatrix.getrow2().y() / this->decomposedScale.z(), this->initialMatrix.getrow2().z() / this->decomposedScale.z(), 0),
-        float4(0,														   0,															  0,																1)
-        );
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-vector
-ScaleFeature::transform_coordMatrix( matrix44& m, const vector& v )
-{
-	float d = 1.0f / (m.getrow0().w()*v.x() + m.getrow1().w()*v.y() + m.getrow2().w()*v.z() + m.getrow3().w());
-	return vector(
-		(m.getrow0().x()*v.x() + m.getrow1().x()*v.y() + m.getrow2().x()*v.z() + m.getrow3().x()) * d,
-		(m.getrow0().y()*v.x() + m.getrow1().y()*v.y() + m.getrow2().y()*v.z() + m.getrow3().y()) * d,
-		(m.getrow0().z()*v.x() + m.getrow1().z()*v.y() + m.getrow2().z()*v.z() + m.getrow3().z()) * d);
+	this->zAxis = this->origin + matrix44::transform(vector(0.0f, 0.0f, this->handleDistance * this->handleScale * this->scale.z()), this->decomposedRotation);
 }
 
 //------------------------------------------------------------------------------

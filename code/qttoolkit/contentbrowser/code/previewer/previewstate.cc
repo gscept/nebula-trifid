@@ -247,7 +247,7 @@ PreviewState::SetModel( const Resources::ResourceId& resource, const Resources::
 		}
 	}
 
-	return this->modelEntity->GetModelResourceState() == Resources::Resource::Loaded;
+	return this->modelEntity->IsValid();
 }
 
 //------------------------------------------------------------------------------
