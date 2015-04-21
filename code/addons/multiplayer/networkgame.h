@@ -82,6 +82,8 @@ public:
 	void PublishToMaster();
 	/// remove from master
 	void UnpublishFromMaster();
+	/// has game been published to master server
+	const bool IsPublished() const;
 	/// start game (if host)
 	void StartGame();
 		
@@ -220,6 +222,16 @@ NetworkGame::IsCreator() const
 //------------------------------------------------------------------------------
 /**
 */
+inline 
+const bool
+NetworkGame::IsPublished() const
+{
+	return this->masterServerRow >= 0;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 inline
 const Util::String &
 NetworkGame::GetGameName() const
@@ -235,6 +247,26 @@ const Util::String &
 NetworkGame::GetGameID() const
 {
 	return this->gameID;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline
+void
+NetworkGame::SetMasterServerUpdate(bool enable)
+{
+	this->updateMaster = enable;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline
+bool
+NetworkGame::GetMasterServerUpdate()
+{
+	return this->updateMaster;
 }
 
 //------------------------------------------------------------------------------

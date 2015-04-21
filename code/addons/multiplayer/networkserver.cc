@@ -127,7 +127,10 @@ NetworkServer::Open()
 	this->fullyConnectedMesh->SetAutoparticipateConnections(false);
 	this->fullyConnectedMesh->SetConnectOnNewRemoteConnection(false, "");
 	this->replicationManager->SetNetworkIDManager(this->networkIDManager);
-	this->replicationManager->SetAutoManageConnections(false,true);   
+	this->replicationManager->SetAutoManageConnections(false,true);
+
+	//// set lastUpdateTime
+	//this->lastUpdateTime =	RakNet::GetTime();
 }
 
 //------------------------------------------------------------------------------
@@ -210,6 +213,18 @@ NetworkServer::OnFrame()
 	{
 		NetworkGame::Instance()->ReceiveMasterList(this->masterResult);
 		this->masterResult = 0;
+	}
+	if (this->IsHost() && NetworkGame::Instance()->IsPublished())
+	{
+		if (NetworkGame::Instance()->GetMasterServerUpdate())
+		{
+
+			if((RakNet::GetTimeMS() - this->lastUpdateTime) > 20000)
+			{
+				NetworkGame::Instance()->PublishToMaster();
+				this->lastUpdateTime = RakNet::GetTimeMS();
+			}
+		}
 	}
 }
 

@@ -376,7 +376,7 @@ NetworkGame::PublishToMaster()
 	Util::String rowStr = "";
 	if (this->masterServerRow != -1)
 	{
-		rowStr.Format(",'__rowId':'%d'", this->masterServerRow);
+		rowStr.Format(",'__rowId':%d", this->masterServerRow);
 	}
 	Ptr<IO::MemoryStream> stream = IO::MemoryStream::Create();
 	stream->SetAccessMode(IO::Stream::ReadWriteAccess);
@@ -385,37 +385,38 @@ NetworkGame::PublishToMaster()
 	Util::String gamename = this->GetGameName().AsBase64();
 	// we dont want linefeeds
 	gamename.Strip("\r");	
-	req.Format("{'__gameId':'%s','__clientReqId': '0','__timeoutSec': '60','roomName':'%s','guid':'%s','currentPlayers':%d,'maxPlayers':%d %s}", 
+	req.Format("{'__gameId':'%s','__clientReqId': '0','__timeoutSec': '30','roomName':'%s','guid':'%s','currentPlayers':%d,'maxPlayers':%d %s}", 
 		this->gameID.AsCharPtr(), gamename.AsCharPtr(), NetworkServer::Instance()->GetRakPeerInterface()->GetMyGUID().ToString(),
 		this->currentPlayers, this->maxPlayers, rowStr.AsCharPtr());
 	n_printf("%s\n", req.AsCharPtr());
 	Http::HttpStatus::Code res = client->SendRequest(Http::HttpMethod::Post, requri, req, stream.cast<IO::Stream>());
-
-	Util::String buf;
-	buf.Set((const char*)stream->GetRawPointer(), stream->GetSize());
-	json_error_t error;
-	json_t * root = json_loads(buf.AsCharPtr(), JSON_REJECT_DUPLICATES, &error);
-	if (NULL == root)
-	{
-		n_warning("error parsing json from master server\n");	
-		return;
-	}
-
-	void *iter = json_object_iter(root);
-	if (iter)
-	{
-		Util::String firstKey = json_object_iter_key(iter);
-
-
-		if (firstKey == "POST")
+	if(res == Http::HttpStatus::OK)
+	{	
+		Util::String buf;
+		buf.Set((const char*)stream->GetRawPointer(), stream->GetSize());
+		json_error_t error;
+		json_t * root = json_loads(buf.AsCharPtr(), JSON_REJECT_DUPLICATES, &error);
+		if (NULL == root)
 		{
-			json_t* object = json_object_iter_value(iter);			
-			json_t* val = json_object_get(object, "__rowId");
-			n_assert(val->type == JSON_INTEGER);
-			this->masterServerRow = (int)json_integer_value(val);
+			n_warning("error parsing json from master server\n");	
+			return;
+		}
+
+		void *iter = json_object_iter(root);
+		if (iter)
+		{
+			Util::String firstKey = json_object_iter_key(iter);
+
+
+			if (firstKey == "POST")
+			{
+				json_t* object = json_object_iter_value(iter);			
+				json_t* val = json_object_get(object, "__rowId");
+				n_assert(val->type == JSON_INTEGER);
+				this->masterServerRow = (int)json_integer_value(val);
+			}
 		}
 	}
-
 	Http::HttpClientRegistry::Instance()->ReleaseConnection(serverUri);
 #endif
 }
@@ -440,6 +441,7 @@ NetworkGame::UnpublishFromMaster()
 	stream->Open();	
 	Http::HttpStatus::Code res = client->SendRequest(Http::HttpMethod::Delete, requri, stream.cast<IO::Stream>());
 	Http::HttpClientRegistry::Instance()->ReleaseConnection(serverUri);
+	this->masterServerRow = -1;
 #endif
 }
 
