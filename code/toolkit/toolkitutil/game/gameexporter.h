@@ -42,6 +42,7 @@ private:
 	Ptr<LevelExporter> levelExporter;
 	Ptr<TemplateExporter> templateExporter;
 	Ptr<PostEffectExporter> postEffectExporter;
+    Ptr<Toolkit::EditorBlueprintManager> blueprintManager;
 	Logger* logger;
 
 }; 

@@ -39,24 +39,7 @@ PostEffectExporter::~PostEffectExporter()
 void
 PostEffectExporter::Open()
 {
-
-	Base::ExporterBase::Open();
-	if(!this->dbFactory.isvalid())
-	{
-		this->dbFactory = DbFactory::Instance();
-	}
-	n_assert(this->dbFactory);
-
-	this->staticDb = DbFactory::Instance()->CreateDatabase();
-	this->staticDb->SetURI(URI("db:static.db4"));
-	this->staticDb->SetAccessMode(Database::ReadWriteCreate);
-	this->staticDb->SetIgnoreUnknownColumns(true);
-
-	Util::String s;
-	s.Format("Could not open static database: %s", this->staticDb->GetURI().GetHostAndLocalPath().AsCharPtr());
-	n_assert2(this->staticDb->Open(), s.AsCharPtr());
-
-
+    // empty
 }
 
 //------------------------------------------------------------------------------
@@ -64,9 +47,7 @@ PostEffectExporter::Open()
 */
 void
 PostEffectExporter::Close()
-{
-	this->dbFactory = 0;
-	this->staticDb->Close();
+{	
 	this->staticDb = 0;
 	ExporterBase::Close();
 }

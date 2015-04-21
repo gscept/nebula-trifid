@@ -100,7 +100,10 @@ GameExporter::ExportAll()
 	
 	this->templateExporter->SetDbFactory(Db::DbFactory::Instance());
 	this->levelExporter->SetDbFactory(Db::DbFactory::Instance());
-	this->postEffectExporter->SetDbFactory(Db::DbFactory::Instance());
+
+    this->blueprintManager = Toolkit::EditorBlueprintManager::Create();
+    this->blueprintManager->SetLogger(this->logger);
+    this->blueprintManager->Open();		
 
 	n_printf("---- Exporting Templates ----\n");
 	this->templateExporter->Open();
@@ -108,8 +111,8 @@ GameExporter::ExportAll()
 	if (this->templateExporter->HasErrors())
 	{
 		this->SetHasErrors(true);
-	}
-	this->templateExporter->Close();
+	}	
+    this->templateExporter->Close();
 
 	n_printf("---- Exporting Levels ----\n");
 	this->levelExporter->Open();
@@ -134,7 +137,9 @@ GameExporter::ExportAll()
 
 	n_printf("---- batching scriptfeature tables ----\n");
 	this->ExportScriptFeature();
-
+    
+    this->blueprintManager->SaveBlueprint("data:blueprint.xml");
+    this->blueprintManager = 0;
 	sqlite3Factory = 0;
 }
 

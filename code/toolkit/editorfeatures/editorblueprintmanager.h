@@ -23,6 +23,11 @@ class EditorBlueprintManager : public Core::RefCounted
     __DeclareClass(EditorBlueprintManager);
     __DeclareSingleton(EditorBlueprintManager);
 public:
+	struct CategoryEntry
+	{			
+		bool isVirtual;
+        bool isSpecial;
+	};
 
 	struct TemplateEntry
 	{		
@@ -96,21 +101,18 @@ public:
 	/// get properties containing attribute
 	Util::Array<Util::String> GetAttributeProperties(const Attr::AttrId& id);
 
-	/// use templates from sdk directory instead of project
-	void SetUseSDK(bool enable);
-
 	/// set logger object
 	void SetLogger(ToolkitUtil::Logger * log);
 
 	/// save blueprint
-	void SaveProjectBlueprint();
-protected:
+	void SaveBlueprint(const Util::String & path);
 	
 	/// parse project info file for nidls
 	void ParseProjectInfo(const Util::String & path);
 	/// add nidl file to attribute/property database
 	void AddNIDLFile(const IO::URI & filename);
 	/// parse specific blueprint file
+    /// will not overwrite already known categories
 	void ParseBlueprint(const IO::URI & filename);
 	/// parse category templates from folder
 	void ParseTemplates(const Util::String & folder);
@@ -121,20 +123,48 @@ protected:
 	/// update properties owning an attribute
 	void UpdateAttributeProperties();
 
+    /// create an instance of an attribute from an idl attribute
+    static Attr::Attribute AttrFromIDL(const Ptr<Tools::IDLAttribute> & attr);
+
+    /// create both static and instance databases
+    void CreateDatabases(const Util::String & folder);    
+protected:
+
+    /// 
+    void WriteAttributes(const Ptr<Db::Database> & db);
+    /// 
+    void CreateCategoryTables(const Ptr<Db::Database> & staticDb, const Ptr<Db::Database> & instanceDb);
+    ///
+    void WriteTemplates(const Ptr<Db::Table> & table, const Util::String & catgory);
+    ///
+    Ptr<Db::Table> CreateTable(const Ptr<Db::Database>& db, const Util::String& tableName);
+    ///
+    void CreateColumn(const Ptr<Db::Table>& table, Db::Column::Type type, Attr::AttrId attributeId);
+    ///
+    void AddAttributeColumns(Ptr<Db::Table> table, const Attr::AttributeContainer& attrs);
+    ///
+    void CreateLevelTables(const Ptr<Db::Database> & db, const Util::String & tableName);
+    /// 
+    Ptr<Db::Database> CreateDatabase(const IO::URI & filename);
+    /// FIXME: this will generate tables for scriptfeature, doesnt do anything meaningful with it
+    void CreateScriptTables(const Ptr<Db::Database> & db);
+    ///
+    void ExportGlobals(const Ptr<Db::Database> & gameDb);
+
 	Util::Dictionary<Util::String, Ptr<Tools::IDLProperty>> properties;
-	Util::Dictionary<Util::String,BluePrint> bluePrints;
-	Util::Dictionary<Util::FourCC,bool> systemAttributeDictionary;
+	Util::Dictionary<Util::String, BluePrint> bluePrints;
+	Util::Dictionary<Util::FourCC, bool> systemAttributeDictionary;
 	Util::Dictionary<Util::String, Util::Array<TemplateEntry>> templates;
 	Util::Dictionary<Util::String, Util::String> templateFiles;
 	Util::Dictionary<Util::String, Attr::AttributeContainer> categoryAttributes;
 	Util::Dictionary<Util::String, Ptr<Tools::IDLAttribute>> attributes;
 	Util::Dictionary<Attr::AttrId, Util::Array<Util::String>> attributeProperties;
 	Util::Dictionary<Util::String, Util::Array<Util::String>> categoryProperties;
+	Util::Dictionary<Util::String, CategoryEntry> categoryFlags;
 
 	ToolkitUtil::Logger * logger;
 	IO::URI blueprintPath;
-	Util::String templateDir;
-	bool useSDKDir;
+	Util::String templateDir;	
 };
 
 //------------------------------------------------------------------------------
@@ -232,16 +262,6 @@ Util::Array<Ptr<Tools::IDLProperty>>
 EditorBlueprintManager::GetAllProperties()
 {
 	return this->properties.ValuesAsArray();
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline 
-void
-EditorBlueprintManager::SetUseSDK(bool enable)
-{
-	this->useSDKDir = enable;
 }
 
 //------------------------------------------------------------------------------

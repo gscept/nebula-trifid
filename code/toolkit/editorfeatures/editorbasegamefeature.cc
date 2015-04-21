@@ -120,10 +120,12 @@ EditorBaseGameFeatureUnit::OnActivate()
 		
 		
 		Ptr<EditorBlueprintManager> bm = EditorBlueprintManager::Create();
-		bm->SetUseSDK(true);
+
 		bm->Open();
 		IO::AssignRegistry::Instance()->SetAssign(IO::Assign("proj","sdk:"));
 		IO::AssignRegistry::Instance()->SetAssign(IO::Assign("db","editordb:"));
+        Util::String foo = IO::AssignRegistry::Instance()->ResolveAssignsInString("sdk:foo");
+        foo = IO::AssignRegistry::Instance()->ResolveAssignsInString("proj:foo");
 
 		Ptr<ToolkitUtil::LevelExporter> levelExporter;
 		Ptr<ToolkitUtil::TemplateExporter> templateExporter;
@@ -135,7 +137,7 @@ EditorBaseGameFeatureUnit::OnActivate()
 		
 		templateExporter->SetDbFactory(Db::Sqlite3Factory::Instance());
 		levelExporter->SetDbFactory(Db::Sqlite3Factory::Instance());
-		pfExporter->SetDbFactory(Db::Sqlite3Factory::Instance());
+		
 		templateExporter->SetLogger(&logger);
 		levelExporter->SetLogger(&logger);
 		pfExporter->SetLogger(&logger);

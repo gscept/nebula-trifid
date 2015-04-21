@@ -16,10 +16,16 @@
 #include "logger.h"
 #include "game/templateexporter.h"
 #include "db/dbfactory.h"
+#include "game/leveldbwriter.h"
+#include "graphicsfeature/graphicsattr/graphicsattributes.h"
+#include "writer.h"
+#include "posteffect/posteffectexporter.h"
 
 using namespace Util;
 using namespace Attr;
 using namespace Tools;
+using namespace Db;
+using namespace IO;
 
 namespace Toolkit
 {
@@ -30,7 +36,7 @@ __ImplementSingleton(EditorBlueprintManager);
 /**
 */
 
-EditorBlueprintManager::EditorBlueprintManager() :useSDKDir(false), logger(NULL)
+EditorBlueprintManager::EditorBlueprintManager(): logger(NULL)
 {
 	__ConstructSingleton;		
 }
@@ -57,39 +63,40 @@ EditorBlueprintManager::~EditorBlueprintManager()
 void
 EditorBlueprintManager::Open()
 {
-	String toolkitdir;
-	if (System::NebulaSettings::Exists("gscept","ToolkitShared", "path"))
-	{
-		 toolkitdir = System::NebulaSettings::ReadString("gscept","ToolkitShared", "path");
-		if (IO::IoServer::Instance()->FileExists(toolkitdir + "/projectinfo.xml"))
-		{
-			this->ParseProjectInfo(toolkitdir + "/projectinfo.xml");
-		}		
-		IO::AssignRegistry::Instance()->SetAssign(IO::Assign("toolkit",toolkitdir));
-	}
-	String workdir;
-	if (System::NebulaSettings::Exists("gscept","ToolkitShared", "workdir"))
-	{
-		workdir = System::NebulaSettings::ReadString("gscept","ToolkitShared", "workdir");
-		if (IO::IoServer::Instance()->FileExists(workdir + "/projectinfo.xml"))
-		{
-			this->ParseProjectInfo(workdir + "/projectinfo.xml");
-		}
-	}
-	if(this->useSDKDir)
-	{
-		workdir = toolkitdir;
-	}
-	String blueprintpath = workdir + "/data/tables/blueprints.xml";
-	if (IO::IoServer::Instance()->FileExists(blueprintpath))
-	{
-		this->ParseBlueprint(blueprintpath);
-	}
-	this->UpdateAttributeProperties();
-	this->blueprintPath = blueprintpath;
-	templateDir = workdir + "/data/tables/db";
-	this->ParseTemplates(templateDir);
-	this->CreateMissingTemplates();
+// 	String toolkitdir;
+// 	if (System::NebulaSettings::Exists("gscept","ToolkitShared", "path"))
+// 	{
+// 		 toolkitdir = System::NebulaSettings::ReadString("gscept","ToolkitShared", "path");
+// 		if (IO::IoServer::Instance()->FileExists(toolkitdir + "/projectinfo.xml"))
+// 		{
+// 			this->ParseProjectInfo(toolkitdir + "/projectinfo.xml");
+// 		}		
+// 		IO::AssignRegistry::Instance()->SetAssign(IO::Assign("toolkit",toolkitdir));
+// 	}
+//     
+// 	String workdir;
+// 	if (System::NebulaSettings::Exists("gscept","ToolkitShared", "workdir"))
+// 	{
+// 		workdir = System::NebulaSettings::ReadString("gscept","ToolkitShared", "workdir");
+// 		if (IO::IoServer::Instance()->FileExists(workdir + "/projectinfo.xml"))
+// 		{
+// 			this->ParseProjectInfo(workdir + "/projectinfo.xml");
+// 		}
+// 	}
+// //	if(this->useSDKDir)
+// 	{
+// 		workdir = toolkitdir;
+// 	}
+// 	String blueprintpath = workdir + "/data/tables/blueprints.xml";
+// 	if (IO::IoServer::Instance()->FileExists(blueprintpath))
+// 	{
+// 		this->ParseBlueprint(blueprintpath);
+// 	}
+// 	this->UpdateAttributeProperties();
+//  	this->blueprintPath = "proj:data/tables/blueprints.xml";
+//  	templateDir = "proj:data/tables/db";
+//  	this->ParseTemplates(templateDir);
+//  	this->CreateMissingTemplates();
 }
 
 //------------------------------------------------------------------------------
@@ -117,7 +124,6 @@ EditorBlueprintManager::AddNIDLFile(const IO::URI & uri)
 			// check if it is a valid IDL file
 			if (xmlReader->GetCurrentNodeName() == "Nebula3")
 			{				
-
 				if (doc->Parse(xmlReader))
 				{
 					const Util::Array<Ptr<Tools::IDLAttributeLib>>& libs = doc->GetAttributeLibs();
@@ -193,23 +199,24 @@ EditorBlueprintManager::ParseBlueprint(const IO::URI & filename)
 					bluePrint.description = xmlReader->GetString("desc");
 				}
 				if (xmlReader->SetToFirstChild("Property")) do
-				{
-				
+				{				
 					Util::String name = xmlReader->GetString("type");
 					if(this->properties.Contains(name))
 					{
 						bluePrint.properties.Append(this->properties[name]);
 					}
-					if(xmlReader->HasAttr("createRemote"))
+					if(xmlReader->HasAttr("masterOnly"))
 					{
-						bool remote = xmlReader->GetBool("createRemote");
+						bool remote = xmlReader->GetBool("masterOnly");
 						bluePrint.remoteTable.Add(name,remote);
 					}
 				}
 				while (xmlReader->SetToNextChild("Property"));
-				this->bluePrints.Add(bluePrint.type,bluePrint);
-
-				this->UpdateCategoryAttributes(bluePrint.type);				
+                if(!this->bluePrints.Contains(bluePrint.type))
+                {
+				    this->bluePrints.Add(bluePrint.type,bluePrint);
+				    this->UpdateCategoryAttributes(bluePrint.type);				
+                }
 			}
 			while (xmlReader->SetToNextChild("Entity"));
 			xmlReader->Close();			
@@ -251,83 +258,8 @@ EditorBlueprintManager::UpdateCategoryAttributes(const Util::String & category)
 					/// FUGLY WTH
 
 					Ptr<IDLAttribute> idlattr = this->attributes[propattrs[j]];
-					AttrId newid(propattrs[j]);
-					switch(newid.GetValueType())
-					{
-					case IntType:	
-						{
-							Attribute newAttr(newid,0);
-							if(idlattr->HasDefault())
-							{
-								newAttr.SetValueFromString(idlattr->GetDefault());
-							}
-							cont.AddAttr(newAttr);
-						}									
-						break;
-					case FloatType:
-						{
-							Attribute newAttr(newid,0.0f);
-							if(idlattr->HasDefault())
-							{
-								newAttr.SetValueFromString(idlattr->GetDefault());
-							}
-							cont.AddAttr(newAttr);
-						}									
-						break;
-					case BoolType:
-						{
-							Attribute newAttr(newid,false);
-							if(idlattr->HasDefault())
-							{
-								newAttr.SetValueFromString(idlattr->GetDefault());
-							}
-							cont.AddAttr(newAttr);
-						}									
-						break;
-					case Float4Type:
-						{
-							Attribute newAttr(newid,Math::float4(0,0,0,0));
-							if(idlattr->HasDefault())
-							{
-								newAttr.SetValueFromString(idlattr->GetDefaultRaw());
-							}
-							cont.AddAttr(newAttr);
-						}									
-						break;
-					case StringType:
-						{
-							Attribute newAttr(newid,Util::String(""));
-							if(idlattr->HasDefault())
-							{
-								newAttr.SetValueFromString(idlattr->GetDefaultRaw());
-							}
-							cont.AddAttr(newAttr);
-						}									
-						break;
-					case Matrix44Type:
-						{
-							Attribute newAttr(newid,Math::matrix44::identity());
-							if(idlattr->HasDefault())
-							{
-								newAttr.SetValueFromString(idlattr->GetDefault());
-							}
-							cont.AddAttr(newAttr);
-						}									
-						break;
-					case GuidType:
-						{
-							Attribute newAttr(newid,Util::Guid());
-							if(idlattr->HasDefault())
-							{
-								newAttr.SetValueFromString(idlattr->GetDefault());
-							}
-							cont.AddAttr(newAttr);
-						}									
-						break;
-					default:
-						cont.AddAttr(Attribute(newid));
-					}
-
+                    Attribute newAttr = EditorBlueprintManager::AttrFromIDL(idlattr);
+                    cont.AddAttr(newAttr);					                   
 				}
 			}
 			if(curprop->GetParentClass().IsEmpty() || curprop->GetParentClass() == "Game::Property" || !this->properties.Contains(curprop->GetParentClass()))
@@ -431,6 +363,11 @@ EditorBlueprintManager::CreateMissingTemplates()
 			Util::Array<TemplateEntry> emptyTemplates;
 			this->templates.Add(cats[i],emptyTemplates);
 		}
+        if(!this->categoryFlags.Contains(cats[i]))
+        {
+            CategoryEntry entry = { false, false };
+            this->categoryFlags.Add(cats[i], entry);
+        }
 	}
 }
 
@@ -453,43 +390,99 @@ EditorBlueprintManager::ParseTemplates(const Util::String & folder)
 			Ptr<IO::Stream> stream = IO::IoServer::Instance()->CreateStream(templates[i]);
 			stream->SetAccessMode(IO::Stream::ReadAccess);
 			xmlReader->SetStream(stream);
+            if(stream->Open())
+            {
+                if(stream->GetSize() == 0)
+                {
+                    this->logger->Warning("Empty template file: %s\n", templates[i].AsCharPtr());
+                    stream->Close();
+                    continue;
+                }
+                stream->Close();
+            }
 			if (xmlReader->Open())
 			{
 				String category = xmlReader->GetCurrentNodeName();
-				if(this->bluePrints.Contains(category))
-				{
-					this->templateFiles.Add(category, templates[i]);
-					Util::Array<TemplateEntry> newTemplates;
-					
-					if (xmlReader->SetToFirstChild("Item")) do
-					{
-						AttributeContainer cont = this->GetCategoryAttributes(category);
-						Array<String> attrs = xmlReader->GetAttrs();
-						IndexT j;
-						for(j=0;j<attrs.Size();j++)
-						{
-							Util::String attval = xmlReader->GetString(attrs[j].AsCharPtr());
-							if (Attr::AttrId::IsValidName(attrs[j]))
-							{
-								AttrId newId(attrs[j]);
-								Attribute newAttr(newId);
-								newAttr.SetValueFromString(attval);
-								cont.SetAttr(newAttr);
-							}
-							else
-							{
-								this->logger->Warning("Unknown attribute %s in template %s\n", attrs[j].AsCharPtr(), templates[i].AsCharPtr());
-							}
-						}
-						TemplateEntry newTemp;						
-						newTemp.attrs = cont;
-						newTemp.id = cont.GetString(Attr::Id);
-						newTemp.category = category;
-						newTemplates.Append(newTemp);
-					}
-					while (xmlReader->SetToNextChild("Item"));
-					this->templates.Add(category,newTemplates);
-				}
+				CategoryEntry entry = { xmlReader->GetOptBool("IsVirtualCategory", false), xmlReader->GetOptBool("IsSpecialCategory", false) };
+               
+                if(entry.isVirtual || entry.isSpecial)
+                {
+                    AttributeContainer cont;
+                    /// make sure Id and Name exist
+                    cont.AddAttr(Attribute(Attr::Id,""));
+                    cont.AddAttr(Attribute(Attr::Name,""));
+                    if(xmlReader->SetToFirstChild("Attributes"))
+                    {                    
+                        Array<String> attributes = xmlReader->GetAttrs();
+                        for(IndexT j = 0;j<attributes.Size();j++)
+                        {
+                            if(this->HasAttributeByName(attributes[j]))
+                            {
+                                Ptr<IDLAttribute> at = this->GetAttributeByName(attributes[j]);
+                                cont.SetAttr(EditorBlueprintManager::AttrFromIDL(at));                        
+                            }
+                            else
+                            {
+                                this->logger->Warning("Unknown attribute %s\n", attributes[j].AsCharPtr());
+                            }
+                        }
+                        if(!this->categoryAttributes.Contains(category) && !cont.GetAttrs().IsEmpty())
+                        {
+                            this->categoryAttributes.Add(category, cont);                        
+                        }
+                        xmlReader->SetToParent();
+                    }                    
+                }
+
+                if((!this->categoryFlags.Contains(category) && (this->bluePrints.Contains(category)) || entry.isVirtual || entry.isSpecial))
+                {
+                    if(!this->categoryFlags.Contains(category)) this->categoryFlags.Add(category, entry);
+                    if(!this->templateFiles.Contains(category))
+                    {
+                        this->templateFiles.Add(category, templates[i]);
+                    }
+                    else
+                    {
+                        this->templateFiles[category] = templates[i];
+                    }
+                    Util::Array<TemplateEntry> newTemplates;
+
+                    if (xmlReader->SetToFirstChild("Item")) do
+                    {
+                        AttributeContainer cont = this->GetCategoryAttributes(category);
+                        Array<String> attrs = xmlReader->GetAttrs();
+                        IndexT j;
+                        for(j=0;j<attrs.Size();j++)
+                        {
+                            Util::String attval = xmlReader->GetString(attrs[j].AsCharPtr());
+                            if (Attr::AttrId::IsValidName(attrs[j]))
+                            {
+                                AttrId newId(attrs[j]);
+                                Attribute newAttr(newId);
+                                newAttr.SetValueFromString(attval);
+                                cont.SetAttr(newAttr);
+                            }
+                            else
+                            {
+                                this->logger->Warning("Unknown attribute %s in template %s\n", attrs[j].AsCharPtr(), templates[i].AsCharPtr());
+                            }
+                        }
+                        TemplateEntry newTemp;						
+                        newTemp.attrs = cont;
+                        newTemp.id = cont.GetString(Attr::Id);
+                        newTemp.category = category;
+                        newTemplates.Append(newTemp);
+                    }
+                    while (xmlReader->SetToNextChild("Item"));
+                    if(!this->templates.Contains(category))
+                    {
+                        this->templates.Add(category,newTemplates);                    
+                    }                
+                    else
+                    {
+                        this->templates[category].AppendArray(newTemplates);
+                    }
+                }
 				xmlReader->Close();			
 			}
 		}
@@ -616,13 +609,13 @@ EditorBlueprintManager::GetAllAttributes()
 	return this->attributes.ValuesAsArray();
 }
 //------------------------------------------------------------------------------
-/** EditorBlueprintManager::SaveProjectBlueprint
+/** EditorBlueprintManager::SaveBlueprint
 */
 void
-EditorBlueprintManager::SaveProjectBlueprint()
+EditorBlueprintManager::SaveBlueprint(const Util::String & path)
 {	
 	Ptr<IO::XmlWriter> xmlWriter = IO::XmlWriter::Create();
-	Ptr<IO::Stream> stream = IO::IoServer::Instance()->CreateStream(this->blueprintPath);
+	Ptr<IO::Stream> stream = IO::IoServer::Instance()->CreateStream(path);
 	stream->SetAccessMode(IO::Stream::WriteAccess);
 	xmlWriter->SetStream(stream);
 	if (xmlWriter->Open())
@@ -647,7 +640,7 @@ EditorBlueprintManager::SaveProjectBlueprint()
 				
 				if(prints[i].remoteTable.Contains(prints[i].properties[j]->GetName()))
 				{
-					xmlWriter->SetBool("createRemote",prints[i].remoteTable[prints[i].properties[j]->GetName()]);
+					xmlWriter->SetBool("masterOnly",prints[i].remoteTable[prints[i].properties[j]->GetName()]);
 				}
 				xmlWriter->EndNode();
 			}
@@ -749,4 +742,520 @@ EditorBlueprintManager::HasTemplate(const Util::String & id, const Util::String 
 	}
 	return false;
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+Attr::Attribute 
+EditorBlueprintManager::AttrFromIDL( const Ptr<Tools::IDLAttribute> & attr )
+{    
+    AttrId newid(attr->GetName());
+    switch(newid.GetValueType())
+    {
+    case IntType:	
+        {
+            Attribute newAttr(newid,0);
+            if(attr->HasDefault())
+            {
+                newAttr.SetValueFromString(attr->GetDefault());
+            }
+            return newAttr;
+        }									
+        break;
+    case FloatType:
+        {
+            Attribute newAttr(newid,0.0f);
+            if(attr->HasDefault())
+            {
+                newAttr.SetValueFromString(attr->GetDefault());
+            }
+            return newAttr;
+        }									
+        break;
+    case BoolType:
+        {
+            Attribute newAttr(newid,false);
+            if(attr->HasDefault())
+            {
+                newAttr.SetValueFromString(attr->GetDefault());
+            }
+            return newAttr;
+        }									
+        break;
+    case Float4Type:
+        {
+            Attribute newAttr(newid,Math::float4(0,0,0,0));
+            if(attr->HasDefault())
+            {
+                newAttr.SetValueFromString(attr->GetDefaultRaw());
+            }
+            return newAttr;
+        }									
+        break;
+    case StringType:
+        {
+            Attribute newAttr(newid,Util::String(""));
+            if(attr->HasDefault())
+            {
+                newAttr.SetValueFromString(attr->GetDefaultRaw());
+            }
+            return newAttr;
+        }									
+        break;
+    case Matrix44Type:
+        {
+            Attribute newAttr(newid,Math::matrix44::identity());
+            if(attr->HasDefault())
+            {
+                newAttr.SetValueFromString(attr->GetDefault());
+            }
+           return newAttr;
+        }									
+        break;
+    case GuidType:
+        {
+            Attribute newAttr(newid,Util::Guid());
+            if(attr->HasDefault())
+            {
+                newAttr.SetValueFromString(attr->GetDefault());
+            }
+            return newAttr;
+        }									
+        break;
+    default:
+        {
+            Attribute newAttr(newid);
+            return newAttr;
+        }
+    }
+}
+
+
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+EditorBlueprintManager::CreateCategoryTables( const Ptr<Db::Database> & staticDb, const Ptr<Db::Database> & instanceDb )
+{
+    // create global categories table object
+    Ptr<Table> categoryTable = this->CreateTable(staticDb, "_Categories");
+    this->CreateColumn(categoryTable, Column::Primary, Attr::CategoryName);
+    this->CreateColumn(categoryTable, Column::Default, Attr::IsVirtualCategory);
+    this->CreateColumn(categoryTable, Column::Default, Attr::IsSpecialCategory);
+    this->CreateColumn(categoryTable, Column::Default, Attr::CategoryTemplateTable);
+    this->CreateColumn(categoryTable, Column::Default, Attr::CategoryInstanceTable);
+    staticDb->AddTable(categoryTable);
+
+    Ptr<Dataset> categoryDataset;
+    Ptr<ValueTable> categoryValues;
+
+    categoryDataset = categoryTable->CreateDataset();
+    categoryDataset->AddAllTableColumns();
+    categoryValues = categoryDataset->Values();
+
+    IndexT size = this->categoryFlags.Size();
+
+    for(IndexT i = 0 ; i < size; i++)
+    {
+        const KeyValuePair<String, CategoryEntry> & entry = this->categoryFlags.KeyValuePairAtIndex(i);
+        const String & category = entry.Key();
+        // add to categories table first
+        IndexT row = categoryValues->AddRow();
+        categoryValues->SetString(Attr::CategoryName, row, category);
+        categoryValues->SetBool(Attr::IsVirtualCategory, row, entry.Value().isVirtual);
+        categoryValues->SetBool(Attr::IsSpecialCategory, row, entry.Value().isSpecial);
+        if(!entry.Value().isVirtual)
+        {
+            categoryValues->SetString(Attr::CategoryInstanceTable, row, "_Instance_" + category);
+        }
+        if(!entry.Value().isSpecial)
+        {
+            categoryValues->SetString(Attr::CategoryTemplateTable, row, "_Template_" + category);
+        }        
+
+        const Attr::AttributeContainer & attrs = this->categoryAttributes[category];
+        // create template tables and populate columns
+        Ptr<Table> templateTable = this->CreateTable(staticDb, "_Template_" + category);
+        // for templates Id is the primary column
+        this->CreateColumn(templateTable, Column::Primary, Attr::Id);
+        this->AddAttributeColumns(templateTable, attrs);
+        staticDb->AddTable(templateTable);
+        // FIXME, is this even required here
+        templateTable->CommitChanges();
+
+        // write templates to database
+        this->WriteTemplates(templateTable, category);
+        templateTable->CommitChanges();
+
+        // create instance tables and populate columns
+        Ptr<Table> instanceTable = this->CreateTable(instanceDb, "_Instance_" + category);
+        // for instance tables _ID is the primary unique key
+        this->CreateColumn(instanceTable, Column::Primary, Attr::_ID);
+        // add other required columns
+        this->CreateColumn(instanceTable, Column::Default, Attr::_Level);
+        this->CreateColumn(instanceTable, Column::Default, Attr::_Layers);
+        this->CreateColumn(instanceTable, Column::Default, Attr::Guid);
+        this->CreateColumn(instanceTable, Column::Default, Attr::_LevelEntity);
+        this->AddAttributeColumns(instanceTable, attrs);
+        instanceDb->AddTable(instanceTable);
+        instanceTable->CommitChanges();  
+    }
+    categoryDataset->CommitChanges();    
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+EditorBlueprintManager::WriteAttributes( const Ptr<Db::Database> & db )
+{
+    Ptr<Db::Table> table;
+    Ptr<Db::Dataset> dataset;
+    Ptr<Db::ValueTable> valueTable;
+
+    table = this->CreateTable(db, "_Attributes");
+    this->CreateColumn(table, Column::Primary, Attr::AttrName);
+    this->CreateColumn(table, Column::Default, Attr::AttrType);
+    this->CreateColumn(table, Column::Default, Attr::AttrReadWrite);
+    this->CreateColumn(table, Column::Default, Attr::AttrDynamic);
+    db->AddTable(table);
+    dataset = table->CreateDataset();
+    dataset->AddAllTableColumns();	
+
+    dataset->PerformQuery();
+    valueTable = dataset->Values();
+
+    IndexT index;
+    String query;
+    
+    FixedArray<Attr::AttrId> attributes = Attr::AttrId::GetAllAttrIds();
+
+    for (int attrIndex = 0; attrIndex < attributes.Size(); attrIndex++)
+    {
+        Attr::AttrId attribute = attributes[attrIndex];
+        index = valueTable->FindRowIndexByAttr(Attr::Attribute(Attr::AttrName, attribute.GetName()));
+        if (index == InvalidIndex)
+        {
+            index = valueTable->AddRow();
+        }
+        valueTable->SetString(Attr::AttrType, index, Attribute::ValueTypeToString(attribute.GetValueType()));
+        valueTable->SetBool(Attr::AttrReadWrite, index, attribute.GetAccessMode() != ReadOnly);
+        valueTable->SetBool(Attr::AttrDynamic, index, attribute.IsDynamic());
+        valueTable->SetString(Attr::AttrName, index, attribute.GetName());		
+    }
+    dataset->CommitChanges();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+Ptr<Table> 
+EditorBlueprintManager::CreateTable( const Ptr<Database>& db, const Util::String& tableName )
+{
+    Ptr<Table> table = 0;
+    if(db->HasTable(tableName))
+    {
+        table = db->GetTableByName(tableName);
+    }
+    else
+    {
+        table = DbFactory::Instance()->CreateTable();
+        table->SetName(tableName);
+    }
+    return table;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+EditorBlueprintManager::CreateColumn( const Ptr<Table>& table, Column::Type type, AttrId attributeId )
+{
+    if(false == table->HasColumn(attributeId))
+    {
+        Column column;
+        column.SetType(type);
+        column.SetAttrId(attributeId);
+        table->AddColumn(column);
+    }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+EditorBlueprintManager::AddAttributeColumns( Ptr<Table> table, const AttributeContainer& attrs)
+{
+    const Dictionary<AttrId, Attribute>& attrDic = attrs.GetAttrs();
+    for(IndexT i = 0 ; i<attrDic.Size() ; i++)
+    {
+        this->CreateColumn(table, Column::Default, attrDic.KeyAtIndex(i));
+    }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+EditorBlueprintManager::WriteTemplates( const Ptr<Db::Table> & table, const Util::String & category )
+{
+    const Array<TemplateEntry> & templates = this->templates[category];
+    Ptr<Db::Dataset> dataset;
+    Ptr<Db::ValueTable> valueTable;
+
+    dataset = table->CreateDataset();
+    dataset->AddAllTableColumns();	
+
+    dataset->PerformQuery();
+    valueTable = dataset->Values();
+
+    for(IndexT i = 0 ; i<templates.Size() ; i++)
+    {
+        const TemplateEntry & entry = templates[i];        
+        const Dictionary<AttrId, Attribute>& attrDic = entry.attrs.GetAttrs();
+        IndexT row = valueTable->AddRow();
+        for(IndexT column = 0 ; column < attrDic.Size() ; column++)
+        {
+            if(valueTable->HasColumn(attrDic.KeyAtIndex(column)))
+            {
+                valueTable->SetAttr(attrDic.ValueAtIndex(column), row);
+            }            
+        }
+    }
+    dataset->CommitChanges();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+Ptr<Db::Database>
+EditorBlueprintManager::CreateDatabase(const IO::URI & filename)
+{    
+    if(IO::IoServer::Instance()->FileExists(filename))
+    {
+        IO::IoServer::Instance()->DeleteFile(filename);
+    }
+    Ptr<Database> db = DbFactory::Instance()->CreateDatabase();
+    db->SetURI(filename);
+    db->SetAccessMode(Database::ReadWriteCreate);
+    db->SetIgnoreUnknownColumns(true);
+    db->Open();
+    return db;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+EditorBlueprintManager::CreateDatabases(const Util::String & folder)
+{
+   Ptr<Database> staticDb = this->CreateDatabase(folder + "static.db4");
+   Ptr<Database> gameDb = this->CreateDatabase(folder + "game.db4");
+
+   this->WriteAttributes(staticDb);
+   this->WriteAttributes(gameDb);
+   this->CreateCategoryTables(staticDb, gameDb);   
+   this->CreateLevelTables(staticDb, "_Template_Levels");
+   this->CreateLevelTables(gameDb, "_Instance_Levels");
+   this->CreateScriptTables(staticDb);
+   this->ExportGlobals(gameDb);
+   Ptr<ToolkitUtil::PostEffectExporter> pfxExporter = ToolkitUtil::PostEffectExporter::Create();
+   pfxExporter->SetDb(staticDb);
+   pfxExporter->ExportAll();
+   staticDb->Close();
+   gameDb->Close();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+EditorBlueprintManager::CreateLevelTables(const Ptr<Db::Database> & db, const Util::String & tableName)
+{
+    Ptr<Table> table = this->CreateTable(db, tableName);
+    this->CreateColumn(table, Column::Primary, Attr::Id);
+    this->CreateColumn(table, Column::Default, Attr::Name);
+    this->CreateColumn(table, Column::Default, Attr::StartLevel);
+    this->CreateColumn(table, Column::Default, Attr::_Layers);
+    this->CreateColumn(table, Column::Default, Attr::WorldCenter);
+    this->CreateColumn(table, Column::Default, Attr::WorldExtents);
+    this->CreateColumn(table, Column::Default, Attr::PostEffectPreset);
+    this->CreateColumn(table, Column::Default, Attr::GlobalLightTransform);    
+    db->AddTable(table);
+    table->CommitChanges();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+EditorBlueprintManager::CreateScriptTables(const Ptr<Db::Database> & staticDb)
+{
+   
+    Ptr<Table> table = this->CreateTable(staticDb, "_Scripts_ConditionScripts");
+    this->CreateColumn(table, Column::Primary, AttrId("ScriptName"));				
+    this->CreateColumn(table, Column::Default, AttrId("ConditionBlock"));
+    this->CreateColumn(table, Column::Default, AttrId("ConditionRef"));		
+    staticDb->AddTable(table);
+    table->CommitChanges();		
+
+    table = this->CreateTable(staticDb, "_Scripts_Conditions");		
+    this->CreateColumn(table, Column::Default, AttrId("Id"));
+    this->CreateColumn(table, Column::Primary, AttrId("ConditionGUID"));
+    this->CreateColumn(table, Column::Default, AttrId("ConditionContent"));
+    this->CreateColumn(table, Column::Default, AttrId("ConditionType"));
+    this->CreateColumn(table, Column::Default, AttrId("ConditionBlockGUID"));
+    this->CreateColumn(table, Column::Default, AttrId("ConditionStatementGUID"));
+    staticDb->AddTable(table);
+    table->CommitChanges();
+
+    table = this->CreateTable(staticDb, "_Scripts_Statements");
+    this->CreateColumn(table, Column::Primary, AttrId("StatementGUID"));
+    this->CreateColumn(table, Column::Default, AttrId("StatementContent"));
+    this->CreateColumn(table, Column::Default, AttrId("StatementType"));
+    this->CreateColumn(table, Column::Default, AttrId("StatementBlock"));
+    this->CreateColumn(table, Column::Default, AttrId("StatementBlockGUID"));
+    this->CreateColumn(table, Column::Default, AttrId("StatementRef"));
+    staticDb->AddTable(table);
+    table->CommitChanges();
+
+    table = this->CreateTable(staticDb, "_Scripts_ActionScripts");
+    this->CreateColumn(table, Column::Primary, AttrId("ScriptName"));
+    this->CreateColumn(table, Column::Default, AttrId("StatementRef"));
+    this->CreateColumn(table, Column::Default, AttrId("StatementBlock"));
+    staticDb->AddTable(table);
+    table->CommitChanges();
+
+    table = this->CreateTable(staticDb, "_Script_StateMachines");
+    this->CreateColumn(table, Column::Default, AttrId("Id"));
+    this->CreateColumn(table, Column::Default, AttrId("StartState"));
+    staticDb->AddTable(table);
+    table->CommitChanges();
+
+    table = this->CreateTable(staticDb, "_Script_StateMachineStates");
+    this->CreateColumn(table, Column::Default, AttrId("Id"));
+    this->CreateColumn(table, Column::Default, AttrId("MachineName"));
+    this->CreateColumn(table, Column::Default, AttrId("StateName"));		
+    this->CreateColumn(table, Column::Default, AttrId("OnEntryStatementRef"));
+    this->CreateColumn(table, Column::Default, AttrId("OnEntryStatementBlock"));
+    this->CreateColumn(table, Column::Default, AttrId("OnFrameStatementRef"));
+    this->CreateColumn(table, Column::Default, AttrId("OnFrameStatementBlock"));
+    this->CreateColumn(table, Column::Default, AttrId("OnExitStatementRef"));
+    this->CreateColumn(table, Column::Default, AttrId("OnExitStatementBlock"));
+    staticDb->AddTable(table);
+    table->CommitChanges(); 
+
+    table = this->CreateTable(staticDb, "_Script_StateTransitions");
+    this->CreateColumn(table, Column::Default, AttrId("Id"));
+    this->CreateColumn(table, Column::Default, AttrId("MachineName"));
+    this->CreateColumn(table, Column::Default, AttrId("StateName"));
+    this->CreateColumn(table, Column::Default, AttrId("ToState"));
+    this->CreateColumn(table, Column::Default, AttrId("ConditionRef"));		
+    this->CreateColumn(table, Column::Default, AttrId("ConditionBlock"));
+    this->CreateColumn(table, Column::Default, AttrId("StatementRef"));
+    this->CreateColumn(table, Column::Default, AttrId("StatementBlock"));	
+    staticDb->AddTable(table);
+    table->CommitChanges();        
+}
+
+//------------------------------------------------------------------------------
+/**
+	Exports global attributes found in data/globals.xml
+*/
+void 
+EditorBlueprintManager::ExportGlobals(const Ptr<Db::Database> & gameDb)
+{
+
+	IO::IoServer* ioServer = IO::IoServer::Instance();
+
+	if(ioServer->FileExists("data:tables/globals.xml"))
+	{
+		this->logger->Print("Found globals.xml, exporting...\n");
+										
+		Ptr<Stream> stream = IoServer::Instance()->CreateStream("data:tables/globals.xml");
+		Ptr<XmlReader> xmlReader = XmlReader::Create();
+		xmlReader->SetStream(stream);
+		if(xmlReader->Open())
+		{
+			if(gameDb->HasTable("_Globals"))
+			{
+				gameDb->DeleteTable("_Globals");
+			}
+			// initialize a database writer
+			Ptr<Db::Writer> dbWriter = Db::Writer::Create();
+			dbWriter->SetDatabase(gameDb);
+			dbWriter->SetTableName("_Globals");
+
+			if(xmlReader->SetToFirstChild("Attribute"))
+			{
+				Util::Array<Attr::Attribute> attrs;
+				do
+				{
+					Util::String name = xmlReader->GetString("name");
+					Attr::ValueType vtype = Attr::Attribute::StringToValueType(xmlReader->GetString("type"));
+					Util::String val = xmlReader->GetString("value");
+					if(!Attr::AttributeDefinitionBase::FindByName(name))
+					{
+						Attr::AttributeDefinitionBase::RegisterDynamicAttribute(name, Util::FourCC(), vtype, Attr::ReadWrite);
+					}						
+					Attr::Attribute atr;
+					atr.SetAttrId(Attr::AttrId(name));						
+					atr.SetValueFromString(val);
+					dbWriter->AddColumn(Db::Column(atr.GetAttrId()));
+					attrs.Append(atr);
+				}
+				while(xmlReader->SetToNextChild("Attribute"));
+
+				dbWriter->Open();
+				dbWriter->BeginRow();
+
+				for(IndexT i = 0 ; i < attrs.Size() ; i++)
+				{
+					const Attr::Attribute& value = attrs[i];
+					const Attr::AttrId& attrId = value.GetAttrId();
+
+					switch (value.GetValueType())
+					{
+					case Attr::IntType:
+						dbWriter->SetInt(attrId, value.GetInt());
+						break;
+					case Attr::FloatType:
+						dbWriter->SetFloat(attrId, value.GetFloat());
+						break;
+					case Attr::BoolType:
+						dbWriter->SetBool(attrId, value.GetBool());
+						break;
+					case Attr::Float4Type:
+						dbWriter->SetFloat4(attrId, value.GetFloat4());
+						break;
+					case Attr::StringType:
+						dbWriter->SetString(attrId, value.GetString());
+						break;
+					case Attr::Matrix44Type:
+						dbWriter->SetMatrix44(attrId, value.GetMatrix44());
+						break;
+					case Attr::GuidType:
+						dbWriter->SetGuid(attrId, value.GetGuid());
+						break;
+					case Attr::BlobType:
+						dbWriter->SetBlob(attrId, value.GetBlob());
+						break;
+					default:
+						break;
+					}							
+				}
+				dbWriter->EndRow();
+				dbWriter->Close();
+			}
+			xmlReader->Close();				
+		}					
+	}
+	else
+	{
+		this->logger->Warning("No globals.xml");
+	}
+	this->logger->Print("---- Done exporting global attributes ----\n");
+
+}
+
 }
