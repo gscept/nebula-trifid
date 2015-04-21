@@ -121,6 +121,4 @@ OGL4BufferLock::Cleanup(GLsync sync)
 	glDeleteSync(sync);
 }
 
-
-
 } // namespace OpenGL4

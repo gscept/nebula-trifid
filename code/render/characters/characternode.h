@@ -57,8 +57,7 @@ public:
 
 private:
     /// recursively create model node instance and child model node instances
-	/// deprecated? If we don't generate our 
-    //virtual Ptr<Models::ModelNodeInstance> RecurseCreateNodeInstanceHierarchy(const Ptr<Models::ModelInstance>& modelInst, const Ptr<Models::ModelNodeInstance>& parentNodeInst=0);
+    virtual Ptr<Models::ModelNodeInstance> RecurseCreateNodeInstanceHierarchy(const Ptr<Models::ModelInstance>& modelInst, const Ptr<Models::ModelNodeInstance>& parentNodeInst=0);
 
     Resources::ResourceId animResId;
     Resources::ResourceId variationResId;
