@@ -110,7 +110,7 @@ NavigatedProperty::HandleMessage(const Ptr<Messaging::Message>& msg)
     in the crowd manager that handles the updates
 */
 void
-NavigatedProperty::OnActivate()
+NavigatedProperty::OnStart()
 {
     Property::OnActivate();
 	this->EnableCrowdManagement(true);
