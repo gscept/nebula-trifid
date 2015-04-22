@@ -100,14 +100,21 @@ UiFeatureUnit::LoadUITables()
             bool autoLoad = reader->GetBool(Attr::AutoLoad);
             if(autoLoad)
             {
-			    if (fontFamily.Length())
-			    {
-				    this->server->LoadFont(fontFile, fontFamily, fontStyle, fontWeight);
-			    }
-			    else
-			    {
-				    this->server->LoadFont(fontFile);
-			    }
+				if (IO::IoServer::Instance()->FileExists(fontFile))
+				{
+					if (fontFamily.Length())
+					{
+						this->server->LoadFont(fontFile, fontFamily, fontStyle, fontWeight);
+					}
+					else
+					{
+						this->server->LoadFont(fontFile);
+					}
+				}
+				else
+				{
+					n_warning(("Failed to load font file: " + fontFile).AsCharPtr());
+				}
             }
 		}
 		reader->Close();
@@ -129,7 +136,14 @@ UiFeatureUnit::LoadUITables()
             bool autoLoad = lreader->GetBool(Attr::AutoLoad);
             if(autoLoad)
             {
-			    this->server->CreateLayout(layoutName, layoutFile); 
+				if (IO::IoServer::Instance()->FileExists(layoutFile))
+				{
+					this->server->CreateLayout(layoutName, layoutFile);
+				}
+				else
+				{
+					n_warning(("Failed to load layout file: " + layoutFile).AsCharPtr());
+				}
             }
 		}
 		lreader->Close();
@@ -146,15 +160,23 @@ UiFeatureUnit::LoadUITables()
 		{
 			sreader->SetToRow(index);
 
-			Util::String layoutFile = sreader->GetString(Attr::Id);
+			Util::String scriptFile = sreader->GetString(Attr::Id);
             bool autoLoad = sreader->GetBool(Attr::AutoLoad);
             if(autoLoad)
             {
-			    Scripting::ScriptServer::Instance()->EvalScript(layoutFile);	
-			    if (Scripting::ScriptServer::Instance()->HasError())
-			    {
-				    n_printf("Error evaluating %s:\n%s\n", layoutFile.AsCharPtr(), Scripting::ScriptServer::Instance()->GetError().AsCharPtr());
-			    }
+				if (IO::IoServer::Instance()->FileExists(scriptFile))
+				{
+					Scripting::ScriptServer::Instance()->EvalScript(scriptFile);
+					if (Scripting::ScriptServer::Instance()->HasError())
+					{
+						n_warning("Error evaluating %s:\n%s\n", scriptFile.AsCharPtr(), Scripting::ScriptServer::Instance()->GetError().AsCharPtr());
+					}
+				}
+				else
+				{
+					n_warning(("Failed to load script file: " + scriptFile).AsCharPtr());
+				}
+
             }
 		}
 		sreader->Close();

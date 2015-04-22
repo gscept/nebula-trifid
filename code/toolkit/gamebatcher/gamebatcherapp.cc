@@ -79,14 +79,14 @@ GameBatcherApp::DoWork()
 
     bm->UpdateAttributeProperties();
     bm->CreateMissingTemplates();
-    bm->CreateDatabases("proj:foo/");
+    bm->CreateDatabases("export:db/");
 
     Ptr<Db::Database> gamedb = Db::DbFactory::Instance()->CreateDatabase();
-    gamedb->SetURI("proj:foo/game.db4");
+    gamedb->SetURI("export:db/game.db4");
     gamedb->SetAccessMode(Db::Database::ReadWriteExisting);
     gamedb->Open();
     Ptr<Db::Database> staticdb = Db::DbFactory::Instance()->CreateDatabase();
-    staticdb->SetURI("proj:foo/static.db4");
+    staticdb->SetURI("export:db/static.db4");
     staticdb->SetAccessMode(Db::Database::ReadWriteExisting);
     staticdb->Open();
    

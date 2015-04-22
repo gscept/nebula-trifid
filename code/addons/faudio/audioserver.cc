@@ -83,11 +83,11 @@ AudioServer::OnFrame()
 void 
 FAudio::AudioServer::LoadBanks(const Ptr<Db::Database> & staticDb)
 {
-    if(staticDb->HasTable("_Template_AudioBanks"))
+    if(staticDb->HasTable("_Template__AudioBanks"))
     {    
         Ptr<Db::Reader> reader = Db::Reader::Create();
         reader->SetDatabase(staticDb);
-        reader->SetTableName("_Template_AudioBanks");
+        reader->SetTableName("_Template__AudioBanks");
         reader->Open();
         for(IndexT i = 0 ; i < reader->GetNumRows(); i++)
         {
