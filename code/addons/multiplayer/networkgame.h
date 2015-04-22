@@ -92,7 +92,10 @@ public:
 	virtual void OnReceiverMasterList(){}
 	/// called when successfully joined a room
 	virtual void OnJoinedRoom(){}
-	
+	/// called when join failed
+	virtual void OnJoinFailed(const Util::String & reason){ n_printf("\n%s",reason.AsCharPtr());};
+
+
 	/// we received a message
 	virtual void OnHandleMessage(const Ptr<Messaging::Message> &msg){}
 	/// called when player joins room
@@ -118,6 +121,8 @@ public:
 	void SetMaxPlayers(ubyte val);
 	/// get max players
 	const ubyte GetMaxPlayers() const;
+
+	int GetCurrentAmountOfPlayers();
 
 	/// get a player
 	Ptr<MultiplayerFeature::NetworkPlayer> & GetPlayer(const Multiplayer::UniquePlayerId & id);
@@ -314,7 +319,9 @@ NetworkGame::GetMaxPlayers() const
 inline void
 NetworkGame::SetMaxPlayers(ubyte val)
 {
+	n_printf("\nset max players to %d",val);
 	this->maxPlayers = val;
+	n_printf("\nmax players is set to %d", maxPlayers);
 }
 
 }// namespace MultiplayerFeature

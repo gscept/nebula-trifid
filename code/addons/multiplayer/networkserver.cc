@@ -305,18 +305,34 @@ NetworkServer::HandlePacket(RakNet::Packet * packet)
 	break;
 	case ID_FCM2_VERIFIED_JOIN_FAILED:
 	{
-		n_printf("Failed to join game session");
+		NetworkGame::Instance()->OnJoinFailed("Connection failed");
+	}
+	break;
+	case ID_FCM2_VERIFIED_JOIN_REJECTED:	
+	{
+		RakNet::BitStream bs(packet->data, packet->length, false);
+		Ptr<Multiplayer::BitReader> br = Multiplayer::BitReader::Create();
+		br->SetStream(&bs);
+		br->ReadChar();
+		Util::String answer = br->ReadString();
+
+		n_printf("Failed to join game session: %s", answer.AsCharPtr());
+		NetworkGame::Instance()->OnJoinFailed(answer);
 	}
 	break;
 	case ID_FCM2_VERIFIED_JOIN_CAPABLE:
 	{
-		if (this->fullyConnectedMesh->GetParticipantCount() < NetworkGame::Instance()->GetMaxPlayers())
+		n_printf("\nBULLSHIT HOST MAX NUM PLAYERS %d", NetworkGame::Instance()->GetMaxPlayers());
+		n_printf("\nBULLSHIT HOST ParticipantCount %d", this->fullyConnectedMesh->GetParticipantCount());
+		if (this->fullyConnectedMesh->GetParticipantCount() + 1 < NetworkGame::Instance()->GetMaxPlayers())
 		{
 			this->fullyConnectedMesh->RespondOnVerifiedJoinCapable(packet, true, 0);
 		}
 		else
 		{
-			this->fullyConnectedMesh->RespondOnVerifiedJoinCapable(packet, false, 0);
+			RakNet::BitStream answer;			
+			answer.Write("Server Full\n");
+			this->fullyConnectedMesh->RespondOnVerifiedJoinCapable(packet, false, &answer);			
 		}
 	}
 	break;

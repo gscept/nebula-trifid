@@ -59,6 +59,7 @@ public:
     void Open();
     /// close the RakNetServer
     void Close();
+
     /// perform client-side per-frame updates
     void OnFrame();
 
