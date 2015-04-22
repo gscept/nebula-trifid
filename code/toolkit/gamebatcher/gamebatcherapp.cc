@@ -90,12 +90,12 @@ GameBatcherApp::DoWork()
     staticdb->SetAccessMode(Db::Database::ReadWriteExisting);
     staticdb->Open();
    
+    Ptr<ToolkitUtil::LevelDbWriter> dbwriter = ToolkitUtil::LevelDbWriter::Create();
+    dbwriter->Open(gamedb,staticdb);
     String levelDir = "proj:work/levels";
     Array<String> files = IoServer::Instance()->ListFiles(IO::URI(levelDir), "*.xml", true);
     for (int fileIndex = 0; fileIndex < files.Size(); fileIndex++)
-    {
-        Ptr<ToolkitUtil::LevelDbWriter> dbwriter = ToolkitUtil::LevelDbWriter::Create();
-        dbwriter->Open(gamedb,staticdb);
+    {        
         Ptr<IO::Stream> levelStream = IoServer::Instance()->CreateStream(files[fileIndex]);
         Ptr<XmlReader> xmlReader = XmlReader::Create();
         levelStream->Open();
@@ -103,10 +103,9 @@ GameBatcherApp::DoWork()
         xmlReader->Open();
         dbwriter->LoadXmlLevel(xmlReader);
         xmlReader->Close();
-        levelStream->Close();
-        dbwriter->Close();    
+        levelStream->Close();        
     }
-    
+    dbwriter->Close();    
     gamedb->Close();
     staticdb->Close();
 	// if we have any errors, set the return code to be errornous

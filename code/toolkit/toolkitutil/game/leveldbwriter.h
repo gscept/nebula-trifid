@@ -39,6 +39,8 @@ protected:
     virtual void SetPosteffect(const Util::String & preset, const Math::matrix44 & globallightTransform);
     /// level dimensions
     virtual void SetDimensions(const Math::bbox & box);
+    /// commit per level info to db
+    virtual void CommitLevel();
 
     Util::String levelname;
     Util::String postEffectPreset;
@@ -46,6 +48,9 @@ protected:
     Util::Array<Util::String> layers;
     Math::bbox dimensions;
     Math::matrix44 globallightTransform;
+    Util::Dictionary<Util::String,Ptr<Db::Table>> instanceTables;
+    Util::Dictionary<Util::String,Ptr<Db::Dataset>> instanceDataset;
+    Util::Dictionary<Util::String,Ptr<Db::ValueTable>> instanceValues;
     
 
 }; 

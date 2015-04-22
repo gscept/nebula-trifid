@@ -71,16 +71,26 @@ LevelDbWriter::AddEntity(const Util::String & category, const Attr::AttributeCon
         return;
     }   
 
-    Ptr<Table> table = this->gameDb->GetTableByName("_Instance_" + category); 
-    Ptr<Db::Dataset> dataset;
     Ptr<Db::ValueTable> valueTable;
+    Util::String instanceName = "_Instance_" + category;
+    if(!this->instanceValues.Contains(instanceName))
+    {
+        Ptr<Table> table = this->gameDb->GetTableByName(instanceName); 
+        this->instanceTables.Add(instanceName, table);
+        Ptr<Db::Dataset> dataset;        
 
-   
-    dataset = table->CreateDataset();
-    dataset->AddAllTableColumns();	
-
-    dataset->PerformQuery();
-    valueTable = dataset->Values();
+        dataset = table->CreateDataset();
+        dataset->AddAllTableColumns();	
+        dataset->PerformQuery();
+        this->instanceDataset.Add(instanceName, dataset);
+        valueTable = dataset->Values();
+        this->instanceValues.Add(instanceName, valueTable);
+    }
+    else
+    {
+        valueTable = this->instanceValues[instanceName];
+    }
+    
     IndexT row = valueTable->AddRow();
     Dictionary<AttrId,Attribute> attrDic = attrs.GetAttrs();
     for(IndexT i = 0 ; i <attrDic.Size() ; i++)
@@ -99,12 +109,7 @@ LevelDbWriter::AddEntity(const Util::String & category, const Attr::AttributeCon
             n_warning("Unregistered Attribute %s in object %s in category %s\n", attrDic.KeyAtIndex(i).GetName().AsCharPtr(), name.AsCharPtr(), category.AsCharPtr());
         }
         
-    }    
-    dataset->CommitChanges();
-    table->CommitChanges();
-    table = 0;
-    valueTable = 0;
-    dataset = 0;
+    }        
 }
 
 //------------------------------------------------------------------------------
@@ -132,20 +137,48 @@ LevelDbWriter::SetDimensions(const Math::bbox & box)
 void 
 LevelDbWriter::Close()
 {
+    for(IndexT i = 0 ; i < this->instanceDataset.Size() ; i++)
+    {
+        this->instanceDataset.ValueAtIndex(i)->CommitChanges();
+        this->instanceTables.ValueAtIndex(i)->CommitChanges();
+    }
+    this->instanceValues.Clear();
+    this->instanceDataset.Clear();
+    this->instanceTables.Clear();
+   
+    this->gameDb = 0;
+    this->staticDb = 0;
+}
 
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+LevelDbWriter::Open(const Ptr<Db::Database> & gameDb, const Ptr<Db::Database> & staticDb)
+{
+    this->gameDb = gameDb;
+    this->staticDb = staticDb;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+LevelDbWriter::CommitLevel()
+{
     Ptr<Table> table = this->staticDb->GetTableByName("_Template_Levels");
     Ptr<Db::Dataset> dataset;
     Ptr<Db::ValueTable> valueTable;
 
-     dataset = table->CreateDataset();
-     dataset->AddAllTableColumns();	
+    dataset = table->CreateDataset();
+    dataset->AddAllTableColumns();	
 
     dataset->PerformQuery();
     valueTable = dataset->Values();
 
-     Attribute id(Attr::Id,this->levelname);
-     Util::Array<IndexT> idxs = valueTable->FindRowIndicesByAttr(id,true);
-     IndexT row;
+    Attribute id(Attr::Id,this->levelname);
+    Util::Array<IndexT> idxs = valueTable->FindRowIndicesByAttr(id,true);
+    IndexT row;
     if(idxs.IsEmpty())
     {
         row = valueTable->AddRow();
@@ -159,15 +192,15 @@ LevelDbWriter::Close()
     dataset->CommitChanges();
 
     table = this->gameDb->GetTableByName("_Instance_Levels");
-    
+
     dataset = table->CreateDataset();
     dataset->AddAllTableColumns();	
 
     dataset->PerformQuery();
     valueTable = dataset->Values();
-    
+
     idxs = valueTable->FindRowIndicesByAttr(id,true);
-   
+
     if(idxs.IsEmpty())
     {
         row = valueTable->AddRow();
@@ -184,18 +217,6 @@ LevelDbWriter::Close()
     valueTable->SetMatrix44(Attr::GlobalLightTransform, row, this->globallightTransform);
     valueTable->SetString(Attr::_Layers, row, String::Concatenate(this->layers,";"));
     dataset->CommitChanges();
-    this->gameDb = 0;
-    this->staticDb = 0;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-LevelDbWriter::Open(const Ptr<Db::Database> & gameDb, const Ptr<Db::Database> & staticDb)
-{
-    this->gameDb = gameDb;
-    this->staticDb = staticDb;
 }
 
 } // namespace ToolkitUtil

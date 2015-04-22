@@ -36,6 +36,8 @@ protected:
     virtual void SetPosteffect(const Util::String & preset, const Math::matrix44 & globallightTransform) = 0;
     /// level dimensions
     virtual void SetDimensions(const Math::bbox & box) = 0;
+    /// parsing done
+    virtual void CommitLevel(){}
 
 }; 
 } // namespace ToolkitUtil

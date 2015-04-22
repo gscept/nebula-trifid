@@ -186,6 +186,7 @@ LevelParser::LoadXmlLevel(const Ptr<IO::XmlReader> & reader)
             Math::bbox box(center, extends);
             this->SetDimensions(box);
         }        
+        this->CommitLevel();
         return true;
     }
     return false;
