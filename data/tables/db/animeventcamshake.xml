@@ -1,4 +1,3 @@
 <AnimEventCamShake IsVirtualCategory="true">
  <Attributes AnimEventName="string" IntensityX="float" IntensityY="float" IntensityZ="float" RotationX="float" RotationY="float" RotationZ="float" Duration="float" Range="float"/> 
-  <Item AnimEventName="jump_attack" IntensityX="0" IntensityY="0.5" IntensityZ="0" RotationX="0" RotationY="0" RotationZ="0" Duration="0.4" Range="30"/>
 </AnimEventCamShake>

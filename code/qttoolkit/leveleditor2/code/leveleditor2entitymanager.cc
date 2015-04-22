@@ -214,6 +214,28 @@ LevelEditor2EntityManager::CreateLightProbeEntity()
 //------------------------------------------------------------------------------
 /**
 */
+LevelEditor2::EntityGuid 
+LevelEditor2EntityManager::CreateNavArea()
+{
+    Util::Array<Attribute> attributes;
+
+    Math::matrix44 trans = this->GetPlacementTransform();
+
+    attributes.Append(Attribute(Attr::Graphics, "system/box"));
+    attributes.Append(Attribute(Attr::Id, "NavigationArea"));	
+    attributes.Append(Attribute(Transform, trans));
+    attributes.Append(Attribute(Attr::EntityType,NavMeshArea));    
+    attributes.Append(Attribute(Attr::EntityCategory,"_NavigationArea"));
+    attributes.Append(Attribute(Attr::NavMeshArea,1));
+
+
+    Ptr<Game::Entity> newEnt =  CreateEntityByAttrs(attributes,"EditorNavAreaMarker");	
+    return newEnt->GetGuid(Attr::EntityGuid);	
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 Ptr<Game::Entity>
 LevelEditor2EntityManager::CreateEntityByAttrs( const Util::Array<Attr::Attribute>& attributes, const Util::String & entityclass, const Util::String &guidStr)
 {

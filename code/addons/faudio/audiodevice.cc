@@ -563,14 +563,14 @@ AudioDevice::ParseAutoload(const IO::URI & path)
 			reader->SetStream(stream);
 			if (reader->Open())
 			{
-				if (reader->HasNode("/Audio"))
+				if (reader->HasNode("/_AudioBanks"))
 				{
 					reader->SetToFirstChild();
 					{
 						do
 						{
-							Util::String filename = reader->GetString("file");
-							bool autoload = reader->GetOptBool("autoload", false);
+							Util::String filename = reader->GetString("Id");
+							bool autoload = reader->GetOptBool("AutoLoad", false);
 							autoloader.Add(filename, autoload);
 						} while (reader->SetToNextChild());
 					}

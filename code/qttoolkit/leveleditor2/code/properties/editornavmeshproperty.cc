@@ -32,12 +32,23 @@ __Handler(EditorNavMeshProperty,CreateNavMesh)
     const Util::Array<Ptr<Game::Entity>> & ents = msg->GetEntities();
     
     Util::String guids;    
+    Util::String areaGuids;
     for(int i = 0 ; i < ents.Size(); i++)
     {
-        guids += ents[i]->GetGuid(Attr::EntityGuid).AsString();
-        guids += ";";        
+        if(ents[i]->HasAttr(Attr::NavMeshArea))
+        {
+            areaGuids += ents[i]->GetGuid(Attr::EntityGuid).AsString();
+            areaGuids += ";";        
+        }
+        else
+        {
+            guids += ents[i]->GetGuid(Attr::EntityGuid).AsString();
+            guids += ";";        
+        }
+        
     }
     obj->GetEntity()->SetString(Attr::EntityReferences,guids);
+    obj->GetEntity()->SetString(Attr::AreaEntityReferences,areaGuids);
     Util::Guid newGuid;
     newGuid.Generate();
     obj->GetEntity()->SetString(Attr::NavMeshData,"nav:" + newGuid.AsString());
@@ -226,6 +237,16 @@ EditorNavMeshProperty::UpdateMesh()
     this->GetEntity()->SetString(Attr::NavMeshMeshString,meshString);
 	this->GetEntity()->SetFloat4(Attr::NavMeshCenter, recast->GetBoundingBox().center());
 	this->GetEntity()->SetFloat4(Attr::NavMeshExtends, recast->GetBoundingBox().extents());
+
+    Util::String areaGuids = entity->GetString(Attr::AreaEntityReferences);
+    Util::Array<Util::String> areaGuidarray = areaGuids.Tokenize(";");
+    
+    for(IndexT i = 0 ; i < areaGuidarray.Size() ; i++)
+    {        
+        Util::Guid g;
+        g = areaGuidarray[i];
+        recast->AddConvexArea(BaseGameFeature::EntityManager::Instance()->GetEntityByAttr(Attr::Attribute(Attr::EntityGuid, g)));        
+    }
 
     Util::Blob data = recast->GenerateNavMeshData();
     if(data.IsValid())

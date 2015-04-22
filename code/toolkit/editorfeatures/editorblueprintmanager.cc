@@ -1062,6 +1062,7 @@ EditorBlueprintManager::CreateDatabases(const Util::String & folder)
    Ptr<ToolkitUtil::PostEffectExporter> pfxExporter = ToolkitUtil::PostEffectExporter::Create();
    pfxExporter->SetDb(staticDb);
    pfxExporter->ExportAll();
+   this->CreateEmptyLevel(staticDb, gameDb);
    staticDb->Close();
    gameDb->Close();
 }
@@ -1256,6 +1257,49 @@ EditorBlueprintManager::ExportGlobals(const Ptr<Db::Database> & gameDb)
 	}
 	this->logger->Print("---- Done exporting global attributes ----\n");
 
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+EditorBlueprintManager::CreateEmptyLevel(const Ptr<Db::Database> & staticDb, const Ptr<Db::Database> & gameDb)
+{
+    {
+        Ptr<Table> table = gameDb->GetTableByName("_Instance_Levels");
+        Ptr<Db::Dataset> dataset = table->CreateDataset();
+        dataset->AddAllTableColumns();
+        dataset->PerformQuery();
+        Ptr<ValueTable> valueTable = dataset->Values();
+
+        IndexT row = valueTable->AddRow();
+
+        valueTable->SetString(Attr::Id, row, "EmptyWorld");
+        valueTable->SetString(Attr::Name, row, "EmptyWorld");
+        valueTable->SetBool(Attr::StartLevel, row, false);
+        valueTable->SetString(Attr::PostEffectPreset, row, "Default");
+        valueTable->SetMatrix44(Attr::GlobalLightTransform, row, Math::matrix44());
+        dataset->CommitChanges();
+        table->CommitChanges();
+        table = 0;
+
+    }    
+    {
+        Ptr<Table> table = staticDb->GetTableByName("_Template_Levels");
+        Ptr<Db::Dataset> dataset = table->CreateDataset();
+        dataset->AddAllTableColumns();
+        dataset->PerformQuery();
+        Ptr<ValueTable> valueTable = dataset->Values();
+
+        IndexT row = valueTable->AddRow();
+
+        valueTable->SetString(Attr::Id, row, "EmptyWorld");
+        valueTable->SetString(Attr::Name, row, "EmptyWorld");
+        valueTable->SetBool(Attr::StartLevel, row, false);        
+        dataset->CommitChanges();
+        table->CommitChanges();
+        table = 0;        
+    }		    
 }
 
 }

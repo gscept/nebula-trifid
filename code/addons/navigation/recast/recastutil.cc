@@ -220,7 +220,21 @@ RecastUtil::GenerateNavMeshData()
 	// Erode the walkable area by agent radius.
 	rcErodeWalkableArea(&m_ctx, config->walkableRadius, *m_chf);
 	
-
+    // add area markers
+    float bm[4];
+    float bx[4];
+    for(int i = 0 ; i<this->areaEntities.Size();i++)
+    {
+        const Ptr<Game::Entity> & ent = this->areaEntities[i];
+        // currently we only do boxes
+        Math::matrix44 trans = ent->GetMatrix44(Attr::Transform);
+        int areaId = ent->GetInt(Attr::NavMeshArea);
+        Math::point bmin = Math::matrix44::transform(Math::point(-0.5f,-0.5f,-0.5f),trans);
+        Math::point bmax = Math::matrix44::transform(Math::point(0.5f,0.5f,0.5f),trans);
+        bmin.storeu(bm);
+        bmax.storeu(bx);
+        rcMarkBoxArea(&m_ctx, bm, bx, areaId, *m_chf);
+    }
 
 	// Prepare for region partitioning, by calculating distance field along the walkable surface.
 	rcBuildDistanceField(&m_ctx, *m_chf);
@@ -374,6 +388,14 @@ RecastUtil::LoadNavMeshGenerationData(const Ptr<Db::Reader>& reader)
     return true;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+RecastUtil::AddConvexArea( const Ptr<Game::Entity> & areaEntity )
+{
+    this->areaEntities.Append(areaEntity);
+}
 
 
 }

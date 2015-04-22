@@ -19,6 +19,7 @@
     <Attribute name="AgentMaxClimb" />
     <Attribute name="NavMeshData" />
     <Attribute name="EntityReferences" />
+    <Attribute name="AreaEntityReferences" />
     <Attribute name="NavMeshMeshString" />
     <Attribute name="NavMeshCenter" />
     <Attribute name="NavMeshExtends" />
@@ -64,7 +65,7 @@
       <InArg name="DeltaTransform" type="Math::matrix44"/>
     </Message>
     <Message name="CreateNavMesh" fourcc="CRNM">
-      <InArg name="Entities" type="Util::Array<Ptr<Game::Entity>>"/>
+      <InArg name="Entities" type="Util::Array<Ptr<Game::Entity>>"/>      
     </Message>
     <Message name="UpdateNavMesh" fourcc="UPNM" />
     <Message name="SaveNavMesh" fourcc="SVNM" />

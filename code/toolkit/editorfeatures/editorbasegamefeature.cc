@@ -110,54 +110,19 @@ EditorBaseGameFeatureUnit::OnActivate()
 
 	// create our own versions of db files
 	{
-		// change assigns so batchers will put use sdk templates and intermediate folder as target		
-		Util::String dbassign = IO::AssignRegistry::Instance()->GetAssign("db");		
-		Util::String projAssign = "sdk:";
-		if (IO::AssignRegistry::Instance()->HasAssign("proj"))
-		{
-			 projAssign = IO::AssignRegistry::Instance()->GetAssign("proj");		
-		}
-		
-		
 		Ptr<EditorBlueprintManager> bm = EditorBlueprintManager::Create();
 
 		bm->Open();
-		IO::AssignRegistry::Instance()->SetAssign(IO::Assign("proj","sdk:"));
-		IO::AssignRegistry::Instance()->SetAssign(IO::Assign("db","editordb:"));
-        Util::String foo = IO::AssignRegistry::Instance()->ResolveAssignsInString("sdk:foo");
-        foo = IO::AssignRegistry::Instance()->ResolveAssignsInString("proj:foo");
-
-		Ptr<ToolkitUtil::LevelExporter> levelExporter;
-		Ptr<ToolkitUtil::TemplateExporter> templateExporter;
-		Ptr<ToolkitUtil::PostEffectExporter> pfExporter;
-		ToolkitUtil::Logger logger;
-		levelExporter = ToolkitUtil::LevelExporter::Create();
-		templateExporter = ToolkitUtil::TemplateExporter::Create();
-		pfExporter = ToolkitUtil::PostEffectExporter::Create();		
-		
-		templateExporter->SetDbFactory(Db::Sqlite3Factory::Instance());
-		levelExporter->SetDbFactory(Db::Sqlite3Factory::Instance());
-		
-		templateExporter->SetLogger(&logger);
-		levelExporter->SetLogger(&logger);
-		pfExporter->SetLogger(&logger);
-		
-		templateExporter->Open();
-		templateExporter->ExportAll();
-		templateExporter->Close();
-		
-		levelExporter->Open();
-		levelExporter->ExportAll();
-		levelExporter->Close();
-
-		pfExporter->Open();
-		pfExporter->ExportAll();
-		pfExporter->Close();
-		
-		IO::AssignRegistry::Instance()->SetAssign(IO::Assign("proj",projAssign));
-		IO::AssignRegistry::Instance()->SetAssign(IO::Assign("db",dbassign));
+        ToolkitUtil::Logger logger;
+		bm->SetLogger(&logger);
+        bm->ParseProjectInfo("toolkit:projectinfo.xml");
+        bm->ParseProjectInfo("proj:projectinfo.xml");
+        bm->ParseBlueprint("toolkit:data/tables/blueprints.xml");
+        bm->ParseTemplates("toolkit:data/tables/db");
+        bm->UpdateAttributeProperties();
+        bm->CreateMissingTemplates();
+        bm->CreateDatabases("editordb:");
 		bm = 0;
-
 	}
 
 	if (!this->dbServer->OpenStaticDatabase("editordb:static.db4"))
@@ -182,7 +147,7 @@ EditorBaseGameFeatureUnit::OnActivate()
 
 	// create manager and attach to fetaure
 	this->timeManager = TimeManager::Create();
-	FactoryManager::SetBlueprintsFilename("blueprints.xml", "sdk:data/tables/");
+	FactoryManager::SetBlueprintsFilename("blueprints.xml", "toolkit:data/tables/");
 	if (!this->factoryManager.isvalid())
 	{
 		this->factoryManager = FactoryManager::Create();		

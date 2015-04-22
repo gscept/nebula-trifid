@@ -42,7 +42,7 @@ AudioDialogHandler::SetupDialog()
 
 	Util::Array<Util::String> banks = FAudio::AudioDevice::Instance()->FindBankFiles();
 
-	Util::Dictionary<Util::String, bool> autoloader = FAudio::AudioDevice::ParseAutoload("root:data/tables/audio.xml");
+	Util::Dictionary<Util::String, bool> autoloader = FAudio::AudioDevice::ParseAutoload("root:data/tables/db/_audiobanks.xml");
 
 	for (IndexT i = 0; i < banks.Size(); i++)
 	{
@@ -125,7 +125,7 @@ AudioDialogHandler::LoadBank(int state)
 void
 AudioDialogHandler::SaveAudioProperties()
 {
-	Util::Dictionary<Util::String, bool> autoloads = FAudio::AudioDevice::ParseAutoload("root:data/tables/audio.xml");
+	Util::Dictionary<Util::String, bool> autoloads = FAudio::AudioDevice::ParseAutoload("root:data/tables/db/_audiobanks.xml");
 		
 	int rows = ui.tableWidget->rowCount();
 	for (int i = 0; i < rows; i++)
@@ -146,19 +146,20 @@ AudioDialogHandler::SaveAudioProperties()
 		}
 	}
 
-	Ptr<IO::Stream> stream = IO::IoServer::Instance()->CreateStream("root:data/tables/audio.xml");
+	Ptr<IO::Stream> stream = IO::IoServer::Instance()->CreateStream("root:data/tables/db/_audiobanks.xml");
 	stream->SetAccessMode(IO::Stream::WriteAccess);
 	Ptr<IO::XmlWriter> writer = IO::XmlWriter::Create();
 	writer->SetStream(stream);
 	
 	writer->Open();
 
-	writer->BeginNode("Audio");
+	writer->BeginNode("_AudioBanks");
+    writer->SetBool("IsVirtualCategory", true);
 	for (int b = 0; b < autoloads.Size(); b++)
 	{
-		writer->BeginNode("Bank");
-		writer->SetString("file", autoloads.KeyAtIndex(b));
-		writer->SetBool("autoload", autoloads.ValueAtIndex(b));
+		writer->BeginNode("Item");
+		writer->SetString("Id", autoloads.KeyAtIndex(b));
+		writer->SetBool("AutoLoad", autoloads.ValueAtIndex(b));
 		writer->EndNode();
 	}
 	writer->EndNode();

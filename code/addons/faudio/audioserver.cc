@@ -7,6 +7,8 @@
 #include "audioprotocol.h"
 #include "faudio/audiodevice.h"
 #include "audiohandler.h"
+#include "reader.h"
+#include "basegamefeature/basegameattr/basegameattributes.h"
 
 using namespace FAudio;
 
@@ -78,16 +80,23 @@ AudioServer::OnFrame()
 //------------------------------------------------------------------------------
 /**
 */
-void
-AudioServer::LoadBanks()
+void 
+FAudio::AudioServer::LoadBanks(const Ptr<Db::Database> & staticDb)
 {
-	Util::Dictionary<Util::String,bool> autoloads = AudioDevice::ParseAutoload("data:tables/audio.xml");
-	for (int i = 0; i < autoloads.Size(); i++)
-	{
-		if (autoloads.ValueAtIndex(i))
-		{
-			Util::String bank = autoloads.KeyAtIndex(i);
-			this->device->LoadBank(bank);
-		}
-	}
+    if(staticDb->HasTable("_Template_AudioBanks"))
+    {    
+        Ptr<Db::Reader> reader = Db::Reader::Create();
+        reader->SetDatabase(staticDb);
+        reader->SetTableName("_Template_AudioBanks");
+        reader->Open();
+        for(IndexT i = 0 ; i < reader->GetNumRows(); i++)
+        {
+            reader->SetToRow(i);
+            if(reader->GetBool(Attr::AutoLoad))
+            {
+                this->device->LoadBank(reader->GetString(Attr::Id));
+            }
+        }
+        reader->Close();
+    }
 }

@@ -150,6 +150,8 @@ protected:
     void CreateScriptTables(const Ptr<Db::Database> & db);
     ///
     void ExportGlobals(const Ptr<Db::Database> & gameDb);
+    /// create empty world
+    void CreateEmptyLevel(const Ptr<Db::Database> & staticDb, const Ptr<Db::Database> & gameDb);
 
 	Util::Dictionary<Util::String, Ptr<Tools::IDLProperty>> properties;
 	Util::Dictionary<Util::String, BluePrint> bluePrints;

@@ -38,7 +38,7 @@ using namespace Math;
 namespace LevelEditor2
 {
 
-__ImplementClass(LevelEditor2::Level, 'LEVL', Core::RefCounted);
+__ImplementClass(LevelEditor2::Level, 'LEVL', ToolkitUtil::LevelParser);
 __ImplementSingleton(LevelEditor2::Level);
 
 
@@ -90,7 +90,7 @@ Level::LoadLevel(const Util::String& level)
 	reader->SetStream(stream);
 	if(reader->Open())
 	{
-		result = LoadVersionedLevel(reader);		
+		result = this->LoadXmlLevel(reader);		
 		reader->Close();
 		stream->Close();
 	}
@@ -100,6 +100,14 @@ Level::LoadLevel(const Util::String& level)
 	{
 		// reparent all items
 		LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->RebuildTree();
+        this->startLevel = false;
+        if(LevelEditor2App::Instance()->GetGlobalAttrs()->HasAttr(Attr::_DefaultLevel))
+        {
+            if(LevelEditor2App::Instance()->GetGlobalAttrs()->GetString(Attr::_DefaultLevel) == this->name )
+            {
+                this->startLevel = true;
+            }
+        }
 	}
 		
 	// add wrapper entity for global light
@@ -773,6 +781,88 @@ Level::ReadPostEffectAttribute( const Util::String& attrName, const Util::String
     {
         n_printf("Unknown attribute name '%s'", attrName.AsCharPtr());
     }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+Level::SetName(const Util::String & name)
+{
+    this->name = name;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+Level::AddLayer(const Util::String & name, bool visible, bool autoload, bool locked)
+{
+    const Ptr<Layers::LayerHandler>& handler = LevelEditor2App::Instance()->GetWindow()->GetLayerHandler();						
+
+    if (!handler->HasLayer(name))
+    {
+        Ptr<Layers::Layer> layer = Layers::Layer::Create();
+        layer->SetName(name);
+        layer->SetAutoLoad(autoload);
+        layer->SetVisible(visible);
+        layer->SetLocked(locked);
+        handler->AddLayer(layer);
+    }
+    else
+    {
+        Ptr<Layers::Layer> layer = handler->GetLayer(name);
+        int row = handler->layerToRow[layer];
+        ((QPushButton*)(handler->tableWidget->cellWidget(row, 0)))->setChecked(visible);
+        ((QPushButton*)(handler->tableWidget->cellWidget(row, 1)))->setChecked(autoload);						
+        layer->SetAutoLoad(autoload);
+        layer->SetVisible(visible);
+        layer->SetLocked(locked);
+
+    }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+Level::AddEntity(const Util::String & category, const Attr::AttributeContainer & attrs)
+{
+    LevelEditor2EntityManager::Instance()->CreateEntityFromAttrContainer(category,attrs);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+Level::SetPosteffect(const Util::String & preset, const Math::matrix44 & globallightTransform)
+{
+ 
+    if (PostEffect::PostEffectRegistry::Instance()->HasPreset(preset))
+    {
+        LevelEditor2App::Instance()->GetWindow()->GetPostEffectController()->ActivatePrefix(preset);					
+    }
+    else
+    {
+        Util::String msg;
+        msg.Format("Unkown posteffect preset %s in level, missing file from data/tables/posteffect ?",preset.AsCharPtr());
+        n_warning(msg.AsCharPtr());
+        LevelEditor2App::Instance()->GetWindow()->GetPostEffectController()->ActivatePrefix("Default");					
+    }
+   
+    Ptr<Game::Entity> light = LevelEditor2EntityManager::Instance()->GetGlobalLight();
+    Ptr<BaseGameFeature::UpdateTransform> update = BaseGameFeature::UpdateTransform::Create();
+    update->SetMatrix(globallightTransform);
+    __SendSync(light, update);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+Level::SetDimensions(const Math::bbox & box)
+{
+    // empty
 }
 
 } // namespace LevelEditor2
