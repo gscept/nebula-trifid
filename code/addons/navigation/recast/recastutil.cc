@@ -221,19 +221,35 @@ RecastUtil::GenerateNavMeshData()
 	rcErodeWalkableArea(&m_ctx, config->walkableRadius, *m_chf);
 	
     // add area markers
-    float bm[4];
-    float bx[4];
+    
+    Math::point verts[8];   
+    verts[0].set(-0.5f, 0.5f, 0.5f);
+    verts[1].set(0.5f, 0.5f, 0.5f);
+    verts[2].set(-0.5f, -0.5f, 0.5f);
+    verts[3].set(0.5f, -0.5f, 0.5f);
+    verts[4].set(-0.5f, 0.5f, -0.5f);
+    verts[5].set(0.5f, 0.5f, -0.5f);
+    verts[6].set(-0.5f, -0.5f, -0.5f);
+    verts[7].set(0.5f, -0.5f, -0.5);
+    float boxData[24];
+    float pv[4];
     for(int i = 0 ; i<this->areaEntities.Size();i++)
     {
         const Ptr<Game::Entity> & ent = this->areaEntities[i];
         // currently we only do boxes
         Math::matrix44 trans = ent->GetMatrix44(Attr::Transform);
         int areaId = ent->GetInt(Attr::NavMeshArea);
-        Math::point bmin = Math::matrix44::transform(Math::point(-0.5f,-0.5f,-0.5f),trans);
-        Math::point bmax = Math::matrix44::transform(Math::point(0.5f,0.5f,0.5f),trans);
-        bmin.storeu(bm);
-        bmax.storeu(bx);
-        rcMarkBoxArea(&m_ctx, bm, bx, areaId, *m_chf);
+        float maxHeight = -FLT_MAX;
+        float maxDepth = FLT_MAX;
+        for(int j = 0 ; j<8;j++)
+        {
+            Math::point p = Math::matrix44::transform(verts[j],trans);
+            p.storeu(pv);
+            rcVcopy(boxData + 3*j , pv);
+            maxHeight = maxHeight < p.y() ? p.y() : maxHeight;
+            maxDepth = maxDepth > p.y() ? p.y() : maxDepth;
+        }
+        rcMarkConvexPolyArea(&m_ctx, boxData, 24, maxDepth, maxHeight, areaId, *m_chf);        
     }
 
 	// Prepare for region partitioning, by calculating distance field along the walkable surface.

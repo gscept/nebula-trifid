@@ -52,64 +52,11 @@ GameBatcherApp::Open()
 void 
 GameBatcherApp::DoWork()
 {
-;
-    String projectFolder = "proj:";
- 	
-	if (this->args.HasArg("-projectdir"))
-	{
-		projectFolder = this->args.GetString("-projectdir") + "/";
-        IO::AssignRegistry::Instance()->SetAssign(Assign("proj", projectFolder));
-	}	 
-	
-	IO::AssignRegistry::Instance()->SetAssign(Assign("home","proj:"));
-	
-	Ptr<EditorBlueprintManager> bm = EditorBlueprintManager::Create();
-    bm->SetLogger(&this->logger);
-    Ptr<Db::DbFactory> sqlite3Factory = Db::Sqlite3Factory::Create();
-           
-    bm->ParseProjectInfo("proj:projectinfo.xml");
-    bm->ParseProjectInfo("toolkit:projectinfo.xml");
-            
-    bm->ParseBlueprint("proj:data/tables/blueprints.xml");    
-    bm->ParseBlueprint("toolkit:data/tables/blueprints.xml");
-    // templates need to be parsed from tookit first to add virtual templates with their attributes
-    bm->ParseTemplates("toolkit:data/tables/db");
-    bm->ParseTemplates("proj:data/tables/db");
-    
-
-    bm->UpdateAttributeProperties();
-    bm->CreateMissingTemplates();
-    bm->CreateDatabases("export:db/");
-
-    Ptr<Db::Database> gamedb = Db::DbFactory::Instance()->CreateDatabase();
-    gamedb->SetURI("export:db/game.db4");
-    gamedb->SetAccessMode(Db::Database::ReadWriteExisting);
-    gamedb->Open();
-    Ptr<Db::Database> staticdb = Db::DbFactory::Instance()->CreateDatabase();
-    staticdb->SetURI("export:db/static.db4");
-    staticdb->SetAccessMode(Db::Database::ReadWriteExisting);
-    staticdb->Open();
-   
-    Ptr<ToolkitUtil::LevelDbWriter> dbwriter = ToolkitUtil::LevelDbWriter::Create();
-    dbwriter->Open(gamedb,staticdb);
-    String levelDir = "proj:work/levels";
-    Array<String> files = IoServer::Instance()->ListFiles(IO::URI(levelDir), "*.xml", true);
-    for (int fileIndex = 0; fileIndex < files.Size(); fileIndex++)
-    {        
-        Ptr<IO::Stream> levelStream = IoServer::Instance()->CreateStream(files[fileIndex]);
-        Ptr<XmlReader> xmlReader = XmlReader::Create();
-        levelStream->Open();
-        xmlReader->SetStream(levelStream);
-        xmlReader->Open();
-        dbwriter->LoadXmlLevel(xmlReader);
-        xmlReader->Close();
-        levelStream->Close();        
-    }
-    dbwriter->Close();    
-    gamedb->Close();
-    staticdb->Close();
-	// if we have any errors, set the return code to be errornous
-	//if (exporter->HasErrors()) this->SetReturnCode(-1);
+   Ptr<ToolkitUtil::GameExporter> exporter = ToolkitUtil::GameExporter::Create();
+   exporter->SetLogger(&this->logger);
+   exporter->Open();   
+   exporter->ExportAll();
+   exporter->Close();
 }
 
 //------------------------------------------------------------------------------

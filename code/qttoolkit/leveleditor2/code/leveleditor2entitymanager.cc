@@ -221,7 +221,7 @@ LevelEditor2EntityManager::CreateNavArea()
 
     Math::matrix44 trans = this->GetPlacementTransform();
 
-    attributes.Append(Attribute(Attr::Graphics, "system/box"));
+    attributes.Append(Attribute(Attr::Graphics, "system/placeholder"));
     attributes.Append(Attribute(Attr::Id, "NavigationArea"));	
     attributes.Append(Attribute(Transform, trans));
     attributes.Append(Attribute(Attr::EntityType,NavMeshArea));    
@@ -380,6 +380,16 @@ LevelEditor2EntityManager::CreateEntityFromAttrContainer(const Util::String & ca
         at.Append(Attribute(Attr::EntityLevel,Level::Instance()->GetName()));
         newEnt = CreateEntityByAttrs(at,"EditorNavMesh",attrs.GetGuid(Attr::Guid).AsString());
 		newEnt->SetString(Attr::EntityLevel,Level::Instance()->GetName());		
+    }
+    else if(category == "_NavigationArea")
+    {
+        at.Append(Attribute(Attr::EntityType, NavMeshArea));   
+        at.Append(Attribute(Attr::EntityCategory, "_NavigationArea"));
+        at.Append(Attribute(Attr::EntityGuid, attrs.GetGuid(Attr::Guid)));
+        at.Append(Attribute(Attr::EntityLevel, Level::Instance()->GetName()));    
+        at.Append(Attribute(Attr::NavMeshArea, attrs.GetInt(Attr::NavMeshArea)));
+        newEnt = CreateEntityByAttrs(at,"EditorNavAreaMarker",attrs.GetGuid(Attr::Guid).AsString());
+        newEnt->SetString(Attr::EntityLevel,Level::Instance()->GetName());		
     }
 	else if (category == "LightProbe")
 	{
@@ -664,6 +674,11 @@ LevelEditor2EntityManager::RemoveAllEntities()
 	{
 		this->RemoveEntity(entities[i]);
 	}
+    entities = BaseGameFeature::EntityManager::Instance()->GetEntitiesByAttr(Attr::Attribute(Attr::EntityType,NavMeshArea));	
+    for(IndexT i = 0; i< entities.Size();i++)
+    {
+        this->RemoveEntity(entities[i]);
+    }
 }
 
 //------------------------------------------------------------------------------

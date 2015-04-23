@@ -86,9 +86,15 @@ FILE(GLOB HEAD "fbx/character/*.h")
 LIST(APPEND SRCSND ${SRC} ${HEAD})
 SOURCE_GROUP("toolkitutil\\fbx\\character" FILES ${SRCSND})
 
-FILE(GLOB SRC "game/*.cc")
-FILE(GLOB HEAD "game/*.h")
-LIST(APPEND SRCSG ${SRC} ${HEAD})
+SET(SRCSG 
+	game/gameexporter.cc
+	game/gameexporter.h
+	game/leveldbwriter.cc
+	game/leveldbwriter.h
+	game/levelparser.cc
+	game/levelparser.h
+	)
+
 SOURCE_GROUP("toolkitutil\\game" FILES ${SRCSG})
 
 FILE(GLOB SRC "gui/*.cc")

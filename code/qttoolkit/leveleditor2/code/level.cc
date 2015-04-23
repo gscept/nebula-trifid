@@ -640,7 +640,24 @@ Level::SaveLevel()
         Ptr<SaveNavMesh> msg = SaveNavMesh::Create();
         navMeshes[i]->SendSync(msg.cast<Messaging::Message>());
     }
-
+    Array<Ptr<Game::Entity>> navAreas = BaseGameFeature::EntityManager::Instance()->GetEntitiesByAttr(Attr::Attribute(Attr::EntityType,NavMeshArea));
+    for(int i=0;i<navAreas.Size();i++)
+    {
+        const Ptr<Game::Entity>& entity = navAreas[i];
+        xmlWriter->BeginNode("Object"); 		
+            xmlWriter->SetString("category","_NavigationArea");
+            xmlWriter->BeginNode("Attributes");	
+                this->WriteString(xmlWriter, "_ID", this->AllocateID("EditorNavAreaMarker", "", entity->GetString(Attr::Id)));
+                this->WriteString(xmlWriter, "Id",entity->GetString(Attr::Id));
+                this->WriteString(xmlWriter, "Guid",entity->GetGuid(Attr::EntityGuid).AsString());				
+                this->WriteString(xmlWriter, "_Level", this->name.AsCharPtr());
+                this->WriteString(xmlWriter, "Graphics",entity->GetString(Attr::Graphics));
+                this->WriteString(xmlWriter, "ParentGuid",entity->GetGuid(Attr::ParentGuid).AsString());		
+                this->WriteString(xmlWriter, "Transform", Util::String::FromMatrix44(entity->GetMatrix44(Attr::Transform)));
+                this->WriteString(xmlWriter, "NavMeshArea", Util::String::FromInt(entity->GetInt(Attr::NavMeshArea)));
+            xmlWriter->EndNode();
+        xmlWriter->EndNode();	
+    }
 	Array<Ptr<Game::Entity>> lightProbes = BaseGameFeature::EntityManager::Instance()->GetEntitiesByAttr(Attr::Attribute(Attr::EntityType, Probe));
 	for (int i = 0; i < lightProbes.Size(); i++)
 	{
@@ -729,7 +746,9 @@ Level::SaveLevel()
 void
 Level::ExportLevel(const Util::String& fileName)
 {
-	
+    //FIXME
+    LevelEditor2App::Instance()->GetWindow()->OnBatchGame();
+#if 0
 	Ptr<ToolkitUtil::LevelExporter> exporter = ToolkitUtil::LevelExporter::Create();
 	exporter->SetLogger(LevelEditor2App::Instance()->GetLogger());
 	exporter->Open();
@@ -740,6 +759,7 @@ Level::ExportLevel(const Util::String& fileName)
 	pfx->Open();
 	pfx->ExportAll();
 	pfx->Close();
+#endif
 }
 
 //------------------------------------------------------------------------------

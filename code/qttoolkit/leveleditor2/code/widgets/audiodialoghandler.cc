@@ -6,6 +6,7 @@
 #include "leveleditor2app.h"
 #include "audiodialoghandler.h"
 #include "faudio/audiodevice.h"
+#include "game/gameexporter.h"
 
 using namespace Ui;
 
@@ -165,6 +166,12 @@ AudioDialogHandler::SaveAudioProperties()
 	writer->EndNode();
 	writer->Close();
 	this->CloseDialog();
+    ToolkitUtil::Logger logger;
+    Ptr<ToolkitUtil::GameExporter> exporter = ToolkitUtil::GameExporter::Create();	
+    exporter->SetLogger(&logger);
+    exporter->Open();
+    exporter->ExportTables();
+    exporter->Close();	
 }
 
 }

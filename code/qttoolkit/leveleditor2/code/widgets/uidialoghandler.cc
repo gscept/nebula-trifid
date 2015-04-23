@@ -10,6 +10,7 @@
 #include "qcombobox.h"
 #include "qmessagebox.h"
 #include "game/templateexporter.h"
+#include "game/gameexporter.h"
 
 using namespace Ui;
 using namespace Util;
@@ -428,17 +429,12 @@ UIDialogHandler::SaveUIProperties()
 	    writer->Close();
     }
 	this->CloseDialog();	
-    // FIXME redo this
-#if 0
-	/// export ui tables right away
-	ToolkitUtil::Logger logger;
-	Ptr<ToolkitUtil::TemplateExporter> exporter = ToolkitUtil::TemplateExporter::Create();	
-	exporter->SetDbFactory(Db::Sqlite3Factory::Instance());
-	exporter->SetLogger(&logger);
-	exporter->Open();
-	exporter->ExportUiProperties();
-	exporter->Close();
-#endif
+    ToolkitUtil::Logger logger;
+    Ptr<ToolkitUtil::GameExporter> exporter = ToolkitUtil::GameExporter::Create();	
+    exporter->SetLogger(&logger);
+    exporter->Open();
+    exporter->ExportTables();
+    exporter->Close();	
 }
 
 }
