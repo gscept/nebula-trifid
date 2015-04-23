@@ -87,7 +87,8 @@ NetworkServer::NetworkServer() :
 	fullyConnectedMesh(NULL),
 	readyEvent(NULL),
 	natServer(DEFAULT_SERVER_ADDRESS),
-	connectedToNatPunchThrough(false)
+	connectedToNatPunchThrough(false),
+	lockInGameJoin(false)
 {
 	__ConstructInterfaceSingleton;
 }
@@ -258,6 +259,7 @@ NetworkServer::HandlePacket(RakNet::Packet * packet)
 	case ID_DISCONNECTION_NOTIFICATION:
 	{
 		n_printf("Disconnected from %s\n", targetName.AsCharPtr());
+		NetworkGame::Instance()->OnPlayerDisconnect(packet->guid);
 		if (packet->systemAddress == this->natPunchServerAddress)
 		{
 			this->connectedToNatPunchThrough = false;
@@ -322,9 +324,8 @@ NetworkServer::HandlePacket(RakNet::Packet * packet)
 	break;
 	case ID_FCM2_VERIFIED_JOIN_CAPABLE:
 	{
-		n_printf("\nBULLSHIT HOST MAX NUM PLAYERS %d", NetworkGame::Instance()->GetMaxPlayers());
-		n_printf("\nBULLSHIT HOST ParticipantCount %d", this->fullyConnectedMesh->GetParticipantCount());
-		if (this->fullyConnectedMesh->GetParticipantCount() + 1 < NetworkGame::Instance()->GetMaxPlayers())
+		//if you are not in game and lock in game is enabled
+		if (this->fullyConnectedMesh->GetParticipantCount() + 1 < NetworkGame::Instance()->GetMaxPlayers() && IsInGameJoinUnLocked())
 		{
 			this->fullyConnectedMesh->RespondOnVerifiedJoinCapable(packet, true, 0);
 		}
@@ -333,7 +334,7 @@ NetworkServer::HandlePacket(RakNet::Packet * packet)
 			RakNet::BitStream answer;			
 			answer.Write("Server Full\n");
 			this->fullyConnectedMesh->RespondOnVerifiedJoinCapable(packet, false, &answer);			
-		}
+		}		
 	}
 	break;
 	case ID_FCM2_VERIFIED_JOIN_ACCEPTED:
@@ -984,6 +985,30 @@ NetworkServer::LookupReplica(RakNet::NetworkID replicaId)
 	RakNet::Replica3 * replica = this->networkIDManager->GET_OBJECT_FROM_ID<RakNet::Replica3*>(replicaId);
 	n_assert(replica);
 	return replica;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+NetworkServer::LockInGameJoin(bool flag)
+{
+	this->lockInGameJoin = flag;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool NetworkServer::IsInGameJoinUnLocked()
+{
+	if (this->state == IN_GAME)
+	{
+		return NetworkGame::Instance()->CanJoinInGame();
+	}
+	else
+	{
+		return true;
+	}
 }
 
 //------------------------------------------------------------------------------

@@ -94,7 +94,7 @@ public:
 	virtual void OnJoinedRoom(){}
 	/// called when join failed
 	virtual void OnJoinFailed(const Util::String & reason){ n_printf("\n%s",reason.AsCharPtr());};
-
+	virtual void OnPlayerDisconnect(const RakNet::RakNetGUID& guid){}
 
 	/// we received a message
 	virtual void OnHandleMessage(const Ptr<Messaging::Message> &msg){}
@@ -127,6 +127,7 @@ public:
 	/// get a player
 	Ptr<MultiplayerFeature::NetworkPlayer> & GetPlayer(const Multiplayer::UniquePlayerId & id);
 
+	virtual bool CanJoinInGame();
 protected:
 	/// 
 	virtual void OnAllReady(bool dummy);
