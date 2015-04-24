@@ -16,7 +16,7 @@
 	  <Attribute name="Following" fourcc="FOLL" accessMode="ReadWrite" type="Bool" system="1"/>	
 	  <Attribute name="Moving" fourcc="MOVG" accessMode="ReadWrite" type="Bool" system="1"/>	
 	
-	  <Attribute name="Shape" fourcc="SHPS" accessMode="ReadWrite" type="String" editType="list" listValues="sphere;box"/>
+	  <Attribute name="Shape" fourcc="SHPS" accessMode="ReadWrite" type="String" editType="list" listValues="sphere;box" default="box"/>
 	  <Attribute name="TriggerActive" fourcc="TRGA" accessMode="ReadWrite" type="Bool"/>	
 	  <Attribute name="OneWayTrigger" fourcc="OWTR" accessMode="ReadWrite" type="Bool"/>	
 	
