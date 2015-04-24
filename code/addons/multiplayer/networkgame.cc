@@ -574,13 +574,18 @@ NetworkGame::GetPlayer(const Multiplayer::UniquePlayerId & id)
 	return this->players[id.GetRaknetGuid().g];
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 int NetworkGame::GetCurrentAmountOfPlayers()
 {
-	n_printf("\n\n\n\n\nCURRWENT AMOJUNT PLAYERS%d\n\n\n\n", this->players.Size());
 	//Added 1 for the own client because it's not added to the list which contains other clients
 	return this->players.Size() + 1;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 bool NetworkGame::CanJoinInGame()
 {
 	return true;
