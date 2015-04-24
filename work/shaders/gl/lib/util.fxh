@@ -215,8 +215,10 @@ DecodeHDR4(in vec4 rgba)
 }  
 #endif
 
-const float MiddleGrey = 1.5f; 
+const float MiddleGrey = 0.5f; 
+const float Key = 0.18f;
 float MaxLuminance = 1.0f; 
+//const vec4 Luminance = vec4(0.2126f, 0.7152f, 0.0722f, 0.0f);
 const vec4 Luminance = vec4(0.299f, 0.587f, 0.114f, 0.0f);
 
 
@@ -235,16 +237,20 @@ ToneMap(vec4 vColor, vec4 lumAvg)
 	// Apply the modified operator (Eq. 4) 
 	//float fLumScaled = (fLumPixel * MiddleGrey) / lumAvg;     
 	//float fLumCompressed = (fLumScaled * (1 + (fLumScaled / (MaxLuminance * MaxLuminance))) / (1 + fLumScaled));
-	float lum = dot(lumAvg, Luminance);
-	float lp = ( MaxLuminance /** key*/ / lum ) * max( vColor.x, max( vColor.y, vColor.z ) );
-    float luminanceSquared = (lum + MiddleGrey * lum) * (lum + MiddleGrey * lum);
-    float scalar = ( lp * ( 1.0f + ( lp / ( luminanceSquared ) ) ) ) / ( 1.0f + lp );
 	
-	vec3 color = vColor.rgb * scalar;
+	float L = dot(vColor, Luminance);
+	float Lp = L * Key / lumAvg.x;
+	float nL = (Lp * (1.0f + Lp / (MiddleGrey))) / (1.0f + Lp);
+	//float lp = (MaxLuminance / lumAvg.x) * (vColor.x + vColor.y + vColor.z) * 0.33f;
+    //float luminanceSquared = (lumAvg.y + MiddleGrey * lumAvg.y) * (lumAvg.y + MiddleGrey * lumAvg.y);
+    //float scalar = (lp * (1.0f + (lp / (luminanceSquared)))) / (1.0f + lp);
+	
+	vec3 color = vColor.rgb * (nL / L) * MaxLuminance;
 	//color = color / (1 + color);
 	//color = pow(color, vec3(1/2.2f));
-		
+
 	return vec4(color, 1.0f); 	
+	
 }
 
 //------------------------------------------------------------------------------

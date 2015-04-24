@@ -54,11 +54,11 @@ psMain(in vec2 uv,
 	vec4 sampleColor = DecodeHDR(textureLod(ColorSource, uv, 0));
 	
 	// Get the calculated average luminance 
-	vec4 fLumAvg = textureLod(LuminanceTexture, vec2(0.5f, 0.5f), 0);
+	//vec4 fLumAvg = textureLod(LuminanceTexture, vec2(0.5f, 0.5f), 0);
 	
-	vec4 tonedColor = ToneMap(sampleColor, fLumAvg);
+	//vec4 tonedColor = ToneMap(sampleColor, fLumAvg);
 	vec3 brightColor = max(sampleColor.rgb - HDRBrightPassThreshold, 0);
-	Color = HDRBloomColor * vec4(brightColor, tonedColor.a);
+	Color = HDRBloomColor * vec4(brightColor, sampleColor.a);
 }
 
 //------------------------------------------------------------------------------
