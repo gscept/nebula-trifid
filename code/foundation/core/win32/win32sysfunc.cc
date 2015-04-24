@@ -17,6 +17,10 @@
 #include "system/systeminfo.h"
 #include "debug/win32/win32stacktrace.h"
 
+#define CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+
 namespace Win32
 {
 using namespace Util;
@@ -53,6 +57,8 @@ SysFunc::Setup()
         Net::Socket::InitNetwork();
         Debug::MiniDump::Setup();
         #endif   
+
+		_CrtSetDbgFlag(_CRTDBG_LEAK_CHECK_DF | _CRTDBG_ALLOC_MEM_DF | _CRTDBG_CHECK_EVERY_16_DF);
 
         globalStringAtomTable = n_new(Util::GlobalStringAtomTable);
         #if NEBULA3_ENABLE_THREADLOCAL_STRINGATOM_TABLES
@@ -119,6 +125,8 @@ SysFunc::Exit(int exitCode)
     #if NEBULA3_MEMORY_ADVANCED_DEBUGGING
     Memory::DumpMemoryLeaks();
     #endif   
+
+	_CrtDumpMemoryLeaks();
 
     // finally terminate the process
     ExitProcess(exitCode);

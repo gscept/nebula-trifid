@@ -352,7 +352,7 @@ OGL4TextureStreamer::ReuseMips()
 		glBindTexture(GL_TEXTURE_2D, this->reuseTexture->GetOGL4Texture());
 		glGetTexLevelParameteriv(GL_TEXTURE_2D, dstMipIdx, GL_TEXTURE_WIDTH, &width);
 		glGetTexLevelParameteriv(GL_TEXTURE_2D, dstMipIdx, GL_TEXTURE_HEIGHT, &height);
-		GLchar* data = new GLchar[width * height * this->BitsPerPixel(OpenGL4::OGL4Types::AsOGL4PixelFormat(this->reuseTexture->GetPixelFormat()))];
+		GLchar* data = n_new_array(GLchar, width * height * this->BitsPerPixel(OpenGL4::OGL4Types::AsOGL4PixelFormat(this->reuseTexture->GetPixelFormat())));
 		glGetTexImage(GL_TEXTURE_2D, 
 			dstMipIdx, 
 			OpenGL4::OGL4Types::AsOGL4PixelFormat(this->reuseTexture->GetPixelFormat()), 
@@ -369,7 +369,7 @@ OGL4TextureStreamer::ReuseMips()
 			OpenGL4::OGL4Types::AsOGL4PixelComponents(tex->GetPixelFormat()),
 			OpenGL4::OGL4Types::AsOGL4PixelType(tex->GetPixelFormat()),
 			(GLvoid*)data);
-		delete[] data;
+		n_delete_array(data);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
         dstMipIdx++;

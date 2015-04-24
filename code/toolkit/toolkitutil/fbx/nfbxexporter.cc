@@ -28,7 +28,7 @@ NFbxExporter::NFbxExporter() :
 	scaleFactor(1.0f),
 	progressFbxCallback(0),
 	exportMode(Static),
-	exportFlags(RemoveRedundant)	
+	exportFlags(ToolkitUtil::FlipUVs)
 {
 	// empty
 }

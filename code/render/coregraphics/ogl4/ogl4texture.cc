@@ -114,7 +114,7 @@ OGL4Texture::Map(IndexT mipLevel, MapType mapType, MapInfo& outMapInfo)
 		outMapInfo.rowPitch = size * mipWidth;
 		outMapInfo.depthPitch = 0;
 		
-		this->mappedData = new byte[mipWidth * mipHeight * size];
+		this->mappedData = n_new_array(byte, mipWidth * mipHeight * size);
 		glGetTexImage(this->target, mipLevel, components, type, this->mappedData);
 
 		outMapInfo.data = this->mappedData;
@@ -139,7 +139,7 @@ OGL4Texture::Map(IndexT mipLevel, MapType mapType, MapInfo& outMapInfo)
 		outMapInfo.rowPitch = size * mipWidth;
 		outMapInfo.depthPitch = 0;		
 
-		this->mappedData = new byte[mipWidth * mipHeight * mipDepth * size];
+		this->mappedData = n_new_array(byte, mipWidth * mipHeight * mipDepth * size);
 		glGetTexImage(this->target, mipLevel, components, type, this->mappedData);
 
 		outMapInfo.data = this->mappedData;
@@ -200,7 +200,7 @@ OGL4Texture::Unmap(IndexT mipLevel)
 		break;
 	}
 	glBindTexture(this->target, 0);
-	delete[] this->mappedData;
+	n_delete_array(this->mappedData);
 
 	this->mappedData = 0;
     this->mapCount--;
@@ -255,7 +255,7 @@ OGL4Texture::MapCubeFace(CubeFace face, IndexT mipLevel, MapType mapType, MapInf
 	outMapInfo.rowPitch = size * mipWidth;
 	outMapInfo.depthPitch = 0;
 
-	this->mappedData = new byte[mipWidth * mipHeight * size];
+	this->mappedData = n_new_array(byte, mipWidth * mipHeight * size);
 	glGetTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X  + face, mipLevel, components, type, this->mappedData);
 
 	outMapInfo.data = this->mappedData;
@@ -304,7 +304,7 @@ OGL4Texture::UnmapCubeFace(CubeFace face, IndexT mipLevel)
 	glBindTexture(this->target, 0);
 
 	//glBindTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face)
-	delete[] this->mappedData;
+	n_delete_array(this->mappedData);
 	this->mappedData = 0;
     this->mapCount--;
 }
@@ -336,7 +336,7 @@ OGL4Texture::SetupFromOGL4Texture(const GLuint& texture, CoreGraphics::PixelForm
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, numMips);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-    if (0 == this->ogl4TextureHandle) this->ogl4TextureHandle = new AnyFX::EffectVariable::OpenGLTexture;
+    if (0 == this->ogl4TextureHandle) this->ogl4TextureHandle = n_new(AnyFX::EffectVariable::OpenGLTexture);
 	this->ogl4TextureHandle->texture = this->ogl4Texture;
 	this->ogl4TextureHandle->textureType = GL_TEXTURE_2D;
     
@@ -381,7 +381,7 @@ OGL4Texture::SetupFromOGL4MultisampleTexture(const GLuint& texture, CoreGraphics
 	glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MAX_LEVEL, numMips);
 	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
 
-    if (0 == this->ogl4TextureHandle) this->ogl4TextureHandle = new AnyFX::EffectVariable::OpenGLTexture;
+    if (0 == this->ogl4TextureHandle) this->ogl4TextureHandle = n_new(AnyFX::EffectVariable::OpenGLTexture);
     this->ogl4TextureHandle->texture = this->ogl4Texture;
     this->ogl4TextureHandle->textureType = GL_TEXTURE_2D_MULTISAMPLE;
     
@@ -429,7 +429,7 @@ OGL4Texture::SetupFromOGL4VolumeTexture(const GLuint& texture, CoreGraphics::Pix
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAX_LEVEL, numMips);
 	glBindTexture(GL_TEXTURE_3D, 0);
 
-	if (0 == this->ogl4TextureHandle) this->ogl4TextureHandle = new AnyFX::EffectVariable::OpenGLTexture;
+	if (0 == this->ogl4TextureHandle) this->ogl4TextureHandle = n_new(AnyFX::EffectVariable::OpenGLTexture);
     this->ogl4TextureHandle->texture = this->ogl4Texture;
     this->ogl4TextureHandle->textureType = GL_TEXTURE_3D;
 
@@ -476,7 +476,7 @@ OGL4Texture::SetupFromOGL4CubeTexture(const GLuint& texCube, CoreGraphics::Pixel
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, numMips);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
-    if (0 == this->ogl4TextureHandle) this->ogl4TextureHandle = new AnyFX::EffectVariable::OpenGLTexture;
+    if (0 == this->ogl4TextureHandle) this->ogl4TextureHandle = n_new(AnyFX::EffectVariable::OpenGLTexture);
     this->ogl4TextureHandle->texture = this->ogl4Texture;
     this->ogl4TextureHandle->textureType = GL_TEXTURE_CUBE_MAP;
 

@@ -57,7 +57,7 @@ PngImage::LoadFromRawData( ubyte* ptr, SizeT size )
 	this->size = rowSize * this->height;
 
 	// allocate data buffer
-	this->data = new uint[this->size];
+	this->data = n_new_array(uint, this->size);
 
 	// rows are saved in two-dimensional array
 	png_bytepp rows = png_get_rows(pngPtr, infoPtr);

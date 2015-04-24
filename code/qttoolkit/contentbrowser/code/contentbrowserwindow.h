@@ -242,13 +242,6 @@ private:
 	Ui::UIInfoWidget uiInfoUi;
     LibraryTreeWidget* libraryTree;
 
-	QWidget* modelInfoWidget;
-	QWidget* textureInfoWidget;
-	QWidget* meshInfoWidget;
-	QWidget* audioInfoWidget;
-	QWidget* uiInfoWidget;
-	QWidget* animationInfoWidget;
-
 	QDockWidget* modelInfoWindow;
 	QDockWidget* textureInfoWindow;
 	QDockWidget* meshInfoWindow;

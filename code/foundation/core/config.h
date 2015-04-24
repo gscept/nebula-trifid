@@ -71,7 +71,7 @@ static const int JobMaxSliceSize = 0xFFFF;
 #else
 #define NEBULA3_MEMORY_STATS (0)
 #endif
-#define NEBULA3_MEMORY_ADVANCED_DEBUGGING (0)
+#define NEBULA3_MEMORY_ADVANCED_DEBUGGING (1)
 #else
 #define NEBULA3_MEMORY_STATS (0) // not useable on xbox360 in release mode cause of HeapWalk
 #define NEBULA3_MEMORY_ADVANCED_DEBUGGING (0)
@@ -306,4 +306,5 @@ static const int JobMaxSliceSize = 0xFFFF;
 #define NEBULA_RENDER_THREAD (1)
 
 #define NEBULA3_THREAD_DEFAULTSTACKSIZE 65536 
+
 //------------------------------------------------------------------------------

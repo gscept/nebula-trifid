@@ -72,6 +72,9 @@ private:
 	Ptr<Resources::ManagedTexture> whiteTexture;
 	Math::rectangle<int> scissor;
 
+	CoreGraphics::ShaderFeature::Mask defaultVariation;
+	CoreGraphics::ShaderFeature::Mask scissorVariation;
+
 	struct NebulaCompiledGeometry
 	{
 		Ptr<CoreGraphics::VertexBuffer> vb;

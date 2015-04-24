@@ -107,13 +107,13 @@ DdsImage::LoadFromRawData( ubyte* ptr, SizeT size )
 	this->size = size - this->dataOffset;
 
 	// allocate data buffer
-	ubyte* rawData = new ubyte[this->size];
+	ubyte* rawData = n_new_array(ubyte, this->size);
 
 	// read data to data pointer
 	Memory::Copy(ptr + this->dataOffset, (void*)rawData, this->size);
 
 	uint unpackedSize = this->height * this->width * 16;
-	this->data = new uint[unpackedSize];
+	this->data = n_new_array(uint, unpackedSize);
 
 	// if dds is compressed, decompress and read to buffer
 	if (this->isCompressed)
@@ -140,7 +140,7 @@ DdsImage::LoadFromRawData( ubyte* ptr, SizeT size )
 		Memory::Copy(rawData, (void*)this->data, this->size);
 	}
 
-	delete [] rawData;
+	n_delete_array(rawData);
 }
 
 //------------------------------------------------------------------------------

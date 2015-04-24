@@ -81,7 +81,7 @@ ResourceDictionaryReader::CreateResourceDictionary(const URI& dstPath, Dictionar
         dict.BeginBulkAdd();
         for (i = 0; i < dictSize; i++)
         {
-            TextureInfo* newInfo = new TextureInfo();
+            TextureInfo* newInfo = n_new(TextureInfo);
             //ResourceId newResourceId;
             uchar buffer[MaxResIdSize] = {0};
             newInfo->SetType(CoreGraphics::Texture::Type(reader->ReadInt()));
