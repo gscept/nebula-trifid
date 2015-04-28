@@ -90,8 +90,6 @@ private slots:
 	void OnShowGridProperties();
 	/// change grid size
 	void OnGridSizeChanged(int);
-	/// change cell size
-	void OnCellSizeChanged(double);
 	/// change grid visibility
 	void OnGridVisible();
 	/// change selection colour
