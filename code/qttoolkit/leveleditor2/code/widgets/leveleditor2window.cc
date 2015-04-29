@@ -92,7 +92,6 @@ LevelEditor2Window::LevelEditor2Window():
     connect(this->ui.actionTest_in_Level_Viewer, SIGNAL(triggered()), this, SLOT(OnTestLevelViewer()));
 	connect(this->ui.actionHide_grid, SIGNAL(triggered()), this, SLOT(OnGridVisible()));
 
-    connect(this->gridSizeUi.CellSize, SIGNAL(valueChanged(double)),this, SLOT(OnCellSizeChanged(double)));
     connect(this->gridSizeUi.GridSize, SIGNAL(valueChanged(int)),this, SLOT(OnGridSizeChanged(int)));
 
 
@@ -427,15 +426,6 @@ void
 LevelEditor2Window::OnGridSizeChanged(int val)
 {
 	Grid::GridAddon::Instance()->SetGridSize(val);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-LevelEditor2Window::OnCellSizeChanged(double val)
-{
-	Grid::GridAddon::Instance()->SetCellSize((float)val);
 }
 
 //------------------------------------------------------------------------------

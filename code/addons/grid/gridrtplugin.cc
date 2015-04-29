@@ -23,8 +23,7 @@ __ImplementClass(Grid::GridRTPlugin, 'GRRT', RenderModules::RTPlugin);
 */
 GridRTPlugin::GridRTPlugin() :
 	visible(true),
-	gridSize(10),
-	cellSize(1)
+	gridSize(1)
 {
 	// empty
 }
