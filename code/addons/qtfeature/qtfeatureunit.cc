@@ -74,7 +74,7 @@ QtFeatureUnit::OnRenderDebug()
 void
 QtFeatureUnit::OnFrame()
 {    
-    //this->qtServer->Trigger();
+    this->qtServer->Trigger();
 	Qt::KeyboardModifiers mods = QApplication::queryKeyboardModifiers();
 	const Ptr<Input::Keyboard>& kbd = Input::InputServer::Instance()->GetDefaultKeyboard();
 
