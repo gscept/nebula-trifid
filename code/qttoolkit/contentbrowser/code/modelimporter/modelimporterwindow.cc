@@ -44,7 +44,6 @@ LoadProgress(void* arguments, float progress, const char* status)
 ModelImporterWindow::ModelImporterWindow( QWidget *parent /*= 0*/, Qt::WFlags flags /*= 0*/ )
 {
 	this->ui.setupUi(this);
-	this->setWindowFlags(Qt::Tool);
 
 	this->database = ModelDatabase::Create();
 	this->database->Open();
