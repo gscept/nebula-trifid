@@ -531,9 +531,11 @@ SM50ShadowServer::PrepareGlobalShadowBuffer()
 	this->csmUtil.SetGlobalLight(this->globalLightEntity);
 	Math::bbox box = GraphicsServer::Instance()->GetDefaultView()->GetStage()->GetGlobalBoundingBox();
 
-	// add extension to bounding box, this ensures our ENTIRE level gets into a cascade (hopefully)
+	// add extension to bounding box, this ensures our ENTIRE level gets into a cascade (hopefully), but clamp the box to not be bigger than 1000, 1000, 1000
 	vector extents = box.extents() + vector(10, 10, 10);
-	box.set(box.center(), extents);
+	extents = float4::clamp(extents, vector(-500), vector(500));
+
+	box.set(point(0), extents);
 	this->csmUtil.SetShadowBox(box);
 	this->csmUtil.Compute();
 
