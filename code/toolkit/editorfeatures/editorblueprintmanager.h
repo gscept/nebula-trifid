@@ -125,7 +125,8 @@ public:
 
     /// create an instance of an attribute from an idl attribute
     static Attr::Attribute AttrFromIDL(const Ptr<Tools::IDLAttribute> & attr);
-
+    ///
+    static void CreateColumn(const Ptr<Db::Table>& table, Db::Column::Type type, Attr::AttrId attributeId);
     /// create both static and instance databases
     void CreateDatabases(const Util::String & folder);    
 protected:
@@ -137,9 +138,7 @@ protected:
     ///
     void WriteTemplates(const Ptr<Db::Table> & table, const Util::String & catgory);
     ///
-    Ptr<Db::Table> CreateTable(const Ptr<Db::Database>& db, const Util::String& tableName);
-    ///
-    void CreateColumn(const Ptr<Db::Table>& table, Db::Column::Type type, Attr::AttrId attributeId);
+    Ptr<Db::Table> CreateTable(const Ptr<Db::Database>& db, const Util::String& tableName);    
     ///
     void AddAttributeColumns(Ptr<Db::Table> table, const Attr::AttributeContainer& attrs);
     ///

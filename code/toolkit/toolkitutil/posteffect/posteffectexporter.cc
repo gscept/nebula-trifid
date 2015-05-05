@@ -7,10 +7,12 @@
 #include "attr/attrid.h"
 #include "game/templateexporter.h"
 #include "io/ioserver.h"
+#include "editorblueprintmanager.h"
 
 using namespace Db;
 using namespace IO;
 using namespace ToolkitUtil;
+using namespace Toolkit;
 using namespace Attr;
 
 namespace ToolkitUtil
@@ -138,7 +140,7 @@ PostEffectExporter::SetupTables()
 		table = DbFactory::Instance()->CreateTable();
 		table->SetName("_PostEffect_Presets");
 
-		TemplateExporter::CreateColumn(table, Column::Primary, Attr::AttrId("Id"));
+		EditorBlueprintManager::CreateColumn(table, Column::Primary, Attr::AttrId("Id"));
 
 		this->staticDb->AddTable(table);
 		dataset = table->CreateDataset();
@@ -147,73 +149,73 @@ PostEffectExporter::SetupTables()
 
 		AttrId id;		
 		id = AttrId("GlobalLightTransform");
-		TemplateExporter::CreateColumn(table, Column::Default, id);
+		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("GlobalLightAmbient");
-		TemplateExporter::CreateColumn(table, Column::Default, id);
+		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("GlobalLightDiffuse");
-		TemplateExporter::CreateColumn(table, Column::Default, id);
+		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("GlobalLightOpposite");
-		TemplateExporter::CreateColumn(table, Column::Default, id);
+		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("GlobalLightCastShadows");
-		TemplateExporter::CreateColumn(table, Column::Default, id);
+		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("GlobalLightShadowIntensity");
-		TemplateExporter::CreateColumn(table, Column::Default, id);
+		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("GlobalLightIntensity");
-		TemplateExporter::CreateColumn(table, Column::Default, id);
+		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("GlobalLightShadowBias");
-		TemplateExporter::CreateColumn(table, Column::Default, id);
+		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("GlobalLightBacklightFactor");
-		TemplateExporter::CreateColumn(table, Column::Default, id);
+		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("Saturation");
-		TemplateExporter::CreateColumn(table, Column::Default, id);
+		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("Balance");
-		TemplateExporter::CreateColumn(table, Column::Default, id);
+		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("Luminance");
-		TemplateExporter::CreateColumn(table, Column::Default, id);
+		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("MaxLuminance");
-		TemplateExporter::CreateColumn(table, Column::Default, id);
+		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("FocusDistance");
-		TemplateExporter::CreateColumn(table, Column::Default, id);
+		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("FocusLength");
-		TemplateExporter::CreateColumn(table, Column::Default, id);
+		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("FocusRadius");
-		TemplateExporter::CreateColumn(table, Column::Default, id);
+		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("FogHeight");
-		TemplateExporter::CreateColumn(table, Column::Default, id);
+		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("FogColor");
-		TemplateExporter::CreateColumn(table, Column::Default, id);
+		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("FogNearDist");
-		TemplateExporter::CreateColumn(table, Column::Default, id);
+		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("FogFarDist");
-		TemplateExporter::CreateColumn(table, Column::Default, id);
+		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("BloomColor");
-		TemplateExporter::CreateColumn(table, Column::Default, id);
+		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("BloomThreshold");
-		TemplateExporter::CreateColumn(table, Column::Default, id);
+		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("BackLightFactor");
-		TemplateExporter::CreateColumn(table, Column::Default, id);
+		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("BloomScale");
-		TemplateExporter::CreateColumn(table, Column::Default, id);
+		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("SkyTexture");
-		TemplateExporter::CreateColumn(table, Column::Default, id);
+		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("SkyContrast");
-		TemplateExporter::CreateColumn(table, Column::Default, id);
+		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("SkyBrightness");
-		TemplateExporter::CreateColumn(table, Column::Default, id);
+		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("SkyModel");
-		TemplateExporter::CreateColumn(table, Column::Default, id);
+		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("SkyModel");
-		TemplateExporter::CreateColumn(table, Column::Default, id);
+		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("AOStrength");
-		TemplateExporter::CreateColumn(table, Column::Default, id);
+		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("AORadius");
-		TemplateExporter::CreateColumn(table, Column::Default, id);
+		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("AOPower");
-		TemplateExporter::CreateColumn(table, Column::Default, id);
+		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("AOAngleBias");
-		TemplateExporter::CreateColumn(table, Column::Default, id);
+		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("PEBlendTime");
-		TemplateExporter::CreateColumn(table, Column::Default, id);
+		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 	}
 }
 

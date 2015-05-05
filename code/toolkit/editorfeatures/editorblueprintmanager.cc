@@ -717,6 +717,8 @@ EditorBlueprintManager::SaveCategoryTemplates(const Util::String & category)
 		xmlWriter->EndNode();
 		xmlWriter->Close();
 	}	
+#if 0
+    //FIXME update this
 	ToolkitUtil::Logger logger;
 	Ptr<ToolkitUtil::TemplateExporter> exporter = ToolkitUtil::TemplateExporter::Create();
 	exporter->SetLogger(&logger);
@@ -724,6 +726,7 @@ EditorBlueprintManager::SaveCategoryTemplates(const Util::String & category)
 	exporter->Open();
 	exporter->ExportFile(IO::URI(filename));
 	exporter->Close();
+#endif
 }
 
 //------------------------------------------------------------------------------
