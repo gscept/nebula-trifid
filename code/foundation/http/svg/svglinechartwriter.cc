@@ -1,5 +1,3 @@
-values
-values
 //------------------------------------------------------------------------------
 //  svglinechartwriter.cc
 //  (C) 2008 Radon Labs GmbH
