@@ -109,12 +109,18 @@ ModelHandler::Preview()
 	IoServer::Instance()->CopyFile(phResource, tempPhysicsResource);
 
 	// preview the model
-	if (!previewState->SetModel(tempResource, tempPhysicsResource))
+	if (!previewState->SetModel(tempResource))
 	{
 		// remove temp files if we cannot properly load them
 		IoServer::Instance()->DeleteFile(tempResource);
-		IoServer::Instance()->DeleteFile(tempPhysicsResource);
 		return false;
+	}
+
+	if (!previewState->SetPhysics(tempPhysicsResource))	
+	{ 
+		IoServer::Instance()->DeleteFile(tempPhysicsResource);
+		QMessageBox::critical(NULL, "Failed to open physics", "Failed to open physics resource");
+
 	}
 	return true;
 }
@@ -1047,7 +1053,8 @@ ModelHandler::MakeModel()
 	Ptr<ReloadResourceIfExists> msg = ReloadResourceIfExists::Create();
 	msg->SetResourceName(resource);
 	__StaticSend(GraphicsInterface, msg);
-	__SingleFireCallback(Widgets::ModelHandler, OnModelReloaded, this, msg.upcast<Messaging::Message>());
+	this->OnModelReloaded(msg.upcast<Messaging::Message>());
+	//__SingleFireCallback(Widgets::ModelHandler, OnModelReloaded, this, msg.upcast<Messaging::Message>());
 }
 
 //------------------------------------------------------------------------------
@@ -1060,8 +1067,13 @@ ModelHandler::OnModelReloaded( const Ptr<Messaging::Message>& msg )
 	if (0 != this->characterFrame)
 	{
 		const Ptr<CharacterNodeHandler>& charHandler = this->characterFrame->GetHandler();
-		charHandler->ReshowSkins();
+		//charHandler->ReshowSkins();
 	}
+
+	Ptr<ReloadResourceIfExists> rmsg = msg.downcast<ReloadResourceIfExists>();
+	Ptr<PreviewState> previewState = ContentBrowserApp::Instance()->GetPreviewState();
+	String gfx = rmsg->GetResourceName();
+	previewState->SetModel(gfx);
 }
 
 //------------------------------------------------------------------------------

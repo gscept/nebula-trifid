@@ -111,15 +111,15 @@ MaterialVariable::Apply()
 			}
 		case Variant::Object:
 			{
-				Core::RefCounted* obj = this->value.GetObject();
+				const Ptr<Core::RefCounted>& obj = this->value.GetObject();
 				if (obj->IsA(Resources::ManagedResource::RTTI))
 				{
-					Ptr<Resources::ManagedTexture> tex = (Resources::ManagedTexture*)obj;
+					const Ptr<Resources::ManagedTexture>& tex = obj.downcast<Resources::ManagedTexture>();
 					this->ApplyTexture(tex->GetTexture());
 				}
 				else
 				{
-					this->ApplyTexture((CoreGraphics::Texture*)obj);
+					this->ApplyTexture(obj.downcast<CoreGraphics::Texture>());
 				}
 				
 				break;

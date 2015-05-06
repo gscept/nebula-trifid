@@ -114,7 +114,7 @@ OGL4Texture::Map(IndexT mipLevel, MapType mapType, MapInfo& outMapInfo)
 		outMapInfo.rowPitch = size * mipWidth;
 		outMapInfo.depthPitch = 0;
 		
-		this->mappedData = n_new_array(byte, mipWidth * mipHeight * size);
+		this->mappedData = Memory::Alloc(Memory::ObjectArrayHeap, mipWidth * mipHeight * size * sizeof(byte));
 		glGetTexImage(this->target, mipLevel, components, type, this->mappedData);
 
 		outMapInfo.data = this->mappedData;
@@ -139,7 +139,7 @@ OGL4Texture::Map(IndexT mipLevel, MapType mapType, MapInfo& outMapInfo)
 		outMapInfo.rowPitch = size * mipWidth;
 		outMapInfo.depthPitch = 0;		
 
-		this->mappedData = n_new_array(byte, mipWidth * mipHeight * mipDepth * size);
+		this->mappedData = Memory::Alloc(Memory::ObjectArrayHeap, mipWidth * mipHeight * mipDepth * size * sizeof(byte));
 		glGetTexImage(this->target, mipLevel, components, type, this->mappedData);
 
 		outMapInfo.data = this->mappedData;
@@ -200,7 +200,7 @@ OGL4Texture::Unmap(IndexT mipLevel)
 		break;
 	}
 	glBindTexture(this->target, 0);
-	n_delete_array(this->mappedData);
+	Memory::Free(Memory::ObjectArrayHeap, this->mappedData);
 
 	this->mappedData = 0;
     this->mapCount--;
@@ -304,7 +304,7 @@ OGL4Texture::UnmapCubeFace(CubeFace face, IndexT mipLevel)
 	glBindTexture(this->target, 0);
 
 	//glBindTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face)
-	n_delete_array(this->mappedData);
+	Memory::Free(Memory::ObjectArrayHeap, this->mappedData);
 	this->mappedData = 0;
     this->mapCount--;
 }
