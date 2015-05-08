@@ -3,10 +3,10 @@
 //  (C) 2014 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "FAudio/eventinstance.h"
-#include "FAudio/audiodevice.h"
-#include "FAudio/fmoderror.h"
-#include "FAudio/eventparameterid.h"
+#include "faudio/eventinstance.h"
+#include "faudio/audiodevice.h"
+#include "faudio/fmoderror.h"
+#include "faudio/eventparameterid.h"
 
 #include <fmod.hpp>
 #include <fmod_studio.hpp>

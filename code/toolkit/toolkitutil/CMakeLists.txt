@@ -35,9 +35,7 @@ FILE(GLOB HEAD "posteffect/*.h")
 LIST(APPEND SRCSPFX ${SRC} ${HEAD})
 SOURCE_GROUP("toolkitutil\\posteffect" FILES ${SRCSPFX})
 
-SET(SRCSX            
-			texutil/cubefilterer.cc
-			texutil/cubefilterer.h
+SET(SRCSX            			
             texutil/textureattrtable.cc
             texutil/imageconverter.h
             texutil/imageconverter.cc
@@ -48,6 +46,10 @@ SET(SRCSX
             texutil/textureconverter.cc
             texutil/textureattrtable.h                                    
             texutil/textureattrs.h)
+			
+IF(MSVC)
+LIST(APPEND SRCSX texutil/cubefilterer.cc texutil/cubefilterer.h)
+ENDIF()
             
 IF(N_BUILD_NVTT)
 	SET(SRCSX_PL texutil/nvtttextureconversionjob.cc

@@ -109,7 +109,7 @@ ScriptingFeatureUnit::EvalScriptFile(const IO::URI & file)
 		ret = this->scriptingServer->Eval(script);
 		if (this->scriptingServer->HasError())
 		{
-			n_printf("Error evaluating script file: %s\n%s\n", file.AsString(), this->scriptingServer->GetError().AsCharPtr());
+			n_printf("Error evaluating script file: %s\n%s\n", file.AsString().AsCharPtr(), this->scriptingServer->GetError().AsCharPtr());
 		}
 		reader->Close();
 	}

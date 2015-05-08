@@ -204,6 +204,13 @@ StringTest::Run()
     str = "gfxlib:?*dummies/()cube";
     str.ReplaceIllegalFilenameChars('_');
     this->Verify(str == "gfxlib___dummies_()cube");
+    
+    {
+        String enc = str.AsBase64();
+        String dec = String::FromBase64(enc);
+        this->Verify(str == dec);
+    }
+    
 }
 
 }; // namespace Test

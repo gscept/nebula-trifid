@@ -4,7 +4,7 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "imguiconsolehandler.h"
-#include "io\console.h"
+#include "io/console.h"
 
 namespace Dynui
 {

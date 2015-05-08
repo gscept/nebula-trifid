@@ -673,12 +673,17 @@ IF(WIN32)
 ENDIF()
 
 ADD_LIBRARY(foundation STATIC ${Nebula3Foundation_SRCS})
-TARGET_LINK_LIBRARIES(foundation PUBLIC tinyxml zlib StackWalker foundation_NIDLS base64 wsock32.lib rpcrt4.lib wininet.lib dbghelp.lib)
+TARGET_LINK_LIBRARIES(foundation PUBLIC tinyxml zlib  base64 )
 TARGET_INCLUDE_DIRECTORIES(foundation PUBLIC ${Nebula3_SOURCE_DIR}/code/foundation ${Nebula3_SOURCE_DIR}/code/addons)
-TARGET_INCLUDE_DIRECTORIES(foundation_NIDLS PUBLIC ${Nebula3_SOURCE_DIR}/code/foundation)
 
 IF(NOT N_BUILD_FIRSTTIME)
-add_dependencies(foundation tinyxml zlib StackWalker foundation_NIDLS base64)
+add_dependencies(foundation tinyxml zlib foundation_NIDLS base64)
+target_link_libraries(foundation PUBLIC foundation_NIDLS)
+TARGET_INCLUDE_DIRECTORIES(foundation_NIDLS PUBLIC ${Nebula3_SOURCE_DIR}/code/foundation)
+ENDIF()
+IF(WIN32)
+	add_dependencies(foundation StackWalker)
+	target_link_libraries(foundation PUBLIC StackWalker wsock32.lib rpcrt4.lib wininet.lib dbghelp.lib)
 ENDIF()
 SET_TARGET_PROPERTIES(foundation PROPERTIES FOLDER "N3SDK/N3")
 
@@ -705,5 +710,5 @@ ELSEIF(N_BUILD_OGL4)
 												${Nebula3_SOURCE_DIR}/code/extlibs/glfw/include)
 	TARGET_LINK_LIBRARIES(foundation PUBLIC compiler api glew EASTL SOIL glfw	
 												$<$<PLATFORM_ID:Windows>:glu32.lib opengl32.lib $<$<BOOL:${N_MATH_XNA}>:dxguid.lib d3d9.lib d3dx9.lib dinput8.lib xinput.lib dxerr.lib x3daudio.lib d3dx11.lib dxgi.lib d2d1.lib dwrite.lib d3dcompiler.lib d3d11.lib>>												
-												$<$<PLATFORM_ID:Linux>:GL Xi Xrandr Xxf86vm pthread ${UUID} ${LIBC} ${LIBDL}> )       
+												$<$<PLATFORM_ID:Linux>:GL Xi Xrandr Xxf86vm pthread Xcursor Xinerama gomp ${UUID} ${LIBC} ${LIBDL}> )       
 ENDIF()

@@ -11,7 +11,7 @@
     (C) 2013-2015 Individual contributors, see AUTHORS file
 */
 #include "game/property.h"
-#include "basegamefeature/basegameattr//basegameattributes.h"
+#include "basegamefeature/basegameattr/basegameattributes.h"
 #include "coreanimation/animresource.h"
 #include "coreanimation/animsamplebuffer.h"
 

@@ -6,8 +6,8 @@
 #include "leveldbwriter.h"
 #include "dataset.h"
 #include "valuetable.h"
-#include "basegamefeature\basegameattr\basegameattributes.h"
-#include "graphicsfeature\graphicsattr\graphicsattributes.h"
+#include "basegamefeature/basegameattr/basegameattributes.h"
+#include "graphicsfeature/graphicsattr/graphicsattributes.h"
 #include "editorblueprintmanager.h"
 
 using namespace Db;

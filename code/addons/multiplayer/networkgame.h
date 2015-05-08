@@ -168,9 +168,9 @@ private:
 	friend class NetworkPlayer;
 
 	/// add player instance to current game
-	void AddPlayer(Ptr<MultiplayerFeature::NetworkPlayer> & player);
+	void AddPlayer(const Ptr<MultiplayerFeature::NetworkPlayer> & player);
 	/// remove player
-	void RemovePlayer(Ptr<MultiplayerFeature::NetworkPlayer> & player);
+	void RemovePlayer(const Ptr<MultiplayerFeature::NetworkPlayer> & player);
 
 	/// deal with a packet
 	bool HandlePacket(RakNet::Packet * packet);	

@@ -220,7 +220,7 @@ NetworkServer::HandlePacket(RakNet::Packet * packet)
 	break;
 	case ID_INCOMPATIBLE_PROTOCOL_VERSION:
 	{
-		n_printf("Incompatible protocol version from %s\n", targetName);
+		n_printf("Incompatible protocol version from %s\n", targetName.AsCharPtr());
 		if (packet->systemAddress == this->natPunchServerAddress)
 		{
 			n_printf("Multiplayer will not work without the NAT punchthrough server!");
@@ -229,7 +229,7 @@ NetworkServer::HandlePacket(RakNet::Packet * packet)
 	break;
 	case ID_DISCONNECTION_NOTIFICATION:
 	{
-		n_printf("Disconnected from %d\n", targetName);
+		n_printf("Disconnected from %s\n", targetName.AsCharPtr());
 		if (packet->systemAddress == this->natPunchServerAddress)
 		{
 			this->connectedToNatPunchThrough = false;

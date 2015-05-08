@@ -5,8 +5,8 @@
 
 SET (TEST_PROJECTS
 
-	faudiotestsimple
-	testscript
+	#faudiotestsimple
+	#testscript
 	#drasa3testui
 	#forestviewer
 	#inputtest

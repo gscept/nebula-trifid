@@ -29,6 +29,8 @@
 #include "animpath/pathanimation.h"
 #include "animpath/streampathanimationloader.h"
 #include "animpath/managedpathanimation.h"
+#include "graphicsfeature/properties/animpathproperty.h"
+#include "graphicsfeature/properties/lightprobeproperty.h"
 
 namespace GraphicsFeature
 {

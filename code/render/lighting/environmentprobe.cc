@@ -4,7 +4,7 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "environmentprobe.h"
-#include "resources\resourcemanager.h"
+#include "resources/resourcemanager.h"
 
 using namespace Resources;
 using namespace CoreGraphics;

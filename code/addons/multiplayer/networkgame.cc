@@ -321,7 +321,7 @@ NetworkGame::UpdateRoomList()
 /**
 */
 void 
-NetworkGame::AddPlayer(Ptr<MultiplayerFeature::NetworkPlayer> & player)
+NetworkGame::AddPlayer(const Ptr<MultiplayerFeature::NetworkPlayer> & player)
 {
 	n_assert(!this->players.Contains(player->GetUniqueId().GetRaknetGuid().g));
 	this->players.Add(player->GetUniqueId().GetRaknetGuid().g, player);
@@ -333,7 +333,7 @@ NetworkGame::AddPlayer(Ptr<MultiplayerFeature::NetworkPlayer> & player)
 /**
 */
 void
-NetworkGame::RemovePlayer(Ptr<MultiplayerFeature::NetworkPlayer> & player)
+NetworkGame::RemovePlayer(const Ptr<MultiplayerFeature::NetworkPlayer> & player)
 {
 	n_assert(this->players.Contains(player->GetUniqueId().GetRaknetGuid().g));
 	SyncPoint::RemoveFromTracking("_READY", player->GetUniqueId());
