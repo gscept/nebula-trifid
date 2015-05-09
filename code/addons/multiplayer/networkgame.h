@@ -134,6 +134,8 @@ private:
 	virtual void WriteAllocationID(RakNet::Connection_RM3 *destinationConnection, RakNet::BitStream *allocationIdBitstream) const;
 	///
 	virtual RakNet::RM3ConstructionState QueryConstruction(RakNet::Connection_RM3 *destinationConnection, RakNet::ReplicaManager3 *replicaManager3);
+    ///
+    virtual void OnUserReplicaPreSerializeTick(void);
 	///
 	virtual bool QueryRemoteConstruction(RakNet::Connection_RM3 *sourceConnection);
 	///
@@ -202,6 +204,7 @@ private:
 	Ptr<Attr::AttributeTable> serverList;
 	Util::String gameID;
 	Util::Array<Ptr<Messaging::Message>> queuedMessages;
+    Util::Array<Ptr<Messaging::Message>> currentMessages;
 };
 
 //------------------------------------------------------------------------------

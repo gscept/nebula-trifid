@@ -37,6 +37,8 @@
 #include "basegamefeature/basegameattr/basegameattributes.h"
 #include "CloudClient.h"
 #include "syncpoint.h"
+#include "networkentity.h"
+#include "bitreader.h"
 
 namespace MultiplayerFeature
 {
@@ -60,6 +62,18 @@ using namespace RakNet;
 #else
 #define CONNECTION_TIMEOUT 10000 // ms 10s
 #endif
+
+//------------------------------------------------------------------------------
+/**
+*/
+static void
+DispatchNetworkMessage(RakNet::BitStream *bitStream, RakNet::Packet *packet)
+{
+	n_assert(NetworkServer::HasInstance());
+	NetworkServer::Instance()->DispatchMessageStream(bitStream, packet);
+}
+
+RPC4GlobalRegistration __NebulaMessageDispatch("NebulaMessage", DispatchNetworkMessage, 0);
 
 //------------------------------------------------------------------------------
 /**
@@ -156,8 +170,7 @@ NetworkServer::SetupLowlevelNetworking()
 	{
 		this->state = IDLE;
 		return false;
-	}
-	
+	}	
 	return true;
 }
 
@@ -929,6 +942,66 @@ void
 NetworkServer::StartGame()
 {	
 	this->state = IN_GAME;	
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+RakNet::Replica3 *
+NetworkServer::LookupReplica(RakNet::NetworkID replicaId)
+{
+	RakNet::Replica3 * replica = this->networkIDManager->GET_OBJECT_FROM_ID<RakNet::Replica3*>(replicaId);
+	n_assert(replica);
+	return replica;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+NetworkServer::DispatchMessageStream(RakNet::BitStream * msgStream, Packet *packet)
+{
+	RakNet::NetworkID entityId;
+	msgStream->Read(entityId);
+	RakNet::Replica3 * replica = this->LookupReplica(entityId);
+
+	MultiplayerFeature::NetworkEntity * entity = dynamic_cast<MultiplayerFeature::NetworkEntity*>(replica);
+
+	Ptr<Multiplayer::BitReader> reader = Multiplayer::BitReader::Create();
+	reader->SetStream(msgStream);
+
+	// deserialize messages
+	int count = reader->ReadUChar();
+	Ptr<IO::BinaryReader> breader = IO::BinaryReader::Create();
+	breader->SetStream(reader.cast<IO::Stream>());
+	breader->Open();
+	for (int i = 0; i < count; i++)
+	{
+		Util::FourCC fcc = reader->ReadUInt();
+		Ptr<Core::RefCounted> cmsg = Core::Factory::Instance()->Create(fcc);
+		Ptr<Messaging::Message> msg = cmsg.cast<Messaging::Message>();
+		msg->SetDistribute(false);
+		msg->Decode(breader);
+		entity->SendSync(msg);
+	}
+	breader->Close();
+
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+NetworkServer::SendMessageStream(RakNet::BitStream* msgStream)
+{
+	DataStructures::List<RakNetGUID> participantList;
+	this->fullyConnectedMesh->GetParticipantList(participantList);
+
+	if (participantList.Size() > 0)
+	{		
+		for (unsigned int i = 0; i < participantList.Size(); i++)
+			this->rpc->Signal("NebulaMessage", msgStream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, participantList[i], false, false);
+	}
 }
 
 //------------------------------------------------------------------------------
