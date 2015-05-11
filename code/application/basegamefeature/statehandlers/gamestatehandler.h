@@ -56,12 +56,15 @@ public:
     void SetSaveGame(const Util::String& n);
     /// get save game name
     const Util::String& GetSaveGame() const;
+	/// networklevel loaded callback
+	virtual void OnNetworkStarted();
     
 private:    
     SetupMode setupMode;
     Util::String exitState;
     Util::String levelName;
     Util::String saveGame;
+	bool delayedStart;
 };
 
 //------------------------------------------------------------------------------
