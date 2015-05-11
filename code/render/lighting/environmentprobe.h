@@ -53,6 +53,7 @@ private:
 inline void
 EnvironmentProbe::AssignReflectionMap(const Ptr<Resources::ManagedTexture>& refl)
 {
+	n_assert(refl.isvalid());
 	this->reflectionMap = refl;
 }
 
@@ -62,6 +63,7 @@ EnvironmentProbe::AssignReflectionMap(const Ptr<Resources::ManagedTexture>& refl
 inline void
 EnvironmentProbe::AssignIrradianceMap(const Ptr<Resources::ManagedTexture>& irr)
 {
+	n_assert(irr.isvalid());
 	this->irradianceMap = irr;
 }
 

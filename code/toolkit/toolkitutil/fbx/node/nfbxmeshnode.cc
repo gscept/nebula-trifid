@@ -23,7 +23,7 @@ __ImplementClass(Fbx::NFbxMeshNode, 'FBMN', Fbx::NFbxNode);
 NFbxMeshNode::NFbxMeshNode() : 
 	skeletonLink(0),
 	groupId(0),
-	lod(0),
+	lod(NULL),
 	lodIndex(-1),
 	meshFlags(NoMeshFlags),
 	exportFlags(ToolkitUtil::FlipUVs),
@@ -99,7 +99,7 @@ NFbxMeshNode::Setup( FbxNode* node, const Ptr<NFbxScene>& scene )
 	if (this->fbxNode->GetParent())
 	{
 		this->lod = this->fbxNode->GetParent()->GetLodGroup();
-		if (this->lod)
+		if (this->lod != NULL)
 		{
 			int numThresholds = this->lod->GetNumThresholds();
 			int displayLevels = this->lod->GetNumDisplayLevels();
@@ -259,8 +259,9 @@ NFbxMeshNode::ExtractMesh()
 		this->mesh->FlipUvs();
 	}
 
-	// compute boundingbox
+	// compute boundingbox, then scale it with the rescale of the scene
 	this->boundingBox = this->mesh->ComputeBoundingBox();
+	this->boundingBox.set(this->boundingBox.center(), this->boundingBox.extents() * scaleFactor);
 
 	// calculate binormals and tangents if either the CalcNormals flag is on, or CalcBinormalsAndTangents is on, or if the model contains no binormals or tangents
 	if (this->exportFlags & ToolkitUtil::CalcNormals || 
@@ -280,7 +281,7 @@ NFbxMeshNode::ExtractMesh()
 	}
 
 	// calculate lod index
-	if (this->lod)
+	if (this->lod != NULL)
 	{
 		this->lodIndex = this->GetParent()->IndexOfChild(this);
 	}
@@ -1051,7 +1052,13 @@ const float
 NFbxMeshNode::GetLODMaxDistance() const
 {
 	FbxDistance dist;
-	bool hasMax = this->lod->GetThreshold(this->lodIndex, dist);
+	int index = this->lodIndex;
+	bool hasMax = false;
+	if (index >= 0)
+	{
+		hasMax = this->lod->GetThreshold(index, dist);
+	}
+
 	float scale = this->scene->GetScale();
 	if (hasMax)
 	{
@@ -1071,7 +1078,13 @@ const float
 NFbxMeshNode::GetLODMinDistance() const
 {
 	FbxDistance dist;
-	bool hasMin = this->lod->GetThreshold(this->lodIndex-1, dist);
+	int index = this->lodIndex - 1;
+	bool hasMin = false;
+	if (index >= 0)
+	{
+		hasMin = this->lod->GetThreshold(index, dist);
+	}
+
 	float scale = this->scene->GetScale();
 	if (hasMin)
 	{
