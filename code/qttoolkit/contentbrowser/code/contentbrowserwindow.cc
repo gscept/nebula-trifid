@@ -844,7 +844,7 @@ ContentBrowserWindow::ModelImported( const Util::String& res )
 		file.ChangeFileExtension("nvx2");
 		fileItem->SetHandler(this->meshHandler.upcast<BaseHandler>());
 		fileItem->SetName(res.AsCharPtr());
-		fileItem->SetWidget(this->meshInfoWidget);
+		fileItem->SetWidget(this->meshInfoWindow);
 		fileItem->setText(0, file.AsCharPtr());
 
 		// add item to item list
@@ -884,7 +884,7 @@ ContentBrowserWindow::ModelImported( const Util::String& res )
 		file.ChangeFileExtension("n3");
 		fileItem->SetHandler(this->modelHandler.upcast<BaseHandler>());
 		fileItem->SetName(res.AsCharPtr());
-		fileItem->SetWidget(this->modelInfoWidget);
+		fileItem->SetWidget(this->modelInfoWindow);
 		fileItem->SetUi(&this->modelInfoUi);
 		fileItem->setText(0, file.AsCharPtr());
 
@@ -939,7 +939,7 @@ ContentBrowserWindow::ModelImported( const Util::String& res )
 			file.ChangeFileExtension("nax3");
 			fileItem->SetHandler(this->animationHandler.upcast<BaseHandler>());
 			fileItem->SetName(res.AsCharPtr());
-			fileItem->SetWidget(this->animationInfoWidget);
+			fileItem->SetWidget(this->animationInfoWindow);
 			fileItem->setText(0, file.AsCharPtr());
 
 			// add item to item list
@@ -1001,7 +1001,7 @@ ContentBrowserWindow::TextureImported( const Util::String& res )
         TextureItem* fileItem = new TextureItem;
         fileItem->SetHandler(this->textureHandler.upcast<BaseHandler>());
         fileItem->SetName(res.AsCharPtr());
-        fileItem->SetWidget(this->textureInfoWidget);
+        fileItem->SetWidget(this->textureInfoWindow);
         fileItem->SetUi(&this->textureInfoUi);
         fileItem->setText(0, file.AsCharPtr());
 
@@ -1058,7 +1058,7 @@ ContentBrowserWindow::ModelSavedWithNewName( const Util::String& res )
 		ModelItem* fileItem = new ModelItem;
 		fileItem->SetHandler(this->modelHandler.upcast<BaseHandler>());
 		fileItem->SetName(res.AsCharPtr());
-		fileItem->SetWidget(this->modelInfoWidget);
+		fileItem->SetWidget(this->modelInfoWindow);
 		fileItem->SetUi(&this->modelInfoUi);
 		fileItem->setText(0, file.AsCharPtr());
 

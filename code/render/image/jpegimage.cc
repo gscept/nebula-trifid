@@ -44,7 +44,7 @@ JpegImage::LoadFromRawData( ubyte* ptr, SizeT size )
 	this->size = info.output_width * info.output_components * this->height;
 
 	// allocate data buffer
-	this->data = new uint[this->size];
+	this->data = n_new_array(uint, this->size);
 
 	// start jpeg decompression
 	jpeg_start_decompress(&info);

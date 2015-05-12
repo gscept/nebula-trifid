@@ -55,11 +55,7 @@ CharacterNode::CreateNodeInstance() const
     instances for the skins, but will only create skin node instances
     when they are actually set to visible. This eliminates a lot of
     dead weight for invisible skins!
-
-	Deprecated? If we don't generate our skins, then we cannot change them in any way, which may cause crashes etc.
-
 */
-/*
 Ptr<ModelNodeInstance>
 CharacterNode::RecurseCreateNodeInstanceHierarchy(const Ptr<ModelInstance>& modelInst, const Ptr<ModelNodeInstance>& parentNodeInst)
 {
@@ -67,16 +63,10 @@ CharacterNode::RecurseCreateNodeInstanceHierarchy(const Ptr<ModelInstance>& mode
     Ptr<ModelNodeInstance> myNodeInst = this->CreateNodeInstance();
     myNodeInst->Setup(modelInst, this, parentNodeInst);
 
-	IndexT i;
-	for (i = 0; i < this->children.Size(); i++)
-	{
-		this->children[i]->RecurseCreateNodeInstanceHierarchy(modelInst, myNodeInst);
-	}
     // DO NOT recurse into children (the child nodes represent the
     // skin model nodes)
     return myNodeInst;
 }
-*/
 
 //------------------------------------------------------------------------------
 /**

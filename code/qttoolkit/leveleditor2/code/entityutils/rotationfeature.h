@@ -47,8 +47,6 @@ private:
 
     /// computes the handles of the feature
     void UpdateHandlePositions();
-    /// decomposes the current transform matrix in translation vector, scale vector and rotation matrix.
-    void DecomposeInitialMatrix();
 
     /// generate a vector used to compute rotation delta in drag mode.
     Math::vector ComputeDragVector(const Math::line& ray, DragMode mode);
@@ -59,10 +57,6 @@ private:
 	bool PlaneIntersect(Math::plane &p1, Math::plane &p2, Math::line& l);
 
 	Math::matrix44 lastStartDragDeltaMatrix;
-
-    Math::vector decomposedTranslation;
-    Math::vector decomposedScale;
-    Math::matrix44 decomposedRotation;
 
     Math::vector xAxis;             // handle axes
     Math::vector yAxis;

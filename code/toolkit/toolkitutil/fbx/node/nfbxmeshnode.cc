@@ -23,10 +23,10 @@ __ImplementClass(Fbx::NFbxMeshNode, 'FBMN', Fbx::NFbxNode);
 NFbxMeshNode::NFbxMeshNode() : 
 	skeletonLink(0),
 	groupId(0),
-	lod(0),
+	lod(NULL),
 	lodIndex(-1),
 	meshFlags(NoMeshFlags),
-	exportFlags(RemoveRedundant),
+	exportFlags(ToolkitUtil::FlipUVs),
 	exportMode(Static)
 {
 	this->type = NFbxNode::Mesh;
@@ -96,14 +96,9 @@ NFbxMeshNode::Setup( FbxNode* node, const Ptr<NFbxScene>& scene )
 	}
 
 	// get lod group
-	if (this->fbxNode->GetParent())
+	if (this->fbxNode->GetParent() != NULL)
 	{
 		this->lod = this->fbxNode->GetParent()->GetLodGroup();
-		if (this->lod)
-		{
-			int numThresholds = this->lod->GetNumThresholds();
-			int displayLevels = this->lod->GetNumDisplayLevels();
-		}
 	}
 
 	// set mask
@@ -259,8 +254,9 @@ NFbxMeshNode::ExtractMesh()
 		this->mesh->FlipUvs();
 	}
 
-	// compute boundingbox
+	// compute boundingbox, then scale it with the rescale of the scene
 	this->boundingBox = this->mesh->ComputeBoundingBox();
+	this->boundingBox.set(this->boundingBox.center(), this->boundingBox.extents() * scaleFactor);
 
 	// calculate binormals and tangents if either the CalcNormals flag is on, or CalcBinormalsAndTangents is on, or if the model contains no binormals or tangents
 	if (this->exportFlags & ToolkitUtil::CalcNormals || 
@@ -280,7 +276,7 @@ NFbxMeshNode::ExtractMesh()
 	}
 
 	// calculate lod index
-	if (this->lod)
+	if (this->lod != NULL)
 	{
 		this->lodIndex = this->GetParent()->IndexOfChild(this);
 	}
@@ -1029,6 +1025,14 @@ NFbxMeshNode::DoMerge( Util::Dictionary<Util::String, Util::Array<Ptr<NFbxMeshNo
 		this->skinFragments.Clear();
 	}
 
+	// make sure lods doesn't get merged
+	if (this->lod != NULL)
+	{
+		String lodMaterial;
+		lodMaterial.Format("_lod_%d_%d", this->lodIndex, this->name.HashCode());
+		this->material.Append(lodMaterial);
+	}
+
 	// add this mesh to mesh dictionary, create entry if non-existent
 	if (meshes.Contains(this->material))
 	{
@@ -1050,18 +1054,22 @@ NFbxMeshNode::DoMerge( Util::Dictionary<Util::String, Util::Array<Ptr<NFbxMeshNo
 const float 
 NFbxMeshNode::GetLODMaxDistance() const
 {
+	n_assert(this->lod != NULL);
 	FbxDistance dist;
-	bool hasMax = this->lod->GetThreshold(this->lodIndex, dist);
-	float scale = this->scene->GetScale();
-	if (hasMax)
+	int index = n_max(this->lodIndex, -1);
+	if (index >= 0)
 	{
-		return dist.value() * scale;
+		bool hasMax = this->lod->GetThreshold(index, dist);
+
+		float scale = this->scene->GetScale();
+		if (hasMax)
+		{
+			return dist.value() * scale;
+		}
 	}
-	else
-	{
-		// if this is our last node, set the max value to float max
-		return FLT_MAX;
-	}
+
+	// fallback in case we don't have an interval
+	return FLT_MAX;
 }
 
 //------------------------------------------------------------------------------
@@ -1070,18 +1078,22 @@ NFbxMeshNode::GetLODMaxDistance() const
 const float 
 NFbxMeshNode::GetLODMinDistance() const
 {
+	n_assert(this->lod != NULL);
 	FbxDistance dist;
-	bool hasMin = this->lod->GetThreshold(this->lodIndex-1, dist);
-	float scale = this->scene->GetScale();
-	if (hasMin)
+	int index = n_max(this->lodIndex - 1, -1);
+	if (index >= 0)
 	{
-		return dist.value() * scale;
+		bool hasMin = this->lod->GetThreshold(index, dist);
+
+		float scale = this->scene->GetScale();
+		if (hasMin)
+		{
+			return dist.value() * scale;
+		}
 	}
-	else
-	{
-		// if we have no min-value, the smallest value must be 0...
-		return 0.0f;
-	}
+
+	// if we have no min-value, the smallest value must be 0...
+	return 0.0f;
 }
 
 } // namespace ToolkitUtil

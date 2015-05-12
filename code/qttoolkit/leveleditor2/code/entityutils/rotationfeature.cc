@@ -495,36 +495,6 @@ RotationFeature::GetSphereIntersectionPoint(const line& ray,const vector& locati
 
 //------------------------------------------------------------------------------
 /**
-	Decompose initial transform matrix in translation vector, scale vector and
-	rotation matrix.
-*/
-void
-RotationFeature::DecomposeInitialMatrix()
-{
-    // get translation
-    this->decomposedTranslation = (this->initialMatrix.get_position());
-
-    // get scale
-    this->decomposedScale.set
-        (
-			vector(this->initialMatrix.getrow0().x(),this->initialMatrix.getrow0().y(), this->initialMatrix.getrow0().z()).length(),
-			vector(this->initialMatrix.getrow1().x(),this->initialMatrix.getrow1().y(), this->initialMatrix.getrow1().z()).length(),
-			vector(this->initialMatrix.getrow2().x(),this->initialMatrix.getrow2().y(), this->initialMatrix.getrow2().z()).length()
-        );
-
-    // get rotation
-    this->decomposedRotation.set
-        (
-		float4(this->initialMatrix.getrow0().x() / this->decomposedScale.x(), this->initialMatrix.getrow0().y() / this->decomposedScale.x(), this->initialMatrix.getrow0().z() / this->decomposedScale.x(), 0),
-		float4(this->initialMatrix.getrow1().x() / this->decomposedScale.y(), this->initialMatrix.getrow1().y() / this->decomposedScale.y(), this->initialMatrix.getrow1().z() / this->decomposedScale.y(), 0),
-		float4(this->initialMatrix.getrow2().x() / this->decomposedScale.z(), this->initialMatrix.getrow2().y() / this->decomposedScale.z(), this->initialMatrix.getrow2().z() / this->decomposedScale.z(), 0),
-        float4(0,                                                     0,                                                     0, 1)
-        );
-
-}
-
-//------------------------------------------------------------------------------
-/**
 */
 void 
 RotationFeature::RotateVector( vector& i_v, vector& axis, float angle )

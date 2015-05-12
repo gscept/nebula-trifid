@@ -18,7 +18,6 @@ EnvironmentProbeWindow::EnvironmentProbeWindow()
 {
 	// setup UI
 	this->ui.setupUi(this);
-	this->setWindowFlags(Qt::Tool);
 
 	// connect signals
 	connect(this->ui.reflectionMapEdit, SIGNAL(editingFinished()), this, SLOT(OnReflectionChanged()));

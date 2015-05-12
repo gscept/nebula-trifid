@@ -46,6 +46,8 @@ public:
 	///
 	virtual void WriteAllocationID(RakNet::Connection_RM3 *destinationConnection, RakNet::BitStream *allocationIdBitstream) const;
 	///
+	virtual void OnUserReplicaPreSerializeTick(void);
+	///
 	virtual RakNet::RM3ConstructionState QueryConstruction(RakNet::Connection_RM3 *destinationConnection, RakNet::ReplicaManager3 *replicaManager3);
 	///
 	virtual bool QueryRemoteConstruction(RakNet::Connection_RM3 *sourceConnection);

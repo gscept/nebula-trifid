@@ -185,7 +185,7 @@ GameServer::OnFrame()
 
 	// debug rendering stuff
 	this->CheckDebugRendering();
-	if(this->debugRenderFeature.isvalid())
+	if (this->debugRenderFeature.isvalid())
 	{
 		// set render info
 		_debug_text(this->debugRenderFeature->GetRtti()->GetName(), Math::float2(0.5f, 0.004f), Math::float4(1.0f, 1.0f, 0.0f, 1.0f));

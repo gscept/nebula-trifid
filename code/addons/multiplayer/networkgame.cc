@@ -60,6 +60,16 @@ NetworkGame::~NetworkGame()
 //------------------------------------------------------------------------------
 /**
 */
+void 
+NetworkGame::OnUserReplicaPreSerializeTick(void)
+{
+    this->currentMessages = this->queuedMessages;
+    this->queuedMessages.Clear();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 RakNet::RM3ConstructionState
 NetworkGame::QueryConstruction(RakNet::Connection_RM3 *destinationConnection, RakNet::ReplicaManager3 *replicaManager3)
 {
@@ -127,7 +137,7 @@ NetworkGame::DeallocReplica(RakNet::Connection_RM3 *sourceConnection)
 RakNet::RM3QuerySerializationResult
 NetworkGame::QuerySerialization(RakNet::Connection_RM3 *destinationConnection)
 {
-	if (this->queuedMessages.Size() > 0)
+	if (this->currentMessages.Size() > 0)
 	{
 		return RM3QSR_CALL_SERIALIZE;
 	}
@@ -163,7 +173,7 @@ NetworkGame::Serialize(RakNet::SerializeParameters *serializeParameters)
 	}
 	Ptr<BitWriter> writer = BitWriter::Create();
 	writer->SetStream(&(serializeParameters->outputBitstream[0]));
-	int count = this->queuedMessages.Size();
+	int count = this->currentMessages.Size();
 	n_assert(count < 256);
 	writer->WriteUChar(count);
 
@@ -173,11 +183,10 @@ NetworkGame::Serialize(RakNet::SerializeParameters *serializeParameters)
 	
 	for (int i = 0; i < count; i++)
 	{
-		const Ptr<Messaging::Message> & msg = this->queuedMessages[i];
+		const Ptr<Messaging::Message> & msg = this->currentMessages[i];
 		writer->WriteUInt(msg->GetClassFourCC().AsUInt());
 		msg->Encode(bwriter);
-	}
-	this->queuedMessages.Clear();
+	}	
 	this->Serialize(writer);
 
 	if (count > 0)

@@ -44,6 +44,10 @@ RocketRenderer::RocketRenderer()
 
 	// we get the white texture for when we don't have a diffuse map, this will be then be our default
 	this->whiteTexture = ResourceManager::Instance()->CreateManagedResource(Texture::RTTI, "tex:system/white.dds").downcast<ManagedTexture>();
+
+	// get variations
+	this->defaultVariation = shaderServer->FeatureStringToMask("Static");
+	this->scissorVariation = shaderServer->FeatureStringToMask("Static|Alt0");
 }
 
 //------------------------------------------------------------------------------
@@ -245,11 +249,11 @@ RocketRenderer::EnableScissorRegion( bool enable )
 {
 	if (enable)
 	{
-		this->shaderInstance->SelectActiveVariation(ShaderServer::Instance()->FeatureStringToMask("Static|Alt0"));
+		this->shaderInstance->SelectActiveVariation(this->scissorVariation);
 	}
 	else
 	{
-		this->shaderInstance->SelectActiveVariation(ShaderServer::Instance()->FeatureStringToMask("Static"));
+		this->shaderInstance->SelectActiveVariation(this->defaultVariation);
 	}
 }
 

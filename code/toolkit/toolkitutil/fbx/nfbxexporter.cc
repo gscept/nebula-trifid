@@ -28,7 +28,7 @@ NFbxExporter::NFbxExporter() :
 	scaleFactor(1.0f),
 	progressFbxCallback(0),
 	exportMode(Static),
-	exportFlags(RemoveRedundant)	
+	exportFlags(ToolkitUtil::FlipUVs)
 {
 	// empty
 }
@@ -270,8 +270,6 @@ NFbxExporter::StartExport( const IO::URI& file )
 	this->sceneWriter->SetScene(this->scene);
 	this->sceneWriter->SetPlatform(this->platform);
 
-	this->fbxScene->Clear();
-	this->fbxScene = 0;
 	return true;
 }
 
@@ -292,6 +290,8 @@ NFbxExporter::EndExport()
 
 	// cleanup data
 	this->scene->Cleanup();
+	this->fbxScene->Clear();
+	this->fbxScene = 0;
 }
 
 //------------------------------------------------------------------------------

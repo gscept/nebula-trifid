@@ -229,5 +229,15 @@ TransformFeature::UpdateHandlePositions()
 	// implement in subclass...
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+TransformFeature::DecomposeInitialMatrix()
+{
+	Math::quaternion quat;
+	this->initialMatrix.decompose(this->decomposedScale, quat, this->decomposedTranslation);
+	this->decomposedRotation = Math::matrix44::rotationquaternion(quat);
+}
 
 }
