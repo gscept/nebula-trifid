@@ -96,9 +96,13 @@ NFbxMeshNode::Setup( FbxNode* node, const Ptr<NFbxScene>& scene )
 	}
 
 	// get lod group
-	if (this->fbxNode->GetParent())
+	if (this->fbxNode->GetParent() != NULL)
 	{
 		this->lod = this->fbxNode->GetParent()->GetLodGroup();
+		if (!this->lod->Is(FbxLODGroup::ClassId))
+		{
+			this->lod = NULL;
+		}
 	}
 
 	// set mask
@@ -1056,19 +1060,20 @@ NFbxMeshNode::GetLODMaxDistance() const
 {
 	n_assert(this->lod != NULL);
 	FbxDistance dist;
-	int index = n_iclamp(this->lodIndex, 0, this->lod->GetNumThresholds());
-	bool hasMax = this->lod->GetThreshold(index, dist);
+	int index = n_max(this->lodIndex, -1);
+	if (index >= 0)
+	{
+		bool hasMax = this->lod->GetThreshold(index, dist);
 
-	float scale = this->scene->GetScale();
-	if (hasMax)
-	{
-		return dist.value() * scale;
+		float scale = this->scene->GetScale();
+		if (hasMax)
+		{
+			return dist.value() * scale;
+		}
 	}
-	else
-	{
-		// if this is our last node, set the max value to float max
-		return FLT_MAX;
-	}
+
+	// fallback in case we don't have an interval
+	return FLT_MAX;
 }
 
 //------------------------------------------------------------------------------
@@ -1079,19 +1084,20 @@ NFbxMeshNode::GetLODMinDistance() const
 {
 	n_assert(this->lod != NULL);
 	FbxDistance dist;
-	int index = n_iclamp(this->lodIndex - 1, 0, this->lod->GetNumThresholds());
-	bool hasMin = this->lod->GetThreshold(index, dist);
+	int index = n_max(this->lodIndex - 1, -1);
+	if (index >= 0)
+	{
+		bool hasMin = this->lod->GetThreshold(index, dist);
 
-	float scale = this->scene->GetScale();
-	if (hasMin)
-	{
-		return dist.value() * scale;
+		float scale = this->scene->GetScale();
+		if (hasMin)
+		{
+			return dist.value() * scale;
+		}
 	}
-	else
-	{
-		// if we have no min-value, the smallest value must be 0...
-		return 0.0f;
-	}
+
+	// if we have no min-value, the smallest value must be 0...
+	return 0.0f;
 }
 
 } // namespace ToolkitUtil
