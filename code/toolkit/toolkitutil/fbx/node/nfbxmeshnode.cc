@@ -99,11 +99,6 @@ NFbxMeshNode::Setup( FbxNode* node, const Ptr<NFbxScene>& scene )
 	if (this->fbxNode->GetParent())
 	{
 		this->lod = this->fbxNode->GetParent()->GetLodGroup();
-		if (this->lod != NULL)
-		{
-			int numThresholds = this->lod->GetNumThresholds();
-			int displayLevels = this->lod->GetNumDisplayLevels();
-		}
 	}
 
 	// set mask
@@ -1030,6 +1025,14 @@ NFbxMeshNode::DoMerge( Util::Dictionary<Util::String, Util::Array<Ptr<NFbxMeshNo
 		this->skinFragments.Clear();
 	}
 
+	// make sure lods doesn't get merged
+	if (this->lod != NULL)
+	{
+		String lodMaterial;
+		lodMaterial.Format("_lod_%d_%d", this->lodIndex, this->name.HashCode());
+		this->material.Append(lodMaterial);
+	}
+
 	// add this mesh to mesh dictionary, create entry if non-existent
 	if (meshes.Contains(this->material))
 	{
@@ -1051,13 +1054,10 @@ NFbxMeshNode::DoMerge( Util::Dictionary<Util::String, Util::Array<Ptr<NFbxMeshNo
 const float 
 NFbxMeshNode::GetLODMaxDistance() const
 {
+	n_assert(this->lod != NULL);
 	FbxDistance dist;
-	int index = this->lodIndex;
-	bool hasMax = false;
-	if (index >= 0)
-	{
-		hasMax = this->lod->GetThreshold(index, dist);
-	}
+	int index = n_iclamp(this->lodIndex, 0, this->lod->GetNumThresholds());
+	bool hasMax = this->lod->GetThreshold(index, dist);
 
 	float scale = this->scene->GetScale();
 	if (hasMax)
@@ -1077,13 +1077,10 @@ NFbxMeshNode::GetLODMaxDistance() const
 const float 
 NFbxMeshNode::GetLODMinDistance() const
 {
+	n_assert(this->lod != NULL);
 	FbxDistance dist;
-	int index = this->lodIndex - 1;
-	bool hasMin = false;
-	if (index >= 0)
-	{
-		hasMin = this->lod->GetThreshold(index, dist);
-	}
+	int index = n_iclamp(this->lodIndex - 1, 0, this->lod->GetNumThresholds());
+	bool hasMin = this->lod->GetThreshold(index, dist);
 
 	float scale = this->scene->GetScale();
 	if (hasMin)

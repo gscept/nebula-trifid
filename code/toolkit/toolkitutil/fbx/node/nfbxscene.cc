@@ -499,16 +499,13 @@ NFbxScene::Flatten()
 		}
 		
 		// get list of meshes for material
-		Array<Ptr<NFbxMeshNode> > meshList = meshNodes.ValueAtIndex(i);
-
-		// create list of lod nodes
-		Array<Ptr<NFbxMeshNode> > lodList;
+		Array<Ptr<NFbxMeshNode>> meshList = meshNodes.ValueAtIndex(i);
 
 		// treat first mesh as the root for which we should merge the others to
 		Ptr<NFbxMeshNode> rootMesh = meshList[0];
 
 		// create new list of fragments
-		Array<Ptr<SkinFragment> > rootFragments;
+		Array<Ptr<SkinFragment>> rootFragments;
 		String nodeName;
 
 		// begin bounding box extending, this should be cheaper than a complete recalculation
@@ -518,24 +515,11 @@ NFbxScene::Flatten()
 		// create counter for physics
 		IndexT physicsNodeIndex = 0;
 
-		// keep track of if the last node as a LODded node
-		bool previousWasLOD = false;
-
 		IndexT k;
 		for (k = 0; k < meshList.Size(); k++)
 		{
 			Ptr<NFbxMeshNode> meshNode = meshList[k];
 			meshNode->SetGroupId(groupIndex);
-
-			// add node to lod list
-			if (meshNode->HasLOD())
-			{
-				lodList.Append(meshNode);
-			}
-			else if (previousWasLOD)
-			{
-				groupIndex++;
-			}
 
 			// add physics node to list of physics nodes
 			if (physics)
@@ -554,7 +538,7 @@ NFbxScene::Flatten()
 			IndexT triIndex;
 
 			// get list of fragments
-			const Util::Array<Ptr<SkinFragment> >& fragments = meshNode->GetSkinFragments();
+			const Util::Array<Ptr<SkinFragment>>& fragments = meshNode->GetSkinFragments();
 
 			// extend bounding box
 			mergedBox.extend(meshNode->GetBoundingBox());
@@ -626,17 +610,6 @@ NFbxScene::Flatten()
 				rootMeshSource->AddTriangle(tri);
 			}
 
-			// increase group index if we have lod
-			if (meshNode->HasLOD())
-			{
-				groupIndex++;
-				previousWasLOD = true;
-			}
-			else
-			{
-				previousWasLOD = false;
-			}
-
 			if (physics)
 			{
 				physicsGroupIndex++;
@@ -669,27 +642,12 @@ NFbxScene::Flatten()
 			// add mesh back
 			meshList.Append(rootMesh);
 
-			// add lod meshes back
-			meshList.AppendArray(lodList);
-
 			// now set list back
 			meshNodes[meshNodes.KeyAtIndex(i)] = meshList;
 
-			// add lod nodes if present
-			if (!lodList.IsEmpty())
-			{
-				IndexT k;
-				for (k = 0; k < lodList.Size(); k++)
-				{
-					this->meshNodes.Add(rootMesh->GetNode(), lodList[k]);
-				}
-			}
-			else
-			{
-				// add merged node to dictionaries
-				this->meshNodes.Add(rootMesh->GetNode(), rootMesh);
-			}
-			
+			// add merged node to dictionaries
+			this->meshNodes.Add(rootMesh->GetNode(), rootMesh);
+
 			this->nodes.Add(rootMesh->GetNode(), rootMesh.upcast<NFbxNode>());		
 			this->rootNodes.Append(rootMesh.upcast<NFbxNode>());
 		}
