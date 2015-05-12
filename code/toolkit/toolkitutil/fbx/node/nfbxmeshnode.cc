@@ -99,10 +99,6 @@ NFbxMeshNode::Setup( FbxNode* node, const Ptr<NFbxScene>& scene )
 	if (this->fbxNode->GetParent() != NULL)
 	{
 		this->lod = this->fbxNode->GetParent()->GetLodGroup();
-		if (!this->lod->Is(FbxLODGroup::ClassId))
-		{
-			this->lod = NULL;
-		}
 	}
 
 	// set mask
