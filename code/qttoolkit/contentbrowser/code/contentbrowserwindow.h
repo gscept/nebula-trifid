@@ -123,9 +123,9 @@ private slots:
 	void UpdateTextureLibrary( QTreeWidgetItem* textureItem );
 
     /// called whenever a model has been imported
-    void ModelImported(const Util::String& res);
+    void OnModelImported(const Util::String& res);
     /// called whenever a texture has been imported
-    void TextureImported(const Util::String& res);
+    void OnTextureImported(const Util::String& res);
 
 	/// called whenever a model has been saved with a new name
 	void ModelSavedWithNewName(const Util::String& res);

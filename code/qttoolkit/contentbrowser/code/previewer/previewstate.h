@@ -42,6 +42,10 @@ public:
 	bool SetPhysics(const Resources::ResourceId& resource);
 	/// returns the pointer to the physics entity
 	const Ptr<Physics::ManagedPhysicsModel>& GetPhysics() const;
+	/// remove the current model from the previewer
+	void PreImportModel();
+	/// attaches the model back to the previewer
+	void PostImportModel();
 
 	/// enables rendering of the physics shape
 	void SetShowPhysics(bool enable);
