@@ -306,4 +306,5 @@ static const int JobMaxSliceSize = 0xFFFF;
 #define NEBULA_RENDER_THREAD (1)
 
 #define NEBULA3_THREAD_DEFAULTSTACKSIZE 65536 
+
 //------------------------------------------------------------------------------

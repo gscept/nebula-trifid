@@ -9,7 +9,6 @@
 */
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
-#include "game/featureunit.h"
 #include "imguiinputhandler.h"
 
 namespace Dynui

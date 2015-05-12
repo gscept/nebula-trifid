@@ -455,7 +455,7 @@ GLSL4EffectVarblock::FlushBuffer()
 {
 	*this->ringIndex = (*this->ringIndex + 1) % this->numBackingBuffers;
 	glBindBuffer(GL_UNIFORM_BUFFER, this->auxBuffers[*this->ringIndex]);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, this->alignedSize, this->glBackingBuffer);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, this->bufferSize, this->glBackingBuffer);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 

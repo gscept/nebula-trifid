@@ -111,6 +111,12 @@ InstanceServerBase::EndInstancing()
 {
 	n_assert(this->IsOpen());
 	n_assert(this->isBeginInstancing);
+
+	IndexT i;
+	for (i = 0; i < this->instancesByCode.Size(); i++)
+	{
+		this->instancesByCode.ValueAtIndex(i).Clear();
+	}
 	this->instancesByCode.Clear();
 	this->modelNode = 0;
 	this->isBeginInstancing = false;

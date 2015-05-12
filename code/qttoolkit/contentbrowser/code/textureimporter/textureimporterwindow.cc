@@ -27,7 +27,6 @@ TextureImporterWindow::TextureImporterWindow()
 {
 	// setup ui
 	this->ui.setupUi(this);
-	this->setWindowFlags(Qt::Tool);
 
 	// setup signal
 	connect(this->ui.importButton, SIGNAL(pressed()), this, SLOT(OnImport()));

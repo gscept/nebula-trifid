@@ -47,7 +47,7 @@ OGL4ShaderServer::Open()
     n_assert(!this->IsOpen());
 
 	// create anyfx factory
-	this->factory = new AnyFX::EffectFactory;
+	this->factory = n_new(AnyFX::EffectFactory);
     ShaderServerBase::Open();
 
     return true;

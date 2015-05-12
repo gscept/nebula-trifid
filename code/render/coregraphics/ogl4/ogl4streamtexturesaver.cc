@@ -100,7 +100,7 @@ OGL4StreamTextureSaver::SaveTexture2D(const Ptr<CoreGraphics::Texture>& tex, ILe
 	// now save as PNG (will give us proper alpha)
 	ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
 	ILint size = ilSaveL(imageFileType, NULL, 0);
-	ILbyte* data = new ILbyte[size];
+	ILbyte* data = n_new_array(ILbyte, size);
 	ilSaveL(imageFileType, data, size);
 	tex->Unmap(mipLevelToSave);
 
@@ -117,6 +117,7 @@ OGL4StreamTextureSaver::SaveTexture2D(const Ptr<CoreGraphics::Texture>& tex, ILe
 		retval = true;
 	}
 
+	n_delete_array(data);
 	ilDeleteImage(image);
 	return retval;
 }
@@ -205,7 +206,7 @@ OGL4StreamTextureSaver::SaveCubemap(const Ptr<CoreGraphics::Texture>& tex, ILenu
 	// now save as PNG (will give us proper alpha)
 	ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
 	ILint size = ilSaveL(imageFileType, NULL, 0);
-	ILbyte* data = new ILbyte[size];
+	ILbyte* data = n_new_array(ILbyte, size);
 	ilSaveL(imageFileType, data, size);
 
 	// write result to stream
@@ -221,6 +222,7 @@ OGL4StreamTextureSaver::SaveCubemap(const Ptr<CoreGraphics::Texture>& tex, ILenu
 		retval = true;
 	}
 
+	n_delete_array(data);
 	ilDeleteImage(image);
 	return retval;
 }

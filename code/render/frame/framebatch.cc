@@ -227,10 +227,10 @@ FrameBatch::RenderBatch()
 					renderDevice->BeginBatch(this->batchType);
 
 					// render instances
-					Array<Ptr<ModelNodeInstance>> nodeInstances = visResolver->GetVisibleModelNodeInstances(material->GetCode(), modelNode);
+					const Array<Ptr<ModelNodeInstance>>& nodeInstances = visResolver->GetVisibleModelNodeInstances(material->GetCode(), modelNode);
 					
 					// sort if necessary
-					this->Sort(nodeInstances);
+					//this->Sort(nodeInstances);
 
 					IndexT nodeInstIndex;
 					for (nodeInstIndex = 0; nodeInstIndex < nodeInstances.Size(); nodeInstIndex++)

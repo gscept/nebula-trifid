@@ -35,9 +35,13 @@ public:
 	Util::String OnFrame();
 
 	/// sets the model to render, returns true if model is properly loaded
-	bool SetModel(const Resources::ResourceId& resource, const Resources::ResourceId& physicsResource);
+	bool SetModel(const Resources::ResourceId& resource);
 	/// returns pointer to model entity
 	const Ptr<Graphics::ModelEntity>& GetModel() const;
+	/// sets the physics model to display
+	bool SetPhysics(const Resources::ResourceId& resource);
+	/// returns the pointer to the physics entity
+	const Ptr<Physics::ManagedPhysicsModel>& GetPhysics() const;
 
 	/// enables rendering of the physics shape
 	void SetShowPhysics(bool enable);
@@ -74,6 +78,15 @@ inline const Ptr<Graphics::ModelEntity>&
 PreviewState::GetModel() const
 {
 	return this->modelEntity;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Ptr<Physics::ManagedPhysicsModel>&
+PreviewState::GetPhysics() const
+{
+	return this->physicsModel;
 }
 
 //------------------------------------------------------------------------------

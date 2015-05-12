@@ -18,9 +18,6 @@
 #include "renderutil/freecamerautil.h"
 #include "debugrender/debugshaperenderer.h"
 #include "debugrender/debugtextrenderer.h"
-#ifdef _QT_NEB_SUPPORT
-#include "qtfeature/qtserver.h"
-#endif
 
 //------------------------------------------------------------------------------
 namespace App
@@ -52,9 +49,6 @@ protected:
     Ptr<Graphics::Stage> stage;
     Ptr<Graphics::View> view;
     Ptr<Graphics::CameraEntity> camera;
-#ifdef _QT_NEB_SUPPORT
-	Ptr<QtFeature::QtServer> qtServer;
-#endif
 #ifndef FREECAM
     RenderUtil::MayaCameraUtil mayaCameraUtil;
 #else

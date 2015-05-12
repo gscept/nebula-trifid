@@ -89,7 +89,6 @@ void DumpMemoryLeaks();
 #define __MEMORY_VALIDATE(s)
 } // namespace Memory
 
-
 #ifdef new
 #undef new
 #endif
@@ -140,7 +139,7 @@ operator delete[](void* p)
 
 
 #define n_new(type) new type
-#define n_new_array(type,size) new type[size]
+#define n_new_array(type, size) new type[size]
 #define n_delete(ptr) delete ptr
 #define n_delete_array(ptr) delete[] ptr
 //------------------------------------------------------------------------------
