@@ -351,4 +351,37 @@ NavigationServer::ResetNavMesh(const Util::String & id)
 	this->UpdateNavMesh(guid,dummy,dummy2);
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+NavigationServer::UpdateAreaId(const Util::String & mapname, const Math::point& pos, unsigned char areaId)
+{
+	dtNavMesh * mesh = this->meshes[mapname];
+	dtNavMeshQuery * query = this->queries[mapname];
+
+	dtQueryFilter filter;
+	dtPolyRef ap;
+	float anp[3];
+	float aa[4], ext[3];
+	pos.storeu(aa);
+	for (int i = 0; i < 3; i++)
+	{
+		ext[i] = 10.0f;
+	}
+
+	dtStatus res = query->findNearestPoly(aa, ext, &filter, &ap, anp);
+	if (res == DT_SUCCESS)
+	{
+		const dtMeshTile * tile;
+		const dtPoly * poly;
+		mesh->getTileAndPolyByRefUnsafe(ap, &tile, &poly);
+		if (poly)
+		{
+			dtPoly * pp = (dtPoly *)(poly);
+			pp->setArea(areaId);
+		}
+	}
+}
+
 }

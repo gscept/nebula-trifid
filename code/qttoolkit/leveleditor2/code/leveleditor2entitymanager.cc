@@ -226,7 +226,7 @@ LevelEditor2EntityManager::CreateNavArea()
     attributes.Append(Attribute(Transform, trans));
     attributes.Append(Attribute(Attr::EntityType,NavMeshArea));    
     attributes.Append(Attribute(Attr::EntityCategory,"_NavigationArea"));
-    attributes.Append(Attribute(Attr::NavMeshArea,1));
+    attributes.Append(Attribute(Attr::NavMeshArea,2));
 
 
     Ptr<Game::Entity> newEnt =  CreateEntityByAttrs(attributes,"EditorNavAreaMarker");	

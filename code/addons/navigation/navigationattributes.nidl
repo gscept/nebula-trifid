@@ -27,7 +27,7 @@
     <Attribute name="NavMeshMeshString" fourcc="NVMS" accessMode="ReadWrite" type="String" system="1"/>
     <Attribute name="NavMeshCenter" fourcc="NVMC" accessMode="ReadWrite" type="Float4" system="1"/>
     <Attribute name="NavMeshExtends" fourcc="NVEX" accessMode="ReadWrite" type="Float4" system="1"/>
-    <Attribute name="NavMeshArea" fourcc="NVAR" accessMode="ReadWrite" type="Int" default="0" />
+    <Attribute name="NavMeshArea" fourcc="NVAR" accessMode="ReadWrite" type="Int" default="2" />
   </AttributeLib>
   
   <Property name="Navigation::NavigatedProperty" derivedFrom="BaseGameFeature::TransformableProperty" header="navigation/navigatedproperty.h">
@@ -42,7 +42,9 @@
     <Attribute name="TargetPos"/>
   </Property>
   <Property name="Navigation::ConvexAreaMarkerProperty" header="navigation/convexareamarkerproperty.h">
+    <Attribute name="Transform"/>
     <Attribute name="NavMeshArea"/>
+    <Attribute name="NavMeshMeshString"/>
   </Property>
 
     <Protocol namespace="Navigation" name="NavigationProtocol">
@@ -73,5 +75,9 @@
     <Message name="EnableAgent" fourcc="ENGT" scripted="true">
       <Desc>Adds an agent to crowd managment</Desc>
     </Message>
+      <Message name="UpdateAreaId" fourcc="UPAI" scripted="true">
+        <Desc>Updates the navmesh area id at the position</Desc>
+        <InArg name="AreaId" type="int"/>
+      </Message>
     </Protocol>
 </Nebula3>		
