@@ -77,7 +77,11 @@ GameExporter::ExportAll()
     {
         sqlite3Factory = Db::Sqlite3Factory::Create();
     }
-
+	
+	if (!IoServer::Instance()->DirectoryExists("export:data/tables"))
+	{
+		IoServer::Instance()->CreateDirectory("export:data/tables");
+	}
 
     Ptr<Toolkit::EditorBlueprintManager> bm;
     if(Toolkit::EditorBlueprintManager::HasInstance())
@@ -105,6 +109,7 @@ GameExporter::ExportAll()
     
    
     bm->CreateDatabases("export:/db/");
+	bm->SaveBlueprint("export:data/tables/blueprints.xml");
 
     Ptr<Db::Database> gamedb = Db::DbFactory::Instance()->CreateDatabase();
     gamedb->SetURI("export:db/game.db4");
