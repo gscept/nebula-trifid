@@ -243,7 +243,8 @@ RecastUtil::GenerateNavMeshData()
         const Ptr<Game::Entity> & ent = this->areaEntities[i];
         // currently we only do boxes
         Math::matrix44 trans = ent->GetMatrix44(Attr::Transform);
-        int areaId = ent->GetInt(Attr::NavMeshArea);
+        int areaId = ent->GetInt(Attr::NavMeshAreaCost);
+		int areaFlags = ent->GetInt(Attr::NavMeshAreaFlags);
         float maxHeight = -FLT_MAX;
         float maxDepth = FLT_MAX;
         for(int j = 0 ; j<8;j++)
@@ -258,7 +259,7 @@ RecastUtil::GenerateNavMeshData()
 			p.storeu(pv);
 			rcVcopy(boxData + 3 * j, pv);
 		}
-		
+		areaId = (areaId << 8) + areaFlags;
         rcMarkConvexPolyArea(&m_ctx, boxData, 4, maxDepth, maxHeight, areaId, *m_chf);        
     }
 
@@ -326,6 +327,14 @@ RecastUtil::GenerateNavMeshData()
 			m_pmesh->areas[i] = 1;
 			m_pmesh->flags[i] = 1;
 		}
+		else
+		{
+			// custom area
+			int id = m_pmesh->areas[i];
+			m_pmesh->flags[i] = id & 255;
+			m_pmesh->areas[i] = id >> 8;
+		}
+		
 	}
 
 

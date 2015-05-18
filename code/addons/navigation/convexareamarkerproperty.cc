@@ -5,7 +5,7 @@
 #include "stdneb.h"
 #include "convexareamarkerproperty.h"
 #include "navigationattributes.h"
-#include "basegamefeature\basegameprotocol.h"
+#include "basegamefeature/basegameprotocol.h"
 #include "navigationserver.h"
 
 namespace Navigation
@@ -43,7 +43,7 @@ ConvexAreaMarkerProperty::SetupAcceptedMessages()
 void 
 ConvexAreaMarkerProperty::OnStart()
 {
-	this->startingAreaId = this->entity->GetInt(Attr::NavMeshArea);
+	this->startingAreaId = this->entity->GetInt(Attr::NavMeshAreaFlags);
 	this->UpdateArea(this->startingAreaId);
 }
 
@@ -53,7 +53,11 @@ ConvexAreaMarkerProperty::OnStart()
 void
 ConvexAreaMarkerProperty::UpdateArea(unsigned int areaId)
 {
-	Navigation::NavigationServer::Instance()->UpdateAreaId(this->entity->GetString(Attr::NavMeshMeshString), this->entity->GetMatrix44(Attr::Transform).get_position(), areaId);
+	Util::Array<Util::String> navMeshes = this->entity->GetString(Attr::NavMeshMeshString).Tokenize(";");
+	for (int i = 0; i < navMeshes.Size(); i++)
+	{
+		Navigation::NavigationServer::Instance()->UpdateAreaId(navMeshes[i], this->entity->GetMatrix44(Attr::Transform).get_position(), areaId);
+	}	
 }
 
 //------------------------------------------------------------------------------

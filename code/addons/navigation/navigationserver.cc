@@ -379,7 +379,7 @@ NavigationServer::UpdateAreaId(const Util::String & mapname, const Math::point& 
 		if (poly)
 		{
 			dtPoly * pp = (dtPoly *)(poly);
-			pp->setArea(areaId);
+			pp->flags  = areaId;
 		}
 	}
 }
