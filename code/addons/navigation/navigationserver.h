@@ -9,6 +9,7 @@
 */
 #include "core/refcounted.h"
 #include "core/singleton.h"
+#include "math/point.h"
 #include "io/uri.h"
 #include "util/blob.h"
 #include "util/guid.h"

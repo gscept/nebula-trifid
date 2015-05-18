@@ -426,4 +426,24 @@ NavigationServer::GetAreaId(const Util::String & id, const Math::point& pos, uns
 	return 0;	
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+bool NavigationServer::IsOnMap(const Math::point& position)
+{	
+	dtNavMeshQuery * query = this->queries[this->selected];
+	dtQueryFilter filter;
+	dtPolyRef ap;
+	float anp[3];
+	float aa[4],ext[3];
+	position.storeu(aa); 
+	for(int i = 0 ; i<3 ; i++)
+	{    
+		ext[i] = 0.1f;
+	}
+
+	dtStatus res = query->findNearestPoly(aa,ext,&filter,&ap,anp);
+	return res == DT_SUCCESS;	
+}
+
 }
