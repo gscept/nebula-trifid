@@ -248,7 +248,7 @@ EditorNavMeshProperty::UpdateMesh()
 
     Util::String areaGuids = entity->GetString(Attr::AreaEntityReferences);
     Util::Array<Util::String> areaGuidarray = areaGuids.Tokenize(";");
-	Util::String navGuid = entity->GetString(Attr::NavMeshData);
+	Util::String navGuid = entity->GetGuid(Attr::EntityGuid).AsString();
     for(IndexT i = 0 ; i < areaGuidarray.Size() ; i++)
     {        
         Util::Guid g;
@@ -257,16 +257,17 @@ EditorNavMeshProperty::UpdateMesh()
 		if (ent.isvalid())
 		{
 			Util::String meshString = ent->GetString(Attr::NavMeshMeshString);
-			if (meshString.FindStringIndex(navGuid) == InvalidIndex)
+			if (meshString.IsEmpty())
 			{
-				if (!meshString.IsEmpty())
-				{
-					meshString += ";";
-				}
-				meshString += navGuid;
+				meshString.Append(navGuid);
 				meshString += ";";
-				ent->SetString(Attr::NavMeshMeshString, meshString);
 			}
+			else if (meshString.FindStringIndex(navGuid) == InvalidIndex)
+			{				
+				meshString += navGuid;
+				meshString += ";";				
+			}
+			ent->SetString(Attr::NavMeshMeshString, meshString);
 			recast->AddConvexArea(ent);
 		}        
     }

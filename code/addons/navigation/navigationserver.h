@@ -87,7 +87,7 @@ public:
 	const Util::String& GetNavmeshFromId(const Util::String& id);
     
 	///
-	void UpdateAreaId(const Util::String & mapname, const Math::point& pos, unsigned char areaId);
+	void UpdateAreaId(const Util::String & mapname, const Math::point& pos, unsigned short areaId, unsigned short filter);
 
     friend class Navigation::CrowdManager;	
 private:    

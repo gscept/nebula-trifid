@@ -56,7 +56,7 @@ ConvexAreaMarkerProperty::UpdateArea(unsigned int areaId)
 	Util::Array<Util::String> navMeshes = this->entity->GetString(Attr::NavMeshMeshString).Tokenize(";");
 	for (int i = 0; i < navMeshes.Size(); i++)
 	{
-		Navigation::NavigationServer::Instance()->UpdateAreaId(navMeshes[i], this->entity->GetMatrix44(Attr::Transform).get_position(), areaId);
+		Navigation::NavigationServer::Instance()->UpdateAreaId(navMeshes[i], this->entity->GetMatrix44(Attr::Transform).get_position(), areaId, 0xffff);
 	}	
 }
 
@@ -67,6 +67,7 @@ void
 ConvexAreaMarkerProperty::OnDeactivate()
 {
 	this->UpdateArea(this->startingAreaId);
+	Property::OnDeactivate();
 }
 
 //------------------------------------------------------------------------------

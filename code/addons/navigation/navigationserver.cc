@@ -354,20 +354,22 @@ NavigationServer::ResetNavMesh(const Util::String & id)
 //------------------------------------------------------------------------------
 /**
 */
-void 
-NavigationServer::UpdateAreaId(const Util::String & mapname, const Math::point& pos, unsigned char areaId)
+void
+NavigationServer::UpdateAreaId(const Util::String & id, const Math::point& pos, unsigned short areaId, unsigned short filterFlag)
 {
+	Util::String mapname = this->GetNavmeshFromId(id);
 	dtNavMesh * mesh = this->meshes[mapname];
 	dtNavMeshQuery * query = this->queries[mapname];
 
 	dtQueryFilter filter;
+	filter.setIncludeFlags(filterFlag);
 	dtPolyRef ap;
 	float anp[3];
 	float aa[4], ext[3];
 	pos.storeu(aa);
 	for (int i = 0; i < 3; i++)
 	{
-		ext[i] = 10.0f;
+		ext[i] = 1.0f;
 	}
 
 	dtStatus res = query->findNearestPoly(aa, ext, &filter, &ap, anp);
@@ -381,6 +383,10 @@ NavigationServer::UpdateAreaId(const Util::String & mapname, const Math::point& 
 			dtPoly * pp = (dtPoly *)(poly);
 			pp->flags  = areaId;
 		}
+	}
+	else
+	{
+		n_printf("failed to update navmesh poly\n");
 	}
 }
 
