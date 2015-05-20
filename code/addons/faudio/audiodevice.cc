@@ -185,6 +185,13 @@ AudioDevice::Open()
         FMOD_CHECK_ERROR(result);
     }
 
+	// load fmod plugins in the binary folder
+	Util::Array<Util::String> fmod_plugins = IO::IoServer::Instance()->ListFiles("bin:", "fmod_*", true);
+	for (int i = 0; i < fmod_plugins.Size(); i++)
+	{
+		this->lowlevelSystem->loadPlugin(fmod_plugins[i].AsCharPtr(), NULL);
+	}
+
 	result = this->lowlevelSystem->getMasterChannelGroup(&this->masterGroup);
     FMOD_CHECK_ERROR(result);
 
