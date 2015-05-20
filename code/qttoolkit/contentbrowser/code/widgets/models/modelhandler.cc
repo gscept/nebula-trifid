@@ -109,6 +109,7 @@ ModelHandler::Preview()
 	IoServer::Instance()->CopyFile(phResource, tempPhysicsResource);
 
 	// preview the model
+	previewState->PreImportModel();
 	if (!previewState->SetModel(tempResource))
 	{
 		// remove temp files if we cannot properly load them
@@ -1050,8 +1051,9 @@ ModelHandler::MakeModel()
 	modelBuilder->SaveN3(resource, Platform::Win32);
 
 	// reload model, then call OnModelReloaded when its done
+	ContentBrowserApp::Instance()->GetPreviewState()->PreImportModel();
 	Ptr<ReloadResourceIfExists> msg = ReloadResourceIfExists::Create();
-	msg->SetResourceName(resource);
+	msg->SetResourceName(resource);	
 	__StaticSend(GraphicsInterface, msg);
 	this->OnModelReloaded(msg.upcast<Messaging::Message>());
 	//__SingleFireCallback(Widgets::ModelHandler, OnModelReloaded, this, msg.upcast<Messaging::Message>());

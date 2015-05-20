@@ -178,8 +178,8 @@ ContentBrowserWindow::ContentBrowserWindow() :
 	connect(this->ui.actionShow_sky, SIGNAL(triggered()), this, SLOT(OnShowSkyChecked()));
 	connect(this->ui.actionTexture_browser, SIGNAL(triggered()), this, SLOT(OnShowTextureBrowser()));
 	connect(this->ui.actionEnvironment_probe, SIGNAL(triggered()), this, SLOT(OnShowEnvironmentProbeSettings()));
-	connect(this->modelImporterWindow, SIGNAL(ImportDone(const Util::String&)), this, SLOT(ModelImported(const Util::String&)));
-	connect(this->textureImporterWindow, SIGNAL(ImportDone(const Util::String&)), this, SLOT(TextureImported(const Util::String&)));	
+	connect(this->modelImporterWindow, SIGNAL(ImportDone(const Util::String&)), this, SLOT(OnModelImported(const Util::String&)));
+	connect(this->textureImporterWindow, SIGNAL(ImportDone(const Util::String&)), this, SLOT(OnTextureImported(const Util::String&)));	
 
     // connect actions
 	connect(this->ui.actionShow_Model_Info, SIGNAL(triggered()), this, SLOT(OnShowModelInfo()));
@@ -784,7 +784,7 @@ ContentBrowserWindow::UpdateUILibrary(QTreeWidgetItem* uiItem)
 /**
 */
 void 
-ContentBrowserWindow::ModelImported( const Util::String& res )
+ContentBrowserWindow::OnModelImported( const Util::String& res )
 {
 	// split resource into category and file
 	IndexT slashLocation = res.FindCharIndex('/');
@@ -963,7 +963,7 @@ ContentBrowserWindow::ModelImported( const Util::String& res )
 /**
 */
 void 
-ContentBrowserWindow::TextureImported( const Util::String& res )
+ContentBrowserWindow::OnTextureImported( const Util::String& res )
 {
     // simply add texture resource (if it doesnt exist!)
     IndexT slashLocation = res.FindCharIndex('/');
