@@ -8,6 +8,7 @@
     (C) 2015 Individual contributors, see AUTHORS file
 */
 #include "game/property.h"
+#include "DetourNavMesh.h"
 
 //------------------------------------------------------------------------------
 namespace Navigation
@@ -21,6 +22,19 @@ public:
     ConvexAreaMarkerProperty();
     /// destructor
     virtual ~ConvexAreaMarkerProperty();    
+	/// override to register accepted messages
+	virtual void SetupAcceptedMessages();
+	/// called from within Entity::OnStart() after OnLoad when the complete world exist    
+	virtual void OnStart();
+	/// called from Entity::DeactivateProperties()
+	virtual void OnDeactivate();
+	/// handle a single message
+	virtual void HandleMessage(const Ptr<Messaging::Message>& msg);
+private:
+	///
+	void UpdateArea(unsigned int areaId);
+	
+	unsigned int startingAreaId;
 };
 __RegisterClass(ConvexAreaMarkerProperty);
 }; // namespace Navigation

@@ -1172,11 +1172,11 @@ EditorBlueprintManager::ExportGlobals(const Ptr<Db::Database> & gameDb)
 
 	IO::IoServer* ioServer = IO::IoServer::Instance();
 
-	if(ioServer->FileExists("data:tables/globals.xml"))
+	if(ioServer->FileExists("root:data/tables/globals.xml"))
 	{
 		this->logger->Print("Found globals.xml, exporting...\n");
 										
-		Ptr<Stream> stream = IoServer::Instance()->CreateStream("data:tables/globals.xml");
+		Ptr<Stream> stream = IoServer::Instance()->CreateStream("root:data/tables/globals.xml");
 		Ptr<XmlReader> xmlReader = XmlReader::Create();
 		xmlReader->SetStream(stream);
 		if(xmlReader->Open())

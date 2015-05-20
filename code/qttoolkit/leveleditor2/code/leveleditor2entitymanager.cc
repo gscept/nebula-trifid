@@ -226,7 +226,8 @@ LevelEditor2EntityManager::CreateNavArea()
     attributes.Append(Attribute(Transform, trans));
     attributes.Append(Attribute(Attr::EntityType,NavMeshArea));    
     attributes.Append(Attribute(Attr::EntityCategory,"_NavigationArea"));
-    attributes.Append(Attribute(Attr::NavMeshArea,1));
+    attributes.Append(Attribute(Attr::NavMeshAreaFlags,1));
+	attributes.Append(Attribute(Attr::NavMeshAreaCost, 1));
 
 
     Ptr<Game::Entity> newEnt =  CreateEntityByAttrs(attributes,"EditorNavAreaMarker");	
@@ -387,7 +388,8 @@ LevelEditor2EntityManager::CreateEntityFromAttrContainer(const Util::String & ca
         at.Append(Attribute(Attr::EntityCategory, "_NavigationArea"));
         at.Append(Attribute(Attr::EntityGuid, attrs.GetGuid(Attr::Guid)));
         at.Append(Attribute(Attr::EntityLevel, Level::Instance()->GetName()));    
-        at.Append(Attribute(Attr::NavMeshArea, attrs.GetInt(Attr::NavMeshArea)));
+        at.Append(Attribute(Attr::NavMeshAreaCost, attrs.GetInt(Attr::NavMeshAreaCost)));
+		at.Append(Attribute(Attr::NavMeshAreaFlags, attrs.GetInt(Attr::NavMeshAreaFlags)));
         newEnt = CreateEntityByAttrs(at,"EditorNavAreaMarker",attrs.GetGuid(Attr::Guid).AsString());
         newEnt->SetString(Attr::EntityLevel,Level::Instance()->GetName());		
     }

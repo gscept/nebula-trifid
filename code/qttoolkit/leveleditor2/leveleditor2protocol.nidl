@@ -36,6 +36,11 @@
     <Attribute name="ProbeOutputFolder"/>
     <Attribute name="ProbeOutputFilename"/>
   </Property>
+  <Property name="LevelEditor2::EditorNavAreaProperty" header="properties/editornavareaproperty.h">
+    <Attribute name="NavMeshAreaFlags"/>
+    <Attribute name="NavMeshAreaCost"/>
+    <Attribute name="NavMeshMeshString"/>
+  </Property>
   <Protocol namespace="LevelEditor2" name="LevelEditor2Protocol">
 
     <!-- dependencies? -->

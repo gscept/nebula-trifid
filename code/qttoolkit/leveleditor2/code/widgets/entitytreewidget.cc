@@ -56,6 +56,18 @@ EntityTreeItem::SetIcon(const EntityType& type)
 			this->setIcon(0, icon);
 		}
 		break;
+		case Group:
+		{
+			QStyle* style = QApplication::style();
+			this->setIcon(0, style->standardIcon(QStyle::SP_DirIcon));
+		}
+		break;
+		default:
+		{
+			QStyle* style = QApplication::style();
+			this->setIcon(0, style->standardIcon(QStyle::SP_FileIcon));
+		}
+		break;
 	}
 }
 
@@ -332,24 +344,22 @@ EntityTreeWidget::mimeData(const QList<QTreeWidgetItem*> items) const
 
 	// it has to be a base item
 	EntityTreeItem* baseItem = dynamic_cast<EntityTreeItem*>(item);
-
+	// create mimedata
+	QMimeData* mimeData = QTreeWidget::mimeData(items);
 	if (baseItem)
-	{
-		// create mimedata
-		QMimeData* mimeData = QTreeWidget::mimeData(items);
+	{	
 		const Ptr<Game::Entity>& entity = LevelEditor2EntityManager::Instance()->GetEntityById(baseItem->GetEntityGuid());
 		if (entity->HasAttr(Attr::Graphics))
 		{
 			Util::String res = entity->GetString(Attr::Graphics);
 			if (res.FindStringIndex("system/") == InvalidIndex)
 			{
-				mimeData->setData("nebula/resourceid", res.AsCharPtr());				
-				return mimeData;
+				mimeData->setData("nebula/resourceid", res.AsCharPtr());								
 			}
 		}				
 	}
 	// if that fails, return 0
-	return NULL;
+	return mimeData;
 }
 
 //------------------------------------------------------------------------------

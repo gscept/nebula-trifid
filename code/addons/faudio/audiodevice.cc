@@ -467,8 +467,12 @@ AudioDevice::EventPlayFireAndForget(const FAudio::EventId &eventId, float volume
 	if (is3d)
 	{
 		// we have a 3d event but no transform, play it at listener position
-		FMOD_3D_ATTRIBUTES attrs;
+		FMOD_3D_ATTRIBUTES attrs;		
+#if (FMOD_VERSION >= 0x00010600)
+		this->system->getListenerAttributes(0, &attrs);
+#else
 		this->system->getListenerAttributes(&attrs);
+#endif
 		eventInst->set3DAttributes(&attrs);
 	}
 
