@@ -256,7 +256,6 @@ NFbxMeshNode::ExtractMesh()
 
 	// compute boundingbox, then scale it with the rescale of the scene
 	this->boundingBox = this->mesh->ComputeBoundingBox();
-	this->boundingBox.set(this->boundingBox.center(), this->boundingBox.extents() * scaleFactor);
 
 	// calculate binormals and tangents if either the CalcNormals flag is on, or CalcBinormalsAndTangents is on, or if the model contains no binormals or tangents
 	if (this->exportFlags & ToolkitUtil::CalcNormals || 
