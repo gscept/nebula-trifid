@@ -56,9 +56,6 @@ NFbxMeshNode::Setup( FbxNode* node, const Ptr<NFbxScene>& scene )
 	if (!this->fbxMesh->IsTriangleMesh())
 	{
 		n_error("Should already be triangulated");
-		//FbxGeometryConverter* converter = new FbxGeometryConverter(NFbxScene::Instance()->GetScene()->GetFbxManager());
-		//this->fbxMesh = converter->TriangulateMesh(this->fbxMesh);
-		//delete converter		
 	}
 
 	// create mask
@@ -99,12 +96,27 @@ NFbxMeshNode::Setup( FbxNode* node, const Ptr<NFbxScene>& scene )
 	if (this->fbxNode->GetParent() != NULL)
 	{
 		this->lod = this->fbxNode->GetParent()->GetLodGroup();
+		if (this->lod != NULL)
+		{
+			// DO NOT REMOVE THIS. IF YOU DO, YOU DON'T GET THE LODS PROPERLY.
+			// ALSO CALLED A FUCKING BUG.
+			int numThresholds = this->lod->GetNumThresholds();
+			int displayLevels = this->lod->GetNumDisplayLevels();
+		}
 	}
 
 	// set mask
 	this->meshFlags = (ToolkitUtil::MeshFlags)meshMask;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+NFbxMeshNode::Discard()
+{
+	this->mesh->Clear();
+}
 
 //------------------------------------------------------------------------------
 /**
@@ -139,7 +151,7 @@ NFbxMeshNode::ExtractMesh()
 	{
 		FbxVector4 v = fbxMesh->GetControlPointAt(vertex);
 		MeshBuilderVertex meshVertex;
-		float4 position = float4((float)v[0] * scaleFactor,(float)v[1] * scaleFactor, (float)v[2] * scaleFactor, 1.0f);
+		float4 position = float4::multiply(float4((float)v[0], (float)v[1], (float)v[2], 1.0f), float4(scaleFactor, scaleFactor, scaleFactor, 1));
 
 		meshVertex.SetComponent(MeshBuilderVertex::CoordIndex, position);
 		this->mesh->AddVertex(meshVertex);
@@ -149,7 +161,7 @@ NFbxMeshNode::ExtractMesh()
 	for (int polygonIndex = 0; polygonIndex < polyCount; polygonIndex++)
 	{
 		int polygonSize = fbxMesh->GetPolygonSize(polygonIndex);
-		n_assert(polygonSize == 3);
+		n_assert2(polygonSize == 3, "Some polygons seem to not be triangulated, this is not accepted");
 		MeshBuilderTriangle meshTriangle;
 		meshTriangle.SetGroupId(this->groupId);
 		for (int polygonVertexIndex = 0; polygonVertexIndex < polygonSize; polygonVertexIndex++)
@@ -271,7 +283,7 @@ NFbxMeshNode::ExtractMesh()
 	if (this->exportFlags & ToolkitUtil::RemoveRedundant)
 	{
 		// remove redundant vertices
-		this->mesh->Deflate(0);
+		this->mesh->Cleanup(0);
 	}
 
 	// calculate lod index
@@ -1055,20 +1067,19 @@ NFbxMeshNode::GetLODMaxDistance() const
 {
 	n_assert(this->lod != NULL);
 	FbxDistance dist;
-	int index = n_max(this->lodIndex, -1);
-	if (index >= 0)
+	int index = this->lodIndex;
+	bool hasMax = this->lod->GetThreshold(index, dist);
+
+	float scale = this->scene->GetScale();
+	if (hasMax)
 	{
-		bool hasMax = this->lod->GetThreshold(index, dist);
-
-		float scale = this->scene->GetScale();
-		if (hasMax)
-		{
-			return dist.value() * scale;
-		}
+		return dist.value() * scale;
 	}
-
-	// fallback in case we don't have an interval
-	return FLT_MAX;
+	else
+	{
+		// return float max if there is no max-value
+		return FLT_MAX;
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -1079,20 +1090,18 @@ NFbxMeshNode::GetLODMinDistance() const
 {
 	n_assert(this->lod != NULL);
 	FbxDistance dist;
-	int index = n_max(this->lodIndex - 1, -1);
-	if (index >= 0)
+	int index = this->lodIndex - 1;
+	bool hasMin = this->lod->GetThreshold(index, dist);
+
+	float scale = this->scene->GetScale();
+	if (hasMin)
 	{
-		bool hasMin = this->lod->GetThreshold(index, dist);
-
-		float scale = this->scene->GetScale();
-		if (hasMin)
-		{
-			return dist.value() * scale;
-		}
+		return dist.value() * scale;
 	}
-
-	// if we have no min-value, the smallest value must be 0...
-	return 0.0f;
+	else
+	{
+		// return 0 if there is no min-value
+		return 0.0f;
+	}
 }
-
 } // namespace ToolkitUtil

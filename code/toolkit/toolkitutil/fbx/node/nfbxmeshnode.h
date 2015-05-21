@@ -32,6 +32,8 @@ public:
 
 	/// sets up node from kfbx-node containing a mesh
 	void Setup(FbxNode* node, const Ptr<NFbxScene>& scene);
+	/// discard node and its mesh
+	void Discard();
 
 	/// returns the mesh flags
 	const ToolkitUtil::MeshFlags& GetMeshFlags() const;
