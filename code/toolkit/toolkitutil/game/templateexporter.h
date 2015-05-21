@@ -53,9 +53,9 @@ public:
 
 private:
 	/// creates attributes from full attribute database (FAT)
-	void CollectFromNIDL();
+	void CollectNIDLAttributes();
 	/// creates attributes from blueprints
-	void CollectFromBlueprints(const Ptr<IO::XmlReader>& reader);
+	void WriteBlueprintTables();
 	/// fills attribute table with all registered attributes
 	void CollectAttributes(const Ptr<Db::Database>& db);	
 	/// create an entry in category table

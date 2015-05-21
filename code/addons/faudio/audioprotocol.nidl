@@ -3,6 +3,7 @@
   <AttributeLib>
     <Attribute name="AutoPlay" fourcc="AUPL" accessMode="ReadWrite" type="Bool" default="true"/>
     <Attribute name="AudioEvent" fourcc="AEVE" accessMode="ReadWrite" type="String"/>
+    <Attribute name="AutoLoad" fourcc="AULD" accessMode="ReadOnly" type="Bool"/>
   </AttributeLib>
 
   <Property name="FAudio::AudioEmitterProperty" header="faudio/audioemitterproperty.h">

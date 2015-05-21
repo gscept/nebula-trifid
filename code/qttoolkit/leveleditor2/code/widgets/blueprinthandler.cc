@@ -117,7 +117,7 @@ BlueprintsHandler::DeleteEntity()
 		return;
 	}
 	EditorBlueprintManager::Instance()->RemoveCategory(cat);
-	EditorBlueprintManager::Instance()->SaveProjectBlueprint();
+	EditorBlueprintManager::Instance()->SaveBlueprint("proj:data/tables/blueprints.xml");
 	SetupDialog();
 		
 }
@@ -161,7 +161,7 @@ BlueprintsHandler::DuplicateBlueprint()
 
 	/// Add le categoroi
 	EditorBlueprintManager::Instance()->SetCategory(newCategoryName, newProperties);
-	EditorBlueprintManager::Instance()->SaveProjectBlueprint();
+	EditorBlueprintManager::Instance()->SaveBlueprint("proj:data/tables/blueprints.xml");
 
 	// Update stuff
 	SetupDialog();

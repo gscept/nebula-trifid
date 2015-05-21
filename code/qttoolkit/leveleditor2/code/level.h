@@ -13,6 +13,7 @@
 #include "io/xmlwriter.h"
 #include "io/xmlreader.h"
 #include "math/bbox.h"
+#include "game/levelparser.h"
 namespace PostEffect
 {
 class PostEffectEntity;
@@ -20,7 +21,7 @@ class PostEffectEntity;
 
 namespace LevelEditor2
 {
-class Level : public Core::RefCounted
+class Level : public ToolkitUtil::LevelParser
 {
 	__DeclareClass(Level);
 	__DeclareSingleton(Level);
@@ -55,6 +56,19 @@ public:
 	Math::bbox GetBoundingBox();
 
 protected:
+
+    /// set level name
+    virtual void SetName(const Util::String & name);
+    /// parse layer information
+    virtual void AddLayer(const Util::String & name, bool visible, bool autoload, bool locked);
+    /// add entity
+    virtual void AddEntity(const Util::String & category, const Attr::AttributeContainer & attrs);
+    /// posteffect
+    virtual void SetPosteffect(const Util::String & preset, const Math::matrix44 & globallightTransform);
+    /// level dimensions
+    virtual void SetDimensions(const Math::bbox & box);
+
+
 	/// load a legacy level file
 	bool LoadLegacyLevel(const Ptr<IO::XmlReader>& reader);
 	/// load regular level file

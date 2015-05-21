@@ -83,7 +83,7 @@ TemplateExporter::Open()
 	n_assert2(this->staticDb->Open(), s.AsCharPtr());
 	
 	// collect all attributes written in nidl files and add them to the attributes tables
-	this->CollectFromNIDL();
+	this->CollectNIDLAttributes();
 
 	// create global categories table object
 	this->categoryTable = TemplateExporter::CreateTable(this->staticDb, "_Categories");
@@ -127,17 +127,7 @@ TemplateExporter::Open()
 void 
 TemplateExporter::Close()
 {
-	Ptr<Stream> blueprintStream = IoServer::Instance()->CreateStream(URI("proj:data/tables/blueprints.xml"));
-	Ptr<XmlReader> xmlReader = XmlReader::Create();
-
-	n_assert2(blueprintStream->Open(), "Could not open blueprints!");
-	xmlReader->SetStream(blueprintStream);
-	n_assert(xmlReader->Open());
-
-	this->CollectFromBlueprints(xmlReader);
-
-	xmlReader->Close();
-	blueprintStream->Close();
+	this->WriteBlueprintTables();
 
 	this->CollectAttributes(this->gameDb);
 	this->CollectAttributes(this->staticDb);
@@ -157,13 +147,23 @@ TemplateExporter::Close()
 }
 
 //------------------------------------------------------------------------------
-/**
+/**    
 */
 void 
 TemplateExporter::ExportAll()
 {
-	String templateDir = "proj:data/tables/db";
-	Array<String> files = IoServer::Instance()->ListFiles(templateDir, "*.xml");
+    // first convert toolkit templates
+    String templateDir = "toolkit:data/tables/db";
+    
+    Array<String> files = IoServer::Instance()->ListFiles(templateDir, "*.xml");
+    for (int fileIndex = 0; fileIndex < files.Size(); fileIndex++)
+    {
+        this->ExportFile(templateDir + "/" + files[fileIndex]);
+    }
+
+    // now the project specific ones
+	templateDir = "proj:data/tables/db";
+	files = IoServer::Instance()->ListFiles(templateDir, "*.xml");
 	for (int fileIndex = 0; fileIndex < files.Size(); fileIndex++)
 	{
 		this->ExportFile(templateDir + "/" + files[fileIndex]);
@@ -233,7 +233,7 @@ TemplateExporter::AddCategory(const Util::String & name, bool isVirtual, bool is
 /**
 */
 void 
-TemplateExporter::CollectFromNIDL()
+TemplateExporter::CollectNIDLAttributes()
 {	
 	Array<Ptr<IDLAttribute>> attrs = this->blueprintManager->GetAllAttributes();
 
@@ -291,68 +291,86 @@ TemplateExporter::CollectFromNIDL()
 
 //------------------------------------------------------------------------------
 /**
+    will create all template tables and instance tables defined by blueprints
+    in case they dont have a template db file
 */
 void 
-TemplateExporter::CollectFromBlueprints(const Ptr<IO::XmlReader>& reader)
+TemplateExporter::WriteBlueprintTables()
 {
 	Ptr<Db::Table> staticTable, gameTable;
 
-	if (reader->SetToFirstChild("Entity"))
-	{
-		do
+    Ptr<Toolkit::EditorBlueprintManager> bm = Toolkit::EditorBlueprintManager::Instance();
+
+	for(IndexT idx = 0 ; idx < bm->GetNumCategories();idx++)
+    {
+		// add category to global category table
+		String category = bm->GetCategoryByIndex(idx);
+		if (category != "Light")
 		{
-			// add category to global category table
-			String category = reader->GetString("type");
-			if (category != "Light")
-			{
-				this->AddCategory(category, false, false, "_Template_" + category, "_Instance_" + category);
-			}
+			this->AddCategory(category, false, false, "_Template_" + category, "_Instance_" + category);
+		}
 
-			// create new template table and add all attributes defined by nidl files to it
-			staticTable = TemplateExporter::CreateTable(this->staticDb, "_Template_" + category);
-			TemplateExporter::CreateColumn(staticTable, Column::Primary, Attr::AttrId("Id"));
+        // create new template table and add all attributes defined by nidl files to it
+        if(!this->staticDb->HasTable("_Template_" + category))
+        {
+		    // in case the table wasnt created before make sure it contains a primary column
+		    staticTable = TemplateExporter::CreateTable(this->staticDb, "_Template_" + category);
+		    TemplateExporter::CreateColumn(staticTable, Column::Primary, Attr::AttrId("Id"));
+        }
+        else
+        {
+            staticTable = TemplateExporter::CreateTable(this->staticDb, "_Template_" + category);
+        }
 
-			// create instance table and add default required attributes and then all the defined attributes to it
-			gameTable = TemplateExporter::CreateTable(this->gameDb, "_Instance_" + category);
-			TemplateExporter::CreateColumn(gameTable, Column::Primary, Attr::AttrId("_ID"));
-			TemplateExporter::CreateColumn(gameTable, Column::Default, Attr::AttrId("_Level"));
-			TemplateExporter::CreateColumn(gameTable, Column::Default, Attr::AttrId("_Layers"));
+		// create instance table and add default required attributes and then all the defined attributes to it
+        if(!this->gameDb->HasTable("_Instance_" + category))
+        {
+            gameTable = TemplateExporter::CreateTable(this->gameDb, "_Instance_" + category);
+            TemplateExporter::CreateColumn(gameTable, Column::Primary, Attr::AttrId("_ID"));
+            TemplateExporter::CreateColumn(gameTable, Column::Default, Attr::AttrId("_Level"));
+            TemplateExporter::CreateColumn(gameTable, Column::Default, Attr::AttrId("_Layers"));
+        }
+        else
+        {
+            gameTable = TemplateExporter::CreateTable(this->gameDb, "_Instance_" + category);
+        }
 
 			
-			if (Toolkit::EditorBlueprintManager::Instance()->HasCategory(category))
-			{
-				const Util::Array<AttrId>& attrs = Toolkit::EditorBlueprintManager::Instance()->GetCategoryAttributes(category).GetAttrs().KeysAsArray();
+		if (Toolkit::EditorBlueprintManager::Instance()->HasCategory(category))
+		{
+			const Util::Array<AttrId>& attrs = Toolkit::EditorBlueprintManager::Instance()->GetCategoryAttributes(category).GetAttrs().KeysAsArray();
 
-				for (int attrIndex = 0; attrIndex < attrs.Size(); attrIndex++)
-				{
-					TemplateExporter::CreateColumn(staticTable, Column::Default, attrs[attrIndex]);
-					TemplateExporter::CreateColumn(gameTable, Column::Default, attrs[attrIndex]);
-				}
-			}			
-			if (!this->staticDb->HasTable("_Template_" + category))
+			for (int attrIndex = 0; attrIndex < attrs.Size(); attrIndex++)
 			{
-				this->staticDb->AddTable(staticTable);
+				TemplateExporter::CreateColumn(staticTable, Column::Default, attrs[attrIndex]);
+				TemplateExporter::CreateColumn(gameTable, Column::Default, attrs[attrIndex]);
 			}
-			staticTable->CommitChanges();
+		}			
+		if (!this->staticDb->HasTable("_Template_" + category))
+		{
+			this->staticDb->AddTable(staticTable);
+		}
+		staticTable->CommitChanges();
 								
-			// make sure some essentials exist
-			if (!gameTable->HasColumn("Id"))
-			{
-				TemplateExporter::CreateColumn(gameTable, Column::Default, Attr::AttrId("Id"));
-			}
+		// make sure some essentials exist
+		if (!gameTable->HasColumn("Id"))
+		{
+			TemplateExporter::CreateColumn(gameTable, Column::Default, Attr::AttrId("Id"));
+		}
 
-			if (!gameTable->HasColumn("Guid"))
-			{
-				this->CreateColumn(gameTable, Column::Default, Attr::AttrId("Guid"));
-			}
-			if (!gameTable->HasColumn("_LevelEntity"))
-			{
-				this->CreateColumn(gameTable, Column::Default, Attr::AttrId("_LevelEntity"));
-			}			
+		if (!gameTable->HasColumn("Guid"))
+		{
+			this->CreateColumn(gameTable, Column::Default, Attr::AttrId("Guid"));
+		}
+		if (!gameTable->HasColumn("_LevelEntity"))
+		{
+			this->CreateColumn(gameTable, Column::Default, Attr::AttrId("_LevelEntity"));
+		}			
+        if(!this->gameDb->HasTable(gameTable->GetName()))
+        {
 			this->gameDb->AddTable(gameTable);
-			gameTable->CommitChanges();
-
-		} while (reader->SetToNextChild("Entity"));
+        }
+		gameTable->CommitChanges();	
 	}
 
 	// create levels table and add attributes
@@ -644,14 +662,7 @@ TemplateExporter::ExportFile( const IO::URI& file )
 			Ptr<IDLAttribute> at = this->blueprintManager->GetAttributeByName(attributes[j]);
 			catAttributes.Append(AttrId(at->GetName()));			
 		}
-		xmlReader->SetToParent();
-		// in case no blueprint exists we will add an instance table for it
-		Ptr<Table> insttable = TemplateExporter::CreateTable(this->gameDb, "_Instance_" + category);
-		TemplateExporter::CreateColumn(insttable, Column::Primary, AttrId("_ID"));
-		TemplateExporter::CreateColumn(insttable, Column::Default, AttrId("_Level"));
-		TemplateExporter::CreateColumn(insttable, Column::Default, AttrId("_Layers"));
-		this->gameDb->AddTable(insttable);
-		insttable->CommitChanges();		
+		xmlReader->SetToParent();		
 	}
 	else
 	{
@@ -666,9 +677,18 @@ TemplateExporter::ExportFile( const IO::URI& file )
 		catAttributes = catAttributesContainer.GetAttrs().KeysAsArray();
 	}
 
-	bool templateExists = this->staticDb->HasTable("_Template_" + category);
-	
-	
+    if(!this->gameDb->HasTable("_Instance_"+category))
+    {    
+        // in case no blueprint exists we will add an instance table for it
+        Ptr<Table> insttable = TemplateExporter::CreateTable(this->gameDb, "_Instance_" + category);
+        TemplateExporter::CreateColumn(insttable, Column::Primary, AttrId("_ID"));
+        TemplateExporter::CreateColumn(insttable, Column::Default, AttrId("_Level"));
+        TemplateExporter::CreateColumn(insttable, Column::Default, AttrId("_Layers"));
+        this->gameDb->AddTable(insttable);
+        insttable->CommitChanges();		
+    }
+
+	bool templateExists = this->staticDb->HasTable("_Template_" + category);		
 	if (!templateExists)
 	{
 		table = TemplateExporter::CreateTable(this->staticDb, "_Template_" + category);		

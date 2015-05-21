@@ -29,19 +29,14 @@ public:
 	/// closes the exporter
 	void Close();
 
+    /// export only template and instance tables
+    void ExportTables();
 	/// exports both game and levels
 	void ExportAll();
 	/// set pointer to a valid logger object
 	void SetLogger(Logger* logger);
 	
 private:	
-	/// exports global attributes
-	void ExportGlobals();
-	/// export script feature tables
-	void ExportScriptFeature();
-	Ptr<LevelExporter> levelExporter;
-	Ptr<TemplateExporter> templateExporter;
-	Ptr<PostEffectExporter> postEffectExporter;
 	Logger* logger;
 
 }; 

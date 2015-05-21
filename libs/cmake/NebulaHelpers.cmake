@@ -272,15 +272,15 @@ MACRO(N_SET_COMPILER_DEFAULTS)
                 # remove multichar warning spewage
                 SET(CMAKE_C_FLAGS "-Wno-multichar -Werror -msse4.2 -mavx2")
                 SET(CMAKE_C_FLAGS_DEBUG "-g -D_DEBUG")
-                SET(CMAKE_C_FLAGS_RELWITHDEBINFO "-g -O3 -D_DEBUG")
-                SET(CMAKE_C_FLAGS_RELEASE " -O3")
+                SET(CMAKE_C_FLAGS_RELWITHDEBINFO "-g -O2 -D_DEBUG")
+                SET(CMAKE_C_FLAGS_RELEASE " -O2 -Og")
         
                 # C++ compiler
                 # remove multichar warning spewage
                 SET(CMAKE_CXX_FLAGS "-Wno-multichar -fpermissive -std=gnu++0x -msse4.2 -mavx2")
                 SET(CMAKE_CXX_FLAGS_DEBUG "-g -D_DEBUG")
-                SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O3 -D_DEBUG")
-                SET(CMAKE_CXX_FLAGS_RELEASE " -O3")
+                SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O2 -Og -D_DEBUG")
+                SET(CMAKE_CXX_FLAGS_RELEASE " -O2 -Og -g")
 	ENDIF()
 	
 	ADD_DEFINITIONS(${N_DEFINITIONS})

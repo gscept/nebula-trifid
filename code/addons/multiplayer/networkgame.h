@@ -82,6 +82,8 @@ public:
 	void PublishToMaster();
 	/// remove from master
 	void UnpublishFromMaster();
+	/// has game been published to master server
+	const bool IsPublished() const;
 	/// start game (if host)
 	void StartGame();
 		
@@ -90,7 +92,11 @@ public:
 	virtual void OnReceiverMasterList(){}
 	/// called when successfully joined a room
 	virtual void OnJoinedRoom(){}
-	
+	/// called when failed to join a room
+	virtual void OnJoinFailed(const Util::String & reason){ n_printf("\n%s",reason.AsCharPtr());};
+	/// called for already connected clients when another client has disconnected
+	virtual void OnPlayerDisconnect(const RakNet::RakNetGUID& guid){}
+
 	/// we received a message
 	virtual void OnHandleMessage(const Ptr<Messaging::Message> &msg){}
 	/// called when player joins room
@@ -117,8 +123,14 @@ public:
 	/// get max players
 	const ubyte GetMaxPlayers() const;
 
+	/// get the amount of clients connected
+	int GetCurrentAmountOfPlayers();
+
 	/// get a player
 	Ptr<MultiplayerFeature::NetworkPlayer> & GetPlayer(const Multiplayer::UniquePlayerId & id);
+
+	/// whenever joining a room this is called if the game is started
+	virtual bool CanJoinInGame();
 
 protected:
 	/// 
@@ -170,9 +182,9 @@ private:
 	friend class NetworkPlayer;
 
 	/// add player instance to current game
-	void AddPlayer(Ptr<MultiplayerFeature::NetworkPlayer> & player);
+	void AddPlayer(const Ptr<MultiplayerFeature::NetworkPlayer> & player);
 	/// remove player
-	void RemovePlayer(Ptr<MultiplayerFeature::NetworkPlayer> & player);
+	void RemovePlayer(const Ptr<MultiplayerFeature::NetworkPlayer> & player);
 
 	/// deal with a packet
 	bool HandlePacket(RakNet::Packet * packet);	
@@ -220,6 +232,16 @@ NetworkGame::IsCreator() const
 //------------------------------------------------------------------------------
 /**
 */
+inline 
+const bool
+NetworkGame::IsPublished() const
+{
+	return this->masterServerRow >= 0;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 inline
 const Util::String &
 NetworkGame::GetGameName() const
@@ -235,6 +257,26 @@ const Util::String &
 NetworkGame::GetGameID() const
 {
 	return this->gameID;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline
+void
+NetworkGame::SetMasterServerUpdate(bool enable)
+{
+	this->updateMaster = enable;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline
+bool
+NetworkGame::GetMasterServerUpdate()
+{
+	return this->updateMaster;
 }
 
 //------------------------------------------------------------------------------
@@ -282,7 +324,9 @@ NetworkGame::GetMaxPlayers() const
 inline void
 NetworkGame::SetMaxPlayers(ubyte val)
 {
+	n_printf("\nset max players to %d",val);
 	this->maxPlayers = val;
+	n_printf("\nmax players is set to %d", maxPlayers);
 }
 
 }// namespace MultiplayerFeature

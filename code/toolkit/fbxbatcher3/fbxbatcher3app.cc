@@ -52,7 +52,7 @@ void
 FBXBatcher3App::DoWork()
 {
 	Ptr<Fbx::NFbxExporter> exporter = Fbx::NFbxExporter::Create();
-	String dir = "proj:work/gfxlib";
+	String dir = "";
 	String file = "";
 	String projectFolder = "proj:";
 	ExporterBase::ExportFlag exportFlag = ExporterBase::All;

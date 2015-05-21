@@ -220,7 +220,48 @@ RecastUtil::GenerateNavMeshData()
 	// Erode the walkable area by agent radius.
 	rcErodeWalkableArea(&m_ctx, config->walkableRadius, *m_chf);
 	
-
+    // add area markers
+    
+    Math::point verts[8];   
+    verts[0].set(-0.5f, 0.5f, 0.5f);
+    verts[1].set(0.5f, 0.5f, 0.5f);
+    verts[2].set(-0.5f, -0.5f, 0.5f);
+    verts[3].set(0.5f, -0.5f, 0.5f);
+    verts[4].set(-0.5f, 0.5f, -0.5f);
+    verts[5].set(0.5f, 0.5f, -0.5f);
+    verts[6].set(-0.5f, -0.5f, -0.5f);
+    verts[7].set(0.5f, -0.5f, -0.5);
+	Math::point corners[4];
+	corners[0].set(-0.5f, 0.0f, -0.5f);
+	corners[1].set(-0.5f, 0.0f, 0.5f);
+	corners[2].set(0.5f, 0.0f, 0.5f);
+	corners[3].set(0.5f, 0.0f, -0.5f);	
+    float boxData[12];
+    float pv[4];
+    for(int i = 0 ; i<this->areaEntities.Size();i++)
+    {
+        const Ptr<Game::Entity> & ent = this->areaEntities[i];
+        // currently we only do boxes
+        Math::matrix44 trans = ent->GetMatrix44(Attr::Transform);
+        int areaId = ent->GetInt(Attr::NavMeshAreaCost);
+		int areaFlags = ent->GetInt(Attr::NavMeshAreaFlags);
+        float maxHeight = -FLT_MAX;
+        float maxDepth = FLT_MAX;
+        for(int j = 0 ; j<8;j++)
+        {
+            Math::point p = Math::matrix44::transform(verts[j],trans);            
+            maxHeight = maxHeight < p.y() ? p.y() : maxHeight;
+            maxDepth = maxDepth > p.y() ? p.y() : maxDepth;
+        }
+		for (int j = 0; j < 4; j++)
+		{
+			Math::point p = Math::matrix44::transform(corners[j], trans);
+			p.storeu(pv);
+			rcVcopy(boxData + 3 * j, pv);
+		}
+		areaId = (areaId << 8) + areaFlags;
+        rcMarkConvexPolyArea(&m_ctx, boxData, 4, maxDepth, maxHeight, areaId, *m_chf);        
+    }
 
 	// Prepare for region partitioning, by calculating distance field along the walkable surface.
 	rcBuildDistanceField(&m_ctx, *m_chf);
@@ -286,6 +327,14 @@ RecastUtil::GenerateNavMeshData()
 			m_pmesh->areas[i] = 1;
 			m_pmesh->flags[i] = 1;
 		}
+		else
+		{
+			// custom area
+			int id = m_pmesh->areas[i];
+			m_pmesh->flags[i] = id & 255;
+			m_pmesh->areas[i] = id >> 8;
+		}
+		
 	}
 
 
@@ -374,6 +423,14 @@ RecastUtil::LoadNavMeshGenerationData(const Ptr<Db::Reader>& reader)
     return true;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+RecastUtil::AddConvexArea( const Ptr<Game::Entity> & areaEntity )
+{
+    this->areaEntities.Append(areaEntity);
+}
 
 
 }

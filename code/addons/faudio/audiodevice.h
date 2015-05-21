@@ -54,7 +54,7 @@ public:
 	/// get all available bank files
 	static Util::Array<Util::String> FindBankFiles();
 	/// parse a xml file with settings
-	static Util::Dictionary<Util::String, bool> ParseAutoload(const IO::URI & path);
+	static Util::Dictionary<Util::String, bool> ParseAutoload(const IO::URI & path);    
 	
 	/// is bank loaded
 	bool BankLoaded(const Util::String & bankFile);

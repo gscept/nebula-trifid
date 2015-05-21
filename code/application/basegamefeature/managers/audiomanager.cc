@@ -4,6 +4,7 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "managers/audiomanager.h"
+#include "dbserver.h"
 
 namespace BaseGameFeature
 {
@@ -67,7 +68,7 @@ AudioManager::OnFrame()
 void
 AudioManager::OnLoad()
 {
-	this->audioServer->LoadBanks();
+	this->audioServer->LoadBanks(Db::DbServer::Instance()->GetStaticDatabase());
 }
 
 //------------------------------------------------------------------------------

@@ -26,8 +26,8 @@ HttpClientTest::Run()
     Ptr<HttpClient> httpClient = HttpClient::Create();
 
     // build a few URIs we're interested in
-    URI serverUri("http://www.radonlabs.de");
-    URI imgUri("http://www.radonlabs.de/games/drakensang/screenshots/screenshot0001.jpg");
+    URI serverUri("http://gscept.com");
+    URI imgUri("http://gscept.com/themes/site_themes/gscept/gimage/logo.png");
 
     bool connected = httpClient->Connect(serverUri);
     this->Verify(connected);

@@ -38,7 +38,7 @@ using namespace Math;
 namespace LevelEditor2
 {
 
-__ImplementClass(LevelEditor2::Level, 'LEVL', Core::RefCounted);
+__ImplementClass(LevelEditor2::Level, 'LEVL', ToolkitUtil::LevelParser);
 __ImplementSingleton(LevelEditor2::Level);
 
 
@@ -90,7 +90,7 @@ Level::LoadLevel(const Util::String& level)
 	reader->SetStream(stream);
 	if(reader->Open())
 	{
-		result = LoadVersionedLevel(reader);		
+		result = this->LoadXmlLevel(reader);		
 		reader->Close();
 		stream->Close();
 	}
@@ -100,6 +100,14 @@ Level::LoadLevel(const Util::String& level)
 	{
 		// reparent all items
 		LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->RebuildTree();
+        this->startLevel = false;
+        if(LevelEditor2App::Instance()->GetGlobalAttrs()->HasAttr(Attr::_DefaultLevel))
+        {
+            if(LevelEditor2App::Instance()->GetGlobalAttrs()->GetString(Attr::_DefaultLevel) == this->name )
+            {
+                this->startLevel = true;
+            }
+        }
 	}
 		
 	// add wrapper entity for global light
@@ -624,6 +632,7 @@ Level::SaveLevel()
         this->WriteString(xmlWriter,"CellSize",navMeshes[i]->GetAttr(Attr::CellSize).ValueAsString());
         this->WriteString(xmlWriter,"NavMeshData",navMeshes[i]->GetString(Attr::NavMeshData));		
 		this->WriteString(xmlWriter,"EntityReferences",navMeshes[i]->GetAttr(Attr::EntityReferences).ValueAsString()); 
+		this->WriteString(xmlWriter,"AreaEntityReferences", navMeshes[i]->GetAttr(Attr::AreaEntityReferences).ValueAsString());
 		this->WriteString(xmlWriter,"NavMeshCenter",navMeshes[i]->GetAttr(Attr::NavMeshCenter).ValueAsString()); 
 		this->WriteString(xmlWriter,"NavMeshExtends",navMeshes[i]->GetAttr(Attr::NavMeshExtends).ValueAsString()); 
 		this->WriteString(xmlWriter,"NavMeshMeshString",navMeshes[i]->GetString(Attr::NavMeshMeshString));
@@ -632,7 +641,26 @@ Level::SaveLevel()
         Ptr<SaveNavMesh> msg = SaveNavMesh::Create();
         navMeshes[i]->SendSync(msg.cast<Messaging::Message>());
     }
-
+    Array<Ptr<Game::Entity>> navAreas = BaseGameFeature::EntityManager::Instance()->GetEntitiesByAttr(Attr::Attribute(Attr::EntityType,NavMeshArea));
+    for(int i=0;i<navAreas.Size();i++)
+    {
+        const Ptr<Game::Entity>& entity = navAreas[i];
+        xmlWriter->BeginNode("Object"); 		
+            xmlWriter->SetString("category","_NavigationArea");
+            xmlWriter->BeginNode("Attributes");	
+                this->WriteString(xmlWriter, "_ID", this->AllocateID("EditorNavAreaMarker", "", entity->GetString(Attr::Id)));
+                this->WriteString(xmlWriter, "Id",entity->GetString(Attr::Id));
+                this->WriteString(xmlWriter, "Guid",entity->GetGuid(Attr::EntityGuid).AsString());				
+                this->WriteString(xmlWriter, "_Level", this->name.AsCharPtr());
+                this->WriteString(xmlWriter, "Graphics",entity->GetString(Attr::Graphics));
+                this->WriteString(xmlWriter, "ParentGuid",entity->GetGuid(Attr::ParentGuid).AsString());		
+                this->WriteString(xmlWriter, "Transform", Util::String::FromMatrix44(entity->GetMatrix44(Attr::Transform)));
+                this->WriteString(xmlWriter, "NavMeshAreaFlags", Util::String::FromInt(entity->GetInt(Attr::NavMeshAreaFlags)));
+				this->WriteString(xmlWriter, "NavMeshAreaCost", Util::String::FromInt(entity->GetInt(Attr::NavMeshAreaCost)));
+				this->WriteString(xmlWriter, "NavMeshMeshString", entity->GetString(Attr::NavMeshMeshString));
+            xmlWriter->EndNode();
+        xmlWriter->EndNode();	
+    }
 	Array<Ptr<Game::Entity>> lightProbes = BaseGameFeature::EntityManager::Instance()->GetEntitiesByAttr(Attr::Attribute(Attr::EntityType, Probe));
 	for (int i = 0; i < lightProbes.Size(); i++)
 	{
@@ -721,7 +749,9 @@ Level::SaveLevel()
 void
 Level::ExportLevel(const Util::String& fileName)
 {
-	
+    //FIXME
+    LevelEditor2App::Instance()->GetWindow()->OnBatchGame();
+#if 0
 	Ptr<ToolkitUtil::LevelExporter> exporter = ToolkitUtil::LevelExporter::Create();
 	exporter->SetLogger(LevelEditor2App::Instance()->GetLogger());
 	exporter->Open();
@@ -732,6 +762,7 @@ Level::ExportLevel(const Util::String& fileName)
 	pfx->Open();
 	pfx->ExportAll();
 	pfx->Close();
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -773,6 +804,88 @@ Level::ReadPostEffectAttribute( const Util::String& attrName, const Util::String
     {
         n_printf("Unknown attribute name '%s'", attrName.AsCharPtr());
     }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+Level::SetName(const Util::String & name)
+{
+    this->name = name;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+Level::AddLayer(const Util::String & name, bool visible, bool autoload, bool locked)
+{
+    const Ptr<Layers::LayerHandler>& handler = LevelEditor2App::Instance()->GetWindow()->GetLayerHandler();						
+
+    if (!handler->HasLayer(name))
+    {
+        Ptr<Layers::Layer> layer = Layers::Layer::Create();
+        layer->SetName(name);
+        layer->SetAutoLoad(autoload);
+        layer->SetVisible(visible);
+        layer->SetLocked(locked);
+        handler->AddLayer(layer);
+    }
+    else
+    {
+        Ptr<Layers::Layer> layer = handler->GetLayer(name);
+        int row = handler->layerToRow[layer];
+        ((QPushButton*)(handler->tableWidget->cellWidget(row, 0)))->setChecked(visible);
+        ((QPushButton*)(handler->tableWidget->cellWidget(row, 1)))->setChecked(autoload);						
+        layer->SetAutoLoad(autoload);
+        layer->SetVisible(visible);
+        layer->SetLocked(locked);
+
+    }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+Level::AddEntity(const Util::String & category, const Attr::AttributeContainer & attrs)
+{
+    LevelEditor2EntityManager::Instance()->CreateEntityFromAttrContainer(category,attrs);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+Level::SetPosteffect(const Util::String & preset, const Math::matrix44 & globallightTransform)
+{
+ 
+    if (PostEffect::PostEffectRegistry::Instance()->HasPreset(preset))
+    {
+        LevelEditor2App::Instance()->GetWindow()->GetPostEffectController()->ActivatePrefix(preset);					
+    }
+    else
+    {
+        Util::String msg;
+        msg.Format("Unkown posteffect preset %s in level, missing file from data/tables/posteffect ?",preset.AsCharPtr());
+        n_warning(msg.AsCharPtr());
+        LevelEditor2App::Instance()->GetWindow()->GetPostEffectController()->ActivatePrefix("Default");					
+    }
+   
+    Ptr<Game::Entity> light = LevelEditor2EntityManager::Instance()->GetGlobalLight();
+    Ptr<BaseGameFeature::UpdateTransform> update = BaseGameFeature::UpdateTransform::Create();
+    update->SetMatrix(globallightTransform);
+    __SendSync(light, update);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+Level::SetDimensions(const Math::bbox & box)
+{
+    // empty
 }
 
 } // namespace LevelEditor2

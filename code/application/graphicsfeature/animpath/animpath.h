@@ -158,10 +158,14 @@ template <class TYPE>
 TYPE
 GraphicsFeature::AnimPath<TYPE>::Sample(float sample)
 {
+
 	// if we have a cycling animation, we should just go back to the start
 	if (this->infinity == CoreAnimation::InfinityType::Cycle) sample = Math::n_fmod(sample, this->totalLength);
 	else													  sample = Math::n_min(sample, this->totalLength);
-
+	
+	bool inbetween = false;
+	IndexT i;
+	
 	// this will be the value we return, initiate it to the start value (which will be the value 
 	TYPE retval = this->start;
 	
@@ -174,9 +178,7 @@ GraphicsFeature::AnimPath<TYPE>::Sample(float sample)
 		goto quickexit;
 	}
 
-	// find which curve our sample lies in
-	bool inbetween = false;
-	IndexT i;
+	// find which curve our sample lies in	
 	for (i = 0; i < this->curves.Size(); i++)
 	{
 		Curve* curve = this->curves[i];

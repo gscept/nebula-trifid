@@ -4,7 +4,7 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "audioeffect.h"
-#include "faudio\audiodevice.h"
+#include "faudio/audiodevice.h"
 
 namespace EffectsFeature
 {

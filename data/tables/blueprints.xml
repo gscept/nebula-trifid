@@ -24,14 +24,6 @@
 	<Entity cppclass="Entity" type="LightProbe" desc="A light probe entity used to project reflections and irradiance into the scene">
         <Property type="GraphicsFeature::LightProbeProperty" />
     </Entity>
-    <Entity cppclass="Entity" type="Player">
-        <Property type="GraphicsFeature::InputProperty" masterOnly="true"/>
-        <Property type="GraphicsFeature::ChaseCameraProperty" />
-        <Property type="GraphicsFeature::ActorGraphicsProperty" />
-        <Property type="PhysicsFeature::ActorPhysicsProperty" />
-        <Property type="GraphicsFeature::AnimationControlProperty" />
-        <Property type="ScriptingFeature::ScriptingProperty" />
-    </Entity>
     <Entity cppclass="Entity" type="PostEffectBubble" desc="a bubble of post effects">
         <Property type="BaseGameFeature::TransformableProperty" />
         <Property type="GraphicsFeature::AmbienceBubbleProperty" />
@@ -45,9 +37,6 @@
         <Property type="GraphicsFeature::GraphicsProperty" />
         <Property type="PhysicsFeature::PhysicsProperty" />
         <Property type="ScriptingFeature::ScriptingProperty" />
-    </Entity>
-    <Entity cppclass="Entity" type="StateObject" desc="stateobject entity">
-        <Property type="StateObjectFeature::StateGraphicsProperty" />
     </Entity>
     <Entity cppclass="Entity" type="Trigger" desc="trigger entity with scripting support">
         <Property type="PhysicsFeature::TriggerProperty" />

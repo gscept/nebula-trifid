@@ -107,6 +107,7 @@ LevelEditor2Window::LevelEditor2Window():
 
     connect(this->ui.actionCreateNavMesh, SIGNAL(triggered()), LevelEditor2App::Instance(), SLOT(CreateNavMesh()));
     connect(this->ui.actionUpdateNavMesh, SIGNAL(triggered()), LevelEditor2App::Instance(), SLOT(UpdateNavMesh()));
+    connect(this->ui.actionAddNavArea, SIGNAL(triggered()), LevelEditor2App::Instance(), SLOT(AddNavArea()));
 
     connect(this->ui.actionAbout, SIGNAL(triggered()), this, SLOT(OnAbout()));
     connect(this->ui.actionDebug_Page, SIGNAL(triggered()), this, SLOT(OnDebugPage()));    

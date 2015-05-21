@@ -126,7 +126,6 @@ MemoryStream::Open()
         if (WriteAccess == this->accessMode)
         {
             this->position = 0;
-            this->size = 0;
         }
         else if (AppendAccess == this->accessMode)
         {

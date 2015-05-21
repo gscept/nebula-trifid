@@ -68,6 +68,8 @@ public:
 	EntityGuid CreateNavMeshEntity();
 	/// create a new light probe entity
 	EntityGuid CreateLightProbeEntity();
+    /// create nav area
+    EntityGuid CreateNavArea();
 
 	/// create an entity, by some attributes
 	Ptr<Game::Entity> CreateEntityByAttrs(const Util::Array<Attr::Attribute>& attributes, const Util::String & entityclass = "EditorEntity", const Util::String & guidStr = "");
@@ -101,7 +103,8 @@ private:
 	void AddTreeviewNode(const Ptr<Game::Entity>& node);
 	/// remove a entity node from the treeview
 	void RemoveTreeviewNode(const Ptr<Game::Entity>& node);
-	
+   
+
 	EntityTreeWidget* entityTreeWidget;
 
 };

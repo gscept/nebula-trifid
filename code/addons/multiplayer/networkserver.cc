@@ -127,7 +127,10 @@ NetworkServer::Open()
 	this->fullyConnectedMesh->SetAutoparticipateConnections(false);
 	this->fullyConnectedMesh->SetConnectOnNewRemoteConnection(false, "");
 	this->replicationManager->SetNetworkIDManager(this->networkIDManager);
-	this->replicationManager->SetAutoManageConnections(false,true);   
+	this->replicationManager->SetAutoManageConnections(false,true);
+
+	//// set lastUpdateTime
+	//this->lastUpdateTime =	RakNet::GetTime();
 }
 
 //------------------------------------------------------------------------------
@@ -211,6 +214,18 @@ NetworkServer::OnFrame()
 		NetworkGame::Instance()->ReceiveMasterList(this->masterResult);
 		this->masterResult = 0;
 	}
+	if (this->IsHost() && NetworkGame::Instance()->IsPublished())
+	{
+		if (NetworkGame::Instance()->GetMasterServerUpdate())
+		{
+
+			if((RakNet::GetTimeMS() - this->lastUpdateTime) > 20000)
+			{
+				NetworkGame::Instance()->PublishToMaster();
+				this->lastUpdateTime = RakNet::GetTimeMS();
+			}
+		}
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -233,7 +248,7 @@ NetworkServer::HandlePacket(RakNet::Packet * packet)
 	break;
 	case ID_INCOMPATIBLE_PROTOCOL_VERSION:
 	{
-		n_printf("Incompatible protocol version from %s\n", targetName);
+		n_printf("Incompatible protocol version from %s\n", targetName.AsCharPtr());
 		if (packet->systemAddress == this->natPunchServerAddress)
 		{
 			n_printf("Multiplayer will not work without the NAT punchthrough server!");
@@ -242,7 +257,8 @@ NetworkServer::HandlePacket(RakNet::Packet * packet)
 	break;
 	case ID_DISCONNECTION_NOTIFICATION:
 	{
-		n_printf("Disconnected from %d\n", targetName);
+		n_printf("Disconnected from %s\n", targetName.AsCharPtr());
+		NetworkGame::Instance()->OnPlayerDisconnect(packet->guid);
 		if (packet->systemAddress == this->natPunchServerAddress)
 		{
 			this->connectedToNatPunchThrough = false;
@@ -290,19 +306,34 @@ NetworkServer::HandlePacket(RakNet::Packet * packet)
 	break;
 	case ID_FCM2_VERIFIED_JOIN_FAILED:
 	{
-		n_printf("Failed to join game session");
+		NetworkGame::Instance()->OnJoinFailed("Connection failed");
+	}
+	break;
+	case ID_FCM2_VERIFIED_JOIN_REJECTED:	
+	{
+		RakNet::BitStream bs(packet->data, packet->length, false);
+		Ptr<Multiplayer::BitReader> br = Multiplayer::BitReader::Create();
+		br->SetStream(&bs);
+		br->ReadChar();
+		Util::String answer = br->ReadString();
+
+		n_printf("Failed to join game session: %s", answer.AsCharPtr());
+		NetworkGame::Instance()->OnJoinFailed(answer);
 	}
 	break;
 	case ID_FCM2_VERIFIED_JOIN_CAPABLE:
 	{
-		if (this->fullyConnectedMesh->GetParticipantCount() < NetworkGame::Instance()->GetMaxPlayers())
+		//If server not full and you're in lobby or allowed to join while game has started
+		if (this->fullyConnectedMesh->GetParticipantCount() + 1 < NetworkGame::Instance()->GetMaxPlayers() && IsInGameJoinUnLocked())
 		{
 			this->fullyConnectedMesh->RespondOnVerifiedJoinCapable(packet, true, 0);
 		}
 		else
 		{
-			this->fullyConnectedMesh->RespondOnVerifiedJoinCapable(packet, false, 0);
-		}
+			RakNet::BitStream answer;			
+			answer.Write("Server Full\n");
+			this->fullyConnectedMesh->RespondOnVerifiedJoinCapable(packet, false, &answer);			
+		}		
 	}
 	break;
 	case ID_FCM2_VERIFIED_JOIN_ACCEPTED:
@@ -946,6 +977,7 @@ NetworkServer::StartGame()
 
 //------------------------------------------------------------------------------
 /**
+Returns a user defined flag when IN_GAME so that the user can decide if it's allowed to join or not.
 */
 RakNet::Replica3 *
 NetworkServer::LookupReplica(RakNet::NetworkID replicaId)
@@ -953,6 +985,21 @@ NetworkServer::LookupReplica(RakNet::NetworkID replicaId)
 	RakNet::Replica3 * replica = this->networkIDManager->GET_OBJECT_FROM_ID<RakNet::Replica3*>(replicaId);
 	n_assert(replica);
 	return replica;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool NetworkServer::IsInGameJoinUnLocked()
+{
+	if (this->state == IN_GAME)
+	{
+		return NetworkGame::Instance()->CanJoinInGame();
+	}
+	else
+	{
+		return true;
+	}
 }
 
 //------------------------------------------------------------------------------

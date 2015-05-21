@@ -110,9 +110,9 @@ NavigatedProperty::HandleMessage(const Ptr<Messaging::Message>& msg)
     in the crowd manager that handles the updates
 */
 void
-NavigatedProperty::OnActivate()
+NavigatedProperty::OnStart()
 {
-    Property::OnActivate();
+	Property::OnStart();
 	this->EnableCrowdManagement(true);
     CrowdManager::Instance()->UpdateAgentTarget(this->entity, this->entity->GetFloat4(Attr::TargetPos));    
 }

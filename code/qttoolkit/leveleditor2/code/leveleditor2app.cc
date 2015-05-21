@@ -101,9 +101,28 @@ LevelEditor2App::Open()
 		props5.Append("LevelEditor2::EditorProperty");
 		BaseGameFeature::FactoryManager::Instance()->AddBlueprint("EditorLightProbe", "Entity", props5, true);
 
+        Array<String> props6;
+        props6.Append("GraphicsFeature::GraphicsProperty");
+        props6.Append("LevelEditor2::EditorProperty");
+        props6.Append("LevelEditor2::EditorNavAreaProperty");        
+        BaseGameFeature::FactoryManager::Instance()->AddBlueprint("EditorNavAreaMarker", "Entity", props6, true);
+        
+
         this->blueprintManager = Toolkit::EditorBlueprintManager::Create();
 		this->blueprintManager->SetLogger(this->GetLogger());
         this->blueprintManager->Open();
+        this->blueprintManager->ParseProjectInfo("proj:projectinfo.xml");
+        this->blueprintManager->ParseProjectInfo("toolkit:projectinfo.xml");
+
+        this->blueprintManager->ParseBlueprint("proj:data/tables/blueprints.xml");    
+        this->blueprintManager->ParseBlueprint("toolkit:data/tables/blueprints.xml");
+        // templates need to be parsed from tookit first to add virtual templates with their attributes
+        this->blueprintManager->ParseTemplates("toolkit:data/tables/db");
+        this->blueprintManager->ParseTemplates("proj:data/tables/db");
+
+
+        this->blueprintManager->UpdateAttributeProperties();
+        this->blueprintManager->CreateMissingTemplates();
 		
 
         // configure global light
@@ -502,6 +521,16 @@ LevelEditor2App::CenterOnSelection()
 	cameraProperty->SetCameraFocus( centerOfInterest );
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+LevelEditor2App::AddNavArea()
+{
+    Util::String errorMessage;
+    EntityGuid entityId;
+    ActionManager::Instance()->CreateEntity(NavMeshArea, "EditorNavAreaMarker", "EditorNavAreaMarker", entityId, errorMessage);    
+}
 
 //------------------------------------------------------------------------------
 /**

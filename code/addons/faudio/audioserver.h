@@ -10,6 +10,7 @@
 */
 #include "core/refcounted.h"
 #include "core/singleton.h"
+#include "database.h"
 
 
 namespace FAudio { class AudioDevice; class AudioHandler; }
@@ -36,7 +37,7 @@ public:
     /// called per-frame 
     void OnFrame();     
 	/// load all banks marked as autoload
-	void LoadBanks();
+	void LoadBanks(const Ptr<Db::Database> & staticDb);
 
 private:
     bool isOpen;
