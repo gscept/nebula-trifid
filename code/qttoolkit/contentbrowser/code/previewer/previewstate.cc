@@ -204,11 +204,8 @@ PreviewState::OnStateLeave( const Util::String& nextState )
 bool
 PreviewState::SetModel(const Resources::ResourceId& resource)
 {
-	// get default state and remove current model entity from stage
-	Ptr<Stage> defaultStage = GraphicsFeatureUnit::Instance()->GetDefaultStage();
-	defaultStage->RemoveEntity(this->modelEntity.cast<GraphicsEntity>());
-
 	// create placeholder model
+	Ptr<Stage> defaultStage = GraphicsFeatureUnit::Instance()->GetDefaultStage();
 	this->modelEntity->SetTransform(matrix44::translation(0.0, 0.0, 0.0));
 	this->modelEntity->SetResourceId(resource);
 	defaultStage->AttachEntity(this->modelEntity.cast<GraphicsEntity>());
@@ -217,6 +214,7 @@ PreviewState::SetModel(const Resources::ResourceId& resource)
     this->modelEntity->ConfigureAnimEventTracking(true, false);
 
 	// fetch skins
+	this->modelEntity->ValidateCharacter();
 	Ptr<FetchSkinList> fetchSkinsMessage = FetchSkinList::Create();
     __Send(this->modelEntity, fetchSkinsMessage);
 	this->OnFetchedSkinList(fetchSkinsMessage.upcast<Messaging::Message>());
@@ -255,6 +253,26 @@ PreviewState::SetPhysics(const Resources::ResourceId& resource)
 		return true;
 	}
 	return false;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PreviewState::PreImportModel()
+{
+	Ptr<Stage> defaultStage = GraphicsFeatureUnit::Instance()->GetDefaultStage();
+	defaultStage->RemoveEntity(this->modelEntity.cast<GraphicsEntity>());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PreviewState::PostImportModel()
+{
+	Ptr<Stage> defaultStage = GraphicsFeatureUnit::Instance()->GetDefaultStage();
+	defaultStage->AttachEntity(this->modelEntity.cast<GraphicsEntity>());
 }
 
 //------------------------------------------------------------------------------

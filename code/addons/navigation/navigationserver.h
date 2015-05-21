@@ -88,6 +88,8 @@ public:
     
 	///
 	void UpdateAreaId(const Util::String & mapname, const Math::point& pos, unsigned short areaId, unsigned short filter);
+	///
+	unsigned short GetAreaId(const Util::String & mapname, const Math::point& pos, unsigned short filter);
 
     friend class Navigation::CrowdManager;	
 private:    

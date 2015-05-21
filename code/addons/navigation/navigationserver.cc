@@ -390,4 +390,40 @@ NavigationServer::UpdateAreaId(const Util::String & id, const Math::point& pos, 
 	}
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+unsigned short
+NavigationServer::GetAreaId(const Util::String & id, const Math::point& pos, unsigned short filterFlag)
+{
+	Util::String mapname = this->GetNavmeshFromId(id);
+	dtNavMesh * mesh = this->meshes[mapname];
+	dtNavMeshQuery * query = this->queries[mapname];
+
+	dtQueryFilter filter;
+	filter.setIncludeFlags(filterFlag);
+	dtPolyRef ap;
+	float anp[3];
+	float aa[4], ext[3];
+	pos.storeu(aa);
+	for (int i = 0; i < 3; i++)
+	{
+		ext[i] = 1.0f;
+	}
+
+	dtStatus res = query->findNearestPoly(aa, ext, &filter, &ap, anp);
+	if (res == DT_SUCCESS)
+	{
+		const dtMeshTile * tile;
+		const dtPoly * poly;
+		mesh->getTileAndPolyByRefUnsafe(ap, &tile, &poly);
+		if (poly)
+		{
+			return poly->flags;			
+		}
+	}
+	n_printf("failed to get navmesh poly\n");
+	return 0;	
+}
+
 }
