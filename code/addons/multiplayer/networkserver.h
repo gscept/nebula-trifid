@@ -13,6 +13,7 @@
 #include "threading/safeflag.h"
 #include "attr/attributetable.h"
 #include "syncpoint.h"
+#include "messaging/message.h"
 
 //FIXME these should be replaced by own implementations, leave them for the time being
 #define DEFAULT_SERVER_PORT 61111
@@ -117,7 +118,8 @@ private:
 
 	/// get replica via network id
  	RakNet::Replica3 * LookupReplica(RakNet::NetworkID replicaId);
-
+	///
+	void AddDeferredMessage(RakNet::NetworkID entityId, const Ptr<Messaging::Message> &msg);
 	/// hmm, lets have this for the time being
 	friend class NetworkGame;
 
@@ -130,14 +132,14 @@ private:
 	RakNet::FullyConnectedMesh2 *fullyConnectedMesh;
 	Multiplayer::SyncPoint *readyEvent;	
 	RakNet::RakNetGUID natPunchServerGuid;
-	RakNet::SystemAddress natPunchServerAddress;
-	RakNet::CloudClient * cloudClient;
+	RakNet::SystemAddress natPunchServerAddress;		
 	Ptr<MasterHelperThread> masterThread;
 	Util::String natServer;
 	bool connectedToNatPunchThrough;		
 	Ptr<Attr::AttributeTable> masterResult;
 	Threading::SafeFlag doneFlag;
 	RakNet::Time lastUpdateTime;
+	Util::Dictionary<RakNet::NetworkID, Util::Array<Ptr<Messaging::Message>>> deferredMessages;
 };
 
 //------------------------------------------------------------------------------
