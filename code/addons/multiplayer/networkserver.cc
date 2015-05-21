@@ -990,15 +990,6 @@ NetworkServer::LookupReplica(RakNet::NetworkID replicaId)
 //------------------------------------------------------------------------------
 /**
 */
-void 
-NetworkServer::LockInGameJoin(bool flag)
-{
-	this->lockInGameJoin = flag;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
 bool NetworkServer::IsInGameJoinUnLocked()
 {
 	if (this->state == IN_GAME)
