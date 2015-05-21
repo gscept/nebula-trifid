@@ -24,6 +24,7 @@
 	  <Attribute name="ReactivateTrigger" fourcc="REAT" accessMode="ReadWrite" type="Bool" />
 	  <Attribute name="ReactivateTriggerTime" fourcc="RATT" accessMode="ReadWrite" type="Float" />
 	  <Attribute name="TriggerTimeStamp" fourcc="TTST" accessMode="ReadWrite" type="Float" />
+    <Attribute name="TriggerScale" fourcc="TSCA" accessMode="ReadWrite" type="Float4"/>
 		
 	  <Attribute name="CollisionEnabled" fourcc="COEN" accessMode="ReadWrite" type="Bool" default="true" />
 	  <Attribute name="DynamicObject" fourcc="DYNO" accessMode="ReadWrite" type="Bool" default="false" />
