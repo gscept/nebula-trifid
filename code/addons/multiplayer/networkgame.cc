@@ -20,7 +20,6 @@
 #include "jansson/src/jansson.h"
 #include "multiplayerfeatureunit.h"
 
-//#define USE_CLOUD_MASTER
 
 using namespace RakNet;
 using namespace Multiplayer;
@@ -368,8 +367,6 @@ NetworkGame::ReceiveMasterList(Ptr<Attr::AttributeTable> & masterList)
 void
 NetworkGame::PublishToMaster()
 {
-#ifdef USE_CLOUD_MASTER
-#else
 	Util::String req;
 	req.Format("http://" MASTER_SERVER_ADDRESS "/testServer");
 	IO::URI serverUri = req;
@@ -421,7 +418,6 @@ NetworkGame::PublishToMaster()
 		}
 	}
 	Http::HttpClientRegistry::Instance()->ReleaseConnection(serverUri);
-#endif
 }
 
 //------------------------------------------------------------------------------
@@ -430,8 +426,6 @@ NetworkGame::PublishToMaster()
 void
 NetworkGame::UnpublishFromMaster()
 {
-#ifdef USE_CLOUD_MASTER
-#else
 	Util::String req;
 	req.Format("http://" MASTER_SERVER_ADDRESS "/testServer");
 	IO::URI serverUri = req;
@@ -445,7 +439,6 @@ NetworkGame::UnpublishFromMaster()
 	Http::HttpStatus::Code res = client->SendRequest(Http::HttpMethod::Delete, requri, stream.cast<IO::Stream>());
 	Http::HttpClientRegistry::Instance()->ReleaseConnection(serverUri);
 	this->masterServerRow = -1;
-#endif
 }
 
 //------------------------------------------------------------------------------

@@ -615,15 +615,9 @@ NetworkServer::MasterServerResult(Util::String response)
 void
 NetworkServer::UpdateRoomList()
 {
-#ifdef USE_CLOUD_MASTER
-	RakNet::CloudQuery cloudQuery;
-	cloudQuery.keys.Push(RakNet::CloudKey(NetworkGame::Instance()->GetGameID().AsCharPtr(), 0), _FILE_AND_LINE_);
-	cloudClient->Get(&cloudQuery, rakPeer->GetGuidFromSystemAddress(RakNet::UNASSIGNED_SYSTEM_ADDRESS));
-#else
 	this->masterThread = MasterHelperThread::Create();
 	this->masterThread->gameId = NetworkGame::Instance()->GetGameID();	
 	this->masterThread->Start();
-#endif
 }
 
 //------------------------------------------------------------------------------
@@ -643,6 +637,17 @@ NetworkServer::CreateRoom()
 {
 	this->state = IN_LOBBY_WAITING_FOR_HOST_DETERMINATION;
 }
+
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+NetworkServer::CancelRoom()
+{
+	this->state = NETWORK_STARTED;
+}
+
 
 //------------------------------------------------------------------------------
 /**

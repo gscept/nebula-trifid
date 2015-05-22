@@ -110,6 +110,8 @@ private:
 	void StartGame();
 	/// create room
 	void CreateRoom();
+	/// cancel room
+	void CancelRoom();
 	/// trigger refresh of available rooms on master
 	void UpdateRoomList();
 	/// deal with a packet
