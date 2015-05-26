@@ -131,16 +131,16 @@ GLSL4BufferLock::Cleanup(GLsync sync)
 void
 GLSL4BufferLock::WaitForRing()
 {
-	if (this->currentBuffer == 0)
+	if (this->rings[this->currentBuffer] != 0)
 	{
-		const GLsync& sync = this->rings[0];
+		const GLsync& sync = this->rings[this->currentBuffer];
 		if (sync != 0)
 		{
 			this->Wait(sync);
 			this->Cleanup(sync);
-			this->rings[0] = 0;
+			this->rings[this->currentBuffer] = 0;
 		}
-	}
+	}	
 }
 
 //------------------------------------------------------------------------------
@@ -149,9 +149,9 @@ GLSL4BufferLock::WaitForRing()
 void
 GLSL4BufferLock::LockRing()
 {
-	if (this->currentBuffer == 0)
+	if (this->rings[this->currentBuffer] == 0)
 	{
-		this->rings[0] = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+		this->rings[this->currentBuffer] = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
 	}
 
 	/*
