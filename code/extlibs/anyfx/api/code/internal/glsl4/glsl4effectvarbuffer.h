@@ -38,8 +38,8 @@ protected:
 	GLuint shaderStorageBlockBinding;
 	GLuint shaderStorageBlockLocation;
 
-	GLint currentLocation;
-	eastl::hash_map<GLSL4EffectProgram*, GLint> activeMap;
+	GLuint currentLocation;
+	eastl::hash_map<GLSL4EffectProgram*, GLuint> activeMap;
 }; 
 } // namespace AnyFX
 //------------------------------------------------------------------------------
