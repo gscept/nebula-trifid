@@ -341,20 +341,16 @@ LevelEditor2EntityManager::CreateEntityFromAttrContainer(const Util::String & ca
 	{ 
 		layers = attrs.GetString(Attr::_Layers);
 		attrs.RemoveAttr(Attr::_Layers);
-	}
+	} 
 	Ptr<Game::Entity> newEnt;
 	if(category == "_Environment")
 	{				
-		at.Append(Attribute(Attr::EntityType,Environment));
-		at.Append(Attribute(Attr::EntityCategory,"_Environment"));
-		if(!attrs.HasAttr(Attr::CollisionEnabled))
-		{				
-			at.Append(Attribute(Attr::CollisionEnabled,true));
-		}
-		if(!attrs.HasAttr(Attr::DynamicObject))
-		{
-			at.Append(Attribute(Attr::DynamicObject,false));
-		}
+		at.Append(Attribute(Attr::EntityType, Environment));
+		at.Append(Attribute(Attr::EntityCategory, "_Environment"));					
+		at.Append(Attribute(Attr::CollisionEnabled, true));
+		at.Append(Attribute(Attr::DynamicObject, false));
+		at.Append(Attribute(Attr::CastShadows, true));
+		at.Append(Attribute(Attr::PhysicMaterial, "EmptyWood"));
 		newEnt = CreateEntityByAttrs(at,"EditorEntity", attrs.GetGuid(Attr::Guid).AsString());		
 		newEnt->SetString(Attr::EntityLevel,Level::Instance()->GetName());		
 	}

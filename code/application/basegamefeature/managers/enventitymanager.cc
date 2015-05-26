@@ -139,24 +139,12 @@ EnvEntityManager::CreateEnvEntity(const Ptr<Db::ValueTable>& instTable, IndexT i
     //    createdAsGameEntity = true;
     //}
 
-	bool collide = true;
-	if (instTable->HasColumn(Attr::CollisionEnabled))
-	{
-		if (!instTable->GetBool(Attr::CollisionEnabled,instTableRowIndex))
-		{
-			collide = false;
-		}
-	}
-	bool dynamic = false;
-	if (instTable->HasColumn(Attr::DynamicObject))
-	{
-		if (instTable->GetBool(Attr::DynamicObject,instTableRowIndex))
-		{
-			dynamic = true;
-		}
-	}
+	bool collide = instTable->GetBool(Attr::CollisionEnabled, instTableRowIndex);
+	
+	bool dynamic = instTable->GetBool(Attr::DynamicObject, instTableRowIndex);
+			
 	if (collide)
-    {
+    {		
 		if(dynamic)
 		{
 			this->CreatePhysicsEntity(instTable, instTableRowIndex);
@@ -165,15 +153,13 @@ EnvEntityManager::CreateEnvEntity(const Ptr<Db::ValueTable>& instTable, IndexT i
 		else
 		{
 			// this will just add all shapes to the physics level		
-			this->envCollideProperty->AddShapes(id, worldMatrix, resName);
+			Util::String physicsMaterial = instTable->GetString(Attr::PhysicMaterial, instTableRowIndex);
+			this->envCollideProperty->AddShapes(id, worldMatrix, resName, physicsMaterial);
 		}
 		
 	} 
-	bool instanced = false;
-	if (instTable->HasColumn(Attr::Instanced))
-	{
-		instanced = instTable->GetBool(Attr::Instanced,instTableRowIndex);
-	}
+	bool instanced = instTable->GetBool(Attr::Instanced, instTableRowIndex);	
+	bool castShadows = instTable->GetBool(Attr::CastShadows, instTableRowIndex);	
 
 	// create graphics entities (if not already created as a game entity)
     if (!createdAsGameEntity && this->envGraphicsProperty.isvalid())
@@ -197,7 +183,7 @@ EnvEntityManager::CreateEnvEntity(const Ptr<Db::ValueTable>& instTable, IndexT i
 		else
 		{
 			// create graphics entity(s) and attach to graphics property 
-			Util::Array<Ptr<Graphics::ModelEntity> > gfxEntities = segGfxUtil.CreateAndSetupGraphicsEntities(resName, worldMatrix, envEntity->GetUniqueId(),NULL,instanced);
+			Util::Array<Ptr<Graphics::ModelEntity> > gfxEntities = segGfxUtil.CreateAndSetupGraphicsEntities(resName, worldMatrix, envEntity->GetUniqueId(),NULL,instanced,castShadows);
 			this->envGraphicsProperty->AddGraphicsEntities(id, worldMatrix, gfxEntities);
 		}
     }

@@ -105,7 +105,7 @@ BasePhysicsServer::Open()
     n_assert(!this->isOpen);
 
     // setup the material table
-    //MaterialTable::Setup();
+    MaterialTable::Setup();
 	// setup resource mapper for physics resource files
 
 	// assign special mesh resource prefix for physics meshes, which allows us to create duplicates.
