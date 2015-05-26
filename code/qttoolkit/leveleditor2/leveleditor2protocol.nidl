@@ -74,6 +74,9 @@
     </Message>
     <Message name="UpdateNavMesh" fourcc="UPNM" />
     <Message name="SaveNavMesh" fourcc="SVNM" />
-    
+
+    <Message name="SetMultiSelection" fourcc="SMSL">
+      <InArg name="Entities" type="Util::Array<Ptr<Game::Entity>>"/>      
+    </Message>
   </Protocol>    
 </Nebula3>

@@ -13,6 +13,7 @@
 #include "properties/editorproperty.h"
 #include "entityutils/placementutil.h"
 
+Ptr<Game::Entity> LevelEditor2::SelectAction::multiEntity;
 //-----------------------------------------------
 namespace LevelEditor2
 {
@@ -24,6 +25,16 @@ __ImplementClass(LevelEditor2::SelectAction, 'LESC', LevelEditor2::Action);
 void 
 SelectAction::Perform()
 {	
+	if (!this->multiEntity.isvalid())
+	{
+
+		Util::Array<Attr::Attribute> attributes;
+		attributes.Append(Attr::Attribute(Attr::EntityType, Game));
+		attributes.Append(Attr::Attribute(Attr::EntityCategory, "Multi"));
+		this->multiEntity = BaseGameFeature::FactoryManager::Instance()->CreateEntityByAttrs("EditorMultiselect", attributes);
+		BaseGameFeature::EntityManager::Instance()->AttachEntity(this->multiEntity);
+	}
+
 	const Ptr<Layers::LayerHandler> layerHandler = LevelEditor2App::Instance()->GetWindow()->GetLayerHandler();
 	EntityTreeWidget * tree = LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget();
 
@@ -60,6 +71,13 @@ SelectAction::Perform()
 				{
 					AttributeWidgetManager::Instance()->ViewEntityAttributes(ents[0]);
 					layerHandler->HandleEntitySelected(ents[0]);
+				}
+				else
+				{					
+					Ptr<SetMultiSelection> smsg = SetMultiSelection::Create();
+					smsg->SetEntities(SelectionUtil::Instance()->GetSelectedEntities());
+					__SendSync(this->multiEntity, smsg);
+					AttributeWidgetManager::Instance()->ViewEntityAttributes(this->multiEntity);
 				}
 			}
 			break;

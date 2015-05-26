@@ -106,6 +106,10 @@ LevelEditor2App::Open()
         props6.Append("LevelEditor2::EditorProperty");
         props6.Append("LevelEditor2::EditorNavAreaProperty");        
         BaseGameFeature::FactoryManager::Instance()->AddBlueprint("EditorNavAreaMarker", "Entity", props6, true);
+
+		Array<String> props7;		
+		props7.Append("LevelEditor2::EditorMultiselectProperty");
+		BaseGameFeature::FactoryManager::Instance()->AddBlueprint("EditorMultiselect", "Entity", props7, true);
         
 
         this->blueprintManager = Toolkit::EditorBlueprintManager::Create();

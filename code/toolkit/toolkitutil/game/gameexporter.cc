@@ -83,6 +83,16 @@ GameExporter::ExportAll()
 		IoServer::Instance()->CreateDirectory("export:data/tables");
 	}
 
+	IO::IoServer * ioServer = IO::IoServer::Instance();
+	Util::Array<Util::String> xmlfiles = ioServer->ListFiles("proj:data/tables/", "*.xml", false);
+	for (Util::Array<Util::String>::Iterator iter = xmlfiles.Begin(); iter != xmlfiles.End(); iter++)
+	{
+		if (*iter != "blueprints.xml")
+		{
+			ioServer->CopyFile("proj:data/tables/" + *iter, "export:data/tables/" + *iter);
+		}		
+
+	}
     Ptr<Toolkit::EditorBlueprintManager> bm;
     if(Toolkit::EditorBlueprintManager::HasInstance())
     {
