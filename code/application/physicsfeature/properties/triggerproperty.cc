@@ -373,6 +373,11 @@ TriggerProperty::GetTriggerTransform()
 vector
 TriggerProperty::GetTriggerScale()
 {
+	// check if this entity has a dedicated scale attribute for the trigger
+	if (this->GetEntity()->HasAttr(Attr::TriggerScale))
+	{
+		return this->GetEntity()->GetFloat4(Attr::TriggerScale);
+	}
     // get scale
 	const matrix44& m = this->GetEntity()->GetMatrix44(Attr::Transform);
     vector scale(	m.get_xaxis().length(),
@@ -503,15 +508,21 @@ TriggerProperty::CreateCollisionShape()
 {
     n_assert(!this->probeObject.isvalid());    
     const matrix44& m = GetEntity()->GetMatrix44(Attr::Transform);
+	float scale = 1.0f;
+	if (this->GetEntity()->HasAttr(Attr::TriggerScale))
+	{
+		Math::float4 fscale = this->GetEntity()->GetFloat4(Attr::TriggerScale);
+		scale = fscale.length3();
+	}
 	Ptr<Physics::Collider> coll = Physics::Collider::Create();
 
     if (this->shape == "sphere")
     {
-		coll->AddSphere(0.5,Math::matrix44::identity());        
+		coll->AddSphere(0.5f * scale,Math::matrix44::identity());        
     }
     else
     {
-		coll->AddBox(Math::vector(0.5,0.5,0.5),Math::matrix44::identity());
+		coll->AddBox(Math::vector(0.5,0.5,0.5) * scale, Math::matrix44::identity());
     }	
 	this->probeObject = Physics::PhysicsProbe::Create();
 

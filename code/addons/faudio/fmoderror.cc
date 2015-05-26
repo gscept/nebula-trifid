@@ -3,7 +3,7 @@
 //  (C) 2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "FAudio/fmoderror.h"
+#include "faudio/fmoderror.h"
 
 #include <fmod_errors.h>
 

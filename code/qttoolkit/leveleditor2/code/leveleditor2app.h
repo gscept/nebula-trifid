@@ -85,6 +85,8 @@ public slots:
     /// FIXME
     void CreateNavMesh();
     void UpdateNavMesh();
+    /// add navmesh area marker
+    void AddNavArea();
 
     /// access to global attributes container
     const Ptr<Attr::AttrContainerXMLStorage> & GetGlobalAttrs() const;	
@@ -97,8 +99,7 @@ private:
     /// setup game features
     void SetupGameFeatures();
     /// cleanup game features
-    void CleanupGameFeatures();
-
+    void CleanupGameFeatures();    
     Ptr<QtRemoteInterfaceAddon::QtRemoteServer> remoteServer;
     Ptr<QtRemoteInterfaceAddon::QtRemoteClient> remoteClient;
     Ptr<QtRemoteInterfaceAddon::QtRemoteClient> viewerClient;

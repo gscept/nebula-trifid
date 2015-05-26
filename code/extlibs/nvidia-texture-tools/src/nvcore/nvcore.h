@@ -127,7 +127,7 @@
 #   error "Unsupported compiler"
 #endif
 
-#if NV_CC_MSVC
+#if NV_CC_MSVC || NV_CC_GNUC
 #define NV_CC_CPP11 (__cplusplus > 199711L)
 #else
 // @@ IC: This works in CLANG, about GCC?

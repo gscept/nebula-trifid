@@ -248,7 +248,7 @@ PosixSocket::SetBlocking(bool b)
         this->SetToLastSocketError();
         n_printf("PosixSocket::SetBlocking(): fcntl(F_GETFL) failed with '%s'.\n", this->GetErrorString().AsCharPtr());
     }
-    if (b)
+    if (!b)
     {
         flags |= O_NONBLOCK;
     }
@@ -383,9 +383,9 @@ PosixSocket::Connect()
             {
                 // the connection is established
                 return Success;
-            }
+            }            
             // fallthrough: a normal error
-        }
+        }      
         this->SetSocketError(lastError);
         n_printf("PosixSocket::Connect(): connect() failed with '%s'!\n", this->GetErrorString().AsCharPtr());
         return Error;

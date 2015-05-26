@@ -45,6 +45,10 @@ CreateAction::Perform()
 	{
 		this->entityId = LevelEditor2EntityManager::Instance()->CreateLightProbeEntity();
 	}
+    else if (NavMeshArea == this->entityType)
+    {
+        this->entityId = LevelEditor2EntityManager::Instance()->CreateNavArea();
+    }
 	else
 	{
 		n_error("CreateAction::Perform: Cannot handle entity type of enum %d", (int)this->entityType);

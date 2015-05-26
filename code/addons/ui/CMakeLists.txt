@@ -119,12 +119,12 @@ N_WRAP_ADD_NIDL_FILES(SOURCES_ uicommands.nidl uiattrs/uiattributes.nidl)
 add_library( ui STATIC ${SOURCES_} )
 TARGET_LINK_LIBRARIES(ui PUBLIC render application)
 
-ADD_DEPENDENCIES(ui render)
+ADD_DEPENDENCIES(ui faudio render)
 
 SET_TARGET_PROPERTIES(ui PROPERTIES FOLDER "N3SDK/addons")
 TARGET_INCLUDE_DIRECTORIES(ui PUBLIC ${Nebula3_SOURCE_DIR}/code/extlibs/librocket/ ${Nebula3_SOURCE_DIR}/code/addons)
 TARGET_COMPILE_DEFINITIONS(ui PUBLIC $<$<BOOL:${N_BUILD_LIBROCKET}>:__LIBROCKET__> $<$<BOOL:${N_BUILD_CEUI}>:__CEUI__>)
-TARGET_LINK_LIBRARIES(ui PUBLIC $<$<BOOL:${N_BUILD_LIBROCKET}>:librocket libfreetype> )
+TARGET_LINK_LIBRARIES(ui PUBLIC $<$<BOOL:${N_BUILD_LIBROCKET}>:librocket $<$<PLATFORM_ID:Linux>:freetype> $<$<PLATFORM_ID:Windows>:libfreetype>> )
 
 N_SET_COMPILER_DEFAULTS()
 IF(N_USE_PRECOMPILED_HEADERS)

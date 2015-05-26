@@ -28,8 +28,8 @@ public:
     virtual void SetupCallbacks();    
     /// override to register accepted messages
     virtual void SetupAcceptedMessages();
-    /// called from Entity::ActivateProperties()
-    virtual void OnActivate();
+    /// called from within Entity::OnStart() after OnLoad when the complete world exist    
+    virtual void OnStart();
     /// called from Entity::DeactivateProperties()
     virtual void OnDeactivate();
     /// handle a single message

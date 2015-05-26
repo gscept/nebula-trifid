@@ -18,7 +18,7 @@ class AudioHandler;
 class AudioInterface : public Messaging::Port
 {
 	__DeclareClass(AudioInterface);
-	__DeclareSingleton(AudioInterface);
+	__DeclareInterfaceSingleton(AudioInterface);
 public:
     /// constructor
 	AudioInterface();

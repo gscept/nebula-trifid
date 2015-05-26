@@ -7,7 +7,7 @@ INCLUDE_DIRECTORIES(${Nebula3_SOURCE_DIR}/code
 					${Nebula3_SOURCE_DIR}/code/addons/network/
 					${Nebula3_SOURCE_DIR}/code/foundation/
 					${Nebula3_SOURCE_DIR}/code/extlibs/
-					${Nebula3_SOURCE_DIR}/code/extlibs/raknet/source
+					${Nebula3_SOURCE_DIR}/code/extlibs/raknet/Source
 					${Nebula3_SOURCE_DIR}/code/render/	
 					${Nebula3_SOURCE_DIR}/code/application
 					${Nebula3_SOURCE_DIR}/code/application/basegamefeature					
@@ -42,7 +42,7 @@ INCLUDE_DIRECTORIES(${Nebula3_SOURCE_DIR}/code
 
 add_library( multiplayer STATIC ${SRCSBASE} ${SRCSPROP} ${SOURCES_files})
 TARGET_LINK_LIBRARIES(multiplayer multiplayer_NIDLS application RakNetLibStatic upnpc-static jansson)
-TARGET_INCLUDE_DIRECTORIES(multiplayer PUBLIC ${Nebula3_SOURCE_DIR}/code/addons/multiplayer)
+TARGET_INCLUDE_DIRECTORIES(multiplayer PUBLIC ${Nebula3_SOURCE_DIR}/code/addons/multiplayer ${Nebula3_SOURCE_DIR}/code/extlibs/raknet/Source)
 SET_TARGET_PROPERTIES(multiplayer PROPERTIES FOLDER "N3SDK/addons")
 
 ADD_DEPENDENCIES(multiplayer application RakNetLibStatic )

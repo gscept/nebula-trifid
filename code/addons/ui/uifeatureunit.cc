@@ -16,6 +16,8 @@
 #include "db/dbserver.h"
 #include "io/ioserver.h"
 #include "scripting/scriptserver.h"
+#include "audioprotocol.h"
+#include "basegamefeature/basegameattr/basegameattributes.h"
 
 namespace UI
 {
@@ -81,7 +83,7 @@ UiFeatureUnit::LoadUITables()
 
 	// try to load any fonts listed in db table
 	// table is not required to exist
-	reader->SetTableName("_UI_Fonts");
+	reader->SetTableName("_Template__Ui_Fonts");
 	if (reader->Open())
 	{
 		// table exists 
@@ -91,24 +93,35 @@ UiFeatureUnit::LoadUITables()
 		{
 			reader->SetToRow(index);
 
-			Util::String fontFile = reader->GetString(Attr::UIFontFile);
+			Util::String fontFile = reader->GetString(Attr::Id);
 			Util::String fontFamily = reader->GetString(Attr::UIFontFamily);
 			UI::FontStyle fontStyle = (UI::FontStyle)reader->GetInt(Attr::UIFontStyle);
 			UI::FontWeight fontWeight = (UI::FontWeight)reader->GetInt(Attr::UIFontWeight);
-			if (fontFamily.Length())
-			{
-				this->server->LoadFont(fontFile, fontFamily, fontStyle, fontWeight);
-			}
-			else
-			{
-				this->server->LoadFont(fontFile);
-			}
+            bool autoLoad = reader->GetBool(Attr::AutoLoad);
+            if(autoLoad)
+            {
+				if (IO::IoServer::Instance()->FileExists(fontFile))
+				{
+					if (fontFamily.Length())
+					{
+						this->server->LoadFont(fontFile, fontFamily, fontStyle, fontWeight);
+					}
+					else
+					{
+						this->server->LoadFont(fontFile);
+					}
+				}
+				else
+				{
+					n_warning(("Failed to load font file: " + fontFile).AsCharPtr());
+				}
+            }
 		}
 		reader->Close();
 	}
 	Ptr<Db::Reader> lreader = Db::Reader::Create();
 	lreader->SetDatabase(Db::DbServer::Instance()->GetStaticDatabase());
-	lreader->SetTableName("_UI_Layouts");
+	lreader->SetTableName("_Template__Ui_Layouts");
 	if (lreader->Open())
 	{
 		// table exists 
@@ -118,15 +131,26 @@ UiFeatureUnit::LoadUITables()
 		{
 			lreader->SetToRow(index);
 
-			Util::String layoutFile = lreader->GetString(Attr::UILayoutFile);
-			Util::String layoutName = lreader->GetString(Attr::UILayout);
-			this->server->CreateLayout(layoutName, layoutFile);
+			Util::String layoutFile = lreader->GetString(Attr::Id);
+			Util::String layoutName = lreader->GetString(Attr::Name);            
+            bool autoLoad = lreader->GetBool(Attr::AutoLoad);
+            if(autoLoad)
+            {
+				if (IO::IoServer::Instance()->FileExists(layoutFile))
+				{
+					this->server->CreateLayout(layoutName, layoutFile);
+				}
+				else
+				{
+					n_warning(("Failed to load layout file: " + layoutFile).AsCharPtr());
+				}
+            }
 		}
 		lreader->Close();
 	}
 	Ptr<Db::Reader> sreader = Db::Reader::Create();
 	sreader->SetDatabase(Db::DbServer::Instance()->GetStaticDatabase());
-	sreader->SetTableName("_UI_Scripts");
+	sreader->SetTableName("_Template__Ui_Scripts");
 	if (sreader->Open())
 	{
 		// table exists 
@@ -136,13 +160,24 @@ UiFeatureUnit::LoadUITables()
 		{
 			sreader->SetToRow(index);
 
-			Util::String layoutFile = sreader->GetString(Attr::UIScriptFile);
-			Scripting::ScriptServer::Instance()->EvalScript(layoutFile);	
-			if (Scripting::ScriptServer::Instance()->HasError())
-			{
-				n_printf("Error evaluating %s:\n%s\n", layoutFile.AsCharPtr(), Scripting::ScriptServer::Instance()->GetError().AsCharPtr());
-			}
+			Util::String scriptFile = sreader->GetString(Attr::Id);
+            bool autoLoad = sreader->GetBool(Attr::AutoLoad);
+            if(autoLoad)
+            {
+				if (IO::IoServer::Instance()->FileExists(scriptFile))
+				{
+					Scripting::ScriptServer::Instance()->EvalScript(scriptFile);
+					if (Scripting::ScriptServer::Instance()->HasError())
+					{
+						n_warning("Error evaluating %s:\n%s\n", scriptFile.AsCharPtr(), Scripting::ScriptServer::Instance()->GetError().AsCharPtr());
+					}
+				}
+				else
+				{
+					n_warning(("Failed to load script file: " + scriptFile).AsCharPtr());
+				}
 
+            }
 		}
 		sreader->Close();
 	}

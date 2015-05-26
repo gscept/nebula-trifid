@@ -12,6 +12,7 @@
 #include "util/blob.h"
 #include "math/bbox.h"
 #include "db/reader.h"
+#include "game/entity.h"
 
 struct rcConfig;
 
@@ -34,6 +35,8 @@ public:
 	void SetAgentParams(float height, float radius, float maxClimb);
 	/// adds a mesh resource to the geometry pool
 	void AddMesh(const IO::URI & meshFile, const Math::matrix44 & transform);
+    /// add convex region 
+    void AddConvexArea(const Ptr<Game::Entity> & areaEntity);
 
 	/// generate navmesh
 	Util::Blob GenerateNavMeshData();
@@ -138,6 +141,7 @@ private:
 	Util::Array<Math::matrix44> transforms;
     Util::Array<IO::URI> extraMeshes;
     Util::Array<Math::matrix44> extraTransforms;
+    Util::Array<Ptr<Game::Entity>> areaEntities;
 };
 
 //------------------------------------------------------------------------------
@@ -422,5 +426,6 @@ void RecastUtil::ResetExtraMeshes()
 {
 	this->extraMeshes.Clear();
 	this->extraTransforms.Clear();
+    this->areaEntities.Clear();
 }
 }

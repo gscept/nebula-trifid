@@ -93,7 +93,7 @@ ProjectInfo::Setup()
     {
         return NoProjPathInRegistry;
     }
-     String toolkitPath = this->QueryToolkitPathFromRegistry();
+    String toolkitPath = this->QueryToolkitPathFromRegistry();
     n_assert(toolkitPath.IsValid());
     AssignRegistry::Instance()->SetAssign(Assign("proj", projPath));
     AssignRegistry::Instance()->SetAssign(Assign("toolkit", toolkitPath));

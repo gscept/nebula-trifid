@@ -1,4 +1,3 @@
 <AnimEventEffects IsVirtualCategory="true">
- <Attributes AnimEventName="string" Resource="string" Joint="string" Duration="float" Rotation="string"/>
-  <Item AnimEventName="knight_step1" Resource="mdl:effects/step_smoke.n3" Joint="jSkn_knight_Rt_toe_foot_1" Duration="1.5" Rotation="joint"/>
+ <Attributes AnimEventName="string" Resource="string" Joint="string" Duration="float" Rotation="string"/>  
 </AnimEventEffects>

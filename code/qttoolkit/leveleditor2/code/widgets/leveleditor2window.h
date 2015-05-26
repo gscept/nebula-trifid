@@ -55,7 +55,9 @@ public:
 	/// get layer handler
 	Ptr<Layers::LayerHandler> GetLayerHandler();	
 
-
+public slots:
+    /// batch all game data
+    void OnBatchGame();
 private slots:
 
 	/// override key pressed
@@ -110,8 +112,7 @@ private slots:
     void OnApplicationDebugPage();
 	/// create new template from selected entity
 	void OnCreateTemplate();
-	/// batch all game data
-	void OnBatchGame();
+
 
     public slots:
     /// collapse property page

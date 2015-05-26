@@ -114,7 +114,6 @@ NetworkServer::Open()
 	this->rpc = RPC4::GetInstance();
 	this->readyEvent = Multiplayer::SyncPoint::GetInstance();
 	this->replicationManager = ReplicationManager::Create();
-	this->cloudClient = new CloudClient;
 
 	Multiplayer::SyncPoint::SetupSyncPoint(this->readyEvent);
 	// attach raknet plugins 
@@ -122,12 +121,9 @@ NetworkServer::Open()
 	this->rakPeer->AttachPlugin(this->natPunchthroughClient);
 	this->rakPeer->AttachPlugin(this->rpc);
 	this->rakPeer->AttachPlugin(this->readyEvent);
-	this->rakPeer->AttachPlugin(this->replicationManager);
-	this->rakPeer->AttachPlugin(this->cloudClient);
-	this->fullyConnectedMesh->SetAutoparticipateConnections(false);
-	this->fullyConnectedMesh->SetConnectOnNewRemoteConnection(false, "");
-	this->replicationManager->SetNetworkIDManager(this->networkIDManager);
-	this->replicationManager->SetAutoManageConnections(false,true);   
+	this->rakPeer->AttachPlugin(this->replicationManager);	
+	//// set lastUpdateTime
+	//this->lastUpdateTime =	RakNet::GetTime();
 }
 
 //------------------------------------------------------------------------------
@@ -137,6 +133,11 @@ bool
 NetworkServer::SetupLowlevelNetworking()
 {
 	n_assert2(NetworkGame::HasInstance(), "No NetworkGame or subclass instance exists, cant continue\n");
+
+	this->fullyConnectedMesh->SetAutoparticipateConnections(false);
+	this->fullyConnectedMesh->SetConnectOnNewRemoteConnection(false, "");
+	this->replicationManager->SetNetworkIDManager(this->networkIDManager);
+	this->replicationManager->SetAutoManageConnections(false, true);
 
 	Ptr<NetworkGame> game = NetworkGame::Instance();
 	game->SetNetworkIDManager(this->networkIDManager);
@@ -158,10 +159,6 @@ NetworkServer::SetupLowlevelNetworking()
 	n_printf("Our guid is %s\n", this->rakPeer->GetGuidFromSystemAddress(RakNet::UNASSIGNED_SYSTEM_ADDRESS).ToString());
 	n_printf("Started on %s\n", this->rakPeer->GetMyBoundAddress().ToString(true));
 
-	
-	// Start TCPInterface and begin connecting to the NAT punchthrough server
-//	this->tcp->Start(0, 0, 1);
-
 	this->natPunchServerAddress.FromStringExplicitPort(this->natServer.AsCharPtr(), DEFAULT_SERVER_PORT);
 
 	this->state = NETWORK_STARTED;
@@ -178,6 +175,17 @@ NetworkServer::SetupLowlevelNetworking()
 /**
 */
 void
+NetworkServer::ShutdownLowlevelNetworking()
+{
+	this->replicationManager->Clear();
+	this->fullyConnectedMesh->Clear();
+	this->rakPeer->Shutdown(100, 0);	
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 NetworkServer::Close()
 {
 	this->rakPeer->Shutdown(100, 0);
@@ -187,9 +195,7 @@ NetworkServer::Close()
 	delete this->natPunchthroughClient;
 	delete this->rpc;
 	delete this->readyEvent;
-	this->replicationManager = 0;
-	delete this->cloudClient;
-
+	this->replicationManager = 0;	
 }
 
 //------------------------------------------------------------------------------
@@ -200,6 +206,24 @@ NetworkServer::OnFrame()
 {        
 	if (this->state != IDLE)
 	{	
+		if (this->deferredMessages.Size() > 0)
+		{
+			for (int i = this->deferredMessages.Size() -1  ; i >=0 ; i--)
+			{
+				RakNet::NetworkID id = this->deferredMessages.KeyAtIndex(i);
+				RakNet::Replica3* replica = this->LookupReplica(id);				
+				MultiplayerFeature::NetworkEntity * entity = dynamic_cast<MultiplayerFeature::NetworkEntity*>(replica);
+				if (entity && entity->IsActive())
+				{
+					Util::Array<Ptr<Messaging::Message>> & msgs = this->deferredMessages.ValueAtIndex(i);
+					for (int j = 0; j < msgs.Size(); j++)
+					{
+						entity->SendSync(msgs[j]);
+					}
+					this->deferredMessages.EraseAtIndex(i);
+				}
+			}
+		}
 		Packet *packet;
 		for (packet = this->rakPeer->Receive(); packet; this->rakPeer->DeallocatePacket(packet), packet = this->rakPeer->Receive())
 		{
@@ -211,6 +235,7 @@ NetworkServer::OnFrame()
 		NetworkGame::Instance()->ReceiveMasterList(this->masterResult);
 		this->masterResult = 0;
 	}
+	NetworkGame::Instance()->OnFrame();	
 }
 
 //------------------------------------------------------------------------------
@@ -233,7 +258,7 @@ NetworkServer::HandlePacket(RakNet::Packet * packet)
 	break;
 	case ID_INCOMPATIBLE_PROTOCOL_VERSION:
 	{
-		n_printf("Incompatible protocol version from %s\n", targetName);
+		n_printf("Incompatible protocol version from %s\n", targetName.AsCharPtr());
 		if (packet->systemAddress == this->natPunchServerAddress)
 		{
 			n_printf("Multiplayer will not work without the NAT punchthrough server!");
@@ -242,7 +267,8 @@ NetworkServer::HandlePacket(RakNet::Packet * packet)
 	break;
 	case ID_DISCONNECTION_NOTIFICATION:
 	{
-		n_printf("Disconnected from %d\n", targetName);
+		n_printf("Disconnected from %s\n", targetName.AsCharPtr());
+		NetworkGame::Instance()->OnPlayerDisconnect(packet->guid);
 		if (packet->systemAddress == this->natPunchServerAddress)
 		{
 			this->connectedToNatPunchThrough = false;
@@ -290,19 +316,34 @@ NetworkServer::HandlePacket(RakNet::Packet * packet)
 	break;
 	case ID_FCM2_VERIFIED_JOIN_FAILED:
 	{
-		n_printf("Failed to join game session");
+		NetworkGame::Instance()->OnJoinFailed("Connection failed");
+	}
+	break;
+	case ID_FCM2_VERIFIED_JOIN_REJECTED:	
+	{
+		RakNet::BitStream bs(packet->data, packet->length, false);
+		Ptr<Multiplayer::BitReader> br = Multiplayer::BitReader::Create();
+		br->SetStream(&bs);
+		br->ReadChar();
+		Util::String answer = br->ReadString();
+
+		n_printf("Failed to join game session: %s", answer.AsCharPtr());
+		NetworkGame::Instance()->OnJoinFailed(answer);
 	}
 	break;
 	case ID_FCM2_VERIFIED_JOIN_CAPABLE:
 	{
-		if (this->fullyConnectedMesh->GetParticipantCount() < NetworkGame::Instance()->GetMaxPlayers())
+		//If server not full and you're in lobby or allowed to join while game has started
+		if (this->fullyConnectedMesh->GetParticipantCount() + 1 < NetworkGame::Instance()->GetMaxPlayers() && IsInGameJoinUnLocked())
 		{
 			this->fullyConnectedMesh->RespondOnVerifiedJoinCapable(packet, true, 0);
 		}
 		else
 		{
-			this->fullyConnectedMesh->RespondOnVerifiedJoinCapable(packet, false, 0);
-		}
+			RakNet::BitStream answer;			
+			answer.Write("Server Full\n");
+			this->fullyConnectedMesh->RespondOnVerifiedJoinCapable(packet, false, &answer);			
+		}		
 	}
 	break;
 	case ID_FCM2_VERIFIED_JOIN_ACCEPTED:
@@ -377,27 +418,7 @@ NetworkServer::HandlePacket(RakNet::Packet * packet)
 			n_printf("the new host is %s\n", packet->guid.ToString());		
 		}
 	}
-	break;
-	case ID_CLOUD_GET_RESPONSE:
-	{
-		RakNet::CloudQueryResult cloudQueryResult;
-		cloudClient->OnGetReponse(&cloudQueryResult, packet);
-		if (cloudQueryResult.rowsReturned.Size() > 0)
-		{
-			n_printf("NAT punch to existing game instance");
-			natPunchthroughClient->OpenNAT(cloudQueryResult.rowsReturned[0]->clientGUID, this->natPunchServerAddress);
-		}
-		else
-		{
-			n_printf("Publishing new game instance");
-
-			// Start as a new game instance because no other games are running
-			this->UpdateRoomList();
-		}
-
-		cloudClient->DeallocateWithDefaultAllocator(&cloudQueryResult);
-	}
-	break;
+	break;	
 	case ID_CONNECTION_ATTEMPT_FAILED:
 	{
 		n_printf("Connection attempt to %s failed\n", targetName.AsCharPtr());
@@ -454,7 +475,10 @@ NetworkServer::HandlePacket(RakNet::Packet * packet)
 		{
 			n_printf("Connecting to existing game instance");
 			RakNet::ConnectionAttemptResult car = rakPeer->Connect(packet->systemAddress.ToString(false), packet->systemAddress.GetPort(), 0, 0);
-			RakAssert(car == RakNet::CONNECTION_ATTEMPT_STARTED);
+			if (car != ALREADY_CONNECTED_TO_ENDPOINT || car != RakNet::CONNECTION_ATTEMPT_STARTED)
+			{
+				n_warning("Nat punchthrough failed\n");
+			}
 		}
 	}
 	break;
@@ -480,318 +504,6 @@ NetworkServer::HandlePacket(RakNet::Packet * packet)
 	return true;
 }
 	
-
-//------------------------------------------------------------------------------
-/**
-
-bool
-NetworkServer::HandlePacket(RakNet::Packet * packet)
-{
-	switch (packet->data[0])
-	{
-		case ID_NEW_INCOMING_CONNECTION:
-		{
-			n_printf("ID_NEW_INCOMING_CONNECTION from %s. guid=%s.\n", packet->systemAddress.ToString(true), packet->guid.ToString());
-		}
-		break;
-		case ID_CONNECTION_REQUEST_ACCEPTED:
-		{
-			n_printf("ID_CONNECTION_REQUEST_ACCEPTED from %s,guid=%s\n", packet->systemAddress.ToString(true), packet->guid.ToString());
-			this->natPunchServerAddress = packet->systemAddress;
-			this->natPunchServerGuid = packet->guid;
-
-			if (this->state == CONNECTING_TO_SERVER)
-			{			
-				this->SetupUPNP();	
-			}
-			else if (this->state == CONNECTING_TO_GAME_HOST)
-			{
-				n_printf("Asking host to join session...\n");
-
-				// So time in single player does not count towards which system has been running multiplayer the longest
-				this->fullyConnectedMesh->ResetHostCalculation();
-
-				// Custom message to ask to join the game
-				// We first connect to the game host, and the game host is responsible for calling StartVerifiedJoin() for us to join the session
-				// FIXME
-				BitStream bsOut;
-				bsOut.Write((MessageID)ID_USER_PACKET_ENUM);
-				this->rakPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, packet->guid, false);
-			}
-		}
-		break;
-		case ID_CONNECTION_LOST:
-		case ID_DISCONNECTION_NOTIFICATION:
-			if (this->state == NAT_PUNCH_TO_GAME_HOST)
-			{
-				n_printf("Lost connection during NAT punch to game host. Reason %s.\n", PacketLogger::BaseIDTOString(packet->data[0]));
-				this->state = SEARCH_FOR_GAMES;
-			}
-			else
-			{
-				if (packet->guid == this->natPunchServerGuid)
-				{
-					n_printf("Server connection lost. Reason %s.\nGame session is no longer searchable.\n", PacketLogger::BaseIDTOString(packet->data[0]));
-				}
-				else
-				{
-					n_printf("Peer connection lost. Reason %s.\n", PacketLogger::BaseIDTOString(packet->data[0]));
-				}
-			}
-			break;
-
-		case ID_ALREADY_CONNECTED:
-			n_printf("ID_ALREADY_CONNECTED with guid %" PRINTF_64_BIT_MODIFIER "u\n", packet->guid);
-			break;
-
-		case ID_INVALID_PASSWORD:
-		case ID_NO_FREE_INCOMING_CONNECTIONS:
-		case ID_CONNECTION_ATTEMPT_FAILED:
-		case ID_CONNECTION_BANNED:
-		case ID_IP_RECENTLY_CONNECTED:
-		case ID_INCOMPATIBLE_PROTOCOL_VERSION:
-			// Note: Failing to connect to another system does not automatically mean we cannot join a session, since that system may be disconnecting from the host simultaneously
-			// FullyConnectedMesh2::StartVerifiedJoin() internally handles success or failure and notifies the client through ID_FCM2_VERIFIED_JOIN_FAILED if needed.
-			n_printf("Failed to connect to %s. Reason %s\n", packet->systemAddress.ToString(true), PacketLogger::BaseIDTOString(packet->data[0]));
-
-			if (this->state == CONNECTING_TO_SERVER)
-			{
-				this->state = IDLE;
-			}				
-			break;
-
-		case ID_FCM2_NEW_HOST:
-		{
-			n_printf("ID_FCM2_NEW_HOST\n");
-			RakNet::BitStream bs(packet->data, packet->length, false);
-			bs.IgnoreBytes(1);
-			RakNetGUID oldHost;
-			bs.Read(oldHost);
-
-			if (packet->guid == rakPeer->GetMyGUID())
-			{
-				if (oldHost != UNASSIGNED_RAKNET_GUID)
-				{
-					if (this->state == IN_LOBBY_WAITING_FOR_HOST)
-					{
-						this->state = IN_LOBBY_WITH_HOST;
-					}						
-					NetworkGame::Instance()->PublishToMaster();
-					n_printf("ID_FCM2_NEW_HOST: Taking over as host from the old host.\n");
-				}
-				else
-				{
-					// Room not hosted if we become host the first time since this was done in CreateRoom() already
-					n_printf("ID_FCM2_NEW_HOST: We have become host for the first time.\n");
-				}
-
-				//printf("(L)ock and unlock game\n");
-			}
-			else
-			{
-				if (oldHost != UNASSIGNED_RAKNET_GUID)
-					n_printf("ID_FCM2_NEW_HOST: A new system %s has become host, GUID=%s\n", packet->systemAddress.ToString(true), packet->guid.ToString());
-				else
-					n_printf("ID_FCM2_NEW_HOST: System %s is host, GUID=%s\n", packet->systemAddress.ToString(true), packet->guid.ToString());
-			}
-
-			if (oldHost == UNASSIGNED_RAKNET_GUID)
-			{
-				// First time calculated host. Add existing connections to ReplicaManager3
-				DataStructures::List<RakNetGUID> participantList;
-				this->fullyConnectedMesh->GetParticipantList(participantList);
-				for (unsigned int i = 0; i < participantList.Size(); i++)
-				{
-					this->readyEvent->AddToWaitList(0, participantList[i]);					
-				}
-				// Reference the user we created (host or not)	
-				this->replicationManager->Reference(MultiplayerFeature::MultiplayerFeatureUnit::Instance()->GetPlayer());				
-			}
-		}
-		break;				
-		case ID_NAT_TARGET_NOT_CONNECTED:
-		case ID_NAT_TARGET_UNRESPONSIVE:
-		case ID_NAT_CONNECTION_TO_TARGET_LOST:
-		case ID_NAT_PUNCHTHROUGH_FAILED:
-		{
-			// As with connection failed, this does not automatically mean we cannot join the session
-			// We only fail on ID_FCM2_VERIFIED_JOIN_FAILED
-			n_printf("NAT punch to %s failed. Reason %s\n", packet->guid.ToString(), PacketLogger::BaseIDTOString(packet->data[0]));
-
-			if (this->state == NAT_PUNCH_TO_GAME_HOST)
-			{
-				this->SearchForGames();
-			}				
-		}
-
-		case ID_NAT_ALREADY_IN_PROGRESS:
-			// Can ignore this
-			break;
-
-		case ID_NAT_PUNCHTHROUGH_SUCCEEDED:
-		{
-			n_printf("ID_NAT_PUNCHTHROUGH_SUCCEEDED\n");
-			if (this->state == NAT_PUNCH_TO_GAME_HOST || this->state == VERIFIED_JOIN)
-			{
-				// Connect to the session host
-				ConnectionAttemptResult car = this->rakPeer->Connect(packet->systemAddress.ToString(false), packet->systemAddress.GetPort(), 0, 0);
-				if (car != RakNet::CONNECTION_ATTEMPT_STARTED)
-				{
-					n_printf("Failed connect call to %s. Code=%i\n", packet->systemAddress.ToString(false), car);
-					this->SearchForGames();
-				}
-				else
-				{
-					if (this->state == NAT_PUNCH_TO_GAME_HOST)
-					{
-						n_printf("NAT punch completed. Connecting to %s (game host)...\n", packet->systemAddress.ToString(true));
-						this->state = CONNECTING_TO_GAME_HOST;
-					}
-					else
-					{
-						n_printf("NAT punch completed. Connecting to %s (game client)...\n", packet->systemAddress.ToString(true));
-					}
-				}
-			}
-		}
-		break;
-
-		case ID_READY_EVENT_ALL_SET:
-			n_printf("Got ID_READY_EVENT_ALL_SET from %s\n", packet->systemAddress.ToString(true));
-// 			printf("All users ready.\n");
-// 			if (fullyConnectedMesh2->IsConnectedHost())
-// 				printf("New options:\n(B)egin gameplay\n");
-			break;
-
-		case ID_READY_EVENT_SET:
-			n_printf("Got ID_READY_EVENT_SET from %s\n", packet->systemAddress.ToString(true));
-			break;
-
-		case ID_READY_EVENT_UNSET:
-			n_printf("Got ID_READY_EVENT_UNSET from %s\n", packet->systemAddress.ToString(true));
-			break;
-
-			// ID_USER_PACKET_ENUM is used by this sample as a custom message to ask to join a game
-			//FIXME
-		case ID_USER_PACKET_ENUM:
-			if (this->state >  SEARCH_FOR_GAMES)
-			{
-				n_printf("Got request from client to join session.\nExecuting StartVerifiedJoin()\n");
-				this->fullyConnectedMesh->StartVerifiedJoin(packet->guid);
-			}
-			else
-			{
-				BitStream bsOut;
-				bsOut.Write((MessageID)(ID_USER_PACKET_ENUM + 1));
-				this->rakPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, packet->guid, false);
-			}
-			break;		
-		case ID_FCM2_VERIFIED_JOIN_START:
-		{
-			this->state = VERIFIED_JOIN;
-
-			// This message means the session host sent us a list of systems in the session
-			// Once we connect to, or fail to connect to, each of these systems we will get ID_FCM2_VERIFIED_JOIN_FAILED, ID_FCM2_VERIFIED_JOIN_ACCEPTED, or ID_FCM2_VERIFIED_JOIN_REJECTED
-			n_printf("Host sent us system list. Doing NAT punch to each system...\n");
-			DataStructures::List<SystemAddress> addresses;
-			DataStructures::List<RakNetGUID> guids;
-			DataStructures::List<BitStream*> ud;
-			this->fullyConnectedMesh->GetVerifiedJoinRequiredProcessingList(packet->guid, addresses, guids, ud);
-			for (unsigned int i = 0; i < guids.Size(); i++)
-			{
-				this->natPunchthroughClient->OpenNAT(guids[i], this->natPunchServerAddress);
-			}				
-		}
-		break;
-
-		case ID_FCM2_VERIFIED_JOIN_CAPABLE:
-			n_printf("Client is capable of joining FullyConnectedMesh2.\n");
-// 			if (game->lockGame)
-// 			{
-// 				RakNet::BitStream bsOut;
-// 				bsOut.Write("Game is locked");
-// 				fullyConnectedMesh2->RespondOnVerifiedJoinCapable(packet, false, &bsOut);
-// 			}
-// 			else
-
-			this->fullyConnectedMesh->RespondOnVerifiedJoinCapable(packet, true, 0);
-			break;
-
-		case ID_FCM2_VERIFIED_JOIN_ACCEPTED:
-		{
-			DataStructures::List<RakNetGUID> systemsAccepted;
-			bool thisSystemAccepted;
-			this->fullyConnectedMesh->GetVerifiedJoinAcceptedAdditionalData(packet, &thisSystemAccepted, systemsAccepted, 0);
-			if (thisSystemAccepted)
-				n_printf("Game join request accepted\n");
-			else
-				n_printf("System %s joined the mesh\n", systemsAccepted[0].ToString());
-
-			// Add the new participant to the game if we already know who the host is. Otherwise do this
-			// once ID_FCM2_NEW_HOST arrives
-			if (this->fullyConnectedMesh->GetConnectedHost() != UNASSIGNED_RAKNET_GUID)
-			{
-				// FullyConnectedMesh2 already called AddParticipant() for each accepted system
-				// Still need to add those systems to the other plugins though
-				for (unsigned int i = 0; i < systemsAccepted.Size(); i++)
-				{
-					this->readyEvent->AddToWaitList(0, systemsAccepted[i]);					
-				}					
-
-				if (thisSystemAccepted)
-				{
-					this->state = IN_LOBBY_WITH_HOST;
-				}					
-			}
-			else
-			{
-				if (thisSystemAccepted)
-				{
-					this->state = IN_LOBBY_WAITING_FOR_HOST;
-				}					
-			}			
-		}
-		break;
-
-		case ID_FCM2_VERIFIED_JOIN_REJECTED:
-		{
-			BitStream additionalData;
-			this->fullyConnectedMesh->GetVerifiedJoinRejectedAdditionalData(packet, &additionalData);
-			RakString reason;
-			additionalData.Read(reason);
-			n_printf("Join rejected. Reason=%s\n", reason.C_String());
-			this->rakPeer->CloseConnection(packet->guid, true);
-			this->SearchForGames();
-			break;
-		}
-
-		case ID_REPLICA_MANAGER_DOWNLOAD_COMPLETE:
-		{
-			if (this->replicationManager->GetAllConnectionDownloadsCompleted() == true)
-			{
-				n_printf("Completed all remote downloads\n");
-
-				if (NetworkGame::Instance()->InLobby())
-				{
-					this->state = IN_LOBBY_WITH_HOST;
-				}
-				else
-				{
-					this->state = IN_GAME;
-					NetworkGame::Instance()->StartInGame();
-				}					
-			}
-
-			break;
-		}
-	}
-	return true;
-}
-
-
-*/
-
-
 //------------------------------------------------------------------------------
 /**
 */
@@ -906,15 +618,9 @@ NetworkServer::MasterServerResult(Util::String response)
 void
 NetworkServer::UpdateRoomList()
 {
-#ifdef USE_CLOUD_MASTER
-	RakNet::CloudQuery cloudQuery;
-	cloudQuery.keys.Push(RakNet::CloudKey(NetworkGame::Instance()->GetGameID().AsCharPtr(), 0), _FILE_AND_LINE_);
-	cloudClient->Get(&cloudQuery, rakPeer->GetGuidFromSystemAddress(RakNet::UNASSIGNED_SYSTEM_ADDRESS));
-#else
 	this->masterThread = MasterHelperThread::Create();
 	this->masterThread->gameId = NetworkGame::Instance()->GetGameID();	
 	this->masterThread->Start();
-#endif
 }
 
 //------------------------------------------------------------------------------
@@ -935,6 +641,17 @@ NetworkServer::CreateRoom()
 	this->state = IN_LOBBY_WAITING_FOR_HOST_DETERMINATION;
 }
 
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+NetworkServer::CancelRoom()
+{
+	this->state = NETWORK_STARTED;
+}
+
+
 //------------------------------------------------------------------------------
 /**
 */
@@ -950,9 +667,25 @@ NetworkServer::StartGame()
 RakNet::Replica3 *
 NetworkServer::LookupReplica(RakNet::NetworkID replicaId)
 {
-	RakNet::Replica3 * replica = this->networkIDManager->GET_OBJECT_FROM_ID<RakNet::Replica3*>(replicaId);
-	n_assert(replica);
+	RakNet::Replica3 * replica = this->networkIDManager->GET_OBJECT_FROM_ID<RakNet::Replica3*>(replicaId);	
 	return replica;
+}
+
+
+//------------------------------------------------------------------------------
+/**
+Returns a user defined flag when IN_GAME so that the user can decide if it's allowed to join or not.
+*/
+bool NetworkServer::IsInGameJoinUnLocked()
+{
+	if (this->state == IN_GAME)
+	{
+		return NetworkGame::Instance()->CanJoinInGame();
+	}
+	else
+	{
+		return true;
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -982,7 +715,15 @@ NetworkServer::DispatchMessageStream(RakNet::BitStream * msgStream, Packet *pack
 		Ptr<Messaging::Message> msg = cmsg.cast<Messaging::Message>();
 		msg->SetDistribute(false);
 		msg->Decode(breader);
-		entity->SendSync(msg);
+		if (entity)
+		{
+			entity->SendSync(msg);
+		}
+		else
+		{
+			this->AddDeferredMessage(entityId, msg);
+		}
+		
 	}
 	breader->Close();
 
@@ -1002,6 +743,19 @@ NetworkServer::SendMessageStream(RakNet::BitStream* msgStream)
 		for (unsigned int i = 0; i < participantList.Size(); i++)
 			this->rpc->Signal("NebulaMessage", msgStream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, participantList[i], false, false);
 	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+NetworkServer::AddDeferredMessage(RakNet::NetworkID entityId, const Ptr<Messaging::Message> &msg)
+{
+	if (!this->deferredMessages.Contains(entityId))
+	{
+		this->deferredMessages.Add(entityId, Util::Array<Ptr<Messaging::Message>>());
+	}
+	this->deferredMessages[entityId].Append(msg);
 }
 
 //------------------------------------------------------------------------------

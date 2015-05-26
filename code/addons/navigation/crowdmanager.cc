@@ -397,6 +397,8 @@ CrowdManager::FindCrowd(const Util::String & navMesh, const Math::point & pos)
     // no matching crowd was found, create new one
     n_assert(this->navigationServer->HasNavMesh(navMesh));
     dtCrowd * crowd = dtAllocCrowd();
+	crowd->getEditableFilter(1)->setIncludeFlags(1);
+	crowd->getEditableFilter(1)->setExcludeFlags(2);
     crowd->init(this->maxCrowdAgents,this->maxRadius,this->navigationServer->meshes[navMesh]);
     crowdData * cd = new crowdData;
     cd->crowd = crowd;

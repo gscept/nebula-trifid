@@ -38,4 +38,11 @@ Validate()
 }
 
 #endif
+#if NEBULA3_MEMORY_ADVANCED_DEBUGGING
+void DumpMemoryLeaks()
+{
+	// FIXME
+}
+#endif
+
 } // namespace Memory

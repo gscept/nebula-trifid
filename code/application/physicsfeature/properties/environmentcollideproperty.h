@@ -39,7 +39,7 @@ public:
     /// called from Entity::DeactivateProperties()
     virtual void OnDeactivate();
 	/// add from resource file
-	void AddShapes(const Util::String& id, const Math::matrix44& worldMatrix, const Util::String & res);
+	void AddShapes(const Util::String& id, const Math::matrix44& worldMatrix, const Util::String & res, Util::String physicsMaterial);
     /// delete shapes associated with given id
     void DeleteShapes(const Util::String& id);
     /// return true if a shape group of the given id exists

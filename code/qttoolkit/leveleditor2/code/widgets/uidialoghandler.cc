@@ -10,6 +10,7 @@
 #include "qcombobox.h"
 #include "qmessagebox.h"
 #include "game/templateexporter.h"
+#include "game/gameexporter.h"
 
 using namespace Ui;
 using namespace Util;
@@ -44,70 +45,97 @@ bool
 ParseUIProperties(Util::Dictionary<Util::String, LayoutEntry> & layouts, Util::Dictionary<Util::String, FontEntry> & fonts, Util::Dictionary<Util::String, ScriptEntry> & scripts)
 {
 	
-	if (IO::IoServer::Instance()->FileExists("root:data/tables/ui.xml"))
-	{
-		Ptr<IO::Stream> stream = IO::IoServer::Instance()->CreateStream("root:data/tables/ui.xml");
+	if (IO::IoServer::Instance()->FileExists("root:data/tables/db/_ui_layouts.xml"))
+	{        
+		Ptr<IO::Stream> stream = IO::IoServer::Instance()->CreateStream("root:data/tables/db/_ui_layouts.xml");
 		stream->SetAccessMode(IO::Stream::ReadAccess);
 		Ptr<IO::XmlReader> reader = IO::XmlReader::Create();
 		{
 			reader->SetStream(stream);
 			if (reader->Open())
 			{
-				if (reader->HasNode("/Layouts"))
-				{
-					reader->SetToNode("/Layouts");
-					if(reader->SetToFirstChild())
-					{
-						do
-						{
-							LayoutEntry entry;
-							entry.resource = reader->GetString("file");
-							entry.name = reader->GetString("name");
-							entry.autoload = reader->GetOptBool("autoload", false);
-							layouts.Add(entry.resource,entry);
-							
-						} while (reader->SetToNextChild());
-					}
-				}
-				if (reader->HasNode("/Fonts"))
-				{
-					reader->SetToNode("/Fonts");
-					if (reader->SetToFirstChild())
-					{
-						do
-						{
-							FontEntry entry;
-							entry.resource = reader->GetString("file");
-							entry.family = reader->GetString("family");
-							entry.style = (UI::FontStyle)reader->GetInt("style");
-							entry.weight = (UI::FontWeight)reader->GetInt("weight");
-							entry.autoload = reader->GetOptBool("autoload", false);
-							fonts.Add(entry.resource, entry);
+                String category = reader->GetCurrentNodeName();
+                if(category != "_Ui_Layouts")
+                {
+                    n_warning("corrupt ui layouts file: %s\n", reader->GetStream()->GetURI().LocalPath().AsCharPtr());
+                    return false;
+                }
+                
+                if (reader->SetToFirstChild("Item")) do
+                {                    
+                   LayoutEntry entry;
+                   entry.resource = reader->GetString("Id");
+                   entry.name = reader->GetString("Name");
+                   entry.autoload = reader->GetBool("AutoLoad");
+                   layouts.Add(entry.resource, entry);
+                }
+                while (reader->SetToNextChild("Item"));
+                reader->Close();
+            }
+        }
+    }
 
-						} while (reader->SetToNextChild());
-					}
-				}
-				if (reader->HasNode("/Scripts"))
-				{
-					reader->SetToNode("/Scripts");
-					if (reader->SetToFirstChild())
-					{
-						do
-						{
-							ScriptEntry entry;
-							entry.resource = reader->GetString("file");		
-							entry.autoload = reader->GetOptBool("autoload", false);
-							scripts.Add(entry.resource, entry);
+    if (IO::IoServer::Instance()->FileExists("root:data/tables/db/_ui_fonts.xml"))
+    {        
+        Ptr<IO::Stream> stream = IO::IoServer::Instance()->CreateStream("root:data/tables/db/_ui_fonts.xml");
+        stream->SetAccessMode(IO::Stream::ReadAccess);
+        Ptr<IO::XmlReader> reader = IO::XmlReader::Create();
+        {
+            reader->SetStream(stream);
+            if (reader->Open())
+            {
+                String category = reader->GetCurrentNodeName();
+                if(category != "_Ui_Fonts")
+                {
+                    n_warning("corrupt ui fonts file: %s\n", reader->GetStream()->GetURI().LocalPath().AsCharPtr());
+                    return false;
+                }
 
-						} while (reader->SetToNextChild());
-					}
-				}
-				reader->Close();
-			}
-		}
-		return true;
-	}
-	return false;
+                if (reader->SetToFirstChild("Item")) do
+                {                    
+                    FontEntry entry;
+                    entry.resource = reader->GetString("Id");
+                    entry.family = reader->GetString("UIFontFamily");
+                    entry.style = (UI::FontStyle)reader->GetInt("UIFontStyle");
+                    entry.weight = (UI::FontWeight)reader->GetInt("UIFontWeight");
+                    entry.autoload = reader->GetBool("AutoLoad");
+                    fonts.Add(entry.resource, entry);                    
+                }
+                while (reader->SetToNextChild("Item"));
+                reader->Close();
+            }
+        }
+    }
+
+    if (IO::IoServer::Instance()->FileExists("root:data/tables/db/_ui_scripts.xml"))
+    {        
+        Ptr<IO::Stream> stream = IO::IoServer::Instance()->CreateStream("root:data/tables/db/_ui_scripts.xml");
+        stream->SetAccessMode(IO::Stream::ReadAccess);
+        Ptr<IO::XmlReader> reader = IO::XmlReader::Create();
+        {
+            reader->SetStream(stream);
+            if (reader->Open())
+            {
+                String category = reader->GetCurrentNodeName();
+                if(category != "_Ui_Scripts")
+                {
+                    n_warning("corrupt ui scripts file: %s\n", reader->GetStream()->GetURI().LocalPath().AsCharPtr());
+                    return false;
+                }
+
+                if (reader->SetToFirstChild("Item")) do
+                {                    
+                    ScriptEntry entry;
+                    entry.resource = reader->GetString("Id");		
+                    entry.autoload = reader->GetBool("AutoLoad");
+                    scripts.Add(entry.resource, entry);            
+                }
+                while (reader->SetToNextChild("Item"));
+                reader->Close();
+            }
+        }
+    }	
+	return true;
 }
 //------------------------------------------------------------------------------
 /**
@@ -320,72 +348,93 @@ UIDialogHandler::SaveUIProperties()
 		}				
 	}
 
+    {
+	    Ptr<IO::Stream> stream = IO::IoServer::Instance()->CreateStream("root:data/tables/db/_ui_layouts.xml");
+	    stream->SetAccessMode(IO::Stream::WriteAccess);
+	    Ptr<IO::XmlWriter> writer = IO::XmlWriter::Create();
+	    writer->SetStream(stream);
 	
-	Ptr<IO::Stream> stream = IO::IoServer::Instance()->CreateStream("root:data/tables/ui.xml");
-	stream->SetAccessMode(IO::Stream::WriteAccess);
-	Ptr<IO::XmlWriter> writer = IO::XmlWriter::Create();
-	writer->SetStream(stream);
-	
-	writer->Open();
+	    writer->Open();
 
-	writer->BeginNode("Layouts");
-	rows = ui.layoutWidget->rowCount();
-	for (int i = 0; i < rows; i++)
-	{
-		Util::String fname(ui.layoutWidget->item(i, 0)->text().toLatin1().constData());
-		Util::String name(ui.layoutWidget->item(i, 1)->text().toLatin1().constData());
-		QCheckBox * box = (QCheckBox*)ui.layoutWidget->cellWidget(i, 2);
-		writer->BeginNode("Layout");
-		writer->SetString("file", fname);
-		writer->SetString("name", name);
-		writer->SetBool("autoload", box->isChecked());
-		writer->EndNode();
-	}
-	writer->EndNode();
+	    writer->BeginNode("_Ui_Layouts");
+        writer->SetBool("IsVirtualCategory", true);
+	    rows = ui.layoutWidget->rowCount();
+	    for (int i = 0; i < rows; i++)
+	    {
+		    Util::String fname(ui.layoutWidget->item(i, 0)->text().toLatin1().constData());
+		    Util::String name(ui.layoutWidget->item(i, 1)->text().toLatin1().constData());
+		    QCheckBox * box = (QCheckBox*)ui.layoutWidget->cellWidget(i, 2);
+		    writer->BeginNode("Item");
+		    writer->SetString("Id", fname);
+		    writer->SetString("Name", name);
+		    writer->SetBool("AutoLoad", box->isChecked());
+		    writer->EndNode();
+	    }
+	    writer->EndNode();
+        writer->Close();
+    }
 
-	writer->BeginNode("Fonts");
-	rows = ui.fontWidget->rowCount();
-	for (int i = 0; i < rows; i++)
-	{
-		Util::String fname(ui.fontWidget->item(i, 0)->text().toLatin1().constData());
-		Util::String family(ui.fontWidget->item(i, 1)->text().toLatin1().constData());
-		QComboBox * style = (QComboBox *)ui.fontWidget->cellWidget(i, 2);
-		QComboBox * weight = (QComboBox *)ui.fontWidget->cellWidget(i, 3);
-		QCheckBox * box = (QCheckBox*)ui.fontWidget->cellWidget(i, 4);
-		writer->BeginNode("Font");
-		writer->SetString("file", fname);
-		writer->SetString("family", family);
-		writer->SetInt("style", style->currentIndex());
-		writer->SetInt("weight", weight->currentIndex());
-		writer->SetBool("autoload", box->isChecked());
-		writer->EndNode();
-	}
-	writer->EndNode();
+    {
+        Ptr<IO::Stream> stream = IO::IoServer::Instance()->CreateStream("root:data/tables/db/_ui_fonts.xml");
+        stream->SetAccessMode(IO::Stream::WriteAccess);
+        Ptr<IO::XmlWriter> writer = IO::XmlWriter::Create();
+        writer->SetStream(stream);
 
-	writer->BeginNode("Scripts");
-	rows = ui.scriptWidget->rowCount();
-	for (int i = 0; i < rows; i++)
-	{
-		Util::String fname(ui.scriptWidget->item(i, 0)->text().toLatin1().constData());		
-		QCheckBox * box = (QCheckBox*)ui.scriptWidget->cellWidget(i, 1);
-		writer->BeginNode("Script");
-		writer->SetString("file", fname);		
-		writer->SetBool("autoload", box->isChecked());
-		writer->EndNode();
-	}
-	writer->EndNode();
+        writer->Open();
 
-	writer->Close();
+        writer->BeginNode("_Ui_Fonts");
+        writer->SetBool("IsVirtualCategory", true);
+	    rows = ui.fontWidget->rowCount();
+	    for (int i = 0; i < rows; i++)
+	    {
+		    Util::String fname(ui.fontWidget->item(i, 0)->text().toLatin1().constData());
+		    Util::String family(ui.fontWidget->item(i, 1)->text().toLatin1().constData());
+		    QComboBox * style = (QComboBox *)ui.fontWidget->cellWidget(i, 2);
+		    QComboBox * weight = (QComboBox *)ui.fontWidget->cellWidget(i, 3);
+		    QCheckBox * box = (QCheckBox*)ui.fontWidget->cellWidget(i, 4);
+		    writer->BeginNode("Item");
+		    writer->SetString("Id", fname);
+		    writer->SetString("UIFontFamily", family);
+		    writer->SetInt("UIFontStyle", style->currentIndex());
+		    writer->SetInt("UIFontWeight", weight->currentIndex());
+		    writer->SetBool("AutoLoad", box->isChecked());
+		    writer->EndNode();
+	    }
+	    writer->EndNode();
+        writer->Close();
+    }
+
+    {
+        Ptr<IO::Stream> stream = IO::IoServer::Instance()->CreateStream("root:data/tables/db/_ui_scripts.xml");
+        stream->SetAccessMode(IO::Stream::WriteAccess);
+        Ptr<IO::XmlWriter> writer = IO::XmlWriter::Create();
+        writer->SetStream(stream);
+
+        writer->Open();
+
+        writer->BeginNode("_Ui_Scripts");
+        writer->SetBool("IsVirtualCategory", true);
+
+	    rows = ui.scriptWidget->rowCount();
+	    for (int i = 0; i < rows; i++)
+	    {
+		    Util::String fname(ui.scriptWidget->item(i, 0)->text().toLatin1().constData());		
+		    QCheckBox * box = (QCheckBox*)ui.scriptWidget->cellWidget(i, 1);
+		    writer->BeginNode("Item");
+		    writer->SetString("Id", fname);		
+		    writer->SetBool("AutoLoad", box->isChecked());
+		    writer->EndNode();
+	    }
+	    writer->EndNode();
+	    writer->Close();
+    }
 	this->CloseDialog();	
-
-	/// export ui tables right away
-	ToolkitUtil::Logger logger;
-	Ptr<ToolkitUtil::TemplateExporter> exporter = ToolkitUtil::TemplateExporter::Create();	
-	exporter->SetDbFactory(Db::Sqlite3Factory::Instance());
-	exporter->SetLogger(&logger);
-	exporter->Open();
-	exporter->ExportUiProperties();
-	exporter->Close();
+    ToolkitUtil::Logger logger;
+    Ptr<ToolkitUtil::GameExporter> exporter = ToolkitUtil::GameExporter::Create();	
+    exporter->SetLogger(&logger);
+    exporter->Open();
+    exporter->ExportTables();
+    exporter->Close();	
 }
 
 }

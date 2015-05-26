@@ -4,7 +4,7 @@
 //  (C) 2013-2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "toolkit/idlcompiler/idlcompiler.h"
+#include "idlcompiler/idlcompiler.h"
 
 using namespace Tools;
 using namespace Util;

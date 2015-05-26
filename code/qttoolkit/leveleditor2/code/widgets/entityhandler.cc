@@ -198,7 +198,7 @@ EntityHandler::SaveEntity()
 		props.Append(this->ui.attachedPropertiesList->item(i)->text().toAscii().constData());
 	}
 	EditorBlueprintManager::Instance()->SetCategory(category,props);
-	EditorBlueprintManager::Instance()->SaveProjectBlueprint();
+	EditorBlueprintManager::Instance()->SaveBlueprint("proj:data/tables/blueprints.xml");
 
 	LevelEditor2EntityManager::Instance()->UpdateCategoryEntities(category);
 	this->hide();

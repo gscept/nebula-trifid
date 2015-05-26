@@ -17,54 +17,57 @@ INCLUDE_DIRECTORIES(..
 					${Nebula3_SOURCE_DIR}/code/extlibs/recastnavigation/DetourCrowd/Include
 					${Nebula3_SOURCE_DIR}/code
 					)
-					
-    set(SOURCES_files_nav
-		navigationserver.h
-		navigationserver.cc		
-		path3d.cc
-		path3d.h
-		crowdmanager.cc
-		crowdmanager.h
-		navigatedproperty.cc
-		navigatedproperty.h
-    )
-    source_group("navigation" FILES ${SOURCES_files_nav})
-	
-	set(SOURCES_files_debug_nav		
-		debug/detourdebug.h
-		debug/detourdebug.cc
-		debug/navigationpagehandler.cc
-		debug/navigationpagehandler.h
-    )
-    source_group("navigation\\debug" FILES ${SOURCES_files_debug_nav})
-	
-	FILE(GLOB SRC "recast/*.cc")
-	FILE(GLOB HEAD "recast/*.h")
-	LIST(APPEND SRCSREC ${SRC} ${HEAD})
-	SOURCE_GROUP("navigation\\recast" FILES ${SRCSREC})
+
+set(SOURCES_files_nav
+	navigationserver.h
+	navigationserver.cc		
+	path3d.cc
+	path3d.h
+	crowdmanager.cc
+	crowdmanager.h
+	navigatedproperty.cc
+	navigatedproperty.h
+	convexareamarkerproperty.cc
+	convexareamarkerproperty.h
+)
+source_group("navigation" FILES ${SOURCES_files_nav})
+
+set(SOURCES_files_debug_nav		
+	debug/detourdebug.h
+	debug/detourdebug.cc
+	debug/navigationpagehandler.cc
+	debug/navigationpagehandler.h
+)
+source_group("navigation\\debug" FILES ${SOURCES_files_debug_nav})
+
+FILE(GLOB SRC "recast/*.cc")
+FILE(GLOB HEAD "recast/*.h")
+LIST(APPEND SRCSREC ${SRC} ${HEAD})
+SOURCE_GROUP("navigation\\recast" FILES ${SRCSREC})
 
 
-    set(SOURCES_nav
-	  ${SOURCES_files_debug_nav}
-      ${SOURCES_files_nav}
-	  ${SRCSREC}
-    )
+set(SOURCES_nav
+	${SOURCES_files_debug_nav}
+	${SOURCES_files_nav}
+	${SRCSREC}
+)
 
-  set(SOURCES_files
+set(SOURCES_files
 	../stdneb.h
-    ../stdneb.cc
-  )
-	
-	SOURCE_GROUP("Precompiled" FILES ${SOURCES_files})
-	set(SOURCES_SRCS
-	    ${SOURCES_nav}
-	    ${SOURCES_files}		
-	)
+	../stdneb.cc
+)
+
+SOURCE_GROUP("Precompiled" FILES ${SOURCES_files})
+set(SOURCES_SRCS
+	${SOURCES_nav}
+	${SOURCES_files}		
+)
 
 N_WRAP_ADD_NIDL_FILES(SOURCES_SRCS navigationattributes.nidl)
 
 add_library(navigation STATIC ${SOURCES_SRCS} )
 TARGET_LINK_LIBRARIES(navigation render Detour DebugUtils DetourCrowd DetourTileCache Recast )
+TARGET_INCLUDE_DIRECTORIES(navigation PRIVATE ${Nebula3_SOURCE_DIR}/code/application)
 SET_TARGET_PROPERTIES(navigation PROPERTIES FOLDER "N3SDK/addons")
 N_SET_COMPILER_DEFAULTS()
 IF(N_USE_PRECOMPILED_HEADERS)

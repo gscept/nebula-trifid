@@ -15,7 +15,7 @@ Exports posteffect presets
 //------------------------------------------------------------------------------
 namespace ToolkitUtil
 {
-	class PostEffectExporter : public Base::ExporterBase
+class PostEffectExporter : public Base::ExporterBase
 {
 	__DeclareClass(PostEffectExporter);
 public:
@@ -29,7 +29,7 @@ public:
 	/// closes the exporter
 	void Close();
 	/// sets the database factory
-	void SetDbFactory(const Ptr<Db::DbFactory>& factory);
+	void SetDb(const Ptr<Db::Database>& staticDb);
 
 	/// exports all presets
 	void ExportAll();	
@@ -40,8 +40,7 @@ private:
 	void SetupTables();
 	/// makes sure default preset file exists
 	void CheckDefaultPreset();
-
-	Ptr<Db::DbFactory> dbFactory;
+	
 	Ptr<Db::Database> staticDb;
 	Logger* logger;	
 };
@@ -50,10 +49,9 @@ private:
 /**
 */
 inline void
-PostEffectExporter::SetDbFactory(const Ptr<Db::DbFactory>& factory)
-{
-	n_assert(!this->isOpen);
-	this->dbFactory = factory;
+PostEffectExporter::SetDb(const Ptr<Db::Database>& staticDb)
+{	
+	this->staticDb = staticDb;
 }
 
 //------------------------------------------------------------------------------

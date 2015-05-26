@@ -62,7 +62,8 @@ MemoryStreamTest::Run()
     this->Verify(stream->Eof());
     writer->Close();
     stream->Close();
-
+    
+    stream->SetAccessMode(Stream::ReadAccess);
     // do some seeking
     stream->Open();
     stream->Seek(32, Stream::Begin);

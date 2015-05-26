@@ -24,6 +24,7 @@ enum EntityType
 	Light = 3,
 	Group = 4,
 	NavMesh = 5,
-	Probe = 6
+	Probe = 6,
+    NavMeshArea = 7
 };
 }

@@ -35,9 +35,7 @@ FILE(GLOB HEAD "posteffect/*.h")
 LIST(APPEND SRCSPFX ${SRC} ${HEAD})
 SOURCE_GROUP("toolkitutil\\posteffect" FILES ${SRCSPFX})
 
-SET(SRCSX            
-			texutil/cubefilterer.cc
-			texutil/cubefilterer.h
+SET(SRCSX            			
             texutil/textureattrtable.cc
             texutil/imageconverter.h
             texutil/imageconverter.cc
@@ -48,6 +46,10 @@ SET(SRCSX
             texutil/textureconverter.cc
             texutil/textureattrtable.h                                    
             texutil/textureattrs.h)
+			
+IF(MSVC)
+LIST(APPEND SRCSX texutil/cubefilterer.cc texutil/cubefilterer.h)
+ENDIF()
             
 IF(N_BUILD_NVTT)
 	SET(SRCSX_PL texutil/nvtttextureconversionjob.cc
@@ -86,9 +88,15 @@ FILE(GLOB HEAD "fbx/character/*.h")
 LIST(APPEND SRCSND ${SRC} ${HEAD})
 SOURCE_GROUP("toolkitutil\\fbx\\character" FILES ${SRCSND})
 
-FILE(GLOB SRC "game/*.cc")
-FILE(GLOB HEAD "game/*.h")
-LIST(APPEND SRCSG ${SRC} ${HEAD})
+SET(SRCSG 
+	game/gameexporter.cc
+	game/gameexporter.h
+	game/leveldbwriter.cc
+	game/leveldbwriter.h
+	game/levelparser.cc
+	game/levelparser.h
+	)
+
 SOURCE_GROUP("toolkitutil\\game" FILES ${SRCSG})
 
 FILE(GLOB SRC "gui/*.cc")
