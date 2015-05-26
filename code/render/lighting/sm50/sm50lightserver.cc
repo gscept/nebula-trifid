@@ -558,7 +558,6 @@ SM50LightServer::RenderSpotLights()
 					// commit and draw
 					this->lightShader->Commit();
 					renderDevice->Draw();
-
                     this->lightShader->PostDraw();
 				}
 				this->lightShader->EndPass();

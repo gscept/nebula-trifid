@@ -173,11 +173,6 @@ MUL: 			'*';
 fragment
 INTEGER: ('0'..'9');
 
-STRING:	QO (~QO)* QO
-	| Q (~Q)* Q	
-	;
-
-
 INTEGERLITERAL: INTEGER+;
 
 // single line comment begins with // and ends with new line
@@ -210,14 +205,13 @@ ALPHABET	: ('A'..'Z'|'a'..'z');
 
 // Identifier, must begin with alphabetical token, but can be followed by integer literal or underscore
 IDENTIFIER			: ALPHABET (ALPHABET|INTEGERLITERAL|'_')*;
-
 	
 // since the lexer also needs to be able to handle preprocessor tokens, we define this rule which will do exactly the same as the 'preprocessor' parser equal, but for the lexer
-PREPROCESSOR: NU 'line' WS includeLine = INTEGERLITERAL WS STRING
+PREPROCESSOR: NU 'line' WS includeLine = INTEGERLITERAL WS file = QO (~QO)* QO
 	{
 		int line = atoi((const char*)$includeLine.text->chars);
 		LEXER->input->line = line - 1;
-		includeFileNameLexer = (const char*)$STRING.text->chars;
+		includeFileNameLexer = (const char*)$file.text->chars;
 		if (LEXSTATE->userp) delete LEXSTATE->userp;
 		LexerErrorPackage* package = new LexerErrorPackage;
 		package->file = includeFileNameLexer;
@@ -228,8 +222,8 @@ PREPROCESSOR: NU 'line' WS includeLine = INTEGERLITERAL WS STRING
 WS	: ( '\t' | ' ' | '\r' | '\n' | '\u000C' )+ { $channel = HIDDEN; } ;
 
 string	returns [ std::string val ]
-	:	QO (data = ~QO { $val.append((const char*)$data.text->chars); } )* QO
-	|	Q (data = ~Q  { $val.append((const char*)$data.text->chars); } )* Q	
+	:	QO (data = ~QO { $val.append((const char*)$data.text->chars); })* QO 
+	|	Q (data = ~Q { $val.append((const char*)$data.text->chars); })* Q
 	;
 		
 boolean returns [ bool val ]
@@ -696,6 +690,10 @@ programRow	returns [ ProgramRow row ]
 	{
 		$row.SetString("RenderState", (const char*)$IDENTIFIER.text->chars);
 	}
+	| 'CompileFlags' EQ string SC
+	{
+		$row.SetString("CompileFlags", (const char*)$string.val.c_str());		
+	}
 	;
 
 // annotations can be any user-specific data which can be read
@@ -704,7 +702,7 @@ annotation	returns [ Annotation annotation ]
 	LL	
 	{ $annotation.SetLine(LT(-1)->line); $annotation.SetPosition(LT(-1)->charPosition); $annotation.SetFile((const char*)LT(-1)->custom); }
 	(type IDENTIFIER EQ value = 
-		(STRING { $annotation.AddString((const char*)$STRING.text->chars); }
+		(string { $annotation.AddString($string.val); }
 		| expression { $annotation.AddExpression($expression.tree); }
 		) SC { $annotation.AddType($type.type); $annotation.AddName((const char*)$IDENTIFIER.text->chars);  }
 	)* 

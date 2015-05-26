@@ -557,7 +557,6 @@ matrix44::get_scale(float4& v) const
 	v.set_w(1.0f);
 }
 
-
 //------------------------------------------------------------------------------
 /**
 */
@@ -605,7 +604,6 @@ matrix44::isidentity() const
 __forceinline scalar
 matrix44::determinant() const
 {
-
     __m128 Va,Vb,Vc;
     __m128 r1,r2,r3,tt,tt2;
     __m128 sum,Det;
@@ -653,7 +651,6 @@ matrix44::identity()
 {
 	return matrix44();    
 }
-
 
 //------------------------------------------------------------------------------
 /**
@@ -749,7 +746,6 @@ matrix44::inverse(const matrix44& m)
     _L4 = _mm_movehl_ps(trns3,trns2);
 
     return matrix44(float4(_L1), float4(_L2), float4(_L3), float4(_L4));
-
 }
 
 //------------------------------------------------------------------------------
@@ -810,7 +806,6 @@ matrix44::lookatrh(const point& eye, const point& at, const vector& up)
 __forceinline matrix44
 matrix44::multiply(const matrix44& m0, const matrix44& m1)
 {
-
     matrix44 ret;
 
     float4 mw = m0.mat.r[0];
@@ -886,7 +881,6 @@ matrix44::multiply(const matrix44& m0, const matrix44& m1)
     ret.mat.r[3] = (mx + mz).vec;
 
     return ret;
-
 }
 
 //------------------------------------------------------------------------------

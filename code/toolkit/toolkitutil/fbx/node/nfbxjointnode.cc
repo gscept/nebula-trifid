@@ -126,13 +126,13 @@ void
 NFbxJointNode::RecursiveConvertToLocal( const Ptr<NFbxJointNode>& parent )
 {
 	// only apply if the joint has a cluster connected to it
-	if (this->cluster)
+	if (this->cluster != NULL)
 	{
 		FbxAMatrix thisMatrix;		
 		this->cluster->GetTransformLinkMatrix(thisMatrix);
 
 		// if we have a parent, we should multiply this matrix with the inversed matrix of the parent
-		if (this != parent)
+		if (this != parent && parent->cluster != NULL)
 		{
 			FbxAMatrix parentMatrix;
 			parent->cluster->GetTransformLinkMatrix(parentMatrix);

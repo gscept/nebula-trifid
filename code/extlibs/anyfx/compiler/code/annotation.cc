@@ -114,10 +114,6 @@ Annotation::AddString( const std::string& value )
 {
 	variant val;
 	val.stringValue = new std::string(value);
-	
-	// if we have a string, we will have something like "string" so we have to remove the quotes like so
-	val.stringValue->erase(val.stringValue->begin());
-	val.stringValue->erase(val.stringValue->end()-1);
 
 	this->values.push_back(val);
 	DataType type;

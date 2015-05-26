@@ -63,9 +63,7 @@ float4::angle(const float4 & v0, const float4 &v1)
 
     scalar cangle = float4::unpack_x(dot);
     return n_acos(cangle);
-
 }
-
 
 //------------------------------------------------------------------------------
 /**
