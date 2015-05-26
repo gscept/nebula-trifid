@@ -61,6 +61,9 @@ public:
 	/// get our unique id
 	const Multiplayer::UniquePlayerId & GetUniqueId() const;
 
+	/// restart network
+	void RestartNetwork();
+
 protected:
 	Ptr<MultiplayerFeature::NetworkServer> server;
 	Ptr<MultiplayerFeature::NetworkPlayer> player;

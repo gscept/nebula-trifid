@@ -122,11 +122,6 @@ NetworkServer::Open()
 	this->rakPeer->AttachPlugin(this->rpc);
 	this->rakPeer->AttachPlugin(this->readyEvent);
 	this->rakPeer->AttachPlugin(this->replicationManager);	
-	this->fullyConnectedMesh->SetAutoparticipateConnections(false);
-	this->fullyConnectedMesh->SetConnectOnNewRemoteConnection(false, "");
-	this->replicationManager->SetNetworkIDManager(this->networkIDManager);
-	this->replicationManager->SetAutoManageConnections(false,true);
-
 	//// set lastUpdateTime
 	//this->lastUpdateTime =	RakNet::GetTime();
 }
@@ -138,6 +133,11 @@ bool
 NetworkServer::SetupLowlevelNetworking()
 {
 	n_assert2(NetworkGame::HasInstance(), "No NetworkGame or subclass instance exists, cant continue\n");
+
+	this->fullyConnectedMesh->SetAutoparticipateConnections(false);
+	this->fullyConnectedMesh->SetConnectOnNewRemoteConnection(false, "");
+	this->replicationManager->SetNetworkIDManager(this->networkIDManager);
+	this->replicationManager->SetAutoManageConnections(false, true);
 
 	Ptr<NetworkGame> game = NetworkGame::Instance();
 	game->SetNetworkIDManager(this->networkIDManager);
@@ -169,6 +169,17 @@ NetworkServer::SetupLowlevelNetworking()
 		return false;
 	}	
 	return true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+NetworkServer::ShutdownLowlevelNetworking()
+{
+	this->replicationManager->Clear();
+	this->fullyConnectedMesh->Clear();
+	this->rakPeer->Shutdown(100, 0);	
 }
 
 //------------------------------------------------------------------------------
@@ -224,18 +235,7 @@ NetworkServer::OnFrame()
 		NetworkGame::Instance()->ReceiveMasterList(this->masterResult);
 		this->masterResult = 0;
 	}
-	if (this->IsHost() && NetworkGame::Instance()->IsPublished())
-	{
-		if (NetworkGame::Instance()->GetMasterServerUpdate())
-		{
-
-			if((RakNet::GetTimeMS() - this->lastUpdateTime) > 20000)
-			{
-				NetworkGame::Instance()->PublishToMaster();
-				this->lastUpdateTime = RakNet::GetTimeMS();
-			}
-		}
-	}
+	NetworkGame::Instance()->OnFrame();	
 }
 
 //------------------------------------------------------------------------------
@@ -475,7 +475,10 @@ NetworkServer::HandlePacket(RakNet::Packet * packet)
 		{
 			n_printf("Connecting to existing game instance");
 			RakNet::ConnectionAttemptResult car = rakPeer->Connect(packet->systemAddress.ToString(false), packet->systemAddress.GetPort(), 0, 0);
-			RakAssert(car == RakNet::CONNECTION_ATTEMPT_STARTED);
+			if (car != ALREADY_CONNECTED_TO_ENDPOINT || car != RakNet::CONNECTION_ATTEMPT_STARTED)
+			{
+				n_warning("Nat punchthrough failed\n");
+			}
 		}
 	}
 	break;

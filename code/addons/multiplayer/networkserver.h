@@ -67,6 +67,9 @@ public:
 	/// setup low level network handling, NAT punch, UPNP
 	bool SetupLowlevelNetworking();	
 	    
+	/// shut down low level networking
+	void ShutdownLowlevelNetworking();
+
     /// get rakpeer interface
 	RakNet::RakPeerInterface* GetRakPeerInterface() const;
 
@@ -139,8 +142,7 @@ private:
 	Util::String natServer;
 	bool connectedToNatPunchThrough;		
 	Ptr<Attr::AttributeTable> masterResult;
-	Threading::SafeFlag doneFlag;
-	RakNet::Time lastUpdateTime;
+	Threading::SafeFlag doneFlag;	
 	Util::Dictionary<RakNet::NetworkID, Util::Array<Ptr<Messaging::Message>>> deferredMessages;
 };
 
