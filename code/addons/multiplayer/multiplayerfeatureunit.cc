@@ -114,4 +114,17 @@ MultiplayerFeatureUnit::GetUniqueId() const
 {
 	return this->player->GetUniqueId();
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+MultiplayerFeatureUnit::RestartNetwork()
+{
+	this->server->ShutdownLowlevelNetworking();
+	this->server->SetupLowlevelNetworking();
+
+	ReplicationManager::Instance()->Reference(dynamic_cast<RakNet::Replica3*>(this->player.get_unsafe()));
+}
+
 }; // namespace MultiplayerFeature

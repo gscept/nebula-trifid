@@ -22,7 +22,7 @@ public:
     /// constructor
     SegmentedGfxUtil();
     /// create and setup one or more graphics entities from hierarchy nodes
-	Util::Array<Ptr<Graphics::ModelEntity> > CreateAndSetupGraphicsEntities(const Util::String& resName, const Math::matrix44& worldMatrix, IndexT pickingId, const Ptr<Graphics::Stage> stage = 0, bool instanced = false);
+	Util::Array<Ptr<Graphics::ModelEntity> > CreateAndSetupGraphicsEntities(const Util::String& resName, const Math::matrix44& worldMatrix, IndexT pickingId, const Ptr<Graphics::Stage> stage = 0, bool instanced = false, bool castShadows = true);
 };
 
 }; // namespace GraphicsFeature

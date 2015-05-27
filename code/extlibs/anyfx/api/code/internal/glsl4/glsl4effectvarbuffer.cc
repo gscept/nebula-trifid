@@ -40,7 +40,7 @@ GLSL4EffectVarbuffer::Setup(eastl::vector<InternalEffectProgram*> programs)
 		GLSL4EffectProgram* opengl4Program = dynamic_cast<GLSL4EffectProgram*>(programs[i]);
 		assert(0 != opengl4Program);
 
-		GLint location = glGetProgramResourceIndex(opengl4Program->programHandle, GL_SHADER_STORAGE_BLOCK, this->name.c_str());
+		GLuint location = glGetProgramResourceIndex(opengl4Program->programHandle, GL_SHADER_STORAGE_BLOCK, this->name.c_str());
 		this->activeMap[opengl4Program] = location;
 		if (location != GL_INVALID_INDEX)
 		{
@@ -64,7 +64,7 @@ GLSL4EffectVarbuffer::SetupSlave(eastl::vector<InternalEffectProgram*> programs,
 		GLSL4EffectProgram* opengl4Program = dynamic_cast<GLSL4EffectProgram*>(programs[i]);
 		assert(0 != opengl4Program);
 
-		GLint location = glGetProgramResourceIndex(opengl4Program->programHandle, GL_SHADER_STORAGE_BLOCK, this->name.c_str());
+		GLuint location = glGetProgramResourceIndex(opengl4Program->programHandle, GL_SHADER_STORAGE_BLOCK, this->name.c_str());
 		this->activeMap[opengl4Program] = location;
 		if (location != GL_INVALID_INDEX)
 		{

@@ -59,7 +59,7 @@ float GlobalBackLightOffset;
 	
 // the smartest thing to do is to make the buffer count equal to the number of draw calls we want per frame
 // also tagged as nosync, which limits us to doing 8192 draw calls per frame (which should be FINE but one never knows)
-shared buffers=25 varblock PerObject
+shared buffers=4096 varblock PerObject
 {
 	mat4 Model;
 	mat4 InvModel;

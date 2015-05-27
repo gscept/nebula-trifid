@@ -13,6 +13,7 @@
 #include "threading/safeflag.h"
 #include "attr/attributetable.h"
 #include "syncpoint.h"
+#include "messaging/message.h"
 
 //FIXME these should be replaced by own implementations, leave them for the time being
 #define DEFAULT_SERVER_PORT 61111
@@ -66,6 +67,9 @@ public:
 	/// setup low level network handling, NAT punch, UPNP
 	bool SetupLowlevelNetworking();	
 	    
+	/// shut down low level networking
+	void ShutdownLowlevelNetworking();
+
     /// get rakpeer interface
 	RakNet::RakPeerInterface* GetRakPeerInterface() const;
 
@@ -109,6 +113,8 @@ private:
 	void StartGame();
 	/// create room
 	void CreateRoom();
+	/// cancel room
+	void CancelRoom();
 	/// trigger refresh of available rooms on master
 	void UpdateRoomList();
 	/// deal with a packet
@@ -117,7 +123,8 @@ private:
 
 	/// get replica via network id
  	RakNet::Replica3 * LookupReplica(RakNet::NetworkID replicaId);
-
+	///
+	void AddDeferredMessage(RakNet::NetworkID entityId, const Ptr<Messaging::Message> &msg);
 	/// hmm, lets have this for the time being
 	friend class NetworkGame;
 
@@ -130,14 +137,13 @@ private:
 	RakNet::FullyConnectedMesh2 *fullyConnectedMesh;
 	Multiplayer::SyncPoint *readyEvent;	
 	RakNet::RakNetGUID natPunchServerGuid;
-	RakNet::SystemAddress natPunchServerAddress;
-	RakNet::CloudClient * cloudClient;
+	RakNet::SystemAddress natPunchServerAddress;		
 	Ptr<MasterHelperThread> masterThread;
 	Util::String natServer;
 	bool connectedToNatPunchThrough;		
 	Ptr<Attr::AttributeTable> masterResult;
-	Threading::SafeFlag doneFlag;
-	RakNet::Time lastUpdateTime;
+	Threading::SafeFlag doneFlag;	
+	Util::Dictionary<RakNet::NetworkID, Util::Array<Ptr<Messaging::Message>>> deferredMessages;
 };
 
 //------------------------------------------------------------------------------

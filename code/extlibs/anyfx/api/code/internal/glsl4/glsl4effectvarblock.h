@@ -65,16 +65,16 @@ protected:
 	static const unsigned NumAuxBuffers = 6;
 	GLuint buffer;
 	GLuint* auxBuffers;
-    GLuint* ringIndex;
+	GLuint* elementIndex;
     GLchar* glBuffer;
 	GLchar* glBackingBuffer;
     GLuint* glBufferOffset;
 	GLsizei bufferSize;
     GLuint alignedSize;
-	bool bufferLocked;
 
 	GLint currentLocation;
 	eastl::hash_map<GLSL4EffectProgram*, GLint> activeMap;
+	eastl::vector<GLboolean>* ringLocks;
 }; 
 
 struct GLSL4VarblockRangeState

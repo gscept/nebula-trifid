@@ -266,7 +266,7 @@ NFbxMeshNode::ExtractMesh()
 		this->mesh->FlipUvs();
 	}
 
-	// compute boundingbox, then scale it with the rescale of the scene
+	// compute boundingbox
 	this->boundingBox = this->mesh->ComputeBoundingBox();
 
 	// calculate binormals and tangents if either the CalcNormals flag is on, or CalcBinormalsAndTangents is on, or if the model contains no binormals or tangents

@@ -233,7 +233,7 @@ CharacterSkeletonInstance::RenderDebug(const matrix44& modelTransform)
 
 			// copy scaled matrix
 			float4 position = this->scaledMatrixArray[i].get_position();
-			matrix44 unscaledMatrix = matrix44::identity();
+			matrix44 unscaledMatrix = matrix44::scaling(0.1f);
 			unscaledMatrix.set_position(position);
             unscaledMatrix = matrix44::multiply(unscaledMatrix, modelTransform);
 
@@ -243,7 +243,7 @@ CharacterSkeletonInstance::RenderDebug(const matrix44& modelTransform)
 				RenderShape::Sphere,
 				RenderShape::AlwaysOnTop,
 				unscaledMatrix,
-				float4(0.0f, 1.0f, 0.0f, 0.6f));
+				float4(0.65f, 0.0f, 0.0f, 0.8f));
 			ShapeRenderer::Instance()->AddShape(jointShape);
 
             // calculate screen space position

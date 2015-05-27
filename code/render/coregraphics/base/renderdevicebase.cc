@@ -483,7 +483,6 @@ RenderDeviceBase::EndPass()
     // finish pass shader
     if (this->passShader.isvalid())
     {
-        this->passShader->PostDraw();
         this->passShader->EndPass();
         this->passShader->End();
         this->passShader = 0;
@@ -503,7 +502,6 @@ RenderDeviceBase::EndFeedback()
 	// finish pass shader
 	if (this->passShader.isvalid())
 	{
-		this->passShader->PostDraw();
 		this->passShader->EndPass();
 		this->passShader->End();
 		this->passShader = 0;

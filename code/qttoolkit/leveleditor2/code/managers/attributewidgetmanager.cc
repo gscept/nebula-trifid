@@ -107,9 +107,11 @@ AttributeWidgetManager::ViewEntityAttributes(const Ptr<Game::Entity>& entity)
 		propertyAttrs.Add("shared", sharedarr);
 		propOrder.Append("shared");
 
-		
-
-		const Array<String> entProps = blueprintManager->GetCategoryProperties( entity->GetString(Attr::EntityCategory));
+		Array<String> entProps;
+		if (blueprintManager->HasCategory(entity->GetString(Attr::EntityCategory)))
+		{
+			entProps = blueprintManager->GetCategoryProperties(entity->GetString(Attr::EntityCategory));
+		}
 
 		IndexT i;
 		for(i = 0;i<attrs.Size();i++)

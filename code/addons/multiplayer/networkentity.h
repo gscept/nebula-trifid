@@ -80,7 +80,7 @@ private:
 	RakNet::RM3QuerySerializationResult QuerySerialize(RakNet::Connection_RM3 *destinationConnection);
 
 	bool levelEntity;	
-	Util::Array<Ptr<Messaging::Message>> queuedMessages;
+	Util::Array<Ptr<Messaging::Message>> queuedMessages;	
 };
 
 }// namespace MultiplayerFeature

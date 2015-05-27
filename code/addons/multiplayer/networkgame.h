@@ -76,6 +76,8 @@ public:
 	void JoinRoom(const Util::String & guid);
 	/// create lobby and publish to master server (if enabled)
 	void CreateRoom();
+	/// unpublishes and resets network
+	void CancelRoom();
 	/// get master server list
 	const Ptr<Attr::AttributeTable>& GetMasterList() const;
 	/// post to master server
@@ -128,6 +130,8 @@ public:
 
 	/// get a player
 	Ptr<MultiplayerFeature::NetworkPlayer> & GetPlayer(const Multiplayer::UniquePlayerId & id);
+	/// get a player by index
+	Ptr<MultiplayerFeature::NetworkPlayer> & GetPlayerByIndex(IndexT idx);
 
 	/// whenever joining a room this is called if the game is started
 	virtual bool CanJoinInGame();
@@ -211,7 +215,8 @@ private:
 
 	/// these are local
 	bool creator;
-	Timing::Time nextMasterServerUpdate;	
+	bool delayedMaster;
+	RakNet::Time nextMasterServerUpdate;	
 	Util::Dictionary<uint64_t, Ptr<MultiplayerFeature::NetworkPlayer>> players;
 	Ptr<Attr::AttributeTable> serverList;
 	Util::String gameID;

@@ -65,6 +65,12 @@ EntityLoader::Load(const Util::Array<Util::String>& activeLayers)
                         // create entity through factory manager
                         Ptr<Entity> gameEntity = factoryManager->CreateEntityByCategory(category.GetName(), table, rowIndex, master);
 
+						// set levelentity attribute
+						if (gameEntity->HasAttr(Attr::_LevelEntity))
+						{
+							gameEntity->SetBool(Attr::_LevelEntity, true);
+						}
+						
                         // update progress indicator
                         this->UpdateProgressIndicator(gameEntity);
 

@@ -26,7 +26,8 @@ RenderShape::RenderShape() :
     numVertices(0),
     indexType(IndexType::None),
     color(1.0f, 1.0f, 1.0f, 1.0f),
-    vertexDataOffset(0)
+    vertexDataOffset(0),
+    vertexLayout(NULL)
 {
     // empty
 }
@@ -45,7 +46,8 @@ RenderShape::RenderShape(ThreadId threadId_, Type shapeType_, RenderFlag depthFl
     numVertices(0),
     indexType(IndexType::None),
     color(color_),
-    vertexDataOffset(0)
+    vertexDataOffset(0),
+    vertexLayout(NULL)
 {
     // empty
 }
@@ -69,7 +71,7 @@ RenderShape::SetupSimpleShape(ThreadId threadId_, Type shapeType_, RenderFlag de
 /**
 */
 void
-RenderShape::SetupPrimitives(ThreadId threadId_, const Math::matrix44& modelTransform_, PrimitiveTopology::Code topology_, SizeT numPrimitives_, const void* vertices_, SizeT vertexWidth_, const Math::float4& color_, RenderFlag depthFlag_)
+RenderShape::SetupPrimitives(ThreadId threadId_, const Math::matrix44& modelTransform_, PrimitiveTopology::Code topology_, SizeT numPrimitives_, const void* vertices_, SizeT vertexWidth_, const Math::float4& color_, RenderFlag depthFlag_, const Ptr<VertexLayout>& layout_)
 {
     n_assert(!this->IsValid());
     
@@ -82,6 +84,7 @@ RenderShape::SetupPrimitives(ThreadId threadId_, const Math::matrix44& modelTran
     this->vertexWidth      = vertexWidth_;
     this->color            = color_;
     this->vertexDataOffset = 0;
+    this->vertexLayout     = layout_;
 
     // setup a memory stream and copy the vertex data
     SizeT numVertices = PrimitiveTopology::NumberOfVertices(this->topology, this->numPrimitives);
@@ -98,7 +101,7 @@ RenderShape::SetupPrimitives(ThreadId threadId_, const Math::matrix44& modelTran
 /**
 */
 void
-RenderShape::SetupIndexedPrimitives(ThreadId threadId_, const Math::matrix44& modelTransform_, PrimitiveTopology::Code topology_, SizeT numPrimitives_, const void* vertices_, SizeT numVertices_, SizeT vertexWidth_, const void* indices_, IndexType::Code indexType_, const Math::float4& color_, RenderFlag depthFlag_)
+RenderShape::SetupIndexedPrimitives(ThreadId threadId_, const Math::matrix44& modelTransform_, PrimitiveTopology::Code topology_, SizeT numPrimitives_, const void* vertices_, SizeT numVertices_, SizeT vertexWidth_, const void* indices_, IndexType::Code indexType_, const Math::float4& color_, RenderFlag depthFlag_, const Ptr<VertexLayout>& layout_)
 {
     n_assert(!this->IsValid());
 
@@ -112,6 +115,7 @@ RenderShape::SetupIndexedPrimitives(ThreadId threadId_, const Math::matrix44& mo
     this->numVertices    = numVertices_;
     this->indexType      = indexType_;
     this->color          = color_;
+    this->vertexLayout   = layout_;
 
     // compute index buffer and vertex buffer sizes
     SizeT numIndices = PrimitiveTopology::NumberOfVertices(topology, numPrimitives);
@@ -134,7 +138,7 @@ RenderShape::SetupIndexedPrimitives(ThreadId threadId_, const Math::matrix44& mo
 /**
 */
 void 
-RenderShape::SetupMesh( Threading::ThreadId threadId, const Math::matrix44& modelTransform, const Ptr<Mesh>& mesh, const Math::float4& color, RenderFlag depthFlag )
+RenderShape::SetupMesh(Threading::ThreadId threadId, const Math::matrix44& modelTransform, const Ptr<Mesh>& mesh, const Math::float4& color, RenderFlag depthFlag)
 {
 	n_assert(!this->IsValid());
 	n_assert(mesh.isvalid());

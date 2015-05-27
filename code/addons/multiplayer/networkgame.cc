@@ -19,8 +19,8 @@
 #include "statehandlers/gamestatehandler.h"
 #include "jansson/src/jansson.h"
 #include "multiplayerfeatureunit.h"
+#include "GetTime.h"
 
-//#define USE_CLOUD_MASTER
 
 using namespace RakNet;
 using namespace Multiplayer;
@@ -39,10 +39,11 @@ NetworkGame::NetworkGame() :
 		inLobby(false),
 		updateMaster(true),
 		masterServerRow(-1),
-		nextMasterServerUpdate(0.0),
+		nextMasterServerUpdate(),
 		maxPlayers(8),
 		currentPlayers(1),
-		creator(false)
+		creator(false),
+		delayedMaster(false)
 {
 	__ConstructInterfaceSingleton;
 }
@@ -368,8 +369,7 @@ NetworkGame::ReceiveMasterList(Ptr<Attr::AttributeTable> & masterList)
 void
 NetworkGame::PublishToMaster()
 {
-#ifdef USE_CLOUD_MASTER
-#else
+	this->delayedMaster = false;
 	Util::String req;
 	req.Format("http://" MASTER_SERVER_ADDRESS "/testServer");
 	IO::URI serverUri = req;
@@ -393,6 +393,7 @@ NetworkGame::PublishToMaster()
 		this->GetCurrentAmountOfPlayers(), this->maxPlayers, rowStr.AsCharPtr());
 	n_printf("%s\n", req.AsCharPtr());
 	Http::HttpStatus::Code res = client->SendRequest(Http::HttpMethod::Post, requri, req, stream.cast<IO::Stream>());
+	n_printf("Publish: %s\n", Http::HttpStatus::ToHumanReadableString(res).AsCharPtr());
 	if(res == Http::HttpStatus::OK)
 	{	
 		Util::String buf;
@@ -402,6 +403,7 @@ NetworkGame::PublishToMaster()
 		if (NULL == root)
 		{
 			n_warning("error parsing json from master server\n");	
+			Http::HttpClientRegistry::Instance()->ReleaseConnection(serverUri);
 			return;
 		}
 
@@ -409,7 +411,6 @@ NetworkGame::PublishToMaster()
 		if (iter)
 		{
 			Util::String firstKey = json_object_iter_key(iter);
-
 
 			if (firstKey == "POST")
 			{
@@ -420,8 +421,12 @@ NetworkGame::PublishToMaster()
 			}
 		}
 	}
+	else if (res == Http::HttpStatus::ServiceUnavailable)
+	{
+		// sometimes master server times out, try again later
+		this->delayedMaster = true;
+	}
 	Http::HttpClientRegistry::Instance()->ReleaseConnection(serverUri);
-#endif
 }
 
 //------------------------------------------------------------------------------
@@ -430,8 +435,6 @@ NetworkGame::PublishToMaster()
 void
 NetworkGame::UnpublishFromMaster()
 {
-#ifdef USE_CLOUD_MASTER
-#else
 	Util::String req;
 	req.Format("http://" MASTER_SERVER_ADDRESS "/testServer");
 	IO::URI serverUri = req;
@@ -443,9 +446,9 @@ NetworkGame::UnpublishFromMaster()
 	stream->SetAccessMode(IO::Stream::ReadWriteAccess);
 	stream->Open();	
 	Http::HttpStatus::Code res = client->SendRequest(Http::HttpMethod::Delete, requri, stream.cast<IO::Stream>());
+	n_printf("Unpublish: %s\n", Http::HttpStatus::ToHumanReadableString(res).AsCharPtr());
 	Http::HttpClientRegistry::Instance()->ReleaseConnection(serverUri);
 	this->masterServerRow = -1;
-#endif
 }
 
 //------------------------------------------------------------------------------
@@ -483,6 +486,26 @@ NetworkGame::JoinRoom(const Util::String & guid)
 	rguid.FromString(guid.AsCharPtr());
 	NetworkServer::Instance()->NatConnect(rguid);
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+NetworkGame::CancelRoom()
+{
+	if (this->IsPublished())
+	{
+		this->UnpublishFromMaster();
+	}
+	this->queuedMessages.Clear();
+	this->currentMessages.Clear();
+	for (int i = 0 ; i<this->players.Size();i++)
+	{
+		this->RemovePlayer(this->players.ValueAtIndex(0));
+	}
+	NetworkServer::Instance()->CancelRoom();
+}
+
 
 //------------------------------------------------------------------------------
 /**
@@ -589,6 +612,36 @@ int NetworkGame::GetCurrentAmountOfPlayers()
 bool NetworkGame::CanJoinInGame()
 {
 	return true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+Ptr<MultiplayerFeature::NetworkPlayer> &
+NetworkGame::GetPlayerByIndex(IndexT idx)
+{
+	n_assert(idx < this->players.Size());
+	return this->players.ValueAtIndex(idx);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+NetworkGame::OnFrame()
+{
+	if (this->GetMasterServerUpdate())
+	{
+		if (NetworkServer::Instance()->IsHost() && (this->IsPublished() || this->delayedMaster))
+		{
+			RakNet::Time interval = this->delayedMaster ? 5000 : 20000;
+			if ((RakNet::GetTimeMS() - this->nextMasterServerUpdate) > interval)
+			{
+				this->PublishToMaster();
+				this->nextMasterServerUpdate = RakNet::GetTimeMS();
+			}
+		}
+	}
 }
 
 }

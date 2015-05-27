@@ -235,7 +235,7 @@ CategoryManager::AddCategoryAttr(const Attr::AttrId& attrId, bool serialize)
         this->attrCategoryMap[attrId].Append(this->addAttrCategoryIndex);
     }
 
-	if (this->addAttrCategorySync)
+	if (this->addAttrCategorySync && serialize)
 	{
 		this->addAttrCategorySync->Append(attrId);
 	}	

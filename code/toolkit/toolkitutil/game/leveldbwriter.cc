@@ -67,7 +67,11 @@ LevelDbWriter::AddEntity(const Util::String & category, const Attr::AttributeCon
     Ptr<Toolkit::EditorBlueprintManager> bm = Toolkit::EditorBlueprintManager::Instance();
     if(!bm->HasCategory(category))
     {
-        n_printf("ignoring object with category %s\n", category.AsCharPtr());
+		// we dont warn about leveleditor builtins
+		if (category[0] != '_')
+		{
+			n_printf("Ignoring object with category %s\n", category.AsCharPtr());
+		}        
         return;
     }   
 
