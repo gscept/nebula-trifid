@@ -50,7 +50,7 @@ TheoraVideoServer::OnFrame(Timing::Time time)
 {
 	for (int i = 0; i < this->players.Size(); i++)
 	{
-		this->players.ValueAtIndex(i)->OnFrame();
+		this->players.ValueAtIndex(i)->OnFrame(time);
 	}
 }
 
@@ -150,4 +150,17 @@ TheoraVideoServer::IsVideoPausing(const Util::StringAtom& resName)
 	n_assert(this->players.Contains(resName));
 	return this->players[resName]->IsPaused();
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+TheoraVideoServer::RenderBatch()
+{
+	for (int i = 0; i < this->players.Size(); i++)
+	{
+		this->players.ValueAtIndex(i)->Render();
+	}
+}
+
 } // namespace Video

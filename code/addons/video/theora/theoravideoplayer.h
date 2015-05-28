@@ -13,6 +13,9 @@
 #include "theora/theora.h"
 #include "timing/time.h"
 #include "io/stream.h"
+#include "coregraphics/texture.h"
+#include "coregraphics/shaderinstance.h"
+#include "renderutil/drawfullscreenquad.h"
 
 namespace Video
 {
@@ -26,7 +29,7 @@ public:
 	virtual ~TheoraVideoPlayer();
 
 	///
-	void OnFrame();
+	void OnFrame(Timing::Time time);
 
 	/// 
 	void Close();
@@ -51,12 +54,14 @@ public:
 	const unsigned int GetFrameHeight() const;
 	///
 	const float GetFrameRate() const;
+	///
+	void Render();
 private:
 
 	///
 	void DecodeYUV();
 	/// decode frame
-	void DecodeFrame();
+	bool DecodeFrame();
 	/// reset
 	void Reset();
 	///
@@ -98,6 +103,10 @@ private:
 	unsigned int width;
 	unsigned int height;
 	float fps;
-	
+
+	Ptr<CoreGraphics::Texture> videoTexture;
+	RenderUtil::DrawFullScreenQuad quad;
+	Ptr<CoreGraphics::ShaderInstance> shader;
+	Ptr<CoreGraphics::ShaderVariable> videoTextureVariable;
 };
 } // namespace Video

@@ -79,7 +79,7 @@ VideoServerBase::OnRenderBefore(Timing::Time time)
 void
 VideoServerBase::SetupVideoSystem()
 {
-    // implement in subclass
+	// implement in subclass
 }
 
 //------------------------------------------------------------------------------
@@ -155,4 +155,5 @@ VideoServerBase::IsVideoPausing(const Util::StringAtom& resName)
     // implement in subclass
     return false;
 }
+
 } // namespace Base

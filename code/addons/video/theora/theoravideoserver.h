@@ -56,6 +56,9 @@ public:
     /// is video pausing
     virtual bool IsVideoPausing(const Util::StringAtom& resName);
 
+	///
+	virtual void RenderBatch();
+
 protected:
     /// setup video system
     virtual void SetupVideoSystem();

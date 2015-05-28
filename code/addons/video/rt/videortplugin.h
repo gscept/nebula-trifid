@@ -32,6 +32,9 @@ public:
     virtual void OnRenderAfter(IndexT frameId, Timing::Time time);
     /// Called before rendering
     virtual void OnRenderBefore(IndexT frameId, Timing::Time time);
+	///
+	virtual void OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch);
+
 
 private:
     

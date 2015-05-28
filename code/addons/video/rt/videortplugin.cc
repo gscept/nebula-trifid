@@ -43,10 +43,6 @@ VideoRTPlugin::OnRegister()
     // Setup the video server
     this->videoServer = VideoServer::Create();
     this->videoServer->Open();
-
-    // Setup video handler
-    this->videoHandler = VideoHandler::Create();
-    GraphicsInterface::Instance()->AttachHandler(this->videoHandler.cast<Handler>());
 }
 
 //------------------------------------------------------------------------------
@@ -55,10 +51,7 @@ VideoRTPlugin::OnRegister()
 */
 void
 VideoRTPlugin::OnUnregister()
-{
-    // Discard video handler
-    this->videoHandler = 0;
-
+{	
     // Discard video server
     this->videoServer = 0;
 }
@@ -81,6 +74,18 @@ void
 VideoRTPlugin::OnRenderBefore(IndexT frameId, Timing::Time time)
 {
     this->videoServer->OnRenderBefore(time);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VideoRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
+{
+	if (frameBatch->GetType() == CoreGraphics::BatchType::UI)
+	{
+		this->videoServer->RenderBatch();
+	}
 }
 
 }

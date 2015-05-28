@@ -4,9 +4,15 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "theoravideoplayer.h"
-#include "io\ioserver.h"
-#include "framesync\framesynctimer.h"
+#include "io/ioserver.h"
+#include "framesync/framesynctimer.h"
+#include "coregraphics/memorytextureloader.h"
+#include "resources/resourcemanager.h"
+#include "renderutil/drawfullscreenquad.h"
+#include "coregraphics/shaderserver.h"
 
+
+__ImplementClass(Video::TheoraVideoPlayer, 'THVP', Core::RefCounted);
 
 namespace Video
 {
@@ -36,21 +42,24 @@ TheoraVideoPlayer::~TheoraVideoPlayer()
 //------------------------------------------------------------------------------
 /**
 */
-void
-TheoraVideoPlayer::OnFrame()
+void 
+TheoraVideoPlayer::OnFrame( Timing::Time time )
 {
-	if (this->isPlaying)
+	if (this->isPlaying && !this->isPaused)
 	{
-		Timing::Time now = FrameSync::FrameSyncTimer::Instance()->GetTime();
-		uint nextFrame = (uint)((now - this->startTime) * this->ti.fps_numerator / ti.fps_denominator);
-		uint frames = nextFrame - this->decodedFrames;
+		if (this->decodedFrames == 0)
+		{
+			this->startTime = time;
+		}		
+		uint nextFrame = (uint)((time - this->startTime)  * this->ti.fps_numerator / ti.fps_denominator);		
+		uint frames = Math::n_iclamp(nextFrame - this->decodedFrames,1,25);
 		for (uint i = 0; i < frames; i++)
 		{
-			this->DecodeFrame();
+			if (!this->DecodeFrame()) break;			
 		}		
 		theora_decode_YUVout(&this->td, &this->yuv);
 		this->DecodeYUV();
-		// FIXME apply rgbBuffer to texture		
+		this->videoTexture->Update(this->rgbBuffer, this->width * this->height * 3, this->width, this->height, 0, 0, 0);		
 	}
 }
 
@@ -64,8 +73,6 @@ TheoraVideoPlayer::Setup(const Util::StringAtom& resName)
 	n_assert(this->fileStream->Open());
 	
 	this->isOpen = true;
-	// reset times
-	this->startTime = FrameSync::FrameSyncTimer::Instance()->GetTime();	
 	this->decodedFrames = 0;
 
 	// initialize theora
@@ -215,13 +222,27 @@ TheoraVideoPlayer::Setup(const Util::StringAtom& resName)
 	{
 		this->QueuePage();
 	};
-	this->theoraLoaded = true;
-	this->isPlaying = true;
+	this->theoraLoaded = true;	
 
-	SizeT frameSize = this->ti.frame_width * this->ti.frame_height * 4;
+	SizeT frameSize = this->ti.width * this->ti.height * 4;
 	this->rgbBuffer = (unsigned char*) Memory::Alloc(Memory::DefaultHeap, frameSize);
 	Memory::Clear(this->rgbBuffer, frameSize);
 	this->frameNr = -1;
+
+	// create texture
+	this->videoTexture = CoreGraphics::Texture::Create();
+	Ptr<CoreGraphics::MemoryTextureLoader> loader = CoreGraphics::MemoryTextureLoader::Create();
+	loader->SetImageBuffer(this->rgbBuffer, this->width, this->height, CoreGraphics::PixelFormat::SRGBA8);
+	this->videoTexture->SetLoader(loader.upcast<Resources::ResourceLoader>());
+	this->videoTexture->SetAsyncEnabled(false);
+	this->videoTexture->SetResourceId(resName);
+	this->videoTexture->Load();	
+	n_assert(this->videoTexture->IsLoaded());
+	this->videoTexture->SetLoader(0);	
+	Resources::ResourceManager::Instance()->RegisterUnmanagedResource(this->videoTexture.upcast<Resources::Resource>());	
+	this->quad.Setup(this->width, this->height);
+	this->shader = CoreGraphics::ShaderServer::Instance()->CreateShaderInstance("shd:copy");
+	this->videoTextureVariable = this->shader->GetVariableByName("CopyBuffer");
 }
 
 //------------------------------------------------------------------------------
@@ -231,6 +252,9 @@ void
 TheoraVideoPlayer::Start()
 {
 	this->isPlaying = true;
+	// reset times
+
+	this->startTime = 0.0f;
 }
 
 //------------------------------------------------------------------------------
@@ -286,7 +310,7 @@ TheoraVideoPlayer::DecodeYUV()
 {
 	int rgbIndex = 0;
 	int y;
-	for (y = 0; y < this->yuv.y_height; y++)
+	for (y = this->yuv.y_height-1; y >= 0 ; y--)
 	{
 		int xsize = this->yuv.y_width;
 		int uvy = (y / 2) * this->yuv.uv_stride;
@@ -303,10 +327,10 @@ TheoraVideoPlayer::DecodeYUV()
 			if (R < 0) R = 0; if (R>255) R = 255;
 			if (G < 0) G = 0; if (G>255) G = 255;
 			if (B < 0) B = 0; if (B>255) B = 255;
-			this->rgbBuffer[rgbIndex++] = (unsigned char)B;
-			this->rgbBuffer[rgbIndex++] = (unsigned char)G;
 			this->rgbBuffer[rgbIndex++] = (unsigned char)R;
-			this->rgbBuffer++;
+			this->rgbBuffer[rgbIndex++] = (unsigned char)G;
+			this->rgbBuffer[rgbIndex++] = (unsigned char)B;			
+			this->rgbBuffer[rgbIndex++] = 255;
 		}
 	}
 }
@@ -314,7 +338,7 @@ TheoraVideoPlayer::DecodeYUV()
 //------------------------------------------------------------------------------
 /**
 */
-void
+bool 
 TheoraVideoPlayer::DecodeFrame()
 {
 	n_assert(this->isPlaying);
@@ -340,7 +364,7 @@ TheoraVideoPlayer::DecodeFrame()
 		{
 			// reached end, stop playing
 			this->isPlaying = false;
-			return;			
+			return false;
 		};
 
 		if (!videobuf_ready)
@@ -356,10 +380,11 @@ TheoraVideoPlayer::DecodeFrame()
 	};
 	if (videobuf_ready == 0)
 	{
-		return;
+		return false;
 	}
 	frameNr++;
 	decodedFrames++;	
+	return true;
 }
 
 //------------------------------------------------------------------------------
@@ -416,6 +441,27 @@ TheoraVideoPlayer::Close()
 		this->fileStream->Close();
 		Memory::Free(Memory::DefaultHeap, this->rgbBuffer);
 		this->rgbBuffer = 0;
+		this->shader->Discard();
+		this->shader = 0;
+		this->videoTextureVariable = 0;
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+TheoraVideoPlayer::Render()
+{
+	if (this->isPlaying)
+	{
+		this->videoTextureVariable->SetTexture(this->videoTexture);
+		this->shader->Begin();
+		this->shader->BeginPass(0);
+		this->shader->Commit();
+		this->quad.Draw();
+		this->shader->EndPass();
+		this->shader->End();
 	}
 }
 
