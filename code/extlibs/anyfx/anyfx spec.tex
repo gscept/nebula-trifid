@@ -57,7 +57,7 @@
 {\endminipage}
 
 \begin{document}
-\title{The AnyFX Effects Language specification, version 1.5}
+\title{The AnyFX Effects Language specification, version 1.6}
 \author{Gustav Sterbrant}
 \date{}
 \maketitle
@@ -1023,10 +1023,13 @@ The last structure you can define in an AnyFX file is a program. Programs follow
 	\>	\textit{GeometryShader = func();} \\
 	\>	\textit{ComputeShader = func();} \\
 	\>	\textit{RenderState = state;} \\
+	\>	\textit{CompileFlags = "flag1\texttt{|}flag2\texttt{|}flag3\texttt{|}...";} \\
 	\textbf{\}}
 }
 
 The program object has 7 'slots'. Each slot except for \textit{RenderState} are used for shader function assignments. Here, the symbolic name \textit{func()} is the name of the function we want to attach to the given shader slot. This converts the function to a shader entry point, which also removes it from the list of helper functions, making it inaccessible to call from another shader program. The \textit{state} flag is the identifying name of a render state object as described earlier. Although all shader slots are optional, some of them are dependent on others. The dependencies shown in Table~\ref{table:shaderdeps} declare what prerequisites each shader has. The shaders are only pair-wise dependent and as such are oblivious to whatever shader is attached further down the pipeline. If the \textit{RenderState} field is not declared explicitly, a default render state will be used for the program.
+
+The CompileFlags denotes a pipe-separated list of defines which should be used whenever this program gets composed. The AnyFX compiler will generate a new shader using the assigned shaders as templates, and then compile new versions of said shaders with the flags. This makes it possible to compile the same shader functions, but with different defines depending on what feature set the program object should use. An example for where this is useful is when implementing \"{u}bershaders where different features are determined during compile-time. 
 
 Subroutines are bound to a certain shader stage by putting the assignment in the argument list in \textit{func()}. See section~\ref{sec:subroutines} for a complete syntax explanation.
 

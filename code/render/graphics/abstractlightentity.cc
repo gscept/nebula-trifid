@@ -186,7 +186,8 @@ AbstractLightEntity::OnRenderDebug()
                             unitCube,
                             4,
                             color,
-							CoreGraphics::RenderShape::CheckDepth);
+                            CoreGraphics::RenderShape::CheckDepth,
+                            NULL);
         ShapeRenderer::Instance()->AddShape(shape); 
     }
 }

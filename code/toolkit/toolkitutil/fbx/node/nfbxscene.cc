@@ -90,7 +90,6 @@ NFbxScene::Setup( FbxScene* scene, const ExportFlags& exportFlags, const ExportM
 
 	// split meshes based on material
 	FbxGeometryConverter* converter = new FbxGeometryConverter(this->GetScene()->GetFbxManager());
-
 	bool triangulated = converter->Triangulate(scene, true);
 
 	// Okay so we want to do this, we really do, but if we do, 

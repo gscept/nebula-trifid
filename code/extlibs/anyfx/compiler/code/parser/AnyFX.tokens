@@ -1,3 +1,4 @@
+T__48=48
 T__49=49
 T__50=50
 T__51=51
@@ -55,9 +56,9 @@ RB=42
 RP=43
 RR=44
 SC=45
-STRING=46
-SUB=47
-WS=48
+SUB=46
+WS=47
+'CompileFlags'=48
 'RenderState'=49
 'buffers'=50
 'const'=51

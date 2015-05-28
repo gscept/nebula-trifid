@@ -317,7 +317,7 @@ float4::float4(scalar x, scalar y, scalar z, scalar w)
 __forceinline
 float4::float4(scalar v)
 {
-    this->vec.vec = _mm_setr_ps(v,v,v,v);
+    this->vec.vec = _mm_set1_ps(v);
 }
 
 //------------------------------------------------------------------------------
@@ -365,6 +365,7 @@ float4::operator=(const __m128 &rhs)
 {
 	this->vec.vec = rhs;
 }
+
 //------------------------------------------------------------------------------
 /**
 */
@@ -680,6 +681,7 @@ float4::length() const
 {
     return _mm_cvtss_f32(_mm_sqrt_ss(_mm_dp_ps(this->vec.vec,this->vec.vec, 0xF1)));
 }
+
 //------------------------------------------------------------------------------
 /**
 */
@@ -688,7 +690,6 @@ float4::length3() const
 {
     return _mm_cvtss_f32(_mm_sqrt_ss(_mm_dp_ps(this->vec.vec,this->vec.vec, 0x71)));
 }
-
 
 //------------------------------------------------------------------------------
 /**
@@ -780,7 +781,6 @@ float4::cross3(const float4 &v0, const float4 &v1)
 	return result;
 }
 
-
 //------------------------------------------------------------------------------
 /**
 */
@@ -815,7 +815,6 @@ float4::barycentric(const float4 &v0, const float4 &v1, const float4 &v2, scalar
 	R1 = _mm_add_ps(R1,v0.vec);
 	R1 = _mm_add_ps(R1,R2);
 	return R1;
-
 }
 
 //------------------------------------------------------------------------------
@@ -899,9 +898,7 @@ float4::minimize(const float4 &v0, const float4 &v1)
 __forceinline float4
 float4::normalize(const float4 &v)
 {
-
     if (float4::equal3_all(v, float4(0,0,0,0))) return v;
-
     return _mm_div_ps(v.vec.vec,_mm_sqrt_ps(_mm_dp_ps(v.vec.vec, v.vec.vec, 0xFF)));
 }
 
@@ -909,11 +906,9 @@ float4::normalize(const float4 &v)
 /**
 */
 __forceinline float4
-	float4::normalizeapprox(const float4 &v)
+float4::normalizeapprox(const float4 &v)
 {
-
 	if (float4::equal3_all(v, float4(0,0,0,0))) return v;
-
     return _mm_div_ps(v.vec.vec,_mm_rsqrt_ps(_mm_dp_ps(v.vec.vec, v.vec.vec, 0xFF)));
 }
 
@@ -1334,7 +1329,6 @@ float4::splat_w(const float4 &v)
 __forceinline float4
 float4::permute(const float4& v0, const float4& v1, unsigned int i0, unsigned int i1, unsigned int i2, unsigned int i3)
 {
-
 	static mm128_ivec three = {3,3,3,3};
 
 	NEBULA3_ALIGN16 unsigned int elem[4] = { i0, i1, i2, i3 };
@@ -1360,6 +1354,7 @@ float4::floor(const float4 &v)
 {
 	return _mm_floor_ps(v.vec.vec);	
 }
+
 //------------------------------------------------------------------------------
 /**
 */

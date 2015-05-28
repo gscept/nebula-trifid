@@ -166,6 +166,23 @@ Shader::Generate(
 	};
 	this->preamble.append(shaderDefines[this->shaderType]);
 
+    // add compile flags
+    std::string tempFlags = this->compileFlags;
+    if (tempFlags.length() > 0)
+    {
+        std::string token;
+        size_t index = 0;
+        while ((index = tempFlags.find("|")) != std::string::npos)
+        {
+            token = tempFlags.substr(0, index);
+            tempFlags.erase(0, index + 1);
+            this->preamble.append("#define " + token + "\n");
+        }
+
+        // fugly solution, but adds the last define
+        this->preamble.append("#define " + tempFlags + "\n");
+    }
+
 	// undefine functions which GL will complain about when compiling for certain shader targets (likely they won't be used at all)
 	if (this->shaderType != ProgramRow::PixelShader)
 	{
@@ -238,14 +255,14 @@ Shader::Generate(
 	// now generate target language specifics
 	switch (this->target)
 	{
-	case GLSL4:
-		this->GenerateGLSL4(generator);
-		break;
 	case GLSL1:
 	case GLSL2:
 	case GLSL3:
 		this->GenerateGLSL3(generator);
 		break;
+    case GLSL4:
+        this->GenerateGLSL4(generator);
+        break;
 	case HLSL3:
 		this->GenerateHLSL3(generator);
 		break;

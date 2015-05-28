@@ -47,6 +47,7 @@ private:
 	std::vector<std::string> slotNames;
 	bool slotMask[ProgramRow::NumProgramRows];
     std::map<std::string, std::string> slotSubroutineMappings[ProgramRow::NumProgramRows];
+    std::string compileFlags;
 	unsigned patchSize;
 
 	bool hasAnnotation;
