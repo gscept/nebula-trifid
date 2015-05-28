@@ -36,3 +36,10 @@
 	path = code/extlibs/recastnavigation
 	url = https://github.com/gscept/recastnavigation.git
 	branch = master
+[submodule "code/extlibs/theora"]
+	path = code/extlibs/theora
+	url = https://github.com/gscept/theora.git
+	branch = master
+[submodule "code/extlibs/ogg"]
+	path = code/extlibs/ogg
+	url = https://github.com/xiph/ogg.git
