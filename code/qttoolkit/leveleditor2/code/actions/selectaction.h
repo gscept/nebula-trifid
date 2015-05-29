@@ -49,7 +49,6 @@ private:
 
 	Util::Array<EntityGuid> entityIds;
 	Util::Array<EntityGuid> lastEntityIds;
-	SelectMode mode;	
-	static Ptr<Game::Entity> multiEntity;	
+	SelectMode mode;		
 };
 } // namespace LevelEditor2

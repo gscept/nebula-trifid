@@ -5,7 +5,7 @@
 
     Property for storing information related to the entity in the leveleditor.	
     
-    (C) 2012 Johannes Hirche, LTU Skelleftea
+	(C) 2012-2015 Individual contributors, see AUTHORS file
 */
 #include "game/property.h"
 #include "attr/attributedefinition.h"
@@ -32,15 +32,24 @@ class EditorProperty : public Game::Property
 {
 	__DeclareClass(EditorProperty);
 public:    
+	///
 	EditorProperty();
 
+	///
 	virtual void SetupDefaultAttributes();
+	///
 	virtual void SetupAcceptedMessages();
+	///
 	virtual void HandleMessage(const Ptr<Messaging::Message>& msg);
 
+	/// get list of properties this game entity has connected to it
 	const Util::Array<Core::Rtti*> & GetProperties() const;
+	/// retrieve attribute container with all game entity attributes.
+	/// these arent actual entity attributes of the active editor entity
 	Attr::AttributeContainer GetAttributes() const;
+	/// set properties
 	void SetProperties(const Util::Array<Core::Rtti*> & props);
+	/// set attributes
 	void SetAttributes(const Attr::AttributeContainer & attrs);
 
 protected:

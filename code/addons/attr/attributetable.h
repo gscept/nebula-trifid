@@ -136,6 +136,8 @@ public:
 
     /// set a generic attribute (slow!)
     void SetAttr(const Attr::Attribute& attr, IndexT rowIndex); 
+	/// get a generic attribute
+	Attr::Attribute GetAttr(IndexT rowIndex, IndexT colIndex);
     /// set variant value
     void SetVariant(const Attr::AttrId& attrId, IndexT rowIndex, const Util::Variant& val); 
     /// set bool value

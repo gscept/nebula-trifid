@@ -281,7 +281,8 @@ TheoraVideoPlayer::Resume()
 void
 TheoraVideoPlayer::Stop()
 {
-
+	this->Close();
+	this->isPlaying = false;
 }
 
 //------------------------------------------------------------------------------

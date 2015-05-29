@@ -56,26 +56,51 @@ __Handler(EditorMultiselectProperty, SetMultiSelection)
 	obj->attributes.Clear();
 	for (int i = 0; i < obj->entities.Size(); i++)
 	{
-		Ptr<GetEntityValues> gmsg = GetEntityValues::Create();
-		__SendSync(obj->entities[i], gmsg);
-
-		const Util::Dictionary<AttrId, Attribute>& attrs = gmsg->GetAttrs().GetAttrs();
+		Util::Dictionary<AttrId, Attribute> attrs;
+		if (obj->entities[i]->GetInt(Attr::EntityType) == LevelEditor2::EntityType::Game)
+		{
+			Ptr<GetEntityValues> gmsg = GetEntityValues::Create();
+			__SendSync(obj->entities[i], gmsg);
+			attrs = gmsg->GetAttrs().GetAttrs();
+		}
+		else
+		{
+			const Ptr<Db::ValueTable> & table = obj->entities[i]->GetAttrTable();
+			IndexT rowIndex = obj->entities[i]->GetAttrTableRowIndex();
+			attrs.BeginBulkAdd();
+			for (int c = 0; c < table->GetNumColumns(); c++)
+			{
+				AttrId attrId = table->GetColumnId(c);
+				attrs.Add(attrId, table->GetAttr(rowIndex, c));
+			}
+			attrs.EndBulkAdd();
+		}
+		 
 		const Util::Dictionary<AttrId, Attribute>& objattrs = obj->attributes.GetAttrs();
 		if (i == 0)
 		{
 			for (int j = 0; j < attrs.Size(); j++)
 			{
-				obj->attributes.AddAttr(attrs.ValueAtIndex(j));
+				obj->attributes.AddAttr(attrs.ValueAtIndex(j));								
 			}
 		}
 		else
 		{
 			for (int j = 0; j < objattrs.Size(); j++)
 			{
-
 				if (!attrs.Contains(objattrs.KeyAtIndex(j)))
 				{
 					obj->attributes.RemoveAttr(objattrs.KeyAtIndex(j));
+				}
+				else
+				{
+					if (attrs[objattrs.KeyAtIndex(j)] != objattrs.ValueAtIndex(j))
+					{
+						if (objattrs.KeyAtIndex(j).GetValueType() == StringType)
+						{
+							obj->attributes.SetString(objattrs.KeyAtIndex(j), "");
+						}						
+					}
 				}
 			}
 		}	
@@ -120,11 +145,11 @@ EditorMultiselectProperty::EditorMultiselectProperty()
 */
 void
 EditorMultiselectProperty::SetupDefaultAttributes()
-{
-	SetupAttr(Attr::Transform, false);
+{	
 	SetupAttr(Attr::EntityType, false);
 	SetupAttr(Attr::EntityCategory, false);	
 	SetupAttr(Attr::EntityGuid, false);		
+	SetupAttr(Attr::Transform, false);
 }
 
 //------------------------------------------------------------------------------

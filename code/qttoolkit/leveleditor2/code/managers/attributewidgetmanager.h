@@ -44,9 +44,11 @@ public:
 	void OnActivate();
 	/// called when removed from game server
 	void OnDeactivate();
-
+	
 	/// create and view widgets for editing the entitys attributes
 	void ViewEntityAttributes(const Ptr<Game::Entity>& entity);
+	/// create and view widgets for editing the entitys attributes
+	void ViewEntityAttributes(const Util::Array<Ptr<Game::Entity>>& entities);
 	/// clear all attribute controllers
 	void ClearAttributeControllers();
 	/// returns if the entity is the currently viewed entity
@@ -70,6 +72,7 @@ private:
 
 	Ptr<Game::Entity> currentEntity;	//< the entity which attributes are currently viewed (can be a null pointer)
 	QtAttributeControllerAddon::Matrix44Controller* transformController;
+	Ptr<Game::Entity> multiEntity;
 };
 
 //------------------------------------------------------------------------------

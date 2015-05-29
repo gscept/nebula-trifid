@@ -176,6 +176,7 @@ ADD_DEPENDENCIES(contentbrowser
 	remoteinterface	
 	qttools
 	editorfeatures
+	video
 )
 
 TARGET_LINK_LIBRARIES(contentbrowser 	
@@ -192,6 +193,7 @@ TARGET_LINK_LIBRARIES(contentbrowser
 	qttools
 	editorfeatures
 	toolkitutil	
+	video
 	${QT_WIN_LIBS}	
 	${QT_LIBRARIES} ${QT_QTMAIN_LIBRARY}	
 )
