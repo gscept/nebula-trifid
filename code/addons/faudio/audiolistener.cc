@@ -74,7 +74,11 @@ AudioListener::OnFrame()
 
 	if (AudioDevice::Instance()->HasSoundDevice())
 	{
+#if (FMOD_VERSION >= 0x00010600)
+		FMOD_RESULT result = system->setListenerAttributes(0, &newattrs);
+#else
 		FMOD_RESULT result = system->setListenerAttributes(&newattrs);
+#endif
 		FMOD_CHECK_ERROR(result);
 	}
 
