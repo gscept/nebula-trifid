@@ -38,7 +38,7 @@ HttpClientTest::Run()
         Ptr<Stream> contentStream = MemoryStream::Create();
         status = httpClient->SendRequest(HttpMethod::Get, imgUri, contentStream);
         this->Verify(HttpStatus::OK == status);
-        this->Verify(contentStream->GetSize() == 324168);
+        this->Verify(contentStream->GetSize() == 5646);
 
         httpClient->Disconnect();
         this->Verify(!httpClient->IsConnected());

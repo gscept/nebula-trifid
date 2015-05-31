@@ -8,7 +8,7 @@ IF(NOT N_BUILD_FIRSTTIME)
 
     IF(MSVC)
 		add_subdirectory(stackwalker)
-		add_subdirectory(CubeMapGen)
+		
 		add_subdirectory(libfreetype) 
     ENDIF()
 	
@@ -30,11 +30,13 @@ IF(NOT N_BUILD_FIRSTTIME)
     add_subdirectory(sqlite3) 
     add_subdirectory(zlib) 
     add_subdirectory(imgui)
-	add_subdirectory(libjpeg)
+    add_subdirectory(libjpeg)
     add_subdirectory(libpng) 	
+    add_subdirectory(CubeMapGen)
 	add_subdirectory(ogg)
 		SET_TARGET_PROPERTIES(ogg PROPERTIES FOLDER "extlibs")
 	add_subdirectory(theora)
+	
 	#DevIL
 	set(LIBJPEG_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libjpeg)
 	#set(NVTT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/nvidia-texture-tools)

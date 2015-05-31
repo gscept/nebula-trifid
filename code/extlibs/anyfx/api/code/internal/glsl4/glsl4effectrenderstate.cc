@@ -4,6 +4,10 @@
 //------------------------------------------------------------------------------
 #include "glsl4effectrenderstate.h"
 
+#ifndef _WIN32
+#define __forceinline __attribute__((always_inline))
+#endif
+
 namespace AnyFX
 {
 

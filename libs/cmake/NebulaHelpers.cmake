@@ -270,14 +270,14 @@ MACRO(N_SET_COMPILER_DEFAULTS)
     ELSEIF(UNIX)
                 # C compiler
                 # remove multichar warning spewage
-                SET(CMAKE_C_FLAGS "-Wno-multichar -Werror -msse4.2 -mavx2")
+                SET(CMAKE_C_FLAGS "-Wno-multichar -Werror -msse4.2 -march=sandybridge -ffast-math -fno-trapping-math -funsafe-math-optimizations -ffinite-math-only -mrecip=all")
                 SET(CMAKE_C_FLAGS_DEBUG "-g -D_DEBUG")
                 SET(CMAKE_C_FLAGS_RELWITHDEBINFO "-g -O2 -D_DEBUG")
                 SET(CMAKE_C_FLAGS_RELEASE " -O2 -Og")
         
                 # C++ compiler
                 # remove multichar warning spewage
-                SET(CMAKE_CXX_FLAGS "-Wno-multichar -fpermissive -std=gnu++0x -msse4.2 -mavx2")
+                SET(CMAKE_CXX_FLAGS "-Wno-multichar -fpermissive -std=gnu++0x -msse4.2 -march=sandybridge -ffast-math -fno-trapping-math -funsafe-math-optimizations -ffinite-math-only -mrecip=all")
                 SET(CMAKE_CXX_FLAGS_DEBUG "-g -D_DEBUG")
                 SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O2 -Og -D_DEBUG")
                 SET(CMAKE_CXX_FLAGS_RELEASE " -O2 -Og -g")
