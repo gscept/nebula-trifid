@@ -1464,6 +1464,18 @@ ModelNodeHandler::MakeMaterialUI(QVBoxLayout* mainLayout, QLabel* nodeName, QCom
 	// get state node
 	Ptr<PreviewState> previewState = ContentBrowserApp::Instance()->GetPreviewState();
 	const Ptr<ModelEntity>& model = previewState->GetModel();
+
+	Ptr<FetchSkinList> fetchSkinsMessage = FetchSkinList::Create();
+	__Send(model, fetchSkinsMessage);
+	Array<StringAtom> skins = fetchSkinsMessage->GetSkins();
+	IndexT i;
+	for (i = 0; i < skins.Size(); i++)
+	{
+		Ptr<Graphics::ShowSkin> showSkin = Graphics::ShowSkin::Create();
+		showSkin->SetSkin(skins[i]);
+		__Send(model, showSkin);
+	}
+
 	this->stateNode = RenderUtil::NodeLookupUtil::LookupStateNodeInstance(model, this->nodePath);
 
 	// get material
@@ -1477,7 +1489,6 @@ ModelNodeHandler::MakeMaterialUI(QVBoxLayout* mainLayout, QLabel* nodeName, QCom
 
 	// add textures
 	Array<Material::MaterialParameter> textures = this->GetTextures(mat);
-	IndexT i;
 	for (i = 0; i < textures.Size(); i++)
 	{
 		// create new horizontal layout 

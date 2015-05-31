@@ -9,6 +9,7 @@
 #include "memory/heap.h"
 #include "memory/poolarrayallocator.h"
 
+
 namespace Memory
 {
 HANDLE volatile Win32ProcessHeap = 0;
@@ -56,9 +57,9 @@ Alloc(HeapType heapType, size_t size)
     }
     #if NEBULA3_MEMORY_STATS
         Threading::Interlocked::Increment(TotalAllocCount);
-        Threading::Interlocked::Add(TotalAllocSize, (int)size);
+        Threading::Interlocked::Add(TotalAllocSize, size + 16);
         Threading::Interlocked::Increment(HeapTypeAllocCount[heapType]);
-        Threading::Interlocked::Add(HeapTypeAllocSize[heapType], (int)size);
+		Threading::Interlocked::Add(HeapTypeAllocSize[heapType], size + 16);
         if (MemoryLoggingEnabled && (size >= MemoryLoggingThreshold) &&
             ((MemoryLoggingHeapType == InvalidHeapType) || (MemoryLoggingHeapType == heapType)))
         {
@@ -89,8 +90,8 @@ Realloc(HeapType heapType, void* ptr, size_t size)
     }
     #if NEBULA3_MEMORY_STATS
         SIZE_T newSize = __HeapSize16(Heaps[heapType], 0, allocPtr);
-        Threading::Interlocked::Add(TotalAllocSize, int(newSize - oldSize));
-        Threading::Interlocked::Add(HeapTypeAllocSize[heapType], int(newSize - oldSize));
+		Threading::Interlocked::Add(TotalAllocSize, int(newSize - oldSize + 16));
+		Threading::Interlocked::Add(HeapTypeAllocSize[heapType], int(newSize - oldSize + 16));
         if (MemoryLoggingEnabled && (size >= MemoryLoggingThreshold) &&
             ((MemoryLoggingHeapType == InvalidHeapType) || (MemoryLoggingHeapType == heapType)))
         {

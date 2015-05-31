@@ -298,10 +298,6 @@ NetworkEntity::QuerySerialization(RakNet::Connection_RM3 *destinationConnection)
 	{
 		return RM3QSR_DO_NOT_CALL_SERIALIZE;
 	}
-	if (this->queuedMessages.Size() > 0)
-	{
-		return RM3QSR_CALL_SERIALIZE;
-	}
 	else
 	{
 		return this->QuerySerialize(destinationConnection);
@@ -317,99 +313,66 @@ NetworkEntity::Serialize(RakNet::SerializeParameters *serializeParameters)
 	Ptr<BitWriter> writer = BitWriter::Create();
 	writer->SetStream(&serializeParameters->outputBitstream[0]);
 
-	// check if we are currently owner and supposed to serialize attributes as well
-	if (this->QuerySerialize(serializeParameters->destinationConnection) == RM3QSR_CALL_SERIALIZE)
-	{
-
-		const Util::Array<Attr::AttrId> & syncedAttrs = BaseGameFeature::CategoryManager::Instance()->GetSyncedAttributes(this->GetCategory());
+	const Util::Array<Attr::AttrId> & syncedAttrs = BaseGameFeature::CategoryManager::Instance()->GetSyncedAttributes(this->GetCategory());
 		
-		int count = syncedAttrs.Size();
-		// 255 attributes should be fine		
-		n_assert(count < 256);
-		writer->WriteUChar(count);
-		for (int i = 0; i < count; i++)
-		{
-			Attr::AttrId at = syncedAttrs[i];
-			switch (at.GetValueType())
-			{
-			case Attr::IntType:
-			{
-				writer->WriteUInt(at.GetFourCC().AsUInt());
-				writer->WriteInt(this->GetInt(at));
-			}
-			break;
-			case Attr::StringType:
-			{
-				writer->WriteUInt(at.GetFourCC().AsUInt());
-				writer->WriteString(this->GetString(at));
-			}
-			break;
-			case Attr::FloatType:
-			{
-				writer->WriteUInt(at.GetFourCC().AsUInt());
-				writer->WriteFloat(this->GetFloat(at));
-			}
-			break;
-			case Attr::BoolType:
-			{
-				writer->WriteUInt(at.GetFourCC().AsUInt());
-				writer->WriteBool(this->GetBool(at));
-			}
-			break;
-			case Attr::Float4Type:
-			{
-				writer->WriteUInt(at.GetFourCC().AsUInt());
-				writer->WriteFloat4(this->GetFloat4(at));
-			}
-			break;
-			case Attr::Matrix44Type:
-			{
-				writer->WriteUInt(at.GetFourCC().AsUInt());
-				writer->WriteMatrix44(this->GetMatrix44(at));
-			}
-			break;
-			case Attr::GuidType:
-			{
-				writer->WriteUInt(at.GetFourCC().AsUInt());
-				writer->WriteGuid(this->GetGuid(at));
-			}
-			break;
-			default:
-				n_error("unhandled type\n");
-				break;
-			}
-		}
-	}
-	else
-	{
-		// we aren't the owner, we only have messages to handle
-		writer->WriteUChar(0);
-	}
-	int count = this->queuedMessages.Size();
+	int count = syncedAttrs.Size();
+	// 255 attributes should be fine		
 	n_assert(count < 256);
 	writer->WriteUChar(count);
-	
-	Ptr<IO::BinaryWriter> bwriter = IO::BinaryWriter::Create();
-	bwriter->SetStream(writer.cast<IO::Stream>());
-	bwriter->Open();
+	for (int i = 0; i < count; i++)
+	{
+		Attr::AttrId at = syncedAttrs[i];
+		switch (at.GetValueType())
+		{
+		case Attr::IntType:
+		{
+			writer->WriteUInt(at.GetFourCC().AsUInt());
+			writer->WriteInt(this->GetInt(at));
+		}
+		break;
+		case Attr::StringType:
+		{
+			writer->WriteUInt(at.GetFourCC().AsUInt());
+			writer->WriteString(this->GetString(at));
+		}
+		break;
+		case Attr::FloatType:
+		{
+			writer->WriteUInt(at.GetFourCC().AsUInt());
+			writer->WriteFloat(this->GetFloat(at));
+		}
+		break;
+		case Attr::BoolType:
+		{
+			writer->WriteUInt(at.GetFourCC().AsUInt());
+			writer->WriteBool(this->GetBool(at));
+		}
+		break;
+		case Attr::Float4Type:
+		{
+			writer->WriteUInt(at.GetFourCC().AsUInt());
+			writer->WriteFloat4(this->GetFloat4(at));
+		}
+		break;
+		case Attr::Matrix44Type:
+		{
+			writer->WriteUInt(at.GetFourCC().AsUInt());
+			writer->WriteMatrix44(this->GetMatrix44(at));
+		}
+		break;
+		case Attr::GuidType:
+		{
+			writer->WriteUInt(at.GetFourCC().AsUInt());
+			writer->WriteGuid(this->GetGuid(at));
+		}
+		break;
+		default:
+			n_error("unhandled type\n");
+			break;
+		}
+	}		
 
-	for (int i = 0; i < count;i++)
-	{
-		const Ptr<Messaging::Message> & msg = this->queuedMessages[i];
-		writer->WriteUInt(msg->GetClassFourCC().AsUInt());
-		msg->Encode(bwriter);
-	}
-	this->queuedMessages.Clear();
-	bwriter->Close();
-
-	if (count > 0)
-	{
-		return RakNet::RM3SR_BROADCAST_IDENTICALLY_FORCE_SERIALIZATION;
-	}
-	else
-	{
-		return RakNet::RM3SR_BROADCAST_IDENTICALLY;
-	}	
+	return RakNet::RM3SR_BROADCAST_IDENTICALLY;	
 }
 
 //------------------------------------------------------------------------------
@@ -484,22 +447,7 @@ NetworkEntity::Deserialize(RakNet::DeserializeParameters *deserializeParameters)
 		Ptr<BaseGameFeature::SetTransform> msg = BaseGameFeature::SetTransform::Create();
 		msg->SetMatrix(this->GetMatrix44(Attr::Transform));
 		this->SendSync(msg.cast<Messaging::Message>());
-	}
-	// deserialize messages
-	count = reader->ReadUChar();
-	Ptr<IO::BinaryReader> breader = IO::BinaryReader::Create();
-	breader->SetStream(reader.cast<IO::Stream>());
-	breader->Open();
-	for (int i = 0; i < count; i++)
-	{
-		Util::FourCC fcc = reader->ReadUInt();
-		Ptr<Core::RefCounted> cmsg = Core::Factory::Instance()->Create(fcc);
-		Ptr<Messaging::Message> msg = cmsg.cast<Messaging::Message>();
-		msg->SetDistribute(false);
-		msg->Decode(breader);
-		this->SendSync(msg);		
-	}
-	breader->Close();	
+	}	
 }
 
 //------------------------------------------------------------------------------
@@ -617,5 +565,40 @@ NetworkEntity::SendNetwork(const Ptr<Messaging::Message> & message)
 {
 	this->queuedMessages.Append(message);
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+NetworkEntity::OnUserReplicaPreSerializeTick(void)
+{
+	if (this->queuedMessages.Size() > 0)
+	{
+		RakNet::BitStream bitstream;
+		bitstream.Write(this->GetNetworkID());
+
+		Ptr<BitWriter> writer = BitWriter::Create();
+		writer->SetStream(&bitstream);
+
+		int count = this->queuedMessages.Size();
+		n_assert(count < 256);
+		writer->WriteUChar(count);
+
+		Ptr<IO::BinaryWriter> bwriter = IO::BinaryWriter::Create();
+		bwriter->SetStream(writer.cast<IO::Stream>());
+		bwriter->Open();
+
+		for (int i = 0; i < count; i++)
+		{
+			const Ptr<Messaging::Message> & msg = this->queuedMessages[i];
+			writer->WriteUInt(msg->GetClassFourCC().AsUInt());
+			msg->Encode(bwriter);
+		}
+		this->queuedMessages.Clear();
+		bwriter->Close();
+		NetworkServer::Instance()->SendMessageStream(&bitstream);
+	}
+}
+
 }
 

@@ -23,8 +23,12 @@ public:
 
 	/// assign reflection map resource, returns true if a texture was loaded
 	bool AssignReflectionMap(const Resources::ResourceId& refl);
+	/// assign reflection map using texture
+	void AssignReflectionMap(const Ptr<Resources::ManagedTexture>& refl);
 	/// assign irradiance map resource, returns true if a texture was loaded
 	bool AssignIrradianceMap(const Resources::ResourceId& irr);
+	/// assign irradiance map using texture
+	void AssignIrradianceMap(const Ptr<Resources::ManagedTexture>& irr);
 
 	/// discard probe, unloads textures
 	void Discard();
@@ -42,6 +46,26 @@ private:
 	Ptr<Resources::ManagedTexture> reflectionMap;
 	Ptr<Resources::ManagedTexture> irradianceMap;
 };
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+EnvironmentProbe::AssignReflectionMap(const Ptr<Resources::ManagedTexture>& refl)
+{
+	n_assert(refl.isvalid());
+	this->reflectionMap = refl;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+EnvironmentProbe::AssignIrradianceMap(const Ptr<Resources::ManagedTexture>& irr)
+{
+	n_assert(irr.isvalid());
+	this->irradianceMap = irr;
+}
 
 //------------------------------------------------------------------------------
 /**

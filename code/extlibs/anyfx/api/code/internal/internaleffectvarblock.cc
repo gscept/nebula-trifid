@@ -32,6 +32,7 @@ InternalEffectVarblock::InternalEffectVarblock() :
 InternalEffectVarblock::~InternalEffectVarblock()
 {
 	this->childBlocks.clear();
+	if (this->masterBlock == this) delete[] this->dataBlock->data;
 	this->masterBlock = 0;
 }
 

@@ -37,6 +37,8 @@
 #include "basegamefeature/basegameattr/basegameattributes.h"
 #include "CloudClient.h"
 #include "syncpoint.h"
+#include "networkentity.h"
+#include "bitreader.h"
 
 namespace MultiplayerFeature
 {
@@ -60,6 +62,18 @@ using namespace RakNet;
 #else
 #define CONNECTION_TIMEOUT 10000 // ms 10s
 #endif
+
+//------------------------------------------------------------------------------
+/**
+*/
+static void
+DispatchNetworkMessage(RakNet::BitStream *bitStream, RakNet::Packet *packet)
+{
+	n_assert(NetworkServer::HasInstance());
+	NetworkServer::Instance()->DispatchMessageStream(bitStream, packet);
+}
+
+RPC4GlobalRegistration __NebulaMessageDispatch("NebulaMessage", DispatchNetworkMessage, 0);
 
 //------------------------------------------------------------------------------
 /**
@@ -113,7 +127,10 @@ NetworkServer::Open()
 	this->fullyConnectedMesh->SetAutoparticipateConnections(false);
 	this->fullyConnectedMesh->SetConnectOnNewRemoteConnection(false, "");
 	this->replicationManager->SetNetworkIDManager(this->networkIDManager);
-	this->replicationManager->SetAutoManageConnections(false,true);   
+	this->replicationManager->SetAutoManageConnections(false,true);
+
+	//// set lastUpdateTime
+	//this->lastUpdateTime =	RakNet::GetTime();
 }
 
 //------------------------------------------------------------------------------
@@ -156,8 +173,7 @@ NetworkServer::SetupLowlevelNetworking()
 	{
 		this->state = IDLE;
 		return false;
-	}
-	
+	}	
 	return true;
 }
 
@@ -198,6 +214,18 @@ NetworkServer::OnFrame()
 		NetworkGame::Instance()->ReceiveMasterList(this->masterResult);
 		this->masterResult = 0;
 	}
+	if (this->IsHost() && NetworkGame::Instance()->IsPublished())
+	{
+		if (NetworkGame::Instance()->GetMasterServerUpdate())
+		{
+
+			if((RakNet::GetTimeMS() - this->lastUpdateTime) > 20000)
+			{
+				NetworkGame::Instance()->PublishToMaster();
+				this->lastUpdateTime = RakNet::GetTimeMS();
+			}
+		}
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -230,6 +258,7 @@ NetworkServer::HandlePacket(RakNet::Packet * packet)
 	case ID_DISCONNECTION_NOTIFICATION:
 	{
 		n_printf("Disconnected from %s\n", targetName.AsCharPtr());
+		NetworkGame::Instance()->OnPlayerDisconnect(packet->guid);
 		if (packet->systemAddress == this->natPunchServerAddress)
 		{
 			this->connectedToNatPunchThrough = false;
@@ -277,19 +306,34 @@ NetworkServer::HandlePacket(RakNet::Packet * packet)
 	break;
 	case ID_FCM2_VERIFIED_JOIN_FAILED:
 	{
-		n_printf("Failed to join game session");
+		NetworkGame::Instance()->OnJoinFailed("Connection failed");
+	}
+	break;
+	case ID_FCM2_VERIFIED_JOIN_REJECTED:	
+	{
+		RakNet::BitStream bs(packet->data, packet->length, false);
+		Ptr<Multiplayer::BitReader> br = Multiplayer::BitReader::Create();
+		br->SetStream(&bs);
+		br->ReadChar();
+		Util::String answer = br->ReadString();
+
+		n_printf("Failed to join game session: %s", answer.AsCharPtr());
+		NetworkGame::Instance()->OnJoinFailed(answer);
 	}
 	break;
 	case ID_FCM2_VERIFIED_JOIN_CAPABLE:
 	{
-		if (this->fullyConnectedMesh->GetParticipantCount() < NetworkGame::Instance()->GetMaxPlayers())
+		//If server not full and you're in lobby or allowed to join while game has started
+		if (this->fullyConnectedMesh->GetParticipantCount() + 1 < NetworkGame::Instance()->GetMaxPlayers() && IsInGameJoinUnLocked())
 		{
 			this->fullyConnectedMesh->RespondOnVerifiedJoinCapable(packet, true, 0);
 		}
 		else
 		{
-			this->fullyConnectedMesh->RespondOnVerifiedJoinCapable(packet, false, 0);
-		}
+			RakNet::BitStream answer;			
+			answer.Write("Server Full\n");
+			this->fullyConnectedMesh->RespondOnVerifiedJoinCapable(packet, false, &answer);			
+		}		
 	}
 	break;
 	case ID_FCM2_VERIFIED_JOIN_ACCEPTED:
@@ -929,6 +973,91 @@ void
 NetworkServer::StartGame()
 {	
 	this->state = IN_GAME;	
+}
+
+//------------------------------------------------------------------------------
+/**
+Returns a user defined flag when IN_GAME so that the user can decide if it's allowed to join or not.
+*/
+RakNet::Replica3 *
+NetworkServer::LookupReplica(RakNet::NetworkID replicaId)
+{
+	RakNet::Replica3 * replica = this->networkIDManager->GET_OBJECT_FROM_ID<RakNet::Replica3*>(replicaId);
+	n_assert(replica);
+	return replica;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+NetworkServer::LockInGameJoin(bool flag)
+{
+	this->lockInGameJoin = flag;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool NetworkServer::IsInGameJoinUnLocked()
+{
+	if (this->state == IN_GAME)
+	{
+		return NetworkGame::Instance()->CanJoinInGame();
+	}
+	else
+	{
+		return true;
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+NetworkServer::DispatchMessageStream(RakNet::BitStream * msgStream, Packet *packet)
+{
+	RakNet::NetworkID entityId;
+	msgStream->Read(entityId);
+	RakNet::Replica3 * replica = this->LookupReplica(entityId);
+
+	MultiplayerFeature::NetworkEntity * entity = dynamic_cast<MultiplayerFeature::NetworkEntity*>(replica);
+
+	Ptr<Multiplayer::BitReader> reader = Multiplayer::BitReader::Create();
+	reader->SetStream(msgStream);
+
+	// deserialize messages
+	int count = reader->ReadUChar();
+	Ptr<IO::BinaryReader> breader = IO::BinaryReader::Create();
+	breader->SetStream(reader.cast<IO::Stream>());
+	breader->Open();
+	for (int i = 0; i < count; i++)
+	{
+		Util::FourCC fcc = reader->ReadUInt();
+		Ptr<Core::RefCounted> cmsg = Core::Factory::Instance()->Create(fcc);
+		Ptr<Messaging::Message> msg = cmsg.cast<Messaging::Message>();
+		msg->SetDistribute(false);
+		msg->Decode(breader);
+		entity->SendSync(msg);
+	}
+	breader->Close();
+
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+NetworkServer::SendMessageStream(RakNet::BitStream* msgStream)
+{
+	DataStructures::List<RakNetGUID> participantList;
+	this->fullyConnectedMesh->GetParticipantList(participantList);
+
+	if (participantList.Size() > 0)
+	{		
+		for (unsigned int i = 0; i < participantList.Size(); i++)
+			this->rpc->Signal("NebulaMessage", msgStream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, participantList[i], false, false);
+	}
 }
 
 //------------------------------------------------------------------------------

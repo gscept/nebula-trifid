@@ -69,13 +69,4 @@ GridAddon::SetGridSize(int size)
 	this->plugin->SetGridSize(size);
 }
 
-//------------------------------------------------------------------------------
-/**
-*/
-void
-GridAddon::SetCellSize(float size)
-{
-	this->plugin->SetCellSize(size);
-}
-
 } // namespace Grid

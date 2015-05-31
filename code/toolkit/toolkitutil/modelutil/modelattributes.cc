@@ -22,7 +22,7 @@ __ImplementClass(ToolkitUtil::ModelAttributes, 'MOAT', Core::RefCounted);
 /**
 */
 ModelAttributes::ModelAttributes() :	
-	exportFlags(ToolkitUtil::ExportFlags(ToolkitUtil::FlipUVs | ToolkitUtil::RemoveRedundant)),
+	exportFlags(ToolkitUtil::ExportFlags(ToolkitUtil::FlipUVs)),
 	exportMode(ToolkitUtil::Static),
 	scaleFactor(1.0f)
 {

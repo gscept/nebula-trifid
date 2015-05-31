@@ -92,7 +92,7 @@ inline void*
 OGL4StreamTextureSaver::FlipImageDataVerticalBlockWise(SizeT width, SizeT height, SizeT blockSize, void* buf)
 {
 	char* buffer = static_cast<char*>(buf);
-	char* temp = new char[blockSize];
+	char* temp = n_new_array(char, blockSize);
 	for (int x = 0; x < width; x++)
 	{
 		for (int y = 0; y < height / 2; y++)
@@ -104,7 +104,7 @@ OGL4StreamTextureSaver::FlipImageDataVerticalBlockWise(SizeT width, SizeT height
 			memcpy((void*)(&buffer[nextCoord]), temp, blockSize);
 		}
 	}
-	delete[] temp;
+	n_delete_array(temp);
 	return static_cast<void*>(buffer);
 }
 
@@ -115,7 +115,7 @@ inline void*
 OGL4StreamTextureSaver::FlipImageDataHorizontalBlockWise(SizeT width, SizeT height, SizeT blockSize, void* buf)
 {
 	char* buffer = static_cast<char*>(buf);
-	char* temp = new char[blockSize];
+	char* temp = n_new_array(char, blockSize);
 	for (int y = 0; y < height; y++)
 	{
 		for (int x = 0; x < width / 2; x++)
@@ -127,7 +127,7 @@ OGL4StreamTextureSaver::FlipImageDataHorizontalBlockWise(SizeT width, SizeT heig
 			memcpy((void*)(&buffer[nextCoord]), temp, blockSize);
 		}
 	}
-	delete[] temp;
+	n_delete_array(temp);
 	return static_cast<void*>(buffer);
 }
 

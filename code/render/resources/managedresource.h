@@ -297,7 +297,7 @@ ManagedResource::IsPlaceholder() const
 inline const Ptr<Resource>&
 ManagedResource::GetLoadedResource() const
 {
-    if (this->resource.isvalid())
+    if (this->resource.isvalid() && this->resource->GetState() == Resource::Loaded)
     {
         return this->resource;
     }

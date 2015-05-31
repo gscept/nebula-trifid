@@ -50,7 +50,7 @@ OGL4ParticleSystemInstance::UpdateVertexStreams()
     SizeT num = this->particles.Size();
 
 	// this is the size of our particles, the maximum is tripled because we use triple buffering
-    for (i = 0; (i < num) && (particleRenderer->GetCurParticleVertexIndex() < MaxNumRenderedParticles * 3); i++)
+    for (i = 0; (i < num) && (particleRenderer->GetCurParticleIndex() < MaxNumRenderedParticles); i++)
     {
         const Particle& particle = this->particles[i];
 		
@@ -64,7 +64,8 @@ OGL4ParticleSystemInstance::UpdateVertexStreams()
             particle.uvMinMax.stream(ptr); ptr += 4;
             tmp.set(particle.rotation, particle.size, particle.particleId, 0.0f);
             tmp.stream(ptr); ptr += 4;
-            particleRenderer->AddCurParticleVertexIndex(1);
+            particleRenderer->AddCurParticleIndex(1);
+			particleRenderer->AddCurParticleVertexIndex(1);
         }
     }
     particleRenderer->SetCurVertexPtr(ptr);

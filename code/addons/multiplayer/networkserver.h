@@ -59,6 +59,7 @@ public:
     void Open();
     /// close the RakNetServer
     void Close();
+
     /// perform client-side per-frame updates
     void OnFrame();
 
@@ -72,10 +73,18 @@ public:
 	bool IsHost() const;
 
 	/// is the host determined yet
-	bool HasHost();
+	bool HasHost();	
 
+	/// internal
+	void DispatchMessageStream(RakNet::BitStream * msgStream, RakNet::Packet *packet);
+	/// internal
+	void SendMessageStream(RakNet::BitStream* msgStream);
+	/// Allow/Disallow clients to join server while in-game
+	void LockInGameJoin(bool flag);
 private:
-		
+	/// returns status if allowed to join a game
+	bool IsInGameJoinUnLocked();
+
 	class MasterHelperThread : public Threading::Thread
 	{
 		__DeclareClass(MasterHelperThread)			
@@ -104,7 +113,10 @@ private:
 	void UpdateRoomList();
 	/// deal with a packet
 	bool HandlePacket(RakNet::Packet * packet);
+	
 
+	/// get replica via network id
+ 	RakNet::Replica3 * LookupReplica(RakNet::NetworkID replicaId);
 
 	/// hmm, lets have this for the time being
 	friend class NetworkGame;
@@ -125,6 +137,7 @@ private:
 	bool connectedToNatPunchThrough;		
 	Ptr<Attr::AttributeTable> masterResult;
 	Threading::SafeFlag doneFlag;
+	RakNet::Time lastUpdateTime;
 };
 
 //------------------------------------------------------------------------------

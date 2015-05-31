@@ -272,7 +272,7 @@ PoolResourceMapper::ReadTexturePoolFromXML(const IO::URI& fileName, Util::Dictio
     {
         do
         {
-            TextureInfo* texInfo = new TextureInfo();
+            TextureInfo* texInfo = n_new(TextureInfo);
             PoolSetupInfo setupInfo;
             StringAtom poolId;
 

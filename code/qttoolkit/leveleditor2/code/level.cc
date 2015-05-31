@@ -632,6 +632,7 @@ Level::SaveLevel()
         this->WriteString(xmlWriter,"CellSize",navMeshes[i]->GetAttr(Attr::CellSize).ValueAsString());
         this->WriteString(xmlWriter,"NavMeshData",navMeshes[i]->GetString(Attr::NavMeshData));		
 		this->WriteString(xmlWriter,"EntityReferences",navMeshes[i]->GetAttr(Attr::EntityReferences).ValueAsString()); 
+		this->WriteString(xmlWriter,"AreaEntityReferences", navMeshes[i]->GetAttr(Attr::AreaEntityReferences).ValueAsString());
 		this->WriteString(xmlWriter,"NavMeshCenter",navMeshes[i]->GetAttr(Attr::NavMeshCenter).ValueAsString()); 
 		this->WriteString(xmlWriter,"NavMeshExtends",navMeshes[i]->GetAttr(Attr::NavMeshExtends).ValueAsString()); 
 		this->WriteString(xmlWriter,"NavMeshMeshString",navMeshes[i]->GetString(Attr::NavMeshMeshString));
@@ -654,7 +655,9 @@ Level::SaveLevel()
                 this->WriteString(xmlWriter, "Graphics",entity->GetString(Attr::Graphics));
                 this->WriteString(xmlWriter, "ParentGuid",entity->GetGuid(Attr::ParentGuid).AsString());		
                 this->WriteString(xmlWriter, "Transform", Util::String::FromMatrix44(entity->GetMatrix44(Attr::Transform)));
-                this->WriteString(xmlWriter, "NavMeshArea", Util::String::FromInt(entity->GetInt(Attr::NavMeshArea)));
+                this->WriteString(xmlWriter, "NavMeshAreaFlags", Util::String::FromInt(entity->GetInt(Attr::NavMeshAreaFlags)));
+				this->WriteString(xmlWriter, "NavMeshAreaCost", Util::String::FromInt(entity->GetInt(Attr::NavMeshAreaCost)));
+				this->WriteString(xmlWriter, "NavMeshMeshString", entity->GetString(Attr::NavMeshMeshString));
             xmlWriter->EndNode();
         xmlWriter->EndNode();	
     }

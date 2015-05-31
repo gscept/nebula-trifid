@@ -106,7 +106,7 @@ AttachmentManager::Attach(const Ptr<Graphics::ModelEntity>& baseEntity, const Ut
 	attach.rotation = rotation;
 	attach.joint = joint;
 	attach.jointIndex = -1;
-	if (baseEntity->GetModelResourceState() != Resources::Resource::Loaded)
+	if (!baseEntity->IsValid())
 	{
 		this->delayedAttachments.Append(attach);
 	}
@@ -150,7 +150,7 @@ AttachmentManager::Attach(const Ptr<Graphics::ModelEntity>& baseEntity, const Ut
 	attach.rotation = rotation;
 	attach.joint = joint;
 	attach.jointIndex = -1; 
-	if (baseEntity->GetModelResourceState() != Resources::Resource::Loaded)
+	if (!baseEntity->IsValid())
 	{
 		this->delayedAttachments.Append(attach);
 	}
@@ -172,7 +172,7 @@ AttachmentManager::Detach(const Ptr<Graphics::GraphicsEntity>& entityToDetach)
 	IndexT id = entityToDetach->GetId();
 	for (Array<Attachment>::Iterator iter = this->attachments.Begin(); iter != this->attachments.End();)
 	{
-		if (id == iter->baseEntity.cast<Graphics::GraphicsEntity>()->GetId())
+		if (id == iter->attachedEntity.cast<Graphics::GraphicsEntity>()->GetId())
 		{						
 			this->attachments.Erase(iter);
 			return;
@@ -185,7 +185,7 @@ AttachmentManager::Detach(const Ptr<Graphics::GraphicsEntity>& entityToDetach)
 	// nothing was removed, check pending attachments
 	for (Array<Attachment>::Iterator iter = this->delayedAttachments.Begin(); iter != this->delayedAttachments.End();)
 	{
-		if (id == iter->baseEntity.cast<Graphics::GraphicsEntity>()->GetId())
+		if (id == iter->attachedEntity.cast<Graphics::GraphicsEntity>()->GetId())
 		{
 			this->attachments.Erase(iter);
 			return;
@@ -206,7 +206,7 @@ AttachmentManager::Detach(const Ptr<Game::Entity>& entityToDetach)
 	IndexT id = entityToDetach->GetUniqueId();
 	for (Array<Attachment>::Iterator iter = this->attachments.Begin(); iter != this->attachments.End();)
 	{
-		if (id == iter->baseEntity.cast<Game::Entity>()->GetUniqueId())
+		if (id == iter->attachedEntity.cast<Game::Entity>()->GetUniqueId())
 		{			
 			this->attachments.Erase(iter);
 			return;
@@ -219,7 +219,7 @@ AttachmentManager::Detach(const Ptr<Game::Entity>& entityToDetach)
 	// nothing was removed, check pending attachments
 	for (Array<Attachment>::Iterator iter = this->delayedAttachments.Begin(); iter != this->delayedAttachments.End();)
 	{
-		if (id == iter->baseEntity.cast<Game::Entity>()->GetUniqueId())
+		if (id == iter->attachedEntity.cast<Game::Entity>()->GetUniqueId())
 		{
 			this->delayedAttachments.Erase(iter);
 			return;

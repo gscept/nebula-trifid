@@ -67,6 +67,8 @@ public:
 	bool Discard();
 	/// discards the model item handler without the option to cancel
 	void DiscardNoCancel();
+	/// mute the UI by disabling it
+	void Mute();
 	
 	/// hard refresh, model is changed structurally (nodes added/removed or material changed)
 	void HardRefresh();

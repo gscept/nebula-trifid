@@ -59,7 +59,7 @@ OGL4ShaderBuffer::Setup()
 	n_assert(GLSUCCESS);
 
 	// setup handle
-	this->handle = new AnyFX::EffectVarbuffer::OpenGLBuffer;
+	this->handle = n_new(AnyFX::EffectVarbuffer::OpenGLBuffer);
 	this->handle->size = this->alignedSize;
 	this->handle->handle = this->ogl4Buffer;
 	this->handle->bindRange = true;

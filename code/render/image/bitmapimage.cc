@@ -71,7 +71,7 @@ BitmapImage::LoadFromRawData( ubyte* ptr, SizeT size )
 	this->size = this->header.imageSize;
 
 	// allocate data buffer
-	this->data = new uint[this->size];
+	this->data = n_new_array(uint, this->size);
 
 	// read data to data pointer
 	Memory::Copy(ptr + this->dataOffset, (void*)this->data, this->size);

@@ -84,6 +84,7 @@ OGL4BufferLock::WaitForBuffer(IndexT index)
 	if (this->bufferLocks.Contains(index))
 	{
 		this->Wait(this->bufferLocks[index]);
+		this->Cleanup(this->bufferLocks[index]);
 		this->bufferLocks.Erase(index);
 	}	
 }
@@ -120,7 +121,5 @@ OGL4BufferLock::Cleanup(GLsync sync)
 {
 	glDeleteSync(sync);
 }
-
-
 
 } // namespace OpenGL4

@@ -185,6 +185,13 @@ AudioDevice::Open()
         FMOD_CHECK_ERROR(result);
     }
 
+	// load fmod plugins in the binary folder
+	Util::Array<Util::String> fmod_plugins = IO::IoServer::Instance()->ListFiles("bin:", "fmod_*", true);
+	for (int i = 0; i < fmod_plugins.Size(); i++)
+	{
+		this->lowlevelSystem->loadPlugin(fmod_plugins[i].AsCharPtr(), NULL);
+	}
+
 	result = this->lowlevelSystem->getMasterChannelGroup(&this->masterGroup);
     FMOD_CHECK_ERROR(result);
 
@@ -460,7 +467,7 @@ AudioDevice::EventPlayFireAndForget(const FAudio::EventId &eventId, float volume
 	if (is3d)
 	{
 		// we have a 3d event but no transform, play it at listener position
-		FMOD_3D_ATTRIBUTES attrs;
+		FMOD_3D_ATTRIBUTES attrs;		
 #if (FMOD_VERSION >= 0x00010600)
 		this->system->getListenerAttributes(0, &attrs);
 #else

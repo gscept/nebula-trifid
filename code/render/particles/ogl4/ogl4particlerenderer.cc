@@ -28,6 +28,7 @@ using namespace Math;
 */
 OGL4ParticleRenderer::OGL4ParticleRenderer() :
     curParticleVertexIndex(0),
+	curParticleIndex(0),
     mappedVertices(0),
     curVertexPtr(0),
 	bufferIndex(0)
@@ -129,7 +130,7 @@ OGL4ParticleRenderer::Setup()
     this->particleVertexBuffer->SetLoader(0);
 
 	// map buffer
-	this->mappedVertices = this->particleVertexBuffer->Map(VertexBuffer::MapWriteDiscard);
+	this->mappedVertices = this->particleVertexBuffer->Map(VertexBuffer::MapWrite);
 
 	// create buffer lock
 	this->particleBufferLock = BufferLock::Create();
@@ -181,6 +182,7 @@ OGL4ParticleRenderer::BeginAttach()
     this->inAttach = true;
     this->curVertexPtr = ((float*)this->mappedVertices) + this->bufferIndex * MaxNumRenderedParticles * 20;
     this->curParticleVertexIndex = this->bufferIndex * MaxNumRenderedParticles;
+	this->curParticleIndex = 0;
 
 	// make sure to wait for our buffer to be done with the writing until we let our particles render
 	this->particleBufferLock->WaitForBuffer(this->bufferIndex);

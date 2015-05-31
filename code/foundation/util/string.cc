@@ -1147,7 +1147,7 @@ String::AsBase64() const
 	char * buffer = (char *)Memory::Alloc(Memory::ScratchHeap, allocsize);
 		
 	base64_encode((unsigned char*)this->AsCharPtr(), this->strLen, buffer);
-	buffer[allocsize] = '\0';
+	buffer[allocsize - 1] = '\0';
 	ret.SetCharPtr(buffer);
 	Memory::Free(Memory::ScratchHeap, buffer);
 	return ret;
@@ -1164,7 +1164,7 @@ String::FromBase64(const String& in)
 	unsigned char * buffer = (unsigned char *)Memory::Alloc(Memory::ScratchHeap, allocsize);
 	
 	base64_decode((char*)in.AsCharPtr(), in.strLen, buffer);
-	buffer[allocsize] = '\0';
+	buffer[allocsize - 1] = '\0';
 	ret.SetCharPtr((const char*)buffer);
 	Memory::Free(Memory::ScratchHeap, buffer);
 	return ret;

@@ -104,7 +104,7 @@ LevelEditor2App::Open()
         Array<String> props6;
         props6.Append("GraphicsFeature::GraphicsProperty");
         props6.Append("LevelEditor2::EditorProperty");
-        props6.Append("Navigation::ConvexAreaMarkerProperty");        
+        props6.Append("LevelEditor2::EditorNavAreaProperty");        
         BaseGameFeature::FactoryManager::Instance()->AddBlueprint("EditorNavAreaMarker", "Entity", props6, true);
         
 

@@ -7,6 +7,8 @@
 #include "leveleditor2entitymanager.h"
 #include "frame/frameserver.h"
 #include "graphics/graphicsserver.h"
+#include "resources/resourcemanager.h"
+#include "coregraphics/texture.h"
 
 using namespace Graphics;
 namespace LevelEditor2
@@ -183,6 +185,14 @@ LightProbeManager::Build()
 	this->ui.lightBuildProgress->setVisible(true);
 	QApplication::processEvents();
 
+	Ptr<Resources::ManagedTexture> origReflection = Lighting::EnvironmentProbe::DefaultEnvironmentProbe->GetReflectionMap();
+	Ptr<Resources::ManagedTexture> origIrradiance = Lighting::EnvironmentProbe::DefaultEnvironmentProbe->GetIrradianceMap();
+	Ptr<Resources::ManagedTexture> black = Resources::ResourceManager::Instance()->CreateManagedResource(CoreGraphics::Texture::RTTI, "tex:system/black.dds", NULL, true).downcast<Resources::ManagedTexture>();
+
+	// first, unset the default probe
+	Lighting::EnvironmentProbe::DefaultEnvironmentProbe->AssignReflectionMap(black);
+	Lighting::EnvironmentProbe::DefaultEnvironmentProbe->AssignIrradianceMap(black);
+
 	this->ui.lightBuildProgress->setMaximum(this->lightProbes.Size());
 	this->ui.lightBuildProgress->setValue(0);
 
@@ -211,6 +221,10 @@ LightProbeManager::Build()
 
 	this->ui.lightBuildStatusField->setVisible(false);
 	this->ui.lightBuildProgress->setVisible(false);
+
+	// now reset default probe
+	Lighting::EnvironmentProbe::DefaultEnvironmentProbe->AssignReflectionMap(origReflection);
+	Lighting::EnvironmentProbe::DefaultEnvironmentProbe->AssignIrradianceMap(origIrradiance);
 }
 
 } // namespace LevelEditor2

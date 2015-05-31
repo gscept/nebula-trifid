@@ -98,7 +98,7 @@ GraphicsEntity::OnDeactivate()
 /**
     This method is called when the graphics entity is attached to a stage. An
     entity may only be attached to one stage at any time, but can be
-    attached to different stages during its lifetime. Attachging an entity
+    attached to different stages during its lifetime. Attaching an entity
     to a stage may be relatively slow because the entity must be inserted
     into the cell hierarchy.
 */
@@ -124,7 +124,6 @@ GraphicsEntity::OnRemoveFromStage()
 {
     n_assert(this->IsActive());
     n_assert(this->IsAttachedToStage());
-    n_assert(this->deferredMessages.IsEmpty());
     this->ClearLinks(CameraLink);
     this->ClearLinks(LightLink);
     this->stage = 0;

@@ -17,6 +17,7 @@
 #include "io/ioserver.h"
 #include "qtaddons/remoteinterface/qtremoteclient.h"
 #include "messaging/messagecallbackhandler.h"
+#include "contentbrowserapp.h"
 
 using namespace Graphics;
 using namespace ContentBrowser;
@@ -44,7 +45,6 @@ LoadProgress(void* arguments, float progress, const char* status)
 ModelImporterWindow::ModelImporterWindow( QWidget *parent /*= 0*/, Qt::WFlags flags /*= 0*/ )
 {
 	this->ui.setupUi(this);
-	this->setWindowFlags(Qt::Tool);
 
 	this->database = ModelDatabase::Create();
 	this->database->Open();
@@ -348,12 +348,18 @@ ModelImporterWindow::Import()
 		// copy to temp model and reload
 		IoServer::Instance()->CopyFile(model, tempModel);
 
+		// make sure to remove the model we are importing
+		ContentBrowserApp::Instance()->GetPreviewState()->PreImportModel();
+
 		Ptr<ReloadResourceIfExists> tempModelMsg = ReloadResourceIfExists::Create();
 		tempModelMsg->SetResourceName(tempModel);
 		GraphicsInterface::Instance()->Send(tempModelMsg.upcast<Messaging::Message>());	
 
 		// since this is our last message, we should wait for this one  to be done before we update
 		__SingleFireCallback(ModelImporterWindow, OnModelUpdateDone, this, tempModelMsg.upcast<Messaging::Message>());
+
+		// invalidate the previewer model by attaching it again, if we have a character and this is the model we are modifying, this should resolve any invalid characters
+		ContentBrowserApp::Instance()->GetPreviewState()->PostImportModel();
 	}
 	else
 	{
@@ -362,7 +368,7 @@ ModelImporterWindow::Import()
 	}
 
 	// send modification message to remote end
-	QtRemoteInterfaceAddon::QtRemoteClient::GetClient("editor")->Send(modelMsg.upcast<Messaging::Message>());	
+	QtRemoteInterfaceAddon::QtRemoteClient::GetClient("editor")->Send(modelMsg.upcast<Messaging::Message>());
 
 	// close window
 	this->close();

@@ -169,6 +169,7 @@ RocketServer::Render( const Ptr<Frame::FrameBatch>& frameBatch )
 bool 
 RocketServer::HandleInput( const Input::InputEvent& event )
 {
+	Rocket::Core::Element* hoverElement = this->context->GetHoverElement();
     switch (event.GetType())
     {        
     case InputEvent::KeyDown:
@@ -193,16 +194,16 @@ RocketServer::HandleInput( const Input::InputEvent& event )
 		break;
     case InputEvent::MouseButtonDown:
         this->context->ProcessMouseButtonDown(event.GetMouseButton(), 0);
-        return this->context->GetHoverElement() != this->context->GetRootElement();
+		return hoverElement != this->context->GetRootElement() && hoverElement != NULL;
     case InputEvent::MouseButtonUp:
         this->context->ProcessMouseButtonUp(event.GetMouseButton(), 0);
         break;    
     case InputEvent::MouseWheelForward:
         this->context->ProcessMouseWheel(-1, 0);
-        return this->context->GetHoverElement() != this->context->GetRootElement();
+		return hoverElement != this->context->GetRootElement() && hoverElement != NULL;
     case InputEvent::MouseWheelBackward:
         this->context->ProcessMouseWheel(1, 0);
-        return this->context->GetHoverElement() != this->context->GetRootElement();
+		return hoverElement != this->context->GetRootElement() && hoverElement != NULL;
     }
 
 	// this determines if we are hovering over the UI

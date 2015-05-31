@@ -426,23 +426,6 @@ ModelEntity::OnRenderBefore(IndexT frameIndex)
 		// update character if valid
 		if (this->charInst.isvalid())
 		{
-			// if the character is invalid, reload it
-			if (!this->charInst->IsValid())
-			{
-				// set character and character instance to 0
-				this->charInst = 0;
-				this->character = 0;
-
-                // validate character again
-                this->ValidateCharacter();
-
-                // HAXX, avoid running character updates if the character definition has been removed due to reloading
-                if (!this->charInst.isvalid())
-                {
-                    goto skipcharacterupdate;
-                }
-			}
-
 			this->charInst->WaitUpdateDone();
 			this->HandleCharacterAnimDrivenMotion();
 			this->HandleTrackedJoints();
@@ -454,7 +437,6 @@ ModelEntity::OnRenderBefore(IndexT frameIndex)
 			}
 		}
 
-skipcharacterupdate:
 		// if our model instance is valid, let it update itself
 		if (this->modelInstance.isvalid())
 		{

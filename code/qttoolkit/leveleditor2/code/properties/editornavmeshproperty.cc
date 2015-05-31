@@ -35,7 +35,7 @@ __Handler(EditorNavMeshProperty,CreateNavMesh)
     Util::String areaGuids;
     for(int i = 0 ; i < ents.Size(); i++)
     {
-        if(ents[i]->HasAttr(Attr::NavMeshArea))
+        if(ents[i]->HasAttr(Attr::NavMeshAreaFlags))
         {
             areaGuids += ents[i]->GetGuid(Attr::EntityGuid).AsString();
             areaGuids += ";";        
@@ -186,7 +186,15 @@ EditorNavMeshProperty::UpdateMesh()
     {        
         Util::Guid g;
         g = guidarray[i];
-        ents.Append(BaseGameFeature::EntityManager::Instance()->GetEntityByAttr(Attr::Attribute(Attr::EntityGuid, g)));        
+		Ptr<Game::Entity> ent = BaseGameFeature::EntityManager::Instance()->GetEntityByAttr(Attr::Attribute(Attr::EntityGuid, g));
+		if (ent.isvalid())
+		{
+			ents.Append(ent);
+		}        
+		else
+		{
+			n_warning("Missing entity reference for navmesh\n");
+		}
     }
     
     Ptr<Navigation::RecastUtil> recast = Navigation::RecastUtil::Create();
@@ -240,12 +248,28 @@ EditorNavMeshProperty::UpdateMesh()
 
     Util::String areaGuids = entity->GetString(Attr::AreaEntityReferences);
     Util::Array<Util::String> areaGuidarray = areaGuids.Tokenize(";");
-    
+	Util::String navGuid = entity->GetGuid(Attr::EntityGuid).AsString();
     for(IndexT i = 0 ; i < areaGuidarray.Size() ; i++)
     {        
         Util::Guid g;
         g = areaGuidarray[i];
-        recast->AddConvexArea(BaseGameFeature::EntityManager::Instance()->GetEntityByAttr(Attr::Attribute(Attr::EntityGuid, g)));        
+		Ptr<Game::Entity> ent = BaseGameFeature::EntityManager::Instance()->GetEntityByAttr(Attr::Attribute(Attr::EntityGuid, g));
+		if (ent.isvalid())
+		{
+			Util::String meshString = ent->GetString(Attr::NavMeshMeshString);
+			if (meshString.IsEmpty())
+			{
+				meshString.Append(navGuid);
+				meshString += ";";
+			}
+			else if (meshString.FindStringIndex(navGuid) == InvalidIndex)
+			{				
+				meshString += navGuid;
+				meshString += ";";				
+			}
+			ent->SetString(Attr::NavMeshMeshString, meshString);
+			recast->AddConvexArea(ent);
+		}        
     }
 
     Util::Blob data = recast->GenerateNavMeshData();

@@ -99,12 +99,6 @@ ViewerApplication::Open()
         this->freeCameraUtil.Update();
         this->camera->SetTransform(this->freeCameraUtil.GetTransform());
 #endif
-
-#ifdef _QT_NEB_SUPPORT
-        this->qtServer = QtFeature::QtServer::Create();
-        this->qtServer->Open();
-#endif
-
         return true;
     }
     return false;
@@ -116,11 +110,6 @@ ViewerApplication::Open()
 void
 ViewerApplication::Close()
 {
-#ifdef _QT_NEB_SUPPORT	
-    this->qtServer->Close();
-    this->qtServer = 0;
-#endif
-
     this->stage->RemoveEntity(this->camera.cast<GraphicsEntity>());
     this->camera = 0;
 
@@ -242,9 +231,6 @@ ViewerApplication::OnUpdateFrame()
 {
     this->debugShapeRenderer->OnFrame();
     this->debugTextRenderer->OnFrame();
-#ifdef _QT_NEB_SUPPORT
-	//this->qtServer->Trigger();
-#endif
 }
 
 } // namespace App

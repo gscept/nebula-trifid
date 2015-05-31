@@ -90,19 +90,6 @@ NFbxJointNode::SetupFromCluster(FbxCluster* cluster)
 	FbxAMatrix matrix;
 	cluster->GetTransformLinkMatrix(matrix);
 
-	// get geometry transform
-	FbxVector4 geoTranslation = this->fbxNode->GetGeometricTranslation(FbxNode::eSourcePivot);
-	FbxVector4 geoRotation = this->fbxNode->GetGeometricRotation(FbxNode::eSourcePivot);
-	FbxVector4 geoScaling = this->fbxNode->GetGeometricScaling(FbxNode::eSourcePivot);
-	FbxAMatrix geoTransform(geoTranslation, geoRotation, geoScaling);
-
-	// get main mesh translation
-	FbxAMatrix meshTransform;
-	cluster->GetTransformMatrix(meshTransform);
-
-	// multiply it all together
-	matrix = matrix * meshTransform * geoTransform;
-
 	// set cluster
 	this->cluster = cluster;
 

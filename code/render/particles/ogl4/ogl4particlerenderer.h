@@ -43,8 +43,12 @@ public:
 
     /// get the current vertex index
     IndexT GetCurParticleVertexIndex() const;
+	/// get the current particle index
+	IndexT GetCurParticleIndex() const;
     /// add particle vertex index
     void AddCurParticleVertexIndex(IndexT add);
+	/// add particle index
+	void AddCurParticleIndex(IndexT add);
 
     /// get the current vertex pointer
     void* GetCurVertexPtr();
@@ -71,6 +75,7 @@ private:
     CoreGraphics::PrimitiveGroup primGroup;
     Ptr<CoreGraphics::VertexLayout> vertexLayout;
     IndexT curParticleVertexIndex;
+	IndexT curParticleIndex;
     void* mappedVertices;
     void* curVertexPtr;
 	IndexT bufferIndex;
@@ -88,11 +93,30 @@ OGL4ParticleRenderer::GetCurParticleVertexIndex() const
 //------------------------------------------------------------------------------
 /**
 */
+inline IndexT
+OGL4ParticleRenderer::GetCurParticleIndex() const
+{
+	return this->curParticleIndex;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 inline void 
 OGL4ParticleRenderer::AddCurParticleVertexIndex(IndexT add)
 {
     n_assert(add > 0);
     this->curParticleVertexIndex += add;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+OGL4ParticleRenderer::AddCurParticleIndex(IndexT add)
+{
+	n_assert(add > 0);
+	this->curParticleIndex += add;
 }
 
 //------------------------------------------------------------------------------

@@ -9,6 +9,7 @@
 */
 #include "core/refcounted.h"
 #include "core/singleton.h"
+#include "math/point.h"
 #include "io/uri.h"
 #include "util/blob.h"
 #include "util/guid.h"
@@ -86,8 +87,12 @@ public:
 	/// get mesh guid from id
 	const Util::String& GetNavmeshFromId(const Util::String& id);
     
+	///
+	void UpdateAreaId(const Util::String & mapname, const Math::point& pos, unsigned short areaId, unsigned short filter);
+	///
+	unsigned short GetAreaId(const Util::String & mapname, const Math::point& pos, unsigned short filter);
 
-    friend class Navigation::CrowdManager;
+    friend class Navigation::CrowdManager;	
 private:    
     /// remove all navmeshes
     void Cleanup();

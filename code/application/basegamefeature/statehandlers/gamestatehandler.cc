@@ -7,6 +7,8 @@
 #include "game/gameserver.h"
 #include "basegamefeature/basegamefeatureunit.h"
 #include "basegamefeature/statehandlers/gamestatehandler.h"
+#include "multiplayer/multiplayerfeatureunit.h"
+#include "multiplayer/replicationmanager.h"
 
 namespace BaseGameFeature
 {
@@ -18,7 +20,7 @@ using namespace App;
 //------------------------------------------------------------------------------
 /**
 */
-GameStateHandler::GameStateHandler()
+GameStateHandler::GameStateHandler() : delayedStart(false)
 {
     // empty
 }
@@ -63,7 +65,9 @@ GameStateHandler::OnStateEnter(const Util::String& prevState)
             break;
 
 		case LoadNetworkedLevel:
+			n_assert2(MultiplayerFeature::MultiplayerFeatureUnit::HasInstance(), "No multiplayerfeature singleton exists");
 			BaseGameFeatureUnit::Instance()->LoadNetworkedLevel(this->GetLevelName());
+			delayedStart = true;
 			break;
 
         case LoadSaveGame:
@@ -79,7 +83,7 @@ GameStateHandler::OnStateEnter(const Util::String& prevState)
     this->SetSaveGame("");
 
     // start game world
-    Game::GameServer::Instance()->Start();
+	Game::GameServer::Instance()->Start();
 }
 
 //------------------------------------------------------------------------------
@@ -109,6 +113,11 @@ GameStateHandler::OnStateLeave(const Util::String& nextState)
 Util::String
 GameStateHandler::OnFrame()
 {
+	if(delayedStart && MultiplayerFeature::ReplicationManager::Instance()->GetAllConnectionDownloadsCompleted())
+	{
+		delayedStart = false;
+		OnNetworkStarted();
+	}
     if (Game::GameServer::Instance()->IsQuitRequested())
     {
         return "Exit";
@@ -117,6 +126,15 @@ GameStateHandler::OnFrame()
     {
         return this->GetName();
     }
+}
+
+/************************************************************************/
+/* OVERLOAD IN INHERITED CLASS -  Called once the level is synced		*/
+/************************************************************************/
+void
+GameStateHandler::OnNetworkStarted()
+{
+
 }
 
 } // namespace Application

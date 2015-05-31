@@ -66,7 +66,10 @@ ModelItem::OnActivated()
 	}	
 	else
 	{
-		QMessageBox::information(NULL, "Error", "Failed to load resource, perhaps a mesh or attributes/constants/physics is missing?");
+		handler->Mute();
+		String message;
+		message.Format("Model '%s/%s' failed to load. Possible causes: \n    No .attributes exists for this model.\n    Model is character, but has no animations.", category.AsCharPtr(), file.AsCharPtr());
+		QMessageBox::warning(NULL, "Failed to load resource", message.AsCharPtr());
 	}
 }
 

@@ -202,13 +202,10 @@ PreviewState::OnStateLeave( const Util::String& nextState )
 /**
 */
 bool
-PreviewState::SetModel( const Resources::ResourceId& resource, const Resources::ResourceId& physicsResource )
+PreviewState::SetModel(const Resources::ResourceId& resource)
 {
-	// get default state and remove current model entity from stage
-	Ptr<Stage> defaultStage = GraphicsFeatureUnit::Instance()->GetDefaultStage();
-	defaultStage->RemoveEntity(this->modelEntity.cast<GraphicsEntity>());
-
 	// create placeholder model
+	Ptr<Stage> defaultStage = GraphicsFeatureUnit::Instance()->GetDefaultStage();
 	this->modelEntity->SetTransform(matrix44::translation(0.0, 0.0, 0.0));
 	this->modelEntity->SetResourceId(resource);
 	defaultStage->AttachEntity(this->modelEntity.cast<GraphicsEntity>());
@@ -217,37 +214,65 @@ PreviewState::SetModel( const Resources::ResourceId& resource, const Resources::
     this->modelEntity->ConfigureAnimEventTracking(true, false);
 
 	// fetch skins
+	this->modelEntity->ValidateCharacter();
 	Ptr<FetchSkinList> fetchSkinsMessage = FetchSkinList::Create();
     __Send(this->modelEntity, fetchSkinsMessage);
+	this->OnFetchedSkinList(fetchSkinsMessage.upcast<Messaging::Message>());
 
-	// add callback
-	__SingleFireCallback(ContentBrowser::PreviewState, OnFetchedSkinList, this, fetchSkinsMessage.upcast<Messaging::Message>());
+	return this->modelEntity->IsValid();
+}
 
-	for(int i = 0; i < physicsObjects.Size(); i++)
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+PreviewState::SetPhysics(const Resources::ResourceId& resource)
+{
+	for (int i = 0; i < physicsObjects.Size(); i++)
 	{
 		PhysicsServer::Instance()->GetScene()->Detach(this->physicsObjects[i]);
 	}
 	this->physicsObjects.Clear();
-	if(this->physicsModel.isvalid())
+	if (this->physicsModel.isvalid())
 	{
 		Resources::ResourceManager::Instance()->DiscardManagedResource(this->physicsModel.cast<Resources::ManagedResource>());
-	}	
+	}
 	this->physicsModel = 0;
-	
+
 	// create physics resource
-	this->physicsModel = Resources::ResourceManager::Instance()->CreateManagedResource(PhysicsModel::RTTI, physicsResource).cast<ManagedPhysicsModel>();
+	this->physicsModel = Resources::ResourceManager::Instance()->CreateManagedResource(PhysicsModel::RTTI, resource).cast<ManagedPhysicsModel>();
 
 	// if succeeded, create instance of model
-	if(this->physicsModel.isvalid())
+	if (this->physicsModel.isvalid())
 	{
 		this->physicsObjects = physicsModel->GetModel()->CreateStaticInstance(matrix44::identity());
-		for(int i=0;i<physicsObjects.Size();i++)
+		for (int i = 0; i < physicsObjects.Size(); i++)
 		{
 			PhysicsServer::Instance()->GetScene()->Attach(physicsObjects[i]);
 		}
+		return true;
 	}
+	return false;
+}
 
-	return this->modelEntity->GetModelResourceState() == Resources::Resource::Loaded;
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PreviewState::PreImportModel()
+{
+	Ptr<Stage> defaultStage = GraphicsFeatureUnit::Instance()->GetDefaultStage();
+	defaultStage->RemoveEntity(this->modelEntity.cast<GraphicsEntity>());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PreviewState::PostImportModel()
+{
+	Ptr<Stage> defaultStage = GraphicsFeatureUnit::Instance()->GetDefaultStage();
+	defaultStage->AttachEntity(this->modelEntity.cast<GraphicsEntity>());
 }
 
 //------------------------------------------------------------------------------
@@ -259,13 +284,15 @@ PreviewState::OnFetchedSkinList( const Ptr<Messaging::Message>& msg )
 	Ptr<Graphics::FetchSkinList> rMsg = msg.downcast<Graphics::FetchSkinList>();
 
 	// if we have a skin, apply the first
-	Array<StringAtom> skins = rMsg->GetSkins();
-	if (skins.Size() > 0)
+	const Array<StringAtom>& skins = rMsg->GetSkins();
+	IndexT i;
+	for (i = 0; i < skins.Size(); i++)
 	{
 		Ptr<Graphics::ShowSkin> showSkin = Graphics::ShowSkin::Create();
-		showSkin->SetSkin(skins[0]);
+		showSkin->SetSkin(skins[i]);
 		this->modelEntity->HandleMessage(showSkin.cast<Messaging::Message>());
-	}	
+	}
 }
+
 
 } // namespace ContentBrowser

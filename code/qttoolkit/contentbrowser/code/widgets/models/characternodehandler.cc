@@ -347,6 +347,9 @@ CharacterNodeHandler::OnFetchedSkinList( const Ptr<Messaging::Message>& msg )
 	// then copy list to our skin list
 	this->skins = skinMsg->GetSkins();
 
+	// hide UI showing skins
+	this->ui->skinsFrame->setVisible(false);
+
 	if (this->skins.Size() > 0)
 	{
 		// first add the first skin to our list of visible skins
@@ -357,7 +360,12 @@ CharacterNodeHandler::OnFetchedSkinList( const Ptr<Messaging::Message>& msg )
 		for (i = 1; i < skins.Size(); i++)
 		{
 			this->ui->availableSkins->addItem(this->skins[i].AsString().AsCharPtr());
-		}
+
+			// show all skins
+			Ptr<ShowSkin> showMsg = ShowSkin::Create();
+			showMsg->SetSkin(skins[i]);
+			__Send(this->model, showMsg);
+		}		
 	}
 }
 
