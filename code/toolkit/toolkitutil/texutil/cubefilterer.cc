@@ -6,7 +6,6 @@
 #include "cubefilterer.h"
 #include "coregraphics/base/resourcebase.h"
 #include "threading/thread.h"
-#include "util/win32/win32stringconverter.h"
 #include "IL/il.h"
 #include "IL/ilu.h"
 #include "IL/devil_internal_exports.h"
@@ -167,7 +166,7 @@ CubeFilterer::Filter(bool irradiance, void* messageHandler, void(*CubeFilterer_P
 	{
 		if (CubeFilterer_Progress != 0 && messageHandler != 0)
 		{
-			Util::String status = Win32::Win32StringConverter::WideToUTF8((ushort*)this->processor.GetFilterProgressString());
+			Util::String status = this->processor.GetFilterProgressString();
 			CubeFilterer_Progress(status, messageHandler);
 		}
 

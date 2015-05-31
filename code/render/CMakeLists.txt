@@ -1686,7 +1686,7 @@ ADD_DEPENDENCIES(render foundation_NIDLS render_NIDLS ${PHYSICS_DEPENDENCIES})
 
 TARGET_INCLUDE_DIRECTORIES(render_NIDLS PUBLIC $<TARGET_PROPERTY:render,INTERFACE_INCLUDE_DIRECTORIES>)
 ADD_SUBDIRECTORY(jobs)
-TARGET_LINK_LIBRARIES(render PUBLIC render_animjobsample render_animjobsamplemix render_charevalskeletonjob render_particlejob render_visibilityboxsystemjob render_visibilityquadtreejob)
+TARGET_LINK_LIBRARIES(render PUBLIC render_animjobsample render_animjobsamplemix render_charevalskeletonjob render_particlejob render_visibilityboxsystemjob render_visibilityquadtreejob EASTL)
 
 
 IF(N_BUILD_HAVOK)

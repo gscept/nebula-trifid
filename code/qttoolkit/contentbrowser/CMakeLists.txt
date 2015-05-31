@@ -182,9 +182,7 @@ TARGET_LINK_LIBRARIES(contentbrowser
 	qtfeature
 	posteffectcontroller
 	libqimg
-	splash
-	nody
-	shady
+	splash	
 	shady_NIDLS
 	resourcebrowser
 	miniexporter
@@ -192,6 +190,8 @@ TARGET_LINK_LIBRARIES(contentbrowser
 	qttools
 	editorfeatures
 	toolkitutil	
+	nody
+	shady
 	${QT_WIN_LIBS}	
 	${QT_LIBRARIES} ${QT_QTMAIN_LIBRARY}	
 )

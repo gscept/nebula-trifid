@@ -327,7 +327,7 @@ LevelEditor2Window::dropEvent(QDropEvent* e)
 	const QMimeData* data = e->mimeData();
 	if (data->hasFormat("nebula/resourceid"))
 	{
-		Util::String res = data->data("nebula/resourceid");
+		Util::String res = data->data("nebula/resourceid").constData();
 		Util::Array<Util::String> toks = res.Tokenize("/");
 		EntityGuid guid;
 		Util::String errorMsg;

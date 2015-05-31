@@ -132,14 +132,14 @@ TARGET_LINK_LIBRARIES(leveleditor2
 	attributecontrollerwidget
 	remoteinterface	
 	qttools
-	editorfeatures
-	CubeMapGen
+	editorfeatures	
 	toolkitutil 
+	CubeMapGen
 	qttools
 	posteffectcontroller
 	splash	
 	navigation	
-    dynui
+	dynui
 	${QT_WIN_LIBS}	
 	${QT_LIBRARIES} ${QT_QTMAIN_LIBRARY}	
 )
