@@ -229,7 +229,7 @@ SM50ShadowServer::Open()
 	this->globalLightShadowBuffer->SetWidth(csmWidth);
 	this->globalLightShadowBuffer->SetHeight(csmHeight);
 	this->globalLightShadowBuffer->SetAntiAliasQuality(AntiAliasQuality::None);
-	this->globalLightShadowBuffer->SetColorBufferFormat(PixelFormat::G32R32F);
+	this->globalLightShadowBuffer->SetColorBufferFormat(PixelFormat::R32F);
 	this->globalLightShadowBuffer->SetResolveTextureResourceId(ResourceId("GlobalLightShadowBuffer"));
 	this->globalLightShadowBuffer->SetDepthStencilTarget(this->globalLightShadowBufferDepth);
 	this->globalLightShadowBuffer->Setup();	
@@ -239,10 +239,9 @@ SM50ShadowServer::Open()
 	this->globalLightShadowBufferFinal->SetWidth(csmWidth);
 	this->globalLightShadowBufferFinal->SetHeight(csmHeight);
 	this->globalLightShadowBufferFinal->SetAntiAliasQuality(AntiAliasQuality::None);
-	this->globalLightShadowBufferFinal->SetColorBufferFormat(PixelFormat::G32R32F);
+	this->globalLightShadowBufferFinal->SetColorBufferFormat(PixelFormat::R32F);
 	this->globalLightShadowBufferFinal->SetResolveTextureResourceId(ResourceId("GlobalLightShadowBufferFinal"));
 	this->globalLightShadowBufferFinal->Setup();	
-
 
 	// create batch
 	this->globalLightShadowBatch = FrameBatch::Create();

@@ -156,17 +156,17 @@ CSMPS(in vec4 TexShadow,
 	// do an ugly poisson sample disk
 	// this only causes errors when samples are taken outside 
 	vec2 pixelSize = GetPixelSize(ShadowProjMap);
-	vec2 mapDepth = vec2(0,0);
+	float mapDepth = 0.0f;
 	int i;
     for (i = 0; i < 13; i++)
     {
 		vec2 uvSample = sampleCoord.xy + sampleOffsetWeights[i] * pixelSize.xy;
-		vec2 currentSample = textureLod(ShadowProjMap, uvSample, 0).rg;
+		float currentSample = textureLod(ShadowProjMap, uvSample, 0).r;
 		mapDepth += currentSample;
 	}	
 	mapDepth /= 13;
 	
-	float occlusion = ChebyshevUpperBound(mapDepth, depth, 0.000002f);
+	float occlusion = ExponentialShadowSample(mapDepth, depth, 0.0002f);
 		
 	int nextCascade = cascadeIndex + 1; 
 	float occlusionBlend = 1.0f;
@@ -184,8 +184,8 @@ CSMPS(in vec4 TexShadow,
 			sampleCoord.xy *= ShadowPartitionSize;
 			sampleCoord.xy += vec2(mod(nextCascade, SplitsPerRow) * ShadowPartitionSize, (nextCascade / SplitsPerColumn) * ShadowPartitionSize);
 					
-			mapDepth = textureLod(ShadowProjMap, sampleCoord.xy, 0).rg;
-			occlusionBlend = ChebyshevUpperBound(mapDepth, depth, 0.000002f);		
+			mapDepth = textureLod(ShadowProjMap, sampleCoord.xy, 0).r;
+			occlusionBlend = ExponentialShadowSample(mapDepth, depth, 0.0002f);		
 		}
 		
 		// blend next cascade onto previous

@@ -684,18 +684,19 @@ AnimSequencer::EmitAnimEvents(Timing::Tick startTime, Timing::Tick endTime, bool
 
     for (; i < jobCount; i++)
     {
-        if (this->animJobs[i]->IsActive(startTime))
+		const Ptr<AnimJob>& job = this->animJobs[i];
+		if (job->IsActive(startTime) && !job->IsPaused())
         {
 			Timing::Tick effectiveEndTime;
-			if(this->animJobs[i]->IsInfinite())
+			if (job->IsInfinite())
 			{
 				effectiveEndTime = endTime;
 			}
 			else
 			{
-				effectiveEndTime = n_min(endTime, this->animJobs[i]->GetAbsoluteEndTime());
+				effectiveEndTime = n_min(endTime, job->GetAbsoluteEndTime());
 			}			
-            eventInfos.AppendArray(this->animJobs[i]->EmitAnimEvents(startTime, effectiveEndTime, optionalCatgeory));
+			eventInfos.AppendArray(job->EmitAnimEvents(startTime, effectiveEndTime, optionalCatgeory));
         }
     }
     return eventInfos;
