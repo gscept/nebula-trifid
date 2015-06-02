@@ -60,7 +60,7 @@ AttributeWidgetManager::OnActivate()
 {
 	n_assert(0 != this->container);
 
-	Manager::OnActivate();
+	Manager::OnActivate();	
 }
 
 //------------------------------------------------------------------------------
@@ -69,6 +69,10 @@ AttributeWidgetManager::OnActivate()
 void 
 AttributeWidgetManager::OnDeactivate()
 {
+	if (this->multiEntity.isvalid())
+	{		
+		this->multiEntity = 0;
+	}
 	this->container = 0;
 
 	Manager::OnDeactivate();
@@ -87,8 +91,8 @@ AttributeWidgetManager::ViewEntityAttributes(const Ptr<Game::Entity>& entity)
 
 	// must have a transform controller for each entity (an assertion is done at the end of this method)
 	bool retrievedTransformController = false;
-
-	if(entity->GetInt(Attr::EntityType) == Game)
+	int entityType = entity->GetInt(Attr::EntityType);
+	if (entityType == Game || entityType == MultiSelection)
 	{
 		Util::String cat = entity->GetString(Attr::EntityCategory);
 		QFont font;
@@ -107,9 +111,11 @@ AttributeWidgetManager::ViewEntityAttributes(const Ptr<Game::Entity>& entity)
 		propertyAttrs.Add("shared", sharedarr);
 		propOrder.Append("shared");
 
-		
-
-		const Array<String> entProps = blueprintManager->GetCategoryProperties( entity->GetString(Attr::EntityCategory));
+		Array<String> entProps;
+		if (blueprintManager->HasCategory(entity->GetString(Attr::EntityCategory)))
+		{
+			entProps = blueprintManager->GetCategoryProperties(entity->GetString(Attr::EntityCategory));
+		}
 
 		IndexT i;
 		for(i = 0;i<attrs.Size();i++)
@@ -118,7 +124,14 @@ AttributeWidgetManager::ViewEntityAttributes(const Ptr<Game::Entity>& entity)
 			{				
 				AttributeControllerWidget* attributeController;
 												
-				attributeController = new AttributeControllerWidget(entity, attrs[i].GetAttrId(),(Variant::Type)attrs[i].GetValueType());							
+				attributeController = new AttributeControllerWidget(entity, attrs[i].GetAttrId(),(Variant::Type)attrs[i].GetValueType());	
+
+				if (attrs[i].GetAttrId() == Attr::Transform && entityType == MultiSelection)
+				{
+					attributeController->LockWidgets();
+					this->transformController = dynamic_cast<Matrix44Controller*>(attributeController->GetControllerWidget());;
+					retrievedTransformController = true;
+				}
 
 				// if the attribute is read only, only view their values
 				if (ReadOnly == attrs[i].GetAccessMode())
@@ -228,6 +241,7 @@ AttributeWidgetManager::ViewEntityAttributes(const Ptr<Game::Entity>& entity)
 			}
 		}
 		// insert the transform at the very beginning
+		if (entityType != MultiSelection)
 		{
 			AttributeControllerWidget* attributeController = new AttributeControllerWidget(entity, Attr::Transform, Variant::Matrix44);
 			Matrix44Controller* controller = dynamic_cast<Matrix44Controller*>(attributeController->GetControllerWidget());
@@ -357,6 +371,33 @@ AttributeWidgetManager::ViewEntityAttributes(const Ptr<Game::Entity>& entity)
 	QVBoxLayout * layout = dynamic_cast<QVBoxLayout*>(this->container);
 	layout->addStretch();
 	n_assert(retrievedTransformController);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+AttributeWidgetManager::ViewEntityAttributes(const Util::Array<Ptr<Game::Entity>>& entities)
+{
+	if (entities.Size() == 1)
+	{
+		this->ViewEntityAttributes(entities[0]);
+	}
+	else
+	{
+		if (!this->multiEntity.isvalid())
+		{
+			Util::Array<Attr::Attribute> attributes;
+			attributes.Append(Attr::Attribute(Attr::EntityType, MultiSelection));
+			attributes.Append(Attr::Attribute(Attr::EntityCategory, "Multiple Items"));
+			this->multiEntity = BaseGameFeature::FactoryManager::Instance()->CreateEntityByAttrs("EditorMultiselect", attributes);
+			BaseGameFeature::EntityManager::Instance()->AttachEntity(this->multiEntity);
+		}
+		Ptr<SetMultiSelection> smsg = SetMultiSelection::Create();
+		smsg->SetEntities(SelectionUtil::Instance()->GetSelectedEntities());
+		__SendSync(this->multiEntity, smsg);
+		this->ViewEntityAttributes(this->multiEntity);
+	}	
 }
 
 //------------------------------------------------------------------------------

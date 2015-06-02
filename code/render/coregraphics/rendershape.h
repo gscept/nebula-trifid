@@ -63,10 +63,32 @@ public:
     bool IsValid() const;
     /// setup simple shape
     void SetupSimpleShape(Threading::ThreadId threadId, Type shapeType, RenderFlag depthFlag, const Math::matrix44& modelTransform, const Math::float4& color);
+
     /// setup primitive batch (SLOW!)
-    void SetupPrimitives(Threading::ThreadId threadId, const Math::matrix44& modelTransform, PrimitiveTopology::Code topology, SizeT numPrimitives, const void* vertices, SizeT vertexWidth, const Math::float4& color, RenderFlag depthFlag);
+    void SetupPrimitives(Threading::ThreadId threadId, 
+            const Math::matrix44& modelTransform, 
+            PrimitiveTopology::Code topology, 
+            SizeT numPrimitives, 
+            const void* vertices, 
+            SizeT vertexWidth, 
+            const Math::float4& color, 
+            RenderFlag depthFlag, 
+            const Ptr<VertexLayout>& layout);
+
     /// setup indexed primitive batch (SLOW!)
-    void SetupIndexedPrimitives(Threading::ThreadId threadId, const Math::matrix44& modelTransform, PrimitiveTopology::Code topology, SizeT numPrimitives, const void* vertices, SizeT numVertices, SizeT vertexWidth, const void* indices, IndexType::Code indexType, const Math::float4& color, RenderFlag depthFlag);
+    void SetupIndexedPrimitives(Threading::ThreadId threadId, 
+        const Math::matrix44& modelTransform, 
+        PrimitiveTopology::Code topology, 
+        SizeT numPrimitives, 
+        const void* vertices, 
+        SizeT numVertices, 
+        SizeT vertexWidth, 
+        const void* indices, 
+        IndexType::Code indexType, 
+        const Math::float4& color, 
+        RenderFlag depthFlag, 
+        const Ptr<VertexLayout>& layout);
+
 	/// setup mesh
 	void SetupMesh(Threading::ThreadId threadId, const Math::matrix44& modelTransform, const Ptr<Mesh>& mesh, const Math::float4& color, RenderFlag depthFlag);
 
@@ -94,6 +116,8 @@ public:
     IndexType::Code GetIndexType() const;
     /// get shape color
     const Math::float4& GetColor() const;
+    /// get vertex layout, returns NULL if none exist
+    const Ptr<VertexLayout>& GetVertexLayout() const;
 	// get mesh
 	const Ptr<Mesh>& GetMesh() const;
 
@@ -110,6 +134,7 @@ private:
     Math::float4 color;
     IndexT vertexDataOffset;
 	Ptr<Mesh> mesh;
+    Ptr<VertexLayout> vertexLayout;
     Ptr<IO::MemoryStream> dataStream;       // contains vertex/index data
 };
 
@@ -237,6 +262,15 @@ inline const Math::float4&
 RenderShape::GetColor() const
 {
     return this->color;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Ptr<VertexLayout>&
+RenderShape::GetVertexLayout() const
+{
+    return this->vertexLayout;
 }
 
 //------------------------------------------------------------------------------

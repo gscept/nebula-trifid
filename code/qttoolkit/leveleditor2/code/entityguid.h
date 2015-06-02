@@ -25,6 +25,7 @@ enum EntityType
 	Group = 4,
 	NavMesh = 5,
 	Probe = 6,
-    NavMeshArea = 7
+    NavMeshArea = 7,
+	MultiSelection = 8
 };
 }

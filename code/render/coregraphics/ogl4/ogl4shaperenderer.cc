@@ -88,7 +88,7 @@ OGL4ShapeRenderer::Open()
 	// setup vbo
 	Util::Array<VertexComponent> comps;
 	comps.Append(VertexComponent(VertexComponent::Position, 0, VertexComponent::Float4, 0));
-	//comps.Append(VertexComponent(VertexComponent::Color, 0, VertexComponent::Float4, 0));
+	comps.Append(VertexComponent(VertexComponent::Color, 0, VertexComponent::Float4, 0));
 	Ptr<MemoryVertexBufferLoader> vboLoader = MemoryVertexBufferLoader::Create();
 	vboLoader->Setup(comps, MaxNumVertices, NULL, 0, VertexBuffer::UsageDynamic, VertexBuffer::AccessWrite, VertexBuffer::BufferTriple, VertexBuffer::SyncingCoherentPersistent);
 
@@ -207,6 +207,7 @@ OGL4ShapeRenderer::DrawShapes()
 	                                         curShape.GetNumPrimitives(),
 	                                         curShape.GetVertexData(),
 	                                         curShape.GetVertexWidth(),
+                                             curShape.GetVertexLayout(),
 	                                         curShape.GetColor());
 	                    break;
 	
@@ -217,6 +218,7 @@ OGL4ShapeRenderer::DrawShapes()
 	                                                curShape.GetVertexData(),
 	                                                curShape.GetNumVertices(),
 	                                                curShape.GetVertexWidth(),
+                                                    curShape.GetVertexLayout(),
 	                                                curShape.GetIndexData(),
 	                                                curShape.GetIndexType(),
 	                                                curShape.GetColor());
@@ -287,6 +289,7 @@ OGL4ShapeRenderer::DrawPrimitives(const matrix44& modelTransform,
                                   SizeT numPrimitives,
                                   const void* vertices,
                                   SizeT vertexWidth,
+                                  const Ptr<VertexLayout>& layout,
                                   const Math::float4& color)
 {
     n_assert(0 != vertices);
@@ -316,17 +319,18 @@ OGL4ShapeRenderer::DrawPrimitives(const matrix44& modelTransform,
 
 	// setup render device and draw
 	renderDevice->SetStreamSource(0, this->vbo, 0);
-	renderDevice->SetVertexLayout(this->vbo->GetVertexLayout());
+    if (layout.isvalid())   renderDevice->SetVertexLayout(layout);
+    else                    renderDevice->SetVertexLayout(this->vbo->GetVertexLayout());
 	renderDevice->SetIndexBuffer(NULL);
 	renderDevice->SetPrimitiveGroup(this->primGroup);
 	renderDevice->Draw();
 
+    // end drawing
+    this->shapeShader->PostDraw();
+
     // place a lock and increment buffer count
 	this->vboLock->LockRange(MaxNumVertices * MaxVertexWidth * this->vbBufferIndex, vertexCount * vertexWidth * sizeof(float));
 	this->vbBufferIndex = (this->vbBufferIndex + 1) % 3;
-
-    // end drawing
-    this->shapeShader->PostDraw();
 }
 
 //------------------------------------------------------------------------------
@@ -339,6 +343,7 @@ OGL4ShapeRenderer::DrawIndexedPrimitives(const matrix44& modelTransform,
                                          const void* vertices,
                                          SizeT numVertices,
                                          SizeT vertexWidth,
+                                         const Ptr<VertexLayout>& layout,
                                          const void* indices,
                                          IndexType::Code indexType,
                                          const float4& color)
@@ -376,26 +381,27 @@ OGL4ShapeRenderer::DrawIndexedPrimitives(const matrix44& modelTransform,
 
 	// setup render device and draw
 	renderDevice->SetStreamSource(0, this->vbo, 0);
-	renderDevice->SetVertexLayout(this->vbo->GetVertexLayout());
+    if (layout.isvalid())   renderDevice->SetVertexLayout(layout);
+    else                    renderDevice->SetVertexLayout(this->vbo->GetVertexLayout());
 	renderDevice->SetIndexBuffer(this->ibo);
 	renderDevice->SetPrimitiveGroup(this->primGroup);
 	renderDevice->Draw();
+
+    // end drawing
+    this->shapeShader->PostDraw();
 
     // lock buffer and increment buffer count
 	this->vboLock->LockRange(MaxNumVertices * MaxVertexWidth * this->vbBufferIndex, numVertices * vertexWidth * sizeof(float));
 	this->iboLock->LockRange(MaxNumIndices * MaxIndexWidth * this->ibBufferIndex, indexCount * indexSize);
 	this->vbBufferIndex = (this->vbBufferIndex + 1) % 3;
 	this->ibBufferIndex = (this->ibBufferIndex + 1) % 3;
-
-    // end drawing
-    this->shapeShader->PostDraw();
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void 
-OGL4ShapeRenderer::DrawMesh( const Math::matrix44& modelTransform, const Ptr<CoreGraphics::Mesh>& mesh, const Math::float4& color )
+OGL4ShapeRenderer::DrawMesh(const Math::matrix44& modelTransform, const Ptr<CoreGraphics::Mesh>& mesh, const Math::float4& color)
 {
     n_assert(mesh.isvalid());
     Ptr<RenderDevice> renderDevice = RenderDevice::Instance();

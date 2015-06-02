@@ -97,7 +97,7 @@ private:
     Ptr<AttributeWidgetManager> attributeWidgetManager;
     Util::Array<EntityGuid> selectedEntities;
     Util::Array<Math::bbox> boundingBoxes;
-
+	
     bool hasSelectionChanged;
     bool isActive;
     bool multiSelect;

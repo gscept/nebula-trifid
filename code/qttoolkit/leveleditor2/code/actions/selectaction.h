@@ -49,7 +49,6 @@ private:
 
 	Util::Array<EntityGuid> entityIds;
 	Util::Array<EntityGuid> lastEntityIds;
-	SelectMode mode;	
-	
+	SelectMode mode;		
 };
 } // namespace LevelEditor2

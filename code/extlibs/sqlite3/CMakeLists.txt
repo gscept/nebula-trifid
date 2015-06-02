@@ -7,6 +7,9 @@ SET(extlibs_sqlite_SRCS
 	sqlite3.c
 )
 SOURCE_GROUP(sqlite FILES ${extlibs_sqlite_SRCS})
+IF(CMAKE_COMPILER_IS_GNUCC)
+add_compile_options("-fno-fast-math")
+ENDIF()
 ADD_LIBRARY(sqlite STATIC ${extlibs_sqlite_SRCS})
 TARGET_LINK_LIBRARIES(sqlite foundation)
 TARGET_INCLUDE_DIRECTORIES(sqlite PUBLIC ${Nebula3_SOURCE_DIR}/code/extlibs/sqlite3)

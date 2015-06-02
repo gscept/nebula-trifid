@@ -208,7 +208,12 @@ UiLayoutBase::LoadFailed() const
 void 
 UiLayoutBase::Reload()
 {
-	// override in subclass
+	IndexT i;
+	for (i = 0; i < this->elements.Size(); i++)
+	{
+		this->elements.ValueAtIndex(i)->Discard();
+	}
+	this->elements.Clear();
 }
 
 //------------------------------------------------------------------------------

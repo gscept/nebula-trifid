@@ -165,11 +165,14 @@ unsigned int
 	SOIL_load_OGL_texture
 	(
 		const char *filename,
-		int force_channels,
-		unsigned int reuse_texture_ID,
-		unsigned int flags,
-		unsigned int* opengl_texture_type,
-		unsigned int* image_format
+                int force_channels,
+                unsigned int reuse_texture_ID,
+                unsigned int flags,
+                unsigned int* opengl_texture_type,
+                unsigned int* image_format,
+                unsigned int* num_mips,
+                unsigned int* bpp,
+                unsigned int* data_type
 	);
 
 /**
@@ -213,14 +216,15 @@ unsigned int
 	SOIL_load_OGL_single_cubemap
 	(
 		const char *filename,
-		const char face_order[6],
-		int force_channels,
-		unsigned int reuse_texture_ID,
-		unsigned int flags,
-		unsigned int* opengl_texture_type,
-		unsigned int* image_format,
-		unsigned int* bpp,
-		unsigned int* data_type
+                const char face_order[6],
+                int force_channels,
+                unsigned int reuse_texture_ID,
+                unsigned int flags,
+                unsigned int* opengl_texture_type,
+                unsigned int* image_format,
+                unsigned int* num_mips,
+                unsigned int* bpp,
+                unsigned int* data_type
 	);
 
 /**
@@ -321,13 +325,16 @@ unsigned int
 	SOIL_load_OGL_single_cubemap_from_memory
 	(
 		const unsigned char *const buffer,
-		int buffer_length,
-		const char face_order[6],
-		int force_channels,
-		unsigned int reuse_texture_ID,
-		unsigned int flags,
-		unsigned int* opengl_texture_type,
-		unsigned int* image_format
+                int buffer_length,
+                const char face_order[6],
+                int force_channels,
+                unsigned int reuse_texture_ID,
+                unsigned int flags,
+                unsigned int* opengl_texture_type,
+                unsigned int* image_format,
+                unsigned int* num_mips,
+                unsigned int* bpp,
+                unsigned int* data_type
 	);
 
 /**

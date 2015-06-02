@@ -70,7 +70,7 @@ enum VariableType
 	Image3D,
 	ImageCube,
 	ImageCubeArray,	
-    AtomicCounter,
+	AtomicCounter,
 	Void,
 	String,
 	UserType,

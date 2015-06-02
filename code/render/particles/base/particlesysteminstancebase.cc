@@ -699,7 +699,8 @@ ParticleSystemInstanceBase::RenderDebug()
                                            &(lineList.Front()),
                                            4,
                                            float4(1.0f, 0.0f, 1.0f, 0.8f),
-										   RenderShape::CheckDepth);
+                                           RenderShape::CheckDepth,
+                                           NULL);
             ShapeRenderer::Instance()->AddShape(particlesShape);
            
             RenderShape boxShape;

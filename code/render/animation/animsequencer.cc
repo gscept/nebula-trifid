@@ -891,7 +891,8 @@ AnimSequencer::DebugRenderLineList(const Array<point>& vertices, const float4& c
                           &(vertices[0]),
                           4,
                           color, 
-						  CoreGraphics::RenderShape::CheckDepth);
+						  CoreGraphics::RenderShape::CheckDepth,
+                          NULL);
     CoreGraphics::ShapeRenderer::Instance()->AddShape(shape);
 }
 

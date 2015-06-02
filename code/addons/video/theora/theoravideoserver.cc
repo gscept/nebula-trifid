@@ -1,22 +1,20 @@
 //------------------------------------------------------------------------------
-//  videoserverbase.cc
-//  (C) 2009 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  theoravideoserver.cc
+//  (C) 2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "video/base/videoserverbase.h"
+#include "video/theora/theoravideoserver.h"
 
-namespace Base
+namespace Video
 {
-__ImplementClass(Base::VideoServerBase, 'VISB', Core::RefCounted);
+__ImplementClass(Video::TheoraVideoServer, 'THVI', Base::VideoServerBase);
 
 using namespace Util;
 
 //------------------------------------------------------------------------------
 /**
 */
-VideoServerBase::VideoServerBase() :
-    isOpen(false)
+TheoraVideoServer::TheoraVideoServer()
 {
     // empty
 }
@@ -24,7 +22,7 @@ VideoServerBase::VideoServerBase() :
 //------------------------------------------------------------------------------
 /**
 */
-VideoServerBase::~VideoServerBase()
+TheoraVideoServer::~TheoraVideoServer()
 {
     if (this->IsOpen())
     {
@@ -32,34 +30,35 @@ VideoServerBase::~VideoServerBase()
     }
 }
 
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VideoServerBase::Open()
-{
-    n_assert(!this->isOpen);
-    this->SetupVideoSystem();
-    this->isOpen = true;
-}
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-VideoServerBase::Close()
+TheoraVideoServer::Close()
 {
     n_assert(this->IsOpen());
-
-
-    this->isOpen = false;
+	VideoServerBase::Close();
+    
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-VideoServerBase::OnFrame(Timing::Time time)
+TheoraVideoServer::OnFrame(Timing::Time time)
+{
+	for (int i = 0; i < this->players.Size(); i++)
+	{
+		this->players.ValueAtIndex(i)->OnFrame(time);
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+TheoraVideoServer::OnRenderBefore(Timing::Time time)
 {
     // empty
 }
@@ -68,25 +67,16 @@ VideoServerBase::OnFrame(Timing::Time time)
 /**
 */
 void
-VideoServerBase::OnRenderBefore(Timing::Time time)
+TheoraVideoServer::SetupVideoSystem()
 {
     // empty
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VideoServerBase::SetupVideoSystem()
-{
-	// implement in subclass
 }
 
 //------------------------------------------------------------------------------
 /**    
 */
 void 
-VideoServerBase::StartVideo(const Util::StringAtom& resName, 
+TheoraVideoServer::StartVideo(const Util::StringAtom& resName,
                             const Math::float2& upperLeft,
                             const Math::float2& upperRight,
                             const Math::float2& lowerLeft,
@@ -95,44 +85,49 @@ VideoServerBase::StartVideo(const Util::StringAtom& resName,
                             bool autoDelete,
                             bool loop)
 {
-    // implement in subclass
+	Ptr<Video::TheoraVideoPlayer> player = Video::TheoraVideoPlayer::Create();
+	player->Setup(resName);
+	player->Start();
+	this->players.Add(resName, player);
 }
 
 //------------------------------------------------------------------------------
 /**    
 */
 void
-VideoServerBase::StopVideo(const Util::StringAtom& resName,
+TheoraVideoServer::StopVideo(const Util::StringAtom& resName,
                            bool del)
 {
-    // implement in subclass
+	n_assert(this->players.Contains(resName));
+	this->players[resName]->Stop();
 }
 
 //------------------------------------------------------------------------------
 /**    
 */
 void
-VideoServerBase::PauseVideo(const Util::StringAtom& resName)
+TheoraVideoServer::PauseVideo(const Util::StringAtom& resName)
 {
-    // implement in subclass
+	n_assert(this->players.Contains(resName));
+	this->players[resName]->Pause();
 }
 
 //------------------------------------------------------------------------------
 /**    
 */
 void 
-VideoServerBase::ResumeVideo(const Util::StringAtom& resName)
+TheoraVideoServer::ResumeVideo(const Util::StringAtom& resName)
 {
-    // implement in subclass
+	n_assert(this->players.Contains(resName));
+	this->players[resName]->Resume();
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 bool
-VideoServerBase::DeleteVideo(const Util::StringAtom& resName)
+TheoraVideoServer::DeleteVideo(const Util::StringAtom& resName)
 {
-    // implement in subclass
     return false;
 }
 
@@ -140,20 +135,32 @@ VideoServerBase::DeleteVideo(const Util::StringAtom& resName)
 /**
 */
 bool
-VideoServerBase::IsVideoPlaying(const Util::StringAtom& resName)
+TheoraVideoServer::IsVideoPlaying(const Util::StringAtom& resName)
 {
-    // implement in subclass
-    return false;
+	n_assert(this->players.Contains(resName));
+	return this->players[resName]->IsPlaying();
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 bool
-VideoServerBase::IsVideoPausing(const Util::StringAtom& resName)
+TheoraVideoServer::IsVideoPausing(const Util::StringAtom& resName)
 {
-    // implement in subclass
-    return false;
+	n_assert(this->players.Contains(resName));
+	return this->players[resName]->IsPaused();
 }
 
-} // namespace Base
+//------------------------------------------------------------------------------
+/**
+*/
+void
+TheoraVideoServer::RenderBatch()
+{
+	for (int i = 0; i < this->players.Size(); i++)
+	{
+		this->players.ValueAtIndex(i)->Render();
+	}
+}
+
+} // namespace Video

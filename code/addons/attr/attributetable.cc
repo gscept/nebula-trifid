@@ -1166,7 +1166,7 @@ AttributeTable::SetAttr(const Attr::Attribute& attr, IndexT rowIndex)
         case IntType:       this->SetInt(colIndex, rowIndex, attr.GetInt()); break;
         case FloatType:     this->SetFloat(colIndex, rowIndex, attr.GetFloat()); break;
         case BoolType:      this->SetBool(colIndex, rowIndex, attr.GetBool()); break;
-        case Float4Type:   this->SetFloat4(colIndex, rowIndex, attr.GetFloat4()); break;
+        case Float4Type:	this->SetFloat4(colIndex, rowIndex, attr.GetFloat4()); break;
         case StringType:    this->SetString(colIndex, rowIndex, attr.GetString()); break;
         case Matrix44Type:  this->SetMatrix44(colIndex, rowIndex, attr.GetMatrix44()); break;
         case BlobType:      this->SetBlob(colIndex, rowIndex, attr.GetBlob()); break;
@@ -1175,6 +1175,31 @@ AttributeTable::SetAttr(const Attr::Attribute& attr, IndexT rowIndex)
             n_error("Invalid value type!");
             break;
     }
+}
+
+
+//------------------------------------------------------------------------------
+/**
+*/
+Attr::Attribute
+AttributeTable::GetAttr(IndexT rowIndex, IndexT colIndex)
+{
+	Attr::AttrId attrId = this->GetColumnId(colIndex);
+	switch (attrId.GetValueType())
+	{
+	case IntType:       return Attr::Attribute(attrId, this->GetInt(colIndex, rowIndex)); break;
+	case FloatType:     return Attr::Attribute(attrId, this->GetFloat(colIndex, rowIndex)); break;
+	case BoolType:      return Attr::Attribute(attrId, this->GetBool(colIndex, rowIndex)); break;
+	case Float4Type:	return Attr::Attribute(attrId, this->GetFloat4(colIndex, rowIndex)); break;
+	case StringType:    return Attr::Attribute(attrId, this->GetString(colIndex, rowIndex)); break;
+	case Matrix44Type:  return Attr::Attribute(attrId, this->GetMatrix44(colIndex, rowIndex)); break;
+	case BlobType:      return Attr::Attribute(attrId, this->GetBlob(colIndex, rowIndex)); break;
+	case GuidType:      return Attr::Attribute(attrId, this->GetGuid(colIndex, rowIndex)); break;
+	default:
+		n_error("Invalid value type!");
+		return Attr::Attribute();
+		break;
+	}	
 }
 
 //------------------------------------------------------------------------------

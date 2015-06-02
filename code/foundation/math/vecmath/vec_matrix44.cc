@@ -46,7 +46,6 @@ matrix44::reflect(const plane& p)
 void
 matrix44::decompose(float4& outScale, quaternion& outRotation, float4& outTranslation) const
 {
-
 	// Copy the matrix first - we'll use this to break down each component
 	matrix44 mCopy(this->mat);
 
@@ -85,7 +84,6 @@ matrix44::decompose(float4& outScale, quaternion& outRotation, float4& outTransl
 	matrix44 scaleMatrix = matrix44::multiply(mCopy,matrix44::inverse(rotation));
 	scaleMatrix.get_scale(outScale);
 	outScale.set_w(0.0f);
-	
 
 	// Calculate the normalized rotation matrix and take its determinant to determine whether
 	// it had a negative scale or not...
@@ -105,7 +103,6 @@ matrix44::decompose(float4& outScale, quaternion& outRotation, float4& outTransl
 	{
 		outScale.set_x(outScale.x() * -1.0f);		
 	}
-
 }
 
 //------------------------------------------------------------------------------

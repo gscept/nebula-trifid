@@ -90,9 +90,9 @@ inline void
 TPJob::NotifySlicesComplete(ushort numSlices)
 {
     int modify = -numSlices;
-
-    // NOTE: not a bug, Interlocked::Add return previous value!
-    if (Threading::Interlocked::Add(this->completionCounter, modify) == numSlices)
+	Threading::Interlocked::Add(this->completionCounter, modify);
+	n_assert(this->completionCounter >= 0);
+    if (this->completionCounter == 0)
     {
         this->completionEvent.Signal();
     }

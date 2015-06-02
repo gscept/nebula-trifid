@@ -232,6 +232,7 @@ PixelFormat::ToSize( Code code )
 	case X8R8G8B8:      return 4;
 	case R8G8B8:        return 3;
 	case A8R8G8B8:      return 4;
+	case SRGBA8:		return 4;
 	case R5G6B5:        return 2;
 	case A1R5G5B5:      return 2;
 	case A4R4G4B4:      return 2;

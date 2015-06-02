@@ -39,6 +39,7 @@ using namespace Util;
 using namespace BaseGameFeature;
 using namespace Input;
 using namespace Math;
+using namespace Attr;
 
 //------------------------------------------------------------------------------
 namespace LevelEditor2
@@ -58,6 +59,7 @@ SelectionUtil::SelectionUtil() :
 
     this->keyMultiSelection = Input::Key::Shift;
 	this->groupMatrix.identity();		
+
 }
 
 //------------------------------------------------------------------------------

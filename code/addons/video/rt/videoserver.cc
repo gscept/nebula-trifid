@@ -8,11 +8,7 @@
 
 namespace Video
 {
-#if __WIN32__
-__ImplementClass(Video::VideoServer, 'VIDS', Win32::Win32VideoServer);
-#else
-#error "VideoServer class not implemented on this platform!"
-#endif
+__ImplementClass(Video::VideoServer, 'VIDS', Video::TheoraVideoServer);
 __ImplementSingleton(Video::VideoServer);
 
 //------------------------------------------------------------------------------

@@ -47,9 +47,9 @@ SET(SRCSX
             texutil/textureattrtable.h                                    
             texutil/textureattrs.h)
 			
-IF(MSVC)
+
 LIST(APPEND SRCSX texutil/cubefilterer.cc texutil/cubefilterer.h)
-ENDIF()
+
             
 IF(N_BUILD_NVTT)
 	SET(SRCSX_PL texutil/nvtttextureconversionjob.cc
@@ -144,8 +144,17 @@ SOURCE_GROUP("Precompiled" FILES ${PCH_files})
 
 LIST(APPEND ALLSRCS ${SRCST} ${SRCSA} ${SRCSM}  ${SRCSPFX} ${SRCSN} ${SRCSX}  ${SRCSG} ${SRCSGUI}  ${SRCSB}  ${SRCSF} ${SRCSFS} ${SRCSND}  ${SRCSDD} ${SRCSD} ${SRCSMOD} ${SRCSIDL} ${SRCSREC} ${PCH_files} ${SRCAPPLAUNCH})
 
+IF(MSVC)
+ADD_DEFINITIONS(/D_HAS_EXCEPTIONS=1)
+SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} /EHsc)
+ENDIF()
+
 add_library(toolkitutil STATIC ${ALLSRCS} )
-TARGET_LINK_LIBRARIES(toolkitutil foundation render application sqlite compiler editorfeatures ${FBX_LIBRARY} $<$<BOOL:${N_BUILD_NVTT}>:nvcore nvtt nvimage nvmath posh squish nvthread bc6h bc7>)
+IF(N_BUILD_FIRSTTIME)
+    TARGET_LINK_LIBRARIES(toolkitutil foundation)
+ELSE()
+    TARGET_LINK_LIBRARIES(toolkitutil foundation render application sqlite compiler editorfeatures ${FBX_LIBRARY} $<$<BOOL:${N_BUILD_NVTT}>:nvcore nvtt nvimage nvmath posh squish nvthread bc6h bc7>)
+ENDIF()
 TARGET_COMPILE_DEFINITIONS(toolkitutil PUBLIC $<$<BOOL:${N_BUILD_NVTT}>:NVTT_EXPORTS> FBXSDK_NEW_API)
 TARGET_INCLUDE_DIRECTORIES(toolkitutil PUBLIC ${Nebula3_SOURCE_DIR}/code/toolkit ${Nebula3_SOURCE_DIR}/code/toolkit/toolkitutil)
 SET_TARGET_PROPERTIES(toolkitutil PROPERTIES FOLDER "N3SDK/Toolkit")

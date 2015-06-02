@@ -24,6 +24,7 @@ __ImplementClass(LevelEditor2::SelectAction, 'LESC', LevelEditor2::Action);
 void 
 SelectAction::Perform()
 {	
+	
 	const Ptr<Layers::LayerHandler> layerHandler = LevelEditor2App::Instance()->GetWindow()->GetLayerHandler();
 	EntityTreeWidget * tree = LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget();
 
@@ -56,11 +57,12 @@ SelectAction::Perform()
 
 				AttributeWidgetManager::Instance()->ClearAttributeControllers();		
 				Util::Array<Ptr<Game::Entity>> ents = SelectionUtil::Instance()->GetSelectedEntities();
-				if(ents.Size() == 1)
-				{
-					AttributeWidgetManager::Instance()->ViewEntityAttributes(ents[0]);
+
+				AttributeWidgetManager::Instance()->ViewEntityAttributes(ents);
+				if (ents.Size() == 1)
+				{					
 					layerHandler->HandleEntitySelected(ents[0]);
-				}
+				}				
 			}
 			break;
 		case RemoveSelection:
@@ -74,9 +76,9 @@ SelectAction::Perform()
 
 				AttributeWidgetManager::Instance()->ClearAttributeControllers();		
 				Util::Array<Ptr<Game::Entity>> ents = SelectionUtil::Instance()->GetSelectedEntities();
+				AttributeWidgetManager::Instance()->ViewEntityAttributes(ents);
 				if(ents.Size() == 1)
-				{
-					AttributeWidgetManager::Instance()->ViewEntityAttributes(ents[0]);
+				{					
 					layerHandler->HandleEntitySelected(ents[0]);
 				}
 			}
@@ -99,9 +101,9 @@ SelectAction::Perform()
 
 				AttributeWidgetManager::Instance()->ClearAttributeControllers();		
 				Util::Array<Ptr<Game::Entity>> ents = SelectionUtil::Instance()->GetSelectedEntities();
+				AttributeWidgetManager::Instance()->ViewEntityAttributes(ents);
 				if(ents.Size() == 1)
-				{
-					AttributeWidgetManager::Instance()->ViewEntityAttributes(ents[0]);
+				{				
 					layerHandler->HandleEntitySelected(ents[0]);
 				}
 			}
@@ -130,9 +132,9 @@ SelectAction::Undo()
 
 			AttributeWidgetManager::Instance()->ClearAttributeControllers();		
 			Util::Array<Ptr<Game::Entity>> ents = SelectionUtil::Instance()->GetSelectedEntities();
+			AttributeWidgetManager::Instance()->ViewEntityAttributes(ents);
 			if(ents.Size() == 1)
-			{
-				AttributeWidgetManager::Instance()->ViewEntityAttributes(ents[0]);
+			{				
 				layerHandler->HandleEntitySelected(ents[0]);
 			}
 		}			
@@ -148,9 +150,9 @@ SelectAction::Undo()
 
 			AttributeWidgetManager::Instance()->ClearAttributeControllers();		
 			Util::Array<Ptr<Game::Entity>> ents = SelectionUtil::Instance()->GetSelectedEntities();
+			AttributeWidgetManager::Instance()->ViewEntityAttributes(ents);
 			if(ents.Size() == 1)
 			{
-				AttributeWidgetManager::Instance()->ViewEntityAttributes(ents[0]);
 				layerHandler->HandleEntitySelected(ents[0]);
 			}
 		}
@@ -165,9 +167,9 @@ SelectAction::Undo()
 			}
 			AttributeWidgetManager::Instance()->ClearAttributeControllers();		
 			Util::Array<Ptr<Game::Entity>> ents = SelectionUtil::Instance()->GetSelectedEntities();
+			AttributeWidgetManager::Instance()->ViewEntityAttributes(ents);
 			if(ents.Size() == 1)
-			{
-				AttributeWidgetManager::Instance()->ViewEntityAttributes(ents[0]);
+			{				
 				layerHandler->HandleEntitySelected(ents[0]);
 			}
 		}
@@ -190,9 +192,9 @@ SelectAction::Undo()
 
 			AttributeWidgetManager::Instance()->ClearAttributeControllers();		
 			Util::Array<Ptr<Game::Entity>> ents = SelectionUtil::Instance()->GetSelectedEntities();
-			if(ents.Size() == 1)
-			{
-				AttributeWidgetManager::Instance()->ViewEntityAttributes(ents[0]);
+			AttributeWidgetManager::Instance()->ViewEntityAttributes(ents);
+			if (ents.Size() == 1)
+			{			
 				layerHandler->HandleEntitySelected(ents[0]);
 			}
 		}

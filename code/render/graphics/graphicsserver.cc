@@ -445,8 +445,8 @@ GraphicsServer::OnFrame(Timing::Time curTime, Timing::Time globalTimeFactor)
         this->renderModules[i]->OnFrame();
     }
 
-	// render if we have a default view
-	if (this->defaultView.isvalid() && this->defaultView->GetCameraEntity().isvalid())
+	// render if we have a view
+	if (this->views.Size() > 0)
 	{
 		for (i = 0; i < this->views.Size(); i++)
 		{

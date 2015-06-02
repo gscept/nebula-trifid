@@ -9,11 +9,10 @@
     (C) 2013-2015 Individual contributors, see AUTHORS file
 */
 #include "core/singleton.h"
-#if __WIN32__
-#include "video/win32/win32videoserver.h"
+#include "video/theora/theoravideoserver.h"
 namespace Video
 {
-class VideoServer : public Win32::Win32VideoServer
+class VideoServer : public Video::TheoraVideoServer
 {
     __DeclareClass(VideoServer);
     __DeclareSingleton(VideoServer);
@@ -24,7 +23,4 @@ public:
     virtual ~VideoServer();
 };
 } // namespace Video
-#else
-#error "VideoServer class not implemented on this platform!"
-#endif
 //------------------------------------------------------------------------------
