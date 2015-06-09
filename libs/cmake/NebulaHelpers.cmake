@@ -160,6 +160,17 @@ MACRO(N_SET_EXE_SUBSYSTEM TargetName SubsystemName)
     ENDIF()
 ENDMACRO(N_SET_EXE_SUBSYSTEM)
 
+#-------------------------------------------------------------------------------
+# Option for enabling link time code generation in windows
+#-------------------------------------------------------------------------------
+
+IF(MSVC)
+OPTION(N_ENABLE_LTCG "Enable link time code generation in visual studio (large compile time increase)" OFF)
+IF(N_ENABLE_LTCG)
+	SET(N_LTCG "/LTCG")
+	SET(N_GL "/GL")
+ENDIF()
+ENDIF()
 
 #-------------------------------------------------------------------------------
 # Sets up the default linker options for a Nebula executable.
@@ -172,12 +183,12 @@ MACRO(N_SET_EXE_LINKER_DEFAULTS TargetName)
         )
 		
 		SET(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO
-            "/MANIFEST:NO /INCREMENTAL:NO /LTCG /DEBUG"
+            "/MANIFEST:NO /INCREMENTAL:NO ${N_LTCG} /DEBUG"
             CACHE STRING "Flags used by the linker when building an executable." FORCE
         )
 		
 		SET(CMAKE_EXE_LINKER_FLAGS_RELEASE
-            "/MANIFEST:NO /INCREMENTAL:NO /LTCG"
+            "/MANIFEST:NO /INCREMENTAL:NO ${N_LTCG}"
             CACHE STRING "Flags used by the linker when building an executable." FORCE
         )
 		
@@ -221,10 +232,10 @@ MACRO(N_SET_COMPILER_DEFAULTS)
                                 "/D_DEBUG /Od /Gm /RTC1 /MTd /Gy /Zi"
                                 CACHE STRING "Flags used by the compiler during debug builds." FORCE)
                         SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO
-                                "/Ob2 /Oi /Os /Oy /GL /FD /MT /GS- /Zi /MP"
+                                "/Ob2 /Oi /Os /Oy ${N_GL} /FD /MT /GS- /Zi /MP"
                                 CACHE STRING "Flags used by the compiler during release builds." FORCE)
                         SET(CMAKE_CXX_FLAGS_RELEASE
-                                "/Ob2 /Oi /Os /Oy /GL /FD /MT /GS- /MP"
+                                "/Ob2 /Oi /Os /Oy ${N_GL} /FD /MT /GS- /MP"
                                 CACHE STRING "Flags used by the compiler during release builds." FORCE)
                         # C compiler (force compilation of .c files using C++ compiler)
                         SET(CMAKE_C_FLAGS 
@@ -234,10 +245,10 @@ MACRO(N_SET_COMPILER_DEFAULTS)
                                 "/D_DEBUG /Od /Gm /RTC1 /MTd /Gy /Zi"
                                 CACHE STRING "Flags used by the compiler during debug builds." FORCE)
                         SET(CMAKE_C_FLAGS_RELWITHDEBINFO
-                                "/Ob2 /Oi /Os /Oy /GL /FD /MT /GS- /Zi /MP"
+                                "/Ob2 /Oi /Os /Oy ${N_GL} /FD /MT /GS- /Zi /MP"
                                 CACHE STRING "Flags used by the compiler during release builds." FORCE)
                         SET(CMAKE_C_FLAGS_RELEASE
-                                "/Ob2 /Oi /Os /Oy /GL /FD /MT /GS- /MP"
+                                "/Ob2 /Oi /Os /Oy ${N_GL} /FD /MT /GS- /MP"
                                 CACHE STRING "Flags used by the compiler during release builds." FORCE)		
                 ELSE()
                         # C++ compiler		
@@ -248,10 +259,10 @@ MACRO(N_SET_COMPILER_DEFAULTS)
                                 "/D_DEBUG /Od /RTC1 /MTd /Gy /ZI"
                                 CACHE STRING "Flags used by the compiler during debug builds." FORCE)
                         SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO
-                                "/Ob2 /Oi /Ot /Oy /GL /FD /MT /GS- /Zi"
+                                "/Ob2 /Oi /Ot /Oy ${N_GL} /FD /MT /GS- /Zi"
                                 CACHE STRING "Flags used by the compiler during release builds." FORCE)
                         SET(CMAKE_CXX_FLAGS_RELEASE
-                                "/Ob2 /Oi /Ot /Oy /GL /FD /MT /GS- /DPUBLIC_BUILD"
+                                "/Ob2 /Oi /Ot /Oy ${N_GL} /FD /MT /GS- /DPUBLIC_BUILD"
                                 CACHE STRING "Flags used by the compiler during release builds." FORCE)
                         # C compiler (force compilation of .c files using C++ compiler)
                         SET(CMAKE_C_FLAGS 
@@ -261,10 +272,10 @@ MACRO(N_SET_COMPILER_DEFAULTS)
                                 "/D_DEBUG /Od /RTC1 /MTd /Gy /ZI"
                                 CACHE STRING "Flags used by the compiler during debug builds." FORCE)
                         SET(CMAKE_C_FLAGS_RELWITHDEBINFO
-                                "/Ob2 /Oi /Ot /Oy /GL /FD /MT /GS- /Zi"
+                                "/Ob2 /Oi /Ot /Oy ${N_GL} /FD /MT /GS- /Zi"
                                 CACHE STRING "Flags used by the compiler during release builds." FORCE)
                         SET(CMAKE_C_FLAGS_RELEASE
-                                "/Ob2 /Oi /Ot /Oy /GL /FD /MT /GS- /DPUBLIC_BUILD"
+                                "/Ob2 /Oi /Ot /Oy ${N_GL} /FD /MT /GS- /DPUBLIC_BUILD"
                                 CACHE STRING "Flags used by the compiler during release builds." FORCE)
                 ENDIF()
     ELSEIF(UNIX)
