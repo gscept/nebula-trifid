@@ -5,6 +5,7 @@
 
 IF(NOT N_BUILD_FIRSTTIME)
 
+	N_SET_COMPILER_DEFAULTS()
 
     IF(MSVC)
 		add_subdirectory(stackwalker)
