@@ -25,7 +25,7 @@ ModelNode::ModelNode() :
     inLoadResources(false),
     resourceStreamingLevelOfDetail(0.0f)
 {
-    this->type = ModelNodeType::FromName(ModelNodeType::Name("Solid"));
+    // empty
 }
 
 //------------------------------------------------------------------------------
@@ -203,13 +203,13 @@ ModelNode::ApplySharedState(IndexT frameIndex)
 /**
 */
 void
-ModelNode::AddVisibleNodeInstance(IndexT frameIndex, const Ptr<ModelNodeInstance>& nodeInst)
+ModelNode::AddVisibleNodeInstance(IndexT frameIndex, const Materials::MaterialType::Code& code, const Ptr<ModelNodeInstance>& nodeInst)
 {
-    this->visibleModelNodeInstances.Add(frameIndex, this->type, nodeInst);
-    if (!this->visibleModelNodeInstances.IsResolved(this->type))
+    this->visibleModelNodeInstances.Add(frameIndex, code, nodeInst);
+    if (!this->visibleModelNodeInstances.IsResolved(code))
     {
-        this->visibleModelNodeInstances.SetResolved(this->type, true);
-        this->model->AddVisibleModelNode(frameIndex, this->type, this);
+        this->visibleModelNodeInstances.SetResolved(code, true);
+        this->model->AddVisibleModelNode(frameIndex, code, this);
     }
 }
 
@@ -241,8 +241,8 @@ ModelNode::ParseDataTag(const FourCC& fourCC, const Ptr<BinaryReader>& reader)
     }
     else if (FourCC('MNTP') == fourCC)
     {
-        // model node type
-        this->SetType(ModelNodeType::FromName(reader->ReadString()));
+        // model node type, deprecated
+        reader->ReadString();
     }
     
     else if (FourCC('SSTA') == fourCC)

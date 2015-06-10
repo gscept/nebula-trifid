@@ -19,7 +19,7 @@ using namespace Resources;
 /**
 */
 RenderTargetCubeBase::RenderTargetCubeBase() :
-    batchType(BatchType::InvalidBatchType),
+    batchType(FrameBatchType::InvalidBatchType),
     width(0),
     height(0),
     clearFlags(0),
@@ -104,7 +104,7 @@ RenderTargetCubeBase::BeginPass()
 /**
 */
 void
-RenderTargetCubeBase::BeginBatch(BatchType::Code t)
+RenderTargetCubeBase::BeginBatch(FrameBatchType::Code t)
 {
     n_assert(this->inBeginPass);
     n_assert(!this->inBeginBatch);
@@ -120,7 +120,7 @@ RenderTargetCubeBase::EndBatch()
 {
     n_assert(this->inBeginBatch);
     this->inBeginBatch = false; 
-    this->batchType = BatchType::InvalidBatchType;
+    this->batchType = FrameBatchType::InvalidBatchType;
 }
 
 //------------------------------------------------------------------------------

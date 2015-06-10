@@ -88,7 +88,7 @@ EffectStreamLoader::Load()
 				effect->numShaders = numShaders;
 				effect->shadersByIndex = NULL;
 
-				if(numShaders > 0)
+				if (numShaders > 0)
 				{
 					effect->shadersByIndex = new EffectShader*[numShaders];
 					memset(effect->shadersByIndex, NULL, numShaders * sizeof(EffectShader*));
@@ -111,7 +111,7 @@ EffectStreamLoader::Load()
 				effect->numSubroutines = numSubroutines;
 				effect->subroutinesByIndex = NULL;
 
-				if(numSubroutines > 0)
+				if (numSubroutines > 0)
 				{
 					effect->subroutinesByIndex = new EffectSubroutine*[numSubroutines];
 					memset(effect->subroutinesByIndex, NULL, numSubroutines * sizeof(EffectSubroutine*));
@@ -133,7 +133,7 @@ EffectStreamLoader::Load()
 				effect->numPrograms = numProgs;
 				effect->programsByIndex = NULL;
 
-				if(numProgs > 0)
+				if (numProgs > 0)
 				{
 					effect->programsByIndex = new EffectProgram*[numProgs];
 					memset(effect->programsByIndex, NULL, numProgs * sizeof(EffectProgram*));
@@ -157,7 +157,7 @@ EffectStreamLoader::Load()
 				effect->numRenderStates = numStates;
 				effect->renderStatesByIndex = NULL;
 
-				if(numStates > 0)
+				if (numStates > 0)
 				{
 					effect->renderStatesByIndex = new EffectRenderState*[numStates];
 					memset(effect->renderStatesByIndex, NULL, numStates * sizeof(EffectRenderState*));
@@ -178,7 +178,7 @@ EffectStreamLoader::Load()
 				unsigned numVars = this->reader->ReadUInt();
 				effect->numVariables = numVars;
 				effect->variablesByIndex = NULL;
-				if(numVars > 0)
+				if (numVars > 0)
 				{
 					effect->variablesByIndex = new EffectVariable*[numVars];
 					memset(effect->variablesByIndex, NULL, numVars * sizeof(EffectVariable*));
@@ -201,7 +201,7 @@ EffectStreamLoader::Load()
 				effect->numSamplers = numSamplers;
 				effect->samplersByIndex = NULL;
 
-				if(numSamplers > 0)
+				if (numSamplers > 0)
 				{
 					effect->samplersByIndex = new EffectSampler*[numSamplers];
 					memset(effect->samplersByIndex, NULL, numSamplers * sizeof(EffectSampler*));
@@ -222,7 +222,7 @@ EffectStreamLoader::Load()
 				unsigned numBlocks = this->reader->ReadUInt();
 				effect->numVarblocks = numBlocks;
 				effect->varblocksByIndex = NULL;
-				if(numBlocks > 0)
+				if (numBlocks > 0)
 				{
 					effect->varblocksByIndex = new EffectVarblock*[numBlocks];
 					memset(effect->varblocksByIndex, NULL, numBlocks * sizeof(EffectVarblock*));
@@ -265,7 +265,7 @@ EffectStreamLoader::Load()
                 unsigned numBuffers = this->reader->ReadUInt();
 				effect->varbuffersByIndex = NULL;
 				effect->numVarbuffers = numBuffers;
-				if(numBuffers > 0)
+				if (numBuffers > 0)
 				{
 					effect->varbuffersByIndex = new EffectVarbuffer*[numBuffers];
 					memset(effect->varbuffersByIndex, NULL, numBuffers * sizeof(EffectVarbuffer*));

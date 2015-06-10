@@ -47,14 +47,14 @@ BillboardNodeInstance::~BillboardNodeInstance()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-BillboardNodeInstance::OnVisibilityResolve( IndexT resolveIndex, float distToViewer )
+void
+BillboardNodeInstance::OnVisibilityResolve(IndexT resolveIndex, float distToViewer)
 {
 	// check if node is inside lod distances or if no lod is used
 	const Ptr<TransformNode>& transformNode = this->modelNode.downcast<TransformNode>();
 	if (transformNode->CheckLodDistance(distToViewer))
 	{
-		this->modelNode->AddVisibleNodeInstance(resolveIndex, this);
+        this->modelNode->AddVisibleNodeInstance(resolveIndex, this->materialCode, this);
 		ModelNodeInstance::OnVisibilityResolve(resolveIndex, distToViewer);
 	}
 }

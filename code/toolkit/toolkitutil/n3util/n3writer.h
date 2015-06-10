@@ -89,7 +89,7 @@ public:
 
 private:
 	/// write the core information into model node instance (requires an open model node type)
-	void WriteMaterialCore(const Util::String& meshResource, const Math::bbox& boundingBox, PrimitiveGroupIndex groupIndex, const State& states, const Util::String& material);
+	void WriteState(const Util::String& meshResource, const Math::bbox& boundingBox, PrimitiveGroupIndex groupIndex, const State& states, const Util::String& material);
 	/// write transform node
 	void WriteTransform(const Transform& transform);
 

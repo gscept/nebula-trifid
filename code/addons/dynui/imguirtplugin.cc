@@ -52,7 +52,7 @@ void
 ImguiRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
 {
 	n_assert(this->renderer.isvalid());
-	if (CoreGraphics::BatchType::UI == frameBatch->GetType())
+    if (CoreGraphics::FrameBatchType::UI == frameBatch->GetType())
 	{
 		this->renderer->Render();
 	}

@@ -29,7 +29,7 @@ private:
 	/// sets up variable from program, override in subclass
 	void Setup(eastl::vector<InternalEffectProgram*> programs, const std::string& defaultValue);
     /// sets up variable from program as slave, this basically just adds program-uniform pairs
-    void SetupSlave(eastl::vector<InternalEffectProgram*> programs);
+    void SetupSlave(eastl::vector<InternalEffectProgram*> programs, InternalEffectVariable* master);
 	/// sets up texture-specific stuff
 	void MakeTexture();
 	/// activates variable, this makes the uniform location be the one found in the given program

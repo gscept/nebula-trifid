@@ -79,7 +79,7 @@ SilhouetteRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
 	glLineWidth(5.0f);
 #endif
 
-	if (frameBatch->GetType() == BatchType::Shapes)
+    if (frameBatch->GetType() == FrameBatchType::Shapes)
 	{
 		const Ptr<ShaderServer>& shaderServer = ShaderServer::Instance();
 		shaderServer->SetActiveShaderInstance(this->shader);
@@ -122,7 +122,7 @@ SilhouetteRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
 							this->shader->BeginPass(0);
 
 							// apply node
-							nodeInstance->ApplyState();
+							nodeInstance->ApplyState(this->shader);
 
 							// only apply model for shapes
 							if (nodeInstance->IsA(ShapeNodeInstance::RTTI))

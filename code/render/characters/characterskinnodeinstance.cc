@@ -194,18 +194,15 @@ CharacterSkinNodeInstance::OnRenderBefore(IndexT frameIndex, Timing::Time time)
 /**
 */
 void 
-CharacterSkinNodeInstance::ApplyState()
+CharacterSkinNodeInstance::ApplyState(const Ptr<CoreGraphics::ShaderInstance>& shader)
 {
 	// apply base level state
-	ShapeNodeInstance::ApplyState();
+	ShapeNodeInstance::ApplyState(shader);
 
 	// different code paths for software and GPU-skinned platforms
 	ShaderServer* shaderServer = ShaderServer::Instance();
 	CharacterServer* charServer = CharacterServer::Instance();
 	SkinningTechnique::Code skinTech = charServer->GetSkinningTechnique();
-
-	// get active shader instance
-	const Ptr<ShaderInstance>& shader = shaderServer->GetActiveShaderInstance();
 
 	if (SkinningTechnique::GPUTextureSkinning == skinTech)
 	{           

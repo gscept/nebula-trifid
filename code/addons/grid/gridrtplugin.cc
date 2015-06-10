@@ -107,7 +107,7 @@ GridRTPlugin::OnUnregister()
 void
 GridRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
 {
-	if (CoreGraphics::BatchType::Shapes == frameBatch->GetType() && this->visible)
+	if (FrameBatchType::Shapes == frameBatch->GetType() && this->visible)
 	{
 		Ptr<RenderDevice> device = RenderDevice::Instance();
 		Ptr<TransformDevice> trans = TransformDevice::Instance();

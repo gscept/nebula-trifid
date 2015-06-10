@@ -16,6 +16,7 @@
 #include "coregraphics/shadervariable.h"
 #include "coregraphics/shaderfeature.h"
 #include "coregraphics/shadervariation.h"
+#include "coregraphics/shaderidentifier.h"
 
 namespace CoreGraphics
 {
@@ -41,6 +42,8 @@ public:
     bool IsValid() const;
     /// get pointer to original shader which created this instance
     const Ptr<CoreGraphics::Shader>& GetOriginalShader() const;
+    /// get shader code from original shader
+    const CoreGraphics::ShaderIdentifier::Code& GetCode() const;
 
     /// return true if the shader instance has a variable by name
     bool HasVariableByName(const Base::ShaderVariableBase::Name& n) const;

@@ -218,6 +218,7 @@ static const int JobMaxSliceSize = 0xFFFF;
 #define NEBULA3_PLACEHOLDER_TEXTURENAME "systex:system/placeholder.dds"
 #define NEBULA3_PLACEHOLDER_MESHNAME  "sysmsh:system/placeholder.nvx2"
 #define NEBULA3_TEXTURE_EXTENSION ".dds"
+#define NEBULA3_SURFACE_EXTENSION ".xml"
 #define NEBULA3_MESH_EXTENSION ".nvx2"
 #elif __XBOX360__
 #define NEBULA3_PLACEHOLDER_TEXTURENAME "systex:system/placeholder.ntx"

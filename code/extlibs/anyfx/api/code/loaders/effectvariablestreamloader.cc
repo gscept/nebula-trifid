@@ -109,11 +109,8 @@ EffectVariableStreamLoader::Load( BinReader* reader, Effect* effect, InternalEff
         const std::string key = EffectVariable::TypeToString(type) + ":" + name;
         if (this->sharedVariables.find(key) != this->sharedVariables.end())
         {
-            // release previously allocated variable
-            internalVar->Release();
-
-            internalVar = this->sharedVariables[key];
-            internalVar->SetupSlave(internalPrograms);
+            InternalEffectVariable* sharedVariable = this->sharedVariables[key];
+            internalVar->SetupSlave(internalPrograms, sharedVariable);
             internalVar->Retain();
 
             var->internalVariable = internalVar;

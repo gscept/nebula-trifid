@@ -513,7 +513,7 @@ OGL4RenderDevice::BeginFeedback(const Ptr<CoreGraphics::FeedbackBuffer>& fb, Cor
 /**
 */
 void
-OGL4RenderDevice::BeginBatch(CoreGraphics::BatchType::Code batchType)
+OGL4RenderDevice::BeginBatch(CoreGraphics::FrameBatchType::Code batchType)
 {
 	RenderDeviceBase::BeginBatch(batchType);
 	const Ptr<ShaderInstance>& shader = ShaderServer::Instance()->GetActiveShaderInstance();

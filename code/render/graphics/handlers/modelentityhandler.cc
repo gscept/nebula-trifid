@@ -25,6 +25,7 @@
 #include "models/modelnodeinstance.h"
 #include "graphics/billboardentity.h"
 #include "resources/managedtexture.h"
+#include "materials/surfaceconstantinstance.h"
 
 using namespace CoreGraphics;
 using namespace Graphics;
@@ -118,26 +119,27 @@ __Handler(ModelEntity, UpdModelNodeInstanceMaterialVariable)
 		Ptr<StateNodeInstance> stateNodeInst = RenderUtil::NodeLookupUtil::LookupStateNodeInstance(obj, msg->GetModelNodeInstanceName().Value());
 		if (stateNodeInst.isvalid())
 		{
-			Ptr<Materials::MaterialVariableInstance> var;
-			if (stateNodeInst->HasMaterialVariableInstance(ShaderVariable::Semantic(msg->GetSemantic())))
+			Ptr<Materials::SurfaceConstantInstance> var;
+			if (stateNodeInst->HasSurfaceConstantInstance(ShaderVariable::Semantic(msg->GetSemantic())))
 			{
-				var = stateNodeInst->GetMaterialVariableInstance(ShaderVariable::Semantic(msg->GetSemantic()));        
+				var = stateNodeInst->GetSurfaceConstantInstance(ShaderVariable::Semantic(msg->GetSemantic()));        
 			}
 			else
 			{
-				var = stateNodeInst->CreateMaterialVariableInstance(ShaderVariable::Semantic(msg->GetSemantic()));
+				var = stateNodeInst->CreateSurfaceConstantInstance(ShaderVariable::Semantic(msg->GetSemantic()));
 			}
-			const Util::Variant& value = msg->GetValue();
 			
 			// if the type is a string, load it as a texture
+            const Util::Variant& value = msg->GetValue();
 			if (value.GetType() == Util::Variant::String)
 			{
 				Ptr<Resources::ManagedTexture> tex = Resources::ResourceManager::Instance()->CreateManagedResource(Texture::RTTI, value.GetString(), NULL, true).downcast<Resources::ManagedTexture>();
-				var->SetValue(tex->GetTexture().get());
+				var->SetTexture(tex->GetTexture());
 				tex = 0;
 			}
 			else
 			{
+                // otherwise just set the value
 				var->SetValue(value);   
 			}
 		}
@@ -158,29 +160,31 @@ __Handler(ModelEntity, UpdMaterialVariable)
 		// get all nodes
 		const Util::Array<Ptr<ModelNodeInstance>>& nodes = obj->GetModelInstance()->GetNodeInstances();
 
-		ShaderVariable::Semantic semVarName(msg->GetSemantic());
-		Util::Variant value = msg->GetValue();
+        // go through all nodes and set them
+		const Util::Variant& value = msg->GetValue();
 		for (IndexT i = 0; i < nodes.Size(); i++)
 		{
 			if (nodes[i]->IsA(StateNodeInstance::RTTI))
 			{
 				Ptr<StateNodeInstance> snode = nodes[i].cast<StateNodeInstance>();
-				if (snode->HasMaterialVariable(semVarName))
+                Ptr<Materials::SurfaceMaterial> material = snode->GetMaterial();
+                if (material->HasConstant(msg->GetSemantic()))
 				{
-					Ptr<Materials::MaterialVariableInstance> var;
-					if (snode->HasMaterialVariableInstance(semVarName))
+					Ptr<Materials::SurfaceConstantInstance> var;
+                    if (snode->HasSurfaceConstantInstance(msg->GetSemantic()))
 					{
-						var = snode->GetMaterialVariableInstance(semVarName);
+                        var = snode->GetSurfaceConstantInstance(msg->GetSemantic());
 					}
 					else
 					{
-						var = snode->CreateMaterialVariableInstance(semVarName);
+                        var = snode->CreateSurfaceConstantInstance(msg->GetSemantic());
 					}
+
 					// if the type is a string, load it as a texture
 					if (value.GetType() == Util::Variant::String)
 					{
 						Ptr<Resources::ManagedTexture> tex = Resources::ResourceManager::Instance()->CreateManagedResource(Texture::RTTI, value.GetString(), NULL, true).downcast<Resources::ManagedTexture>();
-						var->SetValue(tex->GetTexture().get());
+                        var->SetTexture(tex->GetTexture());
 						tex = 0;
 					}
 					else

@@ -13,9 +13,9 @@
 #include "materials/materialinstance.h"
 #include "coregraphics/shaderinstance.h"
 #include "coregraphics/shadervariableinstance.h"
-#include "coregraphics/batchtype.h"
+#include "coregraphics/framebatchtype.h"
 #include "coregraphics/shaderfeature.h"
-#include "models/modelnodematerial.h"
+#include "frame/batchgroup.h"
 #include "frame/lightingmode.h"
 #include "frame/sortingmode.h"
 #include "debug/debugtimer.h"
@@ -58,13 +58,13 @@ public:
 	/// get material
 	const Util::String& GetMaterial() const;
     /// set batch type
-    void SetType(CoreGraphics::BatchType::Code t);
+    void SetType(CoreGraphics::FrameBatchType::Code t);
     /// get batch type
-    CoreGraphics::BatchType::Code GetType() const;
+    CoreGraphics::FrameBatchType::Code GetType() const;
     /// set model node filter
-    void SetNodeFilter(Models::ModelNodeMaterial::Code f);
+    void SetBatchGroup(const Frame::BatchGroup::Code& b);
     /// get model node filter
-    Models::ModelNodeMaterial::Code GetNodeFilter() const;
+    const Frame::BatchGroup::Code& GetBatchGroup() const;
     /// set lighting mode
     void SetLightingMode(LightingMode::Code c);
     /// get lighting mode
@@ -108,8 +108,8 @@ private:
     bool forceInstancing;
     SizeT instancingCount;
 	Util::String material;
-    CoreGraphics::BatchType::Code batchType;
-    Models::ModelNodeMaterial::Code nodeFilter;
+    CoreGraphics::FrameBatchType::Code batchType;
+    Frame::BatchGroup::Code batchGroup;
     LightingMode::Code lightingMode;
     SortingMode::Code sortingMode;
     CoreGraphics::ShaderFeature::Mask shaderFeatures;
@@ -123,7 +123,7 @@ private:
 /**
 */
 inline void
-FrameBatch::SetType(CoreGraphics::BatchType::Code t)
+FrameBatch::SetType(CoreGraphics::FrameBatchType::Code t)
 {
     this->batchType = t;
 }
@@ -131,7 +131,7 @@ FrameBatch::SetType(CoreGraphics::BatchType::Code t)
 //------------------------------------------------------------------------------
 /**
 */
-inline CoreGraphics::BatchType::Code
+inline CoreGraphics::FrameBatchType::Code
 FrameBatch::GetType() const
 {
     return this->batchType;
@@ -159,18 +159,18 @@ FrameBatch::GetMaterial() const
 /**
 */
 inline void
-FrameBatch::SetNodeFilter(Models::ModelNodeMaterial::Code f)
+FrameBatch::SetBatchGroup(const Frame::BatchGroup::Code& b)
 {
-    this->nodeFilter = f;
+    this->batchGroup = b;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-inline Models::ModelNodeMaterial::Code
-FrameBatch::GetNodeFilter() const
+inline const Frame::BatchGroup::Code&
+FrameBatch::GetBatchGroup() const
 {
-    return this->nodeFilter;
+    return this->batchGroup;
 }
 
 //------------------------------------------------------------------------------

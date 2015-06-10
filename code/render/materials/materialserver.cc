@@ -12,8 +12,10 @@
 #include "util/keyvaluepair.h"
 #include "util/string.h"
 #include "util/array.h"
-#include "models/modelnodetype.h"
+#include "frame/batchgroup.h"
 #include "io/ioserver.h"
+#include "resources/resourcemanager.h"
+#include "streamsurfacematerialloader.h"
 
 namespace Materials
 {
@@ -68,6 +70,15 @@ MaterialServer::Open()
         this->LoadMaterialPalette(files[i]);
     }
 
+    // create resource mapper for surfaces, we must do this after our materials are loaded since the placeholder will need a template
+    Ptr<Resources::SimpleResourceMapper> surfaceMapper = Resources::SimpleResourceMapper::Create();
+    surfaceMapper->SetResourceClass(SurfaceMaterial::RTTI);
+    surfaceMapper->SetResourceLoaderClass(StreamSurfaceMaterialLoader::RTTI);
+    surfaceMapper->SetManagedResourceClass(ManagedSurfaceMaterial::RTTI);
+    surfaceMapper->SetPlaceholderResourceId("mat:surfaces/placeholder.xml");
+    surfaceMapper->SetAsyncEnabled(false);
+    Resources::ResourceManager::Instance()->AttachMapper(surfaceMapper.cast<Resources::ResourceMapper>());
+
 	return true;
 }
 
@@ -98,8 +109,8 @@ MaterialServer::IsOpen() const
 //------------------------------------------------------------------------------
 /**
 */
-void 
-MaterialServer::AddMaterial( const Ptr<Material>& material )
+void
+MaterialServer::AddMaterial(const Ptr<Material>& material)
 {
 	n_assert(0 != material);
 	this->materials.Add(material->GetName(), material);
@@ -109,16 +120,16 @@ MaterialServer::AddMaterial( const Ptr<Material>& material )
 	for (passIndex = 0; passIndex < numPasses; passIndex++)
 	{
 		// get node type
-		const Models::ModelNodeType::Code& type = material->GetBatchType(passIndex);
+        const Frame::BatchGroup::Code& type = material->GetBatchGroup(passIndex);
 
-		if (this->materialsByType.Contains(type))
+		if (this->materialsByBatchGroup.Contains(type))
 		{
-			this->materialsByType[type].Append(material);
+			this->materialsByBatchGroup[type].Append(material);
 		}
 		else
 		{
-			this->materialsByType.Add(type, Util::Array<Ptr<Material> >());
-			this->materialsByType[type].Append(material);
+			this->materialsByBatchGroup.Add(type, Util::Array<Ptr<Material> >());
+			this->materialsByBatchGroup[type].Append(material);
 		}
 	}
 }
@@ -179,6 +190,7 @@ MaterialServer::FeatureMaskToString( Materials::MaterialFeature::Mask mask )
 {
 	return this->materialFeature.MaskToString(mask);
 }
+
 } // namespace Material
 
 

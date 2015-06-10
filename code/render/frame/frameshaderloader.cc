@@ -19,7 +19,7 @@
 #include "coregraphics/displaydevice.h"
 #include "coregraphics/shaderserver.h"
 #include "coregraphics/renderdevice.h"
-#include "models/modelnodetype.h"
+#include "frame/batchgroup.h"
 #include "resources/resourcemanager.h"
 #if __PS3__
 #include "coregraphics/ps3/ps3rendertarget.h"
@@ -353,23 +353,11 @@ FrameShaderLoader::ParseShaderVariableInstance(const Ptr<XmlReader>& xmlReader, 
 		{                  
 			// rendertargets names are also theory resource ids, texture have a name -> resourceid mapping
 			const Ptr<ResourceManager>& resManager = ResourceManager::Instance();
-			if (resManager->HasResource(valueStr))
-			{
-				const Ptr<Resource>& resource = resManager->LookupResource(valueStr);
-				if (resource.isvalid())
-				{
-					shdVarInst->SetTexture(resource.downcast<Texture>());
-				}
-				else
-				{
-					shdVarInst->SetDeferredTexture(valueStr);
-				}				
-			}
-			else
-			{
-				// save name for late binding
-				shdVarInst->SetDeferredTexture(valueStr);
-			}
+            if (resManager->HasResource(valueStr))
+            {
+                const Ptr<Resource>& resource = resManager->LookupResource(valueStr);
+                shdVarInst->SetTexture(resource.downcast<Texture>());
+            }
 		}
 		break;
 
@@ -432,12 +420,6 @@ FrameShaderLoader::ParseShaderVariableInstance( const Ptr<IO::XmlReader>& xmlRea
 			const Ptr<Resource>& resource = resManager->LookupResource(valueStr);
 			shdVarInst->SetTexture(resource.downcast<Texture>()); 
 		}
-		else
-		{
-			// save name for late binding
-			shdVarInst->SetDeferredTexture(valueStr);
-		}
-
 	}
 
 	// add variable
@@ -707,10 +689,10 @@ FrameShaderLoader::ParseFrameBatch(const Ptr<XmlReader>& xmlReader, const Util::
     Ptr<FrameBatch> frameBatch = FrameBatch::Create();
 
     // setup batch type, model node filter, lighting and sorting mode
-    frameBatch->SetType(BatchType::FromString(xmlReader->GetString("type")));
-    if (xmlReader->HasAttr("materialType"))
+    frameBatch->SetType(FrameBatchType::FromString(xmlReader->GetString("type")));
+    if (xmlReader->HasAttr("batchGroup"))
     {
-        frameBatch->SetNodeFilter(ModelNodeType::FromName(xmlReader->GetString("materialType")));
+        frameBatch->SetBatchGroup(BatchGroup::FromName(xmlReader->GetString("batchGroup")));
     }
     if (xmlReader->HasAttr("lighting"))
     {
@@ -738,7 +720,7 @@ FrameShaderLoader::ParseFrameBatch(const Ptr<XmlReader>& xmlReader, const Util::
     name.Format("FrameBatch:%s_%s_%s_%s_%s",
         passName.AsCharPtr(),
         xmlReader->GetString("type").AsCharPtr(),
-		xmlReader->GetOptString("materialType", "").AsCharPtr(),
+		xmlReader->GetOptString("batchGroup", "").AsCharPtr(),
         xmlReader->GetOptString("lighting", "").AsCharPtr(),
         xmlReader->GetOptString("sorting", "").AsCharPtr());
     frameBatch->SetBatchDebugTimer(name);

@@ -82,7 +82,7 @@ VideoRTPlugin::OnRenderBefore(IndexT frameId, Timing::Time time)
 void
 VideoRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
 {
-	if (frameBatch->GetType() == CoreGraphics::BatchType::UI)
+    if (frameBatch->GetType() == CoreGraphics::FrameBatchType::UI)
 	{
 		this->videoServer->RenderBatch();
 	}

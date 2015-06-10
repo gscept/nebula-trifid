@@ -82,7 +82,6 @@ OGL4Shader::OnResetDevice()
     {
         this->shaderInstances[i].downcast<OGL4ShaderInstance>()->OnResetDevice();
     }
-
 }
 
 //------------------------------------------------------------------------------

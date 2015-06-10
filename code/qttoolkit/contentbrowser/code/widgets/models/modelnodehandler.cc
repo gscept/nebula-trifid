@@ -367,7 +367,7 @@ ModelNodeHandler::UnsetState()
 		{
 			if (this->textureVariables[i]->IsValid())
 			{
-				this->stateNode->DiscardMaterialVariableInstance(this->textureVariables[i]);
+				this->stateNode->DiscardSurfaceConstantInstance(this->textureVariables[i]);
 			}
 		}
 	}
@@ -378,7 +378,7 @@ ModelNodeHandler::UnsetState()
 		{
 			if (this->scalarVariables[i]->IsValid())
 			{
-				this->stateNode->DiscardMaterialVariableInstance(this->scalarVariables[i]);
+                this->stateNode->DiscardSurfaceConstantInstance(this->scalarVariables[i]);
 			}
 		}
 	}
@@ -1498,8 +1498,8 @@ ModelNodeHandler::MakeMaterialUI(QVBoxLayout* mainLayout, QLabel* nodeName, QCom
 		Material::MaterialParameter param = textures[i];
 
 		// create texture variables
-		Ptr<MaterialVariableInstance> varInst;
-		if (this->stateNode->HasMaterialVariable(param.name)) varInst = this->stateNode->CreateMaterialVariableInstance(param.name);
+		Ptr<SurfaceConstantInstance> varInst;
+		if (this->stateNode->HasSurfaceConstantInstance(param.name)) varInst = this->stateNode->CreateSurfaceConstantInstance(param.name);
 		this->textureVariables.Add(i, varInst);
 
 		// get texture
@@ -1615,8 +1615,8 @@ ModelNodeHandler::MakeMaterialUI(QVBoxLayout* mainLayout, QLabel* nodeName, QCom
 		group->setFlat(true);
 
 		// create material instance
-		Ptr<MaterialVariableInstance> varInst;
-		if (this->stateNode->HasMaterialVariable(param.name)) varInst = this->stateNode->CreateMaterialVariableInstance(param.name);
+		Ptr<SurfaceConstantInstance> varInst;
+		if (this->stateNode->HasSurfaceConstantInstance(param.name)) varInst = this->stateNode->CreateSurfaceConstantInstance(param.name);
 		if (varInst.isvalid()) varInst->SetValue(var);
 
 		// create material instance

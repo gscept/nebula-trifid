@@ -54,8 +54,8 @@ GLSL4EffectVarblock::~GLSL4EffectVarblock()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-GLSL4EffectVarblock::Setup( eastl::vector<InternalEffectProgram*> programs )
+void
+GLSL4EffectVarblock::Setup(eastl::vector<InternalEffectProgram*> programs)
 {
 	//InternalEffectVarblock::Setup(programs);
 
@@ -74,7 +74,6 @@ GLSL4EffectVarblock::Setup( eastl::vector<InternalEffectProgram*> programs )
 		this->activeMap[opengl4Program] = location;
 		if (location != GL_INVALID_INDEX)
 		{
-
 			// now tell the program in which binding slot this buffer should be 
 			glUniformBlockBinding(opengl4Program->programHandle, location, this->uniformBlockBinding);	
 
@@ -147,8 +146,8 @@ GLSL4EffectVarblock::Setup( eastl::vector<InternalEffectProgram*> programs )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-GLSL4EffectVarblock::SetupSlave( eastl::vector<InternalEffectProgram*> programs, InternalEffectVarblock* master )
+void
+GLSL4EffectVarblock::SetupSlave(eastl::vector<InternalEffectProgram*> programs, InternalEffectVarblock* master)
 {
 	InternalEffectVarblock::SetupSlave(programs, master);
 
@@ -194,7 +193,6 @@ GLSL4EffectVarblock::SetupSlave( eastl::vector<InternalEffectProgram*> programs,
     delete [] names;
     delete [] offsets;
 
-
 	// copy GL buffer
 	this->buffer			= mainBlock->buffer;
 	this->alignedSize		= mainBlock->alignedSize;
@@ -205,6 +203,13 @@ GLSL4EffectVarblock::SetupSlave( eastl::vector<InternalEffectProgram*> programs,
 	this->bufferLock		= mainBlock->bufferLock;
 	this->bufferSize		= mainBlock->bufferSize;
 	this->ringLocks			= mainBlock->ringLocks;
+
+    // setup default values
+    for (i = 0; i < this->variables.size(); i++)
+    {
+        InternalEffectVariable* variable = this->variables[i];
+        variable->InitializeDefaultValues();
+    }
 }
 
 //------------------------------------------------------------------------------

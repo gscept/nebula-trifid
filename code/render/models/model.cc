@@ -257,7 +257,7 @@ Model::RemoveNode(const Ptr<ModelNode>& node)
 /**
 */
 void
-Model::AddVisibleModelNode(IndexT frameIndex, ModelNodeType::Code t, const Ptr<ModelNode>& modelNode)
+Model::AddVisibleModelNode(IndexT frameIndex, const Materials::MaterialType::Code& t, const Ptr<ModelNode>& modelNode)
 {
     this->visibleModelNodes.Add(frameIndex, t, modelNode);
     if (!this->visibleModelNodes.IsResolved(t))

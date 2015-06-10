@@ -10,6 +10,8 @@
 #include "models/nodes/transformnodeinstance.h"
 #include "materials/materialvariable.h"
 #include "coregraphics/shaderbuffer.h"
+#include "materials/surfacematerial.h"
+#include "coregraphics/shadersemantics.h"
 
 //#define STATE_NODE_USE_PER_OBJECT_BUFFER
 //------------------------------------------------------------------------------
@@ -25,18 +27,21 @@ public:
     virtual ~StateNodeInstance();
 
 	/// apply per-instance state for a shader prior to rendering
-	virtual void ApplyState();
+    virtual void ApplyState(const Ptr<CoreGraphics::ShaderInstance>& shader);
 
-	/// instantiate a shader variable by semantic and shader
-	Ptr<Materials::MaterialVariableInstance> CreateMaterialVariableInstance(const Materials::MaterialVariable::Name& name);
-	/// return true if a shader variable has been instantiated for the shader
-	bool HasMaterialVariableInstance(const Materials::MaterialVariable::Name& name) const;
-	/// returns true if material has variable
-	bool HasMaterialVariable(const Materials::MaterialVariable::Name& name) const;
-	/// get shader variable by shader
-	const Ptr<Materials::MaterialVariableInstance>& GetMaterialVariableInstance(const Materials::MaterialVariable::Name& name) const;
-	/// discard material instance
-	void DiscardMaterialVariableInstance(Ptr<Materials::MaterialVariableInstance>& var);
+    /// set surface material on node, be careful to clear up any references to SurfaceConstantInstances if this is done
+    void SetMaterial(const Ptr<Materials::SurfaceMaterial>& material);
+    /// get surface on node
+    const Ptr<Materials::SurfaceMaterial>& GetMaterial() const;
+
+    /// create a new surface constant instance by using a name
+    Ptr<Materials::SurfaceConstantInstance> CreateSurfaceConstantInstance(const Util::StringAtom& name);
+    /// returns true if we already created a surface constant instance with the given name
+    bool HasSurfaceConstantInstance(const Util::StringAtom& name);
+    /// returns reference to surface constant instance, asserts it exists
+    const Ptr<Materials::SurfaceConstantInstance>& GetSurfaceConstantInstance(const Util::StringAtom& name);
+    /// discard a surface constant instance if it exists
+    void DiscardSurfaceConstantInstance(const Ptr<Materials::SurfaceConstantInstance>& var);
 
 protected:
 
@@ -45,7 +50,7 @@ protected:
     /// called when removed from ModelInstance
     virtual void Discard();
 	/// applies global variables
-	virtual void ApplyGlobalVariables();
+	virtual void ApplySharedVariables();
 
 #ifdef STATE_NODE_USE_PER_OBJECT_BUFFER
 	struct PerObject
@@ -59,10 +64,25 @@ protected:
 	Ptr<CoreGraphics::ShaderBuffer> perObjectBuffer;
 #endif
 
-	Util::Dictionary<Materials::MaterialVariable::Name, Ptr<Materials::MaterialVariable> > globalVariables;
-	Util::Dictionary<Materials::MaterialVariable::Name, Ptr<Materials::MaterialVariableInstance> > materialVariableInstances;
+    Ptr<Materials::SurfaceMaterial> material;
+    Materials::MaterialType::Code materialCode;
+    Util::Dictionary<Util::StringAtom, Ptr<Materials::SurfaceConstant>> sharedConstants;
+    Util::Dictionary<Util::StringAtom, Ptr<Materials::SurfaceConstantInstance>> surfaceConstantInstanceByName;
 };
 
+
+//------------------------------------------------------------------------------
+/**
+*/
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Ptr<Materials::SurfaceMaterial>&
+StateNodeInstance::GetMaterial() const
+{
+    return this->material;
+}
 
 } // namespace Models
 //------------------------------------------------------------------------------

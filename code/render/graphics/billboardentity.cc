@@ -71,7 +71,6 @@ BillboardEntity::OnActivate()
 	{
 		BillboardEntity::billboardModel = Model::Create();
 		BillboardEntity::billboardNode = BillboardNode::Create();
-		BillboardEntity::billboardNode->SetMaterial(ModelNodeMaterial::FromName("Billboard"));
 		BillboardEntity::billboardNode->SetBoundingBox(Math::bbox(Math::point(0,0,0), Math::vector(1,1,1)));
 		BillboardEntity::billboardNode->SetName("root");
 		BillboardEntity::billboardNode->LoadResources(false);
@@ -83,14 +82,19 @@ BillboardEntity::OnActivate()
 	this->modelInstance->SetTransform(this->transform);
 	this->modelInstance->SetPickingId(this->pickingId);
 
+    // create material
+    this->managedMaterial = ResourceManager::Instance()->CreateManagedResource(SurfaceMaterial::RTTI, "Billboard").downcast<ManagedSurfaceMaterial>();
+    this->material = this->managedMaterial->GetMaterial()->Clone();
+    this->textureVariable = this->material->GetConstant("DiffuseMap");
+    this->colorVariable = this->material->GetConstant("Color");
+
 	// get node instance and set the view space aligned flag
 	Ptr<BillboardNodeInstance> nodeInstance = this->modelInstance->GetRootNodeInstance().downcast<BillboardNodeInstance>();
 
 	// create a variable instance and set the texture
-	this->textureVariable = nodeInstance->CreateMaterialVariableInstance("DiffuseMap");
-    this->colorVariable = nodeInstance->CreateMaterialVariableInstance("Color");
 	this->textureVariable->SetTexture(this->texture->GetTexture());
 	nodeInstance->SetInViewSpace(this->viewAligned);
+    nodeInstance->SetMaterial(this->material);
 
 	// set to be valid
 	this->SetValid(true);
@@ -114,6 +118,13 @@ BillboardEntity::OnDeactivate()
 	// discard model instance
 	this->modelInstance->GetModel()->DiscardInstance(this->modelInstance);
 	this->modelInstance = 0;	
+
+    // deallocate managed material
+    resManager->DiscardManagedResource(this->managedMaterial.upcast<ManagedResource>());
+
+    // discard material copy
+    this->material->Unload();
+    this->material = 0;
 
 	// discard texture variable
 	this->textureVariable = 0;	
@@ -205,6 +216,22 @@ BillboardEntity::OnNotifyCullingVisible( const Ptr<GraphicsEntity>& observer, In
 //------------------------------------------------------------------------------
 /**
 */
+void
+BillboardEntity::SetColor(const Math::float4& color)
+{
+    this->color = color;
+
+    // update billboard color
+    scalar biggest = n_max(n_max(this->color.x(), this->color.y()), this->color.z());
+    float4 normalizedColor = this->color;
+    normalizedColor /= biggest;
+    normalizedColor.set_w(1);
+    this->colorVariable->SetValue(normalizedColor);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 BillboardEntity::OnRenderBefore( IndexT frameIndex )
 {
@@ -215,13 +242,6 @@ BillboardEntity::OnRenderBefore( IndexT frameIndex )
         {
             this->modelInstance->OnRenderBefore(frameIndex, this->entityTime);
         }
-
-        // update billboard color
-        scalar biggest = n_max(n_max(this->color.x(), this->color.y()), this->color.z());
-        float4 normalizedColor = this->color;
-        normalizedColor /= biggest;
-        normalizedColor.set_w(1);
-        this->colorVariable->SetFloat4(normalizedColor);
 
         GraphicsEntity::OnRenderBefore(frameIndex);
     }

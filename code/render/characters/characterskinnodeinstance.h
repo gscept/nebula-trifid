@@ -34,7 +34,7 @@ public:
 	/// called before rendering will be done
 	virtual void OnRenderBefore(IndexT frameIndex, Timing::Time time);
 	/// applies state
-	virtual void ApplyState();
+    virtual void ApplyState(const Ptr<CoreGraphics::ShaderInstance>& shader);
     /// perform rendering
     virtual void Render();
     /// perform instanced rendering

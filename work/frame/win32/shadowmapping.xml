@@ -8,7 +8,7 @@
   <DeclareRenderTarget width="1024" height="1024" format="R32F" msaa="false" name="ShadowDownscale" />
   <DeclareRenderTarget width="1024" height="1024" format="R32F" msaa="false" name="ShadowDownscale2" />
   <Pass renderTarget="ShadowBuffer" name="Shadows">
-	<Batch materialType="SpotLightShadow" sorting="None" lighting="None" type="Geometry"/>
+	<Batch batchGroup="SpotLightShadow" sorting="None" lighting="None" type="Geometry"/>
   </Pass>
   
   <!--

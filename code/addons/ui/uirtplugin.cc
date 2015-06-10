@@ -56,7 +56,7 @@ void
 UiRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
 {
 	n_assert(this->uiServer.isvalid());
-	if (CoreGraphics::BatchType::UI == frameBatch->GetType())
+	if (CoreGraphics::FrameBatchType::UI == frameBatch->GetType())
 	{				
 		this->uiServer->Render(frameBatch);	
 		UiFeatureUnit::Instance()->RenderPlugins(frameBatch);

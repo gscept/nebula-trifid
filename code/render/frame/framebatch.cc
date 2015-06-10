@@ -45,8 +45,8 @@ using namespace Materials;
 /**
 */
 FrameBatch::FrameBatch() :
-    batchType(BatchType::InvalidBatchType),
-    nodeFilter(ModelNodeType::InvalidModelNodeType),
+    batchType(FrameBatchType::InvalidBatchType),
+    batchGroup(FrameBatchType::InvalidBatchType),
     lightingMode(LightingMode::None),
     sortingMode(SortingMode::None),
     shaderFeatures(0),
@@ -118,91 +118,97 @@ FrameBatch::RenderBatch()
     
 	_start_timer(this->debugTimer);
     // handle special cases
-    if (BatchType::UI == this->batchType)
+    if (FrameBatchType::UI == this->batchType)
     {
 		// empty, ui renders in uirtplugin
     }
-    else if (BatchType::WiiHBM == this->batchType || BatchType::WiiPanel == this->batchType)
+    else if (FrameBatchType::WiiHBM == this->batchType || FrameBatchType::WiiPanel == this->batchType)
     {
         // wii home menu batch will be handled with a RTplugin
         // and is only available for the wii platform
         #ifndef __WII__
-        n_error("Batchtype %s only available on Wii!", BatchType::ToString(this->batchType).AsCharPtr());
+        n_error("Batchtype %s only available on Wii!", FrameBatchType::ToString(this->batchType).AsCharPtr());
         #endif
     }
-    else if (BatchType::Shapes == this->batchType)
+    else if (FrameBatchType::Shapes == this->batchType)
     {
         ShapeRenderer::Instance()->DrawShapes();
     }
-    else if (BatchType::Text == this->batchType)
+    else if (FrameBatchType::Text == this->batchType)
     {
 		TextRenderer::Instance()->DrawTextElements();
     }
-    else if (BatchType::ResolveDepthBuffer == this->batchType)
+    else if (FrameBatchType::ResolveDepthBuffer == this->batchType)
     {
         // resolve depth buffer to texture
         RenderDevice* renderDevice = RenderDevice::Instance();
         n_assert(renderDevice->HasPassRenderTarget());
         renderDevice->GetPassRenderTarget()->ResolveDepthBuffer();
     }
-    else if (BatchType::MousePointers == this->batchType)
+    else if (FrameBatchType::MousePointers == this->batchType)
     {
         MouseRenderDevice::Instance()->RenderPointers();
     }
-    else if (BatchType::Lights == this->batchType)
+    else if (FrameBatchType::Lights == this->batchType)
     {
         LightServer::Instance()->RenderLights();
     }
-	else if (BatchType::LightProbes == this->batchType)
+	else if (FrameBatchType::LightProbes == this->batchType)
 	{
 		LightServer::Instance()->RenderLightProbes();
 	}
-    else if (matServer->HasMaterialsByNodeType(this->nodeFilter))
+    else if (matServer->HasMaterialsByBatchGroup(this->batchGroup))
     {
         // get current frame index from graphics server
         IndexT frameIndex = FrameSyncTimer::Instance()->GetFrameIndex();
 
 		// get materials matching the batch type
-		const Util::Array<Ptr<Material> >& materials = matServer->GetMaterialsByNodeType(this->nodeFilter);
+        const Util::Array<Ptr<Material>>& materials = matServer->GetMaterialsByBatchGroup(this->batchGroup);
 
 		IndexT materialIndex;
 		for (materialIndex = 0; materialIndex < materials.Size(); materialIndex++)
 		{
 			// get material
 			const Ptr<Material>& material = materials[materialIndex];
+            const Ptr<ShaderInstance>& shaderInst = material->GetShaderInstanceByBatchGroup(this->batchGroup);
 
 			// get models based on material
-			const Array<Ptr<Model> >& models = visResolver->GetVisibleModels(material->GetCode());
+			const Array<Ptr<Model>>& models = visResolver->GetVisibleModels(material->GetCode());
+
 			IndexT modelIndex;
 			for (modelIndex = 0; modelIndex < models.Size(); modelIndex++)
 			{
 				FRAME_LOG("      FrameBatch::RenderBatch() model: %s", models[modelIndex]->GetResourceId().Value());
 
 				// for each visible model node of the model...
-				const Array<Ptr<ModelNode> >& modelNodes = visResolver->GetVisibleModelNodes(material->GetCode(), models[modelIndex]);
+				const Array<Ptr<ModelNode>>& modelNodes = visResolver->GetVisibleModelNodes(material->GetCode(), models[modelIndex]);
 				IndexT modelNodeIndex;  
 				for (modelNodeIndex = 0; modelNodeIndex < modelNodes.Size(); modelNodeIndex++)
 				{				
-					// apply render state which is shared by all instances
-					shaderServer->ResetFeatureBits();
-					shaderServer->SetFeatureBits(material->GetFeatureMask(this->nodeFilter));
+					// apply shared model state (mesh)
 					const Ptr<ModelNode>& modelNode = modelNodes[modelNodeIndex];         
-					const Ptr<StateNode>& materialNode = modelNode.cast<StateNode>();
-					const Ptr<ShaderInstance>& shaderInst = materialNode->GetMaterialInstance()->GetShaderInstanceByCode(this->nodeFilter);
-					shaderServer->SetActiveShaderInstance(shaderInst);
 					modelNode->ApplySharedState(frameIndex);
-					shaderInst->SelectActiveVariation(shaderServer->GetFeatureBits());
+
+                    // reset features, then set the features implemented by the material
+                    shaderServer->ResetFeatureBits();
+                    shaderServer->SetFeatureBits(material->GetFeatureMask(this->batchGroup));
+
+                    // set the this shader to be the main active shader
+                    shaderServer->SetActiveShaderInstance(shaderInst);
+
+                    // select variations based on the feature bits found in the material
+                    shaderInst->SelectActiveVariation(shaderServer->GetFeatureBits());
                     shaderInst->SetWireframe(renderDevice->GetRenderWireframe());
 
-					FRAME_LOG("        FrameBatch::RenderBatch() node: %s", modelNode->GetName().Value());
+                    // if lighting mode is Off, we can render all node instances with the same shader
+                    if (LightingMode::None == this->lightingMode)
+                    {
+                        SizeT numPasses = shaderInst->Begin();
+                        n_assert(1 == numPasses);
+                        shaderInst->BeginPass(0);
+                    }
 
-					// if lighting mode is Off, we can render all node instances with the same shader
-					if (LightingMode::None == this->lightingMode)
-					{
-						SizeT numPasses = shaderInst->Begin();
-						n_assert(1 == numPasses);
-						shaderInst->BeginPass(0);
-					}
+					FRAME_LOG("        FrameBatch::RenderBatch() node: %s", modelNode->GetName().Value());
 
 					// apply batch variables to model
 					IndexT variableIndex;
@@ -228,9 +234,6 @@ FrameBatch::RenderBatch()
 
 					// render instances
 					const Array<Ptr<ModelNodeInstance>>& nodeInstances = visResolver->GetVisibleModelNodeInstances(material->GetCode(), modelNode);
-					
-					// sort if necessary
-					//this->Sort(nodeInstances);
 
 					IndexT nodeInstIndex;
 					for (nodeInstIndex = 0; nodeInstIndex < nodeInstances.Size(); nodeInstIndex++)
@@ -272,7 +275,7 @@ FrameBatch::RenderBatch()
 						else
 						{
 							// render the node instance
-							nodeInstance->ApplyState();
+							nodeInstance->ApplyState(shaderInst);
 
                             // commit changes
                             shaderInst->Commit();
@@ -306,11 +309,11 @@ FrameBatch::RenderBatch()
 					// end batch
 					renderDevice->EndBatch();
 
-					if (LightingMode::None == this->lightingMode)
-					{
-						shaderInst->EndPass();
-						shaderInst->End();
-					}
+                    if (LightingMode::None == this->lightingMode)
+                    {
+                        shaderInst->EndPass();
+                        shaderInst->End();
+                    }
 
 					// render instances
 					instanceServer->Render();
@@ -318,7 +321,7 @@ FrameBatch::RenderBatch()
 					// end instancing
 					instanceServer->EndInstancing();
 				}
-			}
+			}           
 		}
     }
 

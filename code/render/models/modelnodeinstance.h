@@ -48,7 +48,7 @@ public:
     virtual void OnVisibilityResolve(IndexT resolveIndex, float distanceToViewer);
 
     /// apply per-instance state prior to rendering
-    virtual void ApplyState();
+    virtual void ApplyState(const Ptr<CoreGraphics::ShaderInstance>& shader);
 
     /// perform rendering
     virtual void Render();

@@ -129,9 +129,9 @@ GLSL4EffectVariable::Setup( eastl::vector<InternalEffectProgram*> programs, cons
 /**
 */
 void 
-GLSL4EffectVariable::SetupSlave(eastl::vector<InternalEffectProgram*> programs)
+GLSL4EffectVariable::SetupSlave(eastl::vector<InternalEffectProgram*> programs, InternalEffectVariable* master)
 {
-    InternalEffectVariable::SetupSlave(programs);
+    InternalEffectVariable::SetupSlave(programs, master);
 
     if (!this->isInVarblock)
     {

@@ -224,6 +224,7 @@
      <string>Create</string>
     </property>
     <addaction name="actionCreate_Particle"/>
+    <addaction name="actionCreate_material"/>
    </widget>
    <addaction name="menuImport"/>
    <addaction name="menuCreate"/>
@@ -943,6 +944,11 @@
    </property>
    <property name="shortcut">
     <string>F9</string>
+   </property>
+  </action>
+  <action name="actionCreate_material">
+   <property name="text">
+    <string>Create material...</string>
    </property>
   </action>
  </widget>

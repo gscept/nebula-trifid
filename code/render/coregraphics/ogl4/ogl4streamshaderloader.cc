@@ -61,6 +61,7 @@ OGL4StreamShaderLoader::SetupResourceFromStream(const Ptr<Stream>& stream)
 		
 		res->ogl4Effect = effect;
 		res->shaderName = res->GetResourceId().AsString();
+        res->shaderIdentifierCode = ShaderIdentifier::FromName(res->shaderName.AsString());
 
 		return true;
 	}

@@ -113,7 +113,7 @@ RenderTargetBase::BeginPass()
 /**
 */
 void
-RenderTargetBase::BeginBatch(BatchType::Code t)
+RenderTargetBase::BeginBatch(FrameBatchType::Code t)
 {
     n_assert(this->inBeginPass);
     n_assert(!this->inBeginBatch);
@@ -129,7 +129,7 @@ RenderTargetBase::EndBatch()
 {
     n_assert(this->inBeginBatch);
     this->inBeginBatch = false; 
-    this->batchType = BatchType::InvalidBatchType;
+    this->batchType = FrameBatchType::InvalidBatchType;
 }
 
 //------------------------------------------------------------------------------

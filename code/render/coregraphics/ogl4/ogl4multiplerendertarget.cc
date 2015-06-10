@@ -109,7 +109,7 @@ OGL4MultipleRenderTarget::BeginPass()
 /**
 */
 void 
-OGL4MultipleRenderTarget::BeginBatch( CoreGraphics::BatchType::Code batchType )
+OGL4MultipleRenderTarget::BeginBatch( CoreGraphics::FrameBatchType::Code batchType )
 {
 	// empty, do nothing
 }

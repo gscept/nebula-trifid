@@ -121,8 +121,8 @@ SM50ShadowServer::Open()
 
 	// create spotlight batch
 	this->spotLightBatch = FrameBatch::Create();
-	this->spotLightBatch->SetType(CoreGraphics::BatchType::FromString("Geometry"));
-	this->spotLightBatch->SetNodeFilter(ModelNodeType::FromName("SpotLightShadow"));
+	this->spotLightBatch->SetType(CoreGraphics::FrameBatchType::FromString("Geometry"));
+	this->spotLightBatch->SetBatchGroup(BatchGroup::FromName("SpotLightShadow"));
 
 	// create spotlight pass
 	this->spotLightPass = FramePass::Create();
@@ -188,8 +188,8 @@ SM50ShadowServer::Open()
 
     // create batch for pointlights
     this->pointLightBatch = FrameBatch::Create();
-    this->pointLightBatch->SetType(CoreGraphics::BatchType::FromString("Geometry"));
-    this->pointLightBatch->SetNodeFilter(ModelNodeType::FromName("PointLightShadow"));
+    this->pointLightBatch->SetType(CoreGraphics::FrameBatchType::FromString("Geometry"));
+    this->pointLightBatch->SetBatchGroup(BatchGroup::FromName("PointLightShadow"));
 
     // create pass for pointlights
     this->pointLightPass = FramePass::Create();
@@ -246,8 +246,8 @@ SM50ShadowServer::Open()
 
 	// create batch
 	this->globalLightShadowBatch = FrameBatch::Create();
-	this->globalLightShadowBatch->SetType(CoreGraphics::BatchType::FromString("Geometry"));
-	this->globalLightShadowBatch->SetNodeFilter(ModelNodeType::FromName("GlobalShadow"));
+	this->globalLightShadowBatch->SetType(CoreGraphics::FrameBatchType::FromString("Geometry"));
+	this->globalLightShadowBatch->SetBatchGroup(BatchGroup::FromName("GlobalShadow"));
     this->globalLightShadowBatch->SetForceInstancing(true, 4);
 
 	// create pass

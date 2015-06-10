@@ -106,7 +106,7 @@ protected:
 	/// sets up variable from program, override in subclass
 	virtual void Setup(eastl::vector<InternalEffectProgram*> program, const std::string& defaultValue);
     /// sets up variable from another variable
-    virtual void SetupSlave(eastl::vector<InternalEffectProgram*> program);
+    virtual void SetupSlave(eastl::vector<InternalEffectProgram*> program, InternalEffectVariable* master);
 	/// sets up texture-specific stuff
 	virtual void MakeTexture();
 	/// sets up default value

@@ -4,7 +4,7 @@
 //  (C) 2013-2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "models/modelnodetype.h"
+#include "models/framebatchtype.h"
 #include "models/modelserver.h"
 
 namespace Models
@@ -17,7 +17,7 @@ using namespace Util;
     Private constructor, only the ModelServer may create the central 
     ModelNodeType registry.
 */
-ModelNodeType::ModelNodeType()
+BatchType::BatchType()
 {
     this->nameToCode.Reserve(MaxNumModelNodeTypes);
     this->codeToName.Reserve(MaxNumModelNodeTypes);
@@ -26,10 +26,10 @@ ModelNodeType::ModelNodeType()
 //------------------------------------------------------------------------------
 /**
 */
-ModelNodeType::Code
-ModelNodeType::FromName(const Name& name)
+BatchType::Code
+BatchType::FromName(const Name& name)
 {
-    ModelNodeType& registry = ModelServer::Instance()->modelNodeTypeRegistry;
+    BatchType& registry = ModelServer::Instance()->modelNodeTypeRegistry;
     IndexT index = registry.nameToCode.FindIndex(name);
     if (InvalidIndex != index)
     {
@@ -48,10 +48,10 @@ ModelNodeType::FromName(const Name& name)
 //------------------------------------------------------------------------------
 /**
 */
-ModelNodeType::Name
-ModelNodeType::ToName(Code c)
+BatchType::Name
+BatchType::ToName(Code c)
 {
-    ModelNodeType& registry = ModelServer::Instance()->modelNodeTypeRegistry;
+    BatchType& registry = ModelServer::Instance()->modelNodeTypeRegistry;
     return registry.codeToName[c];
 }
 

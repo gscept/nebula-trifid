@@ -162,7 +162,7 @@ NFbxSceneWriter::CreateStaticModel( const Ptr<ToolkitUtil::N3Writer>& modelWrite
 		// set material of state
 		if (!state.material.IsValid())
 		{
-			state.material = "Placeholder";
+			state.material = "mat:surfaces/placeholder";
 		}		
 
 		// search for diffuse map and set it to white if it isn't set

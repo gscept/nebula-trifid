@@ -67,7 +67,7 @@ public:
 	/// begin rendering a transform feedback with a vertex buffer as target
 	void BeginFeedback(const Ptr<CoreGraphics::FeedbackBuffer>& fb, CoreGraphics::PrimitiveTopology::Code primType, const Ptr<CoreGraphics::ShaderInstance>& shader);
 	/// begin batch
-	void BeginBatch(CoreGraphics::BatchType::Code batchType);
+	void BeginBatch(CoreGraphics::FrameBatchType::Code batchType);
 	/// draw current primitives
 	void Draw();
 	/// draw indexed, instanced primitives (see method header for details)

@@ -1,13 +1,13 @@
 //------------------------------------------------------------------------------
 //  modelnodematerial.cc
-//  (C) 2011-2013 Individual contributors, see AUTHORS file Luleå Tekniska Universitet
+//  (C) 2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 
 #include "stdneb.h"
-#include "models/modelnodematerial.h"
-#include "models/modelserver.h"
+#include "materials/materialtype.h"
+#include "materialserver.h"
 
-namespace Models
+namespace Materials
 {
 using namespace Util;
 
@@ -16,19 +16,19 @@ using namespace Util;
 	Private constructor, only the ModelServer may create the central 
 	ModelNodeMaterial registry.
 */
-ModelNodeMaterial::ModelNodeMaterial()
+MaterialType::MaterialType()
 {
-	this->nameToCode.Reserve(MaxNumModelNodeMaterials);
-	this->codeToName.Reserve(MaxNumModelNodeMaterials);
+	this->nameToCode.Reserve(MaxNumMaterialTypes);
+	this->codeToName.Reserve(MaxNumMaterialTypes);
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-ModelNodeMaterial::Code
-ModelNodeMaterial::FromName(const Name& name)
+MaterialType::Code
+MaterialType::FromName(const Name& name)
 {
-	ModelNodeMaterial& registry = ModelServer::Instance()->modelNodeMaterialRegistry;
+	MaterialType& registry = MaterialServer::Instance()->materialTypeRegistry;
 	IndexT index = registry.nameToCode.FindIndex(name);
 	if (InvalidIndex != index)
 	{
@@ -47,10 +47,10 @@ ModelNodeMaterial::FromName(const Name& name)
 //------------------------------------------------------------------------------
 /**
 */
-ModelNodeMaterial::Name
-ModelNodeMaterial::ToName(Code c)
+MaterialType::Name
+MaterialType::ToName(Code c)
 {
-	ModelNodeMaterial& registry = ModelServer::Instance()->modelNodeMaterialRegistry;
+    MaterialType& registry = MaterialServer::Instance()->materialTypeRegistry;
 	return registry.codeToName[c];	
 }
 

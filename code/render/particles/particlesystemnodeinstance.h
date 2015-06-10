@@ -30,7 +30,7 @@ public:
     /// called during visibility resolve
     virtual void OnVisibilityResolve(IndexT resolveIndex, float distanceToViewer);
     /// apply per-instance state prior to rendering
-	virtual void ApplyState();
+    virtual void ApplyState(const Ptr<CoreGraphics::ShaderInstance>& shader);
     /// perform rendering
     virtual void Render();
 
@@ -51,14 +51,15 @@ protected:
 
     Ptr<ParticleSystemInstance> particleSystemInstance;    
 
-	Ptr<Materials::MaterialVariable> emitterOrientation;
-	Ptr<Materials::MaterialVariable> billBoard;
-	Ptr<Materials::MaterialVariable> bboxCenter;
-	Ptr<Materials::MaterialVariable> bboxSize;
-	Ptr<Materials::MaterialVariable> time;
-	Ptr<Materials::MaterialVariable> animPhases;
-	Ptr<Materials::MaterialVariable> animsPerSec;
-	Ptr<Materials::MaterialVariable> depthBuffer;
+    Ptr<Materials::SurfaceMaterial> materialInstance;
+	Ptr<Materials::SurfaceConstant> emitterOrientation;
+    Ptr<Materials::SurfaceConstant> billBoard;
+    Ptr<Materials::SurfaceConstant> bboxCenter;
+    Ptr<Materials::SurfaceConstant> bboxSize;
+    Ptr<Materials::SurfaceConstant> time;
+    Ptr<Materials::SurfaceConstant> animPhases;
+    Ptr<Materials::SurfaceConstant> animsPerSec;
+    Ptr<Materials::SurfaceConstant> depthBuffer;
 };
 
 //------------------------------------------------------------------------------

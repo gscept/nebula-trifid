@@ -47,8 +47,8 @@ ShaderVariableInstanceBase::Setup(const Ptr<ShaderVariable>& var)
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ShaderVariableInstanceBase::Setup( const Base::ShaderVariableBase::Type& type )
+void
+ShaderVariableInstanceBase::Setup(const Base::ShaderVariableBase::Type& type)
 {
 	this->Prepare(type);
 }
@@ -116,7 +116,7 @@ ShaderVariableInstanceBase::Prepare(ShaderVariable::Type type)
 
 //------------------------------------------------------------------------------
 /**
-    @todo: hmm, the dynamic type switch is sort of lame...
+    Switch-case looks complicated, however sub classing shader variable for every type is too much overhead/bloat to be worth it
 */
 void
 ShaderVariableInstanceBase::Apply()
@@ -127,34 +127,63 @@ ShaderVariableInstanceBase::Apply()
         case Variant::Int:
             this->shaderVariable->SetInt(this->value.GetInt());
             break;
+        case Variant::IntArray:
+        {
+            Array<int> array = this->value.GetIntArray();
+            this->shaderVariable->SetIntArray((const int*)&array, array.Size());
+            break;
+        }
         case Variant::Float:
             this->shaderVariable->SetFloat(this->value.GetFloat());
             break;
+        case Variant::FloatArray:
+        {
+            Array<float> array = this->value.GetFloatArray();
+            this->shaderVariable->SetFloatArray((const float*)&array, array.Size());
+            break;
+        }
+        case Variant::Float2:
+            this->shaderVariable->SetFloat2(this->value.GetFloat2());
+            break;
+        case Variant::Float2Array:
+        {
+            Array<Math::float2> array = this->value.GetFloat2Array();
+            this->shaderVariable->SetFloat2Array((const Math::float2*)&array, array.Size());
+            break;
+        }
         case Variant::Float4:
             this->shaderVariable->SetFloat4(this->value.GetFloat4());
             break;
+        case Variant::Float4Array:
+        {
+            Array<Math::float4> array = this->value.GetFloat4Array();
+            this->shaderVariable->SetFloat4Array((const Math::float4*)&array, array.Size());
+            break;
+        }
         case Variant::Matrix44:
             this->shaderVariable->SetMatrix(this->value.GetMatrix44());
             break;
+        case Variant::Matrix44Array:
+        {
+            Array<Math::matrix44> array = this->value.GetMatrix44Array();
+            this->shaderVariable->SetMatrixArray((const Math::matrix44*)&array, array.Size());
+            break;
+        }
         case Variant::Bool:
             this->shaderVariable->SetBool(this->value.GetBool());
             break;
+        case Variant::BoolArray:
+        {
+            Array<bool> array = this->value.GetBoolArray();
+            this->shaderVariable->SetBoolArray((const bool*)&array, array.Size());
+            break;
+        }
         case Variant::Object:
             // @note: implicit Ptr<> creation!
             if (this->value.GetObject() != 0)
             {
                 this->shaderVariable->SetTexture((Texture*)this->value.GetObject());
             }
-			else
-			{
-				// attempt to load texture if at variable instance binding, the texture wasn't available
-				const Ptr<Resources::ResourceManager>& resManager = Resources::ResourceManager::Instance();
-				if (resManager->HasResource(this->deferredTexture))
-				{
-					const Ptr<Resources::Resource>& resource = resManager->LookupResource(this->deferredTexture);
-					this->value.SetObject(resource.upcast<Core::RefCounted>());
-				}
-			}
             break;
 
         default:
@@ -167,7 +196,7 @@ ShaderVariableInstanceBase::Apply()
 /**
 */
 void 
-ShaderVariableInstanceBase::ApplyTo( const Ptr<CoreGraphics::ShaderVariable>& var )
+ShaderVariableInstanceBase::ApplyTo(const Ptr<CoreGraphics::ShaderVariable>& var)
 {
 	n_assert(var.isvalid());
 	switch (this->value.GetType())
@@ -175,24 +204,68 @@ ShaderVariableInstanceBase::ApplyTo( const Ptr<CoreGraphics::ShaderVariable>& va
 	case Variant::Int:
 		var->SetInt(this->value.GetInt());
 		break;
+    case Variant::IntArray:
+    {
+        Array<int> array = this->value.GetIntArray();
+        var->SetIntArray((const int*)&array, array.Size());
+        break;
+    }
 	case Variant::Float:
 		var->SetFloat(this->value.GetFloat());
 		break;
+    case Variant::FloatArray:
+    {
+        Array<float> array = this->value.GetFloatArray();
+        var->SetFloatArray((const float*)&array, array.Size());
+        break;
+    }
+    case Variant::Float2:
+        var->SetFloat2(this->value.GetFloat2());
+        break;
+    case Variant::Float2Array:
+    {
+        Array<Math::float2> array = this->value.GetFloat2Array();
+        var->SetFloat2Array((const Math::float2*)&array, array.Size());
+        break;
+    }
 	case Variant::Float4:
 		var->SetFloat4(this->value.GetFloat4());
 		break;
+    case Variant::Float4Array:
+    {
+        Array<Math::float4> array = this->value.GetFloat4Array();
+        var->SetFloat4Array((const Math::float4*)&array, array.Size());
+        break;
+    }
 	case Variant::Matrix44:
 		var->SetMatrix(this->value.GetMatrix44());
 		break;
+    case Variant::Matrix44Array:
+    {
+        Array<Math::matrix44> array = this->value.GetMatrix44Array();
+        var->SetMatrixArray((const Math::matrix44*)&array, array.Size());
+        break;
+    }
 	case Variant::Bool:
 		var->SetBool(this->value.GetBool());
 		break;
+    case Variant::BoolArray:
+    {
+        Array<bool> array = this->value.GetBoolArray();
+        var->SetBoolArray((const bool*)&array, array.Size());
+        break;
+    }
 	case Variant::Object:
 		// @note: implicit Ptr<> creation!
-		if (this->value.GetObject() != 0)
-		{
-			var->SetTexture((Texture*)this->value.GetObject());
-		}
+        if (this->value.GetObject() != 0)
+        {
+            CoreGraphics::Texture* tex = (CoreGraphics::Texture*)this->value.GetObject();
+            var->SetTexture(tex);
+        }
+        else
+        {
+            var->SetTexture(NULL);
+        }
 		break;
 	default:
 		n_error("ShaderVariable::Apply(): invalid data type for scalar!");

@@ -15,7 +15,7 @@
 #include "core/singleton.h"
 #include "coregraphics/rendereventhandler.h"
 #include "coregraphics/primitivegroup.h"
-#include "coregraphics/batchtype.h"
+#include "coregraphics/framebatchtype.h"
 #include "coregraphics/imagefileformat.h"
 #include "io/stream.h"
 #include "debug/debugcounter.h"
@@ -86,7 +86,7 @@ public:
 	/// begin rendering a transform feedback with a vertex buffer as target, updateFeedback checks if the feedback buffer should be used for updating, or for rendering
 	void BeginFeedback(const Ptr<CoreGraphics::FeedbackBuffer>& fb, CoreGraphics::PrimitiveTopology::Code primType, const Ptr<CoreGraphics::ShaderInstance>& shader);
     /// begin rendering a batch
-    void BeginBatch(CoreGraphics::BatchType::Code batchType);
+    void BeginBatch(CoreGraphics::FrameBatchType::Code batchType);
     /// set the current vertex stream source
     void SetStreamVertexBuffer(IndexT streamIndex, const Ptr<CoreGraphics::VertexBuffer>& vb, IndexT offsetVertexIndex);
     /// get currently set vertex buffer

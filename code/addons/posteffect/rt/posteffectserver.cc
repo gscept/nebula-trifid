@@ -140,11 +140,11 @@ PostEffectServer::FindCurrentSkyEntities()
 					const Ptr<StateNode>& stateNode = stateNodeInst->GetModelNode().downcast<StateNode>();
 
 					// create variables
-					this->skyBaseTexture = stateNodeInst->CreateMaterialVariableInstance(ShaderVariable::Semantic(NEBULA3_SEMANTIC_SKY1));
-					this->skyBlendTexture = stateNodeInst->CreateMaterialVariableInstance(ShaderVariable::Semantic(NEBULA3_SEMANTIC_SKY2));
-					this->skyBlendFactor = stateNodeInst->CreateMaterialVariableInstance(ShaderVariable::Semantic(NEBULA3_SEMANTIC_SKYBLENDFACTOR));
-					this->skyBrightness = stateNodeInst->CreateMaterialVariableInstance(ShaderVariable::Semantic(NEBULA3_SEMANTIC_BRIGHTNESS));
-					this->skyContrast = stateNodeInst->CreateMaterialVariableInstance(ShaderVariable::Semantic(NEBULA3_SEMANTIC_CONTRAST));
+                    this->skyBaseTexture = stateNodeInst->CreateSurfaceConstantInstance(ShaderVariable::Semantic(NEBULA3_SEMANTIC_SKY1));
+					this->skyBlendTexture = stateNodeInst->CreateSurfaceConstantInstance(ShaderVariable::Semantic(NEBULA3_SEMANTIC_SKY2));
+                    this->skyBlendFactor = stateNodeInst->CreateSurfaceConstantInstance(ShaderVariable::Semantic(NEBULA3_SEMANTIC_SKYBLENDFACTOR));
+                    this->skyBrightness = stateNodeInst->CreateSurfaceConstantInstance(ShaderVariable::Semantic(NEBULA3_SEMANTIC_BRIGHTNESS));
+                    this->skyContrast = stateNodeInst->CreateSurfaceConstantInstance(ShaderVariable::Semantic(NEBULA3_SEMANTIC_CONTRAST));
 
 					// set base texture
 					this->skyBaseTexture->SetTexture(this->FindTexture("tex:system/sky")->GetTexture());
@@ -211,6 +211,7 @@ PostEffectServer::OnFrame(Timing::Time time)
     }
 
 	// make sure to apply sky parameters
+    /*
 	if (this->skyBlendTexture.isvalid() &&
 		this->skyBaseTexture.isvalid() &&
 		this->skyBlendTexture->IsValid() &&
@@ -218,7 +219,8 @@ PostEffectServer::OnFrame(Timing::Time time)
 	{
 		this->skyBlendTexture->Apply();
 		this->skyBaseTexture->Apply();
-	}	
+	}
+    */
 
 	Timing::Time frameTime = time - this->lastTime;
 	this->lastTime = time;
@@ -439,8 +441,8 @@ PostEffectServer::ApplySkyParameters()
 	this->PreloadTexture(targetPara->GetSkyTexturePath());
 	this->PreloadTexture(currentPara->GetSkyTexturePath());
 
-    this->skyBrightness->SetFloat(currentPara->GetSkyBrightness());
-    this->skyContrast->SetFloat(currentPara->GetSkyContrast());
+    this->skyBrightness->SetValue(currentPara->GetSkyBrightness());
+    this->skyContrast->SetValue(currentPara->GetSkyContrast());
     
     // if blending finished, apply blend texture as current
     if(1.0f - currentPara->GetTextureBlendFactor() <= N_TINY || targetPara == currentPara)
@@ -452,21 +454,17 @@ PostEffectServer::ApplySkyParameters()
 
 		// set texture
 		this->skyBaseTexture->SetTexture(this->FindTexture(currentPara->GetSkyTexturePath())->GetTexture());
-		this->skyBaseTexture->Apply();
 
         // set base texture, other one is not needed
-        this->skyBlendFactor->SetFloat(currentPara->GetTextureBlendFactor());
-        this->skyBlendFactor->Apply();
+        this->skyBlendFactor->SetValue(currentPara->GetTextureBlendFactor());
     }
     else
     {
 		// set blend texture
 		this->skyBlendTexture->SetTexture(this->FindTexture(targetPara->GetSkyTexturePath())->GetTexture());
-		this->skyBlendTexture->Apply();
 
 	    // set base and blend texture
-        this->skyBlendFactor->SetFloat(currentPara->GetTextureBlendFactor());
-        this->skyBlendFactor->Apply();
+        this->skyBlendFactor->SetValue(currentPara->GetTextureBlendFactor());
     }
 }
 

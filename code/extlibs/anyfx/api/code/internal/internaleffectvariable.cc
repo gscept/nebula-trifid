@@ -59,8 +59,8 @@ InternalEffectVariable::~InternalEffectVariable()
 /**
 	Call this from subclass
 */
-void 
-InternalEffectVariable::Setup( eastl::vector<InternalEffectProgram*> program, const std::string& defaultValue )
+void
+InternalEffectVariable::Setup(eastl::vector<InternalEffectProgram*> program, const std::string& defaultValue)
 {
 	std::string typeString = EffectVariable::TypeToString(this->type);
 	this->signature = typeString + ":" + this->name;
@@ -84,7 +84,7 @@ InternalEffectVariable::Setup( eastl::vector<InternalEffectProgram*> program, co
 /**
 */
 void 
-InternalEffectVariable::SetupSlave(eastl::vector<InternalEffectProgram*> program)
+InternalEffectVariable::SetupSlave(eastl::vector<InternalEffectProgram*> program, InternalEffectVariable* master)
 {
     // empty, override in subclass
 }

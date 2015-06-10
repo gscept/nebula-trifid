@@ -52,11 +52,15 @@ OGL4ShaderInstance::Setup(const Ptr<CoreGraphics::Shader>& origShader)
 	// copy effect pointer
 	this->effect = origShader->GetOGL4Effect();
 
-	int programCount = ogl4Shader->GetOGL4Effect()->GetNumPrograms();
+    int programCount = this->effect->GetNumPrograms();
 	for (int i = 0; i < programCount; i++)
 	{
+        // a shader variation in Nebula is equal to a program object in AnyFX
 		Ptr<ShaderVariation> variation = ShaderVariation::Create();
-		AnyFX::EffectProgram* program = ogl4Shader->GetOGL4Effect()->GetProgramByIndex(i);
+
+        // get program object from shader subsystem
+        AnyFX::EffectProgram* program = this->effect->GetProgramByIndex(i);
+
 		if (program->IsValid())
 		{
 			variation->Setup(program);
@@ -64,14 +68,14 @@ OGL4ShaderInstance::Setup(const Ptr<CoreGraphics::Shader>& origShader)
 		}		
 	}
 
-	int variableCount = ogl4Shader->GetOGL4Effect()->GetNumVariables();
+    int variableCount = this->effect->GetNumVariables();
 	for (int i = 0; i < variableCount; i++)
 	{
 		// create new variable
 		Ptr<ShaderVariable> var = ShaderVariable::Create();
 
 		// get AnyFX variable
-		AnyFX::EffectVariable* effectVar = ogl4Shader->GetOGL4Effect()->GetVariableByIndex(i);
+        AnyFX::EffectVariable* effectVar = this->effect->GetVariableByIndex(i);
 
 		if (effectVar->IsActive())
 		{
@@ -83,14 +87,14 @@ OGL4ShaderInstance::Setup(const Ptr<CoreGraphics::Shader>& origShader)
 		}		
 	}
 
-	int varbufferCount = ogl4Shader->GetOGL4Effect()->GetNumVarbuffers();
+    int varbufferCount = this->effect->GetNumVarbuffers();
 	for (int i = 0; i < varbufferCount; i++)
 	{
 		// create new variable
 		Ptr<ShaderVariable> var = ShaderVariable::Create();
 		
 		// get AnyFX variable
-		AnyFX::EffectVarbuffer* effectBuf = ogl4Shader->GetOGL4Effect()->GetVarbufferByIndex(i);
+        AnyFX::EffectVarbuffer* effectBuf = this->effect->GetVarbufferByIndex(i);
 
 		var->Setup(effectBuf);
 		this->variables.Append(var);

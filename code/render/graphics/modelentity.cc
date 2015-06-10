@@ -180,20 +180,20 @@ ModelEntity::SetMaterialVariableByName( const Util::String& varName, const Util:
 //------------------------------------------------------------------------------
 /**
 */
-Ptr<Materials::MaterialVariableInstance> 
+Ptr<Materials::SurfaceConstantInstance>
 ModelEntity::GetMaterialVariable( const Util::String& nodeName, const Util::String& varName )
 {
     Ptr<StateNodeInstance> stateNodeInst = RenderUtil::NodeLookupUtil::LookupStateNodeInstance(this, nodeName);
     if (stateNodeInst.isvalid())
     {
-        Ptr<Materials::MaterialVariableInstance> var;
-        if (stateNodeInst->HasMaterialVariableInstance(ShaderVariable::Semantic(varName)))
+        Ptr<Materials::SurfaceConstantInstance> var;
+        if (stateNodeInst->HasSurfaceConstantInstance(ShaderVariable::Semantic(varName)))
         {
-            var = stateNodeInst->GetMaterialVariableInstance(ShaderVariable::Semantic(varName));        
+            var = stateNodeInst->GetSurfaceConstantInstance(ShaderVariable::Semantic(varName));        
         }
         else
         {
-            var = stateNodeInst->CreateMaterialVariableInstance(ShaderVariable::Semantic(varName));
+            var = stateNodeInst->CreateSurfaceConstantInstance(ShaderVariable::Semantic(varName));
         }
         return var;
     }

@@ -20,7 +20,6 @@ class OGL4Shader : public Base::ShaderBase
 {
     __DeclareClass(OGL4Shader);
 public:
-
 	
     /// constructor
     OGL4Shader();

@@ -90,7 +90,7 @@ OGL4ShapeRenderer::Open()
 	comps.Append(VertexComponent(VertexComponent::Position, 0, VertexComponent::Float4, 0));
 	comps.Append(VertexComponent(VertexComponent::Color, 0, VertexComponent::Float4, 0));
 	Ptr<MemoryVertexBufferLoader> vboLoader = MemoryVertexBufferLoader::Create();
-	vboLoader->Setup(comps, MaxNumVertices, NULL, 0, VertexBuffer::UsageDynamic, VertexBuffer::AccessWrite, VertexBuffer::BufferTriple, VertexBuffer::SyncingCoherentPersistent);
+	vboLoader->Setup(comps, MaxNumVertices * 3, NULL, 0, VertexBuffer::UsageDynamic, VertexBuffer::AccessWrite, VertexBuffer::SyncingCoherentPersistent);
 
 	// create vbo
 	this->vbo = VertexBuffer::Create();
@@ -102,7 +102,7 @@ OGL4ShapeRenderer::Open()
 
 	// setup ibo
 	Ptr<MemoryIndexBufferLoader> iboLoader = MemoryIndexBufferLoader::Create();
-	iboLoader->Setup(IndexType::Index32, MaxNumIndices, NULL, 0, IndexBuffer::UsageDynamic, IndexBuffer::AccessWrite, IndexBuffer::BufferTriple, IndexBuffer::SyncingCoherentPersistent);
+    iboLoader->Setup(IndexType::Index32, MaxNumIndices * 3, NULL, 0, IndexBuffer::UsageDynamic, IndexBuffer::AccessWrite, IndexBuffer::SyncingCoherentPersistent);
 
 	// create ibo
 	this->ibo = IndexBuffer::Create();

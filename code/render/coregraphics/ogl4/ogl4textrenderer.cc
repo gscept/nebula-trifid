@@ -72,7 +72,7 @@ OGL4TextRenderer::Open()
 	comps.Append(VertexComponent(VertexComponent::TexCoord, 0, VertexComponent::Float2, 0));
 	comps.Append(VertexComponent(VertexComponent::Color, 0, VertexComponent::Float4, 0));
 	Ptr<MemoryVertexBufferLoader> vboLoader = MemoryVertexBufferLoader::Create();
-	vboLoader->Setup(comps, MaxNumChars * 6, NULL, 0, VertexBuffer::UsageDynamic, VertexBuffer::AccessWrite, VertexBuffer::BufferTriple, VertexBuffer::SyncingCoherentPersistent);
+    vboLoader->Setup(comps, MaxNumChars * 6 * 3, NULL, 0, VertexBuffer::UsageDynamic, VertexBuffer::AccessWrite, VertexBuffer::SyncingCoherentPersistent);
 
 	// create vbo and load
 	this->vbo = VertexBuffer::Create();

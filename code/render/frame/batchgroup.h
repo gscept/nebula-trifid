@@ -1,13 +1,17 @@
 #pragma once
 //------------------------------------------------------------------------------
 /**
-    @class Models::ModelNodeType
+    @class Frame::BatchGroup
   
-    ModelNodeTypes identify a ModelNode for a specific rendering pass. Works
-    the same as shader features, there is no hardcoded set of ModelNodeTypes,
-    but there is a central registry which converts string into binary indices,
-    and guarantees that the returned indices for a name are the same for
-    the lifetime of the application.
+    BatchGroup denotes a zero indexed name registry which corresponds to the 
+    type of materials being batched during a FrameBatch. The name from the 
+    'batchType' field gets converted into an index in this class, which is then
+    used when retrieving all materials which utilizes this batch type.
+
+    Materials have the same field in their template definition, meaning that 
+    for each frame batch using a specific batch type, all materials with the same
+    batch type defined will be rendered in this pass, which acts as the bridge
+    between the frame shader system and the material rendering system.
     
     (C) 2007 Radon Labs GmbH
     (C) 2013-2015 Individual contributors, see AUTHORS file
@@ -18,9 +22,9 @@
 #include "util/dictionary.h"
 
 //------------------------------------------------------------------------------
-namespace Models
+namespace Frame
 {
-class ModelNodeType
+class BatchGroup
 {
 public:
     /// human readable name of a ModelNodeType
@@ -33,20 +37,20 @@ public:
     /// convert to string
     static Name ToName(Code c);
     /// maximum number of different ModelNodeTypes
-    static const IndexT MaxNumModelNodeTypes = 16;
+    static const IndexT NumBatchGroups = 256;
     /// invalid model node type code
-    static const IndexT InvalidModelNodeType = InvalidIndex;
+    static const IndexT InvalidBatchGroup = InvalidIndex;
 
 private:
-    friend class ModelServer;
+    friend class FrameServer;
 
     /// constructor
-    ModelNodeType();
+    BatchGroup();
 
     Util::Dictionary<Name, IndexT> nameToCode;
     Util::Array<Name> codeToName;
 };
 
-} // namespace Models
+} // namespace Frame
 //------------------------------------------------------------------------------
 

@@ -502,5 +502,4 @@ program FlagTest
 	RenderState = FoliageState;
 	CompileFlags = "USE_INSTANCING|USE_WEIGHTED_VERTICES|USE_SHADOW_RENDERING|USE_CSM_SHADOWS";
 };
-
 */

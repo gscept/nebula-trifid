@@ -246,6 +246,7 @@ __StaticHandler(GetRenderMaterials)
 */
 __StaticHandler(SetModelNodeTexture)
 {
+    /*
 	ModelServer* modelServer = ModelServer::Instance();
 	ResourceManager* resManager = ResourceManager::Instance();
 	Ptr<ManagedModel> model = modelServer->LookupManagedModel(msg->GetModelName());
@@ -272,7 +273,7 @@ __StaticHandler(SetModelNodeTexture)
 		}
 
 	}
-
+    */
 }
 
 //------------------------------------------------------------------------------
@@ -280,6 +281,7 @@ __StaticHandler(SetModelNodeTexture)
 */
 __StaticHandler(SetModelNodeVariable)
 {
+    /*
 	ModelServer* modelServer = ModelServer::Instance();
 	Ptr<ManagedModel> model = modelServer->LookupManagedModel(msg->GetModelName());
 	Ptr<ModelNode> modelNode = model->GetModel()->LookupNode(msg->GetModelNodeName());
@@ -324,6 +326,7 @@ __StaticHandler(SetModelNodeVariable)
 			break;
 		}
 	}
+    */
 }
 
 //------------------------------------------------------------------------------

@@ -77,9 +77,10 @@ private:
     
 	Ptr<Models::ModelInstance> modelInstance;
 	Ptr<Resources::ManagedTexture> texture;
-    Ptr<Materials::MaterialVariableInstance> colorVariable;
-	Ptr<Materials::MaterialVariableInstance> textureVariable;
-	Ptr<Materials::MaterialVariableInstance> idVariable;
+    Ptr<Materials::ManagedSurfaceMaterial> managedMaterial;
+    Ptr<Materials::SurfaceMaterial> material;
+    Ptr<Materials::SurfaceConstant> colorVariable;
+    Ptr<Materials::SurfaceConstant> textureVariable;
 
 	static Ptr<Models::Model> billboardModel;
 	static Ptr<Billboards::BillboardNode> billboardNode;
@@ -140,15 +141,10 @@ BillboardEntity::GetTexture() const
 	return this->resource;
 }
 
-
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-BillboardEntity::SetColor( const Math::float4& color )
-{
-    this->color = color;
-}
+
 //------------------------------------------------------------------------------
 /**
 */

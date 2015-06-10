@@ -3,8 +3,8 @@
 /**
     @class CoreGraphics::BatchType
     
-    Batch type hints for the render device and render targets. Indicates
-    the type of objects that are rendered in a batch.
+    Frame batch type hints for the render device and render targets. Indicates
+    the type of objects that are rendered in a frame batch.
     
     (C) 2007 Radon Labs GmbH
     (C) 2013-2015 Individual contributors, see AUTHORS file
@@ -15,7 +15,7 @@
 //------------------------------------------------------------------------------
 namespace CoreGraphics
 {
-class BatchType
+class FrameBatchType
 {
 public:
     /// batch type enum
@@ -42,16 +42,16 @@ public:
     };
     
     /// convert from string
-    static BatchType::Code FromString(const Util::String& str);
+    static FrameBatchType::Code FromString(const Util::String& str);
     /// convert to string
-    static Util::String ToString(BatchType::Code c);
+    static Util::String ToString(FrameBatchType::Code c);
 };
 
 //------------------------------------------------------------------------------
 /**
 */
-inline BatchType::Code
-BatchType::FromString(const Util::String& str)
+inline FrameBatchType::Code
+FrameBatchType::FromString(const Util::String& str)
 {
     if (str == "Depth")                    return Depth;
     else if (str == "Solid")               return Solid;
@@ -80,7 +80,7 @@ BatchType::FromString(const Util::String& str)
 /**
 */
 inline Util::String
-BatchType::ToString(BatchType::Code c)
+FrameBatchType::ToString(FrameBatchType::Code c)
 {
     switch (c)
     {

@@ -14,8 +14,7 @@
 #include "resources/resourceid.h"
 #include "models/managedmodel.h"
 #include "resources/resourcemapper.h"
-#include "models/modelnodetype.h"
-#include "models/modelnodematerial.h"
+#include "materials/materialtype.h"
 #include "io/uri.h"
 #include "models/visresolver.h"
 
@@ -60,14 +59,11 @@ public:
 
 private:
     friend class Model;
-    friend class ModelNodeType;
-	friend class ModelNodeMaterial;
+    friend class BatchGroup;
 
     Ptr<VisResolver> visResolver;
     Ptr<Resources::ResourceMapper> modelResourceMapper;
     bool isOpen;
-    ModelNodeType modelNodeTypeRegistry;
-	ModelNodeMaterial modelNodeMaterialRegistry;
     IndexT curModelNodeInstanceIndex;
     SizeT maxModelNodeInstanceIndex;
 };

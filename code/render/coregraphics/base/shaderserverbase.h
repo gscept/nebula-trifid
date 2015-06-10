@@ -16,6 +16,7 @@
 #include "coregraphics/shaderfeature.h"
 #include "coregraphics/shadervariable.h"
 #include "coregraphics/shaderinstance.h"
+#include "coregraphics/shaderidentifier.h"
 
 namespace CoreGraphics
 {
@@ -83,6 +84,9 @@ public:
 	const Ptr<CoreGraphics::ShaderVariable>& GetDefaultShaderVariableBySemantic(const CoreGraphics::ShaderVariable::Semantic& sem) const;
 
 protected:
+    friend class CoreGraphics::ShaderIdentifier;
+
+    CoreGraphics::ShaderIdentifier shaderIdentifierRegistry;
     CoreGraphics::ShaderFeature shaderFeature;
     CoreGraphics::ShaderFeature::Mask curShaderFeatureBits;
     Util::Dictionary<Resources::ResourceId,Ptr<CoreGraphics::Shader> > shaders;

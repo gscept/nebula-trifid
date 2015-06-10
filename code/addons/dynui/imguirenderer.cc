@@ -74,7 +74,7 @@ ImguiDrawFunction(ImDrawList** const commandLists, int numCommandLists)
 		for (ImVector<ImDrawCmd>::const_iterator command = commandList->commands.begin(); command != commandList->commands.end(); command++)
 		{
 			// if we render too many vertices, we will simply assert
-			n_assert(vertexOffset + (IndexT)command->vtx_count < vbo->GetNumVertices() * vbo->GetBufferCount());
+			n_assert(vertexOffset + (IndexT)command->vtx_count < vbo->GetNumVertices() * 3);
 
 			// setup scissor rect
 			Math::rectangle<int> scissorRect((int)command->clip_rect.x, (int)command->clip_rect.y, (int)command->clip_rect.z, (int)command->clip_rect.w);
@@ -142,7 +142,7 @@ ImguiRenderer::Setup()
 	components.Append(VertexComponent(VertexComponentBase::TexCoord, 0, VertexComponentBase::Float2, 0));
 	components.Append(VertexComponent(VertexComponentBase::Color,	 0, VertexComponentBase::UByte4N, 0));
 	Ptr<MemoryVertexBufferLoader> vboLoader = MemoryVertexBufferLoader::Create();
-	vboLoader->Setup(components, 10000, NULL, 0, ResourceBase::UsageDynamic, ResourceBase::AccessWrite, ResourceBase::BufferTriple, ResourceBase::SyncingCoherentPersistent);
+	vboLoader->Setup(components, 10000 * 3, NULL, 0, ResourceBase::UsageDynamic, ResourceBase::AccessWrite, ResourceBase::SyncingCoherentPersistent);
 
 	// load buffer
 	this->vbo = VertexBuffer::Create();

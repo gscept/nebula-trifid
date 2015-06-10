@@ -188,8 +188,8 @@ protected:
 	Ptr<ModelHandler> itemHandler;
 	Ptr<Models::StateNodeInstance> stateNode;
 	Util::Dictionary<IndexT, Ptr<Resources::ManagedTexture>> textureResources;
-	Util::Dictionary<IndexT, Ptr<Materials::MaterialVariableInstance>> textureVariables;
-	Util::Dictionary<IndexT, Ptr<Materials::MaterialVariableInstance>> scalarVariables;
+	Util::Dictionary<IndexT, Ptr<Materials::SurfaceConstantInstance>> textureVariables;
+    Util::Dictionary<IndexT, Ptr<Materials::SurfaceConstantInstance>> scalarVariables;
 	ToolkitUtil::State state;
 }; 
 

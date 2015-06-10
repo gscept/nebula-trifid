@@ -73,6 +73,20 @@ String::FormatArgList(const char* fmtString, va_list argList)
 
 //------------------------------------------------------------------------------
 /**
+*/
+String
+String::Sprintf(const char* fmtString, ...)
+{
+    String format;
+    va_list argList;
+    va_start(argList, fmtString);
+    format.FormatArgList(fmtString, argList);
+    va_end(argList);
+    return format;
+}
+
+//------------------------------------------------------------------------------
+/**
     Sets a new string content. This will handle all special cases and try
     to minimize heap allocations as much as possible.
 */

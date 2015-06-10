@@ -41,8 +41,8 @@ OGL4MemoryVertexBufferLoader::OnLoadRequested()
 	GLenum sync = OGL4Types::AsOGL4Syncing(this->syncing);
 	glGenBuffers(1, &ogl4VertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, ogl4VertexBuffer);
-	if (this->syncing == VertexBuffer::SyncingSimple)	glBufferData(GL_ARRAY_BUFFER, this->numVertices * vertexSize * this->bufferCount, this->vertexDataPtr, usage | sync);
-	else												glBufferStorage(GL_ARRAY_BUFFER, this->numVertices * vertexSize * this->bufferCount, this->vertexDataPtr, GL_MAP_WRITE_BIT | GL_MAP_READ_BIT | sync);
+	if (this->syncing == VertexBuffer::SyncingSimple)	glBufferData(GL_ARRAY_BUFFER, this->numVertices * vertexSize, this->vertexDataPtr, usage | sync);
+	else												glBufferStorage(GL_ARRAY_BUFFER, this->numVertices * vertexSize, this->vertexDataPtr, GL_MAP_WRITE_BIT | GL_MAP_READ_BIT | sync);
 	Ptr<VertexLayout> vertexLayout = VertexLayout::Create();
 	vertexLayout->SetStreamBuffer(0, ogl4VertexBuffer);
 	vertexLayout->Setup(this->vertexComponents);
@@ -59,7 +59,6 @@ OGL4MemoryVertexBufferLoader::OnLoadRequested()
     n_assert(!res->IsLoaded());
 	res->SetUsage(this->usage);
 	res->SetAccess(this->access);
-	res->SetBufferCount(this->bufferCount);
 	res->SetSyncing(this->syncing);
     res->SetVertexLayout(vertexLayout);
     res->SetNumVertices(this->numVertices);

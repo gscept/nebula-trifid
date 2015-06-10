@@ -215,5 +215,13 @@ ShaderInstanceBase::GetVariableByName(const CoreGraphics::ShaderVariable::Name& 
     return this->variablesByName[n];
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+const CoreGraphics::ShaderIdentifier::Code&
+ShaderInstanceBase::GetCode() const
+{
+    return this->originalShader->GetShaderCode();
+}
 
 } // namespace Base

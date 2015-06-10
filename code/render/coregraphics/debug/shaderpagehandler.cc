@@ -297,14 +297,15 @@ ShaderPageHandler::HasShaderInstance(const Ptr<Models::ModelNodeInstance>& node,
     if (node->IsA(StateNodeInstance::RTTI))
     {
          const Ptr<StateNode>& stateNode = node.cast<StateNodeInstance>()->GetModelNode().cast<StateNode>();
-		 const Ptr<Materials::MaterialInstance>& instance = stateNode->GetMaterialInstance();
+		 const Ptr<Materials::SurfaceMaterial>& instance = stateNode->GetMaterial();
+         const Ptr<Materials::Material>& mat = instance->GetMaterialTemplate();
 
 		 // go through shader instances and tag the shader as found if it's in the material
 		 IndexT i;
-		 for (i = 0; i < instance->GetNumShaderInstances(); i++)
+		 for (i = 0; i < mat->GetNumPasses(); i++)
 		 {
-			shaderFound = instance->GetShaderInstanceByIndex(i)->GetOriginalShader()->GetResourceId() == resId;
-			break;
+            shaderFound = mat->GetShaderInstanceByIndex(i)->GetOriginalShader()->GetResourceId() == resId;
+		    break;
 		 }
     }
     const Util::Array<Ptr<ModelNodeInstance> > children = node->GetChildren();

@@ -399,7 +399,7 @@ RenderDeviceBase::BeginFeedback(const Ptr<CoreGraphics::FeedbackBuffer>& fb, Cor
 /**
 */
 void
-RenderDeviceBase::BeginBatch(BatchType::Code batchType)
+RenderDeviceBase::BeginBatch(FrameBatchType::Code batchType)
 {
     n_assert(this->inBeginPass);
     n_assert(!this->inBeginBatch);

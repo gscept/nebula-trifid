@@ -50,12 +50,23 @@ ENDIF()
 		materials/material.cc
 		materials/materialfeature.h
 		materials/materialfeature.cc
-		materials/materialinstance.h
-		materials/materialinstance.cc
+		materials/materialtype.h
+		materials/materialtype.cc
 		materials/materialvariable.h
 		materials/materialvariable.cc
 		materials/materialvariableinstance.h
 		materials/materialvariableinstance.cc
+		materials/managedsurfacematerial.h
+		materials/managedsurfacematerial.cc
+		materials/streamsurfacematerialloader.h
+		materials/streamsurfacematerialloader.cc
+		materials/surfaceconstant.h
+		materials/surfaceconstant.cc
+		materials/surfaceconstantinstance.h
+		materials/surfaceconstantinstance.cc
+		materials/surfacematerial.h
+		materials/surfacematerial.cc
+
 		)
 	source_group("materials" FILES ${Render_files_materials})
 	set(Render_materials ${Render_files_materials})
@@ -486,7 +497,7 @@ ENDIF()
       coregraphics/adapterinfo.h
       coregraphics/antialiasquality.cc
       coregraphics/antialiasquality.h
-      coregraphics/batchtype.h
+      coregraphics/framebatchtype.h
 	  coregraphics/bufferlock.cc
 	  coregraphics/bufferlock.h
       coregraphics/config.h
@@ -542,6 +553,8 @@ ENDIF()
 	  coregraphics/shaderbuffer.h
       coregraphics/shaderfeature.cc
       coregraphics/shaderfeature.h
+	  coregraphics/shaderidentifier.cc
+	  coregraphics/shaderidentifier.h
       coregraphics/shaderinstance.cc
       coregraphics/shaderinstance.h
       coregraphics/shadersemantics.h
@@ -657,6 +670,8 @@ ENDIF()
     set(Render_files_frame
 	  frame/copy.cc
 	  frame/copy.h
+	  frame/batchgroup.cc
+	  frame/batchgroup.h
 	  frame/framealgorithm.cc
 	  frame/framealgorithm.h
 	  frame/framecompute.cc
@@ -1022,10 +1037,6 @@ ENDIF()
       models/modelnode.h
       models/modelnodeinstance.cc
       models/modelnodeinstance.h
-      models/modelnodematerial.cc
-      models/modelnodematerial.h
-      models/modelnodetype.cc
-      models/modelnodetype.h
       models/modelserver.cc
       models/modelserver.h
       models/streammodelloader.cc

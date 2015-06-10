@@ -162,7 +162,7 @@ ModelNodeInstance::OnVisibilityResolve(IndexT resolveIndex, float distanceToView
     method of the ModelNodeInstance objects.
 */
 void
-ModelNodeInstance::ApplyState()
+ModelNodeInstance::ApplyState(const Ptr<CoreGraphics::ShaderInstance>& shader)
 {
     // n_printf("ModelNodeInstance::Apply() called on '%s'!\n", this->modelNode->GetName().Value());
 }

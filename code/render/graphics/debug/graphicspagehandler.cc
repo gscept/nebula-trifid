@@ -1012,7 +1012,7 @@ GraphicsPageHandler::WriteStateNodeInfo(const Ptr<StateNodeInstance>& stateNodeI
     htmlWriter->Begin(HtmlElement::Table);
         htmlWriter->Begin(HtmlElement::TableRow);
             htmlWriter->Element(HtmlElement::TableData, "Shader: ");
-            htmlWriter->Element(HtmlElement::TableData, stateNode->GetMaterialName());
+            htmlWriter->Element(HtmlElement::TableData, stateNode->GetMaterialName().AsString());
         htmlWriter->End(HtmlElement::TableRow);
     // TODO: rest of members...
     htmlWriter->End(HtmlElement::Table);

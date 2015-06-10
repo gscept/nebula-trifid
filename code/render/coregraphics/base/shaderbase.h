@@ -12,6 +12,7 @@
 */    
 #include "resources/resource.h"
 #include "vertexcomponentbase.h"
+#include "../shaderidentifier.h"
 
 namespace CoreGraphics
 {
@@ -34,12 +35,15 @@ public:
     /// discard a shader instance
     void DiscardShaderInstance(const Ptr<CoreGraphics::ShaderInstance>& inst);
     /// get all instances
-    const Util::Array<Ptr<CoreGraphics::ShaderInstance> >& GetAllShaderInstances() const;
+    const Util::Array<Ptr<CoreGraphics::ShaderInstance>>& GetAllShaderInstances() const;
 	/// get shader name
 	const Util::StringAtom GetShaderName() const;
+    /// get unique shader identifier code
+    const CoreGraphics::ShaderIdentifier::Code& GetShaderCode() const;
 
 protected:
-    Util::Array<Ptr<CoreGraphics::ShaderInstance> > shaderInstances;
+    CoreGraphics::ShaderIdentifier::Code shaderIdentifierCode;
+    Util::Array<Ptr<CoreGraphics::ShaderInstance>> shaderInstances;
 	Util::StringAtom shaderName;
 };
 
@@ -59,6 +63,15 @@ inline const Util::StringAtom
 ShaderBase::GetShaderName() const
 {
 	return this->shaderName;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const CoreGraphics::ShaderIdentifier::Code&
+ShaderBase::GetShaderCode() const
+{
+    return this->shaderIdentifierCode;
 }
 
 } // namespace Base

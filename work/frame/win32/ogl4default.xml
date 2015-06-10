@@ -93,19 +93,19 @@
        
   <!-- render opaque geometry -->
   <Pass multipleRenderTarget="GeometryBuffer" name="Geometry">
-	<Batch materialType="RenderFirst" sorting="None" lighting="None" type="Geometry">
+	<Batch batchGroup="RenderFirst" sorting="None" lighting="None" type="Geometry">
 		<ApplyShaderVariable sem="DepthBuffer" value="DepthBuffer"/>
 	</Batch>
-	<Batch materialType="FlatGeometryLit" sorting="None" lighting="None" type="Geometry"/>
-	<Batch materialType="TessellatedGeometryLit" sorting="None" lighting="None" type="Geometry"/>
-	<Batch materialType="RenderLast" sorting="None" lighting="None" type="Geometry">
+	<Batch batchGroup="FlatGeometryLit" sorting="None" lighting="None" type="Geometry"/>
+	<Batch batchGroup="TessellatedGeometryLit" sorting="None" lighting="None" type="Geometry"/>
+	<Batch batchGroup="RenderLast" sorting="None" lighting="None" type="Geometry">
 		<ApplyShaderVariable sem="DepthBuffer" value="DepthBuffer"/>
 	</Batch>
   </Pass>
       
   <!-- perform SSSS -->
   <Pass multipleRenderTarget="SubsurfaceBuffer" name="SubsurfaceScattering">
-	<Batch materialType="Subsurface" sorting="None" lighting="None" type="Geometry"/>
+	<Batch batchGroup="Subsurface" sorting="None" lighting="None" type="Geometry"/>
   </Pass>
   
   <!-- renders screen-space lighting for opaque geometry -->
@@ -145,8 +145,8 @@
   
   <!-- render alpha geometry -->
   <Pass multipleRenderTarget="AlphaGeometryBuffer" name="AlphaGeometry">
-	<Batch materialType="FlatGeometryAlphaLit" sorting="None" lighting="None" type="Geometry"/>
-	<Batch materialType="ParticleLit" sorting="BackToFront" lighting="None" type="Geometry"/>
+	<Batch batchGroup="FlatGeometryAlphaLit" sorting="None" lighting="None" type="Geometry"/>
+	<Batch batchGroup="ParticleLit" sorting="BackToFront" lighting="None" type="Geometry"/>
   </Pass>
   
   <!-- render screen-space lighting for alpha geometry -->
@@ -180,7 +180,7 @@
   <!-- render stuff which should be rendered behind solid materials, such as the skybox -->
   <Pass multipleRenderTarget="UnlitBuffer" name="Background">
 		<!-- render skybox, next render will render alpha objects, and the skybox will just write them over otherwise -->
-		<Batch materialType="Background" sorting="None" lighting="None" type="Geometry"/>
+		<Batch batchGroup="Background" sorting="None" lighting="None" type="Geometry"/>
   </Pass>
   
   <!-- same as the one above but for the alpha buffers -->
@@ -192,8 +192,8 @@
     
   <!-- render unlit objects -->
   <Pass multipleRenderTarget="UnlitBuffer" name="Unlit">
-	<Batch materialType="Unlit" sorting="None" lighting="None" type="Geometry"/>
-	<Batch materialType="ParticleUnlit" sorting="BackToFront" lighting="None" type="Geometry">
+	<Batch batchGroup="Unlit" sorting="None" lighting="None" type="Geometry"/>
+	<Batch batchGroup="ParticleUnlit" sorting="BackToFront" lighting="None" type="Geometry">
 		<ApplyShaderVariable sem="DepthBuffer" value="DepthBuffer"/>
 	</Batch>
   </Pass>
@@ -203,11 +203,11 @@
   
   <!-- render atmospheric stuff like water and volume fog -->
   <Pass multipleRenderTarget="AtmosphericBuffer" name="Atmosphere">
-	<Batch materialType="Fog" sorting="None" lighting="None" type="Geometry">
+	<Batch batchGroup="Fog" sorting="None" lighting="None" type="Geometry">
 		<ApplyShaderVariable sem="DiffuseMap" value="ColorBufferCopy"/>
 		<ApplyShaderVariable sem="DepthMap" value="DepthBuffer"/>
 	</Batch>
-	<Batch materialType="Water" sorting="None" lighting="None" type="Geometry">
+	<Batch batchGroup="Water" sorting="None" lighting="None" type="Geometry">
 		<ApplyShaderVariable sem="DepthMap" value="DepthBuffer"/>
 		<ApplyShaderVariable sem="ColorMap" value="ColorBufferCopy"/>
 	</Batch>

@@ -521,7 +521,7 @@ void OGL4Texture::GenerateMipmaps()
     Hmm, this is only viable for 2D textures
 */
 void 
-OGL4Texture::Update( void* data, SizeT size, SizeT width, SizeT height, IndexT left, IndexT top, IndexT mip )
+OGL4Texture::Update(void* data, SizeT size, SizeT width, SizeT height, IndexT left, IndexT top, IndexT mip)
 {
 	n_assert(0 != this->ogl4Texture);
 	GLenum components = OGL4Types::AsOGL4PixelComponents(this->pixelFormat);
