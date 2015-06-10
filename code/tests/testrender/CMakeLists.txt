@@ -40,9 +40,6 @@ N_SET_EXE_SUBSYSTEM(testrender Console)
 IF(N_USE_PRECOMPILED_HEADERS)
 	N_SET_PCH(testrender stdneb.h stdneb.cc ../)
 ENDIF()
-ADD_DEPENDENCIES(testrender ${NEBULA_DEFAULT_LIBS} testbase)
+ADD_DEPENDENCIES(testrender render dynui framecapture testbase)
 
-TARGET_LINK_LIBRARIES(testrender
-            testbase
-            ${NEBULA_DEFAULT_LIBS}
-)
+TARGET_LINK_LIBRARIES(testrender render attr dynui framecapture testbase)            
