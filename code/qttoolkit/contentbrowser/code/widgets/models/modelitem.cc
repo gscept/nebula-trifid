@@ -137,11 +137,11 @@ ModelItem::OnRightClicked(const QPoint& pos)
 		ioServer->DeleteFile(resource);
 
 		// delete model data
-		resource.Format("src:models/%s/%s.constants", category.AsCharPtr(), file.AsCharPtr());
+		resource.Format("src:assets/%s/%s.constants", category.AsCharPtr(), file.AsCharPtr());
 		if (ioServer->FileExists(resource)) ioServer->DeleteFile(resource);
-		resource.Format("src:models/%s/%s.attributes", category.AsCharPtr(), file.AsCharPtr());
+		resource.Format("src:assets/%s/%s.attributes", category.AsCharPtr(), file.AsCharPtr());
 		if (ioServer->FileExists(resource)) ioServer->DeleteFile(resource);
-		resource.Format("src:models/%s/%s.physics", category.AsCharPtr(), file.AsCharPtr());
+		resource.Format("src:assets/%s/%s.physics", category.AsCharPtr(), file.AsCharPtr());
 		if (ioServer->FileExists(resource)) ioServer->DeleteFile(resource);
 
 		// remove item
@@ -182,15 +182,15 @@ ModelItem::OnRightClicked(const QPoint& pos)
 			if (ioServer->FileExists(resource)) ioServer->DeleteFile(resource);
 
 			// delete model data
-			resource.Format("src:models/%s/%s.constants", category.AsCharPtr(), file.AsCharPtr());
+			resource.Format("src:assets/%s/%s.constants", category.AsCharPtr(), file.AsCharPtr());
 			if (ioServer->FileExists(resource)) ioServer->DeleteFile(resource);
-			resource.Format("src:models/%s/%s.attributes", category.AsCharPtr(), file.AsCharPtr());
+			resource.Format("src:assets/%s/%s.attributes", category.AsCharPtr(), file.AsCharPtr());
 			if (ioServer->FileExists(resource)) ioServer->DeleteFile(resource);
-			resource.Format("src:models/%s/%s.physics", category.AsCharPtr(), file.AsCharPtr());
+			resource.Format("src:assets/%s/%s.physics", category.AsCharPtr(), file.AsCharPtr());
 			if (ioServer->FileExists(resource)) ioServer->DeleteFile(resource);
 
 			// also delete FBX
-			resource.Format("src:gfxlib/%s/%s.fbx", category.AsCharPtr(), file.AsCharPtr());
+			resource.Format("src:assets/%s/%s.fbx", category.AsCharPtr(), file.AsCharPtr());
 			if (ioServer->FileExists(resource)) ioServer->DeleteFile(resource);
 
 			// remove item
@@ -200,7 +200,7 @@ ModelItem::OnRightClicked(const QPoint& pos)
 	else if (action == action3)
 	{
 		String resource;
-		resource.Format("src:gfxlib/%s/%s.fbx", category.AsCharPtr(), file.AsCharPtr());
+		resource.Format("src:assets/%s/%s.fbx", category.AsCharPtr(), file.AsCharPtr());
 
 		if (IO::IoServer::Instance()->FileExists(resource))
 		{

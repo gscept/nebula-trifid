@@ -222,7 +222,7 @@ EditorNavMeshProperty::UpdateMesh()
             Util::String modelName = ents[i]->GetString(Attr::Graphics);
 
             // check if model has a physics mesh first
-            IO::URI physUri = "root:work/models/" + modelName + ".physics";
+            IO::URI physUri = "root:work/assets/" + modelName + ".physics";
             Ptr<IO::Stream> phstream = IO::IoServer::Instance()->CreateStream(physUri);
             Ptr<ModelPhysics> phs = ModelPhysics::Create();
             phs->Load(phstream);

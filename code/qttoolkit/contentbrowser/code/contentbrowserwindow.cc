@@ -362,7 +362,7 @@ ContentBrowserWindow::closeEvent( QCloseEvent *e )
 void 
 ContentBrowserWindow::ImportModel()
 {
-	QFileDialog fileDialog(this, "Import FBX", IO::URI("src:gfxlib").GetHostAndLocalPath().AsCharPtr(), tr("*.fbx"));
+	QFileDialog fileDialog(this, "Import FBX", IO::URI("src:assets").GetHostAndLocalPath().AsCharPtr(), tr("*.fbx"));
 	fileDialog.setAcceptMode(QFileDialog::AcceptOpen);
 
 	if (fileDialog.exec() == QDialog::Accepted)
@@ -383,7 +383,7 @@ ContentBrowserWindow::ImportModel()
 void 
 ContentBrowserWindow::ImportTexture()
 {
-	QFileDialog fileDialog(this, "Import Texture", IO::URI("src:textures").GetHostAndLocalPath().AsCharPtr(), tr("Image Files (*.png *.jpg *.bmp *.psd *.tga *.dds)"));
+	QFileDialog fileDialog(this, "Import Texture", IO::URI("src:assets").GetHostAndLocalPath().AsCharPtr(), tr("Image Files (*.png *.jpg *.bmp *.psd *.tga *.dds)"));
 	fileDialog.setAcceptMode(QFileDialog::AcceptOpen);
 
 	if (fileDialog.exec() == QDialog::Accepted)
@@ -1886,12 +1886,12 @@ ContentBrowserWindow::OnCreateParticleEffect()
 		String combined = cat + "/" + name;
 		String res = "mdl:" + combined + ".n3";
 		String physRes = "phys:" + combined + ".np3";
-		String work = "src:models/" + combined;
+		String work = "src:assets/" + combined;
 		String constants = work + ".constants";
 		String attributes = work + ".attributes";
 		String physics = work + ".physics";
 
-		result = IoServer::Instance()->CreateDirectory("src:models/" + cat);
+		result = IoServer::Instance()->CreateDirectory("src:assets/" + cat);
 		n_assert(result);
 
 		// increase resource counter if resource already exists
@@ -1904,7 +1904,7 @@ ContentBrowserWindow::OnCreateParticleEffect()
 			combined = cat + "/" + name;
 			res = "mdl:" + combined + ".n3";
 			physRes = "phys:" + combined + ".np3";
-			work = "src:models/" + combined;
+			work = "src:assets/" + combined;
 
 			constants = work + ".constants";
 			attributes = work + ".attributes";

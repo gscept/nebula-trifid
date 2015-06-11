@@ -155,9 +155,9 @@ ModelHandler::Setup()
 
 	// open files
 	String attrPath, constPath, physPath;
-	attrPath.Format("src:models/%s/%s.attributes", this->category.AsCharPtr(), this->model.AsCharPtr());
-	constPath.Format("src:models/%s/%s.constants", this->category.AsCharPtr(), this->model.AsCharPtr());
-	physPath.Format("src:models/%s/%s.physics", this->category.AsCharPtr(), this->model.AsCharPtr());
+	attrPath.Format("src:assets/%s/%s.attributes", this->category.AsCharPtr(), this->model.AsCharPtr());
+	constPath.Format("src:assets/%s/%s.constants", this->category.AsCharPtr(), this->model.AsCharPtr());
+	physPath.Format("src:assets/%s/%s.physics", this->category.AsCharPtr(), this->model.AsCharPtr());
 
 	// open file
 	if (IoServer::Instance()->FileExists(attrPath))
@@ -858,7 +858,7 @@ ModelHandler::Save()
 
 	// create resource string
 	String resource;
-	resource.Format("src:models/%s/%s.attributes", this->category.AsCharPtr(), this->model.AsCharPtr());
+	resource.Format("src:assets/%s/%s.attributes", this->category.AsCharPtr(), this->model.AsCharPtr());
 	Ptr<Stream> stream = IoServer::Instance()->CreateStream(resource);
 	stream->SetAccessMode(Stream::WriteAccess);
 	stream->Open();
@@ -866,7 +866,7 @@ ModelHandler::Save()
 	stream->Write((void*)lastVersion.AsCharPtr(), lastVersion.Length());
 	stream->Close();
 	
-	resource.Format("src:models/%s/%s.constants", this->category.AsCharPtr(), this->model.AsCharPtr());
+	resource.Format("src:assets/%s/%s.constants", this->category.AsCharPtr(), this->model.AsCharPtr());
 	stream = IoServer::Instance()->CreateStream(resource);
 	stream->SetAccessMode(Stream::WriteAccess);
 	stream->Open();
@@ -874,7 +874,7 @@ ModelHandler::Save()
 	stream->Write((void*)lastVersion.AsCharPtr(), lastVersion.Length());
 	stream->Close();
 
-	resource.Format("src:models/%s/%s.physics", this->category.AsCharPtr(), this->model.AsCharPtr());
+	resource.Format("src:assets/%s/%s.physics", this->category.AsCharPtr(), this->model.AsCharPtr());
 	stream = IoServer::Instance()->CreateStream(resource);
 	stream->SetAccessMode(Stream::WriteAccess);
 	stream->Open();
@@ -951,18 +951,18 @@ ModelHandler::SaveAs()
 		String newPhyResource;
 
 		// reformat resource
-		newAttrResource.Format("src:models/%s/%s.attributes", cat.AsCharPtr(), file.AsCharPtr());
-		newConstResource.Format("src:models/%s/%s.constants", cat.AsCharPtr(), file.AsCharPtr());
-		newPhyResource.Format("src:models/%s/%s.physics", cat.AsCharPtr(), file.AsCharPtr());
+		newAttrResource.Format("src:assets/%s/%s.attributes", cat.AsCharPtr(), file.AsCharPtr());
+		newConstResource.Format("src:assets/%s/%s.constants", cat.AsCharPtr(), file.AsCharPtr());
+		newPhyResource.Format("src:assets/%s/%s.physics", cat.AsCharPtr(), file.AsCharPtr());
 
 		String attrResource;
 		String constResource;
 		String phyResource;
 
 		// reformat resource
-		attrResource.Format("src:models/%s/%s.attributes", this->category.AsCharPtr(), this->model.AsCharPtr());
-		constResource.Format("src:models/%s/%s.constants", this->category.AsCharPtr(), this->model.AsCharPtr());
-		phyResource.Format("src:models/%s/%s.physics", this->category.AsCharPtr(), this->model.AsCharPtr());
+		attrResource.Format("src:assets/%s/%s.attributes", this->category.AsCharPtr(), this->model.AsCharPtr());
+		constResource.Format("src:assets/%s/%s.constants", this->category.AsCharPtr(), this->model.AsCharPtr());
+		phyResource.Format("src:assets/%s/%s.physics", this->category.AsCharPtr(), this->model.AsCharPtr());
 
 		// create string of name
 		String name = cat + "/" + file;
