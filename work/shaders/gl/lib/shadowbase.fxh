@@ -9,6 +9,10 @@
 
 #include "lib/defaultsamplers.fxh"
 
+const float DepthScaling = 5.0f;
+const float DarkeningFactor = 1.0f;
+const float ShadowConstant = 100.0f;
+
 samplerstate ShadowSampler
 {
 	Samplers = { DiffuseMap, DisplacementMap };
@@ -526,7 +530,7 @@ psESM(in vec2 UV,
 	  in vec4 ProjPos,
 	  [color0] out float ShadowColor)
 {
-	ShadowColor = (ProjPos.z/ProjPos.w) * ShadowConstant;
+	ShadowColor = (ProjPos.z/ProjPos.w) * DepthScaling;
 }
 
 //------------------------------------------------------------------------------
@@ -540,7 +544,7 @@ psESMAlpha(in vec2 UV,
 {
 	float alpha = texture(DiffuseMap, UV).a;
 	if (alpha < AlphaSensitivity) discard;
-	ShadowColor = (ProjPos.z/ProjPos.w) * ShadowConstant;
+	ShadowColor = (ProjPos.z/ProjPos.w) * DepthScaling;
 }
 
 //------------------------------------------------------------------------------
@@ -558,9 +562,9 @@ psVSM(in vec2 UV,
 	float moment2 = depth * depth;
 	
 	// Adjusting moments (this is sort of bias per pixel) using derivative
-	float dx = dFdx(depth);
-	float dy = dFdy(depth);
-	moment2 += 0.25f*(dx*dx+dy*dy);
+	//float dx = dFdx(depth);
+	//float dy = dFdy(depth);
+	//moment2 += 0.25f*(dx*dx+dy*dy);
 	
 	ShadowColor = vec2(moment1, moment2);
 }
@@ -582,9 +586,9 @@ psVSMAlpha(in vec2 UV,
 	float moment2 = depth * depth;
 	
 	// Adjusting moments (this is sort of bias per pixel) using derivative
-	float dx = dFdx(depth);
-	float dy = dFdy(depth);
-	moment2 += 0.25f*(dx*dx+dy*dy);
+	//float dx = dFdx(depth);
+	//float dy = dFdy(depth);
+	//moment2 += 0.25f*(dx*dx+dy*dy);
 	
 	ShadowColor = vec2(moment1, moment2);
 }
@@ -602,21 +606,23 @@ Variance(vec2 shadowSample,
 	float avgZ2 = shadowSample.y;
 
 	// assume that if the projected depth is less than the average in the pixel, the pixel must be lit
+	/*
 	if (lightSpaceDepth <= avgZ)
 	{
 		return 1.0f;
 	}
 	else
+	*/
 	{
 		float variance 	= (avgZ2) - (avgZ * avgZ);
-		variance 		= min(1.0f, max(0.0f, variance + tolerance));
+		//variance 		= min(1.0f, max(0.0f, variance + tolerance));
 		
 		float mean 		= avgZ;
 		float d			= lightSpaceDepth - mean;
 		float p_max		= variance / (variance + d*d);
 		
 		// to avoid light bleeding, change this constant
-		return p_max;
+		return max(p_max, int(lightSpaceDepth <= avgZ));
 	}
 }
 
@@ -641,9 +647,6 @@ ChebyshevUpperBound(vec2 Moments, float t, float tolerance)
 	return p_max;  
 } 
 
-
-const float DepthScaling = 100.0f;
-const float DarkeningFactor = 100.0f;
 //------------------------------------------------------------------------------
 /**
 */
@@ -652,7 +655,8 @@ ExponentialShadowSample(float mapDepth, float depth, float bias)
 {
 	float receiverDepth = DepthScaling * depth - bias;
     float occluderReceiverDistance = mapDepth - receiverDepth;
-    float occlusion = saturate(exp(DarkeningFactor * occluderReceiverDistance));  
+	float occlusion = saturate(exp(DarkeningFactor * occluderReceiverDistance));
+    //float occlusion = saturate(exp(DarkeningFactor * occluderReceiverDistance));  
     return occlusion;
 }
 #endif // SHADOWBASE_FXH

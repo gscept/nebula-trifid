@@ -110,7 +110,7 @@ psGlob(in float3 ViewSpacePosition : TEXCOORD0,
 	float shadowFactor = 1.0f;
 	if (CastShadow)
 	{		
-		if (NL > 0)
+		if (NL > 0.1f)
 		{
 			float3 viewRay = normalize(ViewSpacePosition);
 			float4 worldPos = float4(viewRay * Depth, 1);

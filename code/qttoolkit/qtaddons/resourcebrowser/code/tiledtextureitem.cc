@@ -6,8 +6,8 @@
 #include "tiledtextureitem.h"
 #include "io/uri.h"
 #include "io/ioserver.h"
-#include "textureloaderthread.h"
-#include "texturebrowser.h"
+#include "imageloaderthread.h"
+#include "assetbrowser.h"
 #include <QAction>
 #include <QMenu>
 #include <QComboBox>
@@ -57,11 +57,11 @@ TiledTextureItem::Setup()
 	this->texture.ChangeFileExtension("dds");
 
 	// create a new texture unit
-	this->loader = new TextureLoaderUnit;
+	this->loader = new ImageLoaderUnit;
 	this->loader->path = this->texture;
 	this->loader->texture = new QImage;
 	connect(this->loader, SIGNAL(OnLoaded()), this, SLOT(OnPreviewLoaded()));
-	TextureBrowser::loaderThread->Enqueue(this->loader);
+	AssetBrowser::loaderThread->Enqueue(this->loader);
 
 	// format string with the 'clean' name
 	QString format;

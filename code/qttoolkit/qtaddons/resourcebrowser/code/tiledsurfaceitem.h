@@ -1,30 +1,30 @@
 #pragma once
 //------------------------------------------------------------------------------
 /**
-	@class ResourceBrowser::TiledTextureItem
+	@class ResourceBrowser::TiledSurfaceItem
 	
-	Implements a tiled texture item.
+	A surface item is a resource which corresponds to a material surface.
 	
-	(C) 2012-2014 Individual contributors, see AUTHORS file
+	(C) 2015 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "tiledgraphicsitem.h"
 namespace ResourceBrowser
 {
 class ImageLoaderUnit;
-class TiledTextureItem : public TiledGraphicsItem
+class TiledSurfaceItem : public TiledGraphicsItem
 {
-	Q_OBJECT
+	__DeclareClass(TiledSurfaceItem);
 public:
 	/// constructor
-	TiledTextureItem();
+	TiledSurfaceItem();
 	/// destructor
-	virtual ~TiledTextureItem();
+	virtual ~TiledSurfaceItem();
 
 	/// set texture path
 	void SetPath(const Util::String& path);
 
-	/// setup the item, reduces the texture path to category/file, locates the .dds and loads the preview, updates the label with the image type
+	/// setup the item, reduces the texture path to category/file, locates the thumbnail and loads it as a preview, updates the label with the image type
 	void Setup();
 	/// discard the item, deallocates the image
 	void Discard();
@@ -40,20 +40,19 @@ private slots:
 
 signals:
 	/// signalled when a texture is selected
-	void OnSelected(const QString& tex);
+	void OnSelected(const QString& sur);
 
 private:
 	ImageLoaderUnit* loader;
-	Util::String texture;
+	Util::String surface;
 };
 
 //------------------------------------------------------------------------------
 /**
 */
 inline void
-TiledTextureItem::SetPath(const Util::String& path)
+TiledSurfaceItem::SetPath(const Util::String& path)
 {
-	this->texture = path;
+	this->surface = path;
 }
-
 } // namespace ResourceBrowser

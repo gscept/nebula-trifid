@@ -88,7 +88,6 @@ OGL4ShapeRenderer::Open()
 	// setup vbo
 	Util::Array<VertexComponent> comps;
 	comps.Append(VertexComponent(VertexComponent::Position, 0, VertexComponent::Float4, 0));
-	comps.Append(VertexComponent(VertexComponent::Color, 0, VertexComponent::Float4, 0));
 	Ptr<MemoryVertexBufferLoader> vboLoader = MemoryVertexBufferLoader::Create();
 	vboLoader->Setup(comps, MaxNumVertices, NULL, 0, VertexBuffer::UsageDynamic, VertexBuffer::AccessWrite, VertexBuffer::BufferTriple, VertexBuffer::SyncingCoherentPersistent);
 
@@ -319,8 +318,9 @@ OGL4ShapeRenderer::DrawPrimitives(const matrix44& modelTransform,
 
 	// setup render device and draw
 	renderDevice->SetStreamSource(0, this->vbo, 0);
-    if (layout.isvalid())   renderDevice->SetVertexLayout(layout);
-    else                    renderDevice->SetVertexLayout(this->vbo->GetVertexLayout());
+    //if (layout.isvalid())   renderDevice->SetVertexLayout(layout);
+    //else                    renderDevice->SetVertexLayout(this->vbo->GetVertexLayout());
+	renderDevice->SetVertexLayout(this->vbo->GetVertexLayout());
 	renderDevice->SetIndexBuffer(NULL);
 	renderDevice->SetPrimitiveGroup(this->primGroup);
 	renderDevice->Draw();
@@ -375,14 +375,15 @@ OGL4ShapeRenderer::DrawIndexedPrimitives(const matrix44& modelTransform,
 	// set vertex offset in primitive group
 	this->primGroup.SetBaseVertex(MaxNumVertices * this->vbBufferIndex);
 	this->primGroup.SetNumVertices(0);										// indices decides how many primitives we draw
-	this->primGroup.SetBaseIndex(MaxNumIndices * this->vbBufferIndex);
+	this->primGroup.SetBaseIndex(MaxNumIndices * this->ibBufferIndex);
 	this->primGroup.SetNumIndices(indexCount);
 	this->primGroup.SetPrimitiveTopology(topology);
 
 	// setup render device and draw
 	renderDevice->SetStreamSource(0, this->vbo, 0);
-    if (layout.isvalid())   renderDevice->SetVertexLayout(layout);
-    else                    renderDevice->SetVertexLayout(this->vbo->GetVertexLayout());
+    //if (layout.isvalid())   renderDevice->SetVertexLayout(layout);
+    //else                    
+	renderDevice->SetVertexLayout(this->vbo->GetVertexLayout());
 	renderDevice->SetIndexBuffer(this->ibo);
 	renderDevice->SetPrimitiveGroup(this->primGroup);
 	renderDevice->Draw();

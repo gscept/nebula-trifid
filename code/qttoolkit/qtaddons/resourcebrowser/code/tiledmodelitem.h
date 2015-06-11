@@ -1,30 +1,30 @@
 #pragma once
 //------------------------------------------------------------------------------
 /**
-	@class ResourceBrowser::TiledTextureItem
+	@class ResourceBrowser::TiledModelItem
 	
-	Implements a tiled texture item.
+	This class represents a visual representation of 
 	
-	(C) 2012-2014 Individual contributors, see AUTHORS file
+	(C) 2015 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "tiledgraphicsitem.h"
 namespace ResourceBrowser
 {
 class ImageLoaderUnit;
-class TiledTextureItem : public TiledGraphicsItem
+class TiledModelItem : public TiledGraphicsItem
 {
-	Q_OBJECT
+	__DeclareClass(TiledModelItem);
 public:
 	/// constructor
-	TiledTextureItem();
+	TiledModelItem();
 	/// destructor
-	virtual ~TiledTextureItem();
+	virtual ~TiledModelItem();
 
 	/// set texture path
 	void SetPath(const Util::String& path);
 
-	/// setup the item, reduces the texture path to category/file, locates the .dds and loads the preview, updates the label with the image type
+	/// setup the item, reduces the texture path to category/file, locates the thumbnail and loads it as a preview, updates the label with the image type
 	void Setup();
 	/// discard the item, deallocates the image
 	void Discard();
@@ -34,26 +34,25 @@ public:
 	/// handle right clicking
 	void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 
-private slots:
+	private slots:
 	/// called when the preview image is loaded
 	void OnPreviewLoaded();
 
 signals:
 	/// signalled when a texture is selected
-	void OnSelected(const QString& tex);
+	void OnSelected(const QString& sur);
 
 private:
 	ImageLoaderUnit* loader;
-	Util::String texture;
+	Util::String model;
 };
 
 //------------------------------------------------------------------------------
 /**
 */
 inline void
-TiledTextureItem::SetPath(const Util::String& path)
+TiledModelItem::SetPath(const Util::String& path)
 {
-	this->texture = path;
+	this->model = path;
 }
-
 } // namespace ResourceBrowser

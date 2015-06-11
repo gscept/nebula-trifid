@@ -3,29 +3,31 @@
 //  (C) 2012-2014 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "texturebrowser.h"
+#include "assetbrowser.h"
 #include "io/uri.h"
 #include "io/ioserver.h"
-#include "ui_texturebrowser.h"
+#include "ui_assetbrowser.h"
 #include "tileddirectoryitem.h"
 #include "tiledtextureitem.h"
+#include "tiledmodelitem.h"
+#include "tiledsurfaceitem.h"
 
 using namespace Util;
 using namespace IO;
 namespace ResourceBrowser
 {
 
-TextureLoaderThread* TextureBrowser::loaderThread;
-__ImplementClass(ResourceBrowser::TextureBrowser, 'TEBR', Core::RefCounted);
-__ImplementSingleton(ResourceBrowser::TextureBrowser);
+ImageLoaderThread* AssetBrowser::loaderThread;
+__ImplementClass(ResourceBrowser::AssetBrowser, 'TEBR', Core::RefCounted);
+__ImplementSingleton(ResourceBrowser::AssetBrowser);
 
 //------------------------------------------------------------------------------
 /**
 */
-TextureBrowser::TextureBrowser() :
+AssetBrowser::AssetBrowser() :
 	isExecuting(false)
 {
-	this->ui = new Ui::TextureBrowser;
+	this->ui = new Ui::AssetBrowser;
 	this->ui->setupUi(this);
 	connect(this->ui->backButton, SIGNAL(pressed()), this, SLOT(OnBack()));
 	this->shortcut = new QShortcut(QKeySequence(Qt::Key_Backspace), this);
@@ -37,7 +39,7 @@ TextureBrowser::TextureBrowser() :
 //------------------------------------------------------------------------------
 /**
 */
-TextureBrowser::~TextureBrowser()
+AssetBrowser::~AssetBrowser()
 {
 	delete this->ui;
 	delete this->shortcut;
@@ -48,10 +50,10 @@ TextureBrowser::~TextureBrowser()
 /**
 */
 int
-TextureBrowser::Execute(const QString& title)
+AssetBrowser::Execute(const QString& title)
 {
 	this->setWindowTitle("Texture browser - " + title);
-	TextureBrowser::loaderThread->Pause(false);
+	AssetBrowser::loaderThread->Pause(false);
 	this->selectedResource = "";
 	this->isExecuting = true;
 	this->raise();
@@ -62,11 +64,11 @@ TextureBrowser::Execute(const QString& title)
 /**
 */
 void
-TextureBrowser::Open()
+AssetBrowser::Open()
 {
 	// create thread
-	TextureBrowser::loaderThread = new TextureLoaderThread(NULL);
-	TextureBrowser::loaderThread->Start();
+	AssetBrowser::loaderThread = new ImageLoaderThread(NULL);
+	AssetBrowser::loaderThread->Start();
 	this->SetupRoot();
 }
 
@@ -74,20 +76,20 @@ TextureBrowser::Open()
 /**
 */
 void
-TextureBrowser::Close()
+AssetBrowser::Close()
 {
-	TextureBrowser::loaderThread->Stop();
-	delete TextureBrowser::loaderThread;
+	AssetBrowser::loaderThread->Stop();
+	delete AssetBrowser::loaderThread;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-TextureBrowser::showEvent(QShowEvent* event)
+AssetBrowser::showEvent(QShowEvent* event)
 {
 	QDialog::showEvent(event);
-	TextureBrowser::loaderThread->Pause(false);
+	AssetBrowser::loaderThread->Pause(false);
 	this->ui->texturePreview->Rearrange();
 }
 
@@ -95,9 +97,9 @@ TextureBrowser::showEvent(QShowEvent* event)
 /**
 */
 void
-TextureBrowser::closeEvent(QCloseEvent* event)
+AssetBrowser::closeEvent(QCloseEvent* event)
 {
-	TextureBrowser::loaderThread->Pause(true);
+	AssetBrowser::loaderThread->Pause(true);
 	this->isExecuting = false;
 	QDialog::closeEvent(event);
 }
@@ -106,7 +108,7 @@ TextureBrowser::closeEvent(QCloseEvent* event)
 /**
 */
 void
-TextureBrowser::OnDirectoryClicked(const QString& dir)
+AssetBrowser::OnDirectoryClicked(const QString& dir)
 {
 	// clear first
 	this->ui->texturePreview->Clear();
@@ -114,21 +116,19 @@ TextureBrowser::OnDirectoryClicked(const QString& dir)
 
 	// find all accepted file types, note that we are looking in work, not export!
 	Ptr<IoServer> ioServer = IoServer::Instance();
-	String texPath("src:textures/" + String(dir.toUtf8().constData()));
-	Array<String> texFiles = ioServer->ListFiles(texPath, "*.png");
-	texFiles.AppendArray(ioServer->ListFiles(texPath, "*.tga"));
-	texFiles.AppendArray(ioServer->ListFiles(texPath, "*.bmp"));
-	texFiles.AppendArray(ioServer->ListFiles(texPath, "*.psd"));
-	texFiles.AppendArray(ioServer->ListFiles(texPath, "*.dds"));
-
-	String gfxPath = "src:gfxlib/" + String(dir.toUtf8().constData());
-	Array<String> fbxFiles = ioServer->ListFiles(gfxPath, "*.fbx");
+	String assetPath = "src:assets/";
+	Array<String> files = ioServer->ListFiles(assetPath, "*.tga");
+	files.AppendArray(ioServer->ListFiles(assetPath, "*.bmp"));
+	files.AppendArray(ioServer->ListFiles(assetPath, "*.dds"));
+	files.AppendArray(ioServer->ListFiles(assetPath, "*.psd"));
+	files.AppendArray(ioServer->ListFiles(assetPath, "*.png"));
+	files.AppendArray(ioServer->ListFiles(assetPath, "*.jpg"));
 
 	IndexT i;
-	for (i = 0; i < texFiles.Size(); i++)
+	for (i = 0; i < files.Size(); i++)
 	{
-		const String& file = texFiles[i];
-		String textureFile = texPath + "/" + file;
+		const String& file = files[i];
+		String textureFile = assetPath + "/" + file;
 
 		// create new texture item
 		TiledTextureItem* item = new TiledTextureItem;
@@ -141,23 +141,39 @@ TextureBrowser::OnDirectoryClicked(const QString& dir)
 		connect(item, SIGNAL(OnSelected(const QString&)), this, SLOT(OnTextureClicked(const QString&)));
 	}
 
-	/*
-	for (i = 0; i < fbxFiles.Size(); i++)
+	files = ioServer->ListFiles(assetPath, "*.fbx");
+	for (i = 0; i < files.Size(); i++)
 	{
-		const String& file = fbxFiles[i];
-		String fbxFile = gfxPath + "/" + file;
+		const String& file = files[i];
+		String fbxFile = assetPath + "/" + file;
 
 		// create new texture item
-		TiledTextureItem* item = new TiledTextureItem;
+		TiledModelItem* item = new TiledModelItem;
 		item->SetPath(fbxFile);
 
 		// add to ui
 		this->ui->texturePreview->AddTiledItem(item);
 
 		// connect with browser to handle directory navigation
-		connect(item, SIGNAL(OnSelected(const QString&)), this, SLOT(OnGfxClicked(const QString&)));
+		connect(item, SIGNAL(OnSelected(const QString&)), this, SLOT(OnModelClicked(const QString&)));
 	}
-	*/
+
+	files = ioServer->ListFiles(assetPath, "*.sur");
+	for (i = 0; i < files.Size(); i++)
+	{
+		const String& file = files[i];
+		String fbxFile = assetPath + "/" + file;
+
+		// create new texture item
+		TiledSurfaceItem* item = new TiledSurfaceItem;
+		item->SetPath(fbxFile);
+
+		// add to ui
+		this->ui->texturePreview->AddTiledItem(item);
+
+		// connect with browser to handle directory navigation
+		connect(item, SIGNAL(OnSelected(const QString&)), this, SLOT(OnModelClicked(const QString&)));
+	}
 
 	// rearrange browser window
 	this->ui->texturePreview->Rearrange();
@@ -167,11 +183,11 @@ TextureBrowser::OnDirectoryClicked(const QString& dir)
 /**
 */
 void
-TextureBrowser::OnTextureClicked(const QString& tex)
+AssetBrowser::OnTextureClicked(const QString& tex)
 {
 	if (this->isExecuting)
 	{
-		TextureBrowser::loaderThread->Pause(true);
+		AssetBrowser::loaderThread->Pause(true);
 		this->selectedResource = tex;
 		this->accept();
 		this->isExecuting = false;
@@ -182,12 +198,12 @@ TextureBrowser::OnTextureClicked(const QString& tex)
 /**
 */
 void
-TextureBrowser::OnGfxClicked(const QString& gfx)
+AssetBrowser::OnModelClicked(const QString& mdl)
 {
 	if (this->isExecuting)
 	{
-		TextureBrowser::loaderThread->Pause(true);
-		this->selectedResource = gfx;
+		AssetBrowser::loaderThread->Pause(true);
+		this->selectedResource = mdl;
 		this->accept();
 		this->isExecuting = false;
 	}
@@ -197,9 +213,24 @@ TextureBrowser::OnGfxClicked(const QString& gfx)
 /**
 */
 void
-TextureBrowser::OnBack()
+AssetBrowser::OnSurfaceClicked(const QString& sur)
 {
-	TextureBrowser::loaderThread->Clear();
+	if (this->isExecuting)
+	{
+		AssetBrowser::loaderThread->Pause(true);
+		this->selectedResource = sur;
+		this->accept();
+		this->isExecuting = false;
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+AssetBrowser::OnBack()
+{
+	AssetBrowser::loaderThread->Clear();
 	this->SetupRoot();
 }
 
@@ -207,16 +238,16 @@ TextureBrowser::OnBack()
 /**
 */
 void
-TextureBrowser::SetupRoot()
+AssetBrowser::SetupRoot()
 {
 	// clear first
 	this->ui->texturePreview->Clear();
 	this->ui->categoryLabel->setText("Root");
 
 	Ptr<IoServer> ioServer = IoServer::Instance();
-	String texPath("src:textures");
+	String assetPath("src:assets");
 
-	Array<String> dirs = ioServer->ListDirectories(texPath, "*");
+	Array<String> dirs = ioServer->ListDirectories(assetPath, "*");
 	IndexT i;
 	for (i = 0; i < dirs.Size(); i++)
 	{

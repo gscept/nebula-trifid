@@ -587,29 +587,6 @@ dsShadowMLP(
 
 //------------------------------------------------------------------------------
 /**
-	Simple placeholder shadow mapping shader. 
-	This allows us to plug in our tessellated techniques into this one.
-*/
-shader
-void 
-psMultilayeredShadowVSM(in vec2 UV,
-	in vec4 ProjPos,
-	[color0] out vec2 ShadowColor)
-{
-	float depth = ProjPos.z / ProjPos.w;
-	float moment1 = depth;
-	float moment2 = depth * depth;
-	
-	// Adjusting moments (this is sort of bias per pixel) using derivative
-	float dx = dFdx(depth);
-	float dy = dFdy(depth);
-	moment2 += 0.25f*(dx*dx+dy*dy);
-	
-	ShadowColor = vec2(moment1, moment2);
-}
-
-//------------------------------------------------------------------------------
-/**
 */
 SimpleTechnique(MLP, "Static", vsColored(), psMultilayered(
 		calcColor = SimpleColor,

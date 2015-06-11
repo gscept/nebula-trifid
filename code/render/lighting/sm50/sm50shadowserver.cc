@@ -229,7 +229,7 @@ SM50ShadowServer::Open()
 	this->globalLightShadowBuffer->SetWidth(csmWidth);
 	this->globalLightShadowBuffer->SetHeight(csmHeight);
 	this->globalLightShadowBuffer->SetAntiAliasQuality(AntiAliasQuality::None);
-	this->globalLightShadowBuffer->SetColorBufferFormat(PixelFormat::R32F);
+	this->globalLightShadowBuffer->SetColorBufferFormat(PixelFormat::G32R32F);
 	this->globalLightShadowBuffer->SetResolveTextureResourceId(ResourceId("GlobalLightShadowBuffer"));
 	this->globalLightShadowBuffer->SetDepthStencilTarget(this->globalLightShadowBufferDepth);
 	this->globalLightShadowBuffer->Setup();	
@@ -239,7 +239,7 @@ SM50ShadowServer::Open()
 	this->globalLightShadowBufferFinal->SetWidth(csmWidth);
 	this->globalLightShadowBufferFinal->SetHeight(csmHeight);
 	this->globalLightShadowBufferFinal->SetAntiAliasQuality(AntiAliasQuality::None);
-	this->globalLightShadowBufferFinal->SetColorBufferFormat(PixelFormat::R32F);
+	this->globalLightShadowBufferFinal->SetColorBufferFormat(PixelFormat::G32R32F);
 	this->globalLightShadowBufferFinal->SetResolveTextureResourceId(ResourceId("GlobalLightShadowBufferFinal"));
 	this->globalLightShadowBufferFinal->Setup();	
 
@@ -268,7 +268,7 @@ SM50ShadowServer::Open()
 	this->globalLightBlurPass->SetShader(this->blurShader);
 	this->globalLightBlurPass->Setup();
 	this->blurShader->GetVariableByName("SourceMap")->SetTexture(this->globalLightShadowBuffer->GetResolveTexture());
-	//this->blurShader->GetVariableByName("BorderIntervals")->SetFloat2(float2(1 / (float)SplitsPerColumn, 1 / (float)SplitsPerRow));
+	this->blurShader->GetVariableByName("BorderIntervals")->SetFloat2(float2(1 / (float)SplitsPerColumn, 1 / (float)SplitsPerRow));
 
 #if NEBULA3_ENABLE_PROFILING
 	{
@@ -589,7 +589,7 @@ SM50ShadowServer::UpdateHotGlobalShadowBuffer()
 	this->globalLightHotPass->Render();
 
 	// render blur
-	//this->globalLightBlurPass->Render();
+	this->globalLightBlurPass->Render();
 }
 
 //------------------------------------------------------------------------------

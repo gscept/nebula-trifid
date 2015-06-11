@@ -47,7 +47,7 @@ samplerstate ShadowProjMapSampler
 	AddressU = Border;
 	AddressV = Border;
 	//MaxAnisotropic = 16;
-	BorderColor = { 1,1,1,1 };
+	//BorderColor = { 1,1,1,1 };
 };
 
 //------------------------------------------------------------------------------
@@ -69,7 +69,7 @@ void CSMConvert(in vec4 worldPosition,
     texShadow = CSMShadowMatrix * worldPosition;
 }
 
-const vec2 sampleOffsetWeights[] = {
+const vec2 sampleOffsets[] = {
 	vec2(-.326,-.406),
 	vec2(-.840,-.074),
 	vec2(-.696, .457),
@@ -156,17 +156,19 @@ CSMPS(in vec4 TexShadow,
 	// do an ugly poisson sample disk
 	// this only causes errors when samples are taken outside 
 	vec2 pixelSize = GetPixelSize(ShadowProjMap);
-	float mapDepth = 0.0f;
-	int i;
-    for (i = 0; i < 13; i++)
-    {
-		vec2 uvSample = sampleCoord.xy + sampleOffsetWeights[i] * pixelSize.xy;
-		float currentSample = textureLod(ShadowProjMap, uvSample, 0).r;
-		mapDepth += currentSample;
-	}	
-	mapDepth /= 13;
-	
-	float occlusion = ExponentialShadowSample(mapDepth, depth, 0.0002f);
+	vec2 uvSample;
+	vec2 currentSample;
+	vec2 mapDepth = vec2(0.0f);
+	float occlusion = 0.0f;
+	//int i;
+   // for (i = 0; i < 13; i++)
+    //{
+		uvSample = sampleCoord.xy;
+		currentSample = textureLod(ShadowProjMap, uvSample, 0).rg;
+	//}
+	//mapDepth /= 13.0f;
+	occlusion = Variance(currentSample, depth, 0.0000001f);
+	//float occlusion = ExponentialShadowSample(mapDepth, depth, 0.0f);
 		
 	int nextCascade = cascadeIndex + 1; 
 	float occlusionBlend = 1.0f;
@@ -183,18 +185,22 @@ CSMPS(in vec4 TexShadow,
 			sampleCoord = texCoord;			
 			sampleCoord.xy *= ShadowPartitionSize;
 			sampleCoord.xy += vec2(mod(nextCascade, SplitsPerRow) * ShadowPartitionSize, (nextCascade / SplitsPerColumn) * ShadowPartitionSize);
+			uvSample = sampleCoord.xy;
 					
-			mapDepth = textureLod(ShadowProjMap, sampleCoord.xy, 0).r;
-			occlusionBlend = ExponentialShadowSample(mapDepth, depth, 0.0002f);		
+			currentSample = textureLod(ShadowProjMap, uvSample, 0).rg;
+			occlusionBlend = Variance(currentSample, depth, 0.0000001f);		
 		}
 		
 		// blend next cascade onto previous
 		occlusion = lerp(occlusionBlend, occlusion, blendAmount);
 	}
+	//occlusion += smoothstep(0.98f, 1.0f, increment);
+	//occlusion += increment;
+	
 	
 	// finally clamp all shadow values 0.5, this avoids any weird color differences when blending between cascades
 	Debug = DebugColors[cascadeIndex];
-	//return smoothstep(0.25f, 0.65f, occlusion);
+	//return smoothstep(0.5f, 1.0f, occlusion);
 	return occlusion;
 }
 
