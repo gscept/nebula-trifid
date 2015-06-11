@@ -115,7 +115,7 @@ TextureItem::OnRightClicked( const QPoint& pos )
         for (i = 0; i < 6; i++)
         {
             // attempt to remove all files related to this texture
-            resource.Format("src:textures/%s%s", file.AsCharPtr(), extensions[i].AsCharPtr());
+            resource.Format("src:assets/%s%s", file.AsCharPtr(), extensions[i].AsCharPtr());
             ioServer->DeleteFile(resource);
         }
 
@@ -124,7 +124,7 @@ TextureItem::OnRightClicked( const QPoint& pos )
 	else if (action == action2)
 	{
 		String resource;
-		resource.Format("src:textures/%s", category.AsCharPtr());
+		resource.Format("src:assets/%s", category.AsCharPtr());
 
 		String fileName;
 		fileName.Format("%s.*", file.AsCharPtr());
@@ -164,7 +164,7 @@ TextureItem::OnRightClicked( const QPoint& pos )
 
 			if (result == QMessageBox::Ok)
 			{
-				resource.Format("src:textures/%s/%s", category.AsCharPtr(), selections.itemText(selections.currentIndex()).toUtf8().constData());
+				resource.Format("src:assets/%s/%s", category.AsCharPtr(), selections.itemText(selections.currentIndex()).toUtf8().constData());
 				TextureImporter::TextureImporterWindow* importer = ContentBrowser::ContentBrowserApp::Instance()->GetWindow()->GetTextureImporter();
 				importer->SetUri(resource);
 				importer->show();
@@ -179,7 +179,7 @@ TextureItem::OnRightClicked( const QPoint& pos )
 		}
 		else
 		{
-			resource.Format("src:textures/%s/%s", category.AsCharPtr(), files[0].AsCharPtr());
+			resource.Format("src:assets/%s/%s", category.AsCharPtr(), files[0].AsCharPtr());
 			TextureImporter::TextureImporterWindow* importer = ContentBrowser::ContentBrowserApp::Instance()->GetWindow()->GetTextureImporter();
 			importer->SetUri(resource);
 			importer->show();

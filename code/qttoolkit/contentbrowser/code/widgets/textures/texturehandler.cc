@@ -56,7 +56,7 @@ TextureHandler::OnReload()
 	exportTarget.StripFileExtension();
 
 	String path;
-	path.Format("src:textures/%s/", this->category.AsCharPtr());
+	path.Format("src:assets/%s/", this->category.AsCharPtr());
 
 	// find texture in work
 	Array<String> origTex = IoServer::Instance()->ListFiles(path, exportTarget + "*"); 
