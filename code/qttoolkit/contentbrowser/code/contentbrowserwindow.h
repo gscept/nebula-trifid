@@ -231,7 +231,7 @@ private:
 	TextureImporter::TextureImporterWindow* textureImporterWindow;
 	Lighting::EnvironmentProbeWindow* environmentProbeWindow;
     Ptr<Shady::ShadyWindow> shadyWindow;
-	Ptr<ResourceBrowser::TextureBrowser> textureBrowserWindow;
+	Ptr<ResourceBrowser::AssetBrowser> assetBrowserWindow;
 	Ptr<ContentBrowser::ProgressReporter> progressReporter;
 	QtPostEffectAddon::PostEffectController* postEffectController;
     

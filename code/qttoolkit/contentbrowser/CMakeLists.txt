@@ -80,6 +80,11 @@ FILE(GLOB HEAD "code/widgets/ui/*.h")
 SOURCE_GROUP("contentbrowser\\widgets\\ui" FILES ${SRC} ${HEAD})
 LIST(APPEND CODE ${SRC} ${HEAD})
 
+FILE(GLOB SRC "code/widgets/materials/*.cc")
+FILE(GLOB HEAD "code/widgets/materials/*.h")
+SOURCE_GROUP("contentbrowser\\widgets\\materials" FILES ${SRC} ${HEAD})
+LIST(APPEND CODE ${SRC} ${HEAD})
+
 FILE(GLOB SRC "code/widgets/meshes/*.cc")
 FILE(GLOB HEAD "code/widgets/meshes/*.h")
 SOURCE_GROUP("contentbrowser\\widgets\\meshes" FILES ${SRC} ${HEAD})

@@ -15,6 +15,7 @@
 #include "texutil/textureconverter.h"
 #include "modelutil/modelbuilder.h"
 #include "modelutil/modeldatabase.h"
+#include "surface/surfaceexporter.h"
 namespace ToolkitUtil
 {
 class AssetExporter : public Base::ExporterBase
@@ -24,14 +25,16 @@ public:
 
     enum ExportModes
     {
-        FBX = 1 << 0,                   // checking this will cause FBXes to get exported
-        Models = 1 << 1,                // checking this will cause models to get exported
-        Textures = 1 << 2,              // checking this will cause textures to get exported
-        All = FBX + Models + Textures,  // shortcut for exporting everything
+        FBX = 1 << 0,								// checking this will cause FBXes to get exported
+        Models = 1 << 1,							// checking this will cause models to get exported
+        Textures = 1 << 2,							// checking this will cause textures to get exported
+		Surfaces = 1 << 3,							// checking this will cause surfaces to get exported
+        All = FBX + Models + Textures + Surfaces,	// shortcut for exporting everything
 
-        ForceFBX = 1 << 3,              // will force the FBX batcher to update meshes and characters despite time stamps
-        ForceModels = 1 << 4,           // will force the model builder to create models despite time stamps
-        ForceTextures = 1 << 5,         // will force the texture converter to convert textures despite time stamps
+        ForceFBX = 1 << 4,              // will force the FBX batcher to update meshes and characters despite time stamps
+        ForceModels = 1 << 5,           // will force the model builder to create models despite time stamps
+        ForceTextures = 1 << 6,         // will force the texture converter to convert textures despite time stamps
+		ForceSurfaces = 1 << 7,			// will force the surface exporter to convert surfaces despite time stamps
         ForceAll = ForceFBX + ForceModels + ForceTextures
     };
 
@@ -60,6 +63,7 @@ public:
 private:
     Ptr<ToolkitUtil::NFbxExporter> fbxExporter;
     ToolkitUtil::TextureConverter textureExporter;
+	Ptr<ToolkitUtil::SurfaceExporter> surfaceExporter;
     Ptr<ToolkitUtil::ModelBuilder> modelBuilder;
     Logger logger;
     ExportModes mode;

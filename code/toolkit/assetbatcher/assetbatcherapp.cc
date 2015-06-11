@@ -92,6 +92,7 @@ AssetBatcherApp::DoWork()
 	exporter->SetExportFlag(exportFlag);
 	exporter->SetPlatform(this->platform);
 	exporter->SetProgressPrecision(PRECISION);
+	exporter->ExportSystem();
 
 	if (this->listfileArg.IsValid())
 	{

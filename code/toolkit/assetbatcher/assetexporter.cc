@@ -39,6 +39,8 @@ AssetExporter::Open()
     ExporterBase::Open();
     this->fbxExporter = ToolkitUtil::NFbxExporter::Create();
     this->fbxExporter->Open();
+	this->surfaceExporter = ToolkitUtil::SurfaceExporter::Create();
+	this->surfaceExporter->Open();
     this->modelBuilder = ToolkitUtil::ModelBuilder::Create();
     this->textureExporter.SetTexAttrTablePath("src:assets/");
     this->textureExporter.Setup(this->logger);
@@ -52,6 +54,8 @@ AssetExporter::Close()
 {
     this->fbxExporter->Close();
     this->fbxExporter = 0;
+	this->surfaceExporter->Close();
+	this->surfaceExporter = 0;
     this->modelBuilder = 0;
     this->textureExporter.Discard();
     ExporterBase::Close();
@@ -64,10 +68,12 @@ AssetExporter::Close()
 void
 AssetExporter::ExportSystem()
 {
+	n_printf("------------- Exporting system assets -------------\n");
 	String origSrc = AssignRegistry::Instance()->GetAssign("src");
-	AssignRegistry::Instance()->SetAssign(Assign("src", "toolkit"));
+	AssignRegistry::Instance()->SetAssign(Assign("src", "toolkit:work"));
 	this->ExportDir("system");
 	this->ExportDir("lighting");
+	this->ExportDir("placeholder");
 	AssignRegistry::Instance()->SetAssign(Assign("src", origSrc));
 }
 
@@ -135,6 +141,16 @@ AssetExporter::ExportDir(const Util::String& category)
             this->textureExporter.ConvertTexture(assetPath + files[fileIndex], "temp:textureconverter");
         }
     }
+
+	if (this->mode & ExportModes::Surfaces)
+	{
+		Array<String> files = IoServer::Instance()->ListFiles(assetPath, "*.sur");
+		this->surfaceExporter->SetForce((this->mode & ExportModes::ForceSurfaces) != 0);
+		for (fileIndex = 0; fileIndex < files.Size(); fileIndex++)
+		{
+			this->surfaceExporter->ExportFile(assetPath + files[fileIndex]);
+		}
+	}
 }
 
 //------------------------------------------------------------------------------

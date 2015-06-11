@@ -28,13 +28,11 @@ public:
 
     /// set target platform
     void SetPlatform(Platform::Code platform);
-    /// set source directory
-    void SetSrcDir(const Util::String& srcDir);
-    /// set destination directory
-    void SetDstDir(const Util::String& dstDir);
 
     /// recursive convert all XML files in source directory
-    bool Convert(Logger& logger);
+    bool ConvertDir(const Util::String& srcDir, const Util::String& dstDir, Logger& logger);
+	/// convert a single file
+	bool ConvertFile(const Util::String& srcFile, const Util::String& dstFile, Logger& logger);
 
 private:
     static const ushort InvalidNodeIndex = 0xffff;
@@ -55,8 +53,6 @@ private:
 
     /// recursively convert files in directory
     bool RecurseConvert(const Util::String& srcDir, const Util::String& dstDir, Logger& logger);
-    /// convert a single file
-    bool ConvertFile(const Util::String& srcFile, const Util::String& dstFile, Logger& logger);
 
     /// load an XML file into the internal representation
     bool LoadFile(const Util::String& path, Logger& logger);
@@ -95,24 +91,6 @@ inline void
 BinaryXmlConverter::SetPlatform(Platform::Code p)
 {
     this->platform = p;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void
-BinaryXmlConverter::SetSrcDir(const Util::String& s)
-{
-    this->srcDir = s;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void
-BinaryXmlConverter::SetDstDir(const Util::String& s)
-{
-    this->dstDir = s;
 }
 
 } // namespace ToolkitUtil

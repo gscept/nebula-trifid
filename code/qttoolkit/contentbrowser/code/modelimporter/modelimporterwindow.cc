@@ -23,7 +23,6 @@ using namespace Graphics;
 using namespace ContentBrowser;
 using namespace ToolkitUtil;
 using namespace Util;
-using namespace Fbx;
 using namespace IO;
 namespace ModelImporter
 {

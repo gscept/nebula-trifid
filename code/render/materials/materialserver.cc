@@ -75,7 +75,7 @@ MaterialServer::Open()
     surfaceMapper->SetResourceClass(SurfaceMaterial::RTTI);
     surfaceMapper->SetResourceLoaderClass(StreamSurfaceMaterialLoader::RTTI);
     surfaceMapper->SetManagedResourceClass(ManagedSurfaceMaterial::RTTI);
-    surfaceMapper->SetPlaceholderResourceId("mat:surfaces/placeholder.xml");
+    surfaceMapper->SetPlaceholderResourceId("sur:system/placeholder.sur");
     surfaceMapper->SetAsyncEnabled(false);
     Resources::ResourceManager::Instance()->AttachMapper(surfaceMapper.cast<Resources::ResourceMapper>());
 

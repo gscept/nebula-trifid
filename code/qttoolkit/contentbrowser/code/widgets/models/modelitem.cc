@@ -91,7 +91,6 @@ ModelItem::OnDeactivated()
 	return this->itemHandler->Discard();
 }
 
-
 //------------------------------------------------------------------------------
 /**
 */
@@ -227,10 +226,10 @@ BaseItem*
 ModelItem::Clone()
 {
 	ModelItem* item = new ModelItem;
-	item->SetName(this->GetName());
-	item->SetWidget(this->GetWidget());
-	item->SetHandler(this->GetHandler());
-	item->SetUi(this->GetUi());
+	item->SetName(this->name);
+	item->SetWidget(this->frame);
+	item->SetHandler(this->itemHandler);
+	item->SetUi(this->ui);
 	return item;
 }
 

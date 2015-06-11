@@ -88,7 +88,7 @@ ModelDatabase::LookupAttributes( const Util::String& name, bool reload )
 		{
 			// create uri
 			String path;
-			path.Format("root:work/assets/%s.attributes", name.AsCharPtr());
+			path.Format("src:assets/%s.attributes", name.AsCharPtr());
 
 			// create stream
 			Ptr<Stream> file = IoServer::Instance()->CreateStream(path);
@@ -113,7 +113,7 @@ ModelDatabase::LookupAttributes( const Util::String& name, bool reload )
 		{
 			// create uri
 			String path;
-			path.Format("root:work/assets/%s.attributes", name.AsCharPtr());
+			path.Format("src:assets/%s.attributes", name.AsCharPtr());
 
 			// create stream
 			Ptr<Stream> file = IoServer::Instance()->CreateStream(path);
@@ -136,7 +136,7 @@ ModelDatabase::AttributesExist( const Util::String& name )
 {
 	// format file
 	String file;
-	file.Format("root:work/assets/%s.attributes", name.AsCharPtr());
+	file.Format("src:assets/%s.attributes", name.AsCharPtr());
 
 	// basically check if the file system has the attribute requested
 	if (IoServer::Instance()->FileExists(file))
@@ -178,7 +178,7 @@ ModelDatabase::LookupPhysics( const Util::String& name, bool reload )
 		{
 			// create uri
 			String path;
-			path.Format("root:work/assets/%s.physics", name.AsCharPtr());
+			path.Format("src:assets/%s.physics", name.AsCharPtr());
 
 			// create stream
 			Ptr<Stream> file = IoServer::Instance()->CreateStream(path);
@@ -203,7 +203,7 @@ ModelDatabase::LookupPhysics( const Util::String& name, bool reload )
 		{
 			// create uri
 			String path;
-			path.Format("root:work/assets/%s.physics", name.AsCharPtr());
+			path.Format("src:assets/%s.physics", name.AsCharPtr());
 
 			// create stream
 			Ptr<Stream> file = IoServer::Instance()->CreateStream(path);
@@ -226,7 +226,7 @@ ModelDatabase::PhysicsExist( const Util::String& name )
 {
 	// format file
 	String file;
-	file.Format("root:work/assets/%s.physics", name.AsCharPtr());
+	file.Format("src:assets/%s.physics", name.AsCharPtr());
 
 	// basically check if the file system has the attribute requested
 	if (IoServer::Instance()->FileExists(file))
@@ -268,7 +268,7 @@ ModelDatabase::LookupConstants( const Util::String& name, bool reload )
 		{
 			// create uri
 			String path;
-			path.Format("root:work/assets/%s.constants", name.AsCharPtr());
+			path.Format("src:assets/%s.constants", name.AsCharPtr());
 
 			// create stream
 			Ptr<Stream> file = IoServer::Instance()->CreateStream(path);
@@ -293,7 +293,7 @@ ModelDatabase::LookupConstants( const Util::String& name, bool reload )
 		{
 			// create uri
 			String path;
-			path.Format("root:work/assets/%s.constants", name.AsCharPtr());
+			path.Format("src:assets/%s.constants", name.AsCharPtr());
 
 			// create stream
 			Ptr<Stream> file = IoServer::Instance()->CreateStream(path);
@@ -316,7 +316,7 @@ ModelDatabase::ConstantsExist( const Util::String& name )
 {
 	// format file
 	String file;
-	file.Format("root:work/assets/%s.constants", name.AsCharPtr());
+	file.Format("src:assets/%s.constants", name.AsCharPtr());
 
 	// basically check if the file system has the attribute requested
 	if (IoServer::Instance()->FileExists(file))

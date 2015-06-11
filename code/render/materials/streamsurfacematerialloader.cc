@@ -10,6 +10,7 @@
 #include "io/xmlreader.h"
 #include "materialserver.h"
 #include "resources/resourcemanager.h"
+#include "io/bxmlreader.h"
 
 using namespace IO;
 using namespace Resources;
@@ -145,7 +146,7 @@ StreamSurfaceMaterialLoader::SetupMaterialFromStream(const Ptr<IO::Stream>& stre
 
     const Ptr<SurfaceMaterial>& surface = this->resource.downcast<SurfaceMaterial>();
 
-    Ptr<XmlReader> reader = XmlReader::Create();
+	Ptr<BXmlReader> reader = BXmlReader::Create();
     reader->SetStream(stream);
     if (reader->Open())
     {

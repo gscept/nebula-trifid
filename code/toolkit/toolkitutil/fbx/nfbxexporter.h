@@ -36,11 +36,11 @@ public:
 	/// ends exporter, cleans up all allocated resources
 	void EndExport();
 
-	/// parses a file
+	/// exports a single file
 	void ExportFile(const IO::URI& file);
-	/// parses a directory
+	/// exports all files in a directory
 	void ExportDir(const Util::String& dirName);
-	/// parses ALL the models
+	/// exports ALL the models
 	void ExportAll();
 
 	/// set desired scale
@@ -87,8 +87,6 @@ private:
 
 	float scaleFactor;	
 }; 
-
-
 
 //------------------------------------------------------------------------------
 /**

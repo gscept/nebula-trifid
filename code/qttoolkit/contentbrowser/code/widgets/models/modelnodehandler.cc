@@ -486,11 +486,11 @@ ModelNodeHandler::Browse()
 	IO::URI tex("tex:");
 	
 	// pick a texture
-	int res = ResourceBrowser::TextureBrowser::Instance()->Execute("Assign to: " + name->text());
+	int res = ResourceBrowser::AssetBrowser::Instance()->Execute("Assign to: " + name->text());
 	if (res == QDialog::Accepted)
 	{
 		// convert to nebula string
-		String texture = ResourceBrowser::TextureBrowser::Instance()->GetSelectedTexture().toUtf8().constData();
+		String texture = ResourceBrowser::AssetBrowser::Instance()->GetSelectedTexture().toUtf8().constData();
 
 		// get category
 		String category = texture.ExtractLastDirName();

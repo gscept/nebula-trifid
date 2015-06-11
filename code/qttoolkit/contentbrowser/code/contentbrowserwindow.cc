@@ -119,8 +119,8 @@ ContentBrowserWindow::ContentBrowserWindow() :
     this->shadyWindow->Setup();
 
 	// create texture browser window
-	this->textureBrowserWindow = ResourceBrowser::AssetBrowser::Create();
-	this->textureBrowserWindow->Open();
+	this->assetBrowserWindow = ResourceBrowser::AssetBrowser::Create();
+	this->assetBrowserWindow->Open();
 
 	// setup ui of particle wizard
 	this->particleWizardUi.setupUi(&this->particleEffectWizard);
@@ -336,8 +336,8 @@ ContentBrowserWindow::closeEvent( QCloseEvent *e )
 	this->uiHandler->Cleanup();
 	this->uiHandler = 0;
 
-	this->textureBrowserWindow->close();
-	this->textureBrowserWindow = 0;
+	this->assetBrowserWindow->close();
+	this->assetBrowserWindow = 0;
 
 	// delete windows
 	this->textureImporterWindow->close();
@@ -1762,8 +1762,8 @@ ContentBrowserWindow::OnShowPostEffectController()
 void
 ContentBrowserWindow::OnShowTextureBrowser()
 {
-	this->textureBrowserWindow->show();
-	this->textureBrowserWindow->raise();
+	this->assetBrowserWindow->show();
+	this->assetBrowserWindow->raise();
 }
 
 //------------------------------------------------------------------------------
