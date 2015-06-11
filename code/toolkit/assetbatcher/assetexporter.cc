@@ -5,6 +5,7 @@
 #include "stdneb.h"
 #include "assetexporter.h"
 #include "io/ioserver.h"
+#include "io/assignregistry.h"
 
 using namespace Util;
 using namespace IO;
@@ -54,6 +55,20 @@ AssetExporter::Close()
     this->modelBuilder = 0;
     this->textureExporter.Discard();
     ExporterBase::Close();
+}
+
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+AssetExporter::ExportSystem()
+{
+	String origSrc = AssignRegistry::Instance()->GetAssign("src");
+	AssignRegistry::Instance()->SetAssign(Assign("src", "toolkit"));
+	this->ExportDir("system");
+	this->ExportDir("lighting");
+	AssignRegistry::Instance()->SetAssign(Assign("src", origSrc));
 }
 
 //------------------------------------------------------------------------------

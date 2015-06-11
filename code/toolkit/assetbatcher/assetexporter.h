@@ -47,6 +47,8 @@ public:
     /// returns true if exporter is open
     bool IsOpen() const;
 
+	/// explicitly exports the system directories (toolkit:system and toolkit:lighting)
+	void ExportSystem();
     /// exports a single directory
     void ExportDir(const Util::String& category);
     /// exports all files

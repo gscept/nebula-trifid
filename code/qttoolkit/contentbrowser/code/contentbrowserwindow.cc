@@ -119,7 +119,7 @@ ContentBrowserWindow::ContentBrowserWindow() :
     this->shadyWindow->Setup();
 
 	// create texture browser window
-	this->textureBrowserWindow = ResourceBrowser::TextureBrowser::Create();
+	this->textureBrowserWindow = ResourceBrowser::AssetBrowser::Create();
 	this->textureBrowserWindow->Open();
 
 	// setup ui of particle wizard

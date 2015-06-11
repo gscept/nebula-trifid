@@ -7,7 +7,6 @@
 
 namespace ResourceBrowser
 {
-__ImplementClass(ResourceBrowser::TiledSurfaceItem, 'TISU', Core::RefCounted);
 
 //------------------------------------------------------------------------------
 /**

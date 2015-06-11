@@ -14,7 +14,6 @@ namespace ResourceBrowser
 class ImageLoaderUnit;
 class TiledSurfaceItem : public TiledGraphicsItem
 {
-	__DeclareClass(TiledSurfaceItem);
 public:
 	/// constructor
 	TiledSurfaceItem();

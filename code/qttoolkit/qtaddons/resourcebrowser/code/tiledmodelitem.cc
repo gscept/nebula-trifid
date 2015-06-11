@@ -7,7 +7,6 @@
 
 namespace ResourceBrowser
 {
-__ImplementClass(ResourceBrowser::TiledModelItem, 'TIMO', Core::RefCounted);
 
 //------------------------------------------------------------------------------
 /**
@@ -23,6 +22,60 @@ TiledModelItem::TiledModelItem()
 TiledModelItem::~TiledModelItem()
 {
 	// empty
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+TiledModelItem::Setup()
+{
+
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+TiledModelItem::Discard()
+{
+
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+TiledModelItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+TiledModelItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
+{
+
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+TiledModelItem::OnPreviewLoaded()
+{
+
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+TiledModelItem::OnSelected(const QString& sur)
+{
+
 }
 
 } // namespace ResourceBrowser

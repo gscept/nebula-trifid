@@ -252,7 +252,7 @@ AssetBrowser::SetupRoot()
 	for (i = 0; i < dirs.Size(); i++)
 	{
 		const String& dir = dirs[i];
-		String textureDir = texPath + "/" + dir;
+		String textureDir = assetPath + "/" + dir;
 
 		// create new texture dir
 		TiledDirectoryItem* item = new TiledDirectoryItem;

@@ -14,7 +14,6 @@ namespace ResourceBrowser
 class ImageLoaderUnit;
 class TiledModelItem : public TiledGraphicsItem
 {
-	__DeclareClass(TiledModelItem);
 public:
 	/// constructor
 	TiledModelItem();
@@ -34,7 +33,7 @@ public:
 	/// handle right clicking
 	void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 
-	private slots:
+private slots:
 	/// called when the preview image is loaded
 	void OnPreviewLoaded();
 
