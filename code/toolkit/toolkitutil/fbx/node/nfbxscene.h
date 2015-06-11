@@ -15,7 +15,7 @@
 #include "meshutil/meshbuilder.h"
 #include "base/exporttypes.h"
 //------------------------------------------------------------------------------
-namespace Fbx
+namespace ToolkitUtil
 {
 class NFbxScene : public Core::RefCounted
 {

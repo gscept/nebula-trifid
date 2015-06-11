@@ -5,9 +5,9 @@
 #include "stdneb.h"
 #include "fbx/node/nfbxlightnode.h"
 
-namespace Fbx
+namespace ToolkitUtil
 {
-__ImplementClass(Fbx::NFbxLightNode, 'FBLN', Fbx::NFbxNode);
+__ImplementClass(ToolkitUtil::NFbxLightNode, 'FBLN', ToolkitUtil::NFbxNode);
 
 //------------------------------------------------------------------------------
 /**

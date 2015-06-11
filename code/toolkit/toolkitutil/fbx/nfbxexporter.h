@@ -14,7 +14,7 @@
 
 
 //------------------------------------------------------------------------------
-namespace Fbx
+namespace ToolkitUtil
 {
 class NFbxExporter : public Base::ExporterBase
 {

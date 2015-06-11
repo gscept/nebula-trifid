@@ -17,9 +17,9 @@ using namespace IO;
 using namespace Util;
 using namespace ToolkitUtil;
 
-namespace Fbx
+namespace ToolkitUtil
 {
-__ImplementClass(Fbx::NFbxSceneWriter, 'FBSW', Core::RefCounted);
+__ImplementClass(ToolkitUtil::NFbxSceneWriter, 'FBSW', Core::RefCounted);
 
 //------------------------------------------------------------------------------
 /**
@@ -219,21 +219,21 @@ NFbxSceneWriter::CreateStaticModel( const Ptr<ToolkitUtil::N3Writer>& modelWrite
 	}
 
 	String constantsFile;
-	constantsFile.Format("src:models/%s/%s.constants", category.AsCharPtr(), file.AsCharPtr());
+	constantsFile.Format("src:assets/%s/%s.constants", category.AsCharPtr(), file.AsCharPtr());
 
 	// update
 	this->UpdateConstants(constantsFile, constants);
 
 	// format attributes file
 	String attributesFile;
-	attributesFile.Format("src:models/%s/%s.attributes", category.AsCharPtr(), file.AsCharPtr());
+	attributesFile.Format("src:assets/%s/%s.attributes", category.AsCharPtr(), file.AsCharPtr());
 
 	// update
 	this->UpdateAttributes(attributesFile, attributes);
 
 	// format attributes file
 	String physicsFile;
-	physicsFile.Format("src:models/%s/%s.physics", category.AsCharPtr(), file.AsCharPtr());
+	physicsFile.Format("src:assets/%s/%s.physics", category.AsCharPtr(), file.AsCharPtr());
 
 	// update
 	this->UpdatePhysics(physicsFile, physics);
@@ -479,21 +479,21 @@ NFbxSceneWriter::CreateSkeletalModel( const Ptr<N3Writer>& modelWriter,  const U
 	}
 
 	String constantsFile;
-	constantsFile.Format("src:models/%s/%s.constants", category.AsCharPtr(), file.AsCharPtr());
+	constantsFile.Format("src:assets/%s/%s.constants", category.AsCharPtr(), file.AsCharPtr());
 
 	// update
 	this->UpdateConstants(constantsFile, constants);
 
 	// format attributes file
 	String attributesFile;
-	attributesFile.Format("src:models/%s/%s.attributes", category.AsCharPtr(), file.AsCharPtr());
+	attributesFile.Format("src:assets/%s/%s.attributes", category.AsCharPtr(), file.AsCharPtr());
 
 	// update
 	this->UpdateAttributes(attributesFile, attributes);
 
 	// format attributes file
 	String physicsFile;
-	physicsFile.Format("src:models/%s/%s.physics", category.AsCharPtr(), file.AsCharPtr());
+	physicsFile.Format("src:assets/%s/%s.physics", category.AsCharPtr(), file.AsCharPtr());
 
 	// update
 	this->UpdatePhysics(physicsFile, physics);

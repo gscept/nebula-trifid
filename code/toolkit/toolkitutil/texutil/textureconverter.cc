@@ -53,8 +53,6 @@ bool
 TextureConverter::Setup(Logger& logger)
 {
     n_assert(!this->IsValid());
-    n_assert(this->srcDir.IsValid());
-    n_assert(this->dstDir.IsValid());
     n_assert(0 == this->logger);
 
     this->logger = &logger;
@@ -139,7 +137,7 @@ TextureConverter::ConvertFiles(const Util::Array<Util::String>& files)
         }
     }
     // remove created temp directory of this job
-    if(IoServer::Instance()->DirectoryExists(tmpDir))
+    if (IoServer::Instance()->DirectoryExists(tmpDir))
     {
         IoServer::Instance()->DeleteDirectory(tmpDir);
     }
@@ -159,6 +157,7 @@ TextureConverter::ConvertTexture(const String& srcTexPath, const String& tmpDir)
     n_assert(this->IsValid());
     n_assert(srcTexPath.IsValid());
     n_assert(tmpDir.IsValid());
+    n_assert(this->dstDir.IsValid());
     n_assert(0 != this->logger);
 
     // extract texture category and filename from path (last 2 components)

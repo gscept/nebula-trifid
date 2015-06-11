@@ -224,32 +224,6 @@ View::ResolveVisibleShadowCasters( IndexT frameIndex )
 			curEntity->OnRenderBefore(frameIndex);
 		}
 	}
-
-	/*
-	// now find all local lights
-	const Array<Ptr<GraphicsEntity> >& entities = GraphicsServer::Instance()->GetEntities();
-	IndexT i;
-	for (i = 0; i < entities.Size(); i++)
-	{
-		const Ptr<GraphicsEntity>& entity = entities[i];
-		if (entity->GetType() == GraphicsEntityType::Light)
-		{
-			const Ptr<AbstractLightEntity>& light = entity.downcast<AbstractLightEntity>();
-			if (light->GetCastShadows())
-			{
-				const Array<Ptr<GraphicsEntity> >& visLinks = light->GetLinks(GraphicsEntity::LightLink);
-				IndexT j;
-				SizeT num = visLinks.Size();
-				for (j = 0; j < num; j++)
-				{
-					const Ptr<GraphicsEntity>& curEntity = visLinks[j];
-					n_assert(GraphicsEntityType::Model == curEntity->GetType());
-					curEntity->OnRenderBefore(frameIndex);
-				}
-			}
-		}
-	}
-	*/
 }
 
 //------------------------------------------------------------------------------

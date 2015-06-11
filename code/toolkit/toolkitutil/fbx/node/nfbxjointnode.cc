@@ -9,9 +9,9 @@
 #include "math/float4.h"
 
 using namespace Math;
-namespace Fbx
+namespace ToolkitUtil
 {
-__ImplementClass(Fbx::NFbxJointNode, 'FBJN', Fbx::NFbxNode);
+__ImplementClass(ToolkitUtil::NFbxJointNode, 'FBJN', ToolkitUtil::NFbxNode);
 
 //------------------------------------------------------------------------------
 /**

@@ -10,7 +10,7 @@
 #include "modelutil/take.h"
 
 
-namespace Fbx
+namespace ToolkitUtil
 {
 
 using namespace Math;
@@ -18,7 +18,7 @@ using namespace CoreAnimation;
 using namespace Util;
 using namespace ToolkitUtil;
 
-__ImplementClass(Fbx::NFbxNode, 'FBNO', Core::RefCounted);
+__ImplementClass(ToolkitUtil::NFbxNode, 'FBNO', Core::RefCounted);
 
 //------------------------------------------------------------------------------
 /**

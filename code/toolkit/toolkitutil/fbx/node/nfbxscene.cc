@@ -9,10 +9,10 @@
 
 using namespace Util;
 using namespace ToolkitUtil;
-namespace Fbx
+namespace ToolkitUtil
 {
-__ImplementSingleton(Fbx::NFbxScene);
-__ImplementClass(Fbx::NFbxScene, 'FBXS', Core::RefCounted);
+__ImplementSingleton(ToolkitUtil::NFbxScene);
+__ImplementClass(ToolkitUtil::NFbxScene, 'FBXS', Core::RefCounted);
 
 //------------------------------------------------------------------------------
 /**

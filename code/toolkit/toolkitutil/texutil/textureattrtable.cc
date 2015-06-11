@@ -109,7 +109,7 @@ TextureAttrTable::Setup(const String& path)
 	for (i = 0; i < dirs.Size(); i++)
 	{
 		// get texture directory files
-		files = ioServer->ListFiles(path + "/" + dirs[i], "*.xml");
+		files = ioServer->ListFiles(path + "/" + dirs[i], "*.tex");
 
 		for (j = 0; j < files.Size(); j++)
 		{
@@ -268,7 +268,7 @@ TextureAttrTable::Save( const Util::String& path )
 	// get attributes
 	const TextureAttrs& attrs = this->texAttrs[mapIndex];
 
-	String tablePath = "src:textures/" + path + ".xml";
+	String tablePath = "src:assets/" + path + ".tex";
 	Ptr<Stream> stream = ioServer->CreateStream(tablePath);
 	Ptr<XmlWriter> xmlWriter = XmlWriter::Create();
 	xmlWriter->SetStream(stream);

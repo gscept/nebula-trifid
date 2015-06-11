@@ -11,7 +11,7 @@
 #include "math/bbox.h"
 
 //------------------------------------------------------------------------------
-namespace Fbx
+namespace ToolkitUtil
 {
 class NFbxTransformNode : public NFbxNode
 {

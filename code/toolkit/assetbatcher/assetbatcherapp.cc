@@ -4,10 +4,11 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "toolkitutil/fbx/nfbxexporter.h"
-#include "fbxbatcher3app.h"
+#include "assetbatcherapp.h"
 #include "io/assignregistry.h"
 #include "core/coreserver.h"
 #include "io/textreader.h"
+#include "assetexporter.h"
 
 #define PRECISION 1000000
 
@@ -21,40 +22,57 @@ namespace Toolkit
 //------------------------------------------------------------------------------
 /**
 */
-FBXBatcher3App::FBXBatcher3App()
+    AssetBatcherApp::AssetBatcherApp()
 {
-	this->modelDatabase = ModelDatabase::Create();
-	this->modelDatabase->Open();
+    // empty
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-FBXBatcher3App::~FBXBatcher3App()
+AssetBatcherApp::~AssetBatcherApp()
 {
-	this->modelDatabase->Close();
-	this->modelDatabase = 0;
+    // empty
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 bool 
-FBXBatcher3App::Open()
+AssetBatcherApp::Open()
 {
-	return DistributedToolkitApp::Open();
+    if (DistributedToolkitApp::Open())
+    {
+        this->modelDatabase = ToolkitUtil::ModelDatabase::Create();
+        this->modelDatabase->Open();
+        return true;
+    }
+    return false;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+AssetBatcherApp::Close()
+{
+    if (this->modelDatabase.isvalid())
+    {
+        this->modelDatabase->Close();
+        this->modelDatabase = 0;
+    }    
+    DistributedToolkitApp::Close();
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void 
-FBXBatcher3App::DoWork()
+AssetBatcherApp::DoWork()
 {
-    Ptr<ToolkitUtil::NFbxExporter> exporter = ToolkitUtil::NFbxExporter::Create();
+    Ptr<AssetExporter> exporter = AssetExporter::Create();
 	String dir = "";
 	String file = "";
-	String projectFolder = "proj:";
 	ExporterBase::ExportFlag exportFlag = ExporterBase::All;
 	
 	bool force = false;
@@ -63,21 +81,12 @@ FBXBatcher3App::DoWork()
 		exportFlag = ExporterBase::Dir;
 		dir = this->args.GetString("-dir");
 	}
-	if (this->args.HasArg("-file"))
-	{
-		exportFlag = ExporterBase::File;
-		file = this->args.GetString("-file");
-	}
-	if (this->args.HasArg("-projectdir"))
-	{
-		projectFolder = this->args.GetString("-projectdir") + "/";
-	}	 
 	if (this->args.HasArg("-force"))
 	{
 		force = this->args.GetBoolFlag("-force");
 	}
 
-    IO::AssignRegistry::Instance()->SetAssign(Assign("home", "proj:"));
+	IO::AssignRegistry::Instance()->SetAssign(Assign("home","proj:"));
 	exporter->Open();
 	exporter->SetForce(force);
 	exporter->SetExportFlag(exportFlag);
@@ -91,7 +100,7 @@ FBXBatcher3App::DoWork()
 	}
 	else
 	{
-		int files = exporter->CountExports(projectFolder + "work/assets/" + dir, "fbx");
+		int files = IO::IoServer::Instance()->ListDirectories("src:assets/", "*").Size();
 		switch (exportFlag)
 		{
 		case ExporterBase::All:
@@ -102,12 +111,6 @@ FBXBatcher3App::DoWork()
 			exporter->SetProgressMinMax(0, files*PRECISION);
 			exporter->ExportDir(dir);
 			break;
-		case ExporterBase::File:
-			exporter->SetCategory(dir);
-			exporter->SetFile(file);
-			exporter->SetProgressMinMax(0, PRECISION);
-			exporter->ExportFile(projectFolder + "work/assets/" + dir + "/" + file);
-			break;	
 		}
 	}	
 	exporter->Close();
@@ -120,7 +123,7 @@ FBXBatcher3App::DoWork()
 /**
 */
 bool 
-FBXBatcher3App::ParseCmdLineArgs()
+AssetBatcherApp::ParseCmdLineArgs()
 {
 	return DistributedToolkitApp::ParseCmdLineArgs();
 }
@@ -129,7 +132,7 @@ FBXBatcher3App::ParseCmdLineArgs()
 /**
 */
 bool 
-FBXBatcher3App::SetupProjectInfo()
+AssetBatcherApp::SetupProjectInfo()
 {
 	if (DistributedToolkitApp::SetupProjectInfo())
 	{
@@ -142,15 +145,13 @@ FBXBatcher3App::SetupProjectInfo()
 /**
 */
 void 
-FBXBatcher3App::ShowHelp()
+AssetBatcherApp::ShowHelp()
 {
-	n_printf("NebulaT FBX batcher.\n"
-		"(C) 2012-2015 Individual contributors, see AUTHORS file.\n");
+	n_printf("NebulaT asset batcher.\n"
+		"(C) 2015 Individual contributors, see AUTHORS file.\n");
 	n_printf("-help         --display this help\n"
 			 "-force        --ignores time stamps\n"
 			 "-dir          --category name\n"
-			 "-file         --file name (if empty, dir will be parsed)\n"
-			 "-projectdir   --nebula project trunk (if empty, attempts to use registry)\n"
 			 "-platform     --export platform");
 }
 
@@ -158,13 +159,15 @@ FBXBatcher3App::ShowHelp()
 /**
 */
 Util::Array<Util::String>
-FBXBatcher3App::CreateFileList()
+AssetBatcherApp::CreateFileList()
 {
 	Util::Array<Util::String> res;
+
 	// create list from given filelist
     if (this->listfileArg.IsValid())
 	{
 		URI listUri(this->listfileArg);
+
 		// open stream and reader
 		Ptr<Stream> readStream = IoServer::Instance()->CreateStream(listUri);
 		readStream->SetAccessMode(Stream::ReadAccess);
@@ -192,16 +195,12 @@ FBXBatcher3App::CreateFileList()
 		for (int directoryIndex = 0; directoryIndex < directories.Size(); directoryIndex++)
 		{
 			String category = workDir + "/" + directories[directoryIndex];			
-			Array<String> files = IoServer::Instance()->ListFiles(category, "*.fbx");
-			for (int fileIndex = 0; fileIndex < files.Size(); fileIndex++)
-			{
-				String file = directories[directoryIndex] + "/" + files[fileIndex];
-				res.Append(file);			
-			}
+            res.Append(category);
 		}	
+
 		// update progressbar in batchexporter
 		Ptr<Base::ExporterBase> dummy = Base::ExporterBase::Create();
-		dummy->SetProgressMinMax(0,res.Size()*PRECISION);
+        dummy->SetProgressMinMax(0, res.Size() * PRECISION);
 	}	
 	return res;
 }
