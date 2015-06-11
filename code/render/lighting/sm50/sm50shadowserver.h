@@ -119,7 +119,7 @@ SM50ShadowServer::GetSpotLightShadowBufferTexture() const
 inline const Ptr<CoreGraphics::Texture>& 
 SM50ShadowServer::GetGlobalLightShadowBufferTexture() const
 {
-	return this->globalLightShadowBuffer->GetResolveTexture();
+	return this->globalLightShadowBufferFinal->GetResolveTexture();
 }
 
 //------------------------------------------------------------------------------

@@ -64,18 +64,18 @@ DebugDraw::end()
 		case DU_DRAW_POINTS:
 		{		
 			lastColor.set(1,0,1,1);
-			Debug::DebugShapeRenderer::Instance()->DrawPrimitives(Math::matrix44::identity(), CoreGraphics::PrimitiveTopology::PointList, points.Size(), points.Begin(), 4, lastColor, CoreGraphics::RenderShape::AlwaysOnTop);
+			Debug::DebugShapeRenderer::Instance()->DrawPrimitives(Math::matrix44::identity(), CoreGraphics::PrimitiveTopology::PointList, points.Size(), points.Begin(), 4, lastColor, CoreGraphics::RenderShape::AlwaysOnTop, NULL);
 		}
 		break;
 		case DU_DRAW_LINES:
 		{			
 			lastColor.set_w(1);
-			Debug::DebugShapeRenderer::Instance()->DrawPrimitives(Math::matrix44::identity(), CoreGraphics::PrimitiveTopology::LineList, points.Size() / 2, points.Begin(), 4, lastColor, CoreGraphics::RenderShape::AlwaysOnTop);
+			Debug::DebugShapeRenderer::Instance()->DrawPrimitives(Math::matrix44::identity(), CoreGraphics::PrimitiveTopology::LineList, points.Size() / 2, points.Begin(), 4, lastColor, CoreGraphics::RenderShape::AlwaysOnTop, NULL);
 		}
 		break;
 		case DU_DRAW_TRIS:
 		{
-			Debug::DebugShapeRenderer::Instance()->DrawPrimitives(Math::matrix44::identity(), CoreGraphics::PrimitiveTopology::TriangleList, points.Size() / 3, points.Begin(), 4, lastColor, CoreGraphics::RenderShape::AlwaysOnTop);
+			Debug::DebugShapeRenderer::Instance()->DrawPrimitives(Math::matrix44::identity(), CoreGraphics::PrimitiveTopology::TriangleList, points.Size() / 3, points.Begin(), 4, lastColor, CoreGraphics::RenderShape::AlwaysOnTop, NULL);
 		}
 		break;
 		case DU_DRAW_QUADS:

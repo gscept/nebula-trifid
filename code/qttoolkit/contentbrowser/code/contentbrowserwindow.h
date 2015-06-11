@@ -31,7 +31,7 @@
 #include "posteffectcontroller.h"
 #include "util/array.h"
 #include "nody/shady/code/shadywindow.h"
-#include "../../resourcebrowser/code/texturebrowser.h"
+#include "../../resourcebrowser/code/assetbrowser.h"
 
 namespace ContentBrowser
 {

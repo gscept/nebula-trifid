@@ -3,7 +3,7 @@
 //  (C) 2012-2014 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "textureloaderthread.h"
+#include "imageloaderthread.h"
 #include "io/uri.h"
 
 namespace ResourceBrowser
@@ -12,7 +12,7 @@ namespace ResourceBrowser
 //------------------------------------------------------------------------------
 /**
 */
-TextureLoaderThread::TextureLoaderThread(QObject* parent) : 
+ImageLoaderThread::ImageLoaderThread(QObject* parent) : 
 	QThread(parent),
 	shouldStop(false),
 	paused(false)
@@ -23,7 +23,7 @@ TextureLoaderThread::TextureLoaderThread(QObject* parent) :
 //------------------------------------------------------------------------------
 /**
 */
-TextureLoaderThread::~TextureLoaderThread()
+ImageLoaderThread::~ImageLoaderThread()
 {
 	// empty
 }
@@ -32,7 +32,7 @@ TextureLoaderThread::~TextureLoaderThread()
 /**
 */
 void
-TextureLoaderThread::run()
+ImageLoaderThread::run()
 {
 	// run forever
 	while (!this->shouldStop)
@@ -40,7 +40,7 @@ TextureLoaderThread::run()
 		while (!this->queue.IsEmpty() && !this->paused)
 		{
 			// get unit and lock it so that we don't delete it
-			TextureLoaderUnit* unit = this->queue.Dequeue();
+			ImageLoaderUnit* unit = this->queue.Dequeue();
 			unit->mutex.lock();
 
 			// get parameters
@@ -68,7 +68,7 @@ TextureLoaderThread::run()
 /**
 */
 void
-TextureLoaderThread::Start()
+ImageLoaderThread::Start()
 {
 	this->start();
 }
@@ -77,7 +77,7 @@ TextureLoaderThread::Start()
 /**
 */
 void
-TextureLoaderThread::Stop()
+ImageLoaderThread::Stop()
 {
 	this->queue.Clear();
 	this->shouldStop = true;
@@ -88,7 +88,7 @@ TextureLoaderThread::Stop()
 /**
 */
 void
-TextureLoaderThread::Pause(bool b)
+ImageLoaderThread::Pause(bool b)
 {
 	this->paused = b;
 }
@@ -97,7 +97,7 @@ TextureLoaderThread::Pause(bool b)
 /**
 */
 void
-TextureLoaderThread::Clear()
+ImageLoaderThread::Clear()
 {
 	this->queue.Clear();
 }

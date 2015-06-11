@@ -63,14 +63,15 @@ AnimJob::OnAttachedToSequencer(const AnimSequencer& animSeq)
 
 	// compute the duration and fade in/fade out times depending on the time factor
 	float timeMultiplier = 1 / float(Math::n_abs(this->timeFactor));
-	float durationFactored = float(this->duration) * timeMultiplier;
-	float fadeInFactored = float(this->fadeInTime) * timeMultiplier;
-	float fadeOutFactored = float(this->fadeOutTime) * timeMultiplier;
+	int timeDivider = Math::n_frnd(1 / float(Math::n_abs(this->timeFactor)));
+	Timing::Time durationFactored = Timing::TicksToSeconds(this->duration) / timeDivider;
+	Timing::Time fadeInFactored = Timing::TicksToSeconds(this->fadeInTime) / timeDivider;
+	Timing::Time fadeOutFactored = Timing::TicksToSeconds(this->fadeOutTime) / timeDivider;
 
 	// convert back to ticks
-	this->duration = Timing::Tick(durationFactored);
-	this->fadeInTime = Timing::Tick(fadeInFactored);
-	this->fadeOutTime = Timing::Tick(fadeOutFactored);
+	this->duration = Timing::SecondsToTicks(durationFactored);
+	this->fadeInTime = Timing::SecondsToTicks(fadeInFactored);
+	this->fadeOutTime = Timing::SecondsToTicks(fadeOutFactored);
 }
 
 //------------------------------------------------------------------------------
@@ -262,7 +263,8 @@ AnimJob::UpdateTimes(Timing::Tick time)
 
 	if (!this->isPaused)
 	{	
-		Timing::Tick timeDiff = (Timing::Tick)(frameTicks * this->timeFactor);
+		int timeDivider = Math::n_frnd(1 / this->timeFactor);
+		Timing::Tick timeDiff = frameTicks / timeDivider;
 		this->curSampleTime  = this->lastSampleTime + timeDiff;
 		this->lastSampleTime = this->curSampleTime;
 		this->curSampleTime += this->timeOffset;

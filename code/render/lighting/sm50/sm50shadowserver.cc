@@ -243,7 +243,6 @@ SM50ShadowServer::Open()
 	this->globalLightShadowBufferFinal->SetResolveTextureResourceId(ResourceId("GlobalLightShadowBufferFinal"));
 	this->globalLightShadowBufferFinal->Setup();	
 
-
 	// create batch
 	this->globalLightShadowBatch = FrameBatch::Create();
 	this->globalLightShadowBatch->SetType(CoreGraphics::FrameBatchType::FromString("Geometry"));
@@ -269,7 +268,7 @@ SM50ShadowServer::Open()
 	this->globalLightBlurPass->SetShader(this->blurShader);
 	this->globalLightBlurPass->Setup();
 	this->blurShader->GetVariableByName("SourceMap")->SetTexture(this->globalLightShadowBuffer->GetResolveTexture());
-	//this->blurShader->GetVariableByName("BorderIntervals")->SetFloat2(float2(1 / (float)SplitsPerColumn, 1 / (float)SplitsPerRow));
+	this->blurShader->GetVariableByName("BorderIntervals")->SetFloat2(float2(1 / (float)SplitsPerColumn, 1 / (float)SplitsPerRow));
 
 #if NEBULA3_ENABLE_PROFILING
 	{
@@ -590,7 +589,7 @@ SM50ShadowServer::UpdateHotGlobalShadowBuffer()
 	this->globalLightHotPass->Render();
 
 	// render blur
-	//this->globalLightBlurPass->Render();
+	this->globalLightBlurPass->Render();
 }
 
 //------------------------------------------------------------------------------

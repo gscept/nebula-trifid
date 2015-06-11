@@ -592,7 +592,8 @@ ModelEntity::HandleCharacterAnimEvents(Timing::Time time)
         // now get animevents from last time till current time
         Timing::Tick startTime = this->animEventLastTick;
         Timing::Tick endTime = timeInTicks;
-        this->animEventInfos = this->charInst->AnimController().AnimSequencer().EmitAnimEvents(startTime, endTime, this->animEventOnlyDominatingClip, "");
+		Animation::AnimSequencer& sequencer = this->charInst->AnimController().AnimSequencer();
+        this->animEventInfos = sequencer.EmitAnimEvents(startTime, endTime, this->animEventOnlyDominatingClip, "");
     
         if (this->animEventInfos.Size() > 0)
         { 

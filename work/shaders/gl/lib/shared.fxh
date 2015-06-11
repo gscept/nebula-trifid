@@ -127,6 +127,4 @@ shared buffers=32 varblock PerShadowFrame
 	mat4 ViewMatrixArray[6];
 };
 
-const float ShadowConstant = 100.0f;
-
 #endif // SHARED_H

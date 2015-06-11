@@ -46,10 +46,9 @@ state DepthDisabledState
 */
 shader
 void
-vsMain(in vec3 position, in vec4 color, out vec4 Color) 
+vsMain(in vec3 position, out vec4 Color) 
 {
 	gl_Position = ViewProjection * ShapeModel * vec4(position, 1);
-	Color = color;
 }
 	
 //------------------------------------------------------------------------------
@@ -59,7 +58,7 @@ shader
 void
 psMain(in vec4 color, [color0] out vec4 Color) 
 {
-	Color = color * MatDiffuse;
+	Color = MatDiffuse;
 }
 
 //------------------------------------------------------------------------------

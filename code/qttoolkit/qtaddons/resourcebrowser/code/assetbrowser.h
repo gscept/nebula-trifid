@@ -15,27 +15,27 @@
 #include <QShortcut>
 #include "core/refcounted.h"
 #include "core/singleton.h"
-#include "textureloaderthread.h"
+#include "imageloaderthread.h"
 
 namespace Ui
 {
-	class TextureBrowser;
+	class AssetBrowser;
 }
 namespace ResourceBrowser
 {
 
-class TextureBrowser : 
+class AssetBrowser : 
 	public QDialog,
 	public Core::RefCounted
 {
 	Q_OBJECT
-	__DeclareClass(TextureBrowser);	
-	__DeclareSingleton(TextureBrowser);
+	__DeclareClass(AssetBrowser);	
+	__DeclareSingleton(AssetBrowser);
 public:
 	/// constructor
-	TextureBrowser();
+	AssetBrowser();
 	/// destructor
-	virtual ~TextureBrowser();
+	virtual ~AssetBrowser();
 
 	/// open texture browser, and close it whenever a texture is selected or the window closed
 	int Execute(const QString& title);
@@ -58,22 +58,24 @@ private slots:
 	void OnDirectoryClicked(const QString& dir);
 	/// handle a texture being clicked
 	void OnTextureClicked(const QString& tex);
-	/// handle gfx
-	void OnGfxClicked(const QString& gfx);
+	/// handle model getting clicked
+	void OnModelClicked(const QString& mdl);
+	/// handle material getting clicked
+	void OnSurfaceClicked(const QString& sur);
 	/// handle backing in the hierarchy
 	void OnBack();
 
 private:
 
 	friend class TiledTextureItem;
-	static TextureLoaderThread* loaderThread;
+	static ImageLoaderThread* loaderThread;
 
 	/// helper function to setup directories
 	void SetupRoot();
 
 	bool isExecuting;
 	QString selectedResource;
-	Ui::TextureBrowser* ui;
+	Ui::AssetBrowser* ui;
 	QGraphicsGridLayout* layout;
 	QShortcut* shortcut;
 	QList<QGraphicsPixmapItem*> items;
@@ -84,7 +86,7 @@ private:
 /**
 */
 inline const QString&
-TextureBrowser::GetSelectedTexture() const
+AssetBrowser::GetSelectedTexture() const
 {
 	return this->selectedResource;
 }

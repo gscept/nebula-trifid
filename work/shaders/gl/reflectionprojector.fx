@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  reflectionprojector.fx
-//  (C) 2014 Gustav Sterbrant
+//  (C) 2015 Gustav Sterbrant
 //------------------------------------------------------------------------------
 
 #include "lib/std.fxh"
@@ -62,7 +62,6 @@ subroutine (CalculateDistanceField) float Box(
 {
 	vec3 d = abs(point) - vec3(FalloffDistance);
 	return min(max(d.x, max(d.y, d.z)), 0.0f) + length(max(d, 0.0f));
-	//return length(max(abs(point) - vec3(FalloffDistance), vec3(0)));	
 }
 
 subroutine (CalculateDistanceField) float Sphere(
@@ -114,7 +113,7 @@ vsMain(in vec3 position,
 
 //------------------------------------------------------------------------------
 /**
-	Calculate reflection projection using a box, basically the same as circle except we are using a signed distance function for boxes instead of a simple radius
+	Calculate reflection projection using a box, basically the same as circle except we are using a signed distance function to determine falloff.
 */
 [earlydepth]
 shader
@@ -137,28 +136,19 @@ psMain(in vec3 viewSpacePosition,
 	vec3 dist = vec3(0.5f) - abs(localPos.xyz);
 	if (all(greaterThan(dist, vec3(0))))
 	{
-		// sample normal and specular
+		// sample normal and specular, do some pseudo-PBR energy balance between albedo and spec
 		vec3 viewSpaceNormal = UnpackViewSpaceNormal(textureLod(NormalMap, screenUV, 0));
 		vec4 spec = textureLod(SpecularMap, screenUV, 0);
 		vec4 oneMinusSpec = 1 - spec;
 		vec3 albedo = textureLod(AlbedoMap, screenUV, 0).rgb * oneMinusSpec.rgb;
 	
 		// calculate reflection
-		//vec3 worldViewVec = ;
-		//vec3 viewVecWorld = vec4(worldPosition.xyz - EyePos.xyz, 0).xyz;
 		vec3 viewVecWorld = worldViewVec;
 		vec3 worldNormal = (InvView * vec4(viewSpaceNormal, 0)).xyz;
 		vec3 reflectVec = reflect(viewVecWorld, worldNormal);
+		
+		// perform cubemap correction method if required
 		reflectVec = calcCubemapCorrection(worldPosition.xyz, reflectVec);
-		// perform local parallax correction
-		/*
-		vec3 intersectMin = (BBoxMin.xyz - worldPosition.xyz) / reflectVec;
-		vec3 intersectMax = (BBoxMax.xyz - worldPosition.xyz) / reflectVec;
-		vec3 largestRay = max(intersectMin, intersectMax);
-		float distToIntersection = min(min(largestRay.x, largestRay.y), largestRay.z);
-		vec3 intersectPos = worldPosition.xyz + reflectVec * distToIntersection;
-		reflectVec = intersectPos - BBoxCenter.xyz;
-		*/
 		
 		// calculate unsigned distance field, then power by like a million to get a smooth transition
 		float d = calcDistanceField(localPos.xyz);		

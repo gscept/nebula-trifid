@@ -3,7 +3,7 @@
 /**
 	@class ResourceBrowser::TextureLoaderThread
 	
-	Asynchronous texture loader.
+	Asynchronous image icon loader.
 	
 	(C) 2012-2014 Individual contributors, see AUTHORS file
 */
@@ -16,7 +16,7 @@
 namespace ResourceBrowser
 {
 
-class TextureLoaderUnit : public QObject
+class ImageLoaderUnit : public QObject
 {
 	Q_OBJECT
 public:
@@ -28,16 +28,16 @@ signals:
 	/// signal when loaded
 	void OnLoaded();
 
-	friend class TextureLoaderThread;
+	friend class ImageLoaderThread;
 };
 
-class TextureLoaderThread : public QThread
+class ImageLoaderThread : public QThread
 {
 public:
 	/// constructor
-	TextureLoaderThread(QObject* parent);
+	ImageLoaderThread(QObject* parent);
 	/// destructor
-	virtual ~TextureLoaderThread();
+	virtual ~ImageLoaderThread();
 
 	/// run thread
 	void run();
@@ -49,7 +49,7 @@ public:
 	/// pause/unpause thread
 	void Pause(bool b);
 	/// enqueue new texture
-	void Enqueue(TextureLoaderUnit* unit);	
+	void Enqueue(ImageLoaderUnit* unit);	
 
 	/// clear any pending requests
 	void Clear();
@@ -57,14 +57,14 @@ public:
 private:
 	bool paused;
 	bool shouldStop;
-	Threading::SafeQueue<TextureLoaderUnit*> queue;
+	Threading::SafeQueue<ImageLoaderUnit*> queue;
 };
 
 //------------------------------------------------------------------------------
 /**
 */
 inline void
-TextureLoaderThread::Enqueue(TextureLoaderUnit* unit)
+ImageLoaderThread::Enqueue(ImageLoaderUnit* unit)
 {
 	this->queue.Enqueue(unit);
 }
