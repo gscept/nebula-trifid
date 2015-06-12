@@ -860,7 +860,7 @@
   </action>
   <action name="actionTexture_browser">
    <property name="text">
-    <string>Texture browser...</string>
+    <string>Asset browser...</string>
    </property>
   </action>
   <action name="actionShow_sky">

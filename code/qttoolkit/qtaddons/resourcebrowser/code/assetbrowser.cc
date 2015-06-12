@@ -25,7 +25,8 @@ __ImplementSingleton(ResourceBrowser::AssetBrowser);
 /**
 */
 AssetBrowser::AssetBrowser() :
-	isExecuting(false)
+	isExecuting(false),
+	filter(All)
 {
 	this->ui = new Ui::AssetBrowser;
 	this->ui->setupUi(this);
@@ -50,10 +51,11 @@ AssetBrowser::~AssetBrowser()
 /**
 */
 int
-AssetBrowser::Execute(const QString& title)
+AssetBrowser::Execute(const QString& title, const AssetFilter& filter)
 {
 	this->setWindowTitle("Texture browser - " + title);
 	AssetBrowser::loaderThread->Pause(false);
+	this->SetFilter(filter);
 	this->selectedResource = "";
 	this->isExecuting = true;
 	this->raise();
@@ -90,7 +92,7 @@ AssetBrowser::showEvent(QShowEvent* event)
 {
 	QDialog::showEvent(event);
 	AssetBrowser::loaderThread->Pause(false);
-	this->ui->texturePreview->Rearrange();
+	this->ui->assetView->Rearrange();
 }
 
 //------------------------------------------------------------------------------
@@ -102,6 +104,7 @@ AssetBrowser::closeEvent(QCloseEvent* event)
 	AssetBrowser::loaderThread->Pause(true);
 	this->isExecuting = false;
 	QDialog::closeEvent(event);
+	this->filter = All;
 }
 
 //------------------------------------------------------------------------------
@@ -111,7 +114,7 @@ void
 AssetBrowser::OnDirectoryClicked(const QString& dir, const QString& path)
 {
 	// clear first
-	this->ui->texturePreview->Clear();
+	this->ui->assetView->Clear();
 	this->ui->categoryLabel->setText(dir);
 
 	// find all accepted file types, note that we are looking in work, not export!
@@ -119,70 +122,86 @@ AssetBrowser::OnDirectoryClicked(const QString& dir, const QString& path)
     String basePath = String(path.toUtf8().constData());
     String category = String(dir.toUtf8().constData());
     String assetPath = basePath + "/" + category;
-	Array<String> files = ioServer->ListFiles(assetPath, "*.tga");
-	files.AppendArray(ioServer->ListFiles(assetPath, "*.bmp"));
-	files.AppendArray(ioServer->ListFiles(assetPath, "*.dds"));
-	files.AppendArray(ioServer->ListFiles(assetPath, "*.psd"));
-	files.AppendArray(ioServer->ListFiles(assetPath, "*.png"));
-	files.AppendArray(ioServer->ListFiles(assetPath, "*.jpg"));
+	Array<String> files;
 
-	IndexT i;
-	for (i = 0; i < files.Size(); i++)
+	if (this->filter & Textures)
 	{
-		const String& file = files[i];
-		String textureFile = assetPath + "/" + file;
+		files = ioServer->ListFiles(assetPath, "*.tga");
+		files.AppendArray(ioServer->ListFiles(assetPath, "*.bmp"));
+		files.AppendArray(ioServer->ListFiles(assetPath, "*.dds"));
+		files.AppendArray(ioServer->ListFiles(assetPath, "*.psd"));
+		files.AppendArray(ioServer->ListFiles(assetPath, "*.png"));
+		files.AppendArray(ioServer->ListFiles(assetPath, "*.jpg"));
 
-		// create new texture item
-		TiledTextureItem* item = new TiledTextureItem;
-		item->SetPath(basePath);
-        item->SetCategory(category);
-        item->SetFilename(file);
+		IndexT i;
+		for (i = 0; i < files.Size(); i++)
+		{
+			const String& file = files[i];
+			String textureFile = assetPath + "/" + file;
 
-		// add to ui
-		this->ui->texturePreview->AddTiledItem(item);
+			// create new texture item
+			TiledTextureItem* item = new TiledTextureItem;
+			item->SetPath(basePath);
+			item->SetCategory(category);
+			item->SetFilename(file);
 
-		// connect with browser to handle directory navigation
-		connect(item, SIGNAL(OnSelected(const QString&)), this, SLOT(OnTextureClicked(const QString&)));
+			// add to ui
+			this->ui->assetView->AddTiledItem(item);
+
+			// connect with browser to handle directory navigation
+			connect(item, SIGNAL(OnSelected(const QString&)), this, SLOT(OnTextureClicked(const QString&)));
+		}
 	}
 
-	files = ioServer->ListFiles(assetPath, "*.fbx");
-	for (i = 0; i < files.Size(); i++)
+	if (this->filter & Models)
 	{
-		const String& file = files[i];
+		files = ioServer->ListFiles(assetPath, "*.fbx");
 
-		// create new texture item
-		TiledModelItem* item = new TiledModelItem;
-        item->SetPath(basePath);
-        item->SetCategory(category);
-        item->SetFilename(file);
+		IndexT i;
+		for (i = 0; i < files.Size(); i++)
+		{
+			const String& file = files[i];
 
-		// add to ui
-		this->ui->texturePreview->AddTiledItem(item);
+			// create new texture item
+			TiledModelItem* item = new TiledModelItem;
+			item->SetPath(basePath);
+			item->SetCategory(category);
+			item->SetFilename(file);
 
-		// connect with browser to handle directory navigation
-		connect(item, SIGNAL(OnSelected(const QString&)), this, SLOT(OnModelClicked(const QString&)));
+			// add to ui
+			this->ui->assetView->AddTiledItem(item);
+
+			// connect with browser to handle directory navigation
+			connect(item, SIGNAL(OnSelected(const QString&)), this, SLOT(OnModelClicked(const QString&)));
+		}
 	}
 
-	files = ioServer->ListFiles(assetPath, "*.sur");
-	for (i = 0; i < files.Size(); i++)
+	if (this->filter & Surfaces)
 	{
-		const String& file = files[i];
+		files = ioServer->ListFiles(assetPath, "*.sur");
 
-		// create new texture item
-		TiledSurfaceItem* item = new TiledSurfaceItem;
-        item->SetPath(basePath);
-        item->SetCategory(category);
-        item->SetFilename(file);
+		IndexT i;
+		for (i = 0; i < files.Size(); i++)
+		{
+			const String& file = files[i];
 
-		// add to ui
-		this->ui->texturePreview->AddTiledItem(item);
+			// create new texture item
+			TiledSurfaceItem* item = new TiledSurfaceItem;
+			item->SetPath(basePath);
+			item->SetCategory(category);
+			item->SetFilename(file);
 
-		// connect with browser to handle directory navigation
-		connect(item, SIGNAL(OnSelected(const QString&)), this, SLOT(OnModelClicked(const QString&)));
+			// add to ui
+			this->ui->assetView->AddTiledItem(item);
+
+			// connect with browser to handle directory navigation
+			connect(item, SIGNAL(OnSelected(const QString&)), this, SLOT(OnModelClicked(const QString&)));
+		}
 	}
+
 
 	// rearrange browser window
-	this->ui->texturePreview->Rearrange();
+	this->ui->assetView->Rearrange();
 }
 
 //------------------------------------------------------------------------------
@@ -247,7 +266,7 @@ void
 AssetBrowser::SetupRoot()
 {
 	// clear first
-	this->ui->texturePreview->Clear();
+	this->ui->assetView->Clear();
 	this->ui->categoryLabel->setText("Root");
 
 	Ptr<IoServer> ioServer = IoServer::Instance();
@@ -266,7 +285,7 @@ AssetBrowser::SetupRoot()
         item->SetPath(assetPath);
 
 		// add to ui
-		this->ui->texturePreview->AddTiledItem(item);
+		this->ui->assetView->AddTiledItem(item);
 
 		// connect with browser to handle directory navigation
         connect(item, SIGNAL(OnSelected(const QString&, const QString&)), this, SLOT(OnDirectoryClicked(const QString&, const QString&)));
@@ -286,14 +305,29 @@ AssetBrowser::SetupRoot()
         item->SetPath(assetPath);
 
         // add to ui
-        this->ui->texturePreview->AddTiledItem(item);
+		this->ui->assetView->AddTiledItem(item);
 
         // connect with browser to handle directory navigation
         connect(item, SIGNAL(OnSelected(const QString&, const QString&)), this, SLOT(OnDirectoryClicked(const QString&, const QString&)));
     }
 
 	// rearrange browser window
-	this->ui->texturePreview->Rearrange();
+	this->ui->assetView->Rearrange();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+AssetBrowser::SetFilter(const AssetFilter& filter)
+{
+	// if the filter doesn't match, set this as our new filter and reset the browser
+	if (this->filter != filter)
+	{
+		this->filter = filter;
+		AssetBrowser::loaderThread->Clear();
+		this->SetupRoot();
+	}	
 }
 
 } // namespace ResourceBrowser

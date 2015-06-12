@@ -1762,6 +1762,7 @@ ContentBrowserWindow::OnShowPostEffectController()
 void
 ContentBrowserWindow::OnShowTextureBrowser()
 {
+	this->assetBrowserWindow->SetFilter(ResourceBrowser::AssetBrowser::All);
 	this->assetBrowserWindow->show();
 	this->assetBrowserWindow->raise();
 }

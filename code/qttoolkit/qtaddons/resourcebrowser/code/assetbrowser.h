@@ -32,13 +32,22 @@ class AssetBrowser :
 	__DeclareClass(AssetBrowser);	
 	__DeclareSingleton(AssetBrowser);
 public:
+
+	enum AssetFilter
+	{
+		Textures = 1 << 0,
+		Models = 1 << 1,
+		Surfaces = 1 << 2,
+		All = Textures + Models + Surfaces
+	};
+
 	/// constructor
 	AssetBrowser();
 	/// destructor
 	virtual ~AssetBrowser();
 
 	/// open texture browser, and close it whenever a texture is selected or the window closed
-	int Execute(const QString& title);
+	int Execute(const QString& title, const AssetFilter& filter);
 
 	/// open texture browser
 	void Open();
@@ -52,6 +61,9 @@ public:
 
 	/// get the texture selected
 	const QString& GetSelectedTexture() const;
+
+	/// set the filter of the asset browser
+	void SetFilter(const AssetFilter& filter);
 
 private slots:
 	/// handle a directory being clicked
@@ -77,6 +89,7 @@ private:
 	void SetupRoot();
 
 	bool isExecuting;
+	AssetFilter filter;
 	QString selectedResource;
 	Ui::AssetBrowser* ui;
 	QGraphicsGridLayout* layout;

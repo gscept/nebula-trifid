@@ -486,7 +486,7 @@ ModelNodeHandler::Browse()
 	IO::URI tex("tex:");
 	
 	// pick a texture
-	int res = ResourceBrowser::AssetBrowser::Instance()->Execute("Assign to: " + name->text());
+	int res = ResourceBrowser::AssetBrowser::Instance()->Execute("Assign to: " + name->text(), ResourceBrowser::AssetBrowser::Textures);
 	if (res == QDialog::Accepted)
 	{
 		// convert to nebula string
