@@ -21,8 +21,12 @@ public:
 	/// destructor
 	virtual ~TiledTextureItem();
 
-	/// set texture path
-	void SetPath(const Util::String& path);
+    /// set path to texture category folder
+    void SetPath(const Util::String& path);
+    /// set texture category
+    void SetCategory(const Util::String& cat);
+    /// set texture file name
+    void SetFilename(const Util::String& file);
 
 	/// setup the item, reduces the texture path to category/file, locates the .dds and loads the preview, updates the label with the image type
 	void Setup();
@@ -44,7 +48,9 @@ signals:
 
 private:
 	ImageLoaderUnit* loader;
-	Util::String texture;
+    Util::String path;
+    Util::String category;
+    Util::String filename;
 };
 
 //------------------------------------------------------------------------------
@@ -53,7 +59,25 @@ private:
 inline void
 TiledTextureItem::SetPath(const Util::String& path)
 {
-	this->texture = path;
+    this->path = path;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+TiledTextureItem::SetCategory(const Util::String& cat)
+{
+    this->category = cat;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+TiledTextureItem::SetFilename(const Util::String& file)
+{
+    this->filename = file;
 }
 
 } // namespace ResourceBrowser

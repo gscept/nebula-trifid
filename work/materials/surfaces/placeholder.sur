@@ -1,8 +1,0 @@
-<!--
-	Surface material for the placeholder material
--->
-<NebulaT>
-	<Surface template="Placeholder">
-		<Param name="DiffuseMap" value="tex:system/placeholder.dds"/>
-	</Surface>
-</NebulaT>

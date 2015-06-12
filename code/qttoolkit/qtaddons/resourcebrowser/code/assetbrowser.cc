@@ -108,7 +108,7 @@ AssetBrowser::closeEvent(QCloseEvent* event)
 /**
 */
 void
-AssetBrowser::OnDirectoryClicked(const QString& dir)
+AssetBrowser::OnDirectoryClicked(const QString& dir, const QString& path)
 {
 	// clear first
 	this->ui->texturePreview->Clear();
@@ -116,7 +116,9 @@ AssetBrowser::OnDirectoryClicked(const QString& dir)
 
 	// find all accepted file types, note that we are looking in work, not export!
 	Ptr<IoServer> ioServer = IoServer::Instance();
-	String assetPath = "src:assets/";
+    String basePath = String(path.toUtf8().constData());
+    String category = String(dir.toUtf8().constData());
+    String assetPath = basePath + "/" + category;
 	Array<String> files = ioServer->ListFiles(assetPath, "*.tga");
 	files.AppendArray(ioServer->ListFiles(assetPath, "*.bmp"));
 	files.AppendArray(ioServer->ListFiles(assetPath, "*.dds"));
@@ -132,7 +134,9 @@ AssetBrowser::OnDirectoryClicked(const QString& dir)
 
 		// create new texture item
 		TiledTextureItem* item = new TiledTextureItem;
-		item->SetPath(textureFile);
+		item->SetPath(basePath);
+        item->SetCategory(category);
+        item->SetFilename(file);
 
 		// add to ui
 		this->ui->texturePreview->AddTiledItem(item);
@@ -145,11 +149,12 @@ AssetBrowser::OnDirectoryClicked(const QString& dir)
 	for (i = 0; i < files.Size(); i++)
 	{
 		const String& file = files[i];
-		String fbxFile = assetPath + "/" + file;
 
 		// create new texture item
 		TiledModelItem* item = new TiledModelItem;
-		item->SetPath(fbxFile);
+        item->SetPath(basePath);
+        item->SetCategory(category);
+        item->SetFilename(file);
 
 		// add to ui
 		this->ui->texturePreview->AddTiledItem(item);
@@ -162,11 +167,12 @@ AssetBrowser::OnDirectoryClicked(const QString& dir)
 	for (i = 0; i < files.Size(); i++)
 	{
 		const String& file = files[i];
-		String fbxFile = assetPath + "/" + file;
 
 		// create new texture item
 		TiledSurfaceItem* item = new TiledSurfaceItem;
-		item->SetPath(fbxFile);
+        item->SetPath(basePath);
+        item->SetCategory(category);
+        item->SetFilename(file);
 
 		// add to ui
 		this->ui->texturePreview->AddTiledItem(item);
@@ -257,13 +263,34 @@ AssetBrowser::SetupRoot()
 		// create new texture dir
 		TiledDirectoryItem* item = new TiledDirectoryItem;
 		item->SetDirectory(dir);
+        item->SetPath(assetPath);
 
 		// add to ui
 		this->ui->texturePreview->AddTiledItem(item);
 
 		// connect with browser to handle directory navigation
-		connect(item, SIGNAL(OnSelected(const QString&)), this, SLOT(OnDirectoryClicked(const QString&)));
+        connect(item, SIGNAL(OnSelected(const QString&, const QString&)), this, SLOT(OnDirectoryClicked(const QString&, const QString&)));
 	}
+
+    // now do the same for system
+    assetPath = "toolkit:work/assets";
+    dirs = ioServer->ListDirectories(assetPath, "*");
+    for (i = 0; i < dirs.Size(); i++)
+    {
+        const String& dir = dirs[i];
+        String textureDir = assetPath + "/" + dir;
+
+        // create new texture dir
+        TiledDirectoryItem* item = new TiledDirectoryItem;
+        item->SetDirectory(dir);
+        item->SetPath(assetPath);
+
+        // add to ui
+        this->ui->texturePreview->AddTiledItem(item);
+
+        // connect with browser to handle directory navigation
+        connect(item, SIGNAL(OnSelected(const QString&, const QString&)), this, SLOT(OnDirectoryClicked(const QString&, const QString&)));
+    }
 
 	// rearrange browser window
 	this->ui->texturePreview->Rearrange();

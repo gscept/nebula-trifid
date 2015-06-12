@@ -4,7 +4,9 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "tiledsurfaceitem.h"
+#include "assetbrowser.h"
 
+using namespace Util;
 namespace ResourceBrowser
 {
 
@@ -30,7 +32,24 @@ TiledSurfaceItem::~TiledSurfaceItem()
 void
 TiledSurfaceItem::Setup()
 {
+    // setup base class
+    TiledGraphicsItem::Setup();
 
+    // remove extension
+    this->filename.StripFileExtension();
+
+    // create a new texture unit
+    this->loader = new ImageLoaderUnit;
+    this->loader->path = String::Sprintf("%s/%s/%s_thumb.png", this->path.AsCharPtr(), this->category.AsCharPtr(), this->filename.AsCharPtr());
+    this->loader->texture = new QImage;
+    connect(this->loader, SIGNAL(OnLoaded()), this, SLOT(OnPreviewLoaded()));
+    AssetBrowser::loaderThread->Enqueue(this->loader);
+
+    // format string with the 'clean' name
+    QString format;
+    format.sprintf("<p align=\"center\"><b>Surface material</b><br>%s</p>", this->filename.AsCharPtr());
+    this->label->setTextWidth(this->background->boundingRect().width());
+    this->label->setHtml(format);
 }
 
 //------------------------------------------------------------------------------
@@ -39,7 +58,12 @@ TiledSurfaceItem::Setup()
 void
 TiledSurfaceItem::Discard()
 {
+    TiledGraphicsItem::Discard();
 
+    // make sure our thread is using the mutex, then delete the loader unit
+    this->loader->mutex.lock();
+    delete this->loader->texture;
+    delete this->loader;
 }
 
 //------------------------------------------------------------------------------
@@ -66,16 +90,14 @@ TiledSurfaceItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 void
 TiledSurfaceItem::OnPreviewLoaded()
 {
+    // set position of graphics
+    this->graphics->setPixmap(QPixmap::fromImage(*this->loader->texture));
+    this->graphics->setPos(
+        this->background->boundingRect().width() / 2 - this->graphics->boundingRect().width() / 2,
+        this->background->boundingRect().width() / 2 - this->graphics->boundingRect().height() / 2);
 
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-TiledSurfaceItem::OnSelected(const QString& sur)
-{
-
+    // move label too
+    this->label->setPos(this->label->pos().x(), this->graphics->boundingRect().height() + 20);
 }
 
 } // namespace ResourceBrowser

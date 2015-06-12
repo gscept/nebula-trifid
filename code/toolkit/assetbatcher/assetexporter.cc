@@ -110,9 +110,9 @@ AssetExporter::ExportDir(const Util::String& category)
             String modelName = files[fileIndex];
             modelName.StripFileExtension();
             modelName = category + "/" + modelName;
-            Ptr<ModelConstants> constants = ModelDatabase::Instance()->LookupConstants(modelName);
-            Ptr<ModelAttributes> attributes = ModelDatabase::Instance()->LookupAttributes(modelName);
-            Ptr<ModelPhysics> physics = ModelDatabase::Instance()->LookupPhysics(modelName);
+            Ptr<ModelConstants> constants = ModelDatabase::Instance()->LookupConstants(modelName, true);
+            Ptr<ModelAttributes> attributes = ModelDatabase::Instance()->LookupAttributes(modelName, true);
+            Ptr<ModelPhysics> physics = ModelDatabase::Instance()->LookupPhysics(modelName, true);
             this->modelBuilder->SetConstants(constants);
             this->modelBuilder->SetAttributes(attributes);
             this->modelBuilder->SetPhysics(physics);

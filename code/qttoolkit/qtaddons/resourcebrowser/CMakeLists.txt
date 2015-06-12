@@ -26,6 +26,8 @@ SET(QTMOCFILES
 	"code/tiledgraphicsview.h"
 	"code/tiledgraphicsitem.h"
 	"code/tiledtextureitem.h"
+    "code/tiledsurfaceitem.h"
+    "code/tiledmodelitem.h"
 	"code/tileddirectoryitem.h"
 	"code/imageloaderthread.h")
 PCH_QT4_WRAP_CPP(resourcebrowser_HEADERS_MOC ${QTMOCFILES})

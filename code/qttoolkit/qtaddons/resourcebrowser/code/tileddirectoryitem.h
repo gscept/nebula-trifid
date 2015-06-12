@@ -23,6 +23,8 @@ public:
 
 	/// set the directory
 	void SetDirectory(const Util::String& dir);
+    /// set the path in which this directory lies
+    void SetPath(const Util::String& path);
 
 	/// setup the item, this will create the graphics + icon together with a description
 	void Setup();
@@ -34,10 +36,11 @@ public:
 
 signals:
 	/// call when a directory is clicked
-	void OnSelected(const QString&);
+	void OnSelected(const QString&, const QString&);
 
 private:
 	Util::String dir;
+    Util::String path;
 	
 };
 
@@ -50,5 +53,13 @@ TiledDirectoryItem::SetDirectory(const Util::String& dir)
 	this->dir = dir;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+TiledDirectoryItem::SetPath(const Util::String& path)
+{
+    this->path = path;
+}
 
 } // namespace ResourceBrowser

@@ -52,7 +52,7 @@ ImageLoaderThread::run()
 
 			// load image and scale
 			QImage localImage(uri.LocalPath().AsCharPtr());
-			*image = localImage.scaled(96, 96, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            if (!localImage.isNull()) *image = localImage.scaled(96, 96, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
 			// emit signal to notify the image has been loaded
 			emit unit->OnLoaded();

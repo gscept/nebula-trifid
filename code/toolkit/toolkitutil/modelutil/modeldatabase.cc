@@ -150,20 +150,19 @@ ModelDatabase::AttributesExist( const Util::String& name )
 //------------------------------------------------------------------------------
 /**
 */
-const Util::String& 
-ModelDatabase::GetAttributesName( const Ptr<ModelAttributes>& attrs )
+const Util::String&
+ModelDatabase::GetAttributesName(const Ptr<ModelAttributes>& attrs)
 {
 	IndexT index = this->modelAttributes.ValuesAsArray().FindIndex(attrs);
 	n_assert(index != InvalidIndex);
 	return this->modelAttributes.KeysAsArray()[index];
 }
 
-
 //------------------------------------------------------------------------------
 /**
 */
-Ptr<ModelPhysics> 
-ModelDatabase::LookupPhysics( const Util::String& name, bool reload )
+Ptr<ModelPhysics>
+ModelDatabase::LookupPhysics(const Util::String& name, bool reload)
 {
 	if (!this->modelPhysics.Contains(name))
 	{
@@ -221,8 +220,8 @@ ModelDatabase::LookupPhysics( const Util::String& name, bool reload )
 //------------------------------------------------------------------------------
 /**
 */
-bool 
-ModelDatabase::PhysicsExist( const Util::String& name )
+bool
+ModelDatabase::PhysicsExist(const Util::String& name)
 {
 	// format file
 	String file;
@@ -240,8 +239,8 @@ ModelDatabase::PhysicsExist( const Util::String& name )
 //------------------------------------------------------------------------------
 /**
 */
-const Util::String& 
-ModelDatabase::GetPhysicsName( const Ptr<ModelPhysics>& attrs )
+const Util::String&
+ModelDatabase::GetPhysicsName(const Ptr<ModelPhysics>& attrs)
 {
 	IndexT index = this->modelPhysics.ValuesAsArray().FindIndex(attrs);
 	n_assert(index != InvalidIndex);
@@ -252,8 +251,8 @@ ModelDatabase::GetPhysicsName( const Ptr<ModelPhysics>& attrs )
 //------------------------------------------------------------------------------
 /**
 */
-Ptr<ModelConstants> 
-ModelDatabase::LookupConstants( const Util::String& name, bool reload )
+Ptr<ModelConstants>
+ModelDatabase::LookupConstants(const Util::String& name, bool reload)
 {
 	if (!this->modelConstants.Contains(name))
 	{
@@ -311,8 +310,8 @@ ModelDatabase::LookupConstants( const Util::String& name, bool reload )
 //------------------------------------------------------------------------------
 /**
 */
-bool 
-ModelDatabase::ConstantsExist( const Util::String& name )
+bool
+ModelDatabase::ConstantsExist(const Util::String& name)
 {
 	// format file
 	String file;
@@ -330,8 +329,8 @@ ModelDatabase::ConstantsExist( const Util::String& name )
 //------------------------------------------------------------------------------
 /**
 */
-const Util::String& 
-ModelDatabase::GetConstantsName( const Ptr<ModelConstants>& constants )
+const Util::String&
+ModelDatabase::GetConstantsName(const Ptr<ModelConstants>& constants)
 {
 	IndexT index = this->modelConstants.ValuesAsArray().FindIndex(constants);
 	n_assert(index != InvalidIndex);

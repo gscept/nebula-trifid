@@ -55,7 +55,7 @@ public:
 
 private slots:
 	/// handle a directory being clicked
-	void OnDirectoryClicked(const QString& dir);
+	void OnDirectoryClicked(const QString& dir, const QString& path);
 	/// handle a texture being clicked
 	void OnTextureClicked(const QString& tex);
 	/// handle model getting clicked
@@ -68,6 +68,9 @@ private slots:
 private:
 
 	friend class TiledTextureItem;
+    friend class TiledSurfaceItem;
+    friend class TiledModelItem;
+
 	static ImageLoaderThread* loaderThread;
 
 	/// helper function to setup directories

@@ -46,26 +46,19 @@ TiledTextureItem::Setup()
 	// setup base class
 	TiledGraphicsItem::Setup();
 
-	// reduce to category/file name
-	this->texture = this->texture.ExtractLastDirName() + "/" + this->texture.ExtractFileName();
-	Util::String temp = this->texture;
-	temp = temp.ExtractFileName();
-	temp.StripFileExtension();
-
-	// get dds!
-	this->texture.ChangeAssignPrefix("tex");
-	this->texture.ChangeFileExtension("dds");
+    // remove extension
+    this->filename.StripFileExtension();
 
 	// create a new texture unit
 	this->loader = new ImageLoaderUnit;
-	this->loader->path = this->texture;
+	this->loader->path = String::Sprintf("tex:%s/%s.dds", this->category.AsCharPtr(), this->filename.AsCharPtr());
 	this->loader->texture = new QImage;
 	connect(this->loader, SIGNAL(OnLoaded()), this, SLOT(OnPreviewLoaded()));
 	AssetBrowser::loaderThread->Enqueue(this->loader);
 
 	// format string with the 'clean' name
 	QString format;
-	format.sprintf("<p align=\"center\"><b>Texture</b><br>%s</p>", temp.AsCharPtr());
+	format.sprintf("<p align=\"center\"><b>Texture</b><br>%s</p>", this->filename.AsCharPtr());
 	this->label->setTextWidth(this->background->boundingRect().width());
 	this->label->setHtml(format);
 }
@@ -92,7 +85,8 @@ TiledTextureItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
 	if (event->button() == Qt::LeftButton)
 	{
-		emit this->OnSelected(QString(this->texture.AsCharPtr()));
+        String res = String::Sprintf("%s/%s", this->category.AsCharPtr(), this->filename.AsCharPtr());
+        emit this->OnSelected(QString(res.AsCharPtr()));
 	}
 }
 
@@ -107,21 +101,13 @@ TiledTextureItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 	QAction* action1 = menu.addAction("Delete texture");
 	QAction* action2 = menu.addAction("Reconfigure texture");
 
-	// convert resource to an assign and extension free version
-	String prefixLessResource = this->texture;
-	prefixLessResource.StripAssignPrefix();
-	prefixLessResource.StripFileExtension();
-
-	// get category and file
-	String category = this->texture.ExtractLastDirName();
-	String file = this->texture.ExtractFileName();
-	file.StripFileExtension();
-
 	// setup menu
 	//menu.addAction(action2);
 	action2->setEnabled(false);
 	//menu.addSeparator();
 	menu.addAction(action1);
+
+    String res = String::Sprintf("%s/%s/%s", this->path.AsCharPtr(), this->category.AsCharPtr(), this->filename.AsCharPtr());
 
 	// execute menu
 	QAction* executedAction = menu.exec(event->screenPos());
@@ -133,15 +119,14 @@ TiledTextureItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 	if (executedAction == action1)
 	{
 		// delete texture
-		ioServer->DeleteFile(this->texture);
+        ioServer->DeleteFile(res);
 
 		String extensions[] = { ".png", ".bmp", ".psd", ".tga", ".jpg", ".dds" };
 		IndexT i;
 		for (i = 0; i < 6; i++)
 		{
 			// attempt to remove all files related to this texture
-			String resource;
-			resource.Format("src:textures/%s", prefixLessResource.AsCharPtr());
+			String resource = String::Sprintf("%s/%s/%s.%s", this->path.AsCharPtr(), this->category.AsCharPtr(), this->filename.AsCharPtr(), extensions[i]);
 			ioServer->DeleteFile(resource);
 		}
 
@@ -151,11 +136,10 @@ TiledTextureItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 	else if (executedAction == action2)
 	{
 		// get resource without prefix and suffix
-		String workTex = "src:textures/" + category;
+		String workTex = String::Sprintf("%s/%s", this->path.AsCharPtr(), this->category.AsCharPtr());
 
 		// make a string to match the pattern
-		String pattern;
-		pattern.Format("%s.*", file.AsCharPtr());
+		String pattern = String::Sprintf("%s.*", this->filename.AsCharPtr());
 
 		// get all files based on this name
 		Array<String> files = ioServer->ListFiles(workTex, pattern);
@@ -186,7 +170,7 @@ TiledTextureItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 			}
 
 			QMessageBox* box = new QMessageBox();
-			box->setText("The texture: " + QString(file.AsCharPtr()) + " has more than one potential sources. Which one would you want to reconfigure?");
+			box->setText("The texture: " + QString(this->filename.AsCharPtr()) + " has more than one potential sources. Which one would you want to reconfigure?");
 			box->setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
 			box->setDefaultButton(QMessageBox::Ok);
 			box->layout()->addWidget(&selections);
@@ -194,8 +178,7 @@ TiledTextureItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
 			if (result == QMessageBox::Ok)
 			{
-				String resource;
-				resource.Format("src:textures/%s/%s", category.AsCharPtr(), selections.itemText(selections.currentIndex()).toUtf8().constData());
+                String resource = String::Sprintf("%s/%s/%s", this->path.AsCharPtr(), this->category.AsCharPtr(), selections.itemText(selections.currentIndex()).toUtf8().constData());
 
 				// we should move the texture importer to QtAddons since it might be used everywhere
 				/*
@@ -214,8 +197,7 @@ TiledTextureItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 		}
 		else if (files.Size() > 0)
 		{
-			String resource;
-			resource.Format("src:textures/%s/%s", category.AsCharPtr(), files[0].AsCharPtr());
+			String resource = String::Sprintf("%s/%s/%s", this->path.AsCharPtr(), this->category.AsCharPtr(), files[0].AsCharPtr());
 
 			/*
 			TextureImporter::TextureImporterWindow* importer = ContentBrowser::ContentBrowserApp::Instance()->GetWindow()->GetTextureImporter();

@@ -70,7 +70,7 @@ TiledDirectoryItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
 	if (event->button() == Qt::LeftButton)
 	{
-		emit this->OnSelected(QString(this->dir.AsCharPtr()));
+		emit this->OnSelected(QString(this->dir.AsCharPtr()), QString(this->path.AsCharPtr()));
 	}
 }
 
