@@ -69,8 +69,8 @@ MaterialHandler::Setup(const QString& resource)
     this->upperLimitIntMap.clear();
 
     // create resource
-    this->managedMaterial = Resources::ResourceManager::Instance()->CreateManagedResource(SurfaceMaterial::RTTI, resource.toUtf8().constData(), NULL, true).downcast<Materials::ManagedSurfaceMaterial>();
-    this->material = this->managedMaterial->GetMaterial();
+	this->managedMaterial = Resources::ResourceManager::Instance()->CreateManagedResource(SurfaceMaterial::RTTI, resource.toUtf8().constData(), NULL, true).downcast<Materials::ManagedSurfaceMaterial>();
+	this->material = this->managedMaterial->GetMaterial();
 
     // get layout
     QVBoxLayout* mainLayout = static_cast<QVBoxLayout*>(this->ui->variableFrame->layout());
@@ -91,8 +91,8 @@ MaterialHandler::Discard()
         Resources::ResourceManager::Instance()->DiscardManagedResource(this->textureResources.ValueAtIndex(i).upcast<Resources::ManagedResource>());
     }
     this->textureResources.Clear();
-    Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedMaterial.upcast<Resources::ManagedResource>());
-    this->managedMaterial = 0;
+	Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedMaterial.upcast<Resources::ManagedResource>());
+	this->managedMaterial = 0;
     this->material = 0;
     this->ClearFrame(this->mainLayout);
 
@@ -166,6 +166,35 @@ MaterialHandler::MaterialInfo()
 
     // show widget
     dialog.exec();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+MaterialHandler::NameChanged()
+{
+
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+MaterialHandler::NewSurface()
+{
+	Ptr<SurfaceMaterial> mat = SurfaceMaterial::Create();
+	this->material = mat;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+MaterialHandler::Duplicate()
+{
+	Ptr<SurfaceMaterial> mat = this->material->Clone();
+	this->material = mat;
 }
 
 //------------------------------------------------------------------------------
@@ -480,17 +509,7 @@ MaterialHandler::Browse()
         // convert to nebula string
         String texture = ResourceBrowser::AssetBrowser::Instance()->GetSelectedTexture().toUtf8().constData();
 
-        // get category
-        //String category = texture.ExtractLastDirName();
-
-        // get actual file
-        //String texFile = texture.ExtractFileName();
-
-        // format text
-        //String value;
-        //value.Format("tex:%s/%s", category.AsCharPtr(), texFile.AsCharPtr());
-
-        // set text of item
+		// set text of item
         text->setText(texture.AsCharPtr());
 
         // invoke texture change function

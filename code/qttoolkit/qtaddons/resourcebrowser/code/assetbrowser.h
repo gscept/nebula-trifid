@@ -58,6 +58,8 @@ public:
 	void showEvent(QShowEvent* event);
 	/// handle closing
 	void closeEvent(QCloseEvent* event);
+	/// handle right clicking
+	void contextMenuEvent(QContextMenuEvent* event);
 
 	/// get the texture selected
 	const QString& GetSelectedTexture() const;
@@ -84,6 +86,8 @@ signals:
     void ModelSelected(const QString& mdl);
     /// signal emitted when a surface is selected, only happens if browser is not opened through Execute
     void SurfaceSelected(const QString& sur);
+	/// signal emitted when browser gets right clicked
+	void ContextMenuOpened(QContextMenuEvent* event);
 
 private:
 

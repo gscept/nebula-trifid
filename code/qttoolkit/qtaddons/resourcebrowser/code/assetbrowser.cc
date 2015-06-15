@@ -111,6 +111,15 @@ AssetBrowser::closeEvent(QCloseEvent* event)
 /**
 */
 void
+AssetBrowser::contextMenuEvent(QContextMenuEvent* event)
+{
+	emit this->ContextMenuOpened(event);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 AssetBrowser::OnDirectoryClicked(const QString& dir, const QString& path)
 {
 	// clear first

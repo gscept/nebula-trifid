@@ -188,6 +188,7 @@ ContentBrowserWindow::ContentBrowserWindow() :
     connect(this->assetBrowserWindow, SIGNAL(TextureSelected(const QString&)), this, SLOT(OnTextureSelected(const QString&)));
     connect(this->assetBrowserWindow, SIGNAL(ModelSelected(const QString&)), this, SLOT(OnModelSelected(const QString&)));
     connect(this->assetBrowserWindow, SIGNAL(SurfaceSelected(const QString&)), this, SLOT(OnSurfaceSelected(const QString&)));
+	connect(this->assetBrowserWindow, SIGNAL(ContextMenuOpened(QContextMenuEvent*)), this, SLOT(OnAssetBrowserRightClick(QContextMenuEvent*)));
 
     // connect actions
 	connect(this->ui.actionShow_Model_Info, SIGNAL(triggered()), this, SLOT(OnShowModelInfo()));
@@ -1121,6 +1122,22 @@ ContentBrowserWindow::OnSurfaceSelected(const QString& sur)
     this->materialInfoWindow->raise();
     this->materialInfoWindow->setEnabled(true);
     this->materialHandler->Setup(sur);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ContentBrowserWindow::OnAssetBrowserRightClick(QContextMenuEvent* event)
+{
+	QMenu menu;
+	QAction* newSurface = menu.addAction("New surface...");
+
+	QAction* action = menu.exec(event->globalPos());
+	if (action == newSurface)
+	{
+
+	}
 }
 
 //------------------------------------------------------------------------------

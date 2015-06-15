@@ -198,6 +198,7 @@ StreamSurfaceMaterialLoader::SetupMaterialFromStream(const Ptr<IO::Stream>& stre
                     Ptr<ManagedTexture> tex = ResourceManager::Instance()->CreateManagedResource(CoreGraphics::Texture::RTTI, reader->GetString("value")).downcast<ManagedTexture>();
                     surface->SetTexture(paramName, tex);
                     var.SetType(Variant::Object);
+					var.SetObject(tex->GetTexture());
                     break;
                 }
             }

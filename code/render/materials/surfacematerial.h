@@ -77,6 +77,7 @@ public:
 
 private:
     friend class StreamSurfaceMaterialLoader;
+	friend class StreamSurfaceMaterialSaver;
 
     /// setup surface from original material
     void Setup(const Ptr<Material>& material);

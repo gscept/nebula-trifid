@@ -66,6 +66,13 @@ private slots:
     /// called whenever the material info button is clicked
     void MaterialInfo();
 
+	/// called whenever the name gets changed
+	void NameChanged();
+	/// called whenever the new button gets pressed
+	void NewSurface();
+	/// called when the duplicate button gets pressed
+	void Duplicate();
+
     /// called whenever a line edit is finished
     void TextureTextChanged();
     /// called whenever an int slider has changed its value
@@ -149,7 +156,7 @@ private:
 
     // bool
     QMap<QCheckBox*, uint> variableBoolMap;
-    Ptr<Materials::ManagedSurfaceMaterial> managedMaterial;
+	Ptr<Materials::ManagedSurfaceMaterial> managedMaterial;
     Ptr<Materials::SurfaceMaterial> material;
     Util::Dictionary<IndexT, Ptr<Resources::ManagedTexture>> textureResources;
     Util::Dictionary<IndexT, Ptr<Materials::SurfaceConstant>> textureVariables;

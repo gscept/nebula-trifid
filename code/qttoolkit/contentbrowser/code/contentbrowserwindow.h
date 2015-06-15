@@ -137,6 +137,8 @@ private slots:
     void OnModelSelected(const QString& mdl);
     /// called whenever we click on a surface in the asset browser
     void OnSurfaceSelected(const QString& sur);
+	/// called when a right click occurs in the asset browser
+	void OnAssetBrowserRightClick(QContextMenuEvent* event);
 
 	/// handles item activated (double-click)
     void ItemActivated(QTreeWidgetItem* item);

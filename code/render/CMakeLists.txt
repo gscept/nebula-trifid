@@ -46,27 +46,28 @@ ENDIF()
 		materials/materialpalette.h
 		materials/materialserver.cc
 		materials/materialserver.h
-		materials/material.h
 		materials/material.cc
-		materials/materialfeature.h
+		materials/material.h		
 		materials/materialfeature.cc
-		materials/materialtype.h
+		materials/materialfeature.h		
 		materials/materialtype.cc
-		materials/materialvariable.h
+		materials/materialtype.h
 		materials/materialvariable.cc
-		materials/materialvariableinstance.h
+		materials/materialvariable.h
 		materials/materialvariableinstance.cc
-		materials/managedsurfacematerial.h
+		materials/materialvariableinstance.h
 		materials/managedsurfacematerial.cc
-		materials/streamsurfacematerialloader.h
+		materials/managedsurfacematerial.h
 		materials/streamsurfacematerialloader.cc
-		materials/surfaceconstant.h
+		materials/streamsurfacematerialloader.h
+		materials/streamsurfacematerialsaver.cc
+		materials/streamsurfacematerialsaver.h
 		materials/surfaceconstant.cc
-		materials/surfaceconstantinstance.h
+		materials/surfaceconstant.h
 		materials/surfaceconstantinstance.cc
-		materials/surfacematerial.h
+		materials/surfaceconstantinstance.h
 		materials/surfacematerial.cc
-
+		materials/surfacematerial.h
 		)
 	source_group("materials" FILES ${Render_files_materials})
 	set(Render_materials ${Render_files_materials})
