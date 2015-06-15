@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Nebula3 version="4">
+    <Model name="system/globallightshape" bboxcenter="-0.000143,0.030232,-0.049563,1.000000" bboxextents="0.342960,0.279768,1.050434,0.000000">
+        <ShapeNodes>
+            <ShapeNode name="Poly3" type="static" path="root/Poly3" useLOD="false" primitive="0" position="0.000000,0.000000,0.000000,1.000000" rotation="0.000000,0.000000,0.000000,1.000000" scale="0.010000,0.010000,0.010000,0.000000" mesh="msh:system/globallightshape.nvx2" bboxcenter="-0.000143,0.030232,-0.049563,1.000000" bboxextents="0.342960,0.279768,1.050434,0.000000" />
+        </ShapeNodes>
+    </Model>
+</Nebula3>

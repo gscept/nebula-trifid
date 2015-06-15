@@ -5,6 +5,7 @@
 #include "stdneb.h"
 #include "surfacematerial.h"
 #include "coregraphics/shader.h"
+#include "resources/resourcemanager.h"
 
 using namespace CoreGraphics;
 namespace Materials
@@ -105,6 +106,14 @@ SurfaceMaterial::Setup(const Ptr<Material>& material)
         if (this->staticValues.Contains(paramName)) val = this->staticValues[paramName];
         else                                        val = param.defaultVal;
 
+        // specially handle default values which are strings
+        if (val.GetType() == Util::Variant::String)
+        {
+            Ptr<Resources::ManagedTexture> tex = Resources::ResourceManager::Instance()->CreateManagedResource(CoreGraphics::Texture::RTTI, val.GetString(), NULL, true).downcast<Resources::ManagedTexture>();
+            val.SetType(Util::Variant::Object);
+            val.SetObject(tex->GetTexture());
+        }
+
         // setup constant
         constant->SetValue(val);
         constant->Setup(paramName, shaders);
@@ -154,15 +163,10 @@ void
 SurfaceMaterial::SetTexture(const Util::StringAtom& param, const Ptr<Resources::ManagedTexture>& tex)
 {
     n_assert(param.IsValid());
-    n_assert(this->constantsByName.Contains(param));
-    if (tex->IsPlaceholder())
-    {
-        DeferredTextureBinding obj;
-        obj.tex = tex;
-        obj.var = this->constantsByName[param];
-        obj.var->SetTexture(tex->GetTexture());
-        this->managedTextures.Append(obj);
-    }   
+    DeferredTextureBinding obj;
+    obj.tex = tex;
+    obj.var = param;
+    this->managedTextures.Append(obj);
 }
 
 //------------------------------------------------------------------------------
@@ -179,7 +183,7 @@ SurfaceMaterial::Apply(const Ptr<CoreGraphics::ShaderInstance>& shader)
         const DeferredTextureBinding& bind = this->managedTextures[i];
         if (!bind.tex->IsPlaceholder())
         {
-            bind.var->SetTexture(bind.tex->GetTexture());
+            this->constantsByName[bind.var]->SetTexture(bind.tex->GetTexture());
         }
         this->managedTextures.EraseIndex(i);
         i--;

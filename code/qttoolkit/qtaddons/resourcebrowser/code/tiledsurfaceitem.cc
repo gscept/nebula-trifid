@@ -5,6 +5,7 @@
 #include "stdneb.h"
 #include "tiledsurfaceitem.h"
 #include "assetbrowser.h"
+#include <QGraphicsSceneMouseEvent>
 
 using namespace Util;
 namespace ResourceBrowser
@@ -72,7 +73,11 @@ TiledSurfaceItem::Discard()
 void
 TiledSurfaceItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-
+    if (event->button() == Qt::LeftButton)
+    {
+        String res = String::Sprintf("sur:%s/%s.sur", this->category.AsCharPtr(), this->filename.AsCharPtr());
+        emit this->OnSelected(QString(res.AsCharPtr()));
+    }
 }
 
 //------------------------------------------------------------------------------

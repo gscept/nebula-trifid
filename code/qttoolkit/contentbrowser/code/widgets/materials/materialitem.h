@@ -9,7 +9,7 @@
 */
 //------------------------------------------------------------------------------
 #include "widgets/baseitem.h"
-#include "ui_materialeditorwidget.h"
+#include "ui_materialinfowidget.h"
 namespace Widgets
 {
 class MaterialItem : public BaseItem
@@ -24,9 +24,9 @@ public:
 	BaseItem* Clone();
 
 	/// sets the ui
-	void SetUi(Ui::MaterialEditorWidget* ui);
+	void SetUi(Ui::MaterialInfoWidget* ui);
 	/// returns pointer to ui
-	Ui::MaterialEditorWidget* GetUi() const;
+    Ui::MaterialInfoWidget* GetUi() const;
 
 	/// sets up dock widget with mesh display information
 	void OnActivated();
@@ -36,14 +36,14 @@ public:
 	void OnRightClicked(const QPoint& pos);
 
 private:
-	Ui::MaterialEditorWidget* ui;
+    Ui::MaterialInfoWidget* ui;
 };
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-MaterialItem::SetUi(Ui::MaterialEditorWidget* ui)
+MaterialItem::SetUi(Ui::MaterialInfoWidget* ui)
 {
 	this->ui = ui;
 }
@@ -51,7 +51,7 @@ MaterialItem::SetUi(Ui::MaterialEditorWidget* ui)
 //------------------------------------------------------------------------------
 /**
 */
-Ui::MaterialEditorWidget*
+Ui::MaterialInfoWidget*
 MaterialItem::GetUi() const
 {
 	return this->ui;

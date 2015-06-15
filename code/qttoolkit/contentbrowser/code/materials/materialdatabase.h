@@ -41,8 +41,8 @@ public:
 
 private:
 	bool isOpen;
-	Util::Dictionary<Util::String, Ptr<Materials::Material> > materials;
-	Util::Dictionary<Util::StringAtom, Util::Array<Ptr<Materials::Material> > > materialsByType;
+	Util::Dictionary<Util::String, Ptr<Materials::Material>> materials;
+	Util::Dictionary<Util::StringAtom, Util::Array<Ptr<Materials::Material>>> materialsByType;
 }; 
 
 //------------------------------------------------------------------------------

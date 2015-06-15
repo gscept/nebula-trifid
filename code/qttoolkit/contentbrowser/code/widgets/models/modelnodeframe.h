@@ -8,7 +8,6 @@
     (C) 2012-2015 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
-#include "core/refcounted.h"
 #include <QFrame>
 #include "modelnodehandler.h"
 #include "ui_modelnodeinfowidget.h"

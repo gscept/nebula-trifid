@@ -38,7 +38,6 @@
 #include "faudio/audiodevice.h"
 #include "widgets/ui/fontitem.h"
 
-
 using namespace Math;
 using namespace Util;
 using namespace IO;
@@ -77,35 +76,36 @@ ContentBrowserWindow::ContentBrowserWindow() :
 {
 	this->ui.setupUi(this);
 
-	// initialize dock widgets
-	/*
-	this->modelInfoWidget = new QWidget;
-	this->modelInfoUi.setupUi(this->modelInfoWidget);
-	this->textureInfoWidget = new QWidget;
-	this->textureInfoUi.setupUi(this->textureInfoWidget);
-	this->meshInfoWidget = new QWidget;
-	this->audioInfoWidget = new QWidget;
-	this->audioInfoUi.setupUi(this->audioInfoWidget);		
-	this->animationInfoWidget = new QWidget;
-	this->uiInfoWidget = new QWidget;
-	this->uiInfoUi.setupUi(this->uiInfoWidget);
-	*/
-
-	// initialize dock widgets
+	// setup model info
 	this->modelInfoWindow = this->ui.modelDockWidget;
 	this->modelInfoWindow->setVisible(false);
 	this->modelInfoUi.setupUi(this->ui.modelDockFrame);
+
+    // setup texture info
 	this->textureInfoWindow = this->ui.textureDockWidget;
 	this->textureInfoWindow->setVisible(false);
 	this->textureInfoUi.setupUi(this->ui.textureDockFrame);
+
+    // setup material info
+    this->materialInfoWindow = this->ui.materialDockWidget;
+    this->materialInfoWindow->setVisible(false);
+    this->materialInfoUi.setupUi(this->ui.materialDockFrame);
+
+    // setup audio info
 	this->audioInfoWindow = this->ui.audioDockWidget;
 	this->audioInfoWindow->setVisible(false);
 	this->audioInfoUi.setupUi(this->ui.audioDockFrame);	
+
+    // setup ui info
 	this->uiInfoWindow = this->ui.uiDockWidget;
 	this->uiInfoWindow->setVisible(false);
 	this->uiInfoUi.setupUi(this->ui.uiDockFrame);
+
+    // setup mesh info
 	this->meshInfoWindow = this->ui.meshDockWidget;
 	this->meshInfoWindow->setVisible(false);
+
+    // setup animation info
 	this->animationInfoWindow = this->ui.animationDockWidget;
 	this->animationInfoWindow->setVisible(false);
 
@@ -151,6 +151,10 @@ ContentBrowserWindow::ContentBrowserWindow() :
 	this->modelHandler = ModelHandler::Create();
 	this->textureHandler = TextureHandler::Create();
 	this->uiHandler = UIHandler::Create();
+    this->materialHandler = MaterialHandler::Create();
+
+    // setup material UI
+    this->materialHandler->SetUI(&this->materialInfoUi);
 
 	// create and setup progress reporter
 	this->progressReporter = ProgressReporter::Create();
@@ -180,6 +184,10 @@ ContentBrowserWindow::ContentBrowserWindow() :
 	connect(this->ui.actionEnvironment_probe, SIGNAL(triggered()), this, SLOT(OnShowEnvironmentProbeSettings()));
 	connect(this->modelImporterWindow, SIGNAL(ImportDone(const Util::String&)), this, SLOT(OnModelImported(const Util::String&)));
 	connect(this->textureImporterWindow, SIGNAL(ImportDone(const Util::String&)), this, SLOT(OnTextureImported(const Util::String&)));	
+
+    connect(this->assetBrowserWindow, SIGNAL(TextureSelected(const QString&)), this, SLOT(OnTextureSelected(const QString&)));
+    connect(this->assetBrowserWindow, SIGNAL(ModelSelected(const QString&)), this, SLOT(OnModelSelected(const QString&)));
+    connect(this->assetBrowserWindow, SIGNAL(SurfaceSelected(const QString&)), this, SLOT(OnSurfaceSelected(const QString&)));
 
     // connect actions
 	connect(this->ui.actionShow_Model_Info, SIGNAL(triggered()), this, SLOT(OnShowModelInfo()));
@@ -289,6 +297,11 @@ ContentBrowserWindow::closeEvent( QCloseEvent *e )
 	{
 		canClose &= this->textureHandler->Discard();
 	}
+
+    if (this->materialHandler->IsSetup())
+    {
+        canClose &= this->materialHandler->Discard();
+    }
 
 	// abort window close if any handler is to be discarded
 	if (!canClose)
@@ -1074,6 +1087,40 @@ ContentBrowserWindow::ModelSavedWithNewName( const Util::String& res )
 		// add to category
 		modelCatItem->addChild(fileItem);
 	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ContentBrowserWindow::OnTextureSelected(const QString& tex)
+{
+
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ContentBrowserWindow::OnModelSelected(const QString& mdl)
+{
+
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ContentBrowserWindow::OnSurfaceSelected(const QString& sur)
+{
+    if (this->materialHandler->IsSetup())
+    {
+        this->materialHandler->Discard();
+    }
+    this->materialInfoWindow->show();
+    this->materialInfoWindow->raise();
+    this->materialInfoWindow->setEnabled(true);
+    this->materialHandler->Setup(sur);
 }
 
 //------------------------------------------------------------------------------
