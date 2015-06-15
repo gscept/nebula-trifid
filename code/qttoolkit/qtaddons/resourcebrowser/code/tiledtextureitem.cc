@@ -72,7 +72,7 @@ TiledTextureItem::Discard()
 	TiledGraphicsItem::Discard();
 
 	// make sure our thread is using the mutex, then delete the loader unit
-	this->loader->mutex.lock();
+    this->loader->mutex.lock();
 	delete this->loader->texture;
 	delete this->loader;
 }
@@ -85,7 +85,7 @@ TiledTextureItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
 	if (event->button() == Qt::LeftButton)
 	{
-        String res = String::Sprintf("%s/%s", this->category.AsCharPtr(), this->filename.AsCharPtr());
+        String res = String::Sprintf("tex:%s/%s.dds", this->category.AsCharPtr(), this->filename.AsCharPtr());
         emit this->OnSelected(QString(res.AsCharPtr()));
 	}
 }

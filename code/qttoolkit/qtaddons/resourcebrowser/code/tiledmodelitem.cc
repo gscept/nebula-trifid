@@ -5,6 +5,7 @@
 #include "stdneb.h"
 #include "tiledmodelitem.h"
 #include "assetbrowser.h"
+#include <QGraphicsSceneEvent>
 
 using namespace Util;
 namespace ResourceBrowser
@@ -72,7 +73,11 @@ TiledModelItem::Discard()
 void
 TiledModelItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-
+    if (event->button() == Qt::LeftButton)
+    {
+        String res = String::Sprintf("mdl:%s/%s.n3", this->category.AsCharPtr(), this->filename.AsCharPtr());
+        emit this->OnSelected(QString(res.AsCharPtr()));
+    }
 }
 
 //------------------------------------------------------------------------------

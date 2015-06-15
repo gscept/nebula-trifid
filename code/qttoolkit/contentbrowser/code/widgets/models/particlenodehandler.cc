@@ -14,13 +14,20 @@
 #include "resources/managedtexture.h"
 #include "resources/resourcemanager.h"
 #include "particles/particleserver.h"
+#include "previewer/previewstate.h"
+#include "graphics/modelentity.h"
+#include "models/nodes/statenodeinstance.h"
+#include "contentbrowserapp.h"
+#include "renderutil/nodelookuputil.h"
 
 using namespace Particles;
 using namespace ToolkitUtil;
 using namespace IO;
 using namespace ContentBrowser;
+using namespace Graphics;
 using namespace Math;
 using namespace Materials;
+using namespace Models;
 using namespace Util;
 namespace Widgets
 {
@@ -52,20 +59,6 @@ ParticleNodeHandler::Setup(const String& material, const Util::String& resource)
 {
 	// copy attrs
 	this->attrs = attrs;
-
-	// clear reference maps
-	this->textureImgMap.clear();
-	this->textureTextMap.clear();
-	this->textureLabelMap.clear();
-	this->variableLabelMap.clear();
-	this->variableSliderMap.clear();
-	this->variableBoolMap.clear();
-	this->variableVectorFieldMap.clear();
-	this->variableVectorMap.clear();
-	this->lowerLimitFloatMap.clear();
-	this->upperLimitFloatMap.clear();
-	this->lowerLimitIntMap.clear();
-	this->upperLimitIntMap.clear();
 
 	// copy resource
 	this->resource = resource;
@@ -104,12 +97,14 @@ ParticleNodeHandler::Setup(const String& material, const Util::String& resource)
 
 	// get layout
 	QVBoxLayout* mainLayout = static_cast<QVBoxLayout*>(this->ui->variableFrame->layout());
-	
-	// setup UI
-	this->MakeMaterialUI(mainLayout, this->ui->nodeName, this->ui->materialBox, this->ui->materialHelp, material);
 
+    // get state node
+    Ptr<PreviewState> previewState = ContentBrowserApp::Instance()->GetPreviewState();
+    const Ptr<ModelEntity>& model = previewState->GetModel();
+    Ptr<StateNodeInstance> stateNode = RenderUtil::NodeLookupUtil::LookupStateNodeInstance(model, this->nodePath);
+	
 	// get particle system node instance from state node
-	this->particleStateNode = this->stateNode.downcast<ParticleSystemNodeInstance>();
+	this->particleStateNode = stateNode.downcast<ParticleSystemNodeInstance>();
 
 	// setup envelope frames
 	this->ui->colorRedFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::Red), EmitterAttrs::Red);
@@ -216,7 +211,7 @@ ParticleNodeHandler::Setup(const String& material, const Util::String& resource)
 /**
 */
 void
-ParticleNodeHandler::SoftRefresh(const Util::String& material, const Util::String& resource)
+ParticleNodeHandler::SoftRefresh(const Util::String& resource)
 {
 	Ptr<ModelAttributes> attributes = this->itemHandler->GetAttributes();
 
@@ -295,7 +290,7 @@ ParticleNodeHandler::SoftRefresh(const Util::String& material, const Util::Strin
 	// set attrs in particle system
 	this->particleStateNode->GetParticleSystemInstance()->UpdateEmitter(this->attrs, this->primGroupIndex, this->emitterMesh);
 
-	ModelNodeHandler::SoftRefresh(material, resource);
+    ModelNodeHandler::SoftRefresh(resource);
 }
 
 //------------------------------------------------------------------------------

@@ -217,12 +217,8 @@ MaterialLoader::ParseParameter( const Ptr<IO::XmlReader>& xmlReader, const Ptr<M
 		var.SetMatrix44(xmlReader->GetOptMatrix44("defaultValue", matrix44::identity()));
 		break;
 	case Variant::String:
-		{
-			// get texture
-			Ptr<ManagedTexture> tex = ResourceManager::Instance()->CreateManagedResource(Texture::RTTI, xmlReader->GetOptString("defaultValue", "tex:system/placeholder.dds")).downcast<ManagedTexture>();
-			var.SetObject(tex);
-			break;
-		}
+        var.SetString(xmlReader->GetOptString("defaultValue", "tex:system/placeholder.dds"));
+        break;
 	}		
 
 	// set values

@@ -85,7 +85,7 @@ private:
     {
     public:
         Ptr<Resources::ManagedTexture> tex;
-        Ptr<SurfaceConstant> var;
+        Util::StringAtom var;
     };
 
     Util::Array<Ptr<SurfaceConstant>> constants;

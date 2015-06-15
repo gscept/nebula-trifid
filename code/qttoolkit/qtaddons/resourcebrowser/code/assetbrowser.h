@@ -77,6 +77,14 @@ private slots:
 	/// handle backing in the hierarchy
 	void OnBack();
 
+signals:
+    /// signal emitted when a texture is selected, only happens if browser is not opened through Execute
+    void TextureSelected(const QString& tex);
+    /// signal emitted when a model is selected, only happens if browser is not opened through Execute
+    void ModelSelected(const QString& mdl);
+    /// signal emitted when a surface is selected, only happens if browser is not opened through Execute
+    void SurfaceSelected(const QString& sur);
+
 private:
 
 	friend class TiledTextureItem;

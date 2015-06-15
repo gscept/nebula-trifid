@@ -37,7 +37,7 @@ public:
 	void Setup(const Util::String& material, const Util::String& resource);
 
 	/// handle soft reset
-	virtual void SoftRefresh(const Util::String& material, const Util::String& resource);
+	virtual void SoftRefresh(const Util::String& resource);
 
 	/// discard handler
 	void Discard();

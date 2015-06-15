@@ -137,8 +137,8 @@ SurfaceConstant::Apply(const Ptr<CoreGraphics::ShaderInstance>& shader)
         // @note: implicit Ptr<> creation!
         if (this->value.GetObject() != 0)
         {
-            Resources::ManagedTexture* tex = (Resources::ManagedTexture*)this->value.GetObject();
-            var->SetTexture(tex->GetTexture());
+            CoreGraphics::Texture* tex = (CoreGraphics::Texture*)this->value.GetObject();
+            var->SetTexture(tex);
         }
         else
         {

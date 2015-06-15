@@ -195,7 +195,7 @@ AssetBrowser::OnDirectoryClicked(const QString& dir, const QString& path)
 			this->ui->assetView->AddTiledItem(item);
 
 			// connect with browser to handle directory navigation
-			connect(item, SIGNAL(OnSelected(const QString&)), this, SLOT(OnModelClicked(const QString&)));
+            connect(item, SIGNAL(OnSelected(const QString&)), this, SLOT(OnSurfaceClicked(const QString&)));
 		}
 	}
 
@@ -217,6 +217,10 @@ AssetBrowser::OnTextureClicked(const QString& tex)
 		this->accept();
 		this->isExecuting = false;
 	}	
+    else
+    {
+        emit this->TextureSelected(tex);
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -232,6 +236,10 @@ AssetBrowser::OnModelClicked(const QString& mdl)
 		this->accept();
 		this->isExecuting = false;
 	}
+    else
+    {
+        emit this->ModelSelected(mdl);
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -247,6 +255,10 @@ AssetBrowser::OnSurfaceClicked(const QString& sur)
 		this->accept();
 		this->isExecuting = false;
 	}
+    else
+    {
+        emit this->SurfaceSelected(sur);
+    }
 }
 
 //------------------------------------------------------------------------------

@@ -430,12 +430,12 @@ ModelHandler::HardRefresh()
 	IndexT i;
 	for (i = 0; i < this->nodeFrames.Size(); i++)
 	{
-		this->nodeFrames[i]->GetHandler()->UnsetState();
+		//this->nodeFrames[i]->GetHandler()->UnsetState();
 	}
 
 	for (i = 0; i < this->particleFrames.Size(); i++)
 	{
-		this->particleFrames[i]->GetHandler()->UnsetState();
+		//this->particleFrames[i]->GetHandler()->UnsetState();
 	}
 
 	// now change the model, should be safe now
@@ -469,7 +469,7 @@ ModelHandler::HardRefresh()
 				this->nodeFrames[j]->setUpdatesEnabled(false);
 
 				// refresh handler
-				nodeHandler->HardRefresh(state.material, tempResource);
+				nodeHandler->HardRefresh(tempResource);
 
 				// prepare for update
 				this->nodeFrames[j]->setUpdatesEnabled(true);
@@ -524,7 +524,7 @@ ModelHandler::HardRefresh()
 				this->nodeFrames[j]->setUpdatesEnabled(false);
 
 				// refresh handler
-				nodeHandler->HardRefresh(state.material, tempResource);
+				nodeHandler->HardRefresh(tempResource);
 
 				// prepare for update
 				this->nodeFrames[j]->setUpdatesEnabled(true);
@@ -579,7 +579,7 @@ ModelHandler::HardRefresh()
 				this->particleFrames[j]->setUpdatesEnabled(false);
 
 				// refresh handler
-				nodeHandler->HardRefresh(state.material, tempResource);
+				nodeHandler->HardRefresh(tempResource);
 
 				// prepare for update
 				this->particleFrames[j]->setUpdatesEnabled(true);
@@ -682,7 +682,7 @@ ModelHandler::SoftRefresh()
 		this->nodeFrames[i]->setUpdatesEnabled(false);
 
 		// refresh handler
-		nodeHandler->SoftRefresh(state.material, tempResource);
+		nodeHandler->SoftRefresh(tempResource);
 
 		// prepare for update
 		this->nodeFrames[i]->setUpdatesEnabled(true);
@@ -701,7 +701,7 @@ ModelHandler::SoftRefresh()
 		this->particleFrames[i]->setUpdatesEnabled(false);
 
 		// refresh handler
-		nodeHandler->SoftRefresh(state.material, tempResource);
+		nodeHandler->SoftRefresh(tempResource);
 
 		// prepare for update
 		this->particleFrames[i]->setUpdatesEnabled(true);
