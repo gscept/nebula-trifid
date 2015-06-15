@@ -33,6 +33,7 @@
 #include "util/array.h"
 #include "nody/shady/code/shadywindow.h"
 #include "resourcebrowser/code/assetbrowser.h"
+#include "code/tiledgraphicsview.h"
 
 namespace ContentBrowser
 {
@@ -139,6 +140,8 @@ private slots:
     void OnSurfaceSelected(const QString& sur);
 	/// called when a right click occurs in the asset browser
 	void OnAssetBrowserRightClick(QContextMenuEvent* event);
+	/// called when a right click occurs over an item in the asset browser
+	void OnAssetBrowserItemRightClick(ResourceBrowser::TiledGraphicsItem* item, QGraphicsSceneContextMenuEvent* event);
 
 	/// handles item activated (double-click)
     void ItemActivated(QTreeWidgetItem* item);

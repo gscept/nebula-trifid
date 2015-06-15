@@ -159,6 +159,7 @@ AssetBrowser::OnDirectoryClicked(const QString& dir, const QString& path)
 
 			// connect with browser to handle directory navigation
 			connect(item, SIGNAL(OnSelected(const QString&)), this, SLOT(OnTextureClicked(const QString&)));
+			connect(item, SIGNAL(ItemRightClicked(QGraphicsSceneContextMenuEvent*)), this, SLOT(OnItemRightClicked(QGraphicsSceneContextMenuEvent*)));
 		}
 	}
 
@@ -182,6 +183,7 @@ AssetBrowser::OnDirectoryClicked(const QString& dir, const QString& path)
 
 			// connect with browser to handle directory navigation
 			connect(item, SIGNAL(OnSelected(const QString&)), this, SLOT(OnModelClicked(const QString&)));
+			connect(item, SIGNAL(ItemRightClicked(QGraphicsSceneContextMenuEvent*)), this, SLOT(OnItemRightClicked(QGraphicsSceneContextMenuEvent*)));
 		}
 	}
 
@@ -205,6 +207,7 @@ AssetBrowser::OnDirectoryClicked(const QString& dir, const QString& path)
 
 			// connect with browser to handle directory navigation
             connect(item, SIGNAL(OnSelected(const QString&)), this, SLOT(OnSurfaceClicked(const QString&)));
+			connect(item, SIGNAL(ItemRightClicked(QGraphicsSceneContextMenuEvent*)), this, SLOT(OnItemRightClicked(QGraphicsSceneContextMenuEvent*)));
 		}
 	}
 
@@ -284,6 +287,16 @@ AssetBrowser::OnBack()
 /**
 */
 void
+AssetBrowser::OnItemRightClicked(QGraphicsSceneContextMenuEvent* event)
+{
+	TiledGraphicsItem* item = (TiledGraphicsItem*)this->sender();
+	emit this->ItemContextMenuOpened(item, event);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 AssetBrowser::SetupRoot()
 {
 	// clear first
@@ -349,6 +362,15 @@ AssetBrowser::SetFilter(const AssetFilter& filter)
 		AssetBrowser::loaderThread->Clear();
 		this->SetupRoot();
 	}	
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+AssetBrowser::RemoveItem(TiledGraphicsItem* item)
+{
+	this->ui->assetView->RemoveTiledItem(item);
 }
 
 } // namespace ResourceBrowser

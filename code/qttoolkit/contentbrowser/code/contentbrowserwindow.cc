@@ -37,6 +37,10 @@
 #include "widgets/audio/bankitem.h"
 #include "faudio/audiodevice.h"
 #include "widgets/ui/fontitem.h"
+#include "code/tiledmodelitem.h"
+#include "code/tiledtextureitem.h"
+#include "code/tiledsurfaceitem.h"
+#include "QGraphicsSceneEvent"
 
 using namespace Math;
 using namespace Util;
@@ -47,6 +51,7 @@ using namespace PostEffect;
 using namespace ToolkitUtil;
 using namespace Particles;
 using namespace Algorithm;
+using namespace ResourceBrowser;
 namespace ContentBrowser
 {
 
@@ -189,6 +194,7 @@ ContentBrowserWindow::ContentBrowserWindow() :
     connect(this->assetBrowserWindow, SIGNAL(ModelSelected(const QString&)), this, SLOT(OnModelSelected(const QString&)));
     connect(this->assetBrowserWindow, SIGNAL(SurfaceSelected(const QString&)), this, SLOT(OnSurfaceSelected(const QString&)));
 	connect(this->assetBrowserWindow, SIGNAL(ContextMenuOpened(QContextMenuEvent*)), this, SLOT(OnAssetBrowserRightClick(QContextMenuEvent*)));
+	connect(this->assetBrowserWindow, SIGNAL(ItemContextMenuOpened(ResourceBrowser::TiledGraphicsItem*, QGraphicsSceneContextMenuEvent*)), this, SLOT(OnAssetBrowserItemRightClick(ResourceBrowser::TiledGraphicsItem*, QGraphicsSceneContextMenuEvent*)));
 
     // connect actions
 	connect(this->ui.actionShow_Model_Info, SIGNAL(triggered()), this, SLOT(OnShowModelInfo()));
@@ -1132,11 +1138,164 @@ ContentBrowserWindow::OnAssetBrowserRightClick(QContextMenuEvent* event)
 {
 	QMenu menu;
 	QAction* newSurface = menu.addAction("New surface...");
+	menu.addSeparator();
+	QAction* importTexture = menu.addAction("Import texture...");
+	QAction* importModel = menu.addAction("Import model...");
 
 	QAction* action = menu.exec(event->globalPos());
 	if (action == newSurface)
 	{
 
+	}
+	else if (action == importTexture)
+	{
+
+	}
+	else if (action == importModel)
+	{
+
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ContentBrowserWindow::OnAssetBrowserItemRightClick(TiledGraphicsItem* item, QGraphicsSceneContextMenuEvent* event)
+{
+	QMenu menu;
+	TiledModelItem* modelItem = dynamic_cast<TiledModelItem*>(item);
+	TiledTextureItem* textureItem = dynamic_cast<TiledTextureItem*>(item);
+	TiledSurfaceItem* surfaceItem = dynamic_cast<TiledSurfaceItem*>(item);
+	if (modelItem)
+	{
+		QAction* action1 = menu.addAction("Delete model");
+		action1->setToolTip("Deletes the model, making any references to it appear as the placeholder model and effectively removes .constants, .attributes and .physics from the working directory.");
+		QAction* action2 = menu.addAction("Reconfigure model...");
+		action2->setToolTip("Adjust settings and reimport this model.");
+
+		// execute menu
+		QAction* executedAction = menu.exec(event->screenPos());
+	}
+	else if (textureItem)
+	{
+		QAction* action1 = menu.addAction("Delete texture");
+		action1->setToolTip("Deletes the texture, both in the working folder and the export (.dds) target.");
+		QAction* action2 = menu.addAction("Reconfigure texture...");
+		action2->setToolTip("Adjust settings and reimport this texture.");
+
+		String path = textureItem->GetPath();
+		String category = textureItem->GetCategory();
+		String filename = textureItem->GetFilename();
+		String res = String::Sprintf("%s/%s/%s", path.AsCharPtr(), category.AsCharPtr(), filename.AsCharPtr());
+
+		// execute menu
+		QAction* executedAction = menu.exec(event->screenPos());
+
+		// get pointer to io server
+		const Ptr<IO::IoServer>& ioServer = IO::IoServer::Instance();
+
+		// delete texture
+		if (executedAction == action1)
+		{
+			// delete texture
+			ioServer->DeleteFile(res);
+
+			String extensions[] = { ".png", ".bmp", ".psd", ".tga", ".jpg", ".dds" };
+			IndexT i;
+			for (i = 0; i < 6; i++)
+			{
+				// attempt to remove all files related to this texture
+				String resource = String::Sprintf("%s/%s/%s.%s", path.AsCharPtr(), category.AsCharPtr(), filename.AsCharPtr(), extensions[i]);
+				ioServer->DeleteFile(resource);
+			}
+
+			AssetBrowser::Instance()->RemoveItem(textureItem);
+		}
+		else if (executedAction == action2)
+		{
+			// get resource without prefix and suffix
+			String workTex = String::Sprintf("%s/%s", path.AsCharPtr(), category.AsCharPtr());
+
+			// make a string to match the pattern
+			String pattern = String::Sprintf("%s.*", filename.AsCharPtr());
+
+			// get all files based on this name
+			Array<String> files = ioServer->ListFiles(workTex, pattern);
+
+			// go through and remove all non-texture files
+			IndexT i;
+			for (i = 0; i < files.Size(); i++)
+			{
+				if (!(String::MatchPattern(files[i], "*.png") ||
+					String::MatchPattern(files[i], "*.bmp") ||
+					String::MatchPattern(files[i], "*.psd") ||
+					String::MatchPattern(files[i], "*.tga") ||
+					String::MatchPattern(files[i], "*.jpg") ||
+					String::MatchPattern(files[i], "*.dds")))
+				{
+					files.EraseIndex(i--);
+				}
+			}
+
+			// if we have more than one file, the user must select one!
+			if (files.Size() > 1)
+			{
+				QComboBox selections;
+				IndexT i;
+				for (i = 0; i < files.Size(); i++)
+				{
+					selections.addItem(files[i].AsCharPtr());
+				}
+
+				QMessageBox* box = new QMessageBox();
+				box->setText("The texture: " + QString(filename.AsCharPtr()) + " has more than one potential sources. Which one would you want to reconfigure?");
+				box->setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+				box->setDefaultButton(QMessageBox::Ok);
+				box->layout()->addWidget(&selections);
+				int result = box->exec();
+
+				if (result == QMessageBox::Ok)
+				{
+					String resource = String::Sprintf("%s/%s/%s", path.AsCharPtr(), category.AsCharPtr(), selections.itemText(selections.currentIndex()).toUtf8().constData());
+
+					// we should move the texture importer to QtAddons since it might be used everywhere
+					TextureImporter::TextureImporterWindow* importer = ContentBrowser::ContentBrowserApp::Instance()->GetWindow()->GetTextureImporter();
+					importer->SetUri(resource);
+					importer->show();
+					importer->raise();
+					QApplication::processEvents();
+					importer->Open();
+				}
+				else
+				{
+					return;
+				}
+			}
+			else if (files.Size() > 0)
+			{
+				String resource = String::Sprintf("%s/%s/%s", path.AsCharPtr(), category.AsCharPtr(), files[0].AsCharPtr());
+
+				TextureImporter::TextureImporterWindow* importer = ContentBrowser::ContentBrowserApp::Instance()->GetWindow()->GetTextureImporter();
+				importer->SetUri(resource);
+				importer->show();
+				importer->raise();
+				QApplication::processEvents();
+				importer->Open();
+			}
+			else
+			{
+				QMessageBox::warning(NULL, "No work resource exists!", "Could not locate this texture in the work directory, has it been moved or deleted?", QMessageBox::Ok);
+			}
+		}
+	}
+	else if (surfaceItem)
+	{
+		QAction* action = menu.addAction("Delete surface.");
+		action->setToolTip("Will render all objects using this surface have the placeholder material applied");
+
+		// execute menu
+		QAction* executedAction = menu.exec(event->screenPos());
 	}
 }
 
@@ -1440,8 +1599,8 @@ ContentBrowserWindow::RemoveModelItem( Widgets::ModelItem* item )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ContentBrowserWindow::RemoveModelItemAndAssociated( Widgets::ModelItem* item )
+void
+ContentBrowserWindow::RemoveModelItemAndAssociated(Widgets::ModelItem* item)
 {
 	// deparent item
 	if (item->parent())	item->parent()->removeChild(item);

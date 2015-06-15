@@ -84,9 +84,9 @@ TiledSurfaceItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 /**
 */
 void
-TiledSurfaceItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
+TiledSurfaceItem::contextMenuEvent(QGraphicsSceneContextMenuEvent* event)
 {
-
+	emit this->ItemRightClicked(event);
 }
 
 //------------------------------------------------------------------------------

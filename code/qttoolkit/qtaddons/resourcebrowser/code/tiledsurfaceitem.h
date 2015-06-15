@@ -22,12 +22,18 @@ public:
 	/// destructor
 	virtual ~TiledSurfaceItem();
 
-    /// set path to surface category folder
+    /// set path to category folder
     void SetPath(const Util::String& path);
-    /// set surface category
+	/// get path to category folder
+	const Util::String& GetPath() const;
+    /// set category
     void SetCategory(const Util::String& cat);
-    /// set surface file name
+	/// get category
+	const Util::String& GetCategory() const;
+    /// set file name
     void SetFilename(const Util::String& file);
+	/// get file name
+	const Util::String& GetFilename() const;
   
 	/// setup the item, reduces the texture path to category/file, locates the thumbnail and loads it as a preview, updates the label with the image type
 	void Setup();
@@ -67,6 +73,15 @@ TiledSurfaceItem::SetPath(const Util::String& path)
 //------------------------------------------------------------------------------
 /**
 */
+inline const Util::String&
+TiledSurfaceItem::GetPath() const
+{
+	return this->path;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 inline void
 TiledSurfaceItem::SetCategory(const Util::String& cat)
 {
@@ -76,10 +91,28 @@ TiledSurfaceItem::SetCategory(const Util::String& cat)
 //------------------------------------------------------------------------------
 /**
 */
+inline const Util::String&
+TiledSurfaceItem::GetCategory() const
+{
+	return this->category;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 inline void
 TiledSurfaceItem::SetFilename(const Util::String& file)
 {
     this->filename = file;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Util::String&
+TiledSurfaceItem::GetFilename() const
+{
+	return this->filename;
 }
 
 } // namespace ResourceBrowser

@@ -22,12 +22,18 @@ public:
 	/// destructor
 	virtual ~TiledModelItem();
 
-    /// set path to model category folder
-    void SetPath(const Util::String& path);
-    /// set model category
-    void SetCategory(const Util::String& cat);
-    /// set model file name
-    void SetFilename(const Util::String& file);
+	/// set path to category folder
+	void SetPath(const Util::String& path);
+	/// get path to category folder
+	const Util::String& GetPath() const;
+	/// set category
+	void SetCategory(const Util::String& cat);
+	/// get category
+	const Util::String& GetCategory() const;
+	/// set file name
+	void SetFilename(const Util::String& file);
+	/// get file name
+	const Util::String& GetFilename() const;
 
 	/// setup the item, reduces the texture path to category/file, locates the thumbnail and loads it as a preview, updates the label with the image type
 	void Setup();
@@ -60,7 +66,16 @@ private:
 inline void
 TiledModelItem::SetPath(const Util::String& path)
 {
-    this->path = path;
+	this->path = path;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Util::String&
+TiledModelItem::GetPath() const
+{
+	return this->path;
 }
 
 //------------------------------------------------------------------------------
@@ -69,7 +84,16 @@ TiledModelItem::SetPath(const Util::String& path)
 inline void
 TiledModelItem::SetCategory(const Util::String& cat)
 {
-    this->category = cat;
+	this->category = cat;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Util::String&
+TiledModelItem::GetCategory() const
+{
+	return this->category;
 }
 
 //------------------------------------------------------------------------------
@@ -78,7 +102,17 @@ TiledModelItem::SetCategory(const Util::String& cat)
 inline void
 TiledModelItem::SetFilename(const Util::String& file)
 {
-    this->filename = file;
+	this->filename = file;
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Util::String&
+TiledModelItem::GetFilename() const
+{
+	return this->filename;
+}
+
 
 } // namespace ResourceBrowser

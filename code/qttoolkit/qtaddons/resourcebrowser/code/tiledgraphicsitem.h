@@ -31,12 +31,16 @@ public:
 	virtual void Discard();
 
 	/// handle mouse entering item
-	void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
+	void hoverEnterEvent(QGraphicsSceneHoverEvent* event);
 	/// handle mouse leaving item
-	void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
+	void hoverLeaveEvent(QGraphicsSceneHoverEvent* event);
 
 	/// set size of item
 	void SetSize(const QSize& size);
+
+signals:
+	/// emit when item gets right clicked
+	void ItemRightClicked(QGraphicsSceneContextMenuEvent* event);
 protected:
 
 	/// call rescale whenever the item resizes

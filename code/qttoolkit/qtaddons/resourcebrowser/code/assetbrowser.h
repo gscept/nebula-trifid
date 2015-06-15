@@ -24,6 +24,7 @@ namespace Ui
 namespace ResourceBrowser
 {
 
+class TiledGraphicsItem;
 class AssetBrowser : 
 	public QDialog,
 	public Core::RefCounted
@@ -66,6 +67,8 @@ public:
 
 	/// set the filter of the asset browser
 	void SetFilter(const AssetFilter& filter);
+	/// remove item from outside the browser
+	void RemoveItem(TiledGraphicsItem* item);
 
 private slots:
 	/// handle a directory being clicked
@@ -78,6 +81,8 @@ private slots:
 	void OnSurfaceClicked(const QString& sur);
 	/// handle backing in the hierarchy
 	void OnBack();
+	/// handle whenever an item gets right clicked
+	void OnItemRightClicked(QGraphicsSceneContextMenuEvent* event);
 
 signals:
     /// signal emitted when a texture is selected, only happens if browser is not opened through Execute
@@ -88,6 +93,8 @@ signals:
     void SurfaceSelected(const QString& sur);
 	/// signal emitted when browser gets right clicked
 	void ContextMenuOpened(QContextMenuEvent* event);
+	/// signal emitted when an item was right clicked
+	void ItemContextMenuOpened(ResourceBrowser::TiledGraphicsItem* item, QGraphicsSceneContextMenuEvent* event);
 
 private:
 

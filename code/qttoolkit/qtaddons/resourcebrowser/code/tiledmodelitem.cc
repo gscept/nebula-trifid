@@ -84,9 +84,9 @@ TiledModelItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 /**
 */
 void
-TiledModelItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
+TiledModelItem::contextMenuEvent(QGraphicsSceneContextMenuEvent* event)
 {
-
+	emit this->ItemRightClicked(event);
 }
 
 //------------------------------------------------------------------------------
