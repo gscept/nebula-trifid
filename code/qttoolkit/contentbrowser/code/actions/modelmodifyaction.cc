@@ -130,36 +130,6 @@ ModelModifyAction::Do()
 	constants->Load(constStream.upcast<Stream>());
 	physics->Clear();
 	physics->Load(physStream.upcast<Stream>());
-
-	/*
-	// create resource string
-	String resource;
-	resource.Format("int:models/%s/%s_temp.n3", this->category.AsCharPtr(), this->model.AsCharPtr());	
-
-	// build model
-	Ptr<ModelBuilder> modelBuilder = ModelBuilder::Create();
-	
-	// set in model builder
-	modelBuilder->SetAttributes(attributes);
-	modelBuilder->SetConstants(constants);
-	modelBuilder->SetPhysics(physics);
-
-	// write model
-	modelBuilder->SaveN3(resource, Platform::Win32);
-	
-	// write physics
-	Util::String phmresource;
-	phmresource.Format("int:physics/%s/%s.np3", this->category.AsCharPtr(), this->model.AsCharPtr());
-	modelBuilder->SaveN3Physics(phmresource, Platform::Win32);
-
-	// then tell graphics to reload resource
-	Ptr<ReloadResource> reloadMessage = ReloadResource::Create();
-	reloadMessage->SetResourceName(resource);
-	__StaticSend(GraphicsInterface, reloadMessage);
-
-	// setup single fire callback for handler
-	__SingleFireCallback(Widgets::ModelHandler, OnModelReloaded, this->handler.get(), reloadMessage.upcast<Messaging::Message>());
-	*/
 }
 
 //------------------------------------------------------------------------------

@@ -11,7 +11,6 @@
 #include "ui_textureimporterwindow.h"
 #include "io/uri.h"
 #include "texutil/textureattrtable.h"
-#include "ui_movetonebulawindow.h"
 #include "importerwindow.h"
 
 namespace TextureImporter

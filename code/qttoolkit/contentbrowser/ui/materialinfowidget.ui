@@ -1,53 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>MaterialInfoWidget</class>
- <widget class="QWidget" name="MaterialInfoWidget">
+ <widget class="QFrame" name="MaterialInfoWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>521</width>
-    <height>665</height>
+    <width>433</width>
+    <height>614</height>
    </rect>
   </property>
+  <property name="font">
+   <font>
+    <family>Segoe UI</family>
+   </font>
+  </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Frame</string>
+  </property>
+  <property name="frameShape">
+   <enum>QFrame::NoFrame</enum>
+  </property>
+  <property name="frameShadow">
+   <enum>QFrame::Raised</enum>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0" colspan="3">
-    <widget class="QLabel" name="label">
-     <property name="font">
-      <font>
-       <family>Segoe UI</family>
-       <pointsize>14</pointsize>
-      </font>
-     </property>
-     <property name="layoutDirection">
-      <enum>Qt::LeftToRight</enum>
-     </property>
-     <property name="text">
-      <string>Material</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0" colspan="3">
-    <widget class="QLineEdit" name="surfaceName">
-     <property name="font">
-      <font>
-       <pointsize>10</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Placeholder</string>
-     </property>
-     <property name="frame">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
    <item row="2" column="0">
     <widget class="QLabel" name="label_2">
      <property name="font">
@@ -60,6 +37,25 @@
      </property>
     </widget>
    </item>
+   <item row="2" column="2">
+    <widget class="QPushButton" name="materialHelp">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>25</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>?</string>
+     </property>
+    </widget>
+   </item>
    <item row="2" column="1">
     <widget class="QComboBox" name="templateBox">
      <property name="sizePolicy">
@@ -67,37 +63,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="2">
-    <widget class="QPushButton" name="materialHelp">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>20</width>
-       <height>20</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>20</width>
-       <height>20</height>
-      </size>
-     </property>
-     <property name="baseSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="text">
-      <string>?</string>
      </property>
     </widget>
    </item>
@@ -123,8 +88,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>501</width>
-        <height>502</height>
+        <width>413</width>
+        <height>449</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -137,22 +102,73 @@
      </widget>
     </widget>
    </item>
-   <item row="4" column="0" colspan="3">
-    <widget class="QPushButton" name="assignButton">
-     <property name="toolTip">
-      <string>Assign this material to the model node active in the model</string>
+   <item row="0" column="0" colspan="3">
+    <widget class="QLabel" name="label">
+     <property name="font">
+      <font>
+       <family>Segoe UI</family>
+       <pointsize>14</pointsize>
+      </font>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::LeftToRight</enum>
      </property>
      <property name="text">
-      <string>Assign</string>
+      <string>Surface</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="3">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="newButton">
+       <property name="toolTip">
+        <string>Create a new surface.</string>
+       </property>
+       <property name="text">
+        <string>New...</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0" colspan="3">
+    <widget class="QLabel" name="surfaceName">
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string/>
      </property>
     </widget>
    </item>
    <item row="5" column="0" colspan="3">
-    <widget class="QPushButton" name="saveButton">
-     <property name="text">
-      <string>Save</string>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QPushButton" name="saveButton">
+       <property name="toolTip">
+        <string>Save the surface.</string>
+       </property>
+       <property name="text">
+        <string>Save</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="saveAsButton">
+       <property name="text">
+        <string>Save as...</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>

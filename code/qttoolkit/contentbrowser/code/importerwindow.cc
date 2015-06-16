@@ -60,8 +60,8 @@ ImporterWindow::OnNewCategory()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ImporterWindow::SetupCategories( const QString& category )
+void
+ImporterWindow::SetupCategories(const QString& category)
 {
 	// clear category box
 	this->dialogUi.categoryBox->clear();

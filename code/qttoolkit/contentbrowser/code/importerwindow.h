@@ -9,7 +9,7 @@
 */
 //------------------------------------------------------------------------------
 #include <QDialog>
-#include "ui_movetonebulawindow.h"
+#include "ui_saveresourcedialog.h"
 #include "util/string.h"
 namespace ContentBrowser
 {
@@ -34,7 +34,7 @@ protected:
 	/// sets up categories for move dialog
 	void SetupCategories(const QString& category);
 
-	Ui::MoveToNebulaDialog dialogUi;
+	Ui::SaveResourceDialog dialogUi;
 	QDialog dialog;
 	Util::String resourceFolder;
 }; 

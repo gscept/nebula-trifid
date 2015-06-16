@@ -20,6 +20,7 @@
 #include <QCheckBox>
 #include "models/nodes/statenodeinstance.h"
 #include "n3util/n3modeldata.h"
+#include "ui_saveresourcedialog.h"
 namespace Widgets
 {
 class MaterialHandler : public BaseHandler
@@ -60,18 +61,15 @@ public:
     /// called whenever an int field limit has changed
     void IntLimitChanged(uint i);
 
+public slots:
+	/// called when we should make a new material
+	void NewSurface();
+
 private slots:
     /// called whenever a material is selected
     void MaterialSelected(const QString& material);
     /// called whenever the material info button is clicked
     void MaterialInfo();
-
-	/// called whenever the name gets changed
-	void NameChanged();
-	/// called whenever the new button gets pressed
-	void NewSurface();
-	/// called when the duplicate button gets pressed
-	void Duplicate();
 
     /// called whenever a line edit is finished
     void TextureTextChanged();
@@ -104,11 +102,19 @@ private slots:
     /// called whenever a color picker is clicked
     void ChangeColor();
 
+	/// called whenever the save button is clicked
+	void Save();
+	/// save material as another file
+	void SaveAs();
+
+	/// called whenever we create a new dialog
+	void OnNewCategory();
+
 protected:
     /// sets up texture selection button and line edit based on resource
     void SetupTextureSlotHelper(QLineEdit* textureField, QPushButton* textureButton, Util::String& resource, const Util::String& defaultResource);
     /// setup material variables and textures
-    void MakeMaterialUI(QVBoxLayout* mainLayout, QLineEdit* surfaceName, QComboBox* materialBox, QPushButton* materialHelp);
+    void MakeMaterialUI(QLabel* surfaceName, QComboBox* materialBox, QPushButton* materialHelp);
 
     /// get material variables which are textures
     Util::Array<Materials::Material::MaterialParameter> GetTextures(const Ptr<Materials::Material>& mat);
@@ -119,8 +125,14 @@ protected:
     void ClearFrame(QLayout* layout);
 
 private:
+	/// setup save dialog
+	void SetupSaveDialog();
+	/// open save dialog
+	int OpenSaveDialog();	
+	/// helper function to reset the UI
+	void ResetUI();
 
-    QLayout* mainLayout;
+    QVBoxLayout* mainLayout;
     QComboBox* materialBox;
     QPushButton* materialHelp;
 
@@ -163,16 +175,28 @@ private:
     Util::Dictionary<IndexT, Ptr<Materials::SurfaceConstant>> scalarVariables;
     ToolkitUtil::State state;
 
+	QDialog saveDialog;
+	Ui::SaveResourceDialog saveDialogUi;
     Ui::MaterialInfoWidget* ui;
+
+	bool hasChanges;
+	Util::String category;
+	Util::String file;
 };
 
 //------------------------------------------------------------------------------
 /**
+	Ehh, do this only once...
 */
 inline void
 MaterialHandler::SetUI(Ui::MaterialInfoWidget* ui)
 {
     this->ui = ui;
+
+	// hmm, this shouldn't really be done each time we open a surface...
+	connect(this->ui->newButton, SIGNAL(clicked()), this, SLOT(NewSurface()));
+	connect(this->ui->saveButton, SIGNAL(clicked()), this, SLOT(Save()));
+	connect(this->ui->saveAsButton, SIGNAL(clicked()), this, SLOT(SaveAs()));
 }
 
 //------------------------------------------------------------------------------

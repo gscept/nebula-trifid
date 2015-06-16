@@ -81,6 +81,11 @@ ContentBrowserWindow::ContentBrowserWindow() :
 {
 	this->ui.setupUi(this);
 
+	// create copy assigns so that we may modify resources without changing anything in the models/textures/surfaces
+	AssignRegistry::Instance()->SetAssign(Assign("intsur", "export:surfaces"));
+	AssignRegistry::Instance()->SetAssign(Assign("intmdl", "export:models"));
+	AssignRegistry::Instance()->SetAssign(Assign("inttex", "export:textures"));
+
 	// setup model info
 	this->modelInfoWindow = this->ui.modelDockWidget;
 	this->modelInfoWindow->setVisible(false);
@@ -1111,7 +1116,31 @@ ContentBrowserWindow::OnTextureSelected(const QString& tex)
 void
 ContentBrowserWindow::OnModelSelected(const QString& mdl)
 {
+	// split name into category and file
+	QStringList resourceParts = mdl.split("/");
 
+	// get file name and category
+	String category = resourceParts[0].toUtf8().constData();
+	String file = resourceParts[1].toUtf8().constData();
+	category.StripAssignPrefix();
+	file.StripFileExtension();
+
+	this->modelHandler->SetModelCategory(category);
+	this->modelHandler->SetModelResource(file);
+
+	// preview
+	if (this->modelHandler->Preview())
+	{
+		// setup widget only if load was successful
+		this->modelHandler->Setup();
+	}
+	else
+	{
+		this->modelHandler->Mute();
+		String message;
+		message.Format("Model '%s/%s' failed to load. Possible causes: \n    No .attributes exists for this model.\n    Model is character, but has no animations.", category.AsCharPtr(), file.AsCharPtr());
+		QMessageBox::warning(NULL, "Failed to load resource", message.AsCharPtr());
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -1145,15 +1174,17 @@ ContentBrowserWindow::OnAssetBrowserRightClick(QContextMenuEvent* event)
 	QAction* action = menu.exec(event->globalPos());
 	if (action == newSurface)
 	{
-
+		this->materialHandler->NewSurface();
+		this->materialInfoWindow->show();
+		this->materialInfoWindow->raise();
 	}
 	else if (action == importTexture)
 	{
-
+		this->ui.actionImport_Texture->trigger();
 	}
 	else if (action == importModel)
 	{
-
+		this->ui.actionImport->trigger();
 	}
 }
 
@@ -1164,55 +1195,82 @@ void
 ContentBrowserWindow::OnAssetBrowserItemRightClick(TiledGraphicsItem* item, QGraphicsSceneContextMenuEvent* event)
 {
 	QMenu menu;
+
+	String path = item->GetPath();
+	String category = item->GetCategory();
+	String filename = item->GetFilename();
+
+	// create full resource path
+	String res = String::Sprintf("%s/%s/%s", path.AsCharPtr(), category.AsCharPtr(), filename.AsCharPtr());
+
+	// get pointer to io server
+	const Ptr<IO::IoServer>& ioServer = IO::IoServer::Instance();
+
 	TiledModelItem* modelItem = dynamic_cast<TiledModelItem*>(item);
 	TiledTextureItem* textureItem = dynamic_cast<TiledTextureItem*>(item);
 	TiledSurfaceItem* surfaceItem = dynamic_cast<TiledSurfaceItem*>(item);
 	if (modelItem)
 	{
-		QAction* action1 = menu.addAction("Delete model");
-		action1->setToolTip("Deletes the model, making any references to it appear as the placeholder model and effectively removes .constants, .attributes and .physics from the working directory.");
-		QAction* action2 = menu.addAction("Reconfigure model...");
-		action2->setToolTip("Adjust settings and reimport this model.");
-
+		QAction* action1 = menu.addAction("Reconfigure model...");
+		action1->setToolTip("Adjust settings and reimport this model.");
+		QAction* action2 = menu.addAction("Delete model");
+		action2->setToolTip("Deletes the model, making any references to it appear as the placeholder model and effectively removes .constants, .attributes and .physics from the working directory.");
+		
 		// execute menu
 		QAction* executedAction = menu.exec(event->screenPos());
+		if (executedAction == action1)
+		{
+			res.ChangeFileExtension("fbx");
+			ModelImporter::ModelImporterWindow* importer = ContentBrowser::ContentBrowserApp::Instance()->GetWindow()->GetModelImporter();
+			importer->SetUri(res);
+			importer->show();
+			importer->raise();
+			QApplication::processEvents();
+			importer->Open();
+		}
+		else if (executedAction == action2)
+		{
+			// delete work-counterpart
+			res.ChangeFileExtension("fbx");
+			ioServer->DeleteFile(res);
+			res.ChangeFileExtension("attributes");
+			ioServer->DeleteFile(res);
+			res.ChangeFileExtension("constants");
+			ioServer->DeleteFile(res);
+			res.ChangeFileExtension("physics");
+			ioServer->DeleteFile(res);
+
+			// remove export target model
+			res.ChangeAssignPrefix("mdl");
+			res.ChangeFileExtension("n3");
+			ioServer->DeleteFile(res);
+
+			// remove export target mesh
+			res.ChangeAssignPrefix("msh");
+			res.ChangeFileExtension("nvx2");
+			ioServer->DeleteFile(res);
+
+			// remove export target animation
+			res.ChangeAssignPrefix("ani");
+			res.ChangeFileExtension("nax3");
+			ioServer->DeleteFile(res);
+
+			AssetBrowser::Instance()->RemoveItem(modelItem);
+		}
 	}
 	else if (textureItem)
 	{
-		QAction* action1 = menu.addAction("Delete texture");
-		action1->setToolTip("Deletes the texture, both in the working folder and the export (.dds) target.");
-		QAction* action2 = menu.addAction("Reconfigure texture...");
-		action2->setToolTip("Adjust settings and reimport this texture.");
-
-		String path = textureItem->GetPath();
-		String category = textureItem->GetCategory();
-		String filename = textureItem->GetFilename();
-		String res = String::Sprintf("%s/%s/%s", path.AsCharPtr(), category.AsCharPtr(), filename.AsCharPtr());
+		QAction* action1 = menu.addAction("Reconfigure texture...");
+		action1->setToolTip("Adjust settings and reimport this texture.");
+		QAction* action2 = menu.addAction("Delete texture");
+		action2->setToolTip("Deletes the texture, both in the working folder and the export (.dds) target.");
+		
 
 		// execute menu
 		QAction* executedAction = menu.exec(event->screenPos());
 
-		// get pointer to io server
-		const Ptr<IO::IoServer>& ioServer = IO::IoServer::Instance();
-
 		// delete texture
 		if (executedAction == action1)
-		{
-			// delete texture
-			ioServer->DeleteFile(res);
-
-			String extensions[] = { ".png", ".bmp", ".psd", ".tga", ".jpg", ".dds" };
-			IndexT i;
-			for (i = 0; i < 6; i++)
-			{
-				// attempt to remove all files related to this texture
-				String resource = String::Sprintf("%s/%s/%s.%s", path.AsCharPtr(), category.AsCharPtr(), filename.AsCharPtr(), extensions[i]);
-				ioServer->DeleteFile(resource);
-			}
-
-			AssetBrowser::Instance()->RemoveItem(textureItem);
-		}
-		else if (executedAction == action2)
 		{
 			// get resource without prefix and suffix
 			String workTex = String::Sprintf("%s/%s", path.AsCharPtr(), category.AsCharPtr());
@@ -1288,6 +1346,22 @@ ContentBrowserWindow::OnAssetBrowserItemRightClick(TiledGraphicsItem* item, QGra
 				QMessageBox::warning(NULL, "No work resource exists!", "Could not locate this texture in the work directory, has it been moved or deleted?", QMessageBox::Ok);
 			}
 		}
+		else if (executedAction == action2)
+		{
+			// delete texture
+			ioServer->DeleteFile(res);
+
+			String extensions[] = { ".png", ".bmp", ".psd", ".tga", ".jpg", ".dds" };
+			IndexT i;
+			for (i = 0; i < 6; i++)
+			{
+				// attempt to remove all files related to this texture
+				String resource = String::Sprintf("%s/%s/%s.%s", path.AsCharPtr(), category.AsCharPtr(), filename.AsCharPtr(), extensions[i]);
+				ioServer->DeleteFile(resource);
+			}
+
+			AssetBrowser::Instance()->RemoveItem(textureItem);
+		}
 	}
 	else if (surfaceItem)
 	{
@@ -1296,6 +1370,18 @@ ContentBrowserWindow::OnAssetBrowserItemRightClick(TiledGraphicsItem* item, QGra
 
 		// execute menu
 		QAction* executedAction = menu.exec(event->screenPos());
+		if (executedAction == action)
+		{
+			// delete work
+			res.ChangeFileExtension("sur");
+			ioServer->DeleteFile(res);
+
+			// delete export target
+			res.ChangeAssignPrefix("sur");
+			ioServer->DeleteFile(res);
+
+			AssetBrowser::Instance()->RemoveItem(surfaceItem);
+		}
 	}
 }
 

@@ -14,11 +14,18 @@
 #include "previewer/previewstate.h"
 #include "graphics/modelentity.h"
 #include "renderutil/nodelookuputil.h"
+#include "materials/streamsurfacematerialsaver.h"
+#include "binaryxmlconverter.h"
+#include "logger.h"
 
 #include <QDialog>
 #include <QColorDialog>
 #include <QGroupBox>
 #include <QBitmap>
+#include <QMessageBox>
+#include <QInputDialog>
+
+using namespace ToolkitUtil;
 using namespace Graphics;
 using namespace ContentBrowser;
 using namespace Math;
@@ -31,9 +38,14 @@ __ImplementClass(Widgets::MaterialHandler, 'MAHA', BaseHandler);
 //------------------------------------------------------------------------------
 /**
 */
-MaterialHandler::MaterialHandler()
+MaterialHandler::MaterialHandler() :
+	hasChanges(false)
 {
-	// empty
+	this->saveDialogUi.setupUi(&this->saveDialog);
+
+	// connect button slot
+	connect(this->saveDialogUi.newCategory, SIGNAL(pressed()), this, SLOT(OnNewCategory()));
+	this->SetupSaveDialog();
 }
 
 //------------------------------------------------------------------------------
@@ -41,7 +53,8 @@ MaterialHandler::MaterialHandler()
 */
 MaterialHandler::~MaterialHandler()
 {
-	// empty
+	disconnect(this->ui->newButton, SIGNAL(clicked()));
+	disconnect(this->ui->saveButton, SIGNAL(clicked()));
 }
 
 //------------------------------------------------------------------------------
@@ -68,15 +81,24 @@ MaterialHandler::Setup(const QString& resource)
     this->lowerLimitIntMap.clear();
     this->upperLimitIntMap.clear();
 
+	// get components of resource
+	String res = resource.toUtf8().constData();
+	res.StripAssignPrefix();
+	res.StripFileExtension();
+	this->category = res.ExtractDirName();
+	this->category.SubstituteString("/", "");
+	this->file = res.ExtractFileName();
+	this->ui->surfaceName->setText(String::Sprintf("%s/%s", this->category.AsCharPtr(), this->file.AsCharPtr()).AsCharPtr());
+
     // create resource
 	this->managedMaterial = Resources::ResourceManager::Instance()->CreateManagedResource(SurfaceMaterial::RTTI, resource.toUtf8().constData(), NULL, true).downcast<Materials::ManagedSurfaceMaterial>();
 	this->material = this->managedMaterial->GetMaterial();
 
     // get layout
-    QVBoxLayout* mainLayout = static_cast<QVBoxLayout*>(this->ui->variableFrame->layout());
+	this->mainLayout = static_cast<QVBoxLayout*>(this->ui->variableFrame->layout());
 
     // setup UI
-    this->MakeMaterialUI(mainLayout, this->ui->surfaceName, this->ui->templateBox, this->ui->materialHelp);
+    this->MakeMaterialUI(this->ui->surfaceName, this->ui->templateBox, this->ui->materialHelp);
 }
 
 //------------------------------------------------------------------------------
@@ -85,18 +107,27 @@ MaterialHandler::Setup(const QString& resource)
 bool
 MaterialHandler::Discard()
 {
-    IndexT i;
-    for (i = 0; i < this->textureResources.Size(); i++)
-    {
-        Resources::ResourceManager::Instance()->DiscardManagedResource(this->textureResources.ValueAtIndex(i).upcast<Resources::ManagedResource>());
-    }
-    this->textureResources.Clear();
+	if (this->hasChanges)
+	{
+		QMessageBox::StandardButton button = QMessageBox::warning(NULL, "Pending changes", "Your material has unsaved changes, are you sure you want to close it?", QMessageBox::Ok | QMessageBox::Cancel);
+		if (button == QMessageBox::Cancel)
+		{
+			return false;
+		}
+	}
+
+	IndexT i;
+	for (i = 0; i < this->textureResources.Size(); i++)
+	{
+		Resources::ResourceManager::Instance()->DiscardManagedResource(this->textureResources.ValueAtIndex(i).upcast<Resources::ManagedResource>());
+	}
+	this->textureResources.Clear();
 	Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedMaterial.upcast<Resources::ManagedResource>());
 	this->managedMaterial = 0;
-    this->material = 0;
-    this->ClearFrame(this->mainLayout);
+	this->material = 0;
+	this->ClearFrame(this->mainLayout);
 
-    return BaseHandler::Discard();
+	return BaseHandler::Discard();
 }
 
 //------------------------------------------------------------------------------
@@ -134,6 +165,7 @@ MaterialHandler::TextureChanged(uint i)
     }
     this->textureResources.Add(i, textureObject);
     if (this->textureVariables[i].isvalid()) this->textureVariables[i]->SetTexture(textureObject->GetTexture());
+	this->hasChanges = true;
 }
 
 //------------------------------------------------------------------------------
@@ -172,29 +204,33 @@ MaterialHandler::MaterialInfo()
 /**
 */
 void
-MaterialHandler::NameChanged()
-{
-
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
 MaterialHandler::NewSurface()
 {
-	Ptr<SurfaceMaterial> mat = SurfaceMaterial::Create();
-	this->material = mat;
-}
+	if (this->hasChanges)
+	{
+		QMessageBox::StandardButton button = QMessageBox::warning(NULL, "Pending changes", "Your material has unsaved changes, are you sure you want to close it?", QMessageBox::Ok | QMessageBox::Cancel);
+		if (button == QMessageBox::Cancel)
+		{
+			return;
+		}
+	}
 
-//------------------------------------------------------------------------------
-/**
-*/
-void
-MaterialHandler::Duplicate()
-{
-	Ptr<SurfaceMaterial> mat = this->material->Clone();
-	this->material = mat;
+	// don't discard textures here, because we just need to reset this handler
+	this->textureResources.Clear();
+
+	// clear names
+	this->category.Clear();
+	this->file.Clear();
+
+	// reset name of label
+	this->ui->surfaceName->setText("<unnamed>");
+
+	// basically load placeholder, duplicate it, then clear the UI
+	if (this->managedMaterial.isvalid()) Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedMaterial.upcast<Resources::ManagedResource>());
+	this->managedMaterial = Resources::ResourceManager::Instance()->CreateManagedResource(SurfaceMaterial::RTTI, "intsur:system/placeholder.sur", NULL, true).downcast<Materials::ManagedSurfaceMaterial>();
+	this->material = this->managedMaterial->GetMaterial();
+	this->hasChanges = true;
+	this->ResetUI();	
 }
 
 //------------------------------------------------------------------------------
@@ -572,15 +608,122 @@ MaterialHandler::ChangeColor()
         diaColor.setAlpha(255);
         button->setPalette(QPalette(diaColor));
 
-        /*
-        // update variable
-        if (this->scalarVariables[i].isvalid()) this->scalarVariables[i]->SetFloat4(color);
-
-        // save change
-        this->itemHandler->OnModelModified();
-        */
         this->Float4VariableChanged(i);
     }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+MaterialHandler::Save()
+{
+	if (this->category.IsEmpty() || this->file.IsEmpty())
+	{
+		if (this->saveDialog.exec() == QDialog::Accepted)
+		{
+			this->category = this->saveDialogUi.categoryBox->currentText().toUtf8().constData();
+			this->file = this->saveDialogUi.nameEdit->text().toUtf8().constData();
+		}		
+		else
+		{
+			// just abort
+			return;
+		}
+	}
+		
+	Ptr<IO::IoServer> ioServer = IO::IoServer::Instance();
+	String resName = String::Sprintf("src:assets/%s/%s.sur", this->category.AsCharPtr(), this->file.AsCharPtr());
+	Ptr<IO::Stream> stream = ioServer->CreateStream(resName);
+
+	Ptr<StreamSurfaceMaterialSaver> saver = StreamSurfaceMaterialSaver::Create();
+	saver->SetStream(stream);
+	this->material->SetSaver(saver.upcast<Resources::ResourceSaver>());
+	if (!this->material->Save())
+	{
+		QMessageBox::critical(NULL, "Could not save surface!", "Surface could not be saved");
+	}
+	this->material->SetSaver(0);
+	QString label;
+	this->ui->surfaceName->setText(label.sprintf("%s/%s", this->category.AsCharPtr(), this->file.AsCharPtr()));
+
+	String exportTarget = String::Sprintf("sur:%s/%s.sur", this->category.AsCharPtr(), this->file.AsCharPtr());
+
+	// create directory
+	ioServer->CreateDirectory(exportTarget.ExtractToLastSlash());
+
+	// also convert it
+	Logger logger;
+	BinaryXmlConverter converter;
+	converter.ConvertFile(resName, exportTarget, logger);
+	this->hasChanges = false;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+MaterialHandler::SaveAs()
+{
+	// update UI
+	this->saveDialogUi.categoryBox->setCurrentIndex(this->saveDialogUi.categoryBox->findText(this->category.AsCharPtr()));
+	this->saveDialogUi.nameEdit->setText(this->file.AsCharPtr());
+
+	// open dialog
+	if (this->saveDialog.exec() == QDialog::Accepted)
+	{
+		this->category = this->saveDialogUi.categoryBox->currentText().toUtf8().constData();
+		this->file = this->saveDialogUi.nameEdit->text().toUtf8().constData();
+
+		Ptr<IO::IoServer> ioServer = IO::IoServer::Instance();
+		String resName = String::Sprintf("src:assets/%s/%s.sur", this->category.AsCharPtr(), this->file.AsCharPtr());
+		Ptr<IO::Stream> stream = ioServer->CreateStream(resName);
+
+		Ptr<StreamSurfaceMaterialSaver> saver = StreamSurfaceMaterialSaver::Create();
+		saver->SetStream(stream);
+		this->material->SetSaver(saver.upcast<Resources::ResourceSaver>());
+		if (!this->material->Save())
+		{
+			QMessageBox::critical(NULL, "Could not save surface!", "Surface could not be saved");
+		}
+		this->material->SetSaver(0);
+		QString label;
+		this->ui->surfaceName->setText(label.sprintf("%s/%s", this->category.AsCharPtr(), this->file.AsCharPtr()));
+
+		// also convert it
+		Logger logger;
+		BinaryXmlConverter converter;
+		converter.ConvertFile(resName, String::Sprintf("sur:%s/%s.sur", this->category.AsCharPtr(), this->file.AsCharPtr()), logger);
+		this->hasChanges = false;
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+MaterialHandler::OnNewCategory()
+{
+	QString category = QInputDialog::getText(NULL, "Create new category", "Category", QLineEdit::Normal);
+
+	// just quit if we don't have any text
+	if (category.isEmpty())
+	{
+		return;
+	}
+
+	String dir;
+	dir.Format("src:assets/%s", category.toUtf8().constData());
+	if (!IO::IoServer::Instance()->DirectoryExists(dir))
+	{
+		IO::IoServer::Instance()->CreateDirectory(dir);
+	}
+
+	// reinitialize ui
+	this->SetupSaveDialog();
+
+	// set current category
+	this->saveDialogUi.categoryBox->setCurrentIndex(this->saveDialogUi.categoryBox->findText(category));
 }
 
 //------------------------------------------------------------------------------
@@ -602,6 +745,7 @@ MaterialHandler::FloatVariableChanged(uint i)
 
     // format label as text
     String idText = label->text().toUtf8().constData();
+	this->hasChanges = true;
 }
 
 //------------------------------------------------------------------------------
@@ -624,6 +768,7 @@ MaterialHandler::Float2VariableChanged(uint i)
 
     // format label as text
     String idText = label->text().toUtf8().constData();
+	this->hasChanges = true;
 }
 
 //------------------------------------------------------------------------------
@@ -654,6 +799,7 @@ MaterialHandler::Float4VariableChanged(uint i)
 
     // format label as text
     String idText = label->text().toUtf8().constData();
+	this->hasChanges = true;
 }
 
 //------------------------------------------------------------------------------
@@ -673,6 +819,7 @@ MaterialHandler::BoolVariableChanged(uint i)
 
     // format label as text
     String idText = label->text().toUtf8().constData();
+	this->hasChanges = true;
 }
 
 //------------------------------------------------------------------------------
@@ -694,6 +841,7 @@ MaterialHandler::IntVariableChanged(uint i)
 
     // format label as text
     String idText = label->text().toUtf8().constData();
+	this->hasChanges = true;
 }
 
 //------------------------------------------------------------------------------
@@ -834,10 +982,9 @@ MaterialHandler::SetupTextureSlotHelper(QLineEdit* textureField, QPushButton* te
 /**
 */
 void
-MaterialHandler::MakeMaterialUI(QVBoxLayout* mainLayout, QLineEdit* surfaceName, QComboBox* materialBox, QPushButton* materialHelp)
+MaterialHandler::MakeMaterialUI(QLabel* surfaceName, QComboBox* materialBox, QPushButton* materialHelp)
 {
     // we need to do this, because we might use different layouts
-    this->mainLayout = mainLayout;
     this->materialBox = materialBox;
     this->materialHelp = materialHelp;
 
@@ -930,7 +1077,7 @@ MaterialHandler::MakeMaterialUI(QVBoxLayout* mainLayout, QLineEdit* surfaceName,
         varLayout->addWidget(texImg);
 
         // add layout to base layout
-        mainLayout->addLayout(varLayout);
+        this->mainLayout->addLayout(varLayout);
     }
 
     // add variables
@@ -1046,7 +1193,7 @@ MaterialHandler::MakeMaterialUI(QVBoxLayout* mainLayout, QLineEdit* surfaceName,
             if (!param.desc.IsEmpty()) group->setToolTip(param.desc.AsCharPtr());
             groupLayout->addLayout(labelLayout);
             groupLayout->addLayout(varLayout);
-            mainLayout->addWidget(group);
+			this->mainLayout->addWidget(group);
 
             // handle if we have a color edit
             if (param.editType == Material::MaterialParameter::EditColor)
@@ -1121,7 +1268,7 @@ MaterialHandler::MakeMaterialUI(QVBoxLayout* mainLayout, QLineEdit* surfaceName,
             if (!param.desc.IsEmpty()) group->setToolTip(param.desc.AsCharPtr());
             groupLayout->addLayout(labelLayout);
             groupLayout->addLayout(varLayout);
-            mainLayout->addWidget(group);
+			this->mainLayout->addWidget(group);
         }
         else if (var.GetType() == Variant::Float)
         {
@@ -1185,7 +1332,7 @@ MaterialHandler::MakeMaterialUI(QVBoxLayout* mainLayout, QLineEdit* surfaceName,
             if (!param.desc.IsEmpty()) group->setToolTip(param.desc.AsCharPtr());
             groupLayout->addLayout(labelLayout);
             groupLayout->addLayout(varLayout);
-            mainLayout->addWidget(group);
+			this->mainLayout->addWidget(group);
         }
         else if (var.GetType() == Variant::Int)
         {
@@ -1247,7 +1394,7 @@ MaterialHandler::MakeMaterialUI(QVBoxLayout* mainLayout, QLineEdit* surfaceName,
             if (!param.desc.IsEmpty()) group->setToolTip(param.desc.AsCharPtr());
             groupLayout->addLayout(labelLayout);
             groupLayout->addLayout(varLayout);
-            mainLayout->addWidget(group);
+			this->mainLayout->addWidget(group);
         }
         else if (var.GetType() == Variant::Bool)
         {
@@ -1278,12 +1425,12 @@ MaterialHandler::MakeMaterialUI(QVBoxLayout* mainLayout, QLineEdit* surfaceName,
             if (!param.desc.IsEmpty()) group->setToolTip(param.desc.AsCharPtr());
             groupLayout->addLayout(labelLayout);
             groupLayout->addLayout(varLayout);
-            mainLayout->addWidget(group);
+			this->mainLayout->addWidget(group);
         }
     }
 
     // add spacer
-    mainLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
+	this->mainLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
 }
 
 
@@ -1365,6 +1512,60 @@ MaterialHandler::ClearFrame(QLayout* layout)
             delete layout;
         }
     }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+MaterialHandler::SetupSaveDialog()
+{
+	// clear category box
+	this->saveDialogUi.categoryBox->clear();
+
+	// format string for resource folder
+	String folder = "src:assets/";
+
+	// find all categories
+	Array<String> directories = IO::IoServer::Instance()->ListDirectories(folder, "*");
+
+	// go through directories and add to category box
+	IndexT i;
+	for (i = 0; i < directories.Size(); i++)
+	{
+		this->saveDialogUi.categoryBox->addItem(directories[i].AsCharPtr());
+	}
+
+	// set active index
+	this->saveDialogUi.categoryBox->setCurrentIndex(0);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+MaterialHandler::ResetUI()
+{
+	this->textureImgMap.clear();
+	this->textureTextMap.clear();
+	this->textureLabelMap.clear();
+	this->variableLabelMap.clear();
+	this->variableSliderMap.clear();
+	this->variableFloatValueMap.clear();
+	this->variableIntValueMap.clear();
+	this->variableBoolMap.clear();
+	this->variableVectorFieldMap.clear();
+	this->variableVectorMap.clear();
+	this->lowerLimitFloatMap.clear();
+	this->upperLimitFloatMap.clear();
+	this->lowerLimitIntMap.clear();
+	this->upperLimitIntMap.clear();
+
+	// get layout
+	this->mainLayout = static_cast<QVBoxLayout*>(this->ui->variableFrame->layout());
+
+	this->ClearFrame(this->mainLayout);
+	this->MakeMaterialUI(this->ui->surfaceName, this->ui->templateBox, this->ui->materialHelp);
 }
 
 } // namespace Widgets

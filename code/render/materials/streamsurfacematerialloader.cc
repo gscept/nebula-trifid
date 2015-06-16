@@ -164,13 +164,18 @@ StreamSurfaceMaterialLoader::SetupMaterialFromStream(const Ptr<IO::Stream>& stre
         Util::StringAtom materialTemplate = reader->GetString("template");
         const Ptr<Material>& material = MaterialServer::Instance()->GetMaterialByName(materialTemplate);
         const Util::Dictionary<Util::StringAtom, Material::MaterialParameter>& parameters = material->GetParameters();
-        if (reader->SetToFirstChild("Param"))
+        if (reader->SetToFirstChild("Param")) do
         {
             Util::StringAtom paramName = reader->GetString("name");
             n_assert2(parameters.Contains(paramName), 
                 Util::String::Sprintf("No parameter matching name '%s' exists in the material template '%s'", paramName.AsString().AsCharPtr(), material->GetName().AsString().AsCharPtr()).AsCharPtr()
                 );
             const Material::MaterialParameter& param = parameters[paramName];
+
+			// skip system parameters
+			if (param.system) continue;
+
+			// set variant value which we will use in the surface constants
             Variant var = param.defaultVal;
             switch (param.defaultVal.GetType())
             {
@@ -205,7 +210,8 @@ StreamSurfaceMaterialLoader::SetupMaterialFromStream(const Ptr<IO::Stream>& stre
 
             // add to the static values in the surface
             surface->staticValues.Add(paramName, var);
-        }
+		} while (reader->SetToNextChild("Param"));
+
         surface->Setup(material);
     }
     else

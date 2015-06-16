@@ -30,6 +30,19 @@ public:
 	/// virtual discard function, implement in subclass
 	virtual void Discard();
 
+	/// set path to category folder
+	void SetPath(const Util::String& path);
+	/// get path to category folder
+	const Util::String& GetPath() const;
+	/// set category
+	void SetCategory(const Util::String& cat);
+	/// get category
+	const Util::String& GetCategory() const;
+	/// set file name
+	void SetFilename(const Util::String& file);
+	/// get file name
+	const Util::String& GetFilename() const;
+
 	/// handle mouse entering item
 	void hoverEnterEvent(QGraphicsSceneHoverEvent* event);
 	/// handle mouse leaving item
@@ -50,8 +63,65 @@ protected:
 	QGraphicsPolygonItem* background;
 	QGraphicsPixmapItem* graphics;
 	QGraphicsTextItem* label;
+
+	Util::String path;
+	Util::String category;
+	Util::String filename;
 };
 
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+TiledGraphicsItem::SetPath(const Util::String& path)
+{
+	this->path = path;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Util::String&
+TiledGraphicsItem::GetPath() const
+{
+	return this->path;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+TiledGraphicsItem::SetCategory(const Util::String& cat)
+{
+	this->category = cat;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Util::String&
+TiledGraphicsItem::GetCategory() const
+{
+	return this->category;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+TiledGraphicsItem::SetFilename(const Util::String& file)
+{
+	this->filename = file;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Util::String&
+TiledGraphicsItem::GetFilename() const
+{
+	return this->filename;
+}
 
 //------------------------------------------------------------------------------
 /**
