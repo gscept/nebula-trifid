@@ -56,6 +56,7 @@ public:
     void Apply(const Ptr<CoreGraphics::ShaderInstance>& shader);
 
 private:
+    friend class StreamSurfaceMaterialSaver;
     friend class SurfaceConstantInstance;
     friend class SurfaceMaterial;
 
@@ -64,6 +65,7 @@ private:
     /// discard constant
     void Discard();
 
+    bool system;
     Util::StringAtom name;
     Util::Variant value;
     Util::Array<Ptr<SurfaceConstantInstance>> instances;

@@ -34,7 +34,7 @@ public:
 	Ui::ParticleNodeInfoWidget* GetUi() const;
 
 	/// constructs internal structure for particle node
-	void Setup(const Util::String& material, const Util::String& resource);
+	void Setup(const Util::String& resource);
 
 	/// handle soft reset
 	virtual void SoftRefresh(const Util::String& resource);

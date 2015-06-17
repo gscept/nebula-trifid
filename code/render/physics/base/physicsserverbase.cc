@@ -5,8 +5,8 @@
 #include "stdneb.h"
 #include "physics/physicsserver.h"
 #include "resources/simpleresourcemapper.h"
-#include "physics/resource/physicsstreammeshloader.h"
-#include "physics/resource/physicsstreammodelloader.h"
+#include "physics/resource/streamphysicsmeshloader.h"
+#include "physics/resource/streamphysicsmodelloader.h"
 #include "resources/resourcemanager.h"
 #include "physics/physicsbody.h"
 #include "physics/collider.h"
@@ -113,14 +113,14 @@ BasePhysicsServer::Open()
 
 	this->meshMapper = Resources::SimpleResourceMapper::Create();	
     this->meshMapper->SetResourceClass(PhysicsMesh::RTTI);
-    this->meshMapper->SetResourceLoaderClass(PhysicsStreamMeshLoader::RTTI);
+    this->meshMapper->SetResourceLoaderClass(StreamPhysicsMeshLoader::RTTI);
     this->meshMapper->SetManagedResourceClass(ManagedPhysicsMesh::RTTI);
     this->meshMapper->SetAsyncEnabled(false);
     Resources::ResourceManager::Instance()->AttachMapper(this->meshMapper.cast<Resources::ResourceMapper>());
 
     this->modelMapper = Resources::SimpleResourceMapper::Create();
     this->modelMapper->SetResourceClass(PhysicsModel::RTTI);
-    this->modelMapper->SetResourceLoaderClass(PhysicsStreamModelLoader::RTTI);
+    this->modelMapper->SetResourceLoaderClass(StreamPhysicsModelLoader::RTTI);
     this->modelMapper->SetManagedResourceClass(ManagedPhysicsModel::RTTI);
     this->modelMapper->SetAsyncEnabled(false);
     Resources::ResourceManager::Instance()->AttachMapper(this->modelMapper.cast<Resources::ResourceMapper>());

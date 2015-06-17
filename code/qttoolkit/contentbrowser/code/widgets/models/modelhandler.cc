@@ -497,7 +497,7 @@ ModelHandler::HardRefresh()
 			nodeFrame->GetHandler()->SetType(shapeNode.type);
 			nodeFrame->GetHandler()->SetName(shapeNode.name);
 			nodeFrame->GetHandler()->SetPath(shapeNode.path);
-			nodeFrame->GetHandler()->Setup(state.material, tempResource);
+			nodeFrame->GetHandler()->Setup(tempResource);
 
 			// add frame to tab box
 			nodeWidget->addTab(nodeFrame, shapeNode.name.AsCharPtr());
@@ -552,7 +552,7 @@ ModelHandler::HardRefresh()
 			nodeFrame->GetHandler()->SetType(skin.type);
 			nodeFrame->GetHandler()->SetName(skin.name);
 			nodeFrame->GetHandler()->SetPath(skin.path);
-			nodeFrame->GetHandler()->Setup(state.material, tempResource);
+			nodeFrame->GetHandler()->Setup(tempResource);
 
 			// add frame to tab box
 			nodeWidget->addTab(nodeFrame, skin.name.AsCharPtr());
@@ -610,7 +610,7 @@ ModelHandler::HardRefresh()
 			nodeFrame->GetHandler()->SetType(particleNode.type);
 			nodeFrame->GetHandler()->SetName(particleNode.name);
 			nodeFrame->GetHandler()->SetPath(particleNode.path);
-			nodeFrame->GetHandler()->Setup(state.material, tempResource);
+			nodeFrame->GetHandler()->Setup(tempResource);
 
 			// add frame to tab box
 			nodeWidget->addTab(nodeFrame, particleNode.name.AsCharPtr());
@@ -786,7 +786,7 @@ ModelHandler::AddParticleNode()
 
 	// create state
 	State state;
-	state.material = "ParticleUnlit";
+	state.material = "sur:system/particle_unlit";
 	state.textures.Append(Texture("DiffuseMap", "tex:system/nebulalogo"));
 	state.textures.Append(Texture("NormalMap", "tex:system/nobump"));
 
@@ -1121,7 +1121,7 @@ ModelHandler::SetupTabs()
 		nodeFrame->GetHandler()->SetType(shapes[i].type);
 		nodeFrame->GetHandler()->SetName(shapes[i].name);
 		nodeFrame->GetHandler()->SetPath(shapes[i].path);
-		nodeFrame->GetHandler()->Setup(state.material, tempResource);
+		nodeFrame->GetHandler()->Setup(tempResource);
 
 		// add frame to tab box
 		nodeWidget->addTab(nodeFrame, shapes[i].name.AsCharPtr());
@@ -1177,7 +1177,7 @@ ModelHandler::SetupTabs()
 		nodeFrame->GetHandler()->SetType(skins[i].type);
 		nodeFrame->GetHandler()->SetName(skins[i].name);
 		nodeFrame->GetHandler()->SetPath(skins[i].path);
-		nodeFrame->GetHandler()->Setup(state.material, tempResource);
+		nodeFrame->GetHandler()->Setup(tempResource);
 
 		// add frame to tab box
 		nodeWidget->addTab(nodeFrame, skins[i].name.AsCharPtr());
@@ -1202,7 +1202,7 @@ ModelHandler::SetupTabs()
 		nodeFrame->GetHandler()->SetType(particleNodes[i].type);
 		nodeFrame->GetHandler()->SetName(particleNodes[i].name);
 		nodeFrame->GetHandler()->SetPath(particleNodes[i].path);
-		nodeFrame->GetHandler()->Setup(state.material, tempResource);
+		nodeFrame->GetHandler()->Setup(tempResource);
 
 		// add frame to tab box
 		nodeWidget->addTab(nodeFrame, particleNodes[i].name.AsCharPtr());

@@ -55,7 +55,7 @@ ParticleNodeHandler::~ParticleNodeHandler()
 /**
 */
 void 
-ParticleNodeHandler::Setup(const String& material, const Util::String& resource)
+ParticleNodeHandler::Setup(const Util::String& resource)
 {
 	// copy attrs
 	this->attrs = attrs;

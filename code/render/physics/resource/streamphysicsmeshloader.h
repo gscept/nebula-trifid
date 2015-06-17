@@ -16,12 +16,12 @@
 
 namespace Physics
 {
-class PhysicsStreamMeshLoader : public Resources::StreamResourceLoader
+class StreamPhysicsMeshLoader : public Resources::StreamResourceLoader
 {
-    __DeclareClass(PhysicsStreamMeshLoader);
+    __DeclareClass(StreamPhysicsMeshLoader);
 public:
     /// constructor
-    PhysicsStreamMeshLoader();    
+    StreamPhysicsMeshLoader();    
 
 	virtual bool SetupResourceFromStream(const Ptr<IO::Stream>& stream);
 private:

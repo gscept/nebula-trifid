@@ -47,6 +47,10 @@ StreamSurfaceMaterialSaver::OnSave()
 				for (i = 0; i < sur->constantsByName.Size(); i++)
 				{
 					const Util::KeyValuePair<Util::StringAtom, Ptr<Materials::SurfaceConstant>>& pair = sur->constantsByName.KeyValuePairAtIndex(i);
+
+                    // don't save system variables
+                    if (pair.Value()->system) continue;
+
 					writer->BeginNode("Param");
 						writer->SetString("name", pair.Key().AsString());
 						const Util::Variant& val = pair.Value()->GetValue();

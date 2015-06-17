@@ -172,9 +172,6 @@ StreamSurfaceMaterialLoader::SetupMaterialFromStream(const Ptr<IO::Stream>& stre
                 );
             const Material::MaterialParameter& param = parameters[paramName];
 
-			// skip system parameters
-			if (param.system) continue;
-
 			// set variant value which we will use in the surface constants
             Variant var = param.defaultVal;
             switch (param.defaultVal.GetType())

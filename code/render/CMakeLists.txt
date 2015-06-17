@@ -1426,8 +1426,8 @@ ENDIF()
 	)
 
     set(SOURCES_files_physics_resource
-		physics/resource/physicsstreammeshloader.h
-		physics/resource/physicsstreammeshloader.cc
+		physics/resource/streamphysicsmeshloader.h
+		physics/resource/streamphysicsmeshloader.cc
 		physics/resource/physicsmesh.h
 		physics/resource/physicsmesh.cc
 		physics/resource/physicsmeshbase.h
@@ -1438,8 +1438,8 @@ ENDIF()
 		physics/resource/managedphysicsmodel.cc
 		physics/model/physicsmodel.h
 		physics/model/physicsmodel.cc
-		physics/resource/physicsstreammodelloader.h
-		physics/resource/physicsstreammodelloader.cc
+		physics/resource/streamphysicsmodelloader.h
+		physics/resource/streamphysicsmodelloader.cc
 	)
 
     set(SOURCES_files_physics_base

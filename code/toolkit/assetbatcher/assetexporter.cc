@@ -121,7 +121,7 @@ AssetExporter::ExportDir(const Util::String& category)
             String modelPath = String::Sprintf("mdl:%s.n3", modelName.AsCharPtr());
             this->modelBuilder->SaveN3(modelPath, this->platform);
             String physicsPath = String::Sprintf("phys:%s.np3", modelName.AsCharPtr());
-            this->modelBuilder->SaveN3(physicsPath, this->platform);
+            this->modelBuilder->SaveN3Physics(physicsPath, this->platform);
         }
     }
 

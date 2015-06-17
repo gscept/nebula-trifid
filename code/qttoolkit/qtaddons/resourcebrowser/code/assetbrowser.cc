@@ -12,6 +12,7 @@
 #include "tiledmodelitem.h"
 #include "tiledsurfaceitem.h"
 
+#include <QMenu>
 using namespace Util;
 using namespace IO;
 namespace ResourceBrowser
@@ -33,7 +34,11 @@ AssetBrowser::AssetBrowser() :
 	connect(this->ui->backButton, SIGNAL(pressed()), this, SLOT(OnBack()));
 	this->shortcut = new QShortcut(QKeySequence(Qt::Key_Backspace), this);
 	connect(this->shortcut, SIGNAL(activated()), this->ui->backButton, SLOT(animateClick()));
-	//connect(this->ui->actionBack, SIGNAL(triggered()), this, SLOT(OnBack()));
+
+    connect(this->ui->texturesFilter, SIGNAL(toggled(bool)), this, SLOT(OnTexturesFilterChecked(bool)));
+    connect(this->ui->modelsFilter, SIGNAL(toggled(bool)), this, SLOT(OnModelsFilterChecked(bool)));
+    connect(this->ui->surfacesFilter, SIGNAL(toggled(bool)), this, SLOT(OnSurfacesFilterChecked(bool)));
+
 	__ConstructSingleton;
 }
 
@@ -133,82 +138,72 @@ AssetBrowser::OnDirectoryClicked(const QString& dir, const QString& path)
     String assetPath = basePath + "/" + category;
 	Array<String> files;
 
-	if (this->filter & Textures)
+	files = ioServer->ListFiles(assetPath, "*.tga");
+	files.AppendArray(ioServer->ListFiles(assetPath, "*.bmp"));
+	files.AppendArray(ioServer->ListFiles(assetPath, "*.dds"));
+	files.AppendArray(ioServer->ListFiles(assetPath, "*.psd"));
+	files.AppendArray(ioServer->ListFiles(assetPath, "*.png"));
+	files.AppendArray(ioServer->ListFiles(assetPath, "*.jpg"));
+
+	IndexT i;
+	for (i = 0; i < files.Size(); i++)
 	{
-		files = ioServer->ListFiles(assetPath, "*.tga");
-		files.AppendArray(ioServer->ListFiles(assetPath, "*.bmp"));
-		files.AppendArray(ioServer->ListFiles(assetPath, "*.dds"));
-		files.AppendArray(ioServer->ListFiles(assetPath, "*.psd"));
-		files.AppendArray(ioServer->ListFiles(assetPath, "*.png"));
-		files.AppendArray(ioServer->ListFiles(assetPath, "*.jpg"));
+		const String& file = files[i];
+		String textureFile = assetPath + "/" + file;
 
-		IndexT i;
-		for (i = 0; i < files.Size(); i++)
-		{
-			const String& file = files[i];
-			String textureFile = assetPath + "/" + file;
+		// create new texture item
+		TiledTextureItem* item = new TiledTextureItem;
+		item->SetPath(basePath);
+		item->SetCategory(category);
+		item->SetFilename(file);
 
-			// create new texture item
-			TiledTextureItem* item = new TiledTextureItem;
-			item->SetPath(basePath);
-			item->SetCategory(category);
-			item->SetFilename(file);
+		// add to ui
+        item->setVisible(this->filter & Textures);
+		this->ui->assetView->AddTiledItem(item);
 
-			// add to ui
-			this->ui->assetView->AddTiledItem(item);
-
-			// connect with browser to handle directory navigation
-			connect(item, SIGNAL(OnSelected(const QString&)), this, SLOT(OnTextureClicked(const QString&)));
-			connect(item, SIGNAL(ItemRightClicked(QGraphicsSceneContextMenuEvent*)), this, SLOT(OnItemRightClicked(QGraphicsSceneContextMenuEvent*)));
-		}
+		// connect with browser to handle directory navigation
+		connect(item, SIGNAL(OnSelected(const QString&)), this, SLOT(OnTextureClicked(const QString&)));
+		connect(item, SIGNAL(ItemRightClicked(QGraphicsSceneContextMenuEvent*)), this, SLOT(OnItemRightClicked(QGraphicsSceneContextMenuEvent*)));
 	}
 
-	if (this->filter & Models)
+	files = ioServer->ListFiles(assetPath, "*.fbx");
+	for (i = 0; i < files.Size(); i++)
 	{
-		files = ioServer->ListFiles(assetPath, "*.fbx");
+		const String& file = files[i];
 
-		IndexT i;
-		for (i = 0; i < files.Size(); i++)
-		{
-			const String& file = files[i];
+		// create new texture item
+		TiledModelItem* item = new TiledModelItem;
+		item->SetPath(basePath);
+		item->SetCategory(category);
+		item->SetFilename(file);
 
-			// create new texture item
-			TiledModelItem* item = new TiledModelItem;
-			item->SetPath(basePath);
-			item->SetCategory(category);
-			item->SetFilename(file);
+		// add to ui
+        item->setVisible(this->filter & Models);
+		this->ui->assetView->AddTiledItem(item);
 
-			// add to ui
-			this->ui->assetView->AddTiledItem(item);
-
-			// connect with browser to handle directory navigation
-			connect(item, SIGNAL(OnSelected(const QString&)), this, SLOT(OnModelClicked(const QString&)));
-			connect(item, SIGNAL(ItemRightClicked(QGraphicsSceneContextMenuEvent*)), this, SLOT(OnItemRightClicked(QGraphicsSceneContextMenuEvent*)));
-		}
+		// connect with browser to handle directory navigation
+		connect(item, SIGNAL(OnSelected(const QString&)), this, SLOT(OnModelClicked(const QString&)));
+		connect(item, SIGNAL(ItemRightClicked(QGraphicsSceneContextMenuEvent*)), this, SLOT(OnItemRightClicked(QGraphicsSceneContextMenuEvent*)));
 	}
 
-	if (this->filter & Surfaces)
+	files = ioServer->ListFiles(assetPath, "*.sur");
+	for (i = 0; i < files.Size(); i++)
 	{
-		files = ioServer->ListFiles(assetPath, "*.sur");
+		const String& file = files[i];
 
-		IndexT i;
-		for (i = 0; i < files.Size(); i++)
-		{
-			const String& file = files[i];
+		// create new texture item
+		TiledSurfaceItem* item = new TiledSurfaceItem;
+		item->SetPath(basePath);
+		item->SetCategory(category);
+		item->SetFilename(file);
 
-			// create new texture item
-			TiledSurfaceItem* item = new TiledSurfaceItem;
-			item->SetPath(basePath);
-			item->SetCategory(category);
-			item->SetFilename(file);
+		// add to ui
+        item->setVisible(this->filter & Surfaces);
+		this->ui->assetView->AddTiledItem(item);
 
-			// add to ui
-			this->ui->assetView->AddTiledItem(item);
-
-			// connect with browser to handle directory navigation
-            connect(item, SIGNAL(OnSelected(const QString&)), this, SLOT(OnSurfaceClicked(const QString&)));
-			connect(item, SIGNAL(ItemRightClicked(QGraphicsSceneContextMenuEvent*)), this, SLOT(OnItemRightClicked(QGraphicsSceneContextMenuEvent*)));
-		}
+		// connect with browser to handle directory navigation
+        connect(item, SIGNAL(OnSelected(const QString&)), this, SLOT(OnSurfaceClicked(const QString&)));
+		connect(item, SIGNAL(ItemRightClicked(QGraphicsSceneContextMenuEvent*)), this, SLOT(OnItemRightClicked(QGraphicsSceneContextMenuEvent*)));
 	}
 
 
@@ -297,6 +292,33 @@ AssetBrowser::OnItemRightClicked(QGraphicsSceneContextMenuEvent* event)
 /**
 */
 void
+AssetBrowser::OnTexturesFilterChecked(bool b)
+{
+    this->SetFilter(AssetFilter(b ? this->filter | Textures : this->filter &~ Textures));
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+AssetBrowser::OnModelsFilterChecked(bool b)
+{
+    this->SetFilter(AssetFilter(b ? this->filter | Models : this->filter &~ Models));
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+AssetBrowser::OnSurfacesFilterChecked(bool b)
+{
+    this->SetFilter(AssetFilter(b ? this->filter | Surfaces : this->filter &~ Surfaces));
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 AssetBrowser::SetupRoot()
 {
 	// clear first
@@ -358,9 +380,26 @@ AssetBrowser::SetFilter(const AssetFilter& filter)
 	// if the filter doesn't match, set this as our new filter and reset the browser
 	if (this->filter != filter)
 	{
+        const QList<TiledGraphicsItem*>& items = this->ui->assetView->GetItems();
+        IndexT i;
+        for (i = 0; i < items.size(); i++)
+        {
+            TiledGraphicsItem* item = items[i];
+            if (dynamic_cast<TiledTextureItem*>(item))
+            {
+                item->setVisible(filter & Textures);
+            }
+            else if (dynamic_cast<TiledModelItem*>(item))
+            {
+                item->setVisible(filter & Models);
+            }
+            else if (dynamic_cast<TiledSurfaceItem*>(item))
+            {
+                item->setVisible(filter & Surfaces);
+            }
+        }
+        this->ui->assetView->Rearrange();
 		this->filter = filter;
-		AssetBrowser::loaderThread->Clear();
-		this->SetupRoot();
 	}	
 }
 
@@ -372,5 +411,6 @@ AssetBrowser::RemoveItem(TiledGraphicsItem* item)
 {
 	this->ui->assetView->RemoveTiledItem(item);
 }
+
 
 } // namespace ResourceBrowser

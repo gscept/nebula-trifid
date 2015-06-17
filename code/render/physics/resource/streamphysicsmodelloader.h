@@ -14,12 +14,12 @@
 
 namespace Physics
 {
-class PhysicsStreamModelLoader : public Resources::StreamResourceLoader
+class StreamPhysicsModelLoader : public Resources::StreamResourceLoader
 {
-    __DeclareClass(PhysicsStreamModelLoader);
+    __DeclareClass(StreamPhysicsModelLoader);
 public:
     /// constructor
-    PhysicsStreamModelLoader();    
+    StreamPhysicsModelLoader();    
 
 	/// setup physics model from stream
 	virtual bool SetupResourceFromStream(const Ptr<IO::Stream>& stream);

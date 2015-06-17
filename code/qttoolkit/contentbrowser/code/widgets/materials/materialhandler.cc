@@ -81,6 +81,11 @@ MaterialHandler::Setup(const QString& resource)
     this->lowerLimitIntMap.clear();
     this->upperLimitIntMap.clear();
 
+    // enable the elements which are only viable if we are working on a surface
+    this->ui->templateBox->setEnabled(true);
+    this->ui->saveButton->setEnabled(true);
+    this->ui->saveAsButton->setEnabled(true);
+
 	// get components of resource
 	String res = resource.toUtf8().constData();
 	res.StripAssignPrefix();
@@ -109,7 +114,7 @@ MaterialHandler::Discard()
 {
 	if (this->hasChanges)
 	{
-		QMessageBox::StandardButton button = QMessageBox::warning(NULL, "Pending changes", "Your material has unsaved changes, are you sure you want to close it?", QMessageBox::Ok | QMessageBox::Cancel);
+		QMessageBox::StandardButton button = QMessageBox::warning(NULL, "Pending changes", "Your material has unsaved changes, are you sure you want to close it?", QMessageBox::Ok | QMessageBox::No);
 		if (button == QMessageBox::Cancel)
 		{
 			return false;
@@ -122,6 +127,8 @@ MaterialHandler::Discard()
 		Resources::ResourceManager::Instance()->DiscardManagedResource(this->textureResources.ValueAtIndex(i).upcast<Resources::ManagedResource>());
 	}
 	this->textureResources.Clear();
+    this->textureVariables.Clear();
+    this->scalarVariables.Clear();
 	Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedMaterial.upcast<Resources::ManagedResource>());
 	this->managedMaterial = 0;
 	this->material = 0;
@@ -152,9 +159,6 @@ MaterialHandler::TextureChanged(uint i)
 
     // setup texture
     this->SetupTextureSlotHelper(item, img, valueText, this->defaultTextureMap[i].toUtf8().constData());
-
-    // remove eventual file extension
-    //valueText.StripFileExtension();
 
     // allocate texture
     Ptr<Resources::ManagedTexture> textureObject = Resources::ResourceManager::Instance()->CreateManagedResource(CoreGraphics::Texture::RTTI, valueText, NULL, true).downcast<Resources::ManagedTexture>();
@@ -534,9 +538,6 @@ MaterialHandler::Browse()
     // get line edit
     QLineEdit* text = this->textureTextMap.key(this->textureImgMap[button]);
     QLabel* name = this->textureLabelMap.key(this->textureImgMap[button]);
-
-    // create string for textures
-    IO::URI tex("tex:");
 
     // pick a texture
     int res = ResourceBrowser::AssetBrowser::Instance()->Execute("Assign to: " + name->text(), ResourceBrowser::AssetBrowser::Textures);

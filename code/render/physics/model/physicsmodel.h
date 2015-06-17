@@ -38,7 +38,7 @@ public:
     const Util::HashTable<Util::String, Ptr<Physics::Collider>> & GetColliders();
 	
 protected:
-    friend class PhysicsStreamModelLoader;
+    friend class StreamPhysicsModelLoader;
     Util::String name;
     Util::HashTable<Util::String, Ptr<Physics::Collider>> colliders;
     Util::Array<PhysicsCommon> objects;

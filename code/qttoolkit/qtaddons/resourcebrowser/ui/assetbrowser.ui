@@ -25,25 +25,18 @@
    <string>Asset browser</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="4">
-    <widget class="QCheckBox" name="checkBox_2">
+   <item row="0" column="1" colspan="2">
+    <widget class="QCheckBox" name="texturesFilter">
      <property name="text">
-      <string>Surfaces</string>
+      <string>Textures</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
-   <item row="6" column="0">
-    <widget class="QPushButton" name="importButton">
-     <property name="text">
-      <string>Import...</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="0" colspan="6">
-    <widget class="ResourceBrowser::TiledGraphicsView" name="assetView"/>
-   </item>
-   <item row="6" column="2" colspan="4">
-    <spacer name="horizontalSpacer">
+   <item row="0" column="5">
+    <spacer name="horizontalSpacer_2">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
@@ -54,6 +47,50 @@
       </size>
      </property>
     </spacer>
+   </item>
+   <item row="5" column="0" colspan="6">
+    <widget class="ResourceBrowser::TiledGraphicsView" name="assetView"/>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
+     <property name="font">
+      <font>
+       <pointsize>12</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Filters</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="6">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="3">
+    <widget class="QCheckBox" name="modelsFilter">
+     <property name="text">
+      <string>Models</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="4">
+    <widget class="QCheckBox" name="surfacesFilter">
+     <property name="text">
+      <string>Surfaces</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item row="3" column="0" colspan="6">
     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0">
@@ -99,61 +136,6 @@
       </widget>
      </item>
     </layout>
-   </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="label">
-     <property name="font">
-      <font>
-       <pointsize>12</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Filters</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0" colspan="6">
-    <widget class="Line" name="line">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="3">
-    <widget class="QCheckBox" name="checkBox">
-     <property name="text">
-      <string>Models</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="5">
-    <spacer name="horizontalSpacer_2">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>40</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="6" column="1">
-    <widget class="QPushButton" name="pushButton">
-     <property name="text">
-      <string>New...</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="1" colspan="2">
-    <widget class="QCheckBox" name="checkBox_3">
-     <property name="text">
-      <string>Textures</string>
-     </property>
-    </widget>
    </item>
   </layout>
  </widget>

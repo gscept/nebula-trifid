@@ -117,6 +117,7 @@ SurfaceMaterial::Setup(const Ptr<Material>& material)
         // setup constant
         constant->SetValue(val);
         constant->Setup(paramName, shaders);
+        constant->system = param.system;
 
         // add constants to variable lists
         this->constants.Append(constant);

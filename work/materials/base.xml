@@ -503,6 +503,8 @@
  
   
   <Material name="Particle" virtual="true" desc="Base material for particles">
+   <Param name="DiffuseMap" type="string" defaultValue="tex:system/placeholder.dds"/>
+  
    <!-- system variables -->
    <Param name="EmitterTransform" type="matrix44" system="true" defaultValue="1.0f, 0.0f, 0.0f, 0.0f, 
 																			  0.0f, 1.0f, 0.0f, 0.0f, 
@@ -517,14 +519,12 @@
   
   <Material name="ParticleUnlit" type="particle" inherits="Particle" desc="Standard unlit particle material.">
    <Pass batch="ParticleUnlit" shader="particle" variation="Unlit"/>
-   <Param name="DiffuseMap" type="string" defaultValue="tex:system/placeholder.dds"/>
    
    <Param name="ObjectId" type="int" system="true"/>
   </Material>
   
   <Material name="ParticleUnlitAdditive" type="particle" inherits="Particle" desc="Standard unlit particle material.">
    <Pass batch="ParticleUnlit" shader="particle" variation="Unlit|Alt0"/>
-   <Param name="DiffuseMap" type="string" defaultValue="tex:system/placeholder.dds"/>
    
    <Param name="ObjectId" type="int" system="true"/>
   </Material>

@@ -18,6 +18,7 @@
 #include "materials/material.h"
 #include "models/nodes/statenodeinstance.h"
 #include "resources/managedtexture.h"
+#include "materials/managedsurfacematerial.h"
 
 namespace Widgets
 {
@@ -48,6 +49,9 @@ public:
     /// handle soft reset
     virtual void SoftRefresh(const Util::String& resource);
 
+    /// assign surface to state node instance
+    void SetSurface(const Util::String& sur);
+
 	/// sets the node name of the handler
 	void SetName(const Util::String& name);
 	/// gets the node name of the handler
@@ -62,11 +66,18 @@ public:
 	const Util::String& GetType() const;
 
 	/// constructs the internal structure for the model node item
-	virtual void Setup(const Util::String& material, const Util::String& resource);
-	
-	/// discards a model node handler
-	void Discard();
+	virtual void Setup(const Util::String& resource);
+    /// discards a model node handler
+    void Discard();
 
+private slots:
+    /// browse surface material
+    void Browse();
+
+protected:
+
+    /// update surface thumbnail icon
+    void UpdateSurfaceThumbnail();
 	/// clears layout recursively
 	void ClearFrame(QLayout* layout);
 
@@ -81,7 +92,7 @@ public:
 
 	Ui::ModelNodeInfoWidget* ui;
 	Ptr<ModelHandler> itemHandler;
-	ToolkitUtil::State state;
+    Ptr<Materials::ManagedSurfaceMaterial> managedMaterial;
 }; 
 
 //------------------------------------------------------------------------------

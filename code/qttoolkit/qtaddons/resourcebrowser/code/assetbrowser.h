@@ -13,6 +13,7 @@
 #include <QGraphicsPixmapItem>
 #include <QList>
 #include <QShortcut>
+#include <QMenuBar>
 #include "core/refcounted.h"
 #include "core/singleton.h"
 #include "imageloaderthread.h"
@@ -84,6 +85,13 @@ private slots:
 	/// handle whenever an item gets right clicked
 	void OnItemRightClicked(QGraphicsSceneContextMenuEvent* event);
 
+    /// handle the textures filter checkbox
+    void OnTexturesFilterChecked(bool b);
+    /// handle the models filter checkbox
+    void OnModelsFilterChecked(bool b);
+    /// handle the surfaces filter checkbox
+    void OnSurfacesFilterChecked(bool b);
+
 signals:
     /// signal emitted when a texture is selected, only happens if browser is not opened through Execute
     void TextureSelected(const QString& tex);
@@ -113,6 +121,7 @@ private:
 	Ui::AssetBrowser* ui;
 	QGraphicsGridLayout* layout;
 	QShortcut* shortcut;
+    QMenuBar menubar;
 	QList<QGraphicsPixmapItem*> items;
 };
 

@@ -3,13 +3,13 @@
 //  (C) 2012-2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "physics/resource/physicsstreammeshloader.h"
+#include "physics/resource/streamphysicsmeshloader.h"
 #include "physics/resource/physicsmesh.h"
 #include "coregraphics/legacy/nvx2streamreader.h"
 
 namespace Physics
 {
-__ImplementClass(Physics::PhysicsStreamMeshLoader, 'PHML', Resources::StreamResourceLoader);
+__ImplementClass(Physics::StreamPhysicsMeshLoader, 'PHML', Resources::StreamResourceLoader);
 
 using namespace IO;
 using namespace CoreGraphics;
@@ -18,7 +18,7 @@ using namespace Util;
 //------------------------------------------------------------------------------
 /**
 */
-PhysicsStreamMeshLoader::PhysicsStreamMeshLoader()
+StreamPhysicsMeshLoader::StreamPhysicsMeshLoader()
 {
     // empty
 }
@@ -28,7 +28,7 @@ PhysicsStreamMeshLoader::PhysicsStreamMeshLoader()
     Setup the mesh resource from legacy nvx2 file (Nebula2 binary mesh format).
 */
 bool
-PhysicsStreamMeshLoader::SetupResourceFromStream(const Ptr<Stream>& stream)
+StreamPhysicsMeshLoader::SetupResourceFromStream(const Ptr<Stream>& stream)
 {
     n_assert(stream.isvalid());    
     Ptr<Legacy::Nvx2StreamReader> nvx2Reader = Legacy::Nvx2StreamReader::Create();

@@ -16,7 +16,8 @@ __ImplementClass(Materials::SurfaceConstant, 'SUCO', Core::RefCounted);
 //------------------------------------------------------------------------------
 /**
 */
-SurfaceConstant::SurfaceConstant()
+SurfaceConstant::SurfaceConstant() :
+    system(false)
 {
 	// empty
 }

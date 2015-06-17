@@ -3,7 +3,7 @@
 //  (C) 2012-2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "physics/resource/physicsstreammodelloader.h"
+#include "physics/resource/streamphysicsmodelloader.h"
 #include "physics/model/physicsmodel.h"
 #include "io/xmlreader.h"
 #include "resources/resourcemanager.h"
@@ -13,7 +13,7 @@
 
 namespace Physics
 {
-__ImplementClass(Physics::PhysicsStreamModelLoader, 'PSML', Resources::StreamResourceLoader);
+__ImplementClass(Physics::StreamPhysicsModelLoader, 'PSML', Resources::StreamResourceLoader);
 
 using namespace IO;
 using namespace Util;
@@ -22,7 +22,7 @@ using namespace Math;
 //------------------------------------------------------------------------------
 /**
 */
-PhysicsStreamModelLoader::PhysicsStreamModelLoader()
+StreamPhysicsModelLoader::StreamPhysicsModelLoader()
 {
     // empty
 }
@@ -32,7 +32,7 @@ PhysicsStreamModelLoader::PhysicsStreamModelLoader()
     Setup the mesh resource from legacy nvx2 file (Nebula2 binary mesh format).
 */
 bool
-PhysicsStreamModelLoader::SetupResourceFromStream(const Ptr<Stream>& stream)
+StreamPhysicsModelLoader::SetupResourceFromStream(const Ptr<Stream>& stream)
 {
 	n_assert(stream.isvalid());
 	n_assert(stream->CanBeMapped());
@@ -111,7 +111,7 @@ return true;
 /**
 */
 void 
-PhysicsStreamModelLoader::ParseData(const Ptr<Physics::PhysicsModel>& model,const Util::String & name, const Ptr<IO::BinaryReader> & reader)
+StreamPhysicsModelLoader::ParseData(const Ptr<Physics::PhysicsModel>& model,const Util::String & name, const Ptr<IO::BinaryReader> & reader)
 {
 	bool done = false;
 	while ((!reader->Eof()) && (!done))
@@ -159,7 +159,7 @@ PhysicsStreamModelLoader::ParseData(const Ptr<Physics::PhysicsModel>& model,cons
 /**
 */
 void 
-PhysicsStreamModelLoader::ParseCollider(const Ptr<Physics::PhysicsModel>& model,const Util::String& name, const Ptr<IO::BinaryReader> & reader)
+StreamPhysicsModelLoader::ParseCollider(const Ptr<Physics::PhysicsModel>& model,const Util::String& name, const Ptr<IO::BinaryReader> & reader)
 {
 	FourCC co = FourCC(reader->ReadUInt());
 	Ptr<Collider> pcoll;
@@ -224,7 +224,7 @@ PhysicsStreamModelLoader::ParseCollider(const Ptr<Physics::PhysicsModel>& model,
 /**
 */
 void
-PhysicsStreamModelLoader::ParsePhysicsObject(const Ptr<Physics::PhysicsModel>& model,const Ptr<IO::BinaryReader> & reader)
+StreamPhysicsModelLoader::ParsePhysicsObject(const Ptr<Physics::PhysicsModel>& model,const Ptr<IO::BinaryReader> & reader)
 {
 	PhysicsCommon newObj;
 	newObj.type = FourCC(reader->ReadString());
@@ -245,7 +245,7 @@ PhysicsStreamModelLoader::ParsePhysicsObject(const Ptr<Physics::PhysicsModel>& m
 /**
 */
 void 
-PhysicsStreamModelLoader::ParseJoint(const Ptr<Physics::PhysicsModel>& model, const Ptr<IO::BinaryReader> & reader)
+StreamPhysicsModelLoader::ParseJoint(const Ptr<Physics::PhysicsModel>& model, const Ptr<IO::BinaryReader> & reader)
 {
 
 }

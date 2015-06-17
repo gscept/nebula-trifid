@@ -166,6 +166,9 @@ ContentBrowserWindow::ContentBrowserWindow() :
     // setup material UI
     this->materialHandler->SetUI(&this->materialInfoUi);
 
+    // setup model UI
+    this->modelHandler->SetUI(&this->modelInfoUi);
+
 	// create and setup progress reporter
 	this->progressReporter = ProgressReporter::Create();
 	this->progressReporter->Open();
@@ -2245,7 +2248,7 @@ ContentBrowserWindow::OnCreateParticleEffect()
 
 		// create state
 		State state;
-		state.material = "ParticleUnlit";
+		state.material = "sur:system/particle_unlit";
 		state.textures.Append(Texture("DiffuseMap", "tex:system/nebulalogo"));
 		state.textures.Append(Texture("NormalMap", "tex:system/nobump"));
 
