@@ -422,6 +422,7 @@ ModelHandler::Mute()
 void
 ModelHandler::HardRefresh()
 {
+	/*
 	// format internal model name
 	String tempResource;
 	tempResource.Format("int:models/%s/%s_temp.n3", this->category.AsCharPtr(), this->model.AsCharPtr());
@@ -459,7 +460,7 @@ ModelHandler::HardRefresh()
 		for (j = 0; j < this->nodeFrames.Size(); j++)
 		{
 			// get node frame
-			Ptr<ModelNodeHandler> nodeHandler = this->nodeFrames[j]->GetHandler();
+			Ptr<ModelNodeHandler> nodeHandler = this->nodeFrames[j]->GetModelHandler();
 			if (nodeHandler->GetPath() == shapeNode.path)
 			{
 				// get state
@@ -493,11 +494,11 @@ ModelHandler::HardRefresh()
 			const State& state = this->attributes->GetState(shapeNode.path);
 
 			// setup handler
-			nodeFrame->GetHandler()->SetModelHandler(this);
-			nodeFrame->GetHandler()->SetType(shapeNode.type);
-			nodeFrame->GetHandler()->SetName(shapeNode.name);
-			nodeFrame->GetHandler()->SetPath(shapeNode.path);
-			nodeFrame->GetHandler()->Setup(tempResource);
+			nodeFrame->GetModelHandler()->SetModelHandler(this);
+			nodeFrame->GetModelHandler()->SetType(shapeNode.type);
+			nodeFrame->GetModelHandler()->SetName(shapeNode.name);
+			nodeFrame->GetModelHandler()->SetPath(shapeNode.path);
+			nodeFrame->GetModelHandler()->Setup(tempResource);
 
 			// add frame to tab box
 			nodeWidget->addTab(nodeFrame, shapeNode.name.AsCharPtr());
@@ -514,7 +515,7 @@ ModelHandler::HardRefresh()
 		for (j = 0; j < this->nodeFrames.Size(); j++)
 		{
 			// get node frame
-			Ptr<ModelNodeHandler> nodeHandler = this->nodeFrames[j]->GetHandler();
+			Ptr<ModelNodeHandler> nodeHandler = this->nodeFrames[j]->GetModelHandler();
 			if (nodeHandler->GetPath() == skin.path)
 			{
 				// get state
@@ -548,11 +549,11 @@ ModelHandler::HardRefresh()
 			const State& state = this->attributes->GetState(skin.path);
 
 			// setup handler
-			nodeFrame->GetHandler()->SetModelHandler(this);
-			nodeFrame->GetHandler()->SetType(skin.type);
-			nodeFrame->GetHandler()->SetName(skin.name);
-			nodeFrame->GetHandler()->SetPath(skin.path);
-			nodeFrame->GetHandler()->Setup(tempResource);
+			nodeFrame->GetModelHandler()->SetModelHandler(this);
+			nodeFrame->GetModelHandler()->SetType(skin.type);
+			nodeFrame->GetModelHandler()->SetName(skin.name);
+			nodeFrame->GetModelHandler()->SetPath(skin.path);
+			nodeFrame->GetModelHandler()->Setup(tempResource);
 
 			// add frame to tab box
 			nodeWidget->addTab(nodeFrame, skin.name.AsCharPtr());
@@ -621,7 +622,7 @@ ModelHandler::HardRefresh()
 	for (i = 0; i < this->nodeFrames.Size(); i++)
 	{
 		// get node frame
-		Ptr<ModelNodeHandler> nodeHandler = this->nodeFrames[i]->GetHandler();
+		Ptr<ModelNodeHandler> nodeHandler = this->nodeFrames[i]->GetModelHandler();
 
 		// get state
 		const State& state = this->attributes->GetState(nodeHandler->GetPath());
@@ -656,6 +657,7 @@ ModelHandler::HardRefresh()
 			this->particleFrames.EraseIndex(i--);
 		}
 	}
+	*/
 }
 
 //------------------------------------------------------------------------------
@@ -664,6 +666,7 @@ ModelHandler::HardRefresh()
 void
 ModelHandler::SoftRefresh()
 {
+	/*
 	// format internal model name
 	String tempResource;
 	tempResource.Format("int:models/%s/%s_temp.n3", this->category.AsCharPtr(), this->model.AsCharPtr());
@@ -673,7 +676,7 @@ ModelHandler::SoftRefresh()
 	for (i = 0; i < this->nodeFrames.Size(); i++)
 	{
 		// get node frame
-		Ptr<ModelNodeHandler> nodeHandler = this->nodeFrames[i]->GetHandler();
+		Ptr<ModelNodeHandler> nodeHandler = this->nodeFrames[i]->GetModelHandler();
 
 		// get state
 		const State& state = this->attributes->GetState(nodeHandler->GetPath());
@@ -706,6 +709,7 @@ ModelHandler::SoftRefresh()
 		// prepare for update
 		this->particleFrames[i]->setUpdatesEnabled(true);
 	}
+	*/
 }
 
 //------------------------------------------------------------------------------
@@ -1105,32 +1109,28 @@ ModelHandler::SetupTabs()
 	// get list of shapes
 	const Array<ModelConstants::ShapeNode>& shapes = this->constants->GetShapeNodes();
 
-	// iterate over shapes and create frames
-	IndexT i;
-	for (i = 0; i < shapes.Size(); i++)
+	if (shapes.Size() > 0)
 	{
 		// create new frame
 		ModelNodeFrame* nodeFrame = new ModelNodeFrame;
+		nodeFrame->SetModelHandler(this);
 		this->nodeFrames.Append(nodeFrame);
+		nodeWidget->addTab(nodeFrame, "Nodes");
 
-		// get state
-		const State& state = this->attributes->GetState(shapes[i].path);
-
-		// setup handler
-		nodeFrame->GetHandler()->SetModelHandler(this);
-		nodeFrame->GetHandler()->SetType(shapes[i].type);
-		nodeFrame->GetHandler()->SetName(shapes[i].name);
-		nodeFrame->GetHandler()->SetPath(shapes[i].path);
-		nodeFrame->GetHandler()->Setup(tempResource);
-
-		// add frame to tab box
-		nodeWidget->addTab(nodeFrame, shapes[i].name.AsCharPtr());
+		// iterate over shapes and add them to the model node frame
+		IndexT i;
+		for (i = 0; i < shapes.Size(); i++)
+		{
+			nodeFrame->AddModelNode(shapes[i].type, shapes[i].name, shapes[i].path, tempResource);
+		}
 	}
+
 
 	// get list of characters
 	const Array<ModelConstants::CharacterNode>& characters = this->constants->GetCharacterNodes();
 
 	// iterate over shapes and create frames
+	IndexT i;
 	for (i = 0; i < characters.Size(); i++)
 	{
 		CharacterNodeFrame* nodeFrame = new CharacterNodeFrame;
@@ -1150,37 +1150,26 @@ ModelHandler::SetupTabs()
 	// get list of all skins
 	const Array<ModelConstants::Skin>& skins = this->constants->GetSkins();
 
-	// iterate over shapes and create frames
-	for (i = 0; i < skins.Size(); i++)
+	if (skins.Size() > 0)
 	{
 		// create new frame
 		ModelNodeFrame* nodeFrame = new ModelNodeFrame;
+		nodeFrame->SetModelHandler(this);
 		this->nodeFrames.Append(nodeFrame);
+		nodeWidget->addTab(nodeFrame, "Nodes");
 
-		// skip skin if it contains no fragments
-		if (skins[i].skinFragments.IsEmpty())
+		// iterate over shapes and add them to the model node frame
+		IndexT i;
+		for (i = 0; i < skins.Size(); i++)
 		{
-			continue;
+			// skip skins without fragments
+			if (skins[i].skinFragments.IsEmpty())
+			{
+				continue;
+			}
+
+			nodeFrame->AddModelNode(skins[i].type, skins[i].name, skins[i].path, tempResource);
 		}
-
-		// get state
-		const State& state = this->attributes->GetState(skins[i].path);
-
-		// skip skins without fragments
-		if (skins[i].skinFragments.Size() == 0)
-		{
-			continue;
-		}
-
-		// setup handler
-		nodeFrame->GetHandler()->SetModelHandler(this);
-		nodeFrame->GetHandler()->SetType(skins[i].type);
-		nodeFrame->GetHandler()->SetName(skins[i].name);
-		nodeFrame->GetHandler()->SetPath(skins[i].path);
-		nodeFrame->GetHandler()->Setup(tempResource);
-
-		// add frame to tab box
-		nodeWidget->addTab(nodeFrame, skins[i].name.AsCharPtr());
 	}
 
 	// get a list of all particles

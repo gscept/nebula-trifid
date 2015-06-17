@@ -74,7 +74,8 @@ SurfaceConstant::Discard()
 void
 SurfaceConstant::Apply(const Ptr<CoreGraphics::ShaderInstance>& shader)
 {
-    // hmm, maybe shader instances deserves the zero-indexed treatment?
+    // skip applying if this constant has no binding to said variable
+	if (!this->variablesByShader.Contains(shader)) return;
     const Ptr<CoreGraphics::ShaderVariable>& var = this->variablesByShader[shader];
 
     // setup value in shader

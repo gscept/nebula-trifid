@@ -47,7 +47,7 @@ public:
 
     /// discard surface
     void Discard();
-    /// unload surface (overrides the one in resource)
+    /// unload surface
     void Unload();
 
     /// get original material
@@ -75,7 +75,7 @@ public:
     /// clone the surface material
     Ptr<SurfaceMaterial> Clone() const;
 
-private:
+protected:
     friend class StreamSurfaceMaterialLoader;
 	friend class StreamSurfaceMaterialSaver;
 

@@ -54,7 +54,7 @@ BillboardNodeInstance::OnVisibilityResolve(IndexT resolveIndex, float distToView
 	const Ptr<TransformNode>& transformNode = this->modelNode.downcast<TransformNode>();
 	if (transformNode->CheckLodDistance(distToViewer))
 	{
-        this->modelNode->AddVisibleNodeInstance(resolveIndex, this->materialCode, this);
+        this->modelNode->AddVisibleNodeInstance(resolveIndex, this->material->GetMaterialType(), this);
 		ModelNodeInstance::OnVisibilityResolve(resolveIndex, distToViewer);
 	}
 }

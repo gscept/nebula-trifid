@@ -17,6 +17,8 @@
 #include "materials/streamsurfacematerialsaver.h"
 #include "binaryxmlconverter.h"
 #include "logger.h"
+#include "mutablesurfacematerial.h"
+#include "messaging/staticmessagehandler.h"
 
 #include <QDialog>
 #include <QColorDialog>
@@ -75,11 +77,13 @@ MaterialHandler::Setup(const QString& resource)
     this->variableIntValueMap.clear();
     this->variableBoolMap.clear();
     this->variableVectorFieldMap.clear();
+	this->variableVectorColorEditMap.clear();
     this->variableVectorMap.clear();
     this->lowerLimitFloatMap.clear();
     this->upperLimitFloatMap.clear();
     this->lowerLimitIntMap.clear();
     this->upperLimitIntMap.clear();
+	
 
     // enable the elements which are only viable if we are working on a surface
     this->ui->templateBox->setEnabled(true);
@@ -112,6 +116,7 @@ MaterialHandler::Setup(const QString& resource)
 bool
 MaterialHandler::Discard()
 {
+	// avoid discarding changes if the user doesn't want to
 	if (this->hasChanges)
 	{
 		QMessageBox::StandardButton button = QMessageBox::warning(NULL, "Pending changes", "Your material has unsaved changes, are you sure you want to close it?", QMessageBox::Ok | QMessageBox::No);
@@ -121,6 +126,7 @@ MaterialHandler::Discard()
 		}
 	}
 
+	// clear everything, including the UI
 	IndexT i;
 	for (i = 0; i < this->textureResources.Size(); i++)
 	{
@@ -135,6 +141,64 @@ MaterialHandler::Discard()
 	this->ClearFrame(this->mainLayout);
 
 	return BaseHandler::Discard();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+MaterialHandler::MaterialSelected(const QString& material)
+{
+	// avoid discarding changes if the user doesn't want to
+	if (this->hasChanges)
+	{
+		QMessageBox::StandardButton button = QMessageBox::warning(NULL, "Pending changes", "Switching material templates will effectively discard all changes, are you sure you want to do this?", QMessageBox::Ok | QMessageBox::No);
+		if (button == QMessageBox::Cancel)
+		{
+			return;
+		}
+	}
+
+	// discard textures managed by this handler
+	IndexT i;
+	for (i = 0; i < this->textureResources.Size(); i++)
+	{
+		Resources::ResourceManager::Instance()->DiscardManagedResource(this->textureResources.ValueAtIndex(i).upcast<Resources::ManagedResource>());
+	}
+	this->textureResources.Clear();
+	this->textureVariables.Clear();
+	this->scalarVariables.Clear();
+
+	// update material
+	Ptr<Material> mat = MaterialServer::Instance()->GetMaterialByName(material.toUtf8().constData());
+	Ptr<MutableSurfaceMaterial> mutableMaterial = this->material.downcast<MutableSurfaceMaterial>();
+	mutableMaterial->SetMaterialTemplate(mat);
+
+	// rebuild the UI
+	this->ResetUI();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+MaterialHandler::MaterialInfo()
+{
+	// get material
+	Ptr<Material> mat = this->material->GetMaterialTemplate();
+
+	// create ui
+	Ui::MaterialHelpWidget ui;
+	QDialog dialog;
+	ui.setupUi(&dialog);
+
+	// set info
+	ui.materialName->setText(mat->GetName().AsString().AsCharPtr());
+	Util::String desc = mat->GetDescription();
+	ui.materialDesc->setText(desc.AsCharPtr());
+
+	// show widget
+	dialog.exec();
 }
 
 //------------------------------------------------------------------------------
@@ -176,40 +240,9 @@ MaterialHandler::TextureChanged(uint i)
 /**
 */
 void
-MaterialHandler::MaterialSelected(const QString& material)
-{
-    n_error("IMPLEMENT ME!");
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-MaterialHandler::MaterialInfo()
-{
-    // get material
-    Ptr<Material> mat = this->material->GetMaterialTemplate();
-
-    // create ui
-    Ui::MaterialHelpWidget ui;
-    QDialog dialog;
-    ui.setupUi(&dialog);
-
-    // set info
-    ui.materialName->setText(mat->GetName().AsString().AsCharPtr());
-    Util::String desc = mat->GetDescription();
-    ui.materialDesc->setText(desc.AsCharPtr());
-
-    // show widget
-    dialog.exec();
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
 MaterialHandler::NewSurface()
 {
+	// avoid discarding changes if the user doesn't want to
 	if (this->hasChanges)
 	{
 		QMessageBox::StandardButton button = QMessageBox::warning(NULL, "Pending changes", "Your material has unsaved changes, are you sure you want to close it?", QMessageBox::Ok | QMessageBox::Cancel);
@@ -218,6 +251,16 @@ MaterialHandler::NewSurface()
 			return;
 		}
 	}
+	
+	// reset variables
+	this->textureResources.Clear();
+	this->textureVariables.Clear();
+	this->scalarVariables.Clear();
+
+	// enable UI controls
+	this->ui->templateBox->setEnabled(true);
+	this->ui->saveButton->setEnabled(true);
+	this->ui->saveAsButton->setEnabled(true);
 
 	// don't discard textures here, because we just need to reset this handler
 	this->textureResources.Clear();
@@ -233,7 +276,7 @@ MaterialHandler::NewSurface()
 	if (this->managedMaterial.isvalid()) Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedMaterial.upcast<Resources::ManagedResource>());
 	this->managedMaterial = Resources::ResourceManager::Instance()->CreateManagedResource(SurfaceMaterial::RTTI, "intsur:system/placeholder.sur", NULL, true).downcast<Materials::ManagedSurfaceMaterial>();
 	this->material = this->managedMaterial->GetMaterial();
-	this->hasChanges = true;
+	this->hasChanges = false;
 	this->ResetUI();	
 }
 
@@ -658,6 +701,11 @@ MaterialHandler::Save()
 	BinaryXmlConverter converter;
 	converter.ConvertFile(resName, exportTarget, logger);
 	this->hasChanges = false;
+
+	// hmm, now our managed material here will need to be updated, since we made a new material
+	Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedMaterial.upcast<Resources::ManagedResource>());
+	this->managedMaterial = Resources::ResourceManager::Instance()->CreateManagedResource(SurfaceMaterial::RTTI, exportTarget, NULL, true).downcast<Materials::ManagedSurfaceMaterial>();
+	this->material = this->managedMaterial->GetMaterial();
 }
 
 //------------------------------------------------------------------------------
@@ -691,11 +739,23 @@ MaterialHandler::SaveAs()
 		QString label;
 		this->ui->surfaceName->setText(label.sprintf("%s/%s", this->category.AsCharPtr(), this->file.AsCharPtr()));
 
+		String exportTarget = String::Sprintf("sur:%s/%s.sur", this->category.AsCharPtr(), this->file.AsCharPtr());
+
 		// also convert it
 		Logger logger;
 		BinaryXmlConverter converter;
-		converter.ConvertFile(resName, String::Sprintf("sur:%s/%s.sur", this->category.AsCharPtr(), this->file.AsCharPtr()), logger);
+		converter.ConvertFile(resName, exportTarget, logger);
 		this->hasChanges = false;
+
+		// hmm, now our managed material here will need to be updated, since we made a new material
+		Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedMaterial.upcast<Resources::ManagedResource>());
+		this->managedMaterial = Resources::ResourceManager::Instance()->CreateManagedResource(SurfaceMaterial::RTTI, exportTarget, NULL, true).downcast<Materials::ManagedSurfaceMaterial>();
+		this->material = this->managedMaterial->GetMaterial();
+
+		// make sure to reload the surface in case we have just overwritten it
+		Ptr<ReloadResourceIfExists> msg = ReloadResourceIfExists::Create();
+		msg->SetResourceName(exportTarget);
+		__StaticSend(GraphicsInterface, msg);
 	}
 }
 
@@ -1030,16 +1090,17 @@ MaterialHandler::MakeMaterialUI(QLabel* surfaceName, QComboBox* materialBox, QPu
     Array<Material::MaterialParameter> textures = this->GetTextures(mat);
     for (i = 0; i < textures.Size(); i++)
     {
-        // create new horizontal layout 
-        QHBoxLayout* varLayout = new QHBoxLayout;
-
         // copy parameter
         Material::MaterialParameter param = textures[i];
 
         // create texture variables
         Ptr<SurfaceConstant> constant;
         if (this->material->HasConstant(param.name)) constant = this->material->GetConstant(param.name);
+		else										 continue;
         this->textureVariables.Add(i, constant);
+
+		// create new horizontal layout 
+		QHBoxLayout* varLayout = new QHBoxLayout;
 
         // get texture
         Ptr<CoreGraphics::Texture> textureObject = (CoreGraphics::Texture*)constant->GetValue().GetObject();
@@ -1096,6 +1157,11 @@ MaterialHandler::MakeMaterialUI(QLabel* surfaceName, QComboBox* materialBox, QPu
         String name = param.name;
         Variant var = param.defaultVal;
 
+		// create material instance
+		Ptr<SurfaceConstant> constant;
+		if (this->material->HasConstant(param.name)) constant = this->material->GetConstant(param.name);
+		else										 continue;
+
         // setup label
         QLabel* varName = new QLabel(name.AsCharPtr());
         QFont font = varName->font();
@@ -1109,10 +1175,6 @@ MaterialHandler::MakeMaterialUI(QLabel* surfaceName, QComboBox* materialBox, QPu
         groupLayout->setContentsMargins(QMargins(2, 5, 2, 5));
         group->setLayout(groupLayout);
         group->setFlat(true);
-
-        // create material instance
-        Ptr<SurfaceConstant> constant;
-        if (this->material->HasConstant(param.name)) constant = this->material->GetConstant(param.name);
 
         // create material instance
         this->scalarVariables.Add(i, constant);
@@ -1497,6 +1559,9 @@ MaterialHandler::GetVariables(const Ptr<Materials::Material>& mat)
 void
 MaterialHandler::ClearFrame(QLayout* layout)
 {
+	disconnect(this->ui->templateBox, SIGNAL(activated(const QString&)), this, SLOT(MaterialSelected(const QString&)));
+	disconnect(this->ui->materialHelp, SIGNAL(clicked()), this, SLOT(MaterialInfo()));
+
     if (layout)
     {
         QLayoutItem* item;
@@ -1556,6 +1621,7 @@ MaterialHandler::ResetUI()
 	this->variableIntValueMap.clear();
 	this->variableBoolMap.clear();
 	this->variableVectorFieldMap.clear();
+	this->variableVectorColorEditMap.clear();
 	this->variableVectorMap.clear();
 	this->lowerLimitFloatMap.clear();
 	this->upperLimitFloatMap.clear();

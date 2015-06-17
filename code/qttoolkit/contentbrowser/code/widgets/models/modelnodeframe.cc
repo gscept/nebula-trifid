@@ -12,14 +12,8 @@ namespace Widgets
 */
 ModelNodeFrame::ModelNodeFrame()
 {
-	/// create handlers
-	this->itemHandler = ModelNodeHandler::Create();
-
 	/// setup ui
 	this->ui.setupUi(this);
-
-	/// set item handler stuff
-	this->itemHandler->SetUI(&this->ui);
 }
 
 //------------------------------------------------------------------------------
@@ -33,10 +27,31 @@ ModelNodeFrame::~ModelNodeFrame()
 //------------------------------------------------------------------------------
 /**
 */
+void
+ModelNodeFrame::AddModelNode(const Util::String& type, const Util::String& name, const Util::String& path, const Util::String& res)
+{
+	Ptr<ModelNodeHandler> handler = ModelNodeHandler::Create();
+	handler->SetModelHandler(this->modelHandler);
+	handler->SetUI(&this->ui);
+	handler->SetType(type);
+	handler->SetName(name);
+	handler->SetPath(path);
+	handler->Setup(res);
+	this->itemHandlers.Append(handler);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 ModelNodeFrame::Discard()
 {
-	this->itemHandler->Discard();
-	this->itemHandler = 0;
+	this->modelHandler = 0;
+	IndexT i;
+	for (i = 0; i < this->itemHandlers.Size(); i++)
+	{
+		this->itemHandlers[i]->Discard();
+	}
+	this->itemHandlers.Clear();
 }
 } // namespace Widgets

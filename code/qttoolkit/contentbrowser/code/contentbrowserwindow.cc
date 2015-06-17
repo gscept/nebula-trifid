@@ -1119,30 +1119,39 @@ ContentBrowserWindow::OnTextureSelected(const QString& tex)
 void
 ContentBrowserWindow::OnModelSelected(const QString& mdl)
 {
-	// split name into category and file
-	QStringList resourceParts = mdl.split("/");
-
-	// get file name and category
-	String category = resourceParts[0].toUtf8().constData();
-	String file = resourceParts[1].toUtf8().constData();
-	category.StripAssignPrefix();
-	file.StripFileExtension();
-
-	this->modelHandler->SetModelCategory(category);
-	this->modelHandler->SetModelResource(file);
-
-	// preview
-	if (this->modelHandler->Preview())
+	bool b = true;
+	if (this->modelHandler->IsSetup())
 	{
-		// setup widget only if load was successful
-		this->modelHandler->Setup();
+		b = this->modelHandler->Discard();
 	}
-	else
+	
+	if (b)
 	{
-		this->modelHandler->Mute();
-		String message;
-		message.Format("Model '%s/%s' failed to load. Possible causes: \n    No .attributes exists for this model.\n    Model is character, but has no animations.", category.AsCharPtr(), file.AsCharPtr());
-		QMessageBox::warning(NULL, "Failed to load resource", message.AsCharPtr());
+		// split name into category and file
+		QStringList resourceParts = mdl.split("/");
+
+		// get file name and category
+		String category = resourceParts[0].toUtf8().constData();
+		String file = resourceParts[1].toUtf8().constData();
+		category.StripAssignPrefix();
+		file.StripFileExtension();
+
+		this->modelHandler->SetModelCategory(category);
+		this->modelHandler->SetModelResource(file);
+
+		// preview
+		if (this->modelHandler->Preview())
+		{
+			// setup widget only if load was successful
+			this->modelHandler->Setup();
+		}
+		else
+		{
+			this->modelHandler->Mute();
+			String message;
+			message.Format("Model '%s/%s' failed to load. Possible causes: \n    No .attributes exists for this model.\n    Model is character, but has no animations.", category.AsCharPtr(), file.AsCharPtr());
+			QMessageBox::warning(NULL, "Failed to load resource", message.AsCharPtr());
+		}
 	}
 }
 

@@ -65,15 +65,9 @@ protected:
 #endif
 
     Ptr<Materials::SurfaceMaterial> material;
-    Materials::MaterialType::Code materialCode;
     Util::Dictionary<Util::StringAtom, Ptr<Materials::SurfaceConstant>> sharedConstants;
     Util::Dictionary<Util::StringAtom, Ptr<Materials::SurfaceConstantInstance>> surfaceConstantInstanceByName;
 };
-
-
-//------------------------------------------------------------------------------
-/**
-*/
 
 //------------------------------------------------------------------------------
 /**

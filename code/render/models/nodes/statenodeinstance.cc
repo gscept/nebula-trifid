@@ -74,7 +74,6 @@ StateNodeInstance::Setup(const Ptr<ModelInstance>& inst, const Ptr<ModelNode>& n
 	// setup material
 	Ptr<StateNode> stateNode = node.downcast<StateNode>();
     this->material = stateNode->GetMaterial();
-    this->materialCode = this->material->GetMaterialType();
 
     // setup the constants in the material which is set by the system (so changing the constants is safe)
     IndexT i;
@@ -264,7 +263,6 @@ StateNodeInstance::SetMaterial(const Ptr<Materials::SurfaceMaterial>& material)
 {
     n_assert(material.isvalid());
     this->material = material;
-    this->materialCode = material->GetMaterialType();
 
     // surface constant instances will be completely invalid now, so we must clear them
     IndexT i;

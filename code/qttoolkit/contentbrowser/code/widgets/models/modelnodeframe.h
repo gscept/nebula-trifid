@@ -22,12 +22,19 @@ public:
 	/// destructor
 	virtual ~ModelNodeFrame();
 
+	/// add a new model node to the frame
+	void AddModelNode(const Util::String& type, const Util::String& name, const Util::String& path, const Util::String& res);
+
+	/// set the model handler to which this model node frame should operate on, do this prior to adding model nodes
+	void SetModelHandler(const Ptr<ModelHandler>& handler);
 	/// returns pointer to handler
-	const Ptr<ModelNodeHandler>& GetHandler() const;
+	const Ptr<ModelHandler>& GetModelHandler() const;
+
 	/// discards a model node frame
 	void Discard();
 private:
-	Ptr<ModelNodeHandler> itemHandler;
+	Util::Array<Ptr<ModelNodeHandler>> itemHandlers;
+	Ptr<ModelHandler> modelHandler;
 	Ui::ModelNodeInfoWidget ui;
 }; 
 
@@ -35,10 +42,19 @@ private:
 //------------------------------------------------------------------------------
 /**
 */
-inline const Ptr<ModelNodeHandler>& 
-ModelNodeFrame::GetHandler() const
+inline void
+ModelNodeFrame::SetModelHandler(const Ptr<ModelHandler>& handler)
 {
-	return this->itemHandler;
+	this->modelHandler = handler;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Ptr<ModelHandler>&
+ModelNodeFrame::GetModelHandler() const
+{
+	return this->modelHandler;
 }
 } // namespace Widgets
 //------------------------------------------------------------------------------

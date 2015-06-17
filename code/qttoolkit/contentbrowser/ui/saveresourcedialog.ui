@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>447</width>
-    <height>237</height>
+    <height>206</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -22,10 +22,10 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>Save</string>
+   <string>Save as</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="0">
+   <item row="0" column="0">
     <widget class="QGroupBox" name="groupBox_2">
      <property name="title">
       <string/>
@@ -57,7 +57,7 @@
      </layout>
     </widget>
    </item>
-   <item row="2" column="0">
+   <item row="1" column="0">
     <widget class="QGroupBox" name="groupBox_3">
      <property name="title">
       <string/>
@@ -82,7 +82,7 @@
      </layout>
     </widget>
    </item>
-   <item row="3" column="0">
+   <item row="2" column="0">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -95,20 +95,8 @@
      </property>
     </spacer>
    </item>
-   <item row="4" column="0">
+   <item row="3" column="0">
     <widget class="QPushButton" name="importButton">
-     <property name="text">
-      <string>Save</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="label_3">
-     <property name="font">
-      <font>
-       <pointsize>14</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>Save</string>
      </property>

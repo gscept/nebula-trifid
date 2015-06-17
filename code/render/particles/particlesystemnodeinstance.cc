@@ -56,7 +56,7 @@ ParticleSystemNodeInstance::OnVisibilityResolve(IndexT resolveIndex, float dista
     const Ptr<TransformNode>& transformNode = this->modelNode.downcast<TransformNode>();
     if (transformNode->CheckLodDistance(distanceToViewer))
     {
-        this->modelNode->AddVisibleNodeInstance(resolveIndex, this->materialCode, this);
+		this->modelNode->AddVisibleNodeInstance(resolveIndex, this->material->GetMaterialType(), this);
         ModelNodeInstance::OnVisibilityResolve(resolveIndex, distanceToViewer);
     }
 }

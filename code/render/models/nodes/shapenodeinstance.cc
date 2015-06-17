@@ -40,7 +40,7 @@ ShapeNodeInstance::OnVisibilityResolve(IndexT resolveIndex, float distanceToView
     const Ptr<TransformNode>& transformNode = this->modelNode.downcast<TransformNode>();
     if (transformNode->CheckLodDistance(distanceToViewer))
     {
-        this->modelNode->AddVisibleNodeInstance(resolveIndex, this->materialCode, this);
+		this->modelNode->AddVisibleNodeInstance(resolveIndex, material->GetMaterialType(), this);
         StateNodeInstance::OnVisibilityResolve(resolveIndex, distanceToViewer);
     }
 }

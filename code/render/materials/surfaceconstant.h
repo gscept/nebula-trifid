@@ -55,7 +55,7 @@ public:
     /// applies this constant, which readies it for drawing, but only applies the value on one of the shaders
     void Apply(const Ptr<CoreGraphics::ShaderInstance>& shader);
 
-private:
+protected:
     friend class StreamSurfaceMaterialSaver;
     friend class SurfaceConstantInstance;
     friend class SurfaceMaterial;
