@@ -40,7 +40,7 @@ __ImplementClass(Widgets::ModelNodeHandler, 'MNIH', Core::RefCounted);
 */
 ModelNodeHandler::ModelNodeHandler() :
 	mainLayout(0),
-	itemHandler(0),
+	modelHandler(0),
     managedMaterial(0),
 	actionUpdateMode(true)
 {
@@ -63,7 +63,7 @@ ModelNodeHandler::Setup(const Util::String& resource)
 {
 	n_assert(resource.IsValid());
 
-    State state = this->itemHandler->GetAttributes()->GetState(this->nodePath);
+    State state = this->modelHandler->GetAttributes()->GetState(this->nodePath);
 
     // reduce material to category and file
     String surface = state.material;
@@ -100,18 +100,16 @@ ModelNodeHandler::Discard()
 /**
 */
 void
-ModelNodeHandler::HardRefresh(const Util::String& resource)
+ModelNodeHandler::Refresh()
 {
-    // override in subclass
-}
+	Ptr<ModelAttributes> attrs = this->modelHandler->GetAttributes();
+	State state = attrs->GetState(this->nodePath);
 
-//------------------------------------------------------------------------------
-/**
-*/
-void
-ModelNodeHandler::SoftRefresh(const Util::String& resource)
-{
-    // override in subclass
+	// update model
+	Ptr<ModelEntity> model = ContentBrowserApp::Instance()->GetPreviewState()->GetModel();
+	Ptr<Models::StateNodeInstance> node = RenderUtil::NodeLookupUtil::LookupStateNodeInstance(model, this->nodePath);
+	this->managedMaterial = Resources::ResourceManager::Instance()->CreateManagedResource(SurfaceMaterial::RTTI, state.material, NULL, true).downcast<Materials::ManagedSurfaceMaterial>();
+	node->SetMaterial(this->managedMaterial->GetMaterial());
 }
 
 //------------------------------------------------------------------------------
@@ -131,6 +129,13 @@ ModelNodeHandler::SetSurface(const Util::String& sur)
     Ptr<Models::StateNodeInstance> node = RenderUtil::NodeLookupUtil::LookupStateNodeInstance(model, this->nodePath);
     this->managedMaterial = Resources::ResourceManager::Instance()->CreateManagedResource(SurfaceMaterial::RTTI, String::Sprintf("sur:%s.sur", sur.AsCharPtr()), NULL, true).downcast<Materials::ManagedSurfaceMaterial>();
     node->SetMaterial(this->managedMaterial->GetMaterial());
+
+	Ptr<ModelAttributes> attrs = this->modelHandler->GetAttributes();
+	State state = attrs->GetState(this->nodePath);
+	state.material = this->managedMaterial->GetMaterial()->GetResourceId().AsString();
+	state.material.StripFileExtension();
+	attrs->SetState(this->nodePath, state);
+	this->modelHandler->OnModelModified();
 }
 
 //------------------------------------------------------------------------------
@@ -184,7 +189,7 @@ ModelNodeHandler::Browse()
 
         // set text of item
         this->ui->surfaceName->setText(res.AsCharPtr());
-        Ptr<ModelAttributes> attrs = this->itemHandler->GetAttributes();
+        Ptr<ModelAttributes> attrs = this->modelHandler->GetAttributes();
         State state = attrs->GetState(this->nodePath);
         state.material = "sur:" + res;
         attrs->SetState(this->nodePath, state);
@@ -203,7 +208,7 @@ ModelNodeHandler::Browse()
 void
 ModelNodeHandler::UpdateSurfaceThumbnail()
 {
-    Ptr<ModelAttributes> attrs = this->itemHandler->GetAttributes();
+    Ptr<ModelAttributes> attrs = this->modelHandler->GetAttributes();
     State state = attrs->GetState(this->nodePath);
     String surface = state.material;
 

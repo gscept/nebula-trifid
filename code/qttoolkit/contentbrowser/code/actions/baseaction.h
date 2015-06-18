@@ -29,6 +29,8 @@ public:
 	virtual void Redo();
 	/// performs actual action
 	virtual void Do();
+	/// performs action and makes it to current
+	virtual void DoAndMakeCurrent();
 	/// discards action and all its changes
 	virtual void Discard();
 
@@ -39,6 +41,8 @@ public:
 	bool IsFinal() const;
 
 protected:
+	IndexT previousVersion;
+	int numVersions;
 	int currentVersion;
 	int finalVersion;
 }; 

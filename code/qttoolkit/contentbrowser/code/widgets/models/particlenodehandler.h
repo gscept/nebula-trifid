@@ -12,7 +12,6 @@
 #include "ui_particlenodeinfowidget.h"
 #include "modelhandler.h"
 #include "particles/emitterattrs.h"
-#include "particles/particlesystemnodeinstance.h"
 #include "modelnodehandler.h"
 #include "resources/managedmesh.h"
 namespace Widgets
@@ -37,7 +36,7 @@ public:
 	void Setup(const Util::String& resource);
 
 	/// handle soft reset
-	virtual void SoftRefresh(const Util::String& resource);
+	virtual void Refresh();
 
 	/// discard handler
 	void Discard();
@@ -110,7 +109,7 @@ private:
 
 	bool isUpdatingValues;
 
-	Ui::ParticleNodeInfoWidget* ui;
+	Ui::ParticleNodeInfoWidget* particleUi;
 	Particles::EmitterAttrs attrs;
 	IndexT primGroupIndex;
 	Ptr<CoreGraphics::Mesh> emitterMesh;
@@ -121,11 +120,11 @@ private:
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-ParticleNodeHandler::SetUi( Ui::ParticleNodeInfoWidget* ui )
+inline void
+ParticleNodeHandler::SetUi(Ui::ParticleNodeInfoWidget* ui)
 {
 	n_assert(ui);
-	this->ui = ui;
+	this->particleUi = ui;
 }
 
 //------------------------------------------------------------------------------
@@ -134,7 +133,7 @@ ParticleNodeHandler::SetUi( Ui::ParticleNodeInfoWidget* ui )
 inline Ui::ParticleNodeInfoWidget* 
 ParticleNodeHandler::GetUi() const
 {
-	return this->ui;
+	return this->particleUi;
 }
 
 } // namespace Widgets

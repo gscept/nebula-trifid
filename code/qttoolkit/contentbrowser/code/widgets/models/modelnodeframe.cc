@@ -54,4 +54,18 @@ ModelNodeFrame::Discard()
 	}
 	this->itemHandlers.Clear();
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ModelNodeFrame::Refresh()
+{
+	IndexT i;
+	for (i = 0; i < this->itemHandlers.Size(); i++)
+	{
+		this->itemHandlers[i]->Refresh();
+	}
+}
+
 } // namespace Widgets

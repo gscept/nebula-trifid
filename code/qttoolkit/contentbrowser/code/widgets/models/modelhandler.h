@@ -69,11 +69,9 @@ public:
 	void DiscardNoCancel();
 	/// mute the UI by disabling it
 	void Mute();
-	
-	/// hard refresh, model is changed structurally (nodes added/removed or material changed)
-	void HardRefresh();
-	/// soft refresh, model parameters are changed
-	void SoftRefresh();
+
+	/// refresh after redo/undo action
+	void Refresh();
 
 	/// use constants, physics and attributes to make a new model (intermediate) and have it reloaded
 	void MakeModel();

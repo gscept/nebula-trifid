@@ -41,4 +41,13 @@ ParticleNodeFrame::Discard()
 	this->itemHandler = 0;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ParticleNodeFrame::Refresh()
+{
+	this->itemHandler->Refresh();
+}
+
 } // namespace Particles

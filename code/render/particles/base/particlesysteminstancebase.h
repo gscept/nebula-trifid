@@ -87,9 +87,6 @@ public:
     /// get the render info
     const Particles::ParticleRenderInfo& GetParticleRenderInfo() const;
 
-	/// hmm, does this have a use ingame?
-	virtual void UpdateEmitter(const EmitterAttrs& newAttrs, IndexT primGroupIndex, const Ptr<CoreGraphics::Mesh>& emitterMesh);
-
 private:
     /// emit new particles for the current frame
     void EmitParticles(float stepTime);
@@ -115,13 +112,14 @@ private:
     Timing::Time curStepTime;
     Timing::Time lastEmissionTime;
     Timing::Time timeSinceEmissionStart;
-    ParticleSystemState::Mask stateMask;
-    ParticleSystemState::Mask stateChangeMask;
     IndexT emissionCounter;
     bool firstEmissionFrame;
     static JOB_ID jobIdCounter;
     IndexT particleId;
 
+protected:
+	ParticleSystemState::Mask stateMask;
+	ParticleSystemState::Mask stateChangeMask;
 	Ptr<CoreGraphics::Mesh> emitterMesh;
 	IndexT primGroupIndex;
 	EmitterAttrs emitterAttrs;

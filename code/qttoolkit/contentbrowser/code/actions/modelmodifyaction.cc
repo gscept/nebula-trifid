@@ -55,17 +55,8 @@ ModelModifyAction::Cleanup()
 void 
 ModelModifyAction::Undo()
 {
-	this->previousVersion = this->currentVersion;
-	this->currentVersion = Math::n_max(this->currentVersion - 1, 0);
-	this->Do();
-	if (this->structureChange[this->previousVersion])
-	{
-		this->handler->HardRefresh();
-	}
-	else
-	{
-		this->handler->SoftRefresh();
-	}
+	BaseAction::Undo();
+	this->handler->Refresh();
 }
 
 //------------------------------------------------------------------------------
@@ -74,17 +65,8 @@ ModelModifyAction::Undo()
 void 
 ModelModifyAction::Redo()
 {
-	this->previousVersion = this->currentVersion;
-	this->currentVersion = Math::n_min(this->currentVersion + 1, this->attrVersions.Size()-1);
-	this->Do();	
-	if (this->structureChange[this->currentVersion])
-	{
-		this->handler->HardRefresh();
-	}
-	else
-	{
-		this->handler->SoftRefresh();
-	}
+	BaseAction::Redo();
+	this->handler->Refresh();
 }
 
 //------------------------------------------------------------------------------
@@ -102,7 +84,6 @@ ModelModifyAction::Do()
 	const String& attrVersion = this->attrVersions[this->currentVersion];
 	const String& constVersion = this->constVersions[this->currentVersion];
 	const String& physVersion = this->physVerions[this->currentVersion];
-	const bool structureChange = this->structureChange[this->currentVersion];
 
 	// load all 
 	Ptr<MemoryStream> attrStream = MemoryStream::Create();
@@ -135,17 +116,6 @@ ModelModifyAction::Do()
 //------------------------------------------------------------------------------
 /**
 */
-void
-ModelModifyAction::DoAndMakeCurrent()
-{
-	this->previousVersion = this->currentVersion;
-	this->currentVersion = Math::n_min(this->currentVersion + 1, this->attrVersions.Size() - 1);
-	this->Do();
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
 void 
 ModelModifyAction::Discard()
 {
@@ -171,14 +141,13 @@ ModelModifyAction::AddVersion(const Util::String& attributes, const Util::String
 		this->attrVersions.EraseIndex(i);
 		this->constVersions.EraseIndex(i);
 		this->physVerions.EraseIndex(i);	
-		this->structureChange.EraseIndex(i);
 	}
 
 	// then add version to lists
 	this->attrVersions.Append(attributes);
 	this->constVersions.Append(constants);
 	this->physVerions.Append(physics);
-	this->structureChange.Append(structureChanged);
+	this->numVersions++;
 }
 
 //------------------------------------------------------------------------------
@@ -206,15 +175,6 @@ const Util::String&
 ModelModifyAction::GetLastPhysVersion() const
 {
 	return this->physVerions[this->currentVersion];
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-const bool
-ModelModifyAction::GetLastStructureChangeVersion() const
-{
-	return this->structureChange[this->currentVersion];
 }
 
 } // namespace Actions
