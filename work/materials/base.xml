@@ -515,6 +515,7 @@
    <Param name="NumAnimPhases" type="int" system="true" defaultValue="0"/>
    <Param name="AnimFramesPerSecond" type="float" system="true" defaultValue="0.0f"/>
    <Param name="IsBillBoard" type="bool" system="true" defaultValue="false"/>
+   <Param name="DepthBuffer" type="string" system="true" defaultValue="tex:system/black.dds"/>
   </Material>
   
   <Material name="ParticleUnlit" type="particle" inherits="Particle" desc="Standard unlit particle material.">

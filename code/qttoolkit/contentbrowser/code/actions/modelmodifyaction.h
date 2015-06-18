@@ -37,8 +37,6 @@ public:
 	void Redo();
 	/// does
 	void Do();
-	/// does and makes this the actual version
-	void DoAndMakeCurrent();
 	/// discards action
 	void Discard();
 
@@ -50,8 +48,6 @@ public:
 	const Util::String& GetLastConstVersion() const;
 	/// gets the last version of the physics
 	const Util::String& GetLastPhysVersion() const;
-	/// gets whether or not the last modification changed the structure of the model (nodes added/removed, nodes changed material etc.)
-	const bool GetLastStructureChangeVersion() const;
 
 	/// sets the category for the modifier action
 	void SetCategory(const Util::String& category);
@@ -64,9 +60,7 @@ public:
 	const Ptr<Widgets::ModelHandler>& GetModelHandler() const;
 	
 private:
-	IndexT previousVersion;
 	Ptr<Widgets::ModelHandler> handler;
-	Util::Array<bool> structureChange;
 	Util::Array<Util::String> constVersions;
 	Util::Array<Util::String> physVerions;
 	Util::Array<Util::String> attrVersions;

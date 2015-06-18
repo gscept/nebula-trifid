@@ -92,41 +92,41 @@ ParticleSystemNodeInstance::Setup(const Ptr<ModelInstance>& inst, const Ptr<Mode
 	this->particleSystemInstance->Start();
 
     // clone base material
-    this->materialInstance = this->modelNode.downcast<StateNode>()->GetMaterial()->Clone();
+    this->surfaceClone = this->modelNode.downcast<StateNode>()->GetMaterial();
 
-    if (this->materialInstance->HasConstant(NEBULA3_SEMANTIC_EMITTERTRANSFORM))
+    if (this->surfaceClone->HasConstant(NEBULA3_SEMANTIC_EMITTERTRANSFORM))
 	{
-        this->emitterOrientation = this->materialInstance->GetConstant(NEBULA3_SEMANTIC_EMITTERTRANSFORM);
+        this->emitterOrientation = this->surfaceClone->GetConstant(NEBULA3_SEMANTIC_EMITTERTRANSFORM)->CreateInstance();
 	}
-    if (this->materialInstance->HasConstant(NEBULA3_SEMANTIC_BILLBOARD))
+    if (this->surfaceClone->HasConstant(NEBULA3_SEMANTIC_BILLBOARD))
 	{
-        this->billBoard = this->materialInstance->GetConstant(NEBULA3_SEMANTIC_BILLBOARD);
+		this->billBoard = this->surfaceClone->GetConstant(NEBULA3_SEMANTIC_BILLBOARD)->CreateInstance();
 	}
-    if (this->materialInstance->HasConstant(NEBULA3_SEMANTIC_BBOXCENTER))
+    if (this->surfaceClone->HasConstant(NEBULA3_SEMANTIC_BBOXCENTER))
 	{
-        this->bboxCenter = this->materialInstance->GetConstant(NEBULA3_SEMANTIC_BBOXCENTER);
+		this->bboxCenter = this->surfaceClone->GetConstant(NEBULA3_SEMANTIC_BBOXCENTER)->CreateInstance();
 	}
-    if (this->materialInstance->HasConstant(NEBULA3_SEMANTIC_BBOXSIZE))
+    if (this->surfaceClone->HasConstant(NEBULA3_SEMANTIC_BBOXSIZE))
 	{
-        this->bboxSize = this->materialInstance->GetConstant(NEBULA3_SEMANTIC_BBOXSIZE);
+		this->bboxSize = this->surfaceClone->GetConstant(NEBULA3_SEMANTIC_BBOXSIZE)->CreateInstance();
 	}
-    if (this->materialInstance->HasConstant(NEBULA3_SEMANTIC_TIME))
+    if (this->surfaceClone->HasConstant(NEBULA3_SEMANTIC_TIME))
 	{
-        this->time = this->materialInstance->GetConstant(NEBULA3_SEMANTIC_TIME);
+		this->time = this->surfaceClone->GetConstant(NEBULA3_SEMANTIC_TIME)->CreateInstance();
 	}
-    if (this->materialInstance->HasConstant(NEBULA3_SEMANTIC_ANIMPHASES))
+    if (this->surfaceClone->HasConstant(NEBULA3_SEMANTIC_ANIMPHASES))
 	{
-        this->animPhases = this->materialInstance->GetConstant(NEBULA3_SEMANTIC_ANIMPHASES);
+		this->animPhases = this->surfaceClone->GetConstant(NEBULA3_SEMANTIC_ANIMPHASES)->CreateInstance();
 	}
-    if (this->materialInstance->HasConstant(NEBULA3_SEMANTIC_ANIMSPERSEC))
+    if (this->surfaceClone->HasConstant(NEBULA3_SEMANTIC_ANIMSPERSEC))
 	{
-        this->animsPerSec = this->materialInstance->GetConstant(NEBULA3_SEMANTIC_ANIMSPERSEC);
+		this->animsPerSec = this->surfaceClone->GetConstant(NEBULA3_SEMANTIC_ANIMSPERSEC)->CreateInstance();
 	}
-    if (this->materialInstance->HasConstant(NEBULA3_SEMANTIC_DEPTHBUFFER))
+    if (this->surfaceClone->HasConstant(NEBULA3_SEMANTIC_DEPTHBUFFER))
 	{
 		Ptr<FrameShader> defaultFrameShader = FrameServer::Instance()->LookupFrameShader(NEBULA3_DEFAULT_FRAMESHADER_NAME);
 		Ptr<RenderTarget> depthTexture = defaultFrameShader->GetRenderTargetByName("DepthBuffer");
-        this->depthBuffer = this->materialInstance->GetConstant(NEBULA3_SEMANTIC_DEPTHBUFFER);
+		this->depthBuffer = this->surfaceClone->GetConstant(NEBULA3_SEMANTIC_DEPTHBUFFER)->CreateInstance();
 		this->depthBuffer->SetTexture(depthTexture->GetResolveTexture());
 	}
 
@@ -164,13 +164,17 @@ ParticleSystemNodeInstance::Discard()
     n_assert(this->particleSystemInstance.isvalid());
 
     // discard material clone
-    this->materialInstance->Discard();
+	//this->surfaceClone->Unload();
+	this->surfaceClone = 0;
+	this->emitterOrientation->Discard();
     this->emitterOrientation = 0;
     this->billBoard = 0;
     this->bboxCenter = 0;
     this->bboxSize = 0;
     this->time = 0;
+	this->animPhases->Discard();
     this->animPhases = 0;
+	this->animsPerSec->Discard();
     this->animsPerSec = 0;
     this->depthBuffer = 0;
 
@@ -203,7 +207,7 @@ ParticleSystemNodeInstance::OnRenderBefore(IndexT frameIndex, Timing::Time time)
     const point& myPos  = this->modelTransform.get_position();
     float dist = float4(myPos - eyePos).length();
     float activityDist = this->particleSystemInstance->GetParticleSystem()->GetEmitterAttrs().GetFloat(EmitterAttrs::ActivityDistance);
-    if (dist <= activityDist && this->modelNode->GetResourceState() == Base::ResourceBase::Loaded)
+    if (dist <= activityDist)
     {
         // alright, we're within the activity distance, update the particle system
         this->particleSystemInstance->Update(time);
@@ -278,6 +282,11 @@ ParticleSystemNodeInstance::ApplyState(const Ptr<CoreGraphics::ShaderInstance>& 
 
 	// call base class (applies time)
 	StateNodeInstance::ApplyState(shader);
+
+	this->emitterOrientation->Apply(shader);
+	this->animPhases->Apply(shader);
+	this->animsPerSec->Apply(shader);
+	this->depthBuffer->Apply(shader);
 }
 
 //------------------------------------------------------------------------------

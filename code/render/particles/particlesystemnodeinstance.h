@@ -51,15 +51,15 @@ protected:
 
     Ptr<ParticleSystemInstance> particleSystemInstance;    
 
-    Ptr<Materials::SurfaceMaterial> materialInstance;
-	Ptr<Materials::SurfaceConstant> emitterOrientation;
-    Ptr<Materials::SurfaceConstant> billBoard;
-    Ptr<Materials::SurfaceConstant> bboxCenter;
-    Ptr<Materials::SurfaceConstant> bboxSize;
-    Ptr<Materials::SurfaceConstant> time;
-    Ptr<Materials::SurfaceConstant> animPhases;
-    Ptr<Materials::SurfaceConstant> animsPerSec;
-    Ptr<Materials::SurfaceConstant> depthBuffer;
+    Ptr<Materials::SurfaceMaterial> surfaceClone;
+	Ptr<Materials::SurfaceConstantInstance> emitterOrientation;
+    Ptr<Materials::SurfaceConstantInstance> billBoard;
+    Ptr<Materials::SurfaceConstantInstance> bboxCenter;
+    Ptr<Materials::SurfaceConstantInstance> bboxSize;
+    Ptr<Materials::SurfaceConstantInstance> time;
+    Ptr<Materials::SurfaceConstantInstance> animPhases;
+    Ptr<Materials::SurfaceConstantInstance> animsPerSec;
+    Ptr<Materials::SurfaceConstantInstance> depthBuffer;
 };
 
 //------------------------------------------------------------------------------

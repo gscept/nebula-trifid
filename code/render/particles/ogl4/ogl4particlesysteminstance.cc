@@ -39,7 +39,6 @@ OGL4ParticleSystemInstance::UpdateVertexStreams()
 {
     ParticleSystemInstanceBase::UpdateVertexStreams();
     Ptr<ParticleRenderer> particleRenderer = ParticleRenderer::Instance();
-	const Ptr<BufferLock>& particleBufferLock = particleRenderer->GetParticleBufferLock();
 
     // get the particle ring buffer from
     IndexT baseVertexIndex = particleRenderer->GetCurParticleVertexIndex();
@@ -50,7 +49,7 @@ OGL4ParticleSystemInstance::UpdateVertexStreams()
     SizeT num = this->particles.Size();
 
 	// this is the size of our particles, the maximum is tripled because we use triple buffering
-    for (i = 0; (i < num) && (particleRenderer->GetCurParticleIndex() < MaxNumRenderedParticles); i++)
+    for (i = 0; (i < num) && (particleRenderer->GetCurParticleIndex() < MaxNumRenderedParticles * 3); i++)
     {
         const Particle& particle = this->particles[i];
 		

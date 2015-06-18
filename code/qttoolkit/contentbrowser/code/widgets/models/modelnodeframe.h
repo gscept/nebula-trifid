@@ -32,6 +32,8 @@ public:
 
 	/// discards a model node frame
 	void Discard();
+	/// refresh model node frames
+	void Refresh();
 private:
 	Util::Array<Ptr<ModelNodeHandler>> itemHandlers;
 	Ptr<ModelHandler> modelHandler;

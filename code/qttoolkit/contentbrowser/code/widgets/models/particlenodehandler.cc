@@ -19,6 +19,8 @@
 #include "models/nodes/statenodeinstance.h"
 #include "contentbrowserapp.h"
 #include "renderutil/nodelookuputil.h"
+#include "mutableparticlesysteminstance.h"
+#include "particles/particlesystemnodeinstance.h"
 
 using namespace Particles;
 using namespace ToolkitUtil;
@@ -57,6 +59,11 @@ ParticleNodeHandler::~ParticleNodeHandler()
 void 
 ParticleNodeHandler::Setup(const Util::String& resource)
 {
+	// put shading UI into shading tab
+	this->ui = new Ui::ModelNodeInfoWidget;
+	this->ui->setupUi(this->particleUi->shadingFrame);
+	ModelNodeHandler::Setup(resource);
+
 	// copy attrs
 	this->attrs = attrs;
 
@@ -67,8 +74,8 @@ ParticleNodeHandler::Setup(const Util::String& resource)
 	this->isUpdatingValues = true;
 
 	// get attribute
-	Ptr<ModelAttributes> attributes = this->itemHandler->GetAttributes();
-	Ptr<ModelConstants> constants = this->itemHandler->GetConstants();
+	Ptr<ModelAttributes> attributes = this->modelHandler->GetAttributes();
+	Ptr<ModelConstants> constants = this->modelHandler->GetConstants();
 
 	// set primitive group index
 	this->primGroupIndex = constants->GetParticleNode(this->nodeName).primitiveGroupIndex;
@@ -77,26 +84,23 @@ ParticleNodeHandler::Setup(const Util::String& resource)
 	this->attrs = attributes->GetEmitterAttrs(this->nodePath);
 	if (mesh.IsEmpty())
 	{
-		this->ui->emitterMesh->setText("single point emitter mesh");
-		this->ui->singlePointEmitter->setChecked(true);
-		this->ui->primitiveGroupIndex->setEnabled(false);
+		this->particleUi->emitterMesh->setText("single point emitter mesh");
+		this->particleUi->singlePointEmitter->setChecked(true);
+		this->particleUi->primitiveGroupIndex->setEnabled(false);
 		this->emitterMesh = ParticleServer::Instance()->GetDefaultEmitterMesh();
 	}
 	else
 	{
 		this->managedEmitterMesh = Resources::ResourceManager::Instance()->CreateManagedResource(CoreGraphics::Mesh::RTTI, mesh, NULL, true).downcast<Resources::ManagedMesh>();
 		this->emitterMesh = this->managedEmitterMesh->GetMesh();
-		this->ui->primitiveGroupIndex->setMaximum(this->emitterMesh->GetNumPrimitiveGroups() - 1);
+		this->particleUi->primitiveGroupIndex->setMaximum(this->emitterMesh->GetNumPrimitiveGroups() - 1);
 	}
 	
 	// fill emitter mesh
-	this->ui->emitterMesh->setText(attributes->GetEmitterMesh(this->nodePath).AsCharPtr());
+	this->particleUi->emitterMesh->setText(attributes->GetEmitterMesh(this->nodePath).AsCharPtr());
 
 	// connect browser button
-	connect(this->ui->browseEmitterMesh, SIGNAL(pressed()), this, SLOT(BrowseMesh()));
-
-	// get layout
-	QVBoxLayout* mainLayout = static_cast<QVBoxLayout*>(this->ui->variableFrame->layout());
+	connect(this->particleUi->browseEmitterMesh, SIGNAL(pressed()), this, SLOT(BrowseMesh()));
 
     // get state node
     Ptr<PreviewState> previewState = ContentBrowserApp::Instance()->GetPreviewState();
@@ -107,101 +111,101 @@ ParticleNodeHandler::Setup(const Util::String& resource)
 	this->particleStateNode = stateNode.downcast<ParticleSystemNodeInstance>();
 
 	// setup envelope frames
-	this->ui->colorRedFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::Red), EmitterAttrs::Red);
-	this->ui->colorGreenFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::Green), EmitterAttrs::Green);
-	this->ui->colorBlueFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::Blue), EmitterAttrs::Blue);
-	this->ui->colorAlphaFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::Alpha), EmitterAttrs::Alpha);
-	this->ui->frequencyFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::EmissionFrequency), EmitterAttrs::EmissionFrequency);
-	this->ui->lifetimeFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::LifeTime), EmitterAttrs::LifeTime);
-	this->ui->initVelocityFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::StartVelocity), EmitterAttrs::StartVelocity);
-	this->ui->rotationVelocityFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::RotationVelocity), EmitterAttrs::RotationVelocity);
-	this->ui->sizeFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::Size), EmitterAttrs::Size);
-	this->ui->spreadMinFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::SpreadMin), EmitterAttrs::SpreadMin);
-	this->ui->spreadMaxFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::SpreadMax), EmitterAttrs::SpreadMax);
-	this->ui->airResistanceFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::AirResistance), EmitterAttrs::AirResistance);
-	this->ui->velocityFactorFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::VelocityFactor), EmitterAttrs::VelocityFactor);
-	this->ui->massFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::Mass), EmitterAttrs::Mass);
-	this->ui->timeManipulatorFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::TimeManipulator), EmitterAttrs::TimeManipulator);
+	this->particleUi->colorRedFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::Red), EmitterAttrs::Red);
+	this->particleUi->colorGreenFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::Green), EmitterAttrs::Green);
+	this->particleUi->colorBlueFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::Blue), EmitterAttrs::Blue);
+	this->particleUi->colorAlphaFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::Alpha), EmitterAttrs::Alpha);
+	this->particleUi->frequencyFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::EmissionFrequency), EmitterAttrs::EmissionFrequency);
+	this->particleUi->lifetimeFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::LifeTime), EmitterAttrs::LifeTime);
+	this->particleUi->initVelocityFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::StartVelocity), EmitterAttrs::StartVelocity);
+	this->particleUi->rotationVelocityFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::RotationVelocity), EmitterAttrs::RotationVelocity);
+	this->particleUi->sizeFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::Size), EmitterAttrs::Size);
+	this->particleUi->spreadMinFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::SpreadMin), EmitterAttrs::SpreadMin);
+	this->particleUi->spreadMaxFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::SpreadMax), EmitterAttrs::SpreadMax);
+	this->particleUi->airResistanceFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::AirResistance), EmitterAttrs::AirResistance);
+	this->particleUi->velocityFactorFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::VelocityFactor), EmitterAttrs::VelocityFactor);
+	this->particleUi->massFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::Mass), EmitterAttrs::Mass);
+	this->particleUi->timeManipulatorFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::TimeManipulator), EmitterAttrs::TimeManipulator);
 
 	// connect signals from frames
-	connect(this->ui->colorRedFrame, SIGNAL(ValueChanged(Particles::EmitterAttrs::EnvelopeAttr)), this, SLOT(EnvelopeChanged(Particles::EmitterAttrs::EnvelopeAttr)));
-	connect(this->ui->colorGreenFrame, SIGNAL(ValueChanged(Particles::EmitterAttrs::EnvelopeAttr)), this, SLOT(EnvelopeChanged(Particles::EmitterAttrs::EnvelopeAttr)));
-	connect(this->ui->colorBlueFrame, SIGNAL(ValueChanged(Particles::EmitterAttrs::EnvelopeAttr)), this, SLOT(EnvelopeChanged(Particles::EmitterAttrs::EnvelopeAttr)));
-	connect(this->ui->colorAlphaFrame, SIGNAL(ValueChanged(Particles::EmitterAttrs::EnvelopeAttr)), this, SLOT(EnvelopeChanged(Particles::EmitterAttrs::EnvelopeAttr)));
-	connect(this->ui->frequencyFrame, SIGNAL(ValueChanged(Particles::EmitterAttrs::EnvelopeAttr)), this, SLOT(EnvelopeChanged(Particles::EmitterAttrs::EnvelopeAttr)));
-	connect(this->ui->lifetimeFrame, SIGNAL(ValueChanged(Particles::EmitterAttrs::EnvelopeAttr)), this, SLOT(EnvelopeChanged(Particles::EmitterAttrs::EnvelopeAttr)));
-	connect(this->ui->initVelocityFrame, SIGNAL(ValueChanged(Particles::EmitterAttrs::EnvelopeAttr)), this, SLOT(EnvelopeChanged(Particles::EmitterAttrs::EnvelopeAttr)));
-	connect(this->ui->rotationVelocityFrame, SIGNAL(ValueChanged(Particles::EmitterAttrs::EnvelopeAttr)), this, SLOT(EnvelopeChanged(Particles::EmitterAttrs::EnvelopeAttr)));
-	connect(this->ui->sizeFrame, SIGNAL(ValueChanged(Particles::EmitterAttrs::EnvelopeAttr)), this, SLOT(EnvelopeChanged(Particles::EmitterAttrs::EnvelopeAttr)));
-	connect(this->ui->spreadMinFrame, SIGNAL(ValueChanged(Particles::EmitterAttrs::EnvelopeAttr)), this, SLOT(EnvelopeChanged(Particles::EmitterAttrs::EnvelopeAttr)));
-	connect(this->ui->spreadMaxFrame, SIGNAL(ValueChanged(Particles::EmitterAttrs::EnvelopeAttr)), this, SLOT(EnvelopeChanged(Particles::EmitterAttrs::EnvelopeAttr)));
-	connect(this->ui->airResistanceFrame, SIGNAL(ValueChanged(Particles::EmitterAttrs::EnvelopeAttr)), this, SLOT(EnvelopeChanged(Particles::EmitterAttrs::EnvelopeAttr)));
-	connect(this->ui->velocityFactorFrame, SIGNAL(ValueChanged(Particles::EmitterAttrs::EnvelopeAttr)), this, SLOT(EnvelopeChanged(Particles::EmitterAttrs::EnvelopeAttr)));
-	connect(this->ui->massFrame, SIGNAL(ValueChanged(Particles::EmitterAttrs::EnvelopeAttr)), this, SLOT(EnvelopeChanged(Particles::EmitterAttrs::EnvelopeAttr)));
-	connect(this->ui->timeManipulatorFrame, SIGNAL(ValueChanged(Particles::EmitterAttrs::EnvelopeAttr)), this, SLOT(EnvelopeChanged(Particles::EmitterAttrs::EnvelopeAttr)));
+	connect(this->particleUi->colorRedFrame, SIGNAL(ValueChanged(Particles::EmitterAttrs::EnvelopeAttr)), this, SLOT(EnvelopeChanged(Particles::EmitterAttrs::EnvelopeAttr)));
+	connect(this->particleUi->colorGreenFrame, SIGNAL(ValueChanged(Particles::EmitterAttrs::EnvelopeAttr)), this, SLOT(EnvelopeChanged(Particles::EmitterAttrs::EnvelopeAttr)));
+	connect(this->particleUi->colorBlueFrame, SIGNAL(ValueChanged(Particles::EmitterAttrs::EnvelopeAttr)), this, SLOT(EnvelopeChanged(Particles::EmitterAttrs::EnvelopeAttr)));
+	connect(this->particleUi->colorAlphaFrame, SIGNAL(ValueChanged(Particles::EmitterAttrs::EnvelopeAttr)), this, SLOT(EnvelopeChanged(Particles::EmitterAttrs::EnvelopeAttr)));
+	connect(this->particleUi->frequencyFrame, SIGNAL(ValueChanged(Particles::EmitterAttrs::EnvelopeAttr)), this, SLOT(EnvelopeChanged(Particles::EmitterAttrs::EnvelopeAttr)));
+	connect(this->particleUi->lifetimeFrame, SIGNAL(ValueChanged(Particles::EmitterAttrs::EnvelopeAttr)), this, SLOT(EnvelopeChanged(Particles::EmitterAttrs::EnvelopeAttr)));
+	connect(this->particleUi->initVelocityFrame, SIGNAL(ValueChanged(Particles::EmitterAttrs::EnvelopeAttr)), this, SLOT(EnvelopeChanged(Particles::EmitterAttrs::EnvelopeAttr)));
+	connect(this->particleUi->rotationVelocityFrame, SIGNAL(ValueChanged(Particles::EmitterAttrs::EnvelopeAttr)), this, SLOT(EnvelopeChanged(Particles::EmitterAttrs::EnvelopeAttr)));
+	connect(this->particleUi->sizeFrame, SIGNAL(ValueChanged(Particles::EmitterAttrs::EnvelopeAttr)), this, SLOT(EnvelopeChanged(Particles::EmitterAttrs::EnvelopeAttr)));
+	connect(this->particleUi->spreadMinFrame, SIGNAL(ValueChanged(Particles::EmitterAttrs::EnvelopeAttr)), this, SLOT(EnvelopeChanged(Particles::EmitterAttrs::EnvelopeAttr)));
+	connect(this->particleUi->spreadMaxFrame, SIGNAL(ValueChanged(Particles::EmitterAttrs::EnvelopeAttr)), this, SLOT(EnvelopeChanged(Particles::EmitterAttrs::EnvelopeAttr)));
+	connect(this->particleUi->airResistanceFrame, SIGNAL(ValueChanged(Particles::EmitterAttrs::EnvelopeAttr)), this, SLOT(EnvelopeChanged(Particles::EmitterAttrs::EnvelopeAttr)));
+	connect(this->particleUi->velocityFactorFrame, SIGNAL(ValueChanged(Particles::EmitterAttrs::EnvelopeAttr)), this, SLOT(EnvelopeChanged(Particles::EmitterAttrs::EnvelopeAttr)));
+	connect(this->particleUi->massFrame, SIGNAL(ValueChanged(Particles::EmitterAttrs::EnvelopeAttr)), this, SLOT(EnvelopeChanged(Particles::EmitterAttrs::EnvelopeAttr)));
+	connect(this->particleUi->timeManipulatorFrame, SIGNAL(ValueChanged(Particles::EmitterAttrs::EnvelopeAttr)), this, SLOT(EnvelopeChanged(Particles::EmitterAttrs::EnvelopeAttr)));
 
 	// setup attributes
-	this->ui->textureTiles->setValue(this->attrs.GetFloat(EmitterAttrs::TextureTile));
-	this->ui->phasesPerSecond->setValue(this->attrs.GetFloat(EmitterAttrs::PhasesPerSecond));
-	this->ui->emissionDuration->setValue(this->attrs.GetFloat(EmitterAttrs::EmissionDuration));
-	this->ui->initRotationAngleMin->setValue(this->attrs.GetFloat(EmitterAttrs::StartRotationMin));
-	this->ui->initRotationAngleMax->setValue(this->attrs.GetFloat(EmitterAttrs::StartRotationMax));
-	this->ui->sizeRandomSeed->setValue(this->attrs.GetFloat(EmitterAttrs::SizeRandomize));
-	this->ui->startDelay->setValue(this->attrs.GetFloat(EmitterAttrs::StartDelay));
-	this->ui->precalcAtStart->setValue(this->attrs.GetFloat(EmitterAttrs::PrecalcTime));
-	this->ui->initVectorRand->setValue(this->attrs.GetFloat(EmitterAttrs::VelocityRandomize));
-	this->ui->rotationRandomSeed->setValue(this->attrs.GetFloat(EmitterAttrs::RotationRandomize));
-	this->ui->stretch->setValue(this->attrs.GetFloat(EmitterAttrs::ParticleStretch));
-	this->ui->activityDistance->setValue(this->attrs.GetFloat(EmitterAttrs::ActivityDistance));
-	this->ui->gravity->setValue(this->attrs.GetFloat(EmitterAttrs::Gravity));
-	this->ui->precalcAtStart->setValue(this->attrs.GetFloat(EmitterAttrs::PrecalcTime));
-	this->ui->looping->setChecked(this->attrs.GetBool(EmitterAttrs::Looping));
-	this->ui->randomizeRotation->setChecked(this->attrs.GetBool(EmitterAttrs::RandomizeRotation));
-	this->ui->stretchToStart->setChecked(this->attrs.GetBool(EmitterAttrs::StretchToStart));
-	this->ui->fadeOut->setChecked(this->attrs.GetBool(EmitterAttrs::ViewAngleFade));
-	this->ui->viewAligned->setChecked(this->attrs.GetBool(EmitterAttrs::Billboard));
-	this->ui->oldestFirst->setChecked(this->attrs.GetBool(EmitterAttrs::RenderOldestFirst));
-	this->ui->stretchDetail->setValue(this->attrs.GetInt(EmitterAttrs::StretchDetail));
-	this->ui->animationPhases->setValue(this->attrs.GetInt(EmitterAttrs::AnimPhases));
+	this->particleUi->textureTiles->setValue(this->attrs.GetFloat(EmitterAttrs::TextureTile));
+	this->particleUi->phasesPerSecond->setValue(this->attrs.GetFloat(EmitterAttrs::PhasesPerSecond));
+	this->particleUi->emissionDuration->setValue(this->attrs.GetFloat(EmitterAttrs::EmissionDuration));
+	this->particleUi->initRotationAngleMin->setValue(this->attrs.GetFloat(EmitterAttrs::StartRotationMin));
+	this->particleUi->initRotationAngleMax->setValue(this->attrs.GetFloat(EmitterAttrs::StartRotationMax));
+	this->particleUi->sizeRandomSeed->setValue(this->attrs.GetFloat(EmitterAttrs::SizeRandomize));
+	this->particleUi->startDelay->setValue(this->attrs.GetFloat(EmitterAttrs::StartDelay));
+	this->particleUi->precalcAtStart->setValue(this->attrs.GetFloat(EmitterAttrs::PrecalcTime));
+	this->particleUi->initVectorRand->setValue(this->attrs.GetFloat(EmitterAttrs::VelocityRandomize));
+	this->particleUi->rotationRandomSeed->setValue(this->attrs.GetFloat(EmitterAttrs::RotationRandomize));
+	this->particleUi->stretch->setValue(this->attrs.GetFloat(EmitterAttrs::ParticleStretch));
+	this->particleUi->activityDistance->setValue(this->attrs.GetFloat(EmitterAttrs::ActivityDistance));
+	this->particleUi->gravity->setValue(this->attrs.GetFloat(EmitterAttrs::Gravity));
+	this->particleUi->precalcAtStart->setValue(this->attrs.GetFloat(EmitterAttrs::PrecalcTime));
+	this->particleUi->looping->setChecked(this->attrs.GetBool(EmitterAttrs::Looping));
+	this->particleUi->randomizeRotation->setChecked(this->attrs.GetBool(EmitterAttrs::RandomizeRotation));
+	this->particleUi->stretchToStart->setChecked(this->attrs.GetBool(EmitterAttrs::StretchToStart));
+	this->particleUi->fadeOut->setChecked(this->attrs.GetBool(EmitterAttrs::ViewAngleFade));
+	this->particleUi->viewAligned->setChecked(this->attrs.GetBool(EmitterAttrs::Billboard));
+	this->particleUi->oldestFirst->setChecked(this->attrs.GetBool(EmitterAttrs::RenderOldestFirst));
+	this->particleUi->stretchDetail->setValue(this->attrs.GetInt(EmitterAttrs::StretchDetail));
+	this->particleUi->animationPhases->setValue(this->attrs.GetInt(EmitterAttrs::AnimPhases));
 
 	float4 windDir = this->attrs.GetFloat4(EmitterAttrs::WindDirection);
-	this->ui->windDirX->setValue(windDir.x());
-	this->ui->windDirY->setValue(windDir.y());
-	this->ui->windDirZ->setValue(windDir.z());
+	this->particleUi->windDirX->setValue(windDir.x());
+	this->particleUi->windDirY->setValue(windDir.y());
+	this->particleUi->windDirZ->setValue(windDir.z());
 
-	this->ui->primitiveGroupIndex->setValue(this->primGroupIndex);
-	this->ui->emitterMesh->setText(mesh.AsCharPtr());
+	this->particleUi->primitiveGroupIndex->setValue(this->primGroupIndex);
+	this->particleUi->emitterMesh->setText(mesh.AsCharPtr());
 
 	// setup connections of attributes
-	connect(this->ui->textureTiles, SIGNAL(valueChanged(double)), this, SLOT(TextureTileChanged(double)));
-	connect(this->ui->phasesPerSecond, SIGNAL(valueChanged(double)), this, SLOT(PhasesPerSecondChanged(double)));
-	connect(this->ui->emissionDuration, SIGNAL(valueChanged(double)), this, SLOT(EmissionDurationChanged(double)));
-	connect(this->ui->initRotationAngleMin, SIGNAL(valueChanged(double)), this, SLOT(StartRotationMinChanged(double)));
-	connect(this->ui->initRotationAngleMax, SIGNAL(valueChanged(double)), this, SLOT(StartRotationMaxChanged(double)));
-	connect(this->ui->startDelay, SIGNAL(valueChanged(double)), this, SLOT(StartDelayChanged(double)));
-	connect(this->ui->precalcAtStart, SIGNAL(valueChanged(double)), this, SLOT(PrecalcTimeChanged(double)));
-	connect(this->ui->initVectorRand, SIGNAL(valueChanged(double)), this, SLOT(VelocityRandomizeChanged(double)));
-	connect(this->ui->rotationRandomSeed, SIGNAL(valueChanged(double)), this, SLOT(RotationRandomizeChanged(double)));
-	connect(this->ui->stretch, SIGNAL(valueChanged(double)), this, SLOT(ParticleStretchChanged(double)));
-	connect(this->ui->activityDistance, SIGNAL(valueChanged(double)), this, SLOT(ActivityDistanceChanged(double)));
-	connect(this->ui->gravity, SIGNAL(valueChanged(double)), this, SLOT(GravityChanged(double)));
-	connect(this->ui->precalcAtStart, SIGNAL(valueChanged(double)), this, SLOT(PrecalcTimeChanged(double)));
-	connect(this->ui->looping, SIGNAL(toggled(bool)), this, SLOT(LoopingChanged(bool)));
-	connect(this->ui->randomizeRotation, SIGNAL(toggled(bool)), this, SLOT(RandomizeRotationChanged(bool)));
-	connect(this->ui->stretchToStart, SIGNAL(toggled(bool)), this, SLOT(StretchToStartChanged(bool)));
-	connect(this->ui->fadeOut, SIGNAL(toggled(bool)), this, SLOT(ViewAngleFadeChanged(bool)));
-	connect(this->ui->viewAligned, SIGNAL(toggled(bool)), this, SLOT(BillboardChanged(bool)));
-	connect(this->ui->oldestFirst, SIGNAL(toggled(bool)), this, SLOT(RenderOldestFirst(bool)));
-	connect(this->ui->sizeRandomSeed, SIGNAL(valueChanged(double)), this, SLOT(SizeRandomizeChanged(double)));
-	connect(this->ui->stretchDetail, SIGNAL(valueChanged(int)), this, SLOT(StretchDetailChanged(int)));
-	connect(this->ui->animationPhases, SIGNAL(valueChanged(int)), this, SLOT(AnimPhasesChanged(int)));
-	connect(this->ui->windDirX, SIGNAL(valueChanged(double)), this, SLOT(WindDirectionChanged()));
-	connect(this->ui->windDirY, SIGNAL(valueChanged(double)), this, SLOT(WindDirectionChanged()));
-	connect(this->ui->windDirZ, SIGNAL(valueChanged(double)), this, SLOT(WindDirectionChanged()));
+	connect(this->particleUi->textureTiles, SIGNAL(valueChanged(double)), this, SLOT(TextureTileChanged(double)));
+	connect(this->particleUi->phasesPerSecond, SIGNAL(valueChanged(double)), this, SLOT(PhasesPerSecondChanged(double)));
+	connect(this->particleUi->emissionDuration, SIGNAL(valueChanged(double)), this, SLOT(EmissionDurationChanged(double)));
+	connect(this->particleUi->initRotationAngleMin, SIGNAL(valueChanged(double)), this, SLOT(StartRotationMinChanged(double)));
+	connect(this->particleUi->initRotationAngleMax, SIGNAL(valueChanged(double)), this, SLOT(StartRotationMaxChanged(double)));
+	connect(this->particleUi->startDelay, SIGNAL(valueChanged(double)), this, SLOT(StartDelayChanged(double)));
+	connect(this->particleUi->precalcAtStart, SIGNAL(valueChanged(double)), this, SLOT(PrecalcTimeChanged(double)));
+	connect(this->particleUi->initVectorRand, SIGNAL(valueChanged(double)), this, SLOT(VelocityRandomizeChanged(double)));
+	connect(this->particleUi->rotationRandomSeed, SIGNAL(valueChanged(double)), this, SLOT(RotationRandomizeChanged(double)));
+	connect(this->particleUi->stretch, SIGNAL(valueChanged(double)), this, SLOT(ParticleStretchChanged(double)));
+	connect(this->particleUi->activityDistance, SIGNAL(valueChanged(double)), this, SLOT(ActivityDistanceChanged(double)));
+	connect(this->particleUi->gravity, SIGNAL(valueChanged(double)), this, SLOT(GravityChanged(double)));
+	connect(this->particleUi->precalcAtStart, SIGNAL(valueChanged(double)), this, SLOT(PrecalcTimeChanged(double)));
+	connect(this->particleUi->looping, SIGNAL(toggled(bool)), this, SLOT(LoopingChanged(bool)));
+	connect(this->particleUi->randomizeRotation, SIGNAL(toggled(bool)), this, SLOT(RandomizeRotationChanged(bool)));
+	connect(this->particleUi->stretchToStart, SIGNAL(toggled(bool)), this, SLOT(StretchToStartChanged(bool)));
+	connect(this->particleUi->fadeOut, SIGNAL(toggled(bool)), this, SLOT(ViewAngleFadeChanged(bool)));
+	connect(this->particleUi->viewAligned, SIGNAL(toggled(bool)), this, SLOT(BillboardChanged(bool)));
+	connect(this->particleUi->oldestFirst, SIGNAL(toggled(bool)), this, SLOT(RenderOldestFirst(bool)));
+	connect(this->particleUi->sizeRandomSeed, SIGNAL(valueChanged(double)), this, SLOT(SizeRandomizeChanged(double)));
+	connect(this->particleUi->stretchDetail, SIGNAL(valueChanged(int)), this, SLOT(StretchDetailChanged(int)));
+	connect(this->particleUi->animationPhases, SIGNAL(valueChanged(int)), this, SLOT(AnimPhasesChanged(int)));
+	connect(this->particleUi->windDirX, SIGNAL(valueChanged(double)), this, SLOT(WindDirectionChanged()));
+	connect(this->particleUi->windDirY, SIGNAL(valueChanged(double)), this, SLOT(WindDirectionChanged()));
+	connect(this->particleUi->windDirZ, SIGNAL(valueChanged(double)), this, SLOT(WindDirectionChanged()));
 
-	connect(this->ui->primitiveGroupIndex, SIGNAL(valueChanged(int)), this, SLOT(PrimitiveGroupIndexChanged(int)));
-	connect(this->ui->singlePointEmitter, SIGNAL(toggled(bool)), this, SLOT(SinglePointEmitterPressed()));
-	connect(this->ui->deleteNodeButton, SIGNAL(clicked()), this, SLOT(OnDeleteParticleNode()));
+	connect(this->particleUi->primitiveGroupIndex, SIGNAL(valueChanged(int)), this, SLOT(PrimitiveGroupIndexChanged(int)));
+	connect(this->particleUi->singlePointEmitter, SIGNAL(toggled(bool)), this, SLOT(SinglePointEmitterPressed()));
+	connect(this->particleUi->deleteNodeButton, SIGNAL(clicked()), this, SLOT(OnDeleteParticleNode()));
 
 	// start updates again
 	this->isUpdatingValues = false;
@@ -211,9 +215,9 @@ ParticleNodeHandler::Setup(const Util::String& resource)
 /**
 */
 void
-ParticleNodeHandler::SoftRefresh(const Util::String& resource)
+ParticleNodeHandler::Refresh()
 {
-	Ptr<ModelAttributes> attributes = this->itemHandler->GetAttributes();
+	Ptr<ModelAttributes> attributes = this->modelHandler->GetAttributes();
 
 	// avoid emitting signals from UI
 	this->isUpdatingValues = true;
@@ -222,75 +226,73 @@ ParticleNodeHandler::SoftRefresh(const Util::String& resource)
 	this->attrs = attributes->GetEmitterAttrs(this->nodePath);
 	if (mesh.IsEmpty())
 	{
-		this->ui->emitterMesh->setText("single point emitter mesh");
-		this->ui->singlePointEmitter->setChecked(true);
-		this->ui->primitiveGroupIndex->setEnabled(false);
+		this->particleUi->emitterMesh->setText("single point emitter mesh");
+		this->particleUi->singlePointEmitter->setChecked(true);
+		this->particleUi->primitiveGroupIndex->setEnabled(false);
 		this->emitterMesh = ParticleServer::Instance()->GetDefaultEmitterMesh();
 	}
 	else
 	{
 		this->managedEmitterMesh = Resources::ResourceManager::Instance()->CreateManagedResource(CoreGraphics::Mesh::RTTI, mesh, NULL, true).downcast<Resources::ManagedMesh>();
 		this->emitterMesh = this->managedEmitterMesh->GetMesh();
-		this->ui->primitiveGroupIndex->setMaximum(this->emitterMesh->GetNumPrimitiveGroups() - 1);
+		this->particleUi->primitiveGroupIndex->setMaximum(this->emitterMesh->GetNumPrimitiveGroups() - 1);
 	}
 
 	// fill emitter mesh
-	this->ui->emitterMesh->setText(attributes->GetEmitterMesh(this->nodePath).AsCharPtr());
+	this->particleUi->emitterMesh->setText(attributes->GetEmitterMesh(this->nodePath).AsCharPtr());
 
-	this->ui->colorRedFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::Red), EmitterAttrs::Red);
-	this->ui->colorGreenFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::Green), EmitterAttrs::Green);
-	this->ui->colorBlueFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::Blue), EmitterAttrs::Blue);
-	this->ui->colorAlphaFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::Alpha), EmitterAttrs::Alpha);
-	this->ui->frequencyFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::EmissionFrequency), EmitterAttrs::EmissionFrequency);
-	this->ui->lifetimeFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::LifeTime), EmitterAttrs::LifeTime);
-	this->ui->initVelocityFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::StartVelocity), EmitterAttrs::StartVelocity);
-	this->ui->rotationVelocityFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::RotationVelocity), EmitterAttrs::RotationVelocity);
-	this->ui->sizeFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::Size), EmitterAttrs::Size);
-	this->ui->spreadMinFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::SpreadMin), EmitterAttrs::SpreadMin);
-	this->ui->spreadMaxFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::SpreadMax), EmitterAttrs::SpreadMax);
-	this->ui->airResistanceFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::AirResistance), EmitterAttrs::AirResistance);
-	this->ui->velocityFactorFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::VelocityFactor), EmitterAttrs::VelocityFactor);
-	this->ui->massFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::Mass), EmitterAttrs::Mass);
-	this->ui->timeManipulatorFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::TimeManipulator), EmitterAttrs::TimeManipulator);
+	this->particleUi->colorRedFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::Red), EmitterAttrs::Red);
+	this->particleUi->colorGreenFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::Green), EmitterAttrs::Green);
+	this->particleUi->colorBlueFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::Blue), EmitterAttrs::Blue);
+	this->particleUi->colorAlphaFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::Alpha), EmitterAttrs::Alpha);
+	this->particleUi->frequencyFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::EmissionFrequency), EmitterAttrs::EmissionFrequency);
+	this->particleUi->lifetimeFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::LifeTime), EmitterAttrs::LifeTime);
+	this->particleUi->initVelocityFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::StartVelocity), EmitterAttrs::StartVelocity);
+	this->particleUi->rotationVelocityFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::RotationVelocity), EmitterAttrs::RotationVelocity);
+	this->particleUi->sizeFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::Size), EmitterAttrs::Size);
+	this->particleUi->spreadMinFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::SpreadMin), EmitterAttrs::SpreadMin);
+	this->particleUi->spreadMaxFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::SpreadMax), EmitterAttrs::SpreadMax);
+	this->particleUi->airResistanceFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::AirResistance), EmitterAttrs::AirResistance);
+	this->particleUi->velocityFactorFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::VelocityFactor), EmitterAttrs::VelocityFactor);
+	this->particleUi->massFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::Mass), EmitterAttrs::Mass);
+	this->particleUi->timeManipulatorFrame->Setup(this->attrs.GetEnvelope(EmitterAttrs::TimeManipulator), EmitterAttrs::TimeManipulator);
 
-	this->ui->textureTiles->setValue(this->attrs.GetFloat(EmitterAttrs::TextureTile));
-	this->ui->phasesPerSecond->setValue(this->attrs.GetFloat(EmitterAttrs::PhasesPerSecond));
-	this->ui->emissionDuration->setValue(this->attrs.GetFloat(EmitterAttrs::EmissionDuration));
-	this->ui->initRotationAngleMin->setValue(this->attrs.GetFloat(EmitterAttrs::StartRotationMin));
-	this->ui->initRotationAngleMax->setValue(this->attrs.GetFloat(EmitterAttrs::StartRotationMax));
-	this->ui->sizeRandomSeed->setValue(this->attrs.GetFloat(EmitterAttrs::SizeRandomize));
-	this->ui->startDelay->setValue(this->attrs.GetFloat(EmitterAttrs::StartDelay));
-	this->ui->precalcAtStart->setValue(this->attrs.GetFloat(EmitterAttrs::PrecalcTime));
-	this->ui->initVectorRand->setValue(this->attrs.GetFloat(EmitterAttrs::VelocityRandomize));
-	this->ui->rotationRandomSeed->setValue(this->attrs.GetFloat(EmitterAttrs::RotationRandomize));
-	this->ui->stretch->setValue(this->attrs.GetFloat(EmitterAttrs::ParticleStretch));
-	this->ui->activityDistance->setValue(this->attrs.GetFloat(EmitterAttrs::ActivityDistance));
-	this->ui->gravity->setValue(this->attrs.GetFloat(EmitterAttrs::Gravity));
-	this->ui->precalcAtStart->setValue(this->attrs.GetFloat(EmitterAttrs::PrecalcTime));
-	this->ui->looping->setChecked(this->attrs.GetBool(EmitterAttrs::Looping));
-	this->ui->randomizeRotation->setChecked(this->attrs.GetBool(EmitterAttrs::RandomizeRotation));
-	this->ui->stretchToStart->setChecked(this->attrs.GetBool(EmitterAttrs::StretchToStart));
-	this->ui->fadeOut->setChecked(this->attrs.GetBool(EmitterAttrs::ViewAngleFade));
-	this->ui->viewAligned->setChecked(this->attrs.GetBool(EmitterAttrs::Billboard));
-	this->ui->oldestFirst->setChecked(this->attrs.GetBool(EmitterAttrs::RenderOldestFirst));
-	this->ui->stretchDetail->setValue(this->attrs.GetInt(EmitterAttrs::StretchDetail));
-	this->ui->animationPhases->setValue(this->attrs.GetInt(EmitterAttrs::AnimPhases));
+	this->particleUi->textureTiles->setValue(this->attrs.GetFloat(EmitterAttrs::TextureTile));
+	this->particleUi->phasesPerSecond->setValue(this->attrs.GetFloat(EmitterAttrs::PhasesPerSecond));
+	this->particleUi->emissionDuration->setValue(this->attrs.GetFloat(EmitterAttrs::EmissionDuration));
+	this->particleUi->initRotationAngleMin->setValue(this->attrs.GetFloat(EmitterAttrs::StartRotationMin));
+	this->particleUi->initRotationAngleMax->setValue(this->attrs.GetFloat(EmitterAttrs::StartRotationMax));
+	this->particleUi->sizeRandomSeed->setValue(this->attrs.GetFloat(EmitterAttrs::SizeRandomize));
+	this->particleUi->startDelay->setValue(this->attrs.GetFloat(EmitterAttrs::StartDelay));
+	this->particleUi->precalcAtStart->setValue(this->attrs.GetFloat(EmitterAttrs::PrecalcTime));
+	this->particleUi->initVectorRand->setValue(this->attrs.GetFloat(EmitterAttrs::VelocityRandomize));
+	this->particleUi->rotationRandomSeed->setValue(this->attrs.GetFloat(EmitterAttrs::RotationRandomize));
+	this->particleUi->stretch->setValue(this->attrs.GetFloat(EmitterAttrs::ParticleStretch));
+	this->particleUi->activityDistance->setValue(this->attrs.GetFloat(EmitterAttrs::ActivityDistance));
+	this->particleUi->gravity->setValue(this->attrs.GetFloat(EmitterAttrs::Gravity));
+	this->particleUi->precalcAtStart->setValue(this->attrs.GetFloat(EmitterAttrs::PrecalcTime));
+	this->particleUi->looping->setChecked(this->attrs.GetBool(EmitterAttrs::Looping));
+	this->particleUi->randomizeRotation->setChecked(this->attrs.GetBool(EmitterAttrs::RandomizeRotation));
+	this->particleUi->stretchToStart->setChecked(this->attrs.GetBool(EmitterAttrs::StretchToStart));
+	this->particleUi->fadeOut->setChecked(this->attrs.GetBool(EmitterAttrs::ViewAngleFade));
+	this->particleUi->viewAligned->setChecked(this->attrs.GetBool(EmitterAttrs::Billboard));
+	this->particleUi->oldestFirst->setChecked(this->attrs.GetBool(EmitterAttrs::RenderOldestFirst));
+	this->particleUi->stretchDetail->setValue(this->attrs.GetInt(EmitterAttrs::StretchDetail));
+	this->particleUi->animationPhases->setValue(this->attrs.GetInt(EmitterAttrs::AnimPhases));
 
 	float4 windDir = this->attrs.GetFloat4(EmitterAttrs::WindDirection);
-	this->ui->windDirX->setValue(windDir.x());
-	this->ui->windDirY->setValue(windDir.y());
-	this->ui->windDirZ->setValue(windDir.z());
+	this->particleUi->windDirX->setValue(windDir.x());
+	this->particleUi->windDirY->setValue(windDir.y());
+	this->particleUi->windDirZ->setValue(windDir.z());
 
-	this->ui->primitiveGroupIndex->setValue(this->primGroupIndex);
-	this->ui->emitterMesh->setText(mesh.AsCharPtr());
+	this->particleUi->primitiveGroupIndex->setValue(this->primGroupIndex);
+	this->particleUi->emitterMesh->setText(mesh.AsCharPtr());
 
 	// enable signals again
 	this->isUpdatingValues = false;
 
-	// set attrs in particle system
-	this->particleStateNode->GetParticleSystemInstance()->UpdateEmitter(this->attrs, this->primGroupIndex, this->emitterMesh);
-
-    ModelNodeHandler::SoftRefresh(resource);
+	Ptr<Particles::MutableParticleSystemInstance> particleSystem = this->particleStateNode->GetParticleSystemInstance().downcast<Particles::MutableParticleSystemInstance>();
+	particleSystem->UpdateEmitter(this->attrs, this->primGroupIndex, this->emitterMesh);
 }
 
 //------------------------------------------------------------------------------
@@ -307,6 +309,7 @@ ParticleNodeHandler::Discard()
 	this->managedEmitterMesh = 0;
 	this->emitterMesh = 0;
 	ModelNodeHandler::Discard();
+	delete this->ui;
 }
 
 //------------------------------------------------------------------------------
@@ -339,15 +342,15 @@ ParticleNodeHandler::BrowseMesh()
 		value.Format("parmsh:%s/%s", category.AsCharPtr(), meshFile.AsCharPtr());
 
 		// set text
-		this->ui->emitterMesh->setText(value.AsCharPtr());
+		this->particleUi->emitterMesh->setText(value.AsCharPtr());
 
 		// load mesh
 		this->managedEmitterMesh = Resources::ResourceManager::Instance()->CreateManagedResource(CoreGraphics::Mesh::RTTI, value, NULL, true).downcast<Resources::ManagedMesh>();
 		this->emitterMesh = this->managedEmitterMesh->GetMesh();
-		this->ui->primitiveGroupIndex->setMaximum(this->emitterMesh->GetNumPrimitiveGroups() - 1);
+		this->particleUi->primitiveGroupIndex->setMaximum(this->emitterMesh->GetNumPrimitiveGroups() - 1);
 
 		// update mesh
-		Ptr<ModelAttributes> attributes = this->itemHandler->GetAttributes();
+		Ptr<ModelAttributes> attributes = this->modelHandler->GetAttributes();
 
 		// set mesh
 		attributes->SetEmitterMesh(this->nodePath, value);
@@ -364,9 +367,9 @@ void
 ParticleNodeHandler::PrimitiveGroupIndexChanged(int i)
 {
 	// update mesh
-	Ptr<ModelConstants> constants = this->itemHandler->GetConstants();
+	Ptr<ModelConstants> constants = this->modelHandler->GetConstants();
 	ToolkitUtil::ModelConstants::ParticleNode node = constants->GetParticleNode(this->nodeName);
-	node.primitiveGroupIndex = this->ui->primitiveGroupIndex->value();
+	node.primitiveGroupIndex = this->particleUi->primitiveGroupIndex->value();
 	this->primGroupIndex = node.primitiveGroupIndex;
 	constants->DeleteParticleNode(this->nodeName);
 	constants->AddParticleNode(this->nodeName, node);
@@ -384,19 +387,21 @@ ParticleNodeHandler::Apply()
 	if (this->isUpdatingValues) return;
 
 	// get model constants
-	Ptr<ModelAttributes> attributes = this->itemHandler->GetAttributes();
+	Ptr<ModelAttributes> attributes = this->modelHandler->GetAttributes();
 
 	// set attributes
 	attributes->SetEmitterAttrs(this->nodePath, this->attrs);
 
 	// set attrs in particle system
-	this->particleStateNode->GetParticleSystemInstance()->UpdateEmitter(this->attrs, this->primGroupIndex, this->emitterMesh);
+	Ptr<Particles::MutableParticleSystemInstance> particleSystem = this->particleStateNode->GetParticleSystemInstance().downcast<Particles::MutableParticleSystemInstance>();
+	particleSystem->UpdateEmitter(this->attrs, this->primGroupIndex, this->emitterMesh);
 
 	// apply modifications
-	this->itemHandler->OnModelModified();
+	this->modelHandler->OnModelModified();
 }
 
 //------------------------------------------------------------------------------
+
 /**
 */
 void 
@@ -574,9 +579,9 @@ ParticleNodeHandler::PhasesPerSecondChanged( double f )
 void 
 ParticleNodeHandler::WindDirectionChanged()
 {
-	double x = this->ui->windDirX->value();
-	double y = this->ui->windDirY->value();
-	double z = this->ui->windDirZ->value();
+	double x = this->particleUi->windDirX->value();
+	double y = this->particleUi->windDirY->value();
+	double z = this->particleUi->windDirZ->value();
 	this->attrs.SetFloat4(EmitterAttrs::WindDirection, float4(x, y, z, 0));
 
 	// apply modifications
@@ -685,15 +690,15 @@ ParticleNodeHandler::AnimPhasesChanged( int i )
 void 
 ParticleNodeHandler::SinglePointEmitterPressed()
 {
-	bool checked = this->ui->singlePointEmitter->isChecked();
+	bool checked = this->particleUi->singlePointEmitter->isChecked();
 	if (checked)
 	{
-		this->ui->emitterMesh->setEnabled(false);
-		this->ui->browseEmitterMesh->setEnabled(false);
-		this->ui->primitiveGroupIndex->setEnabled(false);
+		this->particleUi->emitterMesh->setEnabled(false);
+		this->particleUi->browseEmitterMesh->setEnabled(false);
+		this->particleUi->primitiveGroupIndex->setEnabled(false);
 
 		// update mesh
-		Ptr<ModelAttributes> attributes = this->itemHandler->GetAttributes();
+		Ptr<ModelAttributes> attributes = this->modelHandler->GetAttributes();
 
 		// set mesh
 		attributes->SetEmitterMesh(this->nodePath, "");
@@ -708,31 +713,28 @@ ParticleNodeHandler::SinglePointEmitterPressed()
 	}
 	else
 	{
-		this->ui->emitterMesh->setEnabled(true);
-		this->ui->browseEmitterMesh->setEnabled(true);
-		this->ui->primitiveGroupIndex->setEnabled(true);
+		this->particleUi->emitterMesh->setEnabled(true);
+		this->particleUi->browseEmitterMesh->setEnabled(true);
+		this->particleUi->primitiveGroupIndex->setEnabled(true);
 
 		// update mesh
-		Ptr<ModelAttributes> attributes = this->itemHandler->GetAttributes();
+		Ptr<ModelAttributes> attributes = this->modelHandler->GetAttributes();
 
 		// set mesh
-		attributes->SetEmitterMesh(this->nodePath, this->ui->emitterMesh->text().toUtf8().constData());
+		attributes->SetEmitterMesh(this->nodePath, this->particleUi->emitterMesh->text().toUtf8().constData());
 
 		// load mesh
-		String resource = this->ui->emitterMesh->text().toUtf8().constData();
+		String resource = this->particleUi->emitterMesh->text().toUtf8().constData();
 		if (!resource.IsEmpty())
 		{
 			this->managedEmitterMesh = Resources::ResourceManager::Instance()->CreateManagedResource(CoreGraphics::Mesh::RTTI, resource, NULL, true).downcast<Resources::ManagedMesh>();
 			this->emitterMesh = this->managedEmitterMesh->GetMesh();
-			this->ui->primitiveGroupIndex->setMaximum(this->emitterMesh->GetNumPrimitiveGroups() - 1);
+			this->particleUi->primitiveGroupIndex->setMaximum(this->emitterMesh->GetNumPrimitiveGroups() - 1);
 		}
 	}	
 
 	// apply changes
 	this->Apply();
-
-	// apply modifications
-	this->itemHandler->OnModelModified();
 }
 
 //------------------------------------------------------------------------------
@@ -741,7 +743,7 @@ ParticleNodeHandler::SinglePointEmitterPressed()
 void
 ParticleNodeHandler::OnDeleteParticleNode()
 {
-	this->itemHandler->RemoveParticleNode(this->nodePath, this->nodeName);
+	this->modelHandler->RemoveParticleNode(this->nodePath, this->nodeName);
 }
 
 } // namespace Widgets

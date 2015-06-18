@@ -59,12 +59,36 @@ int
 AssetBrowser::Execute(const QString& title, const AssetFilter& filter)
 {
 	this->setWindowTitle("Texture browser - " + title);
+
+	// pause loader
 	AssetBrowser::loaderThread->Pause(false);
+
+	// save the filter being used, then apply the executable filter
+	AssetFilter savedFilter = this->filter;
 	this->SetFilter(filter);
 	this->selectedResource = "";
+
+	// disable any filters when executing
+	this->ui->texturesFilter->setEnabled(false);
+	this->ui->modelsFilter->setEnabled(false);
+	this->ui->surfacesFilter->setEnabled(false);
+
+	// make sure the asset browser is being executed and not opened 'normally'
 	this->isExecuting = true;
+
+	// show window
 	this->raise();
-	return this->exec();
+	int result = this->exec();
+
+	// enable filter buttons again
+	this->ui->texturesFilter->setEnabled(true);
+	this->ui->modelsFilter->setEnabled(true);
+	this->ui->surfacesFilter->setEnabled(true);
+
+	// reset state and return result
+	this->SetFilter(savedFilter);
+	this->isExecuting = false;
+	return result;
 }
 
 //------------------------------------------------------------------------------
@@ -107,9 +131,7 @@ void
 AssetBrowser::closeEvent(QCloseEvent* event)
 {
 	AssetBrowser::loaderThread->Pause(true);
-	this->isExecuting = false;
 	QDialog::closeEvent(event);
-	this->filter = All;
 }
 
 //------------------------------------------------------------------------------
@@ -166,7 +188,7 @@ AssetBrowser::OnDirectoryClicked(const QString& dir, const QString& path)
 		connect(item, SIGNAL(ItemRightClicked(QGraphicsSceneContextMenuEvent*)), this, SLOT(OnItemRightClicked(QGraphicsSceneContextMenuEvent*)));
 	}
 
-	files = ioServer->ListFiles(assetPath, "*.fbx");
+	files = ioServer->ListFiles(assetPath, "*.attributes");
 	for (i = 0; i < files.Size(); i++)
 	{
 		const String& file = files[i];
@@ -380,6 +402,16 @@ AssetBrowser::SetFilter(const AssetFilter& filter)
 	// if the filter doesn't match, set this as our new filter and reset the browser
 	if (this->filter != filter)
 	{
+		// disable signals so that we may check/uncheck the filter boxes if we modify the filter from outside the browser
+		this->ui->texturesFilter->blockSignals(true);
+		this->ui->modelsFilter->blockSignals(true);
+		this->ui->surfacesFilter->blockSignals(true);
+
+		// make sure the checkboxes gets modified
+		this->ui->texturesFilter->setChecked(filter & Textures);
+		this->ui->modelsFilter->setChecked(filter & Models);
+		this->ui->surfacesFilter->setChecked(filter & Surfaces);
+
         const QList<TiledGraphicsItem*>& items = this->ui->assetView->GetItems();
         IndexT i;
         for (i = 0; i < items.size(); i++)
@@ -400,6 +432,11 @@ AssetBrowser::SetFilter(const AssetFilter& filter)
         }
         this->ui->assetView->Rearrange();
 		this->filter = filter;
+
+		// remember to unblock the signals again
+		this->ui->texturesFilter->blockSignals(false);
+		this->ui->modelsFilter->blockSignals(false);
+		this->ui->surfacesFilter->blockSignals(false);
 	}	
 }
 

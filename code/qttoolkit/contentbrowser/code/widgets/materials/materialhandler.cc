@@ -83,7 +83,6 @@ MaterialHandler::Setup(const QString& resource)
     this->upperLimitFloatMap.clear();
     this->lowerLimitIntMap.clear();
     this->upperLimitIntMap.clear();
-	
 
     // enable the elements which are only viable if we are working on a surface
     this->ui->templateBox->setEnabled(true);
@@ -427,7 +426,7 @@ MaterialHandler::VariableIntFieldChanged()
         slider->blockSignals(false);
     }
 
-    // update UI immedately
+    // update UI immediately
     QApplication::processEvents();
 
     // update int
@@ -680,6 +679,7 @@ MaterialHandler::Save()
 	String resName = String::Sprintf("src:assets/%s/%s.sur", this->category.AsCharPtr(), this->file.AsCharPtr());
 	Ptr<IO::Stream> stream = ioServer->CreateStream(resName);
 
+	// save material
 	Ptr<StreamSurfaceMaterialSaver> saver = StreamSurfaceMaterialSaver::Create();
 	saver->SetStream(stream);
 	this->material->SetSaver(saver.upcast<Resources::ResourceSaver>());
@@ -691,6 +691,7 @@ MaterialHandler::Save()
 	QString label;
 	this->ui->surfaceName->setText(label.sprintf("%s/%s", this->category.AsCharPtr(), this->file.AsCharPtr()));
 
+	// format the target where the resource will be exported to
 	String exportTarget = String::Sprintf("sur:%s/%s.sur", this->category.AsCharPtr(), this->file.AsCharPtr());
 
 	// create directory
@@ -728,6 +729,7 @@ MaterialHandler::SaveAs()
 		String resName = String::Sprintf("src:assets/%s/%s.sur", this->category.AsCharPtr(), this->file.AsCharPtr());
 		Ptr<IO::Stream> stream = ioServer->CreateStream(resName);
 
+		// create saver and save material
 		Ptr<StreamSurfaceMaterialSaver> saver = StreamSurfaceMaterialSaver::Create();
 		saver->SetStream(stream);
 		this->material->SetSaver(saver.upcast<Resources::ResourceSaver>());
@@ -736,10 +738,16 @@ MaterialHandler::SaveAs()
 			QMessageBox::critical(NULL, "Could not save surface!", "Surface could not be saved");
 		}
 		this->material->SetSaver(0);
+
+		// reformat label
 		QString label;
 		this->ui->surfaceName->setText(label.sprintf("%s/%s", this->category.AsCharPtr(), this->file.AsCharPtr()));
 
+		// format the target where the resource will be exported to
 		String exportTarget = String::Sprintf("sur:%s/%s.sur", this->category.AsCharPtr(), this->file.AsCharPtr());
+
+		// create directory
+		ioServer->CreateDirectory(exportTarget.ExtractToLastSlash());
 
 		// also convert it
 		Logger logger;
@@ -1612,6 +1620,7 @@ MaterialHandler::SetupSaveDialog()
 void
 MaterialHandler::ResetUI()
 {
+	// clear reference maps
 	this->textureImgMap.clear();
 	this->textureTextMap.clear();
 	this->textureLabelMap.clear();

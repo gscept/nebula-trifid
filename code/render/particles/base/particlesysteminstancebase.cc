@@ -171,24 +171,6 @@ ParticleSystemInstanceBase::OnRenderBefore()
 
 //------------------------------------------------------------------------------
 /**
-*/
-void 
-ParticleSystemInstanceBase::UpdateEmitter(const EmitterAttrs& newAttrs, IndexT primGroupIndex, const Ptr<CoreGraphics::Mesh>& emitterMesh)
-{
-	bool wasPlaying = (ParticleSystemState::Playing & this->stateMask) || (ParticleSystemState::Playing & this->stateChangeMask);
-	this->emitterAttrs = newAttrs;
-	this->primGroupIndex = primGroupIndex;
-	this->emitterMesh = emitterMesh;
-	this->Discard();
-	this->Setup(this->emitterMesh, this->primGroupIndex, this->emitterAttrs);
-	if (wasPlaying)
-	{
-		this->Start();
-	}
-}
-
-//------------------------------------------------------------------------------
-/**
     The Update() method must be called once per frame with a global time
     stamp. If the particle system is currently in the playing state,
     the method will emit new particles as needed, and update the current

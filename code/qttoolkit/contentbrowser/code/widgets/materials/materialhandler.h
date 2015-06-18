@@ -200,6 +200,8 @@ MaterialHandler::SetUI(Ui::MaterialInfoWidget* ui)
 	connect(this->ui->newButton, SIGNAL(clicked()), this, SLOT(NewSurface()));
 	connect(this->ui->saveButton, SIGNAL(clicked()), this, SLOT(Save()));
 	connect(this->ui->saveAsButton, SIGNAL(clicked()), this, SLOT(SaveAs()));
+	connect(this->ui->templateBox, SIGNAL(activated(const QString&)), this, SLOT(MaterialSelected(const QString&)));
+	connect(this->ui->materialHelp, SIGNAL(clicked()), this, SLOT(MaterialInfo()));
 }
 
 //------------------------------------------------------------------------------

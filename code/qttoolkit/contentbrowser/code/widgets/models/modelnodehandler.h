@@ -44,11 +44,6 @@ public:
 	/// get pointer to original item handler
 	const Ptr<ModelHandler>& GetModelHandler() const;
 
-    /// handle hard reset
-    virtual void HardRefresh(const Util::String& resource);
-    /// handle soft reset
-    virtual void SoftRefresh(const Util::String& resource);
-
     /// assign surface to state node instance
     void SetSurface(const Util::String& sur);
 
@@ -69,6 +64,9 @@ public:
 	virtual void Setup(const Util::String& resource);
     /// discards a model node handler
     void Discard();
+
+	/// handle soft reset
+	virtual void Refresh();
 
 private slots:
     /// browse surface material
@@ -91,7 +89,7 @@ protected:
 	QLayout* mainLayout;
 
 	Ui::ModelNodeInfoWidget* ui;
-	Ptr<ModelHandler> itemHandler;
+	Ptr<ModelHandler> modelHandler;
     Ptr<Materials::ManagedSurfaceMaterial> managedMaterial;
 }; 
 
@@ -177,7 +175,7 @@ inline void
 ModelNodeHandler::SetModelHandler( const Ptr<ModelHandler>& itemHandler )
 {
 	n_assert(itemHandler.isvalid());
-	this->itemHandler = itemHandler;
+	this->modelHandler = itemHandler;
 }
 
 //------------------------------------------------------------------------------
@@ -186,7 +184,7 @@ ModelNodeHandler::SetModelHandler( const Ptr<ModelHandler>& itemHandler )
 inline const Ptr<ModelHandler>& 
 ModelNodeHandler::GetModelHandler() const
 {
-	return this->itemHandler;
+	return this->modelHandler;
 }
 
 } // namespace Widgets
