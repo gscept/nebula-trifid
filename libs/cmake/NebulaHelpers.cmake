@@ -85,6 +85,29 @@ MACRO(N_SET_QT_PROPERTIES inTarget inFolder)
 ENDMACRO()
 
 #-------------------------------------------------------------------------------
+# helper for adding xml template files, blueprints and gui files to the project
+#-------------------------------------------------------------------------------
+
+MACRO(N_ADD_PROJECT_FILES files)
+	# template and other xml files
+	FILE(GLOB XMLS "../../data/tables/db/*.xml")
+	SOURCE_GROUP("templates" FILES ${XMLS})
+	LIST(APPEND XMLS "../../data/tables/blueprints.xml" "../../data/tables/globals.xml")
+	LIST(APPEND ${files} ${XMLS})
+	# scripts
+	FILE(GLOB_RECURSE LUA "../../data/scripts/*.lua")
+	SOURCE_GROUP("scripts" FILES ${LUA})
+	LIST(APPEND ${files} ${LUA})
+	# gui
+	FILE(GLOB_RECURSE UI "../../data/gui/*.rml")
+	SOURCE_GROUP("ui\\rml" FILES ${UI})
+	LIST(APPEND ${files} ${UI})
+	FILE(GLOB_RECURSE UI "../../data/gui/*.lua")
+	SOURCE_GROUP("ui\\scripts" FILES ${UI})
+	LIST(APPEND ${files} ${UI})
+ENDMACRO()
+
+#-------------------------------------------------------------------------------
 # Sets up the default Nebula precompiled header for the given target.
 # param TargetName is the name of a target that should use precompiled headers.
 # See extlibs/tinyxml/CMakeLists.txt for an example.
