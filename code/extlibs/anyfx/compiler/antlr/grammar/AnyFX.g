@@ -21,7 +21,7 @@ options
 {
 
 int preprocessorRowLexer = 0;
-const char* includeFileNameLexer = 0;
+std::string includeFileNameLexer = "";
 
 // perform token-level editing, for this to work properly, the antlr3lexer.c needs to be edited at line 292 from
 // emit(lexer);
@@ -64,7 +64,9 @@ EmitPreprocessedToken(pANTLR3_LEXER lexer)
 	token->user1	= lexer->rec->state->user1;
 	token->user2	= lexer->rec->state->user2;
 	token->user3	= lexer->rec->state->user3;
-	token->custom	= (void*)includeFileNameLexer;
+	std::string* file = new std::string;
+	*file = includeFileNameLexer;
+	token->custom	= (void*)file;
 
 	lexer->rec->state->token	    = token;
 
@@ -79,7 +81,7 @@ EmitPreprocessedToken(pANTLR3_LEXER lexer)
 #include <string>
 struct LexerErrorPackage
 {
-	const char* file;
+	std::string file;
 };
 }
 
@@ -207,14 +209,19 @@ ALPHABET	: ('A'..'Z'|'a'..'z');
 IDENTIFIER			: ALPHABET (ALPHABET|INTEGERLITERAL|'_')*;
 	
 // since the lexer also needs to be able to handle preprocessor tokens, we define this rule which will do exactly the same as the 'preprocessor' parser equal, but for the lexer
-PREPROCESSOR: NU 'line' WS includeLine = INTEGERLITERAL WS file = QO (~QO)* QO
+PREPROCESSOR
+	@init
+	{
+		std::string file;
+	}
+	: NU 'line' WS includeLine = INTEGERLITERAL WS QO (data = ~QO {file.push_back((char)$data); })* QO
 	{
 		int line = atoi((const char*)$includeLine.text->chars);
 		LEXER->input->line = line - 1;
-		includeFileNameLexer = (const char*)$file.text->chars;
 		if (LEXSTATE->userp) delete LEXSTATE->userp;
 		LexerErrorPackage* package = new LexerErrorPackage;
-		package->file = includeFileNameLexer;
+		includeFileNameLexer = file;
+		package->file = file;
 		LEXSTATE->userp = (void*)package;
 	}
 	;
@@ -368,7 +375,7 @@ type		returns [ DataType type ]
 
 // we can also define structs outside the function scopes
 structure	returns [ Structure structure ]
-	: 	'struct' IDENTIFIER { $structure.SetLine(LT(-2)->line ); $structure.SetPosition(LT(-2)->charPosition); $structure.SetFile((const char*)LT(-2)->custom); } LB ( parameter SC { $structure.AddParameter($parameter.parameter); } )* RB SC { $structure.SetName((const char*)$IDENTIFIER.text->chars);  }
+	: 	'struct' IDENTIFIER { $structure.SetLine(LT(-2)->line ); $structure.SetPosition(LT(-2)->charPosition); $structure.SetFile(*(std::string*)LT(-2)->custom); } LB ( parameter SC { $structure.AddParameter($parameter.parameter); } )* RB SC { $structure.SetName((const char*)$IDENTIFIER.text->chars);  }
 	;
 
 // a varblock denotes a block within which we can find variables, using this structure, we can feed variables in chunks instead of individually, which may improve performance
@@ -382,7 +389,9 @@ varblock	returns [ VarBlock block ]
 		{ $block.SetBufferExpression($expression.tree); }
 	}
 	)?
-	'varblock' name = IDENTIFIER { $block.SetLine(LT(-2)->line ); $block.SetPosition(LT(-2)->charPosition); $block.SetFile((const char*)LT(-2)->custom);} LB ( variable { $block.AddVariable($variable.variable); } )* RB SC { $block.SetName((const char*)$name.text->chars); }
+	'varblock' name = IDENTIFIER { $block.SetLine(LT(-2)->line ); $block.SetPosition(LT(-2)->charPosition); $block.SetFile(*(std::string*)LT(-2)->custom);} 
+	(annotation { $block.SetAnnotation($annotation.annotation); })?
+	LB ( variable { $block.AddVariable($variable.variable); } )* RB SC { $block.SetName((const char*)$name.text->chars); }
 	;
 	
 // a varbuffer denotes a data type which has a dynamic size.
@@ -391,7 +400,9 @@ varblock	returns [ VarBlock block ]
 varbuffer	returns [ VarBuffer buffer ]
 	:
 	(qualifier = IDENTIFIER { $buffer.AddQualifier((const char*)$qualifier.text->chars); } )*		
-	'varbuffer' name = IDENTIFIER { $buffer.SetLine(LT(-2)->line ); $buffer.SetPosition(LT(-2)->charPosition); $buffer.SetFile((const char*)LT(-2)->custom); } LB ( variable {$buffer.AddVariable($variable.variable); } )* RB SC { $buffer.SetName((const char*)$name.text->chars); }
+	'varbuffer' name = IDENTIFIER { $buffer.SetLine(LT(-2)->line ); $buffer.SetPosition(LT(-2)->charPosition); $buffer.SetFile(*(std::string*)LT(-2)->custom); }
+	(annotation { $buffer.SetAnnotation($annotation.annotation); })?
+	LB ( variable {$buffer.AddVariable($variable.variable); } )* RB SC { $buffer.SetName((const char*)$name.text->chars); }
 	;
 	
 // a subroutine denotes a function which can be dynamically switched without switching shader states.
@@ -399,14 +410,14 @@ varbuffer	returns [ VarBuffer buffer ]
 // then there is the other which is an implementation based on an interface.
 subroutine	returns [ Subroutine subroutine ]
 	:
-	'prototype' retval = type { subroutine.SetLine(LT(-2)->line ); $subroutine.SetPosition(LT(-2)->charPosition); $subroutine.SetFile((const char*)LT(-2)->custom); } name = IDENTIFIER LP parameterList RP SC
+	'prototype' retval = type { subroutine.SetLine(LT(-2)->line ); $subroutine.SetPosition(LT(-2)->charPosition); $subroutine.SetFile(*(std::string*)LT(-2)->custom); } name = IDENTIFIER LP parameterList RP SC
 	{
 		$subroutine.SetSubroutineType(Subroutine::Signature); 
 		$subroutine.SetName((const char*)$name.text->chars);
 		$subroutine.SetParameters($parameterList.parameters);
 		$subroutine.SetReturnType(retval);		
 	}
-	| 'subroutine' LP signature = IDENTIFIER RP { subroutine.SetLine(LT(-2)->line ); $subroutine.SetPosition(LT(-2)->charPosition); $subroutine.SetFile((const char*)LT(-2)->custom); } function
+	| 'subroutine' LP signature = IDENTIFIER RP { subroutine.SetLine(LT(-2)->line ); $subroutine.SetPosition(LT(-2)->charPosition); $subroutine.SetFile(*(std::string*)LT(-2)->custom); } function
 	{
 		$subroutine.SetName($function.function.GetName());
 		$subroutine.SetSubroutineType(Subroutine::Implementation); 
@@ -431,24 +442,26 @@ valueSingleList	returns [ ValueList valueList ]
 // variable is type, name and semicolon
 variable	returns [ Variable variable ]
 	:	(qualifier = IDENTIFIER { $variable.AddQualifier((const char*)$qualifier.text->chars); } )*
-		declType = type name = IDENTIFIER { $variable.SetVarType($declType.type); $variable.SetName((const char*)$name.text->chars); $variable.SetLine(LT(-2)->line ); $variable.SetPosition(LT(-2)->charPosition); $variable.SetFile((const char*)LT(-2)->custom);}
+		declType = type name = IDENTIFIER { $variable.SetVarType($declType.type); $variable.SetName((const char*)$name.text->chars); $variable.SetLine(LT(-2)->line ); $variable.SetPosition(LT(-2)->charPosition); $variable.SetFile(*(std::string*)LT(-2)->custom); }
 		( 	
-			SC 																				// uninitialized variable
-			| LL RR EQ 	{ $variable.SetArrayType(Variable::TypedArray); }		LB fstType = type LP fstValue = valueList RP { $variable.AddValue($fstType.type, $fstValue.valueList); }  // array initializer which assumes the size of the value list
-														  ( CO cntType = type LP cntValue = valueList RP { $variable.AddValue($cntType.type, $cntValue.valueList); } )* RB SC 
-			| LL RR EQ  { $variable.SetArrayType(Variable::SimpleArray); }		LB valList = valueList RB { $variable.AddValue($valList.valueList); } SC
-			| LL asize0 = expression RR SC 					{ $variable.SetSizeExpression($asize0.tree); } 								// array variable
-			| LL asize1 = expression RR 					{ $variable.SetSizeExpression($asize1.tree); $variable.SetArrayType(Variable::TypedArray); } EQ LB fstType = type LP fstValue = valueList RP { $variable.AddValue($fstType.type, $fstValue.valueList); } (CO cntType = type LP cntValue = valueList RP { $variable.AddValue($cntType.type, $cntValue.valueList); } )* RB SC				// array initializer for vector types
-			| LL asize2 = expression RR 					{ $variable.SetSizeExpression($asize2.tree); $variable.SetArrayType(Variable::SimpleArray); } EQ LB valList = valueList RB { $variable.AddValue($valList.valueList); } SC 				
-			| LL RR											{ $variable.SetArrayType(Variable::UnsizedArray); } SC						// unsized array type, only usable for varbuffers
-			| EQ defType = type LP list2 = valueList RP SC 	{ $variable.AddValue($defType.type, $list2.valueList); } 					// explicit variable initialization
-			| EQ list3 = valueSingleList SC					{ $variable.AddValue($list3.valueList); }									// implicit variable initialization, only viable for generic values
-		)			
+			LL RR EQ 	{ $variable.SetArrayType(Variable::TypedArray); }		LB fstType = type LP fstValue = valueList RP { $variable.AddValue($fstType.type, $fstValue.valueList); }  // array initializer which assumes the size of the value list
+														  ( CO cntType = type LP cntValue = valueList RP { $variable.AddValue($cntType.type, $cntValue.valueList); } )* RB 
+			| LL RR EQ  { $variable.SetArrayType(Variable::SimpleArray); }		LB valList = valueList RB { $variable.AddValue($valList.valueList); }
+			| LL asize0 = expression RR 					{ $variable.SetSizeExpression($asize0.tree); } 								// array variable
+			| LL asize1 = expression RR 					{ $variable.SetSizeExpression($asize1.tree); $variable.SetArrayType(Variable::TypedArray); } EQ LB fstType = type LP fstValue = valueList RP { $variable.AddValue($fstType.type, $fstValue.valueList); } (CO cntType = type LP cntValue = valueList RP { $variable.AddValue($cntType.type, $cntValue.valueList); } )* RB				// array initializer for vector types
+			| LL asize2 = expression RR 					{ $variable.SetSizeExpression($asize2.tree); $variable.SetArrayType(Variable::SimpleArray); } EQ LB valList = valueList RB { $variable.AddValue($valList.valueList); } 				
+			| LL RR											{ $variable.SetArrayType(Variable::UnsizedArray); } 						// unsized array type, only usable for varbuffers
+			| EQ defType = type LP list2 = valueList RP 	{ $variable.AddValue($defType.type, $list2.valueList); } 					// explicit variable initialization
+			| EQ list3 = valueSingleList					{ $variable.AddValue($list3.valueList); }									// implicit variable initialization, only viable for generic values
+		)?	
+		
+		(annotation { $variable.SetAnnotation($annotation.annotation); })?
+		SC
 	;
 	
 // constant value
 constant	returns [ Constant constant ]
-	: 'const' declType = type IDENTIFIER { $constant.SetDataType($declType.type); $constant.SetName((const char*)$IDENTIFIER.text->chars); $constant.SetLine(LT(-2)->line ); $constant.SetPosition(LT(-2)->charPosition); $constant.SetFile((const char*)LT(-2)->custom);}
+	: 'const' declType = type IDENTIFIER { $constant.SetDataType($declType.type); $constant.SetName((const char*)$IDENTIFIER.text->chars); $constant.SetLine(LT(-2)->line ); $constant.SetPosition(LT(-2)->charPosition); $constant.SetFile(*(std::string*)LT(-2)->custom);}
 	(
 		EQ defType = type LP sinVal1 = valueList RP SC		{ $constant.AddValue($defType.type, $sinVal1.valueList); }			// explicit variable initialization
 		| EQ sinVal2 = valueSingleList SC					{ $constant.AddValue($sinVal2.valueList); }							// implicit constant initialization, only viable for generic values
@@ -516,6 +529,11 @@ parameter	returns [ Parameter parameter ]
 			$parameter.SetFeedbackOffsetExpression($feedbackOffset.tree);
 		}
 	)?
+	(LL 'slot' EQ slotExpression = expression RR
+		{
+			$parameter.SetSlotExpression($slotExpression.tree);
+		}
+	)?
 	(qualifier = IDENTIFIER 
 		{ 
 			$parameter.AddQualifier((const char*)$qualifier.text->chars); 
@@ -527,7 +545,7 @@ parameter	returns [ Parameter parameter ]
 		}
 	)?
 	type name = IDENTIFIER 
-	{ $parameter.SetDataType($type.type); $parameter.SetName((const char*)$name.text->chars); $parameter.SetLine(LT(-2)->line ); $parameter.SetPosition(LT(-2)->charPosition); $parameter.SetFile((const char*)LT(-2)->custom);}	
+	{ $parameter.SetDataType($type.type); $parameter.SetName((const char*)$name.text->chars); $parameter.SetLine(LT(-2)->line ); $parameter.SetPosition(LT(-2)->charPosition); $parameter.SetFile(*(std::string*)LT(-2)->custom);}	
 	( LL (size = expression { $parameter.SetSizeExpression($size.tree); } )? RR { $parameter.ForceArrayFlag(); } )?
 	;
 	
@@ -575,7 +593,7 @@ function	returns [ Function function ]
 		}
 		: (functionAttribute { $function.ConsumeAttribute($functionAttribute.attribute); } )* 
 		('shader' { $function.SetShader(true); })?
-		type IDENTIFIER  { $function.SetLine(LT(1)->line ); $function.SetPosition(LT(1)->charPosition); $function.SetFile((const char*)LT(1)->custom); } LP parameterList RP
+		type IDENTIFIER  { $function.SetLine(LT(1)->line ); $function.SetPosition(LT(1)->charPosition); $function.SetFile(*(std::string*)LT(1)->custom); } LP parameterList RP
 		{
 			// save first token
 			startToken = LT(2);
@@ -623,8 +641,8 @@ renderStateRow	returns [ RenderStateRow row ]
 
 // draw state, contains a series of draw flags
 renderState	returns [ RenderState state ]
-	: 	'state' IDENTIFIER SC		{ $state.SetName((const char*)$IDENTIFIER.text->chars); $state.SetLine(LT(-2)->line); $state.SetPosition(LT(-2)->charPosition); $state.SetFile((const char*)LT(-2)->custom); }
-	| 	'state' IDENTIFIER LB 		{ $state.SetName((const char*)$IDENTIFIER.text->chars); $state.SetLine(LT(-2)->line); $state.SetPosition(LT(-2)->charPosition); $state.SetFile((const char*)LT(-2)->custom); }
+	: 	'state' IDENTIFIER SC		{ $state.SetName((const char*)$IDENTIFIER.text->chars); $state.SetLine(LT(-2)->line); $state.SetPosition(LT(-2)->charPosition); $state.SetFile(*(std::string*)LT(-2)->custom); }
+	| 	'state' IDENTIFIER LB 		{ $state.SetName((const char*)$IDENTIFIER.text->chars); $state.SetLine(LT(-2)->line); $state.SetPosition(LT(-2)->charPosition); $state.SetFile(*(std::string*)LT(-2)->custom); }
 	( 
 	  renderStateRow { $state.ConsumeRenderRow($renderStateRow.row); } 
 	| blendStateRow  { $state.ConsumeBlendRow($blendStateRow.row); }	
@@ -635,8 +653,8 @@ renderState	returns [ RenderState state ]
 
 // a sampler explains how to sample textures
 sampler		returns [ Sampler sampler ]
-	:	'samplerstate' IDENTIFIER SC					{ $sampler.SetName((const char*)$IDENTIFIER.text->chars); $sampler.SetLine(LT(-2)->line); $sampler.SetPosition(LT(-2)->charPosition); $sampler.SetFile((const char*)LT(-2)->custom); }
-	|	'samplerstate' IDENTIFIER 						{ $sampler.SetName((const char*)$IDENTIFIER.text->chars); $sampler.SetLine(LT(-1)->line); $sampler.SetPosition(LT(-1)->charPosition); $sampler.SetFile((const char*)LT(-1)->custom); }
+	:	'samplerstate' IDENTIFIER SC					{ $sampler.SetName((const char*)$IDENTIFIER.text->chars); $sampler.SetLine(LT(-2)->line); $sampler.SetPosition(LT(-2)->charPosition); $sampler.SetFile(*(std::string*)LT(-2)->custom); }
+	|	'samplerstate' IDENTIFIER 						{ $sampler.SetName((const char*)$IDENTIFIER.text->chars); $sampler.SetLine(LT(-1)->line); $sampler.SetPosition(LT(-1)->charPosition); $sampler.SetFile(*(std::string*)LT(-1)->custom); }
 		LB ( samplerRow { $sampler.ConsumeRow($samplerRow.row); } )* RB SC
 	;
 	
@@ -700,7 +718,7 @@ programRow	returns [ ProgramRow row ]
 annotation	returns [ Annotation annotation ]
 	: 	
 	LL	
-	{ $annotation.SetLine(LT(-1)->line); $annotation.SetPosition(LT(-1)->charPosition); $annotation.SetFile((const char*)LT(-1)->custom); }
+	{ $annotation.SetLine(LT(-1)->line); $annotation.SetPosition(LT(-1)->charPosition); $annotation.SetFile(*(std::string*)LT(-1)->custom); }
 	(type IDENTIFIER EQ value = 
 		(string { $annotation.AddString($string.val); }
 		| expression { $annotation.AddExpression($expression.tree); }
@@ -711,7 +729,7 @@ annotation	returns [ Annotation annotation ]
 	
 // a program is a complete pipeline
 program		returns [ Program program ]
-	: 	'program' IDENTIFIER { $program.SetLine(LT(-1)->line ); $program.SetPosition(LT(-1)->charPosition); $program.SetFile((const char*)LT(1)->custom); }
+	: 	'program' IDENTIFIER { $program.SetLine(LT(-1)->line ); $program.SetPosition(LT(-1)->charPosition); $program.SetFile(*(std::string*)LT(1)->custom); }
 		(annotation { $program.SetAnnotation($annotation.annotation); })? LB 
 		{ $program.SetName((const char*)$IDENTIFIER.text->chars);  }
 		(programRow { $program.ConsumeRow($programRow.row); })* RB SC 
@@ -749,7 +767,7 @@ binaryexp7	returns [ Expression* tree ]
 						
 						lhs->SetLine(LT(1)->line);
 						lhs->SetPosition(LT(1)->charPosition);
-						lhs->SetFile((const char*)LT(-1)->custom);
+						lhs->SetFile(*(std::string*)LT(-1)->custom);
 						
 						prev = lhs;
 						$tree = lhs;
@@ -780,7 +798,7 @@ binaryexp6			returns [ Expression* tree ]
 						
 						lhs->SetLine(LT(1)->line);
 						lhs->SetPosition(LT(1)->charPosition);
-						lhs->SetFile((const char*)LT(-1)->custom);
+						lhs->SetFile(*(std::string*)LT(-1)->custom);
 						
 						prev = lhs;
 						$tree = lhs;
@@ -811,7 +829,7 @@ binaryexp5			returns [ Expression* tree ]
 						
 						lhs->SetLine(LT(1)->line);
 						lhs->SetPosition(LT(1)->charPosition);
-						lhs->SetFile((const char*)LT(-1)->custom);
+						lhs->SetFile(*(std::string*)LT(-1)->custom);
 						
 						prev = lhs;
 						$tree = lhs;
@@ -842,7 +860,7 @@ binaryexp4			returns [ Expression* tree ]
 						
 						lhs->SetLine(LT(1)->line);
 						lhs->SetPosition(LT(1)->charPosition);
-						lhs->SetFile((const char*)LT(-1)->custom);
+						lhs->SetFile(*(std::string*)LT(-1)->custom);
 						
 						prev = lhs;
 						$tree = lhs;
@@ -873,7 +891,7 @@ binaryexp3			returns [ Expression* tree ]
 						
 						lhs->SetLine(LT(1)->line);
 						lhs->SetPosition(LT(1)->charPosition);
-						lhs->SetFile((const char*)LT(-1)->custom);
+						lhs->SetFile(*(std::string*)LT(-1)->custom);
 						
 						prev = lhs;
 						$tree = lhs;
@@ -904,7 +922,7 @@ binaryexp2			returns [ Expression* tree ]
 						
 						lhs->SetLine(LT(1)->line);
 						lhs->SetPosition(LT(1)->charPosition);
-						lhs->SetFile((const char*)LT(-1)->custom);
+						lhs->SetFile(*(std::string*)LT(-1)->custom);
 
 						prev = lhs;
 						$tree = lhs;
@@ -932,7 +950,7 @@ binaryexp1			returns [ Expression* tree ]
 						
 						rhs->SetLine(LT(1)->line);
 						rhs->SetPosition(LT(1)->charPosition);
-						rhs->SetFile((const char*)LT(-1)->custom);
+						rhs->SetFile(*(std::string*)LT(-1)->custom);
 
 						$tree = rhs;					                                                
 					
@@ -954,7 +972,7 @@ binaryexpatom		returns [ Expression* tree ]
 						$tree = new BoolExpression($boolean.val);						
 						$tree->SetLine(LT(1)->line);
 						$tree->SetPosition(LT(1)->charPosition);
-						$tree->SetFile((const char*)LT(-1)->custom);
+						$tree->SetFile(*(std::string*)LT(-1)->custom);
 					}
 					| parantexpression { $tree = $parantexpression.tree; }
 					;

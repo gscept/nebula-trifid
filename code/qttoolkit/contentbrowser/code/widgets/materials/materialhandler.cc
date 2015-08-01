@@ -14,10 +14,10 @@
 #include "previewer/previewstate.h"
 #include "graphics/modelentity.h"
 #include "renderutil/nodelookuputil.h"
-#include "materials/streamsurfacematerialsaver.h"
+#include "materials/streamsurfacesaver.h"
 #include "binaryxmlconverter.h"
 #include "logger.h"
-#include "mutablesurfacematerial.h"
+#include "mutablesurface.h"
 #include "messaging/staticmessagehandler.h"
 
 #include <QDialog>
@@ -99,8 +99,8 @@ MaterialHandler::Setup(const QString& resource)
 	this->ui->surfaceName->setText(String::Sprintf("%s/%s", this->category.AsCharPtr(), this->file.AsCharPtr()).AsCharPtr());
 
     // create resource
-	this->managedMaterial = Resources::ResourceManager::Instance()->CreateManagedResource(SurfaceMaterial::RTTI, resource.toUtf8().constData(), NULL, true).downcast<Materials::ManagedSurfaceMaterial>();
-	this->material = this->managedMaterial->GetMaterial();
+	this->managedSurface = Resources::ResourceManager::Instance()->CreateManagedResource(Surface::RTTI, resource.toUtf8().constData(), NULL, true).downcast<Materials::ManagedSurface>();
+	this->surface = this->managedSurface->GetSurface().downcast<MutableSurface>();
 
     // get layout
 	this->mainLayout = static_cast<QVBoxLayout*>(this->ui->variableFrame->layout());
@@ -134,9 +134,9 @@ MaterialHandler::Discard()
 	this->textureResources.Clear();
     this->textureVariables.Clear();
     this->scalarVariables.Clear();
-	Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedMaterial.upcast<Resources::ManagedResource>());
-	this->managedMaterial = 0;
-	this->material = 0;
+	Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedSurface.upcast<Resources::ManagedResource>());
+	this->managedSurface = 0;
+	this->surface = 0;
 	this->ClearFrame(this->mainLayout);
 
 	return BaseHandler::Discard();
@@ -170,8 +170,7 @@ MaterialHandler::MaterialSelected(const QString& material)
 
 	// update material
 	Ptr<Material> mat = MaterialServer::Instance()->GetMaterialByName(material.toUtf8().constData());
-	Ptr<MutableSurfaceMaterial> mutableMaterial = this->material.downcast<MutableSurfaceMaterial>();
-	mutableMaterial->SetMaterialTemplate(mat);
+	this->surface->SetMaterialTemplate(mat);
 
 	// rebuild the UI
 	this->ResetUI();
@@ -184,7 +183,7 @@ void
 MaterialHandler::MaterialInfo()
 {
 	// get material
-	Ptr<Material> mat = this->material->GetMaterialTemplate();
+	Ptr<Material> mat = this->surface->GetMaterialTemplate();
 
 	// create ui
 	Ui::MaterialHelpWidget ui;
@@ -231,7 +230,11 @@ MaterialHandler::TextureChanged(uint i)
         this->textureResources.EraseAtIndex(i);
     }
     this->textureResources.Add(i, textureObject);
-    if (this->textureVariables[i].isvalid()) this->textureVariables[i]->SetTexture(textureObject->GetTexture());
+
+    Util::Variant var;
+    var.SetType(Util::Variant::Object);
+    var.SetObject(textureObject->GetTexture());
+    this->surface->SetValue(this->textureVariables[i], var);
 	this->hasChanges = true;
 }
 
@@ -272,9 +275,9 @@ MaterialHandler::NewSurface()
 	this->ui->surfaceName->setText("<unnamed>");
 
 	// basically load placeholder, duplicate it, then clear the UI
-	if (this->managedMaterial.isvalid()) Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedMaterial.upcast<Resources::ManagedResource>());
-	this->managedMaterial = Resources::ResourceManager::Instance()->CreateManagedResource(SurfaceMaterial::RTTI, "intsur:system/placeholder.sur", NULL, true).downcast<Materials::ManagedSurfaceMaterial>();
-	this->material = this->managedMaterial->GetMaterial();
+	if (this->managedSurface.isvalid()) Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedSurface.upcast<Resources::ManagedResource>());
+	this->managedSurface = Resources::ResourceManager::Instance()->CreateManagedResource(Surface::RTTI, "intsur:system/placeholder.sur", NULL, true).downcast<Materials::ManagedSurface>();
+	this->surface = this->managedSurface->GetSurface().downcast<MutableSurface>();
 	this->hasChanges = false;
 	this->ResetUI();	
 }
@@ -320,7 +323,7 @@ MaterialHandler::VariableIntSliderChanged()
     uint index = this->variableSliderMap[slider];
 
     // set value
-    if (this->scalarVariables[index].isvalid()) this->scalarVariables[index]->SetValue(slider->value());
+    this->surface->SetValue(this->scalarVariables[index], slider->value());
 
     // get spin box
     QSpinBox* box = this->variableIntValueMap.key(index);
@@ -369,7 +372,7 @@ MaterialHandler::VariableFloatSliderChanged()
     uint index = this->variableSliderMap[slider];
 
     // set value
-    if (this->scalarVariables[index].isvalid()) this->scalarVariables[index]->SetValue(slider->value() / 100.0f);
+    this->surface->SetValue(this->scalarVariables[index], slider->value() / 100.0f);
 
     // get spin box
     QDoubleSpinBox* box = this->variableFloatValueMap.key(index);
@@ -680,14 +683,14 @@ MaterialHandler::Save()
 	Ptr<IO::Stream> stream = ioServer->CreateStream(resName);
 
 	// save material
-	Ptr<StreamSurfaceMaterialSaver> saver = StreamSurfaceMaterialSaver::Create();
+	Ptr<StreamSurfaceSaver> saver = StreamSurfaceSaver::Create();
 	saver->SetStream(stream);
-	this->material->SetSaver(saver.upcast<Resources::ResourceSaver>());
-	if (!this->material->Save())
+	this->surface->SetSaver(saver.upcast<Resources::ResourceSaver>());
+	if (!this->surface->Save())
 	{
 		QMessageBox::critical(NULL, "Could not save surface!", "Surface could not be saved");
 	}
-	this->material->SetSaver(0);
+	this->surface->SetSaver(0);
 	QString label;
 	this->ui->surfaceName->setText(label.sprintf("%s/%s", this->category.AsCharPtr(), this->file.AsCharPtr()));
 
@@ -704,9 +707,9 @@ MaterialHandler::Save()
 	this->hasChanges = false;
 
 	// hmm, now our managed material here will need to be updated, since we made a new material
-	Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedMaterial.upcast<Resources::ManagedResource>());
-	this->managedMaterial = Resources::ResourceManager::Instance()->CreateManagedResource(SurfaceMaterial::RTTI, exportTarget, NULL, true).downcast<Materials::ManagedSurfaceMaterial>();
-	this->material = this->managedMaterial->GetMaterial();
+	Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedSurface.upcast<Resources::ManagedResource>());
+	this->managedSurface = Resources::ResourceManager::Instance()->CreateManagedResource(Surface::RTTI, exportTarget, NULL, true).downcast<Materials::ManagedSurface>();
+	this->surface = this->managedSurface->GetSurface().downcast<MutableSurface>();
 }
 
 //------------------------------------------------------------------------------
@@ -730,14 +733,14 @@ MaterialHandler::SaveAs()
 		Ptr<IO::Stream> stream = ioServer->CreateStream(resName);
 
 		// create saver and save material
-		Ptr<StreamSurfaceMaterialSaver> saver = StreamSurfaceMaterialSaver::Create();
+        Ptr<StreamSurfaceSaver> saver = StreamSurfaceSaver::Create();
 		saver->SetStream(stream);
-		this->material->SetSaver(saver.upcast<Resources::ResourceSaver>());
-		if (!this->material->Save())
+		this->surface->SetSaver(saver.upcast<Resources::ResourceSaver>());
+		if (!this->surface->Save())
 		{
 			QMessageBox::critical(NULL, "Could not save surface!", "Surface could not be saved");
 		}
-		this->material->SetSaver(0);
+		this->surface->SetSaver(0);
 
 		// reformat label
 		QString label;
@@ -756,9 +759,9 @@ MaterialHandler::SaveAs()
 		this->hasChanges = false;
 
 		// hmm, now our managed material here will need to be updated, since we made a new material
-		Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedMaterial.upcast<Resources::ManagedResource>());
-		this->managedMaterial = Resources::ResourceManager::Instance()->CreateManagedResource(SurfaceMaterial::RTTI, exportTarget, NULL, true).downcast<Materials::ManagedSurfaceMaterial>();
-		this->material = this->managedMaterial->GetMaterial();
+		Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedSurface.upcast<Resources::ManagedResource>());
+		this->managedSurface = Resources::ResourceManager::Instance()->CreateManagedResource(Surface::RTTI, exportTarget, NULL, true).downcast<Materials::ManagedSurface>();
+        this->surface = this->managedSurface->GetSurface().downcast<MutableSurface>();
 
 		// make sure to reload the surface in case we have just overwritten it
 		Ptr<ReloadResourceIfExists> msg = ReloadResourceIfExists::Create();
@@ -810,7 +813,7 @@ MaterialHandler::FloatVariableChanged(uint i)
     QLabel* label = this->variableLabelMap.key(i);
 
     // set value
-    if (this->scalarVariables[i].isvalid()) this->scalarVariables[i]->SetValue((float)box->value());
+    this->surface->SetValue(this->scalarVariables[i], (float)box->value());
 
     // format label as text
     String idText = label->text().toUtf8().constData();
@@ -830,7 +833,7 @@ MaterialHandler::Float2VariableChanged(uint i)
     float2 floatVec(vector[0]->value(), vector[1]->value());
 
     // set value
-    if (this->scalarVariables[i].isvalid()) this->scalarVariables[i]->SetValue(floatVec);
+    this->surface->SetValue(this->scalarVariables[i], floatVec);
 
     // also get label
     QLabel* label = this->variableLabelMap.key(i);
@@ -861,7 +864,7 @@ MaterialHandler::Float4VariableChanged(uint i)
     }
 
     // set value
-    if (this->scalarVariables[i].isvalid()) this->scalarVariables[i]->SetValue(floatVec);
+    this->surface->SetValue(this->scalarVariables[i], floatVec);
 
     // also get label
     QLabel* label = this->variableLabelMap.key(i);
@@ -881,7 +884,7 @@ MaterialHandler::BoolVariableChanged(uint i)
     QCheckBox* box = this->variableBoolMap.key(i);
 
     // set value
-    if (this->scalarVariables[i].isvalid()) this->scalarVariables[i]->SetValue(box->isChecked());
+    this->surface->SetValue(this->scalarVariables[i], box->isChecked());
 
     // also get label
     QLabel* label = this->variableLabelMap.key(i);
@@ -903,7 +906,7 @@ MaterialHandler::IntVariableChanged(uint i)
     QSpinBox* upper = this->upperLimitIntMap.key(i);
 
     // set value
-    if (this->scalarVariables[i].isvalid()) this->scalarVariables[i]->SetValue(box->value());
+    this->surface->SetValue(this->scalarVariables[i], box->value());
 
     // also get label
     QLabel* label = this->variableLabelMap.key(i);
@@ -1074,7 +1077,7 @@ MaterialHandler::MakeMaterialUI(QLabel* surfaceName, QComboBox* materialBox, QPu
     }
 
     // now find our material and set index
-    int index = materialBox->findText(this->material->GetMaterialTemplate()->GetName().AsString().AsCharPtr());
+    int index = materialBox->findText(this->surface->GetMaterialTemplate()->GetName().AsString().AsCharPtr());
     materialBox->setCurrentIndex(index);
 
     // get state node
@@ -1092,7 +1095,7 @@ MaterialHandler::MakeMaterialUI(QLabel* surfaceName, QComboBox* materialBox, QPu
     }
 
     // get material
-    Ptr<Material> mat = this->material->GetMaterialTemplate();
+    Ptr<Material> mat = this->surface->GetMaterialTemplate();
 
     // add textures
     Array<Material::MaterialParameter> textures = this->GetTextures(mat);
@@ -1102,16 +1105,13 @@ MaterialHandler::MakeMaterialUI(QLabel* surfaceName, QComboBox* materialBox, QPu
         Material::MaterialParameter param = textures[i];
 
         // create texture variables
-        Ptr<SurfaceConstant> constant;
-        if (this->material->HasConstant(param.name)) constant = this->material->GetConstant(param.name);
-		else										 continue;
-        this->textureVariables.Add(i, constant);
+        this->textureVariables.Add(i, param.name);
 
 		// create new horizontal layout 
 		QHBoxLayout* varLayout = new QHBoxLayout;
 
         // get texture
-        Ptr<CoreGraphics::Texture> textureObject = (CoreGraphics::Texture*)constant->GetValue().GetObject();
+        Ptr<CoreGraphics::Texture> textureObject = (CoreGraphics::Texture*)this->surface->GetValue(param.name).GetObject();
         this->defaultTextureMap[i] = textureObject->GetResourceId().AsString().AsCharPtr();
         String res = textureObject->GetResourceId().AsString();
 
@@ -1165,11 +1165,6 @@ MaterialHandler::MakeMaterialUI(QLabel* surfaceName, QComboBox* materialBox, QPu
         String name = param.name;
         Variant var = param.defaultVal;
 
-		// create material instance
-		Ptr<SurfaceConstant> constant;
-		if (this->material->HasConstant(param.name)) constant = this->material->GetConstant(param.name);
-		else										 continue;
-
         // setup label
         QLabel* varName = new QLabel(name.AsCharPtr());
         QFont font = varName->font();
@@ -1185,7 +1180,7 @@ MaterialHandler::MakeMaterialUI(QLabel* surfaceName, QComboBox* materialBox, QPu
         group->setFlat(true);
 
         // create material instance
-        this->scalarVariables.Add(i, constant);
+        this->scalarVariables.Add(i, param.name);
 
         if (var.GetType() == Variant::Float4)
         {

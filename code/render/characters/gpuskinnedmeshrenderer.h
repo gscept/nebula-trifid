@@ -33,7 +33,7 @@ private:
     friend class Characters::CharacterServer;
 
 	/// updates a skinned mesh
-	void UpdateGPUSkinnedJointPalette(const Ptr<Characters::CharacterInstance>& charInst, const Util::Array<IndexT>& jointPalette, const Ptr<CoreGraphics::ShaderVariable>& jointPaletteShdVar);
+    void UpdateGPUSkinnedJointPalette(const Ptr<Characters::CharacterInstance>& charInst, const Util::Array<IndexT>& jointPalette, const Ptr<CoreGraphics::ShaderVariable>& jointPaletteShdVar);
     /// draw a skinned mesh
     void DrawGPUSkinnedMesh(const Ptr<CoreGraphics::Mesh>& mesh, IndexT primGroupIndex);
     /// draw skinned mesh instanced

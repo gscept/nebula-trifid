@@ -2,7 +2,6 @@
 //	glfwdisplaydevice.cc
 //  (C) 2013-2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
-
 #include "stdneb.h"
 #include "coregraphics/config.h"
 #include "coregraphics/glfw/glfwdisplaydevice.h"
@@ -341,6 +340,7 @@ GLFWDisplayDevice::OpenWindow()
     glfwWindowHint(GLFW_RESIZABLE, this->resizable ? GL_TRUE : GL_FALSE);
     glfwWindowHint(GLFW_DECORATED, this->decorated ? GL_TRUE : GL_FALSE);
 	glfwWindowHint(GLFW_SRGB_CAPABLE, GL_TRUE);
+    glfwWindowHint(GLFW_DOUBLEBUFFER, GL_TRUE);
 
 	// create window
 	this->window = glfwCreateWindow(this->displayMode.GetWidth(), this->displayMode.GetHeight(), this->windowTitle.AsCharPtr(), this->fullscreen ? glfwGetPrimaryMonitor() : NULL, NULL);
@@ -381,6 +381,7 @@ GLFWDisplayDevice::EmbedWindow()
 	glfwWindowHint(GLFW_GREEN_BITS, 8);
 	glfwWindowHint(GLFW_BLUE_BITS, 8);
 	glfwWindowHint(GLFW_SRGB_CAPABLE, GL_TRUE);
+    glfwWindowHint(GLFW_DOUBLEBUFFER, GL_TRUE);
 
 	// create window using our Qt window as child
 	this->window = glfwCreateWindowFromAlien(this->windowData.GetPtr());

@@ -1,9 +1,9 @@
 #pragma once
 //------------------------------------------------------------------------------
 /**
-	@class Materials::StreamSurfaceMaterialLoader
+	@class Materials::StreamSurfaceLoader
 	
-	Loads surface materials from XML declaration.
+	Loads surface from XML declaration.
 	
 	(C) 2015 Individual contributors, see AUTHORS file
 */
@@ -13,14 +13,14 @@
 #include "io/iointerfaceprotocol.h"
 namespace Materials
 {
-class StreamSurfaceMaterialLoader : public Resources::ResourceLoader
+class StreamSurfaceLoader : public Resources::ResourceLoader
 {
-	__DeclareClass(StreamSurfaceMaterialLoader);
+	__DeclareClass(StreamSurfaceLoader);
 public:
 	/// constructor
-	StreamSurfaceMaterialLoader();
+	StreamSurfaceLoader();
 	/// destructor
-	virtual ~StreamSurfaceMaterialLoader();
+	virtual ~StreamSurfaceLoader();
 
     /// return true if asynchronous loading is supported
     virtual bool CanLoadAsync() const;

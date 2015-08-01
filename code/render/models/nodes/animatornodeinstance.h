@@ -43,7 +43,7 @@ private:
     struct AnimatedNode
     {
         Ptr<ModelNodeInstance> node;
-        Ptr<Materials::SurfaceConstantInstance> var;
+        Ptr<Materials::SurfaceConstant> var;
     };
 
     Util::Array<Util::Array<AnimatedNode> > animSection;

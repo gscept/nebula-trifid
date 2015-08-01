@@ -76,9 +76,9 @@ protected:
     /// update software-skinned meshes
     void UpdateSoftwareSkinnedMeshes();
 	/// updates GPU skinned mesh joint palette
-	void UpdateGPUSkinnedJointPalette(const Ptr<Characters::CharacterInstance>& charInst, const Util::Array<IndexT>& jointPalette, const Ptr<CoreGraphics::ShaderVariable>& jointPaletteShdVar);
+    void UpdateGPUSkinnedJointPalette(const Ptr<Characters::CharacterInstance>& charInst, const Util::Array<IndexT>& jointPalette, const Ptr<CoreGraphics::ShaderVariable>& jointPaletteShdVar);
 	/// updates GPU texture skinned mesh joint palette
-	void UpdateGPUTextureSkinnedJointPalette(const Ptr<Characters::CharacterInstance>& charInst, const Ptr<CoreGraphics::ShaderVariable>& jointPaletteShdVar);
+    void UpdateGPUTextureSkinnedJointPalette(const Ptr<Characters::CharacterInstance>& charInst, const Ptr<CoreGraphics::ShaderVariable>& jointPaletteShdVar);
 
     /// draw a software skinned mesh
     void DrawSoftwareSkinnedMesh(DrawHandle h, IndexT primGroupIndex);

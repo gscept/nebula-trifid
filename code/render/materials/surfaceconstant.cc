@@ -6,7 +6,6 @@
 #include "surfaceconstant.h"
 #include "coregraphics/shaderinstance.h"
 #include "resources/resourcemanager.h"
-#include "surfaceconstantinstance.h"
 
 using namespace Util;
 namespace Materials
@@ -33,19 +32,8 @@ SurfaceConstant::~SurfaceConstant()
 //------------------------------------------------------------------------------
 /**
 */
-Ptr<SurfaceConstantInstance>
-SurfaceConstant::CreateInstance()
-{
-    Ptr<SurfaceConstantInstance> newInst = SurfaceConstantInstance::Create();
-    newInst->Setup(this);
-    return newInst;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
 void
-SurfaceConstant::Setup(const StringAtom& name, const Array<Ptr<CoreGraphics::ShaderInstance>>& shaders)
+SurfaceConstant::Setup(const StringAtom& name, const Array<Ptr<CoreGraphics::ShaderInstance>>& shaders, const Array<Frame::BatchGroup::Code>& batchCodes)
 {
     this->name = name;
 
@@ -54,8 +42,12 @@ SurfaceConstant::Setup(const StringAtom& name, const Array<Ptr<CoreGraphics::Sha
     {
         // get shader and variable (the variable must exist in the shader!)
         const Ptr<CoreGraphics::ShaderInstance>& shader = shaders[shaderIndex];
-        const Ptr<CoreGraphics::ShaderVariable>& var = shader->GetVariableByName(this->name);
-        this->variablesByShader.Add(shader, var);
+        const Ptr<CoreGraphics::ShaderVariableInstance>& var = shader->CreateVariableInstance(this->name);
+        const Frame::BatchGroup::Code& code = batchCodes[shaderIndex];
+        this->variablesByShader.Add(code, var);
+
+        // set value directly, this will effectively setup the constant
+        var->SetValue(this->value);
     }
 }
 
@@ -65,6 +57,11 @@ SurfaceConstant::Setup(const StringAtom& name, const Array<Ptr<CoreGraphics::Sha
 void
 SurfaceConstant::Discard()
 {
+    IndexT i;
+    for (i = 0; i < this->variablesByShader.Size(); i++)
+    {
+        this->variablesByShader.ValueAtIndex(i)->Discard();
+    }
     this->variablesByShader.Clear();
 }
 
@@ -72,85 +69,13 @@ SurfaceConstant::Discard()
 /**
 */
 void
-SurfaceConstant::Apply(const Ptr<CoreGraphics::ShaderInstance>& shader)
+SurfaceConstant::Apply(const Frame::BatchGroup::Code& group)
 {
     // skip applying if this constant has no binding to said variable
-	if (!this->variablesByShader.Contains(shader)) return;
-    const Ptr<CoreGraphics::ShaderVariable>& var = this->variablesByShader[shader];
-
-    // setup value in shader
-    switch (this->value.GetType())
-    {
-    case Variant::Int:
-        var->SetInt(this->value.GetInt());
-        break;
-    case Variant::IntArray:
-    {
-        Array<int> array = this->value.GetIntArray();
-        var->SetIntArray((const int*)&array, array.Size());
-        break;
-    }
-    case Variant::Float:
-        var->SetFloat(this->value.GetFloat());
-        break;
-    case Variant::FloatArray:
-    {
-       Array<float> array = this->value.GetFloatArray();
-       var->SetFloatArray((const float*)&array, array.Size());
-       break;
-    }
-    case Variant::Float2:
-        var->SetFloat2(this->value.GetFloat2());
-        break;
-    case Variant::Float2Array:
-    {
-        Array<Math::float2> array = this->value.GetFloat2Array();
-        var->SetFloat2Array((const Math::float2*)&array, array.Size());
-        break;
-    }
-    case Variant::Float4:
-        var->SetFloat4(this->value.GetFloat4());
-        break;
-    case Variant::Float4Array:
-    {
-        Array<Math::float4> array = this->value.GetFloat4Array();
-        var->SetFloat4Array((const Math::float4*)&array, array.Size());
-        break;
-    }
-    case Variant::Matrix44:
-        var->SetMatrix(this->value.GetMatrix44());
-        break;
-    case Variant::Matrix44Array:
-    {
-        Array<Math::matrix44> array = this->value.GetMatrix44Array();
-        var->SetMatrixArray((const Math::matrix44*)&array, array.Size());
-        break;
-    }
-    case Variant::Bool:
-        var->SetBool(this->value.GetBool());
-        break;
-    case Variant::BoolArray:
-    {
-        Array<bool> array = this->value.GetBoolArray();
-        var->SetBoolArray((const bool*)&array, array.Size());
-        break;
-    }
-    case Variant::Object:
-        // @note: implicit Ptr<> creation!
-        if (this->value.GetObject() != 0)
-        {
-            CoreGraphics::Texture* tex = (CoreGraphics::Texture*)this->value.GetObject();
-            var->SetTexture(tex);
-        }
-        else
-        {
-            var->SetTexture(NULL);
-        }
-        break;
-    default:
-        n_error("SurfaceMaterial::Setup(): invalid data type for parameter!");
-        break;
-    }
+	if (!this->variablesByShader.Contains(group)) return;
+    const Ptr<CoreGraphics::ShaderVariableInstance>& var = this->variablesByShader[group];
+    var->SetValue(this->value);
+    var->Apply();
 }
 
 

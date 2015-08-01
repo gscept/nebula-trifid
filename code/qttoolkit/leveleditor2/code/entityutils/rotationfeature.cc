@@ -264,7 +264,7 @@ RotationFeature::RenderHandles()
     float4 color;
     const int lineCount = 40;
     vector help;
-    point handlePoints[lineCount*2];
+    CoreGraphics::RenderShape::RenderShapeVertex handlePoints[lineCount * 2];
     vector circleVector;
 	vector planeNormal;
     IndexT i;
@@ -281,11 +281,11 @@ RotationFeature::RenderHandles()
     {
         help.set(circleVector.x(),circleVector.y(),circleVector.z());
 		this->RotateVector(help, this->xAxis, (float)-PI * (i / 2) / lineCount);
-		handlePoints[i] = this->origin + help;
+		handlePoints[i].pos = this->origin + help;
 
 		help = circleVector;
 		this->RotateVector(help, this->xAxis, (float)-PI * (i / 2 + 1) / lineCount);
-		handlePoints[i+1] = this->origin + help;  
+		handlePoints[i+1].pos = this->origin + help;  
     }
 
 	if (X_AXIS == this->currentDragMode || X_AXIS == mode)
@@ -302,7 +302,6 @@ RotationFeature::RenderHandles()
         CoreGraphics::PrimitiveTopology::LineList,
         lineCount,
         handlePoints,
-        4,
         color,
 		CoreGraphics::RenderShape::AlwaysOnTop);
 
@@ -316,11 +315,11 @@ RotationFeature::RenderHandles()
     {
         help = circleVector;
 		this->RotateVector(help, this->yAxis, (float)PI * (i / 2) / lineCount);
-        handlePoints[i] = this->origin + help;
+        handlePoints[i].pos = this->origin + help;
 
         help = circleVector;
         this->RotateVector(help, this->yAxis,(float)PI * (i/2 +1) / lineCount);
-        handlePoints[i+1] = this->origin + help;  
+        handlePoints[i+1].pos = this->origin + help;  
     }
     
 	if (Y_AXIS == this->currentDragMode || Y_AXIS == mode)
@@ -337,7 +336,6 @@ RotationFeature::RenderHandles()
         CoreGraphics::PrimitiveTopology::LineList,
         lineCount,
         handlePoints,
-        4,
         color,
 		CoreGraphics::RenderShape::AlwaysOnTop);
 
@@ -351,11 +349,11 @@ RotationFeature::RenderHandles()
     {
         help = circleVector;
         this->RotateVector(help, this->zAxis,-(float)PI * (i/2) / lineCount);
-        handlePoints[i] = this->origin + help;
+        handlePoints[i].pos = this->origin + help;
 
         help = circleVector;
         this->RotateVector(help, this->zAxis,-(float)PI * (i/2 +1) / lineCount);
-        handlePoints[i+1] = this->origin + help;  
+        handlePoints[i+1].pos = this->origin + help;  
     }
 
 	if (Z_AXIS == this->currentDragMode || Z_AXIS == mode)
@@ -372,7 +370,6 @@ RotationFeature::RenderHandles()
         CoreGraphics::PrimitiveTopology::LineList,
         lineCount,
         handlePoints,
-        4,
         color,
 		CoreGraphics::RenderShape::AlwaysOnTop);
     
@@ -385,11 +382,11 @@ RotationFeature::RenderHandles()
     {
         help = circleVector;
         this->RotateVector(help, normal, 2*(float)PI * (i/2) / lineCount);
-        handlePoints[i] = this->origin + help;
+        handlePoints[i].pos = this->origin + help;
 
         help = circleVector;
         this->RotateVector(help, normal, 2*(float)PI * (i/2 +1) / lineCount);
-        handlePoints[i+1] = this->origin + help;  
+        handlePoints[i+1].pos = this->origin + help;  
     }
     
 	if (VIEW_AXIS == this->currentDragMode || VIEW_AXIS == mode)
@@ -406,7 +403,6 @@ RotationFeature::RenderHandles()
         CoreGraphics::PrimitiveTopology::LineList, 
         lineCount, 
         handlePoints, 
-        4, 
         color, 
 		CoreGraphics::RenderShape::AlwaysOnTop);
 }

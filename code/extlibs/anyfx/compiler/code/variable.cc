@@ -38,8 +38,8 @@ Variable::~Variable()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Variable::AddValue( const DataType& type, const ValueList& value )
+void
+Variable::AddValue(const DataType& type, const ValueList& value)
 {
 	std::pair<DataType, ValueList> pair;
 	pair.first = type;
@@ -51,8 +51,8 @@ Variable::AddValue( const DataType& type, const ValueList& value )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Variable::AddValue( const ValueList& value )
+void
+Variable::AddValue(const ValueList& value)
 {
 	std::pair<DataType, ValueList> pair;
 	pair.first = this->type;
@@ -64,8 +64,8 @@ Variable::AddValue( const ValueList& value )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Variable::TypeCheck( TypeChecker& typechecker )
+void
+Variable::TypeCheck(TypeChecker& typechecker)
 {
 	// if type is user defined, check if symbol is defined
 	if (this->GetVarType().GetType() == DataType::UserType)
@@ -188,6 +188,7 @@ Variable::TypeCheck( TypeChecker& typechecker )
 		else if (qualifier == "readwrite")		this->accessMode = Variable::ReadWrite;
         else if (qualifier == "groupshared")    this->qualifierFlags |= Variable::GroupShared;
         else if (qualifier == "shared")         this->qualifierFlags |= Variable::Shared;
+        else if (qualifier == "bindless")       this->qualifierFlags |= Variable::Bindless;
 		else
 		{
 			std::string message = AnyFX::Format("Unknown qualifier '%s', %s\n", qualifier.c_str(), this->ErrorSuffix().c_str());
@@ -323,12 +324,13 @@ Variable::TypeCheck( TypeChecker& typechecker )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Variable::Compile( BinWriter& writer )
+void
+Variable::Compile(BinWriter& writer)
 {
     bool shared = (this->qualifierFlags & Variable::Shared) == 0 ? false : true;
 	writer.WriteString(this->name);
     writer.WriteBool(shared);
+    writer.WriteBool((this->qualifierFlags & Bindless) != 0);
 	writer.WriteInt(this->type.GetType());
 
 	// if this is a compute variable, write the format and access mode to stream
@@ -383,8 +385,8 @@ Variable::Compile( BinWriter& writer )
 /**
 	Format variable code, this is pretty generic and is only dependent on how to format the types
 */
-std::string 
-Variable::Format( const Header& header, bool inVarblock ) const
+std::string
+Variable::Format(const Header& header, bool inVarblock) const
 {
 	std::string formattedCode;
 
@@ -396,6 +398,10 @@ Variable::Format( const Header& header, bool inVarblock ) const
 		formattedCode.append(this->FormatImageAccess(header));
 		formattedCode.append(" ");
 	}    
+    else if (this->type.GetType() >= DataType::Sampler1D && this->type.GetType() <= DataType::SamplerCubeArray)
+    {
+        if (this->qualifierFlags & Bindless) formattedCode.append("layout(bindless_sampler) ");
+    }
 
 	// add GLSL uniform qualifier
 	if (header.GetType() == Header::GLSL && !inVarblock)

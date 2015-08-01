@@ -45,7 +45,7 @@ EffectVarbuffer::Commit()
 //------------------------------------------------------------------------------
 /**
 */
-const std::string& 
+const eastl::string&
 EffectVarbuffer::GetName() const
 {
     return this->internalVarbuffer->GetName();

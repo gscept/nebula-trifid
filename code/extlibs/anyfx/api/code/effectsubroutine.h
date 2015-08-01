@@ -13,7 +13,7 @@
 #error "afxapi.h included before effectsubroutine.h"
 #endif
 
-#include <string>
+#include "EASTL/string.h"
 namespace AnyFX
 {
 class InternalEffectSubroutine;
@@ -37,7 +37,7 @@ public:
     void Discard();
 
     /// get subroutine object name
-    const std::string& GetName() const;
+    const eastl::string& GetName() const;
     /// get subroutine object type
     const SubroutineType& GetType() const;
 

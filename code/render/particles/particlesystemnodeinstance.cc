@@ -9,7 +9,6 @@
 #include "particles/particlerenderer.h"
 #include "coregraphics/shadersemantics.h"
 #include "models/model.h"
-#include "materials/materialinstance.h"
 #include "models/modelnodeinstance.h"
 #include "models/modelinstance.h"
 #include "graphics/modelentity.h"
@@ -56,7 +55,7 @@ ParticleSystemNodeInstance::OnVisibilityResolve(IndexT resolveIndex, float dista
     const Ptr<TransformNode>& transformNode = this->modelNode.downcast<TransformNode>();
     if (transformNode->CheckLodDistance(distanceToViewer))
     {
-		this->modelNode->AddVisibleNodeInstance(resolveIndex, this->material->GetMaterialType(), this);
+		this->modelNode->AddVisibleNodeInstance(resolveIndex, this->surfaceInstance->GetCode(), this);
         ModelNodeInstance::OnVisibilityResolve(resolveIndex, distanceToViewer);
     }
 }
@@ -91,42 +90,39 @@ ParticleSystemNodeInstance::Setup(const Ptr<ModelInstance>& inst, const Ptr<Mode
     this->particleSystemInstance->Setup(emitterMesh, particleSystemNode->GetPrimitiveGroupIndex(), particleSystemNode->GetEmitterAttrs());
 	this->particleSystemInstance->Start();
 
-    // clone base material
-    this->surfaceClone = this->modelNode.downcast<StateNode>()->GetMaterial();
-
-    if (this->surfaceClone->HasConstant(NEBULA3_SEMANTIC_EMITTERTRANSFORM))
+    if (this->surfaceInstance->HasConstant(NEBULA3_SEMANTIC_EMITTERTRANSFORM))
 	{
-        this->emitterOrientation = this->surfaceClone->GetConstant(NEBULA3_SEMANTIC_EMITTERTRANSFORM)->CreateInstance();
+        this->emitterOrientation = this->surfaceInstance->GetConstant(NEBULA3_SEMANTIC_EMITTERTRANSFORM);
 	}
-    if (this->surfaceClone->HasConstant(NEBULA3_SEMANTIC_BILLBOARD))
+    if (this->surfaceInstance->HasConstant(NEBULA3_SEMANTIC_BILLBOARD))
 	{
-		this->billBoard = this->surfaceClone->GetConstant(NEBULA3_SEMANTIC_BILLBOARD)->CreateInstance();
+		this->billBoard = this->surfaceInstance->GetConstant(NEBULA3_SEMANTIC_BILLBOARD);
 	}
-    if (this->surfaceClone->HasConstant(NEBULA3_SEMANTIC_BBOXCENTER))
+    if (this->surfaceInstance->HasConstant(NEBULA3_SEMANTIC_BBOXCENTER))
 	{
-		this->bboxCenter = this->surfaceClone->GetConstant(NEBULA3_SEMANTIC_BBOXCENTER)->CreateInstance();
+		this->bboxCenter = this->surfaceInstance->GetConstant(NEBULA3_SEMANTIC_BBOXCENTER);
 	}
-    if (this->surfaceClone->HasConstant(NEBULA3_SEMANTIC_BBOXSIZE))
+    if (this->surfaceInstance->HasConstant(NEBULA3_SEMANTIC_BBOXSIZE))
 	{
-		this->bboxSize = this->surfaceClone->GetConstant(NEBULA3_SEMANTIC_BBOXSIZE)->CreateInstance();
+		this->bboxSize = this->surfaceInstance->GetConstant(NEBULA3_SEMANTIC_BBOXSIZE);
 	}
-    if (this->surfaceClone->HasConstant(NEBULA3_SEMANTIC_TIME))
+    if (this->surfaceInstance->HasConstant(NEBULA3_SEMANTIC_TIME))
 	{
-		this->time = this->surfaceClone->GetConstant(NEBULA3_SEMANTIC_TIME)->CreateInstance();
+		this->time = this->surfaceInstance->GetConstant(NEBULA3_SEMANTIC_TIME);
 	}
-    if (this->surfaceClone->HasConstant(NEBULA3_SEMANTIC_ANIMPHASES))
+    if (this->surfaceInstance->HasConstant(NEBULA3_SEMANTIC_ANIMPHASES))
 	{
-		this->animPhases = this->surfaceClone->GetConstant(NEBULA3_SEMANTIC_ANIMPHASES)->CreateInstance();
+		this->animPhases = this->surfaceInstance->GetConstant(NEBULA3_SEMANTIC_ANIMPHASES);
 	}
-    if (this->surfaceClone->HasConstant(NEBULA3_SEMANTIC_ANIMSPERSEC))
+    if (this->surfaceInstance->HasConstant(NEBULA3_SEMANTIC_ANIMSPERSEC))
 	{
-		this->animsPerSec = this->surfaceClone->GetConstant(NEBULA3_SEMANTIC_ANIMSPERSEC)->CreateInstance();
+		this->animsPerSec = this->surfaceInstance->GetConstant(NEBULA3_SEMANTIC_ANIMSPERSEC);
 	}
-    if (this->surfaceClone->HasConstant(NEBULA3_SEMANTIC_DEPTHBUFFER))
+    if (this->surfaceInstance->HasConstant(NEBULA3_SEMANTIC_DEPTHBUFFER))
 	{
 		Ptr<FrameShader> defaultFrameShader = FrameServer::Instance()->LookupFrameShader(NEBULA3_DEFAULT_FRAMESHADER_NAME);
 		Ptr<RenderTarget> depthTexture = defaultFrameShader->GetRenderTargetByName("DepthBuffer");
-		this->depthBuffer = this->surfaceClone->GetConstant(NEBULA3_SEMANTIC_DEPTHBUFFER)->CreateInstance();
+		this->depthBuffer = this->surfaceInstance->GetConstant(NEBULA3_SEMANTIC_DEPTHBUFFER);
 		this->depthBuffer->SetTexture(depthTexture->GetResolveTexture());
 	}
 
@@ -165,16 +161,12 @@ ParticleSystemNodeInstance::Discard()
 
     // discard material clone
 	//this->surfaceClone->Unload();
-	this->surfaceClone = 0;
-	this->emitterOrientation->Discard();
     this->emitterOrientation = 0;
     this->billBoard = 0;
     this->bboxCenter = 0;
     this->bboxSize = 0;
     this->time = 0;
-	this->animPhases->Discard();
     this->animPhases = 0;
-	this->animsPerSec->Discard();
     this->animsPerSec = 0;
     this->depthBuffer = 0;
 
@@ -260,7 +252,7 @@ ParticleSystemNodeInstance::OnRenderBefore(IndexT frameIndex, Timing::Time time)
 /**
 */
 void
-ParticleSystemNodeInstance::ApplyState(const Ptr<CoreGraphics::ShaderInstance>& shader)
+ParticleSystemNodeInstance::ApplyState(IndexT frameIndex, const Frame::BatchGroup::Code& group, const Ptr<CoreGraphics::Shader>& shader)
 {
 	// set variables
 	if (this->GetParticleSystemInstance()->GetParticleSystem()->GetEmitterAttrs().GetBool(EmitterAttrs::Billboard))
@@ -281,12 +273,12 @@ ParticleSystemNodeInstance::ApplyState(const Ptr<CoreGraphics::ShaderInstance>& 
     this->animsPerSec->SetValue(this->GetParticleSystemInstance()->GetParticleSystem()->GetEmitterAttrs().GetFloat(EmitterAttrs::PhasesPerSecond));
 
 	// call base class (applies time)
-	StateNodeInstance::ApplyState(shader);
+    StateNodeInstance::ApplyState(frameIndex, group, shader);
 
-	this->emitterOrientation->Apply(shader);
-	this->animPhases->Apply(shader);
-	this->animsPerSec->Apply(shader);
-	this->depthBuffer->Apply(shader);
+	this->emitterOrientation->Apply(group);
+    this->animPhases->Apply(group);
+    this->animsPerSec->Apply(group);
+    this->depthBuffer->Apply(group);
 }
 
 //------------------------------------------------------------------------------

@@ -3,17 +3,18 @@
 //  (C) 2012-2014 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "shaderbufferbase.h"
+#include "shaderreadwritebufferbase.h"
 
 namespace Base
 {
-__ImplementClass(Base::ShaderBufferBase, 'SHBB', Core::RefCounted);
+__ImplementClass(Base::ShaderReadWriteBufferBase, 'SHBB', Core::RefCounted);
 
 //------------------------------------------------------------------------------
 /**
 */
-ShaderBufferBase::ShaderBufferBase() :
-	isSetup(false)
+ShaderReadWriteBufferBase::ShaderReadWriteBufferBase() :
+	isSetup(false),
+    bufferIndex(0)
 {
 	// empty
 }
@@ -21,7 +22,7 @@ ShaderBufferBase::ShaderBufferBase() :
 //------------------------------------------------------------------------------
 /**
 */
-ShaderBufferBase::~ShaderBufferBase()
+ShaderReadWriteBufferBase::~ShaderReadWriteBufferBase()
 {
 	// empty
 }
@@ -30,7 +31,7 @@ ShaderBufferBase::~ShaderBufferBase()
 /**
 */
 void
-ShaderBufferBase::Setup()
+ShaderReadWriteBufferBase::Setup()
 {
 	n_assert(!this->isSetup);
 	n_assert(this->size > 0);
@@ -41,7 +42,7 @@ ShaderBufferBase::Setup()
 /**
 */
 void
-ShaderBufferBase::Discard()
+ShaderReadWriteBufferBase::Discard()
 {
 	n_assert(this->isSetup);
 	this->isSetup = false;
@@ -51,12 +52,20 @@ ShaderBufferBase::Discard()
 /**
 */
 void
-ShaderBufferBase::UpdateBuffer(void* data, SizeT offset, SizeT length)
+ShaderReadWriteBufferBase::Update(void* data, uint offset, uint length)
 {
 	n_assert(offset < size);
 	n_assert(length > 0);
 	// implementation specific
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ShaderReadWriteBufferBase::CycleBuffers()
+{
+    this->bufferIndex = (this->bufferIndex + 1) % NumBuffers;
+}
 
 } // namespace Base

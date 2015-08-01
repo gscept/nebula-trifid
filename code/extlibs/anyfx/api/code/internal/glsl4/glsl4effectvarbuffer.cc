@@ -81,7 +81,7 @@ GLSL4EffectVarbuffer::Commit()
 {
 	if (this->currentLocation != GL_INVALID_INDEX)
 	{
-		EffectVarbuffer::OpenGLBuffer* buf = (EffectVarbuffer::OpenGLBuffer*)this->currentBufferHandle;
+		EffectVarbuffer::OpenGLBufferBinding* buf = (EffectVarbuffer::OpenGLBufferBinding*)this->currentBufferHandle;
 		if (buf != 0)
 		{
 			if (buf->bindRange)

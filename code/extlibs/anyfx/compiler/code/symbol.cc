@@ -10,7 +10,8 @@ namespace AnyFX
 //------------------------------------------------------------------------------
 /**
 */
-Symbol::Symbol()
+Symbol::Symbol() :
+    reserved(false)
 {
 	// empty
 }

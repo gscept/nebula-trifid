@@ -13,7 +13,7 @@
 #error "afxapi.h included before effectvariable.h"
 #endif
 
-#include <string>
+#include "EASTL/string.h"
 #include "vartypes.h"
 #include "annotable.h"
 namespace AnyFX
@@ -33,7 +33,7 @@ public:
 	void Discard();
 
 	/// get name of variable
-	const std::string& GetName() const;
+	const eastl::string& GetName() const;
 	/// get type of variable
 	const VariableType& GetType() const;
 
@@ -93,24 +93,28 @@ public:
 	void SetTextureHandle(void* handle);
 
 	/// converts effect variable type to string
-	static std::string TypeToString(const VariableType& type);
+	static eastl::string TypeToString(const VariableType& type);
 	/// converts effect variable type to byte size
 	static unsigned TypeToByteSize(const VariableType& type);
 
-	struct OpenGLTexture
+	struct OpenGLTextureBinding
 	{
-		int textureType;
-		int handle;
+        bool bindless;
+        struct BoundTexture
+        {
+		    int textureType;
+		    int handle;
+        } bound;
+
+        struct BindlessTexture
+        {
+            uint64_t handle;
+        } notbound;        
 	};
 
-	struct DirectXTexture
+	struct DirectXTextureBinding
 	{
 		void* handle;
-	};
-
-	struct OpenGLTextureHandle
-	{
-		int64_t handle;
 	};
 
 private:

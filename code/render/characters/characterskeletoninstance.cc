@@ -220,7 +220,7 @@ CharacterSkeletonInstance::SetupJoint(const CharacterSkeleton& skeleton, IndexT 
 void
 CharacterSkeletonInstance::RenderDebug(const matrix44& modelTransform)
 {
-	Array<float4> scaledSkeleton;
+	Array<RenderShape::RenderShapeVertex> scaledSkeleton;
     IndexT i;
     SizeT numJoints = this->GetNumJoints();
     for (i = 0; i < numJoints; i++)
@@ -228,8 +228,11 @@ CharacterSkeletonInstance::RenderDebug(const matrix44& modelTransform)
         IndexT parentJointIndex = (*this->jointComponentsArrayPtr)[i].parentJointIndex;
         if (InvalidIndex != parentJointIndex)
         {   
-			scaledSkeleton.Append(this->scaledMatrixArray[parentJointIndex].get_position());
-			scaledSkeleton.Append(this->scaledMatrixArray[i].get_position());
+            RenderShape::RenderShapeVertex vert;
+            vert.pos = this->scaledMatrixArray[parentJointIndex].get_position();
+			scaledSkeleton.Append(vert);
+            vert.pos = this->scaledMatrixArray[i].get_position();
+			scaledSkeleton.Append(vert);
 
 			// copy scaled matrix
 			float4 position = this->scaledMatrixArray[i].get_position();
@@ -262,6 +265,7 @@ CharacterSkeletonInstance::RenderDebug(const matrix44& modelTransform)
             TextRenderer::Instance()->AddTextElement(debugText);
         }
     }
+
     if (!scaledSkeleton.IsEmpty())
     {
 		RenderShape shape;
@@ -270,7 +274,6 @@ CharacterSkeletonInstance::RenderDebug(const matrix44& modelTransform)
 			PrimitiveTopology::LineList,
 			scaledSkeleton.Size() / 2,
 			&(scaledSkeleton.Front()),
-			4,
 			float4(1.0f, 0.0f, 0.0f, 0.6f),
             CoreGraphics::RenderShape::CheckDepth,
             NULL);

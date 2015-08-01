@@ -14,7 +14,7 @@
 #error "afxapi.h included before effectvarbuffer.h"
 #endif
 
-#include <string>
+#include "EASTL/string.h"
 #include "annotable.h"
 namespace AnyFX
 {
@@ -33,23 +33,22 @@ public:
     /// commits varblock
     void Commit();
     /// returns name of varblock
-    const std::string& GetName() const;
+    const eastl::string& GetName() const;
 
     /// set buffer, must be an implementation specific
 	void SetBuffer(void* handle);
 
-	struct OpenGLBuffer
+	struct OpenGLBufferBinding
 	{
 		int handle;
 		unsigned offset;
 		unsigned size;
 		bool bindRange;
 
-		OpenGLBuffer() : bindRange(false), offset(0), size(0) {};
-
+		OpenGLBufferBinding() : bindRange(false), offset(0), size(0) {};
 	};
 
-	struct DirectXBuffer
+	struct DirectXBufferBinding
 	{
 		void* handle;
 	};

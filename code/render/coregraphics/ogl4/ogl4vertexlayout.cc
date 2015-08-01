@@ -3,7 +3,6 @@
 //  (C) 2007 Radon Labs GmbH
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-
 #include "coregraphics/ogl4/ogl4vertexlayout.h"
 #include "coregraphics/ogl4/ogl4types.h"
 #include "coregraphics/renderdevice.h"
@@ -99,30 +98,30 @@ OGL4VertexLayout::Setup(const Array<VertexComponent>& c)
 		glBindBuffer(GL_ARRAY_BUFFER, this->vertexStreams[component.GetStreamIndex()]);
 
 		// activate vertex attribute
-		glEnableVertexAttribArray(compIndex);
+        glEnableVertexAttribArray(component.GetSemanticName());
 
 		// bind vertex attribute
 		if (component.GetFormat() == VertexComponentBase::UByte4 ||
 			component.GetFormat() == VertexComponentBase::Short2 ||
 			component.GetFormat() == VertexComponentBase::Short4)
 		{
-			glVertexAttribIPointer(compIndex, numComponents, type, vertexByteSizes[component.GetStreamIndex()], (GLvoid*)curOffset[component.GetStreamIndex()]);
+			glVertexAttribIPointer(component.GetSemanticName(), numComponents, type, vertexByteSizes[component.GetStreamIndex()], (GLvoid*)curOffset[component.GetStreamIndex()]);
 		}
 		else if (component.GetFormat() == VertexComponentBase::UByte4N ||
 				 component.GetFormat() == VertexComponentBase::Short2N ||
 				 component.GetFormat() == VertexComponentBase::Short4N)
 		{
-			glVertexAttribPointer(compIndex, numComponents, type, GL_TRUE, vertexByteSizes[component.GetStreamIndex()], (GLvoid*)curOffset[component.GetStreamIndex()]);
+            glVertexAttribPointer(component.GetSemanticName(), numComponents, type, GL_TRUE, vertexByteSizes[component.GetStreamIndex()], (GLvoid*)curOffset[component.GetStreamIndex()]);
 		}
 		else
 		{
-			glVertexAttribPointer(compIndex, numComponents, type, GL_FALSE, vertexByteSizes[component.GetStreamIndex()], (GLvoid*)curOffset[component.GetStreamIndex()]);
+            glVertexAttribPointer(component.GetSemanticName(), numComponents, type, GL_FALSE, vertexByteSizes[component.GetStreamIndex()], (GLvoid*)curOffset[component.GetStreamIndex()]);
 		}
 
 		if (component.GetStrideType() == VertexComponentBase::PerInstance)
 		{
 			// set divisor for instancing, this code is fugly, but it sorta works although only if we have two streams...
-			glVertexAttribDivisor(compIndex, component.GetStride());
+            glVertexAttribDivisor(component.GetSemanticName(), component.GetStride());
 		}		
 
 		// unbind buffer
@@ -160,6 +159,18 @@ OGL4VertexLayout::Apply()
 
 	// bind vertex array
 	glBindVertexArray(this->vao);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+OGL4VertexLayout::SetIndexBuffer(const Ptr<CoreGraphics::IndexBuffer>& buffer)
+{
+    n_assert(this->vao);
+    glBindVertexArray(this->vao);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer->GetOGL4IndexBuffer());
+    glBindVertexArray(0);
 }
 
 } // namespace OpenGL4

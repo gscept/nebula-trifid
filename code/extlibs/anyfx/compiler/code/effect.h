@@ -85,6 +85,7 @@ private:
 	std::map<std::string, Shader*> shaders;
 
 	RenderState placeholderRenderState;
+    VarBlock placeholderVarBlock;
 }; 
 
 //------------------------------------------------------------------------------

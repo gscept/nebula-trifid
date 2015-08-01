@@ -49,7 +49,7 @@ state GaussianBlurState
 shader
 void
 vsMain(vec3 position,
-	vec2 uv,
+	[slot=2] in vec2 uv,
 	out vec2 UV) 
 {
 	gl_Position = vec4(position, 1);

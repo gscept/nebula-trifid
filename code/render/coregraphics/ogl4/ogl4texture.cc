@@ -19,8 +19,7 @@ using namespace OpenGL4;
 */
 OGL4Texture::OGL4Texture() :
     ogl4Texture(0),
-	ogl4PixelBuffer(0),
-	ogl4TextureHandle(0),
+	ogl4TextureBinding(0),
     mapCount(0)
 {
     // empty
@@ -48,16 +47,10 @@ OGL4Texture::Unload()
 		this->ogl4Texture = 0;
     }
 
-	if (0 != this->ogl4PixelBuffer)
+	if (this->ogl4TextureBinding)
 	{
-		glDeleteBuffers(1, &this->ogl4PixelBuffer);
-		this->ogl4PixelBuffer = 0;
-	}
-
-	if (this->ogl4TextureHandle)
-	{
-		delete this->ogl4TextureHandle;
-		this->ogl4TextureHandle = 0;
+		delete this->ogl4TextureBinding;
+		this->ogl4TextureBinding = 0;
 	}	
 
     TextureBase::Unload();
@@ -318,9 +311,6 @@ OGL4Texture::SetupFromOGL4Texture(const GLuint& texture, CoreGraphics::PixelForm
 {
     n_assert(0 != texture);    
 
-	// create pixel buffer
-	if (0 == this->ogl4PixelBuffer) glGenBuffers(1, &this->ogl4PixelBuffer);
-
     this->ogl4Texture = texture;
 	this->target = GL_TEXTURE_2D;
 	GLint width;
@@ -336,10 +326,20 @@ OGL4Texture::SetupFromOGL4Texture(const GLuint& texture, CoreGraphics::PixelForm
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, numMips);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-    if (0 == this->ogl4TextureHandle) this->ogl4TextureHandle = n_new(AnyFX::EffectVariable::OpenGLTexture);
-	this->ogl4TextureHandle->texture = this->ogl4Texture;
-	this->ogl4TextureHandle->textureType = GL_TEXTURE_2D;
-    
+    // create bindless texture if it's not an attachment
+    if (0 == this->ogl4TextureBinding) this->ogl4TextureBinding = n_new(AnyFX::OpenGLTextureBinding);
+
+    // setup bindless state
+
+#if OGL4_USE_BINDLESS_TEXTURE
+    this->ogl4TextureHandle = glGetTextureHandleARB(this->ogl4Texture);
+    glMakeTextureHandleResidentARB(this->ogl4TextureHandle);
+    this->ogl4TextureBinding->notbound.handle = this->ogl4TextureHandle;
+#endif
+
+    this->ogl4TextureBinding->bindless = false;
+    this->ogl4TextureBinding->bound.handle = this->ogl4Texture;
+    this->ogl4TextureBinding->bound.textureType = GL_TEXTURE_2D;
 
 	this->SetType(OGL4Texture::Texture2D);
     this->SetWidth(width);
@@ -363,9 +363,6 @@ OGL4Texture::SetupFromOGL4MultisampleTexture(const GLuint& texture, CoreGraphics
 {
 	n_assert(0 != texture);    
 
-	// create pixel buffer
-	if (0 == this->ogl4PixelBuffer) glGenBuffers(1, &this->ogl4PixelBuffer);
-
 	this->ogl4Texture = texture;
 	this->target = GL_TEXTURE_2D_MULTISAMPLE;
 	GLint width;
@@ -381,9 +378,18 @@ OGL4Texture::SetupFromOGL4MultisampleTexture(const GLuint& texture, CoreGraphics
 	glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MAX_LEVEL, numMips);
 	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
 
-    if (0 == this->ogl4TextureHandle) this->ogl4TextureHandle = n_new(AnyFX::EffectVariable::OpenGLTexture);
-    this->ogl4TextureHandle->texture = this->ogl4Texture;
-    this->ogl4TextureHandle->textureType = GL_TEXTURE_2D_MULTISAMPLE;
+    // create bindless texture if it's not an attachment
+    if (0 == this->ogl4TextureBinding) this->ogl4TextureBinding = n_new(AnyFX::OpenGLTextureBinding);
+
+#if OGL4_USE_BINDLESS_TEXTURE
+    this->ogl4TextureHandle = glGetTextureHandleARB(this->ogl4Texture);
+    glMakeTextureHandleResidentARB(this->ogl4TextureHandle);
+    this->ogl4TextureBinding->notbound.handle = this->ogl4TextureHandle;
+#endif
+
+    this->ogl4TextureBinding->bindless = false;
+    this->ogl4TextureBinding->bound.handle = this->ogl4Texture;
+    this->ogl4TextureBinding->bound.textureType = GL_TEXTURE_2D_MULTISAMPLE;
     
 	this->SetType(OGL4Texture::Texture2D);
 	this->SetWidth(width);
@@ -408,9 +414,6 @@ OGL4Texture::SetupFromOGL4VolumeTexture(const GLuint& texture, CoreGraphics::Pix
 {
     n_assert(0 != texture);
 
-	// create pixel buffer
-	if (0 == this->ogl4PixelBuffer) glGenBuffers(1, &this->ogl4PixelBuffer);
-
 	this->ogl4Texture = texture;
 	this->target = GL_TEXTURE_3D;
 	GLint width;
@@ -429,9 +432,18 @@ OGL4Texture::SetupFromOGL4VolumeTexture(const GLuint& texture, CoreGraphics::Pix
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAX_LEVEL, numMips);
 	glBindTexture(GL_TEXTURE_3D, 0);
 
-	if (0 == this->ogl4TextureHandle) this->ogl4TextureHandle = n_new(AnyFX::EffectVariable::OpenGLTexture);
-    this->ogl4TextureHandle->texture = this->ogl4Texture;
-    this->ogl4TextureHandle->textureType = GL_TEXTURE_3D;
+    // create bindless texture if it's not an attachment
+    if (0 == this->ogl4TextureBinding) this->ogl4TextureBinding = n_new(AnyFX::OpenGLTextureBinding);
+
+#if OGL4_USE_BINDLESS_TEXTURE
+    this->ogl4TextureHandle = glGetTextureHandleARB(this->ogl4Texture);
+    glMakeTextureHandleResidentARB(this->ogl4TextureHandle);
+    this->ogl4TextureBinding->notbound.handle = this->ogl4TextureHandle;
+#endif
+
+    this->ogl4TextureBinding->bindless = false;
+    this->ogl4TextureBinding->bound.handle = this->ogl4Texture;
+    this->ogl4TextureBinding->bound.textureType = GL_TEXTURE_3D;
 
 	this->SetType(OGL4Texture::Texture3D);
     this->SetWidth(width);
@@ -456,9 +468,6 @@ OGL4Texture::SetupFromOGL4CubeTexture(const GLuint& texCube, CoreGraphics::Pixel
 {
     n_assert(0 != texCube);
 
-	// create pixel buffer
-	if (0 == this->ogl4PixelBuffer) glGenBuffers(1, &this->ogl4PixelBuffer);
-
     this->ogl4Texture = texCube;
 	this->target = GL_TEXTURE_CUBE_MAP;
 	GLint width;
@@ -476,9 +485,19 @@ OGL4Texture::SetupFromOGL4CubeTexture(const GLuint& texCube, CoreGraphics::Pixel
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, numMips);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
-    if (0 == this->ogl4TextureHandle) this->ogl4TextureHandle = n_new(AnyFX::EffectVariable::OpenGLTexture);
-    this->ogl4TextureHandle->texture = this->ogl4Texture;
-    this->ogl4TextureHandle->textureType = GL_TEXTURE_CUBE_MAP;
+    // create bindless texture if it's not an attachment
+    if (0 == this->ogl4TextureBinding) this->ogl4TextureBinding = n_new(AnyFX::OpenGLTextureBinding);
+
+#if OGL4_USE_BINDLESS_TEXTURE
+    this->ogl4TextureHandle = glGetTextureHandleARB(this->ogl4Texture);
+    glMakeTextureHandleResidentARB(this->ogl4TextureHandle);
+    this->ogl4TextureBinding->notbound.handle = this->ogl4TextureHandle;
+#endif
+
+    // setup bound state
+    this->ogl4TextureBinding->bindless = false;
+    this->ogl4TextureBinding->bound.handle = this->ogl4Texture;
+    this->ogl4TextureBinding->bound.textureType = GL_TEXTURE_CUBE_MAP;
 
 	this->SetType(OGL4Texture::TextureCube);
     this->SetWidth(width);

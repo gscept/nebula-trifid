@@ -28,7 +28,7 @@ state BillboardState
 shader
 void
 vsDefault(in vec2 position,
-	in vec2 uv,
+	[slot=2] in vec2 uv,
 	out vec2 UV) 
 {
     gl_Position = ViewProjection * Model * vec4(position, 0, 1);

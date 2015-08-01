@@ -11,17 +11,13 @@
 #define NO_COMPARISON 1
 
 #include "shadowbase.fxh"
-
-mat4          	CSMShadowMatrix;
-
-vec4          	CascadeOffset[CASCADE_COUNT_FLAG];
-vec4          	CascadeScale[CASCADE_COUNT_FLAG];
-float			CascadeBlendArea = 0.2f;
-
-float           MinBorderPadding;     
-float           MaxBorderPadding;
-float           ShadowPartitionSize; 
-float 			GlobalLightShadowBias = 0.0f;
+vec4 CascadeOffset[CASCADE_COUNT_FLAG];
+vec4 CascadeScale[CASCADE_COUNT_FLAG];
+float CascadeBlendArea = 0.2f;
+float MinBorderPadding;     
+float MaxBorderPadding;
+float ShadowPartitionSize; 
+float GlobalLightShadowBias = 0.0f;
 	
 const int SplitsPerRow = 2;
 const int SplitsPerColumn = 2;
@@ -157,17 +153,17 @@ CSMPS(in vec4 TexShadow,
 	// this only causes errors when samples are taken outside 
 	vec2 pixelSize = GetPixelSize(ShadowProjMap);
 	vec2 uvSample;
-	vec2 currentSample;
+	//vec2 currentSample = vec2(0,0);
 	vec2 mapDepth = vec2(0.0f);
 	float occlusion = 0.0f;
-	//int i;
-   // for (i = 0; i < 13; i++)
-    //{
-		uvSample = sampleCoord.xy;
-		currentSample = textureLod(ShadowProjMap, uvSample, 0).rg;
-	//}
-	//mapDepth /= 13.0f;
-	occlusion = Variance(currentSample, depth, 0.0000001f);
+	int i;
+    for (i = 0; i < 13; i++)
+    {
+		vec2 uvSample = sampleCoord.xy + sampleOffsets[i] * pixelSize.xy;
+		mapDepth += textureLod(ShadowProjMap, uvSample, 0).rg;
+	}
+	mapDepth /= 13.0f;
+	occlusion = Variance(mapDepth, depth, 0.0000001f);
 	//float occlusion = ExponentialShadowSample(mapDepth, depth, 0.0f);
 		
 	int nextCascade = cascadeIndex + 1; 
@@ -187,8 +183,8 @@ CSMPS(in vec4 TexShadow,
 			sampleCoord.xy += vec2(mod(nextCascade, SplitsPerRow) * ShadowPartitionSize, (nextCascade / SplitsPerColumn) * ShadowPartitionSize);
 			uvSample = sampleCoord.xy;
 					
-			currentSample = textureLod(ShadowProjMap, uvSample, 0).rg;
-			occlusionBlend = Variance(currentSample, depth, 0.0000001f);		
+			mapDepth = textureLod(ShadowProjMap, uvSample, 0).rg;
+			occlusionBlend = Variance(mapDepth, depth, 0.0000001f);		
 		}
 		
 		// blend next cascade onto previous

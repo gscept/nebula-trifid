@@ -93,7 +93,7 @@ GLSL4EffectVariable::~GLSL4EffectVariable()
 /**
 */
 void 
-GLSL4EffectVariable::Setup( eastl::vector<InternalEffectProgram*> programs, const std::string& defaultValue )
+GLSL4EffectVariable::Setup(eastl::vector<InternalEffectProgram*> programs, const eastl::string& defaultValue)
 {
 	InternalEffectVariable::Setup(programs, defaultValue);
 
@@ -104,7 +104,6 @@ GLSL4EffectVariable::Setup( eastl::vector<InternalEffectProgram*> programs, cons
 		{
             GLSL4EffectProgram* opengl4Program = dynamic_cast<GLSL4EffectProgram*>(programs[i]);
             assert(0 != opengl4Program);
-            this->blockOffsets[opengl4Program->programHandle] = 0;
 
             if (this->uniformProgramMap.find(opengl4Program->programHandle) == this->uniformProgramMap.end())
             {
@@ -348,23 +347,38 @@ GLSL4EffectVariable::Commit()
 		case SamplerCube:
 		case SamplerCubeArray:
 			{
-				// now select this texture unit to be the active texture
-				glActiveTexture(GL_TEXTURE0 + this->textureUnit);
+                // unpack data
+                EffectVariable::OpenGLTextureBinding* obj = (EffectVariable::OpenGLTextureBinding*)this->currentValue;
+                if (obj)
+                {
+                    if (this->bindless)
+                    {
+                        glUniformHandleui64ARB(this->uniformLocation, obj->notbound.handle);
+                    }
+                    else
+                    {
+                        // now select this texture unit to be the active texture
+                        glActiveTexture(GL_TEXTURE0 + this->textureUnit);
 
-				// unpack data
-				EffectVariable::OpenGLTexture* obj = (EffectVariable::OpenGLTexture*)this->currentValue;
-
-				// only set obj if the current value is not null
-				if (obj && obj->textureType == this->textureType)
-				{
-					// now bind the texture to this slot
-					glBindTexture(obj->textureType, obj->handle);
-				}
+                        // only set obj if the current value is not null
+                        if (obj && obj->bound.textureType == this->textureType)
+                        {
+                            // now bind the texture to this slot
+                            glBindTexture(obj->bound.textureType, obj->bound.handle);
+                        }
+                        else
+                        {
+                            // otherwise, bind texture to 0
+                            glBindTexture(this->textureType, 0);
+                        }
+                    }
+                }
                 else
                 {
-                    // otherwise, bind texture to 0
-                    glBindTexture(this->textureType, 0);
+                    glActiveTexture(GL_TEXTURE0 + this->textureUnit);
+                    glBindTexture(GL_TEXTURE_2D, 0);
                 }
+              
 				break;
 			}
 		case Image1D:
@@ -372,14 +386,12 @@ GLSL4EffectVariable::Commit()
 		case Image2DMS:
             {
                 // unpack data
-                EffectVariable::OpenGLTexture* obj = (EffectVariable::OpenGLTexture*)this->currentValue;
-
-				//glBindImageTextures(this->textureUnit, 1, (GLuint*)&obj->handle);
+                EffectVariable::OpenGLTextureBinding* obj = (EffectVariable::OpenGLTextureBinding*)this->currentValue;
 				
-                if (obj && obj->textureType == this->textureType)
+                if (obj && obj->bound.textureType == this->textureType)
                 {
                     // bind the texture to the image unit, this is a bit sensitive since if the texture object doesn't match the image format, the GL will output an error.
-					glBindImageTexture(this->textureUnit, obj->handle, 0, GL_TRUE, 0, GL_READ_WRITE, this->glImageFormat);
+                    glBindImageTexture(this->textureUnit, obj->bound.handle, 0, GL_TRUE, 0, GL_READ_WRITE, this->glImageFormat);
                 }
                 else
                 {
@@ -397,12 +409,12 @@ GLSL4EffectVariable::Commit()
 		case ImageCubeArray:
 			{
 				// unpack data
-				EffectVariable::OpenGLTexture* obj = (EffectVariable::OpenGLTexture*)this->currentValue;
+				EffectVariable::OpenGLTextureBinding* obj = (EffectVariable::OpenGLTextureBinding*)this->currentValue;
 
-                if (obj && obj->textureType == this->textureType)
+                if (obj && obj->bound.textureType == this->textureType)
                 {
                     // now select this image unit to be the active image (as apparent, this is not very nice since the format and read/write is hard coded)
-					glBindImageTexture(this->textureUnit, obj->handle, 0, GL_TRUE, 0, this->glAccessMode, this->glImageFormat);
+                    glBindImageTexture(this->textureUnit, obj->bound.handle, 0, GL_TRUE, 0, this->glAccessMode, this->glImageFormat);
                 }
                 else
                 {

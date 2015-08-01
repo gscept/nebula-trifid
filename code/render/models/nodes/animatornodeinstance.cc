@@ -67,23 +67,12 @@ AnimatorNodeInstance::Setup(const Ptr<ModelInstance>& inst, const Ptr<ModelNode>
             AnimatedNode newNode;
             newNode.node = modelNodeInst;
             AnimatorNode::NodeType animNodeType = node.cast<AnimatorNode>()->GetAnimationNodeType(animSecIdx);
-            const CoreGraphics::ShaderVariable::Semantic& varSem = node.cast<AnimatorNode>()->GetShaderVariableSemantic(animSecIdx);
+            const CoreGraphics::ShaderVariable::Name& varName = node.cast<AnimatorNode>()->GetShaderVariableName(animSecIdx);
             if (modelNodeInst->IsA(StateNodeInstance::RTTI))
             {
                 Ptr<StateNodeInstance> stateNodeInstance = modelNodeInst.cast<StateNodeInstance>();
 				Ptr<StateNode> stateNode = modelNodeInst->GetModelNode().cast<StateNode>();
-
-                if (varSem.IsValid())
-                {
-                    if (stateNodeInstance->HasSurfaceConstantInstance(varSem))
-                    {
-                        newNode.var = stateNodeInstance->GetSurfaceConstantInstance(varSem);
-                    }
-                    else
-                    {
-                        newNode.var = stateNodeInstance->CreateSurfaceConstantInstance(varSem);
-                    }
-                }
+                newNode.var = stateNodeInstance->GetSurfaceInstance()->GetConstant(varName);
             }
             if ((animNodeType == AnimatorNode::IntAnimator) ||
                 (animNodeType == AnimatorNode::FloatAnimator) ||

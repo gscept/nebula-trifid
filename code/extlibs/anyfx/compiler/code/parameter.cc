@@ -23,6 +23,9 @@ Parameter::Parameter() :
 	feedbackOffsetExpression(NULL),
 	feedbackBuffer(-1),
 	feedbackOffset(0),
+    slotExpression(NULL),
+    index(-1),
+    explicitSlot(false),
 	patchParam(false),
 	isConst(false),
 	sizeExpression(NULL),
@@ -54,8 +57,8 @@ Parameter::GetRenderTargetIndex() const
 //------------------------------------------------------------------------------
 /**
 */
-std::string 
-Parameter::Format( const Header& header, unsigned& input, unsigned& output ) const
+std::string
+Parameter::Format(const Header& header, unsigned& input, unsigned& output) const
 {
 	unsigned shaderType = -1;
 	if (this->parentShader) shaderType = this->parentShader->GetType();
@@ -82,7 +85,7 @@ Parameter::Format( const Header& header, unsigned& input, unsigned& output ) con
 		{
 			if (this->GetIO() == Parameter::Input || this->GetIO() == Parameter::NoIO)
 			{
-				format = AnyFX::Format(format.c_str(), "%s", AnyFX::Format("location = %d", input++).c_str(), "%s", "in ");
+				format = AnyFX::Format(format.c_str(), "%s", AnyFX::Format("location = %d", this->index).c_str(), "%s", "in ");
 			}
 			else if (this->GetIO() == Parameter::Output)
 			{
@@ -94,7 +97,6 @@ Parameter::Format( const Header& header, unsigned& input, unsigned& output ) con
 				format = "";
 			}
 		}
-		
 
 		// first handle qualifiers		
 		if (shaderType == ProgramRow::PixelShader)
@@ -177,8 +179,8 @@ Parameter::Format( const Header& header, unsigned& input, unsigned& output ) con
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Parameter::TypeCheck( TypeChecker& typechecker )
+void
+Parameter::TypeCheck(TypeChecker& typechecker)
 {
 	// check that type is defined
 	if (this->type.GetType() == DataType::Undefined)
@@ -222,6 +224,20 @@ Parameter::TypeCheck( TypeChecker& typechecker )
 		}
 
 		unsigned shaderType = this->parentShader->GetType();
+        if (this->slotExpression)
+        {
+            if (shaderType != ProgramRow::VertexShader)
+            {
+                std::string message = AnyFX::Format("Slot qualifier is not valid unless parameter is to a vertex shader, %s\n", this->ErrorSuffix().c_str());
+                typechecker.Warning(message);
+            }
+            else
+            {
+                this->index = this->slotExpression->EvalUInt(typechecker);
+                delete this->slotExpression;
+            }            
+        }
+
 		if (shaderType == ProgramRow::VertexShader)
 		{
 			if (this->GetPatchParam())

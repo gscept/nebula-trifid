@@ -75,4 +75,11 @@ program name [ string Mask = features; ] \
 	VertexShader = vertexShader; \
 }
 
+#define StateLessTechnique(name, features, vertexShader, pixelShader) \
+program name [ string Mask = features; ] \
+{ \
+	VertexShader = vertexShader; \
+	PixelShader = pixelShader; \
+}
+
 #endif

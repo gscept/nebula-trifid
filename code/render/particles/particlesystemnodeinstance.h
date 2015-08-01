@@ -30,7 +30,7 @@ public:
     /// called during visibility resolve
     virtual void OnVisibilityResolve(IndexT resolveIndex, float distanceToViewer);
     /// apply per-instance state prior to rendering
-    virtual void ApplyState(const Ptr<CoreGraphics::ShaderInstance>& shader);
+    virtual void ApplyState(IndexT frameIndex, const Frame::BatchGroup::Code& group, const Ptr<CoreGraphics::Shader>& shader);
     /// perform rendering
     virtual void Render();
 
@@ -51,15 +51,14 @@ protected:
 
     Ptr<ParticleSystemInstance> particleSystemInstance;    
 
-    Ptr<Materials::SurfaceMaterial> surfaceClone;
-	Ptr<Materials::SurfaceConstantInstance> emitterOrientation;
-    Ptr<Materials::SurfaceConstantInstance> billBoard;
-    Ptr<Materials::SurfaceConstantInstance> bboxCenter;
-    Ptr<Materials::SurfaceConstantInstance> bboxSize;
-    Ptr<Materials::SurfaceConstantInstance> time;
-    Ptr<Materials::SurfaceConstantInstance> animPhases;
-    Ptr<Materials::SurfaceConstantInstance> animsPerSec;
-    Ptr<Materials::SurfaceConstantInstance> depthBuffer;
+	Ptr<Materials::SurfaceConstant> emitterOrientation;
+    Ptr<Materials::SurfaceConstant> billBoard;
+    Ptr<Materials::SurfaceConstant> bboxCenter;
+    Ptr<Materials::SurfaceConstant> bboxSize;
+    Ptr<Materials::SurfaceConstant> time;
+    Ptr<Materials::SurfaceConstant> animPhases;
+    Ptr<Materials::SurfaceConstant> animsPerSec;
+    Ptr<Materials::SurfaceConstant> depthBuffer;
 };
 
 //------------------------------------------------------------------------------

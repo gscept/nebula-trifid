@@ -194,19 +194,14 @@ ShaderCompiler::CompileMaterials()
 	}
 
     Util::String baseMaterialTemplateSrcDir = this->srcMaterialBaseDir;
-    Util::String baseMaterialSurfaceSrcDir = this->srcMaterialBaseDir + "/surfaces";
     Util::String customMaterialTemplateSrcDir = this->srcMaterialCustomDir;
-    Util::String customMaterialSurfaceSrcDir = this->srcMaterialCustomDir + "/surfaces";
     Util::String materialTemplateDstDir = this->dstMaterialDir;
-    Util::String materialSurfaceDstDir = this->dstMaterialDir + "/surfaces";
 
     // remove old directories
     ioServer->DeleteDirectory(materialTemplateDstDir);
-    ioServer->DeleteDirectory(materialSurfaceDstDir);
 
 	// make new
     ioServer->CreateDirectory(materialTemplateDstDir);
-    ioServer->CreateDirectory(materialSurfaceDstDir);
 
 	// for each base material table...
 	bool success = true;
@@ -222,18 +217,6 @@ ShaderCompiler::CompileMaterials()
 		success &= ioServer->CopyFile(srcPath, dstPath);
 		n_printf("Copied base material template table: %s ---> %s \n", srcPath.AsCharPtr(), dstPath.AsCharPtr());
 	}
-
-    srcFiles = ioServer->ListFiles(baseMaterialSurfaceSrcDir, "*.xml");
-    for (i = 0; i < srcFiles.Size(); i++)
-    {
-        // build absolute source and target filenames
-        String srcPath;
-        srcPath.Format("%s/%s", baseMaterialSurfaceSrcDir.AsCharPtr(), srcFiles[i].AsCharPtr());
-        String dstPath;
-        dstPath.Format("%s/%s", materialSurfaceDstDir.AsCharPtr(), srcFiles[i].AsCharPtr());
-        success &= ioServer->CopyFile(srcPath, dstPath);
-        n_printf("Copied base material surface: %s ---> %s \n", srcPath.AsCharPtr(), dstPath.AsCharPtr());
-    }
 
     if (this->srcMaterialCustomDir.IsValid())
     {
@@ -255,28 +238,7 @@ ShaderCompiler::CompileMaterials()
             ioServer->CopyFile(srcPath, dstPath);
             n_printf("Copied custom material table: %s ---> %s \n", srcPath.AsCharPtr(), dstPath.AsCharPtr());
         }
-
-        // for each custom material table...
-        srcFiles = ioServer->ListFiles(customMaterialSurfaceSrcDir, "*.xml");
-        for (i = 0; i < srcFiles.Size(); i++)
-        {
-            // build absolute source and target filenames
-            String srcPath;
-            srcPath.Format("%s/%s", customMaterialSurfaceSrcDir.AsCharPtr(), srcFiles[i].AsCharPtr());
-            String dstPath;
-
-            // format material to be extended with _custom
-            String file = srcFiles[i];
-            file.StripFileExtension();
-            dstPath.Format("%s/%s_custom.xml", materialSurfaceDstDir.AsCharPtr(), file.AsCharPtr());
-
-            // copy file
-            ioServer->CopyFile(srcPath, dstPath);
-            n_printf("Copied custom material surface: %s ---> %s \n", srcPath.AsCharPtr(), dstPath.AsCharPtr());
-        }
     }
-
-
     
 	return success;
 }

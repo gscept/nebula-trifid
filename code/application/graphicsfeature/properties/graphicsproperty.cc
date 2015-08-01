@@ -319,7 +319,7 @@ void
 GraphicsProperty::OnSetOverwriteColor(const Ptr<SetOverwriteColor>& msg)
 {
     n_assert(this->modelEntity.isvalid());    
-    this->modelEntity->SetMaterialVariable(msg->GetNodeName(), "MaterialColor", Util::Variant(msg->GetColor()));
+    this->modelEntity->SetSurfaceConstant(msg->GetNodeName(), "MaterialColor", Util::Variant(msg->GetColor()));
 }
 
 //------------------------------------------------------------------------------
@@ -329,7 +329,7 @@ void
 GraphicsProperty::OnSetShaderVariable(const Ptr<SetShaderVariable>& msg)
 {
     n_assert(this->modelEntity.isvalid());    
-    this->modelEntity->SetMaterialVariable(msg->GetNodeName(), msg->GetShaderVarName(), msg->GetValue());
+    this->modelEntity->SetSurfaceConstant(msg->GetNodeName(), msg->GetShaderVarName(), msg->GetValue());
 }
 
 //------------------------------------------------------------------------------
@@ -361,8 +361,8 @@ void
 GraphicsProperty::OnSetMaterialVariable( const Ptr<SetMaterialVariable>& msg )
 {
     n_assert(this->modelEntity.isvalid());    
-    Ptr<UpdModelNodeInstanceMaterialVariable> updateMsg = UpdModelNodeInstanceMaterialVariable::Create();
-    updateMsg->SetSemantic(msg->GetMaterialVarName());
+    Ptr<UpdModelNodeInstanceSurfaceConstant> updateMsg = UpdModelNodeInstanceSurfaceConstant::Create();
+    updateMsg->SetName(msg->GetMaterialVarName());
     updateMsg->SetModelNodeInstanceName(msg->GetNodeName());
     updateMsg->SetValue(msg->GetValue());
     this->modelEntity->HandleMessage(updateMsg.downcast<Messaging::Message>());

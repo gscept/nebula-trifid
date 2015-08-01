@@ -51,7 +51,7 @@ public:
     /// discard the frame batch
     void Discard();
     /// render the batch
-    void Render();
+    void Render(IndexT frameIndex);
 
 	/// set material
 	void SetMaterial(const Util::String& mat);
@@ -101,7 +101,7 @@ public:
 
 private:
     /// actual rendering method
-    void RenderBatch();
+    void RenderBatch(IndexT frameIndex);
 	/// sort node instances based on sorting mode
 	void Sort(Util::Array<Ptr<Models::ModelNodeInstance>>& instances);
 
@@ -113,8 +113,8 @@ private:
     LightingMode::Code lightingMode;
     SortingMode::Code sortingMode;
     CoreGraphics::ShaderFeature::Mask shaderFeatures;
-    Util::Array<Ptr<CoreGraphics::ShaderVariableInstance> > shaderVariables;
-	Util::Dictionary<Util::StringAtom, Ptr<CoreGraphics::ShaderVariableInstance> > shaderVariablesByName;
+    Util::Array<Ptr<CoreGraphics::ShaderVariableInstance>> shaderVariables;
+	Util::Dictionary<Util::StringAtom, Ptr<CoreGraphics::ShaderVariableInstance>> shaderVariablesByName;
 
     _declare_timer(debugTimer);
 };

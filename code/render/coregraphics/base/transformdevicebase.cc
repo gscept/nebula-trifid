@@ -5,7 +5,7 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "coregraphics/base/transformdevicebase.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shader.h"
 
 namespace Base
 {
@@ -74,7 +74,7 @@ TransformDeviceBase::ApplyViewSettings()
 /**
 */
 void
-TransformDeviceBase::ApplyModelTransforms(const Ptr<ShaderInstance>& shdInst)
+TransformDeviceBase::ApplyModelTransforms(const Ptr<Shader>& shdInst)
 {
     n_assert(this->IsOpen());
 }

@@ -65,6 +65,7 @@ AOAlgorithm::Setup()
 	this->output->SetClearColor(float4(0,0,0,0));
 	//this->output->SetClearFlags(Base::RenderTargetBase::ClearColor);
 	this->output->Setup();
+    this->output->Clear(RenderTarget::ClearColor);
 
     // setup internal targets
     IndexT target;
@@ -82,8 +83,8 @@ AOAlgorithm::Setup()
 
 #ifdef HBAO_COMPUTE
 	// setup shaders
-	this->hbao = ShaderServer::Instance()->CreateShaderInstance("shd:hbao_cs");
-	this->blur = ShaderServer::Instance()->CreateShaderInstance("shd:hbaoblur_cs");
+	this->hbao = ShaderServer::Instance()->GetShader("shd:hbao_cs");
+    this->blur = ShaderServer::Instance()->GetShader("shd:hbaoblur_cs");
 
     this->xDirection = ShaderServer::Instance()->FeatureStringToMask("X");
     this->yDirection = ShaderServer::Instance()->FeatureStringToMask("Y");
@@ -121,16 +122,16 @@ AOAlgorithm::Setup()
 	vars.tanAngleBias = tanf(n_deg2rad(10.0));
 	vars.strength = 2.0f;
 
-	this->uvToViewAVar = this->hbao->GetVariableBySemantic(NEBULA3_SEMANTIC_UVTOVIEWA);
-	this->uvToViewBVar = this->hbao->GetVariableBySemantic(NEBULA3_SEMANTIC_UVTOVIEWB);
-	this->r2Var = this->hbao->GetVariableBySemantic(NEBULA3_SEMANTIC_R2);
-	this->aoResolutionVar = this->hbao->GetVariableBySemantic(NEBULA3_SEMANTIC_AORESOLUTION);
-	this->invAOResolutionVar = this->hbao->GetVariableBySemantic(NEBULA3_SEMANTIC_INVAORESOLUTION);
-	this->strengthVar = this->hbao->GetVariableBySemantic(NEBULA3_SEMANTIC_STRENGHT);
-	this->tanAngleBiasVar = this->hbao->GetVariableBySemantic(NEBULA3_SEMANTIC_TANANGLEBIAS);
-	this->powerExponentVar = this->blur->GetVariableBySemantic(NEBULA3_SEMANTIC_POWEREXPONENT);
-	this->blurFalloff = this->blur->GetVariableBySemantic(NEBULA3_SEMANTIC_FALLOFF);
-	this->blurDepthThreshold = this->blur->GetVariableBySemantic(NEBULA3_SEMANTIC_DEPTHTHRESHOLD);
+	this->uvToViewAVar = this->hbao->GetVariableByName(NEBULA3_SEMANTIC_UVTOVIEWA);
+    this->uvToViewBVar = this->hbao->GetVariableByName(NEBULA3_SEMANTIC_UVTOVIEWB);
+    this->r2Var = this->hbao->GetVariableByName(NEBULA3_SEMANTIC_R2);
+    this->aoResolutionVar = this->hbao->GetVariableByName(NEBULA3_SEMANTIC_AORESOLUTION);
+    this->invAOResolutionVar = this->hbao->GetVariableByName(NEBULA3_SEMANTIC_INVAORESOLUTION);
+    this->strengthVar = this->hbao->GetVariableByName(NEBULA3_SEMANTIC_STRENGHT);
+    this->tanAngleBiasVar = this->hbao->GetVariableByName(NEBULA3_SEMANTIC_TANANGLEBIAS);
+    this->powerExponentVar = this->blur->GetVariableByName(NEBULA3_SEMANTIC_POWEREXPONENT);
+    this->blurFalloff = this->blur->GetVariableByName(NEBULA3_SEMANTIC_FALLOFF);
+    this->blurDepthThreshold = this->blur->GetVariableByName(NEBULA3_SEMANTIC_DEPTHTHRESHOLD);
 	this->powerExponentVar->SetFloat(1.5f);
 
 	// setup fsq
@@ -242,7 +243,6 @@ AOAlgorithm::Setup()
 	this->randomTextureVar->SetTexture(this->randomTexture);
 #endif
 
-	this->depthTextureVar->SetTexture(this->inputs[0]);
 
 	// we need to late setup this algorithm since we need the camera
 	this->deferredSetup = true;
@@ -257,9 +257,7 @@ AOAlgorithm::Discard()
 	AlgorithmBase::Discard();
 
 	// unload shaders
-	this->hbao->Discard();
 	this->hbao = 0;
-	this->blur->Discard();
 	this->blur = 0;
 
 	// free variables
@@ -314,7 +312,7 @@ AOAlgorithm::Discard()
 void 
 AOAlgorithm::Prepare()
 {
-	if (this->deferredSetup)
+	//if (this->deferredSetup)
 	{
 		// calculate variables
 		this->Calculate();
@@ -367,56 +365,48 @@ AOAlgorithm::Execute()
 
 		// render AO in X
 		this->hbao->SelectActiveVariation(this->xDirection);
-		this->hbao->Begin();
-		this->hbao->BeginPass(0);
+        this->hbao->Apply();
+        this->hbao->BeginUpdate();
 		this->depthTextureVar->SetTexture(this->inputs[0]);
 		this->hbao0Var->SetTexture(this->internalTargets[0]->GetResolveTexture());
+        this->hbao->EndUpdate();
 		this->hbao->Commit();
 		renderDevice->Compute(numGroupsX1, numGroupsY2, 1);
-		this->hbao->PostDraw();
-		this->hbao->EndPass();
-		this->hbao->End();
 
-		this->hbao->SelectActiveVariation(this->yDirection);
-		this->hbao->Begin();
-		this->hbao->BeginPass(0);
+        this->hbao->SelectActiveVariation(this->yDirection);
+        this->hbao->Apply();
+        this->hbao->BeginUpdate();
 		this->hbao0Var->SetTexture(this->internalTargets[0]->GetResolveTexture());
 		this->hbao1Var->SetTexture(this->internalTargets[1]->GetResolveTexture());
+        this->hbao->EndUpdate();
 		this->hbao->Commit();
 		renderDevice->Compute(numGroupsY1, numGroupsX2, 1);
-		this->hbao->PostDraw();
-		this->hbao->EndPass();
-		this->hbao->End();
 
 		this->blur->SelectActiveVariation(this->xDirection);
-		this->blur->Begin();
-		this->blur->BeginPass(0);
+        this->blur->Apply();
+        this->blur->BeginUpdate();
 		this->hbaoBlurLinearVar->SetTexture(this->internalTargets[1]->GetResolveTexture());
 		this->hbaoBlurPointVar->SetTexture(this->internalTargets[1]->GetResolveTexture());
 		this->hbaoBlurRGVar->SetTexture(this->internalTargets[0]->GetResolveTexture());
 		this->hbaoBlurRVar->SetTexture(NULL);
+        this->blur->EndUpdate();
 		this->blur->Commit();
 		renderDevice->Compute(numGroupsX1, numGroupsY2, 1);
-		this->blur->PostDraw();
-		this->blur->EndPass();
-		this->blur->End();
 		
 		this->blur->SelectActiveVariation(this->yDirection);
-		this->blur->Begin();
-		this->blur->BeginPass(0);
+        this->blur->Apply();
+        this->blur->BeginUpdate();
 		this->hbaoBlurLinearVar->SetTexture(this->internalTargets[0]->GetResolveTexture());
 		this->hbaoBlurPointVar->SetTexture(this->internalTargets[0]->GetResolveTexture());
 		this->hbaoBlurRGVar->SetTexture(NULL);
 		this->hbaoBlurRVar->SetTexture(this->output->GetResolveTexture());
+        this->blur->EndUpdate();
 		this->blur->Commit();
 		renderDevice->Compute(numGroupsY1, numGroupsX2, 1);
-		this->blur->PostDraw();
-		this->blur->EndPass();
-		this->blur->End();
 #else
 
 		// first render ao
-		shaderServer->SetActiveShaderInstance(this->hbao);
+		shaderServer->SetActiveShader(this->hbao);
 		renderDevice->BeginPass(this->internalTargets[0], this->hbao);
 		this->quad.Draw();
 		renderDevice->EndPass();
@@ -493,8 +483,6 @@ AOAlgorithm::OnDisplayResized(SizeT width, SizeT height)
 	// since our textures have changed, set them in the variable again
     this->randomTextureVar->SetTexture(this->randomTexture);
 #endif
-
-	this->depthTextureVar->SetTexture(this->inputs[0]);
 
 	// calculate new dimensions for render target
 	this->fullWidth = (float)output->GetWidth();

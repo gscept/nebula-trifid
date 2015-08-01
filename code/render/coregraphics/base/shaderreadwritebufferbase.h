@@ -1,7 +1,7 @@
 #pragma once
 //------------------------------------------------------------------------------
 /**
-	@class Base::ShaderBufferBase
+	@class Base::ShaderReadWriteBufferBase
 	
 	A shader buffer represents a read/write buffer assignable inside a shader.
 	
@@ -11,14 +11,14 @@
 #include "core/refcounted.h"
 namespace Base
 {
-class ShaderBufferBase : public Core::RefCounted
+class ShaderReadWriteBufferBase : public Core::RefCounted
 {
-	__DeclareClass(ShaderBufferBase);
+	__DeclareClass(ShaderReadWriteBufferBase);
 public:
 	/// constructor
-	ShaderBufferBase();
+	ShaderReadWriteBufferBase();
 	/// destructor
-	virtual ~ShaderBufferBase();
+	virtual ~ShaderReadWriteBufferBase();
 
 	/// setup buffer
 	void Setup();
@@ -26,27 +26,31 @@ public:
 	void Discard();
 
 	/// set the size of the buffer
-	void SetSize(const SizeT size);
+    void SetSize(const uint size);
 	/// get the size of the buffer
-	const SizeT GetSize() const;
+    const uint GetSize() const;
 
 	/// returns buffer handle
 	void* GetHandle() const;
 
 	/// update buffer
-	void UpdateBuffer(void* data, SizeT offset, SizeT length);
+    void Update(void* data, uint offset, uint size);
+    /// cycle to next buffer
+    void CycleBuffers();
+
+    static const int NumBuffers = 3;
 
 protected:
-	SizeT size;
-	bool isSetup;
+    bool isSetup;
+    uint size;
+    IndexT bufferIndex;
 };
-
 
 //------------------------------------------------------------------------------
 /**
 */
 inline void
-ShaderBufferBase::SetSize(const SizeT size)
+ShaderReadWriteBufferBase::SetSize(const uint size)
 {
 	n_assert(!this->isSetup);
 	this->size = size;
@@ -55,8 +59,8 @@ ShaderBufferBase::SetSize(const SizeT size)
 //------------------------------------------------------------------------------
 /**
 */
-inline const SizeT
-ShaderBufferBase::GetSize() const
+inline const uint
+ShaderReadWriteBufferBase::GetSize() const
 {
 	return this->size;
 }
@@ -65,7 +69,7 @@ ShaderBufferBase::GetSize() const
 /**
 */
 inline void*
-ShaderBufferBase::GetHandle() const
+ShaderReadWriteBufferBase::GetHandle() const
 {
 	return 0;
 }

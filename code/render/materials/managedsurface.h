@@ -1,32 +1,32 @@
 #pragma once
 //------------------------------------------------------------------------------
 /**
-	@class Materials::ManagedSurfaceMaterial
+	@class Materials::ManagedSurface
 	
-	Implements a managed resource container for a surface material resource.
+	Implements a managed resource container for a surface resource.
 	
 	(C) 2015 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "resources/managedresource.h"
-#include "materials/surfacematerial.h"
+#include "materials/surface.h"
 namespace Materials
 {
-class ManagedSurfaceMaterial : public Resources::ManagedResource
+class ManagedSurface : public Resources::ManagedResource
 {
-	__DeclareClass(ManagedSurfaceMaterial);
+	__DeclareClass(ManagedSurface);
 public:
 	/// get contained surface material, or the placeholder material if material isn't loaded
-    const Ptr<SurfaceMaterial>& GetMaterial() const;
+    const Ptr<Surface>& GetSurface() const;
 };
 
 //------------------------------------------------------------------------------
 /**
 */
-inline const Ptr<SurfaceMaterial>&
-Materials::ManagedSurfaceMaterial::GetMaterial() const
+inline const Ptr<Surface>&
+Materials::ManagedSurface::GetSurface() const
 {
-    return this->GetLoadedResource().downcast<SurfaceMaterial>();
+    return this->GetLoadedResource().downcast<Surface>();
 }
 
 } // namespace Materials

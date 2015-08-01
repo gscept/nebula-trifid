@@ -10,6 +10,7 @@
 //------------------------------------------------------------------------------
 #include "graphicsentity.h"
 #include "lighting/environmentprobe.h"
+#include "coregraphics/shaderinstance.h"
 namespace Graphics
 {
 class LightProbeEntity : public GraphicsEntity
@@ -33,6 +34,14 @@ public:
 	/// compute clip status against bounding box
 	virtual Math::ClipStatus::Type ComputeClipStatus(const Math::bbox& box);
 
+    /// handle being attached to the scene
+    void OnActivate();
+    /// handle being detached from the scene
+    void OnDeactivate();
+
+    /// apply probe to entity
+    void ApplyProbe(const Ptr<Lighting::EnvironmentProbe>& probe);
+
 	/// set layer
 	void SetLayer(int layer);
 	/// get layer
@@ -54,6 +63,8 @@ public:
 	/// returns true if this probe performs parallax correction
 	const bool GetParallaxCorrected() const;
 	
+    /// get shader
+    const Ptr<CoreGraphics::ShaderInstance>& GetShaderInstance() const;
 
 	/// set shape type
 	void SetShapeType(LightProbeShapeType shape);
@@ -71,12 +82,24 @@ protected:
 
 private:
 	int layer;
+    bool isDirty;
 	bool parallaxCorrected;
 	Math::scalar falloff;
 	Math::scalar power;
 	Math::bbox zone;
 	LightProbeShapeType shape;
 	Ptr<Lighting::EnvironmentProbe> probe;
+
+    Ptr<CoreGraphics::ShaderInstance> shader;
+    Ptr<CoreGraphics::ShaderVariableInstance> lightProbeReflectionVar;
+    Ptr<CoreGraphics::ShaderVariableInstance> lightProbeIrradianceVar;
+    Ptr<CoreGraphics::ShaderVariableInstance> lightProbeFalloffVar;
+    Ptr<CoreGraphics::ShaderVariableInstance> lightProbePowerVar;
+    Ptr<CoreGraphics::ShaderVariableInstance> lightProbeReflectionNumMipsVar;
+    Ptr<CoreGraphics::ShaderVariableInstance> lightProbeBboxMinVar;
+    Ptr<CoreGraphics::ShaderVariableInstance> lightProbeBboxMaxVar;
+    Ptr<CoreGraphics::ShaderVariableInstance> lightProbeBboxCenterVar;
+    Ptr<CoreGraphics::ShaderVariableInstance> lightProbeTransformVar;
 };
 
 
@@ -87,6 +110,7 @@ inline void
 LightProbeEntity::SetLayer(int layer)
 {
 	this->layer = layer;
+    this->isDirty = true;
 }
 
 //------------------------------------------------------------------------------
@@ -105,6 +129,7 @@ inline void
 LightProbeEntity::SetFalloff(float falloff)
 {
 	this->falloff = falloff;
+    this->isDirty = true;
 }
 
 //------------------------------------------------------------------------------
@@ -123,6 +148,7 @@ inline void
 LightProbeEntity::SetPower(float power)
 {
 	this->power = power;
+    this->isDirty = true;
 }
 
 //------------------------------------------------------------------------------
@@ -141,6 +167,7 @@ inline void
 LightProbeEntity::SetZone(const Math::bbox& box)
 {
 	this->zone = box;
+    this->isDirty = true;
 }
 
 //------------------------------------------------------------------------------
@@ -159,6 +186,7 @@ inline void
 LightProbeEntity::SetParallaxCorrected(bool b)
 {
 	this->parallaxCorrected = b;
+    this->isDirty = true;
 }
 
 //------------------------------------------------------------------------------
@@ -177,6 +205,7 @@ inline void
 LightProbeEntity::SetShapeType(LightProbeShapeType shape)
 {
 	this->shape = shape;
+    this->isDirty = true;
 }
 
 //------------------------------------------------------------------------------
@@ -204,6 +233,15 @@ inline const Ptr<Lighting::EnvironmentProbe>&
 LightProbeEntity::GetEnvironmentProbe() const
 {
 	return this->probe;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Ptr<CoreGraphics::ShaderInstance>&
+LightProbeEntity::GetShaderInstance() const
+{
+    return this->shader;
 }
 
 } // namespace Graphics

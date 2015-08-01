@@ -10,10 +10,9 @@
 //------------------------------------------------------------------------------
 #include "widgets/basehandler.h"
 #include "ui_materialinfowidget.h"
-#include "materials/material.h"
-#include "materials/managedsurfacematerial.h"
+#include "widgets/materials/mutablesurface.h"
+#include "materials/managedsurface.h"
 #include "resources/managedtexture.h"
-#include "materials/surfaceconstant.h"
 #include <QObject>
 #include <QDoubleSpinBox>
 #include <QSpinBox>
@@ -168,11 +167,11 @@ private:
 
     // bool
     QMap<QCheckBox*, uint> variableBoolMap;
-	Ptr<Materials::ManagedSurfaceMaterial> managedMaterial;
-    Ptr<Materials::SurfaceMaterial> material;
+	Ptr<Materials::ManagedSurface> managedSurface;
+    Ptr<Materials::MutableSurface> surface;
     Util::Dictionary<IndexT, Ptr<Resources::ManagedTexture>> textureResources;
-    Util::Dictionary<IndexT, Ptr<Materials::SurfaceConstant>> textureVariables;
-    Util::Dictionary<IndexT, Ptr<Materials::SurfaceConstant>> scalarVariables;
+    Util::Dictionary<IndexT, Util::StringAtom> textureVariables;
+    Util::Dictionary<IndexT, Util::StringAtom> scalarVariables;
     ToolkitUtil::State state;
 
 	QDialog saveDialog;

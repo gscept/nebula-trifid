@@ -27,7 +27,7 @@ private:
 	friend class GLSL4EffectSampler;
 
 	/// sets up variable from program, override in subclass
-	void Setup(eastl::vector<InternalEffectProgram*> programs, const std::string& defaultValue);
+    void Setup(eastl::vector<InternalEffectProgram*> programs, const eastl::string& defaultValue);
     /// sets up variable from program as slave, this basically just adds program-uniform pairs
     void SetupSlave(eastl::vector<InternalEffectProgram*> programs, InternalEffectVariable* master);
 	/// sets up texture-specific stuff

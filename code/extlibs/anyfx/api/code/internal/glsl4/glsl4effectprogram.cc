@@ -8,7 +8,7 @@
 #include "internal/internaleffectvariable.h"
 #include "glsl4effectshader.h"
 #include <assert.h>
-#include <algorithm>
+#include "EASTL/sort.h"
 
 namespace AnyFX
 {
@@ -200,7 +200,7 @@ GLSL4EffectProgram::Link()
 			if (status != GL_TRUE)
 			{
 				// create error string
-				this->error = std::string(log, size);
+                this->error = eastl::string(log, size);
 				delete[] log;
 
 				// output false
@@ -209,7 +209,7 @@ GLSL4EffectProgram::Link()
 			else
 			{
 				// set warning flag
-				this->warning = std::string(log, size);
+                this->warning = eastl::string(log, size);
 				delete[] log;
 			}
 		}
@@ -231,7 +231,7 @@ GLSL4EffectProgram::Link()
     sort hook for subroutine uniforms
 */
 bool
-SubroutineBindingCompare(const std::pair<GLuint, GLuint>& v1, const std::pair<GLuint, GLuint>& v2)
+SubroutineBindingCompare(const eastl::pair<GLuint, GLuint>& v1, const eastl::pair<GLuint, GLuint>& v2)
 {
 	return v1.first < v2.first;
 }
@@ -256,15 +256,15 @@ GLSL4EffectProgram::SetupSubroutines()
 /**
 */
 void 
-GLSL4EffectProgram::SetupSubroutineHelper( GLenum shaderType, GLsizei& numBindings, GLuint** bindingArray, const std::map<std::string, InternalEffectSubroutine*>& bindings )
+GLSL4EffectProgram::SetupSubroutineHelper(GLenum shaderType, GLsizei& numBindings, GLuint** bindingArray, const eastl::map<eastl::string, InternalEffectSubroutine*>& bindings)
 {
-    std::map<std::string, InternalEffectSubroutine*>::const_iterator it;
+    eastl::map<eastl::string, InternalEffectSubroutine*>::const_iterator it;
 
-    eastl::vector<std::pair<GLuint, GLuint> > intermediateMap;
+    eastl::vector<eastl::pair<GLuint, GLuint> > intermediateMap;
     unsigned numActiveSubroutines = 0;
     for (it = bindings.begin(); it != bindings.end(); it++)
     {
-        std::string var = (*it).first;
+        eastl::string var = (*it).first;
         InternalEffectSubroutine* imp = (*it).second;
 
         GLint subroutineIndex = glGetSubroutineIndex(this->programHandle, shaderType, imp->GetName().c_str());
@@ -272,7 +272,7 @@ GLSL4EffectProgram::SetupSubroutineHelper( GLenum shaderType, GLsizei& numBindin
 
         if (uniformIndex != -1 && subroutineIndex != -1)
         {
-            intermediateMap.push_back(std::pair<GLuint, GLuint>(uniformIndex, subroutineIndex));
+            intermediateMap.push_back(eastl::pair<GLuint, GLuint>(uniformIndex, subroutineIndex));
             numActiveSubroutines++;
         }
     }
@@ -282,7 +282,7 @@ GLSL4EffectProgram::SetupSubroutineHelper( GLenum shaderType, GLsizei& numBindin
     assert(numActiveSubroutines == numRoutines);
 
     (*bindingArray) = new GLuint[numActiveSubroutines];
-    std::sort(intermediateMap.begin(), intermediateMap.end(), SubroutineBindingCompare);
+    eastl::sort(intermediateMap.begin(), intermediateMap.end(), SubroutineBindingCompare);
     unsigned i;
     for (i = 0; i < numActiveSubroutines; i++)
     {

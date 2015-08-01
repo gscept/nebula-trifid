@@ -4,6 +4,7 @@
 //------------------------------------------------------------------------------
 #include "effectannotationstreamloader.h"
 #include "annotable.h"
+#include "EASTL/string.h"
 
 namespace AnyFX
 {
@@ -27,15 +28,15 @@ EffectAnnotationStreamLoader::~EffectAnnotationStreamLoader()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-EffectAnnotationStreamLoader::Load( BinReader* reader, Annotable* object )
+void
+EffectAnnotationStreamLoader::Load(BinReader* reader, Annotable* object)
 {
 	int numAnnotations = reader->ReadInt();
 	int i;
 	for (i = 0; i < numAnnotations; i++)
 	{
 		// read annotation name
-		std::string name = reader->ReadString();
+        eastl::string name = reader->ReadString().c_str();
 
 		// read type
 		VariableType type = (VariableType)reader->ReadInt();
@@ -59,8 +60,8 @@ EffectAnnotationStreamLoader::Load( BinReader* reader, Annotable* object )
 			break;
 		case String:
 			{
-				value.data.stringValue = new std::string;
-				*value.data.stringValue = reader->ReadString();
+                value.data.stringValue = new eastl::string;
+				*value.data.stringValue = reader->ReadString().c_str();
 			}			
 			break;
 		}

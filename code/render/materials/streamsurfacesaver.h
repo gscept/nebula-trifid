@@ -1,9 +1,9 @@
 #pragma once
 //------------------------------------------------------------------------------
 /**
-	@class Materials::StreamSurfaceMaterialSaver
+	@class Materials::StreamSurfaceSaver
 	
-	Saves a surface material to an XML file.
+	Saves a surface to an XML file.
 	
 	(C) 2015 Individual contributors, see AUTHORS file
 */
@@ -13,14 +13,14 @@
 #include "io/iointerfaceprotocol.h"
 namespace Materials
 {
-class StreamSurfaceMaterialSaver : public Resources::ResourceSaver
+class StreamSurfaceSaver : public Resources::ResourceSaver
 {
-	__DeclareClass(StreamSurfaceMaterialSaver);
+	__DeclareClass(StreamSurfaceSaver);
 public:
 	/// constructor
-	StreamSurfaceMaterialSaver();
+	StreamSurfaceSaver();
 	/// destructor
-	virtual ~StreamSurfaceMaterialSaver();
+	virtual ~StreamSurfaceSaver();
 
 	/// set stream to save to
 	void SetStream(const Ptr<IO::Stream>& stream);
@@ -38,7 +38,7 @@ private:
 /**
 */
 inline void
-StreamSurfaceMaterialSaver::SetStream(const Ptr<IO::Stream>& s)
+StreamSurfaceSaver::SetStream(const Ptr<IO::Stream>& s)
 {
 	this->stream = s;
 }
@@ -47,7 +47,7 @@ StreamSurfaceMaterialSaver::SetStream(const Ptr<IO::Stream>& s)
 /**
 */
 inline const Ptr<IO::Stream>&
-StreamSurfaceMaterialSaver::GetStream() const
+StreamSurfaceSaver::GetStream() const
 {
 	return this->stream;
 }

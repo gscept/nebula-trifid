@@ -33,7 +33,7 @@ protected:
     void Reset();
 
 	/// gets name of render state
-	const std::string& GetName() const;
+    const eastl::string& GetName() const;
 	
 	Effect* effect;
 
@@ -77,14 +77,14 @@ protected:
 		float polygonOffsetUnits;
 	} renderSettings, defaultRenderSettings;
 
-	std::string name;
+    eastl::string name;
 }; 
 
 
 //------------------------------------------------------------------------------
 /**
 */
-inline const std::string& 
+inline const eastl::string&
 InternalEffectRenderState::GetName() const
 {
 	return this->name;

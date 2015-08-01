@@ -9,6 +9,7 @@
 #include "coregraphics/ogl4/ogl4renderdevice.h"
 #include "coregraphics/ogl4/ogl4shaderserver.h"
 #include "io/ioserver.h"
+#include "../shadervariation.h"
 
 namespace OpenGL4
 {
@@ -62,6 +63,108 @@ OGL4StreamShaderLoader::SetupResourceFromStream(const Ptr<Stream>& stream)
 		res->ogl4Effect = effect;
 		res->shaderName = res->GetResourceId().AsString();
         res->shaderIdentifierCode = ShaderIdentifier::FromName(res->shaderName.AsString());
+
+        // setup shader variations
+        int programCount = effect->GetNumPrograms();
+        for (int i = 0; i < programCount; i++)
+        {
+            // a shader variation in Nebula is equal to a program object in AnyFX
+            Ptr<ShaderVariation> variation = ShaderVariation::Create();
+
+            // get program object from shader subsystem
+            AnyFX::EffectProgram* program = effect->GetProgramByIndex(i);
+
+            if (program->IsValid())
+            {
+                variation->Setup(program);
+                res->variations.Add(variation->GetFeatureMask(), variation);
+            }
+        }
+
+        // make sure that the shader has one variation selected
+        if (!res->variations.IsEmpty()) res->activeVariation = res->variations.ValueAtIndex(0);
+
+        // load uniforms
+        int variableCount = effect->GetNumVariables();
+        for (int i = 0; i < variableCount; i++)
+        {
+            // get AnyFX variable
+            AnyFX::EffectVariable* effectVar = effect->GetVariableByIndex(i);
+
+            // create new variable
+            Ptr<ShaderVariable> var = ShaderVariable::Create();
+
+            if (effectVar->IsActive())
+            {
+                // setup variable from AnyFX variable
+                var->Setup(effectVar);
+                res->variables.Append(var);
+                res->variablesByName.Add(var->GetName(), var);
+            }
+        }
+
+        // load shader storage buffer variables
+        int varbufferCount = effect->GetNumVarbuffers();
+        for (int i = 0; i < varbufferCount; i++)
+        {
+            // get AnyFX variable
+            AnyFX::EffectVarbuffer* effectBuf = effect->GetVarbufferByIndex(i);
+
+            // create new variable
+            Ptr<ShaderVariable> var = ShaderVariable::Create();
+
+            var->Setup(effectBuf);
+            res->variables.Append(var);
+            res->variablesByName.Add(var->GetName(), var);
+        }
+
+        // load uniform block variables
+        int varblockCount = effect->GetNumVarblocks();
+        for (int i = 0; i < varblockCount; i++)
+        {
+            // get varblock
+            AnyFX::EffectVarblock* effectBlock = effect->GetVarblockByIndex(i);
+
+            // create a new variable
+            Ptr<ShaderVariable> var = ShaderVariable::Create();
+
+            if (effectBlock->IsActive())
+            {
+                // setup variable on varblock, this allow us to set the buffer the block should use
+                var->Setup(effectBlock);
+                res->variables.Append(var);
+                res->variablesByName.Add(var->GetName(), var);
+            }            
+        }
+
+        // setup variables belonging to the 'default' variable block, which is where all global variables end up
+        if (effect->HasVarblock("GlobalBlock"))
+        {
+            // get global block
+            AnyFX::EffectVarblock* effectBlock = effect->GetVarblockByName("GlobalBlock");
+
+            eastl::vector<AnyFX::VarblockVariableBinding> variableBinds = effectBlock->GetVariables();
+            if (!variableBinds.empty() && effectBlock->IsActive())
+            {
+                // create constant buffer
+                res->globalBlockBuffer = ConstantBuffer::Create();
+                res->globalBlockBuffer->SetSize(effectBlock->GetSize());
+                res->globalBlockBuffer->SetSync(true);
+                res->globalBlockBuffer->Setup();
+
+                for (unsigned j = 0; j < variableBinds.size(); j++)
+                {
+                    // bind this variable to a shader global buffer, if this variable is instanced, it can either point to its
+                    // own buffer, or point directly to this block (if variable instance is not bound to a buffer)
+                    const AnyFX::VarblockVariableBinding& binding = variableBinds[j];
+                    const Ptr<ShaderVariable>& var = res->variablesByName[binding.name.c_str()];
+                    var->BindToUniformBuffer(res->globalBlockBuffer, binding.offset, binding.size, binding.value);
+                }
+
+                // bind buffer
+                res->globalBlockBufferBinding = OGL4Shader::BlockBufferBinding(res->variablesByName["GlobalBlock"], res->globalBlockBuffer);
+            }
+        }
 
 		return true;
 	}

@@ -57,8 +57,8 @@ vsSkinned(in vec3 position,
 	in vec2 uv,
 	in vec4 tangent,
 	in vec4 binormal,
-	in vec4 weights,
-	in uvec4 indices,
+	[slot=7] in vec4 weights,
+	[slot=8] in uvec4 indices,
 	out vec2 UV) 
 {
 	vec4 skinnedPos = SkinnedPosition(position, weights, indices);

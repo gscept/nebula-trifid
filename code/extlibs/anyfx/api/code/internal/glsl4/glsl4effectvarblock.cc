@@ -6,6 +6,7 @@
 #include "glsl4effectprogram.h"
 #include <assert.h>
 #include "internal/internaleffectvariable.h"
+#include "effectvarblock.h"
 
 #define a_max(x, y) (x > y ? x : y)
 namespace AnyFX
@@ -19,6 +20,7 @@ GLSL4EffectVarblock::GLSL4EffectVarblock() :
 	buffer(-1),
 	activeProgram(-1),
 	uniformBlockLocation(-1),
+    uniformOffsets(NULL),
 	auxBuffers(0)
 {
 	// empty
@@ -29,11 +31,13 @@ GLSL4EffectVarblock::GLSL4EffectVarblock() :
 */
 GLSL4EffectVarblock::~GLSL4EffectVarblock()
 {
+    /*
 	// unmap stuff
     glBindBuffer(GL_UNIFORM_BUFFER, this->buffer);
     glUnmapBuffer(GL_UNIFORM_BUFFER);
 	glDeleteBuffers(1, &this->buffer);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    */
 
 	// release resources
 	this->glBuffer = 0;
@@ -57,11 +61,15 @@ GLSL4EffectVarblock::~GLSL4EffectVarblock()
 void
 GLSL4EffectVarblock::Setup(eastl::vector<InternalEffectProgram*> programs)
 {
-	//InternalEffectVarblock::Setup(programs);
+	InternalEffectVarblock::Setup(programs);
 
     const char** names = new const char*[this->variables.size()];
     for (unsigned index = 0; index < this->variables.size(); index++) names[index] = this->variables[index]->GetName().c_str();
     GLint* offsets = new GLint[this->variables.size()];
+
+    // create offset array
+    this->uniformOffsets = new unsigned[this->variables.size()];
+    memset(this->uniformOffsets, 0, this->variables.size() * sizeof(unsigned));
 
 	this->uniformBlockBinding = globalVarblockCounter++;
 	unsigned i;
@@ -70,25 +78,19 @@ GLSL4EffectVarblock::Setup(eastl::vector<InternalEffectProgram*> programs)
 		GLSL4EffectProgram* opengl4Program = dynamic_cast<GLSL4EffectProgram*>(programs[i]);
 		assert(0 != opengl4Program);
 
-		GLint location = glGetUniformBlockIndex(opengl4Program->programHandle, this->name.c_str());
+		GLuint location = glGetUniformBlockIndex(opengl4Program->programHandle, this->name.c_str());
 		this->activeMap[opengl4Program] = location;
 		if (location != GL_INVALID_INDEX)
 		{
 			// now tell the program in which binding slot this buffer should be 
 			glUniformBlockBinding(opengl4Program->programHandle, location, this->uniformBlockBinding);	
+            glGetActiveUniformBlockiv(opengl4Program->programHandle, location, GL_UNIFORM_BLOCK_DATA_SIZE, (GLint*)&this->size);
 
-            // get uniform indices
-            GLuint* indices = new GLuint[this->variables.size()];
-            glGetUniformIndices(opengl4Program->programHandle, this->variables.size(), names, indices);
-            glGetActiveUniformsiv(opengl4Program->programHandle, this->variables.size(), (GLuint*)indices, GL_UNIFORM_OFFSET, offsets);
-            delete [] indices;
+            // setup uniforms (since we have a shared layout, this should be consistent between ALL blocks)
+            this->SetupUniformOffsets(opengl4Program, location);
 
-            unsigned j;
-            for (j = 0; j < this->variables.size(); j++)  
-            {
-                InternalEffectVariable* variable = this->variables[j];
-                variable->blockOffsets[opengl4Program->programHandle] = offsets[j];
-            }
+            // make active
+            this->active = true;
 		}
 	}
 
@@ -96,20 +98,20 @@ GLSL4EffectVarblock::Setup(eastl::vector<InternalEffectProgram*> programs)
     delete [] offsets;
 
 	// setup variable offsets and sizes
-    this->bufferSize = 0;
     for (i = 0; i < this->variables.size(); i++)
     {
         InternalEffectVariable* variable = this->variables[i];
-		this->bufferSize += variable->byteSize;
+        variable->sharedByteOffset = &this->uniformOffsets[i];
     }
     
     // get alignment
-    GLint alignment;
-    glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &alignment);
+    // GLint alignment;
+    //glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &alignment);
 
     // calculate aligned size
-    this->alignedSize = (bufferSize + alignment - 1) - (bufferSize + alignment - 1) % alignment;
+    // this->size = (bufferSize + alignment - 1) - (bufferSize + alignment - 1) % alignment;
 
+    /*
 	// setup buffer
 	glGenBuffers(1, &this->buffer);
 	glBindBuffer(GL_UNIFORM_BUFFER, this->buffer);
@@ -134,13 +136,10 @@ GLSL4EffectVarblock::Setup(eastl::vector<InternalEffectProgram*> programs)
 	// create buffer lock
 	this->bufferLock = new GLSL4BufferLock;
 	this->bufferLock->Setup(3);
+    */
 
     // setup default values
-    for (i = 0; i < this->variables.size(); i++)
-    {
-        InternalEffectVariable* variable = this->variables[i];
-        variable->InitializeDefaultValues();
-    }
+    //InternalEffectVarblock::SetupDefaultValues();
 }
 
 //------------------------------------------------------------------------------
@@ -158,6 +157,7 @@ GLSL4EffectVarblock::SetupSlave(eastl::vector<InternalEffectProgram*> programs, 
 	// assert the master block is of same backend
 	GLSL4EffectVarblock* mainBlock = dynamic_cast<GLSL4EffectVarblock*>(master);
 	assert(0 != mainBlock);
+    this->uniformOffsets = mainBlock->uniformOffsets;
 
 	this->uniformBlockBinding = mainBlock->uniformBlockBinding;
 	unsigned i;
@@ -166,36 +166,37 @@ GLSL4EffectVarblock::SetupSlave(eastl::vector<InternalEffectProgram*> programs, 
 		GLSL4EffectProgram* opengl4Program = dynamic_cast<GLSL4EffectProgram*>(programs[i]);
 		assert(0 != opengl4Program);
 
-		GLint location = glGetUniformBlockIndex(opengl4Program->programHandle, this->name.c_str());
+		GLuint location = glGetUniformBlockIndex(opengl4Program->programHandle, this->name.c_str());
 		this->activeMap[opengl4Program] = location;
 		if (location != GL_INVALID_INDEX)
 		{
-			this->active = true;
-
 			// now tell the program in which binding slot this buffer should be 
 			glUniformBlockBinding(opengl4Program->programHandle, location, this->uniformBlockBinding);
+            glGetActiveUniformBlockiv(opengl4Program->programHandle, location, GL_UNIFORM_BLOCK_DATA_SIZE, (GLint*)&mainBlock->size);
 
-            // get uniform indices
-            GLuint* indices = new GLuint[this->variables.size()];
-            glGetUniformIndices(opengl4Program->programHandle, this->variables.size(), names, indices);
-            glGetActiveUniformsiv(opengl4Program->programHandle, this->variables.size(), (GLuint*)indices, GL_UNIFORM_OFFSET, offsets);
-            delete [] indices;
+            // setup uniforms (since we have a shared layout, this should be consistent between ALL blocks)
+            this->SetupUniformOffsets(opengl4Program, location);
 
-            unsigned j;
-            for (j = 0; j < this->variables.size(); j++)  
-            {
-                InternalEffectVariable* variable = this->variables[j];
-                variable->blockOffsets[opengl4Program->programHandle] = offsets[j];
-            }
+            // make active
+            mainBlock->active = true;
 		}
 	}
+
+    for (i = 0; i < this->variables.size(); i++)
+    {
+        InternalEffectVariable* variable = this->variables[i];
+
+        // this byte offset should be shared by ALL blocks as long as we use the 'shared' qualifier
+        // bind the shared offset to this location into the singleton offset array
+        variable->sharedByteOffset = &this->uniformOffsets[i];
+    }
 
     delete [] names;
     delete [] offsets;
 
 	// copy GL buffer
 	this->buffer			= mainBlock->buffer;
-	this->alignedSize		= mainBlock->alignedSize;
+	this->size              = mainBlock->size;
 	this->elementIndex		= mainBlock->elementIndex;
 	this->glBuffer			= mainBlock->glBuffer;
 	this->glBackingBuffer	= mainBlock->glBackingBuffer;
@@ -205,11 +206,7 @@ GLSL4EffectVarblock::SetupSlave(eastl::vector<InternalEffectProgram*> programs, 
 	this->ringLocks			= mainBlock->ringLocks;
 
     // setup default values
-    for (i = 0; i < this->variables.size(); i++)
-    {
-        InternalEffectVariable* variable = this->variables[i];
-        variable->InitializeDefaultValues();
-    }
+    //InternalEffectVarblock::SetupDefaultValues();
 }
 
 //------------------------------------------------------------------------------
@@ -218,6 +215,7 @@ GLSL4EffectVarblock::SetupSlave(eastl::vector<InternalEffectProgram*> programs, 
 void 
 GLSL4EffectVarblock::SetVariable(InternalEffectVariable* var, void* value)
 {    
+    /*
 	if (this->manualFlushing)
 	{
 		char* data = (this->glBackingBuffer + var->byteOffset);
@@ -230,6 +228,7 @@ GLSL4EffectVarblock::SetVariable(InternalEffectVariable* var, void* value)
 		memcpy(data, value, var->byteSize);
 		this->isDirty = true;
 	}
+    */
 }
 
 //------------------------------------------------------------------------------
@@ -238,6 +237,7 @@ GLSL4EffectVarblock::SetVariable(InternalEffectVariable* var, void* value)
 void 
 GLSL4EffectVarblock::SetVariableArray(InternalEffectVariable* var, void* value, size_t size)
 {
+    /*
 	if (this->manualFlushing)
 	{
 		char* data = (this->glBackingBuffer + var->byteOffset);
@@ -250,6 +250,7 @@ GLSL4EffectVarblock::SetVariableArray(InternalEffectVariable* var, void* value, 
 		memcpy(data, value, size);
 		this->isDirty = true;
 	}
+    */
 }
 
 //------------------------------------------------------------------------------
@@ -258,6 +259,7 @@ GLSL4EffectVarblock::SetVariableArray(InternalEffectVariable* var, void* value, 
 void 
 GLSL4EffectVarblock::SetVariableIndexed(InternalEffectVariable* var, void* value, unsigned i)
 {
+    /*
 	if (this->manualFlushing)
 	{
 		char* data = (this->glBackingBuffer + var->byteOffset + i * var->byteSize);
@@ -269,7 +271,8 @@ GLSL4EffectVarblock::SetVariableIndexed(InternalEffectVariable* var, void* value
 		this->UnlockBuffer();
 		memcpy(data, value, var->byteSize);
 		this->isDirty = true;
-	}	
+	}
+    */
 }
 
 //------------------------------------------------------------------------------
@@ -291,6 +294,37 @@ GLSL4EffectVarblock::Commit()
 {
 	if (this->currentLocation != GL_INVALID_INDEX)
 	{
+        EffectVarblock::OpenGLBufferBinding* buf = (EffectVarblock::OpenGLBufferBinding*)*this->currentBufferHandle;
+        if (buf != 0)
+        {
+            if (buf->bindRange)
+            {
+                GLSL4VarblockRangeState state;
+                state.buffer = buf->handle;
+                state.offset = buf->offset;
+                state.length = buf->size;
+                if (GLSL4VarblockRangeStates[this->uniformBlockBinding] != state)
+                {
+                    GLSL4VarblockRangeStates[this->uniformBlockBinding] = state;
+                    glBindBufferRange(GL_UNIFORM_BUFFER, this->uniformBlockBinding, buf->handle, buf->offset, buf->size);
+                }
+            }
+            else
+            {
+                GLSL4VarblockBaseState state;
+                state.buffer = buf->handle;
+                if (GLSL4VarblockBaseStates[this->uniformBlockBinding] != state)
+                {
+                    GLSL4VarblockBaseStates[this->uniformBlockBinding] = state;
+                    glBindBufferBase(GL_UNIFORM_BUFFER, this->uniformBlockBinding, buf->handle);
+                }
+            }
+        }
+        else
+        {
+            glBindBufferBase(GL_UNIFORM_BUFFER, this->uniformBlockBinding, 0);
+        }
+        /*
 		if (this->manualFlushing)
 		{
 			GLSL4VarblockBaseState state;
@@ -315,6 +349,7 @@ GLSL4EffectVarblock::Commit()
 				glBindBufferRange(GL_UNIFORM_BUFFER, this->uniformBlockBinding, state.buffer, state.offset, state.length);
 			}
 		}
+        */
 	}
 }
 
@@ -324,6 +359,7 @@ GLSL4EffectVarblock::Commit()
 void 
 GLSL4EffectVarblock::PostDraw()
 {
+    /*
     if (this->isDirty)
     {        
         // only perform automatic locking if we haven't specified it to be manual
@@ -340,18 +376,32 @@ GLSL4EffectVarblock::PostDraw()
             this->masterBlock->isDirty = false;
         }
     }
+    */
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-void 
-GLSL4EffectVarblock::Activate( InternalEffectProgram* program )
+void
+GLSL4EffectVarblock::Activate(InternalEffectProgram* program)
 {
 	GLSL4EffectProgram* opengl4Program = dynamic_cast<GLSL4EffectProgram*>(program);
 	assert(0 != opengl4Program);
 	this->activeProgram = opengl4Program->programHandle;
 	this->currentLocation = this->activeMap[opengl4Program];
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+GLSL4EffectVarblock::SetupUniformOffsets(GLSL4EffectProgram* program, GLuint blockIndex)
+{
+    // setup indices and setup the uniforms
+    GLint* indices = new GLint[this->variables.size()];
+    glGetActiveUniformBlockiv(program->programHandle, blockIndex, GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, indices);
+    glGetActiveUniformsiv(program->programHandle, this->variables.size(), (GLuint*)indices, GL_UNIFORM_OFFSET, (GLint*)this->uniformOffsets);
+    delete[] indices;
 }
 
 //------------------------------------------------------------------------------
@@ -379,7 +429,7 @@ GLSL4EffectVarblock::LockBuffer()
 		this->ringLocks->at(ringIndex) = true;
 	}
 
-	*this->glBufferOffset = *this->elementIndex * this->alignedSize;
+	*this->glBufferOffset = *this->elementIndex * this->size;
 
 	// move to next buffer
 	//*this->ringIndex = ((*this->ringIndex + 1) / this->numBackingBuffers) % 3;
@@ -415,6 +465,7 @@ GLSL4EffectVarblock::UnlockBuffer()
 void
 GLSL4EffectVarblock::SetFlushManually(bool b)
 {
+    /*
 	if (b)
 	{
 		// unmap persistent buffer
@@ -472,7 +523,7 @@ GLSL4EffectVarblock::SetFlushManually(bool b)
 			childBlock->glBuffer	= mainBlock->glBuffer;
 		}
 	}
-	
+	*/
 	InternalEffectVarblock::SetFlushManually(b);
 }
 
@@ -482,10 +533,12 @@ GLSL4EffectVarblock::SetFlushManually(bool b)
 void
 GLSL4EffectVarblock::FlushBuffer()
 {
+    /*
 	GLuint ringIndex = *this->elementIndex / this->numBackingBuffers;
 	glBindBuffer(GL_UNIFORM_BUFFER, this->auxBuffers[ringIndex]);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, this->bufferSize, this->glBackingBuffer);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    */
 }
 
 } // namespace AnyFX

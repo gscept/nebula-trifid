@@ -71,34 +71,34 @@ PostEffectServer::Open()
     this->frameShader = GraphicsServer::Instance()->GetDefaultView()->GetFrameShader();
 
 	// some variables belong in the compose shader
-	const Ptr<ShaderInstance>& composeShader = this->frameShader->GetFramePassBaseByName("Finalize")->GetShader();
-    const Ptr<ShaderInstance>& gatherShader = this->frameShader->GetFramePassBaseByName("Gather")->GetShader();
-	const Ptr<ShaderInstance>& vertBloom = this->frameShader->GetFramePassBaseByName("VerticalBloomBlur")->GetShader();
-	const Ptr<ShaderInstance>& horiBloom = this->frameShader->GetFramePassBaseByName("HorizontalBloomBlur")->GetShader();
+	const Ptr<Shader>& composeShader = this->frameShader->GetFramePassBaseByName("Finalize")->GetShader();
+    const Ptr<Shader>& gatherShader = this->frameShader->GetFramePassBaseByName("Gather")->GetShader();
+	const Ptr<Shader>& vertBloom = this->frameShader->GetFramePassBaseByName("VerticalBloomBlur")->GetShader();
+	const Ptr<Shader>& horiBloom = this->frameShader->GetFramePassBaseByName("HorizontalBloomBlur")->GetShader();
 
 	// some variables belong in the brightpass
-	const Ptr<ShaderInstance>& brightPassShader = this->frameShader->GetFramePassBaseByName("BrightPass")->GetShader();
+	const Ptr<Shader>& brightPassShader = this->frameShader->GetFramePassBaseByName("BrightPass")->GetShader();
 
     // lookup the shared post effect fade variable
-    this->fadeShaderVariable = composeShader->GetVariableBySemantic(ShaderVariable::Semantic(NEBULA3_SEMANTIC_FADEVALUE));
+    this->fadeShaderVariable = composeShader->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_FADEVALUE));
     
     // color stuff
-    this->saturationShaderVariable = composeShader->GetVariableBySemantic(ShaderVariable::Semantic(NEBULA3_SEMANTIC_SATURATION));
-    this->balanceShaderVariable = composeShader->GetVariableBySemantic(ShaderVariable::Semantic(NEBULA3_SEMANTIC_BALANCE));
-	this->maxLuminanceShaderVar = composeShader->GetVariableBySemantic(ShaderVariable::Semantic(NEBULA3_SEMANTIC_MAXLUMINANCE));
+    this->saturationShaderVariable = composeShader->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_SATURATION));
+    this->balanceShaderVariable = composeShader->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_BALANCE));
+    this->maxLuminanceShaderVar = composeShader->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_MAXLUMINANCE));
 
 	// fog stuff
-	this->fogColorVariable = gatherShader->GetVariableBySemantic(ShaderVariable::Semantic(NEBULA3_SEMANTIC_FOGCOLOR));
-	this->fogDistancesVariable = gatherShader->GetVariableBySemantic(ShaderVariable::Semantic(NEBULA3_SEMANTIC_FOGDISTANCES));
+    this->fogColorVariable = gatherShader->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_FOGCOLOR));
+    this->fogDistancesVariable = gatherShader->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_FOGDISTANCES));
 
 	// dof stuff
-	this->dofShaderVariable = composeShader->GetVariableBySemantic(ShaderVariable::Semantic(NEBULA3_SEMANTIC_DOFDISTANCES));
+    this->dofShaderVariable = composeShader->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_DOFDISTANCES));
 
     // hdr stuff
-    this->hdrColorVariable = brightPassShader->GetVariableBySemantic(ShaderVariable::Semantic(NEBULA3_SEMANTIC_HDRBLOOMCOLOR));
-	this->hdrThresholdVariable = brightPassShader->GetVariableBySemantic(ShaderVariable::Semantic(NEBULA3_SEMANTIC_HDRBRIGHTPASSTHRESHOLD));
-    this->hdrVerticalScaleVariable = vertBloom->GetVariableBySemantic(ShaderVariable::Semantic(NEBULA3_SEMANTIC_HDRBLOOMSCALE));
-	this->hdrHorizontalScaleVariable = horiBloom->GetVariableBySemantic(ShaderVariable::Semantic(NEBULA3_SEMANTIC_HDRBLOOMSCALE));
+    this->hdrColorVariable = brightPassShader->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_HDRBLOOMCOLOR));
+    this->hdrThresholdVariable = brightPassShader->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_HDRBRIGHTPASSTHRESHOLD));
+    this->hdrVerticalScaleVariable = vertBloom->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_HDRBLOOMSCALE));
+    this->hdrHorizontalScaleVariable = horiBloom->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_HDRBLOOMSCALE));
 
 	// setup default blends
 	this->postEffects[Color].current	= ColorParams::Create();
@@ -138,13 +138,14 @@ PostEffectServer::FindCurrentSkyEntities()
 				{
 					const Ptr<StateNodeInstance>& stateNodeInst = node.downcast<StateNodeInstance>();
 					const Ptr<StateNode>& stateNode = stateNodeInst->GetModelNode().downcast<StateNode>();
+                    const Ptr<Materials::SurfaceInstance>& surface = stateNodeInst->GetSurfaceInstance();
 
 					// create variables
-                    this->skyBaseTexture = stateNodeInst->CreateSurfaceConstantInstance(ShaderVariable::Semantic(NEBULA3_SEMANTIC_SKY1));
-					this->skyBlendTexture = stateNodeInst->CreateSurfaceConstantInstance(ShaderVariable::Semantic(NEBULA3_SEMANTIC_SKY2));
-                    this->skyBlendFactor = stateNodeInst->CreateSurfaceConstantInstance(ShaderVariable::Semantic(NEBULA3_SEMANTIC_SKYBLENDFACTOR));
-                    this->skyBrightness = stateNodeInst->CreateSurfaceConstantInstance(ShaderVariable::Semantic(NEBULA3_SEMANTIC_BRIGHTNESS));
-                    this->skyContrast = stateNodeInst->CreateSurfaceConstantInstance(ShaderVariable::Semantic(NEBULA3_SEMANTIC_CONTRAST));
+                    this->skyBaseTexture = surface->GetConstant(ShaderVariable::Name(NEBULA3_SEMANTIC_SKY1));
+                    this->skyBlendTexture = surface->GetConstant(ShaderVariable::Name(NEBULA3_SEMANTIC_SKY2));
+                    this->skyBlendFactor = surface->GetConstant(ShaderVariable::Name(NEBULA3_SEMANTIC_SKYBLENDFACTOR));
+                    this->skyBrightness = surface->GetConstant(ShaderVariable::Name(NEBULA3_SEMANTIC_BRIGHTNESS));
+                    this->skyContrast = surface->GetConstant(ShaderVariable::Name(NEBULA3_SEMANTIC_CONTRAST));
 
 					// set base texture
 					this->skyBaseTexture->SetTexture(this->FindTexture("tex:system/sky")->GetTexture());
@@ -241,7 +242,7 @@ PostEffectServer::OnFrame(Timing::Time time)
     // if no global light entity set, find the new one
     //   (can be used for setting a new, in case of changing the view
     //    the old one should be reseted and here we will find the new one)
-    if(!this->globalLight.isvalid())
+    if (!this->globalLight.isvalid())
     {        
 		this->globalLight = Graphics::GraphicsServer::Instance()->GetCurrentGlobalLightEntity();
         // return, the light still can be invalid
@@ -609,30 +610,10 @@ PostEffectServer::SetSkyEntity( const Ptr<Graphics::ModelEntity>& entity )
 	// remove current variables
 	if (this->skyEntity.isvalid())
 	{
-		if (this->skyContrast.isvalid() && this->skyContrast->IsValid())
-		{
-			this->skyContrast->Discard();
-		}		
 		this->skyContrast = 0;
-		if (this->skyBrightness.isvalid() && this->skyBrightness->IsValid())
-		{
-			this->skyBrightness->Discard();
-		}		
 		this->skyBrightness = 0;
-		if (this->skyBlendFactor.isvalid() && this->skyBlendFactor->IsValid())
-		{
-			this->skyBlendFactor->Discard();
-		}		
 		this->skyBlendFactor = 0;
-		if (this->skyBlendTexture.isvalid() && this->skyBlendTexture->IsValid())
-		{
-			this->skyBlendTexture->Discard();
-		}		
 		this->skyBlendTexture = 0;
-		if (this->skyBaseTexture.isvalid() && this->skyBaseTexture->IsValid())
-		{
-			this->skyBaseTexture->Discard();
-		}		
 		this->skyBaseTexture = 0;
 		this->skyLoaded = false;
 	}

@@ -113,7 +113,7 @@ CharacterSkinNode::ApplySharedState(IndexT frameIndex)
     // variation for skinned geometry is used instead of static geometry
 	if (SkinningTechnique::GPUSkinning == Characters::CharacterServer::Instance()->GetSkinningTechnique())
 	{
-		ShaderServer::Instance()->SetFeatureBits(this->skinnedShaderFeatureBits);
+		//ShaderServer::Instance()->SetFeatureBits(this->skinnedShaderFeatureBits);
 	}
 
     // primitives must be applied in node instance, since each 

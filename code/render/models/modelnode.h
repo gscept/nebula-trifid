@@ -21,7 +21,7 @@
 #include "models/visresolvecontainer.h"
 #include "math/bbox.h"
 #include "io/binaryreader.h"
-#include "materials/materialtype.h"
+#include "materials/surfacename.h"
 
 //------------------------------------------------------------------------------
 namespace Models
@@ -104,9 +104,9 @@ public:
 	const Ptr<ModelNode> FindChild(const Util::StringAtom& name) const;
 
     /// called by model node instance on NotifyVisible()
-    void AddVisibleNodeInstance(IndexT frameIndex, const Materials::MaterialType::Code& code, const Ptr<ModelNodeInstance>& nodeInst);
+    void AddVisibleNodeInstance(IndexT frameIndex, const Materials::SurfaceName::Code& surfaceName, const Ptr<ModelNodeInstance>& nodeInst);
     /// get visible model node instances
-    const Util::Array<Ptr<ModelNodeInstance>>& GetVisibleModelNodeInstances(const Materials::MaterialType::Code& t) const;
+    const Util::Array<Ptr<ModelNodeInstance>>& GetVisibleModelNodeInstances(const Materials::SurfaceName::Code& surfaceName) const;
 
     /// has string attr 
     bool HasStringAttr(const Util::StringAtom& attrId) const;
@@ -216,9 +216,9 @@ ModelNode::GetChildren() const
 /**
 */
 inline const Util::Array<Ptr<ModelNodeInstance>>&
-ModelNode::GetVisibleModelNodeInstances(const Materials::MaterialType::Code& t) const
+ModelNode::GetVisibleModelNodeInstances(const Materials::SurfaceName::Code& code) const
 {
-    return this->visibleModelNodeInstances.Get(t);
+    return this->visibleModelNodeInstances.Get(code);
 }
 
 //------------------------------------------------------------------------------

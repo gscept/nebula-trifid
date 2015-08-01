@@ -16,8 +16,6 @@
 #include "materials/materialinstance.h"
 #include "materials/material.h"
 
-
-
 namespace Characters
 {
 __ImplementClass(Characters::CharacterSkinNodeInstance, 'CSNI', Models::ShapeNodeInstance);
@@ -63,9 +61,9 @@ CharacterSkinNodeInstance::Setup(const Ptr<ModelInstance>& inst,
 	if (skinTech == SkinningTechnique::GPUSkinningFeedback)
 	{
 		// lookup skinning shader to use for transform feedbacks, and set relevant transform feedback
-		this->skinningShader = ShaderServer::Instance()->CreateShaderInstance("shd:skinned");
+		this->skinningShader = ShaderServer::Instance()->GetShader("shd:skinned");
 		this->skinningShader->SelectActiveVariation(ShaderServer::Instance()->FeatureStringToMask("Skinned|Feedback"));
-		this->skinningJointPaletteVar = this->skinningShader->GetVariableBySemantic(NEBULA3_SEMANTIC_JOINTPALETTE);
+		this->skinningJointPaletteVar = this->skinningShader->GetVariableByName(NEBULA3_SEMANTIC_JOINTPALETTE);
 
 		// get mesh and primitive group
 		const Ptr<CharacterSkinNode>& charNode = this->modelNode.cast<CharacterSkinNode>();
@@ -77,7 +75,7 @@ CharacterSkinNodeInstance::Setup(const Ptr<ModelInstance>& inst,
 		Array<VertexComponent> components;
 		components.Append(VertexComponent(VertexComponent::Position, 0, VertexComponent::Float3, 0));
 		components.Append(VertexComponent(VertexComponent::Normal, 0, VertexComponent::Float3, 0));
-		components.Append(VertexComponent(VertexComponent::TexCoord, 0, VertexComponent::Float2, 0));
+		components.Append(VertexComponent(VertexComponent::TexCoord1, 0, VertexComponent::Float2, 0));
 		components.Append(VertexComponent(VertexComponent::Tangent, 0, VertexComponent::Float3, 0));
 		components.Append(VertexComponent(VertexComponent::Binormal, 0, VertexComponent::Float3, 0));
 
@@ -91,7 +89,7 @@ CharacterSkinNodeInstance::Setup(const Ptr<ModelInstance>& inst,
 	else if (skinTech == SkinningTechnique::GPUSkinning)
 	{
 		const Ptr<CharacterSkinNode>& charNode = this->modelNode.cast<CharacterSkinNode>();
-		this->jointBuffer = ShaderBuffer::Create();
+		this->jointBuffer = ShaderReadWriteBuffer::Create();
 		this->jointBuffer->SetSize(charNode->GetFragmentJointPalette(0).Size() * sizeof(Math::matrix44));
 		this->jointBuffer->Setup();
 	}
@@ -109,7 +107,7 @@ CharacterSkinNodeInstance::Discard()
 	if (charServer->GetSkinningTechnique() == SkinningTechnique::GPUSkinningFeedback)
 	{
 		this->skinningJointPaletteVar = 0;
-		this->skinningShader->Discard();
+        this->skinningShader = 0;
 		this->feedbackBuffer->Discard();
 	}
     ShapeNodeInstance::Discard();
@@ -184,7 +182,8 @@ CharacterSkinNodeInstance::OnRenderBefore(IndexT frameIndex, Timing::Time time)
 		{
 			joints[i] = skinMatrixArray[indices[i]];
 		}
-		this->jointBuffer->UpdateBuffer(&joints[0], 0, joints.Size() * sizeof(Math::matrix44));
+        this->jointBuffer->CycleBuffers();
+		this->jointBuffer->Update(&joints[0], 0, joints.Size() * sizeof(Math::matrix44));
 	}
 
 	ShapeNodeInstance::OnRenderBefore(frameIndex, time);
@@ -194,10 +193,10 @@ CharacterSkinNodeInstance::OnRenderBefore(IndexT frameIndex, Timing::Time time)
 /**
 */
 void 
-CharacterSkinNodeInstance::ApplyState(const Ptr<CoreGraphics::ShaderInstance>& shader)
+CharacterSkinNodeInstance::ApplyState(IndexT frameIndex, const Frame::BatchGroup::Code& group, const Ptr<CoreGraphics::Shader>& shader)
 {
 	// apply base level state
-	ShapeNodeInstance::ApplyState(shader);
+	ShapeNodeInstance::ApplyState(frameIndex, group, shader);
 
 	// different code paths for software and GPU-skinned platforms
 	ShaderServer* shaderServer = ShaderServer::Instance();
@@ -206,10 +205,10 @@ CharacterSkinNodeInstance::ApplyState(const Ptr<CoreGraphics::ShaderInstance>& s
 
 	if (SkinningTechnique::GPUTextureSkinning == skinTech)
 	{           
-		if (shader->HasVariableBySemantic(NEBULA3_SEMANTIC_CHARACTERINDEX))
+        if (shader->HasVariableByName(NEBULA3_SEMANTIC_CHARACTERINDEX))
 		{
 			// get shader variable
-			const Ptr<ShaderVariable>& var = shader->GetVariableBySemantic(NEBULA3_SEMANTIC_CHARACTERINDEX);
+            const Ptr<ShaderVariable>& var = shader->GetVariableByName(NEBULA3_SEMANTIC_CHARACTERINDEX);
 
 			// update texture
 			charServer->UpdateGPUSkinnedTextureJointPalette(this->characterInstance, var);
@@ -217,29 +216,13 @@ CharacterSkinNodeInstance::ApplyState(const Ptr<CoreGraphics::ShaderInstance>& s
 	}
 	else if (SkinningTechnique::GPUSkinning == skinTech)
 	{
-
-		// get active shader instance
-		const Ptr<ShaderInstance>& shader = shaderServer->GetActiveShaderInstance();
-
-		if (shader->HasVariableBySemantic(NEBULA3_SEMANTIC_JOINTBUFFER))
+		if (shader->HasVariableByName(NEBULA3_SEMANTIC_JOINTBUFFER))
 		{
 			// get shader variable
-			const Ptr<ShaderVariable>& var = shader->GetVariableBySemantic(NEBULA3_SEMANTIC_JOINTBUFFER);
+            const Ptr<ShaderVariable>& var = shader->GetVariableByName(NEBULA3_SEMANTIC_JOINTBUFFER);
 
 			// set handle
 			var->SetBufferHandle(this->jointBuffer->GetHandle());
-
-			/*
-
-			// get node
-			const Ptr<CharacterSkinNode>& myNode = this->modelNode.cast<CharacterSkinNode>();
-
-			// get fragment joint palette			
-			const Array<IndexT>& jointPalette = myNode->GetFragmentJointPalette(0);    
-
-			// update shader variables
-			charServer->UpdateGPUSkinnedJointPalette(this->characterInstance, jointPalette, var);
-			*/
 		}
 	}
 }
@@ -278,9 +261,6 @@ CharacterSkinNodeInstance::Render()
         const Ptr<CharacterSkinNode>& myNode = this->modelNode.cast<CharacterSkinNode>();
         const Ptr<ManagedMesh> managedMesh = myNode->GetManagedMesh();
 
-		// get active shader instance
-		const Ptr<ShaderInstance>& shader = shaderServer->GetActiveShaderInstance();
-
         if (managedMesh->GetState() == Resource::Loaded)
         {
 			// get mesh
@@ -300,9 +280,6 @@ CharacterSkinNodeInstance::Render()
         // GPU-skinned path
         const Ptr<CharacterSkinNode>& myNode = this->modelNode.cast<CharacterSkinNode>();
         const Ptr<ManagedMesh> managedMesh = myNode->GetManagedMesh();
-
-		// get active shader instance
-		const Ptr<ShaderInstance>& shader = shaderServer->GetActiveShaderInstance();
 
 		if (managedMesh->GetState() == Resource::Loaded)
 		{
@@ -363,14 +340,8 @@ CharacterSkinNodeInstance::RenderInstanced(SizeT numInstances)
 	const Ptr<CharacterSkinNode>& myNode = this->modelNode.cast<CharacterSkinNode>();
 	const Ptr<ManagedMesh> managedMesh = myNode->GetManagedMesh();
 
-	// get active shader instance
-	const Ptr<ShaderInstance>& shader = shaderServer->GetActiveShaderInstance();
-
 	if (SkinningTechnique::GPUTextureSkinning == skinTech)
 	{
-		// get active shader instance
-		const Ptr<ShaderInstance>& shader = shaderServer->GetActiveShaderInstance();
-
 		if (managedMesh->GetState() == Resource::Loaded)
 		{
 			// get mesh

@@ -17,7 +17,7 @@
 namespace AnyFX
 {
 
-std::map<std::string, InternalEffectVarblock*> EffectVarblockStreamLoader::sharedBlocks;
+eastl::map<eastl::string, InternalEffectVarblock*> EffectVarblockStreamLoader::sharedBlocks;
 //------------------------------------------------------------------------------
 /**
 */
@@ -49,7 +49,7 @@ EffectVarblockStreamLoader::Load( BinReader* reader, Effect* effect, eastl::vect
 	}
 	EffectVarblock* varblock = new EffectVarblock;
 
-	std::string name = reader->ReadString();
+	eastl::string name = reader->ReadString().c_str();
 	bool shared = reader->ReadBool();
 	bool nosync = reader->ReadBool();
     unsigned bufferCount = reader->ReadUInt();
@@ -83,7 +83,7 @@ EffectVarblockStreamLoader::Load( BinReader* reader, Effect* effect, eastl::vect
 
 	for (i = 0; i < numPrograms; i++)
 	{
-		internalPrograms.push_back(programs[i]->internalProgram);
+        if (programs[i]->IsValid()) internalPrograms.push_back(programs[i]->internalProgram);
 	}
 
     // set internal variables

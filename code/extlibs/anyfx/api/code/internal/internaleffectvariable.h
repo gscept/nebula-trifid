@@ -87,16 +87,17 @@ public:
 	virtual ~InternalEffectVariable();
 
     /// returns name of variable
-    const std::string& GetName() const;
+    const eastl::string& GetName() const;
     /// returns signature
-    const std::string& GetSignature() const;
+    const eastl::string& GetSignature() const;
     /// returns type of variable
     const VariableType& GetType() const;
 
 protected:
 
-	friend class GLSL4EffectVarblock;
+    friend class GLSL4EffectVarblock;
 	friend class EffectVariable;
+    friend class EffectVarblock;
 	friend class InternalEffectVarblock;
 	friend class InternalEffectProgram;
 	friend class EffectStreamLoader;
@@ -104,13 +105,13 @@ protected:
 	friend class EffectVarblockStreamLoader;	
 
 	/// sets up variable from program, override in subclass
-	virtual void Setup(eastl::vector<InternalEffectProgram*> program, const std::string& defaultValue);
+    virtual void Setup(eastl::vector<InternalEffectProgram*> program, const eastl::string& defaultValue);
     /// sets up variable from another variable
     virtual void SetupSlave(eastl::vector<InternalEffectProgram*> program, InternalEffectVariable* master);
 	/// sets up texture-specific stuff
 	virtual void MakeTexture();
 	/// sets up default value
-	void SetupDefaultValue(const std::string& string);
+    void SetupDefaultValue(const eastl::string& string);
 	/// initializes value if variable lies in varblock
 	void InitializeDefaultValues();
 
@@ -215,8 +216,10 @@ protected:
 	InternalEffectVarblock* parentBlock;
 	bool isInVarblock;
 	eastl::hash_map<unsigned, unsigned> blockOffsets;	// byte offset for the parent block indexed as program/offset
+    
+    unsigned byteSize;										// byte size
 	unsigned byteOffset;									// byte offset from beginning of parent block
-	unsigned byteSize;										// byte size
+    unsigned* sharedByteOffset;
 
 	VariableType type;
 	ImageFormat format;
@@ -229,10 +232,11 @@ protected:
 	int arraySize;
 	int commitSize;
 	
-	std::string name;
-	std::string signature;
+    eastl::string name;
+    eastl::string signature;
 
 	static unsigned globalTextureCounter;
+    bool bindless;
 	bool hasDefaultValue;
 	char* currentValue;
 }; 
@@ -240,7 +244,7 @@ protected:
 //------------------------------------------------------------------------------
 /**
 */
-inline const std::string& 
+inline const eastl::string&
 InternalEffectVariable::GetName() const
 {
 	return this->name;
@@ -249,7 +253,7 @@ InternalEffectVariable::GetName() const
 //------------------------------------------------------------------------------
 /**
 */
-inline const std::string& 
+inline const eastl::string&
 InternalEffectVariable::GetSignature() const
 {
 	return this->signature;

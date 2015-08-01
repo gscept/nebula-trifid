@@ -35,7 +35,7 @@ public:
 	/// begin rendering a frame
 	void Begin();
     /// render the frame shader from the given camera
-    void Render();
+    void Render(IndexT frameIndex);
 	/// end rendering frame
 	void End();
 

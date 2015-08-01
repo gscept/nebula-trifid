@@ -203,7 +203,7 @@ ModelNode::ApplySharedState(IndexT frameIndex)
 /**
 */
 void
-ModelNode::AddVisibleNodeInstance(IndexT frameIndex, const Materials::MaterialType::Code& code, const Ptr<ModelNodeInstance>& nodeInst)
+ModelNode::AddVisibleNodeInstance(IndexT frameIndex, const Materials::SurfaceName::Code& code, const Ptr<ModelNodeInstance>& nodeInst)
 {
     this->visibleModelNodeInstances.Add(frameIndex, code, nodeInst);
     if (!this->visibleModelNodeInstances.IsResolved(code))

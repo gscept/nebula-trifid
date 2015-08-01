@@ -13,7 +13,7 @@
 #error "afxapi.h included before effectshader.h"
 #endif
 
-#include <string>
+#include "EASTL/string.h"
 namespace AnyFX
 {
 class InternalEffectShader;
@@ -30,11 +30,11 @@ public:
 	void Discard();
 
 	/// return name of shader
-	const std::string& GetName() const;
+    const eastl::string& GetName() const;
 	/// return raw shader code
-	const std::string& GetCode() const;
+    const eastl::string& GetCode() const;
 	/// return error, only possibly viable after compilation
-	const std::string& GetError() const;
+    const eastl::string& GetError() const;
 
     /// return list of local sizes (only viable for compute shaders)
     const unsigned* GetLocalSizes() const;

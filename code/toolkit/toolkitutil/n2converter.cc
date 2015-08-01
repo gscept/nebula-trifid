@@ -2147,7 +2147,7 @@ N2Converter::ReadUvCoordinates(const IO::URI& uri, IndexT meshGroup)
     {
         if (texCoordSize == 0)
         {
-            if (components[i].GetSemanticName() != CoreGraphics::VertexComponent::TexCoord
+            if (components[i].GetSemanticName() != CoreGraphics::VertexComponent::TexCoord1
                 || components[i].GetSemanticIndex() != 0)        	
             {                                                              
                 texCoordOffset += components[i].GetByteSize();

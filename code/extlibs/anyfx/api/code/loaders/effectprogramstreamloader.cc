@@ -49,7 +49,7 @@ EffectProgramStreamLoader::Load( BinReader* reader, Effect* effect )
 	internalProgram->effect = effect;
 
 	EffectProgram* program = new EffectProgram;
-	std::string name = reader->ReadString();
+    eastl::string name = reader->ReadString().c_str();
 	internalProgram->name = name;
 
 	bool hasAnnotation = reader->ReadBool();
@@ -73,12 +73,12 @@ EffectProgramStreamLoader::Load( BinReader* reader, Effect* effect )
     unsigned numSubroutineMappings, i;
 	magic = reader->ReadInt();
 	assert('VERT' == magic);
-	std::string vs = reader->ReadString();
+    eastl::string vs = reader->ReadString().c_str();
     numSubroutineMappings = reader->ReadUInt();
     for (i = 0; i < numSubroutineMappings; i++)
     {
-        std::string var = reader->ReadString();
-        std::string imp = reader->ReadString();
+        eastl::string var = reader->ReadString().c_str();
+        eastl::string imp = reader->ReadString().c_str();
 
         // get subroutines
         EffectSubroutine* implementationVar = effect->GetSubroutineByName(imp);
@@ -90,12 +90,12 @@ EffectProgramStreamLoader::Load( BinReader* reader, Effect* effect )
 
 	magic = reader->ReadInt();
 	assert('PIXL' == magic);
-	std::string ps = reader->ReadString();
+    eastl::string ps = reader->ReadString().c_str();
     numSubroutineMappings = reader->ReadUInt();
     for (i = 0; i < numSubroutineMappings; i++)
     {
-        std::string var = reader->ReadString();
-        std::string imp = reader->ReadString();
+        eastl::string var = reader->ReadString().c_str();
+        eastl::string imp = reader->ReadString().c_str();
 
         // get subroutines
         EffectSubroutine* implementationVar = effect->GetSubroutineByName(imp);
@@ -107,12 +107,12 @@ EffectProgramStreamLoader::Load( BinReader* reader, Effect* effect )
 
 	magic = reader->ReadInt();
 	assert('HULL' == magic);
-	std::string hs = reader->ReadString();
+    eastl::string hs = reader->ReadString().c_str();
     numSubroutineMappings = reader->ReadUInt();
     for (i = 0; i < numSubroutineMappings; i++)
     {
-        std::string var = reader->ReadString();
-        std::string imp = reader->ReadString();
+        eastl::string var = reader->ReadString().c_str();
+        eastl::string imp = reader->ReadString().c_str();
 
         // get subroutines
         EffectSubroutine* implementationVar = effect->GetSubroutineByName(imp);
@@ -124,12 +124,12 @@ EffectProgramStreamLoader::Load( BinReader* reader, Effect* effect )
 
 	magic = reader->ReadInt();
 	assert('DOMA' == magic);
-	std::string ds = reader->ReadString();
+    eastl::string ds = reader->ReadString().c_str();
     numSubroutineMappings = reader->ReadUInt();
     for (i = 0; i < numSubroutineMappings; i++)
     {
-        std::string var = reader->ReadString();
-        std::string imp = reader->ReadString();
+        eastl::string var = reader->ReadString().c_str();
+        eastl::string imp = reader->ReadString().c_str();
 
         // get subroutines
         EffectSubroutine* implementationVar = effect->GetSubroutineByName(imp);
@@ -141,12 +141,12 @@ EffectProgramStreamLoader::Load( BinReader* reader, Effect* effect )
 
 	magic = reader->ReadInt();
 	assert('GEOM' == magic);
-	std::string gs = reader->ReadString();
+    eastl::string gs = reader->ReadString().c_str();
     numSubroutineMappings = reader->ReadUInt();
     for (i = 0; i < numSubroutineMappings; i++)
     {
-        std::string var = reader->ReadString();
-        std::string imp = reader->ReadString();
+        eastl::string var = reader->ReadString().c_str();
+        eastl::string imp = reader->ReadString().c_str();
 
         // get subroutines
         EffectSubroutine* implementationVar = effect->GetSubroutineByName(imp);
@@ -158,12 +158,12 @@ EffectProgramStreamLoader::Load( BinReader* reader, Effect* effect )
 
 	magic = reader->ReadInt();
 	assert('COMP' == magic);
-	std::string cs = reader->ReadString();
+    eastl::string cs = reader->ReadString().c_str();
     numSubroutineMappings = reader->ReadUInt();
     for (i = 0; i < numSubroutineMappings; i++)
     {
-        std::string var = reader->ReadString();
-        std::string imp = reader->ReadString();
+        eastl::string var = reader->ReadString().c_str();
+        eastl::string imp = reader->ReadString().c_str();
 
         // get subroutines
         EffectSubroutine* implementationVar = effect->GetSubroutineByName(imp);
@@ -175,7 +175,7 @@ EffectProgramStreamLoader::Load( BinReader* reader, Effect* effect )
 
 	magic = reader->ReadInt();
 	assert('RSTA' == magic);
-	std::string rs = reader->ReadString();
+    eastl::string rs = reader->ReadString().c_str();
 
 	// find shaders previously loaded in the effect and attach them to this program
 	if (!vs.empty())

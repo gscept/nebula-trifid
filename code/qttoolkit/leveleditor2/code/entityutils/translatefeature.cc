@@ -498,7 +498,7 @@ TranslateFeature::RenderHandles()
     matrix44 m;
 
 	// create buffer for line primitives and triangle primitives
-	vector line[2];
+    CoreGraphics::RenderShape::RenderShapeVertex line[2];
 
 	// get camera transform
 	matrix44 cameraTrans = defaultView->GetCameraEntity()->GetTransform();
@@ -540,9 +540,9 @@ TranslateFeature::RenderHandles()
 	m.set_position(this->xAxis);
 	Debug::DebugShapeRenderer::Instance()->DrawCone(m, color, CoreGraphics::RenderShape::AlwaysOnTop);
 
-	line[0] = this->origin;
-	line[1] = this->xAxis;
-	Debug::DebugShapeRenderer::Instance()->DrawPrimitives(matrix44::identity(), CoreGraphics::PrimitiveTopology::LineList, 1, line, 4, color, CoreGraphics::RenderShape::AlwaysOnTop);
+	line[0].pos = this->origin;
+    line[1].pos = this->xAxis;
+	Debug::DebugShapeRenderer::Instance()->DrawPrimitives(matrix44::identity(), CoreGraphics::PrimitiveTopology::LineList, 1, line, color, CoreGraphics::RenderShape::AlwaysOnTop);
 
     // draw Y axis + handle  
 	if (Y_AXIS == this->currentDragMode || Y_AXIS == mode)
@@ -567,9 +567,9 @@ TranslateFeature::RenderHandles()
 	Debug::DebugShapeRenderer::Instance()->DrawCone(m, color, CoreGraphics::RenderShape::AlwaysOnTop);
 	
 	m = matrix44::identity();
-	line[0] = this->origin;
-	line[1] = this->yAxis;
-	Debug::DebugShapeRenderer::Instance()->DrawPrimitives(m, CoreGraphics::PrimitiveTopology::LineList, 1, line, 4, color, CoreGraphics::RenderShape::AlwaysOnTop);
+    line[0].pos = this->origin;
+    line[1].pos = this->yAxis;
+	Debug::DebugShapeRenderer::Instance()->DrawPrimitives(m, CoreGraphics::PrimitiveTopology::LineList, 1, line, color, CoreGraphics::RenderShape::AlwaysOnTop);
 
     // draw Z axis + handle    
 	if (Z_AXIS == this->currentDragMode || Z_AXIS == mode)
@@ -594,9 +594,9 @@ TranslateFeature::RenderHandles()
 	Debug::DebugShapeRenderer::Instance()->DrawCone(m, color, CoreGraphics::RenderShape::AlwaysOnTop);
 	
 	m = matrix44::identity();
-	line[0] = this->origin;
-	line[1] = this->zAxis;
-	Debug::DebugShapeRenderer::Instance()->DrawPrimitives(m, CoreGraphics::PrimitiveTopology::LineList, 1, line, 4, color, CoreGraphics::RenderShape::AlwaysOnTop);
+    line[0].pos = this->origin;
+    line[1].pos = this->zAxis;
+	Debug::DebugShapeRenderer::Instance()->DrawPrimitives(m, CoreGraphics::PrimitiveTopology::LineList, 1, line, color, CoreGraphics::RenderShape::AlwaysOnTop);
 }
 
 //------------------------------------------------------------------------------

@@ -13,7 +13,7 @@
 sampler2D SourceMap;
 
 // border intervals are used to determine which shadowmap inside the atlas we are currently treating
-vec2 BorderIntervals;
+//vec2 BorderIntervals;
 
 samplerstate GaussianSampler
 {
@@ -53,7 +53,7 @@ state GaussianBlurState
 shader
 void
 vsMain(vec3 position,
-	vec2 uv,
+	[slot=2] in vec2 uv,
 	out vec2 UV) 
 {
 	gl_Position = vec4(position, 1);
@@ -69,32 +69,20 @@ psMain(in vec2 uv,
 	[color0] out vec2 Color) 
 {
 	// calculate limits
-	vec2 lower = floor(uv / BorderIntervals) * BorderIntervals;
-	vec2 upper = floor((uv / BorderIntervals)+1) * BorderIntervals;
 	vec2 pixelSize = GetPixelSize(SourceMap);
 	//vec2 sampleColor = vec2(0,0);
-    vec2 sampleColor = texture(SourceMap, uv).rg;
+    vec2 sampleColor;
 	/*if (sampleColor.r == -1)
 	{
 		Color = vec2(0,0);
 		return;
 	}*/
 	
-	sampleColor *= sampleOffsetWeights[0].z;
     int i;
-    for (i = 1; i < 13; i++)
+    for (i = 0; i < 4; i++)
     {
 		vec2 uvSample = uv + sampleOffsetWeights[i].xy * pixelSize.xy;
-		
-		vec2 currentSample = texture(SourceMap, uvSample).rg;
-		
-		// skip pixel if we are outside our quadrant
-		if (uvSample.x >= upper.x || uvSample.x < lower.x || uvSample.y >= upper.y || uvSample.y < lower.y)
-		{
-			//sampleColor += sampleOffsetWeights[i].z * texture(SourceMap, uv).rg;
-			continue;
-		}
-		
+		vec2 currentSample = texture(SourceMap, uvSample).rg;		
         sampleColor += sampleOffsetWeights[i].z * currentSample;
     }
     Color = sampleColor;

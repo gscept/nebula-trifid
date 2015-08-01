@@ -1,12 +1,12 @@
 //------------------------------------------------------------------------------
-//  streamsurfacematerialloader.cc
+//  streamsurfaceloader.cc
 //  (C) 2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "streamsurfacematerialloader.h"
+#include "streamsurfaceloader.h"
 #include "io/iointerface.h"
 #include "io/memorystream.h"
-#include "materials/surfacematerial.h"
+#include "materials/surface.h"
 #include "io/xmlreader.h"
 #include "materialserver.h"
 #include "resources/resourcemanager.h"
@@ -18,12 +18,12 @@ using namespace Messaging;
 using namespace Util;
 namespace Materials
 {
-__ImplementClass(Materials::StreamSurfaceMaterialLoader, 'SSML', Resources::ResourceLoader);
+__ImplementClass(Materials::StreamSurfaceLoader, 'SSML', Resources::ResourceLoader);
 
 //------------------------------------------------------------------------------
 /**
 */
-StreamSurfaceMaterialLoader::StreamSurfaceMaterialLoader()
+StreamSurfaceLoader::StreamSurfaceLoader()
 {
 	// empty
 }
@@ -31,7 +31,7 @@ StreamSurfaceMaterialLoader::StreamSurfaceMaterialLoader()
 //------------------------------------------------------------------------------
 /**
 */
-StreamSurfaceMaterialLoader::~StreamSurfaceMaterialLoader()
+StreamSurfaceLoader::~StreamSurfaceLoader()
 {
 	// empty
 }
@@ -40,7 +40,7 @@ StreamSurfaceMaterialLoader::~StreamSurfaceMaterialLoader()
 /**
 */
 bool
-StreamSurfaceMaterialLoader::CanLoadAsync() const
+StreamSurfaceLoader::CanLoadAsync() const
 {
     return true;
 }
@@ -49,7 +49,7 @@ StreamSurfaceMaterialLoader::CanLoadAsync() const
 /**
 */
 bool
-StreamSurfaceMaterialLoader::OnLoadRequested()
+StreamSurfaceLoader::OnLoadRequested()
 {
     n_assert(this->GetState() == Resource::Initial);
     n_assert(this->resource.isvalid());
@@ -86,7 +86,7 @@ StreamSurfaceMaterialLoader::OnLoadRequested()
 /**
 */
 void
-StreamSurfaceMaterialLoader::OnLoadCancelled()
+StreamSurfaceLoader::OnLoadCancelled()
 {
     n_assert(this->GetState() == Resource::Pending);
     n_assert(this->readStreamMsg.isvalid());
@@ -99,7 +99,7 @@ StreamSurfaceMaterialLoader::OnLoadCancelled()
 /**
 */
 bool
-StreamSurfaceMaterialLoader::OnPending()
+StreamSurfaceLoader::OnPending()
 {
     n_assert(this->GetState() == Resource::Pending);
     n_assert(this->readStreamMsg.isvalid());
@@ -139,12 +139,13 @@ StreamSurfaceMaterialLoader::OnPending()
 /**
 */
 bool
-StreamSurfaceMaterialLoader::SetupMaterialFromStream(const Ptr<IO::Stream>& stream)
+StreamSurfaceLoader::SetupMaterialFromStream(const Ptr<IO::Stream>& stream)
 {
     n_assert(stream.isvalid());
     n_assert(stream->CanBeMapped());
 
-    const Ptr<SurfaceMaterial>& surface = this->resource.downcast<SurfaceMaterial>();
+    // setup resource
+    const Ptr<Surface>& surface = this->resource.downcast<Surface>();
 
 	Ptr<BXmlReader> reader = BXmlReader::Create();
     reader->SetStream(stream);
@@ -196,17 +197,18 @@ StreamSurfaceMaterialLoader::SetupMaterialFromStream(const Ptr<IO::Stream>& stre
                     break;
                 case Variant::String:
                 {
-                    // get texture
-                    Ptr<ManagedTexture> tex = ResourceManager::Instance()->CreateManagedResource(CoreGraphics::Texture::RTTI, reader->GetString("value")).downcast<ManagedTexture>();
-                    surface->SetTexture(paramName, tex);
-                    var.SetType(Variant::Object);
-					var.SetObject(tex->GetTexture());
+                    var.SetString(reader->GetString("value"));
                     break;
                 }
             }
 
+            // create binding object
+            Surface::SurfaceValueBinding obj;
+            obj.value = var;
+            obj.system = param.system;
+
             // add to the static values in the surface
-            surface->staticValues.Add(paramName, var);
+            surface->staticValues.Add(paramName, obj);
 		} while (reader->SetToNextChild("Param"));
 
         surface->Setup(material);

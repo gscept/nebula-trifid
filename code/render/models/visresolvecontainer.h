@@ -10,7 +10,7 @@
 */
 #include "core/ptr.h"
 #include "frame/batchgroup.h"
-#include "materials/materialtype.h"
+#include "materials/surfacename.h"
 
 //------------------------------------------------------------------------------
 namespace Models
@@ -24,15 +24,15 @@ public:
     /// reset content
     void Reset();
 	/// set the resolved flag for a given ModelNodeMaterial
-    void SetResolved(const Materials::MaterialType::Code& t, bool b);
+    void SetResolved(const Materials::SurfaceName::Code& code, bool b);
 	/// return true if the resolved flag has been set for ModelNodeMaterial
-    bool IsResolved(const Materials::MaterialType::Code& t) const;
+    bool IsResolved(const Materials::SurfaceName::Code& code) const;
     /// add a visible element by ModelNodeType
-    void Add(IndexT frameIndex, const Materials::MaterialType::Code& t, const Ptr<TYPE>& e);
+    void Add(IndexT frameIndex, const Materials::SurfaceName::Code& code, const Ptr<TYPE>& e);
     /// get all visible elements of given ModelNodeType
-    const Util::Array<Ptr<TYPE> >& Get(const Materials::MaterialType::Code& t) const;
+    const Util::Array<Ptr<TYPE> >& Get(const Materials::SurfaceName::Code& code) const;
 
-    static const IndexT numEntries = Materials::MaterialType::MaxNumMaterialTypes;
+    static const IndexT numEntries = Materials::SurfaceName::MaxNumSurfaceNames;
 
 private:
     struct Entry
@@ -61,25 +61,28 @@ VisResolveContainer<TYPE>::VisResolveContainer() :
 //------------------------------------------------------------------------------
 /**
 */
-template<class TYPE> void
-VisResolveContainer<TYPE>::SetResolved(const Materials::MaterialType::Code& t, bool b)
+template<class TYPE> 
+inline void
+VisResolveContainer<TYPE>::SetResolved(const Materials::SurfaceName::Code& code, bool b)
 {
-    this->entries[t].resolved = b;
+    this->entries[code].resolved = b;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-template<class TYPE> bool
-VisResolveContainer<TYPE>::IsResolved(const Materials::MaterialType::Code& t) const
+template<class TYPE> 
+inline bool
+VisResolveContainer<TYPE>::IsResolved(const Materials::SurfaceName::Code& code) const
 {
-    return this->entries[t].resolved;
+    return this->entries[code].resolved;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-template<class TYPE> void
+template<class TYPE> 
+inline void
 VisResolveContainer<TYPE>::Reset()
 {
     IndexT i;
@@ -93,24 +96,26 @@ VisResolveContainer<TYPE>::Reset()
 //------------------------------------------------------------------------------
 /**
 */
-template<class TYPE> void
-VisResolveContainer<TYPE>::Add(IndexT curFrameIndex, const Materials::MaterialType::Code& t, const Ptr<TYPE>& e)
+template<class TYPE> 
+inline void
+VisResolveContainer<TYPE>::Add(IndexT curFrameIndex, const Materials::SurfaceName::Code& code, const Ptr<TYPE>& e)
 {
     if (curFrameIndex != this->frameIndex)
     {
         this->Reset();
         this->frameIndex = curFrameIndex;
     }
-    this->entries[t].nodes.Append(e);
+    this->entries[code].nodes.Append(e);
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-template<class TYPE> const Util::Array<Ptr<TYPE> >&
-VisResolveContainer<TYPE>::Get(const Materials::MaterialType::Code& t) const
+template<class TYPE> 
+inline const Util::Array<Ptr<TYPE> >&
+VisResolveContainer<TYPE>::Get(const Materials::SurfaceName::Code& code) const
 {
-    return this->entries[t].nodes;
+    return this->entries[code].nodes;
 }
 
 } // namespace Models

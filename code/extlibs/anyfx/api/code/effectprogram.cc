@@ -89,7 +89,7 @@ EffectProgram::PostDraw()
 //------------------------------------------------------------------------------
 /**
 */
-const std::string& 
+const eastl::string&
 EffectProgram::GetName() const
 {
 	assert(0 != this->internalProgram);
@@ -108,7 +108,7 @@ EffectProgram::IsValid()
 //------------------------------------------------------------------------------
 /**
 */
-const std::string& 
+const eastl::string&
 EffectProgram::GetError() const
 {
 	return this->internalProgram->error;

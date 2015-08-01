@@ -64,11 +64,11 @@ TreeBillboardRenderer::Setup()
 
     // create dynamic vertex buffer
     Array<VertexComponent> vertexComponents;
-    vertexComponents.Append(VertexComponent(VertexComponent::Position, 0, VertexComponent::Float4, 1));   // Particle::position
-    vertexComponents.Append(VertexComponent(VertexComponent::Position, 1, VertexComponent::Float4, 1));   // Particle::stretchPosition
-    vertexComponents.Append(VertexComponent(VertexComponent::Color, 0, VertexComponent::Float4, 1));      // Particle::color
-    vertexComponents.Append(VertexComponent(VertexComponent::TexCoord, 1, VertexComponent::Float4, 1));   // Particle::uvMinMax
-    vertexComponents.Append(VertexComponent(VertexComponent::TexCoord, 2, VertexComponent::Float4, 1));   // x: Particle::rotation, y: Particle::size
+    vertexComponents.Append(VertexComponent((VertexComponent::SemanticName)0, 0, VertexComponent::Float4, 1));   // Particle::position
+    vertexComponents.Append(VertexComponent((VertexComponent::SemanticName)1, 0, VertexComponent::Float4, 1));   // Particle::stretchPosition
+    vertexComponents.Append(VertexComponent((VertexComponent::SemanticName)2, 0, VertexComponent::Float4, 1));      // Particle::color
+    vertexComponents.Append(VertexComponent((VertexComponent::SemanticName)3, 0, VertexComponent::Float4, 1));  // Particle::uvMinMax
+    vertexComponents.Append(VertexComponent((VertexComponent::SemanticName)4, 0, VertexComponent::Float4, 1));  // x: Particle::rotation, y: Particle::size
 
     Ptr<MemoryVertexBufferLoader> vbL = MemoryVertexBufferLoader::Create();
     vbL->Setup(vertexComponents, MaxNumVertices, NULL, 0, VertexBuffer::UsageDynamic, VertexBuffer::AccessWrite);
@@ -98,7 +98,8 @@ TreeBillboardRenderer::Setup()
 	this->indexBuffer->SetLoader(0);
 
 	// we need to setup a common vertex layout which describes both streams
-	this->vertexLayout = VertexLayoutServer::Instance()->CreateSharedVertexLayout(vertexComponents);
+    this->vertexLayout = this->vertexBuffer->GetVertexLayout();
+    this->vertexLayout->SetIndexBuffer(this->indexBuffer);
 }
 
 //------------------------------------------------------------------------------

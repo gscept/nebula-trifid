@@ -31,7 +31,7 @@ public:
 	/// perform pre-frame stuff
 	void Begin();
 	/// render the post effect
-	void Render();
+    void Render(IndexT frameIndex);
 	/// perform post-frame stuff
 	void End();
 

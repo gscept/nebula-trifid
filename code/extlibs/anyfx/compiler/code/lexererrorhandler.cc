@@ -32,7 +32,7 @@ void LexerError(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_UINT8* tokens)
 	while (ex != 0)
 	{
 		// print exception
-		PrintLexerException(ex, package->file);
+		PrintLexerException(ex, package->file.c_str());
 
 		// go to next exception
 		ex = ex->nextException;

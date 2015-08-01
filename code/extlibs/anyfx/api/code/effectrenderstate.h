@@ -13,7 +13,7 @@
 #error "afxapi.h included before effectrenderstate.h"
 #endif
 
-#include <string>
+#include "EASTL/string.h"
 #include "annotable.h"
 namespace AnyFX
 {
@@ -182,7 +182,7 @@ public:
 	/// applies render state
 	void Apply();
 	/// gets name of render state
-	const std::string& GetName() const;
+    const eastl::string& GetName() const;
 
 	/// overrides blend mode flag
 	void SetBlendModeFlag(unsigned renderTarget, BlendModeFlag flag, BlendMode mode);

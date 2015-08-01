@@ -317,13 +317,16 @@ Stage::OnRenderDebug()
         if (linkedEntities.Size() > 0)
         {   
             const Math::point& lightPos = lightEntities[lightIndex]->GetTransform().get_position();
-            Util::Array<Math::point> lines;        
+            Util::Array<RenderShape::RenderShapeVertex> lines;        
             IndexT i;
             for (i = 0; i < linkedEntities.Size(); ++i)
             {
+                RenderShape::RenderShapeVertex vert;
                 const Math::point& entityPos = linkedEntities[i]->GetTransform().get_position();	
-                lines.Append(lightPos);                  
-                lines.Append(entityPos);
+                vert.pos = lightPos;
+                lines.Append(vert);
+                vert.pos = entityPos;
+                lines.Append(vert);                  
             }   
         
             RenderShape shape;
@@ -332,7 +335,6 @@ Stage::OnRenderDebug()
                 PrimitiveTopology::LineList,
                 lines.Size() / 2,
                 &(lines.Front()),
-                4,
                 point(1,1,0),
                 CoreGraphics::RenderShape::CheckDepth,
                 NULL);

@@ -1,15 +1,15 @@
 //------------------------------------------------------------------------------
-//  OGL4ShaderVariation.cc
+//  ogl4shaderprogram.cc
 //  (C) 2007 Radon Labs GmbH
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "coregraphics/ogl4/ogl4shadervariation.h"
+#include "coregraphics/ogl4/ogl4shaderprogram.h"
 #include "coregraphics/shaderserver.h"
 #include "coregraphics/renderdevice.h"
 
 namespace OpenGL4
 {
-__ImplementClass(OpenGL4::OGL4ShaderVariation, 'D1SV', Base::ShaderVariationBase);
+__ImplementClass(OpenGL4::OGL4ShaderProgram, 'D1SV', Base::ShaderVariationBase);
 
 using namespace CoreGraphics;
 using namespace Util;
@@ -17,7 +17,7 @@ using namespace Util;
 //------------------------------------------------------------------------------
 /**
 */
-OGL4ShaderVariation::OGL4ShaderVariation() :
+OGL4ShaderProgram::OGL4ShaderProgram() :
 	program(0),
 	usePatches(false)
 {
@@ -27,7 +27,7 @@ OGL4ShaderVariation::OGL4ShaderVariation() :
 //------------------------------------------------------------------------------
 /**
 */
-OGL4ShaderVariation::~OGL4ShaderVariation()
+OGL4ShaderProgram::~OGL4ShaderProgram()
 {
     // empty
 }
@@ -36,7 +36,7 @@ OGL4ShaderVariation::~OGL4ShaderVariation()
 /**
 */
 void 
-OGL4ShaderVariation::Setup( AnyFX::EffectProgram* program )
+OGL4ShaderProgram::Setup( AnyFX::EffectProgram* program )
 {
 	n_assert(0 == this->program);
 
@@ -54,7 +54,7 @@ OGL4ShaderVariation::Setup( AnyFX::EffectProgram* program )
 /**
 */
 void 
-OGL4ShaderVariation::Apply()
+OGL4ShaderProgram::Apply()
 {
 	n_assert(this->program);
 	this->program->Apply();
@@ -64,7 +64,7 @@ OGL4ShaderVariation::Apply()
 /**
 */
 void 
-OGL4ShaderVariation::Commit()
+OGL4ShaderProgram::Commit()
 {
 	n_assert(this->program);
 	this->program->Commit();
@@ -74,7 +74,7 @@ OGL4ShaderVariation::Commit()
 /**
 */
 void 
-OGL4ShaderVariation::PreDraw()
+OGL4ShaderProgram::PreDraw()
 {
     n_assert(this->program);
     this->program->PreDraw();
@@ -84,7 +84,7 @@ OGL4ShaderVariation::PreDraw()
 /**
 */
 void 
-OGL4ShaderVariation::PostDraw()
+OGL4ShaderProgram::PostDraw()
 {
     n_assert(this->program);
     this->program->PostDraw();
@@ -94,7 +94,7 @@ OGL4ShaderVariation::PostDraw()
 /**
 */
 void 
-OGL4ShaderVariation::SetWireframe(bool b)
+OGL4ShaderProgram::SetWireframe(bool b)
 {
     if (b)    this->program->GetRenderState()->SetFillMode(AnyFX::EffectRenderState::Line);
     else      this->program->GetRenderState()->Reset();

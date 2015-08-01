@@ -16,6 +16,7 @@
 #include "coregraphics/vertexlayoutserver.h"
 #include "rocketserver.h"
 #include "SOIL/SOIL.h"
+#include "rocketrenderer.h"
 
 using namespace Math;
 using namespace CoreGraphics;
@@ -35,12 +36,11 @@ RocketRenderer::RocketRenderer()
 	this->renderDevice = RenderDevice::Instance();
 
 	// get shader and create instance
-	const Ptr<Shader> shader = shaderServer->GetShader("shd:gui");
-	this->shaderInstance = shader->CreateShaderInstance();
+    this->shader = shaderServer->GetShader("shd:gui");
 
 	// get texture
-	this->diffMap = this->shaderInstance->GetVariableByName("Texture");	
-	this->modelVar = this->shaderInstance->GetVariableByName("Model");
+	this->diffMap = this->shader->GetVariableByName("Texture");	
+	this->modelVar = this->shader->GetVariableByName("Model");
 
 	// we get the white texture for when we don't have a diffuse map, this will be then be our default
 	this->whiteTexture = ResourceManager::Instance()->CreateManagedResource(Texture::RTTI, "tex:system/white.dds").downcast<ManagedTexture>();
@@ -56,8 +56,7 @@ RocketRenderer::RocketRenderer()
 RocketRenderer::~RocketRenderer()
 {
 	this->renderDevice = 0;
-	this->shaderInstance->Discard();
-	this->shaderInstance = 0;
+	this->shader = 0;
 	this->diffMap = 0;
 }
 
@@ -65,11 +64,11 @@ RocketRenderer::~RocketRenderer()
 /**
 */
 Rocket::Core::CompiledGeometryHandle 
-RocketRenderer::CompileGeometry( Rocket::Core::Vertex* vertices, 
-								 int num_vertices, 
-								 int* indices, 
-								 int num_indices, 
-								 Rocket::Core::TextureHandle texture )
+RocketRenderer::CompileGeometry(Rocket::Core::Vertex* vertices, 
+								int num_vertices, 
+								int* indices, 
+								int num_indices, 
+								Rocket::Core::TextureHandle texture)
 {	
 	// create geometry handle
 	NebulaCompiledGeometry* geometry = (NebulaCompiledGeometry*)Alloc(Memory::RocketHeap, sizeof(NebulaCompiledGeometry));
@@ -86,9 +85,9 @@ RocketRenderer::CompileGeometry( Rocket::Core::Vertex* vertices,
 	geometry->vb = VertexBuffer::Create();
 
 	Util::Array<VertexComponent> vertexComponents;
-	vertexComponents.Append(VertexComponent(VertexComponent::Position, 0, VertexComponent::Float2));
-    vertexComponents.Append(VertexComponent(VertexComponent::Color, 0, VertexComponent::UByte4N));	
-	vertexComponents.Append(VertexComponent(VertexComponent::TexCoord, 0, VertexComponent::Float2));
+	vertexComponents.Append(VertexComponent((VertexComponent::SemanticName)0, 0, VertexComponent::Float2));     // position
+    vertexComponents.Append(VertexComponent((VertexComponent::SemanticName)1, 0, VertexComponent::UByte4N));    // color
+    vertexComponents.Append(VertexComponent((VertexComponent::SemanticName)2, 0, VertexComponent::Float2));     // UV
 		
 	// create loader for vertex buffer
 	Ptr<MemoryVertexBufferLoader> vbLoader = MemoryVertexBufferLoader::Create();
@@ -141,6 +140,10 @@ RocketRenderer::CompileGeometry( Rocket::Core::Vertex* vertices,
 	n_assert(geometry->ib->IsLoaded());
 	geometry->ib->SetLoader(0);
 
+    // bind index buffer to vertex layout
+    geometry->vertexLayout = geometry->vb->GetVertexLayout();
+    geometry->vertexLayout->SetIndexBuffer(geometry->ib);
+
 	geometry->primGroup.SetBaseIndex(0);
 	geometry->primGroup.SetNumVertices(num_vertices);
 	geometry->primGroup.SetBaseVertex(0);
@@ -154,12 +157,12 @@ RocketRenderer::CompileGeometry( Rocket::Core::Vertex* vertices,
 /**
 */
 void 
-RocketRenderer::RenderGeometry( Rocket::Core::Vertex* vertices, 
+RocketRenderer::RenderGeometry(Rocket::Core::Vertex* vertices, 
 							   int num_vertices, 
 							   int* indices, 
 							   int num_indices, 
 							   Rocket::Core::TextureHandle texture, 
-							   const Rocket::Core::Vector2f& translation )
+							   const Rocket::Core::Vector2f& translation)
 {
 	// we don't handle rendering spontaneous geometry
 }
@@ -167,8 +170,8 @@ RocketRenderer::RenderGeometry( Rocket::Core::Vertex* vertices,
 //------------------------------------------------------------------------------
 /**
 */
-void 
-RocketRenderer::RenderCompiledGeometry( Rocket::Core::CompiledGeometryHandle geometry, const Rocket::Core::Vector2f& translation )
+void
+RocketRenderer::RenderCompiledGeometry(Rocket::Core::CompiledGeometryHandle geometry, const Rocket::Core::Vector2f& translation)
 {		
 	Ptr<RenderDevice> device = RenderDevice::Instance();
 	Ptr<ShaderServer> shaderServer = ShaderServer::Instance();
@@ -187,6 +190,10 @@ RocketRenderer::RenderCompiledGeometry( Rocket::Core::CompiledGeometryHandle geo
 			this->diffMap->SetTexture(this->whiteTexture->GetTexture());
 		}
 
+        // apply shader
+        shaderServer->SetActiveShader(this->shader);
+        this->shader->Apply();
+
 		// get dimensions
 		Rocket::Core::Vector2i dimensions = RocketServer::Instance()->GetContext()->GetDimensions();
 
@@ -197,18 +204,12 @@ RocketRenderer::RenderCompiledGeometry( Rocket::Core::CompiledGeometryHandle geo
 
 		// combine matrices and set in shader
 		world = matrix44::multiply(matrix44::multiply(world, scale), trans);
+        this->shader->BeginUpdate();
 		this->modelVar->SetMatrix(world);
-
-		// start pass
-		IndexT passes = this->shaderInstance->Begin();
-		n_assert(passes == 1);
-		this->shaderInstance->BeginPass(0);
-
-		// apply shader
-		shaderServer->SetActiveShaderInstance(this->shaderInstance);
-
+        this->shader->EndUpdate();
+  
 		// commit shader
-		this->shaderInstance->Commit();
+		this->shader->Commit();
 
 		// setup render device and draw
 		device->SetVertexLayout(nebGeometry->vb->GetVertexLayout());
@@ -216,12 +217,6 @@ RocketRenderer::RenderCompiledGeometry( Rocket::Core::CompiledGeometryHandle geo
 		device->SetStreamSource(0, nebGeometry->vb, 0);
 		device->SetPrimitiveGroup(nebGeometry->primGroup);
 		device->Draw();
-
-        this->shaderInstance->PostDraw();
-
-		// end pass
-		this->shaderInstance->EndPass();
-		this->shaderInstance->End();
 	}
 }
 
@@ -249,11 +244,11 @@ RocketRenderer::EnableScissorRegion( bool enable )
 {
 	if (enable)
 	{
-		this->shaderInstance->SelectActiveVariation(this->scissorVariation);
+		this->shader->SelectActiveVariation(this->scissorVariation);
 	}
 	else
 	{
-		this->shaderInstance->SelectActiveVariation(this->defaultVariation);
+		this->shader->SelectActiveVariation(this->defaultVariation);
 	}
 }
 

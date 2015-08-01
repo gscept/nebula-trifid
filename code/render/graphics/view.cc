@@ -293,12 +293,12 @@ View::Render(IndexT frameIndex)
 
     // render the world...
 	_start_timer(render);
-    this->frameShader->Render();
+    this->frameShader->Render(frameIndex);
 	_stop_timer(render);
 
 	// render picking
 	_start_timer(picking);
-	pickingServer->Render();
+	pickingServer->Render(frameIndex);
 	_stop_timer(picking);
 
     // tell main frame shader, light and shadow servers that rendering is finished

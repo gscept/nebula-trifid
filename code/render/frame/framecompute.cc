@@ -64,16 +64,22 @@ FrameCompute::Render()
     RenderDevice* renderDevice = RenderDevice::Instance();
 	ShaderServer* shaderServer = ShaderServer::Instance();
 
+    // apply and commit shader
+    shaderServer->SetActiveShader(this->shader);
+    this->shader->Apply();
+
+    // begin updating shader
+    this->shader->BeginUpdate();
+
     // apply shader variables
     IndexT varIndex;
     for (varIndex = 0; varIndex < this->shaderVariables.Size(); varIndex++)
     {
         this->shaderVariables[varIndex]->Apply();
     }
+    this->shader->EndUpdate();
 
-    // apply and commit shader
-    this->shader->Begin();
-    this->shader->BeginPass(0);
+    // commit shader variables
     this->shader->Commit();
 
 	// run
@@ -81,9 +87,6 @@ FrameCompute::Render()
                           this->computeSizes[1] / this->groupSizes[1], 
                           this->computeSizes[2] / this->groupSizes[2]);
 
-    // end pass
-    this->shader->EndPass();
-    this->shader->End();
 }
 
 //------------------------------------------------------------------------------

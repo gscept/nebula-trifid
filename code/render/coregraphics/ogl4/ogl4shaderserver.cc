@@ -65,15 +65,6 @@ OGL4ShaderServer::Close()
 
 //------------------------------------------------------------------------------
 /**
-*/
-Ptr<CoreGraphics::ShaderInstance> 
-OGL4ShaderServer::GetSharedShader()
-{
-	return this->sharedVariableShaderInst;	
-}
-
-//------------------------------------------------------------------------------
-/**
 	Must be called from within Shader
 */
 void 

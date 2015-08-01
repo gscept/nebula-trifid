@@ -78,19 +78,20 @@ protected:
 
 	Ptr<Frame::FrameShader> godRayFrameShader;
 
-	Ptr<CoreGraphics::ShaderInstance> lightShader;
-	Ptr<CoreGraphics::ShaderInstance> lightProbeShader;
+	Ptr<CoreGraphics::Shader> lightShader;
 	Ptr<Resources::ManagedTexture> lightProjMap; 
 
 	/// global light variables
+    Ptr<CoreGraphics::ConstantBuffer> globalLightBuffer;
+    Ptr<CoreGraphics::ShaderVariable> globalLightBlockVar;
 	Ptr<CoreGraphics::ShaderVariable> globalLightFocalLength;
 	Ptr<CoreGraphics::ShaderVariable> globalLightDir;
 	Ptr<CoreGraphics::ShaderVariable> globalLightColor;
 	Ptr<CoreGraphics::ShaderVariable> globalBackLightColor;
 	Ptr<CoreGraphics::ShaderVariable> globalAmbientLightColor;
 	Ptr<CoreGraphics::ShaderVariable> globalBackLightOffset;
+    Ptr<CoreGraphics::ShaderVariable> globalLightShadowMatrixVar;
 
-	Ptr<CoreGraphics::ShaderVariable> globalLightShadow;
 	Ptr<CoreGraphics::ShaderVariable> globalLightCascadeOffset;
 	Ptr<CoreGraphics::ShaderVariable> globalLightCascadeScale;
 	Ptr<CoreGraphics::ShaderVariable> globalLightMinBorderPadding;
@@ -118,16 +119,6 @@ protected:
 	Ptr<CoreGraphics::ShaderVariable> shadowIntensityVar;
 	Ptr<CoreGraphics::ShaderVariable> shadowProjTransform;
 	Ptr<CoreGraphics::ShaderVariable> shadowOffsetScaleVar;
-
-	// light probe variables
-	Ptr<CoreGraphics::ShaderVariable> lightProbeReflectionVar;
-	Ptr<CoreGraphics::ShaderVariable> lightProbeIrradianceVar;
-	Ptr<CoreGraphics::ShaderVariable> lightProbeFalloffVar;
-	Ptr<CoreGraphics::ShaderVariable> lightProbePowerVar;
-	Ptr<CoreGraphics::ShaderVariable> lightProbeReflectionNumMipsVar;
-	Ptr<CoreGraphics::ShaderVariable> lightProbeBboxMinVar;
-	Ptr<CoreGraphics::ShaderVariable> lightProbeBboxMaxVar;
-	Ptr<CoreGraphics::ShaderVariable> lightProbeBboxCenterVar;
 
 	Ptr<Resources::ManagedMesh> pointLightMesh;         // point light mesh
 	Ptr<Resources::ManagedMesh> spotLightMesh;          // spot light mesh

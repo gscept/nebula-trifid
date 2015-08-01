@@ -108,6 +108,10 @@ ShaderVariableInstanceBase::Prepare(ShaderVariable::Type type)
             this->value.SetType(Variant::Object);
             break;
 
+        case ShaderVariable::BufferType:
+            this->value.SetType(Variant::VoidPtr);
+            break;
+
         default:
             n_error("ShaderVariableInstanceBase::Prepare(): Invalid ShaderVariable::Type in switch!\n");
             break;
@@ -206,7 +210,7 @@ ShaderVariableInstanceBase::ApplyTo(const Ptr<CoreGraphics::ShaderVariable>& var
 		break;
     case Variant::IntArray:
     {
-        Array<int> array = this->value.GetIntArray();
+        const Array<int>& array = this->value.GetIntArray();
         var->SetIntArray((const int*)&array, array.Size());
         break;
     }
@@ -215,7 +219,7 @@ ShaderVariableInstanceBase::ApplyTo(const Ptr<CoreGraphics::ShaderVariable>& var
 		break;
     case Variant::FloatArray:
     {
-        Array<float> array = this->value.GetFloatArray();
+        const Array<float>& array = this->value.GetFloatArray();
         var->SetFloatArray((const float*)&array, array.Size());
         break;
     }
@@ -224,7 +228,7 @@ ShaderVariableInstanceBase::ApplyTo(const Ptr<CoreGraphics::ShaderVariable>& var
         break;
     case Variant::Float2Array:
     {
-        Array<Math::float2> array = this->value.GetFloat2Array();
+        const Array<Math::float2>& array = this->value.GetFloat2Array();
         var->SetFloat2Array((const Math::float2*)&array, array.Size());
         break;
     }
@@ -233,7 +237,7 @@ ShaderVariableInstanceBase::ApplyTo(const Ptr<CoreGraphics::ShaderVariable>& var
 		break;
     case Variant::Float4Array:
     {
-        Array<Math::float4> array = this->value.GetFloat4Array();
+        const Array<Math::float4>& array = this->value.GetFloat4Array();
         var->SetFloat4Array((const Math::float4*)&array, array.Size());
         break;
     }
@@ -242,7 +246,7 @@ ShaderVariableInstanceBase::ApplyTo(const Ptr<CoreGraphics::ShaderVariable>& var
 		break;
     case Variant::Matrix44Array:
     {
-        Array<Math::matrix44> array = this->value.GetMatrix44Array();
+        const Array<Math::matrix44>& array = this->value.GetMatrix44Array();
         var->SetMatrixArray((const Math::matrix44*)&array, array.Size());
         break;
     }
@@ -251,7 +255,7 @@ ShaderVariableInstanceBase::ApplyTo(const Ptr<CoreGraphics::ShaderVariable>& var
 		break;
     case Variant::BoolArray:
     {
-        Array<bool> array = this->value.GetBoolArray();
+        const Array<bool>& array = this->value.GetBoolArray();
         var->SetBoolArray((const bool*)&array, array.Size());
         break;
     }

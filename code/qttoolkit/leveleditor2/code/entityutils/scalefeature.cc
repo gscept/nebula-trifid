@@ -373,10 +373,9 @@ ScaleFeature::RenderHandles()
     const float boxScale(0.3f);
 
     // define a line pointing in x direction
-    vector line[2] = {
-        vector(0.0f, 0.0f, 0.0f),
-        vector(1.0f, 0.0f, 0.0f)
-    };
+    CoreGraphics::RenderShape::RenderShapeVertex line[2];
+    line[0].pos = vector(0, 0, 0);
+    line[1].pos = vector(1, 0, 0);
 
 	// draw origin
 	if (ORIGIN == this->currentDragMode || ORIGIN == mode)
@@ -412,13 +411,12 @@ ScaleFeature::RenderHandles()
 	Debug::DebugShapeRenderer::Instance()->DrawBox(m, color, CoreGraphics::RenderShape::AlwaysOnTop);
     
 	m = matrix44::identity();
-	line[0] = this->origin;
-	line[1] = this->xAxis;
+	line[0].pos = this->origin;
+    line[1].pos = this->xAxis;
     Debug::DebugShapeRenderer::Instance()->DrawPrimitives(matrix44::identity(),
         CoreGraphics::PrimitiveTopology::LineList,
         1,
         line,
-        4,
         color,
 		CoreGraphics::RenderShape::AlwaysOnTop);
 
@@ -440,13 +438,12 @@ ScaleFeature::RenderHandles()
     m.set_position(this->yAxis);
 	Debug::DebugShapeRenderer::Instance()->DrawBox(m, color, CoreGraphics::RenderShape::AlwaysOnTop);
 
-	line[0] = this->origin;
-	line[1] = this->yAxis;
+    line[0].pos = this->origin;
+    line[1].pos = this->yAxis;
     Debug::DebugShapeRenderer::Instance()->DrawPrimitives(matrix44::identity(),
         CoreGraphics::PrimitiveTopology::LineList,
         1,
         line,
-        4,
         color,
 		CoreGraphics::RenderShape::AlwaysOnTop);
 
@@ -470,13 +467,12 @@ ScaleFeature::RenderHandles()
         color,
         CoreGraphics::RenderShape::AlwaysOnTop);
 
-	line[0] = this->origin;
-	line[1] = this->zAxis;
+    line[0].pos = this->origin;
+    line[1].pos = this->zAxis;
 	Debug::DebugShapeRenderer::Instance()->DrawPrimitives(matrix44::identity(),
         CoreGraphics::PrimitiveTopology::LineList,
         1,
         line,
-        4,
         color,
         CoreGraphics::RenderShape::AlwaysOnTop);
 }

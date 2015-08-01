@@ -53,7 +53,7 @@ private:
     Math::float2 TransformTextVertex(const Math::float2& pos, const Math::float2& offset, const Math::float2& scale);
 
 	TextElementVertex vertices[MaxNumChars * 6];
-	Ptr<CoreGraphics::ShaderInstance> shader;
+	Ptr<CoreGraphics::Shader> shader;
 	Ptr<CoreGraphics::ShaderVariable> texVar;
 	Ptr<CoreGraphics::ShaderVariable> modelVar;
 	Ptr<CoreGraphics::Texture> glyphTexture;

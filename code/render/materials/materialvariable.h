@@ -11,6 +11,7 @@
 #include "coregraphics/shadervariable.h"
 #include "util/array.h"
 #include "util/variant.h"
+#include "coregraphics/texture.h"
 
 //------------------------------------------------------------------------------
 namespace Materials

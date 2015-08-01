@@ -65,7 +65,7 @@ OGL4InstanceServer::Close()
 /**
 */
 void 
-OGL4InstanceServer::Render()
+OGL4InstanceServer::Render(IndexT frameIndex)
 {
 	n_assert(this->IsOpen());
 	n_assert(this->modelNode.isvalid());
@@ -75,9 +75,6 @@ OGL4InstanceServer::Render()
 	RenderDevice* renderDev = RenderDevice::Instance();
 	ShaderServer* shaderServer = ShaderServer::Instance();
 
-	// get frame index
-	IndexT frameIndex = FrameSync::FrameSyncTimer::Instance()->GetFrameIndex();
-
 	// abort early if we don't have any instances
 	if (this->instancesByCode.Size() == 0)
 	{
@@ -85,17 +82,14 @@ OGL4InstanceServer::Render()
 	}
 
 	// set shader in renderer
-	const Ptr<ShaderInstance>& shader = shaderServer->GetActiveShaderInstance();
-	this->renderer->SetShader(shader);
+	this->renderer->SetShader(this->shader);
 
 	// get string of active variation
 	shaderServer->SetFeatureBits(this->instancingFeatureBits);
-	shader->SelectActiveVariation(shaderServer->GetFeatureBits());
+	this->shader->SelectActiveVariation(shaderServer->GetFeatureBits());
 
 	// begin pass of shader
-	shader->Begin();
-	shader->BeginPass(0);
-	shader->SetWireframe(renderDev->GetRenderWireframe());
+    if (this->instancesByCode.Size() > 0) this->shader->Apply();
 
 	// go through each code instance, update transforms in batches based on their code
 	IndexT codeIndex;
@@ -126,14 +120,10 @@ OGL4InstanceServer::Render()
 		this->renderer->EndUpdate();
 
 		// apply the state for the first node, this will then be active for all of them
-		nodeInstances[0]->ApplyState(shader);
+        nodeInstances[0]->ApplyState(frameIndex, this->code, shader);
 
 		// now render
 		this->renderer->Render(this->multiplier);
 	}
-
-	// end pass of shader
-	shader->EndPass();
-	shader->End();
 }
 } // namespace Instancing

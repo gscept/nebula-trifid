@@ -72,7 +72,7 @@ state GlobalLightState
 shader
 void
 vsGlob(in vec3 position,
-	in vec2 uv,
+	[slot=2] in vec2 uv,
 	out vec3 ViewSpacePosition,
 	out vec2 UV) 
 {

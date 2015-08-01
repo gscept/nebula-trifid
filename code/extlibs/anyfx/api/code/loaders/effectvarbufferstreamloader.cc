@@ -46,7 +46,7 @@ EffectVarbufferStreamLoader::Load( BinReader* reader, Effect* effect )
 	EffectVarbuffer* varbuffer = new EffectVarbuffer;
 
 	// start loading
-	std::string name = reader->ReadString();
+	eastl::string name = reader->ReadString().c_str();
 	bool shared = reader->ReadBool();
 
 	// load annotations
@@ -73,7 +73,7 @@ EffectVarbufferStreamLoader::Load( BinReader* reader, Effect* effect )
 	unsigned i;
 	for (i = 0; i < numPrograms; i++)
 	{
-		internalPrograms.push_back(programs[i]->internalProgram);
+        if (programs[i]->IsValid()) internalPrograms.push_back(programs[i]->internalProgram);
 	}
 
 	// setup varbuffer

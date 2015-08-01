@@ -53,7 +53,7 @@ public:
 	/// begins a frame with a specific camera
 	void BeginFrame(const Ptr<Graphics::CameraEntity>& camera);
 	/// renders a frame
-	void Render();
+    void Render(IndexT frameIndex);
 	/// ends a frame
 	void EndFrame();
 

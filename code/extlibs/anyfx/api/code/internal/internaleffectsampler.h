@@ -26,7 +26,7 @@ public:
 	virtual void Setup(const eastl::vector<InternalEffectVariable*>& texture);
 
 	/// get name of variable
-	const std::string& GetName() const;
+    const eastl::string& GetName() const;
 
     static const unsigned MaxNumSamplerBinds = 256;
 
@@ -60,14 +60,14 @@ protected:
 	eastl::vector<InternalEffectVariable*> textureVariables;
 	InternalEffectVariable* textureVariable;
 
-	std::string name;
+    eastl::string name;
 }; 
 
 
 //------------------------------------------------------------------------------
 /**
 */
-inline const std::string& 
+inline const eastl::string&
 InternalEffectSampler::GetName() const
 {
 	return this->name;

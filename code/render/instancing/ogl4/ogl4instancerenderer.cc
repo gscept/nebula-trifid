@@ -40,7 +40,7 @@ OGL4InstanceRenderer::~OGL4InstanceRenderer()
 void 
 OGL4InstanceRenderer::Render(const SizeT multiplier)
 {
-	n_assert(this->shader->IsValid());
+	n_assert(this->shader.isvalid());
 
 	// get render device
 	Ptr<OGL4RenderDevice> renderDev = OGL4RenderDevice::Instance();
@@ -52,24 +52,24 @@ OGL4InstanceRenderer::Render(const SizeT multiplier)
     Ptr<ShaderVariable> objectIdArrayVar;
 
 	// get variables
-	if (this->shader->HasVariableBySemantic(this->modelArraySemantic))
+	if (this->shader->HasVariableByName(this->modelArraySemantic))
 	{
-		modelArrayVar = this->shader->GetVariableBySemantic(this->modelArraySemantic);
+		modelArrayVar = this->shader->GetVariableByName(this->modelArraySemantic);
 	}
 
-	if (this->shader->HasVariableBySemantic(this->modelViewArraySemantic))
+    if (this->shader->HasVariableByName(this->modelViewArraySemantic))
 	{
-		modelViewArrayVar = this->shader->GetVariableBySemantic(this->modelViewArraySemantic);
+        modelViewArrayVar = this->shader->GetVariableByName(this->modelViewArraySemantic);
 	}
 
-	if (this->shader->HasVariableBySemantic(this->modelViewProjectionArraySemantic))
+    if (this->shader->HasVariableByName(this->modelViewProjectionArraySemantic))
 	{
-		modelViewProjectionArrayVar = this->shader->GetVariableBySemantic(this->modelViewProjectionArraySemantic);
+        modelViewProjectionArrayVar = this->shader->GetVariableByName(this->modelViewProjectionArraySemantic);
 	}
 
-    if (this->shader->HasVariableBySemantic(this->objectIdArraySemantic))
+    if (this->shader->HasVariableByName(this->objectIdArraySemantic))
     {
-        objectIdArrayVar = this->shader->GetVariableBySemantic(this->objectIdArraySemantic);
+        objectIdArrayVar = this->shader->GetVariableByName(this->objectIdArraySemantic);
     }
 
 	// get pointer to matrix array
@@ -108,9 +108,6 @@ OGL4InstanceRenderer::Render(const SizeT multiplier)
 
 		// render!
 		renderDev->DrawIndexedInstanced(numBatchInstances * multiplier, 0);
-
-        // perform post drawing
-        this->shader->PostDraw();
 
 		// decrease transform count
 		instances -= this->MaxInstancesPerBatch;

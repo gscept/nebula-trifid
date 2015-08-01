@@ -108,8 +108,9 @@ ModelNodeHandler::Refresh()
 	// update model
 	Ptr<ModelEntity> model = ContentBrowserApp::Instance()->GetPreviewState()->GetModel();
 	Ptr<Models::StateNodeInstance> node = RenderUtil::NodeLookupUtil::LookupStateNodeInstance(model, this->nodePath);
-	this->managedMaterial = Resources::ResourceManager::Instance()->CreateManagedResource(SurfaceMaterial::RTTI, state.material, NULL, true).downcast<Materials::ManagedSurfaceMaterial>();
-	node->SetMaterial(this->managedMaterial->GetMaterial());
+	this->managedMaterial = Resources::ResourceManager::Instance()->CreateManagedResource(Surface::RTTI, state.material, NULL, true).downcast<Materials::ManagedSurface>();
+    this->surfaceInstance = this->managedMaterial->GetSurface()->CreateInstance();
+	node->SetSurfaceInstance(this->surfaceInstance);
 }
 
 //------------------------------------------------------------------------------
@@ -127,12 +128,13 @@ ModelNodeHandler::SetSurface(const Util::String& sur)
     // update model
     Ptr<ModelEntity> model = ContentBrowserApp::Instance()->GetPreviewState()->GetModel();
     Ptr<Models::StateNodeInstance> node = RenderUtil::NodeLookupUtil::LookupStateNodeInstance(model, this->nodePath);
-    this->managedMaterial = Resources::ResourceManager::Instance()->CreateManagedResource(SurfaceMaterial::RTTI, String::Sprintf("sur:%s.sur", sur.AsCharPtr()), NULL, true).downcast<Materials::ManagedSurfaceMaterial>();
-    node->SetMaterial(this->managedMaterial->GetMaterial());
+    this->managedMaterial = Resources::ResourceManager::Instance()->CreateManagedResource(Surface::RTTI, String::Sprintf("sur:%s.sur", sur.AsCharPtr()), NULL, true).downcast<Materials::ManagedSurface>();
+    this->surfaceInstance = this->managedMaterial->GetSurface()->CreateInstance();
+    node->SetSurfaceInstance(this->surfaceInstance);
 
 	Ptr<ModelAttributes> attrs = this->modelHandler->GetAttributes();
 	State state = attrs->GetState(this->nodePath);
-	state.material = this->managedMaterial->GetMaterial()->GetResourceId().AsString();
+    state.material = this->managedMaterial->GetSurface()->GetResourceId().AsString();
 	state.material.StripFileExtension();
 	attrs->SetState(this->nodePath, state);
 	this->modelHandler->OnModelModified();

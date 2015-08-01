@@ -88,7 +88,7 @@ GenerateFilterSteps(vec2 uv, out vec2 result[STEP_TAPS])
 shader
 void
 vsMain(in vec3 position,
-	in vec2 uv,
+	[slot=2] in vec2 uv,
     out vsInOut vsOut) 
 {
 	vec2 taps[STEP_TAPS];

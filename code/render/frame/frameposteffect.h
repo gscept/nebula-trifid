@@ -33,7 +33,7 @@ public:
     /// discard the post effect
     virtual void Discard();
     /// render the post effect
-    virtual void Render();
+    virtual void Render(IndexT frameIndex);
 
     /// called from frame shader whenever the display resizes
 	virtual void OnDisplayResize(SizeT width, SizeT height);

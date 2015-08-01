@@ -37,15 +37,20 @@ public:
     void DrawShapes();
 
 	/// maximum amount of vertices to be rendered by drawprimitives and drawindexedprimitives
-	static const int MaxNumVertices = 65535;
+    static const int MaxNumVertices = 262140;
 	/// maximum amount of indices to be rendered by drawprimitives and drawindexedprimitives
-	static const int MaxNumIndices = 65535;
+    static const int MaxNumIndices = 262140;
 
     /// maximum size for primitive size (4 floats for position, 4 floats for color)
-    static const int MaxVertexWidth = 4 * sizeof(float);
+    static const int MaxVertexWidth = 8 * sizeof(float);
     /// maximum size for an index
     static const int MaxIndexWidth = sizeof(int);
 private:
+
+    /// draw buffered primitives
+    void DrawBufferedPrimitives();
+    /// draw buffered indexed primtives
+    void DrawBufferedIndexedPrimitives();
 
     /// draw a shape
     void DrawSimpleShape(const Math::matrix44& modelTransform, CoreGraphics::RenderShape::Type shapeType, const Math::float4& color);
@@ -70,16 +75,35 @@ private:
 	uint depthFeatureBits[CoreGraphics::RenderShape::NumDepthFlags];
 
 	Util::FixedArray<Ptr<Resources::ManagedMesh> > shapeMeshes;
-    Ptr<CoreGraphics::ShaderInstance> shapeShader;
+    Ptr<CoreGraphics::Shader> shapeShader;
 	CoreGraphics::PrimitiveGroup primGroup;
 	
 	Ptr<CoreGraphics::VertexBuffer> vbo;
 	Ptr<CoreGraphics::IndexBuffer> ibo;
+    Ptr<CoreGraphics::VertexLayout> vertexLayout;
 	Ptr<CoreGraphics::BufferLock> vboLock;
 	Ptr<CoreGraphics::BufferLock> iboLock;
 	Ptr<CoreGraphics::ShaderVariable> model;
 	Ptr<CoreGraphics::ShaderVariable> viewProjection;
     Ptr<CoreGraphics::ShaderVariable> diffuseColor;
+
+    SizeT numPrimitives;
+    SizeT numIndices;
+
+    struct IndexedDraws
+    {
+        Util::Array<CoreGraphics::PrimitiveGroup> primitives;
+        Util::Array<Math::float4> colors;
+        Util::Array<Math::matrix44> transforms;
+    } indexed;
+
+    struct UnindexedDraws
+    {
+        Util::Array<CoreGraphics::PrimitiveGroup> primitives;
+        Util::Array<Math::float4> colors;
+        Util::Array<Math::matrix44> transforms;
+    } unindexed;
+    
 
     static const GLuint NumBuffers = 12;
     byte* vertexBufferPtr;

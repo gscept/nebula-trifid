@@ -18,7 +18,7 @@
 #include "materials/material.h"
 #include "models/nodes/statenodeinstance.h"
 #include "resources/managedtexture.h"
-#include "materials/managedsurfacematerial.h"
+#include "materials/managedsurface.h"
 
 namespace Widgets
 {
@@ -90,7 +90,8 @@ protected:
 
 	Ui::ModelNodeInfoWidget* ui;
 	Ptr<ModelHandler> modelHandler;
-    Ptr<Materials::ManagedSurfaceMaterial> managedMaterial;
+    Ptr<Materials::ManagedSurface> managedMaterial;
+    Ptr<Materials::SurfaceInstance> surfaceInstance;
 }; 
 
 //------------------------------------------------------------------------------
@@ -115,8 +116,8 @@ ModelNodeHandler::GetUI() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-ModelNodeHandler::SetName( const Util::String& name )
+inline void
+ModelNodeHandler::SetName(const Util::String& name)
 {
 	n_assert(name.IsValid());
 	this->nodeName = name;
@@ -134,8 +135,8 @@ ModelNodeHandler::GetName() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-ModelNodeHandler::SetPath( const Util::String& path )
+inline void
+ModelNodeHandler::SetPath(const Util::String& path)
 {
 	n_assert(path.IsValid());
 	this->nodePath = path;

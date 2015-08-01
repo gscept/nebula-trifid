@@ -442,15 +442,15 @@
         </Message>
       
         <!-- update material variable instance -->
-        <Message name="UpdModelNodeInstanceMaterialVariable" fourcc="UMMV" derivedFrom="GraphicsEntityMessage">
+        <Message name="UpdModelNodeInstanceSurfaceConstant" fourcc="UMMV" derivedFrom="GraphicsEntityMessage">
             <InArg name="ModelNodeInstanceName" type="Util::StringAtom"/>
-            <InArg name="Semantic" type="Util::StringAtom"/>
+            <InArg name="Name" type="Util::StringAtom"/>
             <InArg name="Value" type="Util::Variant"/>
         </Message>
 
       <!-- update material variable instance -->
       <Message name="UpdMaterialVariable" fourcc="UPMV" derivedFrom="GraphicsEntityMessage">
-        <InArg name="Semantic" type="Util::StringAtom"/>
+        <InArg name="Name" type="Util::StringAtom"/>
         <InArg name="Value" type="Util::Variant"/>
       </Message>
 
@@ -462,7 +462,7 @@
               
         <!-- update shared shader variable -->
         <Message name="UpdateSharedShaderVariable" fourcc="USSV" >            
-            <InArg name="Semantic" type="Util::StringAtom"/>
+            <InArg name="Name" type="Util::StringAtom"/>
             <InArg name="Value" type="Util::Variant"/>
         </Message>
         

@@ -24,15 +24,16 @@
 #include "util/variant.h"
 #include "coregraphics/texture.h"
 #include "resources/managedtexture.h"
+#include "frame/batchgroup.h"
+
 namespace CoreGraphics
 {
-    class ShaderInstance;
-    class ShaderVariable;
+class ShaderInstance;
+class ShaderVariableInstance;
 }
 
 namespace Materials
 {
-class SurfaceConstantInstance;
 class SurfaceConstant : public Core::RefCounted
 {
 	__DeclareClass(SurfaceConstant);
@@ -42,9 +43,6 @@ public:
 	/// destructor
 	virtual ~SurfaceConstant();
 
-    /// create an instance of a constant
-    Ptr<SurfaceConstantInstance> CreateInstance();
-
     /// set value of constant, the actual shader value will only be applied whenever explicitly called with the Apply function (which should happen when rendering)
     void SetValue(const Util::Variant& value);
     /// set value shorthand for textures
@@ -53,23 +51,23 @@ public:
     const Util::Variant& GetValue() const;
 
     /// applies this constant, which readies it for drawing, but only applies the value on one of the shaders
-    void Apply(const Ptr<CoreGraphics::ShaderInstance>& shader);
+    void Apply(const Frame::BatchGroup::Code& group);
 
 protected:
-    friend class StreamSurfaceMaterialSaver;
-    friend class SurfaceConstantInstance;
-    friend class SurfaceMaterial;
+    friend class StreamSurfaceSaver;
+    friend class SurfaceInstance;
+    friend class Surface;
 
     /// setup constant, which initializes its name and bindings to its implementing shaders
-    void Setup(const Util::StringAtom& name, const Util::Array<Ptr<CoreGraphics::ShaderInstance>>& variableToShaderMap);
+    void Setup(const Util::StringAtom& name, const Util::Array<Ptr<CoreGraphics::ShaderInstance>>& variableToShaderMap, const Util::Array<Frame::BatchGroup::Code>& batchCodes);
     /// discard constant
     void Discard();
 
     bool system;
     Util::StringAtom name;
     Util::Variant value;
-    Util::Array<Ptr<SurfaceConstantInstance>> instances;
-    Util::Dictionary<Ptr<CoreGraphics::ShaderInstance>, Ptr<CoreGraphics::ShaderVariable>> variablesByShader;
+    //Util::Array<Ptr<SurfaceConstantInstance>> instances;
+    Util::Dictionary<Frame::BatchGroup::Code, Ptr<CoreGraphics::ShaderVariableInstance>> variablesByShader;
 };
 
 

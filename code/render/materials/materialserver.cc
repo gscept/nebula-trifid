@@ -15,7 +15,7 @@
 #include "frame/batchgroup.h"
 #include "io/ioserver.h"
 #include "resources/resourcemanager.h"
-#include "streamsurfacematerialloader.h"
+#include "streamsurfaceloader.h"
 
 namespace Materials
 {
@@ -72,9 +72,9 @@ MaterialServer::Open()
 
     // create resource mapper for surfaces, we must do this after our materials are loaded since the placeholder will need a template
     Ptr<Resources::SimpleResourceMapper> surfaceMapper = Resources::SimpleResourceMapper::Create();
-    surfaceMapper->SetResourceClass(SurfaceMaterial::RTTI);
-    surfaceMapper->SetResourceLoaderClass(StreamSurfaceMaterialLoader::RTTI);
-    surfaceMapper->SetManagedResourceClass(ManagedSurfaceMaterial::RTTI);
+    surfaceMapper->SetResourceClass(Surface::RTTI);
+    surfaceMapper->SetResourceLoaderClass(StreamSurfaceLoader::RTTI);
+    surfaceMapper->SetManagedResourceClass(ManagedSurface::RTTI);
     surfaceMapper->SetPlaceholderResourceId("sur:system/placeholder.sur");
     surfaceMapper->SetAsyncEnabled(false);
     Resources::ResourceManager::Instance()->AttachMapper(surfaceMapper.cast<Resources::ResourceMapper>());
@@ -128,7 +128,7 @@ MaterialServer::AddMaterial(const Ptr<Material>& material)
 		}
 		else
 		{
-			this->materialsByBatchGroup.Add(type, Util::Array<Ptr<Material> >());
+			this->materialsByBatchGroup.Add(type, Util::Array<Ptr<Material>>());
 			this->materialsByBatchGroup[type].Append(material);
 		}
 	}

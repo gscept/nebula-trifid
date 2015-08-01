@@ -257,13 +257,13 @@ Model::RemoveNode(const Ptr<ModelNode>& node)
 /**
 */
 void
-Model::AddVisibleModelNode(IndexT frameIndex, const Materials::MaterialType::Code& t, const Ptr<ModelNode>& modelNode)
+Model::AddVisibleModelNode(IndexT frameIndex, const Materials::SurfaceName::Code& code, const Ptr<ModelNode>& modelNode)
 {
-    this->visibleModelNodes.Add(frameIndex, t, modelNode);
-    if (!this->visibleModelNodes.IsResolved(t))
+    this->visibleModelNodes.Add(frameIndex, code, modelNode);
+    if (!this->visibleModelNodes.IsResolved(code))
     {
-        this->visibleModelNodes.SetResolved(t, true);
-        VisResolver::Instance()->AddVisibleModel(frameIndex, t, this);
+        this->visibleModelNodes.SetResolved(code, true);
+        VisResolver::Instance()->AddVisibleModel(frameIndex, code, this);
     }
 }
 

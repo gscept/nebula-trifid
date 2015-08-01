@@ -13,6 +13,7 @@
 #include "resources/resourceid.h"
 #include "materials/materialpalette.h"
 #include "materials/material.h"
+#include "materials/surfacename.h"
 #include "frame/frameshader.h"
 #include "util/dictionary.h"
 #include "util/array.h"
@@ -65,11 +66,13 @@ public:
 	
 private:
     friend class MaterialType;
+    friend class SurfaceName;
 
 	/// load material palette
 	void LoadMaterialPalette(const Resources::ResourceId& name);
 
     MaterialType materialTypeRegistry;
+    SurfaceName surfaceNameRegistry;
 	MaterialFeature materialFeature;
 	Util::Dictionary<Resources::ResourceId, Ptr<Material>> materials;
 	Util::Dictionary<Frame::BatchGroup::Code, Util::Array<Ptr<Material>>> materialsByBatchGroup;

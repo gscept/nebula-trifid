@@ -10,10 +10,6 @@
 
 sampler2D DiffuseMap;
 
-state PlaceholderState
-{
-};
-
 //------------------------------------------------------------------------------
 /**
 */
@@ -42,7 +38,7 @@ psMain(in vec2 uv,
 //------------------------------------------------------------------------------
 /**
 */
-SimpleTechnique(Static, "Static", vsMain(), psMain(), PlaceholderState);
+StateLessTechnique(Static, "Static", vsMain(), psMain());
 
 // add a skinned variation since the Character system automatically appends the Skinned feature string when rendering characters
-SimpleTechnique(Skinned, "Skinned", vsMain(), psMain(), PlaceholderState);
+StateLessTechnique(Skinned, "Skinned", vsMain(), psMain());

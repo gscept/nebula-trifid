@@ -93,7 +93,7 @@
 #define NEBULA3_SEMANTIC_WORLDVIEWPROJ				"WorldViewProjection"
 #define NEBULA3_SEMANTIC_WORLD						"World"
 #define NEBULA3_SEMANTIC_WORLDVIEW					"WorldView"
-#define NEBULA3_SEMANTIC_SHADOW						"CSMShadowMatrix"
+#define NEBULA3_SEMANTIC_CSMSHADOWMATRIX		    "CSMShadowMatrix"
 #define NEBULA3_SEMANTIC_CASCADEOFFSET				"CascadeOffset"
 #define NEBULA3_SEMANTIC_CASCADESCALE				"CascadeScale"
 #define NEBULA3_SEMANTIC_CASCADELEVELS				"CascadeLevels"

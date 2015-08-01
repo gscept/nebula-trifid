@@ -1,6 +1,7 @@
 #include "DebugDraw.h"
 #include "util/array.h"
 #include "math/vector.h"
+#include "coregraphics/rendershape.h"
 
 
 namespace Navigation
@@ -44,8 +45,7 @@ virtual void end() ;
 
 private:
 	duDebugDrawPrimitives current;
-	Util::Array<Math::vector> points;
-	Math::float4 lastColor;
+	Util::Array<CoreGraphics::RenderShape::RenderShapeVertex> points;
 
 };
 

@@ -23,13 +23,14 @@ public:
     enum SemanticName
     {
         Position = 0,
-        Normal,
-        Tangent,
-        Binormal,
-        TexCoord,        
-        Color,
-        SkinWeights,
-        SkinJIndices,
+        Normal = 1,
+        TexCoord1 = 2,        
+        Tangent = 3,
+        Binormal = 4,
+        Color = 5,
+        TexCoord2 = 6,
+        SkinWeights = 7,
+        SkinJIndices = 8,
 
         Invalid,
     };
@@ -259,7 +260,7 @@ VertexComponentBase::SemanticNameToString(SemanticName n)
         case Normal:        return "Normal";
         case Tangent:       return "Tangent";
         case Binormal:      return "Binormal";
-        case TexCoord:      return "TexCoord";
+        case TexCoord1:     return "TexCoord";
         case Color:         return "Color";
         case SkinWeights:   return "SkinWeights";
         case SkinJIndices:  return "SkinJIndices";
@@ -279,7 +280,7 @@ VertexComponentBase::StringToSemanticName(const Util::String& str)
     else if (str == "Normal") return Normal;
     else if (str == "Tangent") return Tangent;
     else if (str == "Binormal") return Binormal;
-    else if (str == "TexCoord") return TexCoord;
+    else if (str == "TexCoord") return TexCoord1;
     else if (str == "Color") return Color;
     else if (str == "SkinWeights") return SkinWeights;
     else if (str == "SkinJIndices") return SkinJIndices;
@@ -361,7 +362,7 @@ VertexComponentBase::GetSignature() const
         case Normal:        str = "nrm"; break;
         case Tangent:       str = "tan"; break;
         case Binormal:      str = "bin"; break;
-        case TexCoord:      str = "tex"; break;
+        case TexCoord1:     str = "tex"; break;
         case Color:         str = "clr"; break;
         case SkinWeights:   str = "skw"; break;
         case SkinJIndices:  str = "sji"; break;

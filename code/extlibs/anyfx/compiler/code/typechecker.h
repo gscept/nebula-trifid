@@ -36,6 +36,8 @@ public:
 	/// get singleton instance
 	static TypeChecker* Instance();
 
+    /// adds a rersevde symbol
+    void AddReservedSymbol(Symbol* symbol);
 	/// adds symbol to type checker
 	bool AddSymbol(Symbol* symbol);
 	/// returns true if symbol exists
@@ -79,6 +81,7 @@ private:
 	unsigned errorCount;
 	unsigned warningCount;
 	std::map<std::string, Symbol*> symbols;
+    std::map<std::string, Symbol*> reservedSymbols;
 }; 
 
 //------------------------------------------------------------------------------

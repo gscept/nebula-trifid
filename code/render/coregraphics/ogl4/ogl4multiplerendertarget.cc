@@ -7,6 +7,7 @@
 #include "ogl4renderdevice.h"
 #include "coregraphics/rendertarget.h"
 #include "coregraphics/displaydevice.h"
+#include "../shader.h"
 #include "../shadersemantics.h"
 
 namespace OpenGL4
@@ -93,10 +94,10 @@ OGL4MultipleRenderTarget::BeginPass()
 	glDrawBuffers(this->numRenderTargets, glColorAttachments);
 
     // set display dimensions
-    Ptr<CoreGraphics::ShaderInstance> instance = OGL4RenderDevice::Instance()->GetPassShader();
-    if (instance.isvalid() && instance->HasVariableBySemantic(NEBULA3_SEMANTIC_RENDERTARGETDIMENSIONS))
+    const Ptr<CoreGraphics::Shader>& shader = OGL4RenderDevice::Instance()->GetPassShader();
+    if (shader.isvalid() && shader->HasVariableByName(NEBULA3_SEMANTIC_RENDERTARGETDIMENSIONS))
     {
-        Ptr<CoreGraphics::ShaderVariable> var = instance->GetVariableBySemantic(NEBULA3_SEMANTIC_RENDERTARGETDIMENSIONS);
+        Ptr<CoreGraphics::ShaderVariable> var = shader->GetVariableByName(NEBULA3_SEMANTIC_RENDERTARGETDIMENSIONS);
         uint width = this->renderTarget[0]->GetWidth();
         uint height = this->renderTarget[0]->GetHeight();
         float xRatio = 1 / float(width);

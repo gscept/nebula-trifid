@@ -13,12 +13,17 @@ sampler2D SpecularMap;
 sampler2D AlbedoMap;
 sampler2D DepthMap;
 
-vec4 BBoxMin;
-vec4 BBoxMax;
-vec4 BBoxCenter;
-float FalloffDistance = 0.2f;
-float FalloffPower = 16.0f;
-int NumEnvMips = 9;
+shared varblock ReflectionBlock
+{
+	mat4 Transform;
+	vec4 BBoxMin;
+	vec4 BBoxMax;
+	vec4 BBoxCenter;
+	float FalloffDistance = 0.2f;
+	float FalloffPower = 16.0f;
+	int NumEnvMips = 9;
+};
+
 samplerCube EnvironmentMap;
 samplerCube IrradianceMap;
 
@@ -104,7 +109,7 @@ vsMain(in vec3 position,
 	out vec3 WorldViewVec,
 	out vec2 UV) 
 {
-	vec4 modelSpace = Model * vec4(position, 1);
+	vec4 modelSpace = Transform * vec4(position, 1);
 	ViewSpacePosition = (View * modelSpace).xyz;
     gl_Position = ViewProjection * modelSpace;
     UV = uv;

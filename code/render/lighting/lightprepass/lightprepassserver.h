@@ -71,10 +71,10 @@ protected:
     CoreGraphics::ShaderFeature::Mask spotLightFeatureBits[NumShadowFlags];
     CoreGraphics::ShaderFeature::Mask globalLightFeatureBits;
     RenderUtil::DrawFullScreenQuad fullScreenQuadRenderer;          // fs quad renderer
-    Ptr<CoreGraphics::ShaderInstance> lightShaderInst;  // light source shader
-	Ptr<CoreGraphics::ShaderInstance> pointLightShaderInst;
-	Ptr<CoreGraphics::ShaderInstance> spotLightShaderInst;
-	Ptr<CoreGraphics::ShaderInstance> globalLightShaderInst;
+    Ptr<CoreGraphics::Shader> lightShader;  // light source shader
+	Ptr<CoreGraphics::Shader> pointLightShaderInst;
+	Ptr<CoreGraphics::Shader> spotLightShaderInst;
+	Ptr<CoreGraphics::Shader> globalLightShaderInst;
 
 
 	/// global light variables

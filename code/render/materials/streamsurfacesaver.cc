@@ -1,20 +1,20 @@
 //------------------------------------------------------------------------------
-//  streamsurfacematerialsaver.cc
+//  streamsurfacesaver.cc
 //  (C) 2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "streamsurfacematerialsaver.h"
-#include "surfacematerial.h"
+#include "streamsurfacesaver.h"
+#include "surface.h"
 #include "io/xmlwriter.h"
 
 namespace Materials
 {
-__ImplementClass(Materials::StreamSurfaceMaterialSaver, 'SSMS', Core::RefCounted);
+__ImplementClass(Materials::StreamSurfaceSaver, 'SSMS', Core::RefCounted);
 
 //------------------------------------------------------------------------------
 /**
 */
-StreamSurfaceMaterialSaver::StreamSurfaceMaterialSaver()
+StreamSurfaceSaver::StreamSurfaceSaver()
 {
 	// empty
 }
@@ -22,7 +22,7 @@ StreamSurfaceMaterialSaver::StreamSurfaceMaterialSaver()
 //------------------------------------------------------------------------------
 /**
 */
-StreamSurfaceMaterialSaver::~StreamSurfaceMaterialSaver()
+StreamSurfaceSaver::~StreamSurfaceSaver()
 {
 	// empty
 }
@@ -31,10 +31,10 @@ StreamSurfaceMaterialSaver::~StreamSurfaceMaterialSaver()
 /**
 */
 bool
-StreamSurfaceMaterialSaver::OnSave()
+StreamSurfaceSaver::OnSave()
 {
 	n_assert(this->stream.isvalid());
-	const Ptr<SurfaceMaterial>& sur = this->resource.downcast<SurfaceMaterial>();
+	const Ptr<Surface>& sur = this->resource.downcast<Surface>();
 
 	Ptr<IO::XmlWriter> writer = IO::XmlWriter::Create();
 	writer->SetStream(this->stream);
@@ -44,19 +44,19 @@ StreamSurfaceMaterialSaver::OnSave()
 			writer->BeginNode("Surface");
 				writer->SetString("template", sur->GetMaterialTemplate()->GetName().AsString());
 				IndexT i;
-				for (i = 0; i < sur->constantsByName.Size(); i++)
+				for (i = 0; i < sur->staticValues.Size(); i++)
 				{
-					const Util::KeyValuePair<Util::StringAtom, Ptr<Materials::SurfaceConstant>>& pair = sur->constantsByName.KeyValuePairAtIndex(i);
+                    const Util::KeyValuePair<Util::StringAtom, Surface::SurfaceValueBinding>& pair = sur->staticValues.KeyValuePairAtIndex(i);
 
                     // don't save system variables
-                    if (pair.Value()->system) continue;
+                    if (pair.Value().system) continue;
 
 					writer->BeginNode("Param");
 						writer->SetString("name", pair.Key().AsString());
-						const Util::Variant& val = pair.Value()->GetValue();
+						const Util::Variant& val = pair.Value().value;
 
 						// assume its texture if variant is object
-						if (val.GetType() != Util::Variant::Object) writer->SetString("value", pair.Value()->GetValue().ToString());
+                        if (val.GetType() != Util::Variant::Object) writer->SetString("value", val.ToString());
 						else
 						{
 							Ptr<CoreGraphics::Texture> tex = (CoreGraphics::Texture*)val.GetObject();

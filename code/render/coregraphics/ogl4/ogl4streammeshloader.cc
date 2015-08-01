@@ -75,6 +75,7 @@ OGL4StreamMeshLoader::SetupMeshFromNvx2(const Ptr<Stream>& stream)
         n_assert(!res->IsLoaded());
         res->SetVertexBuffer(nvx2Reader->GetVertexBuffer().downcast<CoreGraphics::VertexBuffer>());
         res->SetIndexBuffer(nvx2Reader->GetIndexBuffer().downcast<CoreGraphics::IndexBuffer>());
+        res->GetVertexBuffer()->GetVertexLayout()->SetIndexBuffer(res->GetIndexBuffer());
         res->SetPrimitiveGroups(nvx2Reader->GetPrimitiveGroups());
         nvx2Reader->Close();
         return true;

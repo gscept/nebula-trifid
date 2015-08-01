@@ -9,6 +9,7 @@
 #include "lib/techniques.fxh"
 
 mat4 ShapeModel;
+vec4 MatDiffuse;
 state WireframeState
 {
 	CullMode = None;	
@@ -46,9 +47,10 @@ state DepthDisabledState
 */
 shader
 void
-vsMain(in vec3 position, out vec4 Color) 
+vsMain(in vec4 position, [slot=5] in vec4 color, out vec4 Color)  
 {
-	gl_Position = ViewProjection * ShapeModel * vec4(position, 1);
+	gl_Position = ViewProjection * ShapeModel * position;
+	Color = color;
 }
 	
 //------------------------------------------------------------------------------
@@ -58,7 +60,7 @@ shader
 void
 psMain(in vec4 color, [color0] out vec4 Color) 
 {
-	Color = MatDiffuse;
+	Color = color * MatDiffuse;
 }
 
 //------------------------------------------------------------------------------

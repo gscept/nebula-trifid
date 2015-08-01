@@ -43,13 +43,14 @@ state ScissorGUIState
 */
 shader
 void
-vsMain(in vec3 position,
-	in vec4 color,
-	in vec2 uv,	
+vsMain(
+	[slot=0] in vec2 position,
+	[slot=1] in vec4 color,
+	[slot=2] in vec2 uv,
 	out vec2 UV,
 	out vec4 Color) 
 {
-	gl_Position = Model * vec4(position, 1);
+	gl_Position = Model * vec4(position, 1, 1);
 	Color = color;
 	UV = uv;
 }

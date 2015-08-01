@@ -69,6 +69,16 @@ private:
 //------------------------------------------------------------------------------
 /**
 */
+inline void
+VarBlock::SetAnnotation(const Annotation& annotation)
+{
+    this->annotation = annotation;
+    this->hasAnnotation = true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 inline void 
 VarBlock::SetBufferExpression(Expression* expr)
 {

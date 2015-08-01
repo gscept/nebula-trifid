@@ -407,7 +407,7 @@ BulletScene::RenderDebug()
 	if(!this->debugPrimitives.IsEmpty())
 	{
 		// draw buffered primitives
-		Debug::DebugShapeRenderer::Instance()->DrawPrimitives(matrix44::identity(), CoreGraphics::PrimitiveTopology::LineList, this->debugPrimitives.Size() / 2, &this->debugPrimitives[0], 4, float4(1, 0, 0, 0.75f));
+		Debug::DebugShapeRenderer::Instance()->DrawPrimitives(matrix44::identity(), CoreGraphics::PrimitiveTopology::LineList, this->debugPrimitives.Size() / 2, &this->debugPrimitives[0], float4(1));
 	}
 }
 

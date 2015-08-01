@@ -38,7 +38,7 @@ private:
     /// sets up subroutine mappings
     void SetupSubroutines();
     /// helper function for subroutine setup
-    void SetupSubroutineHelper(GLenum shaderType, GLsizei& numBindings, GLuint** bindingArray, const std::map<std::string, InternalEffectSubroutine*>& bindings);
+    void SetupSubroutineHelper(GLenum shaderType, GLsizei& numBindings, GLuint** bindingArray, const eastl::map<eastl::string, InternalEffectSubroutine*>& bindings);
 
 	GLuint programHandle;
 

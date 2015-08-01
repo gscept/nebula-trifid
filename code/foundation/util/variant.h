@@ -307,7 +307,6 @@ public:
     bool SetParseString(const Util::String& string);
     /// create from string
     static Variant FromString(const Util::String& string);
-    
 
     /// convert type to string
     static Util::String TypeToString(Type t);

@@ -91,6 +91,7 @@ void
 SurfaceConstantInstance::Apply(const Ptr<CoreGraphics::ShaderInstance>& shader)
 {
     // hmm, maybe shader instances deserves the zero-indexed treatment?
+    if (!this->variablesByShader.Contains(shader)) return;
     const Ptr<CoreGraphics::ShaderVariableInstance>& var = this->variablesByShader[shader];
     var->Apply();
 }

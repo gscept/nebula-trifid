@@ -75,9 +75,9 @@ ToneMappingAlgorithm::Setup()
 	this->downscaledColor = this->color->GetResolveTexture();
 
 	// create shaders
-	this->averageLum = ShaderServer::Instance()->CreateShaderInstance("shd:averagelum");
-	this->downscale = ShaderServer::Instance()->CreateShaderInstance("shd:downscale");
-	this->copy = ShaderServer::Instance()->CreateShaderInstance("shd:copy");
+	this->averageLum = ShaderServer::Instance()->GetShader("shd:averagelum");
+    this->downscale = ShaderServer::Instance()->GetShader("shd:downscale");
+    this->copy = ShaderServer::Instance()->GetShader("shd:copy");
 
 	// get luminance variables
 	this->colorBufferVar = this->averageLum->GetVariableByName("ColorSource");
@@ -120,14 +120,9 @@ ToneMappingAlgorithm::Discard()
 	this->downscaleBufferVar = 0;
 	this->colorBufferVar = 0;
 
-	// discard render targets
-	this->averageLum->Discard();
+	// deref shaders
 	this->averageLum = 0;
-
-	this->downscale->Discard();
 	this->downscale = 0;
-
-	this->copy->Discard();
 	this->copy = 0;
 
 	// just release texture, since they are just reference copies
@@ -158,22 +153,30 @@ ToneMappingAlgorithm::Execute()
 		ShaderServer* shaderServer = ShaderServer::Instance();
 
 		// copy buffer and downscale to 512x512
+        this->downscale->Apply();
+        renderDevice->BeginPass(this->color, this->downscale);
+        this->downscale->BeginUpdate();
 		this->copyBufferVar->SetTexture(this->inputs[0]);
-		shaderServer->SetActiveShaderInstance(this->downscale);
-		renderDevice->BeginPass(this->color, this->downscale);
+        this->downscale->EndUpdate();
+        this->downscale->Commit();
 		this->quad.Draw();
 		renderDevice->EndPass();
 
 		// generate mips for the just rendered downscaled color
 		this->downscaledColor->GenerateMipmaps();
 
-		// update time
+        // apply shader
+        this->averageLum->Apply();
+        renderDevice->BeginPass(this->output, this->averageLum);
+
+        // update time
+        this->averageLum->BeginUpdate();
 		Timing::Time time = FrameSync::FrameSyncTimer::Instance()->GetFrameTime();
 		this->timeDiffVar->SetFloat((float)time); // adjust the constant multiplier to increase transition time, the higher the slower
+        this->averageLum->EndUpdate();
 
 		// now render shader which calculates the average luminance to the output
-		shaderServer->SetActiveShaderInstance(this->averageLum);
-		renderDevice->BeginPass(this->output, this->averageLum);
+        this->averageLum->Commit();
 		this->quad.Draw();
 		renderDevice->EndPass();
 

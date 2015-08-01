@@ -318,11 +318,11 @@ FrameShaderLoader::ParseDepthStencilTarget( const Ptr<IO::XmlReader>& xmlReader,
 /**
 */
 void
-FrameShaderLoader::ParseShaderVariableInstance(const Ptr<XmlReader>& xmlReader, const Ptr<ShaderInstance>& shd, const Ptr<FramePassBase>& pass)
+FrameShaderLoader::ParseShaderVariableInstance(const Ptr<XmlReader>& xmlReader, const Ptr<Shader>& shd, const Ptr<FramePassBase>& pass)
 {
     /// create a shader variable instance by semantic
-    String semantic = xmlReader->GetString("sem");
-	const Ptr<ShaderVariable>& shdVar = shd->GetVariableBySemantic(semantic);
+    String name = xmlReader->GetString("sem");
+	const Ptr<ShaderVariable>& shdVar = shd->GetVariableByName(name);
 	Ptr<ShaderVariableInstance> shdVarInst = shdVar->CreateInstance();
 
 	/// get the default value of the shader variable
@@ -367,15 +367,15 @@ FrameShaderLoader::ParseShaderVariableInstance(const Ptr<XmlReader>& xmlReader, 
 	}
 	
 	// add variable
-	pass->AddVariable(semantic, shdVarInst);
+	pass->AddVariable(name, shdVarInst);
    
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-void 
-FrameShaderLoader::ParseShaderVariableInstance( const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameBatch>& batch )
+void
+FrameShaderLoader::ParseShaderVariableInstance(const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameBatch>& batch)
 {
 	/// create a shader variable instance by semantic
 	String semantic = xmlReader->GetString("sem");
@@ -442,7 +442,7 @@ FrameShaderLoader::ParseFramePass(const Ptr<XmlReader>& xmlReader, const Ptr<Fra
 	{
 		// setup the pass shader
 		ResourceId shdResId = ResourceId("shd:" + xmlReader->GetString("shader"));
-		Ptr<ShaderInstance> shader = ShaderServer::Instance()->CreateShaderInstance(shdResId);
+        Ptr<Shader> shader = ShaderServer::Instance()->GetShader(shdResId);
 		framePass->SetShader(shader);
 
 		// add shader variable instances
@@ -559,7 +559,7 @@ FrameShaderLoader::ParseFrameCompute( const Ptr<IO::XmlReader>& xmlReader, const
 
     // setup the pass shader
     ResourceId shdResId = ResourceId("shd:" + xmlReader->GetString("shader"));
-    Ptr<ShaderInstance> shader = ShaderServer::Instance()->CreateShaderInstance(shdResId);
+    Ptr<Shader> shader = ShaderServer::Instance()->GetShader(shdResId);
     frameComp->SetShader(shader);
 
     // add shader variable instances
@@ -741,7 +741,7 @@ FrameShaderLoader::ParsePostEffect(const Ptr<XmlReader>& xmlReader, const Ptr<Fr
 
     // setup the pass shader
     ResourceId shdResId = ResourceId("shd:" + xmlReader->GetString("shader"));
-    Ptr<ShaderInstance> shader = ShaderServer::Instance()->CreateShaderInstance(shdResId);
+    Ptr<Shader> shader = ShaderServer::Instance()->GetShader(shdResId);
     framePostEffect->SetShader(shader);
 
     // setup the render target (if not render to default render target)
@@ -797,7 +797,7 @@ FrameShaderLoader::ParsePostEffect(const Ptr<XmlReader>& xmlReader, const Ptr<Fr
     // add shader variable instances
     if (xmlReader->SetToFirstChild("ApplyShaderVariable")) do
     {
-		if (shader->HasVariableBySemantic(xmlReader->GetString("sem")))
+		if (shader->HasVariableByName(xmlReader->GetString("sem")))
 		{
 			ParseShaderVariableInstance(xmlReader, shader, framePostEffect.upcast<FramePassBase>());
 		}

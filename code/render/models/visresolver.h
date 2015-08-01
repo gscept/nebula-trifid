@@ -50,17 +50,17 @@ public:
     void EndResolve();
 
     /// post-resolve: get Models with visible ModelNodeInstances by node type
-    const Util::Array<Ptr<Model>>& GetVisibleModels(const Materials::MaterialType::Code& materialType) const;
+    const Util::Array<Ptr<Model>>& GetVisibleModels(const Materials::SurfaceName::Code& surfaceName) const;
     /// post-resolve: get visible ModelNodes of a Model by node type
-    const Util::Array<Ptr<ModelNode>>& GetVisibleModelNodes(const Materials::MaterialType::Code& materialType, const Ptr<Model>& model) const;
+    const Util::Array<Ptr<ModelNode>>& GetVisibleModelNodes(const Materials::SurfaceName::Code& surfaceName, const Ptr<Model>& model) const;
     /// post-resolve: get visible ModelNodeInstance of a ModelNode by node type
-    const Util::Array<Ptr<ModelNodeInstance>>& GetVisibleModelNodeInstances(const Materials::MaterialType::Code& materialType, const Ptr<ModelNode>& modelNode) const;
+    const Util::Array<Ptr<ModelNodeInstance>>& GetVisibleModelNodeInstances(const Materials::SurfaceName::Code& surfaceName, const Ptr<ModelNode>& modelNode) const;
 
 private:
     friend class Model;
 
     /// add a visible model by node type
-    void AddVisibleModel(IndexT frameIndex, const Materials::MaterialType::Code& materialType, const Ptr<Model>& model);
+    void AddVisibleModel(IndexT frameIndex, const Materials::SurfaceName::Code& surfaceName, const Ptr<Model>& model);
 
     VisResolveContainer<Model> visibleModels;
     Math::matrix44 cameraTransform;
@@ -82,10 +82,10 @@ VisResolver::IsOpen() const
 /**
 */
 inline void
-VisResolver::AddVisibleModel(IndexT frameIndex, const Materials::MaterialType::Code& materialType, const Ptr<Model>& model)
+VisResolver::AddVisibleModel(IndexT frameIndex, const Materials::SurfaceName::Code& code, const Ptr<Model>& model)
 {
     n_assert(this->inResolve);
-    this->visibleModels.Add(frameIndex, materialType, model);
+    this->visibleModels.Add(frameIndex, code, model);
 }
 
 } // namespace Models

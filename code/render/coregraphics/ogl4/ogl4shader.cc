@@ -18,7 +18,9 @@ using namespace CoreGraphics;
 //------------------------------------------------------------------------------
 /**
 */
-OGL4Shader::OGL4Shader()
+OGL4Shader::OGL4Shader() :
+    ogl4Effect(NULL),
+    globalBlockBuffer(NULL)
 {
     // empty
 }
@@ -42,7 +44,40 @@ OGL4Shader::Unload()
 {
 	n_assert(0 == this->shaderInstances.Size());
 	this->Cleanup();
+    if (this->globalBlockBuffer.isvalid())
+    {
+        this->globalBlockBuffer->Discard();
+        this->globalBlockBuffer = 0;
+    }
     ShaderBase::Unload();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+OGL4Shader::BeginUpdate()
+{
+    ShaderBase::BeginUpdate();
+    if (this->globalBlockBuffer.isvalid())
+    {
+        //this->globalBlockBuffer->CycleBuffers();
+        this->globalBlockBuffer->BeginUpdateSync();
+    }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+OGL4Shader::EndUpdate()
+{
+    ShaderBase::EndUpdate();
+    if (this->globalBlockBuffer.isvalid())
+    {
+        this->globalBlockBuffer->EndUpdateSync();
+        this->globalBlockBufferBinding.Key()->SetBufferHandle(this->globalBlockBufferBinding.Value()->GetHandle());
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -52,9 +87,10 @@ void
 OGL4Shader::Cleanup()
 {
 	// delete effect
+    n_assert(0 != this->ogl4Effect);
 	delete this->ogl4Effect;
+    this->ogl4Effect = NULL;
 }
-
 
 //------------------------------------------------------------------------------
 /**
@@ -100,7 +136,6 @@ OGL4Shader::Reload()
 		this->shaderInstances[i]->Reload(thisPtr.downcast<Shader>());
 	}
 }
-
 
 } // namespace OpenGL4
 

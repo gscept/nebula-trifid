@@ -1,7 +1,7 @@
 #pragma once
 //------------------------------------------------------------------------------
 /**
-    @class OpenGL4::OGL4ShaderVariation
+    @class OpenGL4::OGL4ShaderProgram
 
     Under OpenGL4, a shader variation is represented by an AnyFX effect 
     program which must be annotated by a FeatureMask string.
@@ -14,14 +14,14 @@
 //------------------------------------------------------------------------------
 namespace OpenGL4
 {
-class OGL4ShaderVariation : public Base::ShaderVariationBase
+class OGL4ShaderProgram : public Base::ShaderVariationBase
 {
-    __DeclareClass(OGL4ShaderVariation);
+    __DeclareClass(OGL4ShaderProgram);
 public:
     /// constructor
-    OGL4ShaderVariation();
+    OGL4ShaderProgram();
     /// destructor
-    virtual ~OGL4ShaderVariation();
+    virtual ~OGL4ShaderProgram();
 
 	/// applies program
 	void Apply();
@@ -40,7 +40,8 @@ public:
 	/// get program
 	AnyFX::EffectProgram* GetProgram() const;
 private:
-    friend class OGL4ShaderInstance;
+    friend class OGL4Shader;
+    friend class OGL4StreamShaderLoader;
 
 	/// setup from AnyFX program
 	void Setup(AnyFX::EffectProgram* program);
@@ -54,7 +55,7 @@ private:
 /**
 */
 inline AnyFX::EffectProgram*
-OGL4ShaderVariation::GetProgram() const
+OGL4ShaderProgram::GetProgram() const
 {
 	return this->program;
 }
@@ -63,7 +64,7 @@ OGL4ShaderVariation::GetProgram() const
 /**
 */
 inline const bool 
-OGL4ShaderVariation::UsePatches() const
+OGL4ShaderProgram::UsePatches() const
 {
 	return this->usePatches;
 }

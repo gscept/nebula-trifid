@@ -9,8 +9,8 @@
 */
 //------------------------------------------------------------------------------
 #include "EASTL/vector.h"
+#include "EASTL/string.h"
 #include "autoref.h"
-#include <string>
 namespace AnyFX
 {
 class InternalEffectVariable;
@@ -24,7 +24,7 @@ public:
 	virtual ~InternalEffectVarbuffer();
     
     /// returns name of varbuffer
-    const std::string& GetName() const;
+    const eastl::string& GetName() const;
 
 protected:
 	friend class EffectVarbuffer;
@@ -45,14 +45,13 @@ protected:
 	/// set buffer 
 	virtual void SetBuffer(void* handle);
 
-
     /// activates variable, this makes the uniform location be the one found in the given program
     virtual void Activate(InternalEffectProgram* program);
 
 	static unsigned globalVarbufferCounter;
 	eastl::vector<InternalEffectVariable*> variables;
     InternalEffectVarbuffer* masterBuffer;
-    std::string name;
+    eastl::string name;
 	unsigned size;
 
 	void* currentBufferHandle;
@@ -62,7 +61,7 @@ protected:
 //------------------------------------------------------------------------------
 /**
 */
-inline const std::string& 
+inline const eastl::string&
 InternalEffectVarbuffer::GetName() const
 {
     return this->name;

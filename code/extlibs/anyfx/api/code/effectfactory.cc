@@ -42,8 +42,8 @@ EffectFactory::Instance()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-EffectFactory::SetSharedVarblock( const std::string& signature, InternalEffectVarblock* varblock )
+void
+EffectFactory::SetSharedVarblock(const eastl::string& signature, InternalEffectVarblock* varblock)
 {
 	assert(this->sharedVarblocks.find(signature) == this->sharedVarblocks.end());
 	this->sharedVarblocks[signature] = varblock;
@@ -53,10 +53,10 @@ EffectFactory::SetSharedVarblock( const std::string& signature, InternalEffectVa
 /**
 */
 Effect* 
-EffectFactory::CreateEffectFromFile( const std::string& file )
+EffectFactory::CreateEffectFromFile(const eastl::string& file)
 {
 	BinReader reader;
-	reader.SetPath(file);
+	reader.SetPath(file.c_str());
 	reader.Open();
 	this->loader.SetReader(&reader);
 	Effect* retval = this->loader.Load();

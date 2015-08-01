@@ -8,6 +8,7 @@
 #include "lib/shared.fxh"
 #include "lib/techniques.fxh"
 
+mat4 Transform;
 vec4 LightColor = vec4(1,1,1,1);
 float VolumetricScale = 1.0f;
 float VolumetricIntensity = 0.14f;
@@ -55,7 +56,7 @@ vsGeometry(in vec3 position,
 	in vec3 binormal,
 	out vec2 UV) 
 {
-	gl_Position = ViewProjection * Model * vec4(position, 1);
+	gl_Position = ViewProjection * Transform * vec4(position, 1);
 	UV = uv;
 }
 
@@ -76,13 +77,13 @@ vsVolumetric(in vec3 position,
 	out vec3 Binormal,
 	out vec2 UV) 
 {
-	mat4 modelView = View * Model;
+	mat4 modelView = View * Transform;
 	Tangent 	= (modelView * vec4(tangent, 0)).xyz;
 	Normal 		= (modelView * vec4(normal, 0)).xyz;
 	Binormal 	= (modelView * vec4(binormal, 0)).xyz;
 	ViewSpacePos = (modelView * vec4(position, 1)).xyz;
 	WorldPos = vec4(position * VolumetricScale, 1).xyz;
-	gl_Position = ViewProjection * Model * vec4(position * VolumetricScale, 1);
+	gl_Position = ViewProjection * Transform * vec4(position * VolumetricScale, 1);
 	UV = uv;
 }
 

@@ -62,7 +62,7 @@ MinimapManager::OnActivate()
     this->iconSizes.Resize(this->MaxNumIconsPerBatch);
 
 	// create shader
-	this->minimapShader = ShaderServer::Instance()->CreateShaderInstance("minimap");
+	this->minimapShader = ShaderServer::Instance()->GetShader("minimap");
 	this->transformsVar = this->minimapShader->GetVariableByName("ModelArray");
     this->portraitVar = this->minimapShader->GetVariableByName("Portrait");
     this->portraitScalesVar = this->minimapShader->GetVariableByName("PortraitScaleArray");
@@ -70,7 +70,7 @@ MinimapManager::OnActivate()
 
     // setup vertex and index buffers
     Array<VertexComponent> cornerComponents;
-    cornerComponents.Append(VertexComponent(VertexComponent::TexCoord, 0, VertexComponent::Float2, 0));
+    cornerComponents.Append(VertexComponent(VertexComponent::TexCoord1, 0, VertexComponent::Float2, 0));
     float cornerVertexData[] = { 0, 0,  1, 0,  1, 1,  0, 1 };
     Ptr<MemoryVertexBufferLoader> cornerVBLoader = MemoryVertexBufferLoader::Create();
     cornerVBLoader->Setup(cornerComponents, 4, cornerVertexData, sizeof(cornerVertexData), VertexBuffer::UsageImmutable, VertexBuffer::AccessNone);
@@ -100,6 +100,10 @@ MinimapManager::OnActivate()
     }
     this->quadIb->SetLoader(0);
 
+    // setup vertex layout
+    this->vertexLayout = this->quadVb->GetVertexLayout();
+    this->vertexLayout->SetIndexBuffer(this->quadIb);
+
     // setup the cornerPrimitiveGroup which describes one particle instance
     this->quadPrim.SetBaseVertex(0);
     this->quadPrim.SetNumVertices(4);
@@ -125,7 +129,6 @@ MinimapManager::OnDeactivate()
     this->colorsVar = 0;
 
     // discard shader
-    this->minimapShader->Discard();
     this->minimapShader = 0;
 
     // unload buffers
@@ -251,8 +254,6 @@ MinimapManager::OnBeginFrame()
             renderDev->EndPass();
             renderDev->EndFrame();
         }
-
-
 	}
 }
 

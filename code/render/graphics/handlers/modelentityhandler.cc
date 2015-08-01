@@ -108,7 +108,7 @@ __Handler(ModelEntity, UpdModelNodeInstanceVisibility)
 //------------------------------------------------------------------------------
 /**
 */
-__Handler(ModelEntity, UpdModelNodeInstanceMaterialVariable)
+__Handler(ModelEntity, UpdModelNodeInstanceSurfaceConstant)
 {
 	if (!obj->IsValid())
 	{
@@ -119,15 +119,8 @@ __Handler(ModelEntity, UpdModelNodeInstanceMaterialVariable)
 		Ptr<StateNodeInstance> stateNodeInst = RenderUtil::NodeLookupUtil::LookupStateNodeInstance(obj, msg->GetModelNodeInstanceName().Value());
 		if (stateNodeInst.isvalid())
 		{
-			Ptr<Materials::SurfaceConstantInstance> var;
-			if (stateNodeInst->HasSurfaceConstantInstance(ShaderVariable::Semantic(msg->GetSemantic())))
-			{
-				var = stateNodeInst->GetSurfaceConstantInstance(ShaderVariable::Semantic(msg->GetSemantic()));        
-			}
-			else
-			{
-				var = stateNodeInst->CreateSurfaceConstantInstance(ShaderVariable::Semantic(msg->GetSemantic()));
-			}
+            const Ptr<Materials::SurfaceInstance>& surface = stateNodeInst->GetSurfaceInstance();
+            const Ptr<Materials::SurfaceConstant>& var = surface->GetConstant(msg->GetName());
 			
 			// if the type is a string, load it as a texture
             const Util::Variant& value = msg->GetValue();
@@ -167,20 +160,13 @@ __Handler(ModelEntity, UpdMaterialVariable)
 			if (nodes[i]->IsA(StateNodeInstance::RTTI))
 			{
 				Ptr<StateNodeInstance> snode = nodes[i].cast<StateNodeInstance>();
-                Ptr<Materials::SurfaceMaterial> material = snode->GetMaterial();
-                if (material->HasConstant(msg->GetSemantic()))
+                Ptr<Materials::SurfaceInstance> material = snode->GetSurfaceInstance();
+                if (material->HasConstant(msg->GetName()))
 				{
-					Ptr<Materials::SurfaceConstantInstance> var;
-                    if (snode->HasSurfaceConstantInstance(msg->GetSemantic()))
-					{
-                        var = snode->GetSurfaceConstantInstance(msg->GetSemantic());
-					}
-					else
-					{
-                        var = snode->CreateSurfaceConstantInstance(msg->GetSemantic());
-					}
+					Ptr<Materials::SurfaceConstant> var;
 
 					// if the type is a string, load it as a texture
+                    var = material->GetConstant(msg->GetName());
 					if (value.GetType() == Util::Variant::String)
 					{
 						Ptr<Resources::ManagedTexture> tex = Resources::ResourceManager::Instance()->CreateManagedResource(Texture::RTTI, value.GetString(), NULL, true).downcast<Resources::ManagedTexture>();
@@ -622,7 +608,7 @@ __Dispatcher(ModelEntity)
     __Handle(ModelEntity, SetVisibility);
 	__Handle(ModelEntity, SetRenderSkeleton);
     __Handle(ModelEntity, UpdModelNodeInstanceVisibility);
-    __Handle(ModelEntity, UpdModelNodeInstanceMaterialVariable);
+    __Handle(ModelEntity, UpdModelNodeInstanceSurfaceConstant);
 	__Handle(ModelEntity, UpdMaterialVariable);
     __Handle(ModelEntity, AnimPlayClip);
 	__Handle(ModelEntity, FetchClips);

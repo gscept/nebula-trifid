@@ -11,7 +11,7 @@
 #include "characters/characterinstance.h"
 #include "characters/skinnedmeshrenderer.h"
 #include "coregraphics/feedbackbuffer.h"
-#include "coregraphics/shaderbuffer.h"
+#include "coregraphics/shaderreadwritebuffer.h"
 
 //------------------------------------------------------------------------------
 namespace Characters
@@ -34,17 +34,17 @@ public:
 	/// called before rendering will be done
 	virtual void OnRenderBefore(IndexT frameIndex, Timing::Time time);
 	/// applies state
-    virtual void ApplyState(const Ptr<CoreGraphics::ShaderInstance>& shader);
+    virtual void ApplyState(IndexT frameIndex, const Frame::BatchGroup::Code& group, const Ptr<CoreGraphics::Shader>& shader);
     /// perform rendering
     virtual void Render();
     /// perform instanced rendering
     virtual void RenderInstanced(SizeT numInstances);
 
 protected:
-	Ptr<CoreGraphics::ShaderInstance> skinningShader;
+	Ptr<CoreGraphics::Shader> skinningShader;
 	Ptr<CoreGraphics::ShaderVariable> skinningJointPaletteVar;
 	Ptr<CoreGraphics::FeedbackBuffer> feedbackBuffer;
-	Ptr<CoreGraphics::ShaderBuffer> jointBuffer;
+	Ptr<CoreGraphics::ShaderReadWriteBuffer> jointBuffer;
     Ptr<CharacterInstance> characterInstance;
     SkinnedMeshRenderer::DrawHandle drawHandle;
 };

@@ -52,9 +52,9 @@ private:
 	void Disable();
 
 	RenderUtil::DrawFullScreenQuad quad;
-	Ptr<CoreGraphics::ShaderInstance> averageLum;
-	Ptr<CoreGraphics::ShaderInstance> downscale;
-	Ptr<CoreGraphics::ShaderInstance> copy;
+	Ptr<CoreGraphics::Shader> averageLum;
+	Ptr<CoreGraphics::Shader> downscale;
+	Ptr<CoreGraphics::Shader> copy;
 
 	Ptr<CoreGraphics::ShaderVariable> previousLuminanceVar;
 	Ptr<CoreGraphics::ShaderVariable> downscaleBufferVar;

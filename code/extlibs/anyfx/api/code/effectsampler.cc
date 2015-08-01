@@ -37,7 +37,7 @@ EffectSampler::Discard()
 //------------------------------------------------------------------------------
 /**
 */
-const std::string& 
+const eastl::string&
 EffectSampler::GetName() const
 {
 	return this->internalSampler->GetName();

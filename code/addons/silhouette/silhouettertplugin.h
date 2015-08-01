@@ -50,7 +50,7 @@ private:
 	Util::Array<Ptr<Graphics::ModelEntity>> models;
 
 	// shader
-	Ptr<CoreGraphics::ShaderInstance> shader;
+	Ptr<CoreGraphics::Shader> shader;
 	Ptr<CoreGraphics::ShaderVariable> colorVar;
 	CoreGraphics::ShaderFeature::Mask prepassVariation;	
 	CoreGraphics::ShaderFeature::Mask outlineVariation;

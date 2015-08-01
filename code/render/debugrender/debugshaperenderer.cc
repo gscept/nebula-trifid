@@ -88,10 +88,17 @@ DebugShapeRenderer::DrawCone(const Math::matrix44& modelTransform, const Math::f
     NOTE: this method copies the vertex data to a temporary buffer.
 */
 void
-DebugShapeRenderer::DrawPrimitives(const matrix44& modelTransform, PrimitiveTopology::Code topology, SizeT numPrimitives, const void* vertices, SizeT vertexWidth, const float4& color, RenderShape::RenderFlag depthFlag, const Ptr<CoreGraphics::VertexLayout>& layout)
+DebugShapeRenderer::DrawPrimitives(const matrix44& modelTransform, PrimitiveTopology::Code topology, SizeT numPrimitives, const CoreGraphics::RenderShape::RenderShapeVertex* vertices, const float4& color, RenderShape::RenderFlag depthFlag, const Ptr<CoreGraphics::VertexLayout>& layout)
 {
     RenderShape shape;
-    shape.SetupPrimitives(Thread::GetMyThreadId(), modelTransform, topology, numPrimitives, vertices, vertexWidth, color, depthFlag, layout);
+    shape.SetupPrimitives(Thread::GetMyThreadId(), 
+                          modelTransform, 
+                          topology, 
+                          numPrimitives, 
+                          vertices, 
+                          color, 
+                          depthFlag, 
+                          layout);
     this->shapes.Append(shape);
 }
 
@@ -100,7 +107,7 @@ DebugShapeRenderer::DrawPrimitives(const matrix44& modelTransform, PrimitiveTopo
     NOTE: this method copies the vertex and index data to a temporary buffer.
 */
 void
-DebugShapeRenderer::DrawIndexedPrimitives(const matrix44& modelTransform, PrimitiveTopology::Code topology, SizeT numPrimitives, const void* vertices, SizeT numVertices, SizeT vertexWidth, const void* indices, IndexType::Code indexType, const float4& color, RenderShape::RenderFlag depthFlag, const Ptr<CoreGraphics::VertexLayout>& layout)
+DebugShapeRenderer::DrawIndexedPrimitives(const matrix44& modelTransform, PrimitiveTopology::Code topology, SizeT numPrimitives, const CoreGraphics::RenderShape::RenderShapeVertex* vertices, SizeT numVertices, const void* indices, IndexType::Code indexType, const float4& color, RenderShape::RenderFlag depthFlag, const Ptr<CoreGraphics::VertexLayout>& layout)
 {
     RenderShape shape;
     shape.SetupIndexedPrimitives(Thread::GetMyThreadId(), 
@@ -109,7 +116,6 @@ DebugShapeRenderer::DrawIndexedPrimitives(const matrix44& modelTransform, Primit
                                  numPrimitives, 
                                  vertices, 
                                  numVertices, 
-                                 vertexWidth, 
                                  indices, 
                                  indexType, 
                                  color,

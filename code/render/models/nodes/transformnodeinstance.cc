@@ -141,7 +141,7 @@ TransformNodeInstance::OnRenderBefore(IndexT frameIndex, Timing::Time time)
     as current model matrix in the TransformDevice.
 */
 void
-TransformNodeInstance::ApplyState()
+TransformNodeInstance::ApplyState(IndexT frameIndex, const Frame::BatchGroup::Code& group, const Ptr<CoreGraphics::Shader>& shader)
 {    
     TransformDevice::Instance()->SetModelTransform(this->modelTransform);
 }

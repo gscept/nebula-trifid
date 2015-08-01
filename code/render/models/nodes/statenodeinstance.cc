@@ -37,9 +37,6 @@ using namespace Math;
 static const Util::StringAtom SharedVariableNames[] =
 {
     NEBULA3_SEMANTIC_OBJECTID,
-    NEBULA3_SEMANTIC_GLOBALLIGHTDIR,
-    NEBULA3_SEMANTIC_GLOBALLIGHTCOLOR,
-    NEBULA3_SEMANTIC_SHADOW,
     NEBULA3_SEMANTIC_SHADOWPROJMAP,
     NEBULA3_SEMANTIC_ENVIRONMENT,
     NEBULA3_SEMANTIC_IRRADIANCE,
@@ -73,25 +70,31 @@ StateNodeInstance::Setup(const Ptr<ModelInstance>& inst, const Ptr<ModelNode>& n
 
 	// setup material
 	Ptr<StateNode> stateNode = node.downcast<StateNode>();
-    this->material = stateNode->GetMaterial();
+    this->surfaceInstance = stateNode->GetMaterial()->CreateInstance();
 
     // setup the constants in the material which is set by the system (so changing the constants is safe)
     IndexT i;
     for (i = 0; i < sizeof(SharedVariableNames) / sizeof(Util::StringAtom*); i++)
     {
         const Util::StringAtom& name = SharedVariableNames[i];
-        if (this->material->HasConstant(name))
+        if (this->surfaceInstance->HasConstant(name))
         {
-            const Ptr<Materials::SurfaceConstant>& var = this->material->GetConstant(name);
+            const Ptr<Materials::SurfaceConstant>& var = this->surfaceInstance->GetConstant(name);
             this->sharedConstants.Add(name, var);
         }
     }
 
-#ifdef STATE_NODE_USE_PER_OBJECT_BUFFER
-	// setup buffer
-	this->perObjectBuffer = ShaderBuffer::Create();
-	this->perObjectBuffer->SetSize(sizeof(PerObject));
-	this->perObjectBuffer->Setup();
+#if SHADER_MODEL_5
+    ShaderServer* shdServer = ShaderServer::Instance();
+    this->shader = shdServer->GetSharedShader();
+    this->objectBuffer = ConstantBuffer::Create();
+    this->objectBuffer->SetupFromBlockInShader(this->shader, "ObjectBlock");
+    this->modelShaderVar = this->objectBuffer->GetVariableByName(NEBULA3_SEMANTIC_MODEL);
+    this->invModelShaderVar = this->objectBuffer->GetVariableByName(NEBULA3_SEMANTIC_INVMODEL);
+    this->modelViewProjShaderVar = this->objectBuffer->GetVariableByName(NEBULA3_SEMANTIC_MODELVIEWPROJECTION);
+    this->modelViewShaderVar = this->objectBuffer->GetVariableByName(NEBULA3_SEMANTIC_MODELVIEW);
+    this->objectIdShaderVar = this->objectBuffer->GetVariableByName(NEBULA3_SEMANTIC_OBJECTID);
+    this->objectBlockShaderVar = this->shader->GetVariableByName("ObjectBlock");
 #endif
 }
 
@@ -103,8 +106,20 @@ StateNodeInstance::Discard()
 {
 	this->sharedConstants.Clear();
 
-#ifdef STATE_NODE_USE_PER_OBJECT_BUFFER
-	this->perObjectBuffer->Discard();
+#if SHADER_MODEL_5
+    this->shader = 0;
+
+    this->surfaceInstance->Discard();
+    this->surfaceInstance = 0;
+    this->objectBuffer->Discard();
+    this->objectBuffer = 0;
+    this->objectBlockShaderVar = 0;
+
+    this->modelShaderVar = 0;
+    this->invModelShaderVar = 0;
+    this->modelViewProjShaderVar = 0;
+    this->modelViewShaderVar = 0;
+    this->objectIdShaderVar = 0;
 #endif
 
     TransformNodeInstance::Discard();
@@ -114,87 +129,47 @@ StateNodeInstance::Discard()
 /**
 */
 void 
-StateNodeInstance::ApplyState(const Ptr<CoreGraphics::ShaderInstance>& shader)
+StateNodeInstance::ApplyState(IndexT frameIndex, const Frame::BatchGroup::Code& group, const Ptr<CoreGraphics::Shader>& shader)
 {
-	TransformNodeInstance::ApplyState();
+	TransformNodeInstance::ApplyState(frameIndex, group, shader);
 
     // apply global variables, layer 1 (this should be moved to a per-frame variable buffer and not set per object)
     this->ApplySharedVariables();
 
-    // apply surface, layer 2 (this will probably apply the same variables several unnecessary times, and should be handled by a frame batch!)
-    this->material->Apply(shader);
-
     // apply any instance unique variables, layer 3 (apply per-instance surface properties, unavoidable)
+    /*
     IndexT i;
     for (i = 0; i < this->surfaceConstantInstanceByName.Size(); i++)
     {
         this->surfaceConstantInstanceByName.ValueAtIndex(i)->Apply(shader);
     }
+    */
 
 	// apply any needed model transform state to shader
 	const Ptr<TransformDevice>& transformDevice = TransformDevice::Instance();
 	const Ptr<ShaderServer>& shaderServer = ShaderServer::Instance();
 
-#ifdef STATE_NODE_USE_PER_OBJECT_BUFFER
-	// update buffer
-	this->perObject.model = transformDevice->GetModelTransform();
-	this->perObject.invModel = transformDevice->GetInvModelTransform();
-	this->perObject.modelView = transformDevice->GetModelViewTransform();
-	this->perObject.mvp = transformDevice->GetModelViewProjTransform();
-	this->perObject.objectId = this->GetModelInstance()->GetPickingId();
-	this->perObjectBuffer->UpdateBuffer(&this->perObject, 0, sizeof(PerObject));
-	if (shader->HasVariableByName(NEBULA3_SEMANTIC_PEROBJECT))
-	{
-		shader->GetVariableByName(NEBULA3_SEMANTIC_PEROBJECT)->SetBufferHandle(this->perObjectBuffer->GetHandle());
-	}
+#if SHADER_MODEL_5
+    // avoid shuffling buffers if we are in the same frame
+    if (this->objectBufferUpdateIndex != frameIndex)
+    {
+        // apply transforms
+        this->objectBuffer->CycleBuffers();
+        this->modelShaderVar->SetMatrix(transformDevice->GetModelTransform());
+        this->invModelShaderVar->SetMatrix(transformDevice->GetInvModelTransform());
+        this->modelViewProjShaderVar->SetMatrix(transformDevice->GetModelViewProjTransform());
+        this->modelViewShaderVar->SetMatrix(transformDevice->GetModelViewTransform());
+        this->objectIdShaderVar->SetInt(this->GetModelInstance()->GetPickingId());
+        this->objectBufferUpdateIndex = frameIndex;
+    }
+    this->objectBlockShaderVar->SetBufferHandle(this->objectBuffer->GetHandle());
 #else
 	// apply transform attributes, layer 4 (applies transforms, so basically a piece of layer 3, also unavoidable)
 	transformDevice->ApplyModelTransforms(shader);
 #endif
-}
 
-//------------------------------------------------------------------------------
-/**
-*/
-Ptr<Materials::SurfaceConstantInstance>
-StateNodeInstance::CreateSurfaceConstantInstance(const Util::StringAtom& name)
-{
-    n_assert(!this->surfaceConstantInstanceByName.Contains(name));
-    const Ptr<SurfaceConstant>& constant = this->material->GetConstant(name);
-    Ptr<SurfaceConstantInstance> instance = constant->CreateInstance();
-    this->surfaceConstantInstanceByName.Add(name, instance);
-    return instance;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-bool
-StateNodeInstance::HasSurfaceConstantInstance(const Util::StringAtom& name)
-{
-    return this->surfaceConstantInstanceByName.Contains(name);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-const Ptr<Materials::SurfaceConstantInstance>&
-StateNodeInstance::GetSurfaceConstantInstance(const Util::StringAtom& name)
-{
-    n_assert(this->surfaceConstantInstanceByName.Contains(name));
-    return this->surfaceConstantInstanceByName[name];
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-StateNodeInstance::DiscardSurfaceConstantInstance(const Ptr<Materials::SurfaceConstantInstance>& var)
-{
-    IndexT index = this->surfaceConstantInstanceByName.ValuesAsArray().FindIndex(var);
-    n_assert(index != InvalidIndex)
-    var->Discard();
-    this->surfaceConstantInstanceByName.EraseAtIndex(index);
+    // apply this surface material instance
+    this->surfaceInstance->Apply(group);
 }
 
 //------------------------------------------------------------------------------
@@ -214,40 +189,23 @@ StateNodeInstance::ApplySharedVariables()
         const Util::StringAtom& varName = this->sharedConstants.KeyAtIndex(i);
 		if (varName == SharedVariableNames[0])
 		{
-			var->SetValue(modelInstance->GetPickingId());
+			//var->SetValue(modelInstance->GetPickingId());
 		}
-		else if (varName == SharedVariableNames[1])
-		{
-			float4 lightDir = Lighting::LightServer::Instance()->GetGlobalLight()->GetLightDirection();
-            var->SetValue(lightDir);
-		}
-		else if (varName == SharedVariableNames[2])
-		{
-			float4 lightColor = Lighting::LightServer::Instance()->GetGlobalLight()->GetColor();
-            var->SetValue(lightColor);
-		}
-        else if (varName == SharedVariableNames[3])
-        {
-            const matrix44& invView = TransformDevice::Instance()->GetInvViewTransform();
-            matrix44 shadowView = *Lighting::ShadowServer::Instance()->GetShadowView();
-            shadowView = matrix44::multiply(invView, shadowView);
-            var->SetValue(shadowView);
-        }
-        else if (varName == SharedVariableNames[4])
+        else if (varName == SharedVariableNames[1])
         {
             var->SetTexture(Lighting::ShadowServer::Instance()->GetGlobalLightShadowBufferTexture());
         }
-        else if (varName == SharedVariableNames[5])
+        else if (varName == SharedVariableNames[2])
 		{			
 			const Ptr<Lighting::EnvironmentProbe>& probe = entity->GetEnvironmentProbe();
 			var->SetTexture(probe->GetReflectionMap()->GetTexture());
 		}
-        else if (varName == SharedVariableNames[6])
+        else if (varName == SharedVariableNames[3])
 		{
 			const Ptr<Lighting::EnvironmentProbe>& probe = entity->GetEnvironmentProbe();
 			var->SetTexture(probe->GetIrradianceMap()->GetTexture());			
 		}
-        else if (varName == SharedVariableNames[7])
+        else if (varName == SharedVariableNames[4])
 		{
 			const Ptr<Lighting::EnvironmentProbe>& probe = entity->GetEnvironmentProbe();
 			var->SetValue(probe->GetReflectionMap()->GetTexture()->GetNumMipLevels());
@@ -259,18 +217,11 @@ StateNodeInstance::ApplySharedVariables()
 /**
 */
 void
-StateNodeInstance::SetMaterial(const Ptr<Materials::SurfaceMaterial>& material)
+StateNodeInstance::SetSurfaceInstance(const Ptr<Materials::SurfaceInstance>& material)
 {
     n_assert(material.isvalid());
-    this->material = material;
-
-    // surface constant instances will be completely invalid now, so we must clear them
-    IndexT i;
-    for (i = 0; i < this->surfaceConstantInstanceByName.Size(); i++)
-    {
-        this->surfaceConstantInstanceByName.ValueAtIndex(i)->Discard();
-    }
-    this->surfaceConstantInstanceByName.Clear();
+    this->surfaceInstance->Discard();
+    this->surfaceInstance = material;
 }
 
 } // namespace Models

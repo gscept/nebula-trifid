@@ -20,7 +20,7 @@
 
 namespace CoreGraphics
 {
-class ShaderInstance;
+class Shader;
 }
 
 //------------------------------------------------------------------------------
@@ -44,8 +44,8 @@ public:
     bool IsOpen() const;
     /// apply view dependent settings
     void ApplyViewSettings();
-    /// apply any model transform needed, implementation is platform dependend
-    void ApplyModelTransforms(const Ptr<CoreGraphics::ShaderInstance>& shdInst);
+    /// apply any model transform needed, implementation is platform dependent
+    void ApplyModelTransforms(const Ptr<CoreGraphics::Shader>& shdInst);
     
     /// set projection transform
     void SetProjTransform(const Math::matrix44& m);

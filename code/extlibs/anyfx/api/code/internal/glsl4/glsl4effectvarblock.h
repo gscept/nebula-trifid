@@ -58,6 +58,9 @@ protected:
 	/// activates varblock uniform location
 	void Activate(InternalEffectProgram* program);
 
+    /// sets up uniform block offsets
+    void SetupUniformOffsets(GLSL4EffectProgram* program, GLuint blockIndex);
+
 	GLSL4BufferLock* bufferLock;
 	GLuint activeProgram;
 	GLuint uniformBlockBinding;
@@ -70,8 +73,8 @@ protected:
 	GLchar* glBackingBuffer;
     GLuint* glBufferOffset;
 	GLsizei bufferSize;
-    GLuint alignedSize;
 
+    unsigned* uniformOffsets;
 	GLint currentLocation;
 	eastl::hash_map<GLSL4EffectProgram*, GLint> activeMap;
 	eastl::vector<GLboolean>* ringLocks;

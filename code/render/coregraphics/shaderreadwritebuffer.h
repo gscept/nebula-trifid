@@ -1,19 +1,20 @@
 #pragma once
 //------------------------------------------------------------------------------
 /**
-	@class CoreGraphics::ShaderBuffer
+	@class CoreGraphics::ShaderReadWriteBuffer
 
-	A resource which stores shader accessible read/write data.
+	A shader read write buffer is a buffer bound in a shader which can be
+    written to and read from the shader, as well as the CPU.
 
 	(C) 2015 Individual contributors, see AUTHORS file
 */
 #if __OGL4__
-#include "coregraphics/ogl4/ogl4shaderbuffer.h"
+#include "coregraphics/ogl4/ogl4shaderstoragebuffer.h"
 namespace CoreGraphics
 {
-class ShaderBuffer : public OpenGL4::OGL4ShaderBuffer
+class ShaderReadWriteBuffer : public OpenGL4::OGL4ShaderStorageBuffer
 {
-	__DeclareClass(ShaderBuffer);
+	__DeclareClass(ShaderReadWriteBuffer);
 };
 }
 #else

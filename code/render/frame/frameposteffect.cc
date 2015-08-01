@@ -64,7 +64,7 @@ FramePostEffect::Discard()
 /**
 */
 void
-FramePostEffect::Render()
+FramePostEffect::Render(IndexT frameIndex)
 {
 #if NEBULA3_ENABLE_PROFILING
     _start_timer(this->debugTimer);
@@ -101,7 +101,12 @@ FramePostEffect::Render()
 		n_assert(!this->renderTargetCube.isvalid());
 	}
 
+    // activate shader
+    shaderServer->SetActiveShader(this->shader);
+    this->shader->Apply();
+
     // apply shader variables
+    this->shader->BeginUpdate();
     IndexT varIndex;
     for (varIndex = 0; varIndex < this->shaderVariables.Size(); varIndex++)
     {
@@ -131,17 +136,16 @@ FramePostEffect::Render()
 	{
 		n_error("FramePostEffect::Render() : No render targets assigned!");
 	}
-
-	// set active shader
-	shaderServer->SetActiveShaderInstance(this->shader);
+    this->shader->EndUpdate();
 
 	// draw
+    this->shader->Commit();
     this->drawFullScreenQuad.Draw();
 
     IndexT batchIndex;	
     for (batchIndex = 0; batchIndex < this->batches.Size(); batchIndex++)
     {
-        this->batches[batchIndex]->Render();
+        this->batches[batchIndex]->Render(frameIndex);
     }
     renderDevice->EndPass();
 

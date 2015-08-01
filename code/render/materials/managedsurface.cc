@@ -3,10 +3,10 @@
 //  (C) 2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "managedsurfacematerial.h"
+#include "managedsurface.h"
 
 namespace Materials
 {
-__ImplementClass(Materials::ManagedSurfaceMaterial, 'MASU', Resources::ManagedResource);
+__ImplementClass(Materials::ManagedSurface, 'MASU', Resources::ManagedResource);
 
 } // namespace Materials

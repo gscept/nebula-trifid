@@ -50,7 +50,7 @@ FrameAlgorithm::Begin()
 /**
 */
 void 
-FrameAlgorithm::Render()
+FrameAlgorithm::Render(IndexT frameIndex)
 {
 	this->algorithm->Execute();
 }

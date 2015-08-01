@@ -44,7 +44,7 @@ public:
     AnimLoopType::Type& GetLoopType(IndexT i) const;
 
     /// get the name of the shader parameter to manipulate
-    const CoreGraphics::ShaderVariable::Semantic& GetShaderVariableSemantic(IndexT i) const;
+    const CoreGraphics::ShaderVariable::Name& GetShaderVariableName(IndexT i) const;
 
     /// load resources
     virtual void LoadResources(bool sync);
@@ -119,7 +119,7 @@ private:
         AnimKeyArray<AnimKey<int> > intKeyArray;
 
         AnimLoopType::Type loopType;
-        CoreGraphics::ShaderVariable::Semantic shaderVarSemantic;
+        CoreGraphics::ShaderVariable::Name shaderVarName;
         Ptr<CoreAnimation::ManagedAnimResource> managedAnimResource;
     };
 
@@ -142,10 +142,10 @@ AnimatorNode::GetLoopType(IndexT i) const
 //-----------------------------------------------------------------------------
 /**
 */
-inline const CoreGraphics::ShaderVariable::Semantic& 
-AnimatorNode::GetShaderVariableSemantic(IndexT i) const
+inline const CoreGraphics::ShaderVariable::Name& 
+AnimatorNode::GetShaderVariableName(IndexT i) const
 {
-    return this->animSection[i].shaderVarSemantic;
+    return this->animSection[i].shaderVarName;
 }
 
 //------------------------------------------------------------------------------

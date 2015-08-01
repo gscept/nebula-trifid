@@ -25,7 +25,7 @@ public:
 	/// discard the frame pass
 	void Discard();
 	/// render the pass
-	void Render();
+    void Render(IndexT frameIndex);
 
 	/// sets the frame shader name
 	void SetFrameShaderName(const Resources::ResourceId& name);

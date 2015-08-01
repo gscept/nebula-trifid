@@ -3,22 +3,18 @@
 //  (C) 2012-2014 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "ogl4shaderbuffer.h"
+#include "ogl4shaderstoragebuffer.h"
 
 
 
 namespace OpenGL4
 {
-__ImplementClass(OpenGL4::OGL4ShaderBuffer, 'O4SB', Core::RefCounted);
+__ImplementClass(OpenGL4::OGL4ShaderStorageBuffer, 'O4SB', Core::RefCounted);
 
 //------------------------------------------------------------------------------
 /**
 */
-OGL4ShaderBuffer::OGL4ShaderBuffer() :
-	bufferIndex(0)
-#ifdef OGL4_SHADER_BUFFER_ALWAYS_MAPPED
-	,sync(0)
-#endif
+OGL4ShaderStorageBuffer::OGL4ShaderStorageBuffer()
 {
 	// empty
 }
@@ -26,7 +22,7 @@ OGL4ShaderBuffer::OGL4ShaderBuffer() :
 //------------------------------------------------------------------------------
 /**
 */
-OGL4ShaderBuffer::~OGL4ShaderBuffer()
+OGL4ShaderStorageBuffer::~OGL4ShaderStorageBuffer()
 {
 	// empty
 }
@@ -35,16 +31,16 @@ OGL4ShaderBuffer::~OGL4ShaderBuffer()
 /**
 */
 void
-OGL4ShaderBuffer::Setup()
+OGL4ShaderStorageBuffer::Setup()
 {
-	ShaderBufferBase::Setup();
+	ShaderReadWriteBufferBase::Setup();
 	glGenBuffers(1, &this->ogl4Buffer);
 
 	GLint alignment;
 	glGetIntegerv(GL_SHADER_STORAGE_BUFFER_OFFSET_ALIGNMENT, &alignment);
 
 	// calculate aligned size
-	this->alignedSize = (this->size + alignment - 1) - (this->size + alignment - 1) % alignment;
+    this->size = (this->size + alignment - 1) - (this->size + alignment - 1) % alignment;
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->ogl4Buffer);
 #ifdef OGL4_SHADER_BUFFER_ALWAYS_MAPPED
@@ -53,14 +49,14 @@ OGL4ShaderBuffer::Setup()
 	this->buf = (GLubyte*)glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, this->alignedSize * this->NumBuffers, mapFlags);
 	this->bufferLock = BufferLock::Create();
 #else
-	glBufferData(GL_SHADER_STORAGE_BUFFER, this->alignedSize * this->NumBuffers, NULL, GL_STREAM_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, this->size * this->NumBuffers, NULL, GL_STREAM_DRAW);
 #endif
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 	n_assert(GLSUCCESS);
 
 	// setup handle
-	this->handle = n_new(AnyFX::EffectVarbuffer::OpenGLBuffer);
-	this->handle->size = this->alignedSize;
+    this->handle = n_new(AnyFX::OpenGLBufferBinding);
+    this->handle->size = this->size;
 	this->handle->handle = this->ogl4Buffer;
 	this->handle->bindRange = true;
 	this->handle->offset = 0;
@@ -70,30 +66,41 @@ OGL4ShaderBuffer::Setup()
 /**
 */
 void
-OGL4ShaderBuffer::Discard()
+OGL4ShaderStorageBuffer::Discard()
 {
 #ifdef OGL4_SHADER_BUFFER_ALWAYS_MAPPED
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->ogl4Buffer);
+    glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+    this->buf = 0;
 	this->bufferLock = 0;
 #endif
 	glDeleteBuffers(1, &this->ogl4Buffer);
 	delete this->handle;
-	ShaderBufferBase::Discard();
+	ShaderReadWriteBufferBase::Discard();
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-OGL4ShaderBuffer::UpdateBuffer(void* data, SizeT offset, SizeT length)
+OGL4ShaderStorageBuffer::CycleBuffers()
+{
+    ShaderReadWriteBufferBase::CycleBuffers();
+    this->handle->offset = this->size * this->bufferIndex;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+OGL4ShaderStorageBuffer::Update(void* data, uint offset, uint length)
 {
 	n_assert(length <= this->size);
-	ShaderBufferBase::UpdateBuffer(data, offset, length);
+	ShaderReadWriteBufferBase::Update(data, offset, length);
 	
- 	this->bufferIndex = (this->bufferIndex + 1) % NumBuffers;
-	this->handle->offset = this->alignedSize * this->bufferIndex;
-
 #ifdef OGL4_SHADER_BUFFER_ALWAYS_MAPPED
-	this->bufferLock->WaitForRange(0, length);
+    this->bufferLock->WaitForRange(this->handle->offset, length);
 	GLubyte* currentBuf = this->buf + this->handle->offset;
 	memcpy(currentBuf + offset, data, length);
 #else

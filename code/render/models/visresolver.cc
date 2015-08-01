@@ -113,28 +113,28 @@ VisResolver::EndResolve()
 /**
 */
 const Array<Ptr<Model> >&
-VisResolver::GetVisibleModels(const Materials::MaterialType::Code& materialType) const
+VisResolver::GetVisibleModels(const Materials::SurfaceName::Code& surfaceName) const
 {
     n_assert(!this->inResolve);
-    return this->visibleModels.Get(materialType);
+    return this->visibleModels.Get(surfaceName);
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 const Array<Ptr<ModelNode> >&
-VisResolver::GetVisibleModelNodes(const Materials::MaterialType::Code& materialType, const Ptr<Model>& model) const
+VisResolver::GetVisibleModelNodes(const Materials::SurfaceName::Code& surfaceName, const Ptr<Model>& model) const
 {
-    return model->GetVisibleModelNodes(materialType);
+    return model->GetVisibleModelNodes(surfaceName);
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 const Array<Ptr<ModelNodeInstance> >&
-VisResolver::GetVisibleModelNodeInstances(const Materials::MaterialType::Code& materialType, const Ptr<ModelNode>& modelNode) const
+VisResolver::GetVisibleModelNodeInstances(const Materials::SurfaceName::Code& surfaceName, const Ptr<ModelNode>& modelNode) const
 {
-    return modelNode->GetVisibleModelNodeInstances(materialType);
+    return modelNode->GetVisibleModelNodeInstances(surfaceName);
 }
 
 } // namespace Models

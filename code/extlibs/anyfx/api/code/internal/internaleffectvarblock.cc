@@ -21,6 +21,7 @@ InternalEffectVarblock::InternalEffectVarblock() :
 	isDirty(true),
 	isSlave(false),
 	manualFlushing(false),
+    currentBufferHandle(0),
 	masterBlock(NULL)
 {
 	this->Retain();
@@ -32,55 +33,33 @@ InternalEffectVarblock::InternalEffectVarblock() :
 InternalEffectVarblock::~InternalEffectVarblock()
 {
 	this->childBlocks.clear();
-	if (this->masterBlock == this) delete[] this->dataBlock->data;
 	this->masterBlock = 0;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-void 
-InternalEffectVarblock::Setup( eastl::vector<InternalEffectProgram*> programs )
+void
+InternalEffectVarblock::Setup(eastl::vector<InternalEffectProgram*> programs)
 {
-	// create new datablock if and only if we are the master varblock
-	this->dataBlock = new InternalVarblockData;
-
 	// point our master block to ourselves, this way we can always locate the master block of any varblock
 	this->masterBlock = this;
+    this->currentBufferHandle = new void*;
+    *this->currentBufferHandle = NULL;
 
-	// set size to 0
-	this->dataBlock->size = 0;
-
-	// setup variable offsets and sizes
-	unsigned i;
-	for (i = 0; i < this->variables.size(); i++)
-	{
-		InternalEffectVariable* variable = this->variables[i];
-		variable->byteOffset = this->dataBlock->size;
-		this->dataBlock->size += variable->byteSize;
-	}
-
-	// create cpu-side buffer
-	this->dataBlock->data = new char[this->dataBlock->size];
-
-	// initialized variable
-	for (i = 0; i < this->variables.size(); i++)
-	{
-		InternalEffectVariable* variable = this->variables[i];
-		variable->InitializeDefaultValues();
-	}
+    for (unsigned i = 0; i < this->variables.size(); i++)
+    {
+        this->variables[i]->sharedByteOffset = new unsigned;
+    }
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-void 
-InternalEffectVarblock::SetupSlave( eastl::vector<InternalEffectProgram*> programs, InternalEffectVarblock* master )
+void
+InternalEffectVarblock::SetupSlave(eastl::vector<InternalEffectProgram*> programs, InternalEffectVarblock* master)
 {
 	assert(!this->isSlave);
-
-	// copy pointer to data buffer
-	this->dataBlock = master->dataBlock;
 
 	// set master pointer
 	this->masterBlock = master;
@@ -89,17 +68,27 @@ InternalEffectVarblock::SetupSlave( eastl::vector<InternalEffectProgram*> progra
 	// set slave flag
 	this->isSlave = true;
 
-	// calculate size again
-	unsigned size = 0;
+    for (unsigned i = 0; i < this->variables.size(); i++)
+    {
+        this->variables[i]->sharedByteOffset = new unsigned;
+    }
 
-	// initialized variable
-	unsigned i;
-	for (i = 0; i < this->variables.size(); i++)
-	{
-		InternalEffectVariable* variable = this->variables[i];
-		variable->byteOffset = size;
-		size += variable->byteSize;
-	}
+    // make sure slaved varblocks use the same handle
+    this->currentBufferHandle = masterBlock->currentBufferHandle;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+InternalEffectVarblock::SetupDefaultValues()
+{
+    // initialized variable
+    for (unsigned i = 0; i < this->variables.size(); i++)
+    {
+        InternalEffectVariable* variable = this->variables[i];
+        variable->InitializeDefaultValues();
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -158,23 +147,19 @@ InternalEffectVarblock::SetupSignature()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-InternalEffectVarblock::SetVariable( InternalEffectVariable* var, void* value )
+void
+InternalEffectVarblock::SetVariable(InternalEffectVariable* var, void* value)
 {
-    char* data = this->dataBlock->data + var->byteOffset;
-	memcpy(data, value, var->byteSize);
-	this->isDirty = true;
+    // override in subclass
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-void 
-InternalEffectVarblock::SetVariableArray( InternalEffectVariable* var, void* value, size_t size )
+void
+InternalEffectVarblock::SetVariableArray(InternalEffectVariable* var, void* value, size_t size)
 {
-    char* data = this->dataBlock->data + var->byteOffset;
-	memcpy(data, value, size);
-	this->isDirty = true;	
+    // override in subclass
 }
 
 //------------------------------------------------------------------------------
@@ -182,18 +167,17 @@ InternalEffectVarblock::SetVariableArray( InternalEffectVariable* var, void* val
     Basically the same as SetVariable, however it assumes the variable is an array, and sets the variable at a certain index.
     This would be equivalent to arr[i] = value;
 */
-void 
-InternalEffectVarblock::SetVariableIndexed( InternalEffectVariable* var, void* value, unsigned i )
+void
+InternalEffectVarblock::SetVariableIndexed(InternalEffectVariable* var, void* value, unsigned i)
 {
-    char* data = this->dataBlock->data + var->byteOffset + i * var->byteSize;
-    memcpy(data, value, var->byteSize);
+    // override in subclass
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-void 
-InternalEffectVarblock::Activate( InternalEffectProgram* program )
+void
+InternalEffectVarblock::Activate(InternalEffectProgram* program)
 {
 	// override me!
 }

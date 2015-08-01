@@ -13,10 +13,11 @@
 */
 #include "core/refcounted.h"
 #include "coregraphics/vertexcomponent.h"
+#include "../indexbuffer.h"
 
 namespace CoreGraphics
 {
-    class VertexLayoutServer;
+class VertexLayoutServer;
 }
 
 //------------------------------------------------------------------------------
@@ -48,6 +49,9 @@ public:
     SizeT GetVertexByteSize() const;
     /// get vertex components
     const Util::Array<CoreGraphics::VertexComponent>& GetVertexComponents() const;    
+
+    /// bind index buffer to vertex layout
+    void SetIndexBuffer(const Ptr<CoreGraphics::IndexBuffer>& ibo);
         
 protected:
     friend class VertexLayoutServerBase;

@@ -24,10 +24,10 @@ public:
 	void Render(const SizeT multiplier);
 
 private:
-	CoreGraphics::ShaderVariable::Semantic modelArraySemantic;
-	CoreGraphics::ShaderVariable::Semantic modelViewArraySemantic;
-	CoreGraphics::ShaderVariable::Semantic modelViewProjectionArraySemantic;
-    CoreGraphics::ShaderVariable::Semantic objectIdArraySemantic;
+	CoreGraphics::ShaderVariable::Name modelArraySemantic;
+    CoreGraphics::ShaderVariable::Name modelViewArraySemantic;
+    CoreGraphics::ShaderVariable::Name modelViewProjectionArraySemantic;
+    CoreGraphics::ShaderVariable::Name objectIdArraySemantic;
 
 	static const int MaxInstancesPerBatch = 256;
 }; 

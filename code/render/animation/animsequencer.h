@@ -19,6 +19,7 @@
 #include "animation/animjob.h"
 #include "animation/animeventinfo.h"
 #include "jobs/jobport.h"
+#include "coregraphics/rendershape.h"
 
 //------------------------------------------------------------------------------
 namespace Animation
@@ -101,15 +102,15 @@ private:
     /// render a graphical debug hud 
     void DebugRenderHud(Timing::Tick time);
     /// generate a debug visualization rectangle for an anim job
-    void DebugGenAnimJobRectangle(Timing::Tick timeOrigin, const Ptr<AnimJob>& animJob, Util::Array<Math::point>& outVertices);
+    void DebugGenAnimJobRectangle(Timing::Tick timeOrigin, const Ptr<AnimJob>& animJob, Util::Array<CoreGraphics::RenderShape::RenderShapeVertex>& outVertices);
     /// compute a screen coordinate (0..1) for a time and track index
-    Math::point DebugViewSpaceCoord(Timing::Tick timeOrigin, Timing::Tick time, IndexT trackIndex);
+    CoreGraphics::RenderShape::RenderShapeVertex DebugViewSpaceCoord(Timing::Tick timeOrigin, Timing::Tick time, IndexT trackIndex);
     /// debug visualization: render a line list (FIXME: something like this should be offered by the debug rendering system directly)
-    void DebugRenderLineList(const Util::Array<Math::point>& vertices, const Math::float4& color);
+    void DebugRenderLineList(const Util::Array<CoreGraphics::RenderShape::RenderShapeVertex>& vertices, const Math::float4& color);
     /// debug visualization: render the anim job text
     void DebugRenderAnimJobText(Timing::Tick timeOrigin, const Ptr<AnimJob>& animJob, const Math::float4& color);
     /// debug visualization: generate the lines for the track list
-    void DebugGenTrackLines(SizeT maxTracks, Util::Array<Math::point>& outVertices);
+    void DebugGenTrackLines(SizeT maxTracks, Util::Array<CoreGraphics::RenderShape::RenderShapeVertex>& outVertices);
 
     Timing::Tick time;
     Ptr<CoreAnimation::AnimResource> animResource;

@@ -12,7 +12,7 @@
 
 namespace AnyFX
 {
-std::map<std::string, InternalEffectVariable*> EffectVariableStreamLoader::sharedVariables;
+eastl::map<eastl::string, InternalEffectVariable*> EffectVariableStreamLoader::sharedVariables;
 //------------------------------------------------------------------------------
 /**
 */
@@ -44,8 +44,9 @@ EffectVariableStreamLoader::Load( BinReader* reader, Effect* effect, InternalEff
 	}
 	EffectVariable* var = new EffectVariable;
 
-	std::string name = reader->ReadString();
-    bool shared = reader->ReadBool();                                   
+    eastl::string name = reader->ReadString().c_str();
+    bool shared = reader->ReadBool();       
+    bool bindless = reader->ReadBool();
     VariableType type = (VariableType)reader->ReadInt();
 
     size_t numPrograms = effect->GetNumPrograms();
@@ -56,10 +57,11 @@ EffectVariableStreamLoader::Load( BinReader* reader, Effect* effect, InternalEff
     unsigned i;
     for (i = 0; i < numPrograms; i++)
     {
-        internalPrograms.push_back(programs[i]->internalProgram);
+        if (programs[i]->IsValid()) internalPrograms.push_back(programs[i]->internalProgram);
     }
 	
 	internalVar->type = type;
+    internalVar->bindless = bindless;
 
 	// if this is a compute shader variable, read format and access modes
 	if (type >= Image1D && type <= ImageCubeArray)
@@ -88,11 +90,11 @@ EffectVariableStreamLoader::Load( BinReader* reader, Effect* effect, InternalEff
     bool isSubroutine = reader->ReadBool();
     internalVar->isSubroutine = isSubroutine;
 
-	std::string defaultValue;
+	eastl::string defaultValue;
 	bool hasDefaultValue = reader->ReadBool();
 	if (hasDefaultValue)
 	{
-		defaultValue = reader->ReadString();
+		defaultValue = reader->ReadString().c_str();
 		internalVar->hasDefaultValue = true;
 	}	
 
@@ -106,7 +108,7 @@ EffectVariableStreamLoader::Load( BinReader* reader, Effect* effect, InternalEff
     // handle shared variables, basically tears the variable apart if its already defined
     if (shared)
     {
-        const std::string key = EffectVariable::TypeToString(type) + ":" + name;
+        const eastl::string key = EffectVariable::TypeToString(type) + ":" + name;
         if (this->sharedVariables.find(key) != this->sharedVariables.end())
         {
             InternalEffectVariable* sharedVariable = this->sharedVariables[key];

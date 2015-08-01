@@ -72,8 +72,9 @@ BillboardEntity::OnActivate()
 		BillboardEntity::billboardModel = Model::Create();
 		BillboardEntity::billboardNode = BillboardNode::Create();
 		BillboardEntity::billboardNode->SetBoundingBox(Math::bbox(Math::point(0,0,0), Math::vector(1,1,1)));
+        BillboardEntity::billboardNode->SetSurfaceName("sur:system/billboard");
 		BillboardEntity::billboardNode->SetName("root");
-		BillboardEntity::billboardNode->LoadResources(false);
+		BillboardEntity::billboardNode->LoadResources(true);
 		BillboardEntity::billboardModel->AttachNode(BillboardEntity::billboardNode.upcast<ModelNode>());
 	}
 	
@@ -82,19 +83,17 @@ BillboardEntity::OnActivate()
 	this->modelInstance->SetTransform(this->transform);
 	this->modelInstance->SetPickingId(this->pickingId);
 
-    // create material
-    this->managedMaterial = ResourceManager::Instance()->CreateManagedResource(SurfaceMaterial::RTTI, "Billboard").downcast<ManagedSurfaceMaterial>();
-    this->material = this->managedMaterial->GetMaterial()->Clone();
-    this->textureVariable = this->material->GetConstant("DiffuseMap");
-    this->colorVariable = this->material->GetConstant("Color");
-
 	// get node instance and set the view space aligned flag
 	Ptr<BillboardNodeInstance> nodeInstance = this->modelInstance->GetRootNodeInstance().downcast<BillboardNodeInstance>();
+
+    // setup material
+    const Ptr<SurfaceInstance>& surface = nodeInstance->GetSurfaceInstance();
+    this->textureVariable = surface->GetConstant("DiffuseMap");
+    this->colorVariable = surface->GetConstant("Color");
 
 	// create a variable instance and set the texture
 	this->textureVariable->SetTexture(this->texture->GetTexture());
 	nodeInstance->SetInViewSpace(this->viewAligned);
-    nodeInstance->SetMaterial(this->material);
 
 	// set to be valid
 	this->SetValid(true);
@@ -119,15 +118,8 @@ BillboardEntity::OnDeactivate()
 	this->modelInstance->GetModel()->DiscardInstance(this->modelInstance);
 	this->modelInstance = 0;	
 
-    // deallocate managed material
-    resManager->DiscardManagedResource(this->managedMaterial.upcast<ManagedResource>());
-
-    // discard material copy
-    this->material->Unload();
-    this->material = 0;
-
 	// discard texture variable
-	this->textureVariable = 0;	
+    this->textureVariable = 0;
     this->colorVariable = 0;
 
 	// kill model if this is our last billboard entity

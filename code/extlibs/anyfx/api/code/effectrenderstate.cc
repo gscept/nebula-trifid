@@ -208,7 +208,7 @@ EffectRenderState::SetStencilReadWrite( unsigned read, unsigned write )
 //------------------------------------------------------------------------------
 /**
 */
-const std::string& 
+const eastl::string&
 EffectRenderState::GetName() const
 {
 	return this->internalRenderState->GetName();

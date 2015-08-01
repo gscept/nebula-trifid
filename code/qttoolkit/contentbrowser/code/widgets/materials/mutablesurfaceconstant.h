@@ -22,6 +22,6 @@ public:
 	virtual ~MutableSurfaceConstant();
 
 protected:
-	friend class MutableSurfaceMaterial;
+	friend class MutableSurface;
 };
 } // namespace Materials

@@ -15,6 +15,7 @@
 #include "timing/time.h"
 #include "math/bbox.h"
 #include "debug/debugtimer.h"
+#include "frame/batchgroup.h"
 
 //------------------------------------------------------------------------------
 namespace Models
@@ -48,7 +49,7 @@ public:
     virtual void OnVisibilityResolve(IndexT resolveIndex, float distanceToViewer);
 
     /// apply per-instance state prior to rendering
-    virtual void ApplyState(const Ptr<CoreGraphics::ShaderInstance>& shader);
+    virtual void ApplyState(IndexT frameIndex, const Frame::BatchGroup::Code& group, const Ptr<CoreGraphics::Shader>& shader);
 
     /// perform rendering
     virtual void Render();

@@ -17,6 +17,7 @@
 #include "characters/characterskinnodeinstance.h"
 #include "particles/particlesystemnodeinstance.h"
 #include "frame/frameserver.h"
+#include "framesync/framesynctimer.h"
 
 using namespace Math;
 using namespace CoreGraphics;
@@ -53,7 +54,7 @@ void
 SilhouetteRTPlugin::OnRegister()
 {
 	// create new shader
-	this->shader = ShaderServer::Instance()->CreateShaderInstance("shd:silhouette");
+	this->shader = ShaderServer::Instance()->GetShader("shd:silhouette");
 	this->colorVar = this->shader->GetVariableByName(NEBULA3_SEMANTIC_MATDIFFUSE);
 	this->prepassVariation = ShaderServer::Instance()->FeatureStringToMask("Alt0");
 	this->outlineVariation = ShaderServer::Instance()->FeatureStringToMask("Alt1");
@@ -65,7 +66,6 @@ SilhouetteRTPlugin::OnRegister()
 void
 SilhouetteRTPlugin::OnUnregister()
 {
-	this->shader->Discard();
 	this->shader = 0;
 }
 
@@ -78,11 +78,13 @@ SilhouetteRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
 #if __OGL4__
 	glLineWidth(5.0f);
 #endif
+    // get current frame index from graphics server
+    IndexT frameIndex = FrameSync::FrameSyncTimer::Instance()->GetFrameIndex();
 
     if (frameBatch->GetType() == FrameBatchType::Shapes)
 	{
 		const Ptr<ShaderServer>& shaderServer = ShaderServer::Instance();
-		shaderServer->SetActiveShaderInstance(this->shader);
+		shaderServer->SetActiveShader(this->shader);
 
 		IndexT variationIndex;
 		for (variationIndex = 0; variationIndex < 2; variationIndex++)
@@ -102,7 +104,9 @@ SilhouetteRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
 					const Util::Array<Ptr<ModelNodeInstance>>& nodeInstances = model->GetModelInstance()->GetNodeInstances();
 
 					// set transform
+                    this->shader->BeginUpdate();
 					this->colorVar->SetFloat4(this->color);
+                    this->shader->EndUpdate();
 
 					// render stencil first
 					IndexT nodeInstIndex;
@@ -118,11 +122,10 @@ SilhouetteRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
 
 							// start pass
 							this->shader->SelectActiveVariation(shaderServer->GetFeatureBits());
-							this->shader->Begin();
-							this->shader->BeginPass(0);
+                            this->shader->Apply();
 
 							// apply node
-							nodeInstance->ApplyState(this->shader);
+                            nodeInstance->ApplyState(frameIndex, Frame::BatchGroup::InvalidBatchGroup, this->shader);
 
 							// only apply model for shapes
 							if (nodeInstance->IsA(ShapeNodeInstance::RTTI))
@@ -130,14 +133,7 @@ SilhouetteRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
 								// draw!
 								this->shader->Commit();
 								nodeInstance->Render();
-
-								// do post draw
-								this->shader->PostDraw();
 							}
-
-							// end pass
-							this->shader->EndPass();
-							this->shader->End();
 						}						
 					}
 				}

@@ -147,7 +147,7 @@ AnimatorNode::ParseDataTag(const Util::FourCC& fourCC, const Ptr<IO::BinaryReade
         #if __PS3__
             semName.ToUpper();
         #endif
-            curAnimSection.shaderVarSemantic = semName;
+            curAnimSection.shaderVarName = semName;
         
         }
         else if (Util::FourCC('ADPK') == fourCC)
@@ -291,7 +291,7 @@ AnimatorNode::ParseDataTag(const Util::FourCC& fourCC, const Ptr<IO::BinaryReade
         // UVAnimator, set shader
         if (curAnimSection.animationNodeType == UvAnimator)
         {
-            curAnimSection.shaderVarSemantic = "TextureTransform0";
+            curAnimSection.shaderVarName = "TextureTransform0";
         }
     }
     return retval;

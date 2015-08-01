@@ -5,6 +5,7 @@
 #include "stdneb.h"
 #include "materials/material.h"
 #include "materials/materialinstance.h"
+#include "surface.h"
 
 namespace Materials
 {
@@ -49,10 +50,9 @@ Material::LoadInherited(const Ptr<Material>& material)
 	for (i = 0; i < material->shadersByBatchGroup.Size(); i++)
 	{
         const Frame::BatchGroup::Code& key = material->shadersByBatchGroup.KeyAtIndex(i);
-		const Ptr<CoreGraphics::ShaderInstance>& value = material->shadersByBatchGroup.ValueAtIndex(i);
+		const Ptr<CoreGraphics::Shader>& value = material->shadersByBatchGroup.ValueAtIndex(i);
 		if (this->shadersByBatchGroup.Contains(key))
 		{
-            value->Discard();
 			this->shadersByBatchGroup[key] = value;
 		}
 		else
@@ -113,11 +113,6 @@ Material::Discard()
 {
 	this->inheritedMaterials.Clear();
 
-    IndexT i;
-    for (i = 0; i < this->shaders.Size(); i++)
-    {
-        this->shaders[i]->Discard();
-    }
     this->shaders.Clear();
     this->shadersByBatchGroup.Clear();
 	this->Unload();
@@ -144,9 +139,8 @@ Material::AddPass(const Frame::BatchGroup::Code& code, const Ptr<CoreGraphics::S
     // add shader and features
     n_assert(!this->shadersByBatchGroup.Contains(code));
     n_assert(!this->featuresByBatchGroup.Contains(code));
-    Ptr<CoreGraphics::ShaderInstance> inst = shader->CreateShaderInstance();
-    this->shadersByBatchGroup.Add(code, inst);
-    this->shaders.Append(inst);
+    this->shadersByBatchGroup.Add(code, shader);
+    this->shaders.Append(shader);
     this->featuresByBatchGroup.Add(code, mask);
 }
 
@@ -170,6 +164,36 @@ Material::AddParam(const Util::String& name, const Material::MaterialParameter& 
     // add parameter
     n_assert(!this->parametersByName.Contains(name));
     this->parametersByName.Add(name, param);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+Material::AddSurface(const Ptr<Surface>& sur)
+{
+    n_assert(this->surfaces.FindIndex(sur) == InvalidIndex);
+    this->surfaces.Append(sur);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+Material::RemoveSurface(const Ptr<Surface>& sur)
+{
+    IndexT index = this->surfaces.FindIndex(sur);
+    n_assert(index != InvalidIndex);
+    this->surfaces.EraseIndex(index);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+const Util::Array<Ptr<Surface>>&
+Material::GetSurfaces() const
+{
+    return this->surfaces;
 }
 
 } // namespace Materials

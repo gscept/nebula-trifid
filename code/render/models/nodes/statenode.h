@@ -15,7 +15,7 @@
 #include "materials/materialtype.h"
 #include "materials/materialinstance.h"
 #include "materials/materialvariable.h"
-#include "materials/managedsurfacematerial.h"
+#include "materials/managedsurface.h"
 
 namespace Materials
 {
@@ -47,7 +47,7 @@ public:
     /// get name of material
     const Util::StringAtom& GetMaterialName() const;
     /// get material surface from managed resource
-    const Ptr<Materials::SurfaceMaterial>& GetMaterial() const;
+    const Ptr<Materials::Surface>& GetMaterial() const;
 
 	/// returns the resource state of the node, will only return true if all textures are loaded
 	Resources::Resource::State GetResourceState() const;
@@ -56,17 +56,17 @@ protected:
 
 	Resources::Resource::State stateLoaded;
     Util::StringAtom materialName;
-    Ptr<Materials::ManagedSurfaceMaterial> managedMaterial;
+    Ptr<Materials::ManagedSurface> managedMaterial;
 	Util::Array<Util::KeyValuePair<Util::StringAtom, Util::Variant>> shaderParams;
 }; 
 
 //------------------------------------------------------------------------------
 /**
 */
-inline const Ptr<Materials::SurfaceMaterial>&
+inline const Ptr<Materials::Surface>&
 StateNode::GetMaterial() const
 {
-    return this->managedMaterial->GetMaterial();
+    return this->managedMaterial->GetSurface();
 }
 
 //------------------------------------------------------------------------------

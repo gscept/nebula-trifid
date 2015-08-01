@@ -78,7 +78,7 @@ GLSL4EffectShader::Compile()
 		if (status != GL_TRUE)
 		{
 			// create error string
-			this->error = std::string(log, logSize);
+            this->error = eastl::string(log, logSize);
 			delete[] log;
 
 			// output error
@@ -87,7 +87,7 @@ GLSL4EffectShader::Compile()
 		else
 		{
 			// create warning string
-			this->warning = std::string(log, logSize);
+            this->warning = eastl::string(log, logSize);
 			delete[] log;
 		}
 	}

@@ -15,7 +15,7 @@
 #include "models/model.h"
 #include "billboards/billboardnode.h"
 #include "models/modelinstance.h"
-#include "materials/materialvariableinstance.h"
+#include "materials/surfaceconstantinstance.h"
 namespace Graphics
 {
 class BillboardEntity : public Graphics::GraphicsEntity
@@ -77,8 +77,6 @@ private:
     
 	Ptr<Models::ModelInstance> modelInstance;
 	Ptr<Resources::ManagedTexture> texture;
-    Ptr<Materials::ManagedSurfaceMaterial> managedMaterial;
-    Ptr<Materials::SurfaceMaterial> material;
     Ptr<Materials::SurfaceConstant> colorVariable;
     Ptr<Materials::SurfaceConstant> textureVariable;
 

@@ -89,8 +89,13 @@ DebugDrawer::drawLine(const btVector3& from,const btVector3& to,const btVector3&
     matrix44 m = scale * rot * matrix44::translation(center);
     DebugShapeRenderer::Instance()->DrawBox(m, float4(color.x(), color.y(), color.z(), 1.0f));
 #else
-	this->scene->debugPrimitives.Append(Bt2NebVector(from));
-	this->scene->debugPrimitives.Append(Bt2NebVector(to));
+    CoreGraphics::RenderShape::RenderShapeVertex vert;
+    vert.pos = Bt2NebVector(from);
+    vert.color = Bt2NebVector(color);
+	this->scene->debugPrimitives.Append(vert);
+    vert.pos = Bt2NebVector(to);
+    vert.color = Bt2NebVector(color);
+	this->scene->debugPrimitives.Append(vert);
 #endif
 }
 
@@ -137,7 +142,6 @@ DebugDrawer::drawSphere(btScalar radius, const btTransform& transform, const btV
 	DebugShapeRenderer::Instance()->DrawSphere(box.to_matrix44(),float4(color.x(),color.y(),color.z(),1),CoreGraphics::RenderShape::Wireframe);
 }
 
-
 //------------------------------------------------------------------------------
 /**
 */
@@ -150,7 +154,6 @@ DebugDrawer::drawBox(const btVector3& bbMin, const btVector3& bbMax, const btVec
 	bbox box(bcenter,Bt2NebVector(halfExtents));
 	DebugShapeRenderer::Instance()->DrawBox(box.to_matrix44(), float4(color.x(),color.y(),color.z(),1),CoreGraphics::RenderShape::Wireframe);
 }
-
 
 //------------------------------------------------------------------------------
 /**

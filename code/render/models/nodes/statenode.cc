@@ -152,7 +152,7 @@ StateNode::LoadResources(bool sync)
     n_assert(this->materialName.IsValid());
 
     // load material, do it synchronously
-    this->managedMaterial = ResourceManager::Instance()->CreateManagedResource(SurfaceMaterial::RTTI, this->materialName.AsString() + NEBULA3_SURFACE_EXTENSION, NULL, true).downcast<ManagedSurfaceMaterial>();
+    this->managedMaterial = ResourceManager::Instance()->CreateManagedResource(Surface::RTTI, this->materialName.AsString() + NEBULA3_SURFACE_EXTENSION, NULL, true).downcast<ManagedSurface>();
 	TransformNode::LoadResources(sync);
 }
 
@@ -164,6 +164,7 @@ StateNode::UnloadResources()
 {
     // unload material
     ResourceManager::Instance()->DiscardManagedResource(this->managedMaterial.upcast<ManagedResource>());
+    this->managedMaterial = NULL;
 	TransformNode::UnloadResources();
 }
 

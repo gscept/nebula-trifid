@@ -25,6 +25,7 @@ using namespace Resources;
 */
 ShaderServerBase::ShaderServerBase() :
     curShaderFeatureBits(0),        
+    activeShader(NULL),
     isOpen(false)
 {
     __ConstructSingleton;
@@ -86,8 +87,8 @@ ShaderServerBase::Open()
     // create standard shader for access to shared variables
     if (this->HasShader(ResourceId("shd:shared")))
     {
-        this->sharedVariableShaderInst = this->CreateShaderInstance(ResourceId("shd:shared"));        
-        n_assert(this->sharedVariableShaderInst.isvalid());
+        this->sharedVariableShader = this->GetShader("shd:shared");        
+        n_assert(this->sharedVariableShader.isvalid());
 
         // get shared object id shader variable
 #if !__WII__ && !__PS3__
@@ -109,10 +110,9 @@ ShaderServerBase::Close()
     n_assert(this->isOpen);
 
     // release shared instance shader
-    if (this->sharedVariableShaderInst.isvalid())
+    if (this->sharedVariableShader.isvalid())
     {        
-        this->sharedVariableShaderInst->Discard();
-        this->sharedVariableShaderInst = 0;
+        this->sharedVariableShader = 0;
     } 
 
     // unload all currently loaded shaders
@@ -162,9 +162,9 @@ ShaderServerBase::ApplyObjectId(IndexT i)
     n_assert(i >= 0);
     n_assert(i < 256);
 #if __PS3__
-    if (this->GetActiveShaderInstance()->HasVariableBySemantic(NEBULA3_SEMANTIC_OBJECTID))
+    if (this->GetActiveShader()->HasVariableBySemantic(NEBULA3_SEMANTIC_OBJECTID))
     {
-        this->objectIdShaderVar = this->GetActiveShaderInstance()->GetVariableBySemantic(NEBULA3_SEMANTIC_OBJECTID);
+        this->objectIdShaderVar = this->GetActiveShader()->GetVariableBySemantic(NEBULA3_SEMANTIC_OBJECTID);
     }       
 #endif
     if (this->objectIdShaderVar.isvalid())

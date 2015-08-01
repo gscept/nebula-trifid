@@ -107,13 +107,12 @@ EditorLightProperty::OnActivate()
         break;
     }
 
-    this->billboard->SetColor(this->entity->GetFloat4(Attr::LightColor));
-
     // register with graphics server
     Graphics::Stage* stage = GraphicsFeatureUnit::Instance()->GetDefaultStage();
 
-    // attach billboard
+    // attach billboard and set color
     stage->AttachEntity(this->billboard.upcast<Graphics::GraphicsEntity>());
+    this->billboard->SetColor(this->entity->GetFloat4(Attr::LightColor));
 
     switch (lightType)
     {
