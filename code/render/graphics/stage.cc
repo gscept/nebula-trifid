@@ -244,6 +244,7 @@ Stage::UpdateCameraLinks(const Ptr<CameraEntity>& cameraEntity)
 		const Ptr<GraphicsEntity>& curEntity = this->entities[i];
 		if (curEntity->IsAlwaysVisible())
 		{
+			curEntity->AddLink(GraphicsEntity::CameraLink, cameraEntity.upcast<GraphicsEntity>());
 			cameraEntity->AddLink(GraphicsEntity::CameraLink, curEntity);
 		}
 	}

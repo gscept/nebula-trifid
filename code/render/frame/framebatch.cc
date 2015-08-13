@@ -181,6 +181,17 @@ FrameBatch::RenderBatch(IndexT frameIndex)
                 // set the this shader to be the main active shader
                 shaderServer->SetActiveShader(shader);
 
+				// reset features, then set the features implemented by the material
+				shaderServer->ResetFeatureBits();
+				shaderServer->SetFeatureBits(material->GetFeatureMask(this->batchGroup));
+
+				// apply shared model state (mesh)
+				//modelNode->ApplySharedState(frameIndex);
+
+				// apply shader 
+				shader->SelectActiveVariation(shaderServer->GetFeatureBits());
+				shader->Apply();
+
                 // select variations based on the feature bits found in the material
                 // shaderInst->SetWireframe(renderDevice->GetRenderWireframe());
 
@@ -197,21 +208,13 @@ FrameBatch::RenderBatch(IndexT frameIndex)
                     IndexT modelNodeIndex;
                     for (modelNodeIndex = 0; modelNodeIndex < modelNodes.Size(); modelNodeIndex++)
                     {
-                        // render instances
-                        const Ptr<ModelNode>& modelNode = modelNodes[modelNodeIndex];
-                        const Array<Ptr<ModelNodeInstance>>& nodeInstances = visResolver->GetVisibleModelNodeInstances(surface->GetSurfaceCode(), modelNode);
-                        if (nodeInstances.IsEmpty()) continue;
+						// render instances
+						const Ptr<ModelNode>& modelNode = modelNodes[modelNodeIndex];
+						const Array<Ptr<ModelNodeInstance>>& nodeInstances = visResolver->GetVisibleModelNodeInstances(surface->GetSurfaceCode(), modelNode);
+						if (nodeInstances.IsEmpty()) continue;
 
-                        // reset features, then set the features implemented by the material
-                        shaderServer->ResetFeatureBits();
-                        shaderServer->SetFeatureBits(material->GetFeatureMask(this->batchGroup));
-
-                        // apply shared model state (mesh)
-                        modelNode->ApplySharedState(frameIndex);
-
-                        // apply shader 
-                        shader->SelectActiveVariation(shaderServer->GetFeatureBits());
-                        shader->Apply();
+						// apply shared model state (mesh)
+						modelNode->ApplySharedState(frameIndex);
 
                         // apply batch variables to currently active shader (will only work for variables which lies outside of constant buffers)
                         // this will also be overridden by the model local state (surface material), so only use this for system textures

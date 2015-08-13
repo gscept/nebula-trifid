@@ -201,7 +201,7 @@ VolumetricLightAlgorithm::Discard()
 /**
 */
 void 
-VolumetricLightAlgorithm::Execute()
+VolumetricLightAlgorithm::Render()
 {
 	RenderDevice* renderDevice = RenderDevice::Instance();
 	ShaderServer* shaderServer = ShaderServer::Instance();

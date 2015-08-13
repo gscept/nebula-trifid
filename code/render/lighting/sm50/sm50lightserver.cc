@@ -328,15 +328,14 @@ SM50LightServer::RenderGlobalLight()
 		this->globalAmbientLightColor->SetFloat4(this->globalLightEntity->GetAmbientLightColor());
 		this->globalBackLightOffset->SetFloat(this->globalLightEntity->GetBackLightOffset());
 
-        matrix44 shadowView = matrix44::multiply(transDev->GetInvViewTransform(), shadowView);
+		matrix44 shadowView = *ShadowServer::Instance()->GetShadowView();
+        shadowView = matrix44::multiply(transDev->GetInvViewTransform(), shadowView);
         this->globalLightShadowMatrixVar->SetMatrix(shadowView);
 		
 		// handle casting shadows using CSM
+		this->lightShader->BeginUpdate();
 		if (this->globalLightEntity->GetCastShadows())
 		{
-			matrix44 invView = TransformDevice::Instance()->GetInvViewTransform();
-			matrix44 shadowView = *ShadowServer::Instance()->GetShadowView();
-			shadowView = matrix44::multiply(invView, shadowView);
 			Ptr<CoreGraphics::Texture> CSMTexture = ShadowServer::Instance()->GetGlobalLightShadowBufferTexture();
 			float CSMBufferWidth = (CSMTexture->GetWidth() / (float)ShadowServerBase::SplitsPerRow);
 #if __DX11__
@@ -364,14 +363,15 @@ SM50LightServer::RenderGlobalLight()
 				cascadeOffsets[splitIndex] = offset;
 				cascadeScales[splitIndex] = scale;
 			}
-			this->globalLightCascadeScale->SetFloat4Array(cascadeScales, CSMUtil::NumCascades);
 			this->globalLightCascadeOffset->SetFloat4Array(cascadeOffsets, CSMUtil::NumCascades);
-			this->globalLightMaxBorderPadding->SetFloat((CSMBufferWidth - 1.0f) / float(CSMBufferWidth));
+			this->globalLightCascadeScale->SetFloat4Array(cascadeScales, CSMUtil::NumCascades);
 			this->globalLightMinBorderPadding->SetFloat(1.0f / float(CSMBufferWidth));
+			this->globalLightMaxBorderPadding->SetFloat((CSMBufferWidth - 1.0f) / float(CSMBufferWidth));
 			this->globalLightPartitionSize->SetFloat(1 / float(ShadowServerBase::SplitsPerRow));
 
 			this->shadowIntensityVar->SetFloat(this->globalLightEntity->GetShadowIntensity());
 		}
+		this->lightShader->EndUpdate();
 
 		// commit changes
 		this->lightShader->Commit();

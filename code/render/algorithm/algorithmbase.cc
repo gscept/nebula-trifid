@@ -67,7 +67,7 @@ AlgorithmBase::HandleMessage( const Ptr<Messaging::Message>& msg )
 /**
 */
 void 
-AlgorithmBase::Prepare()
+AlgorithmBase::Begin()
 {
 	// override in subclass
 }
@@ -76,7 +76,7 @@ AlgorithmBase::Prepare()
 /**
 */
 void 
-AlgorithmBase::Execute()
+AlgorithmBase::Render()
 {
 	// override in subclass
 }
@@ -85,7 +85,7 @@ AlgorithmBase::Execute()
 /**
 */
 void 
-AlgorithmBase::Finish()
+AlgorithmBase::End()
 {
 	// override in subclass
 }

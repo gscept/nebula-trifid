@@ -214,6 +214,7 @@ protected:
     void SetTextureIndexed(void* handle, unsigned index);
 
 	InternalEffectVarblock* parentBlock;
+	InternalEffectProgram* activeProgram;
 	bool isInVarblock;
 	eastl::hash_map<unsigned, unsigned> blockOffsets;	// byte offset for the parent block indexed as program/offset
     

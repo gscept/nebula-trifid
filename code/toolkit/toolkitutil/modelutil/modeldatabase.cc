@@ -72,8 +72,8 @@ ModelDatabase::Close()
 //------------------------------------------------------------------------------
 /**
 */
-Ptr<ModelAttributes> 
-ModelDatabase::LookupAttributes( const Util::String& name, bool reload )
+Ptr<ModelAttributes>
+ModelDatabase::LookupAttributes(const Util::String& name, bool reload)
 {
 	if (!this->modelAttributes.Contains(name))
 	{
@@ -131,8 +131,8 @@ ModelDatabase::LookupAttributes( const Util::String& name, bool reload )
 //------------------------------------------------------------------------------
 /**
 */
-bool 
-ModelDatabase::AttributesExist( const Util::String& name )
+bool
+ModelDatabase::AttributesExist(const Util::String& name)
 {
 	// format file
 	String file;
@@ -337,5 +337,4 @@ ModelDatabase::GetConstantsName(const Ptr<ModelConstants>& constants)
 	return this->modelConstants.KeysAsArray()[index];
 }
 
-
-}
+} // namespace ToolkitUtil

@@ -28,6 +28,11 @@ IF(NOT N_BUILD_FIRSTTIME)
 	FILE(GLOB HEAD "n3util/*.h")
 	LIST(APPEND SRCSN ${SRC} ${HEAD})
 	SOURCE_GROUP("toolkitutil\\n3util" FILES ${SRCSN})
+	
+	FILE(GLOB SRC "converters/*.cc")
+	FILE(GLOB HEAD "converters/*.h")
+	LIST(APPEND SRCSN ${SRC} ${HEAD})
+	SOURCE_GROUP("toolkitutil\\converters" FILES ${SRCSN})
 
 	FILE(GLOB SRC "posteffect/*.cc")
 	FILE(GLOB HEAD "posteffect/*.h")

@@ -11,13 +11,15 @@
 #define NO_COMPARISON 1
 
 #include "shadowbase.fxh"
-vec4 CascadeOffset[CASCADE_COUNT_FLAG];
-vec4 CascadeScale[CASCADE_COUNT_FLAG];
-float CascadeBlendArea = 0.2f;
-float MinBorderPadding;     
-float MaxBorderPadding;
-float ShadowPartitionSize; 
-float GlobalLightShadowBias = 0.0f;
+shared varblock CSMParamBlock
+{
+	vec4 CascadeOffset[CASCADE_COUNT_FLAG];
+	vec4 CascadeScale[CASCADE_COUNT_FLAG];
+	float MinBorderPadding;     
+	float MaxBorderPadding;
+	float ShadowPartitionSize; 
+	float GlobalLightShadowBias = 0.0f;
+};
 	
 const int SplitsPerRow = 2;
 const int SplitsPerColumn = 2;
@@ -46,6 +48,7 @@ samplerstate ShadowProjMapSampler
 	//BorderColor = { 1,1,1,1 };
 };
 
+const float CascadeBlendArea = 0.2f;
 //------------------------------------------------------------------------------
 /**
 */
@@ -154,16 +157,20 @@ CSMPS(in vec4 TexShadow,
 	vec2 pixelSize = GetPixelSize(ShadowProjMap);
 	vec2 uvSample;
 	//vec2 currentSample = vec2(0,0);
+	/*
 	vec2 mapDepth = vec2(0.0f);
 	float occlusion = 0.0f;
 	int i;
     for (i = 0; i < 13; i++)
     {
 		vec2 uvSample = sampleCoord.xy + sampleOffsets[i] * pixelSize.xy;
-		mapDepth += textureLod(ShadowProjMap, uvSample, 0).rg;
+		mapDepth += textureLod(ShadowProjMap, sampleCoord, 0).rg;
 	}
 	mapDepth /= 13.0f;
-	occlusion = Variance(mapDepth, depth, 0.0000001f);
+	*/
+	
+	vec2 mapDepth = textureLod(ShadowProjMap, sampleCoord, 0).rg;
+	float occlusion = ChebyshevUpperBound(mapDepth, depth, 0.0000001f);
 	//float occlusion = ExponentialShadowSample(mapDepth, depth, 0.0f);
 		
 	int nextCascade = cascadeIndex + 1; 
@@ -184,7 +191,7 @@ CSMPS(in vec4 TexShadow,
 			uvSample = sampleCoord.xy;
 					
 			mapDepth = textureLod(ShadowProjMap, uvSample, 0).rg;
-			occlusionBlend = Variance(mapDepth, depth, 0.0000001f);		
+			occlusionBlend = ChebyshevUpperBound(mapDepth, depth, 0.0000001f);		
 		}
 		
 		// blend next cascade onto previous

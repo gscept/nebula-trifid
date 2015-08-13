@@ -22,7 +22,7 @@ public:
 	virtual ~Copy();
 
     /// perform copy
-    void Render();
+	void Render(IndexT frameIndex);
 
     /// set the render target from whom we want to copy
     void SetFrom(const Ptr<CoreGraphics::RenderTarget>& rt);

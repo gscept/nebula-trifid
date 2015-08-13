@@ -42,11 +42,11 @@ public:
 	void AddRenderTarget(const Ptr<CoreGraphics::RenderTarget>& rt);
 
     /// prepares algorithm, perform before-frame stuff
-    virtual void Prepare();
+    virtual void Begin();
     /// executes algorithm, runs on-frame stuff
-    virtual void Execute();
+    virtual void Render();
     /// finishes algorithm, perform after-frame stuff
-    virtual void Finish();
+    virtual void End();
 
     /// handles display resizing, since algorithms are completely dependent on frame shader textures, this is vital
 	virtual void OnDisplayResized(SizeT width, SizeT height);

@@ -83,9 +83,9 @@ psMain(in vec2 uv,
     {
 		vec2 uvSample = uv + sampleOffsetWeights[i].xy * pixelSize.xy;
 		vec2 currentSample = texture(SourceMap, uvSample).rg;		
-        sampleColor += sampleOffsetWeights[i].z * currentSample;
+        sampleColor += currentSample;
     }
-    Color = sampleColor;
+    Color = sampleColor * 0.25f;
 }
 
 //------------------------------------------------------------------------------

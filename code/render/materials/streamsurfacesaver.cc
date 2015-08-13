@@ -60,7 +60,9 @@ StreamSurfaceSaver::OnSave()
 						else
 						{
 							Ptr<CoreGraphics::Texture> tex = (CoreGraphics::Texture*)val.GetObject();
-							writer->SetString("value", tex->GetResourceId().AsString());
+							Util::String resWithoutExt = tex->GetResourceId().AsString();
+							resWithoutExt.StripFileExtension();
+							writer->SetString("value", resWithoutExt);
 						}
 						
 					writer->EndNode();

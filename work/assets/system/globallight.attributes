@@ -7,14 +7,12 @@
                 <Texture name="DiffuseMap" value="tex:system/white" />
                 <Texture name="NormalMap" value="tex:system/nobump" />
             </Textures>
-            <Variables />
         </ModelNode>
         <ModelNode name="root/directionalLight" material="Placeholder">
             <Textures>
                 <Texture name="DiffuseMap" value="tex:system/placeholder" />
                 <Texture name="NormalMap" value="tex:system/nobump" />
             </Textures>
-            <Variables />
         </ModelNode>
     </States>
 </Nebula3>

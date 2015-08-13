@@ -145,7 +145,7 @@ ToneMappingAlgorithm::Discard()
 /**
 */
 void 
-ToneMappingAlgorithm::Execute()
+ToneMappingAlgorithm::Render()
 {
 	if (this->enabled)
 	{

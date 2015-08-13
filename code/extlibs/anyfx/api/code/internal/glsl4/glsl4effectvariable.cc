@@ -72,7 +72,7 @@ namespace AnyFX
 */
 GLSL4EffectVariable::GLSL4EffectVariable() :
 	uniformLocation(-1),
-	activeProgram(0),
+	glActiveProgram(0),
 	glAccessMode(GL_NONE),
 	glImageFormat(GL_NONE),
 	textureUnit(GL_TEXTURE0),
@@ -218,8 +218,8 @@ GLSL4EffectVariable::MakeTexture()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-GLSL4EffectVariable::Activate( InternalEffectProgram* program )
+void
+GLSL4EffectVariable::Activate(InternalEffectProgram* program)
 {
 	InternalEffectVariable::Activate(program);
 	GLSL4EffectProgram* opengl4Program = static_cast<GLSL4EffectProgram*>(program);
@@ -227,7 +227,7 @@ GLSL4EffectVariable::Activate( InternalEffectProgram* program )
 	{
 		assert(this->uniformProgramMap.find(opengl4Program->programHandle) != this->uniformProgramMap.end());
 		this->uniformLocation = this->uniformProgramMap[opengl4Program->programHandle];
-		this->activeProgram = opengl4Program->programHandle;	
+		this->glActiveProgram = opengl4Program->programHandle;	
 	}	
 	else
 	{
@@ -243,7 +243,7 @@ GLSL4EffectVariable::Activate( InternalEffectProgram* program )
 void 
 GLSL4EffectVariable::Apply()
 {
-	if (this->type >= Sampler1D && this->type <= ImageCubeArray && this->uniformLocation != -1)
+	if (this->type >= Sampler1D && this->type <= ImageCubeArray && this->uniformLocation != -1 && this->isDirty)
 	{
 		// first bind variable name to texture unit
 		glUniform1i(this->uniformLocation, this->textureUnit);

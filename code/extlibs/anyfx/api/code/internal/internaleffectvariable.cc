@@ -38,6 +38,7 @@ InternalEffectVariable::InternalEffectVariable() :
 	commitSize(1),
 	type(Undefined),
 	parentBlock(NULL),
+	activeProgram(NULL),
 	format(NoFormat),
 	access(NoAccess)
 {
@@ -112,6 +113,11 @@ void
 InternalEffectVariable::Activate(InternalEffectProgram* program)
 {
 	this->isDirty = true;
+	if (this->activeProgram != program)
+	{
+		this->isDirty = true;
+		this->activeProgram = program;
+	}
 }
 
 //------------------------------------------------------------------------------

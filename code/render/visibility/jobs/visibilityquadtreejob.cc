@@ -68,7 +68,7 @@ CheckCell(QuadTree<VisibilityQuadtree::CellInfo>::Node* node,
         IndexT i;
         for (i = 0; i < numEntitiesInCell; ++i)
         {
-            if (0 != ((1<<entityInfos[entityInfoIdx].entityType) & entityTypeMask) && !entityInfos[entityInfoIdx].entityPtr->GetGfxEntity()->IsAlwaysVisible())
+            if (0 != ((1<<entityInfos[entityInfoIdx].entityType) & entityTypeMask))
             {
                 visEntities[*numEntitiesVisible] = entityInfos[entityInfoIdx].entityPtr;                	                
                 (*numEntitiesVisible)++;

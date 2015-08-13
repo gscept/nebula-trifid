@@ -60,9 +60,9 @@ public:
 
 private:
 	bool isOpen;
-	Util::Dictionary<Util::String, Ptr<ModelAttributes> > modelAttributes;
-	Util::Dictionary<Util::String, Ptr<ModelConstants> > modelConstants;
-	Util::Dictionary<Util::String, Ptr<ModelPhysics> > modelPhysics;
+	Util::Dictionary<Util::String, Ptr<ModelAttributes>> modelAttributes;
+	Util::Dictionary<Util::String, Ptr<ModelConstants>> modelConstants;
+	Util::Dictionary<Util::String, Ptr<ModelPhysics>> modelPhysics;
 };
 
 //------------------------------------------------------------------------------

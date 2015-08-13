@@ -591,7 +591,7 @@ SM50ShadowServer::UpdateHotGlobalShadowBuffer()
     this->globalLightHotPass->Render(frameIndex);
 
 	// render blur
-    //this->globalLightBlurPass->Render(frameIndex);
+    this->globalLightBlurPass->Render(frameIndex);
 }
 
 //------------------------------------------------------------------------------

@@ -441,15 +441,15 @@ OGL4RenderDevice::BeginPass(const Ptr<CoreGraphics::RenderTarget>& rt, const Ptr
 	if (rt->IsResolveRectArrayValid())
 	{
 		const Util::Array<Math::rectangle<int> >& resolveRects = rt->GetResolveRectArray();
-        /*
+        
 		IndexT i;
 		for (i = 0; i < resolveRects.Size(); i++)
 		{
 			const Math::rectangle<int>& rect = resolveRects[i];
 			glViewportIndexedf(i, (float)rect.left, (float)rect.top, (float)rect.width(), (float)rect.height());
 		}
-        */
-        glViewportArrayv(0, resolveRects.Size(), (float*)&resolveRects[0]);
+        
+        //glViewportArrayv(0, resolveRects.Size(), (float*)&resolveRects[0]);
 	}
 	else
 	{

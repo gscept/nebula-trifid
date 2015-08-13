@@ -310,7 +310,7 @@ AOAlgorithm::Discard()
 /**
 */
 void 
-AOAlgorithm::Prepare()
+AOAlgorithm::Begin()
 {
 	//if (this->deferredSetup)
 	{
@@ -347,10 +347,11 @@ AOAlgorithm::Prepare()
 /**
 */
 void 
-AOAlgorithm::Execute()
+AOAlgorithm::Render()
 {
 	// if enabled, render AO
-	if (this->enabled)
+	if (false)
+	//if (this->enabled)
 	{
 		RenderDevice* renderDevice = RenderDevice::Instance();
 		ShaderServer* shaderServer = ShaderServer::Instance();

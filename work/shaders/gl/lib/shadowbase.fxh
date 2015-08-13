@@ -606,16 +606,14 @@ Variance(vec2 shadowSample,
 	float avgZ2 = shadowSample.y;
 
 	// assume that if the projected depth is less than the average in the pixel, the pixel must be lit
-	/*
 	if (lightSpaceDepth <= avgZ)
 	{
 		return 1.0f;
 	}
 	else
-	*/
 	{
 		float variance 	= (avgZ2) - (avgZ * avgZ);
-		//variance 		= min(1.0f, max(0.0f, variance + tolerance));
+		variance 		= min(1.0f, max(0.0f, variance + tolerance));
 		
 		float mean 		= avgZ;
 		float d			= lightSpaceDepth - mean;

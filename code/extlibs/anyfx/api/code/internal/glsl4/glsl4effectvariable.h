@@ -41,7 +41,7 @@ private:
 	void Commit();
 
 	eastl::hash_map<GLint, GLint> uniformProgramMap;
-	GLuint activeProgram;
+	GLuint glActiveProgram;
 	GLint uniformLocation;
 	GLint textureUnit;
 	GLenum textureType;

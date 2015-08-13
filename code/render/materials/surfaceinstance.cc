@@ -104,7 +104,7 @@ SurfaceInstance::Setup(const Ptr<Surface>& surface)
         // specially handle default values which are strings
         if (val.value.GetType() == Util::Variant::String)
         {
-            Ptr<Resources::ManagedTexture> tex = Resources::ResourceManager::Instance()->CreateManagedResource(CoreGraphics::Texture::RTTI, val.value.GetString(), NULL, true).downcast<Resources::ManagedTexture>();
+            Ptr<Resources::ManagedTexture> tex = Resources::ResourceManager::Instance()->CreateManagedResource(CoreGraphics::Texture::RTTI, val.value.GetString() + NEBULA3_TEXTURE_EXTENSION, NULL, true).downcast<Resources::ManagedTexture>();
             //this->SetTexture(paramName, tex);
             val.value.SetType(Util::Variant::Object);
             val.value.SetObject(tex->GetTexture());

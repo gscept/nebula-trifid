@@ -45,9 +45,9 @@ public:
 	void Discard();
 
 	/// prepare deferred initialization
-	void Prepare();
+	void Begin();
 	/// execute algorithm
-	void Execute();
+	void Render();
 
 	/// handle display resizing
 	void OnDisplayResized(SizeT width, SizeT height);

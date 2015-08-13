@@ -33,7 +33,7 @@ public:
 	void Discard();
 
 	/// renders godrays
-	void Execute();	
+	void Render();	
 
 	/// resize rendertargets
 	void OnDisplayResized(SizeT width, SizeT height);

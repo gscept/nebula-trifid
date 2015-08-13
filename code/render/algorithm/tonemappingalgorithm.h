@@ -37,7 +37,7 @@ public:
 	void Discard();
 
 	/// executes algorithm
-	void Execute();
+	void Render();
 
 	/// called whenever we get a display resize event
 	void OnDisplayResized(SizeT width, SizeT height);

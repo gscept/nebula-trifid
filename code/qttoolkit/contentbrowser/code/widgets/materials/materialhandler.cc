@@ -15,7 +15,7 @@
 #include "graphics/modelentity.h"
 #include "renderutil/nodelookuputil.h"
 #include "materials/streamsurfacesaver.h"
-#include "binaryxmlconverter.h"
+#include "converters/binaryxmlconverter.h"
 #include "logger.h"
 #include "mutablesurface.h"
 #include "messaging/staticmessagehandler.h"
@@ -227,7 +227,7 @@ MaterialHandler::TextureChanged(uint i)
     if (this->textureResources.Contains(i))
     {
         Resources::ResourceManager::Instance()->DiscardManagedResource(this->textureResources[i].upcast<Resources::ManagedResource>());
-        this->textureResources.EraseAtIndex(i);
+		this->textureResources.Erase(i);
     }
     this->textureResources.Add(i, textureObject);
 
@@ -1104,14 +1104,17 @@ MaterialHandler::MakeMaterialUI(QLabel* surfaceName, QComboBox* materialBox, QPu
         // copy parameter
         Material::MaterialParameter param = textures[i];
 
+		// get texture
+		Util::Variant texValue = this->surface->GetValue(param.name);
+		if (texValue.GetType() != Variant::Object) continue;
+
         // create texture variables
         this->textureVariables.Add(i, param.name);
 
 		// create new horizontal layout 
 		QHBoxLayout* varLayout = new QHBoxLayout;
 
-        // get texture
-        Ptr<CoreGraphics::Texture> textureObject = (CoreGraphics::Texture*)this->surface->GetValue(param.name).GetObject();
+        Ptr<CoreGraphics::Texture> textureObject = (CoreGraphics::Texture*)texValue.GetObject();
         this->defaultTextureMap[i] = textureObject->GetResourceId().AsString().AsCharPtr();
         String res = textureObject->GetResourceId().AsString();
 

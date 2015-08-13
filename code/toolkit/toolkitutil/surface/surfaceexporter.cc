@@ -6,7 +6,7 @@
 #include "surfaceexporter.h"
 #include "io/xmlreader.h"
 #include "io/ioserver.h"
-#include "binaryxmlconverter.h"
+#include "converters/binaryxmlconverter.h"
 
 using namespace Util;
 using namespace IO;

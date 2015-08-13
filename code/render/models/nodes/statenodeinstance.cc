@@ -133,9 +133,6 @@ StateNodeInstance::ApplyState(IndexT frameIndex, const Frame::BatchGroup::Code& 
 {
 	TransformNodeInstance::ApplyState(frameIndex, group, shader);
 
-    // apply global variables, layer 1 (this should be moved to a per-frame variable buffer and not set per object)
-    this->ApplySharedVariables();
-
     // apply any instance unique variables, layer 3 (apply per-instance surface properties, unavoidable)
     /*
     IndexT i;
@@ -168,8 +165,11 @@ StateNodeInstance::ApplyState(IndexT frameIndex, const Frame::BatchGroup::Code& 
 	transformDevice->ApplyModelTransforms(shader);
 #endif
 
-    // apply this surface material instance
-    this->surfaceInstance->Apply(group);
+	// apply global variables, layer 1 (this should be moved to a per-frame variable buffer and not set per object)
+	this->ApplySharedVariables();
+
+    // apply this surface material instance if we have a valid batch group
+	if (group != Frame::BatchGroup::InvalidBatchGroup) this->surfaceInstance->Apply(group);
 }
 
 //------------------------------------------------------------------------------
@@ -199,16 +199,19 @@ StateNodeInstance::ApplySharedVariables()
 		{			
 			const Ptr<Lighting::EnvironmentProbe>& probe = entity->GetEnvironmentProbe();
 			var->SetTexture(probe->GetReflectionMap()->GetTexture());
+			//this->surfaceInstance->GetConstant(varName)->SetTexture(probe->GetReflectionMap()->GetTexture());
 		}
         else if (varName == SharedVariableNames[3])
 		{
 			const Ptr<Lighting::EnvironmentProbe>& probe = entity->GetEnvironmentProbe();
-			var->SetTexture(probe->GetIrradianceMap()->GetTexture());			
+			var->SetTexture(probe->GetIrradianceMap()->GetTexture());
+			//this->surfaceInstance->GetConstant(varName)->SetTexture(probe->GetIrradianceMap()->GetTexture());
 		}
         else if (varName == SharedVariableNames[4])
 		{
 			const Ptr<Lighting::EnvironmentProbe>& probe = entity->GetEnvironmentProbe();
 			var->SetValue(probe->GetReflectionMap()->GetTexture()->GetNumMipLevels());
+			//this->surfaceInstance->GetConstant(varName)->SetValue(probe->GetReflectionMap()->GetTexture()->GetNumMipLevels());
 		}
 	}
 }
@@ -220,8 +223,21 @@ void
 StateNodeInstance::SetSurfaceInstance(const Ptr<Materials::SurfaceInstance>& material)
 {
     n_assert(material.isvalid());
+	this->sharedConstants.Clear();
     this->surfaceInstance->Discard();
     this->surfaceInstance = material;
+
+	// setup the constants in the material which is set by the system (so changing the constants is safe)
+	IndexT i;
+	for (i = 0; i < sizeof(SharedVariableNames) / sizeof(Util::StringAtom*); i++)
+	{
+		const Util::StringAtom& name = SharedVariableNames[i];
+		if (this->surfaceInstance->HasConstant(name))
+		{
+			const Ptr<Materials::SurfaceConstant>& var = this->surfaceInstance->GetConstant(name);
+			this->sharedConstants.Add(name, var);
+		}
+	}
 }
 
 } // namespace Models
