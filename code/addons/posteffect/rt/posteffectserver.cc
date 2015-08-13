@@ -110,7 +110,7 @@ PostEffectServer::Open()
 	this->postEffects[AO].current		= AoParams::Create();
 
 	// preload default sky
-	this->PreloadTexture("tex:system/sky");
+	this->PreloadTexture("tex:system/sky_refl");
 }
 
 

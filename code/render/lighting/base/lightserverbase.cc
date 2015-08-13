@@ -49,7 +49,7 @@ LightServerBase::Open()
 
 	// setup default environment probe
 	EnvironmentProbe::DefaultEnvironmentProbe = EnvironmentProbe::Create();
-	n_assert(EnvironmentProbe::DefaultEnvironmentProbe->AssignReflectionMap("tex:system/sky.dds"));
+	n_assert(EnvironmentProbe::DefaultEnvironmentProbe->AssignReflectionMap("tex:system/sky_refl.dds"));
 	n_assert(EnvironmentProbe::DefaultEnvironmentProbe->AssignIrradianceMap("tex:system/sky_irr.dds"));
 }
 

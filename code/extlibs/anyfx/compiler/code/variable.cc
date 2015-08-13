@@ -22,6 +22,7 @@ Variable::Variable() :
 	format(NoFormat),
 	accessMode(NoAccess),
     qualifierFlags(NoQualifiers),
+	isUniform(true),
 	hasAnnotation(false)
 {
 	this->symbolType = Symbol::VariableType;
@@ -59,6 +60,75 @@ Variable::AddValue(const ValueList& value)
 	pair.second = value;
 	this->hasDefaultValue = true;
 	this->valueTable.push_back(pair);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+Variable::Preprocess()
+{
+	// evaluate qualifiers
+	unsigned i;
+	for (i = 0; i < this->qualifiers.size(); i++)
+	{
+		const std::string& qualifier = this->qualifiers[i];
+
+		if (qualifier == "rgba32f")				this->format = Variable::RGBA32F;
+		else if (qualifier == "rgba16f")		this->format = Variable::RGBA16F;
+		else if (qualifier == "rg32f")			this->format = Variable::RG32F;
+		else if (qualifier == "rg16f")			this->format = Variable::RG16F;
+		else if (qualifier == "r11g11b10f")		this->format = Variable::R11G11B10F;
+		else if (qualifier == "r32f")			this->format = Variable::R32F;
+		else if (qualifier == "r16f")			this->format = Variable::R16F;
+		else if (qualifier == "rgba16")			this->format = Variable::RGBA16;
+		else if (qualifier == "rgb10a2")		this->format = Variable::RGB10A2;
+		else if (qualifier == "rg16")			this->format = Variable::RG16;
+		else if (qualifier == "rg8")			this->format = Variable::RG8;
+		else if (qualifier == "r16")			this->format = Variable::R16;
+		else if (qualifier == "r8")				this->format = Variable::R8;
+		else if (qualifier == "rgba16snorm")	this->format = Variable::RGBA16SNORM;
+		else if (qualifier == "rgba8snorm")		this->format = Variable::RGBA8SNORM;
+		else if (qualifier == "rg16snorm")		this->format = Variable::RG16SNORM;
+		else if (qualifier == "rg8snorm")		this->format = Variable::RG8SNORM;
+		else if (qualifier == "r16snorm")		this->format = Variable::R16SNORM;
+		else if (qualifier == "r8snorm")		this->format = Variable::R8SNORM;
+		else if (qualifier == "rgba32i")		this->format = Variable::RGBA32I;
+		else if (qualifier == "rgba16i")		this->format = Variable::RGBA16I;
+		else if (qualifier == "rgba8i")			this->format = Variable::RGBA8I;
+		else if (qualifier == "rg32i")			this->format = Variable::RG32I;
+		else if (qualifier == "rg16i")			this->format = Variable::RG16I;
+		else if (qualifier == "rg8i")			this->format = Variable::RG8I;
+		else if (qualifier == "r32i")			this->format = Variable::R32I;
+		else if (qualifier == "r16i")			this->format = Variable::R16I;
+		else if (qualifier == "r8i")			this->format = Variable::R8I;
+		else if (qualifier == "rgba32ui")		this->format = Variable::RGBA32UI;
+		else if (qualifier == "rgba16ui")		this->format = Variable::RGBA16UI;
+		else if (qualifier == "rgba8ui")		this->format = Variable::RGBA8UI;
+		else if (qualifier == "rg32ui")			this->format = Variable::RG32UI;
+		else if (qualifier == "rg16ui")			this->format = Variable::RG16UI;
+		else if (qualifier == "rg8ui")			this->format = Variable::RG8UI;
+		else if (qualifier == "r32ui")			this->format = Variable::R32UI;
+		else if (qualifier == "r16ui")			this->format = Variable::R16UI;
+		else if (qualifier == "r8ui")			this->format = Variable::R8UI;
+		else if (qualifier == "read")			this->accessMode = Variable::Read;
+		else if (qualifier == "write")			this->accessMode = Variable::Write;
+		else if (qualifier == "readwrite")		this->accessMode = Variable::ReadWrite;
+		else if (qualifier == "groupshared")    this->qualifierFlags |= Variable::GroupShared;
+		else if (qualifier == "shared")         this->qualifierFlags |= Variable::Shared;
+		else if (qualifier == "bindless")       this->qualifierFlags |= Variable::Bindless;
+		else
+		{
+			std::string message = AnyFX::Format("Unknown qualifier '%s', %s\n", qualifier.c_str(), this->ErrorSuffix().c_str());
+			AnyFX::Emit(message.c_str());
+		}
+	}
+
+	// mark variable as uniform
+	if (this->qualifierFlags & Variable::GroupShared)
+	{
+		this->isUniform = false;
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -139,61 +209,6 @@ Variable::TypeCheck(TypeChecker& typechecker)
 		{
 			if (valueList.GetValue(j)) delete valueList.GetValue(j);
 		}		
-	}
-
-	// evaluate qualifiers
-	for (i = 0; i < this->qualifiers.size(); i++)
-	{
-		const std::string& qualifier = this->qualifiers[i];
-
-		if (qualifier == "rgba32f")				this->format = Variable::RGBA32F;
-		else if (qualifier == "rgba16f")		this->format = Variable::RGBA16F;
-		else if (qualifier == "rg32f")			this->format = Variable::RG32F;
-		else if (qualifier == "rg16f")			this->format = Variable::RG16F;
-		else if (qualifier == "r11g11b10f")		this->format = Variable::R11G11B10F;
-		else if (qualifier == "r32f")			this->format = Variable::R32F;
-		else if (qualifier == "r16f")			this->format = Variable::R16F;
-		else if (qualifier == "rgba16")			this->format = Variable::RGBA16;
-		else if (qualifier == "rgb10a2")		this->format = Variable::RGB10A2;
-		else if (qualifier == "rg16")			this->format = Variable::RG16;
-		else if (qualifier == "rg8")			this->format = Variable::RG8;
-		else if (qualifier == "r16")			this->format = Variable::R16;
-		else if (qualifier == "r8")				this->format = Variable::R8;
-		else if (qualifier == "rgba16snorm")	this->format = Variable::RGBA16SNORM;
-		else if (qualifier == "rgba8snorm")		this->format = Variable::RGBA8SNORM;
-		else if (qualifier == "rg16snorm")		this->format = Variable::RG16SNORM;
-		else if (qualifier == "rg8snorm")		this->format = Variable::RG8SNORM;
-		else if (qualifier == "r16snorm")		this->format = Variable::R16SNORM;
-		else if (qualifier == "r8snorm")		this->format = Variable::R8SNORM;
-		else if (qualifier == "rgba32i")		this->format = Variable::RGBA32I;
-		else if (qualifier == "rgba16i")		this->format = Variable::RGBA16I;
-		else if (qualifier == "rgba8i")			this->format = Variable::RGBA8I;
-		else if (qualifier == "rg32i")			this->format = Variable::RG32I;
-		else if (qualifier == "rg16i")			this->format = Variable::RG16I;
-		else if (qualifier == "rg8i")			this->format = Variable::RG8I;
-		else if (qualifier == "r32i")			this->format = Variable::R32I;
-		else if (qualifier == "r16i")			this->format = Variable::R16I;
-		else if (qualifier == "r8i")			this->format = Variable::R8I;
-		else if (qualifier == "rgba32ui")		this->format = Variable::RGBA32UI;
-		else if (qualifier == "rgba16ui")		this->format = Variable::RGBA16UI;
-		else if (qualifier == "rgba8ui")		this->format = Variable::RGBA8UI;
-		else if (qualifier == "rg32ui")			this->format = Variable::RG32UI;
-		else if (qualifier == "rg16ui")			this->format = Variable::RG16UI;
-		else if (qualifier == "rg8ui")			this->format = Variable::RG8UI;
-		else if (qualifier == "r32ui")			this->format = Variable::R32UI;
-		else if (qualifier == "r16ui")			this->format = Variable::R16UI;
-		else if (qualifier == "r8ui")			this->format = Variable::R8UI;
-		else if (qualifier == "read")			this->accessMode = Variable::Read;
-		else if (qualifier == "write")			this->accessMode = Variable::Write;
-		else if (qualifier == "readwrite")		this->accessMode = Variable::ReadWrite;
-        else if (qualifier == "groupshared")    this->qualifierFlags |= Variable::GroupShared;
-        else if (qualifier == "shared")         this->qualifierFlags |= Variable::Shared;
-        else if (qualifier == "bindless")       this->qualifierFlags |= Variable::Bindless;
-		else
-		{
-			std::string message = AnyFX::Format("Unknown qualifier '%s', %s\n", qualifier.c_str(), this->ErrorSuffix().c_str());
-			typechecker.Error(message);
-		}
 	}
 
     // groupshared is not valid on textures or images
@@ -402,6 +417,10 @@ Variable::Format(const Header& header, bool inVarblock) const
     {
         if (this->qualifierFlags & Bindless) formattedCode.append("layout(bindless_sampler) ");
     }
+	else if (this->type.GetType() >= DataType::Matrix2x2 && this->type.GetType() <= DataType::Matrix4x4)
+	{
+		formattedCode.append("layout(column_major) ");
+	}
 
 	// add GLSL uniform qualifier
 	if (header.GetType() == Header::GLSL && !inVarblock)

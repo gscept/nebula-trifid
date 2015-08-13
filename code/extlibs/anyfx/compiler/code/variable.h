@@ -140,6 +140,8 @@ public:
 
     /// returns true if variable is a subroutine method pointer
     bool IsSubroutine() const;
+	/// returns true if variable is a uniform (it is not shader local)
+	bool IsUniform() const;
 
 	/// sets the type of a variable
 	void SetVarType(const DataType& type);
@@ -151,6 +153,8 @@ public:
 	/// set variable format
 	void SetFormat(const ImageFormat& format);
 
+	/// preprocess variable
+	void Preprocess();
 	/// type checks variables
 	void TypeCheck(TypeChecker& typechecker);
 	/// compiles variable
@@ -161,6 +165,7 @@ public:
 
 private:
     friend class VarBlock;
+	friend class Effect;
 
     /// evaluates array size
     void EvaluateArraySize(TypeChecker& typechecker);
@@ -178,6 +183,7 @@ private:
 	ImageFormat format;
 	AccessMode accessMode;
     int qualifierFlags;
+	bool isUniform;
 
 	ArrayType arrayType;
 	bool isArray;
@@ -290,6 +296,15 @@ inline bool
 Variable::IsSubroutine() const
 {
     return this->isSubroutine;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline bool
+Variable::IsUniform() const
+{
+	return this->isUniform;
 }
 
 //------------------------------------------------------------------------------

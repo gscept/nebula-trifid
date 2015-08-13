@@ -101,7 +101,7 @@ GLSL4EffectVarblock::Setup(eastl::vector<InternalEffectProgram*> programs)
     for (i = 0; i < this->variables.size(); i++)
     {
         InternalEffectVariable* variable = this->variables[i];
-        variable->sharedByteOffset = &this->uniformOffsets[i];
+        //variable->sharedByteOffset = &this->uniformOffsets[i];
     }
     
     // get alignment
@@ -188,7 +188,7 @@ GLSL4EffectVarblock::SetupSlave(eastl::vector<InternalEffectProgram*> programs, 
 
         // this byte offset should be shared by ALL blocks as long as we use the 'shared' qualifier
         // bind the shared offset to this location into the singleton offset array
-        variable->sharedByteOffset = &this->uniformOffsets[i];
+        //variable->sharedByteOffset = &this->uniformOffsets[i];
     }
 
     delete [] names;
@@ -322,7 +322,13 @@ GLSL4EffectVarblock::Commit()
         }
         else
         {
-            glBindBufferBase(GL_UNIFORM_BUFFER, this->uniformBlockBinding, 0);
+			GLSL4VarblockBaseState state;
+			state.buffer = 0;
+			if (GLSL4VarblockBaseStates[this->uniformBlockBinding] != state)
+			{
+				GLSL4VarblockBaseStates[this->uniformBlockBinding] = state;
+				glBindBufferBase(GL_UNIFORM_BUFFER, this->uniformBlockBinding, 0);
+			}
         }
         /*
 		if (this->manualFlushing)
@@ -393,6 +399,9 @@ GLSL4EffectVarblock::Activate(InternalEffectProgram* program)
 
 //------------------------------------------------------------------------------
 /**
+	Hmm, we literally do this for each program everywhere, despite using the shared qualifier.
+
+	Although this will give us a unique offset per each program and block, even though the variable use a shared byte offset...
 */
 void
 GLSL4EffectVarblock::SetupUniformOffsets(GLSL4EffectProgram* program, GLuint blockIndex)
@@ -401,7 +410,25 @@ GLSL4EffectVarblock::SetupUniformOffsets(GLSL4EffectProgram* program, GLuint blo
     GLint* indices = new GLint[this->variables.size()];
     glGetActiveUniformBlockiv(program->programHandle, blockIndex, GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, indices);
     glGetActiveUniformsiv(program->programHandle, this->variables.size(), (GLuint*)indices, GL_UNIFORM_OFFSET, (GLint*)this->uniformOffsets);
-    delete[] indices;
+
+	// this stuff assigns the variable offset to a variable
+	unsigned i;
+	for (i = 0; i < this->variables.size(); i++)
+	{
+		GLsizei length;
+		glGetActiveUniformsiv(program->programHandle, 1, (const GLuint*)&indices[i], GL_UNIFORM_NAME_LENGTH, &length);
+		GLchar* buf = new GLchar[length];
+		glGetActiveUniformName(program->programHandle, indices[i], length, NULL, buf);
+		eastl::string name(buf); 
+
+		// ugh, need to remove [0] from arrays...
+		size_t indexOfArray = name.find("[0]");
+		if (indexOfArray != eastl::string::npos) name = name.substr(0, indexOfArray);
+		this->variablesByName[name]->sharedByteOffset = &this->uniformOffsets[i];
+		delete [] buf;
+	}	
+	delete[] indices;
+
 }
 
 //------------------------------------------------------------------------------

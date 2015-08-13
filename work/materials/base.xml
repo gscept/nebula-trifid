@@ -38,9 +38,9 @@
   -->
   <Material name="Classic rendering" virtual="true" desc="Virtual material used for the default variables available to an object">
    <!-- material textures -->
-   <Param name="DiffuseMap" type="string" defaultValue="tex:system/placeholder.dds"/>
-   <Param name="SpecularMap" type="string" defaultValue="tex:system/white.dds"/>
-   <Param name="NormalMap" type="string" defaultValue="tex:system/nobump.dds"/>
+   <Param name="DiffuseMap" type="string" defaultValue="tex:system/placeholder"/>
+   <Param name="SpecularMap" type="string" defaultValue="tex:system/white"/>
+   <Param name="NormalMap" type="string" defaultValue="tex:system/nobump"/>
    
    <Param name="MatAlbedoIntensity" type="float4" defaultValue="1.0f, 1.0f, 1.0f, 1.0f" min="0.0f, 0.0f, 0.0f, 0.0f" max="10.0f, 10.0f, 10.0f, 1.0f" edit="color" desc="Material albedo multiplier"/>
    <Param name="MatSpecularIntensity" type="float4" defaultValue="0.0f, 0.0f, 0.0f, 0.0f" min="0.0f, 0.0f, 0.0f, 0.0f" max="10.0f, 10.0f, 10.0f, 1.0f" edit="color" desc="Material specular reflectivity index"/>
@@ -51,12 +51,12 @@
   
   <Material name="PBR + IBL" inherits="Classic rendering" desc="Virtual material used for all PBR + IBL based materials" virtual="true">
    
-   <Param name="RoughnessMap" type="string" defaultValue="tex:system/white.dds" desc="Describes the microsurface roughness of the surface."/>
-   <Param name="CavityMap" type="string" defaultValue="tex:system/white.dds" desc="Describes where the surface has sharp creaks, multiplies with reflectivity and irradiance."/>      
+   <Param name="RoughnessMap" type="string" defaultValue="tex:system/white" desc="Describes the microsurface roughness of the surface."/>
+   <Param name="CavityMap" type="string" defaultValue="tex:system/white" desc="Describes where the surface has sharp creaks, multiplies with reflectivity and irradiance."/>      
    
    <Param name="MatRoughnessIntensity" type="float" defaultValue="0.0f" min="0.0f" max="1.0f" desc="Material roughness multiplier"/>   
-   <Param name="EnvironmentMap" system="true" type="string" defaultValue="tex:system/sky.dds"/>
-   <Param name="IrradianceMap" system="true" type="string" defaultValue="tex:system/sky_irr.dds"/>
+   <Param name="EnvironmentMap" system="true" type="string" defaultValue="tex:system/sky_refl"/>
+   <Param name="IrradianceMap" system="true" type="string" defaultValue="tex:system/sky_irr"/>
    <Param name="NumEnvMips" system="true" type="int" defaultValue="9"/>
    
   
@@ -93,7 +93,7 @@
   
   <!-- base material for tessellated objects -->
   <Material name="Tessellation" virtual="true" desc="Material which provides tessellation parameters.">
-   <Param name="DisplacementMap" type="string" defaultValue="tex:system/placeholder.dds"/>
+   <Param name="DisplacementMap" type="string" defaultValue="tex:system/placeholder"/>
    <Param name="HeightScale" type="float" defaultValue="0.0f" min="0.0f" max="1.0f" desc="Scales the values in the height map to be able to reach outside the range [0..1]"/>
    <Param name="MinDistance" type="float" defaultValue="20.0f" min="0.0f" max="1000.0f" desc="The minimal distance at which tessellation should start, tessellation will be applied between this value and MaxDistance"/>
    <Param name="MaxDistance" type="float" defaultValue="20.0f" min="0.0f" max="1000.0f" desc="The maximal distance at which tessellation should stop, tessellation will be applied between this value and MinDistance"/>
@@ -103,7 +103,7 @@
   <!-- base material for emissive objects -->
   <Material name="Emissive" virtual="true" desc="Material which provides emissive rendering of an object.">
    <Pass batch="Unlit" shader="emissive" variation="Static"/>   
-   <Param name="EmissiveMap" type="string" defaultValue="tex:system/white.dds"/>
+   <Param name="EmissiveMap" type="string" defaultValue="tex:system/white"/>
    <Param name="EmissiveIntensity" type="float" defaultValue="0.0f" min="0.0f" max="1.0f" desc="Multiplies with the diffuse color in order to adjust its intensity"/>
   </Material>
  
@@ -113,10 +113,10 @@
    <Pass batch="GlobalShadow" shader="shadow" variation="Alpha|Global"/>
    <Pass batch="FlatGeometryAlphaLit" shader="static" variation="Alpha"/>   
    
-   <Param name="DiffuseMap" type="string" defaultValue="tex:system/placeholder.dds"/>
-   <Param name="SpecularMap" type="string" defaultValue="tex:system/white.dds"/>
-   <Param name="RoughnessMap" type="string" defaultValue="tex:system/darkgray.dds"/>
-   <Param name="NormalMap" type="string" defaultValue="tex:system/no_bump.dds"/>
+   <Param name="DiffuseMap" type="string" defaultValue="tex:system/placeholder"/>
+   <Param name="SpecularMap" type="string" defaultValue="tex:system/white"/>
+   <Param name="RoughnessMap" type="string" defaultValue="tex:system/darkgray"/>
+   <Param name="NormalMap" type="string" defaultValue="tex:system/nobump"/>
    <Param name="MatSpecularIntensity" type="float" defaultValue="0.0f" min="0.0f" max="1.0f" desc="Material specular reflectivity index"/>
    <Param name="MatEmissiveIntensity" type="float" defaultValue="0.0f" min="0.0f" max="1.0f" desc="Material emissive intensity, multiplies with emissive color"/>
    <Param name="AlphaSensitivity" type="float" defaultValue="0.0f" min="0.0f" max="1.0f" desc="Alpha clip sensitivity, every value below this will cause the pixel to become discarded"/>
@@ -166,8 +166,8 @@
    <Pass batch="Subsurface" shader="subsurface" variation="Static"/>
    
    <!-- SSS params -->
-   <Param name="AbsorptionMap" type="string" defaultValue="tex:system/white.dds"/>
-   <Param name="ScatterMap" type="string" defaultValue="tex:system/white.dds"/>
+   <Param name="AbsorptionMap" type="string" defaultValue="tex:system/white"/>
+   <Param name="ScatterMap" type="string" defaultValue="tex:system/white"/>
    <Param name="SubsurfaceStrength" type="float" defaultValue="0.0f" max="1.0f" min="0.0f" desc="The strength of the subsurface approximation, the higher, the blurrier"/>
    <Param name="SubsurfaceWidth" type="float" defaultValue="0.0f"  max="1.0f" min="0.0f" desc="The radius for the subsurface approximation"/>
    <Param name="SubsurfaceCorrection" type="float" defaultValue="0.0f" min="0.0f" max="1.0f" desc="Performs corrections to some extent, tune to fit your needs"/>
@@ -208,8 +208,8 @@
    <Pass batch="Subsurface" shader="subsurface" variation="Skinned"/>
       
    <!-- SSS params -->
-   <Param name="AbsorptionMap" type="string" defaultValue="tex:system/white.dds"/>
-   <Param name="ScatterMap" type="string" defaultValue="tex:system/white.dds"/>
+   <Param name="AbsorptionMap" type="string" defaultValue="tex:system/white"/>
+   <Param name="ScatterMap" type="string" defaultValue="tex:system/white"/>
    <Param name="SubsurfaceStrength" type="float" defaultValue="0.0f" max="1.0f" min="0.0f" desc="The strength of the subsurface approximation, the higher, the blurrier"/>
    <Param name="SubsurfaceWidth" type="float" defaultValue="0.0f"  max="1.0f" min="0.0f" desc="The radius for the subsurface approximation"/>
    <Param name="SubsurfaceCorrection" type="float" defaultValue="0.0f" min="0.0f" max="1.0f" desc="Performs corrections to some extent, tune to fit your needs"/>
@@ -268,16 +268,16 @@
    <Pass batch="FlatGeometryLit" shader="multilayered" variation="Static"/>
    
    <!-- material textures -->
-   <Param name="DiffuseMap2" type="string" defaultValue="tex:system/black.dds"/>
-   <Param name="DiffuseMap3" type="string" defaultValue="tex:system/black.dds"/>
-   <Param name="SpecularMap2" type="string" defaultValue="tex:system/black.dds"/>
-   <Param name="SpecularMap3" type="string" defaultValue="tex:system/black.dds"/>
-   <Param name="EmissiveMap2" type="string" defaultValue="tex:system/black.dds"/>
-   <Param name="EmissiveMap3" type="string" defaultValue="tex:system/black.dds"/>
-   <Param name="NormalMap2" type="string" defaultValue="tex:system/nobump.dds"/>
-   <Param name="NormalMap3" type="string" defaultValue="tex:system/nobump.dds"/>   
-   <Param name="RoughnessMap2" type="string" defaultValue="tex:system/darkgray.dds"/>
-   <Param name="RoughnessMap3" type="string" defaultValue="tex:system/darkgray.dds"/>
+   <Param name="DiffuseMap2" type="string" defaultValue="tex:system/black"/>
+   <Param name="DiffuseMap3" type="string" defaultValue="tex:system/black"/>
+   <Param name="SpecularMap2" type="string" defaultValue="tex:system/black"/>
+   <Param name="SpecularMap3" type="string" defaultValue="tex:system/black"/>
+   <Param name="EmissiveMap2" type="string" defaultValue="tex:system/black"/>
+   <Param name="EmissiveMap3" type="string" defaultValue="tex:system/black"/>
+   <Param name="NormalMap2" type="string" defaultValue="tex:system/nobump"/>
+   <Param name="NormalMap3" type="string" defaultValue="tex:system/nobump"/>   
+   <Param name="RoughnessMap2" type="string" defaultValue="tex:system/darkgray"/>
+   <Param name="RoughnessMap3" type="string" defaultValue="tex:system/darkgray"/>
    
    <!-- system variables -->
    <Param name="ObjectId" type="int" system="true"/>
@@ -289,16 +289,16 @@
    <Pass batch="GlobalShadow" shader="multilayered" variation="Static|Colored|Global"/>
    <Pass batch="TessellatedGeometryLit" shader="multilayered" variation="Static|Colored|Tessellated"/>
    
-   <Param name="DiffuseMap2" type="string" defaultValue="tex:system/black.dds"/>
-   <Param name="DiffuseMap3" type="string" defaultValue="tex:system/black.dds"/>
-   <Param name="SpecularMap2" type="string" defaultValue="tex:system/black.dds"/>
-   <Param name="SpecularMap3" type="string" defaultValue="tex:system/black.dds"/>
-   <Param name="EmissiveMap2" type="string" defaultValue="tex:system/black.dds"/>
-   <Param name="EmissiveMap3" type="string" defaultValue="tex:system/black.dds"/>
-   <Param name="NormalMap2" type="string" defaultValue="tex:system/nobump.dds"/>
-   <Param name="NormalMap3" type="string" defaultValue="tex:system/nobump.dds"/>   
-   <Param name="RoughnessMap2" type="string" defaultValue="tex:system/darkgray.dds"/>
-   <Param name="RoughnessMap3" type="string" defaultValue="tex:system/darkgray.dds"/>
+   <Param name="DiffuseMap2" type="string" defaultValue="tex:system/black"/>
+   <Param name="DiffuseMap3" type="string" defaultValue="tex:system/black"/>
+   <Param name="SpecularMap2" type="string" defaultValue="tex:system/black"/>
+   <Param name="SpecularMap3" type="string" defaultValue="tex:system/black"/>
+   <Param name="EmissiveMap2" type="string" defaultValue="tex:system/black"/>
+   <Param name="EmissiveMap3" type="string" defaultValue="tex:system/black"/>
+   <Param name="NormalMap2" type="string" defaultValue="tex:system/nobump"/>
+   <Param name="NormalMap3" type="string" defaultValue="tex:system/nobump"/>   
+   <Param name="RoughnessMap2" type="string" defaultValue="tex:system/darkgray"/>
+   <Param name="RoughnessMap3" type="string" defaultValue="tex:system/darkgray"/>
    
    <!-- system variables -->
    <Param name="ObjectId" type="int" system="true"/>
@@ -315,16 +315,16 @@
    <Pass batch="GlobalShadow" shader="shadow" variation="Static|Global"/>
    <Pass batch="FlatGeometryLit" shader="lightmapped" variation="Static"/>
    
-   <Param name="LightMap" type="string" defaultValue="tex:system/white.dds"/>
+   <Param name="LightMap" type="string" defaultValue="tex:system/white"/>
    <Param name="LightMapIntensity" type="float" defaultValue="0.5f" desc="Multiplies with the light map color in order to adjust its intensity"/>
   </Material>
   
   <Material name="LightMappedUnlit" type="static|secondaryuvs" desc="Special material for use with objects with a secondary UV set. Is not affected by lights.">
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <Pass batch="Unlit" shader="lightmapped" variation="Static|Unlit"/>
-   <Param name="DiffuseMap" type="string" defaultValue="tex:system/placeholder.dds"/>
+   <Param name="DiffuseMap" type="string" defaultValue="tex:system/placeholder"/>
    
-   <Param name="LightMap" type="string" defaultValue="tex:system/white.dds"/>
+   <Param name="LightMap" type="string" defaultValue="tex:system/white"/>
    <Param name="LightMapIntensity" type="float" defaultValue="0.5f" desc="Multiplies with the light map color in order to adjust its intensity"/>
    
    <!-- system variables -->
@@ -337,7 +337,7 @@
    <Pass batch="GlobalShadow" shader="shadow" variation="Static|Global"/>
    <Pass batch="FlatGeometryLit" shader="lightmapped" variation="Static|Colored"/>
    
-   <Param name="LightMap" type="string" defaultValue="tex:system/white.dds"/>
+   <Param name="LightMap" type="string" defaultValue="tex:system/white"/>
    <Param name="LightMapIntensity" type="float" defaultValue="0.5f" desc="Multiplies with the light map color in order to adjust its intensity"/>
    
    <!-- system variables -->
@@ -348,8 +348,8 @@
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <Pass batch="Unlit" shader="lightmapped" variation="Static|Unlit|Colored"/>
    
-   <Param name="DiffuseMap" type="string" defaultValue="tex:system/placeholder.dds"/>
-   <Param name="LightMap" type="string" defaultValue="tex:system/white.dds"/>
+   <Param name="DiffuseMap" type="string" defaultValue="tex:system/placeholder"/>
+   <Param name="LightMap" type="string" defaultValue="tex:system/white"/>
    <Param name="LightMapIntensity" type="float" defaultValue="0.5f" desc="Multiplies with the light map color in order to adjust its intensity"/>
    
    <!-- system variables -->
@@ -362,7 +362,7 @@
    <Pass batch="GlobalShadow" shader="foliage" variation="Static|Global"/>
    <Pass batch="FlatGeometryLit" shader="foliage" variation="Static|Lightmapped"/>
    
-   <Param name="LightMap" type="string" defaultValue="tex:system/white.dds"/>
+   <Param name="LightMap" type="string" defaultValue="tex:system/white"/>
    <Param name="LightMapIntensity" type="float" defaultValue="0.5f" desc="Multiplies with the light map color in order to adjust its intensity"/>
    <Param name="WindDirection" type="float4" defaultValue="0.01f, 0.0f, 0.0f, 0.0f"/>
    <Param name="WindWaveSize" type="float" defaultValue="1.0f" min="1.0f" max="50.0f"/>
@@ -377,8 +377,8 @@
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <Pass batch="Unlit" shader="foliage" variation="Static|Unlit|Lightmapped"/>
    
-   <Param name="DiffuseMap" type="string" defaultValue="tex:system/placeholder.dds"/>
-   <Param name="LightMap" type="string" defaultValue="tex:system/white.dds"/>
+   <Param name="DiffuseMap" type="string" defaultValue="tex:system/placeholder"/>
+   <Param name="LightMap" type="string" defaultValue="tex:system/white"/>
    <Param name="WindDirection" type="float4" defaultValue="0.01f, 0.0f, 0.0f, 0.0f"/>
    <Param name="WindWaveSize" type="float" defaultValue="1.0f" min="1.0f" max="50.0f"/>
    <Param name="WindSpeed" type="float" defaultValue="0.0f" min="0.0f" max="50.0f"/>
@@ -407,7 +407,7 @@
    <Pass batch="GlobalShadow" shader="shadow" variation="Static|Global"/>
    <Pass batch="Unlit" shader="unlit" variation="Static"/>
    
-   <Param name="DiffuseMap" type="string" defaultValue="tex:system/placeholder.dds"/>
+   <Param name="DiffuseMap" type="string" defaultValue="tex:system/placeholder"/>
    <Param name="AlphaSensitivity" type="float" defaultValue="0.0f" min="0.0f" max="1.0f" desc="Alpha clip sensitivity, every value below this will cause the pixel to become discarded"/>
    <Param name="Brightness" type="float" defaultValue="0.0f" min="0.0f" max="1.0f" desc="Multiplies with the diffuse color in order to adjust its intensity"/>
    
@@ -421,7 +421,7 @@
    <Pass batch="GlobalShadow" shader="shadow" variation="Alpha|Global"/>
    <Pass batch="Unlit" shader="unlit" variation="Alpha"/>
    
-   <Param name="DiffuseMap" type="string" defaultValue="tex:system/placeholder.dds"/>
+   <Param name="DiffuseMap" type="string" defaultValue="tex:system/placeholder"/>
    <Param name="AlphaSensitivity" type="float" defaultValue="0.0f" min="0.0f" max="1.0f" desc="Alpha clip sensitivity, every value below this will cause the pixel to become discarded"/>
    <Param name="Brightness" type="float" defaultValue="0.0f" min="0.0f" max="1.0f" desc="Multiplies with the diffuse color in order to adjust its intensity"/>
    <Param name="AlphaBlendFactor" type="float" defaultValue="1.0f" min="0.0f" max="1.0f" desc="Level of transparency"/>
@@ -503,7 +503,7 @@
  
   
   <Material name="Particle" virtual="true" desc="Base material for particles">
-   <Param name="DiffuseMap" type="string" defaultValue="tex:system/placeholder.dds"/>
+   <Param name="DiffuseMap" type="string" defaultValue="tex:system/placeholder"/>
   
    <!-- system variables -->
    <Param name="EmitterTransform" type="matrix44" system="true" defaultValue="1.0f, 0.0f, 0.0f, 0.0f, 
@@ -515,7 +515,7 @@
    <Param name="NumAnimPhases" type="int" system="true" defaultValue="0"/>
    <Param name="AnimFramesPerSecond" type="float" system="true" defaultValue="0.0f"/>
    <Param name="IsBillBoard" type="bool" system="true" defaultValue="false"/>
-   <Param name="DepthBuffer" type="string" system="true" defaultValue="tex:system/black.dds"/>
+   <Param name="DepthBuffer" type="string" system="true" defaultValue="tex:system/black"/>
   </Material>
   
   <Material name="ParticleUnlit" type="particle" inherits="Particle" desc="Standard unlit particle material.">
@@ -558,9 +558,9 @@
    <Pass batch="Water" shader="water" variation="Static"/>	
    
    <!-- water textures -->
-   <Param name="WaveMap" type="string" defaultValue="tex:system/nobump.dds" desc="The wave map describes how the water should be displaced and bump mapped. Should be in the form of an RGB normal map, with the A channel representing the height of the wave."/>
-   <Param name="HeightMap" type="string" defaultValue="tex:system/white.dds" desc="The height map is used to calibrate the waters displacement and transparency along shores. The closer the value is to 0, the weaker the waves the will be."/>
-   <Param name="EnvironmentMap" system="true" type="string" defaultValue="tex:system/sky.dds"/>
+   <Param name="WaveMap" type="string" defaultValue="tex:system/nobump" desc="The wave map describes how the water should be displaced and bump mapped. Should be in the form of an RGB normal map, with the A channel representing the height of the wave."/>
+   <Param name="HeightMap" type="string" defaultValue="tex:system/white" desc="The height map is used to calibrate the waters displacement and transparency along shores. The closer the value is to 0, the weaker the waves the will be."/>
+   <Param name="EnvironmentMap" system="true" type="string" defaultValue="tex:system/sky_refl"/>
    
    <!-- water specific parameters -->
    <Param name="TileSize" type="float2" defaultValue="1.0f, 1.0f" min="0.0f, 0.0f" max="10000.0f, 10000.0f" desc="The size of each tile of water"/>
@@ -586,9 +586,9 @@
    <Pass batch="Water" shader="water" variation="Static|Tessellated"/>	
    
    <!-- water textures -->
-   <Param name="WaveMap" type="string" defaultValue="tex:system/nobump.dds" desc="The wave map describes how the water should be displaced and bump mapped. Should be in the form of an RGB normal map, with the A channel representing the height of the wave."/>
-   <Param name="HeightMap" type="string" defaultValue="tex:system/white.dds" desc="The height map is used to calibrate the waters displacement and transparency along shores. The closer the value is to 0, the weaker the waves the will be."/>
-   <Param name="EnvironmentMap" system="true" type="string" defaultValue="tex:system/sky.dds"/>
+   <Param name="WaveMap" type="string" defaultValue="tex:system/nobump" desc="The wave map describes how the water should be displaced and bump mapped. Should be in the form of an RGB normal map, with the A channel representing the height of the wave."/>
+   <Param name="HeightMap" type="string" defaultValue="tex:system/white" desc="The height map is used to calibrate the waters displacement and transparency along shores. The closer the value is to 0, the weaker the waves the will be."/>
+   <Param name="EnvironmentMap" system="true" type="string" defaultValue="tex:system/sky_refl"/>
    
    <!-- water specific parameters -->
    <Param name="TileSize" type="float2" defaultValue="1.0f, 1.0f" min="0.0f, 0.0f" max="10000.0f, 10000.0f" desc="The size of each tile of water"/>
@@ -628,11 +628,11 @@
   <Material name="Grid" type="static" desc="Special material which is used internally for grid rendering.">
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <Pass batch="FlatGeometryLit" shader="grid" variation="Static"/>
-   <Param name="DiffuseMap" type="string" defaultValue="tex:system/placeholder.dds"/>
-   <Param name="SpecularMap" type="string" defaultValue="tex:system/white.dds"/>
-   <Param name="EmissiveMap" type="string" defaultValue="tex:system/white.dds"/>
-   <Param name="RoughnessMap" type="string" defaultValue="tex:system/darkgray.dds"/>
-   <Param name="NormalMap" type="string" defaultValue="tex:system/no_bump.dds"/>
+   <Param name="DiffuseMap" type="string" defaultValue="tex:system/placeholder"/>
+   <Param name="SpecularMap" type="string" defaultValue="tex:system/white"/>
+   <Param name="EmissiveMap" type="string" defaultValue="tex:system/white"/>
+   <Param name="RoughnessMap" type="string" defaultValue="tex:system/darkgray"/>
+   <Param name="NormalMap" type="string" defaultValue="tex:system/nobump"/>
    
    <Param name="GridSize" type="float" min="0" max="3" defaultValue="5"/>
    <Param name="MatSpecularIntensity" type="float" defaultValue="0.0f" min="0.0f" max="1.0f" desc="Material specular reflectivity index"/>
@@ -647,7 +647,7 @@
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <Pass batch="Unlit" shader="sprite" variation="Static"/>
    
-   <Param name="DiffuseMap" type="string" defaultValue="tex:system/placeholder.dds"/>
+   <Param name="DiffuseMap" type="string" defaultValue="tex:system/placeholder"/>
    <Param name="AlphaSensitivity" type="float" defaultValue="0.0f" min="0.0f" max="1.0f" desc="Alpha clip sensitivity, every value below this will cause the pixel to become discarded"/>
    <Param name="Brightness" type="float" defaultValue="1.0f" min="0.0f" max="1.0f" desc="Multiplies with the diffuse color in order to adjust its intensity"/>
    
@@ -662,7 +662,7 @@
   <Material name="Billboard" type="special" desc="Special material which is used internally for billboard rendering.">
    <Pass batch="Picking" shader="picking" variation="Alt0"/>
    <Pass batch="Unlit" shader="billboard" variation="Static"/>
-   <Param name="DiffuseMap" type="string" defaultValue="tex:system/placeholder.dds" system="true"/>
+   <Param name="DiffuseMap" type="string" defaultValue="tex:system/placeholder" system="true"/>
    <Param name="Color" type="float4" defaultValue="1,1,1,1" system="true"/>
    <Param name="ViewAligned" type="bool" defaultValue="false"/>
    
@@ -672,8 +672,8 @@
   
   <Material name="Skybox" type="special" desc="Special material which is used internally for skybox rendering.">
    <Pass batch="Background" shader="skybox" variation="Static"/>
-   <Param name="SkyLayer1" type="string" defaultValue="tex:system/placeholder.dds"/>
-   <Param name="SkyLayer2" type="string" defaultValue="tex:system/placeholder.dds"/>
+   <Param name="SkyLayer1" type="string" defaultValue="tex:system/placeholder"/>
+   <Param name="SkyLayer2" type="string" defaultValue="tex:system/placeholder"/>
    <Param name="SkyBlendFactor" type="float" defaultValue="0.0f"/>
    <Param name="Contrast" type="float" defaultValue="1.0f" system="true"/>
    <Param name="Brightness" type="float" defaultValue="0.0f" system="true"/>	
@@ -684,8 +684,8 @@
   <Material name="ReflectionProjector" type="special" desc="Special material which is used internally for rendering reflections and irradiance.">
    <Pass batch="Reflections" shader="reflectionprojector" variation="Static"/>
    
-   <Param name="EnvironmentMap" type="string" defaultValue="tex:system/sky.dds" system="true"/>
-   <Param name="IrradianceMap" type="string" defaultValue="tex:system/sky_irr.dds" system="true"/>
+   <Param name="EnvironmentMap" type="string" defaultValue="tex:system/sky_refl" system="true"/>
+   <Param name="IrradianceMap" type="string" defaultValue="tex:system/sky_irr" system="true"/>
    <Param name="NumEnvMips" type="int" defaultValue="9" system="true"/>
   </Material>
   
@@ -696,7 +696,7 @@
   <Material name="Placeholder" type="all" desc="Placeholder material which gets applied to a mesh if it doesn't yet have a shader">
    <Pass batch="Unlit" shader="placeholder" variation="Static"/>
    <Pass batch="Picking" shader="picking" variation="Static"/>
-   <Param name="DiffuseMap" type="string" defaultValue="tex:system/placeholder.dds"/>
+   <Param name="DiffuseMap" type="string" defaultValue="tex:system/placeholder"/>
    
    <!-- system variables -->
    <Param name="ObjectId" type="int" system="true"/>
@@ -705,7 +705,7 @@
   <Material name="PlaceholderSkinned" type="all" desc="Placeholder material which gets applied to a mesh if it doesn't yet have a shader, but is skinned.">
    <Pass batch="Unlit" shader="placeholder" variation="Skinned"/>
    <Pass batch="Picking" shader="picking" variation="Skinned"/>
-   <Param name="DiffuseMap" type="string" defaultValue="tex:system/placeholder.dds"/>
+   <Param name="DiffuseMap" type="string" defaultValue="tex:system/placeholder"/>
    
    <!-- system variables -->
    <Param name="ObjectId" type="int" system="true"/>

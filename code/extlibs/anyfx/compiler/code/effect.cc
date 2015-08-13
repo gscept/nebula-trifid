@@ -207,17 +207,18 @@ Effect::Setup()
     this->placeholderVarBlock.SetReserved(true);
     this->placeholderVarBlock.AddQualifier("shared");
 
-    for (i = 0; i < this->variables.size(); i++)
-    {
-        const AnyFX::Variable& var = this->variables[i];
-        if (var.GetVarType().GetType() < DataType::Sampler1D)
-        {
-            this->placeholderVarBlock.AddVariable(var);
-            this->variables.erase(this->variables.begin() + i);
-            i--;
-        }
-    }
-    this->varBlocks.insert(this->varBlocks.begin(), this->placeholderVarBlock);
+	for (i = 0; i < this->variables.size(); i++)
+	{
+		AnyFX::Variable& var = this->variables[i];
+		var.Preprocess();
+		if (var.GetVarType().GetType() < DataType::Sampler1D && var.IsUniform())
+		{
+			this->placeholderVarBlock.AddVariable(var);
+			this->variables.erase(this->variables.begin() + i);
+			i--;
+		}
+	}
+	this->varBlocks.insert(this->varBlocks.begin(), this->placeholderVarBlock);
 
 	// sort all variables in varblocks
 	for (i = 0; i < this->varBlocks.size(); i++)

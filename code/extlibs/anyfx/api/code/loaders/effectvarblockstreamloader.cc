@@ -71,6 +71,7 @@ EffectVarblockStreamLoader::Load( BinReader* reader, Effect* effect, eastl::vect
 		// read variable
 		EffectVariable* var = variableLoader.Load(reader, effect, internalVarblock);
 		internalVarblock->variables.push_back(var->internalVariable);
+		internalVarblock->variablesByName[var->internalVariable->name] = var->internalVariable;
 		
 		// make sure to flag this variable as internal to the varblock
 		vars.push_back(var);

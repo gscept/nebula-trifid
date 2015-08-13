@@ -11,6 +11,7 @@
 #include <string.h>
 #include "EASTL/vector.h"
 #include "EASTL/string.h"
+#include "EASTL/map.h"
 #include "autoref.h"
 #include "settings.h"
 namespace AnyFX
@@ -84,6 +85,7 @@ protected:
     eastl::string signature;
     size_t size;
 	eastl::vector<InternalEffectVariable*> variables;
+	eastl::map<eastl::string, InternalEffectVariable*> variablesByName;
 	eastl::vector<InternalEffectVarblock*> childBlocks;
 	InternalEffectVarblock* masterBlock;
 	bool isShared;
