@@ -90,18 +90,17 @@ GLSL4EffectVarbuffer::Commit()
 				state.buffer = buf->handle;
 				state.offset = buf->offset;
 				state.length = buf->size;
-				if (GLSL4VarbufferRangeStates[this->shaderStorageBlockBinding] != state)
+				//if (GLSL4VarbufferRangeStates[this->shaderStorageBlockBinding] != state)
 				{
 					GLSL4VarbufferRangeStates[this->shaderStorageBlockBinding] = state;
 					glBindBufferRange(GL_SHADER_STORAGE_BUFFER, this->shaderStorageBlockBinding, buf->handle, buf->offset, buf->size);
 				}
-				
 			}
 			else
 			{
 				GLSL4VarbufferBaseState state;
 				state.buffer = buf->handle;
-				if (GLSL4VarbufferBaseStates[this->shaderStorageBlockBinding] != state)
+				//if (GLSL4VarbufferBaseStates[this->shaderStorageBlockBinding] != state)
 				{
 					GLSL4VarbufferBaseStates[this->shaderStorageBlockBinding] = state;
 					glBindBufferBase(GL_SHADER_STORAGE_BUFFER, this->shaderStorageBlockBinding, buf->handle);
@@ -112,7 +111,7 @@ GLSL4EffectVarbuffer::Commit()
 		{
 			GLSL4VarbufferBaseState state;
 			state.buffer = 0;
-			if (GLSL4VarbufferBaseStates[this->shaderStorageBlockBinding] != state)
+			//if (GLSL4VarbufferBaseStates[this->shaderStorageBlockBinding] != state)
 			{
 				GLSL4VarbufferBaseStates[this->shaderStorageBlockBinding] = state;
 				glBindBufferBase(GL_SHADER_STORAGE_BUFFER, this->shaderStorageBlockBinding, 0);

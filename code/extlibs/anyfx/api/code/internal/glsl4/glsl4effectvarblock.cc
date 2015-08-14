@@ -188,7 +188,7 @@ GLSL4EffectVarblock::SetupSlave(eastl::vector<InternalEffectProgram*> programs, 
 
         // this byte offset should be shared by ALL blocks as long as we use the 'shared' qualifier
         // bind the shared offset to this location into the singleton offset array
-        //variable->sharedByteOffset = &this->uniformOffsets[i];
+		variable->sharedByteOffset = mainBlock->variables[i]->sharedByteOffset;
     }
 
     delete [] names;
@@ -406,15 +406,19 @@ GLSL4EffectVarblock::Activate(InternalEffectProgram* program)
 void
 GLSL4EffectVarblock::SetupUniformOffsets(GLSL4EffectProgram* program, GLuint blockIndex)
 {
+	// get masterblock
+	GLSL4EffectVarblock* masterBlock = static_cast<GLSL4EffectVarblock*>(this->masterBlock);
+
     // setup indices and setup the uniforms
     GLint* indices = new GLint[this->variables.size()];
-    glGetActiveUniformBlockiv(program->programHandle, blockIndex, GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, indices);
-    glGetActiveUniformsiv(program->programHandle, this->variables.size(), (GLuint*)indices, GL_UNIFORM_OFFSET, (GLint*)this->uniformOffsets);
+	glGetActiveUniformBlockiv(program->programHandle, blockIndex, GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, indices);
+	glGetActiveUniformsiv(program->programHandle, this->variables.size(), (GLuint*)indices, GL_UNIFORM_OFFSET, (GLint*)masterBlock->uniformOffsets);
 
 	// this stuff assigns the variable offset to a variable
 	unsigned i;
-	for (i = 0; i < this->variables.size(); i++)
+	for (i = 0; i < masterBlock->variables.size(); i++)
 	{
+		if (indices[i] == GL_INVALID_INDEX) continue;
 		GLsizei length;
 		glGetActiveUniformsiv(program->programHandle, 1, (const GLuint*)&indices[i], GL_UNIFORM_NAME_LENGTH, &length);
 		GLchar* buf = new GLchar[length];
@@ -424,7 +428,7 @@ GLSL4EffectVarblock::SetupUniformOffsets(GLSL4EffectProgram* program, GLuint blo
 		// ugh, need to remove [0] from arrays...
 		size_t indexOfArray = name.find("[0]");
 		if (indexOfArray != eastl::string::npos) name = name.substr(0, indexOfArray);
-		this->variablesByName[name]->sharedByteOffset = &this->uniformOffsets[i];
+		masterBlock->variablesByName[name]->sharedByteOffset = &masterBlock->uniformOffsets[i];
 		delete [] buf;
 	}	
 	delete[] indices;

@@ -132,13 +132,13 @@ VarBlock::Format(const Header& header) const
     if (this->shared)
     {
         // varblocks of this type are only available in GLSL3-4 and HLSL4-5
-        if (header.GetType() == Header::GLSL) formattedCode.append("layout(std140) uniform ");
+        if (header.GetType() == Header::GLSL) formattedCode.append("layout(shared) uniform ");
         else if (header.GetType() == Header::HLSL) formattedCode.append("shared cbuffer ");
     }
     else
     {
         // varblocks of this type are only available in GLSL3-4 and HLSL4-5
-        if (header.GetType() == Header::GLSL) formattedCode.append("layout(std140) uniform ");
+        if (header.GetType() == Header::GLSL) formattedCode.append("layout(shared) uniform ");
         else if (header.GetType() == Header::HLSL) formattedCode.append("cbuffer ");
     }
 	

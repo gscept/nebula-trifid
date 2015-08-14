@@ -391,14 +391,13 @@ GLSL4EffectVariable::Commit()
                 if (obj && obj->bound.textureType == this->textureType)
                 {
                     // bind the texture to the image unit, this is a bit sensitive since if the texture object doesn't match the image format, the GL will output an error.
-                    glBindImageTexture(this->textureUnit, obj->bound.handle, 0, GL_TRUE, 0, GL_READ_WRITE, this->glImageFormat);
+					glBindImageTexture(this->textureUnit, obj->bound.handle, 0, GL_FALSE, 0, this->glAccessMode, this->glImageFormat);
                 }
                 else
                 {
                     glBindImageTexture(this->textureUnit, 0, 0, GL_FALSE, 0, this->glAccessMode, this->glImageFormat);
                 }
 				
-
                 break;
             }
         case Image1DArray:
@@ -418,7 +417,7 @@ GLSL4EffectVariable::Commit()
                 }
                 else
                 {
-					glBindImageTexture(this->textureUnit, 0, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R8);
+					glBindImageTexture(this->textureUnit, 0, 0, GL_TRUE, 0, this->glAccessMode, this->glImageFormat);
                 }
 				
 				break;

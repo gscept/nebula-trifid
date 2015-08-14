@@ -245,7 +245,7 @@ AOAlgorithm::Setup()
 
 
 	// we need to late setup this algorithm since we need the camera
-	this->deferredSetup = true;
+	this->updateThisFrame = true;
 }
 
 //------------------------------------------------------------------------------
@@ -312,9 +312,13 @@ AOAlgorithm::Discard()
 void 
 AOAlgorithm::Begin()
 {
-	//if (this->deferredSetup)
+	if (this->updateThisFrame)
 	{
 		// calculate variables
+		this->hbao->BeginUpdate();
+		this->blur->BeginUpdate();
+
+		// calculate stuff
 		this->Calculate();
 
 		// set variables
@@ -338,8 +342,15 @@ AOAlgorithm::Begin()
 		this->blurFalloff->SetFloat(vars.blurFalloff);
 		this->blurDepthThreshold->SetFloat(vars.blurThreshold);
 
+		// end updates
+		this->hbao->EndUpdate();
+		this->blur->EndUpdate();
+
 		// we have performed our deferred setup, so set flag to false to avoid this happening again
-		this->deferredSetup = false;
+		this->updateThisFrame = false;
+
+		// test
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 	}
 }
 
@@ -350,8 +361,7 @@ void
 AOAlgorithm::Render()
 {
 	// if enabled, render AO
-	if (false)
-	//if (this->enabled)
+	if (this->enabled)
 	{
 		RenderDevice* renderDevice = RenderDevice::Instance();
 		ShaderServer* shaderServer = ShaderServer::Instance();
@@ -367,41 +377,33 @@ AOAlgorithm::Render()
 		// render AO in X
 		this->hbao->SelectActiveVariation(this->xDirection);
         this->hbao->Apply();
-        this->hbao->BeginUpdate();
 		this->depthTextureVar->SetTexture(this->inputs[0]);
 		this->hbao0Var->SetTexture(this->internalTargets[0]->GetResolveTexture());
-        this->hbao->EndUpdate();
 		this->hbao->Commit();
 		renderDevice->Compute(numGroupsX1, numGroupsY2, 1);
 
         this->hbao->SelectActiveVariation(this->yDirection);
         this->hbao->Apply();
-        this->hbao->BeginUpdate();
 		this->hbao0Var->SetTexture(this->internalTargets[0]->GetResolveTexture());
 		this->hbao1Var->SetTexture(this->internalTargets[1]->GetResolveTexture());
-        this->hbao->EndUpdate();
 		this->hbao->Commit();
 		renderDevice->Compute(numGroupsY1, numGroupsX2, 1);
 
 		this->blur->SelectActiveVariation(this->xDirection);
         this->blur->Apply();
-        this->blur->BeginUpdate();
 		this->hbaoBlurLinearVar->SetTexture(this->internalTargets[1]->GetResolveTexture());
 		this->hbaoBlurPointVar->SetTexture(this->internalTargets[1]->GetResolveTexture());
 		this->hbaoBlurRGVar->SetTexture(this->internalTargets[0]->GetResolveTexture());
 		this->hbaoBlurRVar->SetTexture(NULL);
-        this->blur->EndUpdate();
 		this->blur->Commit();
 		renderDevice->Compute(numGroupsX1, numGroupsY2, 1);
-		
+
 		this->blur->SelectActiveVariation(this->yDirection);
         this->blur->Apply();
-        this->blur->BeginUpdate();
 		this->hbaoBlurLinearVar->SetTexture(this->internalTargets[0]->GetResolveTexture());
 		this->hbaoBlurPointVar->SetTexture(this->internalTargets[0]->GetResolveTexture());
 		this->hbaoBlurRGVar->SetTexture(NULL);
 		this->hbaoBlurRVar->SetTexture(this->output->GetResolveTexture());
-        this->blur->EndUpdate();
 		this->blur->Commit();
 		renderDevice->Compute(numGroupsY1, numGroupsX2, 1);
 #else
@@ -468,6 +470,16 @@ AOAlgorithm::Render()
 void 
 AOAlgorithm::OnDisplayResized(SizeT width, SizeT height)
 {
+	/*
+	this->hbao0Var->SetTexture(NULL);
+	this->hbao1Var->SetTexture(NULL);
+	this->hbaoBlurRGVar->SetTexture(NULL);
+	this->hbaoBlurRVar->SetTexture(NULL);
+	this->hbao->Commit();
+	this->blur->Commit();
+	glFlush();
+	*/
+
     // resize internal targets
     IndexT i;
     for (i = 0; i < 2; i++)
@@ -497,7 +509,7 @@ AOAlgorithm::OnDisplayResized(SizeT width, SizeT height)
 	vars.maxRadiusPixels = MAX_RADIUS_PIXELS * n_min(this->fullWidth, this->fullHeight);
 
 	// trigger a new setup
-	this->deferredSetup = true;
+	this->updateThisFrame = true;
 }
 
 //------------------------------------------------------------------------------
@@ -509,8 +521,8 @@ AOAlgorithm::Calculate()
 	// get camera settings
 	const CameraSettings& cameraSettings = Graphics::GraphicsServer::Instance()->GetCurrentView()->GetCameraEntity()->GetCameraSettings();
 
-	this->width = this->fullWidth / downSample;
-	this->height = this->fullHeight / downSample;
+	this->width = this->fullWidth / this->downSample;
+	this->height = this->fullHeight / this->downSample;
 
 	this->nearZ = cameraSettings.GetZNear();
 	this->farZ = cameraSettings.GetZFar();
@@ -565,8 +577,8 @@ AOAlgorithm::HandleMessage( const Ptr<Messaging::Message>& msg )
 		Ptr<SetAmbientOcclusionParams> rMsg = msg.downcast<SetAmbientOcclusionParams>();
 
 		// update variables set directly
-		this->strengthVar->SetFloat(rMsg->GetStrength());
-		this->tanAngleBiasVar->SetFloat(tanf(n_deg2rad(rMsg->GetAngleBias())));
+		vars.strength = rMsg->GetStrength();
+		vars.tanAngleBias = tanf(n_deg2rad(rMsg->GetAngleBias()));
 		this->powerExponentVar->SetFloat(rMsg->GetPowerExponent());		
         this->radius = rMsg->GetRadius();		
 		
@@ -579,7 +591,7 @@ AOAlgorithm::HandleMessage( const Ptr<Messaging::Message>& msg )
 		this->negInvR2Var->SetFloat(vars.negInvR2);
 #endif
 		this->r2Var->SetFloat(vars.r2);
-
+		this->updateThisFrame = true;
 		return true;
 	}
 	else if (msg->CheckId(EnableAmbientOcclusion::Id))

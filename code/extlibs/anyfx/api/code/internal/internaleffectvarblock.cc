@@ -68,11 +68,6 @@ InternalEffectVarblock::SetupSlave(eastl::vector<InternalEffectProgram*> program
 	// set slave flag
 	this->isSlave = true;
 
-    for (unsigned i = 0; i < this->variables.size(); i++)
-    {
-        this->variables[i]->sharedByteOffset = new unsigned;
-    }
-
     // make sure slaved varblocks use the same handle
     this->currentBufferHandle = masterBlock->currentBufferHandle;
 }

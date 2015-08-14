@@ -17,7 +17,7 @@ __ImplementClass(Algorithm::AlgorithmBase, 'ALBS', Core::RefCounted);
 */
 AlgorithmBase::AlgorithmBase() :
 	enabled(true),
-	deferredSetup(false)
+	updateThisFrame(false)
 {
 	// empty
 }

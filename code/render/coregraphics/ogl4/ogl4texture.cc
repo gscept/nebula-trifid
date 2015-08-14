@@ -329,10 +329,9 @@ OGL4Texture::SetupFromOGL4Texture(const GLuint& texture, CoreGraphics::PixelForm
     // create bindless texture if it's not an attachment
     if (0 == this->ogl4TextureBinding) this->ogl4TextureBinding = n_new(AnyFX::OpenGLTextureBinding);
 
-    // setup bindless state
-
 #if OGL4_USE_BINDLESS_TEXTURE
-    this->ogl4TextureHandle = glGetTextureHandleARB(this->ogl4Texture);
+	// setup bindless state
+	this->ogl4TextureHandle = glGetTextureHandleARB(this->ogl4Texture);
     glMakeTextureHandleResidentARB(this->ogl4TextureHandle);
     this->ogl4TextureBinding->notbound.handle = this->ogl4TextureHandle;
 #endif
@@ -382,7 +381,8 @@ OGL4Texture::SetupFromOGL4MultisampleTexture(const GLuint& texture, CoreGraphics
     if (0 == this->ogl4TextureBinding) this->ogl4TextureBinding = n_new(AnyFX::OpenGLTextureBinding);
 
 #if OGL4_USE_BINDLESS_TEXTURE
-    this->ogl4TextureHandle = glGetTextureHandleARB(this->ogl4Texture);
+	// setup bindless state
+	this->ogl4TextureHandle = glGetTextureHandleARB(this->ogl4Texture);
     glMakeTextureHandleResidentARB(this->ogl4TextureHandle);
     this->ogl4TextureBinding->notbound.handle = this->ogl4TextureHandle;
 #endif
@@ -436,7 +436,8 @@ OGL4Texture::SetupFromOGL4VolumeTexture(const GLuint& texture, CoreGraphics::Pix
     if (0 == this->ogl4TextureBinding) this->ogl4TextureBinding = n_new(AnyFX::OpenGLTextureBinding);
 
 #if OGL4_USE_BINDLESS_TEXTURE
-    this->ogl4TextureHandle = glGetTextureHandleARB(this->ogl4Texture);
+	// setup bindless state
+	this->ogl4TextureHandle = glGetTextureHandleARB(this->ogl4Texture);
     glMakeTextureHandleResidentARB(this->ogl4TextureHandle);
     this->ogl4TextureBinding->notbound.handle = this->ogl4TextureHandle;
 #endif
@@ -489,7 +490,8 @@ OGL4Texture::SetupFromOGL4CubeTexture(const GLuint& texCube, CoreGraphics::Pixel
     if (0 == this->ogl4TextureBinding) this->ogl4TextureBinding = n_new(AnyFX::OpenGLTextureBinding);
 
 #if OGL4_USE_BINDLESS_TEXTURE
-    this->ogl4TextureHandle = glGetTextureHandleARB(this->ogl4Texture);
+	// setup bindless state
+	this->ogl4TextureHandle = glGetTextureHandleARB(this->ogl4Texture);
     glMakeTextureHandleResidentARB(this->ogl4TextureHandle);
     this->ogl4TextureBinding->notbound.handle = this->ogl4TextureHandle;
 #endif

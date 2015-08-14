@@ -65,7 +65,7 @@ protected:
     Util::Array<Ptr<CoreGraphics::Texture>> inputs;
 	Util::Array<Ptr<CoreGraphics::RenderTarget>> targets;
     bool enabled;
-    bool deferredSetup;
+    bool updateThisFrame;
 }; 
 
 
