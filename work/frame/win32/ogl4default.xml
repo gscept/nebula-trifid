@@ -167,7 +167,7 @@
 	<ApplyShaderVariable sem="DepthMap" value="DepthBuffer"/>
 	<Batch type="LightProbes"/>
   </Pass>
-  
+    
   <!-- render screen space reflections -->
   <Algorithm className="Algorithm::SSRAlgorithm">
 	<Input name="DepthBuffer"/>
