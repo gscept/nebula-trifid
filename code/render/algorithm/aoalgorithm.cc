@@ -86,8 +86,8 @@ AOAlgorithm::Setup()
 	this->hbao = ShaderServer::Instance()->GetShader("shd:hbao_cs");
     this->blur = ShaderServer::Instance()->GetShader("shd:hbaoblur_cs");
 
-    this->xDirection = ShaderServer::Instance()->FeatureStringToMask("X");
-    this->yDirection = ShaderServer::Instance()->FeatureStringToMask("Y");
+    this->xDirection = ShaderServer::Instance()->FeatureStringToMask("Alt0");
+    this->yDirection = ShaderServer::Instance()->FeatureStringToMask("Alt1");
 
 	this->hbao0Var = this->hbao->GetVariableByName("HBAO0");
 	this->hbao1Var = this->hbao->GetVariableByName("HBAO1");

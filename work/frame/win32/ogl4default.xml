@@ -168,6 +168,15 @@
 	<Batch type="LightProbes"/>
   </Pass>
   
+  <!-- render screen space reflections -->
+  <Algorithm className="Algorithm::SSRAlgorithm">
+	<Input name="DepthBuffer"/>
+	<Input name="ColorBuffer"/>
+	<Input name="SpecularBuffer"/>
+	<Input name="NormalBuffer"/>
+	<Input name="EmissiveBuffer"/>
+  </Algorithm>
+  
   <!-- merge lights and color in screen space, apply specularity and AO -->
   <PostEffect renderTarget="ColorBuffer" shader="gather" name="Gather" clearColor="0,0,0,1">
    <ApplyShaderVariable sem="DepthTexture" value="DepthBuffer"/>

@@ -628,6 +628,8 @@ ENDIF()
 		algorithm/algorithmhandler.cc
 		algorithm/aoalgorithm.h
 		algorithm/aoalgorithm.cc
+		algorithm/ssralgorithm.h
+		algorithm/ssralgorithm.cc
 		algorithm/volumetriclightalgorithm.h
 		algorithm/volumetriclightalgorithm.cc
 		algorithm/tonemappingalgorithm.h

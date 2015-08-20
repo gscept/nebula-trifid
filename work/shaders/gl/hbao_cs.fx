@@ -253,12 +253,12 @@ csMainY()
 //------------------------------------------------------------------------------
 /**
 */
-program HBAOX [ string Mask = "X"; ]
+program HBAOX [ string Mask = "Alt0"; ]
 {
 	ComputeShader = csMainX();
 };
 
-program HBAOY [ string Mask = "Y"; ]
+program HBAOY [ string Mask = "Alt1"; ]
 {
 	ComputeShader = csMainY();
 };

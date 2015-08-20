@@ -12,5 +12,6 @@
 #include "aoalgorithm.h"
 #include "volumetriclightalgorithm.h"
 #include "tonemappingalgorithm.h"
+#include "ssralgorithm.h"
 
 //------------------------------------------------------------------------------
