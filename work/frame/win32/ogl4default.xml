@@ -171,7 +171,7 @@
   <!-- render screen space reflections -->
   <Algorithm className="Algorithm::SSRAlgorithm">
 	<Input name="DepthBuffer"/>
-	<Input name="ColorBuffer"/>
+	<Input name="AlbedoBuffer"/>
 	<Input name="SpecularBuffer"/>
 	<Input name="NormalBuffer"/>
 	<Input name="EmissiveBuffer"/>
