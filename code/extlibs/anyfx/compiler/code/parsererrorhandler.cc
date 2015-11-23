@@ -161,8 +161,7 @@ PrintParserException(pANTLR3_EXCEPTION ex, pANTLR3_UINT8* tokenNames)
 	}
 
 	// remove the quotes surrounding the file name
-	std::string fileString((const char*)token->custom);
-	fileString = fileString.substr(1, fileString.size()-2);
+	std::string fileString(*(std::string*)token->custom);
 
 	// format error and save to buffer
 	std::string errorMessage = Format("Syntax error: %s at %d:%d in file '%s'.\n", exceptionAsString.c_str(), line, row, fileString.c_str());

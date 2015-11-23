@@ -84,8 +84,8 @@ GLSL4EffectSampler::~GLSL4EffectSampler()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-GLSL4EffectSampler::Setup( const eastl::vector<InternalEffectVariable*>& textures )
+void
+GLSL4EffectSampler::Setup(const eastl::vector<InternalEffectVariable*>& textures)
 {
 	InternalEffectSampler::Setup(textures);
 

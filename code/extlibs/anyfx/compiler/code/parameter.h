@@ -121,6 +121,15 @@ public:
 	/// returns offset into above feedback buffer this parameter is supposed to land
 	const unsigned GetFeedbackOffset() const;
 
+    /// set the slot expression
+    void SetSlotExpression(Expression* expr);
+    /// get the slot where this parameter is bound
+    const int GetSlot() const;
+    /// set index into function where this parameter resides
+    void SetParameterIndex(const unsigned index);
+    /// returns true if this parameter has an explicit slot binding
+    const bool HasExplicitSlot() const;
+
 	/// returns true if parameter is array
 	bool IsArray() const;
 	/// returns array size
@@ -160,6 +169,11 @@ private:
 	Expression* sizeExpression;
 	bool isArray;
 	unsigned arraySize;
+
+    // slot stuff
+    Expression* slotExpression;
+    unsigned index;
+    bool explicitSlot;
 
 	// feedback buffer stuff
 	Expression* feedbackBufferExpression;
@@ -345,6 +359,43 @@ inline const unsigned
 Parameter::GetFeedbackOffset() const
 {
 	return this->feedbackOffset;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+Parameter::SetSlotExpression(Expression* expr)
+{
+    this->slotExpression = expr;
+    this->explicitSlot = true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const int
+Parameter::GetSlot() const
+{
+    return this->index;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+Parameter::SetParameterIndex(const unsigned index)
+{
+    this->index = index;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const bool
+Parameter::HasExplicitSlot() const
+{
+    return this->explicitSlot;
 }
 
 //------------------------------------------------------------------------------

@@ -32,12 +32,12 @@ TextureImporterWindow::TextureImporterWindow()
 	connect(this->ui.importButton, SIGNAL(pressed()), this, SLOT(OnImport()));
 
 	// setup attr table
-	this->attrTable.Setup("src:textures");
+	this->attrTable.Setup("src:assets");
 
 	// hide load stuff
 	this->ui.loadProgress->setVisible(false);
 	this->ui.status->setVisible(false);
-	this->resourceFolder = "textures";
+	this->resourceFolder = "assets";
 
 	// connect signals and slots
 	connect(this->ui.widthBox, SIGNAL(valueChanged(int)), this, SLOT(OnWidthChanged(int)));
@@ -89,7 +89,7 @@ TextureImporterWindow::OnImport()
 
 	// format work file
 	String workFile;
-	workFile.Format("src:textures/%s", entry.AsCharPtr());
+	workFile.Format("src:assets/%s", entry.AsCharPtr());
 	URI workPath(workFile);
 
 	// check if file is in work
@@ -116,7 +116,7 @@ TextureImporterWindow::OnImport()
 			entry = category + "/" + tex;
 
 			// reformat work file
-			workFile.Format("src:textures/%s/%s", 
+			workFile.Format("src:assets/%s/%s", 
 				category.AsCharPtr(), 
 				tex.AsCharPtr());
 

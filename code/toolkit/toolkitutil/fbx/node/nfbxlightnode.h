@@ -9,7 +9,7 @@
 */
 //------------------------------------------------------------------------------
 #include "fbx/node/nfbxnode.h"
-namespace Fbx
+namespace ToolkitUtil
 {
 class NFbxLightNode : public NFbxNode
 {

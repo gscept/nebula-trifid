@@ -9,14 +9,20 @@
 */
 #include "afxapi.h"
 #include "coregraphics/base/shadervariablebase.h"
-#include "coregraphics/texture.h"
 #include "util/variant.h"
 
 //------------------------------------------------------------------------------
 
+namespace CoreGraphics
+{
+class ConstantBuffer;
+class Texture;
+}
+
 namespace OpenGL4
 {
 class OGL4ShaderInstance;
+class OGL4StreamShaderLoader;
 	
 class OGL4ShaderVariable : public Base::ShaderVariableBase
 {
@@ -26,6 +32,9 @@ public:
     OGL4ShaderVariable();
     /// destructor
     virtual ~OGL4ShaderVariable();
+
+    /// bind variable to uniform buffer
+    void BindToUniformBuffer(const Ptr<CoreGraphics::ConstantBuffer>& buffer, GLuint offset, GLuint size, GLchar* defaultValue);
     
     /// set int value
     void SetInt(int value);
@@ -56,36 +65,35 @@ public:
 	/// sets buffer handle
 	void SetBufferHandle(void* handle);
 
-	/// special handling of textures
-	Ptr<CoreGraphics::Texture> GetTexture();
-
 	/// cleanup
 	void Cleanup();
 private:
+    friend class OpenGL4::OGL4StreamShaderLoader;
     friend class OpenGL4::OGL4ShaderInstance;
 
 	/// setup from AnyFX variable
 	void Setup(AnyFX::EffectVariable* var);
 	/// setup from AnyFX varbuffer
 	void Setup(AnyFX::EffectVarbuffer* var);
+    /// setup from AnyFX varblock
+    void Setup(AnyFX::EffectVarblock* var);
 
-	Ptr<OpenGL4::OGL4ShaderInstance> parentInstance;
+    struct BufferBinding
+    {
+        Ptr<CoreGraphics::ConstantBuffer> uniformBuffer;
+        GLuint offset;
+        GLuint size;
+        GLchar* defaultValue;
+    }* bufferBinding;
+    
+	Ptr<OGL4ShaderInstance> parentInstance;
 	Ptr<CoreGraphics::Texture> texture;
 
 	AnyFX::EffectVariable* effectVar;
 	AnyFX::EffectVarbuffer* effectBuffer;
+    AnyFX::EffectVarblock* effectBlock;
 	bool reload;
 };
-
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline Ptr<CoreGraphics::Texture>
-OGL4ShaderVariable::GetTexture()
-{
-	return texture;
-}
 
 } // namespace Direct3D9
 //------------------------------------------------------------------------------

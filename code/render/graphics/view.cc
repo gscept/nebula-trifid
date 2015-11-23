@@ -224,32 +224,6 @@ View::ResolveVisibleShadowCasters( IndexT frameIndex )
 			curEntity->OnRenderBefore(frameIndex);
 		}
 	}
-
-	/*
-	// now find all local lights
-	const Array<Ptr<GraphicsEntity> >& entities = GraphicsServer::Instance()->GetEntities();
-	IndexT i;
-	for (i = 0; i < entities.Size(); i++)
-	{
-		const Ptr<GraphicsEntity>& entity = entities[i];
-		if (entity->GetType() == GraphicsEntityType::Light)
-		{
-			const Ptr<AbstractLightEntity>& light = entity.downcast<AbstractLightEntity>();
-			if (light->GetCastShadows())
-			{
-				const Array<Ptr<GraphicsEntity> >& visLinks = light->GetLinks(GraphicsEntity::LightLink);
-				IndexT j;
-				SizeT num = visLinks.Size();
-				for (j = 0; j < num; j++)
-				{
-					const Ptr<GraphicsEntity>& curEntity = visLinks[j];
-					n_assert(GraphicsEntityType::Model == curEntity->GetType());
-					curEntity->OnRenderBefore(frameIndex);
-				}
-			}
-		}
-	}
-	*/
 }
 
 //------------------------------------------------------------------------------
@@ -319,12 +293,12 @@ View::Render(IndexT frameIndex)
 
     // render the world...
 	_start_timer(render);
-    this->frameShader->Render();
+    this->frameShader->Render(frameIndex);
 	_stop_timer(render);
 
 	// render picking
 	_start_timer(picking);
-	pickingServer->Render();
+	pickingServer->Render(frameIndex);
 	_stop_timer(picking);
 
     // tell main frame shader, light and shadow servers that rendering is finished

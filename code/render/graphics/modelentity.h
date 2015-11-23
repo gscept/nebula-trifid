@@ -16,6 +16,7 @@
 #include "graphics/graphicsprotocol.h"
 #include "characters/charjointinfo.h"
 #include "lighting/environmentprobe.h"
+#include "materials/surfaceconstantinstance.h"
 
 //------------------------------------------------------------------------------
 namespace Graphics
@@ -110,13 +111,11 @@ public:
     const Util::Array<Characters::CharJointInfo>& GetCharJointInfos() const;
 
     /// modifies a material variable for a given model node
-    void SetMaterialVariable(const Util::String& nodeName, const Util::String& varName, const Util::Variant& value);
+    void SetSurfaceConstant(const Util::String& nodeName, const Util::String& varName, const Util::Variant& value);
 	/// sets material variable as texture
-	void SetMaterialVariable(const Util::String& nodeName, const Util::String& varName, const Ptr<CoreGraphics::Texture>& tex);
+	void SetSurfaceConstant(const Util::String& nodeName, const Util::String& varName, const Ptr<CoreGraphics::Texture>& tex);
 	/// sets material variable if it exists on node and direct children
 	void SetMaterialVariableByName(const Util::String& varName, const Util::Variant& value);
-    /// returns reference to material variable if it exists
-    Ptr<Materials::MaterialVariableInstance> GetMaterialVariable(const Util::String& nodeName, const Util::String& varName);
 
     /// handle a message
     virtual void HandleMessage(const Ptr<Messaging::Message>& msg);

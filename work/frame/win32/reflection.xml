@@ -82,19 +82,19 @@
        
   <!-- render opaque geometry -->
   <Pass multipleRenderTarget="ReflGeometryBuffer" name="ReflGeometry">
-	<Batch materialType="RenderFirst" sorting="None" lighting="None" type="Geometry">
+	<Batch batchGroup="RenderFirst" sorting="None" lighting="None" type="Geometry">
 		<ApplyShaderVariable sem="DepthBuffer" value="ReflDepthBuffer"/>
 	</Batch>
-	<Batch materialType="FlatGeometryLit" sorting="None" lighting="None" type="Geometry"/>
-	<Batch materialType="TessellatedGeometryLit" sorting="None" lighting="None" type="Geometry"/>
-	<Batch materialType="RenderLast" sorting="None" lighting="None" type="Geometry">
+	<Batch batchGroup="FlatGeometryLit" sorting="None" lighting="None" type="Geometry"/>
+	<Batch batchGroup="TessellatedGeometryLit" sorting="None" lighting="None" type="Geometry"/>
+	<Batch batchGroup="RenderLast" sorting="None" lighting="None" type="Geometry">
 		<ApplyShaderVariable sem="DepthBuffer" value="ReflDepthBuffer"/>
 	</Batch>
   </Pass>
       
   <!-- perform SSSS -->
   <Pass multipleRenderTarget="ReflSubsurfaceBuffer" name="ReflSubsurfaceScattering">
-	<Batch materialType="Subsurface" sorting="None" lighting="None" type="Geometry"/>
+	<Batch batchGroup="Subsurface" sorting="None" lighting="None" type="Geometry"/>
   </Pass>
   
   <!-- renders screen-space lighting for opaque geometry -->
@@ -128,8 +128,8 @@
   
   <!-- render alpha geometry -->
   <Pass multipleRenderTarget="ReflAlphaGeometryBuffer" name="ReflAlphaGeometry">
-	<Batch materialType="FlatGeometryAlphaLit" sorting="None" lighting="None" type="Geometry"/>
-	<Batch materialType="ParticleLit" sorting="None" lighting="None" type="Geometry"/>
+	<Batch batchGroup="FlatGeometryAlphaLit" sorting="None" lighting="None" type="Geometry"/>
+	<Batch batchGroup="ParticleLit" sorting="None" lighting="None" type="Geometry"/>
   </Pass>
   
   <!-- render screen-space lighting for alpha geometry -->
@@ -169,7 +169,7 @@
   <!-- render unlit objects -->
   <Pass multipleRenderTarget="ReflUnlitBuffer" name="ReflUnlit">	
 	<!-- render skybox -->
-	<Batch materialType="Background" sorting="None" lighting="None" type="Geometry"/>
+	<Batch batchGroup="Background" sorting="None" lighting="None" type="Geometry"/>
   </Pass>
    
   <!-- perform copy so that we can sample the color and write to it simultaneously -->
@@ -177,11 +177,11 @@
   
   <!-- render atmospheric stuff like water and volume fog -->
   <Pass multipleRenderTarget="ReflAtmosphericBuffer" name="ReflAtmosphere">
-	<Batch materialType="Fog" sorting="None" lighting="None" type="Geometry">
+	<Batch batchGroup="Fog" sorting="None" lighting="None" type="Geometry">
 		<ApplyShaderVariable sem="DiffuseMap" value="ReflColorBufferCopy"/>
 		<ApplyShaderVariable sem="DepthMap" value="ReflDepthBuffer"/>
 	</Batch>
-	<Batch materialType="Water" sorting="None" lighting="None" type="Geometry">
+	<Batch batchGroup="Water" sorting="None" lighting="None" type="Geometry">
 		<ApplyShaderVariable sem="DepthMap" value="ReflDepthBuffer"/>
 		<ApplyShaderVariable sem="ColorMap" value="ReflColorBufferCopy"/>
 	</Batch>

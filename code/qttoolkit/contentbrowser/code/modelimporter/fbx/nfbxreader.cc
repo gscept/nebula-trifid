@@ -38,7 +38,7 @@ NFbxReader::~NFbxReader()
 
 //------------------------------------------------------------------------------
 /**
-	Global function called from KFbxImporter when loading progress ia returned
+	Global function called from KFbxImporter when loading progress is returned
 */
 bool
 ProgressChanged(void* arguments, float progress, const char* status)
@@ -50,8 +50,8 @@ ProgressChanged(void* arguments, float progress, const char* status)
 //------------------------------------------------------------------------------
 /**
 */
-void 
-NFbxReader::Open( const IO::URI& path )
+void
+NFbxReader::Open(const IO::URI& path)
 {
 	Q_ASSERT(!this->isOpen);
 
@@ -112,8 +112,8 @@ NFbxReader::IsOpen() const
 //------------------------------------------------------------------------------
 /**
 */
-void 
-NFbxReader::SetParent( QWidget* parent )
+void
+NFbxReader::SetParent(QWidget* parent)
 {
 	this->parentWidget = parent;
 }
@@ -251,8 +251,8 @@ NFbxReader::GetInfo()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-NFbxReader::GetJointsRecursive( Util::Array<Util::String>& joints, FbxNode* parent )
+void
+NFbxReader::GetJointsRecursive(Util::Array<Util::String>& joints, FbxNode* parent)
 {
 	int childCount = parent->GetChildCount();
 	for (int childIndex = 0; childIndex < childCount; childIndex++)

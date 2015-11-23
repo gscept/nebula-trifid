@@ -36,7 +36,7 @@ EffectSubroutine::Discard()
 //------------------------------------------------------------------------------
 /**
 */
-const std::string& 
+const eastl::string&
 EffectSubroutine::GetName() const
 {
     return this->internalSubroutine->GetName();

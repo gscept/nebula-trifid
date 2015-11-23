@@ -30,9 +30,6 @@ public:
     /// close the shader server
     void Close();
 
-
-	/// get the shared shader
-	Ptr<CoreGraphics::ShaderInstance> GetSharedShader();
 	/// reloads a shader
 	void ReloadShader(Ptr<CoreGraphics::Shader> shader);
 	/// explicitly loads a shader by resource id

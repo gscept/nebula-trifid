@@ -67,23 +67,12 @@ AnimatorNodeInstance::Setup(const Ptr<ModelInstance>& inst, const Ptr<ModelNode>
             AnimatedNode newNode;
             newNode.node = modelNodeInst;
             AnimatorNode::NodeType animNodeType = node.cast<AnimatorNode>()->GetAnimationNodeType(animSecIdx);
-            const CoreGraphics::ShaderVariable::Semantic& varSem = node.cast<AnimatorNode>()->GetShaderVariableSemantic(animSecIdx);
+            const CoreGraphics::ShaderVariable::Name& varName = node.cast<AnimatorNode>()->GetShaderVariableName(animSecIdx);
             if (modelNodeInst->IsA(StateNodeInstance::RTTI))
             {
                 Ptr<StateNodeInstance> stateNodeInstance = modelNodeInst.cast<StateNodeInstance>();
 				Ptr<StateNode> stateNode = modelNodeInst->GetModelNode().cast<StateNode>();
-
-                if (varSem.IsValid())
-                {
-                    if (!stateNodeInstance->HasMaterialVariableInstance(varSem))
-                    {
-                        newNode.var = stateNodeInstance->CreateMaterialVariableInstance(varSem);                    
-                    }
-                    else
-                    {
-                        newNode.var = stateNodeInstance->GetMaterialVariableInstance(varSem);
-                    }
-                }
+                newNode.var = stateNodeInstance->GetSurfaceInstance()->GetConstant(varName);
             }
             if ((animNodeType == AnimatorNode::IntAnimator) ||
                 (animNodeType == AnimatorNode::FloatAnimator) ||
@@ -162,7 +151,7 @@ AnimatorNodeInstance::Animate(Timing::Time time)
                 AnimLoopType::Type& loopType = this->modelNode.cast<AnimatorNode>()->GetLoopType(animSecIdx);
                 if (float4KeyArray.Sample((float)time, loopType, key))
                 {
-                    curNode.var->SetFloat4(key.GetValue());
+                    curNode.var->SetValue(key.GetValue());
                 }
             }
             else if (animNodeType == AnimatorNode::FloatAnimator)
@@ -173,7 +162,7 @@ AnimatorNodeInstance::Animate(Timing::Time time)
                 AnimLoopType::Type& loopType = this->modelNode.cast<AnimatorNode>()->GetLoopType(animSecIdx);
                 if (floatKeyArray.Sample((float)time, loopType, key))
                 {
-                    curNode.var->SetFloat(key.GetValue());
+                    curNode.var->SetValue(key.GetValue());
                     //n_printf("Float aniamation of node %s: time: %f value: %f\n", curNode.node->GetName().Value(), time, key.GetValue());                    
                 }
             }
@@ -185,7 +174,7 @@ AnimatorNodeInstance::Animate(Timing::Time time)
                 AnimLoopType::Type& loopType = this->modelNode.cast<AnimatorNode>()->GetLoopType(animSecIdx);
                 if (intKeyArray.Sample((float)time, loopType, key))
                 {
-                    curNode.var->SetInt(key.GetValue());
+                    curNode.var->SetValue(key.GetValue());
                 }
             }
             else if (animNodeType == AnimatorNode::TransformAnimator)
@@ -256,7 +245,7 @@ AnimatorNodeInstance::Animate(Timing::Time time)
                 {
                     uvTransform.scale(key.GetValue());
                 }
-                curNode.var->SetMatrix(uvTransform);
+                curNode.var->SetValue(uvTransform);
             }
         }
     }

@@ -86,7 +86,7 @@ MaterialLoader::ParseMaterial( const Ptr<IO::XmlReader>& xmlReader, const Ptr<Ma
 	String desc = xmlReader->GetOptString("desc", "");
     String inherits = xmlReader->GetOptString("inherits", "");
 
-	n_assert2(!name.ContainsCharFromSet("|"), "Name of material may not contain '|' character since it's used to denote multiple inheritance");
+	n_assert2(!name.ContainsCharFromSet("|"), "Name of material may not contain character '|' since it's used to denote multiple inheritance");
 	
 	bool isVirtual = xmlReader->GetOptBool("virtual", false);
 	if (isVirtual)
@@ -106,7 +106,7 @@ MaterialLoader::ParseMaterial( const Ptr<IO::XmlReader>& xmlReader, const Ptr<Ma
 	material->SetName(name);
 	material->SetVirtual(isVirtual);
 	material->SetDescription(desc);	
-	material->SetCode(Models::ModelNodeMaterial::FromName(name));
+	material->SetCode(Materials::MaterialType::FromName(name));
 
     // load inherited material
     if (!inherits.IsEmpty())
@@ -154,7 +154,7 @@ MaterialLoader::ParseMaterialPass( const Ptr<IO::XmlReader>& xmlReader, const Pt
 	String shaderFeatures = xmlReader->GetString("variation");
 
 	// convert batch name to model node type
-	Models::ModelNodeType::Code code = Models::ModelNodeType::FromName(batchName);
+    Frame::BatchGroup::Code code = Frame::BatchGroup::FromName(batchName);
 
 	//get shader
 	String shaderName = xmlReader->GetString("shader");
@@ -217,12 +217,8 @@ MaterialLoader::ParseParameter( const Ptr<IO::XmlReader>& xmlReader, const Ptr<M
 		var.SetMatrix44(xmlReader->GetOptMatrix44("defaultValue", matrix44::identity()));
 		break;
 	case Variant::String:
-		{
-			// get texture
-			Ptr<ManagedTexture> tex = ResourceManager::Instance()->CreateManagedResource(Texture::RTTI, xmlReader->GetOptString("defaultValue", "tex:system/placeholder.dds")).downcast<ManagedTexture>();
-			var.SetObject(tex);
-			break;
-		}
+        var.SetString(xmlReader->GetOptString("defaultValue", "tex:system/placeholder.dds"));
+        break;
 	}		
 
 	// set values

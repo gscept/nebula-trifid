@@ -20,8 +20,8 @@ public:
     enum Code
     {
         None,           // no lighting
-        SinglePass,     // one-pass-lighting
-        MultiPass,      // pass-per-light
+        Forward,        // one-pass-lighting
+        Deferred,       // pass-per-light
     };
 
     /// convert from string

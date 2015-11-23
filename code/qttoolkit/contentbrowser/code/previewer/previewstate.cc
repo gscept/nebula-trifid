@@ -206,6 +206,7 @@ PreviewState::SetModel(const Resources::ResourceId& resource)
 {
 	// create placeholder model
 	Ptr<Stage> defaultStage = GraphicsFeatureUnit::Instance()->GetDefaultStage();
+	defaultStage->RemoveEntity(this->modelEntity.cast<GraphicsEntity>());
 	this->modelEntity->SetTransform(matrix44::translation(0.0, 0.0, 0.0));
 	this->modelEntity->SetResourceId(resource);
 	defaultStage->AttachEntity(this->modelEntity.cast<GraphicsEntity>());

@@ -41,11 +41,16 @@ public:
 	void SetName(const std::string& name);
 	/// gets name of program
 	const std::string& GetName() const;
+    /// set if symbol is a reserved (by the compiler)
+    void SetReserved(bool b);
+    /// get if symbol is reserved
+    const bool IsReserved() const;
 
 	/// returns type of symbol
 	const Type& GetType() const;
 
 protected:
+    bool reserved;
 	std::string name;
 	Type symbolType;
 }; 
@@ -66,6 +71,26 @@ inline const std::string&
 Symbol::GetName() const
 {
 	return this->name;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+Symbol::SetReserved(bool b)
+{
+    this->reserved = b;
+    this->file = "<intrinsic>";
+    this->line = 0;    
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const bool
+Symbol::IsReserved() const
+{
+    return this->reserved;
 }
 
 //------------------------------------------------------------------------------

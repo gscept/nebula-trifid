@@ -22,7 +22,6 @@ MemoryIndexBufferLoaderBase::MemoryIndexBufferLoaderBase() :
     indexDataSize(0),
     usage(IndexBuffer::UsageImmutable),
     access(IndexBuffer::AccessNone),
-	bufferCount(IndexBuffer::BufferSingle),
 	syncing(IndexBuffer::SyncingSimple)
 {
 	
@@ -43,7 +42,6 @@ MemoryIndexBufferLoaderBase::Setup(IndexType::Code indexType_,
                                    SizeT indexDataSize_, 
                                    IndexBuffer::Usage usage_, 
                                    IndexBuffer::Access access_,
-								   IndexBuffer::BufferCount bufferCount_,
 								   IndexBuffer::Syncing syncing_)
 {
     n_assert((indexType_ == IndexType::Index16) || (indexType_ == IndexType::Index32));
@@ -59,7 +57,6 @@ MemoryIndexBufferLoaderBase::Setup(IndexType::Code indexType_,
     this->indexDataSize = indexDataSize_;
     this->usage         = usage_;
     this->access        = access_;
-	this->bufferCount	= bufferCount_;
 	this->syncing		= syncing_;
 }
 

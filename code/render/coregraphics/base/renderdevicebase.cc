@@ -296,7 +296,7 @@ RenderDeviceBase::BeginFrame()
 /**
 */
 void
-RenderDeviceBase::BeginPass(const Ptr<RenderTarget>& rt, const Ptr<ShaderInstance>& shd)
+RenderDeviceBase::BeginPass(const Ptr<RenderTarget>& rt, const Ptr<Shader>& shd)
 {
     n_assert(this->inBeginFrame);
     n_assert(!this->inBeginPass);
@@ -308,10 +308,7 @@ RenderDeviceBase::BeginPass(const Ptr<RenderTarget>& rt, const Ptr<ShaderInstanc
     this->passShader = shd;
     if (this->passShader.isvalid())
     {
-        SizeT numPasses = this->passShader->Begin();
-        n_assert(1 == numPasses);
-        this->passShader->BeginPass(0);
-        this->passShader->Commit();
+        //this->passShader->Commit();
     }
 
 	// notify render targets
@@ -323,7 +320,7 @@ RenderDeviceBase::BeginPass(const Ptr<RenderTarget>& rt, const Ptr<ShaderInstanc
 /**
 */
 void 
-RenderDeviceBase::BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt, const Ptr<CoreGraphics::ShaderInstance>& shd)
+RenderDeviceBase::BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt, const Ptr<CoreGraphics::Shader>& shd)
 {
     n_assert(this->inBeginFrame);
     n_assert(!this->inBeginPass);
@@ -335,10 +332,7 @@ RenderDeviceBase::BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt, 
     this->passShader = shd;
     if (this->passShader.isvalid())
     {
-        SizeT numPasses = this->passShader->Begin();
-        n_assert(1 == numPasses);
-        this->passShader->BeginPass(0);
-        this->passShader->Commit();
+        //this->passShader->Commit();
     }
 
     // notify render targets
@@ -350,7 +344,7 @@ RenderDeviceBase::BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt, 
 /**
 */
 void 
-RenderDeviceBase::BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& crt, const Ptr<CoreGraphics::ShaderInstance>& shd)
+RenderDeviceBase::BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& crt, const Ptr<CoreGraphics::Shader>& shd)
 {
     n_assert(this->inBeginFrame);
     n_assert(!this->inBeginPass);
@@ -362,10 +356,7 @@ RenderDeviceBase::BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& crt, cons
     this->passShader = shd;
     if (this->passShader.isvalid())
     {
-        SizeT numPasses = this->passShader->Begin();
-        n_assert(1 == numPasses);
-        this->passShader->BeginPass(0);
-        this->passShader->Commit();
+        //this->passShader->Commit();
     }
 
     // notify render targets
@@ -377,7 +368,7 @@ RenderDeviceBase::BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& crt, cons
 /**
 */
 void
-RenderDeviceBase::BeginFeedback(const Ptr<CoreGraphics::FeedbackBuffer>& fb, CoreGraphics::PrimitiveTopology::Code primType, const Ptr<CoreGraphics::ShaderInstance>& shader)
+RenderDeviceBase::BeginFeedback(const Ptr<CoreGraphics::FeedbackBuffer>& fb, CoreGraphics::PrimitiveTopology::Code primType, const Ptr<CoreGraphics::Shader>& shader)
 {
 	n_assert(this->inBeginFrame);
 	n_assert(!this->inBeginPass);
@@ -388,10 +379,7 @@ RenderDeviceBase::BeginFeedback(const Ptr<CoreGraphics::FeedbackBuffer>& fb, Cor
 	this->passShader = shader;
 	if (this->passShader.isvalid())
 	{
-		SizeT numPasses = this->passShader->Begin();
-		n_assert(1 == numPasses);
-		this->passShader->BeginPass(0);
-		this->passShader->Commit();
+		//this->passShader->Commit();
 	}
 }
 
@@ -399,7 +387,7 @@ RenderDeviceBase::BeginFeedback(const Ptr<CoreGraphics::FeedbackBuffer>& fb, Cor
 /**
 */
 void
-RenderDeviceBase::BeginBatch(BatchType::Code batchType)
+RenderDeviceBase::BeginBatch(FrameBatchType::Code batchType)
 {
     n_assert(this->inBeginPass);
     n_assert(!this->inBeginBatch);
@@ -483,8 +471,6 @@ RenderDeviceBase::EndPass()
     // finish pass shader
     if (this->passShader.isvalid())
     {
-        this->passShader->EndPass();
-        this->passShader->End();
         this->passShader = 0;
     }
     this->inBeginPass = false;
@@ -502,8 +488,6 @@ RenderDeviceBase::EndFeedback()
 	// finish pass shader
 	if (this->passShader.isvalid())
 	{
-		this->passShader->EndPass();
-		this->passShader->End();
 		this->passShader = 0;
 	}
 	this->inBeginPass = false;

@@ -76,7 +76,7 @@ private:
 	Ptr<ToolkitUtil::ModelDatabase> database;
 	Ptr<ToolkitUtil::ModelAttributes> currentOptions;
 	Ptr<ToolkitUtil::ModelPhysics> currentPhysics;
-	Ptr<Fbx::NFbxExporter> fbxExporter; 
+	Ptr<ToolkitUtil::NFbxExporter> fbxExporter;
 
 };
 }

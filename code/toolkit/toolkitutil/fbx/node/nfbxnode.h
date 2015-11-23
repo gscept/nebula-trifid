@@ -21,7 +21,7 @@
 #define KEYS_PER_MS 40
 
 //------------------------------------------------------------------------------
-namespace Fbx
+namespace ToolkitUtil
 {
 
 class NFbxScene;

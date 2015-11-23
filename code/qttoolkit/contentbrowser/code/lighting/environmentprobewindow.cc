@@ -27,7 +27,7 @@ EnvironmentProbeWindow::EnvironmentProbeWindow()
 	connect(this->ui.irradianceMapButton, SIGNAL(pressed()), this, SLOT(OnBrowseIrradiance()));
 
 	// setup text fields
-	this->ui.reflectionMapEdit->setText("system/sky");
+	this->ui.reflectionMapEdit->setText("system/sky_refl");
 	this->ui.irradianceMapEdit->setText("system/sky_irr");
 
 	// setup images

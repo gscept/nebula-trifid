@@ -23,8 +23,11 @@ public:
 
 	/// returns pointer to handler
 	const Ptr<ParticleNodeHandler>& GetHandler() const;
+
 	/// discards particle node frame
 	void Discard();
+	/// refresh model node frames
+	void Refresh();
 
 private:
 	Ptr<ParticleNodeHandler> itemHandler;

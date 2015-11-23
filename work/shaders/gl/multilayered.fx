@@ -50,9 +50,9 @@ void
 vsColored(in vec3 position,
 	in vec3 normal,
 	in vec2 uv,
-	in vec4 color,
 	in vec3 tangent,
 	in vec3 binormal,
+	[slot=5] in vec4 color,
 	out vec3 ViewSpacePos,
 	out vec3 Tangent,
 	out vec3 Normal,
@@ -83,9 +83,9 @@ void
 vsColoredShadow(in vec3 position,
 	in vec3 normal,
 	in vec2 uv,
-	in vec4 color,
 	in vec3 tangent,
 	in vec3 binormal,
+	[slot=5] in vec4 color,
 	out vec2 UV,
 	out vec4 ProjPos) 
 {
@@ -104,9 +104,9 @@ void
 vsColoredCSM(in vec3 position,
 	in vec3 normal,
 	in vec2 uv,
-	in vec4 color,
 	in vec3 tangent,
 	in vec3 binormal,
+	[slot=5] in vec4 color,
 	out vec2 UV,
 	out vec4 ProjPos,
 	out int Instance) 
@@ -125,9 +125,9 @@ void
 vsColoredTessellated(in vec3 position,
 	in vec3 normal,
 	in vec2 uv,
-	in vec4 color,
 	in vec3 tangent,
 	in vec3 binormal,
+	[slot=5] in vec4 color,
 	out vec3 Tangent,
 	out vec3 Normal,
 	out vec4 Position,
@@ -157,9 +157,9 @@ void
 vsColoredShadowTessellated(in vec3 position,
 	in vec3 normal,
 	in vec2 uv,
-	in vec4 color,
 	in vec3 tangent,
 	in vec3 binormal,
+	[slot=5] in vec4 color,
 	out vec3 Normal,
 	out vec4 Position,
 	out vec2 UV,
@@ -187,9 +187,9 @@ void
 vsColoredCSMTessellated(in vec3 position,
 	in vec3 normal,
 	in vec2 uv,
-	in vec4 color,
 	in vec3 tangent,
 	in vec3 binormal,
+	[slot=5] in vec4 color,
 	out vec3 Normal,
 	out vec4 Position,
 	out vec2 UV,
@@ -583,29 +583,6 @@ dsShadowMLP(
 	gl_Position = pos;
 	ProjPos = pos;
 	Instance = instance[0];
-}
-
-//------------------------------------------------------------------------------
-/**
-	Simple placeholder shadow mapping shader. 
-	This allows us to plug in our tessellated techniques into this one.
-*/
-shader
-void 
-psMultilayeredShadowVSM(in vec2 UV,
-	in vec4 ProjPos,
-	[color0] out vec2 ShadowColor)
-{
-	float depth = ProjPos.z / ProjPos.w;
-	float moment1 = depth;
-	float moment2 = depth * depth;
-	
-	// Adjusting moments (this is sort of bias per pixel) using derivative
-	float dx = dFdx(depth);
-	float dy = dFdy(depth);
-	moment2 += 0.25f*(dx*dx+dy*dy);
-	
-	ShadowColor = vec2(moment1, moment2);
 }
 
 //------------------------------------------------------------------------------

@@ -14,11 +14,20 @@
     (C) 2007 Radon Labs GmbH
     (C) 2013-2015 Individual contributors, see AUTHORS file
 */
-#if (__DX11__ || __DX9__ || __OGL4__)
+#if (__DX11__ || __DX9__)
 #include "coregraphics/base/shadervariableinstancebase.h"
 namespace CoreGraphics
 {
 class ShaderVariableInstance : public Base::ShaderVariableInstanceBase
+{
+    __DeclareClass(ShaderVariableInstance);
+};
+}
+#elif __OGL4__
+#include "coregraphics/ogl4/ogl4shadervariableinstance.h"
+namespace CoreGraphics
+{
+class ShaderVariableInstance : public OpenGL4::OGL4ShaderVariableInstance
 {
     __DeclareClass(ShaderVariableInstance);
 };

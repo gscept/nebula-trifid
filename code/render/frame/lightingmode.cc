@@ -17,8 +17,8 @@ LightingMode::Code
 LightingMode::FromString(const String& str)
 {
     if (str == "None")              return None;
-    else if (str == "SinglePass")   return SinglePass;
-    else if (str == "MultiPass")    return MultiPass;
+    else if (str == "Forward")   return Forward;
+    else if (str == "Deferred")    return Deferred;
     else
     {
         n_error("LightingMode::FromString(): invalid string '%s'!", str.AsCharPtr());
@@ -35,8 +35,8 @@ LightingMode::ToString(Code c)
     switch (c)
     {
         case None:          return "None";
-        case SinglePass:    return "SinglePass";
-        case MultiPass:     return "MultiPass";
+        case Forward:       return "Forward";
+        case Deferred:      return "Deferred";
         default:
             n_error("LightingMode::ToString(): invalid code!");
             return "";

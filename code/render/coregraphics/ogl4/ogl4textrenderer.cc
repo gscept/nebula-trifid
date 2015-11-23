@@ -69,10 +69,10 @@ OGL4TextRenderer::Open()
 	// setup vbo
 	Util::Array<VertexComponent> comps;
 	comps.Append(VertexComponent(VertexComponent::Position, 0, VertexComponent::Float2, 0));
-	comps.Append(VertexComponent(VertexComponent::TexCoord, 0, VertexComponent::Float2, 0));
+	comps.Append(VertexComponent(VertexComponent::TexCoord1, 0, VertexComponent::Float2, 0));
 	comps.Append(VertexComponent(VertexComponent::Color, 0, VertexComponent::Float4, 0));
 	Ptr<MemoryVertexBufferLoader> vboLoader = MemoryVertexBufferLoader::Create();
-	vboLoader->Setup(comps, MaxNumChars * 6, NULL, 0, VertexBuffer::UsageDynamic, VertexBuffer::AccessWrite, VertexBuffer::BufferTriple, VertexBuffer::SyncingCoherentPersistent);
+    vboLoader->Setup(comps, MaxNumChars * 6 * 3, NULL, 0, VertexBuffer::UsageDynamic, VertexBuffer::AccessWrite, VertexBuffer::SyncingCoherentPersistent);
 
 	// create vbo and load
 	this->vbo = VertexBuffer::Create();
@@ -115,7 +115,7 @@ OGL4TextRenderer::Open()
 	this->glyphTexture->SetLoader(0);
 
 	// create shader instance
-	this->shader = ShaderServer::Instance()->CreateShaderInstance("shd:text");
+	this->shader = ShaderServer::Instance()->GetShader("shd:text");
 	this->shader->SelectActiveVariation(ShaderServer::Instance()->FeatureStringToMask("Static"));
 
 	// get variable
@@ -135,7 +135,6 @@ OGL4TextRenderer::Close()
     Base::TextRendererBase::Close();
 
 	// discard shader
-	this->shader->Discard();
 	this->shader = 0;
 
 	// unmap buffer
@@ -173,14 +172,13 @@ OGL4TextRenderer::DrawTextElements()
     matrix44 proj = matrix44::orthooffcenterrh(0, (float)displayMode.GetWidth(), (float)displayMode.GetHeight(), 0, -1.0f, +1.0f);
 
 	// apply shader
-	this->shader->Begin();
-	this->shader->BeginPass(0);
+    this->shader->Apply();
 
-	// set glyph texture
+    // update shader state
+    this->shader->BeginUpdate();
 	this->texVar->SetTexture(this->glyphTexture);
-
-    // set projection matrix
     this->modelVar->SetMatrix(proj);
+    this->shader->EndUpdate();
 
     // commit changes
     this->shader->Commit();
@@ -311,11 +309,6 @@ OGL4TextRenderer::DrawTextElements()
 	// delete the text elements of my own thread id, all other text elements
 	// are from other threads and will be deleted through DeleteTextByThreadId()
 	this->DeleteTextElementsByThreadId(Thread::GetMyThreadId());
-	
-	// end pass
-    this->shader->PostDraw();
-	this->shader->EndPass();
-	this->shader->End();
 }
 
 //------------------------------------------------------------------------------
@@ -330,8 +323,8 @@ OGL4TextRenderer::TransformTextVertex( const float2& pos, const float2& offset, 
 //------------------------------------------------------------------------------
 /**
 */
-void 
-OGL4TextRenderer::Draw( TextElementVertex* buffer, SizeT numChars )
+void
+OGL4TextRenderer::Draw(TextElementVertex* buffer, SizeT numChars)
 {
 	// get render device
 	Ptr<RenderDevice> dev = RenderDevice::Instance();	

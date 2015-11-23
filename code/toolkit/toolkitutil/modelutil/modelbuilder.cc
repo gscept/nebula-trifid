@@ -150,8 +150,8 @@ ModelBuilder::SaveN3Physics( const IO::URI& uri, Platform::Code platform )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ModelBuilder::WriteShapes( const Ptr<N3Writer>& writer )
+void
+ModelBuilder::WriteShapes(const Ptr<N3Writer>& writer)
 {
 	// get list of shapes
 	const Array<ModelConstants::ShapeNode>& shapes = this->constants->GetShapeNodes();

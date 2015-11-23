@@ -147,6 +147,8 @@ public:
     void __cdecl Format(const char* fmtString, ...);
     /// format string printf-style with varargs list
     void __cdecl FormatArgList(const char* fmtString, va_list argList);
+    /// static constructor for string using printf
+    static String Sprintf(const char* fmtString, ...);
     /// return true if string only contains characters from charSet argument
     bool CheckValidCharSet(const String& charSet) const;
     /// replace any char set character within a srtring with the replacement character

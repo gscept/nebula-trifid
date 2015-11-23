@@ -8,12 +8,10 @@
 	(C) 2012-2014 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
-#include "core/refcounted.h"
 #include "tiledgraphicsitem.h"
-#include <QThread>
 namespace ResourceBrowser
 {
-class TextureLoaderUnit;
+class ImageLoaderUnit;
 class TiledTextureItem : public TiledGraphicsItem
 {
 	Q_OBJECT
@@ -22,9 +20,6 @@ public:
 	TiledTextureItem();
 	/// destructor
 	virtual ~TiledTextureItem();
-
-	/// set texture path
-	void SetPath(const Util::String& path);
 
 	/// setup the item, reduces the texture path to category/file, locates the .dds and loads the preview, updates the label with the image type
 	void Setup();
@@ -45,17 +40,7 @@ signals:
 	void OnSelected(const QString& tex);
 
 private:
-	TextureLoaderUnit* loader;
-	Util::String texture;
+	ImageLoaderUnit* loader;
 };
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void
-TiledTextureItem::SetPath(const Util::String& path)
-{
-	this->texture = path;
-}
 
 } // namespace ResourceBrowser

@@ -142,12 +142,12 @@ ModelEntity::GetTrackedCharJointInfo(const Util::StringAtom& jointName) const
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ModelEntity::SetMaterialVariable( const Util::String& nodeName, const Util::String& varName, const Util::Variant& value )
+void
+ModelEntity::SetSurfaceConstant(const Util::String& nodeName, const Util::String& varName, const Util::Variant& value)
 {
-	Ptr<UpdModelNodeInstanceMaterialVariable> msg = UpdModelNodeInstanceMaterialVariable::Create();
+    Ptr<UpdModelNodeInstanceSurfaceConstant> msg = UpdModelNodeInstanceSurfaceConstant::Create();
 	msg->SetModelNodeInstanceName(nodeName);
-	msg->SetSemantic(varName);
+	msg->SetName(varName);
 	msg->SetValue(value);
 	__Send(this, msg);
 }
@@ -155,12 +155,12 @@ ModelEntity::SetMaterialVariable( const Util::String& nodeName, const Util::Stri
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ModelEntity::SetMaterialVariable( const Util::String& nodeName, const Util::String& varName, const Ptr<CoreGraphics::Texture>& tex )
+void
+ModelEntity::SetSurfaceConstant(const Util::String& nodeName, const Util::String& varName, const Ptr<CoreGraphics::Texture>& tex)
 {
-	Ptr<UpdModelNodeInstanceMaterialVariable> msg = UpdModelNodeInstanceMaterialVariable::Create();
+    Ptr<UpdModelNodeInstanceSurfaceConstant> msg = UpdModelNodeInstanceSurfaceConstant::Create();
 	msg->SetModelNodeInstanceName(nodeName);
-	msg->SetSemantic(varName);
+    msg->SetName(varName);
 	msg->SetValue(Variant(tex));
 	__Send(this, msg);
 }
@@ -172,32 +172,9 @@ void
 ModelEntity::SetMaterialVariableByName( const Util::String& varName, const Util::Variant& value )
 {
 	Ptr<UpdMaterialVariable> msg = UpdMaterialVariable::Create();
-	msg->SetSemantic(varName);
+    msg->SetName(varName);
 	msg->SetValue(value);
 	__Send(this, msg);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-Ptr<Materials::MaterialVariableInstance> 
-ModelEntity::GetMaterialVariable( const Util::String& nodeName, const Util::String& varName )
-{
-    Ptr<StateNodeInstance> stateNodeInst = RenderUtil::NodeLookupUtil::LookupStateNodeInstance(this, nodeName);
-    if (stateNodeInst.isvalid())
-    {
-        Ptr<Materials::MaterialVariableInstance> var;
-        if (stateNodeInst->HasMaterialVariableInstance(ShaderVariable::Semantic(varName)))
-        {
-            var = stateNodeInst->GetMaterialVariableInstance(ShaderVariable::Semantic(varName));        
-        }
-        else
-        {
-            var = stateNodeInst->CreateMaterialVariableInstance(ShaderVariable::Semantic(varName));
-        }
-        return var;
-    }
-    return NULL;
 }
 
 //------------------------------------------------------------------------------
@@ -592,7 +569,8 @@ ModelEntity::HandleCharacterAnimEvents(Timing::Time time)
         // now get animevents from last time till current time
         Timing::Tick startTime = this->animEventLastTick;
         Timing::Tick endTime = timeInTicks;
-        this->animEventInfos = this->charInst->AnimController().AnimSequencer().EmitAnimEvents(startTime, endTime, this->animEventOnlyDominatingClip, "");
+		Animation::AnimSequencer& sequencer = this->charInst->AnimController().AnimSequencer();
+        this->animEventInfos = sequencer.EmitAnimEvents(startTime, endTime, this->animEventOnlyDominatingClip, "");
     
         if (this->animEventInfos.Size() > 0)
         { 

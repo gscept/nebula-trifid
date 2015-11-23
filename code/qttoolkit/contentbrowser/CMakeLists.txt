@@ -80,6 +80,11 @@ FILE(GLOB HEAD "code/widgets/ui/*.h")
 SOURCE_GROUP("contentbrowser\\widgets\\ui" FILES ${SRC} ${HEAD})
 LIST(APPEND CODE ${SRC} ${HEAD})
 
+FILE(GLOB SRC "code/widgets/materials/*.cc")
+FILE(GLOB HEAD "code/widgets/materials/*.h")
+SOURCE_GROUP("contentbrowser\\widgets\\materials" FILES ${SRC} ${HEAD})
+LIST(APPEND CODE ${SRC} ${HEAD})
+
 FILE(GLOB SRC "code/widgets/meshes/*.cc")
 FILE(GLOB HEAD "code/widgets/meshes/*.h")
 SOURCE_GROUP("contentbrowser\\widgets\\meshes" FILES ${SRC} ${HEAD})
@@ -121,6 +126,7 @@ SET(QTMOCFILES  "code/contentbrowserwindow.h"
 				"code/modelimporter/physicscontroller.h"
 				"code/textureimporter/textureimporterwindow.h"
 				"code/widgets/basehandler.h"
+				"code/widgets/materials/materialhandler.h"
 				"code/widgets/models/modelhandler.h"
 				"code/widgets/models/modelnodehandler.h"
 				"code/widgets/models/characternodehandler.h"

@@ -154,6 +154,8 @@ Shader::Generate(
 		this->preamble.append(version);
 	}
 
+    this->preamble.append("#extension GL_ARB_bindless_texture : require\n");
+
 	// this list holds a couple of defines which are inserted into the preamble of the code in order to be able to separate functions depending on shader type
 	const std::string shaderDefines[] =
 	{
@@ -278,8 +280,8 @@ Shader::Generate(
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Shader::GenerateGLSL4( Generator& generator )
+void
+Shader::GenerateGLSL4(Generator& generator)
 {
 	std::string code;
 
@@ -673,8 +675,8 @@ Shader::GenerateHLSL3( Generator& generator )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Shader::Compile( BinWriter& writer )
+void
+Shader::Compile(BinWriter& writer)
 {
 	writer.WriteInt(this->shaderType);
 	writer.WriteString(this->name);
@@ -691,8 +693,8 @@ Shader::Compile( BinWriter& writer )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Shader::TypeCheck( TypeChecker& typechecker )
+void
+Shader::TypeCheck(TypeChecker& typechecker)
 {
 	// type check function, this will make sure the function is properly formatted
 	this->func.TypeCheck(typechecker);
@@ -769,8 +771,8 @@ Shader::TypeCheck( TypeChecker& typechecker )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Shader::GLSLProblemIntelATI( Generator& generator, std::stringstream& stream )
+void
+Shader::GLSLProblemIntelATI(Generator& generator, std::stringstream& stream)
 {
 	while (!stream.eof())
 	{
@@ -862,8 +864,8 @@ Shader::GLSLProblemIntelATI( Generator& generator, std::stringstream& stream )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Shader::GLSLProblemNvidia( Generator& generator, std::stringstream& stream )
+void
+Shader::GLSLProblemNvidia(Generator& generator, std::stringstream& stream)
 {
 	while (!stream.eof())
 	{

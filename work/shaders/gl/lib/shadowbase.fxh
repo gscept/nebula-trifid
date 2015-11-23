@@ -9,6 +9,10 @@
 
 #include "lib/defaultsamplers.fxh"
 
+const float DepthScaling = 5.0f;
+const float DarkeningFactor = 1.0f;
+const float ShadowConstant = 100.0f;
+
 samplerstate ShadowSampler
 {
 	Samplers = { DiffuseMap, DisplacementMap };
@@ -60,8 +64,8 @@ vsSkinned(in vec3 position,
 	in vec2 uv,
 	in vec4 tangent,
 	in vec4 binormal,
-	in vec4 weights,
-	in uvec4 indices,
+	[slot=7] in vec4 weights,
+	[slot=8] in uvec4 indices,
 	out vec2 UV,
 	out vec4 ProjPos)	
 {
@@ -118,8 +122,8 @@ vsSkinnedCSM(in vec3 position,
 	in vec2 uv,
 	in vec3 tangent,
 	in vec3 binormal,
-	in vec4 weights,
-	in uvec4 indices,
+	[slot=7] in vec4 weights,
+	[slot=8] in uvec4 indices,
 	out vec2 UV,
 	out vec4 ProjPos,
 	out int Instance) 
@@ -526,7 +530,7 @@ psESM(in vec2 UV,
 	  in vec4 ProjPos,
 	  [color0] out float ShadowColor)
 {
-	ShadowColor = (ProjPos.z/ProjPos.w) * ShadowConstant;
+	ShadowColor = (ProjPos.z/ProjPos.w) * DepthScaling;
 }
 
 //------------------------------------------------------------------------------
@@ -540,7 +544,7 @@ psESMAlpha(in vec2 UV,
 {
 	float alpha = texture(DiffuseMap, UV).a;
 	if (alpha < AlphaSensitivity) discard;
-	ShadowColor = (ProjPos.z/ProjPos.w) * ShadowConstant;
+	ShadowColor = (ProjPos.z/ProjPos.w) * DepthScaling;
 }
 
 //------------------------------------------------------------------------------
@@ -558,9 +562,9 @@ psVSM(in vec2 UV,
 	float moment2 = depth * depth;
 	
 	// Adjusting moments (this is sort of bias per pixel) using derivative
-	float dx = dFdx(depth);
-	float dy = dFdy(depth);
-	moment2 += 0.25f*(dx*dx+dy*dy);
+	//float dx = dFdx(depth);
+	//float dy = dFdy(depth);
+	//moment2 += 0.25f*(dx*dx+dy*dy);
 	
 	ShadowColor = vec2(moment1, moment2);
 }
@@ -582,9 +586,9 @@ psVSMAlpha(in vec2 UV,
 	float moment2 = depth * depth;
 	
 	// Adjusting moments (this is sort of bias per pixel) using derivative
-	float dx = dFdx(depth);
-	float dy = dFdy(depth);
-	moment2 += 0.25f*(dx*dx+dy*dy);
+	//float dx = dFdx(depth);
+	//float dy = dFdy(depth);
+	//moment2 += 0.25f*(dx*dx+dy*dy);
 	
 	ShadowColor = vec2(moment1, moment2);
 }
@@ -616,7 +620,7 @@ Variance(vec2 shadowSample,
 		float p_max		= variance / (variance + d*d);
 		
 		// to avoid light bleeding, change this constant
-		return p_max;
+		return max(p_max, int(lightSpaceDepth <= avgZ));
 	}
 }
 
@@ -641,9 +645,6 @@ ChebyshevUpperBound(vec2 Moments, float t, float tolerance)
 	return p_max;  
 } 
 
-
-const float DepthScaling = 100.0f;
-const float DarkeningFactor = 100.0f;
 //------------------------------------------------------------------------------
 /**
 */
@@ -652,7 +653,8 @@ ExponentialShadowSample(float mapDepth, float depth, float bias)
 {
 	float receiverDepth = DepthScaling * depth - bias;
     float occluderReceiverDistance = mapDepth - receiverDepth;
-    float occlusion = saturate(exp(DarkeningFactor * occluderReceiverDistance));  
+	float occlusion = saturate(exp(DarkeningFactor * occluderReceiverDistance));
+    //float occlusion = saturate(exp(DarkeningFactor * occluderReceiverDistance));  
     return occlusion;
 }
 #endif // SHADOWBASE_FXH

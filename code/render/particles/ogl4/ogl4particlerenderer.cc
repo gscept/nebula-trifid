@@ -71,7 +71,7 @@ OGL4ParticleRenderer::Setup()
 
     // setup the corner vertex buffer
     Array<VertexComponent> cornerComponents;
-    cornerComponents.Append(VertexComponent(VertexComponent::TexCoord, 0, VertexComponent::Float2, 0));
+    cornerComponents.Append(VertexComponent((VertexComponentBase::SemanticName)0, 0, VertexComponent::Float2, 0));
     float cornerVertexData[] = { 0, 0,  1, 0,  1, 1,  0, 1 };
     Ptr<MemoryVertexBufferLoader> cornerVBLoader = MemoryVertexBufferLoader::Create();
     cornerVBLoader->Setup(cornerComponents, 4, cornerVertexData, sizeof(cornerVertexData), VertexBuffer::UsageImmutable, VertexBuffer::AccessNone);
@@ -110,14 +110,14 @@ OGL4ParticleRenderer::Setup()
 
     // setup the dynamic particle vertex buffer (contains one vertex per particle)
     Array<VertexComponent> particleComponents;
-    particleComponents.Append(VertexComponent(VertexComponent::Position, 0, VertexComponent::Float4, 1, VertexComponent::PerInstance, 1));   // Particle::position
-	particleComponents.Append(VertexComponent(VertexComponent::Position, 1, VertexComponent::Float4, 1, VertexComponent::PerInstance, 1));   // Particle::stretchPosition
-	particleComponents.Append(VertexComponent(VertexComponent::Color, 0, VertexComponent::Float4, 1, VertexComponent::PerInstance, 1));      // Particle::color
-	particleComponents.Append(VertexComponent(VertexComponent::TexCoord, 1, VertexComponent::Float4, 1, VertexComponent::PerInstance, 1));   // Particle::uvMinMax
-	particleComponents.Append(VertexComponent(VertexComponent::TexCoord, 2, VertexComponent::Float4, 1, VertexComponent::PerInstance, 1));   // x: Particle::rotation, y: Particle::size
+    particleComponents.Append(VertexComponent((VertexComponentBase::SemanticName)0, 0, VertexComponent::Float4, 1, VertexComponent::PerInstance, 1));   // Particle::position
+	particleComponents.Append(VertexComponent((VertexComponentBase::SemanticName)1, 1, VertexComponent::Float4, 1, VertexComponent::PerInstance, 1));   // Particle::stretchPosition
+	particleComponents.Append(VertexComponent((VertexComponentBase::SemanticName)2, 0, VertexComponent::Float4, 1, VertexComponent::PerInstance, 1));      // Particle::color
+	particleComponents.Append(VertexComponent((VertexComponentBase::SemanticName)3, 1, VertexComponent::Float4, 1, VertexComponent::PerInstance, 1));   // Particle::uvMinMax
+	particleComponents.Append(VertexComponent((VertexComponentBase::SemanticName)4, 2, VertexComponent::Float4, 1, VertexComponent::PerInstance, 1));   // x: Particle::rotation, y: Particle::size
 
     Ptr<MemoryVertexBufferLoader> particleVBLoader = MemoryVertexBufferLoader::Create();
-    particleVBLoader->Setup(particleComponents, MaxNumRenderedParticles, NULL, 0, VertexBuffer::UsageDynamic, VertexBuffer::AccessWrite, VertexBuffer::BufferTriple, VertexBuffer::SyncingCoherentPersistent);
+    particleVBLoader->Setup(particleComponents, MaxNumRenderedParticles * 3, NULL, 0, VertexBuffer::UsageDynamic, VertexBuffer::AccessWrite, VertexBuffer::SyncingCoherentPersistent);
 
     this->particleVertexBuffer = VertexBuffer::Create();
     this->particleVertexBuffer->SetLoader(particleVBLoader.upcast<ResourceLoader>());
@@ -141,6 +141,9 @@ OGL4ParticleRenderer::Setup()
 	this->vertexLayout->SetStreamBuffer(0, this->cornerVertexBuffer->GetOGL4VertexBuffer());
 	this->vertexLayout->SetStreamBuffer(1, this->particleVertexBuffer->GetOGL4VertexBuffer());
 	this->vertexLayout->Setup(components);
+
+    // must set index buffer after vao setup
+    this->vertexLayout->SetIndexBuffer(this->cornerIndexBuffer);
 }
 
 //------------------------------------------------------------------------------

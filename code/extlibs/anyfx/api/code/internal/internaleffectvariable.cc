@@ -27,6 +27,7 @@ unsigned InternalEffectVariable::globalTextureCounter = 0;
 InternalEffectVariable::InternalEffectVariable() :
 	byteSize(0),
 	byteOffset(0),
+    sharedByteOffset(NULL),
 	currentValue(0),
 	active(false),
 	isInVarblock(false),
@@ -37,6 +38,7 @@ InternalEffectVariable::InternalEffectVariable() :
 	commitSize(1),
 	type(Undefined),
 	parentBlock(NULL),
+	activeProgram(NULL),
 	format(NoFormat),
 	access(NoAccess)
 {
@@ -53,16 +55,18 @@ InternalEffectVariable::~InternalEffectVariable()
 	{
 		delete [] this->currentValue;
 	}
+    this->parentBlock = NULL;
+    if (0 != this->sharedByteOffset) delete this->sharedByteOffset;
 }
 
 //------------------------------------------------------------------------------
 /**
 	Call this from subclass
 */
-void 
-InternalEffectVariable::Setup( eastl::vector<InternalEffectProgram*> program, const std::string& defaultValue )
+void
+InternalEffectVariable::Setup(eastl::vector<InternalEffectProgram*> program, const eastl::string& defaultValue)
 {
-	std::string typeString = EffectVariable::TypeToString(this->type);
+    eastl::string typeString = EffectVariable::TypeToString(this->type);
 	this->signature = typeString + ":" + this->name;
 
 	if (this->type >= Sampler1D && this->type <= ImageCubeArray)
@@ -77,6 +81,10 @@ InternalEffectVariable::Setup( eastl::vector<InternalEffectProgram*> program, co
 		{
 			this->SetupDefaultValue(defaultValue);
 		}
+        else
+        {
+            memset(this->currentValue, 0, this->byteSize);
+        }
 	}
 }
 
@@ -84,7 +92,7 @@ InternalEffectVariable::Setup( eastl::vector<InternalEffectProgram*> program, co
 /**
 */
 void 
-InternalEffectVariable::SetupSlave(eastl::vector<InternalEffectProgram*> program)
+InternalEffectVariable::SetupSlave(eastl::vector<InternalEffectProgram*> program, InternalEffectVariable* master)
 {
     // empty, override in subclass
 }
@@ -101,10 +109,15 @@ InternalEffectVariable::MakeTexture()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-InternalEffectVariable::Activate( InternalEffectProgram* program )
+void
+InternalEffectVariable::Activate(InternalEffectProgram* program)
 {
 	this->isDirty = true;
+	if (this->activeProgram != program)
+	{
+		this->isDirty = true;
+		this->activeProgram = program;
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -120,11 +133,11 @@ InternalEffectVariable::Deactivate()
 /**
 */
 void 
-InternalEffectVariable::SetupDefaultValue( const std::string& string )
+InternalEffectVariable::SetupDefaultValue(const eastl::string& string)
 {
 	unsigned numValues = 0;
 	if (string.length() == 0) return;
-	std::string copy = string;
+    eastl::string copy = string;
 	char* data = &copy[0];
 	char* str = strtok(data, ",");
 	while (str)
@@ -224,8 +237,8 @@ InternalEffectVariable::Commit()
 /**
 	Implement in subclass if our back-end supports setting single variables
 */
-void 
-InternalEffectVariable::SetFloat( float f )
+void
+InternalEffectVariable::SetFloat(float f)
 {
 	if (this->isInVarblock)
 	{
@@ -243,8 +256,8 @@ InternalEffectVariable::SetFloat( float f )
 /**
 	Implement in subclass if our back-end supports setting single variables
 */
-void 
-InternalEffectVariable::SetFloat2( const float* vec )
+void
+InternalEffectVariable::SetFloat2(const float* vec)
 {
 	if (this->isInVarblock)
 	{
@@ -260,8 +273,8 @@ InternalEffectVariable::SetFloat2( const float* vec )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-InternalEffectVariable::SetFloat3( const float* vec )
+void
+InternalEffectVariable::SetFloat3(const float* vec)
 {
 	if (this->isInVarblock)
 	{
@@ -279,8 +292,8 @@ InternalEffectVariable::SetFloat3( const float* vec )
 /**
 	Implement in subclass if our back-end supports setting single variables
 */
-void 
-InternalEffectVariable::SetFloat4( const float* vec )
+void
+InternalEffectVariable::SetFloat4(const float* vec)
 {
 	if (this->isInVarblock)
 	{
@@ -298,8 +311,8 @@ InternalEffectVariable::SetFloat4( const float* vec )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-InternalEffectVariable::SetFloatArray( const float* f, size_t count )
+void
+InternalEffectVariable::SetFloatArray(const float* f, size_t count)
 {
 	assert(this->isArray);
 	if (this->isInVarblock)
@@ -318,8 +331,8 @@ InternalEffectVariable::SetFloatArray( const float* f, size_t count )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-InternalEffectVariable::SetFloat2Array( const float* vec, size_t count )
+void
+InternalEffectVariable::SetFloat2Array(const float* vec, size_t count)
 {
 	assert(this->isArray);
 	if (this->isInVarblock)
@@ -338,8 +351,8 @@ InternalEffectVariable::SetFloat2Array( const float* vec, size_t count )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-InternalEffectVariable::SetFloat3Array( const float* vec, size_t count )
+void
+InternalEffectVariable::SetFloat3Array(const float* vec, size_t count)
 {
 	assert(this->isArray);
 	if (this->isInVarblock)
@@ -358,8 +371,8 @@ InternalEffectVariable::SetFloat3Array( const float* vec, size_t count )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-InternalEffectVariable::SetFloat4Array( const float* vec, size_t count )
+void
+InternalEffectVariable::SetFloat4Array(const float* vec, size_t count)
 {
 	assert(this->isArray);
 	if (this->isInVarblock)
@@ -379,8 +392,8 @@ InternalEffectVariable::SetFloat4Array( const float* vec, size_t count )
 /**
 	Implement in subclass if our back-end supports setting single variables
 */
-void 
-InternalEffectVariable::SetInt( int i )
+void
+InternalEffectVariable::SetInt(int i)
 {
 	if (this->isInVarblock)
 	{
@@ -398,8 +411,8 @@ InternalEffectVariable::SetInt( int i )
 /**
 	Implement in subclass if our back-end supports setting single variables
 */
-void 
-InternalEffectVariable::SetInt2( const int* vec )
+void
+InternalEffectVariable::SetInt2(const int* vec)
 {
 	if (this->isInVarblock)
 	{
@@ -416,8 +429,8 @@ InternalEffectVariable::SetInt2( const int* vec )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-InternalEffectVariable::SetInt3( const int* vec )
+void
+InternalEffectVariable::SetInt3(const int* vec)
 {
 	if (this->isInVarblock)
 	{
@@ -435,8 +448,8 @@ InternalEffectVariable::SetInt3( const int* vec )
 /**
 	Implement in subclass if our back-end supports setting single variables
 */
-void 
-InternalEffectVariable::SetInt4( const int* vec )
+void
+InternalEffectVariable::SetInt4(const int* vec)
 {
 	if (this->isInVarblock)
 	{
@@ -453,8 +466,8 @@ InternalEffectVariable::SetInt4( const int* vec )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-InternalEffectVariable::SetIntArray( const int* i, size_t count )
+void
+InternalEffectVariable::SetIntArray(const int* i, size_t count)
 {
 	assert(this->isArray);
 	if (this->isInVarblock)
@@ -473,8 +486,8 @@ InternalEffectVariable::SetIntArray( const int* i, size_t count )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-InternalEffectVariable::SetInt2Array( const int* vec, size_t count )
+void
+InternalEffectVariable::SetInt2Array(const int* vec, size_t count)
 {
 	assert(this->isArray);
 	if (this->isInVarblock)
@@ -493,8 +506,8 @@ InternalEffectVariable::SetInt2Array( const int* vec, size_t count )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-InternalEffectVariable::SetInt3Array( const int* vec, size_t count )
+void
+InternalEffectVariable::SetInt3Array(const int* vec, size_t count)
 {
 	assert(this->isArray);
 	if (this->isInVarblock)
@@ -513,8 +526,8 @@ InternalEffectVariable::SetInt3Array( const int* vec, size_t count )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-InternalEffectVariable::SetInt4Array( const int* vec, size_t count )
+void
+InternalEffectVariable::SetInt4Array(const int* vec, size_t count)
 {
 	assert(this->isArray);
 	if (this->isInVarblock)
@@ -534,8 +547,8 @@ InternalEffectVariable::SetInt4Array( const int* vec, size_t count )
 /**
 	Implement in subclass if our back-end supports setting single variables
 */
-void 
-InternalEffectVariable::SetBool( bool b )
+void
+InternalEffectVariable::SetBool(bool b)
 {
 	if (this->isInVarblock)
 	{
@@ -553,8 +566,8 @@ InternalEffectVariable::SetBool( bool b )
 /**
 	Implement in subclass if our back-end supports setting single variables
 */
-void 
-InternalEffectVariable::SetBool2( const bool* vec )
+void
+InternalEffectVariable::SetBool2(const bool* vec)
 {
 	if (this->isInVarblock)
 	{
@@ -571,8 +584,8 @@ InternalEffectVariable::SetBool2( const bool* vec )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-InternalEffectVariable::SetBool3( const bool* vec )
+void
+InternalEffectVariable::SetBool3(const bool* vec)
 {
 	if (this->isInVarblock)
 	{
@@ -590,8 +603,8 @@ InternalEffectVariable::SetBool3( const bool* vec )
 /**
 	Implement in subclass if our back-end supports setting single variables
 */
-void 
-InternalEffectVariable::SetBool4( const bool* vec )
+void
+InternalEffectVariable::SetBool4(const bool* vec)
 {
 	if (this->isInVarblock)
 	{
@@ -608,8 +621,8 @@ InternalEffectVariable::SetBool4( const bool* vec )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-InternalEffectVariable::SetBoolArray( const bool* b, size_t count )
+void
+InternalEffectVariable::SetBoolArray(const bool* b, size_t count)
 {
 	assert(this->isArray);
 	if (this->isInVarblock)
@@ -628,8 +641,8 @@ InternalEffectVariable::SetBoolArray( const bool* b, size_t count )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-InternalEffectVariable::SetBool2Array( const bool* vec, size_t count )
+void
+InternalEffectVariable::SetBool2Array(const bool* vec, size_t count)
 {
 	assert(this->isArray);
 	if (this->isInVarblock)
@@ -648,8 +661,8 @@ InternalEffectVariable::SetBool2Array( const bool* vec, size_t count )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-InternalEffectVariable::SetBool3Array( const bool* vec, size_t count )
+void
+InternalEffectVariable::SetBool3Array(const bool* vec, size_t count)
 {
 	assert(this->isArray);
 	if (this->isInVarblock)
@@ -668,8 +681,8 @@ InternalEffectVariable::SetBool3Array( const bool* vec, size_t count )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-InternalEffectVariable::SetBool4Array( const bool* vec, size_t count )
+void
+InternalEffectVariable::SetBool4Array(const bool* vec, size_t count)
 {
 	assert(this->isArray);
 	if (this->isInVarblock)
@@ -689,8 +702,8 @@ InternalEffectVariable::SetBool4Array( const bool* vec, size_t count )
 /**
 	Implement in subclass if our back-end supports setting single variables
 */
-void 
-InternalEffectVariable::SetMatrix( const float* mat )
+void
+InternalEffectVariable::SetMatrix(const float* mat)
 {
 	if (this->isInVarblock)
 	{
@@ -707,8 +720,8 @@ InternalEffectVariable::SetMatrix( const float* mat )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-InternalEffectVariable::SetMatrixArray( const float* mat, size_t count )
+void
+InternalEffectVariable::SetMatrixArray(const float* mat, size_t count)
 {
 	if (this->isInVarblock)
 	{
@@ -732,8 +745,8 @@ InternalEffectVariable::SetMatrixArray( const float* mat, size_t count )
 
 	Simply point this current value buffer to handle
 */
-void 
-InternalEffectVariable::SetTexture( void* handle )
+void
+InternalEffectVariable::SetTexture(void* handle)
 {
 	if (this->currentValue != handle)
 	{

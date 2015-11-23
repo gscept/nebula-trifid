@@ -24,7 +24,7 @@ Program::Program() :
 	this->slotNames[ProgramRow::DomainShader] = "";
 	this->slotNames[ProgramRow::GeometryShader] = "";
 	this->slotNames[ProgramRow::ComputeShader] = "";
-	this->slotNames[ProgramRow::RenderState] = "placeholder";
+	this->slotNames[ProgramRow::RenderState] = "PlaceholderState";
 
 	this->slotMask[ProgramRow::VertexShader] = false;
 	this->slotMask[ProgramRow::PixelShader] = false;

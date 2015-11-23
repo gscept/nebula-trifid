@@ -33,7 +33,7 @@ public:
 	void Discard();
 
 	/// renders godrays
-	void Execute();	
+	void Render();	
 
 	/// resize rendertargets
 	void OnDisplayResized(SizeT width, SizeT height);
@@ -56,10 +56,10 @@ private:
 	void RenderGlobalLight();
 
 	RenderUtil::DrawFullScreenQuad quad;
-	Ptr<CoreGraphics::ShaderInstance> volumeLightShader;
-	Ptr<CoreGraphics::ShaderInstance> lightScatterShader;
-	Ptr<CoreGraphics::ShaderInstance> verticalBloom;
-	Ptr<CoreGraphics::ShaderInstance> horizontalBloom;
+	Ptr<CoreGraphics::Shader> volumeLightShader;
+	Ptr<CoreGraphics::Shader> lightScatterShader;
+	Ptr<CoreGraphics::Shader> verticalBloom;
+	Ptr<CoreGraphics::Shader> horizontalBloom;
 
 	Ptr<Graphics::GlobalLightEntity> globalLight;
 	Util::Array<Ptr<Graphics::PointLightEntity> > pointLights;
@@ -95,6 +95,7 @@ private:
 	Ptr<CoreGraphics::ShaderVariable> lightProjMapVar;
 	Ptr<CoreGraphics::ShaderVariable> lightProjCubeVar;
 	Ptr<CoreGraphics::ShaderVariable> lightColorVar;
+    Ptr<CoreGraphics::ShaderVariable> lightTransformVar;
 
 	Ptr<Resources::ManagedMesh> globalLightMesh;
 	Ptr<Resources::ManagedMesh> pointLightMesh;         // point light mesh

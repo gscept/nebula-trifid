@@ -72,7 +72,7 @@ MultipleRenderTargetBase::BeginPass()
 /**
 */
 void 
-MultipleRenderTargetBase::BeginBatch(CoreGraphics::BatchType::Code batchType)
+MultipleRenderTargetBase::BeginBatch(CoreGraphics::FrameBatchType::Code batchType)
 {
     IndexT i;
     for (i = 0; i < this->numRenderTargets; i++)

@@ -8,7 +8,7 @@ ADD_SUBDIRECTORY(mcpp)
 
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}
 		    ${ANYFX_SOURCE_DIR}/util/code
-		    ${ANYFX_SOURCE_DIR}/exts/glew
+		    ${ANYFX_GLEW_FOLDER}/include
 		    ${ANYFX_SOURCE_DIR}/compiler/code
 		    ${ANYFX_SOURCE_DIR}/compiler/antlr/include
 		    ${ANYFX_SOURCE_DIR}/compiler/mcpp
@@ -25,11 +25,10 @@ FILE(GLOB HEAD "code/expressions/*.h")
 SOURCE_GROUP("compiler\\expressions" FILES ${SRC} ${HEAD})
 LIST(APPEND CODE ${SRC} ${HEAD})
 
-FILE(GLOB SRC "../exts/glew/*.c")
-FILE(GLOB HEAD "../exts/glew/GL/*.h")
-SOURCE_GROUP("compiler\\glew" FILES ${SRC} ${HEAD})
-LIST(APPEND CODE ${SRC} ${HEAD})
-ADD_DEFINITIONS(-DGLEW_STATIC)
+FILE(GLOB HEAD "GL/*.h")
+SOURCE_GROUP("api\\glew" FILES ${HEAD})
+LIST(APPEND CODE ${HEAD})
+#ADD_DEFINITIONS(-DGLEW_STATIC)
 
 FILE(GLOB SRC code/lexererrorhandler.cc code/parsererrorhandler.cc)
 FILE(GLOB HEAD code/lexererrorhandler.h code/parsererrorhandler.h)
@@ -41,7 +40,6 @@ FILE(GLOB HEAD code/parser/AnyFXParser.h code/parser/AnyFXLexer.h)
 SOURCE_GROUP("parser" FILES ${SRC} ${HEAD})
 set_source_files_properties( ${SRC} PROPERTIES LANGUAGE "CXX" )
 LIST(APPEND CODE ${SRC} ${HEAD})
-
 
 IF(ANYFX_BUILD_GRAMMAR)
 	FILE(GLOB GRAMMAR "antlr/grammar/AnyFX.g")

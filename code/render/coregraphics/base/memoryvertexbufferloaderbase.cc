@@ -21,7 +21,6 @@ MemoryVertexBufferLoaderBase::MemoryVertexBufferLoaderBase() :
     vertexDataSize(0),
     usage(CoreGraphics::VertexBuffer::UsageImmutable),
     access(CoreGraphics::VertexBuffer::AccessNone),
-	bufferCount(CoreGraphics::VertexBuffer::BufferSingle),
 	syncing(CoreGraphics::VertexBuffer::SyncingSimple)
 {
     // empty
@@ -40,7 +39,6 @@ MemoryVertexBufferLoaderBase::Setup(const Util::Array<CoreGraphics::VertexCompon
                                     SizeT vertexDataSize_, 
                                     VertexBuffer::Usage usage_, 
                                     VertexBuffer::Access access_,
-									VertexBuffer::BufferCount bufferCount_,
 									VertexBuffer::Syncing syncing_)
 {
     n_assert(numVertices_ > 0);
@@ -56,7 +54,6 @@ MemoryVertexBufferLoaderBase::Setup(const Util::Array<CoreGraphics::VertexCompon
     this->vertexDataSize	= vertexDataSize_;
     this->usage				= usage_;
     this->access			= access_;
-	this->bufferCount		= bufferCount_;
 	this->syncing			= syncing_;
 }
 

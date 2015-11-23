@@ -56,7 +56,7 @@ PlayClipJob::OnAttachedToSequencer(const AnimSequencer& animSequencer)
     Timing::Tick clipDuration = animRes->GetClipByIndex(this->clipIndex).GetClipDuration();
 
     // override playback duration from loop count
-    this->SetDuration(Timing::Tick(clipDuration * this->loopCount));
+    this->SetDuration(Timing::Tick(clipDuration * this->loopCount * (1 / this->timeFactor)));
 
     // set first frame flag for anim events
     this->firstAnimEventCheck = true;
@@ -117,12 +117,16 @@ PlayClipJob::EmitAnimEvents(Timing::Tick startTimeEvents, Timing::Tick endTimeEv
     n_assert(this->animSequencer != 0);
     const AnimClip& clip = this->animSequencer->GetAnimResource()->GetClipByIndex(this->clipIndex);
 
+	int timeDivider = Math::n_frnd(1 / this->timeFactor);
+
     // map absolute time to clip relative time
-    int nettoClipDuration;
-	nettoClipDuration = clip.GetClipDuration();
+	Timing::Tick nettoClipDuration = clip.GetClipDuration();
     Timing::Tick relStartTime = startTimeEvents - this->baseTime;
     Timing::Tick duration = endTimeEvents - startTimeEvents;
     Timing::Tick relEndTime = relStartTime + (Timing::Tick)(float(duration));
+	relStartTime /= timeDivider;
+	relEndTime /= timeDivider;
+
 	// if we have a cycle we also need to cycle the events
 	if (clip.GetPostInfinityType() == InfinityType::Cycle)
 	{
@@ -138,7 +142,7 @@ PlayClipJob::EmitAnimEvents(Timing::Tick startTimeEvents, Timing::Tick endTimeEv
         this->firstAnimEventCheck = false;
     }
 
-    Util::Array<AnimEvent> events = AnimEventEmitter::EmitAnimEvents(clip, relStartTime, relEndTime, Math::n_abs(1 / this->timeFactor), this->IsInfinite());
+	Util::Array<AnimEvent> events = AnimEventEmitter::EmitAnimEvents(clip, relStartTime, relEndTime, this->IsInfinite());
     //n_printf("PlayClipJob::EmitAnimEvents: num events %i\n", events.Size());
     IndexT i;
     for (i = 0; i < events.Size(); ++i)

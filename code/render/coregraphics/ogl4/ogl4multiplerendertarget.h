@@ -27,7 +27,7 @@ public:
 	/// begin pass
 	void BeginPass();
 	/// begin a batch
-	void BeginBatch(CoreGraphics::BatchType::Code batchType);
+	void BeginBatch(CoreGraphics::FrameBatchType::Code batchType);
 	/// end current batch
 	void EndBatch();
 	/// end current render pass

@@ -218,7 +218,7 @@ N3XmlExporter::ExportFile( const IO::URI& file )
 void 
 N3XmlExporter::ExportDir( const Util::String& category )
 {
-	String categoryDir = "proj:work/models" + category;
+	String categoryDir = "proj:work/assets" + category;
 	Array<String> files = IoServer::Instance()->ListFiles(categoryDir, "*.xml");
 	for (int fileIndex = 0; fileIndex < files.Size(); fileIndex++)
 	{
@@ -232,7 +232,7 @@ N3XmlExporter::ExportDir( const Util::String& category )
 void 
 N3XmlExporter::ExportAll()
 {
-	String workDir = "proj:work/models";
+	String workDir = "proj:work/assets";
 	Array<String> directories = IoServer::Instance()->ListDirectories(workDir, "*");
 	for (int directoryIndex = 0; directoryIndex < directories.Size(); directoryIndex++)
 	{

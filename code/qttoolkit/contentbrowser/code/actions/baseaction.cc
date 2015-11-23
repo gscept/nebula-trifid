@@ -13,7 +13,9 @@ __ImplementClass(Actions::BaseAction, 'BSAC', Core::RefCounted);
 /**
 */
 BaseAction::BaseAction() :
+	previousVersion(0),
 	currentVersion(0),
+	numVersions(0),
 	finalVersion(0)
 {
 	// empty
@@ -43,7 +45,9 @@ BaseAction::Cleanup()
 void 
 BaseAction::Undo()
 {
-	n_error("BaseAction::Undo() called!\n");
+	this->previousVersion = this->currentVersion;
+	this->currentVersion = Math::n_max(this->currentVersion - 1, 0);
+	this->Do();
 }
 
 //------------------------------------------------------------------------------
@@ -53,7 +57,9 @@ BaseAction::Undo()
 void 
 BaseAction::Redo()
 {
-	n_error("BaseAction::Redo() called!\n");
+	this->previousVersion = this->currentVersion;
+	this->currentVersion = Math::n_min(this->currentVersion + 1, numVersions - 1);
+	this->Do();
 }
 
 //------------------------------------------------------------------------------
@@ -68,6 +74,18 @@ BaseAction::Do()
 
 //------------------------------------------------------------------------------
 /**
+*/
+void
+BaseAction::DoAndMakeCurrent()
+{
+	this->previousVersion = this->currentVersion;
+	this->currentVersion = Math::n_min(this->currentVersion + 1, numVersions - 1);
+	this->Do();
+}
+
+
+//------------------------------------------------------------------------------
+/**
 	Override in subclass
 */
 void 
@@ -75,6 +93,8 @@ BaseAction::Discard()
 {
 	this->finalVersion = 0;
 	this->currentVersion = 0;
+	this->numVersions = 0;
+	this->previousVersion = 0;
 }
 
 //------------------------------------------------------------------------------

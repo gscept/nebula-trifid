@@ -51,7 +51,7 @@ FBXBatcher3App::Open()
 void 
 FBXBatcher3App::DoWork()
 {
-	Ptr<Fbx::NFbxExporter> exporter = Fbx::NFbxExporter::Create();
+    Ptr<ToolkitUtil::NFbxExporter> exporter = ToolkitUtil::NFbxExporter::Create();
 	String dir = "";
 	String file = "";
 	String projectFolder = "proj:";
@@ -77,7 +77,7 @@ FBXBatcher3App::DoWork()
 		force = this->args.GetBoolFlag("-force");
 	}
 
-	IO::AssignRegistry::Instance()->SetAssign(Assign("home","proj:"));
+    IO::AssignRegistry::Instance()->SetAssign(Assign("home", "proj:"));
 	exporter->Open();
 	exporter->SetForce(force);
 	exporter->SetExportFlag(exportFlag);
@@ -91,7 +91,7 @@ FBXBatcher3App::DoWork()
 	}
 	else
 	{
-		int files = exporter->CountExports("src:gfxlib/" + dir, "fbx");
+		int files = exporter->CountExports(projectFolder + "work/assets/" + dir, "fbx");
 		switch (exportFlag)
 		{
 		case ExporterBase::All:
@@ -106,7 +106,7 @@ FBXBatcher3App::DoWork()
 			exporter->SetCategory(dir);
 			exporter->SetFile(file);
 			exporter->SetProgressMinMax(0, PRECISION);
-			exporter->ExportFile(projectFolder + "work/gfxlib/" + dir + "/" + file);
+			exporter->ExportFile(projectFolder + "work/assets/" + dir + "/" + file);
 			break;	
 		}
 	}	
@@ -162,7 +162,7 @@ FBXBatcher3App::CreateFileList()
 {
 	Util::Array<Util::String> res;
 	// create list from given filelist
-	if(this->listfileArg.IsValid())
+    if (this->listfileArg.IsValid())
 	{
 		URI listUri(this->listfileArg);
 		// open stream and reader
@@ -187,7 +187,7 @@ FBXBatcher3App::CreateFileList()
 	}
 	else
 	{				
-		String workDir = "proj:work/gfxlib";
+		String workDir = "proj:work/assets";
 		Array<String> directories = IoServer::Instance()->ListDirectories(workDir, "*");
 		for (int directoryIndex = 0; directoryIndex < directories.Size(); directoryIndex++)
 		{

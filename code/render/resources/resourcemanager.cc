@@ -267,6 +267,7 @@ ResourceManager::IsResourceUnmanaged(const ResourceId& resId) const
 	n_assert(this->IsOpen());
 	return this->unmanagedResources.Contains(resId);
 }
+
 //------------------------------------------------------------------------------
 /**
 */
@@ -556,8 +557,8 @@ ResourceManager::GetResourcesByType(const Core::Rtti& type) const
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ResourceManager::SetMappersAsync( bool b )
+void
+ResourceManager::SetMappersAsync(bool b)
 {
 	IndexT i;
 	for (i = 0; i < this->mappers.Size(); i++)

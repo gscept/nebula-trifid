@@ -46,7 +46,7 @@ DrawFullScreenQuad::Setup(SizeT rtWidth, SizeT rtHeight)
     // setup vertex components
     Array<VertexComponent> vertexComponents;
     vertexComponents.Append(VertexComponent(VertexComponent::Position, 0, VertexComponent::Float3));
-    vertexComponents.Append(VertexComponent(VertexComponent::TexCoord, 0, VertexComponent::Float2));
+    vertexComponents.Append(VertexComponent(VertexComponent::TexCoord1, 0, VertexComponent::Float2));
 
     // compute screen rectangle coordinates
     Math::float4 pixelSize(1.0f / float(rtWidth), 1.0f / float(rtHeight), 0.0f, 0.0f);

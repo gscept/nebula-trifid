@@ -17,12 +17,13 @@
 
 namespace CoreGraphics
 {
-	class RenderDevice;
-	class ShaderInstance;
-	class ShaderVariation;
-	class VertexBuffer;
-	class IndexBuffer;
-	class Texture;
+class RenderDevice;
+class ShaderInstance;
+class ShaderVariation;
+class VertexBuffer;
+class IndexBuffer;
+class VertexLayout;
+class Texture;
 }
 
 namespace Resources
@@ -64,7 +65,7 @@ public:
 private:
 
 	Ptr<CoreGraphics::RenderDevice> renderDevice;
-	Ptr<CoreGraphics::ShaderInstance> shaderInstance;
+	Ptr<CoreGraphics::Shader> shader;
 	
 	Ptr<CoreGraphics::ShaderVariable> diffMap;
 	Ptr<CoreGraphics::ShaderVariable> modelVar;
@@ -79,6 +80,7 @@ private:
 	{
 		Ptr<CoreGraphics::VertexBuffer> vb;
 		Ptr<CoreGraphics::IndexBuffer> ib;
+        Ptr<CoreGraphics::VertexLayout> vertexLayout;
 		Ptr<CoreGraphics::Texture> texture;
 		CoreGraphics::PrimitiveGroup primGroup;
 	};

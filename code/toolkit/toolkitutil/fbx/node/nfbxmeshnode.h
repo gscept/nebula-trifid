@@ -14,7 +14,7 @@
 #include "fbx/character/skinfragment.h"
 
 //------------------------------------------------------------------------------
-namespace Fbx
+namespace ToolkitUtil
 {
 
 class NFbxJointNode;

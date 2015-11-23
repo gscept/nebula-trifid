@@ -23,9 +23,9 @@ public:
 	virtual ~InstanceRendererBase();
 
 	/// sets the shader instance
-	void SetShader(const Ptr<CoreGraphics::ShaderInstance>& shader);
+    void SetShader(const Ptr<CoreGraphics::Shader>& shader);
 	/// gets the shader instance
-	const Ptr<CoreGraphics::ShaderInstance>& GetShader() const;
+    const Ptr<CoreGraphics::Shader>& GetShader() const;
 
 	/// set instancing render multiplier
 	void SetInstanceMultiplier(SizeT multiplier);
@@ -43,7 +43,7 @@ public:
 	virtual void Render(const SizeT multiplier);
 
 protected:
-	Ptr<CoreGraphics::ShaderInstance> shader;
+	Ptr<CoreGraphics::Shader> shader;
 	Util::Array<Math::matrix44> modelTransforms;
 	Util::Array<Math::matrix44> modelViewTransforms;
 	Util::Array<Math::matrix44> modelViewProjectionTransforms;
@@ -55,7 +55,7 @@ protected:
 /**
 */
 inline void 
-InstanceRendererBase::SetShader( const Ptr<CoreGraphics::ShaderInstance>& shader )
+InstanceRendererBase::SetShader(const Ptr<CoreGraphics::Shader>& shader)
 {
 	n_assert(shader.isvalid());
 	this->shader = shader;
@@ -64,7 +64,7 @@ InstanceRendererBase::SetShader( const Ptr<CoreGraphics::ShaderInstance>& shader
 //------------------------------------------------------------------------------
 /**
 */
-inline const Ptr<CoreGraphics::ShaderInstance>& 
+inline const Ptr<CoreGraphics::Shader>&
 InstanceRendererBase::GetShader() const
 {
 	return this->shader;

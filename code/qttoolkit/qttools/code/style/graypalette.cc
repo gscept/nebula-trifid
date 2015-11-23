@@ -31,12 +31,13 @@ GrayPalette::GrayPalette()
 	this->setBrush(QPalette::Disabled, QPalette::BrightText, QBrush(Qt::lightGray));
 	this->setBrush(QPalette::Disabled, QPalette::Shadow, QBrush(Qt::black));
 
-	this->setBrush(QPalette::Highlight, QBrush(qRgb(210, 105, 30))); // orange	
+    this->setBrush(QPalette::Highlight, QBrush(qRgb(240, 160, 0))); // orange	
 	this->setBrush(QPalette::Mid, QBrush(qRgb(80, 80, 80)));
 	this->setBrush(QPalette::Light, QBrush(qRgb(120, 120, 120)));
 	this->setBrush(QPalette::Midlight, QBrush(qRgb(100, 100, 100)));
 	this->setBrush(QPalette::Dark, QBrush(qRgb(20, 20, 20)));
-	this->setBrush(QPalette::Shadow, QBrush(Qt::black));
+    this->setBrush(QPalette::Shadow, QBrush(Qt::black));
+
 }
 
 //------------------------------------------------------------------------------

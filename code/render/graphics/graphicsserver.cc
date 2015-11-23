@@ -68,10 +68,11 @@ GraphicsServer::Open()
 
     // get time shader variable from shader server (only if platform supports it)
     ShaderServer* shdServer = ShaderServer::Instance();
-    ShaderVariable::Semantic timeSem = ShaderVariable::Semantic(NEBULA3_SEMANTIC_TIME);    
-    if (shdServer->HasSharedVariableBySemantic(timeSem))
+    ShaderVariable::Name timeSem = ShaderVariable::Name(NEBULA3_SEMANTIC_TIME);
+    const Ptr<Shader>& sharedShader = shdServer->GetSharedShader();
+    if (sharedShader->HasVariableByName(timeSem))
     {        
-        this->timeShaderVar = shdServer->GetSharedVariableBySemantic(timeSem);
+        this->timeShaderVar = sharedShader->GetVariableByName(timeSem);
         n_assert(this->timeShaderVar.isvalid());
     }
 

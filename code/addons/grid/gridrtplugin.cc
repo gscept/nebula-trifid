@@ -43,7 +43,7 @@ void
 GridRTPlugin::OnRegister()
 {
 	// create new shader
-	this->shader = ShaderServer::Instance()->CreateShaderInstance("shd:grid");
+	this->shader = ShaderServer::Instance()->GetShader("shd:grid");
 	this->gridSizeVar = this->shader->GetVariableByName("GridSize");
 	this->gridTexVar = this->shader->GetVariableByName("GridTex");
 
@@ -75,6 +75,10 @@ GridRTPlugin::OnRegister()
 	this->ibo->Load();
 	n_assert(this->ibo->IsLoaded());
 	this->ibo->SetLoader(NULL);	
+
+    // setup ibo
+    this->vertexLayout = this->vbo->GetVertexLayout();
+    this->vertexLayout->SetIndexBuffer(this->ibo);
 	
 	this->primitive.SetBaseIndex(0);
 	this->primitive.SetNumVertices(4);
@@ -97,7 +101,6 @@ GridRTPlugin::OnUnregister()
 
 	this->gridSizeVar = 0;
 	this->gridTexVar = 0;
-	this->shader->Discard();
 	this->shader = 0;
 }
 
@@ -107,28 +110,26 @@ GridRTPlugin::OnUnregister()
 void
 GridRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
 {
-	if (CoreGraphics::BatchType::Shapes == frameBatch->GetType() && this->visible)
+	if (FrameBatchType::Shapes == frameBatch->GetType() && this->visible)
 	{
 		Ptr<RenderDevice> device = RenderDevice::Instance();
 		Ptr<TransformDevice> trans = TransformDevice::Instance();
 
 		// start pass
-		this->shader->Begin();
-		this->shader->BeginPass(0);
+        this->shader->Apply();
 
 		// set variables
+        this->shader->BeginUpdate();
 		this->gridSizeVar->SetInt(this->gridSize);
 		this->gridTexVar->SetTexture(this->tex->GetTexture());
+        this->shader->EndUpdate();
 		this->shader->Commit();
 
 		device->SetStreamSource(0, this->vbo, 0);
-		device->SetVertexLayout(this->vbo->GetVertexLayout());
+		device->SetVertexLayout(this->vertexLayout);
 		device->SetIndexBuffer(this->ibo);
 		device->SetPrimitiveGroup(this->primitive);
 		device->Draw();
-
-		this->shader->EndPass();
-		this->shader->End();
 	}
 }
 

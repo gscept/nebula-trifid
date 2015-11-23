@@ -48,8 +48,8 @@ private:
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-ModelItem::SetUi( Ui::ModelInfoWidget* ui )
+inline void
+ModelItem::SetUi(Ui::ModelInfoWidget* ui)
 {
 	this->ui = ui;
 }

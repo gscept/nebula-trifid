@@ -28,7 +28,7 @@ public:
 	void Close();
 
 	/// render
-	void Render();
+    void Render(IndexT frameIndex);
 
 private:
 	CoreGraphics::ShaderFeature::Mask instancingFeatureBits;

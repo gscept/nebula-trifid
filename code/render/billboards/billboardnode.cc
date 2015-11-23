@@ -36,4 +36,13 @@ BillboardNode::CreateNodeInstance() const
 	return newInst;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+BillboardNode::SetSurfaceName(const Util::String& name)
+{
+    this->materialName = name;
+}
+
 } // namespace Models

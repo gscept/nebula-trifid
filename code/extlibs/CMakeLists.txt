@@ -76,6 +76,7 @@ IF(NOT N_BUILD_FIRSTTIME)
 		
 		SET(ANYFX_FOLDER "extlibs/anyfx")
         add_subdirectory(anyfx)
+			SET(ANYFX_GLEW_FOLDER ${CMAKE_CURRENT_SOURCE_DIR}/extlibs/glew)
 			SET_TARGET_PROPERTIES(compiler PROPERTIES FOLDER "extlibs/anyfx")
 			SET_TARGET_PROPERTIES(mcpp PROPERTIES FOLDER "extlibs/anyfx")
 			SET_TARGET_PROPERTIES(antlr PROPERTIES FOLDER "extlibs/anyfx")

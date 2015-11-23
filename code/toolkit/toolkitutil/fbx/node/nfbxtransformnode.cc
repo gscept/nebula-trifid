@@ -7,9 +7,9 @@
 #include "nfbxnode.h"
 #include "nfbxscene.h"
 
-namespace Fbx
+namespace ToolkitUtil
 {
-__ImplementClass(Fbx::NFbxTransformNode, 'FBTN', Fbx::NFbxNode);
+__ImplementClass(ToolkitUtil::NFbxTransformNode, 'FBTN', ToolkitUtil::NFbxNode);
 
 //------------------------------------------------------------------------------
 /**

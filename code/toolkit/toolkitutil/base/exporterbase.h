@@ -44,9 +44,9 @@ public:
 
 	/// exports a single file
 	virtual void ExportFile(const IO::URI& file);
-	/// exports a single file
+	/// exports a single directory
 	virtual void ExportDir(const Util::String& category);
-	/// exports a single file
+	/// exports all files
 	virtual void ExportAll();
 
 	/// sets error flag

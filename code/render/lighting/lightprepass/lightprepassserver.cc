@@ -80,35 +80,34 @@ LightPrePassServer::Open()
 
 
     // setup shader stuff
-	this->lightShaderInst                    = shdServer->CreateShaderInstance("shd:lightsources");
+	this->lightShader                    = shdServer->GetShader("shd:lightsources");
 	this->pointLightFeatureBits[NoShadows]   = shdServer->FeatureStringToMask("PointLight");    
 	this->pointLightFeatureBits[CastShadows] = shdServer->FeatureStringToMask("PointLightShadows");    
 	this->spotLightFeatureBits[NoShadows]    = shdServer->FeatureStringToMask("SpotLight"); 
 	this->spotLightFeatureBits[CastShadows]  = shdServer->FeatureStringToMask("SpotLightShadows");
 	this->globalLightFeatureBits             = shdServer->FeatureStringToMask("GlobalLight");
-	this->lightPosRange           = this->lightShaderInst->GetVariableBySemantic(NEBULA3_SEMANTIC_LIGHTPOSRANGE);
-	this->lightColor              = this->lightShaderInst->GetVariableBySemantic(NEBULA3_SEMANTIC_LIGHTCOLOR);
-	this->globalLightDir          = this->lightShaderInst->GetVariableBySemantic(NEBULA3_SEMANTIC_GLOBALLIGHTDIR);
-	this->globalLightColor        = this->lightShaderInst->GetVariableBySemantic(NEBULA3_SEMANTIC_GLOBALLIGHTCOLOR);
-	this->globalBackLightColor    = this->lightShaderInst->GetVariableBySemantic(NEBULA3_SEMANTIC_GLOBALBACKLIGHTCOLOR);
-	this->globalAmbientLightColor = this->lightShaderInst->GetVariableBySemantic(NEBULA3_SEMANTIC_GLOBALAMBIENTLIGHTCOLOR);
-	this->globalBackLightOffset   = this->lightShaderInst->GetVariableBySemantic(NEBULA3_SEMANTIC_GLOBALBACKLIGHTOFFSET);
-	this->lightProjTransform      = this->lightShaderInst->GetVariableBySemantic(NEBULA3_SEMANTIC_LIGHTPROJTRANSFORM);
-	this->shadowProjTransform     = this->lightShaderInst->GetVariableBySemantic(NEBULA3_SEMANTIC_SHADOWPROJTRANSFORM);
-	this->shadowOffsetScaleVar    = this->lightShaderInst->GetVariableBySemantic(NEBULA3_SEMANTIC_SHADOWOFFSETSCALE);
-	this->shadowFadeVar           = this->lightShaderInst->GetVariableBySemantic(NEBULA3_SEMANTIC_SHADOWINTENSITY);
-	this->lightProjMapVar         = shdServer->GetSharedVariableBySemantic(NEBULA3_SEMANTIC_LIGHTPROJMAP); 
-	this->normalBufferVar         = shdServer->GetSharedVariableBySemantic(NEBULA3_SEMANTIC_NORMALBUFFER);
-	this->dsfObjectDepthBufferVar = shdServer->GetSharedVariableBySemantic(NEBULA3_SEMANTIC_DEPTHBUFFER);
-	this->lightBufferVar          = shdServer->GetSharedVariableBySemantic(NEBULA3_SEMANTIC_LIGHTBUFFER);
-	this->shadowProjMapVar        = shdServer->GetSharedVariableBySemantic(NEBULA3_SEMANTIC_SHADOWPROJMAP);
-	this->shadowConstants         = shdServer->GetSharedVariableBySemantic(NEBULA3_SEMANTIC_SHADOWCONSTANTS);
+	this->lightPosRange           = this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_LIGHTPOSRANGE);
+	this->lightColor              = this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_LIGHTCOLOR);
+	this->globalLightDir          = this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_GLOBALLIGHTDIR);
+	this->globalLightColor        = this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_GLOBALLIGHTCOLOR);
+	this->globalBackLightColor    = this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_GLOBALBACKLIGHTCOLOR);
+	this->globalAmbientLightColor = this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_GLOBALAMBIENTLIGHTCOLOR);
+	this->globalBackLightOffset   = this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_GLOBALBACKLIGHTOFFSET);
+	this->lightProjTransform      = this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_LIGHTPROJTRANSFORM);
+	this->shadowProjTransform     = this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_SHADOWPROJTRANSFORM);
+	this->shadowOffsetScaleVar    = this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_SHADOWOFFSETSCALE);
+	this->shadowFadeVar           = this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_SHADOWINTENSITY);
+
+    const Ptr<Shader>& sharedShader = shdServer->GetSharedShader();
+	this->lightProjMapVar         = sharedShader->GetVariableByName(NEBULA3_SEMANTIC_LIGHTPROJMAP); 
+	this->normalBufferVar         = sharedShader->GetVariableByName(NEBULA3_SEMANTIC_NORMALBUFFER);
+	this->dsfObjectDepthBufferVar = sharedShader->GetVariableByName(NEBULA3_SEMANTIC_DEPTHBUFFER);
+	this->lightBufferVar          = sharedShader->GetVariableByName(NEBULA3_SEMANTIC_LIGHTBUFFER);
+	this->shadowProjMapVar        = sharedShader->GetVariableByName(NEBULA3_SEMANTIC_SHADOWPROJMAP);
+	this->shadowConstants         = sharedShader->GetVariableByName(NEBULA3_SEMANTIC_SHADOWCONSTANTS);
 
 	// shadowConstants default-values in shader didnt quite work for the ps3, so we commit it here once
 	this->shadowConstants->SetFloat4(float4(100.0f, 100.0f, 0.003f, 512.0f));
-
-
-
 }
 
 //------------------------------------------------------------------------------
@@ -127,8 +126,7 @@ LightPrePassServer::Close()
     this->fullScreenQuadRenderer.Discard();
 
     // discard shader stuff
-    this->lightShaderInst->Discard();
-    this->lightShaderInst = 0;
+    this->lightShader = 0;
     this->lightColor = 0;
     this->lightPosRange = 0;
     this->normalBufferVar = 0;
@@ -262,7 +260,7 @@ LightPrePassServer::RenderLights()
     }
 
     // general preparations
-    shdServer->SetActiveShaderInstance(this->lightShaderInst);
+    shdServer->SetActiveShader(this->lightShader);
     
     // render the global light
     this->RenderGlobalLight();
@@ -299,20 +297,17 @@ LightPrePassServer::RenderGlobalLight()
         // normalize was done in fragment shader, better here for gfx card's sake
         viewSpaceLightDir = Math::float4::normalize(viewSpaceLightDir);
 
-        this->lightShaderInst->SelectActiveVariation(this->globalLightFeatureBits);
+        this->lightShader->SelectActiveVariation(this->globalLightFeatureBits);
+        this->lightShader->Apply();
+        this->lightShader->BeginUpdate();
         this->globalLightDir->SetFloat4(viewSpaceLightDir);
         this->globalLightColor->SetFloat4(this->globalLightEntity->GetColor());
         this->globalBackLightColor->SetFloat4(this->globalLightEntity->GetBackLightColor());
         this->globalAmbientLightColor->SetFloat4(this->globalLightEntity->GetAmbientLightColor());
         this->globalBackLightOffset->SetFloat(this->globalLightEntity->GetBackLightOffset());
-        this->lightShaderInst->Begin();
-
-        this->lightShaderInst->BeginPass(0);
-
-        this->lightShaderInst->Commit();
+        this->lightShader->EndUpdate();
+        this->lightShader->Commit();
         this->fullScreenQuadRenderer.Draw();
-        this->lightShaderInst->EndPass();
-        this->lightShaderInst->End();
     }
 }
 
@@ -335,10 +330,8 @@ LightPrePassServer::RenderPointLights()
         {
             if(this->pointLights[shadowIdx].Size())
             {
-				
-                this->lightShaderInst->SelectActiveVariation(this->pointLightFeatureBits[shadowIdx]);
-                this->lightShaderInst->Begin();
-                this->lightShaderInst->BeginPass(0);				
+                this->lightShader->SelectActiveVariation(this->pointLightFeatureBits[shadowIdx]);
+                this->lightShader->Apply();
                 this->pointLightMesh->GetMesh()->ApplyPrimitives(0);
                 
                 IndexT i;
@@ -353,6 +346,7 @@ LightPrePassServer::RenderPointLights()
                     float4 posAndRange = matrix44::transform(lightTransform.get_position(), viewTransform);
                     posAndRange.w() = 1.0f / lightTransform.get_zaxis().length();
 
+                    this->lightShader->BeginUpdate();
                     this->lightPosRange->SetFloat4(posAndRange);
                     this->lightColor->SetFloat4(curLight->GetColor());
 
@@ -375,14 +369,13 @@ LightPrePassServer::RenderPointLights()
                     }   
 
                     // update shader variables
-                    tformDevice->ApplyModelTransforms(this->lightShaderInst);
+                    tformDevice->ApplyModelTransforms(this->lightShader);
+                    this->lightShader->EndUpdate();
 
                     // commit and draw
-                    this->lightShaderInst->Commit();
+                    this->lightShader->Commit();
                     renderDevice->Draw();
                 }
-                this->lightShaderInst->EndPass();
-                this->lightShaderInst->End(); 	
             }
         }                             
     }
@@ -410,9 +403,8 @@ LightPrePassServer::RenderSpotLights()
         {
             if(this->spotLights[shadowIdx].Size())
             {
-                this->lightShaderInst->SelectActiveVariation(this->spotLightFeatureBits[shadowIdx]);
-                this->lightShaderInst->Begin();
-                this->lightShaderInst->BeginPass(0);
+                this->lightShader->SelectActiveVariation(this->spotLightFeatureBits[shadowIdx]);
+                this->lightShader->Apply();
                 this->spotLightMesh->GetMesh()->ApplyPrimitives(0);
 
                 IndexT i;
@@ -427,6 +419,7 @@ LightPrePassServer::RenderSpotLights()
                     float4 posAndRange = matrix44::transform(lightTransform.get_position(), viewTransform);
                     posAndRange.w() = 1.0f / lightTransform.get_zaxis().length();
 
+                    this->lightShader->BeginUpdate();
                     this->lightPosRange->SetFloat4(posAndRange);
                     this->lightColor->SetFloat4(curLight->GetColor());
 
@@ -451,14 +444,13 @@ LightPrePassServer::RenderSpotLights()
                     }
                     
                     // update shader variables
-                    tformDevice->ApplyModelTransforms(this->lightShaderInst);
+                    tformDevice->ApplyModelTransforms(this->lightShader);
+                    this->lightShader->EndUpdate();
 
                     // commit and draw
-                    this->lightShaderInst->Commit();
+                    this->lightShader->Commit();
                     renderDevice->Draw();
                 }
-                this->lightShaderInst->EndPass();
-                this->lightShaderInst->End();	
             }
         }                     
     }

@@ -174,7 +174,7 @@ SkinnedMeshRendererBase::UpdateGPUSkinnedJointPalette(const Ptr<Characters::Char
 	Updates joint texture for character
 */
 void 
-SkinnedMeshRendererBase::UpdateGPUTextureSkinnedJointPalette( const Ptr<Characters::CharacterInstance>& charInst, const Ptr<CoreGraphics::ShaderVariable>& jointPaletteShdVar )
+SkinnedMeshRendererBase::UpdateGPUTextureSkinnedJointPalette(const Ptr<Characters::CharacterInstance>& charInst, const Ptr<CoreGraphics::ShaderVariable>& jointPaletteShdVar)
 {
 	n_error("SkinnedMeshRendererBase::UpdateGPUTextureSkinnedMesh() called!\n");
 }

@@ -38,7 +38,7 @@ EffectShader::Discard()
 //------------------------------------------------------------------------------
 /**
 */
-const std::string& 
+const eastl::string&
 EffectShader::GetError() const
 {
 	return this->internalShader->GetError();
@@ -47,7 +47,7 @@ EffectShader::GetError() const
 //------------------------------------------------------------------------------
 /**
 */
-const std::string& 
+const eastl::string&
 EffectShader::GetName() const
 {
 	return this->internalShader->GetName();
@@ -56,7 +56,7 @@ EffectShader::GetName() const
 //------------------------------------------------------------------------------
 /**
 */
-const std::string& 
+const eastl::string&
 EffectShader::GetCode() const
 {
 	return this->internalShader->GetCode();

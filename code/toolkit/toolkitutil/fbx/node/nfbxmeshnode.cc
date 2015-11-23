@@ -7,7 +7,7 @@
 #include "meshutil/meshbuildervertex.h"
 #include "nfbxscene.h"
 
-namespace Fbx
+namespace ToolkitUtil
 {
 
 using namespace Math;
@@ -15,7 +15,7 @@ using namespace Util;
 using namespace CoreAnimation;
 using namespace ToolkitUtil;
 
-__ImplementClass(Fbx::NFbxMeshNode, 'FBMN', Fbx::NFbxNode);
+__ImplementClass(ToolkitUtil::NFbxMeshNode, 'FBMN', ToolkitUtil::NFbxNode);
 
 //------------------------------------------------------------------------------
 /**

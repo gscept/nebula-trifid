@@ -41,5 +41,37 @@ protected:
 	GLuint currentLocation;
 	eastl::hash_map<GLSL4EffectProgram*, GLuint> activeMap;
 }; 
+
+struct GLSL4VarbufferRangeState
+{
+	GLuint buffer;
+	GLuint offset;
+	GLsizei length;
+} static GLSL4VarbufferRangeStates[16384];
+
+struct GLSL4VarbufferBaseState
+{
+	GLuint buffer;
+} static GLSL4VarbufferBaseStates[16384];
+
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline bool
+operator!=(const GLSL4VarbufferRangeState& lhs, const GLSL4VarbufferRangeState& rhs)
+{
+	return lhs.buffer != rhs.buffer || lhs.offset != rhs.offset || lhs.length != rhs.length;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline bool
+operator!=(const GLSL4VarbufferBaseState& lhs, const GLSL4VarbufferBaseState& rhs)
+{
+	return lhs.buffer != rhs.buffer;
+}
+
 } // namespace AnyFX
 //------------------------------------------------------------------------------

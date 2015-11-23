@@ -29,7 +29,6 @@ public:
 		SizeT vertexDataSize, 
 		CoreGraphics::VertexBuffer::Usage usage, 
 		CoreGraphics::VertexBuffer::Access access, 
-		CoreGraphics::VertexBuffer::BufferCount bufferCount = CoreGraphics::VertexBuffer::BufferSingle,
 		CoreGraphics::VertexBuffer::Syncing syncing = CoreGraphics::VertexBuffer::SyncingSimple);
 
 protected:
@@ -39,7 +38,6 @@ protected:
     SizeT vertexDataSize;
 	CoreGraphics::VertexBuffer::Usage usage;
 	CoreGraphics::VertexBuffer::Access access;
-	CoreGraphics::VertexBuffer::BufferCount bufferCount;
 	CoreGraphics::VertexBuffer::Syncing syncing;
 };
 

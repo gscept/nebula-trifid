@@ -35,11 +35,11 @@ state BloomState
 shader
 void
 vsMain(in vec3 position,
-	in vec2 uv,
+	[slot=2] in vec2 uv,
 	out vec2 UV) 
 {
 	gl_Position = vec4(position, 1);
-UV = FlipY(uv);
+	UV = FlipY(uv);
 }
 
 //------------------------------------------------------------------------------

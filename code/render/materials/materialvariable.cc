@@ -157,7 +157,7 @@ MaterialVariable::DiscardVariableInstance( const Ptr<MaterialVariableInstance>& 
 /**
 */
 void 
-MaterialVariable::Setup( const Util::Array<Ptr<CoreGraphics::ShaderVariable> >& shaderVariables, Util::Variant defaultValue )
+MaterialVariable::Setup( const Array<Ptr<CoreGraphics::ShaderVariable> >& shaderVariables, Variant defaultValue )
 {
 	n_assert(this->variables.IsEmpty());
 	this->variables.AppendArray(shaderVariables);

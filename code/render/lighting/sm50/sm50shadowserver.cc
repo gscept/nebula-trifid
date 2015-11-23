@@ -67,9 +67,8 @@ SM50ShadowServer::Open()
 	// load the ShadowBuffer frame shader
 	const Ptr<FrameServer>& frameServer = FrameServer::Instance();
 	const Ptr<MaterialServer> materialServer = MaterialServer::Instance();
-	this->shadowShader = ShaderServer::Instance()->CreateShaderInstance("shd:shadow");
+	this->shadowShader = ShaderServer::Instance()->GetShader("shd:shadow");
 	this->shadowLightViewProjVar = this->shadowShader->GetVariableByName("LightViewProjection");
-	
 
 	// setup the shadow buffer render target, this is a single
 	// render target which contains the shadow buffer data for
@@ -121,8 +120,8 @@ SM50ShadowServer::Open()
 
 	// create spotlight batch
 	this->spotLightBatch = FrameBatch::Create();
-	this->spotLightBatch->SetType(CoreGraphics::BatchType::FromString("Geometry"));
-	this->spotLightBatch->SetNodeFilter(ModelNodeType::FromName("SpotLightShadow"));
+	this->spotLightBatch->SetType(CoreGraphics::FrameBatchType::FromString("Geometry"));
+	this->spotLightBatch->SetBatchGroup(BatchGroup::FromName("SpotLightShadow"));
 
 	// create spotlight pass
 	this->spotLightPass = FramePass::Create();
@@ -134,9 +133,9 @@ SM50ShadowServer::Open()
 	this->spotLightPass->AddBatch(this->spotLightBatch);
 
 	// create SAT shaders
-	this->satXShader = ShaderServer::Instance()->CreateShaderInstance("shd:box3taphori");
+	this->satXShader = ShaderServer::Instance()->GetShader("shd:box3taphori");
 	this->satXShader->GetVariableByName("SourceBuffer")->SetTexture(this->spotLightShadowMap1->GetResolveTexture());
-	this->satYShader = ShaderServer::Instance()->CreateShaderInstance("shd:box3tapvert");
+    this->satYShader = ShaderServer::Instance()->GetShader("shd:box3tapvert");
 	this->satYShader->GetVariableByName("SourceBuffer")->SetTexture(this->spotLightShadowMap2->GetResolveTexture());
 
 	// setup sat passes
@@ -188,8 +187,8 @@ SM50ShadowServer::Open()
 
     // create batch for pointlights
     this->pointLightBatch = FrameBatch::Create();
-    this->pointLightBatch->SetType(CoreGraphics::BatchType::FromString("Geometry"));
-    this->pointLightBatch->SetNodeFilter(ModelNodeType::FromName("PointLightShadow"));
+    this->pointLightBatch->SetType(CoreGraphics::FrameBatchType::FromString("Geometry"));
+    this->pointLightBatch->SetBatchGroup(BatchGroup::FromName("PointLightShadow"));
 
     // create pass for pointlights
     this->pointLightPass = FramePass::Create();
@@ -243,11 +242,10 @@ SM50ShadowServer::Open()
 	this->globalLightShadowBufferFinal->SetResolveTextureResourceId(ResourceId("GlobalLightShadowBufferFinal"));
 	this->globalLightShadowBufferFinal->Setup();	
 
-
 	// create batch
 	this->globalLightShadowBatch = FrameBatch::Create();
-	this->globalLightShadowBatch->SetType(CoreGraphics::BatchType::FromString("Geometry"));
-	this->globalLightShadowBatch->SetNodeFilter(ModelNodeType::FromName("GlobalShadow"));
+	this->globalLightShadowBatch->SetType(CoreGraphics::FrameBatchType::FromString("Geometry"));
+	this->globalLightShadowBatch->SetBatchGroup(BatchGroup::FromName("GlobalShadow"));
     this->globalLightShadowBatch->SetForceInstancing(true, 4);
 
 	// create pass
@@ -260,7 +258,7 @@ SM50ShadowServer::Open()
 	this->globalLightHotPass->AddBatch(this->globalLightShadowBatch);
 
 	// get blur shader
-	this->blurShader = ShaderServer::Instance()->CreateShaderInstance("shd:csmblur");
+	this->blurShader = ShaderServer::Instance()->GetShader("shd:csmblur");
 
 	// create blur pass
 	this->globalLightBlurPass = FramePostEffect::Create();
@@ -268,8 +266,9 @@ SM50ShadowServer::Open()
 	this->globalLightBlurPass->SetRenderTarget(this->globalLightShadowBufferFinal);
 	this->globalLightBlurPass->SetShader(this->blurShader);
 	this->globalLightBlurPass->Setup();
+    this->blurShader->BeginUpdate();
 	this->blurShader->GetVariableByName("SourceMap")->SetTexture(this->globalLightShadowBuffer->GetResolveTexture());
-	//this->blurShader->GetVariableByName("BorderIntervals")->SetFloat2(float2(1 / (float)SplitsPerColumn, 1 / (float)SplitsPerRow));
+    this->blurShader->EndUpdate();
 
 #if NEBULA3_ENABLE_PROFILING
 	{
@@ -373,8 +372,8 @@ SM50ShadowServer::Close()
 	this->blurShader = 0;
 
 	this->shadowLightViewProjVar = 0;
-	this->shadowShader->Discard();
 	this->shadowShader = 0;
+    this->blurShader = 0;
 
     // call parent class
     ShadowServerBase::Close();
@@ -422,6 +421,7 @@ SM50ShadowServer::UpdateSpotLightShadowBuffers()
 	const Ptr<TransformDevice>& transDev = TransformDevice::Instance();
 	const Ptr<RenderDevice>& renderDev = RenderDevice::Instance();
 	const Ptr<FrameSyncTimer>& timer = FrameSyncTimer::Instance();
+    IndexT frameIndex = timer->GetFrameIndex();
 
 	// for each shadow casting light...
 	SizeT numLights = this->spotLightEntities.Size();
@@ -452,7 +452,7 @@ SM50ShadowServer::UpdateSpotLightShadowBuffers()
 			if (curEntity->IsA(ModelEntity::RTTI) && curEntity->GetCastsShadows())
 			{
 				const Ptr<ModelEntity>& modelEntity = curEntity.downcast<ModelEntity>();
-				visResolver->AttachVisibleModelInstance(timer->GetFrameIndex(), modelEntity->GetModelInstance(), false);
+                visResolver->AttachVisibleModelInstance(frameIndex, modelEntity->GetModelInstance(), false);
 			}
 		}
 		visResolver->EndResolve();
@@ -470,14 +470,14 @@ SM50ShadowServer::UpdateSpotLightShadowBuffers()
 		// begin spotlight shadow pass
 
 		// render into shadow map
-		this->spotLightPass->Render();
+        this->spotLightPass->Render(frameIndex);
 
 		// render first SAT pass
-		this->spotLightVertPass->Render();
+        this->spotLightVertPass->Render(frameIndex);
 
 		// render second SAT pass
 		this->spotLightShadowBufferAtlas->SetResolveRect(resolveRect);
-		this->spotLightHoriPass->Render();
+        this->spotLightHoriPass->Render(frameIndex);
 		//glFinish();
         //this->spotLightFinalPostEffect->SetRenderTarget(this->spotLightShadowBufferAtlas);
 
@@ -564,6 +564,7 @@ SM50ShadowServer::UpdateHotGlobalShadowBuffer()
     n_assert(this->globalLightEntity.isvalid());
 	const Ptr<VisResolver>& visResolver = VisResolver::Instance();
 	const Ptr<FrameSyncTimer>& timer = FrameSyncTimer::Instance();
+    IndexT frameIndex = timer->GetFrameIndex();
 
 	// get the first view projection matrix which will resolve all visible shadow casting entities
 	matrix44 cascadeViewProjection = this->csmUtil.GetCascadeViewProjection(0);
@@ -581,16 +582,16 @@ SM50ShadowServer::UpdateHotGlobalShadowBuffer()
 		if (curEntity->IsA(ModelEntity::RTTI) && curEntity->GetCastsShadows())
 		{
 			const Ptr<ModelEntity>& modelEntity = curEntity.downcast<ModelEntity>();
-			visResolver->AttachVisibleModelInstance(timer->GetFrameIndex(), modelEntity->GetModelInstance(), false);
+            visResolver->AttachVisibleModelInstance(frameIndex, modelEntity->GetModelInstance(), false);
 		}
 	}
 	visResolver->EndResolve();
 
 	// render batch
-	this->globalLightHotPass->Render();
+    this->globalLightHotPass->Render(frameIndex);
 
 	// render blur
-	//this->globalLightBlurPass->Render();
+    this->globalLightBlurPass->Render(frameIndex);
 }
 
 //------------------------------------------------------------------------------

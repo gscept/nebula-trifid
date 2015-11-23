@@ -37,7 +37,7 @@ private:
     /// parse texture declaration from XML
     static void ParseTexture(const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader);
     /// parse shader variable instance from XML
-    static void ParseShaderVariableInstance(const Ptr<IO::XmlReader>& xmlReader, const Ptr<CoreGraphics::ShaderInstance>& shd, const Ptr<FramePassBase>& pass);
+    static void ParseShaderVariableInstance(const Ptr<IO::XmlReader>& xmlReader, const Ptr<CoreGraphics::Shader>& shd, const Ptr<FramePassBase>& pass);
 	/// parse shader variable instance from XML
 	static void ParseShaderVariableInstance(const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameBatch>& batch);
     /// parse frame pass from XML

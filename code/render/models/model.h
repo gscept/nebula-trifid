@@ -88,11 +88,11 @@ private:
     /// called once when all pending resources have been loaded
     void OnResourcesLoaded();
     /// get visible model nodes
-    const Util::Array<Ptr<ModelNode> >& GetVisibleModelNodes(ModelNodeType::Code t) const;
+    const Util::Array<Ptr<ModelNode>>& GetVisibleModelNodes(const Materials::SurfaceName::Code& code) const;
     /// lookup node index by path
     IndexT GetNodeIndexByName(const Util::String& path) const;
     /// called by ModelNode as a result of NotifyVisible()
-    void AddVisibleModelNode(IndexT frameIndex, ModelNodeType::Code t, const Ptr<ModelNode>& modelNode);
+    void AddVisibleModelNode(IndexT frameIndex, const Materials::SurfaceName::Code& code, const Ptr<ModelNode>& modelNode);
 
     Math::bbox boundingBox;
     Util::Array<Ptr<ModelNode> > nodes;
@@ -146,9 +146,9 @@ Model::GetNodes() const
 /**
 */
 inline const Util::Array<Ptr<ModelNode> >&
-Model::GetVisibleModelNodes(ModelNodeType::Code t) const
+Model::GetVisibleModelNodes(const Materials::SurfaceName::Code& code) const
 {
-    return this->visibleModelNodes.Get(t);
+    return this->visibleModelNodes.Get(code);
 }
 
 //------------------------------------------------------------------------------

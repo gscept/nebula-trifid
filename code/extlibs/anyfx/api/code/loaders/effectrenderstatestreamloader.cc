@@ -46,7 +46,7 @@ EffectRenderStateStreamLoader::Load( BinReader* reader, Effect* effect )
 	EffectRenderState* renderState = new EffectRenderState;
 
 	// get name
-	std::string name = reader->ReadString();
+    eastl::string name = reader->ReadString().c_str();
 	internalRenderState->name = name;
 
 	bool hasAnnotation = reader->ReadBool();

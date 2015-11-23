@@ -268,7 +268,7 @@ TextureAttrTable::Save( const Util::String& path )
 	// get attributes
 	const TextureAttrs& attrs = this->texAttrs[mapIndex];
 
-	String tablePath = "src:textures/" + path + ".xml";
+	String tablePath = "src:assets/" + path + ".xml";
 	Ptr<Stream> stream = ioServer->CreateStream(tablePath);
 	Ptr<XmlWriter> xmlWriter = XmlWriter::Create();
 	xmlWriter->SetStream(stream);

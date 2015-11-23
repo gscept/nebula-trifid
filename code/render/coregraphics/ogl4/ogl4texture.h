@@ -48,7 +48,7 @@ public:
 	/// get ogl4 texture target
 	const GLenum& GetOGL4TextureTarget() const;
 	/// get ogl4 texture variable
-	const AnyFX::EffectVariable::OpenGLTexture* GetOGL4Variable() const;
+	const AnyFX::OpenGLTextureBinding* GetOGL4Variable() const;
 
     /// setup from an opengl 2D texture
 	void SetupFromOGL4Texture(const GLuint& texture, CoreGraphics::PixelFormat::Code format, GLint numMips = 0, const bool setLoaded = true, const bool isAttachment = false);
@@ -61,12 +61,12 @@ public:
 	
 protected:
 
-	AnyFX::EffectVariable::OpenGLTexture* ogl4TextureHandle;
+    AnyFX::OpenGLTextureBinding* ogl4TextureBinding;
 
 	MapType mapType;
 	GLenum target;
-	GLuint ogl4PixelBuffer;
 	GLuint ogl4Texture;
+    GLuint64 ogl4TextureHandle;
 	void* mappedData;
     int mapCount;
 };
@@ -92,10 +92,10 @@ OGL4Texture::GetOGL4TextureTarget() const
 //------------------------------------------------------------------------------
 /**
 */
-inline const AnyFX::EffectVariable::OpenGLTexture* 
+inline const AnyFX::OpenGLTextureBinding*
 OGL4Texture::GetOGL4Variable() const
 {
-	return this->ogl4TextureHandle;
+	return this->ogl4TextureBinding;
 }
 
 }// namespace OpenGL4

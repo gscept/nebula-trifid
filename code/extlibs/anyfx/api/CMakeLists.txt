@@ -4,7 +4,7 @@
 
 INCLUDE_DIRECTORIES(${ANYFX_SOURCE_DIR}
 					${ANYFX_SOURCE_DIR}/util/code
-					${ANYFX_SOURCE_DIR}/exts/glew
+					${ANYFX_GLEW_FOLDER}/include
 					${ANYFX_SOURCE_DIR}/exts/eastl/include
 					${ANYFX_SOURCE_DIR}/api/code)
 					
@@ -29,10 +29,10 @@ FILE(GLOB HEAD "code/loaders/*.h")
 SOURCE_GROUP("api\\loaders" FILES ${SRC} ${HEAD})
 LIST(APPEND CODE ${SRC} ${HEAD})
 
-FILE(GLOB SRC "glew/*.c")
-FILE(GLOB HEAD "glew/GL/*.h")
-SOURCE_GROUP("api\\glew" FILES ${SRC} ${HEAD})
-LIST(APPEND CODE ${SRC} ${HEAD})
+#FILE(GLOB SRC "glew/*.c")
+FILE(GLOB HEAD "GL/*.h")
+SOURCE_GROUP("api\\glew" FILES ${HEAD})
+LIST(APPEND CODE ${HEAD})
 
 ADD_DEFINITIONS(-DGLEW_STATIC)
 

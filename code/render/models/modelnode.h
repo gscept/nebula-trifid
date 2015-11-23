@@ -16,11 +16,12 @@
 #include "core/refcounted.h"
 #include "util/stringatom.h"
 #include "resources/resource.h"
-#include "models/modelnodetype.h"
+#include "frame/batchgroup.h"
 #include "coregraphics/shaderinstance.h"
 #include "models/visresolvecontainer.h"
 #include "math/bbox.h"
 #include "io/binaryreader.h"
+#include "materials/surfacename.h"
 
 //------------------------------------------------------------------------------
 namespace Models
@@ -82,10 +83,6 @@ public:
     void SetName(const Util::StringAtom& n);
     /// get model node name
     const Util::StringAtom& GetName() const;
-    /// set ModelNodeType
-    void SetType(ModelNodeType::Code t);
-    /// get the ModelNodeType
-    ModelNodeType::Code GetType() const;
 
     /// set parent node
     void SetParent(const Ptr<ModelNode>& p);
@@ -107,9 +104,9 @@ public:
 	const Ptr<ModelNode> FindChild(const Util::StringAtom& name) const;
 
     /// called by model node instance on NotifyVisible()
-    void AddVisibleNodeInstance(IndexT frameIndex, const Ptr<ModelNodeInstance>& nodeInst);
+    void AddVisibleNodeInstance(IndexT frameIndex, const Materials::SurfaceName::Code& surfaceName, const Ptr<ModelNodeInstance>& nodeInst);
     /// get visible model node instances
-    const Util::Array<Ptr<ModelNodeInstance> >& GetVisibleModelNodeInstances(ModelNodeType::Code t) const;
+    const Util::Array<Ptr<ModelNodeInstance>>& GetVisibleModelNodeInstances(const Materials::SurfaceName::Code& surfaceName) const;
 
     /// has string attr 
     bool HasStringAttr(const Util::StringAtom& attrId) const;
@@ -125,11 +122,10 @@ protected:
     Ptr<Model> model;
     Util::StringAtom name;
     Ptr<ModelNode> parent;
-    Util::Array<Ptr<ModelNode> > children;
+    Util::Array<Ptr<ModelNode>> children;
     Util::Dictionary<Util::StringAtom, IndexT> childIndexMap;
     VisResolveContainer<ModelNodeInstance> visibleModelNodeInstances;
     Util::Dictionary<Util::StringAtom, Util::StringAtom> stringAttrs;
-    ModelNodeType::Code type;
     Math::bbox boundingBox;
     bool inLoadResources;
 
@@ -161,25 +157,6 @@ ModelNode::ResetScreenSpaceStats()
 {
     this->resourceStreamingLevelOfDetail = -1.0f;
 }
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void
-ModelNode::SetType(ModelNodeType::Code t)
-{
-    this->type = t;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline ModelNodeType::Code
-ModelNode::GetType() const
-{
-    return this->type;
-}
-
 
 //------------------------------------------------------------------------------
 /**
@@ -238,10 +215,10 @@ ModelNode::GetChildren() const
 //------------------------------------------------------------------------------
 /**
 */
-inline const Util::Array<Ptr<ModelNodeInstance> >&
-ModelNode::GetVisibleModelNodeInstances(ModelNodeType::Code t) const
+inline const Util::Array<Ptr<ModelNodeInstance>>&
+ModelNode::GetVisibleModelNodeInstances(const Materials::SurfaceName::Code& code) const
 {
-    return this->visibleModelNodeInstances.Get(t);
+    return this->visibleModelNodeInstances.Get(code);
 }
 
 //------------------------------------------------------------------------------

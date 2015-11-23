@@ -15,7 +15,7 @@
 #include "core/singleton.h"
 #include "coregraphics/rendereventhandler.h"
 #include "coregraphics/primitivegroup.h"
-#include "coregraphics/batchtype.h"
+#include "coregraphics/framebatchtype.h"
 #include "coregraphics/imagefileformat.h"
 #include "io/stream.h"
 #include "debug/debugcounter.h"
@@ -23,6 +23,7 @@
 #include "math/rectangle.h"
 #include "graphics/view.h"
 #include "graphics/graphicsserver.h"
+#include "../shader.h"
 
 namespace CoreGraphics
 {
@@ -78,15 +79,15 @@ public:
     /// begin complete frame
     bool BeginFrame();
     /// begin rendering a frame pass
-	void BeginPass(const Ptr<CoreGraphics::RenderTarget>& rt, const Ptr<CoreGraphics::ShaderInstance>& passShader);
+	void BeginPass(const Ptr<CoreGraphics::RenderTarget>& rt, const Ptr<CoreGraphics::Shader>& passShader);
     /// begin rendering a frame pass with a multiple rendertarget
-    void BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt, const Ptr<CoreGraphics::ShaderInstance>& passShader);
+    void BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt, const Ptr<CoreGraphics::Shader>& passShader);
     /// begin rendering a frame pass with a rendertarget cube
-    void BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& crt, const Ptr<CoreGraphics::ShaderInstance>& passShader);
+    void BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& crt, const Ptr<CoreGraphics::Shader>& passShader);
 	/// begin rendering a transform feedback with a vertex buffer as target, updateFeedback checks if the feedback buffer should be used for updating, or for rendering
-	void BeginFeedback(const Ptr<CoreGraphics::FeedbackBuffer>& fb, CoreGraphics::PrimitiveTopology::Code primType, const Ptr<CoreGraphics::ShaderInstance>& shader);
+    void BeginFeedback(const Ptr<CoreGraphics::FeedbackBuffer>& fb, CoreGraphics::PrimitiveTopology::Code primType, const Ptr<CoreGraphics::Shader>& shader);
     /// begin rendering a batch
-    void BeginBatch(CoreGraphics::BatchType::Code batchType);
+    void BeginBatch(CoreGraphics::FrameBatchType::Code batchType);
     /// set the current vertex stream source
     void SetStreamVertexBuffer(IndexT streamIndex, const Ptr<CoreGraphics::VertexBuffer>& vb, IndexT offsetVertexIndex);
     /// get currently set vertex buffer
@@ -138,9 +139,9 @@ public:
 	/// get the render as wireframe flag
 	bool GetRenderWireframe() const;
 	/// sets the shader for this pass
-	void SetPassShader(const Ptr<CoreGraphics::ShaderInstance>& passShader);
+    void SetPassShader(const Ptr<CoreGraphics::Shader>& passShader);
     /// gets the pass shader
-    const Ptr<CoreGraphics::ShaderInstance>& GetPassShader() const;
+    const Ptr<CoreGraphics::Shader>& GetPassShader() const;
 
 	/// sets whether or not the render device should tessellate
 	void SetUsePatches(bool state);
@@ -170,7 +171,7 @@ protected:
     Ptr<CoreGraphics::MultipleRenderTarget> passMultipleRenderTarget;
     Ptr<CoreGraphics::RenderTargetCube> passRenderTargetCube;
 	Ptr<CoreGraphics::DepthStencilTarget> passDepthStencilTarget;
-    Ptr<CoreGraphics::ShaderInstance> passShader;
+    Ptr<CoreGraphics::Shader> passShader;
     bool isOpen;
     bool inNotifyEventHandlers;
     bool inBeginFrame;
@@ -300,7 +301,7 @@ RenderDeviceBase::GetUsePatches()
 /**
 */
 inline void
-RenderDeviceBase::SetPassShader( const Ptr<CoreGraphics::ShaderInstance>& passShader )
+RenderDeviceBase::SetPassShader(const Ptr<CoreGraphics::Shader>& passShader)
 {
     this->passShader = passShader;
 }
@@ -309,7 +310,7 @@ RenderDeviceBase::SetPassShader( const Ptr<CoreGraphics::ShaderInstance>& passSh
 /**
 */
 inline
-const Ptr<CoreGraphics::ShaderInstance>& 
+const Ptr<CoreGraphics::Shader>&
 RenderDeviceBase::GetPassShader() const
 {
     return this->passShader;
@@ -318,8 +319,8 @@ RenderDeviceBase::GetPassShader() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-RenderDeviceBase::SetViewport( const Math::rectangle<int>& rect, int index )
+inline void
+RenderDeviceBase::SetViewport(const Math::rectangle<int>& rect, int index)
 {
 	// implement in subclass
 }
@@ -327,8 +328,8 @@ RenderDeviceBase::SetViewport( const Math::rectangle<int>& rect, int index )
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-RenderDeviceBase::SetScissorRect( const Math::rectangle<int>& rect, int index )
+inline void
+RenderDeviceBase::SetScissorRect(const Math::rectangle<int>& rect, int index)
 {
 	// implement in subclass
 }

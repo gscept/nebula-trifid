@@ -19,19 +19,59 @@
 namespace AnyFX
 {
 
+struct OpenGLBufferBinding
+{
+    int handle;
+    unsigned offset;
+    unsigned size;
+    bool bindRange;
+};
+
+struct DirectXBufferBinding
+{
+    void* handle;
+};
+
+struct VarblockVariableBinding
+{
+    eastl::string name;
+    unsigned offset;
+    unsigned size;
+    unsigned arraySize;
+    char* value;
+};
+
+struct OpenGLTextureBinding
+{
+    bool bindless;
+    struct BoundTexture
+    {
+        int textureType;
+        int handle;
+    } bound;
+
+    struct BindlessTexture
+    {
+        uint64_t handle;
+    } notbound;
+};
+
 class Annotable
 {
 public:
+    /// returns true if annotation exists
+    bool HasAnnotation(const eastl::string& name);
+
 	/// get int value
-	int GetAnnotationInt(const std::string& name);
+    int GetAnnotationInt(const eastl::string& name);
 	/// get bool value
-	bool GetAnnotationBool(const std::string& name);
+    bool GetAnnotationBool(const eastl::string& name);
 	/// get double value
-	double GetAnnotationDouble(const std::string& name);
+    double GetAnnotationDouble(const eastl::string& name);
 	/// get float value
-	float GetAnnotationFloat(const std::string& name);
+    float GetAnnotationFloat(const eastl::string& name);
 	/// get string value
-	const std::string& GetAnnotationString(const std::string& name);
+    const eastl::string& GetAnnotationString(const eastl::string& name);
 };
 
 class EffectRenderState : public Annotable
@@ -189,7 +229,7 @@ public:
     /// resets render state
     void Reset();
 	/// gets name of render state
-	const std::string& GetName() const;
+    const eastl::string& GetName() const;
 
 	/// overrides blend mode flag
 	void SetBlendModeFlag(unsigned renderTarget, BlendModeFlag flag, BlendMode mode);
@@ -265,18 +305,18 @@ public:
 	};
 
 	/// get name of variable
-	const std::string& GetName() const;
+    const eastl::string& GetName() const;
 };
 
 class EffectShader
 {
 public:
 	/// return name of shader
-	const std::string& GetName() const;
+    const eastl::string& GetName() const;
 	/// return raw shader code
-	const std::string& GetCode() const;
+    const eastl::string& GetCode() const;
 	/// return error, only possibly viable after compilation
-	const std::string& GetError() const;	
+    const eastl::string& GetError() const;
 };
 
 class EffectVarblock : public Annotable
@@ -285,7 +325,20 @@ public:
 	/// commits varblock
 	void Commit();
 	/// returns name of varblock
-	const std::string& GetName() const;	
+    const eastl::string& GetName() const;
+    /// returns signature of varblock
+    const eastl::string& GetSignature() const;
+    /// return size of implementation varblock
+    const size_t GetSize() const;
+
+    /// returns true if variable has any use whatsoever in the underlying structure
+    const bool IsActive() const;
+
+    /// return list of variable binding information within this varblock
+    eastl::vector<VarblockVariableBinding> GetVariables() const;
+
+    /// set buffer, must be an implementation specific
+    void SetBuffer(void* handle);
 
 	/// set buffer to be manually flushed, this requires explicit calls to FlushBuffer in order to perform updates
 	void SetFlushManually(bool b);
@@ -299,30 +352,17 @@ public:
 	/// commits varblock
 	void Commit();
 	/// returns name of varblock
-	const std::string& GetName() const;
+    const eastl::string& GetName() const;
 
 	/// set buffer, must be an implementation specific
 	void SetBuffer(void* handle);
-
-	struct OpenGLBuffer
-	{
-		int handle;
-		unsigned offset;
-		unsigned size;
-		bool bindRange;
-	};
-
-	struct DirectXBuffer
-	{
-		void* handle;
-	};
 };
 
 class EffectVariable : public Annotable
 {
 public:
 	/// get name of variable
-	const std::string& GetName() const;
+	const eastl::string& GetName() const;
 	/// get type of variable
 	const VariableType& GetType() const;
 
@@ -331,6 +371,12 @@ public:
 
 	/// returns true if variable lies within a varblock
 	const bool IsInVarblock() const;
+    /// returns name of the varblock in which this variable resides
+    const eastl::string& GetVarblockName() const;
+    /// return byte offset into varblock
+    const size_t GetByteOffset() const;
+    /// return byte size
+    const size_t GetByteSize() const;
 
 	/// sets variables in the currently activate program
 	void Commit();
@@ -379,17 +425,6 @@ public:
 	void SetTexture(void* handle);	
 	/// set texture handle, using bindless textures, must be an object of implementation type, i.e. OpenGLTextureHandle
 	void SetTextureHandle(void* handle);
-
-	struct OpenGLTexture
-	{
-		int textureType;
-		int texture;
-	};
-
-	struct OpenGLTextureHandle
-	{
-		int64_t handle;
-	};
 };
 
 class EffectProgram : public Annotable
@@ -404,7 +439,7 @@ public:
     /// performs post-draw stuff
     void PostDraw();
 	/// returns name of program
-	const std::string& GetName() const;
+    const eastl::string& GetName() const;
 	/// returns render state
 	EffectRenderState* GetRenderState() const;	
 
@@ -415,7 +450,7 @@ public:
 	/// returns true if linking of program was successful
 	bool IsValid();
 	/// returns linking error string
-	const std::string& GetError() const;
+    const eastl::string& GetError() const;
 };
 
 class Effect : public Annotable
@@ -432,77 +467,93 @@ public:
 		NumInternalEffectTypes
 	};
 
-	/// returns number of programs
-	unsigned GetNumPrograms() const;
-	/// returns program by index
-	EffectProgram* GetProgramByIndex(unsigned i) const;
-	/// returns program by name
-	EffectProgram* GetProgramByName(const std::string& name);
-	/// returns all programs as a list
-	EffectProgram** GetPrograms() const;
+    /// returns number of programs
+    unsigned GetNumPrograms() const;
+    /// returns program by index
+    EffectProgram* GetProgramByIndex(unsigned i) const;
+    /// returns program by name
+    EffectProgram* GetProgramByName(const eastl::string& name);
+    /// returns all programs as a list
+    EffectProgram** GetPrograms() const;
+    /// returns true if program exists
+    bool HasProgram(const eastl::string& name);
 
-	/// returns number of shaders
-	unsigned GetNumShaders() const;
-	/// returns shader by index
-	EffectShader* GetShaderByIndex(unsigned i) const;
-	/// returns shader by name
-	EffectShader* GetShaderByName(const std::string& name);
-	/// returns shaders as a list
-	EffectShader** GetShaders() const;
+    /// returns number of shaders
+    unsigned GetNumShaders() const;
+    /// returns shader by index
+    EffectShader* GetShaderByIndex(unsigned i) const;
+    /// returns shader by name
+    EffectShader* GetShaderByName(const eastl::string& name);
+    /// returns shaders as a list
+    EffectShader** GetShaders() const;
+    /// returns true if shader exists
+    bool HasShader(const eastl::string& name);
 
-	/// returns number of render states
-	unsigned GetNumRenderStates() const;
-	/// returns render state by index
-	EffectRenderState* GetRenderStateByIndex(unsigned i) const;
-	/// returns render state by name
-	EffectRenderState* GetRenderStateByName(const std::string& name);
-	/// returns render states as a list
-	EffectRenderState** GetRenderStates() const;
+    /// returns number of render states
+    unsigned GetNumRenderStates() const;
+    /// returns render state by index
+    EffectRenderState* GetRenderStateByIndex(unsigned i) const;
+    /// returns render state by name
+    EffectRenderState* GetRenderStateByName(const eastl::string& name);
+    /// returns render states as a list
+    EffectRenderState** GetRenderStates() const;
+    /// returns true if render state exists
+    bool HasRenderState(const eastl::string& name);
 
-	/// returns number of variables
-	unsigned GetNumVariables() const;
-	/// returns variable by index
-	EffectVariable* GetVariableByIndex(unsigned i) const;
-	/// returns variable by name
-	EffectVariable* GetVariableByName(const std::string& name);
-	/// returns variables as a list
-	EffectVariable** GetVariables() const;
+    /// returns number of variables
+    unsigned GetNumVariables() const;
+    /// returns variable by index
+    EffectVariable* GetVariableByIndex(unsigned i) const;
+    /// returns variable by name
+    EffectVariable* GetVariableByName(const eastl::string& name);
+    /// returns variables as a list
+    EffectVariable** GetVariables() const;
+    /// returns true if variable exists
+    bool HasVariable(const eastl::string& name);
 
-	/// returns number of varblocks
-	unsigned GetNumVarblocks() const;
-	/// returns varblock by index
-	EffectVarblock* GetVarblockByIndex(unsigned i) const;
-	/// returns varblock by name
-	EffectVarblock* GetVarblockByName(const std::string& name);
-	/// returns varblocks as a list
-	EffectVarblock** GetVarblocks() const;
+    /// returns number of varblocks
+    unsigned GetNumVarblocks() const;
+    /// returns varblock by index
+    EffectVarblock* GetVarblockByIndex(unsigned i) const;
+    /// returns varblock by name
+    EffectVarblock* GetVarblockByName(const eastl::string& name);
+    /// returns varblocks as a list
+    EffectVarblock** GetVarblocks() const;
+    /// returns true if varblock exists
+    bool HasVarblock(const eastl::string& name);
 
     /// returns number of varbuffers
     unsigned GetNumVarbuffers() const;
     /// returns varbuffer by index
     EffectVarbuffer* GetVarbufferByIndex(unsigned i) const;
     /// returns varbuffer by name
-    EffectVarbuffer* GetVarbufferByName(const std::string& name);
+    EffectVarbuffer* GetVarbufferByName(const eastl::string& name);
     /// returns varbuffer as a list
     EffectVarbuffer** GetVarbuffers() const;
+    /// returns true if varbuffer exists
+    bool HasVarbuffer(const eastl::string& name);
 
     /// returns number of subroutine
     unsigned GetNumSubroutines() const;
     /// returns subroutine by index
     EffectSubroutine* GetSubroutineByIndex(unsigned i) const;
     /// returns subroutine by name
-    EffectSubroutine* GetSubroutineByName(const std::string& name);
+    EffectSubroutine* GetSubroutineByName(const eastl::string& name);
     /// returns list of subroutines
     EffectSubroutine** GetSubroutines() const;
+    /// returns true if subroutine exists
+    bool HasSubroutine(const eastl::string& name);
 
-	/// returns the number of samplers
-	unsigned GetNumSamplers() const;
-	/// returns sampler by index
-	EffectSampler* GetSamplerByIndex(unsigned i) const;
-	/// returns sampler by name
-	EffectSampler* GetSamplerByName(const std::string& name);
-	/// returns samplers as list
-	EffectSampler** GetSamplers() const;
+    /// returns the number of samplers
+    unsigned GetNumSamplers() const;
+    /// returns sampler by index
+    EffectSampler* GetSamplerByIndex(unsigned i) const;
+    /// returns sampler by name
+    EffectSampler* GetSamplerByName(const eastl::string& name);
+    /// returns samplers as list
+    EffectSampler** GetSamplers() const;
+    /// returns true if sampler exists
+    bool HasSampler(const eastl::string& name);
 
 	/// get type
 	const Effect::EffectType& GetType() const;

@@ -328,8 +328,6 @@ GLFWDisplayDevice::OpenWindow()
 #if NEBULA3_OPENGL4_DEBUG
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 	glfwSetErrorCallback(NebulaGLFWErrorCallback);    
-	glEnable(GL_DEBUG_OUTPUT);
-	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
     n_printf("Creating OpenGL debug context\n");
 #else
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_FALSE);
@@ -356,8 +354,6 @@ GLFWDisplayDevice::OpenWindow()
 		glfwSwapInterval(0);
 	}
 
-
-    
 	return true;
 }
 
@@ -372,8 +368,6 @@ GLFWDisplayDevice::EmbedWindow()
 #if NEBULA3_OPENGL4_DEBUG
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 	glfwSetErrorCallback(NebulaGLFWErrorCallback);
-	glEnable(GL_DEBUG_OUTPUT);
-	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 	n_printf("Creating OpenGL debug context\n");
 #else
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_FALSE);
@@ -536,7 +530,7 @@ GLFWDisplayDevice::TranslateKeyCode(int inkey) const
 void
 staticKeyFunc(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
-	GLFWDisplayDevice::Instance()->KeyFunc(window,key,scancode,action,mods);
+    GLFWDisplayDevice::Instance()->KeyFunc(window, key, scancode, action, mods);
 }
 
 //------------------------------------------------------------------------------
@@ -573,7 +567,7 @@ GLFWDisplayDevice::KeyFunc(GLFWwindow *window, int key, int scancode, int action
 void
 staticCharFunc(GLFWwindow *window, unsigned int key)
 {
-	GLFWDisplayDevice::Instance()->CharFunc(window,key);
+    GLFWDisplayDevice::Instance()->CharFunc(window, key);
 }
 
 //------------------------------------------------------------------------------
@@ -609,11 +603,11 @@ GLFWDisplayDevice::MouseButtonFunc(GLFWwindow *window, int button, int action, i
 		return;
 	}
 	double x,y;
-	glfwGetCursorPos(this->window,&x,&y);
+    glfwGetCursorPos(this->window, &x, &y);
 
 	float2 pos;
 	pos.set((float)x / float(this->displayMode.GetWidth()), (float)y / float(this->displayMode.GetHeight()));
-	this->NotifyEventHandlers(DisplayEvent(act, but, float2((float)x,(float)y), pos));
+    this->NotifyEventHandlers(DisplayEvent(act, but, float2((float)x, (float)y), pos));
 }
 
 //------------------------------------------------------------------------------
@@ -622,7 +616,7 @@ GLFWDisplayDevice::MouseButtonFunc(GLFWwindow *window, int button, int action, i
 void
 staticMouseButtonFunc(GLFWwindow *window, int button, int action, int mods)
 {
-	GLFWDisplayDevice::Instance()->MouseButtonFunc(window,button,action,mods);
+    GLFWDisplayDevice::Instance()->MouseButtonFunc(window, button, action, mods);
 }
 
 //------------------------------------------------------------------------------
@@ -632,7 +626,7 @@ staticMouseButtonFunc(GLFWwindow *window, int button, int action, int mods)
 void
 staticMouseFunc(GLFWwindow *window, double xpos, double ypos)
 {
-	GLFWDisplayDevice::Instance()->MouseFunc(window,xpos,ypos);
+    GLFWDisplayDevice::Instance()->MouseFunc(window, xpos, ypos);
 }
 
 //------------------------------------------------------------------------------
@@ -654,7 +648,7 @@ GLFWDisplayDevice::MouseFunc(GLFWwindow *window, double xpos, double ypos)
 void
 staticScrollFunc(GLFWwindow *window, double xs, double ys)
 {
-	GLFWDisplayDevice::Instance()->ScrollFunc(window,xs,ys);
+    GLFWDisplayDevice::Instance()->ScrollFunc(window, xs, ys);
 }
 
 //------------------------------------------------------------------------------
@@ -697,7 +691,7 @@ GLFWDisplayDevice::CloseFunc(GLFWwindow* window)
 void
 staticFocusFunc(GLFWwindow * window, int focus)
 {
-	GLFWDisplayDevice::Instance()->FocusFunc(window,focus);	
+    GLFWDisplayDevice::Instance()->FocusFunc(window, focus);;
 }
 
 //------------------------------------------------------------------------------

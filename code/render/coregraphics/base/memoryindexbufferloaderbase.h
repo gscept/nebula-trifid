@@ -29,7 +29,6 @@ public:
 		SizeT indexDataSize, 
 		CoreGraphics::IndexBuffer::Usage usage = CoreGraphics::IndexBuffer::UsageImmutable, 
 		CoreGraphics::IndexBuffer::Access access = CoreGraphics::IndexBuffer::AccessNone,
-		CoreGraphics::IndexBuffer::BufferCount bufferCount = CoreGraphics::IndexBuffer::BufferSingle,
 		CoreGraphics::IndexBuffer::Syncing syncing = CoreGraphics::IndexBuffer::SyncingSimple);
 
 protected:
@@ -39,7 +38,6 @@ protected:
     SizeT indexDataSize;
 	CoreGraphics::IndexBuffer::Usage usage;
 	CoreGraphics::IndexBuffer::Access access;
-	CoreGraphics::IndexBuffer::BufferCount bufferCount;
 	CoreGraphics::IndexBuffer::Syncing syncing;
 };
         

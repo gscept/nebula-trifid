@@ -19,10 +19,10 @@ class ShaderVariation : public Direct3D11::D3D11ShaderVariation
 };
 }
 #elif __OGL4__
-#include "coregraphics/ogl4/ogl4shadervariation.h"
+#include "coregraphics/ogl4/ogl4shaderprogram.h"
 namespace CoreGraphics
 {
-class ShaderVariation : public OpenGL4::OGL4ShaderVariation
+class ShaderVariation : public OpenGL4::OGL4ShaderProgram
 {
 	__DeclareClass(ShaderVariation);
 };

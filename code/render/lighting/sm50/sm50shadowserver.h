@@ -71,8 +71,8 @@ private:
 	Ptr<CoreGraphics::RenderTarget> spotLightShadowMap1;
 	Ptr<CoreGraphics::RenderTarget> spotLightShadowMap2;
 	Ptr<CoreGraphics::RenderTarget> spotLightShadowBufferAtlas;
-	Ptr<CoreGraphics::ShaderInstance> satXShader;
-	Ptr<CoreGraphics::ShaderInstance> satYShader;
+	Ptr<CoreGraphics::Shader> satXShader;
+	Ptr<CoreGraphics::Shader> satYShader;
 	Ptr<CoreGraphics::DepthStencilTarget> spotLightDepthAtlas;
 	Ptr<Frame::FramePass> spotLightPass;
 	Ptr<Frame::FrameBatch> spotLightBatch;
@@ -93,8 +93,8 @@ private:
 	Ptr<CoreGraphics::DepthStencilTarget> globalLightShadowBufferDepth;
 
 	// generic stuff
-	Ptr<CoreGraphics::ShaderInstance> blurShader;
-	Ptr<CoreGraphics::ShaderInstance> shadowShader;
+	Ptr<CoreGraphics::Shader> blurShader;
+	Ptr<CoreGraphics::Shader> shadowShader;
 	Ptr<CoreGraphics::ShaderVariable> shadowCascadeViewVar;
 	Ptr<CoreGraphics::ShaderVariable> shadowLightViewProjVar;
 	PSSMUtil pssmUtil;
@@ -119,7 +119,7 @@ SM50ShadowServer::GetSpotLightShadowBufferTexture() const
 inline const Ptr<CoreGraphics::Texture>& 
 SM50ShadowServer::GetGlobalLightShadowBufferTexture() const
 {
-	return this->globalLightShadowBuffer->GetResolveTexture();
+	return this->globalLightShadowBufferFinal->GetResolveTexture();
 }
 
 //------------------------------------------------------------------------------

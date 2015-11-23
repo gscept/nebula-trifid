@@ -13,9 +13,11 @@
 #include "resources/resourceid.h"
 #include "materials/materialpalette.h"
 #include "materials/material.h"
+#include "materials/surfacename.h"
 #include "frame/frameshader.h"
 #include "util/dictionary.h"
 #include "util/array.h"
+#include "resources/simpleresourcemapper.h"
 
 //------------------------------------------------------------------------------
 namespace Materials
@@ -45,9 +47,9 @@ public:
     /// get all materials, creates new array with materials
     Util::Array<Ptr<Material>> GetMaterials() const;
 	/// get material codes by type
-	const Util::Array<Ptr<Material> >& GetMaterialsByNodeType(const Models::ModelNodeType::Code& type);
+	const Util::Array<Ptr<Material> >& GetMaterialsByBatchGroup(const Frame::BatchGroup::Code& type);
 	/// returns true if we have any materials by type
-	const bool HasMaterialsByNodeType(const Models::ModelNodeType::Code& type);
+    const bool HasMaterialsByBatchGroup(const Frame::BatchGroup::Code& type);
 	/// add a material to the server
 	void AddMaterial(const Ptr<Material>& material);
 
@@ -63,13 +65,18 @@ public:
 	Ptr<MaterialPalette> LookupMaterialPalette(const Resources::ResourceId& name);
 	
 private:
+    friend class MaterialType;
+    friend class SurfaceName;
+
 	/// load material palette
 	void LoadMaterialPalette(const Resources::ResourceId& name);
 
+    MaterialType materialTypeRegistry;
+    SurfaceName surfaceNameRegistry;
 	MaterialFeature materialFeature;
-	Util::Dictionary<Resources::ResourceId, Ptr<Material> > materials;
-	Util::Dictionary<Models::ModelNodeType::Code, Util::Array<Ptr<Material> > > materialsByType;
-	Util::Dictionary<Resources::ResourceId, Ptr<MaterialPalette> > materialPalettes;
+	Util::Dictionary<Resources::ResourceId, Ptr<Material>> materials;
+	Util::Dictionary<Frame::BatchGroup::Code, Util::Array<Ptr<Material>>> materialsByBatchGroup;
+	Util::Dictionary<Resources::ResourceId, Ptr<MaterialPalette>> materialPalettes;
 	bool isOpen;
 };
 
@@ -105,19 +112,19 @@ MaterialServer::GetMaterials() const
 /**
 */
 inline const Util::Array<Ptr<Material> >& 
-MaterialServer::GetMaterialsByNodeType( const Models::ModelNodeType::Code& type )
+MaterialServer::GetMaterialsByBatchGroup(const Frame::BatchGroup::Code& type)
 {
-	n_assert(this->materialsByType.Contains(type));
-	return this->materialsByType[type];
+	n_assert(this->materialsByBatchGroup.Contains(type));
+	return this->materialsByBatchGroup[type];
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 inline const bool 
-MaterialServer::HasMaterialsByNodeType( const Models::ModelNodeType::Code& type )
+MaterialServer::HasMaterialsByBatchGroup(const Frame::BatchGroup::Code& type)
 {
-	return this->materialsByType.Contains(type);
+	return this->materialsByBatchGroup.Contains(type);
 }
 
 }

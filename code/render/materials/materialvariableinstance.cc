@@ -140,7 +140,7 @@ MaterialVariableInstance::Apply()
             }
             break;
         default:
-            n_error("ShaderVariable::Apply(): invalid data type for scalar!");
+            n_error("MaterialVariableInstance::Apply(): invalid data type for scalar!");
             break;
     }
 

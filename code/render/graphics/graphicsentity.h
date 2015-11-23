@@ -230,6 +230,7 @@ protected:
     IndexT updateFrameIndex;
     IndexT notifyCullingVisibleFrameIndex;
     Timing::Time entityTime;
+
     float timeFactor;
     Math::ClipStatus::Type clipStatus;
     Util::Array<Ptr<Messaging::Message> > deferredMessages;

@@ -56,7 +56,7 @@ Effect::GetVariableByIndex( unsigned i ) const
 /**
 */
 EffectVariable* 
-Effect::GetVariableByName( const std::string& name )
+Effect::GetVariableByName(const eastl::string& name)
 {
 	assert(this->variablesByName.find(name) != this->variablesByName.end());
 	return this->variablesByName[name];
@@ -74,6 +74,15 @@ Effect::GetVariables() const
 //------------------------------------------------------------------------------
 /**
 */
+bool
+Effect::HasVariable(const eastl::string& name)
+{
+    return this->variablesByName.find(name) != this->variablesByName.end();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 unsigned 
 Effect::GetNumPrograms() const
 {
@@ -83,8 +92,8 @@ Effect::GetNumPrograms() const
 //------------------------------------------------------------------------------
 /**
 */
-EffectProgram* 
-Effect::GetProgramByIndex( unsigned i ) const
+EffectProgram*
+Effect::GetProgramByIndex(unsigned i) const
 {
 	assert(this->numPrograms > i);
 	return this->programsByIndex[i];
@@ -94,7 +103,7 @@ Effect::GetProgramByIndex( unsigned i ) const
 /**
 */
 EffectProgram* 
-Effect::GetProgramByName( const std::string& name )
+Effect::GetProgramByName(const eastl::string& name)
 {
 	assert(this->programsByName.find(name) != this->programsByName.end());
 	return this->programsByName[name];
@@ -112,6 +121,15 @@ Effect::GetPrograms() const
 //------------------------------------------------------------------------------
 /**
 */
+bool
+Effect::HasProgram(const eastl::string& name)
+{
+    return this->programsByName.find(name) != this->programsByName.end();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 unsigned 
 Effect::GetNumShaders() const
 {
@@ -121,8 +139,8 @@ Effect::GetNumShaders() const
 //------------------------------------------------------------------------------
 /**
 */
-EffectShader* 
-Effect::GetShaderByIndex( unsigned i ) const
+EffectShader*
+Effect::GetShaderByIndex(unsigned i) const
 {
 	assert(this->numShaders > i);
 	return this->shadersByIndex[i];
@@ -132,7 +150,7 @@ Effect::GetShaderByIndex( unsigned i ) const
 /**
 */
 EffectShader* 
-Effect::GetShaderByName( const std::string& name )
+Effect::GetShaderByName(const eastl::string& name)
 {
 	assert(this->shadersByName.find(name) != this->shadersByName.end());
 	return this->shadersByName[name];
@@ -150,6 +168,15 @@ Effect::GetShaders() const
 //------------------------------------------------------------------------------
 /**
 */
+bool
+Effect::HasShader(const eastl::string& name)
+{
+    return this->shadersByName.find(name) != this->shadersByName.end();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 unsigned 
 Effect::GetNumRenderStates() const
 {
@@ -159,8 +186,8 @@ Effect::GetNumRenderStates() const
 //------------------------------------------------------------------------------
 /**
 */
-EffectRenderState* 
-Effect::GetRenderStateByIndex( unsigned i ) const
+EffectRenderState*
+Effect::GetRenderStateByIndex(unsigned i) const
 {
 	assert(this->numRenderStates > i);
 	return this->renderStatesByIndex[i];
@@ -170,7 +197,7 @@ Effect::GetRenderStateByIndex( unsigned i ) const
 /**
 */
 EffectRenderState* 
-Effect::GetRenderStateByName( const std::string& name )
+Effect::GetRenderStateByName(const eastl::string& name)
 {
 	assert(this->renderStatesByName.find(name) != this->renderStatesByName.end());
 	return this->renderStatesByName[name];
@@ -188,6 +215,15 @@ Effect::GetRenderStates() const
 //------------------------------------------------------------------------------
 /**
 */
+bool
+Effect::HasRenderState(const eastl::string& name)
+{
+    return this->renderStatesByName.find(name) != this->renderStatesByName.end();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 unsigned 
 Effect::GetNumVarblocks() const
 {
@@ -197,8 +233,8 @@ Effect::GetNumVarblocks() const
 //------------------------------------------------------------------------------
 /**
 */
-EffectVarblock* 
-Effect::GetVarblockByIndex( unsigned i ) const
+EffectVarblock*
+Effect::GetVarblockByIndex(unsigned i) const
 {
 	assert(this->numVarblocks > i);
 	return this->varblocksByIndex[i];
@@ -208,7 +244,7 @@ Effect::GetVarblockByIndex( unsigned i ) const
 /**
 */
 EffectVarblock* 
-Effect::GetVarblockByName( const std::string& name )
+Effect::GetVarblockByName(const eastl::string& name)
 {
 	assert(this->varblocksByName.find(name) != this->varblocksByName.end());
 	return this->varblocksByName[name];
@@ -226,6 +262,15 @@ Effect::GetVarblocks() const
 //------------------------------------------------------------------------------
 /**
 */
+bool
+Effect::HasVarblock(const eastl::string& name)
+{
+    return this->varblocksByName.find(name) != this->varblocksByName.end();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 unsigned 
 Effect::GetNumVarbuffers() const
 {
@@ -235,8 +280,8 @@ Effect::GetNumVarbuffers() const
 //------------------------------------------------------------------------------
 /**
 */
-EffectVarbuffer* 
-Effect::GetVarbufferByIndex( unsigned i ) const
+EffectVarbuffer*
+Effect::GetVarbufferByIndex(unsigned i) const
 {
     assert(this->numVarbuffers > i);
     return this->varbuffersByIndex[i];
@@ -246,7 +291,7 @@ Effect::GetVarbufferByIndex( unsigned i ) const
 /**
 */
 EffectVarbuffer* 
-Effect::GetVarbufferByName( const std::string& name )
+Effect::GetVarbufferByName(const eastl::string& name)
 {
     assert(this->varbuffersByName.find(name) != this->varbuffersByName.end());
     return this->varbuffersByName[name];
@@ -264,6 +309,15 @@ Effect::GetVarbuffers() const
 //------------------------------------------------------------------------------
 /**
 */
+bool
+Effect::HasVarbuffer(const eastl::string& name)
+{
+    return this->varbuffersByName.find(name) != this->varbuffersByName.end();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 unsigned 
 Effect::GetNumSubroutines() const
 {
@@ -273,8 +327,8 @@ Effect::GetNumSubroutines() const
 //------------------------------------------------------------------------------
 /**
 */
-EffectSubroutine* 
-Effect::GetSubroutineByIndex( unsigned i ) const
+EffectSubroutine*
+Effect::GetSubroutineByIndex(unsigned i) const
 {
     assert(this->numSubroutines > i);
     return this->subroutinesByIndex[i];
@@ -284,7 +338,7 @@ Effect::GetSubroutineByIndex( unsigned i ) const
 /**
 */
 EffectSubroutine* 
-Effect::GetSubroutineByName( const std::string& name )
+Effect::GetSubroutineByName(const eastl::string& name)
 {
     assert(this->subroutinesByName.find(name) != this->subroutinesByName.end());
     return this->subroutinesByName[name];
@@ -302,6 +356,15 @@ Effect::GetSubroutines() const
 //------------------------------------------------------------------------------
 /**
 */
+bool
+Effect::HasSubroutine(const eastl::string& name)
+{
+    return this->subroutinesByName.find(name) != this->subroutinesByName.end();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 unsigned 
 Effect::GetNumSamplers() const
 {
@@ -311,8 +374,8 @@ Effect::GetNumSamplers() const
 //------------------------------------------------------------------------------
 /**
 */
-EffectSampler* 
-Effect::GetSamplerByIndex( unsigned i ) const
+EffectSampler*
+Effect::GetSamplerByIndex(unsigned i) const
 {
 	assert(this->numSamplers > i);
 	return this->samplersByIndex[i];
@@ -322,7 +385,7 @@ Effect::GetSamplerByIndex( unsigned i ) const
 /**
 */
 EffectSampler* 
-Effect::GetSamplerByName( const std::string& name )
+Effect::GetSamplerByName(const eastl::string& name)
 {
 	assert(this->samplersByName.find(name) != this->samplersByName.end());
 	return this->samplersByName[name];
@@ -335,6 +398,15 @@ EffectSampler**
 Effect::GetSamplers() const
 {
     return this->samplersByIndex;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+Effect::HasSampler(const eastl::string& name)
+{
+    return this->samplersByName.find(name) != this->samplersByName.end();
 }
 
 //------------------------------------------------------------------------------

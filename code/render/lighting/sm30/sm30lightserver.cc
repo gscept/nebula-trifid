@@ -61,26 +61,27 @@ SM30LightServer::Open()
 
     // setup shared shader variables
     ShaderServer* shdServer = ShaderServer::Instance();
-    this->shdGlobalLightDir              = shdServer->GetSharedVariableBySemantic(ShaderVariable::Semantic("GlobalLightDirection"));
-    this->shdGlobalLightColor            = shdServer->GetSharedVariableBySemantic(ShaderVariable::Semantic("GlobalLightColor"));
-    this->shdGlobalBackLightColor        = shdServer->GetSharedVariableBySemantic(ShaderVariable::Semantic("GlobalBackLightColor"));
-    this->shdGlobalBackLightOffset       = shdServer->GetSharedVariableBySemantic(ShaderVariable::Semantic("GlobalBackLightOffset"));
-    this->shdGlobalAmbientLightColor     = shdServer->GetSharedVariableBySemantic(ShaderVariable::Semantic("GlobalAmbientLightColor"));
-    this->shdGlobalLightCastShadows      = shdServer->GetSharedVariableBySemantic(ShaderVariable::Semantic("GlobalLightCastShadows"));
-    this->shdGlobalLightPSSMDistances    = shdServer->GetSharedVariableBySemantic(ShaderVariable::Semantic("GlobalLightPSSMDistances"));
-    this->shdGlobalLightPSSMTransforms   = shdServer->GetSharedVariableBySemantic(ShaderVariable::Semantic("GlobalLightPSSMTransforms"));
-    this->shdGlobalLightPSSMShadowBuffer = shdServer->GetSharedVariableBySemantic(ShaderVariable::Semantic("GlobalLightPSSMShadowBuffer"));
-    this->shdLightPos                    = shdServer->GetSharedVariableBySemantic(ShaderVariable::Semantic("LightPosition"));
-    this->shdLightInvRange               = shdServer->GetSharedVariableBySemantic(ShaderVariable::Semantic("LightInvRange"));
-    this->shdLightProjTransform          = shdServer->GetSharedVariableBySemantic(ShaderVariable::Semantic("LightProjTransform"));
-    this->shdLightColor                  = shdServer->GetSharedVariableBySemantic(ShaderVariable::Semantic("LightColor"));
-    this->shdLightProjMapUvOffset        = shdServer->GetSharedVariableBySemantic(ShaderVariable::Semantic("LightProjMapUvOffset"));
-    this->shdLightType                   = shdServer->GetSharedVariableBySemantic(ShaderVariable::Semantic("LightType"));
-    this->shdLightCastShadows            = shdServer->GetSharedVariableBySemantic(ShaderVariable::Semantic("LightCastShadows"));
-    this->shdLightShadowBufferUvOffset   = shdServer->GetSharedVariableBySemantic(ShaderVariable::Semantic("LightShadowBufferUvOffset"));
-    this->shdLightShadowBuffer           = shdServer->GetSharedVariableBySemantic(ShaderVariable::Semantic("LightShadowBuffer"));
-    this->shdLightShadowBufferSize       = shdServer->GetSharedVariableBySemantic(ShaderVariable::Semantic("LightShadowBufferSize"));
-    this->shdLightProjMap                = shdServer->GetSharedVariableBySemantic(ShaderVariable::Semantic("LightProjMap"));
+    const Ptr<Shader>& sharedShader = shdServer->GetSharedShader();
+    this->shdGlobalLightDir              = sharedShader->GetVariableByName(ShaderVariable::Name("GlobalLightDirection"));
+    this->shdGlobalLightColor            = sharedShader->GetVariableByName(ShaderVariable::Name("GlobalLightColor"));
+    this->shdGlobalBackLightColor        = sharedShader->GetVariableByName(ShaderVariable::Name("GlobalBackLightColor"));
+    this->shdGlobalBackLightOffset       = sharedShader->GetVariableByName(ShaderVariable::Name("GlobalBackLightOffset"));
+    this->shdGlobalAmbientLightColor     = sharedShader->GetVariableByName(ShaderVariable::Name("GlobalAmbientLightColor"));
+    this->shdGlobalLightCastShadows      = sharedShader->GetVariableByName(ShaderVariable::Name("GlobalLightCastShadows"));
+    this->shdGlobalLightPSSMDistances    = sharedShader->GetVariableByName(ShaderVariable::Name("GlobalLightPSSMDistances"));
+    this->shdGlobalLightPSSMTransforms   = sharedShader->GetVariableByName(ShaderVariable::Name("GlobalLightPSSMTransforms"));
+    this->shdGlobalLightPSSMShadowBuffer = sharedShader->GetVariableByName(ShaderVariable::Name("GlobalLightPSSMShadowBuffer"));
+    this->shdLightPos                    = sharedShader->GetVariableByName(ShaderVariable::Name("LightPosition"));
+    this->shdLightInvRange               = sharedShader->GetVariableByName(ShaderVariable::Name("LightInvRange"));
+    this->shdLightProjTransform          = sharedShader->GetVariableByName(ShaderVariable::Name("LightProjTransform"));
+    this->shdLightColor                  = sharedShader->GetVariableByName(ShaderVariable::Name("LightColor"));
+    this->shdLightProjMapUvOffset        = sharedShader->GetVariableByName(ShaderVariable::Name("LightProjMapUvOffset"));
+    this->shdLightType                   = sharedShader->GetVariableByName(ShaderVariable::Name("LightType"));
+    this->shdLightCastShadows            = sharedShader->GetVariableByName(ShaderVariable::Name("LightCastShadows"));
+    this->shdLightShadowBufferUvOffset   = sharedShader->GetVariableByName(ShaderVariable::Name("LightShadowBufferUvOffset"));
+    this->shdLightShadowBuffer           = sharedShader->GetVariableByName(ShaderVariable::Name("LightShadowBuffer"));
+    this->shdLightShadowBufferSize       = sharedShader->GetVariableByName(ShaderVariable::Name("LightShadowBufferSize"));
+    this->shdLightProjMap                = sharedShader->GetVariableByName(ShaderVariable::Name("LightProjMap"));
 
     // setup the shader feature masks for number of local lights
     // (this is used to select the right shader variation by number of lights)
@@ -240,9 +241,9 @@ SM30LightServer::ApplyModelEntityLights(const Ptr<ModelEntity>& modelEntity)
 
     // set feature bit mask for the number of light sources, this is used
     // to select the right shader variation for the number of active light sources
-    const Ptr<ShaderServer>& shdServer = ShaderServer::Instance();
-    shdServer->ClearFeatureBits(this->allLightsFeatureMask);
-    shdServer->SetFeatureBits(this->shdFeatureMasks[numLocalLights]);
+    //const Ptr<ShaderServer>& shdServer = ShaderServer::Instance();
+    //shdServer->ClearFeatureBits(this->allLightsFeatureMask);
+    //shdServer->SetFeatureBits(this->shdFeatureMasks[numLocalLights]);
 }
 
 } // namespace Lighting

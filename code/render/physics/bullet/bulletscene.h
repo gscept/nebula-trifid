@@ -7,6 +7,7 @@
 */
 #include "physics/base/basescene.h"
 #include "physics/physicsobject.h"
+#include "coregraphics/rendershape.h"
 
 class btDynamicsWorld;
 class btDefaultCollisionConfiguration;
@@ -83,7 +84,7 @@ private:
 
 	Timing::Time lastUpdate;
 	DebugDrawer* debugDrawer;
-	Util::Array<Math::float4> debugPrimitives;
+	Util::Array<CoreGraphics::RenderShape::RenderShapeVertex> debugPrimitives;
 
 
 	btDynamicsWorld * GetWorld();

@@ -45,9 +45,9 @@ public:
 	void Discard();
 
 	/// prepare deferred initialization
-	void Prepare();
+	void Begin();
 	/// execute algorithm
-	void Execute();
+	void Render();
 
 	/// handle display resizing
 	void OnDisplayResized(SizeT width, SizeT height);
@@ -63,8 +63,8 @@ private:
 	void Disable();
 
 	RenderUtil::DrawFullScreenQuad quad;
-	Ptr<CoreGraphics::ShaderInstance> hbao;
-	Ptr<CoreGraphics::ShaderInstance> blur;
+	Ptr<CoreGraphics::Shader> hbao;
+	Ptr<CoreGraphics::Shader> blur;
 	Ptr<CoreGraphics::ShaderVariable> depthTextureVar;
 
 #ifdef HBAO_COMPUTE

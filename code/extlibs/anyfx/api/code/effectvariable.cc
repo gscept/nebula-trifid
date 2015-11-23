@@ -39,7 +39,7 @@ EffectVariable::Discard()
 //------------------------------------------------------------------------------
 /**
 */
-const std::string& 
+const eastl::string& 
 EffectVariable::GetName() const
 {
 	return this->internalVariable->GetName();
@@ -84,8 +84,8 @@ EffectVariable::Commit()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-EffectVariable::SetFloat( float f )
+void
+EffectVariable::SetFloat(float f)
 {
 	this->internalVariable->SetFloat(f);
 }
@@ -93,8 +93,8 @@ EffectVariable::SetFloat( float f )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-EffectVariable::SetFloat2( const float* vec )
+void
+EffectVariable::SetFloat2(const float* vec)
 {
 	this->internalVariable->SetFloat2(vec);
 }
@@ -102,8 +102,8 @@ EffectVariable::SetFloat2( const float* vec )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-EffectVariable::SetFloat4( const float* vec )
+void
+EffectVariable::SetFloat4(const float* vec)
 {
 	this->internalVariable->SetFloat4(vec);
 }
@@ -111,8 +111,8 @@ EffectVariable::SetFloat4( const float* vec )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-EffectVariable::SetFloatArray( const float* f, size_t count )
+void
+EffectVariable::SetFloatArray(const float* f, size_t count)
 {
 	this->internalVariable->SetFloatArray(f, count);
 }
@@ -120,8 +120,8 @@ EffectVariable::SetFloatArray( const float* f, size_t count )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-EffectVariable::SetFloat2Array( const float* f, size_t count )
+void
+EffectVariable::SetFloat2Array(const float* f, size_t count)
 {
 	this->internalVariable->SetFloat2Array(f, count);
 }
@@ -129,8 +129,8 @@ EffectVariable::SetFloat2Array( const float* f, size_t count )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-EffectVariable::SetFloat4Array( const float* f, size_t count )
+void
+EffectVariable::SetFloat4Array(const float* f, size_t count)
 {
 	this->internalVariable->SetFloat4Array(f, count);
 }
@@ -138,8 +138,8 @@ EffectVariable::SetFloat4Array( const float* f, size_t count )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-EffectVariable::SetInt( int i )
+void
+EffectVariable::SetInt(int i)
 {
 	this->internalVariable->SetInt(i);
 }
@@ -147,8 +147,8 @@ EffectVariable::SetInt( int i )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-EffectVariable::SetInt2( const int* vec )
+void
+EffectVariable::SetInt2(const int* vec)
 {
 	this->internalVariable->SetInt2(vec);
 }
@@ -156,16 +156,16 @@ EffectVariable::SetInt2( const int* vec )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-EffectVariable::SetInt4( const int* vec )
+void
+EffectVariable::SetInt4(const int* vec)
 {
 	this->internalVariable->SetInt4(vec);
 }
 //------------------------------------------------------------------------------
 /**
 */
-void 
-EffectVariable::SetIntArray( const int* i, size_t count )
+void
+EffectVariable::SetIntArray(const int* i, size_t count)
 {
 	this->internalVariable->SetIntArray(i, count);
 }
@@ -173,8 +173,8 @@ EffectVariable::SetIntArray( const int* i, size_t count )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-EffectVariable::SetInt2Array( const int* i, size_t count )
+void
+EffectVariable::SetInt2Array(const int* i, size_t count)
 {
 	this->internalVariable->SetInt2Array(i, count);
 }
@@ -182,8 +182,8 @@ EffectVariable::SetInt2Array( const int* i, size_t count )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-EffectVariable::SetInt4Array( const int* i, size_t count )
+void
+EffectVariable::SetInt4Array(const int* i, size_t count)
 {
 	this->internalVariable->SetInt4Array(i, count);
 }
@@ -191,8 +191,8 @@ EffectVariable::SetInt4Array( const int* i, size_t count )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-EffectVariable::SetBool( bool b )
+void
+EffectVariable::SetBool(bool b)
 {
 	this->internalVariable->SetBool(b);
 }
@@ -200,8 +200,8 @@ EffectVariable::SetBool( bool b )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-EffectVariable::SetBool2( const bool* vec )
+void
+EffectVariable::SetBool2(const bool* vec)
 {
 	this->internalVariable->SetBool2(vec);
 }
@@ -209,8 +209,8 @@ EffectVariable::SetBool2( const bool* vec )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-EffectVariable::SetBool4( const bool* vec )
+void
+EffectVariable::SetBool4(const bool* vec)
 {
 	this->internalVariable->SetBool4(vec);
 }
@@ -218,8 +218,8 @@ EffectVariable::SetBool4( const bool* vec )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-EffectVariable::SetBoolArray( const bool* b, size_t count )
+void
+EffectVariable::SetBoolArray(const bool* b, size_t count)
 {
 	this->internalVariable->SetBoolArray(b, count);
 }
@@ -227,8 +227,8 @@ EffectVariable::SetBoolArray( const bool* b, size_t count )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-EffectVariable::SetBool2Array( const bool* b, size_t count )
+void
+EffectVariable::SetBool2Array(const bool* b, size_t count)
 {
 	this->internalVariable->SetBool2Array(b, count);
 }
@@ -236,8 +236,8 @@ EffectVariable::SetBool2Array( const bool* b, size_t count )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-EffectVariable::SetBool4Array( const bool* b, size_t count )
+void
+EffectVariable::SetBool4Array(const bool* b, size_t count)
 {
 	this->internalVariable->SetBool4Array(b, count);
 }
@@ -245,8 +245,8 @@ EffectVariable::SetBool4Array( const bool* b, size_t count )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-EffectVariable::SetMatrix( const float* mat )
+void
+EffectVariable::SetMatrix(const float* mat)
 {
 	this->internalVariable->SetMatrix(mat);
 }
@@ -254,8 +254,8 @@ EffectVariable::SetMatrix( const float* mat )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-EffectVariable::SetMatrixArray( const float* mat, size_t count )
+void
+EffectVariable::SetMatrixArray(const float* mat, size_t count)
 {
 	this->internalVariable->SetMatrixArray(mat, count);
 }
@@ -263,8 +263,8 @@ EffectVariable::SetMatrixArray( const float* mat, size_t count )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-EffectVariable::SetTexture( void* handle )
+void
+EffectVariable::SetTexture(void* handle)
 {
 	this->internalVariable->SetTexture(handle);
 }
@@ -281,8 +281,8 @@ EffectVariable::SetTextureHandle(void* handle)
 //------------------------------------------------------------------------------
 /**
 */
-std::string 
-EffectVariable::TypeToString( const VariableType& type )
+eastl::string
+EffectVariable::TypeToString(const VariableType& type)
 {
 	switch (type)
 	{
@@ -402,8 +402,8 @@ EffectVariable::TypeToString( const VariableType& type )
 //------------------------------------------------------------------------------
 /**
 */
-unsigned 
-EffectVariable::TypeToByteSize( const VariableType& type )
+unsigned
+EffectVariable::TypeToByteSize(const VariableType& type)
 {
 	switch (type)
 	{

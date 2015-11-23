@@ -9,8 +9,8 @@
 */
 //------------------------------------------------------------------------------
 #include "vartypes.h"
-#include <string>
-#include <map>
+#include "EASTL/string.h"
+#include "EASTL/map.h"
 #include "EASTL/vector.h"
 namespace AnyFX
 {
@@ -22,16 +22,19 @@ public:
 	/// destructor
 	virtual ~Annotable();
 
+    /// returns true if annotation exists
+    bool HasAnnotation(const eastl::string& name);
+
 	/// get int value
-	int GetAnnotationInt(const std::string& name);
+    int GetAnnotationInt(const eastl::string& name);
 	/// get bool value
-	bool GetAnnotationBool(const std::string& name);
+    bool GetAnnotationBool(const eastl::string& name);
 	/// get double value
-	double GetAnnotationDouble(const std::string& name);
+    double GetAnnotationDouble(const eastl::string& name);
 	/// get float value
-	float GetAnnotationFloat(const std::string& name);
+    float GetAnnotationFloat(const eastl::string& name);
 	/// get string value
-	const std::string& GetAnnotationString(const std::string& name);
+    const eastl::string& GetAnnotationString(const eastl::string& name);
 
 private:
 	friend class EffectAnnotationStreamLoader;
@@ -44,14 +47,14 @@ private:
 			bool boolValue;
 			double doubleValue;
 			float floatValue;
-			std::string* stringValue;
+            eastl::string* stringValue;
 		} data;
 
 		VariableType type;
 	};
 
 	eastl::vector<VariableType> annotationTypes;
-	std::map<std::string, AnnotationVariant> annotationMap;
+    eastl::map<eastl::string, AnnotationVariant> annotationMap;
 }; 
 } // namespace AnyFX
 //------------------------------------------------------------------------------

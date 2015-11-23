@@ -11,6 +11,7 @@
 #include "coregraphics/shadervariable.h"
 #include "util/array.h"
 #include "util/variant.h"
+#include "coregraphics/texture.h"
 
 //------------------------------------------------------------------------------
 namespace Materials
@@ -51,7 +52,7 @@ public:
 	void DiscardVariableInstance(const Ptr<MaterialVariableInstance>& inst);
 
 	/// setup material variable from list of shader variables
-	void Setup(const Util::Array<Ptr<CoreGraphics::ShaderVariable> >& shaderVariables, Util::Variant defaultValue);
+	void Setup(const Util::Array<Ptr<CoreGraphics::ShaderVariable>>& shaderVariables, Util::Variant defaultValue);
 	/// cleans up the material variable
 	void Cleanup();
 	/// get the data type of the variable

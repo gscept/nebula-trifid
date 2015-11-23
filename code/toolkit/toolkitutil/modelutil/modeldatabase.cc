@@ -72,8 +72,8 @@ ModelDatabase::Close()
 //------------------------------------------------------------------------------
 /**
 */
-Ptr<ModelAttributes> 
-ModelDatabase::LookupAttributes( const Util::String& name, bool reload )
+Ptr<ModelAttributes>
+ModelDatabase::LookupAttributes(const Util::String& name, bool reload)
 {
 	if (!this->modelAttributes.Contains(name))
 	{
@@ -88,7 +88,7 @@ ModelDatabase::LookupAttributes( const Util::String& name, bool reload )
 		{
 			// create uri
 			String path;
-			path.Format("root:work/models/%s.attributes", name.AsCharPtr());
+			path.Format("src:assets/%s.attributes", name.AsCharPtr());
 
 			// create stream
 			Ptr<Stream> file = IoServer::Instance()->CreateStream(path);
@@ -113,7 +113,7 @@ ModelDatabase::LookupAttributes( const Util::String& name, bool reload )
 		{
 			// create uri
 			String path;
-			path.Format("root:work/models/%s.attributes", name.AsCharPtr());
+			path.Format("src:assets/%s.attributes", name.AsCharPtr());
 
 			// create stream
 			Ptr<Stream> file = IoServer::Instance()->CreateStream(path);
@@ -131,12 +131,12 @@ ModelDatabase::LookupAttributes( const Util::String& name, bool reload )
 //------------------------------------------------------------------------------
 /**
 */
-bool 
-ModelDatabase::AttributesExist( const Util::String& name )
+bool
+ModelDatabase::AttributesExist(const Util::String& name)
 {
 	// format file
 	String file;
-	file.Format("root:work/models/%s.attributes", name.AsCharPtr());
+	file.Format("src:assets/%s.attributes", name.AsCharPtr());
 
 	// basically check if the file system has the attribute requested
 	if (IoServer::Instance()->FileExists(file))
@@ -150,20 +150,19 @@ ModelDatabase::AttributesExist( const Util::String& name )
 //------------------------------------------------------------------------------
 /**
 */
-const Util::String& 
-ModelDatabase::GetAttributesName( const Ptr<ModelAttributes>& attrs )
+const Util::String&
+ModelDatabase::GetAttributesName(const Ptr<ModelAttributes>& attrs)
 {
 	IndexT index = this->modelAttributes.ValuesAsArray().FindIndex(attrs);
 	n_assert(index != InvalidIndex);
 	return this->modelAttributes.KeysAsArray()[index];
 }
 
-
 //------------------------------------------------------------------------------
 /**
 */
-Ptr<ModelPhysics> 
-ModelDatabase::LookupPhysics( const Util::String& name, bool reload )
+Ptr<ModelPhysics>
+ModelDatabase::LookupPhysics(const Util::String& name, bool reload)
 {
 	if (!this->modelPhysics.Contains(name))
 	{
@@ -178,7 +177,7 @@ ModelDatabase::LookupPhysics( const Util::String& name, bool reload )
 		{
 			// create uri
 			String path;
-			path.Format("root:work/models/%s.physics", name.AsCharPtr());
+			path.Format("src:assets/%s.physics", name.AsCharPtr());
 
 			// create stream
 			Ptr<Stream> file = IoServer::Instance()->CreateStream(path);
@@ -203,7 +202,7 @@ ModelDatabase::LookupPhysics( const Util::String& name, bool reload )
 		{
 			// create uri
 			String path;
-			path.Format("root:work/models/%s.physics", name.AsCharPtr());
+			path.Format("src:assets/%s.physics", name.AsCharPtr());
 
 			// create stream
 			Ptr<Stream> file = IoServer::Instance()->CreateStream(path);
@@ -221,12 +220,12 @@ ModelDatabase::LookupPhysics( const Util::String& name, bool reload )
 //------------------------------------------------------------------------------
 /**
 */
-bool 
-ModelDatabase::PhysicsExist( const Util::String& name )
+bool
+ModelDatabase::PhysicsExist(const Util::String& name)
 {
 	// format file
 	String file;
-	file.Format("root:work/models/%s.physics", name.AsCharPtr());
+	file.Format("src:assets/%s.physics", name.AsCharPtr());
 
 	// basically check if the file system has the attribute requested
 	if (IoServer::Instance()->FileExists(file))
@@ -240,8 +239,8 @@ ModelDatabase::PhysicsExist( const Util::String& name )
 //------------------------------------------------------------------------------
 /**
 */
-const Util::String& 
-ModelDatabase::GetPhysicsName( const Ptr<ModelPhysics>& attrs )
+const Util::String&
+ModelDatabase::GetPhysicsName(const Ptr<ModelPhysics>& attrs)
 {
 	IndexT index = this->modelPhysics.ValuesAsArray().FindIndex(attrs);
 	n_assert(index != InvalidIndex);
@@ -252,8 +251,8 @@ ModelDatabase::GetPhysicsName( const Ptr<ModelPhysics>& attrs )
 //------------------------------------------------------------------------------
 /**
 */
-Ptr<ModelConstants> 
-ModelDatabase::LookupConstants( const Util::String& name, bool reload )
+Ptr<ModelConstants>
+ModelDatabase::LookupConstants(const Util::String& name, bool reload)
 {
 	if (!this->modelConstants.Contains(name))
 	{
@@ -268,7 +267,7 @@ ModelDatabase::LookupConstants( const Util::String& name, bool reload )
 		{
 			// create uri
 			String path;
-			path.Format("root:work/models/%s.constants", name.AsCharPtr());
+			path.Format("src:assets/%s.constants", name.AsCharPtr());
 
 			// create stream
 			Ptr<Stream> file = IoServer::Instance()->CreateStream(path);
@@ -293,7 +292,7 @@ ModelDatabase::LookupConstants( const Util::String& name, bool reload )
 		{
 			// create uri
 			String path;
-			path.Format("root:work/models/%s.constants", name.AsCharPtr());
+			path.Format("src:assets/%s.constants", name.AsCharPtr());
 
 			// create stream
 			Ptr<Stream> file = IoServer::Instance()->CreateStream(path);
@@ -311,12 +310,12 @@ ModelDatabase::LookupConstants( const Util::String& name, bool reload )
 //------------------------------------------------------------------------------
 /**
 */
-bool 
-ModelDatabase::ConstantsExist( const Util::String& name )
+bool
+ModelDatabase::ConstantsExist(const Util::String& name)
 {
 	// format file
 	String file;
-	file.Format("root:work/models/%s.constants", name.AsCharPtr());
+	file.Format("src:assets/%s.constants", name.AsCharPtr());
 
 	// basically check if the file system has the attribute requested
 	if (IoServer::Instance()->FileExists(file))
@@ -330,13 +329,12 @@ ModelDatabase::ConstantsExist( const Util::String& name )
 //------------------------------------------------------------------------------
 /**
 */
-const Util::String& 
-ModelDatabase::GetConstantsName( const Ptr<ModelConstants>& constants )
+const Util::String&
+ModelDatabase::GetConstantsName(const Ptr<ModelConstants>& constants)
 {
 	IndexT index = this->modelConstants.ValuesAsArray().FindIndex(constants);
 	n_assert(index != InvalidIndex);
 	return this->modelConstants.KeysAsArray()[index];
 }
 
-
-}
+} // namespace ToolkitUtil

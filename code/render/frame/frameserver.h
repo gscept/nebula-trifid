@@ -42,9 +42,12 @@ public:
 	void DisplayResized(SizeT width, SizeT height);
 
 private:
+    friend class BatchGroup;
+
     /// load a frame shader
     void LoadFrameShader(const Resources::ResourceId& name);
 
+    BatchGroup batchGroupRegistry;
     Util::Dictionary<Resources::ResourceId, Ptr<FrameShader> > frameShaders;
     bool isOpen;
 };

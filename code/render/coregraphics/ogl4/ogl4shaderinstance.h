@@ -3,9 +3,15 @@
 /**
     @class OpenGL4::OGL4ShaderInstance
     
-    OGL4 implementation of CoreGraphics::ShaderInstance.
-    
-    @todo lost/reset device handling
+    Implements a single instance of a shader.
+    This class is used to hold the state of an effect, such as
+    shader variables and which shader bundle should be used.
+
+    To apply the global state of the shader, you use the Begin/BeginPass functions
+    which will trigger the currently active shader variation to be applied.
+
+    To apply the local state of the shader instance, such as variables and constant
+    buffers, use the Commit function.
 
     (C) 2007 Radon Labs GmbH
 */
@@ -17,7 +23,7 @@
 
 namespace OpenGL4
 {
-	
+class OGL4UniformBuffer;
 class OGL4ShaderInstance : public Base::ShaderInstanceBase
 {
     __DeclareClass(OGL4ShaderInstance);
@@ -40,8 +46,9 @@ public:
     void EndPass();
     /// end rendering through variation
     void End();
-	/// setup static texture bindings
-	void SetupSharedTextures();
+
+    /// create variable instance
+    Ptr<CoreGraphics::ShaderVariableInstance> CreateVariableInstance(const Base::ShaderVariableBase::Name& n);
 
     /// sets the shader in wireframe mode
     void SetWireframe(bool b);
@@ -60,7 +67,6 @@ protected:
 	/// reload the shader instance from original shader object
 	virtual void Reload(const Ptr<CoreGraphics::Shader>& origShader);
 
-
 	/// reload the variables from reflection
 	void ReloadVariables(const GLuint& shader);
 
@@ -74,6 +80,20 @@ protected:
 private:
     bool inWireframe;
 	AnyFX::Effect* effect;
+    Util::Array<Ptr<CoreGraphics::ConstantBuffer>> uniformBuffers;
+    Util::Dictionary<Util::StringAtom, Ptr<CoreGraphics::ConstantBuffer>> uniformBuffersByName;
+
+    struct DeferredVariableToBufferBind
+    {
+        unsigned offset;
+        unsigned size;
+        unsigned arraySize;
+    };
+    typedef Util::KeyValuePair<DeferredVariableToBufferBind, Ptr<CoreGraphics::ConstantBuffer>> VariableBufferBinding;
+    Util::Dictionary<Util::StringAtom, VariableBufferBinding> uniformVariableBinds;
+
+    typedef Util::KeyValuePair<Ptr<CoreGraphics::ShaderVariable>, Ptr<CoreGraphics::ConstantBuffer>> BlockBufferBinding;
+    Util::Array<BlockBufferBinding> blockToBufferBindings;
 };
 
 //------------------------------------------------------------------------------

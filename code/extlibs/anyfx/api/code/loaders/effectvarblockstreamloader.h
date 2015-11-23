@@ -11,7 +11,8 @@
 #include "binreader.h"
 #include "internal/internaleffectvarblock.h"
 #include "EASTL/vector.h"
-#include <map>
+#include "EASTL/map.h"
+#include "EASTL/string.h"
 namespace AnyFX
 {
 class Effect;
@@ -29,7 +30,7 @@ private:
 	friend class EffectStreamLoader;
 
 	EffectVarblock* Load(BinReader* reader, Effect* effect, eastl::vector<EffectVariable*>& vars);
-	static std::map<std::string, InternalEffectVarblock*> sharedBlocks;
+    static eastl::map<eastl::string, InternalEffectVarblock*> sharedBlocks;
 }; 
 } // namespace AnyFX
 //------------------------------------------------------------------------------

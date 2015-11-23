@@ -95,7 +95,8 @@ public:
     {
         NoQualifiers = 0,
         GroupShared = 1 << 0,   // group shared means shared within a shader compute group
-        Shared = 1 << 1         // ordinary shared means shared during the application execution
+        Shared = 1 << 1,        // ordinary shared means shared during the application execution
+        Bindless = 1 << 2       // Denotes that a texture should be used as bindless
 
     };
 
@@ -103,6 +104,9 @@ public:
 	Variable();
 	/// destructor
 	virtual ~Variable();
+
+    /// set annotation
+    void SetAnnotation(const Annotation& annotation);
 
 	/// sets array size expression
 	void SetSizeExpression(Expression* expr);
@@ -136,19 +140,21 @@ public:
 
     /// returns true if variable is a subroutine method pointer
     bool IsSubroutine() const;
+	/// returns true if variable is a uniform (it is not shader local)
+	bool IsUniform() const;
 
 	/// sets the type of a variable
 	void SetVarType(const DataType& type);
 	/// get variable type
 	const DataType& GetVarType() const;
-	/// set annotation
-	void SetAnnotation(const Annotation& annotation);
 
 	/// set variable access mode
 	void SetAccess(const AccessMode& mode);
 	/// set variable format
 	void SetFormat(const ImageFormat& format);
 
+	/// preprocess variable
+	void Preprocess();
 	/// type checks variables
 	void TypeCheck(TypeChecker& typechecker);
 	/// compiles variable
@@ -159,6 +165,7 @@ public:
 
 private:
     friend class VarBlock;
+	friend class Effect;
 
     /// evaluates array size
     void EvaluateArraySize(TypeChecker& typechecker);
@@ -176,6 +183,7 @@ private:
 	ImageFormat format;
 	AccessMode accessMode;
     int qualifierFlags;
+	bool isUniform;
 
 	ArrayType arrayType;
 	bool isArray;
@@ -191,8 +199,18 @@ private:
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-Variable::SetSizeExpression( Expression* expr )
+inline void
+Variable::SetAnnotation(const Annotation& annotation)
+{
+    this->annotation = annotation;
+    this->hasAnnotation = true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+Variable::SetSizeExpression(Expression* expr)
 {
 	this->sizeExpression = expr;
 	this->isArray = true;
@@ -210,8 +228,8 @@ Variable::GetSizeExpression() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-Variable::SetArrayType( const ArrayType& type )
+inline void
+Variable::SetArrayType(const ArrayType& type)
 {
 	this->isArray = true;
 	this->arrayType = type;
@@ -238,8 +256,8 @@ Variable::GetArraySize() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-Variable::AddQualifier( const std::string& qualifier )
+inline void
+Variable::AddQualifier(const std::string& qualifier)
 {
 	this->qualifiers.push_back(qualifier);
 }
@@ -256,8 +274,8 @@ Variable::GetNumQualifiers() const
 //------------------------------------------------------------------------------
 /**
 */
-inline const std::string& 
-Variable::GetQualifier( unsigned i ) const
+inline const std::string&
+Variable::GetQualifier(unsigned i) const
 {
 	return this->qualifiers[i];
 }
@@ -283,8 +301,17 @@ Variable::IsSubroutine() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-Variable::SetVarType( const DataType& type )
+inline bool
+Variable::IsUniform() const
+{
+	return this->isUniform;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+Variable::SetVarType(const DataType& type)
 {
 	this->type = type;
 }
@@ -301,8 +328,8 @@ Variable::GetVarType() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-Variable::SetAccess( const AccessMode& mode )
+inline void
+Variable::SetAccess(const AccessMode& mode)
 {
 	this->accessMode = mode;
 }
@@ -310,8 +337,8 @@ Variable::SetAccess( const AccessMode& mode )
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-Variable::SetFormat( const ImageFormat& format )
+inline void
+Variable::SetFormat(const ImageFormat& format)
 {
 	this->format = format;
 }

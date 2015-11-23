@@ -301,89 +301,95 @@ ModelAttributes::Save(const Ptr<IO::Stream>& stream)
 
 				// set material
 				writer->SetString("material", state.material);
+				IndexT j;
 
 				// begin textures node
-				writer->BeginNode("Textures");
-
-				// go through all textures in state and put them in the document
-				IndexT j;
-				for (j = 0; j < state.textures.Size(); j++)
+				if (state.textures.Size() > 0)
 				{
-					// start texture node
-					writer->BeginNode("Texture");
+					writer->BeginNode("Textures");
 
-					// set name
-					writer->SetString("name", state.textures[j].textureName);
+					// go through all textures in state and put them in the document
+					for (j = 0; j < state.textures.Size(); j++)
+					{
+						// start texture node
+						writer->BeginNode("Texture");
 
-					// set value
-					writer->SetString("value", state.textures[j].textureResource);
+						// set name
+						writer->SetString("name", state.textures[j].textureName);
 
-					// end node
+						// set value
+						writer->SetString("value", state.textures[j].textureResource);
+
+						// end node
+						writer->EndNode();
+					}
+
+					// end textures node
 					writer->EndNode();
 				}
 
-				// end textures node
-				writer->EndNode();
-
-				// begin variables node
-				writer->BeginNode("Variables");
-
-				// do the same for variables
-				for (j = 0; j < state.variables.Size(); j++)
+				if (state.variables.Size() > 0)
 				{
-					// get variable
-					const Variant& var = state.variables[j].variableValue;
-                    const Variant& lower = state.variables[j].limits.Key();
-                    const Variant& upper = state.variables[j].limits.Value();
+					// begin variables node
+					writer->BeginNode("Variables");
 
-					// write variable node
-					writer->BeginNode("Variable");
-
-					// set name
-					writer->SetString("name", state.variables[j].variableName);
-
-					// write type and value
-					writer->SetInt("type", var.GetType());
-
-					switch (var.GetType())
+					// do the same for variables
+					for (j = 0; j < state.variables.Size(); j++)
 					{
-					case Variant::Float:
+						// get variable
+						const Variant& var = state.variables[j].variableValue;
+						const Variant& lower = state.variables[j].limits.Key();
+						const Variant& upper = state.variables[j].limits.Value();
+
+						// write variable node
+						writer->BeginNode("Variable");
+
+						// set name
+						writer->SetString("name", state.variables[j].variableName);
+
+						// write type and value
+						writer->SetInt("type", var.GetType());
+
+						switch (var.GetType())
+						{
+						case Variant::Float:
 						{
 							writer->SetFloat("value", var.GetFloat());
-                            writer->SetFloat("min", lower.GetFloat());
-                            writer->SetFloat("max", upper.GetFloat());
+							writer->SetFloat("min", lower.GetFloat());
+							writer->SetFloat("max", upper.GetFloat());
 							break;
 						}
-					case Variant::Float2:
+						case Variant::Float2:
 						{
 							writer->SetFloat2("value", var.GetFloat2());
 							break;
 						}
-					case Variant::Float4:
+						case Variant::Float4:
 						{
 							writer->SetFloat4("value", var.GetFloat4());
 							break;
 						}
-					case Variant::Int:
+						case Variant::Int:
 						{
 							writer->SetInt("value", var.GetInt());
-                            writer->SetInt("min", lower.GetInt());
-                            writer->SetInt("max", upper.GetInt());
+							writer->SetInt("min", lower.GetInt());
+							writer->SetInt("max", upper.GetInt());
 							break;
 						}
-					case Variant::Bool:
+						case Variant::Bool:
 						{
 							writer->SetBool("value", var.GetBool());
 							break;
 						}
+						}
+
+						// end variable node
+						writer->EndNode();
 					}
 
-					// end variable node
+					// end variables node
 					writer->EndNode();
 				}
-
-				// end variables node
-				writer->EndNode();
 
 				// end model node
 				writer->EndNode();

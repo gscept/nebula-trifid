@@ -49,7 +49,6 @@ FramePassBase::Discard()
 {
 	if (this->shader.isvalid())
 	{
-		this->shader->Discard();
 		this->shader = 0;
 	}
     if (this->renderTarget.isvalid())
@@ -87,7 +86,7 @@ FramePassBase::Begin()
 /**
 */
 void
-FramePassBase::Render()
+FramePassBase::Render(IndexT frameIndex)
 {
 	// implement in base class
 }

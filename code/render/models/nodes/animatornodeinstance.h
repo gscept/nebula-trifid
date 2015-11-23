@@ -16,6 +16,7 @@
 #include "models/nodes/animkey.h"
 #include "math/vector.h"
 #include "materials/materialvariableinstance.h"
+#include "materials/surfaceconstantinstance.h"
 
 namespace Models
 {
@@ -42,7 +43,7 @@ private:
     struct AnimatedNode
     {
         Ptr<ModelNodeInstance> node;
-        Ptr<Materials::MaterialVariableInstance> var;
+        Ptr<Materials::SurfaceConstant> var;
     };
 
     Util::Array<Util::Array<AnimatedNode> > animSection;

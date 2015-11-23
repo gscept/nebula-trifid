@@ -11,7 +11,8 @@
 //------------------------------------------------------------------------------
 #include <map>
 #include "EASTL/vector.h"
-#include <string>
+#include "EASTL/map.h"
+#include "EASTL/string.h"
 namespace AnyFX
 {
 class InternalEffectProgram;
@@ -45,72 +46,88 @@ public:
 	/// returns program by index
 	EffectProgram* GetProgramByIndex(unsigned i) const;
 	/// returns program by name
-	EffectProgram* GetProgramByName(const std::string& name);
+    EffectProgram* GetProgramByName(const eastl::string& name);
 	/// returns all programs as a list
 	EffectProgram** GetPrograms() const;
+    /// returns true if program exists
+    bool HasProgram(const eastl::string& name);
 
 	/// returns number of shaders
 	unsigned GetNumShaders() const;
 	/// returns shader by index
 	EffectShader* GetShaderByIndex(unsigned i) const;
 	/// returns shader by name
-	EffectShader* GetShaderByName(const std::string& name);
+    EffectShader* GetShaderByName(const eastl::string& name);
 	/// returns shaders as a list
 	EffectShader** GetShaders() const;
+    /// returns true if shader exists
+    bool HasShader(const eastl::string& name);
 
 	/// returns number of render states
 	unsigned GetNumRenderStates() const;
 	/// returns render state by index
 	EffectRenderState* GetRenderStateByIndex(unsigned i) const;
 	/// returns render state by name
-	EffectRenderState* GetRenderStateByName(const std::string& name);
+    EffectRenderState* GetRenderStateByName(const eastl::string& name);
 	/// returns render states as a list
 	EffectRenderState** GetRenderStates() const;
+    /// returns true if render state exists
+    bool HasRenderState(const eastl::string& name);
 
 	/// returns number of variables
 	unsigned GetNumVariables() const;
 	/// returns variable by index
 	EffectVariable* GetVariableByIndex(unsigned i) const;
 	/// returns variable by name
-	EffectVariable* GetVariableByName(const std::string& name);
+    EffectVariable* GetVariableByName(const eastl::string& name);
 	/// returns variables as a list
 	EffectVariable** GetVariables() const;
+    /// returns true if variable exists
+    bool HasVariable(const eastl::string& name);
 
 	/// returns number of varblocks
 	unsigned GetNumVarblocks() const;
 	/// returns varblock by index
 	EffectVarblock* GetVarblockByIndex(unsigned i) const;
 	/// returns varblock by name
-	EffectVarblock* GetVarblockByName(const std::string& name);
+    EffectVarblock* GetVarblockByName(const eastl::string& name);
 	/// returns varblocks as a list
 	EffectVarblock** GetVarblocks() const;
+    /// returns true if varblock exists
+    bool HasVarblock(const eastl::string& name);
 
     /// returns number of varbuffers
     unsigned GetNumVarbuffers() const;
     /// returns varbuffer by index
     EffectVarbuffer* GetVarbufferByIndex(unsigned i) const;
     /// returns varbuffer by name
-    EffectVarbuffer* GetVarbufferByName(const std::string& name);
+    EffectVarbuffer* GetVarbufferByName(const eastl::string& name);
     /// returns varbuffer as a list
     EffectVarbuffer** GetVarbuffers() const;
+    /// returns true if varbuffer exists
+    bool HasVarbuffer(const eastl::string& name);
 
     /// returns number of subroutine
     unsigned GetNumSubroutines() const;
     /// returns subroutine by index
     EffectSubroutine* GetSubroutineByIndex(unsigned i) const;
     /// returns subroutine by name
-    EffectSubroutine* GetSubroutineByName(const std::string& name);
+    EffectSubroutine* GetSubroutineByName(const eastl::string& name);
     /// returns list of subroutines
     EffectSubroutine** GetSubroutines() const;
+    /// returns true if subroutine exists
+    bool HasSubroutine(const eastl::string& name);
 
 	/// returns the number of samplers
 	unsigned GetNumSamplers() const;
 	/// returns sampler by index
 	EffectSampler* GetSamplerByIndex(unsigned i) const;
 	/// returns sampler by name
-	EffectSampler* GetSamplerByName(const std::string& name);
+    EffectSampler* GetSamplerByName(const eastl::string& name);
 	/// returns samplers as list
 	EffectSampler** GetSamplers() const;
+    /// returns true if sampler exists
+    bool HasSampler(const eastl::string& name);
 
 	/// get type
 	const Effect::EffectType& GetType() const;
@@ -131,35 +148,35 @@ private:
 
 	EffectVariable** variablesByIndex;
 	size_t numVariables;
-	std::map<std::string, EffectVariable*> variablesByName;
+    eastl::map<eastl::string, EffectVariable*> variablesByName;
 	
 	EffectProgram** programsByIndex;
 	size_t numPrograms;
-	std::map<std::string, EffectProgram*> programsByName;
+    eastl::map<eastl::string, EffectProgram*> programsByName;
 
 	EffectShader** shadersByIndex;
 	size_t numShaders;
-	std::map<std::string, EffectShader*> shadersByName;
+    eastl::map<eastl::string, EffectShader*> shadersByName;
 
 	EffectRenderState** renderStatesByIndex;
 	size_t numRenderStates;
-	std::map<std::string, EffectRenderState*> renderStatesByName;
+    eastl::map<eastl::string, EffectRenderState*> renderStatesByName;
 
 	EffectVarblock** varblocksByIndex;
 	size_t numVarblocks;
-	std::map<std::string, EffectVarblock*> varblocksByName;
+    eastl::map<eastl::string, EffectVarblock*> varblocksByName;
 
     EffectVarbuffer** varbuffersByIndex;
     size_t numVarbuffers;
-    std::map<std::string, EffectVarbuffer*> varbuffersByName;
+    eastl::map<eastl::string, EffectVarbuffer*> varbuffersByName;
 
     EffectSubroutine** subroutinesByIndex;
     size_t numSubroutines;
-    std::map<std::string, EffectSubroutine*> subroutinesByName;
+    eastl::map<eastl::string, EffectSubroutine*> subroutinesByName;
 
 	EffectSampler** samplersByIndex;
 	size_t numSamplers;
-	std::map<std::string, EffectSampler*> samplersByName;
+    eastl::map<eastl::string, EffectSampler*> samplersByName;
 
 	// integer used to hold pointer to context object, if any exists
 	unsigned contextHandle;

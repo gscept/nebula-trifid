@@ -14,9 +14,9 @@
 using namespace Util;
 using namespace IO;
 using namespace ToolkitUtil;
-namespace Fbx
+namespace ToolkitUtil
 {
-__ImplementClass(Fbx::NFbxExporter, 'FBXE', Base::ExporterBase);
+__ImplementClass(ToolkitUtil::NFbxExporter, 'FBXE', Base::ExporterBase);
 
 //------------------------------------------------------------------------------
 /**
@@ -75,7 +75,7 @@ NFbxExporter::Close()
 void 
 NFbxExporter::ExportDir( const Util::String& dirName )
 {
-	String categoryDir = "src:gfxlib/" + dirName;
+	String categoryDir = "src:assets/" + dirName;
 	Array<String> files = IoServer::Instance()->ListFiles(categoryDir, "*.fbx");
 	for (int fileIndex = 0; fileIndex < files.Size(); fileIndex++)
 	{
@@ -91,7 +91,7 @@ NFbxExporter::ExportDir( const Util::String& dirName )
 void 
 NFbxExporter::ExportAll()
 {
-	String workDir = "src:gfxlib";
+	String workDir = "src:assets";
 	Array<String> directories = IoServer::Instance()->ListDirectories(workDir, "*");
 	for (int directoryIndex = 0; directoryIndex < directories.Size(); directoryIndex++)
 	{
@@ -110,17 +110,17 @@ NFbxExporter::ExportAll()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-NFbxExporter::ExportList( const Util::Array<Util::String>& files )
+void
+NFbxExporter::ExportList(const Util::Array<Util::String>& files)
 {
-	for(Array<String>::Iterator iter = files.Begin();iter != files.End();iter++)
+    for (Array<String>::Iterator iter = files.Begin(); iter != files.End(); iter++)
 	{
 		Array<String> parts = iter->Tokenize("/");
 		this->SetCategory(parts[0]);
 		this->SetFile(parts[1]);
 
 		//FIXME
-		URI file("src:gfxlib/" + *iter);
+		URI file("src:assets/" + *iter);
 		this->ExportFile(file);
 	}
 }
@@ -128,8 +128,8 @@ NFbxExporter::ExportList( const Util::Array<Util::String>& files )
 //------------------------------------------------------------------------------
 /**
 */
-bool 
-NFbxExporter::StartExport( const IO::URI& file )
+bool
+NFbxExporter::StartExport(const IO::URI& file)
 {
 	n_assert(this->isOpen);
 	IoServer* ioServer = IoServer::Instance();
@@ -283,7 +283,7 @@ NFbxExporter::EndExport()
 
 	// format base path
 	String basePath;
-	basePath.Format("src:models/%s/", this->file.ExtractLastDirName().AsCharPtr());
+	basePath.Format("src:assets/%s/", this->file.ExtractLastDirName().AsCharPtr());
 
 	// generate models
 	this->sceneWriter->GenerateModels(basePath, this->exportFlags, this->exportMode);
@@ -322,7 +322,7 @@ NFbxExporter::ExportFile( const IO::URI& file )
 
 //------------------------------------------------------------------------------
 /**
-	Check if we need to export. This is the dependencies we have:
+	Check if we need to export. This are the dependencies we have:
 
 	.attributes
 		n3			(model resource)
@@ -347,9 +347,9 @@ NFbxExporter::NeedsConversion( const Util::String& path )
 	String mesh = "msh:" + category + "/" + file + ".nvx2";
 	String physMesh = "msh:" + category + "/" + file + "_ph.nvx2";
 	String animation = "ani:" + category + "/" + file + ".nax3";
-	String constants = "src:models/" + category + "/" + file + ".constants";
-	String attributes = "src:models/" + category + "/" + file + ".attributes";
-	String physics = "src:models/" + category + "/" + file + ".physics";
+	String constants = "src:assets/" + category + "/" + file + ".constants";
+	String attributes = "src:assets/" + category + "/" + file + ".attributes";
+	String physics = "src:assets/" + category + "/" + file + ".physics";
 
 	// check if fbx is newer than model
     bool fbxNewer = ExporterBase::NeedsConversion(path, model);

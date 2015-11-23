@@ -3,11 +3,14 @@
 //  (C) 2013 Gustav Sterbrant
 //------------------------------------------------------------------------------
 #include "stdneb.h"
+#include "coregraphics/constantbuffer.h"
+#include "coregraphics/texture.h"
 #include "coregraphics/ogl4/ogl4shadervariable.h"
 #include "coregraphics/shadervariableinstance.h"
 #include "coregraphics/shaderserver.h"
 #include "coregraphics/ogl4/ogl4renderdevice.h"
 #include "math/vector.h"
+#include "ogl4uniformbuffer.h"
 
 
 namespace OpenGL4
@@ -22,6 +25,9 @@ using namespace Util;
 */
 OGL4ShaderVariable::OGL4ShaderVariable() :	
     effectVar(0),
+    effectBuffer(0),
+    effectBlock(0),
+    bufferBinding(NULL),
 	texture(0)
 {
     // empty
@@ -39,13 +45,28 @@ OGL4ShaderVariable::~OGL4ShaderVariable()
 //------------------------------------------------------------------------------
 /**
 */
+void
+OGL4ShaderVariable::BindToUniformBuffer(const Ptr<CoreGraphics::ConstantBuffer>& buffer, GLuint offset, GLuint size, GLchar* defaultValue)
+{
+    this->bufferBinding = new BufferBinding;
+    this->bufferBinding->uniformBuffer = buffer;
+    this->bufferBinding->offset = offset;
+    this->bufferBinding->size = size;
+    this->bufferBinding->defaultValue = defaultValue;
+
+    // make sure that the buffer is updated (data is array since we have a char*)
+    buffer->UpdateArray(defaultValue, offset, size, 1);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 void OGL4ShaderVariable::Setup(AnyFX::EffectVariable* var)
 {
 	n_assert(0 == effectVar);
 	
 	String name = var->GetName().c_str();
 	this->SetName(name);
-	this->SetSemantic(name);
 	switch (var->GetType())
 	{
 	case AnyFX::Double:
@@ -123,9 +144,20 @@ OGL4ShaderVariable::Setup(AnyFX::EffectVarbuffer* var)
 {
 	String name = var->GetName().c_str();
 	this->SetName(name);
-	this->SetSemantic(name);
 	this->effectBuffer = var;
 	this->SetType(BufferType);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+OGL4ShaderVariable::Setup(AnyFX::EffectVarblock* var)
+{
+    Util::String name = var->GetName().c_str();
+    this->SetName(name);
+    this->effectBlock = var;
+    this->SetType(BufferType);
 }
 
 //------------------------------------------------------------------------------
@@ -134,9 +166,9 @@ OGL4ShaderVariable::Setup(AnyFX::EffectVarbuffer* var)
 void 
 OGL4ShaderVariable::Cleanup()
 {
-	n_assert(0 != this->effectVar || 0 != this->effectBuffer);
-
+    if (this->bufferBinding != NULL) delete this->bufferBinding;
 	this->effectBuffer = 0;
+    this->effectBlock = 0;
 	this->effectVar = 0;
 	this->texture = 0;
 	ShaderVariableBase::Cleanup();
@@ -148,9 +180,17 @@ OGL4ShaderVariable::Cleanup()
 void
 OGL4ShaderVariable::SetInt(int value)
 {
-	n_assert(0 != this->effectVar);
-	
-	this->effectVar->SetInt(value);
+    bool bufferBound = this->bufferBinding != NULL;
+    switch (bufferBound)
+    {
+    case true:
+        this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, this->bufferBinding->size);
+        break;
+    case false:
+        n_assert(0 != this->effectVar);
+        this->effectVar->SetInt(value);
+        break;
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -159,10 +199,18 @@ OGL4ShaderVariable::SetInt(int value)
 void
 OGL4ShaderVariable::SetIntArray(const int* values, SizeT count)
 {
-	n_assert(0 != this->effectVar);
 	n_assert(0 != values);
-	
-	this->effectVar->SetIntArray(values, count);
+    bool bufferBound = this->bufferBinding != NULL;
+    switch (bufferBound)
+    {
+    case true:
+        this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, this->bufferBinding->size, count);
+        break;
+    case false:
+        n_assert(0 != this->effectVar);
+        this->effectVar->SetIntArray(values, count);
+        break;
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -171,9 +219,17 @@ OGL4ShaderVariable::SetIntArray(const int* values, SizeT count)
 void
 OGL4ShaderVariable::SetFloat(float value)
 {
-	n_assert(0 != this->effectVar);
-	
-	this->effectVar->SetFloat(value);
+    bool bufferBound = this->bufferBinding != NULL;
+    switch (bufferBound)
+    {
+    case true:
+        this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, this->bufferBinding->size);
+        break;
+    case false:
+        n_assert(0 != this->effectVar);
+        this->effectVar->SetFloat(value);
+        break;
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -182,32 +238,56 @@ OGL4ShaderVariable::SetFloat(float value)
 void
 OGL4ShaderVariable::SetFloatArray(const float* values, SizeT count)
 {
-	n_assert(0 != this->effectVar);
 	n_assert(0 != values);
-	
-	this->effectVar->SetFloatArray(values, count);
+    bool bufferBound = this->bufferBinding != NULL;
+    switch (bufferBound)
+    {
+    case true:
+        this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, this->bufferBinding->size, count);
+        break;
+    case false:
+        n_assert(0 != this->effectVar);
+        this->effectVar->SetFloatArray(values, count);
+        break;
+    }
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-void 
-OGL4ShaderVariable::SetFloat2( const Math::float2& value )
+void
+OGL4ShaderVariable::SetFloat2(const Math::float2& value)
 {
-	n_assert(0 != this->effectVar);
-	
-	this->effectVar->SetFloat2((float*)&value);
+    bool bufferBound = this->bufferBinding != NULL;
+    switch (bufferBound)
+    {
+    case true:
+        this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, this->bufferBinding->size);
+        break;
+    case false:
+        n_assert(0 != this->effectVar);
+        this->effectVar->SetFloat2((float*)&value);
+        break;
+    }
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-void 
-OGL4ShaderVariable::SetFloat2Array( const Math::float2* values, SizeT count )
+void
+OGL4ShaderVariable::SetFloat2Array(const Math::float2* values, SizeT count)
 {
-	n_assert(0 != this->effectVar);
-
-	this->effectVar->SetFloat2Array((float*)&values, count);
+    bool bufferBound = this->bufferBinding != NULL;
+    switch (bufferBound)
+    {
+    case true:
+        this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, this->bufferBinding->size, count);
+        break;
+    case false:
+        n_assert(0 != this->effectVar);
+        this->effectVar->SetFloat2Array((float*)&values, count);
+        break;
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -216,9 +296,17 @@ OGL4ShaderVariable::SetFloat2Array( const Math::float2* values, SizeT count )
 void
 OGL4ShaderVariable::SetFloat4(const float4& value)
 {
-	n_assert(0 != this->effectVar);
-	
-	this->effectVar->SetFloat4((float*)&value);
+    bool bufferBound = this->bufferBinding != NULL;
+    switch (bufferBound)
+    {
+    case true:
+        this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, this->bufferBinding->size);
+        break;
+    case false:
+        n_assert(0 != this->effectVar);
+        this->effectVar->SetFloat4((float*)&value);
+        break;
+    }	
 }
 
 //------------------------------------------------------------------------------
@@ -227,10 +315,18 @@ OGL4ShaderVariable::SetFloat4(const float4& value)
 void
 OGL4ShaderVariable::SetFloat4Array(const float4* values, SizeT count)
 {
-	n_assert(0 != this->effectVar);
 	n_assert(0 != values);
-
-	this->effectVar->SetFloat4Array((float*)values, count);
+    bool bufferBound = this->bufferBinding != NULL;
+    switch (bufferBound)
+    {
+    case true:
+        this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, this->bufferBinding->size, count);
+        break;
+    case false:
+        n_assert(0 != this->effectVar);
+        this->effectVar->SetFloat4Array((float*)values, count);
+        break;
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -239,8 +335,17 @@ OGL4ShaderVariable::SetFloat4Array(const float4* values, SizeT count)
 void
 OGL4ShaderVariable::SetMatrix(const matrix44& value)
 {
-	n_assert(0 != this->effectVar);
-	this->effectVar->SetMatrix((float*)&value);
+    bool bufferBound = this->bufferBinding != NULL;
+    switch (bufferBound)
+    {
+    case true:
+        this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, this->bufferBinding->size);
+        break;
+    case false:
+        n_assert(0 != this->effectVar);
+        this->effectVar->SetMatrix((float*)&value);
+        break;
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -249,10 +354,18 @@ OGL4ShaderVariable::SetMatrix(const matrix44& value)
 void
 OGL4ShaderVariable::SetMatrixArray(const matrix44* values, SizeT count)
 {
-	n_assert(0 != this->effectVar);
 	n_assert(0 != values);
-
-	this->effectVar->SetMatrixArray((float*)values, count);
+    bool bufferBound = this->bufferBinding != NULL;
+    switch (bufferBound)
+    {
+    case true:
+        this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, this->bufferBinding->size, count);
+        break;
+    case false:
+        n_assert(0 != this->effectVar);
+        this->effectVar->SetMatrixArray((float*)values, count);
+        break;
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -261,8 +374,17 @@ OGL4ShaderVariable::SetMatrixArray(const matrix44* values, SizeT count)
 void
 OGL4ShaderVariable::SetBool(bool value)
 {
-	n_assert(0 != this->effectVar);
-	this->effectVar->SetBool(value);
+    bool bufferBound = this->bufferBinding != NULL;
+    switch (bufferBound)
+    {
+    case true:
+        this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, this->bufferBinding->size);
+        break;
+    case false:
+        n_assert(0 != this->effectVar);
+        this->effectVar->SetBool(value);
+        break;
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -271,8 +393,6 @@ OGL4ShaderVariable::SetBool(bool value)
 void
 OGL4ShaderVariable::SetBoolArray(const bool* values, SizeT count)
 {
-	n_assert(0 != this->effectVar);
-
     // hmm... Win32's BOOL is actually an int
     const int MaxNumBools = 128;
     n_assert(count < MaxNumBools);
@@ -282,8 +402,19 @@ OGL4ShaderVariable::SetBoolArray(const bool* values, SizeT count)
     {
 		tmp[i] = values[i];
     }
+
+    bool bufferBound = this->bufferBinding != NULL;
+    switch (bufferBound)
+    {
+    case true:
+        this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, this->bufferBinding->size, count);
+        break;
+    case false:
+        n_assert(0 != this->effectVar);
+        this->effectVar->SetBoolArray((const bool*)tmp, count);
+        break;
+    }
 	
-	this->effectVar->SetBoolArray((const bool*)tmp, count);
 }
 
 //------------------------------------------------------------------------------
@@ -293,7 +424,6 @@ void
 OGL4ShaderVariable::SetTexture(const Ptr<CoreGraphics::Texture>& value)
 {
 	n_assert(0 != this->effectVar);
-
 	this->texture = value;
     if (value.isvalid())
     {
@@ -311,8 +441,9 @@ OGL4ShaderVariable::SetTexture(const Ptr<CoreGraphics::Texture>& value)
 void
 OGL4ShaderVariable::SetBufferHandle(void* handle)
 {
-	n_assert(0 != this->effectBuffer);
-	this->effectBuffer->SetBuffer(handle);
+	n_assert(0 != this->effectBuffer || 0 != this->effectBlock);
+    if (this->effectBlock)  this->effectBlock->SetBuffer(handle);
+	else                    this->effectBuffer->SetBuffer(handle);
 }
 
 } // namespace OpenGL4

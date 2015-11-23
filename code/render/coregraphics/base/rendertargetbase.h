@@ -14,7 +14,7 @@
 #include "core/refcounted.h"
 #include "coregraphics/antialiasquality.h"
 #include "coregraphics/texture.h"
-#include "coregraphics/batchtype.h"
+#include "coregraphics/framebatchtype.h"
 #include "coregraphics/depthstenciltarget.h"
 #include "math/rectangle.h"
 
@@ -146,7 +146,7 @@ public:
     /// begin rendering to the render target
     void BeginPass();
     /// begin a batch
-    void BeginBatch(CoreGraphics::BatchType::Code batchType);
+    void BeginBatch(CoreGraphics::FrameBatchType::Code batchType);
     /// end current batch
     void EndBatch();
     /// end current render pass
@@ -180,7 +180,7 @@ protected:
 
     Ptr<CoreGraphics::DepthStencilTarget> depthStencilTarget;   // target which provides shared depth-stencil buffer
     Resources::ResourceId resolveTextureResId;
-    CoreGraphics::BatchType::Code batchType;
+    CoreGraphics::FrameBatchType::Code batchType;
 	bool relativeSizeValid;
     SizeT width;
     SizeT height;

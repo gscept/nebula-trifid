@@ -11,7 +11,6 @@
 */
 #include "util/blob.h"
 #include "coregraphics/base/shaderbase.h"
-#include "coregraphics/shaderinstance.h"
 
 //------------------------------------------------------------------------------
 namespace OpenGL4
@@ -20,7 +19,6 @@ class OGL4Shader : public Base::ShaderBase
 {
     __DeclareClass(OGL4Shader);
 public:
-
 	
     /// constructor
     OGL4Shader();
@@ -31,6 +29,11 @@ public:
     virtual void Unload();
 	/// returns effect
 	AnyFX::Effect* GetOGL4Effect() const;
+
+    /// begin updating shader state
+    void BeginUpdate();
+    /// end updating shader state
+    void EndUpdate();
 
 	/// reloads a shader from file
 	void Reload();
@@ -47,6 +50,10 @@ private:
     void OnResetDevice();
 
 	AnyFX::Effect* ogl4Effect;
+    Ptr<CoreGraphics::ConstantBuffer> globalBlockBuffer;
+
+    typedef Util::KeyValuePair<Ptr<CoreGraphics::ShaderVariable>, Ptr<CoreGraphics::ConstantBuffer>> BlockBufferBinding;
+    BlockBufferBinding globalBlockBufferBinding;
 };
 
 

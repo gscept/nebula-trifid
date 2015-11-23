@@ -19,6 +19,8 @@
 #include "frame/frameserver.h"
 #include "lighting/lightserver.h"
 #include "lighting/shadowserver.h"
+#include "resources/resourcemanager.h"
+#include "materials/surfaceconstantinstance.h"
 
 namespace Models
 {
@@ -31,6 +33,15 @@ using namespace Materials;
 using namespace Frame;
 using namespace Resources;
 using namespace Math;
+
+static const Util::StringAtom SharedVariableNames[] =
+{
+    NEBULA3_SEMANTIC_OBJECTID,
+    NEBULA3_SEMANTIC_SHADOWPROJMAP,
+    NEBULA3_SEMANTIC_ENVIRONMENT,
+    NEBULA3_SEMANTIC_IRRADIANCE,
+    NEBULA3_SEMANTIC_NUMENVMIPS
+};
 
 //------------------------------------------------------------------------------
 /**
@@ -51,62 +62,39 @@ StateNodeInstance::~StateNodeInstance()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-StateNodeInstance::Setup( const Ptr<ModelInstance>& inst, const Ptr<ModelNode>& node, const Ptr<ModelNodeInstance>& parentNodeInst )
+void
+StateNodeInstance::Setup(const Ptr<ModelInstance>& inst, const Ptr<ModelNode>& node, const Ptr<ModelNodeInstance>& parentNodeInst)
 {
 	// setup parent class
 	TransformNodeInstance::Setup(inst, node, parentNodeInst);
 
 	// setup material
 	Ptr<StateNode> stateNode = node.downcast<StateNode>();
-	Ptr<MaterialInstance> material = stateNode->GetMaterialInstance();
+    this->surfaceInstance = stateNode->GetMaterial()->CreateInstance();
 
-	if (material->HasVariableByName(NEBULA3_SEMANTIC_OBJECTID))
-	{
-		const Ptr<MaterialVariable>& varInst = material->GetVariableByName(NEBULA3_SEMANTIC_OBJECTID);
-		this->globalVariables.Add(NEBULA3_SEMANTIC_OBJECTID, varInst);
-	}
-	if (material->HasVariableByName(NEBULA3_SEMANTIC_GLOBALLIGHTDIR))
-	{
-		const Ptr<MaterialVariable>& varInst = material->GetVariableByName(NEBULA3_SEMANTIC_GLOBALLIGHTDIR);
-		this->globalVariables.Add(NEBULA3_SEMANTIC_GLOBALLIGHTDIR, varInst);
-	}
-	if (material->HasVariableByName(NEBULA3_SEMANTIC_GLOBALLIGHTCOLOR))
-	{
-		const Ptr<MaterialVariable>& varInst = material->GetVariableByName(NEBULA3_SEMANTIC_GLOBALLIGHTCOLOR);
-		this->globalVariables.Add(NEBULA3_SEMANTIC_GLOBALLIGHTCOLOR, varInst);
-	}
-    if (material->HasVariableByName(NEBULA3_SEMANTIC_SHADOW))
+    // setup the constants in the material which is set by the system (so changing the constants is safe)
+    IndexT i;
+    for (i = 0; i < sizeof(SharedVariableNames) / sizeof(Util::StringAtom*); i++)
     {
-        const Ptr<MaterialVariable>& varInst = material->GetVariableByName(NEBULA3_SEMANTIC_SHADOW);
-        this->globalVariables.Add(NEBULA3_SEMANTIC_SHADOW, varInst);
+        const Util::StringAtom& name = SharedVariableNames[i];
+        if (this->surfaceInstance->HasConstant(name))
+        {
+            const Ptr<Materials::SurfaceConstant>& var = this->surfaceInstance->GetConstant(name);
+            this->sharedConstants.Add(name, var);
+        }
     }
-    if (material->HasVariableByName(NEBULA3_SEMANTIC_SHADOWPROJMAP))
-    {
-        const Ptr<MaterialVariable>& varInst = material->GetVariableByName(NEBULA3_SEMANTIC_SHADOWPROJMAP);
-        this->globalVariables.Add(NEBULA3_SEMANTIC_SHADOWPROJMAP, varInst);
-    }
-	if (material->HasVariableByName(NEBULA3_SEMANTIC_ENVIRONMENT))
-	{
-		const Ptr<MaterialVariable>& varInst = material->GetVariableByName(NEBULA3_SEMANTIC_ENVIRONMENT);
-		this->globalVariables.Add(NEBULA3_SEMANTIC_ENVIRONMENT, varInst);
-	}
-	if (material->HasVariableByName(NEBULA3_SEMANTIC_IRRADIANCE))
-	{
-		const Ptr<MaterialVariable>& varInst = material->GetVariableByName(NEBULA3_SEMANTIC_IRRADIANCE);
-		this->globalVariables.Add(NEBULA3_SEMANTIC_IRRADIANCE, varInst);
-	}
-	if (material->HasVariableByName(NEBULA3_SEMANTIC_NUMENVMIPS))
-	{
-		const Ptr<MaterialVariable>& varInst = material->GetVariableByName(NEBULA3_SEMANTIC_NUMENVMIPS);
-		this->globalVariables.Add(NEBULA3_SEMANTIC_NUMENVMIPS, varInst);
-	}
 
-#ifdef STATE_NODE_USE_PER_OBJECT_BUFFER
-	// setup buffer
-	this->perObjectBuffer = ShaderBuffer::Create();
-	this->perObjectBuffer->SetSize(sizeof(PerObject));
-	this->perObjectBuffer->Setup();
+#if SHADER_MODEL_5
+    ShaderServer* shdServer = ShaderServer::Instance();
+    this->shader = shdServer->GetSharedShader();
+    this->objectBuffer = ConstantBuffer::Create();
+    this->objectBuffer->SetupFromBlockInShader(this->shader, "ObjectBlock");
+    this->modelShaderVar = this->objectBuffer->GetVariableByName(NEBULA3_SEMANTIC_MODEL);
+    this->invModelShaderVar = this->objectBuffer->GetVariableByName(NEBULA3_SEMANTIC_INVMODEL);
+    this->modelViewProjShaderVar = this->objectBuffer->GetVariableByName(NEBULA3_SEMANTIC_MODELVIEWPROJECTION);
+    this->modelViewShaderVar = this->objectBuffer->GetVariableByName(NEBULA3_SEMANTIC_MODELVIEW);
+    this->objectIdShaderVar = this->objectBuffer->GetVariableByName(NEBULA3_SEMANTIC_OBJECTID);
+    this->objectBlockShaderVar = this->shader->GetVariableByName("ObjectBlock");
 #endif
 }
 
@@ -116,16 +104,22 @@ StateNodeInstance::Setup( const Ptr<ModelInstance>& inst, const Ptr<ModelNode>& 
 void
 StateNodeInstance::Discard()
 {
-	IndexT i;
-	for (i = 0; i < this->materialVariableInstances.Size(); i++)
-	{
-		this->materialVariableInstances.ValueAtIndex(i)->Discard();
-	}
-    this->materialVariableInstances.Clear();
-	this->globalVariables.Clear();
+	this->sharedConstants.Clear();
 
-#ifdef STATE_NODE_USE_PER_OBJECT_BUFFER
-	this->perObjectBuffer->Discard();
+#if SHADER_MODEL_5
+    this->shader = 0;
+
+    this->surfaceInstance->Discard();
+    this->surfaceInstance = 0;
+    this->objectBuffer->Discard();
+    this->objectBuffer = 0;
+    this->objectBlockShaderVar = 0;
+
+    this->modelShaderVar = 0;
+    this->invModelShaderVar = 0;
+    this->modelViewProjShaderVar = 0;
+    this->modelViewShaderVar = 0;
+    this->objectIdShaderVar = 0;
 #endif
 
     TransformNodeInstance::Discard();
@@ -135,165 +129,115 @@ StateNodeInstance::Discard()
 /**
 */
 void 
-StateNodeInstance::ApplyState()
+StateNodeInstance::ApplyState(IndexT frameIndex, const Frame::BatchGroup::Code& group, const Ptr<CoreGraphics::Shader>& shader)
 {
-	TransformNodeInstance::ApplyState();
+	TransformNodeInstance::ApplyState(frameIndex, group, shader);
 
-	IndexT i;
-	for (i = 0; i < this->materialVariableInstances.Size(); i++)
-	{
-		this->materialVariableInstances.ValueAtIndex(i)->Apply();
-	}	
+    // apply any instance unique variables, layer 3 (apply per-instance surface properties, unavoidable)
+    /*
+    IndexT i;
+    for (i = 0; i < this->surfaceConstantInstanceByName.Size(); i++)
+    {
+        this->surfaceConstantInstanceByName.ValueAtIndex(i)->Apply(shader);
+    }
+    */
 
 	// apply any needed model transform state to shader
 	const Ptr<TransformDevice>& transformDevice = TransformDevice::Instance();
 	const Ptr<ShaderServer>& shaderServer = ShaderServer::Instance();
 
-	// get active shader
-	const Ptr<ShaderInstance>& shader = shaderServer->GetActiveShaderInstance();
-
-	// apply global variables
-	this->ApplyGlobalVariables();
-
-#ifdef STATE_NODE_USE_PER_OBJECT_BUFFER
-	// update buffer
-	this->perObject.model = transformDevice->GetModelTransform();
-	this->perObject.invModel = transformDevice->GetInvModelTransform();
-	this->perObject.modelView = transformDevice->GetModelViewTransform();
-	this->perObject.mvp = transformDevice->GetModelViewProjTransform();
-	this->perObject.objectId = this->GetModelInstance()->GetPickingId();
-	this->perObjectBuffer->UpdateBuffer(&this->perObject, 0, sizeof(PerObject));
-	if (shader->HasVariableByName(NEBULA3_SEMANTIC_PEROBJECT))
-	{
-		shader->GetVariableByName(NEBULA3_SEMANTIC_PEROBJECT)->SetBufferHandle(this->perObjectBuffer->GetHandle());
-	}
+#if SHADER_MODEL_5
+    // avoid shuffling buffers if we are in the same frame
+    if (this->objectBufferUpdateIndex != frameIndex)
+    {
+        // apply transforms
+        this->objectBuffer->CycleBuffers();
+        this->modelShaderVar->SetMatrix(transformDevice->GetModelTransform());
+        this->invModelShaderVar->SetMatrix(transformDevice->GetInvModelTransform());
+        this->modelViewProjShaderVar->SetMatrix(transformDevice->GetModelViewProjTransform());
+        this->modelViewShaderVar->SetMatrix(transformDevice->GetModelViewTransform());
+        this->objectIdShaderVar->SetInt(this->GetModelInstance()->GetPickingId());
+        this->objectBufferUpdateIndex = frameIndex;
+    }
+    this->objectBlockShaderVar->SetBufferHandle(this->objectBuffer->GetHandle());
 #else
-	// apply transform attributes
+	// apply transform attributes, layer 4 (applies transforms, so basically a piece of layer 3, also unavoidable)
 	transformDevice->ApplyModelTransforms(shader);
 #endif
+
+	// apply global variables, layer 1 (this should be moved to a per-frame variable buffer and not set per object)
+	this->ApplySharedVariables();
+
+    // apply this surface material instance if we have a valid batch group
+	if (group != Frame::BatchGroup::InvalidBatchGroup) this->surfaceInstance->Apply(group);
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void 
-StateNodeInstance::ApplyGlobalVariables()
+StateNodeInstance::ApplySharedVariables()
 {
 	const Ptr<ModelInstance>& modelInstance = this->GetModelInstance();
 	const Ptr<ModelEntity>& entity = modelInstance->GetModelEntity();
 	IndexT i;
 
 	bool useLocalReflection = false;
-	for (i = 0; i < this->globalVariables.Size(); i++)
+	for (i = 0; i < this->sharedConstants.Size(); i++)
 	{
-		Ptr<MaterialVariable> var = this->globalVariables.ValueAtIndex(i);
-		Materials::MaterialVariable::Name varName = this->globalVariables.KeyAtIndex(i);
-		if (varName == NEBULA3_SEMANTIC_OBJECTID)
+		const Ptr<Materials::SurfaceConstant>& var = this->sharedConstants.ValueAtIndex(i);
+        const Util::StringAtom& varName = this->sharedConstants.KeyAtIndex(i);
+		if (varName == SharedVariableNames[0])
 		{
-			var->SetInt(modelInstance->GetPickingId());
+			//var->SetValue(modelInstance->GetPickingId());
 		}
-		else if (varName == NEBULA3_SEMANTIC_GLOBALLIGHTDIR)
-		{
-			float4 lightDir = Lighting::LightServer::Instance()->GetGlobalLight()->GetLightDirection();
-			//matrix44 view = TransformDevice::Instance()->GetViewTransform();
-			//lightDir = float4::normalize(matrix44::transform(lightDir, view));
-			var->SetFloat4(lightDir);
-		}
-		else if (varName == NEBULA3_SEMANTIC_GLOBALLIGHTCOLOR)
-		{
-			float4 lightColor = Lighting::LightServer::Instance()->GetGlobalLight()->GetColor();
-			var->SetFloat4(lightColor);
-		}
-        else if (varName == NEBULA3_SEMANTIC_SHADOW)
-        {
-            const matrix44& invView = TransformDevice::Instance()->GetInvViewTransform();
-            matrix44 shadowView = *Lighting::ShadowServer::Instance()->GetShadowView();
-            shadowView = matrix44::multiply(invView, shadowView);
-            var->SetMatrix(shadowView);
-        }
-        else if (varName == NEBULA3_SEMANTIC_SHADOWPROJMAP)
+        else if (varName == SharedVariableNames[1])
         {
             var->SetTexture(Lighting::ShadowServer::Instance()->GetGlobalLightShadowBufferTexture());
         }
-		else if (varName == NEBULA3_SEMANTIC_ENVIRONMENT)
+        else if (varName == SharedVariableNames[2])
 		{			
 			const Ptr<Lighting::EnvironmentProbe>& probe = entity->GetEnvironmentProbe();
 			var->SetTexture(probe->GetReflectionMap()->GetTexture());
+			//this->surfaceInstance->GetConstant(varName)->SetTexture(probe->GetReflectionMap()->GetTexture());
 		}
-		else if (varName == NEBULA3_SEMANTIC_IRRADIANCE)
+        else if (varName == SharedVariableNames[3])
 		{
 			const Ptr<Lighting::EnvironmentProbe>& probe = entity->GetEnvironmentProbe();
-			var->SetTexture(probe->GetIrradianceMap()->GetTexture());			
+			var->SetTexture(probe->GetIrradianceMap()->GetTexture());
+			//this->surfaceInstance->GetConstant(varName)->SetTexture(probe->GetIrradianceMap()->GetTexture());
 		}
-		else if (varName == NEBULA3_SEMANTIC_NUMENVMIPS)
+        else if (varName == SharedVariableNames[4])
 		{
 			const Ptr<Lighting::EnvironmentProbe>& probe = entity->GetEnvironmentProbe();
-			var->SetInt(probe->GetReflectionMap()->GetTexture()->GetNumMipLevels());
+			var->SetValue(probe->GetReflectionMap()->GetTexture()->GetNumMipLevels());
+			//this->surfaceInstance->GetConstant(varName)->SetValue(probe->GetReflectionMap()->GetTexture()->GetNumMipLevels());
 		}
-		var->Apply();
 	}
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-Ptr<Materials::MaterialVariableInstance> 
-StateNodeInstance::CreateMaterialVariableInstance( const Materials::MaterialVariable::Name& name )
-{
-	n_assert(!this->materialVariableInstances.Contains(name));
-
-	// get the shader from my StateNode
-	n_assert(this->modelNode->IsA(StateNode::RTTI));
-	const Ptr<MaterialInstance>& materialInstance = this->modelNode.downcast<StateNode>()->GetMaterialInstance();
-	n_assert(materialInstance.isvalid());
-
-	// create new shader variable instance
-	n_assert(materialInstance->HasVariableByName(name));
-	const Ptr<MaterialVariable>& var = materialInstance->GetVariableByName(name);
-	Ptr<MaterialVariableInstance> varInst = var->CreateInstance();
-	this->materialVariableInstances.Add(name, varInst);
-	return varInst;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-bool 
-StateNodeInstance::HasMaterialVariableInstance( const Materials::MaterialVariable::Name& name ) const
-{
-	return this->materialVariableInstances.Contains(name);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-const Ptr<Materials::MaterialVariableInstance>& 
-StateNodeInstance::GetMaterialVariableInstance( const Materials::MaterialVariable::Name& name ) const
-{
-	n_assert(this->materialVariableInstances.Contains(name));
-	return this->materialVariableInstances[name];
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-bool 
-StateNodeInstance::HasMaterialVariable( const Materials::MaterialVariable::Name& name ) const
-{
-	const Ptr<MaterialInstance>& materialInstance = this->modelNode.downcast<StateNode>()->GetMaterialInstance();
-	return materialInstance->HasVariableByName(name);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
 void
-StateNodeInstance::DiscardMaterialVariableInstance(Ptr<Materials::MaterialVariableInstance>& var)
+StateNodeInstance::SetSurfaceInstance(const Ptr<Materials::SurfaceInstance>& material)
 {
-	StringAtom name = var->GetMaterialVariable()->GetName();
-	n_assert(this->materialVariableInstances.Contains(name));
-	var->Discard();
-	this->materialVariableInstances.Erase(name);
+    n_assert(material.isvalid());
+	this->sharedConstants.Clear();
+    this->surfaceInstance->Discard();
+    this->surfaceInstance = material;
+
+	// setup the constants in the material which is set by the system (so changing the constants is safe)
+	IndexT i;
+	for (i = 0; i < sizeof(SharedVariableNames) / sizeof(Util::StringAtom*); i++)
+	{
+		const Util::StringAtom& name = SharedVariableNames[i];
+		if (this->surfaceInstance->HasConstant(name))
+		{
+			const Ptr<Materials::SurfaceConstant>& var = this->surfaceInstance->GetConstant(name);
+			this->sharedConstants.Add(name, var);
+		}
+	}
 }
 
 } // namespace Models

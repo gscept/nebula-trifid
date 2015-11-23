@@ -55,6 +55,14 @@ public:
 		NumDepthFlags
 	};
 
+    struct RenderShapeVertex
+    {
+        Math::float4 pos;
+        Math::float4 color;
+
+        RenderShapeVertex() : color(Math::float4(1)) {}
+    };
+
     /// default constructor
     RenderShape();
     /// shortcut constructor for simple shapes
@@ -69,8 +77,7 @@ public:
             const Math::matrix44& modelTransform, 
             PrimitiveTopology::Code topology, 
             SizeT numPrimitives, 
-            const void* vertices, 
-            SizeT vertexWidth, 
+            const RenderShape::RenderShapeVertex* vertices,
             const Math::float4& color, 
             RenderFlag depthFlag, 
             const Ptr<VertexLayout>& layout);
@@ -80,9 +87,8 @@ public:
         const Math::matrix44& modelTransform, 
         PrimitiveTopology::Code topology, 
         SizeT numPrimitives, 
-        const void* vertices, 
+        const RenderShape::RenderShapeVertex* vertices,
         SizeT numVertices, 
-        SizeT vertexWidth, 
         const void* indices, 
         IndexType::Code indexType, 
         const Math::float4& color, 

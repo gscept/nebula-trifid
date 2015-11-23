@@ -22,12 +22,14 @@ SOURCE_GROUP("resourcebrowser" FILES ${SRC} ${HEAD})
 LIST(APPEND CODE ${SRC} ${HEAD})
 
 SET(QTMOCFILES 
-	"code/texturebrowser.h"
+	"code/assetbrowser.h"
 	"code/tiledgraphicsview.h"
 	"code/tiledgraphicsitem.h"
 	"code/tiledtextureitem.h"
+    "code/tiledsurfaceitem.h"
+    "code/tiledmodelitem.h"
 	"code/tileddirectoryitem.h"
-	"code/textureloaderthread.h")
+	"code/imageloaderthread.h")
 PCH_QT4_WRAP_CPP(resourcebrowser_HEADERS_MOC ${QTMOCFILES})
 QT4_WRAP_UI(resourcebrowser_FORMS_HEADERS ${FORMS})
 

@@ -147,6 +147,7 @@ SM30ShadowServer::UpdateSpotLightShadowBuffers()
     VisResolver* visResolver = VisResolver::Instance();
     TransformDevice* transDev = TransformDevice::Instance();
 	FrameSyncTimer* timer = FrameSyncTimer::Instance();
+    IndexT frameIndex = timer->GetFrameIndex();
 
     // store original view and projection transform
     matrix44 origView = transDev->GetViewTransform();
@@ -175,7 +176,7 @@ SM30ShadowServer::UpdateSpotLightShadowBuffers()
             const Ptr<GraphicsEntity>& curEntity = visLinks[linkIndex];
             n_assert(GraphicsEntityType::Model == curEntity->GetType());
             const Ptr<ModelEntity>& modelEntity = curEntity.downcast<ModelEntity>();
-            visResolver->AttachVisibleModelInstance(timer->GetFrameIndex(), modelEntity->GetModelInstance(), false);
+            visResolver->AttachVisibleModelInstance(frameIndex, modelEntity->GetModelInstance(), false);
         }
         visResolver->EndResolve();
 
@@ -190,7 +191,7 @@ SM30ShadowServer::UpdateSpotLightShadowBuffers()
         this->finalPostEffect->SetRenderTarget(this->localLightShadowBuffer);
 
         // render the resolved model node instances into the main shadow buffer
-        this->frameShader->Render();
+        this->frameShader->Render(frameIndex);
 
         // patch shadow buffer and shadow buffer uv offset into the light source  
         // uvOffset.xy is offset
@@ -225,6 +226,7 @@ SM30ShadowServer::UpdatePSSMShadowBuffers()
     VisResolver* visResolver = VisResolver::Instance();
     TransformDevice* transDev = TransformDevice::Instance();
 	FrameSyncTimer* timer = FrameSyncTimer::Instance();
+    IndexT frameIndex = timer->GetFrameIndex();
 
     // store original view and projection transform
     matrix44 origView = transDev->GetViewTransform();
@@ -263,7 +265,7 @@ SM30ShadowServer::UpdatePSSMShadowBuffers()
             if (curEntity->GetGlobalBoundingBox().clipstatus(splitLightProjMatrix) != ClipStatus::Outside)
             {
                 const Ptr<ModelEntity>& modelEntity = curEntity.downcast<ModelEntity>();
-				visResolver->AttachVisibleModelInstance(timer->GetFrameIndex(), modelEntity->GetModelInstance(), false);
+                visResolver->AttachVisibleModelInstance(frameIndex, modelEntity->GetModelInstance(), false);
             }
         }
         visResolver->EndResolve();
@@ -279,7 +281,7 @@ SM30ShadowServer::UpdatePSSMShadowBuffers()
         this->finalPostEffect->SetRenderTarget(this->pssmShadowBuffer);
 
         // render the resolved model node instances into the main shadow buffer
-        this->frameShader->Render();
+        this->frameShader->Render(frameIndex);
     }
 
     // generate mip levels for PSSM shadow buffer

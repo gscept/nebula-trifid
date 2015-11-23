@@ -16,6 +16,7 @@
 #include "coregraphics/shaderfeature.h"
 #include "coregraphics/shadervariable.h"
 #include "coregraphics/shaderinstance.h"
+#include "coregraphics/shaderidentifier.h"
 
 namespace CoreGraphics
 {
@@ -51,9 +52,9 @@ public:
 	/// get shader by name
 	const Ptr<CoreGraphics::Shader>& GetShader(Resources::ResourceId resId) const;
     /// set currently active shader instance
-    void SetActiveShaderInstance(const Ptr<CoreGraphics::ShaderInstance>& shaderInst);
+    void SetActiveShader(const Ptr<CoreGraphics::Shader>& shader);
     /// get currently active shader instance
-    const Ptr<CoreGraphics::ShaderInstance>& GetActiveShaderInstance() const;
+    const Ptr<CoreGraphics::Shader>& GetActiveShader() const;
 
     /// reset the current feature bits
     void ResetFeatureBits();
@@ -71,24 +72,24 @@ public:
     /// apply an object id
     void ApplyObjectId(IndexT i);
 
-    /// return true if a shared variable exists by semantic
-    bool HasSharedVariableBySemantic(const CoreGraphics::ShaderVariable::Semantic& sem) const;
     /// get number of shared variables
     SizeT GetNumSharedVariables() const;
     /// get a shared variable by index
     const Ptr<CoreGraphics::ShaderVariable>& GetSharedVariableByIndex(IndexT i) const;
-    /// get a shared variable by semantic
-    const Ptr<CoreGraphics::ShaderVariable>& GetSharedVariableBySemantic(const CoreGraphics::ShaderVariable::Semantic& sem) const;
-	/// get a variable by semantic from the current vertex shader
-	const Ptr<CoreGraphics::ShaderVariable>& GetDefaultShaderVariableBySemantic(const CoreGraphics::ShaderVariable::Semantic& sem) const;
+    /// get the shared shader
+    const Ptr<CoreGraphics::Shader>& GetSharedShader();
 
 protected:
+    friend class CoreGraphics::ShaderIdentifier;
+    friend class ShaderBase;
+
+    CoreGraphics::ShaderIdentifier shaderIdentifierRegistry;
     CoreGraphics::ShaderFeature shaderFeature;
     CoreGraphics::ShaderFeature::Mask curShaderFeatureBits;
-    Util::Dictionary<Resources::ResourceId,Ptr<CoreGraphics::Shader> > shaders;
-    Ptr<CoreGraphics::ShaderInstance> sharedVariableShaderInst;    
-    Ptr<CoreGraphics::ShaderInstance> activeShaderInstance;
+    Util::Dictionary<Resources::ResourceId,Ptr<CoreGraphics::Shader>> shaders;
+    Ptr<CoreGraphics::Shader> sharedVariableShader;    
     Ptr<CoreGraphics::ShaderVariable> objectIdShaderVar;
+    Ptr<CoreGraphics::Shader> activeShader;
     bool isOpen;
 };
 
@@ -186,34 +187,18 @@ ShaderServerBase::GetFeatureBits() const
 /**
 */
 inline void
-ShaderServerBase::SetActiveShaderInstance(const Ptr<CoreGraphics::ShaderInstance>& shaderInst)
+ShaderServerBase::SetActiveShader(const Ptr<CoreGraphics::Shader>& shader)
 {
-    this->activeShaderInstance = shaderInst;
+    this->activeShader = shader;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-inline const Ptr<CoreGraphics::ShaderInstance>&
-ShaderServerBase::GetActiveShaderInstance() const
+inline const Ptr<CoreGraphics::Shader>&
+ShaderServerBase::GetActiveShader() const
 {
-    return this->activeShaderInstance;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline bool
-ShaderServerBase::HasSharedVariableBySemantic(const CoreGraphics::ShaderVariable::Semantic& sem) const
-{
-    if (this->sharedVariableShaderInst.isvalid())
-    {        
-        return this->sharedVariableShaderInst->HasVariableBySemantic(sem);
-    }
-    else
-    {
-        return false;
-    }
+    return this->activeShader;
 }
 
 //------------------------------------------------------------------------------
@@ -222,9 +207,9 @@ ShaderServerBase::HasSharedVariableBySemantic(const CoreGraphics::ShaderVariable
 inline SizeT
 ShaderServerBase::GetNumSharedVariables() const
 {
-    if (this->sharedVariableShaderInst.isvalid())
+    if (this->sharedVariableShader.isvalid())
     {        
-        return this->sharedVariableShaderInst->GetNumVariables();
+        return this->sharedVariableShader->GetNumVariables();
     }
     else
     {
@@ -238,28 +223,17 @@ ShaderServerBase::GetNumSharedVariables() const
 inline const Ptr<CoreGraphics::ShaderVariable>&
 ShaderServerBase::GetSharedVariableByIndex(IndexT i) const
 {
-    n_assert(this->sharedVariableShaderInst.isvalid());
-    return this->sharedVariableShaderInst->GetVariableByIndex(i);
+    n_assert(this->sharedVariableShader.isvalid());
+    return this->sharedVariableShader->GetVariableByIndex(i);
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-inline const Ptr<CoreGraphics::ShaderVariable>&
-ShaderServerBase::GetSharedVariableBySemantic(const CoreGraphics::ShaderVariable::Semantic& sem) const
+inline const Ptr<CoreGraphics::Shader>&
+ShaderServerBase::GetSharedShader()
 {
-    n_assert(this->sharedVariableShaderInst.isvalid());
-    return this->sharedVariableShaderInst->GetVariableBySemantic(sem);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline const Ptr<CoreGraphics::ShaderVariable>& 
-ShaderServerBase::GetDefaultShaderVariableBySemantic( const CoreGraphics::ShaderVariable::Semantic& sem ) const
-{
-	n_assert(this->activeShaderInstance.isvalid());
-	return this->activeShaderInstance->GetVariableBySemantic(sem);
+    return this->sharedVariableShader;
 }
 
 } // namespace Base

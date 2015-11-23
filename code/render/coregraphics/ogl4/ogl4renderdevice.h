@@ -59,15 +59,15 @@ public:
     /// perform computation
     void Compute(int dimX, int dimY, int dimZ);
     /// begins pass with single rendertarget
-    void BeginPass(const Ptr<CoreGraphics::RenderTarget>& rt, const Ptr<CoreGraphics::ShaderInstance>& passShader);
+    void BeginPass(const Ptr<CoreGraphics::RenderTarget>& rt, const Ptr<CoreGraphics::Shader>& passShader);
     /// begins pass with multiple rendertarget
-    void BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt, const Ptr<CoreGraphics::ShaderInstance>& passShader);
+    void BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt, const Ptr<CoreGraphics::Shader>& passShader);
     /// begins pass with rendertarget cube
-    void BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& rtc, const Ptr<CoreGraphics::ShaderInstance>& passShader);
+    void BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& rtc, const Ptr<CoreGraphics::Shader>& passShader);
 	/// begin rendering a transform feedback with a vertex buffer as target
-	void BeginFeedback(const Ptr<CoreGraphics::FeedbackBuffer>& fb, CoreGraphics::PrimitiveTopology::Code primType, const Ptr<CoreGraphics::ShaderInstance>& shader);
+    void BeginFeedback(const Ptr<CoreGraphics::FeedbackBuffer>& fb, CoreGraphics::PrimitiveTopology::Code primType, const Ptr<CoreGraphics::Shader>& shader);
 	/// begin batch
-	void BeginBatch(CoreGraphics::BatchType::Code batchType);
+	void BeginBatch(CoreGraphics::FrameBatchType::Code batchType);
 	/// draw current primitives
 	void Draw();
 	/// draw indexed, instanced primitives (see method header for details)

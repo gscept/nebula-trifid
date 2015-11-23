@@ -46,16 +46,32 @@ ENDIF()
 		materials/materialpalette.h
 		materials/materialserver.cc
 		materials/materialserver.h
-		materials/material.h
 		materials/material.cc
-		materials/materialfeature.h
+		materials/material.h		
 		materials/materialfeature.cc
-		materials/materialinstance.h
-		materials/materialinstance.cc
-		materials/materialvariable.h
+		materials/materialfeature.h		
+		materials/materialtype.cc
+		materials/materialtype.h
 		materials/materialvariable.cc
-		materials/materialvariableinstance.h
+		materials/materialvariable.h
 		materials/materialvariableinstance.cc
+		materials/materialvariableinstance.h
+		materials/managedsurface.cc
+		materials/managedsurface.h
+		materials/streamsurfaceloader.cc
+		materials/streamsurfaceloader.h
+		materials/streamsurfacesaver.cc
+		materials/streamsurfacesaver.h
+		materials/surface.cc
+		materials/surface.h
+		materials/surfaceinstance.cc
+		materials/surfaceinstance.h
+		materials/surfaceconstant.cc
+		materials/surfaceconstant.h
+		#materials/surfaceconstantinstance.cc
+		#materials/surfaceconstantinstance.h
+		materials/surfacename.cc
+		materials/surfacename.h
 		)
 	source_group("materials" FILES ${Render_files_materials})
 	set(Render_materials ${Render_files_materials})
@@ -183,6 +199,8 @@ ENDIF()
       set(Render_files_coregraphics__base
 		coregraphics/base/bufferlockbase.cc
 		coregraphics/base/bufferlockbase.h
+		coregraphics/base/constantbufferbase.cc
+		coregraphics/base/constantbufferbase.h
         coregraphics/base/displaydevicebase.cc
         coregraphics/base/displaydevicebase.h
 		coregraphics/base/depthstenciltargetbase.cc
@@ -211,8 +229,8 @@ ENDIF()
         coregraphics/base/resourcebase.h
         coregraphics/base/shaderbase.cc
       	coregraphics/base/shaderbase.h
-		coregraphics/base/shaderbufferbase.cc
-		coregraphics/base/shaderbufferbase.h
+		coregraphics/base/shaderreadwritebufferbase.cc
+		coregraphics/base/shaderreadwritebufferbase.h
         coregraphics/base/shaderinstancebase.cc
         coregraphics/base/shaderinstancebase.h
         coregraphics/base/shaderserverbase.cc
@@ -393,16 +411,18 @@ ENDIF()
         coregraphics/ogl4/ogl4rendertarget.h
         coregraphics/ogl4/ogl4shader.cc
         coregraphics/ogl4/ogl4shader.h
-		coregraphics/ogl4/ogl4shaderbuffer.cc
-		coregraphics/ogl4/ogl4shaderbuffer.h
+		coregraphics/ogl4/ogl4shaderstoragebuffer.cc
+		coregraphics/ogl4/ogl4shaderstoragebuffer.h
         coregraphics/ogl4/ogl4shaderinstance.cc
         coregraphics/ogl4/ogl4shaderinstance.h
         coregraphics/ogl4/ogl4shaderserver.cc
         coregraphics/ogl4/ogl4shaderserver.h
         coregraphics/ogl4/ogl4shadervariable.cc
         coregraphics/ogl4/ogl4shadervariable.h
-        coregraphics/ogl4/ogl4shadervariation.cc
-        coregraphics/ogl4/ogl4shadervariation.h
+		coregraphics/ogl4/ogl4shadervariableinstance.cc
+        coregraphics/ogl4/ogl4shadervariableinstance.h
+        coregraphics/ogl4/ogl4shaderprogram.cc
+        coregraphics/ogl4/ogl4shaderprogram.h
         coregraphics/ogl4/ogl4shaperenderer.cc
         coregraphics/ogl4/ogl4shaperenderer.h
         coregraphics/ogl4/ogl4streammeshloader.cc
@@ -421,6 +441,8 @@ ENDIF()
         coregraphics/ogl4/ogl4transformdevice.h
         coregraphics/ogl4/ogl4types.cc
         coregraphics/ogl4/ogl4types.h
+		coregraphics/ogl4/ogl4uniformbuffer.h
+		coregraphics/ogl4/ogl4uniformbuffer.cc
         coregraphics/ogl4/ogl4vertexbuffer.cc
         coregraphics/ogl4/ogl4vertexbuffer.h
         coregraphics/ogl4/ogl4vertexlayoutserver.cc
@@ -486,10 +508,12 @@ ENDIF()
       coregraphics/adapterinfo.h
       coregraphics/antialiasquality.cc
       coregraphics/antialiasquality.h
-      coregraphics/batchtype.h
+      coregraphics/framebatchtype.h
 	  coregraphics/bufferlock.cc
 	  coregraphics/bufferlock.h
       coregraphics/config.h
+	  coregraphics/constantbuffer.cc
+	  coregraphics/constantbuffer.h
       coregraphics/displaydevice.cc
       coregraphics/displaydevice.h
       coregraphics/displayevent.h
@@ -538,10 +562,12 @@ ENDIF()
       coregraphics/rendertarget.h
       coregraphics/shader.cc
       coregraphics/shader.h
-	  coregraphics/shaderbuffer.cc
-	  coregraphics/shaderbuffer.h
+	  coregraphics/shaderreadwritebuffer.cc
+	  coregraphics/shaderreadwritebuffer.h
       coregraphics/shaderfeature.cc
       coregraphics/shaderfeature.h
+	  coregraphics/shaderidentifier.cc
+	  coregraphics/shaderidentifier.h
       coregraphics/shaderinstance.cc
       coregraphics/shaderinstance.h
       coregraphics/shadersemantics.h
@@ -602,6 +628,8 @@ ENDIF()
 		algorithm/algorithmhandler.cc
 		algorithm/aoalgorithm.h
 		algorithm/aoalgorithm.cc
+		algorithm/ssralgorithm.h
+		algorithm/ssralgorithm.cc
 		algorithm/volumetriclightalgorithm.h
 		algorithm/volumetriclightalgorithm.cc
 		algorithm/tonemappingalgorithm.h
@@ -657,6 +685,8 @@ ENDIF()
     set(Render_files_frame
 	  frame/copy.cc
 	  frame/copy.h
+	  frame/batchgroup.cc
+	  frame/batchgroup.h
 	  frame/framealgorithm.cc
 	  frame/framealgorithm.h
 	  frame/framecompute.cc
@@ -1022,10 +1052,6 @@ ENDIF()
       models/modelnode.h
       models/modelnodeinstance.cc
       models/modelnodeinstance.h
-      models/modelnodematerial.cc
-      models/modelnodematerial.h
-      models/modelnodetype.cc
-      models/modelnodetype.h
       models/modelserver.cc
       models/modelserver.h
       models/streammodelloader.cc
@@ -1414,8 +1440,8 @@ ENDIF()
 	)
 
     set(SOURCES_files_physics_resource
-		physics/resource/physicsstreammeshloader.h
-		physics/resource/physicsstreammeshloader.cc
+		physics/resource/streamphysicsmeshloader.h
+		physics/resource/streamphysicsmeshloader.cc
 		physics/resource/physicsmesh.h
 		physics/resource/physicsmesh.cc
 		physics/resource/physicsmeshbase.h
@@ -1426,8 +1452,8 @@ ENDIF()
 		physics/resource/managedphysicsmodel.cc
 		physics/model/physicsmodel.h
 		physics/model/physicsmodel.cc
-		physics/resource/physicsstreammodelloader.h
-		physics/resource/physicsstreammodelloader.cc
+		physics/resource/streamphysicsmodelloader.h
+		physics/resource/streamphysicsmodelloader.cc
 	)
 
     set(SOURCES_files_physics_base

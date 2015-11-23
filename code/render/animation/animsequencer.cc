@@ -684,18 +684,19 @@ AnimSequencer::EmitAnimEvents(Timing::Tick startTime, Timing::Tick endTime, bool
 
     for (; i < jobCount; i++)
     {
-        if (this->animJobs[i]->IsActive(startTime))
+		const Ptr<AnimJob>& job = this->animJobs[i];
+		if (job->IsActive(startTime) && !job->IsPaused())
         {
 			Timing::Tick effectiveEndTime;
-			if(this->animJobs[i]->IsInfinite())
+			if (job->IsInfinite())
 			{
 				effectiveEndTime = endTime;
 			}
 			else
 			{
-				effectiveEndTime = n_min(endTime, this->animJobs[i]->GetAbsoluteEndTime());
+				effectiveEndTime = n_min(endTime, job->GetAbsoluteEndTime());
 			}			
-            eventInfos.AppendArray(this->animJobs[i]->EmitAnimEvents(startTime, effectiveEndTime, optionalCatgeory));
+			eventInfos.AppendArray(job->EmitAnimEvents(startTime, effectiveEndTime, optionalCatgeory));
         }
     }
     return eventInfos;
@@ -769,7 +770,7 @@ AnimSequencer::DebugRenderHud(Timing::Tick time)
     if (!this->animJobs.IsEmpty())
     {
         // render the track grid
-        Array<point> vertices;
+        Array<CoreGraphics::RenderShape::RenderShapeVertex> vertices;
         vertices.Reserve(this->animJobs.Size() * 8);
         this->DebugGenTrackLines(12, vertices);
         this->DebugRenderLineList(vertices, float4(1.0f, 0.0f, 0.0f, 0.25f));
@@ -797,13 +798,13 @@ AnimSequencer::DebugRenderHud(Timing::Tick time)
     Generate the track lines for debug visualization.
 */
 void
-AnimSequencer::DebugGenTrackLines(SizeT maxTracks, Array<point>& outVertices)
+AnimSequencer::DebugGenTrackLines(SizeT maxTracks, Array<CoreGraphics::RenderShape::RenderShapeVertex>& outVertices)
 {
     IndexT i;
     for (i = 0; i < maxTracks; i++)
     {
-        point left = this->DebugViewSpaceCoord(0, -100000, i);
-        point right = this->DebugViewSpaceCoord(0, 100000, i);
+        CoreGraphics::RenderShape::RenderShapeVertex left = this->DebugViewSpaceCoord(0, -100000, i);
+        CoreGraphics::RenderShape::RenderShapeVertex right = this->DebugViewSpaceCoord(0, 100000, i);
         outVertices.Append(left);
         outVertices.Append(right);
     }
@@ -815,15 +816,15 @@ AnimSequencer::DebugGenTrackLines(SizeT maxTracks, Array<point>& outVertices)
     to the provided vertex array.
 */
 void
-AnimSequencer::DebugGenAnimJobRectangle(Timing::Tick timeOrigin, const Ptr<AnimJob>& animJob, Array<point>& outVertices)
+AnimSequencer::DebugGenAnimJobRectangle(Timing::Tick timeOrigin, const Ptr<AnimJob>& animJob, Array<CoreGraphics::RenderShape::RenderShapeVertex>& outVertices)
 {
     Timing::Tick startTime = animJob->GetAbsoluteStartTime();
     Timing::Tick endTime = animJob->IsInfinite() ? (timeOrigin + 1000000) : (animJob->GetAbsoluteEndTime());
     IndexT trackIndex = animJob->GetTrackIndex();
-    point topLeft     = this->DebugViewSpaceCoord(timeOrigin, startTime, trackIndex);
-    point topRight    = this->DebugViewSpaceCoord(timeOrigin, endTime, trackIndex);
-    point bottomRight = this->DebugViewSpaceCoord(timeOrigin, endTime, trackIndex + 1);
-    point bottomLeft  = this->DebugViewSpaceCoord(timeOrigin, startTime, trackIndex + 1);
+    CoreGraphics::RenderShape::RenderShapeVertex topLeft = this->DebugViewSpaceCoord(timeOrigin, startTime, trackIndex);
+    CoreGraphics::RenderShape::RenderShapeVertex topRight = this->DebugViewSpaceCoord(timeOrigin, endTime, trackIndex);
+    CoreGraphics::RenderShape::RenderShapeVertex bottomRight = this->DebugViewSpaceCoord(timeOrigin, endTime, trackIndex + 1);
+    CoreGraphics::RenderShape::RenderShapeVertex bottomLeft = this->DebugViewSpaceCoord(timeOrigin, startTime, trackIndex + 1);
     outVertices.Append(topLeft); outVertices.Append(topRight);
     outVertices.Append(topRight); outVertices.Append(bottomRight);
     outVertices.Append(bottomRight); outVertices.Append(bottomLeft);
@@ -844,9 +845,9 @@ AnimSequencer::DebugRenderAnimJobText(Timing::Tick timeOrigin, const Ptr<AnimJob
     text.Format("  %d: %s w=%.1f f=%.1f", animJob->GetTrackIndex(), animJob->GetName().Value(), animJob->GetBlendWeight(), animJob->GetTimeFactor());
 
     // argh... compute a 2d screen space coordinate (0..1)
-    point viewSpaceCoord = this->DebugViewSpaceCoord(timeOrigin, animJob->GetAbsoluteStartTime(), animJob->GetTrackIndex());
+    CoreGraphics::RenderShape::RenderShapeVertex viewSpaceCoord = this->DebugViewSpaceCoord(timeOrigin, animJob->GetAbsoluteStartTime(), animJob->GetTrackIndex());
     const matrix44& proj = TransformDevice::Instance()->GetProjTransform();
-    Math::float4 screenPos = matrix44::transform(viewSpaceCoord, proj);
+    Math::float4 screenPos = matrix44::transform(viewSpaceCoord.pos, proj);
     screenPos.x() /= screenPos.w();
     screenPos.y() /= screenPos.w();
     screenPos.x() = (screenPos.x() + 1.0f) * 0.5f;
@@ -862,7 +863,7 @@ AnimSequencer::DebugRenderAnimJobText(Timing::Tick timeOrigin, const Ptr<AnimJob
     coordinates. Range is from -1.0 to +1.0 for x and y, and a negative value
     for z.
 */
-point
+CoreGraphics::RenderShape::RenderShapeVertex
 AnimSequencer::DebugViewSpaceCoord(Timing::Tick timeOrigin, Timing::Tick time, IndexT trackIndex)
 {
     Timing::Tick relTime = (time - timeOrigin) + 1000;  // show 1 second of the past
@@ -870,7 +871,9 @@ AnimSequencer::DebugViewSpaceCoord(Timing::Tick timeOrigin, Timing::Tick time, I
     float tickWidth  = 0.0003f;
     float x = (n_clamp(relTime * tickWidth, 0.0f, 1.0f) * 2.0f) - 1.0f;
     float y = -((n_clamp(trackIndex * trackHeight, 0.0f, 1.0f) * 2.0f) - 1.0f);
-    return point(x * 0.5f, y * 0.25f, -0.5f);
+    CoreGraphics::RenderShape::RenderShapeVertex vert;
+    vert.pos = point(x * 0.5f, y * 0.25f, -0.5f);
+    return vert;
 }
 
 //------------------------------------------------------------------------------
@@ -879,7 +882,7 @@ AnimSequencer::DebugViewSpaceCoord(Timing::Tick timeOrigin, Timing::Tick time, I
     FIXME: the DebugShapeRenderer should allow for a method like this!
 */
 void
-AnimSequencer::DebugRenderLineList(const Array<point>& vertices, const float4& color)
+AnimSequencer::DebugRenderLineList(const Array<RenderShape::RenderShapeVertex>& vertices, const float4& color)
 {
     matrix44 invView = TransformDevice::Instance()->GetInvViewTransform();
     RenderShape shape;
@@ -888,7 +891,6 @@ AnimSequencer::DebugRenderLineList(const Array<point>& vertices, const float4& c
                           PrimitiveTopology::LineList,
                           vertices.Size() / 2,
                           &(vertices[0]),
-                          4,
                           color, 
 						  CoreGraphics::RenderShape::CheckDepth,
                           NULL);

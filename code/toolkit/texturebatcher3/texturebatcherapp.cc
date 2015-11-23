@@ -131,7 +131,7 @@ TextureBatcherApp::SetupProjectInfo()
     if (DistributedToolkitApp::SetupProjectInfo())
     {
         this->textureConverter.SetPlatform(this->platform);
-        if(this->projectInfo.HasAttr("TextureTool"))
+        if (this->projectInfo.HasAttr("TextureTool"))
         {
             this->textureConverter.SetToolPath(this->projectInfo.GetPathAttr("TextureTool"));
         }

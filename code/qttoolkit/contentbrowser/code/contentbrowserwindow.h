@@ -17,6 +17,7 @@
 #include "widgets/meshes/meshhandler.h"
 #include "widgets/models/modelhandler.h"
 #include "widgets/textures/texturehandler.h"
+#include "widgets/materials/materialhandler.h"
 #include "widgets/baseitem.h"
 #include "widgets/models/modelitem.h"
 #include "widgets/animations/animationitem.h"
@@ -31,7 +32,8 @@
 #include "posteffectcontroller.h"
 #include "util/array.h"
 #include "nody/shady/code/shadywindow.h"
-#include "../../resourcebrowser/code/texturebrowser.h"
+#include "resourcebrowser/code/assetbrowser.h"
+#include "code/tiledgraphicsview.h"
 
 namespace ContentBrowser
 {
@@ -130,12 +132,23 @@ private slots:
 	/// called whenever a model has been saved with a new name
 	void ModelSavedWithNewName(const Util::String& res);
 
+    /// called whenever we click on a texture in the asset browser
+    void OnTextureSelected(const QString& tex);
+    /// called whenever we click on a model in the asset browser
+    void OnModelSelected(const QString& mdl);
+    /// called whenever we click on a surface in the asset browser
+    void OnSurfaceSelected(const QString& sur);
+	/// called when a right click occurs in the asset browser
+	void OnAssetBrowserRightClick(QContextMenuEvent* event);
+	/// called when a right click occurs over an item in the asset browser
+	void OnAssetBrowserItemRightClick(ResourceBrowser::TiledGraphicsItem* item, QGraphicsSceneContextMenuEvent* event);
+
 	/// handles item activated (double-click)
-	void ItemActivated( QTreeWidgetItem* item );
+    void ItemActivated(QTreeWidgetItem* item);
 	/// handles item clicked
-	void ItemClicked( QTreeWidgetItem* item );
+    void ItemClicked(QTreeWidgetItem* item);
 	/// handles item right click
-	void TreeRightClicked( const QPoint& point );
+    void TreeRightClicked(const QPoint& point);
 	/// called whenever an item gets changed
 	void ItemChanged();
 
@@ -208,6 +221,7 @@ private:
 	Ptr<Widgets::MeshHandler> meshHandler;
 	Ptr<Widgets::ModelHandler> modelHandler;
 	Ptr<Widgets::TextureHandler> textureHandler;
+    Ptr<Widgets::MaterialHandler> materialHandler;
 	Util::Array<Widgets::BaseItem*> items;
 	Widgets::ModelItem* modelItem;
 	Widgets::AnimationItem* animItem;
@@ -231,7 +245,7 @@ private:
 	TextureImporter::TextureImporterWindow* textureImporterWindow;
 	Lighting::EnvironmentProbeWindow* environmentProbeWindow;
     Ptr<Shady::ShadyWindow> shadyWindow;
-	Ptr<ResourceBrowser::TextureBrowser> textureBrowserWindow;
+	Ptr<ResourceBrowser::AssetBrowser> assetBrowserWindow;
 	Ptr<ContentBrowser::ProgressReporter> progressReporter;
 	QtPostEffectAddon::PostEffectController* postEffectController;
     
@@ -240,6 +254,7 @@ private:
 	Ui::ParticleEffectWizard particleWizardUi;
 	Ui::AudioInfoWidget audioInfoUi;
 	Ui::UIInfoWidget uiInfoUi;
+    Ui::MaterialInfoWidget materialInfoUi;
     LibraryTreeWidget* libraryTree;
 
 	QDockWidget* modelInfoWindow;
@@ -248,7 +263,7 @@ private:
 	QDockWidget* audioInfoWindow;
 	QDockWidget* uiInfoWindow;
 	QDockWidget* animationInfoWindow;
-
+    QDockWidget* materialInfoWindow;
 
 	QDialog particleEffectWizard;
 }; 

@@ -86,8 +86,8 @@ MaterialDatabase::Close()
 //------------------------------------------------------------------------------
 /**
 */
-Ptr<Materials::Material> 
-MaterialDatabase::GetMaterial( const Util::String& name )
+Ptr<Materials::Material>
+MaterialDatabase::GetMaterial(const Util::String& name)
 {
 	if (!this->materials.Contains(name)) return this->materials["Placeholder"];
 	else								 return this->materials[name];
@@ -105,8 +105,8 @@ MaterialDatabase::GetMaterialList() const
 //------------------------------------------------------------------------------
 /**
 */
-const Util::Array<Ptr<Materials::Material> > 
-MaterialDatabase::GetMaterialsByType( const Util::String& type )
+const Util::Array<Ptr<Materials::Material> >
+MaterialDatabase::GetMaterialsByType(const Util::String& type)
 {
 	n_assert(this->materialsByType.Contains(type));
 	return this->materialsByType[type];

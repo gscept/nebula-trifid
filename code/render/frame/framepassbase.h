@@ -11,7 +11,7 @@
 */
 #include "core/refcounted.h"
 #include "resources/resourceid.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shader.h"
 #include "coregraphics/rendertarget.h"
 #include "coregraphics/rendertargetcube.h"
 #include "coregraphics/multiplerendertarget.h"
@@ -37,14 +37,14 @@ public:
 	/// begin pass
 	virtual void Begin();
     /// render the pass
-    virtual void Render();
+    virtual void Render(IndexT frameIndex);
 	/// end pass
 	virtual void End();
 
 	/// sets shader instance
-	void SetShader(const Ptr<CoreGraphics::ShaderInstance>& shd);
+	void SetShader(const Ptr<CoreGraphics::Shader>& shd);
 	/// gets the shader instance
-	const Ptr<CoreGraphics::ShaderInstance>& GetShader() const;
+    const Ptr<CoreGraphics::Shader>& GetShader() const;
 	/// returns true if frame pass base has shader
 	bool HasShader() const;
     /// set the name of the frame pass
@@ -104,12 +104,12 @@ public:
 
 protected:
     Resources::ResourceId name;
-	Ptr<CoreGraphics::ShaderInstance> shader;
+    Ptr<CoreGraphics::Shader> shader;
     Ptr<CoreGraphics::RenderTarget> renderTarget;
     Ptr<CoreGraphics::MultipleRenderTarget> multipleRenderTarget;
     Ptr<CoreGraphics::RenderTargetCube> renderTargetCube;
-    Util::Array<Ptr<CoreGraphics::ShaderVariableInstance> > shaderVariables;
-	Util::Dictionary<Util::StringAtom, Ptr<CoreGraphics::ShaderVariableInstance> > shaderVariablesByName;
+    Util::Array<Ptr<CoreGraphics::ShaderVariableInstance>> shaderVariables;
+	Util::Dictionary<Util::StringAtom, Ptr<CoreGraphics::ShaderVariableInstance>> shaderVariablesByName;
     Util::Array<Ptr<FrameBatch> > batches;
     uint clearFlags;
     Math::float4 clearColor;
@@ -139,7 +139,7 @@ FramePassBase::GetName() const
 /**
 */
 inline void
-FramePassBase::SetShader(const Ptr<CoreGraphics::ShaderInstance>& shd)
+FramePassBase::SetShader(const Ptr<CoreGraphics::Shader>& shd)
 {
 	n_assert(shd.isvalid());
     this->shader = shd;
@@ -157,7 +157,7 @@ FramePassBase::HasShader() const
 //------------------------------------------------------------------------------
 /**
 */
-inline const Ptr<CoreGraphics::ShaderInstance>&
+inline const Ptr<CoreGraphics::Shader>&
 FramePassBase::GetShader() const
 {
 	n_assert(this->shader.isvalid());

@@ -38,20 +38,21 @@ ImguiDrawFunction(ImDrawList** const commandLists, int numCommandLists)
 
 	// get renderer
 	const Ptr<ImguiRenderer>& renderer = ImguiRenderer::Instance();
-	const Ptr<ShaderInstance>& shader = renderer->GetShader();
+	const Ptr<Shader>& shader = renderer->GetShader();
 	const Ptr<BufferLock>& bufferLock = renderer->GetBufferLock();
 	const Ptr<VertexBuffer>& vbo = renderer->GetVertexBuffer();
 	const ImguiRendererParams& params = renderer->GetParams();
 
 	// apply shader
-	shader->Begin();
-	shader->BeginPass(0);
+    shader->Apply();
 
 	// create orthogonal matrix
 	matrix44 proj = matrix44::orthooffcenterrh(0.0f, io.DisplaySize.x, io.DisplaySize.y, 0.0f, -1.0f, +1.0f);
 
 	// set in shader
+    shader->BeginUpdate();
 	params.projVar->SetMatrix(proj);
+    shader->EndUpdate();
 
 	// commit variable changes
 	shader->Commit();
@@ -74,7 +75,7 @@ ImguiDrawFunction(ImDrawList** const commandLists, int numCommandLists)
 		for (ImVector<ImDrawCmd>::const_iterator command = commandList->commands.begin(); command != commandList->commands.end(); command++)
 		{
 			// if we render too many vertices, we will simply assert
-			n_assert(vertexOffset + (IndexT)command->vtx_count < vbo->GetNumVertices() * vbo->GetBufferCount());
+			n_assert(vertexOffset + (IndexT)command->vtx_count < vbo->GetNumVertices() * 3);
 
 			// setup scissor rect
 			Math::rectangle<int> scissorRect((int)command->clip_rect.x, (int)command->clip_rect.y, (int)command->clip_rect.z, (int)command->clip_rect.w);
@@ -90,9 +91,6 @@ ImguiDrawFunction(ImDrawList** const commandLists, int numCommandLists)
 			device->SetPrimitiveGroup(primitive);
 			device->Draw();
 
-			// run shader post-draw
-			shader->PostDraw();
-
 			// increment vertex offset
 			vertexOffset += command->vtx_count;
 		}
@@ -100,10 +98,6 @@ ImguiDrawFunction(ImDrawList** const commandLists, int numCommandLists)
 		bufferLock->LockRange(bufferOffset, size);
 		bufferOffset += size;
 	}
-
-	// finish rendering
-	shader->EndPass();
-	shader->End();
 }
 
 __ImplementClass(Dynui::ImguiRenderer, 'IMRE', Core::RefCounted);
@@ -132,17 +126,17 @@ void
 ImguiRenderer::Setup()
 {
 	// allocate imgui shader
-	this->uiShader = ShaderServer::Instance()->CreateShaderInstance("shd:imgui");
+	this->uiShader = ShaderServer::Instance()->GetShader("shd:imgui");
 	this->params.projVar = this->uiShader->GetVariableByName("TextProjectionModel");
 	this->params.fontVar = this->uiShader->GetVariableByName("Texture");
 
 	// create vertex buffer
 	Util::Array<CoreGraphics::VertexComponent> components;
-	components.Append(VertexComponent(VertexComponentBase::Position, 0, VertexComponentBase::Float2, 0));
-	components.Append(VertexComponent(VertexComponentBase::TexCoord, 0, VertexComponentBase::Float2, 0));
-	components.Append(VertexComponent(VertexComponentBase::Color,	 0, VertexComponentBase::UByte4N, 0));
+    components.Append(VertexComponent((VertexComponent::SemanticName)0, 0, VertexComponentBase::Float2, 0));
+    components.Append(VertexComponent((VertexComponent::SemanticName)1, 0, VertexComponentBase::UByte4N, 0));
+    components.Append(VertexComponent((VertexComponent::SemanticName)2, 0, VertexComponentBase::Float2, 0));
 	Ptr<MemoryVertexBufferLoader> vboLoader = MemoryVertexBufferLoader::Create();
-	vboLoader->Setup(components, 10000, NULL, 0, ResourceBase::UsageDynamic, ResourceBase::AccessWrite, ResourceBase::BufferTriple, ResourceBase::SyncingCoherentPersistent);
+	vboLoader->Setup(components, 10000 * 3, NULL, 0, ResourceBase::UsageDynamic, ResourceBase::AccessWrite, ResourceBase::SyncingCoherentPersistent);
 
 	// load buffer
 	this->vbo = VertexBuffer::Create();
@@ -251,7 +245,6 @@ ImguiRenderer::Setup()
 void
 ImguiRenderer::Discard()
 {
-	this->uiShader->Discard();
 	this->uiShader = 0;
 
 	this->vbo->Unmap();

@@ -66,6 +66,16 @@ private:
 /**
 */
 inline void
+VarBuffer::SetAnnotation(const Annotation& annotation)
+{
+    this->annotation = annotation;
+    this->hasAnnotation = true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
 VarBuffer::AddQualifier(const std::string& qualifier)
 {
 	this->qualifiers.push_back(qualifier);

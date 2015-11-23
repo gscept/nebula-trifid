@@ -13,7 +13,7 @@
 #error "afxapi.h included before effectsampler.h"
 #endif
 
-#include <string>
+#include "EASTL/string.h"
 #include "annotable.h"
 namespace AnyFX
 {
@@ -73,7 +73,7 @@ public:
 	void Discard();
 
 	/// get name of variable
-	const std::string& GetName() const;
+    const eastl::string& GetName() const;
 
 private:
 	friend class EffectSamplerStreamLoader;
@@ -81,9 +81,6 @@ private:
 
 	InternalEffectSampler* internalSampler;
 }; 
-
-
-
 
 } // namespace AnyFX
 //------------------------------------------------------------------------------

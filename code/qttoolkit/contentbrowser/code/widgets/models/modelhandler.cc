@@ -84,44 +84,20 @@ ModelHandler::Preview()
 	String resource;
 	resource.Format("mdl:%s/%s.n3", this->category.AsCharPtr(), this->model.AsCharPtr());
 
-	// if intermediate dir doesn't exist, create it
-	IoServer::Instance()->CreateDirectory(URI("int:models/" + this->category));
-
-	// create temporary resource uri
-	String tempResource;
-	tempResource.Format("int:models/%s/%s_temp.n3", this->category.AsCharPtr(), this->model.AsCharPtr());
-
-	// create copy of existing resource with an extension, if file exists this will just replace it
-	IoServer::Instance()->CopyFile(resource, tempResource);
-
 	// create original physics resource uri
 	String phResource;
 	phResource.Format("phys:%s/%s.np3", this->category.AsCharPtr(), this->model.AsCharPtr());
 
-	// if intermediate dir doesn't exist, create it
-	IoServer::Instance()->CreateDirectory(URI("int:physics/" + this->category));
-
-	// create temporary resource uri
-	String tempPhysicsResource;
-	tempPhysicsResource.Format("int:physics/%s/%s_temp.np3", this->category.AsCharPtr(), this->model.AsCharPtr());
-
-	// create copy of existing resource with an extension, if file exists this will just replace it
-	IoServer::Instance()->CopyFile(phResource, tempPhysicsResource);
-
 	// preview the model
-	previewState->PreImportModel();
-	if (!previewState->SetModel(tempResource))
+	if (!previewState->SetModel(resource))
 	{
-		// remove temp files if we cannot properly load them
-		IoServer::Instance()->DeleteFile(tempResource);
+		// just abort the rest
 		return false;
 	}
 
-	if (!previewState->SetPhysics(tempPhysicsResource))	
+	if (!previewState->SetPhysics(phResource))
 	{ 
-		IoServer::Instance()->DeleteFile(tempPhysicsResource);
 		QMessageBox::critical(NULL, "Failed to open physics", "Failed to open physics resource");
-
 	}
 	return true;
 }
@@ -136,13 +112,10 @@ ModelHandler::Setup()
 
 	// enable the UI again
 	this->ui->frame->setDisabled(false);
+	this->ui->modelName->setText((this->category + "/" + this->model).AsCharPtr());
 
 	// call base class
 	BaseHandler::Setup();	
-
-	// format internal model name
-	String tempResource;
-	tempResource.Format("int:models/%s/%s_temp.n3", this->category.AsCharPtr(), this->model.AsCharPtr());
 
 	// set category and model of action
 	this->action->SetCategory(this->category);
@@ -155,57 +128,25 @@ ModelHandler::Setup()
 
 	// open files
 	String attrPath, constPath, physPath;
-	attrPath.Format("src:models/%s/%s.attributes", this->category.AsCharPtr(), this->model.AsCharPtr());
-	constPath.Format("src:models/%s/%s.constants", this->category.AsCharPtr(), this->model.AsCharPtr());
-	physPath.Format("src:models/%s/%s.physics", this->category.AsCharPtr(), this->model.AsCharPtr());
+	attrPath.Format("src:assets/%s/%s.attributes", this->category.AsCharPtr(), this->model.AsCharPtr());
+	constPath.Format("src:assets/%s/%s.constants", this->category.AsCharPtr(), this->model.AsCharPtr());
+	physPath.Format("src:assets/%s/%s.physics", this->category.AsCharPtr(), this->model.AsCharPtr());
 
 	// open file
-	if (IoServer::Instance()->FileExists(attrPath))
+	if (!IoServer::Instance()->FileExists(attrPath))
     {
-		Ptr<Stream> file = IoServer::Instance()->CreateStream(attrPath);
-		file->Open();
-		void* data = file->Map();
-		SizeT size = file->GetSize();
-        String attrVersion;
-		attrVersion.Set((const char*)data, size);
-		file->Unmap();
-		file->Close();
+		QMessageBox box;
+		QString message;
+		message.sprintf("The model '%s' doesn't exist!", attrPath.AsCharPtr());
+		box.setText(message);
+		box.setIcon(QMessageBox::Warning);
+		box.setStandardButtons(QMessageBox::Close);
+		box.setDefaultButton(QMessageBox::Close);
+		box.exec();
 
-		file = IoServer::Instance()->CreateStream(constPath);
-		file->Open();
-		data = file->Map();
-		size = file->GetSize();
-		String constsVersion;
-		constsVersion.Set((const char*)data, size);
-		file->Unmap();
-		file->Close();
-
-		file = IoServer::Instance()->CreateStream(physPath);
-		file->Open();
-		data = file->Map();
-		size = file->GetSize();
-		String physVersion;
-		physVersion.Set((const char*)data, size);
-		file->Unmap();
-		file->Close();
-
-		// add version, then use this
-		this->action->AddVersion(attrVersion, constsVersion, physVersion);
-    }
-    else
-    {
-        QMessageBox box;
-        QString message;
-        message.sprintf("The model '%s' doesn't exist!", attrPath.AsCharPtr());
-        box.setText(message);
-        box.setIcon(QMessageBox::Warning);
-        box.setStandardButtons(QMessageBox::Close);
-        box.setDefaultButton(QMessageBox::Close);
-        box.exec();
-
-        // discard and return
-        this->DiscardNoCancel();
-        return;
+		// discard and return
+		this->DiscardNoCancel();
+		return;
     }
 
 	this->SetupTabs();
@@ -275,31 +216,6 @@ ModelHandler::Discard()
 	this->constants = 0;
 	this->physics = 0;
 
-	// create temporary resource uri
-	String tempResource;
-	tempResource.Format("int:models/%s/%s_temp.n3", this->category.AsCharPtr(), this->model.AsCharPtr());
-
-	// delete temporary file
-	IoServer::Instance()->DeleteFile(tempResource);
-
-	// also remove temporary xml file
-	tempResource.Format("int:models/%s/%s_temp.attributes", this->category.AsCharPtr(), this->model.AsCharPtr());
-
-	// delete temporary file
-	IoServer::Instance()->DeleteFile(tempResource);
-
-	// also remove temporary xml file
-	tempResource.Format("int:models/%s/%s_temp.physics", this->category.AsCharPtr(), this->model.AsCharPtr());
-
-	// delete temporary file
-	IoServer::Instance()->DeleteFile(tempResource);
-
-	// also remove temporary physics model file
-	tempResource.Format("int:physics/%s/%s_temp.np3",this->category.AsCharPtr(), this->model.AsCharPtr() );
-
-	// delete temporary file
-	IoServer::Instance()->DeleteFile(tempResource);
-
 	// discard current action
 	this->action->Discard();
 
@@ -368,31 +284,6 @@ ModelHandler::DiscardNoCancel()
 	this->constants = 0;
 	this->physics = 0;
 
-	// create temporary resource uri
-	String tempResource;
-	tempResource.Format("int:models/%s/%s_temp.n3", this->category.AsCharPtr(), this->model.AsCharPtr());
-
-	// delete temporary file
-	IoServer::Instance()->DeleteFile(tempResource);
-
-	// also remove temporary xml file
-	tempResource.Format("int:models/%s/%s_temp.attributes", this->category.AsCharPtr(), this->model.AsCharPtr());
-
-	// delete temporary file
-	IoServer::Instance()->DeleteFile(tempResource);
-
-	// also remove temporary xml file
-	tempResource.Format("int:models/%s/%s_temp.physics", this->category.AsCharPtr(), this->model.AsCharPtr());
-
-	// delete temporary file
-	IoServer::Instance()->DeleteFile(tempResource);
-
-	// also remove temporary physics model file
-	tempResource.Format("int:physics/%s/%s_temp.np3", this->category.AsCharPtr(), this->model.AsCharPtr());
-
-	// delete temporary file
-	IoServer::Instance()->DeleteFile(tempResource);
-
 	// discard current action
 	this->action->Discard();
 
@@ -420,291 +311,16 @@ ModelHandler::Mute()
 /**
 */
 void
-ModelHandler::HardRefresh()
+ModelHandler::Refresh()
 {
-	// format internal model name
-	String tempResource;
-	tempResource.Format("int:models/%s/%s_temp.n3", this->category.AsCharPtr(), this->model.AsCharPtr());
-
-	// go through node frames and unset their variable states
 	IndexT i;
 	for (i = 0; i < this->nodeFrames.Size(); i++)
 	{
-		this->nodeFrames[i]->GetHandler()->UnsetState();
+		this->nodeFrames[i]->Refresh();
 	}
-
 	for (i = 0; i < this->particleFrames.Size(); i++)
 	{
-		this->particleFrames[i]->GetHandler()->UnsetState();
-	}
-
-	// now change the model, should be safe now
-	this->MakeModel();
-
-	// get shape nodes
-	const Array<ToolkitUtil::ModelConstants::ShapeNode>& shapeNodes = this->constants->GetShapeNodes();
-	const Array<ToolkitUtil::ModelConstants::ParticleNode>& particleNodes = this->constants->GetParticleNodes();
-	const Array<ToolkitUtil::ModelConstants::Skin>& skinNodes = this->constants->GetSkins();
-
-	// create grid layout for node frame
-	QTabWidget* nodeWidget = this->ui->nodeWidget;
-
-	// go through all normal shapes, update corresponding frames, or create frames if none exist (remember, this is done after undo/redo, so the possibility is prevalent)
-	for (i = 0; i < shapeNodes.Size(); i++)
-	{
-		const ToolkitUtil::ModelConstants::ShapeNode& shapeNode = shapeNodes[i];
-		bool createNewFrame = true;
-
-		IndexT j;
-		for (j = 0; j < this->nodeFrames.Size(); j++)
-		{
-			// get node frame
-			Ptr<ModelNodeHandler> nodeHandler = this->nodeFrames[j]->GetHandler();
-			if (nodeHandler->GetPath() == shapeNode.path)
-			{
-				// get state
-				const State& state = this->attributes->GetState(nodeHandler->GetPath());
-
-				// prepare for update
-				this->nodeFrames[j]->setUpdatesEnabled(false);
-
-				// refresh handler
-				nodeHandler->HardRefresh(state.material, tempResource);
-
-				// prepare for update
-				this->nodeFrames[j]->setUpdatesEnabled(true);
-
-				// frame found, dont make
-				createNewFrame = false;
-
-				// we are done with this node
-				break;
-			}
-		}
-
-		// if we never found a frame, we have to make a new one
-		if (createNewFrame)
-		{
-			// create new frame
-			ModelNodeFrame* nodeFrame = new ModelNodeFrame;
-			this->nodeFrames.Append(nodeFrame);
-
-			// get state
-			const State& state = this->attributes->GetState(shapeNode.path);
-
-			// setup handler
-			nodeFrame->GetHandler()->SetModelHandler(this);
-			nodeFrame->GetHandler()->SetType(shapeNode.type);
-			nodeFrame->GetHandler()->SetName(shapeNode.name);
-			nodeFrame->GetHandler()->SetPath(shapeNode.path);
-			nodeFrame->GetHandler()->Setup(state.material, tempResource);
-
-			// add frame to tab box
-			nodeWidget->addTab(nodeFrame, shapeNode.name.AsCharPtr());
-		}
-	}
-
-	// go through skin nodes
-	for (i = 0; i < skinNodes.Size(); i++)
-	{
-		const ToolkitUtil::ModelConstants::Skin& skin = skinNodes[i];
-		bool createNewFrame = true;
-
-		IndexT j;
-		for (j = 0; j < this->nodeFrames.Size(); j++)
-		{
-			// get node frame
-			Ptr<ModelNodeHandler> nodeHandler = this->nodeFrames[j]->GetHandler();
-			if (nodeHandler->GetPath() == skin.path)
-			{
-				// get state
-				const State& state = this->attributes->GetState(nodeHandler->GetPath());
-
-				// prepare for update
-				this->nodeFrames[j]->setUpdatesEnabled(false);
-
-				// refresh handler
-				nodeHandler->HardRefresh(state.material, tempResource);
-
-				// prepare for update
-				this->nodeFrames[j]->setUpdatesEnabled(true);
-
-				// frame found, dont make
-				createNewFrame = false;
-
-				// we are done with this node
-				break;
-			}
-		}
-
-		// if we never found a frame, we have to make a new one
-		if (createNewFrame)
-		{
-			// create new frame
-			ModelNodeFrame* nodeFrame = new ModelNodeFrame;
-			this->nodeFrames.Append(nodeFrame);
-
-			// get state
-			const State& state = this->attributes->GetState(skin.path);
-
-			// setup handler
-			nodeFrame->GetHandler()->SetModelHandler(this);
-			nodeFrame->GetHandler()->SetType(skin.type);
-			nodeFrame->GetHandler()->SetName(skin.name);
-			nodeFrame->GetHandler()->SetPath(skin.path);
-			nodeFrame->GetHandler()->Setup(state.material, tempResource);
-
-			// add frame to tab box
-			nodeWidget->addTab(nodeFrame, skin.name.AsCharPtr());
-		}
-	}
-
-	// now do the same for particles
-	for (i = 0; i < particleNodes.Size(); i++)
-	{
-		const ToolkitUtil::ModelConstants::ParticleNode& particleNode = particleNodes[i];
-		bool createNewFrame = true;
-
-		IndexT j;
-		for (j = 0; j < this->particleFrames.Size(); j++)
-		{
-			// get node frame
-			Ptr<ParticleNodeHandler> nodeHandler = this->particleFrames[j]->GetHandler();
-			if (nodeHandler->GetPath() == particleNode.path)
-			{
-				// get state
-				const State& state = this->attributes->GetState(nodeHandler->GetPath());
-
-				// prepare for update
-				this->particleFrames[j]->setUpdatesEnabled(false);
-
-				// refresh handler
-				nodeHandler->HardRefresh(state.material, tempResource);
-
-				// prepare for update
-				this->particleFrames[j]->setUpdatesEnabled(true);
-
-				// frame found, dont make
-				createNewFrame = false;
-
-				// we are done with this node
-				break;
-			}
-		}
-
-		// if we never found a frame, we have to make a new one
-		if (createNewFrame)
-		{
-			// create new frame
-			ParticleNodeFrame* nodeFrame = new ParticleNodeFrame;
-			this->particleFrames.Append(nodeFrame);
-
-			// get state
-			const State& state = this->attributes->GetState(particleNode.path);
-
-			// get attrs
-			const Particles::EmitterAttrs& attrs = this->attributes->GetEmitterAttrs(particleNodes[i].path);
-
-			// setup handler
-			nodeFrame->GetHandler()->SetModelHandler(this);
-			nodeFrame->GetHandler()->SetType(particleNode.type);
-			nodeFrame->GetHandler()->SetName(particleNode.name);
-			nodeFrame->GetHandler()->SetPath(particleNode.path);
-			nodeFrame->GetHandler()->Setup(state.material, tempResource);
-
-			// add frame to tab box
-			nodeWidget->addTab(nodeFrame, particleNode.name.AsCharPtr());
-		}
-	}
-
-	// go through node frames and remove those who are irrelevant
-	for (i = 0; i < this->nodeFrames.Size(); i++)
-	{
-		// get node frame
-		Ptr<ModelNodeHandler> nodeHandler = this->nodeFrames[i]->GetHandler();
-
-		// get state
-		const State& state = this->attributes->GetState(nodeHandler->GetPath());
-
-		if (!this->attributes->HasState(nodeHandler->GetPath()))
-		{
-			// remove from tab widget
-			nodeWidget->removeTab(nodeWidget->indexOf(this->nodeFrames[i]));
-			delete this->nodeFrames[i];
-
-			// this node is effectively gone, so remove it!
-			nodeHandler->Discard();
-			this->nodeFrames.EraseIndex(i--);
-		}
-	}
-
-	// go through particles and remove unnecessary frames
-	for (i = 0; i < this->particleFrames.Size(); i++)
-	{
-		// get node frame
-		Ptr<ParticleNodeHandler> nodeHandler = this->particleFrames[i]->GetHandler();
-
-		// only update this node if it still exists
-		if (!this->attributes->HasState(nodeHandler->GetPath()))
-		{
-			// remove from tab widget
-			nodeWidget->removeTab(nodeWidget->indexOf(this->particleFrames[i]));
-			delete this->particleFrames[i];
-
-			// this node is effectively gone, so remove it!
-			nodeHandler->Discard();
-			this->particleFrames.EraseIndex(i--);
-		}
-	}
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-ModelHandler::SoftRefresh()
-{
-	// format internal model name
-	String tempResource;
-	tempResource.Format("int:models/%s/%s_temp.n3", this->category.AsCharPtr(), this->model.AsCharPtr());
-
-	// go through node frames and remove those who are irrelevant
-	IndexT i;
-	for (i = 0; i < this->nodeFrames.Size(); i++)
-	{
-		// get node frame
-		Ptr<ModelNodeHandler> nodeHandler = this->nodeFrames[i]->GetHandler();
-
-		// get state
-		const State& state = this->attributes->GetState(nodeHandler->GetPath());
-
-		// prepare for update
-		this->nodeFrames[i]->setUpdatesEnabled(false);
-
-		// refresh handler
-		nodeHandler->SoftRefresh(state.material, tempResource);
-
-		// prepare for update
-		this->nodeFrames[i]->setUpdatesEnabled(true);
-	}
-
-	// go through particles and remove unnecessary frames
-	for (i = 0; i < this->particleFrames.Size(); i++)
-	{
-		// get node frame
-		Ptr<ParticleNodeHandler> nodeHandler = this->particleFrames[i]->GetHandler();
-
-		// get state
-		const State& state = this->attributes->GetState(nodeHandler->GetPath());
-
-		// prepare for update
-		this->particleFrames[i]->setUpdatesEnabled(false);
-
-		// refresh handler
-		nodeHandler->SoftRefresh(state.material, tempResource);
-
-		// prepare for update
-		this->particleFrames[i]->setUpdatesEnabled(true);
+		this->particleFrames[i]->Refresh();
 	}
 }
 
@@ -786,7 +402,7 @@ ModelHandler::AddParticleNode()
 
 	// create state
 	State state;
-	state.material = "ParticleUnlit";
+	state.material = "sur:system/particle_unlit";
 	state.textures.Append(Texture("DiffuseMap", "tex:system/nebulalogo"));
 	state.textures.Append(Texture("NormalMap", "tex:system/nobump"));
 
@@ -823,7 +439,6 @@ ModelHandler::AddParticleNode()
 
 	// save new changes and make a new model
 	this->OnModelModified(true);
-	this->HardRefresh();
 }
 
 //------------------------------------------------------------------------------
@@ -844,7 +459,6 @@ ModelHandler::RemoveParticleNode(const Util::String path, const Util::String nod
 
 	// apply modifications
 	this->OnModelModified(true);
-	this->HardRefresh();
 }
 
 //------------------------------------------------------------------------------
@@ -858,7 +472,7 @@ ModelHandler::Save()
 
 	// create resource string
 	String resource;
-	resource.Format("src:models/%s/%s.attributes", this->category.AsCharPtr(), this->model.AsCharPtr());
+	resource.Format("src:assets/%s/%s.attributes", this->category.AsCharPtr(), this->model.AsCharPtr());
 	Ptr<Stream> stream = IoServer::Instance()->CreateStream(resource);
 	stream->SetAccessMode(Stream::WriteAccess);
 	stream->Open();
@@ -866,7 +480,7 @@ ModelHandler::Save()
 	stream->Write((void*)lastVersion.AsCharPtr(), lastVersion.Length());
 	stream->Close();
 	
-	resource.Format("src:models/%s/%s.constants", this->category.AsCharPtr(), this->model.AsCharPtr());
+	resource.Format("src:assets/%s/%s.constants", this->category.AsCharPtr(), this->model.AsCharPtr());
 	stream = IoServer::Instance()->CreateStream(resource);
 	stream->SetAccessMode(Stream::WriteAccess);
 	stream->Open();
@@ -874,7 +488,7 @@ ModelHandler::Save()
 	stream->Write((void*)lastVersion.AsCharPtr(), lastVersion.Length());
 	stream->Close();
 
-	resource.Format("src:models/%s/%s.physics", this->category.AsCharPtr(), this->model.AsCharPtr());
+	resource.Format("src:assets/%s/%s.physics", this->category.AsCharPtr(), this->model.AsCharPtr());
 	stream = IoServer::Instance()->CreateStream(resource);
 	stream->SetAccessMode(Stream::WriteAccess);
 	stream->Open();
@@ -951,18 +565,18 @@ ModelHandler::SaveAs()
 		String newPhyResource;
 
 		// reformat resource
-		newAttrResource.Format("src:models/%s/%s.attributes", cat.AsCharPtr(), file.AsCharPtr());
-		newConstResource.Format("src:models/%s/%s.constants", cat.AsCharPtr(), file.AsCharPtr());
-		newPhyResource.Format("src:models/%s/%s.physics", cat.AsCharPtr(), file.AsCharPtr());
+		newAttrResource.Format("src:assets/%s/%s.attributes", cat.AsCharPtr(), file.AsCharPtr());
+		newConstResource.Format("src:assets/%s/%s.constants", cat.AsCharPtr(), file.AsCharPtr());
+		newPhyResource.Format("src:assets/%s/%s.physics", cat.AsCharPtr(), file.AsCharPtr());
 
 		String attrResource;
 		String constResource;
 		String phyResource;
 
 		// reformat resource
-		attrResource.Format("src:models/%s/%s.attributes", this->category.AsCharPtr(), this->model.AsCharPtr());
-		constResource.Format("src:models/%s/%s.constants", this->category.AsCharPtr(), this->model.AsCharPtr());
-		phyResource.Format("src:models/%s/%s.physics", this->category.AsCharPtr(), this->model.AsCharPtr());
+		attrResource.Format("src:assets/%s/%s.attributes", this->category.AsCharPtr(), this->model.AsCharPtr());
+		constResource.Format("src:assets/%s/%s.constants", this->category.AsCharPtr(), this->model.AsCharPtr());
+		phyResource.Format("src:assets/%s/%s.physics", this->category.AsCharPtr(), this->model.AsCharPtr());
 
 		// create string of name
 		String name = cat + "/" + file;
@@ -1056,7 +670,6 @@ ModelHandler::MakeModel()
 	msg->SetResourceName(resource);	
 	__StaticSend(GraphicsInterface, msg);
 	this->OnModelReloaded(msg.upcast<Messaging::Message>());
-	//__SingleFireCallback(Widgets::ModelHandler, OnModelReloaded, this, msg.upcast<Messaging::Message>());
 }
 
 //------------------------------------------------------------------------------
@@ -1085,8 +698,8 @@ void
 ModelHandler::SetupTabs()
 {
 	// format internal model name
-	String tempResource;
-	tempResource.Format("int:models/%s/%s_temp.n3", this->category.AsCharPtr(), this->model.AsCharPtr());
+	String res;
+	res.Format("mdl:%s/%s.n3", this->category.AsCharPtr(), this->model.AsCharPtr());
 
 	// create grid layout for node frame
 	QTabWidget* nodeWidget = this->ui->nodeWidget;
@@ -1105,32 +718,28 @@ ModelHandler::SetupTabs()
 	// get list of shapes
 	const Array<ModelConstants::ShapeNode>& shapes = this->constants->GetShapeNodes();
 
-	// iterate over shapes and create frames
-	IndexT i;
-	for (i = 0; i < shapes.Size(); i++)
+	if (shapes.Size() > 0)
 	{
 		// create new frame
 		ModelNodeFrame* nodeFrame = new ModelNodeFrame;
+		nodeFrame->SetModelHandler(this);
 		this->nodeFrames.Append(nodeFrame);
+		nodeWidget->addTab(nodeFrame, "Nodes");
 
-		// get state
-		const State& state = this->attributes->GetState(shapes[i].path);
-
-		// setup handler
-		nodeFrame->GetHandler()->SetModelHandler(this);
-		nodeFrame->GetHandler()->SetType(shapes[i].type);
-		nodeFrame->GetHandler()->SetName(shapes[i].name);
-		nodeFrame->GetHandler()->SetPath(shapes[i].path);
-		nodeFrame->GetHandler()->Setup(state.material, tempResource);
-
-		// add frame to tab box
-		nodeWidget->addTab(nodeFrame, shapes[i].name.AsCharPtr());
+		// iterate over shapes and add them to the model node frame
+		IndexT i;
+		for (i = 0; i < shapes.Size(); i++)
+		{
+			nodeFrame->AddModelNode(shapes[i].type, shapes[i].name, shapes[i].path, res);
+		}
 	}
+
 
 	// get list of characters
 	const Array<ModelConstants::CharacterNode>& characters = this->constants->GetCharacterNodes();
 
 	// iterate over shapes and create frames
+	IndexT i;
 	for (i = 0; i < characters.Size(); i++)
 	{
 		CharacterNodeFrame* nodeFrame = new CharacterNodeFrame;
@@ -1150,37 +759,26 @@ ModelHandler::SetupTabs()
 	// get list of all skins
 	const Array<ModelConstants::Skin>& skins = this->constants->GetSkins();
 
-	// iterate over shapes and create frames
-	for (i = 0; i < skins.Size(); i++)
+	if (skins.Size() > 0)
 	{
 		// create new frame
 		ModelNodeFrame* nodeFrame = new ModelNodeFrame;
+		nodeFrame->SetModelHandler(this);
 		this->nodeFrames.Append(nodeFrame);
+		nodeWidget->addTab(nodeFrame, "Nodes");
 
-		// skip skin if it contains no fragments
-		if (skins[i].skinFragments.IsEmpty())
+		// iterate over shapes and add them to the model node frame
+		IndexT i;
+		for (i = 0; i < skins.Size(); i++)
 		{
-			continue;
+			// skip skins without fragments
+			if (skins[i].skinFragments.IsEmpty())
+			{
+				continue;
+			}
+
+			nodeFrame->AddModelNode(skins[i].type, skins[i].name, skins[i].path, res);
 		}
-
-		// get state
-		const State& state = this->attributes->GetState(skins[i].path);
-
-		// skip skins without fragments
-		if (skins[i].skinFragments.Size() == 0)
-		{
-			continue;
-		}
-
-		// setup handler
-		nodeFrame->GetHandler()->SetModelHandler(this);
-		nodeFrame->GetHandler()->SetType(skins[i].type);
-		nodeFrame->GetHandler()->SetName(skins[i].name);
-		nodeFrame->GetHandler()->SetPath(skins[i].path);
-		nodeFrame->GetHandler()->Setup(state.material, tempResource);
-
-		// add frame to tab box
-		nodeWidget->addTab(nodeFrame, skins[i].name.AsCharPtr());
 	}
 
 	// get a list of all particles
@@ -1202,7 +800,7 @@ ModelHandler::SetupTabs()
 		nodeFrame->GetHandler()->SetType(particleNodes[i].type);
 		nodeFrame->GetHandler()->SetName(particleNodes[i].name);
 		nodeFrame->GetHandler()->SetPath(particleNodes[i].path);
-		nodeFrame->GetHandler()->Setup(state.material, tempResource);
+		nodeFrame->GetHandler()->Setup(res);
 
 		// add frame to tab box
 		nodeWidget->addTab(nodeFrame, particleNodes[i].name.AsCharPtr());

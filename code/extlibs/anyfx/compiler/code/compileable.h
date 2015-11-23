@@ -102,10 +102,10 @@ Compileable::GetPosition() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-Compileable::SetFile( const std::string& string )
+inline void
+Compileable::SetFile(const std::string& string)
 {
-	this->file = string.substr(1, string.size()-2);
+	this->file = string;
 }
 
 //------------------------------------------------------------------------------

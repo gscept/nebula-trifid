@@ -40,6 +40,8 @@ using namespace Models;
 */
 OGL4ShapeRenderer::OGL4ShapeRenderer() :
 	vertexBufferPtr(0),
+    numPrimitives(0),
+    numIndices(0),
 	indexBufferPtr(0)
 {
 	this->shapeMeshes.Clear();
@@ -66,7 +68,7 @@ OGL4ShapeRenderer::Open()
     ShapeRendererBase::Open();
 
     // create shape shader instance
-    this->shapeShader = ShaderServer::Instance()->CreateShaderInstance(ResourceId("shd:simple"));
+    this->shapeShader = ShaderServer::Instance()->GetShader("shd:simple");
 	this->shapeMeshes.SetSize(CoreGraphics::RenderShape::NumShapeTypes);
 
 	// create default shapes (basically load them from the models)
@@ -77,8 +79,8 @@ OGL4ShapeRenderer::Open()
 	this->CreateConeShape();
 
     // lookup ModelViewProjection shader variable
-	this->model = this->shapeShader->GetVariableBySemantic(ShaderVariable::Name("ShapeModel"));
-	this->diffuseColor = this->shapeShader->GetVariableBySemantic(ShaderVariable::Name("MatDiffuse"));
+	this->model = this->shapeShader->GetVariableByName("ShapeModel");
+    this->diffuseColor = this->shapeShader->GetVariableByName("MatDiffuse");
 
 	// create feature masks
 	this->depthFeatureBits[RenderShape::AlwaysOnTop] = ShaderServer::Instance()->FeatureStringToMask("Static");    
@@ -88,9 +90,9 @@ OGL4ShapeRenderer::Open()
 	// setup vbo
 	Util::Array<VertexComponent> comps;
 	comps.Append(VertexComponent(VertexComponent::Position, 0, VertexComponent::Float4, 0));
-	comps.Append(VertexComponent(VertexComponent::Color, 0, VertexComponent::Float4, 0));
+    comps.Append(VertexComponent(VertexComponent::Color, 0, VertexComponent::Float4, 0));
 	Ptr<MemoryVertexBufferLoader> vboLoader = MemoryVertexBufferLoader::Create();
-	vboLoader->Setup(comps, MaxNumVertices, NULL, 0, VertexBuffer::UsageDynamic, VertexBuffer::AccessWrite, VertexBuffer::BufferTriple, VertexBuffer::SyncingCoherentPersistent);
+	vboLoader->Setup(comps, MaxNumVertices * 3, NULL, 0, VertexBuffer::UsageDynamic, VertexBuffer::AccessWrite, VertexBuffer::SyncingCoherentPersistent);
 
 	// create vbo
 	this->vbo = VertexBuffer::Create();
@@ -102,7 +104,7 @@ OGL4ShapeRenderer::Open()
 
 	// setup ibo
 	Ptr<MemoryIndexBufferLoader> iboLoader = MemoryIndexBufferLoader::Create();
-	iboLoader->Setup(IndexType::Index32, MaxNumIndices, NULL, 0, IndexBuffer::UsageDynamic, IndexBuffer::AccessWrite, IndexBuffer::BufferTriple, IndexBuffer::SyncingCoherentPersistent);
+    iboLoader->Setup(IndexType::Index32, MaxNumIndices * 3, NULL, 0, IndexBuffer::UsageDynamic, IndexBuffer::AccessWrite, IndexBuffer::SyncingCoherentPersistent);
 
 	// create ibo
 	this->ibo = IndexBuffer::Create();
@@ -121,6 +123,10 @@ OGL4ShapeRenderer::Open()
 	this->indexBufferPtr = (byte*)this->ibo->Map(IndexBuffer::MapWrite);
 	n_assert(0 != this->vertexBufferPtr);
 	n_assert(0 != this->indexBufferPtr);
+
+    // bind index buffer to vertex layout
+    this->vertexLayout = this->vbo->GetVertexLayout();
+    this->vertexLayout->SetIndexBuffer(this->ibo);
 
 	// setup primitive group
 	this->primGroup.SetBaseIndex(0);
@@ -155,7 +161,6 @@ OGL4ShapeRenderer::Close()
 	this->shapeMeshes.Clear();
 
     // discard shape shader
-    this->shapeShader->Discard();
     this->shapeShader = 0;
 
 	// unload dynamic buffers
@@ -190,8 +195,7 @@ OGL4ShapeRenderer::DrawShapes()
 	    if (this->shapes[depthType].Size() > 0)
 	    {	
 			this->shapeShader->SelectActiveVariation(depthFeatureBits[depthType]);	
-	        this->shapeShader->Begin();
-	        this->shapeShader->BeginPass(0);	
+            this->shapeShader->Apply();
 	
 	        // render individual shapes
 	        IndexT i;
@@ -233,8 +237,8 @@ OGL4ShapeRenderer::DrawShapes()
 	            }
 	        }
 
-			this->shapeShader->EndPass();
-			this->shapeShader->End();
+            this->DrawBufferedIndexedPrimitives();
+            this->DrawBufferedPrimitives();
 		}
     }
 	renderDevice->SetPassShader(0);
@@ -258,8 +262,10 @@ OGL4ShapeRenderer::DrawSimpleShape(const matrix44& modelTransform, RenderShape::
 	Ptr<RenderDevice> renderDevice = RenderDevice::Instance();
 
     // resolve model-view-projection matrix and update shader
+    this->shapeShader->BeginUpdate();
 	this->model->SetMatrix(modelTransform);
     this->diffuseColor->SetFloat4(color);
+    this->shapeShader->EndUpdate();
     this->shapeShader->Commit();
 
 	Ptr<Mesh> mesh = this->shapeMeshes[shapeType]->GetMesh();	
@@ -275,9 +281,6 @@ OGL4ShapeRenderer::DrawSimpleShape(const matrix44& modelTransform, RenderShape::
 
 	// draw
 	renderDevice->Draw();
-
-	// perform post-draw stuff
-    this->shapeShader->PostDraw();
 }
 
 //------------------------------------------------------------------------------
@@ -302,35 +305,45 @@ OGL4ShapeRenderer::DrawPrimitives(const matrix44& modelTransform,
     SizeT vertexCount = PrimitiveTopology::NumberOfVertices(topology, numPrimitives);
 	vertexCount = Math::n_min(vertexCount, MaxNumVertices);
 
-    // unlock buffer to avoid stomping data
-	this->vboLock->WaitForRange(MaxNumVertices * MaxVertexWidth * this->vbBufferIndex, vertexCount * vertexWidth * sizeof(float));
-    memcpy(this->vertexBufferPtr + MaxNumVertices * MaxVertexWidth * this->vbBufferIndex, vertices, vertexCount * vertexWidth * sizeof(float));
+    // flush primitives to make room in our buffers
+    if (this->numPrimitives + vertexCount > MaxNumVertices)
+    {
+        this->DrawBufferedPrimitives();
+        this->DrawBufferedIndexedPrimitives();
+    }
 
-    // resolve model-view-projection matrix and update shader
-	this->model->SetMatrix(modelTransform);
-    this->diffuseColor->SetFloat4(color);
-    this->shapeShader->Commit();
+    SizeT bufferSize = MaxNumVertices;
+    SizeT bufferOffset = bufferSize * this->vbBufferIndex;
+    CoreGraphics::RenderShape::RenderShapeVertex* verts = (CoreGraphics::RenderShape::RenderShapeVertex*)this->vertexBufferPtr;
+
+    // unlock buffer to avoid stomping data
+	this->vboLock->WaitForRange(bufferOffset + this->numPrimitives, vertexCount * vertexWidth);
+    memcpy(verts + bufferOffset + this->numPrimitives, vertices, vertexCount * vertexWidth);
+
+    // append transforms
+    this->unindexed.transforms.Append(modelTransform);
+    this->unindexed.colors.Append(color);
 
 	// set vertex offset in primitive group
-	this->primGroup.SetBaseVertex(MaxNumVertices * this->vbBufferIndex);
-	this->primGroup.SetNumVertices(vertexCount);
-	this->primGroup.SetNumIndices(0);
-	this->primGroup.SetPrimitiveTopology(topology);
-
+    CoreGraphics::PrimitiveGroup group;
+    group.SetBaseVertex(MaxNumVertices * this->vbBufferIndex + this->numPrimitives);
+	group.SetNumVertices(vertexCount);
+	group.SetNumIndices(0);
+	group.SetPrimitiveTopology(topology);
+    this->unindexed.primitives.Append(group);
+    this->numPrimitives += vertexCount;
+        
 	// setup render device and draw
-	renderDevice->SetStreamSource(0, this->vbo, 0);
-    if (layout.isvalid())   renderDevice->SetVertexLayout(layout);
-    else                    renderDevice->SetVertexLayout(this->vbo->GetVertexLayout());
-	renderDevice->SetIndexBuffer(NULL);
-	renderDevice->SetPrimitiveGroup(this->primGroup);
-	renderDevice->Draw();
-
-    // end drawing
-    this->shapeShader->PostDraw();
+	//renderDevice->SetStreamSource(0, this->vbo, 0);
+    //if (layout.isvalid())   renderDevice->SetVertexLayout(layout);
+    //else                    renderDevice->SetVertexLayout(this->vbo->GetVertexLayout());
+	//renderDevice->SetVertexLayout(this->vbo->GetVertexLayout());
+	//renderDevice->SetIndexBuffer(NULL);
+	//renderDevice->SetPrimitiveGroup(this->primGroup);
+	//renderDevice->Draw();
 
     // place a lock and increment buffer count
-	this->vboLock->LockRange(MaxNumVertices * MaxVertexWidth * this->vbBufferIndex, vertexCount * vertexWidth * sizeof(float));
-	this->vbBufferIndex = (this->vbBufferIndex + 1) % 3;
+    this->vboLock->LockRange(bufferOffset + this->numPrimitives, vertexCount * vertexWidth);
 }
 
 //------------------------------------------------------------------------------
@@ -361,40 +374,51 @@ OGL4ShapeRenderer::DrawIndexedPrimitives(const matrix44& modelTransform,
 	SizeT vertexCount = Math::n_min(numVertices, MaxNumVertices);
 	indexCount = Math::n_min(indexCount, MaxNumIndices);
 
-    // unlock buffer and copy data
-	this->vboLock->WaitForRange(MaxNumVertices * MaxVertexWidth * this->vbBufferIndex, vertexCount * vertexWidth * sizeof(float));
-	this->iboLock->WaitForRange(MaxNumIndices * MaxIndexWidth * this->ibBufferIndex, indexCount * indexSize);
-	memcpy(this->vertexBufferPtr + MaxNumVertices * MaxVertexWidth * this->vbBufferIndex, vertices, vertexCount * vertexWidth * sizeof(float));
-	memcpy(this->indexBufferPtr + MaxNumIndices * MaxIndexWidth * this->ibBufferIndex, indices, indexCount * indexSize);
+    // flush indexed primitives
+    if (this->numIndices + indexCount > MaxNumIndices || this->numPrimitives + vertexCount > MaxNumVertices)
+    {
+        this->DrawBufferedPrimitives();
+        this->DrawBufferedIndexedPrimitives();
+    }
 
-    // resolve model-view-projection matrix and update shader
-	this->model->SetMatrix(modelTransform);
-    this->diffuseColor->SetFloat4(color);
-    this->shapeShader->Commit();
+    SizeT vbBufferSize = MaxNumVertices * MaxVertexWidth;
+    SizeT vbBufferOffset = vbBufferSize * this->vbBufferIndex;
+    SizeT ibBufferSize = MaxNumIndices * MaxIndexWidth;
+    SizeT ibBufferOffset = ibBufferSize * this->ibBufferIndex;
+
+    // unlock buffer and copy data
+    this->vboLock->WaitForRange(vbBufferSize + this->numPrimitives, vertexCount * vertexWidth);
+    this->iboLock->WaitForRange(ibBufferOffset + this->numIndices, indexCount * indexSize);
+    memcpy(this->vertexBufferPtr + vbBufferSize + this->numPrimitives, vertices, vertexCount * vertexWidth);
+    memcpy(this->indexBufferPtr + ibBufferOffset + this->numIndices, indices, indexCount * indexSize);
+
+    // append transforms
+    this->indexed.transforms.Append(modelTransform);
+    this->indexed.colors.Append(color);
 
 	// set vertex offset in primitive group
-	this->primGroup.SetBaseVertex(MaxNumVertices * this->vbBufferIndex);
-	this->primGroup.SetNumVertices(0);										// indices decides how many primitives we draw
-	this->primGroup.SetBaseIndex(MaxNumIndices * this->vbBufferIndex);
-	this->primGroup.SetNumIndices(indexCount);
-	this->primGroup.SetPrimitiveTopology(topology);
+    CoreGraphics::PrimitiveGroup group;
+    group.SetBaseVertex(MaxNumVertices * this->vbBufferIndex + this->numPrimitives);
+	group.SetNumVertices(0);										// indices decides how many primitives we draw
+    group.SetBaseIndex(MaxNumIndices * this->ibBufferIndex + this->numIndices);
+	group.SetNumIndices(indexCount);
+	group.SetPrimitiveTopology(topology);
+    this->indexed.primitives.Append(group);
+    this->numPrimitives += vertexCount;
+    this->numIndices += indexCount;
 
 	// setup render device and draw
-	renderDevice->SetStreamSource(0, this->vbo, 0);
-    if (layout.isvalid())   renderDevice->SetVertexLayout(layout);
-    else                    renderDevice->SetVertexLayout(this->vbo->GetVertexLayout());
-	renderDevice->SetIndexBuffer(this->ibo);
-	renderDevice->SetPrimitiveGroup(this->primGroup);
-	renderDevice->Draw();
-
-    // end drawing
-    this->shapeShader->PostDraw();
+	//renderDevice->SetStreamSource(0, this->vbo, 0);
+    //if (layout.isvalid())   renderDevice->SetVertexLayout(layout);
+    //else                    
+	//renderDevice->SetVertexLayout(this->vertexLayout);
+	//renderDevice->SetIndexBuffer(this->ibo);
+	//renderDevice->SetPrimitiveGroup(this->primGroup);
+	//renderDevice->Draw();
 
     // lock buffer and increment buffer count
-	this->vboLock->LockRange(MaxNumVertices * MaxVertexWidth * this->vbBufferIndex, numVertices * vertexWidth * sizeof(float));
-	this->iboLock->LockRange(MaxNumIndices * MaxIndexWidth * this->ibBufferIndex, indexCount * indexSize);
-	this->vbBufferIndex = (this->vbBufferIndex + 1) % 3;
-	this->ibBufferIndex = (this->ibBufferIndex + 1) % 3;
+    this->vboLock->LockRange(vbBufferOffset + this->numPrimitives, numVertices * vertexWidth);
+    this->iboLock->LockRange(ibBufferOffset + this->numIndices, indexCount * indexSize);
 }
 
 //------------------------------------------------------------------------------
@@ -408,8 +432,10 @@ OGL4ShapeRenderer::DrawMesh(const Math::matrix44& modelTransform, const Ptr<Core
 
     // resolve model-view-projection matrix and update shader
     TransformDevice* transDev = TransformDevice::Instance();
+    this->shapeShader->BeginUpdate();
     this->model->SetMatrix(modelTransform);
     this->diffuseColor->SetFloat4(color);
+    this->shapeShader->EndUpdate();
     this->shapeShader->Commit();
 
     // draw shape
@@ -425,9 +451,6 @@ OGL4ShapeRenderer::DrawMesh(const Math::matrix44& modelTransform, const Ptr<Core
 	renderDevice->SetIndexBuffer(ib);
 	renderDevice->SetPrimitiveGroup(group);
 	renderDevice->Draw();
-
-    // end drawing
-    this->shapeShader->PostDraw();
 }
 
 //------------------------------------------------------------------------------
@@ -478,6 +501,75 @@ OGL4ShapeRenderer::CreateConeShape()
 {
 	Ptr<ManagedMesh> mesh = ResourceManager::Instance()->CreateManagedResource(Mesh::RTTI, "msh:system/cone.nvx2", StreamMeshLoader::Create()).downcast<ManagedMesh>();
 	this->shapeMeshes[RenderShape::Cone] = mesh;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+OGL4ShapeRenderer::DrawBufferedPrimitives()
+{
+    Ptr<RenderDevice> renderDevice = RenderDevice::Instance();
+    renderDevice->SetVertexLayout(this->vertexLayout);
+    renderDevice->SetStreamSource(0, this->vbo, 0);
+    renderDevice->SetIndexBuffer(NULL);
+
+    IndexT i;
+    for (i = 0; i < this->unindexed.primitives.Size(); i++)
+    {
+        const CoreGraphics::PrimitiveGroup& group = this->unindexed.primitives[i];
+        const Math::matrix44& modelTransform = this->unindexed.transforms[i];
+        const Math::float4& color = this->unindexed.colors[i];
+
+        this->shapeShader->BeginUpdate();
+        this->model->SetMatrix(modelTransform);
+        this->diffuseColor->SetFloat4(float4(1));
+        this->shapeShader->EndUpdate();
+        this->shapeShader->Commit();
+
+        renderDevice->SetPrimitiveGroup(group);
+        renderDevice->Draw();
+    }
+
+    this->numPrimitives = 0;
+    this->unindexed.primitives.Clear();
+
+    this->vbBufferIndex = (this->vbBufferIndex + 1) % 3;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+OGL4ShapeRenderer::DrawBufferedIndexedPrimitives()
+{
+    Ptr<RenderDevice> renderDevice = RenderDevice::Instance();
+    renderDevice->SetVertexLayout(this->vertexLayout);
+    renderDevice->SetStreamSource(0, this->vbo, 0);
+    renderDevice->SetIndexBuffer(this->ibo);
+
+    IndexT i;
+    for (i = 0; i < this->indexed.primitives.Size(); i++)
+    {
+        const CoreGraphics::PrimitiveGroup& group = this->indexed.primitives[i];
+        const Math::matrix44& modelTransform = this->indexed.transforms[i];
+        const Math::float4& color = this->indexed.colors[i];
+
+        this->shapeShader->BeginUpdate();
+        this->model->SetMatrix(modelTransform);
+        this->diffuseColor->SetFloat4(float4(1));
+        this->shapeShader->EndUpdate();
+        this->shapeShader->Commit();
+
+        renderDevice->SetPrimitiveGroup(group);
+        renderDevice->Draw();
+    }
+
+    this->numIndices = 0;
+    this->indexed.primitives.Clear();
+
+    this->vbBufferIndex = (this->vbBufferIndex + 1) % 3;
+    this->ibBufferIndex = (this->ibBufferIndex + 1) % 3;
 }
 
 } // namespace OpenGL4

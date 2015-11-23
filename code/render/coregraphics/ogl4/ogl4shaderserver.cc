@@ -65,19 +65,10 @@ OGL4ShaderServer::Close()
 
 //------------------------------------------------------------------------------
 /**
-*/
-Ptr<CoreGraphics::ShaderInstance> 
-OGL4ShaderServer::GetSharedShader()
-{
-	return this->sharedVariableShaderInst;	
-}
-
-//------------------------------------------------------------------------------
-/**
 	Must be called from within Shader
 */
 void 
-OGL4ShaderServer::ReloadShader( Ptr<CoreGraphics::Shader> shader )
+OGL4ShaderServer::ReloadShader(Ptr<CoreGraphics::Shader> shader)
 {
 	n_assert(0 != shader);
 	shader->SetLoader(StreamShaderLoader::Create());
@@ -97,7 +88,7 @@ OGL4ShaderServer::ReloadShader( Ptr<CoreGraphics::Shader> shader )
 /**
 */
 void 
-OGL4ShaderServer::LoadShader( const Resources::ResourceId& shdName )
+OGL4ShaderServer::LoadShader(const Resources::ResourceId& shdName)
 {
 	n_assert(shdName.IsValid());
 	Ptr<Shader> shader = Shader::Create();

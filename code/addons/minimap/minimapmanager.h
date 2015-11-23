@@ -54,7 +54,7 @@ private:
 
     // shading related variables
 	Ptr<CoreGraphics::RenderTarget> minimapTarget;
-	Ptr<CoreGraphics::ShaderInstance> minimapShader;
+	Ptr<CoreGraphics::Shader> minimapShader;
 	Ptr<CoreGraphics::ShaderVariable> transformsVar;
     Ptr<CoreGraphics::ShaderVariable> portraitVar;
     Ptr<CoreGraphics::ShaderVariable> portraitScalesVar;
@@ -63,6 +63,7 @@ private:
     // mesh related variables
 	Ptr<CoreGraphics::VertexBuffer> quadVb;
 	Ptr<CoreGraphics::IndexBuffer> quadIb;
+    Ptr<CoreGraphics::VertexLayout> vertexLayout;
 	CoreGraphics::PrimitiveGroup quadPrim;
 
     Util::FixedArray<Math::float4> colors;

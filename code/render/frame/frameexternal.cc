@@ -46,7 +46,7 @@ FrameExternal::Discard()
 /**
 */
 void 
-FrameExternal::Render()
+FrameExternal::Render(IndexT frameIndex)
 {
 	n_assert(this->frameShaderName.IsValid());
 	FrameServer* frameServer = FrameServer::Instance();
@@ -57,13 +57,13 @@ FrameExternal::Render()
 		// if loaded, and the pointer is valid, simply render
 		if (this->frameShader.isvalid())
 		{
-			this->frameShader->Render();
+			this->frameShader->Render(frameIndex);
 		}
 		else
 		{
 			// otherwise, lookup frame shader from server and render
 			this->frameShader = frameServer->LookupFrameShader(this->frameShaderName);
-			this->frameShader->Render();
+			this->frameShader->Render(frameIndex);
 		}
 	}
 	else if (this->frameShader.isvalid())

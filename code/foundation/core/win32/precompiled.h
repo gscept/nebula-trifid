@@ -68,7 +68,8 @@
 #include <GL/GLU.h>
 #include "GLFW/glfw3.h"
 #if _DEBUG
-	#define GLSUCCESS glGetError() == GL_NO_ERROR
+	//#define GLSUCCESS glGetError() == GL_NO_ERROR
+    #define GLSUCCESS true
 	#define ASSERTGLSUCCESS \
 		{\
 			GLenum err = glGetError(); \

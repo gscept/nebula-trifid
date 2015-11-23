@@ -31,6 +31,8 @@ public:
 	void AddTiledItem(TiledGraphicsItem* item);
 	/// removes an item and rearranges the view
 	void RemoveTiledItem(TiledGraphicsItem* item);
+	/// get list of items
+	const QList<TiledGraphicsItem*>& GetItems() const;
 
 	/// clear view of items, also deletes items so you don't have to!
 	void Clear();
@@ -42,11 +44,19 @@ public:
 	void resizeEvent(QResizeEvent *event);
 private:
 
-
 	QSize itemSize;
 	QList<TiledGraphicsItem*> items;
 	QGraphicsScene* scene;
 };
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const QList<TiledGraphicsItem*>&
+TiledGraphicsView::GetItems() const
+{
+	return this->items;
+}
 
 //------------------------------------------------------------------------------
 /**

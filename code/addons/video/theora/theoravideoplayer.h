@@ -106,7 +106,7 @@ private:
 
 	Ptr<CoreGraphics::Texture> videoTexture;
 	RenderUtil::DrawFullScreenQuad quad;
-	Ptr<CoreGraphics::ShaderInstance> shader;
+	Ptr<CoreGraphics::Shader> shader;
 	Ptr<CoreGraphics::ShaderVariable> videoTextureVariable;
 };
 } // namespace Video

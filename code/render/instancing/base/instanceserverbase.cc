@@ -4,6 +4,7 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "instanceserverbase.h"
+#include "frame/batchgroup.h"
 
 using namespace Models;
 namespace Instancing
@@ -16,6 +17,8 @@ __ImplementClass(Instancing::InstanceServerBase, 'INSB', Core::RefCounted);
 InstanceServerBase::InstanceServerBase() :
 	renderer(0),
 	modelNode(0), 
+    shader(0),
+    code(Frame::BatchGroup::InvalidBatchGroup),
 	isBeginInstancing(false),
 	isOpen(false),
 	multiplier(1)	
@@ -59,13 +62,15 @@ InstanceServerBase::Close()
 	Prepare to render model.
 */
 void 
-InstanceServerBase::BeginInstancing(const Ptr<ModelNode>& modelNode, const SizeT multiplier)
+InstanceServerBase::BeginInstancing(const Ptr<ModelNode>& modelNode, const SizeT multiplier, const Ptr<CoreGraphics::Shader>& shader, const Frame::BatchGroup::Code& code)
 {
 	n_assert(this->IsOpen());
 	n_assert(multiplier > 0);
 	n_assert(!this->isBeginInstancing);
 	this->multiplier = multiplier;
 	this->modelNode = modelNode;
+    this->shader = shader;
+    this->code = code;
 	this->isBeginInstancing = true;
 }
 
@@ -97,7 +102,7 @@ InstanceServerBase::AddInstance( const IndexT& instanceCode, const Ptr<ModelNode
 	Performs actual instanced rendering, override this in a subclass.
 */
 void 
-InstanceServerBase::Render()
+InstanceServerBase::Render(IndexT frameIndex)
 {
 	n_error("InstanceServerBase::Render() called!");
 }

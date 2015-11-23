@@ -176,6 +176,9 @@ AbstractLightEntity::OnRenderDebug()
         const point unitCube[24] = {point(1,1,1),  point(1,1,-1),  point(1,1,-1),  point(-1,1,-1),  point(-1,1,-1),  point(-1,1,1),   point(-1,1,1),  point(1,1,1),
                                     point(1,-1,1), point(1,-1,-1), point(1,-1,-1), point(-1,-1,-1), point(-1,-1,-1), point(-1,-1,1),  point(-1,-1,1), point(1,-1,1),
                                     point(1,1,1),  point(1,-1,1),  point(1,1,-1),  point(1,-1,-1),  point(-1,1,-1),  point(-1,-1,-1), point(-1,1,1),  point(-1,-1,1)};
+
+        CoreGraphics::RenderShape::RenderShapeVertex verts[24];
+        for (IndexT i = 0; i < 24; i++) verts[i].pos = unitCube[i];
         
         RenderShape shape;
         color.set(0.5f, 0.5f, 0.5f, 0.9f);
@@ -183,8 +186,7 @@ AbstractLightEntity::OnRenderDebug()
                             frustum,
                             PrimitiveTopology::LineList,
                             12,
-                            unitCube,
-                            4,
+                            verts,
                             color,
                             CoreGraphics::RenderShape::CheckDepth,
                             NULL);

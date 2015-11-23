@@ -82,11 +82,8 @@ NVTTTextureConversionJob::Convert()
         URI srcPathUri(this->srcPath);
         URI dstPathUri(this->dstPath);
         URI tmpDirUri(this->tmpDir);
-
-
         
         String src = srcPathUri.LocalPath();                      
-
         if(src.CheckFileExtension("dds"))
         {
             // Load surface.
@@ -108,7 +105,6 @@ NVTTTextureConversionJob::Convert()
         }
         
         // we do everything in float so that we can resize
-        
         nv::FloatImage *image;
         nv::Image rawimage;
         nv::AutoPtr<nv::Image> outputImage;
@@ -119,7 +115,6 @@ NVTTTextureConversionJob::Convert()
 		this->logger->Print("Processing: %s\n", src.AsCharPtr());
 
 		nvtt::OutputOptions outputOptions;
-
         if (src.CheckFileExtension("exr") || src.CheckFileExtension("hdr"))
         {
             image = nv::ImageIO::loadFloat(src.AsCharPtr());
@@ -133,17 +128,15 @@ NVTTTextureConversionJob::Convert()
         }
         else
         {
-               // Regular image.            
+            // Regular image.            
             if (!rawimage.load(src.AsCharPtr()))
             {
-                
                 this->logger->Warning("The file '%s' is not a supported image type.\n", src.AsCharPtr());                
                 return false;
             }
             
             image = new nv::FloatImage(&rawimage);            
         }
-            
         
         bool isDXT5NormalMap = false;
         const TextureAttrs& attrs = this->textureAttrs;
@@ -165,14 +158,8 @@ NVTTTextureConversionJob::Convert()
         }
 		else
 		{
-			if (image->componentCount() > 3)
-			{
-				targetformat = attrs.GetRGBAPixelFormat();
-			}
-			else
-			{
-				targetformat = attrs.GetRGBPixelFormat();
-			}
+            if (image->componentCount() > 3)    targetformat = attrs.GetRGBAPixelFormat();
+            else                                targetformat = attrs.GetRGBPixelFormat();
 			
 			if (attrs.GetColorSpace() == TextureAttrs::Linear)
 			{
@@ -190,18 +177,9 @@ NVTTTextureConversionJob::Convert()
         nvtt::CompressionOptions compressionOptions;
         compressionOptions.setFormat(TextureAttrToNVTT(targetformat));
         
-        if (attrs.GetQuality() == TextureAttrs::Normal || isDXT5NormalMap)
-        {
-            compressionOptions.setQuality(nvtt::Quality_Normal);
-        }
-        else if(attrs.GetQuality() == ToolkitUtil::TextureAttrs::High)
-        {
-            compressionOptions.setQuality(nvtt::Quality_Highest);
-        }
-        else if(attrs.GetQuality() == ToolkitUtil::TextureAttrs::Low)
-        {
-            compressionOptions.setQuality(nvtt::Quality_Fastest);
-        }
+        if (attrs.GetQuality() == TextureAttrs::Normal || isDXT5NormalMap)  compressionOptions.setQuality(nvtt::Quality_Normal);
+        else if (attrs.GetQuality() == ToolkitUtil::TextureAttrs::High)     compressionOptions.setQuality(nvtt::Quality_Highest);
+        else if (attrs.GetQuality() == ToolkitUtil::TextureAttrs::Low)      compressionOptions.setQuality(nvtt::Quality_Fastest);
         
         if(targetformat == TextureAttrs::DXT3)
         {
@@ -217,47 +195,48 @@ NVTTTextureConversionJob::Convert()
         bool needResize = false;
         int width = image->width();
         int height = image->height();
-        if(attrs.GetMaxWidth() < width)
+        if (attrs.GetMaxWidth() < width)
         {
             width = attrs.GetMaxWidth();
             needResize = true;
         }
-        if(attrs.GetMaxHeight() < height)
+        if (attrs.GetMaxHeight() < height)
         {
             height = attrs.GetMaxHeight();
             needResize = true;
         }
         
-        if(needResize)
+        if (needResize)
         {
 			Timing::Time startResize = timer.GetTime();
 			this->logger->Print("Resizing to %d %d using %s ....", width, height, ToolkitUtil::TextureAttrs::FilterToString(attrs.GetScaleFilter()).AsCharPtr());
             nv::AutoPtr<nv::Filter> filter;
-            if(attrs.GetScaleFilter() == ToolkitUtil::TextureAttrs::Kaiser)
+            if (attrs.GetScaleFilter() == ToolkitUtil::TextureAttrs::Kaiser)
             {
                 filter = new nv::KaiserFilter(3);
                 ((nv::KaiserFilter *)filter.ptr())->setParameters(4.0f, 1.0f);
             }
-            else if(attrs.GetScaleFilter() == ToolkitUtil::TextureAttrs::Box)
+            else if (attrs.GetScaleFilter() == ToolkitUtil::TextureAttrs::Box)
             {
                 filter = new nv::BoxFilter();
             }
-            else if(attrs.GetScaleFilter() == ToolkitUtil::TextureAttrs::Triangle)
+            else if (attrs.GetScaleFilter() == ToolkitUtil::TextureAttrs::Triangle)
             {
                 filter = new nv::TriangleFilter();
             }
-            else if(attrs.GetScaleFilter() == ToolkitUtil::TextureAttrs::Quadrat)
+            else if (attrs.GetScaleFilter() == ToolkitUtil::TextureAttrs::Quadrat)
             {
                 filter = new nv::QuadraticFilter();
             }
-            else if(attrs.GetScaleFilter() == ToolkitUtil::TextureAttrs::Cubic)
+            else if (attrs.GetScaleFilter() == ToolkitUtil::TextureAttrs::Cubic)
             {
                 filter = new nv::CubicFilter();
             }
             else
             {
                 filter = new nv::LanczosFilter();
-            }					
+            }			
+
             image->toLinear(0, 3, gamma);
             nv::AutoPtr<nv::FloatImage> fresult(image->resize(*filter, width, height, nv::FloatImage::WrapMode_Clamp));
             outputImage = fresult->createImageGammaCorrect(gamma);            
@@ -273,41 +252,22 @@ NVTTTextureConversionJob::Convert()
                     
         inputOptions.setTextureLayout(nvtt::TextureType_2D, width, height);
         inputOptions.setMipmapData(outputImage->pixels(),width,height);
-        
         inputOptions.setRoundMode(nvtt::RoundMode_ToPreviousPowerOfTwo);
         
-        if (!attrs.GetGenMipMaps())
-        {
-            inputOptions.setMipmapGeneration(false);
-        }
+        if (!attrs.GetGenMipMaps()) inputOptions.setMipmapGeneration(false);
         
-        if(attrs.GetMipMapFilter() == ToolkitUtil::TextureAttrs::Kaiser)
-        {
-            inputOptions.setMipmapFilter(nvtt::MipmapFilter_Kaiser);
-        }
-        else if(attrs.GetMipMapFilter() == ToolkitUtil::TextureAttrs::Triangle)
-        {
-            inputOptions.setMipmapFilter(nvtt::MipmapFilter_Triangle);
-        }
-        else if(attrs.GetMipMapFilter() == ToolkitUtil::TextureAttrs::Box)
-        {
-            inputOptions.setMipmapFilter(nvtt::MipmapFilter_Box);
-        }
-        else
-        {
-             inputOptions.setMipmapFilter(nvtt::MipmapFilter_Box);
-        }        
+        if (attrs.GetMipMapFilter() == ToolkitUtil::TextureAttrs::Kaiser)           inputOptions.setMipmapFilter(nvtt::MipmapFilter_Kaiser);
+        else if (attrs.GetMipMapFilter() == ToolkitUtil::TextureAttrs::Triangle)    inputOptions.setMipmapFilter(nvtt::MipmapFilter_Triangle);
+        else if (attrs.GetMipMapFilter() == ToolkitUtil::TextureAttrs::Box)         inputOptions.setMipmapFilter(nvtt::MipmapFilter_Box);
+        else                                                                        inputOptions.setMipmapFilter(nvtt::MipmapFilter_Box);
         
         outputOptions.setFileName(dstPathUri.LocalPath().AsCharPtr());
-		if (!isDXT5NormalMap)
-		{
-			outputOptions.setSrgbFlag(attrs.GetColorSpace() == TextureAttrs::sRGB);
-		}		
+        if (!isDXT5NormalMap)   outputOptions.setSrgbFlag(attrs.GetColorSpace() == TextureAttrs::sRGB);
 
 		Timing::Time beforeCompress = timer.GetTime();
 		this->logger->Print("Compressing ...");
         nvtt::Context context;
-        if(!context.process(inputOptions,compressionOptions,outputOptions))
+        if (!context.process(inputOptions, compressionOptions, outputOptions))
         {
 			this->logger->Print("Failed!\n");
             return false;

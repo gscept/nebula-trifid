@@ -45,7 +45,7 @@ FramePass::Discard()
 /**
 */
 void
-FramePass::Render()
+FramePass::Render(IndexT frameIndex)
 {
 #if NEBULA3_ENABLE_PROFILING
     _start_timer(this->debugTimer);
@@ -83,6 +83,9 @@ FramePass::Render()
         n_assert(!this->renderTargetCube.isvalid());
     }
 
+    // begin updating global shader state
+    if (this->shader.isvalid()) this->shader->BeginUpdate();
+
     // apply shader variables
     IndexT varIndex;
     for (varIndex = 0; varIndex < this->shaderVariables.Size(); varIndex++)
@@ -113,13 +116,14 @@ FramePass::Render()
 	{
 		n_error("FramePass::Render() : No render targets assigned!");
 	}
+    if (this->shader.isvalid()) this->shader->EndUpdate();
 
 	// render batches...
     IndexT batchIndex;
     for (batchIndex = 0; batchIndex < this->batches.Size(); batchIndex++)
     {
         FRAME_LOG("    FramePass::Render() %s  batch: %d", this->GetName().AsString().AsCharPtr(), batchIndex);
-        this->batches[batchIndex]->Render();
+        this->batches[batchIndex]->Render(frameIndex);
         FRAME_LOG(" ");
     }
     renderDevice->EndPass();

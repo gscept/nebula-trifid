@@ -26,7 +26,7 @@ public:
     /// discard the frame pass
     virtual void Discard();
     /// render the pass
-    virtual void Render();
+    virtual void Render(IndexT frameIndex);
 
 #if NEBULA3_ENABLE_PROFILING
     /// add batch profiler

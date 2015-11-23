@@ -10,6 +10,8 @@
 #include "coregraphics/shadervariation.h"
 #include "coregraphics/shaderserver.h"
 #include "resources/resourcemanager.h"
+#include "ogl4uniformbuffer.h"
+#include "coregraphics/constantbuffer.h"
 
 namespace OpenGL4
 {
@@ -52,55 +54,53 @@ OGL4ShaderInstance::Setup(const Ptr<CoreGraphics::Shader>& origShader)
 	// copy effect pointer
 	this->effect = origShader->GetOGL4Effect();
 
-	int programCount = ogl4Shader->GetOGL4Effect()->GetNumPrograms();
-	for (int i = 0; i < programCount; i++)
-	{
-		Ptr<ShaderVariation> variation = ShaderVariation::Create();
-		AnyFX::EffectProgram* program = ogl4Shader->GetOGL4Effect()->GetProgramByIndex(i);
-		if (program->IsValid())
-		{
-			variation->Setup(program);
-			this->variations.Add(variation->GetFeatureMask(), variation);
-		}		
-	}
+    int varblockCount = this->effect->GetNumVarblocks();
+    for (int i = 0; i < varblockCount; i++)
+    {
+        // get varblock
+        AnyFX::EffectVarblock* effectBlock = effect->GetVarblockByIndex(i);
 
-	int variableCount = ogl4Shader->GetOGL4Effect()->GetNumVariables();
-	for (int i = 0; i < variableCount; i++)
-	{
-		// create new variable
-		Ptr<ShaderVariable> var = ShaderVariable::Create();
+        bool usedBySystem = false;
+        if (effectBlock->HasAnnotation("System")) usedBySystem = effectBlock->GetAnnotationBool("System");
 
-		// get AnyFX variable
-		AnyFX::EffectVariable* effectVar = ogl4Shader->GetOGL4Effect()->GetVariableByIndex(i);
+        // only create buffer if it's not using a reserved block
+        if (!usedBySystem && effectBlock->IsActive())
+        {
+            // get bindings, and skip creating this buffer if the block is empty
+            eastl::vector<AnyFX::VarblockVariableBinding> variableBinds = effectBlock->GetVariables();
+            if (variableBinds.empty()) continue;
 
-		if (effectVar->IsActive())
-		{
-			// setup variable from AnyFX variable
-			var->Setup(effectVar);
-			this->variables.Append(var);
-			this->variablesByName.Add(var->GetName(), var);
-			this->variablesBySemantic.Add(var->GetSemantic(), var);
-		}		
-	}
+            // create a new buffer that will serve as this shaders backing storage
+            Ptr<CoreGraphics::ConstantBuffer> uniformBuffer = CoreGraphics::ConstantBuffer::Create();
 
-	int varbufferCount = ogl4Shader->GetOGL4Effect()->GetNumVarbuffers();
-	for (int i = 0; i < varbufferCount; i++)
-	{
-		// create new variable
-		Ptr<ShaderVariable> var = ShaderVariable::Create();
-		
-		// get AnyFX variable
-		AnyFX::EffectVarbuffer* effectBuf = ogl4Shader->GetOGL4Effect()->GetVarbufferByIndex(i);
+            // generate a name which we know will be unique
+            Util::String name = effectBlock->GetName().c_str();
+            n_assert(!this->uniformBuffersByName.Contains(name));
 
-		var->Setup(effectBuf);
-		this->variables.Append(var);
-		this->variablesByName.Add(var->GetName(), var);
-		this->variablesBySemantic.Add(var->GetSemantic(), var);
-	}
+            // get variable corresponding to this block
+            const Ptr<ShaderVariable>& blockVar = origShader->GetVariableByName(name);
+            
+            // setup block
+            uniformBuffer->SetSize(effectBlock->GetSize());
+            uniformBuffer->Setup();
 
-	// use the default variation as the standard one
-	this->activeVariation = this->variations.ValueAtIndex(0);
+            for (unsigned j = 0; j < variableBinds.size(); j++)
+            {
+                // find the shader variable and bind the constant buffer we just created to said variable
+                const AnyFX::VarblockVariableBinding& binding = variableBinds[j];
+                Util::String name = binding.name.c_str();
+                uniformBuffer->UpdateArray(binding.value, binding.offset, binding.size, binding.arraySize);
+                this->uniformVariableBinds.Add(name, VariableBufferBinding(DeferredVariableToBufferBind{ binding.offset, binding.size, binding.arraySize }, uniformBuffer));
+                //const Ptr<ShaderVariableInstance>& var = this->variableInstancesByName[binding.name.c_str()];
+                //var->BindToUniformBuffer(uniformBuffer, binding.offset, binding.size, binding.value);
+            }
 
+            // add to dictionaries
+            this->uniformBuffers.Append(uniformBuffer);
+            this->uniformBuffersByName.Add(name, uniformBuffer);
+            this->blockToBufferBindings.Append(BlockBufferBinding(blockVar, uniformBuffer));
+        }
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -122,7 +122,22 @@ OGL4ShaderInstance::Cleanup()
     ShaderInstanceBase::Cleanup();
 	this->effect = 0;
 
-	this->variations.Clear();
+    IndexT i;
+    for (i = 0; i < this->variableInstances.Size(); i++)
+    {
+        this->variableInstances[i]->Discard();
+    }
+    this->variableInstances.Clear();
+    this->variableInstancesByName.Clear();
+    this->uniformVariableBinds.Clear();
+
+    for (i = 0; i < this->uniformBuffers.Size(); i++)
+    {
+        this->uniformBuffers[i]->Discard();
+    }
+    this->uniformBuffers.Clear();
+    this->uniformBuffersByName.Clear();
+    this->blockToBufferBindings.Clear();
 }
 
 //------------------------------------------------------------------------------
@@ -170,9 +185,7 @@ OGL4ShaderInstance::Begin()
 void
 OGL4ShaderInstance::BeginPass(IndexT passIndex)
 {
-	n_assert(this->activeVariation.isvalid());
     ShaderInstanceBase::BeginPass(passIndex);
-	this->activeVariation->Apply();
 }
 
 //------------------------------------------------------------------------------
@@ -181,10 +194,21 @@ OGL4ShaderInstance::BeginPass(IndexT passIndex)
 void
 OGL4ShaderInstance::Commit()
 {
-	n_assert(this->activeVariation.isvalid());
-    ShaderInstanceBase::Commit(); 
+    // apply the uniform buffers used by this shader instance
+    IndexT i;
+    for (i = 0; i < this->blockToBufferBindings.Size(); i++)
+    {
+        const BlockBufferBinding& binding = this->blockToBufferBindings[i];
+        binding.Key()->SetBufferHandle(binding.Value()->GetHandle());
+    }
 
-	this->activeVariation->Commit();
+    ShaderInstanceBase::Commit();
+
+    for (i = 0; i < this->blockToBufferBindings.Size(); i++)
+    {
+        const BlockBufferBinding& binding = this->blockToBufferBindings[i];
+        binding.Value()->CycleBuffers();
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -193,10 +217,7 @@ OGL4ShaderInstance::Commit()
 void 
 OGL4ShaderInstance::PostDraw()
 {
-    n_assert(this->activeVariation.isvalid());
     ShaderInstanceBase::PostDraw();
-
-    this->activeVariation->PostDraw();
 }
 
 //------------------------------------------------------------------------------
@@ -205,7 +226,6 @@ OGL4ShaderInstance::PostDraw()
 void
 OGL4ShaderInstance::EndPass()
 {
-	n_assert(this->activeVariation.isvalid());
     ShaderInstanceBase::EndPass();
 }
 
@@ -215,7 +235,6 @@ OGL4ShaderInstance::EndPass()
 void
 OGL4ShaderInstance::End()
 {
-	n_assert(this->activeVariation.isvalid());
     ShaderInstanceBase::End();
 }
 
@@ -226,7 +245,23 @@ void
 OGL4ShaderInstance::SetWireframe(bool b)
 {
     this->inWireframe = b;
-    this->activeVariation->SetWireframe(b);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+Ptr<CoreGraphics::ShaderVariableInstance>
+OGL4ShaderInstance::CreateVariableInstance(const Base::ShaderVariableBase::Name& n)
+{
+    Ptr<CoreGraphics::ShaderVariableInstance> var = ShaderInstanceBase::CreateVariableInstance(n);
+    if (this->uniformVariableBinds.Contains(n))
+    { 
+        const DeferredVariableToBufferBind& binding = this->uniformVariableBinds[n].Key();
+        const Ptr<CoreGraphics::ConstantBuffer>& buf = this->uniformVariableBinds[n].Value();
+        var->BindToUniformBuffer(buf, binding.offset, binding.size);
+    }
+    
+    return var;
 }
 
 } // namespace OpenGL4

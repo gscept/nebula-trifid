@@ -16,12 +16,11 @@
 #include "util/array.h"
 #include "util/variant.h"
 
-
 namespace CoreGraphics
 {
-    class Texture;
-    class ShaderInstance;
-    class ShaderVariableInstance;
+class Texture;
+class ShaderInstance;
+class ShaderVariableInstance;
 }
 
 //------------------------------------------------------------------------------
@@ -47,8 +46,6 @@ public:
 
     /// shader variable name typedef
     typedef Util::StringAtom Name;
-    /// shader variable semantic typedef
-    typedef Util::StringAtom Semantic;
 
     /// constructor
     ShaderVariableBase();
@@ -64,8 +61,6 @@ public:
     Type GetType() const;
     /// get the name of the variable
     const Name& GetName() const;
-    /// get the semantics of the variable
-    const Semantic& GetSemantic() const;
 	/// get the default value of the variable
 	const Util::Variant& GetDefaultValue() const;
 
@@ -120,14 +115,9 @@ protected:
     void SetType(Type t);
     /// set variable name
     void SetName(const Name& n);
-    /// set variable semantic
-    void SetSemantic(const Semantic& s);
-
-
 
     Type type;
     Name name;
-    Semantic semantic;
 	Util::Variant defaultValue;
 
 	Util::Array<Ptr<CoreGraphics::ShaderVariableInstance> > instances;
@@ -167,24 +157,6 @@ inline const ShaderVariableBase::Name&
 ShaderVariableBase::GetName() const
 {
     return this->name;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void
-ShaderVariableBase::SetSemantic(const Semantic& s)
-{
-    this->semantic = s;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline const ShaderVariableBase::Semantic&
-ShaderVariableBase::GetSemantic() const
-{
-    return this->semantic;
 }
 
 //------------------------------------------------------------------------------

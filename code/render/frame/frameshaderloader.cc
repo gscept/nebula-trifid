@@ -19,7 +19,7 @@
 #include "coregraphics/displaydevice.h"
 #include "coregraphics/shaderserver.h"
 #include "coregraphics/renderdevice.h"
-#include "models/modelnodetype.h"
+#include "frame/batchgroup.h"
 #include "resources/resourcemanager.h"
 #if __PS3__
 #include "coregraphics/ps3/ps3rendertarget.h"
@@ -318,11 +318,11 @@ FrameShaderLoader::ParseDepthStencilTarget( const Ptr<IO::XmlReader>& xmlReader,
 /**
 */
 void
-FrameShaderLoader::ParseShaderVariableInstance(const Ptr<XmlReader>& xmlReader, const Ptr<ShaderInstance>& shd, const Ptr<FramePassBase>& pass)
+FrameShaderLoader::ParseShaderVariableInstance(const Ptr<XmlReader>& xmlReader, const Ptr<Shader>& shd, const Ptr<FramePassBase>& pass)
 {
     /// create a shader variable instance by semantic
-    String semantic = xmlReader->GetString("sem");
-	const Ptr<ShaderVariable>& shdVar = shd->GetVariableBySemantic(semantic);
+    String name = xmlReader->GetString("sem");
+	const Ptr<ShaderVariable>& shdVar = shd->GetVariableByName(name);
 	Ptr<ShaderVariableInstance> shdVarInst = shdVar->CreateInstance();
 
 	/// get the default value of the shader variable
@@ -353,23 +353,11 @@ FrameShaderLoader::ParseShaderVariableInstance(const Ptr<XmlReader>& xmlReader, 
 		{                  
 			// rendertargets names are also theory resource ids, texture have a name -> resourceid mapping
 			const Ptr<ResourceManager>& resManager = ResourceManager::Instance();
-			if (resManager->HasResource(valueStr))
-			{
-				const Ptr<Resource>& resource = resManager->LookupResource(valueStr);
-				if (resource.isvalid())
-				{
-					shdVarInst->SetTexture(resource.downcast<Texture>());
-				}
-				else
-				{
-					shdVarInst->SetDeferredTexture(valueStr);
-				}				
-			}
-			else
-			{
-				// save name for late binding
-				shdVarInst->SetDeferredTexture(valueStr);
-			}
+            if (resManager->HasResource(valueStr))
+            {
+                const Ptr<Resource>& resource = resManager->LookupResource(valueStr);
+                shdVarInst->SetTexture(resource.downcast<Texture>());
+            }
 		}
 		break;
 
@@ -379,15 +367,15 @@ FrameShaderLoader::ParseShaderVariableInstance(const Ptr<XmlReader>& xmlReader, 
 	}
 	
 	// add variable
-	pass->AddVariable(semantic, shdVarInst);
+	pass->AddVariable(name, shdVarInst);
    
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-void 
-FrameShaderLoader::ParseShaderVariableInstance( const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameBatch>& batch )
+void
+FrameShaderLoader::ParseShaderVariableInstance(const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameBatch>& batch)
 {
 	/// create a shader variable instance by semantic
 	String semantic = xmlReader->GetString("sem");
@@ -432,12 +420,6 @@ FrameShaderLoader::ParseShaderVariableInstance( const Ptr<IO::XmlReader>& xmlRea
 			const Ptr<Resource>& resource = resManager->LookupResource(valueStr);
 			shdVarInst->SetTexture(resource.downcast<Texture>()); 
 		}
-		else
-		{
-			// save name for late binding
-			shdVarInst->SetDeferredTexture(valueStr);
-		}
-
 	}
 
 	// add variable
@@ -460,7 +442,7 @@ FrameShaderLoader::ParseFramePass(const Ptr<XmlReader>& xmlReader, const Ptr<Fra
 	{
 		// setup the pass shader
 		ResourceId shdResId = ResourceId("shd:" + xmlReader->GetString("shader"));
-		Ptr<ShaderInstance> shader = ShaderServer::Instance()->CreateShaderInstance(shdResId);
+        Ptr<Shader> shader = ShaderServer::Instance()->GetShader(shdResId);
 		framePass->SetShader(shader);
 
 		// add shader variable instances
@@ -577,7 +559,7 @@ FrameShaderLoader::ParseFrameCompute( const Ptr<IO::XmlReader>& xmlReader, const
 
     // setup the pass shader
     ResourceId shdResId = ResourceId("shd:" + xmlReader->GetString("shader"));
-    Ptr<ShaderInstance> shader = ShaderServer::Instance()->CreateShaderInstance(shdResId);
+    Ptr<Shader> shader = ShaderServer::Instance()->GetShader(shdResId);
     frameComp->SetShader(shader);
 
     // add shader variable instances
@@ -707,10 +689,10 @@ FrameShaderLoader::ParseFrameBatch(const Ptr<XmlReader>& xmlReader, const Util::
     Ptr<FrameBatch> frameBatch = FrameBatch::Create();
 
     // setup batch type, model node filter, lighting and sorting mode
-    frameBatch->SetType(BatchType::FromString(xmlReader->GetString("type")));
-    if (xmlReader->HasAttr("materialType"))
+    frameBatch->SetType(FrameBatchType::FromString(xmlReader->GetString("type")));
+    if (xmlReader->HasAttr("batchGroup"))
     {
-        frameBatch->SetNodeFilter(ModelNodeType::FromName(xmlReader->GetString("materialType")));
+        frameBatch->SetBatchGroup(BatchGroup::FromName(xmlReader->GetString("batchGroup")));
     }
     if (xmlReader->HasAttr("lighting"))
     {
@@ -738,7 +720,7 @@ FrameShaderLoader::ParseFrameBatch(const Ptr<XmlReader>& xmlReader, const Util::
     name.Format("FrameBatch:%s_%s_%s_%s_%s",
         passName.AsCharPtr(),
         xmlReader->GetString("type").AsCharPtr(),
-		xmlReader->GetOptString("materialType", "").AsCharPtr(),
+		xmlReader->GetOptString("batchGroup", "").AsCharPtr(),
         xmlReader->GetOptString("lighting", "").AsCharPtr(),
         xmlReader->GetOptString("sorting", "").AsCharPtr());
     frameBatch->SetBatchDebugTimer(name);
@@ -759,7 +741,7 @@ FrameShaderLoader::ParsePostEffect(const Ptr<XmlReader>& xmlReader, const Ptr<Fr
 
     // setup the pass shader
     ResourceId shdResId = ResourceId("shd:" + xmlReader->GetString("shader"));
-    Ptr<ShaderInstance> shader = ShaderServer::Instance()->CreateShaderInstance(shdResId);
+    Ptr<Shader> shader = ShaderServer::Instance()->GetShader(shdResId);
     framePostEffect->SetShader(shader);
 
     // setup the render target (if not render to default render target)
@@ -815,7 +797,7 @@ FrameShaderLoader::ParsePostEffect(const Ptr<XmlReader>& xmlReader, const Ptr<Fr
     // add shader variable instances
     if (xmlReader->SetToFirstChild("ApplyShaderVariable")) do
     {
-		if (shader->HasVariableBySemantic(xmlReader->GetString("sem")))
+		if (shader->HasVariableByName(xmlReader->GetString("sem")))
 		{
 			ParseShaderVariableInstance(xmlReader, shader, framePostEffect.upcast<FramePassBase>());
 		}

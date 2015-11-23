@@ -103,7 +103,6 @@ protected:
 	GLFWmonitor * GetMonitor(CoreGraphics::Adapter::Code a);
 	/// translate glfw keycodes to nebula ones
 	Input::Key::Code TranslateKeyCode(int inkey) const;
-
 };
 
 
@@ -116,7 +115,6 @@ GLFWDisplayDevice::SwapBuffers()
 {
 	n_assert(this->IsOpen());
 	glfwSwapBuffers(this->window);
-
 }
 
 } // namespace OpenGL4

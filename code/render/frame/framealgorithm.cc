@@ -43,16 +43,16 @@ FrameAlgorithm::Discard()
 void 
 FrameAlgorithm::Begin()
 {
-	this->algorithm->Prepare();
+	this->algorithm->Begin();
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void 
-FrameAlgorithm::Render()
+FrameAlgorithm::Render(IndexT frameIndex)
 {
-	this->algorithm->Execute();
+	this->algorithm->Render();
 }
 
 //------------------------------------------------------------------------------
@@ -61,7 +61,7 @@ FrameAlgorithm::Render()
 void 
 FrameAlgorithm::End()
 {
-	this->algorithm->Finish();
+	this->algorithm->End();
 }
 
 //------------------------------------------------------------------------------

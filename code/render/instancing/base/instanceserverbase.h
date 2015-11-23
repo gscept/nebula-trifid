@@ -34,19 +34,21 @@ public:
 	bool IsOpen() const;
 
 	/// begins adding model instances to server
-	void BeginInstancing(const Ptr<Models::ModelNode>& modelNode, const SizeT multiplier);
+	void BeginInstancing(const Ptr<Models::ModelNode>& modelNode, const SizeT multiplier, const Ptr<CoreGraphics::Shader>& shader, const Frame::BatchGroup::Code& code);
 	/// adds instance to current model
 	void AddInstance(const IndexT& instanceCode, const Ptr<Models::ModelNodeInstance>& instance);
 	/// ends adding model instances
 	void EndInstancing();
 
 	/// updates instance server (call from batch)
-	virtual void Render();
+	virtual void Render(IndexT frameIndex);
 
 protected:
+    Frame::BatchGroup::Code code;
+    Ptr<CoreGraphics::Shader> shader;
 	Ptr<InstanceRendererBase> renderer;
 	Ptr<Models::ModelNode> modelNode;
-	Util::Dictionary<IndexT, Util::Array<Ptr<Models::ModelNodeInstance> > > instancesByCode;
+    Util::Dictionary<IndexT, Util::Array<Ptr<Models::ModelNodeInstance>>> instancesByCode;
 	bool isBeginInstancing;
 	bool isOpen;
 	SizeT multiplier;

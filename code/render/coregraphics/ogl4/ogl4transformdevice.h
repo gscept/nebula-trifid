@@ -34,12 +34,11 @@ public:
     /// updates shared shader variables dependent on view matrix
     void ApplyViewSettings();
     /// apply any model transform needed, implementation is platform dependent
-	void ApplyModelTransforms(const Ptr<CoreGraphics::ShaderInstance>& shdInst);
+    void ApplyModelTransforms(const Ptr<CoreGraphics::Shader>& shdInst);
 	/// set view matrix array
 	void ApplyViewMatrixArray(const Math::matrix44* matrices, SizeT num);
 
 private:
-
 
 	Math::matrix44 viewMatrixArray[6];
 
@@ -52,10 +51,13 @@ private:
     Ptr<CoreGraphics::ShaderVariable> eyePosVar;
     Ptr<CoreGraphics::ShaderVariable> focalLengthVar;
 	Ptr<CoreGraphics::ShaderVariable> viewMatricesVar;
-	Ptr<CoreGraphics::ShaderVariable> timeAndRandomVariable;
+	Ptr<CoreGraphics::ShaderVariable> timeAndRandomVar;
+    Ptr<CoreGraphics::ShaderVariable> cameraBlockVar;
 
-	AnyFX::EffectVarblock* perFrameBlock;
-	AnyFX::EffectVarblock* perShadowFrameBlock;
+    Ptr<CoreGraphics::ShaderVariable> shadowCameraBlockVar;
+
+    Ptr<CoreGraphics::ConstantBuffer> cameraBuffer;
+    Ptr<CoreGraphics::ConstantBuffer> shadowCameraBuffer;
 };
 
 } // namespace OpenGL4

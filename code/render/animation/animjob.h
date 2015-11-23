@@ -55,6 +55,8 @@ public:
     bool IsStoppingOrExpired(Timing::Tick time) const;
     /// return true when the job has expired
     bool IsExpired(Timing::Tick time) const;
+	/// returns true if the clip is playing, but has been paused
+	bool IsPaused() const;
 
     /// set track index, defines blend priority and relationship to other jobs on same track
     void SetTrackIndex(IndexT trackIndex);
@@ -403,6 +405,15 @@ AnimJob::GetTimeOffset() const
 {
     return this->timeOffset;
 }   
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline bool
+AnimJob::IsPaused() const
+{
+	return this->isPaused;
+}
 
 } // namespace Animation
 //------------------------------------------------------------------------------

@@ -59,7 +59,7 @@ ModelBuilder3App::DoWork()
 	{
 		projectFolder = this->args.GetString("-projectdir") + "/";
 	}	 
-	IO::AssignRegistry::Instance()->SetAssign(Assign("home","proj:"));
+    IO::AssignRegistry::Instance()->SetAssign(Assign("home", "proj:"));
 
 	Array<String> fileList = CreateFileList();
 
@@ -184,7 +184,7 @@ ModelBuilder3App::CreateFileList()
 	}
 	else
 	{				
-		String workDir = "src:models";
+		String workDir = "proj:work/assets";
 		Array<String> directories = IoServer::Instance()->ListDirectories(workDir, "*");
 		for (int directoryIndex = 0; directoryIndex < directories.Size(); directoryIndex++)
 		{

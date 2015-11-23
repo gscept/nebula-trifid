@@ -75,20 +75,28 @@ TiledGraphicsView::Rearrange()
 	numX = Math::n_max(numX, 1);
 
 	SizeT x, y;
+    IndexT itemIndex = 0;
 	IndexT i;
 	for (i = 0; i < this->items.size(); i++)
 	{
-		IndexT xIndex = i % numX;
-		IndexT yIndex = i / numX;
-		x = xIndex * this->itemSize.width() + 12 + xIndex * 12;
-		y = yIndex * this->itemSize.height() + 12 + yIndex * 12;
+        TiledGraphicsItem* item = this->items[i];
+        if (item->isVisible())
+        {
+            IndexT xIndex = itemIndex % numX;
+            IndexT yIndex = itemIndex / numX;
+            x = xIndex * this->itemSize.width() + 12 + xIndex * 12;
+            y = yIndex * this->itemSize.height() + 12 + yIndex * 12;
 
-		this->items[i]->setPos(x, y);
+            item->setPos(x, y);
+            itemIndex++;
+        }
 	}
 
 	// set scrolling to cover all elements
-	this->verticalScrollBar()->setSliderPosition(0);
-	this->verticalScrollBar()->setRange(this->scene->itemsBoundingRect().top() - 16, this->scene->itemsBoundingRect().bottom());
+    QScrollBar* scrollBar = this->verticalScrollBar();
+    scrollBar->setSliderPosition(min(scrollBar->sliderPosition(), this->scene->itemsBoundingRect().bottom()));
+    scrollBar->setRange(this->scene->itemsBoundingRect().top() - 16, this->scene->itemsBoundingRect().bottom() + 16);
+    this->viewport()->update();
 }
 
 //------------------------------------------------------------------------------

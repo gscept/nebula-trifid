@@ -52,7 +52,7 @@ public:
 	/// get vertex buffer
 	const Ptr<CoreGraphics::VertexBuffer>& GetVertexBuffer() const;
 	/// get shader
-	const Ptr<CoreGraphics::ShaderInstance>& GetShader() const;
+    const Ptr<CoreGraphics::Shader>& GetShader() const;
 	/// get font texture
 	const Ptr<CoreGraphics::Texture>& GetFontTexture() const;
 	/// get shader params
@@ -61,7 +61,7 @@ public:
 private:
 
 	ImguiRendererParams params;
-	Ptr<CoreGraphics::ShaderInstance> uiShader;
+	Ptr<CoreGraphics::Shader> uiShader;
 	Ptr<CoreGraphics::Texture> fontTexture;
 	Ptr<CoreGraphics::VertexBuffer> vbo;
 	Ptr<CoreGraphics::BufferLock> bufferLock;
@@ -98,7 +98,7 @@ ImguiRenderer::GetVertexBuffer() const
 //------------------------------------------------------------------------------
 /**
 */
-inline const Ptr<CoreGraphics::ShaderInstance>&
+inline const Ptr<CoreGraphics::Shader>&
 ImguiRenderer::GetShader() const
 {
 	return this->uiShader;

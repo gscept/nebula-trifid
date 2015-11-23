@@ -91,8 +91,10 @@ NebulaGLDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GL
 	switch (type)
 	{
 	case GL_DEBUG_TYPE_ERROR:
+        n_warning("Error: %s\n", msg.AsCharPtr());
+        break;
 	case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
-		n_error("Error: %s\n", msg.AsCharPtr());
+		n_warning("Undefined behavior: %s\n", msg.AsCharPtr());
 		break;
 	case GL_DEBUG_TYPE_PERFORMANCE:
 		n_warning("Performance issue: %s\n", msg.AsCharPtr());
@@ -259,6 +261,7 @@ OGL4RenderDevice::OpenOpenGL4Context()
 	n_assert(GLSUCCESS);
 
 	// enable seamless cubemaps and SRGB framebuffers
+    glEnable(GL_TEXTURE_2D);
 	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 	glEnable(GL_FRAMEBUFFER_SRGB);
     glDisable(GL_MULTISAMPLE);
@@ -389,11 +392,11 @@ OGL4RenderDevice::SetIndexBuffer(const Ptr<IndexBuffer>& ib)
 		if (!ib.isvalid())
 		{
 			// unbind buffer if we pass NULL
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+			//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		}
 		else
 		{
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib->GetOGL4IndexBuffer());
+			//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib->GetOGL4IndexBuffer());
 		}
 	}
 	RenderDeviceBase::SetIndexBuffer(ib);
@@ -427,7 +430,7 @@ OGL4RenderDevice::BeginFrame()
 /**
 */
 void
-OGL4RenderDevice::BeginPass(const Ptr<CoreGraphics::RenderTarget>& rt, const Ptr<CoreGraphics::ShaderInstance>& passShader)
+OGL4RenderDevice::BeginPass(const Ptr<CoreGraphics::RenderTarget>& rt, const Ptr<CoreGraphics::Shader>& passShader)
 {
 	n_assert(rt.isvalid());
 
@@ -438,12 +441,15 @@ OGL4RenderDevice::BeginPass(const Ptr<CoreGraphics::RenderTarget>& rt, const Ptr
 	if (rt->IsResolveRectArrayValid())
 	{
 		const Util::Array<Math::rectangle<int> >& resolveRects = rt->GetResolveRectArray();
+        
 		IndexT i;
 		for (i = 0; i < resolveRects.Size(); i++)
 		{
 			const Math::rectangle<int>& rect = resolveRects[i];
 			glViewportIndexedf(i, (float)rect.left, (float)rect.top, (float)rect.width(), (float)rect.height());
 		}
+        
+        //glViewportArrayv(0, resolveRects.Size(), (float*)&resolveRects[0]);
 	}
 	else
 	{
@@ -460,7 +466,7 @@ OGL4RenderDevice::BeginPass(const Ptr<CoreGraphics::RenderTarget>& rt, const Ptr
 /**
 */
 void
-OGL4RenderDevice::BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt, const Ptr<CoreGraphics::ShaderInstance>& passShader)
+OGL4RenderDevice::BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt, const Ptr<CoreGraphics::Shader>& passShader)
 {
 	n_assert(mrt.isvalid());
 
@@ -481,7 +487,7 @@ OGL4RenderDevice::BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt, 
 /**
 */
 void
-OGL4RenderDevice::BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& rtc, const Ptr<CoreGraphics::ShaderInstance>& passShader)
+OGL4RenderDevice::BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& rtc, const Ptr<CoreGraphics::Shader>& passShader)
 {
 	n_assert(rtc.isvalid());
 
@@ -499,7 +505,7 @@ OGL4RenderDevice::BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& rtc, cons
 	Begins transform feedback by disabling the rasterizer and starting the GL process of transform feedbacking
 */
 void
-OGL4RenderDevice::BeginFeedback(const Ptr<CoreGraphics::FeedbackBuffer>& fb, CoreGraphics::PrimitiveTopology::Code primType, const Ptr<CoreGraphics::ShaderInstance>& shader)
+OGL4RenderDevice::BeginFeedback(const Ptr<CoreGraphics::FeedbackBuffer>& fb, CoreGraphics::PrimitiveTopology::Code primType, const Ptr<CoreGraphics::Shader>& shader)
 {
 	n_assert(fb.isvalid());
 	RenderDeviceBase::BeginFeedback(fb, primType, shader);
@@ -513,11 +519,11 @@ OGL4RenderDevice::BeginFeedback(const Ptr<CoreGraphics::FeedbackBuffer>& fb, Cor
 /**
 */
 void
-OGL4RenderDevice::BeginBatch(CoreGraphics::BatchType::Code batchType)
+OGL4RenderDevice::BeginBatch(CoreGraphics::FrameBatchType::Code batchType)
 {
 	RenderDeviceBase::BeginBatch(batchType);
-	const Ptr<ShaderInstance>& shader = ShaderServer::Instance()->GetActiveShaderInstance();
-	this->usePatches = shader->GetActiveVariation()->UsePatches();
+    const Ptr<ShaderServer>& shdServer = ShaderServer::Instance();
+    this->usePatches = shdServer->GetActiveShader()->GetActiveVariation()->UsePatches();
 #if OGL4_DRAW_INDIRECT
 	this->useMultiDraw = true;
 #endif
@@ -677,7 +683,6 @@ OGL4RenderDevice::Draw()
 			glDrawArrays(primType, this->primitiveGroup.GetBaseVertex(), this->primitiveGroup.GetNumVertices());
 		}
 	}
-
 
     // update debug stats
     _incr_counter(RenderDeviceNumPrimitives, this->primitiveGroup.GetNumPrimitives());
@@ -871,7 +876,7 @@ OGL4RenderDevice::UnbindOGL4Resources()
 	{
 		this->streamVertexBuffers[i] = 0;
 	}
-	this->primitiveGroup.SetPrimitiveTopology(PrimitiveTopology::InvalidPrimitiveTopology);
+    this->primitiveGroup = PrimitiveGroup();
 }
 
 //------------------------------------------------------------------------------

@@ -44,7 +44,7 @@ EffectSamplerStreamLoader::Load( BinReader* reader, Effect* effect )
 	EffectSampler* sampler = new EffectSampler;
 	
 	// get name
-	std::string name = reader->ReadString();
+    eastl::string name = reader->ReadString().c_str();
 	internalSampler->name = name;
 
 	internalSampler->samplerSettings.filterMode = (EffectSampler::FilterMode)reader->ReadInt();
@@ -68,7 +68,7 @@ EffectSamplerStreamLoader::Load( BinReader* reader, Effect* effect )
 	unsigned i;
 	for (i = 0; i < numTextures; i++)
 	{
-		std::string texture = reader->ReadString();
+        eastl::string texture = reader->ReadString().c_str();
 		EffectVariable* var = effect->GetVariableByName(texture);
 		textureVars.push_back(var->internalVariable);		
 	}

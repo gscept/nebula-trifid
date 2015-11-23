@@ -44,14 +44,6 @@ public:
         MapWriteNoOverwrite,    // gain write access, must be UsageDynamic and AccessWrite, see D3D10 docs for details
     };
 
-	// buffering types
-	enum BufferCount
-	{
-		BufferSingle = 1,			// single buffer, size of buffer = size of data
-		BufferDouble = 2,			// double buffer, size of buffer = size of data * 2
-		BufferTriple = 3			// triple buffer, size of buffer = size of data * 3
-	};
-
 	// streaming methods
 	enum Syncing
 	{
@@ -73,10 +65,7 @@ public:
     void SetAccess(Access access);
     /// get cpu access type
     Access GetAccess() const;
-	/// set resource buffering count
-	void SetBufferCount(BufferCount count);
-	/// get buffer count
-	BufferCount GetBufferCount() const;
+
 	/// set streaming method
 	void SetSyncing(Syncing method);
 	/// get streaming method
@@ -85,7 +74,6 @@ public:
 protected:
     Usage usage;
     Access access;
-	BufferCount bufferCount;
 	Syncing syncing;
 
 };
@@ -124,24 +112,6 @@ inline ResourceBase::Access
 ResourceBase::GetAccess() const
 {
     return this->access;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void
-ResourceBase::SetBufferCount(BufferCount c)
-{
-	this->bufferCount = c;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline ResourceBase::BufferCount
-ResourceBase::GetBufferCount() const
-{
-	return this->bufferCount;
 }
 
 //------------------------------------------------------------------------------

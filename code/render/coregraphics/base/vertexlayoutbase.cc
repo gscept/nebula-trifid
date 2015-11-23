@@ -95,4 +95,13 @@ VertexLayoutBase::FindComponent(VertexComponent::SemanticName semName, IndexT se
     return InvalidIndex;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VertexLayoutBase::SetIndexBuffer(const Ptr<CoreGraphics::IndexBuffer>& ibo)
+{
+    // implement in subclass
+}
+
 } // namespace Base

@@ -5,7 +5,7 @@
   
     OGL4 implementation of index buffer.
     
-    (C) 2007 Radon Labs GmbH
+    (C) 2014 Individual contributors, see AUTHORS file
 */
 #include "coregraphics/base/indexbufferbase.h"
 

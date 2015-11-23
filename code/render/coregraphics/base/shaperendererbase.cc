@@ -151,19 +151,20 @@ ShapeRendererBase::AddWireFrameBox(const Math::bbox& boundingBox, const Math::fl
         vector(-1,1,1),
         vector(-1,-1,1)};
 
-    Util::Array<point> lineList;
+    Util::Array<CoreGraphics::RenderShape::RenderShapeVertex> lineList;
     IndexT i;
     for (i = 0; i < 24; ++i)
     {
-        lineList.Append(center + float4::multiply(extends, corners[i]));    	
+        CoreGraphics::RenderShape::RenderShapeVertex vert;
+        vert.pos = center + float4::multiply(extends, corners[i]);
+        lineList.Append(vert);    	
     }       
     RenderShape shape;
     shape.SetupPrimitives(threadId,
         matrix44::identity(),
         PrimitiveTopology::LineList,
-        lineList.Size()/ 2,
+        lineList.Size() / 2,
         &(lineList.Front()),
-        4,
         color,
         CoreGraphics::RenderShape::CheckDepth,
         NULL);

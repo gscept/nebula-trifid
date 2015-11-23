@@ -44,8 +44,8 @@ EffectShaderStreamLoader::Load( BinReader* reader, Effect* effect)
 
 	// get data
 	InternalEffectShader::InternalShaderType shaderType = (InternalEffectShader::InternalShaderType)reader->ReadInt();
-	std::string name = reader->ReadString();
-	std::string code = reader->ReadString();
+    eastl::string name = reader->ReadString().c_str();
+    eastl::string code = reader->ReadString().c_str();
 
 	internalShader->type = (InternalEffectShader::InternalShaderType)shaderType;
 	internalShader->name = name;

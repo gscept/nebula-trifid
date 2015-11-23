@@ -133,7 +133,7 @@ FrameShader::Begin()
 /**
 */
 void
-FrameShader::Render()
+FrameShader::Render(IndexT frameIndex)
 {
 	// render passes
 	FRAME_LOG("\n\nFrameShader::Render()\n");
@@ -141,7 +141,7 @@ FrameShader::Render()
 	for (i = 0; i < this->framePasses.Size(); i++)
 	{ 
 		FRAME_LOG("  FrameShader::Render() pass: %d", i);
-		this->framePasses[i]->Render();
+		this->framePasses[i]->Render(frameIndex);
 		FRAME_LOG(" ");
 	}
 }

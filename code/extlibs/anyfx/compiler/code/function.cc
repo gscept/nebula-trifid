@@ -221,18 +221,33 @@ Function::TypeCheck( TypeChecker& typechecker )
 		typechecker.Error(message);
 	}
 
+    // type check parameters
+    unsigned input = 0;
+    unsigned output = 0;
+    for (i = 0; i < this->parameters.size(); i++)
+    {
+        AnyFX::Parameter& param = this->parameters[i];
+        param.TypeCheck(typechecker);
+
+        if (!param.HasExplicitSlot())
+        {
+            if (param.GetIO() == Parameter::Input)          param.SetParameterIndex(input++);
+            else if (param.GetIO() == Parameter::Output)    param.SetParameterIndex(output++);
+            else                                            param.SetParameterIndex(i);
+        }        
+    }
+
 	unsigned j;
 	for (i = 0; i < this->parameters.size(); i++)
 	{
 		const Parameter& firstParam = this->parameters[i];
 
-		// if parameters have no attribute we must make sure we don't have duplicates
-		if (firstParam.GetAttribute() != Parameter::NoAttribute)
+		for (j = i+1; j < this->parameters.size(); j++)
 		{
-			for (j = i+1; j < this->parameters.size(); j++)
-			{
-				const Parameter& secondParam = this->parameters[j];
-
+			const Parameter& secondParam = this->parameters[j];
+            // if parameters have no attribute we must make sure we don't have duplicates
+            if (firstParam.GetAttribute() != Parameter::NoAttribute)
+            {
 				if (firstParam.GetName() != secondParam.GetName())
 				{
 					if (firstParam.GetAttribute() == secondParam.GetAttribute())
@@ -247,15 +262,19 @@ Function::TypeCheck( TypeChecker& typechecker )
 							this->ErrorSuffix().c_str());
 						typechecker.Error(message);
 					}
-				}				
+				}
 			}
+            if (firstParam.GetSlot() == secondParam.GetSlot() && firstParam.GetIO() == secondParam.GetIO())
+            {
+                std::string msg = Format("Parameters '%s' and '%s' share the same binding slot '%d' in shader function '%s'. Probably due to one or both of them having an explicit slot defined, %s\n",
+                    firstParam.GetName().c_str(),
+                    secondParam.GetName().c_str(),
+                    firstParam.GetSlot(),
+                    this->name.c_str(),
+                    this->ErrorSuffix().c_str());
+                typechecker.Error(msg);
+            }
 		}		
-	}
-
-	// type check parameters
-	for (i = 0; i < this->parameters.size(); i++)
-	{
-		this->parameters[i].TypeCheck(typechecker);		
 	}
 }
 

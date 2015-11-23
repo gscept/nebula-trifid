@@ -171,24 +171,6 @@ ParticleSystemInstanceBase::OnRenderBefore()
 
 //------------------------------------------------------------------------------
 /**
-*/
-void 
-ParticleSystemInstanceBase::UpdateEmitter(const EmitterAttrs& newAttrs, IndexT primGroupIndex, const Ptr<CoreGraphics::Mesh>& emitterMesh)
-{
-	bool wasPlaying = (ParticleSystemState::Playing & this->stateMask) || (ParticleSystemState::Playing & this->stateChangeMask);
-	this->emitterAttrs = newAttrs;
-	this->primGroupIndex = primGroupIndex;
-	this->emitterMesh = emitterMesh;
-	this->Discard();
-	this->Setup(this->emitterMesh, this->primGroupIndex, this->emitterAttrs);
-	if (wasPlaying)
-	{
-		this->Start();
-	}
-}
-
-//------------------------------------------------------------------------------
-/**
     The Update() method must be called once per frame with a global time
     stamp. If the particle system is currently in the playing state,
     the method will emit new particles as needed, and update the current
@@ -663,7 +645,7 @@ ParticleSystemInstanceBase::RenderDebug()
 {
     if (this->numLivingParticles > 0)
     {
-        Array<float4> lineList;
+        Array<RenderShape::RenderShapeVertex> lineList;
         lineList.Reserve(this->numLivingParticles * 6);
         vector xAxis(1.0f, 0.0f, 0.0f);
         vector yAxis(0.0f, 1.0f, 0.0f);
@@ -677,16 +659,25 @@ ParticleSystemInstanceBase::RenderDebug()
             if (particle.relAge < 1.0f)
             {
                 // cross 1
-                lineList.Append(particle.position - xAxis * particle.size);
-                lineList.Append(particle.position + xAxis * particle.size);
-                lineList.Append(particle.position - yAxis * particle.size);
-                lineList.Append(particle.position + yAxis * particle.size);
-                lineList.Append(particle.position - zAxis * particle.size);
-                lineList.Append(particle.position + zAxis * particle.size);
+                RenderShape::RenderShapeVertex vert;
+                vert.pos = particle.position - xAxis * particle.size;
+                lineList.Append(vert);
+                vert.pos = particle.position + xAxis * particle.size;
+                lineList.Append(vert);
+                vert.pos = particle.position - yAxis * particle.size;
+                lineList.Append(vert);
+                vert.pos = particle.position + yAxis * particle.size;
+                lineList.Append(vert);
+                vert.pos = particle.position - zAxis * particle.size;
+                lineList.Append(vert);
+                vert.pos = particle.position + zAxis * particle.size;
+                lineList.Append(vert);
 
                 // connection
-                lineList.Append(particle.position);
-                lineList.Append(particle.stretchPosition);
+                vert.pos = particle.position;
+                lineList.Append(vert);
+                vert.pos = particle.stretchPosition;
+                lineList.Append(vert);
             }
         }
         if (!lineList.IsEmpty())
@@ -697,7 +688,6 @@ ParticleSystemInstanceBase::RenderDebug()
                                            PrimitiveTopology::LineList,
                                            lineList.Size() / 2,
                                            &(lineList.Front()),
-                                           4,
                                            float4(1.0f, 0.0f, 1.0f, 0.8f),
                                            RenderShape::CheckDepth,
                                            NULL);

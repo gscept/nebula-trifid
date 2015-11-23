@@ -81,21 +81,41 @@ GLSL4EffectVarbuffer::Commit()
 {
 	if (this->currentLocation != GL_INVALID_INDEX)
 	{
-		EffectVarbuffer::OpenGLBuffer* buf = (EffectVarbuffer::OpenGLBuffer*)this->currentBufferHandle;
+		EffectVarbuffer::OpenGLBufferBinding* buf = (EffectVarbuffer::OpenGLBufferBinding*)this->currentBufferHandle;
 		if (buf != 0)
 		{
 			if (buf->bindRange)
 			{
-				glBindBufferRange(GL_SHADER_STORAGE_BUFFER, this->shaderStorageBlockBinding, buf->handle, buf->offset, buf->size);
+				GLSL4VarbufferRangeState state;
+				state.buffer = buf->handle;
+				state.offset = buf->offset;
+				state.length = buf->size;
+				//if (GLSL4VarbufferRangeStates[this->shaderStorageBlockBinding] != state)
+				{
+					GLSL4VarbufferRangeStates[this->shaderStorageBlockBinding] = state;
+					glBindBufferRange(GL_SHADER_STORAGE_BUFFER, this->shaderStorageBlockBinding, buf->handle, buf->offset, buf->size);
+				}
 			}
 			else
 			{
-				glBindBufferBase(GL_SHADER_STORAGE_BUFFER, this->shaderStorageBlockBinding, buf->handle);
+				GLSL4VarbufferBaseState state;
+				state.buffer = buf->handle;
+				//if (GLSL4VarbufferBaseStates[this->shaderStorageBlockBinding] != state)
+				{
+					GLSL4VarbufferBaseStates[this->shaderStorageBlockBinding] = state;
+					glBindBufferBase(GL_SHADER_STORAGE_BUFFER, this->shaderStorageBlockBinding, buf->handle);
+				}
 			}
 		}
 		else
 		{
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, this->shaderStorageBlockBinding, 0);
+			GLSL4VarbufferBaseState state;
+			state.buffer = 0;
+			//if (GLSL4VarbufferBaseStates[this->shaderStorageBlockBinding] != state)
+			{
+				GLSL4VarbufferBaseStates[this->shaderStorageBlockBinding] = state;
+				glBindBufferBase(GL_SHADER_STORAGE_BUFFER, this->shaderStorageBlockBinding, 0);
+			}
 		}
 	}
 }

@@ -31,9 +31,9 @@
            <InArg name="ThreadId" type="Threading::ThreadId"/>          
         </Message>
       
-        <!-- set a float shader variable with a specified semantic -->
+        <!-- set a float shader variable with a specified name -->
         <Message name="SetFloatShaderVariable" fourcc="sshv">
-            <InArg name="Semantic" type="CoreGraphics::ShaderVariable::Semantic"/>
+            <InArg name="Name" type="Util::StringAtom"/>
             <InArg name="Value" type="float"/>
         </Message>
         

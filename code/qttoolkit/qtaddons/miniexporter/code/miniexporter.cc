@@ -57,7 +57,7 @@ MiniExporter::Run()
 	QApplication::processEvents();
 
 	// export models
-	Ptr<Fbx::NFbxExporter> fbxExporter = Fbx::NFbxExporter::Create();
+	Ptr<ToolkitUtil::NFbxExporter> fbxExporter = ToolkitUtil::NFbxExporter::Create();
 	fbxExporter->Open();
 	fbxExporter->SetPlatform(Platform::Win32);
 	fbxExporter->SetExportFlag(Base::ExporterBase::Dir);

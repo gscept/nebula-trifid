@@ -44,7 +44,7 @@ GPUSkinnedMeshRenderer::~GPUSkinnedMeshRenderer()
 	Draws mesh fragment
 */
 void
-GPUSkinnedMeshRenderer::DrawGPUSkinnedMesh( const Ptr<Mesh>& mesh, IndexT primGroupIndex )
+GPUSkinnedMeshRenderer::DrawGPUSkinnedMesh(const Ptr<Mesh>& mesh, IndexT primGroupIndex)
 {
 	// apply mesh data and draw skinned primitives
 	mesh->ApplyPrimitives(primGroupIndex);
@@ -54,8 +54,8 @@ GPUSkinnedMeshRenderer::DrawGPUSkinnedMesh( const Ptr<Mesh>& mesh, IndexT primGr
 //------------------------------------------------------------------------------
 /**
 */
-void 
-GPUSkinnedMeshRenderer::DrawGPUSkinnedMeshInstanced( const Ptr<CoreGraphics::Mesh>& mesh, IndexT primGroupIndex, SizeT instances )
+void
+GPUSkinnedMeshRenderer::DrawGPUSkinnedMeshInstanced(const Ptr<CoreGraphics::Mesh>& mesh, IndexT primGroupIndex, SizeT instances)
 {
     // apply mesh and draw instances
     mesh->ApplyPrimitives(primGroupIndex);
@@ -67,7 +67,7 @@ GPUSkinnedMeshRenderer::DrawGPUSkinnedMeshInstanced( const Ptr<CoreGraphics::Mes
 	Updates GPU skinned mesh
 */
 void 
-GPUSkinnedMeshRenderer::UpdateGPUSkinnedJointPalette( const Ptr<Characters::CharacterInstance>& charInst, const Util::Array<IndexT>& jointPalette, const Ptr<CoreGraphics::ShaderVariable>& jointPaletteShdVar )
+GPUSkinnedMeshRenderer::UpdateGPUSkinnedJointPalette(const Ptr<Characters::CharacterInstance>& charInst, const Util::Array<IndexT>& jointPalette, const Ptr<CoreGraphics::ShaderVariable>& jointPaletteShdVar)
 {
 	if (charInst->IsValidForRendering())
 	{

@@ -50,13 +50,13 @@ MaterialInstance::Setup( const Ptr<Material>& origMaterial )
 	const Util::Dictionary<Util::StringAtom, Material::MaterialParameter>& parameters = originalMaterial->GetParameters();
 
 	// find shader variables based on name from several shaders
-	Dictionary<StringAtom, Array<Ptr<ShaderVariable> > > shaderVariableMap;
+	Dictionary<StringAtom, Array<Ptr<ShaderVariable>>> shaderVariableMap;
 	SizeT numPasses = this->originalMaterial->GetNumPasses();
 	for (int i = 0; i < numPasses; i++)
 	{
 		// get indexed data from material
-		const Models::ModelNodeType::Code& code = this->originalMaterial->GetBatchType(i);
-		const Ptr<Shader>& shader = this->originalMaterial->GetShader(code);
+		const Models::BatchType::Code& code = this->originalMaterial->GetBatchGroup(i);
+		const Ptr<Shader>& shader = this->originalMaterial->GetShaderInstance(code);
 
 		// create an instance of the shader for the material
 		const Ptr<ShaderInstance>& shdInst = shader->CreateShaderInstance();
@@ -184,7 +184,7 @@ MaterialInstance::GetShaderInstanceByIndex( IndexT i ) const
 /**
 */
 const Ptr<CoreGraphics::ShaderInstance>& 
-MaterialInstance::GetShaderInstanceByCode( const Models::ModelNodeType::Code& code )
+MaterialInstance::GetShaderInstanceByCode( const Models::BatchType::Code& code )
 {
 	n_assert(this->shaderInstancesByCode.Contains(code));
 	return this->shaderInstancesByCode[code];

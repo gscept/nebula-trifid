@@ -95,11 +95,11 @@ OGL4BufferLock::WaitForBuffer(IndexT index)
 void
 OGL4BufferLock::Wait(GLsync sync)
 {
-	GLbitfield waitFlags = 0;
+    GLbitfield waitFlags = 0;
 	GLuint64 waitDuration = 0;
 	while (true)
 	{
-		GLenum waitRet = glClientWaitSync(sync, waitFlags, waitDuration);
+        GLenum waitRet = glClientWaitSync(sync, waitFlags, waitDuration);
 		if (waitRet == GL_ALREADY_SIGNALED || waitRet == GL_CONDITION_SATISFIED) return;
 		if (waitRet == GL_WAIT_FAILED)
 		{
@@ -108,7 +108,7 @@ OGL4BufferLock::Wait(GLsync sync)
 		}
 
 		// After the first time, need to start flushing, and wait for a looong time.
-		waitFlags = GL_SYNC_FLUSH_COMMANDS_BIT;
+        waitFlags = GL_SYNC_FLUSH_COMMANDS_BIT;
 		waitDuration = 1000000000;
 	}
 }

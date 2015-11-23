@@ -17,6 +17,7 @@
 #include "frame/frameserver.h"
 #include "graphics/graphicsserver.h"
 #include "graphics/view.h"
+#include "coregraphics/constantbuffer.h"
 
 namespace Lighting
 {
@@ -83,8 +84,7 @@ SM50LightServer::Open()
 	// setup the shared light project map resource
 	this->lightProjMap = ResourceManager::Instance()->CreateManagedResource(Texture::RTTI, ResourceId(lightTexPath)).downcast<ManagedTexture>();
 
-	this->lightShader								= shdServer->CreateShaderInstance("shd:lights");
-	this->lightProbeShader							= shdServer->CreateShaderInstance("shd:reflectionprojector");
+	this->lightShader							= shdServer->GetShader("shd:lights");
 
 	this->globalLightFeatureBits[NoShadows]		= shdServer->FeatureStringToMask("Global");
 	this->globalLightFeatureBits[CastShadows]	= shdServer->FeatureStringToMask("Global|Alt0");
@@ -99,40 +99,36 @@ SM50LightServer::Open()
 	this->lightProbeFeatureBits[LightProbeEntity::Box + 2] = shdServer->FeatureStringToMask("Alt0|Alt2");
 	this->lightProbeFeatureBits[LightProbeEntity::Sphere + 2] = shdServer->FeatureStringToMask("Alt1|Alt2");
 
-	// global light variables
-	this->globalLightDir         				= this->lightShader->GetVariableBySemantic(NEBULA3_SEMANTIC_GLOBALLIGHTDIR);
-	this->globalLightColor       				= this->lightShader->GetVariableBySemantic(NEBULA3_SEMANTIC_GLOBALLIGHTCOLOR);
-	this->globalBackLightColor   				= this->lightShader->GetVariableBySemantic(NEBULA3_SEMANTIC_GLOBALBACKLIGHTCOLOR);
-	this->globalAmbientLightColor				= this->lightShader->GetVariableBySemantic(NEBULA3_SEMANTIC_GLOBALAMBIENTLIGHTCOLOR);
-	this->globalBackLightOffset  				= this->lightShader->GetVariableBySemantic(NEBULA3_SEMANTIC_GLOBALBACKLIGHTOFFSET);
-	this->globalLightShadow						= this->lightShader->GetVariableBySemantic(NEBULA3_SEMANTIC_SHADOW);
-	this->globalLightCascadeOffset				= this->lightShader->GetVariableBySemantic(NEBULA3_SEMANTIC_CASCADEOFFSET);
-	this->globalLightCascadeScale				= this->lightShader->GetVariableBySemantic(NEBULA3_SEMANTIC_CASCADESCALE);
-	this->globalLightMinBorderPadding			= this->lightShader->GetVariableBySemantic(NEBULA3_SEMANTIC_MINBORDERPADDING);
-	this->globalLightMaxBorderPadding			= this->lightShader->GetVariableBySemantic(NEBULA3_SEMANTIC_MAXBORDERPADDING);
-	this->globalLightPartitionSize				= this->lightShader->GetVariableBySemantic(NEBULA3_SEMANTIC_SHADOWPARTITIONSIZE);
+	// global light variables used for shadowing
+	this->globalLightCascadeOffset				= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_CASCADEOFFSET);
+	this->globalLightCascadeScale				= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_CASCADESCALE);
+	this->globalLightMinBorderPadding			= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_MINBORDERPADDING);
+	this->globalLightMaxBorderPadding			= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_MAXBORDERPADDING);
+	this->globalLightPartitionSize				= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_SHADOWPARTITIONSIZE);
+
+    // setup block for global light
+    this->globalLightBlockVar                   = this->lightShader->GetVariableByName("GlobalLightBlock");
+    this->globalLightBuffer                     = ConstantBuffer::Create();
+    this->globalLightBuffer->SetupFromBlockInShader(this->lightShader, "GlobalLightBlock");
+    this->globalLightDir                        = this->globalLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_GLOBALLIGHTDIR);
+    this->globalLightColor                      = this->globalLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_GLOBALLIGHTCOLOR);
+    this->globalBackLightColor                  = this->globalLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_GLOBALBACKLIGHTCOLOR);
+    this->globalAmbientLightColor               = this->globalLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_GLOBALAMBIENTLIGHTCOLOR);
+    this->globalBackLightOffset                 = this->globalLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_GLOBALBACKLIGHTOFFSET);
+    this->globalLightShadowMatrixVar            = this->globalLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_CSMSHADOWMATRIX);
+    this->globalLightBlockVar->SetBufferHandle(this->globalLightBuffer->GetHandle());
 
 	// local light variables
-	this->lightPosRange							= this->lightShader->GetVariableBySemantic(NEBULA3_SEMANTIC_LIGHTPOSRANGE);
-	this->lightColor             				= this->lightShader->GetVariableBySemantic(NEBULA3_SEMANTIC_LIGHTCOLOR);
-	this->lightProjTransform     				= this->lightShader->GetVariableBySemantic(NEBULA3_SEMANTIC_LIGHTPROJTRANSFORM);
-	this->lightProjMapVar						= this->lightShader->GetVariableBySemantic(NEBULA3_SEMANTIC_LIGHTPROJMAP); 
-	this->lightProjCubeVar						= this->lightShader->GetVariableBySemantic(NEBULA3_SEMANTIC_LIGHTPROJCUBE); 
-	this->shadowProjMapVar						= this->lightShader->GetVariableBySemantic(NEBULA3_SEMANTIC_SHADOWPROJMAP);
-    this->shadowProjCubeVar                     = this->lightShader->GetVariableBySemantic(NEBULA3_SEMANTIC_SHADOWPROJCUBE);
-	this->shadowProjTransform    				= this->lightShader->GetVariableBySemantic(NEBULA3_SEMANTIC_SHADOWPROJTRANSFORM);
-	this->shadowOffsetScaleVar   				= this->lightShader->GetVariableBySemantic(NEBULA3_SEMANTIC_SHADOWOFFSETSCALE);
-	this->shadowIntensityVar          			= this->lightShader->GetVariableBySemantic(NEBULA3_SEMANTIC_SHADOWINTENSITY);
-
-	// light probe variables
-	this->lightProbeReflectionVar				= this->lightProbeShader->GetVariableBySemantic(NEBULA3_SEMANTIC_ENVIRONMENT);
-	this->lightProbeIrradianceVar				= this->lightProbeShader->GetVariableBySemantic(NEBULA3_SEMANTIC_IRRADIANCE);
-	this->lightProbeFalloffVar					= this->lightProbeShader->GetVariableBySemantic(NEBULA3_SEMANTIC_ENVFALLOFFDISTANCE);
-	this->lightProbePowerVar					= this->lightProbeShader->GetVariableBySemantic(NEBULA3_SEMANTIC_ENVFALLOFFPOWER);
-	this->lightProbeReflectionNumMipsVar		= this->lightProbeShader->GetVariableBySemantic(NEBULA3_SEMANTIC_NUMENVMIPS);
-	this->lightProbeBboxMinVar					= this->lightProbeShader->GetVariableBySemantic(NEBULA3_SEMANTIC_BBOXMIN);
-	this->lightProbeBboxMaxVar					= this->lightProbeShader->GetVariableBySemantic(NEBULA3_SEMANTIC_BBOXMAX);
-	this->lightProbeBboxCenterVar				= this->lightProbeShader->GetVariableBySemantic(NEBULA3_SEMANTIC_BBOXCENTER);
+	this->lightPosRange							= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_LIGHTPOSRANGE);
+	this->lightColor             				= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_LIGHTCOLOR);
+	this->lightProjTransform     				= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_LIGHTPROJTRANSFORM);
+	this->lightProjMapVar						= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_LIGHTPROJMAP); 
+	this->lightProjCubeVar						= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_LIGHTPROJCUBE); 
+	this->shadowProjMapVar						= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_SHADOWPROJMAP);
+    this->shadowProjCubeVar                     = this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_SHADOWPROJCUBE);
+	this->shadowProjTransform    				= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_SHADOWPROJTRANSFORM);
+	this->shadowOffsetScaleVar   				= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_SHADOWOFFSETSCALE);
+	this->shadowIntensityVar          			= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_SHADOWINTENSITY);
 
 	//this->shadowConstants->SetFloat4(float4(100.0f, 100.0f, 0.003f, 1024.0f));
 }
@@ -156,36 +152,27 @@ SM50LightServer::Close()
 	}	
 
 	// discard shader stuff
-	this->lightShader->Discard();
 	this->lightShader = 0;
-	this->lightProbeShader->Discard();
-	this->lightProbeShader = 0;
 
 	this->lightPosRange = 0;
 	this->lightColor = 0;
 	this->lightProjTransform = 0;
 	this->lightProjMapVar = 0;
 
-	this->lightProbeIrradianceVar = 0;
-	this->lightProbeReflectionVar = 0;
-	this->lightProbeFalloffVar = 0;
-	this->lightProbeReflectionNumMipsVar = 0;
-	this->lightProbeBboxMinVar = 0;
-	this->lightProbeBboxMaxVar = 0;
-	this->lightProbeBboxCenterVar = 0;
-
 	this->shadowIntensityVar = 0;
 	this->shadowProjTransform = 0;
 	this->shadowOffsetScaleVar = 0;
 	this->shadowProjMapVar = 0;
 
+    this->globalLightBuffer->Discard();
+    this->globalLightBuffer = 0;
+    this->globalLightBlockVar = 0;
 	this->globalAmbientLightColor = 0;
 	this->globalBackLightColor = 0;
 	this->globalBackLightOffset = 0;
 	this->globalLightColor = 0;
 	this->globalLightDir = 0;
 	this->globalLightColor = 0;
-	this->globalLightShadow = 0;			
 	this->globalLightCascadeOffset = 0;
 	this->globalLightCascadeScale = 0;				
 	this->globalLightMinBorderPadding = 0;
@@ -291,7 +278,7 @@ SM50LightServer::RenderLights()
 	}
 
 	// general preparations
-	shdServer->SetActiveShaderInstance(this->lightShader);
+	shdServer->SetActiveShader(this->lightShader);
 
 	// render the global light
     this->shadowProjMapVar->SetTexture(shadowServer->GetGlobalLightShadowBufferTexture());
@@ -331,23 +318,24 @@ SM50LightServer::RenderGlobalLight()
         else                                           this->lightShader->SelectActiveVariation(this->globalLightFeatureBits[NoShadows]);
 
         // start pass
-        this->lightShader->Begin();
-        this->lightShader->BeginPass(0);
+        this->lightShader->Apply();
 		
 		// setup general global light stuff
+        this->globalLightBuffer->CycleBuffers();
 		this->globalLightDir->SetFloat4(viewSpaceLightDir);
-		//this->globalLightFocalLength->SetFloat4(Math::float4(transDev->GetFocalLength().x(), transDev->GetFocalLength().y(), 0, 0));
 		this->globalLightColor->SetFloat4(this->globalLightEntity->GetColor());
 		this->globalBackLightColor->SetFloat4(this->globalLightEntity->GetBackLightColor());
 		this->globalAmbientLightColor->SetFloat4(this->globalLightEntity->GetAmbientLightColor());
 		this->globalBackLightOffset->SetFloat(this->globalLightEntity->GetBackLightOffset());
+
+		matrix44 shadowView = *ShadowServer::Instance()->GetShadowView();
+        shadowView = matrix44::multiply(transDev->GetInvViewTransform(), shadowView);
+        this->globalLightShadowMatrixVar->SetMatrix(shadowView);
 		
 		// handle casting shadows using CSM
+		this->lightShader->BeginUpdate();
 		if (this->globalLightEntity->GetCastShadows())
 		{
-			matrix44 invView = TransformDevice::Instance()->GetInvViewTransform();
-			matrix44 shadowView = *ShadowServer::Instance()->GetShadowView();
-			shadowView = matrix44::multiply(invView, shadowView);
 			Ptr<CoreGraphics::Texture> CSMTexture = ShadowServer::Instance()->GetGlobalLightShadowBufferTexture();
 			float CSMBufferWidth = (CSMTexture->GetWidth() / (float)ShadowServerBase::SplitsPerRow);
 #if __DX11__
@@ -375,24 +363,21 @@ SM50LightServer::RenderGlobalLight()
 				cascadeOffsets[splitIndex] = offset;
 				cascadeScales[splitIndex] = scale;
 			}
-			this->globalLightCascadeScale->SetFloat4Array(cascadeScales, CSMUtil::NumCascades);
 			this->globalLightCascadeOffset->SetFloat4Array(cascadeOffsets, CSMUtil::NumCascades);
-			this->globalLightMaxBorderPadding->SetFloat((CSMBufferWidth - 1.0f) / float(CSMBufferWidth));
+			this->globalLightCascadeScale->SetFloat4Array(cascadeScales, CSMUtil::NumCascades);
 			this->globalLightMinBorderPadding->SetFloat(1.0f / float(CSMBufferWidth));
+			this->globalLightMaxBorderPadding->SetFloat((CSMBufferWidth - 1.0f) / float(CSMBufferWidth));
 			this->globalLightPartitionSize->SetFloat(1 / float(ShadowServerBase::SplitsPerRow));
-			this->globalLightShadow->SetMatrix(shadowView);
 
 			this->shadowIntensityVar->SetFloat(this->globalLightEntity->GetShadowIntensity());
 		}
+		this->lightShader->EndUpdate();
 
 		// commit changes
 		this->lightShader->Commit();
 
 		// render
 		this->fullScreenQuadRenderer.Draw();
-        this->lightShader->PostDraw();
-		this->lightShader->EndPass();
-		this->lightShader->End();
 	}
 }
 
@@ -419,8 +404,7 @@ SM50LightServer::RenderPointLights()
 			if(this->pointLights[shadowIdx].Size())
 			{
 				this->lightShader->SelectActiveVariation(this->pointLightFeatureBits[shadowIdx]);
-				this->lightShader->Begin();
-				this->lightShader->BeginPass(0);				
+                this->lightShader->Apply();
 
 				IndexT i;
 				for (i = 0; i < this->pointLights[shadowIdx].Size(); i++)
@@ -435,6 +419,7 @@ SM50LightServer::RenderPointLights()
 					posAndRange.w() = 1.0f / lightTransform.get_zaxis().length();
 
 					// set projection map
+                    this->lightShader->BeginUpdate();
 					if (curLight->GetProjectionTexture().isvalid())
 					{
 						this->lightProjCubeVar->SetTexture(curLight->GetProjectionTexture()->GetTexture());
@@ -468,14 +453,12 @@ SM50LightServer::RenderPointLights()
 
 					// update shader variables
 					tformDevice->ApplyModelTransforms(this->lightShader);
+                    this->lightShader->EndUpdate();
 
 					// commit and draw
 					this->lightShader->Commit();
                     renderDevice->Draw();
-                    this->lightShader->PostDraw();
 				}
-				this->lightShader->EndPass();
-				this->lightShader->End(); 	
 			}
 		}                             
 	}
@@ -503,8 +486,7 @@ SM50LightServer::RenderSpotLights()
 			if (this->spotLights[shadowIdx].Size())
 			{
 				this->lightShader->SelectActiveVariation(this->spotLightFeatureBits[shadowIdx]);
-				this->lightShader->Begin();
-				this->lightShader->BeginPass(0);
+                this->lightShader->Apply();
 
 				IndexT i;
 				for (i = 0; i < this->spotLights[shadowIdx].Size(); i++)
@@ -519,6 +501,7 @@ SM50LightServer::RenderSpotLights()
 					posAndRange.w() = 1.0f / lightTransform.get_zaxis().length();
 
 					// set projection map
+                    this->lightShader->BeginUpdate();
 					if (curLight->GetProjectionTexture().isvalid())
 					{
 						this->lightProjMapVar->SetTexture(curLight->GetProjectionTexture()->GetTexture());
@@ -554,14 +537,12 @@ SM50LightServer::RenderSpotLights()
 
 					// update shader variables
 					tformDevice->ApplyModelTransforms(this->lightShader);
+                    this->lightShader->EndUpdate();
 
 					// commit and draw
 					this->lightShader->Commit();
 					renderDevice->Draw();
-                    this->lightShader->PostDraw();
 				}
-				this->lightShader->EndPass();
-				this->lightShader->End();	
 			}
 		}                     
 	}
@@ -600,6 +581,7 @@ SM50LightServer::RenderLightProbes()
 	{
 		const Ptr<LightProbeEntity>& entity = this->visibleLightProbes[probeIdx];
 		const Ptr<EnvironmentProbe>& probe = entity->GetEnvironmentProbe();
+        const Ptr<CoreGraphics::ShaderInstance>& shader = entity->GetShaderInstance();
 
 		// skip rendering invisible probes
 		if (!entity->IsVisible()) continue;
@@ -608,29 +590,20 @@ SM50LightServer::RenderLightProbes()
 		int shapeType = entity->GetShapeType();
 		 
 		// 0 is for box, 1 is for sphere
-		this->lightProbeShader->SelectActiveVariation(this->lightProbeFeatureBits[shapeType + (entity->GetParallaxCorrected() ? 2 : 0)]);
-		this->lightProbeShader->Begin();
-		this->lightProbeShader->BeginPass(0);
+		shader->SelectActiveVariation(this->lightProbeFeatureBits[shapeType + (entity->GetParallaxCorrected() ? 2 : 0)]);
+		shader->Begin();
+		shader->BeginPass(0);
 
 		// apply mesh at shape type
-		transformDevice->SetModelTransform(entity->GetTransform());
-		this->lightProbeReflectionVar->SetTexture(probe->GetReflectionMap()->GetTexture());
-		this->lightProbeIrradianceVar->SetTexture(probe->GetIrradianceMap()->GetTexture());
-		this->lightProbeReflectionNumMipsVar->SetInt(probe->GetReflectionMap()->GetTexture()->GetNumMipLevels());
-		this->lightProbeFalloffVar->SetFloat(entity->GetFalloff());
-		this->lightProbePowerVar->SetFloat(entity->GetPower());
-		this->lightProbeBboxMinVar->SetFloat4(entity->GetZone().pmin);
-		this->lightProbeBboxMaxVar->SetFloat4(entity->GetZone().pmax);
-		this->lightProbeBboxCenterVar->SetFloat4(entity->GetTransform().get_position());
-		transformDevice->ApplyModelTransforms(this->lightProbeShader);
-		this->lightProbeShader->Commit();
+        entity->ApplyProbe(probe);
+		
+        shader->Commit();
 		renderDevice->Draw();
 
 		// end pass
-		this->lightProbeShader->PostDraw();
-
-		this->lightProbeShader->EndPass();
-		this->lightProbeShader->End();
+		shader->PostDraw();
+		shader->EndPass();
+		shader->End();
 	}
 }
 

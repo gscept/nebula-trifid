@@ -23,7 +23,6 @@ using namespace Graphics;
 using namespace ContentBrowser;
 using namespace ToolkitUtil;
 using namespace Util;
-using namespace Fbx;
 using namespace IO;
 namespace ModelImporter
 {
@@ -68,7 +67,7 @@ ModelImporterWindow::ModelImporterWindow( QWidget *parent /*= 0*/, Qt::WFlags fl
 
 	this->ui.loadProgress->setVisible(false);
 	this->ui.status->setVisible(false);
-	this->resourceFolder = "gfxlib";
+	this->resourceFolder = "assets";
 
 	this->SetControllersEnabled(false);
 	this->SetChanged(false);
@@ -133,7 +132,7 @@ ModelImporterWindow::Open()
 		file.StripFileExtension();
 
 		String workFile;
-		workFile.Format("src:gfxlib/%s/%s.fbx", category.AsCharPtr(), file.AsCharPtr());
+		workFile.Format("src:assets/%s/%s.fbx", category.AsCharPtr(), file.AsCharPtr());
 		URI workPath(workFile);
 
 		// check if file is in work
@@ -159,7 +158,7 @@ ModelImporterWindow::Open()
 				file = this->dialogUi.nameEdit->text().toUtf8().constData();
 
 				// reformat work file
-				workFile.Format("src:gfxlib/%s/%s.fbx", 
+				workFile.Format("src:assets/%s/%s.fbx", 
 					category.AsCharPtr(), 
 					file.AsCharPtr());
 
@@ -226,7 +225,7 @@ ModelImporterWindow::Open()
 void 
 ModelImporterWindow::Browse()
 {
-	QFileDialog fileDialog(this, "Import FBX model", IO::URI("src:gfxlib").GetHostAndLocalPath().AsCharPtr(), "*.fbx");
+	QFileDialog fileDialog(this, "Import FBX model", IO::URI("src:assets").GetHostAndLocalPath().AsCharPtr(), "*.fbx");
 	fileDialog.setAcceptMode(QFileDialog::AcceptOpen);
 
 	if (fileDialog.exec() == QDialog::Accepted)
@@ -299,7 +298,7 @@ ModelImporterWindow::Import()
 
 	// create string for fbx
 	String fbx;
-	fbx.Format("src:gfxlib/%s.fbx", this->currentOptions->GetName().AsCharPtr());
+	fbx.Format("src:assets/%s.fbx", this->currentOptions->GetName().AsCharPtr());
 
 	// export file
 	this->fbxExporter->ExportFile(fbx);

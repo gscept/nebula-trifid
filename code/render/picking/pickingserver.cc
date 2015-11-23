@@ -73,8 +73,8 @@ PickingServer::Close()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-PickingServer::BeginFrame( const Ptr<Graphics::CameraEntity>& camera )
+void
+PickingServer::BeginFrame(const Ptr<Graphics::CameraEntity>& camera)
 {
 	// empty
 }
@@ -83,12 +83,12 @@ PickingServer::BeginFrame( const Ptr<Graphics::CameraEntity>& camera )
 /**
 */
 void 
-PickingServer::Render()
+PickingServer::Render(IndexT frameIndex)
 {
 	n_assert(this->IsOpen());
 	if (this->frameShader.isvalid() && this->enabled)
 	{
-		this->frameShader->Render();		
+        this->frameShader->Render(frameIndex);
 	}
 }
 

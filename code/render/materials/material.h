@@ -7,7 +7,7 @@
 	A material has a set of variables, which can be instanced, and then applied, 
 	which in turn applies it to all the shaders having that variable.
 
-	As such, we can effectively instanciate a material, apply a variable, 
+	As such, we can effectively instantiate a material, apply a variable, 
 	and the variable will be activated for that entity when the material is applied.
     
     (C) 2013-2015 Individual contributors, see AUTHORS file
@@ -20,14 +20,13 @@
 #include "util/keyvaluepair.h"
 #include "util/variant.h"
 #include "util/stringatom.h"
-#include "models/modelnodematerial.h"
-#include "models/modelnodetype.h"
+#include "materials/materialtype.h"
+#include "frame/batchgroup.h"
 #include "materialfeature.h"
-
 
 namespace Materials
 {
-
+class Surface;
 class MaterialInstance;
 class Material : public Core::RefCounted
 {
@@ -78,9 +77,9 @@ public:
 	/// gets the type of the material
 	const MaterialFeature::Mask& GetFeatures() const;
 	/// sets the batch type
-	void SetCode(const Models::ModelNodeMaterial::Code& code);
+	void SetCode(const Materials::MaterialType::Code& code);
 	/// get the batch type
-	const Models::ModelNodeMaterial::Code& GetCode() const;
+    const Materials::MaterialType::Code& GetCode() const;
 	/// set the material to be virtual
 	void SetVirtual(bool b);
 	/// get if the material is virtual
@@ -93,25 +92,26 @@ public:
 	/// discards the material and all its instances
 	void Discard();
 
-	/// create a material instance
-	Ptr<MaterialInstance> CreateMaterialInstance();
-	/// discard material instance
-	void DiscardMaterialInstance(const Ptr<MaterialInstance>& inst);
-
-	/// get all material instances
-	const Util::Array<Ptr<MaterialInstance> >& GetAllMaterialInstances() const;
-
 	/// get the amount of shaders
 	SizeT GetNumPasses();
 
 	/// add a shader to the material
-	void AddPass(const Models::ModelNodeType::Code& code, const Ptr<CoreGraphics::Shader>& shader, const CoreGraphics::ShaderFeature::Mask& mask);
+	void AddPass(const Frame::BatchGroup::Code& code, const Ptr<CoreGraphics::Shader>& shader, const CoreGraphics::ShaderFeature::Mask& mask);
 	/// get shader by pass type
-	const Ptr<CoreGraphics::Shader>& GetShader(const Models::ModelNodeType::Code& code) const;
+    const Ptr<CoreGraphics::Shader>& GetShaderByBatchGroup(const Frame::BatchGroup::Code& code) const;
+    /// get shader instance by index (can be iterated the same way as the other using the number of passes)
+    const Ptr<CoreGraphics::Shader>& GetShaderByIndex(const IndexT index) const;
 	/// get features by pass type
-	const CoreGraphics::ShaderFeature::Mask& GetFeatureMask(const Models::ModelNodeType::Code& type) const;
+    const CoreGraphics::ShaderFeature::Mask& GetFeatureMask(const Frame::BatchGroup::Code& type) const;
 	/// get pass type by index
-	const Models::ModelNodeType::Code& GetBatchType(const IndexT index) const;
+    const Frame::BatchGroup::Code& GetBatchGroup(const IndexT index) const;
+
+    /// add a surface to this material
+    void AddSurface(const Ptr<Surface>& sur);
+    /// remove a surface material from this material
+    void RemoveSurface(const Ptr<Surface>& sur);
+    /// get surfaces
+    const Util::Array<Ptr<Surface>>& GetSurfaces() const;
 
     /// adds parameter
     void AddParam(const Util::String& name, const Material::MaterialParameter& param);
@@ -132,12 +132,12 @@ private:
 	Util::StringAtom name;
 	Util::String description;
 	MaterialFeature::Mask type;
-	Models::ModelNodeMaterial::Code code;
-	Util::Dictionary<Util::StringAtom, MaterialParameter> materialParameters;
-	Util::Dictionary<Models::ModelNodeType::Code, Ptr<CoreGraphics::Shader> > materialShaders;
-	Util::Dictionary<Models::ModelNodeType::Code, CoreGraphics::ShaderFeature::Mask> materialFeatures;
-	Util::Array<Ptr<MaterialInstance> > materialInstances;
-
+    Materials::MaterialType::Code code;
+	Util::Dictionary<Util::StringAtom, MaterialParameter> parametersByName;
+	Util::Dictionary<Frame::BatchGroup::Code, Ptr<CoreGraphics::Shader>> shadersByBatchGroup;
+    Util::Array<Ptr<CoreGraphics::Shader>> shaders;
+	Util::Dictionary<Frame::BatchGroup::Code, CoreGraphics::ShaderFeature::Mask> featuresByBatchGroup;
+    Util::Array<Ptr<Surface>> surfaces;
 }; 
 
 //------------------------------------------------------------------------------
@@ -198,7 +198,7 @@ Material::GetFeatures() const
 /**
 */
 inline void 
-Material::SetCode( const Models::ModelNodeType::Code& code )
+Material::SetCode( const Materials::MaterialType::Code& code )
 {
 	this->code = code;
 }
@@ -206,7 +206,7 @@ Material::SetCode( const Models::ModelNodeType::Code& code )
 //------------------------------------------------------------------------------
 /**
 */
-inline const Models::ModelNodeType::Code& 
+inline const Materials::MaterialType::Code&
 Material::GetCode() const
 {
 	return this->code;
@@ -233,19 +233,10 @@ Material::GetVirtual() const
 //------------------------------------------------------------------------------
 /**
 */
-inline const Util::Array<Ptr<MaterialInstance> >&
-Material::GetAllMaterialInstances() const
-{
-	return this->materialInstances;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
 inline const SizeT 
 Material::GetNumParameters() const
 {
-	return this->materialParameters.Size();
+	return this->parametersByName.Size();
 }
 
 //------------------------------------------------------------------------------
@@ -254,7 +245,7 @@ Material::GetNumParameters() const
 inline const Util::Dictionary<Util::StringAtom, Material::MaterialParameter>& 
 Material::GetParameters() const
 {
-	return this->materialParameters;
+	return this->parametersByName;
 }
 
 //------------------------------------------------------------------------------
@@ -263,37 +254,46 @@ Material::GetParameters() const
 inline SizeT 
 Material::GetNumPasses()
 {
-	return this->materialShaders.Size();
+	return this->shadersByBatchGroup.Size();
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-inline const CoreGraphics::ShaderFeature::Mask& 
-Material::GetFeatureMask( const Models::ModelNodeType::Code& code ) const
+inline const CoreGraphics::ShaderFeature::Mask&
+Material::GetFeatureMask(const Frame::BatchGroup::Code& code) const
 {
-	n_assert(this->materialFeatures.Contains(code));
-	return this->materialFeatures[code];
+	n_assert(this->featuresByBatchGroup.Contains(code));
+	return this->featuresByBatchGroup[code];
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 inline const Ptr<CoreGraphics::Shader>& 
-Material::GetShader( const Models::ModelNodeType::Code& code ) const
+Material::GetShaderByBatchGroup(const Frame::BatchGroup::Code& code) const
 {
-	n_assert(this->materialShaders.Contains(code));
-	return this->materialShaders[code];
+	n_assert(this->shadersByBatchGroup.Contains(code));
+	return this->shadersByBatchGroup[code];
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-inline const Models::ModelNodeType::Code& 
-Material::GetBatchType( const IndexT index ) const
+inline const Ptr<CoreGraphics::Shader>&
+Material::GetShaderByIndex(const IndexT index) const
 {
-	n_assert(this->materialShaders.Size() > index);
-	return this->materialShaders.KeyAtIndex(index);
+    return this->shaders[index];
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Frame::BatchGroup::Code&
+Material::GetBatchGroup(const IndexT index) const
+{
+	n_assert(this->shadersByBatchGroup.Size() > index);
+	return this->shadersByBatchGroup.KeyAtIndex(index);
 }
 
 } // namespace Materials

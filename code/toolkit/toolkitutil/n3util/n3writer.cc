@@ -236,7 +236,7 @@ N3Writer::WriteTransform( const Transform& transform )
 /**
 	Writes core infromation into model node
 */
-void N3Writer::WriteMaterialCore( const Util::String& meshResource, const bbox& boundingBox, PrimitiveGroupIndex groupIndex, const State& state, const Util::String& material )
+void N3Writer::WriteState(const Util::String& meshResource, const bbox& boundingBox, PrimitiveGroupIndex groupIndex, const State& state, const Util::String& material)
 {
 	n_assert(this->isOpen);
 	n_assert(this->isBeginModel || this->isBeginCharacter);	
@@ -250,64 +250,16 @@ void N3Writer::WriteMaterialCore( const Util::String& meshResource, const bbox& 
 	this->modelWriter->WriteInt(groupIndex);
 	this->modelWriter->EndTag();
 
-	// write material, and if the material is invalid, use the Solid material
-	this->modelWriter->BeginTag("Material", FourCC('MNMT'));
-	if (material.IsValid())
-		this->modelWriter->WriteString(material);
-	else
-		this->modelWriter->WriteString("Solid");
+	// write material
+    this->modelWriter->BeginTag("Material", FourCC('MATE'));
+    this->modelWriter->WriteString(material);
 	this->modelWriter->EndTag();
 
+    // write bounding box
 	this->modelWriter->BeginTag("Bounding Box", FourCC('LBOX'));
 	this->modelWriter->WriteFloat4(boundingBox.center());
 	this->modelWriter->WriteFloat4(boundingBox.extents());
 	this->modelWriter->EndTag();	
-
-	for (int i = 0; i < state.variables.Size(); i++)
-	{
-		switch (state.variables[i].variableValue.GetType())
-		{
-		case Variant::Float:
-			this->modelWriter->BeginTag("Shader Float Variable", FourCC('SFLT'));
-			this->modelWriter->WriteString(state.variables[i].variableName);
-			this->modelWriter->WriteFloat(state.variables[i].variableValue.GetFloat());
-			this->modelWriter->EndTag();
-			break;
-		case Variant::Bool:
-			this->modelWriter->BeginTag("Shader Bool Variable", FourCC('SBOO'));
-			this->modelWriter->WriteString(state.variables[i].variableName);
-			this->modelWriter->WriteBool(state.variables[i].variableValue.GetBool());
-			this->modelWriter->EndTag();
-			break;
-		case Variant::Int:
-			this->modelWriter->BeginTag("Shader Int Variable", FourCC('SINT'));
-			this->modelWriter->WriteString(state.variables[i].variableName);
-			this->modelWriter->WriteInt(state.variables[i].variableValue.GetInt());
-			this->modelWriter->EndTag();
-			break;
-		case Variant::Float2:
-			this->modelWriter->BeginTag("Shader Float2 Variable", FourCC('SFV2'));
-			this->modelWriter->WriteString(state.variables[i].variableName);
-			this->modelWriter->WriteFloat2(state.variables[i].variableValue.GetFloat2());
-			this->modelWriter->EndTag();
-			break;
-		case Variant::Float4:
-			this->modelWriter->BeginTag("Shader Float4 Variable", FourCC('SFV4'));
-			this->modelWriter->WriteString(state.variables[i].variableName);
-			this->modelWriter->WriteFloat4(state.variables[i].variableValue.GetFloat4());
-			this->modelWriter->EndTag();
-			break;
-		}
-	}
-
-	for (int i = 0; i < state.textures.Size(); i++)
-	{
-		this->modelWriter->BeginTag("Shader Texture Variable", FourCC('STXT'));
-		this->modelWriter->WriteString(state.textures[i].textureName);
-		this->modelWriter->WriteString(state.textures[i].textureResource);
-		this->modelWriter->EndTag();
-	}
-
 }
 
 //------------------------------------------------------------------------------
@@ -324,7 +276,7 @@ N3Writer::BeginStaticModel( const Util::String& name, const Transform& transform
 	this->modelWriter->BeginModelNode("ShapeNode", FourCC('SPND'), name);
 	
 	this->WriteTransform(transform);	
-	this->WriteMaterialCore(meshResource, boundingBox, groupIndex, state, material);
+	this->WriteState(meshResource, boundingBox, groupIndex, state, material);
 }
 
 //------------------------------------------------------------------------------
@@ -376,7 +328,7 @@ N3Writer::BeginSkinnedModel( const Util::String& name,
 		this->modelWriter->EndTag();
 
 		// write core information such as material, shader variables, textures and mesh. (PGRI is 0 because we have skins)
-		this->WriteMaterialCore(skinResource, boundingBox, node.primitiveGroupIndex, state, material);
+		this->WriteState(skinResource, boundingBox, node.primitiveGroupIndex, state, material);
 	}
 }
 
@@ -393,7 +345,7 @@ N3Writer::BeginParticleModel( const Util::String& name, const Transform& transfo
 	Math::bbox box;
 	this->modelWriter->BeginModelNode("ParticleSystemNode", FourCC('PSND'), name);
 	this->WriteTransform(transform);
-	this->WriteMaterialCore(meshResource, box, 0, state, material);
+	this->WriteState(meshResource, box, 0, state, material);
 
 	// write Emission Frequency Curve
 	this->modelWriter->BeginTag("Emission Frequency", FourCC('EFRQ'));

@@ -47,14 +47,14 @@ BillboardNodeInstance::~BillboardNodeInstance()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-BillboardNodeInstance::OnVisibilityResolve( IndexT resolveIndex, float distToViewer )
+void
+BillboardNodeInstance::OnVisibilityResolve(IndexT resolveIndex, float distToViewer)
 {
 	// check if node is inside lod distances or if no lod is used
 	const Ptr<TransformNode>& transformNode = this->modelNode.downcast<TransformNode>();
 	if (transformNode->CheckLodDistance(distToViewer))
 	{
-		this->modelNode->AddVisibleNodeInstance(resolveIndex, this);
+        this->modelNode->AddVisibleNodeInstance(resolveIndex, this->surfaceInstance->GetCode(), this);
 		ModelNodeInstance::OnVisibilityResolve(resolveIndex, distToViewer);
 	}
 }
@@ -75,7 +75,7 @@ BillboardNodeInstance::Setup( const Ptr<ModelInstance>& inst, const Ptr<ModelNod
 	// setup the corner vertex buffer
 	Array<VertexComponent> components;
 	components.Append(VertexComponent(VertexComponent::Position, 0, VertexComponent::Float2, 0));
-	components.Append(VertexComponent(VertexComponent::TexCoord, 0, VertexComponent::Float2, 0));
+	components.Append(VertexComponent(VertexComponent::TexCoord1, 0, VertexComponent::Float2, 0));
 	float cornerVertexData[] = { -0.5, -0.5, 0, 1,  -0.5, 0.5, 0, 0,  0.5, 0.5, 1, 0,  0.5, -0.5, 1, 1 };
 	Ptr<MemoryVertexBufferLoader> vbLoader = MemoryVertexBufferLoader::Create();
 	vbLoader->Setup(components, 4, cornerVertexData, sizeof(cornerVertexData), VertexBuffer::UsageImmutable, VertexBuffer::AccessNone);
@@ -114,6 +114,7 @@ BillboardNodeInstance::Setup( const Ptr<ModelInstance>& inst, const Ptr<ModelNod
 
 	// get vertex layout
 	this->vertexLayout = this->vb->GetVertexLayout();
+    this->vertexLayout->SetIndexBuffer(this->ib);
 }
 
 //------------------------------------------------------------------------------

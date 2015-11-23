@@ -11,17 +11,15 @@
 #define NO_COMPARISON 1
 
 #include "shadowbase.fxh"
-
-mat4          	CSMShadowMatrix;
-
-vec4          	CascadeOffset[CASCADE_COUNT_FLAG];
-vec4          	CascadeScale[CASCADE_COUNT_FLAG];
-float			CascadeBlendArea = 0.2f;
-
-float           MinBorderPadding;     
-float           MaxBorderPadding;
-float           ShadowPartitionSize; 
-float 			GlobalLightShadowBias = 0.0f;
+shared varblock CSMParamBlock
+{
+	vec4 CascadeOffset[CASCADE_COUNT_FLAG];
+	vec4 CascadeScale[CASCADE_COUNT_FLAG];
+	float MinBorderPadding;     
+	float MaxBorderPadding;
+	float ShadowPartitionSize; 
+	float GlobalLightShadowBias = 0.0f;
+};
 	
 const int SplitsPerRow = 2;
 const int SplitsPerColumn = 2;
@@ -47,9 +45,10 @@ samplerstate ShadowProjMapSampler
 	AddressU = Border;
 	AddressV = Border;
 	//MaxAnisotropic = 16;
-	BorderColor = { 1,1,1,1 };
+	//BorderColor = { 1,1,1,1 };
 };
 
+const float CascadeBlendArea = 0.2f;
 //------------------------------------------------------------------------------
 /**
 */
@@ -69,7 +68,7 @@ void CSMConvert(in vec4 worldPosition,
     texShadow = CSMShadowMatrix * worldPosition;
 }
 
-const vec2 sampleOffsetWeights[] = {
+const vec2 sampleOffsets[] = {
 	vec2(-.326,-.406),
 	vec2(-.840,-.074),
 	vec2(-.696, .457),
@@ -156,17 +155,23 @@ CSMPS(in vec4 TexShadow,
 	// do an ugly poisson sample disk
 	// this only causes errors when samples are taken outside 
 	vec2 pixelSize = GetPixelSize(ShadowProjMap);
-	vec2 mapDepth = vec2(0,0);
+	vec2 uvSample;
+	//vec2 currentSample = vec2(0,0);
+	/*
+	vec2 mapDepth = vec2(0.0f);
+	float occlusion = 0.0f;
 	int i;
     for (i = 0; i < 13; i++)
     {
-		vec2 uvSample = sampleCoord.xy + sampleOffsetWeights[i] * pixelSize.xy;
-		vec2 currentSample = textureLod(ShadowProjMap, uvSample, 0).rg;
-		mapDepth += currentSample;
-	}	
-	mapDepth /= 13;
+		vec2 uvSample = sampleCoord.xy + sampleOffsets[i] * pixelSize.xy;
+		mapDepth += textureLod(ShadowProjMap, sampleCoord, 0).rg;
+	}
+	mapDepth /= 13.0f;
+	*/
 	
-	float occlusion = ChebyshevUpperBound(mapDepth, depth, 0.000002f);
+	vec2 mapDepth = textureLod(ShadowProjMap, sampleCoord, 0).rg;
+	float occlusion = ChebyshevUpperBound(mapDepth, depth, 0.0000001f);
+	//float occlusion = ExponentialShadowSample(mapDepth, depth, 0.0f);
 		
 	int nextCascade = cascadeIndex + 1; 
 	float occlusionBlend = 1.0f;
@@ -183,18 +188,22 @@ CSMPS(in vec4 TexShadow,
 			sampleCoord = texCoord;			
 			sampleCoord.xy *= ShadowPartitionSize;
 			sampleCoord.xy += vec2(mod(nextCascade, SplitsPerRow) * ShadowPartitionSize, (nextCascade / SplitsPerColumn) * ShadowPartitionSize);
+			uvSample = sampleCoord.xy;
 					
-			mapDepth = textureLod(ShadowProjMap, sampleCoord.xy, 0).rg;
-			occlusionBlend = ChebyshevUpperBound(mapDepth, depth, 0.000002f);		
+			mapDepth = textureLod(ShadowProjMap, uvSample, 0).rg;
+			occlusionBlend = ChebyshevUpperBound(mapDepth, depth, 0.0000001f);		
 		}
 		
 		// blend next cascade onto previous
 		occlusion = lerp(occlusionBlend, occlusion, blendAmount);
 	}
+	//occlusion += smoothstep(0.98f, 1.0f, increment);
+	//occlusion += increment;
+	
 	
 	// finally clamp all shadow values 0.5, this avoids any weird color differences when blending between cascades
 	Debug = DebugColors[cascadeIndex];
-	//return smoothstep(0.25f, 0.65f, occlusion);
+	//return smoothstep(0.5f, 1.0f, occlusion);
 	return occlusion;
 }
 

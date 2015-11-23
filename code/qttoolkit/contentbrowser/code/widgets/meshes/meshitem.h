@@ -9,7 +9,6 @@
 */
 //------------------------------------------------------------------------------
 #include "widgets/baseitem.h"
-#include "meshhandler.h"
 namespace Widgets
 {
 class MeshItem : public BaseItem

@@ -25,7 +25,7 @@ public:
 
     /// too bad this has to be public...
     /// returns the name of the subroutine object
-    const std::string& GetName() const;
+    const eastl::string& GetName() const;
 
 private:
     friend class EffectSubroutine;
@@ -35,14 +35,14 @@ private:
     /// returns the subroutine type
     const EffectSubroutine::SubroutineType& GetType() const;
 
-    std::string name;
+    eastl::string name;
     EffectSubroutine::SubroutineType type;
 }; 
 
 //------------------------------------------------------------------------------
 /**
 */
-inline const std::string& 
+inline const eastl::string&
 InternalEffectSubroutine::GetName() const
 {
     return this->name;

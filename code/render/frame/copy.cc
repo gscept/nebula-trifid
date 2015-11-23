@@ -29,7 +29,7 @@ Copy::~Copy()
 /**
 */
 void 
-Copy::Render()
+Copy::Render(IndexT frameIndex)
 {
     n_assert(this->from.isvalid());
     n_assert(this->to.isvalid());

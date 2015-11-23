@@ -3,44 +3,36 @@
 /**
     @class Models::VisResolveContainer
     
-    Helper class which keeps an array of visible nodes by type.
+    Helper class which keeps an array of visible nodes by material type.
     
     (C) 2007 Radon Labs GmbH
     (C) 2013-2015 Individual contributors, see AUTHORS file
 */
 #include "core/ptr.h"
-#include "models/modelnodetype.h"
-#include "models/modelnodematerial.h"
+#include "frame/batchgroup.h"
+#include "materials/surfacename.h"
 
 //------------------------------------------------------------------------------
 namespace Models
 {
-/// a handler for unifying materials and types into one
-typedef IndexT ModelNodeFilter;
-
-template<class TYPE> class VisResolveContainer
+template<class TYPE>
+class VisResolveContainer
 {
 public:
-	
-
     /// constructor
     VisResolveContainer();
     /// reset content
     void Reset();
 	/// set the resolved flag for a given ModelNodeMaterial
-    void SetResolved(ModelNodeFilter t, bool b);
+    void SetResolved(const Materials::SurfaceName::Code& code, bool b);
 	/// return true if the resolved flag has been set for ModelNodeMaterial
-    bool IsResolved(ModelNodeFilter t) const;
+    bool IsResolved(const Materials::SurfaceName::Code& code) const;
     /// add a visible element by ModelNodeType
-    void Add(IndexT frameIndex, ModelNodeFilter t, const Ptr<TYPE>& e);
+    void Add(IndexT frameIndex, const Materials::SurfaceName::Code& code, const Ptr<TYPE>& e);
     /// get all visible elements of given ModelNodeType
-    const Util::Array<Ptr<TYPE> >& Get(ModelNodeFilter t) const;
+    const Util::Array<Ptr<TYPE> >& Get(const Materials::SurfaceName::Code& code) const;
 
-#if (__DX11__ || __OGL4__)
-	static const IndexT numEntries = ModelNodeMaterial::MaxNumModelNodeMaterials;
-#else
-	static const IndexT numEntries = ModelNodeMaterial::MaxNumModelNodeTypes;
-#endif
+    static const IndexT numEntries = Materials::SurfaceName::MaxNumSurfaceNames;
 
 private:
     struct Entry
@@ -48,7 +40,7 @@ private:
         /// constructor
         Entry() : resolved(false) {};
 
-        Util::Array<Ptr<TYPE> > nodes;
+        Util::Array<Ptr<TYPE>> nodes;
         bool resolved;
     };
     Util::FixedArray<Entry> entries;
@@ -69,25 +61,28 @@ VisResolveContainer<TYPE>::VisResolveContainer() :
 //------------------------------------------------------------------------------
 /**
 */
-template<class TYPE> void
-VisResolveContainer<TYPE>::SetResolved(ModelNodeFilter t, bool b)
+template<class TYPE> 
+inline void
+VisResolveContainer<TYPE>::SetResolved(const Materials::SurfaceName::Code& code, bool b)
 {
-    this->entries[t].resolved = b;
+    this->entries[code].resolved = b;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-template<class TYPE> bool
-VisResolveContainer<TYPE>::IsResolved(ModelNodeFilter t) const
+template<class TYPE> 
+inline bool
+VisResolveContainer<TYPE>::IsResolved(const Materials::SurfaceName::Code& code) const
 {
-    return this->entries[t].resolved;
+    return this->entries[code].resolved;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-template<class TYPE> void
+template<class TYPE> 
+inline void
 VisResolveContainer<TYPE>::Reset()
 {
     IndexT i;
@@ -101,24 +96,26 @@ VisResolveContainer<TYPE>::Reset()
 //------------------------------------------------------------------------------
 /**
 */
-template<class TYPE> void
-VisResolveContainer<TYPE>::Add(IndexT curFrameIndex, ModelNodeFilter t, const Ptr<TYPE>& e)
+template<class TYPE> 
+inline void
+VisResolveContainer<TYPE>::Add(IndexT curFrameIndex, const Materials::SurfaceName::Code& code, const Ptr<TYPE>& e)
 {
     if (curFrameIndex != this->frameIndex)
     {
         this->Reset();
         this->frameIndex = curFrameIndex;
     }
-    this->entries[t].nodes.Append(e);
+    this->entries[code].nodes.Append(e);
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-template<class TYPE> const Util::Array<Ptr<TYPE> >&
-VisResolveContainer<TYPE>::Get(ModelNodeFilter t) const
+template<class TYPE> 
+inline const Util::Array<Ptr<TYPE> >&
+VisResolveContainer<TYPE>::Get(const Materials::SurfaceName::Code& code) const
 {
-    return this->entries[t].nodes;
+    return this->entries[code].nodes;
 }
 
 } // namespace Models

@@ -43,8 +43,8 @@ VarBlock::AddVariable( const Variable& var )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-VarBlock::TypeCheck( TypeChecker& typechecker )
+void
+VarBlock::TypeCheck(TypeChecker& typechecker)
 {
 	// add varblock, if failed we must have a redefinition
 	if (!typechecker.AddSymbol(this)) return;
@@ -95,7 +95,6 @@ VarBlock::TypeCheck( TypeChecker& typechecker )
 
         // since TypeCheck might modify the variable, we must replace the old one. 
 		var.TypeCheck(typechecker);
-        //this->variables[i] = var;
 	}
 
 	const Header& header = typechecker.GetHeader();
@@ -122,10 +121,13 @@ VarBlock::TypeCheck( TypeChecker& typechecker )
 //------------------------------------------------------------------------------
 /**
 */
-std::string 
-VarBlock::Format( const Header& header ) const
+std::string
+VarBlock::Format(const Header& header) const
 {
 	std::string formattedCode;
+
+    // only output if we have variables
+    if (this->variables.empty()) return formattedCode;
 
     if (this->shared)
     {
@@ -160,8 +162,8 @@ VarBlock::Format( const Header& header ) const
 //------------------------------------------------------------------------------
 /**
 */
-void 
-VarBlock::Compile( BinWriter& writer )
+void
+VarBlock::Compile(BinWriter& writer)
 {
 	writer.WriteString(this->name);
 	writer.WriteBool(this->shared);

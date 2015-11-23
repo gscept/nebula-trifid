@@ -14,7 +14,7 @@
 #include "modelutil/modelphysics.h"
 
 //------------------------------------------------------------------------------
-namespace Fbx
+namespace ToolkitUtil
 {
 class NFbxSceneWriter : public Core::RefCounted
 {

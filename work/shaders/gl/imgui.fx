@@ -36,9 +36,10 @@ state TextState
 */
 shader
 void
-vsMain(in vec2 position,
-	in vec2 uv,
-	in vec4 color,
+vsMain(
+	[slot=0] in vec2 position,
+	[slot=1] in vec4 color,
+	[slot=2] in vec2 uv,
 	out vec2 UV,
 	out vec4 Color) 
 {

@@ -29,6 +29,9 @@ public:
 	/// create a model node instance
 	virtual Ptr<Models::ModelNodeInstance> CreateNodeInstance() const;
 
+    /// set material name
+    void SetSurfaceName(const Util::String& name);
+
 }; 
 
 } // namespace Models

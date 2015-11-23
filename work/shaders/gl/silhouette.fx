@@ -9,6 +9,7 @@
 #include "lib/skinning.fxh"
 #include "lib/techniques.fxh"
 
+vec4 MatDiffuse;
 state SilhouetteState
 {
 	DepthEnabled = false;

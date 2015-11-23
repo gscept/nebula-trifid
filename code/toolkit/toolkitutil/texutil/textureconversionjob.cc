@@ -123,7 +123,7 @@ TextureConversionJob::NeedsConversion(const String& srcPath, const String& dstPa
         texEntry.Format("%s/%s", srcPath.ExtractLastDirName().AsCharPtr(), srcPath.ExtractFileName().AsCharPtr());
         texEntry.StripFileExtension();
         
-        if(this->textureAttrTable->HasEntry(texEntry))
+		if (this->textureAttrTable->HasEntry(texEntry))
         {
             attrTime = this->textureAttrTable->GetEntry(texEntry).GetTime();
         }

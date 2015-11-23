@@ -101,7 +101,7 @@ CheckCell(QuadTree<VisibilityQuadtree::CellInfo>::Node* node,
             }
             if (entityClipStatus != ClipStatus::Outside)
             {   
-                if (0 != ((1<<entityInfos[entityInfoIdx].entityType) & entityTypeMask))
+                if (0 != ((1<<entityInfos[entityInfoIdx].entityType) & entityTypeMask) && !entityInfos[entityInfoIdx].entityPtr->GetGfxEntity()->IsAlwaysVisible())
                 {
                     visEntities[*numEntitiesVisible] = entityInfos[entityInfoIdx].entityPtr; 
                     (*numEntitiesVisible)++;

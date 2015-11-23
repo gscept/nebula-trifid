@@ -15,7 +15,7 @@
 #include "models/model.h"
 #include "billboards/billboardnode.h"
 #include "models/modelinstance.h"
-#include "materials/materialvariableinstance.h"
+#include "materials/surfaceconstantinstance.h"
 namespace Graphics
 {
 class BillboardEntity : public Graphics::GraphicsEntity
@@ -77,9 +77,8 @@ private:
     
 	Ptr<Models::ModelInstance> modelInstance;
 	Ptr<Resources::ManagedTexture> texture;
-    Ptr<Materials::MaterialVariableInstance> colorVariable;
-	Ptr<Materials::MaterialVariableInstance> textureVariable;
-	Ptr<Materials::MaterialVariableInstance> idVariable;
+    Ptr<Materials::SurfaceConstant> colorVariable;
+    Ptr<Materials::SurfaceConstant> textureVariable;
 
 	static Ptr<Models::Model> billboardModel;
 	static Ptr<Billboards::BillboardNode> billboardNode;
@@ -140,15 +139,10 @@ BillboardEntity::GetTexture() const
 	return this->resource;
 }
 
-
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-BillboardEntity::SetColor( const Math::float4& color )
-{
-    this->color = color;
-}
+
 //------------------------------------------------------------------------------
 /**
 */

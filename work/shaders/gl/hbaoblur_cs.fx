@@ -72,7 +72,7 @@ csMainX()
 	const float y = float(gl_WorkGroupID.y);
 	const vec2 uv = (vec2(x, y) + 0.5f) * inverseSize;
 	SharedMemory[gl_LocalInvocationID.x] = textureLod(HBAOReadLinear, uv, 0).xy;
-	barrier();
+	groupMemoryBarrier();
 	
 	const uint writePos = tileStart + gl_LocalInvocationID.x;
 	const uint tileEndClamped = min(tileEnd, int(size.x));
@@ -138,7 +138,7 @@ csMainY()
 	const float y = apronStart + float(gl_LocalInvocationID.x) + 0.5f;
 	const vec2 uv = (vec2(x, y) + 0.5f) * inverseSize;
 	SharedMemory[gl_LocalInvocationID.x] = textureLod(HBAOReadLinear, uv, 0).xy;	
-	barrier();
+	groupMemoryBarrier();
 	
 	const uint writePos = tileStart + gl_LocalInvocationID.x;
 	const uint tileEndClamped = min(tileEnd, int(size.x));
@@ -185,12 +185,12 @@ csMainY()
 //------------------------------------------------------------------------------
 /**
 */
-program BlurX [ string Mask = "X"; ]
+program BlurX [ string Mask = "Alt0"; ]
 {
 	ComputeShader = csMainX();
 };
 
-program BlurY [ string Mask = "Y"; ]
+program BlurY [ string Mask = "Alt1"; ]
 {
 	ComputeShader = csMainY();
 };

@@ -279,11 +279,11 @@ OGL4RenderTarget::BeginPass()
 	glDrawBuffer(this->isDefaultRenderTarget ? GL_BACK : GL_COLOR_ATTACHMENT0);
 
     // set display dimensions
-	Ptr<CoreGraphics::ShaderInstance> instance = OGL4RenderDevice::Instance()->GetPassShader();
-	if (instance.isvalid() && instance->HasVariableByName(NEBULA3_SEMANTIC_RENDERTARGETDIMENSIONS))
+    Ptr<CoreGraphics::Shader> shader = OGL4RenderDevice::Instance()->GetPassShader();
+    if (shader.isvalid() && shader->HasVariableByName(NEBULA3_SEMANTIC_RENDERTARGETDIMENSIONS))
 	{
         const Ptr<DisplayDevice>& dispDev = DisplayDevice::Instance();
-		Ptr<CoreGraphics::ShaderVariable> var = instance->GetVariableByName(NEBULA3_SEMANTIC_RENDERTARGETDIMENSIONS);
+        Ptr<CoreGraphics::ShaderVariable> var = shader->GetVariableByName(NEBULA3_SEMANTIC_RENDERTARGETDIMENSIONS);
         uint width = this->width;
         uint height = this->height; 
 		float xRatio = 1 / float(width);
@@ -360,7 +360,7 @@ OGL4RenderTarget::OnDisplayResized(SizeT w, SizeT h)
 		this->width = SizeT(Math::n_floor(w * this->relWidth));
 		this->height = SizeT(Math::n_floor(h * this->relHeight));
 
-        glInvalidateTexImage(this->ogl4ResolveTexture, 0);
+        //glInvalidateTexImage(this->ogl4ResolveTexture, 0);
 		if (this->msCount > 1)
 		{
 			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, this->ogl4ResolveTexture);
@@ -427,8 +427,8 @@ OGL4RenderTarget::Reload()
 /**
     Can only be done with 2D textures.
 */
-void 
-OGL4RenderTarget::Copy( const Ptr<CoreGraphics::RenderTarget>& rt )
+void
+OGL4RenderTarget::Copy(const Ptr<CoreGraphics::RenderTarget>& rt)
 {
     n_assert(rt.isvalid());
 

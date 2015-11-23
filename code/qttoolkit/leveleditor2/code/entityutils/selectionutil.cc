@@ -386,7 +386,7 @@ SelectionUtil::RenderBBox(const bbox & origBox)
 {
 
     const int linecount = 24;
-    vector lines[linecount*2];
+    CoreGraphics::RenderShape::RenderShapeVertex lines[linecount * 2];
     vector corner;
     bbox box = origBox;
     box.transform(matrix44::scaling(float4(1.01)));
@@ -418,12 +418,12 @@ SelectionUtil::RenderBBox(const bbox & origBox)
     {
         corner = box.corner_point(c);
         
-        lines[c*6] = corner;
-		lines[c*6+1] = corner+vector(1,0,0) * (float)pattern[c*3] * cornerSize.x();
-        lines[c*6+2] = corner;
-        lines[c*6+3] = corner+vector(0,1,0) * (float)pattern[c*3+1] * cornerSize.y();
-        lines[c*6+4] = corner;
-        lines[c*6+5] = corner+vector(0,0,1) * (float)pattern[c*3+2] * cornerSize.z();
+        lines[c*6].pos = corner;
+		lines[c*6+1].pos = corner+vector(1,0,0) * (float)pattern[c*3] * cornerSize.x();
+        lines[c*6+2].pos = corner;
+        lines[c*6+3].pos = corner+vector(0,1,0) * (float)pattern[c*3+1] * cornerSize.y();
+        lines[c*6+4].pos = corner;
+        lines[c*6+5].pos = corner+vector(0,0,1) * (float)pattern[c*3+2] * cornerSize.z();
 
     }
 
@@ -436,15 +436,14 @@ SelectionUtil::RenderBBox(const bbox & origBox)
 														CoreGraphics::PrimitiveTopology::LineList,
 														linecount,
 														lines,
-														4,
 														selLine, 
 														CoreGraphics::RenderShape::CheckDepth);
 
     const int pointcount = 8;
-    vector points[pointcount];
+    CoreGraphics::RenderShape::RenderShapeVertex points[pointcount];
     for (c = 0; c < 8; c++)
     {
-        points[c] = box.corner_point(c);
+        points[c].pos = box.corner_point(c);
     }
 
     const int indexcount = 36;
@@ -471,7 +470,6 @@ SelectionUtil::RenderBBox(const bbox & origBox)
                                                 12,
                                                 points,
                                                 pointcount,
-                                                4,
                                                 indices,
                                                 CoreGraphics::IndexType::Index32,
                                                 selColour, 

@@ -134,7 +134,7 @@
           <enum>QFrame::NoFrame</enum>
          </property>
          <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
+          <enum>QFrame::Plain</enum>
          </property>
          <property name="lineWidth">
           <number>0</number>
@@ -224,6 +224,7 @@
      <string>Create</string>
     </property>
     <addaction name="actionCreate_Particle"/>
+    <addaction name="actionCreate_material"/>
    </widget>
    <addaction name="menuImport"/>
    <addaction name="menuCreate"/>
@@ -364,7 +365,7 @@
           <x>0</x>
           <y>0</y>
           <width>80</width>
-          <height>128</height>
+          <height>106</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout">
@@ -432,7 +433,7 @@
           <x>0</x>
           <y>0</y>
           <width>80</width>
-          <height>128</height>
+          <height>106</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_4">
@@ -497,7 +498,7 @@
           <x>0</x>
           <y>0</y>
           <width>80</width>
-          <height>128</height>
+          <height>106</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_11">
@@ -565,7 +566,7 @@
           <x>0</x>
           <y>0</y>
           <width>80</width>
-          <height>128</height>
+          <height>106</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_13">
@@ -633,7 +634,7 @@
           <x>0</x>
           <y>0</y>
           <width>80</width>
-          <height>128</height>
+          <height>106</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_14">
@@ -701,7 +702,7 @@
           <x>0</x>
           <y>0</y>
           <width>80</width>
-          <height>128</height>
+          <height>106</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_15">
@@ -715,6 +716,62 @@
            </property>
            <property name="frameShape">
             <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="materialDockWidget">
+   <property name="windowTitle">
+    <string>Surface</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_2">
+    <layout class="QGridLayout" name="gridLayout_16">
+     <property name="margin">
+      <number>0</number>
+     </property>
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <item row="0" column="0">
+      <widget class="QScrollArea" name="scrollArea_5">
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
+       </property>
+       <property name="widgetResizable">
+        <bool>true</bool>
+       </property>
+       <widget class="QWidget" name="scrollAreaWidgetContents_7">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>80</width>
+          <height>106</height>
+         </rect>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_17">
+         <property name="margin">
+          <number>0</number>
+         </property>
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QFrame" name="materialDockFrame">
+           <property name="frameShape">
+            <enum>QFrame::StyledPanel</enum>
            </property>
            <property name="frameShadow">
             <enum>QFrame::Raised</enum>
@@ -859,7 +916,7 @@
   </action>
   <action name="actionTexture_browser">
    <property name="text">
-    <string>Texture browser...</string>
+    <string>Asset browser...</string>
    </property>
   </action>
   <action name="actionShow_sky">
@@ -943,6 +1000,11 @@
    </property>
    <property name="shortcut">
     <string>F9</string>
+   </property>
+  </action>
+  <action name="actionCreate_material">
+   <property name="text">
+    <string>Create material...</string>
    </property>
   </action>
  </widget>

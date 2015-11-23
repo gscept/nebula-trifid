@@ -22,7 +22,7 @@ Annotable::Annotable()
 Annotable::~Annotable()
 {
 	// clear all strings
-	std::map<std::string, AnnotationVariant>::iterator it = this->annotationMap.begin();
+    eastl::map<eastl::string, AnnotationVariant>::iterator it = this->annotationMap.begin();
 	for (it = this->annotationMap.begin(); it != this->annotationMap.end(); it++)
 	{
 		if (it->second.type == String)
@@ -35,8 +35,17 @@ Annotable::~Annotable()
 //------------------------------------------------------------------------------
 /**
 */
+bool
+Annotable::HasAnnotation(const eastl::string& name)
+{
+    return this->annotationMap.find(name) != this->annotationMap.end();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 int 
-Annotable::GetAnnotationInt( const std::string& name )
+Annotable::GetAnnotationInt(const eastl::string& name)
 {
 	assert(this->annotationMap.find(name) != this->annotationMap.end());
 	return this->annotationMap[name].data.intValue;
@@ -46,7 +55,7 @@ Annotable::GetAnnotationInt( const std::string& name )
 /**
 */
 bool 
-Annotable::GetAnnotationBool( const std::string& name )
+Annotable::GetAnnotationBool(const eastl::string& name)
 {
 	assert(this->annotationMap.find(name) != this->annotationMap.end());
 	return this->annotationMap[name].data.boolValue;
@@ -56,7 +65,7 @@ Annotable::GetAnnotationBool( const std::string& name )
 /**
 */
 double 
-Annotable::GetAnnotationDouble( const std::string& name )
+Annotable::GetAnnotationDouble(const eastl::string& name)
 {
 	assert(this->annotationMap.find(name) != this->annotationMap.end());
 	return this->annotationMap[name].data.doubleValue;
@@ -66,7 +75,7 @@ Annotable::GetAnnotationDouble( const std::string& name )
 /**
 */
 float 
-Annotable::GetAnnotationFloat( const std::string& name )
+Annotable::GetAnnotationFloat(const eastl::string& name)
 {
 	assert(this->annotationMap.find(name) != this->annotationMap.end());
 	return this->annotationMap[name].data.floatValue;
@@ -75,8 +84,8 @@ Annotable::GetAnnotationFloat( const std::string& name )
 //------------------------------------------------------------------------------
 /**
 */
-const std::string& 
-Annotable::GetAnnotationString( const std::string& name )
+const eastl::string&
+Annotable::GetAnnotationString(const eastl::string& name)
 {
 	assert(this->annotationMap.find(name) != this->annotationMap.end());
 	return *this->annotationMap[name].data.stringValue;

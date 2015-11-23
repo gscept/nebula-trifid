@@ -446,21 +446,21 @@ OGL4Types::AsByteSize( GLuint semantic )
 	switch (semantic)
 	{
 	case VertexComponentBase::Position:
-		return sizeof ( GLfloat ) * 4 ;
+        return sizeof(GLfloat) * 4;
 	case VertexComponentBase::Normal:
-		return sizeof ( GLfloat ) * 3 ;
+        return sizeof(GLfloat) * 3;
 	case VertexComponentBase::Tangent:
-		return sizeof ( GLfloat ) * 3 ;
+        return sizeof(GLfloat) * 3;
 	case VertexComponentBase::Binormal:
-		return sizeof ( GLfloat ) * 3 ;
-	case VertexComponentBase::TexCoord:
-		return sizeof ( GLfloat ) * 2 ;
+        return sizeof(GLfloat) * 3;
+	case VertexComponentBase::TexCoord1:
+        return sizeof(GLfloat) * 2;
 	case VertexComponentBase::Color:
-		return sizeof ( GLint );
+        return sizeof(GLint);
 	case VertexComponentBase::SkinWeights:
-		return sizeof ( GLfloat ) * 4;
+        return sizeof(GLfloat) * 4;
 	case VertexComponentBase::SkinJIndices:
-		return sizeof ( GLint ) * 4;
+        return sizeof(GLint) * 4;
 	default:
 		n_error("Unknown vertex input semantic!");
 		return 0;
