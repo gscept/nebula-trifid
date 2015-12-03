@@ -50,7 +50,6 @@ PreviewState::PreviewState() :
 	showControls(false),
 	workLight(true),
 	managedSurface(NULL),
-	surface(NULL),
 	surfaceInstance(NULL)
 {
 	// empty
@@ -253,9 +252,18 @@ PreviewState::OnStateLeave(const Util::String& nextState)
 	this->surfaceViewTarget->Discard();
 	this->surfaceViewTarget = 0;
 	this->surfaceStage->RemoveAllEntities();
+	this->surfaceModelEntity = 0;
+	this->surfaceLight = 0;
+	this->surfaceCamera = 0;
 	this->surfaceLight = 0;
 	this->surfaceStage = 0;
 	this->surfaceView = 0;
+
+	if (this->managedSurface.isvalid())
+	{
+		Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedSurface.upcast<Resources::ManagedResource>());
+		this->managedSurface = 0;
+	}
 
 	GameStateHandler::OnStateLeave(nextState);
 }
@@ -325,11 +333,11 @@ PreviewState::SetSurface(const Resources::ResourceId& resource)
 {
 	if (this->managedSurface.isvalid())
 	{
-		this->surfaceInstance->Discard();
-		this->surfaceInstance = 0;
 		Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedSurface.upcast<Resources::ManagedResource>());
 		this->managedSurface = 0;
 	}
+
+	// thankfully, this model uses a hierarchy we know already
 	Ptr<Models::StateNodeInstance> node = RenderUtil::NodeLookupUtil::LookupStateNodeInstance(this->surfaceModelEntity, "root/sphere");
 	this->managedSurface = Resources::ResourceManager::Instance()->CreateManagedResource(Materials::Surface::RTTI, String::Sprintf("sur:%s.sur", resource.AsString().AsCharPtr()), NULL, true).downcast<Materials::ManagedSurface>();
 	this->surfaceInstance = this->managedSurface->GetSurface()->CreateInstance();

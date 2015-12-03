@@ -169,12 +169,12 @@ ContentBrowserWindow::ContentBrowserWindow() :
     // setup model UI
     this->modelHandler->SetUI(&this->modelInfoUi);
 
+	// setup texture UI
+	this->textureHandler->SetUI(&this->textureInfoUi);
+
 	// create and setup progress reporter
 	this->progressReporter = ProgressReporter::Create();
 	this->progressReporter->Open();
-
-	// setup current model item
-	this->modelItem;
 
 	// update library the first time
 	this->UpdateLibrary();
@@ -362,6 +362,8 @@ ContentBrowserWindow::closeEvent( QCloseEvent *e )
 	this->modelHandler = 0;
 	this->textureHandler->Cleanup();
 	this->textureHandler = 0;
+	this->materialHandler->Cleanup();
+	this->materialHandler = 0;
 	this->uiHandler->Cleanup();
 	this->uiHandler = 0;
 
@@ -1111,7 +1113,40 @@ ContentBrowserWindow::ModelSavedWithNewName( const Util::String& res )
 void
 ContentBrowserWindow::OnTextureSelected(const QString& tex)
 {
+	bool b = true;
+	if (this->textureHandler->IsSetup())
+	{
+		b = this->textureHandler->Discard();
+	}
 
+	if (b)
+	{
+		// split name into category and file
+		QStringList resourceParts = tex.split("/");
+
+		// get file name and category
+		String category = resourceParts[0].toUtf8().constData();
+		String file = resourceParts[1].toUtf8().constData();
+		category.StripAssignPrefix();
+		file.StripFileExtension();
+
+		this->textureHandler->SetTextureCategory(category);
+		this->textureHandler->SetTextureResource(file);
+
+		// preview
+		if (!this->textureHandler->LoadTexture())
+		{
+			String message;
+			message.Format("Texture '%s/%s' failed to load. Possible causes: \n    Not a valid .png, .jpg, .dds, .tga or .psd file.", category.AsCharPtr(), file.AsCharPtr());
+			QMessageBox::warning(NULL, "Failed to load resource", message.AsCharPtr());
+		}
+		else
+		{
+			this->textureInfoWindow->show();
+			this->textureInfoWindow->raise();
+			this->textureInfoWindow->setEnabled(true);
+		}
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -1144,6 +1179,9 @@ ContentBrowserWindow::OnModelSelected(const QString& mdl)
 		if (this->modelHandler->Preview())
 		{
 			// setup widget only if load was successful
+			this->modelInfoWindow->show();
+			this->modelInfoWindow->raise();
+			this->modelInfoWindow->setEnabled(true);
 			this->modelHandler->Setup();
 		}
 		else

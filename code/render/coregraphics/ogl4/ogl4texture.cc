@@ -107,7 +107,8 @@ OGL4Texture::Map(IndexT mipLevel, MapType mapType, MapInfo& outMapInfo)
 		outMapInfo.rowPitch = size * mipWidth;
 		outMapInfo.depthPitch = 0;
 		
-		this->mappedData = Memory::Alloc(Memory::ObjectArrayHeap, mipWidth * mipHeight * size * sizeof(byte));
+		// MEH, for some reason, the calculated size is not always correct...
+		this->mappedData = Memory::Alloc(Memory::ObjectArrayHeap, mipWidth * mipHeight * size);
 		glGetTexImage(this->target, mipLevel, components, type, this->mappedData);
 
 		outMapInfo.data = this->mappedData;
@@ -132,7 +133,7 @@ OGL4Texture::Map(IndexT mipLevel, MapType mapType, MapInfo& outMapInfo)
 		outMapInfo.rowPitch = size * mipWidth;
 		outMapInfo.depthPitch = 0;		
 
-		this->mappedData = Memory::Alloc(Memory::ObjectArrayHeap, mipWidth * mipHeight * mipDepth * size * sizeof(byte));
+		this->mappedData = Memory::Alloc(Memory::ObjectArrayHeap, mipWidth * mipHeight * mipDepth * size);
 		glGetTexImage(this->target, mipLevel, components, type, this->mappedData);
 
 		outMapInfo.data = this->mappedData;

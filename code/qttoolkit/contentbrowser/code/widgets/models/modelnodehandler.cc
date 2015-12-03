@@ -109,6 +109,10 @@ ModelNodeHandler::Refresh()
 	Ptr<ModelAttributes> attrs = this->modelHandler->GetAttributes();
 	State state = attrs->GetState(this->nodePath);
 
+	// remove previous surface
+	this->surfaceInstance->Discard();
+	this->surfaceInstance = 0;
+
 	// update model
 	Ptr<ModelEntity> model = ContentBrowserApp::Instance()->GetPreviewState()->GetModel();
 	Ptr<Models::StateNodeInstance> node = RenderUtil::NodeLookupUtil::LookupStateNodeInstance(model, this->nodePath);
@@ -125,10 +129,10 @@ ModelNodeHandler::SetSurface(const Util::String& sur)
 {
     if (this->managedSurface.isvalid())
     {
-        Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedSurface.upcast<Resources::ManagedResource>());
-        this->managedSurface = 0;
 		this->surfaceInstance->Discard();
 		this->surfaceInstance = 0;
+        Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedSurface.upcast<Resources::ManagedResource>());
+        this->managedSurface = 0;		
     }
 
     // update model

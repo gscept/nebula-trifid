@@ -246,7 +246,7 @@ PixelFormat::ToSize( Code code )
 	case DXT5sRGB:      return 4;
 	case BC7:			return 4;
 	case BC7sRGB:		return 4;
-	case R16F:          return 2;
+	case R16F:          return 4; // this is because nvidia-drivers have some bug in them...
 	case G16R16F:       return 4;
 	case A16B16G16R16F: return 8;
 	case A16B16G16R16:	return 8;

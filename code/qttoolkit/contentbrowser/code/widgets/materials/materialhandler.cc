@@ -722,9 +722,12 @@ MaterialHandler::Save()
 	this->hasChanges = false;
 
 	// hmm, now our managed material here will need to be updated, since we made a new material
+	this->surfaceInstance->Discard();
+	this->surfaceInstance = 0;
 	Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedSurface.upcast<Resources::ManagedResource>());
 	this->managedSurface = Resources::ResourceManager::Instance()->CreateManagedResource(Surface::RTTI, exportTarget, NULL, true).downcast<Materials::ManagedSurface>();
 	this->surface = this->managedSurface->GetSurface().downcast<MutableSurface>();
+	this->surfaceInstance = this->surface->CreateInstance();
 
 	// generate thumbnail
 	resName = String::Sprintf("src:assets/%s/%s_sur.thumb", this->category.AsCharPtr(), this->file.AsCharPtr());
@@ -784,9 +787,12 @@ MaterialHandler::SaveAs()
 		this->hasChanges = false;
 
 		// hmm, now our managed material here will need to be updated, since we made a new material
+		this->surfaceInstance->Discard();
+		this->surfaceInstance = 0;
 		Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedSurface.upcast<Resources::ManagedResource>());
 		this->managedSurface = Resources::ResourceManager::Instance()->CreateManagedResource(Surface::RTTI, exportTarget, NULL, true).downcast<Materials::ManagedSurface>();
         this->surface = this->managedSurface->GetSurface().downcast<MutableSurface>();
+		this->surfaceInstance = this->surface->CreateInstance();
 
 		// make sure to reload the surface in case we have just overwritten it
 		Ptr<ReloadResourceIfExists> msg = ReloadResourceIfExists::Create();
