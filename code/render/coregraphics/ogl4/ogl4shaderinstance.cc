@@ -155,6 +155,32 @@ OGL4ShaderInstance::SelectActiveVariation(ShaderFeature::Mask featureMask)
 /**
 */
 void
+OGL4ShaderInstance::BeginUpdateSync()
+{
+	int i;
+	for (i = 0; i < this->uniformBuffers.Size(); i++)
+	{
+		this->uniformBuffers[i]->BeginUpdateSync();
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+OGL4ShaderInstance::EndUpdateSync()
+{
+	int i;
+	for (i = 0; i < this->uniformBuffers.Size(); i++)
+	{
+		this->uniformBuffers[i]->EndUpdateSync();
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 OGL4ShaderInstance::OnLostDevice()
 {
 	// empty
@@ -172,25 +198,6 @@ OGL4ShaderInstance::OnResetDevice()
 //------------------------------------------------------------------------------
 /**
 */
-SizeT
-OGL4ShaderInstance::Begin()
-{
-	ShaderInstanceBase::Begin();
-	return 1;    
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-OGL4ShaderInstance::BeginPass(IndexT passIndex)
-{
-    ShaderInstanceBase::BeginPass(passIndex);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
 void
 OGL4ShaderInstance::Commit()
 {
@@ -202,6 +209,7 @@ OGL4ShaderInstance::Commit()
         binding.Key()->SetBufferHandle(binding.Value()->GetHandle());
     }
 
+	// run base class
     ShaderInstanceBase::Commit();
 
     for (i = 0; i < this->blockToBufferBindings.Size(); i++)
@@ -209,33 +217,6 @@ OGL4ShaderInstance::Commit()
         const BlockBufferBinding& binding = this->blockToBufferBindings[i];
         binding.Value()->CycleBuffers();
     }
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-OGL4ShaderInstance::PostDraw()
-{
-    ShaderInstanceBase::PostDraw();
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-OGL4ShaderInstance::EndPass()
-{
-    ShaderInstanceBase::EndPass();
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-OGL4ShaderInstance::End()
-{
-    ShaderInstanceBase::End();
 }
 
 //------------------------------------------------------------------------------

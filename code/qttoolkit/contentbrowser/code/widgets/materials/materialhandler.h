@@ -11,6 +11,7 @@
 #include "widgets/basehandler.h"
 #include "ui_materialinfowidget.h"
 #include "widgets/materials/mutablesurface.h"
+#include "widgets/materials/mutablesurfaceinstance.h"
 #include "materials/managedsurface.h"
 #include "resources/managedtexture.h"
 #include <QObject>
@@ -131,6 +132,9 @@ private:
 	/// helper function to reset the UI
 	void ResetUI();
 
+	/// update thumbnail
+	void UpdateThumbnail();
+
     QVBoxLayout* mainLayout;
     QComboBox* materialBox;
     QPushButton* materialHelp;
@@ -169,6 +173,7 @@ private:
     QMap<QCheckBox*, uint> variableBoolMap;
 	Ptr<Materials::ManagedSurface> managedSurface;
     Ptr<Materials::MutableSurface> surface;
+	Ptr<Materials::MutableSurfaceInstance> surfaceInstance;
     Util::Dictionary<IndexT, Ptr<Resources::ManagedTexture>> textureResources;
     Util::Dictionary<IndexT, Util::StringAtom> textureVariables;
     Util::Dictionary<IndexT, Util::StringAtom> scalarVariables;

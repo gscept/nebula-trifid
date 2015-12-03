@@ -127,10 +127,7 @@ private:
     Ptr<CoreGraphics::ShaderVariable> timeShaderVar;
     bool isOpen;
     bool renderDebug;
-    _declare_timer(GfxServerEndFrameTimer);
-    _declare_timer(GfxServerRenderView);
-    _declare_timer(GfxServerUpdateVisibilityLinks);
-    _declare_timer(GfxServerUpdateLightLinks);
+	_declare_timer(GfxServerRenderViews);
 	_declare_timer(GfxServerPresentFrame);
 };
 

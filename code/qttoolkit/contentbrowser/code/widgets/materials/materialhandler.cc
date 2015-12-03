@@ -98,9 +98,16 @@ MaterialHandler::Setup(const QString& resource)
 	this->file = res.ExtractFileName();
 	this->ui->surfaceName->setText(String::Sprintf("%s/%s", this->category.AsCharPtr(), this->file.AsCharPtr()).AsCharPtr());
 
+	// get preview state
+	Ptr<PreviewState> previewState = ContentBrowserApp::Instance()->GetPreviewState();
+	previewState->SetSurface(res);
+
     // create resource
 	this->managedSurface = Resources::ResourceManager::Instance()->CreateManagedResource(Surface::RTTI, resource.toUtf8().constData(), NULL, true).downcast<Materials::ManagedSurface>();
 	this->surface = this->managedSurface->GetSurface().downcast<MutableSurface>();
+
+	// create one instance so that the textures are loaded...
+	this->surfaceInstance = this->surface->CreateInstance();
 
     // get layout
 	this->mainLayout = static_cast<QVBoxLayout*>(this->ui->variableFrame->layout());
@@ -134,6 +141,8 @@ MaterialHandler::Discard()
 	this->textureResources.Clear();
     this->textureVariables.Clear();
     this->scalarVariables.Clear();
+	this->surfaceInstance->Discard();
+	this->surfaceInstance = 0;
 	Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedSurface.upcast<Resources::ManagedResource>());
 	this->managedSurface = 0;
 	this->surface = 0;
@@ -275,9 +284,15 @@ MaterialHandler::NewSurface()
 	this->ui->surfaceName->setText("<unnamed>");
 
 	// basically load placeholder, duplicate it, then clear the UI
-	if (this->managedSurface.isvalid()) Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedSurface.upcast<Resources::ManagedResource>());
+	if (this->managedSurface.isvalid())
+	{
+		this->surfaceInstance->Discard();
+		this->surfaceInstance = 0;
+		Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedSurface.upcast<Resources::ManagedResource>());
+	}
 	this->managedSurface = Resources::ResourceManager::Instance()->CreateManagedResource(Surface::RTTI, "intsur:system/placeholder.sur", NULL, true).downcast<Materials::ManagedSurface>();
 	this->surface = this->managedSurface->GetSurface().downcast<MutableSurface>();
+	this->surfaceInstance = this->surface->CreateInstance();
 	this->hasChanges = false;
 	this->ResetUI();	
 }
@@ -710,6 +725,16 @@ MaterialHandler::Save()
 	Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedSurface.upcast<Resources::ManagedResource>());
 	this->managedSurface = Resources::ResourceManager::Instance()->CreateManagedResource(Surface::RTTI, exportTarget, NULL, true).downcast<Materials::ManagedSurface>();
 	this->surface = this->managedSurface->GetSurface().downcast<MutableSurface>();
+
+	// generate thumbnail
+	resName = String::Sprintf("src:assets/%s/%s_sur.thumb", this->category.AsCharPtr(), this->file.AsCharPtr());
+
+	// get preview state
+	Ptr<PreviewState> previewState = ContentBrowserApp::Instance()->GetPreviewState();
+	previewState->SaveThumbnail(resName);
+
+	// update thumbnail
+	this->UpdateThumbnail();
 }
 
 //------------------------------------------------------------------------------
@@ -767,6 +792,16 @@ MaterialHandler::SaveAs()
 		Ptr<ReloadResourceIfExists> msg = ReloadResourceIfExists::Create();
 		msg->SetResourceName(exportTarget);
 		__StaticSend(GraphicsInterface, msg);
+
+		// generate thumbnail
+		resName = String::Sprintf("src:assets/%s/%s_sur.thumb", this->category.AsCharPtr(), this->file.AsCharPtr());
+
+		// get preview state
+		Ptr<PreviewState> previewState = ContentBrowserApp::Instance()->GetPreviewState();
+		previewState->SaveThumbnail(resName);
+
+		// update thumbnail
+		this->UpdateThumbnail();
 	}
 }
 
@@ -1080,19 +1115,8 @@ MaterialHandler::MakeMaterialUI(QLabel* surfaceName, QComboBox* materialBox, QPu
     int index = materialBox->findText(this->surface->GetMaterialTemplate()->GetName().AsString().AsCharPtr());
     materialBox->setCurrentIndex(index);
 
-    // get state node
-    Ptr<PreviewState> previewState = ContentBrowserApp::Instance()->GetPreviewState();
-    const Ptr<ModelEntity>& model = previewState->GetModel();
-
-    Ptr<FetchSkinList> fetchSkinsMessage = FetchSkinList::Create();
-    __Send(model, fetchSkinsMessage);
-    Array<StringAtom> skins = fetchSkinsMessage->GetSkins();
-    for (i = 0; i < skins.Size(); i++)
-    {
-        Ptr<Graphics::ShowSkin> showSkin = Graphics::ShowSkin::Create();
-        showSkin->SetSkin(skins[i]);
-        __Send(model, showSkin);
-    }
+	// update thumbnail
+	this->UpdateThumbnail();
 
     // get material
     Ptr<Material> mat = this->surface->GetMaterialTemplate();
@@ -1640,6 +1664,21 @@ MaterialHandler::ResetUI()
 
 	this->ClearFrame(this->mainLayout);
 	this->MakeMaterialUI(this->ui->surfaceName, this->ui->templateBox, this->ui->materialHelp);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+MaterialHandler::UpdateThumbnail()
+{
+	// load thumbnail
+	String thumbnail = String::Sprintf("src:assets/%s/%s_sur.thumb", this->category.AsCharPtr(), this->file.AsCharPtr());
+	QPixmap pixmap;
+	IO::URI texFile = thumbnail;
+	pixmap.load(texFile.LocalPath().AsCharPtr());
+	pixmap = pixmap.scaled(QSize(100, 100), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+	this->ui->surfaceThumbnail->setPixmap(pixmap);
 }
 
 } // namespace Widgets

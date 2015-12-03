@@ -49,7 +49,7 @@ OGL4UniformBuffer::Setup()
     if (!this->sync)
     {
         GLenum mapFlags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
-        glBufferStorage(GL_UNIFORM_BUFFER, this->size * this->NumBuffers, NULL, mapFlags);
+        glBufferStorage(GL_UNIFORM_BUFFER, this->size * this->NumBuffers, NULL, mapFlags | GL_DYNAMIC_STORAGE_BIT);
         this->buffer = glMapBufferRange(GL_UNIFORM_BUFFER, 0, this->size * this->NumBuffers, mapFlags);
     }
     else
@@ -59,6 +59,9 @@ OGL4UniformBuffer::Setup()
         this->buffer = n_new_array(byte, this->size);
     }
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	// create new bufferlock
+	this->bufferLock = OGL4BufferLock::Create();
 
     // setup handle
     this->handle = n_new(AnyFX::OpenGLBufferBinding);
@@ -90,6 +93,7 @@ OGL4UniformBuffer::Discard()
     }
     
     this->buffer = 0;
+	this->bufferLock = 0;
     glDeleteBuffers(1, &this->ogl4Buffer);
     ConstantBufferBase::Discard();
 }
@@ -127,10 +131,10 @@ OGL4UniformBuffer::SetupFromBlockInShader(const Ptr<CoreGraphics::Shader>& shade
 void
 OGL4UniformBuffer::CycleBuffers()
 {
-    //this->bufferLock->LockRange(this->handle->offset, this->size);
+    //this->bufferLock->WaitForRange(this->handle->offset, this->size);
     ConstantBufferBase::CycleBuffers();
     this->handle->offset = this->size * this->bufferIndex;
-    //this->bufferLock->WaitForRange(this->handle->offset, this->size);
+    //this->bufferLock->LockRange(this->handle->offset, this->size);
 }
 
 } // namespace OpenGL4 

@@ -52,6 +52,11 @@ public:
     /// shortcut to select a shader variation through the original shader
     bool SelectActiveVariation(CoreGraphics::ShaderFeature::Mask mask);    
 
+	/// begin all uniform buffers for a synchronous update
+	void BeginUpdateSync();
+	/// end buffer updates for all uniform buffers
+	void EndUpdateSync();
+
     /// begin rendering through the currently selected variation, returns no. passes
     SizeT Begin();
     /// begin pass

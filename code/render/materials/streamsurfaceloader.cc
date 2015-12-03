@@ -180,22 +180,22 @@ StreamSurfaceLoader::SetupMaterialFromStream(const Ptr<IO::Stream>& stream)
             switch (param.defaultVal.GetType())
             {
                 case Variant::Float:
-                    var.SetFloat(reader->GetFloat("value"));
+                    var.SetFloat(reader->GetOptFloat("value", 0.0f));
                     break;
                 case Variant::Int:
-                    var.SetInt(reader->GetInt("value"));
+					var.SetInt(reader->GetOptInt("value", 0));
                     break;
                 case Variant::Bool:
-                    var.SetBool(reader->GetBool("value"));
+					var.SetBool(reader->GetOptBool("value", false));
                     break;
                 case Variant::Float4:
-                    var.SetFloat4(reader->GetFloat4("value"));
+					var.SetFloat4(reader->GetOptFloat4("value", Math::float4(0)));
                     break;
                 case Variant::Float2:
-                    var.SetFloat2(reader->GetFloat2("value"));
+					var.SetFloat2(reader->GetOptFloat2("value", Math::float2(0)));
                     break;
                 case Variant::Matrix44:
-                    var.SetMatrix44(reader->GetMatrix44("value"));
+					var.SetMatrix44(reader->GetOptMatrix44("value", Math::matrix44()));
                     break;
                 case Variant::String:
                 {

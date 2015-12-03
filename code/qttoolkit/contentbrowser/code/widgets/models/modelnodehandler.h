@@ -13,6 +13,7 @@
 #include <QDoubleSpinBox>
 #include <QSpinBox>
 #include <QCheckBox>
+#include "resourcebrowser/code/filewatcher.h"
 #include "ui_modelnodeinfowidget.h"
 #include "modelhandler.h"
 #include "materials/material.h"
@@ -71,6 +72,10 @@ public:
 private slots:
     /// browse surface material
     void Browse();
+	/// open the surface
+	void EditSurface();
+	/// callback for when the thumbnail changes
+	void OnThumbnailFileChanged();
 
 protected:
 
@@ -88,9 +93,10 @@ protected:
 
 	QLayout* mainLayout;
 
+	ResourceBrowser::FileWatcher thumbnailWatcher;
 	Ui::ModelNodeInfoWidget* ui;
 	Ptr<ModelHandler> modelHandler;
-    Ptr<Materials::ManagedSurface> managedMaterial;
+    Ptr<Materials::ManagedSurface> managedSurface;
     Ptr<Materials::SurfaceInstance> surfaceInstance;
 }; 
 

@@ -856,7 +856,9 @@ String::IsValidFloat() const
 inline bool
 String::IsValidFloat2() const
 {
-    return this->CheckValidCharSet(" \t-+.,e1234567890");
+	Array<String> tokens(2, 0);
+	this->Tokenize(", \t", tokens);
+    return this->CheckValidCharSet(" \t-+.,e1234567890") && tokens.Size() == 2;
 }
 
 //------------------------------------------------------------------------------
@@ -866,7 +868,9 @@ String::IsValidFloat2() const
 inline bool
 String::IsValidFloat4() const
 {
-    return this->CheckValidCharSet(" \t-+.,e1234567890");
+	Array<String> tokens(4, 0);
+	this->Tokenize(", \t", tokens);
+    return this->CheckValidCharSet(" \t-+.,e1234567890") && tokens.Size() == 4;
 }
 
 //------------------------------------------------------------------------------
@@ -876,7 +880,9 @@ String::IsValidFloat4() const
 inline bool
 String::IsValidMatrix44() const
 {
-    return this->CheckValidCharSet(" \t-+.,e1234567890");
+	Array<String> tokens(16, 0);
+	this->Tokenize(", \t", tokens);
+    return this->CheckValidCharSet(" \t-+.,e1234567890") && tokens.Size() == 16;
 }
     
 //------------------------------------------------------------------------------

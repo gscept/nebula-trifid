@@ -41,7 +41,7 @@ __ImplementClass(Widgets::ModelNodeHandler, 'MNIH', Core::RefCounted);
 ModelNodeHandler::ModelNodeHandler() :
 	mainLayout(0),
 	modelHandler(0),
-    managedMaterial(0),
+    managedSurface(0),
 	actionUpdateMode(true)
 {
 	// empty
@@ -75,7 +75,7 @@ ModelNodeHandler::Setup(const Util::String& resource)
     String res = String::Sprintf("%s/%s", category.AsCharPtr(), file.AsCharPtr());
 
     // update UI
-    this->ui->surfaceName->setText(state.material.AsCharPtr());
+	this->ui->surfaceName->setText(res.AsCharPtr());
     this->ui->nodeName->setText(this->nodeName.AsCharPtr());
 
     // update thumbnail
@@ -85,6 +85,8 @@ ModelNodeHandler::Setup(const Util::String& resource)
     this->SetSurface(surface);
 
     connect(this->ui->surfaceButton, SIGNAL(pressed()), this, SLOT(Browse()));
+	connect(this->ui->editSurfaceButton, SIGNAL(pressed()), this, SLOT(EditSurface()));
+	connect(&this->thumbnailWatcher, SIGNAL(fileChanged(const QString&)), this, SLOT(OnThumbnailFileChanged()));
 }
 
 //------------------------------------------------------------------------------
@@ -94,6 +96,8 @@ void
 ModelNodeHandler::Discard()
 {
     disconnect(this->ui->surfaceButton, SIGNAL(pressed()), this, SLOT(Browse()));
+	disconnect(this->ui->editSurfaceButton, SIGNAL(pressed()), this, SLOT(EditSurface()));
+	disconnect(&this->thumbnailWatcher, SIGNAL(fileChanged(const QString&)), this, SLOT(OnThumbnailFileChanged()));
 }
 
 //------------------------------------------------------------------------------
@@ -108,8 +112,8 @@ ModelNodeHandler::Refresh()
 	// update model
 	Ptr<ModelEntity> model = ContentBrowserApp::Instance()->GetPreviewState()->GetModel();
 	Ptr<Models::StateNodeInstance> node = RenderUtil::NodeLookupUtil::LookupStateNodeInstance(model, this->nodePath);
-	this->managedMaterial = Resources::ResourceManager::Instance()->CreateManagedResource(Surface::RTTI, state.material, NULL, true).downcast<Materials::ManagedSurface>();
-    this->surfaceInstance = this->managedMaterial->GetSurface()->CreateInstance();
+	this->managedSurface = Resources::ResourceManager::Instance()->CreateManagedResource(Surface::RTTI, state.material, NULL, true).downcast<Materials::ManagedSurface>();
+    this->surfaceInstance = this->managedSurface->GetSurface()->CreateInstance();
 	node->SetSurfaceInstance(this->surfaceInstance);
 }
 
@@ -119,22 +123,24 @@ ModelNodeHandler::Refresh()
 void
 ModelNodeHandler::SetSurface(const Util::String& sur)
 {
-    if (this->managedMaterial.isvalid())
+    if (this->managedSurface.isvalid())
     {
-        Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedMaterial.upcast<Resources::ManagedResource>());
-        this->managedMaterial = 0;
+        Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedSurface.upcast<Resources::ManagedResource>());
+        this->managedSurface = 0;
+		this->surfaceInstance->Discard();
+		this->surfaceInstance = 0;
     }
 
     // update model
     Ptr<ModelEntity> model = ContentBrowserApp::Instance()->GetPreviewState()->GetModel();
     Ptr<Models::StateNodeInstance> node = RenderUtil::NodeLookupUtil::LookupStateNodeInstance(model, this->nodePath);
-    this->managedMaterial = Resources::ResourceManager::Instance()->CreateManagedResource(Surface::RTTI, String::Sprintf("sur:%s.sur", sur.AsCharPtr()), NULL, true).downcast<Materials::ManagedSurface>();
-    this->surfaceInstance = this->managedMaterial->GetSurface()->CreateInstance();
+    this->managedSurface = Resources::ResourceManager::Instance()->CreateManagedResource(Surface::RTTI, String::Sprintf("sur:%s.sur", sur.AsCharPtr()), NULL, true).downcast<Materials::ManagedSurface>();
+    this->surfaceInstance = this->managedSurface->GetSurface()->CreateInstance();
     node->SetSurfaceInstance(this->surfaceInstance);
 
 	Ptr<ModelAttributes> attrs = this->modelHandler->GetAttributes();
 	State state = attrs->GetState(this->nodePath);
-    state.material = this->managedMaterial->GetSurface()->GetResourceId().AsString();
+    state.material = this->managedSurface->GetSurface()->GetResourceId().AsString();
 	state.material.StripFileExtension();
 	attrs->SetState(this->nodePath, state);
 	this->modelHandler->OnModelModified();
@@ -208,6 +214,30 @@ ModelNodeHandler::Browse()
 /**
 */
 void
+ModelNodeHandler::EditSurface()
+{
+	Ptr<ModelAttributes> attrs = this->modelHandler->GetAttributes();
+	State state = attrs->GetState(this->nodePath);
+	String surface = state.material;
+	surface.ChangeFileExtension("sur");
+
+	// open in content browser...
+	ContentBrowserApp::Instance()->GetWindow()->OnSurfaceSelected(surface.AsCharPtr());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ModelNodeHandler::OnThumbnailFileChanged()
+{
+	this->UpdateSurfaceThumbnail();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 ModelNodeHandler::UpdateSurfaceThumbnail()
 {
     Ptr<ModelAttributes> attrs = this->modelHandler->GetAttributes();
@@ -216,12 +246,13 @@ ModelNodeHandler::UpdateSurfaceThumbnail()
 
     // create pixmap which will be used to set the icon of the browsing button
     QPixmap pixmap;
-    surface += "_thumb";
-    surface.ChangeAssignPrefix("tex");
-    surface.ChangeFileExtension("dds");
+	surface.StripAssignPrefix();
+	surface.StripFileExtension();
+	surface = String::Sprintf("src:assets/%s_sur.thumb", surface.AsCharPtr());
     IO::URI texFile = surface;
     pixmap.load(texFile.LocalPath().AsCharPtr());
     pixmap = pixmap.scaled(QSize(100, 100), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+	this->thumbnailWatcher.WatchFile(texFile.LocalPath());
 
     QPalette palette;
     palette.setBrush(this->ui->surfaceButton->backgroundRole(), QBrush(pixmap));

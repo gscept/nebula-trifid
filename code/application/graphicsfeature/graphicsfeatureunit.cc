@@ -52,6 +52,7 @@ using namespace Visibility;
 GraphicsFeatureUnit::GraphicsFeatureUnit() : 	
     resizable(true),
     decorated(true),
+	defaultGraphicsWorld(true),
 	frameShader(ResourceId(NEBULA3_DEFAULT_FRAMESHADER_NAME))
 {
     __ConstructSingleton;
@@ -74,7 +75,7 @@ GraphicsFeatureUnit::OnActivate()
 	n_assert(!this->IsActive());
 
 	// create post effect manager, setup world, then attach manager
-	this->SetupDefaultGraphicsWorld();
+	if (this->defaultGraphicsWorld) this->SetupDefaultGraphicsWorld();
 
 	// setup anim path mapper
 	this->animPathMapper = SimpleResourceMapper::Create();

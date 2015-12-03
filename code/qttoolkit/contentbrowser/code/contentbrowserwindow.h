@@ -35,6 +35,10 @@
 #include "resourcebrowser/code/assetbrowser.h"
 #include "code/tiledgraphicsview.h"
 
+namespace Widgets
+{
+	class ModelNodeHandler;
+}
 namespace ContentBrowser
 {
 class ContentBrowserApp;
@@ -189,6 +193,8 @@ private slots:
 	void OnLockedLightChecked();
 	/// called whenever the show sky box gets checked
 	void OnShowSkyChecked();
+	/// called whenever the show surface view is checked
+	void OnSurfacePreviewChecked();
 
 	/// called whenever the particle effect wizard is opened
 	void OnCreateParticleEffect();
@@ -206,6 +212,8 @@ private slots:
     void OnDebugPage();
 
 private:
+	friend class Widgets::ModelNodeHandler;
+
 	/// saves the current library state
 	void SaveLibraryState();
 	/// restores the expansion state of the library ui

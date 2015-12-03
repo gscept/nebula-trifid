@@ -83,9 +83,14 @@ OGL4ShapeRenderer::Open()
     this->diffuseColor = this->shapeShader->GetVariableByName("MatDiffuse");
 
 	// create feature masks
-	this->depthFeatureBits[RenderShape::AlwaysOnTop] = ShaderServer::Instance()->FeatureStringToMask("Static");    
-	this->depthFeatureBits[RenderShape::CheckDepth] = ShaderServer::Instance()->FeatureStringToMask("Static|Alt0");
-	this->depthFeatureBits[RenderShape::Wireframe] = ShaderServer::Instance()->FeatureStringToMask("Static|Alt1");
+	this->featureBits[RenderShape::AlwaysOnTop] = ShaderServer::Instance()->FeatureStringToMask("Colored");    
+	this->featureBits[RenderShape::CheckDepth] = ShaderServer::Instance()->FeatureStringToMask("Colored|Alt0");
+	this->featureBits[RenderShape::Wireframe] = ShaderServer::Instance()->FeatureStringToMask("Colored|Alt1");
+
+	// use these for primitives
+	this->featureBits[RenderShape::AlwaysOnTop + RenderShape::NumDepthFlags] = ShaderServer::Instance()->FeatureStringToMask("Static");
+	this->featureBits[RenderShape::CheckDepth + RenderShape::NumDepthFlags] = ShaderServer::Instance()->FeatureStringToMask("Static|Alt0");
+	this->featureBits[RenderShape::Wireframe + RenderShape::NumDepthFlags] = ShaderServer::Instance()->FeatureStringToMask("Static|Alt1");
 
 	// setup vbo
 	Util::Array<VertexComponent> comps;
@@ -190,57 +195,55 @@ OGL4ShapeRenderer::DrawShapes()
 	glPointSize(2.5f);
 
 	renderDevice->SetPassShader(this->shapeShader);
-    for (int depthType = 0; depthType<RenderShape::NumDepthFlags; depthType++)
+    for (int depthType = 0; depthType < RenderShape::NumDepthFlags; depthType++)
     {
-	    if (this->shapes[depthType].Size() > 0)
-	    {	
-			this->shapeShader->SelectActiveVariation(depthFeatureBits[depthType]);	
-            this->shapeShader->Apply();
-	
-	        // render individual shapes
-	        IndexT i;
-	        for (i = 0; i < this->shapes[depthType].Size(); i++)
-	        {
-	            const RenderShape& curShape = this->shapes[depthType][i];
-	            n_assert(InvalidThreadId != curShape.GetThreadId());
-	            switch (curShape.GetShapeType())
-	            {
-	                case RenderShape::Primitives:
-	                    this->DrawPrimitives(curShape.GetModelTransform(),
-	                                         curShape.GetTopology(),
-	                                         curShape.GetNumPrimitives(),
-	                                         curShape.GetVertexData(),
-	                                         curShape.GetVertexWidth(),
-                                             curShape.GetVertexLayout(),
-	                                         curShape.GetColor());
-	                    break;
-	
-	                case RenderShape::IndexedPrimitives:
-	                    this->DrawIndexedPrimitives(curShape.GetModelTransform(),
-	                                                curShape.GetTopology(),
-	                                                curShape.GetNumPrimitives(),
-	                                                curShape.GetVertexData(),
-	                                                curShape.GetNumVertices(),
-	                                                curShape.GetVertexWidth(),
-                                                    curShape.GetVertexLayout(),
-	                                                curShape.GetIndexData(),
-	                                                curShape.GetIndexType(),
-	                                                curShape.GetColor());
-	                    break;
-	
-                    case RenderShape::RenderMesh:
-                        this->DrawMesh(curShape.GetModelTransform(), curShape.GetMesh(), curShape.GetColor());
-                        break;
-	                default:
-	                    this->DrawSimpleShape(curShape.GetModelTransform(), curShape.GetShapeType(), curShape.GetColor());
-	                    break;
-	            }
-	        }
+		this->shapeShader->SelectActiveVariation(featureBits[depthType]);
+        this->shapeShader->Apply();
 
-            this->DrawBufferedIndexedPrimitives();
-            this->DrawBufferedPrimitives();
+		IndexT i;
+		for (i = 0; i < this->primitives[depthType].Size(); i++)
+		{
+			const RenderShape& curShape = this->primitives[depthType][i];
+			if (curShape.GetShapeType() == RenderShape::Primitives) 
+				this->DrawPrimitives(curShape.GetModelTransform(),
+									 curShape.GetTopology(),
+									 curShape.GetNumPrimitives(),
+									 curShape.GetVertexData(),
+									 curShape.GetVertexWidth(),
+									 curShape.GetVertexLayout(),
+									 curShape.GetColor());
+			else if (curShape.GetShapeType() == RenderShape::IndexedPrimitives)
+				this->DrawIndexedPrimitives(curShape.GetModelTransform(),
+											curShape.GetTopology(),
+											curShape.GetNumPrimitives(),
+											curShape.GetVertexData(),
+											curShape.GetNumVertices(),
+											curShape.GetVertexWidth(),
+											curShape.GetVertexLayout(),
+											curShape.GetIndexData(),
+											curShape.GetIndexType(),
+											curShape.GetColor());
+			else n_error("Shape type %d is not a primitive!", curShape.GetShapeType());
 		}
-    }
+
+		// flush any buffered primitives
+		this->DrawBufferedIndexedPrimitives();
+		this->DrawBufferedPrimitives();
+	}
+
+	for (int depthType = 0; depthType < RenderShape::NumDepthFlags; depthType++)
+    {
+		this->shapeShader->SelectActiveVariation(featureBits[depthType + RenderShape::NumDepthFlags]);
+        this->shapeShader->Apply();
+
+		IndexT i;
+		for (i = 0; i < this->shapes[depthType].Size(); i++)
+		{
+			const RenderShape& curShape = this->shapes[depthType][i];
+			if (curShape.GetShapeType() == RenderShape::RenderMesh) this->DrawMesh(curShape.GetModelTransform(), curShape.GetMesh(), curShape.GetColor());
+			else													this->DrawSimpleShape(curShape.GetModelTransform(), curShape.GetShapeType(), curShape.GetColor());
+		}
+	}
 	renderDevice->SetPassShader(0);
 
     //glDisable(GL_LINE_SMOOTH);
@@ -280,6 +283,38 @@ OGL4ShapeRenderer::DrawSimpleShape(const matrix44& modelTransform, RenderShape::
 	renderDevice->SetPrimitiveGroup(group);
 
 	// draw
+	renderDevice->Draw();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+OGL4ShapeRenderer::DrawMesh(const Math::matrix44& modelTransform, const Ptr<CoreGraphics::Mesh>& mesh, const Math::float4& color)
+{
+	n_assert(mesh.isvalid());
+	Ptr<RenderDevice> renderDevice = RenderDevice::Instance();
+
+	// resolve model-view-projection matrix and update shader
+	TransformDevice* transDev = TransformDevice::Instance();
+	this->shapeShader->BeginUpdate();
+	this->model->SetMatrix(modelTransform);
+	this->diffuseColor->SetFloat4(color);
+	this->shapeShader->EndUpdate();
+	this->shapeShader->Commit();
+
+	// draw shape
+	n_assert(RenderDevice::Instance()->IsInBeginFrame());
+
+	Ptr<CoreGraphics::VertexBuffer> vb = mesh->GetVertexBuffer();
+	Ptr<CoreGraphics::IndexBuffer> ib = mesh->GetIndexBuffer();
+	PrimitiveGroup group = mesh->GetPrimitiveGroupAtIndex(0);
+
+	// setup render device
+	renderDevice->SetStreamVertexBuffer(0, vb, 0);
+	renderDevice->SetVertexLayout(vb->GetVertexLayout());
+	renderDevice->SetIndexBuffer(ib);
+	renderDevice->SetPrimitiveGroup(group);
 	renderDevice->Draw();
 }
 
@@ -332,15 +367,6 @@ OGL4ShapeRenderer::DrawPrimitives(const matrix44& modelTransform,
 	group.SetPrimitiveTopology(topology);
     this->unindexed.primitives.Append(group);
     this->numPrimitives += vertexCount;
-        
-	// setup render device and draw
-	//renderDevice->SetStreamSource(0, this->vbo, 0);
-    //if (layout.isvalid())   renderDevice->SetVertexLayout(layout);
-    //else                    renderDevice->SetVertexLayout(this->vbo->GetVertexLayout());
-	//renderDevice->SetVertexLayout(this->vbo->GetVertexLayout());
-	//renderDevice->SetIndexBuffer(NULL);
-	//renderDevice->SetPrimitiveGroup(this->primGroup);
-	//renderDevice->Draw();
 
     // place a lock and increment buffer count
     this->vboLock->LockRange(bufferOffset + this->numPrimitives, vertexCount * vertexWidth);
@@ -407,50 +433,9 @@ OGL4ShapeRenderer::DrawIndexedPrimitives(const matrix44& modelTransform,
     this->numPrimitives += vertexCount;
     this->numIndices += indexCount;
 
-	// setup render device and draw
-	//renderDevice->SetStreamSource(0, this->vbo, 0);
-    //if (layout.isvalid())   renderDevice->SetVertexLayout(layout);
-    //else                    
-	//renderDevice->SetVertexLayout(this->vertexLayout);
-	//renderDevice->SetIndexBuffer(this->ibo);
-	//renderDevice->SetPrimitiveGroup(this->primGroup);
-	//renderDevice->Draw();
-
     // lock buffer and increment buffer count
     this->vboLock->LockRange(vbBufferOffset + this->numPrimitives, numVertices * vertexWidth);
     this->iboLock->LockRange(ibBufferOffset + this->numIndices, indexCount * indexSize);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-OGL4ShapeRenderer::DrawMesh(const Math::matrix44& modelTransform, const Ptr<CoreGraphics::Mesh>& mesh, const Math::float4& color)
-{
-    n_assert(mesh.isvalid());
-    Ptr<RenderDevice> renderDevice = RenderDevice::Instance();
-
-    // resolve model-view-projection matrix and update shader
-    TransformDevice* transDev = TransformDevice::Instance();
-    this->shapeShader->BeginUpdate();
-    this->model->SetMatrix(modelTransform);
-    this->diffuseColor->SetFloat4(color);
-    this->shapeShader->EndUpdate();
-    this->shapeShader->Commit();
-
-    // draw shape
-    n_assert(RenderDevice::Instance()->IsInBeginFrame());
-
-    Ptr<CoreGraphics::VertexBuffer> vb = mesh->GetVertexBuffer();
-    Ptr<CoreGraphics::IndexBuffer> ib = mesh->GetIndexBuffer();
-	PrimitiveGroup group = mesh->GetPrimitiveGroupAtIndex(0);
-
-	// setup render device
-	renderDevice->SetStreamVertexBuffer(0, vb, 0);
-	renderDevice->SetVertexLayout(vb->GetVertexLayout());
-	renderDevice->SetIndexBuffer(ib);
-	renderDevice->SetPrimitiveGroup(group);
-	renderDevice->Draw();
 }
 
 //------------------------------------------------------------------------------
@@ -512,7 +497,6 @@ OGL4ShapeRenderer::DrawBufferedPrimitives()
     Ptr<RenderDevice> renderDevice = RenderDevice::Instance();
     renderDevice->SetVertexLayout(this->vertexLayout);
     renderDevice->SetStreamSource(0, this->vbo, 0);
-    renderDevice->SetIndexBuffer(NULL);
 
     IndexT i;
     for (i = 0; i < this->unindexed.primitives.Size(); i++)
@@ -523,7 +507,7 @@ OGL4ShapeRenderer::DrawBufferedPrimitives()
 
         this->shapeShader->BeginUpdate();
         this->model->SetMatrix(modelTransform);
-        this->diffuseColor->SetFloat4(float4(1));
+        //this->diffuseColor->SetFloat4(float4(1));
         this->shapeShader->EndUpdate();
         this->shapeShader->Commit();
 
@@ -546,7 +530,6 @@ OGL4ShapeRenderer::DrawBufferedIndexedPrimitives()
     Ptr<RenderDevice> renderDevice = RenderDevice::Instance();
     renderDevice->SetVertexLayout(this->vertexLayout);
     renderDevice->SetStreamSource(0, this->vbo, 0);
-    renderDevice->SetIndexBuffer(this->ibo);
 
     IndexT i;
     for (i = 0; i < this->indexed.primitives.Size(); i++)
@@ -557,7 +540,7 @@ OGL4ShapeRenderer::DrawBufferedIndexedPrimitives()
 
         this->shapeShader->BeginUpdate();
         this->model->SetMatrix(modelTransform);
-        this->diffuseColor->SetFloat4(float4(1));
+        //this->diffuseColor->SetFloat4(float4(1));
         this->shapeShader->EndUpdate();
         this->shapeShader->Commit();
 

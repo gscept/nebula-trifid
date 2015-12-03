@@ -24,6 +24,7 @@
 #include "graphics/cameraentity.h"
 #include "coregraphics/texture.h"
 #include "coregraphics/rendertarget.h"
+#include "rendermodules/rt/rtpluginregistry.h"
 #include "frame/frameshader.h"
 #include "debug/debugtimer.h"
 
@@ -62,6 +63,9 @@ public:
     /// returns true if view should use resolve rect
     const bool UseResolveRect() const;
 
+	/// set render target used for offscreen rendering using this view
+	void SetOffscreenTarget(const Ptr<CoreGraphics::RenderTarget>& target);
+
     /// add a view which this view depends on
     void AddDependency(const Ptr<View>& view);
     /// get all dependency views
@@ -75,6 +79,8 @@ public:
     virtual void Render(IndexT frameIndex);
     /// render a debug view of the world
     virtual void RenderDebug();
+	/// handle on frame callback from main rendering pipeline
+	virtual void OnFrame(const Ptr<RenderModules::RTPluginRegistry>& pluginRegistry, Timing::Time curTime, Timing::Time globalTimeFactor, bool renderDebug);
 
 protected:
     friend class GraphicsServer;
@@ -97,6 +103,7 @@ protected:
     Ptr<Stage> stage;
     Ptr<CameraEntity> camera;
     Ptr<Frame::FrameShader> frameShader;
+	Ptr<CoreGraphics::RenderTarget> offscreenTarget;
     Util::Array<Ptr<View> > dependencies;
 	bool resolveRectValid;
 	Math::rectangle<int> resolveRect;
@@ -106,6 +113,11 @@ protected:
 	_declare_timer(updateShadowBuffers);
 	_declare_timer(picking);
 	_declare_timer(render);
+
+	_declare_timer(ViewEndFrame);
+	_declare_timer(ViewRender);
+	_declare_timer(ViewUpdateVisibilityLinks);
+	_declare_timer(ViewUpdateLightLinks);
 };
 
 //------------------------------------------------------------------------------
@@ -215,6 +227,16 @@ inline const Math::rectangle<int>&
 View::GetResolveRect() const
 {
 	return this->resolveRect;
+}
+
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+View::SetOffscreenTarget(const Ptr<CoreGraphics::RenderTarget>& target)
+{
+	this->offscreenTarget = target;
 }
 
 //------------------------------------------------------------------------------

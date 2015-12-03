@@ -277,6 +277,16 @@ RotationFeature::RenderHandles()
     circleVector = intersectionLine.vec();
 	circleVector = vector::normalize(circleVector);
     circleVector *= this->handleDistance * this->handleScale;
+
+	if (X_AXIS == this->currentDragMode || X_AXIS == mode)
+	{
+		color = float4(1, 1, 0, 1);
+	}
+	else
+	{
+		color = float4(.8f, 0, 0, 1);
+	}
+
     for (i = 0; i < (lineCount*2) - 1; i += 2)
     {
         help.set(circleVector.x(),circleVector.y(),circleVector.z());
@@ -286,15 +296,9 @@ RotationFeature::RenderHandles()
 		help = circleVector;
 		this->RotateVector(help, this->xAxis, (float)-PI * (i / 2 + 1) / lineCount);
 		handlePoints[i+1].pos = this->origin + help;  
-    }
 
-	if (X_AXIS == this->currentDragMode || X_AXIS == mode)
-    {
-        color = float4(1, 1, 0, 1);
-    }
-    else
-    {
-		color = float4(.8f, 0, 0, 1);
+		handlePoints[i].color = color;
+		handlePoints[i + 1].color = color;
     }
     
     // draw X axis
@@ -311,6 +315,16 @@ RotationFeature::RenderHandles()
 	circleVector = vector::normalize(circleVector);
     circleVector *= this->handleDistance * this->handleScale;
 
+
+	if (Y_AXIS == this->currentDragMode || Y_AXIS == mode)
+	{
+		color = float4(1, 1, 0, 1);
+	}
+	else
+	{
+		color = float4(0, .8f, 0, 1);
+	}
+
     for (i=0; i<(lineCount*2)-1; i+=2)
     {
         help = circleVector;
@@ -320,15 +334,9 @@ RotationFeature::RenderHandles()
         help = circleVector;
         this->RotateVector(help, this->yAxis,(float)PI * (i/2 +1) / lineCount);
         handlePoints[i+1].pos = this->origin + help;  
-    }
-    
-	if (Y_AXIS == this->currentDragMode || Y_AXIS == mode)
-    {
-        color = float4(1, 1, 0, 1);
-    }
-    else
-    {
-		color = float4(0, .8f, 0, 1);
+
+		handlePoints[i].color = color;
+		handlePoints[i+1].color = color;
     }
     
     // draw Y axis
@@ -345,6 +353,15 @@ RotationFeature::RenderHandles()
 	circleVector = vector::normalize(circleVector);
     circleVector *= this->handleDistance * this->handleScale;
 
+	if (Z_AXIS == this->currentDragMode || Z_AXIS == mode)
+	{
+		color = float4(1, 1, 0, 1);
+	}
+	else
+	{
+		color = float4(0, 0, .8f, 1);
+	}
+
     for (i=0; i<(lineCount*2)-1; i+=2)
     {
         help = circleVector;
@@ -354,15 +371,9 @@ RotationFeature::RenderHandles()
         help = circleVector;
         this->RotateVector(help, this->zAxis,-(float)PI * (i/2 +1) / lineCount);
         handlePoints[i+1].pos = this->origin + help;  
-    }
 
-	if (Z_AXIS == this->currentDragMode || Z_AXIS == mode)
-    {
-        color = float4(1, 1, 0, 1);
-    }
-    else
-    {
-		color = float4(0, 0, .8f, 1);
+		handlePoints[i].color = color;
+		handlePoints[i + 1].color = color;
     }
     
     // draw Z axis
@@ -378,6 +389,16 @@ RotationFeature::RenderHandles()
     circleVector = FindOrtho(normal);
 	circleVector = vector::normalize(circleVector);
     circleVector *= this->handleDistance * this->handleScale * this->outerCircleScale;
+
+	if (VIEW_AXIS == this->currentDragMode || VIEW_AXIS == mode)
+	{
+		color = float4(1, 1, 0, 1);
+	}
+	else
+	{
+		color = float4(.5f, .5f, 1.0f, 1.0f);
+	}
+
     for (i=0; i<(lineCount*2)-1; i+=2)
     {
         help = circleVector;
@@ -387,15 +408,9 @@ RotationFeature::RenderHandles()
         help = circleVector;
         this->RotateVector(help, normal, 2*(float)PI * (i/2 +1) / lineCount);
         handlePoints[i+1].pos = this->origin + help;  
-    }
-    
-	if (VIEW_AXIS == this->currentDragMode || VIEW_AXIS == mode)
-    {
-        color = float4(1, 1, 0, 1);
-    }
-    else
-    {
-        color = float4(.5f, .5f, 1.0f, 1.0f);
+
+		handlePoints[i].color = color;
+		handlePoints[i + 1].color = color;
     }
 
     // draw it

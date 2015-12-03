@@ -11,6 +11,7 @@
 #include "materials/surface.h"
 namespace Materials
 {
+class MutableSurfaceInstance;
 class MutableSurface : public Surface
 {
 	__DeclareClass(MutableSurface);
@@ -19,6 +20,9 @@ public:
 	MutableSurface();
 	/// destructor
 	virtual ~MutableSurface();
+
+	/// create an instance of a surface
+	Ptr<MutableSurfaceInstance> CreateInstance();
 
 	/// set material template
 	void SetMaterialTemplate(const Ptr<Materials::Material>& mat);

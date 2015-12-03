@@ -11,6 +11,7 @@
 #include <QThread>
 #include <QImage>
 #include <QMutex>
+#include "filewatcher.h"
 #include "threading/safequeue.h"
 #include "util/string.h"
 namespace ResourceBrowser
@@ -23,10 +24,38 @@ public:
 	QMutex mutex;
 	Util::String path;
 	QImage* texture;
+	FileWatcher thumbnailWatcher;
+	int refCount;
+
+	/// constructor
+	ImageLoaderUnit() : refCount(1) 
+	{
+		connect(&this->thumbnailWatcher, SIGNAL(fileChanged(const QString&)), this, SLOT(OnThumbnailFileChanged()));
+		this->texture = new QImage;
+	}
+
+	/// destructor
+	~ImageLoaderUnit()
+	{
+		disconnect(&this->thumbnailWatcher, SIGNAL(fileChanged(const QString&)), this, SLOT(OnThumbnailFileChanged()));
+		delete this->texture;
+	}
+
+	/// bump a ref
+	void Retain();
+	/// release a ref
+	void Release();
+
+	/// perform actual loading
+	void Load();
 
 signals:
 	/// signal when loaded
 	void OnLoaded();
+
+private slots:
+	/// signal when thumbnail has changed
+	void OnThumbnailFileChanged();
 
 	friend class ImageLoaderThread;
 };
@@ -66,7 +95,30 @@ private:
 inline void
 ImageLoaderThread::Enqueue(ImageLoaderUnit* unit)
 {
+	unit->Retain();
 	this->queue.Enqueue(unit);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+ImageLoaderUnit::Retain()
+{
+	this->refCount++;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+ImageLoaderUnit::Release()
+{
+	this->refCount--;
+	if (this->refCount == 0)
+	{
+		delete this;
+	}
 }
 
 } // namespace ResourceBrowser

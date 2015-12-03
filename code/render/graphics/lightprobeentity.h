@@ -64,7 +64,7 @@ public:
 	const bool GetParallaxCorrected() const;
 	
     /// get shader
-    const Ptr<CoreGraphics::ShaderInstance>& GetShaderInstance() const;
+    const Ptr<CoreGraphics::Shader>& GetShader() const;
 
 	/// set shape type
 	void SetShapeType(LightProbeShapeType shape);
@@ -90,16 +90,20 @@ private:
 	LightProbeShapeType shape;
 	Ptr<Lighting::EnvironmentProbe> probe;
 
-    Ptr<CoreGraphics::ShaderInstance> shader;
-    Ptr<CoreGraphics::ShaderVariableInstance> lightProbeReflectionVar;
-    Ptr<CoreGraphics::ShaderVariableInstance> lightProbeIrradianceVar;
-    Ptr<CoreGraphics::ShaderVariableInstance> lightProbeFalloffVar;
-    Ptr<CoreGraphics::ShaderVariableInstance> lightProbePowerVar;
-    Ptr<CoreGraphics::ShaderVariableInstance> lightProbeReflectionNumMipsVar;
-    Ptr<CoreGraphics::ShaderVariableInstance> lightProbeBboxMinVar;
-    Ptr<CoreGraphics::ShaderVariableInstance> lightProbeBboxMaxVar;
-    Ptr<CoreGraphics::ShaderVariableInstance> lightProbeBboxCenterVar;
-    Ptr<CoreGraphics::ShaderVariableInstance> lightProbeTransformVar;
+    Ptr<CoreGraphics::Shader> shader;
+    Ptr<CoreGraphics::ShaderVariable> lightProbeReflectionVar;
+    Ptr<CoreGraphics::ShaderVariable> lightProbeIrradianceVar;
+    Ptr<CoreGraphics::ShaderVariable> lightProbeFalloffVar;
+    Ptr<CoreGraphics::ShaderVariable> lightProbePowerVar;
+    Ptr<CoreGraphics::ShaderVariable> lightProbeReflectionNumMipsVar;
+    Ptr<CoreGraphics::ShaderVariable> lightProbeBboxMinVar;
+    Ptr<CoreGraphics::ShaderVariable> lightProbeBboxMaxVar;
+    Ptr<CoreGraphics::ShaderVariable> lightProbeBboxCenterVar;
+    Ptr<CoreGraphics::ShaderVariable> lightProbeTransformVar;
+	Ptr<CoreGraphics::ShaderVariable> lightProbeInvTransformVar;
+	Ptr<CoreGraphics::ShaderVariable> lightProbeBufferVar;
+
+	Ptr<CoreGraphics::ConstantBuffer> lightProbeVariableBuffer;
 };
 
 
@@ -238,8 +242,8 @@ LightProbeEntity::GetEnvironmentProbe() const
 //------------------------------------------------------------------------------
 /**
 */
-inline const Ptr<CoreGraphics::ShaderInstance>&
-LightProbeEntity::GetShaderInstance() const
+inline const Ptr<CoreGraphics::Shader>&
+LightProbeEntity::GetShader() const
 {
     return this->shader;
 }

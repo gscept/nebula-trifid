@@ -15,6 +15,7 @@
 #include "physics/resource/managedphysicsmodel.h"
 #include "posteffect/posteffectmanager.h"
 #include "godrays/godrayrendermodule.h"
+#include "materials/managedsurface.h"
 //------------------------------------------------------------------------------
 namespace ContentBrowser
 {
@@ -47,12 +48,20 @@ public:
 	/// attaches the model back to the previewer
 	void PostImportModel();
 
+	/// sets the surface material on the preview sphere
+	void SetSurface(const Resources::ResourceId& resource);
+	/// sets whether or not the surface preview should be shown
+	void SetSurfacePreview(bool b);
+
 	/// enables rendering of the physics shape
 	void SetShowPhysics(bool enable);
 	/// enables display of controls
 	void SetShowControls(bool enable);
 	/// enables worklight
 	void SetUseWorklight(bool enable);
+
+	/// saves whatever is in the preview view to file, swapStage will use the rendered stage instead of the surface stage
+	void SaveThumbnail(const Util::String& path, bool swapStage = false);
 
 	/// returns pointer to light
 	const Ptr<Graphics::GlobalLightEntity>& GetLight() const;
@@ -68,6 +77,18 @@ private:
 	Ptr<Graphics::ModelEntity> modelEntity;	
 	Ptr<Physics::ManagedPhysicsModel> physicsModel;	
 	Util::Array<Ptr<Physics::PhysicsObject>> physicsObjects;
+
+	Ptr<Graphics::Stage> defaultStage;
+
+	Ptr<Graphics::Stage> surfaceStage;
+	Ptr<Graphics::View> surfaceView;
+	Ptr<Graphics::CameraEntity> surfaceCamera;
+	Ptr<Graphics::GlobalLightEntity> surfaceLight;
+	Ptr<Graphics::ModelEntity> surfaceModelEntity;
+	Ptr<Materials::ManagedSurface> managedSurface;
+	Ptr<Materials::Surface> surface;
+	Ptr<Materials::SurfaceInstance> surfaceInstance;
+	Ptr<CoreGraphics::RenderTarget> surfaceViewTarget;
 
 	Math::matrix44 lightTransform;
 	bool enablePhysics;

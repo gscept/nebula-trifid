@@ -20,6 +20,7 @@
 #include <QPlastiqueStyle>
 #include "resources/resourcemanager.h"
 #include "code/simulation/simulationcommands.h"
+#include "algorithm/algorithmprotocol.h"
 
 using namespace QtToolkitUtil;
 using namespace QtRemoteInterfaceAddon;
@@ -198,6 +199,7 @@ ContentBrowserApp::SetupGameFeatures()
 	// create ui feature
 	this->uiFeature = UI::UiFeatureUnit::Create();
 	this->uiFeature->SetRenderDebug(true);
+
 	// do not load ui fonts and layouts
 	this->uiFeature->SetAutoload(false);
 	this->gameServer->AttachGameFeature(this->uiFeature.upcast<Game::FeatureUnit>());
@@ -205,7 +207,6 @@ ContentBrowserApp::SetupGameFeatures()
 	// add effects feature for playing anim events
 	this->effectsFeature = EffectsFeature::EffectsFeatureUnit::Create();
 	this->gameServer->AttachGameFeature(this->effectsFeature.cast<Game::FeatureUnit>());
-
 
 	// for the ease of testing, load all fonts
 	this->uiFeature->LoadAllFonts("gui:");
@@ -215,6 +216,11 @@ ContentBrowserApp::SetupGameFeatures()
 
     // set all resource mappers to be synchronized
     Resources::ResourceManager::Instance()->SetMappersAsync(false);
+
+	// disable tone mapping
+	Ptr<Algorithm::EnableToneMapping> toneMappingMsg = Algorithm::EnableToneMapping::Create();
+	toneMappingMsg->SetEnabled(false);
+	GraphicsInterface::Instance()->Send(toneMappingMsg.upcast<Messaging::Message>());
 
 	// close splash
 	this->splash->Close();

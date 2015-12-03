@@ -130,6 +130,8 @@ public:
     void Present();
     /// save a screenshot to the provided stream
     CoreGraphics::ImageFileFormat::Code SaveScreenshot(CoreGraphics::ImageFileFormat::Code fmt, const Ptr<IO::Stream>& outStream);
+	/// save a region of the screen to the provided stream
+	CoreGraphics::ImageFileFormat::Code SaveScreenshot(CoreGraphics::ImageFileFormat::Code fmt, const Ptr<IO::Stream>& outStream, const Math::rectangle<int>& rect, int x, int y);
     /// get visualization of mipmaps flag	
     bool GetVisualizeMipMaps() const;
     /// set visualization of mipmaps flag	

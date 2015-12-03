@@ -87,8 +87,8 @@ SSRAlgorithm::Discard()
 void
 SSRAlgorithm::Render()
 {
-	// if enabled, render AO
-	if (this->enabled)
+	// if enabled, render screen-space reflections (disabled for now)
+	if (this->enabled && false)
 	{
 		RenderDevice* renderDevice = RenderDevice::Instance();
 		ShaderServer* shaderServer = ShaderServer::Instance();

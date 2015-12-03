@@ -542,6 +542,8 @@ TranslateFeature::RenderHandles()
 
 	line[0].pos = this->origin;
     line[1].pos = this->xAxis;
+	line[0].color = color;
+	line[1].color = color;
 	Debug::DebugShapeRenderer::Instance()->DrawPrimitives(matrix44::identity(), CoreGraphics::PrimitiveTopology::LineList, 1, line, color, CoreGraphics::RenderShape::AlwaysOnTop);
 
     // draw Y axis + handle  
@@ -569,6 +571,8 @@ TranslateFeature::RenderHandles()
 	m = matrix44::identity();
     line[0].pos = this->origin;
     line[1].pos = this->yAxis;
+	line[0].color = color;
+	line[1].color = color;
 	Debug::DebugShapeRenderer::Instance()->DrawPrimitives(m, CoreGraphics::PrimitiveTopology::LineList, 1, line, color, CoreGraphics::RenderShape::AlwaysOnTop);
 
     // draw Z axis + handle    
@@ -596,6 +600,8 @@ TranslateFeature::RenderHandles()
 	m = matrix44::identity();
     line[0].pos = this->origin;
     line[1].pos = this->zAxis;
+	line[0].color = color;
+	line[1].color = color;
 	Debug::DebugShapeRenderer::Instance()->DrawPrimitives(m, CoreGraphics::PrimitiveTopology::LineList, 1, line, color, CoreGraphics::RenderShape::AlwaysOnTop);
 }
 

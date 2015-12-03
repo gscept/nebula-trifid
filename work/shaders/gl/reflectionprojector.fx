@@ -13,9 +13,10 @@ sampler2D SpecularMap;
 sampler2D AlbedoMap;
 sampler2D DepthMap;
 
-shared varblock ReflectionBlock
+shared varblock ReflectionProjectorBlock
 {
 	mat4 Transform;
+	mat4 InvTransform;
 	vec4 BBoxMin;
 	vec4 BBoxMax;
 	vec4 BBoxCenter;
@@ -136,7 +137,7 @@ psMain(in vec3 viewSpacePosition,
 	vec3 viewVec = normalize(viewSpacePosition);
 	vec3 surfacePos = viewVec * depth;
 	vec4 worldPosition = InvView * vec4(surfacePos, 1);
-	vec4 localPos = InvModel * worldPosition;	
+	vec4 localPos = InvTransform * worldPosition;	
 	
 	vec3 dist = vec3(0.5f) - abs(localPos.xyz);
 	if (all(greaterThan(dist, vec3(0))))

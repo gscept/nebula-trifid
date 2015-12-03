@@ -135,6 +135,8 @@ public:
 	const Util::Array<Math::rectangle<int> >& GetResolveRectArray() const;
 	/// returns true if resolve rect array is valid
 	const bool IsResolveRectArrayValid() const;
+	/// remove resolve rects from render target
+	void ResetResolveRects();
 
 	/// called after we change the display size
 	void OnDisplayResized(SizeT width, SizeT height);
@@ -589,7 +591,7 @@ RenderTargetBase::IsResolveRectValid() const
 /**
 */
 inline void 
-RenderTargetBase::SetResolveRectArray( const Util::Array<Math::rectangle<int> >& rects )
+RenderTargetBase::SetResolveRectArray(const Util::Array<Math::rectangle<int> >& rects)
 {
 	this->resolveRectArray = rects;
 	this->resolveRectArrayValid = true;

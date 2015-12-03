@@ -17,6 +17,9 @@
 #include "environment/environmentserver.h"
 #include "graphicsserver.h"
 #include "coregraphics/renderdevice.h"
+#include "coregraphics/displaydevice.h"
+#include "characters/characterserver.h"
+#include "framesync/framesynctimer.h"
 
 namespace Graphics
 {
@@ -30,13 +33,16 @@ using namespace Characters;
 using namespace Math;
 using namespace Picking;
 using namespace Environment;
+using namespace CoreGraphics;
+using namespace FrameSync;
 
 //------------------------------------------------------------------------------
 /**
 */
 View::View() :
     isAttachedToServer(false),
-	resolveRectValid(false)
+	resolveRectValid(false),
+	offscreenTarget(NULL)
 {
     // empty
 }
@@ -83,6 +89,22 @@ View::OnAttachToServer()
 	this->render = Debug::DebugTimer::Create();
 	name.Format("View_%s_RenderFrameShader", this->name.Value());
 	this->render->Setup(name);
+
+	this->ViewEndFrame = Debug::DebugTimer::Create();
+	name.Format("View_%s_ViewEndFrame", this->name.Value());
+	this->ViewEndFrame->Setup(name);
+
+	this->ViewRender = Debug::DebugTimer::Create();
+	name.Format("View_%s_ViewRender", this->name.Value());
+	this->ViewRender->Setup(name);
+
+	this->ViewUpdateLightLinks = Debug::DebugTimer::Create();
+	name.Format("View_%s_ViewUpdateLightLinks", this->name.Value());
+	this->ViewUpdateLightLinks->Setup(name);
+
+	this->ViewUpdateVisibilityLinks = Debug::DebugTimer::Create();
+	name.Format("View_%s_ViewUpdateVisibiltyLinks", this->name.Value());
+	this->ViewUpdateVisibilityLinks->Setup(name);
 #endif
 }
 
@@ -100,6 +122,7 @@ View::OnRemoveFromServer()
     }
     this->stage = 0;
     this->frameShader = 0;
+	this->offscreenTarget = 0;
     this->dependencies.Clear();
     this->isAttachedToServer = false;
 
@@ -108,6 +131,11 @@ View::OnRemoveFromServer()
 	_discard_timer(updateShadowBuffers);
 	_discard_timer(picking);
 	_discard_timer(render);
+
+	_discard_timer(ViewEndFrame);
+	_discard_timer(ViewRender);
+	_discard_timer(ViewUpdateLightLinks);
+	_discard_timer(ViewUpdateVisibilityLinks);
 }
 
 //------------------------------------------------------------------------------
@@ -285,11 +313,14 @@ View::Render(IndexT frameIndex)
 
     Particles::ParticleRenderer::Instance()->EndAttach();
 
-	// if we have a resolve rect, we set the resolve rectangle 
-	if (this->resolveRectValid)
-	{
-		renderDev->GetDefaultRenderTarget()->SetResolveRect(this->resolveRect);
-	}
+	// if we have a resolve rect, we set the resolve rectangle for the default render target
+	// this will cause any frame shaders aimed at the default render target (screen) to be rendered to a subregion of the screen
+	if (this->resolveRectValid)	renderDev->GetDefaultRenderTarget()->SetResolveRect(this->resolveRect);
+	else						renderDev->GetDefaultRenderTarget()->ResetResolveRects();
+
+	// if we have a valid offscreen target, render to it instead of the screen
+	if (this->offscreenTarget.isvalid()) this->frameShader->GetAllFramePassBases().Back()->SetRenderTarget(this->offscreenTarget);
+	else								 this->frameShader->GetAllFramePassBases().Back()->SetRenderTarget(RenderDevice::Instance()->GetDefaultRenderTarget());
 
     // render the world...
 	_start_timer(render);
@@ -331,6 +362,104 @@ View::RenderDebug()
         const Ptr<GraphicsEntity>& curEntity = visLinks[i];
         curEntity->OnRenderDebug();
     }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+View::OnFrame(const Ptr<RenderModules::RTPluginRegistry>& pluginRegistry, Timing::Time curTime, Timing::Time globalTimeFactor, bool renderDebug)
+{
+	RenderDevice* renderDevice = RenderDevice::Instance();
+	DisplayDevice* displayDevice = DisplayDevice::Instance();
+	IndexT frameIndex = FrameSyncTimer::Instance()->GetFrameIndex();
+
+	// start rendering
+	if (this->GetCameraEntity().isvalid() && renderDevice->BeginFrame())
+	{
+		CharacterServer* charServer = CharacterServer::Instance();
+
+		const Ptr<Stage>& stage = this->GetStage();
+		charServer->BeginFrame(frameIndex);
+
+		// update transform device with camera transforms for this frame
+		this->ApplyCameraSettings();
+
+		// begin gathering skins
+		charServer->BeginGather();
+
+		// update the view's stage, this will happen only once
+		// per frame, regardless of how many views are attached to the stage
+		// FIXME: move ParticleRenderer-Stuff into addon!
+		if (pluginRegistry.isvalid())
+		{ 
+			pluginRegistry->OnUpdateBefore(frameIndex, curTime);
+			stage->OnCullBefore(curTime, globalTimeFactor, frameIndex);
+			pluginRegistry->OnUpdateAfter(frameIndex, curTime);
+		}
+		else
+		{
+			stage->OnCullBefore(curTime, globalTimeFactor, frameIndex);
+		}
+		
+		_start_timer(ViewUpdateVisibilityLinks);
+		// update visibility from the default view's camera
+		this->UpdateVisibilityLinks();
+		_stop_timer(ViewUpdateVisibilityLinks);
+
+		// stop gathering skins
+		charServer->EndGather();
+
+		// update character system
+		charServer->StartUpdateCharacterSkeletons();
+		charServer->UpdateCharacterSkins();
+
+		// render debug visualization before light links are generated,
+		// cause we want only visualization of camera culling 
+		// otherwise put it after UpdateLightLinks
+		if (renderDebug)
+		{
+			stage->OnRenderDebug();
+		}
+
+		_start_timer(ViewUpdateLightLinks);
+		// update light linking for visible lights
+		if (LightServer::Instance()->NeedsLightModelLinking())
+		{
+			stage->UpdateLightLinks();
+		}
+		_stop_timer(ViewUpdateLightLinks);
+
+		// perform debug rendering if enabled
+		if (renderDebug)
+		{
+			this->RenderDebug();
+		}
+
+		_start_timer(ViewRender);
+		if (pluginRegistry.isvalid())
+		{
+			// finally render the view
+			pluginRegistry->OnRenderBefore(frameIndex, curTime);
+			charServer->BeginDraw();
+			this->Render(frameIndex);
+			charServer->EndDraw();
+			pluginRegistry->OnRenderAfter(frameIndex, curTime);
+		}
+		else
+		{
+			charServer->BeginDraw();
+			this->Render(frameIndex);
+			charServer->EndDraw();
+		}
+		
+		_stop_timer(ViewRender);
+		charServer->EndFrame();
+
+		_start_timer(ViewEndFrame)
+		renderDevice->EndFrame();
+		_stop_timer(ViewEndFrame)
+	}
 }
 
 //------------------------------------------------------------------------------

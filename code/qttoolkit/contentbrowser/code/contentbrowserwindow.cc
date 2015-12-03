@@ -195,6 +195,7 @@ ContentBrowserWindow::ContentBrowserWindow() :
 	connect(this->ui.actionShow_sky, SIGNAL(triggered()), this, SLOT(OnShowSkyChecked()));
 	connect(this->ui.actionTexture_browser, SIGNAL(triggered()), this, SLOT(OnShowTextureBrowser()));
 	connect(this->ui.actionEnvironment_probe, SIGNAL(triggered()), this, SLOT(OnShowEnvironmentProbeSettings()));
+	connect(this->ui.actionDisplay_Surface_Material, SIGNAL(triggered()), this, SLOT(OnSurfacePreviewChecked()));
 	connect(this->modelImporterWindow, SIGNAL(ImportDone(const Util::String&)), this, SLOT(OnModelImported(const Util::String&)));
 	connect(this->textureImporterWindow, SIGNAL(ImportDone(const Util::String&)), this, SLOT(OnTextureImported(const Util::String&)));	
 
@@ -2171,6 +2172,16 @@ ContentBrowserWindow::OnShowSkyChecked()
 	Ptr<EnableVolumetricLighting> godRayMessage = EnableVolumetricLighting::Create();
 	godRayMessage->SetEnabled(this->showSky);
 	GraphicsInterface::Instance()->Send(godRayMessage.upcast<Messaging::Message>());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ContentBrowserWindow::OnSurfacePreviewChecked()
+{
+	Ptr<PreviewState> previewState = ContentBrowserApp::Instance()->GetPreviewState();
+	previewState->SetSurfacePreview(this->ui.actionDisplay_Surface_Material->isChecked());
 }
 
 //------------------------------------------------------------------------------

@@ -46,7 +46,7 @@
   <!-- MRT for opaque geometry -->
   <DeclareMRT name="GeometryBuffer">
 	<DepthStencilTarget name="DefaultDepthBuffer" clearDepth="1" clearStencil="0"/>
-	<RenderTarget name="AlbedoBuffer" clearColor="0.52,0.52,0.5,1"/>
+	<RenderTarget name="AlbedoBuffer" clearColor="0.1,0.1,0.1,1"/>
 	<RenderTarget name="NormalBuffer" clearColor="0.5,0.5,0,0"/>
 	<RenderTarget name="DepthBuffer" clearColor="-1000,0,0,0"/>   
 	<RenderTarget name="SpecularBuffer" clearColor="0,0,0,0"/>
@@ -109,7 +109,7 @@
   </Pass>
   
   <!-- renders screen-space lighting for opaque geometry -->
-  <Pass renderTarget="LightBuffer" name="LightPass" clearColor="0.5,0.5,0.5,1" shader="lights">
+  <Pass renderTarget="LightBuffer" name="LightPass" clearColor="0.1,0.1,0.1,1" shader="lights">
 	<ApplyShaderVariable sem="NormalBuffer" value="NormalBuffer"/>
 	<ApplyShaderVariable sem="DepthBuffer" value="DepthBuffer"/>
 	<ApplyShaderVariable sem="AlbedoBuffer" value="AlbedoBuffer"/>

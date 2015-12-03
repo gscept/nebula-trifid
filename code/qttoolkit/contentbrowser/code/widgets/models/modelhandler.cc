@@ -82,11 +82,11 @@ ModelHandler::Preview()
 
 	// create original resource uri
 	String resource;
-	resource.Format("mdl:%s/%s.n3", this->category.AsCharPtr(), this->model.AsCharPtr());
+	resource.Format("mdl:%s/%s.n3", this->category.AsCharPtr(), this->file.AsCharPtr());
 
 	// create original physics resource uri
 	String phResource;
-	phResource.Format("phys:%s/%s.np3", this->category.AsCharPtr(), this->model.AsCharPtr());
+	phResource.Format("phys:%s/%s.np3", this->category.AsCharPtr(), this->file.AsCharPtr());
 
 	// preview the model
 	if (!previewState->SetModel(resource))
@@ -112,25 +112,25 @@ ModelHandler::Setup()
 
 	// enable the UI again
 	this->ui->frame->setDisabled(false);
-	this->ui->modelName->setText((this->category + "/" + this->model).AsCharPtr());
+	this->ui->modelName->setText((this->category + "/" + this->file).AsCharPtr());
 
 	// call base class
 	BaseHandler::Setup();	
 
 	// set category and model of action
 	this->action->SetCategory(this->category);
-	this->action->SetModel(this->model);
+	this->action->SetModel(this->file);
 
 	// get model data, force a reload
-	this->attributes = ModelDatabase::Instance()->LookupAttributes(this->category + "/" + this->model, true);
-	this->constants = ModelDatabase::Instance()->LookupConstants(this->category + "/" + this->model, true);
-	this->physics = ModelDatabase::Instance()->LookupPhysics(this->category + "/" + this->model, true);
+	this->attributes = ModelDatabase::Instance()->LookupAttributes(this->category + "/" + this->file, true);
+	this->constants = ModelDatabase::Instance()->LookupConstants(this->category + "/" + this->file, true);
+	this->physics = ModelDatabase::Instance()->LookupPhysics(this->category + "/" + this->file, true);
 
 	// open files
 	String attrPath, constPath, physPath;
-	attrPath.Format("src:assets/%s/%s.attributes", this->category.AsCharPtr(), this->model.AsCharPtr());
-	constPath.Format("src:assets/%s/%s.constants", this->category.AsCharPtr(), this->model.AsCharPtr());
-	physPath.Format("src:assets/%s/%s.physics", this->category.AsCharPtr(), this->model.AsCharPtr());
+	attrPath.Format("src:assets/%s/%s.attributes", this->category.AsCharPtr(), this->file.AsCharPtr());
+	constPath.Format("src:assets/%s/%s.constants", this->category.AsCharPtr(), this->file.AsCharPtr());
+	physPath.Format("src:assets/%s/%s.physics", this->category.AsCharPtr(), this->file.AsCharPtr());
 
 	// open file
 	if (!IoServer::Instance()->FileExists(attrPath))
@@ -381,9 +381,9 @@ void
 ModelHandler::AddParticleNode()
 {
 	// get model data, force a reload
-	Ptr<ModelAttributes> attrs = ModelDatabase::Instance()->LookupAttributes(this->category + "/" + this->model);
-	Ptr<ModelConstants> consts = ModelDatabase::Instance()->LookupConstants(this->category + "/" + this->model);
-	Ptr<ModelPhysics> phys = ModelDatabase::Instance()->LookupPhysics(this->category + "/" + this->model);
+	Ptr<ModelAttributes> attrs = ModelDatabase::Instance()->LookupAttributes(this->category + "/" + this->file);
+	Ptr<ModelConstants> consts = ModelDatabase::Instance()->LookupConstants(this->category + "/" + this->file);
+	Ptr<ModelPhysics> phys = ModelDatabase::Instance()->LookupPhysics(this->category + "/" + this->file);
 
 	// we should now have an empty particle effect, so now we need a node
 	String name;
@@ -447,9 +447,9 @@ ModelHandler::AddParticleNode()
 void
 ModelHandler::RemoveParticleNode(const Util::String path, const Util::String node)
 {
-	Ptr<ModelAttributes> attrs = ModelDatabase::Instance()->LookupAttributes(this->category + "/" + this->model);
-	Ptr<ModelConstants> consts = ModelDatabase::Instance()->LookupConstants(this->category + "/" + this->model);
-	Ptr<ModelPhysics> phys = ModelDatabase::Instance()->LookupPhysics(this->category + "/" + this->model);
+	Ptr<ModelAttributes> attrs = ModelDatabase::Instance()->LookupAttributes(this->category + "/" + this->file);
+	Ptr<ModelConstants> consts = ModelDatabase::Instance()->LookupConstants(this->category + "/" + this->file);
+	Ptr<ModelPhysics> phys = ModelDatabase::Instance()->LookupPhysics(this->category + "/" + this->file);
 
 	// simply delete the node
 	attrs->DeleteState(path);
@@ -472,7 +472,7 @@ ModelHandler::Save()
 
 	// create resource string
 	String resource;
-	resource.Format("src:assets/%s/%s.attributes", this->category.AsCharPtr(), this->model.AsCharPtr());
+	resource.Format("src:assets/%s/%s.attributes", this->category.AsCharPtr(), this->file.AsCharPtr());
 	Ptr<Stream> stream = IoServer::Instance()->CreateStream(resource);
 	stream->SetAccessMode(Stream::WriteAccess);
 	stream->Open();
@@ -480,7 +480,7 @@ ModelHandler::Save()
 	stream->Write((void*)lastVersion.AsCharPtr(), lastVersion.Length());
 	stream->Close();
 	
-	resource.Format("src:assets/%s/%s.constants", this->category.AsCharPtr(), this->model.AsCharPtr());
+	resource.Format("src:assets/%s/%s.constants", this->category.AsCharPtr(), this->file.AsCharPtr());
 	stream = IoServer::Instance()->CreateStream(resource);
 	stream->SetAccessMode(Stream::WriteAccess);
 	stream->Open();
@@ -488,7 +488,7 @@ ModelHandler::Save()
 	stream->Write((void*)lastVersion.AsCharPtr(), lastVersion.Length());
 	stream->Close();
 
-	resource.Format("src:assets/%s/%s.physics", this->category.AsCharPtr(), this->model.AsCharPtr());
+	resource.Format("src:assets/%s/%s.physics", this->category.AsCharPtr(), this->file.AsCharPtr());
 	stream = IoServer::Instance()->CreateStream(resource);
 	stream->SetAccessMode(Stream::WriteAccess);
 	stream->Open();
@@ -505,7 +505,7 @@ ModelHandler::Save()
 	modelBuilder->SetPhysics(this->physics);
 
 	// create original resource uri
-	resource.Format("mdl:%s/%s.n3", this->category.AsCharPtr(), this->model.AsCharPtr());
+	resource.Format("mdl:%s/%s.n3", this->category.AsCharPtr(), this->file.AsCharPtr());
 
 	// save model to temporary
 	modelBuilder->SaveN3(resource, Platform::Win32);
@@ -516,13 +516,20 @@ ModelHandler::Save()
 	QtRemoteInterfaceAddon::QtRemoteClient::GetClient("editor")->Send(msg.upcast<Messaging::Message>());
 
 	// save physics as well
-	resource.Format("physics:%s/%s.np3", this->category.AsCharPtr(), this->model.AsCharPtr());
+	resource.Format("physics:%s/%s.np3", this->category.AsCharPtr(), this->file.AsCharPtr());
 	modelBuilder->SaveN3Physics(resource, Platform::Win32);
 
 	// also send physics update
 	msg = ReloadResourceIfExists::Create();
 	msg->SetResourceName(resource);
 	QtRemoteInterfaceAddon::QtRemoteClient::GetClient("editor")->Send(msg.upcast<Messaging::Message>());
+
+	// generate thumbnail
+	String thumbnail = String::Sprintf("src:assets/%s/%s_n3.thumb", this->category.AsCharPtr(), this->file.AsCharPtr());
+
+	// get preview state
+	Ptr<PreviewState> previewState = ContentBrowserApp::Instance()->GetPreviewState();
+	previewState->SaveThumbnail(thumbnail, true);
 }
 
 //------------------------------------------------------------------------------
@@ -553,7 +560,7 @@ ModelHandler::SaveAs()
 		file.StripFileExtension();
 
 		// check if we are overwriting ourselves
-		if (cat == this->category && file == this->model)
+		if (cat == this->category && file == this->file)
 		{
 			// same file, use normal save instead
 			this->Save();
@@ -574,9 +581,9 @@ ModelHandler::SaveAs()
 		String phyResource;
 
 		// reformat resource
-		attrResource.Format("src:assets/%s/%s.attributes", this->category.AsCharPtr(), this->model.AsCharPtr());
-		constResource.Format("src:assets/%s/%s.constants", this->category.AsCharPtr(), this->model.AsCharPtr());
-		phyResource.Format("src:assets/%s/%s.physics", this->category.AsCharPtr(), this->model.AsCharPtr());
+		attrResource.Format("src:assets/%s/%s.attributes", this->category.AsCharPtr(), this->file.AsCharPtr());
+		constResource.Format("src:assets/%s/%s.constants", this->category.AsCharPtr(), this->file.AsCharPtr());
+		phyResource.Format("src:assets/%s/%s.physics", this->category.AsCharPtr(), this->file.AsCharPtr());
 
 		// create string of name
 		String name = cat + "/" + file;
@@ -638,6 +645,13 @@ ModelHandler::SaveAs()
 		String res;
 		res.Format("mdl:cat/file");
 		emit ModelSavedAs(res);
+
+		// generate thumbnail
+		String thumbnail = String::Sprintf("src:assets/%s/%s_n3.thumb", this->category.AsCharPtr(), this->file.AsCharPtr());
+
+		// get preview state
+		Ptr<PreviewState> previewState = ContentBrowserApp::Instance()->GetPreviewState();
+		previewState->SaveThumbnail(thumbnail, true);
 	}	
 }
 
@@ -659,7 +673,7 @@ ModelHandler::MakeModel()
 
 	// create original resource uri
 	String resource;
-	resource.Format("int:models/%s/%s_temp.n3", this->category.AsCharPtr(), this->model.AsCharPtr());
+	resource.Format("int:models/%s/%s_temp.n3", this->category.AsCharPtr(), this->file.AsCharPtr());
 
 	// save model to temporary
 	modelBuilder->SaveN3(resource, Platform::Win32);
@@ -699,7 +713,7 @@ ModelHandler::SetupTabs()
 {
 	// format internal model name
 	String res;
-	res.Format("mdl:%s/%s.n3", this->category.AsCharPtr(), this->model.AsCharPtr());
+	res.Format("mdl:%s/%s.n3", this->category.AsCharPtr(), this->file.AsCharPtr());
 
 	// create grid layout for node frame
 	QTabWidget* nodeWidget = this->ui->nodeWidget;

@@ -25,6 +25,10 @@
 #include "resources/resourcemanager.h"
 #include "messaging/messagecallbackhandler.h"
 #include "graphicsfeature/properties/mayacameraproperty.h"
+#include "visibility/visibilitysystems/visibilityquadtree.h"
+#include "visibility/visibilitysystems/visibilitysystembase.h"
+#include "renderutil/nodelookuputil.h"
+#include "coregraphics/streamtexturesaver.h"
 
 using namespace Util;
 using namespace Graphics;
@@ -44,7 +48,10 @@ PreviewState::PreviewState() :
 	defaultCam(0),
 	enablePhysics(false),
 	showControls(false),
-	workLight(true)
+	workLight(true),
+	managedSurface(NULL),
+	surface(NULL),
+	surfaceInstance(NULL)
 {
 	// empty
 }
@@ -87,14 +94,13 @@ PreviewState::OnFrame()
 		GraphicsFeatureUnit::Instance()->GetGlobalLightEntity()->SetTransform(this->lightTransform);
 #endif
 	}
-	
 
 	// update remote interface and client
 	QtRemoteInterfaceAddon::QtRemoteServer::Instance()->OnFrame();
 	QtRemoteInterfaceAddon::QtRemoteClient::GetClient("editor")->OnFrame();
 
 	// renders physics
-	if(this->enablePhysics)
+	if (this->enablePhysics)
 	{
 		PhysicsServer::Instance()->GetScene()->RenderDebug();
 	}
@@ -155,20 +161,71 @@ PreviewState::HandleInput()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-PreviewState::OnStateEnter( const Util::String& prevState )
+void
+PreviewState::OnStateEnter(const Util::String& prevState)
 {
 	GameStateHandler::OnStateEnter(prevState);
 
-	// get default state
-	Ptr<Stage> defaultStage = GraphicsFeatureUnit::Instance()->GetDefaultStage();
-	
+	// get the default stage
+	this->defaultStage = GraphicsServer::Instance()->GetDefaultView()->GetStage();
+
+	// lookup frameshader used by a frame draw
+	Ptr<Frame::FrameShader> frameShader = Frame::FrameServer::Instance()->LookupFrameShader(NEBULA3_DEFAULT_FRAMESHADER_NAME);
+
+	// setup surface view target
+	this->surfaceViewTarget = CoreGraphics::RenderTarget::Create();
+	this->surfaceViewTarget->SetResolveTextureResourceId("ResourcePreviewTarget");
+	this->surfaceViewTarget->SetWidth(150);
+	this->surfaceViewTarget->SetHeight(150);
+	this->surfaceViewTarget->SetAntiAliasQuality(CoreGraphics::AntiAliasQuality::None);
+	this->surfaceViewTarget->SetColorBufferFormat(CoreGraphics::PixelFormat::SRGBA8);
+	this->surfaceViewTarget->Setup();
+
+	// setup model stage
+	Ptr<Visibility::VisibilityQuadtree> visSystem = Visibility::VisibilityQuadtree::Create();
+	visSystem->SetQuadTreeSettings(4, Math::bbox());
+	Util::Array<Ptr<Visibility::VisibilitySystemBase> > visSystems;
+	visSystems.Append(visSystem.cast<Visibility::VisibilitySystemBase>());
+	this->surfaceStage = Graphics::GraphicsServer::Instance()->CreateStage("SurfacePreviewStage", visSystems);
+	this->surfaceView = Graphics::GraphicsServer::Instance()->CreateView(Graphics::View::RTTI, "SurfacePreviewView", false);
+	this->surfaceView->SetStage(this->surfaceStage);
+	this->surfaceView->SetOffscreenTarget(this->surfaceViewTarget);
+	this->surfaceView->SetFrameShader(frameShader);
+	Math::rectangle<int> viewport;
+	viewport.left = 0;
+	viewport.top = 0;
+	viewport.bottom = 150;
+	viewport.right = 150;
+	this->surfaceView->SetResolveRect(viewport);
+
+	// setup camera and attach to stage
+	this->surfaceCamera = CameraEntity::Create();
+	Graphics::CameraSettings settings;
+	settings.SetupPerspectiveFov(n_deg2rad(90.0f), 1, 0.1f, 1000);
+	this->surfaceCamera->SetCameraSettings(settings);
+	this->surfaceCamera->SetTransform(matrix44::lookatrh(point(1, 1, 1), point(0, 0, 0), vector::upvec()));
+	this->surfaceStage->AttachEntity(this->surfaceCamera.cast<GraphicsEntity>());
+
+	// setup light
+	this->surfaceLight = GlobalLightEntity::Create();
+	this->surfaceLight->SetVolumetric(false);
+	this->surfaceLight->SetCastShadows(false);
+	this->surfaceLight->SetColor(float4(10));
+	this->surfaceStage->AttachEntity(this->surfaceLight.cast<GraphicsEntity>());
+
+	// create surface placeholder model
+	this->surfaceModelEntity = ModelEntity::Create();
+	this->surfaceModelEntity->SetTransform(matrix44::translation(0, 0, 0));
+	this->surfaceModelEntity->SetResourceId("mdl:system/shadingsphere.n3");
+	this->surfaceModelEntity->SetLoadSynced(true);
+	this->surfaceStage->AttachEntity(this->surfaceModelEntity.cast<GraphicsEntity>());
+
 	// create placeholder model
 	this->modelEntity = ModelEntity::Create();
 	this->modelEntity->SetTransform(matrix44::translation(0, 0, 0));
 	this->modelEntity->SetResourceId("mdl:system/placeholder.n3");
 	this->modelEntity->SetLoadSynced(true);
-	defaultStage->AttachEntity(this->modelEntity.cast<GraphicsEntity>());
+	this->defaultStage->AttachEntity(this->modelEntity.cast<GraphicsEntity>());
 
 	// create camera
 	this->defaultCam = BaseGameFeature::FactoryManager::Instance()->CreateEntityByTemplate("Camera", "Camera");
@@ -181,19 +238,24 @@ PreviewState::OnStateEnter( const Util::String& prevState )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-PreviewState::OnStateLeave( const Util::String& nextState )
+void
+PreviewState::OnStateLeave(const Util::String& nextState)
 {
-	// get default stage 
-	Ptr<Stage> defaultStage = GraphicsFeatureUnit::Instance()->GetDefaultStage();
-
 	// cleanup scene before quitting application
-	defaultStage->RemoveEntity(this->modelEntity.cast<GraphicsEntity>());
+	this->defaultStage->RemoveEntity(this->modelEntity.cast<GraphicsEntity>());
 	this->modelEntity = 0;
 
+	this->defaultStage = 0;
 	this->defaultCam = 0;
 	this->physicsModel = 0;
 	this->physicsObjects.Clear();
+
+	this->surfaceViewTarget->Discard();
+	this->surfaceViewTarget = 0;
+	this->surfaceStage->RemoveAllEntities();
+	this->surfaceLight = 0;
+	this->surfaceStage = 0;
+	this->surfaceView = 0;
 
 	GameStateHandler::OnStateLeave(nextState);
 }
@@ -205,11 +267,10 @@ bool
 PreviewState::SetModel(const Resources::ResourceId& resource)
 {
 	// create placeholder model
-	Ptr<Stage> defaultStage = GraphicsFeatureUnit::Instance()->GetDefaultStage();
-	defaultStage->RemoveEntity(this->modelEntity.cast<GraphicsEntity>());
+	this->defaultStage->RemoveEntity(this->modelEntity.cast<GraphicsEntity>());
 	this->modelEntity->SetTransform(matrix44::translation(0.0, 0.0, 0.0));
 	this->modelEntity->SetResourceId(resource);
-	defaultStage->AttachEntity(this->modelEntity.cast<GraphicsEntity>());
+	this->defaultStage->AttachEntity(this->modelEntity.cast<GraphicsEntity>());
 
     // setup anim event tracking
     this->modelEntity->ConfigureAnimEventTracking(true, false);
@@ -260,10 +321,84 @@ PreviewState::SetPhysics(const Resources::ResourceId& resource)
 /**
 */
 void
+PreviewState::SetSurface(const Resources::ResourceId& resource)
+{
+	if (this->managedSurface.isvalid())
+	{
+		this->surfaceInstance->Discard();
+		this->surfaceInstance = 0;
+		Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedSurface.upcast<Resources::ManagedResource>());
+		this->managedSurface = 0;
+	}
+	Ptr<Models::StateNodeInstance> node = RenderUtil::NodeLookupUtil::LookupStateNodeInstance(this->surfaceModelEntity, "root/sphere");
+	this->managedSurface = Resources::ResourceManager::Instance()->CreateManagedResource(Materials::Surface::RTTI, String::Sprintf("sur:%s.sur", resource.AsString().AsCharPtr()), NULL, true).downcast<Materials::ManagedSurface>();
+	this->surfaceInstance = this->managedSurface->GetSurface()->CreateInstance();
+	node->SetSurfaceInstance(this->surfaceInstance);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PreviewState::SetSurfacePreview(bool b)
+{
+	Ptr<Graphics::View> view = GraphicsServer::Instance()->GetDefaultView();
+	if (b)
+	{
+		view->SetStage(this->surfaceStage);
+	}
+	else
+	{
+		view->SetStage(this->defaultStage);
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PreviewState::SaveThumbnail(const Util::String& path, bool swapStage)
+{
+	// render a single frame
+	if (swapStage)
+	{
+		CoreGraphics::DisplayMode mode = CoreGraphics::DisplayDevice::Instance()->GetDisplayMode();
+		Graphics::CameraSettings settings;
+		settings.SetupPerspectiveFov(n_deg2rad(90.0f), mode.GetWidth() / float(mode.GetHeight()), 0.1f, 1000);
+
+		this->surfaceCamera->SetTransform(this->defaultCam->GetMatrix44(Attr::Transform));
+		this->surfaceView->SetStage(this->defaultStage);
+		this->surfaceCamera->SetCameraSettings(settings);
+	}
+	this->surfaceView->SetCameraEntity(this->surfaceCamera);
+	this->surfaceView->OnFrame(NULL, 0, 0, false);
+	this->surfaceView->SetCameraEntity(NULL);
+	if (swapStage)
+	{
+		Graphics::CameraSettings settings;
+		settings.SetupPerspectiveFov(n_deg2rad(90.0f), 1, 0.1f, 1000);
+		
+		this->surfaceView->SetStage(this->surfaceStage);
+		this->surfaceCamera->SetTransform(matrix44::lookatrh(point(1, 1, 1), point(0, 0, 0), vector::upvec()));
+		this->surfaceCamera->SetCameraSettings(settings);
+	}
+	Ptr<CoreGraphics::Texture> tex = this->surfaceViewTarget->GetResolveTexture();
+	Ptr<CoreGraphics::StreamTextureSaver> saver = CoreGraphics::StreamTextureSaver::Create();
+	Ptr<IO::Stream> stream = IO::IoServer::Instance()->CreateStream(path);
+	saver->SetFormat(CoreGraphics::ImageFileFormat::PNG);
+	saver->SetMipLevel(0);
+	saver->SetStream(stream);
+	tex->SetSaver(saver.upcast<Resources::ResourceSaver>());
+	n_assert(tex->Save());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 PreviewState::PreImportModel()
 {
-	Ptr<Stage> defaultStage = GraphicsFeatureUnit::Instance()->GetDefaultStage();
-	defaultStage->RemoveEntity(this->modelEntity.cast<GraphicsEntity>());
+	this->defaultStage->RemoveEntity(this->modelEntity.cast<GraphicsEntity>());
 }
 
 //------------------------------------------------------------------------------
@@ -272,8 +407,7 @@ PreviewState::PreImportModel()
 void
 PreviewState::PostImportModel()
 {
-	Ptr<Stage> defaultStage = GraphicsFeatureUnit::Instance()->GetDefaultStage();
-	defaultStage->AttachEntity(this->modelEntity.cast<GraphicsEntity>());
+	this->defaultStage->AttachEntity(this->modelEntity.cast<GraphicsEntity>());
 }
 
 //------------------------------------------------------------------------------
@@ -294,6 +428,5 @@ PreviewState::OnFetchedSkinList( const Ptr<Messaging::Message>& msg )
 		this->modelEntity->HandleMessage(showSkin.cast<Messaging::Message>());
 	}
 }
-
 
 } // namespace ContentBrowser

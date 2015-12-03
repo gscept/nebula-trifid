@@ -66,9 +66,9 @@ ConvertProjToTexCoord(in vec4 projCoord)
 vec2
 RayTrace2D(in vec3 startDir, in vec3 startPos, in float startDepth, in ivec2 UV)
 {
-	const mat4 matrix = Projection;
+	mat4 trans;
 	vec3 reflection = startPos;
-	vec2 projCoord = ConvertProjToTexCoord(matrix * vec4(reflection, 1.0f));
+	vec2 projCoord = ConvertProjToTexCoord(trans * vec4(reflection, 1.0f));
 	float bufferDepth = textureLod(DepthBuffer, projCoord, 0).r;
 	float reflectionDepth = length(reflection);
 	
@@ -79,9 +79,8 @@ RayTrace2D(in vec3 startDir, in vec3 startPos, in float startDepth, in ivec2 UV)
 			float delta = bufferDepth - reflectionDepth;
 			if (delta < 0.03f)	break;
 		}
-		imageStore(EmissiveBuffer, UV, vec4(normalize(projCoord), 0, 0));
 		reflection += startDir;
-		projCoord = ConvertProjToTexCoord(matrix * vec4(reflection, 1.0f));
+		projCoord = ConvertProjToTexCoord(trans * vec4(reflection, 1.0f));
 		bufferDepth = textureLod(DepthBuffer, projCoord, 0).r;
 		reflectionDepth = length(reflection);
 	}
@@ -120,7 +119,7 @@ csMain()
 	vec2 coord = RayTrace2D(-reflection * MinRayStep, surfacePos, Depth, PixelCoord);
 	float modulate = saturate(dot(-reflection, viewVec));
 	//float modulate = 0.1f;
-	
+
 	// blend with already existing emissive
 	vec4 color = textureLod(ColorBuffer, coord, 0) * Spec;
 	vec4 emissive = imageLoad(EmissiveBuffer, PixelCoord);

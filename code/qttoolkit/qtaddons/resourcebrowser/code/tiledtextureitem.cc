@@ -52,7 +52,6 @@ TiledTextureItem::Setup()
 	// create a new texture unit
 	this->loader = new ImageLoaderUnit;
 	this->loader->path = String::Sprintf("tex:%s/%s.dds", this->category.AsCharPtr(), this->filename.AsCharPtr());
-	this->loader->texture = new QImage;
 	connect(this->loader, SIGNAL(OnLoaded()), this, SLOT(OnPreviewLoaded()));
 	AssetBrowser::loaderThread->Enqueue(this->loader);
 
@@ -73,8 +72,7 @@ TiledTextureItem::Discard()
 
 	// make sure our thread is using the mutex, then delete the loader unit
     this->loader->mutex.lock();
-	delete this->loader->texture;
-	delete this->loader;
+	this->loader->Release();
 }
 
 //------------------------------------------------------------------------------

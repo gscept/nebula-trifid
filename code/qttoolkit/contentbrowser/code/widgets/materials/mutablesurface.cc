@@ -9,7 +9,7 @@
 
 namespace Materials
 {
-__ImplementClass(Materials::MutableSurface, 'MUSM', Core::RefCounted);
+__ImplementClass(Materials::MutableSurface, 'MUSM', Materials::Surface);
 
 //------------------------------------------------------------------------------
 /**
@@ -25,6 +25,20 @@ MutableSurface::MutableSurface()
 MutableSurface::~MutableSurface()
 {
 	// empty
+}
+
+
+//------------------------------------------------------------------------------
+/**
+*/
+Ptr<MutableSurfaceInstance>
+MutableSurface::CreateInstance()
+{
+	Ptr<MutableSurfaceInstance> newInst = MutableSurfaceInstance::Create();
+	Ptr<MutableSurface> thisPtr(this);
+	newInst->Setup(thisPtr.downcast<Surface>());
+	this->instances.Append(newInst.upcast<SurfaceInstance>());
+	return newInst;
 }
 
 //------------------------------------------------------------------------------

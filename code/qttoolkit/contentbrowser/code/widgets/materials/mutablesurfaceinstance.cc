@@ -7,7 +7,7 @@
 
 namespace Materials
 {
-__ImplementClass(Materials::MutableSurfaceInstance, 'MUSI', Core::RefCounted);
+__ImplementClass(Materials::MutableSurfaceInstance, 'MUSI', Materials::SurfaceInstance);
 
 //------------------------------------------------------------------------------
 /**

@@ -34,18 +34,13 @@ public:
     virtual ~OGL4ShaderInstance();    
     /// select active variation by feature mask
     bool SelectActiveVariation(CoreGraphics::ShaderFeature::Mask featureMask);
-    /// begin rendering through the currently selected variation, returns no. passes
-    SizeT Begin();
-    /// begin pass
-    void BeginPass(IndexT passIndex);
+
+	/// begin all uniform buffers for a synchronous update
+	void BeginUpdateSync();
+	/// end buffer updates for all uniform buffers
+	void EndUpdateSync();
     /// commit changes before rendering
     void Commit();
-    /// calls shading system post draw callback
-    void PostDraw();
-    /// end pass
-    void EndPass();
-    /// end rendering through variation
-    void End();
 
     /// create variable instance
     Ptr<CoreGraphics::ShaderVariableInstance> CreateVariableInstance(const Base::ShaderVariableBase::Name& n);

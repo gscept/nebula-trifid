@@ -85,6 +85,7 @@ SM50LightServer::Open()
 	this->lightProjMap = ResourceManager::Instance()->CreateManagedResource(Texture::RTTI, ResourceId(lightTexPath)).downcast<ManagedTexture>();
 
 	this->lightShader							= shdServer->GetShader("shd:lights");
+	this->lightProbeShader						= shdServer->GetShader("shd:reflectionprojector");
 
 	this->globalLightFeatureBits[NoShadows]		= shdServer->FeatureStringToMask("Global");
 	this->globalLightFeatureBits[CastShadows]	= shdServer->FeatureStringToMask("Global|Alt0");
@@ -321,7 +322,7 @@ SM50LightServer::RenderGlobalLight()
         this->lightShader->Apply();
 		
 		// setup general global light stuff
-        this->globalLightBuffer->CycleBuffers();
+        this->globalLightBuffer->BeginUpdateSync();
 		this->globalLightDir->SetFloat4(viewSpaceLightDir);
 		this->globalLightColor->SetFloat4(this->globalLightEntity->GetColor());
 		this->globalBackLightColor->SetFloat4(this->globalLightEntity->GetBackLightColor());
@@ -333,7 +334,6 @@ SM50LightServer::RenderGlobalLight()
         this->globalLightShadowMatrixVar->SetMatrix(shadowView);
 		
 		// handle casting shadows using CSM
-		this->lightShader->BeginUpdate();
 		if (this->globalLightEntity->GetCastShadows())
 		{
 			Ptr<CoreGraphics::Texture> CSMTexture = ShadowServer::Instance()->GetGlobalLightShadowBufferTexture();
@@ -371,7 +371,7 @@ SM50LightServer::RenderGlobalLight()
 
 			this->shadowIntensityVar->SetFloat(this->globalLightEntity->GetShadowIntensity());
 		}
-		this->lightShader->EndUpdate();
+		this->globalLightBuffer->EndUpdateSync();
 
 		// commit changes
 		this->lightShader->Commit();
@@ -581,7 +581,7 @@ SM50LightServer::RenderLightProbes()
 	{
 		const Ptr<LightProbeEntity>& entity = this->visibleLightProbes[probeIdx];
 		const Ptr<EnvironmentProbe>& probe = entity->GetEnvironmentProbe();
-        const Ptr<CoreGraphics::ShaderInstance>& shader = entity->GetShaderInstance();
+        const Ptr<CoreGraphics::Shader>& shader = entity->GetShader();
 
 		// skip rendering invisible probes
 		if (!entity->IsVisible()) continue;
@@ -591,19 +591,14 @@ SM50LightServer::RenderLightProbes()
 		 
 		// 0 is for box, 1 is for sphere
 		shader->SelectActiveVariation(this->lightProbeFeatureBits[shapeType + (entity->GetParallaxCorrected() ? 2 : 0)]);
-		shader->Begin();
-		shader->BeginPass(0);
 
 		// apply mesh at shape type
-        entity->ApplyProbe(probe);
-		
+		entity->ApplyProbe(probe);
+
+		// apply shader and draw
+		shader->Apply();		
         shader->Commit();
 		renderDevice->Draw();
-
-		// end pass
-		shader->PostDraw();
-		shader->EndPass();
-		shader->End();
 	}
 }
 

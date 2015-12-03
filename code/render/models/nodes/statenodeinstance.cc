@@ -224,7 +224,6 @@ StateNodeInstance::SetSurfaceInstance(const Ptr<Materials::SurfaceInstance>& mat
 {
     n_assert(material.isvalid());
 	this->sharedConstants.Clear();
-    this->surfaceInstance->Discard();
     this->surfaceInstance = material;
 
 	// setup the constants in the material which is set by the system (so changing the constants is safe)
