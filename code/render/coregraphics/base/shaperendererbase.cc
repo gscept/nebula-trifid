@@ -44,6 +44,10 @@ ShapeRendererBase::Open()
     n_assert(!this->isOpen);
     n_assert(this->shapes[RenderShape::AlwaysOnTop].IsEmpty());
 	n_assert(this->shapes[RenderShape::CheckDepth].IsEmpty());
+	n_assert(this->shapes[RenderShape::Wireframe].IsEmpty());
+	n_assert(this->primitives[RenderShape::AlwaysOnTop].IsEmpty());
+	n_assert(this->primitives[RenderShape::CheckDepth].IsEmpty());
+	n_assert(this->primitives[RenderShape::Wireframe].IsEmpty());
     this->isOpen = true;
 }
 
@@ -57,6 +61,10 @@ ShapeRendererBase::Close()
     this->isOpen = false;
 	this->shapes[RenderShape::AlwaysOnTop].Clear();
     this->shapes[RenderShape::CheckDepth].Clear();
+	this->shapes[RenderShape::Wireframe].Clear();
+	this->primitives[RenderShape::AlwaysOnTop].Clear();
+	this->primitives[RenderShape::CheckDepth].Clear();
+	this->primitives[RenderShape::Wireframe].Clear();
 }
 
 //------------------------------------------------------------------------------
@@ -70,6 +78,15 @@ ShapeRendererBase::DeleteShapesByThreadId(Threading::ThreadId threadId)
 	for(t = 0; t<CoreGraphics::RenderShape::NumDepthFlags; t++)
 	{
 		IndexT i;
+		for (i = this->primitives[t].Size() - 1; i != InvalidIndex; i--)
+		{
+			ThreadId shapeThreadId = this->primitives[t][i].GetThreadId();
+			n_assert(shapeThreadId != InvalidThreadId);
+			if (shapeThreadId == threadId)
+			{
+				this->primitives[t].EraseIndex(i);
+			}
+		}
 		for (i = this->shapes[t].Size() - 1; i != InvalidIndex; i--)
 		{
 			ThreadId shapeThreadId = this->shapes[t][i].GetThreadId();
@@ -79,6 +96,7 @@ ShapeRendererBase::DeleteShapesByThreadId(Threading::ThreadId threadId)
 				this->shapes[t].EraseIndex(i);
 			}
 		}
+
 	}
 }
 
@@ -89,7 +107,8 @@ void
 ShapeRendererBase::AddShape(const RenderShape& shape)
 {
     n_assert(this->IsOpen());
-	this->shapes[shape.GetDepthFlag()].Append(shape);
+	if (shape.GetShapeType() == RenderShape::Primitives || shape.GetShapeType() == RenderShape::IndexedPrimitives)  this->primitives[shape.GetDepthFlag()].Append(shape);
+	else																											this->shapes[shape.GetDepthFlag()].Append(shape);
 }
 
 //------------------------------------------------------------------------------
@@ -99,9 +118,11 @@ void
 ShapeRendererBase::AddShapes(const Array<RenderShape>& shapeArray)
 {
     n_assert(this->IsOpen());
-	for (int i = 0; i<shapeArray.Size();i++)
+	for (int i = 0; i < shapeArray.Size(); i++)
 	{
-		this->shapes[shapeArray[i].GetDepthFlag()].Append(shapeArray[i]);
+		const RenderShape& shape = shapeArray[i];
+		if (shape.GetShapeType() == RenderShape::Primitives || shape.GetShapeType() == RenderShape::IndexedPrimitives)  this->primitives[shape.GetDepthFlag()].Append(shape);
+		else																											this->shapes[shape.GetDepthFlag()].Append(shape);
 	}
 }
 

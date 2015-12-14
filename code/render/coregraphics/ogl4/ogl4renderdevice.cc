@@ -820,44 +820,79 @@ OGL4RenderDevice::SaveScreenshot(ImageFileFormat::Code fmt, const Ptr<IO::Stream
 	DisplayMode mode = DisplayDevice::Instance()->GetDisplayMode();
 	GLuint size = mode.GetWidth() * mode.GetHeight() * 4;
 
-	// generate pixel buffer
-	GLuint pixelBuffer;
-	glGenBuffers(1, &pixelBuffer);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+	glReadBuffer(GL_COLOR_ATTACHMENT0);
+	GLubyte* data = n_new_array(GLubyte, size);
+	glReadPixels(0, 0, mode.GetWidth(), mode.GetHeight(), GL_RGB, GL_UNSIGNED_BYTE, data);	
 
-	glReadBuffer(GL_BACK);
-	glBindBuffer(GL_PIXEL_PACK_BUFFER, pixelBuffer);
-	glBufferData(GL_PIXEL_PACK_BUFFER, size, NULL, GL_STREAM_READ);
-	glReadPixels(0, 0, mode.GetWidth(), mode.GetHeight(), GL_RGBA, GL_UNSIGNED_BYTE, NULL);	
-
-	GLubyte* data = NULL;
-	data = (GLubyte*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
-	
 	ILint image = ilGenImage();
 	ilBindImage(image);
 
 	ILboolean result;
-	result = ilTexImage(mode.GetWidth(), mode.GetHeight(), 1, 4, IL_RGBA, IL_UNSIGNED_BYTE, data);
+	result = ilTexImage(mode.GetWidth(), mode.GetHeight(), 1, 3, IL_RGB, IL_UNSIGNED_BYTE, data);
 	iluImageParameter(ILU_PLACEMENT, ILU_UPPER_LEFT);
 	ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);
 
 	// now save as bmp
+	size = ilGetInteger(IL_IMAGE_WIDTH) * ilGetInteger(IL_IMAGE_HEIGHT) * 3;
 	result = ilSaveL(IL_PNG, data, size);
 	outStream->SetAccessMode(IO::Stream::WriteAccess);
     if (outStream->Open())
     {
         outStream->Write(data, size);
         outStream->Close();
-        outStream->SetMediaType(ImageFileFormat::ToMediaType(fmt));
+        outStream->SetMediaType(ImageFileFormat::ToMediaType(ImageFileFormat::PNG));
     }
 	
 	// cleanup image
 	ilDeleteImage(image);
+	n_delete_array(data);
 
-	glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
-	glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
-	glDeleteBuffers(1, &pixelBuffer);
+	return ImageFileFormat::PNG;
+}
 
-    return fmt;
+//------------------------------------------------------------------------------
+/**
+*/
+ImageFileFormat::Code
+OGL4RenderDevice::SaveScreenshot(CoreGraphics::ImageFileFormat::Code fmt, const Ptr<IO::Stream>& outStream, const Math::rectangle<int>& rect, int x, int y)
+{
+	n_assert(!this->inBeginFrame);
+	n_assert(0 != this->context);
+
+	DisplayMode mode = DisplayDevice::Instance()->GetDisplayMode();
+	GLuint size = mode.GetWidth() * mode.GetHeight() * 3;
+
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+	glReadBuffer(GL_COLOR_ATTACHMENT0);
+	GLubyte* data = n_new_array(GLubyte, size);
+	glReadPixels(rect.left, rect.top, rect.width(), rect.height(), GL_RGB, GL_UNSIGNED_BYTE, data);
+
+	ILint image = ilGenImage();
+	ilBindImage(image);
+
+	ILboolean result;
+	result = ilTexImage(rect.width(), rect.height(), 1, 3, IL_RGB, IL_UNSIGNED_BYTE, data);
+	iluImageParameter(ILU_PLACEMENT, ILU_UPPER_LEFT);
+	ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);
+	result = iluScale(x, y, 1);
+
+	// now save as bmp
+	size = ilGetInteger(IL_IMAGE_WIDTH) * ilGetInteger(IL_IMAGE_HEIGHT) * 3;
+	result = ilSaveL(IL_PNG, data, size);
+	outStream->SetAccessMode(IO::Stream::WriteAccess);
+	if (outStream->Open())
+	{
+		outStream->Write(data, size);
+		outStream->Close();
+		outStream->SetMediaType(ImageFileFormat::ToMediaType(ImageFileFormat::PNG));
+	}
+
+	// cleanup image
+	ilDeleteImage(image);
+	n_delete_array(data);
+
+	return ImageFileFormat::PNG;
 }
 
 //------------------------------------------------------------------------------

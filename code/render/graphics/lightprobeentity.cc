@@ -45,18 +45,30 @@ LightProbeEntity::ComputeClipStatus(const Math::bbox& box)
 void
 LightProbeEntity::OnActivate()
 {
-    this->shader = CoreGraphics::ShaderServer::Instance()->CreateShaderInstance("shd:reflectionprojector");
+	// run base class
+	GraphicsEntity::OnActivate();
+
+    this->shader = CoreGraphics::ShaderServer::Instance()->GetShader("shd:reflectionprojector");
 
     // light probe variables
-    this->lightProbeReflectionVar = this->shader->CreateVariableInstance(NEBULA3_SEMANTIC_ENVIRONMENT);
-    this->lightProbeIrradianceVar = this->shader->CreateVariableInstance(NEBULA3_SEMANTIC_IRRADIANCE);
-    this->lightProbeFalloffVar = this->shader->CreateVariableInstance(NEBULA3_SEMANTIC_ENVFALLOFFDISTANCE);
-    this->lightProbePowerVar = this->shader->CreateVariableInstance(NEBULA3_SEMANTIC_ENVFALLOFFPOWER);
-    this->lightProbeReflectionNumMipsVar = this->shader->CreateVariableInstance(NEBULA3_SEMANTIC_NUMENVMIPS);
-    this->lightProbeBboxMinVar = this->shader->CreateVariableInstance(NEBULA3_SEMANTIC_BBOXMIN);
-    this->lightProbeBboxMaxVar = this->shader->CreateVariableInstance(NEBULA3_SEMANTIC_BBOXMAX);
-    this->lightProbeBboxCenterVar = this->shader->CreateVariableInstance(NEBULA3_SEMANTIC_BBOXCENTER);
-    this->lightProbeTransformVar = this->shader->CreateVariableInstance("Transform");
+    this->lightProbeReflectionVar = this->shader->GetVariableByName(NEBULA3_SEMANTIC_ENVIRONMENT);
+	this->lightProbeIrradianceVar = this->shader->GetVariableByName(NEBULA3_SEMANTIC_IRRADIANCE);
+
+	// create variable buffer
+	this->lightProbeVariableBuffer = CoreGraphics::ConstantBuffer::Create();
+	this->lightProbeVariableBuffer->SetupFromBlockInShader(this->shader, "ReflectionProjectorBlock");
+	this->lightProbeBufferVar = this->shader->GetVariableByName("ReflectionProjectorBlock");
+	this->lightProbeBufferVar->SetBufferHandle(this->lightProbeVariableBuffer->GetHandle());
+
+	// setup variables
+	this->lightProbeFalloffVar = this->lightProbeVariableBuffer->GetVariableByName(NEBULA3_SEMANTIC_ENVFALLOFFDISTANCE);
+	this->lightProbePowerVar = this->lightProbeVariableBuffer->GetVariableByName(NEBULA3_SEMANTIC_ENVFALLOFFPOWER);
+	this->lightProbeReflectionNumMipsVar = this->lightProbeVariableBuffer->GetVariableByName(NEBULA3_SEMANTIC_NUMENVMIPS);
+	this->lightProbeBboxMinVar = this->lightProbeVariableBuffer->GetVariableByName(NEBULA3_SEMANTIC_BBOXMIN);
+	this->lightProbeBboxMaxVar = this->lightProbeVariableBuffer->GetVariableByName(NEBULA3_SEMANTIC_BBOXMAX);
+	this->lightProbeBboxCenterVar = this->lightProbeVariableBuffer->GetVariableByName(NEBULA3_SEMANTIC_BBOXCENTER);
+	this->lightProbeTransformVar = this->lightProbeVariableBuffer->GetVariableByName("Transform");
+	this->lightProbeInvTransformVar = this->lightProbeVariableBuffer->GetVariableByName("InvTransform");
 }
 
 //------------------------------------------------------------------------------
@@ -66,28 +78,27 @@ void
 LightProbeEntity::OnDeactivate()
 {
     // discard variables
-    this->lightProbeReflectionVar->Discard();
     this->lightProbeReflectionVar = 0;
-    this->lightProbeIrradianceVar->Discard();
     this->lightProbeIrradianceVar = 0;
-    this->lightProbeFalloffVar->Discard();
     this->lightProbeFalloffVar = 0;
-    this->lightProbePowerVar->Discard();
     this->lightProbePowerVar = 0;
-    this->lightProbeReflectionNumMipsVar->Discard();
     this->lightProbeReflectionNumMipsVar = 0;
-    this->lightProbeBboxMinVar->Discard();
     this->lightProbeBboxMinVar = 0;
-    this->lightProbeBboxMaxVar->Discard();
     this->lightProbeBboxMaxVar = 0;
-    this->lightProbeBboxCenterVar->Discard();
     this->lightProbeBboxCenterVar = 0;
-    this->lightProbeTransformVar->Discard();
     this->lightProbeTransformVar = 0;
+	this->lightProbeInvTransformVar = 0;
+	this->lightProbeBufferVar = 0;
+
+	// discard buffer
+	this->lightProbeVariableBuffer->Discard();
+	this->lightProbeVariableBuffer = 0;
 
     // discard shader
-    this->shader->Discard();
     this->shader = 0;
+
+	// run base class
+	GraphicsEntity::OnDeactivate();
 }
 
 //------------------------------------------------------------------------------
@@ -118,12 +129,16 @@ LightProbeEntity::OnResolveVisibility(IndexT frameIndex, bool updateLod)
 	Lighting::LightServer::Instance()->AttachVisibleLightProbe(this);
     if (this->isDirty)
     {
+		const matrix44 trans = this->GetTransform();
+		this->lightProbeVariableBuffer->BeginUpdateSync();
         this->lightProbeFalloffVar->SetFloat(this->falloff);
         this->lightProbePowerVar->SetFloat(this->power);
         this->lightProbeBboxMinVar->SetFloat4(this->zone.pmin);
         this->lightProbeBboxMaxVar->SetFloat4(this->zone.pmax);
-        this->lightProbeBboxCenterVar->SetFloat4(this->GetTransform().get_position());
-        this->lightProbeTransformVar->SetMatrix(this->GetTransform());
+		this->lightProbeBboxCenterVar->SetFloat4(trans.get_position());
+		this->lightProbeTransformVar->SetMatrix(trans);
+		this->lightProbeInvTransformVar->SetMatrix(matrix44::inverse(trans));
+		this->lightProbeVariableBuffer->EndUpdateSync();
         this->isDirty = false;
     }    
 }

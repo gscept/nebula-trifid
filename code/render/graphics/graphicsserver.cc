@@ -81,11 +81,8 @@ GraphicsServer::Open()
     this->rtPluginRegistry->Setup();
 
     // setup profiling timers
-    _setup_timer(GfxServerEndFrameTimer);
-    _setup_timer(GfxServerRenderView);
-    _setup_timer(GfxServerUpdateLightLinks);
-    _setup_timer(GfxServerUpdateVisibilityLinks);
 	_setup_timer(GfxServerPresentFrame);
+	_setup_timer(GfxServerRenderViews);
 }
 
 //------------------------------------------------------------------------------
@@ -103,11 +100,8 @@ GraphicsServer::Close()
     this->rtPluginRegistry = 0;
     this->isOpen = false;
 
-    _discard_timer(GfxServerEndFrameTimer);
-    _discard_timer(GfxServerRenderView);
-    _discard_timer(GfxServerUpdateLightLinks);
-    _discard_timer(GfxServerUpdateVisibilityLinks);
 	_discard_timer(GfxServerPresentFrame);
+	_discard_timer(GfxServerRenderViews);
 }
 
 //------------------------------------------------------------------------------
@@ -446,92 +440,26 @@ GraphicsServer::OnFrame(Timing::Time curTime, Timing::Time globalTimeFactor)
         this->renderModules[i]->OnFrame();
     }
 
+	// update time
+	if (this->timeShaderVar.isvalid())
+	{
+		this->timeShaderVar->SetFloat((float)curTime);
+	}
+
 	// render if we have a view
 	if (this->views.Size() > 0)
 	{
+		_start_timer(GfxServerRenderViews);
 		for (i = 0; i < this->views.Size(); i++)
 		{
 			// get view
 			Ptr<View> view = this->views[i];
             this->currentView = view;
 
-			// start rendering
-			if (view->GetCameraEntity().isvalid() && renderDevice->BeginFrame())
-			{
-				CharacterServer* charServer = CharacterServer::Instance();
-
-				const Ptr<Stage>& defaultStage = view->GetStage();
-				charServer->BeginFrame(frameIndex);
-
-				// update transform device with camera transforms for this frame
-				view->ApplyCameraSettings();
-
-				// begin gathering skins
-				charServer->BeginGather();
-
-				// update the view's stage, this will happen only once
-				// per frame, regardless of how many views are attached to the stage
-				// FIXME: move ParticleRenderer-Stuff into addon!
-				this->rtPluginRegistry->OnUpdateBefore(frameIndex, curTime);
-				defaultStage->OnCullBefore(curTime, globalTimeFactor, frameIndex);
-				this->rtPluginRegistry->OnUpdateAfter(frameIndex, curTime);
-
-				_start_timer(GfxServerUpdateVisibilityLinks);              
-				// update visibility from the default view's camera
-				view->UpdateVisibilityLinks();
-				_stop_timer(GfxServerUpdateVisibilityLinks);
-
-				// stop gathering skins
-				charServer->EndGather(); 
-
-				// update character system
-				charServer->StartUpdateCharacterSkeletons();
-				charServer->UpdateCharacterSkins();
-
-				// render debug visualization before light links are generated,
-				// cause we want only visualization of camera culling 
-				// otherwise put it after UpdateLightLinks
-				if (this->renderDebug)
-				{
-					defaultStage->OnRenderDebug();
-				}
-
-				_start_timer(GfxServerUpdateLightLinks);
-				// update light linking for visible lights
-				if (LightServer::Instance()->NeedsLightModelLinking())
-				{
-					defaultStage->UpdateLightLinks();
-				}
-				_stop_timer(GfxServerUpdateLightLinks);
-
-				// update time
-				if (this->timeShaderVar.isvalid())
-				{                
-					this->timeShaderVar->SetFloat((float)curTime);
-				}
-
-                // perform debug rendering if enabled
-                if (this->renderDebug)
-                {
-                    view->RenderDebug();
-                }
-
-				_start_timer(GfxServerRenderView);
-				// finally render the view
-				this->rtPluginRegistry->OnRenderBefore(frameIndex, curTime);
-				charServer->BeginDraw();
-				view->Render(frameIndex);
-				charServer->EndDraw();
-				this->rtPluginRegistry->OnRenderAfter(frameIndex, curTime);
-				_stop_timer(GfxServerRenderView);
-
-				charServer->EndFrame();
-
-                _start_timer(GfxServerEndFrameTimer)
-				renderDevice->EndFrame();
-				_stop_timer(GfxServerEndFrameTimer)
-			}
+			// render frame
+			view->OnFrame(this->rtPluginRegistry, curTime, globalTimeFactor, this->renderDebug);
 		}
+		_stop_timer(GfxServerRenderViews);
 
         // finally present frame, this should then be the joined result of all views
 		_start_timer(GfxServerPresentFrame);

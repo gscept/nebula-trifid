@@ -372,11 +372,6 @@ ScaleFeature::RenderHandles()
     // shrink box handles a little.
     const float boxScale(0.3f);
 
-    // define a line pointing in x direction
-    CoreGraphics::RenderShape::RenderShapeVertex line[2];
-    line[0].pos = vector(0, 0, 0);
-    line[1].pos = vector(1, 0, 0);
-
 	// draw origin
 	if (ORIGIN == this->currentDragMode || ORIGIN == mode)
 	{
@@ -386,6 +381,13 @@ ScaleFeature::RenderHandles()
 	{
 		color.set(0.85f, 0.85f, 0.85f, 0.5f);
 	}
+
+	// define a line pointing in x direction
+	CoreGraphics::RenderShape::RenderShapeVertex line[2];
+	line[0].pos = vector(0, 0, 0);
+	line[1].pos = vector(1, 0, 0);
+	line[0].color = color;
+	line[1].color = color;
 
     m = matrix44::identity();
     m.scale(vector(this->handleScale,this->handleScale,this->handleScale));
@@ -413,6 +415,8 @@ ScaleFeature::RenderHandles()
 	m = matrix44::identity();
 	line[0].pos = this->origin;
     line[1].pos = this->xAxis;
+	line[0].color = color;
+	line[1].color = color;
     Debug::DebugShapeRenderer::Instance()->DrawPrimitives(matrix44::identity(),
         CoreGraphics::PrimitiveTopology::LineList,
         1,
@@ -440,6 +444,8 @@ ScaleFeature::RenderHandles()
 
     line[0].pos = this->origin;
     line[1].pos = this->yAxis;
+	line[0].color = color;
+	line[1].color = color;
     Debug::DebugShapeRenderer::Instance()->DrawPrimitives(matrix44::identity(),
         CoreGraphics::PrimitiveTopology::LineList,
         1,
@@ -469,6 +475,8 @@ ScaleFeature::RenderHandles()
 
     line[0].pos = this->origin;
     line[1].pos = this->zAxis;
+	line[0].color = color;
+	line[1].color = color;
 	Debug::DebugShapeRenderer::Instance()->DrawPrimitives(matrix44::identity(),
         CoreGraphics::PrimitiveTopology::LineList,
         1,

@@ -41,24 +41,7 @@ ImageLoaderThread::run()
 		{
 			// get unit and lock it so that we don't delete it
 			ImageLoaderUnit* unit = this->queue.Dequeue();
-			unit->mutex.lock();
-
-			// get parameters
-			Util::String path = unit->path;
-			QImage* image = unit->texture;
-
-			// convert to absolute path
-			IO::URI uri(path);
-
-			// load image and scale
-			QImage localImage(uri.LocalPath().AsCharPtr());
-            if (!localImage.isNull()) *image = localImage.scaled(96, 96, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-
-			// emit signal to notify the image has been loaded
-			emit unit->OnLoaded();
-
-			// unlock mutex
-			unit->mutex.unlock();
+			unit->Load();
 		}
 		n_sleep(0.1);
 	}	
@@ -100,6 +83,46 @@ void
 ImageLoaderThread::Clear()
 {
 	this->queue.Clear();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ImageLoaderUnit::Load()
+{
+	// lock mutex
+	this->mutex.lock();
+
+	// get parameters
+	Util::String path = this->path;
+	QImage* image = this->texture;
+
+	// if the image has been deleted, we can skip this item
+	if (image == NULL) return;
+
+	// convert to absolute path
+	IO::URI uri(path);
+
+	// load image and scale
+	QImage localImage(uri.LocalPath().AsCharPtr());
+	if (!localImage.isNull()) *image = localImage.scaled(96, 96, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+	this->thumbnailWatcher.WatchFile(uri.LocalPath());
+
+	// emit signal to notify the image has been loaded
+	emit this->OnLoaded();
+
+	// unlock mutex
+	this->mutex.unlock();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ImageLoaderUnit::OnThumbnailFileChanged()
+{
+	this->Load();
 }
 
 } // namespace ResourceBrowser

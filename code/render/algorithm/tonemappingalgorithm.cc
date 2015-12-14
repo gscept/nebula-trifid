@@ -104,8 +104,8 @@ ToneMappingAlgorithm::Setup()
 	this->quad.Setup(this->inputs[0]->GetWidth(), this->inputs[0]->GetHeight());
 
 	// setup default values for our render target
-	this->output->SetClearColor(Math::float4(0.1f, 0, 0, 0));
-	this->outputCopy->SetClearColor(Math::float4(0, 0, 0, 0));
+	this->output->SetClearColor(Math::float4(1));
+	this->outputCopy->SetClearColor(Math::float4(0));
 }
 
 //------------------------------------------------------------------------------

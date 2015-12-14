@@ -127,6 +127,10 @@ QDevilHandler::read( QImage* image )
 	{
 		success = ilLoadL(IL_DDS, data.constData(), data.size());
 	}
+	else if (this->format() == "thumb") // this is a special solution for our implementation, thumbnails are always PNGs
+	{
+		success = ilLoadL(IL_PNG, data.constData(), data.size());
+	}
 
 	// convert image
 	ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);

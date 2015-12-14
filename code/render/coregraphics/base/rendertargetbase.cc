@@ -207,7 +207,23 @@ RenderTargetBase::Clear(uint flags)
 	n_error("RenderTargetBase::Clear() not implemented!");
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+RenderTargetBase::ResetResolveRects()
+{
+	this->resolveRectValid = false;
+	this->resolveRectArrayValid = false;
+	this->resolveRectArray.Clear();
 
+	// reset display to display region
+	DisplayDevice* displayDevice = DisplayDevice::Instance();
+	this->resolveRect.left = 0;
+	this->resolveRect.top = 0;
+	this->resolveRect.right = displayDevice->GetDisplayMode().GetWidth();
+	this->resolveRect.bottom = displayDevice->GetDisplayMode().GetHeight();
+}
 
 } // namespace Base
 

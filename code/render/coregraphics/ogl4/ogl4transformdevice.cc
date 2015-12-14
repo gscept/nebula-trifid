@@ -108,7 +108,8 @@ OGL4TransformDevice::ApplyViewSettings()
     TransformDeviceBase::ApplyViewSettings();
 
     // update per frame view stuff
-    this->cameraBuffer->CycleBuffers();
+    //this->cameraBuffer->CycleBuffers();
+	this->cameraBuffer->BeginUpdateSync();
     this->viewProjVar->SetMatrix(this->GetViewProjTransform());    
     this->invViewProjVar->SetMatrix(this->GetInvViewTransform());
     this->viewVar->SetMatrix(this->GetViewTransform());
@@ -123,6 +124,7 @@ OGL4TransformDevice::ApplyViewSettings()
 		(float)FrameSync::FrameSyncTimer::Instance()->GetTime(),
 		Math::n_rand(0, 1),
 		0, 0));
+	this->cameraBuffer->EndUpdateSync();
 }
 
 //------------------------------------------------------------------------------
@@ -131,8 +133,10 @@ OGL4TransformDevice::ApplyViewSettings()
 void
 OGL4TransformDevice::ApplyViewMatrixArray(const Math::matrix44* matrices, SizeT num)
 {
-    this->shadowCameraBuffer->CycleBuffers();
+    //this->shadowCameraBuffer->CycleBuffers();
+	this->shadowCameraBuffer->BeginUpdateSync();
 	this->viewMatricesVar->SetMatrixArray(matrices, num);
+	this->shadowCameraBuffer->EndUpdateSync();
 }
 
 //------------------------------------------------------------------------------

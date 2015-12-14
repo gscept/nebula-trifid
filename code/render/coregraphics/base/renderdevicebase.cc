@@ -586,6 +586,16 @@ RenderDeviceBase::SaveScreenshot(ImageFileFormat::Code fmt, const Ptr<IO::Stream
 //------------------------------------------------------------------------------
 /**
 */
+ImageFileFormat::Code
+RenderDeviceBase::SaveScreenshot(CoreGraphics::ImageFileFormat::Code fmt, const Ptr<IO::Stream>& outStream, const Math::rectangle<int>& rect, int x, int y)
+{
+	// override in subclass!
+	return fmt;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 RenderDeviceBase::DisplayResized(SizeT width, SizeT height)
 {

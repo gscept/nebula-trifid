@@ -110,6 +110,8 @@ public:
 	void SetAntiAliasing(const Util::String& aa);
 	/// sets the parent window
 	void SetWindowData(const Util::Blob& data);
+	/// set whether or not the graphics feature unit should setup a default graphics world (true by default)
+	void SetDefaultGraphicsWorld(bool b);
 	/// updates the display
 	void ApplyDisplaySettings();
 	/// get reference to current display mode object
@@ -140,7 +142,7 @@ protected:
 
     bool decorated;
     bool resizable;
-
+	bool defaultGraphicsWorld;
 };
 
 
@@ -249,6 +251,15 @@ GraphicsFeatureUnit::SetDecorated( bool b )
     {        
         this->display->Settings().SetDecorated(b);    
     }        
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+GraphicsFeatureUnit::SetDefaultGraphicsWorld(bool b)
+{
+	this->defaultGraphicsWorld = b;
 }
 
 //------------------------------------------------------------------------------

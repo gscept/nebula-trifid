@@ -20,6 +20,8 @@ class float2
 public:
     /// default constructor, NOTE: does NOT setup components!
     float2();
+	/// construct from single value
+	float2(scalar x);
     /// construct from values
     float2(scalar x, scalar y);
     /// copy constructor
@@ -97,6 +99,15 @@ inline
 float2::float2()
 {
     //  empty
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline
+float2::float2(scalar x) : X(x)
+{
+	//  empty
 }
 
 //------------------------------------------------------------------------------

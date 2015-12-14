@@ -79,6 +79,7 @@ protected:
 	Ptr<Frame::FrameShader> godRayFrameShader;
 
 	Ptr<CoreGraphics::Shader> lightShader;
+	Ptr<CoreGraphics::Shader> lightProbeShader;
 	Ptr<Resources::ManagedTexture> lightProjMap; 
 
 	/// global light variables

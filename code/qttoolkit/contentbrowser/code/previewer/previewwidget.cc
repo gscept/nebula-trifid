@@ -28,7 +28,6 @@ PreviewWidget::~PreviewWidget()
 	// empty
 }
 
-
 //------------------------------------------------------------------------------
 /**
 */
@@ -76,7 +75,6 @@ PreviewWidget::OnTextureDropped( const Util::String& category, const Util::Strin
 {
 	// get the preview state
 	const Ptr<PreviewState>& state = this->app->GetPreviewState();
-
-
 }
+
 } // namespace ContentBrowser

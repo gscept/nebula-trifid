@@ -29,7 +29,8 @@ SET(QTMOCFILES
     "code/tiledsurfaceitem.h"
     "code/tiledmodelitem.h"
 	"code/tileddirectoryitem.h"
-	"code/imageloaderthread.h")
+	"code/imageloaderthread.h"
+	"code/filewatcher.h")
 PCH_QT4_WRAP_CPP(resourcebrowser_HEADERS_MOC ${QTMOCFILES})
 QT4_WRAP_UI(resourcebrowser_FORMS_HEADERS ${FORMS})
 

@@ -167,6 +167,23 @@ ShaderInstanceBase::SelectActiveVariation(CoreGraphics::ShaderFeature::Mask mask
 //------------------------------------------------------------------------------
 /**
 */
+void
+ShaderInstanceBase::BeginUpdateSync()
+{
+	// override in subclass
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ShaderInstanceBase::EndUpdateSync()
+{
+	// override in subclass
+}
+//------------------------------------------------------------------------------
+/**
+*/
 const CoreGraphics::ShaderIdentifier::Code&
 ShaderInstanceBase::GetCode() const
 {

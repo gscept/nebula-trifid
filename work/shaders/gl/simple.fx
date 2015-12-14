@@ -47,7 +47,7 @@ state DepthDisabledState
 */
 shader
 void
-vsMain(in vec4 position, [slot=5] in vec4 color, out vec4 Color)  
+vsMainPrimitives(in vec4 position, [slot=5] in vec4 color, out vec4 Color)  
 {
 	gl_Position = ViewProjection * ShapeModel * position;
 	Color = color;
@@ -58,14 +58,38 @@ vsMain(in vec4 position, [slot=5] in vec4 color, out vec4 Color)
 */
 shader
 void
-psMain(in vec4 color, [color0] out vec4 Color) 
+psMainPrimitives(in vec4 color, [color0] out vec4 Color) 
 {
-	Color = color * MatDiffuse;
+	Color = color;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-SimpleTechnique(Default, "Static", vsMain(), psMain(), DepthDisabledState);
-SimpleTechnique(Depth, "Static|Alt0", vsMain(), psMain(), DepthEnabledState);
-SimpleTechnique(Wireframe, "Static|Alt1", vsMain(), psMain(), WireframeState);
+shader
+void
+vsMainShape(in vec4 position)  
+{
+	gl_Position = ViewProjection * ShapeModel * position;
+}
+	
+//------------------------------------------------------------------------------
+/**
+*/
+shader
+void
+psMainShape([color0] out vec4 Color) 
+{
+	Color = MatDiffuse;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+SimpleTechnique(DefaultPrim, "Colored", vsMainPrimitives(), psMainPrimitives(), DepthDisabledState);
+SimpleTechnique(DepthPrim, "Colored|Alt0", vsMainPrimitives(), psMainPrimitives(), DepthEnabledState);
+SimpleTechnique(WireframePrim, "Colored|Alt1", vsMainPrimitives(), psMainPrimitives(), WireframeState);
+
+SimpleTechnique(DefaultShape, "Static", vsMainShape(), psMainShape(), DepthDisabledState);
+SimpleTechnique(DepthShape, "Static|Alt0", vsMainShape(), psMainShape(), DepthEnabledState);
+SimpleTechnique(WireframeShape, "Static|Alt1", vsMainShape(), psMainShape(), WireframeState);

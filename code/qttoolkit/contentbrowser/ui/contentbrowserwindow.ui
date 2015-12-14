@@ -253,6 +253,8 @@
    <addaction name="actionAmbient_occlusion"/>
    <addaction name="separator"/>
    <addaction name="actionLight_from_camera"/>
+   <addaction name="separator"/>
+   <addaction name="actionDisplay_Surface_Material"/>
   </widget>
   <widget class="QDockWidget" name="dockWidget">
    <property name="windowTitle">
@@ -375,10 +377,13 @@
          <item row="0" column="0">
           <widget class="QFrame" name="modelDockFrame">
            <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
+            <enum>QFrame::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <enum>QFrame::Plain</enum>
+           </property>
+           <property name="lineWidth">
+            <number>1</number>
            </property>
           </widget>
          </item>
@@ -443,10 +448,10 @@
          <item row="0" column="0">
           <widget class="QFrame" name="textureDockFrame">
            <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
+            <enum>QFrame::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <enum>QFrame::Plain</enum>
            </property>
           </widget>
          </item>
@@ -511,10 +516,10 @@
             <bool>false</bool>
            </property>
            <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
+            <enum>QFrame::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <enum>QFrame::Plain</enum>
            </property>
           </widget>
          </item>
@@ -579,10 +584,10 @@
             <bool>false</bool>
            </property>
            <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
+            <enum>QFrame::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <enum>QFrame::Plain</enum>
            </property>
           </widget>
          </item>
@@ -647,10 +652,10 @@
             <bool>false</bool>
            </property>
            <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
+            <enum>QFrame::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <enum>QFrame::Plain</enum>
            </property>
           </widget>
          </item>
@@ -715,10 +720,10 @@
             <bool>false</bool>
            </property>
            <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
+            <enum>QFrame::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <enum>QFrame::Plain</enum>
            </property>
           </widget>
          </item>
@@ -730,6 +735,9 @@
    </widget>
   </widget>
   <widget class="QDockWidget" name="materialDockWidget">
+   <property name="floating">
+    <bool>true</bool>
+   </property>
    <property name="windowTitle">
     <string>Surface</string>
    </property>
@@ -774,7 +782,7 @@
             <enum>QFrame::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <enum>QFrame::Plain</enum>
            </property>
           </widget>
          </item>
@@ -932,6 +940,11 @@
    <property name="toolTip">
     <string>Toggle the display of skybox</string>
    </property>
+   <property name="font">
+    <font>
+     <family>Segoe UI</family>
+    </font>
+   </property>
   </action>
   <action name="actionWireframe">
    <property name="checkable">
@@ -942,6 +955,11 @@
    </property>
    <property name="toolTip">
     <string>Toggle wireframe on/off</string>
+   </property>
+   <property name="font">
+    <font>
+     <family>Segoe UI</family>
+    </font>
    </property>
   </action>
   <action name="actionAmbient_occlusion">
@@ -957,6 +975,11 @@
    <property name="toolTip">
     <string>Toggle ambient occlusion on/off</string>
    </property>
+   <property name="font">
+    <font>
+     <family>Segoe UI</family>
+    </font>
+   </property>
   </action>
   <action name="actionShow_physics">
    <property name="checkable">
@@ -968,6 +991,11 @@
    <property name="toolTip">
     <string>Toggle physics debug rendering on/off</string>
    </property>
+   <property name="font">
+    <font>
+     <family>Segoe UI</family>
+    </font>
+   </property>
   </action>
   <action name="actionShow_controls">
    <property name="checkable">
@@ -978,6 +1006,11 @@
    </property>
    <property name="toolTip">
     <string>Toggle display of controls on/off</string>
+   </property>
+   <property name="font">
+    <font>
+     <family>Segoe UI</family>
+    </font>
    </property>
   </action>
   <action name="actionLight_from_camera">
@@ -993,6 +1026,11 @@
    <property name="toolTip">
     <string>Lock the light to always point in the direction of the camera</string>
    </property>
+   <property name="font">
+    <font>
+     <family>Segoe UI</family>
+    </font>
+   </property>
   </action>
   <action name="actionEnvironment_probe">
    <property name="text">
@@ -1005,6 +1043,25 @@
   <action name="actionCreate_material">
    <property name="text">
     <string>Create material...</string>
+   </property>
+  </action>
+  <action name="actionDisplay_Surface_Material">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Display Surface Material</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle to display the currently open surface material on a placeholder mesh, in the viewport.</string>
+   </property>
+   <property name="font">
+    <font>
+     <family>Segoe UI</family>
+    </font>
+   </property>
+   <property name="shortcut">
+    <string>F3</string>
    </property>
   </action>
  </widget>

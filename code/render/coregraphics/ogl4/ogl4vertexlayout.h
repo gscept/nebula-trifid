@@ -68,6 +68,5 @@ OGL4VertexLayout::GetOGL4VertexArrayObject() const
     return this->vao;
 }
 
-
 } // namespace OpenGL4
 //------------------------------------------------------------------------------

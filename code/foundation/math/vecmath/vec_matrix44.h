@@ -1268,16 +1268,15 @@ __forceinline
 float4
 matrix44::transform(const float4 &v, const matrix44 &m)
 {
-	float4 x = float4::splat_x(v);
-	float4 y = float4::splat_y(v);
-	float4 z = float4::splat_z(v);
-	float4 w = float4::splat_w(v);
-
-	x = float4::multiply(x,m.mat.r[0]);
-	x = float4::multiplyadd(y,m.mat.r[1],x);
-	x = float4::multiplyadd(z,m.mat.r[2],x);
-	x = float4::multiplyadd(w,m.mat.r[3],x);
-	return x;
+	__m128 x = _mm_shuffle_ps(v.vec.vec, v.vec.vec, _MM_SHUFFLE(0, 0, 0, 0));
+	__m128 y = _mm_shuffle_ps(v.vec.vec, v.vec.vec, _MM_SHUFFLE(1, 1, 1, 1));
+	__m128 z = _mm_shuffle_ps(v.vec.vec, v.vec.vec, _MM_SHUFFLE(2, 2, 2, 2));
+	__m128 w = _mm_shuffle_ps(v.vec.vec, v.vec.vec, _MM_SHUFFLE(3, 3, 3, 3));
+	
+	return _mm_add_ps(
+		_mm_add_ps(_mm_mul_ps(x, m.mat.r[0].vec), _mm_mul_ps(y, m.mat.r[1].vec)), 
+		_mm_add_ps(_mm_mul_ps(z, m.mat.r[2].vec), _mm_mul_ps(w, m.mat.r[3].vec))
+		);
 }
 
 //------------------------------------------------------------------------------

@@ -41,8 +41,7 @@ TiledSurfaceItem::Setup()
 
     // create a new texture unit
     this->loader = new ImageLoaderUnit;
-    this->loader->path = String::Sprintf("%s/%s/%s_thumb.png", this->path.AsCharPtr(), this->category.AsCharPtr(), this->filename.AsCharPtr());
-    this->loader->texture = new QImage;
+    this->loader->path = String::Sprintf("%s/%s/%s_sur.thumb", this->path.AsCharPtr(), this->category.AsCharPtr(), this->filename.AsCharPtr());
     connect(this->loader, SIGNAL(OnLoaded()), this, SLOT(OnPreviewLoaded()));
     AssetBrowser::loaderThread->Enqueue(this->loader);
 
@@ -63,8 +62,8 @@ TiledSurfaceItem::Discard()
 
     // make sure our thread is using the mutex, then delete the loader unit
     this->loader->mutex.lock();
-    delete this->loader->texture;
-    delete this->loader;
+	this->loader->Release();
+	this->loader->mutex.unlock();
 }
 
 //------------------------------------------------------------------------------

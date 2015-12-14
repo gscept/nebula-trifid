@@ -57,7 +57,7 @@ public:
 	const GLuint& GetFramebuffer() const;
 
     /// copy from this opengl render target to an opengl texture
-    void Copy( const Ptr<CoreGraphics::RenderTarget>& rt );
+	void Copy(const Ptr<CoreGraphics::RenderTarget>& rt);
 
 	/// clears render target by force
 	void Clear(uint flags);

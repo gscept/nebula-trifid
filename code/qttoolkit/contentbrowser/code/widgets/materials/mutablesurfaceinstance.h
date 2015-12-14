@@ -11,7 +11,7 @@
 #include "materials/surfaceinstance.h"
 namespace Materials
 {
-class MutableSurfaceInstance : public Materials::SurfaceInstance
+class MutableSurfaceInstance : public SurfaceInstance
 {
 	__DeclareClass(MutableSurfaceInstance);
 public:

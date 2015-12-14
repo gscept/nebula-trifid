@@ -307,7 +307,9 @@ BXmlReader::GetOptBool(const char* attr, bool defaultValue) const
 {
     if (this->HasAttr(attr))
     {
-        return this->GetBool(attr);
+		String str = this->GetString(attr);
+		if (str.IsValidBool())  return str.AsBool();
+		else					return defaultValue;
     }
     else
     {
@@ -323,7 +325,9 @@ BXmlReader::GetOptInt(const char* attr, int defaultValue) const
 {
     if (this->HasAttr(attr))
     {
-        return this->GetInt(attr);
+		String str = this->GetString(attr);
+		if (str.IsValidInt())   return str.AsInt();
+		else					return defaultValue;
     }
     else
     {
@@ -339,7 +343,9 @@ BXmlReader::GetOptFloat(const char* attr, float defaultValue) const
 {
     if (this->HasAttr(attr))
     {
-        return this->GetFloat(attr);
+		String str = this->GetString(attr);
+		if (str.IsValidFloat()) return str.AsFloat();
+		else					return defaultValue;
     }
     else
     {
@@ -356,7 +362,9 @@ BXmlReader::GetOptFloat2(const char* attr, const Math::float2& defaultValue) con
 {
     if (this->HasAttr(attr))
     {
-        return this->GetFloat2(attr);
+		String str = this->GetString(attr);
+		if (str.IsValidFloat2()) return str.AsFloat2();
+		else					 return defaultValue;
     }
     else
     {
@@ -372,7 +380,9 @@ BXmlReader::GetOptFloat4(const char* attr, const Math::float4& defaultValue) con
 {
     if (this->HasAttr(attr))
     {
-        return this->GetFloat4(attr);
+		String str = this->GetString(attr);
+		if (str.IsValidFloat4()) return str.AsFloat4();
+		else					 return defaultValue;
     }
     else
     {
@@ -388,7 +398,9 @@ BXmlReader::GetOptMatrix44(const char* attr, const Math::matrix44& defaultValue)
 {
     if (this->HasAttr(attr))
     {
-        return this->GetMatrix44(attr);
+		String str = this->GetString(attr);
+		if (str.IsValidMatrix44())  return str.AsMatrix44();
+		else						return defaultValue;
     }
     else
     {

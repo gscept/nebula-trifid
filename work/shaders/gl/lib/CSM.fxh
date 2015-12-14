@@ -11,15 +11,15 @@
 #define NO_COMPARISON 1
 
 #include "shadowbase.fxh"
-shared varblock CSMParamBlock
-{
+//shared varblock CSMParamBlock
+//{
 	vec4 CascadeOffset[CASCADE_COUNT_FLAG];
 	vec4 CascadeScale[CASCADE_COUNT_FLAG];
 	float MinBorderPadding;     
 	float MaxBorderPadding;
 	float ShadowPartitionSize; 
 	float GlobalLightShadowBias = 0.0f;
-};
+//};
 	
 const int SplitsPerRow = 2;
 const int SplitsPerColumn = 2;

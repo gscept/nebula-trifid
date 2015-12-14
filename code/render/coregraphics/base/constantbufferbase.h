@@ -120,7 +120,6 @@ inline void
 Base::ConstantBufferBase::UpdateSync(void* data, uint offset, uint size)
 {
     n_assert(this->inUpdateSync);   
-    n_assert(this->sync);
     byte* buf = (byte*)this->buffer + offset;
     memcpy(buf, data, size);
 }
@@ -132,7 +131,6 @@ inline void
 Base::ConstantBufferBase::UpdateArraySync(void* data, uint offset, uint size, uint count)
 {
     n_assert(this->inUpdateSync);
-    n_assert(this->sync);
     byte* buf = (byte*)this->buffer + offset;
     memcpy(buf, data, size * count);
 }

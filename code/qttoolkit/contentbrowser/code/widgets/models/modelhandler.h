@@ -104,7 +104,7 @@ private:
 	void SetupTabs();
 
 	Ptr<Actions::ModelModifyAction> action;
-	Util::String model;
+	Util::String file;
 	Util::String category;
 	Ui::ModelInfoWidget* ui;
 	Util::Array<ModelNodeFrame*> nodeFrames;
@@ -142,7 +142,7 @@ inline void
 ModelHandler::SetModelResource( const Util::String& model )
 {
 	n_assert(model.IsValid());
-	this->model = model;
+	this->file = model;
 }
 
 //------------------------------------------------------------------------------
@@ -151,7 +151,7 @@ ModelHandler::SetModelResource( const Util::String& model )
 inline const Util::String& 
 ModelHandler::GetModelResource() const
 {
-	return this->model;
+	return this->file;
 }
 
 //------------------------------------------------------------------------------

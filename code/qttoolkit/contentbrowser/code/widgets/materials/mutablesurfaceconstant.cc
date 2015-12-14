@@ -7,7 +7,7 @@
 
 namespace Materials
 {
-__ImplementClass(Materials::MutableSurfaceConstant, 'MUSC', Core::RefCounted);
+__ImplementClass(Materials::MutableSurfaceConstant, 'MUSC', Materials::SurfaceConstant);
 
 //------------------------------------------------------------------------------
 /**
