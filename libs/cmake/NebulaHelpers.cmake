@@ -249,7 +249,7 @@ MACRO(N_SET_COMPILER_DEFAULTS)
                 IF(CMAKE_CL_64)
                 # C++ compiler
                         SET(CMAKE_CXX_FLAGS 
-                                "/D__WIN32__ /DWIN32 /DWIN64 /D__WIN64__ /D_HAS_EXCEPTIONS=0 /GF /fp:fast /W3 /WX /nologo /errorReport:prompt" 
+                                "/D__WIN32__ /DWIN32 /DWIN64 /D__WIN64__ /D_HAS_EXCEPTIONS=0 /GF /fp:fast /W3 /WX /nologo /errorReport:prompt /wd4091" 
                                 CACHE STRING "Flags used by the compiler during all build types." FORCE)
                         SET(CMAKE_CXX_FLAGS_DEBUG
                                 "/D_DEBUG /Od /Gm /RTC1 /MTd /Gy /Zi"
@@ -262,7 +262,7 @@ MACRO(N_SET_COMPILER_DEFAULTS)
                                 CACHE STRING "Flags used by the compiler during release builds." FORCE)
                         # C compiler (force compilation of .c files using C++ compiler)
                         SET(CMAKE_C_FLAGS 
-                                "/D__WIN32__ /DWIN32 /DWIN64 /D__WIN64__ /D_HAS_EXCEPTIONS=0 /GF /fp:fast /W3 /WX /nologo /errorReport:prompt" 
+                                "/D__WIN32__ /DWIN32 /DWIN64 /D__WIN64__ /D_HAS_EXCEPTIONS=0 /GF /fp:fast /W3 /WX /nologo /errorReport:prompt /wd4091" 
                                 CACHE STRING "Flags used by the compiler during all build types." FORCE)
                         SET(CMAKE_C_FLAGS_DEBUG
                                 "/D_DEBUG /Od /Gm /RTC1 /MTd /Gy /Zi"
@@ -276,7 +276,7 @@ MACRO(N_SET_COMPILER_DEFAULTS)
                 ELSE()
                         # C++ compiler		
                         SET(CMAKE_CXX_FLAGS 
-                                "/D__WIN32__ /DWIN32 /D_HAS_EXCEPTIONS=0 /GF /fp:fast /W3 /WX /MP /Oi /arch:SSE /arch:SSE2 /nologo /errorReport:prompt" 
+                                "/D__WIN32__ /DWIN32 /D_HAS_EXCEPTIONS=0 /GF /fp:fast /W3 /WX /MP /Oi /arch:SSE /arch:SSE2 /nologo /errorReport:prompt /wd4091" 
                                 CACHE STRING "Flags used by the compiler during all build types." FORCE)
                         SET(CMAKE_CXX_FLAGS_DEBUG
                                 "/D_DEBUG /Od /RTC1 /MTd /Gy /ZI"
@@ -289,7 +289,7 @@ MACRO(N_SET_COMPILER_DEFAULTS)
                                 CACHE STRING "Flags used by the compiler during release builds." FORCE)
                         # C compiler (force compilation of .c files using C++ compiler)
                         SET(CMAKE_C_FLAGS 
-                                "/D__WIN32__ /DWIN32 /D_HAS_EXCEPTIONS=0 /GF /fp:fast /W3 /WX /MP /nologo /Oi /arch:SSE /arch:SSE2 /errorReport:prompt" 
+                                "/D__WIN32__ /DWIN32 /D_HAS_EXCEPTIONS=0 /GF /fp:fast /W3 /WX /MP /nologo /Oi /arch:SSE /arch:SSE2 /errorReport:prompt /wd4091" 
                                 CACHE STRING "Flags used by the compiler during all build types." FORCE)
                         SET(CMAKE_C_FLAGS_DEBUG
                                 "/D_DEBUG /Od /RTC1 /MTd /Gy /ZI"

@@ -80,9 +80,7 @@ BatchExporterApp::BatchExporterApp(const CommandLineArgs& args) :
 	this->projInfo.SetCurrentPlatform(DEFAULTPLATFORM);
 	this->projInfo.Setup();
 	
-	connect(ui.exportGraphics, SIGNAL(toggled(bool)), this, SLOT(SetExportGraphics(bool)));
-	connect(ui.exportModels, SIGNAL(toggled(bool)), this, SLOT(SetExportModels(bool)));		
-	connect(ui.exportTextures, SIGNAL(toggled(bool)), this, SLOT(SetExportTextures(bool)));	
+	connect(ui.exportGraphics, SIGNAL(toggled(bool)), this, SLOT(SetExportGraphics(bool)));	
 	connect(ui.exportShaders, SIGNAL(toggled(bool)), this, SLOT(SetExportShaders(bool)));
 	connect(ui.exportGameData, SIGNAL(toggled(bool)), this, SLOT(SetExportGameData(bool)));	
 	connect(ui.exportAudio, SIGNAL(toggled(bool)), this, SLOT(SetExportAudio(bool)));
@@ -109,9 +107,7 @@ BatchExporterApp::BatchExporterApp(const CommandLineArgs& args) :
 	{
         int flag = System::NebulaSettings::ReadString("gscept", "ToolkitShared.batchexporter", "exportFlags").AsInt();		
 		this->exportBits = flag;
-		ui.exportGraphics->setChecked(flag & Graphics);
-		ui.exportModels->setChecked(flag & Models);			
-		ui.exportTextures->setChecked(flag & Textures);
+		ui.exportGraphics->setChecked(flag & Graphics);				
 		ui.exportShaders->setChecked(flag & Shaders);
 		ui.exportGameData->setChecked(flag & GameData);
 		ui.exportAudio->setChecked(flag & Audio);
@@ -153,7 +149,7 @@ BatchExporterApp::GatherExports()
 			processArgs.append("-force");
 		}
 		processArgs.append(jobsString);
-        Util::String gb = IO::URI(IO::AssignRegistry::Instance()->ResolveAssignsInString(this->projInfo.GetPathAttr("GraphicsBatcher") + EXESUFFIX)).LocalPath();
+        Util::String gb = IO::URI(IO::AssignRegistry::Instance()->ResolveAssignsInString(this->projInfo.GetPathAttr("AssetBatcher") + EXESUFFIX)).LocalPath();
 		gb = "\"" + gb + "\"";
 		QString graphicsBatcherPath = gb.AsCharPtr();
 		for (int argIndex = 0; argIndex < processArgs.size(); argIndex++)
@@ -161,31 +157,7 @@ BatchExporterApp::GatherExports()
 			graphicsBatcherPath += " " + processArgs[argIndex];
 		}
 		executionQueue.append(QPair<ExportBits, QString>(Graphics, graphicsBatcherPath));
-	}
-	if (this->exportBits & Models)
-	{	
-        Util::String gb = IO::URI(IO::AssignRegistry::Instance()->ResolveAssignsInString(this->projInfo.GetPathAttr("ModelBatcher") + EXESUFFIX)).LocalPath();        
-		gb = "\"" + gb + "\"";
-		QString modelBatcherPath = gb.AsCharPtr();
-		executionQueue.append(QPair<ExportBits, QString>(Models, modelBatcherPath));
 	}	
-	if (this->exportBits & Textures)
-	{
-		QStringList processArgs;
-		if(ui.forceExport->isChecked())
-		{
-			processArgs.append("-force");
-		}			
-		processArgs.append(jobsString);
-        Util::String gb = IO::URI(IO::AssignRegistry::Instance()->ResolveAssignsInString(this->projInfo.GetPathAttr("TextureBatcher") + EXESUFFIX)).LocalPath();                
-		gb = "\"" + gb + "\"";
-		QString textureBatcherPath = gb.AsCharPtr();		
-		for (int argIndex = 0; argIndex < processArgs.size(); argIndex++)
-		{
-			textureBatcherPath += " " + processArgs[argIndex];
-		}
-		executionQueue.append(QPair<ExportBits, QString>(Textures, textureBatcherPath));
-	}
 	if (this->exportBits & Shaders)
 	{
 		QStringList processArgs;

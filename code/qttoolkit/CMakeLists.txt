@@ -10,6 +10,7 @@ INCLUDE_DIRECTORIES(${Nebula3_SOURCE_DIR}/foundation ${Nebula3_SOURCE_DIR}/qttoo
 
 
 add_subdirectory(batchexporter)
+add_subdirectory(batchexporter2)
 add_subdirectory(contentbrowser)
 add_subdirectory(leveleditor2)
 if(MSVC)

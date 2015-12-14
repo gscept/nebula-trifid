@@ -37,10 +37,10 @@ Logger::Error(const char* msg, ...)
     va_start(argList, msg);
     String str;
     str.FormatArgList(msg, argList);
-	this->messages.Append(String("<font size=\"4\" color=\"red\"><b>[ERROR] ") + str + String("</b></font>"));
+	this->messages.Append(String("[ERROR] ") + str);
     if (this->verbose)
     {
-        n_printf(this->messages.Back().AsCharPtr());
+        n_error(this->messages.Back().AsCharPtr());
     }
     va_end(argList);
 }
@@ -58,7 +58,7 @@ Logger::Warning(const char* msg, ...)
     this->messages.Append(String("[WARNING] ") + str);
     if (this->verbose)
     {
-        n_printf(this->messages.Back().AsCharPtr());
+        n_warning(this->messages.Back().AsCharPtr());
     }
     va_end(argList);
 }

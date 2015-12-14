@@ -39,6 +39,7 @@
             <Attr name="AudioSrcDir" value="src:audio"/>
 			
 			<!-- batchers -->
+			<Attr name="AssetBatcher" value="toolkit:bin/win32/assetbatcher"/>
             <Attr name="GraphicsBatcher" value="toolkit:bin/win32/fbxbatcher3"/>
             <Attr name="ModelBatcher" value="toolkit:bin/win32/modelbatcher3"/>
             <Attr name="GameBatcher" value="toolkit:bin/win32/gamebatcher3"/>

@@ -6,6 +6,7 @@
 #include "assetexporter.h"
 #include "io/ioserver.h"
 #include "io/assignregistry.h"
+#include "toolkitconsolehandler.h"
 
 using namespace Util;
 using namespace IO;
@@ -87,17 +88,20 @@ AssetExporter::ExportDir(const Util::String& category)
 
     String assetPath = String::Sprintf("src:assets/%s/", category.AsCharPtr());
     IndexT fileIndex;
-
+	AssetLog log(category);
+	Ptr<ToolkitUtil::ToolkitConsoleHandler> console = ToolkitUtil::ToolkitConsoleHandler::Instance();
     if (this->mode & ExportModes::FBX)
     {
         // export FBX sources
         Array<String> files = IoServer::Instance()->ListFiles(assetPath, "*.fbx");
         this->fbxExporter->SetForce((this->mode & ExportModes::ForceFBX) != 0);
-        this->fbxExporter->SetCategory(category);
+        this->fbxExporter->SetCategory(category);		
         for (fileIndex = 0; fileIndex < files.Size(); fileIndex++)
         {
+			console->Clear();
             this->fbxExporter->SetFile(files[fileIndex]);
             this->fbxExporter->ExportFile(assetPath + files[fileIndex]);
+			log.AddEntry(console, "FBX", files[fileIndex]);
         }
     }    
 
@@ -107,6 +111,7 @@ AssetExporter::ExportDir(const Util::String& category)
         Array<String> files = IoServer::Instance()->ListFiles(assetPath, "*.constants");
         for (fileIndex = 0; fileIndex < files.Size(); fileIndex++)
         {
+			console->Clear();
             String modelName = files[fileIndex];
             modelName.StripFileExtension();
             modelName = category + "/" + modelName;
@@ -122,6 +127,7 @@ AssetExporter::ExportDir(const Util::String& category)
             this->modelBuilder->SaveN3(modelPath, this->platform);
             String physicsPath = String::Sprintf("phys:%s.np3", modelName.AsCharPtr());
             this->modelBuilder->SaveN3Physics(physicsPath, this->platform);
+			log.AddEntry(console, "Model", files[fileIndex]);			
         }
     }
 
@@ -137,8 +143,10 @@ AssetExporter::ExportDir(const Util::String& category)
         this->textureExporter.SetForceFlag((this->mode & ExportModes::ForceTextures) != 0);
         for (fileIndex = 0; fileIndex < files.Size(); fileIndex++)
         {
+			console->Clear();
             this->textureExporter.SetDstDir("tex:");
             this->textureExporter.ConvertTexture(assetPath + files[fileIndex], "temp:textureconverter");
+			log.AddEntry(console, "Texture", files[fileIndex]);			
         }
     }
 
@@ -148,9 +156,12 @@ AssetExporter::ExportDir(const Util::String& category)
 		this->surfaceExporter->SetForce((this->mode & ExportModes::ForceSurfaces) != 0);
 		for (fileIndex = 0; fileIndex < files.Size(); fileIndex++)
 		{
+			console->Clear();
 			this->surfaceExporter->ExportFile(assetPath + files[fileIndex]);
+			log.AddEntry(console, "Surface", files[fileIndex]);			
 		}
 	}
+	this->messages.Append(log);
 }
 
 //------------------------------------------------------------------------------
@@ -175,8 +186,20 @@ AssetExporter::ExportList(const Util::Array<Util::String>& files)
 {
     for (Array<String>::Iterator iter = files.Begin(); iter != files.End(); iter++)
     {
-
+		const Util::String & str = *iter;
+		this->ExportDir(str.ExtractFileName());		
     }
+}
+
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+AssetExporter::AssetLog::AddEntry(const Ptr<ToolkitUtil::ToolkitConsoleHandler> & console, const Util::String & tool, const Util::String & source)
+{
+	this->logLevels |= console->GetLevels();
+	this->logs.Append({ tool, source, console->GetLevels(), console->GetLog() });
 }
 
 } // namespace ToolkitUtil

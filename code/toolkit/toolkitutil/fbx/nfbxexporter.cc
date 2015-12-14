@@ -156,14 +156,14 @@ NFbxExporter::StartExport(const IO::URI& file)
 		importStatus = importer->Import(this->fbxScene);
 		if (!importStatus)
 		{
-			n_printf("    [Could not open for reading! Something went terribly wrong!]\n\n", localPath.AsCharPtr());
+			n_error("    [Could not open %s for reading! Something went terribly wrong!]\n\n", localPath.AsCharPtr());
 			this->SetHasErrors(true);
 			return false;
 		}
 	}
 	else
 	{
-		n_printf("    [Could not initialize for reading! Something went terribly wrong!]\n\n", localPath.AsCharPtr());
+		n_error("    [Could not initialize %s for reading! Something went terribly wrong!]\n\n", localPath.AsCharPtr());
 		this->SetHasErrors(true);
 		return false;
 	}
@@ -204,8 +204,10 @@ NFbxExporter::StartExport(const IO::URI& file)
 	destinationFile.Format("msh:%s/%s.nvx2", catName.AsCharPtr(), fileName.AsCharPtr());
 
 	// save mesh to file
-	bool saved = MeshBuilderSaver::SaveNvx2(URI(destinationFile), *mesh, this->platform);
-	n_assert(saved);
+	if (false == MeshBuilderSaver::SaveNvx2(URI(destinationFile), *mesh, this->platform))
+	{
+		n_error("Failed to save Nvx2 file: %s\n", destinationFile.AsCharPtr());
+	}		
 
 	// print info
 	n_printf("[Generated graphics mesh: %s]\n", destinationFile.AsCharPtr());
@@ -220,8 +222,10 @@ NFbxExporter::StartExport(const IO::URI& file)
 		destinationFile.Format("msh:%s/%s_ph.nvx2", catName.AsCharPtr(), fileName.AsCharPtr());
 
 		// save mesh
-		bool saved = MeshBuilderSaver::SaveNvx2(URI(destinationFile), *physicsMesh, this->platform);
-		n_assert(saved);
+		if (false == MeshBuilderSaver::SaveNvx2(URI(destinationFile), *physicsMesh, this->platform))
+		{
+			n_error("Failed to save physics Nvx2 file: %s\n", destinationFile.AsCharPtr());
+		}		
 
 		// print info
 		n_printf("[Generated physics mesh: %s]\n", destinationFile.AsCharPtr());
@@ -256,9 +260,10 @@ NFbxExporter::StartExport(const IO::URI& file)
 			anim.BuildVelocityCurves();
 
 			// now save actual animation
-			bool saved = AnimBuilderSaver::SaveNax3(URI(destinationFile), anim, this->platform);
-			n_assert(saved);
-
+			if (false == AnimBuilderSaver::SaveNax3(URI(destinationFile), anim, this->platform))
+			{
+				n_error("Failed to save animation file file: %s\n", destinationFile.AsCharPtr());
+			}			
 			n_printf("[Generated animation: %s]\n", destinationFile.AsCharPtr());
 		}
 	}

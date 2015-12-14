@@ -8,7 +8,9 @@
 #include "io/assignregistry.h"
 #include "core/coreserver.h"
 #include "io/textreader.h"
-#include "assetexporter.h"
+#include "asset/assetexporter.h"
+#include "io/console.h"
+#include "io/win32/win32consolehandler.h"
 
 #define PRECISION 1000000
 
@@ -22,7 +24,7 @@ namespace Toolkit
 //------------------------------------------------------------------------------
 /**
 */
-    AssetBatcherApp::AssetBatcherApp()
+AssetBatcherApp::AssetBatcherApp()
 {
     // empty
 }
@@ -43,6 +45,17 @@ AssetBatcherApp::Open()
 {
     if (DistributedToolkitApp::Open())
     {
+		Ptr<IO::Console> console = IO::Console::Instance();		
+		const Util::Array<Ptr<IO::ConsoleHandler>> & handlers = console->GetHandlers();
+		for (int i = 0; i < handlers.Size(); i++)
+		{
+			if (handlers[i]->IsA(Win32::Win32ConsoleHandler::RTTI))
+			{
+				console->RemoveHandler(handlers[i]);
+			}
+		}
+		this->handler = ToolkitUtil::ToolkitConsoleHandler::Create();
+		console->AttachHandler(this->handler.cast<IO::ConsoleHandler>());
         this->modelDatabase = ToolkitUtil::ModelDatabase::Create();
         this->modelDatabase->Open();
         return true;
@@ -56,6 +69,7 @@ AssetBatcherApp::Open()
 void
 AssetBatcherApp::Close()
 {
+	this->handler = 0;
     if (this->modelDatabase.isvalid())
     {
         this->modelDatabase->Close();
@@ -116,6 +130,30 @@ AssetBatcherApp::DoWork()
 	}	
 	exporter->Close();
 
+	// FIXME this is only for having output until the new batchexporter is done
+	Ptr<Win32::Win32ConsoleHandler> output = Win32::Win32ConsoleHandler::Create();
+	output->Open();
+	const Util::Array<AssetExporter::AssetLog>& failedFiles = exporter->GetMessages();
+
+	for (int i = 0; i < failedFiles.Size(); i++)
+	{
+		output->Print("asset: ");
+		output->Print(failedFiles[i].asset.AsCharPtr());
+		for (auto iter = failedFiles[i].logs.Begin(); iter != failedFiles[i].logs.End(); iter++)
+		{
+			output->Print("\n tool: ");
+			output->Print(iter->tool.AsCharPtr());
+			output->Print("\n source file: ");
+			output->Print(iter->source.AsCharPtr());
+			output->Print("\n error message: ");
+			for (int j = 0; j < iter->logs.Size(); j++)
+			{
+				output->Print(iter->logs[j].message.AsCharPtr());
+				output->Print("\n");
+			}
+		}
+	}
+	
 	// if we have any errors, set the return code to be errornous
 	if (exporter->HasErrors()) this->SetReturnCode(-1);
 }

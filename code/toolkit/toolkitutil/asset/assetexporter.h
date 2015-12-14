@@ -16,6 +16,7 @@
 #include "modelutil/modelbuilder.h"
 #include "modelutil/modeldatabase.h"
 #include "surface/surfaceexporter.h"
+#include "toolkitconsolehandler.h"
 namespace ToolkitUtil
 {
 class AssetExporter : public Base::ExporterBase
@@ -60,12 +61,42 @@ public:
     /// exports list of files, used for parallel jobs
     void ExportList(const Util::Array<Util::String>& files);
 
+	struct AssetLogEntry
+	{				
+		Util::String tool;
+		Util::String source;	
+		unsigned char logLevels;
+		Util::Array<ToolkitConsoleHandler::LogEntry> logs;		
+	};
+	struct AssetLog
+	{
+		Util::String asset;
+		unsigned char logLevels;
+		Util::Array<AssetLogEntry> logs;
+		AssetLog(const Util::String & ass):asset(ass),logLevels(0){}
+		AssetLog() :logLevels(0){}
+		void AddEntry(const Ptr<ToolkitUtil::ToolkitConsoleHandler> & console, const Util::String & tool, const Util::String & source);
+	};
+	/// get failed files (if any)
+	const Util::Array<AssetLog> & GetMessages() const;
+
 private:
     Ptr<ToolkitUtil::NFbxExporter> fbxExporter;
     ToolkitUtil::TextureConverter textureExporter;
 	Ptr<ToolkitUtil::SurfaceExporter> surfaceExporter;
-    Ptr<ToolkitUtil::ModelBuilder> modelBuilder;
+    Ptr<ToolkitUtil::ModelBuilder> modelBuilder;	
     Logger logger;
     ExportModes mode;
+	Util::Array<AssetLog> messages;
 };
+
+/**
+
+*/
+inline 
+const Util::Array<AssetExporter::AssetLog> &
+AssetExporter::GetMessages() const
+{
+	return this->messages;
+}
 } // namespace ToolkitUtil
