@@ -76,8 +76,35 @@ private:
 	unsigned char logLevel;
 };
 
-/**
+struct ToolLogEntry
+{
+	Util::String tool;
+	Util::String source;
+	unsigned char logLevels;
+	Util::Array<ToolkitConsoleHandler::LogEntry> logs;
+};
+struct ToolLog
+{
+	Util::String asset;
+	unsigned char logLevels;
+	Util::Array<ToolLogEntry> logs;
+	ToolLog(const Util::String & ass) :asset(ass), logLevels(0){}
+	ToolLog() :logLevels(0){}
+	void AddEntry(const Ptr<ToolkitUtil::ToolkitConsoleHandler> & console, const Util::String & tool, const Util::String & source);
+};
 
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+ToolkitUtil::ToolLog::AddEntry(const Ptr<ToolkitUtil::ToolkitConsoleHandler> & console, const Util::String & tool, const Util::String & source)
+{
+	this->logLevels |= console->GetLevels();
+	this->logs.Append({ tool, source, console->GetLevels(), console->GetLog() });
+}
+
+///------------------------------------------------------------------------------
+/**
 */
 inline unsigned char
 ToolkitConsoleHandler::GetLevels() const
@@ -86,8 +113,8 @@ ToolkitConsoleHandler::GetLevels() const
 	return this->currentFlags[id];
 }
 
+///------------------------------------------------------------------------------
 /**
-
 */
 inline void
 ToolkitConsoleHandler::SetConsoleOutputLevel(unsigned char level)

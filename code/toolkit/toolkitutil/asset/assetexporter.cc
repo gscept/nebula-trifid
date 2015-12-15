@@ -88,13 +88,13 @@ AssetExporter::ExportDir(const Util::String& category)
 
     String assetPath = String::Sprintf("src:assets/%s/", category.AsCharPtr());
     IndexT fileIndex;
-	AssetLog log(category);
+	ToolLog log(category);
 	Ptr<ToolkitUtil::ToolkitConsoleHandler> console = ToolkitUtil::ToolkitConsoleHandler::Instance();
     if (this->mode & ExportModes::FBX)
     {
         // export FBX sources
         Array<String> files = IoServer::Instance()->ListFiles(assetPath, "*.fbx");
-		this->fbxExporter->SetForce((this->mode & ExportModes::ForceFBX) != 0);
+		this->fbxExporter->SetForce(true);// (this->mode & ExportModes::ForceFBX) != 0);
         this->fbxExporter->SetCategory(category);		
         for (fileIndex = 0; fileIndex < files.Size(); fileIndex++)
         {
@@ -198,16 +198,6 @@ void
 AssetExporter::SetExportMode(unsigned int mode)
 {
 	this->mode = mode;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-AssetExporter::AssetLog::AddEntry(const Ptr<ToolkitUtil::ToolkitConsoleHandler> & console, const Util::String & tool, const Util::String & source)
-{
-	this->logLevels |= console->GetLevels();
-	this->logs.Append({ tool, source, console->GetLevels(), console->GetLog() });
 }
 
 } // namespace ToolkitUtil

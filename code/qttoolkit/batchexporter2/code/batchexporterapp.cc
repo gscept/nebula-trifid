@@ -491,7 +491,7 @@ BatchExporterApp::UpdateOutputWindow()
 			Util::Array<ToolkitConsoleHandler::LogEntry> assetLogs;
 			this->ui.messageList->addTopLevelItem(currentItem);
 
-			const Util::Array<AssetExporter::AssetLogEntry> & logs = this->messages[i].logs;
+			const Util::Array<ToolkitUtil::ToolLogEntry> & logs = this->messages[i].logs;
 			for (int j = 0; j < logs.Size(); j++)
 			{
 				if (logs[j].logs.Size() && (logs[j].logLevels & displayLevel) > 0)
@@ -569,7 +569,7 @@ BatchExporterApp::ThreadDone()
 /**
 */
 void
-BatchExporterApp::AddMessages(const Util::Array<ToolkitUtil::AssetExporter::AssetLog>&messages)
+BatchExporterApp::AddMessages(const Util::Array<ToolkitUtil::ToolLog>&messages)
 {
 	this->messageMutex.lock();
 	this->messages.AppendArray(messages);
@@ -583,7 +583,7 @@ void
 AssetWorkerThread::run()
 {
 	this->myId = Threading::Thread::GetMyThreadId();
-	this->app->runningThreads.acquire(1);
+	this->app->WorkerSemaphore().acquire(1);
 	IO::Console::Instance()->AttachHandler(this);
 	
 	Ptr<IO::IoServer> io = IO::IoServer::Create();
@@ -599,7 +599,7 @@ AssetWorkerThread::run()
 	exporter->Open();
 	exporter->SetForce(false);
 	exporter->SetExportFlag(Base::ExporterBase::All);
-	exporter->SetPlatform(this->app->projectInfo.GetCurrentPlatform());
+	exporter->SetPlatform(this->app->GetProjectInfo().GetCurrentPlatform());
 	exporter->SetProgressPrecision(1000000);
 	if (this->system)
 	{
@@ -620,7 +620,7 @@ AssetWorkerThread::run()
 	}
 	this->app->AddMessages(exporter->GetMessages());	
 	IO::Console::Instance()->RemoveHandler(this);
-	this->app->runningThreads.release(1);
+	this->app->WorkerSemaphore().release(1);
 }
 
 //------------------------------------------------------------------------------

@@ -127,8 +127,13 @@ public:
 	///
 	void Open(const QtTools::CommandLineArgs& args);
 
+	/// access to worker thread semaphore
+	QSemaphore & WorkerSemaphore();
+	/// access to projectinfo
+	const ToolkitUtil::ProjectInfo & GetProjectInfo();
 
-	
+	///
+	void AddMessages(const Util::Array<ToolkitUtil::ToolLog>&messages);
 
 private slots:
 
@@ -172,8 +177,7 @@ private:
 	/// update title string with current project directory
 	void UpdateTitle();
 
-	///
-	void AddMessages(const Util::Array<ToolkitUtil::AssetExporter::AssetLog>&messages);
+	
 	
 
 	QtTools::CommandLineArgs args;
@@ -184,7 +188,7 @@ private:
 	
 	
 
-	Util::Array<ToolkitUtil::AssetExporter::AssetLog> messages;
+	Util::Array<ToolkitUtil::ToolLog> messages;
     
     QString workDir;
     QString toolDir;
@@ -195,5 +199,23 @@ private:
 	QSemaphore runningThreads;
 	QMutex messageMutex;
 };
+
+///------------------------------------------------------------------------------
+/**
+*/
+inline QSemaphore &
+BatchExporterApp::WorkerSemaphore()
+{
+	return this->runningThreads;
+}
+
+///------------------------------------------------------------------------------
+/**
+*/
+inline const ToolkitUtil::ProjectInfo &
+BatchExporterApp::GetProjectInfo()
+{
+	return this->projectInfo;
+}
 
 }

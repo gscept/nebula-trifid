@@ -17,6 +17,7 @@
 #include "modelutil/modeldatabase.h"
 #include "surface/surfaceexporter.h"
 #include "toolkitconsolehandler.h"
+
 namespace ToolkitUtil
 {
 class AssetExporter : public Base::ExporterBase
@@ -63,25 +64,9 @@ public:
 
 	/// set export mode flag
 	void SetExportMode(unsigned int mode);
-
-	struct AssetLogEntry
-	{				
-		Util::String tool;
-		Util::String source;	
-		unsigned char logLevels;
-		Util::Array<ToolkitConsoleHandler::LogEntry> logs;		
-	};
-	struct AssetLog
-	{
-		Util::String asset;
-		unsigned char logLevels;
-		Util::Array<AssetLogEntry> logs;
-		AssetLog(const Util::String & ass):asset(ass),logLevels(0){}
-		AssetLog() :logLevels(0){}
-		void AddEntry(const Ptr<ToolkitUtil::ToolkitConsoleHandler> & console, const Util::String & tool, const Util::String & source);
-	};
+	
 	/// get failed files (if any)
-	const Util::Array<AssetLog> & GetMessages() const;
+	const Util::Array<ToolkitUtil::ToolLog> & GetMessages() const;
 
 private:
     Ptr<ToolkitUtil::NFbxExporter> fbxExporter;
@@ -90,14 +75,14 @@ private:
     Ptr<ToolkitUtil::ModelBuilder> modelBuilder;	
     Logger logger;
     unsigned int mode;
-	Util::Array<AssetLog> messages;
+	Util::Array<ToolLog> messages;
 };
 
+///------------------------------------------------------------------------------
 /**
-
 */
 inline 
-const Util::Array<AssetExporter::AssetLog> &
+const Util::Array<ToolkitUtil::ToolLog> &
 AssetExporter::GetMessages() const
 {
 	return this->messages;

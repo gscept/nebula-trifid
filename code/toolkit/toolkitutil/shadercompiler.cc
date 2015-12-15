@@ -82,7 +82,7 @@ ShaderCompiler::CompileShaders()
 	// check if source dir exists
 	if (!ioServer->DirectoryExists(this->srcShaderBaseDir))
 	{
-		n_printf("WARNING: shader source directory '%s' not found!\n", this->srcShaderBaseDir.AsCharPtr());
+		n_error("ERROR: shader source directory '%s' not found!\n", this->srcShaderBaseDir.AsCharPtr());
 		return false;
 	}
 
@@ -134,7 +134,7 @@ ShaderCompiler::CompileFrameShaders()
 	// check if source dir exists
 	if (!ioServer->DirectoryExists(this->srcFrameShaderBaseDir))
 	{
-		n_printf("WARNING: frame shader source directory '%s' not found!\n", this->srcFrameShaderBaseDir.AsCharPtr());
+		n_error("ERROR: frame shader source directory '%s' not found!\n", this->srcFrameShaderBaseDir.AsCharPtr());
 		return false;
 	}
 
@@ -189,7 +189,7 @@ ShaderCompiler::CompileMaterials()
 	// check if source dir exists
 	if (!ioServer->DirectoryExists(this->srcMaterialBaseDir))
 	{
-		n_printf("WARNING: materials source directory '%s' not found!\n", this->srcMaterialBaseDir.AsCharPtr());
+		n_warning("WARNING: materials source directory '%s' not found!\n", this->srcMaterialBaseDir.AsCharPtr());
 		return false;
 	}
 
@@ -434,7 +434,7 @@ ShaderCompiler::CompileGLSL(const Util::String& srcPath)
 			{
 				if (errors)
 				{
-					n_printf("%s\n", errors->buffer);
+					n_error("%s\n", errors->buffer);
 					delete errors;
 					errors = 0;
 				}
@@ -442,7 +442,7 @@ ShaderCompiler::CompileGLSL(const Util::String& srcPath)
 			}
             else if (errors)
             {
-                n_printf("%s\n", errors->buffer);
+                n_error("%s\n", errors->buffer);
                 delete errors;
                 errors = 0;
             }
