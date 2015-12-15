@@ -94,7 +94,7 @@ AssetExporter::ExportDir(const Util::String& category)
     {
         // export FBX sources
         Array<String> files = IoServer::Instance()->ListFiles(assetPath, "*.fbx");
-        this->fbxExporter->SetForce((this->mode & ExportModes::ForceFBX) != 0);
+		this->fbxExporter->SetForce((this->mode & ExportModes::ForceFBX) != 0);
         this->fbxExporter->SetCategory(category);		
         for (fileIndex = 0; fileIndex < files.Size(); fileIndex++)
         {
@@ -161,7 +161,7 @@ AssetExporter::ExportDir(const Util::String& category)
 			log.AddEntry(console, "Surface", files[fileIndex]);			
 		}
 	}
-	this->messages.Append(log);
+	this->messages.Append(log);	
 }
 
 //------------------------------------------------------------------------------
@@ -191,6 +191,14 @@ AssetExporter::ExportList(const Util::Array<Util::String>& files)
     }
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+AssetExporter::SetExportMode(unsigned int mode)
+{
+	this->mode = mode;
+}
 
 //------------------------------------------------------------------------------
 /**

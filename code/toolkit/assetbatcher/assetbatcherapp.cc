@@ -103,6 +103,10 @@ AssetBatcherApp::DoWork()
 	IO::AssignRegistry::Instance()->SetAssign(Assign("home","proj:"));
 	exporter->Open();
 	exporter->SetForce(force);
+	if (force)
+	{
+		exporter->SetExportMode(AssetExporter::All | AssetExporter::ForceFBX | AssetExporter::ForceModels | AssetExporter::ForceSurfaces);
+	}
 	exporter->SetExportFlag(exportFlag);
 	exporter->SetPlatform(this->platform);
 	exporter->SetProgressPrecision(PRECISION);
@@ -145,7 +149,7 @@ AssetBatcherApp::DoWork()
 			output->Print(iter->tool.AsCharPtr());
 			output->Print("\n source file: ");
 			output->Print(iter->source.AsCharPtr());
-			output->Print("\n error message: ");
+			output->Print("\n message: ");
 			for (int j = 0; j < iter->logs.Size(); j++)
 			{
 				output->Print(iter->logs[j].message.AsCharPtr());

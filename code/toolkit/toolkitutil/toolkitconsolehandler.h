@@ -12,6 +12,8 @@
 #include "util/array.h"
 #include "util/string.h"
 #include "core/singleton.h"
+#include "threading/threadid.h"
+#include "threading/thread.h"
 
 //------------------------------------------------------------------------------
 namespace ToolkitUtil
@@ -66,8 +68,11 @@ public:
 	unsigned char GetLevels() const;
 
 private:    
-	Util::Array<LogEntry> log;	
-	unsigned char currentFlags;
+	///
+	void Append(const LogEntry& entry);
+	Threading::CriticalSection cs;
+	Util::Dictionary<Threading::ThreadId,Util::Array<LogEntry>> log;
+	Util::Dictionary<Threading::ThreadId, unsigned char> currentFlags;
 	unsigned char logLevel;
 };
 
@@ -77,7 +82,8 @@ private:
 inline unsigned char
 ToolkitConsoleHandler::GetLevels() const
 {
-	return this->currentFlags;
+	Threading::ThreadId id = Threading::Thread::GetMyThreadId();
+	return this->currentFlags[id];
 }
 
 /**

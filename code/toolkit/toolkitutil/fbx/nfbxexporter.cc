@@ -18,12 +18,14 @@ namespace ToolkitUtil
 {
 __ImplementClass(ToolkitUtil::NFbxExporter, 'FBXE', Base::ExporterBase);
 
+
+FbxManager* NFbxExporter::sdkManager = NULL;
+FbxIOSettings* NFbxExporter::ioSettings = NULL;
+Threading::CriticalSection NFbxExporter::cs;
 //------------------------------------------------------------------------------
 /**
 */
-NFbxExporter::NFbxExporter() : 
-	sdkManager(0),
-	ioSettings(0),
+NFbxExporter::NFbxExporter() : 	
 	scene(0),
 	scaleFactor(1.0f),
 	progressFbxCallback(0),
@@ -49,9 +51,15 @@ NFbxExporter::Open()
 {
 	ExporterBase::Open();
 
-	// Create the FBX SDK manager
-	this->sdkManager = FbxManager::Create();
-	this->ioSettings = FbxIOSettings::Create(this->sdkManager, "Import settings");
+	cs.Enter();
+	if (!this->sdkManager)
+	{
+		// Create the FBX SDK manager
+		this->sdkManager = FbxManager::Create();
+		this->ioSettings = FbxIOSettings::Create(this->sdkManager, "Import settings");
+	}
+	cs.Leave();
+	
 
 	this->scene = NFbxScene::Create();
 	this->scene->Open();

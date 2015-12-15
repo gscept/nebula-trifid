@@ -61,6 +61,9 @@ public:
     /// exports list of files, used for parallel jobs
     void ExportList(const Util::Array<Util::String>& files);
 
+	/// set export mode flag
+	void SetExportMode(unsigned int mode);
+
 	struct AssetLogEntry
 	{				
 		Util::String tool;
@@ -86,7 +89,7 @@ private:
 	Ptr<ToolkitUtil::SurfaceExporter> surfaceExporter;
     Ptr<ToolkitUtil::ModelBuilder> modelBuilder;	
     Logger logger;
-    ExportModes mode;
+    unsigned int mode;
 	Util::Array<AssetLog> messages;
 };
 
