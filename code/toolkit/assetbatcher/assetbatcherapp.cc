@@ -137,7 +137,7 @@ AssetBatcherApp::DoWork()
 	// FIXME this is only for having output until the new batchexporter is done
 	Ptr<Win32::Win32ConsoleHandler> output = Win32::Win32ConsoleHandler::Create();
 	output->Open();
-	const Util::Array<AssetExporter::AssetLog>& failedFiles = exporter->GetMessages();
+	const Util::Array<ToolkitUtil::ToolLog>& failedFiles = exporter->GetMessages();
 
 	for (int i = 0; i < failedFiles.Size(); i++)
 	{
