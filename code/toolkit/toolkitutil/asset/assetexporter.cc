@@ -94,7 +94,7 @@ AssetExporter::ExportDir(const Util::String& category)
     {
         // export FBX sources
         Array<String> files = IoServer::Instance()->ListFiles(assetPath, "*.fbx");
-		this->fbxExporter->SetForce(true);// (this->mode & ExportModes::ForceFBX) != 0);
+		this->fbxExporter->SetForce((this->mode & ExportModes::ForceFBX) != 0);
         this->fbxExporter->SetCategory(category);		
         for (fileIndex = 0; fileIndex < files.Size(); fileIndex++)
         {

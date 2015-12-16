@@ -16,6 +16,7 @@
 #include "ui_batchexporterqt.h"
 #include "tools/commandlineargs.h"
 #include "toolkitutil/projectinfo.h"
+#include "toolkitconsolehandler.h"
 
 namespace BatchExporter
 {
@@ -82,12 +83,21 @@ private slots:
 	/// outputs a message
 	void OutputMessage();
 
+	/// receive stderr from child processes
+	void OutputStderr();
+
 	/// opens a file browser to pick out the working directory
 	void PickWorkingDir();
 	/// opens a file browser to pick out the toolkit directory		
 	void PickToolkitDir();
 	/// shows the about dialog
 	void ShowAbout();
+
+	/// 
+	void UpdateOutputWindow();
+
+	/// selection in list changed
+	void SelectionChanged();
 
 	/// converts export bit to string
 	const QString FromBit(ExportBits bit);
@@ -117,6 +127,7 @@ private:
 	Ui::BatchExporterQtClass ui;
     App::ConsoleApplication* nebApp;
     ToolkitUtil::ProjectInfo projInfo;
+	Util::Array<ToolkitUtil::ToolLog> messages;
     
     QString workDir;
     QString toolDir;

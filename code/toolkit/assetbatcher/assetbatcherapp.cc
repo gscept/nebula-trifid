@@ -134,31 +134,29 @@ AssetBatcherApp::DoWork()
 	}	
 	exporter->Close();
 
-	// FIXME this is only for having output until the new batchexporter is done
-	Ptr<Win32::Win32ConsoleHandler> output = Win32::Win32ConsoleHandler::Create();
-	output->Open();
+	// output to stderr for parsing of tools
 	const Util::Array<ToolkitUtil::ToolLog>& failedFiles = exporter->GetMessages();
-
-	for (int i = 0; i < failedFiles.Size(); i++)
-	{
-		output->Print("asset: ");
-		output->Print(failedFiles[i].asset.AsCharPtr());
-		for (auto iter = failedFiles[i].logs.Begin(); iter != failedFiles[i].logs.End(); iter++)
-		{
-			output->Print("\n tool: ");
-			output->Print(iter->tool.AsCharPtr());
-			output->Print("\n source file: ");
-			output->Print(iter->source.AsCharPtr());
-			output->Print("\n message: ");
-			for (int j = 0; j < iter->logs.Size(); j++)
-			{
-				output->Print(iter->logs[j].message.AsCharPtr());
-				output->Print("\n");
-			}
-		}
-	}
 	
-	// if we have any errors, set the return code to be errornous
+	Ptr<IO::MemoryStream> stream = IO::MemoryStream::Create();
+	stream->SetAccessMode(IO::Stream::WriteAccess);
+	Ptr<IO::XmlWriter> writer = IO::XmlWriter::Create();
+	writer->SetStream(stream.cast<IO::Stream>());
+	writer->Open();
+	writer->BeginNode("ToolLogs");
+	for (auto iter = failedFiles.Begin(); iter != failedFiles.End(); iter++)
+	{
+		iter->ToString(writer);
+	}
+	writer->EndNode();
+	writer->Close();
+	// reopen stream
+	stream->Open();
+	void * str = stream->Map();
+	Util::String streamString;
+	streamString.Set((const char*)str, stream->GetSize());		
+	fprintf(stderr, "%s", streamString.AsCharPtr());
+	
+	// if we have any errors, set the return code to be errornous	
 	if (exporter->HasErrors()) this->SetReturnCode(-1);
 }
 

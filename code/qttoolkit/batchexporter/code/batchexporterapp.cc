@@ -8,6 +8,8 @@
 #include <QPlastiqueStyle>
 #include <QMessageBox>
 #include <QScrollBar>
+#include <QTreeWidget>
+#include <QColor>
 #include "batchexporterapp.h"
 #include "ui_about.h"
 #include "tools/progressnotifier.h"
@@ -16,6 +18,9 @@
 #include "system/nebulasettings.h"
 #include "io/fswrapper.h"
 #include "io/assignregistry.h"
+#include "io/memorystream.h"
+#include "io/xmlreader.h"
+#include "toolkitconsolehandler.h"
 
 
 #if WIN32
@@ -36,6 +41,33 @@ using namespace QtTools;
 
 namespace BatchExporter
 {
+
+class QLogTreeItem : public QTreeWidgetItem
+{
+public:
+	QLogTreeItem() :QTreeWidgetItem(){}
+	QLogTreeItem(const QStringList &strings) : QTreeWidgetItem(strings)
+	{}
+
+	Util::Array<ToolkitUtil::ToolkitConsoleHandler::LogEntry> logs;
+};
+
+QColor errorColor(255, 0, 0);
+QColor warningColor(255, 255, 0);
+QColor defaultColour(90, 90, 90);
+
+QColor LogLevelToColour(unsigned char level)
+{
+	if (level & ToolkitUtil::ToolkitConsoleHandler::LogError)
+	{
+		return errorColor;
+	}
+	else if (level & ToolkitUtil::ToolkitConsoleHandler::LogWarning)
+	{
+		return warningColor;
+	}
+	return defaultColour;
+}
 
 
 //------------------------------------------------------------------------------
@@ -88,6 +120,7 @@ BatchExporterApp::BatchExporterApp(const CommandLineArgs& args) :
 
 	connect(ui.exportButton, SIGNAL(clicked()), this, SLOT(GatherExports()));
 	connect(&this->remoteProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(OutputMessage()));
+	connect(&this->remoteProcess, SIGNAL(readyReadStandardError()), this, SLOT(OutputStderr()));
 	connect(&this->remoteProcess, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(ExporterDone(int, QProcess::ExitStatus)));
 
 	// if the exporter failed to start, run export again, but not recursively
@@ -96,6 +129,11 @@ BatchExporterApp::BatchExporterApp(const CommandLineArgs& args) :
 	//connect(ui.actionSetNodyDirectory, SIGNAL(triggered(bool)), this, SLOT(PickNodyDir()));
 	connect(ui.actionSetToolkitDirectory, SIGNAL(triggered(bool)), this, SLOT(PickToolkitDir()));
 	connect(ui.actionAbout, SIGNAL(triggered(bool)), this, SLOT(ShowAbout()));
+
+	connect(ui.errorFilter, SIGNAL(clicked()), this, SLOT(UpdateOutputWindow()));
+	connect(ui.warningsFilter, SIGNAL(clicked()), this, SLOT(UpdateOutputWindow()));
+	connect(ui.infoFilter, SIGNAL(clicked()), this, SLOT(UpdateOutputWindow()));
+	connect(ui.messageList, SIGNAL(itemSelectionChanged()), this, SLOT(SelectionChanged()));
 
     if(System::NebulaSettings::Exists("gscept", "ToolkitShared.batchexporter", "force"))
     {
@@ -134,6 +172,8 @@ BatchExporterApp::GatherExports()
 {
 	/// clears the output window
 	this->ui.outputText->clear();
+	this->messages.Clear();
+	this->ui.messageList->clear();
 	QString jobsString;
 	if(ui.jobs->value()>1)
 	{			
@@ -279,6 +319,7 @@ BatchExporterApp::ExporterDone(int exitCode, QProcess::ExitStatus status)
 			this->executionQueue.clear();
 		}	
 		ProgressNotifier::Instance()->End();
+		this->UpdateOutputWindow();
 	}
 
 	// continues the exporting
@@ -295,6 +336,41 @@ BatchExporterApp::OutputMessage()
     QString outputString(data);
     outputString.replace('\n', "<br>");    
     this->OutputStandardMessage(outputString);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+BatchExporterApp::OutputStderr()
+{
+	QByteArray dataArray = this->remoteProcess.readAllStandardError();
+	
+	
+	{
+		Ptr<IO::MemoryStream> stream = IO::MemoryStream::Create();
+		stream->Open();
+		stream->SetSize(dataArray.count());
+		void * data = stream->Map();		
+		Memory::Copy(dataArray.data(), data, dataArray.length());
+		stream->Close();
+		stream->SetAccessMode(IO::Stream::ReadAccess);
+		Ptr<IO::XmlReader> reader = IO::XmlReader::Create();
+		reader->SetStream(stream.cast<IO::Stream>());
+		reader->Open();
+		Util::Array<ToolkitUtil::ToolLog> logs;
+
+		if (reader->SetToFirstChild("Log"))
+		{
+			do
+			{
+				logs.Append(ToolkitUtil::ToolLog::FromString(reader));
+			} while (reader->SetToNextChild("Log"));
+		}
+
+		reader->Close();
+		this->messages.AppendArray(logs);
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -688,6 +764,95 @@ BatchExporterApp::OutputExportStatus( const QString& message )
 
     QScrollBar* sb = this->ui.outputText->verticalScrollBar();
     sb->setSliderPosition(sb->maximum());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+BatchExporterApp::UpdateOutputWindow()
+{
+	this->ui.messageList->clear();
+
+	Util::String lastAsset;
+	QLogTreeItem * currentItem;
+	unsigned char displayLevel = 0;
+	if (this->ui.errorFilter->isChecked())
+	{
+		displayLevel |= ToolkitUtil::ToolkitConsoleHandler::LogError;
+	}
+	if (this->ui.warningsFilter->isChecked())
+	{
+		displayLevel |= ToolkitUtil::ToolkitConsoleHandler::LogWarning;
+	}
+	if (this->ui.infoFilter->isChecked())
+	{
+		displayLevel |= ToolkitUtil::ToolkitConsoleHandler::LogInfo | ToolkitUtil::ToolkitConsoleHandler::LogDebug;
+	}
+	for (int i = 0; i < this->messages.Size(); i++)
+	{
+		if ((this->messages[i].logLevels & displayLevel) > 0)
+		{
+			currentItem = new QLogTreeItem();
+			currentItem->setData(0, Qt::DisplayRole, this->messages[i].asset.AsCharPtr());
+			Util::Array<ToolkitUtil::ToolkitConsoleHandler::LogEntry> assetLogs;
+			this->ui.messageList->addTopLevelItem(currentItem);
+
+			const Util::Array<ToolkitUtil::ToolLogEntry> & logs = this->messages[i].logs;
+			for (int j = 0; j < logs.Size(); j++)
+			{
+				if (logs[j].logs.Size() && (logs[j].logLevels & displayLevel) > 0)
+				{
+					QStringList fields;
+					fields.append("");
+					fields.append(logs[j].tool.AsCharPtr());
+					fields.append(logs[j].source.AsCharPtr());
+					QLogTreeItem * newItem = new QLogTreeItem(fields);
+					currentItem->addChild(newItem);
+					newItem->logs = logs[j].logs;
+					assetLogs.AppendArray(logs[j].logs);
+					if (logs[j].logLevels > 0x02)
+					{
+						for (int k = 0; k < 3; k++)
+						{
+							newItem->setBackgroundColor(k, LogLevelToColour(logs[j].logLevels));
+						}
+					}
+				}
+			}
+			if (this->messages[i].logLevels > 0x02)
+			{
+				for (int k = 0; k < 3; k++)
+				{
+					currentItem->setBackgroundColor(k, LogLevelToColour(this->messages[i].logLevels));
+				}
+			}
+			if (this->messages[i].logLevels & ToolkitUtil::ToolkitConsoleHandler::LogError)
+			{
+				currentItem->setExpanded(true);
+			}
+
+			currentItem->logs = assetLogs;
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+BatchExporterApp::SelectionChanged()
+{
+	this->ui.messageText->clear();
+	QLogTreeItem * item = dynamic_cast<QLogTreeItem*>(this->ui.messageList->currentItem());
+	if (item)
+	{
+		for (int j = 0; j < item->logs.Size(); j++)
+		{
+			this->ui.messageText->setTextBackgroundColor(LogLevelToColour(item->logs[j].level));
+			this->ui.messageText->append(item->logs[j].message.AsCharPtr());
+		}
+	}
 }
 
 } // namespace BatchExporter

@@ -5,6 +5,14 @@
 #include "stdneb.h"
 #include "toolkitconsolehandler.h"
 #include "threading\thread.h"
+#include "io/memorystream.h"
+#include "io/xmlwriter.h"
+#include "io/xmlreader.h"
+#ifdef WIN32
+#include "io/win32/win32consolehandler.h"
+#else
+#include "io/posix/posixconsolehandler.h"
+#endif
 
 namespace ToolkitUtil
 {
@@ -19,6 +27,13 @@ using namespace Util;
 ToolkitConsoleHandler::ToolkitConsoleHandler() : logLevel(LogError)
 {
 	__ConstructInterfaceSingleton;
+#ifdef WIN32
+	Ptr<Win32::Win32ConsoleHandler> output = Win32::Win32ConsoleHandler::Create();
+	this->systemConsole = output.cast<IO::ConsoleHandler>();
+#else
+	Ptr<Posix::PosixConsoleHandler> output = Posix::PosixConsoleHandler::Create();
+	this->systemConsole = output.cast<IO::ConsoleHandler>();
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -39,7 +54,7 @@ ToolkitConsoleHandler::Print(const String& str)
 	this->Append({ LogInfo, str });	
 	if (this->logLevel & LogInfo)
 	{
-		Core::SysFunc::DebugOut(str.AsCharPtr());
+		this->systemConsole->Print(str);		
 	}
 }
 
@@ -52,7 +67,7 @@ ToolkitConsoleHandler::Error(const String& s)
 	this->Append({ LogError, s });	
 	if (this->logLevel & LogError)
 	{
-		Core::SysFunc::DebugOut(s.AsCharPtr());
+		this->systemConsole->Print(s);
 	}
 }
 
@@ -65,7 +80,7 @@ ToolkitConsoleHandler::Warning(const String& s)
 	this->Append({ LogWarning, s });	
 	if (this->logLevel & LogWarning)
 	{
-		Core::SysFunc::DebugOut(s.AsCharPtr());
+		this->systemConsole->Print(s);
 	}
 }
 
@@ -78,7 +93,7 @@ ToolkitConsoleHandler::DebugOut(const String& s)
 	this->Append({ LogDebug, s });	
 	if (this->logLevel & LogDebug)
 	{
-		Core::SysFunc::DebugOut(s.AsCharPtr());
+		this->systemConsole->Print(s);
 	}
 }
 
@@ -156,6 +171,81 @@ ToolkitConsoleHandler::Append(const LogEntry& entry)
 	this->log[id].Append(entry);
 	this->currentFlags[id] |= entry.level;
 	this->cs.Leave();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ToolLog::ToString(const Ptr<IO::XmlWriter> & writer)
+{
+	writer->BeginNode("Log");
+	writer->SetString("asset", this->asset);
+	writer->SetInt("levels", this->logLevels);	
+	for (auto iter = this->logs.Begin(); iter != this->logs.End(); iter++)
+	{
+		writer->BeginNode("entry");
+		writer->SetString("tool", iter->tool);
+		writer->SetString("source", iter->source);
+		writer->SetInt("levels", iter->logLevels);
+		for (auto iiter = iter->logs.Begin(); iiter != iter->logs.End(); iiter++)
+		{
+			writer->BeginNode("entry");
+			writer->SetInt("level", iiter->level);
+			writer->SetString("entry", iiter->message);
+			writer->EndNode();
+		}
+		writer->EndNode();
+	}
+	writer->EndNode();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+ToolkitUtil::ToolLog
+ToolLog::FromString(const Ptr<IO::XmlReader> & reader)
+{ 
+	ToolkitUtil::ToolLog log;
+	/*
+	Ptr<IO::MemoryStream> stream = IO::MemoryStream::Create();
+	stream->Open();
+	stream->SetSize(str.Length() + 1);
+	void * data = stream->Map();
+	Memory::Copy(str.AsCharPtr(), data, str.Length() + 1);
+	stream->Close();
+	stream->SetAccessMode(IO::Stream::ReadAccess);
+	Ptr<IO::XmlReader> reader = IO::XmlReader::Create();
+	reader->SetStream(stream.cast<IO::Stream>());
+	reader->Open();
+	reader->SetToFirstChild("Log");
+	*/
+	log.asset = reader->GetString("asset");
+	log.logLevels = reader->GetInt("levels");
+	if (reader->SetToFirstChild("entry"))
+	{
+		do
+		{
+			ToolkitUtil::ToolLogEntry entry;
+			entry.tool = reader->GetString("tool");
+			entry.source = reader->GetString("source");
+			entry.logLevels = reader->GetInt("levels");			
+			if (reader->SetToFirstChild("entry"))
+			{
+				do
+				{
+					ToolkitUtil::ToolkitConsoleHandler::LogEntry logentry;
+					logentry.level = (ToolkitUtil::ToolkitConsoleHandler::LogEntryLevel)reader->GetInt("level");
+					logentry.message = reader->GetString("entry");
+					entry.logs.Append(logentry);
+				} 
+				while (reader->SetToNextChild("entry"));				
+			}
+			log.logs.Append(entry);
+		} 
+		while (reader->SetToNextChild("entry"));		
+	}	
+	return log;
 }
 
 } // namespace ToolkitUtil

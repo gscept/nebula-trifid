@@ -14,7 +14,8 @@
 #include "core/singleton.h"
 #include "threading/threadid.h"
 #include "threading/thread.h"
-
+#include "io/xmlwriter.h"
+#include "io/xmlreader.h"
 //------------------------------------------------------------------------------
 namespace ToolkitUtil
 {
@@ -74,6 +75,7 @@ private:
 	Util::Dictionary<Threading::ThreadId,Util::Array<LogEntry>> log;
 	Util::Dictionary<Threading::ThreadId, unsigned char> currentFlags;
 	unsigned char logLevel;
+	Ptr<IO::ConsoleHandler> systemConsole;
 };
 
 struct ToolLogEntry
@@ -91,6 +93,8 @@ struct ToolLog
 	ToolLog(const Util::String & ass) :asset(ass), logLevels(0){}
 	ToolLog() :logLevels(0){}
 	void AddEntry(const Ptr<ToolkitUtil::ToolkitConsoleHandler> & console, const Util::String & tool, const Util::String & source);
+	void ToString(const Ptr<IO::XmlWriter> & writer);
+	static ToolLog FromString(const Ptr<IO::XmlReader> & reader);
 };
 
 //------------------------------------------------------------------------------
