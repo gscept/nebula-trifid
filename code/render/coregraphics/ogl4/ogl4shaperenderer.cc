@@ -507,7 +507,6 @@ OGL4ShapeRenderer::DrawBufferedPrimitives()
 
         this->shapeShader->BeginUpdate();
         this->model->SetMatrix(modelTransform);
-        //this->diffuseColor->SetFloat4(float4(1));
         this->shapeShader->EndUpdate();
         this->shapeShader->Commit();
 
@@ -540,7 +539,6 @@ OGL4ShapeRenderer::DrawBufferedIndexedPrimitives()
 
         this->shapeShader->BeginUpdate();
         this->model->SetMatrix(modelTransform);
-        //this->diffuseColor->SetFloat4(float4(1));
         this->shapeShader->EndUpdate();
         this->shapeShader->Commit();
 

@@ -84,6 +84,8 @@ OGL4StreamTextureSaver::SaveTexture2D(const Ptr<CoreGraphics::Texture>& tex, ILe
 	format = PixelFormat::ToILComponents(tex->GetPixelFormat());
 	type = PixelFormat::ToILType(tex->GetPixelFormat());
 
+	
+
 	Texture::MapInfo mapInfo;
 	tex->Map(mipLevelToSave, ResourceBase::MapRead, mapInfo);
 

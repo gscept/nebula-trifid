@@ -276,7 +276,6 @@ PreviewState::SetModel(const Resources::ResourceId& resource)
     this->modelEntity->ConfigureAnimEventTracking(true, false);
 
 	// fetch skins
-	this->modelEntity->ValidateCharacter();
 	Ptr<FetchSkinList> fetchSkinsMessage = FetchSkinList::Create();
     __Send(this->modelEntity, fetchSkinsMessage);
 	this->OnFetchedSkinList(fetchSkinsMessage.upcast<Messaging::Message>());

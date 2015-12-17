@@ -37,16 +37,17 @@ ConstantBufferBase::~ConstantBufferBase()
 /**
 */
 void
-ConstantBufferBase::Setup()
+ConstantBufferBase::Setup(const SizeT numBackingBuffers)
 {
     n_assert(this->size > 0);
+	this->numBuffers = numBackingBuffers;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-ConstantBufferBase::SetupFromBlockInShader(const Ptr<CoreGraphics::ShaderInstance>& shader, const Util::String& blockName)
+ConstantBufferBase::SetupFromBlockInShader(const Ptr<CoreGraphics::ShaderInstance>& shader, const Util::String& blockName, const SizeT numBackingBuffers)
 {
     // implement in subclass
 }
@@ -72,7 +73,7 @@ ConstantBufferBase::Discard()
 void
 ConstantBufferBase::CycleBuffers()
 {
-    this->bufferIndex = (this->bufferIndex + 1) % NumBuffers;
+	this->bufferIndex = (this->bufferIndex + 1) % this->numBuffers;
 }
 
 //------------------------------------------------------------------------------

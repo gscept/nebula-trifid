@@ -224,8 +224,8 @@ PixelFormat::ToString(PixelFormat::Code code)
 //------------------------------------------------------------------------------
 /**
 */
-uint 
-PixelFormat::ToSize( Code code )
+uint
+PixelFormat::ToSize(Code code)
 {
 	switch (code)
 	{
@@ -246,7 +246,7 @@ PixelFormat::ToSize( Code code )
 	case DXT5sRGB:      return 4;
 	case BC7:			return 4;
 	case BC7sRGB:		return 4;
-	case R16F:          return 2;
+	case R16F:          return 4;	// this is weird, but 1 channel - 16 bits (2 bytes) and format HALF_FLOAT doesn't work with glGetTexImage!?!?!?!?! Therefore, we select 3 bytes to make a buffer with bigger size...
 	case G16R16F:       return 4;
 	case A16B16G16R16F: return 8;
 	case A16B16G16R16:	return 8;
@@ -270,8 +270,8 @@ PixelFormat::ToSize( Code code )
 //------------------------------------------------------------------------------
 /**
 */
-uint 
-PixelFormat::ToChannels( Code code )
+uint
+PixelFormat::ToChannels(Code code)
 {
 	switch (code)
 	{
@@ -317,8 +317,8 @@ PixelFormat::ToChannels( Code code )
 //------------------------------------------------------------------------------
 /**
 */
-uint 
-PixelFormat::ToILComponents( Code code )
+uint
+PixelFormat::ToILComponents(Code code)
 {
 	switch (code)
 	{
@@ -341,12 +341,12 @@ PixelFormat::ToILComponents( Code code )
 	case PixelFormat::R16F:             return IL_RED;
 	case PixelFormat::G16R16:			return IL_RG;
 	case PixelFormat::G16R16F:          return IL_RG;
-	case PixelFormat::A16B16G16R16F:    return IL_BGRA;
-	case PixelFormat::A16B16G16R16:		return IL_BGRA;
+	case PixelFormat::A16B16G16R16F:    return IL_RGBA;
+	case PixelFormat::A16B16G16R16:		return IL_RGBA;
 	case PixelFormat::R11G11B10F:		return IL_RGB;
 	case PixelFormat::R32F:             return IL_RED;
 	case PixelFormat::G32R32F:          return IL_RG;
-	case PixelFormat::A32B32G32R32F:    return IL_BGRA;
+	case PixelFormat::A32B32G32R32F:    return IL_RGBA;
 	case PixelFormat::R32G32B32F:		return IL_RGB;							
 	case PixelFormat::A8:               return IL_ALPHA;	
 	case PixelFormat::R8:				return IL_RED;

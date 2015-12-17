@@ -209,7 +209,7 @@ OGL4Types::AsOGL4PixelType( CoreGraphics::PixelFormat::Code p )
 	case PixelFormat::BC7:				return GL_UNSIGNED_BYTE;
 	case PixelFormat::BC7sRGB:			return GL_UNSIGNED_BYTE;
 	case PixelFormat::SRGBA8:			return GL_UNSIGNED_BYTE;
-	case PixelFormat::R11G11B10F:		return GL_R11F_G11F_B10F;
+	case PixelFormat::R11G11B10F:		return GL_UNSIGNED_INT_10F_11F_11F_REV;
 	case PixelFormat::R16F:             return GL_HALF_FLOAT;
 	case PixelFormat::G16R16:			return GL_SHORT;
 	case PixelFormat::G16R16F:          return GL_HALF_FLOAT;
@@ -226,6 +226,53 @@ OGL4Types::AsOGL4PixelType( CoreGraphics::PixelFormat::Code p )
 			n_error("OGL4Types::AsOGL4PixelType(): invalid pixel type '%d'!", p);
 			return GL_UNSIGNED_INT_8_8_8_8;
 		}
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+GLuint
+OGL4Types::AsOGL4PixelByteAlignment(CoreGraphics::PixelFormat::Code p)
+{
+	switch (p)
+	{
+	case PixelFormat::X8R8G8B8:         return 4;
+	case PixelFormat::A8R8G8B8:         return 4;
+	case PixelFormat::R8G8B8:           return 3;
+	case PixelFormat::R5G6B5:           return 2;
+	case PixelFormat::A16B16G16R16:		return 8;
+	case PixelFormat::A16B16G16R16F:	return 8;
+	case PixelFormat::A32B32G32R32F:    return 4;
+	case PixelFormat::A1R5G5B5:         return 2;
+	case PixelFormat::DXT1:             return 4;
+	case PixelFormat::DXT1A:            return 4;
+	case PixelFormat::DXT3:             return 4;
+	case PixelFormat::DXT5:             return 4;
+	case PixelFormat::DXT1sRGB:         return 4;
+	case PixelFormat::DXT1AsRGB:        return 4;
+	case PixelFormat::DXT3sRGB:         return 4;
+	case PixelFormat::DXT5sRGB:         return 4;
+	case PixelFormat::BC7:				return 4;
+	case PixelFormat::BC7sRGB:			return 4;
+	case PixelFormat::SRGBA8:			return 4;
+	case PixelFormat::R11G11B10F:		return 4;
+	case PixelFormat::R16F:             return 2;
+	case PixelFormat::G16R16:			return 4;
+	case PixelFormat::G16R16F:          return 4;
+	case PixelFormat::G32R32F:			return 8;
+	case PixelFormat::R32F:             return 4;
+	case PixelFormat::A8:               return 1;
+	case PixelFormat::R8:               return 1;
+	case PixelFormat::G8:               return 1;
+	case PixelFormat::B8:               return 1;
+	case PixelFormat::A2R10G10B10:      return 4;
+
+	default:
+	{
+		n_error("OGL4Types::AsOGL4PixelByteAlignment(): invalid pixel type '%d'!", p);
+		return GL_UNSIGNED_INT_8_8_8_8;
+	}
 	}
 }
 
