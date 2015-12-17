@@ -429,7 +429,12 @@ ShaderCompiler::CompileGLSL(const Util::String& srcPath)
 
             Util::String target;
             target.Format("gl%d%d", major, minor);
-			bool res = AnyFXCompile(src.GetHostAndLocalPath().AsCharPtr(), dst.GetHostAndLocalPath().AsCharPtr(), target.AsCharPtr(), vendor.AsCharPtr(), defines, &errors);
+			Util::String escapedSrc = src.LocalPath();
+			escapedSrc.SubstituteString(" ", "\\ ");
+			Util::String escapedDst = dst.LocalPath();
+			escapedDst.SubstituteString(" ", "\\ ");
+			
+			bool res = AnyFXCompile(escapedSrc.AsCharPtr(), escapedDst.AsCharPtr(), target.AsCharPtr(), vendor.AsCharPtr(), defines, &errors);
 			if (!res)
 			{
 				if (errors)
