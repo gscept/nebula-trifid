@@ -104,7 +104,6 @@ private:
         Util::Array<Math::matrix44> transforms;
     } unindexed;
     
-
     static const GLuint NumBuffers = 12;
     byte* vertexBufferPtr;
     byte* indexBufferPtr;

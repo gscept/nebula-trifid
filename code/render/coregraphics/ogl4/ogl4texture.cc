@@ -87,11 +87,21 @@ OGL4Texture::Map(IndexT mipLevel, MapType mapType, MapInfo& outMapInfo)
 		break;
 	}
 
+	// bind texture
 	glBindTexture(this->target, this->ogl4Texture);
+
+	// set a proper byte alignment for the read-back
+	GLuint pixelAlignment = OGL4Types::AsOGL4PixelByteAlignment(this->pixelFormat);
+	glPixelStorei(GL_PACK_ALIGNMENT, pixelAlignment);
+
 	if (Texture2D == this->type)
 	{
-		GLenum components = OGL4Types::AsOGL4PixelComponents(this->pixelFormat);
-		GLenum type = OGL4Types::AsOGL4PixelType(this->pixelFormat);
+		//GLenum components = OGL4Types::AsOGL4PixelComponents(this->pixelFormat);
+		//GLenum type = OGL4Types::AsOGL4PixelType(this->pixelFormat);
+		GLenum pixelType = OGL4Types::AsOGL4PixelFormat(this->pixelFormat);
+		GLint components, type;
+		glGetInternalformativ(GL_TEXTURE_2D, pixelType, GL_GET_TEXTURE_IMAGE_FORMAT, 4, &components);
+		glGetInternalformativ(GL_TEXTURE_2D, pixelType, GL_GET_TEXTURE_IMAGE_TYPE, 4, &type);
 
 		GLint mipWidth;
 		GLint mipHeight;
@@ -107,7 +117,6 @@ OGL4Texture::Map(IndexT mipLevel, MapType mapType, MapInfo& outMapInfo)
 		outMapInfo.rowPitch = size * mipWidth;
 		outMapInfo.depthPitch = 0;
 		
-		// MEH, for some reason, the calculated size is not always correct...
 		this->mappedData = Memory::Alloc(Memory::ObjectArrayHeap, mipWidth * mipHeight * size);
 		glGetTexImage(this->target, mipLevel, components, type, this->mappedData);
 
@@ -129,6 +138,13 @@ OGL4Texture::Map(IndexT mipLevel, MapType mapType, MapInfo& outMapInfo)
 		GLint size;
 		size = PixelFormat::ToSize(this->pixelFormat);
 
+		// for some reason, the GL driver produces an additional pixel if the format is R16F (both nvidia and AMD)
+		if (this->pixelFormat == PixelFormat::R16F)
+		{
+			mipWidth += 1;
+			mipHeight += 1;
+		}
+
 		// the row pitch must be the size of one pixel times the number of pixels in width
 		outMapInfo.rowPitch = size * mipWidth;
 		outMapInfo.depthPitch = 0;		
@@ -139,7 +155,10 @@ OGL4Texture::Map(IndexT mipLevel, MapType mapType, MapInfo& outMapInfo)
 		outMapInfo.data = this->mappedData;
 		retval = GLSUCCESS;
     }
+
+	// reset texture bind and pixel alignment
 	glBindTexture(this->target, 0);
+	glPixelStorei(GL_PACK_ALIGNMENT, 4);
 
     if (retval)
     {
@@ -174,6 +193,11 @@ OGL4Texture::Unmap(IndexT mipLevel)
 	glGetTexLevelParameteriv(GL_TEXTURE_3D, mipLevel, GL_TEXTURE_HEIGHT, &mipHeight);
 	glGetTexLevelParameteriv(GL_TEXTURE_3D, mipLevel, GL_TEXTURE_DEPTH, &mipDepth);
 
+	// set a proper byte alignment for the read-back
+	GLuint pixelAlignment = OGL4Types::AsOGL4PixelByteAlignment(this->pixelFormat);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, pixelAlignment);
+
+	// calculate size of pixel
 	GLint size;
 	size = PixelFormat::ToSize(this->pixelFormat);
 
@@ -193,7 +217,10 @@ OGL4Texture::Unmap(IndexT mipLevel)
 		}
 		break;
 	}
+
+	// reset texture bind and pixel alignment
 	glBindTexture(this->target, 0);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 	Memory::Free(Memory::ObjectArrayHeap, this->mappedData);
 
 	this->mappedData = 0;
@@ -240,6 +267,11 @@ OGL4Texture::MapCubeFace(CubeFace face, IndexT mipLevel, MapType mapType, MapInf
 	glGetTexLevelParameteriv(GL_TEXTURE_CUBE_MAP_POSITIVE_X, mipLevel, GL_TEXTURE_WIDTH, &mipWidth);
 	glGetTexLevelParameteriv(GL_TEXTURE_CUBE_MAP_POSITIVE_X, mipLevel, GL_TEXTURE_HEIGHT, &mipHeight);
 
+	// set a proper byte alignment for the read-back
+	GLuint pixelAlignment = OGL4Types::AsOGL4PixelByteAlignment(this->pixelFormat);
+	glPixelStorei(GL_PACK_ALIGNMENT, pixelAlignment);
+
+	// calculate size of pixel
 	GLint size;
 	size = PixelFormat::ToSize(this->pixelFormat);
 
@@ -254,7 +286,10 @@ OGL4Texture::MapCubeFace(CubeFace face, IndexT mipLevel, MapType mapType, MapInf
 
 	outMapInfo.data = this->mappedData;
 	retval = GLSUCCESS;
+
+	// reset texture bind and pixel alignment
 	glBindTexture(this->target, 0);
+	glPixelStorei(GL_PACK_ALIGNMENT, 4);
 
 	if (retval)
 	{
@@ -283,6 +318,11 @@ OGL4Texture::UnmapCubeFace(CubeFace face, IndexT mipLevel)
 	glGetTexLevelParameteriv(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, mipLevel, GL_TEXTURE_WIDTH, &mipWidth);
 	glGetTexLevelParameteriv(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, mipLevel, GL_TEXTURE_HEIGHT, &mipHeight);
 
+	// set a proper byte alignment for the read-back
+	GLuint pixelAlignment = OGL4Types::AsOGL4PixelByteAlignment(this->pixelFormat);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, pixelAlignment);
+
+	// calculate size of pixel
 	GLint size;
 	size = PixelFormat::ToSize(this->pixelFormat);
 
@@ -296,8 +336,8 @@ OGL4Texture::UnmapCubeFace(CubeFace face, IndexT mipLevel)
 		break;
 	}
 	glBindTexture(this->target, 0);
-
-	//glBindTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face)
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+	
 	Memory::Free(Memory::ObjectArrayHeap, this->mappedData);
 	this->mappedData = 0;
     this->mapCount--;

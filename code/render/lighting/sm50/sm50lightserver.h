@@ -114,6 +114,7 @@ protected:
 	Ptr<CoreGraphics::ShaderVariable> lightColor;
 	Ptr<CoreGraphics::ShaderVariable> lightProjTransform;
 	Ptr<CoreGraphics::ShaderVariable> lightShadowBias;
+	Ptr<CoreGraphics::ShaderVariable> lightTransform;
 
 	/// shadow variables
 	Ptr<CoreGraphics::ShaderVariable> shadowConstants;

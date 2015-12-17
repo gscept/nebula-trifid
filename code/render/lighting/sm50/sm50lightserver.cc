@@ -108,21 +108,24 @@ SM50LightServer::Open()
 	this->globalLightPartitionSize				= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_SHADOWPARTITIONSIZE);
 
     // setup block for global light
-    this->globalLightBlockVar                   = this->lightShader->GetVariableByName("GlobalLightBlock");
     this->globalLightBuffer                     = ConstantBuffer::Create();
-    this->globalLightBuffer->SetupFromBlockInShader(this->lightShader, "GlobalLightBlock");
+    this->globalLightBuffer->SetupFromBlockInShader(this->lightShader, "GlobalLightBlock", 1);
     this->globalLightDir                        = this->globalLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_GLOBALLIGHTDIR);
     this->globalLightColor                      = this->globalLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_GLOBALLIGHTCOLOR);
     this->globalBackLightColor                  = this->globalLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_GLOBALBACKLIGHTCOLOR);
     this->globalAmbientLightColor               = this->globalLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_GLOBALAMBIENTLIGHTCOLOR);
     this->globalBackLightOffset                 = this->globalLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_GLOBALBACKLIGHTOFFSET);
     this->globalLightShadowMatrixVar            = this->globalLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_CSMSHADOWMATRIX);
+
+	// bind our custom buffer to the binding spot
+	this->globalLightBlockVar = this->lightShader->GetVariableByName("GlobalLightBlock");
     this->globalLightBlockVar->SetBufferHandle(this->globalLightBuffer->GetHandle());
 
 	// local light variables
 	this->lightPosRange							= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_LIGHTPOSRANGE);
 	this->lightColor             				= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_LIGHTCOLOR);
 	this->lightProjTransform     				= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_LIGHTPROJTRANSFORM);
+	this->lightTransform						= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_LIGHTTRANSFORM);
 	this->lightProjMapVar						= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_LIGHTPROJMAP); 
 	this->lightProjCubeVar						= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_LIGHTPROJCUBE); 
 	this->shadowProjMapVar						= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_SHADOWPROJMAP);
@@ -322,7 +325,8 @@ SM50LightServer::RenderGlobalLight()
         this->lightShader->Apply();
 		
 		// setup general global light stuff
-        this->globalLightBuffer->BeginUpdateSync();
+		this->globalLightBuffer->CycleBuffers();
+		this->globalLightBuffer->BeginUpdateSync();
 		this->globalLightDir->SetFloat4(viewSpaceLightDir);
 		this->globalLightColor->SetFloat4(this->globalLightEntity->GetColor());
 		this->globalBackLightColor->SetFloat4(this->globalLightEntity->GetBackLightColor());
@@ -332,8 +336,10 @@ SM50LightServer::RenderGlobalLight()
 		matrix44 shadowView = *ShadowServer::Instance()->GetShadowView();
         shadowView = matrix44::multiply(transDev->GetInvViewTransform(), shadowView);
         this->globalLightShadowMatrixVar->SetMatrix(shadowView);
-		
+		this->globalLightBuffer->EndUpdateSync();
+
 		// handle casting shadows using CSM
+		this->lightShader->BeginUpdate();
 		if (this->globalLightEntity->GetCastShadows())
 		{
 			Ptr<CoreGraphics::Texture> CSMTexture = ShadowServer::Instance()->GetGlobalLightShadowBufferTexture();
@@ -371,7 +377,7 @@ SM50LightServer::RenderGlobalLight()
 
 			this->shadowIntensityVar->SetFloat(this->globalLightEntity->GetShadowIntensity());
 		}
-		this->globalLightBuffer->EndUpdateSync();
+		this->lightShader->EndUpdate();
 
 		// commit changes
 		this->lightShader->Commit();
@@ -427,6 +433,7 @@ SM50LightServer::RenderPointLights()
 
 					this->lightPosRange->SetFloat4(posAndRange);
 					this->lightColor->SetFloat4(curLight->GetColor());
+					this->lightTransform->SetMatrix(lightTransform);
 					//this->lightShadowBias->SetFloat(curLight->GetShadowBias());
 
 					if (CastShadows == (ShadowFlag)shadowIdx
@@ -452,7 +459,6 @@ SM50LightServer::RenderPointLights()
 					}
 
 					// update shader variables
-					tformDevice->ApplyModelTransforms(this->lightShader);
                     this->lightShader->EndUpdate();
 
 					// commit and draw
@@ -513,6 +519,7 @@ SM50LightServer::RenderSpotLights()
 
 					this->lightPosRange->SetFloat4(posAndRange);
 					this->lightColor->SetFloat4(curLight->GetColor());
+					this->lightTransform->SetMatrix(lightTransform);
 					//this->lightShadowBias->SetFloat(curLight->GetShadowBias());
 
 					// needed for tex coordinates to lookup correct spotlight lightmap texel
@@ -536,7 +543,6 @@ SM50LightServer::RenderSpotLights()
 					}
 
 					// update shader variables
-					tformDevice->ApplyModelTransforms(this->lightShader);
                     this->lightShader->EndUpdate();
 
 					// commit and draw

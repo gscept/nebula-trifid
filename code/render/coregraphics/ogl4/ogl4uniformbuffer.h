@@ -33,15 +33,17 @@ public:
 	virtual ~OGL4UniformBuffer();
 
     /// setup buffer
-    void Setup();
+	void Setup(const SizeT numBackingBuffers = DefaultNumBackingBuffers);
     /// bind variables in a block with a name in a shader to this buffer
-    void SetupFromBlockInShader(const Ptr<CoreGraphics::Shader>& shader, const Util::String& blockName);
+	void SetupFromBlockInShader(const Ptr<CoreGraphics::Shader>& shader, const Util::String& blockName, const SizeT numBackingBuffers = DefaultNumBackingBuffers);
     /// discard buffer
     void Discard();
 
     /// get the handle for this buffer
     void* GetHandle() const;
      
+	/// begin updating a segment of the buffer, will effectively lock the buffer
+	void BeginUpdateSync();
     /// update segment of buffer asynchronously, which might overwrite data if it hasn't been used yet
     void UpdateAsync(void* data, uint offset, uint size);
     /// update segment of buffer as array asynchronously, which might overwrite data if it hasn't been used yet
@@ -93,6 +95,21 @@ OpenGL4::OGL4UniformBuffer::UpdateArrayAsync(void* data, uint offset, uint size,
 /**
 */
 inline void
+OGL4UniformBuffer::BeginUpdateSync()
+{
+	ConstantBufferBase::BeginUpdateSync();
+	if (!this->sync)
+	{
+		if (this->bufferIndex == 0) this->bufferLock->WaitForBuffer(0);
+		//this->bufferLock->WaitForRange(this->handle->offset, this->size);
+
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
 OGL4UniformBuffer::EndUpdateSync()
 {
     // only sync if we made changes
@@ -108,6 +125,11 @@ OGL4UniformBuffer::EndUpdateSync()
 #endif
     }
 
+	if (!this->sync)
+	{
+		if (this->bufferIndex == this->numBuffers - 1) this->bufferLock->LockBuffer(0);
+		//this->bufferLock->LockRange(this->handle->offset, this->size);
+	}
     ConstantBufferBase::EndUpdateSync();
 }
 

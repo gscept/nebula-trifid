@@ -30,9 +30,9 @@ public:
 	virtual ~ConstantBufferBase();
 
     /// setup buffer
-    void Setup();
+    void Setup(const SizeT numBackingBuffers = DefaultNumBackingBuffers);
     /// bind variables in a block with a name in a shader to this buffer (only do this on system managed blocks)
-    void SetupFromBlockInShader(const Ptr<CoreGraphics::ShaderInstance>& shader, const Util::String& blockName);
+	void SetupFromBlockInShader(const Ptr<CoreGraphics::ShaderInstance>& shader, const Util::String& blockName, const SizeT numBackingBuffers = DefaultNumBackingBuffers);
     /// discard buffer
     void Discard();
 
@@ -60,7 +60,7 @@ public:
     /// cycle to next buffer
     void CycleBuffers();
 
-    static const int NumBuffers = 3;
+    static const int DefaultNumBackingBuffers = 3;
 
 protected:
 
@@ -77,8 +77,10 @@ protected:
     Util::Array<Ptr<CoreGraphics::ShaderVariable>> variables;
     Util::Dictionary<Util::StringAtom, Ptr<CoreGraphics::ShaderVariable>> variablesByName;
     bool isSetup;
+
     uint size;
     IndexT bufferIndex;
+	SizeT numBuffers;
 
     bool sync;
     bool inUpdateSync;

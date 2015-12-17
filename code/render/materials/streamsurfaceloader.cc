@@ -146,6 +146,7 @@ StreamSurfaceLoader::SetupMaterialFromStream(const Ptr<IO::Stream>& stream)
 
     // setup resource
     const Ptr<Surface>& surface = this->resource.downcast<Surface>();
+	const Ptr<MaterialServer>& matServer = MaterialServer::Instance();
 
 	Ptr<BXmlReader> reader = BXmlReader::Create();
     reader->SetStream(stream);
@@ -163,7 +164,8 @@ StreamSurfaceLoader::SetupMaterialFromStream(const Ptr<IO::Stream>& stream)
 
         // load surface
         Util::StringAtom materialTemplate = reader->GetString("template");
-        const Ptr<Material>& material = MaterialServer::Instance()->GetMaterialByName(materialTemplate);
+		if (!matServer->HasMaterial(materialTemplate)) return false;
+		const Ptr<Material>& material = matServer->GetMaterialByName(materialTemplate);
         const Util::Dictionary<Util::StringAtom, Material::MaterialParameter>& parameters = material->GetParameters();
         if (reader->SetToFirstChild("Param")) do
         {

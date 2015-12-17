@@ -98,6 +98,12 @@ ModelNodeHandler::Discard()
     disconnect(this->ui->surfaceButton, SIGNAL(pressed()), this, SLOT(Browse()));
 	disconnect(this->ui->editSurfaceButton, SIGNAL(pressed()), this, SLOT(EditSurface()));
 	disconnect(&this->thumbnailWatcher, SIGNAL(fileChanged(const QString&)), this, SLOT(OnThumbnailFileChanged()));
+	if (this->managedSurface.isvalid())
+	{
+		Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedSurface.upcast<Resources::ManagedResource>());
+		this->managedSurface = 0;
+		this->surfaceInstance = 0;
+	}
 }
 
 //------------------------------------------------------------------------------

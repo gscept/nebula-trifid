@@ -17,7 +17,9 @@ __ImplementClass(OpenGL4::OGL4UniformBuffer, 'O4UB', Base::ConstantBufferBase);
 //------------------------------------------------------------------------------
 /**
 */
-OGL4UniformBuffer::OGL4UniformBuffer()
+OGL4UniformBuffer::OGL4UniformBuffer() : 
+	ogl4Buffer(-1),
+	bufferLock(NULL)
 {
 	// empty
 }
@@ -34,9 +36,9 @@ OGL4UniformBuffer::~OGL4UniformBuffer()
 /**
 */
 void
-OGL4UniformBuffer::Setup()
+OGL4UniformBuffer::Setup(const SizeT numBackingBuffers)
 {
-    ConstantBufferBase::Setup();
+    ConstantBufferBase::Setup(numBackingBuffers);
     glGenBuffers(1, &this->ogl4Buffer);
 
     GLint alignment;
@@ -49,13 +51,13 @@ OGL4UniformBuffer::Setup()
     if (!this->sync)
     {
         GLenum mapFlags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
-        glBufferStorage(GL_UNIFORM_BUFFER, this->size * this->NumBuffers, NULL, mapFlags | GL_DYNAMIC_STORAGE_BIT);
-        this->buffer = glMapBufferRange(GL_UNIFORM_BUFFER, 0, this->size * this->NumBuffers, mapFlags);
+		glBufferStorage(GL_UNIFORM_BUFFER, this->size * this->numBuffers, NULL, mapFlags | GL_DYNAMIC_STORAGE_BIT);
+        this->buffer = glMapBufferRange(GL_UNIFORM_BUFFER, 0, this->size * this->numBuffers, mapFlags);
     }
     else
     {
         //glBufferStorage(GL_UNIFORM_BUFFER, this->size * this->NumBuffers, NULL, GL_MAP_WRITE_BIT | GL_DYNAMIC_STORAGE_BIT);
-        glBufferData(GL_UNIFORM_BUFFER, this->size * this->NumBuffers, NULL, GL_STREAM_DRAW);
+		glBufferData(GL_UNIFORM_BUFFER, this->size * this->numBuffers, NULL, GL_STREAM_DRAW);
         this->buffer = n_new_array(byte, this->size);
     }
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
@@ -102,14 +104,14 @@ OGL4UniformBuffer::Discard()
 /**
 */
 void
-OGL4UniformBuffer::SetupFromBlockInShader(const Ptr<CoreGraphics::Shader>& shader, const Util::String& blockName)
+OGL4UniformBuffer::SetupFromBlockInShader(const Ptr<CoreGraphics::Shader>& shader, const Util::String& blockName, const SizeT numBackingBuffers)
 {
     n_assert(!this->isSetup);
     AnyFX::EffectVarblock* block = shader->GetOGL4Effect()->GetVarblockByName(blockName.AsCharPtr());
     this->size = block->GetSize();
 
     // setup buffer which initializes GL buffer
-    this->Setup();
+    this->Setup(numBackingBuffers);
 
     const eastl::vector<AnyFX::VarblockVariableBinding>& perFrameBinds = block->GetVariables();
     for (unsigned i = 0; i < perFrameBinds.size(); i++)

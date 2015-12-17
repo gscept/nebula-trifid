@@ -478,7 +478,6 @@ SM50ShadowServer::UpdateSpotLightShadowBuffers()
 		// render second SAT pass
 		this->spotLightShadowBufferAtlas->SetResolveRect(resolveRect);
         this->spotLightHoriPass->Render(frameIndex);
-		//glFinish();
         //this->spotLightFinalPostEffect->SetRenderTarget(this->spotLightShadowBufferAtlas);
 
         // render the resolved model node instances into the main shadow buffer
@@ -572,7 +571,7 @@ SM50ShadowServer::UpdateHotGlobalShadowBuffer()
 	// perform visibility resolve, directional lights don't really have a position
 	// thus we're feeding an identity matrix as camera transform
 	visResolver->BeginResolve(cascadeViewProjection);
-	const Array<Ptr<GraphicsEntity> >& visLinks = this->globalLightEntity->GetLinks(GraphicsEntity::LightLink);
+	const Array<Ptr<GraphicsEntity>>& visLinks = this->globalLightEntity->GetLinks(GraphicsEntity::LightLink);
 	IndexT linkIndex;
 	for (linkIndex = 0; linkIndex < visLinks.Size(); linkIndex++)
 	{

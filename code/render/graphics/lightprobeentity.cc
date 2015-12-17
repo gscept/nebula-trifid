@@ -56,6 +56,7 @@ LightProbeEntity::OnActivate()
 
 	// create variable buffer
 	this->lightProbeVariableBuffer = CoreGraphics::ConstantBuffer::Create();
+	this->lightProbeVariableBuffer->SetSync(true);
 	this->lightProbeVariableBuffer->SetupFromBlockInShader(this->shader, "ReflectionProjectorBlock");
 	this->lightProbeBufferVar = this->shader->GetVariableByName("ReflectionProjectorBlock");
 	this->lightProbeBufferVar->SetBufferHandle(this->lightProbeVariableBuffer->GetHandle());
@@ -130,6 +131,7 @@ LightProbeEntity::OnResolveVisibility(IndexT frameIndex, bool updateLod)
     if (this->isDirty)
     {
 		const matrix44 trans = this->GetTransform();
+		this->lightProbeVariableBuffer->CycleBuffers();
 		this->lightProbeVariableBuffer->BeginUpdateSync();
         this->lightProbeFalloffVar->SetFloat(this->falloff);
         this->lightProbePowerVar->SetFloat(this->power);

@@ -80,9 +80,9 @@ OGL4ShaderInstance::Setup(const Ptr<CoreGraphics::Shader>& origShader)
             // get variable corresponding to this block
             const Ptr<ShaderVariable>& blockVar = origShader->GetVariableByName(name);
             
-            // setup block
+            // setup block with a single buffer
             uniformBuffer->SetSize(effectBlock->GetSize());
-            uniformBuffer->Setup();
+            uniformBuffer->Setup(1);
 
             for (unsigned j = 0; j < variableBinds.size(); j++)
             {

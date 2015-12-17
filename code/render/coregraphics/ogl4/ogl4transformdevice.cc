@@ -50,6 +50,7 @@ OGL4TransformDevice::Open()
 
     // setup camera block
     this->cameraBuffer = ConstantBuffer::Create();
+	this->cameraBuffer->SetSync(true);
     this->cameraBuffer->SetupFromBlockInShader(shdInst, "CameraBlock");
     this->viewVar = this->cameraBuffer->GetVariableByName(NEBULA3_SEMANTIC_VIEW);
     this->invViewVar = this->cameraBuffer->GetVariableByName(NEBULA3_SEMANTIC_INVVIEW);
@@ -108,7 +109,7 @@ OGL4TransformDevice::ApplyViewSettings()
     TransformDeviceBase::ApplyViewSettings();
 
     // update per frame view stuff
-    //this->cameraBuffer->CycleBuffers();
+    this->cameraBuffer->CycleBuffers();
 	this->cameraBuffer->BeginUpdateSync();
     this->viewProjVar->SetMatrix(this->GetViewProjTransform());    
     this->invViewProjVar->SetMatrix(this->GetInvViewTransform());
@@ -133,7 +134,7 @@ OGL4TransformDevice::ApplyViewSettings()
 void
 OGL4TransformDevice::ApplyViewMatrixArray(const Math::matrix44* matrices, SizeT num)
 {
-    //this->shadowCameraBuffer->CycleBuffers();
+    this->shadowCameraBuffer->CycleBuffers();
 	this->shadowCameraBuffer->BeginUpdateSync();
 	this->viewMatricesVar->SetMatrixArray(matrices, num);
 	this->shadowCameraBuffer->EndUpdateSync();
