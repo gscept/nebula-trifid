@@ -94,7 +94,7 @@ vec2 SharedMemoryLoad(int centerId, int x)
 vec2 LoadXZFromTexture(int x, int y)
 { 
     vec2 uv = (vec2(x, y) + 0.5f) * InvAOResolution;
-    float z_eye = textureLod(DepthBuffer, uv, 0).r;
+    float z_eye = max(textureLod(DepthBuffer, uv, 0).r, 0);
     float x_eye = (UVToViewA.x * uv.x + UVToViewB.x) * z_eye;
     return vec2(x_eye, z_eye);
 }
@@ -105,7 +105,7 @@ vec2 LoadXZFromTexture(int x, int y)
 vec2 LoadYZFromTexture(int x, int y)
 {
     vec2 uv = (vec2(x, y) + 0.5f) * InvAOResolution;
-    float z_eye = textureLod(DepthBuffer, uv, 0).r;
+    float z_eye = max(textureLod(DepthBuffer, uv, 0).r, 0);
     float y_eye = (UVToViewA.y * uv.y + UVToViewB.y) * z_eye;
     return vec2(y_eye, z_eye);
 }
@@ -116,7 +116,7 @@ vec2 LoadYZFromTexture(int x, int y)
 // - (X,Z) for the horizontal directions (approximating Y by a constant).
 // - (Y,Z) for the vertical directions (approximating X by a constant).
 //----------------------------------------------------------------------------------
-void IntegrateDirection(inout float ao,
+float IntegrateDirection(float iAO,
                         vec2 P,
                         float tanT,
                         int threadId,
@@ -126,6 +126,7 @@ void IntegrateDirection(inout float ao,
     float tanH = tanT;
     float sinH = TanToSin(tanH);
     float sinT = TanToSin(tanT);
+	float ao = iAO;
 
 	#pragma unroll
     for (int sampleId = 0; sampleId < NUM_STEPS; ++sampleId)
@@ -146,6 +147,7 @@ void IntegrateDirection(inout float ao,
             sinH = sinS;
         }
     }
+	return ao;
 }
 
 //----------------------------------------------------------------------------------
@@ -155,8 +157,8 @@ float ComputeHBAO(vec2 P, vec2 T, int centerId)
 {
     float ao = 0;
     float tanT = Tangent(T);
-    IntegrateDirection(ao, P,  tanT + TanAngleBias, centerId,  STEP_SIZE,  STEP_SIZE);
-    IntegrateDirection(ao, P, -tanT + TanAngleBias, centerId, -STEP_SIZE, -STEP_SIZE);
+    ao = IntegrateDirection(ao, P,  tanT + TanAngleBias, centerId,  STEP_SIZE,  STEP_SIZE);
+    ao = IntegrateDirection(ao, P, -tanT + TanAngleBias, centerId, -STEP_SIZE, -STEP_SIZE);
     return ao;
 }
 
@@ -179,7 +181,7 @@ csMainX()
     // Load float2 samples into shared memory
     SharedMemory[gl_LocalInvocationID.x] = LoadXZFromTexture(x,y);
     SharedMemory[min(2 * KERNEL_RADIUS + gl_LocalInvocationID.x, SHARED_MEM_SIZE - 1)] = LoadXZFromTexture(2 * KERNEL_RADIUS + x, y);
-    groupMemoryBarrier();
+    memoryBarrierShared();
 
     const int writePos = tileStart + int(gl_LocalInvocationID.x);
     const int tileEndClamped = min(tileEnd, int(AOResolution.x));
@@ -222,7 +224,7 @@ csMainY()
     // Load float2 samples into shared memory
     SharedMemory[gl_LocalInvocationID.x] = LoadYZFromTexture(x,y);
     SharedMemory[min(2 * KERNEL_RADIUS + gl_LocalInvocationID.x, SHARED_MEM_SIZE - 1)] = LoadYZFromTexture(x, 2 * KERNEL_RADIUS + y);
-    groupMemoryBarrier();
+    memoryBarrierShared();
 
     const uint writePos = tileStart + gl_LocalInvocationID.x;
     const uint tileEndClamped = min(tileEnd, int(AOResolution.x));

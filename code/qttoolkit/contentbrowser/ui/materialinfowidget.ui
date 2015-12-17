@@ -19,10 +19,10 @@
    <string>Frame</string>
   </property>
   <property name="frameShape">
-   <enum>QFrame::NoFrame</enum>
+   <enum>QFrame::StyledPanel</enum>
   </property>
   <property name="frameShadow">
-   <enum>QFrame::Raised</enum>
+   <enum>QFrame::Plain</enum>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="4" column="0">
@@ -78,8 +78,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>413</width>
-        <height>372</height>
+        <width>411</width>
+        <height>370</height>
        </rect>
       </property>
       <property name="sizePolicy">

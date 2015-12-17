@@ -38,7 +38,7 @@ public:
 	Ui::TextureInfoWidget* GetUI() const;
 
 	/// loads texture and puts it in the ui
-	void LoadTexture();
+	bool LoadTexture();
 
 private slots:
 	/// called whenever the texture needs a reload

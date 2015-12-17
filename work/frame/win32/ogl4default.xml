@@ -109,7 +109,7 @@
   </Pass>
   
   <!-- renders screen-space lighting for opaque geometry -->
-  <Pass renderTarget="LightBuffer" name="LightPass" clearColor="0.1,0.1,0.1,1" shader="lights">
+  <Pass renderTarget="LightBuffer" name="LightPass" clearColor="0.01,0.01,0.01,1" shader="lights">
 	<ApplyShaderVariable sem="NormalBuffer" value="NormalBuffer"/>
 	<ApplyShaderVariable sem="DepthBuffer" value="DepthBuffer"/>
 	<ApplyShaderVariable sem="AlbedoBuffer" value="AlbedoBuffer"/>

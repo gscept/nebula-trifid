@@ -88,15 +88,13 @@ TextureHandler::OnReload()
 			// reload the texture in the UI
 			this->LoadTexture();
 		}
-
-
 	}	
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-void 
+bool
 TextureHandler::LoadTexture()
 {
 	String file = this->texture;
@@ -106,11 +104,13 @@ TextureHandler::LoadTexture()
 	// set texture name in ui
 	this->ui->textureName->setText(file.AsCharPtr());
 
+	bool res = true;
 	QPixmap pixmap;
 	
 	if (!pixmap.load(path.GetHostAndLocalPath().AsCharPtr()))
 	{
 		pixmap = QPixmap(":/Nebula/nebulalogo.png");
+		res = false;
 	}
 
 	// set labels
@@ -138,6 +138,10 @@ TextureHandler::LoadTexture()
 	{
 		format = "DDS (DirectDraw Surface)";
 	}
+	else if (extension == "png")
+	{
+		format = "PNG (PNG Not Gif)";
+	}
 
 	// set format label
 	this->ui->formatLabel->setText(format);
@@ -151,6 +155,7 @@ TextureHandler::LoadTexture()
 
 	// format size
 	this->ui->sizeLabel->setText(size);
+	return res;
 }
 
 

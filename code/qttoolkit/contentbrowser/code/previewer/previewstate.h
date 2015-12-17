@@ -86,7 +86,6 @@ private:
 	Ptr<Graphics::GlobalLightEntity> surfaceLight;
 	Ptr<Graphics::ModelEntity> surfaceModelEntity;
 	Ptr<Materials::ManagedSurface> managedSurface;
-	Ptr<Materials::Surface> surface;
 	Ptr<Materials::SurfaceInstance> surfaceInstance;
 	Ptr<CoreGraphics::RenderTarget> surfaceViewTarget;
 

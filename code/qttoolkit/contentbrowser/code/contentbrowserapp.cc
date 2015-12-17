@@ -217,11 +217,6 @@ ContentBrowserApp::SetupGameFeatures()
     // set all resource mappers to be synchronized
     Resources::ResourceManager::Instance()->SetMappersAsync(false);
 
-	// disable tone mapping
-	Ptr<Algorithm::EnableToneMapping> toneMappingMsg = Algorithm::EnableToneMapping::Create();
-	toneMappingMsg->SetEnabled(false);
-	GraphicsInterface::Instance()->Send(toneMappingMsg.upcast<Messaging::Message>());
-
 	// close splash
 	this->splash->Close();
 	this->splash = 0;

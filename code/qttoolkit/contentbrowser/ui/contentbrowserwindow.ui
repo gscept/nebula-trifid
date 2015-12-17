@@ -377,10 +377,13 @@
          <item row="0" column="0">
           <widget class="QFrame" name="modelDockFrame">
            <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
+            <enum>QFrame::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <enum>QFrame::Plain</enum>
+           </property>
+           <property name="lineWidth">
+            <number>1</number>
            </property>
           </widget>
          </item>
@@ -445,10 +448,10 @@
          <item row="0" column="0">
           <widget class="QFrame" name="textureDockFrame">
            <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
+            <enum>QFrame::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <enum>QFrame::Plain</enum>
            </property>
           </widget>
          </item>
@@ -513,10 +516,10 @@
             <bool>false</bool>
            </property>
            <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
+            <enum>QFrame::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <enum>QFrame::Plain</enum>
            </property>
           </widget>
          </item>
@@ -581,10 +584,10 @@
             <bool>false</bool>
            </property>
            <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
+            <enum>QFrame::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <enum>QFrame::Plain</enum>
            </property>
           </widget>
          </item>
@@ -649,10 +652,10 @@
             <bool>false</bool>
            </property>
            <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
+            <enum>QFrame::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <enum>QFrame::Plain</enum>
            </property>
           </widget>
          </item>
@@ -717,10 +720,10 @@
             <bool>false</bool>
            </property>
            <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
+            <enum>QFrame::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <enum>QFrame::Plain</enum>
            </property>
           </widget>
          </item>
@@ -732,6 +735,9 @@
    </widget>
   </widget>
   <widget class="QDockWidget" name="materialDockWidget">
+   <property name="floating">
+    <bool>true</bool>
+   </property>
    <property name="windowTitle">
     <string>Surface</string>
    </property>
@@ -776,7 +782,7 @@
             <enum>QFrame::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <enum>QFrame::Plain</enum>
            </property>
           </widget>
          </item>
