@@ -285,6 +285,7 @@ TransformDeviceBase::SetFocalLength(const Math::float2& len)
 {
     this->focalLength = len;
 }
+
 //------------------------------------------------------------------------------
 /**
 */
@@ -293,6 +294,7 @@ TransformDeviceBase::GetFocalLength() const
 {
     return this->focalLength;
 }
+
 } // namespace Base
 //------------------------------------------------------------------------------
 

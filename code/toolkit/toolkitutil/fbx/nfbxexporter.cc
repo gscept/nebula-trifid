@@ -347,8 +347,8 @@ NFbxExporter::ExportFile( const IO::URI& file )
 		np3			(physics resource)
 		_ph.nvx2	(optional physics mesh resource)
 */
-bool 
-NFbxExporter::NeedsConversion( const Util::String& path )
+bool
+NFbxExporter::NeedsConversion(const Util::String& path)
 {
 	String category = path.ExtractLastDirName();
 	String file = path.ExtractFileName();
@@ -376,8 +376,14 @@ NFbxExporter::NeedsConversion( const Util::String& path )
 	// ...and if the .physics is older than the n3
 	bool physicsNewer = ExporterBase::NeedsConversion(physics, physModel);
 
+	// ...if the mesh is newer
+	bool meshNewer = ExporterBase::NeedsConversion(path, mesh);
+
+	// lastly, if physics mesh is newer
+	bool physicsMeshNewer = ExporterBase::NeedsConversion(path, physMesh);
+
     // return true if either is true
-    return fbxNewer || constantsNewer || attributesNewer || physicsNewer;
+	return fbxNewer || constantsNewer || attributesNewer || physicsNewer || meshNewer || physicsMeshNewer;
 }
 
 } // namespace ToolkitUtil

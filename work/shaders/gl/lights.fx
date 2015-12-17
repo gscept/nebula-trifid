@@ -19,6 +19,7 @@ vec4 LightColor;
 vec4 LightPosRange;
 float LightShadowBias;
 mat4 LightProjTransform;
+mat4 LightTransform;
 
 vec4 CameraPosition;
 vec4 ShadowOffsetScale = vec4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -222,8 +223,9 @@ void
 vsSpot(in vec3 position,
 	out vec3 ViewSpacePosition) 
 {
-	gl_Position = ViewProjection * Model * vec4(position, 1);
-	ViewSpacePosition = (View * Model * vec4(position, 1)).xyz;
+	vec4 modelSpace = LightTransform * vec4(position, 1);
+	gl_Position = ViewProjection * modelSpace;
+	ViewSpacePosition = (View * modelSpace).xyz;
 }
 
 //---------------------------------------------------------------------------------------------------------------------------
@@ -363,7 +365,7 @@ vsPoint(in vec3 position,
 	out vec3 ViewSpacePosition,
 	out vec3 WorldPosition) 
 {
-	vec4 modelSpace = Model * vec4(position, 1);
+	vec4 modelSpace = LightTransform * vec4(position, 1);
 	gl_Position = ViewProjection * modelSpace;
 	WorldPosition = modelSpace.xyz;
 	ViewSpacePosition = (View * modelSpace).xyz;

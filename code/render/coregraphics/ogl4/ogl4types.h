@@ -30,6 +30,8 @@ public:
 	static GLenum AsOGL4PixelComponents(CoreGraphics::PixelFormat::Code p);
 	/// convert Nebula pixel format to OGL4 pixel type
 	static GLenum AsOGL4PixelType(CoreGraphics::PixelFormat::Code p);
+	/// convert Nebula pixel format to OpenGL pixel pack alignment
+	static GLuint AsOGL4PixelByteAlignment(CoreGraphics::PixelFormat::Code p);
     /// convert OpenGL4 to Nebula pixel format
     static CoreGraphics::PixelFormat::Code AsNebulaPixelFormat(GLenum f);
 	/// convert IL compression to gl compression
