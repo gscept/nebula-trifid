@@ -85,7 +85,7 @@ StateNodeInstance::Setup(const Ptr<ModelInstance>& inst, const Ptr<ModelNode>& n
     }
 
 #if SHADER_MODEL_5
-    ShaderServer* shdServer = ShaderServer::Instance();
+    ShaderServer* shdServer = ShaderServer::Instance(); 
     this->shader = shdServer->GetSharedShader();
     this->objectBuffer = ConstantBuffer::Create();
     this->objectBuffer->SetupFromBlockInShader(this->shader, "ObjectBlock");
