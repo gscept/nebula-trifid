@@ -769,8 +769,8 @@ matrix44::lookatlh(const point& eye, const point& at, const vector& up)
         // just rotate y->x, x->z and z->y
         normUp = float4::permute(normUp, normUp, 1, 2, 0, 3);
     }
-    const float4 xaxis = float4::cross3(normUp, zaxis);
-    const float4 yaxis = float4::cross3(zaxis, xaxis);
+	const float4 xaxis = float4::normalize(float4::cross3(normUp, zaxis));
+	const float4 yaxis = float4::normalize(float4::cross3(zaxis, xaxis));
     return matrix44(xaxis, yaxis, zaxis, eye);
 }
 
@@ -795,8 +795,8 @@ matrix44::lookatrh(const point& eye, const point& at, const vector& up)
         // just rotate y->x, x->z and z->y
         normUp = float4::permute(normUp, normUp, 1, 2, 0, 3);
     }
-    const float4 xaxis = float4::cross3(normUp, zaxis);
-    const float4 yaxis = float4::cross3(zaxis, xaxis);
+	const float4 xaxis = float4::normalize(float4::cross3(normUp, zaxis));
+	const float4 yaxis = float4::normalize(float4::cross3(zaxis, xaxis));
     return matrix44(xaxis, yaxis, zaxis, eye);
 }
 
@@ -1069,7 +1069,7 @@ matrix44::perspoffcenterrh(scalar l, scalar r, scalar b, scalar t, scalar zn, sc
 __forceinline matrix44
 matrix44::rotationaxis(float4 const &axis, scalar angle)
 {
-    __m128 norm = float4::normalize(axis).vec;
+    __m128 norm = float4::normalize3(axis).vec;
 
     scalar sangle = n_sin(angle);
     scalar cangle = n_cos(angle);

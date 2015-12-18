@@ -48,9 +48,7 @@ PreviewState::PreviewState() :
 	defaultCam(0),
 	enablePhysics(false),
 	showControls(false),
-	workLight(true),
-	managedSurface(NULL),
-	surfaceInstance(NULL)
+	workLight(true)
 {
 	// empty
 }
@@ -226,6 +224,13 @@ PreviewState::OnStateEnter(const Util::String& prevState)
 	this->modelEntity->SetLoadSynced(true);
 	this->defaultStage->AttachEntity(this->modelEntity.cast<GraphicsEntity>());
 
+	// ok, first step is to create a surface which we can fiddle with
+	IO::IoServer::Instance()->CopyFile("sur:system/placeholder.sur", "sur:system/placeholdersurface.sur");
+
+	// load placeholder surface
+	this->placeholderSurface = Resources::ResourceManager::Instance()->CreateManagedResource(Materials::Surface::RTTI, "sur:system/placeholdersurface.sur", NULL, true).downcast<Materials::ManagedSurface>();
+	this->SetSurface(this->placeholderSurface->GetSurface()->CreateInstance());
+
 	// create camera
 	this->defaultCam = BaseGameFeature::FactoryManager::Instance()->CreateEntityByTemplate("Camera", "Camera");
 	BaseGameFeature::EntityManager::Instance()->AttachEntity(defaultCam);
@@ -259,11 +264,11 @@ PreviewState::OnStateLeave(const Util::String& nextState)
 	this->surfaceStage = 0;
 	this->surfaceView = 0;
 
-	if (this->managedSurface.isvalid())
-	{
-		Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedSurface.upcast<Resources::ManagedResource>());
-		this->managedSurface = 0;
-	}
+	// discard placeholder surface
+	Resources::ResourceManager::Instance()->DiscardManagedResource(this->placeholderSurface.upcast<Resources::ManagedResource>());
+
+	// remove temporary surface file
+	IO::IoServer::Instance()->DeleteFile("sur:system/placeholdersurface.sur");
 
 	GameStateHandler::OnStateLeave(nextState);
 }
@@ -328,19 +333,22 @@ PreviewState::SetPhysics(const Resources::ResourceId& resource)
 /**
 */
 void
-PreviewState::SetSurface(const Resources::ResourceId& resource)
+PreviewState::SetSurface(const Ptr<Materials::SurfaceInstance>& instance)
 {
-	if (this->managedSurface.isvalid())
-	{
-		Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedSurface.upcast<Resources::ManagedResource>());
-		this->managedSurface = 0;
-	}
-
 	// thankfully, this model uses a hierarchy we know already
 	Ptr<Models::StateNodeInstance> node = RenderUtil::NodeLookupUtil::LookupStateNodeInstance(this->surfaceModelEntity, "root/sphere");
-	this->managedSurface = Resources::ResourceManager::Instance()->CreateManagedResource(Materials::Surface::RTTI, String::Sprintf("sur:%s.sur", resource.AsString().AsCharPtr()), NULL, true).downcast<Materials::ManagedSurface>();
-	this->surfaceInstance = this->managedSurface->GetSurface()->CreateInstance();
-	node->SetSurfaceInstance(this->surfaceInstance);
+	node->SetSurfaceInstance(instance);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PreviewState::DiscardSurface()
+{
+	// thankfully, this model uses a hierarchy we know already
+	Ptr<Models::StateNodeInstance> node = RenderUtil::NodeLookupUtil::LookupStateNodeInstance(this->surfaceModelEntity, "root/sphere");
+	node->SetSurfaceInstance(this->placeholderSurface->GetSurface()->CreateInstance());
 }
 
 //------------------------------------------------------------------------------

@@ -184,7 +184,7 @@ OGL4ShaderVariable::SetInt(int value)
     switch (bufferBound)
     {
     case true:
-        this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, this->bufferBinding->size);
+		this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, sizeof(int));
         break;
     case false:
         n_assert(0 != this->effectVar);
@@ -204,7 +204,7 @@ OGL4ShaderVariable::SetIntArray(const int* values, SizeT count)
     switch (bufferBound)
     {
     case true:
-        this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, this->bufferBinding->size, count);
+		this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, sizeof(int), count);
         break;
     case false:
         n_assert(0 != this->effectVar);
@@ -223,7 +223,7 @@ OGL4ShaderVariable::SetFloat(float value)
     switch (bufferBound)
     {
     case true:
-        this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, this->bufferBinding->size);
+		this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, sizeof(float));
         break;
     case false:
         n_assert(0 != this->effectVar);
@@ -243,7 +243,7 @@ OGL4ShaderVariable::SetFloatArray(const float* values, SizeT count)
     switch (bufferBound)
     {
     case true:
-        this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, this->bufferBinding->size, count);
+        this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, sizeof(float), count);
         break;
     case false:
         n_assert(0 != this->effectVar);
@@ -256,13 +256,13 @@ OGL4ShaderVariable::SetFloatArray(const float* values, SizeT count)
 /**
 */
 void
-OGL4ShaderVariable::SetFloat2(const Math::float2& value)
+OGL4ShaderVariable::SetFloat2(const float2& value)
 {
     bool bufferBound = this->bufferBinding != NULL;
     switch (bufferBound)
     {
     case true:
-        this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, this->bufferBinding->size);
+		this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, sizeof(float2));
         break;
     case false:
         n_assert(0 != this->effectVar);
@@ -275,13 +275,13 @@ OGL4ShaderVariable::SetFloat2(const Math::float2& value)
 /**
 */
 void
-OGL4ShaderVariable::SetFloat2Array(const Math::float2* values, SizeT count)
+OGL4ShaderVariable::SetFloat2Array(const float2* values, SizeT count)
 {
     bool bufferBound = this->bufferBinding != NULL;
     switch (bufferBound)
     {
     case true:
-        this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, this->bufferBinding->size, count);
+		this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, sizeof(float2), count);
         break;
     case false:
         n_assert(0 != this->effectVar);
@@ -300,7 +300,7 @@ OGL4ShaderVariable::SetFloat4(const float4& value)
     switch (bufferBound)
     {
     case true:
-        this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, this->bufferBinding->size);
+		this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, sizeof(float4));
         break;
     case false:
         n_assert(0 != this->effectVar);
@@ -320,7 +320,7 @@ OGL4ShaderVariable::SetFloat4Array(const float4* values, SizeT count)
     switch (bufferBound)
     {
     case true:
-        this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, this->bufferBinding->size, count);
+		this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, sizeof(float4), count);
         break;
     case false:
         n_assert(0 != this->effectVar);
@@ -339,7 +339,7 @@ OGL4ShaderVariable::SetMatrix(const matrix44& value)
     switch (bufferBound)
     {
     case true:
-        this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, this->bufferBinding->size);
+		this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, sizeof(matrix44));
         break;
     case false:
         n_assert(0 != this->effectVar);
@@ -359,7 +359,8 @@ OGL4ShaderVariable::SetMatrixArray(const matrix44* values, SizeT count)
     switch (bufferBound)
     {
     case true:
-        this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, this->bufferBinding->size, count);
+		// hmm, the buffer binding size will already be with the valid array size...
+        this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, sizeof(matrix44), count);
         break;
     case false:
         n_assert(0 != this->effectVar);
@@ -378,7 +379,7 @@ OGL4ShaderVariable::SetBool(bool value)
     switch (bufferBound)
     {
     case true:
-        this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, this->bufferBinding->size);
+        this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, sizeof(bool));
         break;
     case false:
         n_assert(0 != this->effectVar);
@@ -407,7 +408,7 @@ OGL4ShaderVariable::SetBoolArray(const bool* values, SizeT count)
     switch (bufferBound)
     {
     case true:
-        this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, this->bufferBinding->size, count);
+		this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, sizeof(bool), count);
         break;
     case false:
         n_assert(0 != this->effectVar);

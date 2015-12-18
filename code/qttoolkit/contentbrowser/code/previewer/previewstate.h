@@ -15,6 +15,7 @@
 #include "physics/resource/managedphysicsmodel.h"
 #include "posteffect/posteffectmanager.h"
 #include "godrays/godrayrendermodule.h"
+#include "materials/surfaceinstance.h"
 #include "materials/managedsurface.h"
 //------------------------------------------------------------------------------
 namespace ContentBrowser
@@ -49,7 +50,9 @@ public:
 	void PostImportModel();
 
 	/// sets the surface material on the preview sphere
-	void SetSurface(const Resources::ResourceId& resource);
+	void SetSurface(const Ptr<Materials::SurfaceInstance>& instance);
+	/// discards the current surface preview and sets the placeholder one isntead
+	void DiscardSurface();
 	/// sets whether or not the surface preview should be shown
 	void SetSurfacePreview(bool b);
 
@@ -80,13 +83,12 @@ private:
 
 	Ptr<Graphics::Stage> defaultStage;
 
+	Ptr<Materials::ManagedSurface> placeholderSurface;
 	Ptr<Graphics::Stage> surfaceStage;
 	Ptr<Graphics::View> surfaceView;
 	Ptr<Graphics::CameraEntity> surfaceCamera;
 	Ptr<Graphics::GlobalLightEntity> surfaceLight;
 	Ptr<Graphics::ModelEntity> surfaceModelEntity;
-	Ptr<Materials::ManagedSurface> managedSurface;
-	Ptr<Materials::SurfaceInstance> surfaceInstance;
 	Ptr<CoreGraphics::RenderTarget> surfaceViewTarget;
 
 	Math::matrix44 lightTransform;

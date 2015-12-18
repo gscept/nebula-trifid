@@ -101,8 +101,6 @@ OGL4UniformBuffer::BeginUpdateSync()
 	if (!this->sync)
 	{
 		if (this->bufferIndex == 0) this->bufferLock->WaitForBuffer(0);
-		//this->bufferLock->WaitForRange(this->handle->offset, this->size);
-
 	}
 }
 
@@ -115,7 +113,7 @@ OGL4UniformBuffer::EndUpdateSync()
     // only sync if we made changes
     if (this->isDirty)
     {
-        glInvalidateBufferSubData(this->ogl4Buffer, this->handle->offset, this->size);
+        //glInvalidateBufferSubData(this->ogl4Buffer, this->handle->offset, this->size);
 #if OGL4_BINDLESS
         glNamedBufferSubData(this->ogl4Buffer, this->handle->offset, this->size, this->buffer);
 #else
@@ -128,7 +126,6 @@ OGL4UniformBuffer::EndUpdateSync()
 	if (!this->sync)
 	{
 		if (this->bufferIndex == this->numBuffers - 1) this->bufferLock->LockBuffer(0);
-		//this->bufferLock->LockRange(this->handle->offset, this->size);
 	}
     ConstantBufferBase::EndUpdateSync();
 }
