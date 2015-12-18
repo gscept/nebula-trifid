@@ -379,8 +379,8 @@ NFbxExporter::NeedsConversion(const Util::String& path)
 	// ...if the mesh is newer
 	bool meshNewer = ExporterBase::NeedsConversion(path, mesh);
 
-	// lastly, if physics mesh is newer
-	bool physicsMeshNewer = ExporterBase::NeedsConversion(path, physMesh);
+	// check if physics settings were changed. no way to tell if we have a new physics mesh in it, so we just export it anyway
+	bool physicsMeshNewer = ExporterBase::NeedsConversion(physics, mesh);
 
     // return true if either is true
 	return fbxNewer || constantsNewer || attributesNewer || physicsNewer || meshNewer || physicsMeshNewer;
