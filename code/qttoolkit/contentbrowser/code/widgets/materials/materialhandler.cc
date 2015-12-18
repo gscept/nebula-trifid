@@ -41,7 +41,8 @@ __ImplementClass(Widgets::MaterialHandler, 'MAHA', BaseHandler);
 /**
 */
 MaterialHandler::MaterialHandler() :
-	hasChanges(false)
+	hasChanges(false),
+	mainLayout(NULL)
 {
 	this->saveDialogUi.setupUi(&this->saveDialog);
 
@@ -98,16 +99,16 @@ MaterialHandler::Setup(const QString& resource)
 	this->file = res.ExtractFileName();
 	this->ui->surfaceName->setText(String::Sprintf("%s/%s", this->category.AsCharPtr(), this->file.AsCharPtr()).AsCharPtr());
 
-	// get preview state
-	Ptr<PreviewState> previewState = ContentBrowserApp::Instance()->GetPreviewState();
-	previewState->SetSurface(res);
-
     // create resource
 	this->managedSurface = Resources::ResourceManager::Instance()->CreateManagedResource(Surface::RTTI, resource.toUtf8().constData(), NULL, true).downcast<Materials::ManagedSurface>();
 	this->surface = this->managedSurface->GetSurface().downcast<MutableSurface>();
 
 	// create one instance so that the textures are loaded...
 	this->surfaceInstance = this->surface->CreateInstance();
+
+	// get preview state
+	Ptr<PreviewState> previewState = ContentBrowserApp::Instance()->GetPreviewState();
+	previewState->SetSurface(this->surfaceInstance.upcast<Materials::SurfaceInstance>());
 
     // get layout
 	this->mainLayout = static_cast<QVBoxLayout*>(this->ui->variableFrame->layout());
@@ -138,14 +139,40 @@ MaterialHandler::Discard()
 	{
 		Resources::ResourceManager::Instance()->DiscardManagedResource(this->textureResources.ValueAtIndex(i).upcast<Resources::ManagedResource>());
 	}
+
+	// clear reference maps
+	this->textureImgMap.clear();
+	this->textureTextMap.clear();
+	this->textureLabelMap.clear();
+	this->variableLabelMap.clear();
+	this->variableSliderMap.clear();
+	this->variableFloatValueMap.clear();
+	this->variableIntValueMap.clear();
+	this->variableBoolMap.clear();
+	this->variableVectorFieldMap.clear();
+	this->variableVectorColorEditMap.clear();
+	this->variableVectorMap.clear();
+	this->lowerLimitFloatMap.clear();
+	this->upperLimitFloatMap.clear();
+	this->lowerLimitIntMap.clear();
+	this->upperLimitIntMap.clear();
+
 	this->textureResources.Clear();
     this->textureVariables.Clear();
     this->scalarVariables.Clear();
-	this->surfaceInstance->Discard();
-	this->surfaceInstance = 0;
-	Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedSurface.upcast<Resources::ManagedResource>());
-	this->managedSurface = 0;
-	this->surface = 0;
+
+	// discard surface instance
+	Ptr<PreviewState> previewState = ContentBrowserApp::Instance()->GetPreviewState();
+	previewState->DiscardSurface();
+	if (this->managedSurface.isvalid())
+	{
+		this->surfaceInstance = 0;
+		Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedSurface.upcast<Resources::ManagedResource>());
+		this->managedSurface = 0;
+		this->surface = 0;
+
+	}
+	
 	this->ClearFrame(this->mainLayout);
 
 	return BaseHandler::Discard();
@@ -253,48 +280,37 @@ MaterialHandler::TextureChanged(uint i)
 void
 MaterialHandler::NewSurface()
 {
-	// avoid discarding changes if the user doesn't want to
-	if (this->hasChanges)
+	if (!this->isSetup || this->Discard())
 	{
-		QMessageBox::StandardButton button = QMessageBox::warning(NULL, "Pending changes", "Your material has unsaved changes, are you sure you want to close it?", QMessageBox::Ok | QMessageBox::Cancel);
-		if (button == QMessageBox::Cancel)
-		{
-			return;
-		}
+		BaseHandler::Setup();
+
+		// enable UI controls
+		this->ui->templateBox->setEnabled(true);
+		this->ui->saveButton->setEnabled(true);
+		this->ui->saveAsButton->setEnabled(true);
+
+		// clear names
+		this->category.Clear();
+		this->file.Clear();
+
+		// reset name of label
+		this->ui->surfaceName->setText("<unnamed>");
+
+		// create copy of placeholder for the new surface
+		IO::IoServer::Instance()->CopyFile("sur:system/placeholder.sur", "sur:system/editsurface.sur");
+
+		// basically load placeholder, duplicate it, then clear the UI
+		this->managedSurface = Resources::ResourceManager::Instance()->CreateManagedResource(Surface::RTTI, "sur:system/editsurface.sur", NULL, true).downcast<Materials::ManagedSurface>();
+		this->surface = this->managedSurface->GetSurface().downcast<MutableSurface>();
+		this->surfaceInstance = this->surface->CreateInstance();
+
+		// get preview state
+		Ptr<PreviewState> previewState = ContentBrowserApp::Instance()->GetPreviewState();
+		previewState->SetSurface(this->surfaceInstance.upcast<Materials::SurfaceInstance>());
+
+		this->hasChanges = false;
+		this->ResetUI();
 	}
-	
-	// reset variables
-	this->textureResources.Clear();
-	this->textureVariables.Clear();
-	this->scalarVariables.Clear();
-
-	// enable UI controls
-	this->ui->templateBox->setEnabled(true);
-	this->ui->saveButton->setEnabled(true);
-	this->ui->saveAsButton->setEnabled(true);
-
-	// don't discard textures here, because we just need to reset this handler
-	this->textureResources.Clear();
-
-	// clear names
-	this->category.Clear();
-	this->file.Clear();
-
-	// reset name of label
-	this->ui->surfaceName->setText("<unnamed>");
-
-	// basically load placeholder, duplicate it, then clear the UI
-	if (this->managedSurface.isvalid())
-	{
-		this->surfaceInstance->Discard();
-		this->surfaceInstance = 0;
-		Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedSurface.upcast<Resources::ManagedResource>());
-	}
-	this->managedSurface = Resources::ResourceManager::Instance()->CreateManagedResource(Surface::RTTI, "intsur:system/placeholder.sur", NULL, true).downcast<Materials::ManagedSurface>();
-	this->surface = this->managedSurface->GetSurface().downcast<MutableSurface>();
-	this->surfaceInstance = this->surface->CreateInstance();
-	this->hasChanges = false;
-	this->ResetUI();	
 }
 
 //------------------------------------------------------------------------------
@@ -693,6 +709,7 @@ MaterialHandler::Save()
 		}
 	}
 		
+	// open stream to surface
 	Ptr<IO::IoServer> ioServer = IO::IoServer::Instance();
 	String resName = String::Sprintf("src:assets/%s/%s.sur", this->category.AsCharPtr(), this->file.AsCharPtr());
 	Ptr<IO::Stream> stream = ioServer->CreateStream(resName);
@@ -714,6 +731,9 @@ MaterialHandler::Save()
 
 	// create directory
 	ioServer->CreateDirectory(exportTarget.ExtractToLastSlash());
+
+	// delete edit surface
+	ioServer->DeleteFile("sur:system/editsurface.sur");
 
 	// also convert it
 	Logger logger;
@@ -779,6 +799,9 @@ MaterialHandler::SaveAs()
 
 		// create directory
 		ioServer->CreateDirectory(exportTarget.ExtractToLastSlash());
+
+		// delete edit surface
+		ioServer->DeleteFile("sur:system/editsurface.sur");
 
 		// also convert it
 		Logger logger;

@@ -133,10 +133,8 @@ OGL4UniformBuffer::SetupFromBlockInShader(const Ptr<CoreGraphics::Shader>& shade
 void
 OGL4UniformBuffer::CycleBuffers()
 {
-    //this->bufferLock->WaitForRange(this->handle->offset, this->size);
     ConstantBufferBase::CycleBuffers();
     this->handle->offset = this->size * this->bufferIndex;
-    //this->bufferLock->LockRange(this->handle->offset, this->size);
 }
 
 } // namespace OpenGL4 

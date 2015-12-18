@@ -66,6 +66,7 @@ OGL4TransformDevice::Open()
 
     // setup shadow block
     this->shadowCameraBuffer = ConstantBuffer::Create();
+	this->shadowCameraBuffer->SetSync(true);
     this->shadowCameraBuffer->SetupFromBlockInShader(shdInst, "ShadowCameraBlock");
     this->viewMatricesVar = this->shadowCameraBuffer->GetVariableByName(NEBULA3_SEMANTIC_VIEWMATRIXARRAY);
     this->shadowCameraBlockVar = shdInst->GetVariableByName("ShadowCameraBlock");

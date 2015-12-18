@@ -47,7 +47,7 @@ MutableSurface::CreateInstance()
 void
 MutableSurface::SetMaterialTemplate(const Ptr<Materials::Material>& mat)
 {
-    // first degregister
+    // first deregister
     this->materialTemplate->RemoveSurface(this);
 
 	IndexT i;
