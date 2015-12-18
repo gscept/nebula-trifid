@@ -25,6 +25,7 @@
 #include "QtConcurrentRun"
 #include "util/localstringatomtable.h"
 #include "system/systeminfo.h"
+#include "game/gameexporter.h"
 
 
 #if WIN32
@@ -46,6 +47,8 @@ using namespace ToolkitUtil;
 
 __ImplementAbstractClass(BatchExporter::WorkerThread, 'BEWP', IO::ConsoleHandler);
 __ImplementClass(BatchExporter::AssetWorkerThread, 'BEAT', BatchExporter::WorkerThread);
+__ImplementClass(BatchExporter::ShaderWorkerThread, 'SHWT', BatchExporter::WorkerThread);
+__ImplementClass(BatchExporter::GameWorkerThread, 'GWWT', BatchExporter::WorkerThread);
 
 class QLogTreeItem : public QTreeWidgetItem
 {
@@ -110,25 +113,48 @@ void BatchExporterApp::Open(const CommandLineArgs& args)
 	this->SetupProjectInfo();
 
 	System::SystemInfo sysInfo;
+	int cores = sysInfo.GetNumCpuCores();
+	// we need at least two threads
+	cores = Math::n_max(2, cores);
 	for (int i = 0; i < sysInfo.GetNumCpuCores(); i++)
 	{
 		Ptr<AssetWorkerThread> thread = AssetWorkerThread::Create();
+
+		// thread 0 is the dedicated fbx, model, surface batcher thread (includes system)		
+		// thread 1 will batch system textures, threads 2-x will batch textures
 		thread->app = this;
 		if (i == 0)
 		{
 			thread->BatchSystem(true);
+			thread->BatchGraphics(true);
 		}
-		else
+		if (i == 1)
 		{
-			thread->BatchSystem(false);
+			thread->BatchSystem(true);
 		}
+		
 		this->workerThreads.Append(thread);
 		connect(thread.get_unsafe(), SIGNAL(Message(unsigned char, const QString&)),
 			this, SLOT(OutputMessage(unsigned char, const QString&)));
 		connect(thread.get_unsafe(), SIGNAL(finished()), this, SLOT(ThreadDone()));
 	}
-	this->runningThreads.release(sysInfo.GetNumCpuCores());
 
+	shaderThread = ShaderWorkerThread::Create();
+	shaderThread->app = this;
+	
+	connect(shaderThread.get_unsafe(), SIGNAL(Message(unsigned char, const QString&)),
+		this, SLOT(OutputMessage(unsigned char, const QString&)));
+	connect(shaderThread.get_unsafe(), SIGNAL(finished()), this, SLOT(ThreadDone()));
+
+	gameThread = GameWorkerThread::Create();
+	gameThread->app = this;
+
+	connect(gameThread.get_unsafe(), SIGNAL(Message(unsigned char, const QString&)),
+		this, SLOT(OutputMessage(unsigned char, const QString&)));
+	connect(gameThread.get_unsafe(), SIGNAL(finished()), this, SLOT(ThreadDone()));
+
+	this->runningThreads.release(sysInfo.GetNumCpuCores());
+	
 	ui.setupUi(this);
 	
 
@@ -241,7 +267,7 @@ BatchExporterApp::Export()
 	auto fileList = IO::IoServer::Instance()->ListDirectories("src:assets/", "*");
 	int files = fileList.Size();
 	
-	int cores = this->workerThreads.Size();
+	int cores = this->workerThreads.Size() - 1;
 	Util::FixedArray<Util::Array<Util::String>> jobs;
 	jobs.SetSize(cores);
 	int current = 0;
@@ -250,11 +276,22 @@ BatchExporterApp::Export()
 		jobs[current++].Append(fileList[i]);
 		current = current % cores;
 	}
+	
+	// the dedicated fbx thread needs all fbx files
+	this->workerThreads[0]->SetWorkAssets(fileList);
+	this->workerThreads[0]->start();
+	
 	for (int i = 0; i < cores; i++)
 	{
-		this->workerThreads[i]->SetWorkAssets(jobs[i]);
-		this->workerThreads[i]->start();
+		
+		{
+			this->workerThreads[i+1]->SetWorkAssets(jobs[i]);			
+		}
+		this->workerThreads[i+1]->start();
 	}	
+
+	this->shaderThread->start();
+	this->gameThread->start();
 }
 
 //------------------------------------------------------------------------------
@@ -466,6 +503,7 @@ void
 BatchExporterApp::UpdateOutputWindow()
 {
 	this->ui.messageList->clear();
+	this->treeItems.Clear();
 	
 	Util::String lastAsset;
 	QLogTreeItem * currentItem;
@@ -486,11 +524,20 @@ BatchExporterApp::UpdateOutputWindow()
 	{
 		if ((this->messages[i].logLevels & displayLevel) > 0)
 		{
-			currentItem = new QLogTreeItem();
-			currentItem->setData(0, Qt::DisplayRole, this->messages[i].asset.AsCharPtr());
-			Util::Array<ToolkitConsoleHandler::LogEntry> assetLogs;
-			this->ui.messageList->addTopLevelItem(currentItem);
-
+			if (this->treeItems.Contains(this->messages[i].asset))
+			{
+				currentItem = this->treeItems[this->messages[i].asset];
+			}
+			else
+			{
+				currentItem = new QLogTreeItem();
+				currentItem->setData(0, Qt::DisplayRole, this->messages[i].asset.AsCharPtr());
+				Util::Array<ToolkitConsoleHandler::LogEntry> assetLogs;
+				currentItem->logs = assetLogs;
+				this->ui.messageList->addTopLevelItem(currentItem);
+				this->treeItems.Add(this->messages[i].asset, currentItem);
+			}
+			
 			const Util::Array<ToolkitUtil::ToolLogEntry> & logs = this->messages[i].logs;
 			for (int j = 0; j < logs.Size(); j++)
 			{
@@ -503,7 +550,7 @@ BatchExporterApp::UpdateOutputWindow()
 					QLogTreeItem * newItem = new QLogTreeItem(fields);
 					currentItem->addChild(newItem);
 					newItem->logs = logs[j].logs;
-					assetLogs.AppendArray(logs[j].logs);
+					currentItem->logs.AppendArray(logs[j].logs);
 					if (logs[j].logLevels > 0x02)
 					{
 						for (int k = 0; k < 3; k++)
@@ -523,9 +570,7 @@ BatchExporterApp::UpdateOutputWindow()
 			if (this->messages[i].logLevels & ToolkitConsoleHandler::LogError)
 			{
 				currentItem->setExpanded(true);
-			}
-
-			currentItem->logs = assetLogs;		
+			}			
 		}
 	}
 
@@ -558,10 +603,12 @@ BatchExporterApp::OutputMessage(unsigned char level, const QString& msg)
 void
 BatchExporterApp::ThreadDone()
 {
+	this->messageMutex.lock();
+	this->UpdateOutputWindow();
+	this->messageMutex.unlock();
 	if (this->runningThreads.available() == this->workerThreads.Size())
 	{
-		this->ui.exportButton->setEnabled(true);
-		this->UpdateOutputWindow();
+		this->ui.exportButton->setEnabled(true);		
 	}	
 }
 
@@ -601,6 +648,15 @@ AssetWorkerThread::run()
 	exporter->SetExportFlag(Base::ExporterBase::All);
 	exporter->SetPlatform(this->app->GetProjectInfo().GetCurrentPlatform());
 	exporter->SetProgressPrecision(1000000);
+	if (this->graphics)
+	{
+		exporter->SetExportMode(AssetExporter::All - AssetExporter::Textures);
+	}
+	else
+	{
+		exporter->SetExportMode(AssetExporter::Textures);
+	}
+	
 	if (this->system)
 	{
 		exporter->ExportSystem();
@@ -675,6 +731,13 @@ WorkerThread::DebugOut(const Util::String& s)
 //------------------------------------------------------------------------------
 /**
 */
+AssetWorkerThread::AssetWorkerThread() : system(false), graphics(false)
+{
+	// empty
+}
+//------------------------------------------------------------------------------
+/**
+*/
 void
 AssetWorkerThread::SetWorkAssets(const Util::Array<Util::String> & assets)
 {
@@ -688,6 +751,104 @@ void
 AssetWorkerThread::BatchSystem(bool enable)
 {
 	this->system = enable;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+AssetWorkerThread::BatchGraphics(bool enable)
+{
+	this->graphics = enable;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+AssetWorkerThread::GetBatchGraphics(void) const
+{
+	return this->graphics;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ShaderWorkerThread::run()
+{
+	this->myId = Threading::Thread::GetMyThreadId();
+	this->app->WorkerSemaphore().acquire(1);
+	IO::Console::Instance()->AttachHandler(this);
+
+	Ptr<IO::IoServer> io = IO::IoServer::Create();
+	Util::LocalStringAtomTable localStringAtomTable;
+
+	n_printf("------------- Starting Shaderbatcher -------------\n");
+
+	const ProjectInfo& projectInfo = this->app->GetProjectInfo();
+	this->shaderCompiler.SetPlatform(projectInfo.GetCurrentPlatform());
+	if (projectInfo.HasAttr("ShaderToolParams"))
+	{
+		this->shaderCompiler.SetAdditionalParams(projectInfo.GetAttr("ShaderToolParams"));
+	}
+
+	// setup required stuff in compiler
+	this->shaderCompiler.SetLanguage(projectInfo.GetAttr("ShaderLanguage"));
+	this->shaderCompiler.SetSrcShaderBaseDir(projectInfo.GetAttr("ShaderSrcDir"));
+	this->shaderCompiler.SetDstShaderDir(projectInfo.GetAttr("ShaderDstDir"));
+	this->shaderCompiler.SetSrcFrameShaderBaseDir(projectInfo.GetAttr("FrameShaderSrcDir"));
+	this->shaderCompiler.SetDstFrameShaderDir(projectInfo.GetAttr("FrameShaderDstDir"));
+	this->shaderCompiler.SetSrcMaterialBaseDir(projectInfo.GetAttr("MaterialsSrcDir"));
+	this->shaderCompiler.SetDstMaterialsDir(projectInfo.GetAttr("MaterialsDstDir"));
+
+	// setup custom stuff
+	if (projectInfo.HasAttr("ShaderSrcCustomDir")) this->shaderCompiler.SetSrcShaderCustomDir(projectInfo.GetAttr("ShaderSrcCustomDir"));
+	if (projectInfo.HasAttr("FrameShaderSrcCustomDir")) this->shaderCompiler.SetSrcFrameShaderCustomDir(projectInfo.GetAttr("FrameShaderSrcCustomDir"));
+	if (projectInfo.HasAttr("MaterialsSrcCustomDir")) this->shaderCompiler.SetSrcMaterialCustomDir(projectInfo.GetAttr("MaterialsSrcCustomDir"));
+
+	Util::Array<ToolLog> messages;
+	Ptr<ToolkitUtil::ToolkitConsoleHandler> console = ToolkitUtil::ToolkitConsoleHandler::Instance();
+
+	// FIXME, this is too basic, should have per file
+	// call the shader compiler tool
+	ToolLog log("Shaders");
+	this->shaderCompiler.CompileShaders();
+	log.AddEntry(console, "Shader Compiler", "...");
+	console->Clear();
+	this->shaderCompiler.CompileFrameShaders();
+	log.AddEntry(console, "Frame Shader Compiler", "...");
+	console->Clear();
+	this->shaderCompiler.CompileMaterials();
+	log.AddEntry(console, "Materials Compiler", "...");
+	messages.Append(log);
+	this->app->AddMessages(messages);
+	IO::Console::Instance()->RemoveHandler(this);
+	this->app->WorkerSemaphore().release(1);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+GameWorkerThread::run()
+{
+ 	this->myId = Threading::Thread::GetMyThreadId();
+ 	this->app->WorkerSemaphore().acquire(1);
+ 	IO::Console::Instance()->AttachHandler(this);
+ 
+ 	Ptr<IO::IoServer> io = IO::IoServer::Create();
+ 	Util::LocalStringAtomTable localStringAtomTable;
+ 
+ 	n_printf("------------- Starting Game batcher -------------\n");
+ 	//Ptr<ToolkitUtil::GameExporter> exporter = ToolkitUtil::GameExporter::Create();
+// 	Logger logger;
+// 	exporter->SetLogger(&logger);
+ 	//exporter->Open();
+ 	//exporter->ExportAll();
+ 	//exporter->Close();
+ 	IO::Console::Instance()->RemoveHandler(this);
+ 	this->app->WorkerSemaphore().release(1);
 }
 
 } // namespace BatchExporter

@@ -54,8 +54,10 @@ public:
 
 	/// explicitly exports the system directories (toolkit:system and toolkit:lighting)
 	void ExportSystem();
-    /// exports a single directory
+    /// exports a single category
     void ExportDir(const Util::String& category);
+	/// export a single folder with absolute path
+	void ExportFolder(const Util::String& folder, const Util::String& category);
     /// exports all files
     void ExportAll();
 

@@ -69,13 +69,10 @@ AssetExporter::Close()
 void
 AssetExporter::ExportSystem()
 {
-	n_printf("------------- Exporting system assets -------------\n");
-	String origSrc = AssignRegistry::Instance()->GetAssign("src");
-	AssignRegistry::Instance()->SetAssign(Assign("src", "toolkit:work"));
-	this->ExportDir("system");
-	this->ExportDir("lighting");
-	this->ExportDir("placeholder");
-	AssignRegistry::Instance()->SetAssign(Assign("src", origSrc));
+	n_printf("------------- Exporting system assets -------------\n");	
+	this->ExportFolder("toolkit:work/assets/system/", "system");
+	this->ExportFolder("toolkit:work/assets/lighting/", "lighting");
+	this->ExportFolder("toolkit:work/assets/placeholder/", "placeholder");	
 }
 
 //------------------------------------------------------------------------------
@@ -84,9 +81,19 @@ AssetExporter::ExportSystem()
 void
 AssetExporter::ExportDir(const Util::String& category)
 {
+	String assetPath = String::Sprintf("src:assets/%s/", category.AsCharPtr());
+	this->ExportFolder(assetPath, category);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+AssetExporter::ExportFolder(const Util::String& assetPath, const Util::String& category)
+{
     n_printf("Exporting asset directory '%s'\n", category.AsCharPtr());
 
-    String assetPath = String::Sprintf("src:assets/%s/", category.AsCharPtr());
+    
     IndexT fileIndex;
 	ToolLog log(category);
 	Ptr<ToolkitUtil::ToolkitConsoleHandler> console = ToolkitUtil::ToolkitConsoleHandler::Instance();
@@ -140,7 +147,7 @@ AssetExporter::ExportDir(const Util::String& category)
         files.AppendArray(IoServer::Instance()->ListFiles(assetPath, "*.psd"));
         files.AppendArray(IoServer::Instance()->ListFiles(assetPath, "*.png"));
         files.AppendArray(IoServer::Instance()->ListFiles(assetPath, "*.jpg"));
-        this->textureExporter.SetForceFlag((this->mode & ExportModes::ForceTextures) != 0);
+		this->textureExporter.SetForceFlag((this->mode & ExportModes::ForceTextures) != 0);
         for (fileIndex = 0; fileIndex < files.Size(); fileIndex++)
         {
 			console->Clear();

@@ -23,9 +23,12 @@
 #include "toolkitapp.h"
 #include "asset/assetexporter.h"
 #include "io/consolehandler.h"
+#include "shadercompiler.h"
 
 
 // FIXME, all of this feels horribly clunky, especially the thread handling
+
+class QLogTreeItem;
 
 namespace BatchExporter
 {
@@ -63,17 +66,22 @@ class AssetWorkerThread : public WorkerThread
 	__DeclareClass(AssetWorkerThread);
 public:
 		
+	AssetWorkerThread();
 	/// set assetfolders to work on
 	void SetWorkAssets(const Util::Array<Util::String> & assets);
 	/// batch system data on this thread
 	void BatchSystem(bool enable);
+	/// dedicated fbx/model/surface batcher
+	void BatchGraphics(bool enable);
+	///
+	bool GetBatchGraphics() const;
 	/// thread main function
 	void run();
 
 private:
 	Ptr<ToolkitUtil::ModelDatabase> modelDatabase;
 	Util::Array<Util::String> workPackage;
-	
+	bool graphics;
 	bool system;
 };
 
@@ -86,6 +94,7 @@ public:
 	/// thread main function
 	void run();
 private:
+	ToolkitUtil::ShaderCompiler shaderCompiler;
 };
 
 
@@ -134,6 +143,8 @@ public:
 
 	///
 	void AddMessages(const Util::Array<ToolkitUtil::ToolLog>&messages);
+
+
 
 private slots:
 
@@ -189,7 +200,7 @@ private:
 	
 
 	Util::Array<ToolkitUtil::ToolLog> messages;
-    
+	Util::Dictionary<Util::String, QLogTreeItem*> treeItems;
     QString workDir;
     QString toolDir;
 		
