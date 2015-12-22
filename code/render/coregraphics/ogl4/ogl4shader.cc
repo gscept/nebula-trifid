@@ -61,7 +61,6 @@ OGL4Shader::BeginUpdate()
     ShaderBase::BeginUpdate();
     if (this->globalBlockBuffer.isvalid())
     {
-        //this->globalBlockBuffer->CycleBuffers();
         this->globalBlockBuffer->BeginUpdateSync();
     }
 }

@@ -82,9 +82,9 @@ ContentBrowserWindow::ContentBrowserWindow() :
 	this->ui.setupUi(this);
 
 	// create copy assigns so that we may modify resources without changing anything in the models/textures/surfaces
-	AssignRegistry::Instance()->SetAssign(Assign("intsur", "export:surfaces"));
-	AssignRegistry::Instance()->SetAssign(Assign("intmdl", "export:models"));
-	AssignRegistry::Instance()->SetAssign(Assign("inttex", "export:textures"));
+	AssignRegistry::Instance()->SetAssign(Assign("intsur", "root:intermediate/surfaces"));
+	AssignRegistry::Instance()->SetAssign(Assign("intmdl", "root:intermediate/models"));
+	AssignRegistry::Instance()->SetAssign(Assign("inttex", "root:intermediate/textures"));
 
 	// setup model info
 	this->modelInfoWindow = this->ui.modelDockWidget;

@@ -20,6 +20,7 @@ ConstantBufferBase::ConstantBufferBase() :
     sync(false),
     inUpdateSync(false),
     isDirty(false),
+	numBuffers(DefaultNumBackingBuffers),
     buffer(0)
 {
 	// empty
@@ -40,6 +41,7 @@ void
 ConstantBufferBase::Setup(const SizeT numBackingBuffers)
 {
     n_assert(this->size > 0);
+	n_assert(numBackingBuffers > 0);
 	this->numBuffers = numBackingBuffers;
 }
 

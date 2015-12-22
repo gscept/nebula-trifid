@@ -153,12 +153,6 @@ OGL4RenderTarget::Setup()
         {
             glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, this->depthStencilTarget->GetDepthStencilRenderbuffer());
         }
-
-		// make sure encoding to sRGB is proper
-		if (this->colorBufferFormat == PixelFormat::SRGBA8)
-		{
-			glFramebufferParameteri(GL_DRAW_FRAMEBUFFER, GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING, GL_SRGB);
-		}
 		
 		// ensure framebuffer is valid, then unbind it
 		n_assert(glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);

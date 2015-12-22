@@ -36,7 +36,6 @@ Surface::~Surface()
 void
 Surface::Unload()
 {
-    Resource::Unload();
     n_assert(this->instances.IsEmpty());
     this->staticValues.Clear();
 
@@ -47,6 +46,9 @@ Surface::Unload()
         this->materialTemplate->RemoveSurface(this);
         this->materialTemplate = 0;
     }
+
+	// run base class unload
+	Resource::Unload();
 }
 
 //------------------------------------------------------------------------------
