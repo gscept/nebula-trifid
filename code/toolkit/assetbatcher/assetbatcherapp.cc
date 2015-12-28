@@ -46,6 +46,7 @@ AssetBatcherApp::Open()
     if (DistributedToolkitApp::Open())
     {
 		Ptr<IO::Console> console = IO::Console::Instance();		
+#ifdef WIN32
 		const Util::Array<Ptr<IO::ConsoleHandler>> & handlers = console->GetHandlers();
 		for (int i = 0; i < handlers.Size(); i++)
 		{
@@ -54,6 +55,7 @@ AssetBatcherApp::Open()
 				console->RemoveHandler(handlers[i]);
 			}
 		}
+#endif
 		this->handler = ToolkitUtil::ToolkitConsoleHandler::Create();
 		console->AttachHandler(this->handler.cast<IO::ConsoleHandler>());
         this->modelDatabase = ToolkitUtil::ModelDatabase::Create();

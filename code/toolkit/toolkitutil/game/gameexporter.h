@@ -10,7 +10,7 @@
 #include "base/exporterbase.h"
 #include "levelexporter.h"
 #include "templateexporter.h"
-#include "posteffect/posteffectexporter.h"
+#include "toolkitconsolehandler.h"
 
 //------------------------------------------------------------------------------
 namespace ToolkitUtil
@@ -35,10 +35,12 @@ public:
 	void ExportAll();
 	/// set pointer to a valid logger object
 	void SetLogger(Logger* logger);
+	/// get tool logs
+	const Util::Array<ToolkitUtil::ToolLog> & GetLogs() const;
 	
 private:	
 	Logger* logger;
-
+	Util::Array<ToolkitUtil::ToolLog> logs;
 }; 
 
 //------------------------------------------------------------------------------
@@ -49,5 +51,16 @@ GameExporter::SetLogger(Logger* l)
 {
 	this->logger = l;
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline 
+const Util::Array<ToolkitUtil::ToolLog> &
+GameExporter::GetLogs() const
+{
+	return this->logs;
+}
+
 } // namespace ToolkitUtil
 //------------------------------------------------------------------------------

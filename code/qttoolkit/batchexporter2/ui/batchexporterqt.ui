@@ -59,7 +59,7 @@
           <item row="8" column="0">
            <widget class="QPushButton" name="exportButton">
             <property name="text">
-             <string>Export</string>
+             <string>Export All</string>
             </property>
            </widget>
           </item>
@@ -242,6 +242,38 @@
              </layout>
             </widget>
            </widget>
+          </item>
+          <item row="10" column="0" rowspan="2">
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <item>
+             <widget class="QPushButton" name="batchGraphicsButton">
+              <property name="text">
+               <string>Batch Graphics</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="batchTexturesButton">
+              <property name="text">
+               <string>Batch Textures</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="batchShaderButton">
+              <property name="text">
+               <string>Batch Shaders</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="batchGameButton">
+              <property name="text">
+               <string>Batch Game Data</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>

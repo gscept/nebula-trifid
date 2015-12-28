@@ -55,9 +55,12 @@ public:
 
 	/// thread main function
 	void run() {}
-
+	///
+	void SetForce(bool force);
 signals:
 	void Message(unsigned char level, const QString&);
+protected:
+	bool force;
 };
 
 class AssetWorkerThread : public WorkerThread
@@ -144,7 +147,12 @@ public:
 	///
 	void AddMessages(const Util::Array<ToolkitUtil::ToolLog>&messages);
 
-
+	/// overload event handler
+	void keyPressEvent(QKeyEvent* e);
+	/// overload event handler
+	void keyReleaseEvent(QKeyEvent* e);
+	/// overload event handler
+	void leaveEvent(QEvent* e);
 
 private slots:
 
@@ -159,6 +167,15 @@ private slots:
 	void GatherExports();
 	/// executes the queue
 	void Export();
+
+	/// 
+	void ExportGraphics(bool clear = true);
+	///
+	void ExportTextures(bool clear = true);
+	///
+	void ExportShaders(bool clear = true);
+	///
+	void ExportGameData(bool clear = true);
 	
 	/// callback when exportation succeeds
 	void ExporterDone(int exitCode, QProcess::ExitStatus status);
@@ -188,7 +205,12 @@ private:
 	/// update title string with current project directory
 	void UpdateTitle();
 
-	
+	/// start batching, clears logs and 
+	void ClearLogs();
+
+
+	/// update buttons etc.
+	void SetForce(bool force);
 	
 
 	QtTools::CommandLineArgs args;

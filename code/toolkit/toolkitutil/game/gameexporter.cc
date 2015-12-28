@@ -10,6 +10,9 @@
 #include "attr/attributedefinitionbase.h"
 #include "scriptfeature/scriptattr/scriptattributes.h"
 #include "leveldbwriter.h"
+#ifdef WIN32
+#include "io/win32/win32consolehandler.h"
+#endif
 
 using namespace IO;
 using namespace Db;
@@ -62,10 +65,11 @@ GameExporter::Close()
 void 
 GameExporter::ExportAll()
 {
-
+	
     String projectFolder = "proj:";
-    
-
+	
+	Ptr<ToolkitUtil::ToolkitConsoleHandler> console = ToolkitUtil::ToolkitConsoleHandler::Instance();
+	console->Clear();
     IO::AssignRegistry::Instance()->SetAssign(Assign("home","proj:"));
 
     Ptr<Db::DbFactory> sqlite3Factory;
@@ -85,14 +89,26 @@ GameExporter::ExportAll()
 
 	IO::IoServer * ioServer = IO::IoServer::Instance();
 	Util::Array<Util::String> xmlfiles = ioServer->ListFiles("proj:data/tables/", "*.xml", false);
+
+	ToolLog log("Tables");
 	for (Util::Array<Util::String>::Iterator iter = xmlfiles.Begin(); iter != xmlfiles.End(); iter++)
 	{
 		if (*iter != "blueprints.xml")
 		{
-			ioServer->CopyFile("proj:data/tables/" + *iter, "export:data/tables/" + *iter);
+			Util::String from("proj:data/tables/" + *iter);
+			Util::String to("export:data/tables/" + *iter);			
+			ioServer->CopyFile(from, to);
+			IO::URI fromUri(from);
+			IO::URI toUri(to);
+			n_printf("Copying table %s to %s\n", fromUri.LocalPath().AsCharPtr(), toUri.LocalPath().AsCharPtr());
 		}		
-
 	}
+	log.AddEntry(console, "Game Batcher", "data/tables");
+	console->Clear();
+	this->logs.Append(log);
+
+	ToolLog blog("Blueprints");
+
     Ptr<Toolkit::EditorBlueprintManager> bm;
     if(Toolkit::EditorBlueprintManager::HasInstance())
     {
@@ -121,6 +137,12 @@ GameExporter::ExportAll()
     bm->CreateDatabases("export:/db/");
 	bm->SaveBlueprint("export:data/tables/blueprints.xml");
 
+	blog.AddEntry(console, "Blueprint Manager", "data/tables");
+	console->Clear();
+	this->logs.Append(blog);
+
+	ToolLog llog("Levels");
+
     Ptr<Db::Database> gamedb = Db::DbFactory::Instance()->CreateDatabase();
     gamedb->SetURI("export:db/game.db4");
     gamedb->SetAccessMode(Db::Database::ReadWriteExisting);
@@ -129,13 +151,17 @@ GameExporter::ExportAll()
     staticdb->SetURI("export:db/static.db4");
     staticdb->SetAccessMode(Db::Database::ReadWriteExisting);
     staticdb->Open();
+	
+	llog.AddEntry(console, "Blueprint Manager", "Databases");
+	console->Clear();
+	this->logs.Append(llog);
 
     Ptr<ToolkitUtil::LevelDbWriter> dbwriter = ToolkitUtil::LevelDbWriter::Create();
     dbwriter->Open(gamedb,staticdb);
     String levelDir = "proj:work/levels";
     Array<String> files = IoServer::Instance()->ListFiles(IO::URI(levelDir), "*.xml", true);
     for (int fileIndex = 0; fileIndex < files.Size(); fileIndex++)
-    {        
+    {        		
         Ptr<IO::Stream> levelStream = IoServer::Instance()->CreateStream(files[fileIndex]);
         Ptr<XmlReader> xmlReader = XmlReader::Create();
         levelStream->Open();
@@ -144,6 +170,9 @@ GameExporter::ExportAll()
         dbwriter->LoadXmlLevel(xmlReader);
         xmlReader->Close();
         levelStream->Close();        
+		llog.AddEntry(console, "Level Writer", files[fileIndex]);
+		console->Clear();
+		this->logs.Append(llog);
     }
     dbwriter->Close();    
     gamedb->Close();

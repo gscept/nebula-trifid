@@ -66,6 +66,7 @@ TextureConversionJob::PrepareConversion(const String& srcPath, const String& dst
     // check if we can skip conversion based on the file time stamps and force flag
     if (!this->NeedsConversion(srcPath, dstPath))
     {
+		n_printf("Up to date texture: %s\n", srcPath.AsCharPtr());
         return true;
     }
 

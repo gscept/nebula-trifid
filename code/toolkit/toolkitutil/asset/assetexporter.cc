@@ -101,7 +101,7 @@ AssetExporter::ExportFolder(const Util::String& assetPath, const Util::String& c
     {
         // export FBX sources
         Array<String> files = IoServer::Instance()->ListFiles(assetPath, "*.fbx");
-		this->fbxExporter->SetForce((this->mode & ExportModes::ForceFBX) != 0);
+		this->fbxExporter->SetForce(this->force || (this->mode & ExportModes::ForceFBX) != 0);
         this->fbxExporter->SetCategory(category);		
         for (fileIndex = 0; fileIndex < files.Size(); fileIndex++)
         {
@@ -147,7 +147,7 @@ AssetExporter::ExportFolder(const Util::String& assetPath, const Util::String& c
         files.AppendArray(IoServer::Instance()->ListFiles(assetPath, "*.psd"));
         files.AppendArray(IoServer::Instance()->ListFiles(assetPath, "*.png"));
         files.AppendArray(IoServer::Instance()->ListFiles(assetPath, "*.jpg"));
-		this->textureExporter.SetForceFlag((this->mode & ExportModes::ForceTextures) != 0);
+		this->textureExporter.SetForceFlag(this->force || (this->mode & ExportModes::ForceTextures) != 0);
         for (fileIndex = 0; fileIndex < files.Size(); fileIndex++)
         {
 			console->Clear();
@@ -160,7 +160,7 @@ AssetExporter::ExportFolder(const Util::String& assetPath, const Util::String& c
 	if (this->mode & ExportModes::Surfaces)
 	{
 		Array<String> files = IoServer::Instance()->ListFiles(assetPath, "*.sur");
-		this->surfaceExporter->SetForce((this->mode & ExportModes::ForceSurfaces) != 0);
+		this->surfaceExporter->SetForce(this->force || (this->mode & ExportModes::ForceSurfaces) != 0);
 		for (fileIndex = 0; fileIndex < files.Size(); fileIndex++)
 		{
 			console->Clear();
