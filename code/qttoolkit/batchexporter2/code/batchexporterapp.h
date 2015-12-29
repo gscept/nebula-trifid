@@ -72,8 +72,6 @@ public:
 	AssetWorkerThread();
 	/// set assetfolders to work on
 	void SetWorkAssets(const Util::Array<Util::String> & assets);
-	/// batch system data on this thread
-	void BatchSystem(bool enable);
 	/// dedicated fbx/model/surface batcher
 	void BatchGraphics(bool enable);
 	///
@@ -84,8 +82,20 @@ public:
 private:
 	Ptr<ToolkitUtil::ModelDatabase> modelDatabase;
 	Util::Array<Util::String> workPackage;
-	bool graphics;
-	bool system;
+	bool graphics;	
+};
+
+class SystemWorkerThread : public WorkerThread
+{
+	Q_OBJECT
+		__DeclareClass(SystemWorkerThread);
+public:
+	
+	/// thread main function
+	void run();
+
+private:
+	Ptr<ToolkitUtil::ModelDatabase> modelDatabase;		
 };
 
 class ShaderWorkerThread : public WorkerThread
@@ -141,6 +151,8 @@ public:
 
 	/// access to worker thread semaphore
 	QSemaphore & WorkerSemaphore();
+	///
+	QMutex & SystemMutex();
 	/// access to projectinfo
 	const ToolkitUtil::ProjectInfo & GetProjectInfo();
 
@@ -229,8 +241,10 @@ private:
 	Util::Array<Ptr<AssetWorkerThread>> workerThreads;
 	Ptr<ShaderWorkerThread> shaderThread;
 	Ptr<GameWorkerThread> gameThread;
+	Ptr<SystemWorkerThread> systemThread;
 	QSemaphore runningThreads;
 	QMutex messageMutex;
+	QMutex systemBatchMutex;
 };
 
 ///------------------------------------------------------------------------------
@@ -240,6 +254,15 @@ inline QSemaphore &
 BatchExporterApp::WorkerSemaphore()
 {
 	return this->runningThreads;
+}
+
+///------------------------------------------------------------------------------
+/**
+*/
+inline QMutex &
+BatchExporterApp::SystemMutex()
+{
+	return this->systemBatchMutex;
 }
 
 ///------------------------------------------------------------------------------

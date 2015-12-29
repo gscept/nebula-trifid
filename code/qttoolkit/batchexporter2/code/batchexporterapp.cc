@@ -52,6 +52,7 @@ __ImplementAbstractClass(BatchExporter::WorkerThread, 'BEWP', IO::ConsoleHandler
 __ImplementClass(BatchExporter::AssetWorkerThread, 'BEAT', BatchExporter::WorkerThread);
 __ImplementClass(BatchExporter::ShaderWorkerThread, 'SHWT', BatchExporter::WorkerThread);
 __ImplementClass(BatchExporter::GameWorkerThread, 'GWWT', BatchExporter::WorkerThread);
+__ImplementClass(BatchExporter::SystemWorkerThread, 'SWWT', BatchExporter::WorkerThread);
 
 class QLogTreeItem : public QTreeWidgetItem
 {
@@ -126,14 +127,9 @@ void BatchExporterApp::Open(const CommandLineArgs& args)
 		// thread 1 will batch system textures, threads 2-x will batch textures
 		thread->app = this;
 		if (i == 0)
-		{
-			thread->BatchSystem(true);
+		{			
 			thread->BatchGraphics(true);
-		}
-		if (i == 1)
-		{
-			thread->BatchSystem(true);
-		}
+		}		
 		
 		this->workerThreads.Append(thread);
 		connect(thread.get_unsafe(), SIGNAL(Message(unsigned char, const QString&)),
@@ -141,8 +137,11 @@ void BatchExporterApp::Open(const CommandLineArgs& args)
 		connect(thread.get_unsafe(), SIGNAL(finished()), this, SLOT(ThreadDone()));
 	}
 
-	shaderThread = ShaderWorkerThread::Create();
-	shaderThread->app = this;
+	this->systemThread = SystemWorkerThread::Create();
+	this->systemThread->app = this;
+
+	this->shaderThread = ShaderWorkerThread::Create();
+	this->shaderThread->app = this;
 	
 	connect(shaderThread.get_unsafe(), SIGNAL(Message(unsigned char, const QString&)),
 		this, SLOT(OutputMessage(unsigned char, const QString&)));
@@ -613,6 +612,8 @@ BatchExporterApp::ExportGraphics(bool clear)
 	{
 		this->ClearLogs();
 	}
+	this->systemThread->SetForce(this->force);
+	this->systemThread->start();
 	auto fileList = IO::IoServer::Instance()->ListDirectories("src:assets/", "*");
 	int files = fileList.Size();
 
@@ -762,6 +763,7 @@ BatchExporterApp::SetForce(bool inForce)
 void
 AssetWorkerThread::run()
 {
+	this->app->SystemMutex().lock();
 	this->myId = Threading::Thread::GetMyThreadId();
 	this->app->WorkerSemaphore().acquire(1);
 	IO::Console::Instance()->AttachHandler(this);
@@ -790,12 +792,6 @@ AssetWorkerThread::run()
 		exporter->SetExportMode(AssetExporter::Textures);
 	}
 	
-	if (this->system)
-	{
-		exporter->ExportSystem();
-	}
-	
-
 		
 	for (int i = 0; i < this->workPackage.Size(); i++)
 	{
@@ -810,6 +806,7 @@ AssetWorkerThread::run()
 	this->app->AddMessages(exporter->GetMessages());	
 	IO::Console::Instance()->RemoveHandler(this);
 	this->app->WorkerSemaphore().release(1);
+	this->app->SystemMutex().unlock();
 }
 
 //------------------------------------------------------------------------------
@@ -873,7 +870,7 @@ WorkerThread::SetForce(bool force)
 //------------------------------------------------------------------------------
 /**
 */
-AssetWorkerThread::AssetWorkerThread() : system(false), graphics(false)
+AssetWorkerThread::AssetWorkerThread() : graphics(false)
 {
 	// empty
 }
@@ -884,15 +881,6 @@ void
 AssetWorkerThread::SetWorkAssets(const Util::Array<Util::String> & assets)
 {
 	this->workPackage = assets;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-AssetWorkerThread::BatchSystem(bool enable)
-{
-	this->system = enable;
 }
 
 //------------------------------------------------------------------------------
@@ -919,6 +907,7 @@ AssetWorkerThread::GetBatchGraphics(void) const
 void
 ShaderWorkerThread::run()
 {
+	this->app->SystemMutex().lock();
 	this->myId = Threading::Thread::GetMyThreadId();
 	this->app->WorkerSemaphore().acquire(1);
 	IO::Console::Instance()->AttachHandler(this);
@@ -967,7 +956,8 @@ ShaderWorkerThread::run()
 	messages.Append(log);
 	this->app->AddMessages(messages);
 	IO::Console::Instance()->RemoveHandler(this);
-	this->app->WorkerSemaphore().release(1);
+	this->app->WorkerSemaphore().release(1);	
+	this->app->SystemMutex().unlock();
 }
 
 
@@ -1052,6 +1042,47 @@ GameWorkerThread::run()
 
  	IO::Console::Instance()->RemoveHandler(this);
  	this->app->WorkerSemaphore().release(1);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+SystemWorkerThread::run()
+{
+	this->app->SystemMutex().lock();
+	this->myId = Threading::Thread::GetMyThreadId();
+	this->app->WorkerSemaphore().acquire(1);
+	IO::Console::Instance()->AttachHandler(this);
+
+	Ptr<IO::IoServer> io = IO::IoServer::Create();
+	Util::LocalStringAtomTable localStringAtomTable;
+
+	this->modelDatabase = ToolkitUtil::ModelDatabase::Create();
+	this->modelDatabase->Open();
+
+	Ptr<AssetExporter> exporter = AssetExporter::Create();
+
+
+	IO::AssignRegistry::Instance()->SetAssign(IO::Assign("home", "proj:"));
+	exporter->Open();
+	exporter->SetForce(this->force);
+	exporter->SetExportFlag(Base::ExporterBase::All);
+	exporter->SetPlatform(this->app->GetProjectInfo().GetCurrentPlatform());
+	exporter->SetProgressPrecision(1000000);
+	exporter->SetExportMode(AssetExporter::All);
+	exporter->ExportSystem();
+
+	//exporter->ExportAll();
+	if (this->modelDatabase.isvalid())
+	{
+		this->modelDatabase->Close();
+		this->modelDatabase = 0;
+	}
+	this->app->AddMessages(exporter->GetMessages());
+	IO::Console::Instance()->RemoveHandler(this);
+	this->app->WorkerSemaphore().release(1);
+	this->app->SystemMutex().unlock();
 }
 
 } // namespace BatchExporter
