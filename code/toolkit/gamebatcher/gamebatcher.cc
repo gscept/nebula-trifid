@@ -48,9 +48,6 @@ extern "C"
 				}
 			}
 #endif
-			Ptr<ToolkitUtil::ToolkitConsoleHandler> handler;
-			handler = ToolkitUtil::ToolkitConsoleHandler::Create();
-			console->AttachHandler(handler.cast<IO::ConsoleHandler>());
 			app.Run();
 			Util::String xmlLogs = app.GetXMLLogs();			
 #ifdef WIN32
@@ -59,8 +56,7 @@ extern "C"
 #else
 			data = Memory::Alloc(xmlLogs.Length() + 1);
 #endif
-			Memory::Copy(xmlLogs.AsCharPtr(), data, xmlLogs.Length() + 1);
-			console->RemoveHandler(handler.cast<IO::ConsoleHandler>());
+			Memory::Copy(xmlLogs.AsCharPtr(), data, xmlLogs.Length() + 1);			
 			app.Close();
 			return data;
 		}

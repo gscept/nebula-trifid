@@ -55,9 +55,7 @@ AssetBatcherApp::Open()
 				console->RemoveHandler(handlers[i]);
 			}
 		}
-#endif
-		this->handler = ToolkitUtil::ToolkitConsoleHandler::Create();
-		console->AttachHandler(this->handler.cast<IO::ConsoleHandler>());
+#endif		
         this->modelDatabase = ToolkitUtil::ModelDatabase::Create();
         this->modelDatabase->Open();
         return true;
@@ -70,8 +68,7 @@ AssetBatcherApp::Open()
 */
 void
 AssetBatcherApp::Close()
-{
-	this->handler = 0;
+{	
     if (this->modelDatabase.isvalid())
     {
         this->modelDatabase->Close();

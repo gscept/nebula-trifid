@@ -112,9 +112,6 @@ void BatchExporterApp::Open(const CommandLineArgs& args)
 		}
 	}
 #endif
-	Ptr<ToolkitUtil::ToolkitConsoleHandler> handler = ToolkitUtil::ToolkitConsoleHandler::Create();
-	console->AttachHandler(handler.cast<IO::ConsoleHandler>());
-	
 	this->SetupProjectInfo();
 
 	System::SystemInfo sysInfo;
