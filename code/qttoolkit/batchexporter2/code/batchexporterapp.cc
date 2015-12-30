@@ -118,8 +118,10 @@ void BatchExporterApp::Open(const CommandLineArgs& args)
 	System::SystemInfo sysInfo;
 	int cores = sysInfo.GetNumCpuCores();
 	// we need at least two threads
-	cores = Math::n_max(2, cores);
-	for (int i = 0; i < sysInfo.GetNumCpuCores(); i++)
+	cores = Math::n_max(2, cores);	
+	// FIXME, having more than 3 will endanger memory limits quickly due to nvtt being VERY memory hungry
+	cores = Math::n_max(3, cores);
+	for (int i = 0; i < cores; i++)
 	{
 		Ptr<AssetWorkerThread> thread = AssetWorkerThread::Create();
 
@@ -247,6 +249,8 @@ BatchExporterApp::Export()
 	this->ClearLogs();
 	
 	this->ExportGraphics(false);
+
+	this->ExportTextures(false);
 
 	this->ExportShaders(false);
 
@@ -593,6 +597,8 @@ BatchExporterApp::ExportGraphics(bool clear)
 		this->ClearLogs();
 	}
 	this->systemThread->SetForce(this->force);
+	// lock system mutex to delay depending threads
+	this->systemBatchMutex.lock();
 	this->systemThread->start();
 	auto fileList = IO::IoServer::Instance()->ListDirectories("src:assets/", "*");
 	int files = fileList.Size();
@@ -787,7 +793,11 @@ BatchExporterApp::StartLeveleditor()
 void
 AssetWorkerThread::run()
 {
+	// check if system batcher is done
 	this->app->SystemMutex().lock();
+	// unlock right away since we dont actually need it
+	this->app->SystemMutex().unlock();
+
 	this->myId = Threading::Thread::GetMyThreadId();
 	this->app->WorkerSemaphore().acquire(1);
 	IO::Console::Instance()->AttachHandler(this);
@@ -829,8 +839,7 @@ AssetWorkerThread::run()
 	}
 	this->app->AddMessages(exporter->GetMessages());	
 	IO::Console::Instance()->RemoveHandler(this);
-	this->app->WorkerSemaphore().release(1);
-	this->app->SystemMutex().unlock();
+	this->app->WorkerSemaphore().release(1);	
 }
 
 //------------------------------------------------------------------------------
@@ -1074,7 +1083,6 @@ GameWorkerThread::run()
 void
 SystemWorkerThread::run()
 {
-	this->app->SystemMutex().lock();
 	this->myId = Threading::Thread::GetMyThreadId();
 	this->app->WorkerSemaphore().acquire(1);
 	IO::Console::Instance()->AttachHandler(this);
@@ -1106,6 +1114,7 @@ SystemWorkerThread::run()
 	this->app->AddMessages(exporter->GetMessages());
 	IO::Console::Instance()->RemoveHandler(this);
 	this->app->WorkerSemaphore().release(1);
+	// system batcher is done, we are free to start other threads using src: assigns
 	this->app->SystemMutex().unlock();
 }
 

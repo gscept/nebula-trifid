@@ -142,7 +142,7 @@ AssetExporter::ExportFolder(const Util::String& assetPath, const Util::String& c
         }
     }
 
-    if (0)//this->mode & ExportModes::Textures)
+    if (this->mode & ExportModes::Textures)
     {
         // export textures
         Array<String> files = IoServer::Instance()->ListFiles(assetPath, "*.tga");
