@@ -845,6 +845,7 @@ ModelAttributes::Load(const Ptr<IO::Stream>& stream)
 		// stop loading if version is wrong
 		if (version != ModelAttributes::Version)
 		{
+			n_warning("Invalid version in model attributes: %s\n", stream->GetURI().LocalPath().AsCharPtr());
 			stream->Close();
 			return;
 		}
