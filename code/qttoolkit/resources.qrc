@@ -14,5 +14,7 @@
     <file>icons/Properties.png</file>
     <file>icons/Template.png</file>
     <file>icons/FX.png</file>
+    <file>icons/Leveleditor.png</file>
+    <file>icons/Contentbrowser.png</file>
   </qresource>
 </RCC>

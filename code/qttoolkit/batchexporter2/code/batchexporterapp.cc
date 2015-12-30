@@ -193,6 +193,8 @@ void BatchExporterApp::Open(const CommandLineArgs& args)
 	// if the exporter failed to start, run export again, but not recursively
 	connect(this, SIGNAL(ExportFailed(const QString&)), this, SLOT(Export()));
 	connect(ui.actionSetWorkDir, SIGNAL(triggered(bool)), this, SLOT(PickWorkingDir()));
+	connect(ui.actionContentbrowser, SIGNAL(triggered(bool)), this, SLOT(StartContentbrowser()));
+	connect(ui.actionLeveleditor, SIGNAL(triggered(bool)), this, SLOT(StartLeveleditor()));
 	
 	connect(ui.actionSetToolkitDirectory, SIGNAL(triggered(bool)), this, SLOT(PickToolkitDir()));
 	connect(ui.actionAbout, SIGNAL(triggered(bool)), this, SLOT(ShowAbout()));
@@ -206,29 +208,7 @@ void BatchExporterApp::Open(const CommandLineArgs& args)
 	connect(ui.batchShaderButton, SIGNAL(clicked()), this, SLOT(ExportShaders()));
 	connect(ui.batchGameButton, SIGNAL(clicked()), this, SLOT(ExportGameData()));
 	
-	/*
-    if(System::NebulaSettings::Exists("gscept", "ToolkitShared.batchexporter", "force"))
-    {
-        Util::String forceSetting = System::NebulaSettings::ReadString("gscept", "ToolkitShared.batchexporter", "force");
-        ui.forceExport->setChecked(forceSetting.AsBool());
-    }
-
-    if(System::NebulaSettings::Exists("gscept", "ToolkitShared.batchexporter", "exportFlags"))	
-	{
-        int flag = System::NebulaSettings::ReadString("gscept", "ToolkitShared.batchexporter", "exportFlags").AsInt();		
-		this->exportBits = flag;
-		ui.exportGraphics->setChecked(flag & Graphics);
-		ui.exportModels->setChecked(flag & Models);			
-		ui.exportTextures->setChecked(flag & Textures);
-		ui.exportShaders->setChecked(flag & Shaders);
-		ui.exportGameData->setChecked(flag & GameData);
-		ui.exportAudio->setChecked(flag & Audio);
-	}
-	else
-	*/
-	{
-		this->exportBits = All;
-	}
+	this->exportBits = All;	
 }
 
 //------------------------------------------------------------------------------
@@ -756,6 +736,50 @@ BatchExporterApp::SetForce(bool inForce)
 	this->force = inForce;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+BatchExporterApp::StartContentbrowser()
+{
+#ifdef DEBUG
+	Util::String exe = "bin:contentbrowser.debug";
+#else
+	Util::String exe = "bin:contentbrowser";
+#endif
+#ifdef WIN32
+	exe += ".exe";
+#endif
+	IO::URI exeUri(exe);
+	if (!ToolkitUtil::AppLauncher::CheckIfExists(exeUri))
+	{
+		QProcess content;
+		content.startDetached(exeUri.LocalPath().AsCharPtr());
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+BatchExporterApp::StartLeveleditor()
+{
+
+#ifdef DEBUG
+	Util::String exe = "bin:leveleditor2.debug";
+#else
+	Util::String exe = "bin:leveleditor2";
+#endif
+#ifdef WIN32
+	exe += ".exe";
+#endif
+	IO::URI exeUri(exe);
+	if (!ToolkitUtil::AppLauncher::CheckIfExists(exeUri))
+	{
+		QProcess content;
+		content.startDetached(exeUri.LocalPath().AsCharPtr());
+	}
+}
 
 //------------------------------------------------------------------------------
 /**

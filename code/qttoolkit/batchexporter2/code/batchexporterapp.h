@@ -201,6 +201,11 @@ private slots:
 	/// shows the about dialog
 	void ShowAbout();
 
+	///
+	void StartContentbrowser();
+	///
+	void StartLeveleditor();
+
 	/// 
 	void UpdateOutputWindow();
 

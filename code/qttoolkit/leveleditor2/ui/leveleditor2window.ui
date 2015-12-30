@@ -212,6 +212,7 @@
     </property>
     <addaction name="actionGrid"/>
     <addaction name="actionSelection_Colour"/>
+    <addaction name="actionReset_window_layout"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -966,6 +967,11 @@
    </property>
    <property name="shortcut">
     <string>Alt+A</string>
+   </property>
+  </action>
+  <action name="actionReset_window_layout">
+   <property name="text">
+    <string>Reset window layout</string>
    </property>
   </action>
  </widget>
