@@ -67,6 +67,7 @@ shared varblock LightBlock [bool System = true;]
 	int			LightTypeArray[MAX_NUM_LIGHTS];
 	bool		LightCastsShadowsArray[MAX_NUM_LIGHTS];
 };
+
 mat4 LightViewProjection;
 sampler2D	LightShadowTexture;
 	
@@ -93,7 +94,6 @@ shared varbuffer PerObject
 	int ObjectId;
 };
 */
-
 
 mat4 EmitterTransform;
 vec4 RenderTargetDimensions;	// x and y holds 1 / render target size, z and w holds render target size

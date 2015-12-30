@@ -109,7 +109,7 @@ SM50LightServer::Open()
 
     // setup block for global light
     this->globalLightBuffer                     = ConstantBuffer::Create();
-	//this->globalLightBuffer->SetSync(true);
+	this->globalLightBuffer->SetSync(true);
     this->globalLightBuffer->SetupFromBlockInShader(this->lightShader, "GlobalLightBlock");
     this->globalLightDir                        = this->globalLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_GLOBALLIGHTDIR);
     this->globalLightColor                      = this->globalLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_GLOBALLIGHTCOLOR);
@@ -294,12 +294,12 @@ SM50LightServer::RenderLights()
 		// now set shadow buffer for local lights    
 		this->shadowProjMapVar->SetTexture(shadowServer->GetSpotLightShadowBufferTexture());
 	}	
-	
-	// render point lights
-	this->RenderPointLights();
 
 	// render spot lights
 	this->RenderSpotLights();
+	
+	// render point lights
+	this->RenderPointLights();
 }
 
 //------------------------------------------------------------------------------

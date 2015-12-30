@@ -67,7 +67,7 @@ SM50ShadowServer::Open()
 	// load the ShadowBuffer frame shader
 	const Ptr<FrameServer>& frameServer = FrameServer::Instance();
 	const Ptr<MaterialServer> materialServer = MaterialServer::Instance();
-	this->shadowShader = ShaderServer::Instance()->GetShader("shd:shadow");
+	this->shadowShader = ShaderServer::Instance()->GetSharedShader();
 	this->shadowLightViewProjVar = this->shadowShader->GetVariableByName("LightViewProjection");
 
 	// setup the shadow buffer render target, this is a single
@@ -437,9 +437,11 @@ SM50ShadowServer::UpdateSpotLightShadowBuffers()
 		const Ptr<SpotLightEntity>& lightEntity = this->spotLightEntities[lightIndex];
 
 		// skip casting shadows
-		if (!lightEntity->GetCastShadowsThisFrame()) continue;
+		//if (!lightEntity->GetCastShadowsThisFrame()) continue;
 		matrix44 viewProj = matrix44::multiply(lightEntity->GetShadowInvTransform(), lightEntity->GetShadowProjTransform());
+		this->shadowShader->BeginUpdate();
 		this->shadowLightViewProjVar->SetMatrix(viewProj);
+		this->shadowShader->EndUpdate();
 
 		// perform visibility resolve for current light
 		visResolver->BeginResolve(lightEntity->GetTransform());
@@ -497,9 +499,7 @@ SM50ShadowServer::UpdateSpotLightShadowBuffers()
         uvOffset.z() = (1.0f - shadowBufferHoriPixelSize) / float(ShadowLightsPerRow);
         uvOffset.w() = (1.0f - shadowBufferVertPixelSize) / float(ShadowLightsPerColumn);
         lightEntity->SetShadowBufferUvOffsetAndScale(uvOffset);
-	}
-
-	
+	}	
 
 	// restore original view and projection transforms
 	//transDev->SetViewTransform(origView);

@@ -104,7 +104,7 @@ OGL4ShaderStorageBuffer::Update(void* data, uint offset, uint length)
 	GLubyte* currentBuf = this->buf + this->handle->offset;
 	memcpy(currentBuf + offset, data, length);
 #else
-	//glInvalidateBufferSubData(this->ogl4Buffer, this->handle->offset, length);
+	glInvalidateBufferSubData(this->ogl4Buffer, this->handle->offset, length);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->ogl4Buffer);
 	glBufferSubData(GL_SHADER_STORAGE_BUFFER, this->handle->offset, length, data);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);

@@ -113,16 +113,16 @@ vsMain(in vec3 position,
 //------------------------------------------------------------------------------
 /**
 */
-float 
+vec2 
 FilterTaps(in vec2 UVs[STEP_TAPS])
 {
 	const float c = (1.f/float(STEP_TAPS));
-	float filteredValue = 0;
+	vec2 filteredValue = vec2(0);
 	int index;
 	for (index = 0; index < STEP_TAPS; index++)
 	{
 		vec4 color = textureLod(SourceBuffer, UVs[index], 0);
-		filteredValue += color.r;
+		filteredValue += color.rg;
 	}
 	return filteredValue * c;
 }
@@ -133,7 +133,7 @@ FilterTaps(in vec2 UVs[STEP_TAPS])
 shader
 void
 psMain(in vsInOut psIn,
-	[color0] out float ShadowColor) 
+	[color0] out vec2 ShadowColor) 
 {
 
     vec2 uvs[STEP_TAPS] = vec2[]( 

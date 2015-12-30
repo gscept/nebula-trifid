@@ -159,8 +159,8 @@ AnimJobUtilMix(const AnimCurve* curves,
                float4* outSamplePtr,
                uchar* outSampleCounts)
 {
-    float4 f0, f1, ftemp, fDst;
-    quaternion q0, q1, qtemp, qDst;
+    float4 f0, f1, fDst;
+    quaternion q0, q1, qDst;
     int i;
     for (i = 0; i < numCurves; i++)
     {
@@ -178,18 +178,14 @@ AnimJobUtilMix(const AnimCurve* curves,
             {
                 q0.load((scalar*)src0SamplePtr);
                 q1.load((scalar*)src1SamplePtr);
-				q1 = quaternion::slerp(quaternion::identity(), q1, mixWeight);   // lerp between identity and sample for q1
-				qtemp = quaternion::multiply(q1, quaternion::inverse(q0));		 // multiply by inverse of q1 to get difference
-				qDst = quaternion::multiply(qtemp, q0);						 // multiply difference unto q0
-				qDst.store((scalar*)outSamplePtr);
+                qDst = quaternion::slerp(q0, q1, mixWeight);
+                qDst.store((scalar*)outSamplePtr);
             }
             else
             {
                 f0.load((scalar*)src0SamplePtr);
                 f1.load((scalar*)src1SamplePtr);
-				ftemp = f0 - f1;
-				fDst = f0 + ftemp * mixWeight;
-                //fDst = float4::lerp(f0, f1, mixWeight);
+                fDst = float4::lerp(f0, f1, mixWeight);
                 fDst.store((scalar*)outSamplePtr);
             }
         }
