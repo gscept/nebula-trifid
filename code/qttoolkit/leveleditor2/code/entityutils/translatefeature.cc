@@ -497,6 +497,8 @@ TranslateFeature::RenderHandles()
     float4 color;
     matrix44 m;
 
+	matrix44 coneRotation = matrix44::rotationx(n_deg2rad(-90));
+
 	// create buffer for line primitives and triangle primitives
     CoreGraphics::RenderShape::RenderShapeVertex line[2];
 
@@ -535,7 +537,7 @@ TranslateFeature::RenderHandles()
     {
         m = matrix44::lookatrh(point(0,0,0), point(1, 0, 0), vector(0, 1, 0));
     }
-	//m = matrix44::multiply(matrix44::rotationx(n_deg2rad(90)), m);
+	m = matrix44::multiply(coneRotation, m);
 	m.scale(vector(this->handleScale, this->handleScale, this->handleScale));
 	m.set_position(this->xAxis);
 	Debug::DebugShapeRenderer::Instance()->DrawCone(m, color, CoreGraphics::RenderShape::AlwaysOnTop);
@@ -563,7 +565,7 @@ TranslateFeature::RenderHandles()
     {
         m = matrix44::lookatrh(point(0,0,0), point(0, 1, 0), vector(0, 0, 1));
     }
-	//m = matrix44::multiply(matrix44::rotationx(n_deg2rad(90)), m);
+	m = matrix44::multiply(coneRotation, m);
 	m.scale(vector(this->handleScale, this->handleScale, this->handleScale));
 	m.set_position(this->yAxis);
 	Debug::DebugShapeRenderer::Instance()->DrawCone(m, color, CoreGraphics::RenderShape::AlwaysOnTop);
@@ -592,7 +594,7 @@ TranslateFeature::RenderHandles()
     {
         m = matrix44::lookatrh(point(0,0,0), point(0, 0, 1), vector(0, 1, 0));
     }
-	//m = matrix44::multiply(matrix44::rotationx(n_deg2rad(90)), m);
+	m = matrix44::multiply(coneRotation, m);
     m.scale(vector(this->handleScale, this->handleScale, this->handleScale));
     m.set_position(this->zAxis);
 	Debug::DebugShapeRenderer::Instance()->DrawCone(m, color, CoreGraphics::RenderShape::AlwaysOnTop);

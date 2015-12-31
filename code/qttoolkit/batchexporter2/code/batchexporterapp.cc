@@ -8,6 +8,8 @@
 #include <QPlastiqueStyle>
 #include <QMessageBox>
 #include <QScrollBar>
+#include <QLibrary>
+#include <QKeyEvent>
 #include "batchexporterapp.h"
 #include "ui_about.h"
 #include "tools/progressnotifier.h"
@@ -26,6 +28,7 @@
 #include "util/localstringatomtable.h"
 #include "system/systeminfo.h"
 #include "game/gameexporter.h"
+#include "io/memorystream.h"
 
 
 #if WIN32
@@ -49,6 +52,7 @@ __ImplementAbstractClass(BatchExporter::WorkerThread, 'BEWP', IO::ConsoleHandler
 __ImplementClass(BatchExporter::AssetWorkerThread, 'BEAT', BatchExporter::WorkerThread);
 __ImplementClass(BatchExporter::ShaderWorkerThread, 'SHWT', BatchExporter::WorkerThread);
 __ImplementClass(BatchExporter::GameWorkerThread, 'GWWT', BatchExporter::WorkerThread);
+__ImplementClass(BatchExporter::SystemWorkerThread, 'SWWT', BatchExporter::WorkerThread);
 
 class QLogTreeItem : public QTreeWidgetItem
 {
@@ -86,7 +90,7 @@ namespace BatchExporter
 /**
 */
 BatchExporterApp::BatchExporterApp() : 
-	exportBits(All)
+	exportBits(All), force(false)
 {
 	// empty
 }
@@ -99,6 +103,7 @@ void BatchExporterApp::Open(const CommandLineArgs& args)
 	ToolkitApp::Open();
 	
 	Ptr<IO::Console> console = IO::Console::Instance();
+#ifdef WIN32
 	const Util::Array<Ptr<IO::ConsoleHandler>> & handlers = console->GetHandlers();
 	for (int i = 0; i < handlers.Size(); i++)
 	{
@@ -107,16 +112,16 @@ void BatchExporterApp::Open(const CommandLineArgs& args)
 			console->RemoveHandler(handlers[i]);
 		}
 	}
-	Ptr<ToolkitUtil::ToolkitConsoleHandler> handler = ToolkitUtil::ToolkitConsoleHandler::Create();
-	console->AttachHandler(handler.cast<IO::ConsoleHandler>());
-	
+#endif
 	this->SetupProjectInfo();
 
 	System::SystemInfo sysInfo;
 	int cores = sysInfo.GetNumCpuCores();
 	// we need at least two threads
-	cores = Math::n_max(2, cores);
-	for (int i = 0; i < sysInfo.GetNumCpuCores(); i++)
+	cores = Math::n_max(2, cores);	
+	// FIXME, having more than 3 will endanger memory limits quickly due to nvtt being VERY memory hungry
+	cores = Math::n_max(3, cores);
+	for (int i = 0; i < cores; i++)
 	{
 		Ptr<AssetWorkerThread> thread = AssetWorkerThread::Create();
 
@@ -124,14 +129,9 @@ void BatchExporterApp::Open(const CommandLineArgs& args)
 		// thread 1 will batch system textures, threads 2-x will batch textures
 		thread->app = this;
 		if (i == 0)
-		{
-			thread->BatchSystem(true);
+		{			
 			thread->BatchGraphics(true);
-		}
-		if (i == 1)
-		{
-			thread->BatchSystem(true);
-		}
+		}		
 		
 		this->workerThreads.Append(thread);
 		connect(thread.get_unsafe(), SIGNAL(Message(unsigned char, const QString&)),
@@ -139,8 +139,11 @@ void BatchExporterApp::Open(const CommandLineArgs& args)
 		connect(thread.get_unsafe(), SIGNAL(finished()), this, SLOT(ThreadDone()));
 	}
 
-	shaderThread = ShaderWorkerThread::Create();
-	shaderThread->app = this;
+	this->systemThread = SystemWorkerThread::Create();
+	this->systemThread->app = this;
+
+	this->shaderThread = ShaderWorkerThread::Create();
+	this->shaderThread->app = this;
 	
 	connect(shaderThread.get_unsafe(), SIGNAL(Message(unsigned char, const QString&)),
 		this, SLOT(OutputMessage(unsigned char, const QString&)));
@@ -192,6 +195,8 @@ void BatchExporterApp::Open(const CommandLineArgs& args)
 	// if the exporter failed to start, run export again, but not recursively
 	connect(this, SIGNAL(ExportFailed(const QString&)), this, SLOT(Export()));
 	connect(ui.actionSetWorkDir, SIGNAL(triggered(bool)), this, SLOT(PickWorkingDir()));
+	connect(ui.actionContentbrowser, SIGNAL(triggered(bool)), this, SLOT(StartContentbrowser()));
+	connect(ui.actionLeveleditor, SIGNAL(triggered(bool)), this, SLOT(StartLeveleditor()));
 	
 	connect(ui.actionSetToolkitDirectory, SIGNAL(triggered(bool)), this, SLOT(PickToolkitDir()));
 	connect(ui.actionAbout, SIGNAL(triggered(bool)), this, SLOT(ShowAbout()));
@@ -200,31 +205,12 @@ void BatchExporterApp::Open(const CommandLineArgs& args)
 	connect(ui.warningsFilter, SIGNAL(clicked()), this, SLOT(UpdateOutputWindow()));
 	connect(ui.infoFilter, SIGNAL(clicked()), this, SLOT(UpdateOutputWindow()));
 	
+	connect(ui.batchGraphicsButton, SIGNAL(clicked()), this, SLOT(ExportGraphics()));
+	connect(ui.batchTexturesButton, SIGNAL(clicked()), this, SLOT(ExportTextures()));
+	connect(ui.batchShaderButton, SIGNAL(clicked()), this, SLOT(ExportShaders()));
+	connect(ui.batchGameButton, SIGNAL(clicked()), this, SLOT(ExportGameData()));
 	
-	
-	/*
-    if(System::NebulaSettings::Exists("gscept", "ToolkitShared.batchexporter", "force"))
-    {
-        Util::String forceSetting = System::NebulaSettings::ReadString("gscept", "ToolkitShared.batchexporter", "force");
-        ui.forceExport->setChecked(forceSetting.AsBool());
-    }
-
-    if(System::NebulaSettings::Exists("gscept", "ToolkitShared.batchexporter", "exportFlags"))	
-	{
-        int flag = System::NebulaSettings::ReadString("gscept", "ToolkitShared.batchexporter", "exportFlags").AsInt();		
-		this->exportBits = flag;
-		ui.exportGraphics->setChecked(flag & Graphics);
-		ui.exportModels->setChecked(flag & Models);			
-		ui.exportTextures->setChecked(flag & Textures);
-		ui.exportShaders->setChecked(flag & Shaders);
-		ui.exportGameData->setChecked(flag & GameData);
-		ui.exportAudio->setChecked(flag & Audio);
-	}
-	else
-	*/
-	{
-		this->exportBits = All;
-	}
+	this->exportBits = All;	
 }
 
 //------------------------------------------------------------------------------
@@ -260,38 +246,15 @@ BatchExporterApp::StopExports()
 void
 BatchExporterApp::Export()
 {	
-	this->ui.consoleOut->clear();
-	this->ui.consoleOut->setTextBackgroundColor(defaultColour);
-	this->messages.Clear();
-	this->ui.exportButton->setEnabled(false);
-	auto fileList = IO::IoServer::Instance()->ListDirectories("src:assets/", "*");
-	int files = fileList.Size();
+	this->ClearLogs();
 	
-	int cores = this->workerThreads.Size() - 1;
-	Util::FixedArray<Util::Array<Util::String>> jobs;
-	jobs.SetSize(cores);
-	int current = 0;
-	for (int i = 0; i < files; i++)
-	{
-		jobs[current++].Append(fileList[i]);
-		current = current % cores;
-	}
-	
-	// the dedicated fbx thread needs all fbx files
-	this->workerThreads[0]->SetWorkAssets(fileList);
-	this->workerThreads[0]->start();
-	
-	for (int i = 0; i < cores; i++)
-	{
-		
-		{
-			this->workerThreads[i+1]->SetWorkAssets(jobs[i]);			
-		}
-		this->workerThreads[i+1]->start();
-	}	
+	this->ExportGraphics(false);
 
-	this->shaderThread->start();
-	this->gameThread->start();
+	this->ExportTextures(false);
+
+	this->ExportShaders(false);
+
+	this->ExportGameData(false);	
 }
 
 //------------------------------------------------------------------------------
@@ -627,8 +590,214 @@ BatchExporterApp::AddMessages(const Util::Array<ToolkitUtil::ToolLog>&messages)
 /**
 */
 void
+BatchExporterApp::ExportGraphics(bool clear)
+{
+	if (clear)
+	{
+		this->ClearLogs();
+	}
+	this->systemThread->SetForce(this->force);
+	// lock system mutex to delay depending threads
+	this->systemBatchMutex.lock();
+	this->systemThread->start();
+	auto fileList = IO::IoServer::Instance()->ListDirectories("src:assets/", "*");
+	int files = fileList.Size();
+
+	// the dedicated fbx thread needs all fbx files
+	this->workerThreads[0]->SetWorkAssets(fileList);
+	this->workerThreads[0]->SetForce(this->force);
+	this->workerThreads[0]->start();	
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+BatchExporterApp::ExportTextures(bool clear)
+{
+	if (clear)
+	{
+		this->ClearLogs();
+	}
+	auto fileList = IO::IoServer::Instance()->ListDirectories("src:assets/", "*");
+	int files = fileList.Size();
+
+	int cores = this->workerThreads.Size() - 1;
+	Util::FixedArray<Util::Array<Util::String>> jobs;
+	jobs.SetSize(cores);
+	int current = 0;
+	for (int i = 0; i < files; i++)
+	{
+		jobs[current++].Append(fileList[i]);
+		current = current % cores;
+	}
+
+	for (int i = 0; i < cores; i++)
+	{
+
+		{
+			this->workerThreads[i + 1]->SetWorkAssets(jobs[i]);
+
+		}
+		this->workerThreads[i + 1]->SetForce(this->force);
+		this->workerThreads[i + 1]->start();
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+BatchExporterApp::ExportShaders(bool clear)
+{
+	if (clear)
+	{
+		this->ClearLogs();
+	}
+	this->shaderThread->SetForce(this->force);
+	this->shaderThread->start();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+BatchExporterApp::ExportGameData(bool clear)
+{
+	if (clear)
+	{
+		this->ClearLogs();
+	}	
+	this->gameThread->start();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+BatchExporterApp::ClearLogs()
+{
+	this->ui.consoleOut->clear();
+	this->ui.consoleOut->setTextBackgroundColor(defaultColour);
+	this->messages.Clear();
+	this->ui.exportButton->setEnabled(false);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+BatchExporterApp::keyPressEvent(QKeyEvent* e)
+{
+	if (e->key() == Qt::Key_Shift)
+	{
+		this->SetForce(true);
+	}
+	QMainWindow::keyPressEvent(e);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+BatchExporterApp::keyReleaseEvent(QKeyEvent* e)
+{
+	if (e->key() == Qt::Key_Shift)
+	{
+		this->SetForce(false);
+	}
+	QMainWindow::keyReleaseEvent(e);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+BatchExporterApp::leaveEvent(QEvent* e)
+{
+	this->SetForce(false);
+	QMainWindow::leaveEvent(e);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+BatchExporterApp::SetForce(bool inForce)
+{
+	if (inForce)
+	{
+		this->ui.exportButton->setText("Force Export All");
+		this->ui.batchGraphicsButton->setText("Force Batch Graphics");
+		this->ui.batchTexturesButton->setText("Force Batch Textures");
+		this->ui.batchShaderButton->setText("Force Batch Shaders");
+	}
+	else
+	{
+		this->ui.exportButton->setText("Export All");
+		this->ui.batchGraphicsButton->setText("Batch Graphics");
+		this->ui.batchTexturesButton->setText("Batch Textures");
+		this->ui.batchShaderButton->setText("Batch Shaders");
+	}
+	this->force = inForce;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+BatchExporterApp::StartContentbrowser()
+{
+#ifdef DEBUG
+	Util::String exe = "bin:contentbrowser.debug";
+#else
+	Util::String exe = "bin:contentbrowser";
+#endif
+#ifdef WIN32
+	exe += ".exe";
+#endif
+	IO::URI exeUri(exe);
+	if (!ToolkitUtil::AppLauncher::CheckIfExists(exeUri))
+	{
+		QProcess content;
+		content.startDetached(exeUri.LocalPath().AsCharPtr());
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+BatchExporterApp::StartLeveleditor()
+{
+
+#ifdef DEBUG
+	Util::String exe = "bin:leveleditor2.debug";
+#else
+	Util::String exe = "bin:leveleditor2";
+#endif
+#ifdef WIN32
+	exe += ".exe";
+#endif
+	IO::URI exeUri(exe);
+	if (!ToolkitUtil::AppLauncher::CheckIfExists(exeUri))
+	{
+		QProcess content;
+		content.startDetached(exeUri.LocalPath().AsCharPtr());
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 AssetWorkerThread::run()
 {
+	// check if system batcher is done
+	this->app->SystemMutex().lock();
+	// unlock right away since we dont actually need it
+	this->app->SystemMutex().unlock();
+
 	this->myId = Threading::Thread::GetMyThreadId();
 	this->app->WorkerSemaphore().acquire(1);
 	IO::Console::Instance()->AttachHandler(this);
@@ -644,7 +813,7 @@ AssetWorkerThread::run()
 
 	IO::AssignRegistry::Instance()->SetAssign(IO::Assign("home", "proj:"));
 	exporter->Open();
-	exporter->SetForce(false);
+	exporter->SetForce(this->force);
 	exporter->SetExportFlag(Base::ExporterBase::All);
 	exporter->SetPlatform(this->app->GetProjectInfo().GetCurrentPlatform());
 	exporter->SetProgressPrecision(1000000);
@@ -657,12 +826,6 @@ AssetWorkerThread::run()
 		exporter->SetExportMode(AssetExporter::Textures);
 	}
 	
-	if (this->system)
-	{
-		exporter->ExportSystem();
-	}
-	
-
 		
 	for (int i = 0; i < this->workPackage.Size(); i++)
 	{
@@ -676,7 +839,7 @@ AssetWorkerThread::run()
 	}
 	this->app->AddMessages(exporter->GetMessages());	
 	IO::Console::Instance()->RemoveHandler(this);
-	this->app->WorkerSemaphore().release(1);
+	this->app->WorkerSemaphore().release(1);	
 }
 
 //------------------------------------------------------------------------------
@@ -731,7 +894,16 @@ WorkerThread::DebugOut(const Util::String& s)
 //------------------------------------------------------------------------------
 /**
 */
-AssetWorkerThread::AssetWorkerThread() : system(false), graphics(false)
+void
+WorkerThread::SetForce(bool force)
+{
+	this->force = force;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+AssetWorkerThread::AssetWorkerThread() : graphics(false)
 {
 	// empty
 }
@@ -742,15 +914,6 @@ void
 AssetWorkerThread::SetWorkAssets(const Util::Array<Util::String> & assets)
 {
 	this->workPackage = assets;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-AssetWorkerThread::BatchSystem(bool enable)
-{
-	this->system = enable;
 }
 
 //------------------------------------------------------------------------------
@@ -777,6 +940,7 @@ AssetWorkerThread::GetBatchGraphics(void) const
 void
 ShaderWorkerThread::run()
 {
+	this->app->SystemMutex().lock();
 	this->myId = Threading::Thread::GetMyThreadId();
 	this->app->WorkerSemaphore().acquire(1);
 	IO::Console::Instance()->AttachHandler(this);
@@ -801,6 +965,7 @@ ShaderWorkerThread::run()
 	this->shaderCompiler.SetDstFrameShaderDir(projectInfo.GetAttr("FrameShaderDstDir"));
 	this->shaderCompiler.SetSrcMaterialBaseDir(projectInfo.GetAttr("MaterialsSrcDir"));
 	this->shaderCompiler.SetDstMaterialsDir(projectInfo.GetAttr("MaterialsDstDir"));
+	this->shaderCompiler.SetForceFlag(this->force);
 
 	// setup custom stuff
 	if (projectInfo.HasAttr("ShaderSrcCustomDir")) this->shaderCompiler.SetSrcShaderCustomDir(projectInfo.GetAttr("ShaderSrcCustomDir"));
@@ -824,8 +989,13 @@ ShaderWorkerThread::run()
 	messages.Append(log);
 	this->app->AddMessages(messages);
 	IO::Console::Instance()->RemoveHandler(this);
-	this->app->WorkerSemaphore().release(1);
+	this->app->WorkerSemaphore().release(1);	
+	this->app->SystemMutex().unlock();
 }
+
+
+typedef
+const char* (WINAPI *BatchFunc)(void);
 
 //------------------------------------------------------------------------------
 /**
@@ -841,14 +1011,111 @@ GameWorkerThread::run()
  	Util::LocalStringAtomTable localStringAtomTable;
  
  	n_printf("------------- Starting Game batcher -------------\n");
- 	//Ptr<ToolkitUtil::GameExporter> exporter = ToolkitUtil::GameExporter::Create();
-// 	Logger logger;
-// 	exporter->SetLogger(&logger);
- 	//exporter->Open();
- 	//exporter->ExportAll();
- 	//exporter->Close();
+
+
+#ifdef DEBUG
+	QString libFile = "gamebatch.debug";
+#else
+	QString libFile = "gamebatch";
+#endif
+	QLibrary batcherLib(libFile);
+	if (batcherLib.load())
+	{
+			
+		void * funcPtr = batcherLib.resolve("BatchGameData");
+
+		if (funcPtr != NULL)
+		{
+			BatchFunc func;
+			func = (BatchFunc)funcPtr;
+			const char * log = func();
+			if (log)
+			{
+				Util::String logString(log);
+				Ptr<IO::MemoryStream> stream = IO::MemoryStream::Create();
+				stream->Open();
+				stream->SetSize(logString.Length());
+				void * data = stream->Map();
+				Memory::Copy(logString.AsCharPtr(), data, logString.Length());
+				stream->Close();
+				stream->SetAccessMode(IO::Stream::ReadAccess);
+				Ptr<IO::XmlReader> reader = IO::XmlReader::Create();
+				reader->SetStream(stream.cast<IO::Stream>());
+				reader->Open();
+				Util::Array<ToolkitUtil::ToolLog> logs;
+
+				if (reader->SetToFirstChild("Log"))
+				{
+					do
+					{
+						logs.Append(ToolkitUtil::ToolLog::FromString(reader));
+					} while (reader->SetToNextChild("Log"));
+				}
+
+				reader->Close();
+				this->app->AddMessages(logs);
+#ifdef WIN32
+				CoTaskMemFree((LPVOID)log);
+#else
+				Memory::Free(log);
+#endif
+			}
+			n_printf("------------- Game batcher Done -----------------\n");
+		}
+		else
+		{
+			n_error("Unable to locate function in gamebatch library, is everything installed/compiled correctly?");
+		}
+		batcherLib.unload();
+	}
+	else
+	{
+		n_error("Unable to load gamebatch library, is everything installed/compiled correctly?");
+	}
+
  	IO::Console::Instance()->RemoveHandler(this);
  	this->app->WorkerSemaphore().release(1);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+SystemWorkerThread::run()
+{
+	this->myId = Threading::Thread::GetMyThreadId();
+	this->app->WorkerSemaphore().acquire(1);
+	IO::Console::Instance()->AttachHandler(this);
+
+	Ptr<IO::IoServer> io = IO::IoServer::Create();
+	Util::LocalStringAtomTable localStringAtomTable;
+
+	this->modelDatabase = ToolkitUtil::ModelDatabase::Create();
+	this->modelDatabase->Open();
+
+	Ptr<AssetExporter> exporter = AssetExporter::Create();
+
+
+	IO::AssignRegistry::Instance()->SetAssign(IO::Assign("home", "proj:"));
+	exporter->Open();
+	exporter->SetForce(this->force);
+	exporter->SetExportFlag(Base::ExporterBase::All);
+	exporter->SetPlatform(this->app->GetProjectInfo().GetCurrentPlatform());
+	exporter->SetProgressPrecision(1000000);
+	exporter->SetExportMode(AssetExporter::All);
+	exporter->ExportSystem();
+
+	//exporter->ExportAll();
+	if (this->modelDatabase.isvalid())
+	{
+		this->modelDatabase->Close();
+		this->modelDatabase = 0;
+	}
+	this->app->AddMessages(exporter->GetMessages());
+	IO::Console::Instance()->RemoveHandler(this);
+	this->app->WorkerSemaphore().release(1);
+	// system batcher is done, we are free to start other threads using src: assigns
+	this->app->SystemMutex().unlock();
 }
 
 } // namespace BatchExporter

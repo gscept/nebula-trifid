@@ -96,6 +96,8 @@ private slots:
 	void OnGridVisible();
 	/// change selection colour
 	void OnChangeSelectionColour();
+	/// reset dockable widgets
+	void OnResetWindows();
 	/// show blueprint editor
 	void OnShowBlueprintEditor();
 	/// start level viewer
@@ -145,6 +147,7 @@ private:
 	QtPostEffectAddon::PostEffectController postEffectController;
 	QVBoxLayout *attributeControllerVLayout;	
 	QDialog * gridSizeDialog;
+	QByteArray defaultState;
     QtAttributeControllerAddon::ScriptEditor* scriptEditor;
 	Ui::GridSizeDialog gridSizeUi;
 	AudioDialogHandler * audioDialog;

@@ -52,10 +52,12 @@ GameBatcherApp::Open()
 void 
 GameBatcherApp::DoWork()
 {
+	this->logs.Clear();
    Ptr<ToolkitUtil::GameExporter> exporter = ToolkitUtil::GameExporter::Create();
    exporter->SetLogger(&this->logger);
    exporter->Open();   
    exporter->ExportAll();
+   this->logs = exporter->GetLogs();
    exporter->Close();
 }
 
@@ -96,6 +98,31 @@ GameBatcherApp::ShowHelp()
 			 "-platform     --export platform");	
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+Util::String
+GameBatcherApp::GetXMLLogs()
+{	
+	Ptr<IO::MemoryStream> stream = IO::MemoryStream::Create();
+	stream->SetAccessMode(IO::Stream::WriteAccess);
+	Ptr<IO::XmlWriter> writer = IO::XmlWriter::Create();
+	writer->SetStream(stream.cast<IO::Stream>());
+	writer->Open();
+	writer->BeginNode("ToolLogs");
+	for (auto iter = this->logs.Begin(); iter != this->logs.End(); iter++)
+	{
+		iter->ToString(writer);
+	}
+	writer->EndNode();
+	writer->Close();
+	// reopen stream
+	stream->Open();
+	void * str = stream->Map();
+	Util::String streamString;
+	streamString.Set((const char*)str, stream->GetSize());
+	return streamString;
+}
 
 
 } // namespace Toolkit

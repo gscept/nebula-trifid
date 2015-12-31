@@ -15,6 +15,7 @@
 #include "toolkitutil/platform.h"
 #include "toolkitutil/logger.h"
 #include "toolkitutil/toolkitversion.h"
+#include "toolkitutil/toolkitconsolehandler.h"
 
 //------------------------------------------------------------------------------
 namespace ToolkitUtil
@@ -26,6 +27,8 @@ public:
     ToolkitApp();
     /// open the application
     virtual bool Open();
+	/// close the application
+	virtual void Close();
 
     /// retrieve nebula build date and version
     const Util::String & GetToolkitVersion() const;
@@ -44,6 +47,7 @@ protected:
     bool waitForKey;
 
     Util::String toolkitVersion;
+	Ptr<ToolkitUtil::ToolkitConsoleHandler> handler;
 };
 
 

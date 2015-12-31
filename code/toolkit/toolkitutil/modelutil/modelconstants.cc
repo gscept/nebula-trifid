@@ -648,12 +648,13 @@ ModelConstants::Load(const Ptr<Stream>& stream)
 		// if the versions mismatch, don't continue with the loading process
 		if (version != ModelConstants::Version)
 		{
+			n_warning("Invalid version in model constants: %s\n", stream->GetURI().LocalPath().AsCharPtr());
 			stream->Close();
 			return;
 		}
 
 		// then make sure we have the options tag
-		n_assert2(reader->SetToFirstChild("Model"), "CORRUPT .attributes FILE!: First tag must be Options!");
+		n_assert2(reader->SetToFirstChild("Model"), "CORRUPT .constants FILE!: First tag must be Model!");
 
 		// get name
 		this->name = reader->GetString("name");

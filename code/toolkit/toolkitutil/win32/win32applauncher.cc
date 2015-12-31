@@ -514,10 +514,19 @@ Win32AppLauncher::CaptureOutput(HANDLE stdoutRead, HANDLE stderrRead, HANDLE chi
 bool
 Win32AppLauncher::CheckIfExists()
 {
+	return CheckIfExists(this->exePath);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+Win32AppLauncher::CheckIfExists(const IO::URI & program)
+{
 	bool exists = false;
 	PROCESSENTRY32 entry;
 	entry.dwSize = sizeof(PROCESSENTRY32);
-	Util::String procname = this->exePath.LocalPath().ExtractFileName();
+	Util::String procname = program.LocalPath().ExtractFileName();
 	HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
 	if (Process32First(snapshot, &entry))
 		while (Process32Next(snapshot, &entry))

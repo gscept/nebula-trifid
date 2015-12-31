@@ -105,8 +105,7 @@ NVTTTextureConversionJob::Convert()
         }
         
         // we do everything in float so that we can resize
-        nv::FloatImage *image;
-        nv::Image rawimage;
+        nv::FloatImage *image;        
         nv::AutoPtr<nv::Image> outputImage;
         nvtt::InputOptions inputOptions;
         
@@ -129,6 +128,7 @@ NVTTTextureConversionJob::Convert()
         else
         {
             // Regular image.            
+			nv::Image rawimage;
             if (!rawimage.load(src.AsCharPtr()))
             {
                 this->logger->Warning("The file '%s' is not a supported image type.\n", src.AsCharPtr());                
@@ -177,7 +177,7 @@ NVTTTextureConversionJob::Convert()
         nvtt::CompressionOptions compressionOptions;
         compressionOptions.setFormat(TextureAttrToNVTT(targetformat));
         
-        if (attrs.GetQuality() == TextureAttrs::Normal || isDXT5NormalMap)  compressionOptions.setQuality(nvtt::Quality_Normal);
+        if (attrs.GetQuality() == TextureAttrs::Normal)  compressionOptions.setQuality(nvtt::Quality_Normal);
         else if (attrs.GetQuality() == ToolkitUtil::TextureAttrs::High)     compressionOptions.setQuality(nvtt::Quality_Highest);
         else if (attrs.GetQuality() == ToolkitUtil::TextureAttrs::Low)      compressionOptions.setQuality(nvtt::Quality_Fastest);
         

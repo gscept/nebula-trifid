@@ -38,8 +38,6 @@ void
 AssetExporter::Open()
 {
     ExporterBase::Open();
-    this->fbxExporter = ToolkitUtil::NFbxExporter::Create();
-    this->fbxExporter->Open();
 	this->surfaceExporter = ToolkitUtil::SurfaceExporter::Create();
 	this->surfaceExporter->Open();
     this->modelBuilder = ToolkitUtil::ModelBuilder::Create();
@@ -53,8 +51,6 @@ AssetExporter::Open()
 void
 AssetExporter::Close()
 {
-    this->fbxExporter->Close();
-    this->fbxExporter = 0;
 	this->surfaceExporter->Close();
 	this->surfaceExporter = 0;
     this->modelBuilder = 0;
@@ -69,10 +65,12 @@ AssetExporter::Close()
 void
 AssetExporter::ExportSystem()
 {
-	n_printf("------------- Exporting system assets -------------\n");	
-	this->ExportFolder("toolkit:work/assets/system/", "system");
-	this->ExportFolder("toolkit:work/assets/lighting/", "lighting");
-	this->ExportFolder("toolkit:work/assets/placeholder/", "placeholder");	
+	String origSrc = AssignRegistry::Instance()->GetAssign("src");
+	AssignRegistry::Instance()->SetAssign(Assign("src", "toolkit:work"));
+	this->ExportDir("system");
+	this->ExportDir("lighting");
+	this->ExportDir("placeholder");
+	AssignRegistry::Instance()->SetAssign(Assign("src", origSrc));	
 }
 
 //------------------------------------------------------------------------------
@@ -99,17 +97,23 @@ AssetExporter::ExportFolder(const Util::String& assetPath, const Util::String& c
 	Ptr<ToolkitUtil::ToolkitConsoleHandler> console = ToolkitUtil::ToolkitConsoleHandler::Instance();
     if (this->mode & ExportModes::FBX)
     {
+		console->Clear();
         // export FBX sources
         Array<String> files = IoServer::Instance()->ListFiles(assetPath, "*.fbx");
-		this->fbxExporter->SetForce((this->mode & ExportModes::ForceFBX) != 0);
-        this->fbxExporter->SetCategory(category);		
+		this->fbxExporter = ToolkitUtil::NFbxExporter::Create();
+		this->fbxExporter->Open();
+		this->fbxExporter->SetForce(this->force || (this->mode & ExportModes::ForceFBX) != 0);
+		this->fbxExporter->SetCategory(category);
+		log.AddEntry(console, "FBX", category);
         for (fileIndex = 0; fileIndex < files.Size(); fileIndex++)
-        {
+		{
 			console->Clear();
             this->fbxExporter->SetFile(files[fileIndex]);
-            this->fbxExporter->ExportFile(assetPath + files[fileIndex]);
+            this->fbxExporter->ExportFile(assetPath + files[fileIndex]);			
 			log.AddEntry(console, "FBX", files[fileIndex]);
         }
+		this->fbxExporter->Close();
+		this->fbxExporter = 0;
     }    
 
     if (this->mode & ExportModes::Models)
@@ -147,7 +151,7 @@ AssetExporter::ExportFolder(const Util::String& assetPath, const Util::String& c
         files.AppendArray(IoServer::Instance()->ListFiles(assetPath, "*.psd"));
         files.AppendArray(IoServer::Instance()->ListFiles(assetPath, "*.png"));
         files.AppendArray(IoServer::Instance()->ListFiles(assetPath, "*.jpg"));
-		this->textureExporter.SetForceFlag((this->mode & ExportModes::ForceTextures) != 0);
+		this->textureExporter.SetForceFlag(this->force || (this->mode & ExportModes::ForceTextures) != 0);
         for (fileIndex = 0; fileIndex < files.Size(); fileIndex++)
         {
 			console->Clear();
@@ -160,7 +164,7 @@ AssetExporter::ExportFolder(const Util::String& assetPath, const Util::String& c
 	if (this->mode & ExportModes::Surfaces)
 	{
 		Array<String> files = IoServer::Instance()->ListFiles(assetPath, "*.sur");
-		this->surfaceExporter->SetForce((this->mode & ExportModes::ForceSurfaces) != 0);
+		this->surfaceExporter->SetForce(this->force || (this->mode & ExportModes::ForceSurfaces) != 0);
 		for (fileIndex = 0; fileIndex < files.Size(); fileIndex++)
 		{
 			console->Clear();

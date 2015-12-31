@@ -299,10 +299,11 @@ NFbxExporter::EndExport()
 	basePath.Format("src:assets/%s/", this->file.ExtractLastDirName().AsCharPtr());
 
 	// generate models
-	this->sceneWriter->GenerateModels(basePath, this->exportFlags, this->exportMode);
+ 	this->sceneWriter->GenerateModels(basePath, this->exportFlags, this->exportMode);	
+ 	this->sceneWriter = 0;
 
 	// cleanup data
-	this->scene->Cleanup();
+	this->scene->Cleanup();	
 	this->fbxScene->Clear();
 	this->fbxScene = 0;
 }

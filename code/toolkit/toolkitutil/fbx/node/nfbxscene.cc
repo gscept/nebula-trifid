@@ -244,7 +244,8 @@ NFbxScene::Cleanup()
 	{
 		this->nodes.ValueAtIndex(i)->Discard();
 	}
-
+	delete this->mesh;
+	delete this->physicsMesh;
 	this->meshNodes.Clear();
 	this->jointNodes.Clear();
 	this->transformNodes.Clear();
