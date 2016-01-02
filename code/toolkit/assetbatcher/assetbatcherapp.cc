@@ -8,7 +8,9 @@
 #include "io/assignregistry.h"
 #include "core/coreserver.h"
 #include "io/textreader.h"
-#include "assetexporter.h"
+#include "asset/assetexporter.h"
+#include "io/console.h"
+#include "io/win32/win32consolehandler.h"
 
 #define PRECISION 1000000
 
@@ -22,7 +24,7 @@ namespace Toolkit
 //------------------------------------------------------------------------------
 /**
 */
-    AssetBatcherApp::AssetBatcherApp()
+AssetBatcherApp::AssetBatcherApp()
 {
     // empty
 }
@@ -43,6 +45,17 @@ AssetBatcherApp::Open()
 {
     if (DistributedToolkitApp::Open())
     {
+		Ptr<IO::Console> console = IO::Console::Instance();		
+#ifdef WIN32
+		const Util::Array<Ptr<IO::ConsoleHandler>> & handlers = console->GetHandlers();
+		for (int i = 0; i < handlers.Size(); i++)
+		{
+			if (handlers[i]->IsA(Win32::Win32ConsoleHandler::RTTI))
+			{
+				console->RemoveHandler(handlers[i]);
+			}
+		}
+#endif		
         this->modelDatabase = ToolkitUtil::ModelDatabase::Create();
         this->modelDatabase->Open();
         return true;
@@ -55,7 +68,7 @@ AssetBatcherApp::Open()
 */
 void
 AssetBatcherApp::Close()
-{
+{	
     if (this->modelDatabase.isvalid())
     {
         this->modelDatabase->Close();
@@ -89,6 +102,10 @@ AssetBatcherApp::DoWork()
 	IO::AssignRegistry::Instance()->SetAssign(Assign("home","proj:"));
 	exporter->Open();
 	exporter->SetForce(force);
+	if (force)
+	{
+		exporter->SetExportMode(AssetExporter::All | AssetExporter::ForceFBX | AssetExporter::ForceModels | AssetExporter::ForceSurfaces);
+	}
 	exporter->SetExportFlag(exportFlag);
 	exporter->SetPlatform(this->platform);
 	exporter->SetProgressPrecision(PRECISION);
@@ -116,7 +133,29 @@ AssetBatcherApp::DoWork()
 	}	
 	exporter->Close();
 
-	// if we have any errors, set the return code to be errornous
+	// output to stderr for parsing of tools
+	const Util::Array<ToolkitUtil::ToolLog>& failedFiles = exporter->GetMessages();
+	
+	Ptr<IO::MemoryStream> stream = IO::MemoryStream::Create();
+	stream->SetAccessMode(IO::Stream::WriteAccess);
+	Ptr<IO::XmlWriter> writer = IO::XmlWriter::Create();
+	writer->SetStream(stream.cast<IO::Stream>());
+	writer->Open();
+	writer->BeginNode("ToolLogs");
+	for (auto iter = failedFiles.Begin(); iter != failedFiles.End(); iter++)
+	{
+		iter->ToString(writer);
+	}
+	writer->EndNode();
+	writer->Close();
+	// reopen stream
+	stream->Open();
+	void * str = stream->Map();
+	Util::String streamString;
+	streamString.Set((const char*)str, stream->GetSize());		
+	fprintf(stderr, "%s", streamString.AsCharPtr());
+	
+	// if we have any errors, set the return code to be errornous	
 	if (exporter->HasErrors()) this->SetReturnCode(-1);
 }
 

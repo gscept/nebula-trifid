@@ -91,6 +91,7 @@ LevelEditor2Window::LevelEditor2Window():
 	connect(this->ui.actionSelection_Colour, SIGNAL(triggered()), this, SLOT(OnChangeSelectionColour()));
     connect(this->ui.actionTest_in_Level_Viewer, SIGNAL(triggered()), this, SLOT(OnTestLevelViewer()));
 	connect(this->ui.actionHide_grid, SIGNAL(triggered()), this, SLOT(OnGridVisible()));
+	connect(this->ui.actionReset_window_layout, SIGNAL(triggered()), this, SLOT(OnResetWindows()));
 
     connect(this->gridSizeUi.GridSize, SIGNAL(valueChanged(int)),this, SLOT(OnGridSizeChanged(int)));
 
@@ -151,11 +152,14 @@ void
 LevelEditor2Window::showEvent(QShowEvent* e)
 {
 	QMainWindow::showEvent(e);
-
+	if (this->defaultState.size() == 0)
+	{
+		defaultState = this->saveState(1);
+	}		
 	// restore the state of the window and all dock widgets
 	QSettings settings("gscept", "Level editor");
 	this->restoreGeometry(settings.value("geometry").toByteArray());
-	this->restoreState(settings.value("windowState").toByteArray());
+	this->restoreState(settings.value("windowState").toByteArray(),0);
 }
 
 //------------------------------------------------------------------------------
@@ -169,7 +173,7 @@ LevelEditor2Window::closeEvent(QCloseEvent *e)
 	// restore the state of the window and all dock widgets
 	QSettings settings("gscept", "Level editor");
 	settings.setValue("geometry", this->saveGeometry());
-	settings.setValue("windowState", this->saveState());
+	settings.setValue("windowState", this->saveState(0));
 	QMainWindow::closeEvent(e);
 }
 
@@ -236,7 +240,7 @@ LevelEditor2Window::OnDelete()
 */
 void 
 LevelEditor2Window::OnNew()
-{
+{	
 	this->layerHandler->Discard();
 	LevelEditor2EntityManager::Instance()->RemoveAllEntities();		
 	ActionManager::Instance()->ClearStack();
@@ -493,6 +497,15 @@ LevelEditor2Window::OnChangeSelectionColour()
 		BaseGameFeature::UserProfile* userProfile = BaseGameFeature::LoaderServer::Instance()->GetUserProfile();
 		userProfile->SetFloat4("SelectionColour", this->selectionColour);
 	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+LevelEditor2Window::OnResetWindows()
+{
+	this->restoreState(this->defaultState, 1); 
 }
 
 //------------------------------------------------------------------------------

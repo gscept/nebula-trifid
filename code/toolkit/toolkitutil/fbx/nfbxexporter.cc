@@ -18,12 +18,14 @@ namespace ToolkitUtil
 {
 __ImplementClass(ToolkitUtil::NFbxExporter, 'FBXE', Base::ExporterBase);
 
+
+FbxManager* NFbxExporter::sdkManager = NULL;
+FbxIOSettings* NFbxExporter::ioSettings = NULL;
+Threading::CriticalSection NFbxExporter::cs;
 //------------------------------------------------------------------------------
 /**
 */
-NFbxExporter::NFbxExporter() : 
-	sdkManager(0),
-	ioSettings(0),
+NFbxExporter::NFbxExporter() : 	
 	scene(0),
 	scaleFactor(1.0f),
 	progressFbxCallback(0),
@@ -49,9 +51,15 @@ NFbxExporter::Open()
 {
 	ExporterBase::Open();
 
-	// Create the FBX SDK manager
-	this->sdkManager = FbxManager::Create();
-	this->ioSettings = FbxIOSettings::Create(this->sdkManager, "Import settings");
+	cs.Enter();
+	if (!this->sdkManager)
+	{
+		// Create the FBX SDK manager
+		this->sdkManager = FbxManager::Create();
+		this->ioSettings = FbxIOSettings::Create(this->sdkManager, "Import settings");
+	}
+	cs.Leave();
+	
 
 	this->scene = NFbxScene::Create();
 	this->scene->Open();
@@ -156,14 +164,14 @@ NFbxExporter::StartExport(const IO::URI& file)
 		importStatus = importer->Import(this->fbxScene);
 		if (!importStatus)
 		{
-			n_printf("    [Could not open for reading! Something went terribly wrong!]\n\n", localPath.AsCharPtr());
+			n_error("    [Could not open %s for reading! Something went terribly wrong!]\n\n", localPath.AsCharPtr());
 			this->SetHasErrors(true);
 			return false;
 		}
 	}
 	else
 	{
-		n_printf("    [Could not initialize for reading! Something went terribly wrong!]\n\n", localPath.AsCharPtr());
+		n_error("    [Could not initialize %s for reading! Something went terribly wrong!]\n\n", localPath.AsCharPtr());
 		this->SetHasErrors(true);
 		return false;
 	}
@@ -204,8 +212,10 @@ NFbxExporter::StartExport(const IO::URI& file)
 	destinationFile.Format("msh:%s/%s.nvx2", catName.AsCharPtr(), fileName.AsCharPtr());
 
 	// save mesh to file
-	bool saved = MeshBuilderSaver::SaveNvx2(URI(destinationFile), *mesh, this->platform);
-	n_assert(saved);
+	if (false == MeshBuilderSaver::SaveNvx2(URI(destinationFile), *mesh, this->platform))
+	{
+		n_error("Failed to save Nvx2 file: %s\n", destinationFile.AsCharPtr());
+	}		
 
 	// print info
 	n_printf("[Generated graphics mesh: %s]\n", destinationFile.AsCharPtr());
@@ -220,8 +230,10 @@ NFbxExporter::StartExport(const IO::URI& file)
 		destinationFile.Format("msh:%s/%s_ph.nvx2", catName.AsCharPtr(), fileName.AsCharPtr());
 
 		// save mesh
-		bool saved = MeshBuilderSaver::SaveNvx2(URI(destinationFile), *physicsMesh, this->platform);
-		n_assert(saved);
+		if (false == MeshBuilderSaver::SaveNvx2(URI(destinationFile), *physicsMesh, this->platform))
+		{
+			n_error("Failed to save physics Nvx2 file: %s\n", destinationFile.AsCharPtr());
+		}		
 
 		// print info
 		n_printf("[Generated physics mesh: %s]\n", destinationFile.AsCharPtr());
@@ -256,9 +268,10 @@ NFbxExporter::StartExport(const IO::URI& file)
 			anim.BuildVelocityCurves();
 
 			// now save actual animation
-			bool saved = AnimBuilderSaver::SaveNax3(URI(destinationFile), anim, this->platform);
-			n_assert(saved);
-
+			if (false == AnimBuilderSaver::SaveNax3(URI(destinationFile), anim, this->platform))
+			{
+				n_error("Failed to save animation file file: %s\n", destinationFile.AsCharPtr());
+			}			
 			n_printf("[Generated animation: %s]\n", destinationFile.AsCharPtr());
 		}
 	}
@@ -286,10 +299,11 @@ NFbxExporter::EndExport()
 	basePath.Format("src:assets/%s/", this->file.ExtractLastDirName().AsCharPtr());
 
 	// generate models
-	this->sceneWriter->GenerateModels(basePath, this->exportFlags, this->exportMode);
+ 	this->sceneWriter->GenerateModels(basePath, this->exportFlags, this->exportMode);	
+ 	this->sceneWriter = 0;
 
 	// cleanup data
-	this->scene->Cleanup();
+	this->scene->Cleanup();	
 	this->fbxScene->Clear();
 	this->fbxScene = 0;
 }
@@ -366,8 +380,8 @@ NFbxExporter::NeedsConversion(const Util::String& path)
 	// ...if the mesh is newer
 	bool meshNewer = ExporterBase::NeedsConversion(path, mesh);
 
-	// lastly, if physics mesh is newer
-	bool physicsMeshNewer = ExporterBase::NeedsConversion(path, physMesh);
+	// check if physics settings were changed. no way to tell if we have a new physics mesh in it, so we just export it anyway
+	bool physicsMeshNewer = ExporterBase::NeedsConversion(physics, mesh);
 
     // return true if either is true
 	return fbxNewer || constantsNewer || attributesNewer || physicsNewer || meshNewer || physicsMeshNewer;

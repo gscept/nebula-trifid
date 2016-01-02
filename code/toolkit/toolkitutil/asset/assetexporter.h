@@ -16,6 +16,8 @@
 #include "modelutil/modelbuilder.h"
 #include "modelutil/modeldatabase.h"
 #include "surface/surfaceexporter.h"
+#include "toolkitconsolehandler.h"
+
 namespace ToolkitUtil
 {
 class AssetExporter : public Base::ExporterBase
@@ -52,20 +54,39 @@ public:
 
 	/// explicitly exports the system directories (toolkit:system and toolkit:lighting)
 	void ExportSystem();
-    /// exports a single directory
+    /// exports a single category
     void ExportDir(const Util::String& category);
+	/// export a single folder with absolute path
+	void ExportFolder(const Util::String& folder, const Util::String& category);
     /// exports all files
     void ExportAll();
 
     /// exports list of files, used for parallel jobs
     void ExportList(const Util::Array<Util::String>& files);
 
+	/// set export mode flag
+	void SetExportMode(unsigned int mode);
+	
+	/// get failed files (if any)
+	const Util::Array<ToolkitUtil::ToolLog> & GetMessages() const;
+
 private:
     Ptr<ToolkitUtil::NFbxExporter> fbxExporter;
     ToolkitUtil::TextureConverter textureExporter;
 	Ptr<ToolkitUtil::SurfaceExporter> surfaceExporter;
-    Ptr<ToolkitUtil::ModelBuilder> modelBuilder;
+    Ptr<ToolkitUtil::ModelBuilder> modelBuilder;	
     Logger logger;
-    ExportModes mode;
+    unsigned int mode;
+	Util::Array<ToolLog> messages;
 };
+
+///------------------------------------------------------------------------------
+/**
+*/
+inline 
+const Util::Array<ToolkitUtil::ToolLog> &
+AssetExporter::GetMessages() const
+{
+	return this->messages;
+}
 } // namespace ToolkitUtil

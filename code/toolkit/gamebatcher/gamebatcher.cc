@@ -1,6 +1,11 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "gamebatcherapp.h"
+#ifdef WIN32
+#include "io/win32/win32consolehandler.h"
+#endif
+#include "toolkitconsolehandler.h"
+
 
 //------------------------------------------------------------------------------
 /**
@@ -19,4 +24,42 @@ main(int argc, const char** argv)
 		app.Close();
 	}
 	app.Exit();
+}
+
+extern "C"
+{
+	__declspec(dllexport) const char* _cdecl
+	BatchGameData(void)
+	{
+		Toolkit::GameBatcherApp app;
+		app.SetCompanyName("gscept");
+		app.SetAppTitle("Nebula game batcher");
+		//app.SetCmdLineArgs(args);
+		if (app.Open())
+		{
+			Ptr<IO::Console> console = IO::Console::Instance();
+#ifdef WIN32
+			const Util::Array<Ptr<IO::ConsoleHandler>> & handlers = console->GetHandlers();
+			for (int i = 0; i < handlers.Size(); i++)
+			{
+				if (handlers[i]->IsA(Win32::Win32ConsoleHandler::RTTI))
+				{
+					console->RemoveHandler(handlers[i]);
+				}
+			}
+#endif
+			app.Run();
+			Util::String xmlLogs = app.GetXMLLogs();			
+#ifdef WIN32
+			char * data;
+			data = (char*) CoTaskMemAlloc(xmlLogs.Length() + 1);
+#else
+			data = Memory::Alloc(xmlLogs.Length() + 1);
+#endif
+			Memory::Copy(xmlLogs.AsCharPtr(), data, xmlLogs.Length() + 1);			
+			app.Close();
+			return data;
+		}
+		return 0;
+	}
 }

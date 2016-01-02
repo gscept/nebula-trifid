@@ -36,9 +36,24 @@ ToolkitApp::Open()
     {
         // need to disable ZIP file system in tools!
         IoServer::Instance()->SetArchiveFileSystemEnabled(false);
+
+		// add toolkit handler for structured logging
+		this->handler = ToolkitUtil::ToolkitConsoleHandler::Create();
+		IO::Console::Instance()->AttachHandler(this->handler.cast<IO::ConsoleHandler>());
         return true;
     }
     return false;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ToolkitApp::Close()
+{
+	IO::Console::Instance()->RemoveHandler(this->handler.cast<IO::ConsoleHandler>());
+	this->handler = 0;
+	ConsoleApplication::Close();
 }
 
 //------------------------------------------------------------------------------

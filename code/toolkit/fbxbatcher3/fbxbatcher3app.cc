@@ -112,7 +112,7 @@ FBXBatcher3App::DoWork()
 	}	
 	exporter->Close();
 
-	// if we have any errors, set the return code to be errornous
+	// if we have any errors, set the return code to be erroneous
 	if (exporter->HasErrors()) this->SetReturnCode(-1);
 }
 

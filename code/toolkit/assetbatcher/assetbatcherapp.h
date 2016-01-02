@@ -9,6 +9,7 @@
 */
 #include "distributedtools/distributedtoolkitapp.h"
 #include "modelutil/modeldatabase.h"
+#include "toolkitconsolehandler.h"
 
 //------------------------------------------------------------------------------
 namespace Toolkit
@@ -41,6 +42,7 @@ private:
 	void ShowHelp();
 
     Ptr<ToolkitUtil::ModelDatabase> modelDatabase;
+	Ptr<ToolkitUtil::ToolkitConsoleHandler> handler;
 }; 
 } // namespace TookitUtil
 //------------------------------------------------------------------------------

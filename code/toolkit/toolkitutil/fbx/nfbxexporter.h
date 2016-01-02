@@ -71,8 +71,9 @@ private:
 	bool NeedsConversion(const Util::String& path);
 
 	FbxProgressCallback progressFbxCallback;
-	FbxManager* sdkManager;
-	FbxIOSettings* ioSettings;
+	static Threading::CriticalSection cs;
+	static FbxManager* sdkManager;
+	static FbxIOSettings* ioSettings;
 	FbxScene* fbxScene;
 
 	Ptr<NFbxSceneWriter> sceneWriter;

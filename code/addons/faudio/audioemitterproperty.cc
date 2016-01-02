@@ -42,11 +42,14 @@ AudioEmitterProperty::OnStart()
 {
 	Property::OnStart();
 	EventId id = this->entity->GetString(Attr::AudioEvent);
-	this->eventInstance = AudioDevice::Instance()->CreateEvent(id);
-	this->Update3DParameters();
-	if (this->entity->GetBool(Attr::AutoPlay))
+	if (id.IsValid())
 	{
-		this->eventInstance->Play();
+		this->eventInstance = AudioDevice::Instance()->CreateEvent(id);
+		this->Update3DParameters();
+		if (this->entity->GetBool(Attr::AutoPlay))
+		{
+			this->eventInstance->Play();
+		}
 	}
 }
 
@@ -95,14 +98,21 @@ AudioEmitterProperty::HandleMessage(const Ptr<Messaging::Message>& msg)
 
 	if (msg->CheckId(EmitterPlay::Id))
 	{
-		Ptr<EmitterPlay> pmsg = msg.cast<EmitterPlay>();
-		if (pmsg->GetEnable())
+		if (this->eventInstance.isvalid())
 		{
-			this->eventInstance->Play();
+			Ptr<EmitterPlay> pmsg = msg.cast<EmitterPlay>();
+			if (pmsg->GetEnable())
+			{
+				this->eventInstance->Play();
+			}
+			else
+			{
+				this->eventInstance->Stop();
+			}
 		}
 		else
 		{
-			this->eventInstance->Stop();
+			n_warning("Trying to play/stop invalid audio event instance\n");
 		}
 	}
 	else if (msg->CheckId(PlayEvent::Id))
