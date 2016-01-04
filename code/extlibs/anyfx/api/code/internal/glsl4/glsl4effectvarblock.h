@@ -32,29 +32,10 @@ protected:
 	/// sets up varblock from programs using a pre-existing variable block
 	void SetupSlave(eastl::vector<InternalEffectProgram*> programs, InternalEffectVarblock* master);
 
-    /// set variable
-    void SetVariable(InternalEffectVariable* var, void* value);
-    /// set variable array
-    void SetVariableArray(InternalEffectVariable* var, void* value, size_t size);
-    /// set variable indexed
-    void SetVariableIndexed(InternalEffectVariable* var, void* value, unsigned i);
-
-    /// locks buffer
-    void LockBuffer();
-    /// unlock buffer
-    void UnlockBuffer();
-
-	/// sets if the buffer should flush manually, reallocates the buffer storage with different flags
-	void SetFlushManually(bool b);
-	/// flushes buffer
-	void FlushBuffer();
-
 	/// binds varblock
 	void Apply();
 	/// updates variable block
 	void Commit();
-    /// puts a sync fence in the GL queue
-    void PostDraw();
 	/// activates varblock uniform location
 	void Activate(InternalEffectProgram* program);
 
@@ -65,9 +46,7 @@ protected:
 	GLuint activeProgram;
 	GLuint uniformBlockBinding;
 	GLuint uniformBlockLocation;
-	static const unsigned NumAuxBuffers = 6;
-	GLuint buffer;
-	GLuint* auxBuffers;
+
 	GLuint* elementIndex;
     GLchar* glBuffer;
 	GLchar* glBackingBuffer;

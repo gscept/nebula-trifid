@@ -204,7 +204,7 @@ vsTreeShadow(vec4 position,
 	
 	vec4 finalOffset = windDir * windStrength;
 	gl_Position = position + finalOffset;
-	gl_Position = LightViewProjection * Model * gl_Position;
+	gl_Position = ViewMatrixArray[0] * Model * gl_Position;
 	ProjPos = gl_Position;
 	UV = uv;
 }
@@ -232,7 +232,7 @@ vsGrassShadow(vec4 position,
 	
 	vec4 finalOffset = windDir * windStrength;
 	gl_Position = position + finalOffset * color;
-	gl_Position = LightViewProjection * Model * gl_Position;
+	gl_Position = ViewMatrixArray[0] * Model * gl_Position;
 	ProjPos = gl_Position;
 	UV = uv;
 }

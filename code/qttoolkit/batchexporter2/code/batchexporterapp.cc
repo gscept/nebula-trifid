@@ -64,11 +64,11 @@ public:
 	Util::Array<ToolkitConsoleHandler::LogEntry> logs;
 };
 
-QColor errorColor(255, 0, 0);
-QColor warningColor(255, 255, 0);
+QColor errorColor(200, 50, 0);
+QColor warningColor(255, 153, 0);
 QColor defaultColour(90, 90, 90);
 
-QColor LogLevelToColour(unsigned char level)
+QColor LogLevelToBackgroundColour(unsigned char level)
 {
 	if (level & ToolkitConsoleHandler::LogError)
 	{
@@ -81,7 +81,35 @@ QColor LogLevelToColour(unsigned char level)
 	return defaultColour;
 }
 
+QColor LogLevelToTextColour(unsigned char level)
+{
+	if (level & ToolkitConsoleHandler::LogError)
+	{
+		return Qt::white;
+	}
+	else if (level & ToolkitConsoleHandler::LogWarning)
+	{
+		return Qt::black;
+	}
+	return Qt::lightGray;
+}
 
+QFont LogLevelToFont(unsigned char level)
+{
+	QFont font;
+	if (level & ToolkitConsoleHandler::LogError)
+	{
+		font.setPointSize(10);
+		font.setWeight(QFont::DemiBold);
+		return font;
+	}
+	else if (level & ToolkitConsoleHandler::LogWarning)
+	{
+		font.setBold(true);
+		return font;
+	}
+	return font;
+}
 
 namespace BatchExporter
 {
@@ -453,8 +481,10 @@ BatchExporterApp::SelectionChanged()
 	{		
 		for (int j = 0; j <  item->logs.Size(); j++)
 		{
-			this->ui.messageText->setTextBackgroundColor(LogLevelToColour(item->logs[j].level));
-			this->ui.messageText->append(item->logs[j].message.AsCharPtr());
+			this->ui.messageText->setTextBackgroundColor(LogLevelToBackgroundColour(item->logs[j].level));
+			this->ui.messageText->setTextColor(LogLevelToTextColour(item->logs[j].level));
+			this->ui.messageText->setCurrentFont(LogLevelToFont(item->logs[j].level));
+			this->ui.messageText->insertPlainText(item->logs[j].message.AsCharPtr());
 		}		
 	}			
 }
@@ -518,7 +548,9 @@ BatchExporterApp::UpdateOutputWindow()
 					{
 						for (int k = 0; k < 3; k++)
 						{
-							newItem->setBackgroundColor(k, LogLevelToColour(logs[j].logLevels));
+							newItem->setBackgroundColor(k, LogLevelToBackgroundColour(logs[j].logLevels));
+							newItem->setTextColor(k, LogLevelToTextColour(logs[j].logLevels));
+							newItem->setFont(k, LogLevelToFont(this->messages[i].logLevels));
 						}
 					}
 				}
@@ -527,7 +559,9 @@ BatchExporterApp::UpdateOutputWindow()
 			{
 				for (int k = 0; k < 3; k++)
 				{
-					currentItem->setBackgroundColor(k, LogLevelToColour(this->messages[i].logLevels));
+					currentItem->setBackgroundColor(k, LogLevelToBackgroundColour(this->messages[i].logLevels));
+					currentItem->setTextColor(k, LogLevelToTextColour(this->messages[i].logLevels));
+					currentItem->setFont(k, LogLevelToFont(this->messages[i].logLevels));
 				}
 			}
 			if (this->messages[i].logLevels & ToolkitConsoleHandler::LogError)
@@ -545,19 +579,10 @@ BatchExporterApp::UpdateOutputWindow()
 void
 BatchExporterApp::OutputMessage(unsigned char level, const QString& msg)
 {
-	switch (level)
-	{
-	case ToolkitConsoleHandler::LogError:
-		this->ui.consoleOut->setTextBackgroundColor(errorColor);
-		break;
-	case ToolkitConsoleHandler::LogWarning:
-		this->ui.consoleOut->setTextBackgroundColor(warningColor);
-		break;
-	case ToolkitConsoleHandler::LogInfo:
-	case ToolkitConsoleHandler::LogDebug:
-		this->ui.consoleOut->setTextBackgroundColor(defaultColour);
-	}
-	this->ui.consoleOut->append(msg);
+	this->ui.consoleOut->setTextColor(LogLevelToTextColour(level));
+	this->ui.consoleOut->setTextBackgroundColor(LogLevelToBackgroundColour(level));
+	this->ui.consoleOut->setCurrentFont(LogLevelToFont(level));
+	this->ui.consoleOut->insertPlainText(msg);
 }
 
 //------------------------------------------------------------------------------

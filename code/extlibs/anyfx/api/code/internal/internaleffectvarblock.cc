@@ -106,24 +106,6 @@ InternalEffectVarblock::Commit()
 
 //------------------------------------------------------------------------------
 /**
-*/
-void 
-InternalEffectVarblock::PreDraw()
-{
-    // override me!
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-InternalEffectVarblock::PostDraw()
-{
-    // override me!
-}
-
-//------------------------------------------------------------------------------
-/**
 	Run this when varblock is properly setup
 */
 void 
@@ -143,62 +125,9 @@ InternalEffectVarblock::SetupSignature()
 /**
 */
 void
-InternalEffectVarblock::SetVariable(InternalEffectVariable* var, void* value)
-{
-    // override in subclass
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-InternalEffectVarblock::SetVariableArray(InternalEffectVariable* var, void* value, size_t size)
-{
-    // override in subclass
-}
-
-//------------------------------------------------------------------------------
-/**
-    Basically the same as SetVariable, however it assumes the variable is an array, and sets the variable at a certain index.
-    This would be equivalent to arr[i] = value;
-*/
-void
-InternalEffectVarblock::SetVariableIndexed(InternalEffectVariable* var, void* value, unsigned i)
-{
-    // override in subclass
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
 InternalEffectVarblock::Activate(InternalEffectProgram* program)
 {
 	// override me!
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-InternalEffectVarblock::FlushBuffer()
-{
-	// override me!
-}
-
-//------------------------------------------------------------------------------
-/**
-	Sets the block to flush manually, this applies to ALL blocks
-*/
-void
-InternalEffectVarblock::SetFlushManually(bool b)
-{
-	this->masterBlock->manualFlushing = b;
-	unsigned i;
-	for (i = 0; i < this->masterBlock->childBlocks.size(); i++)
-	{
-		this->masterBlock->childBlocks[i]->manualFlushing = b;
-	}
 }
 
 } // namespace AnyFX

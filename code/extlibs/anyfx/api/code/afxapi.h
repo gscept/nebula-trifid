@@ -339,11 +339,6 @@ public:
 
     /// set buffer, must be an implementation specific
     void SetBuffer(void* handle);
-
-	/// set buffer to be manually flushed, this requires explicit calls to FlushBuffer in order to perform updates
-	void SetFlushManually(bool b);
-	/// flush buffer, this only works on buffers which are tagged to be flushed manually
-	void FlushBuffer();
 };
 
 class EffectVarbuffer : public Annotable
@@ -434,10 +429,6 @@ public:
 	void Apply();
 	/// commits changes to shader variables, call this before rendering
 	void Commit();
-    /// performs pre-draw stuff
-    void PreDraw();
-    /// performs post-draw stuff
-    void PostDraw();
 	/// returns name of program
     const eastl::string& GetName() const;
 	/// returns render state

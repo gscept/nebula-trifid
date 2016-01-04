@@ -25,6 +25,7 @@ using namespace Util;
 using namespace CoreGraphics;
 using namespace Graphics;
 
+Util::Queue<RenderDeviceBase::__BufferLockData> RenderDevice::bufferLockQueue;
 //------------------------------------------------------------------------------
 /**
 */
@@ -133,6 +134,9 @@ RenderDeviceBase::Close()
         this->defaultRenderTarget->Discard();
     }
     this->defaultRenderTarget = 0;
+
+	// clear buffer locks
+	this->bufferLockQueue.Clear();
 
     // notify event handlers
     RenderEvent closeEvent(RenderEvent::DeviceClose);
@@ -614,5 +618,52 @@ RenderDeviceBase::DisplayResized(SizeT width, SizeT height)
 	this->defaultRenderTarget->OnDisplayResized(width, height);
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+RenderDeviceBase::EnqueueBufferLockIndex(const Ptr<CoreGraphics::BufferLock>& lock, IndexT buffer)
+{
+	__BufferLockData data;
+	data.mode = __BufferLockMode::BufferRing;
+	data.i = buffer;
+	data.lock = lock;
+	RenderDeviceBase::bufferLockQueue.Enqueue(data);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+RenderDeviceBase::EnqueueBufferLockRange(const Ptr<CoreGraphics::BufferLock>& lock, IndexT start, SizeT range)
+{
+	__BufferLockData data;
+	data.mode = __BufferLockMode::BufferRing;
+	data.start = start;
+	data.range = range;
+	data.lock = lock;
+	RenderDeviceBase::bufferLockQueue.Enqueue(data);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+RenderDeviceBase::DequeueBufferLocks()
+{
+	while (RenderDeviceBase::bufferLockQueue.Size() > 0)
+	{
+		const __BufferLockData& data = RenderDeviceBase::bufferLockQueue.Dequeue();
+		switch (data.mode)
+		{
+		case __BufferLockMode::BufferRing:
+			data.lock->LockBuffer(data.i);
+			break;
+		case __BufferLockMode::BufferRange:
+			data.lock->LockRange(data.start, data.range);
+			break;
+		}
+	}
+}
 
 } // namespace Base

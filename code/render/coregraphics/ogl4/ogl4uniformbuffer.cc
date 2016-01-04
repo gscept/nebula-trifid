@@ -5,9 +5,9 @@
 #include "stdneb.h"
 #include "ogl4uniformbuffer.h"
 #include "coregraphics/shadervariable.h"
-#include "afxapi.h"
 #include "coregraphics/constantbuffer.h"
 #include "coregraphics/bufferlock.h"
+#include "coregraphics/renderdevice.h"
 
 
 namespace OpenGL4
@@ -135,6 +135,35 @@ OGL4UniformBuffer::CycleBuffers()
 {
     ConstantBufferBase::CycleBuffers();
     this->handle->offset = this->size * this->bufferIndex;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+OGL4UniformBuffer::EndUpdateSync()
+{
+	if (this->sync)
+	{
+		// only sync if we made changes
+		if (this->isDirty)
+		{
+			//glInvalidateBufferSubData(this->ogl4Buffer, this->handle->offset, this->size);
+#if OGL4_BINDLESS
+			glNamedBufferSubData(this->ogl4Buffer, this->handle->offset, this->size, this->buffer);
+#else
+			glBindBuffer(GL_UNIFORM_BUFFER, this->ogl4Buffer);
+			glBufferSubData(GL_UNIFORM_BUFFER, this->handle->offset, this->size, this->buffer);
+			glBindBuffer(GL_UNIFORM_BUFFER, 0);
+#endif
+		}
+	}
+	else
+	{
+		CoreGraphics::RenderDevice::EnqueueBufferLockIndex(this->bufferLock.downcast<CoreGraphics::BufferLock>(), this->bufferIndex);
+	}
+	
+	ConstantBufferBase::EndUpdateSync();
 }
 
 } // namespace OpenGL4 

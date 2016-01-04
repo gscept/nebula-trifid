@@ -60,7 +60,7 @@
 #define NEBULA3_SEMANTIC_HDRBRIGHTPASSTHRESHOLD     "HDRBrightPassThreshold"
 #define NEBULA3_SEMANTIC_DOFDISTANCES               "DoFDistances"
 #define NEBULA3_SEMANTIC_EMITTERTRANSFORM           "EmitterTransform"
-#define NEBULA3_SEMANTIC_BILLBOARD                  "IsBillBoard"
+#define NEBULA3_SEMANTIC_BILLBOARD                  "Billboard"
 #define NEBULA3_SEMANTIC_BBOXCENTER                 "BBoxCenter"
 #define NEBULA3_SEMANTIC_BBOXSIZE                   "BBoxSize"
 #define NEBULA3_SEMANTIC_TIME						"Time"

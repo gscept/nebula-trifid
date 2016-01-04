@@ -67,8 +67,6 @@ SM50ShadowServer::Open()
 	// load the ShadowBuffer frame shader
 	const Ptr<FrameServer>& frameServer = FrameServer::Instance();
 	const Ptr<MaterialServer> materialServer = MaterialServer::Instance();
-	this->shadowShader = ShaderServer::Instance()->GetSharedShader();
-	this->shadowLightViewProjVar = this->shadowShader->GetVariableByName("LightViewProjection");
 
 	// setup the shadow buffer render target, this is a single
 	// render target which contains the shadow buffer data for
@@ -126,7 +124,7 @@ SM50ShadowServer::Open()
 	// create spotlight pass
 	this->spotLightPass = FramePass::Create();
 	this->spotLightPass->SetRenderTarget(this->spotLightShadowMap1);
-	this->spotLightPass->SetClearColor(float4(1000000, 1000000, 0, 0));
+	this->spotLightPass->SetClearColor(float4(0, 0, 0, 0));
 	this->spotLightPass->SetClearDepth(1);
 	this->spotLightPass->SetClearFlags(RenderTarget::ClearColor | DepthStencilTarget::ClearDepth);
 	this->spotLightPass->SetName("SpotLightShadows");
@@ -150,7 +148,6 @@ SM50ShadowServer::Open()
 	this->spotLightHoriPass->SetRenderTarget(this->spotLightShadowBufferAtlas);
 	this->spotLightHoriPass->SetShader(this->satYShader);
 	this->spotLightHoriPass->Setup();
-
 
 #if NEBULA3_ENABLE_PROFILING
 	{
@@ -371,8 +368,6 @@ SM50ShadowServer::Close()
 	this->globalLightShadowBatch = 0;				// we dont need to discard the batch, the pass does this for us
 	this->blurShader = 0;
 
-	this->shadowLightViewProjVar = 0;
-	this->shadowShader = 0;
     this->blurShader = 0;
 
     // call parent class
@@ -436,13 +431,6 @@ SM50ShadowServer::UpdateSpotLightShadowBuffers()
 		// render shadow casters in current light volume to shadow buffer
 		const Ptr<SpotLightEntity>& lightEntity = this->spotLightEntities[lightIndex];
 
-		// skip casting shadows
-		//if (!lightEntity->GetCastShadowsThisFrame()) continue;
-		matrix44 viewProj = matrix44::multiply(lightEntity->GetShadowInvTransform(), lightEntity->GetShadowProjTransform());
-		this->shadowShader->BeginUpdate();
-		this->shadowLightViewProjVar->SetMatrix(viewProj);
-		this->shadowShader->EndUpdate();
-
 		// perform visibility resolve for current light
 		visResolver->BeginResolve(lightEntity->GetTransform());
 		const Array<Ptr<GraphicsEntity> >& visLinks = lightEntity->GetLinks(GraphicsEntity::LightLink);
@@ -467,11 +455,9 @@ SM50ShadowServer::UpdateSpotLightShadowBuffers()
 		resolveRect.top = (lightIndex / ShadowLightsPerColumn) * this->spotLightShadowBufferAtlas->GetHeight();
 		resolveRect.bottom = resolveRect.top + this->spotLightShadowBufferAtlas->GetHeight();
 
-		// setup render device
-        //this->spotLightShadowBufferAtlas->SetResolveRect(resolveRect);
-		// begin spotlight shadow pass
-
 		// render into shadow map
+		matrix44 viewProj = matrix44::multiply(lightEntity->GetShadowInvTransform(), lightEntity->GetShadowProjTransform());
+		transDev->ApplyViewMatrixArray(&viewProj, 1);
         this->spotLightPass->Render(frameIndex);
 
 		// render first SAT pass
@@ -480,10 +466,6 @@ SM50ShadowServer::UpdateSpotLightShadowBuffers()
 		// render second SAT pass
 		this->spotLightShadowBufferAtlas->SetResolveRect(resolveRect);
         this->spotLightHoriPass->Render(frameIndex);
-        //this->spotLightFinalPostEffect->SetRenderTarget(this->spotLightShadowBufferAtlas);
-
-        // render the resolved model node instances into the main shadow buffer
-        //this->spotLightFrameShader->Render();
 
         // patch shadow buffer and shadow buffer uv offset into the light source  
         // uvOffset.xy is offset
@@ -500,11 +482,6 @@ SM50ShadowServer::UpdateSpotLightShadowBuffers()
         uvOffset.w() = (1.0f - shadowBufferVertPixelSize) / float(ShadowLightsPerColumn);
         lightEntity->SetShadowBufferUvOffsetAndScale(uvOffset);
 	}	
-
-	// restore original view and projection transforms
-	//transDev->SetViewTransform(origView);
-	//transDev->SetProjTransform(origProj);
-	//transDev->ApplyViewSettings();
 }
 
 //------------------------------------------------------------------------------

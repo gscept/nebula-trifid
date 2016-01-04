@@ -17,11 +17,9 @@ unsigned InternalEffectVarblock::globalVarblockCounter = 0;
 /**
 */
 GLSL4EffectVarblock::GLSL4EffectVarblock() :
-	buffer(-1),
 	activeProgram(-1),
 	uniformBlockLocation(-1),
-    uniformOffsets(NULL),
-	auxBuffers(0)
+    uniformOffsets(NULL)
 {
 	// empty
 }
@@ -103,43 +101,6 @@ GLSL4EffectVarblock::Setup(eastl::vector<InternalEffectProgram*> programs)
         InternalEffectVariable* variable = this->variables[i];
         //variable->sharedByteOffset = &this->uniformOffsets[i];
     }
-    
-    // get alignment
-    // GLint alignment;
-    //glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &alignment);
-
-    // calculate aligned size
-    // this->size = (bufferSize + alignment - 1) - (bufferSize + alignment - 1) % alignment;
-
-    /*
-	// setup buffer
-	glGenBuffers(1, &this->buffer);
-	glBindBuffer(GL_UNIFORM_BUFFER, this->buffer);
-    GLenum flags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
-	glBufferStorage(GL_UNIFORM_BUFFER, this->alignedSize * this->numBackingBuffers * 3, NULL, flags | GL_DYNAMIC_STORAGE_BIT);
-	this->glBuffer = (GLchar*)glMapBufferRange(GL_UNIFORM_BUFFER, 0, this->alignedSize * this->numBackingBuffers * 3, flags);
-	this->glBackingBuffer = new GLchar[this->alignedSize];
-    this->glBufferOffset = new GLuint;
-    *this->glBufferOffset = 0;
-	this->elementIndex = new GLuint;
-	*this->elementIndex = 0;
-	this->ringLocks = new eastl::vector<GLboolean>();
-	this->ringLocks->resize(3);
-
-	for (i = 0; i < this->ringLocks->size(); i++)
-	{
-		this->ringLocks->at(i) = false;
-	}
-
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-	// create buffer lock
-	this->bufferLock = new GLSL4BufferLock;
-	this->bufferLock->Setup(3);
-    */
-
-    // setup default values
-    //InternalEffectVarblock::SetupDefaultValues();
 }
 
 //------------------------------------------------------------------------------
@@ -195,7 +156,6 @@ GLSL4EffectVarblock::SetupSlave(eastl::vector<InternalEffectProgram*> programs, 
     delete [] offsets;
 
 	// copy GL buffer
-	this->buffer			= mainBlock->buffer;
 	this->size              = mainBlock->size;
 	this->elementIndex		= mainBlock->elementIndex;
 	this->glBuffer			= mainBlock->glBuffer;
@@ -207,72 +167,6 @@ GLSL4EffectVarblock::SetupSlave(eastl::vector<InternalEffectProgram*> programs, 
 
     // setup default values
     //InternalEffectVarblock::SetupDefaultValues();
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-GLSL4EffectVarblock::SetVariable(InternalEffectVariable* var, void* value)
-{    
-    /*
-	if (this->manualFlushing)
-	{
-		char* data = (this->glBackingBuffer + var->byteOffset);
-		memcpy(data, value, var->byteSize);
-	}
-	else
-	{
-		char* data = (this->glBuffer + *this->glBufferOffset + var->byteOffset);
-		this->UnlockBuffer();
-		memcpy(data, value, var->byteSize);
-		this->isDirty = true;
-	}
-    */
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-GLSL4EffectVarblock::SetVariableArray(InternalEffectVariable* var, void* value, size_t size)
-{
-    /*
-	if (this->manualFlushing)
-	{
-		char* data = (this->glBackingBuffer + var->byteOffset);
-		memcpy(data, value, size);
-	}
-	else
-	{
-		char* data = (this->glBuffer + *this->glBufferOffset + var->byteOffset);
-		this->UnlockBuffer();
-		memcpy(data, value, size);
-		this->isDirty = true;
-	}
-    */
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-GLSL4EffectVarblock::SetVariableIndexed(InternalEffectVariable* var, void* value, unsigned i)
-{
-    /*
-	if (this->manualFlushing)
-	{
-		char* data = (this->glBackingBuffer + var->byteOffset + i * var->byteSize);
-		memcpy(data, value, var->byteSize);
-	}
-	else
-	{
-		char* data = (this->glBuffer + *this->glBufferOffset + var->byteOffset + i * var->byteSize);
-		this->UnlockBuffer();
-		memcpy(data, value, var->byteSize);
-		this->isDirty = true;
-	}
-    */
 }
 
 //------------------------------------------------------------------------------
@@ -330,59 +224,7 @@ GLSL4EffectVarblock::Commit()
 				glBindBufferBase(GL_UNIFORM_BUFFER, this->uniformBlockBinding, 0);
 			}
         }
-        /*
-		if (this->manualFlushing)
-		{
-			GLSL4VarblockBaseState state;
-			GLuint ringIndex = *this->elementIndex / 3;
-			state.buffer = this->auxBuffers[ringIndex];
-			if (GLSL4VarblockBaseStates[this->uniformBlockBinding] != state)
-			{
-				// if we are flushing manually, then bind the entire buffer
-				GLSL4VarblockBaseStates[this->uniformBlockBinding] = state;
-				glBindBufferBase(GL_UNIFORM_BUFFER, this->uniformBlockBinding, state.buffer);
-			}
-		}
-		else
-		{
-			GLSL4VarblockRangeState state;
-			state.buffer = this->buffer;
-			state.offset = *this->glBufferOffset;
-			state.length = this->alignedSize;
-			if (GLSL4VarblockRangeStates[this->uniformBlockBinding] != state)
-			{
-				GLSL4VarblockRangeStates[this->uniformBlockBinding] = state;
-				glBindBufferRange(GL_UNIFORM_BUFFER, this->uniformBlockBinding, state.buffer, state.offset, state.length);
-			}
-		}
-        */
 	}
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-GLSL4EffectVarblock::PostDraw()
-{
-    /*
-    if (this->isDirty)
-    {        
-        // only perform automatic locking if we haven't specified it to be manual
-		if (!this->manualFlushing)
-		{
-			//this->bufferLock->LockAccumulatedRanges();
-			this->LockBuffer();
-		}			
-        this->isDirty = false;
-
-        // also make sure the master block is flagged as not dirty anymore
-        if (this->masterBlock)
-        {
-            this->masterBlock->isDirty = false;
-        }
-    }
-    */
 }
 
 //------------------------------------------------------------------------------
@@ -433,143 +275,6 @@ GLSL4EffectVarblock::SetupUniformOffsets(GLSL4EffectProgram* program, GLuint blo
 	}	
 	delete[] indices;
 
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-GLSL4EffectVarblock::LockBuffer()
-{
-	// calculate the next element, it should reset when we reach the number of buffers * 3
-	*this->elementIndex = (*this->elementIndex + 1) % (this->numBackingBuffers * 3);
-
-	// the index for the bucket must be an integer division on the size of buckets
-	GLint ringIndex = *this->elementIndex / this->numBackingBuffers;
-	bool lastElementInRing = (*this->elementIndex % this->numBackingBuffers) == 0;
-
-	// make sure we lock the PREVIOUS ring
-	ringIndex = (ringIndex - 1) >= 0 ? (ringIndex - 1) : 2;
-	if (!this->ringLocks->at(ringIndex) && lastElementInRing)
-	{
-		if (!this->noSync)
-		{
-			this->bufferLock->NextBuffer();
-			this->bufferLock->LockRing();
-		}		
-		this->ringLocks->at(ringIndex) = true;
-	}
-
-	*this->glBufferOffset = *this->elementIndex * this->size;
-
-	// move to next buffer
-	//*this->ringIndex = ((*this->ringIndex + 1) / this->numBackingBuffers) % 3;
-	//*this->glBufferOffset = *this->ringIndex * this->alignedSize;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-GLSL4EffectVarblock::UnlockBuffer()
-{
-	// the index for the bucket must be an integer division on the size of buckets
-	GLint ringIndex = *this->elementIndex / this->numBackingBuffers;
-
-	// make sure we lock the PREVIOUS ring
-	//ringIndex = ringIndex - 1 < 0 ? 2 : ringIndex;
-	bool firstElementInRing = (*this->elementIndex % this->numBackingBuffers) == 0;
-	if (this->ringLocks->at(ringIndex) && firstElementInRing)
-	{
-		if (!this->noSync)
-		{
-			this->bufferLock->WaitForRing();
-		}
-		this->ringLocks->at(ringIndex) = false;
-	}
-}
-
-//------------------------------------------------------------------------------
-/**
-	This is basically a one-way street, once this is done, there is no going back :D
-*/
-void
-GLSL4EffectVarblock::SetFlushManually(bool b)
-{
-    /*
-	if (b)
-	{
-		// unmap persistent buffer
-		glBindBuffer(GL_UNIFORM_BUFFER, this->buffer);
-		glUnmapBuffer(GL_UNIFORM_BUFFER);
-		glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-		// get master block
-		GLSL4EffectVarblock* mainBlock = dynamic_cast<GLSL4EffectVarblock*>(this->masterBlock);
-
-		// create array for aux buffers
-		mainBlock->glBuffer = 0;
-		mainBlock->auxBuffers = new GLuint[this->numBackingBuffers];
-
-		// generate buffers
-		glGenBuffers(this->numBackingBuffers, mainBlock->auxBuffers);
-		
-		// iterate through buffers and setup
-		unsigned i;
-		for (i = 0; i < this->numBackingBuffers; i++)
-		{
-			glBindBuffer(GL_UNIFORM_BUFFER, mainBlock->auxBuffers[i]);
-			glBufferData(GL_UNIFORM_BUFFER, this->alignedSize, NULL, GL_DYNAMIC_DRAW);
-			glBindBuffer(GL_UNIFORM_BUFFER, 0);
-		}
-
-		// iterate through children and set their aux buffer pointer
-		for (i = 0; i < mainBlock->childBlocks.size(); i++)
-		{
-			GLSL4EffectVarblock* childBlock = dynamic_cast<GLSL4EffectVarblock*>(mainBlock->childBlocks[i]);
-			childBlock->auxBuffers	= mainBlock->auxBuffers;
-			childBlock->glBuffer	= mainBlock->glBuffer;
-		}
-	}
-	else
-	{
-		// cleanup aux buffers
-		GLSL4EffectVarblock* mainBlock = dynamic_cast<GLSL4EffectVarblock*>(this->masterBlock);
-		glDeleteBuffers(this->numBackingBuffers, mainBlock->auxBuffers);
-		delete[] mainBlock->auxBuffers;
-		mainBlock->auxBuffers = 0;
-
-		// remap persistent buffer
-		glBindBuffer(GL_UNIFORM_BUFFER, this->buffer);
-		GLenum flags = GL_MAP_WRITE_BIT | GL_MAP_COHERENT_BIT | GL_MAP_PERSISTENT_BIT;
-		mainBlock->glBuffer = (GLchar*)glMapBufferRange(GL_UNIFORM_BUFFER, 0, this->alignedSize * this->numBackingBuffers * 3, flags);	// FIXME: apply to all children too!
-		glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-		// iterate through children, update their aux buffer pointer and gl buffer pointer
-		unsigned i;
-		for (i = 0; i < mainBlock->childBlocks.size(); i++)
-		{
-			GLSL4EffectVarblock* childBlock = dynamic_cast<GLSL4EffectVarblock*>(mainBlock->childBlocks[i]);
-			childBlock->auxBuffers	= mainBlock->auxBuffers;
-			childBlock->glBuffer	= mainBlock->glBuffer;
-		}
-	}
-	*/
-	InternalEffectVarblock::SetFlushManually(b);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-GLSL4EffectVarblock::FlushBuffer()
-{
-    /*
-	GLuint ringIndex = *this->elementIndex / this->numBackingBuffers;
-	glBindBuffer(GL_UNIFORM_BUFFER, this->auxBuffers[ringIndex]);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, this->bufferSize, this->glBackingBuffer);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-    */
 }
 
 } // namespace AnyFX

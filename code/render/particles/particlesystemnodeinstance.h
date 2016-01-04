@@ -34,6 +34,9 @@ public:
     /// perform rendering
     virtual void Render();
 
+	/// set surface instance
+	virtual void SetSurfaceInstance(const Ptr<Materials::SurfaceInstance>& material);
+
     /// get the node's particle system instance
     const Ptr<ParticleSystemInstance>& GetParticleSystemInstance() const;
 
@@ -51,13 +54,28 @@ protected:
 
     Ptr<ParticleSystemInstance> particleSystemInstance;    
 
+#if SHADER_MODEL_5
+	Ptr<CoreGraphics::Shader> particleShader;
+	Ptr<CoreGraphics::ConstantBuffer> particleObjectBuffer;
+	Ptr<CoreGraphics::ShaderVariable> emitterOrientationVar;
+	Ptr<CoreGraphics::ShaderVariable> billBoardVar;
+	Ptr<CoreGraphics::ShaderVariable> bboxCenterVar;
+	Ptr<CoreGraphics::ShaderVariable> bboxSizeVar;
+	Ptr<CoreGraphics::ShaderVariable> animPhasesVar;
+	Ptr<CoreGraphics::ShaderVariable> animsPerSecVar;
+	Ptr<CoreGraphics::ShaderVariable> particleObjectBufferVar;
+	IndexT particleObjectBufferIndex;
+#else
 	Ptr<Materials::SurfaceConstant> emitterOrientation;
-    Ptr<Materials::SurfaceConstant> billBoard;
-    Ptr<Materials::SurfaceConstant> bboxCenter;
-    Ptr<Materials::SurfaceConstant> bboxSize;
-    Ptr<Materials::SurfaceConstant> time;
-    Ptr<Materials::SurfaceConstant> animPhases;
-    Ptr<Materials::SurfaceConstant> animsPerSec;
+	Ptr<Materials::SurfaceConstant> billBoard;
+	Ptr<Materials::SurfaceConstant> bboxCenter;
+	Ptr<Materials::SurfaceConstant> bboxSize;
+	Ptr<Materials::SurfaceConstant> time;
+	Ptr<Materials::SurfaceConstant> animPhases;
+	Ptr<Materials::SurfaceConstant> animsPerSec;
+#endif
+
+
     Ptr<Materials::SurfaceConstant> depthBuffer;
 };
 

@@ -137,7 +137,7 @@ vsShadow(in vec3 position,
 	out vec2 UV,
 	out vec4 Position) 
 {
-	gl_Position = LightViewProjection * Model * vec4(position, 1);
+	gl_Position = ViewMatrixArray[0] * Model * vec4(position, 1);
 	Position = gl_Position;
 	UV = uv1;
 }
@@ -188,7 +188,7 @@ vsShadowFoliage(in vec3 position,
 	vec4 finalOffset = windDir * windStrength;
 	vec4 finalPos = vec4(position + finalOffset.xyz, 1);
 	
-	gl_Position = LightViewProjection * Model * finalPos;
+	gl_Position = ViewMatrixArray[0] * Model * finalPos;
 	Position = gl_Position;
 	UV = uv1;
 }

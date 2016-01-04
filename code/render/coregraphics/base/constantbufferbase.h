@@ -5,6 +5,22 @@
 	
 	A buffer which represents a set of shader constant variables 
     (uniforms in OpenGL) which are contained within a buffer object.
+
+	Constant buffers can be set to be synchronized or non-synchronized.
+
+	Synchronized: will cause a GPU synchronizing command whenever the EndUpdateSync gets run.
+	Non-synchronized: will cause all previous commands to be flushed before continuing, when running EndUpdateSync.
+
+	Non-synchronized buffers are awesome if you only need to update your buffer once per frame.
+	However, if you use a non-synchronized buffer which you update more than once per frame 
+	and you don't have enough backing buffers to cycle last for each update, then this buffer
+	will cause a complete frame flush.
+
+	Synchronized buffers are good for when you have no idea when a buffer gets updated. They let 
+	the driver take care of when the buffer is needed and will as such cause a direct flush.
+
+	This type of behavior might only be relevant in non-direct APIs such as <DX11 and OpenGL, since
+	we can't actually tell whenever the buffer gets updated with a persistently mapped buffe.rb
 	
 	(C) 2015 Individual contributors, see AUTHORS file
 */
@@ -36,7 +52,7 @@ public:
     /// discard buffer
     void Discard();
 
-    /// set if this buffer should be updated synchronously, the default behaviour is not
+    /// set if this buffer should be updated synchronously, the default behavior is not
     void SetSync(bool b);
 
     /// get variable inside constant buffer by name

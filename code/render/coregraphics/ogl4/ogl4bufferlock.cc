@@ -70,9 +70,11 @@ OGL4BufferLock::WaitForRange(IndexT startIndex, SizeT length)
 void
 OGL4BufferLock::LockBuffer(IndexT index)
 {
-	n_assert(!this->bufferLocks.Contains(index));
-	GLsync sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-	this->bufferLocks.Add(index, sync);
+	if (!this->bufferLocks.Contains(index))
+	{
+		GLsync sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+		this->bufferLocks.Add(index, sync);
+	}	
 }
 
 //------------------------------------------------------------------------------

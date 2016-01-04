@@ -684,6 +684,9 @@ OGL4RenderDevice::Draw()
 		}
 	}
 
+	// empty buffer lock queues
+	this->DequeueBufferLocks();
+
     // update debug stats
     _incr_counter(RenderDeviceNumPrimitives, this->primitiveGroup.GetNumPrimitives());
     _incr_counter(RenderDeviceNumDrawCalls, 1);
@@ -754,6 +757,9 @@ OGL4RenderDevice::DrawIndexedInstanced(SizeT numInstances, IndexT baseInstance)
 		}
 	}
 
+	// empty buffer lock queues
+	this->DequeueBufferLocks();
+
     // update debug stats
     _incr_counter(RenderDeviceNumPrimitives, this->primitiveGroup.GetNumPrimitives() * numInstances);
     _incr_counter(RenderDeviceNumDrawCalls, 1);
@@ -769,6 +775,9 @@ OGL4RenderDevice::DrawFeedback(const Ptr<CoreGraphics::FeedbackBuffer>& fb)
 	n_assert(0 != this->context);
 	GLenum primType = OGL4Types::AsOGL4PrimitiveType(this->primitiveGroup.GetPrimitiveTopology());
 	glDrawTransformFeedback(primType, fb->GetOGL4TransformFeedback());
+
+	// empty buffer lock queues
+	this->DequeueBufferLocks();
 
 	// update debug stats
 	_incr_counter(RenderDeviceNumPrimitives, this->primitiveGroup.GetNumPrimitives());
@@ -787,6 +796,9 @@ OGL4RenderDevice::DrawFeedbackInstanced(const Ptr<CoreGraphics::FeedbackBuffer>&
 	GLenum primType = OGL4Types::AsOGL4PrimitiveType(this->primitiveGroup.GetPrimitiveTopology());
 	glDrawTransformFeedbackInstanced(primType, fb->GetOGL4TransformFeedback(), numInstances);
 
+	// empty buffer lock queues
+	this->DequeueBufferLocks();
+
 	// update debug stats
 	_incr_counter(RenderDeviceNumPrimitives, this->primitiveGroup.GetNumPrimitives() * numInstances);
 	_incr_counter(RenderDeviceNumDrawCalls, numInstances);
@@ -802,6 +814,9 @@ OGL4RenderDevice::Compute( int dimX, int dimY, int dimZ )
 
     // run computation
     glDispatchCompute(dimX, dimY, dimZ);
+
+	// empty buffer lock queues
+	this->DequeueBufferLocks();
 
     // update debug stats
     _incr_counter(RenderDeviceNumComputes, dimX * dimY * dimZ);

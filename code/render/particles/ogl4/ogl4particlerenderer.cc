@@ -87,7 +87,7 @@ OGL4ParticleRenderer::Setup()
     this->cornerVertexBuffer->SetLoader(0);
 
     // setup the corner index buffer
-    ushort cornerIndexData[] = { 0, 1, 2, 2, 3, 0 };
+	ushort cornerIndexData[] = { 0, 1, 2, 2, 3, 0 };
     Ptr<MemoryIndexBufferLoader> cornerIBLoader = MemoryIndexBufferLoader::Create();
     cornerIBLoader->Setup(IndexType::Index16, 6, cornerIndexData, sizeof(cornerIndexData), IndexBuffer::UsageImmutable, IndexBuffer::AccessNone);
 
@@ -110,11 +110,11 @@ OGL4ParticleRenderer::Setup()
 
     // setup the dynamic particle vertex buffer (contains one vertex per particle)
     Array<VertexComponent> particleComponents;
-    particleComponents.Append(VertexComponent((VertexComponentBase::SemanticName)0, 0, VertexComponent::Float4, 1, VertexComponent::PerInstance, 1));   // Particle::position
-	particleComponents.Append(VertexComponent((VertexComponentBase::SemanticName)1, 1, VertexComponent::Float4, 1, VertexComponent::PerInstance, 1));   // Particle::stretchPosition
-	particleComponents.Append(VertexComponent((VertexComponentBase::SemanticName)2, 0, VertexComponent::Float4, 1, VertexComponent::PerInstance, 1));      // Particle::color
-	particleComponents.Append(VertexComponent((VertexComponentBase::SemanticName)3, 1, VertexComponent::Float4, 1, VertexComponent::PerInstance, 1));   // Particle::uvMinMax
-	particleComponents.Append(VertexComponent((VertexComponentBase::SemanticName)4, 2, VertexComponent::Float4, 1, VertexComponent::PerInstance, 1));   // x: Particle::rotation, y: Particle::size
+    particleComponents.Append(VertexComponent((VertexComponentBase::SemanticName)1, 0, VertexComponent::Float4, 1, VertexComponent::PerInstance, 1));   // Particle::position
+	particleComponents.Append(VertexComponent((VertexComponentBase::SemanticName)2, 0, VertexComponent::Float4, 1, VertexComponent::PerInstance, 1));   // Particle::stretchPosition
+	particleComponents.Append(VertexComponent((VertexComponentBase::SemanticName)3, 0, VertexComponent::Float4, 1, VertexComponent::PerInstance, 1));   // Particle::color
+	particleComponents.Append(VertexComponent((VertexComponentBase::SemanticName)4, 0, VertexComponent::Float4, 1, VertexComponent::PerInstance, 1));   // Particle::uvMinMax
+	particleComponents.Append(VertexComponent((VertexComponentBase::SemanticName)5, 0, VertexComponent::Float4, 1, VertexComponent::PerInstance, 1));   // x: Particle::rotation, y: Particle::size
 
     Ptr<MemoryVertexBufferLoader> particleVBLoader = MemoryVertexBufferLoader::Create();
     particleVBLoader->Setup(particleComponents, MaxNumRenderedParticles * 3, NULL, 0, VertexBuffer::UsageDynamic, VertexBuffer::AccessWrite, VertexBuffer::SyncingCoherentPersistent);
@@ -206,7 +206,7 @@ OGL4ParticleRenderer::EndAttach()
     this->curParticleVertexIndex = 0;
 	
 	// lock this segment of the buffer and traverse to our next buffer (we are using triple buffering)
-	this->particleBufferLock->LockBuffer(this->bufferIndex);
+	RenderDevice::EnqueueBufferLockIndex(this->particleBufferLock, this->bufferIndex);
 	this->bufferIndex = (this->bufferIndex + 1) % 3;
 }
 

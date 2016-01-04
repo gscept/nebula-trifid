@@ -86,15 +86,15 @@ StateNodeInstance::Setup(const Ptr<ModelInstance>& inst, const Ptr<ModelNode>& n
 
 #if SHADER_MODEL_5
     ShaderServer* shdServer = ShaderServer::Instance(); 
-    this->shader = shdServer->GetSharedShader();
+    this->sharedShader = shdServer->GetSharedShader();
     this->objectBuffer = ConstantBuffer::Create();
-    this->objectBuffer->SetupFromBlockInShader(this->shader, "ObjectBlock");
+    this->objectBuffer->SetupFromBlockInShader(this->sharedShader, "ObjectBlock");
     this->modelShaderVar = this->objectBuffer->GetVariableByName(NEBULA3_SEMANTIC_MODEL);
     this->invModelShaderVar = this->objectBuffer->GetVariableByName(NEBULA3_SEMANTIC_INVMODEL);
     this->modelViewProjShaderVar = this->objectBuffer->GetVariableByName(NEBULA3_SEMANTIC_MODELVIEWPROJECTION);
     this->modelViewShaderVar = this->objectBuffer->GetVariableByName(NEBULA3_SEMANTIC_MODELVIEW);
     this->objectIdShaderVar = this->objectBuffer->GetVariableByName(NEBULA3_SEMANTIC_OBJECTID);
-    this->objectBlockShaderVar = this->shader->GetVariableByName("ObjectBlock");
+    this->objectBlockShaderVar = this->sharedShader->GetVariableByName("ObjectBlock");
 #endif
 }
 
@@ -107,7 +107,7 @@ StateNodeInstance::Discard()
 	this->sharedConstants.Clear();
 
 #if SHADER_MODEL_5
-    this->shader = 0;
+    this->sharedShader = 0;
 
     this->surfaceInstance->Discard();
     this->surfaceInstance = 0;

@@ -281,8 +281,8 @@ Function::TypeCheck( TypeChecker& typechecker )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Function::Restore( const Header& header, int index )
+void
+Function::Restore(const Header& header, int index)
 {
 	std::string restoredCode;
     this->fileIndex = index;

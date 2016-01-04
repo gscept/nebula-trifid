@@ -66,7 +66,6 @@ protected:
     bool system;
     Util::StringAtom name;
     Util::Variant value;
-    //Util::Array<Ptr<SurfaceConstantInstance>> instances;
     Util::Dictionary<Frame::BatchGroup::Code, Ptr<CoreGraphics::ShaderVariableInstance>> variablesByShader;
 };
 

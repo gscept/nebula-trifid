@@ -69,26 +69,6 @@ EffectProgram::Commit()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-EffectProgram::PreDraw()
-{
-    assert(0 != this->internalProgram);
-    this->internalProgram->PreDraw();
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-EffectProgram::PostDraw()
-{
-    assert(0 != this->internalProgram);
-    this->internalProgram->PostDraw();
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
 const eastl::string&
 EffectProgram::GetName() const
 {

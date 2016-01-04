@@ -48,9 +48,8 @@ OGL4TransformDevice::Open()
     ShaderServer* shdServer = ShaderServer::Instance();
     const Ptr<Shader>& shdInst = shdServer->GetSharedShader();
 
-    // setup camera block
+    // setup camera block, update once per frame - no need to sync
     this->cameraBuffer = ConstantBuffer::Create();
-	this->cameraBuffer->SetSync(true);
     this->cameraBuffer->SetupFromBlockInShader(shdInst, "CameraBlock");
     this->viewVar = this->cameraBuffer->GetVariableByName(NEBULA3_SEMANTIC_VIEW);
     this->invViewVar = this->cameraBuffer->GetVariableByName(NEBULA3_SEMANTIC_INVVIEW);
@@ -64,7 +63,7 @@ OGL4TransformDevice::Open()
     this->cameraBlockVar = shdInst->GetVariableByName("CameraBlock");
     this->cameraBlockVar->SetBufferHandle(this->cameraBuffer->GetHandle());
 
-    // setup shadow block
+    // setup shadow block, make it synced so that we can update shadow maps without massive frame drops
     this->shadowCameraBuffer = ConstantBuffer::Create();
 	this->shadowCameraBuffer->SetSync(true);
     this->shadowCameraBuffer->SetupFromBlockInShader(shdInst, "ShadowCameraBlock");

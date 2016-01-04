@@ -106,36 +106,6 @@ InternalEffectProgram::Commit()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-InternalEffectProgram::PreDraw()
-{
-    // signal our variables and varblocks to apply their variables
-    unsigned i;
-    size_t num = this->effect->numVarblocks;
-    for (i = 0; i < num; ++i)
-    {
-        this->effect->varblocksByIndex[i]->internalVarblock->PreDraw();
-    }
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-InternalEffectProgram::PostDraw()
-{
-    // signal our variables and varblocks to apply their variables
-    unsigned i;
-    size_t num = this->effect->numVarblocks;
-    for (i = 0; i < num; ++i)
-    {
-        this->effect->varblocksByIndex[i]->internalVarblock->PostDraw();
-    }
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
 bool 
 InternalEffectProgram::Link()
 {
