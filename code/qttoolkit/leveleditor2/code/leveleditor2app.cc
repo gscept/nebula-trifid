@@ -30,6 +30,7 @@
 #include "properties/mayacameraproperty.h"
 #include "style/graypalette.h"
 #include <QPlastiqueStyle>
+#include "toolkitconsolehandler.h"
 
 
 
@@ -76,6 +77,8 @@ LevelEditor2App::Open()
     n_assert(!this->IsOpen());
     if (GameApplication::Open())
     {   
+		Ptr<ToolkitUtil::ToolkitConsoleHandler> console = ToolkitUtil::ToolkitConsoleHandler::Create();
+		IO::Console::Instance()->AttachHandler(console.cast<IO::ConsoleHandler>());
         // add the different game entity types for the leveleditor
         Array<String> props;
         props.Append("LevelEditor2::EditorLightProperty");
