@@ -84,6 +84,7 @@ OGL4ShaderInstance::Setup(const Ptr<CoreGraphics::Shader>& origShader)
             uniformBuffer->SetSize(effectBlock->GetSize());
             uniformBuffer->Setup(1);
 
+			uniformBuffer->BeginUpdateSync();
             for (unsigned j = 0; j < variableBinds.size(); j++)
             {
                 // find the shader variable and bind the constant buffer we just created to said variable
@@ -94,6 +95,7 @@ OGL4ShaderInstance::Setup(const Ptr<CoreGraphics::Shader>& origShader)
                 //const Ptr<ShaderVariableInstance>& var = this->variableInstancesByName[binding.name.c_str()];
                 //var->BindToUniformBuffer(uniformBuffer, binding.offset, binding.size, binding.value);
             }
+			uniformBuffer->EndUpdateSync();
 
             // add to dictionaries
             this->uniformBuffers.Append(uniformBuffer);

@@ -35,6 +35,9 @@
   <DeclareRenderTarget format="A16B16G16R16F" relHeight="1" msaa="false" relWidth="1" name="ColorBuffer"/>
   <DeclareRenderTarget format="A16B16G16R16F" relHeight="1" msaa="false" relWidth="1" name="ColorBufferCopy"/>
   
+  <!-- special buffer used for the reflection projector -->
+  <DeclareRenderTarget format="R16F" relHeight="1" relWidth="1" msaa="false" name="DistanceFieldWeightBuffer"/>
+  
   <!-- used to render shapes -->
   <DeclareRenderTarget format="A8R8G8B8" relHeight="1" relWidth="1" name="ShapeBuffer" depthTarget="DefaultDepthBuffer"/>
   
@@ -50,7 +53,7 @@
 	<RenderTarget name="NormalBuffer" clearColor="0.5,0.5,0,0"/>
 	<RenderTarget name="DepthBuffer" clearColor="-1000,0,0,0"/>   
 	<RenderTarget name="SpecularBuffer" clearColor="0,0,0,0"/>
-	<RenderTarget name="EmissiveBuffer" clearColor="0,0,0,0"/>
+	<RenderTarget name="EmissiveBuffer" clearColor="0,0,0,-1"/>
   </DeclareMRT>
     
   <!-- MRT for alpha geometry -->
@@ -82,6 +85,7 @@
   <DeclareMRT name="ReflectionBuffer">
 	<DepthStencilTarget name="DefaultDepthBuffer"/>
 	<RenderTarget name="EmissiveBuffer"/>
+	<RenderTarget name="DistanceFieldWeightBuffer" clearColor="0,0,0,0"/>
   </DeclareMRT>
   
   <!-- MRT for atmospheric rendering -->
@@ -165,6 +169,7 @@
 	<ApplyShaderVariable sem="SpecularMap" value="SpecularBuffer"/>
 	<ApplyShaderVariable sem="AlbedoMap" value="AlbedoBuffer"/>
 	<ApplyShaderVariable sem="DepthMap" value="DepthBuffer"/>
+	<ApplyShaderVariable sem="DistanceFieldWeightMap" value="DistanceFieldWeightBuffer"/>
 	<Batch type="LightProbes"/>
   </Pass>
     

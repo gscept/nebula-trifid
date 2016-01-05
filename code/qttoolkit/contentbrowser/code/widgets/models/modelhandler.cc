@@ -187,6 +187,11 @@ ModelHandler::Discard()
 		}
 	}
 
+	// set new preview
+	this->category = "system";
+	this->file = "placeholder";
+	this->Preview();
+
 	// clear frames
 	IndexT i;
 	for (i = 0; i < this->nodeFrames.Size(); i++)

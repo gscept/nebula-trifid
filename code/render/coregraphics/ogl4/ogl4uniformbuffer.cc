@@ -18,7 +18,8 @@ __ImplementClass(OpenGL4::OGL4UniformBuffer, 'O4UB', Base::ConstantBufferBase);
 /**
 */
 OGL4UniformBuffer::OGL4UniformBuffer() : 
-	ogl4Buffer(-1),
+	ogl4Buffer(0),
+	handle(NULL),
 	bufferLock(NULL)
 {
 	// empty
@@ -96,7 +97,10 @@ OGL4UniformBuffer::Discard()
     
     this->buffer = 0;
 	this->bufferLock = 0;
+	n_delete(this->handle);
+	this->handle = 0;
     glDeleteBuffers(1, &this->ogl4Buffer);
+	this->ogl4Buffer = 0;
     ConstantBufferBase::Discard();
 }
 
@@ -113,6 +117,7 @@ OGL4UniformBuffer::SetupFromBlockInShader(const Ptr<CoreGraphics::Shader>& shade
     // setup buffer which initializes GL buffer
     this->Setup(numBackingBuffers);
 
+	this->BeginUpdateSync();
     const eastl::vector<AnyFX::VarblockVariableBinding>& perFrameBinds = block->GetVariables();
     for (unsigned i = 0; i < perFrameBinds.size(); i++)
     {
@@ -125,6 +130,7 @@ OGL4UniformBuffer::SetupFromBlockInShader(const Ptr<CoreGraphics::Shader>& shade
         this->variables.Append(var);
         this->variablesByName.Add(binding.name.c_str(), var);
     }
+	this->EndUpdateSync();
 }
 
 //------------------------------------------------------------------------------

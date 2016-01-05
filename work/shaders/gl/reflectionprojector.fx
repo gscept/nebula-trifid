@@ -12,6 +12,7 @@ sampler2D NormalMap;
 sampler2D SpecularMap;
 sampler2D AlbedoMap;
 sampler2D DepthMap;
+readwrite r16f image2D DistanceFieldWeightMap;
 
 shared varblock ReflectionProjectorBlock
 {
@@ -50,6 +51,8 @@ samplerstate EnvironmentSampler
 state ProjectorState
 {
 	BlendEnabled[0] = true;
+	//SrcBlend[0] = One;
+	//DstBlend[0] = One;
 	SrcBlend[0] = SrcAlpha;
 	DstBlend[0] = OneMinusSrcAlpha;
 	//SrcBlendAlpha[0] = One;
@@ -68,6 +71,7 @@ subroutine (CalculateDistanceField) float Box(
 {
 	vec3 d = abs(point) - vec3(FalloffDistance);
 	return min(max(d.x, max(d.y, d.z)), 0.0f) + length(max(d, 0.0f));
+	//return length(max(abs(point) - d, 0.0f));
 }
 
 subroutine (CalculateDistanceField) float Sphere(
@@ -132,16 +136,27 @@ psMain(in vec3 viewSpacePosition,
 	vec2 pixelSize = GetPixelSize(DepthMap);
 	vec2 screenUV = psComputeScreenCoord(gl_FragCoord.xy, pixelSize.xy);
 	float depth = textureLod(DepthMap, screenUV, 0).r;
-	
+		
 	// get view space position
 	vec3 viewVec = normalize(viewSpacePosition);
 	vec3 surfacePos = viewVec * depth;
 	vec4 worldPosition = InvView * vec4(surfacePos, 1);
 	vec4 localPos = InvTransform * worldPosition;	
-	
+
+	// eliminate pixels outside of the object space (-0.5, -0.5, -0.5) and (0.5, 0.5, 0.5)
 	vec3 dist = vec3(0.5f) - abs(localPos.xyz);
 	if (all(greaterThan(dist, vec3(0))))
 	{
+		// calculate distance field and falloff
+		float d = calcDistanceField(localPos.xyz);	
+		float distanceFalloff = pow(1-d, FalloffPower);
+		
+		// load biggest distance from texture, basically solving the distance field blending
+		float weight = imageLoad(DistanceFieldWeightMap, ivec2(gl_FragCoord.xy)).r;		
+		memoryBarrierImage();
+		float diff = saturate(distanceFalloff - weight);
+		imageStore(DistanceFieldWeightMap, ivec2(gl_FragCoord.xy), vec4(max(weight, distanceFalloff)));
+	
 		// sample normal and specular, do some pseudo-PBR energy balance between albedo and spec
 		vec3 viewSpaceNormal = UnpackViewSpaceNormal(textureLod(NormalMap, screenUV, 0));
 		vec4 spec = textureLod(SpecularMap, screenUV, 0);
@@ -156,16 +171,12 @@ psMain(in vec3 viewSpacePosition,
 		// perform cubemap correction method if required
 		reflectVec = calcCubemapCorrection(worldPosition.xyz, reflectVec);
 		
-		// calculate unsigned distance field, then power by like a million to get a smooth transition
-		float d = calcDistanceField(localPos.xyz);		
-		float distanceFalloff = pow(saturate(1 - d), FalloffPower);
-		
 		// calculate reflection and irradiance
 		float x =  dot(viewSpaceNormal, -viewVec);
 		vec3 rim = FresnelSchlickGloss(spec.rgb, x, spec.a);
 		vec3 refl = textureLod(EnvironmentMap, reflectVec, oneMinusSpec.a * NumEnvMips).rgb * rim;
 		vec3 irr = textureLod(IrradianceMap, worldNormal.xyz, 0).rgb;
-		Color = vec4(irr * albedo + refl, distanceFalloff);
+		Color = vec4(irr * albedo + refl, diff);
 	}
 	else
 	{

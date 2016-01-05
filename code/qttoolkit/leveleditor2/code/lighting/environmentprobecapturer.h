@@ -3,7 +3,13 @@
 /**
 	@class LevelEditor2::LightProbe
 	
-	This class captures the scene around it and generates a cube map.
+	This class captures the scene around it and generates a cube map reflection.
+
+	It can be linked with elements which should be hidden prior to rendering, which results in
+	objects being removed from the environment capture.
+
+	This class also supports rendering out an irradiance map, which goes together
+	with the reflection map to create a fully offline diffuse and specular global illumination.
 	
 	(C) 2012-2015 Individual contributors, see AUTHORS file
 */

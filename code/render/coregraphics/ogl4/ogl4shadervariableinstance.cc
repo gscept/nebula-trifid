@@ -37,9 +37,6 @@ OGL4ShaderVariableInstance::BindToUniformBuffer(const Ptr<CoreGraphics::Constant
     this->bufferBinding->uniformBuffer = buffer;
     this->bufferBinding->offset = offset;
     this->bufferBinding->size = size;
-
-    // make sure that the buffer is updated (data is array since we have a char*)
-    buffer->UpdateArray(defaultValue, offset, size, 1);
 }
 
 //------------------------------------------------------------------------------
@@ -126,7 +123,7 @@ OGL4ShaderVariableInstance::SetInt(int value)
     switch (bufferBound)
     {
     case true:
-        this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, this->bufferBinding->size);
+        this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, sizeof(int));
         break;
     case false:
         ShaderVariableInstanceBase::SetInt(value);
@@ -145,7 +142,7 @@ OGL4ShaderVariableInstance::SetIntArray(const int* values, SizeT count)
     switch (bufferBound)
     {
     case true:
-        this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, this->bufferBinding->size, count);
+		this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, sizeof(int), count);
         break;
     case false:
         ShaderVariableInstanceBase::SetIntArray(values, count);
@@ -163,7 +160,7 @@ OGL4ShaderVariableInstance::SetFloat(float value)
     switch (bufferBound)
     {
     case true:
-        this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, this->bufferBinding->size);
+		this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, sizeof(float));
         break;
     case false:
         ShaderVariableInstanceBase::SetFloat(value);
@@ -182,7 +179,7 @@ OGL4ShaderVariableInstance::SetFloatArray(const float* values, SizeT count)
     switch (bufferBound)
     {
     case true:
-        this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, this->bufferBinding->size, count);
+		this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, sizeof(float), count);
         break;
     case false:
         ShaderVariableInstanceBase::SetFloatArray(values, count);
@@ -200,7 +197,7 @@ OGL4ShaderVariableInstance::SetFloat2(const Math::float2& value)
     switch (bufferBound)
     {
     case true:
-        this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, this->bufferBinding->size);
+		this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, sizeof(Math::float2));
         break;
     case false:
         ShaderVariableInstanceBase::SetFloat2(value);
@@ -218,7 +215,7 @@ OGL4ShaderVariableInstance::SetFloat2Array(const Math::float2* values, SizeT cou
     switch (bufferBound)
     {
     case true:
-        this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, this->bufferBinding->size, count);
+		this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, sizeof(Math::float2), count);
         break;
     case false:
         ShaderVariableInstanceBase::SetFloat2Array(values, count);
@@ -236,7 +233,7 @@ OGL4ShaderVariableInstance::SetFloat4(const float4& value)
     switch (bufferBound)
     {
     case true:
-        this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, this->bufferBinding->size);
+		this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, sizeof(Math::float4));
         break;
     case false:
         ShaderVariableInstanceBase::SetFloat4(value);
@@ -255,7 +252,7 @@ OGL4ShaderVariableInstance::SetFloat4Array(const float4* values, SizeT count)
     switch (bufferBound)
     {
     case true:
-        this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, this->bufferBinding->size, count);
+		this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, sizeof(Math::float4), count);
         break;
     case false:
         ShaderVariableInstanceBase::SetFloat4Array(values, count);
@@ -273,7 +270,7 @@ OGL4ShaderVariableInstance::SetMatrix(const matrix44& value)
     switch (bufferBound)
     {
     case true:
-        this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, this->bufferBinding->size);
+		this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, sizeof(Math::matrix44));
         break;
     case false:
         ShaderVariableInstanceBase::SetMatrix(value);
@@ -292,7 +289,7 @@ OGL4ShaderVariableInstance::SetMatrixArray(const matrix44* values, SizeT count)
     switch (bufferBound)
     {
     case true:
-        this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, this->bufferBinding->size, count);
+		this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, sizeof(Math::matrix44), count);
         break;
     case false:
         ShaderVariableInstanceBase::SetMatrixArray(values, count);
@@ -310,7 +307,7 @@ OGL4ShaderVariableInstance::SetBool(bool value)
     switch (bufferBound)
     {
     case true:
-        this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, this->bufferBinding->size);
+        this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, sizeof(bool));
         break;
     case false:
         ShaderVariableInstanceBase::SetBool(value);
@@ -324,21 +321,11 @@ OGL4ShaderVariableInstance::SetBool(bool value)
 void
 OGL4ShaderVariableInstance::SetBoolArray(const bool* values, SizeT count)
 {
-    // hmm... Win32's BOOL is actually an int
-    const int MaxNumBools = 128;
-    n_assert(count < MaxNumBools);
-    bool tmp[MaxNumBools];
-    IndexT i;
-    for (i = 0; i < count; i++)
-    {
-        tmp[i] = values[i];
-    }
-
     bool bufferBound = this->bufferBinding != NULL;
     switch (bufferBound)
     {
     case true:
-        this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, this->bufferBinding->size, count);
+		this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, sizeof(bool), count);
         break;
     case false:
         ShaderVariableInstanceBase::SetBoolArray(values, count);
@@ -359,60 +346,60 @@ OGL4ShaderVariableInstance::SetValue(const Util::Variant& v)
         switch (v.GetType())
         {
         case Util::Variant::Int:
-            this->bufferBinding->uniformBuffer->Update(v.GetInt(), this->bufferBinding->offset, this->bufferBinding->size);
+			this->bufferBinding->uniformBuffer->Update(v.GetInt(), this->bufferBinding->offset, sizeof(int));
             break;
         case Util::Variant::UInt:
-            this->bufferBinding->uniformBuffer->Update(v.GetUInt(), this->bufferBinding->offset, this->bufferBinding->size);
+			this->bufferBinding->uniformBuffer->Update(v.GetUInt(), this->bufferBinding->offset, sizeof(uint));
             break;
         case Util::Variant::Float:
-            this->bufferBinding->uniformBuffer->Update(v.GetFloat(), this->bufferBinding->offset, this->bufferBinding->size);
+			this->bufferBinding->uniformBuffer->Update(v.GetFloat(), this->bufferBinding->offset, sizeof(float));
             break;
         case Util::Variant::Bool:
-            this->bufferBinding->uniformBuffer->Update(v.GetBool(), this->bufferBinding->offset, this->bufferBinding->size);
+            this->bufferBinding->uniformBuffer->Update(v.GetBool(), this->bufferBinding->offset, sizeof(bool));
             break;
         case Util::Variant::Float2:
-            this->bufferBinding->uniformBuffer->Update(v.GetFloat2(), this->bufferBinding->offset, this->bufferBinding->size);
+			this->bufferBinding->uniformBuffer->Update(v.GetFloat2(), this->bufferBinding->offset, sizeof(Math::float2));
             break;
         case Util::Variant::Float4:
-            this->bufferBinding->uniformBuffer->Update(v.GetFloat4(), this->bufferBinding->offset, this->bufferBinding->size);
+			this->bufferBinding->uniformBuffer->Update(v.GetFloat4(), this->bufferBinding->offset, sizeof(Math::float4));
             break;
         case Util::Variant::Matrix44:
-            this->bufferBinding->uniformBuffer->Update(v.GetMatrix44(), this->bufferBinding->offset, this->bufferBinding->size);
+			this->bufferBinding->uniformBuffer->Update(v.GetMatrix44(), this->bufferBinding->offset, sizeof(Math::matrix44));
             break;
         case Util::Variant::IntArray:
         {
             const Util::Array<int>& arr = v.GetIntArray();
-            this->bufferBinding->uniformBuffer->UpdateArray(&arr[0], this->bufferBinding->offset, this->bufferBinding->size, arr.Size());
+            this->bufferBinding->uniformBuffer->UpdateArray(&arr[0], this->bufferBinding->offset, sizeof(int), arr.Size());
             break;
         }
         case Util::Variant::FloatArray:
         {
             const Util::Array<float>& arr = v.GetFloatArray();
-            this->bufferBinding->uniformBuffer->UpdateArray(&arr[0], this->bufferBinding->offset, this->bufferBinding->size, arr.Size());
+			this->bufferBinding->uniformBuffer->UpdateArray(&arr[0], this->bufferBinding->offset, sizeof(float), arr.Size());
             break;
         }
         case Util::Variant::BoolArray:
         {
             const Util::Array<bool>& arr = v.GetBoolArray();
-            this->bufferBinding->uniformBuffer->UpdateArray(&arr[0], this->bufferBinding->offset, this->bufferBinding->size, arr.Size());
+            this->bufferBinding->uniformBuffer->UpdateArray(&arr[0], this->bufferBinding->offset, sizeof(bool), arr.Size());
             break;
         }
         case Util::Variant::Float2Array:
         {
             const Util::Array<Math::float2>& arr = v.GetFloat2Array();
-            this->bufferBinding->uniformBuffer->UpdateArray(&arr[0], this->bufferBinding->offset, this->bufferBinding->size, arr.Size());
+            this->bufferBinding->uniformBuffer->UpdateArray(&arr[0], this->bufferBinding->offset, sizeof(Math::float2), arr.Size());
             break;
         }
         case Util::Variant::Float4Array:
         {
             const Util::Array<Math::float4>& arr = v.GetFloat4Array();
-            this->bufferBinding->uniformBuffer->UpdateArray(&arr[0], this->bufferBinding->offset, this->bufferBinding->size, arr.Size());
+			this->bufferBinding->uniformBuffer->UpdateArray(&arr[0], this->bufferBinding->offset, sizeof(Math::float4), arr.Size());
             break;
         }
         case Util::Variant::Matrix44Array:
         {
             const Util::Array<Math::matrix44>& arr = v.GetMatrix44Array();
-            this->bufferBinding->uniformBuffer->UpdateArray(&arr[0], this->bufferBinding->offset, this->bufferBinding->size, arr.Size());
+			this->bufferBinding->uniformBuffer->UpdateArray(&arr[0], this->bufferBinding->offset, sizeof(Math::matrix44), arr.Size());
             break;
         }
         }

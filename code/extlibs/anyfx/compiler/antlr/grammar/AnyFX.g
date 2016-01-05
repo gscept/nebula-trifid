@@ -207,14 +207,19 @@ ALPHABET	: ('A'..'Z'|'a'..'z');
 
 // Identifier, must begin with alphabetical token, but can be followed by integer literal or underscore
 IDENTIFIER			: ALPHABET (ALPHABET|INTEGERLITERAL|'_')*;
-	
+
+// Acceptable file path
+fragment
+PATH	: (DIV|FORWARDSLASH|ALPHABET|INTEGERLITERAL|LP|RP|'_'|AND|SC|COL|DOT|' ')*
+		;
+
 // since the lexer also needs to be able to handle preprocessor tokens, we define this rule which will do exactly the same as the 'preprocessor' parser equal, but for the lexer
 PREPROCESSOR
 	@init
 	{
 		std::string file;
 	}
-	: NU 'line' WS includeLine = INTEGERLITERAL WS QO (data = ~QO {file.push_back((char)$data); })* QO
+	: NU 'line' WS includeLine = INTEGERLITERAL WS QO (data = PATH {file.append((const char*)$data->getText($data)->chars);}) QO WS*
 	{
 		int line = atoi((const char*)$includeLine.text->chars);
 		LEXER->input->line = line - 1;
@@ -223,10 +228,11 @@ PREPROCESSOR
 		includeFileNameLexer = file;
 		package->file = file;
 		LEXSTATE->userp = (void*)package;
+		$channel = HIDDEN;
 	}
 	;
 	
-WS	: ( '\t' | ' ' | '\r' | '\n' | '\u000C' )+ { $channel = HIDDEN; } ;
+WS	: ( '\t' | ' ' | '\r' | '\n' | '\u000C' )+ { $channel = HIDDEN; };
 
 string	returns [ std::string val ]
 	:	QO (data = ~QO { $val.append((const char*)$data.text->chars); })* QO 
@@ -263,6 +269,7 @@ effect	returns [ Effect effect ]
 			| sampler { $effect.AddSampler($sampler.sampler); }
 		)*
 	;
+	
 
 // all types are declared in this expression
 // here, we define all variable types from both HLSL and GLSL up to the latest release

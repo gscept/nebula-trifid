@@ -133,15 +133,6 @@ StateNodeInstance::ApplyState(IndexT frameIndex, const Frame::BatchGroup::Code& 
 {
 	TransformNodeInstance::ApplyState(frameIndex, group, shader);
 
-    // apply any instance unique variables, layer 3 (apply per-instance surface properties, unavoidable)
-    /*
-    IndexT i;
-    for (i = 0; i < this->surfaceConstantInstanceByName.Size(); i++)
-    {
-        this->surfaceConstantInstanceByName.ValueAtIndex(i)->Apply(shader);
-    }
-    */
-
 	// apply any needed model transform state to shader
 	const Ptr<TransformDevice>& transformDevice = TransformDevice::Instance();
 	const Ptr<ShaderServer>& shaderServer = ShaderServer::Instance();

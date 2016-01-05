@@ -192,6 +192,10 @@ MaterialHandler::MaterialSelected(const QString& material)
 		{
 			return;
 		}
+		else
+		{
+			this->hasChanges = false;
+		}
 	}
 
 	// discard textures managed by this handler
@@ -742,9 +746,7 @@ MaterialHandler::Save()
 	this->hasChanges = false;
 
 	// hmm, now our managed material here will need to be updated, since we made a new material
-	this->surfaceInstance->Discard();
-	this->surfaceInstance = 0;
-	Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedSurface.upcast<Resources::ManagedResource>());
+	Ptr<Materials::ManagedSurface> prevSurface = this->managedSurface;
 	this->managedSurface = Resources::ResourceManager::Instance()->CreateManagedResource(Surface::RTTI, exportTarget, NULL, true).downcast<Materials::ManagedSurface>();
 	this->surface = this->managedSurface->GetSurface().downcast<MutableSurface>();
 	this->surfaceInstance = this->surface->CreateInstance();
@@ -755,6 +757,18 @@ MaterialHandler::Save()
 	// get preview state
 	Ptr<PreviewState> previewState = ContentBrowserApp::Instance()->GetPreviewState();
 	previewState->SaveThumbnail(resName);
+	previewState->SetSurface(this->surfaceInstance.upcast<Materials::SurfaceInstance>());
+
+	// deallocate previous surface
+	if (prevSurface.isvalid())
+	{
+		Resources::ResourceManager::Instance()->DiscardManagedResource(prevSurface.upcast<Resources::ManagedResource>());
+	}
+
+	// also send physics update
+	Ptr<ReloadResourceIfExists> msg = ReloadResourceIfExists::Create();
+	msg->SetResourceName(exportTarget);
+	QtRemoteInterfaceAddon::QtRemoteClient::GetClient("editor")->Send(msg.upcast<Messaging::Message>());
 
 	// update thumbnail
 	this->UpdateThumbnail();
@@ -810,24 +824,29 @@ MaterialHandler::SaveAs()
 		this->hasChanges = false;
 
 		// hmm, now our managed material here will need to be updated, since we made a new material
-		this->surfaceInstance->Discard();
-		this->surfaceInstance = 0;
-		Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedSurface.upcast<Resources::ManagedResource>());
+		Ptr<Materials::ManagedSurface> prevSurface = this->managedSurface;
 		this->managedSurface = Resources::ResourceManager::Instance()->CreateManagedResource(Surface::RTTI, exportTarget, NULL, true).downcast<Materials::ManagedSurface>();
         this->surface = this->managedSurface->GetSurface().downcast<MutableSurface>();
 		this->surfaceInstance = this->surface->CreateInstance();
 
-		// make sure to reload the surface in case we have just overwritten it
-		Ptr<ReloadResourceIfExists> msg = ReloadResourceIfExists::Create();
-		msg->SetResourceName(exportTarget);
-		__StaticSend(GraphicsInterface, msg);
-
-		// generate thumbnail
-		resName = String::Sprintf("src:assets/%s/%s_sur.thumb", this->category.AsCharPtr(), this->file.AsCharPtr());
-
 		// get preview state
 		Ptr<PreviewState> previewState = ContentBrowserApp::Instance()->GetPreviewState();
 		previewState->SaveThumbnail(resName);
+		previewState->SetSurface(this->surfaceInstance.upcast<Materials::SurfaceInstance>());
+
+		// deallocate previous surface
+		if (prevSurface.isvalid())
+		{
+			Resources::ResourceManager::Instance()->DiscardManagedResource(prevSurface.upcast<Resources::ManagedResource>());
+		}
+
+		// also send physics update
+		Ptr<ReloadResourceIfExists> msg = ReloadResourceIfExists::Create();
+		msg->SetResourceName(exportTarget);
+		QtRemoteInterfaceAddon::QtRemoteClient::GetClient("editor")->Send(msg.upcast<Messaging::Message>());
+
+		// generate thumbnail
+		resName = String::Sprintf("src:assets/%s/%s_sur.thumb", this->category.AsCharPtr(), this->file.AsCharPtr());
 
 		// update thumbnail
 		this->UpdateThumbnail();
@@ -1219,7 +1238,7 @@ MaterialHandler::MakeMaterialUI(QLabel* surfaceName, QComboBox* materialBox, QPu
 
         // get texture info
         String name = param.name;
-        Variant var = param.defaultVal;
+        Variant var = this->surface->GetValue(param.name);
 
         // setup label
         QLabel* varName = new QLabel(name.AsCharPtr());
@@ -1602,7 +1621,7 @@ MaterialHandler::GetVariables(const Ptr<Materials::Material>& mat)
     {
         const Variant& defaultVar = params.ValueAtIndex(i).defaultVal;
         bool show = !params.ValueAtIndex(i).system;
-        if (defaultVar.GetType() != Variant::Object && show)
+        if (defaultVar.GetType() != Variant::Object && defaultVar.GetType() != Variant::String && show)
         {
             retval.Append(params.ValueAtIndex(i));
         }

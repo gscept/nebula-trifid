@@ -32,6 +32,14 @@ LightProbeEntity::LightProbeEntity() :
 //------------------------------------------------------------------------------
 /**
 */
+LightProbeEntity::~LightProbeEntity()
+{
+	// empty
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 Math::ClipStatus::Type
 LightProbeEntity::ComputeClipStatus(const Math::bbox& box)
 {	
@@ -57,9 +65,8 @@ LightProbeEntity::OnActivate()
 	// create variable buffer
 	this->lightProbeVariableBuffer = CoreGraphics::ConstantBuffer::Create();
 	this->lightProbeVariableBuffer->SetSync(true);
-	this->lightProbeVariableBuffer->SetupFromBlockInShader(this->shader, "ReflectionProjectorBlock");
+	this->lightProbeVariableBuffer->SetupFromBlockInShader(this->shader, "ReflectionProjectorBlock", 1);
 	this->lightProbeBufferVar = this->shader->GetVariableByName("ReflectionProjectorBlock");
-	this->lightProbeBufferVar->SetBufferHandle(this->lightProbeVariableBuffer->GetHandle());
 
 	// setup variables
 	this->lightProbeFalloffVar = this->lightProbeVariableBuffer->GetVariableByName(NEBULA3_SEMANTIC_ENVFALLOFFDISTANCE);
@@ -110,15 +117,10 @@ LightProbeEntity::ApplyProbe(const Ptr<Lighting::EnvironmentProbe>& probe)
 {
     this->lightProbeReflectionVar->SetTexture(probe->GetReflectionMap()->GetTexture());
     this->lightProbeIrradianceVar->SetTexture(probe->GetIrradianceMap()->GetTexture());
-    this->lightProbeReflectionNumMipsVar->SetInt(probe->GetReflectionMap()->GetTexture()->GetNumMipLevels());
-}
+	this->numMips = probe->GetReflectionMap()->GetTexture()->GetNumMipLevels();
 
-//------------------------------------------------------------------------------
-/**
-*/
-LightProbeEntity::~LightProbeEntity()
-{
-	// empty
+	// enable buffer
+	this->lightProbeBufferVar->SetBufferHandle(this->lightProbeVariableBuffer->GetHandle());
 }
 
 //------------------------------------------------------------------------------
@@ -133,6 +135,7 @@ LightProbeEntity::OnResolveVisibility(IndexT frameIndex, bool updateLod)
 		const matrix44 trans = this->GetTransform();
 		this->lightProbeVariableBuffer->CycleBuffers();
 		this->lightProbeVariableBuffer->BeginUpdateSync();
+		this->lightProbeReflectionNumMipsVar->SetInt(this->numMips);
         this->lightProbeFalloffVar->SetFloat(this->falloff);
         this->lightProbePowerVar->SetFloat(this->power);
         this->lightProbeBboxMinVar->SetFloat4(this->zone.pmin);

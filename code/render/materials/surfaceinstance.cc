@@ -217,6 +217,7 @@ SurfaceInstance::Apply(const Frame::BatchGroup::Code& group)
         }
     }
 
+	const Ptr<CoreGraphics::ShaderInstance>& shader = this->shaderInstancesByCode[group];
     for (i = 0; i < this->constants.Size(); i++)
     {
         this->constants[i]->Apply(group);
@@ -224,7 +225,7 @@ SurfaceInstance::Apply(const Frame::BatchGroup::Code& group)
 
     // get shader instance by code
     //this->shaderInstancesByCode[group]->Apply();
-    this->shaderInstancesByCode[group]->Commit();
+    shader->Commit();
 
     /*
     // apply values

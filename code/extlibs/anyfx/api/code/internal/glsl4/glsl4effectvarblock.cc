@@ -121,6 +121,7 @@ GLSL4EffectVarblock::SetupSlave(eastl::vector<InternalEffectProgram*> programs, 
     this->uniformOffsets = mainBlock->uniformOffsets;
 
 	this->uniformBlockBinding = mainBlock->uniformBlockBinding;
+	glBindBufferBase(GL_UNIFORM_BUFFER, this->uniformBlockBinding, 0);
 	unsigned i;
 	for (i = 0; i < programs.size(); i++)
 	{
@@ -224,6 +225,16 @@ GLSL4EffectVarblock::Commit()
 				glBindBufferBase(GL_UNIFORM_BUFFER, this->uniformBlockBinding, 0);
 			}
         }
+	}
+	else
+	{
+		GLSL4VarblockBaseState state;
+		state.buffer = 0;
+		if (GLSL4VarblockBaseStates[this->uniformBlockBinding] != state)
+		{
+			GLSL4VarblockBaseStates[this->uniformBlockBinding] = state;
+			glBindBufferBase(GL_UNIFORM_BUFFER, this->uniformBlockBinding, 0);
+		}
 	}
 }
 

@@ -573,7 +573,7 @@ void
 SM50LightServer::RenderLightProbes()
 {
 	// sort light probes based on layers
-	this->visibleLightProbes.SortWithFunc(SortProbes);
+	//this->visibleLightProbes.SortWithFunc(SortProbes);
 
 	// get transform and render device
 	TransformDevice* transformDevice = TransformDevice::Instance();

@@ -186,7 +186,6 @@ PreviewState::OnStateEnter(const Util::String& prevState)
 	this->surfaceStage = Graphics::GraphicsServer::Instance()->CreateStage("SurfacePreviewStage", visSystems);
 	this->surfaceView = Graphics::GraphicsServer::Instance()->CreateView(Graphics::View::RTTI, "SurfacePreviewView", false);
 	this->surfaceView->SetStage(this->surfaceStage);
-	this->surfaceView->SetOffscreenTarget(this->surfaceViewTarget);
 	this->surfaceView->SetFrameShader(frameShader);
 	Math::rectangle<int> viewport;
 	viewport.left = 0;
@@ -385,9 +384,18 @@ PreviewState::SaveThumbnail(const Util::String& path, bool swapStage)
 		this->surfaceView->SetStage(this->defaultStage);
 		this->surfaceCamera->SetCameraSettings(settings);
 	}
+
+	// get frame shader so we can change the frame shader result
+	const Ptr<Frame::FrameShader>& frameShader = this->surfaceView->GetFrameShader();
+	Ptr<Frame::FramePassBase> lastPass = frameShader->GetAllFramePassBases().Back();
+	Ptr<CoreGraphics::RenderTarget> oldRenderTarget = lastPass->GetRenderTarget();
+
+	// render and reset old render target
+	lastPass->SetRenderTarget(this->surfaceViewTarget);
 	this->surfaceView->SetCameraEntity(this->surfaceCamera);
 	this->surfaceView->OnFrame(NULL, 0, 0, false);
 	this->surfaceView->SetCameraEntity(NULL);
+	lastPass->SetRenderTarget(oldRenderTarget);
 	if (swapStage)
 	{
 		Graphics::CameraSettings settings;

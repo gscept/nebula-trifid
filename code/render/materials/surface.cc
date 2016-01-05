@@ -69,6 +69,7 @@ Surface::Reload()
     }
 
     // perform actual load
+	this->state = Pending;
     this->loader->Reset();
     this->Load();
 

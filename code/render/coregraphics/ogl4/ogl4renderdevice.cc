@@ -970,13 +970,6 @@ OGL4RenderDevice::SetViewport(const Math::rectangle<int>& rect, int index)
 void
 OGL4RenderDevice::DisplayResized(SizeT width, SizeT height)
 {
-	glFinish();
-	glMemoryBarrier(GL_ALL_BARRIER_BITS);
-	glBindImageTextures(0, this->maxNumImageTextures, NULL);
-	glBindTextures(0, this->maxNumTextures, NULL);
-	glBindSamplers(0, this->maxNumTextures, NULL);
-	GLsync sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-	glClientWaitSync(sync, GL_SYNC_FLUSH_COMMANDS_BIT, 1000000000);
 	Base::RenderDeviceBase::DisplayResized(width, height);
 }
 

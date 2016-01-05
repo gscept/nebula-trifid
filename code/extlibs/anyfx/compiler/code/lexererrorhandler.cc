@@ -29,7 +29,7 @@ void LexerError(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_UINT8* tokens)
 	LexerErrorPackage* package = (LexerErrorPackage*)state->userp;
 
 	// while we still have exceptions
-	while (ex != 0)
+	if (package != 0) do 
 	{
 		// print exception
 		PrintLexerException(ex, package->file.c_str());
@@ -37,6 +37,9 @@ void LexerError(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_UINT8* tokens)
 		// go to next exception
 		ex = ex->nextException;
 	}
+	while (ex != 0);
+
+	delete package;
 }
 
 //------------------------------------------------------------------------------
@@ -85,7 +88,6 @@ void PrintLexerException(pANTLR3_EXCEPTION ex, const char* file)
 
 	// remove the quotes surrounding the file name
 	std::string fileString(file);
-	fileString = fileString.substr(1, fileString.size()-2);
 
 	// format error message and add to list
 	std::string errorMessage;
