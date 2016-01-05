@@ -189,7 +189,7 @@ LevelEditor2EntityManager::CreateEnvironmentEntity(const Util::String& _template
 	attributes.Append(Attribute(Attr::DynamicObject,false));
 	attributes.Append(Attribute(Attr::VelocityVector,Math::float4(0, 0, 0, 0)));
 	attributes.Append(Attribute(Attr::EntityCategory,"_Environment"));
-
+	attributes.Append(Attribute(Attr::PhysicMaterial, "EmptyWood"));
 
 	Ptr<Game::Entity> newEnt =  CreateEntityByAttrs(attributes);	
 	return newEnt->GetGuid(Attr::EntityGuid);	
