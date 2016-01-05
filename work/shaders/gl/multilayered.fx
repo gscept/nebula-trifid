@@ -89,7 +89,7 @@ vsColoredShadow(in vec3 position,
 	out vec2 UV,
 	out vec4 ProjPos) 
 {
-	vec4 pos = LightViewProjection * Model * vec4(position, 1);
+	vec4 pos = ViewMatrixArray[0] * Model * vec4(position, 1);
 	gl_Position = pos;
 	ProjPos = pos;
 	UV = vec2(uv.x * NumXTiles, uv.y * NumYTiles);

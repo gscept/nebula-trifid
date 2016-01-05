@@ -100,7 +100,7 @@ ModelNodeHandler::Discard()
 	disconnect(&this->thumbnailWatcher, SIGNAL(fileChanged(const QString&)), this, SLOT(OnThumbnailFileChanged()));
 	if (this->managedSurface.isvalid())
 	{
-		this->surfaceInstance->Discard();
+		//this->surfaceInstance->Discard();
 		this->surfaceInstance = 0;
 		Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedSurface.upcast<Resources::ManagedResource>());
 		this->managedSurface = 0;
@@ -117,7 +117,7 @@ ModelNodeHandler::Refresh()
 	State state = attrs->GetState(this->nodePath);
 
 	// remove previous surface
-	this->surfaceInstance->Discard();
+	//this->surfaceInstance->Discard();
 	this->surfaceInstance = 0;
 
 	// update model
@@ -134,13 +134,8 @@ ModelNodeHandler::Refresh()
 void
 ModelNodeHandler::SetSurface(const Util::String& sur)
 {
-    if (this->managedSurface.isvalid())
-    {
-		this->surfaceInstance->Discard();
-		this->surfaceInstance = 0;
-        Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedSurface.upcast<Resources::ManagedResource>());
-        this->managedSurface = 0;		
-    }
+	// save previous managed surface
+	Ptr<Materials::ManagedSurface> prevManagedSurface = this->managedSurface;
 
     // update model
     Ptr<ModelEntity> model = ContentBrowserApp::Instance()->GetPreviewState()->GetModel();
@@ -148,6 +143,12 @@ ModelNodeHandler::SetSurface(const Util::String& sur)
     this->managedSurface = Resources::ResourceManager::Instance()->CreateManagedResource(Surface::RTTI, String::Sprintf("sur:%s.sur", sur.AsCharPtr()), NULL, true).downcast<Materials::ManagedSurface>();
     this->surfaceInstance = this->managedSurface->GetSurface()->CreateInstance();
     node->SetSurfaceInstance(this->surfaceInstance);
+
+	// once last instance is discarded by node, unload previous managed surface
+	if (prevManagedSurface.isvalid())
+	{
+		Resources::ResourceManager::Instance()->DiscardManagedResource(prevManagedSurface.upcast<Resources::ManagedResource>());
+	}
 
 	Ptr<ModelAttributes> attrs = this->modelHandler->GetAttributes();
 	State state = attrs->GetState(this->nodePath);

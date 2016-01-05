@@ -304,8 +304,8 @@ OGL4Types::AsOGL4SymbolicType(VertexComponent::Format f)
 //------------------------------------------------------------------------------
 /**
 */
-GLint 
-OGL4Types::AsOGL4Size( CoreGraphics::VertexComponent::Format f )
+GLint
+OGL4Types::AsOGL4Size(CoreGraphics::VertexComponent::Format f)
 {
 	switch (f)
 	{
@@ -329,7 +329,7 @@ OGL4Types::AsOGL4Size( CoreGraphics::VertexComponent::Format f )
 /**
 */
 GLint 
-OGL4Types::AsOGL4NumComponents( CoreGraphics::VertexComponent::Format f )
+OGL4Types::AsOGL4NumComponents(CoreGraphics::VertexComponent::Format f)
 {
 	switch (f)
 	{

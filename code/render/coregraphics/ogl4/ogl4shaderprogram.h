@@ -27,10 +27,6 @@ public:
 	void Apply();
 	/// performs a variable commit to the current program
 	void Commit();
-    /// calls shading system pre draw callback
-    void PreDraw();
-    /// calls shading subsystem post draw callback
-    void PostDraw();
     /// override current render state to use wireframe
     void SetWireframe(bool b);
 
@@ -69,5 +65,5 @@ OGL4ShaderProgram::UsePatches() const
 	return this->usePatches;
 }
 
-} // namespace Direct3D9
+} // namespace OpenGL4
 //------------------------------------------------------------------------------

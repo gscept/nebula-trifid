@@ -23,7 +23,8 @@
 #include "math/rectangle.h"
 #include "graphics/view.h"
 #include "graphics/graphicsserver.h"
-#include "../shader.h"
+#include "coregraphics/shader.h"
+#include "util/queue.h"
 
 namespace CoreGraphics
 {
@@ -145,6 +146,13 @@ public:
     /// gets the pass shader
     const Ptr<CoreGraphics::Shader>& GetPassShader() const;
 
+	/// enqueue a buffer lock which will cause the render device to lock a buffer index whenever the next draw command gets executed
+	static void EnqueueBufferLockIndex(const Ptr<CoreGraphics::BufferLock>& lock, IndexT buffer);
+	/// enqueue a buffer lock which will cause the render device to lock a buffer range whenever the next draw command gets executed
+	static void EnqueueBufferLockRange(const Ptr<CoreGraphics::BufferLock>& lock, IndexT start, SizeT range);
+	/// empty queues and lock buffers
+	static void DequeueBufferLocks();
+
 	/// sets whether or not the render device should tessellate
 	void SetUsePatches(bool state);
 	/// gets whether or not the render device should tessellate
@@ -161,7 +169,22 @@ public:
 protected:
     /// notify event handlers about an event
     bool NotifyEventHandlers(const CoreGraphics::RenderEvent& e);
+
+	enum __BufferLockMode
+	{
+		BufferRing = 0,
+		BufferRange = 1
+	};
+	struct __BufferLockData
+	{
+		Ptr<CoreGraphics::BufferLock> lock;
+		__BufferLockMode mode;
+		IndexT start;
+		SizeT range;
+		IndexT i;
+	};
     
+	static Util::Queue<__BufferLockData> bufferLockQueue;
     Util::Array<Ptr<CoreGraphics::RenderEventHandler> > eventHandlers;
     Ptr<CoreGraphics::RenderTarget> defaultRenderTarget;
     Ptr<CoreGraphics::VertexBuffer> streamVertexBuffers[MaxNumVertexStreams];

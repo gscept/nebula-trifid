@@ -294,12 +294,12 @@ SM50LightServer::RenderLights()
 		// now set shadow buffer for local lights    
 		this->shadowProjMapVar->SetTexture(shadowServer->GetSpotLightShadowBufferTexture());
 	}	
-	
-	// render point lights
-	this->RenderPointLights();
 
 	// render spot lights
 	this->RenderSpotLights();
+	
+	// render point lights
+	this->RenderPointLights();
 }
 
 //------------------------------------------------------------------------------

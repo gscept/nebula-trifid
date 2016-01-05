@@ -82,6 +82,7 @@ Variable::Preprocess()
 		else if (qualifier == "r32f")			this->format = Variable::R32F;
 		else if (qualifier == "r16f")			this->format = Variable::R16F;
 		else if (qualifier == "rgba16")			this->format = Variable::RGBA16;
+		else if (qualifier == "rgba8")			this->format = Variable::RGBA8;
 		else if (qualifier == "rgb10a2")		this->format = Variable::RGB10A2;
 		else if (qualifier == "rg16")			this->format = Variable::RG16;
 		else if (qualifier == "rg8")			this->format = Variable::RG8;
@@ -457,7 +458,7 @@ Variable::GetByteSize() const
 /**
 */
 std::string 
-Variable::FormatImageFormat( const Header& header ) const
+Variable::FormatImageFormat(const Header& header) const
 {
 	if (header.GetType() == Header::GLSL)
 	{

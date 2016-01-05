@@ -62,22 +62,7 @@ protected:
 	virtual void Apply();
 	/// updates varblocks back-end buffer
 	virtual void Commit();
-    /// performs synchronization so as to not overwrite data
-    virtual void PreDraw();
-    /// puts a sync barrier post drawing
-    virtual void PostDraw();
 
-	/// sets if buffer should flush manually
-	virtual void SetFlushManually(bool b);
-	/// flushes buffer
-	virtual void FlushBuffer();
-	
-	/// updates single variable
-	virtual void SetVariable(InternalEffectVariable* var, void* value);
-	/// updates variable array
-	virtual void SetVariableArray(InternalEffectVariable* var, void* value, size_t size);
-    /// set variable in array at index
-    virtual void SetVariableIndexed(InternalEffectVariable* var, void* value, unsigned i);
 	/// activates variable, this makes the uniform location be the one found in the given program
 	virtual void Activate(InternalEffectProgram* program);
 

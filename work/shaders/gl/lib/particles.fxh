@@ -18,10 +18,15 @@ struct CornerVertex
 	vec2 UV;
 };
 
-vec4	BBoxCenter;
-vec4	BBoxSize;
-int		NumAnimPhases;
-float	AnimFramesPerSecond;
+shared varblock ParticleObjectBlock [bool System = true;]
+{
+	mat4	EmitterTransform;
+	vec4	BBoxCenter;
+	vec4	BBoxSize;
+	int		NumAnimPhases;
+	float	AnimFramesPerSecond;
+	bool 	Billboard;
+};
 
 /**
     ComputeCornerVertex
@@ -56,8 +61,7 @@ ComputeCornerVertex(in bool hemisphereNormal,
     extrude = mul(extrude, rotMatrix);
     
     // check if billboard 
-    mat4 transform;
-    transform = EmitterTransform;
+    const mat4 transform = EmitterTransform;
     
     // transform to world space
     vec4 worldExtrude = transform * vec4(extrude, 0.0, 0.0);

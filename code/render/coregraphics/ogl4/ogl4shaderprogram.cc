@@ -74,26 +74,6 @@ OGL4ShaderProgram::Commit()
 /**
 */
 void 
-OGL4ShaderProgram::PreDraw()
-{
-    n_assert(this->program);
-    this->program->PreDraw();
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-OGL4ShaderProgram::PostDraw()
-{
-    n_assert(this->program);
-    this->program->PostDraw();
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
 OGL4ShaderProgram::SetWireframe(bool b)
 {
     if (b)    this->program->GetRenderState()->SetFillMode(AnyFX::EffectRenderState::Line);

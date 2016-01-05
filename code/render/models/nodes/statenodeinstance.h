@@ -32,7 +32,7 @@ public:
     virtual void ApplyState(IndexT frameIndex, const Frame::BatchGroup::Code& group, const Ptr<CoreGraphics::Shader>& shader);
 
     /// set surface material on node, be careful to clear up any references to SurfaceConstantInstances if this is done
-    void SetSurfaceInstance(const Ptr<Materials::SurfaceInstance>& material);
+    virtual void SetSurfaceInstance(const Ptr<Materials::SurfaceInstance>& material);
     /// get surface on node
     const Ptr<Materials::SurfaceInstance>& GetSurfaceInstance() const;
 
@@ -46,7 +46,7 @@ protected:
 	virtual void ApplySharedVariables();
 
 #if SHADER_MODEL_5
-    Ptr<CoreGraphics::Shader> shader;
+    Ptr<CoreGraphics::Shader> sharedShader;
     Ptr<CoreGraphics::ConstantBuffer> objectBuffer;
     Ptr<CoreGraphics::ShaderVariable> modelShaderVar;
     Ptr<CoreGraphics::ShaderVariable> invModelShaderVar;

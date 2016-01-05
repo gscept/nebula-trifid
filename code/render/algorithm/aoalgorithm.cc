@@ -348,9 +348,6 @@ AOAlgorithm::Begin()
 
 		// we have performed our deferred setup, so set flag to false to avoid this happening again
 		this->updateThisFrame = false;
-
-		// test
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 	}
 }
 
@@ -431,16 +428,6 @@ AOAlgorithm::Render()
 void 
 AOAlgorithm::OnDisplayResized(SizeT width, SizeT height)
 {
-	/*
-	this->hbao0Var->SetTexture(NULL);
-	this->hbao1Var->SetTexture(NULL);
-	this->hbaoBlurRGVar->SetTexture(NULL);
-	this->hbaoBlurRVar->SetTexture(NULL);
-	this->hbao->Commit();
-	this->blur->Commit();
-	glFlush();
-	*/
-
     // resize internal targets
     IndexT i;
     for (i = 0; i < 2; i++)

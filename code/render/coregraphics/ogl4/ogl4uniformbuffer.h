@@ -11,7 +11,6 @@
 #include "coregraphics/shader.h"
 #include "coregraphics/base/constantbufferbase.h"
 #include "coregraphics/ogl4/ogl4bufferlock.h"
-#include "afxapi.h"
 
 #define OGL4_UNIFORM_BUFFER_ALWAYS_MAPPED (1)
 //#define OGL4_BINDLESS (1)
@@ -48,6 +47,10 @@ public:
     void UpdateAsync(void* data, uint offset, uint size);
     /// update segment of buffer as array asynchronously, which might overwrite data if it hasn't been used yet
     void UpdateArrayAsync(void* data, uint offset, uint size, uint count);
+	/// update buffer synchronously
+	void UpdateSync(void* data, uint offset, uint size);
+	/// update buffer synchronously using an array of data
+	void UpdateArraySync(void* data, uint offset, uint size, uint count);
     /// end updating asynchronously, which updates the GL buffer
     void EndUpdateSync();
 
@@ -84,11 +87,35 @@ OGL4UniformBuffer::UpdateAsync(void* data, uint offset, uint size)
 /**
 */
 inline void
-OpenGL4::OGL4UniformBuffer::UpdateArrayAsync(void* data, uint offset, uint size, uint count)
+OGL4UniformBuffer::UpdateArrayAsync(void* data, uint offset, uint size, uint count)
 {
     n_assert(size <= this->size);
     GLubyte* currentBuf = (GLubyte*)this->buffer + this->handle->offset;
-    memcpy(currentBuf + offset, data, size);
+	memcpy(currentBuf + offset, data, size * count);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+OGL4UniformBuffer::UpdateSync(void* data, uint offset, uint size)
+{
+	n_assert(size <= this->size);
+	GLubyte* currentBuf = (GLubyte*)this->buffer;
+	if (!this->sync) currentBuf += this->handle->offset;
+	memcpy(currentBuf + offset, data, size);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+OGL4UniformBuffer::UpdateArraySync(void* data, uint offset, uint size, uint count)
+{
+	n_assert(size <= this->size);
+	GLubyte* currentBuf = (GLubyte*)this->buffer;
+	if (!this->sync) currentBuf += this->handle->offset;
+	memcpy(currentBuf + offset, data, size * count);
 }
 
 //------------------------------------------------------------------------------
@@ -100,34 +127,8 @@ OGL4UniformBuffer::BeginUpdateSync()
 	ConstantBufferBase::BeginUpdateSync();
 	if (!this->sync)
 	{
-		if (this->bufferIndex == 0) this->bufferLock->WaitForBuffer(0);
+		this->bufferLock->WaitForBuffer(this->bufferIndex);
 	}
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void
-OGL4UniformBuffer::EndUpdateSync()
-{
-    // only sync if we made changes
-    if (this->isDirty)
-    {
-        //glInvalidateBufferSubData(this->ogl4Buffer, this->handle->offset, this->size);
-#if OGL4_BINDLESS
-        glNamedBufferSubData(this->ogl4Buffer, this->handle->offset, this->size, this->buffer);
-#else
-        glBindBuffer(GL_UNIFORM_BUFFER, this->ogl4Buffer);
-        glBufferSubData(GL_UNIFORM_BUFFER, this->handle->offset, this->size, this->buffer);
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
-#endif
-    }
-
-	if (!this->sync)
-	{
-		if (this->bufferIndex == this->numBuffers - 1) this->bufferLock->LockBuffer(0);
-	}
-    ConstantBufferBase::EndUpdateSync();
 }
 
 } // namespace OpenGL4

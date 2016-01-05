@@ -398,7 +398,7 @@ ShaderCompiler::CompileGLSL(const Util::String& srcPath)
 		{
 			URI src(srcFile);
 			URI dst(destFile);
-            URI shaderFolder("root:work/shaders/gl");
+            URI shaderFolder("toolkit:work/shaders/gl");
 			std::vector<std::string> defines;
             Util::String define;
             define.Format("-D GLSL");
@@ -408,7 +408,7 @@ ShaderCompiler::CompileGLSL(const Util::String& srcPath)
             define.Format("-I%s/", URI(srcPath).LocalPath().AsCharPtr());
             defines.push_back(define.AsCharPtr());
 
-            // then include the N3/work/shaders/gl folder
+            // then include the N3 toolkit shaders folder
             define.Format("-I%s/", shaderFolder.LocalPath().AsCharPtr());
             defines.push_back(define.AsCharPtr());
 			AnyFXErrorBlob* errors = NULL;
@@ -430,9 +430,9 @@ ShaderCompiler::CompileGLSL(const Util::String& srcPath)
             Util::String target;
             target.Format("gl%d%d", major, minor);
 			Util::String escapedSrc = src.LocalPath();
-			escapedSrc.SubstituteString(" ", "\\ ");
+			//escapedSrc.SubstituteString(" ", "\\ ");
 			Util::String escapedDst = dst.LocalPath();
-			escapedDst.SubstituteString(" ", "\\ ");
+			//escapedDst.SubstituteString(" ", "\\ ");
 			
 			bool res = AnyFXCompile(escapedSrc.AsCharPtr(), escapedDst.AsCharPtr(), target.AsCharPtr(), vendor.AsCharPtr(), defines, &errors);
 			if (!res)

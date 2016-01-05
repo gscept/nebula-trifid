@@ -94,9 +94,7 @@ private:
 
 	// generic stuff
 	Ptr<CoreGraphics::Shader> blurShader;
-	Ptr<CoreGraphics::Shader> shadowShader;
 	Ptr<CoreGraphics::ShaderVariable> shadowCascadeViewVar;
-	Ptr<CoreGraphics::ShaderVariable> shadowLightViewProjVar;
 	PSSMUtil pssmUtil;
 	CSMUtil csmUtil;
 

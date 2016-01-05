@@ -345,6 +345,10 @@ OGL4ShapeRenderer::DrawPrimitives(const matrix44& modelTransform,
     {
         this->DrawBufferedPrimitives();
         this->DrawBufferedIndexedPrimitives();
+
+		// lock vbo buffer for this ring
+		this->vboLock->LockBuffer(this->vbBufferIndex);
+		this->vbBufferIndex = (this->vbBufferIndex + 1) % 3;
     }
 
     SizeT bufferSize = MaxNumVertices;
@@ -352,7 +356,8 @@ OGL4ShapeRenderer::DrawPrimitives(const matrix44& modelTransform,
     CoreGraphics::RenderShape::RenderShapeVertex* verts = (CoreGraphics::RenderShape::RenderShapeVertex*)this->vertexBufferPtr;
 
     // unlock buffer to avoid stomping data
-	this->vboLock->WaitForRange(bufferOffset + this->numPrimitives, vertexCount * vertexWidth);
+	//this->vboLock->WaitForRange(bufferOffset + this->numPrimitives, vertexCount * vertexWidth);
+	this->vboLock->WaitForBuffer(this->vbBufferIndex);
     memcpy(verts + bufferOffset + this->numPrimitives, vertices, vertexCount * vertexWidth);
 
     // append transforms
@@ -369,7 +374,7 @@ OGL4ShapeRenderer::DrawPrimitives(const matrix44& modelTransform,
     this->numPrimitives += vertexCount;
 
     // place a lock and increment buffer count
-    this->vboLock->LockRange(bufferOffset + this->numPrimitives, vertexCount * vertexWidth);
+    //this->vboLock->LockRange(bufferOffset + this->numPrimitives, vertexCount * vertexWidth);
 }
 
 //------------------------------------------------------------------------------
@@ -405,17 +410,28 @@ OGL4ShapeRenderer::DrawIndexedPrimitives(const matrix44& modelTransform,
     {
         this->DrawBufferedPrimitives();
         this->DrawBufferedIndexedPrimitives();
+
+		// lock vbo buffer for this ring
+		this->vboLock->LockBuffer(this->vbBufferIndex);
+		this->vbBufferIndex = (this->vbBufferIndex + 1) % 3;
+
+		// lock ibo buffer for this ring
+		this->iboLock->LockBuffer(this->ibBufferIndex);
+		this->ibBufferIndex = (this->ibBufferIndex + 1) % 3;
     }
 
     SizeT vbBufferSize = MaxNumVertices * MaxVertexWidth;
     SizeT vbBufferOffset = vbBufferSize * this->vbBufferIndex;
     SizeT ibBufferSize = MaxNumIndices * MaxIndexWidth;
     SizeT ibBufferOffset = ibBufferSize * this->ibBufferIndex;
+	CoreGraphics::RenderShape::RenderShapeVertex* verts = (CoreGraphics::RenderShape::RenderShapeVertex*)this->vertexBufferPtr;
 
     // unlock buffer and copy data
-    this->vboLock->WaitForRange(vbBufferSize + this->numPrimitives, vertexCount * vertexWidth);
-    this->iboLock->WaitForRange(ibBufferOffset + this->numIndices, indexCount * indexSize);
-    memcpy(this->vertexBufferPtr + vbBufferSize + this->numPrimitives, vertices, vertexCount * vertexWidth);
+	this->vboLock->WaitForBuffer(this->vbBufferIndex);
+	this->iboLock->WaitForBuffer(this->ibBufferIndex);
+    //this->vboLock->WaitForRange(vbBufferSize + this->numPrimitives, vertexCount * vertexWidth);
+    //this->iboLock->WaitForRange(ibBufferOffset + this->numIndices, indexCount * indexSize);
+	memcpy(verts + vbBufferSize + this->numPrimitives, vertices, vertexCount * vertexWidth);
     memcpy(this->indexBufferPtr + ibBufferOffset + this->numIndices, indices, indexCount * indexSize);
 
     // append transforms
@@ -434,8 +450,8 @@ OGL4ShapeRenderer::DrawIndexedPrimitives(const matrix44& modelTransform,
     this->numIndices += indexCount;
 
     // lock buffer and increment buffer count
-    this->vboLock->LockRange(vbBufferOffset + this->numPrimitives, numVertices * vertexWidth);
-    this->iboLock->LockRange(ibBufferOffset + this->numIndices, indexCount * indexSize);
+    //this->vboLock->LockRange(vbBufferOffset + this->numPrimitives, numVertices * vertexWidth);
+    //this->iboLock->LockRange(ibBufferOffset + this->numIndices, indexCount * indexSize);
 }
 
 //------------------------------------------------------------------------------
@@ -517,7 +533,7 @@ OGL4ShapeRenderer::DrawBufferedPrimitives()
     this->numPrimitives = 0;
     this->unindexed.primitives.Clear();
 
-    this->vbBufferIndex = (this->vbBufferIndex + 1) % 3;
+    //this->vbBufferIndex = (this->vbBufferIndex + 1) % 3;
 }
 
 //------------------------------------------------------------------------------
@@ -549,8 +565,8 @@ OGL4ShapeRenderer::DrawBufferedIndexedPrimitives()
     this->numIndices = 0;
     this->indexed.primitives.Clear();
 
-    this->vbBufferIndex = (this->vbBufferIndex + 1) % 3;
-    this->ibBufferIndex = (this->ibBufferIndex + 1) % 3;
+    //this->vbBufferIndex = (this->vbBufferIndex + 1) % 3;
+    //this->ibBufferIndex = (this->ibBufferIndex + 1) % 3;
 }
 
 } // namespace OpenGL4

@@ -81,7 +81,7 @@ vsUnlit(in vec2 corner,
 	in vec4 rotSize,
 	out vec4 ViewSpacePos,
 	out vec4 Color,
-	out vec2 UV) 
+	out vec2 UV)
 {
 	CornerVertex cornerVert = ComputeCornerVertex(true,
 										corner,

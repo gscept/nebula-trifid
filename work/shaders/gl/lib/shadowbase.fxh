@@ -49,7 +49,7 @@ vsStatic(in vec3 position,
 	out vec2 UV,
 	out vec4 ProjPos) 
 {
-	gl_Position = LightViewProjection * Model * vec4(position, 1);
+	gl_Position = ViewMatrixArray[0] * Model * vec4(position, 1);
 	ProjPos = gl_Position;
 	UV = uv;
 }
@@ -60,17 +60,17 @@ vsStatic(in vec3 position,
 shader
 void
 vsSkinned(in vec3 position,
-	in vec4 normal,
+	in vec3 normal,
 	in vec2 uv,
-	in vec4 tangent,
-	in vec4 binormal,
+	in vec3 tangent,
+	in vec3 binormal,
 	[slot=7] in vec4 weights,
 	[slot=8] in uvec4 indices,
 	out vec2 UV,
 	out vec4 ProjPos)	
 {
 	vec4 skinnedPos = SkinnedPosition(position, weights, indices);
-	gl_Position = LightViewProjection * Model * skinnedPos;
+	gl_Position = ViewMatrixArray[0] * Model * skinnedPos;
 	ProjPos = gl_Position;
 	UV = uv;
 }
@@ -88,7 +88,7 @@ vsStaticInst(in vec3 position,
 	out vec2 UV,
 	out vec4 ProjPos) 
 {
-	gl_Position = LightViewProjection * ModelArray[gl_InstanceID] * vec4(position, 1);
+	gl_Position = ViewMatrixArray[0] * ModelArray[gl_InstanceID] * vec4(position, 1);
 	ProjPos = gl_Position;
 	UV = uv;
 }
@@ -407,7 +407,7 @@ dsShadow(
 	vec3 VectorNormalized = normalize( Norm );	
 	Position.xyz += VectorNormalized.xyz * HeightScale * SceneScale * Height;
 
-	gl_Position = LightViewProjection * vec4(Position.xyz, 1);
+	gl_Position = ViewMatrixArray[0] * vec4(Position.xyz, 1);
 	ProjPos = gl_Position;	
 }
 

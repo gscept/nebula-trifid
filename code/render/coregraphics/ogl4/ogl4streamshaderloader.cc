@@ -146,11 +146,11 @@ OGL4StreamShaderLoader::SetupResourceFromStream(const Ptr<Stream>& stream)
             eastl::vector<AnyFX::VarblockVariableBinding> variableBinds = effectBlock->GetVariables();
             if (!variableBinds.empty() && effectBlock->IsActive())
             {
-                // create constant buffer
+                // create constant buffer, make it sync because we might have > 1 updates per frame
                 res->globalBlockBuffer = ConstantBuffer::Create();
                 res->globalBlockBuffer->SetSize(effectBlock->GetSize());
                 res->globalBlockBuffer->SetSync(true);
-                res->globalBlockBuffer->Setup();
+                res->globalBlockBuffer->Setup(1);
 
                 for (unsigned j = 0; j < variableBinds.size(); j++)
                 {

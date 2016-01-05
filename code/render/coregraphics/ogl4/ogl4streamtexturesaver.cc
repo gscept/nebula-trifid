@@ -77,14 +77,13 @@ OGL4StreamTextureSaver::SaveTexture2D(const Ptr<CoreGraphics::Texture>& tex, ILe
 	ILint image = ilGenImage();
 	ilBindImage(image);
 
+	// convert our pixel formats to IL components
 	ILuint channels;
 	ILuint format;
 	ILuint type;
 	channels = PixelFormat::ToChannels(tex->GetPixelFormat());
 	format = PixelFormat::ToILComponents(tex->GetPixelFormat());
 	type = PixelFormat::ToILType(tex->GetPixelFormat());
-
-	
 
 	Texture::MapInfo mapInfo;
 	tex->Map(mipLevelToSave, ResourceBase::MapRead, mapInfo);
@@ -99,7 +98,7 @@ OGL4StreamTextureSaver::SaveTexture2D(const Ptr<CoreGraphics::Texture>& tex, ILe
 		iluFlipImage();
 	}
 
-	// now save as PNG (will give us proper alpha)
+	// now save as PNG (will support proper alpha)
 	ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
 	ILint size = ilSaveL(imageFileType, NULL, 0);
 	ILbyte* data = n_new_array(ILbyte, size);

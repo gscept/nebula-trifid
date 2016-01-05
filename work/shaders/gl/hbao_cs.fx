@@ -181,7 +181,7 @@ csMainX()
     // Load float2 samples into shared memory
     SharedMemory[gl_LocalInvocationID.x] = LoadXZFromTexture(x,y);
     SharedMemory[min(2 * KERNEL_RADIUS + gl_LocalInvocationID.x, SHARED_MEM_SIZE - 1)] = LoadXZFromTexture(2 * KERNEL_RADIUS + x, y);
-    memoryBarrierShared();
+    groupMemoryBarrier();
 
     const int writePos = tileStart + int(gl_LocalInvocationID.x);
     const int tileEndClamped = min(tileEnd, int(AOResolution.x));
@@ -193,12 +193,12 @@ csMainX()
         uint oy = gl_WorkGroupID.y;
 
         // Fetch the 2D coordinates of the center point and its nearest neighbors
-        float2 P = 	SharedMemoryLoad(centerId, 0);
-        float2 Pr = SharedMemoryLoad(centerId, 1);
-        float2 Pl = SharedMemoryLoad(centerId, -1);
+        vec2 P = 	SharedMemoryLoad(centerId, 0);
+        vec2 Pr = SharedMemoryLoad(centerId, 1);
+        vec2 Pl = SharedMemoryLoad(centerId, -1);
         
         // Compute tangent vector using central differences
-        float2 T = MinDiff(P, Pr, Pl);
+        vec2 T = MinDiff(P, Pr, Pl);
 
         float ao = ComputeHBAO(P, T, centerId);
 		imageStore(HBAO0, int2(ox, oy), vec4(ao, 0, 0, 0));
@@ -224,7 +224,7 @@ csMainY()
     // Load float2 samples into shared memory
     SharedMemory[gl_LocalInvocationID.x] = LoadYZFromTexture(x,y);
     SharedMemory[min(2 * KERNEL_RADIUS + gl_LocalInvocationID.x, SHARED_MEM_SIZE - 1)] = LoadYZFromTexture(x, 2 * KERNEL_RADIUS + y);
-    memoryBarrierShared();
+    groupMemoryBarrier();
 
     const uint writePos = tileStart + gl_LocalInvocationID.x;
     const uint tileEndClamped = min(tileEnd, int(AOResolution.x));

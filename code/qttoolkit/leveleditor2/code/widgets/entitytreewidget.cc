@@ -419,7 +419,7 @@ EntityTreeWidget::RebuildTree()
 	const Util::Array<Ptr<Game::Entity>> entities = BaseGameFeature::EntityManager::Instance()->GetEntities();	
 	for(int i = 0 ; i < entities.Size() ; i++)
 	{						
-		if(entities[i]->HasAttr(Attr::EntityType) && !BaseGameFeature::EntityManager::Instance()->IsEntityInDelayedJobs(entities[i]))
+		if(entities[i]->HasAttr(Attr::EntityType) && !BaseGameFeature::EntityManager::Instance()->IsEntityInDelayedJobs(entities[i]) && entities[i]->HasAttr(Attr::ParentGuid))
 		{
 			Util::Guid parentGuid = entities[i]->GetGuid(Attr::ParentGuid);
 			if(parentGuid.IsValid())

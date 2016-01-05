@@ -90,34 +90,49 @@ ParticleSystemNodeInstance::Setup(const Ptr<ModelInstance>& inst, const Ptr<Mode
     this->particleSystemInstance->Setup(emitterMesh, particleSystemNode->GetPrimitiveGroupIndex(), particleSystemNode->GetEmitterAttrs());
 	this->particleSystemInstance->Start();
 
-    if (this->surfaceInstance->HasConstant(NEBULA3_SEMANTIC_EMITTERTRANSFORM))
+#if SHADER_MODEL_5
+	ShaderServer* shdServer = ShaderServer::Instance();
+	this->particleShader = shdServer->GetShader("shd:particle");
+	this->particleObjectBuffer = ConstantBuffer::Create();
+	this->particleObjectBuffer->SetupFromBlockInShader(this->particleShader, "ParticleObjectBlock");
+	this->emitterOrientationVar = this->particleObjectBuffer->GetVariableByName(NEBULA3_SEMANTIC_EMITTERTRANSFORM);
+	this->billBoardVar = this->particleObjectBuffer->GetVariableByName(NEBULA3_SEMANTIC_BILLBOARD);
+	this->bboxCenterVar = this->particleObjectBuffer->GetVariableByName(NEBULA3_SEMANTIC_BBOXCENTER);
+	this->bboxSizeVar = this->particleObjectBuffer->GetVariableByName(NEBULA3_SEMANTIC_BBOXSIZE);
+	this->animPhasesVar = this->particleObjectBuffer->GetVariableByName(NEBULA3_SEMANTIC_ANIMPHASES);
+	this->animsPerSecVar = this->particleObjectBuffer->GetVariableByName(NEBULA3_SEMANTIC_ANIMSPERSEC);
+	this->particleObjectBufferVar = this->particleShader->GetVariableByName("ParticleObjectBlock");
+#else
+	if (this->surfaceInstance->HasConstant(NEBULA3_SEMANTIC_EMITTERTRANSFORM))
 	{
-        this->emitterOrientation = this->surfaceInstance->GetConstant(NEBULA3_SEMANTIC_EMITTERTRANSFORM);
+		this->emitterOrientation = this->surfaceInstance->GetConstant(NEBULA3_SEMANTIC_EMITTERTRANSFORM);
 	}
-    if (this->surfaceInstance->HasConstant(NEBULA3_SEMANTIC_BILLBOARD))
+	if (this->surfaceInstance->HasConstant(NEBULA3_SEMANTIC_BILLBOARD))
 	{
 		this->billBoard = this->surfaceInstance->GetConstant(NEBULA3_SEMANTIC_BILLBOARD);
 	}
-    if (this->surfaceInstance->HasConstant(NEBULA3_SEMANTIC_BBOXCENTER))
+	if (this->surfaceInstance->HasConstant(NEBULA3_SEMANTIC_BBOXCENTER))
 	{
 		this->bboxCenter = this->surfaceInstance->GetConstant(NEBULA3_SEMANTIC_BBOXCENTER);
 	}
-    if (this->surfaceInstance->HasConstant(NEBULA3_SEMANTIC_BBOXSIZE))
+	if (this->surfaceInstance->HasConstant(NEBULA3_SEMANTIC_BBOXSIZE))
 	{
 		this->bboxSize = this->surfaceInstance->GetConstant(NEBULA3_SEMANTIC_BBOXSIZE);
 	}
-    if (this->surfaceInstance->HasConstant(NEBULA3_SEMANTIC_TIME))
+	if (this->surfaceInstance->HasConstant(NEBULA3_SEMANTIC_TIME))
 	{
 		this->time = this->surfaceInstance->GetConstant(NEBULA3_SEMANTIC_TIME);
 	}
-    if (this->surfaceInstance->HasConstant(NEBULA3_SEMANTIC_ANIMPHASES))
+	if (this->surfaceInstance->HasConstant(NEBULA3_SEMANTIC_ANIMPHASES))
 	{
 		this->animPhases = this->surfaceInstance->GetConstant(NEBULA3_SEMANTIC_ANIMPHASES);
 	}
-    if (this->surfaceInstance->HasConstant(NEBULA3_SEMANTIC_ANIMSPERSEC))
+	if (this->surfaceInstance->HasConstant(NEBULA3_SEMANTIC_ANIMSPERSEC))
 	{
 		this->animsPerSec = this->surfaceInstance->GetConstant(NEBULA3_SEMANTIC_ANIMSPERSEC);
 	}
+#endif
+
     if (this->surfaceInstance->HasConstant(NEBULA3_SEMANTIC_DEPTHBUFFER))
 	{
 		Ptr<FrameShader> defaultFrameShader = FrameServer::Instance()->LookupFrameShader(NEBULA3_DEFAULT_FRAMESHADER_NAME);
@@ -125,7 +140,6 @@ ParticleSystemNodeInstance::Setup(const Ptr<ModelInstance>& inst, const Ptr<Mode
 		this->depthBuffer = this->surfaceInstance->GetConstant(NEBULA3_SEMANTIC_DEPTHBUFFER);
 		this->depthBuffer->SetTexture(depthTexture->GetResolveTexture());
 	}
-
 
 #if __PS3__
     const Util::Array<Util::KeyValuePair<Util::StringAtom, Util::Variant> > &shaderParams = particleSystemNode->GetShaderParameter();
@@ -161,13 +175,15 @@ ParticleSystemNodeInstance::Discard()
 
     // discard material clone
 	//this->surfaceClone->Unload();
-    this->emitterOrientation = 0;
-    this->billBoard = 0;
-    this->bboxCenter = 0;
-    this->bboxSize = 0;
-    this->time = 0;
-    this->animPhases = 0;
-    this->animsPerSec = 0;
+	this->particleShader = 0;
+	this->particleObjectBuffer->Discard();
+	this->emitterOrientationVar = 0;
+	this->billBoardVar = 0;
+	this->bboxCenterVar = 0;
+	this->bboxSizeVar = 0;
+	this->animPhasesVar = 0;
+	this->animsPerSecVar = 0;
+	this->particleObjectBufferVar = 0;
     this->depthBuffer = 0;
 
     // discard our particle system instance
@@ -254,31 +270,56 @@ ParticleSystemNodeInstance::OnRenderBefore(IndexT frameIndex, Timing::Time time)
 void
 ParticleSystemNodeInstance::ApplyState(IndexT frameIndex, const Frame::BatchGroup::Code& group, const Ptr<CoreGraphics::Shader>& shader)
 {
+	const Ptr<Particles::ParticleSystemInstance>& inst = this->GetParticleSystemInstance();
+	const Ptr<Particles::ParticleSystem>& system = inst->GetParticleSystem();
+	bool billboard = system->GetEmitterAttrs().GetBool(EmitterAttrs::Billboard);
+#if SHADER_MODEL_5
+	// avoid shuffling buffers if we are in the same frame
+	if (this->particleObjectBufferIndex != frameIndex)
+	{
+		// apply transforms
+		this->particleObjectBuffer->CycleBuffers();
+		if (billboard)
+		{
+			this->emitterOrientationVar->SetMatrix(TransformDevice::Instance()->GetInvViewTransform());
+		}
+		else
+		{
+			this->emitterOrientationVar->SetMatrix(this->GetParticleSystemInstance()->GetTransform());
+		}
+		
+		this->bboxCenterVar->SetFloat4(inst->GetBoundingBox().center());
+		this->bboxSizeVar->SetFloat4(inst->GetBoundingBox().extents());
+		this->animPhasesVar->SetInt(system->GetEmitterAttrs().GetInt(EmitterAttrs::AnimPhases));
+		this->animsPerSecVar->SetFloat(system->GetEmitterAttrs().GetFloat(EmitterAttrs::PhasesPerSecond));
+		this->billBoardVar->SetBool(billboard);
+		this->particleObjectBufferIndex = frameIndex;
+	}
+	this->particleObjectBufferVar->SetBufferHandle(this->particleObjectBuffer->GetHandle());
+#else
 	// set variables
-	if (this->GetParticleSystemInstance()->GetParticleSystem()->GetEmitterAttrs().GetBool(EmitterAttrs::Billboard))
+	if (billboard)
 	{
 		// use inverse view matrix for orientation 
-		this->emitterOrientation->SetValue(TransformDevice::Instance()->GetInvViewTransform());
+		this->emitterOrientationVar->SetMatrix(TransformDevice::Instance()->GetInvViewTransform());
 	}
 	else
 	{
 		// otherwise, use the matrix of the particle system
-        this->emitterOrientation->SetValue(this->GetParticleSystemInstance()->GetTransform());
+		this->emitterOrientationVar->SetMatrix(this->GetParticleSystemInstance()->GetTransform());
 	}
 
-    //billBoard->SetBool(this->GetParticleSystemInstance()->GetParticleSystem()->GetEmitterAttrs().GetBool(EmitterAttrs::Billboard));	
+	//billBoard->SetBool(this->GetParticleSystemInstance()->GetParticleSystem()->GetEmitterAttrs().GetBool(EmitterAttrs::Billboard));	
 	//this->bboxCenter->SetFloat4(this->GetParticleSystemInstance()->GetBoundingBox().center());
 	//this->bboxSize->SetFloat4(this->GetParticleSystemInstance()->GetBoundingBox().extents());
-    this->animPhases->SetValue(this->GetParticleSystemInstance()->GetParticleSystem()->GetEmitterAttrs().GetInt(EmitterAttrs::AnimPhases));
-    this->animsPerSec->SetValue(this->GetParticleSystemInstance()->GetParticleSystem()->GetEmitterAttrs().GetFloat(EmitterAttrs::PhasesPerSecond));
+	this->animPhasesVar->SetInt(this->GetParticleSystemInstance()->GetParticleSystem()->GetEmitterAttrs().GetInt(EmitterAttrs::AnimPhases));
+	this->animsPerSecVar->SetInt(this->GetParticleSystemInstance()->GetParticleSystem()->GetEmitterAttrs().GetFloat(EmitterAttrs::PhasesPerSecond));
+#endif
+
+	
 
 	// call base class (applies time)
     StateNodeInstance::ApplyState(frameIndex, group, shader);
-
-	this->emitterOrientation->Apply(group);
-    this->animPhases->Apply(group);
-    this->animsPerSec->Apply(group);
-    this->depthBuffer->Apply(group);
 }
 
 //------------------------------------------------------------------------------
@@ -321,6 +362,56 @@ ParticleSystemNodeInstance::OnHide(Timing::Time time)
     {
         this->particleSystemInstance->Stop();
     }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ParticleSystemNodeInstance::SetSurfaceInstance(const Ptr<Materials::SurfaceInstance>& material)
+{
+	StateNodeInstance::SetSurfaceInstance(material);
+
+#if !SHADER_MODEL_5
+	// setup variables again
+	if (this->surfaceInstance->HasConstant(NEBULA3_SEMANTIC_EMITTERTRANSFORM))
+	{
+		this->emitterOrientation = this->surfaceInstance->GetConstant(NEBULA3_SEMANTIC_EMITTERTRANSFORM);
+	}
+	if (this->surfaceInstance->HasConstant(NEBULA3_SEMANTIC_BILLBOARD))
+	{
+		this->billBoard = this->surfaceInstance->GetConstant(NEBULA3_SEMANTIC_BILLBOARD);
+	}
+	if (this->surfaceInstance->HasConstant(NEBULA3_SEMANTIC_BBOXCENTER))
+	{
+		this->bboxCenter = this->surfaceInstance->GetConstant(NEBULA3_SEMANTIC_BBOXCENTER);
+	}
+	if (this->surfaceInstance->HasConstant(NEBULA3_SEMANTIC_BBOXSIZE))
+	{
+		this->bboxSize = this->surfaceInstance->GetConstant(NEBULA3_SEMANTIC_BBOXSIZE);
+	}
+	if (this->surfaceInstance->HasConstant(NEBULA3_SEMANTIC_TIME))
+	{
+		this->time = this->surfaceInstance->GetConstant(NEBULA3_SEMANTIC_TIME);
+	}
+	if (this->surfaceInstance->HasConstant(NEBULA3_SEMANTIC_ANIMPHASES))
+	{
+		this->animPhases = this->surfaceInstance->GetConstant(NEBULA3_SEMANTIC_ANIMPHASES);
+	}
+	if (this->surfaceInstance->HasConstant(NEBULA3_SEMANTIC_ANIMSPERSEC))
+	{
+		this->animsPerSec = this->surfaceInstance->GetConstant(NEBULA3_SEMANTIC_ANIMSPERSEC);
+	}
+
+#endif
+	if (this->surfaceInstance->HasConstant(NEBULA3_SEMANTIC_DEPTHBUFFER))
+	{
+		Ptr<FrameShader> defaultFrameShader = FrameServer::Instance()->LookupFrameShader(NEBULA3_DEFAULT_FRAMESHADER_NAME);
+		Ptr<RenderTarget> depthTexture = defaultFrameShader->GetRenderTargetByName("DepthBuffer");
+		this->depthBuffer = this->surfaceInstance->GetConstant(NEBULA3_SEMANTIC_DEPTHBUFFER);
+		this->depthBuffer->SetTexture(depthTexture->GetResolveTexture());
+	}
+
 }
 
 } // namespace Particles

@@ -35,10 +35,6 @@ public:
 	void Apply();
 	/// commits changes to shader variables, call this before rendering
 	void Commit();
-    /// performs pre-draw stuff
-    void PreDraw();
-    /// performs post-draw stuff
-    void PostDraw();
 	/// returns name of program
     const eastl::string& GetName() const;
 	/// returns array to list of shaders, this is list is always a constant size of 6

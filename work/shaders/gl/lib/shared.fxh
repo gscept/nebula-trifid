@@ -12,9 +12,10 @@
 #define MAX_BATCH_SIZE 256
 
 // instancing transforms
-shared varblock InstanceBlock [bool System = true;]
+shared varblock InstanceBlock [bool System = true; bool Instancing = true;]
 {
 	mat4 ModelArray[MAX_BATCH_SIZE];
+	int IdArray[MAX_BATCH_SIZE];
 };
 
 // contains the state of the camera (and time)
@@ -67,7 +68,7 @@ shared varblock LightBlock [bool System = true;]
 	int			LightTypeArray[MAX_NUM_LIGHTS];
 	bool		LightCastsShadowsArray[MAX_NUM_LIGHTS];
 };
-mat4 LightViewProjection;
+
 sampler2D	LightShadowTexture;
 	
 // the smartest thing to do is to make the buffer count equal to the number of draw calls we want per frame
@@ -94,8 +95,6 @@ shared varbuffer PerObject
 };
 */
 
-
-mat4 EmitterTransform;
 vec4 RenderTargetDimensions;	// x and y holds 1 / render target size, z and w holds render target size
 
 float LightMapIntensity = 0.0f;

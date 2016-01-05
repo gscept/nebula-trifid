@@ -41,10 +41,6 @@ protected:
 	virtual void Apply();
 	/// commits variables
 	virtual void Commit();
-    /// performs pre-draw stuff
-    virtual void PreDraw();
-    /// performs after-draw stuff
-    virtual void PostDraw();
 	/// links program, override in subclass if needed
 	virtual bool Link();
 	/// returns true if program supports tessellation
