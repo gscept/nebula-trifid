@@ -84,17 +84,6 @@ shared varblock ObjectBlock [bool System = true;]
 	int ObjectId;
 };
 
-/*
-shared varbuffer PerObject
-{
-	mat4 Model;
-	mat4 InvModel;
-	mat4 ModelViewProjection;
-	mat4 ModelView;
-	int ObjectId;
-};
-*/
-
 vec4 RenderTargetDimensions;	// x and y holds 1 / render target size, z and w holds render target size
 
 float LightMapIntensity = 0.0f;

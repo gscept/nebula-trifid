@@ -80,6 +80,7 @@ OGL4FeedbackBuffer::Discard()
 	n_assert(0 != this->ogl4TransformFeedbackBuffer[0]);
 
 	glDeleteTransformFeedbacks(1, &this->ogl4TransformFeedback);
+	this->ogl4TransformFeedback = 0;
 	glDeleteBuffers(NumBuffers, &this->ogl4TransformFeedbackBuffer[0]);
 	this->ogl4TransformFeedbackBuffer.Clear();
 	IndexT i;

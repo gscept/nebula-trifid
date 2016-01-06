@@ -275,7 +275,6 @@ InternalEffectVariable::SetFloat4(const float* vec)
 		memcpy((void*)this->currentValue, (void*)vec, 4 * sizeof(float));
 		this->isDirty = true;
 	}
-	
 }
 
 //------------------------------------------------------------------------------

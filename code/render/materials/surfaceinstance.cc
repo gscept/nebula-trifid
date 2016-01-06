@@ -138,6 +138,11 @@ void
 SurfaceInstance::Cleanup()
 {
     IndexT i;
+	for (i = 0; i < this->constants.Size(); i++)
+	{
+		this->constants[i]->Discard();
+	}
+
     for (i = 0; i < this->shaderInstances.Size(); i++)
     {
         this->shaderInstances[i]->Discard();
@@ -145,12 +150,12 @@ SurfaceInstance::Cleanup()
     this->shaderInstances.Clear();
     this->shaderInstancesByCode.Clear();
 
-    for (i = 0; i < this->constants.Size(); i++)
-    {
-        this->constants[i]->Discard();
-    }
     this->constants.Clear();
     this->constantsByName.Clear();
+	this->managedTextures.Clear();
+	this->originalSurface = 0;
+
+	this->code = Materials::SurfaceName::InvalidSurfaceName;
 }
 
 //------------------------------------------------------------------------------

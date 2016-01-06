@@ -55,10 +55,11 @@ OGL4ShaderVariableInstance::BindToUniformBuffer(const Ptr<CoreGraphics::Constant
 /**
 */
 void
-OGL4ShaderVariableInstance::Discard()
+OGL4ShaderVariableInstance::Cleanup()
 {
-    n_delete(this->bufferBinding);
-    this->bufferBinding = NULL;
+	ShaderVariableInstanceBase::Cleanup();
+	n_delete(this->bufferBinding);
+	this->bufferBinding = 0;
 }
 
 //------------------------------------------------------------------------------

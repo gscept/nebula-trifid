@@ -90,8 +90,8 @@ OGL4ShaderInstance::Setup(const Ptr<CoreGraphics::Shader>& origShader)
                 // find the shader variable and bind the constant buffer we just created to said variable
                 const AnyFX::VarblockVariableBinding& binding = variableBinds[j];
                 Util::String name = binding.name.c_str();
-                uniformBuffer->UpdateArray(binding.value, binding.offset, binding.size, binding.arraySize);
-                this->uniformVariableBinds.Add(name, VariableBufferBinding(DeferredVariableToBufferBind{ binding.offset, binding.size, binding.arraySize }, uniformBuffer));
+				uniformBuffer->UpdateArray(binding.value, binding.offset, binding.size, 1);
+				this->uniformVariableBinds.Add(name, VariableBufferBinding(DeferredVariableToBufferBind{ binding.offset, binding.size, binding.arraySize }, uniformBuffer));
                 //const Ptr<ShaderVariableInstance>& var = this->variableInstancesByName[binding.name.c_str()];
                 //var->BindToUniformBuffer(uniformBuffer, binding.offset, binding.size, binding.value);
             }

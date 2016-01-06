@@ -57,11 +57,6 @@ SurfaceConstant::Setup(const StringAtom& name, const Array<Ptr<CoreGraphics::Sha
 void
 SurfaceConstant::Discard()
 {
-    IndexT i;
-    for (i = 0; i < this->variablesByShader.Size(); i++)
-    {
-        this->variablesByShader.ValueAtIndex(i)->Discard();
-    }
     this->variablesByShader.Clear();
 }
 
@@ -74,9 +69,36 @@ SurfaceConstant::Apply(const Frame::BatchGroup::Code& group)
     // skip applying if this constant has no binding to said variable
 	if (!this->variablesByShader.Contains(group)) return;
     const Ptr<CoreGraphics::ShaderVariableInstance>& var = this->variablesByShader[group];
-    var->SetValue(this->value);
+    //var->SetValue(this->value);
     var->Apply();
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+SurfaceConstant::SetValue(const Util::Variant& value)
+{
+	this->value = value;
+	IndexT i;
+	for (i = 0; i < this->variablesByShader.Size(); i++)
+	{
+		this->variablesByShader.ValueAtIndex(i)->SetValue(value);
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+SurfaceConstant::SetTexture(const Ptr<CoreGraphics::Texture>& tex)
+{
+	this->value.SetObject(tex);
+	IndexT i;
+	for (i = 0; i < this->variablesByShader.Size(); i++)
+	{
+		this->variablesByShader.ValueAtIndex(i)->SetTexture(tex);
+	}
+}
 
 } // namespace Materials

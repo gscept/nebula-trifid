@@ -110,6 +110,7 @@ protected:
 inline void
 ConstantBufferBase::SetSync(bool b)
 {
+	n_assert(!this->isSetup);
     this->sync = b;
 }
 

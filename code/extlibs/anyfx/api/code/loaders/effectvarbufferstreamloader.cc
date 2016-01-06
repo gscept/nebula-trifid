@@ -15,6 +15,7 @@
 namespace AnyFX
 {
 
+eastl::map<eastl::string, InternalEffectVarbuffer*> EffectVarbufferStreamLoader::sharedBuffers;
 //------------------------------------------------------------------------------
 /**
 */
@@ -61,9 +62,9 @@ EffectVarbufferStreamLoader::Load( BinReader* reader, Effect* effect )
 	unsigned size = reader->ReadUInt();
 
 	// load internal buffer
-	varbuffer->internalVarbuffer = internalVarbuffer;
-	varbuffer->internalVarbuffer->name = name;
-	varbuffer->internalVarbuffer->size = size;
+	internalVarbuffer->name = name;
+	internalVarbuffer->size = size;
+	internalVarbuffer->isShared = shared;
 
 	size_t numPrograms = effect->GetNumPrograms();
 	EffectProgram** programs = effect->GetPrograms();
@@ -76,9 +77,36 @@ EffectVarbufferStreamLoader::Load( BinReader* reader, Effect* effect )
         if (programs[i]->IsValid()) internalPrograms.push_back(programs[i]->internalProgram);
 	}
 
-	// setup varbuffer
-	internalVarbuffer->Setup(internalPrograms);
+	// setup shared varbuffers
+	if (internalVarbuffer->isShared)
+	{
+		if (sharedBuffers.find(internalVarbuffer->GetName()) != sharedBuffers.end())
+		{
+			// get shared block
+			InternalEffectVarbuffer* sharedBuffer = sharedBuffers[internalVarbuffer->GetName()];
 
+			// bump reference counter of internal varblock
+			sharedBuffer->Retain();
+
+			// add programs to block
+			internalVarbuffer->SetupSlave(internalPrograms, sharedBuffer);
+		}
+		else
+		{
+			// set varblock in shared list
+			sharedBuffers[internalVarbuffer->GetName()] = internalVarbuffer;
+
+			// setup varblock
+			internalVarbuffer->Setup(internalPrograms);
+		}
+	}
+	else
+	{
+		// setup varblock
+		internalVarbuffer->Setup(internalPrograms);
+	}
+
+	varbuffer->internalVarbuffer = internalVarbuffer;
     return varbuffer;
 }
 } // namespace AnyFX

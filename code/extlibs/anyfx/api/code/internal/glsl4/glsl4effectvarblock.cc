@@ -215,26 +215,6 @@ GLSL4EffectVarblock::Commit()
                 }
             }
         }
-        else
-        {
-			GLSL4VarblockBaseState state;
-			state.buffer = 0;
-			if (GLSL4VarblockBaseStates[this->uniformBlockBinding] != state)
-			{
-				GLSL4VarblockBaseStates[this->uniformBlockBinding] = state;
-				glBindBufferBase(GL_UNIFORM_BUFFER, this->uniformBlockBinding, 0);
-			}
-        }
-	}
-	else
-	{
-		GLSL4VarblockBaseState state;
-		state.buffer = 0;
-		if (GLSL4VarblockBaseStates[this->uniformBlockBinding] != state)
-		{
-			GLSL4VarblockBaseStates[this->uniformBlockBinding] = state;
-			glBindBufferBase(GL_UNIFORM_BUFFER, this->uniformBlockBinding, 0);
-		}
 	}
 }
 
@@ -271,7 +251,7 @@ GLSL4EffectVarblock::SetupUniformOffsets(GLSL4EffectProgram* program, GLuint blo
 	unsigned i;
 	for (i = 0; i < masterBlock->variables.size(); i++)
 	{
-		if (indices[i] == GL_INVALID_INDEX) continue;
+		//if (indices[i] == GL_INVALID_INDEX) continue;
 		GLsizei length;
 		glGetActiveUniformsiv(program->programHandle, 1, (const GLuint*)&indices[i], GL_UNIFORM_NAME_LENGTH, &length);
 		GLchar* buf = new GLchar[length];

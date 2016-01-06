@@ -64,12 +64,26 @@ struct GLSL4VarblockRangeState
 	GLuint buffer;
 	GLuint offset;
 	GLsizei length;
-} static GLSL4VarblockRangeStates[16384];
+
+	GLSL4VarblockRangeState()
+	{
+		buffer = 0;
+		offset = 0;
+		length = 0;
+	}
+
+} static GLSL4VarblockRangeStates[512];
 
 struct GLSL4VarblockBaseState
 {
 	GLuint buffer;
-} static GLSL4VarblockBaseStates[16384];
+
+	GLSL4VarblockBaseState()
+	{
+		buffer = 0;
+	}
+
+} static GLSL4VarblockBaseStates[512];
 
 //------------------------------------------------------------------------------
 /**

@@ -88,10 +88,14 @@ CharacterSkinNodeInstance::Setup(const Ptr<ModelInstance>& inst,
 	}
 	else if (skinTech == SkinningTechnique::GPUSkinning)
 	{
+		this->skinningShader = ShaderServer::Instance()->GetShader("shd:skinned");
+		this->skinningJointPaletteVar = this->skinningShader->GetVariableByName(NEBULA3_SEMANTIC_JOINTBUFFER);
+
+		// setup joint buffer
 		const Ptr<CharacterSkinNode>& charNode = this->modelNode.cast<CharacterSkinNode>();
 		this->jointBuffer = ShaderReadWriteBuffer::Create();
 		this->jointBuffer->SetSize(charNode->GetFragmentJointPalette(0).Size() * sizeof(Math::matrix44));
-		this->jointBuffer->Setup();
+		this->jointBuffer->Setup();		
 	}
 }
 
@@ -109,6 +113,14 @@ CharacterSkinNodeInstance::Discard()
 		this->skinningJointPaletteVar = 0;
         this->skinningShader = 0;
 		this->feedbackBuffer->Discard();
+		this->feedbackBuffer = 0;
+	}
+	else if (charServer->GetSkinningTechnique() == SkinningTechnique::GPUSkinning)
+	{
+		this->skinningJointPaletteVar = 0;
+		this->skinningShader = 0;
+		this->jointBuffer->Discard();
+		this->jointBuffer = 0;
 	}
     ShapeNodeInstance::Discard();
 }
@@ -195,9 +207,6 @@ CharacterSkinNodeInstance::OnRenderBefore(IndexT frameIndex, Timing::Time time)
 void 
 CharacterSkinNodeInstance::ApplyState(IndexT frameIndex, const Frame::BatchGroup::Code& group, const Ptr<CoreGraphics::Shader>& shader)
 {
-	// apply base level state
-	ShapeNodeInstance::ApplyState(frameIndex, group, shader);
-
 	// different code paths for software and GPU-skinned platforms
 	ShaderServer* shaderServer = ShaderServer::Instance();
 	CharacterServer* charServer = CharacterServer::Instance();
@@ -216,15 +225,11 @@ CharacterSkinNodeInstance::ApplyState(IndexT frameIndex, const Frame::BatchGroup
 	}
 	else if (SkinningTechnique::GPUSkinning == skinTech)
 	{
-		if (shader->HasVariableByName(NEBULA3_SEMANTIC_JOINTBUFFER))
-		{
-			// get shader variable
-            const Ptr<ShaderVariable>& var = shader->GetVariableByName(NEBULA3_SEMANTIC_JOINTBUFFER);
-
-			// set handle
-			var->SetBufferHandle(this->jointBuffer->GetHandle());
-		}
+		this->skinningJointPaletteVar->SetBufferHandle(this->jointBuffer->GetHandle());
 	}
+
+	// apply base level state
+	ShapeNodeInstance::ApplyState(frameIndex, group, shader);
 }
 
 //------------------------------------------------------------------------------

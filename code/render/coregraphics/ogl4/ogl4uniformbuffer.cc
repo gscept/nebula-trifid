@@ -52,7 +52,7 @@ OGL4UniformBuffer::Setup(const SizeT numBackingBuffers)
     if (!this->sync)
     {
         GLenum mapFlags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
-		glBufferStorage(GL_UNIFORM_BUFFER, this->size * this->numBuffers, NULL, mapFlags | GL_DYNAMIC_STORAGE_BIT);
+		glBufferStorage(GL_UNIFORM_BUFFER, this->size * this->numBuffers, NULL, mapFlags);
         this->buffer = glMapBufferRange(GL_UNIFORM_BUFFER, 0, this->size * this->numBuffers, mapFlags);
     }
     else
@@ -80,6 +80,9 @@ OGL4UniformBuffer::Setup(const SizeT numBackingBuffers)
 void
 OGL4UniformBuffer::Discard()
 {
+	// first step, remove buffer lock which should 
+	this->bufferLock = 0;
+
     if (!this->sync)
     {
 #if OGL4_BINDLESS
@@ -96,7 +99,6 @@ OGL4UniformBuffer::Discard()
     }
     
     this->buffer = 0;
-	this->bufferLock = 0;
 	n_delete(this->handle);
 	this->handle = 0;
     glDeleteBuffers(1, &this->ogl4Buffer);

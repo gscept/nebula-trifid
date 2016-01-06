@@ -773,6 +773,7 @@ OGL4RenderDevice::DrawFeedback(const Ptr<CoreGraphics::FeedbackBuffer>& fb)
 {
 	n_assert(this->inBeginPass);
 	n_assert(0 != this->context);
+
 	GLenum primType = OGL4Types::AsOGL4PrimitiveType(this->primitiveGroup.GetPrimitiveTopology());
 	glDrawTransformFeedback(primType, fb->GetOGL4TransformFeedback());
 
@@ -793,6 +794,7 @@ OGL4RenderDevice::DrawFeedbackInstanced(const Ptr<CoreGraphics::FeedbackBuffer>&
 	n_assert(this->inBeginPass);
 	n_assert(numInstances > 0);
 	n_assert(0 != this->context);
+
 	GLenum primType = OGL4Types::AsOGL4PrimitiveType(this->primitiveGroup.GetPrimitiveTopology());
 	glDrawTransformFeedbackInstanced(primType, fb->GetOGL4TransformFeedback(), numInstances);
 
@@ -811,8 +813,8 @@ void
 OGL4RenderDevice::Compute( int dimX, int dimY, int dimZ )
 {
     n_assert(0 != this->context);
-
-    // run computation
+    
+	// run computation
     glDispatchCompute(dimX, dimY, dimZ);
 
 	// empty buffer lock queues

@@ -69,25 +69,6 @@ protected:
     Util::Dictionary<Frame::BatchGroup::Code, Ptr<CoreGraphics::ShaderVariableInstance>> variablesByShader;
 };
 
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void
-SurfaceConstant::SetValue(const Util::Variant& value)
-{
-    this->value = value;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void
-SurfaceConstant::SetTexture(const Ptr<CoreGraphics::Texture>& tex)
-{
-    this->value.SetObject(tex);
-}
-
 //------------------------------------------------------------------------------
 /**
 */

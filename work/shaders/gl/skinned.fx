@@ -6,6 +6,7 @@
 #include "lib/std.fxh"
 #include "lib/geometrybase.fxh"
 #include "lib/techniques.fxh"
+#include "lib/skinning.fxh"
 
 //------------------------------------------------------------------------------
 //	Standard methods

@@ -47,12 +47,26 @@ struct GLSL4VarbufferRangeState
 	GLuint buffer;
 	GLuint offset;
 	GLsizei length;
-} static GLSL4VarbufferRangeStates[16384];
+
+	GLSL4VarbufferRangeState()
+	{
+		buffer = 0;
+		offset = 0;
+		length = 0;
+	}
+
+} static GLSL4VarbufferRangeStates[512];
 
 struct GLSL4VarbufferBaseState
 {
 	GLuint buffer;
-} static GLSL4VarbufferBaseStates[16384];
+
+	GLSL4VarbufferBaseState()
+	{
+		buffer = 0;
+	}
+
+} static GLSL4VarbufferBaseStates[512];
 
 
 //------------------------------------------------------------------------------

@@ -26,10 +26,16 @@ OGL4BufferLock::~OGL4BufferLock()
 	IndexT i;
 	for (i = 0; i < this->rangeLocks.Size(); i++)
 	{
-		// deleting a sync will implicitly wait for it
-		glDeleteSync(this->rangeLocks.ValueAtIndex(i));
+		this->Wait(this->rangeLocks.ValueAtIndex(i));
+		this->Cleanup(this->rangeLocks.ValueAtIndex(i));
 	}
 	this->rangeLocks.Clear();
+	for (i = 0; i < this->bufferLocks.Size(); i++)
+	{
+		this->Wait(this->bufferLocks.ValueAtIndex(i));
+		this->Cleanup(this->bufferLocks.ValueAtIndex(i));
+	}
+	this->bufferLocks.Clear();
 }
 
 //------------------------------------------------------------------------------
