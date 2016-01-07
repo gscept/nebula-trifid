@@ -32,6 +32,8 @@ public:
     void OnFrame();
     /// set visibility of system cursor
     void SetCursorVisible(bool enable);
+	/// lock cursor and hide it
+	void SetCursorLocked(bool enable);
 
 protected:    
 

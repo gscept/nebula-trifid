@@ -53,7 +53,8 @@ ActorPhysicsProperty::ActorPhysicsProperty() :
 	disableProcessing(false),
     stuckTime(0),
     isStuck(false),
-    unStuckTime(0)
+    unStuckTime(0),
+	smoothingEnabled(false)
 {
     // empty
  }
@@ -89,7 +90,7 @@ void
 ActorPhysicsProperty::OnActivate()
 {
     PhysicsProperty::OnActivate();
-
+	this->smoothingEnabled = this->entity->GetBool(Attr::AngularSmoothing);
     //Physics::PhysicsServer* physicsServer = Physics::PhysicsServer::Instance();
     // get physics entity
     /*Physics::PhysicsEntity* physicsEntity = this->GetPhysicsEntity();
@@ -469,9 +470,17 @@ ActorPhysicsProperty::OnMoveAfter()
      //   if ((posError.length() > 0.001f) || (headingError > 0.001f))
         {
             // construct the new entity matrix
-            matrix44 entityMatrix = matrix44::rotationy(this->smoothedHeading.GetState());
-            entityMatrix.translate(this->smoothedPosition.GetState());
-
+			matrix44 entityMatrix;
+			if (this->smoothingEnabled)
+			{
+				entityMatrix = matrix44::rotationy(this->smoothedHeading.GetState());
+				entityMatrix.translate(this->smoothedPosition.GetState());
+			}
+			else
+			{
+				entityMatrix = matrix44::rotationy(this->smoothedHeading.GetGoal());
+				entityMatrix.translate(this->smoothedPosition.GetGoal());
+			}
             // update game entity
             Ptr<UpdateTransform> msg = UpdateTransform::Create();
             msg->SetMatrix(entityMatrix);

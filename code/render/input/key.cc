@@ -494,6 +494,156 @@ Key::ToRocket( Code key )
 	return 0;
 }
 
+
+//------------------------------------------------------------------------------
+/**
+*/
+Key::Code Key::FromRocket(uint key )
+{
+	switch(key)
+	{
+
+	case 1: return Space;
+	case 2: return Key0;
+	case 3: return Key1;
+	case 4: return Key2;
+	case 5: return Key3;
+	case 6: return Key4;
+	case 7: return Key5;
+	case 8: return Key6;
+	case 9: return Key7;
+	case 10: return Key8;
+	case 11: return Key9;
+	case 12: return A;
+	case 13: return B;
+	case 14: return C;
+	case 15: return D;
+	case 16: return E;
+	case 17: return F;
+	case 18: return G;
+	case 19: return H;
+	case 20: return I;
+	case 21: return J;
+	case 22: return K;
+	case 23: return L;
+	case 24: return M;
+	case 25: return N;
+	case 26: return O;
+	case 27: return P;
+	case 28: return Q;
+	case 29: return R;
+	case 30: return S;
+	case 31: return T;
+	case 32: return U;
+	case 33: return V;
+	case 34: return W;
+	case 35: return X;
+	case 36: return Y;
+	case 37: return Z;   
+	case 38: return Semicolon;
+	case 39: return Add;
+	case 40: return Comma;
+	case 41: return Subtract;
+	case 42: return Period;
+	case 43: return Slash;
+	case 44: return Tilde;
+	case 45: return LeftBracket;
+	case 46: return BackSlash;
+	case 47: return RightBracket;
+	case 48: return Quote;
+	case 51: return NumPad0;
+	case 52: return NumPad1;
+	case 53: return NumPad2;
+	case 54: return NumPad3;
+	case 55: return NumPad4;
+	case 56: return NumPad5;
+	case 57: return NumPad6;
+	case 58: return NumPad7;
+	case 59: return NumPad8;
+	case 60: return NumPad9;
+	case 69: return Back;
+	case 70: return Tab;
+	case 71: return Clear;
+	case 72: return Return;
+	case 73: return Pause;
+	case 74: return Capital;
+	case 81: return Escape;
+	case 86: return Prior;
+	case 87: return Next;
+	case 88: return End;
+	case 89: return Home;
+	case 90: return Left;
+	case 91: return Up;
+	case 92: return Right;
+	case 93: return Down;
+	case 94: return Select;
+	case 95: return Print;
+	case 96: return Execute;
+	case 97: return Snapshot;
+	case 98: return Insert;
+	case 99: return Delete;
+	case 100: return Help;
+	case 101: return LeftWindows;
+	case 102: return RightWindows;
+	case 103: return Apps;
+	case 104: return Sleep;
+	case 107: return F1;
+	case 108: return F2;
+	case 109: return F3;
+	case 110: return F4;
+	case 111: return F5;
+	case 112: return F6;
+	case 113: return F7;
+	case 114: return F8;
+	case 115: return F9;
+	case 116: return F10;
+	case 117: return F11;
+	case 118: return F12;
+	case 119: return F13;
+	case 120: return F14;
+	case 121: return F15;
+	case 122: return F16;
+	case 123: return F17;
+	case 124: return F18;
+	case 125: return F19;
+	case 126: return F20;
+	case 127: return F21;
+	case 128: return F22;
+	case 129: return F23;
+	case 130: return F24;
+	case 131: return NumLock;
+	case 132: return Scroll;
+	case 138: return LeftShift;
+	case 139: return RightShift;
+	case 140: return LeftControl;
+	case 141: return RightControl;
+	case 142: return LeftMenu;
+	case 143: return RightMenu;
+	case 144: return BrowserBack;
+	case 145: return BrowserForward;
+	case 146: return BrowserRefresh;
+	case 147: return BrowserStop;
+	case 148: return BrowserSearch;
+	case 149: return BrowserFavorites;
+	case 150: return BrowserHome;
+	case 151: return VolumeMute;
+	case 152: return VolumeDown;
+	case 153: return VolumeUp;
+	case 154: return MediaNextTrack;
+	case 155: return MediaPrevTrack;
+	case 156: return MediaStop;
+	case 157: return MediaPlayPause;
+	case 158: return LaunchMail;
+	case 159: return LaunchMediaSelect;
+	case 160: return LaunchApp1;
+	case 161: return LaunchApp2;
+	default:
+		break;
+	}
+	//n_error("Invalid key code!");
+	return InvalidKey;	
+}
+
 //------------------------------------------------------------------------------
 /**
 */

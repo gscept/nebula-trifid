@@ -196,4 +196,15 @@ PointNClickInputProperty::OnCameraZoomOut()
     __SendSync(this->entity,msg);
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PointNClickInputProperty::OnActivate()
+{
+	// enable mouse tracking, otherwise nothing will happen
+	EnvQueryManager::Instance()->SetMouseTracking(true);
+	InputProperty::OnActivate();
+}
+
 }; // namespace Properties

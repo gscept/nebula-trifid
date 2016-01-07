@@ -12,7 +12,8 @@ namespace Physics
 
 PhysicsCommon::PhysicsCommon():
 	friction(-1.0f), //< -1.0f = use default
-	restitution(-1.0f)
+	restitution(-1.0f),
+	category(CollideCategory::Default)
 {
 		// empty
 }
@@ -25,7 +26,8 @@ PhysicsCommon::PhysicsCommon(Util::FourCC f, Util::String iname, const Math::mat
 	mass(0),
 	bodyFlags(0),
 	friction(-1.0f), //< -1.0f = use default
-	restitution(-1.0f)
+	restitution(-1.0f),
+	category(CollideCategory::Default)
 {
 	// empty
 }

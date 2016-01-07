@@ -18,7 +18,7 @@ using namespace Util;
 //------------------------------------------------------------------------------
 /**
 */
-UiInputHandler::UiInputHandler()
+UiInputHandler::UiInputHandler() : handleInput(true)
 {
     // empty
 }
@@ -82,6 +82,10 @@ UiInputHandler::OnEndFrame()
 bool
 UiInputHandler::OnEvent(const Input::InputEvent& inputEvent)
 {
+	if (handleInput == false)
+	{
+		return false;
+	}
     UiServer* uiServer = UiServer::Instance();
     switch (inputEvent.GetType())
     {
@@ -110,6 +114,16 @@ void
 UiInputHandler::OnReset()
 {
     // empty
+}
+
+void UiInputHandler::SetHandleInput(bool handleInput)
+{
+	this->handleInput = handleInput;
+}
+
+bool UiInputHandler::GetHandleInput()
+{
+	return handleInput;
 }
 
 } // namespace Input
