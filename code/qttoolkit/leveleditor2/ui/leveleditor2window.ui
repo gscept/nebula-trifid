@@ -605,10 +605,6 @@
    </widget>
   </widget>
   <action name="actionNew">
-   <property name="icon">
-    <iconset resource="../../resources.qrc">
-     <normaloff>:/icons/icons/stefan.jpg</normaloff>:/icons/icons/stefan.jpg</iconset>
-   </property>
    <property name="text">
     <string>New</string>
    </property>
@@ -622,7 +618,7 @@
    </property>
    <property name="icon">
     <iconset resource="../../resources.qrc">
-     <normaloff>:/icons/icons/stefan.jpg</normaloff>:/icons/icons/stefan.jpg</iconset>
+     <normaloff>:/icons/icons/save.png</normaloff>:/icons/icons/save.png</iconset>
    </property>
    <property name="text">
     <string>Save</string>
@@ -637,7 +633,7 @@
    </property>
    <property name="icon">
     <iconset resource="../../resources.qrc">
-     <normaloff>:/icons/icons/stefan.jpg</normaloff>:/icons/icons/stefan.jpg</iconset>
+     <normaloff>:/icons/icons/saveas.png</normaloff>:/icons/icons/saveas.png</iconset>
    </property>
    <property name="text">
     <string>Save As...</string>
@@ -649,17 +645,13 @@
   <action name="actionLoad">
    <property name="icon">
     <iconset resource="../../resources.qrc">
-     <normaloff>:/icons/icons/stefan.jpg</normaloff>:/icons/icons/stefan.jpg</iconset>
+     <normaloff>:/icons/icons/open.png</normaloff>:/icons/icons/open.png</iconset>
    </property>
    <property name="text">
     <string>Load</string>
    </property>
   </action>
   <action name="actionExit">
-   <property name="icon">
-    <iconset resource="../../resources.qrc">
-     <normaloff>:/icons/icons/stefan.jpg</normaloff>:/icons/icons/stefan.jpg</iconset>
-   </property>
    <property name="text">
     <string>Exit</string>
    </property>
