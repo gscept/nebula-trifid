@@ -86,4 +86,5 @@
   </Property>
   <Property name="PhysicsFeature::MouseGripperProperty" derivedFrom="GraphicsFeature::InputProperty" header="physicsfeature/properties/mousegripperproperty.h" />
   <Property name="PhysicsFeature::PointNClickInputProperty" derivedFrom="GraphicsFeature::InputProperty" header="physicsfeature/properties/pointnclickinputproperty.h" />
+  <Property name="PhysicsFeature::InteractProperty" derivedFrom="ScriptingFeature::ScriptingProperty" header="physicsfeature/properties/interactproperty.h" />
 </Nebula3>		

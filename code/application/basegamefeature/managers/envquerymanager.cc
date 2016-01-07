@@ -11,6 +11,7 @@
 #include "graphicsfeature/graphicsfeatureunit.h"
 #include "renderutil/mouserayutil.h"
 #include "physics/physicsserver.h"
+#include "graphicsfeature/graphicsfeatureprotocol.h"
 
 namespace BaseGameFeature
 {
@@ -53,6 +54,8 @@ EnvQueryManager::OnActivate()
     // setup exclude set for mouse queries
 //	Physics::MaterialType probeType = Physics::MaterialTable::StringToMaterialType("Probe");
   //  this->mouseExcludeSet.AddMaterialType(probeType);
+	this->leaveMessage = GraphicsFeature::MouseLeave::Create();
+	this->enterMessage = GraphicsFeature::MouseEnter::Create();
 }
 
 //------------------------------------------------------------------------------
@@ -62,7 +65,8 @@ void
 EnvQueryManager::OnDeactivate()
 {    
     this->mouseExcludeSet.Clear();
-
+	this->leaveMessage = 0;
+	this->enterMessage = 0;
     Manager::OnDeactivate();
 }
 
@@ -211,6 +215,9 @@ EnvQueryManager::GetEntitiesInBox(const vector& scale, const matrix44& m)
 void
 EnvQueryManager::OnFrame()
 {
+	// save last entity
+	Game::Entity::EntityId lastEntity = this->entityUnderMouse;
+
 	// reset values
 	this->entityUnderMouse = 0;
 	this->mousePos3d.set(0.0f, 0.0f, 0.0f);
@@ -254,6 +261,48 @@ EnvQueryManager::OnFrame()
 				{
 					this->entityUnderMouse = gameEntityUnderMouse;
 				}
+			}
+		}
+	}
+	if (this->mouseMessages)
+	{
+		if (this->entityUnderMouse != lastEntity)
+		{
+			if (lastEntity)
+			{
+				__SendSync(EntityManager::Instance()->GetEntityByUniqueId(lastEntity), this->leaveMessage);
+			}
+			if (this->entityUnderMouse)
+			{
+				__SendSync(EntityManager::Instance()->GetEntityByUniqueId(this->entityUnderMouse), this->enterMessage);
+			}
+		}		
+		if (this->entityUnderMouse)
+		{
+			Ptr<Game::Entity> entity = EntityManager::Instance()->GetEntityByUniqueId(this->entityUnderMouse);
+			const Ptr<Input::Mouse> mouse = Input::InputServer::Instance()->GetDefaultMouse();
+			Ptr<GraphicsFeature::MouseButtonEvent> msg = GraphicsFeature::MouseButtonEvent::Create();
+			msg->SetButton(Input::MouseButton::LeftButton);
+			if (mouse->ButtonDown(Input::MouseButton::LeftButton))
+			{
+				msg->SetDown(true);
+				__SendSync(entity, msg);
+			}
+			if (mouse->ButtonUp(Input::MouseButton::LeftButton))
+			{
+				msg->SetDown(false);
+				__SendSync(entity, msg);
+			}
+			msg->SetButton(Input::MouseButton::RightButton);
+			if (mouse->ButtonDown(Input::MouseButton::RightButton))
+			{
+				msg->SetDown(true);
+				__SendSync(entity, msg);
+			}
+			if (mouse->ButtonUp(Input::MouseButton::RightButton))
+			{
+				msg->SetDown(false);
+				__SendSync(entity, msg);
 			}
 		}
 	}

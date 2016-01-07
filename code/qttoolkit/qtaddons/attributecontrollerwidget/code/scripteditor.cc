@@ -128,6 +128,16 @@ ScriptEditor::EditFile( const IO::URI& file, const Util::String& title )
 --end\n\n\
 -- runs when exiting trigger\n\
 --function onexit(eid, othereid)\n\
+--end\n\n\
+-- if the entity has the interactproperty these additional callbacks are available:\n\n\
+-- the mouse went over the gameentity\n\
+--function onmouseenter(eid)\n\
+--end\n\n\
+-- the mouse left the gameentity\n\
+--function onmouseleave(eid)\n\
+--end\n\n\
+-- the mouse was clicked/released while over the game entity\n\
+--function onmousebutton(eid,button,down)\n\
 --end";
 
 		}

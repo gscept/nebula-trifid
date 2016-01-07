@@ -129,7 +129,12 @@ EditorNavMeshProperty::OnRender()
     if(this->GetEntity()->GetBool(Attr::IsSelected))
     {        
         Navigation::NavigationServer::Instance()->RenderDebug(this->GetEntity()->GetString(Attr::NavMeshData));
+		LevelEditor2App::Instance()->GetWindow()->GetUi().actionUpdateNavMesh->setEnabled(true);
     }
+	else
+	{
+		LevelEditor2App::Instance()->GetWindow()->GetUi().actionUpdateNavMesh->setEnabled(false);
+	}
 }
 
 //------------------------------------------------------------------------------

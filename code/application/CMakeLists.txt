@@ -261,6 +261,8 @@ set(application_files_physicsfeature__properties
 	physicsfeature/properties/triggerproperty.h
 	physicsfeature/properties/pointnclickinputproperty.cc
 	physicsfeature/properties/pointnclickinputproperty.h
+	physicsfeature/properties/interactproperty.cc
+	physicsfeature/properties/interactproperty.h        
 )
 source_group("physicsfeature\\properties" FILES ${application_files_physicsfeature__properties})
 

@@ -52,6 +52,9 @@ public:
 	/// handle close event to terminate nebula application when frame closes
 	void closeEvent(QCloseEvent *e);
 
+	/// access to ui object
+	Ui::LevelEditor2Window& GetUi();
+
 	/// get layer handler
 	Ptr<Layers::LayerHandler> GetLayerHandler();	
 
@@ -203,6 +206,15 @@ inline QLayout*
 LevelEditor2Window::GetAttributeWidgetContainer()
 {
     return this->attributeControllerVLayout;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline Ui::LevelEditor2Window&
+LevelEditor2Window::GetUi()
+{
+	return this->ui;
 }
 
 //------------------------------------------------------------------------------

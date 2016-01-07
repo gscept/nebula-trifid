@@ -187,7 +187,9 @@
     <addaction name="actionUI_Properties"/>
     <addaction name="separator"/>
     <addaction name="actionCreate_template_from_selection"/>
+    <addaction name="separator"/>
     <addaction name="actionCreateNavMesh"/>
+    <addaction name="actionUpdateNavMesh"/>
     <addaction name="actionAddNavArea"/>
     <addaction name="separator"/>
     <addaction name="actionBatch_game_data"/>
@@ -833,8 +835,11 @@
    </property>
   </action>
   <action name="actionUpdateNavMesh">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
-    <string>updateNavMesh</string>
+    <string>Update selected NavMesh</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+N</string>
