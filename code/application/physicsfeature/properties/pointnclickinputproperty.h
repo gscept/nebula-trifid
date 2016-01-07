@@ -16,6 +16,7 @@ namespace PhysicsFeature
 class PointNClickInputProperty : public GraphicsFeature::InputProperty
 {
 	__DeclareClass(PointNClickInputProperty);
+	__SetupExternalAttributes();
 public:
     /// constructor
     PointNClickInputProperty();
@@ -25,7 +26,8 @@ public:
     virtual void SetupCallbacks();
     /// called on begin of frame
     virtual void OnBeginFrame();
-
+	/// called from Entity::ActivateProperties()
+	virtual void OnActivate();
 protected:
     /// handle the default action on left mouse click
     virtual void OnLmbDown();

@@ -84,5 +84,6 @@
     <Attribute name="CharacterShape"/>
     <Attribute name="AngularSmoothing"/>
   </Property>
-  <Property name="PhysicsFeature::MouseGripperProperty" derivedFrom="GraphicsFeature::InputProperty" header="physicsfeature/properties/mousegripperproperty.h" />      
+  <Property name="PhysicsFeature::MouseGripperProperty" derivedFrom="GraphicsFeature::InputProperty" header="physicsfeature/properties/mousegripperproperty.h" />
+  <Property name="PhysicsFeature::PointNClickInputProperty" derivedFrom="GraphicsFeature::InputProperty" header="physicsfeature/properties/pointnclickinputproperty.h" />
 </Nebula3>		
