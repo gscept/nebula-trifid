@@ -51,10 +51,7 @@ OGL4StreamTextureLoader::SetupResourceFromStream(const Ptr<Stream>& stream)
 
 		// convert format
 		CoreGraphics::PixelFormat::Code nebFormat = OGL4Types::AsNebulaPixelFormat(format);
-
 		GLint width, height;
-
-		// nebula wants mips 
 
 		// setup texture appropriately
 		if (type == GL_TEXTURE_2D)

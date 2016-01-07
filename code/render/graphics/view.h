@@ -63,9 +63,6 @@ public:
     /// returns true if view should use resolve rect
     const bool UseResolveRect() const;
 
-	/// set render target used for offscreen rendering using this view
-	void SetOffscreenTarget(const Ptr<CoreGraphics::RenderTarget>& target);
-
     /// add a view which this view depends on
     void AddDependency(const Ptr<View>& view);
     /// get all dependency views
@@ -103,7 +100,6 @@ protected:
     Ptr<Stage> stage;
     Ptr<CameraEntity> camera;
     Ptr<Frame::FrameShader> frameShader;
-	Ptr<CoreGraphics::RenderTarget> offscreenTarget;
     Util::Array<Ptr<View> > dependencies;
 	bool resolveRectValid;
 	Math::rectangle<int> resolveRect;
@@ -227,16 +223,6 @@ inline const Math::rectangle<int>&
 View::GetResolveRect() const
 {
 	return this->resolveRect;
-}
-
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void
-View::SetOffscreenTarget(const Ptr<CoreGraphics::RenderTarget>& target)
-{
-	this->offscreenTarget = target;
 }
 
 //------------------------------------------------------------------------------

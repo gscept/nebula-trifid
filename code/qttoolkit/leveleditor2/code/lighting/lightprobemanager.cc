@@ -76,8 +76,16 @@ LightProbeManager::Close()
 {
 	n_assert(this->isOpen);
 
+	// destroy view and camera
+	this->reflectionCamera = 0;
+
+	// discard view
+	this->reflectionView = 0;
+
 	// destroy frame shader
 	this->lightProbeFrameShader->Discard();
+	this->lightProbeFrameShader = 0;
+	this->isOpen = false;
 }
 
 //------------------------------------------------------------------------------

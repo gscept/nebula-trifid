@@ -49,8 +49,8 @@ ShaderVariableBase::CreateInstance()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ShaderVariableBase::DiscardInstance( const Ptr<CoreGraphics::ShaderVariableInstance>& inst )
+void
+ShaderVariableBase::DiscardInstance(const Ptr<CoreGraphics::ShaderVariableInstance>& inst)
 {
 	inst->Cleanup();
 	IndexT i = this->instances.FindIndex(inst);

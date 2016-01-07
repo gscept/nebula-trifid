@@ -152,6 +152,7 @@ OGL4StreamShaderLoader::SetupResourceFromStream(const Ptr<Stream>& stream)
                 res->globalBlockBuffer->SetSync(true);
                 res->globalBlockBuffer->Setup(1);
 
+				res->globalBlockBuffer->BeginUpdateSync();
                 for (unsigned j = 0; j < variableBinds.size(); j++)
                 {
                     // bind this variable to a shader global buffer, if this variable is instanced, it can either point to its
@@ -160,6 +161,7 @@ OGL4StreamShaderLoader::SetupResourceFromStream(const Ptr<Stream>& stream)
                     const Ptr<ShaderVariable>& var = res->variablesByName[binding.name.c_str()];
                     var->BindToUniformBuffer(res->globalBlockBuffer, binding.offset, binding.size, binding.value);
                 }
+				res->globalBlockBuffer->EndUpdateSync();
 
                 // bind buffer
                 res->globalBlockBufferBinding = OGL4Shader::BlockBufferBinding(res->variablesByName["GlobalBlock"], res->globalBlockBuffer);

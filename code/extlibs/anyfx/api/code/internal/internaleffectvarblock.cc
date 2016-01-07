@@ -17,7 +17,6 @@ namespace AnyFX
 InternalEffectVarblock::InternalEffectVarblock() :
 	active(false),
 	isShared(false),
-	noSync(false),
 	isDirty(true),
 	isSlave(false),
 	manualFlushing(false),

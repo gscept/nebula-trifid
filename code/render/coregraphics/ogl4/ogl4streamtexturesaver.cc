@@ -45,6 +45,7 @@ OGL4StreamTextureSaver::OnSave()
 	else if (this->format == ImageFileFormat::PNG) imageFormat = IL_PNG;
 	else if (this->format == ImageFileFormat::TGA) imageFormat = IL_TGA;
 	else if (this->format == ImageFileFormat::BMP) imageFormat = IL_BMP;
+	else return false;
 
 	// treat texture
 	if (tex->GetType() == Texture::Texture2D)			return this->SaveTexture2D(tex, imageFormat);

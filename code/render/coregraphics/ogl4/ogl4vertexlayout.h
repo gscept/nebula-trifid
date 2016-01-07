@@ -43,7 +43,7 @@ public:
         
 private:
 
-	GLuint vao;
+	GLuint ogl4Vao;
 	GLuint vertexStreams[CoreGraphics::RenderDevice::MaxNumVertexStreams];
 	static const SizeT maxElements = 24;
 	Util::String semanticName[32];	
@@ -65,7 +65,7 @@ OGL4VertexLayout::SetStreamBuffer( IndexT streamIndex, GLuint vertexBuffer )
 inline const GLuint& 
 OGL4VertexLayout::GetOGL4VertexArrayObject() const
 {
-    return this->vao;
+    return this->ogl4Vao;
 }
 
 } // namespace OpenGL4

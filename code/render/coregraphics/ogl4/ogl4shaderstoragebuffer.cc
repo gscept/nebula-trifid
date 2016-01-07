@@ -14,7 +14,9 @@ __ImplementClass(OpenGL4::OGL4ShaderStorageBuffer, 'O4SB', Core::RefCounted);
 //------------------------------------------------------------------------------
 /**
 */
-OGL4ShaderStorageBuffer::OGL4ShaderStorageBuffer()
+OGL4ShaderStorageBuffer::OGL4ShaderStorageBuffer() :
+	ogl4Buffer(0),
+	handle(NULL)
 {
 	// empty
 }
@@ -46,7 +48,7 @@ OGL4ShaderStorageBuffer::Setup()
 #ifdef OGL4_SHADER_BUFFER_ALWAYS_MAPPED
 	GLenum mapFlags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
 	glBufferStorage(GL_SHADER_STORAGE_BUFFER, this->alignedSize * this->NumBuffers, NULL, mapFlags | GL_DYNAMIC_STORAGE_BIT);
-	this->buf = (GLubyte*)glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, this->alignedSize * this->NumBuffers, mapFlags);
+	this->buf = (GLubyte*)glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, this->size * this->NumBuffers, mapFlags);
 	this->bufferLock = BufferLock::Create();
 #else
     glBufferData(GL_SHADER_STORAGE_BUFFER, this->size * this->NumBuffers, NULL, GL_STREAM_DRAW);
@@ -76,7 +78,9 @@ OGL4ShaderStorageBuffer::Discard()
 	this->bufferLock = 0;
 #endif
 	glDeleteBuffers(1, &this->ogl4Buffer);
-	delete this->handle;
+	this->ogl4Buffer = 0;
+	n_delete(this->handle);
+	this->handle = 0;
 	ShaderReadWriteBufferBase::Discard();
 }
 
@@ -106,7 +110,7 @@ OGL4ShaderStorageBuffer::Update(void* data, uint offset, uint length)
 #else
 	//glInvalidateBufferSubData(this->ogl4Buffer, this->handle->offset, length);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->ogl4Buffer);
-	glBufferSubData(GL_SHADER_STORAGE_BUFFER, this->handle->offset, length, data);
+	glBufferSubData(GL_SHADER_STORAGE_BUFFER, this->handle->offset + offset, length, data);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 #endif
 }

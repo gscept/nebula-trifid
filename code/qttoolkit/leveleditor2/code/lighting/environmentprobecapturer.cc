@@ -174,13 +174,6 @@ EnvironmentProbeCapturer::Render(QPlainTextEdit* progressBar)
 	views[3] = matrix44::rotationx(n_deg2rad(-90)), matrix44::rotationz(n_deg2rad(180));
 	views[4] = matrix44::multiply(matrix44::rotationy(n_deg2rad(180)), matrix44::rotationz(n_deg2rad(180)));
 	views[5] = matrix44::rotationz(n_deg2rad(180));
-	
-	// calculate width, height and depth of capture zone
-	float4 diagonalDiff = this->captureZone.pmax - this->captureZone.pmin;
-	float sizes[6];
-	sizes[0] = sizes[1] = diagonalDiff.x() / 2;
-	sizes[2] = sizes[3] = diagonalDiff.y() / 2;
-	sizes[4] = sizes[5] = diagonalDiff.z() / 2;
 
 	IndexT frameIndex;
 	for (frameIndex = 0; frameIndex < 6; frameIndex++)
@@ -188,6 +181,7 @@ EnvironmentProbeCapturer::Render(QPlainTextEdit* progressBar)
 		// set cube face to render to
 		this->probeMap->SetDrawFace(Texture::CubeFace(Texture::PosX + frameIndex));
 
+		// setup camera settings
 		settings.SetupPerspectiveFov(n_deg2rad(90.0f), this->resolutionX / this->resolutionY, 0.1f, 1000);
 		cam->SetCameraSettings(settings);
 
@@ -214,11 +208,11 @@ EnvironmentProbeCapturer::Render(QPlainTextEdit* progressBar)
 	const Ptr<Texture>& tex = this->probeMap->GetResolveTexture();
 
 	// create assigns for work and export
+	Util::String levelName = Level::Instance()->GetName().AsCharPtr();
 	Util::String workFile;
 	Util::String exportFile;
-	Util::String workFolder = "work:textures/" + this->outputFolder;
-	Util::String exportFolder = "tex:" + this->outputFolder;
-	Util::String levelName = Level::Instance()->GetName().AsCharPtr();
+	Util::String workFolder = "work:assets/" + levelName;
+	Util::String exportFolder = "tex:" + levelName;	
 
 	// format file name, we could use name and type here too, but it feels wrong to do so
 	workFolder.SubstituteString("#LEVEL#", levelName.AsCharPtr());

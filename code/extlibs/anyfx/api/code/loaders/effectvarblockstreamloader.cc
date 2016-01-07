@@ -51,7 +51,7 @@ EffectVarblockStreamLoader::Load( BinReader* reader, Effect* effect, eastl::vect
 
 	eastl::string name = reader->ReadString().c_str();
 	bool shared = reader->ReadBool();
-	bool nosync = reader->ReadBool();
+	bool nosync = reader->ReadBool();			// remove this crap
     unsigned bufferCount = reader->ReadUInt();
 
     // load annotations
@@ -90,7 +90,6 @@ EffectVarblockStreamLoader::Load( BinReader* reader, Effect* effect, eastl::vect
     // set internal variables
 	internalVarblock->name = name;
 	internalVarblock->isShared = shared;
-	internalVarblock->noSync = nosync;
     internalVarblock->numBackingBuffers = bufferCount;
 	internalVarblock->SetupSignature();
 

@@ -51,7 +51,7 @@ OGL4TextRenderer::~OGL4TextRenderer()
 }
 
 // define tff buffer
-unsigned char ttf_buffer[1<<25];
+unsigned char* ttf_buffer;
 stbtt_bakedchar cdata[96];
 stbtt_fontinfo font;
 
@@ -93,6 +93,7 @@ OGL4TextRenderer::Open()
 	this->group.SetPrimitiveTopology(PrimitiveTopology::TriangleList);
 
 	// read font buffer
+	ttf_buffer = n_new_array(unsigned char, 1<<25);
 #if __WIN32__
 	// read font from windows
 	fread(ttf_buffer, 1, 1<<25, fopen("c:/windows/fonts/arial.ttf", "rb"));
@@ -149,6 +150,8 @@ OGL4TextRenderer::Close()
 	// unload texture
 	this->glyphTexture->Unload();
 	this->glyphTexture = 0;
+
+	n_delete_array(ttf_buffer);
 }
 
 //------------------------------------------------------------------------------

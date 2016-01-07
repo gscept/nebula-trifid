@@ -20,7 +20,8 @@ using namespace Util;
 //------------------------------------------------------------------------------
 /**
 */
-OGL4VertexLayout::OGL4VertexLayout()
+OGL4VertexLayout::OGL4VertexLayout() :
+	ogl4Vao(0)
 {
 	this->vertexStreams[0] = 0;
 	this->vertexStreams[1] = 0;
@@ -44,7 +45,7 @@ OGL4VertexLayout::Setup(const Array<VertexComponent>& c)
     Base::VertexLayoutBase::Setup(c);
 
 	// create vertex attribute object
-	glGenVertexArrays(1, &this->vao);
+	glGenVertexArrays(1, &this->ogl4Vao);
 
     // create a OGL4 vertex declaration object
     n_assert(this->components.Size() < maxElements);
@@ -60,7 +61,7 @@ OGL4VertexLayout::Setup(const Array<VertexComponent>& c)
 	}
 
 	// bind VAO
-	glBindVertexArray(this->vao);
+	glBindVertexArray(this->ogl4Vao);
 
 	// setup elements
     for (compIndex = 0; compIndex < this->components.Size(); compIndex++)
@@ -68,6 +69,9 @@ OGL4VertexLayout::Setup(const Array<VertexComponent>& c)
 		const VertexComponent& component = this->components[compIndex];
 		GLint numComponents = OGL4Types::AsOGL4NumComponents(component.GetFormat());
 		GLenum type = OGL4Types::AsOGL4SymbolicType(component.GetFormat());
+
+		// bind buffer
+		glBindBuffer(GL_ARRAY_BUFFER, this->vertexStreams[component.GetStreamIndex()]);
 
 		// avoid working with empty array buffers
 		if (vertexStreams[component.GetStreamIndex()] == 0) continue;
@@ -94,8 +98,6 @@ OGL4VertexLayout::Setup(const Array<VertexComponent>& c)
 		// now bind the component to the appropriate vertex buffer
 		glVertexAttribBinding(compIndex, component.GetStreamIndex());
 #else
-		// bind buffer
-		glBindBuffer(GL_ARRAY_BUFFER, this->vertexStreams[component.GetStreamIndex()]);
 
 		// activate vertex attribute
         glEnableVertexAttribArray(component.GetSemanticName());
@@ -142,9 +144,9 @@ OGL4VertexLayout::Setup(const Array<VertexComponent>& c)
 void
 OGL4VertexLayout::Discard()
 {
-	n_assert(this->vao);
-	glDeleteVertexArrays(1, &this->vao);
-	this->vao = 0;
+	n_assert(this->ogl4Vao);
+	glDeleteVertexArrays(1, &this->ogl4Vao);
+	this->ogl4Vao = 0;
 
     VertexLayoutBase::Discard();	
 }
@@ -155,10 +157,10 @@ OGL4VertexLayout::Discard()
 void 
 OGL4VertexLayout::Apply()
 {
-	n_assert(this->vao);
+	n_assert(this->ogl4Vao);
 
 	// bind vertex array
-	glBindVertexArray(this->vao);
+	glBindVertexArray(this->ogl4Vao);
 }
 
 //------------------------------------------------------------------------------
@@ -167,8 +169,8 @@ OGL4VertexLayout::Apply()
 void
 OGL4VertexLayout::SetIndexBuffer(const Ptr<CoreGraphics::IndexBuffer>& buffer)
 {
-    n_assert(this->vao);
-    glBindVertexArray(this->vao);
+    n_assert(this->ogl4Vao);
+    glBindVertexArray(this->ogl4Vao);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer->GetOGL4IndexBuffer());
     glBindVertexArray(0);
 }

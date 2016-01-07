@@ -36,7 +36,6 @@ using namespace Math;
 
 static const Util::StringAtom SharedVariableNames[] =
 {
-    NEBULA3_SEMANTIC_OBJECTID,
     NEBULA3_SEMANTIC_SHADOWPROJMAP,
     NEBULA3_SEMANTIC_ENVIRONMENT,
     NEBULA3_SEMANTIC_IRRADIANCE,
@@ -133,15 +132,6 @@ StateNodeInstance::ApplyState(IndexT frameIndex, const Frame::BatchGroup::Code& 
 {
 	TransformNodeInstance::ApplyState(frameIndex, group, shader);
 
-    // apply any instance unique variables, layer 3 (apply per-instance surface properties, unavoidable)
-    /*
-    IndexT i;
-    for (i = 0; i < this->surfaceConstantInstanceByName.Size(); i++)
-    {
-        this->surfaceConstantInstanceByName.ValueAtIndex(i)->Apply(shader);
-    }
-    */
-
 	// apply any needed model transform state to shader
 	const Ptr<TransformDevice>& transformDevice = TransformDevice::Instance();
 	const Ptr<ShaderServer>& shaderServer = ShaderServer::Instance();
@@ -188,30 +178,23 @@ StateNodeInstance::ApplySharedVariables()
 		const Ptr<Materials::SurfaceConstant>& var = this->sharedConstants.ValueAtIndex(i);
         const Util::StringAtom& varName = this->sharedConstants.KeyAtIndex(i);
 		if (varName == SharedVariableNames[0])
-		{
-			//var->SetValue(modelInstance->GetPickingId());
-		}
-        else if (varName == SharedVariableNames[1])
         {
             var->SetTexture(Lighting::ShadowServer::Instance()->GetGlobalLightShadowBufferTexture());
         }
-        else if (varName == SharedVariableNames[2])
+        else if (varName == SharedVariableNames[1])
 		{			
 			const Ptr<Lighting::EnvironmentProbe>& probe = entity->GetEnvironmentProbe();
 			var->SetTexture(probe->GetReflectionMap()->GetTexture());
-			//this->surfaceInstance->GetConstant(varName)->SetTexture(probe->GetReflectionMap()->GetTexture());
+		}
+        else if (varName == SharedVariableNames[2])
+		{
+			const Ptr<Lighting::EnvironmentProbe>& probe = entity->GetEnvironmentProbe();
+			var->SetTexture(probe->GetIrradianceMap()->GetTexture());
 		}
         else if (varName == SharedVariableNames[3])
 		{
 			const Ptr<Lighting::EnvironmentProbe>& probe = entity->GetEnvironmentProbe();
-			var->SetTexture(probe->GetIrradianceMap()->GetTexture());
-			//this->surfaceInstance->GetConstant(varName)->SetTexture(probe->GetIrradianceMap()->GetTexture());
-		}
-        else if (varName == SharedVariableNames[4])
-		{
-			const Ptr<Lighting::EnvironmentProbe>& probe = entity->GetEnvironmentProbe();
 			var->SetValue(probe->GetReflectionMap()->GetTexture()->GetNumMipLevels());
-			//this->surfaceInstance->GetConstant(varName)->SetValue(probe->GetReflectionMap()->GetTexture()->GetNumMipLevels());
 		}
 	}
 }

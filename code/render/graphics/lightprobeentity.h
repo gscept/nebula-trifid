@@ -104,6 +104,7 @@ private:
 	Ptr<CoreGraphics::ShaderVariable> lightProbeBufferVar;
 
 	Ptr<CoreGraphics::ConstantBuffer> lightProbeVariableBuffer;
+	uint numMips;
 };
 
 

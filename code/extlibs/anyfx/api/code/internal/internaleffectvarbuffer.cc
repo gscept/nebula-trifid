@@ -11,7 +11,8 @@ namespace AnyFX
 /**
 */
 InternalEffectVarbuffer::InternalEffectVarbuffer() :
-	currentBufferHandle(0)
+	currentBufferHandle(0),
+	isSlave(false)
 {
 	// empty
 }
@@ -21,7 +22,8 @@ InternalEffectVarbuffer::InternalEffectVarbuffer() :
 */
 InternalEffectVarbuffer::~InternalEffectVarbuffer()
 {
-	// empty
+	this->childBuffers.clear();
+	this->masterBuffer = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -30,7 +32,9 @@ InternalEffectVarbuffer::~InternalEffectVarbuffer()
 void
 InternalEffectVarbuffer::Setup(eastl::vector<InternalEffectProgram*> programs)
 {
-	// override in subclass
+	this->masterBuffer = this;
+	this->currentBufferHandle = new void*;
+	*this->currentBufferHandle = NULL;
 }
 
 //------------------------------------------------------------------------------
@@ -39,7 +43,17 @@ InternalEffectVarbuffer::Setup(eastl::vector<InternalEffectProgram*> programs)
 void
 InternalEffectVarbuffer::SetupSlave(eastl::vector<InternalEffectProgram*> programs, InternalEffectVarbuffer* master)
 {
-	// override in subclass
+	assert(!this->isSlave);
+
+	// set master pointer
+	this->masterBuffer = master;
+	this->masterBuffer->childBuffers.push_back(this);
+
+	// set slave flag
+	this->isSlave = true;
+
+	// make sure slaved varblocks use the same handle
+	this->currentBufferHandle = masterBuffer->currentBufferHandle;
 }
 
 //------------------------------------------------------------------------------

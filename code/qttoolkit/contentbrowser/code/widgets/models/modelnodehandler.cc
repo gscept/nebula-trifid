@@ -98,9 +98,10 @@ ModelNodeHandler::Discard()
     disconnect(this->ui->surfaceButton, SIGNAL(pressed()), this, SLOT(Browse()));
 	disconnect(this->ui->editSurfaceButton, SIGNAL(pressed()), this, SLOT(EditSurface()));
 	disconnect(&this->thumbnailWatcher, SIGNAL(fileChanged(const QString&)), this, SLOT(OnThumbnailFileChanged()));
+
+	// discard surface in preview state
 	if (this->managedSurface.isvalid())
 	{
-		//this->surfaceInstance->Discard();
 		this->surfaceInstance = 0;
 		Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedSurface.upcast<Resources::ManagedResource>());
 		this->managedSurface = 0;
@@ -117,8 +118,10 @@ ModelNodeHandler::Refresh()
 	State state = attrs->GetState(this->nodePath);
 
 	// remove previous surface
-	//this->surfaceInstance->Discard();
 	this->surfaceInstance = 0;
+
+	// save previous managed surface
+	Ptr<Materials::ManagedSurface> prevManagedSurface = this->managedSurface;
 
 	// update model
 	Ptr<ModelEntity> model = ContentBrowserApp::Instance()->GetPreviewState()->GetModel();
@@ -126,6 +129,12 @@ ModelNodeHandler::Refresh()
 	this->managedSurface = Resources::ResourceManager::Instance()->CreateManagedResource(Surface::RTTI, state.material, NULL, true).downcast<Materials::ManagedSurface>();
     this->surfaceInstance = this->managedSurface->GetSurface()->CreateInstance();
 	node->SetSurfaceInstance(this->surfaceInstance);
+
+	// once last instance is discarded by node, unload previous managed surface
+	if (prevManagedSurface.isvalid())
+	{
+		Resources::ResourceManager::Instance()->DiscardManagedResource(prevManagedSurface.upcast<Resources::ManagedResource>());
+	}
 }
 
 //------------------------------------------------------------------------------

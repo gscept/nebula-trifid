@@ -171,8 +171,8 @@ VisibilityChecker::PerformVisibilityQuery(IndexT frameId, const Ptr<Graphics::Gr
 void 
 VisibilityChecker::ApplyLastVisibilityResults(IndexT frameId, IndexT slot)
 {   
-    IndexT bufferIndex = frameId % 2;   
-    //IndexT bufferIndex = frameId % 2;
+    //IndexT bufferIndex = (frameId + 1) % 2;   
+    IndexT bufferIndex = frameId % 2;
 
     n_assert(bufferIndex < 2)
 

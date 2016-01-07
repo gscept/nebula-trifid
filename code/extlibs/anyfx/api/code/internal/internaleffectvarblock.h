@@ -74,7 +74,6 @@ protected:
 	eastl::vector<InternalEffectVarblock*> childBlocks;
 	InternalEffectVarblock* masterBlock;
 	bool isShared;
-	bool noSync;
 	bool isSlave;
 	bool active;
     bool manualFlushing;

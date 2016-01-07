@@ -172,7 +172,7 @@ StreamSurfaceLoader::SetupMaterialFromStream(const Ptr<IO::Stream>& stream)
             Util::StringAtom paramName = reader->GetString("name");
 			if (!parameters.Contains(paramName))
 			{
-				n_warning(Util::String::Sprintf("No parameter matching name '%s' exists in the material template '%s'", paramName.AsString().AsCharPtr(), material->GetName().AsString().AsCharPtr()).AsCharPtr());
+				n_warning(Util::String::Sprintf("No parameter matching name '%s' exists in the material template '%s'\n", paramName.AsString().AsCharPtr(), material->GetName().AsString().AsCharPtr()).AsCharPtr());
 				continue;
 			}
             const Material::MaterialParameter& param = parameters[paramName];

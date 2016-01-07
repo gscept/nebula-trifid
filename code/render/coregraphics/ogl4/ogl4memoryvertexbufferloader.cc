@@ -36,13 +36,16 @@ OGL4MemoryVertexBufferLoader::OnLoadRequested()
     }
 
 	SizeT vertexSize = VertexLayoutServer::Instance()->CalculateVertexSize(this->vertexComponents);
-	GLuint ogl4VertexBuffer;
+	GLuint ogl4VertexBuffer = 0;
 	GLenum usage = OGL4Types::AsOGL4Usage(this->usage);
 	GLenum sync = OGL4Types::AsOGL4Syncing(this->syncing);
 	glGenBuffers(1, &ogl4VertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, ogl4VertexBuffer);
 	if (this->syncing == VertexBuffer::SyncingSimple)	glBufferData(GL_ARRAY_BUFFER, this->numVertices * vertexSize, this->vertexDataPtr, usage | sync);
 	else												glBufferStorage(GL_ARRAY_BUFFER, this->numVertices * vertexSize, this->vertexDataPtr, GL_MAP_WRITE_BIT | GL_MAP_READ_BIT | sync);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	// setup vertex layout
 	Ptr<VertexLayout> vertexLayout = VertexLayout::Create();
 	vertexLayout->SetStreamBuffer(0, ogl4VertexBuffer);
 	vertexLayout->Setup(this->vertexComponents);
@@ -51,7 +54,6 @@ OGL4MemoryVertexBufferLoader::OnLoadRequested()
 		n_assert((this->numVertices * vertexLayout->GetVertexByteSize()) == this->vertexDataSize);
 	}
 	
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	n_assert(GLSUCCESS);
 
     // setup our resource object

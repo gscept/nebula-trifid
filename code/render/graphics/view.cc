@@ -41,8 +41,7 @@ using namespace FrameSync;
 */
 View::View() :
     isAttachedToServer(false),
-	resolveRectValid(false),
-	offscreenTarget(NULL)
+	resolveRectValid(false)
 {
     // empty
 }
@@ -122,7 +121,6 @@ View::OnRemoveFromServer()
     }
     this->stage = 0;
     this->frameShader = 0;
-	this->offscreenTarget = 0;
     this->dependencies.Clear();
     this->isAttachedToServer = false;
 
@@ -317,10 +315,6 @@ View::Render(IndexT frameIndex)
 	// this will cause any frame shaders aimed at the default render target (screen) to be rendered to a subregion of the screen
 	if (this->resolveRectValid)	renderDev->GetDefaultRenderTarget()->SetResolveRect(this->resolveRect);
 	else						renderDev->GetDefaultRenderTarget()->ResetResolveRects();
-
-	// if we have a valid offscreen target, render to it instead of the screen
-	if (this->offscreenTarget.isvalid()) this->frameShader->GetAllFramePassBases().Back()->SetRenderTarget(this->offscreenTarget);
-	else								 this->frameShader->GetAllFramePassBases().Back()->SetRenderTarget(RenderDevice::Instance()->GetDefaultRenderTarget());
 
     // render the world...
 	_start_timer(render);

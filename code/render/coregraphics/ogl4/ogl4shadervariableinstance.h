@@ -26,8 +26,6 @@ public:
     void BindToUniformBuffer(const Ptr<CoreGraphics::ConstantBuffer>& buffer, GLuint offset, GLuint size, GLchar* defaultValue);
     /// bind variable to uniform buffer
     void BindToUniformBuffer(const Ptr<CoreGraphics::ConstantBuffer>& buffer, GLuint offset, GLuint size);
-    /// discard
-    void Discard();
 
     /// apply local value to shader variable
     void Apply();
@@ -62,6 +60,12 @@ public:
     void SetBufferHandle(void* handle);
     /// set value directly
     void SetValue(const Util::Variant& v);
+
+protected:
+	friend class Base::ShaderVariableBase;
+
+	/// cleans up instance
+	void Cleanup();
 
 private:
     struct BufferBinding

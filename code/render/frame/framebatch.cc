@@ -290,9 +290,6 @@ FrameBatch::RenderBatch(IndexT frameIndex)
                                 // render the node instance
                                 nodeInstance->ApplyState(frameIndex, this->batchGroup, shader);
 
-                                // commit changes
-                                //shader->Commit();
-
                                 // perform rendering
                                 if (this->forceInstancing)
                                 {
@@ -304,9 +301,6 @@ FrameBatch::RenderBatch(IndexT frameIndex)
                                     // render single
                                     nodeInstance->Render();
                                 }
-
-                                // notify shaders that we just performed a draw
-                                // shaderInst->PostDraw();
                             }
 
                         #if NEBULA3_ENABLE_PROFILING

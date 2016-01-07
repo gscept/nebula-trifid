@@ -62,8 +62,10 @@ PrintParserException(pANTLR3_EXCEPTION ex, pANTLR3_UINT8* tokenNames)
 	tokenMap["NOT"] = "!";
 	tokenMap["EQ"] = "=";
 	tokenMap["QO"] = "\"";
+	tokenMap["QU"] = "?";	
 	tokenMap["Q"] = "'";
 	tokenMap["NU"] = "#";
+	tokenMap["NL"] = "newline";
 	tokenMap["FORWARDSLASH"] = "\\";
 	tokenMap["LESS"] = "<";
 	tokenMap["LESSEQ"] = "<=";

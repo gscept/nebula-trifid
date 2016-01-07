@@ -50,11 +50,14 @@ protected:
 
 	static unsigned globalVarbufferCounter;
 	eastl::vector<InternalEffectVariable*> variables;
+	eastl::vector<InternalEffectVarbuffer*> childBuffers;
     InternalEffectVarbuffer* masterBuffer;
     eastl::string name;
 	unsigned size;
+	bool isSlave;
+	bool isShared;
 
-	void* currentBufferHandle;
+	void** currentBufferHandle;
 }; 
 
 
@@ -73,7 +76,7 @@ InternalEffectVarbuffer::GetName() const
 inline void
 InternalEffectVarbuffer::SetBuffer(void* handle)
 {
-	this->currentBufferHandle = handle;
+	*this->currentBufferHandle = handle;
 }
 
 } // namespace AnyFX

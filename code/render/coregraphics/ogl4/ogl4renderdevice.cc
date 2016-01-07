@@ -773,6 +773,7 @@ OGL4RenderDevice::DrawFeedback(const Ptr<CoreGraphics::FeedbackBuffer>& fb)
 {
 	n_assert(this->inBeginPass);
 	n_assert(0 != this->context);
+
 	GLenum primType = OGL4Types::AsOGL4PrimitiveType(this->primitiveGroup.GetPrimitiveTopology());
 	glDrawTransformFeedback(primType, fb->GetOGL4TransformFeedback());
 
@@ -793,6 +794,7 @@ OGL4RenderDevice::DrawFeedbackInstanced(const Ptr<CoreGraphics::FeedbackBuffer>&
 	n_assert(this->inBeginPass);
 	n_assert(numInstances > 0);
 	n_assert(0 != this->context);
+
 	GLenum primType = OGL4Types::AsOGL4PrimitiveType(this->primitiveGroup.GetPrimitiveTopology());
 	glDrawTransformFeedbackInstanced(primType, fb->GetOGL4TransformFeedback(), numInstances);
 
@@ -811,8 +813,8 @@ void
 OGL4RenderDevice::Compute( int dimX, int dimY, int dimZ )
 {
     n_assert(0 != this->context);
-
-    // run computation
+    
+	// run computation
     glDispatchCompute(dimX, dimY, dimZ);
 
 	// empty buffer lock queues
@@ -970,13 +972,6 @@ OGL4RenderDevice::SetViewport(const Math::rectangle<int>& rect, int index)
 void
 OGL4RenderDevice::DisplayResized(SizeT width, SizeT height)
 {
-	glFinish();
-	glMemoryBarrier(GL_ALL_BARRIER_BITS);
-	glBindImageTextures(0, this->maxNumImageTextures, NULL);
-	glBindTextures(0, this->maxNumTextures, NULL);
-	glBindSamplers(0, this->maxNumTextures, NULL);
-	GLsync sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-	glClientWaitSync(sync, GL_SYNC_FLUSH_COMMANDS_BIT, 1000000000);
 	Base::RenderDeviceBase::DisplayResized(width, height);
 }
 
