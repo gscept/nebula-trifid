@@ -210,7 +210,7 @@ IDENTIFIER			: ALPHABET (ALPHABET|INTEGERLITERAL|'_')*;
 
 // Acceptable file path
 fragment
-PATH	: (DIV|FORWARDSLASH|ALPHABET|INTEGERLITERAL|LP|RP|'_'|AND|SC|COL|DOT|' ')*
+PATH	: (DIV|FORWARDSLASH|ALPHABET|INTEGERLITERAL|LP|RP|'_'|AND|SC|COL|DOT|' '|'-')*
 		;
 
 // since the lexer also needs to be able to handle preprocessor tokens, we define this rule which will do exactly the same as the 'preprocessor' parser equal, but for the lexer
