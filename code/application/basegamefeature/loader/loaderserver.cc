@@ -105,10 +105,10 @@ LoaderServer::CreateUserProfile() const
     @return             success
 */
 bool
-LoaderServer::LoadLevel(const Util::String& levelName)
+LoaderServer::LoadLevel(const Util::String& levelName, const Util::Array<Util::String>& activeLayers)
 {
     n_assert(levelName.IsValid());
-    bool success = LevelLoader::Load(levelName);
+    bool success = LevelLoader::Load(levelName, activeLayers);
     return success;
 }
 

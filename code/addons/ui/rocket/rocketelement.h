@@ -118,6 +118,8 @@ public:
 
 	/// sets an attribute
 	void SetAttribute(const Util::String& attr, const Util::String& value);
+	/// removes an attribute
+	void RemoveAttribute(const Util::String& attr);
 	/// gets an attribute
 	Util::String GetAttribute(const Util::String& attr);
 

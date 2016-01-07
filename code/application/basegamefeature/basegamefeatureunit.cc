@@ -516,8 +516,10 @@ BaseGameFeatureUnit::SetupWorldFromCurrentLevel()
 		PostEffect::PostEffectFeatureUnit::Instance()->SetupDefaultWorld();
 	}
     // load level from database
-    BaseGameFeature::LoaderServer::Instance()->LoadLevel(this->GetCurrentLevel());
+    BaseGameFeature::LoaderServer::Instance()->LoadLevel(this->GetCurrentLevel(), this->activeLayers);
 
+    // reset layers
+    this->activeLayers.Clear();
     // invoke OnLoad() on everything
     Game::GameServer::Instance()->NotifyGameLoad();
 }
@@ -611,6 +613,11 @@ BaseGameFeatureUnit::HandleInput()
 //------------------------------------------------------------------------------
 /**
 */
+void BaseGameFeatureUnit::SetActivateLayers(const Util::Array<Util::String>& layers)
+{
+    activeLayers = layers;
+}
+
 void
 BaseGameFeatureUnit::OnFrame()
 {    

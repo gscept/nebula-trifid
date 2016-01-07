@@ -99,6 +99,9 @@ public:
     /// cleanup the game world
     virtual void CleanupWorld();
 
+    //Select layers
+    void SetActivateLayers(const Util::Array<Util::String>& layers);
+
     /// set factory manager rtti
     void SetFactoryManager(const Ptr<FactoryManager>& manager);
         
@@ -118,10 +121,10 @@ protected:
     Ptr<Db::DbServer> dbServer;
     Ptr<EnvEntityManager> envEntityManager;    
     Ptr<Vibration::VibrationInterface> vibInterface;
-	Ptr<Navigation::CrowdManager> crowdManager;
+    Ptr<Navigation::CrowdManager> crowdManager;
     Ptr<EnvQueryManager> envQueryManager;
-	Ptr<AudioManager> audioManager;
-
+    Ptr<AudioManager> audioManager;
+    Util::Array<Util::String> activeLayers;
 #if __NEBULA3_HTTP__
     Ptr<Http::HttpRequestHandler> debugRequestHandler;
 #endif

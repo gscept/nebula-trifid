@@ -91,6 +91,11 @@ public:
     /// get group by key
     const Ptr<UiElementGroup>& GetGroup(uint key) const;
 
+	/// enable input handling
+	void SetHandleInput(bool handleInput);
+	/// 
+	bool GetHandleInput();
+
 	/// get a uielement
 	static Ptr<UiElement> GetLayoutElement(const Util::String & layout, const Util::String & element);
 	

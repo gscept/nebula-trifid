@@ -122,6 +122,7 @@ protected:
     Timing::Time unStuckTime;
     float headingGain;
     float positionGain;
+	bool smoothingEnabled;
 
     static const float AutoEvadeProbeAboveGround;   ///< dist of auto evade probe to entity's pos
     static const float AutoEvadeProbeRadius;        ///< radius of auto evade probe

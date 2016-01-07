@@ -62,6 +62,7 @@ void
 RocketLayout::Reload()
 {
 	n_assert(this->layout);
+	UiLayoutBase::Reload();
 
 	bool isVisible = this->layout->IsVisible();
 	this->layout->Hide();

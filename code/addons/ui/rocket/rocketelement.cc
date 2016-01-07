@@ -450,6 +450,16 @@ RocketElement::SetAttribute( const Util::String& attr, const Util::String& value
 //------------------------------------------------------------------------------
 /**
 */
+void 
+	RocketElement::RemoveAttribute( const Util::String& attr)
+{
+	n_assert(0 != this->element);
+	this->element->RemoveAttribute(attr.AsCharPtr());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 Util::String 
 RocketElement::GetAttribute( const Util::String& attr )
 {

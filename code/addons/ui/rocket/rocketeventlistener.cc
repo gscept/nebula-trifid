@@ -111,6 +111,17 @@ RocketEventListener::ProcessEvent(Rocket::Core::Event& event)
 			functionSignature.Format("%s(%s,%s)", this->eventName.AsCharPtr(), this->eventParameter.AsCharPtr(), value.AsCharPtr());
 		}
 	}
+	else if(event.GetType() =="keydown")
+	{
+		int val = event.GetParameter<int>("key_identifier",-1);
+		val = Input::Key::FromRocket(val);
+		functionSignature.Format("%s(%d)", this->eventName.AsCharPtr(), val);
+	}
+	else if(event.GetType() =="mouseup")
+	{
+		int val = event.GetParameter<int>("button",-1);
+		functionSignature.Format("%s(%d)", this->eventName.AsCharPtr(), val);
+	}
 	else
 	{		
 		if (this->eventParameter == "")

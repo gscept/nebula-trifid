@@ -28,6 +28,11 @@ public:
     /// end input capturing to this event handler
     virtual void EndCapture();
 
+	/// make UI:s in the game screen not receive input events 
+	void SetHandleInput(bool handleInput);
+	/// 
+	bool GetHandleInput();
+
 protected:
     friend class Base::InputServerBase;
     
@@ -46,6 +51,7 @@ protected:
 
 private:
 	Util::Array<Input::InputEvent> inputEvents;	
+	bool handleInput;
 };
 
 } // namespace UI

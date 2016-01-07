@@ -191,6 +191,8 @@ public:
 	static uint ToDirectInput(Code key);
 	/// convert to rocket scan codes
 	static uint ToRocket(Code key);
+	/// convert to rocket scan codes
+	static Code FromRocket(uint key);
 	/// convert to Unicode character (ASCII 0-127 for now)
 	static char ToChar(Code key);
     /// convert from string

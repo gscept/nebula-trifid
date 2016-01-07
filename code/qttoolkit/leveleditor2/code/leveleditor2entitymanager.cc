@@ -351,6 +351,7 @@ LevelEditor2EntityManager::CreateEntityFromAttrContainer(const Util::String & ca
 		at.Append(Attribute(Attr::DynamicObject, false));
 		at.Append(Attribute(Attr::CastShadows, true));
 		at.Append(Attribute(Attr::PhysicMaterial, "EmptyWood"));
+		at.Append(Attribute(Attr::LoadSynced, false));
 		newEnt = CreateEntityByAttrs(at,"EditorEntity", attrs.GetGuid(Attr::Guid).AsString());		
 		newEnt->SetString(Attr::EntityLevel,Level::Instance()->GetName());		
 	}
