@@ -186,6 +186,7 @@ LevelEditor2EntityManager::CreateEnvironmentEntity(const Util::String& _template
 	attributes.Append(Attribute(Transform, trans));
 	attributes.Append(Attribute(Attr::EntityType,Environment));
 	attributes.Append(Attribute(Attr::CollisionEnabled,true));
+	attributes.Append(Attribute(Attr::CastShadows, true));
 	attributes.Append(Attribute(Attr::DynamicObject,false));
 	attributes.Append(Attribute(Attr::VelocityVector,Math::float4(0, 0, 0, 0)));
 	attributes.Append(Attribute(Attr::EntityCategory,"_Environment"));
@@ -347,11 +348,26 @@ LevelEditor2EntityManager::CreateEntityFromAttrContainer(const Util::String & ca
 	{				
 		at.Append(Attribute(Attr::EntityType, Environment));
 		at.Append(Attribute(Attr::EntityCategory, "_Environment"));					
-		at.Append(Attribute(Attr::CollisionEnabled, true));
-		at.Append(Attribute(Attr::DynamicObject, false));
-		at.Append(Attribute(Attr::CastShadows, true));
-		at.Append(Attribute(Attr::PhysicMaterial, "EmptyWood"));
-		at.Append(Attribute(Attr::LoadSynced, false));
+		if (!attrs.HasAttr(Attr::CollisionEnabled))
+		{
+			at.Append(Attribute(Attr::CollisionEnabled, true));
+		}
+		if (!attrs.HasAttr(Attr::DynamicObject))
+		{
+			at.Append(Attribute(Attr::DynamicObject, false));
+		}
+		if (!attrs.HasAttr(Attr::CastShadows))
+		{
+			at.Append(Attribute(Attr::CastShadows, true));
+		}
+		if (!attrs.HasAttr(Attr::PhysicMaterial))
+		{
+			at.Append(Attribute(Attr::PhysicMaterial, "EmptyWood"));
+		}				
+		if (!attrs.HasAttr(Attr::LoadSynced))
+		{
+			at.Append(Attribute(Attr::LoadSynced, false));
+		}		
 		newEnt = CreateEntityByAttrs(at,"EditorEntity", attrs.GetGuid(Attr::Guid).AsString());		
 		newEnt->SetString(Attr::EntityLevel,Level::Instance()->GetName());		
 	}
