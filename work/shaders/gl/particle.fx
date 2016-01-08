@@ -15,7 +15,7 @@ sampler2D DepthBuffer;
 // samplers
 samplerstate ParticleSampler
 {
-	Samplers = { SpecularMap, EmissiveMap, NormalMap, DiffuseMap, DisplacementMap, RoughnessMap };
+	Samplers = { SpecularMap, EmissiveMap, NormalMap, AlbedoMap, DisplacementMap, RoughnessMap };
 	Filter = MinMagMipLinear;
 	AddressU = Wrap;
 	AddressV = Wrap;
@@ -151,7 +151,7 @@ psUnlit(in vec4 ViewSpacePosition,
 {
 	vec2 pixelSize = GetPixelSize(DepthBuffer);
 	vec2 screenUV = psComputeScreenCoord(gl_FragCoord.xy, pixelSize.xy);
-	vec4 diffColor = texture(DiffuseMap, UV);
+	vec4 diffColor = texture(AlbedoMap, UV);
 	vec4 emsvColor = texture(EmissiveMap, UV);
 	
 	vec4 color = diffColor + vec4(Color.rgb, 0) + emsvColor * LightMapIntensity;
@@ -183,7 +183,7 @@ psLit(in vec4 ViewSpacePosition,
 	[color2] out float Depth,
 	[color3] out vec4 Specular) 
 {	
-	vec4 diffColor = texture(DiffuseMap, UV.xy);
+	vec4 diffColor = texture(AlbedoMap, UV.xy);
 	vec4 emsvColor = texture(EmissiveMap, UV.xy);
 	vec4 specColor = texture(SpecularMap, UV.xy);
 	float roughness = texture(RoughnessMap, UV).r;

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>318</width>
     <height>300</height>
    </rect>
   </property>
@@ -25,22 +25,7 @@
    <enum>QFrame::Plain</enum>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="QLabel" name="label">
-     <property name="font">
-      <font>
-       <pointsize>14</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Model</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
+   <item row="2" column="1">
     <widget class="QFrame" name="frame">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -56,7 +41,7 @@
        <number>0</number>
       </property>
       <property name="spacing">
-       <number>6</number>
+       <number>1</number>
       </property>
       <item row="3" column="0">
        <widget class="QPushButton" name="saveButton">
@@ -75,20 +60,6 @@
       <item row="1" column="0" colspan="2">
        <widget class="QTabWidget" name="nodeWidget"/>
       </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="modelName">
-        <property name="font">
-         <font>
-          <pointsize>9</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>placeholder.n3</string>
-        </property>
-       </widget>
-      </item>
       <item row="2" column="0" colspan="2">
        <widget class="QPushButton" name="addParticleNode">
         <property name="text">
@@ -98,6 +69,62 @@
       </item>
      </layout>
     </widget>
+   </item>
+   <item row="1" column="1">
+    <layout class="QGridLayout" name="gridLayout_3">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Model</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLabel" name="modelName">
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>placeholder.n3</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QLabel" name="modelThumbnail">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>67</width>
+         <height>67</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">border: 2px solid gray;
+border-radius: 5px;</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>

@@ -8,12 +8,12 @@
 #include "lib/techniques.fxh"
 #include "lib/util.fxh"
 
-sampler2D DiffuseMap;
+sampler2D AlbedoMap;
 vec4 Color = vec4(1,1,1,1);
 
 samplerstate BillboardSampler
 {
-	Samplers = { DiffuseMap };
+	Samplers = { AlbedoMap };
 };
 
 state BillboardState
@@ -44,7 +44,7 @@ psDefault(in vec2 UV,
 		[color0] out vec4 Albedo)
 {
 	// get diffcolor
-	vec4 diffColor = texture(DiffuseMap, UV) * Color;
+	vec4 diffColor = texture(AlbedoMap, UV) * Color;
 	
 	float alpha = diffColor.a;
 	if (alpha < 0.5f) discard;

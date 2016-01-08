@@ -6,7 +6,7 @@
 #ifndef DEFAULTSAMPLERS_FXH
 #define DEFAULTSAMPLERS_FXH
 
-sampler2D DiffuseMap;
+sampler2D AlbedoMap;
 sampler2D DisplacementMap;
 sampler2D SpecularMap;
 sampler2D EmissiveMap;

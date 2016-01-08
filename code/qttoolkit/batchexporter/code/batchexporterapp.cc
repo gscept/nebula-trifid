@@ -21,6 +21,7 @@
 #include "io/memorystream.h"
 #include "io/xmlreader.h"
 #include "toolkitconsolehandler.h"
+#include "applauncher.h"
 
 
 #if WIN32
@@ -118,6 +119,10 @@ BatchExporterApp::BatchExporterApp(const CommandLineArgs& args) :
 	connect(ui.exportAudio, SIGNAL(toggled(bool)), this, SLOT(SetExportAudio(bool)));
 	connect(ui.forceExport, SIGNAL(toggled(bool)), this, SLOT(SetForce(bool)));
 
+	connect(ui.actionContentbrowser, SIGNAL(triggered(bool)), this, SLOT(StartContentbrowser()));
+	connect(ui.actionLeveleditor, SIGNAL(triggered(bool)), this, SLOT(StartLeveleditor()));
+
+
 	connect(ui.exportButton, SIGNAL(clicked()), this, SLOT(GatherExports()));
 	connect(&this->remoteProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(OutputMessage()));
 	connect(&this->remoteProcess, SIGNAL(readyReadStandardError()), this, SLOT(OutputStderr()));
@@ -129,11 +134,6 @@ BatchExporterApp::BatchExporterApp(const CommandLineArgs& args) :
 	//connect(ui.actionSetNodyDirectory, SIGNAL(triggered(bool)), this, SLOT(PickNodyDir()));
 	connect(ui.actionSetToolkitDirectory, SIGNAL(triggered(bool)), this, SLOT(PickToolkitDir()));
 	connect(ui.actionAbout, SIGNAL(triggered(bool)), this, SLOT(ShowAbout()));
-
-	connect(ui.errorFilter, SIGNAL(clicked()), this, SLOT(UpdateOutputWindow()));
-	connect(ui.warningsFilter, SIGNAL(clicked()), this, SLOT(UpdateOutputWindow()));
-	connect(ui.infoFilter, SIGNAL(clicked()), this, SLOT(UpdateOutputWindow()));
-	connect(ui.messageList, SIGNAL(itemSelectionChanged()), this, SLOT(SelectionChanged()));
 
     if(System::NebulaSettings::Exists("gscept", "ToolkitShared.batchexporter", "force"))
     {
@@ -172,8 +172,6 @@ BatchExporterApp::GatherExports()
 {
 	/// clears the output window
 	this->ui.outputText->clear();
-	this->messages.Clear();
-	this->ui.messageList->clear();
 	QString jobsString;
 	if(ui.jobs->value()>1)
 	{			
@@ -319,7 +317,6 @@ BatchExporterApp::ExporterDone(int exitCode, QProcess::ExitStatus status)
 			this->executionQueue.clear();
 		}	
 		ProgressNotifier::Instance()->End();
-		this->UpdateOutputWindow();
 	}
 
 	// continues the exporting
@@ -369,7 +366,6 @@ BatchExporterApp::OutputStderr()
 		}
 
 		reader->Close();
-		this->messages.AppendArray(logs);
 	}
 }
 
@@ -770,70 +766,23 @@ BatchExporterApp::OutputExportStatus( const QString& message )
 /**
 */
 void
-BatchExporterApp::UpdateOutputWindow()
+BatchExporterApp::StartContentbrowser()
 {
-	this->ui.messageList->clear();
-
-	Util::String lastAsset;
-	QLogTreeItem * currentItem;
-	unsigned char displayLevel = 0;
-	if (this->ui.errorFilter->isChecked())
+#ifdef DEBUG
+	Util::String exe = "bin:contentbrowser.debug";
+#else
+	Util::String exe = "bin:contentbrowser";
+#endif
+#ifdef WIN32
+	exe += ".exe";
+#endif
+	IO::URI exeUri(exe);
+	if (!ToolkitUtil::AppLauncher::CheckIfExists(exeUri))
 	{
-		displayLevel |= ToolkitUtil::ToolkitConsoleHandler::LogError;
-	}
-	if (this->ui.warningsFilter->isChecked())
-	{
-		displayLevel |= ToolkitUtil::ToolkitConsoleHandler::LogWarning;
-	}
-	if (this->ui.infoFilter->isChecked())
-	{
-		displayLevel |= ToolkitUtil::ToolkitConsoleHandler::LogInfo | ToolkitUtil::ToolkitConsoleHandler::LogDebug;
-	}
-	for (int i = 0; i < this->messages.Size(); i++)
-	{
-		if ((this->messages[i].logLevels & displayLevel) > 0)
-		{
-			currentItem = new QLogTreeItem();
-			currentItem->setData(0, Qt::DisplayRole, this->messages[i].asset.AsCharPtr());
-			Util::Array<ToolkitUtil::ToolkitConsoleHandler::LogEntry> assetLogs;
-			this->ui.messageList->addTopLevelItem(currentItem);
-
-			const Util::Array<ToolkitUtil::ToolLogEntry> & logs = this->messages[i].logs;
-			for (int j = 0; j < logs.Size(); j++)
-			{
-				if (logs[j].logs.Size() && (logs[j].logLevels & displayLevel) > 0)
-				{
-					QStringList fields;
-					fields.append("");
-					fields.append(logs[j].tool.AsCharPtr());
-					fields.append(logs[j].source.AsCharPtr());
-					QLogTreeItem * newItem = new QLogTreeItem(fields);
-					currentItem->addChild(newItem);
-					newItem->logs = logs[j].logs;
-					assetLogs.AppendArray(logs[j].logs);
-					if (logs[j].logLevels > 0x02)
-					{
-						for (int k = 0; k < 3; k++)
-						{
-							newItem->setBackgroundColor(k, LogLevelToColour(logs[j].logLevels));
-						}
-					}
-				}
-			}
-			if (this->messages[i].logLevels > 0x02)
-			{
-				for (int k = 0; k < 3; k++)
-				{
-					currentItem->setBackgroundColor(k, LogLevelToColour(this->messages[i].logLevels));
-				}
-			}
-			if (this->messages[i].logLevels & ToolkitUtil::ToolkitConsoleHandler::LogError)
-			{
-				currentItem->setExpanded(true);
-			}
-
-			currentItem->logs = assetLogs;
-		}
+		QProcess content;
+		Util::String path = exeUri.LocalPath();
+		path = "\"" + path + "\"";
+		content.startDetached(path.AsCharPtr());
 	}
 }
 
@@ -841,18 +790,26 @@ BatchExporterApp::UpdateOutputWindow()
 /**
 */
 void
-BatchExporterApp::SelectionChanged()
+BatchExporterApp::StartLeveleditor()
 {
-	this->ui.messageText->clear();
-	QLogTreeItem * item = dynamic_cast<QLogTreeItem*>(this->ui.messageList->currentItem());
-	if (item)
+
+#ifdef DEBUG
+	Util::String exe = "bin:leveleditor2.debug";
+#else
+	Util::String exe = "bin:leveleditor2";
+#endif
+#ifdef WIN32
+	exe += ".exe";
+#endif
+	IO::URI exeUri(exe);
+	if (!ToolkitUtil::AppLauncher::CheckIfExists(exeUri))
 	{
-		for (int j = 0; j < item->logs.Size(); j++)
-		{
-			this->ui.messageText->setTextBackgroundColor(LogLevelToColour(item->logs[j].level));
-			this->ui.messageText->append(item->logs[j].message.AsCharPtr());
-		}
+		QProcess content;
+		Util::String path = exeUri.LocalPath();
+		path = "\"" + path + "\"";
+		content.startDetached(path.AsCharPtr());
 	}
 }
+	
 
 } // namespace BatchExporter

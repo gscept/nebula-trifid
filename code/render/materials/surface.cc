@@ -69,9 +69,12 @@ Surface::Reload()
     }
 
     // perform actual load
-	this->state = Pending;
+	bool async = this->asyncEnabled;
+	this->SetAsyncEnabled(false);
+	this->Unload();
     this->loader->Reset();
     this->Load();
+	this->SetAsyncEnabled(async);
 
     // go through instances and reset their values, which will effectively discard any per instance value
     IndexT i;

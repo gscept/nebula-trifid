@@ -21,7 +21,6 @@
 #include "messaging/staticmessagehandler.h"
 
 #include <QDialog>
-#include <QColorDialog>
 #include <QGroupBox>
 #include <QBitmap>
 #include <QMessageBox>
@@ -42,7 +41,8 @@ __ImplementClass(Widgets::MaterialHandler, 'MAHA', BaseHandler);
 */
 MaterialHandler::MaterialHandler() :
 	hasChanges(false),
-	mainLayout(NULL)
+	mainLayout(NULL),
+	colorDialog(NULL)
 {
 	this->saveDialogUi.setupUi(&this->saveDialog);
 
@@ -657,40 +657,102 @@ MaterialHandler::ChangeColor()
     values = float4::clamp(values, float4(0), float4(1));
     QColor qcolor(values.x() * 255, values.y() * 255, values.z() * 255, values.w() * 255);
 
-    // open color dialog
-    QColorDialog dialog(qcolor);
+	vector[0]->blockSignals(true);
+	vector[1]->blockSignals(true);
+	vector[2]->blockSignals(true);
+	vector[3]->blockSignals(true);
 
-    int val = dialog.exec();
-    if (val == QDialog::Accepted)
-    {
-        QColor diaColor = dialog.currentColor();
-        float4 color;
-        color.x() = diaColor.red() / 255.0f;
-        color.y() = diaColor.green() / 255.0f;
-        color.z() = diaColor.blue() / 255.0f;
-        color.w() = diaColor.alpha() / 255.0f;
+	if (this->colorDialog != NULL) this->colorDialog->reject();
+	currentColor = values;
+	this->colorDialog = new QColorDialog(qcolor);
+	this->colorDialog->setUserData(0, (QObjectUserData*)sender);
+	this->colorDialog->setWindowFlags(Qt::WindowStaysOnTopHint);
+	this->colorDialog->setOption(QColorDialog::ShowAlphaChannel);
+	connect(this->colorDialog, SIGNAL(currentColorChanged(const QColor&)), this, SLOT(ColorPickerChanged(const QColor&)));
+	connect(this->colorDialog, SIGNAL(finished(int)), this, SLOT(ColorPickerClosed(int)));
+	this->colorDialog->open();
+}
 
-        vector[0]->blockSignals(true);
-        vector[1]->blockSignals(true);
-        vector[2]->blockSignals(true);
-        vector[3]->blockSignals(true);
+//------------------------------------------------------------------------------
+/**
+*/
+void
+MaterialHandler::ColorPickerChanged(const QColor& currentColor)
+{
+	// get sender
+	QObject* sender = (QObject*)static_cast<QColorDialog*>(this->sender())->userData(0);
 
-        vector[0]->setValue(color.x());
-        vector[1]->setValue(color.y());
-        vector[2]->setValue(color.z());
-        vector[3]->setValue(color.w());
+	// must be a button
+	QPushButton* button = static_cast<QPushButton*>(sender);
 
-        vector[0]->blockSignals(false);
-        vector[1]->blockSignals(false);
-        vector[2]->blockSignals(false);
-        vector[3]->blockSignals(false);
+	// get index 
+	int i = this->variableVectorColorEditMap[button];
 
-        // update button
-        diaColor.setAlpha(255);
-        button->setPalette(QPalette(diaColor));
+	// get spin boxes for value
+	QList<QDoubleSpinBox*> vector = this->variableVectorMap[i];
 
-        this->Float4VariableChanged(i);
-    }
+	// convert to qcolor
+	float4 values(vector[0]->value(), vector[1]->value(), vector[2]->value(), vector[3]->value());
+	values = float4::clamp(values, float4(0), float4(1));
+	QColor qcolor(values.x() * 255, values.y() * 255, values.z() * 255, values.w() * 255);
+
+	QColor diaColor = currentColor;
+	float4 color;
+	color.x() = diaColor.red() / 255.0f;
+	color.y() = diaColor.green() / 255.0f;
+	color.z() = diaColor.blue() / 255.0f;
+	color.w() = diaColor.alpha() / 255.0f;
+
+	vector[0]->setValue(color.x());
+	vector[1]->setValue(color.y());
+	vector[2]->setValue(color.z());
+	vector[3]->setValue(color.w());
+
+	// update button
+	diaColor.setAlpha(255);
+	button->setPalette(QPalette(diaColor));
+
+	this->Float4VariableChanged(i);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+MaterialHandler::ColorPickerClosed(int result)
+{
+	// get sender
+	QObject* sender = (QObject*)static_cast<QColorDialog*>(this->sender())->userData(0);
+
+	// must be a button
+	QPushButton* button = static_cast<QPushButton*>(sender);
+
+	// get index 
+	int i = this->variableVectorColorEditMap[button];
+
+	// get spin boxes for value
+	QList<QDoubleSpinBox*> vector = this->variableVectorMap[i];
+
+	// convert to qcolor
+	float4 values = currentColor;
+	values = float4::clamp(values, float4(0), float4(1));
+	QColor qcolor(values.x() * 255, values.y() * 255, values.z() * 255, values.w() * 255);
+
+	if (result == QDialog::Rejected)
+	{
+		QColor diaColor = qcolor;
+		vector[0]->setValue(values.x());
+		vector[1]->setValue(values.y());
+		vector[2]->setValue(values.z());
+		vector[3]->setValue(values.w());
+
+		// update button
+		diaColor.setAlpha(255);
+		button->setPalette(QPalette(diaColor));
+
+		this->Float4VariableChanged(i);
+	}
+	this->colorDialog = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -1244,15 +1306,7 @@ MaterialHandler::MakeMaterialUI(QLabel* surfaceName, QComboBox* materialBox, QPu
         QLabel* varName = new QLabel(name.AsCharPtr());
         QFont font = varName->font();
         font.setBold(true);
-        font.setPointSize(10);
         varName->setFont(font);
-
-        // setup group
-        QGroupBox* group = new QGroupBox;
-        QVBoxLayout* groupLayout = new QVBoxLayout;
-        groupLayout->setContentsMargins(QMargins(2, 5, 2, 5));
-        group->setLayout(groupLayout);
-        group->setFlat(true);
 
         // create material instance
         this->scalarVariables.Add(i, param.name);
@@ -1260,12 +1314,7 @@ MaterialHandler::MakeMaterialUI(QLabel* surfaceName, QComboBox* materialBox, QPu
         if (var.GetType() == Variant::Float4)
         {
             // create two layouts, one for the variable and one for the label
-            QHBoxLayout* labelLayout = new QHBoxLayout;
-            labelLayout->setAlignment(Qt::AlignCenter);
             QHBoxLayout* varLayout = new QHBoxLayout;
-
-            // add label to layout
-            labelLayout->addWidget(varName);
 
             // set name in map
             this->variableLabelMap[varName] = i;
@@ -1325,16 +1374,18 @@ MaterialHandler::MakeMaterialUI(QLabel* surfaceName, QComboBox* materialBox, QPu
             connect(box4, SIGNAL(valueChanged(double)), this, SLOT(VariableFloat4FieldChanged()));
 
             // add boxes to layout
+			varLayout->addWidget(varName);
+			varLayout->addStretch(100);
             varLayout->addWidget(box1);
             varLayout->addWidget(box2);
             varLayout->addWidget(box3);
             varLayout->addWidget(box4);
 
             // add to layout
-            if (!param.desc.IsEmpty()) group->setToolTip(param.desc.AsCharPtr());
-            groupLayout->addLayout(labelLayout);
-            groupLayout->addLayout(varLayout);
-			this->mainLayout->addWidget(group);
+            if (!param.desc.IsEmpty()) varName->setToolTip(param.desc.AsCharPtr());
+            //groupLayout->addLayout(labelLayout);
+            //groupLayout->addLayout(varLayout);
+			this->mainLayout->addLayout(varLayout);
 
             // handle if we have a color edit
             if (param.editType == Material::MaterialParameter::EditColor)
@@ -1346,7 +1397,7 @@ MaterialHandler::MakeMaterialUI(QLabel* surfaceName, QComboBox* materialBox, QPu
                 QPalette palette(QColor(val.x() * 255, val.y() * 255, val.z() * 255));
                 colorChooserButton->setPalette(palette);
 
-                groupLayout->addWidget(colorChooserButton);
+				varLayout->addWidget(colorChooserButton);
                 connect(colorChooserButton, SIGNAL(clicked()), this, SLOT(ChangeColor()));
 
                 this->variableVectorColorEditMap[colorChooserButton] = i;
@@ -1355,12 +1406,7 @@ MaterialHandler::MakeMaterialUI(QLabel* surfaceName, QComboBox* materialBox, QPu
         else if (var.GetType() == Variant::Float2)
         {
             // create two layouts, one for the variable and one for the label
-            QHBoxLayout* labelLayout = new QHBoxLayout;
-            labelLayout->setAlignment(Qt::AlignCenter);
             QHBoxLayout* varLayout = new QHBoxLayout;
-
-            // add label to layout
-            labelLayout->addWidget(varName);
 
             // set name in map
             this->variableLabelMap[varName] = i;
@@ -1402,24 +1448,23 @@ MaterialHandler::MakeMaterialUI(QLabel* surfaceName, QComboBox* materialBox, QPu
             connect(box2, SIGNAL(valueChanged(double)), this, SLOT(VariableFloat2FieldChanged()));
 
             // add boxes to layout
+			varLayout->addWidget(varName);
+			varLayout->addStretch(100);
             varLayout->addWidget(box1);
             varLayout->addWidget(box2);
 
             // add to layout
-            if (!param.desc.IsEmpty()) group->setToolTip(param.desc.AsCharPtr());
-            groupLayout->addLayout(labelLayout);
-            groupLayout->addLayout(varLayout);
-			this->mainLayout->addWidget(group);
+            if (!param.desc.IsEmpty()) varName->setToolTip(param.desc.AsCharPtr());
+            //groupLayout->addLayout(labelLayout);
+            //groupLayout->addLayout(varLayout);
+			this->mainLayout->addLayout(varLayout);
         }
         else if (var.GetType() == Variant::Float)
         {
             // create two layouts, one for the variable and one for the label
-            QHBoxLayout* labelLayout = new QHBoxLayout;
-            labelLayout->setAlignment(Qt::AlignCenter);
             QHBoxLayout* varLayout = new QHBoxLayout;
-
-            // add label to layout
-            labelLayout->addWidget(varName);
+			varLayout->addWidget(varName);
+			varLayout->addStretch(100);
 
             // create limits
             QDoubleSpinBox* lowerLimit = new QDoubleSpinBox;
@@ -1461,6 +1506,7 @@ MaterialHandler::MakeMaterialUI(QLabel* surfaceName, QComboBox* materialBox, QPu
             // connect box to actual value
             connect(box, SIGNAL(valueChanged(double)), this, SLOT(VariableFloatFieldChanged()));
 
+
             varLayout->addWidget(box);
 
             // add UI elements to lists
@@ -1470,20 +1516,13 @@ MaterialHandler::MakeMaterialUI(QLabel* surfaceName, QComboBox* materialBox, QPu
             this->upperLimitFloatMap[upperLimit] = i;
 
             // add to layout
-            if (!param.desc.IsEmpty()) group->setToolTip(param.desc.AsCharPtr());
-            groupLayout->addLayout(labelLayout);
-            groupLayout->addLayout(varLayout);
-			this->mainLayout->addWidget(group);
+			if (!param.desc.IsEmpty()) varName->setToolTip(param.desc.AsCharPtr());
+			this->mainLayout->addLayout(varLayout);
         }
         else if (var.GetType() == Variant::Int)
         {
             // create new horizontal layout 
-            QHBoxLayout* labelLayout = new QHBoxLayout;
-            labelLayout->setAlignment(Qt::AlignCenter);
             QHBoxLayout* varLayout = new QHBoxLayout;
-
-            // add label to layout
-            labelLayout->addWidget(varName);
 
             // create limits
             QSpinBox* lowerLimit = new QSpinBox;
@@ -1523,6 +1562,9 @@ MaterialHandler::MakeMaterialUI(QLabel* surfaceName, QComboBox* materialBox, QPu
             // connect box to actual value
             connect(box, SIGNAL(valueChanged(int)), this, SLOT(VariableIntFieldChanged()));
 
+			// setup variable layout
+			varLayout->addWidget(varName);
+			varLayout->addStretch(100);
             varLayout->addWidget(box);
 
             // add UI elements to lists
@@ -1532,16 +1574,12 @@ MaterialHandler::MakeMaterialUI(QLabel* surfaceName, QComboBox* materialBox, QPu
             this->upperLimitIntMap[upperLimit] = i;
 
             // add to group
-            if (!param.desc.IsEmpty()) group->setToolTip(param.desc.AsCharPtr());
-            groupLayout->addLayout(labelLayout);
-            groupLayout->addLayout(varLayout);
-			this->mainLayout->addWidget(group);
+            if (!param.desc.IsEmpty()) varName->setToolTip(param.desc.AsCharPtr());
+			this->mainLayout->addLayout(varLayout);
         }
         else if (var.GetType() == Variant::Bool)
         {
             // create new horizontal layout 
-            QHBoxLayout* labelLayout = new QHBoxLayout;
-            labelLayout->setAlignment(Qt::AlignCenter);
             QHBoxLayout* varLayout = new QHBoxLayout;
             varLayout->setAlignment(Qt::AlignRight);
 
@@ -1559,14 +1597,13 @@ MaterialHandler::MakeMaterialUI(QLabel* surfaceName, QComboBox* materialBox, QPu
             this->variableBoolMap[box] = i;
 
             // add label and box to layout
-            labelLayout->addWidget(varName);
+            varLayout->addWidget(varName);
+			varLayout->addStretch(100);
             varLayout->addWidget(box);
 
             // add to group
-            if (!param.desc.IsEmpty()) group->setToolTip(param.desc.AsCharPtr());
-            groupLayout->addLayout(labelLayout);
-            groupLayout->addLayout(varLayout);
-			this->mainLayout->addWidget(group);
+            if (!param.desc.IsEmpty()) varName->setToolTip(param.desc.AsCharPtr());
+			this->mainLayout->addLayout(varLayout);
         }
     }
 
@@ -1725,7 +1762,7 @@ MaterialHandler::UpdateThumbnail()
 	QPixmap pixmap;
 	IO::URI texFile = thumbnail;
 	pixmap.load(texFile.LocalPath().AsCharPtr());
-	pixmap = pixmap.scaled(QSize(100, 100), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+	pixmap = pixmap.scaled(QSize(67, 67), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 	this->ui->surfaceThumbnail->setPixmap(pixmap);
 }
 

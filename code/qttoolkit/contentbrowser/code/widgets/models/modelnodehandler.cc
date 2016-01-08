@@ -272,7 +272,7 @@ ModelNodeHandler::UpdateSurfaceThumbnail()
 	surface = String::Sprintf("src:assets/%s_sur.thumb", surface.AsCharPtr());
     IO::URI texFile = surface;
     pixmap.load(texFile.LocalPath().AsCharPtr());
-    pixmap = pixmap.scaled(QSize(100, 100), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    pixmap = pixmap.scaled(QSize(50, 50), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 	this->thumbnailWatcher.WatchFile(texFile.LocalPath());
 
     QPalette palette;

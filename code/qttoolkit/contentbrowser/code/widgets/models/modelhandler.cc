@@ -14,15 +14,16 @@
 #include "particlenodeframe.h"
 #include "n3util/n3xmlexporter.h"
 #include "graphics/graphicsinterface.h"
-#include <QBoxLayout>
-#include <QMessageBox>
-#include <QFileDialog>
 #include "characternodeframe.h"
 #include "modelutil/modelbuilder.h"
 #include "modelnodehandler.h"
 #include "qtaddons/remoteinterface/qtremoteclient.h"
 #include "messaging/messagecallbackhandler.h"
 
+#include <QBoxLayout>
+#include <QMessageBox>
+#include <QFileDialog>
+#include <QBitmap>
 
 using namespace ContentBrowser;
 using namespace ToolkitUtil;
@@ -131,6 +132,9 @@ ModelHandler::Setup()
 	attrPath.Format("src:assets/%s/%s.attributes", this->category.AsCharPtr(), this->file.AsCharPtr());
 	constPath.Format("src:assets/%s/%s.constants", this->category.AsCharPtr(), this->file.AsCharPtr());
 	physPath.Format("src:assets/%s/%s.physics", this->category.AsCharPtr(), this->file.AsCharPtr());
+
+	// update thumbnail
+	this->UpdateModelThumbnail();
 
 	// open file
 	if (!IoServer::Instance()->FileExists(attrPath))
@@ -535,6 +539,9 @@ ModelHandler::Save()
 	// get preview state
 	Ptr<PreviewState> previewState = ContentBrowserApp::Instance()->GetPreviewState();
 	previewState->SaveThumbnail(thumbnail, true);
+
+	// update thumbnail
+	this->UpdateModelThumbnail();
 }
 
 //------------------------------------------------------------------------------
@@ -657,6 +664,9 @@ ModelHandler::SaveAs()
 		// get preview state
 		Ptr<PreviewState> previewState = ContentBrowserApp::Instance()->GetPreviewState();
 		previewState->SaveThumbnail(thumbnail, true);
+
+		// update thumbnail
+		this->UpdateModelThumbnail();
 	}	
 }
 
@@ -756,6 +766,7 @@ ModelHandler::SetupTabs()
 
 	// get list of characters
 	const Array<ModelConstants::CharacterNode>& characters = this->constants->GetCharacterNodes();
+	n_assert(characters.Size() <= 1);
 
 	// iterate over shapes and create frames
 	IndexT i;
@@ -769,7 +780,7 @@ ModelHandler::SetupTabs()
 		nodeFrame->GetHandler()->Setup();
 
 		// add frame to tab box
-		nodeWidget->addTab(nodeFrame, characters[i].name.AsCharPtr());
+		nodeWidget->addTab(nodeFrame, "Animation");
 
 		// disable add particle button
 		this->ui->addParticleNode->setEnabled(false);
@@ -824,6 +835,24 @@ ModelHandler::SetupTabs()
 		// add frame to tab box
 		nodeWidget->addTab(nodeFrame, particleNodes[i].name.AsCharPtr());
 	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ModelHandler::UpdateModelThumbnail()
+{
+	String file = this->file;
+	file.StripFileExtension();
+	String cat = this->category;
+	cat.StripAssignPrefix();
+	String thumbnail = String::Sprintf("src:assets/%s/%s_n3.thumb", cat.AsCharPtr(), file.AsCharPtr());
+	QPixmap pixmap;
+	IO::URI texFile = thumbnail;
+	pixmap.load(texFile.LocalPath().AsCharPtr());
+	pixmap = pixmap.scaled(QSize(67, 67), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+	this->ui->modelThumbnail->setPixmap(pixmap);
 }
 
 } // namespace Widgets

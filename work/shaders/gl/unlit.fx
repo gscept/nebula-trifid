@@ -11,12 +11,12 @@
 float Brightness = 0.0f;
 
 /// Declaring used textures
-sampler2D DiffuseMap;
+sampler2D AlbedoMap;
 
 /// Declaring used samplers
 samplerstate DefaultSampler
 {
-	Samplers = { DiffuseMap };
+	Samplers = { AlbedoMap };
 };
 
 state UnlitOpaqueState
@@ -57,7 +57,7 @@ void
 psMain(in vec2 UV,
 	[color0] out vec4 Albedo) 
 {
-	vec4 diffColor = texture(DiffuseMap, UV.xy);
+	vec4 diffColor = texture(AlbedoMap, UV.xy);
 	float alpha = diffColor.a;
 	if (alpha < AlphaSensitivity) discard;
 	Albedo = EncodeHDR(diffColor * Brightness);
@@ -71,7 +71,7 @@ void
 psMainAlpha(in vec2 UV,
 	[color0] out vec4 Albedo) 
 {
-	vec4 diffColor = texture(DiffuseMap, UV.xy);
+	vec4 diffColor = texture(AlbedoMap, UV.xy);
 	float alpha = diffColor.a;
 	if (alpha < AlphaSensitivity) discard;
 	Albedo = EncodeHDR(diffColor * AlphaBlendFactor * Brightness);
