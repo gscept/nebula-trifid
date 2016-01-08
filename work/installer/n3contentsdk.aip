@@ -18,10 +18,10 @@
     <ROW Property="ARPURLUPDATEINFO" Value="nebulatrifid.org"/>
     <ROW Property="MSIFASTINSTALL" MultiBuildValue="DefaultBuild:3"/>
     <ROW Property="Manufacturer" Value="gscept"/>
-    <ROW Property="ProductCode" Value="1033:{525A5F80-B6C0-4B83-BDCE-A5C6D04E267F} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{29395014-2CC5-4E96-A69F-D9DEF8CF0007} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Nebula Trifid SDK"/>
-    <ROW Property="ProductVersion" Value="0.3.0" Type="32"/>
+    <ROW Property="ProductVersion" Value="0.3.1" Type="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{021B66E5-9A59-4AFB-A324-719C1EBA3E07}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
@@ -65,7 +65,6 @@
     <ROW Directory="lib_Dir" Directory_Parent="fx_Dir" DefaultDir="lib"/>
     <ROW Directory="lighting_Dir" Directory_Parent="assets_Dir" DefaultDir="lighting"/>
     <ROW Directory="materials_Dir" Directory_Parent="work_Dir" DefaultDir="MATERI~1|materials"/>
-    <ROW Directory="models_Dir" Directory_Parent="work_Dir" DefaultDir="models"/>
     <ROW Directory="navigation_Dir" Directory_Parent="addons_Dir" DefaultDir="NAVIGA~1|navigation"/>
     <ROW Directory="physicsattr_Dir" Directory_Parent="physicsfeature_Dir" DefaultDir="physic~1|physicsattr"/>
     <ROW Directory="physicsfeature_Dir" Directory_Parent="application_Dir" DefaultDir="physic~1|physicsfeature"/>
@@ -81,7 +80,6 @@
     <ROW Directory="stateobjectfeature_Dir" Directory_Parent="application_Dir" DefaultDir="stateo~1|stateobjectfeature"/>
     <ROW Directory="sunshape.fbm_Dir" Directory_Parent="system_Dir" DefaultDir="sunshape.fbm"/>
     <ROW Directory="supervariations_Dir" Directory_Parent="shady_Dir" DefaultDir="SUPERV~1|supervariations"/>
-    <ROW Directory="system_1_Dir" Directory_Parent="models_Dir" DefaultDir="system"/>
     <ROW Directory="system_Dir" Directory_Parent="assets_Dir" DefaultDir="system"/>
     <ROW Directory="tables_Dir" Directory_Parent="data_Dir" DefaultDir="tables"/>
     <ROW Directory="templates_Dir" Directory_Parent="supervariations_Dir" DefaultDir="TEMPLA~1|templates"/>
@@ -93,52 +91,51 @@
     <ROW Directory="work_Dir" Directory_Parent="APPDIR" DefaultDir="work"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
-    <ROW Component="Add.ndv" ComponentId="{EC260903-4432-43B3-9AA4-ABAAA4E24625}" Directory_="Math_Dir" Attributes="0" KeyPath="Add.ndv" Type="0"/>
-    <ROW Component="Combine2.ndv" ComponentId="{7A13F25F-F127-434B-B542-2D41AFA71B15}" Directory_="Conversion_Dir" Attributes="0" KeyPath="Combine2.ndv" Type="0"/>
-    <ROW Component="ConstantFloat.ndv" ComponentId="{346A0922-7301-4EBA-9744-C1DE4BFBF59B}" Directory_="Constants_Dir" Attributes="0" KeyPath="ConstantFloat.ndv" Type="0"/>
-    <ROW Component="Default.ndv" ComponentId="{C9A2A7BC-BEFD-4395-8219-64308848252B}" Directory_="supervariations_Dir" Attributes="0" KeyPath="Default.ndv" Type="0"/>
-    <ROW Component="Float.ndv" ComponentId="{C6A8DF15-0D9C-4A07-BEDD-516E2C582641}" Directory_="Parameters_Dir" Attributes="0" KeyPath="Float.ndv" Type="0"/>
-    <ROW Component="GlobalLightColor.ndv" ComponentId="{AA92CB79-A588-4A44-9CA9-28FAC46B3637}" Directory_="System_Dir" Attributes="0" KeyPath="GlobalLightColor.ndv" Type="0"/>
+    <ROW Component="Add.ndv" ComponentId="{E3A7BB8E-0D67-4BC5-9055-8E5B3EDE6035}" Directory_="Math_Dir" Attributes="0" KeyPath="Add.ndv" Type="0"/>
+    <ROW Component="Combine2.ndv" ComponentId="{11DDC370-CE8E-458C-ADF0-5F8741FE2461}" Directory_="Conversion_Dir" Attributes="0" KeyPath="Combine2.ndv" Type="0"/>
+    <ROW Component="ConstantFloat.ndv" ComponentId="{E7B87410-D7F0-4162-A433-F8705E018D75}" Directory_="Constants_Dir" Attributes="0" KeyPath="ConstantFloat.ndv" Type="0"/>
+    <ROW Component="Default.ndv" ComponentId="{776F5671-E910-42DC-9AE0-908EA5EEB2F1}" Directory_="supervariations_Dir" Attributes="0" KeyPath="Default.ndv" Type="0"/>
+    <ROW Component="Float.ndv" ComponentId="{C5E678F4-91D3-4C24-B0F4-2AFEDC819C5E}" Directory_="Parameters_Dir" Attributes="0" KeyPath="Float.ndv" Type="0"/>
+    <ROW Component="GlobalLightColor.ndv" ComponentId="{1E28F86B-C126-4A7B-81CE-9BE128C648B0}" Directory_="System_Dir" Attributes="0" KeyPath="GlobalLightColor.ndv" Type="0"/>
     <ROW Component="Manufacturer" ComponentId="{1F2D47A9-E72D-4399-9C50-4CD7A440AA3B}" Directory_="APPDIR" Attributes="4" KeyPath="Manufacturer"/>
     <ROW Component="NebulaTrifid" ComponentId="{826518FB-5327-4A0A-BCF9-BBDF63BD847F}" Directory_="NebulaTrifid_Dir" Attributes="0"/>
-    <ROW Component="Sample2D.ndv" ComponentId="{CC487ADE-39DC-47F1-9C2F-73468089AE2F}" Directory_="Texture_Dir" Attributes="0" KeyPath="Sample2D.ndv" Type="0"/>
-    <ROW Component="TexCoords.ndv" ComponentId="{71E3446C-F6ED-4589-A93B-A6E7CDBA8794}" Directory_="Context_Dir" Attributes="0" KeyPath="TexCoords.ndv" Type="0"/>
+    <ROW Component="Sample2D.ndv" ComponentId="{047D5612-D70F-42C0-B757-39935292F922}" Directory_="Texture_Dir" Attributes="0" KeyPath="Sample2D.ndv" Type="0"/>
+    <ROW Component="TexCoords.ndv" ComponentId="{A8584369-9415-4DE7-AA7A-708B76C0665C}" Directory_="Context_Dir" Attributes="0" KeyPath="TexCoords.ndv" Type="0"/>
     <ROW Component="Version" ComponentId="{10F2DA36-9120-48EB-9B8F-421BC6A3BA00}" Directory_="APPDIR" Attributes="4" KeyPath="Version"/>
-    <ROW Component="animated.fx" ComponentId="{EDD717C0-448F-4BB3-ADF3-D3339F5A5289}" Directory_="fx_Dir" Attributes="0" KeyPath="animated.fx" Type="0"/>
-    <ROW Component="animated.fx_1" ComponentId="{4B36D5D6-8C0B-4241-B0C3-AEF08FC42AE3}" Directory_="gl_Dir" Attributes="0" KeyPath="animated.fx_1" Type="0"/>
+    <ROW Component="animated.fx" ComponentId="{F75A390F-0D25-491A-9A24-0A5372A2DFE1}" Directory_="fx_Dir" Attributes="0" KeyPath="animated.fx" Type="0"/>
+    <ROW Component="animated.fx_1" ComponentId="{29893C37-704F-4E14-AAE1-C29B58DEE863}" Directory_="gl_Dir" Attributes="0" KeyPath="animated.fx_1" Type="0"/>
     <ROW Component="animeventcamshake.xml" ComponentId="{A90E2BE8-280A-4687-904C-BE4C9D1A3E63}" Directory_="db_Dir" Attributes="0" KeyPath="animeventcamshake.xml" Type="0"/>
     <ROW Component="anims.xml" ComponentId="{EABAB2A1-726A-42CD-9E09-2633B0082C85}" Directory_="tables_Dir" Attributes="0" KeyPath="anims.xml" Type="0"/>
     <ROW Component="archiver3.exe" ComponentId="{E9EBA9E0-2F96-4D27-AE01-18A328A05B4E}" Directory_="win32_Dir" Attributes="0" KeyPath="archiver3.exe"/>
     <ROW Component="assetbatcher.exe" ComponentId="{11EF7C5D-A493-4599-95BE-FEB2B78E4092}" Directory_="win32_Dir" Attributes="0" KeyPath="assetbatcher.exe"/>
     <ROW Component="audiobatcher3.exe" ComponentId="{7DEAA7E0-48DB-4AAB-8457-1329CC251F27}" Directory_="win32_Dir" Attributes="0" KeyPath="audiobatcher3.exe"/>
     <ROW Component="audioprotocol.nidl" ComponentId="{8CBB2C24-68BA-4F27-B02A-733AB6FE93D1}" Directory_="faudio_Dir" Attributes="0" KeyPath="audioprotocol.nidl" Type="0"/>
-    <ROW Component="base.xml" ComponentId="{51C975E9-151C-42BF-B61C-64A27BFF51F9}" Directory_="materials_Dir" Attributes="0" KeyPath="base.xml" Type="0"/>
+    <ROW Component="base.xml" ComponentId="{1940CA28-3510-49C0-8BA7-18EDCFB22FF2}" Directory_="materials_Dir" Attributes="0" KeyPath="base.xml" Type="0"/>
     <ROW Component="basegameattributes.nidl" ComponentId="{21948716-7E84-4B05-A03F-2ED09BCE38A9}" Directory_="basegameattr_Dir" Attributes="0" KeyPath="basegameattributes.nidl" Type="0"/>
     <ROW Component="basegamefeature" ComponentId="{0938BBBF-FE63-46AD-B427-2A91F4D89FD9}" Directory_="basegamefeature_Dir" Attributes="0"/>
     <ROW Component="basegameproperties.nidl" ComponentId="{B7CBD283-C497-47BB-8114-926220DEDC40}" Directory_="properties_Dir" Attributes="0" KeyPath="basegameproperties.nidl" Type="0"/>
     <ROW Component="batchexporter.exe" ComponentId="{A1F373CF-14BF-406D-9019-D0F335205D42}" Directory_="win32_Dir" Attributes="0" KeyPath="batchexporter.exe"/>
     <ROW Component="batchexporter2.exe" ComponentId="{21ECD305-26FB-47AD-83CB-837C7FBE19F1}" Directory_="win32_Dir" Attributes="0" KeyPath="batchexporter2.exe"/>
-    <ROW Component="bigbox.attributes" ComponentId="{3FB05327-109A-4BD4-8F18-24449C20D24E}" Directory_="system_Dir" Attributes="0" KeyPath="bigbox.attributes" Type="0"/>
-    <ROW Component="bigbox.constants" ComponentId="{350D499B-E390-4BD5-9BCA-5CEC03C53DF8}" Directory_="system_1_Dir" Attributes="0" KeyPath="bigbox.constants_1" Type="0"/>
-    <ROW Component="box.attributes" ComponentId="{F0790A3E-95AC-47C9-86C5-635E93D7504E}" Directory_="placeholder_Dir" Attributes="0" KeyPath="box.attributes" Type="0"/>
-    <ROW Component="boxtap.fxh" ComponentId="{F4288A11-7CB5-4999-99DF-A0FDC62B50C0}" Directory_="lib_Dir" Attributes="0" KeyPath="boxtap.fxh" Type="0"/>
-    <ROW Component="boxtap.fxh_1" ComponentId="{B66BDEA7-368A-42E7-9155-59A52D2CC166}" Directory_="lib_1_Dir" Attributes="0" KeyPath="boxtap.fxh_1" Type="0"/>
-    <ROW Component="boxtap.fxh_2" ComponentId="{C3B86D88-1545-40CC-AD6A-9BB96F1C346D}" Directory_="lib_2_Dir" Attributes="0" KeyPath="boxtap.fxh_2" Type="0"/>
-    <ROW Component="checker.tga" ComponentId="{B68B8B21-2B43-43DE-A66C-1AE81707BC00}" Directory_="sunshape.fbm_Dir" Attributes="0" KeyPath="checker.tga" Type="0"/>
+    <ROW Component="bigbox.attributes" ComponentId="{AE0C2994-B17F-459C-805B-19BCBCBC5084}" Directory_="system_Dir" Attributes="0" KeyPath="bigbox.attributes" Type="0"/>
+    <ROW Component="box.attributes" ComponentId="{94599490-550F-48CC-A932-A283D0680C22}" Directory_="placeholder_Dir" Attributes="0" KeyPath="box.attributes" Type="0"/>
+    <ROW Component="boxtap.fxh" ComponentId="{22BBC28D-1C70-4F88-A60F-ABFFEAB5964A}" Directory_="lib_Dir" Attributes="0" KeyPath="boxtap.fxh" Type="0"/>
+    <ROW Component="boxtap.fxh_1" ComponentId="{3077A3BB-F4B7-491B-AD3E-715C0CF1A208}" Directory_="lib_1_Dir" Attributes="0" KeyPath="boxtap.fxh_1" Type="0"/>
+    <ROW Component="boxtap.fxh_2" ComponentId="{91934B2B-15FF-4697-A232-37231ACC0F17}" Directory_="lib_2_Dir" Attributes="0" KeyPath="boxtap.fxh_2" Type="0"/>
+    <ROW Component="checker.tga" ComponentId="{AFAA0440-6D7D-42B3-A902-ACD248644D66}" Directory_="sunshape.fbm_Dir" Attributes="0" KeyPath="checker.tga" Type="0"/>
     <ROW Component="contentbrowser.exe" ComponentId="{4F69E94D-7228-4D6C-9001-FADE1B1680FE}" Directory_="win32_Dir" Attributes="0" KeyPath="contentbrowser.exe"/>
-    <ROW Component="csmshadowmapping.xml" ComponentId="{E3D67538-58D5-45CB-8AF5-A4D0D719866D}" Directory_="win32_1_Dir" Attributes="0" KeyPath="csmshadowmapping.xml" Type="0"/>
+    <ROW Component="csmshadowmapping.xml" ComponentId="{651899CE-BE11-4951-8DA6-706B96D66CD4}" Directory_="win32_1_Dir" Attributes="0" KeyPath="csmshadowmapping.xml" Type="0"/>
     <ROW Component="data" ComponentId="{2CFFBBD0-0235-4E3D-878A-CBD0249325AC}" Directory_="data_Dir" Attributes="0"/>
     <ROW Component="effectsattributes.nidl" ComponentId="{555EC05A-6988-43A1-A12E-D1D25573DDBA}" Directory_="effects_Dir" Attributes="0" KeyPath="effectsattributes.nidl" Type="0"/>
     <ROW Component="fbxbatcher3.exe" ComponentId="{B3054474-2E09-49DA-A75F-825C83D56B8D}" Directory_="win32_Dir" Attributes="0" KeyPath="fbxbatcher3.exe"/>
     <ROW Component="fmod.dll" ComponentId="{5B7BDED8-E4F5-4E54-BF56-1177A6A3CA9E}" Directory_="win32_Dir" Attributes="0" KeyPath="fmod.dll"/>
     <ROW Component="fmodstudio.dll" ComponentId="{368878D9-9057-472B-BDEC-90B76C216CB5}" Directory_="win32_Dir" Attributes="0" KeyPath="fmodstudio.dll"/>
     <ROW Component="gamebatcher3.exe" ComponentId="{777810EF-88E7-48B9-890E-CA3CB9BB5E30}" Directory_="win32_Dir" Attributes="0" KeyPath="gamebatcher3.exe"/>
-    <ROW Component="glslheader.fxh" ComponentId="{03364E59-469F-4406-B6C7-7BC06E68F67E}" Directory_="templates_Dir" Attributes="0" KeyPath="glslheader.fxh" Type="0"/>
+    <ROW Component="glslheader.fxh" ComponentId="{D75E992F-50B9-4356-9481-023AE4CF8509}" Directory_="templates_Dir" Attributes="0" KeyPath="glslheader.fxh" Type="0"/>
     <ROW Component="graphicsattributes.nidl" ComponentId="{7E834B4A-CF18-47F8-B3D3-16A814029500}" Directory_="graphicsattr_Dir" Attributes="0" KeyPath="graphicsattributes.nidl" Type="0"/>
     <ROW Component="leveleditor2.exe" ComponentId="{B594F961-7217-480B-8470-538D7E71C542}" Directory_="win32_Dir" Attributes="0" KeyPath="leveleditor2.exe"/>
     <ROW Component="leveleditor2protocol.nidl" ComponentId="{44173FCF-EE4D-4F36-BF1B-333E23FE0C2C}" Directory_="leveleditor2_Dir" Attributes="0" KeyPath="leveleditor2protocol.nidl" Type="0"/>
     <ROW Component="levelviewer.exe" ComponentId="{6D5DB3E7-9228-4914-A235-4A5A7DE69032}" Directory_="win32_Dir" Attributes="0" KeyPath="levelviewer.exe"/>
-    <ROW Component="lightcones.psd" ComponentId="{8EE21842-599E-424F-B82D-C40837A1FC13}" Directory_="lighting_Dir" Attributes="0" KeyPath="lightcones.psd" Type="0"/>
+    <ROW Component="lightcones.psd" ComponentId="{A1F035A0-A460-4BED-9307-E593DF6A3EB8}" Directory_="lighting_Dir" Attributes="0" KeyPath="lightcones.psd" Type="0"/>
     <ROW Component="modelbatcher3.exe" ComponentId="{789BA362-8E4E-4914-9139-C63AA511071B}" Directory_="win32_Dir" Attributes="0" KeyPath="modelbatcher3.exe"/>
     <ROW Component="navigationattributes.nidl" ComponentId="{1B43D6B0-2E87-4ADD-8BCE-7514836E14AD}" Directory_="navigation_Dir" Attributes="0" KeyPath="navigationattributes.nidl" Type="0"/>
     <ROW Component="path" ComponentId="{DB4BA8D8-D0FB-4BD4-8760-D14EDC0544B6}" Directory_="APPDIR" Attributes="4" KeyPath="path"/>
@@ -154,13 +151,14 @@
     <ROW Component="shaderbatcher.exe" ComponentId="{F6AE240B-F5DA-4AC2-B4E0-53F8173E8335}" Directory_="win32_Dir" Attributes="0" KeyPath="shaderbatcher.exe"/>
     <ROW Component="stateobjectprotocol.nidl" ComponentId="{57234AC7-41CA-4913-8EDC-87C009B4B2AF}" Directory_="stateobjectfeature_Dir" Attributes="0" KeyPath="stateobjectprotocol.nidl" Type="0"/>
     <ROW Component="surfacegenerator.exe" ComponentId="{FCC97B7F-1F36-483F-9FAE-46899C171DF3}" Directory_="win32_Dir" Attributes="0" KeyPath="surfacegenerator.exe"/>
-    <ROW Component="test.ndp" ComponentId="{2870B707-C491-4561-9C56-EC86D9C5F6A1}" Directory_="projects_Dir" Attributes="0" KeyPath="test.ndp" Type="0"/>
+    <ROW Component="test.ndp" ComponentId="{1A5351E2-E77B-429D-9123-C484E4CE78F2}" Directory_="projects_Dir" Attributes="0" KeyPath="test.ndp" Type="0"/>
     <ROW Component="texturebatcher3.exe" ComponentId="{34BE017E-7E52-45C0-9D5D-612F7AD399E9}" Directory_="win32_Dir" Attributes="0" KeyPath="texturebatcher3.exe"/>
     <ROW Component="uiattributes.nidl" ComponentId="{B540BF4C-DB81-4ED6-A7A9-7ADED84EB149}" Directory_="uiattrs_Dir" Attributes="0" KeyPath="uiattributes.nidl" Type="0"/>
-    <ROW Component="work" ComponentId="{6FF04FA4-8285-460D-8B67-57362953B6AF}" Directory_="work_Dir" Attributes="0"/>
+    <ROW Component="unzip.exe" ComponentId="{191B9CF4-CA34-45E3-8F7D-AB3C31879BCB}" Directory_="win32_Dir" Attributes="0" KeyPath="unzip.exe"/>
+    <ROW Component="work" ComponentId="{3047AD5D-1F1A-4D3A-B2BD-DB1FBFEA366D}" Directory_="work_Dir" Attributes="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
-    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="Add.ndv Combine2.ndv ConstantFloat.ndv Default.ndv Float.ndv GlobalLightColor.ndv Manufacturer NebulaTrifid Sample2D.ndv TexCoords.ndv Version animated.fx animated.fx_1 animeventcamshake.xml anims.xml archiver3.exe assetbatcher.exe audiobatcher3.exe audioprotocol.nidl base.xml basegameattributes.nidl basegamefeature basegameproperties.nidl batchexporter.exe batchexporter2.exe bigbox.attributes bigbox.constants box.attributes boxtap.fxh boxtap.fxh_1 boxtap.fxh_2 checker.tga contentbrowser.exe csmshadowmapping.xml data effectsattributes.nidl fbxbatcher3.exe fmod.dll fmodstudio.dll gamebatcher3.exe glslheader.fxh graphicsattributes.nidl leveleditor2.exe leveleditor2protocol.nidl levelviewer.exe lightcones.psd modelbatcher3.exe navigationattributes.nidl path path1 physicsattributes.nidl physicsfeature projectinfo.xml projectwizard.exe scriptattributes.nidl scriptfeature scriptingprotocol.nidl setup.exe shaderbatcher.exe stateobjectprotocol.nidl surfacegenerator.exe test.ndp texturebatcher3.exe uiattributes.nidl work"/>
+    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="Add.ndv Combine2.ndv ConstantFloat.ndv Default.ndv Float.ndv GlobalLightColor.ndv Manufacturer NebulaTrifid Sample2D.ndv TexCoords.ndv Version animated.fx animated.fx_1 animeventcamshake.xml anims.xml archiver3.exe assetbatcher.exe audiobatcher3.exe audioprotocol.nidl base.xml basegameattributes.nidl basegamefeature basegameproperties.nidl batchexporter.exe batchexporter2.exe bigbox.attributes box.attributes boxtap.fxh boxtap.fxh_1 boxtap.fxh_2 checker.tga contentbrowser.exe csmshadowmapping.xml data effectsattributes.nidl fbxbatcher3.exe fmod.dll fmodstudio.dll gamebatcher3.exe glslheader.fxh graphicsattributes.nidl leveleditor2.exe leveleditor2protocol.nidl levelviewer.exe lightcones.psd modelbatcher3.exe navigationattributes.nidl path path1 physicsattributes.nidl physicsfeature projectinfo.xml projectwizard.exe scriptattributes.nidl scriptfeature scriptingprotocol.nidl setup.exe shaderbatcher.exe stateobjectprotocol.nidl surfacegenerator.exe test.ndp texturebatcher3.exe uiattributes.nidl unzip.exe work"/>
     <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
@@ -195,7 +193,7 @@
     <ROW File="Sample2DFixedMip.ndv" Component_="Sample2D.ndv" FileName="SAMPLE~1.NDV|Sample2DFixedMip.ndv" Attributes="0" SourcePath="work\shady\variations\Texture\Sample2DFixedMip.ndv" SelfReg="false" NextFile="Sample2DUV.ndv"/>
     <ROW File="Sample2DUV.ndv" Component_="Sample2D.ndv" FileName="SAMPLE~2.NDV|Sample2DUV.ndv" Attributes="0" SourcePath="work\shady\variations\Texture\Sample2DUV.ndv" SelfReg="false" NextFile="SampleCube.ndv"/>
     <ROW File="SampleCube.ndv" Component_="Sample2D.ndv" FileName="SAMPLE~3.NDV|SampleCube.ndv" Attributes="0" SourcePath="work\shady\variations\Texture\SampleCube.ndv" SelfReg="false" NextFile="SampleCubeUV.ndv"/>
-    <ROW File="SampleCubeUV.ndv" Component_="Sample2D.ndv" FileName="SAMPLE~4.NDV|SampleCubeUV.ndv" Attributes="0" SourcePath="work\shady\variations\Texture\SampleCubeUV.ndv" SelfReg="false"/>
+    <ROW File="SampleCubeUV.ndv" Component_="Sample2D.ndv" FileName="SAMPLE~4.NDV|SampleCubeUV.ndv" Attributes="0" SourcePath="work\shady\variations\Texture\SampleCubeUV.ndv" SelfReg="false" NextFile="unzip.exe"/>
     <ROW File="Sin.ndv" Component_="Add.ndv" FileName="Sin.ndv" Attributes="0" SourcePath="work\shady\variations\Math\Sin.ndv" SelfReg="false" NextFile="Subtract.ndv"/>
     <ROW File="StripAlpha.ndv" Component_="Combine2.ndv" FileName="STRIPA~1.NDV|StripAlpha.ndv" Attributes="0" SourcePath="work\shady\variations\Conversion\StripAlpha.ndv" SelfReg="false" NextFile="Swizzle2.ndv"/>
     <ROW File="Subtract.ndv" Component_="Add.ndv" FileName="Subtract.ndv" Attributes="0" SourcePath="work\shady\variations\Math\Subtract.ndv" SelfReg="false" NextFile="Float.ndv"/>
@@ -223,25 +221,23 @@
     <ROW File="archiver3.exe" Component_="archiver3.exe" FileName="archiv~1.exe|archiver3.exe" Attributes="0" SourcePath="bin\win32\archiver3.exe" SelfReg="false" NextFile="gamebatcher3.exe" DigSign="true"/>
     <ROW File="assetbatcher.exe" Component_="assetbatcher.exe" FileName="ASSETB~1.EXE|assetbatcher.exe" Attributes="0" SourcePath="bin\win32\assetbatcher.exe" SelfReg="false" NextFile="batchexporter2.exe" DigSign="true"/>
     <ROW File="audiobatcher3.exe" Component_="audiobatcher3.exe" FileName="audiob~1.exe|audiobatcher3.exe" Attributes="0" SourcePath="bin\win32\audiobatcher3.exe" SelfReg="false" NextFile="archiver3.exe" DigSign="true"/>
-    <ROW File="audioprotocol.nidl" Component_="audioprotocol.nidl" FileName="AUDIOP~1.NID|audioprotocol.nidl" Attributes="0" SourcePath="code\addons\faudio\audioprotocol.nidl" SelfReg="false" NextFile="test.ndp"/>
+    <ROW File="audioprotocol.nidl" Component_="audioprotocol.nidl" FileName="AUDIOP~1.NID|audioprotocol.nidl" Attributes="0" SourcePath="code\addons\faudio\audioprotocol.nidl" SelfReg="false" NextFile="lightcones.psd"/>
     <ROW File="authors.txt" Component_="projectinfo.xml" FileName="authors.txt" Attributes="0" SourcePath="authors.txt" SelfReg="false" NextFile="license.txt"/>
     <ROW File="averagelum.fx" Component_="animated.fx" FileName="AVERAG~1.FX|averagelum.fx" Attributes="0" SourcePath="work\shaders\fx\averagelum.fx" SelfReg="false" NextFile="billboard.fx"/>
     <ROW File="averagelum.fx_1" Component_="animated.fx_1" FileName="AVERAG~1.FX|averagelum.fx" Attributes="0" SourcePath="work\shaders\gl\averagelum.fx" SelfReg="false" NextFile="billboard.fx_1"/>
-    <ROW File="base.xml" Component_="base.xml" FileName="base.xml" Attributes="0" SourcePath="work\materials\base.xml" SelfReg="false" NextFile="bigbox.constants_1"/>
+    <ROW File="base.xml" Component_="base.xml" FileName="base.xml" Attributes="0" SourcePath="work\materials\base.xml" SelfReg="false" NextFile="animated.fx"/>
     <ROW File="basegameattributes.nidl" Component_="basegameattributes.nidl" FileName="basega~1.nid|basegameattributes.nidl" Attributes="0" SourcePath="code\application\basegamefeature\basegameattr\basegameattributes.nidl" SelfReg="false" NextFile="graphicsattributes.nidl"/>
     <ROW File="basegameproperties.nidl" Component_="basegameproperties.nidl" FileName="BASEGA~1.NID|basegameproperties.nidl" Attributes="0" SourcePath="code\application\basegamefeature\properties\basegameproperties.nidl" SelfReg="false" NextFile="scriptattributes.nidl"/>
     <ROW File="batchexporter.exe" Component_="batchexporter.exe" FileName="batche~1.exe|batchexporter.exe" Attributes="0" SourcePath="bin\win32\batchexporter.exe" SelfReg="false" NextFile="projectinfo.xml" DigSign="true"/>
     <ROW File="batchexporter2.exe" Component_="batchexporter2.exe" FileName="BATCHE~2.EXE|batchexporter2.exe" Attributes="0" SourcePath="bin\win32\batchexporter2.exe" SelfReg="false" NextFile="surfacegenerator.exe" DigSign="true"/>
     <ROW File="bigbox.attributes" Component_="bigbox.attributes" FileName="BIGBOX~1.ATT|bigbox.attributes" Attributes="0" SourcePath="work\assets\system\bigbox.attributes" SelfReg="false" NextFile="bigbox.constants"/>
     <ROW File="bigbox.constants" Component_="bigbox.attributes" FileName="BIGBOX~1.CON|bigbox.constants" Attributes="0" SourcePath="work\assets\system\bigbox.constants" SelfReg="false" NextFile="bigbox.fbx"/>
-    <ROW File="bigbox.constants_1" Component_="bigbox.constants" FileName="BIGBOX~1.CON|bigbox.constants" Attributes="0" SourcePath="work\models\system\bigbox.constants" SelfReg="false" NextFile="bigsphere.constants_1"/>
     <ROW File="bigbox.fbx" Component_="bigbox.attributes" FileName="bigbox.fbx" Attributes="0" SourcePath="work\assets\system\bigbox.fbx" SelfReg="false" NextFile="bigbox.mb"/>
     <ROW File="bigbox.mb" Component_="bigbox.attributes" FileName="bigbox.mb" Attributes="0" SourcePath="work\assets\system\bigbox.mb" SelfReg="false" NextFile="bigbox.physics"/>
     <ROW File="bigbox.physics" Component_="bigbox.attributes" FileName="BIGBOX~1.PHY|bigbox.physics" Attributes="0" SourcePath="work\assets\system\bigbox.physics" SelfReg="false" NextFile="bigsphere.attributes"/>
     <ROW File="bigsphere.attributes" Component_="bigbox.attributes" FileName="BIGSPH~1.ATT|bigsphere.attributes" Attributes="0" SourcePath="work\assets\system\bigsphere.attributes" SelfReg="false" NextFile="bigsphere.attributes.xml"/>
     <ROW File="bigsphere.attributes.xml" Component_="bigbox.attributes" FileName="BIGSPH~1.XML|bigsphere.attributes.xml" Attributes="0" SourcePath="work\assets\system\bigsphere.attributes.xml" SelfReg="false" NextFile="bigsphere.constants"/>
     <ROW File="bigsphere.constants" Component_="bigbox.attributes" FileName="BIGSPH~1.CON|bigsphere.constants" Attributes="0" SourcePath="work\assets\system\bigsphere.constants" SelfReg="false" NextFile="bigsphere.fbx"/>
-    <ROW File="bigsphere.constants_1" Component_="bigbox.constants" FileName="BIGSPH~1.CON|bigsphere.constants" Attributes="0" SourcePath="work\models\system\bigsphere.constants" SelfReg="false" NextFile="box.attributes_2"/>
     <ROW File="bigsphere.fbx" Component_="bigbox.attributes" FileName="BIGSPH~1.FBX|bigsphere.fbx" Attributes="0" SourcePath="work\assets\system\bigsphere.fbx" SelfReg="false" NextFile="bigsphere.mb"/>
     <ROW File="bigsphere.mb" Component_="bigbox.attributes" FileName="BIGSPH~1.MB|bigsphere.mb" Attributes="0" SourcePath="work\assets\system\bigsphere.mb" SelfReg="false" NextFile="bigsphere.physics"/>
     <ROW File="bigsphere.physics" Component_="bigbox.attributes" FileName="BIGSPH~1.PHY|bigsphere.physics" Attributes="0" SourcePath="work\assets\system\bigsphere.physics" SelfReg="false" NextFile="billboard.sur"/>
@@ -252,17 +248,14 @@
     <ROW File="blueprints.xml" Component_="anims.xml" FileName="BLUEPR~1.XML|blueprints.xml" Attributes="0" SourcePath="data\tables\blueprints.xml" SelfReg="false" NextFile="animeventcamshake.xml"/>
     <ROW File="box.attributes" Component_="box.attributes" FileName="BOX~1.ATT|box.attributes" Attributes="0" SourcePath="work\assets\placeholder\box.attributes" SelfReg="false" NextFile="box.constants"/>
     <ROW File="box.attributes_1" Component_="bigbox.attributes" FileName="BOX~1.ATT|box.attributes" Attributes="0" SourcePath="work\assets\system\box.attributes" SelfReg="false" NextFile="box.constants_1"/>
-    <ROW File="box.attributes_2" Component_="bigbox.constants" FileName="BOX~1.ATT|box.attributes" Attributes="0" SourcePath="work\models\system\box.attributes" SelfReg="false" NextFile="box.constants_2"/>
     <ROW File="box.constants" Component_="box.attributes" FileName="BOX~1.CON|box.constants" Attributes="0" SourcePath="work\assets\placeholder\box.constants" SelfReg="false" NextFile="box.fbx"/>
     <ROW File="box.constants_1" Component_="bigbox.attributes" FileName="BOX~1.CON|box.constants" Attributes="0" SourcePath="work\assets\system\box.constants" SelfReg="false" NextFile="box.fbx_1"/>
-    <ROW File="box.constants_2" Component_="bigbox.constants" FileName="BOX~1.CON|box.constants" Attributes="0" SourcePath="work\models\system\box.constants" SelfReg="false" NextFile="box.physics_2"/>
     <ROW File="box.fbx" Component_="box.attributes" FileName="box.fbx" Attributes="0" SourcePath="work\assets\placeholder\box.fbx" SelfReg="false" NextFile="box.mb"/>
     <ROW File="box.fbx_1" Component_="bigbox.attributes" FileName="box.fbx" Attributes="0" SourcePath="work\assets\system\box.fbx" SelfReg="false" NextFile="box.mb_1"/>
     <ROW File="box.mb" Component_="box.attributes" FileName="box.mb" Attributes="0" SourcePath="work\assets\placeholder\box.mb" SelfReg="false" NextFile="box.physics"/>
     <ROW File="box.mb_1" Component_="bigbox.attributes" FileName="box.mb" Attributes="0" SourcePath="work\assets\system\box.mb" SelfReg="false" NextFile="box.physics_1"/>
     <ROW File="box.physics" Component_="box.attributes" FileName="BOX~1.PHY|box.physics" Attributes="0" SourcePath="work\assets\placeholder\box.physics" SelfReg="false" NextFile="bigbox.attributes"/>
     <ROW File="box.physics_1" Component_="bigbox.attributes" FileName="BOX~1.PHY|box.physics" Attributes="0" SourcePath="work\assets\system\box.physics" SelfReg="false" NextFile="colorhexagon.dds"/>
-    <ROW File="box.physics_2" Component_="bigbox.constants" FileName="BOX~1.PHY|box.physics" Attributes="0" SourcePath="work\models\system\box.physics" SelfReg="false" NextFile="cone.constants_1"/>
     <ROW File="box3taphori.fx" Component_="animated.fx" FileName="BOX3TA~1.FX|box3taphori.fx" Attributes="0" SourcePath="work\shaders\fx\box3taphori.fx" SelfReg="false" NextFile="box3tapvert.fx"/>
     <ROW File="box3taphori.fx_1" Component_="animated.fx_1" FileName="BOX3TA~1.FX|box3taphori.fx" Attributes="0" SourcePath="work\shaders\gl\box3taphori.fx" SelfReg="false" NextFile="box3tapvert.fx_1"/>
     <ROW File="box3tapvert.fx" Component_="animated.fx" FileName="BOX3TA~2.FX|box3tapvert.fx" Attributes="0" SourcePath="work\shaders\fx\box3tapvert.fx" SelfReg="false" NextFile="brightpass.fx"/>
@@ -278,7 +271,6 @@
     <ROW File="colorhexagon.dds" Component_="bigbox.attributes" FileName="COLORH~1.DDS|colorhexagon.dds" Attributes="0" SourcePath="work\assets\system\colorhexagon.dds" SelfReg="false" NextFile="cone.attributes"/>
     <ROW File="cone.attributes" Component_="bigbox.attributes" FileName="CONE~1.ATT|cone.attributes" Attributes="0" SourcePath="work\assets\system\cone.attributes" SelfReg="false" NextFile="cone.constants"/>
     <ROW File="cone.constants" Component_="bigbox.attributes" FileName="CONE~1.CON|cone.constants" Attributes="0" SourcePath="work\assets\system\cone.constants" SelfReg="false" NextFile="cone.fbx"/>
-    <ROW File="cone.constants_1" Component_="bigbox.constants" FileName="CONE~1.CON|cone.constants" Attributes="0" SourcePath="work\models\system\cone.constants" SelfReg="false" NextFile="emitter.constants_1"/>
     <ROW File="cone.fbx" Component_="bigbox.attributes" FileName="cone.fbx" Attributes="0" SourcePath="work\assets\system\cone.fbx" SelfReg="false" NextFile="cone.mb"/>
     <ROW File="cone.mb" Component_="bigbox.attributes" FileName="cone.mb" Attributes="0" SourcePath="work\assets\system\cone.mb" SelfReg="false" NextFile="cone.physics"/>
     <ROW File="cone.physics" Component_="bigbox.attributes" FileName="CONE~1.PHY|cone.physics" Attributes="0" SourcePath="work\assets\system\cone.physics" SelfReg="false" NextFile="cylinder.mb"/>
@@ -304,12 +296,12 @@
     <ROW File="emissive.fx" Component_="animated.fx_1" FileName="emissive.fx" Attributes="0" SourcePath="work\shaders\gl\emissive.fx" SelfReg="false" NextFile="empty.fx_1"/>
     <ROW File="emitter.attributes" Component_="bigbox.attributes" FileName="EMITTE~1.ATT|emitter.attributes" Attributes="0" SourcePath="work\assets\system\emitter.attributes" SelfReg="false" NextFile="emitter.constants"/>
     <ROW File="emitter.constants" Component_="bigbox.attributes" FileName="EMITTE~1.CON|emitter.constants" Attributes="0" SourcePath="work\assets\system\emitter.constants" SelfReg="false" NextFile="emitter.fbx"/>
-    <ROW File="emitter.constants_1" Component_="bigbox.constants" FileName="EMITTE~1.CON|emitter.constants" Attributes="0" SourcePath="work\models\system\emitter.constants" SelfReg="false" NextFile="globallight.constants_1"/>
     <ROW File="emitter.fbx" Component_="bigbox.attributes" FileName="emitter.fbx" Attributes="0" SourcePath="work\assets\system\emitter.fbx" SelfReg="false" NextFile="emitter.mb"/>
     <ROW File="emitter.mb" Component_="bigbox.attributes" FileName="emitter.mb" Attributes="0" SourcePath="work\assets\system\emitter.mb" SelfReg="false" NextFile="emitter.physics"/>
     <ROW File="emitter.physics" Component_="bigbox.attributes" FileName="EMITTE~1.PHY|emitter.physics" Attributes="0" SourcePath="work\assets\system\emitter.physics" SelfReg="false" NextFile="globallight.attributes"/>
     <ROW File="empty.fx" Component_="animated.fx" FileName="empty.fx" Attributes="0" SourcePath="work\shaders\fx\empty.fx" SelfReg="false" NextFile="finalize.fx"/>
     <ROW File="empty.fx_1" Component_="animated.fx_1" FileName="empty.fx" Attributes="0" SourcePath="work\shaders\gl\empty.fx" SelfReg="false" NextFile="finalize.fx_1"/>
+    <ROW File="emptyproject.zip" Component_="projectinfo.xml" FileName="EMPTYP~1.ZIP|emptyproject.zip" Attributes="0" SourcePath="emptyproject.zip" SelfReg="false"/>
     <ROW File="esmshadowmapping.xml" Component_="csmshadowmapping.xml" FileName="ESMSHA~1.XML|esmshadowmapping.xml" Attributes="0" SourcePath="work\frame\win32\esmshadowmapping.xml" SelfReg="false" NextFile="godrays.xml"/>
     <ROW File="fbxbatcher3.exe" Component_="fbxbatcher3.exe" FileName="fbxbat~1.exe|fbxbatcher3.exe" Attributes="0" SourcePath="bin\win32\fbxbatcher3.exe" SelfReg="false" NextFile="texturebatcher3.exe" DigSign="true"/>
     <ROW File="finalize.fx" Component_="animated.fx" FileName="finalize.fx" Attributes="0" SourcePath="work\shaders\fx\finalize.fx" SelfReg="false" NextFile="foliage.fx"/>
@@ -325,23 +317,22 @@
     <ROW File="gatheralpha.fx" Component_="animated.fx" FileName="GATHER~1.FX|gatheralpha.fx" Attributes="0" SourcePath="work\shaders\fx\gatheralpha.fx" SelfReg="false" NextFile="gaussianblur.fx"/>
     <ROW File="gatheralpha.fx_1" Component_="animated.fx_1" FileName="GATHER~1.FX|gatheralpha.fx" Attributes="0" SourcePath="work\shaders\gl\gatheralpha.fx" SelfReg="false" NextFile="gaussianblur.fx_1"/>
     <ROW File="gaussianblur.fx" Component_="animated.fx" FileName="GAUSSI~1.FX|gaussianblur.fx" Attributes="0" SourcePath="work\shaders\fx\gaussianblur.fx" SelfReg="false" NextFile="gui.fx"/>
-    <ROW File="gaussianblur.fx_1" Component_="animated.fx_1" FileName="GAUSSI~1.FX|gaussianblur.fx" Attributes="0" SourcePath="work\shaders\gl\gaussianblur.fx" SelfReg="false" NextFile="grid.fx"/>
+    <ROW File="gaussianblur.fx_1" Component_="animated.fx_1" FileName="GAUSSI~1.FX|gaussianblur.fx" Attributes="0" SourcePath="work\shaders\gl\gaussianblur.fx" SelfReg="false" NextFile="gaussianblur_cs_rgba16f.fx"/>
+    <ROW File="gaussianblur_cs_rgba16f.fx" Component_="animated.fx_1" FileName="GAUSSI~2.FX|gaussianblur_cs_rgba16f.fx" Attributes="0" SourcePath="work\shaders\gl\gaussianblur_cs_rgba16f.fx" SelfReg="false" NextFile="gaussianblur_cs_rgba32f.fx"/>
+    <ROW File="gaussianblur_cs_rgba32f.fx" Component_="animated.fx_1" FileName="GAUSSI~3.FX|gaussianblur_cs_rgba32f.fx" Attributes="0" SourcePath="work\shaders\gl\gaussianblur_cs_rgba32f.fx" SelfReg="false" NextFile="gaussianblur_cs_rgba8.fx"/>
+    <ROW File="gaussianblur_cs_rgba8.fx" Component_="animated.fx_1" FileName="GAUSSI~4.FX|gaussianblur_cs_rgba8.fx" Attributes="0" SourcePath="work\shaders\gl\gaussianblur_cs_rgba8.fx" SelfReg="false" NextFile="grid.fx"/>
     <ROW File="geometrybase.fxh" Component_="boxtap.fxh" FileName="GEOMET~1.FXH|geometrybase.fxh" Attributes="0" SourcePath="work\shaders\fx\lib\geometrybase.fxh" SelfReg="false" NextFile="interfaces.fxh"/>
     <ROW File="geometrybase.fxh_1" Component_="boxtap.fxh_1" FileName="GEOMET~1.FXH|geometrybase.fxh" Attributes="0" SourcePath="work\shaders\gl\lib\geometrybase.fxh" SelfReg="false" NextFile="lightmapbase.fxh"/>
     <ROW File="geometrybase.fxh_2" Component_="boxtap.fxh_2" FileName="GEOMET~1.FXH|geometrybase.fxh" Attributes="0" SourcePath="work\shady\supervariations\templates\lib\geometrybase.fxh" SelfReg="false" NextFile="particles.fxh_2"/>
     <ROW File="globallight.attributes" Component_="bigbox.attributes" FileName="GLOBAL~1.ATT|globallight.attributes" Attributes="0" SourcePath="work\assets\system\globallight.attributes" SelfReg="false" NextFile="globallight.constants"/>
     <ROW File="globallight.constants" Component_="bigbox.attributes" FileName="GLOBAL~1.CON|globallight.constants" Attributes="0" SourcePath="work\assets\system\globallight.constants" SelfReg="false" NextFile="globallight.fbx"/>
-    <ROW File="globallight.constants_1" Component_="bigbox.constants" FileName="GLOBAL~1.CON|globallight.constants" Attributes="0" SourcePath="work\models\system\globallight.constants" SelfReg="false" NextFile="globallightshape.attributes_1"/>
     <ROW File="globallight.fbx" Component_="bigbox.attributes" FileName="GLOBAL~1.FBX|globallight.fbx" Attributes="0" SourcePath="work\assets\system\globallight.fbx" SelfReg="false" NextFile="globallight.physics"/>
     <ROW File="globallight.physics" Component_="bigbox.attributes" FileName="GLOBAL~1.PHY|globallight.physics" Attributes="0" SourcePath="work\assets\system\globallight.physics" SelfReg="false" NextFile="globallightshape.attributes"/>
     <ROW File="globallightshape.attributes" Component_="bigbox.attributes" FileName="GLOBAL~2.ATT|globallightshape.attributes" Attributes="0" SourcePath="work\assets\system\globallightshape.attributes" SelfReg="false" NextFile="globallightshape.constants"/>
-    <ROW File="globallightshape.attributes_1" Component_="bigbox.constants" FileName="GLOBAL~1.ATT|globallightshape.attributes" Attributes="0" SourcePath="work\models\system\globallightshape.attributes" SelfReg="false" NextFile="globallightshape.constants_1"/>
     <ROW File="globallightshape.constants" Component_="bigbox.attributes" FileName="GLOBAL~2.CON|globallightshape.constants" Attributes="0" SourcePath="work\assets\system\globallightshape.constants" SelfReg="false" NextFile="globallightshape.fbx"/>
-    <ROW File="globallightshape.constants_1" Component_="bigbox.constants" FileName="GLOBAL~2.CON|globallightshape.constants" Attributes="0" SourcePath="work\models\system\globallightshape.constants" SelfReg="false" NextFile="globallightshape.physics_1"/>
     <ROW File="globallightshape.fbx" Component_="bigbox.attributes" FileName="GLOBAL~2.FBX|globallightshape.fbx" Attributes="0" SourcePath="work\assets\system\globallightshape.fbx" SelfReg="false" NextFile="globallightshape.mb"/>
     <ROW File="globallightshape.mb" Component_="bigbox.attributes" FileName="GLOBAL~1.MB|globallightshape.mb" Attributes="0" SourcePath="work\assets\system\globallightshape.mb" SelfReg="false" NextFile="globallightshape.physics"/>
     <ROW File="globallightshape.physics" Component_="bigbox.attributes" FileName="GLOBAL~2.PHY|globallightshape.physics" Attributes="0" SourcePath="work\assets\system\globallightshape.physics" SelfReg="false" NextFile="gray.png"/>
-    <ROW File="globallightshape.physics_1" Component_="bigbox.constants" FileName="GLOBAL~1.PHY|globallightshape.physics" Attributes="0" SourcePath="work\models\system\globallightshape.physics" SelfReg="false" NextFile="lightprobesphere.attributes_1"/>
     <ROW File="globals.xml" Component_="anims.xml" FileName="globals.xml" Attributes="0" SourcePath="data\tables\globals.xml" SelfReg="false" NextFile="materials.xml"/>
     <ROW File="glslheader.fxh" Component_="glslheader.fxh" FileName="GLSLHE~1.FXH|glslheader.fxh" Attributes="0" SourcePath="work\shady\supervariations\templates\glslheader.fxh" SelfReg="false" NextFile="glsltemplate.fxh"/>
     <ROW File="glsltemplate.fxh" Component_="glslheader.fxh" FileName="GLSLTE~1.FXH|glsltemplate.fxh" Attributes="0" SourcePath="work\shady\supervariations\templates\glsltemplate.fxh" SelfReg="false" NextFile="boxtap.fxh_2"/>
@@ -349,8 +340,7 @@
     <ROW File="graphicsattributes.nidl" Component_="graphicsattributes.nidl" FileName="graphi~1.nid|graphicsattributes.nidl" Attributes="0" SourcePath="code\application\graphicsfeature\graphicsattr\graphicsattributes.nidl" SelfReg="false" NextFile="physicsattributes.nidl"/>
     <ROW File="grassattributes.xml" Component_="csmshadowmapping.xml" FileName="GRASSA~1.XML|grassattributes.xml" Attributes="0" SourcePath="work\frame\win32\grassattributes.xml" SelfReg="false" NextFile="grassheightmap.xml"/>
     <ROW File="grassheightmap.xml" Component_="csmshadowmapping.xml" FileName="GRASSH~1.XML|grassheightmap.xml" Attributes="0" SourcePath="work\frame\win32\grassheightmap.xml" SelfReg="false" NextFile="horizonambientocclusion.xml"/>
-    <ROW File="gray.png" Component_="bigbox.attributes" FileName="gray.png" Attributes="0" SourcePath="work\assets\system\gray.png" SelfReg="false" NextFile="grid.fbx"/>
-    <ROW File="grid.fbx" Component_="bigbox.attributes" FileName="grid.fbx" Attributes="0" SourcePath="work\assets\system\grid.fbx" SelfReg="false" NextFile="grid.mb"/>
+    <ROW File="gray.png" Component_="bigbox.attributes" FileName="gray.png" Attributes="0" SourcePath="work\assets\system\gray.png" SelfReg="false" NextFile="grid.mb"/>
     <ROW File="grid.fx" Component_="animated.fx_1" FileName="grid.fx" Attributes="0" SourcePath="work\shaders\gl\grid.fx" SelfReg="false" NextFile="gui.fx_1"/>
     <ROW File="grid.mb" Component_="bigbox.attributes" FileName="grid.mb" Attributes="0" SourcePath="work\assets\system\grid.mb" SelfReg="false" NextFile="grid.png"/>
     <ROW File="grid.png" Component_="bigbox.attributes" FileName="grid.png" Attributes="0" SourcePath="work\assets\system\grid.png" SelfReg="false" NextFile="light.png"/>
@@ -382,18 +372,15 @@
     <ROW File="lightmapped.fx_1" Component_="animated.fx_1" FileName="LIGHTM~1.FX|lightmapped.fx" Attributes="0" SourcePath="work\shaders\gl\lightmapped.fx" SelfReg="false" NextFile="lights.fx_1"/>
     <ROW File="lightprobe.xml" Component_="animeventcamshake.xml" FileName="LIGHTP~1.XML|lightprobe.xml" Attributes="0" SourcePath="data\tables\db\lightprobe.xml" SelfReg="false" NextFile="navmeshdata.xml"/>
     <ROW File="lightprobesphere.attributes" Component_="bigbox.attributes" FileName="LIGHTP~1.ATT|lightprobesphere.attributes" Attributes="0" SourcePath="work\assets\system\lightprobesphere.attributes" SelfReg="false" NextFile="lightprobesphere.constants"/>
-    <ROW File="lightprobesphere.attributes_1" Component_="bigbox.constants" FileName="LIGHTP~1.ATT|lightprobesphere.attributes" Attributes="0" SourcePath="work\models\system\lightprobesphere.attributes" SelfReg="false" NextFile="lightprobesphere.constants_1"/>
     <ROW File="lightprobesphere.constants" Component_="bigbox.attributes" FileName="LIGHTP~1.CON|lightprobesphere.constants" Attributes="0" SourcePath="work\assets\system\lightprobesphere.constants" SelfReg="false" NextFile="lightprobesphere.fbx"/>
-    <ROW File="lightprobesphere.constants_1" Component_="bigbox.constants" FileName="LIGHTP~1.CON|lightprobesphere.constants" Attributes="0" SourcePath="work\models\system\lightprobesphere.constants" SelfReg="false" NextFile="lightprobesphere.physics_1"/>
     <ROW File="lightprobesphere.fbx" Component_="bigbox.attributes" FileName="LIGHTP~1.FBX|lightprobesphere.fbx" Attributes="0" SourcePath="work\assets\system\lightprobesphere.fbx" SelfReg="false" NextFile="lightprobesphere.physics"/>
     <ROW File="lightprobesphere.physics" Component_="bigbox.attributes" FileName="LIGHTP~1.PHY|lightprobesphere.physics" Attributes="0" SourcePath="work\assets\system\lightprobesphere.physics" SelfReg="false" NextFile="nebulalogo.png"/>
-    <ROW File="lightprobesphere.physics_1" Component_="bigbox.constants" FileName="LIGHTP~1.PHY|lightprobesphere.physics" Attributes="0" SourcePath="work\models\system\lightprobesphere.physics" SelfReg="false" NextFile="placeholder.constants_1"/>
     <ROW File="lights.fx" Component_="animated.fx" FileName="lights.fx" Attributes="0" SourcePath="work\shaders\fx\lights.fx" SelfReg="false" NextFile="lightscatter.fx"/>
     <ROW File="lights.fx_1" Component_="animated.fx_1" FileName="lights.fx" Attributes="0" SourcePath="work\shaders\gl\lights.fx" SelfReg="false" NextFile="lightscatter.fx_1"/>
     <ROW File="lightscatter.fx" Component_="animated.fx" FileName="LIGHTS~1.FX|lightscatter.fx" Attributes="0" SourcePath="work\shaders\fx\lightscatter.fx" SelfReg="false" NextFile="multilayered.fx"/>
     <ROW File="lightscatter.fx_1" Component_="animated.fx_1" FileName="LIGHTS~1.FX|lightscatter.fx" Attributes="0" SourcePath="work\shaders\gl\lightscatter.fx" SelfReg="false" NextFile="multilayered.fx_1"/>
     <ROW File="lightutils.fxh" Component_="boxtap.fxh" FileName="LIGHTU~1.FXH|lightutils.fxh" Attributes="0" SourcePath="work\shaders\fx\lib\lightutils.fxh" SelfReg="false" NextFile="particles.fxh"/>
-    <ROW File="materials.xml" Component_="anims.xml" FileName="MATERI~1.XML|materials.xml" Attributes="0" SourcePath="data\tables\materials.xml" SelfReg="false" NextFile="lightcones.psd"/>
+    <ROW File="materials.xml" Component_="anims.xml" FileName="MATERI~1.XML|materials.xml" Attributes="0" SourcePath="data\tables\materials.xml" SelfReg="false" NextFile="basegameproperties.nidl"/>
     <ROW File="modelbatcher3.exe" Component_="modelbatcher3.exe" FileName="modelb~1.exe|modelbatcher3.exe" Attributes="0" SourcePath="bin\win32\modelbatcher3.exe" SelfReg="false" NextFile="setup.exe" DigSign="true"/>
     <ROW File="multilayered.fx" Component_="animated.fx" FileName="MULTIL~1.FX|multilayered.fx" Attributes="0" SourcePath="work\shaders\fx\multilayered.fx" SelfReg="false" NextFile="particle.fx"/>
     <ROW File="multilayered.fx_1" Component_="animated.fx_1" FileName="MULTIL~1.FX|multilayered.fx" Attributes="0" SourcePath="work\shaders\gl\multilayered.fx" SelfReg="false" NextFile="particle.fx_1"/>
@@ -415,7 +402,6 @@
     <ROW File="picking.xml" Component_="csmshadowmapping.xml" FileName="picking.xml" Attributes="0" SourcePath="work\frame\win32\picking.xml" SelfReg="false" NextFile="reflection.xml"/>
     <ROW File="placeholder.attributes" Component_="bigbox.attributes" FileName="PLACEH~1.ATT|placeholder.attributes" Attributes="0" SourcePath="work\assets\system\placeholder.attributes" SelfReg="false" NextFile="placeholder.constants"/>
     <ROW File="placeholder.constants" Component_="bigbox.attributes" FileName="PLACEH~1.CON|placeholder.constants" Attributes="0" SourcePath="work\assets\system\placeholder.constants" SelfReg="false" NextFile="placeholder.fbx"/>
-    <ROW File="placeholder.constants_1" Component_="bigbox.constants" FileName="PLACEH~1.CON|placeholder.constants" Attributes="0" SourcePath="work\models\system\placeholder.constants" SelfReg="false" NextFile="plane.constants_1"/>
     <ROW File="placeholder.fbx" Component_="bigbox.attributes" FileName="PLACEH~1.FBX|placeholder.fbx" Attributes="0" SourcePath="work\assets\system\placeholder.fbx" SelfReg="false" NextFile="placeholder.mb"/>
     <ROW File="placeholder.fx" Component_="animated.fx_1" FileName="PLACEH~1.FX|placeholder.fx" Attributes="0" SourcePath="work\shaders\gl\placeholder.fx" SelfReg="false" NextFile="reflectionprojector.fx"/>
     <ROW File="placeholder.mb" Component_="bigbox.attributes" FileName="PLACEH~1.MB|placeholder.mb" Attributes="0" SourcePath="work\assets\system\placeholder.mb" SelfReg="false" NextFile="placeholder.physics"/>
@@ -425,19 +411,16 @@
     <ROW File="placeholder_particle.sur" Component_="bigbox.attributes" FileName="PLACEH~2.SUR|placeholder_particle.sur" Attributes="0" SourcePath="work\assets\system\placeholder_particle.sur" SelfReg="false" NextFile="plane.attributes"/>
     <ROW File="plane.attributes" Component_="bigbox.attributes" FileName="PLANE~1.ATT|plane.attributes" Attributes="0" SourcePath="work\assets\system\plane.attributes" SelfReg="false" NextFile="plane.constants"/>
     <ROW File="plane.constants" Component_="bigbox.attributes" FileName="PLANE~1.CON|plane.constants" Attributes="0" SourcePath="work\assets\system\plane.constants" SelfReg="false" NextFile="plane.fbx"/>
-    <ROW File="plane.constants_1" Component_="bigbox.constants" FileName="PLANE~1.CON|plane.constants" Attributes="0" SourcePath="work\models\system\plane.constants" SelfReg="false" NextFile="pointlight.constants_1"/>
     <ROW File="plane.fbx" Component_="bigbox.attributes" FileName="plane.fbx" Attributes="0" SourcePath="work\assets\system\plane.fbx" SelfReg="false" NextFile="plane.mb"/>
     <ROW File="plane.mb" Component_="bigbox.attributes" FileName="plane.mb" Attributes="0" SourcePath="work\assets\system\plane.mb" SelfReg="false" NextFile="plane.physics"/>
     <ROW File="plane.physics" Component_="bigbox.attributes" FileName="PLANE~1.PHY|plane.physics" Attributes="0" SourcePath="work\assets\system\plane.physics" SelfReg="false" NextFile="pointlight.attributes"/>
     <ROW File="pointlight.attributes" Component_="bigbox.attributes" FileName="POINTL~1.ATT|pointlight.attributes" Attributes="0" SourcePath="work\assets\system\pointlight.attributes" SelfReg="false" NextFile="pointlight.constants"/>
     <ROW File="pointlight.constants" Component_="bigbox.attributes" FileName="POINTL~1.CON|pointlight.constants" Attributes="0" SourcePath="work\assets\system\pointlight.constants" SelfReg="false" NextFile="pointlight.fbx"/>
-    <ROW File="pointlight.constants_1" Component_="bigbox.constants" FileName="POINTL~1.CON|pointlight.constants" Attributes="0" SourcePath="work\models\system\pointlight.constants" SelfReg="false" NextFile="pointlightshape.constants_1"/>
     <ROW File="pointlight.fbx" Component_="bigbox.attributes" FileName="POINTL~1.FBX|pointlight.fbx" Attributes="0" SourcePath="work\assets\system\pointlight.fbx" SelfReg="false" NextFile="pointlight.mb"/>
     <ROW File="pointlight.mb" Component_="bigbox.attributes" FileName="POINTL~1.MB|pointlight.mb" Attributes="0" SourcePath="work\assets\system\pointlight.mb" SelfReg="false" NextFile="pointlight.physics"/>
     <ROW File="pointlight.physics" Component_="bigbox.attributes" FileName="POINTL~1.PHY|pointlight.physics" Attributes="0" SourcePath="work\assets\system\pointlight.physics" SelfReg="false" NextFile="pointlightshape.attributes"/>
     <ROW File="pointlightshape.attributes" Component_="bigbox.attributes" FileName="POINTL~2.ATT|pointlightshape.attributes" Attributes="0" SourcePath="work\assets\system\pointlightshape.attributes" SelfReg="false" NextFile="pointlightshape.constants"/>
     <ROW File="pointlightshape.constants" Component_="bigbox.attributes" FileName="POINTL~2.CON|pointlightshape.constants" Attributes="0" SourcePath="work\assets\system\pointlightshape.constants" SelfReg="false" NextFile="pointlightshape.fbx"/>
-    <ROW File="pointlightshape.constants_1" Component_="bigbox.constants" FileName="POINTL~2.CON|pointlightshape.constants" Attributes="0" SourcePath="work\models\system\pointlightshape.constants" SelfReg="false" NextFile="reflectionbox.attributes_1"/>
     <ROW File="pointlightshape.fbx" Component_="bigbox.attributes" FileName="POINTL~2.FBX|pointlightshape.fbx" Attributes="0" SourcePath="work\assets\system\pointlightshape.fbx" SelfReg="false" NextFile="pointlightshape.mb"/>
     <ROW File="pointlightshape.mb" Component_="bigbox.attributes" FileName="POINTL~2.MB|pointlightshape.mb" Attributes="0" SourcePath="work\assets\system\pointlightshape.mb" SelfReg="false" NextFile="pointlightshape.physics"/>
     <ROW File="pointlightshape.physics" Component_="bigbox.attributes" FileName="POINTL~2.PHY|pointlightshape.physics" Attributes="0" SourcePath="work\assets\system\pointlightshape.physics" SelfReg="false" NextFile="reflectionbox.attributes"/>
@@ -446,12 +429,9 @@
     <ROW File="projectwizard.exe" Component_="projectwizard.exe" FileName="projec~1.exe|projectwizard.exe" Attributes="0" SourcePath="bin\win32\projectwizard.exe" SelfReg="false" NextFile="stateobjectprotocol.nidl" DigSign="true"/>
     <ROW File="reflection.xml" Component_="csmshadowmapping.xml" FileName="REFLEC~1.XML|reflection.xml" Attributes="0" SourcePath="work\frame\win32\reflection.xml" SelfReg="false" NextFile="shadowmapping.xml"/>
     <ROW File="reflectionbox.attributes" Component_="bigbox.attributes" FileName="REFLEC~1.ATT|reflectionbox.attributes" Attributes="0" SourcePath="work\assets\system\reflectionbox.attributes" SelfReg="false" NextFile="reflectionbox.constants"/>
-    <ROW File="reflectionbox.attributes_1" Component_="bigbox.constants" FileName="REFLEC~1.ATT|reflectionbox.attributes" Attributes="0" SourcePath="work\models\system\reflectionbox.attributes" SelfReg="false" NextFile="reflectionbox.constants_1"/>
     <ROW File="reflectionbox.constants" Component_="bigbox.attributes" FileName="REFLEC~1.CON|reflectionbox.constants" Attributes="0" SourcePath="work\assets\system\reflectionbox.constants" SelfReg="false" NextFile="reflectionbox.fbx"/>
-    <ROW File="reflectionbox.constants_1" Component_="bigbox.constants" FileName="REFLEC~1.CON|reflectionbox.constants" Attributes="0" SourcePath="work\models\system\reflectionbox.constants" SelfReg="false" NextFile="reflectionbox.physics_1"/>
     <ROW File="reflectionbox.fbx" Component_="bigbox.attributes" FileName="REFLEC~1.FBX|reflectionbox.fbx" Attributes="0" SourcePath="work\assets\system\reflectionbox.fbx" SelfReg="false" NextFile="reflectionbox.physics"/>
     <ROW File="reflectionbox.physics" Component_="bigbox.attributes" FileName="REFLEC~1.PHY|reflectionbox.physics" Attributes="0" SourcePath="work\assets\system\reflectionbox.physics" SelfReg="false" NextFile="shadingsphere.attributes"/>
-    <ROW File="reflectionbox.physics_1" Component_="bigbox.constants" FileName="REFLEC~1.PHY|reflectionbox.physics" Attributes="0" SourcePath="work\models\system\reflectionbox.physics" SelfReg="false" NextFile="shadingsphere.constants_1"/>
     <ROW File="reflectionprojector.fx" Component_="animated.fx_1" FileName="REFLEC~1.FX|reflectionprojector.fx" Attributes="0" SourcePath="work\shaders\gl\reflectionprojector.fx" SelfReg="false" NextFile="shadow.fx_1"/>
     <ROW File="remotecamera.xml" Component_="animeventcamshake.xml" FileName="REMOTE~1.XML|remotecamera.xml" Attributes="0" SourcePath="data\tables\db\remotecamera.xml" SelfReg="false" NextFile="trigger.xml"/>
     <ROW File="scriptattributes.nidl" Component_="scriptattributes.nidl" FileName="SCRIPT~1.NID|scriptattributes.nidl" Attributes="0" SourcePath="code\application\scriptfeature\scriptattr\scriptattributes.nidl" SelfReg="false" NextFile="effectsattributes.nidl"/>
@@ -461,7 +441,6 @@
     <ROW File="shaders.fxh" Component_="glslheader.fxh" FileName="shaders.fxh" Attributes="0" SourcePath="work\shady\supervariations\templates\shaders.fxh" SelfReg="false" NextFile="ConstantFloat.ndv"/>
     <ROW File="shadingsphere.attributes" Component_="bigbox.attributes" FileName="SHADIN~1.ATT|shadingsphere.attributes" Attributes="0" SourcePath="work\assets\system\shadingsphere.attributes" SelfReg="false" NextFile="shadingsphere.constants"/>
     <ROW File="shadingsphere.constants" Component_="bigbox.attributes" FileName="SHADIN~1.CON|shadingsphere.constants" Attributes="0" SourcePath="work\assets\system\shadingsphere.constants" SelfReg="false" NextFile="shadingsphere.fbx"/>
-    <ROW File="shadingsphere.constants_1" Component_="bigbox.constants" FileName="SHADIN~1.CON|shadingsphere.constants" Attributes="0" SourcePath="work\models\system\shadingsphere.constants" SelfReg="false" NextFile="skydome.constants_1"/>
     <ROW File="shadingsphere.fbx" Component_="bigbox.attributes" FileName="SHADIN~1.FBX|shadingsphere.fbx" Attributes="0" SourcePath="work\assets\system\shadingsphere.fbx" SelfReg="false" NextFile="shadingsphere.physics"/>
     <ROW File="shadingsphere.physics" Component_="bigbox.attributes" FileName="SHADIN~1.PHY|shadingsphere.physics" Attributes="0" SourcePath="work\assets\system\shadingsphere.physics" SelfReg="false" NextFile="shadowmod.dds"/>
     <ROW File="shadow.fx" Component_="animated.fx" FileName="shadow.fx" Attributes="0" SourcePath="work\shaders\fx\shadow.fx" SelfReg="false" NextFile="simple.fx"/>
@@ -469,7 +448,7 @@
     <ROW File="shadowbase.fxh" Component_="boxtap.fxh_1" FileName="SHADOW~1.FXH|shadowbase.fxh" Attributes="0" SourcePath="work\shaders\gl\lib\shadowbase.fxh" SelfReg="false" NextFile="shared.fxh_1"/>
     <ROW File="shadowbase.fxh_1" Component_="boxtap.fxh_2" FileName="SHADOW~1.FXH|shadowbase.fxh" Attributes="0" SourcePath="work\shady\supervariations\templates\lib\shadowbase.fxh" SelfReg="false" NextFile="shared.fxh_2"/>
     <ROW File="shadowmapping.xml" Component_="csmshadowmapping.xml" FileName="SHADOW~1.XML|shadowmapping.xml" Attributes="0" SourcePath="work\frame\win32\shadowmapping.xml" SelfReg="false" NextFile="base.xml"/>
-    <ROW File="shadowmod.dds" Component_="bigbox.attributes" FileName="SHADOW~1.DDS|shadowmod.dds" Attributes="0" SourcePath="work\assets\system\shadowmod.dds" SelfReg="false" NextFile="skybox.attributes"/>
+    <ROW File="shadowmod.dds" Component_="bigbox.attributes" FileName="SHADOW~1.DDS|shadowmod.dds" Attributes="0" SourcePath="work\assets\system\shadowmod.dds" SelfReg="false" NextFile="sky.dds"/>
     <ROW File="shared.fx" Component_="animated.fx_1" FileName="shared.fx" Attributes="0" SourcePath="work\shaders\gl\shared.fx" SelfReg="false" NextFile="silhouette.fx"/>
     <ROW File="shared.fxh" Component_="boxtap.fxh" FileName="shared.fxh" Attributes="0" SourcePath="work\shaders\fx\lib\shared.fxh" SelfReg="false" NextFile="skinning.fxh"/>
     <ROW File="shared.fxh_1" Component_="boxtap.fxh_1" FileName="shared.fxh" Attributes="0" SourcePath="work\shaders\gl\lib\shared.fxh" SelfReg="false" NextFile="skinning.fxh_1"/>
@@ -482,8 +461,8 @@
     <ROW File="skinning.fxh" Component_="boxtap.fxh" FileName="skinning.fxh" Attributes="0" SourcePath="work\shaders\fx\lib\skinning.fxh" SelfReg="false" NextFile="subsurface.fxh"/>
     <ROW File="skinning.fxh_1" Component_="boxtap.fxh_1" FileName="skinning.fxh" Attributes="0" SourcePath="work\shaders\gl\lib\skinning.fxh" SelfReg="false" NextFile="std.fxh"/>
     <ROW File="skinning.fxh_2" Component_="boxtap.fxh_2" FileName="skinning.fxh" Attributes="0" SourcePath="work\shady\supervariations\templates\lib\skinning.fxh" SelfReg="false" NextFile="std.fxh_1"/>
-    <ROW File="sky_irr.dds" Component_="bigbox.attributes" FileName="sky_irr.dds" Attributes="0" SourcePath="work\assets\system\sky_irr.dds" SelfReg="false" NextFile="sky_refl.dds"/>
-    <ROW File="sky_refl.dds" Component_="bigbox.attributes" FileName="sky_refl.dds" Attributes="0" SourcePath="work\assets\system\sky_refl.dds" SelfReg="false" NextFile="specmap.dds"/>
+    <ROW File="sky.dds" Component_="bigbox.attributes" FileName="sky.dds" Attributes="0" SourcePath="work\assets\system\sky.dds" SelfReg="false" NextFile="skybox.attributes"/>
+    <ROW File="sky_irr.dds" Component_="bigbox.attributes" FileName="sky_irr.dds" Attributes="0" SourcePath="work\assets\system\sky_irr.dds" SelfReg="false" NextFile="specmap.dds"/>
     <ROW File="skybox.attributes" Component_="bigbox.attributes" FileName="SKYBOX~1.ATT|skybox.attributes" Attributes="0" SourcePath="work\assets\system\skybox.attributes" SelfReg="false" NextFile="skybox.constants"/>
     <ROW File="skybox.constants" Component_="bigbox.attributes" FileName="SKYBOX~1.CON|skybox.constants" Attributes="0" SourcePath="work\assets\system\skybox.constants" SelfReg="false" NextFile="skybox.fbx"/>
     <ROW File="skybox.fbx" Component_="bigbox.attributes" FileName="skybox.fbx" Attributes="0" SourcePath="work\assets\system\skybox.fbx" SelfReg="false" NextFile="skybox.physics"/>
@@ -494,7 +473,6 @@
     <ROW File="skybox_thumb.png" Component_="bigbox.attributes" FileName="SKYBOX~1.PNG|skybox_thumb.png" Attributes="0" SourcePath="work\assets\system\skybox_thumb.png" SelfReg="false" NextFile="skydome.attributes"/>
     <ROW File="skydome.attributes" Component_="bigbox.attributes" FileName="SKYDOM~1.ATT|skydome.attributes" Attributes="0" SourcePath="work\assets\system\skydome.attributes" SelfReg="false" NextFile="skydome.constants"/>
     <ROW File="skydome.constants" Component_="bigbox.attributes" FileName="SKYDOM~1.CON|skydome.constants" Attributes="0" SourcePath="work\assets\system\skydome.constants" SelfReg="false" NextFile="skydome.dds"/>
-    <ROW File="skydome.constants_1" Component_="bigbox.constants" FileName="SKYDOM~1.CON|skydome.constants" Attributes="0" SourcePath="work\models\system\skydome.constants" SelfReg="false" NextFile="sphere.constants_1"/>
     <ROW File="skydome.dds" Component_="bigbox.attributes" FileName="skydome.dds" Attributes="0" SourcePath="work\assets\system\skydome.dds" SelfReg="false" NextFile="skydome.fbx"/>
     <ROW File="skydome.fbx" Component_="bigbox.attributes" FileName="skydome.fbx" Attributes="0" SourcePath="work\assets\system\skydome.fbx" SelfReg="false" NextFile="skydome.mb"/>
     <ROW File="skydome.mb" Component_="bigbox.attributes" FileName="skydome.mb" Attributes="0" SourcePath="work\assets\system\skydome.mb" SelfReg="false" NextFile="skydome.physics"/>
@@ -502,20 +480,17 @@
     <ROW File="specmap.dds" Component_="bigbox.attributes" FileName="specmap.dds" Attributes="0" SourcePath="work\assets\system\specmap.dds" SelfReg="false" NextFile="sphere.attributes"/>
     <ROW File="sphere.attributes" Component_="bigbox.attributes" FileName="SPHERE~1.ATT|sphere.attributes" Attributes="0" SourcePath="work\assets\system\sphere.attributes" SelfReg="false" NextFile="sphere.constants"/>
     <ROW File="sphere.constants" Component_="bigbox.attributes" FileName="SPHERE~1.CON|sphere.constants" Attributes="0" SourcePath="work\assets\system\sphere.constants" SelfReg="false" NextFile="sphere.fbx"/>
-    <ROW File="sphere.constants_1" Component_="bigbox.constants" FileName="SPHERE~1.CON|sphere.constants" Attributes="0" SourcePath="work\models\system\sphere.constants" SelfReg="false" NextFile="spotlight.constants_1"/>
     <ROW File="sphere.fbx" Component_="bigbox.attributes" FileName="sphere.fbx" Attributes="0" SourcePath="work\assets\system\sphere.fbx" SelfReg="false" NextFile="sphere.mb"/>
     <ROW File="sphere.mb" Component_="bigbox.attributes" FileName="sphere.mb" Attributes="0" SourcePath="work\assets\system\sphere.mb" SelfReg="false" NextFile="sphere.physics"/>
     <ROW File="sphere.physics" Component_="bigbox.attributes" FileName="SPHERE~1.PHY|sphere.physics" Attributes="0" SourcePath="work\assets\system\sphere.physics" SelfReg="false" NextFile="spotlight.attributes"/>
     <ROW File="spotlight.attributes" Component_="bigbox.attributes" FileName="SPOTLI~1.ATT|spotlight.attributes" Attributes="0" SourcePath="work\assets\system\spotlight.attributes" SelfReg="false" NextFile="spotlight.constants"/>
     <ROW File="spotlight.constants" Component_="bigbox.attributes" FileName="SPOTLI~1.CON|spotlight.constants" Attributes="0" SourcePath="work\assets\system\spotlight.constants" SelfReg="false" NextFile="spotlight.dds"/>
-    <ROW File="spotlight.constants_1" Component_="bigbox.constants" FileName="SPOTLI~1.CON|spotlight.constants" Attributes="0" SourcePath="work\models\system\spotlight.constants" SelfReg="false" NextFile="spotlightshape.constants_1"/>
     <ROW File="spotlight.dds" Component_="bigbox.attributes" FileName="SPOTLI~1.DDS|spotlight.dds" Attributes="0" SourcePath="work\assets\system\spotlight.dds" SelfReg="false" NextFile="spotlight.fbx"/>
     <ROW File="spotlight.fbx" Component_="bigbox.attributes" FileName="SPOTLI~1.FBX|spotlight.fbx" Attributes="0" SourcePath="work\assets\system\spotlight.fbx" SelfReg="false" NextFile="spotlight.mb"/>
     <ROW File="spotlight.mb" Component_="bigbox.attributes" FileName="SPOTLI~1.MB|spotlight.mb" Attributes="0" SourcePath="work\assets\system\spotlight.mb" SelfReg="false" NextFile="spotlight.physics"/>
     <ROW File="spotlight.physics" Component_="bigbox.attributes" FileName="SPOTLI~1.PHY|spotlight.physics" Attributes="0" SourcePath="work\assets\system\spotlight.physics" SelfReg="false" NextFile="spotlightshape.attributes"/>
     <ROW File="spotlightshape.attributes" Component_="bigbox.attributes" FileName="SPOTLI~2.ATT|spotlightshape.attributes" Attributes="0" SourcePath="work\assets\system\spotlightshape.attributes" SelfReg="false" NextFile="spotlightshape.constants"/>
     <ROW File="spotlightshape.constants" Component_="bigbox.attributes" FileName="SPOTLI~2.CON|spotlightshape.constants" Attributes="0" SourcePath="work\assets\system\spotlightshape.constants" SelfReg="false" NextFile="spotlightshape.fbx"/>
-    <ROW File="spotlightshape.constants_1" Component_="bigbox.constants" FileName="SPOTLI~2.CON|spotlightshape.constants" Attributes="0" SourcePath="work\models\system\spotlightshape.constants" SelfReg="false" NextFile="sunshape.attributes_1"/>
     <ROW File="spotlightshape.fbx" Component_="bigbox.attributes" FileName="SPOTLI~2.FBX|spotlightshape.fbx" Attributes="0" SourcePath="work\assets\system\spotlightshape.fbx" SelfReg="false" NextFile="spotlightshape.mb"/>
     <ROW File="spotlightshape.mb" Component_="bigbox.attributes" FileName="SPOTLI~2.MB|spotlightshape.mb" Attributes="0" SourcePath="work\assets\system\spotlightshape.mb" SelfReg="false" NextFile="spotlightshape.physics"/>
     <ROW File="spotlightshape.physics" Component_="bigbox.attributes" FileName="SPOTLI~2.PHY|spotlightshape.physics" Attributes="0" SourcePath="work\assets\system\spotlightshape.physics" SelfReg="false" NextFile="sun.attributes"/>
@@ -539,12 +514,9 @@
     <ROW File="sun.fx" Component_="animated.fx" FileName="sun.fx" Attributes="0" SourcePath="work\shaders\fx\sun.fx" SelfReg="false" NextFile="unlit.fx"/>
     <ROW File="sun.physics" Component_="bigbox.attributes" FileName="SUN~1.PHY|sun.physics" Attributes="0" SourcePath="work\assets\system\sun.physics" SelfReg="false" NextFile="sunshape.attributes"/>
     <ROW File="sunshape.attributes" Component_="bigbox.attributes" FileName="SUNSHA~1.ATT|sunshape.attributes" Attributes="0" SourcePath="work\assets\system\sunshape.attributes" SelfReg="false" NextFile="sunshape.constants"/>
-    <ROW File="sunshape.attributes_1" Component_="bigbox.constants" FileName="SUNSHA~1.ATT|sunshape.attributes" Attributes="0" SourcePath="work\models\system\sunshape.attributes" SelfReg="false" NextFile="sunshape.constants_1"/>
     <ROW File="sunshape.constants" Component_="bigbox.attributes" FileName="SUNSHA~1.CON|sunshape.constants" Attributes="0" SourcePath="work\assets\system\sunshape.constants" SelfReg="false" NextFile="checker.tga"/>
-    <ROW File="sunshape.constants_1" Component_="bigbox.constants" FileName="SUNSHA~1.CON|sunshape.constants" Attributes="0" SourcePath="work\models\system\sunshape.constants" SelfReg="false" NextFile="sunshape.physics_1"/>
     <ROW File="sunshape.fbx" Component_="bigbox.attributes" FileName="sunshape.fbx" Attributes="0" SourcePath="work\assets\system\sunshape.fbx" SelfReg="false" NextFile="sunshape.physics"/>
     <ROW File="sunshape.physics" Component_="bigbox.attributes" FileName="SUNSHA~1.PHY|sunshape.physics" Attributes="0" SourcePath="work\assets\system\sunshape.physics" SelfReg="false" NextFile="torus.mb"/>
-    <ROW File="sunshape.physics_1" Component_="bigbox.constants" FileName="SUNSHA~1.PHY|sunshape.physics" Attributes="0" SourcePath="work\models\system\sunshape.physics" SelfReg="false" NextFile="triggerbox.constants_1"/>
     <ROW File="surfacegenerator.exe" Component_="surfacegenerator.exe" FileName="SURFAC~1.EXE|surfacegenerator.exe" Attributes="0" SourcePath="bin\win32\surfacegenerator.exe" SelfReg="false" NextFile="anims.xml" DigSign="true"/>
     <ROW File="techniques.fxh" Component_="boxtap.fxh_1" FileName="TECHNI~1.FXH|techniques.fxh" Attributes="0" SourcePath="work\shaders\gl\lib\techniques.fxh" SelfReg="false" NextFile="util.fxh_1"/>
     <ROW File="techniques.fxh_1" Component_="boxtap.fxh_2" FileName="TECHNI~1.FXH|techniques.fxh" Attributes="0" SourcePath="work\shady\supervariations\templates\lib\techniques.fxh" SelfReg="false" NextFile="util.fxh_2"/>
@@ -555,17 +527,16 @@
     <ROW File="trigger.xml" Component_="animeventcamshake.xml" FileName="trigger.xml" Attributes="0" SourcePath="data\tables\db\trigger.xml" SelfReg="false" NextFile="_audiobanks.xml"/>
     <ROW File="triggerbox.attributes" Component_="bigbox.attributes" FileName="TRIGGE~1.ATT|triggerbox.attributes" Attributes="0" SourcePath="work\assets\system\triggerbox.attributes" SelfReg="false" NextFile="triggerbox.constants"/>
     <ROW File="triggerbox.constants" Component_="bigbox.attributes" FileName="TRIGGE~1.CON|triggerbox.constants" Attributes="0" SourcePath="work\assets\system\triggerbox.constants" SelfReg="false" NextFile="triggerbox.fbx"/>
-    <ROW File="triggerbox.constants_1" Component_="bigbox.constants" FileName="TRIGGE~1.CON|triggerbox.constants" Attributes="0" SourcePath="work\models\system\triggerbox.constants" SelfReg="false" NextFile="triggersphere.constants_1"/>
     <ROW File="triggerbox.fbx" Component_="bigbox.attributes" FileName="TRIGGE~1.FBX|triggerbox.fbx" Attributes="0" SourcePath="work\assets\system\triggerbox.fbx" SelfReg="false" NextFile="triggerbox.physics"/>
     <ROW File="triggerbox.physics" Component_="bigbox.attributes" FileName="TRIGGE~1.PHY|triggerbox.physics" Attributes="0" SourcePath="work\assets\system\triggerbox.physics" SelfReg="false" NextFile="triggersphere.attributes"/>
     <ROW File="triggersphere.attributes" Component_="bigbox.attributes" FileName="TRIGGE~2.ATT|triggersphere.attributes" Attributes="0" SourcePath="work\assets\system\triggersphere.attributes" SelfReg="false" NextFile="triggersphere.constants"/>
     <ROW File="triggersphere.constants" Component_="bigbox.attributes" FileName="TRIGGE~2.CON|triggersphere.constants" Attributes="0" SourcePath="work\assets\system\triggersphere.constants" SelfReg="false" NextFile="triggersphere.fbx"/>
-    <ROW File="triggersphere.constants_1" Component_="bigbox.constants" FileName="TRIGGE~2.CON|triggersphere.constants" Attributes="0" SourcePath="work\models\system\triggersphere.constants" SelfReg="false" NextFile="animated.fx"/>
     <ROW File="triggersphere.fbx" Component_="bigbox.attributes" FileName="TRIGGE~2.FBX|triggersphere.fbx" Attributes="0" SourcePath="work\assets\system\triggersphere.fbx" SelfReg="false" NextFile="triggersphere.physics"/>
     <ROW File="triggersphere.physics" Component_="bigbox.attributes" FileName="TRIGGE~2.PHY|triggersphere.physics" Attributes="0" SourcePath="work\assets\system\triggersphere.physics" SelfReg="false" NextFile="white.dds"/>
     <ROW File="uiattributes.nidl" Component_="uiattributes.nidl" FileName="UIATTR~1.NID|uiattributes.nidl" Attributes="0" SourcePath="code\addons\ui\uiattrs\uiattributes.nidl" SelfReg="false" NextFile="assetbatcher.exe"/>
     <ROW File="unlit.fx" Component_="animated.fx" FileName="unlit.fx" Attributes="0" SourcePath="work\shaders\fx\unlit.fx" SelfReg="false" NextFile="verticalbloom.fx"/>
     <ROW File="unlit.fx_1" Component_="animated.fx_1" FileName="unlit.fx" Attributes="0" SourcePath="work\shaders\gl\unlit.fx" SelfReg="false" NextFile="verticalbloom.fx_1"/>
+    <ROW File="unzip.exe" Component_="unzip.exe" FileName="unzip.exe" Attributes="0" SourcePath="bin\win32\unzip.exe" SelfReg="false" NextFile="emptyproject.zip" DigSign="true"/>
     <ROW File="util.fxh" Component_="boxtap.fxh" FileName="util.fxh" Attributes="0" SourcePath="work\shaders\fx\lib\util.fxh" SelfReg="false" NextFile="lightmapped.fx"/>
     <ROW File="util.fxh_1" Component_="boxtap.fxh_1" FileName="util.fxh" Attributes="0" SourcePath="work\shaders\gl\lib\util.fxh" SelfReg="false" NextFile="lightmapped.fx_1"/>
     <ROW File="util.fxh_2" Component_="boxtap.fxh_2" FileName="util.fxh" Attributes="0" SourcePath="work\shady\supervariations\templates\lib\util.fxh" SelfReg="false" NextFile="shaders.fxh"/>
@@ -575,7 +546,7 @@
     <ROW File="volumefog.fx_1" Component_="animated.fx_1" FileName="VOLUME~1.FX|volumefog.fx" Attributes="0" SourcePath="work\shaders\gl\volumefog.fx" SelfReg="false" NextFile="volumelight.fx"/>
     <ROW File="volumelight.fx" Component_="animated.fx_1" FileName="VOLUME~2.FX|volumelight.fx" Attributes="0" SourcePath="work\shaders\gl\volumelight.fx" SelfReg="false" NextFile="water.fx_1"/>
     <ROW File="water.fx" Component_="animated.fx" FileName="water.fx" Attributes="0" SourcePath="work\shaders\fx\water.fx" SelfReg="false" NextFile="animated.fx_1"/>
-    <ROW File="water.fx_1" Component_="animated.fx_1" FileName="water.fx" Attributes="0" SourcePath="work\shaders\gl\water.fx" SelfReg="false" NextFile="basegameproperties.nidl"/>
+    <ROW File="water.fx_1" Component_="animated.fx_1" FileName="water.fx" Attributes="0" SourcePath="work\shaders\gl\water.fx" SelfReg="false" NextFile="test.ndp"/>
     <ROW File="white.dds" Component_="bigbox.attributes" FileName="white.dds" Attributes="0" SourcePath="work\assets\system\white.dds" SelfReg="false" NextFile="csmshadowmapping.xml"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
@@ -632,9 +603,9 @@
     <ROW Directory_="basegamefeature_Dir" Component_="basegamefeature" ManualDelete="false"/>
     <ROW Directory_="physicsfeature_Dir" Component_="physicsfeature" ManualDelete="false"/>
     <ROW Directory_="NebulaTrifid_Dir" Component_="NebulaTrifid" ManualDelete="false"/>
-    <ROW Directory_="work_Dir" Component_="work" ManualDelete="false"/>
     <ROW Directory_="data_Dir" Component_="data" ManualDelete="false"/>
     <ROW Directory_="scriptfeature_Dir" Component_="scriptfeature" ManualDelete="false"/>
+    <ROW Directory_="work_Dir" Component_="work" ManualDelete="false"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCustActComponent">
     <ROW Action="AI_DOWNGRADE" Type="19" Target="4010"/>
@@ -684,10 +655,11 @@
     <ROW Registry="path1" Root="1" Key="Software\[Manufacturer]\ToolkitShared" Name="nodydir" Value="[APPDIR]" Component_="path1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiShortsComponent">
-    <ROW Shortcut="Batchexporter" Directory_="NebulaTrifid_Dir" Name="Batche~1|Batchexporter" Component_="batchexporter.exe" Target="[#batchexporter.exe]" Hotkey="0" IconIndex="0" ShowCmd="1" WkDir="win32_Dir"/>
     <ROW Shortcut="Contentbrowser" Directory_="NebulaTrifid_Dir" Name="Conten~1|Contentbrowser" Component_="contentbrowser.exe" Target="[#contentbrowser.exe]" Hotkey="0" IconIndex="0" ShowCmd="3" WkDir="win32_Dir"/>
     <ROW Shortcut="Leveleditor" Directory_="NebulaTrifid_Dir" Name="Levele~1|Leveleditor" Component_="leveleditor2.exe" Target="[#leveleditor2.exe]" Hotkey="0" IconIndex="0" ShowCmd="1" WkDir="win32_Dir"/>
+    <ROW Shortcut="batchexporter" Directory_="NebulaTrifid_Dir" Name="BATCHE~1|batchexporter" Component_="batchexporter2.exe" Target="[#batchexporter2.exe]" Hotkey="0" IconIndex="0" ShowCmd="1" WkDir="win32_Dir"/>
     <ROW Shortcut="levelviewer" Directory_="NebulaTrifid_Dir" Name="levelv~1|levelviewer" Component_="levelviewer.exe" Target="[#levelviewer.exe]" Hotkey="0" IconIndex="0" ShowCmd="1" WkDir="win32_Dir"/>
+    <ROW Shortcut="projectwizard" Directory_="NebulaTrifid_Dir" Name="PROJEC~1|projectwizard" Component_="projectwizard.exe" Target="[#projectwizard.exe]" Hotkey="0" IconIndex="0" ShowCmd="1" WkDir="win32_Dir"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiThemeComponent">
     <ATTRIBUTE name="UsedTheme" value="classic"/>

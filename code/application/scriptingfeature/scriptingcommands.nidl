@@ -4,6 +4,7 @@
     <Dependency header="scriptingfeature/scriptingfeature.h"/>
     <Dependency header="scriptingfeature/scriptingprotocol.h"/>
     <Dependency header="basegamefeature/basegameprotocol.h"/>
+    <Dependency header="basegamefeature/managers/envquerymanager.h"/>
     <Dependency header="appgame/gameapplication.h"/>
     <Dependency header="input/keyboard.h"/>
     <Dependency header="input/inputserver.h"/>
@@ -453,6 +454,32 @@
       <Code>
         <![CDATA[
           App::GameApplication::Instance()->RequestState("Exit");
+        ]]>
+      </Code>
+    </Command>
+    <Command name="hasgameentityundermouse" fourcc="heum" desc="Checks if there is a game entity under the current mouse position">
+      <OutArg name="foundEnt" type="bool"/>
+      <Code>
+        <![CDATA[
+          const Game::Entity* ent = BaseGameFeature::EnvQueryManager::Instance()->GetEntityUnderMouse();
+          return ent != NULL;
+        ]]>
+      </Code>
+    </Command>
+    <Command name="getentityundermouse" fourcc="geum" desc="gets game entity at the current mouse position">
+      <OutArg name="foundEnt" type="uint"/>
+      <Code>
+        <![CDATA[
+          const Game::Entity* ent = BaseGameFeature::EnvQueryManager::Instance()->GetEntityUnderMouse();
+          return ent->GetUniqueId();
+        ]]>
+      </Code>
+    </Command>
+    <Command name="get3dmouse" fourcc="ge3m" desc="gets current mouse position in 3d">
+      <OutArg name="foundEnt" type="float4"/>
+      <Code>
+        <![CDATA[          
+          return BaseGameFeature::EnvQueryManager::Instance()->GetMousePos3d();          
         ]]>
       </Code>
     </Command>

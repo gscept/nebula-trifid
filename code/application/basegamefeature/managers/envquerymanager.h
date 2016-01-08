@@ -18,6 +18,7 @@
 #include "math/line.h"
 #include "math/float2.h"
 #include "graphics/view.h"
+#include "graphicsfeature/graphicsfeatureprotocol.h"
 
 //------------------------------------------------------------------------------
 namespace BaseGameFeature
@@ -50,6 +51,10 @@ public:
 	void SetMouseTracking(bool enable);
 	/// get on-frame mouse tracking status
 	const bool GetMouseTracking() const;
+	/// enable entity messages when entering/leaving/clicking on objects. will enable tracking as well
+	void SetMouseMessages(bool enable);
+	/// get on-frame mouse messaging status
+	const bool GetMouseMessages() const;
     /// get the entity under the mouse cursor
     Game::Entity* GetEntityUnderMouse() const;
     /// get the mouse position in the 3d world
@@ -70,12 +75,14 @@ protected:
     Game::Entity::EntityId entityUnderMouse;
     bool mouseIntersection;     
 	bool mouseTracking;
+	bool mouseMessages;
     Math::point mousePos3d;
     Math::vector upVector;   
     
 	Physics::FilterSet mouseExcludeSet;
     //Physics::MaterialType materialUnderMouse;
-
+	Ptr<GraphicsFeature::MouseEnter> enterMessage;
+	Ptr<GraphicsFeature::MouseLeave> leaveMessage;
 };
 
 //------------------------------------------------------------------------------
@@ -94,6 +101,28 @@ inline void
 EnvQueryManager::SetMouseTracking(bool enable)
 {
 	this->mouseTracking = enable;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const bool
+EnvQueryManager::GetMouseMessages() const
+{
+	return this->mouseMessages;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+EnvQueryManager::SetMouseMessages(bool enable)
+{
+	this->mouseMessages = enable;
+	if (enable)
+	{
+		this->SetMouseTracking(true);
+	}
 }
 
 } // namespace BaseGameFeature

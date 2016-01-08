@@ -74,6 +74,9 @@ PhysicsFeatureUnit::OnActivate()
 		Scripting::ScriptServer::Instance()->CreateFunctionTable("triggerentry_table");
 		Scripting::ScriptServer::Instance()->CreateFunctionTable("triggerexit_table");
 		Scripting::ScriptServer::Instance()->CreateFunctionTable("triggerinside_table");
+		Scripting::ScriptServer::Instance()->CreateFunctionTable("onmouseenter_table");
+		Scripting::ScriptServer::Instance()->CreateFunctionTable("onmouseleave_table");
+		Scripting::ScriptServer::Instance()->CreateFunctionTable("onmousebutton_table");
 	}
 }
 

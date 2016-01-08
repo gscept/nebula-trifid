@@ -203,6 +203,12 @@
       <InArg name="Joint" type="Util::String" serialize="true"/>
     </Message>
 
+    <Message name="MouseEnter" fourcc="ONME"/>
+    <Message name="MouseLeave" fourcc="ONML"/>
+    <Message name="MouseButtonEvent" fourcc="ONMD">
+      <InArg name="Button" type="Input::MouseButton::Code"/>
+      <InArg name="Down" type="bool"/>
+    </Message>
   </Protocol>
 
 </Nebula3>
