@@ -11,7 +11,7 @@ sampler2D LightMap;
 
 samplerstate LightmapSampler
 {
-	Samplers = { SpecularMap, EmissiveMap, NormalMap, LightMap, DiffuseMap };
+	Samplers = { SpecularMap, EmissiveMap, NormalMap, LightMap, AlbedoMap };
 };
 
 //------------------------------------------------------------------------------
@@ -31,7 +31,7 @@ psLightmappedLit(in vec3 ViewSpacePos,
 	[color2] out float Depth,
 	[color3] out vec4 Specular) 
 {
-	vec4 diffColor = texture(DiffuseMap, UV1);
+	vec4 diffColor = texture(AlbedoMap, UV1);
 	vec4 emsvColor = EncodeHDR(texture(EmissiveMap, UV1));
 	vec4 specColor = texture(SpecularMap, UV1);
 	float roughness = texture(RoughnessMap, UV1).r;
@@ -69,7 +69,7 @@ psLightmappedLitVertexColors(in vec3 ViewSpacePos,
 	[color2] out float Depth,
 	[color3] out vec4 Specular) 
 {
-	vec4 diffColor = texture(DiffuseMap, UV1);
+	vec4 diffColor = texture(AlbedoMap, UV1);
 	vec4 emsvColor = EncodeHDR(texture(EmissiveMap, UV1));
 	vec4 specColor = texture(SpecularMap, UV1);
 	float roughness = texture(RoughnessMap, UV1).r;
@@ -103,7 +103,7 @@ psLightmappedUnlit(in vec3 ViewSpacePos,
 	in vec2 UV2,
 	[color0] out vec4 Albedo) 
 {
-	vec4 diffColor = texture(DiffuseMap, UV1.xy);
+	vec4 diffColor = texture(AlbedoMap, UV1.xy);
 	vec4 lightMapColor = vec4(((texture(LightMap, UV2.xy) - 0.5f) * 2.0f * LightMapIntensity).rgb, 1);
 	
 	Albedo = diffColor * lightMapColor;
@@ -127,7 +127,7 @@ psLightmappedUnlitVertexColors(in vec3 ViewSpacePos,
 	in vec4 Color,
 	[color0] out vec4 Albedo) 
 {
-	vec4 diffColor = texture(DiffuseMap, UV1.xy);
+	vec4 diffColor = texture(AlbedoMap, UV1.xy);
 	vec4 lightMapColor = vec4(((texture(LightMap, UV2.xy) - 0.5f) * 2.0f * LightMapIntensity).rgb, 1);
 	
 	Albedo = diffColor * lightMapColor * Color;

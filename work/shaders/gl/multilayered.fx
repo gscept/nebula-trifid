@@ -11,8 +11,8 @@
 #include "lib/shadowbase.fxh"
 #include "lib/geometrybase.fxh"
 
-sampler2D DiffuseMap2;
-sampler2D DiffuseMap3;
+sampler2D AlbedoMap2;
+sampler2D AlbedoMap3;
 sampler2D SpecularMap2;
 sampler2D SpecularMap3;
 sampler2D EmissiveMap2;
@@ -27,7 +27,7 @@ sampler2D DisplacementMap3;
 
 samplerstate MLPSampler
 {
-	Samplers = { DiffuseMap2, DiffuseMap3, SpecularMap2, 
+	Samplers = { AlbedoMap2, AlbedoMap3, SpecularMap2, 
 		     SpecularMap3, EmissiveMap2, EmissiveMap3, 
 		     NormalMap2, NormalMap3, RoughnessMap2,  
 		     RoughnessMap3, DisplacementMap2, DisplacementMap3};
@@ -261,10 +261,10 @@ psMultilayered(in vec3 ViewSpacePos,
 {
 	vec4 blend = Color;
 	
-	vec4 diffColor1 = texture(DiffuseMap, UV.xy);
-	vec4 diffColor2 = texture(DiffuseMap2, UV.xy);
-	vec4 diffColor3 = texture(DiffuseMap3, UV.xy);
-	vec4 diffColor = (diffColor1 * blend.r + diffColor2 * blend.g + diffColor3 * blend.b) * vec4(MatAlbedoIntensity.rgb, 1);
+	vec4 diffColor1 = texture(AlbedoMap, UV.xy);
+	vec4 diffColor2 = texture(AlbedoMap2, UV.xy);
+	vec4 diffColor3 = texture(AlbedoMap3, UV.xy);
+	vec4 diffColor = (diffColor1 * blend.r + diffColor2 * blend.g + diffColor3 * blend.b) * MatAlbedoIntensity;
 			
 	vec4 specColor1 = texture(SpecularMap, UV.xy);
 	vec4 specColor2 = texture(SpecularMap2, UV.xy);
@@ -285,8 +285,7 @@ psMultilayered(in vec3 ViewSpacePos,
 	mat4x4 invView = InvView;
 	mat2x3 env = PBRSpec(specColor, bumpNormal, ViewSpacePos, WorldViewVec, invView, roughness);
 	vec4 spec = calcSpec(specColor.rgb, roughness);
-	float alphaBlendFactor = AlphaBlendFactor;
-	vec4 albedo = calcColor(diffColor, vec4(1), spec, alphaBlendFactor);	
+	vec4 albedo = calcColor(diffColor, vec4(1), spec);	
 	vec4 emissive = vec4((env[0] * albedo.rgb + env[1]), -1);
 
 	Specular = spec;

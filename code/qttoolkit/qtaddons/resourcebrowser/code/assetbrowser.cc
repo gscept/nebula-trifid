@@ -35,6 +35,9 @@ AssetBrowser::AssetBrowser() :
 	this->shortcut = new QShortcut(QKeySequence(Qt::Key_Backspace), this);
 	connect(this->shortcut, SIGNAL(activated()), this->ui->backButton, SLOT(animateClick()));
 
+	// set window to be modal
+	this->setWindowFlags(Qt::WindowStaysOnTopHint);
+
     connect(this->ui->texturesFilter, SIGNAL(toggled(bool)), this, SLOT(OnTexturesFilterChecked(bool)));
     connect(this->ui->modelsFilter, SIGNAL(toggled(bool)), this, SLOT(OnModelsFilterChecked(bool)));
     connect(this->ui->surfacesFilter, SIGNAL(toggled(bool)), this, SLOT(OnSurfacesFilterChecked(bool)));

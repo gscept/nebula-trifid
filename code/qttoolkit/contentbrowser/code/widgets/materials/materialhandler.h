@@ -15,6 +15,7 @@
 #include "materials/managedsurface.h"
 #include "resources/managedtexture.h"
 #include <QObject>
+#include <QColorDialog>
 #include <QDoubleSpinBox>
 #include <QSpinBox>
 #include <QCheckBox>
@@ -101,6 +102,10 @@ private slots:
     void Browse();
     /// called whenever a color picker is clicked
     void ChangeColor();
+	/// called whenever the color picker is changed
+	void ColorPickerChanged(const QColor& color);
+	/// called whenever the color picker is changed
+	void ColorPickerClosed(int result);
 
 	/// called whenever the save button is clicked
 	void Save();
@@ -178,6 +183,10 @@ private:
     Util::Dictionary<IndexT, Util::StringAtom> textureVariables;
     Util::Dictionary<IndexT, Util::StringAtom> scalarVariables;
     ToolkitUtil::State state;
+
+	// used to hold current color when color picking
+	Math::float4 currentColor;
+	QColorDialog* colorDialog;
 
 	QDialog saveDialog;
 	Ui::SaveResourceDialog saveDialogUi;

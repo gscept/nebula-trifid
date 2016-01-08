@@ -22,7 +22,7 @@ samplerCube IrradianceMap;
 // samplers
 samplerstate GeometryTextureSampler
 {
-	Samplers = { SpecularMap, EmissiveMap, NormalMap, DiffuseMap, DisplacementMap, RoughnessMap, CavityMap };
+	Samplers = { SpecularMap, EmissiveMap, NormalMap, AlbedoMap, DisplacementMap, RoughnessMap, CavityMap };
 	Filter = MinMagMipLinear;
 	AddressU = Wrap;
 	AddressV = Wrap;
@@ -59,12 +59,11 @@ state AlphaState
 //---------------------------------------------------------------------------------------------------------------------------
 //											DIFFUSE
 //---------------------------------------------------------------------------------------------------------------------------
-prototype vec4 CalculateColor(vec4 albedoColor, vec4 color, vec4 spec, float alphaBlend);
+prototype vec4 CalculateColor(vec4 albedoColor, vec4 color, vec4 spec);
 subroutine (CalculateColor) vec4 SimpleColor(
 	in vec4 albedoColor, 
 	in vec4 color, 
-	in vec4 spec,
-	in float alphaBlend) 
+	in vec4 spec) 
 {
 	return vec4(albedoColor.rgb * (1 - spec.rgb), albedoColor.a);
 }
@@ -72,30 +71,27 @@ subroutine (CalculateColor) vec4 SimpleColor(
 subroutine (CalculateColor) vec4 SimpleColorMultiply(
 	in vec4 albedoColor, 
 	in vec4 color, 	
-	in vec4 spec,
-	in float alphaBlend) 
+	in vec4 spec) 
 {
 	vec4 col = albedoColor * color;
-	return vec4(col.rgb * (1 - spec.rgb), col.a);
+	return vec4(col.rgb * (1 - spec.rgb), albedoColor.a * col.a);
 }
 
 subroutine (CalculateColor) vec4 AlphaColor(
 	in vec4 albedoColor, 
 	in vec4 color, 
-	in vec4 spec,
-	in float alphaBlend) 
+	in vec4 spec) 
 {
-	return vec4(albedoColor.rgb * (1 - spec.rgb), albedoColor.a * alphaBlend);
+	return vec4(albedoColor.rgb * (1 - spec.rgb), albedoColor.a);
 }
 
 subroutine (CalculateColor) vec4 AlphaColorMultiply(
 	in vec4 albedoColor, 
 	in vec4 color,	
-	in vec4 spec,
-	in float alphaBlend) 
+	in vec4 spec) 
 {
 	vec4 col = albedoColor * color;
-	return vec4(albedoColor.rgb * (1 - spec.rgb), albedoColor.a * alphaBlend);
+	return vec4(albedoColor.rgb * (1 - spec.rgb), albedoColor.a);
 }
 
 CalculateColor calcColor;
@@ -654,7 +650,7 @@ psUber(in vec3 ViewSpacePos,
 	[color3] out vec4 Specular,
 	[color4] out vec4 Emissive) 
 {	
-	vec4 diffColor = texture(DiffuseMap, UV) * vec4(MatAlbedoIntensity.rgb, 1);
+	vec4 diffColor = texture(AlbedoMap, UV) * MatAlbedoIntensity;
 	float roughness = texture(RoughnessMap, UV).r * MatRoughnessIntensity;
 	vec4 specColor = texture(SpecularMap, UV) * MatSpecularIntensity;
 	float cavity = texture(CavityMap, UV).r;
@@ -662,11 +658,9 @@ psUber(in vec3 ViewSpacePos,
 	vec4 normals = texture(NormalMap, UV);
 	vec3 bumpNormal = normalize(calcBump(Tangent, Binormal, Normal, normals));
 
-	mat4x4 invView = InvView;
-	mat2x3 env = PBRSpec(specColor, bumpNormal, ViewSpacePos, WorldViewVec, invView, roughness);
+	mat2x3 env = PBRSpec(specColor, bumpNormal, ViewSpacePos, WorldViewVec, InvView, roughness);
 	vec4 spec = calcSpec(specColor.rgb, roughness);
-	float alphaBlendFactor = AlphaBlendFactor;
-	vec4 albedo = calcColor(diffColor, vec4(1), spec, alphaBlendFactor);	
+	vec4 albedo = calcColor(diffColor, vec4(1), spec);	
 	vec4 emissive = vec4((env[0] * albedo.rgb + env[1]) * cavity, -1);
 
 	Specular = spec;
@@ -695,7 +689,7 @@ psUberAlphaTest(in vec3 ViewSpacePos,
 	[color3] out vec4 Specular,
 	[color4] out vec4 Emissive) 
 {
-	vec4 diffColor = texture(DiffuseMap, UV) * vec4(MatAlbedoIntensity.rgb, 1);
+	vec4 diffColor = texture(AlbedoMap, UV) * MatAlbedoIntensity;
 	if (diffColor.a < AlphaSensitivity) { discard; return; }
 	float roughness = texture(RoughnessMap, UV).r * MatRoughnessIntensity;
 	vec4 specColor = texture(SpecularMap, UV) * MatSpecularIntensity;
@@ -704,11 +698,9 @@ psUberAlphaTest(in vec3 ViewSpacePos,
 	vec4 normals = texture(NormalMap, UV);
 	vec3 bumpNormal = calcBump(Tangent, Binormal, Normal, normals);
 	
-	mat4x4 invView = InvView;
-	mat2x3 env = calcEnv(specColor, bumpNormal, ViewSpacePos, WorldViewVec, invView, roughness);
+	mat2x3 env = calcEnv(specColor, bumpNormal, ViewSpacePos, WorldViewVec, InvView, roughness);
 	vec4 spec = calcSpec(specColor.rgb, roughness);
-	float alphaBlendFactor = AlphaBlendFactor;
-	vec4 albedo = calcColor(diffColor, vec4(1), spec, alphaBlendFactor);	
+	vec4 albedo = calcColor(diffColor, vec4(1), spec);	
 	vec4 emissive = vec4((env[0] * albedo.rgb + env[1]) * cavity, -1);
 
 	Specular = spec;
@@ -737,7 +729,7 @@ psUberVertexColor(in vec3 ViewSpacePos,
 	[color3] out vec4 Specular,
 	[color4] out vec4 Emissive) 
 {
-	vec4 diffColor = texture(DiffuseMap, UV) * vec4(MatAlbedoIntensity.rgb, 1) * Color;
+	vec4 diffColor = texture(AlbedoMap, UV) * MatAlbedoIntensity * Color;
 	float roughness = texture(RoughnessMap, UV).r * MatRoughnessIntensity;
 	vec4 specColor = texture(SpecularMap, UV) * MatSpecularIntensity;
 	float cavity = texture(CavityMap, UV).r;
@@ -745,11 +737,9 @@ psUberVertexColor(in vec3 ViewSpacePos,
 	vec4 normals = texture(NormalMap, UV);
 	vec3 bumpNormal = calcBump(Tangent, Binormal, Normal, normals);
 	
-	mat4x4 invView = InvView;
-	mat2x3 env = calcEnv(specColor, bumpNormal, ViewSpacePos, WorldViewVec, invView, roughness);
+	mat2x3 env = calcEnv(specColor, bumpNormal, ViewSpacePos, WorldViewVec, InvView, roughness);
 	vec4 spec = calcSpec(specColor.rgb, roughness);
-	float alphaBlendFactor = AlphaBlendFactor;
-	vec4 albedo = calcColor(diffColor, Color, spec, alphaBlendFactor);	
+	vec4 albedo = calcColor(diffColor, Color, spec);	
 	vec4 emissive = vec4((env[0] * albedo.rgb + env[1]) * cavity, -1);
 
 	Specular = spec;
@@ -775,7 +765,7 @@ psDefault(in vec3 ViewSpacePos,
 	[color3] out vec4 Specular,
 	[color4] out vec4 Emissive) 
 {
-	vec4 diffColor = texture(DiffuseMap, UV);
+	vec4 diffColor = texture(AlbedoMap, UV);
 	if (diffColor.a < AlphaSensitivity) { discard; return; }
 	vec4 emsvColor = texture(EmissiveMap, UV);
 	vec4 specColor = texture(SpecularMap, UV);
@@ -808,7 +798,7 @@ psTranslucent(in vec3 ViewSpacePos,
 	[color2] out float Depth,	
 	[color3] out vec4 Specular) 
 {
-	vec4 diffColor = texture(DiffuseMap, UV);
+	vec4 diffColor = texture(AlbedoMap, UV);
 	if (diffColor.a < AlphaSensitivity) { discard; return; }
 	vec4 emsvColor = texture(EmissiveMap, UV);
 	vec4 specColor = texture(SpecularMap, UV);
@@ -845,7 +835,7 @@ psAlpha(in vec3 ViewSpacePos,
 	[color2] out float Depth,	
 	[color3] out vec4 Specular) 
 {
-	vec4 diffColor = texture(DiffuseMap, UV);
+	vec4 diffColor = texture(AlbedoMap, UV);
 	if (diffColor.a < AlphaSensitivity) { discard; return; }
 	vec4 emsvColor = texture(EmissiveMap, UV);
 	vec4 specColor = texture(SpecularMap, UV);
@@ -877,7 +867,7 @@ psEnvironment(in vec3 ViewSpacePos,
 	[color2] out float Depth,	
 	[color3] out vec4 Specular) 
 {
-	vec4 diffColor = texture(DiffuseMap, UV);
+	vec4 diffColor = texture(AlbedoMap, UV);
 	if (diffColor.a < AlphaSensitivity) { discard; return; }
 	vec4 emsvColor = texture(EmissiveMap, UV);
 	vec4 specColor = texture(SpecularMap, UV);
@@ -917,7 +907,7 @@ psVertexColor(in vec3 ViewSpacePos,
 	[color2] out float Depth,	
 	[color3] out vec4 Specular) 
 {
-	vec4 diffColor = texture(DiffuseMap, UV);
+	vec4 diffColor = texture(AlbedoMap, UV);
 	vec4 emsvColor = texture(EmissiveMap, UV);
 	vec4 specColor = texture(SpecularMap, UV);
 	float roughness = texture(RoughnessMap, UV).r;
@@ -949,7 +939,7 @@ psBillboard(in vec2 UV,
 			[color0] out vec4 Albedo)
 {
 	// get diffcolor
-	vec4 diffColor = texture(DiffuseMap, UV);
+	vec4 diffColor = texture(AlbedoMap, UV);
 	
 	Albedo = diffColor;
 }

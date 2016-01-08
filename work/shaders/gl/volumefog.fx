@@ -15,12 +15,12 @@ vec2 Velocity = vec2(0,0);
 vec2 FogDistances = vec2(0.0f, 50.0f);
 vec4 FogColor = vec4(0.5f, 0.5f, 0.63f, 0.0f);
 
-sampler2D DiffuseMap;
+sampler2D AlbedoMap;
 sampler2D DepthMap;
 
 samplerstate VolumeFogSampler
 {
-	Samplers = { DiffuseMap, DepthMap };
+	Samplers = { AlbedoMap, DepthMap };
 };
 
 state VolumeFogState
@@ -42,7 +42,7 @@ const vec2 layerVelocities[4] = {
 void 
 SampleTexture(in vec2 uv, in vec4 vertexColor, inout vec4 dstColor)
 {
-    vec4 srcColor = texture(DiffuseMap, uv) * vertexColor;
+    vec4 srcColor = texture(AlbedoMap, uv) * vertexColor;
     dstColor.rgb = lerp(dstColor.rgb, srcColor.rgb, srcColor.a);
     dstColor.a += srcColor.a * 0.25;
 }
@@ -116,7 +116,7 @@ psMain(in vec3 ViewSpacePos,
 	[color0] out vec4 Result,
 	[color1] out vec4 Unshaded)
 {
-	vec2 normalMapPixelSize = GetPixelSize(DiffuseMap);
+	vec2 normalMapPixelSize = GetPixelSize(AlbedoMap);
 	vec2 screenUv = psComputeScreenCoord(gl_FragCoord.xy, normalMapPixelSize.xy);
 	
 	vec4 dstColor = vec4(0,0,0,0);

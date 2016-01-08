@@ -94,7 +94,7 @@ vec2 SharedMemoryLoad(int centerId, int x)
 vec2 LoadXZFromTexture(int x, int y)
 { 
     vec2 uv = (vec2(x, y) + 0.5f) * InvAOResolution;
-    float z_eye = max(textureLod(DepthBuffer, uv, 0).r, 0);
+    float z_eye = textureLod(DepthBuffer, uv, 0).r;
     float x_eye = (UVToViewA.x * uv.x + UVToViewB.x) * z_eye;
     return vec2(x_eye, z_eye);
 }
@@ -105,7 +105,7 @@ vec2 LoadXZFromTexture(int x, int y)
 vec2 LoadYZFromTexture(int x, int y)
 {
     vec2 uv = (vec2(x, y) + 0.5f) * InvAOResolution;
-    float z_eye = max(textureLod(DepthBuffer, uv, 0).r, 0);
+    float z_eye = textureLod(DepthBuffer, uv, 0).r;
     float y_eye = (UVToViewA.y * uv.y + UVToViewB.y) * z_eye;
     return vec2(y_eye, z_eye);
 }

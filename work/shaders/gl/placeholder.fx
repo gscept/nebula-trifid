@@ -8,7 +8,7 @@
 #include "lib/techniques.fxh"
 #include "lib/shared.fxh"
 
-sampler2D DiffuseMap;
+sampler2D AlbedoMap;
 
 //------------------------------------------------------------------------------
 /**
@@ -32,7 +32,7 @@ void
 psMain(in vec2 uv,
 	[color0] out vec4 Color)
 {
-	Color = texture(DiffuseMap, uv);
+	Color = texture(AlbedoMap, uv);
 }
 
 //------------------------------------------------------------------------------

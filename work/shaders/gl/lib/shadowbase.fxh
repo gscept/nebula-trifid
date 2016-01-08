@@ -15,7 +15,7 @@ const float ShadowConstant = 100.0f;
 
 samplerstate ShadowSampler
 {
-	Samplers = { DiffuseMap, DisplacementMap };
+	Samplers = { AlbedoMap, DisplacementMap };
 };
 
 state ShadowState
@@ -505,7 +505,7 @@ psShadowAlpha(in vec2 UV,
 	in vec4 ProjPos,
 	[color0] out vec2 ShadowColor) 
 {
-	float alpha = texture(DiffuseMap, UV).a;
+	float alpha = texture(AlbedoMap, UV).a;
 	if (alpha < AlphaSensitivity) discard;
 	
 	float depth = ProjPos.z / ProjPos.w;
@@ -542,7 +542,7 @@ psESMAlpha(in vec2 UV,
 	  in vec4 ProjPos,
 	  [color0] out float ShadowColor)
 {
-	float alpha = texture(DiffuseMap, UV).a;
+	float alpha = texture(AlbedoMap, UV).a;
 	if (alpha < AlphaSensitivity) discard;
 	ShadowColor = (ProjPos.z/ProjPos.w) * DepthScaling;
 }
@@ -578,7 +578,7 @@ psVSMAlpha(in vec2 UV,
 	in vec4 ProjPos,
 	[color0] out vec2 ShadowColor) 
 {
-	float alpha = texture(DiffuseMap, UV).a;
+	float alpha = texture(AlbedoMap, UV).a;
 	if (alpha < AlphaSensitivity) discard;
 	
 	float depth = ProjPos.z / ProjPos.w;

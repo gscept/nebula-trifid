@@ -3,6 +3,6 @@
 -->
 <NebulaT>
 	<Surface template="ParticleUnlit">
-		<Param name="DiffuseMap" value="tex:system/placeholder"/>
+		<Param name="AlbedoMap" value="tex:system/placeholder"/>
 	</Surface>
 </NebulaT>

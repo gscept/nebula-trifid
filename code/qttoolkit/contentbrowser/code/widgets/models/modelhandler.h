@@ -19,6 +19,7 @@
 #include "modelutil/modelphysics.h"
 #include "ui_modelinfowidget.h"
 #include "messaging/message.h"
+#include "code/filewatcher.h"
 
 namespace Widgets
 {
@@ -102,6 +103,8 @@ private:
 
 	/// setup or remake tabs
 	void SetupTabs();
+	/// update model thumbnail icon
+	void UpdateModelThumbnail();
 
 	Ptr<Actions::ModelModifyAction> action;
 	Util::String file;
@@ -113,7 +116,7 @@ private:
 	Ptr<ToolkitUtil::ModelAttributes> attributes;
 	Ptr<ToolkitUtil::ModelConstants> constants;
 	Ptr<ToolkitUtil::ModelPhysics> physics;
-
+	ResourceBrowser::FileWatcher thumbnailWatcher;
 }; 
 
 //------------------------------------------------------------------------------
