@@ -52,7 +52,7 @@ AssetBatcherApp::Open()
 		{
 			if (handlers[i]->IsA(Win32::Win32ConsoleHandler::RTTI))
 			{
-				console->RemoveHandler(handlers[i]);
+				//console->RemoveHandler(handlers[i]);
 			}
 		}
 #endif		
@@ -133,6 +133,7 @@ AssetBatcherApp::DoWork()
 	}	
 	exporter->Close();
 
+#if 0
 	// output to stderr for parsing of tools
 	const Util::Array<ToolkitUtil::ToolLog>& failedFiles = exporter->GetMessages();
 	
@@ -154,7 +155,7 @@ AssetBatcherApp::DoWork()
 	Util::String streamString;
 	streamString.Set((const char*)str, stream->GetSize());		
 	fprintf(stderr, "%s", streamString.AsCharPtr());
-	
+#endif
 	// if we have any errors, set the return code to be errornous	
 	if (exporter->HasErrors()) this->SetReturnCode(-1);
 }

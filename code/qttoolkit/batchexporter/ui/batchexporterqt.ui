@@ -64,210 +64,55 @@
          </property>
          <layout class="QGridLayout" name="gridLayout_5">
           <item row="0" column="0">
-           <widget class="QTabWidget" name="tabWidget">
-            <property name="tabPosition">
-             <enum>QTabWidget::South</enum>
+           <widget class="QTextEdit" name="outputText">
+            <property name="enabled">
+             <bool>true</bool>
             </property>
-            <property name="currentIndex">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::ClickFocus</enum>
+            </property>
+            <property name="acceptDrops">
+             <bool>false</bool>
+            </property>
+            <property name="styleSheet">
+             <string notr="true"/>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::Box</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Plain</enum>
+            </property>
+            <property name="verticalScrollBarPolicy">
+             <enum>Qt::ScrollBarAsNeeded</enum>
+            </property>
+            <property name="undoRedoEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="lineWrapMode">
+             <enum>QTextEdit::WidgetWidth</enum>
+            </property>
+            <property name="lineWrapColumnOrWidth">
+             <number>80</number>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+            <property name="overwriteMode">
+             <bool>true</bool>
+            </property>
+            <property name="cursorWidth">
              <number>0</number>
             </property>
-            <widget class="QWidget" name="messageTab">
-             <attribute name="title">
-              <string>Messages</string>
-             </attribute>
-             <layout class="QGridLayout" name="gridLayout_4">
-              <item row="0" column="0">
-               <layout class="QHBoxLayout" name="horizontalLayout">
-                <item>
-                 <widget class="QLabel" name="label_4">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="text">
-                   <string>Show Output all by type</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="errorFilter">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="text">
-                   <string>Errors</string>
-                  </property>
-                  <property name="checkable">
-                   <bool>true</bool>
-                  </property>
-                  <property name="checked">
-                   <bool>true</bool>
-                  </property>
-                  <property name="default">
-                   <bool>false</bool>
-                  </property>
-                  <property name="flat">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="warningsFilter">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="text">
-                   <string>Warnings</string>
-                  </property>
-                  <property name="checkable">
-                   <bool>true</bool>
-                  </property>
-                  <property name="checked">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="infoFilter">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="text">
-                   <string>Info/Debug</string>
-                  </property>
-                  <property name="checkable">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <spacer name="horizontalSpacer">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-               </layout>
-              </item>
-              <item row="1" column="0">
-               <widget class="QTreeWidget" name="messageList">
-                <property name="editTriggers">
-                 <set>QAbstractItemView::NoEditTriggers</set>
-                </property>
-                <property name="alternatingRowColors">
-                 <bool>false</bool>
-                </property>
-                <property name="selectionMode">
-                 <enum>QAbstractItemView::SingleSelection</enum>
-                </property>
-                <property name="selectionBehavior">
-                 <enum>QAbstractItemView::SelectRows</enum>
-                </property>
-                <property name="columnCount">
-                 <number>3</number>
-                </property>
-                <column>
-                 <property name="text">
-                  <string>Asset</string>
-                 </property>
-                </column>
-                <column>
-                 <property name="text">
-                  <string>Tool</string>
-                 </property>
-                </column>
-                <column>
-                 <property name="text">
-                  <string>Source</string>
-                 </property>
-                </column>
-               </widget>
-              </item>
-              <item row="2" column="0">
-               <widget class="QTextEdit" name="messageText">
-                <property name="readOnly">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-            <widget class="QWidget" name="outTab">
-             <attribute name="title">
-              <string>Output</string>
-             </attribute>
-             <layout class="QGridLayout" name="gridLayout_6">
-              <item row="0" column="0">
-               <widget class="QTextEdit" name="outputText">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="focusPolicy">
-                 <enum>Qt::ClickFocus</enum>
-                </property>
-                <property name="acceptDrops">
-                 <bool>false</bool>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true"/>
-                </property>
-                <property name="frameShape">
-                 <enum>QFrame::Box</enum>
-                </property>
-                <property name="frameShadow">
-                 <enum>QFrame::Plain</enum>
-                </property>
-                <property name="verticalScrollBarPolicy">
-                 <enum>Qt::ScrollBarAsNeeded</enum>
-                </property>
-                <property name="undoRedoEnabled">
-                 <bool>false</bool>
-                </property>
-                <property name="lineWrapMode">
-                 <enum>QTextEdit::WidgetWidth</enum>
-                </property>
-                <property name="lineWrapColumnOrWidth">
-                 <number>80</number>
-                </property>
-                <property name="readOnly">
-                 <bool>true</bool>
-                </property>
-                <property name="overwriteMode">
-                 <bool>true</bool>
-                </property>
-                <property name="cursorWidth">
-                 <number>0</number>
-                </property>
-                <property name="textInteractionFlags">
-                 <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
+            <property name="textInteractionFlags">
+             <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+            </property>
            </widget>
           </item>
           <item row="2" column="0">
@@ -481,6 +326,19 @@
    <addaction name="menuEdit"/>
    <addaction name="menuAbout"/>
   </widget>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionContentbrowser"/>
+   <addaction name="actionLeveleditor"/>
+  </widget>
   <action name="actionAbout">
    <property name="text">
     <string>About</string>
@@ -509,9 +367,34 @@
     <string>Set Toolkit directory</string>
    </property>
   </action>
+  <action name="actionContentbrowser">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/icons/icons/Contentbrowser.png</normaloff>:/icons/icons/Contentbrowser.png</iconset>
+   </property>
+   <property name="text">
+    <string>Contentbrowser</string>
+   </property>
+   <property name="toolTip">
+    <string>Start Contentbrowser</string>
+   </property>
+  </action>
+  <action name="actionLeveleditor">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/icons/icons/Leveleditor.png</normaloff>:/icons/icons/Leveleditor.png</iconset>
+   </property>
+   <property name="text">
+    <string>Leveleditor</string>
+   </property>
+   <property name="toolTip">
+    <string>Start Leveleditor</string>
+   </property>
+  </action>
  </widget>
  <resources>
-  <include location="../../../qttools/ui/qttoolkit.qrc"/>
+   <include location="../../qttools/ui/qttoolkit.qrc"/>
+   <include location="../../resources.qrc"/>
  </resources>
  <connections/>
 </ui>

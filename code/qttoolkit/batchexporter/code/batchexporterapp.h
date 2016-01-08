@@ -80,6 +80,11 @@ private slots:
 	void SetExportAudio(bool state);
 
 
+	///
+	void StartContentbrowser();
+	///
+	void StartLeveleditor();
+
 	/// outputs a message
 	void OutputMessage();
 
@@ -92,12 +97,6 @@ private slots:
 	void PickToolkitDir();
 	/// shows the about dialog
 	void ShowAbout();
-
-	/// 
-	void UpdateOutputWindow();
-
-	/// selection in list changed
-	void SelectionChanged();
 
 	/// converts export bit to string
 	const QString FromBit(ExportBits bit);
@@ -127,8 +126,7 @@ private:
 	Ui::BatchExporterQtClass ui;
     App::ConsoleApplication* nebApp;
     ToolkitUtil::ProjectInfo projInfo;
-	Util::Array<ToolkitUtil::ToolLog> messages;
-    
+
     QString workDir;
     QString toolDir;
 };
