@@ -29,6 +29,6 @@ struct AnyFXErrorBlob
 	}
 };
 
-extern bool AnyFXCompile(const std::string& file, const std::string& output, const std::string& target, const std::string& vendor, const std::vector<std::string>& defines, AnyFXErrorBlob** errorBuffer);
+extern bool AnyFXCompile(const std::string& file, const std::string& output, const std::string& target, const std::string& vendor, const std::vector<std::string>& defines, const std::vector<std::string>& flags, AnyFXErrorBlob** errorBuffer);
 extern void AnyFXBeginCompile();
 extern void AnyFXEndCompile();

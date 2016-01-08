@@ -103,26 +103,6 @@ RocketRenderer::CompileGeometry(Rocket::Core::Vertex* vertices,
 	n_assert(geometry->vb->IsLoaded());
 	geometry->vb->SetLoader(0);
 
-    /*
-	// map buffer
-	NebulaVertex* verts = (NebulaVertex*)geometry->vb->Map(Base::ResourceBase::MapWriteDiscard);
-	IndexT i;
-	for (i = 0; i < num_vertices; i++)
-	{
-		verts[i].x = vertices[i].position.x;
-		verts[i].y = vertices[i].position.y;
-
-		verts[i].u = vertices[i].tex_coord[0];
-		verts[i].v = vertices[i].tex_coord[1];		
-
-		verts[i].r = vertices[i].colour.red / 255.f;	
-		verts[i].g = vertices[i].colour.green / 255.f;
-		verts[i].b = vertices[i].colour.blue / 255.f;
-		verts[i].a = vertices[i].colour.alpha / 255.f;
-	}
-	geometry->vb->Unmap();
-    */
-	
 	// create index buffer
 	geometry->ib = IndexBuffer::Create();
 
@@ -231,6 +211,7 @@ RocketRenderer::ReleaseCompiledGeometry( Rocket::Core::CompiledGeometryHandle ge
 	nebGeometry->ib = 0;		
 	nebGeometry->vb->Unload();
 	nebGeometry->vb = 0;
+	nebGeometry->vertexLayout = 0;
 	nebGeometry->texture = 0;
 	
 	Memory::Free(Memory::RocketHeap, nebGeometry);
@@ -273,7 +254,7 @@ RocketRenderer::LoadTexture( Rocket::Core::TextureHandle& texture_handle, Rocket
 {
 	int width, height, channels;
 	unsigned char* data = SOIL_load_image(source.CString(), &width, &height, &channels, SOIL_LOAD_RGBA);
-    if(data == NULL)
+    if (data == NULL)
     {
         return false;
     }

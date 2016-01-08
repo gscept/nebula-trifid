@@ -161,8 +161,8 @@ Function::ConsumeAttribute( const FunctionAttribute& attr )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Function::TypeCheck( TypeChecker& typechecker )
+void
+Function::TypeCheck(TypeChecker& typechecker)
 {
 	// add function, if failed we must have a redefinition
 	if (!typechecker.AddSymbol(this)) return;
@@ -235,6 +235,11 @@ Function::TypeCheck( TypeChecker& typechecker )
             else if (param.GetIO() == Parameter::Output)    param.SetParameterIndex(output++);
             else                                            param.SetParameterIndex(i);
         }        
+		else
+		{
+			if (param.GetIO() == Parameter::Input)			input = param.GetSlot();
+			else if (param.GetIO() == Parameter::Output)	output = param.GetSlot();
+		}
     }
 
 	unsigned j;

@@ -164,6 +164,7 @@ prototype mat2x3 CalculateEnvironment(
 	in vec3 viewSpaceNormal, 
 	in vec3 viewSpacePos, 
 	in vec3 worldViewVec,
+	in mat4 invView,
 	in float roughness);
 
 subroutine (CalculateEnvironment) mat2x3 PBR(
@@ -171,10 +172,11 @@ subroutine (CalculateEnvironment) mat2x3 PBR(
 	in vec3 viewSpaceNormal, 
 	in vec3 viewSpacePos, 
 	in vec3 worldViewVec,
+	in mat4 invView,
 	in float roughness)
 {
 	mat2x3 ret;
-	vec4 worldNorm = (InvView * vec4(viewSpaceNormal, 0));
+	vec4 worldNorm = (invView * vec4(viewSpaceNormal, 0));
 	vec3 reflectVec = reflect(worldViewVec, worldNorm.xyz);
 	float x = dot(-viewSpaceNormal, normalize(viewSpacePos));
 	vec3 rim = FresnelSchlickGloss(specularColor.rgb, x, roughness);
@@ -188,10 +190,11 @@ subroutine (CalculateEnvironment) mat2x3 ReflectionOnly(
 	in vec3 viewSpaceNormal, 
 	in vec3 viewSpacePos, 
 	in vec3 worldViewVec,
+	in mat4 invView,
 	in float roughness)
 {
 	mat2x3 ret;
-	vec4 worldNorm = (InvView * vec4(viewSpaceNormal, 0));
+	vec4 worldNorm = (invView * vec4(viewSpaceNormal, 0));
 	vec3 reflectVec = reflect(worldViewVec, worldNorm.xyz);
 	float x = dot(-viewSpaceNormal, normalize(viewSpacePos.xyz));
 	vec3 rim = FresnelSchlickGloss(specularColor.rgb, x, roughness);
@@ -205,10 +208,11 @@ subroutine (CalculateEnvironment) mat2x3 IrradianceOnly(
 	in vec3 viewSpaceNormal, 
 	in vec3 viewSpacePos, 
 	in vec3 worldViewVec,
+	in mat4 invView,
 	in float roughness)
 {
 	mat2x3 ret;
-	vec4 worldNorm = (InvView * vec4(viewSpaceNormal, 0));
+	vec4 worldNorm = (invView * vec4(viewSpaceNormal, 0));
 	ret[1] = vec3(0);
 	ret[0] = textureLod(IrradianceMap, worldNorm.xyz, 0).rgb;
 	return ret;
@@ -219,6 +223,7 @@ subroutine (CalculateEnvironment) mat2x3 NoEnvironment(
 	in vec3 viewSpaceNormal, 
 	in vec3 viewSpacePos, 
 	in vec3 worldViewVec,
+	in mat4 invView,
 	in float roughness)
 {
 	mat2x3 ret;
@@ -229,6 +234,24 @@ subroutine (CalculateEnvironment) mat2x3 NoEnvironment(
 
 CalculateEnvironment calcEnv;
 
+
+mat2x3 PBRSpec(
+	in vec4 specularColor, 
+	in vec3 viewSpaceNormal, 
+	in vec3 viewSpacePos, 
+	in vec3 worldViewVec,
+	in mat4 invView,
+	in float roughness)
+{
+	mat2x3 ret;
+	vec4 worldNorm = (invView * vec4(viewSpaceNormal, 0));
+	vec3 reflectVec = reflect(worldViewVec, worldNorm.xyz);
+	float x = dot(-viewSpaceNormal, normalize(viewSpacePos));
+	vec3 rim = FresnelSchlickGloss(specularColor.rgb, x, roughness);
+	ret[1] = textureLod(EnvironmentMap, reflectVec, (1.0f - roughness) * NumEnvMips).rgb * rim;
+	ret[0] = textureLod(IrradianceMap, worldNorm.xyz, 0).rgb;
+	return ret;
+}
 
 //------------------------------------------------------------------------------
 /**
@@ -639,9 +662,11 @@ psUber(in vec3 ViewSpacePos,
 	vec4 normals = texture(NormalMap, UV);
 	vec3 bumpNormal = normalize(calcBump(Tangent, Binormal, Normal, normals));
 
-	mat2x3 env = calcEnv(specColor, bumpNormal, ViewSpacePos, WorldViewVec, roughness);
+	mat4x4 invView = InvView;
+	mat2x3 env = PBRSpec(specColor, bumpNormal, ViewSpacePos, WorldViewVec, invView, roughness);
 	vec4 spec = calcSpec(specColor.rgb, roughness);
-	vec4 albedo = calcColor(diffColor, vec4(1), spec, AlphaBlendFactor);	
+	float alphaBlendFactor = AlphaBlendFactor;
+	vec4 albedo = calcColor(diffColor, vec4(1), spec, alphaBlendFactor);	
 	vec4 emissive = vec4((env[0] * albedo.rgb + env[1]) * cavity, -1);
 
 	Specular = spec;
@@ -679,9 +704,11 @@ psUberAlphaTest(in vec3 ViewSpacePos,
 	vec4 normals = texture(NormalMap, UV);
 	vec3 bumpNormal = calcBump(Tangent, Binormal, Normal, normals);
 	
-	mat2x3 env = calcEnv(specColor, bumpNormal, ViewSpacePos, WorldViewVec, roughness);
+	mat4x4 invView = InvView;
+	mat2x3 env = calcEnv(specColor, bumpNormal, ViewSpacePos, WorldViewVec, invView, roughness);
 	vec4 spec = calcSpec(specColor.rgb, roughness);
-	vec4 albedo = calcColor(diffColor, vec4(1), spec, AlphaBlendFactor);	
+	float alphaBlendFactor = AlphaBlendFactor;
+	vec4 albedo = calcColor(diffColor, vec4(1), spec, alphaBlendFactor);	
 	vec4 emissive = vec4((env[0] * albedo.rgb + env[1]) * cavity, -1);
 
 	Specular = spec;
@@ -718,9 +745,11 @@ psUberVertexColor(in vec3 ViewSpacePos,
 	vec4 normals = texture(NormalMap, UV);
 	vec3 bumpNormal = calcBump(Tangent, Binormal, Normal, normals);
 	
-	mat2x3 env = calcEnv(specColor, bumpNormal, ViewSpacePos, WorldViewVec, roughness);
+	mat4x4 invView = InvView;
+	mat2x3 env = calcEnv(specColor, bumpNormal, ViewSpacePos, WorldViewVec, invView, roughness);
 	vec4 spec = calcSpec(specColor.rgb, roughness);
-	vec4 albedo = calcColor(diffColor, Color, spec, AlphaBlendFactor);	
+	float alphaBlendFactor = AlphaBlendFactor;
+	vec4 albedo = calcColor(diffColor, Color, spec, alphaBlendFactor);	
 	vec4 emissive = vec4((env[0] * albedo.rgb + env[1]) * cavity, -1);
 
 	Specular = spec;

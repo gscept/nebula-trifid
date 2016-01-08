@@ -110,6 +110,7 @@ InternalEffectVarblock::Commit()
 void 
 InternalEffectVarblock::SetupSignature()
 {
+	this->signature.append(this->name + "{ ");
 	// format signature by retrieving all variable signatures and making a string mask
 	unsigned i;
 	for (i = 0; i < this->variables.size(); i++)
@@ -118,6 +119,7 @@ InternalEffectVarblock::SetupSignature()
 		this->signature.append(variable->GetSignature());
 		this->signature.append(";");
 	}
+	this->signature.append(" }");
 }
 
 //------------------------------------------------------------------------------

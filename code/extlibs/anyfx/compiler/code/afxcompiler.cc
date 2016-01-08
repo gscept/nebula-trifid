@@ -141,7 +141,7 @@ AnyFXPreprocess(const std::string& file, const std::vector<std::string>& defines
     @param errorBuffer	Buffer containing errors, created in function but must be deleted manually
 */
 bool
-AnyFXCompile(const std::string& file, const std::string& output, const std::string& target, const std::string& vendor, const std::vector<std::string>& defines, AnyFXErrorBlob** errorBuffer)
+AnyFXCompile(const std::string& file, const std::string& output, const std::string& target, const std::string& vendor, const std::vector<std::string>& defines, const std::vector<std::string>& flags, AnyFXErrorBlob** errorBuffer)
 {
     std::string preprocessed;
     (*errorBuffer) = NULL;
@@ -169,6 +169,7 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
             // create header
             Header header;
             header.SetProfile(target);
+			header.SetFlags(flags);
 
             // set effect header and setup effect
             effect.SetHeader(header);

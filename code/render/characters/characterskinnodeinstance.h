@@ -45,6 +45,7 @@ protected:
 	Ptr<CoreGraphics::ShaderVariable> skinningJointPaletteVar;
 	Ptr<CoreGraphics::FeedbackBuffer> feedbackBuffer;
 	Ptr<CoreGraphics::ShaderReadWriteBuffer> jointBuffer;
+	//Ptr<CoreGraphics::ShaderReadWriteBuffer> jointBuffer;
     Ptr<CharacterInstance> characterInstance;
     SkinnedMeshRenderer::DrawHandle drawHandle;
 };

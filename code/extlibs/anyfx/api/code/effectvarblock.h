@@ -73,7 +73,7 @@ public:
         unsigned size;
         bool bindRange;
 
-        OpenGLBufferBinding() : bindRange(false), offset(0), size(0) {};
+		OpenGLBufferBinding() : bindRange(false), offset(0), size(0), handle(0) {};
     };
 
     struct DirectXBufferBinding

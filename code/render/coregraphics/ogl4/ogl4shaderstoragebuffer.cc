@@ -35,23 +35,27 @@ OGL4ShaderStorageBuffer::~OGL4ShaderStorageBuffer()
 void
 OGL4ShaderStorageBuffer::Setup()
 {
+	n_assert(this->size > 0);
 	ShaderReadWriteBufferBase::Setup();
 	glGenBuffers(1, &this->ogl4Buffer);
 
-	GLint alignment;
-	glGetIntegerv(GL_SHADER_STORAGE_BUFFER_OFFSET_ALIGNMENT, &alignment);
+	GLint maxBufferSize;
+	GLint offsetAlignment;
+	glGetIntegerv(GL_MAX_SHADER_STORAGE_BLOCK_SIZE, &maxBufferSize);
+	glGetIntegerv(GL_SHADER_STORAGE_BUFFER_OFFSET_ALIGNMENT, &offsetAlignment);
 
 	// calculate aligned size
-    this->size = (this->size + alignment - 1) - (this->size + alignment - 1) % alignment;
+	this->size = (this->size + offsetAlignment - 1) - (this->size + offsetAlignment - 1) % offsetAlignment;
+	n_assert(this->size < GLuint(maxBufferSize));
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->ogl4Buffer);
 #ifdef OGL4_SHADER_BUFFER_ALWAYS_MAPPED
 	GLenum mapFlags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
-	glBufferStorage(GL_SHADER_STORAGE_BUFFER, this->alignedSize * this->NumBuffers, NULL, mapFlags | GL_DYNAMIC_STORAGE_BIT);
+	glBufferStorage(GL_SHADER_STORAGE_BUFFER, this->size * this->NumBuffers, NULL, mapFlags | GL_DYNAMIC_STORAGE_BIT);
 	this->buf = (GLubyte*)glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, this->size * this->NumBuffers, mapFlags);
 	this->bufferLock = BufferLock::Create();
 #else
-    glBufferData(GL_SHADER_STORAGE_BUFFER, this->size * this->NumBuffers, NULL, GL_STREAM_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, this->size * this->NumBuffers * 3, NULL, GL_STREAM_DRAW);
 #endif
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 	n_assert(GLSUCCESS);
@@ -70,6 +74,7 @@ OGL4ShaderStorageBuffer::Setup()
 void
 OGL4ShaderStorageBuffer::Discard()
 {
+	n_assert(this->ogl4Buffer != 0);
 #ifdef OGL4_SHADER_BUFFER_ALWAYS_MAPPED
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->ogl4Buffer);
     glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
@@ -100,7 +105,7 @@ OGL4ShaderStorageBuffer::CycleBuffers()
 void
 OGL4ShaderStorageBuffer::Update(void* data, uint offset, uint length)
 {
-	n_assert(length <= this->size);
+	n_assert(offset + length <= this->size);
 	ShaderReadWriteBufferBase::Update(data, offset, length);
 	
 #ifdef OGL4_SHADER_BUFFER_ALWAYS_MAPPED

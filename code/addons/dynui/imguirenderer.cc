@@ -60,6 +60,7 @@ ImguiDrawFunction(ImDrawList** const commandLists, int numCommandLists)
 	// setup device
 	device->SetStreamSource(0, vbo, 0);
 	device->SetVertexLayout(vbo->GetVertexLayout());
+	device->SetIndexBuffer(NULL);
 
 	IndexT vertexOffset = 0;
 	IndexT bufferOffset = 0;

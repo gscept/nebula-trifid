@@ -31,8 +31,8 @@ VarBuffer::~VarBuffer()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-VarBuffer::AddVariable( const Variable& var )
+void
+VarBuffer::AddVariable(const Variable& var)
 {
 	this->variables.push_back(var);
 }
@@ -40,8 +40,8 @@ VarBuffer::AddVariable( const Variable& var )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-VarBuffer::TypeCheck( TypeChecker& typechecker )
+void
+VarBuffer::TypeCheck(TypeChecker& typechecker)
 {
 	// add varblock, if failed we must have a redefinition
 	if (!typechecker.AddSymbol(this)) return;
@@ -116,13 +116,17 @@ VarBuffer::TypeCheck( TypeChecker& typechecker )
 //------------------------------------------------------------------------------
 /**
 */
-std::string 
-VarBuffer::Format( const Header& header ) const
+std::string
+VarBuffer::Format(const Header& header, const int index) const
 {
 	std::string formattedCode;
 
     // varbuffers of this type are only available in GLSL4+
-    if (header.GetType() == Header::GLSL) formattedCode.append("layout(std430) buffer ");
+	if (header.GetType() == Header::GLSL)
+	{
+		std::string layout = AnyFX::Format("layout(std430, binding=%d) buffer ", index);
+		formattedCode.append(layout);
+	}
 	
 	formattedCode.append(this->GetName());
 	formattedCode.append("\n{\n");
@@ -144,8 +148,8 @@ VarBuffer::Format( const Header& header ) const
 //------------------------------------------------------------------------------
 /**
 */
-void 
-VarBuffer::Compile( BinWriter& writer )
+void
+VarBuffer::Compile(BinWriter& writer)
 {
 	writer.WriteString(this->name);
 	writer.WriteBool(this->shared);

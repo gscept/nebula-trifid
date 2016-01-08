@@ -12,7 +12,7 @@ shared buffers=1024 varblock Joints
 	mat4 JointPalette[96];
 };
 */
-shared varbuffer JointBuffer
+shared varbuffer JointBlock
 {
 	mat4 JointPalette[];
 };

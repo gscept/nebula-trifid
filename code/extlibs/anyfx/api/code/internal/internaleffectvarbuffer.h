@@ -56,6 +56,7 @@ protected:
 	unsigned size;
 	bool isSlave;
 	bool isShared;
+	bool active;
 
 	void** currentBufferHandle;
 }; 

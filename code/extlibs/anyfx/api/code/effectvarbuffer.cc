@@ -54,6 +54,15 @@ EffectVarbuffer::GetName() const
 //------------------------------------------------------------------------------
 /**
 */
+const bool
+EffectVarbuffer::IsActive() const
+{
+	return this->internalVarbuffer->masterBuffer->active;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 void
 EffectVarbuffer::SetBuffer(void* handle)
 {

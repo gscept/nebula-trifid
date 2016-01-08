@@ -31,6 +31,15 @@ SurfaceConstant::~SurfaceConstant()
 
 //------------------------------------------------------------------------------
 /**
+	Sets up a surface constant.
+
+	Since surface constants implements a series of shader variable instances, this function will set up the constant to be 
+	applicable in every shader used by the surface.
+
+	The value is set within the shader variable instances directly, however if the shader variable instance use a constant buffer,
+	that constant buffer will be updated directly.
+
+	If the value is a texture or buffer, the shader variable instance will apply it whenever we run the SurfaceConstant::Apply.
 */
 void
 SurfaceConstant::Setup(const StringAtom& name, const Array<Ptr<CoreGraphics::ShaderInstance>>& shaders, const Array<Frame::BatchGroup::Code>& batchCodes)
@@ -46,7 +55,7 @@ SurfaceConstant::Setup(const StringAtom& name, const Array<Ptr<CoreGraphics::Sha
         const Frame::BatchGroup::Code& code = batchCodes[shaderIndex];
         this->variablesByShader.Add(code, var);
 
-        // set value directly, this will effectively setup the constant
+        // set value
         var->SetValue(this->value);
     }
 }
@@ -69,7 +78,6 @@ SurfaceConstant::Apply(const Frame::BatchGroup::Code& group)
     // skip applying if this constant has no binding to said variable
 	if (!this->variablesByShader.Contains(group)) return;
     const Ptr<CoreGraphics::ShaderVariableInstance>& var = this->variablesByShader[group];
-    //var->SetValue(this->value);
     var->Apply();
 }
 

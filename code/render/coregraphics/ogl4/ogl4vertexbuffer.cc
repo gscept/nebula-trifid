@@ -45,6 +45,7 @@ OGL4VertexBuffer::Unload()
 	this->ogl4VertexBuffer = 0;
 
 	this->vertexLayout->Discard();
+	this->vertexLayout = 0;
     VertexBufferBase::Unload();
 }
 

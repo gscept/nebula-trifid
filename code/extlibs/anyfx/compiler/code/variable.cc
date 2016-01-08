@@ -406,6 +406,7 @@ Variable::Format(const Header& header, bool inVarblock) const
 {
 	std::string formattedCode;
 
+	if (header.GetFlags() & Header::NoSubroutines && this->isSubroutine) return formattedCode;
 	if (this->type.GetType() >= DataType::Image1D && this->type.GetType() <= DataType::ImageCubeArray)
 	{
 		formattedCode.append("layout(");
@@ -418,7 +419,7 @@ Variable::Format(const Header& header, bool inVarblock) const
     {
         if (this->qualifierFlags & Bindless) formattedCode.append("layout(bindless_sampler) ");
     }
-	else if (this->type.GetType() >= DataType::Matrix2x2 && this->type.GetType() <= DataType::Matrix4x4)
+	else if (this->type.GetType() >= DataType::Matrix2x2 && this->type.GetType() <= DataType::Matrix4x4 && inVarblock)
 	{
 		formattedCode.append("layout(column_major) ");
 	}

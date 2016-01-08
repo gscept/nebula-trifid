@@ -65,38 +65,40 @@ state ProjectorState
 	DepthWrite = false;
 };
 
-prototype float CalculateDistanceField(vec3 point);
+prototype float CalculateDistanceField(vec3 point, float falloff);
 subroutine (CalculateDistanceField) float Box(
-	in vec3 point)
+	in vec3 point,
+	in float falloff)
 {
-	vec3 d = abs(point) - vec3(FalloffDistance);
+	vec3 d = abs(point) - vec3(falloff);
 	return min(max(d.x, max(d.y, d.z)), 0.0f) + length(max(d, 0.0f));
 	//return length(max(abs(point) - d, 0.0f));
 }
 
 subroutine (CalculateDistanceField) float Sphere(
-	in vec3 point)
+	in vec3 point,
+	in float falloff)
 {
 	// use radius.x to get the blending factor
-	return length(point) - FalloffDistance;
+	return length(point) - falloff;
 }
 
 CalculateDistanceField calcDistanceField;
 
-prototype vec3 CalculateCubemapCorrection(vec3 worldSpacePos, vec3 reflectVec);
+prototype vec3 CalculateCubemapCorrection(vec3 worldSpacePos, vec3 reflectVec, vec4 bboxmin, vec4 bboxmax, vec4 bboxcenter);
 subroutine (CalculateCubemapCorrection) vec3 ParallaxCorrect(
-	in vec3 worldSpacePos, in vec3 reflectVec)
+	in vec3 worldSpacePos, in vec3 reflectVec, in vec4 bboxmin, in vec4 bboxmax, in vec4 bboxcenter)
 {
-	vec3 intersectMin = (BBoxMin.xyz - worldSpacePos) / reflectVec;
-	vec3 intersectMax = (BBoxMax.xyz - worldSpacePos) / reflectVec;
+	vec3 intersectMin = (bboxmin.xyz - worldSpacePos) / reflectVec;
+	vec3 intersectMax = (bboxmax.xyz - worldSpacePos) / reflectVec;
 	vec3 largestRay = max(intersectMin, intersectMax);
 	float distToIntersection = min(min(largestRay.x, largestRay.y), largestRay.z);
 	vec3 intersectPos = worldSpacePos + reflectVec * distToIntersection;
-	return intersectPos - BBoxCenter.xyz;		
+	return intersectPos - bboxcenter.xyz;		
 }
 
 subroutine (CalculateCubemapCorrection) vec3 NoCorrection(
-	in vec3 worldSpacePos, in vec3 reflectVec)
+	in vec3 worldSpacePos, in vec3 reflectVec, in vec4 bboxmin, in vec4 bboxmax, in vec4 bboxcenter)
 {
 	return reflectVec;
 }
@@ -148,7 +150,7 @@ psMain(in vec3 viewSpacePosition,
 	if (all(greaterThan(dist, vec3(0))))
 	{
 		// calculate distance field and falloff
-		float d = calcDistanceField(localPos.xyz);	
+		float d = calcDistanceField(localPos.xyz, FalloffDistance);	
 		float distanceFalloff = pow(1-d, FalloffPower);
 		
 		// load biggest distance from texture, basically solving the distance field blending
@@ -169,7 +171,7 @@ psMain(in vec3 viewSpacePosition,
 		vec3 reflectVec = reflect(viewVecWorld, worldNormal);
 		
 		// perform cubemap correction method if required
-		reflectVec = calcCubemapCorrection(worldPosition.xyz, reflectVec);
+		reflectVec = calcCubemapCorrection(worldPosition.xyz, reflectVec, BBoxMin, BBoxMax, BBoxCenter);
 		
 		// calculate reflection and irradiance
 		float x =  dot(viewSpaceNormal, -viewVec);

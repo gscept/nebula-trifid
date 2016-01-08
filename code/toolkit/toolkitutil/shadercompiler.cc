@@ -400,6 +400,7 @@ ShaderCompiler::CompileGLSL(const Util::String& srcPath)
 			URI dst(destFile);
             URI shaderFolder("toolkit:work/shaders/gl");
 			std::vector<std::string> defines;
+			std::vector<std::string> flags;
             Util::String define;
             define.Format("-D GLSL");
 			defines.push_back(define.AsCharPtr());
@@ -411,6 +412,11 @@ ShaderCompiler::CompileGLSL(const Util::String& srcPath)
             // then include the N3 toolkit shaders folder
             define.Format("-I%s/", shaderFolder.LocalPath().AsCharPtr());
             defines.push_back(define.AsCharPtr());
+
+			// set flags
+			flags.push_back("/NOSUB");		// deactivate subroutine usage
+			flags.push_back("/GBLOCK");		// put all shader variables outside of explicit buffers in one global block
+			
 			AnyFXErrorBlob* errors = NULL;
 
             GLint minor, major;
@@ -434,7 +440,7 @@ ShaderCompiler::CompileGLSL(const Util::String& srcPath)
 			Util::String escapedDst = dst.LocalPath();
 			//escapedDst.SubstituteString(" ", "\\ ");
 			
-			bool res = AnyFXCompile(escapedSrc.AsCharPtr(), escapedDst.AsCharPtr(), target.AsCharPtr(), vendor.AsCharPtr(), defines, &errors);
+			bool res = AnyFXCompile(escapedSrc.AsCharPtr(), escapedDst.AsCharPtr(), target.AsCharPtr(), vendor.AsCharPtr(), defines, flags, &errors);
 			if (!res)
 			{
 				if (errors)

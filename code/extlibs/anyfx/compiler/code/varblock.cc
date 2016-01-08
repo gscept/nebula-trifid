@@ -122,7 +122,7 @@ VarBlock::TypeCheck(TypeChecker& typechecker)
 /**
 */
 std::string
-VarBlock::Format(const Header& header) const
+VarBlock::Format(const Header& header, const int index) const
 {
 	std::string formattedCode;
 
@@ -132,13 +132,21 @@ VarBlock::Format(const Header& header) const
     if (this->shared)
     {
         // varblocks of this type are only available in GLSL3-4 and HLSL4-5
-        if (header.GetType() == Header::GLSL) formattedCode.append("layout(shared) uniform ");
+		if (header.GetType() == Header::GLSL)
+		{
+			std::string layout = AnyFX::Format("layout(shared, binding=%d) uniform ", index);
+			formattedCode.append(layout);
+		}
         else if (header.GetType() == Header::HLSL) formattedCode.append("shared cbuffer ");
     }
-    else
-    {
-        // varblocks of this type are only available in GLSL3-4 and HLSL4-5
-        if (header.GetType() == Header::GLSL) formattedCode.append("layout(shared) uniform ");
+	else
+	{
+		// varblocks of this type are only available in GLSL3-4 and HLSL4-5
+		if (header.GetType() == Header::GLSL)
+		{
+			std::string layout = AnyFX::Format("layout(shared, binding=%d) uniform ", index);
+			formattedCode.append(layout);
+		}
         else if (header.GetType() == Header::HLSL) formattedCode.append("cbuffer ");
     }
 	

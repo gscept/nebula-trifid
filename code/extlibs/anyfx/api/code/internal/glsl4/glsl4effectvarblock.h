@@ -42,15 +42,10 @@ protected:
     /// sets up uniform block offsets
     void SetupUniformOffsets(GLSL4EffectProgram* program, GLuint blockIndex);
 
-	GLSL4BufferLock* bufferLock;
 	GLuint activeProgram;
 	GLuint uniformBlockBinding;
-	GLuint uniformBlockLocation;
+	GLint offsetAlignment;
 
-	GLuint* elementIndex;
-    GLchar* glBuffer;
-	GLchar* glBackingBuffer;
-    GLuint* glBufferOffset;
 	GLsizei bufferSize;
 
     unsigned* uniformOffsets;

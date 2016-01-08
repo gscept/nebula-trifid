@@ -51,7 +51,7 @@ public:
 	void Compile(BinWriter& writer);
 
 	/// format variable to fit target language
-	std::string Format(const Header& header) const;
+	std::string Format(const Header& header, const int index) const;
 private:
 	std::vector<Variable> variables;
 	std::vector<std::string> qualifiers;

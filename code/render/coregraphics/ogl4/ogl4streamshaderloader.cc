@@ -90,12 +90,11 @@ OGL4StreamShaderLoader::SetupResourceFromStream(const Ptr<Stream>& stream)
         {
             // get AnyFX variable
             AnyFX::EffectVariable* effectVar = effect->GetVariableByIndex(i);
-
-            // create new variable
-            Ptr<ShaderVariable> var = ShaderVariable::Create();
-
             if (effectVar->IsActive())
             {
+				// create new variable
+				Ptr<ShaderVariable> var = ShaderVariable::Create();
+
                 // setup variable from AnyFX variable
                 var->Setup(effectVar);
                 res->variables.Append(var);
@@ -109,13 +108,15 @@ OGL4StreamShaderLoader::SetupResourceFromStream(const Ptr<Stream>& stream)
         {
             // get AnyFX variable
             AnyFX::EffectVarbuffer* effectBuf = effect->GetVarbufferByIndex(i);
+			if (effectBuf->IsActive())
+			{
+				// create new variable
+				Ptr<ShaderVariable> var = ShaderVariable::Create();
 
-            // create new variable
-            Ptr<ShaderVariable> var = ShaderVariable::Create();
-
-            var->Setup(effectBuf);
-            res->variables.Append(var);
-            res->variablesByName.Add(var->GetName(), var);
+				var->Setup(effectBuf);
+				res->variables.Append(var);
+				res->variablesByName.Add(var->GetName(), var);
+			}
         }
 
         // load uniform block variables
@@ -124,17 +125,19 @@ OGL4StreamShaderLoader::SetupResourceFromStream(const Ptr<Stream>& stream)
         {
             // get varblock
             AnyFX::EffectVarblock* effectBlock = effect->GetVarblockByIndex(i);
+			if (effectBlock->IsActive())
+			{
+				// create a new variable
+				Ptr<ShaderVariable> var = ShaderVariable::Create();
 
-            // create a new variable
-            Ptr<ShaderVariable> var = ShaderVariable::Create();
-
-            if (effectBlock->IsActive())
-            {
-                // setup variable on varblock, this allow us to set the buffer the block should use
-                var->Setup(effectBlock);
-                res->variables.Append(var);
-                res->variablesByName.Add(var->GetName(), var);
-            }            
+				if (effectBlock->IsActive())
+				{
+					// setup variable on varblock, this allow us to set the buffer the block should use
+					var->Setup(effectBlock);
+					res->variables.Append(var);
+					res->variablesByName.Add(var->GetName(), var);
+				}
+			}
         }
 
         // setup variables belonging to the 'default' variable block, which is where all global variables end up

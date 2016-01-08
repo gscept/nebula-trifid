@@ -15,6 +15,7 @@
 #define NEBULA3_SEMANTIC_CHARACTERINDEX             "CharacterIndex"
 #define NEBULA3_SEMANTIC_JOINTPALETTE               "JointPalette"
 #define NEBULA3_SEMANTIC_JOINTBUFFER				"JointBuffer"
+#define NEBULA3_SEMANTIC_JOINTBLOCK					"JointBlock"
 #define NEBULA3_SEMANTIC_MODELVIEWPROJECTION        "ModelViewProjection"
 #define NEBULA3_SEMANTIC_INVVIEWPROJECTION			"InvViewProjection"
 #define NEBULA3_SEMANTIC_MODEL                      "Model"

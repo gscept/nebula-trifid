@@ -37,6 +37,7 @@ protected:
 	GLuint activeProgram;
 	GLuint shaderStorageBlockBinding;
 	GLuint shaderStorageBlockLocation;
+	GLint offsetAlignment;
 
 	GLuint currentLocation;
 	eastl::hash_map<GLSL4EffectProgram*, GLuint> activeMap;

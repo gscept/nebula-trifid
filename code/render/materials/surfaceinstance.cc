@@ -231,14 +231,6 @@ SurfaceInstance::Apply(const Frame::BatchGroup::Code& group)
     // get shader instance by code
     //this->shaderInstancesByCode[group]->Apply();
     shader->Commit();
-
-    /*
-    // apply values
-    for (i = 0; i < this->constants.Size(); i++)
-    {
-        this->constants[i]->Apply(group);
-    }
-    */
 }
 
 } // namespace Materials

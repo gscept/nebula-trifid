@@ -14,7 +14,8 @@ unsigned InternalEffectVarbuffer::globalVarbufferCounter = 0;
 //------------------------------------------------------------------------------
 /**
 */
-GLSL4EffectVarbuffer::GLSL4EffectVarbuffer()
+GLSL4EffectVarbuffer::GLSL4EffectVarbuffer() :
+	shaderStorageBlockBinding(GL_INVALID_INDEX)
 {
 	// empty
 }
@@ -35,6 +36,8 @@ GLSL4EffectVarbuffer::Setup(eastl::vector<InternalEffectProgram*> programs)
 {
 	InternalEffectVarbuffer::Setup(programs);
 	this->shaderStorageBlockBinding = globalVarbufferCounter++;
+	glGetIntegerv(GL_SHADER_STORAGE_BUFFER_OFFSET_ALIGNMENT, &this->offsetAlignment);
+
 	unsigned i;
 	for (i = 0; i < programs.size(); i++)
 	{
@@ -46,6 +49,7 @@ GLSL4EffectVarbuffer::Setup(eastl::vector<InternalEffectProgram*> programs)
 		if (location != GL_INVALID_INDEX)
 		{
 			glShaderStorageBlockBinding(opengl4Program->programHandle, location, this->shaderStorageBlockBinding);
+			this->active = true;
 		}
 	}
 }
@@ -57,7 +61,13 @@ void
 GLSL4EffectVarbuffer::SetupSlave(eastl::vector<InternalEffectProgram*> programs, InternalEffectVarbuffer* master)
 {
 	InternalEffectVarbuffer::SetupSlave(programs, master);
+
+	GLSL4EffectVarbuffer* mainBuffer = dynamic_cast<GLSL4EffectVarbuffer*>(master);
+	assert(0 != mainBuffer);
+
+	//this->shaderStorageBlockBinding = mainBuffer->shaderStorageBlockBinding;
 	this->shaderStorageBlockBinding = globalVarbufferCounter++;
+	glGetIntegerv(GL_SHADER_STORAGE_BUFFER_OFFSET_ALIGNMENT, &this->offsetAlignment);
 
 	unsigned i;
 	for (i = 0; i < programs.size(); i++)
@@ -70,6 +80,7 @@ GLSL4EffectVarbuffer::SetupSlave(eastl::vector<InternalEffectProgram*> programs,
 		if (location != GL_INVALID_INDEX)
 		{
 			glShaderStorageBlockBinding(opengl4Program->programHandle, location, this->shaderStorageBlockBinding);
+			mainBuffer->active = true;
 		}
 	}
 }
@@ -91,20 +102,24 @@ GLSL4EffectVarbuffer::Commit()
 				state.buffer = buf->handle;
 				state.offset = buf->offset;
 				state.length = buf->size;
-				if (GLSL4VarbufferRangeStates[this->shaderStorageBlockBinding] != state)
+				GLuint binding = this->shaderStorageBlockBinding;
+				if (GLSL4VarbufferRangeStates[binding] != state)
 				{
-					GLSL4VarbufferRangeStates[this->shaderStorageBlockBinding] = state;
-					glBindBufferRange(GL_SHADER_STORAGE_BUFFER, this->shaderStorageBlockBinding, buf->handle, buf->offset, buf->size);
+					//if (state.length % this->offsetAlignment != 0) printf("WOW, THIS OFFSET IS NOT GOOD! %d\n", state.length);
+					//assert(state.length % this->offsetAlignment == 0);
+					GLSL4VarbufferRangeStates[binding] = state;
+					glBindBufferRange(GL_SHADER_STORAGE_BUFFER, binding, state.buffer, state.offset, state.length);
 				}
 			}
 			else
 			{
 				GLSL4VarbufferBaseState state;
 				state.buffer = buf->handle;
-				if (GLSL4VarbufferBaseStates[this->shaderStorageBlockBinding] != state)
+				GLuint binding = this->shaderStorageBlockBinding;
+				if (GLSL4VarbufferBaseStates[binding] != state)
 				{
-					GLSL4VarbufferBaseStates[this->shaderStorageBlockBinding] = state;
-					glBindBufferBase(GL_SHADER_STORAGE_BUFFER, this->shaderStorageBlockBinding, buf->handle);
+					GLSL4VarbufferBaseStates[binding] = state;
+					glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding, state.buffer);
 				}
 			}
 		}

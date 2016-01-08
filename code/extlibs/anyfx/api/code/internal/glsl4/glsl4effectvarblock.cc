@@ -18,8 +18,8 @@ unsigned InternalEffectVarblock::globalVarblockCounter = 0;
 */
 GLSL4EffectVarblock::GLSL4EffectVarblock() :
 	activeProgram(-1),
-	uniformBlockLocation(-1),
-    uniformOffsets(NULL)
+    uniformOffsets(NULL),
+	uniformBlockBinding(GL_INVALID_INDEX)
 {
 	// empty
 }
@@ -36,21 +36,6 @@ GLSL4EffectVarblock::~GLSL4EffectVarblock()
 	glDeleteBuffers(1, &this->buffer);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     */
-
-	// release resources
-	this->glBuffer = 0;
-	if (this->masterBlock)
-	{
-		delete this->bufferLock;
-		delete this->glBufferOffset;
-		delete this->elementIndex;
-	}
-	else
-	{
-		this->bufferLock = 0;
-		this->glBufferOffset = 0;
-		this->elementIndex = 0;
-	}
 }
 
 //------------------------------------------------------------------------------
@@ -68,8 +53,9 @@ GLSL4EffectVarblock::Setup(eastl::vector<InternalEffectProgram*> programs)
     // create offset array
     this->uniformOffsets = new unsigned[this->variables.size()];
     memset(this->uniformOffsets, 0, this->variables.size() * sizeof(unsigned));
+	glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &this->offsetAlignment);
 
-	this->uniformBlockBinding = globalVarblockCounter++;
+	//this->uniformBlockBinding = globalVarblockCounter++;
 	unsigned i;
 	for (i = 0; i < programs.size(); i++)
 	{
@@ -81,7 +67,8 @@ GLSL4EffectVarblock::Setup(eastl::vector<InternalEffectProgram*> programs)
 		if (location != GL_INVALID_INDEX)
 		{
 			// now tell the program in which binding slot this buffer should be 
-			glUniformBlockBinding(opengl4Program->programHandle, location, this->uniformBlockBinding);	
+			//glUniformBlockBinding(opengl4Program->programHandle, location, this->uniformBlockBinding);	
+			glGetActiveUniformBlockiv(opengl4Program->programHandle, location, GL_UNIFORM_BLOCK_BINDING, (GLint*)&this->uniformBlockBinding);
             glGetActiveUniformBlockiv(opengl4Program->programHandle, location, GL_UNIFORM_BLOCK_DATA_SIZE, (GLint*)&this->size);
 
             // setup uniforms (since we have a shared layout, this should be consistent between ALL blocks)
@@ -118,10 +105,9 @@ GLSL4EffectVarblock::SetupSlave(eastl::vector<InternalEffectProgram*> programs, 
 	// assert the master block is of same backend
 	GLSL4EffectVarblock* mainBlock = dynamic_cast<GLSL4EffectVarblock*>(master);
 	assert(0 != mainBlock);
-    this->uniformOffsets = mainBlock->uniformOffsets;
 
-	this->uniformBlockBinding = mainBlock->uniformBlockBinding;
-	glBindBufferBase(GL_UNIFORM_BUFFER, this->uniformBlockBinding, 0);
+	//this->uniformBlockBinding = mainBlock->uniformBlockBinding;
+	//this->uniformBlockBinding = globalVarblockCounter++;
 	unsigned i;
 	for (i = 0; i < programs.size(); i++)
 	{
@@ -133,7 +119,8 @@ GLSL4EffectVarblock::SetupSlave(eastl::vector<InternalEffectProgram*> programs, 
 		if (location != GL_INVALID_INDEX)
 		{
 			// now tell the program in which binding slot this buffer should be 
-			glUniformBlockBinding(opengl4Program->programHandle, location, this->uniformBlockBinding);
+			//glUniformBlockBinding(opengl4Program->programHandle, location, this->uniformBlockBinding);
+			glGetActiveUniformBlockiv(opengl4Program->programHandle, location, GL_UNIFORM_BLOCK_BINDING, (GLint*)&this->uniformBlockBinding);
             glGetActiveUniformBlockiv(opengl4Program->programHandle, location, GL_UNIFORM_BLOCK_DATA_SIZE, (GLint*)&mainBlock->size);
 
             // setup uniforms (since we have a shared layout, this should be consistent between ALL blocks)
@@ -143,6 +130,8 @@ GLSL4EffectVarblock::SetupSlave(eastl::vector<InternalEffectProgram*> programs, 
             mainBlock->active = true;
 		}
 	}
+	this->uniformOffsets = mainBlock->uniformOffsets;
+	glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &this->offsetAlignment);
 
     for (i = 0; i < this->variables.size(); i++)
     {
@@ -158,11 +147,6 @@ GLSL4EffectVarblock::SetupSlave(eastl::vector<InternalEffectProgram*> programs, 
 
 	// copy GL buffer
 	this->size              = mainBlock->size;
-	this->elementIndex		= mainBlock->elementIndex;
-	this->glBuffer			= mainBlock->glBuffer;
-	this->glBackingBuffer	= mainBlock->glBackingBuffer;
-	this->glBufferOffset	= mainBlock->glBufferOffset;
-	this->bufferLock		= mainBlock->bufferLock;
 	this->bufferSize		= mainBlock->bufferSize;
 	this->ringLocks			= mainBlock->ringLocks;
 
@@ -187,7 +171,7 @@ GLSL4EffectVarblock::Apply()
 void 
 GLSL4EffectVarblock::Commit()
 {
-	if (this->currentLocation != GL_INVALID_INDEX)
+	if (this->currentLocation != GL_INVALID_INDEX && this->uniformBlockBinding != GL_INVALID_INDEX)
 	{
         EffectVarblock::OpenGLBufferBinding* buf = (EffectVarblock::OpenGLBufferBinding*)*this->currentBufferHandle;
         if (buf != 0)
@@ -198,20 +182,21 @@ GLSL4EffectVarblock::Commit()
                 state.buffer = buf->handle;
                 state.offset = buf->offset;
                 state.length = buf->size;
-                if (GLSL4VarblockRangeStates[this->uniformBlockBinding] != state)
+				if (GLSL4VarblockRangeStates[this->uniformBlockBinding] != state)
                 {
-                    GLSL4VarblockRangeStates[this->uniformBlockBinding] = state;
-                    glBindBufferRange(GL_UNIFORM_BUFFER, this->uniformBlockBinding, buf->handle, buf->offset, buf->size);
+					//assert(state.offset % this->offsetAlignment == 0);
+					GLSL4VarblockRangeStates[this->uniformBlockBinding] = state;
+					glBindBufferRange(GL_UNIFORM_BUFFER, this->uniformBlockBinding, state.buffer, state.offset, state.length);
                 }
             }
             else
             {
                 GLSL4VarblockBaseState state;
                 state.buffer = buf->handle;
-                if (GLSL4VarblockBaseStates[this->uniformBlockBinding] != state)
+				if (GLSL4VarblockBaseStates[this->uniformBlockBinding] != state)
                 {
-                    GLSL4VarblockBaseStates[this->uniformBlockBinding] = state;
-                    glBindBufferBase(GL_UNIFORM_BUFFER, this->uniformBlockBinding, buf->handle);
+					GLSL4VarblockBaseStates[this->uniformBlockBinding] = state;
+					glBindBufferBase(GL_UNIFORM_BUFFER, this->uniformBlockBinding, state.buffer);
                 }
             }
         }

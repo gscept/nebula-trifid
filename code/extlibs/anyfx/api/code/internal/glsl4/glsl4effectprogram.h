@@ -40,6 +40,9 @@ private:
     /// helper function for subroutine setup
     void SetupSubroutineHelper(GLenum shaderType, GLsizei& numBindings, GLuint** bindingArray, const eastl::map<eastl::string, InternalEffectSubroutine*>& bindings);
 
+	/// destroy shader objects
+	void DestroyShaders();
+
 	GLuint programHandle;
 
     GLuint* vsSubroutineBindings;

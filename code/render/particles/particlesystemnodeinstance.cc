@@ -15,6 +15,7 @@
 #include "coregraphics/shaderserver.h"
 #include "frame/frameserver.h"
 #include "particleserver.h"
+#include "resources/resourcemanager.h"
 
 namespace Particles
 {
@@ -135,10 +136,9 @@ ParticleSystemNodeInstance::Setup(const Ptr<ModelInstance>& inst, const Ptr<Mode
 
     if (this->surfaceInstance->HasConstant(NEBULA3_SEMANTIC_DEPTHBUFFER))
 	{
-		Ptr<FrameShader> defaultFrameShader = FrameServer::Instance()->LookupFrameShader(NEBULA3_DEFAULT_FRAMESHADER_NAME);
-		Ptr<RenderTarget> depthTexture = defaultFrameShader->GetRenderTargetByName("DepthBuffer");
+		Ptr<Texture> depthTexture = Resources::ResourceManager::Instance()->CreateUnmanagedResource("DepthBuffer", Texture::RTTI).downcast<Texture>();
 		this->depthBuffer = this->surfaceInstance->GetConstant(NEBULA3_SEMANTIC_DEPTHBUFFER);
-		this->depthBuffer->SetTexture(depthTexture->GetResolveTexture());
+		this->depthBuffer->SetTexture(depthTexture);
 	}
 
 #if __PS3__
@@ -406,10 +406,9 @@ ParticleSystemNodeInstance::SetSurfaceInstance(const Ptr<Materials::SurfaceInsta
 #endif
 	if (this->surfaceInstance->HasConstant(NEBULA3_SEMANTIC_DEPTHBUFFER))
 	{
-		Ptr<FrameShader> defaultFrameShader = FrameServer::Instance()->LookupFrameShader(NEBULA3_DEFAULT_FRAMESHADER_NAME);
-		Ptr<RenderTarget> depthTexture = defaultFrameShader->GetRenderTargetByName("DepthBuffer");
+		Ptr<Texture> depthTexture = Resources::ResourceManager::Instance()->CreateUnmanagedResource("DepthBuffer", Texture::RTTI).downcast<Texture>();
 		this->depthBuffer = this->surfaceInstance->GetConstant(NEBULA3_SEMANTIC_DEPTHBUFFER);
-		this->depthBuffer->SetTexture(depthTexture->GetResolveTexture());
+		this->depthBuffer->SetTexture(depthTexture);
 	}
 
 }

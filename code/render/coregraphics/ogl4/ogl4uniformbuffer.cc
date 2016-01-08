@@ -39,26 +39,31 @@ OGL4UniformBuffer::~OGL4UniformBuffer()
 void
 OGL4UniformBuffer::Setup(const SizeT numBackingBuffers)
 {
+	n_assert(this->size > 0);
+	n_assert(this->handle == NULL);
     ConstantBufferBase::Setup(numBackingBuffers);
     glGenBuffers(1, &this->ogl4Buffer);
 
-    GLint alignment;
-    glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &alignment);
+	GLint maxBufferSize;
+	GLint offsetAlignment;
+	glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &maxBufferSize);
+	glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &offsetAlignment);
 
     // calculate aligned size
-    this->size = (this->size + alignment - 1) - (this->size + alignment - 1) % alignment;
+	this->size = (this->size + offsetAlignment - 1) - (this->size + offsetAlignment - 1) % offsetAlignment;
+	n_assert(this->size < GLuint(maxBufferSize));
 
     glBindBuffer(GL_UNIFORM_BUFFER, this->ogl4Buffer);
     if (!this->sync)
     {
         GLenum mapFlags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
 		glBufferStorage(GL_UNIFORM_BUFFER, this->size * this->numBuffers, NULL, mapFlags);
-        this->buffer = glMapBufferRange(GL_UNIFORM_BUFFER, 0, this->size * this->numBuffers, mapFlags);
+		this->buffer = glMapBufferRange(GL_UNIFORM_BUFFER, 0, this->size * this->numBuffers, mapFlags);
     }
     else
     {
-        //glBufferStorage(GL_UNIFORM_BUFFER, this->size * this->NumBuffers, NULL, GL_MAP_WRITE_BIT | GL_DYNAMIC_STORAGE_BIT);
-		glBufferData(GL_UNIFORM_BUFFER, this->size * this->numBuffers, NULL, GL_STREAM_DRAW);
+		glBufferStorage(GL_UNIFORM_BUFFER, this->size * this->numBuffers, NULL, GL_MAP_WRITE_BIT | GL_DYNAMIC_STORAGE_BIT);
+		//glBufferData(GL_UNIFORM_BUFFER, this->size * this->numBuffers, NULL, GL_STREAM_DRAW);
         this->buffer = n_new_array(byte, this->size);
     }
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
@@ -68,7 +73,7 @@ OGL4UniformBuffer::Setup(const SizeT numBackingBuffers)
 
     // setup handle
     this->handle = n_new(AnyFX::OpenGLBufferBinding);
-    this->handle->size = this->size;
+	this->handle->size = this->size;
     this->handle->handle = this->ogl4Buffer;
     this->handle->bindRange = true;
     this->handle->offset = 0;
@@ -80,8 +85,18 @@ OGL4UniformBuffer::Setup(const SizeT numBackingBuffers)
 void
 OGL4UniformBuffer::Discard()
 {
-	// first step, remove buffer lock which should 
+	n_assert(this->ogl4Buffer != 0);
+
+	// free lock and release variables
 	this->bufferLock = 0;
+
+	IndexT i;
+	for (i = 0; i < this->variables.Size(); i++)
+	{
+		this->variables[i]->Cleanup();
+	}
+	this->variables.Clear();
+	this->variablesByName.Clear();
 
     if (!this->sync)
     {
@@ -143,6 +158,12 @@ OGL4UniformBuffer::CycleBuffers()
 {
     ConstantBufferBase::CycleBuffers();
     this->handle->offset = this->size * this->bufferIndex;
+	/*
+	this->handle->offset =
+		(this->handle->offset + OGL4UniformBuffer::ogl4OffsetAlignment - 1) -
+		(this->handle->offset + OGL4UniformBuffer::ogl4OffsetAlignment - 1) %
+		OGL4UniformBuffer::ogl4OffsetAlignment;
+		*/
 }
 
 //------------------------------------------------------------------------------

@@ -71,6 +71,9 @@ public:
     /// add a compile flag to the shader, separated by pipes ('|')
     void SetCompileFlags(const std::string& flags);
 
+	/// set subroutine mappings
+	void SetSubroutineMappings(const std::map<std::string, std::string>& subroutineMappings);
+
 	/// type check shader
 	void TypeCheck(TypeChecker& typechecker);
 	/// compile shader
@@ -123,13 +126,14 @@ private:
 
 	std::string preamble;
     std::map<int, std::pair<std::string, std::string> > indexToFileMap;
+	std::map<std::string, std::string> subroutineMappings;
 }; 
 
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-Shader::SetFunction( const Function& func )
+inline void
+Shader::SetFunction(const Function& func)
 {
 	this->func = func;
 }
@@ -195,6 +199,15 @@ inline void
 Shader::SetCompileFlags(const std::string& flags)
 {
     this->compileFlags = flags;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+Shader::SetSubroutineMappings(const std::map<std::string, std::string>& subroutineMappings)
+{
+	this->subroutineMappings = subroutineMappings;
 }
 
 

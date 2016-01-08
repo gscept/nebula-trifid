@@ -63,8 +63,8 @@ Program::ConsumeRow( const ProgramRow& row )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Program::TypeCheck( TypeChecker& typechecker )
+void
+Program::TypeCheck(TypeChecker& typechecker)
 {
 	// add program, if failed we must have a redefinition
 	if (!typechecker.AddSymbol(this)) return;
@@ -456,8 +456,8 @@ Program::TypeCheck( TypeChecker& typechecker )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Program::Compile( BinWriter& writer )
+void
+Program::Compile(BinWriter& writer)
 {
 	writer.WriteString(this->name);
 
@@ -541,7 +541,7 @@ Program::Compile( BinWriter& writer )
 /**
 */
 void
-Program::BuildShaders( const Header& header, const std::vector<Function>& functions, std::map<std::string, Shader*>& shaders )
+Program::BuildShaders(const Header& header, const std::vector<Function>& functions, std::map<std::string, Shader*>& shaders)
 {
 	unsigned i;
 	for (i = 0; i < ProgramRow::NumProgramRows; i++)
@@ -563,6 +563,28 @@ Program::BuildShaders( const Header& header, const std::vector<Function>& functi
                     // create string which is the function name merged with its compile flags
                     std::string functionNameWithDefines = functionName;// +"_" + this->compileFlags;
 
+					std::map<std::string, std::string> subroutineMappings;
+					if (header.GetFlags() & Header::NoSubroutines)
+					{
+						subroutineMappings = this->slotSubroutineMappings[i];
+						std::map<std::string, std::string>::const_iterator it;
+
+						functionNameWithDefines += "(";
+						for (it = subroutineMappings.begin(); it != subroutineMappings.end(); it++)
+						{
+							functionNameWithDefines += AnyFX::Format("%s = %s", (*it).first.c_str(), (*it).second.c_str());
+							if (std::next(it) != subroutineMappings.end())
+							{
+								functionNameWithDefines += ", ";
+							}
+						}
+						functionNameWithDefines += ")";
+
+						// remove subroutines from mappings since they are done now...
+						this->slotNames[i] = functionNameWithDefines;
+						this->slotSubroutineMappings[i].clear();
+					}
+
 					// if the shader has not been created yet, create it
                     if (shaders.find(functionNameWithDefines) == shaders.end())
 					{
@@ -572,11 +594,11 @@ Program::BuildShaders( const Header& header, const std::vector<Function>& functi
                         shader->SetName(functionNameWithDefines);
 						shader->SetHeader(header);
                         shader->SetCompileFlags(this->compileFlags);
+						shader->SetSubroutineMappings(subroutineMappings);
                         shaders[functionNameWithDefines] = shader;
 					}
 				}
 			}
-
 		}
 	}
 }

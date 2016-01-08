@@ -79,6 +79,8 @@ GLSL4EffectSampler::GLSL4EffectSampler() :
 GLSL4EffectSampler::~GLSL4EffectSampler()
 {
 	// empty
+	glDeleteSamplers(1, &this->sampler);
+	this->sampler = 0;
 }
 
 //------------------------------------------------------------------------------

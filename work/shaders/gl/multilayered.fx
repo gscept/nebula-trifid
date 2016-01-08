@@ -282,9 +282,11 @@ psMultilayered(in vec3 ViewSpacePos,
 	vec4 normals = normals1 * blend.r + normals2 * blend.g + normals3 * blend.b;
 	vec3 bumpNormal = normalize(calcBump(Tangent, Binormal, Normal, normals));
 
-	mat2x3 env = calcEnv(specColor, bumpNormal, ViewSpacePos, WorldViewVec, roughness);
+	mat4x4 invView = InvView;
+	mat2x3 env = PBRSpec(specColor, bumpNormal, ViewSpacePos, WorldViewVec, invView, roughness);
 	vec4 spec = calcSpec(specColor.rgb, roughness);
-	vec4 albedo = calcColor(diffColor, vec4(1), spec, AlphaBlendFactor);	
+	float alphaBlendFactor = AlphaBlendFactor;
+	vec4 albedo = calcColor(diffColor, vec4(1), spec, alphaBlendFactor);	
 	vec4 emissive = vec4((env[0] * albedo.rgb + env[1]), -1);
 
 	Specular = spec;

@@ -213,6 +213,19 @@ GLSL4EffectProgram::Link()
 				delete[] log;
 			}
 		}
+		else
+		{
+			glValidateProgram(this->programHandle);
+
+			GLint size;
+			glGetProgramiv(this->programHandle, GL_INFO_LOG_LENGTH, &size);
+			if (size > 0)
+			{
+				GLchar* log = new GLchar[size];
+				glGetProgramInfoLog(this->programHandle, size, NULL, log);
+				printf("glValidateProgram produced: %s\n", log);
+			}
+		}
 	}
 	else
 	{
@@ -220,9 +233,15 @@ GLSL4EffectProgram::Link()
 		glDeleteProgram(this->programHandle);
 		this->programHandle = 0;
 
+		// destroy shaders
+		this->DestroyShaders();
+
         // return false since the program is empty
         return false;
 	}
+
+	// destroy shaders
+	this->DestroyShaders();
 
 	return true;
 }
@@ -291,4 +310,48 @@ GLSL4EffectProgram::SetupSubroutineHelper(GLenum shaderType, GLsizei& numBinding
 
     numBindings = numActiveSubroutines;
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+GLSL4EffectProgram::DestroyShaders()
+{
+	if (0 != this->shaderBlock.vs)
+	{
+		GLSL4EffectShader* glsl4Shader = static_cast<GLSL4EffectShader*>(this->shaderBlock.vs);
+		glDeleteShader(glsl4Shader->GetShaderHandle());
+	}
+
+	if (0 != this->shaderBlock.hs)
+	{
+		GLSL4EffectShader* glsl4Shader = static_cast<GLSL4EffectShader*>(this->shaderBlock.hs);
+		glDeleteShader(glsl4Shader->GetShaderHandle());
+	}
+
+	if (0 != this->shaderBlock.ds)
+	{
+		GLSL4EffectShader* glsl4Shader = static_cast<GLSL4EffectShader*>(this->shaderBlock.ds);
+		glDeleteShader(glsl4Shader->GetShaderHandle());
+	}
+
+	if (0 != this->shaderBlock.gs)
+	{
+		GLSL4EffectShader* glsl4Shader = dynamic_cast<GLSL4EffectShader*>(this->shaderBlock.gs);
+		glDeleteShader(glsl4Shader->GetShaderHandle());
+	}
+
+	if (0 != this->shaderBlock.ps)
+	{
+		GLSL4EffectShader* glsl4Shader = static_cast<GLSL4EffectShader*>(this->shaderBlock.ps);
+		glDeleteShader(glsl4Shader->GetShaderHandle());
+	}
+
+	if (0 != this->shaderBlock.cs)
+	{
+		GLSL4EffectShader* glsl4Shader = static_cast<GLSL4EffectShader*>(this->shaderBlock.cs);
+		glDeleteShader(glsl4Shader->GetShaderHandle());
+	}
+}
+
 } // namespace AnyFX

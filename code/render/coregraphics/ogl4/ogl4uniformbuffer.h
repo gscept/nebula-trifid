@@ -58,6 +58,7 @@ public:
     void CycleBuffers();
 
 private:
+
     GLuint ogl4Buffer;
     AnyFX::OpenGLBufferBinding* handle;
 	Ptr<OGL4BufferLock> bufferLock;
@@ -78,8 +79,9 @@ OGL4UniformBuffer::GetHandle() const
 inline void
 OGL4UniformBuffer::UpdateAsync(void* data, uint offset, uint size)
 {
-    n_assert(size <= this->size);
-    GLubyte* currentBuf = (GLubyte*)this->buffer + this->handle->offset;
+	n_assert(size + offset <= this->size);
+    GLubyte* currentBuf = (GLubyte*)this->buffer;
+	if (!this->sync) currentBuf += this->handle->offset;
     memcpy(currentBuf + offset, data, size);
 }
 
@@ -89,8 +91,9 @@ OGL4UniformBuffer::UpdateAsync(void* data, uint offset, uint size)
 inline void
 OGL4UniformBuffer::UpdateArrayAsync(void* data, uint offset, uint size, uint count)
 {
-    n_assert(size <= this->size);
-    GLubyte* currentBuf = (GLubyte*)this->buffer + this->handle->offset;
+	n_assert(size * count + offset <= this->size);
+    GLubyte* currentBuf = (GLubyte*)this->buffer;
+	if (!this->sync) currentBuf += this->handle->offset;
 	memcpy(currentBuf + offset, data, size * count);
 }
 
@@ -100,7 +103,7 @@ OGL4UniformBuffer::UpdateArrayAsync(void* data, uint offset, uint size, uint cou
 inline void
 OGL4UniformBuffer::UpdateSync(void* data, uint offset, uint size)
 {
-	n_assert(size <= this->size);
+	n_assert(size + offset <= this->size);
 	GLubyte* currentBuf = (GLubyte*)this->buffer;
 	if (!this->sync) currentBuf += this->handle->offset;
 	memcpy(currentBuf + offset, data, size);
@@ -112,7 +115,7 @@ OGL4UniformBuffer::UpdateSync(void* data, uint offset, uint size)
 inline void
 OGL4UniformBuffer::UpdateArraySync(void* data, uint offset, uint size, uint count)
 {
-	n_assert(size <= this->size);
+	n_assert(size * count + offset <= this->size);
 	GLubyte* currentBuf = (GLubyte*)this->buffer;
 	if (!this->sync) currentBuf += this->handle->offset;
 	memcpy(currentBuf + offset, data, size * count);

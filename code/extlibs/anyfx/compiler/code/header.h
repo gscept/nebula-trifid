@@ -9,6 +9,7 @@
 */
 //------------------------------------------------------------------------------
 #include <string>
+#include <vector>
 #include "compileable.h"
 namespace AnyFX
 {
@@ -29,6 +30,15 @@ public:
 		NumTypes
 	};
 
+	enum Flags
+	{
+		NoFlags = 0 << 0,
+		NoSubroutines = 1 << 1,					// tell compiler to convert used subroutines into new shader programs instead
+		PutGlobalVariablesInBlock = 1 << 2,		// tell compiler to put variables outside variable buffer blocks into a global block, named GlobalBlock
+
+		NumFlags
+	};
+
 	/// constructor
 	Header();
 	/// destructor
@@ -36,8 +46,13 @@ public:
 
 	/// sets the effect profile
 	void SetProfile(const std::string& profile);
-	/// get the effect type
+	/// set the effect defines
+	void SetFlags(const std::vector<std::string>& defines);
+	/// get the effect type, is extracted from the type
 	const Type& GetType() const;
+
+	/// get compiler flags
+	const int& GetFlags() const;
 
 	/// gets the profile major number
 	int GetMajor() const;
@@ -50,10 +65,11 @@ public:
 	void Compile(BinWriter& writer);
 
 private:
-	std::string profileName;
+	std::string profile;
 	int major;
 	int minor;
 	Type type;
+	int flags;
 }; 
 
 
@@ -64,6 +80,15 @@ inline const Header::Type&
 Header::GetType() const
 {
 	return this->type;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const int&
+Header::GetFlags() const
+{
+	return this->flags;
 }
 
 //------------------------------------------------------------------------------

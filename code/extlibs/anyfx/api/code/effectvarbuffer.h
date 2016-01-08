@@ -35,6 +35,9 @@ public:
     /// returns name of varblock
     const eastl::string& GetName() const;
 
+	/// returns true if variable has any use whatsoever in the underlying structure
+	const bool IsActive() const;
+
     /// set buffer, must be an implementation specific
 	void SetBuffer(void* handle);
 

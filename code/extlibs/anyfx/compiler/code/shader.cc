@@ -214,13 +214,13 @@ Shader::Generate(
 	for (i = 0; i < blocks.size(); i++)
 	{
 		const VarBlock& block = blocks[i];
-		this->preamble.append(block.Format(header));
+		this->preamble.append(block.Format(header, i));
 	}
 
     for (i = 0; i < buffers.size(); i++)
     {
         const VarBuffer& buffer = buffers[i];
-        this->preamble.append(buffer.Format(header));
+        this->preamble.append(buffer.Format(header, i));
     }
 
 	for (i = 0; i < constants.size(); i++)
@@ -262,9 +262,9 @@ Shader::Generate(
 	case GLSL3:
 		this->GenerateGLSL3(generator);
 		break;
-    case GLSL4:
-        this->GenerateGLSL4(generator);
-        break;
+	case GLSL4:
+		this->GenerateGLSL4(generator);
+		break;
 	case HLSL3:
 		this->GenerateHLSL3(generator);
 		break;
@@ -537,6 +537,24 @@ Shader::GenerateGLSL4(Generator& generator)
 	code.append(line);
 	code.append(func.GetCode());
 	code.append("\n}\n");
+
+	// if we don't have subroutines, find and replace names of subroutines with generated functions
+	if (header.GetFlags() & Header::NoSubroutines)
+	{
+		std::map<std::string, std::string>::const_iterator it;
+		for (it = this->subroutineMappings.begin(); it != this->subroutineMappings.end(); it++)
+		{
+			const std::string& find = (*it).first;
+			const std::string& replace = (*it).second;
+			while (code.find(find) != std::string::npos)
+			{
+				size_t start = code.find(find);
+				code.replace(start, find.length(), replace);
+			}
+		}
+	}
+
+	// set formatted code as the code we just generated
 	this->formattedCode = code;
 	
 	// start compilation
@@ -626,7 +644,7 @@ Shader::GenerateGLSL4(Generator& generator)
 	Generates GLSL3 target language code
 */
 void 
-Shader::GenerateGLSL3( Generator& generator )
+Shader::GenerateGLSL3(Generator& generator)
 {
 	std::string message = Format("GLSL3 code generator is not implemented yet!\n");
 	generator.Error(message);
@@ -638,7 +656,7 @@ Shader::GenerateGLSL3( Generator& generator )
 	Generates HLSL5 target language code
 */
 void 
-Shader::GenerateHLSL5( Generator& generator )
+Shader::GenerateHLSL5(Generator& generator)
 {
 	std::string message = Format("HLSL5 code generator is not implemented yet!\n");
 	generator.Error(message);
@@ -651,7 +669,7 @@ Shader::GenerateHLSL5( Generator& generator )
 	Generates HLSL4 target language code
 */
 void 
-Shader::GenerateHLSL4( Generator& generator )
+Shader::GenerateHLSL4(Generator& generator)
 {
 	std::string message = Format("HLSL4 code generator is not implemented yet!\n");
 	generator.Error(message);
@@ -664,7 +682,7 @@ Shader::GenerateHLSL4( Generator& generator )
 	Generates HLSL3 target language code
 */
 void 
-Shader::GenerateHLSL3( Generator& generator )
+Shader::GenerateHLSL3(Generator& generator)
 {
 	std::string message = Format("HLSL3 code generator is not implemented yet!\n");
 	generator.Error(message);

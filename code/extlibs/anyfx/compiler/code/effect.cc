@@ -203,22 +203,35 @@ Effect::Setup()
     this->placeholderRenderState.SetReserved(true);
     this->renderStates.insert(this->renderStates.begin(), this->placeholderRenderState);
 
-    this->placeholderVarBlock.SetName("GlobalBlock");
-    this->placeholderVarBlock.SetReserved(true);
-    this->placeholderVarBlock.AddQualifier("shared");
-
-	for (i = 0; i < this->variables.size(); i++)
+	if (header.GetFlags() & Header::PutGlobalVariablesInBlock)
 	{
-		AnyFX::Variable& var = this->variables[i];
-		var.Preprocess();
-		if (var.GetVarType().GetType() < DataType::Sampler1D && var.IsUniform())
+		this->placeholderVarBlock.SetName("GlobalBlock");
+		this->placeholderVarBlock.SetReserved(true);
+		this->placeholderVarBlock.AddQualifier("shared");
+
+		for (i = 0; i < this->variables.size(); i++)
 		{
-			this->placeholderVarBlock.AddVariable(var);
-			this->variables.erase(this->variables.begin() + i);
-			i--;
+			AnyFX::Variable& var = this->variables[i];
+			var.Preprocess();
+			if (var.GetVarType().GetType() < DataType::Sampler1D && var.IsUniform())
+			{
+				this->placeholderVarBlock.AddVariable(var);
+				this->variables.erase(this->variables.begin() + i);
+				i--;
+			}
+
+		}
+		this->varBlocks.insert(this->varBlocks.begin(), this->placeholderVarBlock);
+	}
+	else
+	{
+		for (i = 0; i < this->variables.size(); i++)
+		{
+			AnyFX::Variable& var = this->variables[i];
+			var.Preprocess();
 		}
 	}
-	this->varBlocks.insert(this->varBlocks.begin(), this->placeholderVarBlock);
+    
 
 	// sort all variables in varblocks
 	for (i = 0; i < this->varBlocks.size(); i++)
@@ -317,8 +330,8 @@ Effect::TypeCheck(TypeChecker& typechecker)
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Effect::Generate( Generator& generator )
+void
+Effect::Generate(Generator& generator)
 {
 	// typecheck all shaders
 	std::map<std::string, Shader*>::iterator it;
@@ -335,7 +348,7 @@ Effect::Generate( Generator& generator )
 /**
 */
 void
-Effect::Compile( BinWriter& writer )
+Effect::Compile(BinWriter& writer)
 {
 	assert(this->header.GetType() != Header::InvalidType);
 

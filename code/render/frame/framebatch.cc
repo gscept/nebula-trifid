@@ -290,6 +290,9 @@ FrameBatch::RenderBatch(IndexT frameIndex)
                                 // render the node instance
                                 nodeInstance->ApplyState(frameIndex, this->batchGroup, shader);
 
+								// commit shader
+								// shader->Commit();
+
                                 // perform rendering
                                 if (this->forceInstancing)
                                 {

@@ -53,15 +53,15 @@ OGL4VertexLayout::Setup(const Array<VertexComponent>& c)
 	SizeT vertexByteSizes[RenderDevice::MaxNumVertexStreams] = { 0 };
 	IndexT attribIndex[RenderDevice::MaxNumVertexStreams] = { 0 };
 
+	// bind VAO
+	glBindVertexArray(this->ogl4Vao);
+
 	IndexT compIndex;
 	for (compIndex = 0; compIndex < this->components.Size(); compIndex++)
 	{
 		const VertexComponent& component = this->components[compIndex];
 		vertexByteSizes[component.GetStreamIndex()] += component.GetByteSize();
 	}
-
-	// bind VAO
-	glBindVertexArray(this->ogl4Vao);
 
 	// setup elements
     for (compIndex = 0; compIndex < this->components.Size(); compIndex++)
