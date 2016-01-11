@@ -22,8 +22,8 @@
     <!-- A MoveFollow message. The expected behaviour is that the entity which
     receives this Message follows the target entity (defined by the
     target entity's unique id) until told otherwise. -->
-    <Message name="MoveFollow" fourcc="MOVF">
-      <InArg name="TargetEntityId" type="Game::Entity::EntityId" default="0"/>
+    <Message name="MoveFollow" fourcc="MOVF" scripted="true">
+      <InArg name="TargetEntityId" type="uint" default="0"/>
       <InArg name="Distance" type="float" default="1.0f"/>
     </Message>
     <!-- A highlevel MoveGoto Messaging. The expected behaviour is that an entity
