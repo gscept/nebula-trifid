@@ -38,8 +38,8 @@ shader
 void
 vsMain(
 	[slot=0] in vec2 position,
-	[slot=1] in vec4 color,
-	[slot=2] in vec2 uv,
+	[slot=1] in vec2 uv,
+	[slot=2] in vec4 color,	
 	out vec2 UV,
 	out vec4 Color) 
 {
@@ -59,8 +59,8 @@ psMain(
 	in vec4 Color,
 	[color0] out vec4 FinalColor) 
 {
-	float texColor = texture(Texture, UV).r;
-	FinalColor =  vec4(Color.rgb, texColor * Color.a);
+	vec4 texColor = texture(Texture, UV);
+	FinalColor = Color * texColor;
 }
 
 //------------------------------------------------------------------------------

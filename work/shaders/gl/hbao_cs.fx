@@ -193,7 +193,7 @@ csMainX()
         uint oy = gl_WorkGroupID.y;
 
         // Fetch the 2D coordinates of the center point and its nearest neighbors
-        vec2 P = 	SharedMemoryLoad(centerId, 0);
+        vec2 P =  SharedMemoryLoad(centerId, 0);
         vec2 Pr = SharedMemoryLoad(centerId, 1);
         vec2 Pl = SharedMemoryLoad(centerId, -1);
         

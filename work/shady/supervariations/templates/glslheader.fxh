@@ -19,29 +19,6 @@
 #define matrix4x3 mat4x3
 #define matrix4x4 mat4x4
 
-struct VertexShaderParameters
-{
-	vec3 pos;
-	vec3 normal;
-	
-#if VERTEX_COLOR
-	vec4 color;
-#endif
-
-	vec2 uv;
-	
-#if SECONDARY_UV
-	vec2 uv2;
-#endif
-	vec3 tangent;
-	vec3 binormal;
-	
-#if SKINNED
-	vec4 skinWeights;
-	uvec4 skinIndices;
-#endif
-};
-
 struct PixelShaderParameters
 {
 	vec3 viewSpacePos;
@@ -49,13 +26,35 @@ struct PixelShaderParameters
 	vec3 normal;
 	vec3 binormal;
 	vec2 uv;
+	vec3 worldViewVec;
 	
-#if SECONDARY_UV
+#if USE_SECONDARY_UV
 	vec2 uv2;
 #endif
 	
-#if VERTEX_COLOR
+#if USE_VERTEX_COLOR
 	vec4 color;
 #endif
 };
+
+#if USE_PBR_REFLECTIONS
+mat2x3
+PBR(
+	in vec4 specularColor, 
+	in vec3 viewSpaceNormal, 
+	in vec3 viewSpacePos, 
+	in vec3 worldViewVec,
+	in mat4 invView,
+	in float roughness)
+{
+	mat2x3 ret;
+	vec4 worldNorm = (invView * vec4(viewSpaceNormal, 0));
+	vec3 reflectVec = reflect(worldViewVec, worldNorm.xyz);
+	float x = dot(-viewSpaceNormal, normalize(viewSpacePos));
+	vec3 rim = FresnelSchlickGloss(specularColor.rgb, x, roughness);
+	ret[1] = textureLod(EnvironmentMap, reflectVec, (1.0f - roughness) * NumEnvMips).rgb * rim;
+	ret[0] = textureLod(IrradianceMap, worldNorm.xyz, 0).rgb;
+	return ret;
+}
+#endif
 

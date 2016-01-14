@@ -17,7 +17,7 @@ state WireframeState
 	SrcBlend[0] = SrcAlpha;
 	DstBlend[0] = OneMinusSrcAlpha;
 	FillMode = Line;
-	MultisampleEnabled = true;
+	//MultisampleEnabled = true;
 };
 
 state DepthEnabledState

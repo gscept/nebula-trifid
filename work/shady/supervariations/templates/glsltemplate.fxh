@@ -13,9 +13,9 @@ float AlphaSensitivity = 0.0f;
 #endif
 
 #ifndef USE_CUSTOM_WORLD_OFFSET
-vec4 GetWorldOffset(VertexShaderParameters params)
+vec4 GetWorldOffset(in vec4 position)
 {
-	return vec4(params.pos.xyz, 1);
+	return vec4(position.xyz, 1);
 }
 #endif
 
@@ -54,60 +54,69 @@ float GetRoughness(PixelShaderParams params)
 }
 #endif
 
-#ifndef USE_CUSTOM_GODRAYS
-vec4 GetGodrays(PixelShaderParams params)
-{
-	return vec4(0);
-}
-#endif
-
 //------------------------------------------------------------------------------
 /**
 */
 shader
 void
-vertexShader(in VertexShaderParameters vertex, out PixelShaderParameters pixel) 
+vertexShader(
+	in vec3 vertexshader_input_position,
+	in vec3 vertexshader_input_normal,
+	in vec2 vertexshader_input_uv,
+	in vec3 vertexshader_input_tangent,
+	in vec3 vertexshader_input_binormal,
+	#if USE_VERTEX_COLOR
+	[slot=5] in vec4 vertexshader_input_color,
+	#endif
+	#if USE_SECONDARY_UV
+	[slot=6] in vec2 vertexshader_input_uv2,
+	#endif
+	#if USE_SKINNING
+	[slot=7] in vec4 vertexshader_input_weights,
+	[slot=8] in uvec4 vertexshader_input_indices,
+	#endif
+	out PixelShaderParameters pixel) 
 {
 	// write uv
 	pixel.uv = vertex.uv;
 	
 	// write vertex colors if present
-#ifdef VERTEX_COLOR
-	pixel.color = vertex.color;
+#ifdef USE_VERTEX_COLOR
+	pixel.color = vertexshader_input_color;
 #endif
 	
 	// write secondary uv
-#ifdef SECONDARY_UV
-	pixel.uv2 = vertex.uv2;
+#ifdef USE_SECONDARY_UV
+	pixel.uv2 = vertexshader_input_uv2;
 #endif
 	
     mat4 modelView = View * Model;
 	
-#ifdef SKINNED
-	vec4 offsetted			= GetWorldOffset(vertex);
-	vec4 skinnedPos			= SkinnedPosition(offsetted, vertex.weights, vertex.indices);
-	vec4 skinnedNormal		= SkinnedNormal(vertex.normal, vertex.weights, vertex.indices);
-	vec4 skinnedTangent		= SkinnedNormal(vertex.tangent, vertex.weights, vertex.indices);
-	vec4 skinnedBinormal	= SkinnedNormal(vertex.binormal, vertex.weights, vertex.indices);
-	skinnedPos = ViewProjection * Model * skinnedPos;
+#ifdef USE_SKINNING
+	vec4 offsetted			= GetWorldOffset(vertexshader_input_position);
+	offsetted				= SkinnedPosition(offsetted, vertexshader_input_weights, vertexshader_input_indices);
+	vec4 skinnedNormal		= SkinnedNormal(vertexshader_input_normal, vertexshader_input_weights, vertexshader_input_indices);
+	vec4 skinnedTangent		= SkinnedNormal(vertexshader_input_tangent, vertexshader_input_weights, vertexshader_input_indices);
+	vec4 skinnedBinormal	= SkinnedNormal(vertexshader_input_binormal, vertexshader_input_weights, vertexshader_input_indices);
 	
-	pixel.viewSpacePos 		= (modelView * vec4(skinnedPos, 1)).xyz;
-	pixel.tangent 			= (modelView * vec4(skinnedTangent, 0)).xyz;
+	// write outputs
+	pixel.viewSpacePos 		= (modelView * vec4(offsetted, 1)).xyz;
 	pixel.normal 			= (modelView * vec4(skinnedNormal, 0)).xyz;
+	pixel.tangent 			= (modelView * vec4(skinnedTangent, 0)).xyz;
 	pixel.binormal 			= (modelView * vec4(skinnedBinormal, 0)).xyz;
 	
 // no skin
 #else
 	vec4 offsetted = GetWorldOffset(vertex);
-	offsetted = ViewProjection * Model * vec4(offsetted, 1);
 	
     pixel.viewSpacePos 		= (modelView * vec4(offsetted, 1)).xyz;
-	pixel.tangent 			= (modelView * vec4(vertex.tangent, 0)).xyz;
-	pixel.normal 			= (modelView * vec4(vertex.normal, 0)).xyz;
-	pixel.binormal 			= (modelView * vec4(vertex.binormal, 0)).xyz;
+	pixel.normal 			= (modelView * vec4(vertexshader_input_normal, 0)).xyz;
+	pixel.tangent 			= (modelView * vec4(vertexshader_input_tangent, 0)).xyz;	
+	pixel.binormal 			= (modelView * vec4(vertexshader_input_binormal, 0)).xyz;
 #endif
-	
-	gl_Position = offsetted;
+	offsetted 				= Model * offsetted;
+	pixel.worldViewVec		= offsetted.xyz - EyePos.xyz;
+	gl_Position 			= ViewProjection * offsetted;
 }
 
 //------------------------------------------------------------------------------
@@ -123,53 +132,60 @@ pixelShader(PixelShaderParams params,
 			[color1] out vec4 Normals,
 			[color2] out float Depth,	
 			[color3] out vec4 Specular,
-			[color4] out vec4 Emissive,
-			[color5] out vec4 Unshaded
+			[color4] out vec4 Emissive
 			#endif
 			)
 {
 // unlit material
 #ifdef UNLIT_SHADING
-	vec4 diffuse = GetDiffuse(params);
+	vec4 diffuse 			= GetDiffuse(params);
 	
 	#if ALPHA_TEST
 		if (diffuse.a < AlphaSensitivity) discard;
 	#endif
 	
-	Albedo = EncodeHDR(diffuse);
+	Albedo 					= EncodeHDR(diffuse);
 #else
 	// default to lit material
-	vec4 diffuse = GetDiffuse(params);
+	vec4 diffuse 			= GetDiffuse(params);
 	
 	#ifdef ALPHA_TEST
 		if (diffuse.a < AlphaSensitivity) discard;
 	#endif
-	
-	Albedo = diffuse;
-	
+		
 	// normal map calculation
-	vec3 normal = GetNormal(params);
-	mat3 tangentViewMatrix = mat3(normalize(params.tangent), normalize(params.binormal), normalize(params.normal));        
-	vec3 tNormal = vec3(0,0,0);
-	tNormal.xy = (texture(NormalMap, UV).ag * 2.0f) - 1.0f;
-	tNormal.z = saturate(sqrt(1.0f - dot(tNormal.xy, tNormal.xy)));
-	Normals = PackViewSpaceNormal(tangentViewMatrix * tNormal);
-	
-	// emissive
-	vec4 emissive = GetEmissive(params);
-	Emissive = EncodeHDR(emissive);
-	
+	vec3 normal 			= GetNormal(params);
+	mat3 tangentViewMatrix 	= mat3(normalize(params.tangent), normalize(params.binormal), normalize(params.normal));        
+	vec3 tNormal 			= vec3(0,0,0);
+	tNormal.xy 				= (texture(NormalMap, UV).ag * 2.0f) - 1.0f;
+	tNormal.z 				= saturate(sqrt(1.0f - dot(tNormal.xy, tNormal.xy)));
+		
 	// specular
-	vec4 specular = GetSpecular(params);
-	float roughness = GetRoughness(params);
-	Specular = vec4(specular.rgb, roughness);
-
-	// depth
-	Depth = length(ViewSpacePos);
+	vec4 specular 			= GetSpecular(params);
+	float roughness 		= GetRoughness(params);
 	
-	// godrays
-	vec4 godrays = GetGodrays(params);
-	Unshaded = godrays;
+	// get emissive
+	vec4 emissive 			= GetEmissive(params);
+	
+	// write outputs
+	#if USE_PBR_REFLECTIONS
+	mat2x3 env 				= PBR(specular, params.normal, params.viewSpacePos, params.worldViewVec, InvView, roughness);
+	Emissive 				= vec4(diffuse.rgb * env[0] + env[1], 0) + emissive;
+	#else
+	Emissive 				= emissive;
+	#endif
+	
+	// save outputs which isn't associated with the PBR method
+	Specular 				= vec4(specular.rgb, roughness);
+	Depth 					= length(ViewSpacePos);	
+	Normals 				= PackViewSpaceNormal(tangentViewMatrix * tNormal);
+	
+	#if USE_PBR_REFLECTIONS
+	Albedo 					= vec4(diffuse.rgb * (1 - spec.rgb), diffuse.a);
+	#else
+	Albedo 					= diffuse;
+	#endif
+	
 #endif
 }
 
