@@ -96,13 +96,13 @@ OGL4TextRenderer::Open()
 	ttf_buffer = n_new_array(unsigned char, 1<<25);
 #if __WIN32__
 	// read font from windows
-	fread(ttf_buffer, 1, 1<<25, fopen("c:/windows/fonts/arial.ttf", "rb"));
+	fread(ttf_buffer, 1, 1<<25, fopen("c:/windows/fonts/segoeui.ttf", "rb"));
 #else
-    fread(ttf_buffer, 1, 1<<25, fopen("/usr/share/fonts/truetype/freefont/FreeSans.ttf","rb"));
+    fread(ttf_buffer, 1, 1<<25, fopen("/usr/share/fonts/truetype/freefont/FreeSans.ttf", "rb"));
 #endif
 	unsigned char bitmap[GLYPH_TEXTURE_SIZE*GLYPH_TEXTURE_SIZE];
 	stbtt_InitFont(&font, ttf_buffer, 0);
-	stbtt_BakeFontBitmap(ttf_buffer, stbtt_GetFontOffsetForIndex(ttf_buffer, 0), FONT_SIZE, bitmap, GLYPH_TEXTURE_SIZE, GLYPH_TEXTURE_SIZE, 32, 96, cdata);
+	stbtt_BakeFontBitmap(ttf_buffer, stbtt_GetFontOffsetForIndex(ttf_buffer, 0), 48.0f, bitmap, GLYPH_TEXTURE_SIZE, GLYPH_TEXTURE_SIZE, 32, 96, cdata);
 
 	// setup random texture
 	this->glyphTexture = ResourceManager::Instance()->CreateUnmanagedResource("GlyphTexture", Texture::RTTI).downcast<Texture>();

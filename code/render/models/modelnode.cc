@@ -9,6 +9,10 @@
 #include "models/modelinstance.h"
 #include "models/modelnodeinstance.h"
 
+#if NEBULA3_ENABLE_PROFILING
+#include "debug/debugserver.h"
+#endif
+
 namespace Models
 {
 __ImplementClass(Models::ModelNode, 'MDND', Core::RefCounted);
@@ -104,6 +108,24 @@ ModelNode::OnAttachToModel(const Ptr<Model>& m)
 {
     n_assert(!this->IsAttachedToModel());
     this->model = m;
+
+#if NEBULA3_ENABLE_PROFILING
+	Util::String name = Util::String::Sprintf("ModelNodeRenderTime: %s -> %s", m->GetResourceId().AsString().AsCharPtr(), this->name.AsString().AsCharPtr());
+	this->debugTimer = Debug::DebugServer::Instance()->GetDebugTimerByName(name);
+	if (!this->debugTimer.isvalid())
+	{
+		this->debugTimer = Debug::DebugTimer::Create();
+		this->debugTimer->Setup(name, "Model nodes");
+	}
+	
+	name = Util::String::Sprintf("ModelNodeNumDraws: %s -> %s", m->GetResourceId().AsString().AsCharPtr(), this->name.AsString().AsCharPtr());
+	this->debugCounter = Debug::DebugServer::Instance()->GetDebugCounterByName(name);
+	if (!this->debugCounter.isvalid())
+	{
+		this->debugCounter = Debug::DebugCounter::Create();
+		this->debugCounter->Setup(name, "Model nodes");
+	}
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -117,11 +139,28 @@ ModelNode::OnRemoveFromModel()
     {
         this->UnloadResources();
     }
-    this->model = 0;
-    this->parent = 0;
-    this->children.Clear();
-    this->childIndexMap.Clear();
-    this->visibleModelNodeInstances.Reset();
+
+#if NEBULA3_ENABLE_PROFILING
+	this->debugTimer = Debug::DebugServer::Instance()->GetDebugTimerByName(this->debugTimer->GetName());
+	if (this->debugTimer.isvalid())
+	{
+		_discard_timer(debugTimer);
+		this->debugTimer = 0;
+	}
+
+	this->debugCounter = Debug::DebugServer::Instance()->GetDebugCounterByName(this->debugCounter->GetName());
+	if (this->debugCounter.isvalid())
+	{
+		_discard_counter(debugCounter);
+		this->debugCounter = 0;
+	}
+#endif
+
+	this->model = 0;
+	this->parent = 0;
+	this->children.Clear();
+	this->childIndexMap.Clear();
+	this->visibleModelNodeInstances.Reset();
 }
 
 //------------------------------------------------------------------------------
@@ -355,5 +394,36 @@ ModelNode::RemoveChild(const Ptr<ModelNode> & c)
 	}
 
 }
+
+#if NEBULA3_ENABLE_PROFILING
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ModelNode::StartTimer()
+{
+	this->debugCounter->Begin();
+	this->debugTimer->Start();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ModelNode::StopTimer()
+{
+	this->debugTimer->Stop();
+	this->debugCounter->End();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ModelNode::IncrementDraws()
+{
+	this->debugCounter->Incr(1);
+}
+#endif
 
 } // namespace Models

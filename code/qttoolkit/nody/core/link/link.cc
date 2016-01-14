@@ -61,7 +61,7 @@ Link::GenerateGraphics()
 {
 	n_assert(!this->graphics.isvalid());
 	this->graphics = LinkGraphics::Create();
-	this->graphics->SetLink(this);
+	this->graphics->link = this;
 	this->graphics->Generate();
 }
 
@@ -79,8 +79,8 @@ Link::DestroyGraphics()
 //------------------------------------------------------------------------------
 /**
 */
-bool 
-Link::LinkVariables( const Ptr<VariableInstance>& from, const Ptr<VariableInstance>& to )
+bool
+Link::LinkVariables(const Ptr<VariableInstance>& from, const Ptr<VariableInstance>& to)
 {
 	n_assert(from.isvalid());
 	n_assert(to.isvalid());
@@ -101,6 +101,7 @@ Link::LinkVariables( const Ptr<VariableInstance>& from, const Ptr<VariableInstan
 		this->to = to;
 
         // perform simulation
+		from->GetNode()->Simulate();
         to->GetNode()->Simulate();
 
 		return true;

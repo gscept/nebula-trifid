@@ -23,10 +23,11 @@
 #include "qtaddons/remoteinterface/qtremoteserver.h"
 #include "posteffect/posteffectentity.h"
 #include "projectinfo.h"
-#include "../../splash/code/splash.h"
+#include "qtaddons/splash/code/splash.h"
 #include "posteffect/posteffectfeatureunit.h"
 #include "effects/effectsfeatureunit.h"
 #include "scriptingfeature/scriptingfeature.h"
+#include "addons/dynui/imguiaddon.h"
 
 namespace ContentBrowser
 {
@@ -81,6 +82,7 @@ private:
 	Ptr<PostEffect::PostEffectEntity> postEffectEntity;
 	Ptr<EffectsFeature::EffectsFeatureUnit> effectsFeature;
 	Ptr<ScriptingFeature::ScriptingFeatureUnit> scriptFeature;
+	Ptr<Dynui::ImguiAddon> imgui;
 	ContentBrowserWindow* browserWindow;
 
 	Ptr<QtRemoteInterfaceAddon::QtRemoteServer> remoteServer;

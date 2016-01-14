@@ -45,8 +45,8 @@ private:
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-ShadySuperVariation::SetTemplate( const IO::URI& path, const Shady::Language& language )
+inline void
+ShadySuperVariation::SetTemplate(const IO::URI& path, const Shady::Language& language)
 {
 	this->templates[language] = path;
 }
@@ -54,8 +54,8 @@ ShadySuperVariation::SetTemplate( const IO::URI& path, const Shady::Language& la
 //------------------------------------------------------------------------------
 /**
 */
-inline const IO::URI& 
-ShadySuperVariation::GetTemplate( const Shady::Language& language )
+inline const IO::URI&
+ShadySuperVariation::GetTemplate(const Shady::Language& language)
 {
     return this->templates[language];
 }
@@ -63,8 +63,8 @@ ShadySuperVariation::GetTemplate( const Shady::Language& language )
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-ShadySuperVariation::SetHeader( const IO::URI& path, const Shady::Language& language )
+inline void
+ShadySuperVariation::SetHeader(const IO::URI& path, const Shady::Language& language)
 {
     this->headers[language] = path;
 }
@@ -72,16 +72,16 @@ ShadySuperVariation::SetHeader( const IO::URI& path, const Shady::Language& lang
 //------------------------------------------------------------------------------
 /**
 */
-inline const IO::URI& 
-ShadySuperVariation::GetHeader( const Shady::Language& language )
+inline const IO::URI&
+ShadySuperVariation::GetHeader(const Shady::Language& language)
 {
     return this->headers[language];
 }
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-ShadySuperVariation::SetDefines( const Util::String& defs )
+inline void
+ShadySuperVariation::SetDefines(const Util::String& defs)
 {
     this->defines = defs;
 }

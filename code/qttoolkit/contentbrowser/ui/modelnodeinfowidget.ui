@@ -41,7 +41,7 @@ border: 0;
 }</string>
   </property>
   <property name="frameShape">
-   <enum>QFrame::StyledPanel</enum>
+   <enum>QFrame::NoFrame</enum>
   </property>
   <property name="frameShadow">
    <enum>QFrame::Plain</enum>
@@ -199,8 +199,8 @@ border: 0;
      </property>
      <property name="minimumSize">
       <size>
-       <width>50</width>
-       <height>50</height>
+       <width>48</width>
+       <height>48</height>
       </size>
      </property>
      <property name="text">
@@ -237,5 +237,22 @@ border: 0;
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>assignSurfaceButton</sender>
+   <signal>clicked()</signal>
+   <receiver>surfaceButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>310</x>
+     <y>68</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>159</x>
+     <y>80</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

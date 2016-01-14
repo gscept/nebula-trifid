@@ -12,6 +12,8 @@
 #include "variable/graphics/variableinstancegraphics.h"
 #include <QGraphicsSceneMouseEvent>
 #include "framesync/framesynctimer.h"
+#include "project/project.h"
+#include "nodegraphicssceneview.h"
 
 namespace Nody
 {
@@ -52,7 +54,7 @@ NodeGraphicsScene::Setup()
     this->linkUtilGraphics->SetLinkCurveType(LinkGraphics::Linear);
 	this->linkUtilGraphics->Generate();
 	this->linkUtilGraphics->AddToScene(this);
-    this->interactiveTimer.setInterval(16);
+    this->interactiveTimer.setInterval(10);
 }
 
 //------------------------------------------------------------------------------
@@ -92,8 +94,8 @@ NodeGraphicsScene::SetInteractiveMode(bool enabled)
 //------------------------------------------------------------------------------
 /**
 */
-void 
-NodeGraphicsScene::SetNodeScene( const Ptr<NodeScene>& scene )
+void
+NodeGraphicsScene::SetNodeScene(const Ptr<NodeScene>& scene)
 {
 	n_assert(scene.isvalid());
 	this->nodeScene = scene;
@@ -111,13 +113,13 @@ NodeGraphicsScene::GetNodeScene() const
 //------------------------------------------------------------------------------
 /**
 */
-void 
-NodeGraphicsScene::AddNodeGraphics( const Ptr<NodeGraphics>& node )
+void
+NodeGraphicsScene::AddNodeGraphics(const Ptr<NodeGraphics>& node)
 {
 	// add node to scene
 	node->AddToScene(this);
 
-    const Ptr<Node>& origNode = node->GetNode();
+    const Ptr<Node>& origNode = node->node;
     if (!origNode->IsSuperNode() && origNode->GetVariation()->GetOriginalVariation()->IsSimulationInteractive())
     {
         this->interactiveNodes.Append(node);
@@ -130,8 +132,8 @@ NodeGraphicsScene::AddNodeGraphics( const Ptr<NodeGraphics>& node )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-NodeGraphicsScene::RemoveNodeGraphics( const Ptr<NodeGraphics>& node )
+void
+NodeGraphicsScene::RemoveNodeGraphics(const Ptr<NodeGraphics>& node)
 {
 	// remove from scene
 	node->RemoveFromScene(this);
@@ -143,8 +145,8 @@ NodeGraphicsScene::RemoveNodeGraphics( const Ptr<NodeGraphics>& node )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-NodeGraphicsScene::AddLinkGraphics( const Ptr<LinkGraphics>& link )
+void
+NodeGraphicsScene::AddLinkGraphics(const Ptr<LinkGraphics>& link)
 {
 	// add link to scene
 	link->AddToScene(this);
@@ -153,8 +155,8 @@ NodeGraphicsScene::AddLinkGraphics( const Ptr<LinkGraphics>& link )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-NodeGraphicsScene::RemoveLinkGraphics( const Ptr<LinkGraphics>& link )
+void
+NodeGraphicsScene::RemoveLinkGraphics(const Ptr<LinkGraphics>& link)
 {
 	// remove link from scene
 	link->RemoveFromScene(this);
@@ -163,9 +165,10 @@ NodeGraphicsScene::RemoveLinkGraphics( const Ptr<LinkGraphics>& link )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-NodeGraphicsScene::MoveToFront( const Ptr<NodeGraphics>& node )
+void
+NodeGraphicsScene::MoveToFront(const Ptr<NodeGraphics>& node)
 {
+	/*
 	const QList<QGraphicsItem*> items = this->items();
 	IndexT i;
 	for (i = 0; i < items.size(); i++)
@@ -178,13 +181,14 @@ NodeGraphicsScene::MoveToFront( const Ptr<NodeGraphics>& node )
 			break;
 		}
 	}
+	*/
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-void 
-NodeGraphicsScene::OnScale( Math::scalar zoom )
+void
+NodeGraphicsScene::OnScale(Math::scalar zoom)
 {
 
 }
@@ -192,8 +196,8 @@ NodeGraphicsScene::OnScale( Math::scalar zoom )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-NodeGraphicsScene::mousePressEvent( QGraphicsSceneMouseEvent *event )
+void
+NodeGraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     if (0 == this->currentConnectorItem)
     {
@@ -275,7 +279,7 @@ NodeGraphicsScene::mousePressEvent( QGraphicsSceneMouseEvent *event )
 		    this->focusedNode = topMostItem;
 			this->focusedNode->SetFocus(true);
 			this->MoveToFront(this->focusedNode);
-            emit NodeFocused(this->focusedNode->GetNode());
+			emit NodeFocused(this->focusedNode->node);
         }
 	}
     else
@@ -288,8 +292,8 @@ NodeGraphicsScene::mousePressEvent( QGraphicsSceneMouseEvent *event )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-NodeGraphicsScene::mouseReleaseEvent( QGraphicsSceneMouseEvent *event )
+void
+NodeGraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
 	// handle base class event first
 	QGraphicsScene::mouseReleaseEvent(event);
@@ -325,13 +329,18 @@ NodeGraphicsScene::mouseReleaseEvent( QGraphicsSceneMouseEvent *event )
 		// hide link util
 		this->linkUtilGraphics->SetVisible(false);
 	}
+
+	// save center of camera
+	NodeGraphicsSceneView* view = static_cast<NodeGraphicsSceneView*>(this->views()[0]);
+	const QPoint& viewCenter = view->GetCenter();
+	Project::Instance()->globalState.viewCenter = Math::float2(viewCenter.x(), viewCenter.y());
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-void 
-NodeGraphicsScene::mouseMoveEvent( QGraphicsSceneMouseEvent *event )
+void
+NodeGraphicsScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
 	// handle base class event first
 	QGraphicsScene::mouseMoveEvent(event);
@@ -388,9 +397,9 @@ void
 NodeGraphicsScene::DeleteCurrent()
 {
     // only allow this to happen if 
-    if (!(this->focusedNode->GetNode()->GetFlags() & Node::NoDelete))
+    if (!(this->focusedNode->node->GetFlags() & Node::NoDelete))
     {
-	    if (this->focusedNode.isvalid()) this->nodeScene->RemoveNode(this->focusedNode->GetNode());
+		if (this->focusedNode.isvalid()) this->nodeScene->RemoveNode(this->focusedNode->node);
 	    this->focusedNode = 0;
         emit NodeFocused(NULL);
     }
@@ -407,7 +416,7 @@ NodeGraphicsScene::OnTick()
     IndexT i;
     for (i = 0; i < this->interactiveNodes.Size(); i++)
     {
-        this->interactiveNodes[i]->GetNode()->Simulate();
+		this->interactiveNodes[i]->node->Simulate();
     }
 }
 
@@ -417,7 +426,7 @@ NodeGraphicsScene::OnTick()
 void 
 NodeGraphicsScene::DropFocus()
 {
-    if (this->focusedNode.isvalid()) this->focusedNode->SetFocus(false);
+    if (this->focusedNode.isvalid()) this->focusedNode->SetFocus(false, false);
     this->focusedNode = 0;    
     emit NodeFocused(NULL);
 }

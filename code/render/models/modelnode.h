@@ -23,6 +23,11 @@
 #include "io/binaryreader.h"
 #include "materials/surfacename.h"
 
+#if NEBULA3_ENABLE_PROFILING
+#include "debug/debugtimer.h"
+#include "debug/debugcounter.h"
+#endif
+
 //------------------------------------------------------------------------------
 namespace Models
 {
@@ -115,6 +120,15 @@ public:
     /// add string attribute
     void SetStringAttr(const Util::StringAtom& attrId, const Util::StringAtom& value);
 
+#if NEBULA3_ENABLE_PROFILING
+	/// start profiling timer
+	void StartTimer();
+	/// stop profiling timer
+	void StopTimer();
+	/// increase render count
+	void IncrementDraws();
+#endif
+
 protected:
     /// recursively create node instance hierarchy
     virtual Ptr<ModelNodeInstance> RecurseCreateNodeInstanceHierarchy(const Ptr<ModelInstance>& modelInst, const Ptr<ModelNodeInstance>& parentNodeInst);
@@ -131,6 +145,11 @@ protected:
 
     /// factor between 0.0 (close) and 1.0 (far away) describing the distance to camera (used for decision of max needed mipMap)
     float resourceStreamingLevelOfDetail;
+
+#if NEBULA3_ENABLE_PROFILING
+	_declare_timer(debugTimer);
+	_declare_counter(debugCounter);
+#endif
 };
 
 

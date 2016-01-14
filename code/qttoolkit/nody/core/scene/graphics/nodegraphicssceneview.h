@@ -63,6 +63,8 @@ public:
 	const QPoint& GetCenter();
     /// resets center to origin
     void ResetCenter();
+	/// set the origin point, use this carefully
+	void SetOrigin(const QPointF& origin);
 
 	/// gets graphics scene
 	const Ptr<NodeGraphicsScene>& GetScene() const;
@@ -75,7 +77,6 @@ private slots:
 	void OnAnimationFinished();
 
 private:
-
 	Ptr<NodeGraphicsScene> graphicsScene;
 	QPropertyAnimation* zoom;
 	QPropertyAnimation* move;
@@ -98,7 +99,6 @@ NodeGraphicsSceneView::GetCenter()
 {
 	return this->center;
 }
-
 
 //------------------------------------------------------------------------------
 /**

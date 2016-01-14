@@ -101,6 +101,9 @@ ShadyWindow::Setup()
     this->buildSettingsUi->setupUi(&this->settingsDialog);
     this->validationUi->setupUi(&this->validationDialog);
 
+	// connect UI signals
+	QObject::connect(ShadyWindow::ui->actionReal_time_visualize, SIGNAL(triggered()), this, SLOT(OnRealtimeVisualizeClicked()));
+
 	// connect signal for creating nodes
 	QObject::connect(ShadyWindow::ui->variationTree,     SIGNAL(CreateNode(const Ptr<Nody::Variation>&)), this, SLOT(OnCreateNode(const Ptr<Nody::Variation>&)));
     QObject::connect(ShadyWindow::ui->actionSettings,    SIGNAL(triggered()), &this->settingsDialog, SLOT(show()));
@@ -367,7 +370,7 @@ ShadyWindow::OnBuild()
 
             // create generator
             Ptr<AnyFXGenerator> generator = AnyFXGenerator::Create();
-            generator->SetVisualize(this->validationUi->visualize->isChecked(), 500);
+			generator->SetVisualize(this->ui->actionDebug_code_generation->isChecked(), 500);
             generator->GenerateToBuffer(this->nodeScene, result);
 
             // run generation, if successful, also stop timer
@@ -565,4 +568,14 @@ ShadyWindow::ConsoleWarning( const char* format, ... )
     ShadyWindow::ui->output->setText(msg.AsCharPtr());
     va_end(arg);
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ShadyWindow::OnRealtimeVisualizeClicked()
+{
+	this->nodeScene->GetNodeSceneGraphics()->SetInteractiveMode(this->ui->actionReal_time_visualize->isChecked());
+}
+
 } // namespace Shady

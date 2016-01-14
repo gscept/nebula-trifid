@@ -71,39 +71,39 @@ View::OnAttachToServer()
 #if NEBULA3_ENABLE_PROFILING
 	this->resolveVisibleShadowCasters = Debug::DebugTimer::Create();
 	String name("View_" + this->GetName().AsString() + "_ResolveShadowCasters");
-	this->resolveVisibleShadowCasters->Setup(name);
+	this->resolveVisibleShadowCasters->Setup(name, "Visibility");
 
     this->resolveVisibleModelNodeInstances = Debug::DebugTimer::Create();
 	name.Format("View_%s_ResolveModelInstanceNodes", this->name.Value());
-    this->resolveVisibleModelNodeInstances->Setup(name);
+	this->resolveVisibleModelNodeInstances->Setup(name, "Visibility");
 
 	this->updateShadowBuffers = Debug::DebugTimer::Create();
 	name.Format("View_%s_UpdateShadowBuffers", this->name.Value());
-	this->updateShadowBuffers->Setup(name);
+	this->updateShadowBuffers->Setup(name, "Shadowmapping");
 
 	this->picking = Debug::DebugTimer::Create();
 	name.Format("View_%s_UpdatePicking", this->name.Value());
-	this->picking->Setup(name);
+	this->picking->Setup(name, "Picking");
 
 	this->render = Debug::DebugTimer::Create();
 	name.Format("View_%s_RenderFrameShader", this->name.Value());
-	this->render->Setup(name);
+	this->render->Setup(name, "Frame shaders");
 
 	this->ViewEndFrame = Debug::DebugTimer::Create();
 	name.Format("View_%s_ViewEndFrame", this->name.Value());
-	this->ViewEndFrame->Setup(name);
+	this->ViewEndFrame->Setup(name, "Render");
 
 	this->ViewRender = Debug::DebugTimer::Create();
 	name.Format("View_%s_ViewRender", this->name.Value());
-	this->ViewRender->Setup(name);
+	this->ViewRender->Setup(name, "Render");
 
 	this->ViewUpdateLightLinks = Debug::DebugTimer::Create();
 	name.Format("View_%s_ViewUpdateLightLinks", this->name.Value());
-	this->ViewUpdateLightLinks->Setup(name);
+	this->ViewUpdateLightLinks->Setup(name, "Visibility");
 
 	this->ViewUpdateVisibilityLinks = Debug::DebugTimer::Create();
 	name.Format("View_%s_ViewUpdateVisibiltyLinks", this->name.Value());
-	this->ViewUpdateVisibilityLinks->Setup(name);
+	this->ViewUpdateVisibilityLinks->Setup(name, "Visibility");
 #endif
 }
 

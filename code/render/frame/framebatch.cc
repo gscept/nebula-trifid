@@ -242,6 +242,10 @@ FrameBatch::RenderBatch(IndexT frameIndex)
                         // start batch
                         renderDevice->BeginBatch(this->batchType);
 
+					#if NEBULA3_ENABLE_PROFILING
+						modelNode->StartTimer();
+					#endif
+
                         IndexT nodeInstIndex;
                         for (nodeInstIndex = 0; nodeInstIndex < nodeInstances.Size(); nodeInstIndex++)
                         {
@@ -304,6 +308,10 @@ FrameBatch::RenderBatch(IndexT frameIndex)
                                     // render single
                                     nodeInstance->Render();
                                 }
+
+							#if NEBULA3_ENABLE_PROFILING
+								modelNode->IncrementDraws();
+							#endif
                             }
 
                         #if NEBULA3_ENABLE_PROFILING
@@ -318,6 +326,10 @@ FrameBatch::RenderBatch(IndexT frameIndex)
                             }
                             */
                         }
+
+					#if NEBULA3_ENABLE_PROFILING
+						modelNode->StopTimer();
+					#endif
 
                         // end batch
                         renderDevice->EndBatch();
@@ -344,7 +356,7 @@ void
 FrameBatch::SetBatchDebugTimer(const Util::String& name)
 {
     this->debugTimer = Debug::DebugTimer::Create();
-    this->debugTimer->Setup(name);
+    this->debugTimer->Setup(name, "Frame shaders");
 }
 #endif
 

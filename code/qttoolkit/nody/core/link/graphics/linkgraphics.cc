@@ -10,6 +10,9 @@
 #include "config.h"
 #include <QApplication>
 
+#define LINK_DATAFLOW_ELLIPSE_RADIUS 15.0f
+#define LINK_DATAFLOW_ELLIPSE_HALF_SIZE LINK_DATAFLOW_ELLIPSE_RADIUS/2.0f
+
 namespace Nody
 {
 __ImplementClass(Nody::LinkGraphics, 'LIGX', Core::RefCounted);
@@ -45,6 +48,20 @@ LinkGraphics::Visit()
     QPen pen(QBrush(Qt::green), 2.0f, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin);
     this->linePathItem->setPen(pen);
 
+	// show data flow ellipses
+	this->ellipseItems[0]->show();
+	this->ellipseItems[1]->show();
+	this->ellipseItems[2]->show();
+	this->ellipseItems[3]->show();
+
+	// reset time
+	this->dataFlowTime = 0.0f;
+
+	// update dots a single time, then start rendering timer
+	this->RenderDataFlow();
+	connect(&this->dataFlowTimer, SIGNAL(timeout()), this, SLOT(RenderDataFlow()));
+	this->dataFlowTimer.start();
+
     // also visit variables
     this->link->GetToVariable()->GetGraphics()->Visit();
     this->link->GetFromVariable()->GetGraphics()->Visit();    
@@ -58,6 +75,15 @@ void
 LinkGraphics::Unvisit()
 {
     this->linePathItem->setPen(this->lockedPen);
+
+	// hide data flow ellipses
+	this->ellipseItems[0]->hide();
+	this->ellipseItems[1]->hide();
+	this->ellipseItems[2]->hide();
+	this->ellipseItems[3]->hide();
+
+	this->dataFlowTimer.stop();
+	disconnect(&this->dataFlowTimer, SIGNAL(timeout()), this, SLOT(RenderDataFlow()));
 
     // also unvisit variables
     this->link->GetToVariable()->GetGraphics()->Unvisit();
@@ -91,8 +117,8 @@ LinkGraphics::Unlock()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-LinkGraphics::SetVisible( bool b )
+void
+LinkGraphics::SetVisible(bool b)
 {
 	n_assert(0 != this->linePathItem);
 	this->linePathItem->setVisible(b);
@@ -101,23 +127,45 @@ LinkGraphics::SetVisible( bool b )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-LinkGraphics::AddToScene( const Ptr<NodeGraphicsScene>& scene )
+void
+LinkGraphics::AddToScene(const Ptr<NodeGraphicsScene>& scene)
 {
 	n_assert(0 != this->linePathItem);
 
 	// add graphics to scene
 	scene->addItem(this->linePathItem);
+	QRadialGradient gradient(QPointF(LINK_DATAFLOW_ELLIPSE_HALF_SIZE, LINK_DATAFLOW_ELLIPSE_HALF_SIZE), LINK_DATAFLOW_ELLIPSE_HALF_SIZE);
+	gradient.setColorAt(0, qRgba(142, 255, 102, 255));
+	gradient.setColorAt(0.5f, qRgba(102, 215, 62, 255));
+	gradient.setColorAt(1, Qt::transparent);
+	this->ellipseItems[0] = scene->addEllipse(0, 0, LINK_DATAFLOW_ELLIPSE_RADIUS, LINK_DATAFLOW_ELLIPSE_RADIUS, QPen(Qt::transparent), QBrush(gradient));
+	this->ellipseItems[0]->setZValue(DATAFLOWLAYER);
+	this->ellipseItems[1] = scene->addEllipse(0, 0, LINK_DATAFLOW_ELLIPSE_RADIUS, LINK_DATAFLOW_ELLIPSE_RADIUS, QPen(Qt::transparent), QBrush(gradient));
+	this->ellipseItems[1]->setZValue(DATAFLOWLAYER);
+	this->ellipseItems[2] = scene->addEllipse(0, 0, LINK_DATAFLOW_ELLIPSE_RADIUS, LINK_DATAFLOW_ELLIPSE_RADIUS, QPen(Qt::transparent), QBrush(gradient));
+	this->ellipseItems[2]->setZValue(DATAFLOWLAYER);
+	this->ellipseItems[3] = scene->addEllipse(0, 0, LINK_DATAFLOW_ELLIPSE_RADIUS, LINK_DATAFLOW_ELLIPSE_RADIUS, QPen(Qt::transparent), QBrush(gradient));
+	this->ellipseItems[3]->setZValue(DATAFLOWLAYER);
+
+	// hide data flow ellipses
+	this->ellipseItems[0]->hide();
+	this->ellipseItems[1]->hide();
+	this->ellipseItems[2]->hide();
+	this->ellipseItems[3]->hide();
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-void 
-LinkGraphics::RemoveFromScene( const Ptr<NodeGraphicsScene>& scene )
+void
+LinkGraphics::RemoveFromScene(const Ptr<NodeGraphicsScene>& scene)
 {
 	n_assert(0 != this->linePathItem);
 	scene->removeItem(this->linePathItem);
+	scene->removeItem(this->ellipseItems[0]);
+	scene->removeItem(this->ellipseItems[1]);
+	scene->removeItem(this->ellipseItems[2]);
+	scene->removeItem(this->ellipseItems[3]);
 }
 
 //------------------------------------------------------------------------------
@@ -130,7 +178,6 @@ LinkGraphics::Generate()
 
 	// create path item
 	this->linePathItem = new AntialiasedLineGraphics;
-	QPen pen;
 	this->linePathItem->setPen(this->standardPen);
 	this->linePathItem->setZValue(LINKLAYER);
 }
@@ -191,6 +238,27 @@ LinkGraphics::OnNodeMoved()
 	this->SetAnchorFrom(fromVarInst->GetGraphics()->GetCenter());
 	this->SetAnchorTo(toVarInst->GetGraphics()->GetCenter());
 	this->Update();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+LinkGraphics::RenderDataFlow()
+{
+	float t1 = this->dataFlowTime;
+	float t2 = fmod(this->dataFlowTime + 0.2f, 1.0f);
+	float t3 = fmod(this->dataFlowTime + 0.4f, 1.0f);
+	float t4 = fmod(this->dataFlowTime + 0.6f, 1.0f);
+	QPointF p1 = this->linePath.pointAtPercent(t1) - QPointF(LINK_DATAFLOW_ELLIPSE_HALF_SIZE, LINK_DATAFLOW_ELLIPSE_HALF_SIZE);
+	QPointF p2 = this->linePath.pointAtPercent(t2) - QPointF(LINK_DATAFLOW_ELLIPSE_HALF_SIZE, LINK_DATAFLOW_ELLIPSE_HALF_SIZE);
+	QPointF p3 = this->linePath.pointAtPercent(t3) - QPointF(LINK_DATAFLOW_ELLIPSE_HALF_SIZE, LINK_DATAFLOW_ELLIPSE_HALF_SIZE);
+	QPointF p4 = this->linePath.pointAtPercent(t4) - QPointF(LINK_DATAFLOW_ELLIPSE_HALF_SIZE, LINK_DATAFLOW_ELLIPSE_HALF_SIZE);
+	this->ellipseItems[0]->setPos(p1);
+	this->ellipseItems[1]->setPos(p2);
+	this->ellipseItems[2]->setPos(p3);
+	this->ellipseItems[3]->setPos(p4);
+	this->dataFlowTime = fmod(this->dataFlowTime + 0.01f, 1.0f);
 }
 
 } // namespace Nody

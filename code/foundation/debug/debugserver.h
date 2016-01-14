@@ -41,9 +41,9 @@ public:
     /// unregister a debug counter
     void UnregisterDebugCounter(const Ptr<DebugCounter>& counter);
     /// get all registered debug timers
-    Util::Array<Ptr<DebugTimer> > GetDebugTimers() const;
+    Util::Array<Ptr<DebugTimer>> GetDebugTimers() const;
     /// get all registered debug counters
-    Util::Array<Ptr<DebugCounter> > GetDebugCounters() const;    
+    Util::Array<Ptr<DebugCounter>> GetDebugCounters() const;    
     /// get debug timer by name, returns invalid ptr if not exists
     Ptr<DebugTimer> GetDebugTimerByName(const Util::StringAtom& name) const;
     /// get debug counter by name, returns invalid ptr if not exists
@@ -60,8 +60,8 @@ private:
 
     bool isOpen;
     Threading::CriticalSection critSect;
-    Util::Dictionary<Util::StringAtom, Ptr<DebugTimer> > debugTimers;
-    Util::Dictionary<Util::StringAtom, Ptr<DebugCounter> > debugCounters;
+    Util::Dictionary<Util::StringAtom, Ptr<DebugTimer>> debugTimers;
+    Util::Dictionary<Util::StringAtom, Ptr<DebugCounter>> debugCounters;
 };
 
 //------------------------------------------------------------------------------

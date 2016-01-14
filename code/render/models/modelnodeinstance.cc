@@ -74,7 +74,7 @@ ModelNodeInstance::Setup(const Ptr<ModelInstance>& inst, const Ptr<ModelNode>& n
     if (!this->modelNodeInstanceTimer.isvalid())
     {
         this->modelNodeInstanceTimer = Debug::DebugTimer::Create();
-        this->modelNodeInstanceTimer->Setup(debugTimerName);
+        this->modelNodeInstanceTimer->Setup(debugTimerName, "Model node instances");
     }   
 #endif
 }

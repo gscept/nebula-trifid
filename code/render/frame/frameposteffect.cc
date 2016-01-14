@@ -177,7 +177,7 @@ void
 FramePostEffect::SetFramePostEffectDebugTimer( const Util::String& name )
 {
     this->debugTimer = Debug::DebugTimer::Create();
-    this->debugTimer->Setup(name);
+	this->debugTimer->Setup(name, "Frame shaders");
 }
 
 

@@ -41,9 +41,9 @@ RenderDeviceBase::RenderDeviceBase() :
 	usePatches(false)
 {
     __ConstructSingleton;
-    _setup_counter(RenderDeviceNumPrimitives);
-    _setup_counter(RenderDeviceNumDrawCalls);
-    _setup_counter(RenderDeviceNumComputes);
+    _setup_grouped_counter(RenderDeviceNumPrimitives, "Render");
+	_setup_grouped_counter(RenderDeviceNumDrawCalls, "Render");
+	_setup_grouped_counter(RenderDeviceNumComputes, "Render");
     Memory::Clear(this->streamVertexOffsets, sizeof(this->streamVertexOffsets));
 }
 
@@ -289,6 +289,7 @@ RenderDeviceBase::BeginFrame()
         n_assert(!this->streamVertexBuffers[i].isvalid());
     }
 
+	_begin_counter(RenderDeviceNumComputes);
     _begin_counter(RenderDeviceNumPrimitives);
     _begin_counter(RenderDeviceNumDrawCalls);
 
@@ -505,6 +506,7 @@ RenderDeviceBase::EndFrame()
 {
     n_assert(this->inBeginFrame);
 
+	_end_counter(RenderDeviceNumComputes);
     _end_counter(RenderDeviceNumPrimitives);
     _end_counter(RenderDeviceNumDrawCalls);
     

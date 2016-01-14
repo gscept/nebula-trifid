@@ -66,6 +66,12 @@ private:
 	Ptr<Game::Entity> defaultCam;	
 	Ptr<TransformAction> activeTransformAction;
 	Input::Key::Code activateSelectionZoom;
+
+	bool showPerformance;
+	int performanceFrame;
+	Util::RingBuffer<int> drawcallBuffer;
+	Util::RingBuffer<int> primitivesBuffer;
+	Util::RingBuffer<int> computesBuffer;
 }; 
 
 } // namespace LevelEditor2

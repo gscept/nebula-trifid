@@ -16,6 +16,8 @@
 #include "shadywindow.h"
 #include "io/ioserver.h"
 
+#include <QApplication>
+
 using namespace Nody;
 namespace Shady
 {
@@ -41,7 +43,7 @@ AnyFXGenerator::~AnyFXGenerator()
 /**
 */
 void
-AnyFXGenerator::GenerateToFile( const Ptr<NodeScene>& scene, const IO::URI& path )
+AnyFXGenerator::GenerateToFile(const Ptr<NodeScene>& scene, const IO::URI& path)
 {
     n_assert(scene.isvalid());
 
@@ -68,7 +70,7 @@ AnyFXGenerator::GenerateToFile( const Ptr<NodeScene>& scene, const IO::URI& path
 /**
 */
 void
-AnyFXGenerator::GenerateToBuffer( const Ptr<NodeScene>& scene, Util::Blob& output )
+AnyFXGenerator::GenerateToBuffer(const Ptr<NodeScene>& scene, Util::Blob& output)
 {
     n_assert(scene.isvalid());
 
@@ -76,7 +78,7 @@ AnyFXGenerator::GenerateToBuffer( const Ptr<NodeScene>& scene, Util::Blob& outpu
     Util::String code = this->DoWork(scene);
 
     // set output
-    output.Set(code.AsCharPtr(), code.Length());
+	if (!code.IsEmpty()) output.Set(code.AsCharPtr(), code.Length());
 }
 
 //------------------------------------------------------------------------------
@@ -99,6 +101,14 @@ AnyFXGenerator::DoWork(const Ptr<Nody::NodeScene>& scene)
     const Ptr<Node>& start = scene->GetSuperNode();
     const Ptr<ShadySuperVariation>& superVariation = start->GetSuperVariation()->GetOriginalSuperVariation().downcast<ShadySuperVariation>();
 
+	// start off by validating the graph
+	this->ValidateGraph(start);
+	if (this->error == true)
+	{
+		SHADY_ERROR_FORMAT("%s", this->errorMessage.AsCharPtr());
+		return finalCode;
+	}
+
     // write header
     Timing::CalendarTime date = Timing::CalendarTime::GetLocalTime();
     Util::String intro;
@@ -110,13 +120,22 @@ AnyFXGenerator::DoWork(const Ptr<Nody::NodeScene>& scene)
     // define default program, we should be able to modify this to select either default, geometry, tessellation or geometry-tessellation
     intro.Append("#define DEFAULT_PROGRAM\n");
     intro.Append("\n");
+	Util::String variationDefineString = superVariation->GetDefines();
+	Util::Array<Util::String> variationDefines = variationDefineString.Tokenize(";");
+	IndexT i;
+	for (i = 0; i < variationDefines.Size(); i++)
+	{
+		if (this->defines.FindIndex(variationDefines[i]) == InvalidIndex)
+		{
+			this->defines.Append(variationDefines[i]);
+		}
+	}
 
     // this code fragment will be generated per link
     Util::String linkCode;
 
     // lets go through all links in this node, they can ONLY be inputs, so we can assume each link will cause a function to be generated
     const Util::Array<Ptr<Link>>& links = start->GetLinks();
-    IndexT i;
     for (i = 0; i < links.Size(); i++)
     {
         const Ptr<Link>& link = links[i];
@@ -199,8 +218,17 @@ AnyFXGenerator::DoWork(const Ptr<Nody::NodeScene>& scene)
             paramType.AsCharPtr(), 
             this->generatedCode.AsCharPtr());
 
-        // append to full code
-        linkCode.Append("#define " + origTo->GetDefines() + "\n");
+		// append defines to code
+		Util::String linkDefineString = origTo->GetDefines();
+		Util::Array<Util::String> linkDefines = linkDefineString.Tokenize(";");
+		IndexT j;
+		for (j = 0; j < linkDefines.Size(); j++)
+		{
+			Util::String def = Util::String::Sprintf("#define %s\n", linkDefines[j].AsCharPtr());
+			linkCode.Append(def);
+		}
+
+		// append function to full code
         linkCode.Append(input);
 
         // clear code
@@ -307,8 +335,8 @@ AnyFXGenerator::DoWork(const Ptr<Nody::NodeScene>& scene)
     This is where you put your validation.
     This is where you compile your code in order to make sure that it works.
 */
-void 
-AnyFXGenerator::Validate( const Util::Blob& buffer )
+void
+AnyFXGenerator::Validate(const Util::Blob& buffer)
 {
     // FIXME!
 }
@@ -316,8 +344,8 @@ AnyFXGenerator::Validate( const Util::Blob& buffer )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-AnyFXGenerator::VisitNode( const Ptr<Nody::Node>& node )
+void
+AnyFXGenerator::VisitNode(const Ptr<Nody::Node>& node)
 {
     n_assert(node.isvalid());
 
@@ -331,7 +359,7 @@ AnyFXGenerator::VisitNode( const Ptr<Nody::Node>& node )
     if (this->visualize)
     {
         node->GetGraphics()->Visit();
-        n_sleep(this->delay / 1000.0f);
+		n_qtwait(this->delay);
     }   
 
     // if node has unused inputs, mark node as errornous
@@ -351,12 +379,16 @@ AnyFXGenerator::VisitNode( const Ptr<Nody::Node>& node )
         {
             // add defines
             const Ptr<ShadyVariable>& var = input->GetOriginalVariable().downcast<ShadyVariable>();
-            const Util::String& defines = var->GetDefines();
-            if (!defines.IsEmpty())
-            {
-                IndexT index = this->defines.FindIndex(defines);
-                if (index == InvalidIndex) this->defines.Append(defines);
-            }            
+            const Util::String& defineString = var->GetDefines();
+			Util::Array<Util::String> defines = defineString.Tokenize(";");
+			IndexT j;
+			for (j = 0; j < defines.Size(); j++)
+			{
+				if (this->defines.FindIndex(defines[j]) == InvalidIndex)
+				{
+					this->defines.Append(defines[j]);
+				}
+			}
         }
     }
 }
@@ -364,14 +396,14 @@ AnyFXGenerator::VisitNode( const Ptr<Nody::Node>& node )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-AnyFXGenerator::VisitLink( const Ptr<Nody::Link>& link )
+void
+AnyFXGenerator::VisitLink(const Ptr<Nody::Link>& link)
 {
     n_assert(link.isvalid());
     if (this->visualize)
     {
         link->GetGraphics()->Visit();
-        n_sleep(this->delay / 1000.0f);
+		n_qtwait(this->delay);
     }    
 
     // add both variables as used
@@ -385,8 +417,8 @@ AnyFXGenerator::VisitLink( const Ptr<Nody::Link>& link )
     Main source for code generation in AnyFX.
     When all links have been treated, we generate output names, get per-output sources and attempt implicit type conversions if possible.
 */
-void 
-AnyFXGenerator::RevisitNode( const Ptr<Nody::Node>& node )
+void
+AnyFXGenerator::RevisitNode(const Ptr<Nody::Node>& node)
 {
     n_assert(node.isvalid());
 
@@ -397,7 +429,7 @@ AnyFXGenerator::RevisitNode( const Ptr<Nody::Node>& node )
     if (this->visualize)
     {
         node->GetGraphics()->Unvisit();
-        n_sleep(this->delay / 1000.0f);
+		n_qtwait(this->delay);
     }
 
     // solve type by checking for inheritance
@@ -461,13 +493,17 @@ AnyFXGenerator::RevisitNode( const Ptr<Nody::Node>& node )
 
         // add defines
         const Ptr<ShadyVariable>& var = output->GetOriginalVariable().downcast<ShadyVariable>();
-        const Util::String& defines = var->GetDefines();
-        if (!defines.IsEmpty())
-        {
-            IndexT index = this->defines.FindIndex(defines);
-            if (index == InvalidIndex) this->defines.Append(defines);
-        } 
-
+        const Util::String& defineString = var->GetDefines();
+		Util::Array<Util::String> defines = defineString.Tokenize(";");
+		IndexT j;
+		for (j = 0; j < defines.Size(); j++)
+		{
+			if (this->defines.FindIndex(defines[j]) == InvalidIndex)
+			{
+				this->defines.Append(defines[j]);
+			}
+		}
+        
         this->variableInstanceNameMapping.Add(output, varName);
         this->lastGeneratedName = varName;
     }
@@ -585,22 +621,22 @@ AnyFXGenerator::RevisitNode( const Ptr<Nody::Node>& node )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-AnyFXGenerator::RevisitLink( const Ptr<Nody::Link>& link )
+void
+AnyFXGenerator::RevisitLink(const Ptr<Nody::Link>& link)
 {
     n_assert(link.isvalid());
     if (this->visualize)
     {
         link->GetGraphics()->Unvisit();
-        n_sleep(this->delay / 1000.0f);
+		n_qtwait(this->delay);
     }    
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-Util::String 
-AnyFXGenerator::ConvertFromVariant( const Util::Variant& value, const Nody::VarType& type )
+Util::String
+AnyFXGenerator::ConvertFromVariant(const Util::Variant& value, const Nody::VarType& type)
 {
     Util::String retval;
     switch (type.GetType())
@@ -680,10 +716,10 @@ AnyFXGenerator::ConvertFromVariant( const Util::Variant& value, const Nody::VarT
     float3 rhs;
     float3 = float3(lhs) + rhs;
 */
-bool 
-AnyFXGenerator::CanExplicitlyConvert( const Nody::VarType& lhs, const Nody::VarType& rhs )
+bool
+AnyFXGenerator::CanExplicitlyConvert(const Nody::VarType& lhs, const Nody::VarType& rhs)
 {
-    if      (lhs.GetType() == rhs.GetType()) return true;
+    if (lhs.GetType() == rhs.GetType()) return true;
     else
     {
         uint lhsSize = Nody::VarType::VectorSize(lhs);

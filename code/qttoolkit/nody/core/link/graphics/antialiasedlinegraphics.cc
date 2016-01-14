@@ -29,8 +29,8 @@ AntialiasedLineGraphics::~AntialiasedLineGraphics()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-AntialiasedLineGraphics::paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget )
+void
+AntialiasedLineGraphics::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
 	painter->setRenderHint(QPainter::Antialiasing);
 	QGraphicsPathItem::paint(painter, option, widget);

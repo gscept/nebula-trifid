@@ -33,25 +33,6 @@ NodeItemGroup::~NodeItemGroup()
 /**
 */
 void 
-NodeItemGroup::SetNodeGraphics( const Ptr<NodeGraphics>& node )
-{
-	n_assert(node.isvalid());
-	this->node = node;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-const Ptr<NodeGraphics>& 
-NodeItemGroup::GetNodeGraphics() const
-{
-	return this->node;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
 NodeItemGroup::mousePressEvent( QGraphicsSceneMouseEvent *event )
 {
 	QGraphicsItemGroup::mousePressEvent(event);

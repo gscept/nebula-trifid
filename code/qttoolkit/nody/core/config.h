@@ -1,6 +1,8 @@
 #pragma once
 //#include "core/refcounted.h"
-#include <QtCore/qobject.h>
+#include <QObject>
+#include <QApplication>
+#include <QTime>
 namespace Core
 {
     class RefCounted;
@@ -16,12 +18,17 @@ namespace Core
 //------------------------------------------------------------------------------
 
 // we define a set of layers at which we should render objects
-#define NODESUBLAYER 1		// this is the sub-layer for nodes, all nodes should be here except for the 'focused' node
-#define NODESUPERLAYER 2	// this is where the focused node should be
-#define LINKLAYER INT_MAX   // links should lie on top of everything else
-#define TRASHLAYER 4
+#define LINKLAYER 1   // links should lie on top of everything else
+#define DATAFLOWLAYER 2 // data flow dots should be on top of links
+#define NODELAYERBACKGROUND 3		// this is the layer used for node background elements
+#define NODELAYERFOREGROUND 4		// this is the layer used for node foreground elements
+#define NODEDEFAULTLAYER 5
+#define NODEFOCUSEDLAYER 6	// this is where the focused node should be
+#define NODEFOCUSLAYER 7
+#define TRASHLAYER 8
 
-// we define a location at which we store a user-pointer to a Nebula3-style object, this should be used for setData
+
+// we define a location at which we store a user-pointer to a NebulaT-style object, this should be used for setData
 #define NEBULAUSERPOINTERLOCATION 0
 #define NEBULAUSERPROPERTYNAME "NEBULA"
 
@@ -52,7 +59,8 @@ n_convertinttotype(unsigned ptr, Core::RefCounted** obj)
 }
 
 template<class CLASS>
-bool n_convertvoidtotype(void* ptr, Core::RefCounted** obj)
+bool
+n_convertvoidtotype(void* ptr, Core::RefCounted** obj)
 {
     CLASS* baseObj = reinterpret_cast<CLASS*>(ptr);
     if (baseObj != 0)
@@ -65,6 +73,19 @@ bool n_convertvoidtotype(void* ptr, Core::RefCounted** obj)
         *obj = 0;
         return false;
     }
+}
+
+// wait for time to pass, while updating Qt events (keeping the UI responsive), in milliseconds
+inline void
+n_qtwait(int ms)
+{
+	QTime time;
+	time.start();
+	while (true)
+	{
+		QApplication::processEvents();
+		if (time.elapsed() > ms) break;
+	}
 }
 	
 

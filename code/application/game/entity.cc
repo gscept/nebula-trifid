@@ -482,7 +482,7 @@ Entity::AttachProperty(const Ptr<Property>& prop)
     if (!debugtimer.isvalid())
     {
         debugtimer = Debug::DebugTimer::Create();
-        debugtimer->Setup(timerName);
+        debugtimer->Setup(timerName, "Entity");
     }
     this->propertyActivateDebugTimer.Add(timerName, debugtimer);    
 
@@ -492,7 +492,7 @@ Entity::AttachProperty(const Ptr<Property>& prop)
     if (!debugtimer.isvalid())
     {
         debugtimer = Debug::DebugTimer::Create();
-        debugtimer->Setup(timerName);
+		debugtimer->Setup(timerName, "Entity");
     }
     this->propertyOnBeginFrameDebugTimer.Add(timerName, debugtimer);  
 
@@ -502,7 +502,7 @@ Entity::AttachProperty(const Ptr<Property>& prop)
     if (!debugtimer.isvalid())
     {
         debugtimer = Debug::DebugTimer::Create();
-        debugtimer->Setup(timerName);
+		debugtimer->Setup(timerName, "Entity");
     }
     this->propertyOnStartDebugTimer.Add(timerName, debugtimer);  
     #endif

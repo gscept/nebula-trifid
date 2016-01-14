@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1748</width>
+    <width>1717</width>
     <height>964</height>
    </rect>
   </property>
@@ -37,6 +37,15 @@
    <string notr="true"/>
   </property>
   <property name="animated">
+   <bool>true</bool>
+  </property>
+  <property name="tabShape">
+   <enum>QTabWidget::Rounded</enum>
+  </property>
+  <property name="dockOptions">
+   <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks</set>
+  </property>
+  <property name="unifiedTitleAndToolBarOnMac">
    <bool>false</bool>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -111,8 +120,8 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>100</width>
-           <height>100</height>
+           <width>640</width>
+           <height>480</height>
           </size>
          </property>
          <property name="maximumSize">
@@ -171,7 +180,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1748</width>
+     <width>1717</width>
      <height>21</height>
     </rect>
    </property>
@@ -218,6 +227,8 @@
     <addaction name="actionShow_PostEffect_Controls"/>
     <addaction name="actionShow_Shady"/>
     <addaction name="actionShow_UI_Info"/>
+    <addaction name="separator"/>
+    <addaction name="actionRestore_default_layout"/>
    </widget>
    <widget class="QMenu" name="menuCreate">
     <property name="title">
@@ -245,16 +256,6 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionShow_sky"/>
-   <addaction name="actionShow_physics"/>
-   <addaction name="actionShow_controls"/>
-   <addaction name="separator"/>
-   <addaction name="actionWireframe"/>
-   <addaction name="actionAmbient_occlusion"/>
-   <addaction name="separator"/>
-   <addaction name="actionLight_from_camera"/>
-   <addaction name="separator"/>
-   <addaction name="actionDisplay_Surface_Material"/>
   </widget>
   <widget class="QDockWidget" name="dockWidget">
    <property name="windowTitle">
@@ -366,8 +367,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>80</width>
-          <height>106</height>
+          <width>91</width>
+          <height>108</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout">
@@ -397,7 +398,7 @@
   <widget class="QDockWidget" name="textureDockWidget">
    <property name="minimumSize">
     <size>
-     <width>80</width>
+     <width>91</width>
      <height>91</height>
     </size>
    </property>
@@ -437,8 +438,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>80</width>
-          <height>106</height>
+          <width>91</width>
+          <height>107</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_4">
@@ -502,8 +503,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>80</width>
-          <height>106</height>
+          <width>91</width>
+          <height>108</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_11">
@@ -570,8 +571,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>80</width>
-          <height>106</height>
+          <width>91</width>
+          <height>107</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_13">
@@ -638,8 +639,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>80</width>
-          <height>106</height>
+          <width>91</width>
+          <height>108</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_14">
@@ -706,8 +707,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>80</width>
-          <height>106</height>
+          <width>91</width>
+          <height>107</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_15">
@@ -765,8 +766,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>80</width>
-          <height>106</height>
+          <width>91</width>
+          <height>108</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_17">
@@ -946,41 +947,6 @@
     </font>
    </property>
   </action>
-  <action name="actionWireframe">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Wireframe</string>
-   </property>
-   <property name="toolTip">
-    <string>Toggle wireframe on/off</string>
-   </property>
-   <property name="font">
-    <font>
-     <family>Segoe UI</family>
-    </font>
-   </property>
-  </action>
-  <action name="actionAmbient_occlusion">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Ambient occlusion</string>
-   </property>
-   <property name="toolTip">
-    <string>Toggle ambient occlusion on/off</string>
-   </property>
-   <property name="font">
-    <font>
-     <family>Segoe UI</family>
-    </font>
-   </property>
-  </action>
   <action name="actionShow_physics">
    <property name="checkable">
     <bool>true</bool>
@@ -1013,25 +979,6 @@
     </font>
    </property>
   </action>
-  <action name="actionLight_from_camera">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Light from camera</string>
-   </property>
-   <property name="toolTip">
-    <string>Lock the light to always point in the direction of the camera</string>
-   </property>
-   <property name="font">
-    <font>
-     <family>Segoe UI</family>
-    </font>
-   </property>
-  </action>
   <action name="actionEnvironment_probe">
    <property name="text">
     <string>Environment probe...</string>
@@ -1045,23 +992,9 @@
     <string>Create material...</string>
    </property>
   </action>
-  <action name="actionDisplay_Surface_Material">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
+  <action name="actionRestore_default_layout">
    <property name="text">
-    <string>Display Surface Material</string>
-   </property>
-   <property name="toolTip">
-    <string>Toggle to display the currently open surface material on a placeholder mesh, in the viewport.</string>
-   </property>
-   <property name="font">
-    <font>
-     <family>Segoe UI</family>
-    </font>
-   </property>
-   <property name="shortcut">
-    <string>F3</string>
+    <string>Restore default layout</string>
    </property>
   </action>
  </widget>

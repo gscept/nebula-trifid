@@ -174,6 +174,7 @@ ADD_DEPENDENCIES(contentbrowser
 	libqimg
 	posteffectcontroller
 	splash
+	dynui
 	nody
 	shady
 	shady_NIDLS
@@ -190,6 +191,7 @@ TARGET_LINK_LIBRARIES(contentbrowser
 	posteffectcontroller
 	libqimg
 	splash	
+	dynui
 	shady_NIDLS
 	resourcebrowser
 	miniexporter

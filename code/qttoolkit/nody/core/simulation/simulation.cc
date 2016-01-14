@@ -88,7 +88,6 @@ Simulation::Run(const SimResult& result)
 
     // set result argument
     args.ArgValue("output").SetVoidPtr((void*)&result);
-    args.ArgValue("node").SetVoidPtr((void*)this->node.get());
     this->command->OnExecute();
 }
 

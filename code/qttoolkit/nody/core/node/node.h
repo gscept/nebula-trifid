@@ -55,7 +55,7 @@ public:
 	void RemoveLink(const Ptr<Link>& link);
 
     /// set value, this will also set the simulation value if the key matches the value
-    void SetValue(const Util::String& key, const Util::Variant& value);
+    virtual void SetValue(const Util::String& key, const Util::Variant& value);
     /// get value by name
     const Util::Variant& GetValue(const Util::String& key) const;
     /// get the value type of a value
@@ -104,10 +104,12 @@ protected:
 	Ptr<VariationInstance> variation;
     Util::Dictionary<Util::String, Util::Variant> values;
     Util::Dictionary<Util::String, VarType> valueTypes;
+	Util::Dictionary<Util::String, uint> valueFlags;
 
     Ptr<Simulation> simulation;
     Util::KeyValuePair<Util::Variant, VarType> simulationValue;
     SimResult simulationResult;
+	bool simulatedThisFrame;
 }; 
 
 //------------------------------------------------------------------------------

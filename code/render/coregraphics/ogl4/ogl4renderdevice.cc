@@ -676,7 +676,14 @@ OGL4RenderDevice::Draw()
 		{
 			// draw indexed geometry
 			GLenum indexType = OGL4Types::IndexTypeAsOGL4Format(this->indexBuffer->GetIndexType());
-			glDrawElementsBaseVertex(primType, this->primitiveGroup.GetNumIndices(), indexType, NULL, this->primitiveGroup.GetBaseVertex());
+			GLuint indexSize = indexType == GL_UNSIGNED_SHORT ? 2 : 4;
+			glDrawElementsBaseVertex(
+				primType,															// primitive type
+				this->primitiveGroup.GetNumIndices(),								// number of primitives
+				indexType,															// type of index				
+				(GLvoid*)(this->primitiveGroup.GetBaseIndex() * indexSize),			// pointer to indices (NULL since we use VAOs or IBOs)
+				this->primitiveGroup.GetBaseVertex()								// index offset
+			);				
 		}
 		else
 		{
@@ -748,7 +755,16 @@ OGL4RenderDevice::DrawIndexedInstanced(SizeT numInstances, IndexT baseInstance)
 		{
 			// draw instanced elements
 			GLenum indexType = OGL4Types::IndexTypeAsOGL4Format(this->indexBuffer->GetIndexType());
-			glDrawElementsInstancedBaseVertexBaseInstance(primType, this->primitiveGroup.GetNumIndices(), indexType, NULL, numInstances, this->primitiveGroup.GetBaseVertex(), baseInstance);
+			GLuint indexSize = indexType == GL_UNSIGNED_SHORT ? 2 : 4;
+			glDrawElementsInstancedBaseVertexBaseInstance(
+				primType,															// primitive type
+				this->primitiveGroup.GetNumIndices(),								// amount of indices
+				indexType,															// type of index to use
+				(GLvoid*)(this->primitiveGroup.GetBaseIndex() * indexSize),			// pointer to indices (NULL since we use VAOs or IBOs)
+				numInstances,														// amount of instances to render
+				this->primitiveGroup.GetBaseVertex(),								// start index of vertex
+				baseInstance														// first instance
+			);
 		}
 		else
 		{

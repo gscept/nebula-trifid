@@ -24,7 +24,8 @@ Node::Node() :
     superVariation(0),
 	variation(0),
 	graphics(0),
-    simulation(0)
+    simulation(0),
+	simulatedThisFrame(false)
 {
 	// empty
 }
@@ -40,8 +41,8 @@ Node::~Node()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Node::Setup( const Ptr<Variation>& variation )
+void
+Node::Setup(const Ptr<Variation>& variation)
 {
 	n_assert(variation.isvalid());
 	n_assert(!this->variation.isvalid());
@@ -65,8 +66,8 @@ Node::Setup( const Ptr<Variation>& variation )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Node::Setup( const Ptr<SuperVariation>& superVariation )
+void
+Node::Setup(const Ptr<SuperVariation>& superVariation)
 {
     n_assert(superVariation.isvalid());
     n_assert(!this->superVariation.isvalid());
@@ -153,23 +154,17 @@ Node::DestroyGraphics()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Node::SetValue( const Util::String& key, const Util::Variant& value )
+void
+Node::SetValue(const Util::String& key, const Util::Variant& value)
 {
-    if (this->values.Contains(key))
-    {
-        this->values[key] = value;
-    }
-    else
-    {
-        this->values.Add(key, value);
-    }
+	n_assert(this->values.Contains(key));
+	this->values[key] = value;
 
     // set simulation value
     if (key == this->variation->GetOriginalVariation()->GetSimulationValue())
     {
         this->simulationValue = Util::KeyValuePair<Util::Variant, Nody::VarType>(value, this->simulationValue.Value());
-        this->graphics->OnSimulate(this->simulationValue.Key(), this->simulationValue.Value(), this->simulationResult);
+		this->Simulate();
     }
 }
 
@@ -180,6 +175,12 @@ Node::SetValue( const Util::String& key, const Util::Variant& value )
 void 
 Node::Simulate()
 {
+	if (this->simulatedThisFrame)
+	{
+		this->simulatedThisFrame = false;
+		return;
+	}
+
     if (this->IsSuperNode())
     {
         // hmm, maybe apply final result to preview object?
@@ -196,6 +197,7 @@ Node::Simulate()
         {
             this->graphics->OnSimulate(this->simulationValue.Key(), this->simulationValue.Value(), this->simulationResult);
         }
+		this->simulatedThisFrame = true;
 
         // go to output links and update them
         const Util::Array<Ptr<Link>>& links = this->GetLinks();

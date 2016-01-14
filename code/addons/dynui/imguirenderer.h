@@ -45,12 +45,18 @@ public:
 	/// handle event
 	bool HandleInput(const Input::InputEvent& event);
 
-	/// get buffer lock
-	const Ptr<CoreGraphics::BufferLock>& GetBufferLock() const;
+	/// get buffer lock for vertex buffer
+	const Ptr<CoreGraphics::BufferLock>& GetVertexBufferLock() const;
+	/// get buffer lock for index buffer
+	const Ptr<CoreGraphics::BufferLock>& GetIndexBufferLock() const;
 	/// get vertex buffer pointer
 	byte* GetVertexPtr() const;
+	/// get vertex buffer pointer
+	byte* GetIndexPtr() const;
 	/// get vertex buffer
 	const Ptr<CoreGraphics::VertexBuffer>& GetVertexBuffer() const;
+	/// get index buffer
+	const Ptr<CoreGraphics::IndexBuffer>& GetIndexBuffer() const;
 	/// get shader
     const Ptr<CoreGraphics::Shader>& GetShader() const;
 	/// get font texture
@@ -64,17 +70,29 @@ private:
 	Ptr<CoreGraphics::Shader> uiShader;
 	Ptr<CoreGraphics::Texture> fontTexture;
 	Ptr<CoreGraphics::VertexBuffer> vbo;
-	Ptr<CoreGraphics::BufferLock> bufferLock;
+	Ptr<CoreGraphics::IndexBuffer> ibo;
+	Ptr<CoreGraphics::BufferLock> vboBufferLock;
+	Ptr<CoreGraphics::BufferLock> iboBufferLock;
 	byte* vertexPtr;
+	byte* indexPtr;
 };
 
 //------------------------------------------------------------------------------
 /**
 */
 inline const Ptr<CoreGraphics::BufferLock>&
-ImguiRenderer::GetBufferLock() const
+ImguiRenderer::GetVertexBufferLock() const
 {
-	return this->bufferLock;
+	return this->vboBufferLock;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Ptr<CoreGraphics::BufferLock>&
+ImguiRenderer::GetIndexBufferLock() const
+{
+	return this->iboBufferLock;
 }
 
 //------------------------------------------------------------------------------
@@ -89,10 +107,28 @@ ImguiRenderer::GetVertexPtr() const
 //------------------------------------------------------------------------------
 /**
 */
+inline byte*
+ImguiRenderer::GetIndexPtr() const
+{
+	return this->indexPtr;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 inline const Ptr<CoreGraphics::VertexBuffer>&
 ImguiRenderer::GetVertexBuffer() const
 {
 	return this->vbo;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Ptr<CoreGraphics::IndexBuffer>&
+ImguiRenderer::GetIndexBuffer() const
+{
+	return this->ibo;
 }
 
 //------------------------------------------------------------------------------

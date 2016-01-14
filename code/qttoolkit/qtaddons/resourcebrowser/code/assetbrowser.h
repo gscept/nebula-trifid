@@ -8,15 +8,18 @@
 	(C) 2012-2014 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
+#include "core/refcounted.h"
+#include "core/singleton.h"
+#include "imageloaderthread.h"
+
 #include <QDialog>
 #include <QGraphicsGridLayout>
 #include <QGraphicsPixmapItem>
 #include <QList>
 #include <QShortcut>
 #include <QMenuBar>
-#include "core/refcounted.h"
-#include "core/singleton.h"
-#include "imageloaderthread.h"
+#include <QDockWidget>
+#include <QListWidgetItem>
 
 namespace Ui
 {
@@ -27,7 +30,7 @@ namespace ResourceBrowser
 
 class TiledGraphicsItem;
 class AssetBrowser : 
-	public QDialog,
+	public QDockWidget,
 	public Core::RefCounted
 {
 	Q_OBJECT
@@ -56,6 +59,9 @@ public:
 	/// close texture browser
 	void Close();
 
+	/// set window to be modal over
+	void SetWindowModal(QWidget* widget);
+
 	/// handle opening
 	void showEvent(QShowEvent* event);
 	/// handle closing
@@ -70,6 +76,13 @@ public:
 	void SetFilter(const AssetFilter& filter);
 	/// remove item from outside the browser
 	void RemoveItem(TiledGraphicsItem* item);
+
+	/// execute the browser, making it impossible to unless selected
+	int Execute();
+	/// accept the browser, closing the modality by force
+	void Accept();
+	/// accept the browser, closing the modality by force
+	void Reject();
 
 private slots:
 	/// handle a directory being clicked
@@ -91,6 +104,11 @@ private slots:
     void OnModelsFilterChecked(bool b);
     /// handle the surfaces filter checkbox
     void OnSurfacesFilterChecked(bool b);
+
+	/// update the folder list widget
+	void UpdateAssetFolders();
+	/// handle an item getting double clicked in the asset folder
+	void OnAssetFolderClicked(QListWidgetItem* item);
 
 signals:
     /// signal emitted when a texture is selected, only happens if browser is not opened through Execute
@@ -116,6 +134,9 @@ private:
 	void SetupRoot();
 
 	bool isExecuting;
+	bool shouldStopExecuting;
+	int executeResult;
+
 	AssetFilter filter;
 	QString selectedResource;
 	Ui::AssetBrowser* ui;
@@ -123,6 +144,7 @@ private:
 	QShortcut* shortcut;
     QMenuBar menubar;
 	QList<QGraphicsPixmapItem*> items;
+	FileWatcher assetFolderWatcher;
 };
 
 

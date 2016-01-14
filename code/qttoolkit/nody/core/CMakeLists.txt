@@ -90,6 +90,7 @@ SOURCE_GROUP("Precompiled" FILES ${PCH_files})
 
 SET(QTMOCFILES 
                 "node/graphics/nodegraphics.h"
+				"link/graphics/linkgraphics.h"
 				"scene/graphics/nodegraphicsscene.h"
 				"scene/graphics/nodegraphicssceneview.h"
 				"variation/graphics/variationlistwidget.h")

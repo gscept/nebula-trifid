@@ -39,25 +39,6 @@ NodeGraphics::~NodeGraphics()
 /**
 */
 void 
-NodeGraphics::SetNode( const Ptr<Node>& node )
-{
-    n_assert(node.isvalid());
-    this->node = node;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-const Ptr<Node>& 
-NodeGraphics::GetNode() const
-{
-    return this->node;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
 NodeGraphics::Visit()
 {
     // empty, override in subclass
@@ -162,11 +143,11 @@ NodeGraphics::Generate()
 
     // create group
     this->group = NodeItemGroup::Create();
-    this->group->SetNodeGraphics(this);
-    if (this->GetNode()->GetFlags() & Node::NoMove) this->group->setFlag(QGraphicsItem::ItemIsMovable, false);
+    this->group->node = this;
+    if (this->node->GetFlags() & Node::NoMove)		this->group->setFlag(QGraphicsItem::ItemIsMovable, false);
     else                                            this->group->setFlag(QGraphicsItem::ItemIsMovable, true);
     this->group->setHandlesChildEvents(false);
-    this->group->setZValue(NODESUBLAYER);
+    this->group->setZValue(NODEDEFAULTLAYER);
     this->group->setData(NEBULAUSERPOINTERLOCATION, (qint32)this);
 }
 
@@ -218,6 +199,19 @@ NodeGraphics::FromFloat2( const Math::float2& pos )
 	return point;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+NodeGraphics::SetFocus(bool b, bool resort)
+{
+	if (resort)
+	{
+		if (b)	this->group->setZValue(NODEFOCUSEDLAYER);
+		else	this->group->setZValue(NODEDEFAULTLAYER);
+	}	
+	this->focus = b;
+}
 
 
 } // namespace Nody

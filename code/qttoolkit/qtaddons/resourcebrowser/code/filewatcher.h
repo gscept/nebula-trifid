@@ -22,7 +22,8 @@ public:
 
 	/// add file, if it doesn't exist, this watcher will watch the folder and report when it gets created
 	void WatchFile(const Util::String& file);
-
+	/// add directory to watch
+	void WatchDirectory(const Util::String& dir);
 public slots:
 	/// emitted by myself when the folder changed
 	void FolderChanged(const QString& folder);

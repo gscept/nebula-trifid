@@ -40,13 +40,14 @@ DebugTimer::~DebugTimer()
 /**
 */
 void
-DebugTimer::Setup(const StringAtom& timerName)
+DebugTimer::Setup(const StringAtom& timerName, const Util::StringAtom& group)
 {
     n_assert(timerName.IsValid());
     n_assert(!this->IsValid());
 
     this->critSect.Enter();
     this->name = timerName;
+	this->group = group;
     this->history.Reset();
     this->timer.Reset();
     this->critSect.Leave();

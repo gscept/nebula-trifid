@@ -347,9 +347,6 @@ ModelImporterWindow::Import()
 		// copy to temp model and reload
 		IoServer::Instance()->CopyFile(model, tempModel);
 
-		// make sure to remove the model we are importing
-		ContentBrowserApp::Instance()->GetPreviewState()->PreImportModel();
-
 		Ptr<ReloadResourceIfExists> tempModelMsg = ReloadResourceIfExists::Create();
 		tempModelMsg->SetResourceName(tempModel);
 		GraphicsInterface::Instance()->Send(tempModelMsg.upcast<Messaging::Message>());	
@@ -358,7 +355,7 @@ ModelImporterWindow::Import()
 		__SingleFireCallback(ModelImporterWindow, OnModelUpdateDone, this, tempModelMsg.upcast<Messaging::Message>());
 
 		// invalidate the previewer model by attaching it again, if we have a character and this is the model we are modifying, this should resolve any invalid characters
-		ContentBrowserApp::Instance()->GetPreviewState()->PostImportModel();
+		ContentBrowserApp::Instance()->GetPreviewState()->SetModel(model);
 	}
 	else
 	{

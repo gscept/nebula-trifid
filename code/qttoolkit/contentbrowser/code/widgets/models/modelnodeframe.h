@@ -8,9 +8,11 @@
     (C) 2012-2015 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
-#include <QFrame>
 #include "modelnodehandler.h"
 #include "ui_modelnodeinfowidget.h"
+
+#include <QFrame>
+#include <QVBoxLayout>
 namespace Widgets
 {
 class ModelNodeFrame : 
@@ -36,8 +38,9 @@ public:
 	void Refresh();
 private:
 	Util::Array<Ptr<ModelNodeHandler>> itemHandlers;
+	Util::Array<QFrame*> itemFrames;
+	QVBoxLayout layout;
 	Ptr<ModelHandler> modelHandler;
-	Ui::ModelNodeInfoWidget ui;
 }; 
 
 

@@ -191,9 +191,10 @@ OGL4ShapeRenderer::DrawShapes()
 
 	OGL4RenderDevice* renderDevice = OGL4RenderDevice::Instance();
 
-	glLineWidth(2.5f);
-	glPointSize(2.5f);
+	glLineWidth(1.5f);
+	glPointSize(1.5f);
 
+	glDisable(GL_LINE_SMOOTH);
 	renderDevice->SetPassShader(this->shapeShader);
     for (int depthType = 0; depthType < RenderShape::NumDepthFlags; depthType++)
     {
@@ -245,8 +246,7 @@ OGL4ShapeRenderer::DrawShapes()
 		}
 	}
 	renderDevice->SetPassShader(0);
-
-    //glDisable(GL_LINE_SMOOTH);
+	glEnable(GL_LINE_SMOOTH);    
 
 	// delete the shapes of my own thread id, all other shapes
 	// are from other threads and will be deleted through DeleteShapesByThreadId()

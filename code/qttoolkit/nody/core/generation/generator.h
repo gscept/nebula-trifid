@@ -69,7 +69,13 @@ protected:
     /// recursive depth first function helper
     void DepthFirstHelper(const Ptr<Node>& current);
 
+	/// validate if there is any loops
+	void ValidateGraph(const Ptr<Node>& start);
+	/// recursive helper for graph validation
+	void ValidateGraphHelper(const Ptr<Node>& current, Util::Array<Ptr<Node>>& visitedNodes);
+
     bool error;
+	Util::String errorMessage;
     bool visualize;
     uint delay;
 }; 

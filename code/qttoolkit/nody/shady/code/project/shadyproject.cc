@@ -7,6 +7,7 @@
 #include "scene/nodescene.h"
 #include "node/shadynode.h"
 #include "variation/variationdatabase.h"
+#include "scene/graphics/nodegraphicssceneview.h"
 
 using namespace Nody;
 namespace Shady
@@ -33,8 +34,8 @@ ShadyProject::~ShadyProject()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ShadyProject::Apply( const Ptr<NodeScene>& scene )
+void
+ShadyProject::Apply(const Ptr<NodeScene>& scene)
 {
     n_assert(scene.isvalid());
 
@@ -96,6 +97,12 @@ ShadyProject::Apply( const Ptr<NodeScene>& scene )
         scene->CreateLink(var1, var2);
     }
 
+	NodeGraphicsSceneView* view = static_cast<NodeGraphicsSceneView*>(scene->GetNodeSceneGraphics()->views()[0]);
+	QPointF center;
+	center.setX(this->globalState.viewCenter.x());
+	center.setY(this->globalState.viewCenter.y());
+	view->SetOrigin(center);
+
     // clear project when we have applied, just to save memory
     this->Clear();
 }
@@ -103,8 +110,8 @@ ShadyProject::Apply( const Ptr<NodeScene>& scene )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ShadyProject::Store( const Ptr<NodeScene>& scene )
+void
+ShadyProject::Store(const Ptr<NodeScene>& scene)
 {
     n_assert(scene.isvalid());
 

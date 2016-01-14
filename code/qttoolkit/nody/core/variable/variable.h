@@ -78,7 +78,7 @@ private:
 //------------------------------------------------------------------------------
 /**
 */
-inline const Util::Array<Ptr<VariableInstance> > 
+inline const Util::Array<Ptr<VariableInstance>> 
 Variable::GetInstances() const
 {
 	return this->instances;
@@ -87,8 +87,8 @@ Variable::GetInstances() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-Variable::SetIOFlag( const Variable::IOFlag& flag )
+inline void
+Variable::SetIOFlag(const Variable::IOFlag& flag)
 {
 	this->ioFlag = flag;
 }
@@ -105,8 +105,8 @@ Variable::GetIOFlag() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-Variable::SetType( const VarType& type )
+inline void
+Variable::SetType(const VarType& type)
 {
 	this->type = type;
 }
@@ -123,8 +123,8 @@ Variable::GetType() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-Variable::SetName( const Util::String& name )
+inline void
+Variable::SetName(const Util::String& name)
 {
 	n_assert(name.IsValid());
 	this->name = name;

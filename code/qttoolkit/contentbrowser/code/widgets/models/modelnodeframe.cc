@@ -12,8 +12,7 @@ namespace Widgets
 */
 ModelNodeFrame::ModelNodeFrame()
 {
-	/// setup ui
-	this->ui.setupUi(this);
+	this->setLayout(&this->layout);
 }
 
 //------------------------------------------------------------------------------
@@ -32,12 +31,17 @@ ModelNodeFrame::AddModelNode(const Util::String& type, const Util::String& name,
 {
 	Ptr<ModelNodeHandler> handler = ModelNodeHandler::Create();
 	handler->SetModelHandler(this->modelHandler);
-	handler->SetUI(&this->ui);
+	Ui::ModelNodeInfoWidget* ui = new Ui::ModelNodeInfoWidget;
+	QFrame* frame = new QFrame;
+	ui->setupUi(frame);
+	handler->SetUI(ui);
 	handler->SetType(type);
 	handler->SetName(name);
 	handler->SetPath(path);
 	handler->Setup(res);
+	this->layout.addWidget(frame);
 	this->itemHandlers.Append(handler);
+	this->itemFrames.Append(frame);
 }
 
 //------------------------------------------------------------------------------
@@ -51,8 +55,11 @@ ModelNodeFrame::Discard()
 	for (i = 0; i < this->itemHandlers.Size(); i++)
 	{
 		this->itemHandlers[i]->Discard();
+		this->layout.removeWidget(this->itemFrames[i]);
+		delete this->itemFrames[i];
 	}
 	this->itemHandlers.Clear();
+	this->itemFrames.Clear();
 }
 
 //------------------------------------------------------------------------------

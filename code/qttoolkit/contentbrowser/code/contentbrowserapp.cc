@@ -210,6 +210,10 @@ ContentBrowserApp::SetupGameFeatures()
 
 	// for the ease of testing, load all fonts
 	this->uiFeature->LoadAllFonts("gui:");
+
+	// setup intermediate gui
+	this->imgui = Dynui::ImguiAddon::Create();
+	this->imgui->Setup();
 	
     // register input proxy for inputs from nebula to the qt app
     this->qtFeature->RegisterQtInputProxy(this->browserWindow);

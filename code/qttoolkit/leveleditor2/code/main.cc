@@ -18,7 +18,7 @@ main(int argc, const char** argv)
 	Util::CommandLineArgs args(argc, argv);
 	LevelEditor2::LevelEditor2App app;
 	app.SetCompanyName("gscept");
-	app.SetAppTitle("Nebula3 Level Editor 2.0");	
+	app.SetAppTitle("NebulaT Level Editor");	
 	app.SetCmdLineArgs(args);
 	if (app.Open())
 	{

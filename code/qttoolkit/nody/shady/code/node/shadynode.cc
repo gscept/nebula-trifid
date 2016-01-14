@@ -8,6 +8,8 @@
 #include "variation/shadyvariation.h"
 #include "variable/shadyvariable.h"
 #include "link/link.h"
+#include "project/project.h"
+#include "variable/variableinstance.h"
 
 namespace Shady
 {
@@ -33,17 +35,17 @@ ShadyNode::~ShadyNode()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ShadyNode::Setup( const Ptr<Nody::Variation>& variation )
+void
+ShadyNode::Setup(const Ptr<Nody::Variation>& variation)
 {
     Nody::Node::Setup(variation);
     
     // go through outputs and generate values
-    const Util::Array<Ptr<Nody::Variable>>& outputs = variation->GetOutputs();
+    const Util::Array<Ptr<Nody::VariableInstance>>& outputs = this->variation->GetOutputs();
     IndexT i;
     for (i = 0; i < outputs.Size(); i++)
     {
-        const Ptr<Nody::Variable>& output = outputs[i];
+        const Ptr<Nody::Variable>& output = outputs[i]->GetOriginalVariable();
         const uint flags = output->GetFlags();
         if (flags & ShadyVariable::Constant || flags & ShadyVariable::Parameter)
         {
@@ -59,7 +61,7 @@ ShadyNode::Setup( const Ptr<Nody::Variation>& variation )
             // also add an auto-generated name
             Util::String paramName;
             if (output->GetFlags() & ShadyVariable::Static) paramName = valueName;
-            else                                            paramName.Format("Param%d", ShadyNode::GlobalParamCount++);
+			else                                            paramName = Nody::Project::RequestParameterName(outputs[i], "Param");
             Util::Variant generatedName;
             generatedName.SetString(paramName);
 
@@ -68,15 +70,16 @@ ShadyNode::Setup( const Ptr<Nody::Variation>& variation )
             {
                 this->values.Add(valueName + "Name", generatedName);
                 this->valueTypes.Add(valueName + "Name", Nody::VarType());
+				this->valueFlags.Add(valueName + "Name", output->GetFlags());
             }
         }
     }
 
     // do the same for hidden parameters
-    const Util::Array<Ptr<Nody::Variable>>& hiddens = variation->GetHiddens();
+    const Util::Array<Ptr<Nody::VariableInstance>>& hiddens = this->variation->GetHiddens();
     for (i = 0; i < hiddens.Size(); i++)
     {
-        const Ptr<Nody::Variable>& hidden = hiddens[i];
+        const Ptr<Nody::Variable>& hidden = hiddens[i]->GetOriginalVariable();
 
         // value name is the name of the output
         Util::String valueName = hidden->GetName();
@@ -86,7 +89,7 @@ ShadyNode::Setup( const Ptr<Nody::Variation>& variation )
         // also add an auto-generated name
         Util::String paramName;
         if (hidden->GetFlags() & ShadyVariable::Static) paramName = valueName;
-        else                                            paramName.Format("Param%d", ShadyNode::GlobalParamCount++);
+		else                                            paramName = Nody::Project::RequestParameterName(hiddens[i], "Param");
         Util::Variant generatedName;
         generatedName.SetString(paramName);
 
@@ -95,6 +98,7 @@ ShadyNode::Setup( const Ptr<Nody::Variation>& variation )
         this->values.Add(valueName + "Name", generatedName);
         this->valueTypes.Add(valueName, hidden->GetType());
         this->valueTypes.Add(valueName + "Name", Nody::VarType());
+		this->valueFlags.Add(valueName + "Name", hidden->GetFlags());
     }
 
     const Util::String& sim = this->variation->GetOriginalVariation()->GetSimulationValue();
@@ -108,8 +112,8 @@ ShadyNode::Setup( const Ptr<Nody::Variation>& variation )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ShadyNode::Setup( const Ptr<Nody::SuperVariation>& superVariation )
+void
+ShadyNode::Setup(const Ptr<Nody::SuperVariation>& superVariation)
 {
     Nody::Node::Setup(superVariation);
 }
@@ -131,8 +135,8 @@ ShadyNode::GenerateGraphics()
 {
 	n_assert(!this->graphics.isvalid());
 	Ptr<ShadyNodeGraphics> shadyGraphics = ShadyNodeGraphics::Create();
-	this->graphics = shadyGraphics.upcast<Nody::NodeGraphics>();
-	this->graphics->SetNode(this);
+	shadyGraphics->node = this;
+	this->graphics = shadyGraphics.upcast<Nody::NodeGraphics>();	
 	this->graphics->Generate();
 
     // run base class
@@ -195,8 +199,8 @@ ShadyNode::ResolveWorkingType()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ShadyNode::SetupDefaultValue( const Nody::VarType& type, Util::Variant& value )
+void
+ShadyNode::SetupDefaultValue(const Nody::VarType& type, Util::Variant& value)
 {
     switch (type.GetType())
     {
@@ -256,6 +260,5 @@ ShadyNode::SetupDefaultValue( const Nody::VarType& type, Util::Variant& value )
         break;
     }
 }
-
 
 } // namespace Shady

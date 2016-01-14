@@ -18,7 +18,9 @@
 #define PARAMETEROFFSET 18
 #define CONNECTOROFFSET 5
 #define CONNECTORSIZE 10
-#define VALUEPIXMAPSIZE 128
+#define VALUEPIXMAPSIZE 64
+#define ITEMTEXTFONT QFont("Segoe UI", 8)
+#define NODELABELTEXT QFont("Segoe UI", 10)
 using namespace Util;
 using namespace Nody;
 namespace Shady
@@ -48,8 +50,8 @@ ShadyNodeGraphics::~ShadyNodeGraphics()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ShadyNodeGraphics::AddToScene( const Ptr<Nody::NodeGraphicsScene>& scene )
+void
+ShadyNodeGraphics::AddToScene(const Ptr<Nody::NodeGraphicsScene>& scene)
 {
     NodeGraphics::AddToScene(scene);
 }
@@ -57,8 +59,8 @@ ShadyNodeGraphics::AddToScene( const Ptr<Nody::NodeGraphicsScene>& scene )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ShadyNodeGraphics::RemoveFromScene( const Ptr<Nody::NodeGraphicsScene>& scene )
+void
+ShadyNodeGraphics::RemoveFromScene(const Ptr<Nody::NodeGraphicsScene>& scene)
 {
     NodeGraphics::RemoveFromScene(scene);
 }
@@ -72,11 +74,11 @@ ShadyNodeGraphics::Generate()
     // generate graphics for base class
     NodeGraphics::Generate();
 
-    if (this->GetNode()->GetVariation().isvalid())
+    if (this->node->GetVariation().isvalid())
     {
         this->GenerateFromVariation();
     }
-    else if (this->GetNode()->GetSuperVariation().isvalid())
+	else if (this->node->GetSuperVariation().isvalid())
     {
         this->GenerateFromSuperVariation();
     }
@@ -93,18 +95,16 @@ void
 ShadyNodeGraphics::GenerateFromVariation()
 {
     // get original variation
-    const Ptr<VariationInstance>& variation = this->GetNode()->GetVariation();
-    const Array<Ptr<VariableInstance> >& inputs = variation->GetInputs();
-    const Array<Ptr<VariableInstance> >& outputs = variation->GetOutputs();
+	const Ptr<VariationInstance>& variation = this->node->GetVariation();
+    const Array<Ptr<VariableInstance>>& inputs = variation->GetInputs();
+    const Array<Ptr<VariableInstance>>& outputs = variation->GetOutputs();
 
     // create a total bounding box
     QRectF boundingBox;
 
     // create label
     this->labelItem = new QGraphicsTextItem(variation->GetOriginalVariation()->GetName().AsCharPtr());
-    QFont font = this->labelItem->font();
-    font.setStyleStrategy(QFont::PreferAntialias);
-    this->labelItem->setFont(font);
+	this->labelItem->setFont(NODELABELTEXT);
     qreal textHeight = this->labelItem->boundingRect().height();
 
     // we define an offset at which all the content should appear
@@ -134,6 +134,8 @@ ShadyNodeGraphics::GenerateFromVariation()
             "</b></p>");
         textItem->setPos(PARAMETEROFFSET, y);
         textItem->setDefaultTextColor(Qt::white);
+		textItem->setZValue(NODELAYERFOREGROUND);
+		textItem->setFont(ITEMTEXTFONT);
         this->inputLabelItems.Append(textItem);
         boundingBox = boundingBox.united(QRectF(textItem->pos(), textItem->boundingRect().size() + leftOffset));
         this->group->addToGroup(textItem);
@@ -145,16 +147,15 @@ ShadyNodeGraphics::GenerateFromVariation()
     this->valuePixmap = QPixmap(VALUEPIXMAPSIZE, VALUEPIXMAPSIZE);
     this->valuePixmap.fill(Qt::black);
     this->valuePixmapItem = new QGraphicsPixmapItem(this->valuePixmap);
-    this->valuePixmapItem->setPos(boundingBox.width()+1, contentOffset-1);
+    this->valuePixmapItem->setPos(boundingBox.width()+1, contentOffset+1);
+	this->valuePixmapItem->setZValue(NODELAYERFOREGROUND);
     this->group->addToGroup(this->valuePixmapItem);	
 
     // reset height
-    
     boundingBox.setWidth(boundingBox.width() + this->valuePixmap.width() + leftOffset.width());
     boundingBox.setHeight(Math::n_max(this->valuePixmap.height(), (int)boundingBox.height()));
-    y = contentOffset;
+    y = contentOffset + 2;
     x = boundingBox.width();
-    
 
     // create outputs
     for (i = 0; i < outputs.Size(); i++)
@@ -171,6 +172,8 @@ ShadyNodeGraphics::GenerateFromVariation()
             "</p>");
         textItem->setPos(x - leftOffset.width(), y);
         textItem->setDefaultTextColor(Qt::white);
+		textItem->setZValue(NODELAYERFOREGROUND);
+		textItem->setFont(ITEMTEXTFONT);
         boundingBox = boundingBox.united(QRectF(QPointF(x, y), textItem->boundingRect().size() + QSizeF(PARAMETEROFFSET, 0)));
         this->group->addToGroup(textItem);
         this->inputLabelItems.Append(textItem);
@@ -181,11 +184,11 @@ ShadyNodeGraphics::GenerateFromVariation()
     QRect bb = boundingBox.toRect();
 
     // create background
-    this->basePlate = QPolygon(QRect(0, 0, bb.width(), bb.height() + contentOffset));
+    this->basePlate = QPolygon(QRect(0, 0, bb.width(), bb.height() + contentOffset + 2));
     this->basePlateItem = new QGraphicsPolygonItem(this->basePlate);
     this->basePlateItem->setPen(QPen(QBrush(Qt::black), 2, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin));
     this->basePlateItem->setBrush(QBrush(qRgb(51, 153, 255)));
-    this->basePlateItem->setZValue(-1);
+    this->basePlateItem->setZValue(NODELAYERBACKGROUND);
 
     // reset y
     y = contentOffset;
@@ -230,18 +233,21 @@ ShadyNodeGraphics::GenerateFromVariation()
     // finally add item to group
     this->group->addToGroup(this->basePlateItem);	
 
-    // adjust label and create background
+    // adjust label and create background, -2 is for the border
     this->labelPlate = QPolygon(QRect(1, 1, bb.width()-2, this->labelItem->boundingRect().height()));
     this->labelPlateItem = new QGraphicsPolygonItem(this->labelPlate);
     this->labelPlateItem->setPen(QPen(QBrush(Qt::transparent), 0, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin));
     this->labelPlateItem->setBrush(QBrush(qRgb(96, 96, 96)));
+	this->labelPlateItem->setZValue(NODELAYERBACKGROUND);
     this->labelItem->setTextWidth(this->group->boundingRect().width());
     this->labelItem->setDefaultTextColor(Qt::white);
     this->labelItem->setHtml("<p align=\"center\">" + QString(variation->GetOriginalVariation()->GetName().AsCharPtr()) + "</p>");
+	this->labelItem->setZValue(NODELAYERFOREGROUND);
 
     // add label to group
     this->group->addToGroup(this->labelPlateItem);
     this->group->addToGroup(this->labelItem);
+	this->group->setZValue(NODELAYERFOREGROUND);
     this->group->setPos(NodeGraphics::FromFloat2(this->GetPosition()));
 }
 
@@ -251,17 +257,15 @@ ShadyNodeGraphics::GenerateFromVariation()
 void 
 ShadyNodeGraphics::GenerateFromSuperVariation()
 {
-    const Ptr<SuperVariationInstance>& superVariation = this->GetNode()->GetSuperVariation();
-    const Array<Ptr<VariableInstance> >& inputs = superVariation->GetInputs();
+	const Ptr<SuperVariationInstance>& superVariation = this->node->GetSuperVariation();
+    const Array<Ptr<VariableInstance>>& inputs = superVariation->GetInputs();
 
     // create a total bounding box
     QRectF boundingBox;
 
     // create label
     this->labelItem = new QGraphicsTextItem(superVariation->GetOriginalSuperVariation()->GetName().AsCharPtr());
-    QFont font = this->labelItem->font();
-    font.setStyleStrategy(QFont::PreferAntialias);
-    this->labelItem->setFont(font);
+	this->labelItem->setFont(NODELABELTEXT);
     qreal textHeight = this->labelItem->boundingRect().height();
 
     // we define an offset at which all the content should appear
@@ -291,6 +295,8 @@ ShadyNodeGraphics::GenerateFromSuperVariation()
             "</b></p>");
         textItem->setPos(PARAMETEROFFSET, y);
         textItem->setDefaultTextColor(Qt::white);
+		textItem->setZValue(NODELAYERFOREGROUND);
+		textItem->setFont(ITEMTEXTFONT);
         this->inputLabelItems.Append(textItem);
         boundingBox = boundingBox.united(QRectF(textItem->pos(), textItem->boundingRect().size() + leftOffset));
         this->group->addToGroup(textItem);
@@ -305,7 +311,7 @@ ShadyNodeGraphics::GenerateFromSuperVariation()
     this->basePlateItem = new QGraphicsPolygonItem(this->basePlate);
     this->basePlateItem->setPen(QPen(QBrush(Qt::black), 2, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin));
     this->basePlateItem->setBrush(QBrush(qRgb(0, 204, 102)));
-    this->basePlateItem->setZValue(-1);
+	this->basePlateItem->setZValue(NODELAYERBACKGROUND);
 
     // reset y
     y = contentOffset;
@@ -330,21 +336,24 @@ ShadyNodeGraphics::GenerateFromSuperVariation()
     // finally add item to group
     this->group->addToGroup(this->basePlateItem);	
 
-
     // adjust label and create background
     this->labelPlate = QPolygon(QRect(1, 1, bb.width()-2, this->labelItem->boundingRect().height()));
     this->labelPlateItem = new QGraphicsPolygonItem(this->labelPlate);
     this->labelPlateItem->setPen(QPen(QBrush(Qt::transparent), 0, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin));
     this->labelPlateItem->setBrush(QBrush(qRgb(96, 96, 96)));
+	this->labelPlateItem->setZValue(NODELAYERBACKGROUND);
     this->labelItem->setTextWidth(this->group->boundingRect().width());
     this->labelItem->setDefaultTextColor(Qt::white);
     this->labelItem->setHtml("<p align=\"center\">" + QString(superVariation->GetOriginalSuperVariation()->GetName().AsCharPtr()) + "</p>");
+	this->labelItem->setZValue(NODELAYERFOREGROUND);
 
     // add label to group
     this->group->addToGroup(this->labelPlateItem);
     this->group->addToGroup(this->labelItem);
-    this->group->setPos(NodeGraphics::FromFloat2(this->GetPosition()));
+	this->group->setZValue(NODELAYERFOREGROUND);
+	this->group->setPos(NodeGraphics::FromFloat2(this->GetPosition()));
 }
+
 //------------------------------------------------------------------------------
 /**
 */
@@ -379,10 +388,10 @@ ShadyNodeGraphics::Destroy()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ShadyNodeGraphics::SetFocus( bool b )
+void
+ShadyNodeGraphics::SetFocus(bool b, bool resort)
 {
-    NodeGraphics::SetFocus(b);
+    NodeGraphics::SetFocus(b, resort);
     if (b)
     {
         QPen pen(QBrush(qRgb(210, 105, 30)), 2.0f, Qt::SolidLine, Qt::RoundCap, Qt::MiterJoin);

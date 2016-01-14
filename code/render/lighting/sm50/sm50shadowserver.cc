@@ -310,11 +310,11 @@ SM50ShadowServer::Open()
 #if NEBULA3_ENABLE_PROFILING
 	this->globalShadow = Debug::DebugTimer::Create();
 	String name("ShadowServer_GlobalShadow");
-	this->globalShadow->Setup(name);
+	this->globalShadow->Setup(name, "Shadowmapping");
 
 	this->spotLightShadow = Debug::DebugTimer::Create();
 	name.Format("ShadowServer_SpotLightShadow");
-	this->spotLightShadow->Setup(name);
+	this->spotLightShadow->Setup(name, "Shadowmapping");
 #endif
 }
 

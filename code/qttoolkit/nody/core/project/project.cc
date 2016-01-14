@@ -12,6 +12,7 @@ namespace Nody
 __ImplementClass(Nody::Project, 'PROJ', Core::RefCounted);
 __ImplementSingleton(Nody::Project);
 
+Util::Dictionary<Ptr<VariableInstance>, Util::String> Project::ParameterNames;
 //------------------------------------------------------------------------------
 /**
 */
@@ -43,8 +44,8 @@ Project::Clear(bool clearPath)
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Project::AddNode( const Ptr<Node>& node )
+void
+Project::AddNode(const Ptr<Node>& node)
 {
     n_assert(node.isvalid());
     NodeState state; 
@@ -70,8 +71,8 @@ Project::AddNode( const Ptr<Node>& node )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Project::AddLink( const Ptr<Link>& link )
+void
+Project::AddLink(const Ptr<Link>& link)
 {
     n_assert(link.isvalid());
 
@@ -96,8 +97,8 @@ Project::AddLink( const Ptr<Link>& link )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Project::Apply( const Ptr<NodeScene>& scene )
+void
+Project::Apply(const Ptr<NodeScene>& scene)
 {
     // empty, apply contents of project to scene depending on which application we want to use
 }
@@ -105,10 +106,38 @@ Project::Apply( const Ptr<NodeScene>& scene )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Project::Store( const Ptr<NodeScene>& scene )
+void
+Project::Store(const Ptr<NodeScene>& scene)
 {
     // empty, implement per application to store the data from the scene into the project
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+Util::String
+Project::RequestParameterName(const Ptr<VariableInstance>& var, const Util::String& name)
+{
+	Util::String newName = name;
+	IndexT counter = 0;
+	const Util::Array<Util::String>& reservedNames = Project::ParameterNames.ValuesAsArray();
+	while (reservedNames.FindIndex(newName) != InvalidIndex)
+	{
+		newName = Util::String::Sprintf("%s%d", name.AsCharPtr(), counter++);
+	}
+	
+	// add to 
+	Project::ParameterNames.Add(var, newName);
+	return newName;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+Project::DeregisterParameterName(const Ptr<VariableInstance>& var)
+{
+	if (Project::ParameterNames.Contains(var))	Project::ParameterNames.Erase(var);
 }
 
 } // namespace Nody

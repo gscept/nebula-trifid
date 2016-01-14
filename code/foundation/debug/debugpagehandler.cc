@@ -24,12 +24,11 @@ using namespace Math;
 //------------------------------------------------------------------------------
 /**
 */
-DebugPageHandler::DebugPageHandler():
-sortByColumn("Name")
+DebugPageHandler::DebugPageHandler()
 {
-    this->SetName("Debug");
-    this->SetDesc("show debug subsystem information");
-    this->SetRootLocation("debug");
+    this->SetName("Profiling");
+    this->SetDesc("show profiling (debug) subsystem information");
+	this->SetRootLocation("profiling");
 }
 
 //------------------------------------------------------------------------------
@@ -64,8 +63,12 @@ DebugPageHandler::HandleRequest(const Ptr<HttpRequest>& request)
     }
     else if (query.Contains("TimerTableSort"))
     {
-        this->HandleTableSortRequest(query["TimerTableSort"], request);        
+		this->HandleTimerTableSortRequest(query["TimerTableSort"], query["TimerGroup"], request);
     }
+	else if (query.Contains("CounterTableSort"))
+	{
+		this->HandleCounterTableSortRequest(query["CounterTableSort"], query["CounterGroup"], request);
+	}
 
     // no command, display root page
     Ptr<HtmlPageWriter> htmlWriter = HtmlPageWriter::Create();
@@ -73,128 +76,235 @@ DebugPageHandler::HandleRequest(const Ptr<HttpRequest>& request)
     htmlWriter->SetTitle("NebulaT Debug Subsystem Info");
     if (htmlWriter->Open())
     {
-        htmlWriter->Element(HtmlElement::Heading1, "Debug Subsystem");
+        htmlWriter->Element(HtmlElement::Heading1, "Profiling Subsystem");
         htmlWriter->AddAttr("href", "/index.html");
         htmlWriter->Element(HtmlElement::Anchor, "Home");
 
-        // display debug timers
-        htmlWriter->Element(HtmlElement::Heading3, "Debug Timers");
-        htmlWriter->AddAttr("border", "1");
-        htmlWriter->AddAttr("rules", "cols");
-        htmlWriter->Begin(HtmlElement::Table);
-            htmlWriter->AddAttr("bgcolor", "lightsteelblue");
-            htmlWriter->Begin(HtmlElement::TableRow);
-                htmlWriter->Begin(HtmlElement::TableData);
-                htmlWriter->AddAttr("href", "/debug?TimerTableSort=Name");
-                htmlWriter->Element(HtmlElement::Anchor, "Name");
-                htmlWriter->End(HtmlElement::TableData);
-                htmlWriter->Begin(HtmlElement::TableData);
-                htmlWriter->AddAttr("href", "/debug?TimerTableSort=Min");
-                htmlWriter->Element(HtmlElement::Anchor, "Min");
-                htmlWriter->End(HtmlElement::TableData);
-                htmlWriter->Begin(HtmlElement::TableData);
-                htmlWriter->AddAttr("href", "/debug?TimerTableSort=Max");
-                htmlWriter->Element(HtmlElement::Anchor, "Max");
-                htmlWriter->End(HtmlElement::TableData);
-                htmlWriter->Begin(HtmlElement::TableData);
-                htmlWriter->AddAttr("href", "/debug?TimerTableSort=Avg");
-                htmlWriter->Element(HtmlElement::Anchor, "Avg");
-                htmlWriter->End(HtmlElement::TableData);
-				htmlWriter->Begin(HtmlElement::TableData);
-				htmlWriter->AddAttr("href", "/debug?TimerTableSort=Cur");
-				htmlWriter->Element(HtmlElement::Anchor, "Cur");
-				htmlWriter->End(HtmlElement::TableData);
-            htmlWriter->End(HtmlElement::TableRow);
+		// write out timers
+		htmlWriter->Element(HtmlElement::Heading2, "Profiling Timers (ms)");
 
-            // iterate through all debug timers
-            Array<Ptr<DebugTimer> > debugTimers = DebugServer::Instance()->GetDebugTimers();
-            // copy to dictionary for sort
-            Dictionary<Variant, Ptr<DebugTimer> > sortedTimer;            
-            sortedTimer.BeginBulkAdd();
-            IndexT idx;
-            for (idx = 0; idx < debugTimers.Size(); ++idx)
-            {
-                Array<Time> history = debugTimers[idx]->GetHistory();
-                Time minTime, maxTime, avgTime, curTime;
-                this->ComputeMinMaxAvgTimes(history, minTime, maxTime, avgTime, curTime);
-                if (this->sortByColumn == "Name")
-                {
-            	    sortedTimer.Add(debugTimers[idx]->GetName().Value(), debugTimers[idx]);
-                }
-                else if (this->sortByColumn == "Min")
-                {
-                    sortedTimer.Add(float(minTime), debugTimers[idx]);
-                }
-                else if (this->sortByColumn == "Max")
-                {
-                    sortedTimer.Add(float(maxTime), debugTimers[idx]);
-                }
-                else if (this->sortByColumn == "Avg")
-                {
-                    sortedTimer.Add(float(avgTime), debugTimers[idx]);
-                }
-				else if (this->sortByColumn == "Cur")
+		// iterate through all debug timers and put them in buckets based on group
+		const Array<Ptr<DebugTimer>>& debugTimers = DebugServer::Instance()->GetDebugTimers();
+		Dictionary<StringAtom, Array<Ptr<DebugTimer>>> groupedTimers;
+		IndexT grp;
+		for (grp = 0; grp < debugTimers.Size(); ++grp)
+		{
+			const Ptr<DebugTimer>& timer = debugTimers[grp];
+			const Util::StringAtom& group = timer->GetGroup();
+			if (!groupedTimers.Contains(group)) 
+			{
+				groupedTimers.Add(group, Array<Ptr<DebugTimer>>());
+			}
+			groupedTimers[group].Append(timer);
+		}
+
+		for (grp = 0; grp < groupedTimers.Size(); ++grp)
+		{
+			// get timers and group name
+			Array<Ptr<DebugTimer>> debugTimers = groupedTimers.ValueAtIndex(grp);
+			const Util::String& group = groupedTimers.KeyAtIndex(grp).AsString();
+			Util::String webfriendlyGroup = String::Sprintf("%d", grp);
+
+			// display debug timers
+			htmlWriter->Element(HtmlElement::Heading3, String::Sprintf("Debug Timers: %s", group.AsCharPtr()));
+			htmlWriter->AddAttr("border", "1");
+			htmlWriter->AddAttr("rules", "cols");
+			htmlWriter->Begin(HtmlElement::Table);
+			htmlWriter->AddAttr("bgcolor", "lightsteelblue");
+			htmlWriter->Begin(HtmlElement::TableRow);
+			htmlWriter->Begin(HtmlElement::TableData);
+			htmlWriter->AddAttr("href", "/profiling?TimerTableSort=Name&TimerGroup=" + webfriendlyGroup);
+			htmlWriter->Element(HtmlElement::Anchor, "Name");
+			htmlWriter->End(HtmlElement::TableData);
+			htmlWriter->Begin(HtmlElement::TableData);
+			htmlWriter->AddAttr("href", "/profiling?TimerTableSort=Min&TimerGroup=" + webfriendlyGroup);
+			htmlWriter->Element(HtmlElement::Anchor, "Min");
+			htmlWriter->End(HtmlElement::TableData);
+			htmlWriter->Begin(HtmlElement::TableData);
+			htmlWriter->AddAttr("href", "/profiling?TimerTableSort=Max&TimerGroup=" + webfriendlyGroup);
+			htmlWriter->Element(HtmlElement::Anchor, "Max");
+			htmlWriter->End(HtmlElement::TableData);
+			htmlWriter->Begin(HtmlElement::TableData);
+			htmlWriter->AddAttr("href", "/profiling?TimerTableSort=Avg&TimerGroup=" + webfriendlyGroup);
+			htmlWriter->Element(HtmlElement::Anchor, "Avg");
+			htmlWriter->End(HtmlElement::TableData);
+			htmlWriter->Begin(HtmlElement::TableData);
+			htmlWriter->AddAttr("href", "/profiling?TimerTableSort=Cur&TimerGroup=" + webfriendlyGroup);
+			htmlWriter->Element(HtmlElement::Anchor, "Cur");
+			htmlWriter->End(HtmlElement::TableData);
+			htmlWriter->End(HtmlElement::TableRow);
+
+			// get sorting flag
+			Util::String sortColumn;
+			if (this->timerSortColumns.Contains(webfriendlyGroup))		sortColumn = this->timerSortColumns[webfriendlyGroup];
+			else														sortColumn = "Name";
+
+			// copy to dictionary for sort
+			Dictionary<Variant, Ptr<DebugTimer>> sortedTimer;
+			sortedTimer.BeginBulkAdd();
+			IndexT idx;
+			for (idx = 0; idx < debugTimers.Size(); ++idx)
+			{
+				Array<Time> history = debugTimers[idx]->GetHistory();
+				Time minTime, maxTime, avgTime, curTime;
+				this->ComputeMinMaxAvgTimes(history, minTime, maxTime, avgTime, curTime);
+				if (sortColumn == "Name")
+				{
+					sortedTimer.Add(debugTimers[idx]->GetName().Value(), debugTimers[idx]);
+				}
+				else if (sortColumn == "Min")
+				{
+					sortedTimer.Add(float(minTime), debugTimers[idx]);
+				}
+				else if (sortColumn == "Max")
+				{
+					sortedTimer.Add(float(maxTime), debugTimers[idx]);
+				}
+				else if (sortColumn == "Avg")
+				{
+					sortedTimer.Add(float(avgTime), debugTimers[idx]);
+				}
+				else if (sortColumn == "Cur")
 				{
 					sortedTimer.Add(float(curTime), debugTimers[idx]);
 				}
-            }
-            sortedTimer.EndBulkAdd();
-            debugTimers = sortedTimer.ValuesAsArray();
+			}
+			sortedTimer.EndBulkAdd();
+			debugTimers = sortedTimer.ValuesAsArray();
 
-            IndexT i;
-            for (i = 0; i < debugTimers.Size(); i++)
-            {
-                StringAtom name = debugTimers[i]->GetName();
-                Array<Time> history = debugTimers[i]->GetHistory();
-                Time minTime, maxTime, avgTime, curTime;
-                this->ComputeMinMaxAvgTimes(history, minTime, maxTime, avgTime, curTime);
-                htmlWriter->Begin(HtmlElement::TableRow);
-                    htmlWriter->Begin(HtmlElement::TableData);
-                        htmlWriter->AddAttr("href", "/debug?timer=" + name.AsString());
-                        htmlWriter->Element(HtmlElement::Anchor, name.AsString());
-                    htmlWriter->End(HtmlElement::TableData);
-                    htmlWriter->Element(HtmlElement::TableData, String::FromFloat(float(minTime)));
-                    htmlWriter->Element(HtmlElement::TableData, String::FromFloat(float(maxTime)));
-                    htmlWriter->Element(HtmlElement::TableData, String::FromFloat(float(avgTime)));
-					htmlWriter->Element(HtmlElement::TableData, String::FromFloat(float(curTime)));
-                htmlWriter->End(HtmlElement::TableRow);
-            }
-        htmlWriter->End(HtmlElement::Table);
+			IndexT i;
+			for (i = 0; i < debugTimers.Size(); i++)
+			{
+				StringAtom name = debugTimers[i]->GetName();
+				Array<Time> history = debugTimers[i]->GetHistory();
+				Time minTime, maxTime, avgTime, curTime;
+				this->ComputeMinMaxAvgTimes(history, minTime, maxTime, avgTime, curTime);
+				htmlWriter->Begin(HtmlElement::TableRow);
+				htmlWriter->Begin(HtmlElement::TableData);
+				htmlWriter->AddAttr("href", "/profiling?timer=" + name.AsString());
+				htmlWriter->Element(HtmlElement::Anchor, name.AsString());
+				htmlWriter->End(HtmlElement::TableData);
+				htmlWriter->Element(HtmlElement::TableData, String::FromFloat(float(minTime)));
+				htmlWriter->Element(HtmlElement::TableData, String::FromFloat(float(maxTime)));
+				htmlWriter->Element(HtmlElement::TableData, String::FromFloat(float(avgTime)));
+				htmlWriter->Element(HtmlElement::TableData, String::FromFloat(float(curTime)));
+				htmlWriter->End(HtmlElement::TableRow);
+			}
+			htmlWriter->End(HtmlElement::Table);
+		}
 
-        // display debug counters
-        htmlWriter->Element(HtmlElement::Heading3, "Debug Counters");
-        htmlWriter->AddAttr("border", "1");
-        htmlWriter->AddAttr("rules", "cols");
-        htmlWriter->Begin(HtmlElement::Table);
-            htmlWriter->AddAttr("bgcolor", "lightsteelblue");
-            htmlWriter->Begin(HtmlElement::TableRow);
-                htmlWriter->Element(HtmlElement::TableHeader, "Name");
-                htmlWriter->Element(HtmlElement::TableHeader, "Min");
-                htmlWriter->Element(HtmlElement::TableHeader, "Max");
-                htmlWriter->Element(HtmlElement::TableHeader, "Avg");
-				htmlWriter->Element(HtmlElement::TableHeader, "Cur");
-            htmlWriter->End(HtmlElement::TableRow);
+		// write counters
+		htmlWriter->Element(HtmlElement::Heading2, "Profiling Counters");
 
-            // iterate through all debug counters
-            Array<Ptr<DebugCounter> > debugCounters = DebugServer::Instance()->GetDebugCounters();
-            for (i = 0; i < debugCounters.Size(); i++)
-            {
-                StringAtom name = debugCounters[i]->GetName();
-                Array<int> history = debugCounters[i]->GetHistory();
-                int minCount, maxCount, avgCount, curCount;
-                this->ComputeMinMaxAvgCounts(history, minCount, maxCount, avgCount, curCount);
-                htmlWriter->Begin(HtmlElement::TableRow);
-                    htmlWriter->Begin(HtmlElement::TableData);
-                        htmlWriter->AddAttr("href", "/debug?counter=" + name.AsString());
-                        htmlWriter->Element(HtmlElement::Anchor, name.Value());
-                    htmlWriter->End(HtmlElement::TableData);
-                    htmlWriter->Element(HtmlElement::TableData, String::FromInt(minCount));
-                    htmlWriter->Element(HtmlElement::TableData, String::FromInt(maxCount));
-                    htmlWriter->Element(HtmlElement::TableData, String::FromInt(avgCount));
-					htmlWriter->Element(HtmlElement::TableData, String::FromInt(curCount));
-                htmlWriter->End(HtmlElement::TableRow);
-            }
-        htmlWriter->End(HtmlElement::Table);
+		// iterate through all debug timers and put them in buckets based on group
+		const Array<Ptr<DebugCounter>>& debugCounters = DebugServer::Instance()->GetDebugCounters();
+		Dictionary<StringAtom, Array<Ptr<DebugCounter>>> groupedCounters;
+		for (grp = 0; grp < debugCounters.Size(); ++grp)
+		{
+			const Ptr<DebugCounter>& counter = debugCounters[grp];
+			const Util::StringAtom& group = counter->GetGroup();
+			if (!groupedCounters.Contains(group))
+			{
+				groupedCounters.Add(group, Array<Ptr<DebugCounter>>());
+			}
+			groupedCounters[group].Append(counter);
+		}
+
+		for (grp = 0; grp < groupedCounters.Size(); ++grp)
+		{
+			// get counters and group name
+			Array<Ptr<DebugCounter>> debugCounters = groupedCounters.ValueAtIndex(grp);
+			const Util::String& group = groupedCounters.KeyAtIndex(grp).AsString();
+			Util::String webfriendlyGroup = String::Sprintf("%d", grp);
+
+			// display debug counters
+			htmlWriter->Element(HtmlElement::Heading3, String::Sprintf("Debug Counters: %s", group.AsCharPtr()));
+			htmlWriter->AddAttr("border", "1");
+			htmlWriter->AddAttr("rules", "cols");
+			htmlWriter->Begin(HtmlElement::Table);
+			htmlWriter->AddAttr("bgcolor", "lightsteelblue");
+			htmlWriter->Begin(HtmlElement::TableRow);
+			htmlWriter->Begin(HtmlElement::TableData);
+			htmlWriter->AddAttr("href", "/profiling?CounterTableSort=Name&CounterGroup=" + webfriendlyGroup);
+			htmlWriter->Element(HtmlElement::Anchor, "Name");
+			htmlWriter->End(HtmlElement::TableData);
+			htmlWriter->Begin(HtmlElement::TableData);
+			htmlWriter->AddAttr("href", "/profiling?CounterTableSort=Min&CounterGroup=" + webfriendlyGroup);
+			htmlWriter->Element(HtmlElement::Anchor, "Min");
+			htmlWriter->End(HtmlElement::TableData);
+			htmlWriter->Begin(HtmlElement::TableData);
+			htmlWriter->AddAttr("href", "/profiling?CounterTableSort=Max&CounterGroup=" + webfriendlyGroup);
+			htmlWriter->Element(HtmlElement::Anchor, "Max");
+			htmlWriter->End(HtmlElement::TableData);
+			htmlWriter->Begin(HtmlElement::TableData);
+			htmlWriter->AddAttr("href", "/profiling?CounterTableSort=Avg&CounterGroup=" + webfriendlyGroup);
+			htmlWriter->Element(HtmlElement::Anchor, "Avg");
+			htmlWriter->End(HtmlElement::TableData);
+			htmlWriter->Begin(HtmlElement::TableData);
+			htmlWriter->AddAttr("href", "/profiling?CounterTableSort=Cur&CounterGroup=" + webfriendlyGroup);
+			htmlWriter->Element(HtmlElement::Anchor, "Cur");
+			htmlWriter->End(HtmlElement::TableData);
+			htmlWriter->End(HtmlElement::TableRow);
+
+			// get sorting flag
+			Util::String sortColumn;
+			if (this->counterSortColumns.Contains(webfriendlyGroup))	sortColumn = this->counterSortColumns[webfriendlyGroup];
+			else														sortColumn = "Name";
+
+			// copy to dictionary for sort
+			Dictionary<Variant, Ptr<DebugCounter>> sortedCounters;
+			sortedCounters.BeginBulkAdd();
+			IndexT idx;
+			for (idx = 0; idx < debugCounters.Size(); ++idx)
+			{
+				Array<int> history = debugCounters[idx]->GetHistory();
+				int minTime, maxTime, avgTime, curTime;
+				this->ComputeMinMaxAvgCounts(history, minTime, maxTime, avgTime, curTime);
+				if (sortColumn == "Name")
+				{
+					sortedCounters.Add(debugCounters[idx]->GetName().Value(), debugCounters[idx]);
+				}
+				else if (sortColumn == "Min")
+				{
+					sortedCounters.Add(float(minTime), debugCounters[idx]);
+				}
+				else if (sortColumn == "Max")
+				{
+					sortedCounters.Add(float(maxTime), debugCounters[idx]);
+				}
+				else if (sortColumn == "Avg")
+				{
+					sortedCounters.Add(float(avgTime), debugCounters[idx]);
+				}
+				else if (sortColumn == "Cur")
+				{
+					sortedCounters.Add(float(curTime), debugCounters[idx]);
+				}
+			}
+			sortedCounters.EndBulkAdd();
+			debugCounters = sortedCounters.ValuesAsArray();
+
+			// iterate through all debug counters
+			IndexT i;
+			for (i = 0; i < debugCounters.Size(); i++)
+			{
+				StringAtom name = debugCounters[i]->GetName();
+				Array<int> history = debugCounters[i]->GetHistory();
+				int minCount, maxCount, avgCount, curCount;
+				this->ComputeMinMaxAvgCounts(history, minCount, maxCount, avgCount, curCount);
+				htmlWriter->Begin(HtmlElement::TableRow);
+				htmlWriter->Begin(HtmlElement::TableData);
+				htmlWriter->AddAttr("href", "/profiling?counter=" + name.AsString());
+				htmlWriter->Element(HtmlElement::Anchor, name.Value());
+				htmlWriter->End(HtmlElement::TableData);
+				htmlWriter->Element(HtmlElement::TableData, String::FromInt(minCount));
+				htmlWriter->Element(HtmlElement::TableData, String::FromInt(maxCount));
+				htmlWriter->Element(HtmlElement::TableData, String::FromInt(avgCount));
+				htmlWriter->Element(HtmlElement::TableData, String::FromInt(curCount));
+				htmlWriter->End(HtmlElement::TableRow);
+			}
+			htmlWriter->End(HtmlElement::Table);
+		}      
 
         htmlWriter->Close();
         request->SetStatus(HttpStatus::OK);
@@ -283,10 +393,10 @@ DebugPageHandler::HandleTimerRequest(const String& timerName, const Ptr<HttpRequ
         htmlWriter->AddAttr("href", "/index.html");
         htmlWriter->Element(HtmlElement::Anchor, "Home");
         htmlWriter->LineBreak();
-        htmlWriter->AddAttr("href", "/debug");
-        htmlWriter->Element(HtmlElement::Anchor, "Debug Subsystem Home");
+        htmlWriter->AddAttr("href", "/profiling");
+        htmlWriter->Element(HtmlElement::Anchor, "Profiling Subsystem Home");
         htmlWriter->LineBreak();
-        htmlWriter->AddAttr("data", "/debug?timerChart=" + timerName);
+        htmlWriter->AddAttr("data", "/profiling?timerChart=" + timerName);
         htmlWriter->Element(HtmlElement::Object, timerName);    
         htmlWriter->Close();
         request->SetStatus(HttpStatus::OK);
@@ -313,10 +423,10 @@ DebugPageHandler::HandleCounterRequest(const String& counterName, const Ptr<Http
         htmlWriter->AddAttr("href", "/index.html");
         htmlWriter->Element(HtmlElement::Anchor, "Home");
         htmlWriter->LineBreak();
-        htmlWriter->AddAttr("href", "/debug");
-        htmlWriter->Element(HtmlElement::Anchor, "Debug Subsystem Home");
+        htmlWriter->AddAttr("href", "/profiling");
+        htmlWriter->Element(HtmlElement::Anchor, "Profiling Subsystem Home");
         htmlWriter->LineBreak();
-        htmlWriter->AddAttr("data", "/debug?counterChart=" + counterName);
+        htmlWriter->AddAttr("data", "/profiling?counterChart=" + counterName);
         htmlWriter->Element(HtmlElement::Object, counterName);    
         htmlWriter->Close();
         request->SetStatus(HttpStatus::OK);
@@ -423,9 +533,22 @@ DebugPageHandler::HandleCounterChartRequest(const String& counterName, const Ptr
 /**
 */
 void 
-DebugPageHandler::HandleTableSortRequest(const Util::String& columnName, const Ptr<Http::HttpRequest>& request)
+DebugPageHandler::HandleTimerTableSortRequest(const Util::String& columnName, const Util::String& tableName, const Ptr<Http::HttpRequest>& request)
 {
-    this->sortByColumn = columnName;
+	if (this->timerSortColumns.Contains(tableName))		this->timerSortColumns[tableName] = columnName;
+	else												this->timerSortColumns.Add(tableName, columnName);
     request->SetStatus(HttpStatus::OK);
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+DebugPageHandler::HandleCounterTableSortRequest(const Util::String& columnName, const Util::String& tableName, const Ptr<Http::HttpRequest>& request)
+{
+	if (this->counterSortColumns.Contains(tableName))	this->counterSortColumns[tableName] = columnName;
+	else												this->counterSortColumns.Add(tableName, columnName);
+	request->SetStatus(HttpStatus::OK);
+}
+
 } // namespace Debug

@@ -17,6 +17,7 @@
 #if NEBULA3_ENABLE_PROFILING
 #define _declare_counter(counter) Ptr<Debug::DebugCounter> counter;
 #define _setup_counter(counter) counter = Debug::DebugCounter::Create(); counter->Setup(Util::StringAtom(#counter));
+#define _setup_grouped_counter(counter, group) counter = Debug::DebugCounter::Create(); counter->Setup(Util::StringAtom(#counter), group);
 #define _discard_counter(counter) counter->Discard(); counter = 0;
 #define _begin_counter(counter) counter->Begin();
 #define _begin_counter_noreset() counter->Begin(false);
@@ -50,7 +51,7 @@ public:
     virtual ~DebugCounter();
 
     /// setup the counter
-    void Setup(const Util::StringAtom& name);
+	void Setup(const Util::StringAtom& name, const Util::StringAtom& group = Util::StringAtom("Ungrouped"));
     /// discard the counter
     void Discard();
     /// return true if object has been setup
@@ -71,6 +72,8 @@ public:
     
     /// get the counter's name
     const Util::StringAtom& GetName() const;
+	/// get the timer group
+	const Util::StringAtom& GetGroup() const;
     /// get the most recent sample
     int GetSample() const;
     /// get the counter's history
@@ -79,6 +82,7 @@ public:
 private:
     Threading::CriticalSection critSect;
     Util::StringAtom name;
+	Util::StringAtom group;
     int value;
     Util::RingBuffer<int> history;
 };
@@ -158,6 +162,15 @@ inline const Util::StringAtom&
 DebugCounter::GetName() const
 {
     return this->name;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Util::StringAtom&
+DebugCounter::GetGroup() const
+{
+	return this->group;
 }
 
 } // namespace Debug

@@ -78,8 +78,6 @@ ImguiAddon::BeginFrame()
 void
 ImguiAddon::EndFrame()
 {
-	// reset imgui, this makes inputs 
-	ImGui::Reset();
 }
 
 } // namespace Dynui

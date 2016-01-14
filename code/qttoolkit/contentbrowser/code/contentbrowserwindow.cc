@@ -80,6 +80,10 @@ ContentBrowserWindow::ContentBrowserWindow() :
 	lockLight(true)
 {
 	this->ui.setupUi(this);
+	this->setTabPosition(Qt::DockWidgetArea::TopDockWidgetArea, QTabWidget::TabPosition::North);
+	this->setTabPosition(Qt::DockWidgetArea::BottomDockWidgetArea, QTabWidget::TabPosition::North);
+	this->setTabPosition(Qt::DockWidgetArea::LeftDockWidgetArea, QTabWidget::TabPosition::North);
+	this->setTabPosition(Qt::DockWidgetArea::RightDockWidgetArea, QTabWidget::TabPosition::North);
 
 	// create copy assigns so that we may modify resources without changing anything in the models/textures/surfaces
 	AssignRegistry::Instance()->SetAssign(Assign("intsur", "root:intermediate/surfaces"));
@@ -131,6 +135,7 @@ ContentBrowserWindow::ContentBrowserWindow() :
 	// create texture browser window
 	this->assetBrowserWindow = ResourceBrowser::AssetBrowser::Create();
 	this->assetBrowserWindow->Open();
+	this->assetBrowserWindow->SetWindowModal(this);
 
 	// setup ui of particle wizard
 	this->particleWizardUi.setupUi(&this->particleEffectWizard);
@@ -187,15 +192,8 @@ ContentBrowserWindow::ContentBrowserWindow() :
 	connect(this->ui.libraryTree, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(TreeRightClicked(const QPoint&)));
 	connect(this->ui.actionUndo, SIGNAL(triggered()), this, SLOT(OnUndo()));
 	connect(this->ui.actionRedo, SIGNAL(triggered()), this, SLOT(OnRedo()));
-	connect(this->ui.actionWireframe, SIGNAL(triggered()), this, SLOT(OnWireframeChecked()));
-	connect(this->ui.actionAmbient_occlusion, SIGNAL(triggered()), this, SLOT(OnAOChecked()));
-	connect(this->ui.actionShow_physics, SIGNAL(triggered()), this, SLOT(OnPhysicsChecked()));
-	connect(this->ui.actionShow_controls, SIGNAL(triggered()), this, SLOT(OnControlsChecked()));
-	connect(this->ui.actionLight_from_camera, SIGNAL(triggered()), this, SLOT(OnLockedLightChecked()));
-	connect(this->ui.actionShow_sky, SIGNAL(triggered()), this, SLOT(OnShowSkyChecked()));
 	connect(this->ui.actionTexture_browser, SIGNAL(triggered()), this, SLOT(OnShowTextureBrowser()));
 	connect(this->ui.actionEnvironment_probe, SIGNAL(triggered()), this, SLOT(OnShowEnvironmentProbeSettings()));
-	connect(this->ui.actionDisplay_Surface_Material, SIGNAL(triggered()), this, SLOT(OnSurfacePreviewChecked()));
 	connect(this->modelImporterWindow, SIGNAL(ImportDone(const Util::String&)), this, SLOT(OnModelImported(const Util::String&)));
 	connect(this->textureImporterWindow, SIGNAL(ImportDone(const Util::String&)), this, SLOT(OnTextureImported(const Util::String&)));	
 
@@ -205,7 +203,7 @@ ContentBrowserWindow::ContentBrowserWindow() :
 	connect(this->assetBrowserWindow, SIGNAL(ContextMenuOpened(QContextMenuEvent*)), this, SLOT(OnAssetBrowserRightClick(QContextMenuEvent*)));
 	connect(this->assetBrowserWindow, SIGNAL(ItemContextMenuOpened(ResourceBrowser::TiledGraphicsItem*, QGraphicsSceneContextMenuEvent*)), this, SLOT(OnAssetBrowserItemRightClick(ResourceBrowser::TiledGraphicsItem*, QGraphicsSceneContextMenuEvent*)));
 
-    // connect actions
+    // connect window actions
 	connect(this->ui.actionShow_Model_Info, SIGNAL(triggered()), this, SLOT(OnShowModelInfo()));
 	connect(this->ui.actionShow_Texture_Info, SIGNAL(triggered()), this, SLOT(OnShowTextureInfo()));
 	connect(this->ui.actionShow_Audio_Info, SIGNAL(triggered()), this, SLOT(OnShowAudioInfo()));
@@ -216,6 +214,7 @@ ContentBrowserWindow::ContentBrowserWindow() :
 	connect(this->ui.actionCreate_Particle, SIGNAL(triggered()), this, SLOT(OnCreateParticleEffect()));
 	connect(this->ui.actionConnect_with_Level_Editor, SIGNAL(triggered()), this, SLOT(OnConnectToLevelEditor()));
     connect(this->ui.actionShow_Shady, SIGNAL(triggered()), this->shadyWindow, SLOT(show()));
+	connect(this->ui.actionRestore_default_layout, SIGNAL(triggered()), this, SLOT(ResetLayout()));
 	connect(QtRemoteInterfaceAddon::QtRemoteClient::GetClient("editor"), SIGNAL(OnDisconnected()), this, SLOT(OnDisconnectFromLevelEditor()));
 
 	connect(this->modelHandler, SIGNAL(ModelSavedAs(const Util::String&)), this, SLOT(ModelSavedWithNewName(const Util::String&)));
@@ -2141,91 +2140,6 @@ ContentBrowserWindow::OnShowEnvironmentProbeSettings()
 /**
 */
 void 
-ContentBrowserWindow::OnWireframeChecked()
-{
-	this->wireFrame = !this->wireFrame;
-	Ptr<EnableWireframe> msg = EnableWireframe::Create();
-	msg->SetEnabled(this->wireFrame);
-	GraphicsInterface::Instance()->Send(msg.upcast<Messaging::Message>());
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-ContentBrowserWindow::OnAOChecked()
-{
-	this->showAmbientOcclusion = !this->showAmbientOcclusion;
-	Ptr<EnableAmbientOcclusion> msg = EnableAmbientOcclusion::Create();
-	msg->SetEnabled(this->showAmbientOcclusion);
-	GraphicsInterface::Instance()->Send(msg.upcast<Messaging::Message>());
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-ContentBrowserWindow::OnPhysicsChecked()
-{
-	// get preview state
-	this->showPhysics = !this->showPhysics;
-	Ptr<PreviewState> previewState = ContentBrowserApp::Instance()->GetPreviewState();
-	previewState->SetShowPhysics(this->showPhysics);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-ContentBrowserWindow::OnControlsChecked()
-{
-	// get preview state
-	this->showControls = !this->showControls;
-	Ptr<PreviewState> previewState = ContentBrowserApp::Instance()->GetPreviewState();
-	previewState->SetShowControls(this->showControls);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-ContentBrowserWindow::OnLockedLightChecked()
-{
-	// get preview state
-	this->lockLight = !this->lockLight;
-	Ptr<PreviewState> previewState = ContentBrowserApp::Instance()->GetPreviewState();
-	previewState->SetUseWorklight(this->lockLight);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-ContentBrowserWindow::OnShowSkyChecked()
-{
-	this->showSky = !this->showSky;
-	// set sky entity visibility
-	PostEffectManager::Instance()->GetSkyEntity()->SetVisible(this->showSky);
-
-	Ptr<EnableVolumetricLighting> godRayMessage = EnableVolumetricLighting::Create();
-	godRayMessage->SetEnabled(this->showSky);
-	GraphicsInterface::Instance()->Send(godRayMessage.upcast<Messaging::Message>());
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-ContentBrowserWindow::OnSurfacePreviewChecked()
-{
-	Ptr<PreviewState> previewState = ContentBrowserApp::Instance()->GetPreviewState();
-	previewState->SetSurfacePreview(this->ui.actionDisplay_Surface_Material->isChecked());
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
 ContentBrowserWindow::OnCreateParticleEffect()
 {
 	// show and raise dialog
@@ -2455,6 +2369,16 @@ void
 ContentBrowserWindow::OnDebugPage()
 {    
     QDesktopServices::openUrl(QUrl("http://127.0.0.1:2101"));
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ContentBrowserWindow::ResetLayout()
+{
+	this->restoreGeometry(NULL);
+	this->restoreState(NULL, -1);
 }
 
 } // namespace ContentBrowser

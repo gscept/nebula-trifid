@@ -10,7 +10,9 @@
     (C) 2013-2015 Individual contributors, see AUTHORS file
 */
 #include "frame/framepassbase.h"
+#if NEBULA3_ENABLE_PROFILING
 #include "debug/debugtimer.h"
+#endif
 
 //------------------------------------------------------------------------------
 namespace Frame

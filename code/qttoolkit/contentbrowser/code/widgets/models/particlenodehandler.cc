@@ -309,7 +309,6 @@ ParticleNodeHandler::Discard()
 	this->managedEmitterMesh = 0;
 	this->emitterMesh = 0;
 	ModelNodeHandler::Discard();
-	delete this->ui;
 }
 
 //------------------------------------------------------------------------------

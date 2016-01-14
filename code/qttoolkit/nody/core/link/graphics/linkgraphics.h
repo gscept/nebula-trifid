@@ -10,17 +10,23 @@
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
 #include "antialiasedlinegraphics.h"
+
+#include <QObject>
 #include <QPainterPath>
 #include <QGraphicsPathItem>
 #include <QPen>
+#include <QTimer>
 
 namespace Nody
 {
 class NodeGraphicsScene;
 class Link;
-class LinkGraphics : public Core::RefCounted
+class LinkGraphics : 
+	public QObject,
+	public Core::RefCounted
 {
 	__DeclareClass(LinkGraphics);
+	Q_OBJECT	
 public:
 
     enum LinkCurveType
@@ -34,11 +40,6 @@ public:
 	LinkGraphics();
 	/// destructor
 	virtual ~LinkGraphics();
-
-	/// set pointer to logical node
-	void SetLink(const Ptr<Link>& link);
-	/// get pointer to logical node
-	const Ptr<Link>& GetLink() const;
 
     /// marks this node as being visited by the generator
     void Visit();
@@ -83,23 +84,32 @@ public:
 	/// update link
 	void Update();
 
+private slots:
+	/// update loop which renders information flow dots
+	void RenderDataFlow();
+
 private:
+	friend class Link;
     LinkCurveType curveType;
 	Ptr<Link> link;
 	QPainterPath linePath;
 	AntialiasedLineGraphics* linePathItem;
+	QGraphicsEllipseItem* ellipseItems[4];
 	QPointF fromAnchor;
 	QPointF toAnchor;
 	QPen standardPen;
 	QPen lockedPen;
 	bool isLocked;
+
+	QTimer dataFlowTimer;
+	float dataFlowTime;
 }; 
 
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-LinkGraphics::SetAnchorFrom( const QPointF& from )
+inline void
+LinkGraphics::SetAnchorFrom(const QPointF& from)
 {
 	this->fromAnchor = from;
 }
@@ -116,8 +126,8 @@ LinkGraphics::GetAnchorFrom() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-LinkGraphics::SetAnchorTo( const QPointF& to )
+inline void
+LinkGraphics::SetAnchorTo(const QPointF& to)
 {
 	this->toAnchor = to;
 }
@@ -143,27 +153,8 @@ LinkGraphics::IsLocked() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-LinkGraphics::SetLink( const Ptr<Link>& link )
-{
-    n_assert(link.isvalid());
-    this->link = link;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline const Ptr<Link>& 
-LinkGraphics::GetLink() const
-{
-    return this->link;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void 
-LinkGraphics::SetLinkCurveType( const LinkCurveType& type )
+inline void
+LinkGraphics::SetLinkCurveType(const LinkCurveType& type)
 {
     this->curveType = type;
 }

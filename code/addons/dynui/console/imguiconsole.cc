@@ -132,7 +132,7 @@ ImguiConsole::Render()
 			}
 			else
 			{
-				ImGui::Begin("suggestions", NULL, ImVec2(0, 0), 0.9f, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AutoFit);
+				ImGui::Begin("suggestions", NULL, ImVec2(0, 0), 0.9f, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize);
 				ImGui::SetWindowPos(ImVec2(windowPos.x, windowPos.y + windowSize.y - 10));
 				IndexT i;
 				for (i = 0; i < matches.Size(); i++)

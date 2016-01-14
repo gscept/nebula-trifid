@@ -35,8 +35,8 @@ ProjectLoader::~ProjectLoader()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ProjectLoader::Load( const Ptr<Project>& project, const IO::URI& path )
+void
+ProjectLoader::Load(const Ptr<Project>& project, const IO::URI& path)
 {
     n_assert(project.isvalid());
     n_assert(path.IsValid());
@@ -80,17 +80,18 @@ ProjectLoader::Load( const Ptr<Project>& project, const IO::URI& path )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ProjectLoader::ReadGlobalState( const Ptr<IO::BinaryReader>& reader, const Ptr<Project>& project )
+void
+ProjectLoader::ReadGlobalState(const Ptr<IO::BinaryReader>& reader, const Ptr<Project>& project)
 {
     // empty, this is purposely empty in Nody since it should be filled by an application specific project
+	project->globalState.viewCenter = reader->ReadFloat2();
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ProjectLoader::ReadNodes( const Ptr<IO::BinaryReader>& reader, const Ptr<Project>& project )
+void
+ProjectLoader::ReadNodes(const Ptr<IO::BinaryReader>& reader, const Ptr<Project>& project)
 {
     SizeT numNodes = reader->ReadUInt();
 
@@ -174,8 +175,8 @@ ProjectLoader::ReadNodes( const Ptr<IO::BinaryReader>& reader, const Ptr<Project
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ProjectLoader::ReadLinks( const Ptr<IO::BinaryReader>& reader, const Ptr<Project>& project )
+void
+ProjectLoader::ReadLinks(const Ptr<IO::BinaryReader>& reader, const Ptr<Project>& project)
 {
     SizeT numLinks = reader->ReadUInt();    
     IndexT i;

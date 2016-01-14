@@ -33,8 +33,8 @@ ProjectSaver::~ProjectSaver()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ProjectSaver::Save( const Ptr<Project>& project, const IO::URI& path )
+void
+ProjectSaver::Save(const Ptr<Project>& project, const IO::URI& path)
 {
     n_assert(project.isvalid());
     n_assert(path.IsValid());
@@ -79,17 +79,18 @@ ProjectSaver::Save( const Ptr<Project>& project, const IO::URI& path )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ProjectSaver::WriteGlobalState( const Ptr<IO::BinaryWriter>& writer, const Ptr<Project>& project )
+void
+ProjectSaver::WriteGlobalState(const Ptr<IO::BinaryWriter>& writer, const Ptr<Project>& project)
 {
     // empty, in the generic case there is no global state
+	writer->WriteFloat2(project->globalState.viewCenter);
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ProjectSaver::WriteNodes( const Ptr<IO::BinaryWriter>& writer, const Ptr<Project>& project )
+void
+ProjectSaver::WriteNodes(const Ptr<IO::BinaryWriter>& writer, const Ptr<Project>& project)
 {
     // write nodes
     SizeT numNodes = project->nodes.Size();

@@ -45,6 +45,7 @@ VariableInstanceGraphics::Generate()
 	this->connectorItem->setPen(QPen(QBrush(Qt::black), 1, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin));
 	this->connectorItem->setBrush(QBrush(Qt::white));
 	this->connectorItem->setData(NEBULAUSERPOINTERLOCATION, (qint32)this);
+	this->connectorItem->setZValue(NODELAYERFOREGROUND);
 }
 
 //------------------------------------------------------------------------------

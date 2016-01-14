@@ -65,8 +65,8 @@ public:
     /// get graphics
     QImage* GetGraphics() const;
 
-    static const SizeT Width = 128;
-    static const SizeT Height = 128;
+    static const SizeT Width = 64;
+    static const SizeT Height = 64;
 
 private:
     

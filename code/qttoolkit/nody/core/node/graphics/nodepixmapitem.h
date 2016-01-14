@@ -25,11 +25,8 @@ public:
 	/// destructor
 	virtual ~NodePixmapItem();
 
-	/// set pointer parent graphics node
-	void SetNodeGraphics(const Ptr<NodeGraphics>& node);
-	/// returns pointer to graphics node which is the owner of this item
-	const Ptr<NodeGraphics>& GetNodeGraphics();
 private:
+	friend class NodeGraphics;
 	Ptr<NodeGraphics> node;
 }; 
 

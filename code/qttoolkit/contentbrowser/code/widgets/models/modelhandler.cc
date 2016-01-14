@@ -322,15 +322,26 @@ ModelHandler::Mute()
 void
 ModelHandler::Refresh()
 {
+	// clear frames
 	IndexT i;
 	for (i = 0; i < this->nodeFrames.Size(); i++)
 	{
-		this->nodeFrames[i]->Refresh();
+		this->nodeFrames[i]->Discard();
 	}
-	for (i = 0; i < this->particleFrames.Size(); i++)
+	for (i = 0; i < particleFrames.Size(); i++)
 	{
-		this->particleFrames[i]->Refresh();
+		this->particleFrames[i]->Discard();
 	}
+	this->nodeFrames.Clear();
+	this->particleFrames.Clear();
+
+	if (this->characterFrame)
+	{
+		this->characterFrame->Discard();
+		this->characterFrame = 0;
+	}
+
+	this->SetupTabs();
 }
 
 //------------------------------------------------------------------------------
@@ -448,6 +459,10 @@ ModelHandler::AddParticleNode()
 
 	// save new changes and make a new model
 	this->OnModelModified(true);
+
+	// refresh the model handler
+	this->MakeModel();
+	this->Refresh();
 }
 
 //------------------------------------------------------------------------------
@@ -468,6 +483,10 @@ ModelHandler::RemoveParticleNode(const Util::String path, const Util::String nod
 
 	// apply modifications
 	this->OnModelModified(true);
+
+	// refresh the model handler
+	this->MakeModel();
+	this->Refresh();
 }
 
 //------------------------------------------------------------------------------
@@ -694,7 +713,7 @@ ModelHandler::MakeModel()
 	modelBuilder->SaveN3(resource, Platform::Win32);
 
 	// reload model, then call OnModelReloaded when its done
-	ContentBrowserApp::Instance()->GetPreviewState()->PreImportModel();
+	//ContentBrowserApp::Instance()->GetPreviewState()->PreImportModel();
 	Ptr<ReloadResourceIfExists> msg = ReloadResourceIfExists::Create();
 	msg->SetResourceName(resource);	
 	__StaticSend(GraphicsInterface, msg);
@@ -704,8 +723,8 @@ ModelHandler::MakeModel()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ModelHandler::OnModelReloaded( const Ptr<Messaging::Message>& msg )
+void
+ModelHandler::OnModelReloaded(const Ptr<Messaging::Message>& msg)
 {
 	// if we have a character component, make sure to set all his skins as visible again
 	if (0 != this->characterFrame)
@@ -833,7 +852,7 @@ ModelHandler::SetupTabs()
 		nodeFrame->GetHandler()->Setup(res);
 
 		// add frame to tab box
-		nodeWidget->addTab(nodeFrame, particleNodes[i].name.AsCharPtr());
+		nodeWidget->addTab(nodeFrame, "Particle");
 	}
 }
 

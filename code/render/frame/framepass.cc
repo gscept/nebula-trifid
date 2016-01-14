@@ -141,7 +141,7 @@ void
 FramePass::SetFramePassDebugTimer(const Util::String& name)
 {
     this->debugTimer = Debug::DebugTimer::Create();
-    this->debugTimer->Setup(name);
+    this->debugTimer->Setup(name, "Frame shaders");
 }
 #endif
 } // namespace Frame

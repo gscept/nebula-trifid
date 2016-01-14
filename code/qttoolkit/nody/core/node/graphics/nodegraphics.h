@@ -14,6 +14,7 @@
 #include "util/variant.h"
 #include "variable/vartype.h"
 #include "simulation/simresult.h"
+
 #include <QGraphicsTextItem>
 #include <QMenu>
 
@@ -35,13 +36,8 @@ public:
 	/// destructor
 	virtual ~NodeGraphics();
 
-	/// set pointer to logical node
-	void SetNode(const Ptr<Node>& node);
-	/// get pointer to logical node
-	const Ptr<Node>& GetNode() const;
-
     /// sets this node to be in focus or to lose focus
-    virtual void SetFocus(bool b);
+    virtual void SetFocus(bool b, bool resort = true);
 
     /// marks this node as being visited by the generator
     virtual void Visit();
@@ -81,6 +77,7 @@ public:
 	static QPointF FromFloat2(const Math::float2& pos);
 protected:
 	friend class NodeGraphicsScene;
+	friend class Node;
 
     Ptr<Nody::NodeItemGroup> group;
 	Ptr<Node> node;
@@ -88,16 +85,6 @@ protected:
     bool focus;
 }; 
 
-
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void 
-NodeGraphics::SetFocus( bool b )
-{
-    this->focus = b;
-}
 
 //------------------------------------------------------------------------------
 /**

@@ -29,6 +29,9 @@
 #include "visibility/visibilitysystems/visibilitysystembase.h"
 #include "renderutil/nodelookuputil.h"
 #include "coregraphics/streamtexturesaver.h"
+#include "imgui/imgui.h"
+#include "algorithm/algorithmprotocol.h"
+#include "models/nodes/shapenode.h"
 
 using namespace Util;
 using namespace Graphics;
@@ -46,9 +49,14 @@ __ImplementClass(ContentBrowser::PreviewState, 'PRST',  BaseGameFeature::GameSta
 */
 PreviewState::PreviewState() :
 	defaultCam(0),
-	enablePhysics(false),
+	showPhysics(false),
 	showControls(false),
-	workLight(true)
+	workLight(true),
+	showWireframe(false),
+	showAO(true),
+	showSurface(false),
+	showSky(true),
+	showPassNumber(0)
 {
 	// empty
 }
@@ -68,6 +76,75 @@ Util::String
 PreviewState::OnFrame()
 {
 	this->HandleInput();
+
+	// draw dynui
+	Dynui::ImguiAddon::BeginFrame();
+	bool lastFrameAO = this->showAO;
+	bool lastFrameWorkLight = this->workLight;
+	bool lastFrameWireframe = this->showWireframe;
+	bool lastShowSurface = this->showSurface;
+	bool lastShowSky = this->showSky;
+	int lastShowPassNumber = this->showPassNumber;
+	const char* textures[] = { "None", "Diffuse", "Specular", "Emissive", "Lighting" };
+	ImGui::Begin("Viewport settings", NULL, ImVec2(0, 0), 0.0f, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+		ImGui::SetWindowPos(ImVec2(0, 0));
+		ImGui::Checkbox("Ambient occlusion", &this->showAO);
+		ImGui::SameLine();
+		ImGui::Checkbox("Worklight", &this->workLight);
+		ImGui::SameLine();
+		ImGui::Checkbox("Surface preview", &this->showSurface);
+		ImGui::SameLine();
+		ImGui::Checkbox("Wireframe", &this->showWireframe);
+		ImGui::SameLine();
+		ImGui::Checkbox("Physics", &this->showPhysics);
+		ImGui::SameLine();
+		ImGui::Checkbox("Show sky", &this->showSky);
+		if (ImGui::CollapsingHeader("Passes"))
+		{
+			ImGui::Combo("Show pass", &this->showPassNumber, textures, 5);
+			if (this->showPassNumber > 0)
+			{
+				if (lastShowPassNumber != this->showPassNumber)
+				{
+					const char* rendertargets[] = { "", "AlbedoBuffer", "SpecularBuffer", "EmissiveBuffer", "LightBuffer" };
+					this->showPass = Resources::ResourceManager::Instance()->LookupResource(rendertargets[this->showPassNumber]).downcast<CoreGraphics::Texture>();
+				}
+				if (this->showPass.isvalid())
+				{
+					ImGuiIO& io = ImGui::GetIO();
+
+					// calculate ratio and render
+					float ratio = io.DisplaySize.y / io.DisplaySize.x;
+					ImGui::Image(this->showPass, ImVec2(320, 320 * ratio), ImVec2(0, 1), ImVec2(1, 0), ImVec4(1,1,1,1), ImVec4(0,0,0,1));
+				}
+			}
+		}
+	ImGui::End();
+
+	Dynui::ImguiAddon::EndFrame();
+
+	if (lastFrameAO != this->showAO)
+	{
+		Ptr<Algorithm::EnableAmbientOcclusion> msg = Algorithm::EnableAmbientOcclusion::Create();
+		msg->SetEnabled(this->showAO);
+		GraphicsInterface::Instance()->Send(msg.upcast<Messaging::Message>());
+	}
+
+	if (lastFrameWireframe != this->showWireframe)
+	{
+		this->SetShowWireframe(this->showWireframe);
+	}
+
+	if (lastShowSurface != this->showSurface)
+	{
+		this->SetSurfacePreview(this->showSurface);
+	}
+
+	if (lastShowSky != this->showSky)
+	{
+		// set sky entity visibility
+		PostEffectManager::Instance()->GetSkyEntity()->SetVisible(this->showSky);
+	}
 
 	// get post effect entity
 	const Ptr<PostEffectEntity>& peEntity = ContentBrowserApp::Instance()->GetPostEffectEntity();
@@ -97,23 +174,27 @@ PreviewState::OnFrame()
 	QtRemoteInterfaceAddon::QtRemoteClient::GetClient("editor")->OnFrame();
 
 	// renders physics
-	if (this->enablePhysics)
+	if (this->showPhysics)
 	{
 		PhysicsServer::Instance()->GetScene()->RenderDebug();
 	}
 
-	// renders controls
-	if (this->showControls)
+	// if we show wireframe, render it!
+	if (this->showWireframe)
 	{
-		_debug_text("Hold ALT, then press and hold LMB to move camera", Math::float2(0.02f, 0.02f), Math::float4(1));
-        _debug_text("Press SPACE to reset camera", Math::float2(0.02f, 0.04f), Math::float4(1));
-		_debug_text("Press F to focus camera on asset", Math::float2(0.02f, 0.06f), Math::float4(1));
-
-		if (!this->workLight)
+		const Util::Array<Ptr<Models::ModelNode>>& modelNodes = this->modelEntity->GetModelInstance()->GetModel()->GetNodes();
+		IndexT i;
+		for (i = 0; i < modelNodes.Size(); i++)
 		{
-			_debug_text("Press and hold LMB to move direction of light", Math::float2(0.02f, 0.08f), Math::float4(1));
+			// ugh, we need to find all nodes, get their mesh, and draw them
+			const Ptr<Models::ModelNode>& node = modelNodes[i];
+			if (node->IsA(Models::ShapeNode::RTTI))
+			{
+				const Ptr<Models::ShapeNode>& shapeNode = node.downcast<Models::ShapeNode>();
+				Debug::DebugShapeRenderer::Instance()->DrawMesh(matrix44::identity(), shapeNode->GetManagedMesh()->GetMesh(), float4(0, 0, 0.75f, 0.8f), CoreGraphics::RenderShape::Wireframe);
+
+			}
 		}
-		
 	}
 
 	return GameStateHandler::OnFrame();
@@ -236,6 +317,10 @@ PreviewState::OnStateEnter(const Util::String& prevState)
 
 	// disable gravity
 	Physics::PhysicsServer::Instance()->GetScene()->SetGravity(Math::vector(0,0,0));
+
+	// make sure ImGui doesn't steal input focus
+	ImGuiIO& io = ImGui::GetIO();
+	io.WantCaptureMouse = false;
 }
 
 //------------------------------------------------------------------------------
@@ -419,25 +504,7 @@ PreviewState::SaveThumbnail(const Util::String& path, bool swapStage)
 /**
 */
 void
-PreviewState::PreImportModel()
-{
-	this->defaultStage->RemoveEntity(this->modelEntity.cast<GraphicsEntity>());
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-PreviewState::PostImportModel()
-{
-	this->defaultStage->AttachEntity(this->modelEntity.cast<GraphicsEntity>());
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-PreviewState::OnFetchedSkinList( const Ptr<Messaging::Message>& msg )
+PreviewState::OnFetchedSkinList(const Ptr<Messaging::Message>& msg)
 {
 	Ptr<Graphics::FetchSkinList> rMsg = msg.downcast<Graphics::FetchSkinList>();
 
@@ -450,6 +517,15 @@ PreviewState::OnFetchedSkinList( const Ptr<Messaging::Message>& msg )
 		showSkin->SetSkin(skins[i]);
 		this->modelEntity->HandleMessage(showSkin.cast<Messaging::Message>());
 	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PreviewState::SetShowWireframe(bool enable)
+{
+	this->modelEntity->SetVisible(!enable);
 }
 
 } // namespace ContentBrowser

@@ -181,21 +181,6 @@ private slots:
 	/// called whenever shift+ctrl+z is pressed
 	void OnRedo();
 
-	/// called whenever the wireframe check box is pressed
-	void OnWireframeChecked();
-	/// called whenever the AO check box is pressed
-	void OnAOChecked();
-	/// called whenever the show physics box is pressed
-	void OnPhysicsChecked();
-	/// called whenever the show controls box is pressed
-	void OnControlsChecked();
-	/// called whenever the locked to camera box in the global light group is checked
-	void OnLockedLightChecked();
-	/// called whenever the show sky box gets checked
-	void OnShowSkyChecked();
-	/// called whenever the show surface view is checked
-	void OnSurfacePreviewChecked();
-
 	/// called whenever the particle effect wizard is opened
 	void OnCreateParticleEffect();
 	/// called whenever the mesh browse button of the particle effect wizard is pressed
@@ -210,6 +195,9 @@ private slots:
     void OnAbout();
     /// called when Debug Page is clicked
     void OnDebugPage();
+
+	/// called when the user presses the reset geometry button
+	void ResetLayout();
 
 private:
 	friend class Widgets::ModelNodeHandler;

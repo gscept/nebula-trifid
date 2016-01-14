@@ -26,11 +26,6 @@ public:
 	/// destructor
 	virtual ~NodeItemGroup();
 
-	/// set pointer to graphics node
-	void SetNodeGraphics(const Ptr<NodeGraphics>& node);
-	/// get pointer to graphics node
-	const Ptr<NodeGraphics>& GetNodeGraphics() const;
-
 	/// override mouse press event to flip the layers of the nodes
 	void mousePressEvent(QGraphicsSceneMouseEvent *event);
 	/// we want to override moving nodes so that we can refresh our link graphics
@@ -39,6 +34,7 @@ public:
     void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 
 private:
+	friend class NodeGraphics;
 	Ptr<NodeGraphics> node;
 }; 
 

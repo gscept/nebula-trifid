@@ -48,7 +48,7 @@
         <x>0</x>
         <y>0</y>
         <width>405</width>
-        <height>404</height>
+        <height>375</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -165,6 +165,20 @@
        </property>
       </widget>
      </item>
+     <item row="0" column="1" colspan="2">
+      <widget class="QLabel" name="surfaceName">
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>placeholder surface name</string>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="3" rowspan="2">
       <widget class="QLabel" name="surfaceThumbnail">
        <property name="sizePolicy">
@@ -191,17 +205,10 @@ border-radius: 5px;</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="1" colspan="2">
-      <widget class="QLabel" name="surfaceName">
-       <property name="font">
-        <font>
-         <pointsize>14</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
+     <item row="2" column="0" colspan="4">
+      <widget class="QPushButton" name="pushButton">
        <property name="text">
-        <string>placeholder surface name</string>
+        <string>Preview</string>
        </property>
       </widget>
      </item>

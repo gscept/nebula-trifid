@@ -19,6 +19,7 @@
 #define _declare_timer(timer) Ptr<Debug::DebugTimer> timer;
 #define _declare_static_timer(timer) static Ptr<Debug::DebugTimer> timer;
 #define _setup_timer(timer) {timer = Debug::DebugTimer::Create(); timer->Setup(Util::StringAtom(#timer));}
+#define _setup_grouped_timer(timer, group) {timer = Debug::DebugTimer::Create(); timer->Setup(Util::StringAtom(#timer), group);}
 #define _setup_timer_singleton(timer) {timer = Debug::DebugTimer::CreateAsSingleton(Util::StringAtom(#timer));}
 #define _setup_timer_singleton_name(timer, timerName) {timer = Debug::DebugTimer::CreateAsSingleton(Util::StringAtom(#timerName));}
 #define _discard_timer_singleton(timer) {Debug::DebugTimer::DestroySingleton(Util::StringAtom(#timer));}
@@ -51,7 +52,7 @@ public:
     virtual ~DebugTimer();
 
     /// setup the timer
-    void Setup(const Util::StringAtom& timerName);
+    void Setup(const Util::StringAtom& timerName, const Util::StringAtom& group = Util::StringAtom("Ungrouped"));
     /// discard the timer
     void Discard();
     /// return true if this timer has been setup
@@ -73,6 +74,8 @@ public:
     
     /// get the timer name
     const Util::StringAtom& GetName() const;
+	/// get the timer group
+	const Util::StringAtom& GetGroup() const;
     /// get the most current sample
     Timing::Time GetSample() const;
     /// get the timer's history
@@ -86,6 +89,7 @@ public:
 private:
     Threading::CriticalSection critSect;
     Util::StringAtom name;
+	Util::StringAtom group;
     Timing::Timer timer;
     Timing::Time accumTime;
     Timing::Time startTime;
@@ -183,6 +187,15 @@ inline const Util::StringAtom&
 DebugTimer::GetName() const
 {
     return this->name;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Util::StringAtom&
+DebugTimer::GetGroup() const
+{
+	return this->group;
 }
 
 } // namespace Debug

@@ -86,6 +86,9 @@ private slots:
     /// invoked when we create a new project
     void OnNew();
 
+	/// invoked whenever the real-time visualization button gets clicked
+	void OnRealtimeVisualizeClicked();
+
     /// invoked when we build
     void OnBuild();
     

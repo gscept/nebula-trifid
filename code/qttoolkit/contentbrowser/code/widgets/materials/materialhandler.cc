@@ -126,11 +126,16 @@ MaterialHandler::Discard()
 	// avoid discarding changes if the user doesn't want to
 	if (this->hasChanges)
 	{
-		QMessageBox::StandardButton button = QMessageBox::warning(NULL, "Pending changes", "Your material has unsaved changes, are you sure you want to close it?", QMessageBox::Ok | QMessageBox::No);
+		QMessageBox::StandardButton button = QMessageBox::warning(NULL, "Pending changes", "Your material has unsaved changes, are you sure you want to close it?", QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
 		if (button == QMessageBox::Cancel)
 		{
 			return false;
 		}
+		else if (button == QMessageBox::Save)
+		{
+			this->Save();
+		}
+		// if we do discard, just continue here...
 	}
 
 	// clear everything, including the UI

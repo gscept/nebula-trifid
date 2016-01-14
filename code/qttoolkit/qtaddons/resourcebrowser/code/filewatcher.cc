@@ -34,6 +34,7 @@ FileWatcher::WatchFile(const Util::String& file)
 	QFileInfo info(file.AsCharPtr());
 	if (info.exists())
 	{
+		n_assert(info.isFile());
 		this->addPath(file.AsCharPtr());
 	}
 	else
@@ -41,6 +42,20 @@ FileWatcher::WatchFile(const Util::String& file)
 		Util::String dir = file.ExtractDirName();
 		this->addPath(dir.AsCharPtr());
 		this->files.Append(file);
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+FileWatcher::WatchDirectory(const Util::String& dir)
+{
+	QFileInfo info(dir.AsCharPtr());
+	if (info.exists())
+	{
+		n_assert(info.isDir());
+		this->addPath(dir.AsCharPtr());
 	}
 }
 

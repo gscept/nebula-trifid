@@ -94,8 +94,8 @@ NodeGraphicsSceneView::~NodeGraphicsSceneView()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-NodeGraphicsSceneView::wheelEvent( QWheelEvent *event )
+void
+NodeGraphicsSceneView::wheelEvent(QWheelEvent *event)
 {
 	QPointF scenePos = this->mapToScene(event->pos());
 	QGraphicsItem* item = this->scene()->itemAt(scenePos);
@@ -116,8 +116,8 @@ NodeGraphicsSceneView::wheelEvent( QWheelEvent *event )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-NodeGraphicsSceneView::mouseMoveEvent( QMouseEvent *event )
+void
+NodeGraphicsSceneView::mouseMoveEvent(QMouseEvent *event)
 {
 	QGraphicsView::mouseMoveEvent(event);
 	this->center = this->mapToScene(this->rect().center()).toPoint();
@@ -127,8 +127,8 @@ NodeGraphicsSceneView::mouseMoveEvent( QMouseEvent *event )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-NodeGraphicsSceneView::keyPressEvent( QKeyEvent *event )
+void
+NodeGraphicsSceneView::keyPressEvent(QKeyEvent *event)
 {
 	QGraphicsView::keyPressEvent(event);
 	if (event->modifiers() == Qt::ShiftModifier)
@@ -144,8 +144,8 @@ NodeGraphicsSceneView::keyPressEvent( QKeyEvent *event )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-NodeGraphicsSceneView::keyReleaseEvent( QKeyEvent *event )
+void
+NodeGraphicsSceneView::keyReleaseEvent(QKeyEvent *event)
 {
 	QGraphicsView::keyReleaseEvent(event);
 	this->setDragMode(QGraphicsView::RubberBandDrag);
@@ -154,8 +154,8 @@ NodeGraphicsSceneView::keyReleaseEvent( QKeyEvent *event )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-NodeGraphicsSceneView::showEvent( QShowEvent* event )
+void
+NodeGraphicsSceneView::showEvent(QShowEvent* event)
 {
     QGraphicsView::showEvent(event);
     this->origin = this->viewport()->rect().center();
@@ -164,8 +164,8 @@ NodeGraphicsSceneView::showEvent( QShowEvent* event )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-NodeGraphicsSceneView::SetScale( qreal scale )
+void
+NodeGraphicsSceneView::SetScale(qreal scale)
 {
 	NodeGraphicsScene* nodeScene = dynamic_cast<NodeGraphicsScene*>(this->scene());
 	if (nodeScene)
@@ -190,8 +190,8 @@ NodeGraphicsSceneView::ResetScale()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-NodeGraphicsSceneView::SetSize( const QRectF& size )
+void
+NodeGraphicsSceneView::SetSize(const QRectF& size)
 {
     this->size = size;
     this->setSceneRect(size);
@@ -200,8 +200,8 @@ NodeGraphicsSceneView::SetSize( const QRectF& size )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-NodeGraphicsSceneView::SetCenter( const QPoint& center )
+void
+NodeGraphicsSceneView::SetCenter(const QPoint& center)
 {
 	this->center = center;
 	this->centerOn(center);
@@ -214,6 +214,15 @@ void
 NodeGraphicsSceneView::ResetCenter()
 {
     this->centerOn(this->origin);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+NodeGraphicsSceneView::SetOrigin(const QPointF& origin)
+{
+	this->origin = origin;
 }
 
 //------------------------------------------------------------------------------
@@ -232,8 +241,8 @@ NodeGraphicsSceneView::AdjustScene()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-NodeGraphicsSceneView::SetScene( const Ptr<NodeGraphicsScene>& scene )
+void
+NodeGraphicsSceneView::SetScene(const Ptr<NodeGraphicsScene>& scene)
 {
 	QGraphicsView::setScene(scene);
 	this->graphicsScene = scene;
@@ -242,8 +251,8 @@ NodeGraphicsSceneView::SetScene( const Ptr<NodeGraphicsScene>& scene )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-NodeGraphicsSceneView::AnimateScale( qreal zoom, const QPoint& pos )
+void
+NodeGraphicsSceneView::AnimateScale(qreal zoom, const QPoint& pos)
 {
 	if (zoom != this->zoomScale)
 	{

@@ -88,7 +88,7 @@ BillboardEntity::OnActivate()
 
     // setup material
     const Ptr<SurfaceInstance>& surface = nodeInstance->GetSurfaceInstance();
-    this->textureVariable = surface->GetConstant("DiffuseMap");
+    this->textureVariable = surface->GetConstant("AlbedoMap");
     this->colorVariable = surface->GetConstant("Color");
 
 	// create a variable instance and set the texture

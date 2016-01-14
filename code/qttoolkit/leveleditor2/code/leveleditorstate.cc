@@ -29,6 +29,8 @@
 #include "properties/editorproperty.h"
 #include "godrays/godrayrendermodule.h"
 #include "dynui/imguiaddon.h"
+#include "imgui/imgui.h"
+#include "debug/debugserver.h"
 
 using namespace Util;
 using namespace Graphics;
@@ -45,7 +47,9 @@ __ImplementClass(LevelEditor2::LevelEditorState, 'LPVS',  BaseGameFeature::GameS
 */
 LevelEditorState::LevelEditorState() :
 	defaultCam(0),
-	activeTransformAction(0)
+	activeTransformAction(0),
+	showPerformance(false),
+	performanceFrame(0)
 {	
 	this->activateSelectionZoom = Input::Key::F;
 }
@@ -71,6 +75,55 @@ LevelEditorState::OnFrame()
 	this->console->Render();
 	this->selectionUtil->Render();
 	this->placementUtil->Render();
+
+	if (this->showPerformance)
+	{
+		ImGui::Begin("Performance", NULL, ImVec2(0, 0), -1.0f, ImGuiWindowFlags_AlwaysAutoResize);
+			Ptr<Debug::DebugCounter> drawcalls = Debug::DebugServer::Instance()->GetDebugCounterByName("RenderDeviceNumDrawCalls");
+			Ptr<Debug::DebugCounter> primitives = Debug::DebugServer::Instance()->GetDebugCounterByName("RenderDeviceNumPrimitives");
+			Ptr<Debug::DebugCounter> computes = Debug::DebugServer::Instance()->GetDebugCounterByName("RenderDeviceNumComputes");
+
+			Util::Array<int> drawcallHistory = drawcalls->GetHistory();
+			float drawcallHistoryBuffer[90];
+			IndexT i;
+
+			// convert draw call history to floats and take the last 90
+			IndexT j = 0;
+			for (i = Math::n_max(0, drawcallHistory.Size() - 90); i < drawcallHistory.Size(); i++)
+			{
+				drawcallHistoryBuffer[j++] = drawcallHistory[i];
+			}
+
+			// convert primitive history to floats and take the last 90
+			Util::Array<int> primitivesHistory = primitives->GetHistory();
+			float primitivesHistoryBuffer[90];
+			j = 0;
+			for (i = Math::n_max(0, primitivesHistory.Size() - 90); i < primitivesHistory.Size(); i++)
+			{
+				primitivesHistoryBuffer[j++] = primitivesHistory[i];
+			}
+
+			// convert compute history to floats and take the last 90
+			Util::Array<int> computesHistory = computes->GetHistory();
+			float computesHistoryBuffer[90];
+			j = 0;
+			for (i = Math::n_max(0, computesHistory.Size() - 90); i < computesHistory.Size(); i++)
+			{
+				computesHistoryBuffer[j++] = computesHistory[i];
+			}
+
+			// produce UI
+			ImGui::Text("FPS: %.2f", 1 / FrameSync::FrameSyncTimer::Instance()->GetFrameTime());
+			ImGui::Text("Number of draw calls: %d", drawcallHistory.IsEmpty() ? 0 : drawcallHistory.Back());
+			if (!drawcallHistory.IsEmpty())	ImGui::PlotLines("Draw calls", drawcallHistoryBuffer, Math::n_min(drawcallHistory.Size(), 90), 0, NULL, 0, FLT_MAX, ImVec2(200, 100));
+
+			ImGui::Text("Number of drawn primitives: %d", primitivesHistory.IsEmpty() ? 0 : primitivesHistory.Back());
+			if (!primitivesHistory.IsEmpty()) ImGui::PlotLines("Primitives processed", primitivesHistoryBuffer, Math::n_min(primitivesHistory.Size(), 90), 0, NULL, 0, FLT_MAX, ImVec2(200, 100));
+
+			ImGui::Text("Number of compute shader executions: %d", computesHistory.IsEmpty() ? 0 : computesHistory.Back());
+			if (!computesHistory.IsEmpty()) ImGui::PlotLines("GPU kernels", computesHistoryBuffer, Math::n_min(computesHistory.Size(), 90), 0, NULL, 0, FLT_MAX, ImVec2(200, 100));
+		ImGui::End();
+	}
 	
 	QtRemoteInterfaceAddon::QtRemoteClient::GetClient("cb")->OnFrame();
 	QtRemoteInterfaceAddon::QtRemoteClient::GetClient("viewer")->OnFrame();	
@@ -93,6 +146,10 @@ LevelEditorState::HandleInput()
 	if (keyboard->KeyPressed(Input::Key::Menu))
 	{
 		return;
+	}
+	if (keyboard->KeyDown(Input::Key::F3))
+	{
+		this->showPerformance = !this->showPerformance;
 	}
 
 	bool handled = false;
@@ -152,11 +209,17 @@ LevelEditorState::OnStateEnter( const Util::String& prevState )
 		userProfile->SetFloat4("SelectionColour", Math::float4(1.0f, 0.3f, 0.0f, 0.3f));
 	}
 	LevelEditor2App::Instance()->GetWindow()->SetSelectionColour(userProfile->GetFloat4("SelectionColour"));
+
 	// create console
 	this->console = Dynui::ImguiConsole::Create();
 	this->console->Setup();
 	this->consoleHandler = Dynui::ImguiConsoleHandler::Create();
 	this->consoleHandler->Setup();
+
+	// setup performance buffers
+	this->drawcallBuffer.SetCapacity(90);
+	this->primitivesBuffer.SetCapacity(90);
+	this->computesBuffer.SetCapacity(90);
 }
 
 //------------------------------------------------------------------------------

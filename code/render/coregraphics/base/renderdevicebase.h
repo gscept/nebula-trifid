@@ -209,7 +209,7 @@ protected:
 
     _declare_counter(RenderDeviceNumComputes);
     _declare_counter(RenderDeviceNumPrimitives);
-    _declare_counter(RenderDeviceNumDrawCalls);
+	_declare_counter(RenderDeviceNumDrawCalls);
 };
 
 //------------------------------------------------------------------------------

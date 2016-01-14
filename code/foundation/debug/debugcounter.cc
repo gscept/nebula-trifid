@@ -38,13 +38,14 @@ DebugCounter::~DebugCounter()
 /**
 */
 void
-DebugCounter::Setup(const StringAtom& counterName)
+DebugCounter::Setup(const StringAtom& counterName, const Util::StringAtom& group)
 {
     n_assert(counterName.IsValid());
     n_assert(!this->IsValid());
 
     this->critSect.Enter();
     this->name = counterName;
+	this->group = group;
     this->history.Reset();
     this->value = 0;
     this->critSect.Leave();

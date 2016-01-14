@@ -40,7 +40,7 @@ public:
     void Unerror();
 
     /// toggle focus on or off
-    void SetFocus(bool b);
+    void SetFocus(bool b, bool resort = true);
 
 	/// add graphics to scene
 	void AddToScene(const Ptr<Nody::NodeGraphicsScene>& scene);
@@ -64,6 +64,7 @@ private slots:
     void TriggerSimulate();
 
 private:
+	friend class ShadyNode;
     /// generates graphics based on an ordinary variation
     void GenerateFromVariation();
     /// generates graphics based on a super variation

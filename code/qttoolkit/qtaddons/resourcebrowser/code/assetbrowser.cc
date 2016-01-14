@@ -35,12 +35,18 @@ AssetBrowser::AssetBrowser() :
 	this->shortcut = new QShortcut(QKeySequence(Qt::Key_Backspace), this);
 	connect(this->shortcut, SIGNAL(activated()), this->ui->backButton, SLOT(animateClick()));
 
-	// set window to be modal
-	this->setWindowFlags(Qt::WindowStaysOnTopHint);
-
     connect(this->ui->texturesFilter, SIGNAL(toggled(bool)), this, SLOT(OnTexturesFilterChecked(bool)));
     connect(this->ui->modelsFilter, SIGNAL(toggled(bool)), this, SLOT(OnModelsFilterChecked(bool)));
     connect(this->ui->surfacesFilter, SIGNAL(toggled(bool)), this, SLOT(OnSurfacesFilterChecked(bool)));
+
+	// watch the assets folder
+	IO::URI dir("src:assets");
+	this->assetFolderWatcher.WatchDirectory(dir.LocalPath());
+	connect(&this->assetFolderWatcher, SIGNAL(directoryChanged(const QString&)), this, SLOT(UpdateAssetFolders()));
+	this->UpdateAssetFolders();
+
+	// connect clicking the root folder widget
+	connect(this->ui->rootFolderWidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(OnAssetFolderClicked(QListWidgetItem*)));
 
 	__ConstructSingleton;
 }
@@ -61,7 +67,7 @@ AssetBrowser::~AssetBrowser()
 int
 AssetBrowser::Execute(const QString& title, const AssetFilter& filter)
 {
-	this->setWindowTitle("Texture browser - " + title);
+	this->setWindowTitle("Asset browser - " + title);
 
 	// pause loader
 	AssetBrowser::loaderThread->Pause(false);
@@ -80,8 +86,7 @@ AssetBrowser::Execute(const QString& title, const AssetFilter& filter)
 	this->isExecuting = true;
 
 	// show window
-	this->raise();
-	int result = this->exec();
+	int result = this->Execute();
 
 	// enable filter buttons again
 	this->ui->texturesFilter->setEnabled(true);
@@ -92,6 +97,43 @@ AssetBrowser::Execute(const QString& title, const AssetFilter& filter)
 	this->SetFilter(savedFilter);
 	this->isExecuting = false;
 	return result;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+int
+AssetBrowser::Execute()
+{
+	this->shouldStopExecuting = false;
+	this->executeResult = -1;
+	this->raise();
+	this->show();
+	while (!this->shouldStopExecuting)
+	{
+		QApplication::processEvents();
+	}
+	return executeResult;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+AssetBrowser::Accept()
+{
+	this->executeResult = QDialog::Accepted;
+	this->shouldStopExecuting = true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+AssetBrowser::Reject()
+{
+	this->executeResult = QDialog::Rejected;
+	this->shouldStopExecuting = true;
 }
 
 //------------------------------------------------------------------------------
@@ -112,6 +154,7 @@ AssetBrowser::Open()
 void
 AssetBrowser::Close()
 {
+	this->Reject();
 	AssetBrowser::loaderThread->Stop();
 	delete AssetBrowser::loaderThread;
 }
@@ -120,9 +163,20 @@ AssetBrowser::Close()
 /**
 */
 void
+AssetBrowser::SetWindowModal(QWidget* widget)
+{
+	// set window to be modal
+	this->setParent(widget);
+	this->setWindowFlags(Qt::Tool);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 AssetBrowser::showEvent(QShowEvent* event)
 {
-	QDialog::showEvent(event);
+	QDockWidget::showEvent(event);
 	AssetBrowser::loaderThread->Pause(false);
 	this->ui->assetView->Rearrange();
 }
@@ -133,8 +187,9 @@ AssetBrowser::showEvent(QShowEvent* event)
 void
 AssetBrowser::closeEvent(QCloseEvent* event)
 {
+	this->Reject();
 	AssetBrowser::loaderThread->Pause(true);
-	QDialog::closeEvent(event);
+	QDockWidget::closeEvent(event);
 }
 
 //------------------------------------------------------------------------------
@@ -246,7 +301,7 @@ AssetBrowser::OnTextureClicked(const QString& tex)
 	{
 		AssetBrowser::loaderThread->Pause(true);
 		this->selectedResource = tex;
-		this->accept();
+		this->Accept();
 		this->isExecuting = false;
 	}	
     else
@@ -265,7 +320,7 @@ AssetBrowser::OnModelClicked(const QString& mdl)
 	{
 		AssetBrowser::loaderThread->Pause(true);
 		this->selectedResource = mdl;
-		this->accept();
+		this->Accept();
 		this->isExecuting = false;
 	}
     else
@@ -284,7 +339,7 @@ AssetBrowser::OnSurfaceClicked(const QString& sur)
 	{
 		AssetBrowser::loaderThread->Pause(true);
 		this->selectedResource = sur;
-		this->accept();
+		this->Accept();
 		this->isExecuting = false;
 	}
     else
@@ -351,14 +406,15 @@ AssetBrowser::SetupRoot()
 	this->ui->categoryLabel->setText("Root");
 
 	Ptr<IoServer> ioServer = IoServer::Instance();
-	String assetPath("src:assets");
 
+	// load project assets
+	String assetPath("src:assets");
 	Array<String> dirs = ioServer->ListDirectories(assetPath, "*");
 	IndexT i;
 	for (i = 0; i < dirs.Size(); i++)
 	{
 		const String& dir = dirs[i];
-		String textureDir = assetPath + "/" + dir;
+		String assetDir = assetPath + "/" + dir;
 
 		// create new texture dir
 		TiledDirectoryItem* item = new TiledDirectoryItem;
@@ -378,7 +434,7 @@ AssetBrowser::SetupRoot()
     for (i = 0; i < dirs.Size(); i++)
     {
         const String& dir = dirs[i];
-        String textureDir = assetPath + "/" + dir;
+        String assetDir = assetPath + "/" + dir;
 
         // create new texture dir
         TiledDirectoryItem* item = new TiledDirectoryItem;
@@ -452,5 +508,46 @@ AssetBrowser::RemoveItem(TiledGraphicsItem* item)
 	this->ui->assetView->RemoveTiledItem(item);
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+AssetBrowser::UpdateAssetFolders()
+{
+	// clear items first
+	this->ui->rootFolderWidget->clear();
+
+	Ptr<IoServer> ioServer = IoServer::Instance();
+	QPixmap pix(":/icons/qtaddons/resourcebrowser/ui/folder_512.png");
+	String assetPath("src:assets");
+	Array<String> dirs = ioServer->ListDirectories(assetPath, "*");
+	IndexT i;
+	for (i = 0; i < dirs.Size(); i++)
+	{
+		const String& dir = dirs[i];
+		String assetDir = assetPath + "/" + dir;
+		QListWidgetItem* item = new QListWidgetItem(QIcon(pix), dir.AsCharPtr());
+		this->ui->rootFolderWidget->addItem(item);
+	}
+
+	assetPath = "toolkit:work/assets";
+	dirs = ioServer->ListDirectories(assetPath, "*");
+	for (i = 0; i < dirs.Size(); i++)
+	{
+		const String& dir = dirs[i];
+		String assetDir = assetPath + "/" + dir;
+		QListWidgetItem* item = new QListWidgetItem(QIcon(pix), dir.AsCharPtr());
+		this->ui->rootFolderWidget->addItem(item);
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+AssetBrowser::OnAssetFolderClicked(QListWidgetItem* item)
+{
+	this->OnDirectoryClicked(item->text(), "src:assets");
+}
 
 } // namespace ResourceBrowser

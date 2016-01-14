@@ -32,8 +32,8 @@ Generator::~Generator()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Generator::GenerateToFile( const Ptr<NodeScene>& scene, const IO::URI& path )
+void
+Generator::GenerateToFile(const Ptr<NodeScene>& scene, const IO::URI& path)
 {
     // empty, override in subclass
 }
@@ -50,8 +50,8 @@ Generator::GenerateToBuffer(const Ptr<NodeScene>& scene, Util::Blob& output)
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Generator::Validate( const Util::Blob& buffer )
+void
+Generator::Validate(const Util::Blob& buffer)
 {
     // empty, override in subclass
 }
@@ -59,28 +59,8 @@ Generator::Validate( const Util::Blob& buffer )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Generator::VisitNode( const Ptr<Node>& node )
-{
-    n_assert(node.isvalid());
-    // empty, override in subclass
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-Generator::VisitLink( const Ptr<Link>& link )
-{
-    n_assert(link.isvalid());
-    // empty, override in subclass
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-Generator::RevisitNode( const Ptr<Node>& node )
+void
+Generator::VisitNode(const Ptr<Node>& node)
 {
     n_assert(node.isvalid());
     // empty, override in subclass
@@ -89,8 +69,8 @@ Generator::RevisitNode( const Ptr<Node>& node )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Generator::RevisitLink( const Ptr<Link>& link )
+void
+Generator::VisitLink(const Ptr<Link>& link)
 {
     n_assert(link.isvalid());
     // empty, override in subclass
@@ -99,8 +79,28 @@ Generator::RevisitLink( const Ptr<Link>& link )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Generator::BreadthFirst( const Ptr<Node>& start )
+void
+Generator::RevisitNode(const Ptr<Node>& node)
+{
+    n_assert(node.isvalid());
+    // empty, override in subclass
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+Generator::RevisitLink(const Ptr<Link>& link)
+{
+    n_assert(link.isvalid());
+    // empty, override in subclass
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+Generator::BreadthFirst(const Ptr<Node>& start)
 {
     n_assert(start.isvalid());
     this->BreadthFirstHelper(start);
@@ -109,8 +109,8 @@ Generator::BreadthFirst( const Ptr<Node>& start )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Generator::BreadthFirstHelper( const Ptr<Node>& current )
+void
+Generator::BreadthFirstHelper(const Ptr<Node>& current)
 {
     n_assert(current.isvalid());
     this->VisitNode(current);
@@ -151,8 +151,8 @@ Generator::BreadthFirstHelper( const Ptr<Node>& current )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Generator::DepthFirst( const Ptr<Node>& start )
+void
+Generator::DepthFirst(const Ptr<Node>& start)
 {
     n_assert(start.isvalid());
     this->DepthFirstHelper(start);
@@ -161,8 +161,8 @@ Generator::DepthFirst( const Ptr<Node>& start )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Generator::DepthFirstHelper( const Ptr<Node>& current )
+void
+Generator::DepthFirstHelper(const Ptr<Node>& current)
 {
     n_assert(current.isvalid());
     this->VisitNode(current);
@@ -185,4 +185,49 @@ Generator::DepthFirstHelper( const Ptr<Node>& current )
     // visit node again
     this->RevisitNode(current);
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+Generator::ValidateGraph(const Ptr<Node>& start)
+{
+	n_assert(start.isvalid());
+	Util::Array<Ptr<Node>> visistedNodeList;
+	this->ValidateGraphHelper(start, visistedNodeList);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+Generator::ValidateGraphHelper(const Ptr<Node>& current, Util::Array<Ptr<Node>>& visitedNodes)
+{
+	if (visitedNodes.FindIndex(current) != InvalidIndex)
+	{
+		current->GetGraphics()->Error();
+		errorMessage = "Reentrant node, this is not allowed!";
+		this->error = true;
+		return;
+	}
+	// add to visited nodes on this depth-first traversal
+	visitedNodes.Append(current);
+
+	// visit links
+	const Util::Array<Ptr<Link>>& links = current->GetLinks();
+	IndexT i;
+	for (i = 0; i < links.Size(); i++)
+	{
+		const Ptr<Link>& link = links[i];
+		const Ptr<VariableInstance>& var = link->GetFromVariable();
+		if (var->GetNode() != current)
+		{
+			this->ValidateGraphHelper(var->GetNode(), visitedNodes);
+		}
+	}
+
+	// remove when going back
+	visitedNodes.EraseIndex(visitedNodes.FindIndex(current));
+}
+
 } // namespace Nody

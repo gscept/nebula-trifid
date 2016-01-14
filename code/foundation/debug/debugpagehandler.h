@@ -4,6 +4,8 @@
     @class Debug::DebugPageHandler
     
     Http request handler for the Debug subsystem.
+
+	Renders profiling counters and timers.
     
     (C) 2008 Radon Labs GmbH
     (C) 2013-2015 Individual contributors, see AUTHORS file
@@ -39,9 +41,12 @@ private:
     /// handle HTTP request to render a counter char
     void HandleCounterChartRequest(const Util::String& counterName, const Ptr<Http::HttpRequest>& request);
     /// handle HTTP request to sort table
-    void HandleTableSortRequest(const Util::String& columnName, const Ptr<Http::HttpRequest>& request);
+    void HandleTimerTableSortRequest(const Util::String& columnName, const Util::String& tableName, const Ptr<Http::HttpRequest>& request);
+	/// handle HTTP request to sort table
+	void HandleCounterTableSortRequest(const Util::String& columnName, const Util::String& tableName, const Ptr<Http::HttpRequest>& request);
 
-    Util::String sortByColumn;
+	Util::Dictionary<Util::String, Util::String> timerSortColumns;
+	Util::Dictionary<Util::String, Util::String> counterSortColumns;
 };
 
 } // namespace Debug

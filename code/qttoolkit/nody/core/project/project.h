@@ -19,6 +19,7 @@ namespace Nody
 class Node;
 class Link;
 class NodeScene;
+class VariableInstance;
 class Project : public Core::RefCounted
 {
 	__DeclareClass(Project);
@@ -43,6 +44,17 @@ public:
     virtual void Apply(const Ptr<NodeScene>& scene);
     /// stores all nodes and links in the scene in this project
     virtual void Store(const Ptr<NodeScene>& scene);
+
+	/// request a parameter name, will take the name + number and increase number if it is encountered
+	static Util::String RequestParameterName(const Ptr<VariableInstance>& var, const Util::String& name);
+	/// register a variable name
+	static void DeregisterParameterName(const Ptr<VariableInstance>& var);
+
+	// per project state
+	struct GlobalState
+	{
+		Math::float2 viewCenter;
+	} globalState;
 
 protected:
     friend class ProjectLoader;
@@ -77,13 +89,15 @@ protected:
     Util::Array<LinkState> links;
 
     Util::Dictionary<Ptr<Node>, NodeState> nodeStateMapping;
+
+	static Util::Dictionary<Ptr<VariableInstance>, Util::String> ParameterNames;
 }; 
 
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-Project::SetPath( const IO::URI& path )
+inline void
+Project::SetPath(const IO::URI& path)
 {
     this->path = path;
 }

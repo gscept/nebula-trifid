@@ -27,22 +27,4 @@ NodePixmapItem::~NodePixmapItem()
 	// empty
 }
 
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-NodePixmapItem::SetNodeGraphics( const Ptr<NodeGraphics>& node )
-{
-	n_assert(node.isvalid());
-	this->node = node;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-const Ptr<NodeGraphics>& 
-NodePixmapItem::GetNodeGraphics()
-{
-	return this->node;
-}
 } // namespace Nody

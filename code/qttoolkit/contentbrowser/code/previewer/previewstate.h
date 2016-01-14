@@ -44,24 +44,13 @@ public:
 	bool SetPhysics(const Resources::ResourceId& resource);
 	/// returns the pointer to the physics entity
 	const Ptr<Physics::ManagedPhysicsModel>& GetPhysics() const;
-	/// remove the current model from the previewer
-	void PreImportModel();
-	/// attaches the model back to the previewer
-	void PostImportModel();
-
+	
 	/// sets the surface material on the preview sphere
 	void SetSurface(const Ptr<Materials::SurfaceInstance>& instance);
 	/// discards the current surface preview and sets the placeholder one isntead
 	void DiscardSurface();
 	/// sets whether or not the surface preview should be shown
 	void SetSurfacePreview(bool b);
-
-	/// enables rendering of the physics shape
-	void SetShowPhysics(bool enable);
-	/// enables display of controls
-	void SetShowControls(bool enable);
-	/// enables worklight
-	void SetUseWorklight(bool enable);
 
 	/// saves whatever is in the preview view to file, swapStage will use the rendered stage instead of the surface stage
 	void SaveThumbnail(const Util::String& path, bool swapStage = false);
@@ -72,6 +61,9 @@ public:
 private:
 	/// called whenever the skin list is returned
 	void OnFetchedSkinList(const Ptr<Messaging::Message>& msg);
+
+	/// display as wireframe
+	void SetShowWireframe(bool enable);
 
 	/// handles mouse input
 	void HandleInput();
@@ -92,8 +84,15 @@ private:
 	Ptr<CoreGraphics::RenderTarget> surfaceViewTarget;
 
 	Math::matrix44 lightTransform;
-	bool enablePhysics;
+
+	bool showAO;
+	bool showPhysics;
 	bool showControls;
+	bool showWireframe;
+	bool showSurface;
+	bool showSky;
+	int showPassNumber;
+	Ptr<CoreGraphics::Texture> showPass;
 	bool workLight;
 }; 
 
@@ -114,34 +113,6 @@ PreviewState::GetPhysics() const
 {
 	return this->physicsModel;
 }
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void
-PreviewState::SetShowPhysics(bool enable)
-{
-	this->enablePhysics = enable;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void 
-PreviewState::SetShowControls( bool enable )
-{
-	this->showControls = enable;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void 
-PreviewState::SetUseWorklight( bool enable )
-{
-	this->workLight = enable;
-}
-
 
 //------------------------------------------------------------------------------
 /**

@@ -7,6 +7,7 @@
 #include "variable/variable.h"
 #include "node/node.h"
 #include "link/link.h"
+#include "project/project.h"
 
 namespace Nody
 {
@@ -34,8 +35,8 @@ VariableInstance::~VariableInstance()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-VariableInstance::Setup( const Ptr<Variable>& origVar )
+void
+VariableInstance::Setup(const Ptr<Variable>& origVar)
 {
 	n_assert(origVar.isvalid());
 	n_assert(!this->variable.isvalid());
@@ -51,6 +52,7 @@ VariableInstance::Discard()
 {
 	n_assert(this->variable.isvalid());
 	n_assert(this->node.isvalid());
+	Nody::Project::DeregisterParameterName(this);
 	this->variable = 0;
 	this->node = 0;
 }
@@ -81,8 +83,8 @@ VariableInstance::DestroyGraphics()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-VariableInstance::SetInferredType( const VarType& type )
+void
+VariableInstance::SetInferredType(const VarType& type)
 {
     n_assert(this->GetOriginalVariable()->IsAllowingInference());
 
@@ -115,8 +117,8 @@ VariableInstance::GetGraphics() const
 //------------------------------------------------------------------------------
 /**
 */
-void 
-VariableInstance::SetNode( const Ptr<Node>& node )
+void
+VariableInstance::SetNode(const Ptr<Node>& node)
 {
 	n_assert(node.isvalid());
 	this->node = node;
@@ -134,8 +136,8 @@ VariableInstance::GetNode() const
 //------------------------------------------------------------------------------
 /**
 */
-void 
-VariableInstance::AddOutLink( const Ptr<Link>& link )
+void
+VariableInstance::AddOutLink(const Ptr<Link>& link)
 {
 	n_assert(link.isvalid());
 	if (this->outLinks.IsEmpty()) this->graphics->Lock();
@@ -145,8 +147,8 @@ VariableInstance::AddOutLink( const Ptr<Link>& link )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-VariableInstance::RemoveOutLink( const Ptr<Link>& link )
+void
+VariableInstance::RemoveOutLink(const Ptr<Link>& link)
 {
 	n_assert(link.isvalid());
 	this->outLinks.EraseIndex(this->outLinks.FindIndex(link));
@@ -165,8 +167,8 @@ VariableInstance::HasOutLinks() const
 //------------------------------------------------------------------------------
 /**
 */
-void 
-VariableInstance::SetInLink( const Ptr<Link>& link )
+void
+VariableInstance::SetInLink(const Ptr<Link>& link)
 {
 	n_assert(link.isvalid());
 	this->inLink = link;
@@ -196,8 +198,8 @@ VariableInstance::UnsetInLink()
 //------------------------------------------------------------------------------
 /**
 */
-bool 
-VariableInstance::CanConnect( const Ptr<VariableInstance>& lhs, const Ptr<VariableInstance>& rhs )
+bool
+VariableInstance::CanConnect(const Ptr<VariableInstance>& lhs, const Ptr<VariableInstance>& rhs)
 {
 	n_assert(rhs.isvalid());
 	const Ptr<Variable>& lhsOrig = lhs->GetOriginalVariable();
