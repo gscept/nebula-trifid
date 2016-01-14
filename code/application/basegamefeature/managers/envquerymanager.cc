@@ -270,39 +270,50 @@ EnvQueryManager::OnFrame()
 		{
 			if (lastEntity)
 			{
-				__SendSync(EntityManager::Instance()->GetEntityByUniqueId(lastEntity), this->leaveMessage);
+				Ptr<Game::Entity> entity = EntityManager::Instance()->GetEntityByUniqueId(lastEntity);
+				if (entity.isvalid())
+				{
+					__SendSync(entity, this->leaveMessage);
+				}				
 			}
 			if (this->entityUnderMouse)
 			{
-				__SendSync(EntityManager::Instance()->GetEntityByUniqueId(this->entityUnderMouse), this->enterMessage);
+				Ptr<Game::Entity> entity = EntityManager::Instance()->GetEntityByUniqueId(this->entityUnderMouse);
+				if (entity.isvalid())
+				{
+					__SendSync(entity, this->enterMessage);
+				}				
 			}
 		}		
 		if (this->entityUnderMouse)
 		{
 			Ptr<Game::Entity> entity = EntityManager::Instance()->GetEntityByUniqueId(this->entityUnderMouse);
-			const Ptr<Input::Mouse> mouse = Input::InputServer::Instance()->GetDefaultMouse();
-			Ptr<GraphicsFeature::MouseButtonEvent> msg = GraphicsFeature::MouseButtonEvent::Create();
-			msg->SetButton(Input::MouseButton::LeftButton);
-			if (mouse->ButtonDown(Input::MouseButton::LeftButton))
+			if (entity.isvalid())
 			{
-				msg->SetDown(true);
-				__SendSync(entity, msg);
-			}
-			if (mouse->ButtonUp(Input::MouseButton::LeftButton))
-			{
-				msg->SetDown(false);
-				__SendSync(entity, msg);
-			}
-			msg->SetButton(Input::MouseButton::RightButton);
-			if (mouse->ButtonDown(Input::MouseButton::RightButton))
-			{
-				msg->SetDown(true);
-				__SendSync(entity, msg);
-			}
-			if (mouse->ButtonUp(Input::MouseButton::RightButton))
-			{
-				msg->SetDown(false);
-				__SendSync(entity, msg);
+				const Ptr<Input::Mouse> mouse = Input::InputServer::Instance()->GetDefaultMouse();
+				Ptr<GraphicsFeature::MouseButtonEvent> msg = GraphicsFeature::MouseButtonEvent::Create();
+				msg->SetButton(Input::MouseButton::LeftButton);
+				if (mouse->ButtonDown(Input::MouseButton::LeftButton))
+				{
+					msg->SetDown(true);
+					__SendSync(entity, msg);
+				}
+				if (mouse->ButtonUp(Input::MouseButton::LeftButton))
+				{
+					msg->SetDown(false);
+					__SendSync(entity, msg);
+				}
+				msg->SetButton(Input::MouseButton::RightButton);
+				if (mouse->ButtonDown(Input::MouseButton::RightButton))
+				{
+					msg->SetDown(true);
+					__SendSync(entity, msg);
+				}
+				if (mouse->ButtonUp(Input::MouseButton::RightButton))
+				{
+					msg->SetDown(false);
+					__SendSync(entity, msg);
+				}
 			}
 		}
 	}

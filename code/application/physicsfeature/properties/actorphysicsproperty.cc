@@ -640,7 +640,7 @@ ActorPhysicsProperty::HandleMoveGoto(MoveGoto* msg)
     n_assert(msg);
 	
     // cleanup current movement
-    this->Stop();
+    //this->Stop();
 
     //make a navigation path from current to target position
     this->gotoDest = msg->GetPosition();
@@ -727,7 +727,7 @@ ActorPhysicsProperty::HandleMoveFollow(MoveFollow* msg)
 void
 ActorPhysicsProperty::SkipSegments()
 {
-    
+	
     point curPos = this->GetEntity()->GetMatrix44(Attr::Transform).get_position();
     const Util::Array<point>& gotoSegments = this->gotoPath->GetPoints();
     int numGotoSegments = gotoSegments.Size();
@@ -1042,11 +1042,15 @@ ActorPhysicsProperty::ContinueGoto()
     }
     else if (targetVec.length() > TINY)
     {
+		Ptr<MoveTurn> msg2 = MoveTurn::Create();
+		msg2->SetDirection(targetVec);
+		msg2->SetCameraRelative(false);
+		__SendSync(this->entity, msg2);
         // just continue to go towards current segment position
         Ptr<MoveDirection> msg = MoveDirection::Create();
         msg->SetDirection(targetVec);
-        msg->SetMaxMovement(dist);
-        this->GetEntity()->SendSync(msg.upcast<Messaging::Message>());
+        msg->SetMaxMovement(dist);        
+		__SendSync(this->entity, msg);		
     }
 }
 
@@ -1096,14 +1100,18 @@ ActorPhysicsProperty::ContinueFollow()
                     return;
                 }
 
-                this->gotoPath = Navigation::NavigationServer::Instance()->MakePath(curPos, targetPos);			        
+				// continue moving towards our target entity
+				Ptr<MoveGoto> moveGoto = MoveGoto::Create();
+				moveGoto->SetPosition(targetPos);
+				moveGoto->SetDistance(this->followTargetDist);
+				this->HandleMoveGoto(moveGoto);
                 return;		        
             }
-
-            // continue moving towards our target entity
-            Ptr<MoveGoto> moveGoto = MoveGoto::Create();
-            moveGoto->SetPosition(targetPos);
-            this->HandleMoveGoto(moveGoto);
+			// we have no path, create new one
+			Ptr<MoveGoto> moveGoto = MoveGoto::Create();
+			moveGoto->SetPosition(targetPos);
+			moveGoto->SetDistance(this->followTargetDist);
+			this->HandleMoveGoto(moveGoto);
         }
     }    
 }
