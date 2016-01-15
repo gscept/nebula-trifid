@@ -187,8 +187,7 @@ ShapeRendererBase::AddWireFrameBox(const Math::bbox& boundingBox, const Math::fl
         lineList.Size() / 2,
         &(lineList.Front()),
         color,
-        CoreGraphics::RenderShape::CheckDepth,
-        NULL);
+        CoreGraphics::RenderShape::CheckDepth);
     this->AddShape(shape);    
 }
 
