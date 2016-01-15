@@ -8,6 +8,7 @@
 
 /// Declaring used textures
 sampler2D LightMap;
+float LightMapIntensity = 0.0f;
 
 samplerstate LightmapSampler
 {
@@ -38,7 +39,7 @@ psLightmappedLit(in vec3 ViewSpacePos,
 	vec4 lightMapColor = vec4(((texture(LightMap, UV2.xy) - 0.5f) * 2.0f * LightMapIntensity).rgb, 1);
 	
 	Specular = vec4(specColor.rgb * MatSpecularIntensity.rgb, roughness);
-	Albedo = diffColor;
+	Albedo = diffColor * lightMapColor;
 	Depth = length(ViewSpacePos.xyz);
 	mat3 tangentViewMatrix = mat3(normalize(Tangent.xyz), normalize(Binormal.xyz), normalize(Normal.xyz));        
 	vec3 tNormal = vec3(0,0,0);
@@ -76,7 +77,7 @@ psLightmappedLitVertexColors(in vec3 ViewSpacePos,
 	vec4 lightMapColor = vec4(((texture(LightMap, UV2.xy) - 0.5f) * 2.0f * LightMapIntensity).rgb, 1);
 	
 	Specular = vec4(specColor.rgb * MatSpecularIntensity.rgb, roughness);
-	Albedo = diffColor * Color;
+	Albedo = diffColor * Color * lightMapColor;
 	Depth = length(ViewSpacePos.xyz);
 	mat3 tangentViewMatrix = mat3(normalize(Tangent.xyz), normalize(Binormal.xyz), normalize(Normal.xyz));        
 	vec3 tNormal = vec3(0,0,0);

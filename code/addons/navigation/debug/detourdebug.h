@@ -9,9 +9,10 @@ namespace Navigation
 
 struct DebugDraw : public duDebugDraw
 {
+DebugDraw();
 virtual ~DebugDraw(){}
 
-virtual void depthMask(bool state){}
+virtual void depthMask(bool state);
 
 virtual void texture(bool state){}
 
@@ -46,6 +47,7 @@ virtual void end() ;
 private:
 	duDebugDrawPrimitives current;
 	Util::Array<CoreGraphics::RenderShape::RenderShapeVertex> points;
+	CoreGraphics::RenderShape::RenderFlag flag;
 
 };
 

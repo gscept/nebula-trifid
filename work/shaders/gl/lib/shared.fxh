@@ -86,7 +86,6 @@ shared varblock ObjectBlock [bool System = true;]
 
 vec4 RenderTargetDimensions;	// x and y holds 1 / render target size, z and w holds render target size
 
-float LightMapIntensity = 0.0f;
 float FresnelPower = 0.0f;
 float FresnelStrength = 0.0f;
 

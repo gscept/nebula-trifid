@@ -115,13 +115,13 @@ LevelEditorState::OnFrame()
 			// produce UI
 			ImGui::Text("FPS: %.2f", 1 / FrameSync::FrameSyncTimer::Instance()->GetFrameTime());
 			ImGui::Text("Number of draw calls: %d", drawcallHistory.IsEmpty() ? 0 : drawcallHistory.Back());
-			if (!drawcallHistory.IsEmpty())	ImGui::PlotLines("Draw calls", drawcallHistoryBuffer, Math::n_min(drawcallHistory.Size(), 90), 0, NULL, 0, FLT_MAX, ImVec2(200, 100));
+			if (!drawcallHistory.IsEmpty())	ImGui::PlotLines("Draw calls", drawcallHistoryBuffer, Math::n_min(drawcallHistory.Size(), 90), 0, NULL, 0, 3000, ImVec2(200, 100));
 
 			ImGui::Text("Number of drawn primitives: %d", primitivesHistory.IsEmpty() ? 0 : primitivesHistory.Back());
-			if (!primitivesHistory.IsEmpty()) ImGui::PlotLines("Primitives processed", primitivesHistoryBuffer, Math::n_min(primitivesHistory.Size(), 90), 0, NULL, 0, FLT_MAX, ImVec2(200, 100));
+			if (!primitivesHistory.IsEmpty()) ImGui::PlotLines("Primitives processed", primitivesHistoryBuffer, Math::n_min(primitivesHistory.Size(), 90), 0, NULL, 0, 10e6, ImVec2(200, 100));
 
 			ImGui::Text("Number of compute shader executions: %d", computesHistory.IsEmpty() ? 0 : computesHistory.Back());
-			if (!computesHistory.IsEmpty()) ImGui::PlotLines("GPU kernels", computesHistoryBuffer, Math::n_min(computesHistory.Size(), 90), 0, NULL, 0, FLT_MAX, ImVec2(200, 100));
+			if (!computesHistory.IsEmpty()) ImGui::PlotLines("GPU kernels", computesHistoryBuffer, Math::n_min(computesHistory.Size(), 90), 0, NULL, 0, 10e6, ImVec2(200, 100));
 		ImGui::End();
 	}
 	

@@ -41,9 +41,9 @@ public:
 	/// draw a cone
 	void DrawCone(const Math::matrix44& modelTransform, const Math::float4& color, CoreGraphics::RenderShape::RenderFlag depthFlag = CoreGraphics::RenderShape::CheckDepth);
     /// draw primitives
-    void DrawPrimitives(const Math::matrix44& modelTransform, CoreGraphics::PrimitiveTopology::Code topology, SizeT numPrimitives, const CoreGraphics::RenderShape::RenderShapeVertex* vertices, const Math::float4& color, CoreGraphics::RenderShape::RenderFlag depthFlag = CoreGraphics::RenderShape::CheckDepth, const Ptr<CoreGraphics::VertexLayout>& layout = NULL);
+    void DrawPrimitives(const Math::matrix44& modelTransform, CoreGraphics::PrimitiveTopology::Code topology, SizeT numPrimitives, const CoreGraphics::RenderShape::RenderShapeVertex* vertices, const Math::float4& color, CoreGraphics::RenderShape::RenderFlag depthFlag = CoreGraphics::RenderShape::CheckDepth);
     /// draw indexed primitives
-    void DrawIndexedPrimitives(const Math::matrix44& modelTransform, CoreGraphics::PrimitiveTopology::Code topology, SizeT numPrimitives, const CoreGraphics::RenderShape::RenderShapeVertex* vertices, SizeT numVertices, const void* indices, CoreGraphics::IndexType::Code indexType, const Math::float4& color, CoreGraphics::RenderShape::RenderFlag depthFlag = CoreGraphics::RenderShape::CheckDepth, const Ptr<CoreGraphics::VertexLayout>& layout = NULL);
+    void DrawIndexedPrimitives(const Math::matrix44& modelTransform, CoreGraphics::PrimitiveTopology::Code topology, SizeT numPrimitives, const CoreGraphics::RenderShape::RenderShapeVertex* vertices, SizeT numVertices, const void* indices, CoreGraphics::IndexType::Code indexType, const Math::float4& color, CoreGraphics::RenderShape::RenderFlag depthFlag = CoreGraphics::RenderShape::CheckDepth);
     /// draw nvx2 mesh
     void DrawMesh(const Math::matrix44& modelTransform, const Ptr<CoreGraphics::Mesh>& mesh, const Math::float4& color, CoreGraphics::RenderShape::RenderFlag depthFlag = CoreGraphics::RenderShape::CheckDepth);
     /// call once per frame to send of accumulated draw commands
