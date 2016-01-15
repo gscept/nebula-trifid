@@ -585,6 +585,7 @@ EditorBlueprintManager::SetCategory(const Util::String & category, const Util::A
 	}
 	this->bluePrints.Add(category,newPrint);
 	this->UpdateCategoryAttributes(category);
+	this->CreateMissingTemplates();
 }
 
 //------------------------------------------------------------------------------
