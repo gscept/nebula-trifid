@@ -188,8 +188,7 @@ AbstractLightEntity::OnRenderDebug()
                             12,
                             verts,
                             color,
-                            CoreGraphics::RenderShape::CheckDepth,
-                            NULL);
+                            CoreGraphics::RenderShape::CheckDepth);
         ShapeRenderer::Instance()->AddShape(shape); 
     }
 }
