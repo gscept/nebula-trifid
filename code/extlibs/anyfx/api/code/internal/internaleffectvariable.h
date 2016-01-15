@@ -96,6 +96,7 @@ public:
 protected:
 
     friend class GLSL4EffectVarblock;
+	friend class GLSL4EffectProgram;
 	friend class EffectVariable;
     friend class EffectVarblock;
 	friend class InternalEffectVarblock;
@@ -237,6 +238,7 @@ protected:
     eastl::string signature;
 
 	static unsigned globalTextureCounter;
+	static unsigned globalImageCounter;
     bool bindless;
 	bool hasDefaultValue;
 	char* currentValue;

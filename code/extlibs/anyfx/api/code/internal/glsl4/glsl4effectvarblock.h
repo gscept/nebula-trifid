@@ -26,6 +26,7 @@ public:
 	virtual ~GLSL4EffectVarblock();
 
 protected:
+	friend class GLSL4EffectProgram;
 
 	/// sets up variable block from program
 	void Setup(eastl::vector<InternalEffectProgram*> programs);
@@ -42,7 +43,8 @@ protected:
     /// sets up uniform block offsets
     void SetupUniformOffsets(GLSL4EffectProgram* program, GLuint blockIndex);
 
-	GLuint activeProgram;
+	GLSL4EffectProgram* activeProgram;
+	GLuint activeProgramHandle;
 	GLuint uniformBlockBinding;
 	GLint offsetAlignment;
 

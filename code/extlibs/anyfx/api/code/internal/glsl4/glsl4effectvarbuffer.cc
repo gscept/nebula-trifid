@@ -7,6 +7,7 @@
 #include <assert.h>
 #include "effectvarbuffer.h"
 
+#define a_max(x, y) (x > y ? x : y)
 namespace AnyFX
 {
 
@@ -51,6 +52,10 @@ GLSL4EffectVarbuffer::Setup(eastl::vector<InternalEffectProgram*> programs)
 			glShaderStorageBlockBinding(opengl4Program->programHandle, location, this->shaderStorageBlockBinding);
 			this->active = true;
 		}
+#if GL4_MULTIBIND
+		opengl4Program->glsl4Varbuffers.push_back(this);
+		opengl4Program->varbufferBindsCount = a_max(this->shaderStorageBlockBinding + 1, opengl4Program->varbufferBindsCount);
+#endif
 	}
 }
 
@@ -82,11 +87,16 @@ GLSL4EffectVarbuffer::SetupSlave(eastl::vector<InternalEffectProgram*> programs,
 			glShaderStorageBlockBinding(opengl4Program->programHandle, location, this->shaderStorageBlockBinding);
 			mainBuffer->active = true;
 		}
+#if GL4_MULTIBIND
+		opengl4Program->glsl4Varbuffers.push_back(this);
+		opengl4Program->varbufferBindsCount = a_max(this->shaderStorageBlockBinding + 1, opengl4Program->varbufferBindsCount);
+#endif
 	}
 }
 
 //------------------------------------------------------------------------------
 /**
+	Eh, can we even base bind 
 */
 void
 GLSL4EffectVarbuffer::Commit()
@@ -98,6 +108,11 @@ GLSL4EffectVarbuffer::Commit()
 		{
 			if (buf->bindRange)
 			{
+#if GL4_MULTIBIND
+				this->activeProgram->varbufferRangeBindBuffers[this->shaderStorageBlockBinding] = buf->handle;
+				this->activeProgram->varbufferRangeBindOffsets[this->shaderStorageBlockBinding] = buf->offset;
+				this->activeProgram->varbufferRangeBindSizes[this->shaderStorageBlockBinding] = buf->size;
+#else
 				GLSL4VarbufferRangeState state;
 				state.buffer = buf->handle;
 				state.offset = buf->offset;
@@ -110,9 +125,15 @@ GLSL4EffectVarbuffer::Commit()
 					GLSL4VarbufferRangeStates[binding] = state;
 					glBindBufferRange(GL_SHADER_STORAGE_BUFFER, binding, state.buffer, state.offset, state.length);
 				}
+#endif
 			}
 			else
 			{
+#if GL4_MULTIBIND
+				this->activeProgram->varbufferRangeBindBuffers[this->shaderStorageBlockBinding] = buf->handle;
+				this->activeProgram->varbufferRangeBindOffsets[this->shaderStorageBlockBinding] = 0;
+				this->activeProgram->varbufferRangeBindSizes[this->shaderStorageBlockBinding] = buf->size;
+#else
 				GLSL4VarbufferBaseState state;
 				state.buffer = buf->handle;
 				GLuint binding = this->shaderStorageBlockBinding;
@@ -121,6 +142,7 @@ GLSL4EffectVarbuffer::Commit()
 					GLSL4VarbufferBaseStates[binding] = state;
 					glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding, state.buffer);
 				}
+#endif
 			}
 		}
 	}
@@ -134,7 +156,8 @@ GLSL4EffectVarbuffer::Activate(InternalEffectProgram* program)
 {
 	GLSL4EffectProgram* opengl4Program = dynamic_cast<GLSL4EffectProgram*>(program);
 	assert(0 != opengl4Program);
-	this->activeProgram = opengl4Program->programHandle;
+	this->activeProgram = opengl4Program;
+	this->activeProgramHandle = opengl4Program->programHandle;
 	this->currentLocation = this->activeMap[opengl4Program];
 }
 

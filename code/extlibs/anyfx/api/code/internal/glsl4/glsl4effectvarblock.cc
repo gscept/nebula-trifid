@@ -17,7 +17,7 @@ unsigned InternalEffectVarblock::globalVarblockCounter = 0;
 /**
 */
 GLSL4EffectVarblock::GLSL4EffectVarblock() :
-	activeProgram(-1),
+	activeProgramHandle(-1),
     uniformOffsets(NULL),
 	uniformBlockBinding(GL_INVALID_INDEX)
 {
@@ -77,6 +77,10 @@ GLSL4EffectVarblock::Setup(eastl::vector<InternalEffectProgram*> programs)
             // make active
             this->active = true;
 		}
+#if GL4_MULTIBIND
+		opengl4Program->glsl4Varblocks.push_back(this);
+		opengl4Program->varblockBindsCount = a_max(this->uniformBlockBinding + 1, opengl4Program->varblockBindsCount);
+#endif
 	}
 
     delete [] names;
@@ -120,6 +124,7 @@ GLSL4EffectVarblock::SetupSlave(eastl::vector<InternalEffectProgram*> programs, 
 		{
 			// now tell the program in which binding slot this buffer should be 
 			//glUniformBlockBinding(opengl4Program->programHandle, location, this->uniformBlockBinding);
+			// hmm, this will set the block binding to the same thing each time, but it should be identical for this entire program...
 			glGetActiveUniformBlockiv(opengl4Program->programHandle, location, GL_UNIFORM_BLOCK_BINDING, (GLint*)&this->uniformBlockBinding);
             glGetActiveUniformBlockiv(opengl4Program->programHandle, location, GL_UNIFORM_BLOCK_DATA_SIZE, (GLint*)&mainBlock->size);
 
@@ -129,6 +134,10 @@ GLSL4EffectVarblock::SetupSlave(eastl::vector<InternalEffectProgram*> programs, 
             // make active
             mainBlock->active = true;
 		}
+#if GL4_MULTIBIND
+		opengl4Program->glsl4Varblocks.push_back(this);
+		opengl4Program->varblockBindsCount = a_max(this->uniformBlockBinding + 1, opengl4Program->varblockBindsCount);
+#endif
 	}
 	this->uniformOffsets = mainBlock->uniformOffsets;
 	glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &this->offsetAlignment);
@@ -178,6 +187,11 @@ GLSL4EffectVarblock::Commit()
         {
             if (buf->bindRange)
             {
+#ifdef GL4_MULTIBIND
+				this->activeProgram->varblockRangeBindBuffers[this->uniformBlockBinding] = buf->handle;
+				this->activeProgram->varblockRangeBindOffsets[this->uniformBlockBinding] = buf->offset;
+				this->activeProgram->varblockRangeBindSizes[this->uniformBlockBinding] = buf->size;
+#else
                 GLSL4VarblockRangeState state;
                 state.buffer = buf->handle;
                 state.offset = buf->offset;
@@ -188,9 +202,15 @@ GLSL4EffectVarblock::Commit()
 					GLSL4VarblockRangeStates[this->uniformBlockBinding] = state;
 					glBindBufferRange(GL_UNIFORM_BUFFER, this->uniformBlockBinding, state.buffer, state.offset, state.length);
                 }
+#endif
             }
             else
             {
+#ifdef GL4_MULTIBIND
+				this->activeProgram->varblockRangeBindBuffers[this->uniformBlockBinding] = buf->handle;
+				this->activeProgram->varblockRangeBindOffsets[this->uniformBlockBinding] = 0;
+				this->activeProgram->varblockRangeBindSizes[this->uniformBlockBinding] = buf->size;
+#else
                 GLSL4VarblockBaseState state;
                 state.buffer = buf->handle;
 				if (GLSL4VarblockBaseStates[this->uniformBlockBinding] != state)
@@ -198,6 +218,7 @@ GLSL4EffectVarblock::Commit()
 					GLSL4VarblockBaseStates[this->uniformBlockBinding] = state;
 					glBindBufferBase(GL_UNIFORM_BUFFER, this->uniformBlockBinding, state.buffer);
                 }
+#endif
             }
         }
 	}
@@ -211,7 +232,8 @@ GLSL4EffectVarblock::Activate(InternalEffectProgram* program)
 {
 	GLSL4EffectProgram* opengl4Program = dynamic_cast<GLSL4EffectProgram*>(program);
 	assert(0 != opengl4Program);
-	this->activeProgram = opengl4Program->programHandle;
+	this->activeProgram = opengl4Program;
+	this->activeProgramHandle = opengl4Program->programHandle;
 	this->currentLocation = this->activeMap[opengl4Program];
 }
 

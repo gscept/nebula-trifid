@@ -21,6 +21,7 @@
 namespace AnyFX
 {
 unsigned InternalEffectVariable::globalTextureCounter = 0;
+unsigned InternalEffectVariable::globalImageCounter = 0;
 //------------------------------------------------------------------------------
 /**
 */

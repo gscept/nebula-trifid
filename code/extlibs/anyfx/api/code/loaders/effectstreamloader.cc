@@ -66,6 +66,7 @@ EffectStreamLoader::Load()
 		// reset global texture counters
 		// reset the global texture counter for texture units, and global uniform block counter for buffer units
 		InternalEffectVariable::globalTextureCounter = 0;
+		InternalEffectVariable::globalImageCounter = 0;
 		InternalEffectVarblock::globalVarblockCounter = 0;
 		InternalEffectVarbuffer::globalVarbufferCounter = 0;
 
@@ -290,6 +291,7 @@ EffectStreamLoader::Load()
 		}
 
 		// everything went smooth, so return effect
+		effect->LoadingDone();
 		return effect;
 	}
 	else

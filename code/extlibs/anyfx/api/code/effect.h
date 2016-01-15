@@ -143,6 +143,8 @@ private:
 	/// constructor, private since it should be created by the effect factory
 	Effect();
 
+	/// callback when effect is done loading
+	void LoadingDone();
 	/// cleans up effect
 	void Discard();
 
@@ -179,7 +181,7 @@ private:
     eastl::map<eastl::string, EffectSampler*> samplersByName;
 
 	// integer used to hold pointer to context object, if any exists
-	unsigned contextHandle;
+	void* contextHandle;
 	EffectType type;
 	int major;
 	int minor;

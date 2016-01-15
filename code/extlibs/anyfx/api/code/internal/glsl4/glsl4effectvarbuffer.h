@@ -28,13 +28,15 @@ public:
 	void SetupSlave(eastl::vector<InternalEffectProgram*> programs, InternalEffectVarbuffer* master);
 
 protected:
+	friend class GLSL4EffectProgram;
 
 	/// updates variable block
 	void Commit();
 	/// activates varblock uniform location
 	void Activate(InternalEffectProgram* program);
 
-	GLuint activeProgram;
+	GLSL4EffectProgram* activeProgram;
+	GLuint activeProgramHandle;
 	GLuint shaderStorageBlockBinding;
 	GLuint shaderStorageBlockLocation;
 	GLint offsetAlignment;
