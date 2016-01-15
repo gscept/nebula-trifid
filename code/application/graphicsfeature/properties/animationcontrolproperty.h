@@ -9,6 +9,7 @@
     (C) 2013-2015 Individual contributors, see AUTHORS file
 */
 #include "game/property.h"
+#include "physics/physicsobject.h"
 
 //------------------------------------------------------------------------------
 namespace GraphicsFeature
@@ -25,7 +26,10 @@ public:
     virtual void SetupAcceptedMessages();
     /// handle a single message
     virtual void HandleMessage(const Ptr<Messaging::Message>& msg);
-
+	/// called from Entity::ActivateProperties()
+	virtual void OnActivate();
+	/// called from Entity::DeactivateProperties()
+	virtual void OnDeactivate();
 private:
     /// start walk
     void Walk(const Ptr<Messaging::Message>& msg);
@@ -44,6 +48,7 @@ private:
 	bool walking;
 	bool strafing;
 	bool death;
+	Ptr<Physics::PhysicsObject> physObj;
 };
 __RegisterClass(AnimationControlProperty);
 
