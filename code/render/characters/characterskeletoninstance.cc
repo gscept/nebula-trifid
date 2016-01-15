@@ -275,8 +275,7 @@ CharacterSkeletonInstance::RenderDebug(const matrix44& modelTransform)
 			scaledSkeleton.Size() / 2,
 			&(scaledSkeleton.Front()),
 			float4(1.0f, 0.0f, 0.0f, 0.6f),
-            CoreGraphics::RenderShape::CheckDepth,
-            NULL);
+            CoreGraphics::RenderShape::CheckDepth);
 
 		ShapeRenderer::Instance()->AddShape(shape);
     }

@@ -11,6 +11,7 @@
 #include "lib/defaultsamplers.fxh"
 
 sampler2D DepthBuffer;
+float LightMapIntensity;
 
 // samplers
 samplerstate ParticleSampler

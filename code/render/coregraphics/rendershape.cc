@@ -71,7 +71,7 @@ RenderShape::SetupSimpleShape(ThreadId threadId_, Type shapeType_, RenderFlag de
 /**
 */
 void
-RenderShape::SetupPrimitives(ThreadId threadId_, const Math::matrix44& modelTransform_, PrimitiveTopology::Code topology_, SizeT numPrimitives_, const RenderShape::RenderShapeVertex* vertices_, const Math::float4& color_, RenderFlag depthFlag_, const Ptr<VertexLayout>& layout_)
+RenderShape::SetupPrimitives(ThreadId threadId_, const Math::matrix44& modelTransform_, PrimitiveTopology::Code topology_, SizeT numPrimitives_, const RenderShape::RenderShapeVertex* vertices_, const Math::float4& color_, RenderFlag depthFlag_)
 {
     n_assert(!this->IsValid());
     
@@ -84,7 +84,6 @@ RenderShape::SetupPrimitives(ThreadId threadId_, const Math::matrix44& modelTran
     this->vertexWidth      = sizeof(RenderShape::RenderShapeVertex);
     this->color            = color_;
     this->vertexDataOffset = 0;
-    this->vertexLayout     = layout_;
 
     // setup a memory stream and copy the vertex data
     SizeT numVertices = PrimitiveTopology::NumberOfVertices(this->topology, this->numPrimitives);
@@ -101,7 +100,7 @@ RenderShape::SetupPrimitives(ThreadId threadId_, const Math::matrix44& modelTran
 /**
 */
 void
-RenderShape::SetupIndexedPrimitives(ThreadId threadId_, const Math::matrix44& modelTransform_, PrimitiveTopology::Code topology_, SizeT numPrimitives_, const RenderShape::RenderShapeVertex* vertices_, SizeT numVertices_, const void* indices_, IndexType::Code indexType_, const Math::float4& color_, RenderFlag depthFlag_, const Ptr<VertexLayout>& layout_)
+RenderShape::SetupIndexedPrimitives(ThreadId threadId_, const Math::matrix44& modelTransform_, PrimitiveTopology::Code topology_, SizeT numPrimitives_, const RenderShape::RenderShapeVertex* vertices_, SizeT numVertices_, const void* indices_, IndexType::Code indexType_, const Math::float4& color_, RenderFlag depthFlag_)
 {
     n_assert(!this->IsValid());
 
@@ -115,7 +114,6 @@ RenderShape::SetupIndexedPrimitives(ThreadId threadId_, const Math::matrix44& mo
     this->numVertices    = numVertices_;
     this->indexType      = indexType_;
     this->color          = color_;
-    this->vertexLayout   = layout_;
 
     // compute index buffer and vertex buffer sizes
     SizeT numIndices = PrimitiveTopology::NumberOfVertices(topology, numPrimitives);

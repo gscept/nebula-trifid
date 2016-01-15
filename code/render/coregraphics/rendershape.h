@@ -79,8 +79,7 @@ public:
             SizeT numPrimitives, 
             const RenderShape::RenderShapeVertex* vertices,
             const Math::float4& color, 
-            RenderFlag depthFlag, 
-            const Ptr<VertexLayout>& layout);
+            RenderFlag depthFlag);
 
     /// setup indexed primitive batch (SLOW!)
     void SetupIndexedPrimitives(Threading::ThreadId threadId, 
@@ -92,8 +91,7 @@ public:
         const void* indices, 
         IndexType::Code indexType, 
         const Math::float4& color, 
-        RenderFlag depthFlag, 
-        const Ptr<VertexLayout>& layout);
+        RenderFlag depthFlag);
 
 	/// setup mesh
 	void SetupMesh(Threading::ThreadId threadId, const Math::matrix44& modelTransform, const Ptr<Mesh>& mesh, const Math::float4& color, RenderFlag depthFlag);

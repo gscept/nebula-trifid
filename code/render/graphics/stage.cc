@@ -337,8 +337,7 @@ Stage::OnRenderDebug()
                 lines.Size() / 2,
                 &(lines.Front()),
                 point(1,1,0),
-                CoreGraphics::RenderShape::CheckDepth,
-                NULL);
+                CoreGraphics::RenderShape::CheckDepth);
             ShapeRenderer::Instance()->AddShape(shape); 
         }
     }

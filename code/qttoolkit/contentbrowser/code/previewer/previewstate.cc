@@ -321,6 +321,7 @@ PreviewState::OnStateEnter(const Util::String& prevState)
 	// make sure ImGui doesn't steal input focus
 	ImGuiIO& io = ImGui::GetIO();
 	io.WantCaptureMouse = false;
+	io.WantCaptureKeyboard = false;
 }
 
 //------------------------------------------------------------------------------

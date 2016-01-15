@@ -892,8 +892,7 @@ AnimSequencer::DebugRenderLineList(const Array<RenderShape::RenderShapeVertex>& 
                           vertices.Size() / 2,
                           &(vertices[0]),
                           color, 
-						  CoreGraphics::RenderShape::CheckDepth,
-                          NULL);
+						  CoreGraphics::RenderShape::CheckDepth);
     CoreGraphics::ShapeRenderer::Instance()->AddShape(shape);
 }
 

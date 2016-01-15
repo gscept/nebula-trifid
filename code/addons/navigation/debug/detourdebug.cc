@@ -92,17 +92,17 @@ DebugDraw::end()
 	{
 		case DU_DRAW_POINTS:
 		{		
-			Debug::DebugShapeRenderer::Instance()->DrawPrimitives(Math::matrix44::identity(), CoreGraphics::PrimitiveTopology::PointList, points.Size(), points.Begin(), float4(1), this->flag, NULL);
+			Debug::DebugShapeRenderer::Instance()->DrawPrimitives(Math::matrix44::identity(), CoreGraphics::PrimitiveTopology::PointList, points.Size(), points.Begin(), float4(1), this->flag);
 		}
 		break;
 		case DU_DRAW_LINES:
 		{			
-			Debug::DebugShapeRenderer::Instance()->DrawPrimitives(Math::matrix44::identity(), CoreGraphics::PrimitiveTopology::LineList, points.Size() / 2, points.Begin(), float4(1), this->flag, NULL);
+			Debug::DebugShapeRenderer::Instance()->DrawPrimitives(Math::matrix44::identity(), CoreGraphics::PrimitiveTopology::LineList, points.Size() / 2, points.Begin(), float4(1), this->flag);
 		}
 		break;
 		case DU_DRAW_TRIS:
 		{
-			Debug::DebugShapeRenderer::Instance()->DrawPrimitives(Math::matrix44::identity(), CoreGraphics::PrimitiveTopology::TriangleList, points.Size() / 3, points.Begin(), float4(1), this->flag, NULL);
+			Debug::DebugShapeRenderer::Instance()->DrawPrimitives(Math::matrix44::identity(), CoreGraphics::PrimitiveTopology::TriangleList, points.Size() / 3, points.Begin(), float4(1), this->flag);
 		}
 		break;
 		case DU_DRAW_QUADS:

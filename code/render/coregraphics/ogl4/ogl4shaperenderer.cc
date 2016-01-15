@@ -211,7 +211,6 @@ OGL4ShapeRenderer::DrawShapes()
 									 curShape.GetNumPrimitives(),
 									 curShape.GetVertexData(),
 									 curShape.GetVertexWidth(),
-									 curShape.GetVertexLayout(),
 									 curShape.GetColor());
 			else if (curShape.GetShapeType() == RenderShape::IndexedPrimitives)
 				this->DrawIndexedPrimitives(curShape.GetModelTransform(),
@@ -220,7 +219,6 @@ OGL4ShapeRenderer::DrawShapes()
 											curShape.GetVertexData(),
 											curShape.GetNumVertices(),
 											curShape.GetVertexWidth(),
-											curShape.GetVertexLayout(),
 											curShape.GetIndexData(),
 											curShape.GetIndexType(),
 											curShape.GetColor());
@@ -327,7 +325,6 @@ OGL4ShapeRenderer::DrawPrimitives(const matrix44& modelTransform,
                                   SizeT numPrimitives,
                                   const void* vertices,
                                   SizeT vertexWidth,
-                                  const Ptr<VertexLayout>& layout,
                                   const Math::float4& color)
 {
     n_assert(0 != vertices);
@@ -387,7 +384,6 @@ OGL4ShapeRenderer::DrawIndexedPrimitives(const matrix44& modelTransform,
                                          const void* vertices,
                                          SizeT numVertices,
                                          SizeT vertexWidth,
-                                         const Ptr<VertexLayout>& layout,
                                          const void* indices,
                                          IndexType::Code indexType,
                                          const float4& color)

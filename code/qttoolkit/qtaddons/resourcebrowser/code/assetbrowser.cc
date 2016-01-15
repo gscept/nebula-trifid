@@ -528,6 +528,7 @@ AssetBrowser::UpdateAssetFolders()
 		String assetDir = assetPath + "/" + dir;
 		QListWidgetItem* item = new QListWidgetItem(QIcon(pix), dir.AsCharPtr());
 		this->ui->rootFolderWidget->addItem(item);
+		item->setData(Qt::UserRole, QVariant("src:assets"));
 	}
 
 	assetPath = "toolkit:work/assets";
@@ -538,6 +539,7 @@ AssetBrowser::UpdateAssetFolders()
 		String assetDir = assetPath + "/" + dir;
 		QListWidgetItem* item = new QListWidgetItem(QIcon(pix), dir.AsCharPtr());
 		this->ui->rootFolderWidget->addItem(item);
+		item->setData(Qt::UserRole, QVariant("toolkit:work/assets"));
 	}
 }
 
@@ -547,7 +549,7 @@ AssetBrowser::UpdateAssetFolders()
 void
 AssetBrowser::OnAssetFolderClicked(QListWidgetItem* item)
 {
-	this->OnDirectoryClicked(item->text(), "src:assets");
+	this->OnDirectoryClicked(item->text(), item->data(Qt::UserRole).toString());
 }
 
 } // namespace ResourceBrowser
