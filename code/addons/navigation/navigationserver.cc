@@ -140,7 +140,8 @@ NavigationServer::RenderDebug(const Util::String& guid)
         if(current && current->getMaxTiles())
 	    {
 		    DebugDraw dd;
-		    duDebugDrawNavMesh(&dd,*(current),0);
+			duDebugDrawNavMeshWithClosedList(&dd, *(current), *(this->queries[guid]), DU_DRAWNAVMESH_OFFMESHCONS | DU_DRAWNAVMESH_CLOSEDLIST);
+			duDebugDrawNavMeshPolysWithFlags(&dd, *(current), 0xffff, duRGBA(0, 0, 0, 128));					    
 	    }
     }
 }
