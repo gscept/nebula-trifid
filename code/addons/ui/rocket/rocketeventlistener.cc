@@ -31,7 +31,7 @@ RocketEventListener::RocketEventListener(const Rocket::Core::String & val)
 	// split string into parts
 	Array<String> parts = script.Tokenize(".");
 	n_assert(parts.Size() == 2);
-	this->layoutId = parts[0];
+	
 	this->eventName = parts[1];
 	String params = parts[1];
 	int leftparenthesis = params.FindCharIndex('(');
@@ -60,6 +60,18 @@ RocketEventListener::~RocketEventListener()
 void
 RocketEventListener::ProcessEvent(Rocket::Core::Event& event)
 {
+	if (!this->layoutId.IsValid())
+	{
+		Rocket::Core::ElementDocument * doc = this->element->GetOwnerDocument();
+		if (doc->HasAttribute("_ParentClass"))
+		{
+			RocketLayout * layout = (RocketLayout *)doc->GetAttribute<void*>("_ParentClass", NULL);
+			if (layout)
+			{
+				this->layoutId = layout->GetLayoutId();
+			}
+		}
+	}
 	// check for sound event
 	if (event.GetType() == "click")
 	{
@@ -137,6 +149,15 @@ RocketEventListener::ProcessEvent(Rocket::Core::Event& event)
 	// translate to UIEvent and add event to server
 	UI::UiEvent ev(this->layoutId, this->eventName, functionSignature, UI::UiEvent::ValueChanged);
     UI::UiFeatureUnit::Instance()->ProcessEvent(ev);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+RocketEventListener::OnAttach(Rocket::Core::Element* element)
+{
+	this->element = element;		
 }
 
 }
