@@ -1,4 +1,5 @@
 levelsLoaded = false
+layoutsloaded = false
 
 function _filllevels()
 	if not levelsLoaded then
@@ -9,5 +10,16 @@ function _filllevels()
 			addelement("_levellist","levellist","dummy","button",levels[i],commandstring)
 		end
 	levelsLoaded = true
+	end
+end;
+function _filllayouts()
+	if not layoutsloaded then
+		layouts = getlayouts()
+		size = table.getn(layouts)
+		for i=1,size do
+			commandstring = "scr.togglelayout('" .. layouts[i] .. "')"
+			addelement("_layoutlist","levellist","dummy","button","Toggle " .. layouts[i],commandstring)			
+		end
+	layoutsloaded = true
 	end
 end;

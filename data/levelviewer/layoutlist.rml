@@ -1,0 +1,26 @@
+<rml>
+<head>
+	<link type="text/css" href="levellist.rcss"/>
+	<title>Window</title>
+	<style>
+		body
+		{
+			width: 400px;
+			height: 400px;
+
+			margin: auto;
+		}
+	</style>
+</head>
+<body class="window" onshow="scr._filllayouts">
+<div id="header">
+Select Layout
+</div>
+<div class="_levelbuttons" id="levellist" style="display:block;">				
+		
+</div>
+<div class="_levelbuttons"  style="display:block;">				
+		<button class="button" id="menu" onclick="scr.hidelayout(__layout)">Close Menu</button>
+</div>
+</body>
+</rml>

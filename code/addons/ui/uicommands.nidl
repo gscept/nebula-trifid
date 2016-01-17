@@ -45,7 +45,15 @@
          layout->Show();
          ]]>
     </Code>
-    </Command>    
+    </Command>
+    <Command name="ToggleLayout" fourcc="TOLA" desc="Toggles a layout">
+      <InArg name="identifier" type="string"/>
+      <Code>
+        <![CDATA[
+         UI::UiFeatureUnit::Instance()->GetLayout(identifier)->Toggle();         
+         ]]>
+      </Code>
+    </Command>
     <Command name="HideLayout" fourcc="HDLA" desc="Hides a layout">
 		<InArg name="identifier" type="string"/>		
     <Code>
@@ -128,6 +136,14 @@
 				
 		     Ptr<UI::UiElement> but = el->AddElement(elementtype, elementtype, dic).cast<UI::UiElement>();
 		     but->SetText(text);		     
+        ]]>
+      </Code>
+    </Command>
+    <Command name="GetLayouts" fourcc="getl" desc="Retrieve available layouts">      
+      <OutArg name="layouts" type="stringArray"/>
+      <Code>
+        <![CDATA[
+          return UI::UiServer::Instance()->GetLayouts();
         ]]>
       </Code>
     </Command>

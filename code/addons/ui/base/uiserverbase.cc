@@ -238,4 +238,15 @@ UiServerBase::LoadFont(const Util::String& resource)
 	n_error("not implemented");
 }
 
+
+//------------------------------------------------------------------------------
+/**
+*/
+Util::Array<Util::String>
+UiServerBase::GetLayouts()
+{
+	return this->layouts.KeysAsArray();
+}
+
+
 } // namespace UI

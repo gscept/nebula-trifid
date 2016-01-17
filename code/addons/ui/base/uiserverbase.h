@@ -60,7 +60,8 @@ public:
     const Ptr<UI::UiLayout>& GetLayoutById(const Util::String& layoutId);
 	/// layout is loaded
 	bool HasLayout(const Util::String& layoutId) const;
-
+	/// get loaded layouts
+	Util::Array<Util::String> GetLayouts();
 	/// free a layout
 	void FreeLayout(const Util::String& layoutId);
 	/// resize context

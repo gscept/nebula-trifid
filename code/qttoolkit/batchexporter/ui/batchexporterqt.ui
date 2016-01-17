@@ -338,6 +338,8 @@
    </attribute>
    <addaction name="actionContentbrowser"/>
    <addaction name="actionLeveleditor"/>
+   <addaction name="actionSetToolkitDirectory"/>
+   <addaction name="actionSetWorkDir"/>
   </widget>
   <action name="actionAbout">
    <property name="text">
@@ -353,6 +355,10 @@
    </property>
   </action>
   <action name="actionSetWorkDir">
+   <property name="icon">
+    <iconset resource="../../qttools/ui/qttoolkit.qrc">
+     <normaloff>:/BlackIcons/icons/black/png/home_icon_48.png</normaloff>:/BlackIcons/icons/black/png/home_icon_48.png</iconset>
+   </property>
    <property name="text">
     <string>Set working directory</string>
    </property>
@@ -363,13 +369,17 @@
    </property>
   </action>
   <action name="actionSetToolkitDirectory">
+   <property name="icon">
+    <iconset resource="../../qttools/ui/qttoolkit.qrc">
+     <normaloff>:/BlackIcons/icons/black/png/wrench_plus_2_icon_48.png</normaloff>:/BlackIcons/icons/black/png/wrench_plus_2_icon_48.png</iconset>
+   </property>
    <property name="text">
     <string>Set Toolkit directory</string>
    </property>
   </action>
   <action name="actionContentbrowser">
    <property name="icon">
-    <iconset>
+    <iconset resource="../../resources.qrc">
      <normaloff>:/icons/icons/Contentbrowser.png</normaloff>:/icons/icons/Contentbrowser.png</iconset>
    </property>
    <property name="text">
@@ -381,7 +391,7 @@
   </action>
   <action name="actionLeveleditor">
    <property name="icon">
-    <iconset>
+    <iconset resource="../../resources.qrc">
      <normaloff>:/icons/icons/Leveleditor.png</normaloff>:/icons/icons/Leveleditor.png</iconset>
    </property>
    <property name="text">
@@ -393,8 +403,8 @@
   </action>
  </widget>
  <resources>
-   <include location="../../qttools/ui/qttoolkit.qrc"/>
-   <include location="../../resources.qrc"/>
+  <include location="../../qttools/ui/qttoolkit.qrc"/>
+  <include location="../../resources.qrc"/>
  </resources>
  <connections/>
 </ui>

@@ -58,7 +58,7 @@ public:
 	/// set visibility of layout
 	void SetLayoutVisible(const Util::String & layoutid, bool visible);
 	/// layout is loaded
-	bool HasLayout(const Util::String& layoutId) const;
+	bool HasLayout(const Util::String& layoutId) const;	
 	/// Set the application specific gui logic
 	void SetUIEventHandler(const Ptr<UiEventHandler>& handler);
     /// process event

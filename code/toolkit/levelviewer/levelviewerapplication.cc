@@ -184,6 +184,7 @@ LevelViewerGameStateApplication::SetupGameFeatures()
 	this->consoleHandler->Setup();
 
 	this->uiFeature->CreateLayout("_levellist", "bin:../../data/levelviewer/levellist.rml");
+	this->uiFeature->CreateLayout("_layoutlist", "bin:../../data/levelviewer/layoutlist.rml");
 	Util::String script = "bin:../../data/levelviewer/levellist.lua";
 	if (IO::IoServer::Instance()->FileExists(script))
 	{

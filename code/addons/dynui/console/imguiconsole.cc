@@ -6,6 +6,8 @@
 #include "imguiconsole.h"
 #include "imgui/imgui.h"
 #include "input/key.h"
+#include "input/inputserver.h"
+#include "input/keyboard.h"
 
 using namespace Input;
 namespace Dynui
@@ -71,7 +73,10 @@ void
 ImguiConsole::Render()
 {
 	ImGuiIO& io = ImGui::GetIO();
-	if (io.KeysDownDuration[Key::F9] == 0.0f) this->visible = !this->visible;
+	if (Input::InputServer::Instance()->GetDefaultKeyboard()->KeyDown(Input::Key::F9))
+	{
+		this->visible = !this->visible;
+	}	
 	if (!this->visible) return;
 	
 	ImGui::Begin("Nebula T Console", NULL, ImVec2(300, 300), -1.0f, ImGuiWindowFlags_NoScrollbar);

@@ -161,6 +161,10 @@ LevelViewerGameState::HandleInput()
 	{
 		UI::UiFeatureUnit::Instance()->GetLayout("_levellist")->Toggle();
 	}
+	if (kbd->KeyDown(Input::Key::F11))
+	{
+		UI::UiFeatureUnit::Instance()->GetLayout("_layoutlist")->Toggle();
+	}
 }
 
 //------------------------------------------------------------------------------
