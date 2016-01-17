@@ -390,6 +390,7 @@ ActorPhysicsProperty::HandleMessage(const Ptr<Messaging::Message>& msg)
 	else if (msg->CheckId(GetPhysicsObject::Id))
 	{
 		((PhysicsFeature::GetPhysicsObject*)msg.get())->SetObject(this->GetPhysicsEntity().upcast<Physics::PhysicsObject>());
+		msg->SetHandled(true);
 	}
 	else if (msg->CheckId(MoveSetVelocity::Id))
 	{

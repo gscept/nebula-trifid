@@ -159,7 +159,8 @@ PhysicsProperty::HandleMessage(const Ptr<Messaging::Message>& msg)
 		}
 		if (msg->CheckId(GetPhysicsObject::Id))
 		{			
-			msg.cast<GetPhysicsObject>()->SetObject(this->GetPhysicsBody().cast<PhysicsObject>());			
+			msg.cast<GetPhysicsObject>()->SetObject(this->GetPhysicsBody().cast<PhysicsObject>());		
+			msg->SetHandled(true);
 		}
 		else if (msg->CheckId(ApplyImpulseAtPos::Id))
 		{

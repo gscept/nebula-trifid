@@ -76,9 +76,9 @@ UiServerBase::CreateLayout(const String& layoutId, const ResourceId& resId)
     if(this->layouts.FindIndex(layoutId) == InvalidIndex)
     {			
         Ptr<UiLayout> layout = UiLayout::Create();
+		this->layouts.Add(layoutId, layout);
         layout->Setup(layoutId, resId);
         layout->Load();
-        this->layouts.Add(layoutId, layout);
         return layout;
     }
     else

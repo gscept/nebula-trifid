@@ -38,15 +38,15 @@ public:
     /// default constructor
     UiEvent();
     /// constructor
-    UiEvent(const Util::String& layout, const Util::String& eventName, const Util::String & eventScript, uint actions);
+    UiEvent(const Util::StringAtom& layout, const Util::String& eventName, const Util::String & eventScript, uint actions);
     /// equality operator (NOTE: "any match" is true for action bits)
     bool operator==(const UiEvent& rhs) const;
     /// inequality operator (NOTE: "no match" on action bits!)
     bool operator!=(const UiEvent& rhs) const;
     /// setup the event
-	void Setup(const Util::String& layout, const Util::String& eventName, const Util::String & eventScript, uint actions);
+	void Setup(const Util::StringAtom& layout, const Util::String& eventName, const Util::String & eventScript, uint actions);
     /// get layout id
-    const Util::String& GetLayout() const;
+	const Util::StringAtom& GetLayout() const;
     /// get element id
     const Util::String& GetEventName() const;
 	/// get script to execute
@@ -55,7 +55,7 @@ public:
     uint GetActions() const;
 
 private:
-    Util::String layout;
+    Util::StringAtom layout;
     Util::String eventName;
 	Util::String eventScript;
     uint actions;
@@ -76,7 +76,7 @@ UiEvent::UiEvent() :
 /**
 */
 inline
-UiEvent::UiEvent(const Util::String& lid, const Util::String& eid, const Util::String & es, uint actns) :
+UiEvent::UiEvent(const Util::StringAtom& lid, const Util::String& eid, const Util::String & es, uint actns) :
     layout(lid),
     eventName(eid),
 	eventScript(es),
@@ -108,7 +108,7 @@ UiEvent::operator!=(const UiEvent& rhs) const
 //------------------------------------------------------------------------------
 /**
 */
-inline const Util::String&
+inline const Util::StringAtom&
 UiEvent::GetLayout() const
 {
     return this->layout;
@@ -118,7 +118,7 @@ UiEvent::GetLayout() const
 /**
 */
 inline void
-UiEvent::Setup(const Util::String& lid, const Util::String& eid, const Util::String & es, uint actns)
+UiEvent::Setup(const Util::StringAtom& lid, const Util::String& eid, const Util::String & es, uint actns)
 {
     this->layout = lid;
     this->eventName = eid;

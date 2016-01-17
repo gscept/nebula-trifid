@@ -41,13 +41,17 @@ public:
 	// handle all user input; called @ LevelEditorState::OnFrame()
 	void HandleInput();
 
+	//
+	void LoadLevel(const Util::String &level, bool applyTransform = false);
+	//
+	void ReloadLevel(bool keepTransform);
+
 private:
 	
 	Math::matrix44 focusTransform;
 	Util::String lastLevel;
 	bool applyTransform;
-	bool entitiesLoaded;
-	
+	bool entitiesLoaded;	
 }; 
 } // namespace Tools
 //------------------------------------------------------------------------------

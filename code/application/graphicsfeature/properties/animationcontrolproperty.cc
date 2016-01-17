@@ -10,6 +10,7 @@
 #include "basegamefeature/basegameprotocol.h"
 #include "graphicsfeature/graphicsattr/graphicsattributes.h"
 #include "animation/animjobenqueuemode.h"
+#include "physicsfeature/physicsprotocol.h"
 
 namespace GraphicsFeature
 {
@@ -85,7 +86,16 @@ void
 AnimationControlProperty::Walk(const Ptr<Messaging::Message>& msg)
 {
 	bool wasStrafing = this->strafing;	
-	Math::vector forward = this->entity->GetMatrix44(Attr::Transform).get_zaxis();
+	Math::vector forward;
+	if (this->physObj.isvalid())
+	{
+		forward = this->physObj->GetTransform().get_zaxis();
+	}
+	else
+	{
+		forward = this->entity->GetMatrix44(Attr::Transform).get_zaxis();
+	}
+	
 	Ptr<MoveDirection> md = msg.cast<MoveDirection>();
 	Math::vector dir = md->GetDirection();
 	// convert camera relative vector into absolute vector if necessary
@@ -243,6 +253,31 @@ AnimationControlProperty::Use()
 		useAnim = GetEntity()->GetString(Attr::StartAnimation);
 	}
     AnimUtil::QueueAnimation(this->entity,useAnim,MovementTrackIndex + 1,1.0f,200,200,AnimJobEnqueueMode::Intercept);					
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+AnimationControlProperty::OnActivate()
+{
+	Game::Property::OnActivate();
+	Ptr<PhysicsFeature::GetPhysicsObject> msg = PhysicsFeature::GetPhysicsObject::Create();
+	__SendSync(this->entity, msg);
+	if (msg->Handled())
+	{
+		this->physObj = msg->GetObject();
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+AnimationControlProperty::OnDeactivate()
+{
+	this->physObj = 0;
+	Game::Property::OnDeactivate();
 }
 
 } // namespace GraphicsFeature

@@ -18,6 +18,7 @@
 #include "dynui/console/imguiconsole.h"
 #include "dynui/console/imguiconsolehandler.h"
 #include "levelviewerfactorymanager.h"
+#include "gamestates/viewergamestate.h"
 
 //------------------------------------------------------------------------------
 /**
@@ -40,6 +41,9 @@ public:
 	virtual bool Open();
 	/// close application
 	virtual void Close();
+	
+	///
+	Ptr<Tools::LevelViewerGameState> & GetViewerState();
 
 private:
 
@@ -60,6 +64,8 @@ private:
 	Ptr<EffectsFeature::EffectsFeatureUnit> effectFeature;
 	Ptr<UI::UiFeatureUnit> uiFeature;
 	Ptr<PostEffect::PostEffectFeatureUnit> postEffectFeature;
+
+	Ptr<Tools::LevelViewerGameState> viewerState;
 
 	Ptr<Dynui::ImguiAddon> imgui;	
 	Ptr<Dynui::ImguiConsole> console;
