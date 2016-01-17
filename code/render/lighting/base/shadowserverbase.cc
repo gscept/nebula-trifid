@@ -70,6 +70,7 @@ ShadowServerBase::BeginFrame(const Ptr<CameraEntity>& camEntity)
     n_assert(!this->inBeginFrame);
     n_assert(!this->inBeginAttach);
     n_assert(this->spotLightEntities.IsEmpty());
+	n_assert(this->pointLightEntities.IsEmpty());
     n_assert(!this->globalLightEntity.isvalid());
     n_assert(!this->cameraEntity.isvalid());
     n_assert(camEntity.isvalid());
@@ -87,6 +88,7 @@ ShadowServerBase::EndFrame()
     n_assert(!this->inBeginAttach);
     this->inBeginFrame = false;
     this->spotLightEntities.Clear();
+	this->pointLightEntities.Clear();
     this->globalLightEntity = 0;
     this->cameraEntity = 0;
 }
@@ -100,6 +102,7 @@ ShadowServerBase::BeginAttachVisibleLights()
     n_assert(this->inBeginFrame);
     n_assert(!this->inBeginAttach);
     n_assert(this->spotLightEntities.IsEmpty());
+	n_assert(this->pointLightEntities.IsEmpty());
     n_assert(!this->globalLightEntity.isvalid());
     this->inBeginAttach = true;
     this->globalLightEntity = 0;

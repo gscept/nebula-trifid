@@ -18,6 +18,7 @@
 #include "annotable.h"
 namespace AnyFX
 {
+class AutoRef;
 class InternalEffectVarbuffer;
 class EffectVarbuffer : public Annotable
 {
@@ -38,23 +39,11 @@ public:
 	/// returns true if variable has any use whatsoever in the underlying structure
 	const bool IsActive() const;
 
+	/// get buffer handle
+	void* GetHandle() const;
+
     /// set buffer, must be an implementation specific
 	void SetBuffer(void* handle);
-
-	struct OpenGLBufferBinding
-	{
-		int handle;
-		unsigned offset;
-		unsigned size;
-		bool bindRange;
-
-		OpenGLBufferBinding() : bindRange(false), offset(0), size(0) {};
-	};
-
-	struct DirectXBufferBinding
-	{
-		void* handle;
-	};
 
 private:
     friend class EffectVarbufferStreamLoader;

@@ -26,14 +26,16 @@ public:
 	virtual ~GLSL4EffectVarblock();
 
 protected:
+	friend class GLSL4EffectProgram;
 
 	/// sets up variable block from program
 	void Setup(eastl::vector<InternalEffectProgram*> programs);
 	/// sets up varblock from programs using a pre-existing variable block
 	void SetupSlave(eastl::vector<InternalEffectProgram*> programs, InternalEffectVarblock* master);
 
-	/// binds varblock
-	void Apply();
+	/// set buffer 
+	void SetBuffer(void* handle);
+
 	/// updates variable block
 	void Commit();
 	/// activates varblock uniform location
@@ -42,7 +44,8 @@ protected:
     /// sets up uniform block offsets
     void SetupUniformOffsets(GLSL4EffectProgram* program, GLuint blockIndex);
 
-	GLuint activeProgram;
+	GLSL4EffectProgram* activeProgram;
+	GLuint activeProgramHandle;
 	GLuint uniformBlockBinding;
 	GLint offsetAlignment;
 
@@ -52,6 +55,16 @@ protected:
 	GLint currentLocation;
 	eastl::hash_map<GLSL4EffectProgram*, GLint> activeMap;
 	eastl::vector<GLboolean>* ringLocks;
+
+	struct OpenGLBufferBinding
+	{
+		int handle;
+		unsigned offset;
+		unsigned size;
+		bool bindRange;
+
+		OpenGLBufferBinding() : bindRange(false), offset(0), size(0), handle(0) {};		
+	};
 }; 
 
 struct GLSL4VarblockRangeState

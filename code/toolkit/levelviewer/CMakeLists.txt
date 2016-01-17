@@ -19,8 +19,11 @@ SOURCE_GROUP("Precompiled" FILES ${PCH_files})
 
 LIST(APPEND ALLSRCS ${SRCSBASE} ${SRCSGAMESTATES} ${PCH_files} levelviewer.rc)
 
+N_WRAP_ADD_NIDL_FILES(ALLSRCS nidl/levelviewercommands.nidl)
+
 ADD_EXECUTABLE(levelviewer ${ALLSRCS})
 SET_TARGET_PROPERTIES(levelviewer PROPERTIES FOLDER "N3SDK/Toolkit")
+TARGET_INCLUDE_DIRECTORIES(levelviewer PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
 N_SET_COMPILER_DEFAULTS()
 N_SET_EXE_LINKER_DEFAULTS(levelviewer)
@@ -32,9 +35,11 @@ ADD_DEPENDENCIES(levelviewer
 	application
 	remoteinterface
 	dynui
+	ui
 	)
 TARGET_LINK_LIBRARIES(levelviewer 	
 	remoteinterface
 	application	
 	dynui
+	ui
 )

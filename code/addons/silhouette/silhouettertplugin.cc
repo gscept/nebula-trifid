@@ -92,7 +92,11 @@ SilhouetteRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
 			// set shading 
 			shaderServer->ResetFeatureBits();
 			if (variationIndex == 0)		shaderServer->SetFeatureBits(this->prepassVariation);
-			else if (variationIndex == 1)	shaderServer->SetFeatureBits(this->outlineVariation);			
+			else if (variationIndex == 1)	shaderServer->SetFeatureBits(this->outlineVariation);	
+
+			// start pass
+			this->shader->SelectActiveVariation(shaderServer->GetFeatureBits());
+			this->shader->Apply();
 
 			IndexT modelIndex;
 			for (modelIndex = 0; modelIndex < this->models.Size(); modelIndex++)
@@ -119,10 +123,6 @@ SilhouetteRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
 						{
 							// apply shared state, which means mesh and feature bits
 							nodeInstance->GetModelNode()->ApplySharedState(-1);
-
-							// start pass
-							this->shader->SelectActiveVariation(shaderServer->GetFeatureBits());
-                            this->shader->Apply();
 
 							// apply node
                             nodeInstance->ApplyState(frameIndex, Frame::BatchGroup::InvalidBatchGroup, this->shader);

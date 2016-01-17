@@ -97,6 +97,15 @@ EffectProgram::GetError() const
 //------------------------------------------------------------------------------
 /**
 */
+void
+EffectProgram::LoadingDone()
+{
+	this->internalProgram->LoadingDone();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 const bool 
 EffectProgram::SupportsTessellation() const
 {

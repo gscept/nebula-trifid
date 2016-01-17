@@ -96,6 +96,7 @@ public:
 protected:
 
     friend class GLSL4EffectVarblock;
+	friend class GLSL4EffectProgram;
 	friend class EffectVariable;
     friend class EffectVarblock;
 	friend class InternalEffectVarblock;
@@ -211,7 +212,7 @@ protected:
     /// set matrix indexed, override in back-end implementation
     void SetMatrixIndexed(const float* mat, unsigned index);
     /// set texture indexed, override in back-end implementation
-    void SetTextureIndexed(void* handle, unsigned index);
+	void SetTextureIndexed(void* handle, unsigned index);
 
 	InternalEffectVarblock* parentBlock;
 	InternalEffectProgram* activeProgram;
@@ -237,6 +238,7 @@ protected:
     eastl::string signature;
 
 	static unsigned globalTextureCounter;
+	static unsigned globalImageCounter;
     bool bindless;
 	bool hasDefaultValue;
 	char* currentValue;

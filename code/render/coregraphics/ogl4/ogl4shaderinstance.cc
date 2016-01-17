@@ -92,8 +92,6 @@ OGL4ShaderInstance::Setup(const Ptr<CoreGraphics::Shader>& origShader)
                 Util::String name = binding.name.c_str();
 				uniformBuffer->UpdateArray(binding.value, binding.offset, binding.size, 1);
 				this->uniformVariableBinds.Add(name, VariableBufferBinding(DeferredVariableToBufferBind{ binding.offset, binding.size, binding.arraySize }, uniformBuffer));
-                //const Ptr<ShaderVariableInstance>& var = this->variableInstancesByName[binding.name.c_str()];
-                //var->BindToUniformBuffer(uniformBuffer, binding.offset, binding.size, binding.value);
             }
 			uniformBuffer->EndUpdateSync();
 
@@ -139,6 +137,10 @@ OGL4ShaderInstance::Cleanup()
     }
     this->uniformBuffers.Clear();
     this->uniformBuffersByName.Clear();
+	for (i = 0; i < this->blockToBufferBindings.Size(); i++)
+	{
+		this->blockToBufferBindings[i].Key()->SetBufferHandle(NULL);
+	}
     this->blockToBufferBindings.Clear();
 }
 

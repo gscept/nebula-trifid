@@ -41,23 +41,22 @@ vsMain(in vec3 position,
 
 //------------------------------------------------------------------------------
 /**
-	Performs a 2x2 kernel downscale
+	Performs a 2x2 kernel downscale, will only render 1 pixel
 */
 shader
 void
 psMain(vec2 UV,
 	[color0] out vec4 result)
 {
-
 	vec2 pixelSize = GetPixelSize(ColorSource);
 	
 	// source should be a 512x512 texture, so we sample the 8'th mip of the texture
-	vec4 sample1 = textureLod(ColorSource, UV + vec2(1.0f, 0.0f) * pixelSize, 8);
-	vec4 sample2 = textureLod(ColorSource, UV + vec2(0.0f, 1.0f) * pixelSize, 8);
-	vec4 sample3 = textureLod(ColorSource, UV + vec2(1.0f, 1.0f) * pixelSize, 8);
-	vec4 sample4 = textureLod(ColorSource, UV + vec2(0.0f, 0.0f) * pixelSize, 8);
+	vec4 sample1 = texelFetch(ColorSource, ivec2(1, 0), 8);
+	vec4 sample2 = texelFetch(ColorSource, ivec2(0, 1), 8);
+	vec4 sample3 = texelFetch(ColorSource, ivec2(1, 1), 8);
+	vec4 sample4 = texelFetch(ColorSource, ivec2(0, 0), 8);
 	vec4 currentLum = (sample1 + sample2 + sample3 + sample4) * 0.25f;
-	vec4 lastLum = textureLod(PreviousLum, vec2(0.5f, 0.5f), 0);
+	vec4 lastLum = texelFetch(PreviousLum, ivec2(0, 0), 0);
 	
 /*	float	sigma = 0.04/(0.04 + Clum.x);
 	float	tau = sigma*0.4 + (1.0 - sigma)*0.1;

@@ -857,7 +857,16 @@ EditorBlueprintManager::CreateCategoryTables( const Ptr<Db::Database> & staticDb
     categoryDataset->AddAllTableColumns();
     categoryValues = categoryDataset->Values();
 
-    IndexT size = this->categoryFlags.Size();
+	IndexT size = this->categoryFlags.Size();
+
+	{
+		// create level entry
+		IndexT row = categoryValues->AddRow();
+		categoryValues->SetString(Attr::CategoryName, row, "Levels");
+		categoryValues->SetBool(Attr::IsVirtualCategory, row, true);
+		categoryValues->SetBool(Attr::IsSpecialCategory, row, false);		
+		categoryValues->SetString(Attr::CategoryTemplateTable, row, "_Template_Levels");
+	}
 
     for(IndexT i = 0 ; i < size; i++)
     {

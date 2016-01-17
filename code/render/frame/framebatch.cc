@@ -178,6 +178,10 @@ FrameBatch::RenderBatch(IndexT frameIndex)
                 const Ptr<Surface>& surface = surfaces[surfaceIndex];
                 const Ptr<Shader>& shader = material->GetShaderByBatchGroup(this->batchGroup);
 
+				// get models based on material
+				const Array<Ptr<Model>>& models = visResolver->GetVisibleModels(surface->GetSurfaceCode());
+				if (models.IsEmpty()) continue;
+
                 // set the this shader to be the main active shader
                 shaderServer->SetActiveShader(shader);
 
@@ -194,9 +198,6 @@ FrameBatch::RenderBatch(IndexT frameIndex)
 
                 // select variations based on the feature bits found in the material
                 // shaderInst->SetWireframe(renderDevice->GetRenderWireframe());
-
-                // get models based on material
-                const Array<Ptr<Model>>& models = visResolver->GetVisibleModels(surface->GetSurfaceCode());
 
                 IndexT modelIndex;
                 for (modelIndex = 0; modelIndex < models.Size(); modelIndex++)

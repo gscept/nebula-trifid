@@ -10,6 +10,7 @@
 */
 //------------------------------------------------------------------------------
 #include <assert.h>
+
 namespace AnyFX
 {
 class AutoRef
@@ -24,7 +25,6 @@ public:
     void Retain();
     /// decrease reference
     void Release();
-
 private:
     int refcount;
 }; 
@@ -69,5 +69,6 @@ AutoRef::Release()
         delete this;
     }
 }
+
 } // namespace Internal
 //------------------------------------------------------------------------------

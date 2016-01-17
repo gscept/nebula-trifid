@@ -91,6 +91,15 @@ EffectVarblock::GetVariables() const
 //------------------------------------------------------------------------------
 /**
 */
+void*
+EffectVarblock::GetHandle() const
+{
+	return *this->internalVarblock->bufferHandle;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 void
 EffectVarblock::SetBuffer(void* handle)
 {

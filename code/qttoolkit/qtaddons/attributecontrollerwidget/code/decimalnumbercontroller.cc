@@ -36,8 +36,8 @@ DecimalNumberController::DecimalNumberController(QWidget* parent, const Ptr<Game
 	entity->SendSync(msg.cast<Messaging::Message>());
 	this->ui->doubleSpinBox->setValue((double)msg->GetAttr().GetFloat());
 
-	connect(this->ui->minSpinBox, SIGNAL(valueChanged(double)), this, SLOT(UpdateSlider()));
-	connect(this->ui->maxSpinBox, SIGNAL(valueChanged(double)), this, SLOT(UpdateSlider()));
+	connect(this->ui->minSpinBox, SIGNAL(editingFinished()), this, SLOT(UpdateSlider()));
+	connect(this->ui->maxSpinBox, SIGNAL(editingFinished()), this, SLOT(UpdateSlider()));
 	connect(this->ui->horizontalSlider, SIGNAL(valueChanged(int)), this, SLOT(OnSliderChanged(int)));
 
 	this->ui->minSpinBox->setValue((double)msg->GetAttr().GetFloat() - 1.0f);

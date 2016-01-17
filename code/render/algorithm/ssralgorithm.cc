@@ -71,6 +71,7 @@ SSRAlgorithm::Setup()
 void
 SSRAlgorithm::Discard()
 {
+	AlgorithmBase::Discard();
 	this->ssrShader = 0;
 	this->depthBuffer = 0;
 	this->colorBuffer = 0;

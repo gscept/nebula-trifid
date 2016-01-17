@@ -19,6 +19,8 @@
 namespace AnyFX
 {
 
+class AutoRef;
+typedef void Handle;
 struct OpenGLBufferBinding
 {
     int handle;
@@ -45,7 +47,7 @@ struct VarblockVariableBinding
 
 struct OpenGLTextureBinding
 {
-    bool bindless;
+	bool bindless;
     struct BoundTexture
     {
         int textureType;
@@ -340,7 +342,7 @@ public:
     eastl::vector<VarblockVariableBinding> GetVariables() const;
 
     /// set buffer, must be an implementation specific
-    void SetBuffer(void* handle);
+	void SetBuffer(void* handle);
 };
 
 class EffectVarbuffer : public Annotable
@@ -422,7 +424,7 @@ public:
 	/// set matrix array
 	void SetMatrixArray(const float* mat, size_t count);
 	/// set texture, handle can be any integer type, such as a DirectX ShaderResourceView pointer or OpenGL integer handle
-	void SetTexture(void* handle);	
+	void SetTexture(void* handle);
 	/// set texture handle, using bindless textures, must be an object of implementation type, i.e. OpenGLTextureHandle
 	void SetTextureHandle(void* handle);
 };

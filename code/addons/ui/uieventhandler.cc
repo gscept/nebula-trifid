@@ -40,9 +40,16 @@ UiEventHandler::HandleEvent(const UiEvent& e)
 	if (ScriptServer::HasInstance())
 	{
 		ScriptServer* scriptServer = ScriptServer::Instance();
-		const Util::String& layoutId = e.GetLayout();
+		const Util::StringAtom& layoutId = e.GetLayout();
 		const Util::String& event = e.GetEventName();
-
+		if (layoutId.IsValid())
+		{
+			ScriptServer::Instance()->Eval("__layout = \"" + layoutId.AsString() + "\"");
+		}
+		else
+		{
+			ScriptServer::Instance()->Eval("__layout = nil");
+		}
 		ScriptServer::Instance()->Eval(e.GetEventScript());
 		if (ScriptServer::Instance()->HasError())
 		{

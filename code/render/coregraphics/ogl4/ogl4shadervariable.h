@@ -63,7 +63,7 @@ public:
     /// set texture value
     void SetTexture(const Ptr<CoreGraphics::Texture>& value);
 	/// sets buffer handle
-	void SetBufferHandle(void* handle);
+	void SetBufferHandle(AnyFX::Handle* handle);
 
 	/// cleanup
 	void Cleanup();

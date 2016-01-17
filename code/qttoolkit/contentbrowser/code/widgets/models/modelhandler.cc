@@ -115,6 +115,10 @@ ModelHandler::Setup()
 	this->ui->frame->setDisabled(false);
 	this->ui->modelName->setText((this->category + "/" + this->file).AsCharPtr());
 
+	this->ui->saveButton->setEnabled(true);
+	this->ui->saveAsButton->setEnabled(true);
+	this->ui->reimportButton->setEnabled(true);
+
 	// call base class
 	BaseHandler::Setup();	
 
@@ -153,6 +157,8 @@ ModelHandler::Setup()
 		return;
     }
 
+	// reset saved state
+	this->ui->saveButton->setStyleSheet("background-color: rgb(4, 200, 0); color: white");
 	this->SetupTabs();
 
 	// connect reload buttons to actions
@@ -390,6 +396,9 @@ ModelHandler::OnModelModified(bool structureChange)
 	// apply action
 	this->action->DoAndMakeCurrent();
 
+	// mark save button
+	this->ui->saveButton->setStyleSheet("background-color: rgb(200, 4, 0); color: white");
+
 	// finally push action to stack
 	ContentBrowserApp::Instance()->PushAction(this->action.upcast<BaseAction>());
 }
@@ -559,6 +568,9 @@ ModelHandler::Save()
 	Ptr<PreviewState> previewState = ContentBrowserApp::Instance()->GetPreviewState();
 	previewState->SaveThumbnail(thumbnail, true);
 
+	// mark save button
+	this->ui->saveButton->setStyleSheet("background-color: rgb(4, 200, 0); color: white");
+
 	// update thumbnail
 	this->UpdateModelThumbnail();
 }
@@ -684,6 +696,9 @@ ModelHandler::SaveAs()
 		Ptr<PreviewState> previewState = ContentBrowserApp::Instance()->GetPreviewState();
 		previewState->SaveThumbnail(thumbnail, true);
 
+		// mark save button
+		this->ui->saveButton->setStyleSheet("background-color: rgb(4, 200, 0); color: white");
+
 		// update thumbnail
 		this->UpdateModelThumbnail();
 	}	
@@ -772,7 +787,7 @@ ModelHandler::SetupTabs()
 		ModelNodeFrame* nodeFrame = new ModelNodeFrame;
 		nodeFrame->SetModelHandler(this);
 		this->nodeFrames.Append(nodeFrame);
-		nodeWidget->addTab(nodeFrame, "Nodes");
+		nodeWidget->addTab(nodeFrame, "Meshes");
 
 		// iterate over shapes and add them to the model node frame
 		IndexT i;
@@ -814,7 +829,7 @@ ModelHandler::SetupTabs()
 		ModelNodeFrame* nodeFrame = new ModelNodeFrame;
 		nodeFrame->SetModelHandler(this);
 		this->nodeFrames.Append(nodeFrame);
-		nodeWidget->addTab(nodeFrame, "Nodes");
+		nodeWidget->addTab(nodeFrame, "Meshes");
 
 		// iterate over shapes and add them to the model node frame
 		IndexT i;

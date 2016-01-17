@@ -51,7 +51,8 @@ private:
 	/// disables tone mapping
 	void Disable();
 
-	RenderUtil::DrawFullScreenQuad quad;
+	RenderUtil::DrawFullScreenQuad downscaleQuad;
+	RenderUtil::DrawFullScreenQuad averageLumQuad;
 	Ptr<CoreGraphics::Shader> averageLum;
 	Ptr<CoreGraphics::Shader> downscale;
 	Ptr<CoreGraphics::Shader> copy;

@@ -119,7 +119,7 @@ protected:
     /// sets up texture selection button and line edit based on resource
     void SetupTextureSlotHelper(QLineEdit* textureField, QPushButton* textureButton, Util::String& resource, const Util::String& defaultResource);
     /// setup material variables and textures
-    void MakeMaterialUI(QLabel* surfaceName, QComboBox* materialBox, QPushButton* materialHelp);
+    void MakeMaterialUI(QComboBox* materialBox, QPushButton* materialHelp);
 
     /// get material variables which are textures
     Util::Array<Materials::Material::MaterialParameter> GetTextures(const Ptr<Materials::Material>& mat);
@@ -136,6 +136,8 @@ private:
 	int OpenSaveDialog();	
 	/// helper function to reset the UI
 	void ResetUI();
+	/// handle modifications
+	void OnModified();
 
 	/// update thumbnail
 	void UpdateThumbnail();

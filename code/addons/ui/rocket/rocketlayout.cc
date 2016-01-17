@@ -51,6 +51,7 @@ RocketLayout::Load()
 	// load layout
 	this->layout = context->LoadDocument(uri.GetHostAndLocalPath().AsCharPtr());
 	n_assert(this->layout);	
+	this->layout->SetAttribute<void*>("_ParentClass", (void*)this);
 
 	this->resState = Resource::Loaded;
 }

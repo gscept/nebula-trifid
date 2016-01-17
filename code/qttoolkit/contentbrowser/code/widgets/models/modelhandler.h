@@ -122,8 +122,8 @@ private:
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-ModelHandler::SetUI( Ui::ModelInfoWidget* ui )
+inline void
+ModelHandler::SetUI(Ui::ModelInfoWidget* ui)
 {
 	n_assert(ui);
 	this->ui = ui;
@@ -141,8 +141,8 @@ ModelHandler::GetUI() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-ModelHandler::SetModelResource( const Util::String& model )
+inline void
+ModelHandler::SetModelResource(const Util::String& model)
 {
 	n_assert(model.IsValid());
 	this->file = model;

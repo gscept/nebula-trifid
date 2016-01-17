@@ -176,6 +176,8 @@ ParticleSystemNodeInstance::Discard()
     // discard material clone
 	//this->surfaceClone->Unload();
 	this->particleShader = 0;
+	this->particleObjectBufferVar->SetBufferHandle(NULL);
+	this->particleObjectBufferVar = 0;
 	this->particleObjectBuffer->Discard();
 	this->emitterOrientationVar = 0;
 	this->billBoardVar = 0;
@@ -183,7 +185,6 @@ ParticleSystemNodeInstance::Discard()
 	this->bboxSizeVar = 0;
 	this->animPhasesVar = 0;
 	this->animsPerSecVar = 0;
-	this->particleObjectBufferVar = 0;
     this->depthBuffer = 0;
 
     // discard our particle system instance

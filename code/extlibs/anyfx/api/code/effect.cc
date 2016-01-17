@@ -490,5 +490,19 @@ Effect::Discard()
 	this->samplersByName.clear();
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+Effect::LoadingDone()
+{
+	unsigned i;
+
+	// delete programs
+	for (i = 0; i < this->numPrograms; i++)
+	{
+		this->programsByIndex[i]->LoadingDone();
+	}
+}
 
 } // namespace AnyFX

@@ -145,11 +145,6 @@ LevelLoader::Load(const Util::String& levelName, const Util::Array<Util::String>
 */
 Util::Array<Util::String> LevelLoader::GetLayers(const Util::String& levelName)
 {
-    // update progress bar window
-    BaseGameFeature::LoaderServer* loaderServer = BaseGameFeature::LoaderServer::Instance();
-    loaderServer->SetProgressText("Query Database...");
-    loaderServer->UpdateProgressDisplay();
-
     // query level instance attributes from database
     Ptr<Db::Reader> dbReader = Db::Reader::Create();
     dbReader->SetDatabase(Db::DbServer::Instance()->GetGameDatabase());
@@ -172,6 +167,22 @@ Util::Array<Util::String> LevelLoader::GetLayers(const Util::String& levelName)
 
     // get the active layers from the level
     return dbReader->GetString(Attr::_Layers).Tokenize(";");
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+Util::Array<Util::String>
+LevelLoader::GetLevels()
+{
+	const BaseGameFeature::CategoryManager::Category & cat = CategoryManager::Instance()->GetCategoryByName("Levels");
+	const Ptr<Db::ValueTable> vals = cat.GetTemplateDataset()->Values();
+	Util::Array<Util::String> levels;
+	for (int i = 0; i < vals->GetNumRows(); i++)
+	{
+		levels.Append(vals->GetString(Attr::Id, i));
+	}	
+	return levels;
 }
 
 }; // namespace BaseGameFeature

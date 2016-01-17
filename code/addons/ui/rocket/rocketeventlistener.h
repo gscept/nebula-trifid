@@ -11,6 +11,7 @@
 #include <Rocket/Core.h>
 #include <Rocket/Core/EventListener.h>
 #include "util/string.h"
+#include "util/stringatom.h"
 namespace LibRocket
 {
 class RocketEventListener : public Rocket::Core::EventListener
@@ -21,10 +22,14 @@ public:
 	/// destructor
 	virtual ~RocketEventListener();
 
+	///
+	virtual void OnAttach(Rocket::Core::Element* element);
+	
 	/// Process the incoming Event
 	virtual void ProcessEvent(Rocket::Core::Event& event);
 protected:
-	Util::String layoutId;
+	Rocket::Core::Element* element;
+	Util::StringAtom layoutId;
 	Util::String eventName;
 	Util::String eventParameter;
 };

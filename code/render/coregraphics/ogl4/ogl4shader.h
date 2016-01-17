@@ -51,9 +51,7 @@ private:
 
 	AnyFX::Effect* ogl4Effect;
     Ptr<CoreGraphics::ConstantBuffer> globalBlockBuffer;
-
-    typedef Util::KeyValuePair<Ptr<CoreGraphics::ShaderVariable>, Ptr<CoreGraphics::ConstantBuffer>> BlockBufferBinding;
-    BlockBufferBinding globalBlockBufferBinding;
+	Ptr<CoreGraphics::ShaderVariable> globalBlockBufferVar;
 };
 
 

@@ -22,25 +22,40 @@ public:
 	/// destructor
 	virtual ~GLSL4EffectVarbuffer();
 
+protected:
+	friend class GLSL4EffectProgram;
+
 	/// sets up variable block from program
 	void Setup(eastl::vector<InternalEffectProgram*> programs);
 	/// sets up varblock from programs using a pre-existing variable block
 	void SetupSlave(eastl::vector<InternalEffectProgram*> programs, InternalEffectVarbuffer* master);
 
-protected:
+	/// set buffer 
+	void SetBuffer(void* handle);
 
 	/// updates variable block
 	void Commit();
 	/// activates varblock uniform location
 	void Activate(InternalEffectProgram* program);
 
-	GLuint activeProgram;
+	GLSL4EffectProgram* activeProgram;
+	GLuint activeProgramHandle;
 	GLuint shaderStorageBlockBinding;
 	GLuint shaderStorageBlockLocation;
 	GLint offsetAlignment;
 
 	GLuint currentLocation;
 	eastl::hash_map<GLSL4EffectProgram*, GLuint> activeMap;
+
+	struct OpenGLBufferBinding
+	{
+		int handle;
+		unsigned offset;
+		unsigned size;
+		bool bindRange;
+
+		OpenGLBufferBinding() : bindRange(false), offset(0), size(0), handle(0) {};
+	};
 }; 
 
 struct GLSL4VarbufferRangeState
@@ -68,7 +83,6 @@ struct GLSL4VarbufferBaseState
 	}
 
 } static GLSL4VarbufferBaseStates[512];
-
 
 //------------------------------------------------------------------------------
 /**

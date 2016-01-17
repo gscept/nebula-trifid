@@ -59,6 +59,10 @@ private:
 	friend class EffectVariableStreamLoader;
 	friend class EffectVarblockStreamLoader;
 	friend class EffectVarbufferStreamLoader;
+	friend class Effect;
+	
+	/// notify loading is done
+	void LoadingDone();
 
 	EffectRenderState* renderState;
 	struct EffectShaderBlock

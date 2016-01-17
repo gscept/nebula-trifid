@@ -75,7 +75,8 @@ ModelNodeHandler::Setup(const Util::String& resource)
     String res = String::Sprintf("%s/%s", category.AsCharPtr(), file.AsCharPtr());
 
     // update UI
-	this->ui->surfaceName->setText(res.AsCharPtr());
+	this->ui->surfacePath->setText(res.AsCharPtr());
+	//this->ui->surfaceName->setText(res.AsCharPtr());
     this->ui->nodeName->setText(this->nodeName.AsCharPtr());
 
     // update thumbnail
@@ -85,6 +86,7 @@ ModelNodeHandler::Setup(const Util::String& resource)
     this->SetSurface(surface);
 
     connect(this->ui->surfaceButton, SIGNAL(pressed()), this, SLOT(Browse()));
+	connect(this->ui->surfacePath, SIGNAL(textEdited(const QString&)), this, SLOT(OnSurfaceTextEdited(const QString&)));
 	connect(this->ui->editSurfaceButton, SIGNAL(pressed()), this, SLOT(EditSurface()));
 	connect(&this->thumbnailWatcher, SIGNAL(fileChanged(const QString&)), this, SLOT(OnThumbnailFileChanged()));
 }
@@ -166,7 +168,6 @@ ModelNodeHandler::SetSurface(const Util::String& sur)
     state.material = this->managedSurface->GetSurface()->GetResourceId().AsString();
 	state.material.StripFileExtension();
 	attrs->SetState(this->nodePath, state);
-	this->modelHandler->OnModelModified();
 }
 
 //------------------------------------------------------------------------------
@@ -206,7 +207,9 @@ ModelNodeHandler::Browse()
     QPushButton* button = static_cast<QPushButton*>(sender);
 
     // pick a surface
+	button->setStyleSheet("border: 2px solid red;");
     int res = ResourceBrowser::AssetBrowser::Instance()->Execute("Set surface", ResourceBrowser::AssetBrowser::Surfaces);
+	button->setStyleSheet("");
     if (res == QDialog::Accepted)
     {
         // convert to nebula string
@@ -219,10 +222,11 @@ ModelNodeHandler::Browse()
         String res = String::Sprintf("%s/%s", category.AsCharPtr(), file.AsCharPtr());
 
         // set text of item
-        this->ui->surfaceName->setText(res.AsCharPtr());
+		this->ui->surfacePath->setText(res.AsCharPtr());
+        //this->ui->surfaceName->setText(res.AsCharPtr());
         Ptr<ModelAttributes> attrs = this->modelHandler->GetAttributes();
         State state = attrs->GetState(this->nodePath);
-        state.material = "sur:" + res;
+		state.material = String::Sprintf("sur:%s", res.AsCharPtr());
         attrs->SetState(this->nodePath, state);
 
         // update thumbnail
@@ -230,6 +234,7 @@ ModelNodeHandler::Browse()
 
         // update surface
         this->SetSurface(surface);
+		this->modelHandler->OnModelModified();
     }
 }
 
@@ -255,6 +260,29 @@ void
 ModelNodeHandler::OnThumbnailFileChanged()
 {
 	this->UpdateSurfaceThumbnail();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ModelNodeHandler::OnSurfaceTextEdited(const QString& path)
+{
+	// convert to string
+	String surface = path.toUtf8().constData();
+
+	// set text of item
+	Ptr<ModelAttributes> attrs = this->modelHandler->GetAttributes();
+	State state = attrs->GetState(this->nodePath);
+	state.material = "sur:" + surface;
+	attrs->SetState(this->nodePath, state);
+
+	// update thumbnail
+	this->UpdateSurfaceThumbnail();
+
+	// update surface
+	this->SetSurface(surface);
+	this->modelHandler->OnModelModified();
 }
 
 //------------------------------------------------------------------------------

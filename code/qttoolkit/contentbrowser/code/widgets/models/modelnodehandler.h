@@ -76,6 +76,8 @@ private slots:
 	void EditSurface();
 	/// callback for when the thumbnail changes
 	void OnThumbnailFileChanged();
+	/// callback from when the text of the surface path gets set
+	void OnSurfaceTextEdited(const QString&);
 
 protected:
 

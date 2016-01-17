@@ -20,7 +20,8 @@ using namespace CoreGraphics;
 */
 OGL4Shader::OGL4Shader() :
     ogl4Effect(NULL),
-    globalBlockBuffer(NULL)
+    globalBlockBuffer(NULL),
+	globalBlockBufferVar(NULL)
 {
     // empty
 }
@@ -46,8 +47,10 @@ OGL4Shader::Unload()
 	this->Cleanup();
     if (this->globalBlockBuffer.isvalid())
     {
+		if (this->globalBlockBufferVar) this->globalBlockBufferVar->SetBufferHandle(NULL);
         this->globalBlockBuffer->Discard();
         this->globalBlockBuffer = 0;
+		this->globalBlockBufferVar = 0;
     }
     ShaderBase::Unload();
 }
@@ -75,7 +78,7 @@ OGL4Shader::EndUpdate()
     if (this->globalBlockBuffer.isvalid())
     {
         this->globalBlockBuffer->EndUpdateSync();
-        this->globalBlockBufferBinding.Key()->SetBufferHandle(this->globalBlockBufferBinding.Value()->GetHandle());
+		this->globalBlockBufferVar->SetBufferHandle(this->globalBlockBuffer->GetHandle());
     }
 }
 
@@ -88,7 +91,7 @@ OGL4Shader::Cleanup()
 	// delete effect
     n_assert(0 != this->ogl4Effect);
 	delete this->ogl4Effect;
-    this->ogl4Effect = NULL;
+    this->ogl4Effect = 0;
 }
 
 //------------------------------------------------------------------------------

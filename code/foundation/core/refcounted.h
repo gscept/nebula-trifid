@@ -92,6 +92,10 @@ private:
         static RefCountedList list;
         RefCountedList::Iterator listIterator;
         bool destroyed;
+
+public:
+		/// register debug name
+		void SetDebugName(const Util::String& name);
     #endif
 };
 
@@ -215,6 +219,17 @@ RefCounted::GetClassFourCC() const
 {
     return this->GetRtti()->GetFourCC();
 }
+
+#if NEBULA3_DEBUG
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+RefCounted::SetDebugName(const Util::String& name)
+{
+	list.SetDebugName(this, name);
+}
+#endif
 
 } // namespace Core
 //------------------------------------------------------------------------------
