@@ -20,6 +20,7 @@
 #include "effectscommands.h"
 #include "audioprotocol.h"
 #include "uicommands.h"
+#include "NIDL/levelviewercommands.h"
 
 
 namespace Tools
@@ -86,14 +87,15 @@ LevelViewerGameStateApplication::SetupStateHandlers()
 	{
 		// overwrite level set, use this
 		gameState->SetLevelName(this->args.GetString("-level"));
-		gameState->SetSetupMode(LevelViewerGameState::LoadLevel);
+		gameState->SetSetupMode(GameStateHandler::LoadLevel);
 	}
 	else
 	{
 		gameState->SetLevelName("Empty");
-		gameState->SetSetupMode(LevelViewerGameState::NewGame);
+		gameState->SetSetupMode(GameStateHandler::NewGame);
 	}	
 	gameState->SetName("LevelViewerGameState");
+	this->viewerState = gameState;
 
 	Ptr<ReloadState> loadState = ReloadState::Create();
 	loadState->SetSetupMode(GameStateHandler::EmptyWorld);
@@ -158,9 +160,7 @@ LevelViewerGameStateApplication::SetupGameFeatures()
 	this->gameServer->AttachGameFeature(this->scriptingFeature.upcast<Game::FeatureUnit>());
     this->gameServer->AttachGameFeature(this->physicsFeature.upcast<Game::FeatureUnit>());    
     this->gameServer->AttachGameFeature(this->effectFeature.cast<Game::FeatureUnit>());
-	this->gameServer->AttachGameFeature(this->uiFeature.cast<Game::FeatureUnit>());
-	this->gameServer->AttachGameFeature(this->postEffectFeature.cast<Game::FeatureUnit>());
-
+	
 	// setup intermediate gui
 	this->imgui = Dynui::ImguiAddon::Create();
 	this->imgui->Setup();	
@@ -172,12 +172,32 @@ LevelViewerGameStateApplication::SetupGameFeatures()
 	Commands::EffectsCommands::Register();
 	Commands::AudioCommands::Register();
 	Commands::UICommands::Register();	
+	Commands::LevelviewerCommands::Register();
+
+	this->gameServer->AttachGameFeature(this->uiFeature.cast<Game::FeatureUnit>());
+	this->gameServer->AttachGameFeature(this->postEffectFeature.cast<Game::FeatureUnit>());
 
 	// create console
 	this->console = Dynui::ImguiConsole::Create();
 	this->console->Setup();
 	this->consoleHandler = Dynui::ImguiConsoleHandler::Create();
 	this->consoleHandler->Setup();
+
+	this->uiFeature->CreateLayout("_levellist", "bin:../../data/levelviewer/levellist.rml");
+	Util::String script = "bin:../../data/levelviewer/levellist.lua";
+	if (IO::IoServer::Instance()->FileExists(script))
+	{
+		Scripting::ScriptServer::Instance()->EvalScript(script);
+		if (Scripting::ScriptServer::Instance()->HasError())
+		{
+			n_warning("Error evaluating levelviewer script:\n%s\n", Scripting::ScriptServer::Instance()->GetError().AsCharPtr());
+		}
+	}
+	else
+	{
+		n_warning(("Failed to load script file: " + script).AsCharPtr());
+	}
+
 }
 
 //------------------------------------------------------------------------------
@@ -222,4 +242,14 @@ LevelViewerGameStateApplication::CleanupGameFeatures()
 
 	GameApplication::CleanupGameFeatures();
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+Ptr<Tools::LevelViewerGameState> &
+LevelViewerGameStateApplication::GetViewerState()
+{
+	return this->viewerState;
+}
+
 }

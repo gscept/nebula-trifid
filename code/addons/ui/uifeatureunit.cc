@@ -119,6 +119,39 @@ UiFeatureUnit::LoadUITables()
 		}
 		reader->Close();
 	}
+	Ptr<Db::Reader> sreader = Db::Reader::Create();
+	sreader->SetDatabase(Db::DbServer::Instance()->GetStaticDatabase());
+	sreader->SetTableName("_Template__Ui_Scripts");
+	if (sreader->Open())
+	{
+		// table exists 
+		int numRows = sreader->GetNumRows();
+		int index;
+		for (index = 0; index < numRows; index++)
+		{
+			sreader->SetToRow(index);
+
+			Util::String scriptFile = sreader->GetString(Attr::Id);
+			bool autoLoad = sreader->GetBool(Attr::AutoLoad);
+			if (autoLoad)
+			{
+				if (IO::IoServer::Instance()->FileExists(scriptFile))
+				{
+					Scripting::ScriptServer::Instance()->EvalScript(scriptFile);
+					if (Scripting::ScriptServer::Instance()->HasError())
+					{
+						n_warning("Error evaluating %s:\n%s\n", scriptFile.AsCharPtr(), Scripting::ScriptServer::Instance()->GetError().AsCharPtr());
+					}
+				}
+				else
+				{
+					n_warning(("Failed to load script file: " + scriptFile).AsCharPtr());
+				}
+
+			}
+		}
+		sreader->Close();
+	}
 	Ptr<Db::Reader> lreader = Db::Reader::Create();
 	lreader->SetDatabase(Db::DbServer::Instance()->GetStaticDatabase());
 	lreader->SetTableName("_Template__Ui_Layouts");
@@ -147,40 +180,7 @@ UiFeatureUnit::LoadUITables()
             }
 		}
 		lreader->Close();
-	}
-	Ptr<Db::Reader> sreader = Db::Reader::Create();
-	sreader->SetDatabase(Db::DbServer::Instance()->GetStaticDatabase());
-	sreader->SetTableName("_Template__Ui_Scripts");
-	if (sreader->Open())
-	{
-		// table exists 
-		int numRows = sreader->GetNumRows();
-		int index;
-		for (index = 0; index < numRows; index++)
-		{
-			sreader->SetToRow(index);
-
-			Util::String scriptFile = sreader->GetString(Attr::Id);
-            bool autoLoad = sreader->GetBool(Attr::AutoLoad);
-            if(autoLoad)
-            {
-				if (IO::IoServer::Instance()->FileExists(scriptFile))
-				{
-					Scripting::ScriptServer::Instance()->EvalScript(scriptFile);
-					if (Scripting::ScriptServer::Instance()->HasError())
-					{
-						n_warning("Error evaluating %s:\n%s\n", scriptFile.AsCharPtr(), Scripting::ScriptServer::Instance()->GetError().AsCharPtr());
-					}
-				}
-				else
-				{
-					n_warning(("Failed to load script file: " + scriptFile).AsCharPtr());
-				}
-
-            }
-		}
-		sreader->Close();
-	}
+	}	
 }
 
 

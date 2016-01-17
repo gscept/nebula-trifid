@@ -5,6 +5,7 @@
     <Dependency header="scriptingfeature/scriptingprotocol.h"/>
     <Dependency header="basegamefeature/basegameprotocol.h"/>
     <Dependency header="basegamefeature/managers/envquerymanager.h"/>
+    <Dependency header="basegamefeature/loader/levelloader.h"/>
     <Dependency header="appgame/gameapplication.h"/>
     <Dependency header="input/keyboard.h"/>
     <Dependency header="input/inputserver.h"/>
@@ -480,6 +481,14 @@
       <Code>
         <![CDATA[          
           return BaseGameFeature::EnvQueryManager::Instance()->GetMousePos3d();          
+        ]]>
+      </Code>
+    </Command>
+    <Command name="getlevels" fourcc="gelv" desc="gets an array of the available levels">
+      <OutArg name="levels" type="stringArray"/>
+      <Code>
+        <![CDATA[          
+          return BaseGameFeature::LevelLoader::GetLevels();
         ]]>
       </Code>
     </Command>

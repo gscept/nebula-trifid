@@ -1,0 +1,39 @@
+body
+{
+	font-family: Delicious;
+	font-weight: normal;
+	font-style: normal;
+	font-size: 15;
+	
+}
+
+body.window
+{
+		background-color: rgb(44,44,44);
+}
+
+div
+{
+    display: block;
+	color: rgb(200,200,200);
+	background-color: rgb(44,44,44);
+	text-align: center;	
+}
+div#header
+{
+	font-size: 40;
+}
+button.button
+{
+	font-size: 20;
+	display:block;
+	background-color: rgb(90,90,90);
+	padding: 5;
+	margin: 5;
+	color: black;
+}
+
+button.button:hover
+{
+	background-color: rgb(120,120,120);
+}

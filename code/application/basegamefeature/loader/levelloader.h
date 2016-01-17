@@ -21,6 +21,8 @@ public:
     static bool Load(const Util::String& levelName, const Util::Array<Util::String>& activeLayers);    
     /// returns the layers from a level
     static Util::Array<Util::String> GetLayers(const Util::String& levelName);
+    /// access to available levels in database
+    static Util::Array<Util::String> GetLevels();
 };
 
 } // namespace BaseGameFeature

@@ -147,19 +147,41 @@ LevelViewerGameState::HandleInput()
 
 	if(kbd->KeyDown(Input::Key::F5))
 	{
+		bool applyTrans = false;
 		if(kbd->KeyPressed(Input::Key::Shift))
 		{
-			this->applyTransform = false;
+			applyTrans = true;
 		}
-		else
-		{
-			this->applyTransform = true;
-		}
+		this->ReloadLevel(applyTrans);
 		const Ptr<BaseGameFeature::GameStateHandler>& state = App::GameApplication::Instance()->FindStateHandlerByName("Reload").cast<BaseGameFeature::GameStateHandler>();
 		state->SetLevelName(BaseGameFeature::BaseGameFeatureUnit::Instance()->GetCurrentLevel());
 		LevelViewerGameStateApplication::Instance()->RequestState("Reload");
 	}
-
-
+	if (kbd->KeyDown(Input::Key::F10))
+	{
+		UI::UiFeatureUnit::Instance()->GetLayout("_levellist")->Toggle();
+	}
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+LevelViewerGameState::LoadLevel(const Util::String &level, bool applyTransform)
+{
+	this->applyTransform = applyTransform;
+	const Ptr<BaseGameFeature::GameStateHandler>& state = App::GameApplication::Instance()->FindStateHandlerByName("Reload").cast<BaseGameFeature::GameStateHandler>();
+	state->SetLevelName(level);
+	LevelViewerGameStateApplication::Instance()->RequestState("Reload");
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+LevelViewerGameState::ReloadLevel(bool keepTransform)
+{
+	this->LoadLevel(BaseGameFeature::BaseGameFeatureUnit::Instance()->GetCurrentLevel(), keepTransform);
+}
+
 } // namespace Tools

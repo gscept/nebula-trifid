@@ -110,5 +110,26 @@
         ]]>
       </Code>
     </Command>
+    <Command name="AddElement" fourcc="addl" desc="Add an childelement to another element">
+      <InArg name="layout" type="string"/>
+      <InArg name="element" type="string"/>
+      <InArg name="id" type="string"/>
+      <InArg name="elementtype" type="string"/>
+      <InArg name="text" type="string"/>
+      <InArg name="clickevent" type="string"/>
+      <Code>
+        <![CDATA[
+         Ptr<UI::UiLayout> lay = UI::UiFeatureUnit::Instance()->GetLayout(layout);
+         const Ptr<UI::UiElement>& el = lay->GetElement(element);         
+		     Util::Array<UI::ElementAttributeEntry> dic;
+		     dic.Append(UI::ElementAttributeEntry("class", elementtype));
+		     dic.Append(UI::ElementAttributeEntry("id", id));
+		     dic.Append(UI::ElementAttributeEntry("onclick", clickevent));		
+				
+		     Ptr<UI::UiElement> but = el->AddElement(elementtype, elementtype, dic).cast<UI::UiElement>();
+		     but->SetText(text);		     
+        ]]>
+      </Code>
+    </Command>
   </Library>  
 </Nebula3>
