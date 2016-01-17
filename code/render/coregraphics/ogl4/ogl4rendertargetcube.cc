@@ -74,14 +74,6 @@ OGL4RenderTargetCube::Setup()
     }
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
-    if (this->useDepthStencilCube)
-    {
-        glGenRenderbuffers(1, &this->ogl4DepthStencilTexture);
-        glBindRenderbuffer(GL_RENDERBUFFER, this->ogl4DepthStencilTexture);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, this->width, this->height);
-        glBindRenderbuffer(GL_RENDERBUFFER, 0);
-    }    
-
     this->resolveRect.left = 0;
     this->resolveRect.top = 0;
     this->resolveRect.right = this->width;
@@ -115,8 +107,36 @@ OGL4RenderTargetCube::Setup()
 	
     if (this->useDepthStencilCube)
     {
-        glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, this->ogl4DepthStencilTexture);
-        //glFramebufferTexture(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, this->ogl4DepthStencilTexture, 0);
+		if (this->layered)
+		{
+			glGenTextures(1, &this->ogl4DepthStencilTexture);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, this->ogl4DepthStencilTexture);
+			IndexT i;
+			for (i = 0; i < 6; i++)
+			{
+				glTexImage2D(
+					GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+					0,
+					GL_DEPTH_COMPONENT24,
+					this->width,
+					this->height,
+					0,
+					GL_DEPTH_COMPONENT,
+					GL_FLOAT,
+					NULL);
+				n_assert(GLSUCCESS);
+			}
+			glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+			glFramebufferTexture(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, this->ogl4ResolveTexture, 0);
+		}
+		else
+		{
+			glGenRenderbuffers(1, &this->ogl4DepthStencilTexture);
+			glBindRenderbuffer(GL_RENDERBUFFER, this->ogl4DepthStencilTexture);
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, this->width, this->height);
+			glBindRenderbuffer(GL_RENDERBUFFER, 0);
+			glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, this->ogl4DepthStencilTexture);
+		}
     }
     n_assert(glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);

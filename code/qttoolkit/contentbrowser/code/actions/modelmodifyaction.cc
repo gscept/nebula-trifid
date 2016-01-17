@@ -132,7 +132,7 @@ ModelModifyAction::Discard()
 /**
 */
 void
-ModelModifyAction::AddVersion(const Util::String& attributes, const Util::String& constants, const Util::String& physics, bool structureChanged /*= false*/)
+ModelModifyAction::AddVersion(const Util::String& attributes, const Util::String& constants, const Util::String& physics)
 {
 	// go through from current index to end of list and remove indices
 	int i;

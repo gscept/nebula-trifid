@@ -464,7 +464,7 @@ PreviewState::SaveThumbnail(const Util::String& path, bool swapStage)
 	{
 		CoreGraphics::DisplayMode mode = CoreGraphics::DisplayDevice::Instance()->GetDisplayMode();
 		Graphics::CameraSettings settings;
-		settings.SetupPerspectiveFov(n_deg2rad(90.0f), mode.GetWidth() / float(mode.GetHeight()), 0.1f, 1000);
+		settings.SetupPerspectiveFov(n_deg2rad(60.0f), 640.0f/480.0f, 0.1f, 1000);
 
 		this->surfaceCamera->SetTransform(this->defaultCam->GetMatrix44(Attr::Transform));
 		this->surfaceView->SetStage(this->defaultStage);

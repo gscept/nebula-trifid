@@ -31,7 +31,7 @@ RenderTargetCubeBase::RenderTargetCubeBase() :
 #endif
     antiAliasQuality(AntiAliasQuality::None),
     colorBufferFormat(PixelFormat::X8R8G8B8),
-	useDepthStencilCube(true),
+	useDepthStencilCube(false),
     mipMapsEnabled(false),
     isValid(false),    
     inBeginPass(false),

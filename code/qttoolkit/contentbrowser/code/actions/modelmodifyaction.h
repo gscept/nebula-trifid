@@ -41,7 +41,7 @@ public:
 	void Discard();
 
 	/// adds a version of attributes, constants and physics
-	void AddVersion(const Util::String& attributes, const Util::String& constants, const Util::String& physics, bool structureChanged = false);
+	void AddVersion(const Util::String& attributes, const Util::String& constants, const Util::String& physics);
 	/// gets the last version of the attributes
 	const Util::String& GetLastAttrVersion() const;
 	/// gets the last version of the constants

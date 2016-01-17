@@ -131,6 +131,9 @@ ModelHandler::Setup()
 	this->constants = ModelDatabase::Instance()->LookupConstants(this->category + "/" + this->file, true);
 	this->physics = ModelDatabase::Instance()->LookupPhysics(this->category + "/" + this->file, true);
 
+	// save original version
+	this->OnNewVersion();
+
 	// open files
 	String attrPath, constPath, physPath;
 	attrPath.Format("src:assets/%s/%s.attributes", this->category.AsCharPtr(), this->file.AsCharPtr());
@@ -356,6 +359,22 @@ ModelHandler::Refresh()
 void 
 ModelHandler::OnModelModified(bool structureChange)
 {
+	// make sure to create a new version
+	this->OnNewVersion();
+
+	// mark save button
+	this->ui->saveButton->setStyleSheet("background-color: rgb(200, 4, 0); color: white");
+
+	// finally push action to stack
+	ContentBrowserApp::Instance()->PushAction(this->action.upcast<BaseAction>());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ModelHandler::OnNewVersion()
+{
 	// create memory stream to which modifier will write
 	Ptr<MemoryStream> stream = MemoryStream::Create();
 	this->attributes->Save(stream.upcast<Stream>());
@@ -391,16 +410,10 @@ ModelHandler::OnModelModified(bool structureChange)
 	stream->Close();
 
 	// add constants
-	this->action->AddVersion(attrVersion, constsVersion, physVersion, structureChange);
+	this->action->AddVersion(attrVersion, constsVersion, physVersion);
 
 	// apply action
 	this->action->DoAndMakeCurrent();
-
-	// mark save button
-	this->ui->saveButton->setStyleSheet("background-color: rgb(200, 4, 0); color: white");
-
-	// finally push action to stack
-	ContentBrowserApp::Instance()->PushAction(this->action.upcast<BaseAction>());
 }
 
 //------------------------------------------------------------------------------

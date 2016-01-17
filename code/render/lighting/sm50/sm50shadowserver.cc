@@ -176,7 +176,6 @@ SM50ShadowServer::Open()
         this->pointLightShadowCubes[i]->SetHeight(rtHeight);
         this->pointLightShadowCubes[i]->SetColorBufferFormat(pixelFormat);
         this->pointLightShadowCubes[i]->SetClearColor(float4(0,0,0,0));
-		//this->pointLightShadowCubes[i]->SetDepthStencilCube(true);
         this->pointLightShadowCubes[i]->SetResolveTextureResourceId(ResourceId("PointLightShadowCube" + String::FromInt(i)));
 		this->pointLightShadowCubes[i]->SetLayered(true);
         this->pointLightShadowCubes[i]->Setup();

@@ -81,6 +81,8 @@ public:
 	void OnModelReloaded( const Ptr<Messaging::Message>& msg);
 	/// saves the current state of the model to memory, so that we may undo/redo the changes
 	void OnModelModified(bool structureChange = false);
+	/// saves this current state as a new version
+	void OnNewVersion();
 
 signals:
 	/// called whenever a model has been saved with a new name
