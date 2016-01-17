@@ -109,28 +109,33 @@ AssetBatcherApp::DoWork()
 	exporter->SetExportFlag(exportFlag);
 	exporter->SetPlatform(this->platform);
 	exporter->SetProgressPrecision(PRECISION);
-	exporter->ExportSystem();
-
-	if (this->listfileArg.IsValid())
+	if (this->args.HasArg("-system"))
 	{
-		Array<String> fileList = CreateFileList();		
-		exporter->ExportList(fileList);
+		exporter->ExportSystem();
 	}
 	else
 	{
-		int files = IO::IoServer::Instance()->ListDirectories("src:assets/", "*").Size();
-		switch (exportFlag)
+		if (this->listfileArg.IsValid())
 		{
-		case ExporterBase::All:
-			exporter->SetProgressMinMax(0, files*PRECISION);
-			exporter->ExportAll();
-			break;
-		case ExporterBase::Dir:
-			exporter->SetProgressMinMax(0, files*PRECISION);
-			exporter->ExportDir(dir);
-			break;
+			Array<String> fileList = CreateFileList();
+			exporter->ExportList(fileList);
 		}
-	}	
+		else
+		{
+			int files = IO::IoServer::Instance()->ListDirectories("src:assets/", "*").Size();
+			switch (exportFlag)
+			{
+			case ExporterBase::All:
+				exporter->SetProgressMinMax(0, files*PRECISION);
+				exporter->ExportAll();
+				break;
+			case ExporterBase::Dir:
+				exporter->SetProgressMinMax(0, files*PRECISION);
+				exporter->ExportDir(dir);
+				break;
+			}
+		}
+	}
 	exporter->Close();
 
 #if 0
@@ -193,6 +198,7 @@ AssetBatcherApp::ShowHelp()
 	n_printf("-help         --display this help\n"
 			 "-force        --ignores time stamps\n"
 			 "-dir          --category name\n"
+			 "-system       \n"
 			 "-platform     --export platform");
 }
 

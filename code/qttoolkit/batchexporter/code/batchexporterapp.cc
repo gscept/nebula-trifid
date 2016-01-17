@@ -186,10 +186,24 @@ BatchExporterApp::GatherExports()
 		{
 			processArgs.append("-force");
 		}
-		processArgs.append(jobsString);
-        Util::String gb = IO::URI(IO::AssignRegistry::Instance()->ResolveAssignsInString(this->projInfo.GetPathAttr("AssetBatcher") + EXESUFFIX)).LocalPath();
+
+		Util::String gb = IO::URI(IO::AssignRegistry::Instance()->ResolveAssignsInString(this->projInfo.GetPathAttr("AssetBatcher") + EXESUFFIX)).LocalPath();
 		gb = "\"" + gb + "\"";
 		QString graphicsBatcherPath = gb.AsCharPtr();
+
+		// batch system first
+		QStringList systemArgs = processArgs;
+		systemArgs.append("-system");
+		 
+		QString batcherPath = graphicsBatcherPath;
+		for (int argIndex = 0; argIndex < systemArgs.size(); argIndex++)
+		{
+			batcherPath += " " + systemArgs[argIndex];
+		}
+		executionQueue.append(QPair<ExportBits, QString>(Graphics, batcherPath));
+
+		processArgs.append(jobsString);
+        
 		for (int argIndex = 0; argIndex < processArgs.size(); argIndex++)
 		{
 			graphicsBatcherPath += " " + processArgs[argIndex];
