@@ -183,18 +183,21 @@ protected:
     Ptr<CoreGraphics::DepthStencilTarget> depthStencilTarget;   // target which provides shared depth-stencil buffer
     Resources::ResourceId resolveTextureResId;
     CoreGraphics::FrameBatchType::Code batchType;
+
 	bool relativeSizeValid;
     SizeT width;
     SizeT height;
 	float relWidth;
 	float relHeight;
+	SizeT resolveTextureWidth;
+	SizeT resolveTextureHeight;
+
     bool resolveTextureDimensionsValid;
     bool resolveRectValid;
 	bool resolveRectArrayValid;
-    SizeT resolveTextureWidth;
-    SizeT resolveTextureHeight;
     Math::rectangle<int> resolveRect;
 	Util::Array<Math::rectangle<int> > resolveRectArray;
+
     IndexT mrtIndex;
     uint clearFlags;
     Math::float4 clearColor;
@@ -282,8 +285,8 @@ RenderTargetBase::GetHeight() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-RenderTargetBase::SetRelativeWidth( float w )
+inline void
+RenderTargetBase::SetRelativeWidth(float w)
 {
 	this->relWidth = w;
 	this->relativeSizeValid = true;
@@ -301,8 +304,8 @@ RenderTargetBase::GetRelativeWidth() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-RenderTargetBase::SetRelativeHeight( float h )
+inline void
+RenderTargetBase::SetRelativeHeight(float h)
 {
 	this->relHeight = h;
 	this->relativeSizeValid = true;
@@ -385,8 +388,8 @@ RenderTargetBase::HasDepthStencilBuffer() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-RenderTargetBase::SetMipMaps( SizeT mips )
+inline void
+RenderTargetBase::SetMipMaps(SizeT mips)
 {
 	this->mipLevels = mips;
 	this->mipMapsEnabled = true;
@@ -421,8 +424,8 @@ RenderTargetBase::GetClearColor() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-RenderTargetBase::SetClearDepth( float f )
+inline void
+RenderTargetBase::SetClearDepth(float f)
 {
 	this->clearDepth = f;
 }
@@ -439,8 +442,8 @@ RenderTargetBase::GetClearDepth() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-RenderTargetBase::SetClearStencil( int i )
+inline void
+RenderTargetBase::SetClearStencil(int i)
 {
 	this->clearStencil = i;
 }

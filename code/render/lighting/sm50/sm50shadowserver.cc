@@ -172,8 +172,8 @@ SM50ShadowServer::Open()
 	for (i = 0; i < MaxNumShadowPointLights; i++)
     {
         this->pointLightShadowCubes[i] = RenderTargetCube::Create();
-        this->pointLightShadowCubes[i]->SetWidth(rtWidth/2);
-        this->pointLightShadowCubes[i]->SetHeight(rtHeight/2);
+        this->pointLightShadowCubes[i]->SetWidth(rtWidth);
+        this->pointLightShadowCubes[i]->SetHeight(rtHeight);
         this->pointLightShadowCubes[i]->SetColorBufferFormat(pixelFormat);
         this->pointLightShadowCubes[i]->SetClearColor(float4(0,0,0,0));
 		//this->pointLightShadowCubes[i]->SetDepthStencilCube(true);
@@ -193,7 +193,7 @@ SM50ShadowServer::Open()
 	this->pointLightPass->SetClearFlags(RenderTarget::ClearColor | DepthStencilTarget::ClearDepth);
 	this->pointLightPass->SetClearDepth(1);
     this->pointLightPass->SetName("PointLightShadowPass");
-    this->pointLightPass->SetClearColor(float4(0,0,0,0));
+	this->pointLightPass->SetClearColor(float4(1000, 1000, 0, 0));
     this->pointLightPass->AddBatch(this->pointLightBatch);
 
 #if NEBULA3_ENABLE_PROFILING
@@ -547,29 +547,29 @@ SM50ShadowServer::UpdatePointLightShadowBuffers()
 		matrix44 views[6];
 		const float4 lightPos = lightEntity->GetTransform().get_position();
 
-		views[0] = matrix44::multiply(matrix44::rotationy(n_deg2rad(90)), matrix44::rotationz(n_deg2rad(180)));		// +X
+		views[0] = matrix44::lookatrh(vector(0), vector(1, 0, 0), -vector::upvec());
 		views[0].set_position(lightPos);
-		views[0] = matrix44::multiply(views[0], proj);
+		views[0] = matrix44::multiply(matrix44::inverse(views[0]), proj);
 
-		views[1] = matrix44::multiply(matrix44::rotationy(n_deg2rad(-90)), matrix44::rotationz(n_deg2rad(180)));	// -X
+		views[1] = matrix44::lookatrh(vector(0), vector(-1, 0, 0), -vector::upvec());
 		views[1].set_position(lightPos);
-		views[1] = matrix44::multiply(views[1], proj);
+		views[1] = matrix44::multiply(matrix44::inverse(views[1]), proj);
 
-		views[2] = matrix44::rotationx(n_deg2rad(90));																// +Y
+		views[2] = matrix44::lookatrh(vector(0), vector(0, 1, 0), vector(0, 0, 1));
 		views[2].set_position(lightPos);
-		views[2] = matrix44::multiply(views[2], proj);
+		views[2] = matrix44::multiply(matrix44::inverse(views[2]), proj);
 
-		views[3] = matrix44::rotationx(n_deg2rad(-90));																// -Y
+		views[3] = matrix44::lookatrh(vector(0), vector(0, -1, 0), vector(0, 0, -1));
 		views[3].set_position(lightPos);
-		views[3] = matrix44::multiply(views[3], proj);
+		views[3] = matrix44::multiply(matrix44::inverse(views[3]), proj);
 
-		views[4] = matrix44::multiply(matrix44::rotationy(n_deg2rad(180)), matrix44::rotationz(n_deg2rad(180)));	// +Z
+		views[4] = matrix44::lookatrh(vector(0), vector(0, 0, 1), -vector::upvec());
 		views[4].set_position(lightPos);
-		views[4] = matrix44::multiply(views[4], proj);
+		views[4] = matrix44::multiply(matrix44::inverse(views[4]), proj);
 
-		views[5] = matrix44::rotationz(n_deg2rad(180));																// -Z
+		views[5] = matrix44::lookatrh(vector(0), vector(0, 0, -1), -vector::upvec());
 		views[5].set_position(lightPos);
-		views[5] = matrix44::multiply(views[5], proj);
+		views[5] = matrix44::multiply(matrix44::inverse(views[5]), proj);
 
 		// send to transform device
 		transDev->ApplyViewMatrixArray(views, 6);

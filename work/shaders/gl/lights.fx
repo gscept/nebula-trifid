@@ -37,6 +37,12 @@ samplerCube LightProjCube;
 
 samplerCube ShadowProjCube;
 
+samplerstate PointLightTextureSampler
+{
+	Samplers = { ShadowProjCube };
+	Filter = MinMagMipLinear;
+};
+
 samplerstate GeometrySampler
 {
 	Samplers = { NormalBuffer, DepthBuffer, SpecularBuffer };
@@ -354,6 +360,26 @@ GetInvertedOcclusionPointLight(float receiverDepthInLightSpace,
 	// get pixel size of shadow projection texture
 	vec2 shadowSample = texture(ShadowProjCube, shadowUv).rg;
 	
+	/*
+	// calculate pixel size, hmm, this is completely static!
+	vec3 pixelSize = vec3(1/256.0f, 1/256.0f, 0);
+	float radius = 1 / 256.0f;
+	
+	// do some simple filtering
+	vec2 totalSample = vec2(0.0f);
+	float x, y;
+	int numSamples = 0;
+	for (x = -5.0f; x < 5.0f; x += 2.0f)
+	{
+		for (y = -5.0f; y < 5.0f; y += 2.0f)
+		{
+			totalSample += texture(ShadowProjCube, shadowUv + vec3(x, y, noise1(x+y)) * radius).rg;
+			numSamples++;
+		}
+	}
+	totalSample /= numSamples;
+	*/
+	
 	// get pixel size of shadow projection texture	
 	return ChebyshevUpperBound(shadowSample, receiverDepthInLightSpace, 0.000001f);
 }
@@ -461,13 +487,9 @@ psPointShadow(in vec3 ViewSpacePosition,
 	vec4 oColor = vec4(lightModColor.rgb * final, lightModColor.a);
 	
 	// shadows
-	float shadowFactor = 1.0f;	
-	vec4 shadowProjLightPos = ShadowProjTransform * vec4(surfacePos, 1.0f);
-	vec3 shadowLookup = (shadowProjLightPos.xyz / shadowProjLightPos.www) * vec3(0.5f, -0.5f, 1.0f) + vec3(0.5f, 0.5f, 0.0f);
-	float receiverDepth = shadowProjLightPos.z / shadowProjLightPos.w;
-	shadowFactor = GetInvertedOcclusionPointLight(ProjPosition.z/ProjPosition.w,
+	float shadowFactor = GetInvertedOcclusionPointLight(ProjPosition.z/ProjPosition.w,
 						projDir);	
-	shadowFactor = saturate(lerp(1.0f, saturate(shadowFactor), ShadowIntensity) * att);      	
+	shadowFactor = saturate(lerp(1.0f, saturate(shadowFactor), ShadowIntensity));      	
 	
 	Color = EncodeHDR(oColor * shadowFactor);
 }

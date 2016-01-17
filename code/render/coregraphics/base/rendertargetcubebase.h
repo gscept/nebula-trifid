@@ -131,6 +131,15 @@ public:
     void SetResolveRect(const Math::rectangle<int>& r);
     /// get resolve rectangle
     const Math::rectangle<int>& GetResolveRect() const;
+	/// returns true if resolve rect is valid
+	const bool IsResolveRectValid() const;
+	/// set array of resolve rects
+	void SetResolveRectArray(const Util::Array<Math::rectangle<int> >& rects);
+	/// get array of resolve rects
+	const Util::Array<Math::rectangle<int> >& GetResolveRectArray() const;
+	/// returns true if resolve rect array is valid
+	const bool IsResolveRectArrayValid() const;
+
     /// return true if resolve texture is valid
     bool HasResolveTexture() const;
     /// get the resolve texture as Nebula texture object
@@ -162,8 +171,13 @@ protected:
     CoreGraphics::FrameBatchType::Code batchType;
     SizeT width;
     SizeT height;
-    Math::rectangle<int> resolveRect;
-    bool resolveRectValid;
+
+	bool resolveTextureDimensionsValid;
+	bool resolveRectValid;
+	bool resolveRectArrayValid;
+	Math::rectangle<int> resolveRect;
+	Util::Array<Math::rectangle<int> > resolveRectArray;
+
     uint clearFlags;
     Math::float4 clearColor;
 	float clearDepth;
@@ -361,8 +375,10 @@ RenderTargetCubeBase::GetLayered() const
 inline void
 RenderTargetCubeBase::SetResolveRect(const Math::rectangle<int>& r)
 {
-    this->resolveRectValid = true;
-    this->resolveRect = r;
+	this->resolveRectValid = true;
+	this->resolveRectArrayValid = false;
+	this->resolveRectArray.Clear();
+	this->resolveRect = r;
 }
 
 //------------------------------------------------------------------------------
@@ -371,7 +387,46 @@ RenderTargetCubeBase::SetResolveRect(const Math::rectangle<int>& r)
 inline const Math::rectangle<int>&
 RenderTargetCubeBase::GetResolveRect() const
 {
-    return this->resolveRect;
+	return this->resolveRect;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const bool
+RenderTargetCubeBase::IsResolveRectValid() const
+{
+	return this->resolveRectValid;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+RenderTargetCubeBase::SetResolveRectArray(const Util::Array<Math::rectangle<int> >& rects)
+{
+	this->resolveRectArray = rects;
+	this->resolveRectArrayValid = true;
+	this->resolveRectValid = false;
+	this->resolveRect = Math::rectangle<int>();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Util::Array<Math::rectangle<int> >&
+RenderTargetCubeBase::GetResolveRectArray() const
+{
+	return this->resolveRectArray;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const bool
+RenderTargetCubeBase::IsResolveRectArrayValid() const
+{
+	return this->resolveRectArrayValid;
 }
 
 //------------------------------------------------------------------------------
