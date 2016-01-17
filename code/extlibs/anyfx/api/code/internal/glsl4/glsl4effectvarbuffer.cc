@@ -36,6 +36,7 @@ void
 GLSL4EffectVarbuffer::Setup(eastl::vector<InternalEffectProgram*> programs)
 {
 	InternalEffectVarbuffer::Setup(programs);
+
 	this->shaderStorageBlockBinding = globalVarbufferCounter++;
 	glGetIntegerv(GL_SHADER_STORAGE_BUFFER_OFFSET_ALIGNMENT, &this->offsetAlignment);
 
@@ -96,6 +97,15 @@ GLSL4EffectVarbuffer::SetupSlave(eastl::vector<InternalEffectProgram*> programs,
 
 //------------------------------------------------------------------------------
 /**
+*/
+void
+GLSL4EffectVarbuffer::SetBuffer(void* handle)
+{
+	*this->bufferHandle = handle;
+}
+
+//------------------------------------------------------------------------------
+/**
 	Eh, can we even base bind 
 */
 void
@@ -103,7 +113,7 @@ GLSL4EffectVarbuffer::Commit()
 {
 	if (this->currentLocation != GL_INVALID_INDEX)
 	{
-		EffectVarbuffer::OpenGLBufferBinding* buf = (EffectVarbuffer::OpenGLBufferBinding*)*this->currentBufferHandle;
+		OpenGLBufferBinding* buf = (OpenGLBufferBinding*)*this->bufferHandle;
 		if (buf != 0)
 		{
 			if (buf->bindRange)
@@ -144,6 +154,12 @@ GLSL4EffectVarbuffer::Commit()
 				}
 #endif
 			}
+		}
+		else
+		{
+			this->activeProgram->varblockRangeBindBuffers[this->shaderStorageBlockBinding] = 0;
+			this->activeProgram->varblockRangeBindOffsets[this->shaderStorageBlockBinding] = 0;
+			this->activeProgram->varblockRangeBindSizes[this->shaderStorageBlockBinding] = 0;
 		}
 	}
 }

@@ -44,3 +44,4 @@ private:
 
 __RegisterClass(SSRAlgorithm);
 } // namespace Algorithm
+//------------------------------------------------------------------------------

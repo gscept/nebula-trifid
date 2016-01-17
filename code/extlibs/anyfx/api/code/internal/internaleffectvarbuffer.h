@@ -43,7 +43,7 @@ protected:
     virtual void Commit();
 
 	/// set buffer 
-	virtual void SetBuffer(void* handle);
+	virtual void SetBuffer(void* handle) = 0;
 
     /// activates variable, this makes the uniform location be the one found in the given program
     virtual void Activate(InternalEffectProgram* program);
@@ -58,7 +58,8 @@ protected:
 	bool isShared;
 	bool active;
 
-	void** currentBufferHandle;
+	// assume our buffer is an AutoReffed object
+	void** bufferHandle;
 }; 
 
 
@@ -69,15 +70,6 @@ inline const eastl::string&
 InternalEffectVarbuffer::GetName() const
 {
     return this->name;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void
-InternalEffectVarbuffer::SetBuffer(void* handle)
-{
-	*this->currentBufferHandle = handle;
 }
 
 } // namespace AnyFX

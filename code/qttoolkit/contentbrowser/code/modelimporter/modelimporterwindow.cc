@@ -416,16 +416,6 @@ ModelImporterWindow::ReaderLoaded( int status, const IO::URI& path )
             this->ui.staticImport->setChecked(true);
             this->currentOptions->SetExportMode(ToolkitUtil::Static);
 		}
-
-		// disable multilayered import options if we don't have more than 1 layer
-		if (this->reader->GetNumUvs() > 1)
-		{
-			this->ui.secondaryUVs->setEnabled(true);
-		}
-		else
-		{
-			this->ui.secondaryUVs->setEnabled(false);
-		}
 	}
 }
 

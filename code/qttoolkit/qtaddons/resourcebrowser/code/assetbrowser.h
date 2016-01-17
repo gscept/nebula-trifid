@@ -20,6 +20,7 @@
 #include <QMenuBar>
 #include <QDockWidget>
 #include <QListWidgetItem>
+#include <QPropertyAnimation>
 
 namespace Ui
 {
@@ -59,9 +60,6 @@ public:
 	/// close texture browser
 	void Close();
 
-	/// set window to be modal over
-	void SetWindowModal(QWidget* widget);
-
 	/// handle opening
 	void showEvent(QShowEvent* event);
 	/// handle closing
@@ -95,6 +93,8 @@ private slots:
 	void OnSurfaceClicked(const QString& sur);
 	/// handle backing in the hierarchy
 	void OnBack();
+	/// handle pressing escape
+	void OnEscape();
 	/// handle whenever an item gets right clicked
 	void OnItemRightClicked(QGraphicsSceneContextMenuEvent* event);
 
@@ -109,6 +109,9 @@ private slots:
 	void UpdateAssetFolders();
 	/// handle an item getting double clicked in the asset folder
 	void OnAssetFolderClicked(QListWidgetItem* item);
+
+	/// handle the animation getting updated
+	void OnAnimationUpdated(const QVariant& value);
 
 signals:
     /// signal emitted when a texture is selected, only happens if browser is not opened through Execute
@@ -141,7 +144,9 @@ private:
 	QString selectedResource;
 	Ui::AssetBrowser* ui;
 	QGraphicsGridLayout* layout;
-	QShortcut* shortcut;
+	QShortcut* backShortcut;
+	QShortcut* escShortcut;
+	QPropertyAnimation* executingAnimation;
     QMenuBar menubar;
 	QList<QGraphicsPixmapItem*> items;
 	FileWatcher assetFolderWatcher;

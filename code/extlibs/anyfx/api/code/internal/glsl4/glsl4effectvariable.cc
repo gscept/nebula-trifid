@@ -257,7 +257,6 @@ GLSL4EffectVariable::Apply()
 {
 	if (this->type >= Sampler1D && this->type <= ImageCubeArray && this->uniformLocation != -1 && this->isDirty)
 	{
-		// first bind variable name to texture unit
 		glUniform1i(this->uniformLocation, this->textureUnit);
 	}	
 }
@@ -360,7 +359,7 @@ GLSL4EffectVariable::Commit()
 		case SamplerCubeArray:
 			{
                 // unpack data
-                EffectVariable::OpenGLTextureBinding* obj = (EffectVariable::OpenGLTextureBinding*)this->currentValue;
+                OpenGLTextureBinding* obj = (OpenGLTextureBinding*)this->currentValue;
 				if (obj)
 				{
 #if GL4_MULTIBIND
@@ -412,7 +411,7 @@ GLSL4EffectVariable::Commit()
 		case Image2DMS:
             {
                 // unpack data
-                EffectVariable::OpenGLTextureBinding* obj = (EffectVariable::OpenGLTextureBinding*)this->currentValue;
+                OpenGLTextureBinding* obj = (OpenGLTextureBinding*)this->currentValue;
 				
 #if GL4_MULTIBIND
 				if (obj)
@@ -450,7 +449,7 @@ GLSL4EffectVariable::Commit()
 		case ImageCubeArray:
 			{
 				// unpack data
-				EffectVariable::OpenGLTextureBinding* obj = (EffectVariable::OpenGLTextureBinding*)this->currentValue;
+				OpenGLTextureBinding* obj = (OpenGLTextureBinding*)this->currentValue;
 
                 if (obj && obj->bound.textureType == this->textureType)
                 {

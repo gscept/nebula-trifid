@@ -7,6 +7,7 @@
 #include "ogl4types.h"
 #include "resources/resourcemanager.h"
 #include "coregraphics/texture.h"
+#include "../renderdevice.h"
 
 using namespace CoreGraphics;
 using namespace Resources;
@@ -98,12 +99,20 @@ OGL4RenderTargetCube::Setup()
 
     glGenFramebuffers(1, &this->ogl4Framebuffer);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->ogl4Framebuffer);
-	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X, this->ogl4ResolveTexture, 0);
-	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_CUBE_MAP_NEGATIVE_X, this->ogl4ResolveTexture, 0);
-	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_CUBE_MAP_POSITIVE_Y, this->ogl4ResolveTexture, 0);
-	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, this->ogl4ResolveTexture, 0);
-	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_CUBE_MAP_POSITIVE_Z, this->ogl4ResolveTexture, 0);
-	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT5, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, this->ogl4ResolveTexture, 0);
+	if (this->layered)
+	{
+		glFramebufferTexture(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, this->ogl4ResolveTexture, 0);
+	}
+	else
+	{
+		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X, this->ogl4ResolveTexture, 0);
+		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_CUBE_MAP_NEGATIVE_X, this->ogl4ResolveTexture, 0);
+		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_CUBE_MAP_POSITIVE_Y, this->ogl4ResolveTexture, 0);
+		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, this->ogl4ResolveTexture, 0);
+		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_CUBE_MAP_POSITIVE_Z, this->ogl4ResolveTexture, 0);
+		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT5, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, this->ogl4ResolveTexture, 0);
+	}
+	
     if (this->useDepthStencilCube)
     {
         glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, this->ogl4DepthStencilTexture);
@@ -154,8 +163,16 @@ OGL4RenderTargetCube::BeginPass()
     // clear rendertarget
     this->Clear(this->clearFlags);
 
-    // bind draw buffer based on current face
-    glDrawBuffer(GL_COLOR_ATTACHMENT0 + this->currentDrawFace);
+    // if we draw to -1, we use the zeroth layered cube map
+	if (this->layered)
+	{
+		glDrawBuffer(GL_COLOR_ATTACHMENT0);
+	}
+	else
+	{
+		// otherwise we use the per-cube map selection method
+		glDrawBuffer(GL_COLOR_ATTACHMENT0 + this->currentDrawFace);
+	}	
 }
 
 //------------------------------------------------------------------------------

@@ -13,6 +13,23 @@
 #include "tiledsurfaceitem.h"
 
 #include <QMenu>
+#include <QVariantAnimation>
+#include <QSettings>
+
+//------------------------------------------------------------------------------
+/**
+*/
+QVariant
+AssetBrowserColorInterpolator(const QColor& start, const QColor& end, qreal progress)
+{
+	QColor result;
+	result.setRed(start.red() * (1 - progress) + end.red() * progress);
+	result.setGreen(start.green() * (1 - progress) + end.green() * progress);
+	result.setBlue(start.blue() * (1 - progress) + end.blue() * progress);
+	result.setAlpha(start.alpha() * (1 - progress) + end.alpha() * progress);
+	return result;
+}
+
 using namespace Util;
 using namespace IO;
 namespace ResourceBrowser
@@ -32,8 +49,10 @@ AssetBrowser::AssetBrowser() :
 	this->ui = new Ui::AssetBrowser;
 	this->ui->setupUi(this);
 	connect(this->ui->backButton, SIGNAL(pressed()), this, SLOT(OnBack()));
-	this->shortcut = new QShortcut(QKeySequence(Qt::Key_Backspace), this);
-	connect(this->shortcut, SIGNAL(activated()), this->ui->backButton, SLOT(animateClick()));
+	this->backShortcut = new QShortcut(QKeySequence(Qt::Key_Backspace), this);
+	connect(this->backShortcut, SIGNAL(activated()), this->ui->backButton, SLOT(animateClick()));
+	this->escShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+	connect(this->escShortcut, SIGNAL(activated()), this, SLOT(OnEscape()));
 
     connect(this->ui->texturesFilter, SIGNAL(toggled(bool)), this, SLOT(OnTexturesFilterChecked(bool)));
     connect(this->ui->modelsFilter, SIGNAL(toggled(bool)), this, SLOT(OnModelsFilterChecked(bool)));
@@ -46,7 +65,7 @@ AssetBrowser::AssetBrowser() :
 	this->UpdateAssetFolders();
 
 	// connect clicking the root folder widget
-	connect(this->ui->rootFolderWidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(OnAssetFolderClicked(QListWidgetItem*)));
+	connect(this->ui->rootFolderWidget, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(OnAssetFolderClicked(QListWidgetItem*)));
 
 	__ConstructSingleton;
 }
@@ -57,7 +76,11 @@ AssetBrowser::AssetBrowser() :
 AssetBrowser::~AssetBrowser()
 {
 	delete this->ui;
-	delete this->shortcut;
+	this->ui = 0;
+	delete this->backShortcut;
+	this->backShortcut = 0;
+	delete this->escShortcut;
+	this->escShortcut = 0;
 	__DestructSingleton;
 }
 
@@ -69,8 +92,33 @@ AssetBrowser::Execute(const QString& title, const AssetFilter& filter)
 {
 	this->setWindowTitle("Asset browser - " + title);
 
-	// pause loader
-	AssetBrowser::loaderThread->Pause(false);
+	// detach asset browser
+	QDockWidget::DockWidgetFeatures features = this->features();
+	this->setFeatures(QDockWidget::NoDockWidgetFeatures);
+	Qt::DockWidgetAreas areas = this->allowedAreas();
+	this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+	this->setAllowedAreas(Qt::NoDockWidgetArea);
+	this->setWindowModality(Qt::ApplicationModal);
+	QPalette originalPalette = this->palette();
+
+	// setup curve points
+	QColor origColor = originalPalette.color(QPalette::Base);
+	QColor targetColor = origColor;
+	targetColor.setRed(240);
+	targetColor.setGreen(160);
+
+	// create animation
+	this->executingAnimation = new QPropertyAnimation;
+	this->executingAnimation->setTargetObject(this);
+	this->executingAnimation->setKeyValueAt(0.0f, origColor);
+	this->executingAnimation->setKeyValueAt(0.5f, targetColor);
+	this->executingAnimation->setKeyValueAt(1.0f, origColor);
+	this->executingAnimation->setEasingCurve(QEasingCurve::OutInExpo);
+	this->executingAnimation->setLoopCount(-1);
+	this->executingAnimation->setDuration(2000);
+	connect(this->executingAnimation, SIGNAL(valueChanged(const QVariant&)), this, SLOT(OnAnimationUpdated(const QVariant&)));
+	qRegisterAnimationInterpolator<QColor>(AssetBrowserColorInterpolator);
+	this->executingAnimation->start();
 
 	// save the filter being used, then apply the executable filter
 	AssetFilter savedFilter = this->filter;
@@ -92,6 +140,16 @@ AssetBrowser::Execute(const QString& title, const AssetFilter& filter)
 	this->ui->texturesFilter->setEnabled(true);
 	this->ui->modelsFilter->setEnabled(true);
 	this->ui->surfacesFilter->setEnabled(true);
+
+	// detach asset browser
+	this->setWindowModality(Qt::NonModal);
+	this->setAllowedAreas(areas);
+	this->setFeatures(features);
+	this->setWindowModality(Qt::NonModal);
+	this->ui->assetView->setPalette(originalPalette);
+	this->executingAnimation->stop();
+	delete this->executingAnimation;
+	qRegisterAnimationInterpolator<QColor>(NULL);
 
 	// reset state and return result
 	this->SetFilter(savedFilter);
@@ -122,6 +180,7 @@ AssetBrowser::Execute()
 void
 AssetBrowser::Accept()
 {
+	this->setWindowTitle("Asset browser");
 	this->executeResult = QDialog::Accepted;
 	this->shouldStopExecuting = true;
 }
@@ -132,6 +191,7 @@ AssetBrowser::Accept()
 void
 AssetBrowser::Reject()
 {
+	this->setWindowTitle("Asset browser");
 	this->executeResult = QDialog::Rejected;
 	this->shouldStopExecuting = true;
 }
@@ -157,17 +217,6 @@ AssetBrowser::Close()
 	this->Reject();
 	AssetBrowser::loaderThread->Stop();
 	delete AssetBrowser::loaderThread;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-AssetBrowser::SetWindowModal(QWidget* widget)
-{
-	// set window to be modal
-	this->setParent(widget);
-	this->setWindowFlags(Qt::Tool);
 }
 
 //------------------------------------------------------------------------------
@@ -299,7 +348,6 @@ AssetBrowser::OnTextureClicked(const QString& tex)
 {
 	if (this->isExecuting)
 	{
-		AssetBrowser::loaderThread->Pause(true);
 		this->selectedResource = tex;
 		this->Accept();
 		this->isExecuting = false;
@@ -318,7 +366,6 @@ AssetBrowser::OnModelClicked(const QString& mdl)
 {
 	if (this->isExecuting)
 	{
-		AssetBrowser::loaderThread->Pause(true);
 		this->selectedResource = mdl;
 		this->Accept();
 		this->isExecuting = false;
@@ -337,7 +384,6 @@ AssetBrowser::OnSurfaceClicked(const QString& sur)
 {
 	if (this->isExecuting)
 	{
-		AssetBrowser::loaderThread->Pause(true);
 		this->selectedResource = sur;
 		this->Accept();
 		this->isExecuting = false;
@@ -356,6 +402,15 @@ AssetBrowser::OnBack()
 {
 	AssetBrowser::loaderThread->Clear();
 	this->SetupRoot();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+AssetBrowser::OnEscape()
+{
+	this->Reject();
 }
 
 //------------------------------------------------------------------------------
@@ -550,6 +605,19 @@ void
 AssetBrowser::OnAssetFolderClicked(QListWidgetItem* item)
 {
 	this->OnDirectoryClicked(item->text(), item->data(Qt::UserRole).toString());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+AssetBrowser::OnAnimationUpdated(const QVariant& value)
+{
+	QColor color = value.value<QColor>();
+	QPalette palette = this->ui->assetView->palette();
+	QPalette temp = palette;
+	temp.setColor(QPalette::Base, color);
+	this->ui->assetView->setPalette(temp);
 }
 
 } // namespace ResourceBrowser

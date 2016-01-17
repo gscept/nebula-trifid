@@ -67,6 +67,7 @@ InternalEffectProgram::Apply()
 	for (i = 0; i < num; ++i)
 	{
 		this->effect->varbuffersByIndex[i]->internalVarbuffer->Activate(this);
+		this->effect->varbuffersByIndex[i]->internalVarbuffer->Apply();
 	}
 
 	num = this->effect->numSamplers;

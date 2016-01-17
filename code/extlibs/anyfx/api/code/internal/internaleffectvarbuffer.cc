@@ -11,7 +11,7 @@ namespace AnyFX
 /**
 */
 InternalEffectVarbuffer::InternalEffectVarbuffer() :
-	currentBufferHandle(0),
+	bufferHandle(0),
 	isSlave(false)
 {
 	// empty
@@ -33,8 +33,8 @@ void
 InternalEffectVarbuffer::Setup(eastl::vector<InternalEffectProgram*> programs)
 {
 	this->masterBuffer = this;
-	this->currentBufferHandle = new void*;
-	*this->currentBufferHandle = NULL;
+	this->bufferHandle = new void*;
+	*this->bufferHandle = NULL;
 }
 
 //------------------------------------------------------------------------------
@@ -53,7 +53,7 @@ InternalEffectVarbuffer::SetupSlave(eastl::vector<InternalEffectProgram*> progra
 	this->isSlave = true;
 
 	// make sure slaved varblocks use the same handle
-	this->currentBufferHandle = masterBuffer->currentBufferHandle;
+	this->bufferHandle = masterBuffer->bufferHandle;
 }
 
 //------------------------------------------------------------------------------

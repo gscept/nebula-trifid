@@ -122,6 +122,7 @@ CharacterSkinNodeInstance::Discard()
 	{
 		this->jointBuffer->Discard();
 		this->jointBuffer = 0;
+		this->skinningJointPaletteVar->SetBufferHandle(NULL);
 		this->skinningJointPaletteVar = 0;
 		this->skinningShader = 0;
 	}

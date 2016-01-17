@@ -114,7 +114,9 @@ MaterialHandler::Setup(const QString& resource)
 	this->mainLayout = static_cast<QVBoxLayout*>(this->ui->variableFrame->layout());
 
     // setup UI
-    this->MakeMaterialUI(this->ui->surfaceName, this->ui->templateBox, this->ui->materialHelp);
+    this->MakeMaterialUI(this->ui->templateBox, this->ui->materialHelp);
+	this->ui->saveButton->setStyleSheet("background-color: rgb(4, 200, 0); color: white");
+	this->hasChanges = false;
 }
 
 //------------------------------------------------------------------------------
@@ -126,7 +128,7 @@ MaterialHandler::Discard()
 	// avoid discarding changes if the user doesn't want to
 	if (this->hasChanges)
 	{
-		QMessageBox::StandardButton button = QMessageBox::warning(NULL, "Pending changes", "Your material has unsaved changes, are you sure you want to close it?", QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+		QMessageBox::StandardButton button = QMessageBox::warning(NULL, "Pending changes", "Your surface has unsaved changes, are you sure you want to close it?", QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
 		if (button == QMessageBox::Cancel)
 		{
 			return false;
@@ -175,9 +177,9 @@ MaterialHandler::Discard()
 		Resources::ResourceManager::Instance()->DiscardManagedResource(this->managedSurface.upcast<Resources::ManagedResource>());
 		this->managedSurface = 0;
 		this->surface = 0;
-
 	}
 	
+	// clear our frame
 	this->ClearFrame(this->mainLayout);
 
 	return BaseHandler::Discard();
@@ -192,14 +194,14 @@ MaterialHandler::MaterialSelected(const QString& material)
 	// avoid discarding changes if the user doesn't want to
 	if (this->hasChanges)
 	{
-		QMessageBox::StandardButton button = QMessageBox::warning(NULL, "Pending changes", "Switching material templates will effectively discard all changes, are you sure you want to do this?", QMessageBox::Ok | QMessageBox::No);
+		QMessageBox::StandardButton button = QMessageBox::warning(NULL, "Pending changes", "Switching material templates will effectively discard all changes, are you sure you want to do this?", QMessageBox::Yes | QMessageBox::Cancel);
 		if (button == QMessageBox::Cancel)
 		{
 			return;
 		}
 		else
 		{
-			this->hasChanges = false;
+			this->OnModified();
 		}
 	}
 
@@ -268,7 +270,7 @@ MaterialHandler::TextureChanged(uint i)
     this->SetupTextureSlotHelper(item, img, valueText, this->defaultTextureMap[i].toUtf8().constData());
 
     // allocate texture
-    Ptr<Resources::ManagedTexture> textureObject = Resources::ResourceManager::Instance()->CreateManagedResource(CoreGraphics::Texture::RTTI, valueText, NULL, true).downcast<Resources::ManagedTexture>();
+    Ptr<Resources::ManagedTexture> textureObject = Resources::ResourceManager::Instance()->CreateManagedResource(CoreGraphics::Texture::RTTI, valueText + NEBULA3_TEXTURE_EXTENSION, NULL, true).downcast<Resources::ManagedTexture>();
     if (this->textureResources.Contains(i))
     {
         Resources::ResourceManager::Instance()->DiscardManagedResource(this->textureResources[i].upcast<Resources::ManagedResource>());
@@ -280,7 +282,7 @@ MaterialHandler::TextureChanged(uint i)
     var.SetType(Util::Variant::Object);
     var.SetObject(textureObject->GetTexture());
     this->surface->SetValue(this->textureVariables[i], var);
-	this->hasChanges = true;
+	this->OnModified();
 }
 
 //------------------------------------------------------------------------------
@@ -317,7 +319,7 @@ MaterialHandler::NewSurface()
 		Ptr<PreviewState> previewState = ContentBrowserApp::Instance()->GetPreviewState();
 		previewState->SetSurface(this->surfaceInstance.upcast<Materials::SurfaceInstance>());
 
-		this->hasChanges = false;
+		this->OnModified();
 		this->ResetUI();
 	}
 }
@@ -810,7 +812,6 @@ MaterialHandler::Save()
 	Logger logger;
 	BinaryXmlConverter converter;
 	converter.ConvertFile(resName, exportTarget, logger);
-	this->hasChanges = false;
 
 	// hmm, now our managed material here will need to be updated, since we made a new material
 	Ptr<Materials::ManagedSurface> prevSurface = this->managedSurface;
@@ -836,6 +837,10 @@ MaterialHandler::Save()
 	Ptr<ReloadResourceIfExists> msg = ReloadResourceIfExists::Create();
 	msg->SetResourceName(exportTarget);
 	QtRemoteInterfaceAddon::QtRemoteClient::GetClient("editor")->Send(msg.upcast<Messaging::Message>());
+
+	// mark save button and flip changed bool
+	this->ui->saveButton->setStyleSheet("background-color: rgb(4, 200, 0); color: white");
+	this->hasChanges = false;
 
 	// update thumbnail
 	this->UpdateThumbnail();
@@ -888,7 +893,6 @@ MaterialHandler::SaveAs()
 		Logger logger;
 		BinaryXmlConverter converter;
 		converter.ConvertFile(resName, exportTarget, logger);
-		this->hasChanges = false;
 
 		// hmm, now our managed material here will need to be updated, since we made a new material
 		Ptr<Materials::ManagedSurface> prevSurface = this->managedSurface;
@@ -914,6 +918,10 @@ MaterialHandler::SaveAs()
 
 		// generate thumbnail
 		resName = String::Sprintf("src:assets/%s/%s_sur.thumb", this->category.AsCharPtr(), this->file.AsCharPtr());
+
+		// mark save button and flip changed bool
+		this->ui->saveButton->setStyleSheet("background-color: rgb(4, 200, 0); color: white");
+		this->hasChanges = false;
 
 		// update thumbnail
 		this->UpdateThumbnail();
@@ -967,7 +975,7 @@ MaterialHandler::FloatVariableChanged(uint i)
 
     // format label as text
     String idText = label->text().toUtf8().constData();
-	this->hasChanges = true;
+	this->OnModified();
 }
 
 //------------------------------------------------------------------------------
@@ -990,7 +998,7 @@ MaterialHandler::Float2VariableChanged(uint i)
 
     // format label as text
     String idText = label->text().toUtf8().constData();
-	this->hasChanges = true;
+	this->OnModified();
 }
 
 //------------------------------------------------------------------------------
@@ -1021,7 +1029,7 @@ MaterialHandler::Float4VariableChanged(uint i)
 
     // format label as text
     String idText = label->text().toUtf8().constData();
-	this->hasChanges = true;
+	this->OnModified();
 }
 
 //------------------------------------------------------------------------------
@@ -1041,7 +1049,7 @@ MaterialHandler::BoolVariableChanged(uint i)
 
     // format label as text
     String idText = label->text().toUtf8().constData();
-	this->hasChanges = true;
+	this->OnModified();
 }
 
 //------------------------------------------------------------------------------
@@ -1063,7 +1071,7 @@ MaterialHandler::IntVariableChanged(uint i)
 
     // format label as text
     String idText = label->text().toUtf8().constData();
-	this->hasChanges = true;
+	this->OnModified();
 }
 
 //------------------------------------------------------------------------------
@@ -1153,6 +1161,8 @@ MaterialHandler::SetupTextureSlotHelper(QLineEdit* textureField, QPushButton* te
                 pixmap = pixmap.scaled(QSize(24, 24), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
                 textureButton->setToolTip("<html><img height=" + QString::number(height) + " width=" + QString::number(width) + " src=\"" + QString(texFile.LocalPath().AsCharPtr()) + "\"/></html>");
 
+				// remove file extension
+				resource.StripFileExtension();
                 textureField->blockSignals(true);
                 textureField->setText(resource.AsCharPtr());
                 textureField->blockSignals(false);
@@ -1160,10 +1170,6 @@ MaterialHandler::SetupTextureSlotHelper(QLineEdit* textureField, QPushButton* te
         }
         else
         {
-            textureField->blockSignals(true);
-            textureField->setText(resource.AsCharPtr());
-            textureField->blockSignals(false);
-
             IO::URI texFile = defaultResource;
             pixmap.load(texFile.LocalPath().AsCharPtr());
             int width = n_min(pixmap.width(), 512);
@@ -1174,6 +1180,12 @@ MaterialHandler::SetupTextureSlotHelper(QLineEdit* textureField, QPushButton* te
             QPalette pal;
             pal.setColor(QPalette::Text, Qt::red);
             textureField->setPalette(pal);
+
+			// remove file extension
+			resource.StripFileExtension();
+			textureField->blockSignals(true);
+			textureField->setText(resource.AsCharPtr());
+			textureField->blockSignals(false);
         }
 
     }
@@ -1188,9 +1200,11 @@ MaterialHandler::SetupTextureSlotHelper(QLineEdit* textureField, QPushButton* te
         pixmap = pixmap.scaled(QSize(24, 24), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
         textureButton->setToolTip("<html><img height=" + QString::number(height) + " width=" + QString::number(width) + " src=\"" + QString(texFile.LocalPath().AsCharPtr()) + "\"/></html>");
 
-        textureField->blockSignals(true);
-        textureField->setText(resource.AsCharPtr());
-        textureField->blockSignals(false);
+		// remove file extension
+		resource.StripFileExtension();
+		textureField->blockSignals(true);
+		textureField->setText(resource.AsCharPtr());
+		textureField->blockSignals(false);
     }
 
     QPalette palette;
@@ -1204,7 +1218,7 @@ MaterialHandler::SetupTextureSlotHelper(QLineEdit* textureField, QPushButton* te
 /**
 */
 void
-MaterialHandler::MakeMaterialUI(QLabel* surfaceName, QComboBox* materialBox, QPushButton* materialHelp)
+MaterialHandler::MakeMaterialUI(QComboBox* materialBox, QPushButton* materialHelp)
 {
     // we need to do this, because we might use different layouts
     this->materialBox = materialBox;
@@ -1254,7 +1268,7 @@ MaterialHandler::MakeMaterialUI(QLabel* surfaceName, QComboBox* materialBox, QPu
 		QHBoxLayout* varLayout = new QHBoxLayout;
 
         Ptr<CoreGraphics::Texture> textureObject = (CoreGraphics::Texture*)texValue.GetObject();
-        this->defaultTextureMap[i] = textureObject->GetResourceId().AsString().AsCharPtr();
+        this->defaultTextureMap[i] = param.defaultVal.GetString().AsCharPtr();
         String res = textureObject->GetResourceId().AsString();
 
         // get texture info
@@ -1753,7 +1767,18 @@ MaterialHandler::ResetUI()
 	this->mainLayout = static_cast<QVBoxLayout*>(this->ui->variableFrame->layout());
 
 	this->ClearFrame(this->mainLayout);
-	this->MakeMaterialUI(this->ui->surfaceName, this->ui->templateBox, this->ui->materialHelp);
+	this->MakeMaterialUI(this->ui->templateBox, this->ui->materialHelp);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+MaterialHandler::OnModified()
+{
+	// mark save button
+	this->ui->saveButton->setStyleSheet("background-color: rgb(200, 4, 0); color: white");
+	this->hasChanges = true;
 }
 
 //------------------------------------------------------------------------------

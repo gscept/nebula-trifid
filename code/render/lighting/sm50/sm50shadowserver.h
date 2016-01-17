@@ -66,7 +66,6 @@ private:
 	/// sort local lights by priority
 	virtual void SortLights();
 
-
 	// spot light
 	Ptr<CoreGraphics::RenderTarget> spotLightShadowMap1;
 	Ptr<CoreGraphics::RenderTarget> spotLightShadowMap2;
@@ -80,7 +79,7 @@ private:
 	Ptr<Frame::FramePostEffect> spotLightVertPass;
 
 	// point light
-    Ptr<CoreGraphics::RenderTargetCube> pointLightShadowCubes[MaxNumShadowLights];
+	Ptr<CoreGraphics::RenderTargetCube> pointLightShadowCubes[MaxNumShadowPointLights];
     Ptr<Frame::FramePass> pointLightPass;
     Ptr<Frame::FrameBatch> pointLightBatch;
 
@@ -99,6 +98,7 @@ private:
 	CSMUtil csmUtil;
 
 	_declare_timer(globalShadow);
+	_declare_timer(pointLightShadow);
 	_declare_timer(spotLightShadow);
 }; 
 

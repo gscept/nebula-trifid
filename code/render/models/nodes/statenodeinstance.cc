@@ -112,6 +112,7 @@ StateNodeInstance::Discard()
     this->surfaceInstance = 0;
     this->objectBuffer->Discard();
     this->objectBuffer = 0;
+	this->objectBlockShaderVar->SetBufferHandle(NULL);
     this->objectBlockShaderVar = 0;
 
     this->modelShaderVar = 0;
@@ -217,8 +218,12 @@ StateNodeInstance::SetSurfaceInstance(const Ptr<Materials::SurfaceInstance>& mat
 		const Util::StringAtom& name = SharedVariableNames[i];
 		if (this->surfaceInstance->HasConstant(name))
 		{
+			// only add variable if system managed
 			const Ptr<Materials::SurfaceConstant>& var = this->surfaceInstance->GetConstant(name);
-			this->sharedConstants.Add(name, var);
+			if (var->IsSystemManaged())
+			{
+				this->sharedConstants.Add(name, var);
+			}			
 		}
 	}
 }

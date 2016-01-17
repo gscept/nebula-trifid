@@ -24,6 +24,6 @@ private:
     virtual bool SetupResourceFromStream(const Ptr<IO::Stream>& stream);
 };
 
-} // namespace Direct3D9
+} // namespace OpenGL4
 //------------------------------------------------------------------------------
     

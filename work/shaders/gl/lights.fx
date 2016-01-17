@@ -202,22 +202,6 @@ GetInvertedOcclusionSpotLight(float receiverDepthInLightSpace,
 //---------------------------------------------------------------------------------------------------------------------------
 /**
 */
-float 
-GetInvertedOcclusionPointLight(float receiverDepthInLightSpace,
-                     vec3 lightSpaceUv)
-{
-
-    // offset and scale shadow lookup tex coordinates
-	vec3 shadowUv = lightSpaceUv;
-	
-	// get pixel size of shadow projection texture
-	vec2 shadowSample = texture(ShadowProjCube, shadowUv).rg;
-	return ChebyshevUpperBound(shadowSample, receiverDepthInLightSpace, 0.001f);
-}
-
-//---------------------------------------------------------------------------------------------------------------------------
-/**
-*/
 shader
 void
 vsSpot(in vec3 position,
@@ -359,16 +343,36 @@ state PointLightStateShadow
 //---------------------------------------------------------------------------------------------------------------------------
 /**
 */
+float 
+GetInvertedOcclusionPointLight(float receiverDepthInLightSpace,
+                     vec3 lightSpaceUv)
+{
+
+    // offset and scale shadow lookup tex coordinates
+	vec3 shadowUv = lightSpaceUv;
+	
+	// get pixel size of shadow projection texture
+	vec2 shadowSample = texture(ShadowProjCube, shadowUv).rg;
+	
+	// get pixel size of shadow projection texture	
+	return ChebyshevUpperBound(shadowSample, receiverDepthInLightSpace, 0.000001f);
+}
+
+//---------------------------------------------------------------------------------------------------------------------------
+/**
+*/
 shader
 void
 vsPoint(in vec3 position,
 	out vec3 ViewSpacePosition,
-	out vec3 WorldPosition) 
+	out vec3 WorldPosition,
+	out vec4 ProjPosition) 
 {
 	vec4 modelSpace = LightTransform * vec4(position, 1);
 	gl_Position = ViewProjection * modelSpace;
 	WorldPosition = modelSpace.xyz;
 	ViewSpacePosition = (View * modelSpace).xyz;
+	ProjPosition = gl_Position;
 }
 
 //---------------------------------------------------------------------------------------------------------------------------
@@ -378,6 +382,7 @@ shader
 void
 psPoint(in vec3 ViewSpacePosition,	
 	in vec3 WorldPosition,
+	in vec4 ProjPosition,
 	[color0] out vec4 Color) 
 {
 	vec2 pixelSize = GetPixelSize(DepthBuffer);
@@ -421,6 +426,7 @@ shader
 void
 psPointShadow(in vec3 ViewSpacePosition,	
 	in vec3 WorldPosition,
+	in vec4 ProjPosition,
 	[color0] out vec4 Color) 
 {
 	vec2 pixelSize = GetPixelSize(DepthBuffer);
@@ -459,10 +465,9 @@ psPointShadow(in vec3 ViewSpacePosition,
 	vec4 shadowProjLightPos = ShadowProjTransform * vec4(surfacePos, 1.0f);
 	vec3 shadowLookup = (shadowProjLightPos.xyz / shadowProjLightPos.www) * vec3(0.5f, -0.5f, 1.0f) + vec3(0.5f, 0.5f, 0.0f);
 	float receiverDepth = shadowProjLightPos.z / shadowProjLightPos.w;
-	shadowFactor = GetInvertedOcclusionPointLight(projDir.z,
+	shadowFactor = GetInvertedOcclusionPointLight(ProjPosition.z/ProjPosition.w,
 						projDir);	
-	shadowFactor = saturate(lerp(1.0f, saturate(shadowFactor), ShadowIntensity) * att);             
-	
+	shadowFactor = saturate(lerp(1.0f, saturate(shadowFactor), ShadowIntensity) * att);      	
 	
 	Color = EncodeHDR(oColor * shadowFactor);
 }

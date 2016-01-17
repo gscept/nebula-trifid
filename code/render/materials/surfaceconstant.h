@@ -49,6 +49,8 @@ public:
     void SetTexture(const Ptr<CoreGraphics::Texture>& tex);
     /// get value
     const Util::Variant& GetValue() const;
+	/// returns true if constant is supposed to be system managed
+	const bool IsSystemManaged() const;
 
     /// applies this constant, which readies it for drawing, but only applies the value on one of the shaders
     void Apply(const Frame::BatchGroup::Code& group);
@@ -76,6 +78,15 @@ inline const Util::Variant&
 SurfaceConstant::GetValue() const
 {
     return this->value;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const bool
+SurfaceConstant::IsSystemManaged() const
+{
+	return this->system;
 }
 
 } // namespace Materials

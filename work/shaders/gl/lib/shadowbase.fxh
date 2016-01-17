@@ -36,6 +36,16 @@ state ShadowStateCSM
 	DepthClamp = false;
 };
 
+state ShadowStateTest
+{
+	CullMode = Front;
+	DepthEnabled = false;
+	DepthWrite = false;
+	//PolygonOffsetEnabled = true;
+	//PolygonOffsetFactor = 1.0f;
+	//PolygonOffsetUnits = 2.0f;
+};
+
 //------------------------------------------------------------------------------
 /**
 */
@@ -165,25 +175,29 @@ vsStaticInstCSM(in vec3 position,
 */
 [inputprimitive] = triangles
 [outputprimitive] = triangle_strip
-[maxvertexcount] = 18
+[maxvertexcount] = 3
 shader
 void 
-gsPoint(in vec2 uv[], out vec2 UV, out vec4 ProjPos)
-{
-	for (int instance = 0; instance < 6; instance++)
-	{
-		mat4 splitMatrix = ViewMatrixArray[instance];
-		gl_Layer = instance;
-		for (int vertex = 0; vertex < gl_in.length(); vertex++)
-		{
-			vec4 pos = splitMatrix * gl_Position;
-			UV = uv[vertex];
-			ProjPos = pos;
-			gl_Position = pos;
-			EmitVertex();
-		}
-		EndPrimitive();
-	}
+gsPoint(in vec2 uv[], in vec4 pos[], flat in int instance[], out vec2 UV, out vec4 ProjPos)
+{	
+	UV = uv[0];
+	ProjPos = pos[0];
+	gl_Position = ProjPos;
+	gl_Layer = instance[0];
+	EmitVertex();
+	
+	UV = uv[1];
+	ProjPos = pos[1];
+	gl_Position = ProjPos;
+	gl_Layer = instance[0];
+	EmitVertex();
+	
+	UV = uv[2];
+	ProjPos = pos[2];
+	gl_Position = ProjPos;
+	gl_Layer = instance[0];
+	EmitVertex();
+	EndPrimitive();
 }
 
 //------------------------------------------------------------------------------
@@ -195,7 +209,6 @@ gsPoint(in vec2 uv[], out vec2 UV, out vec4 ProjPos)
 [inputprimitive] = triangles
 [outputprimitive] = triangle_strip
 [maxvertexcount] = 3
-//[instances] = 4
 shader
 void 
 gsCSM(in vec2 uv[], in vec4 pos[], flat in int instance[], out vec2 UV, out vec4 ProjPos)

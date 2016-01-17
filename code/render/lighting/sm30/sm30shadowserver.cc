@@ -64,7 +64,7 @@ SM30ShadowServer::Open()
     const Ptr<RenderTarget>& origRt = this->frameShader->GetRenderTargetByName(ResourceId("ESMDownscale"));
     SizeT rtWidth = origRt->GetWidth();
     SizeT rtHeight = origRt->GetHeight();
-    SizeT resolveWidth = rtWidth * MaxNumShadowLights;
+    SizeT resolveWidth = rtWidth * MaxNumShadowSpotLights;
     SizeT resolveHeight = rtHeight;
     PixelFormat::Code pixelFormat = origRt->GetColorBufferFormat();
     
@@ -155,9 +155,9 @@ SM30ShadowServer::UpdateSpotLightShadowBuffers()
 
     // for each shadow casting light...
     SizeT numLights = this->spotLightEntities.Size();
-    if (numLights > MaxNumShadowLights)
+    if (numLights > MaxNumShadowSpotLights)
     {
-        numLights = MaxNumShadowLights;
+        numLights = MaxNumShadowSpotLights;
     }
     IndexT lightIndex;
     for (lightIndex = 0; lightIndex < numLights; lightIndex++)
@@ -199,9 +199,9 @@ SM30ShadowServer::UpdateSpotLightShadowBuffers()
         // also moves projection space coords into uv space
         float shadowBufferHoriPixelSize = 1.0f / this->localLightShadowBuffer->GetResolveTextureWidth();
         Math::float4 uvOffset;
-        uvOffset.x() = float(lightIndex) / float(MaxNumShadowLights);
+        uvOffset.x() = float(lightIndex) / float(MaxNumShadowSpotLights);
         uvOffset.y() = 0.0f;
-        uvOffset.z() = (1.0f - shadowBufferHoriPixelSize) / float(MaxNumShadowLights);
+        uvOffset.z() = (1.0f - shadowBufferHoriPixelSize) / float(MaxNumShadowSpotLights);
         uvOffset.w() = 1.0f;
         lightEntity->SetShadowBufferUvOffsetAndScale(uvOffset);
     }
@@ -344,11 +344,11 @@ SM30ShadowServer::SortLights()
     sortedArray.EndBulkAdd();     
 
     // patch positions if maxnumshadowlights  = 1
-    if (sortedArray.Size() > MaxNumShadowLights)
+    if (sortedArray.Size() > MaxNumShadowSpotLights)
     {   
-        if (MaxNumShadowLights == 1)
+        if (MaxNumShadowSpotLights == 1)
         {   
-            IndexT lastShadowCastingLight = MaxNumShadowLights - 1;
+            IndexT lastShadowCastingLight = MaxNumShadowSpotLights - 1;
             const Ptr<AbstractLightEntity>& lightEntity = sortedArray.ValueAtIndex(lastShadowCastingLight).upcast<AbstractLightEntity>();
             const matrix44& shadowLightTransform = lightEntity->GetTransform();
             float range0 = shadowLightTransform.get_zaxis().length();
@@ -361,7 +361,7 @@ SM30ShadowServer::SortLights()
             float interpolatedYRot = lightDir.rho;
             SizeT numLightsInRange = 0;
             IndexT i;
-            for (i = MaxNumShadowLights; i < sortedArray.Size(); ++i)
+            for (i = MaxNumShadowSpotLights; i < sortedArray.Size(); ++i)
             {
 				const Ptr<AbstractLightEntity>& curLightEntity = sortedArray.ValueAtIndex(i).upcast<AbstractLightEntity>();
                 const matrix44& curTransform = curLightEntity->GetTransform();            
@@ -407,8 +407,8 @@ SM30ShadowServer::SortLights()
         // more than one casting lights allowed, use shadow fading
         else
         {
-            IndexT lastShadowCastingLight = MaxNumShadowLights - 1;
-            IndexT firstNotAllowedShadowCastingLight = MaxNumShadowLights;
+            IndexT lastShadowCastingLight = MaxNumShadowSpotLights - 1;
+            IndexT firstNotAllowedShadowCastingLight = MaxNumShadowSpotLights;
             // fade out shadow of casting light depended on next shadowcasting light
             float att0 = 1 - sortedArray.KeyAtIndex(lastShadowCastingLight);
             float att1 = 1 - sortedArray.KeyAtIndex(firstNotAllowedShadowCastingLight);

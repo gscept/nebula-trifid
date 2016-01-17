@@ -682,7 +682,7 @@ OGL4RenderDevice::Draw()
 				this->primitiveGroup.GetNumIndices(),								// number of primitives
 				indexType,															// type of index				
 				(GLvoid*)(this->primitiveGroup.GetBaseIndex() * indexSize),			// pointer to indices (NULL since we use VAOs or IBOs)
-				this->primitiveGroup.GetBaseVertex()								// index offset
+				this->primitiveGroup.GetBaseVertex()								// vertex offset
 			);				
 		}
 		else

@@ -38,7 +38,7 @@ public:
     void CycleBuffers();
 
 	/// return handle
-	void* GetHandle() const;
+	AnyFX::Handle* GetHandle() const;
 
 private:
 
@@ -54,7 +54,7 @@ private:
 //------------------------------------------------------------------------------
 /**
 */
-inline void*
+inline AnyFX::Handle*
 OGL4ShaderStorageBuffer::GetHandle() const
 {
 	return this->handle;

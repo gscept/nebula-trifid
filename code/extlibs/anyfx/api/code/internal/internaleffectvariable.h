@@ -212,7 +212,7 @@ protected:
     /// set matrix indexed, override in back-end implementation
     void SetMatrixIndexed(const float* mat, unsigned index);
     /// set texture indexed, override in back-end implementation
-    void SetTextureIndexed(void* handle, unsigned index);
+	void SetTextureIndexed(void* handle, unsigned index);
 
 	InternalEffectVarblock* parentBlock;
 	InternalEffectProgram* activeProgram;

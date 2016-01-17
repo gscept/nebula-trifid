@@ -45,6 +45,7 @@ void
 GLSL4EffectVarblock::Setup(eastl::vector<InternalEffectProgram*> programs)
 {
 	InternalEffectVarblock::Setup(programs);
+	*this->bufferHandle = new OpenGLBufferBinding;
 
     const char** names = new const char*[this->variables.size()];
     for (unsigned index = 0; index < this->variables.size(); index++) names[index] = this->variables[index]->GetName().c_str();
@@ -166,12 +167,10 @@ GLSL4EffectVarblock::SetupSlave(eastl::vector<InternalEffectProgram*> programs, 
 //------------------------------------------------------------------------------
 /**
 */
-void 
-GLSL4EffectVarblock::Apply()
+void
+GLSL4EffectVarblock::SetBuffer(void* handle)
 {
-	// bind buffer to binding point, piece of cake!
-    //glBindBufferRange(GL_UNIFORM_BUFFER, this->uniformBlockBinding, this->buffers[0], *this->glBufferOffset, this->dataBlock->size);
-	//glBindBufferBase(GL_UNIFORM_BUFFER, this->uniformBlockBinding, this->buffers[0]);
+	*this->bufferHandle = handle;
 }
 
 //------------------------------------------------------------------------------
@@ -182,7 +181,7 @@ GLSL4EffectVarblock::Commit()
 {
 	if (this->currentLocation != GL_INVALID_INDEX && this->uniformBlockBinding != GL_INVALID_INDEX)
 	{
-        EffectVarblock::OpenGLBufferBinding* buf = (EffectVarblock::OpenGLBufferBinding*)*this->currentBufferHandle;
+        OpenGLBufferBinding* buf = (OpenGLBufferBinding*)*this->bufferHandle;
         if (buf != 0)
         {
             if (buf->bindRange)
@@ -221,6 +220,12 @@ GLSL4EffectVarblock::Commit()
 #endif
             }
         }
+		else
+		{
+			this->activeProgram->varblockRangeBindBuffers[this->uniformBlockBinding] = 0;
+			this->activeProgram->varblockRangeBindOffsets[this->uniformBlockBinding] = 0;
+			this->activeProgram->varblockRangeBindSizes[this->uniformBlockBinding] = 0;
+		}
 	}
 }
 

@@ -167,31 +167,33 @@ SM50ShadowServer::Open()
 	}
 #endif
 
-    /*
     // create render cubes
     IndexT i;
-    for (i = 0; i < MaxNumShadowLights; i++)
+	for (i = 0; i < MaxNumShadowPointLights; i++)
     {
         this->pointLightShadowCubes[i] = RenderTargetCube::Create();
-        this->pointLightShadowCubes[i]->SetWidth(rtWidth);
-        this->pointLightShadowCubes[i]->SetHeight(rtHeight);
+        this->pointLightShadowCubes[i]->SetWidth(rtWidth/2);
+        this->pointLightShadowCubes[i]->SetHeight(rtHeight/2);
         this->pointLightShadowCubes[i]->SetColorBufferFormat(pixelFormat);
-        this->pointLightShadowCubes[i]->SetClearColor(float4(1,0,0,0));
+        this->pointLightShadowCubes[i]->SetClearColor(float4(0,0,0,0));
+		//this->pointLightShadowCubes[i]->SetDepthStencilCube(true);
         this->pointLightShadowCubes[i]->SetResolveTextureResourceId(ResourceId("PointLightShadowCube" + String::FromInt(i)));
+		this->pointLightShadowCubes[i]->SetLayered(true);
         this->pointLightShadowCubes[i]->Setup();
     }
-    */
 
     // create batch for pointlights
     this->pointLightBatch = FrameBatch::Create();
     this->pointLightBatch->SetType(CoreGraphics::FrameBatchType::FromString("Geometry"));
     this->pointLightBatch->SetBatchGroup(BatchGroup::FromName("PointLightShadow"));
+	this->pointLightBatch->SetForceInstancing(true, 6);
 
     // create pass for pointlights
     this->pointLightPass = FramePass::Create();
-    this->pointLightPass->SetClearFlags(RenderTarget::ClearColor);
+	this->pointLightPass->SetClearFlags(RenderTarget::ClearColor | DepthStencilTarget::ClearDepth);
+	this->pointLightPass->SetClearDepth(1);
     this->pointLightPass->SetName("PointLightShadowPass");
-    this->pointLightPass->SetClearColor(float4(1,0,0,0));
+    this->pointLightPass->SetClearColor(float4(0,0,0,0));
     this->pointLightPass->AddBatch(this->pointLightBatch);
 
 #if NEBULA3_ENABLE_PROFILING
@@ -315,6 +317,10 @@ SM50ShadowServer::Open()
 	this->spotLightShadow = Debug::DebugTimer::Create();
 	name.Format("ShadowServer_SpotLightShadow");
 	this->spotLightShadow->Setup(name, "Shadowmapping");
+
+	this->pointLightShadow = Debug::DebugTimer::Create();
+	name.Format("ShadowServer_PointLightShadow");
+	this->pointLightShadow->Setup(name, "Shadowmapping");
 #endif
 }
 
@@ -340,15 +346,13 @@ SM50ShadowServer::Close()
 	this->spotLightVertPass = 0;
 	this->spotLightHoriPass->Discard();
 	this->spotLightHoriPass = 0;
-
-    /*
+    
     IndexT i;
-    for (i = 0; i < MaxNumShadowLights; i++)
+    for (i = 0; i < MaxNumShadowPointLights; i++)
     {
         this->pointLightShadowCubes[i]->Discard();
         this->pointLightShadowCubes[i] = 0;
     }
-    */
 
     // discard point light pass
     this->pointLightPass->Discard();
@@ -374,6 +378,7 @@ SM50ShadowServer::Close()
     ShadowServerBase::Close();
 
 	_discard_timer(globalShadow);
+	_discard_timer(pointLightShadow);
 	_discard_timer(spotLightShadow);
 }
 
@@ -394,6 +399,13 @@ SM50ShadowServer::UpdateShadowBuffers()
 		this->UpdateSpotLightShadowBuffers();
 	}
 	_stop_timer(spotLightShadow);
+
+	_start_timer(pointLightShadow);
+	if (this->pointLightEntities.Size() > 0)
+	{
+		this->UpdatePointLightShadowBuffers();
+	}
+	_stop_timer(pointLightShadow);
 
 	// update global light cascaded shadow buffers
 	_start_timer(globalShadow);
@@ -420,9 +432,9 @@ SM50ShadowServer::UpdateSpotLightShadowBuffers()
 
 	// for each shadow casting light...
 	SizeT numLights = this->spotLightEntities.Size();
-	if (numLights > MaxNumShadowLights)
+	if (numLights > MaxNumShadowSpotLights)
 	{
-		numLights = MaxNumShadowLights;
+		numLights = MaxNumShadowSpotLights;
 	}
 
 	IndexT lightIndex;
@@ -434,6 +446,7 @@ SM50ShadowServer::UpdateSpotLightShadowBuffers()
 		// perform visibility resolve for current light
 		visResolver->BeginResolve(lightEntity->GetTransform());
 		const Array<Ptr<GraphicsEntity> >& visLinks = lightEntity->GetLinks(GraphicsEntity::LightLink);
+		if (visLinks.Size() == 0) continue;
 		IndexT linkIndex;
 		for (linkIndex = 0; linkIndex < visLinks.Size(); linkIndex++)
 		{
@@ -490,7 +503,87 @@ SM50ShadowServer::UpdateSpotLightShadowBuffers()
 void
 SM50ShadowServer::UpdatePointLightShadowBuffers()
 {
-	// FIXME: implement...
+	const Ptr<VisResolver>& visResolver = VisResolver::Instance();
+	const Ptr<TransformDevice>& transDev = TransformDevice::Instance();
+	const Ptr<RenderDevice>& renderDev = RenderDevice::Instance();
+	const Ptr<FrameSyncTimer>& timer = FrameSyncTimer::Instance();
+	IndexT frameIndex = timer->GetFrameIndex();
+
+	// for each shadow casting light...
+	SizeT numLights = this->pointLightEntities.Size();
+	if (numLights > MaxNumShadowPointLights)
+	{
+		numLights = MaxNumShadowPointLights;
+	}
+
+	IndexT lightIndex;
+	for (lightIndex = 0; lightIndex < numLights; lightIndex++)
+	{
+		// render shadow casters in current light volume to shadow buffer
+		const Ptr<PointLightEntity>& lightEntity = this->pointLightEntities[lightIndex];
+
+		// perform visibility resolve for current light
+		visResolver->BeginResolve(lightEntity->GetTransform());
+		const Array<Ptr<GraphicsEntity> >& visLinks = lightEntity->GetLinks(GraphicsEntity::LightLink);
+		if (visLinks.Size() == 0) continue;
+		IndexT linkIndex;
+		for (linkIndex = 0; linkIndex < visLinks.Size(); linkIndex++)
+		{
+			const Ptr<GraphicsEntity>& curEntity = visLinks[linkIndex];
+			n_assert(GraphicsEntityType::Model == curEntity->GetType());
+			if (curEntity->IsA(ModelEntity::RTTI) && curEntity->GetCastsShadows())
+			{
+				const Ptr<ModelEntity>& modelEntity = curEntity.downcast<ModelEntity>();
+				visResolver->AttachVisibleModelInstance(frameIndex, modelEntity->GetModelInstance(), false);
+			}
+		}
+		visResolver->EndResolve();
+
+		// generate view projection matrix
+		matrix44 proj = matrix44::perspfovrh(n_deg2rad(90.0f), 1, 0.1f, 2500.0f);
+		//viewProj.set_position(0);
+
+		// generate matrices
+		matrix44 views[6];
+		const float4 lightPos = lightEntity->GetTransform().get_position();
+
+		views[0] = matrix44::multiply(matrix44::rotationy(n_deg2rad(90)), matrix44::rotationz(n_deg2rad(180)));		// +X
+		views[0].set_position(lightPos);
+		views[0] = matrix44::multiply(views[0], proj);
+
+		views[1] = matrix44::multiply(matrix44::rotationy(n_deg2rad(-90)), matrix44::rotationz(n_deg2rad(180)));	// -X
+		views[1].set_position(lightPos);
+		views[1] = matrix44::multiply(views[1], proj);
+
+		views[2] = matrix44::rotationx(n_deg2rad(90));																// +Y
+		views[2].set_position(lightPos);
+		views[2] = matrix44::multiply(views[2], proj);
+
+		views[3] = matrix44::rotationx(n_deg2rad(-90));																// -Y
+		views[3].set_position(lightPos);
+		views[3] = matrix44::multiply(views[3], proj);
+
+		views[4] = matrix44::multiply(matrix44::rotationy(n_deg2rad(180)), matrix44::rotationz(n_deg2rad(180)));	// +Z
+		views[4].set_position(lightPos);
+		views[4] = matrix44::multiply(views[4], proj);
+
+		views[5] = matrix44::rotationz(n_deg2rad(180));																// -Z
+		views[5].set_position(lightPos);
+		views[5] = matrix44::multiply(views[5], proj);
+
+		// send to transform device
+		transDev->ApplyViewMatrixArray(views, 6);
+
+		// get texture
+		const Ptr<CoreGraphics::RenderTargetCube>& cube = this->pointLightShadowCubes[lightIndex];
+
+		// setup pass and render
+		this->pointLightPass->SetRenderTargetCube(cube);
+		this->pointLightPass->Render(frameIndex);
+
+		// set texture in light
+		lightEntity->SetShadowCube(cube);
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -601,11 +694,11 @@ SM50ShadowServer::SortLights()
 	sortedArray.EndBulkAdd();     
 
 	// patch positions if maxnumshadowlights  = 1
-	if (sortedArray.Size() > MaxNumShadowLights)
+	if (sortedArray.Size() > MaxNumShadowSpotLights)
 	{   
-		if (MaxNumShadowLights == 1)
+		if (MaxNumShadowSpotLights == 1)
 		{   
-			IndexT lastShadowCastingLight = MaxNumShadowLights - 1;
+			IndexT lastShadowCastingLight = MaxNumShadowSpotLights - 1;
 			const Ptr<AbstractLightEntity>& lightEntity = sortedArray.ValueAtIndex(lastShadowCastingLight).upcast<AbstractLightEntity>();
 			const matrix44& shadowLightTransform = lightEntity->GetTransform();
 			float range0 = shadowLightTransform.get_zaxis().length();
@@ -618,7 +711,7 @@ SM50ShadowServer::SortLights()
 			float interpolatedYRot = lightDir.rho;
 			SizeT numLightsInRange = 0;
 			IndexT i;
-			for (i = MaxNumShadowLights; i < sortedArray.Size(); ++i)
+			for (i = MaxNumShadowSpotLights; i < sortedArray.Size(); ++i)
 			{
 				const Ptr<AbstractLightEntity>& curLightEntity = sortedArray.ValueAtIndex(i).upcast<AbstractLightEntity>();
 				const matrix44& curTransform = curLightEntity->GetTransform();            
@@ -664,8 +757,8 @@ SM50ShadowServer::SortLights()
 		// more than one casting lights allowed, use shadow fading
 		else
 		{
-			IndexT lastShadowCastingLight = MaxNumShadowLights - 1;
-			IndexT firstNotAllowedShadowCastingLight = MaxNumShadowLights;
+			IndexT lastShadowCastingLight = MaxNumShadowSpotLights - 1;
+			IndexT firstNotAllowedShadowCastingLight = MaxNumShadowSpotLights;
 			// fade out shadow of casting light depended on next shadowcasting light
 			float att0 = 1 - sortedArray.KeyAtIndex(lastShadowCastingLight);
 			float att1 = 1 - sortedArray.KeyAtIndex(firstNotAllowedShadowCastingLight);

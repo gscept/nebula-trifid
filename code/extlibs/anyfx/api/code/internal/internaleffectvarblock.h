@@ -56,7 +56,7 @@ protected:
     virtual void SetupDefaultValues();
 
     /// set buffer 
-    virtual void SetBuffer(void* handle);
+    virtual void SetBuffer(void* handle) = 0;
 
 	/// binds varblocks prior to updating
 	virtual void Apply();
@@ -80,7 +80,7 @@ protected:
     unsigned numBackingBuffers;
 	static unsigned globalVarblockCounter;
 
-    void** currentBufferHandle;
+	void** bufferHandle;
 
 }; 
 
@@ -100,15 +100,6 @@ inline const size_t
 InternalEffectVarblock::GetSize() const
 {
     return this->masterBlock->size;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void
-InternalEffectVarblock::SetBuffer(void* handle)
-{
-    *this->currentBufferHandle = handle;
 }
 
 //------------------------------------------------------------------------------

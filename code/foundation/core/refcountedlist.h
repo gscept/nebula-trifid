@@ -12,6 +12,7 @@
 */
 #include "core/types.h"
 #include "util/list.h"
+#include "util/string.h"
 
 //------------------------------------------------------------------------------
 namespace Core
@@ -23,6 +24,10 @@ class RefCountedList : public Util::List<RefCounted*>
 public:
     /// dump memory leaks, this methods is called by RefCounted::DumpRefCountedLeaks()
     void DumpLeaks();
+	/// add debug name
+	void SetDebugName(RefCounted* ptr, const Util::String& name);
+private:
+	Util::Dictionary<RefCounted*, Util::String> refcountedDebugNames;
 };
 
 }

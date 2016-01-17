@@ -23,6 +23,7 @@ RenderTargetCubeBase::RenderTargetCubeBase() :
     width(0),
     height(0),
     clearFlags(0),
+	layered(false),
 #if NEBULA3_DEBUG
     clearColor(1.0f, 0.0f, 1.0f, 0.0f),
 #else // on release clear defaultrendertarget to black for nice loadingscreen fading

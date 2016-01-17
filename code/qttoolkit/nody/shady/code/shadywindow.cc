@@ -479,13 +479,14 @@ ShadyWindow::OnNodeClicked( const Ptr<Nody::Node>& node )
             else if (type.GetType() == Nody::VarType::Matrix4x2)          valueLine->setValidator(new QtToolkit::VecValidator(8));
             else if (type.GetType() == Nody::VarType::Matrix4x3)          valueLine->setValidator(new QtToolkit::VecValidator(12));
             else if (type.GetType() == Nody::VarType::Matrix4x4)          valueLine->setValidator(new QtToolkit::VecValidator(16));
+			/*
             else if (type.GetType() == Nody::VarType::Sampler2D)          valueLine->setValidator(new QtToolkit::PathValidator("dds", "tex"));
             else if (type.GetType() == Nody::VarType::Sampler2DArray)     valueLine->setValidator(new QtToolkit::PathValidator("dds", "tex"));
             else if (type.GetType() == Nody::VarType::Sampler3D)          valueLine->setValidator(new QtToolkit::PathValidator("dds", "tex"));
             else if (type.GetType() == Nody::VarType::Sampler3DArray)     valueLine->setValidator(new QtToolkit::PathValidator("dds", "tex"));
             else if (type.GetType() == Nody::VarType::SamplerCube)        valueLine->setValidator(new QtToolkit::PathValidator("dds", "tex"));
             else if (type.GetType() == Nody::VarType::SamplerCubeArray)   valueLine->setValidator(new QtToolkit::PathValidator("dds", "tex"));
-
+			*/
 
             // set label and value
             this->ui->propertiesTable->setCellWidget(i, 0, propertyLabel);

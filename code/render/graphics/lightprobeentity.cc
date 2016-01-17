@@ -96,6 +96,7 @@ LightProbeEntity::OnDeactivate()
     this->lightProbeBboxCenterVar = 0;
     this->lightProbeTransformVar = 0;
 	this->lightProbeInvTransformVar = 0;
+	this->lightProbeBufferVar->SetBufferHandle(NULL);
 	this->lightProbeBufferVar = 0;
 
 	// discard buffer

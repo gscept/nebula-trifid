@@ -39,7 +39,7 @@ public:
     void Discard();
 
     /// get the handle for this buffer
-    void* GetHandle() const;
+	AnyFX::Handle* GetHandle() const;
      
 	/// begin updating a segment of the buffer, will effectively lock the buffer
 	void BeginUpdateSync();
@@ -67,7 +67,7 @@ private:
 //------------------------------------------------------------------------------
 /**
 */
-inline void*
+inline AnyFX::Handle*
 OGL4UniformBuffer::GetHandle() const
 {
     return this->handle;

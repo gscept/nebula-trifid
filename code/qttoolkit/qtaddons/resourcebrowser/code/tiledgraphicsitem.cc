@@ -6,6 +6,7 @@
 #include "tiledgraphicsitem.h"
 #include <QBrush>
 #include <QPen>
+#include <QFont>
 
 namespace ResourceBrowser
 {
@@ -48,6 +49,8 @@ TiledGraphicsItem::Setup()
 	this->graphics = new QGraphicsPixmapItem;
 	this->graphics->setZValue(0);
 	this->label = new QGraphicsTextItem;
+	this->label->setFont(QFont("Segoe UI", 8));
+	this->label->setDefaultTextColor(Qt::white);
 	this->label->setZValue(0);
 
 	// disable hover events

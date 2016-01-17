@@ -215,7 +215,7 @@ NFbxMeshNode::ExtractMesh()
                 }
                 else
                 {
-                    // then flood the secondary channel to 0
+                    // if mesh has none, flood to 0
                     vertexRef.SetComponent((MeshBuilderVertex::ComponentIndex)(MeshBuilderVertex::Uv1Index), float4(0));
                 }
 			}

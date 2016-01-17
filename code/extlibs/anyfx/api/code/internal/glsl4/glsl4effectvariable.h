@@ -50,7 +50,20 @@ private:
 	GLenum glAccessMode;
 	GLenum glImageFormat;
 
-	
+	struct OpenGLTextureBinding
+	{
+		bool bindless;
+		struct BoundTexture
+		{
+			int textureType;
+			int handle;
+		} bound;
+
+		struct BindlessTexture
+		{
+			uint64_t handle;
+		} notbound;
+	};
 }; 
 } // namespace AnyFX
 //------------------------------------------------------------------------------

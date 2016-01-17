@@ -49,7 +49,7 @@ OGL4Texture::Unload()
 
 	if (this->ogl4TextureBinding)
 	{
-		delete this->ogl4TextureBinding;
+		n_delete(this->ogl4TextureBinding);
 		this->ogl4TextureBinding = 0;
 	}	
 

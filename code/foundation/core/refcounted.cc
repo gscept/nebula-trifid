@@ -15,6 +15,7 @@ using namespace Util;
 Threading::CriticalSection RefCounted::criticalSection;
 ThreadLocal bool RefCounted::isInCreate = false;
 RefCountedList RefCounted::list;
+
 #endif
 
 //------------------------------------------------------------------------------
