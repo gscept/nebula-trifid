@@ -20,7 +20,7 @@ InternalEffectVarblock::InternalEffectVarblock() :
 	isDirty(true),
 	isSlave(false),
 	manualFlushing(false),
-    currentBufferHandle(0),
+    bufferHandle(0),
 	masterBlock(NULL)
 {
 	this->Retain();
@@ -43,8 +43,8 @@ InternalEffectVarblock::Setup(eastl::vector<InternalEffectProgram*> programs)
 {
 	// point our master block to ourselves, this way we can always locate the master block of any varblock
 	this->masterBlock = this;
-    this->currentBufferHandle = new void*;
-    *this->currentBufferHandle = NULL;
+	this->bufferHandle = new void*;
+    *this->bufferHandle = NULL;
 
     for (unsigned i = 0; i < this->variables.size(); i++)
     {
@@ -68,7 +68,7 @@ InternalEffectVarblock::SetupSlave(eastl::vector<InternalEffectProgram*> program
 	this->isSlave = true;
 
     // make sure slaved varblocks use the same handle
-    this->currentBufferHandle = masterBlock->currentBufferHandle;
+    this->bufferHandle = masterBlock->bufferHandle;
 }
 
 //------------------------------------------------------------------------------

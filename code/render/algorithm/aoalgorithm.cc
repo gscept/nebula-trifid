@@ -24,8 +24,6 @@ using namespace Graphics;
 namespace Algorithm
 {
 __ImplementClass(Algorithm::AOAlgorithm, 'ALAO', Algorithm::AlgorithmBase);
-
-
 //------------------------------------------------------------------------------
 /**
 */

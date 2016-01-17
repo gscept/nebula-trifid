@@ -82,10 +82,12 @@ OGL4TransformDevice::Close()
 {
     this->cameraBuffer->Discard();
     this->cameraBuffer = 0;
+	this->cameraBlockVar->SetBufferHandle(NULL);
     this->cameraBlockVar = 0;
 
     this->shadowCameraBuffer->Discard();
     this->shadowCameraBuffer = 0;
+	this->shadowCameraBlockVar->SetBufferHandle(NULL);
     this->shadowCameraBlockVar = 0;
 
     this->viewVar = 0;

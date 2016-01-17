@@ -198,6 +198,7 @@
 #define NEBULA3_SEMANTIC_OCCLUSIONCONSTANTS         "OcclusionConstants"
 #define NEBULA3_SEMANTIC_SHADOWBUFFERSIZE           "ShadowBufferSize"
 #define NEBULA3_SEMANTIC_RENDERTARGETDIMENSIONS     "RenderTargetDimensions"
+#define NEBULA3_SEMANTIC_RENDERCUBEFACE				"RenderCubeFace"
 
 //------------------------------------------------------------------------------
     

@@ -25,6 +25,7 @@ public:
 
 private:
 	friend class GLSL4EffectSampler;
+	friend class GLSL4EffectProgram;
 
 	/// sets up variable from program, override in subclass
     void Setup(eastl::vector<InternalEffectProgram*> programs, const eastl::string& defaultValue);
@@ -41,14 +42,28 @@ private:
 	void Commit();
 
 	eastl::hash_map<GLint, GLint> uniformProgramMap;
-	GLuint glActiveProgram;
+	GLSL4EffectProgram* activeProgram;
+	GLuint activeProgramHandle;
 	GLint uniformLocation;
 	GLint textureUnit;
 	GLenum textureType;
 	GLenum glAccessMode;
 	GLenum glImageFormat;
 
-	
+	struct OpenGLTextureBinding
+	{
+		bool bindless;
+		struct BoundTexture
+		{
+			int textureType;
+			int handle;
+		} bound;
+
+		struct BindlessTexture
+		{
+			uint64_t handle;
+		} notbound;
+	};
 }; 
 } // namespace AnyFX
 //------------------------------------------------------------------------------

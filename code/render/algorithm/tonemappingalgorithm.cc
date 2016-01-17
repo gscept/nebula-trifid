@@ -101,7 +101,8 @@ ToneMappingAlgorithm::Setup()
 	this->copyBufferVar->SetTexture(this->output->GetResolveTexture());	
 
 	// setup fsq
-	this->quad.Setup(this->inputs[0]->GetWidth(), this->inputs[0]->GetHeight());
+	this->downscaleQuad.Setup(this->inputs[0]->GetWidth(), this->inputs[0]->GetHeight());
+	this->averageLumQuad.Setup(1, 1);
 
 	// setup default values for our render target
 	this->output->SetClearColor(Math::float4(1));
@@ -119,6 +120,9 @@ ToneMappingAlgorithm::Discard()
 	// discard variables
 	this->downscaleBufferVar = 0;
 	this->colorBufferVar = 0;
+	this->previousLuminanceVar = 0;
+	this->timeDiffVar = 0;
+	this->copyBufferVar = 0;
 
 	// deref shaders
 	this->averageLum = 0;
@@ -138,7 +142,8 @@ ToneMappingAlgorithm::Discard()
 	this->outputCopy = 0;
 
 	// discard FSQ
-	this->quad.Discard();
+	this->downscaleQuad.Discard();
+	this->averageLumQuad.Discard();
 }
 
 //------------------------------------------------------------------------------
@@ -159,13 +164,13 @@ ToneMappingAlgorithm::Render()
 		this->copyBufferVar->SetTexture(this->inputs[0]);
         this->downscale->EndUpdate();
         this->downscale->Commit();
-		this->quad.Draw();
+		this->downscaleQuad.Draw();
 		renderDevice->EndPass();
 
 		// generate mips for the just rendered downscaled color
 		this->downscaledColor->GenerateMipmaps();
 
-        // apply shader
+        // do average lum calculation
         this->averageLum->Apply();
         renderDevice->BeginPass(this->output, this->averageLum);
 
@@ -177,7 +182,7 @@ ToneMappingAlgorithm::Render()
 
 		// now render shader which calculates the average luminance to the output
         this->averageLum->Commit();
-		this->quad.Draw();
+		this->averageLumQuad.Draw();
 		renderDevice->EndPass();
 
         // now copy from the output to the input
@@ -192,8 +197,8 @@ void
 ToneMappingAlgorithm::OnDisplayResized(SizeT width, SizeT height)
 {
     // discard and setup fsq
-    this->quad.Discard();
-    this->quad.Setup(this->inputs[0]->GetWidth(), this->inputs[0]->GetHeight());
+    this->downscaleQuad.Discard();
+    this->downscaleQuad.Setup(this->inputs[0]->GetWidth(), this->inputs[0]->GetHeight());
 }
 
 //------------------------------------------------------------------------------

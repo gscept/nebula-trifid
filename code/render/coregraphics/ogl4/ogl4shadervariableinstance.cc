@@ -57,9 +57,23 @@ OGL4ShaderVariableInstance::BindToUniformBuffer(const Ptr<CoreGraphics::Constant
 void
 OGL4ShaderVariableInstance::Cleanup()
 {
+	// unbind any handles
+	if (this->bufferBinding)
+	{
+		n_delete(this->bufferBinding);
+		this->bufferBinding = 0;
+	}
+
+	// unset handles
+	if (this->shaderVariable->GetType() == CoreGraphics::ShaderVariable::BufferType)
+	{
+		this->shaderVariable->SetBufferHandle(NULL);
+	}
+	else if (this->shaderVariable->GetType() == CoreGraphics::ShaderVariable::TextureType)
+	{
+		this->shaderVariable->SetTexture(NULL);
+	}
 	ShaderVariableInstanceBase::Cleanup();
-	n_delete(this->bufferBinding);
-	this->bufferBinding = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -73,7 +87,7 @@ OGL4ShaderVariableInstance::Apply()
     switch (this->value.GetType())
     {
     case Util::Variant::VoidPtr:
-        this->shaderVariable->SetBufferHandle(this->value.GetVoidPtr());
+        this->shaderVariable->SetBufferHandle((AnyFX::Handle*)this->value.GetVoidPtr());
         break;
     case Util::Variant::Object:
         // @note: implicit Ptr<> creation!
@@ -99,7 +113,7 @@ OGL4ShaderVariableInstance::ApplyTo(const Ptr<CoreGraphics::ShaderVariable>& var
     switch (this->value.GetType())
     {
     case Util::Variant::VoidPtr:
-        var->SetBufferHandle(this->value.GetVoidPtr());
+		var->SetBufferHandle((AnyFX::Handle*)this->value.GetVoidPtr());
         break;
     case Util::Variant::Object:
         // @note: implicit Ptr<> creation!

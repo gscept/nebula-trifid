@@ -49,6 +49,7 @@ OGL4StreamShaderLoader::SetupResourceFromStream(const Ptr<Stream>& stream)
         void* srcData = stream->Map();
         uint srcDataSize = stream->GetSize();
 
+		// load effect from memory
 		AnyFX::Effect* effect = AnyFX::EffectFactory::Instance()->CreateEffectFromMemory(srcData, srcDataSize);
 
 		// catch any potential GL error coming from AnyFX
@@ -165,9 +166,7 @@ OGL4StreamShaderLoader::SetupResourceFromStream(const Ptr<Stream>& stream)
                     var->BindToUniformBuffer(res->globalBlockBuffer, binding.offset, binding.size, binding.value);
                 }
 				res->globalBlockBuffer->EndUpdateSync();
-
-                // bind buffer
-                res->globalBlockBufferBinding = OGL4Shader::BlockBufferBinding(res->variablesByName["GlobalBlock"], res->globalBlockBuffer);
+				res->globalBlockBufferVar = res->variablesByName["GlobalBlock"];
             }
         }
 

@@ -7,6 +7,9 @@
     and an optional depth/stencil buffer into a C++ object. The special
     default render target represents the backbuffer and default depth/stencil
     surface.
+
+	If created layered, it means this render target will be bound to the shader context as layered.
+	If not layered, it means this render target will be treated as 6 individual render targets.
     
     (C) 2007 Radon Labs GmbH
     (C) 2013-2015 Individual contributors, see AUTHORS file
@@ -119,6 +122,10 @@ public:
 	void SetDrawFace(CoreGraphics::Texture::CubeFace face);
 	/// get the face to which we are currently drawing
 	CoreGraphics::Texture::CubeFace GetDrawFace() const;
+	/// set if render target cube should be layered
+	void SetLayered(bool layered);
+	/// get if render target cube is created as layered
+	const bool GetLayered() const;
 
     /// set the current resolve rectangle (in pixels)
     void SetResolveRect(const Math::rectangle<int>& r);
@@ -162,6 +169,7 @@ protected:
 	float clearDepth;
 	int clearStencil;
 	CoreGraphics::Texture::CubeFace currentDrawFace;
+	bool layered;
     CoreGraphics::AntiAliasQuality::Code antiAliasQuality;
     CoreGraphics::PixelFormat::Code colorBufferFormat;
     Ptr<CoreGraphics::Texture> resolveTexture;
@@ -330,6 +338,23 @@ RenderTargetCubeBase::GetDrawFace() const
 	return this->currentDrawFace;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+RenderTargetCubeBase::SetLayered(bool layered)
+{
+	this->layered = layered;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const bool
+RenderTargetCubeBase::GetLayered() const
+{
+	return this->layered;
+}
 //------------------------------------------------------------------------------
 /**
 */

@@ -71,7 +71,7 @@ void
 ImguiConsole::Render()
 {
 	ImGuiIO& io = ImGui::GetIO();
-	if (io.KeysDown[Key::F9]) this->visible = !this->visible;
+	if (io.KeysDownDuration[Key::F9] == 0.0f) this->visible = !this->visible;
 	if (!this->visible) return;
 	
 	ImGui::Begin("Nebula T Console", NULL, ImVec2(300, 300), -1.0f, ImGuiWindowFlags_NoScrollbar);

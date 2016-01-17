@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>446</width>
+    <width>460</width>
     <height>270</height>
    </rect>
   </property>
@@ -34,11 +34,7 @@
    <bool>true</bool>
   </property>
   <property name="styleSheet">
-   <string notr="true">QToolTip
-{
-background-color: transparent;
-border: 0;
-}</string>
+   <string notr="true"/>
   </property>
   <property name="frameShape">
    <enum>QFrame::NoFrame</enum>
@@ -51,25 +47,58 @@ border: 0;
     <number>9</number>
    </property>
    <property name="spacing">
-    <number>1</number>
+    <number>2</number>
    </property>
-   <item row="9" column="0">
-    <widget class="QLabel" name="label_3">
-     <property name="enabled">
-      <bool>false</bool>
+   <item row="4" column="3" rowspan="2">
+    <widget class="Line" name="line_3">
+     <property name="styleSheet">
+      <string notr="true">QFrame{ color:rgb(95, 95, 95); }</string>
      </property>
-     <property name="font">
-      <font>
-       <family>Segoe UI</family>
-       <pointsize>10</pointsize>
-      </font>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
      </property>
-     <property name="text">
-      <string>Physical material</string>
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
      </property>
     </widget>
    </item>
-   <item row="2" column="0" colspan="4">
+   <item row="5" column="4" colspan="4">
+    <widget class="QLineEdit" name="surfacePath">
+     <property name="toolTip">
+      <string>Name of surface.</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0" colspan="8">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="7" column="0" colspan="8">
+    <widget class="Line" name="line_2">
+     <property name="styleSheet">
+      <string notr="true">QFrame{ color:rgb(95, 95, 95); }</string>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="8">
     <widget class="Line" name="line">
      <property name="styleSheet">
       <string notr="true">QFrame{ color:rgb(95, 95, 95); }</string>
@@ -85,111 +114,39 @@ border: 0;
      </property>
     </widget>
    </item>
-   <item row="8" column="0" colspan="4">
-    <widget class="Line" name="line_2">
-     <property name="styleSheet">
-      <string notr="true">QFrame{ color:rgb(95, 95, 95); }</string>
+   <item row="4" column="4" colspan="4">
+    <widget class="QPushButton" name="assignSurfaceButton">
+     <property name="toolTip">
+      <string>Opens the asset browser and lets you select a surface to assign.</string>
      </property>
-     <property name="frameShadow">
-      <enum>QFrame::Plain</enum>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+     <property name="text">
+      <string>Assign surface...</string>
      </property>
     </widget>
    </item>
-   <item row="10" column="0" colspan="4">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
+   <item row="3" column="0" rowspan="4" colspan="2">
+    <widget class="QPushButton" name="editSurfaceButton">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
-     <property name="sizeHint" stdset="0">
+     <property name="minimumSize">
       <size>
-       <width>20</width>
-       <height>40</height>
+       <width>50</width>
+       <height>0</height>
       </size>
      </property>
-    </spacer>
-   </item>
-   <item row="0" column="1" rowspan="2" colspan="3">
-    <widget class="QLabel" name="nodeName">
-     <property name="font">
-      <font>
-       <family>Segoe UI</family>
-       <pointsize>14</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
+     <property name="toolTip">
+      <string>Opens the assigned surface in the surface editor.</string>
      </property>
      <property name="text">
-      <string>placeholder</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+      <string>Open assigned surface</string>
      </property>
     </widget>
    </item>
-   <item row="0" column="0" rowspan="2">
-    <widget class="QLabel" name="label">
-     <property name="font">
-      <font>
-       <family>Segoe UI</family>
-       <pointsize>11</pointsize>
-      </font>
-     </property>
-     <property name="layoutDirection">
-      <enum>Qt::LeftToRight</enum>
-     </property>
-     <property name="text">
-      <string>Mesh</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="9" column="2" colspan="2">
-    <widget class="QComboBox" name="physicsMaterialBox">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="editable">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0" rowspan="5">
-    <widget class="QLabel" name="label_2">
-     <property name="font">
-      <font>
-       <family>Segoe UI</family>
-       <pointsize>10</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Surface</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="1" colspan="3">
-    <widget class="QLabel" name="surfaceName">
-     <property name="font">
-      <font>
-       <family>Segoe UI</family>
-       <pointsize>10</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>placeholder surface name</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="1" rowspan="2">
+   <item row="4" column="2" rowspan="2">
     <widget class="QPushButton" name="surfaceButton">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -208,29 +165,66 @@ border: 0;
      </property>
     </widget>
    </item>
-   <item row="4" column="2" colspan="2">
-    <widget class="QPushButton" name="assignSurfaceButton">
-     <property name="text">
-      <string>Assign surface...</string>
+   <item row="8" column="4" colspan="4">
+    <widget class="QComboBox" name="physicsMaterialBox">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="editable">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
-   <item row="5" column="2" colspan="2">
-    <widget class="QPushButton" name="editSurfaceButton">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
+   <item row="8" column="0" colspan="3">
+    <widget class="QLabel" name="label_3">
+     <property name="enabled">
+      <bool>false</bool>
      </property>
-     <property name="minimumSize">
-      <size>
-       <width>50</width>
-       <height>0</height>
-      </size>
+     <property name="font">
+      <font>
+       <family>Segoe UI</family>
+       <pointsize>10</pointsize>
+      </font>
      </property>
      <property name="text">
-      <string>Open surface...</string>
+      <string>Physical material</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="7" rowspan="2">
+    <widget class="QLabel" name="nodeName">
+     <property name="font">
+      <font>
+       <family>Segoe UI</family>
+       <pointsize>14</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>placeholder</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" rowspan="2" colspan="7">
+    <widget class="QLabel" name="label">
+     <property name="font">
+      <font>
+       <family>Segoe UI</family>
+       <pointsize>11</pointsize>
+      </font>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::LeftToRight</enum>
+     </property>
+     <property name="text">
+      <string>Mesh node</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
      </property>
     </widget>
    </item>

@@ -170,6 +170,7 @@ SM50LightServer::Close()
 
     this->globalLightBuffer->Discard();
     this->globalLightBuffer = 0;
+	this->globalLightBlockVar->SetBufferHandle(NULL);
     this->globalLightBlockVar = 0;
 	this->globalAmbientLightColor = 0;
 	this->globalBackLightColor = 0;
@@ -198,8 +199,8 @@ SM50LightServer::Close()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-SM50LightServer::AttachVisibleLight( const Ptr<AbstractLightEntity>& lightEntity )
+void
+SM50LightServer::AttachVisibleLight(const Ptr<AbstractLightEntity>& lightEntity)
 {
 	if (lightEntity->GetLightType() == LightType::Point)
 	{

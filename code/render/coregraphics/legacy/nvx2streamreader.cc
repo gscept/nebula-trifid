@@ -144,6 +144,9 @@ Nvx2StreamReader::ReadHeaderData()
 
 //------------------------------------------------------------------------------
 /**
+	Question here, basevertex is supposed to be a vertex offset into the vertex buffer.
+	However, the indices describe where to fetch the vertex data, so why would we need it
+	if we are using static buffers?
 */
 void
 Nvx2StreamReader::ReadPrimitiveGroups()
@@ -157,7 +160,7 @@ Nvx2StreamReader::ReadPrimitiveGroups()
     {
         // setup a primitive group object
         PrimitiveGroup primGroup;
-        primGroup.SetBaseVertex(group->firstVertex);
+        //primGroup.SetBaseVertex(group->firstVertex);
         primGroup.SetNumVertices(group->numVertices);
         primGroup.SetBaseIndex(group->firstTriangle * 3);
         primGroup.SetNumIndices(group->numTriangles * 3);

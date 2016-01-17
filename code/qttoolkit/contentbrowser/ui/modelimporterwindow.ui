@@ -640,7 +640,7 @@ p, li { white-space: pre-wrap; }
                    <string>&lt;html&gt;&lt;body&gt;&lt;p&gt;Import vertex colors from mesh source.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                   <property name="text">
-                   <string>Import vertex colors (floods to white if mesh is not colored)?</string>
+                   <string>Import vertex colors? (floods to white if mesh is not colored)</string>
                   </property>
                  </widget>
                 </item>
@@ -701,7 +701,7 @@ p, li { white-space: pre-wrap; }
                    <string>&lt;html&gt;&lt;body&gt;&lt;p&gt;Import secondary UV set for lightmapped assets.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                   <property name="text">
-                   <string>Import secondary UVs?</string>
+                   <string>Import secondary UVs? (floods to 0, 0 if no secondary UVs exist)</string>
                   </property>
                  </widget>
                 </item>

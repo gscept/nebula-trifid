@@ -63,7 +63,8 @@ public:
 	/// gets array of near plane global light frustum corners
 	virtual const Math::float4* GetNearPlane() const;
 
-    static const int MaxNumShadowLights = 16;
+    static const int MaxNumShadowSpotLights = 16;
+	static const int MaxNumShadowPointLights = 4;
 	static const int SplitsPerRow = 2;
 	static const int SplitsPerColumn = 2;
 	static const int ShadowLightsPerRow = 4;

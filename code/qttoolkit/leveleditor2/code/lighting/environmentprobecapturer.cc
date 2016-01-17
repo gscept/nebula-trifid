@@ -171,7 +171,7 @@ EnvironmentProbeCapturer::Render(QPlainTextEdit* progressBar)
 	views[0] = matrix44::multiply(matrix44::rotationy(n_deg2rad(90)), matrix44::rotationz(n_deg2rad(180)));
 	views[1] = matrix44::multiply(matrix44::rotationy(n_deg2rad(-90)), matrix44::rotationz(n_deg2rad(180)));
 	views[2] = matrix44::rotationx(n_deg2rad(90));
-	views[3] = matrix44::rotationx(n_deg2rad(-90)), matrix44::rotationz(n_deg2rad(180));
+	views[3] = matrix44::rotationx(n_deg2rad(-90));
 	views[4] = matrix44::multiply(matrix44::rotationy(n_deg2rad(180)), matrix44::rotationz(n_deg2rad(180)));
 	views[5] = matrix44::rotationz(n_deg2rad(180));
 

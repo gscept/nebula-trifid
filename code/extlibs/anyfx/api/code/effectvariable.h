@@ -18,6 +18,7 @@
 #include "annotable.h"
 namespace AnyFX
 {
+class AutoRef;
 class EffectVarblock;
 class InternalEffectVariable;
 class EffectVariable : public Annotable
@@ -96,26 +97,6 @@ public:
 	static eastl::string TypeToString(const VariableType& type);
 	/// converts effect variable type to byte size
 	static unsigned TypeToByteSize(const VariableType& type);
-
-	struct OpenGLTextureBinding
-	{
-        bool bindless;
-        struct BoundTexture
-        {
-		    int textureType;
-		    int handle;
-        } bound;
-
-        struct BindlessTexture
-        {
-            uint64_t handle;
-        } notbound;        
-	};
-
-	struct DirectXTextureBinding
-	{
-		void* handle;
-	};
 
 private:
     friend class EffectProgramStreamLoader;

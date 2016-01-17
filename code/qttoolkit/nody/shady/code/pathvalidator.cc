@@ -34,21 +34,12 @@ PathValidator::~PathValidator()
 QValidator::State 
 PathValidator::validate(QString& string, int& pos) const
 {
-    QString pattern;
-    pattern = this->prefix + "\\:" + "([A-z]?[A-z|0-9]*)" + "(/[A-z]?[A-z|0-9]*)*" + "\\." + this->extension;
-    QRegExp exp;
-    exp.setPattern(pattern);
-    if (!exp.exactMatch(string))
-    {
-        if (exp.matchedLength() == 0) return QValidator::Invalid;
-        else
-        {
-            int nummatched = exp.matchedLength();
-            this->fixup(string);
-            return QValidator::Intermediate;
-        }
-    }
-    else return QValidator::Acceptable;
+	if (string.indexOf('/') == -1) return QValidator::Invalid;
+	else
+	{
+		if (string.startsWith(this->prefix) && string.endsWith(this->extension))	return QValidator::Acceptable;
+		else																		return QValidator::Intermediate;
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -57,19 +48,13 @@ PathValidator::validate(QString& string, int& pos) const
 void 
 PathValidator::fixup(QString& string) const
 {
-    QStringList path = string.split("/");
-    string = "";
-    QString result;
-    int i;
-    for (i = 0; i < path.size(); i++)
-    {
-        QString fragment = path[i];
-        int index = fragment.indexOf(":");
-        if (index != -1) fragment = fragment.mid(index+1);
-        index = fragment.indexOf(".");
-        if (index != -1) fragment = fragment.left(index);
-        string.append(fragment);
-    }
-    string = this->prefix + ":" + string + "." + this->extension;
+	// okay, so both tex: and .dds cannot exist if we get here, so if any do, we set the other
+	if	(string.startsWith(this->prefix))		string.append(this->extension);
+	else if (string.endsWith(this->extension))	string.prepend(this->prefix);
+	else
+	{
+		string.prepend(this->prefix);
+		string.append(this->extension);
+	}
 }
 } // namespace QtToolkit

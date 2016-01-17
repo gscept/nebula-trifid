@@ -21,6 +21,7 @@
 namespace AnyFX
 {
 unsigned InternalEffectVariable::globalTextureCounter = 0;
+unsigned InternalEffectVariable::globalImageCounter = 0;
 //------------------------------------------------------------------------------
 /**
 */
@@ -601,9 +602,7 @@ InternalEffectVariable::SetMatrixArray(const float* mat, size_t count)
 	Setting textures is not provided by any block-wise manner, 
 	so here we must have an implementation-specific solution.
 
-	We do this by providing 
-
-	Simply point this current value buffer to handle
+	We do this by providing a handle to a reference counted object.
 */
 void
 InternalEffectVariable::SetTexture(void* handle)
@@ -612,7 +611,7 @@ InternalEffectVariable::SetTexture(void* handle)
 	{
 		this->currentValue = (char*)handle;
 		this->isDirty = true;
-	}	
+	}
 }
 
 //------------------------------------------------------------------------------

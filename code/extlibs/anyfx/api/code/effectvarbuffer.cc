@@ -63,6 +63,15 @@ EffectVarbuffer::IsActive() const
 //------------------------------------------------------------------------------
 /**
 */
+void*
+EffectVarbuffer::GetHandle() const
+{
+	return *this->internalVarbuffer->bufferHandle;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 void
 EffectVarbuffer::SetBuffer(void* handle)
 {

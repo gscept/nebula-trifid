@@ -166,12 +166,23 @@ OGL4ShaderVariable::Setup(AnyFX::EffectVarblock* var)
 void 
 OGL4ShaderVariable::Cleanup()
 {
-    if (this->bufferBinding != NULL) delete this->bufferBinding;
-	this->effectBuffer = 0;
-    this->effectBlock = 0;
+	ShaderVariableBase::Cleanup();
+	if (this->bufferBinding != NULL)
+	{
+		delete this->bufferBinding;
+	}
+	if (this->effectBuffer != NULL)
+	{
+		this->effectBuffer->SetBuffer(NULL);
+		this->effectBuffer = 0;
+	}
+	if (this->effectBlock != NULL)
+	{
+		this->effectBlock->SetBuffer(NULL);
+		this->effectBlock = 0;
+	}
 	this->effectVar = 0;
 	this->texture = 0;
-	ShaderVariableBase::Cleanup();
 }
 
 //------------------------------------------------------------------------------
@@ -428,7 +439,7 @@ OGL4ShaderVariable::SetTexture(const Ptr<CoreGraphics::Texture>& value)
 	this->texture = value;
     if (value.isvalid())
     {
-	    this->effectVar->SetTexture((void*)value->GetOGL4Variable());
+		this->effectVar->SetTexture((AnyFX::Handle*)value->GetOGL4Variable());
     }
     else
     {
@@ -440,7 +451,7 @@ OGL4ShaderVariable::SetTexture(const Ptr<CoreGraphics::Texture>& value)
 /**
 */
 void
-OGL4ShaderVariable::SetBufferHandle(void* handle)
+OGL4ShaderVariable::SetBufferHandle(AnyFX::Handle* handle)
 {
 	n_assert(0 != this->effectBuffer || 0 != this->effectBlock);
     if (this->effectBlock)  this->effectBlock->SetBuffer(handle);

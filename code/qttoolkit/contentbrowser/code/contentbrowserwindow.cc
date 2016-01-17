@@ -52,6 +52,9 @@ using namespace ToolkitUtil;
 using namespace Particles;
 using namespace Algorithm;
 using namespace ResourceBrowser;
+
+const QByteArray defaultGeometry("\x1\xd9\xd0\xcb\0\x1\0\0\0\0\0\x45\0\0\0\x6\0\0\a\t\0\0\x3\xf0\0\0\0M\0\0\0%\0\0\a\x1\0\0\x3\xe8\0\0\0\0\0\0");
+const QByteArray defaultWindowState("\0\0\0\xff\0\0\0\0\xfd\0\0\0\x2\0\0\0\0\0\0\x1~\0\0\x3\x9c\xfc\x2\0\0\0\x2\xfb\0\0\0\x18\0\x41\0s\0s\0\x65\0t\0\x42\0r\0o\0w\0s\0\x65\0r\x1\0\0\0(\0\0\x3\x9c\0\0\0\xb2\0\xff\xff\xff\xfb\0\0\0\x14\0\x64\0o\0\x63\0k\0W\0i\0\x64\0g\0\x65\0t\0\0\0\0(\0\0\x3\x9c\0\0\0\x93\0\xff\xff\xff\0\0\0\x1\0\0\x1\xd4\0\0\x3\x9c\xfc\x2\0\0\0\a\xfb\0\0\0\x1e\0m\0o\0\x64\0\x65\0l\0\x44\0o\0\x63\0k\0W\0i\0\x64\0g\0\x65\0t\x1\0\0\0(\0\0\x1\xcb\0\0\0n\0\a\xff\xff\xfb\0\0\0$\0m\0\x61\0t\0\x65\0r\0i\0\x61\0l\0\x44\0o\0\x63\0k\0W\0i\0\x64\0g\0\x65\0t\x1\0\0\x1\xf9\0\0\x1\xcb\0\0\0n\0\xff\xff\xff\xfb\0\0\0\"\0t\0\x65\0x\0t\0u\0r\0\x65\0\x44\0o\0\x63\0k\0W\0i\0\x64\0g\0\x65\0t\x2\0\0\x1\xe0\0\0\x1\x44\0\0\0\xc8\0\0\0\x64\xfb\0\0\0\x1e\0\x61\0u\0\x64\0i\0o\0\x44\0o\0\x63\0k\0W\0i\0\x64\0g\0\x65\0t\x2\0\0\x1\xe0\0\0\x1\x44\0\0\0\xc8\0\0\0\x64\xfb\0\0\0\x18\0u\0i\0\x44\0o\0\x63\0k\0W\0i\0\x64\0g\0\x65\0t\x2\0\0\x1\xe0\0\0\x1\x44\0\0\0\xc8\0\0\0\x64\xfb\0\0\0\x1c\0m\0\x65\0s\0h\0\x44\0o\0\x63\0k\0W\0i\0\x64\0g\0\x65\0t\x2\0\0\x1\xe0\0\0\x1\x44\0\0\0\xc8\0\0\0\x64\xfb\0\0\0&\0\x61\0n\0i\0m\0\x61\0t\0i\0o\0n\0\x44\0o\0\x63\0k\0W\0i\0\x64\0g\0\x65\0t\x2\0\0\x1\xe0\0\0\x1\x44\0\0\0\xc8\0\0\0\x64\0\0\x3W\0\0\x3\x9c\0\0\0\x4\0\0\0\x4\0\0\0\b\0\0\0\b\xfc\0\0\0\x1\0\0\0\x2\0\0\0\x1\0\0\0\xe\0t\0o\0o\0l\0\x42\0\x61\0r\x1\0\0\0\0\xff\xff\xff\xff\0\0\0\0\0\0\0\0");
 namespace ContentBrowser
 {
 
@@ -135,7 +138,7 @@ ContentBrowserWindow::ContentBrowserWindow() :
 	// create texture browser window
 	this->assetBrowserWindow = ResourceBrowser::AssetBrowser::Create();
 	this->assetBrowserWindow->Open();
-	this->assetBrowserWindow->SetWindowModal(this);
+	this->assetBrowserWindow->setParent(this);
 
 	// setup ui of particle wizard
 	this->particleWizardUi.setupUi(&this->particleEffectWizard);
@@ -271,9 +274,21 @@ ContentBrowserWindow::showEvent(QShowEvent* e)
 	QMainWindow::showEvent(e);
 
 	// restore the state of the window and all dock widgets
-	QSettings settings("gscept", "Content browser");
+	QSettings settings(QSettings::IniFormat, QSettings::UserScope, "gscept", "Content browser");
 	this->restoreGeometry(settings.value("geometry").toByteArray());
 	this->restoreState(settings.value("windowState").toByteArray());
+	bool assetBrowserShowing = settings.value("assetbrowser", true).toBool();
+
+	// open asset browser if it was open
+	if (assetBrowserShowing)
+	{
+		this->assetBrowserWindow->raise();
+		this->assetBrowserWindow->show();
+	}	
+	else
+	{
+		this->assetBrowserWindow->close();
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -366,9 +381,6 @@ ContentBrowserWindow::closeEvent( QCloseEvent *e )
 	this->uiHandler->Cleanup();
 	this->uiHandler = 0;
 
-	this->assetBrowserWindow->close();
-	this->assetBrowserWindow = 0;
-
 	// delete windows
 	this->textureImporterWindow->close();
 	this->modelImporterWindow->close();
@@ -380,9 +392,16 @@ ContentBrowserWindow::closeEvent( QCloseEvent *e )
 	delete this->environmentProbeWindow;
 
 	// save the state of the window and all dock widgets
-	QSettings settings("gscept", "Content browser");
+	QSettings settings(QSettings::IniFormat, QSettings::UserScope, "gscept", "Content browser");
 	settings.setValue("geometry", this->saveGeometry());
 	settings.setValue("windowState", this->saveState());
+	settings.setValue("assetbrowser", this->assetBrowserWindow->isVisible());
+
+	// close asset browser
+	this->assetBrowserWindow->close();
+	this->assetBrowserWindow = 0;
+
+	// close window
 	QMainWindow::closeEvent(e);
 }
 
@@ -2377,8 +2396,21 @@ ContentBrowserWindow::OnDebugPage()
 void
 ContentBrowserWindow::ResetLayout()
 {
-	this->restoreGeometry(NULL);
-	this->restoreState(NULL, -1);
+	// restore the state of the window and all dock widgets
+	IO::URI path = String::Sprintf("toolkit:data/cbdefault.ini");
+	QSettings settings(path.LocalPath().AsCharPtr(), QSettings::IniFormat);
+	this->restoreGeometry(settings.value("geometry").toByteArray());
+	this->restoreState(settings.value("windowState").toByteArray());
+	bool assetBrowserShowing = settings.value("assetbrowser", true).toBool();
+	if (assetBrowserShowing)
+	{
+		this->assetBrowserWindow->raise();
+		this->assetBrowserWindow->show();
+	}
+	else
+	{
+		this->assetBrowserWindow->close();
+	}
 }
 
 } // namespace ContentBrowser

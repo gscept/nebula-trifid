@@ -59,6 +59,9 @@ protected:
 	/// returns warning string
     const eastl::string& GetWarning() const;
 
+	/// notification that loading is done
+	virtual void LoadingDone();
+
 	InternalEffectRenderState* renderState;
 	Effect* effect;
 

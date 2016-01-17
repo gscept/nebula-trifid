@@ -67,6 +67,7 @@ InternalEffectProgram::Apply()
 	for (i = 0; i < num; ++i)
 	{
 		this->effect->varbuffersByIndex[i]->internalVarbuffer->Activate(this);
+		this->effect->varbuffersByIndex[i]->internalVarbuffer->Apply();
 	}
 
 	num = this->effect->numSamplers;
@@ -94,8 +95,8 @@ InternalEffectProgram::Commit()
 	for (i = 0; i < num; ++i)
 	{
 		this->effect->varbuffersByIndex[i]->internalVarbuffer->Commit();
-
 	}
+
 	num = this->effect->numVarblocks;
 	for (i = 0; i < num; ++i)
 	{
@@ -130,4 +131,14 @@ InternalEffectProgram::SetupSubroutines()
 {
     // override me!
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+InternalEffectProgram::LoadingDone()
+{
+	// override me!
+}
+
 } // namespace AnyFX

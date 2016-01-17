@@ -35,6 +35,7 @@ struct VarblockVariableBinding
     }
 };
 
+class AutoRef;
 class InternalEffectVarblock;
 class EffectVarblock : public Annotable
 {
@@ -59,27 +60,14 @@ public:
 
     /// return list of variable binding information within this varblock
     eastl::vector<VarblockVariableBinding> GetVariables() const;
+	/// get buffer handle
+	void* GetHandle() const;
 
     /// set buffer, must be an implementation specific
-    void SetBuffer(void* handle);
+	void SetBuffer(void* handle);
 
 	/// discard varblock
 	void Discard();
-
-    struct OpenGLBufferBinding
-    {
-        int handle;
-        unsigned offset;
-        unsigned size;
-        bool bindRange;
-
-		OpenGLBufferBinding() : bindRange(false), offset(0), size(0), handle(0) {};
-    };
-
-    struct DirectXBufferBinding
-    {
-        void* handle;
-    };
 
 private:
     friend class EffectStreamLoader;
@@ -88,6 +76,7 @@ private:
 
 	InternalEffectVarblock* internalVarblock;
 }; 
+
 
 } // namespace AnyFX
 //------------------------------------------------------------------------------
