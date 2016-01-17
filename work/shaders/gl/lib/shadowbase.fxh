@@ -38,7 +38,7 @@ state ShadowStateCSM
 
 state ShadowStateTest
 {
-	CullMode = Front;
+	CullMode = Back;
 	DepthEnabled = false;
 	DepthWrite = false;
 	//PolygonOffsetEnabled = true;
