@@ -10,6 +10,8 @@
 */
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
+#include "imageloaderthread.h"
+
 #include <QObject>
 #include <QGraphicsItemGroup>
 namespace ResourceBrowser
@@ -54,6 +56,10 @@ public:
 signals:
 	/// emit when item gets right clicked
 	void ItemRightClicked(QGraphicsSceneContextMenuEvent* event);
+
+protected slots:
+	/// called when the preview image is loaded
+	void OnPreviewLoaded();
 protected:
 
 	/// call rescale whenever the item resizes
@@ -67,6 +73,9 @@ protected:
 	Util::String path;
 	Util::String category;
 	Util::String filename;
+
+	// loader for the thumbnail
+	ImageLoaderUnit* loader;
 };
 
 //------------------------------------------------------------------------------

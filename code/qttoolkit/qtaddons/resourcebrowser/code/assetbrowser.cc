@@ -335,7 +335,6 @@ AssetBrowser::OnDirectoryClicked(const QString& dir, const QString& path)
 		connect(item, SIGNAL(ItemRightClicked(QGraphicsSceneContextMenuEvent*)), this, SLOT(OnItemRightClicked(QGraphicsSceneContextMenuEvent*)));
 	}
 
-
 	// rearrange browser window
 	this->ui->assetView->Rearrange();
 }

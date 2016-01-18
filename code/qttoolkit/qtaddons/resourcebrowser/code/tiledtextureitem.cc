@@ -98,20 +98,4 @@ TiledTextureItem::contextMenuEvent(QGraphicsSceneContextMenuEvent* event)
 	emit this->ItemRightClicked(event);
 }
 
-//------------------------------------------------------------------------------
-/**
-*/
-void
-TiledTextureItem::OnPreviewLoaded()
-{
-	// set position of graphics
-	this->graphics->setPixmap(QPixmap::fromImage(*this->loader->texture));
-	this->graphics->setPos(
-		this->background->boundingRect().width() / 2 - this->graphics->boundingRect().width() / 2,
-		this->background->boundingRect().width() / 2 - this->graphics->boundingRect().height() / 2);
-
-	// move label too
-	this->label->setPos(this->label->pos().x(), this->graphics->boundingRect().height() + 20);
-}
-
 } // namespace ResourceBrowser

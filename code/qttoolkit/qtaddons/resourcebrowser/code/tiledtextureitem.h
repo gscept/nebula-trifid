@@ -31,16 +31,9 @@ public:
 	/// handle right clicking
 	void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 
-private slots:
-	/// called when the preview image is loaded
-	void OnPreviewLoaded();
-
 signals:
 	/// signalled when a texture is selected
 	void OnSelected(const QString& tex);
-
-private:
-	ImageLoaderUnit* loader;
 };
 
 } // namespace ResourceBrowser

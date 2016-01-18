@@ -9,7 +9,6 @@
 */
 //------------------------------------------------------------------------------
 #include "tiledgraphicsitem.h"
-#include "imageloaderthread.h"
 namespace ResourceBrowser
 {
 class ImageLoaderUnit;
@@ -32,16 +31,10 @@ public:
 	/// handle right clicking
 	void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 
-private slots:
-	/// called when the preview image is loaded
-	void OnPreviewLoaded();
 
 signals:
 	/// signalled when a texture is selected
 	void OnSelected(const QString& sur);
-
-private:
-	ImageLoaderUnit* loader;
 
 };
 
