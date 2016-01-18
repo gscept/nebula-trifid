@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT Type="Advanced Installer" CreateVersion="9.9" version="12.6" Modules="simple" RootPath="..\.." Language="en" Id="{4ED8BB89-A13F-4CB4-AE6F-FC0267E3D6AA}">
+<DOCUMENT Type="Advanced Installer" CreateVersion="9.9" version="12.6.1" Modules="simple" RootPath="..\.." Language="en" Id="{4ED8BB89-A13F-4CB4-AE6F-FC0267E3D6AA}">
   <COMPONENT cid="caphyon.advinst.msicomp.MsiValidationComponent">
     <ROW Table="File" Column="Sequence" MinValue="1" MaxValue="2147483647" Description="Sequence with respect to the media images; order must track cabinet order." Options="0" ColumnType="3" ColumnIndex="7" ColumnSize="4" MsiKey="File#Sequence"/>
     <ROW Table="Media" Column="LastSequence" MinValue="0" MaxValue="2147483647" Description="File sequence number for the last file for this media." Options="0" ColumnType="3" ColumnIndex="1" ColumnSize="4" MsiKey="Media#LastSequence"/>
@@ -18,10 +18,10 @@
     <ROW Property="ARPURLUPDATEINFO" Value="nebulatrifid.org"/>
     <ROW Property="MSIFASTINSTALL" MultiBuildValue="DefaultBuild:3"/>
     <ROW Property="Manufacturer" Value="gscept"/>
-    <ROW Property="ProductCode" Value="1033:{D68905F3-F635-4DF9-A872-2E2ED8AF9359} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{80B80AE0-9646-492A-94E6-1E9E125A32A5} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Nebula Trifid SDK"/>
-    <ROW Property="ProductVersion" Value="0.3.8" Type="32"/>
+    <ROW Property="ProductVersion" Value="0.3.9" Type="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{021B66E5-9A59-4AFB-A324-719C1EBA3E07}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
@@ -61,8 +61,8 @@
     <ROW Directory="graphicsfeature_Dir" Directory_Parent="application_Dir" DefaultDir="graphi~1|graphicsfeature"/>
     <ROW Directory="leveleditor2_Dir" Directory_Parent="qttoolkit_Dir" DefaultDir="LEVELE~1|leveleditor2"/>
     <ROW Directory="levelviewer_Dir" Directory_Parent="data_Dir" DefaultDir="LEVELV~1|levelviewer"/>
+    <ROW Directory="lib_1_Dir" Directory_Parent="gl_Dir" DefaultDir="lib"/>
     <ROW Directory="lib_2_Dir" Directory_Parent="templates_Dir" DefaultDir="lib"/>
-    <ROW Directory="lib_3_Dir" Directory_Parent="gl_Dir" DefaultDir="lib"/>
     <ROW Directory="lib_Dir" Directory_Parent="fx_Dir" DefaultDir="lib"/>
     <ROW Directory="lighting_Dir" Directory_Parent="assets_Dir" DefaultDir="lighting"/>
     <ROW Directory="materials_Dir" Directory_Parent="work_Dir" DefaultDir="MATERI~1|materials"/>
@@ -103,13 +103,13 @@
     <ROW Component="Sample2D.ndv" ComponentId="{047D5612-D70F-42C0-B757-39935292F922}" Directory_="Texture_Dir" Attributes="0" KeyPath="Sample2D.ndv" Type="0"/>
     <ROW Component="TexCoords.ndv" ComponentId="{A8584369-9415-4DE7-AA7A-708B76C0665C}" Directory_="Context_Dir" Attributes="0" KeyPath="TexCoords.ndv" Type="0"/>
     <ROW Component="Version" ComponentId="{10F2DA36-9120-48EB-9B8F-421BC6A3BA00}" Directory_="APPDIR" Attributes="4" KeyPath="Version"/>
-    <ROW Component="animated.fx" ComponentId="{3839EBDB-BB4D-4E22-86BD-54A49430F809}" Directory_="fx_Dir" Attributes="0" KeyPath="animated.fx" Type="0"/>
-    <ROW Component="animated.fx_2" ComponentId="{B6971CE8-44F6-48B8-A431-FAE9C7459235}" Directory_="gl_Dir" Attributes="0" KeyPath="animated.fx_2" Type="0"/>
+    <ROW Component="animated.fx" ComponentId="{18538B81-2FE3-47EB-8939-A6DCD7F5A52B}" Directory_="fx_Dir" Attributes="0" KeyPath="animated.fx" Type="0"/>
+    <ROW Component="animated.fx_1" ComponentId="{3D645793-0436-4C3B-9C33-B95CEF9058E0}" Directory_="gl_Dir" Attributes="0" KeyPath="animated.fx_1" Type="0"/>
     <ROW Component="animeventcamshake.xml" ComponentId="{A90E2BE8-280A-4687-904C-BE4C9D1A3E63}" Directory_="db_Dir" Attributes="0" KeyPath="animeventcamshake.xml" Type="0"/>
     <ROW Component="anims.xml" ComponentId="{EABAB2A1-726A-42CD-9E09-2633B0082C85}" Directory_="tables_Dir" Attributes="0" KeyPath="anims.xml" Type="0"/>
     <ROW Component="archiver3.exe" ComponentId="{E9EBA9E0-2F96-4D27-AE01-18A328A05B4E}" Directory_="win32_Dir" Attributes="0" KeyPath="archiver3.exe"/>
     <ROW Component="assetbatcher.exe" ComponentId="{11EF7C5D-A493-4599-95BE-FEB2B78E4092}" Directory_="win32_Dir" Attributes="0" KeyPath="assetbatcher.exe"/>
-    <ROW Component="audio.png" ComponentId="{A7F2118D-1C95-46C0-8152-0A35C2172D01}" Directory_="system_Dir" Attributes="0" KeyPath="audio.png" Type="0"/>
+    <ROW Component="audio.png" ComponentId="{098C762F-6047-4D7B-8EC7-2751C77D0037}" Directory_="system_Dir" Attributes="0" KeyPath="audio.png" Type="0"/>
     <ROW Component="audiobatcher3.exe" ComponentId="{7DEAA7E0-48DB-4AAB-8457-1329CC251F27}" Directory_="win32_Dir" Attributes="0" KeyPath="audiobatcher3.exe"/>
     <ROW Component="audioprotocol.nidl" ComponentId="{8CBB2C24-68BA-4F27-B02A-733AB6FE93D1}" Directory_="faudio_Dir" Attributes="0" KeyPath="audioprotocol.nidl" Type="0"/>
     <ROW Component="base.xml" ComponentId="{1940CA28-3510-49C0-8BA7-18EDCFB22FF2}" Directory_="materials_Dir" Attributes="0" KeyPath="base.xml" Type="0"/>
@@ -119,12 +119,12 @@
     <ROW Component="batchexporter.exe" ComponentId="{A1F373CF-14BF-406D-9019-D0F335205D42}" Directory_="win32_Dir" Attributes="0" KeyPath="batchexporter.exe"/>
     <ROW Component="batchexporter2.exe" ComponentId="{21ECD305-26FB-47AD-83CB-837C7FBE19F1}" Directory_="win32_Dir" Attributes="0" KeyPath="batchexporter2.exe"/>
     <ROW Component="box.attributes" ComponentId="{1DC76E13-1EB1-41DA-8773-E6DF487B7997}" Directory_="placeholder_Dir" Attributes="0" KeyPath="box.attributes" Type="0"/>
-    <ROW Component="boxtap.fxh" ComponentId="{5DA63D8A-1899-437D-B292-66FFBFB65476}" Directory_="lib_Dir" Attributes="0" KeyPath="boxtap.fxh" Type="0"/>
+    <ROW Component="boxtap.fxh" ComponentId="{743A7BC9-C29A-465A-9152-15E5DFF1E588}" Directory_="lib_Dir" Attributes="0" KeyPath="boxtap.fxh" Type="0"/>
+    <ROW Component="boxtap.fxh_1" ComponentId="{05413298-129D-401E-9CF5-5F2BA45ECF97}" Directory_="lib_1_Dir" Attributes="0" KeyPath="boxtap.fxh_1" Type="0"/>
     <ROW Component="boxtap.fxh_2" ComponentId="{91934B2B-15FF-4697-A232-37231ACC0F17}" Directory_="lib_2_Dir" Attributes="0" KeyPath="boxtap.fxh_2" Type="0"/>
-    <ROW Component="boxtap.fxh_3" ComponentId="{5C171935-ADC1-4816-ABAE-F80FBD1C58A9}" Directory_="lib_3_Dir" Attributes="0" KeyPath="boxtap.fxh_3" Type="0"/>
+    <ROW Component="cbdefault.ini" ComponentId="{F61A3B59-7186-429F-873A-05297C43F862}" Directory_="data_Dir" Attributes="0" KeyPath="cbdefault.ini" Type="0"/>
     <ROW Component="contentbrowser.exe" ComponentId="{4F69E94D-7228-4D6C-9001-FADE1B1680FE}" Directory_="win32_Dir" Attributes="0" KeyPath="contentbrowser.exe"/>
     <ROW Component="csmshadowmapping.xml" ComponentId="{651899CE-BE11-4951-8DA6-706B96D66CD4}" Directory_="win32_1_Dir" Attributes="0" KeyPath="csmshadowmapping.xml" Type="0"/>
-    <ROW Component="data" ComponentId="{2CFFBBD0-0235-4E3D-878A-CBD0249325AC}" Directory_="data_Dir" Attributes="0"/>
     <ROW Component="effectsattributes.nidl" ComponentId="{555EC05A-6988-43A1-A12E-D1D25573DDBA}" Directory_="effects_Dir" Attributes="0" KeyPath="effectsattributes.nidl" Type="0"/>
     <ROW Component="fbxbatcher3.exe" ComponentId="{B3054474-2E09-49DA-A75F-825C83D56B8D}" Directory_="win32_Dir" Attributes="0" KeyPath="fbxbatcher3.exe"/>
     <ROW Component="fmod.dll" ComponentId="{5B7BDED8-E4F5-4E54-BF56-1177A6A3CA9E}" Directory_="win32_Dir" Attributes="0" KeyPath="fmod.dll"/>
@@ -157,15 +157,15 @@
     <ROW Component="uiattributes.nidl" ComponentId="{B540BF4C-DB81-4ED6-A7A9-7ADED84EB149}" Directory_="uiattrs_Dir" Attributes="0" KeyPath="uiattributes.nidl" Type="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
-    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="Add.ndv Combine2.ndv ConstantFloat.ndv Default.ndv DeliciousBold.otf Float.ndv GlobalLightColor.ndv Manufacturer NebulaTrifid Sample2D.ndv TexCoords.ndv Version animated.fx animated.fx_2 animeventcamshake.xml anims.xml archiver3.exe assetbatcher.exe audio.png audiobatcher3.exe audioprotocol.nidl base.xml basegameattributes.nidl basegamefeature basegameproperties.nidl batchexporter.exe batchexporter2.exe box.attributes boxtap.fxh boxtap.fxh_2 boxtap.fxh_3 contentbrowser.exe csmshadowmapping.xml data effectsattributes.nidl fbxbatcher3.exe fmod.dll fmodstudio.dll gamebatch.dll gamebatcher3.exe glslheader.fxh graphicsattributes.nidl leveleditor2.exe leveleditor2protocol.nidl levelviewer.exe lightcones.psd modelbatcher3.exe navigationattributes.nidl path path1 physicsattributes.nidl physicsfeature projectinfo.xml projectwizard.exe scriptattributes.nidl scriptfeature scriptingprotocol.nidl setup.exe shaderbatcher.exe stateobjectprotocol.nidl surfacegenerator.exe test.ndp texturebatcher3.exe uiattributes.nidl"/>
+    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="Add.ndv Combine2.ndv ConstantFloat.ndv Default.ndv DeliciousBold.otf Float.ndv GlobalLightColor.ndv Manufacturer NebulaTrifid Sample2D.ndv TexCoords.ndv Version animated.fx animated.fx_1 animeventcamshake.xml anims.xml archiver3.exe assetbatcher.exe audio.png audiobatcher3.exe audioprotocol.nidl base.xml basegameattributes.nidl basegamefeature basegameproperties.nidl batchexporter.exe batchexporter2.exe box.attributes boxtap.fxh boxtap.fxh_1 boxtap.fxh_2 cbdefault.ini contentbrowser.exe csmshadowmapping.xml effectsattributes.nidl fbxbatcher3.exe fmod.dll fmodstudio.dll gamebatch.dll gamebatcher3.exe glslheader.fxh graphicsattributes.nidl leveleditor2.exe leveleditor2protocol.nidl levelviewer.exe lightcones.psd modelbatcher3.exe navigationattributes.nidl path path1 physicsattributes.nidl physicsfeature projectinfo.xml projectwizard.exe scriptattributes.nidl scriptfeature scriptingprotocol.nidl setup.exe shaderbatcher.exe stateobjectprotocol.nidl surfacegenerator.exe test.ndp texturebatcher3.exe uiattributes.nidl"/>
     <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
     <ROW File="Add.ndv" Component_="Add.ndv" FileName="Add.ndv" Attributes="0" SourcePath="work\shady\variations\Math\Add.ndv" SelfReg="false" NextFile="Cos.ndv"/>
     <ROW File="AnimEventEffects.xml" Component_="animeventcamshake.xml" FileName="ANIMEV~2.XML|AnimEventEffects.xml" Attributes="0" SourcePath="data\tables\db\AnimEventEffects.xml" SelfReg="false" NextFile="animeventsound.xml"/>
     <ROW File="CSM.fxh" Component_="boxtap.fxh" FileName="CSM.fxh" Attributes="0" SourcePath="work\shaders\fx\lib\CSM.fxh" SelfReg="false" NextFile="defaultsampler.fxh"/>
+    <ROW File="CSM.fxh_1" Component_="boxtap.fxh_1" FileName="CSM.fxh" Attributes="0" SourcePath="work\shaders\gl\lib\CSM.fxh" SelfReg="false" NextFile="defaultsamplers.fxh"/>
     <ROW File="CSM.fxh_2" Component_="boxtap.fxh_2" FileName="CSM.fxh" Attributes="0" SourcePath="work\shady\supervariations\templates\lib\CSM.fxh" SelfReg="false" NextFile="defaultsamplers.fxh_1"/>
-    <ROW File="CSM.fxh_3" Component_="boxtap.fxh_3" FileName="CSM.fxh" Attributes="0" SourcePath="work\shaders\gl\lib\CSM.fxh" SelfReg="false" NextFile="defaultsamplers.fxh"/>
     <ROW File="Combine2.ndv" Component_="Combine2.ndv" FileName="Combine2.ndv" Attributes="0" SourcePath="work\shady\variations\Conversion\Combine2.ndv" SelfReg="false" NextFile="Combine3.ndv"/>
     <ROW File="Combine3.ndv" Component_="Combine2.ndv" FileName="Combine3.ndv" Attributes="0" SourcePath="work\shady\variations\Conversion\Combine3.ndv" SelfReg="false" NextFile="Combine4.ndv"/>
     <ROW File="Combine4.ndv" Component_="Combine2.ndv" FileName="Combine4.ndv" Attributes="0" SourcePath="work\shady\variations\Conversion\Combine4.ndv" SelfReg="false" NextFile="StripAlpha.ndv"/>
@@ -215,7 +215,7 @@
     <ROW File="_ui_layouts.xml" Component_="animeventcamshake.xml" FileName="_UI_LA~1.XML|_ui_layouts.xml" Attributes="0" SourcePath="data\tables\db\_ui_layouts.xml" SelfReg="false" NextFile="_ui_scripts.xml"/>
     <ROW File="_ui_scripts.xml" Component_="animeventcamshake.xml" FileName="_UI_SC~1.XML|_ui_scripts.xml" Attributes="0" SourcePath="data\tables\db\_ui_scripts.xml" SelfReg="false" NextFile="effects.xml"/>
     <ROW File="animated.fx" Component_="animated.fx" FileName="animated.fx" Attributes="0" SourcePath="work\shaders\fx\animated.fx" SelfReg="false" NextFile="averagelum.fx"/>
-    <ROW File="animated.fx_2" Component_="animated.fx_2" FileName="animated.fx" Attributes="0" SourcePath="work\shaders\gl\animated.fx" SelfReg="false" NextFile="averagelum.fx_2"/>
+    <ROW File="animated.fx_1" Component_="animated.fx_1" FileName="animated.fx" Attributes="0" SourcePath="work\shaders\gl\animated.fx" SelfReg="false" NextFile="averagelum.fx_1"/>
     <ROW File="animeventcamshake.xml" Component_="animeventcamshake.xml" FileName="ANIMEV~1.XML|animeventcamshake.xml" Attributes="0" SourcePath="data\tables\db\animeventcamshake.xml" SelfReg="false" NextFile="AnimEventEffects.xml"/>
     <ROW File="animeventsound.xml" Component_="animeventcamshake.xml" FileName="ANIMEV~3.XML|animeventsound.xml" Attributes="0" SourcePath="data\tables\db\animeventsound.xml" SelfReg="false" NextFile="animeventtiming.xml"/>
     <ROW File="animeventtiming.xml" Component_="animeventcamshake.xml" FileName="ANIMEV~4.XML|animeventtiming.xml" Attributes="0" SourcePath="data\tables\db\animeventtiming.xml" SelfReg="false" NextFile="animeventvibration.xml"/>
@@ -228,7 +228,7 @@
     <ROW File="audioprotocol.nidl" Component_="audioprotocol.nidl" FileName="AUDIOP~1.NID|audioprotocol.nidl" Attributes="0" SourcePath="code\addons\faudio\audioprotocol.nidl" SelfReg="false" NextFile="csmshadowmapping.xml"/>
     <ROW File="authors.txt" Component_="projectinfo.xml" FileName="authors.txt" Attributes="0" SourcePath="authors.txt" SelfReg="false" NextFile="license.txt"/>
     <ROW File="averagelum.fx" Component_="animated.fx" FileName="AVERAG~1.FX|averagelum.fx" Attributes="0" SourcePath="work\shaders\fx\averagelum.fx" SelfReg="false" NextFile="billboard.fx"/>
-    <ROW File="averagelum.fx_2" Component_="animated.fx_2" FileName="AVERAG~1.FX|averagelum.fx" Attributes="0" SourcePath="work\shaders\gl\averagelum.fx" SelfReg="false" NextFile="billboard.fx_2"/>
+    <ROW File="averagelum.fx_1" Component_="animated.fx_1" FileName="AVERAG~1.FX|averagelum.fx" Attributes="0" SourcePath="work\shaders\gl\averagelum.fx" SelfReg="false" NextFile="billboard.fx_1"/>
     <ROW File="base.xml" Component_="base.xml" FileName="base.xml" Attributes="0" SourcePath="work\materials\base.xml" SelfReg="false" NextFile="test.ndp"/>
     <ROW File="basegameattributes.nidl" Component_="basegameattributes.nidl" FileName="basega~1.nid|basegameattributes.nidl" Attributes="0" SourcePath="code\application\basegamefeature\basegameattr\basegameattributes.nidl" SelfReg="false" NextFile="graphicsattributes.nidl"/>
     <ROW File="basegameproperties.nidl" Component_="basegameproperties.nidl" FileName="BASEGA~1.NID|basegameproperties.nidl" Attributes="0" SourcePath="code\application\basegamefeature\properties\basegameproperties.nidl" SelfReg="false" NextFile="scriptattributes.nidl"/>
@@ -239,40 +239,41 @@
     <ROW File="bigbox.fbx" Component_="audio.png" FileName="bigbox.fbx" Attributes="0" SourcePath="work\assets\system\bigbox.fbx" SelfReg="false" NextFile="bigbox.mb"/>
     <ROW File="bigbox.mb" Component_="audio.png" FileName="bigbox.mb" Attributes="0" SourcePath="work\assets\system\bigbox.mb" SelfReg="false" NextFile="bigbox.physics"/>
     <ROW File="bigbox.physics" Component_="audio.png" FileName="BIGBOX~1.PHY|bigbox.physics" Attributes="0" SourcePath="work\assets\system\bigbox.physics" SelfReg="false" NextFile="bigsphere.attributes"/>
-    <ROW File="bigsphere.attributes" Component_="audio.png" FileName="BIGSPH~1.ATT|bigsphere.attributes" Attributes="0" SourcePath="work\assets\system\bigsphere.attributes" SelfReg="false" NextFile="bigsphere.constants"/>
+    <ROW File="bigsphere.attributes" Component_="audio.png" FileName="BIGSPH~1.ATT|bigsphere.attributes" Attributes="0" SourcePath="work\assets\system\bigsphere.attributes" SelfReg="false" NextFile="bigsphere.attributes.xml"/>
+    <ROW File="bigsphere.attributes.xml" Component_="audio.png" FileName="BIGSPH~1.XML|bigsphere.attributes.xml" Attributes="0" SourcePath="work\assets\system\bigsphere.attributes.xml" SelfReg="false" NextFile="bigsphere.constants"/>
     <ROW File="bigsphere.constants" Component_="audio.png" FileName="BIGSPH~1.CON|bigsphere.constants" Attributes="0" SourcePath="work\assets\system\bigsphere.constants" SelfReg="false" NextFile="bigsphere.fbx"/>
     <ROW File="bigsphere.fbx" Component_="audio.png" FileName="BIGSPH~1.FBX|bigsphere.fbx" Attributes="0" SourcePath="work\assets\system\bigsphere.fbx" SelfReg="false" NextFile="bigsphere.mb"/>
     <ROW File="bigsphere.mb" Component_="audio.png" FileName="BIGSPH~1.MB|bigsphere.mb" Attributes="0" SourcePath="work\assets\system\bigsphere.mb" SelfReg="false" NextFile="bigsphere.physics"/>
     <ROW File="bigsphere.physics" Component_="audio.png" FileName="BIGSPH~1.PHY|bigsphere.physics" Attributes="0" SourcePath="work\assets\system\bigsphere.physics" SelfReg="false" NextFile="billboard.sur"/>
     <ROW File="billboard.fx" Component_="animated.fx" FileName="BILLBO~1.FX|billboard.fx" Attributes="0" SourcePath="work\shaders\fx\billboard.fx" SelfReg="false" NextFile="box3taphori.fx"/>
-    <ROW File="billboard.fx_2" Component_="animated.fx_2" FileName="BILLBO~1.FX|billboard.fx" Attributes="0" SourcePath="work\shaders\gl\billboard.fx" SelfReg="false" NextFile="box3taphori.fx_2"/>
+    <ROW File="billboard.fx_1" Component_="animated.fx_1" FileName="BILLBO~1.FX|billboard.fx" Attributes="0" SourcePath="work\shaders\gl\billboard.fx" SelfReg="false" NextFile="box3taphori.fx_1"/>
     <ROW File="billboard.sur" Component_="audio.png" FileName="BILLBO~1.SUR|billboard.sur" Attributes="0" SourcePath="work\assets\system\billboard.sur" SelfReg="false" NextFile="black.dds"/>
     <ROW File="black.dds" Component_="audio.png" FileName="black.dds" Attributes="0" SourcePath="work\assets\system\black.dds" SelfReg="false" NextFile="blue.png"/>
     <ROW File="blue.png" Component_="audio.png" FileName="blue.png" Attributes="0" SourcePath="work\assets\system\blue.png" SelfReg="false" NextFile="blue_cube.dds"/>
-    <ROW File="blue_cube.dds" Component_="audio.png" FileName="BLUE_C~1.DDS|blue_cube.dds" Attributes="0" SourcePath="work\assets\system\blue_cube.dds" SelfReg="false" NextFile="box.attributes_1"/>
+    <ROW File="blue_cube.dds" Component_="audio.png" FileName="BLUE_C~1.DDS|blue_cube.dds" Attributes="0" SourcePath="work\assets\system\blue_cube.dds" SelfReg="false" NextFile="box.attributes_3"/>
     <ROW File="blueprints.xml" Component_="anims.xml" FileName="BLUEPR~1.XML|blueprints.xml" Attributes="0" SourcePath="data\tables\blueprints.xml" SelfReg="false" NextFile="animeventcamshake.xml"/>
     <ROW File="box.attributes" Component_="box.attributes" FileName="BOX~1.ATT|box.attributes" Attributes="0" SourcePath="work\assets\placeholder\box.attributes" SelfReg="false" NextFile="box.constants"/>
-    <ROW File="box.attributes_1" Component_="audio.png" FileName="BOX~1.ATT|box.attributes" Attributes="0" SourcePath="work\assets\system\box.attributes" SelfReg="false" NextFile="box.constants_1"/>
+    <ROW File="box.attributes_3" Component_="audio.png" FileName="BOX~1.ATT|box.attributes" Attributes="0" SourcePath="work\assets\system\box.attributes" SelfReg="false" NextFile="box.constants_3"/>
     <ROW File="box.constants" Component_="box.attributes" FileName="BOX~1.CON|box.constants" Attributes="0" SourcePath="work\assets\placeholder\box.constants" SelfReg="false" NextFile="box.fbx"/>
-    <ROW File="box.constants_1" Component_="audio.png" FileName="BOX~1.CON|box.constants" Attributes="0" SourcePath="work\assets\system\box.constants" SelfReg="false" NextFile="box.fbx_1"/>
+    <ROW File="box.constants_3" Component_="audio.png" FileName="BOX~1.CON|box.constants" Attributes="0" SourcePath="work\assets\system\box.constants" SelfReg="false" NextFile="box.fbx_3"/>
     <ROW File="box.fbx" Component_="box.attributes" FileName="box.fbx" Attributes="0" SourcePath="work\assets\placeholder\box.fbx" SelfReg="false" NextFile="box.mb"/>
-    <ROW File="box.fbx_1" Component_="audio.png" FileName="box.fbx" Attributes="0" SourcePath="work\assets\system\box.fbx" SelfReg="false" NextFile="box.mb_1"/>
+    <ROW File="box.fbx_3" Component_="audio.png" FileName="box.fbx" Attributes="0" SourcePath="work\assets\system\box.fbx" SelfReg="false" NextFile="box.mb_3"/>
     <ROW File="box.mb" Component_="box.attributes" FileName="box.mb" Attributes="0" SourcePath="work\assets\placeholder\box.mb" SelfReg="false" NextFile="box.physics"/>
-    <ROW File="box.mb_1" Component_="audio.png" FileName="box.mb" Attributes="0" SourcePath="work\assets\system\box.mb" SelfReg="false" NextFile="box.physics_1"/>
-    <ROW File="box.physics" Component_="box.attributes" FileName="BOX~1.PHY|box.physics" Attributes="0" SourcePath="work\assets\placeholder\box.physics" SelfReg="false" NextFile="animated.fx"/>
-    <ROW File="box.physics_1" Component_="audio.png" FileName="BOX~1.PHY|box.physics" Attributes="0" SourcePath="work\assets\system\box.physics" SelfReg="false" NextFile="cloud.dds"/>
+    <ROW File="box.mb_3" Component_="audio.png" FileName="box.mb" Attributes="0" SourcePath="work\assets\system\box.mb" SelfReg="false" NextFile="box.physics_3"/>
+    <ROW File="box.physics" Component_="box.attributes" FileName="BOX~1.PHY|box.physics" Attributes="0" SourcePath="work\assets\placeholder\box.physics" SelfReg="false" NextFile="layoutlist.rml"/>
+    <ROW File="box.physics_3" Component_="audio.png" FileName="BOX~1.PHY|box.physics" Attributes="0" SourcePath="work\assets\system\box.physics" SelfReg="false" NextFile="colorhexagon.dds"/>
     <ROW File="box3taphori.fx" Component_="animated.fx" FileName="BOX3TA~1.FX|box3taphori.fx" Attributes="0" SourcePath="work\shaders\fx\box3taphori.fx" SelfReg="false" NextFile="box3tapvert.fx"/>
-    <ROW File="box3taphori.fx_2" Component_="animated.fx_2" FileName="BOX3TA~1.FX|box3taphori.fx" Attributes="0" SourcePath="work\shaders\gl\box3taphori.fx" SelfReg="false" NextFile="box3tapvert.fx_2"/>
+    <ROW File="box3taphori.fx_1" Component_="animated.fx_1" FileName="BOX3TA~1.FX|box3taphori.fx" Attributes="0" SourcePath="work\shaders\gl\box3taphori.fx" SelfReg="false" NextFile="box3tapvert.fx_1"/>
     <ROW File="box3tapvert.fx" Component_="animated.fx" FileName="BOX3TA~2.FX|box3tapvert.fx" Attributes="0" SourcePath="work\shaders\fx\box3tapvert.fx" SelfReg="false" NextFile="brightpass.fx"/>
-    <ROW File="box3tapvert.fx_2" Component_="animated.fx_2" FileName="BOX3TA~2.FX|box3tapvert.fx" Attributes="0" SourcePath="work\shaders\gl\box3tapvert.fx" SelfReg="false" NextFile="brightpass.fx_2"/>
+    <ROW File="box3tapvert.fx_1" Component_="animated.fx_1" FileName="BOX3TA~2.FX|box3tapvert.fx" Attributes="0" SourcePath="work\shaders\gl\box3tapvert.fx" SelfReg="false" NextFile="brightpass.fx_1"/>
     <ROW File="boxtap.fxh" Component_="boxtap.fxh" FileName="boxtap.fxh" Attributes="0" SourcePath="work\shaders\fx\lib\boxtap.fxh" SelfReg="false" NextFile="CSM.fxh"/>
+    <ROW File="boxtap.fxh_1" Component_="boxtap.fxh_1" FileName="boxtap.fxh" Attributes="0" SourcePath="work\shaders\gl\lib\boxtap.fxh" SelfReg="false" NextFile="colorblending.fxh"/>
     <ROW File="boxtap.fxh_2" Component_="boxtap.fxh_2" FileName="boxtap.fxh" Attributes="0" SourcePath="work\shady\supervariations\templates\lib\boxtap.fxh" SelfReg="false" NextFile="CSM.fxh_2"/>
-    <ROW File="boxtap.fxh_3" Component_="boxtap.fxh_3" FileName="boxtap.fxh" Attributes="0" SourcePath="work\shaders\gl\lib\boxtap.fxh" SelfReg="false" NextFile="colorblending.fxh"/>
     <ROW File="brightpass.fx" Component_="animated.fx" FileName="BRIGHT~1.FX|brightpass.fx" Attributes="0" SourcePath="work\shaders\fx\brightpass.fx" SelfReg="false" NextFile="copy.fx"/>
-    <ROW File="brightpass.fx_2" Component_="animated.fx_2" FileName="BRIGHT~1.FX|brightpass.fx" Attributes="0" SourcePath="work\shaders\gl\brightpass.fx" SelfReg="false" NextFile="copy.fx_2"/>
+    <ROW File="brightpass.fx_1" Component_="animated.fx_1" FileName="BRIGHT~1.FX|brightpass.fx" Attributes="0" SourcePath="work\shaders\gl\brightpass.fx" SelfReg="false" NextFile="copy.fx_1"/>
     <ROW File="camera.xml" Component_="animeventcamshake.xml" FileName="camera.xml" Attributes="0" SourcePath="data\tables\db\camera.xml" SelfReg="false" NextFile="lightprobe.xml"/>
-    <ROW File="cloud.dds" Component_="audio.png" FileName="cloud.dds" Attributes="0" SourcePath="work\assets\system\cloud.dds" SelfReg="false" NextFile="colorhexagon.dds"/>
-    <ROW File="colorblending.fxh" Component_="boxtap.fxh_3" FileName="COLORB~1.FXH|colorblending.fxh" Attributes="0" SourcePath="work\shaders\gl\lib\colorblending.fxh" SelfReg="false" NextFile="CSM.fxh_3"/>
+    <ROW File="cbdefault.ini" Component_="cbdefault.ini" FileName="CBDEFA~1.INI|cbdefault.ini" Attributes="0" SourcePath="data\cbdefault.ini" SelfReg="false" NextFile="audio.png"/>
+    <ROW File="colorblending.fxh" Component_="boxtap.fxh_1" FileName="COLORB~1.FXH|colorblending.fxh" Attributes="0" SourcePath="work\shaders\gl\lib\colorblending.fxh" SelfReg="false" NextFile="CSM.fxh_1"/>
     <ROW File="colorhexagon.dds" Component_="audio.png" FileName="COLORH~1.DDS|colorhexagon.dds" Attributes="0" SourcePath="work\assets\system\colorhexagon.dds" SelfReg="false" NextFile="cone.attributes"/>
     <ROW File="cone.attributes" Component_="audio.png" FileName="CONE~1.ATT|cone.attributes" Attributes="0" SourcePath="work\assets\system\cone.attributes" SelfReg="false" NextFile="cone.constants"/>
     <ROW File="cone.constants" Component_="audio.png" FileName="CONE~1.CON|cone.constants" Attributes="0" SourcePath="work\assets\system\cone.constants" SelfReg="false" NextFile="cone.fbx"/>
@@ -282,55 +283,55 @@
     <ROW File="contentbrowser.exe" Component_="contentbrowser.exe" FileName="conten~1.exe|contentbrowser.exe" Attributes="0" SourcePath="bin\win32\contentbrowser.exe" SelfReg="false" NextFile="leveleditor2.exe" DigSign="true"/>
     <ROW File="contentbrowser.pdb" Component_="contentbrowser.exe" FileName="conten~1.pdb|contentbrowser.pdb" Attributes="0" SourcePath="out\pdb\contentbrowser.pdb" SelfReg="false" NextFile="leveleditor2.pdb"/>
     <ROW File="copy.fx" Component_="animated.fx" FileName="copy.fx" Attributes="0" SourcePath="work\shaders\fx\copy.fx" SelfReg="false" NextFile="csmblur.fx"/>
-    <ROW File="copy.fx_2" Component_="animated.fx_2" FileName="copy.fx" Attributes="0" SourcePath="work\shaders\gl\copy.fx" SelfReg="false" NextFile="csmblur.fx_2"/>
+    <ROW File="copy.fx_1" Component_="animated.fx_1" FileName="copy.fx" Attributes="0" SourcePath="work\shaders\gl\copy.fx" SelfReg="false" NextFile="csmblur.fx_1"/>
     <ROW File="csmblur.fx" Component_="animated.fx" FileName="csmblur.fx" Attributes="0" SourcePath="work\shaders\fx\csmblur.fx" SelfReg="false" NextFile="downscale.fx"/>
-    <ROW File="csmblur.fx_2" Component_="animated.fx_2" FileName="csmblur.fx" Attributes="0" SourcePath="work\shaders\gl\csmblur.fx" SelfReg="false" NextFile="downscale.fx_2"/>
+    <ROW File="csmblur.fx_1" Component_="animated.fx_1" FileName="csmblur.fx" Attributes="0" SourcePath="work\shaders\gl\csmblur.fx" SelfReg="false" NextFile="downscale.fx_1"/>
     <ROW File="csmshadowmapping.xml" Component_="csmshadowmapping.xml" FileName="CSMSHA~1.XML|csmshadowmapping.xml" Attributes="0" SourcePath="work\frame\win32\csmshadowmapping.xml" SelfReg="false" NextFile="dx11default.xml"/>
     <ROW File="cylinder.mb" Component_="audio.png" FileName="cylinder.mb" Attributes="0" SourcePath="work\assets\system\cylinder.mb" SelfReg="false" NextFile="darkgray.png"/>
     <ROW File="darkgray.png" Component_="audio.png" FileName="darkgray.png" Attributes="0" SourcePath="work\assets\system\darkgray.png" SelfReg="false" NextFile="defcube.dds"/>
     <ROW File="defaultsampler.fxh" Component_="boxtap.fxh" FileName="DEFAUL~1.FXH|defaultsampler.fxh" Attributes="0" SourcePath="work\shaders\fx\lib\defaultsampler.fxh" SelfReg="false" NextFile="geometrybase.fxh"/>
-    <ROW File="defaultsamplers.fxh" Component_="boxtap.fxh_3" FileName="DEFAUL~1.FXH|defaultsamplers.fxh" Attributes="0" SourcePath="work\shaders\gl\lib\defaultsamplers.fxh" SelfReg="false" NextFile="geometrybase.fxh_3"/>
+    <ROW File="defaultsamplers.fxh" Component_="boxtap.fxh_1" FileName="DEFAUL~1.FXH|defaultsamplers.fxh" Attributes="0" SourcePath="work\shaders\gl\lib\defaultsamplers.fxh" SelfReg="false" NextFile="geometrybase.fxh_1"/>
     <ROW File="defaultsamplers.fxh_1" Component_="boxtap.fxh_2" FileName="DEFAUL~1.FXH|defaultsamplers.fxh" Attributes="0" SourcePath="work\shady\supervariations\templates\lib\defaultsamplers.fxh" SelfReg="false" NextFile="geometrybase.fxh_2"/>
     <ROW File="defcube.dds" Component_="audio.png" FileName="defcube.dds" Attributes="0" SourcePath="work\assets\system\defcube.dds" SelfReg="false" NextFile="displacement_test.png"/>
     <ROW File="displacement_test.png" Component_="audio.png" FileName="DISPLA~1.PNG|displacement_test.png" Attributes="0" SourcePath="work\assets\system\displacement_test.png" SelfReg="false" NextFile="emitter.attributes"/>
     <ROW File="downscale.fx" Component_="animated.fx" FileName="DOWNSC~1.FX|downscale.fx" Attributes="0" SourcePath="work\shaders\fx\downscale.fx" SelfReg="false" NextFile="empty.fx"/>
-    <ROW File="downscale.fx_2" Component_="animated.fx_2" FileName="DOWNSC~1.FX|downscale.fx" Attributes="0" SourcePath="work\shaders\gl\downscale.fx" SelfReg="false" NextFile="emissive.fx"/>
+    <ROW File="downscale.fx_1" Component_="animated.fx_1" FileName="DOWNSC~1.FX|downscale.fx" Attributes="0" SourcePath="work\shaders\gl\downscale.fx" SelfReg="false" NextFile="emissive.fx"/>
     <ROW File="dx11default.xml" Component_="csmshadowmapping.xml" FileName="DX11DE~1.XML|dx11default.xml" Attributes="0" SourcePath="work\frame\win32\dx11default.xml" SelfReg="false" NextFile="dx9default.xml"/>
     <ROW File="dx9default.xml" Component_="csmshadowmapping.xml" FileName="DX9DEF~1.XML|dx9default.xml" Attributes="0" SourcePath="work\frame\win32\dx9default.xml" SelfReg="false" NextFile="esmshadowmapping.xml"/>
     <ROW File="effects.xml" Component_="anims.xml" FileName="effects.xml" Attributes="0" SourcePath="data\tables\effects.xml" SelfReg="false" NextFile="globals.xml"/>
     <ROW File="effectsattributes.nidl" Component_="effectsattributes.nidl" FileName="EFFECT~1.NID|effectsattributes.nidl" Attributes="0" SourcePath="code\addons\effects\effectsattributes.nidl" SelfReg="false" NextFile="audioprotocol.nidl"/>
-    <ROW File="emissive.fx" Component_="animated.fx_2" FileName="emissive.fx" Attributes="0" SourcePath="work\shaders\gl\emissive.fx" SelfReg="false" NextFile="empty.fx_2"/>
+    <ROW File="emissive.fx" Component_="animated.fx_1" FileName="emissive.fx" Attributes="0" SourcePath="work\shaders\gl\emissive.fx" SelfReg="false" NextFile="empty.fx_1"/>
     <ROW File="emitter.attributes" Component_="audio.png" FileName="EMITTE~1.ATT|emitter.attributes" Attributes="0" SourcePath="work\assets\system\emitter.attributes" SelfReg="false" NextFile="emitter.constants"/>
     <ROW File="emitter.constants" Component_="audio.png" FileName="EMITTE~1.CON|emitter.constants" Attributes="0" SourcePath="work\assets\system\emitter.constants" SelfReg="false" NextFile="emitter.fbx"/>
     <ROW File="emitter.fbx" Component_="audio.png" FileName="emitter.fbx" Attributes="0" SourcePath="work\assets\system\emitter.fbx" SelfReg="false" NextFile="emitter.mb"/>
     <ROW File="emitter.mb" Component_="audio.png" FileName="emitter.mb" Attributes="0" SourcePath="work\assets\system\emitter.mb" SelfReg="false" NextFile="emitter.physics"/>
     <ROW File="emitter.physics" Component_="audio.png" FileName="EMITTE~1.PHY|emitter.physics" Attributes="0" SourcePath="work\assets\system\emitter.physics" SelfReg="false" NextFile="envprobes.png"/>
     <ROW File="empty.fx" Component_="animated.fx" FileName="empty.fx" Attributes="0" SourcePath="work\shaders\fx\empty.fx" SelfReg="false" NextFile="finalize.fx"/>
-    <ROW File="empty.fx_2" Component_="animated.fx_2" FileName="empty.fx" Attributes="0" SourcePath="work\shaders\gl\empty.fx" SelfReg="false" NextFile="finalize.fx_2"/>
+    <ROW File="empty.fx_1" Component_="animated.fx_1" FileName="empty.fx" Attributes="0" SourcePath="work\shaders\gl\empty.fx" SelfReg="false" NextFile="finalize.fx_1"/>
     <ROW File="envprobes.png" Component_="audio.png" FileName="ENVPRO~1.PNG|envprobes.png" Attributes="0" SourcePath="work\assets\system\envprobes.png" SelfReg="false" NextFile="globallight.attributes"/>
     <ROW File="esmshadowmapping.xml" Component_="csmshadowmapping.xml" FileName="ESMSHA~1.XML|esmshadowmapping.xml" Attributes="0" SourcePath="work\frame\win32\esmshadowmapping.xml" SelfReg="false" NextFile="godrays.xml"/>
     <ROW File="fbxbatcher3.exe" Component_="fbxbatcher3.exe" FileName="fbxbat~1.exe|fbxbatcher3.exe" Attributes="0" SourcePath="bin\win32\fbxbatcher3.exe" SelfReg="false" NextFile="texturebatcher3.exe" DigSign="true"/>
     <ROW File="finalize.fx" Component_="animated.fx" FileName="finalize.fx" Attributes="0" SourcePath="work\shaders\fx\finalize.fx" SelfReg="false" NextFile="foliage.fx"/>
-    <ROW File="finalize.fx_2" Component_="animated.fx_2" FileName="finalize.fx" Attributes="0" SourcePath="work\shaders\gl\finalize.fx" SelfReg="false" NextFile="finalize_simple.fx"/>
-    <ROW File="finalize_simple.fx" Component_="animated.fx_2" FileName="FINALI~1.FX|finalize_simple.fx" Attributes="0" SourcePath="work\shaders\gl\finalize_simple.fx" SelfReg="false" NextFile="foliage.fx_2"/>
+    <ROW File="finalize.fx_1" Component_="animated.fx_1" FileName="finalize.fx" Attributes="0" SourcePath="work\shaders\gl\finalize.fx" SelfReg="false" NextFile="finalize_simple.fx"/>
+    <ROW File="finalize_simple.fx" Component_="animated.fx_1" FileName="FINALI~1.FX|finalize_simple.fx" Attributes="0" SourcePath="work\shaders\gl\finalize_simple.fx" SelfReg="false" NextFile="foliage.fx_1"/>
     <ROW File="fmod.dll" Component_="fmod.dll" FileName="fmod.dll" Attributes="0" SourcePath="bin\win32\fmod.dll" SelfReg="false" NextFile="fmodstudio.dll"/>
     <ROW File="fmodstudio.dll" Component_="fmodstudio.dll" FileName="FMODST~1.DLL|fmodstudio.dll" Attributes="0" SourcePath="bin\win32\fmodstudio.dll" SelfReg="false" NextFile="authors.txt"/>
     <ROW File="foliage.fx" Component_="animated.fx" FileName="foliage.fx" Attributes="0" SourcePath="work\shaders\fx\foliage.fx" SelfReg="false" NextFile="gather.fx"/>
-    <ROW File="foliage.fx_2" Component_="animated.fx_2" FileName="foliage.fx" Attributes="0" SourcePath="work\shaders\gl\foliage.fx" SelfReg="false" NextFile="gather.fx_2"/>
+    <ROW File="foliage.fx_1" Component_="animated.fx_1" FileName="foliage.fx" Attributes="0" SourcePath="work\shaders\gl\foliage.fx" SelfReg="false" NextFile="gather.fx_1"/>
     <ROW File="gamebatch.dll" Component_="gamebatch.dll" FileName="GAMEBA~1.DLL|gamebatch.dll" Attributes="0" SourcePath="bin\win32\gamebatch.dll" SelfReg="false" NextFile="DeliciousBold.otf"/>
     <ROW File="gamebatcher3.exe" Component_="gamebatcher3.exe" FileName="gameba~1.exe|gamebatcher3.exe" Attributes="0" SourcePath="bin\win32\gamebatcher3.exe" SelfReg="false" NextFile="fbxbatcher3.exe" DigSign="true"/>
     <ROW File="gather.fx" Component_="animated.fx" FileName="gather.fx" Attributes="0" SourcePath="work\shaders\fx\gather.fx" SelfReg="false" NextFile="gatheralpha.fx"/>
-    <ROW File="gather.fx_2" Component_="animated.fx_2" FileName="gather.fx" Attributes="0" SourcePath="work\shaders\gl\gather.fx" SelfReg="false" NextFile="gatheralpha.fx_2"/>
+    <ROW File="gather.fx_1" Component_="animated.fx_1" FileName="gather.fx" Attributes="0" SourcePath="work\shaders\gl\gather.fx" SelfReg="false" NextFile="gatheralpha.fx_1"/>
     <ROW File="gatheralpha.fx" Component_="animated.fx" FileName="GATHER~1.FX|gatheralpha.fx" Attributes="0" SourcePath="work\shaders\fx\gatheralpha.fx" SelfReg="false" NextFile="gaussianblur.fx"/>
-    <ROW File="gatheralpha.fx_2" Component_="animated.fx_2" FileName="GATHER~1.FX|gatheralpha.fx" Attributes="0" SourcePath="work\shaders\gl\gatheralpha.fx" SelfReg="false" NextFile="gaussianblur.fx_2"/>
+    <ROW File="gatheralpha.fx_1" Component_="animated.fx_1" FileName="GATHER~1.FX|gatheralpha.fx" Attributes="0" SourcePath="work\shaders\gl\gatheralpha.fx" SelfReg="false" NextFile="gaussianblur.fx_1"/>
     <ROW File="gaussianblur.fx" Component_="animated.fx" FileName="GAUSSI~1.FX|gaussianblur.fx" Attributes="0" SourcePath="work\shaders\fx\gaussianblur.fx" SelfReg="false" NextFile="gui.fx"/>
-    <ROW File="gaussianblur.fx_2" Component_="animated.fx_2" FileName="GAUSSI~1.FX|gaussianblur.fx" Attributes="0" SourcePath="work\shaders\gl\gaussianblur.fx" SelfReg="false" NextFile="gaussianblur_cs_rgba16f.fx"/>
-    <ROW File="gaussianblur_cs_rgba16f.fx" Component_="animated.fx_2" FileName="GAUSSI~2.FX|gaussianblur_cs_rgba16f.fx" Attributes="0" SourcePath="work\shaders\gl\gaussianblur_cs_rgba16f.fx" SelfReg="false" NextFile="gaussianblur_cs_rgba32f.fx"/>
-    <ROW File="gaussianblur_cs_rgba32f.fx" Component_="animated.fx_2" FileName="GAUSSI~3.FX|gaussianblur_cs_rgba32f.fx" Attributes="0" SourcePath="work\shaders\gl\gaussianblur_cs_rgba32f.fx" SelfReg="false" NextFile="gaussianblur_cs_rgba8.fx"/>
-    <ROW File="gaussianblur_cs_rgba8.fx" Component_="animated.fx_2" FileName="GAUSSI~4.FX|gaussianblur_cs_rgba8.fx" Attributes="0" SourcePath="work\shaders\gl\gaussianblur_cs_rgba8.fx" SelfReg="false" NextFile="grid.fx"/>
+    <ROW File="gaussianblur.fx_1" Component_="animated.fx_1" FileName="GAUSSI~1.FX|gaussianblur.fx" Attributes="0" SourcePath="work\shaders\gl\gaussianblur.fx" SelfReg="false" NextFile="gaussianblur_cs_rgba16f.fx"/>
+    <ROW File="gaussianblur_cs_rgba16f.fx" Component_="animated.fx_1" FileName="GAUSSI~2.FX|gaussianblur_cs_rgba16f.fx" Attributes="0" SourcePath="work\shaders\gl\gaussianblur_cs_rgba16f.fx" SelfReg="false" NextFile="gaussianblur_cs_rgba32f.fx"/>
+    <ROW File="gaussianblur_cs_rgba32f.fx" Component_="animated.fx_1" FileName="GAUSSI~3.FX|gaussianblur_cs_rgba32f.fx" Attributes="0" SourcePath="work\shaders\gl\gaussianblur_cs_rgba32f.fx" SelfReg="false" NextFile="gaussianblur_cs_rgba8.fx"/>
+    <ROW File="gaussianblur_cs_rgba8.fx" Component_="animated.fx_1" FileName="GAUSSI~4.FX|gaussianblur_cs_rgba8.fx" Attributes="0" SourcePath="work\shaders\gl\gaussianblur_cs_rgba8.fx" SelfReg="false" NextFile="grid.fx"/>
     <ROW File="geometrybase.fxh" Component_="boxtap.fxh" FileName="GEOMET~1.FXH|geometrybase.fxh" Attributes="0" SourcePath="work\shaders\fx\lib\geometrybase.fxh" SelfReg="false" NextFile="interfaces.fxh"/>
+    <ROW File="geometrybase.fxh_1" Component_="boxtap.fxh_1" FileName="GEOMET~1.FXH|geometrybase.fxh" Attributes="0" SourcePath="work\shaders\gl\lib\geometrybase.fxh" SelfReg="false" NextFile="lightmapbase.fxh"/>
     <ROW File="geometrybase.fxh_2" Component_="boxtap.fxh_2" FileName="GEOMET~1.FXH|geometrybase.fxh" Attributes="0" SourcePath="work\shady\supervariations\templates\lib\geometrybase.fxh" SelfReg="false" NextFile="particles.fxh_2"/>
-    <ROW File="geometrybase.fxh_3" Component_="boxtap.fxh_3" FileName="GEOMET~1.FXH|geometrybase.fxh" Attributes="0" SourcePath="work\shaders\gl\lib\geometrybase.fxh" SelfReg="false" NextFile="lightmapbase.fxh"/>
     <ROW File="globallight.attributes" Component_="audio.png" FileName="GLOBAL~1.ATT|globallight.attributes" Attributes="0" SourcePath="work\assets\system\globallight.attributes" SelfReg="false" NextFile="globallight.constants"/>
     <ROW File="globallight.constants" Component_="audio.png" FileName="GLOBAL~1.CON|globallight.constants" Attributes="0" SourcePath="work\assets\system\globallight.constants" SelfReg="false" NextFile="globallight.fbx"/>
     <ROW File="globallight.fbx" Component_="audio.png" FileName="GLOBAL~1.FBX|globallight.fbx" Attributes="0" SourcePath="work\assets\system\globallight.fbx" SelfReg="false" NextFile="globallight.physics"/>
@@ -352,26 +353,24 @@
     <ROW File="gray.png" Component_="audio.png" FileName="gray.png" Attributes="0" SourcePath="work\assets\system\gray.png" SelfReg="false" NextFile="green.png"/>
     <ROW File="green.png" Component_="audio.png" FileName="green.png" Attributes="0" SourcePath="work\assets\system\green.png" SelfReg="false" NextFile="green_cube.dds"/>
     <ROW File="green_cube.dds" Component_="audio.png" FileName="GREEN_~1.DDS|green_cube.dds" Attributes="0" SourcePath="work\assets\system\green_cube.dds" SelfReg="false" NextFile="grid.mb"/>
-    <ROW File="grid.fx" Component_="animated.fx_2" FileName="grid.fx" Attributes="0" SourcePath="work\shaders\gl\grid.fx" SelfReg="false" NextFile="gui.fx_2"/>
+    <ROW File="grid.fx" Component_="animated.fx_1" FileName="grid.fx" Attributes="0" SourcePath="work\shaders\gl\grid.fx" SelfReg="false" NextFile="gui.fx_1"/>
     <ROW File="grid.mb" Component_="audio.png" FileName="grid.mb" Attributes="0" SourcePath="work\assets\system\grid.mb" SelfReg="false" NextFile="grid.png"/>
-    <ROW File="grid.png" Component_="audio.png" FileName="grid.png" Attributes="0" SourcePath="work\assets\system\grid.png" SelfReg="false" NextFile="grid_outline.tga"/>
-    <ROW File="grid_outline.tga" Component_="audio.png" FileName="GRID_O~1.TGA|grid_outline.tga" Attributes="0" SourcePath="work\assets\system\grid_outline.tga" SelfReg="false" NextFile="grid_outline.xml"/>
-    <ROW File="grid_outline.xml" Component_="audio.png" FileName="GRID_O~1.XML|grid_outline.xml" Attributes="0" SourcePath="work\assets\system\grid_outline.xml" SelfReg="false" NextFile="gui.png"/>
+    <ROW File="grid.png" Component_="audio.png" FileName="grid.png" Attributes="0" SourcePath="work\assets\system\grid.png" SelfReg="false" NextFile="gui.png"/>
     <ROW File="gui.fx" Component_="animated.fx" FileName="gui.fx" Attributes="0" SourcePath="work\shaders\fx\gui.fx" SelfReg="false" NextFile="hbao.fx"/>
-    <ROW File="gui.fx_2" Component_="animated.fx_2" FileName="gui.fx" Attributes="0" SourcePath="work\shaders\gl\gui.fx" SelfReg="false" NextFile="hbao.fx_2"/>
+    <ROW File="gui.fx_1" Component_="animated.fx_1" FileName="gui.fx" Attributes="0" SourcePath="work\shaders\gl\gui.fx" SelfReg="false" NextFile="hbao.fx_1"/>
     <ROW File="gui.png" Component_="audio.png" FileName="gui.png" Attributes="0" SourcePath="work\assets\system\gui.png" SelfReg="false" NextFile="light.png"/>
     <ROW File="hbao.fx" Component_="animated.fx" FileName="hbao.fx" Attributes="0" SourcePath="work\shaders\fx\hbao.fx" SelfReg="false" NextFile="hbaoblur.fx"/>
-    <ROW File="hbao.fx_2" Component_="animated.fx_2" FileName="hbao.fx" Attributes="0" SourcePath="work\shaders\gl\hbao.fx" SelfReg="false" NextFile="hbaoblur.fx_2"/>
-    <ROW File="hbao_cs.fx" Component_="animated.fx_2" FileName="hbao_cs.fx" Attributes="0" SourcePath="work\shaders\gl\hbao_cs.fx" SelfReg="false" NextFile="horizontalbloom.fx_2"/>
+    <ROW File="hbao.fx_1" Component_="animated.fx_1" FileName="hbao.fx" Attributes="0" SourcePath="work\shaders\gl\hbao.fx" SelfReg="false" NextFile="hbaoblur.fx_1"/>
+    <ROW File="hbao_cs.fx" Component_="animated.fx_1" FileName="hbao_cs.fx" Attributes="0" SourcePath="work\shaders\gl\hbao_cs.fx" SelfReg="false" NextFile="horizontalbloom.fx_1"/>
     <ROW File="hbaoblur.fx" Component_="animated.fx" FileName="hbaoblur.fx" Attributes="0" SourcePath="work\shaders\fx\hbaoblur.fx" SelfReg="false" NextFile="horizontalbloom.fx"/>
-    <ROW File="hbaoblur.fx_2" Component_="animated.fx_2" FileName="hbaoblur.fx" Attributes="0" SourcePath="work\shaders\gl\hbaoblur.fx" SelfReg="false" NextFile="hbaoblur_cs.fx"/>
-    <ROW File="hbaoblur_cs.fx" Component_="animated.fx_2" FileName="HBAOBL~1.FX|hbaoblur_cs.fx" Attributes="0" SourcePath="work\shaders\gl\hbaoblur_cs.fx" SelfReg="false" NextFile="hbao_cs.fx"/>
+    <ROW File="hbaoblur.fx_1" Component_="animated.fx_1" FileName="hbaoblur.fx" Attributes="0" SourcePath="work\shaders\gl\hbaoblur.fx" SelfReg="false" NextFile="hbaoblur_cs.fx"/>
+    <ROW File="hbaoblur_cs.fx" Component_="animated.fx_1" FileName="HBAOBL~1.FX|hbaoblur_cs.fx" Attributes="0" SourcePath="work\shaders\gl\hbaoblur_cs.fx" SelfReg="false" NextFile="hbao_cs.fx"/>
     <ROW File="horizonambientocclusion.xml" Component_="csmshadowmapping.xml" FileName="HORIZO~1.XML|horizonambientocclusion.xml" Attributes="0" SourcePath="work\frame\win32\horizonambientocclusion.xml" SelfReg="false" NextFile="ogl4default.xml"/>
     <ROW File="horizontalbloom.fx" Component_="animated.fx" FileName="HORIZO~1.FX|horizontalbloom.fx" Attributes="0" SourcePath="work\shaders\fx\horizontalbloom.fx" SelfReg="false" NextFile="boxtap.fxh"/>
-    <ROW File="horizontalbloom.fx_2" Component_="animated.fx_2" FileName="HORIZO~1.FX|horizontalbloom.fx" Attributes="0" SourcePath="work\shaders\gl\horizontalbloom.fx" SelfReg="false" NextFile="imgui.fx"/>
-    <ROW File="imgui.fx" Component_="animated.fx_2" FileName="imgui.fx" Attributes="0" SourcePath="work\shaders\gl\imgui.fx" SelfReg="false" NextFile="boxtap.fxh_3"/>
+    <ROW File="horizontalbloom.fx_1" Component_="animated.fx_1" FileName="HORIZO~1.FX|horizontalbloom.fx" Attributes="0" SourcePath="work\shaders\gl\horizontalbloom.fx" SelfReg="false" NextFile="imgui.fx"/>
+    <ROW File="imgui.fx" Component_="animated.fx_1" FileName="imgui.fx" Attributes="0" SourcePath="work\shaders\gl\imgui.fx" SelfReg="false" NextFile="boxtap.fxh_1"/>
     <ROW File="interfaces.fxh" Component_="boxtap.fxh" FileName="INTERF~1.FXH|interfaces.fxh" Attributes="0" SourcePath="work\shaders\fx\lib\interfaces.fxh" SelfReg="false" NextFile="lightutils.fxh"/>
-    <ROW File="layoutlist.rml" Component_="DeliciousBold.otf" FileName="LAYOUT~1.RML|layoutlist.rml" Attributes="0" SourcePath="data\levelviewer\layoutlist.rml" SelfReg="false"/>
+    <ROW File="layoutlist.rml" Component_="DeliciousBold.otf" FileName="LAYOUT~1.RML|layoutlist.rml" Attributes="0" SourcePath="data\levelviewer\layoutlist.rml" SelfReg="false" NextFile="animated.fx"/>
     <ROW File="leveleditor2.exe" Component_="leveleditor2.exe" FileName="levele~1.exe|leveleditor2.exe" Attributes="0" SourcePath="bin\win32\leveleditor2.exe" SelfReg="false" NextFile="batchexporter.exe" DigSign="true"/>
     <ROW File="leveleditor2.pdb" Component_="leveleditor2.exe" FileName="levele~1.pdb|leveleditor2.pdb" Attributes="0" SourcePath="out\pdb\leveleditor2.pdb" SelfReg="false" NextFile="levelviewer.pdb"/>
     <ROW File="leveleditor2protocol.nidl" Component_="leveleditor2protocol.nidl" FileName="LEVELE~1.NID|leveleditor2protocol.nidl" Attributes="0" SourcePath="code\qttoolkit\leveleditor2\leveleditor2protocol.nidl" SelfReg="false" NextFile="navigationattributes.nidl"/>
@@ -381,16 +380,16 @@
     <ROW File="levelviewer.exe" Component_="levelviewer.exe" FileName="levelv~1.exe|levelviewer.exe" Attributes="0" SourcePath="bin\win32\levelviewer.exe" SelfReg="false" NextFile="contentbrowser.pdb" DigSign="true"/>
     <ROW File="levelviewer.pdb" Component_="levelviewer.exe" FileName="LEVELV~1.PDB|levelviewer.pdb" Attributes="0" SourcePath="out\pdb\levelviewer.pdb" SelfReg="false" NextFile="fmod.dll"/>
     <ROW File="license.txt" Component_="projectinfo.xml" FileName="license.txt" Attributes="0" SourcePath="license.txt" SelfReg="false" NextFile="leveleditor2protocol.nidl"/>
-    <ROW File="light.png" Component_="audio.png" FileName="light.png" Attributes="0" SourcePath="work\assets\system\light.png" SelfReg="false" NextFile="lightcones.psd_1"/>
+    <ROW File="light.png" Component_="audio.png" FileName="light.png" Attributes="0" SourcePath="work\assets\system\light.png" SelfReg="false" NextFile="lightcones.psd_2"/>
     <ROW File="lightcones.psd" Component_="lightcones.psd" FileName="LIGHTC~1.PSD|lightcones.psd" Attributes="0" SourcePath="work\assets\lighting\lightcones.psd" SelfReg="false" NextFile="lightcones_debug.psd"/>
-    <ROW File="lightcones.psd_1" Component_="audio.png" FileName="LIGHTC~1.PSD|lightcones.psd" Attributes="0" SourcePath="work\assets\system\lightcones.psd" SelfReg="false" NextFile="lightcones_debug.psd_1"/>
+    <ROW File="lightcones.psd_2" Component_="audio.png" FileName="LIGHTC~1.PSD|lightcones.psd" Attributes="0" SourcePath="work\assets\system\lightcones.psd" SelfReg="false" NextFile="lightcones_debug.psd_2"/>
     <ROW File="lightcones_debug.psd" Component_="lightcones.psd" FileName="LIGHTC~2.PSD|lightcones_debug.psd" Attributes="0" SourcePath="work\assets\lighting\lightcones_debug.psd" SelfReg="false" NextFile="lightcube.dds"/>
-    <ROW File="lightcones_debug.psd_1" Component_="audio.png" FileName="LIGHTC~2.PSD|lightcones_debug.psd" Attributes="0" SourcePath="work\assets\system\lightcones_debug.psd" SelfReg="false" NextFile="lightcube.dds_1"/>
+    <ROW File="lightcones_debug.psd_2" Component_="audio.png" FileName="LIGHTC~2.PSD|lightcones_debug.psd" Attributes="0" SourcePath="work\assets\system\lightcones_debug.psd" SelfReg="false" NextFile="lightcube.dds_2"/>
     <ROW File="lightcube.dds" Component_="lightcones.psd" FileName="LIGHTC~1.DDS|lightcube.dds" Attributes="0" SourcePath="work\assets\lighting\lightcube.dds" SelfReg="false" NextFile="box.attributes"/>
-    <ROW File="lightcube.dds_1" Component_="audio.png" FileName="LIGHTC~1.DDS|lightcube.dds" Attributes="0" SourcePath="work\assets\system\lightcube.dds" SelfReg="false" NextFile="lightprobesphere.attributes"/>
-    <ROW File="lightmapbase.fxh" Component_="boxtap.fxh_3" FileName="LIGHTM~1.FXH|lightmapbase.fxh" Attributes="0" SourcePath="work\shaders\gl\lib\lightmapbase.fxh" SelfReg="false" NextFile="particles.fxh_3"/>
+    <ROW File="lightcube.dds_2" Component_="audio.png" FileName="LIGHTC~1.DDS|lightcube.dds" Attributes="0" SourcePath="work\assets\system\lightcube.dds" SelfReg="false" NextFile="lightprobesphere.attributes"/>
+    <ROW File="lightmapbase.fxh" Component_="boxtap.fxh_1" FileName="LIGHTM~1.FXH|lightmapbase.fxh" Attributes="0" SourcePath="work\shaders\gl\lib\lightmapbase.fxh" SelfReg="false" NextFile="particles.fxh_1"/>
     <ROW File="lightmapped.fx" Component_="animated.fx" FileName="LIGHTM~1.FX|lightmapped.fx" Attributes="0" SourcePath="work\shaders\fx\lightmapped.fx" SelfReg="false" NextFile="lights.fx"/>
-    <ROW File="lightmapped.fx_2" Component_="animated.fx_2" FileName="LIGHTM~1.FX|lightmapped.fx" Attributes="0" SourcePath="work\shaders\gl\lightmapped.fx" SelfReg="false" NextFile="lights.fx_2"/>
+    <ROW File="lightmapped.fx_1" Component_="animated.fx_1" FileName="LIGHTM~1.FX|lightmapped.fx" Attributes="0" SourcePath="work\shaders\gl\lightmapped.fx" SelfReg="false" NextFile="lights.fx_1"/>
     <ROW File="lightprobe.xml" Component_="animeventcamshake.xml" FileName="LIGHTP~1.XML|lightprobe.xml" Attributes="0" SourcePath="data\tables\db\lightprobe.xml" SelfReg="false" NextFile="navmeshdata.xml"/>
     <ROW File="lightprobesphere.attributes" Component_="audio.png" FileName="LIGHTP~1.ATT|lightprobesphere.attributes" Attributes="0" SourcePath="work\assets\system\lightprobesphere.attributes" SelfReg="false" NextFile="lightprobesphere.constants"/>
     <ROW File="lightprobesphere.constants" Component_="audio.png" FileName="LIGHTP~1.CON|lightprobesphere.constants" Attributes="0" SourcePath="work\assets\system\lightprobesphere.constants" SelfReg="false" NextFile="lightprobesphere.fbx"/>
@@ -398,20 +397,16 @@
     <ROW File="lightprobesphere.physics" Component_="audio.png" FileName="LIGHTP~1.PHY|lightprobesphere.physics" Attributes="0" SourcePath="work\assets\system\lightprobesphere.physics" SelfReg="false" NextFile="lightprobesphere.sur"/>
     <ROW File="lightprobesphere.sur" Component_="audio.png" FileName="LIGHTP~1.SUR|lightprobesphere.sur" Attributes="0" SourcePath="work\assets\system\lightprobesphere.sur" SelfReg="false" NextFile="miptest_256.dds"/>
     <ROW File="lights.fx" Component_="animated.fx" FileName="lights.fx" Attributes="0" SourcePath="work\shaders\fx\lights.fx" SelfReg="false" NextFile="lightscatter.fx"/>
-    <ROW File="lights.fx_2" Component_="animated.fx_2" FileName="lights.fx" Attributes="0" SourcePath="work\shaders\gl\lights.fx" SelfReg="false" NextFile="lightscatter.fx_2"/>
+    <ROW File="lights.fx_1" Component_="animated.fx_1" FileName="lights.fx" Attributes="0" SourcePath="work\shaders\gl\lights.fx" SelfReg="false" NextFile="lightscatter.fx_1"/>
     <ROW File="lightscatter.fx" Component_="animated.fx" FileName="LIGHTS~1.FX|lightscatter.fx" Attributes="0" SourcePath="work\shaders\fx\lightscatter.fx" SelfReg="false" NextFile="multilayered.fx"/>
-    <ROW File="lightscatter.fx_2" Component_="animated.fx_2" FileName="LIGHTS~1.FX|lightscatter.fx" Attributes="0" SourcePath="work\shaders\gl\lightscatter.fx" SelfReg="false" NextFile="multilayered.fx_2"/>
+    <ROW File="lightscatter.fx_1" Component_="animated.fx_1" FileName="LIGHTS~1.FX|lightscatter.fx" Attributes="0" SourcePath="work\shaders\gl\lightscatter.fx" SelfReg="false" NextFile="multilayered.fx_1"/>
     <ROW File="lightutils.fxh" Component_="boxtap.fxh" FileName="LIGHTU~1.FXH|lightutils.fxh" Attributes="0" SourcePath="work\shaders\fx\lib\lightutils.fxh" SelfReg="false" NextFile="particles.fxh"/>
     <ROW File="materials.xml" Component_="anims.xml" FileName="MATERI~1.XML|materials.xml" Attributes="0" SourcePath="data\tables\materials.xml" SelfReg="false" NextFile="basegameproperties.nidl"/>
     <ROW File="miptest_256.dds" Component_="audio.png" FileName="MIPTES~1.DDS|miptest_256.dds" Attributes="0" SourcePath="work\assets\system\miptest_256.dds" SelfReg="false" NextFile="miptest_512.dds"/>
-    <ROW File="miptest_512.dds" Component_="audio.png" FileName="MIPTES~2.DDS|miptest_512.dds" Attributes="0" SourcePath="work\assets\system\miptest_512.dds" SelfReg="false" NextFile="mlp_black.psd"/>
-    <ROW File="mlp_black.psd" Component_="audio.png" FileName="MLP_BL~1.PSD|mlp_black.psd" Attributes="0" SourcePath="work\assets\system\mlp_black.psd" SelfReg="false" NextFile="mlp_dummy.png"/>
-    <ROW File="mlp_dummy.png" Component_="audio.png" FileName="MLP_DU~1.PNG|mlp_dummy.png" Attributes="0" SourcePath="work\assets\system\mlp_dummy.png" SelfReg="false" NextFile="mlp_dummy_single_layer_.png"/>
-    <ROW File="mlp_dummy_single_layer_.png" Component_="audio.png" FileName="MLP_DU~2.PNG|mlp_dummy_single_layer_.png" Attributes="0" SourcePath="work\assets\system\mlp_dummy_single_layer_.png" SelfReg="false" NextFile="mlp_white.png"/>
-    <ROW File="mlp_white.png" Component_="audio.png" FileName="MLP_WH~1.PNG|mlp_white.png" Attributes="0" SourcePath="work\assets\system\mlp_white.png" SelfReg="false" NextFile="nebulalogo.png"/>
+    <ROW File="miptest_512.dds" Component_="audio.png" FileName="MIPTES~2.DDS|miptest_512.dds" Attributes="0" SourcePath="work\assets\system\miptest_512.dds" SelfReg="false" NextFile="nebulalogo.png"/>
     <ROW File="modelbatcher3.exe" Component_="modelbatcher3.exe" FileName="modelb~1.exe|modelbatcher3.exe" Attributes="0" SourcePath="bin\win32\modelbatcher3.exe" SelfReg="false" NextFile="setup.exe" DigSign="true"/>
     <ROW File="multilayered.fx" Component_="animated.fx" FileName="MULTIL~1.FX|multilayered.fx" Attributes="0" SourcePath="work\shaders\fx\multilayered.fx" SelfReg="false" NextFile="particle.fx"/>
-    <ROW File="multilayered.fx_2" Component_="animated.fx_2" FileName="MULTIL~1.FX|multilayered.fx" Attributes="0" SourcePath="work\shaders\gl\multilayered.fx" SelfReg="false" NextFile="particle.fx_2"/>
+    <ROW File="multilayered.fx_1" Component_="animated.fx_1" FileName="MULTIL~1.FX|multilayered.fx" Attributes="0" SourcePath="work\shaders\gl\multilayered.fx" SelfReg="false" NextFile="particle.fx_1"/>
     <ROW File="navigationattributes.nidl" Component_="navigationattributes.nidl" FileName="NAVIGA~1.NID|navigationattributes.nidl" Attributes="0" SourcePath="code\addons\navigation\navigationattributes.nidl" SelfReg="false" NextFile="uiattributes.nidl"/>
     <ROW File="navmeshdata.xml" Component_="animeventcamshake.xml" FileName="NAVMES~1.XML|navmeshdata.xml" Attributes="0" SourcePath="data\tables\db\navmeshdata.xml" SelfReg="false" NextFile="posteffectbubble.xml"/>
     <ROW File="nebulalogo.png" Component_="audio.png" FileName="NEBULA~1.PNG|nebulalogo.png" Attributes="0" SourcePath="work\assets\system\nebulalogo.png" SelfReg="false" NextFile="nobump.psd"/>
@@ -420,32 +415,25 @@
     <ROW File="noise.psd" Component_="audio.png" FileName="noise.psd" Attributes="0" SourcePath="work\assets\system\noise.psd" SelfReg="false" NextFile="particle_unlit.sur"/>
     <ROW File="ogl4default.xml" Component_="csmshadowmapping.xml" FileName="OGL4DE~1.XML|ogl4default.xml" Attributes="0" SourcePath="work\frame\win32\ogl4default.xml" SelfReg="false" NextFile="picking.xml"/>
     <ROW File="particle.fx" Component_="animated.fx" FileName="particle.fx" Attributes="0" SourcePath="work\shaders\fx\particle.fx" SelfReg="false" NextFile="picking.fx"/>
-    <ROW File="particle.fx_2" Component_="animated.fx_2" FileName="particle.fx" Attributes="0" SourcePath="work\shaders\gl\particle.fx" SelfReg="false" NextFile="picking.fx_2"/>
-    <ROW File="particle_unlit.sur" Component_="audio.png" FileName="PARTIC~1.SUR|particle_unlit.sur" Attributes="0" SourcePath="work\assets\system\particle_unlit.sur" SelfReg="false" NextFile="pbrTest_diffuse.tga"/>
+    <ROW File="particle.fx_1" Component_="animated.fx_1" FileName="particle.fx" Attributes="0" SourcePath="work\shaders\gl\particle.fx" SelfReg="false" NextFile="picking.fx_1"/>
+    <ROW File="particle_unlit.sur" Component_="audio.png" FileName="PARTIC~1.SUR|particle_unlit.sur" Attributes="0" SourcePath="work\assets\system\particle_unlit.sur" SelfReg="false" NextFile="placeholder.attributes"/>
     <ROW File="particles.fxh" Component_="boxtap.fxh" FileName="PARTIC~1.FXH|particles.fxh" Attributes="0" SourcePath="work\shaders\fx\lib\particles.fxh" SelfReg="false" NextFile="shared.fxh"/>
+    <ROW File="particles.fxh_1" Component_="boxtap.fxh_1" FileName="PARTIC~1.FXH|particles.fxh" Attributes="0" SourcePath="work\shaders\gl\lib\particles.fxh" SelfReg="false" NextFile="shadowbase.fxh"/>
     <ROW File="particles.fxh_2" Component_="boxtap.fxh_2" FileName="PARTIC~1.FXH|particles.fxh" Attributes="0" SourcePath="work\shady\supervariations\templates\lib\particles.fxh" SelfReg="false" NextFile="shadowbase.fxh_1"/>
-    <ROW File="particles.fxh_3" Component_="boxtap.fxh_3" FileName="PARTIC~1.FXH|particles.fxh" Attributes="0" SourcePath="work\shaders\gl\lib\particles.fxh" SelfReg="false" NextFile="shadowbase.fxh"/>
-    <ROW File="pbrTest_diffuse.tga" Component_="audio.png" FileName="PBRTES~1.TGA|pbrTest_diffuse.tga" Attributes="0" SourcePath="work\assets\system\pbrTest_diffuse.tga" SelfReg="false" NextFile="pbrTest_diffuse.xml"/>
-    <ROW File="pbrTest_diffuse.xml" Component_="audio.png" FileName="PBRTES~1.XML|pbrTest_diffuse.xml" Attributes="0" SourcePath="work\assets\system\pbrTest_diffuse.xml" SelfReg="false" NextFile="pbrTest_roughness.tga"/>
-    <ROW File="pbrTest_roughness.tga" Component_="audio.png" FileName="PBRTES~2.TGA|pbrTest_roughness.tga" Attributes="0" SourcePath="work\assets\system\pbrTest_roughness.tga" SelfReg="false" NextFile="pbrTest_roughness.xml"/>
-    <ROW File="pbrTest_roughness.xml" Component_="audio.png" FileName="PBRTES~2.XML|pbrTest_roughness.xml" Attributes="0" SourcePath="work\assets\system\pbrTest_roughness.xml" SelfReg="false" NextFile="pbrTest_specular.tga"/>
-    <ROW File="pbrTest_specular.tga" Component_="audio.png" FileName="PBRTES~3.TGA|pbrTest_specular.tga" Attributes="0" SourcePath="work\assets\system\pbrTest_specular.tga" SelfReg="false" NextFile="pbrTest_specular.xml"/>
-    <ROW File="pbrTest_specular.xml" Component_="audio.png" FileName="PBRTES~3.XML|pbrTest_specular.xml" Attributes="0" SourcePath="work\assets\system\pbrTest_specular.xml" SelfReg="false" NextFile="placeholder.attributes"/>
     <ROW File="physicsattributes.nidl" Component_="physicsattributes.nidl" FileName="physic~1.nid|physicsattributes.nidl" Attributes="0" SourcePath="code\application\physicsfeature\physicsattr\physicsattributes.nidl" SelfReg="false" NextFile="scriptingprotocol.nidl"/>
     <ROW File="picking.fx" Component_="animated.fx" FileName="picking.fx" Attributes="0" SourcePath="work\shaders\fx\picking.fx" SelfReg="false" NextFile="shadow.fx"/>
-    <ROW File="picking.fx_2" Component_="animated.fx_2" FileName="picking.fx" Attributes="0" SourcePath="work\shaders\gl\picking.fx" SelfReg="false" NextFile="placeholder.fx"/>
+    <ROW File="picking.fx_1" Component_="animated.fx_1" FileName="picking.fx" Attributes="0" SourcePath="work\shaders\gl\picking.fx" SelfReg="false" NextFile="placeholder.fx"/>
     <ROW File="picking.xml" Component_="csmshadowmapping.xml" FileName="picking.xml" Attributes="0" SourcePath="work\frame\win32\picking.xml" SelfReg="false" NextFile="reflection.xml"/>
     <ROW File="placeholder.attributes" Component_="audio.png" FileName="PLACEH~1.ATT|placeholder.attributes" Attributes="0" SourcePath="work\assets\system\placeholder.attributes" SelfReg="false" NextFile="placeholder.constants"/>
     <ROW File="placeholder.constants" Component_="audio.png" FileName="PLACEH~1.CON|placeholder.constants" Attributes="0" SourcePath="work\assets\system\placeholder.constants" SelfReg="false" NextFile="placeholder.fbx"/>
     <ROW File="placeholder.fbx" Component_="audio.png" FileName="PLACEH~1.FBX|placeholder.fbx" Attributes="0" SourcePath="work\assets\system\placeholder.fbx" SelfReg="false" NextFile="placeholder.mb"/>
-    <ROW File="placeholder.fx" Component_="animated.fx_2" FileName="PLACEH~1.FX|placeholder.fx" Attributes="0" SourcePath="work\shaders\gl\placeholder.fx" SelfReg="false" NextFile="reflectionprojector.fx"/>
+    <ROW File="placeholder.fx" Component_="animated.fx_1" FileName="PLACEH~1.FX|placeholder.fx" Attributes="0" SourcePath="work\shaders\gl\placeholder.fx" SelfReg="false" NextFile="reflectionprojector.fx"/>
     <ROW File="placeholder.mb" Component_="audio.png" FileName="PLACEH~1.MB|placeholder.mb" Attributes="0" SourcePath="work\assets\system\placeholder.mb" SelfReg="false" NextFile="placeholder.physics"/>
     <ROW File="placeholder.physics" Component_="audio.png" FileName="PLACEH~1.PHY|placeholder.physics" Attributes="0" SourcePath="work\assets\system\placeholder.physics" SelfReg="false" NextFile="placeholder.png"/>
     <ROW File="placeholder.png" Component_="audio.png" FileName="PLACEH~1.PNG|placeholder.png" Attributes="0" SourcePath="work\assets\system\placeholder.png" SelfReg="false" NextFile="placeholder.sur"/>
     <ROW File="placeholder.sur" Component_="audio.png" FileName="PLACEH~1.SUR|placeholder.sur" Attributes="0" SourcePath="work\assets\system\placeholder.sur" SelfReg="false" NextFile="placeholder.xml"/>
     <ROW File="placeholder.xml" Component_="audio.png" FileName="PLACEH~1.XML|placeholder.xml" Attributes="0" SourcePath="work\assets\system\placeholder.xml" SelfReg="false" NextFile="placeholder_particle.sur"/>
-    <ROW File="placeholder_particle.sur" Component_="audio.png" FileName="PLACEH~2.SUR|placeholder_particle.sur" Attributes="0" SourcePath="work\assets\system\placeholder_particle.sur" SelfReg="false" NextFile="placeholder_ui_sur.thumb"/>
-    <ROW File="placeholder_ui_sur.thumb" Component_="audio.png" FileName="PLACEH~1.THU|placeholder_ui_sur.thumb" Attributes="0" SourcePath="work\assets\system\placeholder_ui_sur.thumb" SelfReg="false" NextFile="plane.attributes"/>
+    <ROW File="placeholder_particle.sur" Component_="audio.png" FileName="PLACEH~2.SUR|placeholder_particle.sur" Attributes="0" SourcePath="work\assets\system\placeholder_particle.sur" SelfReg="false" NextFile="plane.attributes"/>
     <ROW File="plane.attributes" Component_="audio.png" FileName="PLANE~1.ATT|plane.attributes" Attributes="0" SourcePath="work\assets\system\plane.attributes" SelfReg="false" NextFile="plane.constants"/>
     <ROW File="plane.constants" Component_="audio.png" FileName="PLANE~1.CON|plane.constants" Attributes="0" SourcePath="work\assets\system\plane.constants" SelfReg="false" NextFile="plane.fbx"/>
     <ROW File="plane.fbx" Component_="audio.png" FileName="plane.fbx" Attributes="0" SourcePath="work\assets\system\plane.fbx" SelfReg="false" NextFile="plane.mb"/>
@@ -470,7 +458,7 @@
     <ROW File="reflectionbox.constants" Component_="audio.png" FileName="REFLEC~1.CON|reflectionbox.constants" Attributes="0" SourcePath="work\assets\system\reflectionbox.constants" SelfReg="false" NextFile="reflectionbox.fbx"/>
     <ROW File="reflectionbox.fbx" Component_="audio.png" FileName="REFLEC~1.FBX|reflectionbox.fbx" Attributes="0" SourcePath="work\assets\system\reflectionbox.fbx" SelfReg="false" NextFile="reflectionbox.physics"/>
     <ROW File="reflectionbox.physics" Component_="audio.png" FileName="REFLEC~1.PHY|reflectionbox.physics" Attributes="0" SourcePath="work\assets\system\reflectionbox.physics" SelfReg="false" NextFile="shadingsphere.attributes"/>
-    <ROW File="reflectionprojector.fx" Component_="animated.fx_2" FileName="REFLEC~1.FX|reflectionprojector.fx" Attributes="0" SourcePath="work\shaders\gl\reflectionprojector.fx" SelfReg="false" NextFile="shadow.fx_2"/>
+    <ROW File="reflectionprojector.fx" Component_="animated.fx_1" FileName="REFLEC~1.FX|reflectionprojector.fx" Attributes="0" SourcePath="work\shaders\gl\reflectionprojector.fx" SelfReg="false" NextFile="shadow.fx_1"/>
     <ROW File="remotecamera.xml" Component_="animeventcamshake.xml" FileName="REMOTE~1.XML|remotecamera.xml" Attributes="0" SourcePath="data\tables\db\remotecamera.xml" SelfReg="false" NextFile="trigger.xml"/>
     <ROW File="scriptattributes.nidl" Component_="scriptattributes.nidl" FileName="SCRIPT~1.NID|scriptattributes.nidl" Attributes="0" SourcePath="code\application\scriptfeature\scriptattr\scriptattributes.nidl" SelfReg="false" NextFile="effectsattributes.nidl"/>
     <ROW File="scriptingprotocol.nidl" Component_="scriptingprotocol.nidl" FileName="script~1.nid|scriptingprotocol.nidl" Attributes="0" SourcePath="code\application\scriptingfeature\scriptingprotocol.nidl" SelfReg="false" NextFile="projectwizard.exe"/>
@@ -482,26 +470,24 @@
     <ROW File="shadingsphere.fbx" Component_="audio.png" FileName="SHADIN~1.FBX|shadingsphere.fbx" Attributes="0" SourcePath="work\assets\system\shadingsphere.fbx" SelfReg="false" NextFile="shadingsphere.physics"/>
     <ROW File="shadingsphere.physics" Component_="audio.png" FileName="SHADIN~1.PHY|shadingsphere.physics" Attributes="0" SourcePath="work\assets\system\shadingsphere.physics" SelfReg="false" NextFile="shadowmod.dds"/>
     <ROW File="shadow.fx" Component_="animated.fx" FileName="shadow.fx" Attributes="0" SourcePath="work\shaders\fx\shadow.fx" SelfReg="false" NextFile="simple.fx"/>
-    <ROW File="shadow.fx_2" Component_="animated.fx_2" FileName="shadow.fx" Attributes="0" SourcePath="work\shaders\gl\shadow.fx" SelfReg="false" NextFile="shared.fx"/>
-    <ROW File="shadowbase.fxh" Component_="boxtap.fxh_3" FileName="SHADOW~1.FXH|shadowbase.fxh" Attributes="0" SourcePath="work\shaders\gl\lib\shadowbase.fxh" SelfReg="false" NextFile="shared.fxh_3"/>
+    <ROW File="shadow.fx_1" Component_="animated.fx_1" FileName="shadow.fx" Attributes="0" SourcePath="work\shaders\gl\shadow.fx" SelfReg="false" NextFile="shared.fx"/>
+    <ROW File="shadowbase.fxh" Component_="boxtap.fxh_1" FileName="SHADOW~1.FXH|shadowbase.fxh" Attributes="0" SourcePath="work\shaders\gl\lib\shadowbase.fxh" SelfReg="false" NextFile="shared.fxh_1"/>
     <ROW File="shadowbase.fxh_1" Component_="boxtap.fxh_2" FileName="SHADOW~1.FXH|shadowbase.fxh" Attributes="0" SourcePath="work\shady\supervariations\templates\lib\shadowbase.fxh" SelfReg="false" NextFile="shared.fxh_2"/>
     <ROW File="shadowmapping.xml" Component_="csmshadowmapping.xml" FileName="SHADOW~1.XML|shadowmapping.xml" Attributes="0" SourcePath="work\frame\win32\shadowmapping.xml" SelfReg="false" NextFile="base.xml"/>
-    <ROW File="shadowmod.dds" Component_="audio.png" FileName="SHADOW~1.DDS|shadowmod.dds" Attributes="0" SourcePath="work\assets\system\shadowmod.dds" SelfReg="false" NextFile="skin.psd"/>
-    <ROW File="shared.fx" Component_="animated.fx_2" FileName="shared.fx" Attributes="0" SourcePath="work\shaders\gl\shared.fx" SelfReg="false" NextFile="silhouette.fx"/>
+    <ROW File="shadowmod.dds" Component_="audio.png" FileName="SHADOW~1.DDS|shadowmod.dds" Attributes="0" SourcePath="work\assets\system\shadowmod.dds" SelfReg="false" NextFile="sky.dds"/>
+    <ROW File="shared.fx" Component_="animated.fx_1" FileName="shared.fx" Attributes="0" SourcePath="work\shaders\gl\shared.fx" SelfReg="false" NextFile="silhouette.fx"/>
     <ROW File="shared.fxh" Component_="boxtap.fxh" FileName="shared.fxh" Attributes="0" SourcePath="work\shaders\fx\lib\shared.fxh" SelfReg="false" NextFile="skinning.fxh"/>
+    <ROW File="shared.fxh_1" Component_="boxtap.fxh_1" FileName="shared.fxh" Attributes="0" SourcePath="work\shaders\gl\lib\shared.fxh" SelfReg="false" NextFile="skinning.fxh_1"/>
     <ROW File="shared.fxh_2" Component_="boxtap.fxh_2" FileName="shared.fxh" Attributes="0" SourcePath="work\shady\supervariations\templates\lib\shared.fxh" SelfReg="false" NextFile="skinning.fxh_2"/>
-    <ROW File="shared.fxh_3" Component_="boxtap.fxh_3" FileName="shared.fxh" Attributes="0" SourcePath="work\shaders\gl\lib\shared.fxh" SelfReg="false" NextFile="skinning.fxh_3"/>
-    <ROW File="silhouette.fx" Component_="animated.fx_2" FileName="SILHOU~1.FX|silhouette.fx" Attributes="0" SourcePath="work\shaders\gl\silhouette.fx" SelfReg="false" NextFile="simple.fx_2"/>
+    <ROW File="silhouette.fx" Component_="animated.fx_1" FileName="SILHOU~1.FX|silhouette.fx" Attributes="0" SourcePath="work\shaders\gl\silhouette.fx" SelfReg="false" NextFile="simple.fx_1"/>
     <ROW File="simple.fx" Component_="animated.fx" FileName="simple.fx" Attributes="0" SourcePath="work\shaders\fx\simple.fx" SelfReg="false" NextFile="skinned.fx"/>
-    <ROW File="simple.fx_2" Component_="animated.fx_2" FileName="simple.fx" Attributes="0" SourcePath="work\shaders\gl\simple.fx" SelfReg="false" NextFile="skinned.fx_2"/>
-    <ROW File="skin.psd" Component_="audio.png" FileName="skin.psd" Attributes="0" SourcePath="work\assets\system\skin.psd" SelfReg="false" NextFile="sky.dds"/>
+    <ROW File="simple.fx_1" Component_="animated.fx_1" FileName="simple.fx" Attributes="0" SourcePath="work\shaders\gl\simple.fx" SelfReg="false" NextFile="skinned.fx_1"/>
     <ROW File="skinned.fx" Component_="animated.fx" FileName="skinned.fx" Attributes="0" SourcePath="work\shaders\fx\skinned.fx" SelfReg="false" NextFile="skybox.fx"/>
-    <ROW File="skinned.fx_2" Component_="animated.fx_2" FileName="skinned.fx" Attributes="0" SourcePath="work\shaders\gl\skinned.fx" SelfReg="false" NextFile="skybox.fx_2"/>
+    <ROW File="skinned.fx_1" Component_="animated.fx_1" FileName="skinned.fx" Attributes="0" SourcePath="work\shaders\gl\skinned.fx" SelfReg="false" NextFile="skybox.fx_1"/>
     <ROW File="skinning.fxh" Component_="boxtap.fxh" FileName="skinning.fxh" Attributes="0" SourcePath="work\shaders\fx\lib\skinning.fxh" SelfReg="false" NextFile="subsurface.fxh"/>
+    <ROW File="skinning.fxh_1" Component_="boxtap.fxh_1" FileName="skinning.fxh" Attributes="0" SourcePath="work\shaders\gl\lib\skinning.fxh" SelfReg="false" NextFile="std.fxh"/>
     <ROW File="skinning.fxh_2" Component_="boxtap.fxh_2" FileName="skinning.fxh" Attributes="0" SourcePath="work\shady\supervariations\templates\lib\skinning.fxh" SelfReg="false" NextFile="std.fxh_1"/>
-    <ROW File="skinning.fxh_3" Component_="boxtap.fxh_3" FileName="skinning.fxh" Attributes="0" SourcePath="work\shaders\gl\lib\skinning.fxh" SelfReg="false" NextFile="std.fxh"/>
-    <ROW File="sky.dds" Component_="audio.png" FileName="sky.dds" Attributes="0" SourcePath="work\assets\system\sky.dds" SelfReg="false" NextFile="sky.xml"/>
-    <ROW File="sky.xml" Component_="audio.png" FileName="sky.xml" Attributes="0" SourcePath="work\assets\system\sky.xml" SelfReg="false" NextFile="skybox.attributes"/>
+    <ROW File="sky.dds" Component_="audio.png" FileName="sky.dds" Attributes="0" SourcePath="work\assets\system\sky.dds" SelfReg="false" NextFile="skybox.attributes"/>
     <ROW File="sky_irr.dds" Component_="audio.png" FileName="sky_irr.dds" Attributes="0" SourcePath="work\assets\system\sky_irr.dds" SelfReg="false" NextFile="sky_irr.xml"/>
     <ROW File="sky_irr.xml" Component_="audio.png" FileName="sky_irr.xml" Attributes="0" SourcePath="work\assets\system\sky_irr.xml" SelfReg="false" NextFile="sky_refl.dds"/>
     <ROW File="sky_refl.dds" Component_="audio.png" FileName="sky_refl.dds" Attributes="0" SourcePath="work\assets\system\sky_refl.dds" SelfReg="false" NextFile="sky_refl.xml"/>
@@ -510,7 +496,7 @@
     <ROW File="skybox.constants" Component_="audio.png" FileName="SKYBOX~1.CON|skybox.constants" Attributes="0" SourcePath="work\assets\system\skybox.constants" SelfReg="false" NextFile="skybox.fbx"/>
     <ROW File="skybox.fbx" Component_="audio.png" FileName="skybox.fbx" Attributes="0" SourcePath="work\assets\system\skybox.fbx" SelfReg="false" NextFile="skybox.physics"/>
     <ROW File="skybox.fx" Component_="animated.fx" FileName="skybox.fx" Attributes="0" SourcePath="work\shaders\fx\skybox.fx" SelfReg="false" NextFile="static.fx"/>
-    <ROW File="skybox.fx_2" Component_="animated.fx_2" FileName="skybox.fx" Attributes="0" SourcePath="work\shaders\gl\skybox.fx" SelfReg="false" NextFile="sprite.fx"/>
+    <ROW File="skybox.fx_1" Component_="animated.fx_1" FileName="skybox.fx" Attributes="0" SourcePath="work\shaders\gl\skybox.fx" SelfReg="false" NextFile="sprite.fx"/>
     <ROW File="skybox.physics" Component_="audio.png" FileName="SKYBOX~1.PHY|skybox.physics" Attributes="0" SourcePath="work\assets\system\skybox.physics" SelfReg="false" NextFile="skybox.sur"/>
     <ROW File="skybox.sur" Component_="audio.png" FileName="skybox.sur" Attributes="0" SourcePath="work\assets\system\skybox.sur" SelfReg="false" NextFile="skydome.attributes"/>
     <ROW File="skydome.attributes" Component_="audio.png" FileName="SKYDOM~1.ATT|skydome.attributes" Attributes="0" SourcePath="work\assets\system\skydome.attributes" SelfReg="false" NextFile="skydome.constants"/>
@@ -535,61 +521,60 @@
     <ROW File="spotlightshape.fbx" Component_="audio.png" FileName="SPOTLI~2.FBX|spotlightshape.fbx" Attributes="0" SourcePath="work\assets\system\spotlightshape.fbx" SelfReg="false" NextFile="spotlightshape.mb"/>
     <ROW File="spotlightshape.mb" Component_="audio.png" FileName="SPOTLI~1.MB|spotlightshape.mb" Attributes="0" SourcePath="work\assets\system\spotlightshape.mb" SelfReg="false" NextFile="spotlightshape.physics"/>
     <ROW File="spotlightshape.physics" Component_="audio.png" FileName="SPOTLI~2.PHY|spotlightshape.physics" Attributes="0" SourcePath="work\assets\system\spotlightshape.physics" SelfReg="false" NextFile="sunshape.attributes"/>
-    <ROW File="sprite.fx" Component_="animated.fx_2" FileName="sprite.fx" Attributes="0" SourcePath="work\shaders\gl\sprite.fx" SelfReg="false" NextFile="ssr_cs.fx"/>
-    <ROW File="ssr_cs.fx" Component_="animated.fx_2" FileName="ssr_cs.fx" Attributes="0" SourcePath="work\shaders\gl\ssr_cs.fx" SelfReg="false" NextFile="static.fx_2"/>
+    <ROW File="sprite.fx" Component_="animated.fx_1" FileName="sprite.fx" Attributes="0" SourcePath="work\shaders\gl\sprite.fx" SelfReg="false" NextFile="ssr_cs.fx"/>
+    <ROW File="ssr_cs.fx" Component_="animated.fx_1" FileName="ssr_cs.fx" Attributes="0" SourcePath="work\shaders\gl\ssr_cs.fx" SelfReg="false" NextFile="static.fx_1"/>
     <ROW File="stateobjectprotocol.nidl" Component_="stateobjectprotocol.nidl" FileName="stateo~1.nid|stateobjectprotocol.nidl" Attributes="0" SourcePath="code\application\stateobjectfeature\stateobjectprotocol.nidl" SelfReg="false" NextFile="levelviewer.exe"/>
     <ROW File="static.fx" Component_="animated.fx" FileName="static.fx" Attributes="0" SourcePath="work\shaders\fx\static.fx" SelfReg="false" NextFile="subsurface.fx"/>
-    <ROW File="static.fx_2" Component_="animated.fx_2" FileName="static.fx" Attributes="0" SourcePath="work\shaders\gl\static.fx" SelfReg="false" NextFile="subsurface.fx_2"/>
-    <ROW File="std.fxh" Component_="boxtap.fxh_3" FileName="std.fxh" Attributes="0" SourcePath="work\shaders\gl\lib\std.fxh" SelfReg="false" NextFile="subsurface.fxh_3"/>
+    <ROW File="static.fx_1" Component_="animated.fx_1" FileName="static.fx" Attributes="0" SourcePath="work\shaders\gl\static.fx" SelfReg="false" NextFile="subsurface.fx_1"/>
+    <ROW File="std.fxh" Component_="boxtap.fxh_1" FileName="std.fxh" Attributes="0" SourcePath="work\shaders\gl\lib\std.fxh" SelfReg="false" NextFile="subsurface.fxh_1"/>
     <ROW File="std.fxh_1" Component_="boxtap.fxh_2" FileName="std.fxh" Attributes="0" SourcePath="work\shady\supervariations\templates\lib\std.fxh" SelfReg="false" NextFile="subsurface.fxh_2"/>
     <ROW File="subsurface.fx" Component_="animated.fx" FileName="SUBSUR~1.FX|subsurface.fx" Attributes="0" SourcePath="work\shaders\fx\subsurface.fx" SelfReg="false" NextFile="subsurfacehorizontal.fx"/>
-    <ROW File="subsurface.fx_2" Component_="animated.fx_2" FileName="SUBSUR~1.FX|subsurface.fx" Attributes="0" SourcePath="work\shaders\gl\subsurface.fx" SelfReg="false" NextFile="subsurfacehorizontal.fx_2"/>
+    <ROW File="subsurface.fx_1" Component_="animated.fx_1" FileName="SUBSUR~1.FX|subsurface.fx" Attributes="0" SourcePath="work\shaders\gl\subsurface.fx" SelfReg="false" NextFile="subsurfacehorizontal.fx_1"/>
     <ROW File="subsurface.fxh" Component_="boxtap.fxh" FileName="SUBSUR~1.FXH|subsurface.fxh" Attributes="0" SourcePath="work\shaders\fx\lib\subsurface.fxh" SelfReg="false" NextFile="util.fxh"/>
+    <ROW File="subsurface.fxh_1" Component_="boxtap.fxh_1" FileName="SUBSUR~1.FXH|subsurface.fxh" Attributes="0" SourcePath="work\shaders\gl\lib\subsurface.fxh" SelfReg="false" NextFile="techniques.fxh"/>
     <ROW File="subsurface.fxh_2" Component_="boxtap.fxh_2" FileName="SUBSUR~1.FXH|subsurface.fxh" Attributes="0" SourcePath="work\shady\supervariations\templates\lib\subsurface.fxh" SelfReg="false" NextFile="techniques.fxh_1"/>
-    <ROW File="subsurface.fxh_3" Component_="boxtap.fxh_3" FileName="SUBSUR~1.FXH|subsurface.fxh" Attributes="0" SourcePath="work\shaders\gl\lib\subsurface.fxh" SelfReg="false" NextFile="techniques.fxh"/>
     <ROW File="subsurfacehorizontal.fx" Component_="animated.fx" FileName="SUBSUR~2.FX|subsurfacehorizontal.fx" Attributes="0" SourcePath="work\shaders\fx\subsurfacehorizontal.fx" SelfReg="false" NextFile="subsurfacevertical.fx"/>
-    <ROW File="subsurfacehorizontal.fx_2" Component_="animated.fx_2" FileName="SUBSUR~2.FX|subsurfacehorizontal.fx" Attributes="0" SourcePath="work\shaders\gl\subsurfacehorizontal.fx" SelfReg="false" NextFile="subsurfacevertical.fx_2"/>
+    <ROW File="subsurfacehorizontal.fx_1" Component_="animated.fx_1" FileName="SUBSUR~2.FX|subsurfacehorizontal.fx" Attributes="0" SourcePath="work\shaders\gl\subsurfacehorizontal.fx" SelfReg="false" NextFile="subsurfacevertical.fx_1"/>
     <ROW File="subsurfacevertical.fx" Component_="animated.fx" FileName="SUBSUR~3.FX|subsurfacevertical.fx" Attributes="0" SourcePath="work\shaders\fx\subsurfacevertical.fx" SelfReg="false" NextFile="sun.fx"/>
-    <ROW File="subsurfacevertical.fx_2" Component_="animated.fx_2" FileName="SUBSUR~3.FX|subsurfacevertical.fx" Attributes="0" SourcePath="work\shaders\gl\subsurfacevertical.fx" SelfReg="false" NextFile="text.fx"/>
+    <ROW File="subsurfacevertical.fx_1" Component_="animated.fx_1" FileName="SUBSUR~3.FX|subsurfacevertical.fx" Attributes="0" SourcePath="work\shaders\gl\subsurfacevertical.fx" SelfReg="false" NextFile="text.fx"/>
     <ROW File="sun.fx" Component_="animated.fx" FileName="sun.fx" Attributes="0" SourcePath="work\shaders\fx\sun.fx" SelfReg="false" NextFile="unlit.fx"/>
     <ROW File="sunshape.attributes" Component_="audio.png" FileName="SUNSHA~1.ATT|sunshape.attributes" Attributes="0" SourcePath="work\assets\system\sunshape.attributes" SelfReg="false" NextFile="sunshape.constants"/>
     <ROW File="sunshape.constants" Component_="audio.png" FileName="SUNSHA~1.CON|sunshape.constants" Attributes="0" SourcePath="work\assets\system\sunshape.constants" SelfReg="false" NextFile="sunshape.fbx"/>
     <ROW File="sunshape.fbx" Component_="audio.png" FileName="sunshape.fbx" Attributes="0" SourcePath="work\assets\system\sunshape.fbx" SelfReg="false" NextFile="sunshape.physics"/>
-    <ROW File="sunshape.physics" Component_="audio.png" FileName="SUNSHA~1.PHY|sunshape.physics" Attributes="0" SourcePath="work\assets\system\sunshape.physics" SelfReg="false" NextFile="textdefault.dds"/>
+    <ROW File="sunshape.physics" Component_="audio.png" FileName="SUNSHA~1.PHY|sunshape.physics" Attributes="0" SourcePath="work\assets\system\sunshape.physics" SelfReg="false" NextFile="torus.mb"/>
     <ROW File="surfacegenerator.exe" Component_="surfacegenerator.exe" FileName="SURFAC~1.EXE|surfacegenerator.exe" Attributes="0" SourcePath="bin\win32\surfacegenerator.exe" SelfReg="false" NextFile="anims.xml" DigSign="true"/>
-    <ROW File="techniques.fxh" Component_="boxtap.fxh_3" FileName="TECHNI~1.FXH|techniques.fxh" Attributes="0" SourcePath="work\shaders\gl\lib\techniques.fxh" SelfReg="false" NextFile="util.fxh_3"/>
+    <ROW File="techniques.fxh" Component_="boxtap.fxh_1" FileName="TECHNI~1.FXH|techniques.fxh" Attributes="0" SourcePath="work\shaders\gl\lib\techniques.fxh" SelfReg="false" NextFile="util.fxh_1"/>
     <ROW File="techniques.fxh_1" Component_="boxtap.fxh_2" FileName="TECHNI~1.FXH|techniques.fxh" Attributes="0" SourcePath="work\shady\supervariations\templates\lib\techniques.fxh" SelfReg="false" NextFile="util.fxh_2"/>
     <ROW File="test.ndp" Component_="test.ndp" FileName="test.ndp" Attributes="0" SourcePath="work\shady\projects\test.ndp" SelfReg="false" NextFile="Default.ndv"/>
-    <ROW File="text.fx" Component_="animated.fx_2" FileName="text.fx" Attributes="0" SourcePath="work\shaders\gl\text.fx" SelfReg="false" NextFile="unlit.fx_2"/>
-    <ROW File="textdefault.dds" Component_="audio.png" FileName="TEXTDE~1.DDS|textdefault.dds" Attributes="0" SourcePath="work\assets\system\textdefault.dds" SelfReg="false" NextFile="torus.mb"/>
+    <ROW File="text.fx" Component_="animated.fx_1" FileName="text.fx" Attributes="0" SourcePath="work\shaders\gl\text.fx" SelfReg="false" NextFile="unlit.fx_1"/>
     <ROW File="texturebatcher3.exe" Component_="texturebatcher3.exe" FileName="textur~1.exe|texturebatcher3.exe" Attributes="0" SourcePath="bin\win32\texturebatcher3.exe" SelfReg="false" NextFile="modelbatcher3.exe" DigSign="true"/>
     <ROW File="torus.mb" Component_="audio.png" FileName="torus.mb" Attributes="0" SourcePath="work\assets\system\torus.mb" SelfReg="false" NextFile="triggerbox.attributes"/>
     <ROW File="trigger.xml" Component_="animeventcamshake.xml" FileName="trigger.xml" Attributes="0" SourcePath="data\tables\db\trigger.xml" SelfReg="false" NextFile="_audiobanks.xml"/>
-    <ROW File="triggerSphere.fbx" Component_="audio.png" FileName="TRIGGE~2.FBX|triggerSphere.fbx" Attributes="0" SourcePath="work\assets\system\triggerSphere.fbx" SelfReg="false" NextFile="triggersphere.physics"/>
     <ROW File="triggerbox.attributes" Component_="audio.png" FileName="TRIGGE~1.ATT|triggerbox.attributes" Attributes="0" SourcePath="work\assets\system\triggerbox.attributes" SelfReg="false" NextFile="triggerbox.constants"/>
     <ROW File="triggerbox.constants" Component_="audio.png" FileName="TRIGGE~1.CON|triggerbox.constants" Attributes="0" SourcePath="work\assets\system\triggerbox.constants" SelfReg="false" NextFile="triggerbox.fbx"/>
     <ROW File="triggerbox.fbx" Component_="audio.png" FileName="TRIGGE~1.FBX|triggerbox.fbx" Attributes="0" SourcePath="work\assets\system\triggerbox.fbx" SelfReg="false" NextFile="triggerbox.physics"/>
     <ROW File="triggerbox.physics" Component_="audio.png" FileName="TRIGGE~1.PHY|triggerbox.physics" Attributes="0" SourcePath="work\assets\system\triggerbox.physics" SelfReg="false" NextFile="triggersphere.attributes"/>
     <ROW File="triggersphere.attributes" Component_="audio.png" FileName="TRIGGE~2.ATT|triggersphere.attributes" Attributes="0" SourcePath="work\assets\system\triggersphere.attributes" SelfReg="false" NextFile="triggersphere.constants"/>
-    <ROW File="triggersphere.constants" Component_="audio.png" FileName="TRIGGE~2.CON|triggersphere.constants" Attributes="0" SourcePath="work\assets\system\triggersphere.constants" SelfReg="false" NextFile="triggerSphere.fbx"/>
+    <ROW File="triggersphere.constants" Component_="audio.png" FileName="TRIGGE~2.CON|triggersphere.constants" Attributes="0" SourcePath="work\assets\system\triggersphere.constants" SelfReg="false" NextFile="triggersphere.fbx"/>
+    <ROW File="triggersphere.fbx" Component_="audio.png" FileName="TRIGGE~2.FBX|triggersphere.fbx" Attributes="0" SourcePath="work\assets\system\triggersphere.fbx" SelfReg="false" NextFile="triggersphere.physics"/>
     <ROW File="triggersphere.physics" Component_="audio.png" FileName="TRIGGE~2.PHY|triggersphere.physics" Attributes="0" SourcePath="work\assets\system\triggersphere.physics" SelfReg="false" NextFile="white.dds"/>
     <ROW File="uiattributes.nidl" Component_="uiattributes.nidl" FileName="UIATTR~1.NID|uiattributes.nidl" Attributes="0" SourcePath="code\addons\ui\uiattrs\uiattributes.nidl" SelfReg="false" NextFile="assetbatcher.exe"/>
     <ROW File="unlit.fx" Component_="animated.fx" FileName="unlit.fx" Attributes="0" SourcePath="work\shaders\fx\unlit.fx" SelfReg="false" NextFile="verticalbloom.fx"/>
-    <ROW File="unlit.fx_2" Component_="animated.fx_2" FileName="unlit.fx" Attributes="0" SourcePath="work\shaders\gl\unlit.fx" SelfReg="false" NextFile="verticalbloom.fx_2"/>
+    <ROW File="unlit.fx_1" Component_="animated.fx_1" FileName="unlit.fx" Attributes="0" SourcePath="work\shaders\gl\unlit.fx" SelfReg="false" NextFile="verticalbloom.fx_1"/>
     <ROW File="util.fxh" Component_="boxtap.fxh" FileName="util.fxh" Attributes="0" SourcePath="work\shaders\fx\lib\util.fxh" SelfReg="false" NextFile="lightmapped.fx"/>
+    <ROW File="util.fxh_1" Component_="boxtap.fxh_1" FileName="util.fxh" Attributes="0" SourcePath="work\shaders\gl\lib\util.fxh" SelfReg="false" NextFile="lightmapped.fx_1"/>
     <ROW File="util.fxh_2" Component_="boxtap.fxh_2" FileName="util.fxh" Attributes="0" SourcePath="work\shady\supervariations\templates\lib\util.fxh" SelfReg="false" NextFile="shaders.fxh"/>
-    <ROW File="util.fxh_3" Component_="boxtap.fxh_3" FileName="util.fxh" Attributes="0" SourcePath="work\shaders\gl\lib\util.fxh" SelfReg="false" NextFile="lightmapped.fx_2"/>
     <ROW File="verticalbloom.fx" Component_="animated.fx" FileName="VERTIC~1.FX|verticalbloom.fx" Attributes="0" SourcePath="work\shaders\fx\verticalbloom.fx" SelfReg="false" NextFile="volumefog.fx"/>
-    <ROW File="verticalbloom.fx_2" Component_="animated.fx_2" FileName="VERTIC~1.FX|verticalbloom.fx" Attributes="0" SourcePath="work\shaders\gl\verticalbloom.fx" SelfReg="false" NextFile="volumefog.fx_2"/>
+    <ROW File="verticalbloom.fx_1" Component_="animated.fx_1" FileName="VERTIC~1.FX|verticalbloom.fx" Attributes="0" SourcePath="work\shaders\gl\verticalbloom.fx" SelfReg="false" NextFile="volumefog.fx_1"/>
     <ROW File="volumefog.fx" Component_="animated.fx" FileName="VOLUME~1.FX|volumefog.fx" Attributes="0" SourcePath="work\shaders\fx\volumefog.fx" SelfReg="false" NextFile="water.fx"/>
-    <ROW File="volumefog.fx_2" Component_="animated.fx_2" FileName="VOLUME~1.FX|volumefog.fx" Attributes="0" SourcePath="work\shaders\gl\volumefog.fx" SelfReg="false" NextFile="volumelight.fx"/>
-    <ROW File="volumelight.fx" Component_="animated.fx_2" FileName="VOLUME~2.FX|volumelight.fx" Attributes="0" SourcePath="work\shaders\gl\volumelight.fx" SelfReg="false" NextFile="water.fx_2"/>
-    <ROW File="water.fx" Component_="animated.fx" FileName="water.fx" Attributes="0" SourcePath="work\shaders\fx\water.fx" SelfReg="false" NextFile="animated.fx_2"/>
-    <ROW File="water.fx_2" Component_="animated.fx_2" FileName="water.fx" Attributes="0" SourcePath="work\shaders\gl\water.fx" SelfReg="false" NextFile="audio.png"/>
-    <ROW File="white.dds" Component_="audio.png" FileName="white.dds" Attributes="0" SourcePath="work\assets\system\white.dds" SelfReg="false" NextFile="layoutlist.rml"/>
+    <ROW File="volumefog.fx_1" Component_="animated.fx_1" FileName="VOLUME~1.FX|volumefog.fx" Attributes="0" SourcePath="work\shaders\gl\volumefog.fx" SelfReg="false" NextFile="volumelight.fx"/>
+    <ROW File="volumelight.fx" Component_="animated.fx_1" FileName="VOLUME~2.FX|volumelight.fx" Attributes="0" SourcePath="work\shaders\gl\volumelight.fx" SelfReg="false" NextFile="water.fx_1"/>
+    <ROW File="water.fx" Component_="animated.fx" FileName="water.fx" Attributes="0" SourcePath="work\shaders\fx\water.fx" SelfReg="false" NextFile="animated.fx_1"/>
+    <ROW File="water.fx_1" Component_="animated.fx_1" FileName="water.fx" Attributes="0" SourcePath="work\shaders\gl\water.fx" SelfReg="false" NextFile="cbdefault.ini"/>
+    <ROW File="white.dds" Component_="audio.png" FileName="white.dds" Attributes="0" SourcePath="work\assets\system\white.dds" SelfReg="false"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
-    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" PackageFolder="\\ett\webserver\nebula" PackageFileName="N3ContentSDK_[|ProductVersion]" Languages="en" InstallationType="4" UseLargeSchema="true"/>
+    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" PackageFolder="work\installer" PackageFileName="N3ContentSDK_[|ProductVersion]" Languages="en" InstallationType="4" UseLargeSchema="true"/>
     <ATTRIBUTE name="CurrentBuild" value="DefaultBuild"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">
@@ -642,7 +627,6 @@
     <ROW Directory_="basegamefeature_Dir" Component_="basegamefeature" ManualDelete="false"/>
     <ROW Directory_="physicsfeature_Dir" Component_="physicsfeature" ManualDelete="false"/>
     <ROW Directory_="NebulaTrifid_Dir" Component_="NebulaTrifid" ManualDelete="false"/>
-    <ROW Directory_="data_Dir" Component_="data" ManualDelete="false"/>
     <ROW Directory_="scriptfeature_Dir" Component_="scriptfeature" ManualDelete="false"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCustActComponent">
