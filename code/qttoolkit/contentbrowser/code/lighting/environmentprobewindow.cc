@@ -7,6 +7,7 @@
 #include "lighting/environmentprobe.h"
 #include "io/uri.h"
 #include <QFileDialog>
+#include "code/assetbrowser.h"
 
 namespace Lighting
 {
@@ -18,6 +19,7 @@ EnvironmentProbeWindow::EnvironmentProbeWindow()
 {
 	// setup UI
 	this->ui.setupUi(this);
+	this->setWindowFlags(Qt::WindowStaysOnTopHint);
 
 	// connect signals
 	connect(this->ui.reflectionMapEdit, SIGNAL(editingFinished()), this, SLOT(OnReflectionChanged()));
@@ -99,15 +101,12 @@ EnvironmentProbeWindow::OnIrradianceChanged()
 void
 EnvironmentProbeWindow::OnBrowseReflection()
 {
-	// open file dialog
-	IO::URI tex("tex:");
-	QFileDialog dialog(QApplication::activeWindow(), tr("Pick reflection map"), tex.GetHostAndLocalPath().AsCharPtr(), tr("*.dds"));
-
 	// exec dialog
-	int result = dialog.exec();
-	if (result == QDialog::Accepted)
+	int res = ResourceBrowser::AssetBrowser::Instance()->Execute("Assign to: Global Reflection", ResourceBrowser::AssetBrowser::Textures);
+	if (res == QDialog::Accepted)
 	{
-		Util::String file = dialog.selectedFiles()[0].toUtf8().constData();
+		// convert to nebula string
+		Util::String file = ResourceBrowser::AssetBrowser::Instance()->GetSelectedTexture().toUtf8().constData();
 
 		// get category
 		Util::String category = file.ExtractLastDirName();
@@ -130,15 +129,12 @@ EnvironmentProbeWindow::OnBrowseReflection()
 void
 EnvironmentProbeWindow::OnBrowseIrradiance()
 {
-	// open file dialog
-	IO::URI tex("tex:");
-	QFileDialog dialog(QApplication::activeWindow(), tr("Pick irradiance map"), tex.GetHostAndLocalPath().AsCharPtr(), tr("*.dds"));
-
 	// exec dialog
-	int result = dialog.exec();
-	if (result == QDialog::Accepted)
+	int res = ResourceBrowser::AssetBrowser::Instance()->Execute("Assign to: Global Irradiance", ResourceBrowser::AssetBrowser::Textures);
+	if (res == QDialog::Accepted)
 	{
-		Util::String file = dialog.selectedFiles()[0].toUtf8().constData();
+		// convert to nebula string
+		Util::String file = ResourceBrowser::AssetBrowser::Instance()->GetSelectedTexture().toUtf8().constData();
 
 		// get category
 		Util::String category = file.ExtractLastDirName();

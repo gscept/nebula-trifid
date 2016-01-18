@@ -137,6 +137,9 @@
      <height>21</height>
     </rect>
    </property>
+   <property name="defaultUp">
+    <bool>false</bool>
+   </property>
    <widget class="QMenu" name="menuCreate">
     <property name="title">
      <string>Scene</string>
@@ -253,6 +256,7 @@
    <addaction name="actionAdd_Environment_Entity"/>
    <addaction name="actionAdd_Light_Entity"/>
    <addaction name="actionAdd_Game_Entity"/>
+   <addaction name="actionLight_probes_2"/>
    <addaction name="separator"/>
    <addaction name="actionShow_PostEffect_Controls"/>
    <addaction name="separator"/>
@@ -655,7 +659,7 @@
   </action>
   <action name="actionExit">
    <property name="text">
-    <string>Exit</string>
+    <string>Quit</string>
    </property>
   </action>
   <action name="actionAdd_Environment_Entity">
@@ -865,12 +869,11 @@
     <string>Scripts...</string>
    </property>
   </action>
-  <action name="actionLight_probes">
-   <property name="text">
-    <string>Light probes...</string>
-   </property>
-  </action>
   <action name="actionLight_probes_2">
+   <property name="icon">
+    <iconset resource="../../resources.qrc">
+     <normaloff>:/icons/icons/envprobes.png</normaloff>:/icons/icons/envprobes.png</iconset>
+   </property>
    <property name="text">
     <string>Light probes...</string>
    </property>
@@ -988,5 +991,22 @@
  <resources>
   <include location="../../resources.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>actionExit</sender>
+   <signal>triggered()</signal>
+   <receiver>LevelEditor2Window</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>815</x>
+     <y>484</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

@@ -19,6 +19,12 @@ class TiledGraphicsView : public QGraphicsView
 	Q_OBJECT
 public:
 
+	enum SortingMode
+	{
+		SortByName,		// file name
+		SortByDate		// sort by date
+	};
+
 	/// constructor
 	TiledGraphicsView(QWidget* parent);
 	/// destructor
@@ -34,6 +40,9 @@ public:
 	/// get list of items
 	const QList<TiledGraphicsItem*>& GetItems() const;
 
+	/// sort items
+	void Sort(const SortingMode& mode);
+
 	/// clear view of items, also deletes items so you don't have to!
 	void Clear();
 
@@ -44,6 +53,7 @@ public:
 	void resizeEvent(QResizeEvent *event);
 private:
 
+	SortingMode sort;
 	QSize itemSize;
 	QList<TiledGraphicsItem*> items;
 	QGraphicsScene* scene;

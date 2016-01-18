@@ -105,6 +105,9 @@ private slots:
     /// handle the surfaces filter checkbox
     void OnSurfacesFilterChecked(bool b);
 
+	/// handle sorting
+	void OnSortingChanged();
+
 	/// update the folder list widget
 	void UpdateAssetFolders();
 	/// handle an item getting double clicked in the asset folder
