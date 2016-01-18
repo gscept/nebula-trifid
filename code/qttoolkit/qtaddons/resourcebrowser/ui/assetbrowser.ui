@@ -264,6 +264,15 @@
              <height>0</height>
             </size>
            </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+           </property>
+           <property name="transformationAnchor">
+            <enum>QGraphicsView::NoAnchor</enum>
+           </property>
+           <property name="viewportUpdateMode">
+            <enum>QGraphicsView::FullViewportUpdate</enum>
+           </property>
           </widget>
          </item>
         </layout>

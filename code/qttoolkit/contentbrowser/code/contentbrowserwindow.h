@@ -172,9 +172,11 @@ private slots:
 	/// displays post effect controller
 	void OnShowPostEffectController();
 	/// called when the texture browser should be opened
-	void OnShowTextureBrowser();
+	void OnShowAssetBrowser();
 	/// displays environment probe window
 	void OnShowEnvironmentProbeSettings();
+	/// displays the grid
+	void OnShowGrid();
 
 	/// called whenever ctrl+z is pressed
 	void OnUndo();

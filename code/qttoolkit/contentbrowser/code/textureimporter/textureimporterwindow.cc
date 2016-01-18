@@ -304,16 +304,16 @@ TextureImporterWindow::Open()
 		// remove file extension from file
 		file.StripFileExtension();
 
-		// update geometry
-		this->updateGeometry();
+		// update UI
+		QApplication::processEvents();
 	}
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-void 
-TextureImporterWindow::OnWidthChanged( int value )
+void
+TextureImporterWindow::OnWidthChanged(int value)
 {
 	this->currentAttrs.SetMaxWidth(value);
 }
@@ -321,8 +321,8 @@ TextureImporterWindow::OnWidthChanged( int value )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-TextureImporterWindow::OnHeightChanged( int value )
+void
+TextureImporterWindow::OnHeightChanged(int value)
 {
 	this->currentAttrs.SetMaxHeight(value);
 }
@@ -330,8 +330,8 @@ TextureImporterWindow::OnHeightChanged( int value )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-TextureImporterWindow::OnFilterChanged( int index )
+void
+TextureImporterWindow::OnFilterChanged(int index)
 {
 	this->currentAttrs.SetMipMapFilter((ToolkitUtil::TextureAttrs::Filter)index);
 }
@@ -339,8 +339,8 @@ TextureImporterWindow::OnFilterChanged( int index )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-TextureImporterWindow::OnQualityChanged( int index )
+void
+TextureImporterWindow::OnQualityChanged(int index)
 {
 	this->currentAttrs.SetQuality((ToolkitUtil::TextureAttrs::Quality)index);
 }
@@ -348,8 +348,8 @@ TextureImporterWindow::OnQualityChanged( int index )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-TextureImporterWindow::OnFormatRGBChanged( int index )
+void
+TextureImporterWindow::OnFormatRGBChanged(int index)
 {
 	this->currentAttrs.SetRGBPixelFormat((ToolkitUtil::TextureAttrs::PixelFormat)index);
 }
@@ -357,8 +357,8 @@ TextureImporterWindow::OnFormatRGBChanged( int index )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-TextureImporterWindow::OnFormatRGBAChanged( int index )
+void
+TextureImporterWindow::OnFormatRGBAChanged(int index)
 {
 	this->currentAttrs.SetRGBAPixelFormat((ToolkitUtil::TextureAttrs::PixelFormat)index);
 }
@@ -366,8 +366,8 @@ TextureImporterWindow::OnFormatRGBAChanged( int index )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-TextureImporterWindow::OnToggleGenerateMipMaps( bool state )
+void
+TextureImporterWindow::OnToggleGenerateMipMaps(bool state)
 {
 	this->currentAttrs.SetGenMipMaps(state);
 }

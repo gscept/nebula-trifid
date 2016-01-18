@@ -211,6 +211,10 @@ ContentBrowserApp::SetupGameFeatures()
 	// for the ease of testing, load all fonts
 	this->uiFeature->LoadAllFonts("gui:");
 
+	// setup grid
+	this->grid = Grid::GridAddon::Create();
+	this->grid->Setup();
+
 	// setup intermediate gui
 	this->imgui = Dynui::ImguiAddon::Create();
 	this->imgui->Setup();
@@ -233,6 +237,14 @@ void
 ContentBrowserApp::CleanupGameFeatures()
 {
 	this->postEffectEntity = 0;
+
+	// close grid
+	this->grid->Discard();
+	this->grid = 0;
+
+	// close imgui
+	this->imgui->Discard();
+	this->imgui = 0;
 
 	this->gameServer->RemoveGameFeature(this->effectsFeature.upcast<Game::FeatureUnit>());
 	this->effectsFeature = 0;
