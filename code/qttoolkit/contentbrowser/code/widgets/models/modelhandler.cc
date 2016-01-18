@@ -117,7 +117,7 @@ ModelHandler::Setup()
 
 	this->ui->saveButton->setEnabled(true);
 	this->ui->saveAsButton->setEnabled(true);
-	this->ui->reimportButton->setEnabled(true);
+	this->ui->reconfigureButton->setEnabled(true);
 
 	// call base class
 	BaseHandler::Setup();	
@@ -165,9 +165,10 @@ ModelHandler::Setup()
 	this->SetupTabs();
 
 	// connect reload buttons to actions
-	connect(this->ui->saveButton, SIGNAL(clicked()), this, SLOT(Save()));
-	connect(this->ui->saveAsButton, SIGNAL(clicked()), this, SLOT(SaveAs()));
-	connect(this->ui->addParticleNode, SIGNAL(clicked()), this, SLOT(AddParticleNode()));
+	connect(this->ui->saveButton, SIGNAL(clicked()), this, SLOT(OnSave()));
+	connect(this->ui->saveAsButton, SIGNAL(clicked()), this, SLOT(OnSaveAs()));
+	connect(this->ui->addParticleNode, SIGNAL(clicked()), this, SLOT(OnAddParticleNode()));
+	connect(this->ui->reconfigureButton, SIGNAL(clicked()), this, SLOT(OnReconfigure()));
 }
 
 //------------------------------------------------------------------------------
@@ -191,7 +192,7 @@ ModelHandler::Discard()
 
 		if (ret == QMessageBox::Save)
 		{
-			this->Save();
+			this->OnSave();
 		}
 		else if (ret == QMessageBox::Cancel)
 		{
@@ -241,9 +242,9 @@ ModelHandler::Discard()
 	ContentBrowserApp::Instance()->ClearActions();
 
 	// disconnect stuff
-	disconnect(this->ui->saveButton, SIGNAL(clicked()), this, SLOT(Save()));
-	disconnect(this->ui->saveAsButton, SIGNAL(clicked()), this, SLOT(SaveAs()));
-	disconnect(this->ui->addParticleNode, SIGNAL(clicked()), this, SLOT(AddParticleNode()));
+	disconnect(this->ui->saveButton, SIGNAL(clicked()), this, SLOT(OnSave()));
+	disconnect(this->ui->saveAsButton, SIGNAL(clicked()), this, SLOT(OnSaveAs()));
+	disconnect(this->ui->addParticleNode, SIGNAL(clicked()), this, SLOT(OnAddParticleNode()));
 
 	return BaseHandler::Discard();
 }
@@ -269,7 +270,7 @@ ModelHandler::DiscardNoCancel()
 
 		if (ret == QMessageBox::Save)
 		{
-			this->Save();
+			this->OnSave();
 		}
 	}
 
@@ -312,8 +313,8 @@ ModelHandler::DiscardNoCancel()
 	this->isSetup = false;
 
 	// disconnect stuff
-	disconnect(this->ui->saveButton, SIGNAL(clicked()), this, SLOT(Save()));
-	disconnect(this->ui->saveAsButton, SIGNAL(clicked()), this, SLOT(SaveAs()));
+	disconnect(this->ui->saveButton, SIGNAL(clicked()), this, SLOT(OnSave()));
+	disconnect(this->ui->saveAsButton, SIGNAL(clicked()), this, SLOT(OnSaveAs()));
 }
 
 //------------------------------------------------------------------------------
@@ -420,7 +421,7 @@ ModelHandler::OnNewVersion()
 /**
 */
 void
-ModelHandler::AddParticleNode()
+ModelHandler::OnAddParticleNode()
 {
 	// get model data, force a reload
 	Ptr<ModelAttributes> attrs = ModelDatabase::Instance()->LookupAttributes(this->category + "/" + this->file);
@@ -515,7 +516,7 @@ ModelHandler::RemoveParticleNode(const Util::String path, const Util::String nod
 /**
 */
 void 
-ModelHandler::Save()
+ModelHandler::OnSave()
 {
 	// firstly, tag current version to be final in the action
 	this->action->TagAsFinal();
@@ -592,7 +593,7 @@ ModelHandler::Save()
 /**
 */
 void 
-ModelHandler::SaveAs()
+ModelHandler::OnSaveAs()
 {
 	// perform a modify which will create a new action
 	this->OnModelModified();
@@ -619,7 +620,7 @@ ModelHandler::SaveAs()
 		if (cat == this->category && file == this->file)
 		{
 			// same file, use normal save instead
-			this->Save();
+			this->OnSave();
 			return;
 		}
 		// create resource string
@@ -715,6 +716,22 @@ ModelHandler::SaveAs()
 		// update thumbnail
 		this->UpdateModelThumbnail();
 	}	
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ModelHandler::OnReconfigure()
+{
+	// get and open model importer
+	ModelImporter::ModelImporterWindow* importer = ContentBrowserApp::Instance()->GetWindow()->GetModelImporter();
+	IO::URI path = String::Sprintf("src:assets/%s/%s.fbx", this->category.AsCharPtr(), this->file.AsCharPtr());
+	importer->SetUri(path);
+	importer->show();
+	importer->raise();
+	QApplication::processEvents();
+	importer->Open();
 }
 
 //------------------------------------------------------------------------------

@@ -95,11 +95,13 @@ public slots:
 
 private slots:
 	/// add new particle node to model
-	void AddParticleNode();
+	void OnAddParticleNode();
 	/// saves changes 
-	void Save();
+	void OnSave();
 	/// save changes as another file
-	void SaveAs();
+	void OnSaveAs();
+	/// reimport model
+	void OnReconfigure();
 
 private:
 

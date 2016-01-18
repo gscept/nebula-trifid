@@ -139,12 +139,12 @@ border-radius: 5px;</string>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="reimportButton">
+        <widget class="QPushButton" name="reconfigureButton">
          <property name="enabled">
           <bool>false</bool>
          </property>
          <property name="text">
-          <string>Reimport</string>
+          <string>Reconfigure</string>
          </property>
         </widget>
        </item>
