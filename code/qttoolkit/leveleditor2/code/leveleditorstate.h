@@ -44,6 +44,8 @@ public:
 	void UpdateSelection(const Util::Array<EntityGuid>& entityIds);	
 	/// clear selection, without undo. for use when creating a new level
 	void ClearSelection();
+	///
+	void TogglePerformanceOverlay();
 	
 
 private:

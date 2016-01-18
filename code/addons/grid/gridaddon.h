@@ -31,9 +31,7 @@ public:
 	/// set if grid should be visible
 	void SetVisible(bool b);
 	/// set grid size
-	void SetGridSize(int size);
-	/// set cell size
-	void SetCellSize(float size);
+	void SetGridSize(float size);	
 
 private:
 	Ptr<GridRTPlugin> plugin;

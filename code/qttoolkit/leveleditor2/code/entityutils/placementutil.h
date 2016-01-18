@@ -58,6 +58,9 @@ public:
     /// Destructor
     ~PlacementUtil();
 
+	/// create different transform tools
+	void Setup();
+
     /// Handles the input
     bool HandleInput();
 
@@ -105,6 +108,9 @@ public:
 
 	/// updates the current feature from selection
 	void UpdateCurrentFeature();
+
+	/// access to the placement feature objects
+	Ptr<TransformFeature> GetPlacementFeature(TransformMode mode);
 
 
 private:

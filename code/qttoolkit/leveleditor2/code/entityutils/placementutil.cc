@@ -217,12 +217,7 @@ PlacementUtil::ToggleTransformMode(PlacementUtil::TransformMode mode)
             // activate translate mode
             this->currentTransformMode = TRANSLATE;
 
-            // create and set current feature
-            if(!this->translateFeature.isvalid())
-            {
-                this->translateFeature = TranslateFeature::Create();
-				this->translateFeature->SetCameraEntity(this->cameraEntity);
-            }
+            // set current feature            
             this->currentTransformFeature = this->translateFeature;
 
             // updates new feature initial matrix
@@ -245,12 +240,7 @@ PlacementUtil::ToggleTransformMode(PlacementUtil::TransformMode mode)
 
             this->currentTransformMode = SCALE;
 
-            // create and set current feature
-            if(!this->scaleFeature.isvalid())
-            {
-                this->scaleFeature = ScaleFeature::Create();
-				this->scaleFeature->SetCameraEntity(this->cameraEntity);
-            }
+            //set current feature            
             this->currentTransformFeature = this->scaleFeature;
 
             // updates new feature initial matrix
@@ -273,12 +263,7 @@ PlacementUtil::ToggleTransformMode(PlacementUtil::TransformMode mode)
 
             this->currentTransformMode = ROTATE;
 
-            // create and set current feature
-            if(!this->rotationFeature.isvalid())
-            {
-                this->rotationFeature = RotationFeature::Create();
-				this->rotationFeature->SetCameraEntity(this->cameraEntity);
-            }
+            //set current feature           
             this->currentTransformFeature = this->rotationFeature;
 
             // updates new feature initial matrix
@@ -536,6 +521,38 @@ PlacementUtil::SetSelectionMatrix(const IndexT& index, const Math::matrix44& mat
 			this->currentTransformFeature->UpdateTransform(matrix);			
 		}
 	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+Ptr<TransformFeature>
+PlacementUtil::GetPlacementFeature(TransformMode mode)
+{
+	switch (mode)
+	{
+	case ROTATE:
+		return this->rotationFeature.cast<TransformFeature>();
+		break;
+	case TRANSLATE:
+		return this->translateFeature.cast<TransformFeature>();
+		break;
+	case SCALE:
+		return this->scaleFeature.cast<TransformFeature>();
+		break;
+	}
+	return 0;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PlacementUtil::Setup()
+{
+	this->rotationFeature = RotationFeature::Create();
+	this->translateFeature = TranslateFeature::Create();
+	this->scaleFeature = ScaleFeature::Create();
 }
 
 } // namespace LevelEditor2

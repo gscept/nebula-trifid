@@ -35,6 +35,7 @@
 #include "game/templateexporter.h"
 #include "db/dbfactory.h"
 #include "game/gameexporter.h"
+#include "entityutils/placementutil.h"
 
 using namespace Util;
 using namespace IO;
@@ -92,8 +93,10 @@ LevelEditor2Window::LevelEditor2Window():
     connect(this->ui.actionTest_in_Level_Viewer, SIGNAL(triggered()), this, SLOT(OnTestLevelViewer()));
 	connect(this->ui.actionHide_grid, SIGNAL(triggered()), this, SLOT(OnGridVisible()));
 	connect(this->ui.actionReset_window_layout, SIGNAL(triggered()), this, SLOT(OnResetWindows()));
+	connect(this->ui.actionPerformance_overlay, SIGNAL(triggered()), this, SLOT(OnTogglePerformanceUI()));
 
-    connect(this->gridSizeUi.GridSize, SIGNAL(valueChanged(int)),this, SLOT(OnGridSizeChanged(int)));
+
+    connect(this->gridSizeUi.GridSize, SIGNAL(valueChanged(double)),this, SLOT(OnGridSizeChanged(double)));
 
 
     connect(this->ui.actionDuplicate, SIGNAL(triggered()), LevelEditor2App::Instance(), SLOT(DuplicateCurrentSelection()));
@@ -428,9 +431,10 @@ LevelEditor2Window::OnShowGridProperties()
 /**
 */
 void 
-LevelEditor2Window::OnGridSizeChanged(int val)
+LevelEditor2Window::OnGridSizeChanged(double val)
 {
-	Grid::GridAddon::Instance()->SetGridSize(val);
+	Grid::GridAddon::Instance()->SetGridSize((float)val);
+	PlacementUtil::Instance()->GetPlacementFeature(PlacementUtil::TRANSLATE).cast<TranslateFeature>()->SetSnapOffset(val);
 }
 
 //------------------------------------------------------------------------------
@@ -506,6 +510,15 @@ void
 LevelEditor2Window::OnResetWindows()
 {
 	this->restoreState(this->defaultState, 1); 
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+LevelEditor2Window::OnTogglePerformanceUI()
+{
+	LevelEditor2App::Instance()->GetEditorState()->TogglePerformanceOverlay();
 }
 
 //------------------------------------------------------------------------------
