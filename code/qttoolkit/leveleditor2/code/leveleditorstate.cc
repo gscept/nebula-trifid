@@ -147,11 +147,7 @@ LevelEditorState::HandleInput()
 	{
 		return;
 	}
-	if (keyboard->KeyDown(Input::Key::F3))
-	{
-		this->showPerformance = !this->showPerformance;
-	}
-
+	
 	bool handled = false;
 	if (this->selectionUtil->HasSelection())
 	{
