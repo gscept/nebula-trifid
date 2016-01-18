@@ -29,10 +29,13 @@
    <item>
     <widget class="QDoubleSpinBox" name="GridSize">
      <property name="minimum">
-      <double>1.000000000000000</double>
+      <double>0.010000000000000</double>
      </property>
      <property name="maximum">
       <double>1000.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>0.250000000000000</double>
      </property>
      <property name="value">
       <double>1.000000000000000</double>
