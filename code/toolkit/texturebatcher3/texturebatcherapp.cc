@@ -48,7 +48,7 @@ TextureBatcherApp::CreateFileList()
     Array<String> res;
 
     // create list from given filelist
-    if(this->listfileArg.IsValid())
+    if (this->listfileArg.IsValid())
     {
         URI listUri(this->listfileArg);
         // open stream and reader
@@ -63,7 +63,7 @@ TextureBatcherApp::CreateFileList()
             {
                 String srcPath = reader->ReadLine();
                 srcPath.Trim(" \r\n");
-                if(this->NeedsConversion(srcPath) || this->forceArg)
+                if (this->NeedsConversion(srcPath) || this->forceArg)
                 {
                     res.Append(srcPath);
                 }
@@ -78,15 +78,14 @@ TextureBatcherApp::CreateFileList()
     else if (this->dirArg.IsValid())
     {
         // just add a single file to list
-        if(this->fileArg.IsValid())
+        if (this->fileArg.IsValid())
         {
             String src;
-            src.Format("%s/%s/%s",
-                this->projectInfo.GetPathAttr("TextureSrcDir").AsCharPtr(),
+            src.Format("src:assets/%s/%s",
                 this->dirArg.AsCharPtr(),
                 this->fileArg.AsCharPtr()
                 );
-            if(this->NeedsConversion(src) || this->forceArg)
+            if (this->NeedsConversion(src) || this->forceArg)
             {
                 res.Append(src);
             }
@@ -95,8 +94,7 @@ TextureBatcherApp::CreateFileList()
         else
         {
             String directory;
-            directory.Format("%s/%s",
-                this->projectInfo.GetPathAttr("TextureSrcDir").AsCharPtr(),
+            directory.Format("src:assets/%s",
                 this->dirArg.AsCharPtr()
                 );
             res.AppendArray(this->GetFileListFromDirectory(directory));
@@ -105,8 +103,7 @@ TextureBatcherApp::CreateFileList()
     // if there are no arguments whatsoever add all files in texture dir to list
     else
     {
-        String textureDir(this->projectInfo.GetPathAttr("TextureSrcDir"));
-        Array<String> dirs = IoServer::Instance()->ListDirectories(textureDir, "*");
+        Array<String> dirs = IoServer::Instance()->ListDirectories("src:assets", "*");
         IndexT dirIndex;
         // iterate through each subdirectory of "textures"
         for (dirIndex = 0; dirIndex < dirs.Size(); dirIndex++)
@@ -114,7 +111,7 @@ TextureBatcherApp::CreateFileList()
             if (dirs[dirIndex] != ".svn")
             {
                 String directory;
-                directory.Format("%s/%s", textureDir.AsCharPtr(), dirs[dirIndex].AsCharPtr());
+                directory.Format("src:assets/%s", dirs[dirIndex].AsCharPtr());
                 res.AppendArray(this->GetFileListFromDirectory(directory));
             }
         }
@@ -136,7 +133,6 @@ TextureBatcherApp::SetupProjectInfo()
             this->textureConverter.SetToolPath(this->projectInfo.GetPathAttr("TextureTool"));
         }
         this->textureConverter.SetTexAttrTablePath(this->projectInfo.GetAttr("TextureAttrTable"));
-        this->textureConverter.SetSrcDir(this->projectInfo.GetAttr("TextureSrcDir"));
         this->textureConverter.SetDstDir(this->projectInfo.GetAttr("TextureDstDir"));
         return true;
     }
@@ -164,7 +160,7 @@ TextureBatcherApp::DoWork()
 {    
     // get a list of files to convert
     Array<String> files = this->CreateFileList();
-    if(files.Size() > 0)
+    if (files.Size() > 0)
     {
         // setup the texture converter
         Console::Instance()->Print("Set up Texture Converter\n");
@@ -237,12 +233,7 @@ TextureBatcherApp::NeedsConversion(const String& srcPath)
 {
     // cut source dir part from srcPath
     String resolvedSrc = AssignRegistry::Instance()->ResolveAssignsInString(srcPath);
-    String subPath = resolvedSrc.ExtractToEnd(
-        AssignRegistry::Instance()->ResolveAssignsInString(
-            this->projectInfo.GetPathAttr("TextureSrcDir")
-            )
-            .Length()
-        );
+    String subPath = resolvedSrc.ExtractToEnd(AssignRegistry::Instance()->ResolveAssignsInString("src:assets").Length());
     subPath.Trim("/");
     String dstPath;
     dstPath.Format("%s/%s",

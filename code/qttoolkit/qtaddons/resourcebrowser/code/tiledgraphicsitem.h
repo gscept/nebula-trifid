@@ -14,6 +14,7 @@
 
 #include <QObject>
 #include <QGraphicsItemGroup>
+#include <QDateTime>
 namespace ResourceBrowser
 {
 class TiledGraphicsItem :
@@ -44,6 +45,8 @@ public:
 	void SetFilename(const Util::String& file);
 	/// get file name
 	const Util::String& GetFilename() const;
+	/// get last changed date
+	const QDateTime& GetLastChanged() const;
 
 	/// handle mouse entering item
 	void hoverEnterEvent(QGraphicsSceneHoverEvent* event);
@@ -69,6 +72,7 @@ protected:
 	QGraphicsPolygonItem* background;
 	QGraphicsPixmapItem* graphics;
 	QGraphicsTextItem* label;
+	QDateTime lastChanged;
 
 	Util::String path;
 	Util::String category;
@@ -131,6 +135,16 @@ TiledGraphicsItem::GetFilename() const
 {
 	return this->filename;
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const QDateTime&
+TiledGraphicsItem::GetLastChanged() const
+{
+	return this->lastChanged;
+}
+
 
 //------------------------------------------------------------------------------
 /**

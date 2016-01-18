@@ -5,7 +5,10 @@
 #include "stdneb.h"
 #include "tiledsurfaceitem.h"
 #include "assetbrowser.h"
+#include "io/uri.h"
+
 #include <QGraphicsSceneMouseEvent>
+#include <QFileInfo>
 
 using namespace Util;
 namespace ResourceBrowser
@@ -39,11 +42,19 @@ TiledSurfaceItem::Setup()
     // remove extension
     this->filename.StripFileExtension();
 
+	// set color
+	this->background->setBrush(QBrush(qRgb(100, 100, 160)));
+
     // create a new texture unit
     this->loader = new ImageLoaderUnit;
     this->loader->path = String::Sprintf("%s/%s/%s_sur.thumb", this->path.AsCharPtr(), this->category.AsCharPtr(), this->filename.AsCharPtr());
     connect(this->loader, SIGNAL(OnLoaded()), this, SLOT(OnPreviewLoaded()));
     AssetBrowser::loaderThread->Enqueue(this->loader);
+
+	// get changed date
+	IO::URI res = String::Sprintf("%s/%s/%s.sur", this->path.AsCharPtr(), this->category.AsCharPtr(), this->filename.AsCharPtr());
+	QFileInfo info(res.LocalPath().AsCharPtr());
+	this->lastChanged = info.lastModified();
 
     // format string with the 'clean' name
     QString format;

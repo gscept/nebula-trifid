@@ -4,18 +4,13 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "tiledtextureitem.h"
-#include "io/uri.h"
-#include "io/ioserver.h"
-#include "imageloaderthread.h"
 #include "assetbrowser.h"
-#include <QAction>
-#include <QMenu>
-#include <QComboBox>
-#include <QMessageBox>
-#include <QGraphicsSceneEvent>
-#include <QLayout>
-#include <QGraphicsScene>
-#include "tiledgraphicsview.h"
+#include "io/uri.h"
+
+#include <QGraphicsSceneMouseEvent>
+#include <QFileInfo>
+
+
 
 using namespace Util;
 namespace ResourceBrowser
@@ -47,13 +42,22 @@ TiledTextureItem::Setup()
 	TiledGraphicsItem::Setup();
 
     // remove extension
+	String extension = this->filename.GetFileExtension();
     this->filename.StripFileExtension();
+
+	// set color
+	this->background->setBrush(QBrush(qRgb(30, 30, 30)));
 
 	// create a new texture unit
 	this->loader = new ImageLoaderUnit;
 	this->loader->path = String::Sprintf("tex:%s/%s.dds", this->category.AsCharPtr(), this->filename.AsCharPtr());
 	connect(this->loader, SIGNAL(OnLoaded()), this, SLOT(OnPreviewLoaded()));
 	AssetBrowser::loaderThread->Enqueue(this->loader);
+
+	// get changed date
+	IO::URI res = String::Sprintf("%s/%s/%s.%s", this->path.AsCharPtr(), this->category.AsCharPtr(), this->filename.AsCharPtr(), extension.AsCharPtr());
+	QFileInfo info(res.LocalPath().AsCharPtr());
+	this->lastChanged = info.lastModified();
 
 	// format string with the 'clean' name
 	QString format;

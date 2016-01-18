@@ -50,7 +50,7 @@ TiledGraphicsItem::Setup()
 	this->graphics = new QGraphicsPixmapItem;
 	this->graphics->setZValue(0);
 	this->label = new QGraphicsTextItem;
-	this->label->setFont(QFont("Segoe UI", 7));
+	this->label->setFont(QFont("Segoe UI", 8));
 	this->label->setDefaultTextColor(Qt::white);
 	this->label->setZValue(0);
 

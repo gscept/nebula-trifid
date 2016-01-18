@@ -1,5 +1,8 @@
 <RCC>
   <qresource prefix="icons">
+    <file>icons/audio.png</file>
+    <file>icons/envprobes.png</file>
+    <file>icons/gui.png</file>
     <file>icons/stefan.jpg</file>
     <file>qtaddons/resourcebrowser/ui/folder_512.png</file>
     <file>icons/grid.png</file>
@@ -16,8 +19,8 @@
     <file>icons/FX.png</file>
     <file>icons/Leveleditor.png</file>
     <file>icons/Contentbrowser.png</file>
-	<file>icons/open.png</file>
-	<file>icons/save.png</file>
-	<file>icons/saveas.png</file>
+    <file>icons/open.png</file>
+    <file>icons/save.png</file>
+    <file>icons/saveas.png</file>
   </qresource>
 </RCC>

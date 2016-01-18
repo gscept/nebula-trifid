@@ -80,7 +80,6 @@ LevelEditor2Window::LevelEditor2Window():
 	connect(this->ui.actionLight_probes_2, SIGNAL(triggered()), LightProbeManager::Instance(), SLOT(Show()));
     connect(this->ui.actionUndo, SIGNAL(triggered()), this, SLOT(OnUndo()));
     connect(this->ui.actionDelete, SIGNAL(triggered()), this, SLOT(OnDelete()));
-    connect(this->ui.actionExit, SIGNAL(triggered()), this, SLOT(close()));
     connect(this->ui.actionSave, SIGNAL(triggered()), this, SLOT(OnSave()));
     connect(this->ui.actionSave_As, SIGNAL(triggered()), this, SLOT(OnSaveAs()));
     connect(this->ui.actionLoad, SIGNAL(triggered()), this, SLOT(OnLoad()));

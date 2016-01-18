@@ -197,6 +197,7 @@ ContentBrowserWindow::ContentBrowserWindow() :
 	connect(this->ui.libraryTree, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(TreeRightClicked(const QPoint&)));
 	connect(this->ui.actionUndo, SIGNAL(triggered()), this, SLOT(OnUndo()));
 	connect(this->ui.actionRedo, SIGNAL(triggered()), this, SLOT(OnRedo()));
+	connect(this->ui.actionSave_all, SIGNAL(triggered()), this, SLOT(OnSaveAll()));
 	connect(this->ui.actionAsset_browser, SIGNAL(triggered()), this, SLOT(OnShowAssetBrowser()));
 	connect(this->ui.actionEnvironment_probe, SIGNAL(triggered()), this, SLOT(OnShowEnvironmentProbeSettings()));
 	connect(this->ui.actionShow_grid, SIGNAL(triggered()), this, SLOT(OnShowGrid()));
@@ -2143,7 +2144,6 @@ ContentBrowserWindow::OnShowPostEffectController()
 void
 ContentBrowserWindow::OnShowAssetBrowser()
 {
-	this->assetBrowserWindow->SetFilter(ResourceBrowser::AssetBrowser::All);
 	this->assetBrowserWindow->show();
 	this->assetBrowserWindow->raise();
 }
@@ -2165,6 +2165,16 @@ void
 ContentBrowserWindow::OnShowGrid()
 {
 	Grid::GridAddon::Instance()->SetVisible(this->ui.actionShow_grid->isChecked());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ContentBrowserWindow::OnSaveAll()
+{
+	if (this->materialHandler->IsSetup()) this->materialHandler->GetUI()->saveButton->click();
+	if (this->modelHandler->IsSetup()) this->modelHandler->GetUI()->saveButton->click();
 }
 
 //------------------------------------------------------------------------------

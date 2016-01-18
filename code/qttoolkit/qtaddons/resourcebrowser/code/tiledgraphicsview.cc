@@ -9,13 +9,40 @@
 
 #define VIEW_PADDING 16
 #define ITEM_SPACING 12
+
+
+
 namespace ResourceBrowser
 {
 
 //------------------------------------------------------------------------------
 /**
 */
-TiledGraphicsView::TiledGraphicsView(QWidget* parent) : QGraphicsView(parent)
+bool
+SortItemsName(const TiledGraphicsItem* lhs, const TiledGraphicsItem* rhs)
+{
+	Util::String lhsName = lhs->GetFilename();
+	lhsName.ToLower();
+	Util::String rhsName = rhs->GetFilename();
+	rhsName.ToLower();
+	return lhsName < rhsName;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+SortItemsDate(const TiledGraphicsItem* lhs, const TiledGraphicsItem* rhs)
+{
+	return lhs->GetLastChanged() > rhs->GetLastChanged();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+TiledGraphicsView::TiledGraphicsView(QWidget* parent) : 
+	sort(SortByName),
+	QGraphicsView(parent)
 {
 	this->scene = new QGraphicsScene;
 	this->setScene(this->scene);
@@ -105,6 +132,25 @@ TiledGraphicsView::Rearrange()
 	rect.setWidth(width);
 	rect.setHeight(height);
 	this->setSceneRect(rect);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+TiledGraphicsView::Sort(const SortingMode& mode)
+{
+	this->sort = mode;
+	switch (this->sort)
+	{
+	case SortByDate:
+		qSort(this->items.begin(), this->items.end(), SortItemsDate);
+		break;
+	case SortByName:
+		qSort(this->items.begin(), this->items.end(), SortItemsName);
+		break;
+	}
+	this->Rearrange();
 }
 
 //------------------------------------------------------------------------------
