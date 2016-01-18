@@ -233,6 +233,7 @@
   <Material name="Static classic" type="static" inherits="Classic rendering" desc="Standard material for static meshes without PBR or IBL. Affected by lights.">
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <Pass batch="SpotLightShadow" shader="shadow" variation="Static|Spot"/>
+   <Pass batch="PointLightShadow" shader="shadow" variation="Static|Point"/>
    <Pass batch="GlobalShadow" shader="shadow" variation="Static|Global"/>
    <Pass batch="FlatGeometryLit" shader="static" variation="Static"/>   
   </Material>
@@ -240,6 +241,7 @@
   <Material name="Static classic tessellated" type="static" inherits="Classic rendering|Tessellation" desc="Standard material for static meshes with support for real-time tessellation without PBR or IBL. Affected by lights.">
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <Pass batch="SpotLightShadow" shader="shadow" variation="Static|Spot"/>
+   <Pass batch="PointLightShadow" shader="shadow" variation="Static|Point"/>
    <Pass batch="GlobalShadow" shader="shadow" variation="Static|Global"/>
    <Pass batch="TessellatedGeometryLit" shader="static" variation="Static|Tessellated"/>
   </Material>
@@ -247,6 +249,7 @@
   <Material name="Vertex colored" inherits="PBR + IBL" type="static|vertexcolors" desc="Standard material for static meshes with vertex colors. Multiplies vertex colors with final diffuse. Affected by lights.">
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <Pass batch="SpotLightShadow" shader="shadow" variation="Static|Spot"/>
+   <Pass batch="PointLightShadow" shader="shadow" variation="Static|Point"/>
    <Pass batch="GlobalShadow" shader="shadow" variation="Static|Global"/>
    <Pass batch="FlatGeometryLit" shader="static" variation="Static|Environment"/>
   </Material>
@@ -254,6 +257,7 @@
   <Material name="Skinned tessellated" inherits="PBR + IBL" type="skeletal" desc="Skinned material which uses a mesh with joint indices and joint weights. Supports tessellation. Useful for characters. Affected by lights.">
    <Pass batch="Picking" shader="picking" variation="Skinned"/>
    <Pass batch="SpotLightShadow" shader="shadow" variation="Skinned|Spot"/>
+   <Pass batch="PointLightShadow" shader="shadow" variation="Static|Point"/>
    <Pass batch="GlobalShadow" shader="shadow" variation="Skinned|Global"/>
    <Pass batch="TessellatedGeometryLit" shader="skinned" variation="Skinned|Tessellated"/>
   </Material>
@@ -271,8 +275,9 @@
   -->
   <Material name="Multilayered" type="static|vertexcolors" inherits="Tiled|PBR + IBL" desc="Special material used for meshes with vertex colors. RGB controls the influence of each texture layer in order 1,2,3. Affected by lights.">
    <Pass batch="Picking" shader="picking" variation="Static"/>
-   <!--<Pass batch="SpotLightShadow" shader="multilayered" variation="Static|Spot"/>-->
-   <Pass batch="GlobalShadow" shader="multilayered" variation="Static|Global"/>
+   <Pass batch="SpotLightShadow" shader="shadow" variation="Static|Spot"/>
+   <Pass batch="GlobalShadow" shader="shadow" variation="Static|Global"/>
+   <Pass batch="PointLightShadow" shader="shadow" variation="Static|Point"/>
    <Pass batch="FlatGeometryLit" shader="multilayered" variation="Static"/>
    
    <!-- material textures -->
@@ -293,8 +298,9 @@
   
   <Material name="MultilayeredTessellated" type="static|vertexcolors" inherits="Tiled|Tessellation" desc="Special material used for meshes with vertex colors. RGB controls the influence of each texture layer in order 1,2,3. Supports tessellation. Affected by lights.">
    <Pass batch="Picking" shader="picking" variation="Static"/>
-   <!--<Pass batch="SpotLightShadow" shader="multilayered" variation="Static|Colored|Spot"/>-->
-   <Pass batch="GlobalShadow" shader="multilayered" variation="Static|Colored|Global"/>
+   <Pass batch="SpotLightShadow" shader="shadow" variation="Static|Spot"/>
+   <Pass batch="GlobalShadow" shader="shadow" variation="Static|Global"/>
+   <Pass batch="PointLightShadow" shader="shadow" variation="Static|Point"/>
    <Pass batch="TessellatedGeometryLit" shader="multilayered" variation="Static|Colored|Tessellated"/>
    
    <Param name="AlbedoMap2" type="string" defaultValue="tex:system/black"/>
@@ -420,7 +426,7 @@
    
    <Param name="AlbedoMap" type="string" defaultValue="tex:system/placeholder"/>
    <Param name="AlphaSensitivity" type="float" defaultValue="0.0f" min="0.0f" max="1.0f" desc="Alpha clip sensitivity, every value below this will cause the pixel to become discarded"/>
-   <Param name="Brightness" type="float" defaultValue="0.0f" min="0.0f" max="1.0f" desc="Multiplies with the diffuse color in order to adjust its intensity"/>
+   <Param name="Brightness" type="float" defaultValue="0.0f" min="0.0f" max="2.0f" desc="Multiplies with the diffuse color in order to adjust its intensity"/>
    
    <!-- system variables -->
    <Param name="ObjectId" type="int" system="true"/>
@@ -434,7 +440,7 @@
    
    <Param name="AlbedoMap" type="string" defaultValue="tex:system/placeholder"/>
    <Param name="AlphaSensitivity" type="float" defaultValue="0.0f" min="0.0f" max="1.0f" desc="Alpha clip sensitivity, every value below this will cause the pixel to become discarded"/>
-   <Param name="Brightness" type="float" defaultValue="0.0f" min="0.0f" max="1.0f" desc="Multiplies with the diffuse color in order to adjust its intensity"/>
+   <Param name="Brightness" type="float" defaultValue="0.0f" min="0.0f" max="2.0f" desc="Multiplies with the diffuse color in order to adjust its intensity"/>
    <Param name="AlphaBlendFactor" type="float" defaultValue="1.0f" min="0.0f" max="1.0f" desc="Level of transparency"/>
    
    <!-- system variables -->
@@ -665,7 +671,7 @@
    
    <Param name="AlbedoMap" type="string" defaultValue="tex:system/placeholder"/>
    <Param name="AlphaSensitivity" type="float" defaultValue="0.0f" min="0.0f" max="1.0f" desc="Alpha clip sensitivity, every value below this will cause the pixel to become discarded"/>
-   <Param name="Brightness" type="float" defaultValue="1.0f" min="0.0f" max="1.0f" desc="Multiplies with the diffuse color in order to adjust its intensity"/>
+   <Param name="Brightness" type="float" defaultValue="1.0f" min="0.0f" max="2.0f" desc="Multiplies with the diffuse color in order to adjust its intensity"/>
    
    <Param name="NumTilesX" type="int" defaultValue="1" min="1" max="256"/>	
    <Param name="NumTilesY" type="int" defaultValue="1" min="1" max="256"/>	

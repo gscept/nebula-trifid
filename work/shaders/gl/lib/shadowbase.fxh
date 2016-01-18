@@ -21,29 +21,21 @@ samplerstate ShadowSampler
 state ShadowState
 {
 	CullMode = Back;
-	//PolygonOffsetEnabled = true;
-	//PolygonOffsetFactor = 1.0f;
-	//PolygonOffsetUnits = 2.0f;
 	DepthClamp = false;
+	DepthEnabled = false;
+	DepthWrite = false;
+	BlendEnabled[0] = true;
+	BlendOp[0] = Min;
 };
 
 state ShadowStateCSM
 {
 	CullMode = Front;
-	//PolygonOffsetEnabled = true;
-	//PolygonOffsetFactor = 1.0f;
-	//PolygonOffsetUnits = 2.0f;
 	DepthClamp = false;
-};
-
-state ShadowStateTest
-{
-	CullMode = Back;
 	DepthEnabled = false;
 	DepthWrite = false;
-	//PolygonOffsetEnabled = true;
-	//PolygonOffsetFactor = 1.0f;
-	//PolygonOffsetUnits = 2.0f;
+	BlendEnabled[0] = true;
+	BlendOp[0] = Min;
 };
 
 //------------------------------------------------------------------------------

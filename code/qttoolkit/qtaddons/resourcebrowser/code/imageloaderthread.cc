@@ -6,9 +6,13 @@
 #include "imageloaderthread.h"
 #include "io/uri.h"
 
+#include <QPainter>
+
 namespace ResourceBrowser
 {
 
+
+QPixmap* ImageLoaderThread::NoThumbnailPixmap = NULL;
 //------------------------------------------------------------------------------
 /**
 */
@@ -54,6 +58,12 @@ void
 ImageLoaderThread::Start()
 {
 	this->start();
+	ImageLoaderThread::NoThumbnailPixmap = new QPixmap(96, 96);
+	ImageLoaderThread::NoThumbnailPixmap->fill(Qt::transparent);
+	QPainter painter(ImageLoaderThread::NoThumbnailPixmap);
+	painter.setFont(QFont("Segoe UI", 10, QFont::Bold));
+	painter.setPen(Qt::red);
+	painter.drawText(QRectF(0, 0, 96, 96), Qt::AlignCenter, "No thumbnail");
 }
 
 //------------------------------------------------------------------------------
@@ -62,6 +72,7 @@ ImageLoaderThread::Start()
 void
 ImageLoaderThread::Stop()
 {
+	delete ImageLoaderThread::NoThumbnailPixmap;
 	this->queue.Clear();
 	this->shouldStop = true;
 	this->quit();
@@ -107,6 +118,7 @@ ImageLoaderUnit::Load()
 	// load image and scale
 	QImage localImage(uri.LocalPath().AsCharPtr());
 	if (!localImage.isNull()) *image = localImage.scaled(96, 96, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+	else                      *image = ImageLoaderThread::NoThumbnailPixmap->toImage();
 	this->thumbnailWatcher.WatchFile(uri.LocalPath());
 
 	// emit signal to notify the image has been loaded

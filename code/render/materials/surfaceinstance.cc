@@ -19,7 +19,7 @@ __ImplementClass(Materials::SurfaceInstance, 'SUIN', Core::RefCounted);
 /**
 */
 SurfaceInstance::SurfaceInstance() :
-    originalSurface(NULL)
+    originalSurface(0)
 {
 	// empty
 }
@@ -38,6 +38,8 @@ SurfaceInstance::~SurfaceInstance()
 void
 SurfaceInstance::Setup(const Ptr<Surface>& surface)
 {
+	n_assert(this->originalSurface == 0);
+
     // set original surface
     this->originalSurface = surface;
 
@@ -128,7 +130,7 @@ void
 SurfaceInstance::Discard()
 {
     this->originalSurface->DiscardInstance(this);
-    this->originalSurface = NULL;
+    this->originalSurface = 0;
 }
 
 //------------------------------------------------------------------------------

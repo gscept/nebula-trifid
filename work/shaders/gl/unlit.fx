@@ -60,7 +60,7 @@ psMain(in vec2 UV,
 	vec4 diffColor = texture(AlbedoMap, UV.xy);
 	float alpha = diffColor.a;
 	if (alpha < AlphaSensitivity) discard;
-	Albedo = EncodeHDR(diffColor * Brightness);
+	Albedo = diffColor * Brightness;
 }
 
 //------------------------------------------------------------------------------
@@ -74,7 +74,7 @@ psMainAlpha(in vec2 UV,
 	vec4 diffColor = texture(AlbedoMap, UV.xy);
 	float alpha = diffColor.a;
 	if (alpha < AlphaSensitivity) discard;
-	Albedo = EncodeHDR(diffColor * AlphaBlendFactor * Brightness);
+	Albedo = diffColor * AlphaBlendFactor * Brightness;
 }
 
 

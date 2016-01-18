@@ -627,7 +627,9 @@ MaterialHandler::Browse()
     QLabel* name = this->textureLabelMap.key(this->textureImgMap[button]);
 
     // pick a texture
+	button->setStyleSheet("border: 2px solid red;");
     int res = ResourceBrowser::AssetBrowser::Instance()->Execute("Assign to: " + name->text(), ResourceBrowser::AssetBrowser::Textures);
+	button->setStyleSheet("");
     if (res == QDialog::Accepted)
     {
         // convert to nebula string

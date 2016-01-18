@@ -69,23 +69,23 @@ Model::Unload()
 void
 Model::Reload()
 {
+	// be careful with the instances however, they all need to be reloaded, so we don't clear the array of instances
+	IndexT i;
+	for (i = 0; i < this->instances.Size(); i++)
+	{
+		this->instances[i]->Discard();
+	}
+
 	// unload node resources
 	this->UnloadResources();
 
 	// unload all nodes manually
-	IndexT i;
 	for (i = 0; i < this->nodes.Size(); i++)
 	{
 		this->nodes[i]->OnRemoveFromModel();
 	}
 	this->nodes.Clear();
 	this->visibleModelNodes.Reset();
-
-	// be careful with the instances however, they all need to be reloaded, so we don't clear the array of instances
-	for (i = 0; i < this->instances.Size(); i++)
-	{
-		this->instances[i]->Discard();
-	}
 
 	// run base class unload
 	Resource::Unload();

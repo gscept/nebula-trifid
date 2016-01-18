@@ -432,10 +432,10 @@ SM50LightServer::RenderPointLights()
 						this->lightProjCubeVar->SetTexture(curLight->GetProjectionTexture()->GetTexture());
 					}
 
+					// set light parameters
 					this->lightPosRange->SetFloat4(posAndRange);
 					this->lightColor->SetFloat4(curLight->GetColor());
 					this->lightTransform->SetMatrix(lightTransform);
-					//this->lightShadowBias->SetFloat(curLight->GetShadowBias());
 
 					if (CastShadows == (ShadowFlag)shadowIdx
 						&& curLight->GetCastShadowsThisFrame())
@@ -445,16 +445,7 @@ SM50LightServer::RenderPointLights()
                         {
                             this->shadowProjCubeVar->SetTexture(curLight->GetShadowCube()->GetResolveTexture());
                         }
-
-						// needed for tex coordinates to lookup correct shadowbuffer texel   
-						const matrix44& invViewTransform = tformDevice->GetInvViewTransform();           
-						matrix44 fromViewToLightProj = matrix44::multiply(invViewTransform, curLight->GetShadowInvLightProjTransform());            
-						this->shadowProjTransform->SetMatrix(fromViewToLightProj);
 						
-						// set shadowmap offset index for multiple shadows
-						const float4& shadowOffsetScale = curLight->GetShadowBufferUvOffsetAndScale();
-						this->shadowOffsetScaleVar->SetFloat4(shadowOffsetScale);
-
 						// set shadow intensity
 						this->shadowIntensityVar->SetFloat(curLight->GetShadowIntensity());
 					}

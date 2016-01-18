@@ -71,7 +71,7 @@ Surface::Reload()
     // perform actual load
 	bool async = this->asyncEnabled;
 	this->SetAsyncEnabled(false);
-	this->Unload();
+	Resource::Unload();
     this->loader->Reset();
     this->Load();
 	this->SetAsyncEnabled(async);
@@ -80,15 +80,12 @@ Surface::Reload()
     IndexT i;
     for (i = 0; i < this->instances.Size(); i++)
     {
+		// not a const ref, because this will probably be the LAST reference!
         const Ptr<SurfaceInstance>& inst = this->instances[i];
 
-        IndexT j;
-        for (j = 0; j < inst->constants.Size(); j++)
-        {
-            const Ptr<SurfaceConstant>& constant = inst->constants[j];
-            const SurfaceValueBinding& value = this->staticValues[constant->name];
-            constant->SetValue(value.value);
-        }
+		// reset the surface instance
+		inst->Cleanup();
+		inst->Setup(this);
     }
 }
 

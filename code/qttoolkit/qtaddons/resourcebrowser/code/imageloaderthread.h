@@ -8,12 +8,14 @@
 	(C) 2012-2014 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
-#include <QThread>
-#include <QImage>
-#include <QMutex>
 #include "filewatcher.h"
 #include "threading/safequeue.h"
 #include "util/string.h"
+
+#include <QThread>
+#include <QImage>
+#include <QMutex>
+#include <QPixmap>
 namespace ResourceBrowser
 {
 
@@ -57,6 +59,8 @@ private slots:
 	/// signal when thumbnail has changed
 	void OnThumbnailFileChanged();
 
+private:
+
 	friend class ImageLoaderThread;
 };
 
@@ -87,6 +91,9 @@ private:
 	bool paused;
 	bool shouldStop;
 	Threading::SafeQueue<ImageLoaderUnit*> queue;
+
+	friend class ImageLoaderUnit;
+	static QPixmap* NoThumbnailPixmap;
 };
 
 //------------------------------------------------------------------------------

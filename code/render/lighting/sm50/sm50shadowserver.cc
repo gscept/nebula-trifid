@@ -77,15 +77,6 @@ SM50ShadowServer::Open()
 	SizeT resolveHeight = rtHeight * ShadowLightsPerRow;
 	PixelFormat::Code pixelFormat = PixelFormat::G32R32F;	// VSM shadow mapping uses two channels
 
-	// setup depth-stencil map for local lights
-	this->spotLightDepthAtlas = DepthStencilTarget::Create();
-	this->spotLightDepthAtlas->SetWidth(rtWidth);
-	this->spotLightDepthAtlas->SetHeight(rtHeight);
-	this->spotLightDepthAtlas->SetDepthStencilBufferFormat(PixelFormat::D24S8);
-	this->spotLightDepthAtlas->SetResolveTextureResourceId(ResourceId("SpotLightDepthStencil"));
-	this->spotLightDepthAtlas->SetClearDepth(1);
-	this->spotLightDepthAtlas->Setup();
-
 	// create a shadow buffer for up to MaxNumShadowLights local light sources
 	this->spotLightShadowBufferAtlas = RenderTarget::Create();
 	this->spotLightShadowBufferAtlas->SetWidth(rtWidth);
@@ -104,7 +95,6 @@ SM50ShadowServer::Open()
 	this->spotLightShadowMap1->SetAntiAliasQuality(AntiAliasQuality::None);
 	this->spotLightShadowMap1->SetColorBufferFormat(PixelFormat::G32R32F);
 	this->spotLightShadowMap1->SetResolveTextureResourceId(ResourceId("SpotLightShadowMap1"));
-	this->spotLightShadowMap1->SetDepthStencilTarget(this->spotLightDepthAtlas);
 	this->spotLightShadowMap1->Setup();
 
 	// create secondary shadow map for spot lights after filtering
@@ -124,9 +114,8 @@ SM50ShadowServer::Open()
 	// create spotlight pass
 	this->spotLightPass = FramePass::Create();
 	this->spotLightPass->SetRenderTarget(this->spotLightShadowMap1);
-	this->spotLightPass->SetClearColor(float4(0, 0, 0, 0));
-	this->spotLightPass->SetClearDepth(1);
-	this->spotLightPass->SetClearFlags(RenderTarget::ClearColor | DepthStencilTarget::ClearDepth);
+	this->spotLightPass->SetClearColor(float4(1000, 1000, 0, 0));
+	this->spotLightPass->SetClearFlags(RenderTarget::ClearColor);
 	this->spotLightPass->SetName("SpotLightShadows");
 	this->spotLightPass->AddBatch(this->spotLightBatch);
 
@@ -189,8 +178,7 @@ SM50ShadowServer::Open()
 
     // create pass for pointlights
     this->pointLightPass = FramePass::Create();
-	this->pointLightPass->SetClearFlags(RenderTarget::ClearColor | DepthStencilTarget::ClearDepth);
-	this->pointLightPass->SetClearDepth(1);
+	this->pointLightPass->SetClearFlags(RenderTarget::ClearColor);
     this->pointLightPass->SetName("PointLightShadowPass");
 	this->pointLightPass->SetClearColor(float4(1000, 1000, 0, 0));
     this->pointLightPass->AddBatch(this->pointLightBatch);
@@ -213,14 +201,6 @@ SM50ShadowServer::Open()
     SizeT csmWidth = CSMCascadeTileSize * SplitsPerRow;
     SizeT csmHeight = CSMCascadeTileSize * SplitsPerColumn;
 
-    // setup CSM depth-stencil
-	this->globalLightShadowBufferDepth = DepthStencilTarget::Create();
-	this->globalLightShadowBufferDepth->SetWidth(csmWidth);
-	this->globalLightShadowBufferDepth->SetHeight(csmHeight);
-	this->globalLightShadowBufferDepth->SetDepthStencilBufferFormat(PixelFormat::D24S8);
-	this->globalLightShadowBufferDepth->SetResolveTextureResourceId(ResourceId("GlobalLightShadowBufferDepth"));	
-	this->globalLightShadowBufferDepth->Setup();
-
 	// setup hot buffer
 	this->globalLightShadowBuffer = RenderTarget::Create();
 	this->globalLightShadowBuffer->SetWidth(csmWidth);
@@ -228,7 +208,6 @@ SM50ShadowServer::Open()
 	this->globalLightShadowBuffer->SetAntiAliasQuality(AntiAliasQuality::None);
 	this->globalLightShadowBuffer->SetColorBufferFormat(PixelFormat::G32R32F);
 	this->globalLightShadowBuffer->SetResolveTextureResourceId(ResourceId("GlobalLightShadowBuffer"));
-	this->globalLightShadowBuffer->SetDepthStencilTarget(this->globalLightShadowBufferDepth);
 	this->globalLightShadowBuffer->Setup();	
 
 	// setup other buffer
@@ -249,9 +228,8 @@ SM50ShadowServer::Open()
 	// create pass
 	this->globalLightHotPass = FramePass::Create();
 	this->globalLightHotPass->SetRenderTarget(this->globalLightShadowBuffer);
-	this->globalLightHotPass->SetClearColor(float4(-1, 0, 0, 0));
-	this->globalLightHotPass->SetClearDepth(1);
-	this->globalLightHotPass->SetClearFlags(RenderTarget::ClearColor | DepthStencilTarget::ClearDepth);
+	this->globalLightHotPass->SetClearColor(float4(1000, 1000, 0, 0));
+	this->globalLightHotPass->SetClearFlags(RenderTarget::ClearColor);
 	this->globalLightHotPass->SetName("GlobalLightHotPass");
 	this->globalLightHotPass->AddBatch(this->globalLightShadowBatch);
 
@@ -539,7 +517,7 @@ SM50ShadowServer::UpdatePointLightShadowBuffers()
 		visResolver->EndResolve();
 
 		// generate view projection matrix
-		matrix44 proj = matrix44::perspfovrh(n_deg2rad(90.0f), 1, 0.1f, 2500.0f);
+		matrix44 proj = matrix44::perspfovrh(n_deg2rad(90.0f), 1, 0.1f, 1000.0f);
 		//viewProj.set_position(0);
 
 		// generate matrices

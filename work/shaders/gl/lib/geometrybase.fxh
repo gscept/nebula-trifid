@@ -194,7 +194,7 @@ subroutine (CalculateEnvironment) mat2x3 ReflectionOnly(
 	vec3 reflectVec = reflect(worldViewVec, worldNorm.xyz);
 	float x = dot(-viewSpaceNormal, normalize(viewSpacePos.xyz));
 	vec3 rim = FresnelSchlickGloss(specularColor.rgb, x, roughness);
-	ret[1] = textureLod(EnvironmentMap, reflectVec, (1.0f - roughness) * NumEnvMips).rgb * rim;
+	ret[1] = textureLod(EnvironmentMap, reflectVec, (1.0f - pow(roughness, 2)) * NumEnvMips).rgb * rim;
 	ret[0] = vec3(0);
 	return ret;
 }
@@ -244,7 +244,7 @@ mat2x3 PBRSpec(
 	vec3 reflectVec = reflect(worldViewVec, worldNorm.xyz);
 	float x = dot(-viewSpaceNormal, normalize(viewSpacePos));
 	vec3 rim = FresnelSchlickGloss(specularColor.rgb, x, roughness);
-	ret[1] = textureLod(EnvironmentMap, reflectVec, (1.0f - roughness) * NumEnvMips).rgb * rim;
+	ret[1] = textureLod(EnvironmentMap, reflectVec, (1.0f - pow(roughness, 2)) * NumEnvMips).rgb * rim;
 	ret[0] = textureLod(IrradianceMap, worldNorm.xyz, 0).rgb;
 	return ret;
 }

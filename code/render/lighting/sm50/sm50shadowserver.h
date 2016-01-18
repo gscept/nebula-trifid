@@ -72,7 +72,6 @@ private:
 	Ptr<CoreGraphics::RenderTarget> spotLightShadowBufferAtlas;
 	Ptr<CoreGraphics::Shader> satXShader;
 	Ptr<CoreGraphics::Shader> satYShader;
-	Ptr<CoreGraphics::DepthStencilTarget> spotLightDepthAtlas;
 	Ptr<Frame::FramePass> spotLightPass;
 	Ptr<Frame::FrameBatch> spotLightBatch;
 	Ptr<Frame::FramePostEffect> spotLightHoriPass;
@@ -89,7 +88,6 @@ private:
 	Ptr<Frame::FrameBatch> globalLightShadowBatch;
 	Ptr<CoreGraphics::RenderTarget> globalLightShadowBuffer;
 	Ptr<CoreGraphics::RenderTarget> globalLightShadowBufferFinal;
-	Ptr<CoreGraphics::DepthStencilTarget> globalLightShadowBufferDepth;
 
 	// generic stuff
 	Ptr<CoreGraphics::Shader> blurShader;
