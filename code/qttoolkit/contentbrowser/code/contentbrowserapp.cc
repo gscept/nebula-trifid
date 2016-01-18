@@ -211,6 +211,10 @@ ContentBrowserApp::SetupGameFeatures()
 	// for the ease of testing, load all fonts
 	this->uiFeature->LoadAllFonts("gui:");
 
+	// setup grid
+	this->grid = Grid::GridAddon::Create();
+	this->grid->Setup();
+
 	// setup intermediate gui
 	this->imgui = Dynui::ImguiAddon::Create();
 	this->imgui->Setup();
@@ -257,6 +261,14 @@ ContentBrowserApp::CleanupGameFeatures()
 	// shut down remote interface
 	this->remoteServer->Close();
 	this->remoteServer = 0;
+
+	// close grid
+	this->grid->Discard();
+	this->grid = 0;
+
+	// close imgui
+	this->imgui->Discard();
+	this->imgui = 0;
 
 	// unregister client
 	this->remoteClient->Unregister("editor");

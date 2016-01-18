@@ -210,6 +210,7 @@
      <string>Tools</string>
     </property>
     <addaction name="actionEnvironment_probe"/>
+    <addaction name="actionConnect_with_Level_Editor"/>
    </widget>
    <widget class="QMenu" name="menuWindow">
     <property name="title">
@@ -223,6 +224,7 @@
     <addaction name="actionShow_PostEffect_Controls"/>
     <addaction name="actionShow_Shady"/>
     <addaction name="actionShow_UI_Info"/>
+    <addaction name="actionAsset_browser"/>
     <addaction name="separator"/>
     <addaction name="actionRestore_default_layout"/>
    </widget>
@@ -230,6 +232,9 @@
     <property name="title">
      <string>Create</string>
     </property>
+    <addaction name="actionUndo"/>
+    <addaction name="actionRedo"/>
+    <addaction name="separator"/>
     <addaction name="actionCreate_Particle"/>
     <addaction name="actionCreate_material"/>
    </widget>
@@ -255,8 +260,9 @@
    <addaction name="actionUndo"/>
    <addaction name="actionRedo"/>
    <addaction name="separator"/>
-   <addaction name="actionConnect_with_Level_Editor"/>
-   <addaction name="actionTexture_browser"/>
+   <addaction name="actionAsset_browser"/>
+   <addaction name="separator"/>
+   <addaction name="actionShow_grid"/>
   </widget>
   <widget class="QDockWidget" name="dockWidget">
    <property name="windowTitle">
@@ -369,7 +375,7 @@
           <x>0</x>
           <y>0</y>
           <width>91</width>
-          <height>106</height>
+          <height>102</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout">
@@ -440,7 +446,7 @@
           <x>0</x>
           <y>0</y>
           <width>91</width>
-          <height>106</height>
+          <height>102</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_4">
@@ -505,7 +511,7 @@
           <x>0</x>
           <y>0</y>
           <width>91</width>
-          <height>106</height>
+          <height>102</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_11">
@@ -573,7 +579,7 @@
           <x>0</x>
           <y>0</y>
           <width>91</width>
-          <height>106</height>
+          <height>102</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_13">
@@ -641,7 +647,7 @@
           <x>0</x>
           <y>0</y>
           <width>91</width>
-          <height>106</height>
+          <height>102</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_14">
@@ -709,7 +715,7 @@
           <x>0</x>
           <y>0</y>
           <width>91</width>
-          <height>106</height>
+          <height>102</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_15">
@@ -768,7 +774,7 @@
           <x>0</x>
           <y>0</y>
           <width>91</width>
-          <height>106</height>
+          <height>102</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_17">
@@ -905,6 +911,10 @@
    </property>
   </action>
   <action name="actionConnect_with_Level_Editor">
+   <property name="icon">
+    <iconset resource="../../resources.qrc">
+     <normaloff>:/icons/icons/Leveleditor.png</normaloff>:/icons/icons/Leveleditor.png</iconset>
+   </property>
    <property name="text">
     <string>Connect with Level Editor...</string>
    </property>
@@ -924,9 +934,12 @@
     <string>Show UI Info...</string>
    </property>
   </action>
-  <action name="actionTexture_browser">
+  <action name="actionAsset_browser">
    <property name="text">
-    <string>Asset browser...</string>
+    <string>Show Asset browser...</string>
+   </property>
+   <property name="shortcut">
+    <string>F2</string>
    </property>
   </action>
   <action name="actionShow_sky">
@@ -996,6 +1009,24 @@
   <action name="actionRestore_default_layout">
    <property name="text">
     <string>Restore default layout</string>
+   </property>
+  </action>
+  <action name="actionShow_grid">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../resources.qrc">
+     <normaloff>:/icons/icons/grid.png</normaloff>:/icons/icons/grid.png</iconset>
+   </property>
+   <property name="text">
+    <string>Show grid</string>
+   </property>
+   <property name="toolTip">
+    <string>Show grid</string>
    </property>
   </action>
  </widget>

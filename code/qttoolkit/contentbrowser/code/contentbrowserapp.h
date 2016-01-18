@@ -28,6 +28,7 @@
 #include "effects/effectsfeatureunit.h"
 #include "scriptingfeature/scriptingfeature.h"
 #include "addons/dynui/imguiaddon.h"
+#include "grid/gridaddon.h"
 
 namespace ContentBrowser
 {
@@ -83,6 +84,7 @@ private:
 	Ptr<EffectsFeature::EffectsFeatureUnit> effectsFeature;
 	Ptr<ScriptingFeature::ScriptingFeatureUnit> scriptFeature;
 	Ptr<Dynui::ImguiAddon> imgui;
+	Ptr<Grid::GridAddon> grid;
 	ContentBrowserWindow* browserWindow;
 
 	Ptr<QtRemoteInterfaceAddon::QtRemoteServer> remoteServer;
