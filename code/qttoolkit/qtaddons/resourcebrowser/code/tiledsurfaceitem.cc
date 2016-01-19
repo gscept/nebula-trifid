@@ -5,7 +5,10 @@
 #include "stdneb.h"
 #include "tiledsurfaceitem.h"
 #include "assetbrowser.h"
+#include "io/uri.h"
+
 #include <QGraphicsSceneMouseEvent>
+#include <QFileInfo>
 
 using namespace Util;
 namespace ResourceBrowser
@@ -39,11 +42,19 @@ TiledSurfaceItem::Setup()
     // remove extension
     this->filename.StripFileExtension();
 
+	// set color
+	this->background->setBrush(QBrush(qRgb(100, 100, 160)));
+
     // create a new texture unit
     this->loader = new ImageLoaderUnit;
     this->loader->path = String::Sprintf("%s/%s/%s_sur.thumb", this->path.AsCharPtr(), this->category.AsCharPtr(), this->filename.AsCharPtr());
     connect(this->loader, SIGNAL(OnLoaded()), this, SLOT(OnPreviewLoaded()));
     AssetBrowser::loaderThread->Enqueue(this->loader);
+
+	// get changed date
+	IO::URI res = String::Sprintf("%s/%s/%s.sur", this->path.AsCharPtr(), this->category.AsCharPtr(), this->filename.AsCharPtr());
+	QFileInfo info(res.LocalPath().AsCharPtr());
+	this->lastChanged = info.lastModified();
 
     // format string with the 'clean' name
     QString format;
@@ -86,22 +97,6 @@ void
 TiledSurfaceItem::contextMenuEvent(QGraphicsSceneContextMenuEvent* event)
 {
 	emit this->ItemRightClicked(event);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-TiledSurfaceItem::OnPreviewLoaded()
-{
-    // set position of graphics
-    this->graphics->setPixmap(QPixmap::fromImage(*this->loader->texture));
-    this->graphics->setPos(
-        this->background->boundingRect().width() / 2 - this->graphics->boundingRect().width() / 2,
-        this->background->boundingRect().width() / 2 - this->graphics->boundingRect().height() / 2);
-
-    // move label too
-    this->label->setPos(this->label->pos().x(), this->graphics->boundingRect().height() + 20);
 }
 
 } // namespace ResourceBrowser

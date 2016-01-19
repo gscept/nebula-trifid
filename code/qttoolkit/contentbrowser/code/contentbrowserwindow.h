@@ -178,6 +178,9 @@ private slots:
 	/// displays the grid
 	void OnShowGrid();
 
+	/// called when the save all button is clicked
+	void OnSaveAll();
+
 	/// called whenever ctrl+z is pressed
 	void OnUndo();
 	/// called whenever shift+ctrl+z is pressed

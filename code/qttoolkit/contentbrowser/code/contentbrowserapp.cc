@@ -238,6 +238,14 @@ ContentBrowserApp::CleanupGameFeatures()
 {
 	this->postEffectEntity = 0;
 
+	// close grid
+	this->grid->Discard();
+	this->grid = 0;
+
+	// close imgui
+	this->imgui->Discard();
+	this->imgui = 0;
+
 	this->gameServer->RemoveGameFeature(this->effectsFeature.upcast<Game::FeatureUnit>());
 	this->effectsFeature = 0;
 	this->gameServer->RemoveGameFeature(this->postEffectFeature.upcast<Game::FeatureUnit>());
@@ -261,14 +269,6 @@ ContentBrowserApp::CleanupGameFeatures()
 	// shut down remote interface
 	this->remoteServer->Close();
 	this->remoteServer = 0;
-
-	// close grid
-	this->grid->Discard();
-	this->grid = 0;
-
-	// close imgui
-	this->imgui->Discard();
-	this->imgui = 0;
 
 	// unregister client
 	this->remoteClient->Unregister("editor");

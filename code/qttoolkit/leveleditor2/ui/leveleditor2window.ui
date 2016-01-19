@@ -137,6 +137,9 @@
      <height>21</height>
     </rect>
    </property>
+   <property name="defaultUp">
+    <bool>false</bool>
+   </property>
    <widget class="QMenu" name="menuCreate">
     <property name="title">
      <string>Scene</string>
@@ -146,8 +149,7 @@
     <addaction name="actionAdd_Game_Entity"/>
     <addaction name="actionLight_probes_2"/>
     <addaction name="separator"/>
-    <addaction name="actionMoveEntityToSelectedLayer"/>
-    <addaction name="actionNew_layer"/>
+    <addaction name="actionShow_PostEffect_Controls"/>
    </widget>
    <widget class="QMenu" name="menuFile">
     <property name="title">
@@ -174,25 +176,18 @@
     <addaction name="separator"/>
     <addaction name="actionCenter"/>
     <addaction name="actionFocus"/>
+    <addaction name="separator"/>
+    <addaction name="actionNew_layer"/>
+    <addaction name="actionMoveEntityToSelectedLayer"/>
    </widget>
    <widget class="QMenu" name="menuWindow">
     <property name="title">
-     <string>Game</string>
+     <string>Game Properties</string>
     </property>
-    <addaction name="actionShow_PostEffect_Controls"/>
     <addaction name="actionShow_Level_Properties"/>
-    <addaction name="actionShow_Blueprint_editor"/>
     <addaction name="actionShow_Script_Editor"/>
     <addaction name="actionAudio_Properties"/>
     <addaction name="actionUI_Properties"/>
-    <addaction name="separator"/>
-    <addaction name="actionCreate_template_from_selection"/>
-    <addaction name="separator"/>
-    <addaction name="actionCreateNavMesh"/>
-    <addaction name="actionUpdateNavMesh"/>
-    <addaction name="actionAddNavArea"/>
-    <addaction name="separator"/>
-    <addaction name="actionBatch_game_data"/>
    </widget>
    <widget class="QMenu" name="menuTest_Level">
     <property name="title">
@@ -215,10 +210,30 @@
     <addaction name="actionGrid"/>
     <addaction name="actionSelection_Colour"/>
     <addaction name="actionReset_window_layout"/>
+    <addaction name="actionPerformance_overlay"/>
+   </widget>
+   <widget class="QMenu" name="menuNavigation">
+    <property name="title">
+     <string>Navigation</string>
+    </property>
+    <addaction name="actionCreateNavMesh"/>
+    <addaction name="actionUpdateNavMesh"/>
+    <addaction name="actionAddNavArea"/>
+   </widget>
+   <widget class="QMenu" name="menuBlueprints">
+    <property name="title">
+     <string>Blueprints</string>
+    </property>
+    <addaction name="actionShow_Blueprint_editor"/>
+    <addaction name="actionCreate_template_from_selection"/>
+    <addaction name="separator"/>
+    <addaction name="actionBatch_game_data"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuCreate"/>
+   <addaction name="menuBlueprints"/>
+   <addaction name="menuNavigation"/>
    <addaction name="menuWindow"/>
    <addaction name="menuDisplay"/>
    <addaction name="menuTest_Level"/>
@@ -246,13 +261,14 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionLoad"/>
    <addaction name="actionSave"/>
    <addaction name="actionSave_As"/>
-   <addaction name="actionLoad"/>
    <addaction name="separator"/>
    <addaction name="actionAdd_Environment_Entity"/>
    <addaction name="actionAdd_Light_Entity"/>
    <addaction name="actionAdd_Game_Entity"/>
+   <addaction name="actionLight_probes_2"/>
    <addaction name="separator"/>
    <addaction name="actionShow_PostEffect_Controls"/>
    <addaction name="separator"/>
@@ -610,6 +626,9 @@
    <property name="text">
     <string>New</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
   </action>
   <action name="actionSave">
    <property name="checkable">
@@ -650,12 +669,18 @@
      <normaloff>:/icons/icons/open.png</normaloff>:/icons/icons/open.png</iconset>
    </property>
    <property name="text">
-    <string>Load</string>
+    <string>Open</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
    </property>
   </action>
   <action name="actionExit">
    <property name="text">
-    <string>Exit</string>
+    <string>Quit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
    </property>
   </action>
   <action name="actionAdd_Environment_Entity">
@@ -862,15 +887,14 @@
   </action>
   <action name="actionShow_Script_Editor">
    <property name="text">
-    <string>Scripts...</string>
-   </property>
-  </action>
-  <action name="actionLight_probes">
-   <property name="text">
-    <string>Light probes...</string>
+    <string>Scripts editor</string>
    </property>
   </action>
   <action name="actionLight_probes_2">
+   <property name="icon">
+    <iconset resource="../../resources.qrc">
+     <normaloff>:/icons/icons/envprobes.png</normaloff>:/icons/icons/envprobes.png</iconset>
+   </property>
    <property name="text">
     <string>Light probes...</string>
    </property>
@@ -971,6 +995,14 @@
     <string>Reset window layout</string>
    </property>
   </action>
+  <action name="actionPerformance_overlay">
+   <property name="text">
+    <string>Performance overlay</string>
+   </property>
+   <property name="shortcut">
+    <string>F3</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -988,5 +1020,22 @@
  <resources>
   <include location="../../resources.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>actionExit</sender>
+   <signal>triggered()</signal>
+   <receiver>LevelEditor2Window</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>815</x>
+     <y>484</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

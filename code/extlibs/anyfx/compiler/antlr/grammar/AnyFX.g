@@ -219,7 +219,7 @@ PREPROCESSOR
 	{
 		std::string file;
 	}
-	: NU 'line' WS includeLine = INTEGERLITERAL WS QO (data = PATH {file.append((const char*)$data->getText($data)->chars);}) QO WS*
+	: NU 'line' WS includeLine = INTEGERLITERAL WS QO (data = PATH {file.append((const char*)$data->getText($data)->chars);}) QO WS
 	{
 		int line = atoi((const char*)$includeLine.text->chars);
 		LEXER->input->line = line - 1;

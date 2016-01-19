@@ -196,6 +196,10 @@
     </property>
     <addaction name="actionImport"/>
     <addaction name="actionImport_Texture"/>
+    <addaction name="separator"/>
+    <addaction name="actionSave_all"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuAbout">
     <property name="title">
@@ -209,7 +213,6 @@
     <property name="title">
      <string>Tools</string>
     </property>
-    <addaction name="actionEnvironment_probe"/>
     <addaction name="actionConnect_with_Level_Editor"/>
    </widget>
    <widget class="QMenu" name="menuWindow">
@@ -225,6 +228,7 @@
     <addaction name="actionShow_Shady"/>
     <addaction name="actionShow_UI_Info"/>
     <addaction name="actionAsset_browser"/>
+    <addaction name="actionEnvironment_probe"/>
     <addaction name="separator"/>
     <addaction name="actionRestore_default_layout"/>
    </widget>
@@ -232,13 +236,18 @@
     <property name="title">
      <string>Create</string>
     </property>
-    <addaction name="actionUndo"/>
-    <addaction name="actionRedo"/>
-    <addaction name="separator"/>
     <addaction name="actionCreate_Particle"/>
     <addaction name="actionCreate_material"/>
    </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="actionUndo"/>
+    <addaction name="actionRedo"/>
+   </widget>
    <addaction name="menuImport"/>
+   <addaction name="menuEdit"/>
    <addaction name="menuCreate"/>
    <addaction name="menuTools"/>
    <addaction name="menuWindow"/>
@@ -257,6 +266,8 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionSave_all"/>
+   <addaction name="separator"/>
    <addaction name="actionUndo"/>
    <addaction name="actionRedo"/>
    <addaction name="separator"/>
@@ -995,7 +1006,7 @@
   </action>
   <action name="actionEnvironment_probe">
    <property name="text">
-    <string>Environment probe...</string>
+    <string>Show global light probe...</string>
    </property>
    <property name="shortcut">
     <string>F9</string>
@@ -1003,7 +1014,7 @@
   </action>
   <action name="actionCreate_material">
    <property name="text">
-    <string>Create material...</string>
+    <string>Create Surface...</string>
    </property>
   </action>
   <action name="actionRestore_default_layout">
@@ -1029,6 +1040,23 @@
     <string>Show grid</string>
    </property>
   </action>
+  <action name="actionSave_all">
+   <property name="icon">
+    <iconset resource="../../resources.qrc">
+     <normaloff>:/icons/icons/save.png</normaloff>:/icons/icons/save.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save all</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -1046,5 +1074,22 @@
  <resources>
   <include location="../../resources.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>actionQuit</sender>
+   <signal>triggered()</signal>
+   <receiver>ContentBrowserWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>858</x>
+     <y>481</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

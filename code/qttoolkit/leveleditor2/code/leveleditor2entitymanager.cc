@@ -473,8 +473,7 @@ LevelEditor2EntityManager::CreateEntityFromAttrContainer(const Util::String & ca
 	// finally apply layer
 	newEnt->SetString(Attr::_Layers, layers);
 
-	Ptr<Layers::LayerHandler> handler = LevelEditor2App::Instance()->GetWindow()->GetLayerHandler();
-	handler->HandleEntityCreated(newEnt);
+
 }
 
 
@@ -499,10 +498,11 @@ LevelEditor2EntityManager::AddEntity(const Ptr<Game::Entity>& entity)
 	// set kinematic for the entity, meaning object-to-object collision is disabled but picking is still enabled
 	Ptr<PhysicsFeature::SetKinematic> setKinematicMessage = PhysicsFeature::SetKinematic::Create();
 	setKinematicMessage->SetEnabled(true);
-	entity->SendSync(setKinematicMessage.upcast<Messaging::Message>());
-
+	entity->SendSync(setKinematicMessage.upcast<Messaging::Message>());	
 	// add it to the treeview	
 	this->AddTreeviewNode(entity);
+	Ptr<Layers::LayerHandler> handler = LevelEditor2App::Instance()->GetWindow()->GetLayerHandler();
+	handler->HandleEntityCreated(entity);
 }
 
 //------------------------------------------------------------------------------

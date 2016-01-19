@@ -147,11 +147,7 @@ LevelEditorState::HandleInput()
 	{
 		return;
 	}
-	if (keyboard->KeyDown(Input::Key::F3))
-	{
-		this->showPerformance = !this->showPerformance;
-	}
-
+	
 	bool handled = false;
 	if (this->selectionUtil->HasSelection())
 	{
@@ -188,6 +184,7 @@ LevelEditorState::OnStateEnter( const Util::String& prevState )
 	// create selection and placement utility
 	this->selectionUtil = SelectionUtil::Create();
 	this->placementUtil = PlacementUtil::Create();
+	this->placementUtil->Setup();
 	this->placementUtil->SetCameraEntity(this->defaultCam);
 
 	Physics::PhysicsServer::Instance()->GetScene()->SetGravity(Math::vector(0,0,0));
@@ -308,5 +305,13 @@ LevelEditorState::ClearSelection()
 	
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+LevelEditorState::TogglePerformanceOverlay()
+{
+	this->showPerformance = !this->showPerformance;
+}
 
 } // namespace LevelEditor2

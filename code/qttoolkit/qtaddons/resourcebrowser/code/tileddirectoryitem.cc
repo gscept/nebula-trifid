@@ -8,6 +8,7 @@
 #include <QStyle>
 #include <QApplication>
 #include <QGraphicsSceneEvent>
+#include <QFont>
 
 namespace ResourceBrowser
 {
@@ -15,7 +16,8 @@ namespace ResourceBrowser
 //------------------------------------------------------------------------------
 /**
 */
-TiledDirectoryItem::TiledDirectoryItem()
+TiledDirectoryItem::TiledDirectoryItem() :
+	system(false)
 {
 	// empty
 }
@@ -41,6 +43,7 @@ TiledDirectoryItem::Setup()
 	this->graphics->setPixmap(pix);
 	QString format;
 	format.sprintf("<p align=\"center\">%s</p>", this->dir.AsCharPtr());
+	if (this->system)	this->label->setFont(QFont("Segoe UI", 8, -1, true));
 	this->label->setTextWidth(this->background->boundingRect().width());
 	this->label->setHtml(format);
 

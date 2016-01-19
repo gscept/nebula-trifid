@@ -7,17 +7,46 @@
 #include "tiledgraphicsitem.h"
 #include <QScrollBar>
 
+#define VIEW_PADDING 16
+#define ITEM_SPACING 12
+
+
+
 namespace ResourceBrowser
 {
 
 //------------------------------------------------------------------------------
 /**
 */
-TiledGraphicsView::TiledGraphicsView(QWidget* parent) : QGraphicsView(parent)
+bool
+SortItemsName(const TiledGraphicsItem* lhs, const TiledGraphicsItem* rhs)
+{
+	Util::String lhsName = lhs->GetFilename();
+	lhsName.ToLower();
+	Util::String rhsName = rhs->GetFilename();
+	rhsName.ToLower();
+	return lhsName < rhsName;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+SortItemsDate(const TiledGraphicsItem* lhs, const TiledGraphicsItem* rhs)
+{
+	return lhs->GetLastChanged() > rhs->GetLastChanged();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+TiledGraphicsView::TiledGraphicsView(QWidget* parent) : 
+	sort(SortByName),
+	QGraphicsView(parent)
 {
 	this->scene = new QGraphicsScene;
 	this->setScene(this->scene);
-	this->itemSize = QSize(128, 160);
+	this->itemSize = QSize(104, 140);
 }
 
 //------------------------------------------------------------------------------
@@ -69,11 +98,12 @@ TiledGraphicsView::Rearrange()
 {
 	// get visible size of view
 	QSize viewSize = this->size();
-	SizeT numX = viewSize.width() / (this->itemSize.width() + 16);
+	SizeT numX = viewSize.width() / (this->itemSize.width() + VIEW_PADDING);
 
 	// make sure numX is not 0
 	numX = Math::n_max(numX, 1);
 
+	QRectF itemsRect;
 	SizeT x, y;
     IndexT itemIndex = 0;
 	IndexT i;
@@ -84,19 +114,43 @@ TiledGraphicsView::Rearrange()
         {
             IndexT xIndex = itemIndex % numX;
             IndexT yIndex = itemIndex / numX;
-            x = xIndex * this->itemSize.width() + 12 + xIndex * 12;
-            y = yIndex * this->itemSize.height() + 12 + yIndex * 12;
+			x = xIndex * this->itemSize.width() + ITEM_SPACING + xIndex * ITEM_SPACING;
+			y = yIndex * this->itemSize.height() + ITEM_SPACING + yIndex * ITEM_SPACING;
 
             item->setPos(x, y);
             itemIndex++;
+			itemsRect = itemsRect.united(item->sceneBoundingRect());
         }
 	}
 
-	// set scrolling to cover all elements
-    QScrollBar* scrollBar = this->verticalScrollBar();
-    scrollBar->setSliderPosition(min(scrollBar->sliderPosition(), this->scene->itemsBoundingRect().bottom()));
-    scrollBar->setRange(this->scene->itemsBoundingRect().top() - 16, this->scene->itemsBoundingRect().bottom() + 16);
-    this->viewport()->update();
+	// resize scene to fit all items
+	QRectF rect = itemsRect;
+	qreal width = rect.width() + VIEW_PADDING * 2;
+	qreal height = rect.height() + VIEW_PADDING * 2;
+	rect.setTop(0);
+	rect.setLeft(0);
+	rect.setWidth(width);
+	rect.setHeight(height);
+	this->setSceneRect(rect);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+TiledGraphicsView::Sort(const SortingMode& mode)
+{
+	this->sort = mode;
+	switch (this->sort)
+	{
+	case SortByDate:
+		qSort(this->items.begin(), this->items.end(), SortItemsDate);
+		break;
+	case SortByName:
+		qSort(this->items.begin(), this->items.end(), SortItemsName);
+		break;
+	}
+	this->Rearrange();
 }
 
 //------------------------------------------------------------------------------

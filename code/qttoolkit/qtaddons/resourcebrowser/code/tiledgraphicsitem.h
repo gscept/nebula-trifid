@@ -10,8 +10,11 @@
 */
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
+#include "imageloaderthread.h"
+
 #include <QObject>
 #include <QGraphicsItemGroup>
+#include <QDateTime>
 namespace ResourceBrowser
 {
 class TiledGraphicsItem :
@@ -42,6 +45,8 @@ public:
 	void SetFilename(const Util::String& file);
 	/// get file name
 	const Util::String& GetFilename() const;
+	/// get last changed date
+	const QDateTime& GetLastChanged() const;
 
 	/// handle mouse entering item
 	void hoverEnterEvent(QGraphicsSceneHoverEvent* event);
@@ -54,6 +59,10 @@ public:
 signals:
 	/// emit when item gets right clicked
 	void ItemRightClicked(QGraphicsSceneContextMenuEvent* event);
+
+protected slots:
+	/// called when the preview image is loaded
+	void OnPreviewLoaded();
 protected:
 
 	/// call rescale whenever the item resizes
@@ -63,10 +72,14 @@ protected:
 	QGraphicsPolygonItem* background;
 	QGraphicsPixmapItem* graphics;
 	QGraphicsTextItem* label;
+	QDateTime lastChanged;
 
 	Util::String path;
 	Util::String category;
 	Util::String filename;
+
+	// loader for the thumbnail
+	ImageLoaderUnit* loader;
 };
 
 //------------------------------------------------------------------------------
@@ -122,6 +135,16 @@ TiledGraphicsItem::GetFilename() const
 {
 	return this->filename;
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const QDateTime&
+TiledGraphicsItem::GetLastChanged() const
+{
+	return this->lastChanged;
+}
+
 
 //------------------------------------------------------------------------------
 /**

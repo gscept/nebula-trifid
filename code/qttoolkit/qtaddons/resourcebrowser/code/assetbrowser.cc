@@ -58,6 +58,8 @@ AssetBrowser::AssetBrowser() :
     connect(this->ui->modelsFilter, SIGNAL(toggled(bool)), this, SLOT(OnModelsFilterChecked(bool)));
     connect(this->ui->surfacesFilter, SIGNAL(toggled(bool)), this, SLOT(OnSurfacesFilterChecked(bool)));
 
+	connect(this->ui->sortingBox, SIGNAL(currentIndexChanged(int)), this, SLOT(OnSortingChanged()));
+
 	// watch the assets folder
 	IO::URI dir("src:assets");
 	this->assetFolderWatcher.WatchDirectory(dir.LocalPath());
@@ -335,9 +337,8 @@ AssetBrowser::OnDirectoryClicked(const QString& dir, const QString& path)
 		connect(item, SIGNAL(ItemRightClicked(QGraphicsSceneContextMenuEvent*)), this, SLOT(OnItemRightClicked(QGraphicsSceneContextMenuEvent*)));
 	}
 
-
-	// rearrange browser window
-	this->ui->assetView->Rearrange();
+	// sort items
+	this->ui->assetView->Sort((TiledGraphicsView::SortingMode)this->ui->sortingBox->currentIndex());
 }
 
 //------------------------------------------------------------------------------
@@ -493,6 +494,7 @@ AssetBrowser::SetupRoot()
 
         // create new texture dir
         TiledDirectoryItem* item = new TiledDirectoryItem;
+		item->SetSystem(true);
         item->SetDirectory(dir);
         item->SetPath(assetPath);
 
@@ -503,7 +505,7 @@ AssetBrowser::SetupRoot()
         connect(item, SIGNAL(OnSelected(const QString&, const QString&)), this, SLOT(OnDirectoryClicked(const QString&, const QString&)));
     }
 
-	// rearrange browser window
+	// don't sort folders explicitly since it's handled by the file system
 	this->ui->assetView->Rearrange();
 }
 
@@ -544,6 +546,8 @@ AssetBrowser::SetFilter(const AssetFilter& filter)
                 item->setVisible(filter & Surfaces);
             }
         }
+
+		// sort items
         this->ui->assetView->Rearrange();
 		this->filter = filter;
 
@@ -618,6 +622,15 @@ AssetBrowser::OnAnimationUpdated(const QVariant& value)
 	QPalette temp = palette;
 	temp.setColor(QPalette::Base, color);
 	this->ui->assetView->setPalette(temp);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+AssetBrowser::OnSortingChanged()
+{
+	this->ui->assetView->Sort((TiledGraphicsView::SortingMode)this->ui->sortingBox->currentIndex());
 }
 
 } // namespace ResourceBrowser

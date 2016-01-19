@@ -120,7 +120,7 @@ GridRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
 
 		// set variables
         this->shader->BeginUpdate();
-		this->gridSizeVar->SetInt(this->gridSize);
+		this->gridSizeVar->SetFloat(this->gridSize);
 		this->gridTexVar->SetTexture(this->tex->GetTexture());
         this->shader->EndUpdate();
 		this->shader->Commit();

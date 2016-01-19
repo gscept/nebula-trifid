@@ -8,8 +8,7 @@
 #include "lib/util.fxh"
 #include "lib/techniques.fxh"
 
-int GridSize = 50;
-float CellSize = 1.0f;
+float GridSize = 50;
 sampler2D GridTex;
 mat4x4 PlaneProjection;
 
@@ -56,7 +55,7 @@ psGrid(
 	[color0] out vec4 color)
 {
 	float len = 1.0 - smoothstep(1.0f, 250.0f, distance(EyePos.xz, WorldPos.xz));
-	vec2 uv = WorldPos.xz / vec2(GridSize);
+	vec2 uv = (WorldPos.xz / vec2(GridSize)) - vec2(0.5);
 	vec4 c = texture(GridTex, uv).rgba;
 	//vec2 line = (vec2(cos(WorldPos.x / GridSize), cos(WorldPos.z / GridSize)) - vec2(0.90, 0.90));
 	//float c = saturate(max(line.x, line.y)) * 5;

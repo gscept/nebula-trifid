@@ -64,7 +64,7 @@ GridAddon::SetVisible(bool b)
 /**
 */
 void
-GridAddon::SetGridSize(int size)
+GridAddon::SetGridSize(float size)
 {
 	this->plugin->SetGridSize(size);
 }

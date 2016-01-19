@@ -94,13 +94,15 @@ private slots:
 	/// show grid properties dialog
 	void OnShowGridProperties();
 	/// change grid size
-	void OnGridSizeChanged(int);
+	void OnGridSizeChanged(double);
 	/// change grid visibility
 	void OnGridVisible();
 	/// change selection colour
 	void OnChangeSelectionColour();
 	/// reset dockable widgets
 	void OnResetWindows();
+	/// show performance ui
+	void OnTogglePerformanceUI();
 	/// show blueprint editor
 	void OnShowBlueprintEditor();
 	/// start level viewer

@@ -36,11 +36,11 @@ public:
 	/// set if grid should be visible
 	void SetVisible(bool b);
 	/// set grid tile size
-	void SetGridSize(int size);
+	void SetGridSize(float size);
 
 private:
 	bool visible;
-	int gridSize;
+	float gridSize;
 
 	// mesh
 	CoreGraphics::PrimitiveGroup primitive;
@@ -68,7 +68,7 @@ GridRTPlugin::SetVisible(bool b)
 /**
 */
 inline void
-GridRTPlugin::SetGridSize(int size)
+GridRTPlugin::SetGridSize(float size)
 {
 	this->gridSize = size;
 }

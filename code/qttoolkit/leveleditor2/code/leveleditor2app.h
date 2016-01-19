@@ -57,6 +57,8 @@ public:
 
     /// get the qt window
     LevelEditor2Window* GetWindow() const;
+	/// get game state object
+	Ptr<LevelEditorState> GetEditorState();
 
     /// returns pointer to post effect entity
     const Ptr<PostEffect::PostEffectEntity>& GetPostEffectEntity() const;	
@@ -135,6 +137,14 @@ LevelEditor2App::GetWindow() const
 	return this->editorWindow;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+inline Ptr<LevelEditorState>
+LevelEditor2App::GetEditorState()
+{
+	return this->editorState;
+}
 //------------------------------------------------------------------------------
 /**
 */

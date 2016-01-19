@@ -13,7 +13,8 @@
 
 #include "nvcore/Ptr.h"
 #include "nvcore/Utils.h"
-#include "nvcore/Array.h"
+#include "nvcore/Array.inl"
+//#include "nvcore/Array.h"
 #include "nvcore/StrLib.h"
 #include "nvcore/StdStream.h"
 #include "nvcore/TextWriter.h"
@@ -948,7 +949,7 @@ static Image * loadJPG(Stream & s)
     nvCheck(!s.isError());
 
     // Read the entire file.
-    Array<uint8> byte_array;
+    nv::Array<uint8> byte_array;
     byte_array.resize(s.size());
     s.serialize(byte_array.buffer(), s.size());
 
