@@ -102,7 +102,7 @@ GLSL4EffectSampler::Setup(const eastl::vector<InternalEffectVariable*>& textures
 		assert(0 != texVar);
 
 		// get texture slot from variable
-		this->textures[i] = texVar->textureUnit;
+		this->textures[i] = texVar->bindingUnit;
 	}	
 
 	// generate sampler object

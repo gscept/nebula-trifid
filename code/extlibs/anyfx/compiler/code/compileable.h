@@ -43,7 +43,7 @@ public:
 	const std::string& GetError() const;
 
 	/// formats an appropriate error suffix
-	std::string ErrorSuffix();
+	std::string ErrorSuffix() const;
 	
 	/// override to setup necessary information
 	virtual void Setup();

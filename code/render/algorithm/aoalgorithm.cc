@@ -384,6 +384,7 @@ AOAlgorithm::Render()
 		this->hbao->Commit();
 		renderDevice->Compute(numGroupsY1, numGroupsX2, 1);
 
+		/*
 		this->blur->SelectActiveVariation(this->xDirection);
         this->blur->Apply();
 		this->hbaoBlurLinearVar->SetTexture(this->internalTargets[1]->GetResolveTexture());
@@ -392,11 +393,12 @@ AOAlgorithm::Render()
 		this->hbaoBlurRVar->SetTexture(NULL);
 		this->blur->Commit();
 		renderDevice->Compute(numGroupsX1, numGroupsY2, 1);
+		*/
 
 		this->blur->SelectActiveVariation(this->yDirection);
         this->blur->Apply();
-		this->hbaoBlurLinearVar->SetTexture(this->internalTargets[0]->GetResolveTexture());
-		this->hbaoBlurPointVar->SetTexture(this->internalTargets[0]->GetResolveTexture());
+		this->hbaoBlurLinearVar->SetTexture(this->internalTargets[1]->GetResolveTexture());
+		this->hbaoBlurPointVar->SetTexture(this->internalTargets[1]->GetResolveTexture());
 		this->hbaoBlurRGVar->SetTexture(NULL);
 		this->hbaoBlurRVar->SetTexture(this->output->GetResolveTexture());
 		this->blur->Commit();

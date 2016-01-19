@@ -159,7 +159,7 @@ GLSL4EffectVarbuffer::Commit()
 		{
 			this->activeProgram->varblockRangeBindBuffers[this->shaderStorageBlockBinding] = 0;
 			this->activeProgram->varblockRangeBindOffsets[this->shaderStorageBlockBinding] = 0;
-			this->activeProgram->varblockRangeBindSizes[this->shaderStorageBlockBinding] = 0;
+			this->activeProgram->varblockRangeBindSizes[this->shaderStorageBlockBinding] = 1;
 		}
 	}
 }

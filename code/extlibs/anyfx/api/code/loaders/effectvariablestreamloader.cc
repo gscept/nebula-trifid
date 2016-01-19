@@ -47,6 +47,7 @@ EffectVariableStreamLoader::Load( BinReader* reader, Effect* effect, InternalEff
     eastl::string name = reader->ReadString().c_str();
     bool shared = reader->ReadBool();       
     bool bindless = reader->ReadBool();
+	int unit = reader->ReadInt();
     VariableType type = (VariableType)reader->ReadInt();
 
     size_t numPrograms = effect->GetNumPrograms();
@@ -62,6 +63,7 @@ EffectVariableStreamLoader::Load( BinReader* reader, Effect* effect, InternalEff
 	
 	internalVar->type = type;
     internalVar->bindless = bindless;
+	internalVar->bindingUnit = unit;
 
 	// if this is a compute shader variable, read format and access modes
 	if (type >= Image1D && type <= ImageCubeArray)

@@ -96,12 +96,9 @@ OGL4Texture::Map(IndexT mipLevel, MapType mapType, MapInfo& outMapInfo)
 
 	if (Texture2D == this->type)
 	{
-		//GLenum components = OGL4Types::AsOGL4PixelComponents(this->pixelFormat);
-		//GLenum type = OGL4Types::AsOGL4PixelType(this->pixelFormat);
 		GLenum pixelType = OGL4Types::AsOGL4PixelFormat(this->pixelFormat);
-		GLint components, type;
-		glGetInternalformativ(GL_TEXTURE_2D, pixelType, GL_GET_TEXTURE_IMAGE_FORMAT, 4, &components);
-		glGetInternalformativ(GL_TEXTURE_2D, pixelType, GL_GET_TEXTURE_IMAGE_TYPE, 4, &type);
+		GLenum components = OGL4Types::AsOGL4PixelComponents(this->pixelFormat);
+		GLenum type = OGL4Types::AsOGL4PixelType(this->pixelFormat);
 
 		GLint mipWidth;
 		GLint mipHeight;
@@ -137,13 +134,6 @@ OGL4Texture::Map(IndexT mipLevel, MapType mapType, MapInfo& outMapInfo)
 
 		GLint size;
 		size = PixelFormat::ToSize(this->pixelFormat);
-
-		// for some reason, the GL driver produces an additional pixel if the format is R16F (both nvidia and AMD)
-		if (this->pixelFormat == PixelFormat::R16F)
-		{
-			mipWidth += 1;
-			mipHeight += 1;
-		}
 
 		// the row pitch must be the size of one pixel times the number of pixels in width
 		outMapInfo.rowPitch = size * mipWidth;

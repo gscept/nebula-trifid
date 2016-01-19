@@ -75,7 +75,6 @@ GLSL4EffectVariable::GLSL4EffectVariable() :
 	activeProgramHandle(0),
 	glAccessMode(GL_NONE),
 	glImageFormat(GL_NONE),
-	textureUnit(GL_TEXTURE0),
 	textureType(GL_TEXTURE_2D)
 {
 	this->uniformProgramMap.clear();
@@ -106,8 +105,8 @@ GLSL4EffectVariable::Setup(eastl::vector<InternalEffectProgram*> programs, const
             assert(0 != opengl4Program);
 #if GL4_MULTIBIND
 			opengl4Program->glsl4Variables.push_back(this);
-			if (this->type >= Sampler1D && this->type <= SamplerCubeArray) opengl4Program->textureBindsCount = a_max(this->textureUnit + 1, opengl4Program->textureBindsCount);
-			if (this->type >= Image1D && this->type <= ImageCubeArray) opengl4Program->imageBindsCount = a_max(this->textureUnit + 1, opengl4Program->imageBindsCount);
+			if (this->type >= Sampler1D && this->type <= SamplerCubeArray) opengl4Program->textureBindsCount = a_max(this->bindingUnit + 1, opengl4Program->textureBindsCount);
+			if (this->type >= Image1D && this->type <= ImageCubeArray) opengl4Program->imageBindsCount = a_max(this->bindingUnit + 1, opengl4Program->imageBindsCount);
 #endif
 
             if (this->uniformProgramMap.find(opengl4Program->programHandle) == this->uniformProgramMap.end())
@@ -146,8 +145,8 @@ GLSL4EffectVariable::SetupSlave(eastl::vector<InternalEffectProgram*> programs, 
             assert(0 != opengl4Program);
 #if GL4_MULTIBIND
 			opengl4Program->glsl4Variables.push_back(this);
-			if (this->type >= Sampler1D && this->type <= SamplerCubeArray) opengl4Program->textureBindsCount = a_max(this->textureUnit, opengl4Program->textureBindsCount);
-			if (this->type >= Image1D && this->type <= ImageCubeArray) opengl4Program->imageBindsCount = a_max(this->textureUnit, opengl4Program->imageBindsCount);
+			if (this->type >= Sampler1D && this->type <= SamplerCubeArray) opengl4Program->textureBindsCount = a_max(this->bindingUnit + 1, opengl4Program->textureBindsCount);
+			if (this->type >= Image1D && this->type <= ImageCubeArray) opengl4Program->imageBindsCount = a_max(this->bindingUnit + 1, opengl4Program->imageBindsCount);
 #endif
 
             if (this->uniformProgramMap.find(opengl4Program->programHandle) == this->uniformProgramMap.end())
@@ -165,8 +164,8 @@ GLSL4EffectVariable::SetupSlave(eastl::vector<InternalEffectProgram*> programs, 
 void 
 GLSL4EffectVariable::MakeTexture()
 {
-	if (this->type >= Sampler1D && this->type <= SamplerCubeArray) this->textureUnit = InternalEffectVariable::globalTextureCounter++;
-	if (this->type >= Image1D && this->type <= ImageCubeArray) this->textureUnit = InternalEffectVariable::globalImageCounter++;
+	//if (this->type >= Sampler1D && this->type <= SamplerCubeArray) this->textureUnit = InternalEffectVariable::globalTextureCounter++;
+	//if (this->type >= Image1D && this->type <= ImageCubeArray) this->textureUnit = InternalEffectVariable::globalTextureCounter++;
 
 	switch (this->type)
 	{
@@ -255,10 +254,12 @@ GLSL4EffectVariable::Activate(InternalEffectProgram* program)
 void 
 GLSL4EffectVariable::Apply()
 {
+	/*
 	if (this->type >= Sampler1D && this->type <= ImageCubeArray && this->uniformLocation != -1 && this->isDirty)
 	{
 		glUniform1i(this->uniformLocation, this->textureUnit);
-	}	
+	}
+	*/
 }
 
 //------------------------------------------------------------------------------
@@ -363,15 +364,15 @@ GLSL4EffectVariable::Commit()
 				if (obj)
 				{
 #if GL4_MULTIBIND
-					if (this->activeProgram->textureBinds[this->textureUnit] != obj->bound.handle)
+					if (this->activeProgram->textureBinds[this->bindingUnit] != obj->bound.handle)
 					{
-						this->activeProgram->textureBinds[this->textureUnit] = obj->bound.handle;
+						this->activeProgram->textureBinds[this->bindingUnit] = obj->bound.handle;
 						this->activeProgram->texturesDirty = true;
 					}
 				}
 				else
 				{
-					this->activeProgram->textureBinds[this->textureUnit] = 0;
+					this->activeProgram->textureBinds[this->bindingUnit] = 0;
 					this->activeProgram->texturesDirty = true;
 				}
 #else
@@ -382,7 +383,7 @@ GLSL4EffectVariable::Commit()
                     else
                     {
                         // now select this texture unit to be the active texture
-                        glActiveTexture(GL_TEXTURE0 + this->textureUnit);
+                        glActiveTexture(GL_TEXTURE0 + this->bindingUnit);
 
                         // only set obj if the current value is not null
                         if (obj && obj->bound.textureType == this->textureType)
@@ -399,7 +400,7 @@ GLSL4EffectVariable::Commit()
                 }
                 else
                 {
-                    glActiveTexture(GL_TEXTURE0 + this->textureUnit);
+					glActiveTexture(GL_TEXTURE0 + this->bindingUnit);
                     glBindTexture(GL_TEXTURE_2D, 0);
                 }
 #endif
@@ -416,26 +417,26 @@ GLSL4EffectVariable::Commit()
 #if GL4_MULTIBIND
 				if (obj)
 				{
-					if (this->activeProgram->imageBinds[this->textureUnit] != obj->bound.handle)
+					if (this->activeProgram->imageBinds[this->bindingUnit] != obj->bound.handle)
 					{
-						this->activeProgram->imageBinds[this->textureUnit] = obj->bound.handle;
+						this->activeProgram->imageBinds[this->bindingUnit] = obj->bound.handle;
 						this->activeProgram->imagesDirty = true;
 					}
 				}
 				else
 				{
-					this->activeProgram->imageBinds[this->textureUnit] = 0;
+					this->activeProgram->imageBinds[this->bindingUnit] = 0;
 					this->activeProgram->imagesDirty = true;
 				}
 #else
                 if (obj && obj->bound.textureType == this->textureType)
                 {
                     // bind the texture to the image unit, this is a bit sensitive since if the texture object doesn't match the image format, the GL will output an error.
-					glBindImageTexture(this->textureUnit, obj->bound.handle, 0, GL_FALSE, 0, this->glAccessMode, this->glImageFormat);
+					glBindImageTexture(this->bindingUnit, obj->bound.handle, 0, GL_FALSE, 0, this->glAccessMode, this->glImageFormat);
                 }
                 else
                 {
-                    glBindImageTexture(this->textureUnit, 0, 0, GL_FALSE, 0, this->glAccessMode, this->glImageFormat);
+					glBindImageTexture(this->bindingUnit, 0, 0, GL_FALSE, 0, this->glAccessMode, this->glImageFormat);
                 }
 #endif
 				
@@ -450,16 +451,31 @@ GLSL4EffectVariable::Commit()
 			{
 				// unpack data
 				OpenGLTextureBinding* obj = (OpenGLTextureBinding*)this->currentValue;
-
+#if GL4_MULTIBIND
+				if (obj)
+				{
+					if (this->activeProgram->imageBinds[this->bindingUnit] != obj->bound.handle)
+					{
+						this->activeProgram->imageBinds[this->bindingUnit] = obj->bound.handle;
+						this->activeProgram->imagesDirty = true;
+					}
+				}
+				else
+				{
+					this->activeProgram->imageBinds[this->bindingUnit] = 0;
+					this->activeProgram->imagesDirty = true;
+				}
+#else
                 if (obj && obj->bound.textureType == this->textureType)
                 {
                     // now select this image unit to be the active image (as apparent, this is not very nice since the format and read/write is hard coded)
-                    glBindImageTexture(this->textureUnit, obj->bound.handle, 0, GL_TRUE, 0, this->glAccessMode, this->glImageFormat);
+					glBindImageTexture(this->bindingUnit, obj->bound.handle, 0, GL_TRUE, 0, this->glAccessMode, this->glImageFormat);
                 }
                 else
                 {
-					glBindImageTexture(this->textureUnit, 0, 0, GL_TRUE, 0, this->glAccessMode, this->glImageFormat);
+					glBindImageTexture(this->bindingUnit, 0, 0, GL_TRUE, 0, this->glAccessMode, this->glImageFormat);
                 }
+#endif
 				
 				break;
 			}

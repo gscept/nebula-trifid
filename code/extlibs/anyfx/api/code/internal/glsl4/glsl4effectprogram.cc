@@ -317,14 +317,14 @@ GLSL4EffectProgram::Commit()
 		this->glsl4Varblocks[i]->Commit();
 	}
 
-	if (this->textureBindsCount > 0 && this->texturesDirty)
+	if (this->textureBindsCount > 0)
 	{
 		glBindTextures(0, this->textureBindsCount, this->textureBinds);
 		this->texturesDirty = false;
 	}
-	if (this->imageBindsCount > 0 && this->imagesDirty)
+	if (this->imageBindsCount > 0)
 	{
-		glBindTextures(0, this->imageBindsCount, this->imageBinds);
+		glBindImageTextures(0, this->imageBindsCount, this->imageBinds);
 		this->imagesDirty = false;
 	}
 	if (this->varbufferBindsCount > 0)
@@ -416,7 +416,7 @@ GLSL4EffectProgram::LoadingDone()
 		this->varblockRangeBindSizes = new GLint[this->varblockBindsCount];
 		memset(this->varblockRangeBindBuffers, 0, this->varblockBindsCount * sizeof(GLuint));
 		memset(this->varblockRangeBindOffsets, 0, this->varblockBindsCount * sizeof(GLint));
-		memset(this->varblockRangeBindSizes, 0, this->varblockBindsCount * sizeof(GLint));
+		memset(this->varblockRangeBindSizes, 1, this->varblockBindsCount * sizeof(GLint));
 	}	
 
 	if (this->varbufferBindsCount > 0)
@@ -426,7 +426,7 @@ GLSL4EffectProgram::LoadingDone()
 		this->varbufferRangeBindSizes = new GLint[this->varbufferBindsCount];
 		memset(this->varbufferRangeBindBuffers, 0, this->varbufferBindsCount * sizeof(GLuint));
 		memset(this->varbufferRangeBindOffsets, 0, this->varbufferBindsCount * sizeof(GLint));
-		memset(this->varbufferRangeBindSizes, 0, this->varbufferBindsCount * sizeof(GLint));
+		memset(this->varbufferRangeBindSizes, 1, this->varbufferBindsCount * sizeof(GLint));
 	}
 	
 	if (this->textureBindsCount > 0)

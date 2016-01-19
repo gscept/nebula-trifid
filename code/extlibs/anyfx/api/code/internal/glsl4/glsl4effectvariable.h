@@ -45,7 +45,6 @@ private:
 	GLSL4EffectProgram* activeProgram;
 	GLuint activeProgramHandle;
 	GLint uniformLocation;
-	GLint textureUnit;
 	GLenum textureType;
 	GLenum glAccessMode;
 	GLenum glImageFormat;

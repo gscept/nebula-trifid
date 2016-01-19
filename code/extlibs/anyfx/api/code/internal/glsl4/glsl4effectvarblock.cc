@@ -45,7 +45,6 @@ void
 GLSL4EffectVarblock::Setup(eastl::vector<InternalEffectProgram*> programs)
 {
 	InternalEffectVarblock::Setup(programs);
-	*this->bufferHandle = new OpenGLBufferBinding;
 
     const char** names = new const char*[this->variables.size()];
     for (unsigned index = 0; index < this->variables.size(); index++) names[index] = this->variables[index]->GetName().c_str();
@@ -224,7 +223,7 @@ GLSL4EffectVarblock::Commit()
 		{
 			this->activeProgram->varblockRangeBindBuffers[this->uniformBlockBinding] = 0;
 			this->activeProgram->varblockRangeBindOffsets[this->uniformBlockBinding] = 0;
-			this->activeProgram->varblockRangeBindSizes[this->uniformBlockBinding] = 0;
+			this->activeProgram->varblockRangeBindSizes[this->uniformBlockBinding] = 1;
 		}
 	}
 }

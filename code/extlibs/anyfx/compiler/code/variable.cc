@@ -19,6 +19,7 @@ Variable::Variable() :
 	arrayType(ExplicitArray),
 	arraySize(1),
 	sizeExpression(0),
+	bindingUnit(-1),
 	format(NoFormat),
 	accessMode(NoAccess),
     qualifierFlags(NoQualifiers),
@@ -60,6 +61,26 @@ Variable::AddValue(const ValueList& value)
 	pair.second = value;
 	this->hasDefaultValue = true;
 	this->valueTable.push_back(pair);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+Variable::SetBindingUnit(int& samplerCount, int& imageCount)
+{
+	if (this->type.GetType() >= DataType::Sampler1D && this->type.GetType() <= DataType::SamplerCubeArray)
+	{
+		this->bindingUnit = samplerCount++;
+	}
+	else if (this->type.GetType() >= DataType::Image1D && this->type.GetType() <= DataType::ImageCubeArray)
+	{
+		this->bindingUnit = imageCount++;
+	}
+	else
+	{
+		this->bindingUnit = -1;
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -347,6 +368,7 @@ Variable::Compile(BinWriter& writer)
 	writer.WriteString(this->name);
     writer.WriteBool(shared);
     writer.WriteBool((this->qualifierFlags & Bindless) != 0);
+	writer.WriteInt(this->bindingUnit);
 	writer.WriteInt(this->type.GetType());
 
 	// if this is a compute variable, write the format and access mode to stream
@@ -409,7 +431,8 @@ Variable::Format(const Header& header, bool inVarblock) const
 	if (header.GetFlags() & Header::NoSubroutines && this->isSubroutine) return formattedCode;
 	if (this->type.GetType() >= DataType::Image1D && this->type.GetType() <= DataType::ImageCubeArray)
 	{
-		formattedCode.append("layout(");
+		if (this->bindingUnit == -1) AnyFX::Emit("Texture %s has an invalid texture unit!", this->ErrorSuffix().c_str());
+		formattedCode.append(AnyFX::Format("layout(binding = %d, ", this->bindingUnit));
 		formattedCode.append(this->FormatImageFormat(header));
 		formattedCode.append(") ");
 		formattedCode.append(this->FormatImageAccess(header));
@@ -417,7 +440,9 @@ Variable::Format(const Header& header, bool inVarblock) const
 	}    
     else if (this->type.GetType() >= DataType::Sampler1D && this->type.GetType() <= DataType::SamplerCubeArray)
     {
-        if (this->qualifierFlags & Bindless) formattedCode.append("layout(bindless_sampler) ");
+		if (this->bindingUnit == -1) AnyFX::Emit("Texture %s has an invalid texture unit!", this->ErrorSuffix().c_str());
+		if (this->qualifierFlags & Bindless) formattedCode.append(AnyFX::Format("layout(binding = %d, bindless_sampler) ", this->bindingUnit));
+		else								 formattedCode.append(AnyFX::Format("layout(binding = %d) ", this->bindingUnit));
     }
 	else if (this->type.GetType() >= DataType::Matrix2x2 && this->type.GetType() <= DataType::Matrix4x4 && inVarblock)
 	{
