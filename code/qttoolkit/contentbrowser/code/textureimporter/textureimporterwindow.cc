@@ -225,8 +225,8 @@ TextureImporterWindow::OnImport()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-TextureImporterWindow::SetUri( const URI& path )
+void
+TextureImporterWindow::SetUri(const URI& path)
 {
 	this->path = path;
 }

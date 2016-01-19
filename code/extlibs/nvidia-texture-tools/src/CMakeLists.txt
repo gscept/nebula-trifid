@@ -87,7 +87,6 @@ ENDIF(FREEIMAGE_FOUND)
 # JPEG
 #INCLUDE(FindJPEG)
 IF(JPEG_FOUND)
-	SET(HAVE_JPEG ${JPEG_FOUND} CACHE BOOL "Set to TRUE if JPEG is found, FALSE otherwise")
 	MESSAGE(STATUS "Looking for JPEG - found")
 ELSE(JPEG_FOUND)
 	MESSAGE(STATUS "Looking for JPEG - not found")
@@ -97,6 +96,10 @@ ENDIF(JPEG_FOUND)
 # hardcode png to nebula project
 	SET(HAVE_PNG TRUE CACHE BOOL "Set to TRUE if PNG is found, FALSE otherwise")
 	SET(PNG_INCLUDE_DIR ${Nebula3_SOURCE_DIR}/code/extlibs/libpng)
+	
+#hardcode jpeg to nebula project
+	SET(HAVE_JPEG TRUE CACHE BOOL "Set to TRUE if JPEG is found, FALSE otherwise")
+	SET(JPEG_INCLUDE_DIR ${Nebula3_SOURCE_DIR}/code/extlibs/libjpeg)
 	
 # PNG
 #INCLUDE(FindPNG)	
