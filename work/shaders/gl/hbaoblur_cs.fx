@@ -68,18 +68,19 @@ csMainX()
 	const int        apronStart = tileStart - KERNEL_RADIUS;
 	const int          apronEnd = tileEnd   + KERNEL_RADIUS;
 	
-	const int x = apronStart + int(gl_LocalInvocationID.x);
-	const int y = int(gl_WorkGroupID.y);
-	SharedMemory[gl_LocalInvocationID.x] = textureLod(HBAOReadLinear, (vec2(x, y) + 0.5f) * inverseSize, 0).xy;
+	const float x = apronStart + float(gl_LocalInvocationID.x);
+	const float y = float(gl_WorkGroupID.y);
+	const vec2 uv = vec2(x, y) * inverseSize;
+	SharedMemory[gl_LocalInvocationID.x] = textureLod(HBAOReadLinear, uv, 0).xy;
 	groupMemoryBarrier();
 	
 	const uint writePos = tileStart + gl_LocalInvocationID.x;
 	const uint tileEndClamped = min(tileEnd, int(size.x));
 	
 	if (writePos < tileEndClamped)
-	{	
+	{
 		// Fetch (ao,z) at the kernel center
-		vec2 uv = (vec2(writePos, y) + 0.5f) * inverseSize;
+		vec2 uv = vec2(writePos, y) * inverseSize;
 		vec2 AoDepth = textureLod(HBAOReadPoint, uv, 0).xy;
 		float ao_total = AoDepth.x;
 		float center_d = AoDepth.y;
@@ -133,18 +134,19 @@ csMainY()
 	const int        apronStart = tileStart - KERNEL_RADIUS;
 	const int          apronEnd = tileEnd   + KERNEL_RADIUS;
 	
-	const int x = int(gl_WorkGroupID.y);
-	const int y = apronStart + int(gl_LocalInvocationID.x);
-	SharedMemory[gl_LocalInvocationID.x] = textureLod(HBAOReadLinear, (vec2(x, y) + 0.5f) * inverseSize, 0).xy;	
+	const float x = float(gl_WorkGroupID.y);
+	const float y = apronStart + float(gl_LocalInvocationID.x) ;
+	const vec2 uv = vec2(x, y) * inverseSize;
+	SharedMemory[gl_LocalInvocationID.x] = textureLod(HBAOReadLinear, uv, 0).xy;	
 	groupMemoryBarrier();
 	
 	const uint writePos = tileStart + gl_LocalInvocationID.x;
-	const uint tileEndClamped = min(tileEnd, int(size.x));
+	const uint tileEndClamped = min(tileEnd, int(size.y));
 	
 	if (writePos < tileEndClamped)
 	{
 		// Fetch (ao,z) at the kernel center
-		vec2 uv = (vec2(x, writePos) + 0.5f) * inverseSize;
+		vec2 uv = vec2(x, writePos) * inverseSize;
 		vec2 AoDepth = textureLod(HBAOReadPoint, uv, 0).xy;
 		float ao_total = AoDepth.x;
 		float center_d = AoDepth.y;
@@ -176,7 +178,7 @@ csMainY()
 		}
 		
 		float ao = ao_total / w_total;
-		imageStore(HBAOR, int2(gl_WorkGroupID.y, writePos), vec4(pow(ao, PowerExponent),0,0,0));
+		imageStore(HBAOR, int2(gl_WorkGroupID.y, writePos), vec4(pow(ao, PowerExponent), 0, 0, 0));
 	}
 }
 

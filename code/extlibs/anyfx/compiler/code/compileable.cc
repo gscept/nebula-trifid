@@ -74,7 +74,7 @@ Compileable::Compile( BinWriter& writer )
 /**
 */
 std::string 
-Compileable::ErrorSuffix()
+Compileable::ErrorSuffix() const
 {
 	std::string result = AnyFX::Format("%d:%d in file %s", this->line, this->row, this->file.c_str());
 	return result;

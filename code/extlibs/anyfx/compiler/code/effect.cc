@@ -285,9 +285,12 @@ Effect::TypeCheck(TypeChecker& typechecker)
         this->subroutines[i].CheckForOptimization(typechecker);
     }
 
+	int samplerCount = 0;
+	int imageCount = 0;
 	for (i = 0; i < this->variables.size(); i++)
 	{
 		this->variables[i].TypeCheck(typechecker);
+		this->variables[i].SetBindingUnit(samplerCount, imageCount);
 	}
 
 	for (i = 0; i < this->samplers.size(); i++)

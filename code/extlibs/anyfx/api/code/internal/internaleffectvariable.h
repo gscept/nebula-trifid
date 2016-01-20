@@ -239,6 +239,7 @@ protected:
 
 	static unsigned globalTextureCounter;
 	static unsigned globalImageCounter;
+	int bindingUnit;
     bool bindless;
 	bool hasDefaultValue;
 	char* currentValue;

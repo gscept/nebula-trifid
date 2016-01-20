@@ -152,6 +152,8 @@ public:
 	void SetAccess(const AccessMode& mode);
 	/// set variable format
 	void SetFormat(const ImageFormat& format);
+	/// set image/texture unit
+	void SetBindingUnit(int& samplerCount, int& imageCount);
 
 	/// preprocess variable
 	void Preprocess();
@@ -194,6 +196,9 @@ private:
 	bool hasDefaultValue;
 	bool hasAnnotation;
 	Annotation annotation;
+
+	// the binding unit for this variable
+	int bindingUnit;
 }; 
 
 //------------------------------------------------------------------------------
