@@ -66,8 +66,8 @@ protected:
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-Compileable::SetLine( unsigned line )
+inline void
+Compileable::SetLine(unsigned line)
 {
 	this->line = line;
 }
@@ -84,8 +84,8 @@ Compileable::GetLine() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-Compileable::SetPosition( unsigned pos )
+inline void
+Compileable::SetPosition(unsigned pos)
 {
 	this->row = pos;
 }

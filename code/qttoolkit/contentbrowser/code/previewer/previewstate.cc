@@ -421,7 +421,7 @@ void
 PreviewState::SetSurface(const Ptr<Materials::SurfaceInstance>& instance)
 {
 	// thankfully, this model uses a hierarchy we know already
-	Ptr<Models::StateNodeInstance> node = RenderUtil::NodeLookupUtil::LookupStateNodeInstance(this->surfaceModelEntity, "root/sphere");
+	Ptr<Models::StateNodeInstance> node = RenderUtil::NodeLookupUtil::LookupStateNodeInstance(this->surfaceModelEntity, "pSphere3");
 	node->SetSurfaceInstance(instance);
 }
 
@@ -432,7 +432,7 @@ void
 PreviewState::DiscardSurface()
 {
 	// thankfully, this model uses a hierarchy we know already
-	Ptr<Models::StateNodeInstance> node = RenderUtil::NodeLookupUtil::LookupStateNodeInstance(this->surfaceModelEntity, "root/sphere");
+	Ptr<Models::StateNodeInstance> node = RenderUtil::NodeLookupUtil::LookupStateNodeInstance(this->surfaceModelEntity, "pSphere3");
 	node->SetSurfaceInstance(this->placeholderSurface->GetSurface()->CreateInstance());
 }
 

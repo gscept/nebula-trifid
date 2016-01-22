@@ -7,8 +7,9 @@
 #include "ogl4renderdevice.h"
 #include "coregraphics/rendertarget.h"
 #include "coregraphics/displaydevice.h"
-#include "../shader.h"
-#include "../shadersemantics.h"
+#include "coregraphics/shader.h"
+#include "coregraphics/shadersemantics.h"
+#include "coregraphics/shaderserver.h"
 
 namespace OpenGL4
 {
@@ -36,8 +37,8 @@ OGL4MultipleRenderTarget::~OGL4MultipleRenderTarget()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-OGL4MultipleRenderTarget::AddRenderTarget( const Ptr<CoreGraphics::RenderTarget>& rt )
+void
+OGL4MultipleRenderTarget::AddRenderTarget(const Ptr<CoreGraphics::RenderTarget>& rt)
 {
 	n_assert(rt.isvalid());
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->ogl4Framebuffer);
@@ -50,8 +51,8 @@ OGL4MultipleRenderTarget::AddRenderTarget( const Ptr<CoreGraphics::RenderTarget>
 //------------------------------------------------------------------------------
 /**
 */
-void 
-OGL4MultipleRenderTarget::SetDepthStencilTarget( const Ptr<CoreGraphics::DepthStencilTarget>& dt )
+void
+OGL4MultipleRenderTarget::SetDepthStencilTarget(const Ptr<CoreGraphics::DepthStencilTarget>& dt)
 {
 	n_assert(dt.isvalid());
 	MultipleRenderTargetBase::SetDepthStencilTarget(dt);
@@ -94,12 +95,12 @@ OGL4MultipleRenderTarget::BeginPass()
 	glDrawBuffers(this->numRenderTargets, glColorAttachments);
 
     // set display dimensions
-    const Ptr<CoreGraphics::Shader>& shader = OGL4RenderDevice::Instance()->GetPassShader();
+	Ptr<Shader> shader = ShaderServer::Instance()->GetSharedShader();
     if (shader.isvalid() && shader->HasVariableByName(NEBULA3_SEMANTIC_RENDERTARGETDIMENSIONS))
     {
         Ptr<CoreGraphics::ShaderVariable> var = shader->GetVariableByName(NEBULA3_SEMANTIC_RENDERTARGETDIMENSIONS);
-        uint width = this->renderTarget[0]->GetWidth();
-        uint height = this->renderTarget[0]->GetHeight();
+        uint width = this->renderTarget[0]->GetResolveTextureWidth();
+        uint height = this->renderTarget[0]->GetResolveTextureHeight();
         float xRatio = 1 / float(width);
         float yRatio = 1 / float(height);
         var->SetFloat4(Math::float4(xRatio, yRatio, (float)width, (float)height));

@@ -28,8 +28,8 @@ Subroutine::~Subroutine()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Subroutine::TypeCheck( TypeChecker& typechecker )
+void
+Subroutine::TypeCheck(TypeChecker& typechecker)
 {
     // add variable, if failed we must have a redefinition
     if (!typechecker.AddSymbol(this)) return;
@@ -135,8 +135,8 @@ Subroutine::Compile(BinWriter& writer)
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Subroutine::CheckForOptimization( TypeChecker& typeChecker )
+void
+Subroutine::CheckForOptimization(TypeChecker& typeChecker)
 {
     if (this->subroutineType == Subroutine::Signature)
     {
@@ -219,8 +219,8 @@ Subroutine::Format(const Header& header) const
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Subroutine::UpdateCode( const Header& header, unsigned fileIndex )
+void
+Subroutine::UpdateCode(const Header& header, unsigned fileIndex)
 {
     // format function code with file index as input
     this->fileIndex = fileIndex;
@@ -230,8 +230,8 @@ Subroutine::UpdateCode( const Header& header, unsigned fileIndex )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Subroutine::ParameterUsed( unsigned i )
+void
+Subroutine::ParameterUsed(unsigned i)
 {
     if (i < this->optimizationList.size())
     {

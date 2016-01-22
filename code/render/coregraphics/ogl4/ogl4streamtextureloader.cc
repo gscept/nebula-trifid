@@ -51,36 +51,20 @@ OGL4StreamTextureLoader::SetupResourceFromStream(const Ptr<Stream>& stream)
 
 		// convert format
 		CoreGraphics::PixelFormat::Code nebFormat = OGL4Types::AsNebulaPixelFormat(format);
-		GLint width, height;
 
 		// setup texture appropriately
 		if (type == GL_TEXTURE_2D)
 		{
-			glBindTexture(GL_TEXTURE_2D, texture);
-			glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
-			glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height);
-			glBindTexture(GL_TEXTURE_2D, 0);
-
 			// calculate how many mips we will have	
 			res->SetupFromOGL4Texture(texture, nebFormat, mips);
 		}
 		else if (type == GL_TEXTURE_CUBE_MAP)
 		{
-			glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
-			glGetTexLevelParameteriv(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_TEXTURE_WIDTH, &width);
-			glGetTexLevelParameteriv(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_TEXTURE_HEIGHT, &height);
-			glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-
 			// calculate how many mips we will have	
 			res->SetupFromOGL4CubeTexture(texture, nebFormat, mips);
 		}
 		else if (type == GL_TEXTURE_3D)
 		{
-			glBindTexture(GL_TEXTURE_2D, texture);
-			glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
-			glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height);
-			glBindTexture(GL_TEXTURE_3D, 0);
-
 			// calculate how many mips we will have	
 			res->SetupFromOGL4VolumeTexture(texture, nebFormat, mips);
 		}

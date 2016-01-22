@@ -625,7 +625,7 @@ Variance(vec2 shadowSample,
 		float p_max		= variance / (variance + d*d);
 		
 		// to avoid light bleeding, change this constant
-		return max(p_max, int(lightSpaceDepth <= avgZ));
+		return max(p_max, float(lightSpaceDepth <= avgZ));
 	}
 }
 

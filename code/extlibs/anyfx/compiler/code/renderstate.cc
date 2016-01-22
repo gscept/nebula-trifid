@@ -632,8 +632,8 @@ RenderState::ConsumeBlendRow( const BlendStateRow& row )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-RenderState::TypeCheck( TypeChecker& typechecker )
+void
+RenderState::TypeCheck(TypeChecker& typechecker)
 {
 	// add render state, if failed we must have a redefinition
 	if (!typechecker.AddSymbol(this)) return;

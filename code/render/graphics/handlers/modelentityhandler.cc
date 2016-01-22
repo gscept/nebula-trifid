@@ -249,12 +249,15 @@ __Handler(ModelEntity, FetchClips)
 		int numClips = animResource->GetNumClips();
 		Util::Array<Util::StringAtom> clips;
 		Util::Array<SizeT> lengths;
-		clips.Reserve(numClips);
-		for (int clipIndex = 0; clipIndex < numClips; clipIndex++)
+		if (numClips > 0)
 		{
-			clips.Append(animResource->GetClipByIndex(clipIndex).GetName());
-			lengths.Append(animResource->GetClipByIndex(clipIndex).GetClipDuration());
-		}
+			clips.Reserve(numClips);
+			for (int clipIndex = 0; clipIndex < numClips; clipIndex++)
+			{
+				clips.Append(animResource->GetClipByIndex(clipIndex).GetName());
+				lengths.Append(animResource->GetClipByIndex(clipIndex).GetClipDuration());
+			}
+		}		
 		msg->SetClips(clips);
 		msg->SetLenghts(lengths);
 	}

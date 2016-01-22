@@ -47,8 +47,8 @@ CmdLineArgs::GetArgument(const std::string& key)
 //------------------------------------------------------------------------------
 /**
 */
-std::vector<std::string> 
-CmdLineArgs::GetArguments( const std::string& key )
+std::vector<std::string>
+CmdLineArgs::GetArguments(const std::string& key)
 {
 	std::vector<std::string> args;
 	unsigned i;

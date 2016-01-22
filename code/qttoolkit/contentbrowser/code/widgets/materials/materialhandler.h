@@ -212,7 +212,6 @@ MaterialHandler::SetUI(Ui::MaterialInfoWidget* ui)
     this->ui->saveAsButton->setEnabled(false);
 
 	// hmm, this shouldn't really be done each time we open a surface...
-	connect(this->ui->newButton, SIGNAL(clicked()), this, SLOT(NewSurface()));
 	connect(this->ui->saveButton, SIGNAL(clicked()), this, SLOT(Save()));
 	connect(this->ui->saveAsButton, SIGNAL(clicked()), this, SLOT(SaveAs()));
 	connect(this->ui->templateBox, SIGNAL(activated(const QString&)), this, SLOT(MaterialSelected(const QString&)));

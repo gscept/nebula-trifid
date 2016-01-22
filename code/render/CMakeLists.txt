@@ -231,6 +231,8 @@ ENDIF()
       	coregraphics/base/shaderbase.h
 		coregraphics/base/shaderreadwritebufferbase.cc
 		coregraphics/base/shaderreadwritebufferbase.h
+		coregraphics/base/shaderreadwritetexturebase.cc
+		coregraphics/base/shaderreadwritetexturebase.h
         coregraphics/base/shaderinstancebase.cc
         coregraphics/base/shaderinstancebase.h
         coregraphics/base/shaderserverbase.cc
@@ -413,6 +415,8 @@ ENDIF()
         coregraphics/ogl4/ogl4shader.h
 		coregraphics/ogl4/ogl4shaderstoragebuffer.cc
 		coregraphics/ogl4/ogl4shaderstoragebuffer.h
+		coregraphics/ogl4/ogl4shaderimage.cc
+        coregraphics/ogl4/ogl4shaderimage.h
         coregraphics/ogl4/ogl4shaderinstance.cc
         coregraphics/ogl4/ogl4shaderinstance.h
         coregraphics/ogl4/ogl4shaderserver.cc

@@ -384,6 +384,8 @@ OGL4RenderTarget::OnDisplayResized(SizeT w, SizeT h)
 			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 
+
+
         // do not set left or top since they may be set prior to this
 		this->resolveRect.right = this->resolveRect.left + this->width;
 		this->resolveRect.bottom = this->resolveRect.top + this->height;

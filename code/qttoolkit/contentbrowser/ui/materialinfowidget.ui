@@ -48,7 +48,7 @@
         <x>0</x>
         <y>0</y>
         <width>422</width>
-        <height>388</height>
+        <height>448</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -65,63 +65,11 @@
      </widget>
     </widget>
    </item>
-   <item row="5" column="0" colspan="2">
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QPushButton" name="newButton">
-       <property name="toolTip">
-        <string>Create a new surface.</string>
-       </property>
-       <property name="text">
-        <string>New...</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
    <item row="0" column="0" colspan="2">
     <layout class="QGridLayout" name="gridLayout_2">
      <property name="verticalSpacing">
       <number>6</number>
      </property>
-     <item row="4" column="0" colspan="5">
-      <widget class="QPushButton" name="pushButton">
-       <property name="text">
-        <string>Preview</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_2">
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Shader type:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0" colspan="2">
-      <widget class="QLabel" name="surfaceLabel">
-       <property name="font">
-        <font>
-         <family>Segoe UI</family>
-         <pointsize>11</pointsize>
-        </font>
-       </property>
-       <property name="layoutDirection">
-        <enum>Qt::LeftToRight</enum>
-       </property>
-       <property name="text">
-        <string>Surface</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="4" rowspan="3">
       <widget class="QLabel" name="surfaceThumbnail">
        <property name="sizePolicy">
@@ -148,6 +96,25 @@ border-radius: 5px;</string>
        </property>
       </widget>
      </item>
+     <item row="2" column="0" colspan="2">
+      <widget class="QLabel" name="surfaceLabel">
+       <property name="font">
+        <font>
+         <family>Segoe UI</family>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="text">
+        <string>Surface</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
      <item row="3" column="1" colspan="2">
       <widget class="QComboBox" name="templateBox">
        <property name="sizePolicy">
@@ -155,6 +122,32 @@ border-radius: 5px;</string>
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Shader type:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2" colspan="2">
+      <widget class="QLabel" name="surfaceName">
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>placeholder surface name</string>
        </property>
       </widget>
      </item>
@@ -174,20 +167,6 @@ border-radius: 5px;</string>
        </property>
        <property name="text">
         <string>?</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="2" colspan="2">
-      <widget class="QLabel" name="surfaceName">
-       <property name="font">
-        <font>
-         <pointsize>14</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>placeholder surface name</string>
        </property>
       </widget>
      </item>

@@ -23,14 +23,14 @@ Function::Function() :
 	for (i = 0; i < FunctionAttribute::NumIntFlags; i++)
 	{
 		this->intAttributeMask[i] = false;
-		this->intExpressions[i] = 0;
+		this->intExpressions[i] = NULL;
 		this->intAttributes[i] = 0;
 	}
 
 	for (i = 0; i < FunctionAttribute::NumFloatFlags; i++)
 	{
 		this->floatAttributeMask[i] = false;
-		this->floatExpressions[i] = 0;
+		this->floatExpressions[i] = NULL;
 		this->floatAttributes[i] = 0;
 	}
 

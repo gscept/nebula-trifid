@@ -127,12 +127,9 @@ private:
 	SamplerTextureList textureList;
 	std::string flag;
 	
-	union
-	{
-		Expression* expr;
-		vector<Expression*, 4> rgbExprs;
-		std::string* stringValue;
-	};
+	Expression* expr;
+	vector<Expression*, 4> rgbExprs;
+	std::string stringValue;
 }; 
 
 //------------------------------------------------------------------------------
@@ -160,7 +157,7 @@ inline const std::string&
 SamplerRow::GetString() const
 {
 	assert(this->flagType == StringFlagType);
-	return *this->stringValue;
+	return this->stringValue;
 }
 
 //------------------------------------------------------------------------------

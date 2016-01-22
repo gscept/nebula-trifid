@@ -140,17 +140,13 @@ public:
 	/// get flag
 	const std::string& GetFlag() const;
 
-
 private:
 	FlagType flagType;
 	std::string flag;
 
-	union 
-	{
-		Expression* expression;
-		bool boolValue;
-		std::string* stringValue;
-	};
+	Expression* expr;
+	bool boolValue;
+	std::string stringValue;
 }; 
 
 //------------------------------------------------------------------------------
@@ -188,7 +184,7 @@ inline const std::string&
 FunctionAttribute::GetString() const
 {
 	assert(this->flagType == StringFlagType);
-	return *this->stringValue;
+	return this->stringValue;
 }
 
 //------------------------------------------------------------------------------
@@ -197,7 +193,7 @@ FunctionAttribute::GetString() const
 inline Expression* 
 FunctionAttribute::GetExpression() const
 {
-	return this->expression;
+	return this->expr;
 }
 
 } // namespace AnyFX

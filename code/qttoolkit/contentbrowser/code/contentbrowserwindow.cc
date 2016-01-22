@@ -1334,9 +1334,9 @@ ContentBrowserWindow::OnAssetBrowserItemRightClick(TiledGraphicsItem* item, QGra
 	else if (textureItem)
 	{
 		QAction* action1 = menu.addAction("Reconfigure texture...");
-		action1->setToolTip("Adjust settings and reimport this texture.");
+		action1->setToolTip("Adjust settings and reimport this texture");
 		QAction* action2 = menu.addAction("Delete texture");
-		action2->setToolTip("Deletes the texture, both in the working folder and the export (.dds) target.");
+		action2->setToolTip("Deletes the texture, both in the working folder and the export (.dds) target");
 		
 
 		// execute menu
@@ -1438,7 +1438,7 @@ ContentBrowserWindow::OnAssetBrowserItemRightClick(TiledGraphicsItem* item, QGra
 	}
 	else if (surfaceItem)
 	{
-		QAction* action = menu.addAction("Delete surface.");
+		QAction* action = menu.addAction("Delete surface");
 		action->setToolTip("Will render all objects using this surface have the placeholder material applied");
 
 		// execute menu

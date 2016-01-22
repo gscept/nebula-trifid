@@ -251,29 +251,26 @@ NFbxExporter::StartExport(const IO::URI& file)
 		// get animation
 		AnimBuilder anim = skeletonRoot->GetAnimation();
 
-		if (anim.GetNumClips() > 0)
+		// now we must format the animation name
+		String animationName;
+		animationName.Format("%s", fileName.AsCharPtr());
+
+		// format destination
+		String destinationFile;
+		destinationFile.Format("ani:%s/%s.nax3", category.AsCharPtr(), animationName.AsCharPtr());
+
+		// now fix animation stuff	
+		anim.FixInvalidKeyValues();
+		anim.FixInactiveCurveStaticKeyValues();
+		anim.FixAnimCurveFirstKeyIndices();
+		anim.BuildVelocityCurves();
+
+		// now save actual animation
+		if (false == AnimBuilderSaver::SaveNax3(URI(destinationFile), anim, this->platform))
 		{
-			// now we must format the animation name
-			String animationName;
-			animationName.Format("%s", fileName.AsCharPtr());
-
-			// format destination
-			String destinationFile;
-			destinationFile.Format("ani:%s/%s.nax3", category.AsCharPtr(), animationName.AsCharPtr());
-
-			// now fix animation stuff	
-			anim.FixInvalidKeyValues();
-			anim.FixInactiveCurveStaticKeyValues();
-			anim.FixAnimCurveFirstKeyIndices();
-			anim.BuildVelocityCurves();
-
-			// now save actual animation
-			if (false == AnimBuilderSaver::SaveNax3(URI(destinationFile), anim, this->platform))
-			{
-				n_error("Failed to save animation file file: %s\n", destinationFile.AsCharPtr());
-			}			
-			n_printf("[Generated animation: %s]\n", destinationFile.AsCharPtr());
-		}
+			n_error("Failed to save animation file file: %s\n", destinationFile.AsCharPtr());
+		}			
+		n_printf("[Generated animation: %s]\n", destinationFile.AsCharPtr());
 	}
 
 	n_printf("\n");

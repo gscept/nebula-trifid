@@ -2,7 +2,6 @@
 //  hbaoblur_cs.fx
 //  (C) 2014 Gustav Sterbrant
 //------------------------------------------------------------------------------
-
 #include "lib/std.fxh"
 #include "lib/util.fxh"
 #include "lib/techniques.fxh"
@@ -29,7 +28,6 @@ samplerstate PointState
 	AddressU = Clamp;
 	AddressV = Clamp;
 };
-
 
 write rg16f image2D HBAORG;
 write r16f image2D HBAOR;
@@ -70,7 +68,7 @@ csMainX()
 	
 	const float x = apronStart + float(gl_LocalInvocationID.x);
 	const float y = float(gl_WorkGroupID.y);
-	const vec2 uv = vec2(x, y) * inverseSize;
+	vec2 uv = vec2(x, y) * inverseSize;
 	SharedMemory[gl_LocalInvocationID.x] = textureLod(HBAOReadLinear, uv, 0).xy;
 	groupMemoryBarrier();
 	
@@ -80,7 +78,7 @@ csMainX()
 	if (writePos < tileEndClamped)
 	{
 		// Fetch (ao,z) at the kernel center
-		vec2 uv = vec2(writePos, y) * inverseSize;
+		uv = vec2(writePos, y) * inverseSize;
 		vec2 AoDepth = textureLod(HBAOReadPoint, uv, 0).xy;
 		float ao_total = AoDepth.x;
 		float center_d = AoDepth.y;
@@ -136,7 +134,7 @@ csMainY()
 	
 	const float x = float(gl_WorkGroupID.y);
 	const float y = apronStart + float(gl_LocalInvocationID.x) ;
-	const vec2 uv = vec2(x, y) * inverseSize;
+	vec2 uv = vec2(x, y) * inverseSize;
 	SharedMemory[gl_LocalInvocationID.x] = textureLod(HBAOReadLinear, uv, 0).xy;	
 	groupMemoryBarrier();
 	
@@ -146,7 +144,7 @@ csMainY()
 	if (writePos < tileEndClamped)
 	{
 		// Fetch (ao,z) at the kernel center
-		vec2 uv = vec2(x, writePos) * inverseSize;
+		uv = vec2(x, writePos) * inverseSize;
 		vec2 AoDepth = textureLod(HBAOReadPoint, uv, 0).xy;
 		float ao_total = AoDepth.x;
 		float center_d = AoDepth.y;
