@@ -367,7 +367,7 @@ AOAlgorithm::Render()
 		uint numGroupsX1 = DivAndRoundUp(this->output->GetWidth(), TILE_WIDTH);
 		uint numGroupsX2 = this->output->GetWidth();
 		uint numGroupsY1 = DivAndRoundUp(this->output->GetHeight(), TILE_WIDTH);
-		uint numGroupsY2 = this->output->GetHeight();       
+		uint numGroupsY2 = this->output->GetHeight();
 
 		// render AO in X
 		this->hbao->SelectActiveVariation(this->xDirection);
@@ -384,7 +384,6 @@ AOAlgorithm::Render()
 		this->hbao->Commit();
 		renderDevice->Compute(numGroupsY1, numGroupsX2, 1);
 
-		/*
 		this->blur->SelectActiveVariation(this->xDirection);
         this->blur->Apply();
 		this->hbaoBlurLinearVar->SetTexture(this->internalTargets[1]->GetResolveTexture());
@@ -393,12 +392,11 @@ AOAlgorithm::Render()
 		this->hbaoBlurRVar->SetTexture(NULL);
 		this->blur->Commit();
 		renderDevice->Compute(numGroupsX1, numGroupsY2, 1);
-		*/
 
 		this->blur->SelectActiveVariation(this->yDirection);
         this->blur->Apply();
-		this->hbaoBlurLinearVar->SetTexture(this->internalTargets[1]->GetResolveTexture());
-		this->hbaoBlurPointVar->SetTexture(this->internalTargets[1]->GetResolveTexture());
+		this->hbaoBlurLinearVar->SetTexture(this->internalTargets[0]->GetResolveTexture());
+		this->hbaoBlurPointVar->SetTexture(this->internalTargets[0]->GetResolveTexture());
 		this->hbaoBlurRGVar->SetTexture(NULL);
 		this->hbaoBlurRVar->SetTexture(this->output->GetResolveTexture());
 		this->blur->Commit();
