@@ -99,7 +99,10 @@ void
 InteractProperty::DetectInteractFunctions()
 {
     ScriptServer* server = ScriptServer::Instance();
-    
+	if (this->entityScript.IsEmpty())
+	{
+		return;
+	}
 	this->onMouseEnter = server->ScriptHasFunction(this->entityScript, "onmouseenter");
 	SCRIPT_ERROR_CHECK("RegisterFunction", "onmouseenter");
 	if (this->onMouseEnter)
