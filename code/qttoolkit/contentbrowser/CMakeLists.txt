@@ -137,7 +137,6 @@ SET(QTMOCFILES  "code/contentbrowserwindow.h"
 				"code/widgets/ui/uihandler.h"
 				"code/widgets/particles/particlecurvewidget.h"
 				"code/widgets/particles/particleenvelopewidget.h"
-				"code/lighting/environmentprobewindow.h"
 				"code/modelimporter/fbx/nfbxreader.h")
 								
 SET(PCH_files	
@@ -183,6 +182,7 @@ ADD_DEPENDENCIES(contentbrowser
 	toolkitutil
 	remoteinterface	
 	qttools
+	globalprobecontroller
 	editorfeatures
 	video
 )
@@ -199,6 +199,7 @@ TARGET_LINK_LIBRARIES(contentbrowser
 	miniexporter
 	remoteinterface
 	qttools
+	globalprobecontroller
 	editorfeatures
 	toolkitutil	
 	video

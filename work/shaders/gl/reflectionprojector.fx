@@ -155,7 +155,7 @@ psMain(in vec3 viewSpacePosition,
 		
 		// load biggest distance from texture, basically solving the distance field blending
 		float weight = imageLoad(DistanceFieldWeightMap, ivec2(gl_FragCoord.xy)).r;		
-		barrier();
+		memoryBarrierImage();
 		float diff = saturate(distanceFalloff - weight);
 		imageStore(DistanceFieldWeightMap, ivec2(gl_FragCoord.xy), vec4(max(weight, distanceFalloff)));
 	

@@ -139,12 +139,14 @@ ContentBrowserWindow::ContentBrowserWindow() :
 
 	// create texture browser window
 	this->assetBrowserWindow = ResourceBrowser::AssetBrowser::Create();
-	this->assetBrowserWindow->Open();
 	this->assetBrowserWindow->setParent(this);
+	this->assetBrowserWindow->Open();	
 
 	// setup ui of particle wizard
 	this->particleWizardUi.setupUi(&this->particleEffectWizard);
 	this->particleWizardUi.errorLabel->setHidden(true);
+
+	this->ui.nebulaFrame->setWindowFlags(Qt::SubWindow);
 
 	// add to appropriate tab
 	/*

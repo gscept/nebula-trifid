@@ -12,6 +12,7 @@
 const float DepthScaling = 5.0f;
 const float DarkeningFactor = 1.0f;
 const float ShadowConstant = 100.0f;
+vec4 LightCenter;
 
 samplerstate ShadowSampler
 {
@@ -159,6 +160,74 @@ vsStaticInstCSM(in vec3 position,
 
 //------------------------------------------------------------------------------
 /**
+*/
+shader
+void
+vsStaticPoint(in vec3 position,
+	in vec3 normal,
+	in vec2 uv,
+	in vec3 tangent,
+	in vec3 binormal,
+	out vec2 UV,
+	out vec4 ProjPos,
+	out vec4 WorldPos,
+	out int Instance) 
+{
+	WorldPos = Model * vec4(position, 1);
+	ProjPos = ViewMatrixArray[gl_InstanceID] * WorldPos;
+	Instance = gl_InstanceID;
+	UV = uv;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+shader
+void
+vsSkinnedPoint(in vec3 position,
+	in vec3 normal,
+	in vec2 uv,
+	in vec3 tangent,
+	in vec3 binormal,
+	[slot=7] in vec4 weights,
+	[slot=8] in uvec4 indices,
+	out vec2 UV,
+	out vec4 ProjPos,
+	out vec4 WorldPos,
+	out int Instance) 
+{
+	vec4 skinnedPos = SkinnedPosition(position, weights, indices);
+	WorldPos = Model * skinnedPos;
+	ProjPos = ViewMatrixArray[gl_InstanceID] * WorldPos;
+	Instance = gl_InstanceID;
+	UV = uv;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+shader
+void
+vsStaticInstPoint(in vec3 position,
+	in vec3 normal,
+	in vec2 uv,
+	in vec3 tangent,
+	in vec3 binormal,
+	out vec2 UV,
+	out vec4 ProjPos,
+	out vec4 WorldPos,
+	out int Instance) 
+{
+	int csmStride = int(mod(gl_InstanceID, 4));
+	int modelStride = int(gl_InstanceID / 4);
+	WorldPos = ModelArray[modelStride] * vec4(position, 1);
+	ProjPos = ViewMatrixArray[csmStride] * WorldPos;
+	Instance = csmStride;
+	UV = uv;
+}
+
+//------------------------------------------------------------------------------
+/**
 	Geometry shader for point light shadow instancing.
 	We copy the geometry and project into each direction frustum.
 	We then point to which render target we wish to write to using gl_Layer.
@@ -170,23 +239,23 @@ vsStaticInstCSM(in vec3 position,
 [maxvertexcount] = 3
 shader
 void 
-gsPoint(in vec2 uv[], in vec4 pos[], flat in int instance[], out vec2 UV, out vec4 ProjPos)
+gsPoint(in vec2 uv[], in vec4 pos[], in vec4 worldpos[], flat in int instance[], out vec2 UV, out vec4 WorldPos)
 {	
 	UV = uv[0];
-	ProjPos = pos[0];
-	gl_Position = ProjPos;
+	WorldPos = pos[0];
+	gl_Position = pos[0];
 	gl_Layer = instance[0];
 	EmitVertex();
 	
 	UV = uv[1];
-	ProjPos = pos[1];
-	gl_Position = ProjPos;
+	WorldPos = pos[1];
+	gl_Position = pos[1];
 	gl_Layer = instance[0];
 	EmitVertex();
 	
 	UV = uv[2];
-	ProjPos = pos[2];
-	gl_Position = ProjPos;
+	WorldPos = pos[2];
+	gl_Position = pos[2];
 	gl_Layer = instance[0];
 	EmitVertex();
 	EndPrimitive();
@@ -587,6 +656,52 @@ psVSMAlpha(in vec2 UV,
 	if (alpha < AlphaSensitivity) discard;
 	
 	float depth = ProjPos.z / ProjPos.w;
+	float moment1 = depth;
+	float moment2 = depth * depth;
+	
+	// Adjusting moments (this is sort of bias per pixel) using derivative
+	//float dx = dFdx(depth);
+	//float dy = dFdy(depth);
+	//moment2 += 0.25f*(dx*dx+dy*dy);
+	
+	ShadowColor = vec2(moment1, moment2);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+[earlydepth]
+shader
+void
+psVSMPoint(in vec2 UV,
+	in vec4 WorldPos,
+	[color0] out vec2 ShadowColor) 
+{
+	float depth = length(WorldPos - LightCenter);
+	float moment1 = depth;
+	float moment2 = depth * depth;
+	
+	// Adjusting moments (this is sort of bias per pixel) using derivative
+	//float dx = dFdx(depth);
+	//float dy = dFdy(depth);
+	//moment2 += 0.25f*(dx*dx+dy*dy);
+	
+	ShadowColor = vec2(moment1, moment2);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+shader
+void
+psVSMAlphaPoint(in vec2 UV,
+	in vec4 WorldPos,
+	[color0] out vec2 ShadowColor) 
+{
+	float alpha = texture(AlbedoMap, UV).a;
+	if (alpha < AlphaSensitivity) discard;
+	
+	float depth = length(WorldPos - LightCenter);
 	float moment1 = depth;
 	float moment2 = depth * depth;
 	

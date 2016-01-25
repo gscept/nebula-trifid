@@ -72,6 +72,11 @@ LevelEditor2Window::LevelEditor2Window():
     this->attributeControllerVLayout = new QVBoxLayout(this->ui.scrollAreaWidgetContents);
     this->scriptEditor = new QtAttributeControllerAddon::ScriptEditor;
 
+	// create texture browser window
+	this->assetBrowserWindow = ResourceBrowser::AssetBrowser::Create();
+	this->assetBrowserWindow->setParent(this);
+	this->assetBrowserWindow->Open();
+
     this->ui.scrollAreaWidgetContents->setLayout(this->attributeControllerVLayout);    
 
 	connect(this->ui.actionAdd_Environment_Entity, SIGNAL(triggered()), this, SLOT(OnNewEnvironmentEntity()));
@@ -93,6 +98,7 @@ LevelEditor2Window::LevelEditor2Window():
 	connect(this->ui.actionHide_grid, SIGNAL(triggered()), this, SLOT(OnGridVisible()));
 	connect(this->ui.actionReset_window_layout, SIGNAL(triggered()), this, SLOT(OnResetWindows()));
 	connect(this->ui.actionPerformance_overlay, SIGNAL(triggered()), this, SLOT(OnTogglePerformanceUI()));
+	connect(this->ui.actionShow_global_light_probe, SIGNAL(triggered()), this, SLOT(OnShowEnvironmentProbeSettings()));
 
 
     connect(this->gridSizeUi.GridSize, SIGNAL(valueChanged(double)),this, SLOT(OnGridSizeChanged(double)));
@@ -161,7 +167,8 @@ LevelEditor2Window::showEvent(QShowEvent* e)
 	// restore the state of the window and all dock widgets
 	QSettings settings("gscept", "Level editor");
 	this->restoreGeometry(settings.value("geometry").toByteArray());
-	this->restoreState(settings.value("windowState").toByteArray(),0);
+	this->restoreState(settings.value("windowState").toByteArray(), 0);
+	this->assetBrowserWindow->Open();
 }
 
 //------------------------------------------------------------------------------
@@ -172,11 +179,27 @@ LevelEditor2Window::closeEvent(QCloseEvent *e)
 {
 	LevelEditor2App::Instance()->RequestState("Exit");
 
+	this->environmentProbeWindow->close();
+	delete this->environmentProbeWindow;
+
+	this->assetBrowserWindow->close();
+	this->assetBrowserWindow = 0;
+
 	// restore the state of the window and all dock widgets
 	QSettings settings("gscept", "Level editor");
 	settings.setValue("geometry", this->saveGeometry());
 	settings.setValue("windowState", this->saveState(0));
 	QMainWindow::closeEvent(e);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+LevelEditor2Window::Setup()
+{
+	// create environment probe window, this must happen after we setup the graphics subsystem
+	this->environmentProbeWindow = new Lighting::EnvironmentProbeWindow;
 }
 
 //------------------------------------------------------------------------------
@@ -376,6 +399,16 @@ LevelEditor2Window::OnShowPostEffect()
 {		
 	this->postEffectController.show();
 	this->postEffectController.raise();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+LevelEditor2Window::OnShowEnvironmentProbeSettings()
+{
+	this->environmentProbeWindow->show();
+	this->environmentProbeWindow->raise();
 }
 
 //------------------------------------------------------------------------------

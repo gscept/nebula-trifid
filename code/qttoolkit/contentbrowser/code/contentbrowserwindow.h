@@ -28,7 +28,7 @@
 #include "widgets/textures/textureitem.h"
 #include "modelimporter/modelimporterwindow.h"
 #include "textureimporter/textureimporterwindow.h"
-#include "lighting/environmentprobewindow.h"
+#include "globalprobecontroller/code/environmentprobewindow.h"
 #include "posteffectcontroller.h"
 #include "util/array.h"
 #include "nody/shady/code/shadywindow.h"

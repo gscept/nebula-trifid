@@ -82,6 +82,7 @@ private:
 	Ptr<CoreGraphics::RenderTargetCube> pointLightShadowFilterCube;
     Ptr<Frame::FramePass> pointLightPass;
     Ptr<Frame::FrameBatch> pointLightBatch;
+	Ptr<CoreGraphics::ShaderVariable> pointLightPosVar;
 
 	Ptr<CoreGraphics::Shader> pointLightBlur;
 	CoreGraphics::ShaderFeature::Mask xBlurMask;

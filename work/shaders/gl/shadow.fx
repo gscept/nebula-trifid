@@ -25,12 +25,12 @@ SimpleTechnique(SpotlightInstanced, "Spot|Static|Instanced", 			vsStaticInst(), 
 TessellationTechnique(SpotlightTessellated, "Spot|Static|Tessellated", 	vsTess(), psShadow(), hsShadow(), dsShadow(), ShadowState);
 
 // Pointlight methods
-GeometryTechnique(PointlightDefault, "Point|Static", 				vsStaticCSM(), psVSM(), gsPoint(), ShadowState);
-GeometryTechnique(PointlightAlpha, "Point|Alpha", 					vsStaticCSM(), psVSMAlpha(), gsPoint(), ShadowState);
-GeometryTechnique(PointlightSkinned, "Point|Skinned", 				vsSkinnedCSM(), psVSM(), gsPoint(), ShadowState);
-GeometryTechnique(PointlightSkinnedAlpha, "Point|Skinned|Alpha", 	vsSkinnedCSM(), psVSMAlpha(), gsPoint(), ShadowState);
-GeometryTechnique(PointlightInstanced, "Point|Static|Instanced", 	vsStaticInstCSM(), psVSM(), gsPoint(), ShadowState);
-FullTechnique(PointlightTessellated, "Point|Static|Tessellated", 	vsTessCSM(), psVSM(), hsShadow(), dsCSM(), gsPoint(), ShadowState);
+GeometryTechnique(PointlightDefault, "Point|Static", 				vsStaticPoint(), psVSMPoint(), gsPoint(), ShadowState);
+GeometryTechnique(PointlightAlpha, "Point|Alpha", 					vsStaticPoint(), psVSMAlphaPoint(), gsPoint(), ShadowState);
+GeometryTechnique(PointlightSkinned, "Point|Skinned", 				vsSkinnedPoint(), psVSMPoint(), gsPoint(), ShadowState);
+GeometryTechnique(PointlightSkinnedAlpha, "Point|Skinned|Alpha", 	vsSkinnedPoint(), psVSMAlphaPoint(), gsPoint(), ShadowState);
+GeometryTechnique(PointlightInstanced, "Point|Static|Instanced", 	vsStaticInstPoint(), psVSMPoint(), gsPoint(), ShadowState);
+//FullTechnique(PointlightTessellated, "Point|Static|Tessellated", 	vsTessCSM(), psVSMPoint(), hsShadow(), dsCSM(), gsPoint(), ShadowState);
 
 // CSM methods
 GeometryTechnique(CSM, "Global|Static", 							vsStaticCSM(), psVSM(), gsCSM(), ShadowStateCSM);

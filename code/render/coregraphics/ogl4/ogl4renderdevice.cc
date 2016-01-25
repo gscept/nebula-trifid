@@ -834,9 +834,9 @@ OGL4RenderDevice::Compute(int dimX, int dimY, int dimZ, uint flag)
 	if (flag != RenderDeviceBase::NoBarrier)
 	{
 		GLbitfield flags = 0;
-		if (flag & RenderDevice::ImageAccessBarrier) flags |= GL_SHADER_IMAGE_ACCESS_BARRIER_BIT;
-		if (flag & RenderDevice::BufferAccessBarrier) flags |= GL_SHADER_STORAGE_BARRIER_BIT;
-		if (flag & RenderDevice::SamplerAccessBarrier) flags |= GL_TEXTURE_FETCH_BARRIER_BIT;
+		if (flag & RenderDevice::ImageAccessBarrier)		flags |= GL_SHADER_IMAGE_ACCESS_BARRIER_BIT;
+		if (flag & RenderDevice::BufferAccessBarrier)		flags |= GL_SHADER_STORAGE_BARRIER_BIT;
+		if (flag & RenderDevice::SamplerAccessBarrier)		flags |= GL_TEXTURE_FETCH_BARRIER_BIT;
 		if (flag & RenderDevice::RenderTargetAccessBarrier) flags |= GL_FRAMEBUFFER_BARRIER_BIT;
 		glMemoryBarrier(flags);
 	}

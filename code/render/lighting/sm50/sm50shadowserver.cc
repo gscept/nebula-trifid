@@ -189,6 +189,7 @@ SM50ShadowServer::Open()
     this->pointLightPass->SetName("PointLightShadowPass");
 	this->pointLightPass->SetClearColor(float4(1000, 1000, 0, 0));
     this->pointLightPass->AddBatch(this->pointLightBatch);
+	this->pointLightPosVar = ShaderServer::Instance()->GetShader("shd:shadow")->GetVariableByName("LightCenter");
 
 	// load shaders for point light blur
 	this->pointLightBlur = ShaderServer::Instance()->GetShader("shd:blur_cube_rg32f_cs");
@@ -538,7 +539,7 @@ SM50ShadowServer::UpdatePointLightShadowBuffers()
 		visResolver->EndResolve();
 
 		// generate view projection matrix
-		matrix44 proj = matrix44::perspfovrh(n_deg2rad(90.0f), 1, 0.1f, 1000.0f);
+		matrix44 proj = matrix44::perspfovrh(n_deg2rad(90.0f), 1, 0.001f, 1000.0f);
 		//viewProj.set_position(0);
 
 		// generate matrices
@@ -576,6 +577,7 @@ SM50ShadowServer::UpdatePointLightShadowBuffers()
 		const Ptr<CoreGraphics::RenderTargetCube>& cube = this->pointLightShadowCubes[lightIndex];
 
 		// setup pass and render
+		this->pointLightPosVar->SetFloat4(lightPos);
 		this->pointLightPass->SetRenderTargetCube(cube);
 		this->pointLightPass->Render(frameIndex);
 

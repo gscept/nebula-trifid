@@ -19,7 +19,7 @@ EnvironmentProbeWindow::EnvironmentProbeWindow()
 {
 	// setup UI
 	this->ui.setupUi(this);
-	this->setWindowFlags(Qt::WindowStaysOnTopHint);
+	this->setWindowFlags(Qt::Dialog);
 
 	// connect signals
 	connect(this->ui.reflectionMapEdit, SIGNAL(editingFinished()), this, SLOT(OnReflectionChanged()));
