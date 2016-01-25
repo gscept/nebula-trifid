@@ -40,7 +40,7 @@ SkinFragment::ExtractJointPalette( const MeshBuilder& sourceMesh, const MeshBuil
 	for (int vertexIndex = 0; vertexIndex < 3; vertexIndex++)
 	{
 		const MeshBuilderVertex& vertex = sourceMesh.VertexAt(vertexIndices[vertexIndex]);
-		const float4& weights = vertex.GetComponent(MeshBuilderVertex::WeightsIndex);
+		const float4& weights = vertex.GetComponent(MeshBuilderVertex::WeightsUB4NIndex);
 		const float4& indices = vertex.GetComponent(MeshBuilderVertex::JIndicesUB4Index);
 
 		if (jointIndices.FindIndex((int)indices.x()) == InvalidIndex)

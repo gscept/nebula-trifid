@@ -23,7 +23,7 @@ public:
     {
         CoordIndex = 0,
         NormalIndex,
-		NormalUB4NIndex,
+		NormalB4NIndex,
         Uv0Index,
 		Uv0S2Index,
         Uv1Index,
@@ -35,9 +35,9 @@ public:
         ColorIndex,
 		ColorUB4NIndex,
 		TangentIndex,
-		TangentUB4NIndex,
+		TangentB4NIndex,
 		BinormalIndex,
-		BinormalUB4NIndex,
+		BinormalB4NIndex,
         WeightsIndex,
 		WeightsUB4NIndex,
         JIndicesIndex,
@@ -51,7 +51,7 @@ public:
     {
         CoordBit = (1<<CoordIndex),
         NormalBit = (1<<NormalIndex),
-		NormalUB4NBit = (1<<NormalUB4NIndex),
+		NormalB4NBit = (1<<NormalB4NIndex),
         Uv0Bit = (1<<Uv0Index),
 		Uv0S2Bit = (1<<Uv0S2Index),
         Uv1Bit = (1<<Uv1Index),
@@ -63,9 +63,9 @@ public:
         ColorBit = (1<<ColorIndex),
 		ColorUB4NBit = (1<<ColorUB4NIndex),
 		TangentBit = (1<<TangentIndex),
-		TangentUB4NBit = (1<<TangentUB4NIndex),
+		TangentB4NBit = (1<<TangentB4NIndex),
 		BinormalBit = (1<<BinormalIndex),
-		BinormalUB4NBit = (1<<BinormalUB4NIndex),
+		BinormalB4NBit = (1<<BinormalB4NIndex),
         WeightsBit = (1<<WeightsIndex),
 		WeightsUB4NBit = (1<<WeightsUB4NIndex),
         JIndicesBit = (1<<JIndicesIndex),
@@ -205,19 +205,19 @@ MeshBuilderVertex::GetWidth() const
 	if(this->HasComponent(NormalBit))
 		w+=3;
 
-	if(this->HasComponent(NormalUB4NBit))
+	if(this->HasComponent(NormalB4NBit))
 		w+=1;
 
 	if(this->HasComponent(TangentBit))
 		w+=3;
 
-	if(this->HasComponent(TangentUB4NBit))
+	if(this->HasComponent(TangentB4NBit))
 		w+=1;
 
 	if(this->HasComponent(BinormalBit))
 		w+=3;
 
-	if(this->HasComponent(BinormalUB4NBit))
+	if(this->HasComponent(BinormalB4NBit))
 		w+=1;
 
 	if(this->HasComponent(ColorBit))

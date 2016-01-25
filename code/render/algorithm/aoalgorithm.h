@@ -14,6 +14,7 @@
 //------------------------------------------------------------------------------
 #include "algorithmbase.h"
 #include "renderutil/drawfullscreenquad.h"
+#include "coregraphics/shaderreadwritetexture.h"
 
 // define this to use compute shaders for HBAO instead of pixel shader using a full screen quad
 #define HBAO_COMPUTE 1
@@ -86,9 +87,13 @@ private:
 
 #endif
 
-    Ptr<CoreGraphics::RenderTarget> internalTargets[2];
-	Ptr<CoreGraphics::RenderTarget> target;
+#if HBAO_COMPUTE
+	Ptr<CoreGraphics::ShaderReadWriteTexture> internalTargets[2];
+	Ptr<CoreGraphics::ShaderReadWriteTexture> output;
+#else
+	Ptr<CoreGraphics::RenderTarget> internalTargets[2];
 	Ptr<CoreGraphics::RenderTarget> output;
+#endif
 	CoreGraphics::ShaderFeature::Mask xDirection;
 	CoreGraphics::ShaderFeature::Mask yDirection;
 

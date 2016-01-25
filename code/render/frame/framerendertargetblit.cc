@@ -1,18 +1,18 @@
 //------------------------------------------------------------------------------
-//  copy.cc
+//  framerendertargetblit.cc
 //  (C) 2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "copy.h"
+#include "framerendertargetblit.h"
 
 namespace Frame
 {
-__ImplementClass(Frame::Copy, 'FRCP', Frame::FramePassBase);
+__ImplementClass(Frame::FrameRenderTargetBlit, 'FRCP', Frame::FramePassBase);
 
 //------------------------------------------------------------------------------
 /**
 */
-Copy::Copy()
+FrameRenderTargetBlit::FrameRenderTargetBlit()
 {
 	// empty
 }
@@ -20,7 +20,7 @@ Copy::Copy()
 //------------------------------------------------------------------------------
 /**
 */
-Copy::~Copy()
+FrameRenderTargetBlit::~FrameRenderTargetBlit()
 {
 	// empty
 }
@@ -29,7 +29,7 @@ Copy::~Copy()
 /**
 */
 void 
-Copy::Render(IndexT frameIndex)
+FrameRenderTargetBlit::Render(IndexT frameIndex)
 {
     n_assert(this->from.isvalid());
     n_assert(this->to.isvalid());

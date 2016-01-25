@@ -112,6 +112,8 @@ AnyFXPreprocess(const std::string& file, const std::vector<std::string>& defines
     int result = mcpp_lib_main(numargs, (char**)arguments);
     if (result != 0)
     {
+		char* preprocessed = mcpp_get_mem_buffer(ERR); // get error
+		output.append(preprocessed);
 		mcpp_use_mem_buffers(1);	// clear memory
         delete[] args;
 		delete[] arguments;
@@ -119,7 +121,7 @@ AnyFXPreprocess(const std::string& file, const std::vector<std::string>& defines
     }
     else
     {
-        char* preprocessed = mcpp_get_mem_buffer(OUT);
+        char* preprocessed = mcpp_get_mem_buffer(OUT); // get output
         output.append(preprocessed);
 		mcpp_use_mem_buffers(1);	// clear memory
 		delete[] args;
@@ -330,17 +332,15 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
     }
     else
     {
-        char* err = mcpp_get_mem_buffer(ERR);
-        if (err)
-        {
-            size_t size = strlen(err);
-            *errorBuffer = new AnyFXErrorBlob;
-            (*errorBuffer)->buffer = new char[size];
-            (*errorBuffer)->size = size;
-            memcpy((void*)(*errorBuffer)->buffer, (void*)err, size);
-            (*errorBuffer)->buffer[size-1] = '\0';
-        }
-
+		if (output.length() > 0)
+		{
+			size_t size = output.size();
+			*errorBuffer = new AnyFXErrorBlob;
+			(*errorBuffer)->buffer = new char[size];
+			(*errorBuffer)->size = size;
+			memcpy((void*)(*errorBuffer)->buffer, (void*)output.c_str(), size);
+			(*errorBuffer)->buffer[size - 1] = '\0';
+		}
         return false;
     }	
 }

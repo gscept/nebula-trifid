@@ -76,6 +76,9 @@ public:
     /// get clear stencil value
     int GetClearStencil() const;
 
+	/// called after we change the display size
+	void OnDisplayResized(SizeT width, SizeT height);
+
 protected:
     friend class RenderDeviceBase;
 
@@ -123,8 +126,8 @@ MultipleRenderTargetBase::SetClearColor(IndexT i, const Math::float4& color)
 //------------------------------------------------------------------------------
 /**
 */
-inline const Math::float4& 
-MultipleRenderTargetBase::GetClearColor( IndexT i )
+inline const Math::float4&
+MultipleRenderTargetBase::GetClearColor(IndexT i)
 {
 	n_assert(i < this->numRenderTargets);
 	return this->clearColor[i];
@@ -171,8 +174,8 @@ MultipleRenderTargetBase::GetClearStencil() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-MultipleRenderTargetBase::SetClearFlags( IndexT i, uint clearFlags )
+inline void
+MultipleRenderTargetBase::SetClearFlags(IndexT i, uint clearFlags)
 {
 	this->clearFlags[i] = clearFlags;
 }
@@ -180,8 +183,8 @@ MultipleRenderTargetBase::SetClearFlags( IndexT i, uint clearFlags )
 //------------------------------------------------------------------------------
 /**
 */
-inline uint 
-MultipleRenderTargetBase::GetClearFlags( IndexT i )
+inline uint
+MultipleRenderTargetBase::GetClearFlags(IndexT i)
 {
 	return this->clearFlags[i];
 }
@@ -189,8 +192,8 @@ MultipleRenderTargetBase::GetClearFlags( IndexT i )
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-MultipleRenderTargetBase::SetDepthStencilClearFlags( uint clearFlags )
+inline void
+MultipleRenderTargetBase::SetDepthStencilClearFlags(uint clearFlags)
 {
 	this->depthStencilClearFlags = clearFlags;
 }
@@ -207,8 +210,8 @@ MultipleRenderTargetBase::GetDepthStencilClearFlags() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-MultipleRenderTargetBase::SetDepthStencilTarget( const Ptr<CoreGraphics::DepthStencilTarget>& dt )
+inline void
+MultipleRenderTargetBase::SetDepthStencilTarget(const Ptr<CoreGraphics::DepthStencilTarget>& dt)
 {
 	n_assert(dt.isvalid());
 	this->depthStencilTarget = dt;

@@ -7,7 +7,7 @@
 #include "ogl4types.h"
 #include "resources/resourcemanager.h"
 #include "coregraphics/texture.h"
-#include "../renderdevice.h"
+#include "coregraphics/renderdevice.h"
 
 using namespace CoreGraphics;
 using namespace Resources;

@@ -127,6 +127,9 @@ public:
 	/// get if render target cube is created as layered
 	const bool GetLayered() const;
 
+	/// called after we change the display size
+	void OnDisplayResized(SizeT width, SizeT height);
+
     /// set the current resolve rectangle (in pixels)
     void SetResolveRect(const Math::rectangle<int>& r);
     /// get resolve rectangle

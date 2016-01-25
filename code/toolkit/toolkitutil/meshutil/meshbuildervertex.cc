@@ -134,17 +134,17 @@ MeshBuilderVertex::Transform(const matrix44& m)
     {
         this->comps[BinormalIndex] = float4::transform(this->comps[BinormalIndex], m);
     }
-	if (this->compMask & NormalUB4NBit)
+	if (this->compMask & NormalB4NBit)
 	{
-		this->comps[NormalUB4NIndex] = float4::transform(this->comps[NormalUB4NIndex], m);
+		this->comps[NormalB4NIndex] = float4::transform(this->comps[NormalB4NIndex], m);
 	}
-	if (this->compMask & TangentUB4NBit)
+	if (this->compMask & TangentB4NBit)
 	{
-		this->comps[TangentUB4NIndex] = float4::transform(this->comps[TangentUB4NIndex], m);
+		this->comps[TangentB4NIndex] = float4::transform(this->comps[TangentB4NIndex], m);
 	}
-	if (this->compMask & BinormalUB4NBit)
+	if (this->compMask & BinormalB4NBit)
 	{
-		this->comps[BinormalUB4NIndex] = float4::transform(this->comps[BinormalUB4NIndex], m);
+		this->comps[BinormalB4NIndex] = float4::transform(this->comps[BinormalB4NIndex], m);
 	}
 }
 
@@ -167,11 +167,11 @@ MeshBuilderVertex::InitComponents(ComponentMask mask)
                     break;
 
                 case NormalIndex:
-				case NormalUB4NIndex:
+				case NormalB4NIndex:
                 case TangentIndex:
-				case TangentUB4NIndex:
+				case TangentB4NIndex:
                 case BinormalIndex:
-				case BinormalUB4NIndex:
+				case BinormalB4NIndex:
                     this->comps[i].set(0.0f, 1.0f, 0.0f, 0.0f);
                     break;
 

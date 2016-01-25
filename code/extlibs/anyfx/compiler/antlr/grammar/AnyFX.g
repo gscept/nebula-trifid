@@ -249,12 +249,12 @@ PREPROCESSOR
 	{
 		std::string file;
 	}
-	: NU 'line' WS includeLine = INTEGERLITERAL WS QO (data = PATH {file.append((const char*)$data->getText($data)->chars);}) QO (WS)* ('\r'|'\r\n'|'\n')
+	: '#line' WS includeLine = INTEGERLITERAL WS QO (data = PATH {file.append((const char*)$data->getText($data)->chars);}) QO
 	{
 		int line = atoi((const char*)$includeLine.text->chars);
 		LEXER->input->line = line;
 		includeFileNameLexer = file;
-		$channel = HIDDEN;
+		//$channel = HIDDEN;
 	}
 	;
 	

@@ -79,8 +79,16 @@ private:
 
 	// point light
 	Ptr<CoreGraphics::RenderTargetCube> pointLightShadowCubes[MaxNumShadowPointLights];
+	Ptr<CoreGraphics::RenderTargetCube> pointLightShadowFilterCube;
     Ptr<Frame::FramePass> pointLightPass;
     Ptr<Frame::FrameBatch> pointLightBatch;
+
+	Ptr<CoreGraphics::Shader> pointLightBlur;
+	CoreGraphics::ShaderFeature::Mask xBlurMask;
+	CoreGraphics::ShaderFeature::Mask yBlurMask;
+	Ptr<CoreGraphics::ShaderVariable> pointLightBlurReadLinear;
+	Ptr<CoreGraphics::ShaderVariable> pointLightBlurReadPoint;
+	Ptr<CoreGraphics::ShaderVariable> pointLightBlurWrite;
 
 	// global light
 	Ptr<Frame::FramePass> globalLightHotPass;

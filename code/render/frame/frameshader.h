@@ -15,6 +15,7 @@
 #include "resources/managedtexture.h"
 #include "coregraphics/rendertarget.h"
 #include "coregraphics/shadervariableinstance.h"
+#include "coregraphics/shaderreadwritetexture.h"
 #include "frame/framepassbase.h"
 #include "graphics/cameraentity.h"
 
@@ -89,15 +90,15 @@ public:
     const Ptr<CoreGraphics::RenderTargetCube>& GetRenderTargetCubeByName(const Resources::ResourceId& resId) const;
 
     /// add a texture to the frame
-    void AddTexture(const Resources::ResourceId& resId, const Ptr<Resources::ManagedTexture>& t);
+	void AddTexture(const Resources::ResourceId& resId, const Ptr<CoreGraphics::ShaderReadWriteTexture>& t);
     /// get number of textures
     SizeT GetNumTextures() const;
     /// get texture by index
-    const Ptr<Resources::ManagedTexture>& GetTextureByIndex(IndexT i) const;
+	const Ptr<CoreGraphics::ShaderReadWriteTexture>& GetTextureByIndex(IndexT i) const;
     /// return true if texture exists by name
     bool HasTexture(const Resources::ResourceId& resId) const;
     /// get texture by name
-    const Ptr<Resources::ManagedTexture>& GetTextureByName(const Resources::ResourceId& resId) const;
+	const Ptr<CoreGraphics::ShaderReadWriteTexture>& GetTextureByName(const Resources::ResourceId& resId) const;
 
     /// add a frame pass to the frame shader
     void AddFramePassBase(const Ptr<FramePassBase>& framePass);
@@ -126,7 +127,7 @@ private:
 	Util::Dictionary<Resources::ResourceId, Ptr<CoreGraphics::DepthStencilTarget> > depthStencilTargets;
     Util::Dictionary<Resources::ResourceId, Ptr<CoreGraphics::MultipleRenderTarget> > multipleRenderTargets;
     Util::Dictionary<Resources::ResourceId, Ptr<CoreGraphics::RenderTargetCube> > renderTargetCubes;
-    Util::Dictionary<Resources::ResourceId, Ptr<Resources::ManagedTexture> > textures;
+    Util::Dictionary<Resources::ResourceId, Ptr<CoreGraphics::ShaderReadWriteTexture> > textures;
     Util::Dictionary<Resources::ResourceId, Ptr<CoreGraphics::ShaderVariableInstance> > shaderVariables;
 
     Util::Array<Ptr<FramePassBase> > framePasses;
@@ -339,7 +340,7 @@ FrameShader::GetRenderTargetCubeByName(const Resources::ResourceId& resId) const
 /**
 */
 inline void
-FrameShader::AddTexture(const Resources::ResourceId& resId, const Ptr<Resources::ManagedTexture>& t)
+FrameShader::AddTexture(const Resources::ResourceId& resId, const Ptr<CoreGraphics::ShaderReadWriteTexture>& t)
 {
     n_assert(!this->textures.Contains(resId));
     this->textures.Add(resId, t);
@@ -357,7 +358,7 @@ FrameShader::GetNumTextures() const
 //------------------------------------------------------------------------------
 /**
 */
-inline const Ptr<Resources::ManagedTexture>& 
+inline const Ptr<CoreGraphics::ShaderReadWriteTexture>&
 FrameShader::GetTextureByIndex(IndexT i) const
 {
     return this->textures.ValueAtIndex(i);
@@ -375,7 +376,7 @@ FrameShader::HasTexture(const Resources::ResourceId& resId) const
 //------------------------------------------------------------------------------
 /**
 */
-inline const Ptr<Resources::ManagedTexture>&
+inline const Ptr<CoreGraphics::ShaderReadWriteTexture>&
 FrameShader::GetTextureByName(const Resources::ResourceId& resId) const
 {
     return this->textures[resId];

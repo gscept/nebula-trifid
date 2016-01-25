@@ -223,9 +223,9 @@ Nvx2OrderFreeStreamReader::SetupVertexComponents()
         {
             switch (1<<i)
             {
-                case N2Coord:        sem = VertexComponent::Position;     fmt = VertexComponent::Float3; break;
-                case N2Normal:       sem = VertexComponent::Normal;       fmt = VertexComponent::Float3; break;
-                case N2NormalUB4N:   sem = VertexComponent::Normal;       fmt = VertexComponent::UByte4N; break;
+                case N2Coord:        sem = VertexComponent::Position;      fmt = VertexComponent::Float3; break;
+                case N2Normal:       sem = VertexComponent::Normal;        fmt = VertexComponent::Float3; break;
+                case N2NormalB4N:    sem = VertexComponent::Normal;		   fmt = VertexComponent::Byte4N; break;
                 case N2Uv0:          sem = VertexComponent::TexCoord1;     fmt = VertexComponent::Float2; index = 0; break;
                 case N2Uv0S2:        sem = VertexComponent::TexCoord1;     fmt = VertexComponent::Short2; index = 0; break;
                 case N2Uv1:          sem = VertexComponent::TexCoord2;     fmt = VertexComponent::Float2; index = 1; break;
@@ -239,9 +239,9 @@ Nvx2OrderFreeStreamReader::SetupVertexComponents()
                 case N2Color:        sem = VertexComponent::Color;        fmt = VertexComponent::Float4; break;
                 case N2ColorUB4N:    sem = VertexComponent::Color;        fmt = VertexComponent::UByte4N; break;
                 case N2Tangent:      sem = VertexComponent::Tangent;      fmt = VertexComponent::Float3; break;
-                case N2TangentUB4N:  sem = VertexComponent::Tangent;      fmt = VertexComponent::UByte4N; break;
+                case N2TangentB4N:   sem = VertexComponent::Tangent;      fmt = VertexComponent::Byte4N; break;
                 case N2Binormal:     sem = VertexComponent::Binormal;     fmt = VertexComponent::Float3; break;
-                case N2BinormalUB4N: sem = VertexComponent::Binormal;     fmt = VertexComponent::UByte4N; break;
+                case N2BinormalB4N:  sem = VertexComponent::Binormal;     fmt = VertexComponent::Byte4N; break;
                 case N2Weights:      sem = VertexComponent::SkinWeights;  fmt = VertexComponent::Float4; break;
                 case N2WeightsUB4N:  sem = VertexComponent::SkinWeights;  fmt = VertexComponent::UByte4N; break;
                 case N2JIndices:     sem = VertexComponent::SkinJIndices; fmt = VertexComponent::Float4; break;
@@ -387,6 +387,10 @@ Nvx2OrderFreeStreamReader::ConvertVertexBufferEndianess(void* vertexPtr, SizeT n
                 case VertexComponent::UByte4N:
                     byteOrder.ConvertInPlace<uint>(((uint*)ptr)[0]);
                     break;
+				case VertexComponent::Byte4:
+				case VertexComponent::Byte4N:
+					byteOrder.ConvertInPlace<int>(((int*)ptr)[0]);
+					break;
 
                 default:
                     n_error("Invalid VertexComponent Format!");

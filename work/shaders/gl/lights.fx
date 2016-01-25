@@ -40,7 +40,7 @@ samplerCube ShadowProjCube;
 samplerstate PointLightTextureSampler
 {
 	Samplers = { ShadowProjCube };
-	Filter = Point;
+	Filter = MinMagLinearMipPoint;
 };
 
 samplerstate GeometrySampler

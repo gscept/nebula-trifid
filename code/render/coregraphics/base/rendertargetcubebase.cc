@@ -181,5 +181,14 @@ RenderTargetCubeBase::Clear(uint flags)
 	n_error("RenderTargetBase::Clear() not implemented!");
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+RenderTargetCubeBase::OnDisplayResized(SizeT width, SizeT height)
+{
+	// override in subclass
+}
+
 } // namespace Base
 

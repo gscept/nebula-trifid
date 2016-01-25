@@ -46,14 +46,14 @@ private:
     static void ParseFrameCompute(const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader);
     /// parse frame copy
     static void ParseCopy(const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader);
+	/// parse frame copy
+	static void ParseClear(const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader);
 	/// parse frame algorithm from XML
 	static void ParseFrameAlgorithm(const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader);
     /// parse post effect from XML
     static void ParsePostEffect(const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader);
     /// parse frame batch from XML
     static Ptr<FrameBatch> ParseFrameBatch(const Ptr<IO::XmlReader>& xmlReader, const Util::String& passName);
-    /// array for mapping texture name in frame shader xml with resource id which is used in nebula3 for identifying textures
-    static Util::Dictionary<Util::StringAtom, Resources::ResourceId> textureNameResIdMapping;
 };
 
 } // namespace Frame

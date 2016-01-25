@@ -341,12 +341,12 @@ PixelFormat::ToILComponents(Code code)
 	case PixelFormat::R16F:             return IL_RED;
 	case PixelFormat::G16R16:			return IL_RG;
 	case PixelFormat::G16R16F:          return IL_RG;
-	case PixelFormat::A16B16G16R16F:    return IL_RGBA;
-	case PixelFormat::A16B16G16R16:		return IL_RGBA;
+	case PixelFormat::A16B16G16R16F:    return IL_BGRA;
+	case PixelFormat::A16B16G16R16:		return IL_BGRA;
 	case PixelFormat::R11G11B10F:		return IL_RGB;
 	case PixelFormat::R32F:             return IL_RED;
 	case PixelFormat::G32R32F:          return IL_RG;
-	case PixelFormat::A32B32G32R32F:    return IL_RGBA;
+	case PixelFormat::A32B32G32R32F:    return IL_BGRA;
 	case PixelFormat::R32G32B32F:		return IL_RGB;							
 	case PixelFormat::A8:               return IL_ALPHA;	
 	case PixelFormat::R8:				return IL_RED;

@@ -354,6 +354,8 @@ OGL4RenderTarget::OnDisplayResized(SizeT w, SizeT h)
 		this->width = SizeT(Math::n_floor(w * this->relWidth));
 		this->height = SizeT(Math::n_floor(h * this->relHeight));
 
+		//glDeleteTextures(1, &this->ogl4ResolveTexture);
+		//glGenTextures(1, &this->ogl4ResolveTexture);
 		if (this->msCount > 1)
 		{
 			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, this->ogl4ResolveTexture);
@@ -383,8 +385,6 @@ OGL4RenderTarget::OnDisplayResized(SizeT w, SizeT h)
 			n_assert(GLSUCCESS);
 			glBindTexture(GL_TEXTURE_2D, 0);
 		}
-
-
 
         // do not set left or top since they may be set prior to this
 		this->resolveRect.right = this->resolveRect.left + this->width;

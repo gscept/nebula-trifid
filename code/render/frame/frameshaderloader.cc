@@ -12,7 +12,7 @@
 #include "frame/frametext.h"
 #include "frame/frameshapes.h"
 #include "frame/framecompute.h"
-#include "frame/copy.h"
+#include "frame/framerendertargetblit.h"
 #include "lighting/lightserver.h"
 #include "io/ioserver.h"
 #include "coregraphics/rendertarget.h"
@@ -30,6 +30,7 @@
 #include "core/factory.h"
 #include "algorithm/algorithmbase.h"
 #include "algorithm/algorithms.h"
+#include "frametexclear.h"
 
 namespace Frame
 {
@@ -40,7 +41,6 @@ using namespace Models;
 using namespace Util;
 using namespace IO;
 
-Util::Dictionary<StringAtom, ResourceId> FrameShaderLoader::textureNameResIdMapping;
 //------------------------------------------------------------------------------
 /**
 */
@@ -99,8 +99,6 @@ FrameShaderLoader::ParseFrameShader(const Ptr<XmlReader>& xmlReader, const Ptr<F
     }
     while (xmlReader->SetToNextChild("DeclareRenderTargetCube"));
 
-    FrameShaderLoader::textureNameResIdMapping.Clear();
-
     // parse texture declarations
     if (xmlReader->SetToFirstChild("DeclareTexture")) do
     {
@@ -122,7 +120,8 @@ FrameShaderLoader::ParseFrameShader(const Ptr<XmlReader>& xmlReader, const Ptr<F
 		xmlReader->SetToFirstChild("Text") ||
 		xmlReader->SetToFirstChild("GUI") ||
 		xmlReader->SetToFirstChild("Shapes") ||
-		xmlReader->SetToFirstChild("Compute")) do
+		xmlReader->SetToFirstChild("Compute") ||
+		xmlReader->SetToFirstChild("Clear")) do
     {
         if (xmlReader->GetCurrentNodeName() == "Pass")
         {
@@ -144,6 +143,10 @@ FrameShaderLoader::ParseFrameShader(const Ptr<XmlReader>& xmlReader, const Ptr<F
         {
             ParseCopy(xmlReader, frameShader);
         }
+		else if (xmlReader->GetCurrentNodeName() == "Clear")
+		{
+			ParseClear(xmlReader, frameShader);
+		}
     }
     while (xmlReader->SetToNextChild());
 }
@@ -356,7 +359,7 @@ FrameShaderLoader::ParseShaderVariableInstance(const Ptr<XmlReader>& xmlReader, 
             if (resManager->HasResource(valueStr))
             {
                 const Ptr<Resource>& resource = resManager->LookupResource(valueStr);
-                shdVarInst->SetTexture(resource.downcast<Texture>());
+				shdVarInst->SetTexture(resource.downcast<Texture>());
             }
 		}
 		break;
@@ -437,6 +440,9 @@ FrameShaderLoader::ParseFramePass(const Ptr<XmlReader>& xmlReader, const Ptr<Fra
     Ptr<FramePass> framePass = (FramePass*) Core::Factory::Instance()->Create(framePassClass);
     n_assert(framePass->IsA(Frame::FramePass::RTTI));
 
+	// get name
+	framePass->SetName(xmlReader->GetString("name"));
+
 	Ptr<ShaderInstance> shader = NULL;
 	if (xmlReader->HasAttr("shader"))
 	{
@@ -453,9 +459,6 @@ FrameShaderLoader::ParseFramePass(const Ptr<XmlReader>& xmlReader, const Ptr<Fra
 		while (xmlReader->SetToNextChild("ApplyShaderVariable"));
 	}	
   
-	// get name
-    framePass->SetName(xmlReader->GetString("name"));
-
     // setup the render target (if not render to default render target)
     bool useDefaultRendertarget = true;
     if (xmlReader->HasAttr("renderTarget"))
@@ -551,8 +554,8 @@ FrameShaderLoader::ParseFramePass(const Ptr<XmlReader>& xmlReader, const Ptr<Fra
 //------------------------------------------------------------------------------
 /**
 */
-void 
-FrameShaderLoader::ParseFrameCompute( const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader )
+void
+FrameShaderLoader::ParseFrameCompute(const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader)
 {
     // create frame compute object
     Ptr<FrameCompute> frameComp = FrameCompute::Create();
@@ -605,10 +608,10 @@ FrameShaderLoader::ParseFrameCompute( const Ptr<IO::XmlReader>& xmlReader, const
 //------------------------------------------------------------------------------
 /**
 */
-void 
-FrameShaderLoader::ParseCopy( const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader )
+void
+FrameShaderLoader::ParseCopy(const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader)
 {
-    Ptr<Copy> copy = Copy::Create();
+    Ptr<FrameRenderTargetBlit> copy = FrameRenderTargetBlit::Create();
 
     // read from and to target
     String from = xmlReader->GetString("from");
@@ -627,8 +630,26 @@ FrameShaderLoader::ParseCopy( const Ptr<IO::XmlReader>& xmlReader, const Ptr<Fra
 //------------------------------------------------------------------------------
 /**
 */
-void 
-FrameShaderLoader::ParseFrameAlgorithm( const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader )
+void
+FrameShaderLoader::ParseClear(const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader)
+{
+	Ptr<FrameTexClear> clear = FrameTexClear::Create();
+	String tex = xmlReader->GetString("name");
+	Math::float4 clearColor = xmlReader->GetFloat4("clearColor");
+	Ptr<CoreGraphics::ShaderReadWriteTexture> texture = frameShader->GetTextureByName(tex);
+
+	// setup clear pass
+	clear->Setup(texture, clearColor);
+
+	// add to frame shader
+	frameShader->AddFramePassBase(clear.upcast<FramePassBase>());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+FrameShaderLoader::ParseFrameAlgorithm(const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader)
 {
 	// create frame algorithm object
 	Ptr<FrameAlgorithm> frameAlg = FrameAlgorithm::Create();
@@ -892,9 +913,6 @@ FrameShaderLoader::ParseMultipleRenderTarget(const Ptr<IO::XmlReader>& xmlReader
         }   
     }
     while (xmlReader->SetToNextChild("RenderTarget"));
-
-	
-
     frameShader->AddMultipleRenderTarget(name, multipleRenderTarget);
 }
 
@@ -907,11 +925,21 @@ FrameShaderLoader::ParseTexture(const Ptr<IO::XmlReader>& xmlReader, const Ptr<F
     n_assert(DisplayDevice::Instance()->IsOpen());
 
     StringAtom name = xmlReader->GetString("name");    
-    String res = xmlReader->GetString("resId") + NEBULA3_TEXTURE_EXTENSION;        
-    Ptr<ManagedTexture> texture = ResourceManager::Instance()->CreateManagedResource(Texture::RTTI, res, NULL, true).downcast<ManagedTexture>();    
-    frameShader->AddTexture(res, texture);           
-
-    FrameShaderLoader::textureNameResIdMapping.Add(name, res);
+	PixelFormat::Code format = PixelFormat::FromString(xmlReader->GetString("format"));
+	Ptr<ShaderReadWriteTexture> texture = ShaderReadWriteTexture::Create();
+	if (xmlReader->HasAttr("width") && xmlReader->HasAttr("height"))
+	{
+		texture->Setup(xmlReader->GetInt("width"), xmlReader->GetInt("height"), format, name);
+	}
+	else if (xmlReader->HasAttr("relWidth") && xmlReader->HasAttr("relHeight"))
+	{
+		texture->SetupWithRelativeSize(xmlReader->GetFloat("relWidth"), xmlReader->GetFloat("relHeight"), format, name);
+	}
+	else
+	{
+		n_error("Frame shader texture must have either relative or fixed heights and widths");
+	}
+	frameShader->AddTexture(name, texture);
 }
 
 

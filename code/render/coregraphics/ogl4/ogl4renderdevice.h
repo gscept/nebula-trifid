@@ -57,7 +57,7 @@ public:
     /// set current index buffer
     void SetIndexBuffer(const Ptr<CoreGraphics::IndexBuffer>& ib);	
     /// perform computation
-    void Compute(int dimX, int dimY, int dimZ);
+	void Compute(int dimX, int dimY, int dimZ, uint flag = NoBarrier); // use MemoryBarrierFlag
     /// begins pass with single rendertarget
     void BeginPass(const Ptr<CoreGraphics::RenderTarget>& rt, const Ptr<CoreGraphics::Shader>& passShader);
     /// begins pass with multiple rendertarget

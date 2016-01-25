@@ -20,11 +20,11 @@ public:
     /// default constructor
     DisplayMode();
     /// windowed mode constructor
-    DisplayMode(uint x, uint y, uint w, uint h);
+	DisplayMode(uint x, uint y, SizeT w, SizeT h);
     /// fullscreen constructor
-    DisplayMode(uint w, uint h, PixelFormat::Code p);
+	DisplayMode(SizeT w, SizeT h, PixelFormat::Code p);
     /// generic constructor
-    DisplayMode(uint x, uint y, uint w, uint h, PixelFormat::Code p);
+	DisplayMode(uint x, uint y, SizeT w, SizeT h, PixelFormat::Code p);
     /// equality operator
     bool operator==(const DisplayMode& rhs) const;
     /// inequality operator
@@ -38,13 +38,13 @@ public:
     /// get y position
     uint GetYPos() const;
     /// set width
-    void SetWidth(uint w);
+	void SetWidth(SizeT w);
     /// get width
-    uint GetWidth() const;
+	SizeT GetWidth() const;
     /// set height
-    void SetHeight(uint h);
+	void SetHeight(SizeT h);
     /// get height
-    uint GetHeight() const;
+	SizeT GetHeight() const;
     /// set pixel format
     void SetPixelFormat(PixelFormat::Code p);
     /// get pixel format
@@ -74,8 +74,8 @@ private:
 	
     uint xPos;
     uint yPos;
-    uint width;
-    uint height;
+	SizeT width;
+	SizeT height;
 	uint refreshRate;
     float aspectRatio;
     PixelFormat::Code pixelFormat;
@@ -103,7 +103,7 @@ DisplayMode::DisplayMode() :
     This constructor is suitable for windowed modes.
 */
 inline
-DisplayMode::DisplayMode(uint x, uint y, uint w, uint h) :
+DisplayMode::DisplayMode(uint x, uint y, SizeT w, SizeT h) :
     xPos(x),
     yPos(y),
     width(w),
@@ -120,7 +120,7 @@ DisplayMode::DisplayMode(uint x, uint y, uint w, uint h) :
     This constructor is suitable for fullscreen modes.
 */
 inline
-DisplayMode::DisplayMode(uint w, uint h, PixelFormat::Code p) :
+DisplayMode::DisplayMode(SizeT w, SizeT h, PixelFormat::Code p) :
     xPos(0),
     yPos(0),
     width(w),
@@ -136,7 +136,7 @@ DisplayMode::DisplayMode(uint w, uint h, PixelFormat::Code p) :
 /**
 */
 inline
-DisplayMode::DisplayMode(uint x, uint y, uint w, uint h, PixelFormat::Code p) :
+DisplayMode::DisplayMode(uint x, uint y, SizeT w, SizeT h, PixelFormat::Code p) :
     xPos(x),
     yPos(y),
     width(w),
@@ -212,7 +212,7 @@ DisplayMode::GetYPos() const
 /**
 */
 inline void
-DisplayMode::SetWidth(uint w)
+DisplayMode::SetWidth(SizeT w)
 {
     this->width = w;
 }
@@ -220,7 +220,7 @@ DisplayMode::SetWidth(uint w)
 //------------------------------------------------------------------------------
 /**
 */
-inline uint
+inline SizeT
 DisplayMode::GetWidth() const
 {
     return this->width;
@@ -230,7 +230,7 @@ DisplayMode::GetWidth() const
 /**
 */
 inline void
-DisplayMode::SetHeight(uint h)
+DisplayMode::SetHeight(SizeT h)
 {
     this->height = h;
 }
@@ -238,7 +238,7 @@ DisplayMode::SetHeight(uint h)
 //------------------------------------------------------------------------------
 /**
 */
-inline uint
+inline SizeT
 DisplayMode::GetHeight() const
 {
     return this->height;

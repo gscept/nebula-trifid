@@ -370,32 +370,32 @@ NFbxMeshNode::ExtractNormals( int polygonVertex, int vertexIndex, MeshBuilderVer
 		case FbxGeometryElement::eDirect:
 			{
 				FbxVector4 n = normalElement->GetDirectArray().GetAt(vertexIndex);
-				if (vertex.HasComponent(MeshBuilderVertex::NormalBit))
+				if (vertex.HasComponent(MeshBuilderVertex::NormalB4NBit))
 				{
-					float4 oldNormal = vertex.GetComponent(MeshBuilderVertex::NormalIndex);
+					float4 oldNormal = vertex.GetComponent(MeshBuilderVertex::NormalB4NIndex);
 					float4 newNormal = float4(oldNormal.x() + (float)n[0], oldNormal.y() + (float)n[1], oldNormal.z() + (float)n[2], 0.5f);
 					newNormal = float4::normalize(newNormal);
-					vertex.SetComponent(MeshBuilderVertex::NormalIndex, newNormal);
+					vertex.SetComponent(MeshBuilderVertex::NormalB4NIndex, newNormal);
 				}
 				else
 				{
-					vertex.SetComponent(MeshBuilderVertex::NormalIndex, float4((float)n[0],(float)n[1],(float)n[2],0.5f));
+					vertex.SetComponent(MeshBuilderVertex::NormalB4NIndex, float4((float)n[0], (float)n[1], (float)n[2], 0.5f));
 				}
 				break;
 			}
 		case FbxGeometryElement::eIndexToDirect:
 			{
 				FbxVector4 n = normalElement->GetDirectArray().GetAt(normalElement->GetIndexArray().GetAt(vertexIndex));
-				if (vertex.HasComponent(MeshBuilderVertex::NormalBit))
+				if (vertex.HasComponent(MeshBuilderVertex::NormalB4NBit))
 				{
-					float4 oldNormal = vertex.GetComponent(MeshBuilderVertex::NormalIndex);
+					float4 oldNormal = vertex.GetComponent(MeshBuilderVertex::NormalB4NIndex);
 					float4 newNormal = float4(oldNormal.x() + (float)n[0], oldNormal.y() + (float)n[1], oldNormal.z() + (float)n[2], 0.5f);
 					newNormal = float4::normalize(newNormal);
-					vertex.SetComponent(MeshBuilderVertex::NormalIndex, newNormal);
+					vertex.SetComponent(MeshBuilderVertex::NormalB4NIndex, newNormal);
 				}
 				else
 				{
-					vertex.SetComponent(MeshBuilderVertex::NormalIndex, float4((float)n[0],(float)n[1],(float)n[2],0.5f));
+					vertex.SetComponent(MeshBuilderVertex::NormalB4NIndex, float4((float)n[0], (float)n[1], (float)n[2], 0.5f));
 				}
 				break;
 			}
@@ -410,32 +410,32 @@ NFbxMeshNode::ExtractNormals( int polygonVertex, int vertexIndex, MeshBuilderVer
 		case FbxGeometryElement::eDirect:
 			{
 				FbxVector4 n = normalElement->GetDirectArray().GetAt(polygonVertex);
-				if (vertex.HasComponent(MeshBuilderVertex::NormalBit))
+				if (vertex.HasComponent(MeshBuilderVertex::NormalB4NBit))
 				{
-					float4 oldNormal = vertex.GetComponent(MeshBuilderVertex::NormalIndex);
+					float4 oldNormal = vertex.GetComponent(MeshBuilderVertex::NormalB4NIndex);
 					float4 newNormal = float4(oldNormal.x() + (float)n[0], oldNormal.y() + (float)n[1], oldNormal.z() + (float)n[2], 0.5f);
 					newNormal = float4::normalize(newNormal);
-					vertex.SetComponent(MeshBuilderVertex::NormalIndex, newNormal);
+					vertex.SetComponent(MeshBuilderVertex::NormalB4NIndex, newNormal);
 				}
 				else
 				{
-					vertex.SetComponent(MeshBuilderVertex::NormalIndex, float4((float)n[0],(float)n[1],(float)n[2],0.5f));
+					vertex.SetComponent(MeshBuilderVertex::NormalB4NIndex, float4((float)n[0], (float)n[1], (float)n[2], 0.5f));
 				}
 				break;
 			}
 		case FbxGeometryElement::eIndexToDirect:
 			{
 				FbxVector4 n = normalElement->GetDirectArray().GetAt(normalElement->GetIndexArray().GetAt(polygonVertex));
-				if (vertex.HasComponent(MeshBuilderVertex::NormalBit))
+				if (vertex.HasComponent(MeshBuilderVertex::NormalB4NBit))
 				{
-					float4 oldNormal = vertex.GetComponent(MeshBuilderVertex::NormalIndex);
+					float4 oldNormal = vertex.GetComponent(MeshBuilderVertex::NormalB4NIndex);
 					float4 newNormal = float4(oldNormal.x() + (float)n[0], oldNormal.y() + (float)n[1], oldNormal.z() + (float)n[2], 0.5f);
 					newNormal = float4::normalize(newNormal);
-					vertex.SetComponent(MeshBuilderVertex::NormalIndex, newNormal);
+					vertex.SetComponent(MeshBuilderVertex::NormalB4NIndex, newNormal);
 				}
 				else
 				{
-					vertex.SetComponent(MeshBuilderVertex::NormalIndex, float4((float)n[0],(float)n[1],(float)n[2],0.5f));
+					vertex.SetComponent(MeshBuilderVertex::NormalB4NIndex, float4((float)n[0], (float)n[1], (float)n[2], 0.5f));
 				}
 				break;
 			}
@@ -468,32 +468,32 @@ NFbxMeshNode::ExtractBinormalsAndTangents(int polygonVertex, int vertexIndex, To
 		case FbxGeometryElement::eDirect:
 		{
 			FbxVector4 n = binormalElement->GetDirectArray().GetAt(vertexIndex);
-			if (vertex.HasComponent(MeshBuilderVertex::BinormalBit))
+			if (vertex.HasComponent(MeshBuilderVertex::BinormalB4NBit))
 			{
-				float4 oldNormal = vertex.GetComponent(MeshBuilderVertex::BinormalIndex);
+				float4 oldNormal = vertex.GetComponent(MeshBuilderVertex::BinormalB4NIndex);
 				float4 newNormal = float4(oldNormal.x() + (float)n[0], oldNormal.y() + (float)n[1], oldNormal.z() + (float)n[2], 0.5f);
 				newNormal = float4::normalize(newNormal);
-				vertex.SetComponent(MeshBuilderVertex::BinormalIndex, newNormal);
+				vertex.SetComponent(MeshBuilderVertex::BinormalB4NIndex, newNormal);
 			}
 			else
 			{
-				vertex.SetComponent(MeshBuilderVertex::BinormalIndex, float4((float)n[0], (float)n[1], (float)n[2], 0.5f));
+				vertex.SetComponent(MeshBuilderVertex::BinormalB4NIndex, float4((float)n[0], (float)n[1], (float)n[2], 0.5f));
 			}
 			break;
 		}
 		case FbxGeometryElement::eIndexToDirect:
 		{
 			FbxVector4 n = binormalElement->GetDirectArray().GetAt(binormalElement->GetIndexArray().GetAt(vertexIndex));
-			if (vertex.HasComponent(MeshBuilderVertex::BinormalBit))
+			if (vertex.HasComponent(MeshBuilderVertex::BinormalB4NBit))
 			{
-				float4 oldNormal = vertex.GetComponent(MeshBuilderVertex::BinormalIndex);
+				float4 oldNormal = vertex.GetComponent(MeshBuilderVertex::BinormalB4NIndex);
 				float4 newNormal = float4(oldNormal.x() + (float)n[0], oldNormal.y() + (float)n[1], oldNormal.z() + (float)n[2], 0.5f);
 				newNormal = float4::normalize(newNormal);
-				vertex.SetComponent(MeshBuilderVertex::BinormalIndex, newNormal);
+				vertex.SetComponent(MeshBuilderVertex::BinormalB4NIndex, newNormal);
 			}
 			else
 			{
-				vertex.SetComponent(MeshBuilderVertex::BinormalIndex, float4((float)n[0], (float)n[1], (float)n[2], 0.5f));
+				vertex.SetComponent(MeshBuilderVertex::BinormalB4NIndex, float4((float)n[0], (float)n[1], (float)n[2], 0.5f));
 			}
 			break;
 		}
@@ -508,32 +508,32 @@ NFbxMeshNode::ExtractBinormalsAndTangents(int polygonVertex, int vertexIndex, To
 		case FbxGeometryElement::eDirect:
 		{
 			FbxVector4 n = binormalElement->GetDirectArray().GetAt(polygonVertex);
-			if (vertex.HasComponent(MeshBuilderVertex::BinormalBit))
+			if (vertex.HasComponent(MeshBuilderVertex::BinormalB4NBit))
 			{
-				float4 oldNormal = vertex.GetComponent(MeshBuilderVertex::BinormalIndex);
+				float4 oldNormal = vertex.GetComponent(MeshBuilderVertex::BinormalB4NIndex);
 				float4 newNormal = float4(oldNormal.x() + (float)n[0], oldNormal.y() + (float)n[1], oldNormal.z() + (float)n[2], 0.5f);
 				newNormal = float4::normalize(newNormal);
-				vertex.SetComponent(MeshBuilderVertex::BinormalIndex, newNormal);
+				vertex.SetComponent(MeshBuilderVertex::BinormalB4NIndex, newNormal);
 			}
 			else
 			{
-				vertex.SetComponent(MeshBuilderVertex::BinormalIndex, float4((float)n[0], (float)n[1], (float)n[2], 0.5f));
+				vertex.SetComponent(MeshBuilderVertex::BinormalB4NIndex, float4((float)n[0], (float)n[1], (float)n[2], 0.5f));
 			}
 			break;
 		}
 		case FbxGeometryElement::eIndexToDirect:
 		{
 			FbxVector4 n = binormalElement->GetDirectArray().GetAt(binormalElement->GetIndexArray().GetAt(polygonVertex));
-			if (vertex.HasComponent(MeshBuilderVertex::BinormalBit))
+			if (vertex.HasComponent(MeshBuilderVertex::BinormalB4NBit))
 			{
-				float4 oldNormal = vertex.GetComponent(MeshBuilderVertex::BinormalIndex);
+				float4 oldNormal = vertex.GetComponent(MeshBuilderVertex::BinormalB4NIndex);
 				float4 newNormal = float4(oldNormal.x() + (float)n[0], oldNormal.y() + (float)n[1], oldNormal.z() + (float)n[2], 0.5f);
 				newNormal = float4::normalize(newNormal);
-				vertex.SetComponent(MeshBuilderVertex::BinormalIndex, newNormal);
+				vertex.SetComponent(MeshBuilderVertex::BinormalB4NIndex, newNormal);
 			}
 			else
 			{
-				vertex.SetComponent(MeshBuilderVertex::BinormalIndex, float4((float)n[0], (float)n[1], (float)n[2], 0.5f));
+				vertex.SetComponent(MeshBuilderVertex::BinormalB4NIndex, float4((float)n[0], (float)n[1], (float)n[2], 0.5f));
 			}
 			break;
 		}
@@ -558,32 +558,32 @@ NFbxMeshNode::ExtractBinormalsAndTangents(int polygonVertex, int vertexIndex, To
 		case FbxGeometryElement::eDirect:
 		{
 			FbxVector4 n = tangentElement->GetDirectArray().GetAt(vertexIndex);
-			if (vertex.HasComponent(MeshBuilderVertex::TangentBit))
+			if (vertex.HasComponent(MeshBuilderVertex::TangentB4NBit))
 			{
-				float4 oldNormal = vertex.GetComponent(MeshBuilderVertex::TangentIndex);
+				float4 oldNormal = vertex.GetComponent(MeshBuilderVertex::TangentB4NIndex);
 				float4 newNormal = float4(oldNormal.x() + (float)n[0], oldNormal.y() + (float)n[1], oldNormal.z() + (float)n[2], 0.5f);
 				newNormal = float4::normalize(newNormal);
-				vertex.SetComponent(MeshBuilderVertex::TangentIndex, newNormal);
+				vertex.SetComponent(MeshBuilderVertex::TangentB4NIndex, newNormal);
 			}
 			else
 			{
-				vertex.SetComponent(MeshBuilderVertex::TangentIndex, float4((float)n[0], (float)n[1], (float)n[2], 0.5f));
+				vertex.SetComponent(MeshBuilderVertex::TangentB4NIndex, float4((float)n[0], (float)n[1], (float)n[2], 0.5f));
 			}
 			break;
 		}
 		case FbxGeometryElement::eIndexToDirect:
 		{
 			FbxVector4 n = tangentElement->GetDirectArray().GetAt(tangentElement->GetIndexArray().GetAt(vertexIndex));
-			if (vertex.HasComponent(MeshBuilderVertex::TangentBit))
+			if (vertex.HasComponent(MeshBuilderVertex::TangentB4NBit))
 			{
-				float4 oldNormal = vertex.GetComponent(MeshBuilderVertex::TangentIndex);
+				float4 oldNormal = vertex.GetComponent(MeshBuilderVertex::TangentB4NIndex);
 				float4 newNormal = float4(oldNormal.x() + (float)n[0], oldNormal.y() + (float)n[1], oldNormal.z() + (float)n[2], 0.5f);
 				newNormal = float4::normalize(newNormal);
-				vertex.SetComponent(MeshBuilderVertex::TangentIndex, newNormal);
+				vertex.SetComponent(MeshBuilderVertex::TangentB4NIndex, newNormal);
 			}
 			else
 			{
-				vertex.SetComponent(MeshBuilderVertex::TangentIndex, float4((float)n[0], (float)n[1], (float)n[2], 0.5f));
+				vertex.SetComponent(MeshBuilderVertex::TangentB4NIndex, float4((float)n[0], (float)n[1], (float)n[2], 0.5f));
 			}
 			break;
 		}
@@ -598,32 +598,32 @@ NFbxMeshNode::ExtractBinormalsAndTangents(int polygonVertex, int vertexIndex, To
 		case FbxGeometryElement::eDirect:
 		{
 			FbxVector4 n = tangentElement->GetDirectArray().GetAt(polygonVertex);
-			if (vertex.HasComponent(MeshBuilderVertex::TangentBit))
+			if (vertex.HasComponent(MeshBuilderVertex::TangentB4NBit))
 			{
-				float4 oldNormal = vertex.GetComponent(MeshBuilderVertex::TangentIndex);
+				float4 oldNormal = vertex.GetComponent(MeshBuilderVertex::TangentB4NIndex);
 				float4 newNormal = float4(oldNormal.x() + (float)n[0], oldNormal.y() + (float)n[1], oldNormal.z() + (float)n[2], 0.5f);
 				newNormal = float4::normalize(newNormal);
-				vertex.SetComponent(MeshBuilderVertex::TangentIndex, newNormal);
+				vertex.SetComponent(MeshBuilderVertex::TangentB4NIndex, newNormal);
 			}
 			else
 			{
-				vertex.SetComponent(MeshBuilderVertex::TangentIndex, float4((float)n[0], (float)n[1], (float)n[2], 0.5f));
+				vertex.SetComponent(MeshBuilderVertex::TangentB4NIndex, float4((float)n[0], (float)n[1], (float)n[2], 0.5f));
 			}
 			break;
 		}
 		case FbxGeometryElement::eIndexToDirect:
 		{
 			FbxVector4 n = tangentElement->GetDirectArray().GetAt(tangentElement->GetIndexArray().GetAt(polygonVertex));
-			if (vertex.HasComponent(MeshBuilderVertex::TangentBit))
+			if (vertex.HasComponent(MeshBuilderVertex::TangentB4NBit))
 			{
-				float4 oldNormal = vertex.GetComponent(MeshBuilderVertex::TangentIndex);
+				float4 oldNormal = vertex.GetComponent(MeshBuilderVertex::TangentB4NIndex);
 				float4 newNormal = float4(oldNormal.x() + (float)n[0], oldNormal.y() + (float)n[1], oldNormal.z() + (float)n[2], 0.5f);
 				newNormal = float4::normalize(newNormal);
-				vertex.SetComponent(MeshBuilderVertex::TangentIndex, newNormal);
+				vertex.SetComponent(MeshBuilderVertex::TangentB4NIndex, newNormal);
 			}
 			else
 			{
-				vertex.SetComponent(MeshBuilderVertex::TangentIndex, float4((float)n[0], (float)n[1], (float)n[2], 0.5f));
+				vertex.SetComponent(MeshBuilderVertex::TangentB4NIndex, float4((float)n[0], (float)n[1], (float)n[2], 0.5f));
 			}
 			break;
 		}
@@ -653,32 +653,32 @@ NFbxMeshNode::ExtractColors( int polygonVertex, int vertexIndex, ToolkitUtil::Me
 		case FbxGeometryElement::eDirect:
 			{
 				FbxColor n = colorElement->GetDirectArray().GetAt(vertexIndex);
-				if (vertex.HasComponent(MeshBuilderVertex::ColorBit))
+				if (vertex.HasComponent(MeshBuilderVertex::ColorUB4NBit))
 				{
-					float4 oldColor = vertex.GetComponent(MeshBuilderVertex::ColorIndex);
+					float4 oldColor = vertex.GetComponent(MeshBuilderVertex::ColorUB4NIndex);
 					float4 newColor = float4(oldColor.x() + (float)n[0], oldColor.y() + (float)n[1], oldColor.z() + (float)n[2], oldColor.w() + (float)n[3]);
 					newColor = float4::normalize(newColor);
-					vertex.SetComponent(MeshBuilderVertex::ColorIndex, newColor);
+					vertex.SetComponent(MeshBuilderVertex::ColorUB4NIndex, newColor);
 				}
 				else
 				{
-					vertex.SetComponent(MeshBuilderVertex::ColorIndex, float4((float)n[0],(float)n[1],(float)n[2],(float)n[3]));
+					vertex.SetComponent(MeshBuilderVertex::ColorUB4NIndex, float4((float)n[0], (float)n[1], (float)n[2], (float)n[3]));
 				}
 				break;
 			}
 		case FbxGeometryElement::eIndexToDirect:
 			{
 				FbxColor n = colorElement->GetDirectArray().GetAt(colorElement->GetIndexArray().GetAt(vertexIndex));
-				if (vertex.HasComponent(MeshBuilderVertex::ColorBit))
+				if (vertex.HasComponent(MeshBuilderVertex::ColorUB4NBit))
 				{
-					float4 oldColor = vertex.GetComponent(MeshBuilderVertex::ColorIndex);
+					float4 oldColor = vertex.GetComponent(MeshBuilderVertex::ColorUB4NIndex);
 					float4 newColor = float4(oldColor.x() + (float)n[0], oldColor.y() + (float)n[1], oldColor.z() + (float)n[2], oldColor.w() + (float)n[3]);
 					newColor = float4::normalize(newColor);
-					vertex.SetComponent(MeshBuilderVertex::ColorIndex, newColor);
+					vertex.SetComponent(MeshBuilderVertex::ColorUB4NIndex, newColor);
 				}
 				else
 				{
-					vertex.SetComponent(MeshBuilderVertex::ColorIndex, float4((float)n[0],(float)n[1],(float)n[2],(float)n[3]));
+					vertex.SetComponent(MeshBuilderVertex::ColorUB4NIndex, float4((float)n[0], (float)n[1], (float)n[2], (float)n[3]));
 				}
 				break;
 			}
@@ -693,32 +693,32 @@ NFbxMeshNode::ExtractColors( int polygonVertex, int vertexIndex, ToolkitUtil::Me
 		case FbxGeometryElement::eDirect:
 			{
 				FbxColor n = colorElement->GetDirectArray().GetAt(polygonVertex);
-				if (vertex.HasComponent(MeshBuilderVertex::ColorBit))
+				if (vertex.HasComponent(MeshBuilderVertex::ColorUB4NBit))
 				{
-					float4 oldColor = vertex.GetComponent(MeshBuilderVertex::ColorIndex);
+					float4 oldColor = vertex.GetComponent(MeshBuilderVertex::ColorUB4NIndex);
 					float4 newColor = float4(oldColor.x() + (float)n[0], oldColor.y() + (float)n[1], oldColor.z() + (float)n[2], oldColor.w() + (float)n[3]);
 					newColor = float4::normalize(newColor);
-					vertex.SetComponent(MeshBuilderVertex::ColorIndex, newColor);
+					vertex.SetComponent(MeshBuilderVertex::ColorUB4NIndex, newColor);
 				}
 				else
 				{
-					vertex.SetComponent(MeshBuilderVertex::ColorIndex, float4((float)n[0],(float)n[1],(float)n[2],(float)n[3]));
+					vertex.SetComponent(MeshBuilderVertex::ColorUB4NIndex, float4((float)n[0], (float)n[1], (float)n[2], (float)n[3]));
 				}
 				break;
 			}
 		case FbxGeometryElement::eIndexToDirect:
 			{
 				FbxColor n = colorElement->GetDirectArray().GetAt(colorElement->GetIndexArray().GetAt(polygonVertex));
-				if (vertex.HasComponent(MeshBuilderVertex::ColorBit))
+				if (vertex.HasComponent(MeshBuilderVertex::ColorUB4NBit))
 				{
-					float4 oldColor = vertex.GetComponent(MeshBuilderVertex::ColorIndex);
+					float4 oldColor = vertex.GetComponent(MeshBuilderVertex::ColorUB4NIndex);
 					float4 newColor = float4(oldColor.x() + (float)n[0], oldColor.y() + (float)n[1], oldColor.z() + (float)n[2], oldColor.w() + (float)n[3]);
 					newColor = float4::normalize(newColor);
-					vertex.SetComponent(MeshBuilderVertex::ColorIndex, newColor);
+					vertex.SetComponent(MeshBuilderVertex::ColorUB4NIndex, newColor);
 				}
 				else
 				{
-					vertex.SetComponent(MeshBuilderVertex::ColorIndex, float4((float)n[0],(float)n[1],(float)n[2],(float)n[3]));
+					vertex.SetComponent(MeshBuilderVertex::ColorUB4NIndex, float4((float)n[0], (float)n[1], (float)n[2], (float)n[3]));
 				}
 				break;
 			}
@@ -756,37 +756,37 @@ NFbxMeshNode::CalculateNormals()
 
 		vector normal1 = float4::cross3(p2 - p1, p3 - p1);
 
-		if (v1.HasComponent(MeshBuilderVertex::NormalBit))
+		if (v1.HasComponent(MeshBuilderVertex::NormalB4NBit))
 		{
-			float4 normal = v1.GetComponent(MeshBuilderVertex::NormalIndex) + normal1;
+			float4 normal = v1.GetComponent(MeshBuilderVertex::NormalB4NIndex) + normal1;
 			normal = float4::normalize(normal);
-			v1.SetComponent(MeshBuilderVertex::NormalIndex, normal);
+			v1.SetComponent(MeshBuilderVertex::NormalB4NIndex, normal);
 		}
 		else
 		{
-			v1.SetComponent(MeshBuilderVertex::NormalIndex, normal1);
+			v1.SetComponent(MeshBuilderVertex::NormalB4NIndex, normal1);
 		}
 
-		if (v2.HasComponent(MeshBuilderVertex::NormalBit))
+		if (v2.HasComponent(MeshBuilderVertex::NormalB4NBit))
 		{
-			float4 normal = v1.GetComponent(MeshBuilderVertex::NormalIndex) + normal1;
+			float4 normal = v1.GetComponent(MeshBuilderVertex::NormalB4NIndex) + normal1;
 			normal = float4::normalize(normal);
-			v2.SetComponent(MeshBuilderVertex::NormalIndex, normal);
+			v2.SetComponent(MeshBuilderVertex::NormalB4NIndex, normal);
 		}
 		else
 		{
-			v2.SetComponent(MeshBuilderVertex::NormalIndex, normal1);
+			v2.SetComponent(MeshBuilderVertex::NormalB4NIndex, normal1);
 		}
 
-		if (v3.HasComponent(MeshBuilderVertex::NormalBit))
+		if (v3.HasComponent(MeshBuilderVertex::NormalB4NBit))
 		{
-			float4 normal = v1.GetComponent(MeshBuilderVertex::NormalIndex) + normal1;
+			float4 normal = v1.GetComponent(MeshBuilderVertex::NormalB4NIndex) + normal1;
 			normal = float4::normalize(normal);
-			v3.SetComponent(MeshBuilderVertex::NormalIndex, normal);
+			v3.SetComponent(MeshBuilderVertex::NormalB4NIndex, normal);
 		}
 		else
 		{
-			v3.SetComponent(MeshBuilderVertex::NormalIndex, normal1);
+			v3.SetComponent(MeshBuilderVertex::NormalB4NIndex, normal1);
 		}
 	}
 }
@@ -858,7 +858,7 @@ NFbxMeshNode::CalculateTangentsAndBinormals()
 	for (int vertexIndex = 0; vertexIndex < numVertices; vertexIndex++)
 	{
 		MeshBuilderVertex& vertex = mesh->VertexAt(vertexIndex);
-		float4 n = float4::normalize(vertex.GetComponent(MeshBuilderVertex::NormalIndex));
+		float4 n = float4::normalize(vertex.GetComponent(MeshBuilderVertex::NormalB4NIndex));
 		float4 t = tangents1[vertexIndex];
 		float4 b = tangents2[vertexIndex];
 
@@ -866,26 +866,26 @@ NFbxMeshNode::CalculateTangentsAndBinormals()
 		float handedNess = (float4::dot3(float4::cross3(n, t), tangents2[vertexIndex]) < 0.0f ? 1.0f : -1.0f);
 		float4 bitangent = float4::normalize(float4::cross3(n, tangent) * handedNess);
 
-		if (vertex.HasComponent(MeshBuilderVertex::TangentBit))
+		if (vertex.HasComponent(MeshBuilderVertex::TangentB4NBit))
 		{
-			float4 oldTangent = vertex.GetComponent(MeshBuilderVertex::TangentIndex);
+			float4 oldTangent = vertex.GetComponent(MeshBuilderVertex::TangentB4NIndex);
 			float4 newTangent = oldTangent + tangent;
-			vertex.SetComponent(MeshBuilderVertex::TangentIndex, newTangent);
+			vertex.SetComponent(MeshBuilderVertex::TangentB4NIndex, newTangent);
 		}
 		else
 		{
-			vertex.SetComponent(MeshBuilderVertex::TangentIndex, tangent);
+			vertex.SetComponent(MeshBuilderVertex::TangentB4NIndex, tangent);
 		}
 
-		if (vertex.HasComponent(MeshBuilderVertex::BinormalBit))
+		if (vertex.HasComponent(MeshBuilderVertex::BinormalB4NBit))
 		{
-			float4 oldBinormal = vertex.GetComponent(MeshBuilderVertex::BinormalIndex);
+			float4 oldBinormal = vertex.GetComponent(MeshBuilderVertex::BinormalB4NIndex);
 			float4 newBinormal = oldBinormal + bitangent;
-			vertex.SetComponent(MeshBuilderVertex::BinormalIndex, newBinormal);
+			vertex.SetComponent(MeshBuilderVertex::BinormalB4NIndex, newBinormal);
 		}
 		else
 		{
-			vertex.SetComponent(MeshBuilderVertex::BinormalIndex, bitangent);
+			vertex.SetComponent(MeshBuilderVertex::BinormalB4NIndex, bitangent);
 		}
 	}
 
@@ -893,9 +893,9 @@ NFbxMeshNode::CalculateTangentsAndBinormals()
 	for (int vertexIndex = 0; vertexIndex < numVertices; vertexIndex++)
 	{
 		MeshBuilderVertex& vertex = mesh->VertexAt(vertexIndex);
-		vertex.SetComponent(MeshBuilderVertex::NormalIndex, float4::normalize(vertex.GetComponent(MeshBuilderVertex::NormalIndex)));
-		vertex.SetComponent(MeshBuilderVertex::TangentIndex, float4::normalize(vertex.GetComponent(MeshBuilderVertex::TangentIndex)));
-		vertex.SetComponent(MeshBuilderVertex::BinormalIndex, float4::normalize(vertex.GetComponent(MeshBuilderVertex::BinormalIndex)));
+		vertex.SetComponent(MeshBuilderVertex::NormalB4NIndex, float4::normalize(vertex.GetComponent(MeshBuilderVertex::NormalB4NIndex)));
+		vertex.SetComponent(MeshBuilderVertex::TangentB4NIndex, float4::normalize(vertex.GetComponent(MeshBuilderVertex::TangentB4NIndex)));
+		vertex.SetComponent(MeshBuilderVertex::BinormalB4NIndex, float4::normalize(vertex.GetComponent(MeshBuilderVertex::BinormalB4NIndex)));
 	}
 
 	delete [] tangents1;
@@ -962,7 +962,7 @@ NFbxMeshNode::ExtractSkin()
 		MeshBuilderVertex& vertex = mesh->VertexAt(vertexIndex);
 		int* indices = jointArray + (vertexIndex*4);
 		double* weights = weightArray + (vertexIndex*4);
-		vertex.SetComponent(MeshBuilderVertex::WeightsIndex, float4((float)weights[0], (float)weights[1], (float)weights[2], (float)weights[3]));
+		vertex.SetComponent(MeshBuilderVertex::WeightsUB4NIndex, float4((float)weights[0], (float)weights[1], (float)weights[2], (float)weights[3]));
 		vertex.SetComponent(MeshBuilderVertex::JIndicesUB4Index, float4((float)indices[0], (float)indices[1], (float)indices[2], (float)indices[3]));
 	}
 
@@ -992,7 +992,7 @@ NFbxMeshNode::GenerateRigidSkin()
 			{
 				// for each vertex, set a rigid skin by using a weight of 1 and the index of the parent node
 				MeshBuilderVertex& vertex = mesh->VertexAt(vertIndex);
-				vertex.SetComponent(MeshBuilderVertex::WeightsIndex, float4(1.0f, 0.0f, 0.0f, 0.0f));
+				vertex.SetComponent(MeshBuilderVertex::WeightsUB4NIndex, float4(1.0f, 0.0f, 0.0f, 0.0f));
 				vertex.SetComponent(MeshBuilderVertex::JIndicesUB4Index, float4((scalar)parentJointIndex, 0, 0, 0));
 			}
 		}
@@ -1004,7 +1004,7 @@ NFbxMeshNode::GenerateRigidSkin()
 			{
 				// for each vertex, set a rigid skin by using a weight of 1 and the index of the parent node
 				MeshBuilderVertex& vertex = mesh->VertexAt(vertIndex);
-				vertex.SetComponent(MeshBuilderVertex::WeightsIndex, float4(1.0f, 0.0f, 0.0f, 0.0f));
+				vertex.SetComponent(MeshBuilderVertex::WeightsUB4NIndex, float4(1.0f, 0.0f, 0.0f, 0.0f));
 				vertex.SetComponent(MeshBuilderVertex::JIndicesUB4Index, float4(0, 0, 0, 0));
 			}
 		}

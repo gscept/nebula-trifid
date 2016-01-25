@@ -68,6 +68,7 @@ private:
 	CoreGraphics::ShaderFeature::Mask pointLightFeatureBits;
 	CoreGraphics::ShaderFeature::Mask spotLightFeatureBits;
 	CoreGraphics::ShaderFeature::Mask globalLightFeatureBits;
+	CoreGraphics::ShaderFeature::Mask globalLightMeshFeatureBits;
 
 	CoreGraphics::ShaderFeature::Mask globalScatterFeatureBits;
 
@@ -82,7 +83,7 @@ private:
 	Ptr<CoreGraphics::ShaderVariable> godrayTexVar;
 	Ptr<CoreGraphics::ShaderVariable> bloomedTexVar;
 
-	Ptr<CoreGraphics::RenderTarget> unshadedRenderTarget;
+	Ptr<CoreGraphics::RenderTarget> albedoRenderTarget;
 	Ptr<CoreGraphics::RenderTarget> volumeLightBuffer1;
 	Ptr<CoreGraphics::RenderTarget> volumeLightBuffer2;
 	Ptr<CoreGraphics::RenderTarget> output;
@@ -96,6 +97,7 @@ private:
 	Ptr<CoreGraphics::ShaderVariable> lightProjCubeVar;
 	Ptr<CoreGraphics::ShaderVariable> lightColorVar;
     Ptr<CoreGraphics::ShaderVariable> lightTransformVar;
+	Ptr<CoreGraphics::ShaderVariable> lightCenterPosVar;
 
 	Ptr<Resources::ManagedMesh> globalLightMesh;
 	Ptr<Resources::ManagedMesh> pointLightMesh;         // point light mesh

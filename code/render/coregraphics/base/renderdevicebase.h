@@ -49,6 +49,15 @@ public:
     /// max number of vertex streams
     static const IndexT MaxNumVertexStreams = 2;
 
+	enum MemoryBarrierFlag
+	{
+		NoBarrier = 0,
+		ImageAccessBarrier			= 1 << 0,	// subsequent images will see data done written before barrier
+		BufferAccessBarrier			= 1 << 1,	// subsequent buffers will see data done written before barrier
+		SamplerAccessBarrier		= 1 << 2,	// subsequent texture samplers will see data done written before barrier
+		RenderTargetAccessBarrier	= 1 << 3	// subsequent samples from render targets will be visible
+	};
+
     /// constructor
     RenderDeviceBase();
     /// destructor
@@ -116,7 +125,7 @@ public:
 	/// draw from stream output/transform feedback buffer, instanced
 	void DrawFeedbackInstanced(const Ptr<CoreGraphics::FeedbackBuffer>& fb, SizeT numInstances);
     /// perform computation
-    void Compute(int dimX, int dimY, int dimZ);
+	void Compute(int dimX, int dimY, int dimZ, uint flag = NoBarrier); // use MemoryBarrierFlag
     /// end current batch
     void EndBatch();
     /// end current pass

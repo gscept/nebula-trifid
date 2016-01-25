@@ -7,6 +7,8 @@
 #include "util.h"
 #include "typechecker.h"
 
+#include <algorithm>
+
 namespace AnyFX
 {
 
@@ -178,12 +180,14 @@ Function::TypeCheck(TypeChecker& typechecker)
 
 	while (pos != this->code.npos)
 	{
-		size_t lineLength = this->code.find_first_of("\n", pos);
-		std::string line = this->code.substr(pos, lineLength);
-		size_t stringBegin = line.find_first_of('"');
-		size_t stringEnd = line.find_last_of('"') + 1;
-		this->code = this->code.erase(pos + stringBegin, stringEnd - stringBegin);
-		pos = this->code.find("#line", pos + stringEnd - stringBegin);
+		size_t line = this->code.find('\n', pos);
+		//std::istringstream stream(this->code);
+		//std::string line = stream.getline()
+		//size_t stringBegin = line.find_first_of('"');
+		//size_t stringEnd = line.find_last_of('"') + 1;
+		this->code = this->code.replace(pos, line - pos, "");
+		//this->code.erase(std::remove(this->code.begin() + pos, this->code.begin() + line, '\n'), this->code.begin() + line);
+		pos = this->code.find("#line");
 	}
 
 	// make sure no parameter has an equal attribute

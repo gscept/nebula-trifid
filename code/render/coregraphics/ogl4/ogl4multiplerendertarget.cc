@@ -136,4 +136,25 @@ OGL4MultipleRenderTarget::EndPass()
 		this->depthStencilTarget->EndPass();
 	}
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+OGL4MultipleRenderTarget::OnDisplayResized(SizeT width, SizeT height)
+{
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->ogl4Framebuffer);
+	IndexT i;
+	for (i = 0; i < this->numRenderTargets; i++)
+	{
+		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + this->numRenderTargets, GL_TEXTURE_2D, this->renderTarget[i]->GetTexture(), 0);
+	}
+	if (this->depthStencilTarget.isvalid())
+	{
+		glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, this->depthStencilTarget->GetDepthStencilRenderbuffer());
+	}
+	n_assert(glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+}
+
 } // namespace OpenGL4

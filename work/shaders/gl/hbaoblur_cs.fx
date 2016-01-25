@@ -71,19 +71,15 @@ csMainX()
 	
 	const uint x = apronStart + gl_LocalInvocationID.x;
 	const uint y = gl_WorkGroupID.y;
-	const vec2 uv = vec2(x, y) * inverseSize;
-	//SharedMemory[gl_LocalInvocationID.x] = textureLod(HBAOReadLinear, uv, 0).xy;
 	SharedMemory[gl_LocalInvocationID.x] = texelFetch(HBAOReadLinear, ivec2(x, y), 0).xy;
 	barrier();
 	
 	const uint writePos = tileStart + gl_LocalInvocationID.x;
-	const uint tileEndClamped = min(tileEnd, int(size.x));
+	const uint tileEndClamped = min(tileEnd, uint(size.x));
 	
 	if (writePos < tileEndClamped)
 	{
 		// Fetch (ao,z) at the kernel center
-		vec2 uv = vec2(writePos, y) * inverseSize;
-		//vec2 AoDepth = textureLod(HBAOReadPoint, uv, 0).xy;
 		vec2 AoDepth = texelFetch(HBAOReadPoint, ivec2(writePos, y), 0).xy;
 		float ao_total = AoDepth.x;
 		float center_d = AoDepth.y;
@@ -115,7 +111,7 @@ csMainX()
 		}
 		
 		float ao = ao_total / w_total;
-		imageStore(HBAORG, int2(writePos, gl_WorkGroupID.y), vec4(ao, center_d, 0, 0));
+		imageStore(HBAORG, ivec2(writePos, y), vec4(ao, center_d, 0, 0));
 	}
 }
 
@@ -139,19 +135,15 @@ csMainY()
 	
 	const uint x = gl_WorkGroupID.y;
 	const uint y = apronStart + gl_LocalInvocationID.x;
-	const vec2 uv = vec2(x, y) * inverseSize;
-	//SharedMemory[gl_LocalInvocationID.x] = textureLod(HBAOReadLinear, uv, 0).xy;	
 	SharedMemory[gl_LocalInvocationID.x] = texelFetch(HBAOReadLinear, ivec2(x, y), 0).xy;
 	barrier();
 	
 	const uint writePos = tileStart + gl_LocalInvocationID.x;
-	const uint tileEndClamped = min(tileEnd, int(size.y));
+	const uint tileEndClamped = min(tileEnd, uint(size.y));
 	
 	if (writePos < tileEndClamped)
 	{
 		// Fetch (ao,z) at the kernel center
-		vec2 uv = vec2(x, writePos) * inverseSize;
-		//vec2 AoDepth = textureLod(HBAOReadPoint, uv, 0).xy;
 		vec2 AoDepth = texelFetch(HBAOReadPoint, ivec2(x, writePos), 0).xy;
 		float ao_total = AoDepth.x;
 		float center_d = AoDepth.y;
@@ -183,7 +175,7 @@ csMainY()
 		}
 		
 		float ao = ao_total / w_total;
-		imageStore(HBAOR, int2(gl_WorkGroupID.y, writePos), vec4(ao, 0, 0, 0));
+		imageStore(HBAOR, ivec2(x, writePos), vec4(ao, 0, 0, 0));
 	}
 }
 

@@ -43,9 +43,11 @@ public:
         Float3,     //> three-component float, expanded to (float, float, float, 1)
         Float4,     //> four-component float
         UByte4,     //> four-component unsigned byte
+		Byte4,		//> four-component signed byte
         Short2,     //> two-component signed short, expanded to (value, value, 0, 1)
         Short4,     //> four-component signed short
         UByte4N,    //> four-component normalized unsigned byte (value / 255.0f)
+		Byte4N,		//> four-component normalized signed byte (value / 127.0f)
         Short2N,    //> two-component normalized signed short (value / 32767.0f)
         Short4N,    //> four-component normalized signed short (value / 32767.0f)
 
@@ -232,9 +234,11 @@ VertexComponentBase::GetByteSize() const
         case Float3:    return 12;
         case Float4:    return 16;
         case UByte4:    return 4;
+		case Byte4:		return 4;
         case Short2:    return 4;
         case Short4:    return 8;
         case UByte4N:   return 4;
+		case Byte4N:	return 4;
         case Short2N:   return 4;
         case Short4N:   return 8;
 

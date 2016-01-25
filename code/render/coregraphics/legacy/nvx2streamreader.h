@@ -98,7 +98,7 @@ private:
     {
         N2Coord        = (1<<0),      // 3 floats
         N2Normal       = (1<<1),      // 3 floats
-        N2NormalUB4N   = (1<<2),      // 4 unsigned bytes, normalized
+        N2NormalB4N   = (1<<2),      // 4 unsigned bytes, normalized
         N2Uv0          = (1<<3),      // 2 floats
         N2Uv0S2        = (1<<4),      // 2 shorts, 4.12 fixed point
         N2Uv1          = (1<<5),      // 2 floats
@@ -110,9 +110,9 @@ private:
         N2Color        = (1<<11),     // 4 floats
         N2ColorUB4N    = (1<<12),     // 4 unsigned bytes, normalized
         N2Tangent      = (1<<13),     // 3 floats
-        N2TangentUB4N  = (1<<14),     // 4 unsigned bytes, normalized
+        N2TangentB4N  = (1<<14),     // 4 unsigned bytes, normalized
         N2Binormal     = (1<<15),     // 3 floats
-        N2BinormalUB4N = (1<<16),     // 4 unsigned bytes, normalized
+        N2BinormalB4N = (1<<16),     // 4 unsigned bytes, normalized
         N2Weights      = (1<<17),     // 4 floats
         N2WeightsUB4N  = (1<<18),     // 4 unsigned bytes, normalized
         N2JIndices     = (1<<19),     // 4 floats
