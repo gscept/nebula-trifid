@@ -24,7 +24,6 @@
 #include "graphicsfeature/graphicsattr/graphicsattributes.h"
 #include "visibility/visibilityprotocol.h"
 #include "graphics/graphicsinterface.h"
-#include "navigation/navigationserver.h"
 #include "posteffectfeatureunit.h"
 
 using namespace Math;
@@ -64,9 +63,12 @@ LevelLoader::Load(const Util::String& levelName, const Util::Array<Util::String>
     }
     dbReader->SetToRow(0);
 
-    // setup new physics level
-    Ptr<Physics::Scene> physicsLevel = Physics::Scene::Create();
-    Physics::PhysicsServer::Instance()->SetScene(physicsLevel);
+    if (Physics::PhysicsServer::HasInstance())
+    {
+        // setup new physics level
+        Ptr<Physics::Scene> physicsLevel = Physics::Scene::Create();
+        Physics::PhysicsServer::Instance()->SetScene(physicsLevel);
+    }
 
     // get the active layers from the level
     if (activeLayers.IsEmpty())
@@ -114,26 +116,7 @@ LevelLoader::Load(const Util::String& levelName, const Util::Array<Util::String>
 	}
 
 	dbReader->Close();
-
-	if(Db::DbServer::Instance()->GetGameDatabase()->HasTable("_Instance_NavMeshData"))
-	{
-		Ptr<Db::Reader> dbReader = Db::Reader::Create();
-		dbReader->SetDatabase(Db::DbServer::Instance()->GetGameDatabase());
-		dbReader->SetTableName("_Instance_NavMeshData");
-		dbReader->AddFilterAttr(Attr::Attribute(Attr::_Level, levelName));
-		dbReader->Open();
-		for(int i = 0 ; i<dbReader->GetNumRows() ; i++)		
-		{
-			Util::String nav;
-			dbReader->SetToRow(i);
-			nav = dbReader->GetString(Attr::NavMeshData);
-			Navigation::NavigationServer::Instance()->LoadNavigationData(nav,nav);
-			Navigation::NavigationServer::Instance()->LoadNavMeshGenerationData(nav,dbReader);
-            Navigation::NavigationServer::Instance()->SelectNavMesh(nav);
-		}
-		dbReader->Close();
-	}
-	
+		
 	// update progress bar window
     //loaderServer->SetProgressText("Level Loader Done...");
     //loaderServer->UpdateProgressDisplay();

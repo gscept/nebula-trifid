@@ -29,6 +29,10 @@ set(SOURCES_files_nav
 	navigatedproperty.h
 	convexareamarkerproperty.cc
 	convexareamarkerproperty.h
+	navmeshloader.cc
+	navmeshloader.h
+	navigationfeatureunit.cc
+	navigationfeatureunit.h
 )
 source_group("navigation" FILES ${SOURCES_files_nav})
 

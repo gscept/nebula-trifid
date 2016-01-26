@@ -32,7 +32,6 @@
 #include "vibration/vibrationinterface.h"
 #include "faudio/audioserver.h"
 #include "managers/envquerymanager.h"
-#include "navigation/crowdmanager.h"
 
 //------------------------------------------------------------------------------
 namespace BaseGameFeature
@@ -120,8 +119,7 @@ protected:
     Ptr<BaseGameFeature::LoaderServer> loaderServer;
     Ptr<Db::DbServer> dbServer;
     Ptr<EnvEntityManager> envEntityManager;    
-    Ptr<Vibration::VibrationInterface> vibInterface;
-    Ptr<Navigation::CrowdManager> crowdManager;
+    Ptr<Vibration::VibrationInterface> vibInterface;    
     Ptr<EnvQueryManager> envQueryManager;
     Ptr<AudioManager> audioManager;
     Util::Array<Util::String> activeLayers;

@@ -189,7 +189,7 @@ add_library( application STATIC ${application_SRCS})
 
 N_WRAP_NIDL_FILES(application_NIDLS ${P_NIDL_FILES})
 
-TARGET_LINK_LIBRARIES(application PUBLIC application_NIDLS posteffect attr db framecapture navigation multiplayer faudio remote  vibration)
+TARGET_LINK_LIBRARIES(application PUBLIC application_NIDLS posteffect attr db framecapture multiplayer faudio remote  vibration)
 TARGET_INCLUDE_DIRECTORIES(application PUBLIC  ${Nebula3_SOURCE_DIR}/code/application ${Nebula3_SOURCE_DIR}/code/application/basegamefeature ${Nebula3_SOURCE_DIR}/code/application/graphicsfeature)
 TARGET_INCLUDE_DIRECTORIES(application PRIVATE ${Nebula3_SOURCE_DIR}/code) 
 

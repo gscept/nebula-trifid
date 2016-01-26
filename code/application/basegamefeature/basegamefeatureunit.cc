@@ -110,8 +110,7 @@ BaseGameFeatureUnit::OnActivate()
     this->entityManager = EntityManager::Create();
     this->globalAttrManager = GlobalAttrsManager::Create();
     this->categoryManager = CategoryManager::Create();
-    this->envEntityManager = EnvEntityManager::Create();    
-    this->crowdManager = Navigation::CrowdManager::Create();
+    this->envEntityManager = EnvEntityManager::Create();        
 	this->audioManager = AudioManager::Create();
 
     this->AttachManager(this->timeManager.upcast<Game::Manager>());
@@ -120,8 +119,7 @@ BaseGameFeatureUnit::OnActivate()
     this->AttachManager(this->entityManager.upcast<Game::Manager>());
     this->AttachManager(this->globalAttrManager.upcast<Game::Manager>()); 
     this->AttachManager(this->categoryManager.upcast<Game::Manager>());
-    this->AttachManager(this->envEntityManager.upcast<Game::Manager>());    
-    this->AttachManager(this->crowdManager.upcast<Game::Manager>());
+    this->AttachManager(this->envEntityManager.upcast<Game::Manager>());        
 	this->AttachManager(this->audioManager.upcast<Game::Manager>());
 
     this->envQueryManager = EnvQueryManager::Create();    
@@ -167,8 +165,7 @@ BaseGameFeatureUnit::OnDeactivate()
     this->RemoveManager(this->globalAttrManager.upcast<Game::Manager>()); 
     this->RemoveManager(this->categoryManager.upcast<Game::Manager>());
     this->RemoveManager(this->envEntityManager.upcast<Game::Manager>());    
-    this->RemoveManager(this->timeManager.upcast<Game::Manager>());
-    this->RemoveManager(this->crowdManager.upcast<Game::Manager>());
+    this->RemoveManager(this->timeManager.upcast<Game::Manager>());    
 	this->RemoveManager(this->audioManager.upcast<Game::Manager>());
 
     this->envEntityManager = 0;  
@@ -177,8 +174,7 @@ BaseGameFeatureUnit::OnDeactivate()
     this->entityManager = 0;
     this->globalAttrManager = 0;
     this->categoryManager = 0;    
-    this->timeManager = 0;
-    this->crowdManager = 0;
+    this->timeManager = 0;    
 	this->audioManager = 0;
 
     this->RemoveManager(this->envQueryManager.upcast<Game::Manager>());

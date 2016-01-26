@@ -342,6 +342,9 @@ LevelEditor2App::SetupGameFeatures()
 	this->silhouette = Silhouette::SilhouetteAddon::Create();
 	this->silhouette->Setup();
 
+    this->navigationFeature = Navigation::NavigationFeatureUnit::Create();
+    this->gameServer->AttachGameFeature(navigationFeature.upcast<Game::FeatureUnit>());
+
     // register input proxy for inputs from nebula to the qt app
     this->qtFeature->RegisterQtInputProxy(this->editorWindow);	
 
@@ -408,6 +411,7 @@ LevelEditor2App::CleanupGameFeatures()
 	this->graphicsFeature = 0;
 	this->gameServer->RemoveGameFeature(this->qtFeature.upcast<Game::FeatureUnit>());
 	this->qtFeature = 0;
+    this->gameServer->RemoveGameFeature(this->navigationFeature.upcast<Game::FeatureUnit>());
 	this->editorState = 0;
 
 	GameApplication::CleanupGameFeatures();

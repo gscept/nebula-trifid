@@ -157,8 +157,7 @@ EditorBaseGameFeatureUnit::OnActivate()
 	this->entityManager = EntityManager::Create();
 	this->globalAttrManager = GlobalAttrsManager::Create();
 	this->categoryManager = CategoryManager::Create();
-	this->envEntityManager = EnvEntityManager::Create();
-    this->crowdManager = Navigation::CrowdManager::Create();
+	this->envEntityManager = EnvEntityManager::Create();    
 	this->audioManager = AudioManager::Create();
 
 	this->AttachManager(this->timeManager.upcast<Game::Manager>());
@@ -167,8 +166,7 @@ EditorBaseGameFeatureUnit::OnActivate()
 	this->AttachManager(this->entityManager.upcast<Game::Manager>());
 	this->AttachManager(this->globalAttrManager.upcast<Game::Manager>()); 
 	this->AttachManager(this->categoryManager.upcast<Game::Manager>());
-	this->AttachManager(this->envEntityManager.upcast<Game::Manager>());	
-    this->AttachManager(this->crowdManager.upcast<Game::Manager>());
+	this->AttachManager(this->envEntityManager.upcast<Game::Manager>());	    
 	this->AttachManager(this->audioManager.upcast<Game::Manager>());
 
 	this->envQueryManager = EnvQueryManager::Create();    

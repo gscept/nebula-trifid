@@ -111,7 +111,7 @@ public:
 	void SetBoundingBox(const Math::bbox & ibox);
 
     /// load all settings from a db
-    bool LoadNavMeshGenerationData(const Ptr<Db::Reader>& reader);
+    bool LoadNavMeshGenerationData(const Ptr<Db::ValueTable>& reader, IndexT row);
 
     /// add extra mesh to navmesh generation (use the graphics resource)
     void AddExtraMesh(const Util::String & res, const Math::matrix44 & transform);

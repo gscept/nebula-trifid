@@ -57,11 +57,10 @@ NavigationServer::LoadNavigationData(const Util::String& guid, const IO::URI & n
 /**
 */
 bool 
-NavigationServer::LoadNavMeshGenerationData(const Util::String& id, const Ptr<Db::Reader>& reader)
-{
-    n_assert(reader->IsOpen());
+NavigationServer::LoadNavMeshGenerationData(const Util::String& id, const Ptr<Db::ValueTable>& reader, IndexT row)
+{    
     Ptr<Navigation::RecastUtil> recast = Navigation::RecastUtil::Create();
-    recast->LoadNavMeshGenerationData(reader);
+    recast->LoadNavMeshGenerationData(reader, row);
     this->recasts.Add(id,recast);
 	this->idMapping.Add(recast->GetId(),id);
     return true;

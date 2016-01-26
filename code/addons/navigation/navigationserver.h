@@ -42,7 +42,7 @@ public:
 	bool LoadNavigationData(const Util::String& guid, const Util::Blob& data);
 
     /// load navmesh generation data from database
-    bool LoadNavMeshGenerationData(const Util::String& id, const Ptr<Db::Reader>& reader);
+    bool LoadNavMeshGenerationData(const Util::String& id, const Ptr<Db::ValueTable>& reader, IndexT row);
 
     /// select active navmesh
     bool SelectNavMesh(const Util::String& guid);

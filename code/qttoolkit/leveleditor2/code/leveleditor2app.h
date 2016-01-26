@@ -32,6 +32,7 @@
 #include "silhouette/silhouetteaddon.h"
 #include "posteffect/posteffectfeatureunit.h"
 #include "logger.h"
+#include "navigationfeatureunit.h"
 
 
 //------------------------------------------------------------------------------
@@ -120,6 +121,7 @@ private:
     Ptr<ScriptingFeature::ScriptingFeatureUnit> scriptingFeature;
     Ptr<PostEffect::PostEffectEntity> postEffectEntity;
 	Ptr<PostEffect::PostEffectFeatureUnit> postEffectFeature;
+    Ptr<Navigation::NavigationFeatureUnit> navigationFeature;
     Ptr<LevelEditor2::Level> level;
     LevelEditor2Window* editorWindow;
     Ptr<Navigation::NavigationServer> navigation;
