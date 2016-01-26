@@ -5,7 +5,7 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "animeventregistry.h"
-#include "effectsattributes.h"
+#include "effects/effectsattributes.h"
 #include "db/reader.h"
 #include "db/dbserver.h"
 #include "animeventhandler/animeventtiminghandler.h"

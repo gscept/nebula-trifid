@@ -4,7 +4,7 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "properties/editormultiselectproperty.h"
-#include "leveleditor2protocol.h"
+#include "leveleditor2/leveleditor2protocol.h"
 #include "messaging/staticmessagehandler.h"
 #include "basegamefeature/basegameprotocol.h"
 #include "entityguid.h"

@@ -4,7 +4,7 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "properties/editornavmeshproperty.h"
-#include "leveleditor2protocol.h"
+#include "leveleditor2/leveleditor2protocol.h"
 #include "messaging/staticmessagehandler.h"
 #include "basegamefeature/basegameattr/basegameattributes.h"
 #include "basegamefeature/basegameprotocol.h"

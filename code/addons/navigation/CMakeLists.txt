@@ -63,15 +63,18 @@ set(SOURCES_SRCS
 	${SOURCES_files}		
 )
 
-N_WRAP_ADD_NIDL_FILES(SOURCES_SRCS navigationattributes.nidl)
 
-add_library(navigation STATIC ${SOURCES_SRCS} )
+SET(NIDL_SRCS navigationattributes.nidl)
+
+N_CREATE_FEATURE(navigation SOURCES_SRCS NIDL_SRCS)
+
 TARGET_LINK_LIBRARIES(navigation render Detour DebugUtils DetourCrowd DetourTileCache Recast )
 TARGET_INCLUDE_DIRECTORIES(navigation PRIVATE ${Nebula3_SOURCE_DIR}/code/application)
-SET_TARGET_PROPERTIES(navigation PROPERTIES FOLDER "N3SDK/addons")
+ADD_DEPENDENCIES(navigation application)
+
 N_SET_COMPILER_DEFAULTS()
 IF(N_USE_PRECOMPILED_HEADERS)
     N_SET_PCH(navigation stdneb.h stdneb.cc ../)
 ENDIF()
-ADD_DEPENDENCIES(navigation application)
+
 

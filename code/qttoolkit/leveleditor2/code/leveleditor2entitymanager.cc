@@ -16,7 +16,7 @@
 #include "managers/categorymanager.h"
 #include "managers/factorymanager.h"
 #include "properties/editorproperty.h"
-#include "leveleditor2protocol.h"
+#include "leveleditor2/leveleditor2protocol.h"
 #include "io/ioserver.h"
 #include "io/xmlreader.h"
 #include "leveleditor2app.h"

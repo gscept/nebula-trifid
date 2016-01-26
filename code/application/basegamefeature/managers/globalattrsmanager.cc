@@ -5,9 +5,9 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "managers/globalattrsmanager.h"
-#include "addons/db/dbserver.h"
-#include "addons/db/reader.h"
-#include "addons/db/writer.h"
+#include "db/dbserver.h"
+#include "db/reader.h"
+#include "db/writer.h"
 
 namespace BaseGameFeature
 {

@@ -4,7 +4,7 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "faudio/audioserver.h"
-#include "audioprotocol.h"
+#include "faudio/audioprotocol.h"
 #include "faudio/audiodevice.h"
 #include "audiohandler.h"
 #include "reader.h"

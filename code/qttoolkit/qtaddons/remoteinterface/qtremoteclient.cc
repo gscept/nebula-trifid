@@ -7,7 +7,7 @@
 #include "io/memorystream.h"
 #include "io/binarywriter.h"
 #include "net/socket/ipaddress.h"
-#include "qtremoteprotocol.h"
+#include "remoteinterface/qtremoteprotocol.h"
 
 using namespace Net;
 using namespace Util;

@@ -11,12 +11,12 @@
 #include "uiinputhandler.h"
 #include "uirtplugin.h"
 #include "rendermodules/rt/rtpluginregistry.h"
-#include "uiattrs/uiattributes.h"
+#include "ui/uiattrs/uiattributes.h"
 #include "db/reader.h"
 #include "db/dbserver.h"
 #include "io/ioserver.h"
 #include "scripting/scriptserver.h"
-#include "audioprotocol.h"
+#include "faudio/audioprotocol.h"
 #include "basegamefeature/basegameattr/basegameattributes.h"
 
 namespace UI

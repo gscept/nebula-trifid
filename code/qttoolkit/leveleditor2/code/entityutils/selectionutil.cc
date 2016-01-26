@@ -25,7 +25,7 @@
 #include "physicsfeature/physicsprotocol.h"
 #include "physicsfeatureunit.h"
 #include "coregraphics/rendershape.h"
-#include "leveleditor2protocol.h"
+#include "leveleditor2/leveleditor2protocol.h"
 #include "leveleditor2app.h"
 #include "managers/attributewidgetmanager.h"
 #include "graphics/graphicsprotocol.h"

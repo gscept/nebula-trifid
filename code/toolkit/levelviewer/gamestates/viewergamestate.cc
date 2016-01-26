@@ -19,7 +19,7 @@
 #include "input/keyboard.h"
 #include "scriptingfeature/properties/scriptingproperty.h"
 #include "scriptingfeature/scriptingprotocol.h"
-#include "qttoolkit/qtaddons/remoteinterface/qtremoteserver.h"
+#include "remoteinterface/qtremoteserver.h"
 #include "basegamefeature/basegameprotocol.h"
 #include "../levelviewerapplication.h"
 #include "basegametiming/gametimesource.h"

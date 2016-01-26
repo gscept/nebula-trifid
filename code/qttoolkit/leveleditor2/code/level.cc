@@ -17,7 +17,7 @@
 #include "entityguid.h"
 #include "graphicsfeature/graphicsattr/graphicsattributes.h"
 #include "basegamefeature/basegameattr/basegameattributes.h"
-#include "leveleditor2protocol.h"
+#include "leveleditor2/leveleditor2protocol.h"
 #include "game/levelexporter.h"
 #include "physicsfeature/physicsattr/physicsattributes.h"
 #include "posteffect/posteffectmanager.h"

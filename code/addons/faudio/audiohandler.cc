@@ -5,7 +5,7 @@
 #include "stdneb.h"
 #include "faudio/audiohandler.h"
 #include "faudio/fmodstudiopagehandler.h"
-#include "audioprotocol.h"
+#include "faudio/audioprotocol.h"
 #include "faudio/audiodevice.h"
 #include "faudio/fmoderror.h"
 #include "faudio/eventinstance.h"

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Nebula3>
   <AttributeLib>
-    <Dependency header="navigationattributes.h"/>
+    <Dependency header="navigation/navigationattributes.h"/>
     <Dependency header="graphicsfeature/graphicsattr/graphicsattributes.h"/>
   </AttributeLib>
   <Property name="LevelEditor2::EditorNavMeshProperty" header="properties/editornavmeshproperty.h">

@@ -9,7 +9,7 @@
 #include "rt/forestrtplugin.h"
 #include "graphics/graphicsinterface.h"
 #include "graphics/graphicsprotocol.h"
-#include "forestprotocol.h"
+#include "forest/forestprotocol.h"
 #include "forest/forestrendermodule.h"
 
 namespace Forest

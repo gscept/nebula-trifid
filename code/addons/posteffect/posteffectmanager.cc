@@ -8,7 +8,7 @@
 #include "basegametiming/gametimesource.h"
 #include "basegamefeature/managers/enventitymanager.h"
 #include "basegametiming/systemtimesource.h"
-#include "posteffectprotocol.h"
+#include "posteffect/posteffectprotocol.h"
 #include "graphics/graphicsinterface.h"
 #include "graphics/graphicsprotocol.h"
 #include "rt/posteffectrtplugin.h"

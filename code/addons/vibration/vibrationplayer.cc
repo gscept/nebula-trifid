@@ -5,7 +5,7 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "vibration/vibrationplayer.h"
-#include "vibrationprotocol.h"
+#include "vibration/vibrationprotocol.h"
 #include "vibration/vibrationinterface.h"
 
 namespace Vibration

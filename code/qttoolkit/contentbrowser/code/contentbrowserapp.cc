@@ -13,13 +13,13 @@
 #include "graphics/graphicsprotocol.h"
 #include "graphics/graphicsinterface.h"
 #include "style/graypalette.h"
-#include "qtremoteprotocol.h"
+#include "remoteinterface/qtremoteprotocol.h"
 #include "editorfeatures/editorbasegamefeature.h"
 #include "platform.h"
 #include "qtaddons/miniexporter/code/miniexporter.h"
 #include <QPlastiqueStyle>
 #include "resources/resourcemanager.h"
-#include "code/simulation/simulationcommands.h"
+#include "shady/code/simulation/simulationcommands.h"
 #include "algorithm/algorithmprotocol.h"
 
 using namespace QtToolkitUtil;

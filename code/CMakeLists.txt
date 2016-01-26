@@ -27,8 +27,10 @@ ELSE()
 		IF(CMAKE_CL_64)
 			ADD_SUBDIRECTORY(mayaplugin)
 		ENDIF()
-	ENDIF()
-
+	ENDIF()	
+	
+	SET(DEFAULT_FEATURES graphicsfeature physicsfeature scriptingfeature ui) 
+	
 	IF(N_BUILD_EXTERNAL_PROJECTS)
 		ADD_SUBDIRECTORY(../projects ${CMAKE_BINARY_DIR}/projects)
 	ENDIF()

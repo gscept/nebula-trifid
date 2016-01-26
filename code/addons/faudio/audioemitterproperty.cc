@@ -7,7 +7,7 @@
 #include "game/entity.h"
 #include "basegamefeature/basegameattr/basegameattributes.h"
 #include "faudio/audiodevice.h"
-#include "audioprotocol.h"
+#include "faudio/audioprotocol.h"
 #include "physicsfeature/physicsattr/physicsattributes.h"
 #include "basegamefeature/basegameprotocol.h"
 

@@ -15,7 +15,7 @@
 #include "messaging/message.h"
 #include "io/console.h"
 #include "remote/remotecontrol.h"
-#include "remoteprotocol.h"
+#include "remote/remoteprotocol.h"
 
 //------------------------------------------------------------------------------
 namespace Remote

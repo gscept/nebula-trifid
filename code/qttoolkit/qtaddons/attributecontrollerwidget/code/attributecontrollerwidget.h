@@ -14,7 +14,7 @@
 #include "core/ptr.h"
 #include "util/variant.h"
 #include "attr/attribute.h"
-#include "toolkit/toolkitutil/idldocument/idlattribute.h"
+#include "idldocument/idlattribute.h"
 
 namespace Ui
 {

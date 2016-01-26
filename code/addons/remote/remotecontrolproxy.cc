@@ -5,7 +5,7 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "remote/remotecontrolproxy.h"
-#include "remoteprotocol.h"
+#include "remote/remoteprotocol.h"
 #include "remote/remoteinterface.h"
 
 namespace Remote

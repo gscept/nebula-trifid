@@ -21,7 +21,7 @@
 #include "basegametiming/gametimesource.h"
 #include "io/xmlreader.h"
 #include "io/filestream.h"
-#include "application/stateobjectfeature/properties/stateinfo.h"
+#include "stateobjectfeature/properties/stateinfo.h"
 #include "game/entity.h"
 
 //------------------------------------------------------------------------------

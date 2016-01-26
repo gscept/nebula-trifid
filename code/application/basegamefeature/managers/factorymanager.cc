@@ -15,9 +15,6 @@
 #include "basegamefeatureunit.h"
 #include "game/gameserver.h"
 
-#include "scriptfeature/conditions/and.h"
-#include "scriptfeature/conditions/not.h"
-#include "scriptfeature/conditions/or.h"
 
 namespace BaseGameFeature
 {

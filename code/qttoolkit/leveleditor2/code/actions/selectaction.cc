@@ -8,7 +8,7 @@
 #include "leveleditor2app.h"
 #include "leveleditor2entitymanager.h"
 #include "entityutils/selectionutil.h"
-#include "leveleditor2protocol.h"
+#include "leveleditor2/leveleditor2protocol.h"
 #include "managers/attributewidgetmanager.h"
 #include "properties/editorproperty.h"
 #include "entityutils/placementutil.h"

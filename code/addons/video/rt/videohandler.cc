@@ -5,7 +5,7 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "video/rt/videohandler.h"
-#include "videoprotocol.h"
+#include "video/videoprotocol.h"
 #include "video/rt/videoserver.h"
 
 namespace Video

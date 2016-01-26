@@ -5,9 +5,9 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "managers/categorymanager.h"
-#include "addons/db/dbserver.h"
-#include "addons/db/reader.h"
-#include "addons/db/dbfactory.h"
+#include "db/dbserver.h"
+#include "db/reader.h"
+#include "db/dbfactory.h"
 #include "basegamefeature/basegameattr/basegameattributes.h"
 #include "basegamefeature/managers/factorymanager.h"
 

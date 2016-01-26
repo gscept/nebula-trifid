@@ -10,7 +10,7 @@
 
 #include "messaging/port.h"
 #include "messaging/message.h"
-#include "audioprotocol.h"
+#include "faudio/audioprotocol.h"
 #include "http/httpserverproxy.h"
 #include "timing/timer.h"
 #include "messaging/staticmessagehandler.h"

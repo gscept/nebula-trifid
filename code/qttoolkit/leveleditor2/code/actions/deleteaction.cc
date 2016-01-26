@@ -9,7 +9,7 @@
 #include "managers/factorymanager.h"
 #include "basegamefeature/basegameattr/basegameattributes.h"
 #include "properties/editorproperty.h"
-#include "leveleditor2protocol.h"
+#include "leveleditor2/leveleditor2protocol.h"
 #include "physicsfeature/physicsprotocol.h"
 
 using namespace BaseGameFeature;

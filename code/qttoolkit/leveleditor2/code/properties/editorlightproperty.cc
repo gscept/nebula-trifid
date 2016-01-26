@@ -4,7 +4,7 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "properties/editorlightproperty.h"
-#include "leveleditor2protocol.h"
+#include "leveleditor2/leveleditor2protocol.h"
 #include "coregraphics/shaperenderer.h"
 #include "debugrender/debugshaperenderer.h"
 #include "basegamefeature/basegameprotocol.h"

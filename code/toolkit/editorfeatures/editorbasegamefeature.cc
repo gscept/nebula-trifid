@@ -14,7 +14,7 @@
 #include "appgame/appconfig.h"
 #include "game/gameserver.h"
 #include "game/gameserver.h"
-#include "addons/db/dbserver.h"
+#include "db/dbserver.h"
 #include "io/ioserver.h"
 #include "io/console.h"
 #include "loader/entityloader.h"

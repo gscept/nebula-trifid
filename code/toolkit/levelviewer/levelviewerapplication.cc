@@ -17,10 +17,10 @@
 #include "basegamefeature/basegameprotocol.h"
 #include "scriptingfeature/scriptingcommands.h"
 #include "gamestates/reloadstate.h"
-#include "effectscommands.h"
-#include "audioprotocol.h"
-#include "uicommands.h"
-#include "NIDL/levelviewercommands.h"
+#include "effects/effectscommands.h"
+#include "faudio/audioprotocol.h"
+#include "ui/uicommands.h"
+#include "levelviewer/NIDL/levelviewercommands.h"
 
 
 namespace Tools

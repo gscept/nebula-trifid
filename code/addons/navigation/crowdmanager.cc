@@ -11,7 +11,7 @@
 #include "navigationserver.h"
 #include "physicsfeature/physicsattr/physicsattributes.h"
 #include "basegamefeature/basegametiming/gametimesource.h"
-#include "navigationattributes.h"
+#include "navigation/navigationattributes.h"
 #include "basegamefeature/basegameprotocol.h"
 #include "messaging/staticmessagehandler.h"
 #include "debug/navigationpagehandler.h"

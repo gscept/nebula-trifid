@@ -10,7 +10,7 @@
 */
 #include "interface/interfacehandlerbase.h"
 #include "messaging/message.h"
-#include "vibrationprotocol.h"
+#include "vibration/vibrationprotocol.h"
 #include "timing/timer.h"
 
 //------------------------------------------------------------------------------

@@ -6,7 +6,7 @@
 #include "stdneb.h"
 #include "framecapture/rt/framecapturepagehandler.h"
 #include "framecapture/rt/framecaptureserver.h"
-#include "framecaptureprotocol.h"
+#include "framecapture/framecaptureprotocol.h"
 #include "http/html/htmlpagewriter.h"
 #include "graphics/graphicsinterface.h"
 #include "io/assignregistry.h"

@@ -10,7 +10,7 @@
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
 #include "coregraphics/texture.h"
-#include "extlibs/CubeMapGen/CCubeMapProcessor.h"
+#include "CubeMapGen/CCubeMapProcessor.h"
 #include "io/uri.h"
 namespace ToolkitUtil
 {

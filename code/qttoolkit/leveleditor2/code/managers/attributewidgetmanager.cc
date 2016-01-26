@@ -11,7 +11,7 @@
 #include "widgets/entitytreewidget.h"
 #include "actions/transformaction.h"
 #include "properties/editorproperty.h"
-#include "leveleditor2protocol.h"
+#include "leveleditor2/leveleditor2protocol.h"
 #include "editorfeatures/editorblueprintmanager.h"
 #include "matrix44controller.h"
 #include "entityutils/placementutil.h"

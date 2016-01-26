@@ -5,7 +5,7 @@
 #include "stdneb.h"
 #include "navigatedproperty.h"
 #include "game/entity.h"
-#include "navigationattributes.h"
+#include "navigation/navigationattributes.h"
 #include "physicsfeature/physicsattr/physicsattributes.h"
 #include "crowdmanager.h"
 #include "messaging/staticmessagehandler.h"

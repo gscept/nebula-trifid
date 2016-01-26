@@ -10,7 +10,7 @@
 */
 #include "interface/interfacehandlerbase.h"
 #include "messaging/message.h"
-#include "forestprotocol.h"
+#include "forest/forestprotocol.h"
 
 
 //------------------------------------------------------------------------------

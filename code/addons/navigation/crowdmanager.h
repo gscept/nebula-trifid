@@ -10,7 +10,7 @@
 #include "core/refcounted.h"
 #include "core/singleton.h"
 #include "io/uri.h"
-#include "application/game/entity.h"
+#include "game/entity.h"
 #include "navigationserver.h"
 #include "http/httprequesthandler.h"
 #include "debug/navigationpagehandler.h"

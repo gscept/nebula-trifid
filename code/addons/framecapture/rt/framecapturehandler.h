@@ -10,7 +10,7 @@
 */
 #include "interface/interfacehandlerbase.h"
 #include "messaging/message.h"
-#include "framecaptureprotocol.h"
+#include "framecapture/framecaptureprotocol.h"
 
 namespace FrameCapture
 {

@@ -4,7 +4,7 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "surfacegeneratorwindow.h"
-#include "qttoolkit/qttools/code/style/graypalette.h"
+#include "qttools/code/style/graypalette.h"
 #include "core/coreserver.h"
 #include "io/fswrapper.h"
 #include "io/ioserver.h"

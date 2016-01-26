@@ -25,7 +25,7 @@
 #include "managers/categorymanager.h"
 #include "managers/globalattrsmanager.h"
 #include "managers/audiomanager.h"
-#include "addons/db/dbserver.h"
+#include "db/dbserver.h"
 #include "loader/loaderserver.h"
 #include "managers/enventitymanager.h"
 #include "http/httprequesthandler.h"

@@ -4,7 +4,7 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "convexareamarkerproperty.h"
-#include "navigationattributes.h"
+#include "navigation/navigationattributes.h"
 #include "basegamefeature/basegameprotocol.h"
 #include "navigationserver.h"
 

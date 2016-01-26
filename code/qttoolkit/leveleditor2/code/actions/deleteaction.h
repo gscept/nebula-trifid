@@ -9,7 +9,7 @@
 */
 #include "action.h"
 #include "game/entity.h"
-#include "leveleditor2protocol.h"
+#include "leveleditor2/leveleditor2protocol.h"
 
 //-----------------------------------------------
 namespace LevelEditor2

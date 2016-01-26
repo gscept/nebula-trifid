@@ -10,7 +10,7 @@
 #include "qevent.h"
 #include "qstandarditemmodel.h"
 #include "managers/entitymanager.h"
-#include "leveleditor2protocol.h"
+#include "leveleditor2/leveleditor2protocol.h"
 #include "leveleditor2app.h"
 #include "QInputDialog"
 #include "editorfeatures/editorblueprintmanager.h"

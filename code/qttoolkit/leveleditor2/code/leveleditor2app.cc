@@ -15,7 +15,7 @@
 #include "graphics/graphicsinterface.h"
 #include "io/xmlwriter.h"
 #include "properties/editorproperty.h"
-#include "leveleditor2protocol.h"
+#include "leveleditor2/leveleditor2protocol.h"
 #include "properties/lightproperty.h"
 #include "basegamefeature/basegameprotocol.h"
 #include "math/scalar.h"

@@ -177,8 +177,7 @@ ADD_DEPENDENCIES(contentbrowser
 	dynui
 	grid
 	nody
-	shady
-	shady_NIDLS
+	shady	
 	resourcebrowser
 	toolkitutil
 	remoteinterface	
@@ -193,8 +192,7 @@ TARGET_LINK_LIBRARIES(contentbrowser
 	libqimg
 	splash	
 	dynui
-	grid
-	shady_NIDLS
+	grid	
 	resourcebrowser
 	miniexporter
 	remoteinterface

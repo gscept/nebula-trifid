@@ -14,12 +14,12 @@
 #include "boolcontroller.h"
 #include "guidcontroller.h"
 #include "matrix44controller.h"
-#include "toolkit/toolkitutil/idldocument/idlattribute.h"
+#include "idldocument/idlattribute.h"
 #include "stringlistcontroller.h"
 #include "resourcestringcontroller.h"
 #include "colourcontroller.h"
 #include "animclipcontroller.h"
-#include "toolkit/editorfeatures/editorblueprintmanager.h"
+#include "editorfeatures/editorblueprintmanager.h"
 
 using namespace Util;
 using namespace Attr;

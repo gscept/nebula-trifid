@@ -9,7 +9,7 @@
 #include "coregraphics/legacy/nvx2streamreader.h"
 #include "io/ioserver.h"
 #include "coregraphics/primitivegroup.h"
-#include "navigationattributes.h"
+#include "navigation/navigationattributes.h"
 #include "physicsfeature/physicsattr/physicsattributes.h"
 #include "toolkit/toolkitutil/modelutil/modelphysics.h"
 
