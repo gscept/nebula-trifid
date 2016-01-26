@@ -33,9 +33,17 @@ set(application_graphicsfeature__animpath
 	${application_files_graphicsfeature__animpath}
 )
 
+set(application_files_graphicsfeature__loaders
+	loader/environmentloader.cc
+	loader/environmentloader.h
+)
+source_group("graphicsfeature\\loader" FILES ${application_files_graphicsfeature__loaders})	
+
 set(application_files_graphicsfeature__managers
 	managers/attachmentmanager.cc
 	managers/attachmentmanager.h
+	managers/enventitymanager.cc
+	managers/enventitymanager.h
 )
 source_group("graphicsfeature\\managers" FILES ${application_files_graphicsfeature__managers})
 
@@ -95,6 +103,7 @@ set(graphicsfeature_precompiled_src
 set(application_graphicsfeature      
 	${application_graphicsfeature__graphicsutil}
 	${application_graphicsfeature__animpath}
+	${application_files_graphicsfeature__loaders}
 	${application_graphicsfeature__managers}
 	${application_graphicsfeature__properties}
 	${application_files_graphicsfeature}
@@ -104,13 +113,13 @@ set(application_graphicsfeature
 
 
 set(graphics_nidls 
-	graphicsfeatureprotocol.nidl
+	
 )
 
 N_CREATE_FEATURE(graphicsfeature application_graphicsfeature graphics_nidls)
 TARGET_INCLUDE_DIRECTORIES(graphicsfeature PUBLIC ${Nebula3_SOURCE_DIR}/code/application/graphicsfeature)
 TARGET_LINK_LIBRARIES(graphicsfeature PUBLIC application render posteffect effects)
-ADD_DEPENDENCIES(graphicsfeature application_NIDLS render_NIDLS)
+ADD_DEPENDENCIES(graphicsfeature application_NIDLS render_NIDLS posteffect)
 
 N_SET_COMPILER_DEFAULTS()
 IF(N_USE_PRECOMPILED_HEADERS)

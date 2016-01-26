@@ -31,7 +31,9 @@ public:
     virtual void OnActivate();
     /// called from GameServer::DeactivateProperties()
     virtual void OnDeactivate();
-    
+	
+	/// called from within GameServer::NotifyBeforeCleanup() before shutting down a level
+	virtual void OnBeforeCleanup();
     /// called in the middle of the feature trigger cycle
     virtual void OnFrame();
     /// flush all messages

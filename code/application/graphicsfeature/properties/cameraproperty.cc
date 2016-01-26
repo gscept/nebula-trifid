@@ -143,7 +143,10 @@ CameraProperty::OnLoseCameraFocus()
     {
         this->defaultView->SetCameraEntity(0);
     }
-    this->defaultStage->RemoveEntity(this->cameraEntity.cast<Graphics::GraphicsEntity>());
+	if (this->cameraEntity->IsActive())
+	{
+		this->defaultStage->RemoveEntity(this->cameraEntity.cast<Graphics::GraphicsEntity>());
+	}    
     this->defaultStage = 0;
     this->defaultView = 0;
 

@@ -46,7 +46,7 @@ set(feature_sources
 )
 
 set(feature_nidls 
-	physicsprotocol.nidl	
+		
 )
 
 N_CREATE_FEATURE(physicsfeature feature_sources feature_nidls)

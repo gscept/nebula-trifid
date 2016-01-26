@@ -7,28 +7,17 @@
 #include "loader/levelloader.h"
 #include "loader/loaderserver.h"
 #include "appgame/appconfig.h"
-#include "physics/physicsserver.h"
-#include "physics/scene.h"
-#include "graphicsfeature/graphicsfeatureunit.h"
 #include "core/factory.h"
 #include "db/dbserver.h"
 #include "db/reader.h"
 #include "basegamefeature/basegameattr/basegameattributes.h"
-#include "loader/environmentloader.h"
 #include "loader/entityloader.h"
 #include "game/gameserver.h"
 #include "loader/loaderserver.h"
 #include "managers/categorymanager.h"
 #include "math/float4.h"
-#include "posteffectentity.h"
-#include "graphicsfeature/graphicsattr/graphicsattributes.h"
-#include "visibility/visibilityprotocol.h"
-#include "graphics/graphicsinterface.h"
-#include "posteffectfeatureunit.h"
 
 using namespace Math;
-using namespace Graphics;
-using namespace Visibility;
 namespace BaseGameFeature
 {
 
@@ -63,13 +52,6 @@ LevelLoader::Load(const Util::String& levelName, const Util::Array<Util::String>
     }
     dbReader->SetToRow(0);
 
-    if (Physics::PhysicsServer::HasInstance())
-    {
-        // setup new physics level
-        Ptr<Physics::Scene> physicsLevel = Physics::Scene::Create();
-        Physics::PhysicsServer::Instance()->SetScene(physicsLevel);
-    }
-
     // get the active layers from the level
     if (activeLayers.IsEmpty())
     {
@@ -90,32 +72,7 @@ LevelLoader::Load(const Util::String& levelName, const Util::Array<Util::String>
         loaderServer->LoadEntities(activeLayers);
     }
 
-    if (GraphicsFeature::GraphicsFeatureUnit::HasInstance())
-    {
-        GraphicsFeature::GraphicsFeatureUnit::Instance()->OnEntitiesLoaded();
-
-	
-		// get world extents
-		Math::float4 bbCenter = dbReader->GetFloat4(Attr::WorldCenter);
-		Math::float4 bbExtents = dbReader->GetFloat4(Attr::WorldExtents);
-		Math::bbox box = Math::bbox(bbCenter, bbExtents);
-
-		Ptr<ChangeVisibilityBounds> msg = ChangeVisibilityBounds::Create();
-		msg->SetWorldBoundingBox(box);
-		msg->SetStageName("DefaultStage");
-		GraphicsInterface::Instance()->Send(msg.upcast<Messaging::Message>());
-
-		Math::matrix44 trans = dbReader->GetMatrix44(Attr::GlobalLightTransform);
-		GraphicsFeature::GraphicsFeatureUnit::Instance()->GetGlobalLightEntity()->SetTransform(trans);
-    } 
-
-	if (PostEffect::PostEffectFeatureUnit::HasInstance())
-	{
-		Util::String preset = dbReader->GetString(Attr::PostEffectPreset);
-		PostEffect::PostEffectFeatureUnit::Instance()->ApplyPreset(preset);
-	}
-
-	dbReader->Close();
+   	dbReader->Close();
 		
 	// update progress bar window
     //loaderServer->SetProgressText("Level Loader Done...");

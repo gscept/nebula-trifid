@@ -249,4 +249,13 @@ EffectsFeatureUnit::AttachEffect(const Ptr<EffectsFeature::Effect> & effect)
 	this->activeEffects.Append(effect);
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+EffectsFeatureUnit::OnBeforeCleanup()
+{
+	this->FlushAll();
+}
+
 };

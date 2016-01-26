@@ -48,6 +48,11 @@ public:
     /// called from within GameServer::Save() before attributes are saved back to database
     virtual void OnSave();
     
+	/// called from within GameServer::NotifyBeforeLoad() before the database is loaded
+	virtual void OnBeforeLoad();
+	/// called from within GameServer::NotifyBeforeCleanup() before shutting down a level
+	virtual void OnBeforeCleanup();
+
     /// called on begin of frame
     virtual void OnBeginFrame();    
     /// called in the middle of the feature trigger cycle

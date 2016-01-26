@@ -31,6 +31,10 @@
 #include "animpath/managedpathanimation.h"
 #include "graphicsfeature/properties/animpathproperty.h"
 #include "graphicsfeature/properties/lightprobeproperty.h"
+#include "managers/levelattrsmanager.h"
+#include "visibility/visibilityprotocol.h"
+#include "loader/environmentloader.h"
+#include "managers/enventitymanager.h"
 
 namespace GraphicsFeature
 {
@@ -83,6 +87,14 @@ GraphicsFeatureUnit::OnActivate()
 	this->animPathMapper->SetResourceLoaderClass(StreamPathAnimationLoader::RTTI);
 	this->animPathMapper->SetManagedResourceClass(ManagedPathAnimation::RTTI);
 	ResourceManager::Instance()->AttachMapper(this->animPathMapper.upcast<Resources::ResourceMapper>());
+
+	this->envEntityManager = EnvEntityManager::Create();
+	this->AttachManager(this->envEntityManager.upcast<Game::Manager>());
+
+	// attach loader to BaseGameFeature::LoaderServer
+	Ptr<GraphicsFeature::EnvironmentLoader> environmentloader = GraphicsFeature::EnvironmentLoader::Create();
+	BaseGameFeature::LoaderServer::Instance()->AttachEntityLoader(environmentloader.upcast<BaseGameFeature::EntityLoaderBase>());
+
 	FeatureUnit::OnActivate();
 }
 
@@ -93,6 +105,9 @@ void
 GraphicsFeatureUnit::OnDeactivate()
 {
 	n_assert(this->IsActive());
+	
+	this->RemoveManager(this->envEntityManager.upcast<Game::Manager>());
+	this->envEntityManager = 0;
 
 	// destroy post effect and world
 	this->DiscardDisplay();
@@ -156,6 +171,9 @@ GraphicsFeatureUnit::SetupDefaultGraphicsWorld()
 void
 GraphicsFeatureUnit::DiscardDefaultGraphicsWorld()
 {
+	// cleanup environment entity
+	this->envEntityManager->ClearEnvEntity();
+
 	n_assert(this->IsActive());
     n_assert(this->defaultStage.isvalid());
     n_assert(this->defaultView.isvalid());
@@ -299,16 +317,6 @@ GraphicsFeatureUnit::OnConfigureDisplay()
     {
         this->display->Settings().SetAntiAliasQuality(AntiAliasQuality::FromString(this->args.GetString("-aa")));
     }
-}
-
-//------------------------------------------------------------------------------
-/**
-    This method is called after all entities are loaded.
-*/
-void 
-GraphicsFeatureUnit::OnEntitiesLoaded()
-{
-    // empty
 }
 
 //------------------------------------------------------------------------------
@@ -462,6 +470,50 @@ GraphicsFeatureUnit::SetFullscreen(bool enable)
 	}
 			
 	this->display->Settings().SetFullscreen(enable);		
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+GraphicsFeatureUnit::OnLoad()
+{
+	// get world extents
+	Math::float4 bbCenter = BaseGameFeature::LevelAttrsManager::Instance()->GetFloat4(Attr::WorldCenter);
+	Math::float4 bbExtents = BaseGameFeature::LevelAttrsManager::Instance()->GetFloat4(Attr::WorldExtents);
+		
+	Math::bbox box = Math::bbox(bbCenter, bbExtents);
+
+	Ptr<Visibility::ChangeVisibilityBounds> msg = Visibility::ChangeVisibilityBounds::Create();
+	msg->SetWorldBoundingBox(box);
+	msg->SetStageName("DefaultStage");
+	GraphicsInterface::Instance()->Send(msg.upcast<Messaging::Message>());
+
+	Math::matrix44 trans = BaseGameFeature::LevelAttrsManager::Instance()->GetMatrix44(Attr::GlobalLightTransform);		
+	this->GetGlobalLightEntity()->SetTransform(trans);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+GraphicsFeatureUnit::OnBeforeLoad()
+{
+	// if no world exist create default one
+	if (!this->GetDefaultStage().isvalid())
+	{
+		this->SetupDefaultGraphicsWorld();
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+GraphicsFeatureUnit::OnBeforeCleanup()
+{
+	// cleanup graphics world
+	this->DiscardDefaultGraphicsWorld();
 }
 
 } // namespace GraphicsFeature

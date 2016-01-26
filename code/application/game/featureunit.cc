@@ -278,4 +278,23 @@ FeatureUnit::RemoveManager(const Ptr<Manager>& manager)
         #endif
     }
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+FeatureUnit::OnBeforeLoad()
+{
+	// overwrite in subclass if needed
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+FeatureUnit::OnBeforeCleanup()
+{
+	// overwrite in subclass if needed
+}
+
 }; // namespace Game

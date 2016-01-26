@@ -81,7 +81,7 @@ N_CREATE_FEATURE(posteffect SOURCES_ P_NIDL_FILES)
 TARGET_LINK_LIBRARIES(posteffect PUBLIC foundation render )
 TARGET_INCLUDE_DIRECTORIES(posteffect PUBLIC ${Nebula3_SOURCE_DIR}/code/addons/posteffect ${Nebula3_SOURCE_DIR}/code/application ${Nebula3_SOURCE_DIR}/code/application/basegamefeature)
 
-ADD_DEPENDENCIES(posteffect graphicsfeature )
+#ADD_DEPENDENCIES(posteffect graphicsfeature )
 N_SET_COMPILER_DEFAULTS()
 IF(N_USE_PRECOMPILED_HEADERS)
     N_SET_PCH(posteffect stdneb.h stdneb.cc ../)

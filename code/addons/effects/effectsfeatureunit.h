@@ -35,6 +35,8 @@ public:
     /// called on begin of frame
     virtual void OnBeginFrame();    
 
+	/// called from within GameServer::NotifyBeforeCleanup() before shutting down a level
+	virtual void OnBeforeCleanup();
 
 	/// create shake effect
 	void EmitCameraShakeEffect(const Math::vector& intensity,
@@ -74,11 +76,10 @@ public:
 	/// attach a camerashake mixer
 	void SetupCameraShakeMixer(const Math::vector& maxDisplacement, 
 							   const Math::vector& maxThumble);
+private:
 
 	/// flushes all effects
 	void FlushAll();
-
-private:
 	Timing::Time curTime;
 	Ptr<AnimEventRegistry> animRegistry;
 	Ptr<Vibration::VibrationPlayer> vibrationPlayer;

@@ -19,6 +19,7 @@
 #include "dynui/console/imguiconsolehandler.h"
 #include "levelviewerfactorymanager.h"
 #include "gamestates/viewergamestate.h"
+#include "navigationfeatureunit.h"
 
 //------------------------------------------------------------------------------
 /**
@@ -64,6 +65,7 @@ private:
 	Ptr<EffectsFeature::EffectsFeatureUnit> effectFeature;
 	Ptr<UI::UiFeatureUnit> uiFeature;
 	Ptr<PostEffect::PostEffectFeatureUnit> postEffectFeature;
+	Ptr<Navigation::NavigationFeatureUnit> navigationFeature;
 
 	Ptr<Tools::LevelViewerGameState> viewerState;
 

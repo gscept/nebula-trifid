@@ -1,6 +1,7 @@
 //------------------------------------------------------------------------------
 //  game/server.cc
 //  (C) 2003 RadonLabs GmbH
+//  (C) 2013-2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "game/gameserver.h"
@@ -266,6 +267,36 @@ GameServer::CheckDebugRendering()
 }
 
 //------------------------------------------------------------------------------
+/**
+*/
+void
+GameServer::NotifyBeforeLoad()
+{
+	// call the SetupDefault method on all gameFeatures
+	int i;
+	int num = this->gameFeatures.Size();
+	for (i = 0; i < num; i++)
+	{
+		this->gameFeatures[i]->OnBeforeLoad();
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+GameServer::NotifyBeforeCleanup()
+{
+	// call the SetupDefault method on all gameFeatures
+	int i;
+	int num = this->gameFeatures.Size();
+	for (i = 0; i < num; i++)
+	{
+		this->gameFeatures[i]->OnBeforeCleanup();
+	}
+}
+
+//------------------------------------------------------------------------------
 /**    
 */
 void
@@ -279,6 +310,7 @@ GameServer::NotifyGameLoad()
         this->gameFeatures[i]->OnLoad();
     }
 }
+
 //------------------------------------------------------------------------------
 /**    
 */
@@ -311,4 +343,5 @@ GameServer::IsFeatureAttached(const Util::String& stringName) const
     }
     return false;
 }
+
 } // namespace Game

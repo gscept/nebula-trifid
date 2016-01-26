@@ -127,4 +127,13 @@ MultiplayerFeatureUnit::RestartNetwork()
 	ReplicationManager::Instance()->Reference(dynamic_cast<RakNet::Replica3*>(this->player.get_unsafe()));
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+MultiplayerFeatureUnit::OnBeforeCleanup()
+{
+	this->SetEnableEntitySync(false);	
+}
+
 }; // namespace MultiplayerFeature

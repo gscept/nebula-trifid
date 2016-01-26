@@ -194,4 +194,22 @@ PhysicsFeatureUnit::GetInitVisualDebuggerFlag() const
 	return this->initVisualDebugger;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PhysicsFeatureUnit::OnBeforeLoad()
+{
+	this->CreateDefaultPhysicsWorld();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PhysicsFeatureUnit::OnBeforeCleanup()
+{
+	this->CleanupPhysicsWorld();
+}
+
 }; // namespace PhysicsFeature

@@ -51,4 +51,14 @@ NavigationFeatureUnit::OnDeactivate()
     this->crowdManager = 0;
     FeatureUnit::OnDeactivate();    
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+NavigationFeatureUnit::OnBeforeCleanup()
+{
+	this->crowdManager->Cleanup();	
+}
+
 };

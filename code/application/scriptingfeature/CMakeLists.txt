@@ -29,13 +29,12 @@ set(feature_sources
 
 set(feature_nidls 
 	scriptingcommands.nidl 
-	scriptingprotocol.nidl 		
 )
 
 N_CREATE_FEATURE(scriptingfeature feature_sources feature_nidls)
 TARGET_INCLUDE_DIRECTORIES(scriptingfeature PUBLIC ${Nebula3_SOURCE_DIR}/code/application/scriptingfeature)
-TARGET_LINK_LIBRARIES(scriptingfeature PUBLIC application scripting)
-ADD_DEPENDENCIES(scriptingfeature application)
+TARGET_LINK_LIBRARIES(scriptingfeature PUBLIC application scripting graphicsfeature)
+ADD_DEPENDENCIES(scriptingfeature application physicsfeature)
 
 N_SET_COMPILER_DEFAULTS()
 IF(N_USE_PRECOMPILED_HEADERS)

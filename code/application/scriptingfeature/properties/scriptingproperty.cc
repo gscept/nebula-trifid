@@ -11,6 +11,7 @@
 #include "io/ioserver.h"
 #include "input/inputserver.h"
 #include "input/keyboard.h"
+#include "graphicsfeature/graphicsfeatureprotocol.h"
 
 
 namespace ScriptingFeature

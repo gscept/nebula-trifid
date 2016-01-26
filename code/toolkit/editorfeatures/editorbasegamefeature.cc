@@ -140,10 +140,8 @@ EditorBaseGameFeatureUnit::OnActivate()
 	this->loaderServer->Open();
 
 	// attach loader to BaseGameFeature::LoaderServer
-	Ptr<BaseGameFeature::EntityLoader> entityloader = BaseGameFeature::EntityLoader::Create();
-	Ptr<BaseGameFeature::EnvironmentLoader> environmentloader = BaseGameFeature::EnvironmentLoader::Create();
-	this->loaderServer->AttachEntityLoader(entityloader.upcast<BaseGameFeature::EntityLoaderBase>());
-	this->loaderServer->AttachEntityLoader(environmentloader.upcast<BaseGameFeature::EntityLoaderBase>());
+	Ptr<BaseGameFeature::EntityLoader> entityloader = BaseGameFeature::EntityLoader::Create();	
+	this->loaderServer->AttachEntityLoader(entityloader.upcast<BaseGameFeature::EntityLoaderBase>());	
 
 	// create manager and attach to fetaure
 	this->timeManager = TimeManager::Create();
@@ -156,8 +154,7 @@ EditorBaseGameFeatureUnit::OnActivate()
 	this->focusManager = FocusManager::Create();
 	this->entityManager = EntityManager::Create();
 	this->globalAttrManager = GlobalAttrsManager::Create();
-	this->categoryManager = CategoryManager::Create();
-	this->envEntityManager = EnvEntityManager::Create();    
+	this->categoryManager = CategoryManager::Create();	
 	this->audioManager = AudioManager::Create();
 
 	this->AttachManager(this->timeManager.upcast<Game::Manager>());
@@ -165,8 +162,7 @@ EditorBaseGameFeatureUnit::OnActivate()
 	this->AttachManager(this->focusManager.upcast<Game::Manager>());
 	this->AttachManager(this->entityManager.upcast<Game::Manager>());
 	this->AttachManager(this->globalAttrManager.upcast<Game::Manager>()); 
-	this->AttachManager(this->categoryManager.upcast<Game::Manager>());
-	this->AttachManager(this->envEntityManager.upcast<Game::Manager>());	    
+	this->AttachManager(this->categoryManager.upcast<Game::Manager>());	
 	this->AttachManager(this->audioManager.upcast<Game::Manager>());
 
 	this->envQueryManager = EnvQueryManager::Create();    

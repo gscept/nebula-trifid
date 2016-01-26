@@ -6,14 +6,13 @@
     Front-end of the Audio subsystem. Initializes the audio 
     subsystem.	
 
-    (C) 2014 Individual contributors, see AUTHORS file
+    (C) 2014-2016 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
 #include "core/singleton.h"
-#include "database.h"
-
 
 namespace FAudio { class AudioDevice; class AudioHandler; }
+namespace Db { class Database; }
 
 //------------------------------------------------------------------------------
 namespace FAudio

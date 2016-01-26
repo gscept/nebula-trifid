@@ -78,8 +78,6 @@ set(application_files_basegamefeature__loader
 	basegamefeature/loader/entityloader.h
 	basegamefeature/loader/entityloaderbase.cc
 	basegamefeature/loader/entityloaderbase.h
-	basegamefeature/loader/environmentloader.cc
-	basegamefeature/loader/environmentloader.h
 	basegamefeature/loader/levelloader.cc
 	basegamefeature/loader/levelloader.h
 	basegamefeature/loader/loaderserver.cc
@@ -100,8 +98,6 @@ set(application_files_basegamefeature__managers
 	basegamefeature/managers/categorymanager.h
 	basegamefeature/managers/entitymanager.cc
 	basegamefeature/managers/entitymanager.h
-	basegamefeature/managers/enventitymanager.cc
-	basegamefeature/managers/enventitymanager.h
 	basegamefeature/managers/envquerymanager.cc
 	basegamefeature/managers/envquerymanager.h
 	basegamefeature/managers/factorymanager.cc
@@ -110,6 +106,8 @@ set(application_files_basegamefeature__managers
 	basegamefeature/managers/focusmanager.h
 	basegamefeature/managers/globalattrsmanager.cc
 	basegamefeature/managers/globalattrsmanager.h
+	basegamefeature/managers/levelattrsmanager.cc
+	basegamefeature/managers/levelattrsmanager.h
 )
 source_group("basegamefeature\\managers" FILES ${application_files_basegamefeature__managers})
 
@@ -169,7 +167,10 @@ set(P_NIDL_FILES
 	basegamefeature/basegameattr/basegameattributes.nidl
 	basegamefeature/properties/basegameproperties.nidl	
 	graphicsfeature/graphicsattr/graphicsattributes.nidl
+	graphicsfeature/graphicsfeatureprotocol.nidl
 	physicsfeature/physicsattr/physicsattributes.nidl
+	physicsfeature/physicsprotocol.nidl
+	scriptingfeature/scriptingprotocol.nidl
 	scriptfeature/scriptattr/scriptattributes.nidl
 )
 
