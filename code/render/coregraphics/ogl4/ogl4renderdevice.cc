@@ -374,9 +374,9 @@ OGL4RenderDevice::SetVertexLayout(const Ptr<VertexLayout>& vl)
 
 	if (this->vertexLayout != vl)
 	{
-		RenderDeviceBase::SetVertexLayout(vl);
 		glBindVertexArray(vl->GetOGL4VertexArrayObject());
 	}
+	RenderDeviceBase::SetVertexLayout(vl);
 }
 
 //------------------------------------------------------------------------------
@@ -392,11 +392,11 @@ OGL4RenderDevice::SetIndexBuffer(const Ptr<IndexBuffer>& ib)
 		if (!ib.isvalid())
 		{
 			// unbind buffer if we pass NULL
-			//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		}
 		else
 		{
-			//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib->GetOGL4IndexBuffer());
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ib->GetOGL4IndexBuffer());
 		}
 	}
 	RenderDeviceBase::SetIndexBuffer(ib);

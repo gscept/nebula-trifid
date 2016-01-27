@@ -122,7 +122,6 @@ RocketRenderer::CompileGeometry(Rocket::Core::Vertex* vertices,
 
     // bind index buffer to vertex layout
     geometry->vertexLayout = geometry->vb->GetVertexLayout();
-    geometry->vertexLayout->SetIndexBuffer(geometry->ib);
 
 	geometry->primGroup.SetBaseIndex(0);
 	geometry->primGroup.SetNumVertices(num_vertices);

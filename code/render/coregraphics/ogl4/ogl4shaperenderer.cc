@@ -131,7 +131,6 @@ OGL4ShapeRenderer::Open()
 
     // bind index buffer to vertex layout
     this->vertexLayout = this->vbo->GetVertexLayout();
-    this->vertexLayout->SetIndexBuffer(this->ibo);
 
 	// setup primitive group
 	this->primGroup.SetBaseIndex(0);
@@ -507,6 +506,7 @@ void
 OGL4ShapeRenderer::DrawBufferedPrimitives()
 {
     Ptr<RenderDevice> renderDevice = RenderDevice::Instance();
+	
     renderDevice->SetVertexLayout(this->vertexLayout);
     renderDevice->SetStreamSource(0, this->vbo, 0);
 
@@ -540,6 +540,7 @@ OGL4ShapeRenderer::DrawBufferedIndexedPrimitives()
 {
     Ptr<RenderDevice> renderDevice = RenderDevice::Instance();
     renderDevice->SetVertexLayout(this->vertexLayout);
+	renderDevice->SetIndexBuffer(this->ibo);
     renderDevice->SetStreamSource(0, this->vbo, 0);
 
     IndexT i;

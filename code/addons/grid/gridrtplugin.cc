@@ -78,7 +78,6 @@ GridRTPlugin::OnRegister()
 
     // setup ibo
     this->vertexLayout = this->vbo->GetVertexLayout();
-    this->vertexLayout->SetIndexBuffer(this->ibo);
 	
 	this->primitive.SetBaseIndex(0);
 	this->primitive.SetNumVertices(4);

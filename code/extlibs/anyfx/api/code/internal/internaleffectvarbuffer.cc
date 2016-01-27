@@ -11,6 +11,7 @@ namespace AnyFX
 /**
 */
 InternalEffectVarbuffer::InternalEffectVarbuffer() :
+	active(false),
 	bufferHandle(0),
 	isSlave(false)
 {
@@ -77,8 +78,8 @@ InternalEffectVarbuffer::Commit()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-InternalEffectVarbuffer::Activate( InternalEffectProgram* program )
+void
+InternalEffectVarbuffer::Activate(InternalEffectProgram* program)
 {
 	// override in subclass
 }

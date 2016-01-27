@@ -91,16 +91,16 @@ InternalEffectProgram::Commit()
 		this->effect->variablesByIndex[i]->internalVariable->Commit();
 	}
 
-	num = this->effect->numVarbuffers;
-	for (i = 0; i < num; ++i)
-	{
-		this->effect->varbuffersByIndex[i]->internalVarbuffer->Commit();
-	}
-
 	num = this->effect->numVarblocks;
 	for (i = 0; i < num; ++i)
 	{
 		this->effect->varblocksByIndex[i]->internalVarblock->Commit();
+	}
+
+	num = this->effect->numVarbuffers;
+	for (i = 0; i < num; ++i)
+	{
+		this->effect->varbuffersByIndex[i]->internalVarbuffer->Commit();
 	}
 }
 

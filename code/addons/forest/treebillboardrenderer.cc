@@ -99,7 +99,6 @@ TreeBillboardRenderer::Setup()
 
 	// we need to setup a common vertex layout which describes both streams
     this->vertexLayout = this->vertexBuffer->GetVertexLayout();
-    this->vertexLayout->SetIndexBuffer(this->indexBuffer);
 }
 
 //------------------------------------------------------------------------------

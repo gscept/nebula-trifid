@@ -102,7 +102,6 @@ MinimapManager::OnActivate()
 
     // setup vertex layout
     this->vertexLayout = this->quadVb->GetVertexLayout();
-    this->vertexLayout->SetIndexBuffer(this->quadIb);
 
     // setup the cornerPrimitiveGroup which describes one particle instance
     this->quadPrim.SetBaseVertex(0);

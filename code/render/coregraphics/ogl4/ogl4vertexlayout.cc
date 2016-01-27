@@ -164,16 +164,4 @@ OGL4VertexLayout::Apply()
 	glBindVertexArray(this->ogl4Vao);
 }
 
-//------------------------------------------------------------------------------
-/**
-*/
-void
-OGL4VertexLayout::SetIndexBuffer(const Ptr<CoreGraphics::IndexBuffer>& buffer)
-{
-    n_assert(this->ogl4Vao);
-    glBindVertexArray(this->ogl4Vao);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer->GetOGL4IndexBuffer());
-    glBindVertexArray(0);
-}
-
 } // namespace OpenGL4
