@@ -276,6 +276,9 @@ LevelEditor2App::SetupGameFeatures()
 	this->splash->SetTitle("Level Editor");
 	this->splash->Open();
 
+    // create game feature
+    this->baseFeature = Toolkit::EditorBaseGameFeatureUnit::Create();
+
     // add arguments for embedding the Nebula context in the desired Nebula frame
     String extraArgs;
     extraArgs.Format("-embedded");
@@ -284,12 +287,11 @@ LevelEditor2App::SetupGameFeatures()
     this->graphicsFeature->SetCmdLineArgs(this->GetCmdLineArgs());
     this->graphicsFeature->SetWindowData(this->editorWindow->GetNebulaWindowData());
 	this->graphicsFeature->SetupDisplay();
-    this->gameServer->AttachGameFeature(this->graphicsFeature.upcast<Game::FeatureUnit>());
 
-    // setup base game feature
-    this->baseFeature = Toolkit::EditorBaseGameFeatureUnit::Create();	
+    // game feature needs to be attached before graphicsfeature (but after setupdisplay)
     this->gameServer->AttachGameFeature(this->baseFeature.upcast<Game::FeatureUnit>());
-
+    this->gameServer->AttachGameFeature(this->graphicsFeature.upcast<Game::FeatureUnit>());
+        
     // create and attach the leveleditor-specific managers
     Ptr<ActionManager> actionManager = ActionManager::Create();
     this->baseFeature->AttachManager(actionManager.upcast<Game::Manager>());

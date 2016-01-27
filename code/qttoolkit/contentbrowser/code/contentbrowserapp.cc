@@ -161,6 +161,9 @@ ContentBrowserApp::SetupGameFeatures()
 	this->splash->SetTitle("Content Browser");
 	this->splash->Open();
 
+    // create base game feature
+    this->baseFeature = Toolkit::EditorBaseGameFeatureUnit::Create();
+    
     // add arguments for embedding the Nebula context in the desired Nebula frame
     String extraArgs;
     extraArgs.Format("-embedded");
@@ -169,11 +172,9 @@ ContentBrowserApp::SetupGameFeatures()
     this->graphicsFeature->SetCmdLineArgs(this->GetCmdLineArgs());
     this->graphicsFeature->SetWindowData(this->browserWindow->GetNebulaWindowData());
 	this->graphicsFeature->SetupDisplay();
-    this->gameServer->AttachGameFeature(this->graphicsFeature.upcast<Game::FeatureUnit>());
 
-    // setup base game feature
-    this->baseFeature = Toolkit::EditorBaseGameFeatureUnit::Create();
     this->gameServer->AttachGameFeature(this->baseFeature.upcast<Game::FeatureUnit>());
+    this->gameServer->AttachGameFeature(this->graphicsFeature.upcast<Game::FeatureUnit>());    
 
     // setup physics feature
     this->physicsFeature = PhysicsFeature::PhysicsFeatureUnit::Create();
