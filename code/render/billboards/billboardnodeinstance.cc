@@ -111,10 +111,6 @@ BillboardNodeInstance::Setup( const Ptr<ModelInstance>& inst, const Ptr<ModelNod
 	this->primGroup.SetBaseIndex(0);
 	this->primGroup.SetNumIndices(6);
 	this->primGroup.SetPrimitiveTopology(PrimitiveTopology::TriangleList);
-
-	// get vertex layout
-	this->vertexLayout = this->vb->GetVertexLayout();
-    this->vertexLayout->SetIndexBuffer(this->ib);
 }
 
 //------------------------------------------------------------------------------

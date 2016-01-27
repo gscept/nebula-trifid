@@ -450,18 +450,45 @@ OGL4Types::AsOGL4Access( Base::ResourceBase::Access access )
 //------------------------------------------------------------------------------
 /**
 */
-GLuint 
-OGL4Types::AsOGL4Usage( Base::ResourceBase::Usage usage )
+GLuint
+OGL4Types::AsOGL4Usage(Base::ResourceBase::Usage usage, Base::ResourceBase::Access access)
 {
 	switch (usage)
 	{
 	case ResourceBase::UsageImmutable:
+		switch (access)
+		{
+		case ResourceBase::AccessRead:
+			return GL_STATIC_READ;
+		case ResourceBase::AccessWrite:
+		case ResourceBase::AccessReadWrite:
+			return GL_STATIC_COPY;
+		case ResourceBase::AccessNone:
+			return GL_STATIC_DRAW;
+		}
 		return GL_STATIC_DRAW;
 	case ResourceBase::UsageCpu:
-		return GL_STREAM_DRAW;
+		switch (access)
+		{
+		case ResourceBase::AccessRead:
+			return GL_STREAM_READ;
+		case ResourceBase::AccessWrite:
+		case ResourceBase::AccessReadWrite:
+			return GL_STREAM_COPY;
+		case ResourceBase::AccessNone:
+			return GL_STREAM_DRAW;
+		}
 	case ResourceBase::UsageDynamic:
-		return GL_DYNAMIC_DRAW;
-
+		switch (access)
+		{
+		case ResourceBase::AccessRead:
+			return GL_DYNAMIC_READ;
+		case ResourceBase::AccessWrite:
+		case ResourceBase::AccessReadWrite:
+			return GL_DYNAMIC_COPY;
+		case ResourceBase::AccessNone:
+			return GL_DYNAMIC_DRAW;
+		}
 	default:
 		n_error("OGL4Types::AsOGL4Usage: invalid usage flag!");
 		return 0;

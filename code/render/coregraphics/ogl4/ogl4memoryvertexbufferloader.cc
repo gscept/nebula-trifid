@@ -37,7 +37,7 @@ OGL4MemoryVertexBufferLoader::OnLoadRequested()
 
 	SizeT vertexSize = VertexLayoutServer::Instance()->CalculateVertexSize(this->vertexComponents);
 	GLuint ogl4VertexBuffer = 0;
-	GLenum usage = OGL4Types::AsOGL4Usage(this->usage);
+	GLenum usage = OGL4Types::AsOGL4Usage(this->usage, this->access);
 	GLenum sync = OGL4Types::AsOGL4Syncing(this->syncing);
 	glGenBuffers(1, &ogl4VertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, ogl4VertexBuffer);

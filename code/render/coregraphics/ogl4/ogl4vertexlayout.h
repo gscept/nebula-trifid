@@ -32,8 +32,6 @@ public:
 
 	/// set the vertex buffer associated with the stream index
 	void SetStreamBuffer(IndexT streamIndex, GLuint vertexBuffer);
-    /// set the index buffer associated with this vertex array object
-    void SetIndexBuffer(const Ptr<CoreGraphics::IndexBuffer>& buffer);
 
     /// get opengl vertex array object
     const GLuint& GetOGL4VertexArrayObject() const;
