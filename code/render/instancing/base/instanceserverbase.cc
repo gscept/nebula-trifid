@@ -18,7 +18,7 @@ InstanceServerBase::InstanceServerBase() :
 	renderer(0),
 	modelNode(0), 
     shader(0),
-    code(Frame::BatchGroup::InvalidBatchGroup),
+    pass(-1),
 	isBeginInstancing(false),
 	isOpen(false),
 	multiplier(1)	

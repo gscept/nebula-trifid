@@ -75,9 +75,6 @@ GridRTPlugin::OnRegister()
 	this->ibo->Load();
 	n_assert(this->ibo->IsLoaded());
 	this->ibo->SetLoader(NULL);	
-
-    // setup ibo
-    this->vertexLayout = this->vbo->GetVertexLayout();
 	
 	this->primitive.SetBaseIndex(0);
 	this->primitive.SetNumVertices(4);
@@ -125,7 +122,7 @@ GridRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
 		this->shader->Commit();
 
 		device->SetStreamSource(0, this->vbo, 0);
-		device->SetVertexLayout(this->vertexLayout);
+		device->SetVertexLayout(this->vbo->GetVertexLayout());
 		device->SetIndexBuffer(this->ibo);
 		device->SetPrimitiveGroup(this->primitive);
 		device->Draw();

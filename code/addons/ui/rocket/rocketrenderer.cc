@@ -120,9 +120,6 @@ RocketRenderer::CompileGeometry(Rocket::Core::Vertex* vertices,
 	n_assert(geometry->ib->IsLoaded());
 	geometry->ib->SetLoader(0);
 
-    // bind index buffer to vertex layout
-    geometry->vertexLayout = geometry->vb->GetVertexLayout();
-
 	geometry->primGroup.SetBaseIndex(0);
 	geometry->primGroup.SetNumVertices(num_vertices);
 	geometry->primGroup.SetBaseVertex(0);
@@ -210,7 +207,6 @@ RocketRenderer::ReleaseCompiledGeometry( Rocket::Core::CompiledGeometryHandle ge
 	nebGeometry->ib = 0;		
 	nebGeometry->vb->Unload();
 	nebGeometry->vb = 0;
-	nebGeometry->vertexLayout = 0;
 	nebGeometry->texture = 0;
 	
 	Memory::Free(Memory::RocketHeap, nebGeometry);

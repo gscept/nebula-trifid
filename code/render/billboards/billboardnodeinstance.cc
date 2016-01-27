@@ -30,8 +30,7 @@ __ImplementClass(Billboards::BillboardNodeInstance, 'BINI', Models::StateNodeIns
 */
 BillboardNodeInstance::BillboardNodeInstance() : 
 	vb(0),
-	ib(0),
-	vertexLayout(0)
+	ib(0)
 {
 	// empty
 }
@@ -67,7 +66,6 @@ BillboardNodeInstance::Setup( const Ptr<ModelInstance>& inst, const Ptr<ModelNod
 {
 	n_assert(!this->vb.isvalid());
 	n_assert(!this->ib.isvalid());
-	n_assert(!this->vertexLayout.isvalid());
 
 	// up to parent class
 	StateNodeInstance::Setup(inst, node, parentNodeInst);
@@ -121,9 +119,7 @@ BillboardNodeInstance::Discard()
 {
 	n_assert(this->vb->IsLoaded());
 	n_assert(this->ib->IsLoaded());
-	n_assert(this->vertexLayout.isvalid());
 
-	this->vertexLayout = 0;
 	this->vb->Unload();
 	this->vb = 0;
 	this->ib->Unload();
@@ -143,7 +139,7 @@ BillboardNodeInstance::Render()
 
 	// setup rendering
 	renderDevice->SetStreamVertexBuffer(0, this->vb, 0);
-	renderDevice->SetVertexLayout(this->vertexLayout);
+	renderDevice->SetVertexLayout(this->vb->GetVertexLayout());
 	renderDevice->SetIndexBuffer(this->ib);
 	renderDevice->SetPrimitiveGroup(this->primGroup);
 

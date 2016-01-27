@@ -36,7 +36,6 @@ TreeBillboardRenderer::TreeBillboardRenderer() :
     inBegin(false),
 	vertexBuffer(0),
 	indexBuffer(0),
-	vertexLayout(0),
     treeInstances(1024, 1024)
 {
     __ConstructSingleton;
@@ -96,9 +95,6 @@ TreeBillboardRenderer::Setup()
 		n_error("TreeBillboardRenderer: Failed to setup corner index buffer!");
 	}
 	this->indexBuffer->SetLoader(0);
-
-	// we need to setup a common vertex layout which describes both streams
-    this->vertexLayout = this->vertexBuffer->GetVertexLayout();
 }
 
 //------------------------------------------------------------------------------
@@ -113,8 +109,6 @@ TreeBillboardRenderer::Discard()
     this->vertexBuffer = 0;
 	this->indexBuffer->Unload();
 	this->indexBuffer = 0;
-	this->vertexLayout->Discard();
-	this->vertexLayout = 0;
 
     this->isValid = false;
 }

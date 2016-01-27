@@ -60,7 +60,6 @@ private:
     Util::Array<Util::KeyValuePair<float, TreeInstance*> > treeInstances;
     Ptr<CoreGraphics::VertexBuffer> vertexBuffer;
 	Ptr<CoreGraphics::IndexBuffer> indexBuffer;
-	Ptr<CoreGraphics::VertexLayout> vertexLayout;
 	CoreGraphics::PrimitiveGroup group;
     Ptr<TreeBillboardGraphicsEntity> graphicsEntity;
     bool isValid;
