@@ -120,7 +120,7 @@ OGL4InstanceServer::Render(IndexT frameIndex)
 		this->renderer->EndUpdate();
 
 		// apply the state for the first node, this will then be active for all of them
-        nodeInstances[0]->ApplyState(frameIndex, this->code, shader);
+        nodeInstances[0]->ApplyState(frameIndex, this->pass, shader);
 
 		// now render
 		this->renderer->Render(this->multiplier);

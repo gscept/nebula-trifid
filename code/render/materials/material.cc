@@ -34,7 +34,8 @@ Material::~Material()
 void
 Material::Setup()
 {
-	n_assert(this->shadersByBatchGroup.IsEmpty());
+	n_assert(this->passesByIndex.IsEmpty());
+	n_assert(this->passesByBatchGroup.IsEmpty());
 }
 
 //------------------------------------------------------------------------------
@@ -46,19 +47,21 @@ Material::LoadInherited(const Ptr<Material>& material)
 {
 	IndexT i;
 
+	SizeT numPasses = this->GetNumPasses();
 	// add/replace shaders
-	for (i = 0; i < material->shadersByBatchGroup.Size(); i++)
+	for (i = 0; i < numPasses; i++)
 	{
-        const Frame::BatchGroup::Code& key = material->shadersByBatchGroup.KeyAtIndex(i);
-		const Ptr<CoreGraphics::Shader>& value = material->shadersByBatchGroup.ValueAtIndex(i);
-		if (this->shadersByBatchGroup.Contains(key))
+		const MaterialPass& pass = material->passesByIndex[i];
+		MaterialPass newPass{ pass.code, pass.shader, pass.featureMask };
+		const Frame::BatchGroup::Code& key = pass.code;
+		const Ptr<CoreGraphics::Shader>& value = pass.shader;
+		IndexT i = this->passesByIndex.FindIndex(newPass);
+		if (i == InvalidIndex)
 		{
-			this->shadersByBatchGroup[key] = value;
+			this->passesByBatchGroup.Add(newPass.code, Util::Array<MaterialPass>());
 		}
-		else
-		{
-			this->shadersByBatchGroup.Add(key, value);
-		}
+		this->passesByBatchGroup[newPass.code].Append(newPass);
+		this->passesByIndex.Append(newPass);
 	}
 
 	// add/replace parameters
@@ -76,20 +79,6 @@ Material::LoadInherited(const Ptr<Material>& material)
 		}
 	}
 
-	// add/replace features
-	for (i = 0; i < material->featuresByBatchGroup.Size(); i++)
-	{
-        const Frame::BatchGroup::Code& key = material->featuresByBatchGroup.KeyAtIndex(i);
-		const CoreGraphics::ShaderFeature::Mask& value = material->featuresByBatchGroup.ValueAtIndex(i);
-		if (this->featuresByBatchGroup.Contains(key))
-		{
-			this->featuresByBatchGroup[key] = value;
-		}
-		else
-		{
-			this->featuresByBatchGroup.Add(key, value);
-		}
-	}
 	this->inheritedMaterials.Append(material);
 }
 
@@ -99,8 +88,8 @@ Material::LoadInherited(const Ptr<Material>& material)
 void
 Material::Unload()
 {
-	this->shadersByBatchGroup.Clear();
-	this->featuresByBatchGroup.Clear();
+	this->passesByIndex.Clear();
+	this->passesByBatchGroup.Clear();
 	this->parametersByName.Clear();
 	this->inheritedMaterials.Clear();
 }
@@ -112,9 +101,6 @@ void
 Material::Discard()
 {
 	this->inheritedMaterials.Clear();
-
-    this->shaders.Clear();
-    this->shadersByBatchGroup.Clear();
 	this->Unload();
 }
 
@@ -126,22 +112,35 @@ Material::AddPass(const Frame::BatchGroup::Code& code, const Ptr<CoreGraphics::S
 {
 	n_assert(shader.isvalid());
 
+	// create pass
+	MaterialPass pass{ code, shader, mask, this->passesByIndex.Size() };
+
     // if this pass is already defined and this material inherits another, remove the previous definition and override
 	if (this->inheritedMaterials.Size() > 0)
 	{
-		if (this->shadersByBatchGroup.Contains(code))
+		if (this->passesByBatchGroup.Contains(code))
 		{
-			this->shadersByBatchGroup.Erase(code);
-			this->featuresByBatchGroup.Erase(code);
+			// yes, copy array since we want to maintain the order
+			Util::Array<MaterialPass> passes = this->passesByBatchGroup[code];
+			IndexT i;
+			for (i = 0; i < passes.Size(); i++)
+			{
+				if (passes[i] == pass)
+				{
+					this->passesByBatchGroup[code].EraseIndex(this->passesByBatchGroup[code].FindIndex(passes[i]));
+					this->passesByIndex.EraseIndex(this->passesByIndex.FindIndex(passes[i]));
+				}				
+			}
 		}
 	}
 
-    // add shader and features
-    n_assert(!this->shadersByBatchGroup.Contains(code));
-    n_assert(!this->featuresByBatchGroup.Contains(code));
-    this->shadersByBatchGroup.Add(code, shader);
-    this->shaders.Append(shader);
-    this->featuresByBatchGroup.Add(code, mask);
+	// add pass
+	this->passesByIndex.Append(pass);
+	if (!this->passesByBatchGroup.Contains(code))
+	{
+		this->passesByBatchGroup.Add(code, Util::Array<MaterialPass>());
+	}
+	this->passesByBatchGroup[code].Append(pass);
 }
 
 //------------------------------------------------------------------------------
@@ -194,6 +193,24 @@ const Util::Array<Ptr<Surface>>&
 Material::GetSurfaces() const
 {
     return this->surfaces;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+const Material::MaterialPass&
+Material::GetPassByIndex(const IndexT index) const
+{
+	return this->passesByIndex[index];
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+const Util::Array<Material::MaterialPass>&
+Material::GetPassesByCode(const Frame::BatchGroup::Code& code)
+{
+	return this->passesByBatchGroup[code];
 }
 
 } // namespace Materials

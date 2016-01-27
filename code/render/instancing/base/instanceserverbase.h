@@ -34,7 +34,7 @@ public:
 	bool IsOpen() const;
 
 	/// begins adding model instances to server
-	void BeginInstancing(const Ptr<Models::ModelNode>& modelNode, const SizeT multiplier, const Ptr<CoreGraphics::Shader>& shader, const Frame::BatchGroup::Code& code);
+	void BeginInstancing(const Ptr<Models::ModelNode>& modelNode, const SizeT multiplier, const Ptr<CoreGraphics::Shader>& shader, const IndexT& pass);
 	/// adds instance to current model
 	void AddInstance(const IndexT& instanceCode, const Ptr<Models::ModelNodeInstance>& instance);
 	/// ends adding model instances
@@ -44,7 +44,7 @@ public:
 	virtual void Render(IndexT frameIndex);
 
 protected:
-    Frame::BatchGroup::Code code;
+    IndexT pass;
     Ptr<CoreGraphics::Shader> shader;
 	Ptr<InstanceRendererBase> renderer;
 	Ptr<Models::ModelNode> modelNode;

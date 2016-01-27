@@ -29,7 +29,7 @@ public:
     virtual ~StateNodeInstance();
 
 	/// apply per-instance state for a shader prior to rendering
-    virtual void ApplyState(IndexT frameIndex, const Frame::BatchGroup::Code& group, const Ptr<CoreGraphics::Shader>& shader);
+	virtual void ApplyState(IndexT frameIndex, const IndexT& pass, const Ptr<CoreGraphics::Shader>& shader);
 
     /// set surface material on node, be careful to clear up any references to SurfaceConstantInstances if this is done
     virtual void SetSurfaceInstance(const Ptr<Materials::SurfaceInstance>& material);

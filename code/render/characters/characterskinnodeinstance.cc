@@ -209,7 +209,7 @@ CharacterSkinNodeInstance::OnRenderBefore(IndexT frameIndex, Timing::Time time)
 /**
 */
 void 
-CharacterSkinNodeInstance::ApplyState(IndexT frameIndex, const Frame::BatchGroup::Code& group, const Ptr<CoreGraphics::Shader>& shader)
+CharacterSkinNodeInstance::ApplyState(IndexT frameIndex, const IndexT& pass, const Ptr<CoreGraphics::Shader>& shader)
 {
 	// different code paths for software and GPU-skinned platforms
 	ShaderServer* shaderServer = ShaderServer::Instance();
@@ -234,7 +234,7 @@ CharacterSkinNodeInstance::ApplyState(IndexT frameIndex, const Frame::BatchGroup
 	}
 
 	// apply base level state
-	ShapeNodeInstance::ApplyState(frameIndex, group, shader);
+	ShapeNodeInstance::ApplyState(frameIndex, pass, shader);
 }
 
 //------------------------------------------------------------------------------

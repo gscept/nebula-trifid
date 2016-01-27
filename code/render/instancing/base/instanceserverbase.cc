@@ -62,7 +62,7 @@ InstanceServerBase::Close()
 	Prepare to render model.
 */
 void 
-InstanceServerBase::BeginInstancing(const Ptr<ModelNode>& modelNode, const SizeT multiplier, const Ptr<CoreGraphics::Shader>& shader, const Frame::BatchGroup::Code& code)
+InstanceServerBase::BeginInstancing(const Ptr<ModelNode>& modelNode, const SizeT multiplier, const Ptr<CoreGraphics::Shader>& shader, const IndexT& pass)
 {
 	n_assert(this->IsOpen());
 	n_assert(multiplier > 0);
@@ -70,7 +70,7 @@ InstanceServerBase::BeginInstancing(const Ptr<ModelNode>& modelNode, const SizeT
 	this->multiplier = multiplier;
 	this->modelNode = modelNode;
     this->shader = shader;
-    this->code = code;
+	this->pass = pass;
 	this->isBeginInstancing = true;
 }
 

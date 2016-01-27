@@ -269,7 +269,7 @@ ParticleSystemNodeInstance::OnRenderBefore(IndexT frameIndex, Timing::Time time)
 /**
 */
 void
-ParticleSystemNodeInstance::ApplyState(IndexT frameIndex, const Frame::BatchGroup::Code& group, const Ptr<CoreGraphics::Shader>& shader)
+ParticleSystemNodeInstance::ApplyState(IndexT frameIndex, const IndexT& pass, const Ptr<CoreGraphics::Shader>& shader)
 {
 	const Ptr<Particles::ParticleSystemInstance>& inst = this->GetParticleSystemInstance();
 	const Ptr<Particles::ParticleSystem>& system = inst->GetParticleSystem();
@@ -317,10 +317,8 @@ ParticleSystemNodeInstance::ApplyState(IndexT frameIndex, const Frame::BatchGrou
 	this->animsPerSecVar->SetInt(this->GetParticleSystemInstance()->GetParticleSystem()->GetEmitterAttrs().GetFloat(EmitterAttrs::PhasesPerSecond));
 #endif
 
-	
-
 	// call base class (applies time)
-    StateNodeInstance::ApplyState(frameIndex, group, shader);
+    StateNodeInstance::ApplyState(frameIndex, pass, shader);
 }
 
 //------------------------------------------------------------------------------

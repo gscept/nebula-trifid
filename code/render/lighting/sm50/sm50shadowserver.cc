@@ -539,7 +539,7 @@ SM50ShadowServer::UpdatePointLightShadowBuffers()
 		visResolver->EndResolve();
 
 		// generate view projection matrix
-		matrix44 proj = matrix44::perspfovrh(n_deg2rad(90.0f), 1, 0.001f, 1000.0f);
+		matrix44 proj = matrix44::perspfovrh(n_deg2rad(90.0f), 1, 0.1f, 100.0f);
 		//viewProj.set_position(0);
 
 		// generate matrices

@@ -46,6 +46,7 @@ SurfaceInstance::Setup(const Ptr<Surface>& surface)
     // create temporary dictionary mapping between shaders and their variables
     Util::Dictionary<Util::StringAtom, Util::Array<Ptr<CoreGraphics::ShaderInstance>>> variableToShaderMap;
     Util::Dictionary<Util::StringAtom, Util::Array<Frame::BatchGroup::Code>> variableToCodeMap;
+	Util::Dictionary<Util::StringAtom, Util::Array<Material::MaterialPass>> variableToPassMap;
     const Ptr<Material>& materialTemplate = this->originalSurface->materialTemplate;
 
     // get parameters from material
@@ -57,8 +58,9 @@ SurfaceInstance::Setup(const Ptr<Surface>& surface)
     for (passIndex = 0; passIndex < numPasses; passIndex++)
     {
         // get indexed data from material
-        const Frame::BatchGroup::Code& code = materialTemplate->GetBatchGroup(passIndex);
-        const Ptr<Shader>& shader = materialTemplate->GetShaderByBatchGroup(code);
+		const Material::MaterialPass& pass = materialTemplate->GetPassByIndex(passIndex);
+        const Frame::BatchGroup::Code& code = pass.code;
+        const Ptr<Shader>& shader = pass.shader;
         const Ptr<ShaderInstance>& shdInst = shader->CreateShaderInstance();
 
         // go through our materials parameter list and set them up
@@ -69,30 +71,30 @@ SurfaceInstance::Setup(const Ptr<Surface>& surface)
             const Util::StringAtom& paramName = parameters.KeyAtIndex(paramIndex);
             const Material::MaterialParameter& param = parameters.ValueAtIndex(paramIndex);
 
-            // get variable with equal name from shader
-            if (shader->HasVariableByName(paramName))
-            {
-                // setup variable with value, if it exists
-                if (!variableToShaderMap.Contains(paramName)) variableToShaderMap.Add(paramName, Util::Array<Ptr<CoreGraphics::ShaderInstance>>());
-                variableToShaderMap[paramName].Append(shdInst);
+            // add to dictionary of parameter
+            if (!variableToShaderMap.Contains(paramName)) variableToShaderMap.Add(paramName, Util::Array<Ptr<CoreGraphics::ShaderInstance>>());
+            variableToShaderMap[paramName].Append(shdInst);
 
-                if (!variableToCodeMap.Contains(paramName)) variableToCodeMap.Add(paramName, Util::Array<Frame::BatchGroup::Code>());
-                variableToCodeMap[paramName].Append(code);
-            }
+            if (!variableToCodeMap.Contains(paramName)) variableToCodeMap.Add(paramName, Util::Array<Frame::BatchGroup::Code>());
+            variableToCodeMap[paramName].Append(code);
+
+			if (!variableToPassMap.Contains(paramName)) variableToPassMap.Add(paramName, Util::Array<Material::MaterialPass>());
+			variableToPassMap[paramName].Append(pass);
         }
 
         // add to dictionary
         this->shaderInstances.Append(shdInst);
-        this->shaderInstancesByCode.Add(code, shdInst);
+		this->shaderInstancesByShader.Add(shader, shdInst);
     }
 
     // go through mappings
     IndexT mappingIndex;
-    for (mappingIndex = 0; mappingIndex < variableToShaderMap.Size(); mappingIndex++)
+	for (mappingIndex = 0; mappingIndex < variableToPassMap.Size(); mappingIndex++)
     {
-        const Util::StringAtom& paramName = variableToShaderMap.KeyAtIndex(mappingIndex);
+		const Util::StringAtom& paramName = variableToPassMap.KeyAtIndex(mappingIndex);
+		const Util::Array<Material::MaterialPass>& passes = variableToPassMap.ValueAtIndex(mappingIndex);
         const Util::Array<Ptr<CoreGraphics::ShaderInstance>>& shaders = variableToShaderMap.ValueAtIndex(mappingIndex);
-        const Util::Array<Frame::BatchGroup::Code>& codes = variableToCodeMap.ValueAtIndex(mappingIndex);
+        //const Util::Array<Frame::BatchGroup::Code>& codes = variableToCodeMap.ValueAtIndex(mappingIndex);
 
         // create a new multi-shader variable container (or surface constant)
         Ptr<SurfaceConstant> constant = SurfaceConstant::Create();
@@ -114,7 +116,7 @@ SurfaceInstance::Setup(const Ptr<Surface>& surface)
 
         // setup constant
         constant->SetValue(val.value);
-        constant->Setup(paramName, shaders, codes);
+		constant->Setup(paramName, passes, shaders);
         constant->system = param.system;
 
         // add constants to variable lists
@@ -150,7 +152,7 @@ SurfaceInstance::Cleanup()
         this->shaderInstances[i]->Discard();
     }
     this->shaderInstances.Clear();
-    this->shaderInstancesByCode.Clear();
+    this->shaderInstancesByShader.Clear();
 
     this->constants.Clear();
     this->constantsByName.Clear();
@@ -164,9 +166,9 @@ SurfaceInstance::Cleanup()
 /**
 */
 const Ptr<CoreGraphics::ShaderInstance>&
-SurfaceInstance::GetShaderInstance(const Frame::BatchGroup::Code& pass)
+SurfaceInstance::GetShaderInstance(const IndexT passIndex)
 {
-    return this->shaderInstancesByCode[pass];
+    return this->shaderInstances[passIndex];
 }
 
 //------------------------------------------------------------------------------
@@ -208,7 +210,7 @@ SurfaceInstance::SetTexture(const Util::StringAtom& param, const Ptr<Resources::
 /**
 */
 void
-SurfaceInstance::Apply(const Frame::BatchGroup::Code& group)
+SurfaceInstance::Apply(const IndexT passIndex)
 {
     IndexT i;
 
@@ -224,15 +226,15 @@ SurfaceInstance::Apply(const Frame::BatchGroup::Code& group)
         }
     }
 
-	const Ptr<CoreGraphics::ShaderInstance>& shader = this->shaderInstancesByCode[group];
+	const Ptr<CoreGraphics::ShaderInstance>& shdInst = this->shaderInstances[passIndex];
     for (i = 0; i < this->constants.Size(); i++)
     {
-        this->constants[i]->Apply(group);
+		this->constants[i]->Apply(passIndex);
     }
 
     // get shader instance by code
     //this->shaderInstancesByCode[group]->Apply();
-    shader->Commit();
+	shdInst->Commit();
 }
 
 } // namespace Materials

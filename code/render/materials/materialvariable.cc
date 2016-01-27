@@ -180,8 +180,8 @@ MaterialVariable::Cleanup()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-MaterialVariable::ApplyInt( int value )
+void
+MaterialVariable::ApplyInt(int value)
 {
 	for (int i = 0; i < this->variables.Size(); i++)
 	{
@@ -192,8 +192,8 @@ MaterialVariable::ApplyInt( int value )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-MaterialVariable::ApplyIntArray( const int* values, SizeT count )
+void
+MaterialVariable::ApplyIntArray(const int* values, SizeT count)
 {
 	for (int i = 0; i < this->variables.Size(); i++)
 	{
@@ -204,8 +204,8 @@ MaterialVariable::ApplyIntArray( const int* values, SizeT count )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-MaterialVariable::ApplyFloat( float value )
+void
+MaterialVariable::ApplyFloat(float value)
 {
 	for (int i = 0; i < this->variables.Size(); i++)
 	{
@@ -216,8 +216,8 @@ MaterialVariable::ApplyFloat( float value )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-MaterialVariable::ApplyFloatArray( const float* values, SizeT count )
+void
+MaterialVariable::ApplyFloatArray(const float* values, SizeT count)
 {
 	for (int i = 0; i < this->variables.Size(); i++)
 	{
@@ -228,8 +228,8 @@ MaterialVariable::ApplyFloatArray( const float* values, SizeT count )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-MaterialVariable::ApplyFloat2( const Math::float2& value )
+void
+MaterialVariable::ApplyFloat2(const Math::float2& value)
 {
 	for (int i = 0; i < this->variables.Size(); i++)
 	{
@@ -240,8 +240,8 @@ MaterialVariable::ApplyFloat2( const Math::float2& value )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-MaterialVariable::ApplyFloat2Array( const Math::float2* values, SizeT count )
+void
+MaterialVariable::ApplyFloat2Array(const Math::float2* values, SizeT count)
 {
 	for (int i = 0; i < this->variables.Size(); i++)
 	{
@@ -252,8 +252,8 @@ MaterialVariable::ApplyFloat2Array( const Math::float2* values, SizeT count )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-MaterialVariable::ApplyFloat4( const Math::float4& value )
+void
+MaterialVariable::ApplyFloat4(const Math::float4& value)
 {
 	for (int i = 0; i < this->variables.Size(); i++)
 	{
@@ -264,8 +264,8 @@ MaterialVariable::ApplyFloat4( const Math::float4& value )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-MaterialVariable::ApplyFloat4Array( const Math::float4* values, SizeT count )
+void
+MaterialVariable::ApplyFloat4Array(const Math::float4* values, SizeT count)
 {
 	for (int i = 0; i < this->variables.Size(); i++)
 	{
@@ -276,8 +276,8 @@ MaterialVariable::ApplyFloat4Array( const Math::float4* values, SizeT count )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-MaterialVariable::ApplyMatrix( const Math::matrix44& value )
+void
+MaterialVariable::ApplyMatrix(const Math::matrix44& value)
 {
 	for (int i = 0; i < this->variables.Size(); i++)
 	{
@@ -288,8 +288,8 @@ MaterialVariable::ApplyMatrix( const Math::matrix44& value )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-MaterialVariable::ApplyMatrixArray( const Math::matrix44* values, SizeT count )
+void
+MaterialVariable::ApplyMatrixArray(const Math::matrix44* values, SizeT count)
 {
 	for (int i = 0; i < this->variables.Size(); i++)
 	{
@@ -300,8 +300,8 @@ MaterialVariable::ApplyMatrixArray( const Math::matrix44* values, SizeT count )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-MaterialVariable::ApplyBool( bool value )
+void
+MaterialVariable::ApplyBool(bool value)
 {
 	for (int i = 0; i < this->variables.Size(); i++)
 	{
@@ -312,8 +312,8 @@ MaterialVariable::ApplyBool( bool value )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-MaterialVariable::ApplyBoolArray( const bool* values, SizeT count )
+void
+MaterialVariable::ApplyBoolArray(const bool* values, SizeT count)
 {
 	for (int i = 0; i < this->variables.Size(); i++)
 	{
@@ -324,8 +324,8 @@ MaterialVariable::ApplyBoolArray( const bool* values, SizeT count )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-MaterialVariable::ApplyTexture( const Ptr<CoreGraphics::Texture>& value )
+void
+MaterialVariable::ApplyTexture(const Ptr<CoreGraphics::Texture>& value)
 {
 	for (int i = 0; i < this->variables.Size(); i++)
 	{
@@ -336,8 +336,8 @@ MaterialVariable::ApplyTexture( const Ptr<CoreGraphics::Texture>& value )
 //------------------------------------------------------------------------------
 /**
 */
-Util::Variant::Type 
-MaterialVariable::VariantTypeFromType( MaterialVariable::Type type )
+Util::Variant::Type
+MaterialVariable::VariantTypeFromType(MaterialVariable::Type type)
 {
 	switch (type)
 	{

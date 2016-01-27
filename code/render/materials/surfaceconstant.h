@@ -25,6 +25,7 @@
 #include "coregraphics/texture.h"
 #include "resources/managedtexture.h"
 #include "frame/batchgroup.h"
+#include "material.h"
 
 namespace CoreGraphics
 {
@@ -38,6 +39,13 @@ class SurfaceConstant : public Core::RefCounted
 {
 	__DeclareClass(SurfaceConstant);
 public:
+
+	struct ConstantBinding
+	{
+		bool active;
+		Ptr<CoreGraphics::ShaderVariableInstance> var;
+		Ptr<CoreGraphics::ShaderInstance> shd;
+	};
 	/// constructor
 	SurfaceConstant();
 	/// destructor
@@ -53,7 +61,7 @@ public:
 	const bool IsSystemManaged() const;
 
     /// applies this constant, which readies it for drawing, but only applies the value on one of the shaders
-    void Apply(const Frame::BatchGroup::Code& group);
+    void Apply(const IndexT passIndex);
 
 protected:
     friend class StreamSurfaceSaver;
@@ -61,14 +69,14 @@ protected:
     friend class Surface;
 
     /// setup constant, which initializes its name and bindings to its implementing shaders
-    void Setup(const Util::StringAtom& name, const Util::Array<Ptr<CoreGraphics::ShaderInstance>>& variableToShaderMap, const Util::Array<Frame::BatchGroup::Code>& batchCodes);
+	void Setup(const Util::StringAtom& name, const Util::Array<Material::MaterialPass>& passes, const Util::Array<Ptr<CoreGraphics::ShaderInstance>>& shaders);
     /// discard constant
     void Discard();
 
     bool system;
     Util::StringAtom name;
     Util::Variant value;
-    Util::Dictionary<Frame::BatchGroup::Code, Ptr<CoreGraphics::ShaderVariableInstance>> variablesByShader;
+	Util::Array<ConstantBinding> bindingsByIndex;
 };
 
 //------------------------------------------------------------------------------

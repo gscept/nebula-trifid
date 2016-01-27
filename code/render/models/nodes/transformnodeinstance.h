@@ -29,7 +29,7 @@ public:
     /// called from ModelEntity::OnRenderBefore
     virtual void OnRenderBefore(IndexT frameIndex, Timing::Time time);
     /// apply per-instance state prior to rendering
-    virtual void ApplyState(IndexT frameIndex, const Frame::BatchGroup::Code& group, const Ptr<CoreGraphics::Shader>& shader);
+	virtual void ApplyState(IndexT frameIndex, const IndexT& pass, const Ptr<CoreGraphics::Shader>& shader);
 
     /// set position
     void SetPosition(const Math::point& p);

@@ -125,7 +125,7 @@ SilhouetteRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
 							nodeInstance->GetModelNode()->ApplySharedState(-1);
 
 							// apply node
-                            nodeInstance->ApplyState(frameIndex, Frame::BatchGroup::InvalidBatchGroup, this->shader);
+                            nodeInstance->ApplyState(frameIndex, 0, this->shader);
 
 							// only apply model for shapes
 							if (nodeInstance->IsA(ShapeNodeInstance::RTTI))
