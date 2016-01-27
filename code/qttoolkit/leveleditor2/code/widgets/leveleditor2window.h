@@ -5,7 +5,7 @@
     
     Nebula/qt application used as the main window for the level editor.
     
-    (C) 2012-2014 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 #include <QtGui/QMainWindow>
 #include <QtGui/QMouseEvent>

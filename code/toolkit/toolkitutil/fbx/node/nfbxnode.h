@@ -5,7 +5,7 @@
     
     Encapsulates an FBX node as a Nebula-friendly object
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
 #include "math/quaternion.h"

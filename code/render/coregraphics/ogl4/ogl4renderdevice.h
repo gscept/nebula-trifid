@@ -4,8 +4,8 @@
     @class OpenGL4::OGL4RenderDevice
   
     Implements a RenderDevice on top of OpenGL4.
-    
-    (C) 2013 Radon Labs GmbH
+        
+	(C) 2013-2016 Individual contributors, see AUTHORS file
 */    
 #include "coregraphics/base/renderdevicebase.h"
 #include "coregraphics/pixelformat.h"

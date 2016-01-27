@@ -7,7 +7,7 @@
     This is what should be used to instantiate the super variation template class.
     This is then put in a node which causes the node to become a supernode, at which all outputs ultimately ends up.
     
-    (C) 2015 Individual contributors, see AUTHORS file
+    (C) 2015-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"

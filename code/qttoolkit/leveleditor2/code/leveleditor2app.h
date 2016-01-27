@@ -5,7 +5,7 @@
     
     Level editor entry point
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 #include "application/appgame/gameapplication.h"
 #include "graphicsfeature/graphicsfeatureunit.h"

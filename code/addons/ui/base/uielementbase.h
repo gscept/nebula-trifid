@@ -6,7 +6,7 @@
     An element is a fragment of a layout. 
     An element supports all the functionality for which we apply text, get text, images etc.
     
-    (C) 2015 Individual contributors, see AUTHORS file
+    (C) 2015-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"

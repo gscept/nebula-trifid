@@ -5,7 +5,7 @@
 
     GLFW based OpenGL implementation of DisplayDevice class.
 
-    (C) 2013 Johannes Hirche
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "coregraphics/base/displaydevicebase.h"
 #include "util/array.h"

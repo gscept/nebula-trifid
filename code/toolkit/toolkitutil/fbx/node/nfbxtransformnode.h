@@ -5,7 +5,7 @@
     
     Wraps an FBX transform node as a Nebula-style node
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 #include "fbx/node/nfbxnode.h"
 #include "math/bbox.h"

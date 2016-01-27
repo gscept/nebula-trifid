@@ -7,7 +7,7 @@
     basically a convenience wrapper around Animation::AnimSequencer.
     
     (C) 2008 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "animation/animsequencer.h"
 #include "characters/characteranimationlibrary.h"

@@ -6,7 +6,7 @@
     Contains information about a character joint.
     
     (C) 2010 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */    
 #include "util/stringatom.h"
 #include "math/matrix44.h"

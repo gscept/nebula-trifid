@@ -10,7 +10,7 @@
 	As such, we can effectively instantiate a material, apply a variable, 
 	and the variable will be activated for that entity when the material is applied.
     
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 

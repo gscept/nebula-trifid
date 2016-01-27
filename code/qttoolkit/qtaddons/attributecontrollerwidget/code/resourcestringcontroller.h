@@ -5,7 +5,7 @@
     
     A widget which represents a resource string with browse and optional edit
     
-    (C) 2013-2014 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include <QWidget>
 #include "util/string.h"

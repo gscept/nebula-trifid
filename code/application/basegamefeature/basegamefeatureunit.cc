@@ -1,12 +1,10 @@
 //------------------------------------------------------------------------------
 //  game/basegamefeature.cc
 //  (C) 2007 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "basegamefeature/basegamefeatureunit.h"
-#include "graphicsfeature/graphicsfeatureunit.h"
-#include "physicsfeature/physicsfeatureunit.h"
 #include "appgame/gameapplication.h"
 #include "core/factory.h"
 #include "basegamefeature/basegameattr/basegameattributes.h"

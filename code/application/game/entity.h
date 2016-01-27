@@ -16,7 +16,7 @@
     states etc. is stored in the attributeTable.
 
     (C) 2007 RadonLabs GmbH
-	(C) 2013-2015 Individual contributors, see AUTHORS file
+	(C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
 #include "core/ptr.h"

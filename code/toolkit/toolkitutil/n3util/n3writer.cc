@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  n3writer.cc
-//  (C) 2011-2013 Individual contributors, see AUTHORS file
+//  (C) 2011-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "n3writer.h"

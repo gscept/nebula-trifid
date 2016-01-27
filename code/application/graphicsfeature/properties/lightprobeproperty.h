@@ -5,7 +5,7 @@
 	
 	A light probe property adds a reflection and irradiance projection decal to the entity.
 	
-	(C) 2015 Individual contributors, see AUTHORS file
+	(C) 2015-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "game/property.h"

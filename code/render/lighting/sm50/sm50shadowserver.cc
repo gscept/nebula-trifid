@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  sm50shadowserver.cc
-//  (C) 2011-2013 Individual contributors, see AUTHORS file
+//  (C) 2011-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "lighting/sm50/sm50shadowserver.h"

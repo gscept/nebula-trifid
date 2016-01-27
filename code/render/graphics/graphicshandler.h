@@ -7,7 +7,7 @@
     and processes messages to the graphics thread.
 
     (C) 2008 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file	
+    (C) 2013-2016 Individual contributors, see AUTHORS file	
 */
 #include "interface/interfacehandlerbase.h"
 #include "messaging/message.h"

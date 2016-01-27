@@ -5,7 +5,7 @@
 	
 	The layer describes a single layer, whether it should auto load when the level laods, and if it's visible. 
 	
-	(C) 2015 Individual contributors, see AUTHORS file
+	(C) 2015-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"

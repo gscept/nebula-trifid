@@ -9,7 +9,7 @@
     Inherit from this class to make up your own RequestInfo and loading-tactics.
 
     (C) 2010 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file   
+    (C) 2013-2016 Individual contributors, see AUTHORS file   
 */
 #include "resources/resourceid.h"
 #include "core/rtti.h"

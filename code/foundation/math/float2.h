@@ -8,6 +8,7 @@
     A 2-component float vector class.
     
     (C) 2007 RadonLabs GmbH
+	(C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/types.h"
 #include "math/scalar.h"

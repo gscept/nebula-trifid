@@ -9,7 +9,7 @@
     n_verify()  - like assert() except that the statement in parens is simply evaluated, unchecked, if __NEBULA_NO_ASSERT is set
     n_assert2() - an assert() plus a message from the programmer
     
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/config.h"
 

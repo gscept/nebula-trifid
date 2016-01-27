@@ -6,6 +6,7 @@
     Legacy N2 crap!
 
     (C) 2008 RadonLabs GmbH
+	(C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "models/modelnode.h"
 #include "models/nodes/animkeyarray.h"

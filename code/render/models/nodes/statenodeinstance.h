@@ -5,7 +5,7 @@
 
     Holds and applies per-instance shader states for models with materials attached
     
-    (C) 2011-2013 Individual contributors, see AUTHORS file
+    (C) 2011-2016 Individual contributors, see AUTHORS file
 */
 #include "coregraphics/config.h"
 #include "models/nodes/transformnodeinstance.h"

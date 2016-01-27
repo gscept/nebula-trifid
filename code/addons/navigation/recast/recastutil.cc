@@ -1,5 +1,5 @@
 //  navigation/recast/recastutil.cc
-//  (C) 2014 Johannes Hirche
+//  (C) 2014-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "Recast.h"

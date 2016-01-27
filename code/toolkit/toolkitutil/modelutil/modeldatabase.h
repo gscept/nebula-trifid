@@ -5,7 +5,7 @@
     
     Holds dictionary of import options, is also responsible for loading and saving them
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "util/dictionary.h"

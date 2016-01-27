@@ -5,7 +5,7 @@
 	
 	The GridRTPlugin injects itself into the main frameshader and renders the grid in the shape-pass.
 	
-	(C) 2012-2015 Individual contributors, see AUTHORS file
+	(C) 2012-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "rendermodules/rt/rtplugin.h"

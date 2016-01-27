@@ -6,7 +6,7 @@
     Executes another frame shader from within a current one. 
 	Use with caution since calling itself may result in an infinite loop.
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "framepassbase.h"

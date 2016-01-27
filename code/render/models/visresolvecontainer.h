@@ -6,7 +6,7 @@
     Helper class which keeps an array of visible nodes by material type.
     
     (C) 2007 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/ptr.h"
 #include "frame/batchgroup.h"

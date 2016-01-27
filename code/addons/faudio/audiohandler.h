@@ -5,7 +5,7 @@
     
     Message handler for the Audio subsystem.
 
-    (C) 2015 Individual contributors, see AUTHORS file
+    (C) 2015-2016 Individual contributors, see AUTHORS file
 */
 
 #include "messaging/port.h"

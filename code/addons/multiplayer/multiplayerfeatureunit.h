@@ -6,7 +6,7 @@
     The MultiplayerFeatureUnit sets up the multiplayer thread and deliveres the
     stuff to host games, join games and all needed functionality behind the scenes
 
-    (C) 2015 Individual contributors, see AUTHORS file	
+    (C) 2015-2016 Individual contributors, see AUTHORS file	
 */
 #include "game/featureunit.h"
 #include "networkserver.h"

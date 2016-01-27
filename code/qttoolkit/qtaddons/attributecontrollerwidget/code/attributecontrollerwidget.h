@@ -7,7 +7,7 @@
     Depending on the attribute type, a specific controller is created for 
     editing the value of the attribute.
     
-    (C) 2013-2014 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include <QWidget>
 #include "util/string.h"

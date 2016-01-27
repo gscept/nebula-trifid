@@ -5,7 +5,7 @@
 	
 	Manage a mutable version of a ParticleSystemInstance which is used by the particle node handler to modify a particle effect.
 	
-	(C) 2015 Individual contributors, see AUTHORS file
+	(C) 2015-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "particles/particlesysteminstance.h"

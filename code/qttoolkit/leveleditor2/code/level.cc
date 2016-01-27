@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  level.cc
-//  (C) 2013 Johannes Hirche, LTU Skelleftea
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "level.h"
