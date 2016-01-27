@@ -57,7 +57,10 @@ void
 TimeManager::OnActivate()
 {
     // get current global time
-    this->time = FrameSync::FrameSyncTimer::Instance()->GetTicks();
+    this->time = 0;
+    // this should be the framesync time, this however results in a cyclic setup dependency so we just go with 
+    // 0 instead. 
+    //this->time = FrameSync::FrameSyncTimer::Instance()->GetTicks();
     this->frameTime = 0;
 
     // create standard time sources...

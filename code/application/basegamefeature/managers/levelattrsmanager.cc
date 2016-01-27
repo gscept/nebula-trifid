@@ -15,7 +15,8 @@ __ImplementSingleton(LevelAttrsManager);
 //------------------------------------------------------------------------------
 /**
 */
-LevelAttrsManager::LevelAttrsManager()
+LevelAttrsManager::LevelAttrsManager() :
+    row(InvalidIndex)
 {
     __ConstructSingleton;
 }

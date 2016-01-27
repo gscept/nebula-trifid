@@ -154,6 +154,7 @@ EditorBaseGameFeatureUnit::OnActivate()
 	this->focusManager = FocusManager::Create();
 	this->entityManager = EntityManager::Create();
 	this->globalAttrManager = GlobalAttrsManager::Create();
+    this->levelAttrManager = LevelAttrsManager::Create();
 	this->categoryManager = CategoryManager::Create();	
 	this->audioManager = AudioManager::Create();
 
@@ -162,7 +163,8 @@ EditorBaseGameFeatureUnit::OnActivate()
 	this->AttachManager(this->focusManager.upcast<Game::Manager>());
 	this->AttachManager(this->entityManager.upcast<Game::Manager>());
 	this->AttachManager(this->globalAttrManager.upcast<Game::Manager>()); 
-	this->AttachManager(this->categoryManager.upcast<Game::Manager>());	
+    this->AttachManager(this->levelAttrManager.upcast<Game::Manager>());
+    this->AttachManager(this->categoryManager.upcast<Game::Manager>());
 	this->AttachManager(this->audioManager.upcast<Game::Manager>());
 
 	this->envQueryManager = EnvQueryManager::Create();    
@@ -184,10 +186,9 @@ EditorBaseGameFeatureUnit::OnActivate()
 
 	// close after all globals loading from globalattrmanager and everyone who needs it on start
 	//this->dbServer->CloseGameDatabase();
-
-	// setup vib interface
-	this->vibInterface = Vibration::VibrationInterface::Create();
-	this->vibInterface->Open();
+    // setup vib interface
+    this->vibInterface = Vibration::VibrationInterface::Create();
+    this->vibInterface->Open();
 }
 
 //------------------------------------------------------------------------------
