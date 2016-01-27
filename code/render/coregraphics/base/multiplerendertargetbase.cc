@@ -107,6 +107,13 @@ MultipleRenderTargetBase::EndPass()
     }
 }
 
-
+//------------------------------------------------------------------------------
+/**
+*/
+void
+MultipleRenderTargetBase::OnDisplayResized(SizeT width, SizeT height)
+{
+	// override me
+}
 
 } // namespace Base

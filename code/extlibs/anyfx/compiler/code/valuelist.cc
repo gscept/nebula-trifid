@@ -20,14 +20,14 @@ ValueList::ValueList()
 */
 ValueList::~ValueList()
 {
-	// empty
+	this->values.clear();
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ValueList::AddValue( Expression* expr )
+void
+ValueList::AddValue(Expression* expr)
 {
 	this->values.push_back(expr);
 }
@@ -41,7 +41,7 @@ ValueList::ConvertToString(const DataType& type, TypeChecker& typechecker)
 	const char FLOAT = 0;
 	const char INTEGER = 1;
 	const char BOOLEAN = 2;
-	char code;
+	char code = 0;
 	switch (type.GetType())
 	{
 	case DataType::Float:

@@ -124,6 +124,7 @@ ADD_DEPENDENCIES(leveleditor2
 	remoteinterface	
 	qttools
 	posteffectcontroller
+	globalprobecontroller
 	splash
 	dynui
 	graphicsfeature physicsfeature scriptingfeature ui
@@ -143,6 +144,7 @@ TARGET_LINK_LIBRARIES(leveleditor2
 	CubeMapGen
 	qttools
 	posteffectcontroller
+	globalprobecontroller
 	splash	
 	navigation	
 	dynui

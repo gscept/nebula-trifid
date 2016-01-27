@@ -1,9 +1,9 @@
 #pragma once
 //------------------------------------------------------------------------------
 /**
-    @class Frame::Copy
+    @class Frame::FrameRenderTargetBlit
     
-    Copies from one rendertarget to another inside a frame shader.
+    Copies from one render target to another inside a frame shader.
     
     (C) 2015-2016 Individual contributors, see AUTHORS file
 */
@@ -12,14 +12,14 @@
 #include "coregraphics/rendertarget.h"
 namespace Frame
 {
-class Copy : public Frame::FramePassBase
+class FrameRenderTargetBlit : public Frame::FramePassBase
 {
-	__DeclareClass(Copy);
+	__DeclareClass(FrameRenderTargetBlit);
 public:
 	/// constructor
-	Copy();
+	FrameRenderTargetBlit();
 	/// destructor
-	virtual ~Copy();
+	virtual ~FrameRenderTargetBlit();
 
     /// perform copy
 	void Render(IndexT frameIndex);
@@ -38,7 +38,7 @@ private:
 /**
 */
 inline void 
-Copy::SetFrom( const Ptr<CoreGraphics::RenderTarget>& rt )
+FrameRenderTargetBlit::SetFrom( const Ptr<CoreGraphics::RenderTarget>& rt )
 {
     n_assert(rt.isvalid());
     this->from = rt;
@@ -48,7 +48,7 @@ Copy::SetFrom( const Ptr<CoreGraphics::RenderTarget>& rt )
 /**
 */
 inline void 
-Copy::SetTo( const Ptr<CoreGraphics::RenderTarget>& rt )
+FrameRenderTargetBlit::SetTo( const Ptr<CoreGraphics::RenderTarget>& rt )
 {
     n_assert(rt.isvalid());
     this->to = rt;

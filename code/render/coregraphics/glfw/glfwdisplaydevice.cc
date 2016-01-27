@@ -292,7 +292,7 @@ GLFWDisplayDevice::GetCurrentAdapterDisplayMode(Adapter::Code adapter)
 		format = PixelFormat::InvalidPixelFormat;
 	}
 	
-	DisplayMode dmode(mode->height, mode->width,format);
+	DisplayMode dmode(mode->width, mode->height, format);
 	dmode.SetRefreshRate(mode->refreshRate);
 	return dmode;
 }

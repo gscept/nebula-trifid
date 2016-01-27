@@ -71,8 +71,8 @@ private:
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-Generator::SetHeader( const Header& header )
+inline void
+Generator::SetHeader(const Header& header)
 {
 	this->header = header;
 }

@@ -56,8 +56,10 @@ MaterialHandler::MaterialHandler() :
 */
 MaterialHandler::~MaterialHandler()
 {
-	disconnect(this->ui->newButton, SIGNAL(clicked()));
-	disconnect(this->ui->saveButton, SIGNAL(clicked()));
+	disconnect(this->ui->saveButton, SIGNAL(clicked()), this, SLOT(Save()));
+	disconnect(this->ui->saveAsButton, SIGNAL(clicked()), this, SLOT(SaveAs()));
+	disconnect(this->ui->templateBox, SIGNAL(activated(const QString&)), this, SLOT(MaterialSelected(const QString&)));
+	disconnect(this->ui->materialHelp, SIGNAL(clicked()), this, SLOT(MaterialInfo()));
 }
 
 //------------------------------------------------------------------------------
@@ -85,10 +87,7 @@ MaterialHandler::Setup(const QString& resource)
     this->lowerLimitIntMap.clear();
     this->upperLimitIntMap.clear();
 
-    // enable the elements which are only viable if we are working on a surface
-    this->ui->templateBox->setEnabled(true);
-    this->ui->saveButton->setEnabled(true);
-    this->ui->saveAsButton->setEnabled(true);
+
 
 	// get components of resource
 	String res = resource.toUtf8().constData();
@@ -110,13 +109,22 @@ MaterialHandler::Setup(const QString& resource)
 	Ptr<PreviewState> previewState = ContentBrowserApp::Instance()->GetPreviewState();
 	previewState->SetSurface(this->surfaceInstance.upcast<Materials::SurfaceInstance>());
 
-    // get layout
+	// get layout
 	this->mainLayout = static_cast<QVBoxLayout*>(this->ui->variableFrame->layout());
+	
+	// don't allow system managed resources to be modified
+	if (this->category != "system")
+	{
+		// enable the elements which are only viable if we are working on a surface
+		this->ui->templateBox->setEnabled(true);
+		this->ui->saveButton->setEnabled(true);
+		this->ui->saveAsButton->setEnabled(true);
 
-    // setup UI
-    this->MakeMaterialUI(this->ui->templateBox, this->ui->materialHelp);
-	this->ui->saveButton->setStyleSheet("background-color: rgb(4, 200, 0); color: white");
-	this->hasChanges = false;
+		// setup UI
+		this->MakeMaterialUI(this->ui->templateBox, this->ui->materialHelp);
+		this->ui->saveButton->setStyleSheet("background-color: rgb(4, 200, 0); color: white");
+		this->hasChanges = false;
+	}
 }
 
 //------------------------------------------------------------------------------

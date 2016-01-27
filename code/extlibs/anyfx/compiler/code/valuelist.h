@@ -55,7 +55,7 @@ ValueList::GetNumValues() const
 /**
 */
 inline Expression*
-ValueList::GetValue( unsigned index ) const
+ValueList::GetValue(unsigned index) const
 {
 	return this->values[index];
 }

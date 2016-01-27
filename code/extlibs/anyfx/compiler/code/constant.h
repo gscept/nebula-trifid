@@ -78,8 +78,8 @@ private:
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-Constant::SetSizeExpression( Expression* expr )
+inline void
+Constant::SetSizeExpression(Expression* expr)
 {
 	this->sizeExpression = expr;
 	this->isArray = true;
@@ -97,8 +97,8 @@ Constant::GetSizeExpression() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-Constant::SetArrayType( const ArrayType& type )
+inline void
+Constant::SetArrayType(const ArrayType& type)
 {
 	this->isArray = true;
 	this->arrayType = type;
@@ -134,8 +134,8 @@ Constant::GetNumValues() const
 //------------------------------------------------------------------------------
 /**
 */
-inline const ValueList& 
-Constant::GetValue( unsigned i ) const
+inline const ValueList&
+Constant::GetValue(unsigned i) const
 {
 	return this->valueTable[i].second;
 }
@@ -143,8 +143,8 @@ Constant::GetValue( unsigned i ) const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-Constant::SetDataType( const DataType& type )
+inline void
+Constant::SetDataType(const DataType& type)
 {
 	this->type = type;
 }

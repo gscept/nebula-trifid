@@ -113,8 +113,8 @@ BinWriter::WriteShort( short val )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-BinWriter::WriteString( const std::string& s )
+void
+BinWriter::WriteString(const std::string& s)
 {
 	// copy string
 	std::string copy = s;
@@ -139,11 +139,10 @@ BinWriter::WriteString( const std::string& s )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-BinWriter::WriteChar( char c )
+void
+BinWriter::WriteChar(char c)
 {
 	this->output.put(c);
 }
-
 
 } // namespace AnyFX

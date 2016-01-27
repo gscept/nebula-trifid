@@ -104,15 +104,16 @@ OGL4VertexLayout::Setup(const Array<VertexComponent>& c)
         glEnableVertexAttribArray(component.GetSemanticName());
 
 		// bind vertex attribute
-		if (component.GetFormat() == VertexComponentBase::UByte4 ||
-			component.GetFormat() == VertexComponentBase::Short2 ||
-			component.GetFormat() == VertexComponentBase::Short4)
+		if (component.GetFormat() == VertexComponent::UByte4 ||
+			component.GetFormat() == VertexComponent::Short2 ||
+			component.GetFormat() == VertexComponent::Short4)
 		{
 			glVertexAttribIPointer(component.GetSemanticName(), numComponents, type, vertexByteSizes[component.GetStreamIndex()], (GLvoid*)curOffset[component.GetStreamIndex()]);
 		}
-		else if (component.GetFormat() == VertexComponentBase::UByte4N ||
-				 component.GetFormat() == VertexComponentBase::Short2N ||
-				 component.GetFormat() == VertexComponentBase::Short4N)
+		else if (component.GetFormat() == VertexComponent::UByte4N ||
+				 component.GetFormat() == VertexComponent::Byte4N  ||
+				 component.GetFormat() == VertexComponent::Short2N ||
+				 component.GetFormat() == VertexComponent::Short4N)
 		{
             glVertexAttribPointer(component.GetSemanticName(), numComponents, type, GL_TRUE, vertexByteSizes[component.GetStreamIndex()], (GLvoid*)curOffset[component.GetStreamIndex()]);
 		}
@@ -121,7 +122,7 @@ OGL4VertexLayout::Setup(const Array<VertexComponent>& c)
             glVertexAttribPointer(component.GetSemanticName(), numComponents, type, GL_FALSE, vertexByteSizes[component.GetStreamIndex()], (GLvoid*)curOffset[component.GetStreamIndex()]);
 		}
 
-		if (component.GetStrideType() == VertexComponentBase::PerInstance)
+		if (component.GetStrideType() == VertexComponent::PerInstance)
 		{
 			// set divisor for instancing, this code is fugly, but it sorta works although only if we have two streams...
             glVertexAttribDivisor(component.GetSemanticName(), component.GetStride());

@@ -27,8 +27,8 @@ Structure::~Structure()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Structure::AddParameter( const Parameter& param )
+void
+Structure::AddParameter(const Parameter& param)
 {
 	this->parameters.push_back(param);
 }
@@ -64,7 +64,7 @@ Structure::CalculateSize() const
 /**
 */
 bool
-Structure::IsRecursive( TypeChecker& typeChecker )
+Structure::IsRecursive(TypeChecker& typeChecker)
 {
     unsigned i;
     for (i = 0; i < this->parameters.size(); i++)
@@ -85,8 +85,8 @@ Structure::IsRecursive( TypeChecker& typeChecker )
 //------------------------------------------------------------------------------
 /**
 */
-std::string 
-Structure::Format( const Header& header ) const
+std::string
+Structure::Format(const Header& header) const
 {
 	std::string formattedCode;
 
@@ -113,8 +113,8 @@ Structure::Format( const Header& header ) const
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Structure::TypeCheck( TypeChecker& typechecker )
+void
+Structure::TypeCheck(TypeChecker& typechecker)
 {
 	// attempt to add structure, if this fails, we must stop type checking for this structure
 	if (!typechecker.AddSymbol(this)) return;

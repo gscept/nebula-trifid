@@ -94,7 +94,7 @@ PrintParserException(pANTLR3_EXCEPTION ex, pANTLR3_UINT8* tokenNames)
 	int row = ex->charPositionInLine;
 
 	// get line where the exception occurred
-	int line = token->line;
+	int line = ex->line;
 	
 	// get the token as a string
 	std::string tokenString = tokenMap[(const char*)tokenNames[token->type]];

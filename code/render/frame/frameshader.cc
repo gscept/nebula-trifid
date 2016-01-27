@@ -42,6 +42,10 @@ FrameShader::Discard()
         this->renderTargets.ValueAtIndex(i)->Discard();
     }
     this->renderTargets.Clear();
+	for (i = 0; i < this->textures.Size(); i++)
+	{
+		this->textures.ValueAtIndex(i)->Discard();
+	}
     this->shaderVariables.Clear();
     for (i = 0; i < this->framePasses.Size(); i++)
     {
@@ -68,6 +72,11 @@ FrameShader::OnDisplayResized(SizeT width, SizeT height)
 	for (i = 0; i < this->renderTargets.Size(); i++)
 	{
 		this->renderTargets.ValueAtIndex(i)->OnDisplayResized(width, height);
+	}
+	
+	for (i = 0; i < this->textures.Size(); i++)
+	{
+		this->textures.ValueAtIndex(i)->Resize(width, height);
 	}
 
 	for(i = 0; i < this->framePasses.Size(); i++)

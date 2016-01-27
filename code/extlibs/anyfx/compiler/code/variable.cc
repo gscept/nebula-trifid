@@ -223,7 +223,7 @@ Variable::TypeCheck(TypeChecker& typechecker)
 		this->valueTable[i].second.ConvertToString(this->valueTable[i].first, typechecker);
 	}
 
-	// delete expressions
+	// delete expressions in value list
 	for (i = 0; i < this->valueTable.size(); i++)
 	{
 		const ValueList& valueList = this->valueTable[i].second;

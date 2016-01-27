@@ -43,8 +43,8 @@ BinReader::Open()
 //------------------------------------------------------------------------------
 /**
 */
-bool 
-BinReader::Open( const char* data, size_t size )
+bool
+BinReader::Open(const char* data, size_t size)
 {
 	this->inputString = new std::istringstream;
 	this->inputString->str(std::string(data, size));
@@ -194,8 +194,8 @@ BinReader::ReadChar()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-BinReader::Skip( unsigned n )
+void
+BinReader::Skip(unsigned n)
 {
 	if (this->inputFile) this->inputFile->ignore(n);
 	else this->inputString->ignore(n);

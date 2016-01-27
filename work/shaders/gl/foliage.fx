@@ -296,6 +296,68 @@ vsGrassShadowCSM(vec4 position,
 
 //------------------------------------------------------------------------------
 /**
+*/
+shader
+void
+vsTreeShadowPoint(vec4 position,
+	vec3 normal,
+	vec2 uv,
+	vec3 tangent,
+	vec3 binormal,
+	out vec2 UV,
+	out vec4 ProjPos,
+	out vec4 WorldPos,
+	out int Instance) 
+{
+	vec4 dir = vec4(WindDirection.xyz, 0);
+	vec4 windDir = WindForce * normalize(dir);
+	
+	float windSpeed = WindSpeed * (TimeAndRandom.x + ObjectId);
+	float windAmplitude = length(position) / WindWaveSize;
+	float windStrength = sin(windSpeed + windAmplitude);
+		
+	vec4 finalOffset = windDir * windStrength;
+	finalOffset = position + finalOffset;
+	WorldPos = Model * finalOffset;
+	ProjPos = ViewMatrixArray[gl_InstanceID] * WorldPos;
+	UV = uv;
+	Instance = gl_InstanceID;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+shader
+void
+vsGrassShadowPoint(vec4 position,
+	vec3 normal,
+	vec2 uv,
+	vec3 tangent,
+	vec3 binormal,
+	[slot=5] in vec4 color,
+	out vec2 UV,
+	out vec4 ProjPos,
+	out vec4 WorldPos,
+	out int Instance) 
+{
+	vec4 dir = vec4(WindDirection.xyz, 0);
+	vec4 windDir = WindForce * normalize(dir);
+	
+	float windSpeed = WindSpeed * (TimeAndRandom.x + ObjectId);
+	float windAmplitude = length(position) / WindWaveSize;
+	float windStrength = sin(windSpeed + windAmplitude);
+	
+	vec4 finalOffset = windDir * windStrength;
+	finalOffset = position + finalOffset;
+	WorldPos = Model * finalOffset;
+	ProjPos = ViewMatrixArray[gl_InstanceID] * WorldPos;
+	UV = uv;
+	Instance = gl_InstanceID;
+}
+
+
+//------------------------------------------------------------------------------
+/**
 	Used for lightmapped 
 */
 shader
@@ -408,7 +470,7 @@ SimpleTechnique(
 //------------------------------------------------------------------------------
 SimpleTechnique(DefaultShadow, "Static|Spot", vsTreeShadow(), psShadowAlpha(), FoliageState);
 GeometryTechnique(CSMShadow, "Static|Global", vsTreeShadowCSM(), psVSMAlpha(), gsCSM(), FoliageState);
-GeometryTechnique(PointlightShadow, "Static|Point", vsTreeShadowCSM(), psVSMAlpha(), gsPoint(), FoliageState);
+GeometryTechnique(PointlightShadow, "Static|Point", vsTreeShadowPoint(), psVSMAlphaPoint(), gsPoint(), FoliageState);
 SimpleTechnique(Picking, "Static|Picking", vsTreeShadow(), psPicking(), FoliageState);
 
 //------------------------------------------------------------------------------
@@ -416,90 +478,3 @@ SimpleTechnique(Picking, "Static|Picking", vsTreeShadow(), psPicking(), FoliageS
 //------------------------------------------------------------------------------
 SimpleTechnique(LitFoliage, "Static|Lightmapped", vsTreeLightmapped(), psLightmappedLit(), FoliageState);
 SimpleTechnique(UnlitFoliage, "Static|Unlit|Lightmapped", vsTreeLightmapped(), psLightmappedUnlit(), FoliageState);
-
-//------------------------------------------------------------------------------
-/**
-
-shader
-void
-vsFoliageUber(in vec3 position,
-	in vec3 normal,
-	in vec2 uv,
-#ifdef USE_LIGHTMAPPING
-	in vec2 lightmapUv,
-#endif
-#ifdef USE_WEIGHTED_VERTICES
-	in vec4 color,
-#endif
-	in vec3 tangent,
-	in vec3 binormal
-#ifndef USE_SHADOW_RENDERING
-	,
-	out vec3 ViewSpacePos
-	out vec3 Tangent,
-	out vec3 Normal,
-	out vec3 Binormal,
-	out vec2 UV,
-	out vec3 WorldViewVec
-	#ifdef USE_LIGHTMAPPING
-		,
-		out vec2 LightmapUV
-	#endif
-#else
-	,
-	out vec4 ProjPos
-#endif
-)	
-{
-	UV = uv;
-	
-	vec4 dir = InvModel * vec4(WindDirection.xyz, 0);
-	vec4 windDir = WindForce * normalize(dir);
-	
-	float windSpeed = WindSpeed * (TimeAndRandom.x + ObjectId);
-	float windAmplitude = length(position) / WindWaveSize;
-	float windStrength = sin(windSpeed + windAmplitude);
-		
-#ifdef WEIGHTED_VERTICES
-	vec4 finalOffset = windDir * windStrength * color.r;
-#else
-	vec4 finalOffset = windDir * windStrength;
-#endif
-
-	vec4 finalPos = vec4(position + finalOffset.xyz, 1);
-	
-#ifdef USE_INSTANCING
-	vec4 modelSpace = ModelArray[gl_InstanceID] * finalPos;
-#else
-	vec4 modelSpace = Model * finalPos;
-#endif
-	gl_Position = ViewProjection * modelSpace;
-	    
-#ifndef USE_SHADOW_RENDERING
-	mat4 modelView = View * Model;
-	ViewSpacePos = (modelView * finalPos).xyz;
-	Tangent  = (modelView * vec4(tangent, 0)).xyz;
-	Normal   = (modelView * vec4(normal, 0)).xyz;
-	Binormal = (modelView * vec4(binormal, 0)).xyz;
-	WorldViewVec = modelSpace.xyz - EyePos.xyz;
-	
-	#ifdef USE_LIGHTMAPPING
-		LightmapUV = lightmapUv;
-	#endif
-#else
-	#if USE_CSM_SHADOWS
-		ProjPos = ViewMatrixArray[gl_InstanceID] * Model * finalOffset;
-	#else
-		ProjPos = gl_Position;
-	#endif
-#endif
-}
-
-program FlagTest
-{
-	VertexShader = vsFoliageUber();
-	PixelShader = psUberAlphaTest();
-	RenderState = FoliageState;
-	CompileFlags = "USE_INSTANCING|USE_WEIGHTED_VERTICES|USE_SHADOW_RENDERING|USE_CSM_SHADOWS";
-};
-*/

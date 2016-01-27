@@ -105,12 +105,12 @@ psMain(in vec2 UV,
     UpdateSamplesBloom(true, pixelSize.x, 3.0f, HDRBloomScale, sampleOffsetsWeights);
     
     int i;
-    vec4 color = vec4( 0.0f, 0.0f, 0.0f, 1.0f );
+    vec4 color = vec4( 0.0f, 0.0f, 0.0f, 0.0f );
     for (i = 0; i < MAXBLOOMSAMPLES; i++)
     {
-        color += sampleOffsetsWeights[i].z * DecodeHDR(textureLod(SourceTexture, UV + sampleOffsetsWeights[i].xy, 0));
+        color += sampleOffsetsWeights[i].z * textureLod(SourceTexture, UV + sampleOffsetsWeights[i].xy, 0);
     }
-    BloomedColor = EncodeHDR(color);
+    BloomedColor = color;
 }
 
 //------------------------------------------------------------------------------

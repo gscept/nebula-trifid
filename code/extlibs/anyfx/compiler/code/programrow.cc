@@ -26,8 +26,8 @@ ProgramRow::~ProgramRow()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ProgramRow::SetString( const std::string& flag, const std::string& value )
+void
+ProgramRow::SetString(const std::string& flag, const std::string& value)
 {
 	this->flag = flag;
 	this->stringValue = value;
@@ -36,8 +36,8 @@ ProgramRow::SetString( const std::string& flag, const std::string& value )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ProgramRow::SetSubroutineMapping( const std::string& var, const std::string& implementation )
+void
+ProgramRow::SetSubroutineMapping(const std::string& var, const std::string& implementation)
 {
     this->subroutineMappings[var] = implementation;
 }

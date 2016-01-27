@@ -81,6 +81,7 @@ VarBlock::TypeCheck(TypeChecker& typechecker)
         {
             this->bufferCount = this->bufferExpression->EvalInt(typechecker);
         }
+		delete this->bufferExpression;
     }
 
 	unsigned i;

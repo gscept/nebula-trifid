@@ -14,7 +14,7 @@ BlendStateRow::BlendStateRow() :
 	expr(NULL),
 	renderTarget(NULL)
 {
-
+	// empty
 }
 
 //------------------------------------------------------------------------------
@@ -22,30 +22,26 @@ BlendStateRow::BlendStateRow() :
 */
 BlendStateRow::~BlendStateRow()
 {
-	// empty
+	// everything in here is deleted elsewhere
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-void 
-BlendStateRow::SetString( Expression* renderTarget, const std::string& flag, const std::string& value )
+void
+BlendStateRow::SetString(Expression* renderTarget, const std::string& flag, const std::string& value)
 {
 	this->flagType = StringFlagType;
 	this->flag = flag;
-	if (this->stringValue)
-	{
-		delete this->stringValue;
-	}
-	this->stringValue = new std::string(value);
+	this->stringValue = value;
 	this->renderTarget = renderTarget;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-void 
-BlendStateRow::SetExpression( Expression* renderTarget, const std::string& flag, Expression* expr )
+void
+BlendStateRow::SetExpression(Expression* renderTarget, const std::string& flag, Expression* expr)
 {
 	this->flagType = ExpressionFlagType;
 	this->flag = flag;

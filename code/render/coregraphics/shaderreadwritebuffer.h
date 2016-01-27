@@ -18,6 +18,6 @@ class ShaderReadWriteBuffer : public OpenGL4::OGL4ShaderStorageBuffer
 };
 }
 #else
-#error "ShaderBuffer class not implemented on this platform!"
+#error "ShaderReadWriteBuffer class not implemented on this platform!"
 #endif
 //------------------------------------------------------------------------------

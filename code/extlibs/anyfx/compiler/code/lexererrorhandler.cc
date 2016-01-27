@@ -21,25 +21,26 @@ void LexerError(pANTLR3_BASE_RECOGNIZER recognizer, pANTLR3_UINT8* tokens)
 	lexerError = true;
 
 	pANTLR3_RECOGNIZER_SHARED_STATE state = recognizer->state;
+	std::string* file = (std::string*)state->token->custom;
 
 	// retrieve exception
 	pANTLR3_EXCEPTION ex = state->exception;
 
 	// get error package
-	LexerErrorPackage* package = (LexerErrorPackage*)state->userp;
+	//LexerErrorPackage* package = (LexerErrorPackage*)state->userp;
 
 	// while we still have exceptions
-	if (package != 0) do 
+	if (file != 0) do
 	{
 		// print exception
-		PrintLexerException(ex, package->file.c_str());
+		PrintLexerException(ex, file->c_str());
 
 		// go to next exception
 		ex = ex->nextException;
 	}
 	while (ex != 0);
 
-	delete package;
+	//delete package;
 }
 
 //------------------------------------------------------------------------------

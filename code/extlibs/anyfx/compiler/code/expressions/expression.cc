@@ -27,8 +27,8 @@ Expression::~Expression()
 //------------------------------------------------------------------------------
 /**
 */
-AnyFX::DataType 
-Expression::EvalType( TypeChecker& typechecker )
+AnyFX::DataType
+Expression::EvalType(TypeChecker& typechecker)
 {
 	Error("Expression::EvalType() called!\n");
 	DataType type;
@@ -39,8 +39,8 @@ Expression::EvalType( TypeChecker& typechecker )
 //------------------------------------------------------------------------------
 /**
 */
-int 
-Expression::EvalInt( TypeChecker& typechecker )
+int
+Expression::EvalInt(TypeChecker& typechecker)
 {
 	Error("Expression::EvalInt() called!\n");
 	return -1;
@@ -59,8 +59,8 @@ Expression::EvalUInt(TypeChecker& typechecker)
 //------------------------------------------------------------------------------
 /**
 */
-float 
-Expression::EvalFloat( TypeChecker& typechecker )
+float
+Expression::EvalFloat(TypeChecker& typechecker)
 {
 	Error("Expression::EvalFloat() called!\n");
 	return 0.0f;
@@ -69,8 +69,8 @@ Expression::EvalFloat( TypeChecker& typechecker )
 //------------------------------------------------------------------------------
 /**
 */
-bool 
-Expression::EvalBool( TypeChecker& typechecker )
+bool
+Expression::EvalBool(TypeChecker& typechecker)
 {
 	Error("Expression::EvalBool() called!\n");
 	return false;

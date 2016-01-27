@@ -31,14 +31,6 @@ public:
 	/// add expression
 	void AddExpression(Expression* expr);
 
-	/// add int value
-	void AddInt(int value);
-	/// add bool value
-	void AddBool(bool value);
-	/// add double value
-	void AddDouble(double value);
-	/// add float value
-	void AddFloat(float value);
 	/// add string value
 	void AddString(const std::string& value);
 

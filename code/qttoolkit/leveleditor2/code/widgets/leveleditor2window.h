@@ -7,6 +7,8 @@
     
     (C) 2012-2016 Individual contributors, see AUTHORS file
 */
+//------------------------------------------------------------------------------
+
 #include <QtGui/QMainWindow>
 #include <QtGui/QMouseEvent>
 #include "ui_leveleditor2window.h"
@@ -22,8 +24,9 @@
 #include "audiodialoghandler.h"
 #include "uidialoghandler.h"
 #include "layers/layerhandler.h"
+#include "globalprobecontroller/code/environmentprobewindow.h"
+#include "resourcebrowser/code/assetbrowser.h"
 
-//------------------------------------------------------------------------------
 namespace LevelEditor2
 {
 class LevelEditor2App;
@@ -51,6 +54,9 @@ public:
 	void showEvent(QShowEvent* e);
 	/// handle close event to terminate nebula application when frame closes
 	void closeEvent(QCloseEvent *e);
+
+	/// sets up content browser window stuff which is dependent on nebula
+	void Setup();
 
 	/// access to ui object
 	Ui::LevelEditor2Window& GetUi();
@@ -89,6 +95,8 @@ private slots:
 	void OnNew();
 	/// show posteffect dialog
 	void OnShowPostEffect();
+	/// displays environment probe window
+	void OnShowEnvironmentProbeSettings();
 	/// show level properties dialog
 	void OnShowLevelProperties();
 	/// show grid properties dialog
@@ -148,8 +156,9 @@ private:
 	bool gridVisible;
 	CreateEntityDialogHandler* createEntityDialog;
 	LevelPropertiesHandler* levelPropertiesDialog;
-	BlueprintsHandler * bluePrintsDialog;
+	BlueprintsHandler* bluePrintsDialog;
 	QtPostEffectAddon::PostEffectController postEffectController;
+	Lighting::EnvironmentProbeWindow* environmentProbeWindow;
 	QVBoxLayout *attributeControllerVLayout;	
 	QDialog * gridSizeDialog;
 	QByteArray defaultState;
@@ -158,6 +167,7 @@ private:
 	AudioDialogHandler * audioDialog;
 	UIDialogHandler * uiDialog;
 	Ptr<Layers::LayerHandler> layerHandler;	
+	Ptr<ResourceBrowser::AssetBrowser> assetBrowserWindow;
 	ToolkitUtil::AppLauncher viewerLauncher;
 	Math::float4 selectionColour;
 }; 

@@ -28,8 +28,8 @@ UnaryExpression::~UnaryExpression()
 //------------------------------------------------------------------------------
 /**
 */
-AnyFX::DataType 
-UnaryExpression::EvalType( TypeChecker& typechecker )
+AnyFX::DataType
+UnaryExpression::EvalType(TypeChecker& typechecker)
 {
 	return this->expr->EvalType(typechecker);
 }
@@ -37,8 +37,8 @@ UnaryExpression::EvalType( TypeChecker& typechecker )
 //------------------------------------------------------------------------------
 /**
 */
-int 
-UnaryExpression::EvalInt( TypeChecker& typechecker )
+int
+UnaryExpression::EvalInt(TypeChecker& typechecker)
 {
 	if (this->op == '-')
 	{
@@ -73,8 +73,8 @@ UnaryExpression::EvalUInt(TypeChecker& typechecker)
 //------------------------------------------------------------------------------
 /**
 */
-float 
-UnaryExpression::EvalFloat( TypeChecker& typechecker )
+float
+UnaryExpression::EvalFloat(TypeChecker& typechecker)
 {
 	if (this->op == '-')
 	{
@@ -91,8 +91,8 @@ UnaryExpression::EvalFloat( TypeChecker& typechecker )
 //------------------------------------------------------------------------------
 /**
 */
-bool 
-UnaryExpression::EvalBool( TypeChecker& typechecker )
+bool
+UnaryExpression::EvalBool(TypeChecker& typechecker)
 {
 	if (this->op == '!')
 	{

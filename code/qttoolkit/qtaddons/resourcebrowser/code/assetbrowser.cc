@@ -48,6 +48,8 @@ AssetBrowser::AssetBrowser() :
 {
 	this->ui = new Ui::AssetBrowser;
 	this->ui->setupUi(this);
+	this->setWindowFlags(Qt::WindowStaysOnTopHint);
+
 	connect(this->ui->backButton, SIGNAL(pressed()), this, SLOT(OnBack()));
 	this->backShortcut = new QShortcut(QKeySequence(Qt::Key_Backspace), this);
 	connect(this->backShortcut, SIGNAL(activated()), this->ui->backButton, SLOT(animateClick()));
@@ -96,11 +98,12 @@ AssetBrowser::Execute(const QString& title, const AssetFilter& filter)
 
 	// detach asset browser
 	QDockWidget::DockWidgetFeatures features = this->features();
-	this->setFeatures(QDockWidget::NoDockWidgetFeatures);
+	this->setFeatures(QDockWidget::DockWidgetFloatable);
 	Qt::DockWidgetAreas areas = this->allowedAreas();
 	this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	this->setAllowedAreas(Qt::NoDockWidgetArea);
 	this->setWindowModality(Qt::ApplicationModal);
+	this->setFloating(true);
 	QPalette originalPalette = this->palette();
 
 	// setup curve points
@@ -147,7 +150,7 @@ AssetBrowser::Execute(const QString& title, const AssetFilter& filter)
 	this->setWindowModality(Qt::NonModal);
 	this->setAllowedAreas(areas);
 	this->setFeatures(features);
-	this->setWindowModality(Qt::NonModal);
+	this->setFloating(false);
 	this->ui->assetView->setPalette(originalPalette);
 	this->executingAnimation->stop();
 	delete this->executingAnimation;
@@ -167,11 +170,16 @@ AssetBrowser::Execute()
 {
 	this->shouldStopExecuting = false;
 	this->executeResult = -1;
+	bool showing = this->isVisible();
 	this->raise();
 	this->show();
 	while (!this->shouldStopExecuting)
 	{
 		QApplication::processEvents();
+	}
+	if (!showing)
+	{
+		this->hide();
 	}
 	return executeResult;
 }

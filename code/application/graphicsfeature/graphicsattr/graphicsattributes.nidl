@@ -40,7 +40,7 @@
 	  <Attribute name="LightProjectionMap" fourcc="LPRM" accessMode="ReadWrite" type="String" editType="resource" resourceBase="tex" fileSuffix="dds" advanced="true"/>
 	  <Attribute name="LightVolumetric" fourcc="LIVO" accessMode="ReadWrite" type="Bool" default="false" advanced="true" system="1"/>
 	  <Attribute name="LightVolumetricScale" fourcc="LIVS" accessMode="ReadWrite" type="Float" default="1.0f" advanced="true" system="1"/>
-	  <Attribute name="LightVolumetricIntensity" fourcc="LIVI" accessMode="ReadWrite" type="Float" default="0.14f" advanced="true" system="1"/>
+	  <Attribute name="LightVolumetricIntensity" fourcc="LIVI" accessMode="ReadWrite" type="Float" default="1.5f" advanced="true" system="1"/>
     <Attribute name="LightFlickerFrequency" fourcc="LFLF" accessMode="ReadWrite" type="Float" default="5.0f" advanced="true"/>
     <Attribute name="LightFlickerIntensity" fourcc="LFLI" accessMode="ReadWrite" type="Float" default="0.5f" advanced="true"/>
     <Attribute name="LightFlickerPosition" fourcc="LFLP" accessMode="ReadWrite" type="Float" default="0.25f" advanced="true"/>

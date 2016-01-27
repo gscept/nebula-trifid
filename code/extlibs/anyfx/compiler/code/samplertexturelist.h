@@ -37,8 +37,8 @@ private:
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-SamplerTextureList::AddTexture( const std::string& texture )
+inline void
+SamplerTextureList::AddTexture(const std::string& texture)
 {
 	this->textures.push_back(texture);
 }
@@ -55,8 +55,8 @@ SamplerTextureList::GetNumTextures() const
 //------------------------------------------------------------------------------
 /**
 */
-inline const std::string& 
-SamplerTextureList::GetTexture( unsigned index ) const
+inline const std::string&
+SamplerTextureList::GetTexture(unsigned index) const
 {
 	return this->textures[index];
 }

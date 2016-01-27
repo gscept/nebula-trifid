@@ -35,6 +35,7 @@ extern bool lexerError;
 extern std::string lexerErrorBuffer;
 extern bool parserError;
 extern std::string parserErrorBuffer;
+static GLenum glewInitialized = -1;
 
 #include "mcpp_lib.h"
 
@@ -79,12 +80,6 @@ AnyFXWinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 bool
 AnyFXPreprocess(const std::string& file, const std::vector<std::string>& defines, const std::string& vendor, std::string& output)
 {
-    std::ifstream fileStream(file.c_str());
-    if (!fileStream)
-    {
-        Emit("Can't open file %s\n", file.c_str());
-        return false;
-    }
     std::string fileName = file.substr(file.rfind("/")+1, file.length()-1);
     std::string curDir(file);
     unsigned lastSlash = curDir.rfind("/");
@@ -94,8 +89,8 @@ AnyFXPreprocess(const std::string& file, const std::vector<std::string>& defines
 
     const unsigned numargs = 4 + defines.size();
     std::string* args = new std::string[numargs];
-    args[0] = "-C";
-	args[1] = "-W 0";
+	args[0] = std::string("-C");
+	args[1] = std::string("-W 0");
 	args[2] = vend.c_str();
     //args[2] = "-I" + curDir;
     unsigned i;
@@ -117,14 +112,20 @@ AnyFXPreprocess(const std::string& file, const std::vector<std::string>& defines
     int result = mcpp_lib_main(numargs, (char**)arguments);
     if (result != 0)
     {
-        delete [] args;
+		char* preprocessed = mcpp_get_mem_buffer(ERR); // get error
+		output.append(preprocessed);
+		mcpp_use_mem_buffers(1);	// clear memory
+        delete[] args;
+		delete[] arguments;
         return false;
     }
     else
     {
-        char* preprocessed = mcpp_get_mem_buffer(OUT);
+        char* preprocessed = mcpp_get_mem_buffer(OUT); // get output
         output.append(preprocessed);
-        delete [] args;
+		mcpp_use_mem_buffers(1);	// clear memory
+		delete[] args;
+		delete[] arguments;
         return true;
     }
 }
@@ -181,6 +182,12 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
                 if (!glewIsSupported(ext.c_str()))
                 {
                     printf("OpenGL version %d.%d is not supported by the hardware.\n", header.GetMajor(), header.GetMinor());
+
+					// destroy compiler state and return
+					parser->free(parser);
+					tokens->free(tokens);
+					lex->free(lex);
+					input->free(input);
                     return false;
                 }
             }
@@ -231,6 +238,11 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
                         // close writer and finish file
                         writer.Close();
 
+						// destroy compiler state and return
+						parser->free(parser);
+						tokens->free(tokens);
+						lex->free(lex);
+						input->free(input);						
                         return true;
                     }
                     else
@@ -241,6 +253,12 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
                         (*errorBuffer)->size = errorMessage.size();
                         errorMessage.copy((*errorBuffer)->buffer, (*errorBuffer)->size);
                         (*errorBuffer)->buffer[(*errorBuffer)->size-1] = '\0';
+
+						// destroy compiler state and return
+						parser->free(parser);
+						tokens->free(tokens);
+						lex->free(lex);
+						input->free(input);
                         return false;
                     }
                 }
@@ -257,6 +275,12 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
                     (*errorBuffer)->size = errorMessage.size();
                     errorMessage.copy((*errorBuffer)->buffer, (*errorBuffer)->size);
                     (*errorBuffer)->buffer[(*errorBuffer)->size-1] = '\0';
+
+					// destroy compiler state and return
+					parser->free(parser);
+					tokens->free(tokens);
+					lex->free(lex);
+					input->free(input);
                     return false;
                 }
             }
@@ -273,6 +297,12 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
                 (*errorBuffer)->size = errorMessage.size();
                 errorMessage.copy((*errorBuffer)->buffer, (*errorBuffer)->size);
                 (*errorBuffer)->buffer[(*errorBuffer)->size-1] = '\0';
+
+				// destroy compiler state and return
+				parser->free(parser);
+				tokens->free(tokens);
+				lex->free(lex);
+				input->free(input);
                 return false;
             }
         }
@@ -291,21 +321,26 @@ AnyFXCompile(const std::string& file, const std::string& output, const std::stri
             (*errorBuffer)->size = errorMessage.size();
             errorMessage.copy((*errorBuffer)->buffer, (*errorBuffer)->size);
             (*errorBuffer)->buffer[(*errorBuffer)->size-1] = '\0';
+
+			// destroy compiler state and return
+			parser->free(parser);
+			tokens->free(tokens);
+			lex->free(lex);
+			input->free(input);
             return false;
         }
     }
     else
     {
-        char* err = mcpp_get_mem_buffer(ERR);
-        if (err)
-        {
-            size_t size = strlen(err);
-            *errorBuffer = new AnyFXErrorBlob;
-            (*errorBuffer)->buffer = new char[size];
-            (*errorBuffer)->size = size;
-            memcpy((void*)(*errorBuffer)->buffer, (void*)err, size);
-            (*errorBuffer)->buffer[size-1] = '\0';
-        }
+		if (output.length() > 0)
+		{
+			size_t size = output.size();
+			*errorBuffer = new AnyFXErrorBlob;
+			(*errorBuffer)->buffer = new char[size];
+			(*errorBuffer)->size = size;
+			memcpy((void*)(*errorBuffer)->buffer, (void*)output.c_str(), size);
+			(*errorBuffer)->buffer[size - 1] = '\0';
+		}
         return false;
     }	
 }
@@ -320,12 +355,9 @@ AnyFXBeginCompile()
 #if WIN32
     HDC hDc;
     HGLRC hRc;      
-    HACCEL hAccel;
     HINSTANCE hInst;
     HWND hWnd;
 
-    ACCEL acc[1];
-    hAccel = CreateAcceleratorTable(acc, 1);
     hInst = GetModuleHandle(0);
 
     HICON icon = LoadIcon(NULL, IDI_APPLICATION);
@@ -429,10 +461,13 @@ AnyFXBeginCompile()
     CGLSetCurrentContext(ctx);
 #endif
 
-    GLenum status = glewInit();
+	if (glewInitialized != GLEW_OK)
+	{
+		glewInitialized = glewInit();
+	}
 
 #ifndef __ANYFX_COMPILER_LIBRARY__
-    if (status != GLEW_OK)
+	if (glewInitialized != GLEW_OK)
     {
         Emit("Glew failed to initialize!\n");
     }
