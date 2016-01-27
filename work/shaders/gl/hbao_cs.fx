@@ -91,7 +91,7 @@ vec2 SharedMemoryLoad(int centerId, int x)
 //----------------------------------------------------------------------------------
 // Compute (X,Z) view-space coordinates from the depth texture.
 //----------------------------------------------------------------------------------
-vec2 LoadXZFromTexture(int x, int y)
+vec2 LoadXZFromTexture(uint x, uint y)
 { 
     vec2 uv = (vec2(x, y) + 0.5f) * InvAOResolution;
     float z_eye = textureLod(DepthBuffer, uv, 0).r;
@@ -102,7 +102,7 @@ vec2 LoadXZFromTexture(int x, int y)
 //----------------------------------------------------------------------------------
 // Compute (Y,Z) view-space coordinates from the depth texture.
 //----------------------------------------------------------------------------------
-vec2 LoadYZFromTexture(int x, int y)
+vec2 LoadYZFromTexture(uint x, uint y)
 {
     vec2 uv = (vec2(x, y) + 0.5f) * InvAOResolution;
     float z_eye = textureLod(DepthBuffer, uv, 0).r;
@@ -170,21 +170,21 @@ shader
 void
 csMainX() 
 {
-    const int         tileStart = int(gl_WorkGroupID.x) * HBAO_TILE_WIDTH;
-    const int           tileEnd = tileStart + HBAO_TILE_WIDTH;
-    const int        apronStart = tileStart - KERNEL_RADIUS;
-    const int          apronEnd = tileEnd   + KERNEL_RADIUS;
+    const uint         tileStart = uint(gl_WorkGroupID.x) * HBAO_TILE_WIDTH;
+    const uint           tileEnd = tileStart + HBAO_TILE_WIDTH;
+    const uint        apronStart = tileStart - KERNEL_RADIUS;
+    const uint          apronEnd = tileEnd   + KERNEL_RADIUS;
 
-    const int x = apronStart + int(gl_LocalInvocationID.x);
-    const int y = int(gl_WorkGroupID.y);
+    const uint x = apronStart + uint(gl_LocalInvocationID.x);
+    const uint y = uint(gl_WorkGroupID.y);
 
     // Load float2 samples into shared memory
     SharedMemory[gl_LocalInvocationID.x] = LoadXZFromTexture(x,y);
-    SharedMemory[min(2 * KERNEL_RADIUS + gl_LocalInvocationID.x, SHARED_MEM_SIZE - 1)] = LoadXZFromTexture(2 * KERNEL_RADIUS + x, y);
-    groupMemoryBarrier();
+    SharedMemory[min(2 * KERNEL_RADIUS + int(gl_LocalInvocationID.x), SHARED_MEM_SIZE - 1)] = LoadXZFromTexture(2 * KERNEL_RADIUS + x, y);
+    barrier();
 
-    const int writePos = tileStart + int(gl_LocalInvocationID.x);
-    const int tileEndClamped = min(tileEnd, int(AOResolution.x));
+    const uint writePos = tileStart + uint(gl_LocalInvocationID.x);
+    const uint tileEndClamped = min(tileEnd, uint(AOResolution.x));
     
     if (writePos < tileEndClamped)
     {
@@ -213,21 +213,21 @@ shader
 void
 csMainY() 
 {
-	const int         tileStart = int(gl_WorkGroupID.x) * HBAO_TILE_WIDTH;
-    const int           tileEnd = tileStart + HBAO_TILE_WIDTH;
-    const int        apronStart = tileStart - KERNEL_RADIUS;
-    const int          apronEnd = tileEnd   + KERNEL_RADIUS;
+	const uint         tileStart = uint(gl_WorkGroupID.x) * HBAO_TILE_WIDTH;
+    const uint           tileEnd = tileStart + HBAO_TILE_WIDTH;
+    const uint        apronStart = tileStart - KERNEL_RADIUS;
+    const uint          apronEnd = tileEnd   + KERNEL_RADIUS;
 
-    const int x = int(gl_WorkGroupID.y);
-    const int y = apronStart + int(gl_LocalInvocationID.x);
+    const uint x = uint(gl_WorkGroupID.y);
+    const uint y = apronStart + uint(gl_LocalInvocationID.x);
 
     // Load float2 samples into shared memory
     SharedMemory[gl_LocalInvocationID.x] = LoadYZFromTexture(x,y);
-    SharedMemory[min(2 * KERNEL_RADIUS + gl_LocalInvocationID.x, SHARED_MEM_SIZE - 1)] = LoadYZFromTexture(x, 2 * KERNEL_RADIUS + y);
-    groupMemoryBarrier();
+    SharedMemory[min(2 * KERNEL_RADIUS + int(gl_LocalInvocationID.x), SHARED_MEM_SIZE - 1)] = LoadYZFromTexture(x, 2 * KERNEL_RADIUS + y);
+    barrier();
 
     const uint writePos = tileStart + gl_LocalInvocationID.x;
-    const uint tileEndClamped = min(tileEnd, int(AOResolution.x));
+    const uint tileEndClamped = min(tileEnd, uint(AOResolution.y));
     
     if (writePos < tileEndClamped)
     {

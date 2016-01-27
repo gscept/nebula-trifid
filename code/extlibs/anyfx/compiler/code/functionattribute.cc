@@ -12,7 +12,7 @@ namespace AnyFX
 */
 FunctionAttribute::FunctionAttribute() :
 	flagType(InvalidFlagType),
-	expression(NULL)
+	expr(NULL)
 {
 	// empty
 }
@@ -22,14 +22,14 @@ FunctionAttribute::FunctionAttribute() :
 */
 FunctionAttribute::~FunctionAttribute()
 {
-	// empty
+	// everything in here is deleted elsewhere
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-void 
-FunctionAttribute::SetBool( const std::string& flag, bool value )
+void
+FunctionAttribute::SetBool(const std::string& flag, bool value)
 {
 	this->flag = flag;
 	this->flagType = BoolFlagType;
@@ -39,27 +39,23 @@ FunctionAttribute::SetBool( const std::string& flag, bool value )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-FunctionAttribute::SetString( const std::string& flag, const std::string& value )
+void
+FunctionAttribute::SetString(const std::string& flag, const std::string& value)
 {
 	this->flag = flag;
 	this->flagType = StringFlagType;
-	if (this->stringValue)
-	{
-		delete this->stringValue;
-	}
-	this->stringValue = new std::string(value);
+	this->stringValue = value;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-void 
-FunctionAttribute::SetExpression( const std::string& flag, Expression* expr )
+void
+FunctionAttribute::SetExpression(const std::string& flag, Expression* expr)
 {
 	this->flag = flag;
 	this->flagType = ExpressionFlagType;
-	this->expression = expr;
+	this->expr = expr;
 }
 
 } // namespace AnyFX

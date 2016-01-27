@@ -63,6 +63,16 @@ Effect::~Effect()
 		this->varBuffers[i].Destroy();
 	}
 
+	for (i = 0; i < this->subroutines.size(); i++)
+	{
+		this->subroutines[i].Destroy();
+	}
+
+	for (i = 0; i < this->samplers.size(); i++)
+	{
+		this->samplers[i].Destroy();
+	}
+
 	// delete shaders
 	std::map<std::string, Shader*>::iterator it;
 	for (it = this->shaders.begin(); it != this->shaders.end(); it++)
@@ -78,6 +88,8 @@ Effect::~Effect()
 	this->structures.clear();
 	this->varBlocks.clear();
 	this->varBuffers.clear();
+	this->subroutines.clear();
+	this->samplers.clear();
 }
 
 //------------------------------------------------------------------------------
@@ -232,7 +244,6 @@ Effect::Setup()
 		}
 	}
     
-
 	// sort all variables in varblocks
 	for (i = 0; i < this->varBlocks.size(); i++)
 	{

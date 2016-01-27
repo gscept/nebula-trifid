@@ -290,9 +290,11 @@ OGL4Types::AsOGL4SymbolicType(VertexComponent::Format f)
         case VertexComponent::Float3:   return GL_FLOAT;
         case VertexComponent::Float4:   return GL_FLOAT;
         case VertexComponent::UByte4:   return GL_UNSIGNED_BYTE;
+		case VertexComponent::Byte4:	return GL_BYTE;
         case VertexComponent::Short2:   return GL_SHORT;
         case VertexComponent::Short4:   return GL_SHORT;
-        case VertexComponent::UByte4N:  return GL_UNSIGNED_BYTE;
+		case VertexComponent::UByte4N:  return GL_UNSIGNED_BYTE;
+		case VertexComponent::Byte4N:	return GL_BYTE;
         case VertexComponent::Short2N:  return GL_SHORT;
         case VertexComponent::Short4N:  return GL_SHORT;
         default:                        
@@ -315,9 +317,11 @@ OGL4Types::AsOGL4Size(CoreGraphics::VertexComponent::Format f)
 	case VertexComponent::Float3:   return 12;
 	case VertexComponent::Float4:   return 16;
 	case VertexComponent::UByte4:   return 4;
+	case VertexComponent::Byte4:    return 4;
 	case VertexComponent::Short2:   return 4;
 	case VertexComponent::Short4:   return 8;
 	case VertexComponent::UByte4N:  return 4;
+	case VertexComponent::Byte4N:   return 4;
 	case VertexComponent::Short2N:  return 4;
 	case VertexComponent::Short4N:  return 8;
 	default:                        
@@ -339,9 +343,11 @@ OGL4Types::AsOGL4NumComponents(CoreGraphics::VertexComponent::Format f)
 	case VertexComponent::Float3:   return 3;
 	case VertexComponent::Float4:   return 4;
 	case VertexComponent::UByte4:   return 4;
+	case VertexComponent::Byte4:    return 4;
 	case VertexComponent::Short2:   return 2;
 	case VertexComponent::Short4:   return 4;
 	case VertexComponent::UByte4N:  return 4;
+	case VertexComponent::Byte4N:   return 4;
 	case VertexComponent::Short2N:  return 2;
 	case VertexComponent::Short4N:  return 4;
 	default:                        

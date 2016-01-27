@@ -39,8 +39,8 @@ BoolExpression::EvalType( TypeChecker& typechecker )
 //------------------------------------------------------------------------------
 /**
 */
-int 
-BoolExpression::EvalInt( TypeChecker& typechecker )
+int
+BoolExpression::EvalInt(TypeChecker& typechecker)
 {
 	return (int)this->value;
 }
@@ -51,14 +51,14 @@ BoolExpression::EvalInt( TypeChecker& typechecker )
 unsigned
 BoolExpression::EvalUInt(TypeChecker& typechecker)
 {
-	return (unsigned)this->value;
+	return (unsigned) this->value;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-float 
-BoolExpression::EvalFloat( TypeChecker& typechecker )
+float
+BoolExpression::EvalFloat(TypeChecker& typechecker)
 {
 	std::string err = Format("Bool cannot be explicitly cast to float, %s\n", this->ErrorSuffix().c_str());
 	typechecker.Error(err);
@@ -68,8 +68,8 @@ BoolExpression::EvalFloat( TypeChecker& typechecker )
 //------------------------------------------------------------------------------
 /**
 */
-bool 
-BoolExpression::EvalBool( TypeChecker& typechecker )
+bool
+BoolExpression::EvalBool(TypeChecker& typechecker)
 {
 	return this->value;
 }

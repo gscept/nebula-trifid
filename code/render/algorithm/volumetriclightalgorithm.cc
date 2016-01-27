@@ -68,6 +68,7 @@ VolumetricLightAlgorithm::Setup()
 	this->pointLightFeatureBits				= shdServer->FeatureStringToMask("Point");
 	this->spotLightFeatureBits				= shdServer->FeatureStringToMask("Spot");
 	this->globalLightFeatureBits			= shdServer->FeatureStringToMask("Global");
+	this->globalLightMeshFeatureBits		= shdServer->FeatureStringToMask("Alt0");
 	this->globalScatterFeatureBits			= globalLightFeatureBits;
 
 	// setup shader
@@ -89,24 +90,25 @@ VolumetricLightAlgorithm::Setup()
 	this->bloomedTexVar						= this->horizontalBloom->GetVariableByName("SourceTexture");
 
 	// volume light variables
-	this->volumeUnshadedTextureVar			= this->volumeLightShader->GetVariableByName("UnshadedTexture");
+	//this->volumeUnshadedTextureVar			= this->volumeLightShader->GetVariableByName("UnshadedTexture");
 	this->lightScaleVar						= this->volumeLightShader->GetVariableByName("VolumetricScale");
 	this->lightIntensityVar					= this->volumeLightShader->GetVariableByName("VolumetricIntensity");
     this->lightTransformVar                 = this->volumeLightShader->GetVariableByName("Transform");
 	this->lightProjMapVar					= this->volumeLightShader->GetVariableByName(NEBULA3_SEMANTIC_LIGHTPROJMAP);
 	this->lightProjCubeVar					= this->volumeLightShader->GetVariableByName(NEBULA3_SEMANTIC_LIGHTPROJCUBE);
 	this->lightColorVar						= this->volumeLightShader->GetVariableByName(NEBULA3_SEMANTIC_LIGHTCOLOR);
+	this->lightCenterPosVar					= this->volumeLightShader->GetVariableByName("LightCenter");
 
 	// apply white texture to sun texture as default
 	this->lightProjMapVar->SetTexture(this->whiteMap->GetTexture());
 
 	// get unshaded render target
-	this->unshadedRenderTarget = this->targets[0];
+	this->albedoRenderTarget = this->targets[0];
 
 	// setup  render target
 	this->volumeLightBuffer1 = RenderTarget::Create();
 	this->volumeLightBuffer1->SetResolveTextureResourceId("VolumeLight1");
-	this->volumeLightBuffer1->SetClearColor(float4(0,0,0,1));
+	this->volumeLightBuffer1->SetClearColor(float4(0,0,0,0));
     this->volumeLightBuffer1->SetClearFlags(RenderTarget::ClearColor);
     this->volumeLightBuffer1->SetRelativeWidth(1.0f);
     this->volumeLightBuffer1->SetRelativeHeight(1.0f);
@@ -114,14 +116,14 @@ VolumetricLightAlgorithm::Setup()
 	this->volumeLightBuffer1->SetColorBufferFormat(PixelFormat::A16B16G16R16F);
 
     // set depth-stencil in  buffer
-	this->volumeLightBuffer1->SetDepthStencilTarget(this->unshadedRenderTarget->GetDepthStencilTarget());
+	this->volumeLightBuffer1->SetDepthStencilTarget(this->albedoRenderTarget->GetDepthStencilTarget());
 	this->volumeLightBuffer1->Setup();
 
 	// setup render target
 	this->volumeLightBuffer2 = RenderTarget::Create();
 	this->volumeLightBuffer2->SetResolveTextureResourceId("VolumeLight2");
-    this->volumeLightBuffer2->SetRelativeWidth(0.5f);
-    this->volumeLightBuffer2->SetRelativeHeight(0.5f);
+    this->volumeLightBuffer2->SetRelativeWidth(1.0f);
+    this->volumeLightBuffer2->SetRelativeHeight(1.0f);
 	this->volumeLightBuffer2->SetAntiAliasQuality(AntiAliasQuality::None);
 	this->volumeLightBuffer2->SetColorBufferFormat(PixelFormat::A16B16G16R16F);
 	this->volumeLightBuffer2->Setup();
@@ -129,8 +131,8 @@ VolumetricLightAlgorithm::Setup()
 	// setup output
 	this->output = RenderTarget::Create();
 	this->output->SetResolveTextureResourceId(this->outputNames[0]);
-    this->output->SetRelativeWidth(0.5f);
-    this->output->SetRelativeHeight(0.5f);
+    this->output->SetRelativeWidth(1.0f);
+    this->output->SetRelativeHeight(1.0f);
 	this->output->SetAntiAliasQuality(AntiAliasQuality::None);
 	this->output->SetColorBufferFormat(PixelFormat::A16B16G16R16F);
 	this->output->Setup();
@@ -158,7 +160,7 @@ VolumetricLightAlgorithm::Discard()
     this->volumeLightBuffer2->Discard();
     this->volumeLightBuffer2 = 0;
 
-	this->volumeUnshadedTextureVar = 0;
+	//this->volumeUnshadedTextureVar = 0;
 	this->lightScaleVar = 0;
 	this->lightIntensityVar = 0;
 	this->lightProjCubeVar = 0;
@@ -316,17 +318,11 @@ VolumetricLightAlgorithm::RenderGlobalLight()
 	// render global light if set
 	if (this->globalLight.isvalid())
 	{
-        // select variation
-        this->volumeLightShader->SelectActiveVariation(this->globalLightFeatureBits);
-        this->volumeLightShader->Apply();
-
-		// begin pass
-        renderDevice->BeginPass(this->volumeLightBuffer1, this->volumeLightShader);
+		// begin shader update
+		this->volumeLightShader->BeginUpdate();
 
 		// apply global light mesh
 		this->globalLightMesh->GetMesh()->ApplyPrimitives(0);
-
-        this->volumeLightShader->BeginUpdate();
 		const Ptr<CameraEntity>& cam = GraphicsServer::Instance()->GetCurrentView()->GetCameraEntity();
 		matrix44 viewProj = cam->GetViewProjTransform();
 		matrix44 camTrans = cam->GetTransform();
@@ -340,6 +336,9 @@ VolumetricLightAlgorithm::RenderGlobalLight()
 		float4 pos = curLight->GetLightDirection() * 10 + camTrans.get_position();
 		pos.w() = 1.0f;
 
+		// calculate screen position
+		float2 screenPos = this->CalculateScreenSpaceCenter(pos, viewProj);
+
 		// creates transform matrix where mesh is constantly pointing towards camera
 		float4 camPos = camTrans.get_position();
 		float4 toCamera = float4::normalize(pos - camPos);
@@ -351,19 +350,33 @@ VolumetricLightAlgorithm::RenderGlobalLight()
 		// set light vars
 		this->lightScaleVar->SetFloat(curLight->GetVolumetricScale());
 		this->lightIntensityVar->SetFloat(curLight->GetVolumetricIntensity());
-        this->volumeUnshadedTextureVar->SetTexture(this->unshadedRenderTarget->GetResolveTexture());
+        //this->volumeUnshadedTextureVar->SetTexture(this->albedoRenderTarget->GetResolveTexture());
         this->lightTransformVar->SetMatrix(sunTransform);
+		this->lightCenterPosVar->SetFloat2(screenPos);
         this->volumeLightShader->EndUpdate();
 
-		// render
+		// begin pass
+		renderDevice->BeginPass(this->volumeLightBuffer1, this->volumeLightShader);
+
+		// select variation for mesh
+		this->volumeLightShader->SelectActiveVariation(this->globalLightFeatureBits);
+		this->volumeLightShader->Apply();
+
+		// commit shader, only need to do this once
 		this->volumeLightShader->Commit();
+
+		// draw
 		renderDevice->Draw();
-        //this->volumeLightShader->PostDraw();
+
+		// select variation for global light base plate and draw
+		this->volumeLightShader->SelectActiveVariation(this->globalLightMeshFeatureBits);
+		this->volumeLightShader->Apply();
+		renderDevice->Draw();
 
         // end pass
 		renderDevice->EndPass();
-
-		float2 screenPos = this->CalculateScreenSpaceCenter(pos, viewProj);
+	
+		// perform scattering
 		this->Scatter(screenPos);
 	}	
 }
@@ -385,8 +398,8 @@ VolumetricLightAlgorithm::CalculateScreenSpaceCenter( const Math::float4& worldP
 //------------------------------------------------------------------------------
 /**
 */
-void 
-VolumetricLightAlgorithm::Scatter( const Math::float2& lightPos )
+void
+VolumetricLightAlgorithm::Scatter(const Math::float2& lightPos)
 {
 	ShaderServer* shdServer = ShaderServer::Instance();
 	TransformDevice* transformDevice = TransformDevice::Instance();

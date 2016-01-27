@@ -3,11 +3,12 @@
 //  (C) 2013 Gustav Sterbrant
 //------------------------------------------------------------------------------
 
+#include "lib/std.fxh"
 #ifndef UTIL_FXH
 #define UTIL_FXH
 
 const float depthScale = 100.0f;
-
+vec4 RenderTargetDimensions;	// x and y holds 1 / render target size, z and w holds render target size
 
 //------------------------------------------------------------------------------
 /**
@@ -52,8 +53,8 @@ SampleBilinear(sampler2D texSampler, vec2 uv, vec2 pixelSize)
     vec4 c10 = texture(texSampler, uv10);
     vec4 c11 = texture(texSampler, uv11);
 
-    vec2 ratios = frac(uv / pixelSize);    
-    vec4 c = lerp(lerp(c00, c01, ratios.x), lerp(c10, c11, ratios.x), ratios.y);
+    vec2 ratios = fract(uv / pixelSize);    
+    vec4 c = mix(mix(c00, c01, ratios.x), mix(c10, c11, ratios.x), ratios.y);
     return c;    
 #endif    
 }
@@ -66,7 +67,7 @@ SampleBilinear(sampler2D texSampler, vec2 uv, vec2 pixelSize)
 vec4
 Encode2(vec2 inVals)
 {
-    return vec4(inVals.x, frac(inVals.x * 256.0), inVals.y, frac(inVals.y * 256.0));
+    return vec4(inVals.x, fract(inVals.x * 256.0), inVals.y, fract(inVals.y * 256.0));
 }
 
 //------------------------------------------------------------------------------
@@ -103,11 +104,11 @@ SampleNormal(sampler2D bumpSampler, vec2 uv)
     #ifdef __XBOX360__
         // DXN compression
         n.xy = (texture(bumpSampler, uv).xy * 2.0) - 1.0;
-        n.z = saturate(1.0 - dot(n.xy, n.xy));
+        n.z = clamp(1.0 - dot(n.xy, n.xy), 0.0f, 1.0f);
     #else
         // DX5N compression
         n.xy = (texture(bumpSampler, uv).ag * 2.0) - 1.0;    
-        n.z = saturate(1.0 - dot(n.xy, n.xy));
+        n.z = clamp(1.0 - dot(n.xy, n.xy), 0.0f, 1.0f);
     #endif
     return n;
 }
@@ -122,7 +123,7 @@ psWorldSpaceNormalFromBumpMap(sampler2D bumpMapSampler, vec2 uv, vec3 worldNorma
 {
     mat3 tangentToWorld = mat3(worldTangent, worldBinormal, worldNormal);
     vec3 tangentNormal = SampleNormal(bumpMapSampler, uv);
-    return mul(tangentNormal, tangentToWorld);
+    return tangentToWorld * tangentNormal;
 }
 
 //------------------------------------------------------------------------------
@@ -259,7 +260,7 @@ ToneMap(vec4 vColor, vec4 lumAvg)
 // From GPUGems3: "Don't know why this isn't in the standard library..."
 float linstep(float min, float max, float v)
 {
-    return clamp((v - min) / (max - min), 0, 1);
+    return clamp((v - min) / (max - min), 0.0f, 1.0f);
 }
 
 //-------------------------------------------------------------------------------------------------------------
@@ -275,7 +276,7 @@ void pack_u16(in float depth, out float byte_a, out float byte_b)
 {        
     float tmp = depth / 256.0f;
     byte_a = floor(tmp) / 256.0f;
-    byte_b = frac(tmp);
+    byte_b = fract(tmp);
     
 }
 
@@ -475,8 +476,8 @@ psComputeDepthFadeOut(in float myViewSpaceDepth, in vec4 projPos, in sampler2D n
     UnpackViewSpaceNormal(packedDataValue, backgroundNormal);
     float diffDistance = backgroundDepth - myViewSpaceDepth;
     float VdotN = abs(backgroundNormal.z); // normal is in viewspace
-    float normalConsideredFadeOut = lerp(fadeOutRange * fadeOutRange, fadeOutRange, VdotN); 
-    float modAlpha = saturate(diffDistance * diffDistance / normalConsideredFadeOut); 
+    float normalConsideredFadeOut = mix(fadeOutRange * fadeOutRange, fadeOutRange, VdotN); 
+    float modAlpha = clamp(diffDistance * diffDistance / normalConsideredFadeOut, 0.0f, 1.0f); 
     return modAlpha;
 */
 }
@@ -503,7 +504,7 @@ psComputeScreenCoord(in vec2 screenPixel, in vec2 pixelSize)
 vec3
 FresnelSchlick(vec3 spec, float dotprod)
 {
-	float base = 1.0 - saturate(dotprod);
+	float base = 1.0 - clamp(dotprod, 0.0f, 1.0f);
 	float exponent = pow(base, 5);
 	return spec + (1 - spec) * exponent;
 }
@@ -515,7 +516,7 @@ FresnelSchlick(vec3 spec, float dotprod)
 vec3
 FresnelSchlickGloss(vec3 spec, float dotprod, float roughness)
 {
-	float base = 1.0 - saturate(dotprod);
+	float base = 1.0 - clamp(dotprod, 0.0f, 1.0f);
 	float exponent = pow(base, 5);
 	return spec + (max(vec3(roughness), spec) - spec) * exponent;
 }
@@ -567,6 +568,14 @@ GetPixelSize(in sampler2D tex)
 	return size;
 }
 
+vec2
+GetScaledUVs(in vec2 uvs, in sampler2D tex)
+{
+	vec2 texSize = textureSize(tex, 0);
+	uvs = uvs * (RenderTargetDimensions.zw / texSize);
+	return uvs;
+}
+
 //-------------------------------------------------------------------------------------------------------------
 /**
     Compute UV from pixel coordinate and texture
@@ -593,16 +602,6 @@ GetPixel(in vec2 uv, in sampler2D tex)
 
 //-------------------------------------------------------------------------------------------------------------
 /**
-    Convert 2D x/y dimension to linear dimension
-*/
-uint
-ConvertFrom2D(uvec2 coord, uint maxX, uint maxY)
-{
-	return uint(mod(coord.x, maxX) + coord.y / maxY);
-}
-
-//-------------------------------------------------------------------------------------------------------------
-/**
     Compute texture ratio to current pixel size
 */
 vec2
@@ -620,7 +619,7 @@ GetTextureRatio(in sampler2D tex, vec2 pixelSize)
 vec2
 FlipY(vec2 uv)
 {
-	return vec2(uv.x, 1 - uv.y);
+	return vec2(uv.x, 1.0f - uv.y);
 }
 
 //------------------------------------------------------------------------------

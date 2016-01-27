@@ -1,12 +1,8 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "leveleditor2app.h"
-//#include <QApplication>
-//#include <QTimer>
-
-//#include "extlibs/libqimg/qdevilplugin.h"
-//
-//Q_IMPORT_PLUGIN(qdevil);
+#include "extlibs/libqimg/qdevilplugin.h"
+Q_IMPORT_PLUGIN(qdevil);
 
 //------------------------------------------------------------------------------
 /**

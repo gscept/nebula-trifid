@@ -73,6 +73,7 @@ SET(NIDL_SRCS navigationattributes.nidl)
 N_CREATE_FEATURE(navigation SOURCES_SRCS NIDL_SRCS)
 
 TARGET_LINK_LIBRARIES(navigation render Detour DebugUtils DetourCrowd DetourTileCache Recast )
+TARGET_INCLUDE_DIRECTORIES(navigation PUBLIC ${Nebula3_SOURCE_DIR}/code/addons/navigation)
 TARGET_INCLUDE_DIRECTORIES(navigation PRIVATE ${Nebula3_SOURCE_DIR}/code/application)
 ADD_DEPENDENCIES(navigation application)
 

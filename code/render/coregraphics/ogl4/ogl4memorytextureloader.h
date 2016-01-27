@@ -24,6 +24,7 @@ public:
 	virtual bool OnLoadRequested();
 private:
 	CoreGraphics::PixelFormat::Code format;
+	SizeT width, height;
 	GLuint texture;
 };
 } // namespace OpenGL4

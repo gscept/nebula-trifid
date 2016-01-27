@@ -49,7 +49,7 @@ AnimSampleBuffer::Setup(const Ptr<AnimResource>& animRes)
     n_assert(!this->sampleCountsMapped);
 
     this->animResource = animRes;
-    this->numSamples = this->animResource->GetClipByIndex(0).GetNumCurves();
+	if (this->animResource->GetNumClips() > 0) this->numSamples = this->animResource->GetClipByIndex(0).GetNumCurves();
     this->samples      = (float4*) Memory::Alloc(Memory::ResourceHeap, this->numSamples * sizeof(float4));
 
     // NOTE: sample count size must be aligned to 16 bytes, this allocate some more bytes in the buffer

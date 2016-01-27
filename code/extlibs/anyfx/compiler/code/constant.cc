@@ -13,7 +13,7 @@ namespace AnyFX
 */
 Constant::Constant() :
 	isArray(false),
-	sizeExpression(0),
+	sizeExpression(NULL),
 	arrayType(ExplicitArray),
 	arraySize(1)
 {
@@ -25,14 +25,14 @@ Constant::Constant() :
 */
 Constant::~Constant()
 {
-	 // empty
+	// size expression gets deleted elsewhere, so empty
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Constant::AddValue( const DataType& type, const ValueList& value )
+void
+Constant::AddValue(const DataType& type, const ValueList& value)
 {
 	std::pair<DataType, ValueList> pair;
 	pair.first = type;
@@ -43,8 +43,8 @@ Constant::AddValue( const DataType& type, const ValueList& value )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Constant::AddValue( const ValueList& value )
+void
+Constant::AddValue(const ValueList& value)
 {
 	std::pair<DataType, ValueList> pair;
 	pair.first = this->type;
@@ -55,8 +55,8 @@ Constant::AddValue( const ValueList& value )
 //------------------------------------------------------------------------------
 /**
 */
-std::string 
-Constant::Format( const Header& header ) const
+std::string
+Constant::Format(const Header& header) const
 {
 	std::string result;
 	if (header.GetType() == Header::GLSL)
@@ -114,8 +114,8 @@ Constant::Format( const Header& header ) const
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Constant::TypeCheck( TypeChecker& typechecker )
+void
+Constant::TypeCheck(TypeChecker& typechecker)
 {
 	// add symbol first, if this fails, do not continue with type checking
 	if (!typechecker.AddSymbol(this)) return;

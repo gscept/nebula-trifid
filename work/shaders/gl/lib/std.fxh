@@ -59,7 +59,7 @@ void sincos(float angle, out float sinus, out float cosinus)
 #define frac fract
 #define rsqrt(x) inversesqrt(x)
 #define fmod mod
-#define saturate(x) clamp(x, 0, 1)
+#define saturate(x) clamp(x, 0.0f, 1.0f)
 #define mul(x, y) y * x
 
 #elif HLSL

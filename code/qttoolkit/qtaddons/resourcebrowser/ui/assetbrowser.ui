@@ -18,6 +18,9 @@
   <property name="styleSheet">
    <string notr="true"/>
   </property>
+  <property name="floating">
+   <bool>false</bool>
+  </property>
   <property name="features">
    <set>QDockWidget::AllDockWidgetFeatures</set>
   </property>

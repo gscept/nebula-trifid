@@ -35,8 +35,8 @@ OGL4ShaderProgram::~OGL4ShaderProgram()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-OGL4ShaderProgram::Setup( AnyFX::EffectProgram* program )
+void
+OGL4ShaderProgram::Setup(AnyFX::EffectProgram* program)
 {
 	n_assert(0 == this->program);
 

@@ -288,7 +288,15 @@ TextureImporterWindow::Open()
 		{
 			// set our attrs to be default, then add to attribute table
 			this->currentAttrs = this->attrTable.GetDefaultEntry();
-			this->attrTable.SetEntry(entry, this->currentAttrs);
+
+			// set default as normal map if it contains the default name
+			if (String::MatchPattern(file, "*norm*") ||
+				String::MatchPattern(file, "*normal*") ||
+				String::MatchPattern(file, "*bump*"))
+			{
+				this->currentAttrs.SetRGBAPixelFormat(ToolkitUtil::TextureAttrs::DXT5NM);
+				this->currentAttrs.SetRGBPixelFormat(ToolkitUtil::TextureAttrs::DXT5NM);
+			}
 		}
 
 		// setup ui

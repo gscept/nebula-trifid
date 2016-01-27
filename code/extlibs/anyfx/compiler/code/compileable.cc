@@ -46,8 +46,8 @@ Compileable::Setup()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Compileable::TypeCheck( TypeChecker& typechecker )
+void
+Compileable::TypeCheck(TypeChecker& typechecker)
 {
 	// override in subclass
 }
@@ -55,8 +55,8 @@ Compileable::TypeCheck( TypeChecker& typechecker )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Compileable::Generate( Generator& generator )
+void
+Compileable::Generate(Generator& generator)
 {
 	// override in subclass
 }
@@ -64,8 +64,8 @@ Compileable::Generate( Generator& generator )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Compileable::Compile( BinWriter& writer )
+void
+Compileable::Compile(BinWriter& writer)
 {
 	// override in subclass
 }
@@ -79,4 +79,5 @@ Compileable::ErrorSuffix() const
 	std::string result = AnyFX::Format("%d:%d in file %s", this->line, this->row, this->file.c_str());
 	return result;
 }
+
 } // namespace AnyFX

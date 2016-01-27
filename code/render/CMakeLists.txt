@@ -231,6 +231,8 @@ ENDIF()
       	coregraphics/base/shaderbase.h
 		coregraphics/base/shaderreadwritebufferbase.cc
 		coregraphics/base/shaderreadwritebufferbase.h
+		coregraphics/base/shaderreadwritetexturebase.cc
+		coregraphics/base/shaderreadwritetexturebase.h
         coregraphics/base/shaderinstancebase.cc
         coregraphics/base/shaderinstancebase.h
         coregraphics/base/shaderserverbase.cc
@@ -413,6 +415,8 @@ ENDIF()
         coregraphics/ogl4/ogl4shader.h
 		coregraphics/ogl4/ogl4shaderstoragebuffer.cc
 		coregraphics/ogl4/ogl4shaderstoragebuffer.h
+		coregraphics/ogl4/ogl4shaderimage.cc
+        coregraphics/ogl4/ogl4shaderimage.h
         coregraphics/ogl4/ogl4shaderinstance.cc
         coregraphics/ogl4/ogl4shaderinstance.h
         coregraphics/ogl4/ogl4shaderserver.cc
@@ -564,6 +568,8 @@ ENDIF()
       coregraphics/shader.h
 	  coregraphics/shaderreadwritebuffer.cc
 	  coregraphics/shaderreadwritebuffer.h
+	  coregraphics/shaderreadwritetexture.cc
+	  coregraphics/shaderreadwritetexture.h
       coregraphics/shaderfeature.cc
       coregraphics/shaderfeature.h
 	  coregraphics/shaderidentifier.cc
@@ -683,8 +689,6 @@ ENDIF()
 	)
 
     set(Render_files_frame
-	  frame/copy.cc
-	  frame/copy.h
 	  frame/batchgroup.cc
 	  frame/batchgroup.h
 	  frame/framealgorithm.cc
@@ -701,12 +705,16 @@ ENDIF()
       frame/framepassbase.h
       frame/frameposteffect.cc
       frame/frameposteffect.h
+	  frame/framerendertargetblit.cc
+	  frame/framerendertargetblit.h
       frame/frameserver.cc
       frame/frameserver.h
       frame/frameshader.cc
       frame/frameshader.h
       frame/frameshaderloader.cc
       frame/frameshaderloader.h
+	  frame/frametexclear.cc
+	  frame/frametexclear.h
       frame/lightingmode.cc
       frame/lightingmode.h
       frame/sortingmode.cc

@@ -41,11 +41,12 @@ Shader::~Shader()
 {
 	// empty
 }
+
 //------------------------------------------------------------------------------
 /**
 */
 void
-Shader::SetHeader( const Header& header )
+Shader::SetHeader(const Header& header)
 {
     int major = header.GetMajor();
     Header::Type type = header.GetType();
@@ -569,7 +570,7 @@ Shader::GenerateGLSL4(Generator& generator)
 		GL_GEOMETRY_SHADER,			// only accepted in GLSL3+
 		GL_TESS_CONTROL_SHADER,		// only accepted in GLSL4+
 		GL_TESS_EVALUATION_SHADER,	// only accepted in GLSL4+
-		GL_COMPUTE_SHADER
+		GL_COMPUTE_SHADER			// only accepted in GLSL4.3+
 	};
 
 	// create temporary shader object
@@ -630,7 +631,11 @@ Shader::GenerateGLSL4(Generator& generator)
 			// no known GPU vendor, just output raw string
 			Emit(errorString.c_str());
 		}
+		delete[] errorLog;
 	}
+
+	delete[] lengths;
+	delete[] sources;
 
 	// delete shader, we don't want it hogging any more memory now do we!
 	glDeleteShader(shader);

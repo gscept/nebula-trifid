@@ -29,8 +29,8 @@ private:
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-Preprocessor::SetContents( const std::string& contents )
+inline void
+Preprocessor::SetContents(const std::string& contents)
 {
 	this->contents = contents;
 }

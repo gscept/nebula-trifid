@@ -2,8 +2,6 @@
 #include "stdneb.h"
 #include "contentbrowserwindow.h"
 #include "contentbrowserapp.h"
-#include <QApplication>
-#include <QTimer>
 #include "extlibs/libqimg/qdevilplugin.h"
 
 

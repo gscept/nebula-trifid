@@ -106,11 +106,8 @@ private:
 	std::string flag;
 	Expression* renderTarget;
 
-	union
-	{
-		std::string* stringValue;
-		Expression* expr;
-	};
+	std::string stringValue;
+	Expression* expr;
 }; 
 
 //------------------------------------------------------------------------------
@@ -147,7 +144,7 @@ inline const std::string&
 BlendStateRow::GetString() const
 {
 	assert(this->flagType == StringFlagType);
-	return *this->stringValue;
+	return this->stringValue;
 }
 
 //------------------------------------------------------------------------------

@@ -36,7 +36,7 @@
   <DeclareRenderTarget format="A16B16G16R16F" relHeight="1" msaa="false" relWidth="1" name="ColorBufferCopy"/>
   
   <!-- special buffer used for the reflection projector -->
-  <DeclareRenderTarget format="R16F" relHeight="1" relWidth="1" msaa="false" name="DistanceFieldWeightBuffer"/>
+  <DeclareTexture format="R16F" relHeight="1" relWidth="1" msaa="false" name="DistanceFieldWeightBuffer"/>
   
   <!-- used to render shapes -->
   <DeclareRenderTarget format="A8R8G8B8" relHeight="1" relWidth="1" name="ShapeBuffer" depthTarget="DefaultDepthBuffer"/>
@@ -85,7 +85,6 @@
   <DeclareMRT name="ReflectionBuffer">
 	<DepthStencilTarget name="DefaultDepthBuffer"/>
 	<RenderTarget name="EmissiveBuffer"/>
-	<RenderTarget name="DistanceFieldWeightBuffer" clearColor="0,0,0,0"/>
   </DeclareMRT>
   
   <!-- MRT for atmospheric rendering -->
@@ -163,6 +162,9 @@
 	<Batch type="Lights"/>
   </Pass>
   
+  <!-- clear distance field weight map -->
+  <Clear name="DistanceFieldWeightBuffer" clearColor="0,0,0,0"/>
+  
   <!-- render reflections -->
   <Pass multipleRenderTarget="ReflectionBuffer" name="ReflectionPass" shader="reflectionprojector">
 	<ApplyShaderVariable sem="NormalMap" value="NormalBuffer"/>
@@ -230,7 +232,7 @@
   
   <!-- render volumetric lights -->
   <Algorithm className="Algorithm::VolumetricLightAlgorithm">
-	<Target name="UnshadedBuffer"/>
+	<Target name="AlbedoBuffer"/>
 	<Output name="GodrayBuffer"/>
   </Algorithm> 
   

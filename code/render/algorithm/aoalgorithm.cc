@@ -13,6 +13,7 @@
 #include "graphics/graphicsserver.h"
 #include "resources/resourcemanager.h"
 #include "coregraphics/base/rendertargetbase.h"
+#include "coregraphics/displaydevice.h"
 
 #define MAX_RADIUS_PIXELS 0.5f
 #define DivAndRoundUp(a, b) (a % b != 0) ? (a / b + 1) : (a / b)
@@ -53,30 +54,42 @@ AOAlgorithm::Setup()
 
 	AlgorithmBase::Setup();
 
+#if HBAO_COMPUTE
+	// setup output
+	DisplayMode mode = DisplayDevice::Instance()->GetDisplayMode();
+	this->output = ShaderReadWriteTexture::Create();
+	this->output->Setup(mode.GetWidth(), mode.GetHeight(), PixelFormat::R16F, this->outputNames[0]);
+#else
 	// setup output render target
 	this->output = RenderTarget::Create();
 	this->output->SetResolveTextureResourceId(this->outputNames[0]);
-    this->output->SetRelativeWidth(1);
-    this->output->SetRelativeHeight(1);
+	this->output->SetRelativeWidth(1);
+	this->output->SetRelativeHeight(1);
 	this->output->SetAntiAliasQuality(AntiAliasQuality::None);
 	this->output->SetColorBufferFormat(PixelFormat::R16F);
-	this->output->SetClearColor(float4(0,0,0,0));
-	//this->output->SetClearFlags(Base::RenderTargetBase::ClearColor);
+	this->output->SetClearColor(float4(0, 0, 0, 0));
 	this->output->Setup();
-    this->output->Clear(RenderTarget::ClearColor);
+	this->output->Clear(RenderTarget::ClearColor);
+#endif
 
     // setup internal targets
     IndexT target;
     for (target = 0; target < 2; target++)
     {
-        this->internalTargets[target] = RenderTarget::Create();
-        this->internalTargets[target]->SetResolveTextureResourceId("SSAOInternalBuffer" + Util::String::FromInt(target));
-        this->internalTargets[target]->SetRelativeWidth(1);
-        this->internalTargets[target]->SetRelativeHeight(1);
-        this->internalTargets[target]->SetAntiAliasQuality(AntiAliasQuality::None);
-        this->internalTargets[target]->SetColorBufferFormat(PixelFormat::G16R16F);
-        this->internalTargets[target]->SetClearColor(float4(0,0,0,0));
-        this->internalTargets[target]->Setup();
+#if HBAO_COMPUTE
+		// setup internal target
+		this->internalTargets[target] = ShaderReadWriteTexture::Create();
+		this->internalTargets[target]->Setup(mode.GetWidth(), mode.GetHeight(), PixelFormat::G16R16F, "SSAOInternalBuffer" + Util::String::FromInt(target));
+#else
+		this->internalTargets[target] = RenderTarget::Create();
+		this->internalTargets[target]->SetResolveTextureResourceId("SSAOInternalBuffer" + Util::String::FromInt(target));
+		this->internalTargets[target]->SetRelativeWidth(1);
+		this->internalTargets[target]->SetRelativeHeight(1);
+		this->internalTargets[target]->SetAntiAliasQuality(AntiAliasQuality::None);
+		this->internalTargets[target]->SetColorBufferFormat(PixelFormat::G16R16F);
+		this->internalTargets[target]->SetClearColor(float4(0, 0, 0, 0));
+		this->internalTargets[target]->Setup();
+#endif
     }
 
 #ifdef HBAO_COMPUTE
@@ -112,8 +125,8 @@ AOAlgorithm::Setup()
     //this->hbaoBlurredTextureVar = this->blur->GetVariableByName("HBAOBlurred");
     //this->hbaoFinalTextureVar = this->blur->GetVariableByName("HBAOFinal");
 
-	this->fullWidth = (float)this->output->GetWidth();
-	this->fullHeight = (float)this->output->GetHeight();
+	this->fullWidth = (float)this->output->GetTexture()->GetWidth();
+	this->fullHeight = (float)this->output->GetTexture()->GetHeight();
 	this->radius = 12.0f;
 
 	vars.maxRadiusPixels = MAX_RADIUS_PIXELS * n_min(this->fullWidth, this->fullHeight);
@@ -363,44 +376,47 @@ AOAlgorithm::Render()
 	
 #ifdef HBAO_COMPUTE
 #define TILE_WIDTH 320
+
+		// get final dimensions
+		SizeT width = this->output->GetTexture()->GetWidth();
+		SizeT height = this->output->GetTexture()->GetHeight();
+
 		// calculate execution dimensions
-		uint numGroupsX1 = DivAndRoundUp(this->output->GetWidth(), TILE_WIDTH);
-		uint numGroupsX2 = this->output->GetWidth();
-		uint numGroupsY1 = DivAndRoundUp(this->output->GetHeight(), TILE_WIDTH);
-		uint numGroupsY2 = this->output->GetHeight();       
+		uint numGroupsX1 = DivAndRoundUp(width, TILE_WIDTH);
+		uint numGroupsX2 = width;
+		uint numGroupsY1 = DivAndRoundUp(height, TILE_WIDTH);
+		uint numGroupsY2 = height;
 
 		// render AO in X
 		this->hbao->SelectActiveVariation(this->xDirection);
         this->hbao->Apply();
 		this->depthTextureVar->SetTexture(this->inputs[0]);
-		this->hbao0Var->SetTexture(this->internalTargets[0]->GetResolveTexture());
+		this->hbao0Var->SetTexture(this->internalTargets[0]->GetTexture());
 		this->hbao->Commit();
 		renderDevice->Compute(numGroupsX1, numGroupsY2, 1);
 
         this->hbao->SelectActiveVariation(this->yDirection);
         this->hbao->Apply();
-		this->hbao0Var->SetTexture(this->internalTargets[0]->GetResolveTexture());
-		this->hbao1Var->SetTexture(this->internalTargets[1]->GetResolveTexture());
+		this->hbao0Var->SetTexture(this->internalTargets[0]->GetTexture());
+		this->hbao1Var->SetTexture(this->internalTargets[1]->GetTexture());
 		this->hbao->Commit();
 		renderDevice->Compute(numGroupsY1, numGroupsX2, 1);
 
-		/*
 		this->blur->SelectActiveVariation(this->xDirection);
         this->blur->Apply();
-		this->hbaoBlurLinearVar->SetTexture(this->internalTargets[1]->GetResolveTexture());
-		this->hbaoBlurPointVar->SetTexture(this->internalTargets[1]->GetResolveTexture());
-		this->hbaoBlurRGVar->SetTexture(this->internalTargets[0]->GetResolveTexture());
+		this->hbaoBlurLinearVar->SetTexture(this->internalTargets[1]->GetTexture());
+		this->hbaoBlurPointVar->SetTexture(this->internalTargets[1]->GetTexture());
+		this->hbaoBlurRGVar->SetTexture(this->internalTargets[0]->GetTexture());
 		this->hbaoBlurRVar->SetTexture(NULL);
 		this->blur->Commit();
 		renderDevice->Compute(numGroupsX1, numGroupsY2, 1);
-		*/
 
 		this->blur->SelectActiveVariation(this->yDirection);
         this->blur->Apply();
-		this->hbaoBlurLinearVar->SetTexture(this->internalTargets[1]->GetResolveTexture());
-		this->hbaoBlurPointVar->SetTexture(this->internalTargets[1]->GetResolveTexture());
+		this->hbaoBlurLinearVar->SetTexture(this->internalTargets[0]->GetTexture());
+		this->hbaoBlurPointVar->SetTexture(this->internalTargets[0]->GetTexture());
 		this->hbaoBlurRGVar->SetTexture(NULL);
-		this->hbaoBlurRVar->SetTexture(this->output->GetResolveTexture());
+		this->hbaoBlurRVar->SetTexture(this->output->GetTexture());
 		this->blur->Commit();
 		renderDevice->Compute(numGroupsY1, numGroupsX2, 1);
 #else
@@ -432,13 +448,15 @@ AOAlgorithm::OnDisplayResized(SizeT width, SizeT height)
     IndexT i;
     for (i = 0; i < 2; i++)
     {
-        this->internalTargets[i]->Clear(RenderTarget::ClearColor);
-        this->internalTargets[i]->OnDisplayResized(width, height);
+        //this->internalTargets[i]->Clear(RenderTarget::ClearColor);
+        //this->internalTargets[i]->OnDisplayResized(width, height);
+		this->internalTargets[i]->Resize(width, height);
     }
 
 	// clear output and reset it
-    this->output->Clear(RenderTarget::ClearColor);
-	this->output->OnDisplayResized(width, height);
+    //this->output->Clear(RenderTarget::ClearColor);
+	//this->output->OnDisplayResized(width, height);
+	this->output->Resize(width, height);
 
 #ifndef HBAO_COMPUTE
 	// since our textures have changed, set them in the variable again
@@ -446,8 +464,8 @@ AOAlgorithm::OnDisplayResized(SizeT width, SizeT height)
 #endif
 
 	// calculate new dimensions for render target
-	this->fullWidth = (float)output->GetWidth();
-	this->fullHeight = (float)output->GetHeight();
+	this->fullWidth = (float)output->GetTexture()->GetWidth();
+	this->fullHeight = (float)output->GetTexture()->GetHeight();
 
     // resize quad
     this->quad.Discard();
@@ -558,7 +576,7 @@ void
 AOAlgorithm::Disable()
 {
     // clear output
-    this->output->Clear(RenderTarget::ClearColor);
+    //this->output->Clear(RenderTarget::ClearColor);
 }
 
 } // namespace Algorithm

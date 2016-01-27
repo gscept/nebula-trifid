@@ -193,8 +193,8 @@ private:
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-Parameter::SetIO( const IO& io )
+inline void
+Parameter::SetIO(const IO& io)
 {
 	this->ioMode = io;
 }
@@ -211,8 +211,8 @@ Parameter::GetIO() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-Parameter::SetAttribute( const Parameter::Attribute& attr )
+inline void
+Parameter::SetAttribute(const Parameter::Attribute& attr)
 {
 	this->attribute = attr;
 }
@@ -229,8 +229,8 @@ Parameter::GetAttribute() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-Parameter::SetName( const std::string& name )
+inline void
+Parameter::SetName(const std::string& name)
 {
 	this->name = name;
 }
@@ -247,8 +247,8 @@ Parameter::GetName() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-Parameter::SetDataType( const DataType& type )
+inline void
+Parameter::SetDataType(const DataType& type)
 {
 	this->type = type;
 }
@@ -265,8 +265,8 @@ Parameter::GetDataType() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-Parameter::SetShader( Shader* shader )
+inline void
+Parameter::SetShader(Shader* shader)
 {
 	this->parentShader = shader;
 }
@@ -301,8 +301,8 @@ Parameter::GetConst() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-Parameter::AddQualifier( const std::string& qualifier )
+inline void
+Parameter::AddQualifier(const std::string& qualifier)
 {
 	this->qualifiers.push_back(qualifier);
 }
@@ -419,8 +419,8 @@ Parameter::GetArraySize() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-Parameter::SetSizeExpression( Expression* expr )
+inline void
+Parameter::SetSizeExpression(Expression* expr)
 {
 	this->sizeExpression = expr;
 	this->isArray = true;

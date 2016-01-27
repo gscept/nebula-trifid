@@ -41,8 +41,8 @@ Generator::Instance()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Generator::Error( const std::string& error )
+void
+Generator::Error(const std::string& error)
 {
 	if (this->errors.find(error) == this->errors.end())
 	{
@@ -50,14 +50,13 @@ Generator::Error( const std::string& error )
 		this->errorBuffer += error + "\n";
 		this->errorCount++;
 	}
-	
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Generator::Warning( const std::string& warning )
+void
+Generator::Warning(const std::string& warning)
 {
 	if (this->warnings.find(warning) == this->warnings.end())
 	{

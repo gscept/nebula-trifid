@@ -194,6 +194,9 @@ LevelEditor2App::SetupStateHandlers()
 
 	// give reference of the editorstate to the entity treeview
 	this->editorWindow->GetEntityTreeWidget()->SetEditorState(this->editorState);
+
+	// setup stuff in the editor window which must happen after all systems have been setup
+	this->editorWindow->Setup();
 }
 
 //------------------------------------------------------------------------------

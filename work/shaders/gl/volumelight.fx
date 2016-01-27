@@ -12,6 +12,7 @@ mat4 Transform;
 vec4 LightColor = vec4(1,1,1,1);
 float VolumetricScale = 1.0f;
 float VolumetricIntensity = 0.14f;
+vec2 LightCenter;
 
 /// Declaring used textures
 
@@ -41,7 +42,10 @@ state GlobalLightState
 
 state ScatterState
 {
-	BlendEnabled[0] = true;
+	//BlendEnabled[0] = true;
+	DepthWrite = false;
+	DepthWrite = false;
+	DepthFunc = Equal;
 };
 
 //------------------------------------------------------------------------------
@@ -115,7 +119,6 @@ psVolumetricSpot(in vec3 ViewSpacePos,
 	vec4 colorSample = textureLod(LightProjMap, UV, 0);
 	Color = colorSample * (LightColor * ONE_OVER_PI) * rim * VolumetricIntensity;
 	Color.a = 1.0f;
-	Color = EncodeHDR(Color);	
 }
 
 //------------------------------------------------------------------------------
@@ -130,7 +133,7 @@ psVolumetricPoint(in vec3 ViewSpacePos,
 		in vec3 Normal,
 		in vec3 Binormal,
 		in vec2 UV,
-	[color0] out vec4 Color) 
+		[color0] out vec4 Color) 
 {	
 	// calculate freznel effect to give a smooth linear falloff of the godray effect
 	mat3 tangentViewMatrix = mat3(normalize(Tangent.xyz), normalize(Binormal.xyz), normalize(Normal.xyz));   
@@ -143,7 +146,6 @@ psVolumetricPoint(in vec3 ViewSpacePos,
 	vec4 colorSample = textureLod(LightProjCube, normalize(WorldPos), 0);
 	Color = colorSample * (LightColor * ONE_OVER_PI) * rim * VolumetricIntensity;
 	Color.a = 1.0f;
-	Color = EncodeHDR(Color);	
 }
 
 //------------------------------------------------------------------------------
@@ -176,7 +178,7 @@ psVolumetricGlobal(in vec3 ViewSpacePos,
 	vec4 colorSample = textureLod(LightProjMap, UV, 0);
 	Color = colorSample * LightColor * ONE_OVER_PI * rim * VolumetricIntensity;
 	Color.a = 1.0f;
-	Color = Color * unshaded;	
+	
 	gl_FragDepth = 1.0f;
 }
 
@@ -205,16 +207,19 @@ void
 psGlobalLight(in vec2 UV,
 	[color0] out vec4 Color) 
 {
-	vec4 sunSample = texture(LightTexture, UV);
-	Color = LightColor * sunSample;
-	Color.a = 1.0f;
+	vec4 sunSample = texture(LightProjMap, UV);
+	vec2 texSize = textureSize(LightProjMap, 0);
+	float falloff = distance(gl_FragCoord.xy/texSize, LightCenter);
+	Color = LightColor * sunSample * falloff * 4;
+	Color.a = 0.4f;
+	
 	gl_FragDepth = 1.0f;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-//SimpleTechnique(Volumetric, "Volumetric", vsVolumetric(), psVolumetric(), ScatterState);
+SimpleTechnique(Volumetric, "Alt0", vsGeometry(), psGlobalLight(), ScatterState);
 SimpleTechnique(PointLight, "Point", vsVolumetric(), psVolumetricPoint(), LocalLightState);
 SimpleTechnique(SpotLight, "Spot", vsVolumetric(), psVolumetricSpot(), LocalLightState);
 SimpleTechnique(GlobalLight, "Global", vsVolumetric(), psVolumetricGlobal(), GlobalLightState);

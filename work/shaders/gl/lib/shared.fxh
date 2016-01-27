@@ -7,6 +7,7 @@
 #define SHARED_FXH
 
 #include "lib/std.fxh"
+#include "lib/util.fxh"
 
 // define how many objects we can render simultaneously 
 #define MAX_BATCH_SIZE 256
@@ -83,8 +84,6 @@ shared varblock ObjectBlock [bool System = true;]
 	mat4 ModelView;
 	int ObjectId;
 };
-
-vec4 RenderTargetDimensions;	// x and y holds 1 / render target size, z and w holds render target size
 
 float FresnelPower = 0.0f;
 float FresnelStrength = 0.0f;

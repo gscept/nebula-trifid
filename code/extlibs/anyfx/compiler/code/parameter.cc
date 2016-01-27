@@ -234,8 +234,8 @@ Parameter::TypeCheck(TypeChecker& typechecker)
             else
             {
                 this->index = this->slotExpression->EvalUInt(typechecker);
-                delete this->slotExpression;
             }            
+			delete this->slotExpression;
         }
 
 		if (shaderType == ProgramRow::VertexShader)
@@ -476,8 +476,8 @@ Parameter::TypeCheck(TypeChecker& typechecker)
 //------------------------------------------------------------------------------
 /**
 */
-std::string 
-Parameter::FormatAttribute( const Header::Type& type )
+std::string
+Parameter::FormatAttribute(const Header::Type& type)
 {
 	switch (type)
 	{
@@ -612,7 +612,7 @@ Parameter::FormatAttribute( const Header::Type& type )
 /**
 */
 void
-Parameter::Compile( BinWriter& writer )
+Parameter::Compile(BinWriter& writer)
 {
 	writer.WriteInt('PARA');
 
@@ -625,8 +625,8 @@ Parameter::Compile( BinWriter& writer )
 //------------------------------------------------------------------------------
 /**
 */
-bool 
-Parameter::Compatible( Parameter* other )
+bool
+Parameter::Compatible(Parameter* other)
 {
 	if (this->type == DataType::Float4)
 	{
@@ -751,8 +751,8 @@ Parameter::Compatible( Parameter* other )
 //------------------------------------------------------------------------------
 /**
 */
-std::string 
-Parameter::AttributeToString( const Attribute& attr )
+std::string
+Parameter::AttributeToString(const Attribute& attr)
 {
 	switch (attr)
 	{

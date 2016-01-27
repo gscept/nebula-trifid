@@ -33,6 +33,9 @@ public:
 	/// end current render pass
 	void EndPass(); 
 
+	/// called after we change the display size
+	void OnDisplayResized(SizeT width, SizeT height);
+
 	/// get OpenGL4 framebuffer handle
 	const GLuint& GetFramebuffer() const;
 private:

@@ -32,11 +32,11 @@ public:
     void GenerateMipLevels();
 
     /// get the OpenGL4 rendertarget cube texture
-    const GLuint& GetTexture() const;
+    const GLuint& GetOGL4Texture() const;
     /// get OpenGL4 depth-stencil cube texture
-    const GLuint& GetDepthStencilTexture() const;
+    const GLuint& GetOGL4DepthStencilTexture() const;
     /// get OpenGL4 framebuffer
-    const GLuint& GetFramebuffer() const;
+    const GLuint& GetOGL4Framebuffer() const;
 
     /// clears render target by force
     void Clear(uint flags);
@@ -58,7 +58,7 @@ protected:
 /**
 */
 inline const GLuint& 
-OGL4RenderTargetCube::GetTexture() const
+OGL4RenderTargetCube::GetOGL4Texture() const
 {
     return this->ogl4ResolveTexture;
 }
@@ -67,7 +67,7 @@ OGL4RenderTargetCube::GetTexture() const
 /**
 */
 inline const GLuint& 
-OGL4RenderTargetCube::GetDepthStencilTexture() const
+OGL4RenderTargetCube::GetOGL4DepthStencilTexture() const
 {
     return this->ogl4DepthStencilTexture;
 }
@@ -76,7 +76,7 @@ OGL4RenderTargetCube::GetDepthStencilTexture() const
 /**
 */
 inline const GLuint& 
-OGL4RenderTargetCube::GetFramebuffer() const
+OGL4RenderTargetCube::GetOGL4Framebuffer() const
 {
     return this->ogl4Framebuffer;
 }

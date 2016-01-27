@@ -74,8 +74,8 @@ Sampler::~Sampler()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Sampler::ConsumeRow( const SamplerRow& row )
+void
+Sampler::ConsumeRow(const SamplerRow& row)
 {
 	switch (row.GetFlagType())
 	{
@@ -208,8 +208,8 @@ Sampler::ConsumeRow( const SamplerRow& row )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Sampler::TypeCheck( TypeChecker& typechecker )
+void
+Sampler::TypeCheck(TypeChecker& typechecker)
 {
 	// add render state, if failed we must have a redefinition
 	if (!typechecker.AddSymbol(this)) return;
@@ -313,8 +313,8 @@ Sampler::TypeCheck( TypeChecker& typechecker )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-Sampler::Compile( BinWriter& writer )
+void
+Sampler::Compile(BinWriter& writer)
 {
 	writer.WriteString(this->name);
 
@@ -354,8 +354,8 @@ Sampler::Compile( BinWriter& writer )
 //------------------------------------------------------------------------------
 /**
 */
-std::string 
-Sampler::Format( const Header& header ) const
+std::string
+Sampler::Format(const Header& header) const
 {
 	// TODO: fix filter-writing seeing as it is component based on min/mag/mip instead of a single integer
 	std::string res;

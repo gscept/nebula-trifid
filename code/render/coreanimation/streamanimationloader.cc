@@ -52,62 +52,65 @@ StreamAnimationLoader::SetupFromNax3(const Ptr<Stream>& stream)
             n_error("StreamAnimationLoader::SetupFromNax3(): '%s' has invalid file format (magic number doesn't match)!", stream->GetURI().AsString().AsCharPtr());
             return false;
         }
-        n_assert(0 != naxHeader->numClips)
 
-        // setup animation clips
-        anim->BeginSetupClips(naxHeader->numClips);
-        IndexT clipIndex;
-        SizeT numClips = (SizeT) naxHeader->numClips;
-        for (clipIndex = 0; clipIndex < numClips; clipIndex++)
-        {
-            Nax3Clip* naxClip = (Nax3Clip*) ptr;
-            ptr += sizeof(Nax3Clip);
+		// load animation if it has clips in it
+		if (naxHeader->numClips > 0)
+		{
+			// setup animation clips
+			anim->BeginSetupClips(naxHeader->numClips);
+			IndexT clipIndex;
+			SizeT numClips = (SizeT)naxHeader->numClips;
+			for (clipIndex = 0; clipIndex < numClips; clipIndex++)
+			{
+				Nax3Clip* naxClip = (Nax3Clip*)ptr;
+				ptr += sizeof(Nax3Clip);
 
-            // setup anim clip object
-            AnimClip& clip = anim->Clip(clipIndex);
-            clip.SetNumCurves(naxClip->numCurves);
-            clip.SetStartKeyIndex(naxClip->startKeyIndex);
-            clip.SetNumKeys(naxClip->numKeys);
-            clip.SetKeyStride(naxClip->keyStride);
-            clip.SetKeyDuration(naxClip->keyDuration);
-            clip.SetPreInfinityType((InfinityType::Code)naxClip->preInfinityType);
-            clip.SetPostInfinityType((InfinityType::Code)naxClip->postInfinityType);
-            clip.SetName(naxClip->name);
+				// setup anim clip object
+				AnimClip& clip = anim->Clip(clipIndex);
+				clip.SetNumCurves(naxClip->numCurves);
+				clip.SetStartKeyIndex(naxClip->startKeyIndex);
+				clip.SetNumKeys(naxClip->numKeys);
+				clip.SetKeyStride(naxClip->keyStride);
+				clip.SetKeyDuration(naxClip->keyDuration);
+				clip.SetPreInfinityType((InfinityType::Code)naxClip->preInfinityType);
+				clip.SetPostInfinityType((InfinityType::Code)naxClip->postInfinityType);
+				clip.SetName(naxClip->name);
 
-            // add anim events
-            clip.BeginEvents(naxClip->numEvents);
-            IndexT eventIndex;
-            for (eventIndex = 0; eventIndex < naxClip->numEvents; eventIndex++)
-            {
-                Nax3AnimEvent* naxEvent = (Nax3AnimEvent*) ptr;
-                ptr += sizeof(Nax3AnimEvent);
-                AnimEvent animEvent(naxEvent->name, naxEvent->category, naxEvent->keyIndex * clip.GetKeyDuration());
-                clip.AddEvent(animEvent);
-            }
-            clip.EndEvents();
+				// add anim events
+				clip.BeginEvents(naxClip->numEvents);
+				IndexT eventIndex;
+				for (eventIndex = 0; eventIndex < naxClip->numEvents; eventIndex++)
+				{
+					Nax3AnimEvent* naxEvent = (Nax3AnimEvent*)ptr;
+					ptr += sizeof(Nax3AnimEvent);
+					AnimEvent animEvent(naxEvent->name, naxEvent->category, naxEvent->keyIndex * clip.GetKeyDuration());
+					clip.AddEvent(animEvent);
+				}
+				clip.EndEvents();
 
-            // setup anim curves
-            IndexT curveIndex;
-            for (curveIndex = 0; curveIndex < naxClip->numCurves; curveIndex++)
-            {
-                Nax3Curve* naxCurve = (Nax3Curve*) ptr;
-                ptr += sizeof(Nax3Curve);
-                
-                AnimCurve& animCurve = clip.CurveByIndex(curveIndex);
-                animCurve.SetFirstKeyIndex(naxCurve->firstKeyIndex);
-                animCurve.SetActive(naxCurve->isActive != 0);
-                animCurve.SetStatic(naxCurve->isStatic != 0);
-                animCurve.SetCurveType((CurveType::Code)naxCurve->curveType);
-                animCurve.SetStaticKey(float4(naxCurve->staticKeyX, naxCurve->staticKeyY, naxCurve->staticKeyZ, naxCurve->staticKeyW));
-            }
-        }
-        anim->EndSetupClips();
+				// setup anim curves
+				IndexT curveIndex;
+				for (curveIndex = 0; curveIndex < naxClip->numCurves; curveIndex++)
+				{
+					Nax3Curve* naxCurve = (Nax3Curve*)ptr;
+					ptr += sizeof(Nax3Curve);
 
-        // load keys
-        const Ptr<AnimKeyBuffer>& animKeyBuffer = anim->SetupKeyBuffer(naxHeader->numKeys);
-        void* keyPtr = animKeyBuffer->Map();
-        Memory::Copy(ptr, keyPtr, animKeyBuffer->GetByteSize());
-        animKeyBuffer->Unmap();
+					AnimCurve& animCurve = clip.CurveByIndex(curveIndex);
+					animCurve.SetFirstKeyIndex(naxCurve->firstKeyIndex);
+					animCurve.SetActive(naxCurve->isActive != 0);
+					animCurve.SetStatic(naxCurve->isStatic != 0);
+					animCurve.SetCurveType((CurveType::Code)naxCurve->curveType);
+					animCurve.SetStaticKey(float4(naxCurve->staticKeyX, naxCurve->staticKeyY, naxCurve->staticKeyZ, naxCurve->staticKeyW));
+				}
+			}
+			anim->EndSetupClips();
+
+			// load keys
+			const Ptr<AnimKeyBuffer>& animKeyBuffer = anim->SetupKeyBuffer(naxHeader->numKeys);
+			void* keyPtr = animKeyBuffer->Map();
+			Memory::Copy(ptr, keyPtr, animKeyBuffer->GetByteSize());
+			animKeyBuffer->Unmap();
+		}
         
         // shutdown stream
         stream->Unmap();

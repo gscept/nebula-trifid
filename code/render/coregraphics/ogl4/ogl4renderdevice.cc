@@ -492,7 +492,7 @@ OGL4RenderDevice::BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& rtc, cons
 	n_assert(rtc.isvalid());
 
 	// begin pass by binding framebuffer
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, rtc->GetFramebuffer());
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, rtc->GetOGL4Framebuffer());
 
 	// assign render target view rect
 	const Math::rectangle<int>& viewportRect = rtc->GetResolveRect();
@@ -826,10 +826,21 @@ OGL4RenderDevice::DrawFeedbackInstanced(const Ptr<CoreGraphics::FeedbackBuffer>&
 /**
 */
 void 
-OGL4RenderDevice::Compute( int dimX, int dimY, int dimZ )
+OGL4RenderDevice::Compute(int dimX, int dimY, int dimZ, uint flag)
 {
     n_assert(0 != this->context);
-    
+
+	// put in memory barrier flags
+	if (flag != RenderDeviceBase::NoBarrier)
+	{
+		GLbitfield flags = 0;
+		if (flag & RenderDevice::ImageAccessBarrier)		flags |= GL_SHADER_IMAGE_ACCESS_BARRIER_BIT;
+		if (flag & RenderDevice::BufferAccessBarrier)		flags |= GL_SHADER_STORAGE_BARRIER_BIT;
+		if (flag & RenderDevice::SamplerAccessBarrier)		flags |= GL_TEXTURE_FETCH_BARRIER_BIT;
+		if (flag & RenderDevice::RenderTargetAccessBarrier) flags |= GL_FRAMEBUFFER_BARRIER_BIT;
+		glMemoryBarrier(flags);
+	}
+
 	// run computation
     glDispatchCompute(dimX, dimY, dimZ);
 

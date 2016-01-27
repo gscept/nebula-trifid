@@ -27,8 +27,8 @@ IntExpression::~IntExpression()
 //------------------------------------------------------------------------------
 /**
 */
-AnyFX::DataType 
-IntExpression::EvalType( TypeChecker& typechecker )
+AnyFX::DataType
+IntExpression::EvalType(TypeChecker& typechecker)
 {
 	DataType type;
 	type.SetStyle(DataType::Generic);
@@ -39,8 +39,8 @@ IntExpression::EvalType( TypeChecker& typechecker )
 //------------------------------------------------------------------------------
 /**
 */
-int 
-IntExpression::EvalInt( TypeChecker& typechecker )
+int
+IntExpression::EvalInt(TypeChecker& typechecker)
 {
 	return this->value;
 }
@@ -58,8 +58,8 @@ IntExpression::EvalUInt(TypeChecker& typechecker)
 /**
 	Convert this integer to a float
 */
-float 
-IntExpression::EvalFloat( TypeChecker& typechecker )
+float
+IntExpression::EvalFloat(TypeChecker& typechecker)
 {
 	return (float)this->value;
 }
@@ -67,8 +67,8 @@ IntExpression::EvalFloat( TypeChecker& typechecker )
 //------------------------------------------------------------------------------
 /**
 */
-bool 
-IntExpression::EvalBool( TypeChecker& typechecker )
+bool
+IntExpression::EvalBool(TypeChecker& typechecker)
 {
 	return this->value != 0;
 }
