@@ -111,7 +111,7 @@ GLSL4EffectVarbuffer::SetBuffer(void* handle)
 void
 GLSL4EffectVarbuffer::Commit()
 {
-	if (this->currentLocation != GL_INVALID_INDEX)
+	if (this->currentLocation != GL_INVALID_INDEX && this->shaderStorageBlockBinding != GL_INVALID_INDEX)
 	{
 		OpenGLBufferBinding* buf = (OpenGLBufferBinding*)*this->bufferHandle;
 		if (buf != 0)
@@ -119,9 +119,13 @@ GLSL4EffectVarbuffer::Commit()
 			if (buf->bindRange)
 			{
 #if GL4_MULTIBIND
+				GLSL4EffectProgram::SetVarbufferBinding(this->shaderStorageBlockBinding, buf->handle, buf->offset, buf->size);
+				/*
 				this->activeProgram->varbufferRangeBindBuffers[this->shaderStorageBlockBinding] = buf->handle;
 				this->activeProgram->varbufferRangeBindOffsets[this->shaderStorageBlockBinding] = buf->offset;
 				this->activeProgram->varbufferRangeBindSizes[this->shaderStorageBlockBinding] = buf->size;
+				this->activeProgram->varbuffersDirty = true;
+				*/
 #else
 				GLSL4VarbufferRangeState state;
 				state.buffer = buf->handle;
@@ -140,9 +144,13 @@ GLSL4EffectVarbuffer::Commit()
 			else
 			{
 #if GL4_MULTIBIND
+				GLSL4EffectProgram::SetVarbufferBinding(this->shaderStorageBlockBinding, buf->handle, 0, buf->size);
+				/*
 				this->activeProgram->varbufferRangeBindBuffers[this->shaderStorageBlockBinding] = buf->handle;
 				this->activeProgram->varbufferRangeBindOffsets[this->shaderStorageBlockBinding] = 0;
 				this->activeProgram->varbufferRangeBindSizes[this->shaderStorageBlockBinding] = buf->size;
+				this->activeProgram->varbuffersDirty = true;
+				*/
 #else
 				GLSL4VarbufferBaseState state;
 				state.buffer = buf->handle;
@@ -157,9 +165,13 @@ GLSL4EffectVarbuffer::Commit()
 		}
 		else
 		{
+			GLSL4EffectProgram::SetVarbufferBinding(this->shaderStorageBlockBinding, 0, 0, 1);
+			/*
 			this->activeProgram->varblockRangeBindBuffers[this->shaderStorageBlockBinding] = 0;
 			this->activeProgram->varblockRangeBindOffsets[this->shaderStorageBlockBinding] = 0;
 			this->activeProgram->varblockRangeBindSizes[this->shaderStorageBlockBinding] = 1;
+			this->activeProgram->varbuffersDirty = true;
+			*/
 		}
 	}
 }

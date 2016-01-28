@@ -21,7 +21,7 @@ public:
 	virtual ~ShaderReadWriteBufferBase();
 
 	/// setup buffer
-	void Setup();
+	void Setup(const SizeT numBackingBuffers = DefaultNumBackingBuffers);
 	/// discard buffer
 	void Discard();
 
@@ -38,12 +38,13 @@ public:
     /// cycle to next buffer
     void CycleBuffers();
 
-    static const int NumBuffers = 3;
+	static const SizeT DefaultNumBackingBuffers = 3;
 
 protected:
     bool isSetup;
     uint size;
     IndexT bufferIndex;
+	SizeT numBuffers;
 };
 
 //------------------------------------------------------------------------------

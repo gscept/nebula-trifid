@@ -10,7 +10,7 @@
 //------------------------------------------------------------------------------
 #include "coregraphics/shader.h"
 #include "coregraphics/base/constantbufferbase.h"
-#include "coregraphics/ogl4/ogl4bufferlock.h"
+#include "coregraphics/bufferlock.h"
 
 #define OGL4_UNIFORM_BUFFER_ALWAYS_MAPPED (1)
 //#define OGL4_BINDLESS (1)
@@ -61,7 +61,7 @@ private:
 
     GLuint ogl4Buffer;
     AnyFX::OpenGLBufferBinding* handle;
-	Ptr<OGL4BufferLock> bufferLock;
+	Ptr<CoreGraphics::BufferLock> bufferLock;
 };
 
 //------------------------------------------------------------------------------

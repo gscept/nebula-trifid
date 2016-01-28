@@ -68,14 +68,7 @@ private:
 
 #if GL4_MULTIBIND
 	// multibind arrays
-	GLuint* varblockRangeBindBuffers;
-	GLint* varblockRangeBindOffsets;
-	GLint* varblockRangeBindSizes;
 	GLuint varblockBindsCount;
-
-	GLuint* varbufferRangeBindBuffers;
-	GLint* varbufferRangeBindOffsets;
-	GLint* varbufferRangeBindSizes;
 	GLuint varbufferBindsCount;
 
 	GLuint* textureBinds;
@@ -92,6 +85,45 @@ private:
 	bool varbuffersDirty;
 	bool texturesDirty;
 	bool imagesDirty;
+
+	/// update multi binding buffer, but only flags as dirty if any change has happened
+	static void SetVarblockBinding(unsigned index, int handle, unsigned offset, unsigned range);
+	/// same but for varbuffers
+	static void SetVarbufferBinding(unsigned index, int handle, unsigned offset, unsigned range);
+
+	struct varblockBindings
+	{
+		GLuint buffer[512];
+		GLintptr offset[512];
+		GLintptr length[512];
+		bool dirty;
+
+		varblockBindings()
+		{
+			memset(buffer, 0, 512 * sizeof(int));
+			memset(offset, 0, 512 * sizeof(int));
+			memset(length, 1, 512 * sizeof(int));
+			dirty = true;
+		}
+
+	} static globalVarblockBindings;
+
+	struct varbufferBindings
+	{
+		GLuint buffer[512];
+		GLintptr offset[512];
+		GLintptr length[512];
+		bool dirty;
+
+		varbufferBindings()
+		{
+			memset(buffer, 0, 512 * sizeof(int));
+			memset(offset, 0, 512 * sizeof(int));
+			memset(length, 1, 512 * sizeof(int));
+			dirty = true;
+		}
+
+	} static globalVarbufferBindings;
 #endif
 }; 
 
@@ -106,6 +138,45 @@ struct GLSL4GlobalProgramState
     static unsigned* psSubroutines;
     static unsigned* csSubroutines;    
 };
+
+
+
+#if GL4_MULTIBIND
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+GLSL4EffectProgram::SetVarblockBinding(unsigned index, int handle, unsigned offset, unsigned range)
+{
+	if (GLSL4EffectProgram::globalVarblockBindings.buffer[index] != handle ||
+		GLSL4EffectProgram::globalVarblockBindings.offset[index] != offset ||
+		GLSL4EffectProgram::globalVarblockBindings.length[index] != range)
+	{
+		GLSL4EffectProgram::globalVarblockBindings.buffer[index] = handle;
+		GLSL4EffectProgram::globalVarblockBindings.offset[index] = offset;
+		GLSL4EffectProgram::globalVarblockBindings.length[index] = range;
+		GLSL4EffectProgram::globalVarblockBindings.dirty = true;
+	}
+
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+GLSL4EffectProgram::SetVarbufferBinding(unsigned index, int handle, unsigned offset, unsigned range)
+{
+	if (GLSL4EffectProgram::globalVarbufferBindings.buffer[index] != handle ||
+		GLSL4EffectProgram::globalVarbufferBindings.offset[index] != offset ||
+		GLSL4EffectProgram::globalVarbufferBindings.length[index] != range)
+	{
+		GLSL4EffectProgram::globalVarbufferBindings.buffer[index] = handle;
+		GLSL4EffectProgram::globalVarbufferBindings.offset[index] = offset;
+		GLSL4EffectProgram::globalVarbufferBindings.length[index] = range;
+		GLSL4EffectProgram::globalVarbufferBindings.dirty = true;
+	}
+}
+#endif
 
 } // namespace AnyFX
 //------------------------------------------------------------------------------

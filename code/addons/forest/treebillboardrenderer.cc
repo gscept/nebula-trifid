@@ -283,7 +283,6 @@ TreeBillboardRenderer::UpdateDynamicMesh()
     // setup the shape node of the first tree instance for rendering 
     // the entire billboard set
     const Ptr<ShapeNode>& shapeNode = this->treeInstances[0].Value()->GetTree()->GetBillboardLOD()->GetBillboardShapeNode();
-	this->vertexBuffer->SetVertexLayout(this->vertexLayout);
 	shapeNode->GetManagedMesh()->GetMesh()->SetVertexBuffer(this->vertexBuffer);
 	shapeNode->GetManagedMesh()->GetMesh()->SetIndexBuffer(this->indexBuffer);
 	shapeNode->GetManagedMesh()->GetMesh()->SetPrimitiveGroups(groups);    

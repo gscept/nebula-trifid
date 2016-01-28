@@ -186,9 +186,13 @@ GLSL4EffectVarblock::Commit()
             if (buf->bindRange)
             {
 #ifdef GL4_MULTIBIND
+				GLSL4EffectProgram::SetVarblockBinding(this->uniformBlockBinding, buf->handle, buf->offset, buf->size);
+				/*
 				this->activeProgram->varblockRangeBindBuffers[this->uniformBlockBinding] = buf->handle;
 				this->activeProgram->varblockRangeBindOffsets[this->uniformBlockBinding] = buf->offset;
 				this->activeProgram->varblockRangeBindSizes[this->uniformBlockBinding] = buf->size;
+				this->activeProgram->varblocksDirty = true;
+				*/
 #else
                 GLSL4VarblockRangeState state;
                 state.buffer = buf->handle;
@@ -205,9 +209,13 @@ GLSL4EffectVarblock::Commit()
             else
             {
 #ifdef GL4_MULTIBIND
+				GLSL4EffectProgram::SetVarblockBinding(this->uniformBlockBinding, buf->handle, 0, buf->size);
+				/*
 				this->activeProgram->varblockRangeBindBuffers[this->uniformBlockBinding] = buf->handle;
 				this->activeProgram->varblockRangeBindOffsets[this->uniformBlockBinding] = 0;
 				this->activeProgram->varblockRangeBindSizes[this->uniformBlockBinding] = buf->size;
+				this->activeProgram->varblocksDirty = true;
+				*/
 #else
                 GLSL4VarblockBaseState state;
                 state.buffer = buf->handle;
@@ -221,9 +229,13 @@ GLSL4EffectVarblock::Commit()
         }
 		else
 		{
+			GLSL4EffectProgram::SetVarblockBinding(this->uniformBlockBinding, 0, 0, 1);
+			/*
 			this->activeProgram->varblockRangeBindBuffers[this->uniformBlockBinding] = 0;
 			this->activeProgram->varblockRangeBindOffsets[this->uniformBlockBinding] = 0;
 			this->activeProgram->varblockRangeBindSizes[this->uniformBlockBinding] = 1;
+			this->activeProgram->varblocksDirty = true;
+			*/
 		}
 	}
 }

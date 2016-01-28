@@ -69,7 +69,7 @@ OGL4UniformBuffer::Setup(const SizeT numBackingBuffers)
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	// create new bufferlock
-	this->bufferLock = OGL4BufferLock::Create();
+	this->bufferLock = CoreGraphics::BufferLock::Create();
 
     // setup handle
     this->handle = n_new(AnyFX::OpenGLBufferBinding);
