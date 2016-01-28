@@ -176,172 +176,178 @@ FrameBatch::RenderBatch(IndexT frameIndex)
             for (surfaceIndex = 0; surfaceIndex < surfaces.Size(); surfaceIndex++)
             {
                 const Ptr<Surface>& surface = surfaces[surfaceIndex];
-                const Ptr<Shader>& shader = material->GetShaderByBatchGroup(this->batchGroup);
+				const Util::Array<Material::MaterialPass>& passes = material->GetPassesByCode(this->batchGroup);
 
-				// get models based on material
-				const Array<Ptr<Model>>& models = visResolver->GetVisibleModels(surface->GetSurfaceCode());
-				if (models.IsEmpty()) continue;
+				IndexT passIndex;
+				for (passIndex = 0; passIndex < passes.Size(); passIndex++)
+				{
+					const Material::MaterialPass& pass = passes[passIndex];
+					const Ptr<Shader>& shader = pass.shader;
 
-                // set the this shader to be the main active shader
-                shaderServer->SetActiveShader(shader);
+					// get models based on material
+					const Array<Ptr<Model>>& models = visResolver->GetVisibleModels(surface->GetSurfaceCode());
+					if (models.IsEmpty()) continue;
 
-				// reset features, then set the features implemented by the material
-				shaderServer->ResetFeatureBits();
-				shaderServer->SetFeatureBits(material->GetFeatureMask(this->batchGroup));
+					// set the this shader to be the main active shader
+					shaderServer->SetActiveShader(shader);
 
-				// apply shared model state (mesh)
-				//modelNode->ApplySharedState(frameIndex);
+					// reset features, then set the features implemented by the material
+					shaderServer->ResetFeatureBits();
+					shaderServer->SetFeatureBits(pass.featureMask);
 
-				// apply shader 
-				shader->SelectActiveVariation(shaderServer->GetFeatureBits());
-				shader->Apply();
+					// apply shared model state (mesh)
+					//modelNode->ApplySharedState(frameIndex);
 
-                // select variations based on the feature bits found in the material
-                // shaderInst->SetWireframe(renderDevice->GetRenderWireframe());
+					// apply shader 
+					shader->SelectActiveVariation(shaderServer->GetFeatureBits());
+					shader->Apply();
 
-                IndexT modelIndex;
-                for (modelIndex = 0; modelIndex < models.Size(); modelIndex++)
-                {
-                    FRAME_LOG("      FrameBatch::RenderBatch() model: %s", models[modelIndex]->GetResourceId().Value());
+					// select variations based on the feature bits found in the material
+					// shaderInst->SetWireframe(renderDevice->GetRenderWireframe());
 
-                    // for each visible model node of the model...
-                    const Array<Ptr<ModelNode>>& modelNodes = visResolver->GetVisibleModelNodes(surface->GetSurfaceCode(), models[modelIndex]);
-                    IndexT modelNodeIndex;
-                    for (modelNodeIndex = 0; modelNodeIndex < modelNodes.Size(); modelNodeIndex++)
-                    {
-						// render instances
-						const Ptr<ModelNode>& modelNode = modelNodes[modelNodeIndex];
-						const Array<Ptr<ModelNodeInstance>>& nodeInstances = visResolver->GetVisibleModelNodeInstances(surface->GetSurfaceCode(), modelNode);
-						if (nodeInstances.IsEmpty()) continue;
+					IndexT modelIndex;
+					for (modelIndex = 0; modelIndex < models.Size(); modelIndex++)
+					{
+						FRAME_LOG("      FrameBatch::RenderBatch() model: %s", models[modelIndex]->GetResourceId().Value());
 
-						// apply shared model state (mesh)
-						modelNode->ApplySharedState(frameIndex);
+						// for each visible model node of the model...
+						const Array<Ptr<ModelNode>>& modelNodes = visResolver->GetVisibleModelNodes(surface->GetSurfaceCode(), models[modelIndex]);
+						IndexT modelNodeIndex;
+						for (modelNodeIndex = 0; modelNodeIndex < modelNodes.Size(); modelNodeIndex++)
+						{
+							// render instances
+							const Ptr<ModelNode>& modelNode = modelNodes[modelNodeIndex];
+							const Array<Ptr<ModelNodeInstance>>& nodeInstances = visResolver->GetVisibleModelNodeInstances(surface->GetSurfaceCode(), modelNode);
+							if (nodeInstances.IsEmpty()) continue;
 
-                        // apply batch variables to currently active shader (will only work for variables which lies outside of constant buffers)
-                        // this will also be overridden by the model local state (surface material), so only use this for system textures
-                        shader->BeginUpdate();
-                        IndexT variableIndex;
-                        for (variableIndex = 0; variableIndex < this->shaderVariablesByName.Size(); variableIndex++)
-                        {
-                            // get variable instance
-                            const Ptr<ShaderVariableInstance>& varInst = this->shaderVariablesByName.ValueAtIndex(variableIndex);
+							// apply shared model state (mesh)
+							modelNode->ApplySharedState(frameIndex);
 
-                            // get variable name
-                            const Util::StringAtom& name = this->shaderVariablesByName.KeyAtIndex(variableIndex);
+							// apply batch variables to currently active shader (will only work for variables which lies outside of constant buffers)
+							// this will also be overridden by the model local state (surface material), so only use this for system textures
+							shader->BeginUpdate();
+							IndexT variableIndex;
+							for (variableIndex = 0; variableIndex < this->shaderVariablesByName.Size(); variableIndex++)
+							{
+								// get variable instance
+								const Ptr<ShaderVariableInstance>& varInst = this->shaderVariablesByName.ValueAtIndex(variableIndex);
 
-                            // apply to variable in active shader
-                            varInst->ApplyTo(shader->GetVariableByName(name));
-                        }
-                        shader->EndUpdate();
+								// get variable name
+								const Util::StringAtom& name = this->shaderVariablesByName.KeyAtIndex(variableIndex);
 
-                        FRAME_LOG("        FrameBatch::RenderBatch() node: %s", modelNode->GetName().Value());
+								// apply to variable in active shader
+								varInst->ApplyTo(shader->GetVariableByName(name));
+							}
+							shader->EndUpdate();
 
-                        // begin instancing, if we are doing force instancing, use the instancing count, otherwise the multiplier is 1
-                        if (this->forceInstancing) instanceServer->BeginInstancing(modelNode, this->instancingCount, shader, this->batchGroup);
-                        else					   instanceServer->BeginInstancing(modelNode, 1, shader, this->batchGroup);
+							FRAME_LOG("        FrameBatch::RenderBatch() node: %s", modelNode->GetName().Value());
 
-                        // start batch
-                        renderDevice->BeginBatch(this->batchType);
+							// begin instancing, if we are doing force instancing, use the instancing count, otherwise the multiplier is 1
+							if (this->forceInstancing) instanceServer->BeginInstancing(modelNode, this->instancingCount, shader, pass.index);
+							else					   instanceServer->BeginInstancing(modelNode, 1, shader, pass.index);
 
-					#if NEBULA3_ENABLE_PROFILING
-						modelNode->StartTimer();
-					#endif
+							// start batch
+							renderDevice->BeginBatch(this->batchType);
 
-                        IndexT nodeInstIndex;
-                        for (nodeInstIndex = 0; nodeInstIndex < nodeInstances.Size(); nodeInstIndex++)
-                        {
-                            const Ptr<ModelNodeInstance>& nodeInstance = nodeInstances[nodeInstIndex];
-                            const Ptr<StateNodeInstance>& stateNode = nodeInstance.downcast<StateNodeInstance>();
-                            const Ptr<SurfaceInstance>& surfaceInstance = stateNode->GetSurfaceInstance();
-                            const Ptr<ShaderInstance>& shaderInst = surfaceInstance->GetShaderInstance(this->batchGroup);
+#if NEBULA3_ENABLE_PROFILING
+							modelNode->StartTimer();
+#endif
 
-                            // if single-pass lighting is enabled, we need to setup the lighting 
-                            // shader states
-                            // FIXME: This may set a new shader variation for every node instance
-                            // which is expensive! Would be better to sort node instances by number
-                            // of active lights!!!
-                            if (LightingMode::Forward == this->lightingMode)
-                            {
-                                // setup lighting render states
-                                // NOTE: this may change the shader feature bit mask which may select
-                                // a different shader variation per entity
-                                const Ptr<Graphics::ModelEntity>& modelEntity = nodeInstance->GetModelInstance()->GetModelEntity();
-                                lightServer->ApplyModelEntityLights(modelEntity);
-                            }
+							IndexT nodeInstIndex;
+							for (nodeInstIndex = 0; nodeInstIndex < nodeInstances.Size(); nodeInstIndex++)
+							{
+								const Ptr<ModelNodeInstance>& nodeInstance = nodeInstances[nodeInstIndex];
+								const Ptr<StateNodeInstance>& stateNode = nodeInstance.downcast<StateNodeInstance>();
+								const Ptr<SurfaceInstance>& surfaceInstance = stateNode->GetSurfaceInstance();
 
-                            // if lighting mode is Off, we can render all node instances with the same shader
-                            /*
-                            SizeT numPasses = shaderInst->Begin();
-                            n_assert(1 == numPasses);
-                            shaderInst->BeginPass(0);
-                            */
+								// if single-pass lighting is enabled, we need to setup the lighting 
+								// shader states
+								// FIXME: This may set a new shader variation for every node instance
+								// which is expensive! Would be better to sort node instances by number
+								// of active lights!!!
+								if (LightingMode::Forward == this->lightingMode)
+								{
+									// setup lighting render states
+									// NOTE: this may change the shader feature bit mask which may select
+									// a different shader variation per entity
+									const Ptr<Graphics::ModelEntity>& modelEntity = nodeInstance->GetModelInstance()->GetModelEntity();
+									lightServer->ApplyModelEntityLights(modelEntity);
+								}
 
-                        #if NEBULA3_ENABLE_PROFILING
-                            nodeInstance->StartDebugTimer();
-                        #endif  
+								// if lighting mode is Off, we can render all node instances with the same shader
+								/*
+								SizeT numPasses = shaderInst->Begin();
+								n_assert(1 == numPasses);
+								shaderInst->BeginPass(0);
+								*/
 
-                            if (nodeInstance->GetModelInstance()->IsInstanced())
-                            {
-                                // add to server
-                                const Ptr<ModelInstance>& modelInstance = nodeInstance->GetModelInstance();
-                                const Ptr<ModelEntity>& entity = modelInstance->GetModelEntity();
+#if NEBULA3_ENABLE_PROFILING
+								nodeInstance->StartDebugTimer();
+#endif  
 
-                                // add instance
-                                if (entity.isvalid())   instanceServer->AddInstance(entity->GetInstanceCode(), nodeInstance);
-                                else                    instanceServer->AddInstance(0, nodeInstance);
-                            }
-                            else
-                            {
-                                // render the node instance
-                                nodeInstance->ApplyState(frameIndex, this->batchGroup, shader);
+								if (nodeInstance->GetModelInstance()->IsInstanced())
+								{
+									// add to server
+									const Ptr<ModelInstance>& modelInstance = nodeInstance->GetModelInstance();
+									const Ptr<ModelEntity>& entity = modelInstance->GetModelEntity();
 
-								// commit shader
-								// shader->Commit();
+									// add instance
+									if (entity.isvalid())   instanceServer->AddInstance(entity->GetInstanceCode(), nodeInstance);
+									else                    instanceServer->AddInstance(0, nodeInstance);
+								}
+								else
+								{
+									// render the node instance
+									nodeInstance->ApplyState(frameIndex, pass.index, shader);
 
-                                // perform rendering
-                                if (this->forceInstancing)
-                                {
-                                    // render instanced
-                                    nodeInstance->RenderInstanced(this->instancingCount);
-                                }
-                                else
-                                {
-                                    // render single
-                                    nodeInstance->Render();
-                                }
+									// commit shader
+									// shader->Commit();
 
-							#if NEBULA3_ENABLE_PROFILING
-								modelNode->IncrementDraws();
-							#endif
-                            }
+									// perform rendering
+									if (this->forceInstancing)
+									{
+										// render instanced
+										nodeInstance->RenderInstanced(this->instancingCount);
+									}
+									else
+									{
+										// render single
+										nodeInstance->Render();
+									}
 
-                        #if NEBULA3_ENABLE_PROFILING
-                            nodeInstance->StopDebugTimer();
-                        #endif  
+#if NEBULA3_ENABLE_PROFILING
+									modelNode->IncrementDraws();
+#endif
+								}
 
-                            /*
-                            if (LightingMode::None == this->lightingMode)
-                            {
-                                shaderInst->EndPass();
-                                shaderInst->End();
-                            }
-                            */
-                        }
+#if NEBULA3_ENABLE_PROFILING
+								nodeInstance->StopDebugTimer();
+#endif  
 
-					#if NEBULA3_ENABLE_PROFILING
-						modelNode->StopTimer();
-					#endif
+								/*
+								if (LightingMode::None == this->lightingMode)
+								{
+								shaderInst->EndPass();
+								shaderInst->End();
+								}
+								*/
+							}
 
-                        // end batch
-                        renderDevice->EndBatch();
+#if NEBULA3_ENABLE_PROFILING
+							modelNode->StopTimer();
+#endif
 
-                        // render instances
-                        instanceServer->Render(frameIndex);
+							// end batch
+							renderDevice->EndBatch();
 
-                        // end instancing
-                        instanceServer->EndInstancing();
-                    }
-                }
+							// render instances
+							instanceServer->Render(frameIndex);
+
+							// end instancing
+							instanceServer->EndInstancing();
+						}
+					}
+				}
             }
 		}
     }

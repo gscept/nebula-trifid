@@ -69,6 +69,8 @@ private:
 	Ptr<TransformAction> activeTransformAction;
 	Input::Key::Code activateSelectionZoom;
 
+	Timing::Time lastFrameTime;
+	Timing::Time lastUpdateFpsTime;
 	bool showPerformance;
 	int performanceFrame;
 	Util::RingBuffer<int> drawcallBuffer;

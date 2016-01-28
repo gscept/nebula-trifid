@@ -48,6 +48,8 @@ public:
     Ptr<CoreGraphics::ShaderVariableInstance> CreateVariableInstance(const Base::ShaderVariableBase::Name& n);
     /// get variable instance based on name, asserts it exists
     const Ptr<CoreGraphics::ShaderVariableInstance>& GetVariableInstance(const Base::ShaderVariableBase::Name& n);
+	/// discard variable instance
+	void DiscardVariableInstance(const Ptr<CoreGraphics::ShaderVariableInstance>& var);
 
     /// shortcut to select a shader variation through the original shader
     bool SelectActiveVariation(CoreGraphics::ShaderFeature::Mask mask);    

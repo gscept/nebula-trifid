@@ -39,7 +39,6 @@ protected:
 	Ptr<CoreGraphics::VertexBuffer> vb;
 	Ptr<CoreGraphics::IndexBuffer> ib;
 	CoreGraphics::PrimitiveGroup primGroup;
-	Ptr<CoreGraphics::VertexLayout> vertexLayout;
 }; 
 } // namespace Models
 //------------------------------------------------------------------------------

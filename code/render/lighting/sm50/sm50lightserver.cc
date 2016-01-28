@@ -445,7 +445,7 @@ SM50LightServer::RenderPointLights()
                         {
                             this->shadowProjCubeVar->SetTexture(curLight->GetShadowCube()->GetResolveTexture());
                         }
-						
+
 						// set shadow intensity
 						this->shadowIntensityVar->SetFloat(curLight->GetShadowIntensity());
 					}

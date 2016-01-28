@@ -144,8 +144,8 @@ MaterialLoader::ParseMaterial( const Ptr<IO::XmlReader>& xmlReader, const Ptr<Ma
 //------------------------------------------------------------------------------
 /**
 */
-void 
-MaterialLoader::ParseMaterialPass( const Ptr<IO::XmlReader>& xmlReader, const Ptr<Material>& material )
+void
+MaterialLoader::ParseMaterialPass(const Ptr<IO::XmlReader>& xmlReader, const Ptr<Material>& material)
 {
 	n_assert(0 != material);
 
@@ -170,8 +170,8 @@ MaterialLoader::ParseMaterialPass( const Ptr<IO::XmlReader>& xmlReader, const Pt
 //------------------------------------------------------------------------------
 /**
 */
-void 
-MaterialLoader::ParseParameter( const Ptr<IO::XmlReader>& xmlReader, const Ptr<Material>& material )
+void
+MaterialLoader::ParseParameter(const Ptr<IO::XmlReader>& xmlReader, const Ptr<Material>& material)
 {
 	Material::MaterialParameter param;
 

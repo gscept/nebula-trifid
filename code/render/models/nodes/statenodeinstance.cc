@@ -129,9 +129,9 @@ StateNodeInstance::Discard()
 /**
 */
 void 
-StateNodeInstance::ApplyState(IndexT frameIndex, const Frame::BatchGroup::Code& group, const Ptr<CoreGraphics::Shader>& shader)
+StateNodeInstance::ApplyState(IndexT frameIndex, const IndexT& pass, const Ptr<CoreGraphics::Shader>& shader)
 {
-	TransformNodeInstance::ApplyState(frameIndex, group, shader);
+	TransformNodeInstance::ApplyState(frameIndex, pass, shader);
 
 	// apply any needed model transform state to shader
 	const Ptr<TransformDevice>& transformDevice = TransformDevice::Instance();
@@ -160,7 +160,7 @@ StateNodeInstance::ApplyState(IndexT frameIndex, const Frame::BatchGroup::Code& 
 	this->ApplySharedVariables();
 
     // apply this surface material instance if we have a valid batch group
-	if (group != Frame::BatchGroup::InvalidBatchGroup) this->surfaceInstance->Apply(group);
+	this->surfaceInstance->Apply(pass);
 }
 
 //------------------------------------------------------------------------------

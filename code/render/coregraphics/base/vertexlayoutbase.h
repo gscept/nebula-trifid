@@ -49,9 +49,6 @@ public:
     SizeT GetVertexByteSize() const;
     /// get vertex components
     const Util::Array<CoreGraphics::VertexComponent>& GetVertexComponents() const;    
-
-    /// bind index buffer to vertex layout
-    void SetIndexBuffer(const Ptr<CoreGraphics::IndexBuffer>& ibo);
         
 protected:
     friend class VertexLayoutServerBase;

@@ -120,16 +120,16 @@ MaterialServer::AddMaterial(const Ptr<Material>& material)
 	for (passIndex = 0; passIndex < numPasses; passIndex++)
 	{
 		// get node type
-        const Frame::BatchGroup::Code& type = material->GetBatchGroup(passIndex);
+		const Material::MaterialPass& pass = material->GetPassByIndex(passIndex);
 
-		if (this->materialsByBatchGroup.Contains(type))
+		if (this->materialsByBatchGroup.Contains(pass.code))
 		{
-			this->materialsByBatchGroup[type].Append(material);
+			this->materialsByBatchGroup[pass.code].Append(material);
 		}
 		else
 		{
-			this->materialsByBatchGroup.Add(type, Util::Array<Ptr<Material>>());
-			this->materialsByBatchGroup[type].Append(material);
+			this->materialsByBatchGroup.Add(pass.code, Util::Array<Ptr<Material>>());
+			this->materialsByBatchGroup[pass.code].Append(material);
 		}
 	}
 }

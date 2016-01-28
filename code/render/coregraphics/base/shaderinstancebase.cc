@@ -213,4 +213,17 @@ ShaderInstanceBase::GetVariableInstance(const Base::ShaderVariableBase::Name& n)
     return this->variableInstancesByName[n];
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ShaderInstanceBase::DiscardVariableInstance(const Ptr<CoreGraphics::ShaderVariableInstance>& var)
+{
+	IndexT i = this->variableInstances.FindIndex(var);
+	n_assert(i != InvalidIndex);
+	this->variableInstances.EraseIndex(i);
+	this->variableInstancesByName.Erase(var->GetShaderVariable()->GetName());
+	var->Discard();	
+}
+
 } // namespace Base

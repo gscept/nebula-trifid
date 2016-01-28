@@ -80,7 +80,6 @@ private:
 	{
 		Ptr<CoreGraphics::VertexBuffer> vb;
 		Ptr<CoreGraphics::IndexBuffer> ib;
-        Ptr<CoreGraphics::VertexLayout> vertexLayout;
 		Ptr<CoreGraphics::Texture> texture;
 		CoreGraphics::PrimitiveGroup primGroup;
 	};

@@ -85,11 +85,14 @@ OGL4IndexBuffer::Map(MapType mapType)
 		break;
 	}
 
+	// calculate size
+	SizeT size = this->numIndices * IndexType::SizeOf(this->indexType);
+
 	// bind index buffer
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->ogl4IndexBuffer);
 
 	// only map range of buffer
-	void* data = glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, this->numIndices * IndexType::SizeOf(this->indexType), mapFlags);
+	void* data = glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, size, mapFlags);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	n_assert(data);
 	return data;

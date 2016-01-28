@@ -31,11 +31,12 @@ ShaderReadWriteBufferBase::~ShaderReadWriteBufferBase()
 /**
 */
 void
-ShaderReadWriteBufferBase::Setup()
+ShaderReadWriteBufferBase::Setup(const SizeT numBackingBuffers)
 {
 	n_assert(!this->isSetup);
 	n_assert(this->size > 0);
 	this->isSetup = true;
+	this->numBuffers = numBackingBuffers;
 }
 
 //------------------------------------------------------------------------------
@@ -65,7 +66,7 @@ ShaderReadWriteBufferBase::Update(void* data, uint offset, uint length)
 void
 ShaderReadWriteBufferBase::CycleBuffers()
 {
-    this->bufferIndex = (this->bufferIndex + 1) % NumBuffers;
+    this->bufferIndex = (this->bufferIndex + 1) % this->numBuffers;
 }
 
 } // namespace Base

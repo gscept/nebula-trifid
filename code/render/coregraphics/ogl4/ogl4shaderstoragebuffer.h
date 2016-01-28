@@ -11,7 +11,7 @@
 */
 //------------------------------------------------------------------------------
 
-//#define OGL4_SHADER_BUFFER_ALWAYS_MAPPED
+#define OGL4_SHADER_BUFFER_ALWAYS_MAPPED
 
 #include "coregraphics/base/shaderreadwritebufferbase.h"
 #include "coregraphics/bufferlock.h"
@@ -28,7 +28,7 @@ public:
 	virtual ~OGL4ShaderStorageBuffer();
 
 	/// setup buffer
-	void Setup();
+	void Setup(const SizeT numBackingBuffers = DefaultNumBackingBuffers);
 	/// discard buffer
 	void Discard();
 

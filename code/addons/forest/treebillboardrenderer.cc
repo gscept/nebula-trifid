@@ -36,7 +36,6 @@ TreeBillboardRenderer::TreeBillboardRenderer() :
     inBegin(false),
 	vertexBuffer(0),
 	indexBuffer(0),
-	vertexLayout(0),
     treeInstances(1024, 1024)
 {
     __ConstructSingleton;
@@ -96,10 +95,6 @@ TreeBillboardRenderer::Setup()
 		n_error("TreeBillboardRenderer: Failed to setup corner index buffer!");
 	}
 	this->indexBuffer->SetLoader(0);
-
-	// we need to setup a common vertex layout which describes both streams
-    this->vertexLayout = this->vertexBuffer->GetVertexLayout();
-    this->vertexLayout->SetIndexBuffer(this->indexBuffer);
 }
 
 //------------------------------------------------------------------------------
@@ -114,8 +109,6 @@ TreeBillboardRenderer::Discard()
     this->vertexBuffer = 0;
 	this->indexBuffer->Unload();
 	this->indexBuffer = 0;
-	this->vertexLayout->Discard();
-	this->vertexLayout = 0;
 
     this->isValid = false;
 }
@@ -290,7 +283,6 @@ TreeBillboardRenderer::UpdateDynamicMesh()
     // setup the shape node of the first tree instance for rendering 
     // the entire billboard set
     const Ptr<ShapeNode>& shapeNode = this->treeInstances[0].Value()->GetTree()->GetBillboardLOD()->GetBillboardShapeNode();
-	this->vertexBuffer->SetVertexLayout(this->vertexLayout);
 	shapeNode->GetManagedMesh()->GetMesh()->SetVertexBuffer(this->vertexBuffer);
 	shapeNode->GetManagedMesh()->GetMesh()->SetIndexBuffer(this->indexBuffer);
 	shapeNode->GetManagedMesh()->GetMesh()->SetPrimitiveGroups(groups);    

@@ -653,9 +653,10 @@ RenderDeviceBase::EnqueueBufferLockRange(const Ptr<CoreGraphics::BufferLock>& lo
 void
 RenderDeviceBase::DequeueBufferLocks()
 {
-	while (RenderDeviceBase::bufferLockQueue.Size() > 0)
+	IndexT i;
+	for (i = 0; i < RenderDeviceBase::bufferLockQueue.Size(); i++)
 	{
-		const __BufferLockData& data = RenderDeviceBase::bufferLockQueue.Dequeue();
+		const __BufferLockData& data = RenderDeviceBase::bufferLockQueue[i];
 		switch (data.mode)
 		{
 		case __BufferLockMode::BufferRing:
@@ -666,6 +667,7 @@ RenderDeviceBase::DequeueBufferLocks()
 			break;
 		}
 	}
+	RenderDeviceBase::bufferLockQueue.Clear();
 }
 
 } // namespace Base

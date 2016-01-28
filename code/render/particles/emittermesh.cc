@@ -53,7 +53,9 @@ EmitterMesh::Setup(const Ptr<Mesh>& mesh, IndexT primGroupIndex)
 
     IndexT baseIndex = primGroup.GetBaseIndex();
     SizeT numIndices = primGroup.GetNumIndices();
+
     int* indices = (int*) indexBuffer->Map(IndexBuffer::MapRead);
+	//int indices[] = { 0 };
 
     // allocate a "flag array" which holds a 0 at a
     // vertex index which hasn't been encountered yet, and
@@ -90,16 +92,16 @@ EmitterMesh::Setup(const Ptr<Mesh>& mesh, IndexT primGroupIndex)
 
     IndexT posCompIndex = vertexLayout->FindComponent(VertexComponent::Position, 0);
     n_assert(InvalidIndex != posCompIndex);
-    n_assert(vertexLayout->GetComponentAt(posCompIndex).GetFormat() == VertexComponent::Float3);
+    n_assert(vertexLayout->GetComponentAt(posCompIndex).GetFormat() == VertexComponent::Float4);
 
     IndexT normCompIndex = vertexLayout->FindComponent(VertexComponent::Normal, 0);
     n_assert(InvalidIndex != normCompIndex);
-    n_assert(vertexLayout->GetComponentAt(normCompIndex).GetFormat() == VertexComponent::Float3);
+    n_assert(vertexLayout->GetComponentAt(normCompIndex).GetFormat() == VertexComponent::Byte4N);
 
 #ifndef __WII__
     IndexT tanCompIndex = vertexLayout->FindComponent(VertexComponent::Tangent, 0);
     n_assert(InvalidIndex != tanCompIndex);
-    n_assert(vertexLayout->GetComponentAt(tanCompIndex).GetFormat() == VertexComponent::Float3);
+	n_assert(vertexLayout->GetComponentAt(tanCompIndex).GetFormat() == VertexComponent::Byte4N);
 #endif
 
     // get the byte offset from the start of the vertex
@@ -132,9 +134,9 @@ EmitterMesh::Setup(const Ptr<Mesh>& mesh, IndexT primGroupIndex)
             dst.tangent = float4::cross3(float4(0.0, 1.0, 0.0, 1.0), dst.normal);
         }
 #else
-        dst.normal.load_float3((scalar*)(src + normByteOffset), 0.0f);
+        dst.normal.load_ubyte4n_signed(src + normByteOffset, 0.0f);
         dst.normal = Math::float4::normalize(dst.normal);
-        dst.tangent.load_float3((scalar*)(src + tanByteOffset), 0.0f);
+		dst.tangent.load_ubyte4n_signed(src + tanByteOffset, 0.0f);
         dst.tangent = Math::float4::normalize(dst.tangent);
 #endif
     }

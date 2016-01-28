@@ -46,7 +46,6 @@ private:
 	CoreGraphics::PrimitiveGroup primitive;
 	Ptr<CoreGraphics::VertexBuffer> vbo;
 	Ptr<CoreGraphics::IndexBuffer> ibo;
-    Ptr<CoreGraphics::VertexLayout> vertexLayout;
 	Ptr<Resources::ManagedTexture> tex;
 
 	// shader

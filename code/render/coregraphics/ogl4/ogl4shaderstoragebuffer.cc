@@ -4,6 +4,7 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "ogl4shaderstoragebuffer.h"
+#include "../renderdevice.h"
 
 
 
@@ -33,10 +34,10 @@ OGL4ShaderStorageBuffer::~OGL4ShaderStorageBuffer()
 /**
 */
 void
-OGL4ShaderStorageBuffer::Setup()
+OGL4ShaderStorageBuffer::Setup(const SizeT numBackingBuffers)
 {
 	n_assert(this->size > 0);
-	ShaderReadWriteBufferBase::Setup();
+	ShaderReadWriteBufferBase::Setup(numBackingBuffers);
 	glGenBuffers(1, &this->ogl4Buffer);
 
 	GLint maxBufferSize;
@@ -51,11 +52,11 @@ OGL4ShaderStorageBuffer::Setup()
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->ogl4Buffer);
 #ifdef OGL4_SHADER_BUFFER_ALWAYS_MAPPED
 	GLenum mapFlags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
-	glBufferStorage(GL_SHADER_STORAGE_BUFFER, this->size * this->NumBuffers, NULL, mapFlags | GL_DYNAMIC_STORAGE_BIT);
-	this->buf = (GLubyte*)glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, this->size * this->NumBuffers, mapFlags);
-	this->bufferLock = BufferLock::Create();
+	glBufferStorage(GL_SHADER_STORAGE_BUFFER, this->size * this->numBuffers, NULL, mapFlags);
+	this->buf = (GLubyte*)glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, this->size * this->numBuffers, mapFlags);
+	this->bufferLock = CoreGraphics::BufferLock::Create();
 #else
-    glBufferData(GL_SHADER_STORAGE_BUFFER, this->size * this->NumBuffers * 3, NULL, GL_STREAM_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, this->size * this->numBuffers, NULL, GL_STREAM_DRAW);
 #endif
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 	n_assert(GLSUCCESS);
@@ -112,6 +113,7 @@ OGL4ShaderStorageBuffer::Update(void* data, uint offset, uint length)
     this->bufferLock->WaitForRange(this->handle->offset, length);
 	GLubyte* currentBuf = this->buf + this->handle->offset;
 	memcpy(currentBuf + offset, data, length);
+	CoreGraphics::RenderDevice::EnqueueBufferLockIndex(this->bufferLock.downcast<CoreGraphics::BufferLock>(), this->bufferIndex);
 #else
 	//glInvalidateBufferSubData(this->ogl4Buffer, this->handle->offset, length);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->ogl4Buffer);

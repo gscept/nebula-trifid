@@ -38,7 +38,7 @@ OGL4MemoryIndexBufferLoader::OnLoadRequested()
     }
 	
 	GLuint ogl4IndexBuffer = 0;
-	GLenum usage = OGL4Types::AsOGL4Usage(this->usage);
+	GLenum usage = OGL4Types::AsOGL4Usage(this->usage, this->access);
 	GLenum sync = OGL4Types::AsOGL4Syncing(this->syncing);
 	glGenBuffers(1, &ogl4IndexBuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ogl4IndexBuffer);

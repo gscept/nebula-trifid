@@ -38,7 +38,7 @@ public:
     void Cleanup();
 
     /// apply surface based on pass
-    const Ptr<CoreGraphics::ShaderInstance>& GetShaderInstance(const Frame::BatchGroup::Code& pass);
+	const Ptr<CoreGraphics::ShaderInstance>& GetShaderInstance(const IndexT passIndex);
 
     /// set pre-defined value of a parameter, submit the true as the last argument if the material should change immediately
     void SetValue(const Util::StringAtom& param, const Util::Variant& value);
@@ -56,7 +56,7 @@ public:
     const Materials::SurfaceName::Code& GetCode() const;
 
     /// apply the surface variables, but only for a specific shader instance
-    void Apply(const Frame::BatchGroup::Code& group);
+	void Apply(const IndexT passIndex);
 
 protected:
     friend class Surface;
@@ -67,7 +67,7 @@ protected:
     Util::Array<Ptr<SurfaceConstant>> constants;
     Util::Dictionary<Util::StringAtom, Ptr<SurfaceConstant>> constantsByName;
     Util::Array<Ptr<CoreGraphics::ShaderInstance>> shaderInstances;
-    Util::Dictionary<Frame::BatchGroup::Code, Ptr<CoreGraphics::ShaderInstance>> shaderInstancesByCode;
+	Util::Dictionary<Ptr<CoreGraphics::Shader>, Ptr<CoreGraphics::ShaderInstance>> shaderInstancesByShader;
 
     struct DeferredTextureBinding
     {

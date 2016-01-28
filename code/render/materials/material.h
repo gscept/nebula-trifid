@@ -59,6 +59,19 @@ public:
 		bool system;
 	};
 
+	struct MaterialPass
+	{
+		Frame::BatchGroup::Code code;
+		Ptr<CoreGraphics::Shader> shader;
+		CoreGraphics::ShaderFeature::Mask featureMask;
+		IndexT index;
+
+		const bool operator==(const MaterialPass& rhs) const
+		{
+			return this->code == rhs.code && this->shader == rhs.shader && this->featureMask == rhs.featureMask && this->index == rhs.index;
+		}
+	};
+
 	/// constructor-
 	Material();
 	/// destructor
@@ -92,19 +105,14 @@ public:
 	/// discards the material and all its instances
 	void Discard();
 
-	/// get the amount of shaders
-	SizeT GetNumPasses();
-
 	/// add a shader to the material
 	void AddPass(const Frame::BatchGroup::Code& code, const Ptr<CoreGraphics::Shader>& shader, const CoreGraphics::ShaderFeature::Mask& mask);
-	/// get shader by pass type
-    const Ptr<CoreGraphics::Shader>& GetShaderByBatchGroup(const Frame::BatchGroup::Code& code) const;
-    /// get shader instance by index (can be iterated the same way as the other using the number of passes)
-    const Ptr<CoreGraphics::Shader>& GetShaderByIndex(const IndexT index) const;
-	/// get features by pass type
-    const CoreGraphics::ShaderFeature::Mask& GetFeatureMask(const Frame::BatchGroup::Code& type) const;
-	/// get pass type by index
-    const Frame::BatchGroup::Code& GetBatchGroup(const IndexT index) const;
+	/// get pass by index
+	const MaterialPass& GetPassByIndex(const IndexT index) const;
+	/// get pass list by code
+	const Util::Array<MaterialPass>& GetPassesByCode(const Frame::BatchGroup::Code& code);
+	/// get the amount of passes used by this material
+	SizeT GetNumPasses();
 
     /// add a surface to this material
     void AddSurface(const Ptr<Surface>& sur);
@@ -134,9 +142,8 @@ private:
 	MaterialFeature::Mask type;
     Materials::MaterialType::Code code;
 	Util::Dictionary<Util::StringAtom, MaterialParameter> parametersByName;
-	Util::Dictionary<Frame::BatchGroup::Code, Ptr<CoreGraphics::Shader>> shadersByBatchGroup;
-    Util::Array<Ptr<CoreGraphics::Shader>> shaders;
-	Util::Dictionary<Frame::BatchGroup::Code, CoreGraphics::ShaderFeature::Mask> featuresByBatchGroup;
+	Util::Array<MaterialPass> passesByIndex;
+	Util::Dictionary<Frame::BatchGroup::Code, Util::Array<MaterialPass>> passesByBatchGroup;
     Util::Array<Ptr<Surface>> surfaces;
 }; 
 
@@ -161,8 +168,8 @@ Material::GetName() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-Material::SetDescription( const Util::String& description )
+inline void
+Material::SetDescription(const Util::String& description)
 {
 	this->description = description;
 }
@@ -179,8 +186,8 @@ Material::GetDescription() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-Material::SetFeatures( const Materials::MaterialFeature::Mask& type )
+inline void
+Material::SetFeatures(const Materials::MaterialFeature::Mask& type)
 {
 	this->type = type;
 }
@@ -197,8 +204,8 @@ Material::GetFeatures() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-Material::SetCode( const Materials::MaterialType::Code& code )
+inline void
+Material::SetCode(const Materials::MaterialType::Code& code)
 {
 	this->code = code;
 }
@@ -254,46 +261,7 @@ Material::GetParameters() const
 inline SizeT 
 Material::GetNumPasses()
 {
-	return this->shadersByBatchGroup.Size();
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline const CoreGraphics::ShaderFeature::Mask&
-Material::GetFeatureMask(const Frame::BatchGroup::Code& code) const
-{
-	n_assert(this->featuresByBatchGroup.Contains(code));
-	return this->featuresByBatchGroup[code];
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline const Ptr<CoreGraphics::Shader>& 
-Material::GetShaderByBatchGroup(const Frame::BatchGroup::Code& code) const
-{
-	n_assert(this->shadersByBatchGroup.Contains(code));
-	return this->shadersByBatchGroup[code];
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline const Ptr<CoreGraphics::Shader>&
-Material::GetShaderByIndex(const IndexT index) const
-{
-    return this->shaders[index];
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline const Frame::BatchGroup::Code&
-Material::GetBatchGroup(const IndexT index) const
-{
-	n_assert(this->shadersByBatchGroup.Size() > index);
-	return this->shadersByBatchGroup.KeyAtIndex(index);
+	return this->passesByIndex.Size();
 }
 
 } // namespace Materials

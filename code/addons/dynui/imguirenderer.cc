@@ -197,9 +197,6 @@ ImguiRenderer::Setup()
 	n_assert(this->ibo->IsLoaded());
 	this->ibo->SetLoader(NULL);
 
-	// bind to vertex buffer
-	this->vbo->GetVertexLayout()->SetIndexBuffer(this->ibo);
-
 	// map buffer
 	this->vertexPtr = (byte*)this->vbo->Map(ResourceBase::MapWrite);
 	this->indexPtr = (byte*)this->ibo->Map(ResourceBase::MapWrite);

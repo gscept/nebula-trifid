@@ -106,7 +106,7 @@ CharacterSkinNode::ApplySharedState(IndexT frameIndex)
 {
     n_assert(this->managedMesh.isvalid());
     
-    // apply render states, skip ShapeNode class
+    // apply render states, skip ShapeNode class, becaues the skinned character rendererer manages this itself
     StateNode::ApplySharedState(frameIndex);
 
     // set the Skinned shader feature bit so that the shader

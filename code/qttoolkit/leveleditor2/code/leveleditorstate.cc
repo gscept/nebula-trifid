@@ -49,6 +49,8 @@ LevelEditorState::LevelEditorState() :
 	defaultCam(0),
 	activeTransformAction(0),
 	showPerformance(false),
+	lastFrameTime(1),
+	lastUpdateFpsTime(1),
 	performanceFrame(0)
 {	
 	this->activateSelectionZoom = Input::Key::F;
@@ -113,7 +115,13 @@ LevelEditorState::OnFrame()
 			}
 
 			// produce UI
-			ImGui::Text("FPS: %.2f", 1 / FrameSync::FrameSyncTimer::Instance()->GetFrameTime());
+			Timing::Time frame = FrameSync::FrameSyncTimer::Instance()->GetTime();
+			if (frame - this->lastUpdateFpsTime > 1.5)
+			{
+				this->lastFrameTime = FrameSync::FrameSyncTimer::Instance()->GetFrameTime();
+				this->lastUpdateFpsTime = frame;
+			}
+			ImGui::Text("FPS: %.2f", 1 / this->lastFrameTime);
 			ImGui::Text("Number of draw calls: %d", drawcallHistory.IsEmpty() ? 0 : drawcallHistory.Back());
 			if (!drawcallHistory.IsEmpty())	ImGui::PlotLines("Draw calls", drawcallHistoryBuffer, Math::n_min(drawcallHistory.Size(), 90), 0, NULL, 0, 3000, ImVec2(200, 100));
 

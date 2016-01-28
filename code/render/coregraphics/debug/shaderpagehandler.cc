@@ -300,7 +300,7 @@ ShaderPageHandler::HasShaderInstance(const Ptr<Models::ModelNodeInstance>& node,
 		 IndexT i;
 		 for (i = 0; i < mat->GetNumPasses(); i++)
 		 {
-            shaderFound = mat->GetShaderByIndex(i)->GetResourceId() == resId;
+            shaderFound = mat->GetPassByIndex(i).shader->GetResourceId() == resId;
 		    break;
 		 }
     }

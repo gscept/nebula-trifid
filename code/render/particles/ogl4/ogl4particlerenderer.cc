@@ -142,9 +142,6 @@ OGL4ParticleRenderer::Setup()
 	this->vertexLayout->SetStreamBuffer(0, this->cornerVertexBuffer->GetOGL4VertexBuffer());
 	this->vertexLayout->SetStreamBuffer(1, this->particleVertexBuffer->GetOGL4VertexBuffer());
 	this->vertexLayout->Setup(components);
-
-    // must set index buffer after vao setup
-    this->vertexLayout->SetIndexBuffer(this->cornerIndexBuffer);
 }
 
 //------------------------------------------------------------------------------

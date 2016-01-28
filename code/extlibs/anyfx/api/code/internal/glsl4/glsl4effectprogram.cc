@@ -26,6 +26,9 @@ unsigned* GLSL4GlobalProgramState::gsSubroutines = 0;
 unsigned* GLSL4GlobalProgramState::psSubroutines = 0;
 unsigned* GLSL4GlobalProgramState::csSubroutines = 0;
 
+struct GLSL4EffectProgram::varblockBindings GLSL4EffectProgram::globalVarblockBindings;
+struct GLSL4EffectProgram::varbufferBindings GLSL4EffectProgram::globalVarbufferBindings;
+
 //------------------------------------------------------------------------------
 /**
 */
@@ -36,12 +39,6 @@ GLSL4EffectProgram::GLSL4EffectProgram() :
 	varbufferBindsCount(0),
 	textureBindsCount(0),
 	imageBindsCount(0),
-	varblockRangeBindBuffers(NULL),
-	varblockRangeBindOffsets(NULL),
-	varblockRangeBindSizes(NULL),
-	varbufferRangeBindBuffers(NULL),
-	varbufferRangeBindOffsets(NULL),
-	varbufferRangeBindSizes(NULL),
 	textureBinds(NULL),
 	imageBinds(NULL)
 #endif
@@ -59,21 +56,6 @@ GLSL4EffectProgram::~GLSL4EffectProgram()
 	this->glsl4Varbuffers.clear();
 
 #if GL4_MULTIBIND
-	// delete varblock binds
-	if (this->varblockBindsCount > 0)
-	{
-		delete[] this->varblockRangeBindBuffers;
-		delete[] this->varblockRangeBindOffsets;
-		delete[] this->varblockRangeBindSizes;
-	}
-
-	// delete varbuffer binds		    
-	if (this->varbufferBindsCount > 0)
-	{
-		delete[] this->varbufferRangeBindBuffers;
-		delete[] this->varbufferRangeBindOffsets;
-		delete[] this->varbufferRangeBindSizes;
-	}	
 
 	// delete texture binds			    
 	if (this->textureBindsCount) delete[] this->textureBinds;
@@ -317,20 +299,26 @@ GLSL4EffectProgram::Commit()
 		this->glsl4Varblocks[i]->Commit();
 	}
 
-	if (this->textureBindsCount > 0)
+	if (this->textureBindsCount > 0 && this->texturesDirty)
 	{
 		glBindTextures(0, this->textureBindsCount, this->textureBinds);
 		this->texturesDirty = false;
 	}
-	if (this->imageBindsCount > 0)
+	if (this->imageBindsCount > 0 && this->imagesDirty)
 	{
 		glBindImageTextures(0, this->imageBindsCount, this->imageBinds);
 		this->imagesDirty = false;
 	}
-	if (this->varbufferBindsCount > 0)
-		glBindBuffersRange(GL_SHADER_STORAGE_BUFFER, 0, this->varbufferBindsCount, this->varbufferRangeBindBuffers, this->varbufferRangeBindOffsets, this->varbufferRangeBindSizes);
-	if (this->varblockBindsCount > 0)
-		glBindBuffersRange(GL_UNIFORM_BUFFER, 0, this->varblockBindsCount, this->varblockRangeBindBuffers, this->varblockRangeBindOffsets, this->varblockRangeBindSizes);
+	if (this->varbufferBindsCount > 0 && globalVarbufferBindings.dirty)
+	{
+		glBindBuffersRange(GL_SHADER_STORAGE_BUFFER, 0, this->varbufferBindsCount, globalVarbufferBindings.buffer, globalVarbufferBindings.offset, globalVarbufferBindings.length);
+		globalVarbufferBindings.dirty = false;
+	}
+	if (this->varblockBindsCount > 0 && globalVarblockBindings.dirty)
+	{
+		glBindBuffersRange(GL_UNIFORM_BUFFER, 0, this->varblockBindsCount, globalVarblockBindings.buffer, globalVarblockBindings.offset, globalVarblockBindings.length);
+		globalVarblockBindings.dirty = false;
+	}
 #else
 	InternalEffectProgram::Commit();
 #endif
@@ -409,26 +397,6 @@ void
 GLSL4EffectProgram::LoadingDone()
 {
 #if GL4_MULTIBIND
-	if (this->varblockBindsCount > 0)
-	{
-		this->varblockRangeBindBuffers = new GLuint[this->varblockBindsCount];
-		this->varblockRangeBindOffsets = new GLint[this->varblockBindsCount];
-		this->varblockRangeBindSizes = new GLint[this->varblockBindsCount];
-		memset(this->varblockRangeBindBuffers, 0, this->varblockBindsCount * sizeof(GLuint));
-		memset(this->varblockRangeBindOffsets, 0, this->varblockBindsCount * sizeof(GLint));
-		memset(this->varblockRangeBindSizes, 1, this->varblockBindsCount * sizeof(GLint));
-	}	
-
-	if (this->varbufferBindsCount > 0)
-	{
-		this->varbufferRangeBindBuffers = new GLuint[this->varbufferBindsCount];
-		this->varbufferRangeBindOffsets = new GLint[this->varbufferBindsCount];
-		this->varbufferRangeBindSizes = new GLint[this->varbufferBindsCount];
-		memset(this->varbufferRangeBindBuffers, 0, this->varbufferBindsCount * sizeof(GLuint));
-		memset(this->varbufferRangeBindOffsets, 0, this->varbufferBindsCount * sizeof(GLint));
-		memset(this->varbufferRangeBindSizes, 1, this->varbufferBindsCount * sizeof(GLint));
-	}
-	
 	if (this->textureBindsCount > 0)
 	{
 		this->textureBinds = new GLuint[this->textureBindsCount];

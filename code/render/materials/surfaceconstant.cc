@@ -7,6 +7,7 @@
 #include "coregraphics/shaderinstance.h"
 #include "resources/resourcemanager.h"
 
+
 using namespace Util;
 namespace Materials
 {
@@ -42,21 +43,29 @@ SurfaceConstant::~SurfaceConstant()
 	If the value is a texture or buffer, the shader variable instance will apply it whenever we run the SurfaceConstant::Apply.
 */
 void
-SurfaceConstant::Setup(const StringAtom& name, const Array<Ptr<CoreGraphics::ShaderInstance>>& shaders, const Array<Frame::BatchGroup::Code>& batchCodes)
+SurfaceConstant::Setup(const StringAtom& name, const Util::Array<Material::MaterialPass>& passes, const Util::Array<Ptr<CoreGraphics::ShaderInstance>>& shaders)
 {
     this->name = name;
 
-    IndexT shaderIndex;
-    for (shaderIndex = 0; shaderIndex < shaders.Size(); shaderIndex++)
+	IndexT passIndex;
+	for (passIndex = 0; passIndex < passes.Size(); passIndex++)
     {
         // get shader and variable (the variable must exist in the shader!)
-        const Ptr<CoreGraphics::ShaderInstance>& shader = shaders[shaderIndex];
-        const Ptr<CoreGraphics::ShaderVariableInstance>& var = shader->CreateVariableInstance(this->name);
-        const Frame::BatchGroup::Code& code = batchCodes[shaderIndex];
-        this->variablesByShader.Add(code, var);
+		const Ptr<CoreGraphics::ShaderInstance>& shader = shaders[passes[passIndex].index];
+		bool activeVar = shader->GetOriginalShader()->HasVariableByName(name);
 
-        // set value
-        var->SetValue(this->value);
+		// setup variable
+		Ptr<CoreGraphics::ShaderVariableInstance> var = 0;
+
+		// if the variable is active, create an instance and bind its value, otherwise use a null pointer
+		if (activeVar)
+		{
+			var = shader->CreateVariableInstance(this->name);
+			var->SetValue(this->value);
+		}
+
+		// setup constant, first we check if the shader even has this variable, it will be inactive otherwise
+		this->bindingsByIndex.Append(ConstantBinding{ activeVar, var, shader });
     }
 }
 
@@ -66,19 +75,31 @@ SurfaceConstant::Setup(const StringAtom& name, const Array<Ptr<CoreGraphics::Sha
 void
 SurfaceConstant::Discard()
 {
-    this->variablesByShader.Clear();
+	IndexT i;
+	for (i = 0; i < this->bindingsByIndex.Size(); i++)
+	{
+		if (this->bindingsByIndex[i].active)
+		{
+			this->bindingsByIndex[i].shd->DiscardVariableInstance(this->bindingsByIndex[i].var);
+		}
+	}
+	this->bindingsByIndex.Clear();
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-SurfaceConstant::Apply(const Frame::BatchGroup::Code& group)
+SurfaceConstant::Apply(const IndexT passIndex)
 {
     // skip applying if this constant has no binding to said variable
-	if (!this->variablesByShader.Contains(group)) return;
-    const Ptr<CoreGraphics::ShaderVariableInstance>& var = this->variablesByShader[group];
-    var->Apply();
+	//if (!this->variablesByShader.Contains(group)) return;
+	const ConstantBinding& binding = this->bindingsByIndex[passIndex];
+	if (binding.active)
+	{
+		const Ptr<CoreGraphics::ShaderVariableInstance>& var = binding.var;
+		var->Apply();
+	}    
 }
 
 //------------------------------------------------------------------------------
@@ -89,9 +110,10 @@ SurfaceConstant::SetValue(const Util::Variant& value)
 {
 	this->value = value;
 	IndexT i;
-	for (i = 0; i < this->variablesByShader.Size(); i++)
+	for (i = 0; i < this->bindingsByIndex.Size(); i++)
 	{
-		this->variablesByShader.ValueAtIndex(i)->SetValue(value);
+		const ConstantBinding& binding = this->bindingsByIndex[i];
+		if (binding.active) binding.var->SetValue(value);
 	}
 }
 
@@ -103,9 +125,10 @@ SurfaceConstant::SetTexture(const Ptr<CoreGraphics::Texture>& tex)
 {
 	this->value.SetObject(tex);
 	IndexT i;
-	for (i = 0; i < this->variablesByShader.Size(); i++)
+	for (i = 0; i < this->bindingsByIndex.Size(); i++)
 	{
-		this->variablesByShader.ValueAtIndex(i)->SetTexture(tex);
+		const ConstantBinding& binding = this->bindingsByIndex[i];
+		if (binding.active) binding.var->SetTexture(tex);
 	}
 }
 

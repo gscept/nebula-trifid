@@ -90,6 +90,7 @@ ParticleSystemNodeInstance::Setup(const Ptr<ModelInstance>& inst, const Ptr<Mode
 	// setup and start particle system
     this->particleSystemInstance->Setup(emitterMesh, particleSystemNode->GetPrimitiveGroupIndex(), particleSystemNode->GetEmitterAttrs());
 	this->particleSystemInstance->Start();
+	
 
 #if SHADER_MODEL_5
 	ShaderServer* shdServer = ShaderServer::Instance();
@@ -203,7 +204,6 @@ ParticleSystemNodeInstance::OnRenderBefore(IndexT frameIndex, Timing::Time time)
 {
     // call parent class
     StateNodeInstance::OnRenderBefore(frameIndex, time);    
-
     this->particleSystemInstance->OnRenderBefore();
 
     // update particle system with new model transform
@@ -269,7 +269,7 @@ ParticleSystemNodeInstance::OnRenderBefore(IndexT frameIndex, Timing::Time time)
 /**
 */
 void
-ParticleSystemNodeInstance::ApplyState(IndexT frameIndex, const Frame::BatchGroup::Code& group, const Ptr<CoreGraphics::Shader>& shader)
+ParticleSystemNodeInstance::ApplyState(IndexT frameIndex, const IndexT& pass, const Ptr<CoreGraphics::Shader>& shader)
 {
 	const Ptr<Particles::ParticleSystemInstance>& inst = this->GetParticleSystemInstance();
 	const Ptr<Particles::ParticleSystem>& system = inst->GetParticleSystem();
@@ -317,10 +317,8 @@ ParticleSystemNodeInstance::ApplyState(IndexT frameIndex, const Frame::BatchGrou
 	this->animsPerSecVar->SetInt(this->GetParticleSystemInstance()->GetParticleSystem()->GetEmitterAttrs().GetFloat(EmitterAttrs::PhasesPerSecond));
 #endif
 
-	
-
 	// call base class (applies time)
-    StateNodeInstance::ApplyState(frameIndex, group, shader);
+    StateNodeInstance::ApplyState(frameIndex, pass, shader);
 }
 
 //------------------------------------------------------------------------------
