@@ -16,6 +16,7 @@ __ImplementClass(Instancing::InstanceRendererBase, 'INRB', Core::RefCounted);
 /**
 */
 InstanceRendererBase::InstanceRendererBase() :
+	isOpen(false),
 	inBeginUpdate(false),
 	shader(0)
 {
@@ -32,6 +33,26 @@ InstanceRendererBase::~InstanceRendererBase()
 	this->modelViewTransforms.Clear();
 	this->modelViewProjectionTransforms.Clear();
     this->objectIds.Clear();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+InstanceRendererBase::Setup()
+{
+	n_assert(!this->isOpen);
+	this->isOpen = true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+InstanceRendererBase::Close()
+{
+	n_assert(this->isOpen);
+	this->isOpen = false;
 }
 
 //------------------------------------------------------------------------------

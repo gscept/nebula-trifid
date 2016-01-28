@@ -20,14 +20,22 @@ public:
 	/// destructor
 	virtual ~OGL4InstanceRenderer();
 
+	/// setup renderer
+	void Setup();
+	/// close rendered
+	void Close();
+
 	/// render
 	void Render(const SizeT multiplier);
 
 private:
-	CoreGraphics::ShaderVariable::Name modelArraySemantic;
-    CoreGraphics::ShaderVariable::Name modelViewArraySemantic;
-    CoreGraphics::ShaderVariable::Name modelViewProjectionArraySemantic;
-    CoreGraphics::ShaderVariable::Name objectIdArraySemantic;
+	Ptr<CoreGraphics::ConstantBuffer> instancingBuffer;
+	Ptr<CoreGraphics::ShaderVariable> instancingBlockVar;
+
+	Ptr<CoreGraphics::ShaderVariable> modelArrayVar;
+	Ptr<CoreGraphics::ShaderVariable> modelViewArrayVar;
+	Ptr<CoreGraphics::ShaderVariable> modelViewProjectionArrayVar;
+	Ptr<CoreGraphics::ShaderVariable> idArrayVar;
 
 	static const int MaxInstancesPerBatch = 256;
 }; 

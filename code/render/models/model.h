@@ -97,7 +97,7 @@ private:
     Math::bbox boundingBox;
     Util::Array<Ptr<ModelNode> > nodes;
     Util::Array<Ptr<ModelInstance> > instances;
-    VisResolveContainer<ModelNode> visibleModelNodes;
+	VisResolveContainer<ModelNode, Materials::SurfaceName::Code, Materials::SurfaceName::MaxNumSurfaceNames> visibleModelNodes;
     bool inLoadResources;
     bool resourcesLoaded;
 };

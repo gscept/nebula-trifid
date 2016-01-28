@@ -15,7 +15,7 @@
 //------------------------------------------------------------------------------
 namespace Models
 {
-template<class TYPE>
+template<class TYPE, class IDENTIFIER, int ID_MAX_VALUE>
 class VisResolveContainer
 {
 public:
@@ -24,15 +24,15 @@ public:
     /// reset content
     void Reset();
 	/// set the resolved flag for a given ModelNodeMaterial
-    void SetResolved(const Materials::SurfaceName::Code& code, bool b);
+	void SetResolved(const IDENTIFIER& code, bool b);
 	/// return true if the resolved flag has been set for ModelNodeMaterial
-    bool IsResolved(const Materials::SurfaceName::Code& code) const;
+	bool IsResolved(const IDENTIFIER& code) const;
     /// add a visible element by ModelNodeType
-    void Add(IndexT frameIndex, const Materials::SurfaceName::Code& code, const Ptr<TYPE>& e);
+	void Add(IndexT frameIndex, const IDENTIFIER& code, const Ptr<TYPE>& e);
     /// get all visible elements of given ModelNodeType
-    const Util::Array<Ptr<TYPE> >& Get(const Materials::SurfaceName::Code& code) const;
+	const Util::Array<Ptr<TYPE> >& Get(const IDENTIFIER& code) const;
 
-    static const IndexT numEntries = Materials::SurfaceName::MaxNumSurfaceNames;
+	static const IndexT numEntries = ID_MAX_VALUE;
 
 private:
     struct Entry
@@ -50,8 +50,8 @@ private:
 //------------------------------------------------------------------------------
 /**
 */
-template<class TYPE>
-VisResolveContainer<TYPE>::VisResolveContainer() :
+template<class TYPE, class IDENTIFIER, int ID_MAX_VALUE>
+VisResolveContainer<TYPE, IDENTIFIER, ID_MAX_VALUE>::VisResolveContainer() :
 	entries(numEntries),
     frameIndex(InvalidIndex)
 {
@@ -61,9 +61,9 @@ VisResolveContainer<TYPE>::VisResolveContainer() :
 //------------------------------------------------------------------------------
 /**
 */
-template<class TYPE> 
+template<class TYPE, class IDENTIFIER, int ID_MAX_VALUE>
 inline void
-VisResolveContainer<TYPE>::SetResolved(const Materials::SurfaceName::Code& code, bool b)
+VisResolveContainer<TYPE, IDENTIFIER, ID_MAX_VALUE>::SetResolved(const IDENTIFIER& code, bool b)
 {
     this->entries[code].resolved = b;
 }
@@ -71,9 +71,9 @@ VisResolveContainer<TYPE>::SetResolved(const Materials::SurfaceName::Code& code,
 //------------------------------------------------------------------------------
 /**
 */
-template<class TYPE> 
+template<class TYPE, class IDENTIFIER, int ID_MAX_VALUE>
 inline bool
-VisResolveContainer<TYPE>::IsResolved(const Materials::SurfaceName::Code& code) const
+VisResolveContainer<TYPE, IDENTIFIER, ID_MAX_VALUE>::IsResolved(const IDENTIFIER& code) const
 {
     return this->entries[code].resolved;
 }
@@ -81,9 +81,9 @@ VisResolveContainer<TYPE>::IsResolved(const Materials::SurfaceName::Code& code) 
 //------------------------------------------------------------------------------
 /**
 */
-template<class TYPE> 
+template<class TYPE, class IDENTIFIER, int ID_MAX_VALUE>
 inline void
-VisResolveContainer<TYPE>::Reset()
+VisResolveContainer<TYPE, IDENTIFIER, ID_MAX_VALUE>::Reset()
 {
     IndexT i;
     for (i = 0; i < numEntries; i++)
@@ -96,9 +96,9 @@ VisResolveContainer<TYPE>::Reset()
 //------------------------------------------------------------------------------
 /**
 */
-template<class TYPE> 
+template<class TYPE, class IDENTIFIER, int ID_MAX_VALUE>
 inline void
-VisResolveContainer<TYPE>::Add(IndexT curFrameIndex, const Materials::SurfaceName::Code& code, const Ptr<TYPE>& e)
+VisResolveContainer<TYPE, IDENTIFIER, ID_MAX_VALUE>::Add(IndexT curFrameIndex, const IDENTIFIER& code, const Ptr<TYPE>& e)
 {
     if (curFrameIndex != this->frameIndex)
     {
@@ -111,9 +111,9 @@ VisResolveContainer<TYPE>::Add(IndexT curFrameIndex, const Materials::SurfaceNam
 //------------------------------------------------------------------------------
 /**
 */
-template<class TYPE> 
+template<class TYPE, class IDENTIFIER, int ID_MAX_VALUE>
 inline const Util::Array<Ptr<TYPE> >&
-VisResolveContainer<TYPE>::Get(const Materials::SurfaceName::Code& code) const
+VisResolveContainer<TYPE, IDENTIFIER, ID_MAX_VALUE>::Get(const IDENTIFIER& code) const
 {
     return this->entries[code].nodes;
 }

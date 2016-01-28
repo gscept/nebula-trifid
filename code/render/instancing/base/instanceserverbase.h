@@ -11,12 +11,12 @@
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
 #include "core/singleton.h"
-#include "instancerendererbase.h"
 #include "models/modelnodeinstance.h"
 #include "models/modelnode.h"
 
 namespace Instancing
 {
+class InstanceRenderer;
 class InstanceServerBase : public Core::RefCounted
 {
 	__DeclareSingleton(InstanceServerBase);	
@@ -46,7 +46,7 @@ public:
 protected:
     IndexT pass;
     Ptr<CoreGraphics::Shader> shader;
-	Ptr<InstanceRendererBase> renderer;
+	Ptr<InstanceRenderer> renderer;
 	Ptr<Models::ModelNode> modelNode;
     Util::Dictionary<IndexT, Util::Array<Ptr<Models::ModelNodeInstance>>> instancesByCode;
 	bool isBeginInstancing;

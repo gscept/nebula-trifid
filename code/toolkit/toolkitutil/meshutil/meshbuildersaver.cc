@@ -294,7 +294,7 @@ MeshBuilderSaver::WriteVertices(const Ptr<Stream>& stream, MeshBuilder& meshBuil
 			unsigned int yBits = (unsigned int)(v.y() * (255.0f));
 			unsigned int zBits = (unsigned int)(v.z() * (255.0f));
 			unsigned int wBits = (unsigned int)(v.w() * (255.0f));
-			int xyzwBits = ((xBits << 24) & 0xFF000000) | ((yBits << 16) & 0x00FF0000) | ((zBits << 8) & 0x0000FF00) | (wBits & 0x000000FF);
+			int xyzwBits = ((wBits << 24) & 0xFF000000) | ((zBits << 16) & 0x00FF0000) | ((yBits << 8) & 0x0000FF00) | (xBits & 0x000000FF);
 			*(int*)floatPtr++ = xyzwBits;	
 		}
 		if (curVertex.HasComponent(MeshBuilderVertex::TangentBit))

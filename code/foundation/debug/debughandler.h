@@ -14,7 +14,7 @@
 #include "debug/debugserver.h"
 #include "http/httpserverproxy.h"
 
-//---------
+//------------------------------------------------------------------------------
 namespace Debug
 {
 class DebugHandler : public Interface::InterfaceHandlerBase

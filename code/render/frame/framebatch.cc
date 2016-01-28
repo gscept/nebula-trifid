@@ -159,9 +159,6 @@ FrameBatch::RenderBatch(IndexT frameIndex)
 	}
     else if (matServer->HasMaterialsByBatchGroup(this->batchGroup))
     {
-        // get current frame index from graphics server
-        IndexT frameIndex = FrameSyncTimer::Instance()->GetFrameIndex();
-
 		// get materials matching the batch type
         const Util::Array<Ptr<Material>>& materials = matServer->GetMaterialsByBatchGroup(this->batchGroup);
 
@@ -184,7 +181,8 @@ FrameBatch::RenderBatch(IndexT frameIndex)
 					const Material::MaterialPass& pass = passes[passIndex];
 					const Ptr<Shader>& shader = pass.shader;
 
-					// get models based on material
+					// get models based on material, if we can't see any models, just ignore this surface...
+					// hmm, would love to do this earlier so we can just skip unused materials
 					const Array<Ptr<Model>>& models = visResolver->GetVisibleModels(surface->GetSurfaceCode());
 					if (models.IsEmpty()) continue;
 

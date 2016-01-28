@@ -29,6 +29,7 @@
 #else
 #define _declare_counter(counter)
 #define _setup_counter(counter)
+#define _setup_grouped_counter(counter, group)
 #define _discard_counter(counter)
 #define _begin_counter(counter)
 #define _begin_counter_noreset()
