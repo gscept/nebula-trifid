@@ -53,6 +53,8 @@ CreateAction::Perform()
 	{
 		n_error("CreateAction::Perform: Cannot handle entity type of enum %d", (int)this->entityType);
 	}
+	Ptr<Layers::LayerHandler> handler = LevelEditor2App::Instance()->GetWindow()->GetLayerHandler();	
+	handler->HandleEntityCreated(LevelEditor2EntityManager::Instance()->GetEntityById(this->entityId));
 }
 
 //------------------------------------------------------------------------------
