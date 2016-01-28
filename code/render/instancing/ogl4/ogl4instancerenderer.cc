@@ -6,6 +6,7 @@
 #include "ogl4instancerenderer.h"
 #include "coregraphics/ogl4/ogl4renderdevice.h"
 #include "coregraphics/shadersemantics.h"
+#include "coregraphics/shaderserver.h"
 
 using namespace Math;
 using namespace OpenGL4;
@@ -17,11 +18,7 @@ __ImplementClass(Instancing::OGL4InstanceRenderer, 'O4IR', Instancing::InstanceR
 //------------------------------------------------------------------------------
 /**
 */
-OGL4InstanceRenderer::OGL4InstanceRenderer() :
-	modelArraySemantic(NEBULA3_SEMANTIC_MODELARRAY),
-	modelViewArraySemantic(NEBULA3_SEMANTIC_MODELVIEWARRAY),
-	modelViewProjectionArraySemantic(NEBULA3_SEMANTIC_MODELVIEWPROJECTIONARRAY),
-    objectIdArraySemantic(NEBULA3_SEMANTIC_OBJECTIDARRAY)
+OGL4InstanceRenderer::OGL4InstanceRenderer()
 {
 	// empty
 }
@@ -37,6 +34,43 @@ OGL4InstanceRenderer::~OGL4InstanceRenderer()
 //------------------------------------------------------------------------------
 /**
 */
+void
+OGL4InstanceRenderer::Setup()
+{
+	InstanceRendererBase::Setup();
+
+	Ptr<CoreGraphics::Shader> sharedShader = CoreGraphics::ShaderServer::Instance()->GetSharedShader();
+	this->instancingBuffer = ConstantBuffer::Create();
+	this->instancingBuffer->SetupFromBlockInShader(sharedShader, "InstanceBlock", 16);
+	this->instancingBlockVar = sharedShader->GetVariableByName("InstanceBlock");
+	this->instancingBlockVar->SetBufferHandle(this->instancingBuffer->GetHandle());
+
+	this->modelArrayVar = this->instancingBuffer->GetVariableByName("ModelArray");
+	//this->modelViewArrayVar = this->instancingBuffer->GetVariableByName("ModelViewArray");
+	//this->modelViewProjectionArrayVar = this->instancingBuffer->GetVariableByName("ModelViewProjectionArray");
+	this->idArrayVar = this->instancingBuffer->GetVariableByName("IdArray");
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+OGL4InstanceRenderer::Close()
+{
+	this->modelArrayVar = 0;
+	//this->modelViewArrayVar = 0;
+	//this->modelViewProjectionArrayVar = 0;
+	this->idArrayVar = 0;
+	this->instancingBlockVar = 0;
+	this->instancingBuffer->Discard();
+	this->instancingBuffer = 0;
+
+	InstanceRendererBase::Close();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 OGL4InstanceRenderer::Render(const SizeT multiplier)
 {
@@ -44,33 +78,6 @@ OGL4InstanceRenderer::Render(const SizeT multiplier)
 
 	// get render device
 	Ptr<OGL4RenderDevice> renderDev = OGL4RenderDevice::Instance();
-
-	// create shader variables
-	Ptr<ShaderVariable> modelArrayVar = 0;
-	Ptr<ShaderVariable> modelViewArrayVar = 0;
-	Ptr<ShaderVariable> modelViewProjectionArrayVar = 0;
-    Ptr<ShaderVariable> objectIdArrayVar;
-
-	// get variables
-	if (this->shader->HasVariableByName(this->modelArraySemantic))
-	{
-		modelArrayVar = this->shader->GetVariableByName(this->modelArraySemantic);
-	}
-
-    if (this->shader->HasVariableByName(this->modelViewArraySemantic))
-	{
-        modelViewArrayVar = this->shader->GetVariableByName(this->modelViewArraySemantic);
-	}
-
-    if (this->shader->HasVariableByName(this->modelViewProjectionArraySemantic))
-	{
-        modelViewProjectionArrayVar = this->shader->GetVariableByName(this->modelViewProjectionArraySemantic);
-	}
-
-    if (this->shader->HasVariableByName(this->objectIdArraySemantic))
-    {
-        objectIdArrayVar = this->shader->GetVariableByName(this->objectIdArraySemantic);
-    }
 
 	// get pointer to matrix array
 	matrix44* modelTrans = &this->modelTransforms[0];
@@ -86,24 +93,15 @@ OGL4InstanceRenderer::Render(const SizeT multiplier)
 		int numBatchInstances = n_min(instances, this->MaxInstancesPerBatch);
 
 		// apply variables
-		if (modelArrayVar.isvalid())
-		{
-			modelArrayVar->SetMatrixArray(modelTrans, numBatchInstances);
-		}
-		if (modelViewArrayVar.isvalid())
-		{
-			modelViewArrayVar->SetMatrixArray(modelViewTrans, numBatchInstances);
-		}
-		if (modelViewProjectionArrayVar.isvalid())
-		{
-			modelViewProjectionArrayVar->SetMatrixArray(modelViewProjTrans, numBatchInstances);
-		}		
-        if (objectIdArrayVar.isvalid())
-        {
-            objectIdArrayVar->SetIntArray(objectIdArray, numBatchInstances);
-        }
+		this->instancingBuffer->CycleBuffers();
+		this->instancingBuffer->BeginUpdateSync();
+		this->modelArrayVar->SetMatrixArray(modelTrans, numBatchInstances);
+		//this->modelViewArrayVar->SetMatrixArray(modelViewTrans, numBatchInstances);
+		//this->modelViewProjectionArrayVar->SetMatrixArray(modelViewProjTrans, numBatchInstances);
+		this->idArrayVar->SetIntArray(objectIdArray, numBatchInstances);
+		this->instancingBuffer->EndUpdateSync();
 
-		// commit shader
+		// commit shader, if it contains the instancing block (which requires shared.fxh) it will be updated here
 		this->shader->Commit();
 
 		// render!

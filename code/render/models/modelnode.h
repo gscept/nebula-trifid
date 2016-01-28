@@ -138,7 +138,7 @@ protected:
     Ptr<ModelNode> parent;
     Util::Array<Ptr<ModelNode>> children;
     Util::Dictionary<Util::StringAtom, IndexT> childIndexMap;
-    VisResolveContainer<ModelNodeInstance> visibleModelNodeInstances;
+    VisResolveContainer<ModelNodeInstance, Materials::SurfaceName::Code, Materials::SurfaceName::MaxNumSurfaceNames> visibleModelNodeInstances;
     Util::Dictionary<Util::StringAtom, Util::StringAtom> stringAttrs;
     Math::bbox boundingBox;
     bool inLoadResources;

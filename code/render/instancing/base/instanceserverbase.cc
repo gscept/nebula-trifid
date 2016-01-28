@@ -4,6 +4,7 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "instanceserverbase.h"
+#include "instancing/instancerenderer.h"
 #include "frame/batchgroup.h"
 
 using namespace Models;

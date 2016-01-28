@@ -550,7 +550,7 @@ SM50LightServer::RenderSpotLights()
 /**
 */
 bool
-SortProbes(const Ptr<LightProbeEntity>& lhs, const Ptr<LightProbeEntity>& rhs)
+SortProbesLayer(const Ptr<LightProbeEntity>& lhs, const Ptr<LightProbeEntity>& rhs)
 {
 	int lhsPrio = lhs->GetLayer();
 	int rhsPrio = rhs->GetLayer();
@@ -559,12 +559,29 @@ SortProbes(const Ptr<LightProbeEntity>& lhs, const Ptr<LightProbeEntity>& rhs)
 
 //------------------------------------------------------------------------------
 /**
+	Probes are sorted by:
+		Box					0
+		Sphere				1
+		Box + Parallax		2
+		Sphere + Parallax	3
+*/
+bool
+SortProbesType(const Ptr<LightProbeEntity>& lhs, const Ptr<LightProbeEntity>& rhs)
+{
+	int lhsPrio = lhs->GetShapeType() + lhs->GetParallaxCorrected() * 2;
+	int rhsPrio = rhs->GetShapeType() + rhs->GetParallaxCorrected() * 2;
+	return lhsPrio < rhsPrio;
+}
+
+//------------------------------------------------------------------------------
+/**
+	Hmm, this should be more efficient if we can render probes based on shaders
 */
 void
 SM50LightServer::RenderLightProbes()
 {
 	// sort light probes based on layers
-	//this->visibleLightProbes.SortWithFunc(SortProbes);
+	this->visibleLightProbes.SortWithFunc(SortProbesType);
 
 	// get transform and render device
 	TransformDevice* transformDevice = TransformDevice::Instance();
@@ -587,7 +604,8 @@ SM50LightServer::RenderLightProbes()
 		// get shape type as int
 		int shapeType = entity->GetShapeType();
 		 
-		// 0 is for box, 1 is for sphere
+		// 0 is for box, 1 is for sphere, but this would be better to use the same shape and render them based on shape instead...
+		// 
 		shader->SelectActiveVariation(this->lightProbeFeatureBits[shapeType + (entity->GetParallaxCorrected() ? 2 : 0)]);
 
 		// apply mesh at shape type

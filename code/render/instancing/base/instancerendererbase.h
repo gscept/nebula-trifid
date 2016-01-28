@@ -22,6 +22,11 @@ public:
 	/// destructor
 	virtual ~InstanceRendererBase();
 
+	/// setup renderer
+	void Setup();
+	/// close rendered
+	void Close();
+
 	/// sets the shader instance
     void SetShader(const Ptr<CoreGraphics::Shader>& shader);
 	/// gets the shader instance
@@ -49,6 +54,7 @@ protected:
 	Util::Array<Math::matrix44> modelViewProjectionTransforms;
     Util::Array<int> objectIds;
 	bool inBeginUpdate;
+	bool isOpen;
 }; 
 
 //------------------------------------------------------------------------------

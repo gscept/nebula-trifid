@@ -4,12 +4,12 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "ogl4instanceserver.h"
-#include "ogl4instancerenderer.h"
 #include "models/nodes/transformnodeinstance.h"
 #include "framesync/framesynctimer.h"
 #include "coregraphics/renderdevice.h"
 #include "coregraphics/shaderserver.h"
 #include "models/modelinstance.h"
+#include "instancing/instancerenderer.h"
 
 using namespace Util;
 using namespace OpenGL4;
@@ -44,7 +44,8 @@ OGL4InstanceServer::Open()
 {
 	if (InstanceServerBase::Open())
 	{
-		this->renderer = OGL4InstanceRenderer::Create();
+		this->renderer = InstanceRenderer::Create();
+		this->renderer->Setup();
 		this->instancingFeatureBits = ShaderServer::Instance()->FeatureStringToMask("Instanced");
 		return true;
 	}
@@ -57,6 +58,7 @@ OGL4InstanceServer::Open()
 void 
 OGL4InstanceServer::Close()
 {
+	this->renderer->Close();
 	this->renderer = 0;
 	InstanceServerBase::Close();
 }

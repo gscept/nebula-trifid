@@ -231,7 +231,7 @@ NFbxMeshNode::ExtractMesh()
 				else
 				{
 					// set vertex color to be white if no vertex colors can be extracted from FBX
-					vertexRef.SetComponent(MeshBuilderVertex::ColorIndex, float4(1));
+					vertexRef.SetComponent(MeshBuilderVertex::ColorUB4NIndex, float4(1));
 				}
 			}
 

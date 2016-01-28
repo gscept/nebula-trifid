@@ -62,7 +62,7 @@ private:
     /// add a visible model by node type
     void AddVisibleModel(IndexT frameIndex, const Materials::SurfaceName::Code& surfaceName, const Ptr<Model>& model);
 
-    VisResolveContainer<Model> visibleModels;
+    VisResolveContainer<Model, Materials::SurfaceName::Code, Materials::SurfaceName::MaxNumSurfaceNames> visibleModels;
     Math::matrix44 cameraTransform;
     IndexT resolveCount;
     bool isOpen;

@@ -33,6 +33,7 @@
 #else
 #define _declare_timer(timer)
 #define _setup_timer(timer)
+#define _setup_grouped_timer(timer, group)
 #define _discard_timer(timer)
 #define _start_timer(timer)
 #define _pause_timer(timer)

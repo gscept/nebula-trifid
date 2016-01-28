@@ -66,6 +66,15 @@ protected:
 		NumShadowFlags
 	};
 
+	enum ProbeFlag
+	{
+		Box,
+		Sphere,
+		BoxParallax,
+		SphereParallax,
+
+		NumProbeFlags
+	};
 
 	Util::Array<Ptr<Graphics::PointLightEntity> > pointLights[NumShadowFlags];
 	Util::Array<Ptr<Graphics::SpotLightEntity> > spotLights[NumShadowFlags];
