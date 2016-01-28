@@ -473,7 +473,8 @@ LevelEditor2EntityManager::CreateEntityFromAttrContainer(const Util::String & ca
 	// finally apply layer
 	newEnt->SetString(Attr::_Layers, layers);
 
-
+	Ptr<Layers::LayerHandler> handler = LevelEditor2App::Instance()->GetWindow()->GetLayerHandler();
+	handler->HandleEntityCreated(newEnt);
 }
 
 
@@ -500,9 +501,7 @@ LevelEditor2EntityManager::AddEntity(const Ptr<Game::Entity>& entity)
 	setKinematicMessage->SetEnabled(true);
 	entity->SendSync(setKinematicMessage.upcast<Messaging::Message>());	
 	// add it to the treeview	
-	this->AddTreeviewNode(entity);
-	Ptr<Layers::LayerHandler> handler = LevelEditor2App::Instance()->GetWindow()->GetLayerHandler();
-	handler->HandleEntityCreated(entity);
+	this->AddTreeviewNode(entity);	
 }
 
 //------------------------------------------------------------------------------
