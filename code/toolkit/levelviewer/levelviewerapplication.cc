@@ -156,12 +156,12 @@ LevelViewerGameStateApplication::SetupGameFeatures()
 
 	this->navigationFeature = Navigation::NavigationFeatureUnit::Create();
 
-    // attach features
-	this->gameServer->AttachGameFeature(this->baseGameFeature.upcast<Game::FeatureUnit>());
-    this->gameServer->AttachGameFeature(this->graphicsFeature.cast<Game::FeatureUnit>());	    
+    // attach features	
+	this->gameServer->AttachGameFeature(this->baseGameFeature.upcast<Game::FeatureUnit>());    
+	this->gameServer->AttachGameFeature(this->effectFeature.cast<Game::FeatureUnit>());
+	this->gameServer->AttachGameFeature(this->graphicsFeature.cast<Game::FeatureUnit>());
 	this->gameServer->AttachGameFeature(this->scriptingFeature.upcast<Game::FeatureUnit>());
-    this->gameServer->AttachGameFeature(this->physicsFeature.upcast<Game::FeatureUnit>());    
-    this->gameServer->AttachGameFeature(this->effectFeature.cast<Game::FeatureUnit>());
+    this->gameServer->AttachGameFeature(this->physicsFeature.upcast<Game::FeatureUnit>());        
 	this->gameServer->AttachGameFeature(this->navigationFeature.cast<Game::FeatureUnit>());
 	
 	// setup intermediate gui

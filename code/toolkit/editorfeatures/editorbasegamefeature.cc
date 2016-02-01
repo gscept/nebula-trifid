@@ -39,6 +39,7 @@
 #include "game/templateexporter.h"
 #include "db/sqlite3/sqlite3factory.h"
 #include "posteffect/posteffectexporter.h"
+#include "managers/levelattrsmanager.h"
 
 namespace Toolkit
 {
@@ -134,11 +135,7 @@ EditorBaseGameFeatureUnit::OnActivate()
 	{
 		n_error("BaseGameFeature: Failed to open static database 'editordb:game.db4'!");
 	}
-	
-	// create additional servers    
-	this->loaderServer = BaseGameFeature::LoaderServer::Create();
-	this->loaderServer->Open();
-
+		
 	// attach loader to BaseGameFeature::LoaderServer
 	Ptr<BaseGameFeature::EntityLoader> entityloader = BaseGameFeature::EntityLoader::Create();	
 	this->loaderServer->AttachEntityLoader(entityloader.upcast<BaseGameFeature::EntityLoaderBase>());	

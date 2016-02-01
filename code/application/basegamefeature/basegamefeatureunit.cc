@@ -31,6 +31,7 @@
 #include "multiplayerfeatureunit.h"
 #include "networkgame.h"
 #include "multiplayerattrs.h"
+#include "managers/levelattrsmanager.h"
 
 namespace BaseGameFeature
 {
@@ -49,6 +50,9 @@ BaseGameFeatureUnit::BaseGameFeatureUnit() :
 	enableAutosave(true)
 {
     __ConstructSingleton;
+	// create additional servers    
+	this->loaderServer = BaseGameFeature::LoaderServer::Create();
+	this->loaderServer->Open();
 }
 
 //------------------------------------------------------------------------------
@@ -57,6 +61,8 @@ BaseGameFeatureUnit::BaseGameFeatureUnit() :
 BaseGameFeatureUnit::~BaseGameFeatureUnit()
 {
     __DestructSingleton;
+	this->loaderServer->Close();
+	this->loaderServer = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -83,10 +89,7 @@ BaseGameFeatureUnit::OnActivate()
     {
         n_error("BaseGameFeature: Failed to open static database 'export/db/static.db4'!");
     }
-    // create additional servers    
-    this->loaderServer = BaseGameFeature::LoaderServer::Create();
-    this->loaderServer->Open();
-    
+        
     // attach loader to BaseGameFeature::LoaderServer
     Ptr<BaseGameFeature::EntityLoader> entityloader = BaseGameFeature::EntityLoader::Create();  
     this->loaderServer->AttachEntityLoader(entityloader.upcast<BaseGameFeature::EntityLoaderBase>());
@@ -170,10 +173,7 @@ BaseGameFeatureUnit::OnDeactivate()
 
     this->RemoveManager(this->envQueryManager.upcast<Game::Manager>());
     this->envQueryManager = 0;
-
-    this->loaderServer->Close();
-    this->loaderServer = 0;
-    
+  
     this->dbServer->Close();
     this->dbServer = 0;
 

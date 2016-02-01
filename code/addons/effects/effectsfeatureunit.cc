@@ -58,6 +58,7 @@ EffectsFeatureUnit::OnActivate()
 void
 EffectsFeatureUnit::OnDeactivate()
 {
+	this->FlushAll();
 	// discard registry
 	this->animRegistry->Discard();
 	this->animRegistry = 0;

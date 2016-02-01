@@ -8,6 +8,7 @@
 #include "graphics/modelentity.h"
 #include "basegamefeatureunit.h"
 #include "graphicsfeature/graphicsattr/graphicsattributes.h"
+#include "managers/levelattrsmanager.h"
 
 
 namespace PostEffect

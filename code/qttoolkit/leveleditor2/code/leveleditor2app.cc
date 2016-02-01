@@ -289,9 +289,9 @@ LevelEditor2App::SetupGameFeatures()
 	this->graphicsFeature->SetupDisplay();
 
     // game feature needs to be attached before graphicsfeature (but after setupdisplay)
-    this->gameServer->AttachGameFeature(this->baseFeature.upcast<Game::FeatureUnit>());
+    
     this->gameServer->AttachGameFeature(this->graphicsFeature.upcast<Game::FeatureUnit>());
-        
+	this->gameServer->AttachGameFeature(this->baseFeature.upcast<Game::FeatureUnit>());
     // create and attach the leveleditor-specific managers
     Ptr<ActionManager> actionManager = ActionManager::Create();
     this->baseFeature->AttachManager(actionManager.upcast<Game::Manager>());

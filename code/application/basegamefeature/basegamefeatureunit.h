@@ -31,11 +31,12 @@
 #include "vibration/vibrationinterface.h"
 #include "faudio/audioserver.h"
 #include "managers/envquerymanager.h"
-#include "managers/levelattrsmanager.h"
 
 //------------------------------------------------------------------------------
 namespace BaseGameFeature
 {
+
+class LevelAttrsManager;
 
 class BaseGameFeatureUnit : public Game::FeatureUnit    
 {

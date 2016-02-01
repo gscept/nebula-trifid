@@ -289,6 +289,8 @@ LevelEditor2EntityManager::DuplicateEntity(const Ptr<Game::Entity>& entity)
 
 	// make sure it's not selected, since our currently selected entity will surely be!
 	newentity->SetBool(Attr::IsSelected, false);
+	Ptr<Layers::LayerHandler> handler = LevelEditor2App::Instance()->GetWindow()->GetLayerHandler();
+	handler->HandleEntityCreated(newentity);
 	return newguid;
 }
 

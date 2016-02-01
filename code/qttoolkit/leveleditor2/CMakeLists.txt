@@ -123,6 +123,7 @@ ADD_DEPENDENCIES(leveleditor2
 	editorfeatures
 	remoteinterface	
 	qttools
+	qtfeature
 	posteffectcontroller
 	globalprobecontroller
 	splash

@@ -6,3 +6,5 @@ export_win32
 *.public.*
 *.debug.*
 
+/out12
+/libs/hk2013_1_0_r1

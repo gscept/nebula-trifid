@@ -181,6 +181,7 @@ ADD_DEPENDENCIES(contentbrowser
 	toolkitutil
 	remoteinterface	
 	qttools
+	qtfeature
 	globalprobecontroller
 	editorfeatures
 	video

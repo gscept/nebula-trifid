@@ -33,12 +33,14 @@ LevelAttrsManager::~LevelAttrsManager()
 /**
 */
 void
-LevelAttrsManager::OnLoad()
-{
-    Manager::OnLoad();
-	Util::String level = BaseGameFeature::BaseGameFeatureUnit::Instance()->GetCurrentLevel();
-	this->table = BaseGameFeature::CategoryManager::Instance()->GetTemplateTable("Levels");
-	this->row = table->FindRowIndexByAttr(Attr::Attribute(Attr::Id, level));
-	n_assert(this->row != InvalidIndex);
+LevelAttrsManager::UpdateLevelTable(const Util::String& level)
+{			
+	if (this->currentLevel != level)
+	{
+		this->table = BaseGameFeature::CategoryManager::Instance()->GetTemplateTable("Levels");
+		this->row = table->FindRowIndexByAttr(Attr::Attribute(Attr::Id, level));
+		n_assert(this->row != InvalidIndex);
+		this->currentLevel = level;
+	}	
 }
 }
