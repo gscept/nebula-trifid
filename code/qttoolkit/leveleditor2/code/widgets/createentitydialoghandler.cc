@@ -132,22 +132,34 @@ CreateEntityDialogHandler::ImportChosenEntity()
 
 	// import the entity
 	Util::String category = this->ui.categoryListWidget->currentItem()->text().toUtf8().constData();
-	Util::String templ = (0 != this->ui.templateListWidget->currentItem())? 
-		this->ui.templateListWidget->currentItem()->text().toUtf8().constData():
-		"";
 
-	Util::String errorMessage;
-	EntityGuid entityId;
-	if (!ActionManager::Instance()->CreateEntity(this->entityType, category, templ, entityId, errorMessage))
+	QList<QListWidgetItem*> items = this->ui.templateListWidget->selectedItems();
+
+	if (items.size())
 	{
-		QMessageBox::warning((QWidget*)parent(), "Could not create entity", errorMessage.AsCharPtr(), QMessageBox::Ok);
-		return;
-	}
-
-	Util::Array<EntityGuid> ids;
-	ids.Append(entityId);
-	LevelEditor2App::Instance()->GetCurrentStateHandler().cast<LevelEditor2::LevelEditorState>()->UpdateSelection(ids);
-	
+		Util::Array<EntityGuid> ids;
+		
+		for (int i = 0; i < items.size(); i++)
+		{
+			Util::String item = items[i]->text().toUtf8().constData();
+			
+			Util::String errorMessage;
+			EntityGuid entityId;
+			if (!ActionManager::Instance()->CreateEntity(this->entityType, category, item, entityId, errorMessage))
+			{
+				QMessageBox::warning((QWidget*)parent(), "Could not create entity", errorMessage.AsCharPtr(), QMessageBox::Ok);
+				continue;
+			}
+			else
+			{
+				ids.Append(entityId);
+			}
+		}		
+		if (!ids.IsEmpty())
+		{
+			LevelEditor2App::Instance()->GetCurrentStateHandler().cast<LevelEditor2::LevelEditorState>()->UpdateSelection(ids);
+		}	
+	}		
 }
 
 //------------------------------------------------------------------------------

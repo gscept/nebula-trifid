@@ -218,7 +218,14 @@ EntityTreeWidget::SelectRecursive(EntityTreeItem* item)
 	guids.Append(dynamic_cast<EntityTreeItem*>(item)->GetEntityGuid());
 	for(int i=0;i<item->childCount();i++)
 	{
-		guids.AppendArray(SelectRecursive(dynamic_cast<EntityTreeItem*>(item->child(i))));
+		Util::Array<EntityGuid> childGuids = SelectRecursive(dynamic_cast<EntityTreeItem*>(item->child(i)));
+		for (int j = 0; j < childGuids.Size(); j++)
+		{
+			if (InvalidIndex == guids.BinarySearchIndex(childGuids[j]))
+			{
+				guids.InsertSorted(childGuids[j]);
+			}
+		}		
 	}
 	return guids;
 }
@@ -233,7 +240,15 @@ EntityTreeWidget::SelectAllChildren()
 	Util::Array<EntityGuid> guids;
 	for(int i=0;i<items.size();i++)
 	{
-		guids.AppendArray(SelectRecursive(dynamic_cast<EntityTreeItem*>(items[i])));
+		Util::Array<EntityGuid> childGuids = SelectRecursive(dynamic_cast<EntityTreeItem*>(items[i]));
+		for (int j = 0; j < childGuids.Size(); j++)
+		{
+			if (InvalidIndex == guids.BinarySearchIndex(childGuids[j]))
+			{
+				guids.InsertSorted(childGuids[j]);
+			}
+		}
+		//guids.AppendArray(SelectRecursive(dynamic_cast<EntityTreeItem*>(items[i])));
 	}
 	Ptr<SelectAction> action = SelectAction::Create();
 	action->SetSelectionMode(SelectAction::SetSelection);
@@ -296,6 +311,17 @@ EntityTreeWidget::contextMenuEvent(QContextMenuEvent * event)
 		return;
 	}
 
+	if (oldcategory == "Transform")
+	{
+		QMenu menu;
+		QAction* selectAction = menu.addAction("Select all children");
+		QAction* selected = menu.exec(event->globalPos());
+		if (selected == selectAction)
+		{
+			this->SelectAllChildren();
+		}
+		return;
+	}
 	
 	QMenu menu;
 	QAction* morphAction = menu.addAction("Morph entity");
