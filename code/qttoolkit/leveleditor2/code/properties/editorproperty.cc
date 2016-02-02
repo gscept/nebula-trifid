@@ -100,14 +100,16 @@ __Handler(EditorProperty, SetTransform)
 	matrix44 trans = msg->GetMatrix();
 	matrix44 inv = matrix44::inverse(obj->GetEntity()->GetMatrix44(Attr::Transform));
 	matrix44 delta = matrix44::multiply(trans,inv);
-
-	Ptr<UpdateChildrenTransforms> umsg = UpdateChildrenTransforms::Create();
-	umsg->SetBaseTransform(obj->GetEntity()->GetMatrix44(Attr::Transform));
-	umsg->SetInvBaseTransform(inv);
-	umsg->SetDeltaTransform(delta);
-	for(IndexT i = 0 ; i < children.Size() ; i++)
-	{		
-		children[i]->SendSync(umsg.cast<Messaging::Message>());
+	if (msg->GetDistribute())
+	{
+		Ptr<UpdateChildrenTransforms> umsg = UpdateChildrenTransforms::Create();
+		umsg->SetBaseTransform(obj->GetEntity()->GetMatrix44(Attr::Transform));
+		umsg->SetInvBaseTransform(inv);
+		umsg->SetDeltaTransform(delta);
+		for (IndexT i = 0; i < children.Size(); i++)
+		{
+			children[i]->SendSync(umsg.cast<Messaging::Message>());
+		}
 	}
 	obj->GetEntity()->SetMatrix44(Attr::Transform, updateTransform->GetMatrix());
 }

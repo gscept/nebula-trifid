@@ -139,6 +139,7 @@ private:
     Input::Key::Code activateScaleKey;
     Input::Key::Code activateGroundPlacementKey;
     Input::Key::Code activateAxisLockKey;
+	Input::Key::Code activateGroupTranslateKey;
 	Input::Key::Code activateSnapPlacementKey;
             
     Ptr<TranslateFeature> translateFeature;         // possible transform features
@@ -150,6 +151,7 @@ private:
 	Ptr<TransformAction> action;
 
 	bool groupMode;
+	bool groupPivotTranslate;
 	Math::matrix44 selectedGroupMatrix;
 	Math::matrix44 selectionInitialGroupMatrix;
 	Math::matrix44 selectionFocusMatrix;
