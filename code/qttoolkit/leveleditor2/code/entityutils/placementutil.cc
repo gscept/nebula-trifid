@@ -326,7 +326,7 @@ PlacementUtil::ApplyTransformFeatureToMatrices()
                 }
                 else if (ROTATE == this->currentTransformMode)
                 {
-					if (!this->groupMode)
+					if (!this->groupPivotTranslate)
 					{
 						// special way to rotate scaled matrices to prevent sheared results.
 						// translate to global origin, rotate, then translate back
@@ -339,8 +339,8 @@ PlacementUtil::ApplyTransformFeatureToMatrices()
 					else
 					{
 						Math::matrix44 newMatrix, initGroupMatrix;
-						initGroupMatrix.identity();
-						initGroupMatrix.set_position(this->selectionInitialGroupMatrix.get_position());
+						initGroupMatrix.identity();						
+						initGroupMatrix.set_position(this->selectedInitialMatrices[0].get_position());
 						newMatrix = Math::matrix44::multiply( this->selectedInitialMatrices[i], Math::matrix44::inverse(initGroupMatrix) );
 						newMatrix = Math::matrix44::multiply( newMatrix, transformDelta );
 						newMatrix = Math::matrix44::multiply( newMatrix, initGroupMatrix );
