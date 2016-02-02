@@ -49,6 +49,9 @@ public:
 	/// get direct children 
 	Util::Array<Ptr<Game::Entity>> GetDirectChildren(const EntityGuid &id);
 
+	/// get all currently selected items
+	Util::Array<Ptr<Game::Entity>> GetSelection() const;
+
 	/// select all children, used with delete
 	void SelectAllChildren();
 
