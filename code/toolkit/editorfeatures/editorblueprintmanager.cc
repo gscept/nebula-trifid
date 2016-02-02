@@ -1315,4 +1315,13 @@ EditorBlueprintManager::CreateEmptyLevel(const Ptr<Db::Database> & staticDb, con
     }		    
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+EditorBlueprintManager::SetTemplateTargetFolder(const Util::String & folder)
+{
+	this->templateDir = folder;
+}
+
 }
