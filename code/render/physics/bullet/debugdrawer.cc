@@ -90,11 +90,11 @@ DebugDrawer::drawLine(const btVector3& from,const btVector3& to,const btVector3&
     DebugShapeRenderer::Instance()->DrawBox(m, float4(color.x(), color.y(), color.z(), 1.0f));
 #else
     CoreGraphics::RenderShape::RenderShapeVertex vert;
-    vert.pos = Bt2NebVector(from);
-    vert.color = Bt2NebVector(color);
+    vert.pos = Bt2NebPoint(from);
+	vert.color = Bt2NebPoint(color);
 	this->scene->debugPrimitives.Append(vert);
-    vert.pos = Bt2NebVector(to);
-    vert.color = Bt2NebVector(color);
+	vert.pos = Bt2NebPoint(to);
+	vert.color = Bt2NebPoint(color);
 	this->scene->debugPrimitives.Append(vert);
 #endif
 }
