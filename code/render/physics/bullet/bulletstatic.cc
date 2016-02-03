@@ -54,6 +54,7 @@ BulletStatic::Attach(Physics::BaseScene * inWorld)
 	world->addCollisionObject(this->collObj,short(btBroadphaseProxy::StaticFilter),short(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter));
 	this->common.category = Physics::Static;
 	this->common.collideFilterMask = Physics::All^Physics::Static;
+	this->SetMaterialType(this->common.material);
 	this->attached = true;
 }
 
@@ -100,6 +101,22 @@ BulletStatic::SetTransform(const Math::matrix44 & itrans)
 	btTransform trans = Neb2BtM44Transform(itrans);	
 	this->collObj->setWorldTransform(trans);
 	this->transform = itrans;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+BulletStatic::SetMaterialType(Physics::MaterialType t)
+{
+	PhysicsObject::SetMaterialType(t);
+	if (this->attached && t != Physics::InvalidMaterial)
+	{
+		float friction = Physics::MaterialTable::GetFriction(t);
+		float rest = Physics::MaterialTable::GetRestitution(t);
+		this->collObj->setFriction(friction);
+		this->collObj->setRestitution(rest);
+	}	
 }
 
 } // namespace Physics
