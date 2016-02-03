@@ -401,7 +401,9 @@ BulletScene::RenderDebug()
 {
 	// reset primitives list, this will be filled whenever the debugDrawer performs 'drawLine'
 	this->debugPrimitives.Clear();
+    this->debugTriangles.Clear();
 	this->debugPrimitives.Reserve(65535);
+    this->debugTriangles.Reserve(65535);
 	this->physics.dynamicsWorld->debugDrawWorld();
 	BaseScene::RenderDebug();	
 	if(!this->debugPrimitives.IsEmpty())
@@ -409,6 +411,11 @@ BulletScene::RenderDebug()
 		// draw buffered primitives
 		Debug::DebugShapeRenderer::Instance()->DrawPrimitives(matrix44::identity(), CoreGraphics::PrimitiveTopology::LineList, this->debugPrimitives.Size() / 2, &this->debugPrimitives[0], float4(1));
 	}
+    if (!this->debugTriangles.IsEmpty())
+    {
+        // draw buffered primitives
+        Debug::DebugShapeRenderer::Instance()->DrawPrimitives(matrix44::identity(), CoreGraphics::PrimitiveTopology::TriangleList, this->debugTriangles.Size() / 3, &this->debugTriangles[0], float4(1), CoreGraphics::RenderShape::Wireframe);
+    }
 }
 
 
