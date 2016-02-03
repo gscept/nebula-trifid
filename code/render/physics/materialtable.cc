@@ -162,4 +162,15 @@ MaterialTable::SetRestitution(MaterialType t0, float restitution)
 	materials[t0].restitution = restitution;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+Util::Array<Util::StringAtom>
+MaterialTable::GetMaterials()
+{
+    Util::Array<Util::StringAtom> mats = materialsHash.KeysAsArray();
+    mats.Append(MaterialTable::invalidTypeString);
+    return mats;
+}
+
 } // namespace Physics

@@ -25,6 +25,7 @@ SET(QTMOCFILES "code/attributecontrollerwidget.h"
 			   "code/matrix44controller.h"
 			   "code/qluatextedit.h"
 			   "code/qluasyntaxhighlighter.h"
+			   "code/physicsmaterialcontroller.h"
 			   "code/scripteditor.h")
 			   
 PCH_QT4_WRAP_CPP(attributecontrollerwidget_HEADERS_MOC ${QTMOCFILES})

@@ -227,10 +227,11 @@ PhysicsProperty::EnablePhysics()
 			n_assert2(objs.Size() == 1, "tried to attach multiple bodies in physicsproperty");
 			object = objs[0];
 			object->GetTemplate().startTransform = this->entity->GetMatrix44(Attr::Transform);
-		}
-		
-		
+		}		        
+
 		PhysicsServer::Instance()->GetScene()->Attach(object);
+        Physics::MaterialType mat = Physics::MaterialTable::StringToMaterialType(this->entity->GetString(Attr::PhysicMaterial));
+        object->SetMaterialType(mat);
 
 		this->physicsEntity = object.cast<PhysicsBody>();		
 		this->physicsEntity->SetUserData(this->entity.cast<Core::RefCounted>());

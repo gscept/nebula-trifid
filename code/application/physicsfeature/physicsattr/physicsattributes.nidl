@@ -4,7 +4,7 @@
 	  <Attribute name="Physics" fourcc="PHYS" accessMode="ReadWrite" type="String" system="1"/>
 	  <Attribute name="Collide" fourcc="COLL" accessMode="ReadWrite" type="Bool"/>	
 	
-	  <Attribute name="PhysicMaterial" fourcc="PHMA" accessMode="ReadWrite" type="String" default=""/>
+	  <Attribute name="PhysicMaterial" fourcc="PHMA" accessMode="ReadWrite" type="String" editType="physicmaterial" default="InvalidMaterial"/>
 	  <Attribute name="TargetEntityId" fourcc="TAEN" accessMode="ReadWrite" type="Int" system="1"/>
 	  <Attribute name="VelocityVector" fourcc="VELV" accessMode="ReadWrite" type="Float4"/>
 
@@ -48,6 +48,7 @@
     <Attribute name="Physics"/>
     <Attribute name="CollisionFeedback"/>
     <Attribute name="CollisionDepthThreshold"/>
+    <Attribute name="PhysicMaterial"/>
   </Property>
   <Property name="PhysicsFeature::AnimatedPhysicsProperty" derivedFrom="BaseGameFeature::TransformableProperty" header="physicsfeature/properties/animatedphysicsproperty.h">
     <Attribute name="JointNameLinking"/>

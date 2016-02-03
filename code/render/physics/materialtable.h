@@ -39,6 +39,9 @@ public:
     /// translate string to material type
 	static MaterialType StringToMaterialType(const Util::StringAtom& str);
 
+    /// get list of all available materials
+    static Util::Array<Util::StringAtom> GetMaterials();
+
     /// get friction coefficient for a material
     static float GetFriction(MaterialType t0);
     /// get restitution for a material
@@ -56,7 +59,7 @@ private:
     MaterialTable();
     /// destructor
     ~MaterialTable();
-
+    
     struct Material 
     {
 		Material() : name(), friction(0.0f), restitution(0.0f) {}
