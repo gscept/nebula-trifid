@@ -52,7 +52,9 @@ PhysicsMaterialController::PhysicsMaterialController(QWidget* parent, const Ptr<
         }
     }
     this->ui->comboBox->setCurrentIndex(selection);
-	
+    bool connected = false;
+    connected = connect(this->ui->comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(currentIndexChanged(int)));
+    n_assert(connected);
 }
 
 //------------------------------------------------------------------------------
