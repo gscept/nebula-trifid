@@ -131,8 +131,7 @@ AnimEventRegistry::LoadAttachmentEvents(const Util::StringAtom &tableName)
 		this->attachmentHandler = attach.cast<Animation::AnimEventHandlerBase>();
 		Animation::AnimEventServer::Instance()->RegisterAnimEventHandler(this->attachmentHandler);
 	}
-
-    this->animEventAttachments.BeginBulkAdd();
+    
     int index;
     for (index = 0; index < numRows; index++)
     {
@@ -171,8 +170,7 @@ AnimEventRegistry::LoadAttachmentEvents(const Util::StringAtom &tableName)
             n_error("AnimEventRegistry::LoadAttachmentEvents: table:'%s' row:'%i' column:'Rotation' unsupported value '%s'!\n", tableName.Value(), index, rotation.AsCharPtr());
         }
         this->animEventAttachments.Add(newEffect.name, newEffect);
-    }
-    this->animEventAttachments.EndBulkAdd();
+    }    
     reader->Close();
 }
 
@@ -201,8 +199,7 @@ AnimEventRegistry::LoadCamShakeEvents(const Util::StringAtom& tableName)
 		this->shakeHandler = attach.cast<Animation::AnimEventHandlerBase>();
 		Animation::AnimEventServer::Instance()->RegisterAnimEventHandler(this->shakeHandler);
 	}
-
-    this->animEventCamShakes.BeginBulkAdd();
+    
     int index;
     for (index = 0; index < numRows; index++)
     {
@@ -230,8 +227,7 @@ AnimEventRegistry::LoadCamShakeEvents(const Util::StringAtom& tableName)
         newOne.rotation = rotation;
         newOne.range = range;
         animEventCamShakes.Add(id, newOne);
-    }
-    animEventCamShakes.EndBulkAdd();
+    }    
     reader->Close();
 }
 
@@ -260,8 +256,7 @@ AnimEventRegistry::LoadSoundEvents(const Util::StringAtom& tableName)
 		this->soundHandler = attach.cast<Animation::AnimEventHandlerBase>();
 		Animation::AnimEventServer::Instance()->RegisterAnimEventHandler(this->soundHandler);
 	}
-
-    this->animEventSounds.BeginBulkAdd();
+    
     int index;
     for (index = 0; index < numRows; index++)
     {
@@ -277,8 +272,7 @@ AnimEventRegistry::LoadSoundEvents(const Util::StringAtom& tableName)
         }
 
         this->animEventSounds.Add(id, FAudio::EventId(eventName));
-    }
-    this->animEventSounds.EndBulkAdd();
+    }    
     reader->Close();
 }
 
@@ -307,8 +301,7 @@ AnimEventRegistry::LoadTimingEvents(const Util::StringAtom& tableName)
 		this->timingHandler = attach.cast<Animation::AnimEventHandlerBase>();
 		Animation::AnimEventServer::Instance()->RegisterAnimEventHandler(this->timingHandler);
 	}
-
-    this->animEventTimer.BeginBulkAdd();
+   
     int index;
     for (index = 0; index < numRows; index++)
     {
@@ -332,8 +325,7 @@ AnimEventRegistry::LoadTimingEvents(const Util::StringAtom& tableName)
         newOne.attack = fadeIn;
         newOne.startTime = -1;
         animEventTimer.Add(id, newOne);
-    }
-    animEventTimer.EndBulkAdd();
+    }    
     reader->Close();
 }
 
@@ -352,8 +344,7 @@ AnimEventRegistry::LoadVibrationEvents(const Util::StringAtom& tableName)
         n_error("AnimEventRegistry::LoadVibrationEvents: failed to load table '%s' in static database", tableName.Value());        
     }
 
-    int numRows = reader->GetNumRows();
-    this->animEventVibs.BeginBulkAdd();
+    int numRows = reader->GetNumRows();    
     int index;
     for (index = 0; index < numRows; index++)
     {
@@ -382,8 +373,7 @@ AnimEventRegistry::LoadVibrationEvents(const Util::StringAtom& tableName)
         newOne.playerIndex = playerIndex;
 
         this->animEventVibs.Add(id, newOne);        
-    }
-    this->animEventVibs.EndBulkAdd();
+    }    
     reader->Close();
 }
 } // namespace FX

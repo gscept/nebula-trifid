@@ -14,7 +14,8 @@
 #include "util/fixedarray.h"
 #include "util/fixedtable.h"
 #include "util/stringatom.h"
-#include "util/dictionary.h"
+#include "util/hashtable.h"
+#include "io/uri.h"
 
 //------------------------------------------------------------------------------
 namespace Physics
@@ -39,7 +40,7 @@ public:
     /// translate string to material type
 	static MaterialType StringToMaterialType(const Util::StringAtom& str);
 
-    /// get list of all available materials
+    /// get list of all available materials (slow)
     static Util::Array<Util::StringAtom> GetMaterials();
 
     /// get friction coefficient for a material
@@ -53,6 +54,8 @@ public:
     static void SetFriction(MaterialType t0, float friction);
     /// set restitution of a material type
     static void SetRestitution(MaterialType t0, float bouncyness);	
+	/// save to file
+	static void SaveMaterialTable(const IO::URI & file);
 
 private:
     /// constructor
@@ -73,7 +76,7 @@ private:
 		Util::StringAtom collEvent;
     };
 
-	static Util::Dictionary<Util::StringAtom, MaterialType> materialsHash;
+	static Util::HashTable<Util::StringAtom, MaterialType> materialsHash;
 	static Util::StringAtom invalidTypeString;
     static Util::FixedArray<Material> materials;
 	static Util::FixedTable<Interaction> interactions;

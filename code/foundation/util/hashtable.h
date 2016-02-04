@@ -66,12 +66,50 @@ public:
     bool Contains(const KEYTYPE& key) const;
     /// return array of all key/value pairs in the table (slow)
     Array<KeyValuePair<KEYTYPE, VALUETYPE> > Content() const;
-
+	/// get all keys as an Util::Array (slow)
+	Array<KEYTYPE> KeysAsArray() const;
+	/// get all keys as an Util::Array (slow)
+	Array<VALUETYPE> ValuesAsArray() const;
 private:
     FixedArray<Array<KeyValuePair<KEYTYPE, VALUETYPE> > > hashArray;
     int size;
 };
 
+//------------------------------------------------------------------------------
+/**
+*/
+template<class KEYTYPE, class VALUETYPE>
+Array<KEYTYPE>
+Util::HashTable<KEYTYPE, VALUETYPE>::KeysAsArray() const
+{
+	Util::Array<KEYTYPE> keys;
+	for (int i = 0; i < this->hashArray.Size(); i++)
+	{
+		for (int j = 0; j < this->hashArray[i].Size();j++)
+		{ 
+			keys.Append(this->hashArray[i][j].Key());
+		}
+	}
+	return keys;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+template<class KEYTYPE, class VALUETYPE>
+Array<VALUETYPE>
+Util::HashTable<KEYTYPE, VALUETYPE>::ValuesAsArray() const
+{
+	Util::Array<VALUETYPE> vals;
+	for (int i = 0; i < this->hashArray.Size(); i++)
+	{
+		for (int j = 0; j < this->hashArray[i].Size(); j++)
+		{
+			vals.Append(this->hashArray[i][j].Value());
+		}
+	}
+	return vals;
+}
 //------------------------------------------------------------------------------
 /**
 */

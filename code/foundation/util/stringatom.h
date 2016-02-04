@@ -73,6 +73,8 @@ public:
     /// get containted string as string object (SLOW!!!)
     String AsString() const;
 
+	/// calculate hash code for Util::HashTable (basically just the adress)
+	IndexT HashCode() const;
 private:
     /// setup the string atom from a string pointer
     void Setup(const char* str);
@@ -330,6 +332,15 @@ inline String
 StringAtom::AsString() const
 {
     return String(this->content);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline IndexT
+StringAtom::HashCode() const
+{
+	return (IndexT)this->content;
 }
 
 } // namespace Util

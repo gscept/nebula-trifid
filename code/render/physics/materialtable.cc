@@ -13,7 +13,7 @@ namespace Physics
 {
 using namespace Util;
 
-Util::Dictionary<Util::StringAtom, MaterialType> MaterialTable::materialsHash;
+Util::HashTable<Util::StringAtom, MaterialType> MaterialTable::materialsHash;
 Util::FixedArray<struct MaterialTable::Material> MaterialTable::materials;
 Util::FixedTable<struct MaterialTable::Interaction> MaterialTable::interactions;
 
@@ -160,6 +160,15 @@ MaterialTable::SetRestitution(MaterialType t0, float restitution)
 {
     n_assert(t0 != -1 && t0 < materials.Size());    
 	materials[t0].restitution = restitution;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+MaterialTable::SaveMaterialTable(const IO::URI & file)
+{
+
 }
 
 //------------------------------------------------------------------------------
