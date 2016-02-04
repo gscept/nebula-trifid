@@ -168,14 +168,7 @@ PhysicsFeatureUnit::CleanupPhysicsWorld()
 */
 bool 
 PhysicsFeatureUnit::OnCollision(const Ptr<Physics::PhysicsObject> & receiver, const Ptr<Physics::PhysicsObject> & collidedWith, const Ptr<Physics::Contact> & c)
-{
-    MaterialType mata = receiver->GetMaterialType();
-    MaterialType matb = receiver->GetMaterialType();
-    Util::StringAtom ev = MaterialTable::GetCollisionEvent(mata, matb);
-
-    const FAudio::EventId& eff = EffectsFeature::AnimEventRegistry::Instance()->GetSoundEvent(ev);
-    EffectsFeature::EffectsFeatureUnit::Instance()->EmitAudioEffect(c->GetPoint(), 1.0f, eff, 1.0f);
-
+{   
 	Ptr<Collision> collmsg = Collision::Create();
 	collmsg->SetOtherEntity(collidedWith->GetUserData()->object.cast<Game::Entity>());
 	collmsg->SetContact(c);
