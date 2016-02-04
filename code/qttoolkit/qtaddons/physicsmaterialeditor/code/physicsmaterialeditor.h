@@ -36,9 +36,7 @@ protected:
     /// show handler
     virtual void showEvent(QShowEvent * event);
 private slots:
-		
-    ///
-    void OnTabChanged(int idx);
+		    
     /// called when cancel is pressed
 	void OnCancel();
     ///

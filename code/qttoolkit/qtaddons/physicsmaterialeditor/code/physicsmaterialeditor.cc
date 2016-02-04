@@ -9,6 +9,8 @@
 #include "QMessageBox"
 #include "physics/materialtable.h"
 #include "QSpinBox"
+#include "io/stream.h"
+#include "io/xmlwriter.h"
 
 using namespace IO;
 using namespace Util;
@@ -34,8 +36,7 @@ MaterialsEditor::MaterialsEditor() :
     connect(this->ui->saveButton, SIGNAL(pressed()), this, SLOT(OnSave()));
     connect(this->ui->cancelButton, SIGNAL(pressed()), this, SLOT(OnCancel()));
     connect(this->ui->removeButton, SIGNAL(pressed()), this, SLOT(OnRemove()));
-    connect(this->ui->addButton, SIGNAL(pressed()), this, SLOT(OnAdd()));
-    connect(this->ui->tabWidget, SIGNAL(currentChanged(int)), this, SLOT(OnTabChanged(int)));
+    connect(this->ui->addButton, SIGNAL(pressed()), this, SLOT(OnAdd()));    
     connect(this->ui->interactionWidget, SIGNAL(cellChanged(int, int)), this, SLOT(OnInteractionChanged(int, int)));
     connect(this->ui->materialsWidget, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(OnMaterialChanged(QTableWidgetItem*)));
     this->SetupUiFromTable();
@@ -47,15 +48,6 @@ MaterialsEditor::MaterialsEditor() :
 MaterialsEditor::~MaterialsEditor()
 {
     /// empty
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-MaterialsEditor::OnTabChanged(int idx)
-{
-    /// FIXME
 }
 
 //------------------------------------------------------------------------------
@@ -79,14 +71,29 @@ MaterialsEditor::OnAdd()
     mat.friction = 0.5f;
     mat.restitution = 0.5f;
     this->materials.Append(mat);
-    Util::Guid guid;
+    Guid guid;
     guid.Generate();
-    Util::String intName = guid.AsString();
+    String intName = guid.AsString();
     this->realNames.Append(intName);
-    this->names.Add(intName, "New Material");
+	String newName = "New Material";
+	bool done = false;
+	Array<String> othernames = this->names.ValuesAsArray();
+	while (!done)
+	{
+		if (othernames.FindIndex(newName) != InvalidIndex)
+		{
+			newName.Append("X");
+		}
+		else
+		{
+			done = true;
+		}
+	}
+    this->names.Add(intName, newName);
     Dictionary<String, String> newDic;
     this->interactions.Add(intName, newDic);
     this->SetupUiFromTable();
+	this->SetModified();
 }
 
 //------------------------------------------------------------------------------
@@ -107,10 +114,14 @@ MaterialsEditor::OnRemove()
         this->interactions.Erase(name);
         for (int i = 0; i < this->interactions.Size(); i++)
         {
-            this->interactions.ValueAtIndex(i).Erase(name);
+			if (this->interactions.ValueAtIndex(i).Contains(name))
+			{
+				this->interactions.ValueAtIndex(i).Erase(name);
+			}            
         }
     }
     this->SetupUiFromTable();
+	this->SetModified();
 }
 
 //------------------------------------------------------------------------------
@@ -119,7 +130,39 @@ MaterialsEditor::OnRemove()
 void
 MaterialsEditor::OnSave()
 {
-	/// FIXME
+	Ptr<IO::Stream> stream = IO::IoServer::Instance()->CreateStream("root:data/tables/physicsmaterials.xml");
+	stream->SetAccessMode(IO::Stream::WriteAccess);
+	Ptr<IO::XmlWriter> writer = IO::XmlWriter::Create();
+	writer->SetStream(stream);
+
+	writer->Open();
+	writer->BeginNode("PhysicsMaterials");
+	writer->SetBool("IsVirtualCategory", true);
+	for (int i = 0; i < this->materials.Size(); i++)
+	{
+		writer->BeginNode("Item");
+		writer->SetString("Id", this->names[this->realNames[i]]);
+		writer->SetFloat("Friction", this->materials[i].friction);
+		writer->SetFloat("Restitution", this->materials[i].restitution);
+		Array<String> inters;
+		const Util::Dictionary<Util::String, Util::String> & inter = this->interactions[this->realNames[i]];
+		for (int j = i; j < this->materials.Size(); j++)
+		{
+			if (inter.Contains(this->realNames[j]) && !inter[this->realNames[j]].IsEmpty())
+			{
+				String action = this->names[this->realNames[j]];				
+				action += "=";
+				action += inter[this->realNames[j]];
+				inters.Append(action);
+			}
+		}
+		writer->SetString("CollisionEvents", String::Concatenate(inters, " "));
+		writer->EndNode();
+	}
+
+	writer->EndNode();
+	writer->Close();
+	Physics::MaterialTable::Setup();
 	this->ResetModified();
 }
 
@@ -176,9 +219,31 @@ MaterialsEditor::OnMaterialChanged(QTableWidgetItem* item)
 {
     if (item->column() == 0)
     {
-        this->names[this->realNames[item->row()]] = item->text().toLatin1().constData();
-        this->SetupUiFromTable();
-        this->SetModified();
+		String newName = item->text().toLatin1().constData();
+		int row = item->row();
+
+		bool duplicate = false;
+		// check for duplicates (exluding my the own name)
+		// feels a bit brute force
+		for (int i = 0; i < this->realNames.Size(); i++)
+		{			
+			if (i != row && this->names[this->realNames[i]] == newName)
+			{
+				duplicate = true;
+			}
+		}
+		if (!duplicate)
+		{
+			this->names[this->realNames[row]] = item->text().toLatin1().constData();
+			this->SetupUiFromTable();
+			this->SetModified();
+		}
+		else
+		{
+			this->ui->materialsWidget->blockSignals(true);
+			item->setText(this->names[this->realNames[row]].AsCharPtr());
+			this->ui->materialsWidget->blockSignals(false);
+		}
     } 
 }
 
@@ -219,7 +284,7 @@ MaterialsEditor::SetupUiFromTable()
 
         QDoubleSpinBox * restWidget = new QDoubleSpinBox;
         restWidget->setValue(this->materials[i].restitution);
-        frictionWidget->setSingleStep(0.1);        
+		restWidget->setSingleStep(0.1);
 
         this->ui->materialsWidget->setCellWidget(i, 2, restWidget);
         restWidget->setProperty("material", i);
@@ -269,6 +334,7 @@ MaterialsEditor::SetupUiFromTable()
             {
                 name = new QTableWidgetItem();
                 name->setFlags(name->flags() & (255 - Qt::ItemIsEnabled));
+				name->setBackgroundColor(QColor(80, 80, 80));
             }                                    
             this->ui->interactionWidget->setItem(i, j, name);
         }

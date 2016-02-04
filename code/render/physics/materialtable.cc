@@ -60,6 +60,7 @@ MaterialTable::Setup()
 			int matCount = mats.Size();
 			materials.SetSize(matCount);
 			interactions.SetSize(matCount, matCount);
+			materialsHash.Clear();
 			for (int i = 0; i < mats.Size(); i++)
 			{
 				AddMaterial(i, mats[i].name, mats[i].friction, mats[i].restitution);
