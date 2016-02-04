@@ -230,6 +230,10 @@ PhysicsProperty::EnablePhysics()
 		}		        
 
 		PhysicsServer::Instance()->GetScene()->Attach(object);
+		if (this->entity->HasAttr(Attr::Mass))
+		{
+			object.cast<Physics::PhysicsBody>()->SetMass(this->entity->GetFloat(Attr::Mass));
+		}
         Physics::MaterialType mat = Physics::MaterialTable::StringToMaterialType(this->entity->GetString(Attr::PhysicMaterial));
         object->SetMaterialType(mat);
 

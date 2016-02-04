@@ -2,7 +2,8 @@
 <Nebula3>
   <AttributeLib>
 	  <Attribute name="Physics" fourcc="PHYS" accessMode="ReadWrite" type="String" system="1"/>
-	  <Attribute name="Collide" fourcc="COLL" accessMode="ReadWrite" type="Bool"/>	
+	  <Attribute name="Collide" fourcc="COLL" accessMode="ReadWrite" type="Bool"/>
+    <Attribute name="Mass" fourcc="MASS" accessMode="ReadWrite" type="Float" default="1.0f" minValue="0.0f"/>
 	
 	  <Attribute name="PhysicMaterial" fourcc="PHMA" accessMode="ReadWrite" type="String" editType="physicmaterial" default="InvalidMaterial"/>
 	  <Attribute name="TargetEntityId" fourcc="TAEN" accessMode="ReadWrite" type="Int" system="1"/>
@@ -49,6 +50,7 @@
     <Attribute name="CollisionFeedback"/>
     <Attribute name="CollisionDepthThreshold"/>
     <Attribute name="PhysicMaterial"/>
+    <Attribute name="Mass"/>
   </Property>
   <Property name="PhysicsFeature::AnimatedPhysicsProperty" derivedFrom="BaseGameFeature::TransformableProperty" header="physicsfeature/properties/animatedphysicsproperty.h">
     <Attribute name="JointNameLinking"/>
