@@ -174,6 +174,39 @@ MaterialTable::SaveMaterialTable(const IO::URI & file)
 //------------------------------------------------------------------------------
 /**
 */
+Util::Array<MaterialTable::Material>
+MaterialTable::GetMaterialTable()
+{
+    Util::Array<Material> ret;
+    for (int i = 0; i < materials.Size(); i++)
+    {
+        ret.Append(materials[i]);
+    }
+    return ret;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+Util::Dictionary<Util::String, Util::Dictionary<Util::String, Util::String>>
+MaterialTable::GetInteractionTable()
+{
+    Util::Dictionary<Util::String, Util::Dictionary<Util::String, Util::String>> ret;
+    for (int i = 0; i < materials.Size(); i++)
+    {
+        Util::Dictionary<Util::String, Util::String> inters;
+        for (int j = i; j < materials.Size(); j++)
+        {
+            inters.Add(materials[j].name.AsString(), GetCollisionEvent(i, j).AsString());
+        }
+        ret.Add(materials[i].name.AsString(), inters);
+    }
+    return ret;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 Util::Array<Util::StringAtom>
 MaterialTable::GetMaterials()
 {

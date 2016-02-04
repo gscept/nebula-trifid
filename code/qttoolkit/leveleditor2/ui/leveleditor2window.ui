@@ -188,6 +188,7 @@
     <addaction name="actionShow_Script_Editor"/>
     <addaction name="actionAudio_Properties"/>
     <addaction name="actionUI_Properties"/>
+    <addaction name="actionPhysics_Materials"/>
    </widget>
    <widget class="QMenu" name="menuTest_Level">
     <property name="title">
@@ -1016,6 +1017,11 @@
    </property>
    <property name="shortcut">
     <string>F9</string>
+   </property>
+  </action>
+  <action name="actionPhysics_Materials">
+   <property name="text">
+    <string>Physics Materials</string>
    </property>
   </action>
  </widget>

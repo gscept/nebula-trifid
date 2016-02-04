@@ -26,22 +26,28 @@ const MaterialType InvalidMaterial = -1;
 class MaterialTable
 {
 public:
+
+    struct Material
+    {
+        Material() : name(), friction(0.0f), restitution(0.0f) {}
+        Util::StringAtom name;
+        float friction;
+        float restitution;
+    };
+    struct Interaction
+    {
+        Interaction() {}
+        Util::StringAtom collEvent;
+    };
+
     /// initialize material table
     static void Setup();
-
-	/// add material properties. t must be within size constraints
-	static void AddMaterial(MaterialType t, const Util::StringAtom& name, float friction, float restitution);
-
-	/// add interaction
-	static void AddInteraction(MaterialType t0, MaterialType t1, const Util::StringAtom& event, bool symmetric = true);
-
+	
     /// translate material type to string
 	static const Util::StringAtom&  MaterialTypeToString(MaterialType t);
     /// translate string to material type
 	static MaterialType StringToMaterialType(const Util::StringAtom& str);
-
-    /// get list of all available materials (slow)
-    static Util::Array<Util::StringAtom> GetMaterials();
+   
 
     /// get friction coefficient for a material
     static float GetFriction(MaterialType t0);
@@ -54,8 +60,18 @@ public:
     static void SetFriction(MaterialType t0, float friction);
     /// set restitution of a material type
     static void SetRestitution(MaterialType t0, float bouncyness);	
+
+    /// toolkit helpers
+
+    /// get list of all available materials (slow)
+    static Util::Array<Util::StringAtom> GetMaterials();
 	/// save to file
 	static void SaveMaterialTable(const IO::URI & file);
+    /// get copy material array (slow)
+    static Util::Array<Material> GetMaterialTable();
+    /// get copy of interaction table (slow)
+    static Util::Dictionary<Util::String, Util::Dictionary<Util::String, Util::String>> GetInteractionTable();
+
 
 private:
     /// constructor
@@ -63,18 +79,12 @@ private:
     /// destructor
     ~MaterialTable();
     
-    struct Material 
-    {
-		Material() : name(), friction(0.0f), restitution(0.0f) {}
-		Util::StringAtom name;
-		float friction;
-		float restitution;
-    };
-    struct Interaction 
-    { 
-		Interaction() {}
-		Util::StringAtom collEvent;
-    };
+    /// add material properties. t must be within size constraints
+    static void AddMaterial(MaterialType t, const Util::StringAtom& name, float friction, float restitution);
+
+    /// add interaction
+    static void AddInteraction(MaterialType t0, MaterialType t1, const Util::StringAtom& event, bool symmetric = true);
+   
 
 	static Util::HashTable<Util::StringAtom, MaterialType> materialsHash;
 	static Util::StringAtom invalidTypeString;
