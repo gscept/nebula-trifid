@@ -43,10 +43,13 @@ AnimClipController::AnimClipController(QWidget* parent, const Ptr<Game::Entity>&
 	Ptr<GraphicsFeature::GetModelEntity> entityMsg = GraphicsFeature::GetModelEntity::Create();
 	__SendSync(entity,entityMsg);
 
-	Ptr<Graphics::FetchClips> clipsMsg = Graphics::FetchClips::Create();
-	__Send(entityMsg->GetEntity(), clipsMsg);
-	__SingleFireCallback(AnimClipController, OnFetchedClipList, this, clipsMsg.upcast<Messaging::Message>());
-	
+	this->ui->comboBox->setEnabled(false);
+	if (entityMsg->GetEntity().isvalid())
+	{
+		Ptr<Graphics::FetchClips> clipsMsg = Graphics::FetchClips::Create();
+		__Send(entityMsg->GetEntity(), clipsMsg);
+		__SingleFireCallback(AnimClipController, OnFetchedClipList, this, clipsMsg.upcast<Messaging::Message>());
+	}		
 }
 
 //------------------------------------------------------------------------------
@@ -97,8 +100,7 @@ AnimClipController::OnFetchedClipList(const Ptr<Messaging::Message>& msg)
 	if (clips.Size() == 0)
 	{
 		this->ui->comboBox->addItem(this->currentValue.AsCharPtr());
-		this->ui->comboBox->setCurrentIndex(0);
-		this->ui->comboBox->setEnabled(false);
+		this->ui->comboBox->setCurrentIndex(0);		
 		return;
 	}
 
