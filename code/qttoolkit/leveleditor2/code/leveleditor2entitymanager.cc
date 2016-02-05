@@ -368,6 +368,10 @@ LevelEditor2EntityManager::CreateEntityFromAttrContainer(const Util::String & ca
 		{
 			at.Append(Attribute(Attr::LoadSynced, false));
 		}		
+		if (!attrs.HasAttr(Attr::StartAnimation))
+		{
+			at.Append(Attribute(Attr::StartAnimation, ""));
+		}
 		newEnt = CreateEntityByAttrs(at,"EditorEntity", attrs.GetGuid(Attr::Guid).AsString());		
 		newEnt->SetString(Attr::EntityLevel,Level::Instance()->GetName());		
 	}
