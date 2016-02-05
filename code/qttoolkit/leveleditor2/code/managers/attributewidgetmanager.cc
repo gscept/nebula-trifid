@@ -378,6 +378,18 @@ AttributeWidgetManager::ViewEntityAttributes(const Ptr<Game::Entity>& entity)
 				layout->addWidget(advanced);
 				advanced->setChecked(false);
 			}
+			if (LevelEditor2App::Instance()->HasPropertyCallbacks(cat))
+			{
+				const Util::Array<LevelEditor2App::PropertyCallbackEntry>& callbacks = LevelEditor2App::Instance()->GetPropertyCallbacks(cat);
+				for (int i = 0; i < callbacks.Size(); i++)
+				{
+					QPushButton * button = new QPushButton(callbacks[i].displayName.AsCharPtr());
+					button->setProperty("script", callbacks[i].scriptFunction.AsCharPtr());
+					button->setProperty("entity", entity->GetUniqueId());
+					QObject::connect(button, SIGNAL(clicked()), LevelEditor2App::Instance(), SLOT(PropertCallback()));
+					this->container->addWidget(button);
+				}
+			}
 		}
 		
 	}	

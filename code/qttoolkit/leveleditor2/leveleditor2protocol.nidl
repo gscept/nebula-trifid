@@ -75,7 +75,7 @@
     <Message name="CreateNavMesh" fourcc="CRNM">
       <InArg name="Entities" type="Util::Array<Ptr<Game::Entity>>"/>      
     </Message>
-    <Message name="UpdateNavMesh" fourcc="UPNM" />
+    <Message name="UpdateNavMesh" fourcc="UPNM" scripted="true"/>
     <Message name="SaveNavMesh" fourcc="SVNM" />
 
     <Message name="SetMultiSelection" fourcc="SMSL">

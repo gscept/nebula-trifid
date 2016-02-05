@@ -331,6 +331,7 @@ LevelEditor2App::SetupGameFeatures()
     Commands::GraphicsFeatureProtocol::Register();
     Commands::BaseGameProtocol::Register();	
 	Commands::LeveleditorCommands::Register();
+	Commands::LevelEditor2Protocol::Register();
 
 	this->ScanPropertyScripts();
 
