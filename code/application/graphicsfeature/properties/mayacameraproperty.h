@@ -29,7 +29,7 @@ public:
     /// called from Entity::ActivateProperties()
     virtual void OnActivate();  
     /// called from Entity::DeactivateProperties()
-    virtual void OnDeactivate();
+    virtual void OnDeactivate();	
 	/// setup callbacks for this property
     virtual void SetupCallbacks();
     /// called before rendering happens

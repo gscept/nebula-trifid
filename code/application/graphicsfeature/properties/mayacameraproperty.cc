@@ -122,13 +122,8 @@ MayaCameraProperty::OnActivate()
 	// initialize the Maya camera object
 	matrix44 m = this->GetEntity()->GetMatrix44(Attr::Transform);
 
-	float4 coi = float4(0,0,0,1);
-	float4 pos = float4(10,10,10,1);
-
-	this->entity->SetFloat4(Attr::MayaCameraCenterOfInterest, coi);
-
-	m.set_position(pos);
-	this->GetEntity()->SetMatrix44(Attr::Transform, m);
+	float4 pos = this->entity->GetMatrix44(Attr::Transform).get_position();
+	float4 coi = this->entity->GetFloat4(Attr::MayaCameraCenterOfInterest);
 
 	// setup the camera util object
 	this->mayaCameraUtil.Setup(	coi, 

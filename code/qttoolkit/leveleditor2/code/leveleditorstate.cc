@@ -187,6 +187,11 @@ LevelEditorState::OnStateEnter( const Util::String& prevState )
 	// create camera
 	this->defaultCam = BaseGameFeature::FactoryManager::Instance()->CreateEntityByTemplate("Camera", "Camera");
 	this->defaultCam->SetBool(Attr::MayaCameraRenderCenterOfInterest, true);
+	this->defaultCam->SetFloat4(Attr::MayaCameraCenterOfInterest, Math::float4(0, 0, 0, 1));
+	Math::matrix44 camTrans;
+	camTrans.set_position(Math::float4(10, 10, 10, 1));
+	this->defaultCam->SetMatrix44(Attr::Transform, camTrans);
+	this->defaultCam->SetFloat4(Attr::MayaCameraCenterOfInterest, Math::float4(0, 0, 0, 1));	
 	BaseGameFeature::EntityManager::Instance()->AttachEntity(defaultCam);
 
 	// create selection and placement utility
