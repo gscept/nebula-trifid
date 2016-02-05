@@ -292,7 +292,7 @@ MaterialsEditor::SetupUiFromTable()
     }
             
     this->ui->interactionWidget->clear();
-    
+	curRows = this->ui->interactionWidget->rowCount();
     for (int i = curRows; i < this->realNames.Size(); i++)
     {
         this->ui->interactionWidget->insertRow(i);
