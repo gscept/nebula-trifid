@@ -41,7 +41,14 @@
 #include <wininet.h>
 #include <winsock2.h>
 #include <rpc.h>
+#if _MSC_VER == 1900
+#pragma warning ( push )
+#pragma warning ( disable : 4091)
+#endif
 #include <dbghelp.h>
+#if _MSC_VER == 1900
+#pragma warning (pop)
+#endif
 #include <intrin.h>
 
 #if __USE_XNA

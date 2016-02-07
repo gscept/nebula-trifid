@@ -87,7 +87,7 @@
 #pragma warning(disable:4826)
 
 #if _MSC_VER >= 1600
-#pragma warning(disable:4996)
+#pragma warning(disable:4996 4091)
 #endif
 
 #include "StackWalker.h"
