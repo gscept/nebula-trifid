@@ -29,16 +29,13 @@ LIST(APPEND ALLSRCS ${CODE} ${PCH_files} ${surfacegenerator_HEADERS_MOC} ${surfa
 
 REMOVE_DEFINITIONS(-DQT_DEBUG)
 
-IF(MSVC)
-	ADD_DEFINITIONS(/D_HAS_EXCEPTIONS=1)
-	SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} /EHsc)
-ENDIF()
+N_SET_COMPILER_DEFAULTS()
 
 ADD_EXECUTABLE(surfacegenerator ${ALLSRCS})
 
 TARGET_INCLUDE_DIRECTORIES(surfacegenerator PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${Nebula3_SOURCE_DIR}/code/qttoolkit/surfacegenerator/code)
 
-N_SET_COMPILER_DEFAULTS()
+
 N_SET_QT_PROPERTIES(surfacegenerator "N3SDK/QtToolkit")
 IF(N_USE_PRECOMPILED_HEADERS)
     N_SET_PCH(surfacegenerator stdneb.h stdneb.cc ../)
