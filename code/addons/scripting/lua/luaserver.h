@@ -62,6 +62,9 @@ private:
         const Util::String* str;
     };
 
+	/// set lua package search path
+	void AddLuaPath(const IO::URI & path);
+
     /// LUA function callback
     static int LuaFunctionCallback(lua_State* s);
     /// LUA string chunk reader
