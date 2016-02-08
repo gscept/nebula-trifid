@@ -554,4 +554,32 @@ IoServer::AddPathPrefixToArray(const String& prefix, const Array<String>& filena
     return result;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+Util::String
+IoServer::ReadFile(const URI& path) const
+{
+	n_assert(this->FileExists(path));
+
+	// open file stream
+	Ptr<Stream> stream = IoServer::Instance()->CreateStream(path);
+
+	Util::String ret;
+	// open file
+	if (stream->Open())
+	{
+		// read all data
+		void* data = stream->Map();
+		SizeT size = stream->GetSize();
+
+		// map to string		
+		ret.AppendRange((char*)data, size);
+
+		// close stream
+		stream->Close();
+	}
+	return ret;
+}
+
 } // namespace IO

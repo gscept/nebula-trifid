@@ -36,7 +36,8 @@ public:
 	void SetCollideFilter(uint mask);
 	/// update transform
 	virtual void SetTransform(const Math::matrix44 & trans);
-
+	/// set material
+	void SetMaterialType(Physics::MaterialType t);
 	
 
 protected:

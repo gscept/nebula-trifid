@@ -16,7 +16,7 @@
 #include "threading/criticalsection.h"
 #include "core/singleton.h"
 #include "util/stringatom.h"
-#include "util/dictionary.h"
+#include "util/hashtable.h"
 #include "timing/time.h"
 #include "attr/attribute.h"
 #include "faudio/eventid.h"
@@ -147,11 +147,11 @@ private:
     bool isValid;
 
     /// the data
-    Util::Dictionary<Util::StringAtom, AttachmentEvent> animEventAttachments;
-    Util::Dictionary<Util::StringAtom, ShakeEvent> animEventCamShakes;
-	Util::Dictionary<Util::StringAtom, FAudio::EventId> animEventSounds;
-    Util::Dictionary<Util::StringAtom, TimingEvent> animEventTimer;
-    Util::Dictionary<Util::StringAtom, VibrationEvent> animEventVibs;
+    Util::HashTable<Util::StringAtom, AttachmentEvent> animEventAttachments;
+	Util::HashTable<Util::StringAtom, ShakeEvent> animEventCamShakes;
+	Util::HashTable<Util::StringAtom, FAudio::EventId> animEventSounds;
+	Util::HashTable<Util::StringAtom, TimingEvent> animEventTimer;
+	Util::HashTable<Util::StringAtom, VibrationEvent> animEventVibs;
 
 	/// default animevent handlers
 	Ptr<Animation::AnimEventHandlerBase> timingHandler;
@@ -219,8 +219,8 @@ inline
 const AnimEventRegistry::AttachmentEvent&
 AnimEventRegistry::GetAttachmentEvent(const Util::StringAtom &eventName) const
 {
-    IndexT indeX = this->animEventAttachments.FindIndex(eventName);
-    return this->animEventAttachments.ValueAtIndex(indeX);
+	n_assert(this->animEventAttachments.Contains(eventName));
+	return this->animEventAttachments[eventName];
 }
 
 //------------------------------------------------------------------------------
@@ -230,8 +230,8 @@ inline
 const AnimEventRegistry::ShakeEvent&
 AnimEventRegistry::GetCamShakeEvent(const Util::StringAtom &eventName) const
 {
-    IndexT indeX = this->animEventCamShakes.FindIndex(eventName);
-    return this->animEventCamShakes.ValueAtIndex(indeX);
+	n_assert(this->animEventCamShakes.Contains(eventName));
+	return this->animEventCamShakes[eventName];    
 }
 
 //------------------------------------------------------------------------------
@@ -241,8 +241,8 @@ inline
 const FAudio::EventId&
 AnimEventRegistry::GetSoundEvent(const Util::StringAtom &eventName) const
 {
-    IndexT indeX = this->animEventSounds.FindIndex(eventName);
-    return this->animEventSounds.ValueAtIndex(indeX);
+	n_assert(this->animEventSounds.Contains(eventName));
+	return this->animEventSounds[eventName];    
 }
 
 //------------------------------------------------------------------------------
@@ -252,8 +252,8 @@ inline
 const AnimEventRegistry::TimingEvent&
 AnimEventRegistry::GetTimingEvent(const Util::StringAtom &eventName) const
 {
-    IndexT indeX = this->animEventTimer.FindIndex(eventName);
-    return this->animEventTimer.ValueAtIndex(indeX);
+	n_assert(this->animEventTimer.Contains(eventName));
+	return this->animEventTimer[eventName];    
 }
 
 //------------------------------------------------------------------------------
@@ -263,8 +263,8 @@ inline
 const AnimEventRegistry::VibrationEvent&
 AnimEventRegistry::GetVibrationEvent(const Util::StringAtom &eventName) const
 {
-    IndexT indeX = this->animEventVibs.FindIndex(eventName);
-    return this->animEventVibs.ValueAtIndex(indeX);
+	n_assert(this->animEventVibs.Contains(eventName));
+	return this->animEventVibs[eventName];    
 }
 } // namespace FX
 //------------------------------------------------------------------------------

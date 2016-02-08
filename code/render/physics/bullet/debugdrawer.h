@@ -32,6 +32,8 @@ public:
 	virtual void	drawBox(const btVector3& bbMin, const btVector3& bbMax, const btVector3& color);
 	///
 	virtual void	drawBox(const btVector3& bbMin, const btVector3& bbMax, const btTransform& trans, const btVector3& color);
+    ///
+    virtual	void	drawTriangle(const btVector3& v0, const btVector3& v1, const btVector3& v2, const btVector3& color, btScalar /*alpha*/);
 	///
 	virtual void	drawContactPoint(const btVector3& PointOnB,const btVector3& normalOnB,btScalar distance,int lifeTime,const btVector3& color);
 	///

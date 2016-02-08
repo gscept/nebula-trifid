@@ -368,6 +368,10 @@ LevelEditor2EntityManager::CreateEntityFromAttrContainer(const Util::String & ca
 		{
 			at.Append(Attribute(Attr::LoadSynced, false));
 		}		
+		if (!attrs.HasAttr(Attr::StartAnimation))
+		{
+			at.Append(Attribute(Attr::StartAnimation, ""));
+		}
 		newEnt = CreateEntityByAttrs(at,"EditorEntity", attrs.GetGuid(Attr::Guid).AsString());		
 		newEnt->SetString(Attr::EntityLevel,Level::Instance()->GetName());		
 	}
@@ -415,60 +419,69 @@ LevelEditor2EntityManager::CreateEntityFromAttrContainer(const Util::String & ca
 	}
 	else 
 	{
-
-		// add all available attributes to container (in case property was added to blueprint type after level creation)
-		Util::Array<Attr::Attribute> allattrs = Toolkit::EditorBlueprintManager::Instance()->GetCategoryAttributes(category).GetAttrs().ValuesAsArray();
-
-		IndexT i;
-		for(i=0;i<allattrs.Size();i++)
+		if (Toolkit::EditorBlueprintManager::Instance()->HasCategory(category))
 		{
-			if(!attrs.HasAttr(allattrs[i].GetAttrId()))
+			// add all available attributes to container (in case property was added to blueprint type after level creation)
+			Util::Array<Attr::Attribute> allattrs = Toolkit::EditorBlueprintManager::Instance()->GetCategoryAttributes(category).GetAttrs().ValuesAsArray();
+
+			IndexT i;
+			for (i = 0; i < allattrs.Size(); i++)
 			{
-				attrs.SetAttr(allattrs[i]);
+				if (!attrs.HasAttr(allattrs[i].GetAttrId()))
+				{
+					attrs.SetAttr(allattrs[i]);
+				}
 			}
-		}
 
 
-		Util::Array<Attribute> attributes;
+			Util::Array<Attribute> attributes;
 
-		if(attrs.HasAttr(Attr::Graphics))
-		{
-			attributes.Append(Attribute(Attr::Graphics, attrs.GetString(Attr::Graphics)));
+			if (attrs.HasAttr(Attr::Graphics))
+			{
+				attributes.Append(Attribute(Attr::Graphics, attrs.GetString(Attr::Graphics)));
+			}
+			else
+			{
+				// ok, we got no graphics. put in placeholder
+				attributes.Append(Attribute(Attr::Graphics, "system/placeholder"));
+			}
+
+			attributes.Append(Attribute(VelocityVector, Math::float4()));
+			attributes.Append(attrs.GetAttr(Attr::Transform));
+			attributes.Append(Attribute(Attr::EntityType, Game));
+			attributes.Append(Attribute(Attr::EntityCategory, category));
+			attributes.Append(attrs.GetAttr(Attr::Id));
+
+			newEnt = CreateEntityByAttrs(attributes, "EditorEntity", attrs.GetGuid(Attr::Guid).AsString());
+			newEnt->SetString(Attr::EntityLevel, Level::Instance()->GetName());
+			if (attrs.HasAttr(Attr::ParentGuid))
+			{
+				newEnt->SetGuid(Attr::ParentGuid, attrs.GetGuid(Attr::ParentGuid));
+			}
+			else
+			{
+				Util::Guid dummy;
+				newEnt->SetGuid(Attr::ParentGuid, dummy);
+			}
+
+			attrs.RemoveAttr(Attr::Guid);
+			attrs.RemoveAttr(Attr::Transform);
+			if (attrs.HasAttr(Attr::ParentGuid))
+			{
+				attrs.RemoveAttr(Attr::ParentGuid);
+			}
+
+			Ptr<SetAttributes> attrMsg = SetAttributes::Create();
+			attrMsg->SetAttrs(attrs);
+			newEnt->SendSync(attrMsg.cast<Messaging::Message>());
 		}
 		else
 		{
-			// ok, we got no graphics. put in placeholder
-			attributes.Append(Attribute(Attr::Graphics,"system/placeholder"));
-		}	
-		
-		attributes.Append(Attribute(VelocityVector, Math::float4()));
-		attributes.Append(attrs.GetAttr(Attr::Transform));
-		attributes.Append(Attribute(Attr::EntityType,Game));
-		attributes.Append(Attribute(Attr::EntityCategory,category));
-		attributes.Append(attrs.GetAttr(Attr::Id));
-
-        newEnt = CreateEntityByAttrs(attributes,"EditorEntity", attrs.GetGuid(Attr::Guid).AsString());		 
-		newEnt->SetString(Attr::EntityLevel,Level::Instance()->GetName());		
-		if(attrs.HasAttr(Attr::ParentGuid))
-		{
-			newEnt->SetGuid(Attr::ParentGuid,attrs.GetGuid(Attr::ParentGuid));
+			Util::String format;
+			format.Format("Object with unknown category \"%s\"found", category.AsCharPtr());
+			n_message(format.AsCharPtr());
+			return;
 		}
-		else
-		{
-			Util::Guid dummy;
-			newEnt->SetGuid(Attr::ParentGuid,dummy);
-		}
-		
-		attrs.RemoveAttr(Attr::Guid);
-		attrs.RemoveAttr(Attr::Transform);
-		if(attrs.HasAttr(Attr::ParentGuid))
-		{
-			attrs.RemoveAttr(Attr::ParentGuid);
-		}
-		
-		Ptr<SetAttributes> attrMsg = SetAttributes::Create();
-		attrMsg->SetAttrs(attrs);
-		newEnt->SendSync(attrMsg.cast<Messaging::Message>());				
 	}
 	// finally apply layer
 	newEnt->SetString(Attr::_Layers, layers);

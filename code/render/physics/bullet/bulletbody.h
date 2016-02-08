@@ -105,6 +105,8 @@ public:
 
 	void SetKinematic(bool);
 
+	virtual void SetMaterialType(Physics::MaterialType t);
+
 	void SetCollideCategory(Physics::CollideCategory coll);
 	void SetCollideFilter(uint mask);
 
@@ -120,9 +122,10 @@ private:
 	void Attach(Physics::BaseScene * world);
 	/// detach the rigid body from the world
 	void Detach();
+	/// apply a material value from the common object.
+	void ApplyMaterial();
 
 	void UpdateTransform(const Math::matrix44 & trans);
-
 	btDynamicsWorld * world;
 	btRigidBody * body;    	
 	NebulaMotionState * motion;	

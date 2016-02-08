@@ -15,6 +15,7 @@
 #include "actions/actionmanager.h"
 #include "createentitydialoghandler.h"
 #include "posteffectcontroller.h"
+#include "physicsmaterialcontroller.h"
 #include "levelpropertieshandler.h"
 #include "ui_gridsizedialog.h"
 #include "qscrollarea.h"
@@ -26,6 +27,7 @@
 #include "layers/layerhandler.h"
 #include "globalprobecontroller/code/environmentprobewindow.h"
 #include "resourcebrowser/code/assetbrowser.h"
+#include "physicsmaterialeditor/code/physicsmaterialeditor.h"
 
 namespace LevelEditor2
 {
@@ -127,6 +129,8 @@ private slots:
     void OnApplicationDebugPage();
 	/// create new template from selected entity
 	void OnCreateTemplate();
+    /// show physics materials editor
+    void OnShowPhysicsMaterials();
 
 
     public slots:
@@ -158,6 +162,7 @@ private:
 	LevelPropertiesHandler* levelPropertiesDialog;
 	BlueprintsHandler* bluePrintsDialog;
 	QtPostEffectAddon::PostEffectController postEffectController;
+    QtPhysics::MaterialsEditor materialEditor;
 	Lighting::EnvironmentProbeWindow* environmentProbeWindow;
 	QVBoxLayout *attributeControllerVLayout;	
 	QDialog * gridSizeDialog;

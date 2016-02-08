@@ -233,26 +233,8 @@ BulletBody::Attach(BaseScene *inWorld)
 	btRigidBody::btRigidBodyConstructionInfo boxInfo(this->common.mass, motion, this->common.collider.downcast<BulletCollider>()->GetBulletShape(), invInertia);
 	this->body = n_new(btRigidBody(boxInfo));
 	
-	if (this->common.friction < 0.0f)
-	{
-		// Set default values!
-		body->setFriction(0.5f); // <-- same as in bullet, but for clarity
-	}
-	else
-	{		
-		body->setFriction(this->common.friction);
-	}
-
-	if (this->common.restitution < 0.0f)
-	{
-		// Set default values!
-		body->setRestitution(0.2f); // <-- same as in bullet, but for clarity
-	}
-	else
-	{
-		body->setRestitution(this->common.restitution);
-	}	
-
+	this->ApplyMaterial();
+	
 	// Add the body to the world. o-o
 	this->world->addRigidBody(this->body);	
 
@@ -471,4 +453,57 @@ BulletBody::GetAngularDamping() const
 {
 	return this->body->getAngularDamping();
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+BulletBody::SetMaterialType(Physics::MaterialType t)
+{
+	PhysicsObject::SetMaterialType(t);
+	if (this->attached && t != Physics::InvalidMaterial)
+	{
+		float friction = Physics::MaterialTable::GetFriction(t);
+		float rest = Physics::MaterialTable::GetRestitution(t);
+		this->SetFriction(friction);
+		this->SetRestitution(rest);
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+	Applies material properties from the common object. If a valid material 
+	is selected, it overrides friction and restitution values in the object
+*/
+void
+BulletBody::ApplyMaterial()
+{
+	if (this->common.material != Physics::InvalidMaterial)
+	{
+		this->SetMaterialType(this->common.material);
+	}
+	else
+	{
+		if (this->common.friction < 0.0f)
+		{
+			// Set default values!
+			body->setFriction(0.5f); // <-- same as in bullet, but for clarity
+		}
+		else
+		{
+			body->setFriction(this->common.friction);
+		}
+
+		if (this->common.restitution < 0.0f)
+		{
+			// Set default values!
+			body->setRestitution(0.2f); // <-- same as in bullet, but for clarity
+		}
+		else
+		{
+			body->setRestitution(this->common.restitution);
+		}
+	}	
+}
+
 }

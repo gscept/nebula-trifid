@@ -53,6 +53,8 @@ PhysicsObject::RenderDebug()
 	txt.Append(Util::String::FromInt(this->GetUniqueId()));
 	txt.Append(", ");
 	txt.Append(this->GetName());
+	txt.Append("Material: ");
+	txt.Append(MaterialTable::MaterialTypeToString(this->common.material).AsString());
 	Math::point pos = this->GetTransform().get_position();
 	_debug_text3D(txt, pos, Math::float4(1,0,1,1));
 }

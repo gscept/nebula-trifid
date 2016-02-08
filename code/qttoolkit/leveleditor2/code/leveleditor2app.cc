@@ -330,6 +330,10 @@ LevelEditor2App::SetupGameFeatures()
     Commands::PhysicsProtocol::Register();
     Commands::GraphicsFeatureProtocol::Register();
     Commands::BaseGameProtocol::Register();	
+	Commands::LeveleditorCommands::Register();
+	Commands::LevelEditor2Protocol::Register();
+
+	this->ScanPropertyScripts();
 
 	// open light probe manager
 	this->lightProbeManager->Open();
@@ -594,6 +598,77 @@ LevelEditor2App::UpdateNavMesh()
         Ptr<LevelEditor2::UpdateNavMesh> msg = LevelEditor2::UpdateNavMesh::Create();
         ents[0]->SendSync(msg.cast<Messaging::Message>());
     }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+LevelEditor2App::ScanPropertyScripts()
+{
+	if (IO::IoServer::Instance()->DirectoryExists("toolkit:data/leveleditor/scripts"))
+	{
+		Util::Array<Util::String> files = IO::IoServer::Instance()->ListFiles("toolkit:data/leveleditor/scripts", "*.lua", true);
+		for (int i = 0; i < files.Size(); i++)
+		{
+			Util::String script = IO::IoServer::Instance()->ReadFile(files[i]);
+			if (Scripting::ScriptServer::Instance()->ScriptHasFunction(script, "__property_init"))
+			{
+				Scripting::ScriptServer::Instance()->Eval(script);
+				Scripting::ScriptServer::Instance()->Eval("__property_init()");
+			}
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+LevelEditor2App::RegisterPropertyCallback(const Util::String & propertyClass, const Util::String & displayName, const Util::String & scriptFunc)
+{
+	PropertyCallbackEntry entry = { displayName, scriptFunc };
+	if (!this->propertyCallbacks.Contains(propertyClass))
+	{
+		Util::Array<PropertyCallbackEntry> props;		
+		props.Append(entry);
+		this->propertyCallbacks.Add(propertyClass, props);
+	}
+	else
+	{
+		this->propertyCallbacks[propertyClass].Append(entry);
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+const Util::Array<LevelEditor2App::PropertyCallbackEntry> &
+LevelEditor2App::GetPropertyCallbacks(const Util::String& propertyClass)
+{	
+	return this->propertyCallbacks[propertyClass];
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+LevelEditor2App::HasPropertyCallbacks(const Util::String& propertyClass)
+{
+	return this->propertyCallbacks.Contains(propertyClass);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+LevelEditor2App::PropertCallback()
+{
+	QPushButton * box = (QPushButton*)QObject::sender();
+	Util::String script = box->property("script").toString().toLatin1().constData();
+	Util::String exec;
+	exec.Format(script.AsCharPtr(), box->property("entity").toUInt());
+	Scripting::ScriptServer::Instance()->Eval(exec);
 }
 
 } // namespace LevelEditor2

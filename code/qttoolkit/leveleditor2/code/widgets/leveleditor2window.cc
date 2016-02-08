@@ -99,7 +99,7 @@ LevelEditor2Window::LevelEditor2Window():
 	connect(this->ui.actionReset_window_layout, SIGNAL(triggered()), this, SLOT(OnResetWindows()));
 	connect(this->ui.actionPerformance_overlay, SIGNAL(triggered()), this, SLOT(OnTogglePerformanceUI()));
 	connect(this->ui.actionShow_global_light_probe, SIGNAL(triggered()), this, SLOT(OnShowEnvironmentProbeSettings()));
-
+    connect(this->ui.actionPhysics_Materials, SIGNAL(triggered()), this, SLOT(OnShowPhysicsMaterials()));
 
     connect(this->gridSizeUi.GridSize, SIGNAL(valueChanged(double)),this, SLOT(OnGridSizeChanged(double)));
 
@@ -510,6 +510,16 @@ LevelEditor2Window::OnShowUIProperties()
 	this->uiDialog->SetupDialog();
 	this->uiDialog->show();
 	this->uiDialog->raise();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+LevelEditor2Window::OnShowPhysicsMaterials()
+{
+    this->materialEditor.show();
+    this->materialEditor.raise();
 }
 
 //------------------------------------------------------------------------------

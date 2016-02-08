@@ -43,6 +43,13 @@ class LevelEditor2App : public QObject, public App::GameApplication
     __DeclareSingleton(LevelEditor2App);
     Q_OBJECT
 public:
+
+	struct PropertyCallbackEntry
+	{
+		Util::String displayName;
+		Util::String scriptFunction;
+	};
+
     /// constructor
     LevelEditor2App();
     /// destructor
@@ -66,6 +73,13 @@ public:
 	/// get logger object
 	ToolkitUtil::Logger * GetLogger();
 
+	///
+	void RegisterPropertyCallback(const Util::String & propertyClass, const Util::String & displayName, const Util::String & scriptFunc);
+	///
+	const Util::Array<PropertyCallbackEntry> & GetPropertyCallbacks(const Util::String& propertyClass);
+	///
+	bool HasPropertyCallbacks(const Util::String& propertyClass);
+
 public slots:
     /// toggle translate mode
     void ToggleTranslateFeature();
@@ -86,9 +100,12 @@ public slots:
 
     /// FIXME
     void CreateNavMesh();
+	///
     void UpdateNavMesh();
     /// add navmesh area marker
     void AddNavArea();
+	///
+	void PropertCallback();
 
     /// access to global attributes container
     const Ptr<Attr::AttrContainerXMLStorage> & GetGlobalAttrs() const;	
@@ -102,6 +119,9 @@ private:
     void SetupGameFeatures();
     /// cleanup game features
     void CleanupGameFeatures();    
+	///
+	void ScanPropertyScripts();
+	
     Ptr<QtRemoteInterfaceAddon::QtRemoteServer> remoteServer;
     Ptr<QtRemoteInterfaceAddon::QtRemoteClient> remoteClient;
     Ptr<QtRemoteInterfaceAddon::QtRemoteClient> viewerClient;
@@ -126,6 +146,7 @@ private:
     ToolkitUtil::ProjectInfo projInfo;
     Ptr<Attr::AttrContainerXMLStorage> globalAttrs;
 	ToolkitUtil::Logger logger;
+	Util::HashTable < Util::String, Util::Array<PropertyCallbackEntry>> propertyCallbacks;
 }; 
 
 //------------------------------------------------------------------------------
