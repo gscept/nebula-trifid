@@ -857,7 +857,7 @@ void btConeTwistConstraint::computeConeLimitInfo(const btQuaternion& qCone,
 			btScalar norm = 1 / (m_swingSpan2 * m_swingSpan2);
 			norm += surfaceSlope2 / (m_swingSpan1 * m_swingSpan1);
 			btScalar swingLimit2 = (1 + surfaceSlope2) / norm;
-			swingLimit = sqrt(swingLimit2);
+			swingLimit = sqrtf(swingLimit2);
 		}
 
 		// test!
@@ -902,7 +902,7 @@ btVector3 btConeTwistConstraint::GetPointForAngle(btScalar fAngleInRadians, btSc
 		btScalar norm = 1 / (m_swingSpan2 * m_swingSpan2);
 		norm += surfaceSlope2 / (m_swingSpan1 * m_swingSpan1);
 		btScalar swingLimit2 = (1 + surfaceSlope2) / norm;
-		swingLimit = sqrt(swingLimit2);
+		swingLimit = sqrtf(swingLimit2);
 	}
 
 	// convert into point in constraint space:
@@ -962,9 +962,9 @@ void btConeTwistConstraint::adjustSwingAxisToUseEllipseNormal(btVector3& vSwingA
 
 		// adjust y/z to represent normal at point (instead of vector to point)
 		if (y > 0)
-			y =  fabs(grad * z);
+			y =  fabsf(grad * z);
 		else
-			y = -fabs(grad * z);
+			y = -fabsf(grad * z);
 
 		// convert ellipse direction back to swing axis
 		vSwingAxis.setZ(-y);

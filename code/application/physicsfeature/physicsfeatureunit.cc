@@ -24,6 +24,9 @@
 #include "properties/triggerproperty.h"
 #include "physicsfeature/physicsprotocol.h"
 #include "scripting/scriptserver.h"
+#include "eventid.h"
+#include "animeventregistry.h"
+#include "effectsfeatureunit.h"
 
 namespace PhysicsFeature
 {
@@ -165,7 +168,7 @@ PhysicsFeatureUnit::CleanupPhysicsWorld()
 */
 bool 
 PhysicsFeatureUnit::OnCollision(const Ptr<Physics::PhysicsObject> & receiver, const Ptr<Physics::PhysicsObject> & collidedWith, const Ptr<Physics::Contact> & c)
-{
+{   
 	Ptr<Collision> collmsg = Collision::Create();
 	collmsg->SetOtherEntity(collidedWith->GetUserData()->object.cast<Game::Entity>());
 	collmsg->SetContact(c);

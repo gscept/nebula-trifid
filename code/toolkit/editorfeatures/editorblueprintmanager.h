@@ -116,6 +116,8 @@ public:
 	void ParseBlueprint(const IO::URI & filename);
 	/// parse category templates from folder
 	void ParseTemplates(const Util::String & folder);
+	/// set folder where to save templates in
+	void SetTemplateTargetFolder(const Util::String & folder);
 	/// adds empty template tables for all categories
 	void CreateMissingTemplates();
 	/// update attributes used by a category

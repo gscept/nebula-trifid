@@ -148,7 +148,7 @@ public:
     /// build right handed lookat matrix
 	static matrix44 lookatrh(const point& eye, const point& at, const vector& up);
     /// multiply 2 matrices
-    static matrix44 multiply(const matrix44& m0, const matrix44& m1);
+    static matrix44 multiply(const matrix44& m0, const matrix44& m1);	
     /// build left handed orthogonal projection matrix
     static matrix44 ortholh(scalar w, scalar h, scalar zn, scalar zf);
     /// build right handed orthogonal projection matrix
@@ -206,7 +206,7 @@ public:
     /// convert to any type
     template<typename T> T as() const;
 
-private:
+//private:
     friend class float4;
     friend class plane;
     friend class quaternion;
@@ -800,13 +800,45 @@ matrix44::lookatrh(const point& eye, const point& at, const vector& up)
     return matrix44(xaxis, yaxis, zaxis, eye);
 }
 
+#ifdef N_USE_AVX
+// dual linear combination using AVX instructions on YMM regs
+static inline __m256 twolincomb_AVX_8(__m256 A01, const matrix44 &B)
+{
+	__m256 result;
+	result = _mm256_mul_ps(_mm256_shuffle_ps(A01, A01, 0x00), _mm256_broadcast_ps(&B.mat.r[0].vec));
+	result = _mm256_add_ps(result, _mm256_mul_ps(_mm256_shuffle_ps(A01, A01, 0x55), _mm256_broadcast_ps(&B.mat.r[1].vec)));
+	result = _mm256_add_ps(result, _mm256_mul_ps(_mm256_shuffle_ps(A01, A01, 0xaa), _mm256_broadcast_ps(&B.mat.r[2].vec)));
+	result = _mm256_add_ps(result, _mm256_mul_ps(_mm256_shuffle_ps(A01, A01, 0xff), _mm256_broadcast_ps(&B.mat.r[3].vec)));
+	return result;
+}
+
 //------------------------------------------------------------------------------
 /**
 */
 __forceinline matrix44
 matrix44::multiply(const matrix44& m0, const matrix44& m1)
 {
-    matrix44 ret;
+	matrix44 out;
+
+	_mm256_zeroupper();
+	__m256 A01 = _mm256_loadu_ps(&m0.mat.m[0][0]);
+	__m256 A23 = _mm256_loadu_ps(&m0.mat.m[2][0]);
+
+	__m256 out01x = twolincomb_AVX_8(A01, m1);
+	__m256 out23x = twolincomb_AVX_8(A23, m1);
+
+	_mm256_storeu_ps(&out.mat.m[0][0], out01x);
+	_mm256_storeu_ps(&out.mat.m[2][0], out23x);
+	return out;
+}
+#else
+//------------------------------------------------------------------------------
+/**
+*/
+__forceinline matrix44
+matrix44::multiply(const matrix44& m0, const matrix44& m1)
+{
+	matrix44 ret;
 
     float4 mw = m0.mat.r[0];
 
@@ -882,6 +914,7 @@ matrix44::multiply(const matrix44& m0, const matrix44& m1)
 
     return ret;
 }
+#endif
 
 //------------------------------------------------------------------------------
 /**

@@ -47,6 +47,9 @@
     <Dependency header="util/string.h"/>
     <Dependency header="game/entity.h"/>
     <Dependency header="basegamefeature/basegameattr/basegameattributes.h"/>
+    <Dependency header="basegamefeature/basegameprotocol.h"/>
+    <Dependency header="basegamefeature/managers/focusmanager.h"/>
+    <Dependency header="leveleditor2app.h"/>
     <Dependency header="core/rtti.h"/>
     <Dependency header="attr/attributecontainer.h"/>
 
@@ -72,11 +75,59 @@
     <Message name="CreateNavMesh" fourcc="CRNM">
       <InArg name="Entities" type="Util::Array<Ptr<Game::Entity>>"/>      
     </Message>
-    <Message name="UpdateNavMesh" fourcc="UPNM" />
+    <Message name="UpdateNavMesh" fourcc="UPNM" scripted="true"/>
     <Message name="SaveNavMesh" fourcc="SVNM" />
 
     <Message name="SetMultiSelection" fourcc="SMSL">
       <InArg name="Entities" type="Util::Array<Ptr<Game::Entity>>"/>      
     </Message>
-  </Protocol>    
+  </Protocol>
+  <Library name="LeveleditorCommands">
+    <Command name="geteditorcamera" fourcc="gedc" desc="retrieves current camera in leveleditor">
+      <OutArg name="entity" type="uint"/>
+      <Code>
+        <![CDATA[
+        return BaseGameFeature::FocusManager::Instance()->GetCameraFocusEntity()->GetUniqueId();
+       ]]>
+      </Code>
+    </Command>
+    <Command name="setentitytransform" fourcc="setr" desc="sets and entity transform">
+      <InArg name="eid" type="uint"/>
+      <InArg name="cam" type="matrix44"/>
+      <Code>
+        <![CDATA[
+        Ptr<BaseGameFeature::SetTransform> msg = BaseGameFeature::SetTransform::Create();
+        msg->SetMatrix(cam);
+        __SendSync(BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(eid), msg);        
+       ]]>
+      </Code>
+    </Command>
+    <Command name="RegisterPropertyCallback" fourcc="RPCB" desc="register property callback for ui">
+      <InArg name="property" type="string"/>
+      <InArg name="name" type="string"/>
+      <InArg name="script" type="string"/>
+      <Code>
+        <![CDATA[
+        LevelEditor2::LevelEditor2App::Instance()->RegisterPropertyCallback(property, name, script);
+       ]]>
+      </Code>
+    </Command>
+    <Command name="seteditorentityattribute" fourcc="SEEA" desc="sets an attribute on a leveleditor entity">
+      <InArg name="entityid" type="uint"/>
+      <InArg name="attribute" type="string"/>
+      <InArg name="value" type="string"/>
+      <Code>
+        <![CDATA[
+        Ptr<Game::Entity> entity = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(entityid);
+	      n_assert2(entity.isvalid(),"Provided invalid entity id or entity not found!");
+	      Attr::AttrId att(attribute);
+	      Attr::Attribute newatt(att);
+	      newatt.SetValueFromString(value);
+        Ptr<BaseGameFeature::SetAttribute> msg = BaseGameFeature::SetAttribute::Create();
+        msg->SetAttr(newatt);
+        __SendSync(entity,msg);
+       ]]>
+      </Code>
+    </Command>
+  </Library>
 </Nebula3>

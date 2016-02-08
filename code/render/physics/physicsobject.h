@@ -99,7 +99,7 @@ public:
 	virtual bool IsEnabled() const;
 
 	/// set material
-	void SetMaterialType(MaterialType t);
+	virtual void SetMaterialType(MaterialType t);
 	/// get material
 	MaterialType GetMaterialType() const;
 	/// set user data (normally a PhysicsUserData object

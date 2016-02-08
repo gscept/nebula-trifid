@@ -137,6 +137,7 @@
     <Attribute name="Graphics"/>
     <Attribute name="Instanced"/>
     <Attribute name="Placeholder"/>
+    <Attribute name="StartAnimation"/>
     <Attribute name="AnimEvents"/>
     <Attribute name="CastShadows"/>
     <Attribute name="Static"/>

@@ -85,6 +85,7 @@ private:
 	Timing::Time lastUpdate;
 	DebugDrawer* debugDrawer;
 	Util::Array<CoreGraphics::RenderShape::RenderShapeVertex> debugPrimitives;
+    Util::Array<CoreGraphics::RenderShape::RenderShapeVertex> debugTriangles;
 
 
 	btDynamicsWorld * GetWorld();

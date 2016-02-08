@@ -90,11 +90,11 @@ DebugDrawer::drawLine(const btVector3& from,const btVector3& to,const btVector3&
     DebugShapeRenderer::Instance()->DrawBox(m, float4(color.x(), color.y(), color.z(), 1.0f));
 #else
     CoreGraphics::RenderShape::RenderShapeVertex vert;
-    vert.pos = Bt2NebVector(from);
-    vert.color = Bt2NebVector(color);
+    vert.pos = Bt2NebPoint(from);
+	vert.color = Bt2NebPoint(color);
 	this->scene->debugPrimitives.Append(vert);
-    vert.pos = Bt2NebVector(to);
-    vert.color = Bt2NebVector(color);
+	vert.pos = Bt2NebPoint(to);
+	vert.color = Bt2NebPoint(color);
 	this->scene->debugPrimitives.Append(vert);
 #endif
 }
@@ -167,6 +167,22 @@ DebugDrawer::drawBox(const btVector3& bbMin, const btVector3& bbMax, const btTra
 	matrix44 boxShape = box.to_matrix44();
 	boxShape = matrix44::multiply(boxShape, Bt2NebTransform(trans));
 	DebugShapeRenderer::Instance()->DrawBox(boxShape, float4(color.x(),color.y(),color.z(),1),CoreGraphics::RenderShape::Wireframe);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+DebugDrawer::drawTriangle(const btVector3& v0, const btVector3& v1, const btVector3& v2, const btVector3& color, btScalar /*alpha*/)
+{
+    CoreGraphics::RenderShape::RenderShapeVertex vert;
+    vert.pos = Bt2NebPoint(v0);
+    vert.color = Bt2NebPoint(color);
+    this->scene->debugTriangles.Append(vert);
+    vert.pos = Bt2NebPoint(v1);    
+    this->scene->debugTriangles.Append(vert);
+    vert.pos = Bt2NebPoint(v2);
+    this->scene->debugTriangles.Append(vert);
 }
 
 } // namespace Bullet

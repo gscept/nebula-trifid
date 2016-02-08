@@ -160,6 +160,11 @@ EnvEntityManager::CreateEnvEntity(const Ptr<Db::ValueTable>& instTable, IndexT i
 	} 
 	bool instanced = instTable->GetBool(Attr::Instanced, instTableRowIndex);	
 	bool castShadows = instTable->GetBool(Attr::CastShadows, instTableRowIndex);	
+	String startAnim;
+	if (instTable->HasColumn(Attr::StartAnimation))
+	{
+		startAnim = instTable->GetString(Attr::StartAnimation, instTableRowIndex);
+	}
 
 	// create graphics entities (if not already created as a game entity)
     if (!createdAsGameEntity && this->envGraphicsProperty.isvalid())
@@ -183,8 +188,18 @@ EnvEntityManager::CreateEnvEntity(const Ptr<Db::ValueTable>& instTable, IndexT i
 		else
 		{
 			// create graphics entity(s) and attach to graphics property 
-			Util::Array<Ptr<Graphics::ModelEntity> > gfxEntities = segGfxUtil.CreateAndSetupGraphicsEntities(resName, worldMatrix, envEntity->GetUniqueId(),NULL,instanced,castShadows);
+			Util::Array<Ptr<Graphics::ModelEntity> > gfxEntities = segGfxUtil.CreateAndSetupGraphicsEntities(resName, worldMatrix, envEntity->GetUniqueId(),NULL,instanced,castShadows);			
 			this->envGraphicsProperty->AddGraphicsEntities(id, worldMatrix, gfxEntities);
+			if (!startAnim.IsEmpty())
+			{
+				Ptr<Graphics::AnimPlayClip> amsg = Graphics::AnimPlayClip::Create();
+				amsg->SetClipName(startAnim);
+				amsg->SetLoopCount(0.0f);
+				for (int i = 0; i < gfxEntities.Size(); i++)
+				{
+					gfxEntities[i]->HandleMessage(amsg.cast<Messaging::Message>());
+				}
+			}
 		}
     }
 }

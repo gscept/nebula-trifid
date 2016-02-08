@@ -911,7 +911,7 @@ btSoftBody*		btSoftBodyHelpers::CreateFromConvexHull(btSoftBodyWorldInfo& worldI
 		&hres.m_OutputVertices[0],0);
 	for(int i=0;i<(int)hres.mNumFaces;++i)
 	{
-		const int idx[]={	hres.m_Indices[i*3+0],
+		const unsigned int idx[]={	hres.m_Indices[i*3+0],
 			hres.m_Indices[i*3+1],
 			hres.m_Indices[i*3+2]};
 		if(idx[0]<idx[1]) psb->appendLink(	idx[0],idx[1]);

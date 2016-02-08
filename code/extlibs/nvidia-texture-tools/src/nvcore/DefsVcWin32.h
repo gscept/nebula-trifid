@@ -19,7 +19,7 @@
 #define NV_CONST
 
 // Set standard function names.
-#define snprintf _snprintf
+
 #if _MSC_VER < 1500
 #   define vsnprintf _vsnprintf
 #endif
@@ -28,6 +28,7 @@
 
 #if _MSC_VER < 1800 // Not sure what version introduced this.
 #define va_copy(a, b) (a) = (b)
+#define snprintf _snprintf
 #endif
 
 #if !defined restrict

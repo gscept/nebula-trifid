@@ -84,6 +84,8 @@ public:
     void SetFileWriteTime(const URI& path, FileTime fileTime);
     /// return the last write-time of a file
     FileTime GetFileWriteTime(const URI& path) const;
+	/// read contents of file and return as string
+	Util::String ReadFile(const URI& path) const;
 
     /// list all files matching a pattern in a directory
     Util::Array<Util::String> ListFiles(const URI& dir, const Util::String& pattern, bool asFullPath=false) const;

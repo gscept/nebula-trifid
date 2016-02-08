@@ -218,7 +218,14 @@ EntityTreeWidget::SelectRecursive(EntityTreeItem* item)
 	guids.Append(dynamic_cast<EntityTreeItem*>(item)->GetEntityGuid());
 	for(int i=0;i<item->childCount();i++)
 	{
-		guids.AppendArray(SelectRecursive(dynamic_cast<EntityTreeItem*>(item->child(i))));
+		Util::Array<EntityGuid> childGuids = SelectRecursive(dynamic_cast<EntityTreeItem*>(item->child(i)));
+		for (int j = 0; j < childGuids.Size(); j++)
+		{
+			if (InvalidIndex == guids.BinarySearchIndex(childGuids[j]))
+			{
+				guids.InsertSorted(childGuids[j]);
+			}
+		}		
 	}
 	return guids;
 }
@@ -233,7 +240,15 @@ EntityTreeWidget::SelectAllChildren()
 	Util::Array<EntityGuid> guids;
 	for(int i=0;i<items.size();i++)
 	{
-		guids.AppendArray(SelectRecursive(dynamic_cast<EntityTreeItem*>(items[i])));
+		Util::Array<EntityGuid> childGuids = SelectRecursive(dynamic_cast<EntityTreeItem*>(items[i]));
+		for (int j = 0; j < childGuids.Size(); j++)
+		{
+			if (InvalidIndex == guids.BinarySearchIndex(childGuids[j]))
+			{
+				guids.InsertSorted(childGuids[j]);
+			}
+		}
+		//guids.AppendArray(SelectRecursive(dynamic_cast<EntityTreeItem*>(items[i])));
 	}
 	Ptr<SelectAction> action = SelectAction::Create();
 	action->SetSelectionMode(SelectAction::SetSelection);
@@ -255,6 +270,22 @@ EntityTreeWidget::GetDirectChildren(const EntityGuid &id)
 	}
 	return children;
 
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+Util::Array<Ptr<Game::Entity>>
+EntityTreeWidget::GetSelection() const
+{
+	QList<QTreeWidgetItem *> items = this->selectedItems();
+	Util::Array<Ptr<Game::Entity>> ents;
+	for (int i = 0; i < items.size(); i++)
+	{
+		EntityGuid guid = dynamic_cast<EntityTreeItem*>(items[i])->GetEntityGuid();
+		ents.Append(LevelEditor2EntityManager::Instance()->GetEntityById(guid));
+	}
+	return ents;
 }
 
 //------------------------------------------------------------------------------
@@ -288,49 +319,112 @@ EntityTreeWidget::contextMenuEvent(QContextMenuEvent * event)
 	{
 		return;
 	}
-	Ptr<Game::Entity> entity = LevelEditor2EntityManager::Instance()->GetEntityById(myitem->GetEntityGuid());
-	Util::String oldcategory = entity->GetString(Attr::EntityCategory);
-	// we dont support morphing light sources
-	if (oldcategory == "Light")
+	if (this->selectedItems().count() > 1)
 	{
-		return;
-	}
-
-	
-	QMenu menu;
-	QAction* morphAction = menu.addAction("Morph entity");
-	QAction* morphToEnvironment = menu.addAction("Morph to model");
-	if (entity->GetInt(Attr::EntityType) != Game)
-	{
-		morphToEnvironment->setDisabled(true);
-	}
-	QAction* selected = menu.exec(event->globalPos());
-	if (selected == morphAction)
-	{			
-		Ptr<Toolkit::EditorBlueprintManager> manager = Toolkit::EditorBlueprintManager::Instance();
-		QStringList items;
-		int selected = 0;
-		for (int i = 0; i < manager->GetNumCategories();i++)
-		{ 
-			Util::String cat = manager->GetCategoryByIndex(i);
-			if (cat == oldcategory)
+		QMenu menu;
+		QAction* morphAction = menu.addAction("Morph entity");
+		QAction* morphToEnvironment = menu.addAction("Morph to model");
+		QAction* sel = menu.exec(event->globalPos());
+		if (sel == morphAction)
+		{
+			Ptr<Toolkit::EditorBlueprintManager> manager = Toolkit::EditorBlueprintManager::Instance();
+			QStringList items;
+			int selected = 0;
+			for (int i = 0; i < manager->GetNumCategories(); i++)
 			{
-				selected = i;
+				Util::String cat = manager->GetCategoryByIndex(i);				
+				items.append(cat.AsCharPtr());
 			}
-			items.append(cat.AsCharPtr());
+			bool ok;
+			QString target = QInputDialog::getItem(this, "Select new blueprint", "Blueprint", items, selected, false, &ok);
+			if (ok)
+			{
+				Util::Array<Ptr<Game::Entity>> selection = this->GetSelection();
+				for (int i = 0; i < selection.Size(); i++)
+				{
+					Util::String cat = selection[i]->GetString(Attr::EntityCategory);
+					if (cat != "Transform" && cat != "Light" && cat != "NavMeshData")
+					{
+						LevelEditor2EntityManager::Instance()->MorphEntity(selection[i], target.toLatin1().constData());
+						EntityTreeItem * item = GetEntityTreeItem(selection[i]->GetGuid(Attr::EntityGuid));
+						item->SetIcon((EntityType)selection[i]->GetInt(Attr::EntityType));
+					}
+				}				
+			}
 		}
-		bool ok;
-		QString target = QInputDialog::getItem(this, "Select new blueprint", "Blueprint", items, selected, false, &ok);
-		if (ok)
-		{			
-			LevelEditor2EntityManager::Instance()->MorphEntity(entity, target.toLatin1().constData());
+		else if (sel == morphToEnvironment)
+		{
+			Util::Array<Ptr<Game::Entity>> selection = this->GetSelection();
+			for (int i = 0; i < selection.Size(); i++)
+			{
+				Util::String cat = selection[i]->GetString(Attr::EntityCategory);
+				if (cat != "Transform" && cat != "Light" && cat != "NavMeshData" && cat != "_Environment")
+				{
+					LevelEditor2EntityManager::Instance()->MorphEntity(selection[i], "_Environment");
+					EntityTreeItem * item = GetEntityTreeItem(selection[i]->GetGuid(Attr::EntityGuid));
+					item->SetIcon((EntityType)selection[i]->GetInt(Attr::EntityType));
+				}
+			}
 		}
 	}
-	else if (selected == morphToEnvironment)
+	else
 	{
-		LevelEditor2EntityManager::Instance()->MorphEntity(entity, "_Environment");
+		Ptr<Game::Entity> entity = LevelEditor2EntityManager::Instance()->GetEntityById(myitem->GetEntityGuid());
+		Util::String oldcategory = entity->GetString(Attr::EntityCategory);
+		// we dont support morphing light sources
+		if (oldcategory == "Light")
+		{
+			return;
+		}
+
+		if (oldcategory == "Transform")
+		{
+			QMenu menu;
+			QAction* selectAction = menu.addAction("Select all children");
+			QAction* selected = menu.exec(event->globalPos());
+			if (selected == selectAction)
+			{
+				this->SelectAllChildren();
+			}
+			return;
+		}
+
+		QMenu menu;
+		QAction* morphAction = menu.addAction("Morph entity");
+		QAction* morphToEnvironment = menu.addAction("Morph to model");
+		if (entity->GetInt(Attr::EntityType) != Game)
+		{
+			morphToEnvironment->setDisabled(true);
+		}
+		QAction* selected = menu.exec(event->globalPos());
+		if (selected == morphAction)
+		{
+			Ptr<Toolkit::EditorBlueprintManager> manager = Toolkit::EditorBlueprintManager::Instance();
+			QStringList items;
+			int selected = 0;
+			for (int i = 0; i < manager->GetNumCategories(); i++)
+			{
+				Util::String cat = manager->GetCategoryByIndex(i);
+				if (cat == oldcategory)
+				{
+					selected = i;
+				}
+				items.append(cat.AsCharPtr());
+			}
+			bool ok;
+			QString target = QInputDialog::getItem(this, "Select new blueprint", "Blueprint", items, selected, false, &ok);
+			if (ok)
+			{
+				LevelEditor2EntityManager::Instance()->MorphEntity(entity, target.toLatin1().constData());
+			}
+		}
+		else if (selected == morphToEnvironment)
+		{
+			LevelEditor2EntityManager::Instance()->MorphEntity(entity, "_Environment");
+		}
+		myitem->SetIcon((EntityType)entity->GetInt(Attr::EntityType));
 	}
-	myitem->SetIcon((EntityType)entity->GetInt(Attr::EntityType));
+	
 }
 
 //------------------------------------------------------------------------------

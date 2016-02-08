@@ -36,6 +36,7 @@ PlacementUtil::PlacementUtil() :
     currentTransformMode(NONE),
     currentPlacementState(IDLE),
 	groupMode(false),
+	groupPivotTranslate(false),
 	selectionFocusIndex(0)
 {
 	__ConstructSingleton;
@@ -47,6 +48,7 @@ PlacementUtil::PlacementUtil() :
     this->activateTranslateKey = Input::Key::W;
     this->activateRotateKey = Input::Key::E;
     this->activateScaleKey = Input::Key::R;
+	this->activateGroupTranslateKey = Input::Key::D;
     this->activateGroundPlacementKey = Input::Key::Shift;
     this->activateAxisLockKey = Input::Key::Control;
 	this->activateSnapPlacementKey = Input::Key::X;
@@ -152,6 +154,7 @@ PlacementUtil::HandleInput()
         this->translateFeature->ActivateRelativeMode(keyboard->KeyPressed(this->activateGroundPlacementKey));
         this->translateFeature->ActivateSnapMode(keyboard->KeyPressed(this->activateSnapPlacementKey));
         this->translateFeature->ActivateAxisLocking(keyboard->KeyPressed(this->activateAxisLockKey));
+		this->groupPivotTranslate = keyboard->KeyPressed(this->activateGroupTranslateKey);
     }
 
     if (this->scaleFeature.isvalid())
@@ -323,7 +326,7 @@ PlacementUtil::ApplyTransformFeatureToMatrices()
                 }
                 else if (ROTATE == this->currentTransformMode)
                 {
-					if (!this->groupMode)
+					if (!this->groupPivotTranslate)
 					{
 						// special way to rotate scaled matrices to prevent sheared results.
 						// translate to global origin, rotate, then translate back
@@ -336,8 +339,8 @@ PlacementUtil::ApplyTransformFeatureToMatrices()
 					else
 					{
 						Math::matrix44 newMatrix, initGroupMatrix;
-						initGroupMatrix.identity();
-						initGroupMatrix.set_position(this->selectionInitialGroupMatrix.get_position());
+						initGroupMatrix.identity();						
+						initGroupMatrix.set_position(this->selectedInitialMatrices[0].get_position());
 						newMatrix = Math::matrix44::multiply( this->selectedInitialMatrices[i], Math::matrix44::inverse(initGroupMatrix) );
 						newMatrix = Math::matrix44::multiply( newMatrix, transformDelta );
 						newMatrix = Math::matrix44::multiply( newMatrix, initGroupMatrix );
@@ -357,6 +360,10 @@ PlacementUtil::ApplyTransformFeatureToMatrices()
 			// update matrices
 			Ptr<SetTransform> msg = SetTransform::Create();
 			msg->SetMatrix(this->selectedMatrices[i]);
+			if (this->groupPivotTranslate && this->selectedMatrices.Size() == 1)
+			{
+				msg->SetDistribute(false);
+			}
 			__SendSync(entity, msg);
         }
 

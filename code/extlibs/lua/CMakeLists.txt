@@ -52,6 +52,9 @@ SET(extlibs_lua_SRCS
     lzio.cc
     lzio.h
     print.cc
+	liolib.cc
+	loadlib.cc
+	loslib.cc	
 )
 SOURCE_GROUP(lua FILES ${extlibs_lua_SRCS})
 
