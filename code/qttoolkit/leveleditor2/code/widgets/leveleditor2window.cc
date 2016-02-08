@@ -169,6 +169,7 @@ LevelEditor2Window::showEvent(QShowEvent* e)
 	this->restoreGeometry(settings.value("geometry").toByteArray());
 	this->restoreState(settings.value("windowState").toByteArray(), 0);
 	this->assetBrowserWindow->Open();
+    this->assetBrowserWindow->close();
 }
 
 //------------------------------------------------------------------------------
