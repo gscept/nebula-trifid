@@ -7,6 +7,7 @@
 #include "animjobutil.h"
 #include "coreanimation/animsamplemixinfo.h"
 #include "coreanimation/sampletype.h"
+#include "characters/characterjointmask.h"
 
 namespace CoreAnimation
 {

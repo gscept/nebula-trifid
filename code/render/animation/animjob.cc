@@ -20,6 +20,7 @@ using namespace CoreAnimation;
 */
 AnimJob::AnimJob() :
     animSequencer(0),
+	mask(0),
     enqueueMode(AnimJobEnqueueMode::Intercept),
     trackIndex(0),
     exclusiveTag(InvalidIndex),
@@ -298,10 +299,10 @@ AnimJob::Stop(Timing::Tick time)
 	Pause the anim job at the given time. Unpauses if already paused.
 */
 void 
-AnimJob::Pause()
+AnimJob::Pause(bool pause)
 {
 	// toggle pausing
-	this->isPaused = !this->isPaused;
+	this->isPaused = pause;
 
 	if (this->isPaused)
 	{
@@ -338,5 +339,6 @@ AnimJob::EmitAnimEvents(Timing::Tick startTime, Timing::Tick endTime, const Util
     Util::Array<AnimEventInfo> result;
     return result;
 }
+
 
 } // namespace Animation

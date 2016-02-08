@@ -159,19 +159,19 @@ CharacterAnimationController::StopAllTracks(bool allowFadeOut)
 //------------------------------------------------------------------------------
 /**
 */
-void 
-CharacterAnimationController::PauseTrack( IndexT trackIndex )
+void
+CharacterAnimationController::PauseTrack(IndexT trackIndex, bool pause)
 {
-	this->animSequencer.PauseTrack(trackIndex);
+	this->animSequencer.PauseTrack(trackIndex, pause);
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void 
-CharacterAnimationController::PauseAllTracks()
+CharacterAnimationController::PauseAllTracks(bool pause)
 {
-	this->animSequencer.PauseAllTracks();
+	this->animSequencer.PauseAllTracks(pause);
 }
 
 //------------------------------------------------------------------------------
