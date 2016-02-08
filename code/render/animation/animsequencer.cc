@@ -233,15 +233,15 @@ AnimSequencer::StopAllTracks(bool allowFadeOut)
 //------------------------------------------------------------------------------
 /**
 */
-void
-AnimSequencer::PauseTrack(IndexT trackIndex, bool pause)
+void 
+AnimSequencer::PauseTrack( IndexT trackIndex )
 {
 	IndexT i;
-	for (i = 0; i < this->animJobs.Size(); i++)
+	for (i = this->animJobs.Size() - 1; i != InvalidIndex; i--)
 	{
 		if (this->animJobs[i]->GetTrackIndex() == trackIndex)
 		{
-			this->animJobs[i]->Pause(pause);
+			this->animJobs[i]->Pause();
 		}
 	}
 }
@@ -250,23 +250,23 @@ AnimSequencer::PauseTrack(IndexT trackIndex, bool pause)
 /**
 */
 void 
-AnimSequencer::PauseAllTracks(bool pause)
+AnimSequencer::PauseAllTracks()
 {
 	IndexT i;
 	for (i = this->animJobs.Size() -1; i != InvalidIndex; i--)
 	{
-		this->animJobs[i]->Pause(pause);
+		this->animJobs[i]->Pause();
 	}
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-void
-AnimSequencer::SetTime(Timing::Tick time)
+void 
+AnimSequencer::SetTime( Timing::Tick time )
 {
 	IndexT i;
-	for (i = 0; i < this->animJobs.Size(); i++)
+	for (i = this->animJobs.Size() -1; i != InvalidIndex; i--)
 	{
 		this->animJobs[i]->SetTime(time);
 	}

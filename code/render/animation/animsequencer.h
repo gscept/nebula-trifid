@@ -50,9 +50,9 @@ public:
     /// stop all animations on all tracks
     void StopAllTracks(bool allowFadeOut=true);
 	/// pauses all anim jobs on a given track
-	void PauseTrack(IndexT trackIndex, bool pause=true);
+	void PauseTrack(IndexT trackIndex);
 	/// pauses all animations on all tracks
-	void PauseAllTracks(bool pause = true);
+	void PauseAllTracks();
 
 	/// sets time for all tracks in sequencer
 	void SetTime(Timing::Tick time);
