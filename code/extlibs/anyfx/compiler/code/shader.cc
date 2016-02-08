@@ -155,8 +155,6 @@ Shader::Generate(
 		this->preamble.append(version);
 	}
 
-    this->preamble.append("#extension GL_ARB_bindless_texture : require\n");
-
 	// this list holds a couple of defines which are inserted into the preamble of the code in order to be able to separate functions depending on shader type
 	const std::string shaderDefines[] =
 	{
