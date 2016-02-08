@@ -6,3 +6,5 @@ export_win32
 *.public.*
 *.debug.*
 
+out-xna
+/out15
