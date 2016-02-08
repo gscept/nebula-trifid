@@ -99,6 +99,27 @@ LuaServer::LuaStringReader(lua_State* /*s*/, LuaStringReaderData* data, size_t* 
 
 //------------------------------------------------------------------------------
 /**
+*/
+void
+LuaServer::AddLuaPath(const IO::URI & path)
+{	
+	lua_getglobal(this->luaState, "package");
+	lua_getfield(this->luaState, -1, "path"); // get field "path" from table at top of stack (-1)
+	Util::String cur_path = lua_tostring(this->luaState, -1); // grab path string from top of stack
+	cur_path.Append(";"); // do your path magic here
+	Util::String extrapath = path.LocalPath();
+#ifdef WIN32
+	extrapath.SubstituteChar('/', '\\');
+#endif
+	cur_path.Append(extrapath);
+	lua_pop(this->luaState, 1); // get rid of the string on the stack we just pushed on line 5
+	lua_pushstring(this->luaState, cur_path.AsCharPtr()); // push the new one
+	lua_setfield(this->luaState, -2, "path"); // set the field "path" in table at -2 with value at top of stack
+	lua_pop(this->luaState, 1); // get rid of package table from top of stack			
+}
+
+//------------------------------------------------------------------------------
+/**
     This is the global callback function for all custom LUA commands which
     have been created with RegisterCommand().
 */
@@ -308,12 +329,9 @@ LuaServer::Open()
         n_assert(0 != this->luaState);
 
         // provide access to some standard libraries
-        luaopen_base(this->luaState);
-        luaopen_string(this->luaState);
-        luaopen_table(this->luaState);
-        luaopen_math(this->luaState);
-        luaopen_debug(this->luaState);		
-
+		luaL_openlibs(this->luaState);        		
+		this->AddLuaPath("scr:/?/init.lua");
+		this->AddLuaPath("scr:/?.lua");
         return true;
     }
     return false;
