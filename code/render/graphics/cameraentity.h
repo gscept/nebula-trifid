@@ -48,6 +48,9 @@ public:
     /// get view frustum
     const Math::frustum& GetViewFrustum() const;
 
+	/// calculate position as a screen space coordinate
+	Math::float2 CalculateScreenSpacePosition(const Math::float4& pos);
+
     /// handle a message
     virtual void HandleMessage(const Ptr<Messaging::Message>& msg);
 

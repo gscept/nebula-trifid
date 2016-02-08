@@ -32,6 +32,9 @@ public:
 	/// discards handler
 	virtual bool Discard();
 
+	/// handle on-frame stuff like overlay UI
+	virtual void OnFrame();
+
 	/// returns true if handler is setup
 	const bool IsSetup() const;
 

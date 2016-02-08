@@ -271,7 +271,7 @@ ShaderVariableInstanceBase::SetDeferredTexture(const Util::String& name)
 inline void
 ShaderVariableInstanceBase::SetValue(const Util::Variant& v)
 {
-    //n_assert(value.GetType() == v.GetType());
+    n_assert(value.GetType() == v.GetType());
     this->value = v;
 }
 

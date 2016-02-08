@@ -147,7 +147,7 @@ ModelPhysics::Load(const Ptr<IO::Stream>& stream)
 		}
 
 		// then make sure we have the options tag
-		n_assert2(reader->SetToFirstChild("Options"), "CORRUPT .attributes FILE!: First tag must be Options!");
+		n_assert2(reader->SetToFirstChild("Options"), "CORRUPT .physics FILE!: First tag must be 'Options'!");
 
 		// now load options
 		this->physicsMode = (ToolkitUtil::PhysicsExportMode)reader->GetInt("exportMode");

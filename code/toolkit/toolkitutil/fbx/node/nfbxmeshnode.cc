@@ -903,6 +903,7 @@ NFbxMeshNode::CalculateTangentsAndBinormals()
 
 //------------------------------------------------------------------------------
 /**
+	Hmm, maybe a way to check if we have more than 255 indices, then we should switch to using Joint indices as complete uints?
 */
 void 
 NFbxMeshNode::ExtractSkin()
@@ -915,6 +916,7 @@ NFbxMeshNode::ExtractSkin()
 	memset(jointArray, 0, sizeof(int)*vertexCount*4);
 	memset(weightArray, 0, sizeof(double)*vertexCount*4);
 	memset(slotArray, 0, sizeof(int)*vertexCount);
+	int maxIndex = 0;
 
 	for (int skinIndex = 0; skinIndex < skinCount; skinIndex++)
 	{
@@ -950,6 +952,7 @@ NFbxMeshNode::ExtractSkin()
 
 					jointData[stride] = jointNode->GetJointIndex();
 					weightData[stride] = weight;
+					maxIndex = Math::n_max(jointData[stride], maxIndex);
 					slotArray[vertex]++;
 				}
 			}
@@ -962,8 +965,13 @@ NFbxMeshNode::ExtractSkin()
 		MeshBuilderVertex& vertex = mesh->VertexAt(vertexIndex);
 		int* indices = jointArray + (vertexIndex*4);
 		double* weights = weightArray + (vertexIndex*4);
+
+		// set weights
 		vertex.SetComponent(MeshBuilderVertex::WeightsUB4NIndex, float4((float)weights[0], (float)weights[1], (float)weights[2], (float)weights[3]));
-		vertex.SetComponent(MeshBuilderVertex::JIndicesUB4Index, float4((float)indices[0], (float)indices[1], (float)indices[2], (float)indices[3]));
+
+		// if we have more than 255 joints, use uncompressed joints
+		if (maxIndex <= 255)	vertex.SetComponent(MeshBuilderVertex::JIndicesUB4Index, float4((float)indices[0], (float)indices[1], (float)indices[2], (float)indices[3]));
+		else					vertex.SetComponent(MeshBuilderVertex::JIndicesIndex, float4((float)indices[0], (float)indices[1], (float)indices[2], (float)indices[3]));
 	}
 
 	delete [] slotArray;

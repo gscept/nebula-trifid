@@ -15,8 +15,7 @@
 #include <QVBoxLayout>
 namespace Widgets
 {
-class ModelNodeFrame : 
-	public QFrame
+class ModelNodeFrame : public QFrame
 {
 public:
 	/// constructor

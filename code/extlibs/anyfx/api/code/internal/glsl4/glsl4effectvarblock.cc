@@ -166,15 +166,6 @@ GLSL4EffectVarblock::SetupSlave(eastl::vector<InternalEffectProgram*> programs, 
 //------------------------------------------------------------------------------
 /**
 */
-void
-GLSL4EffectVarblock::SetBuffer(void* handle)
-{
-	*this->bufferHandle = handle;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
 void 
 GLSL4EffectVarblock::Commit()
 {
@@ -186,7 +177,7 @@ GLSL4EffectVarblock::Commit()
             if (buf->bindRange)
             {
 #ifdef GL4_MULTIBIND
-				GLSL4EffectProgram::SetVarblockBinding(this->uniformBlockBinding, buf->handle, buf->offset, buf->size);
+				GLSL4EffectProgram::SetVarblockBinding(this->uniformBlockBinding, this->masterBlock->isDirty, buf->handle, buf->offset, buf->size);
 				/*
 				this->activeProgram->varblockRangeBindBuffers[this->uniformBlockBinding] = buf->handle;
 				this->activeProgram->varblockRangeBindOffsets[this->uniformBlockBinding] = buf->offset;
@@ -209,7 +200,7 @@ GLSL4EffectVarblock::Commit()
             else
             {
 #ifdef GL4_MULTIBIND
-				GLSL4EffectProgram::SetVarblockBinding(this->uniformBlockBinding, buf->handle, 0, buf->size);
+				GLSL4EffectProgram::SetVarblockBinding(this->uniformBlockBinding, this->masterBlock->isDirty, buf->handle, 0, buf->size);
 				/*
 				this->activeProgram->varblockRangeBindBuffers[this->uniformBlockBinding] = buf->handle;
 				this->activeProgram->varblockRangeBindOffsets[this->uniformBlockBinding] = 0;
@@ -229,7 +220,7 @@ GLSL4EffectVarblock::Commit()
         }
 		else
 		{
-			GLSL4EffectProgram::SetVarblockBinding(this->uniformBlockBinding, 0, 0, 1);
+			GLSL4EffectProgram::SetVarblockBinding(this->uniformBlockBinding, this->masterBlock->isDirty, 0, 0, 1);
 			/*
 			this->activeProgram->varblockRangeBindBuffers[this->uniformBlockBinding] = 0;
 			this->activeProgram->varblockRangeBindOffsets[this->uniformBlockBinding] = 0;
@@ -238,6 +229,8 @@ GLSL4EffectVarblock::Commit()
 			*/
 		}
 	}
+	// uncheck dirty flag
+	this->masterBlock->isDirty = false;
 }
 
 //------------------------------------------------------------------------------

@@ -2418,6 +2418,21 @@ ContentBrowserWindow::OnDebugPage()
 /**
 */
 void
+ContentBrowserWindow::OnFrame()
+{
+	if (this->animationHandler.isvalid() && this->animationHandler->IsSetup()) this->animationHandler->OnFrame();
+	if (this->audioHandler.isvalid() && this->audioHandler->IsSetup()) this->audioHandler->OnFrame();
+	if (this->uiHandler.isvalid() && this->uiHandler->IsSetup()) this->uiHandler->OnFrame();
+	if (this->meshHandler.isvalid() && this->meshHandler->IsSetup()) this->meshHandler->OnFrame();
+	if (this->modelHandler.isvalid() && this->modelHandler->IsSetup()) this->modelHandler->OnFrame();
+	if (this->textureHandler.isvalid() && this->textureHandler->IsSetup()) this->textureHandler->OnFrame();
+	if (this->materialHandler.isvalid() && this->materialHandler->IsSetup()) this->materialHandler->OnFrame();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 ContentBrowserWindow::ResetLayout()
 {
 	// restore the state of the window and all dock widgets

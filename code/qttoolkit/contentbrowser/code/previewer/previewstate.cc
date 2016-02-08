@@ -86,8 +86,9 @@ PreviewState::OnFrame()
 	bool lastShowSky = this->showSky;
 	int lastShowPassNumber = this->showPassNumber;
 	const char* textures[] = { "None", "Diffuse", "Specular", "Emissive", "Lighting" };
-	ImGui::Begin("Viewport settings", NULL, ImVec2(0, 0), 0.0f, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
-		ImGui::SetWindowPos(ImVec2(0, 0));
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+	ImGui::Begin("Viewport settings", NULL, ImVec2(0, 0), 0.0f, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+		ImGui::SetWindowPos(ImVec2(10, 10));
 		ImGui::Checkbox("Ambient occlusion", &this->showAO);
 		ImGui::SameLine();
 		ImGui::Checkbox("Worklight", &this->workLight);
@@ -99,9 +100,14 @@ PreviewState::OnFrame()
 		ImGui::Checkbox("Physics", &this->showPhysics);
 		ImGui::SameLine();
 		ImGui::Checkbox("Show sky", &this->showSky);
+	ImGui::End();
+	
+	ImGui::Begin("Pass debug", NULL, ImVec2(322, 0), 0.0f, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+		ImGui::SetWindowPos(ImVec2(10, 40));
 		if (ImGui::CollapsingHeader("Passes"))
 		{
 			ImGui::Combo("Show pass", &this->showPassNumber, textures, 5);
+
 			if (this->showPassNumber > 0)
 			{
 				if (lastShowPassNumber != this->showPassNumber)
@@ -118,9 +124,13 @@ PreviewState::OnFrame()
 					ImGui::Image(this->showPass, ImVec2(320, 320 * ratio), ImVec2(0, 1), ImVec2(1, 0), ImVec4(1,1,1,1), ImVec4(0,0,0,1));
 				}
 			}
+			ImGui::SetWindowSize(ImVec2(322, 0));							// trigger a resize if we have the header open
+
 		}
 	ImGui::End();
+	ImGui::PopStyleVar();
 
+	ContentBrowserApp::Instance()->GetWindow()->OnFrame();
 	Dynui::ImguiAddon::EndFrame();
 
 	if (lastFrameAO != this->showAO)
@@ -459,6 +469,9 @@ PreviewState::SetSurfacePreview(bool b)
 void
 PreviewState::SaveThumbnail(const Util::String& path, bool swapStage)
 {
+	// hmm, dont want UI to draw to ImGui
+	ImGui::NewFrame();
+
 	// render a single frame
 	if (swapStage)
 	{

@@ -104,6 +104,9 @@ public:
 	/// call when removing a texture item
 	void RemoveTextureItem(Widgets::TextureItem* item);
 
+	/// called from the current state to update onframe events
+	void OnFrame();
+
 public slots:
 	/// updates library utilities, gets the resource which as been updated
 	void UpdateLibrary();
@@ -116,17 +119,17 @@ private slots:
 	void ImportTexture();
 
 	/// updates animation libraryz
-	void UpdateAnimationLibrary( QTreeWidgetItem* animationItem );
+	void UpdateAnimationLibrary(QTreeWidgetItem* animationItem);
 	/// updates audio library
-	void UpdateAudioLibrary( QTreeWidgetItem* audioItem );
+	void UpdateAudioLibrary(QTreeWidgetItem* audioItem);
 	/// updates ui library
 	void UpdateUILibrary(QTreeWidgetItem* audioItem);
 	/// updates mesh library
-	void UpdateMeshLibrary( QTreeWidgetItem* meshItem );
+	void UpdateMeshLibrary(QTreeWidgetItem* meshItem);
 	/// updates model library
-	void UpdateModelLibrary( QTreeWidgetItem* modelItem );
+	void UpdateModelLibrary(QTreeWidgetItem* modelItem);
 	/// updates texture library
-	void UpdateTextureLibrary( QTreeWidgetItem* textureItem );
+	void UpdateTextureLibrary(QTreeWidgetItem* textureItem);
 
     /// called whenever a model has been imported
     void OnModelImported(const Util::String& res);
@@ -200,6 +203,7 @@ private slots:
     void OnAbout();
     /// called when Debug Page is clicked
     void OnDebugPage();
+
 
 	/// called when the user presses the reset geometry button
 	void ResetLayout();

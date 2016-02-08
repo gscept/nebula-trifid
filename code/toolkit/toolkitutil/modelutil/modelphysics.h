@@ -68,8 +68,8 @@ private:
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-ModelPhysics::SetName( const Util::String& name )
+inline void
+ModelPhysics::SetName(const Util::String& name)
 {
 	n_assert(name.IsValid());
 	this->name = name;
@@ -87,8 +87,8 @@ ModelPhysics::GetName() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-ModelPhysics::SetPhysicsMesh( const Util::String& name )
+inline void
+ModelPhysics::SetPhysicsMesh(const Util::String& name)
 {
 	n_assert(name.IsValid());
 	this->physicsMesh = name;

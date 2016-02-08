@@ -26,6 +26,7 @@ namespace Widgets
 class CharacterNodeFrame;
 class ParticleNodeFrame;
 class ModelNodeFrame;
+class PhysicsNodeFrame;
 class ModelHandler : public BaseHandler
 {
 	Q_OBJECT
@@ -84,6 +85,9 @@ public:
 	/// saves this current state as a new version
 	void OnNewVersion();
 
+	/// handles on-frame event
+	void OnFrame();
+
 signals:
 	/// called whenever a model has been saved with a new name
 	void ModelSavedAs(const Util::String& res);
@@ -116,6 +120,7 @@ private:
 	Ui::ModelInfoWidget* ui;
 	Util::Array<ModelNodeFrame*> nodeFrames;
 	Util::Array<ParticleNodeFrame*> particleFrames;
+	Util::Array<PhysicsNodeFrame*> physicsFrames;
 	CharacterNodeFrame* characterFrame;
 	Ptr<ToolkitUtil::ModelAttributes> attributes;
 	Ptr<ToolkitUtil::ModelConstants> constants;

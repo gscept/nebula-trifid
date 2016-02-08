@@ -87,9 +87,9 @@ private:
 	bool imagesDirty;
 
 	/// update multi binding buffer, but only flags as dirty if any change has happened
-	static void SetVarblockBinding(unsigned index, int handle, unsigned offset, unsigned range);
+	static void SetVarblockBinding(unsigned index, bool force, int handle, unsigned offset, unsigned range);
 	/// same but for varbuffers
-	static void SetVarbufferBinding(unsigned index, int handle, unsigned offset, unsigned range);
+	static void SetVarbufferBinding(unsigned index, bool force, int handle, unsigned offset, unsigned range);
 
 	struct varblockBindings
 	{
@@ -146,9 +146,10 @@ struct GLSL4GlobalProgramState
 /**
 */
 inline void
-GLSL4EffectProgram::SetVarblockBinding(unsigned index, int handle, unsigned offset, unsigned range)
+GLSL4EffectProgram::SetVarblockBinding(unsigned index, bool force, int handle, unsigned offset, unsigned range)
 {
-	if (GLSL4EffectProgram::globalVarblockBindings.buffer[index] != handle ||
+	if (force ||
+		GLSL4EffectProgram::globalVarblockBindings.buffer[index] != handle ||
 		GLSL4EffectProgram::globalVarblockBindings.offset[index] != offset ||
 		GLSL4EffectProgram::globalVarblockBindings.length[index] != range)
 	{
@@ -164,9 +165,10 @@ GLSL4EffectProgram::SetVarblockBinding(unsigned index, int handle, unsigned offs
 /**
 */
 inline void
-GLSL4EffectProgram::SetVarbufferBinding(unsigned index, int handle, unsigned offset, unsigned range)
+GLSL4EffectProgram::SetVarbufferBinding(unsigned index, bool force, int handle, unsigned offset, unsigned range)
 {
-	if (GLSL4EffectProgram::globalVarbufferBindings.buffer[index] != handle ||
+	if (force ||
+		GLSL4EffectProgram::globalVarbufferBindings.buffer[index] != handle ||
 		GLSL4EffectProgram::globalVarbufferBindings.offset[index] != offset ||
 		GLSL4EffectProgram::globalVarbufferBindings.length[index] != range)
 	{

@@ -12,6 +12,7 @@ namespace AnyFX
 */
 InternalEffectVarbuffer::InternalEffectVarbuffer() :
 	active(false),
+	isDirty(true),
 	bufferHandle(0),
 	isSlave(false)
 {

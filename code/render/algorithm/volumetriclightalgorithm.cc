@@ -337,7 +337,7 @@ VolumetricLightAlgorithm::RenderGlobalLight()
 		pos.w() = 1.0f;
 
 		// calculate screen position
-		float2 screenPos = this->CalculateScreenSpaceCenter(pos, viewProj);
+		float2 screenPos = cam->CalculateScreenSpacePosition(pos);
 
 		// creates transform matrix where mesh is constantly pointing towards camera
 		float4 camPos = camTrans.get_position();
@@ -379,20 +379,6 @@ VolumetricLightAlgorithm::RenderGlobalLight()
 		// perform scattering
 		this->Scatter(screenPos);
 	}	
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-Math::float2 
-VolumetricLightAlgorithm::CalculateScreenSpaceCenter( const Math::float4& worldPos, const Math::matrix44& viewProj )
-{
-	float4 screenPos = matrix44::transform(worldPos, viewProj);
-	screenPos.x() /= screenPos.w();
-	screenPos.y() /= screenPos.w();
-	screenPos.x() = (screenPos.x() + 1.0f) * 0.5f;
-	screenPos.y() = 1.0f - ((screenPos.y() + 1.0f) * 0.5f);
-	return float2(screenPos.x(), screenPos.y());
 }
 
 //------------------------------------------------------------------------------

@@ -11,7 +11,7 @@
 #include "toolkitutil/meshutil/meshbuilder.h"
 
 #define MAXJOINTCOUNT 1024
-#define MAXJOINTSPERFRAGMENT 96
+#define MAXJOINTSPERFRAGMENT 255
 
 //------------------------------------------------------------------------------
 namespace ToolkitUtil

@@ -55,4 +55,14 @@ BaseHandler::Discard()
 	this->isSetup = false;
 	return true;
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+BaseHandler::OnFrame()
+{
+	// override in subclass
+}
+
 } // namespace Widgets

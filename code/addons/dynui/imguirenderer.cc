@@ -175,7 +175,7 @@ ImguiRenderer::Setup()
     
 	// load vbo
 	Ptr<MemoryVertexBufferLoader> vboLoader = MemoryVertexBufferLoader::Create();
-	vboLoader->Setup(components, 100000 * 3, NULL, 0, ResourceBase::UsageDynamic, ResourceBase::AccessWrite, ResourceBase::SyncingCoherentPersistent);
+	vboLoader->Setup(components, 1000000 * 3, NULL, 0, ResourceBase::UsageDynamic, ResourceBase::AccessWrite, ResourceBase::SyncingCoherentPersistent);
 
 	// load buffer
 	this->vbo = VertexBuffer::Create();
@@ -187,7 +187,7 @@ ImguiRenderer::Setup()
 
 	// load ibo
 	Ptr<MemoryIndexBufferLoader> iboLoader = MemoryIndexBufferLoader::Create();
-	iboLoader->Setup(IndexType::Index16, 10000 * 3, NULL, 0, ResourceBase::UsageDynamic, ResourceBase::AccessWrite, ResourceBase::SyncingCoherentPersistent);
+	iboLoader->Setup(IndexType::Index16, 100000 * 3, NULL, 0, ResourceBase::UsageDynamic, ResourceBase::AccessWrite, ResourceBase::SyncingCoherentPersistent);
 
 	// load buffer
 	this->ibo = IndexBuffer::Create();
@@ -218,9 +218,13 @@ ImguiRenderer::Setup()
 	io.RenderDrawListsFn = ImguiDrawFunction;
 
 	ImGuiStyle& style = ImGui::GetStyle();
+	style.FrameRounding = 2.5f;
+	style.GrabRounding = 2.5f;
+	style.ChildWindowRounding = 2.5f;
+	style.WindowTitleAlign = ImGuiAlign_Center;
 	//style.WindowRounding = 1.0f;
 	
-	ImVec4 nebulaOrange(1.0f, 0.54f, 0.0f, 255.0f);
+	ImVec4 nebulaOrange(1.0f, 0.30f, 0.0f, 1.0f);
 	nebulaOrange.w = 0.3f;
 	style.Colors[ImGuiCol_TitleBg] = nebulaOrange;
 	nebulaOrange.w = 0.6f;
@@ -254,7 +258,18 @@ ImguiRenderer::Setup()
 	style.Colors[ImGuiCol_Border] = nebulaOrange;
 	style.Colors[ImGuiCol_CheckMark] = nebulaOrange;
 	style.Colors[ImGuiCol_ComboBg] = ImVec4(0, 0, 0, 0.2f);
-	style.Colors[ImGuiCol_WindowBg] = ImVec4(0, 0, 0, 0.2f);
+
+	style.Colors[ImGuiCol_Button] = ImVec4(0.3f, 0.3f, 0.33f, 1.0f);
+	style.Colors[ImGuiCol_WindowBg] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
+	style.Colors[ImGuiCol_FrameBg] = ImVec4(0.2f, 0.25f, 0.25f, 1.0f);
+	style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.3f, 0.33f, 0.33f, 1.0f);
+	style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.3f, 0.33f, 0.33f, 1.0f);
+	style.Colors[ImGuiCol_Text] = ImVec4(0.73f, 0.73f, 0.73f, 1.0f);
+	style.Colors[ImGuiCol_SliderGrab] = ImVec4(0.13f, 0.13f, 0.13f, 1.0f);
+	style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.3f, 0.33f, 0.33f, 1.0f);
+	style.Colors[ImGuiCol_CheckMark] = ImVec4(1.0f, 0.47f, 0.0f, 1.0f);
+	style.Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.13f, 0.13f, 0.13f, 1.0f);
+	style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.3f, 0.33f, 0.33f, 1.0f);
 
 	// Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array.
 	io.KeyMap[ImGuiKey_Tab] = Key::Tab;             

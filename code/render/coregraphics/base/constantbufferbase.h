@@ -180,8 +180,8 @@ Base::ConstantBufferBase::UpdateArray(const T data, uint offset, uint size, uint
     n_assert(0 != this->buffer);
     switch (this->inUpdateSync)
     {
-    case true:  this->UpdateArraySync((void*)data, offset, size, count); break;
-    case false: this->UpdateArrayAsync((void*)data, offset, size, count); break;
+	case true:  this->UpdateSync((void*)data, offset, size * count); break;
+	case false: this->UpdateAsync((void*)data, offset, size * count); break;
     }
     this->isDirty = true;
 }

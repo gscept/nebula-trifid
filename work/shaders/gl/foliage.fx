@@ -306,7 +306,6 @@ vsTreeShadowPoint(vec4 position,
 	vec3 binormal,
 	out vec2 UV,
 	out vec4 ProjPos,
-	out vec4 WorldPos,
 	out int Instance) 
 {
 	vec4 dir = vec4(WindDirection.xyz, 0);
@@ -318,8 +317,7 @@ vsTreeShadowPoint(vec4 position,
 		
 	vec4 finalOffset = windDir * windStrength;
 	finalOffset = position + finalOffset;
-	WorldPos = Model * finalOffset;
-	ProjPos = ViewMatrixArray[gl_InstanceID] * WorldPos;
+	ProjPos = ViewMatrixArray[gl_InstanceID] * Model * finalOffset;
 	UV = uv;
 	Instance = gl_InstanceID;
 }
@@ -337,7 +335,6 @@ vsGrassShadowPoint(vec4 position,
 	[slot=5] in vec4 color,
 	out vec2 UV,
 	out vec4 ProjPos,
-	out vec4 WorldPos,
 	out int Instance) 
 {
 	vec4 dir = vec4(WindDirection.xyz, 0);
@@ -349,8 +346,7 @@ vsGrassShadowPoint(vec4 position,
 	
 	vec4 finalOffset = windDir * windStrength;
 	finalOffset = position + finalOffset;
-	WorldPos = Model * finalOffset;
-	ProjPos = ViewMatrixArray[gl_InstanceID] * WorldPos;
+	ProjPos = ViewMatrixArray[gl_InstanceID] * Model * finalOffset;
 	UV = uv;
 	Instance = gl_InstanceID;
 }

@@ -16,7 +16,7 @@ namespace Jobs
 class JobUniformDesc
 {
 public:
-    static const SizeT MaxNumBuffers = 2;
+    static const SizeT MaxNumBuffers = 4;
 
     /// default constructor
     JobUniformDesc();
@@ -24,6 +24,8 @@ public:
     JobUniformDesc(void* ptr, SizeT bufSize, SizeT scratchSize);
     /// constructor with 2 uniform buffers
     JobUniformDesc(void* ptr0, SizeT bufSize0, void* ptr1, SizeT bufSize1, SizeT scratchSize);
+	/// constructor with 3 uniform buffers
+	JobUniformDesc(void* ptr0, SizeT bufSize0, void* ptr1, SizeT bufSize1, void* ptr2, SizeT bufSize2, SizeT scratchSize);
 
     /// update the uniform desc, all sizes in bytes
     void Update(IndexT index, void* ptr, SizeT bufSize, SizeT scratchSize);
@@ -86,6 +88,22 @@ JobUniformDesc::JobUniformDesc(void* ptr0_, SizeT bufSize0_, void* ptr1_, SizeT 
     this->ptr[1] = ptr1_;
     this->bufferSize[1] = bufSize1_;
     this->scratchSize = scratchSize_;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline
+JobUniformDesc::JobUniformDesc(void* ptr0_, SizeT bufSize0_, void* ptr1_, SizeT bufSize1_, void* ptr2_, SizeT bufSize2_, SizeT scratchSize_) :
+	numBuffers(3)
+{
+	this->ptr[0] = ptr0_;
+	this->bufferSize[0] = bufSize0_;
+	this->ptr[1] = ptr1_;
+	this->bufferSize[1] = bufSize1_;
+	this->ptr[2] = ptr2_;
+	this->bufferSize[2] = bufSize2_;
+	this->scratchSize = scratchSize_;
 }
 
 //------------------------------------------------------------------------------

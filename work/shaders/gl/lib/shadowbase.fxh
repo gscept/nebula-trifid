@@ -170,11 +170,9 @@ vsStaticPoint(in vec3 position,
 	in vec3 binormal,
 	out vec2 UV,
 	out vec4 ProjPos,
-	out vec4 WorldPos,
 	out int Instance) 
 {
-	WorldPos = Model * vec4(position, 1);
-	ProjPos = ViewMatrixArray[gl_InstanceID] * WorldPos;
+	ProjPos = ViewMatrixArray[gl_InstanceID] * Model * vec4(position, 1);
 	Instance = gl_InstanceID;
 	UV = uv;
 }
@@ -193,12 +191,10 @@ vsSkinnedPoint(in vec3 position,
 	[slot=8] in uvec4 indices,
 	out vec2 UV,
 	out vec4 ProjPos,
-	out vec4 WorldPos,
 	out int Instance) 
 {
-	vec4 skinnedPos = SkinnedPosition(position, weights, indices);
-	WorldPos = Model * skinnedPos;
-	ProjPos = ViewMatrixArray[gl_InstanceID] * WorldPos;
+	vec4 skinnedPos = SkinnedPosition(position, weights, indices);	
+	ProjPos = ViewMatrixArray[gl_InstanceID] * Model * skinnedPos;
 	Instance = gl_InstanceID;
 	UV = uv;
 }
@@ -215,13 +211,11 @@ vsStaticInstPoint(in vec3 position,
 	in vec3 binormal,
 	out vec2 UV,
 	out vec4 ProjPos,
-	out vec4 WorldPos,
 	out int Instance) 
 {
 	int csmStride = int(mod(gl_InstanceID, 4));
 	int modelStride = int(gl_InstanceID / 4);
-	WorldPos = ModelArray[modelStride] * vec4(position, 1);
-	ProjPos = ViewMatrixArray[csmStride] * WorldPos;
+	ProjPos = ViewMatrixArray[csmStride] * ModelArray[modelStride] * vec4(position, 1);
 	Instance = csmStride;
 	UV = uv;
 }
@@ -239,23 +233,23 @@ vsStaticInstPoint(in vec3 position,
 [maxvertexcount] = 3
 shader
 void 
-gsPoint(in vec2 uv[], in vec4 pos[], in vec4 worldpos[], flat in int instance[], out vec2 UV, out vec4 WorldPos)
+gsPoint(in vec2 uv[], in vec4 pos[], flat in int instance[], out vec2 UV, out vec4 ProjPos)
 {	
 	UV = uv[0];
-	WorldPos = pos[0];
-	gl_Position = pos[0];
+	ProjPos = pos[0];
+	gl_Position = ProjPos;
 	gl_Layer = instance[0];
 	EmitVertex();
 	
 	UV = uv[1];
-	WorldPos = pos[1];
-	gl_Position = pos[1];
+	ProjPos = pos[1];
+	gl_Position = ProjPos;
 	gl_Layer = instance[0];
 	EmitVertex();
 	
 	UV = uv[2];
-	WorldPos = pos[2];
-	gl_Position = pos[2];
+	ProjPos = pos[2];
+	gl_Position = ProjPos;
 	gl_Layer = instance[0];
 	EmitVertex();
 	EndPrimitive();
@@ -674,10 +668,10 @@ psVSMAlpha(in vec2 UV,
 shader
 void
 psVSMPoint(in vec2 UV,
-	in vec4 WorldPos,
+	in vec4 ProjPos,
 	[color0] out vec2 ShadowColor) 
 {
-	float depth = length(WorldPos - LightCenter);
+	float depth = ProjPos.z / ProjPos.w;
 	float moment1 = depth;
 	float moment2 = depth * depth;
 	
@@ -695,13 +689,13 @@ psVSMPoint(in vec2 UV,
 shader
 void
 psVSMAlphaPoint(in vec2 UV,
-	in vec4 WorldPos,
+	in vec4 ProjPos,
 	[color0] out vec2 ShadowColor) 
 {
 	float alpha = texture(AlbedoMap, UV).a;
 	if (alpha < AlphaSensitivity) discard;
 	
-	float depth = length(WorldPos - LightCenter);
+	float depth = ProjPos.z / ProjPos.w;
 	float moment1 = depth;
 	float moment2 = depth * depth;
 	

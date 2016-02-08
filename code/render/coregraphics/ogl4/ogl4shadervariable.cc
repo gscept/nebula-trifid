@@ -81,25 +81,27 @@ void OGL4ShaderVariable::Setup(AnyFX::EffectVariable* var)
 	case AnyFX::Bool:
 		this->SetType(BoolType);
 		break;
-	case AnyFX::Float2:
 	case AnyFX::Float3:
 	case AnyFX::Float4:	
-	case AnyFX::Double2:
 	case AnyFX::Double3:
 	case AnyFX::Double4:
-	case AnyFX::Integer2:
 	case AnyFX::Integer3:
 	case AnyFX::Integer4:
-	case AnyFX::UInteger2:
 	case AnyFX::UInteger3:
 	case AnyFX::UInteger4:
-	case AnyFX::Short2:
 	case AnyFX::Short3:
 	case AnyFX::Short4:
-	case AnyFX::Bool2:
 	case AnyFX::Bool3:
 	case AnyFX::Bool4:
 		this->SetType(VectorType);
+		break;
+	case AnyFX::Float2:
+	case AnyFX::Double2:
+	case AnyFX::Integer2:
+	case AnyFX::UInteger2:
+	case AnyFX::Short2:
+	case AnyFX::Bool2:
+		this->SetType(Vector2Type);
 		break;
 	case AnyFX::Matrix2x2:
 	case AnyFX::Matrix2x3:
@@ -405,16 +407,6 @@ OGL4ShaderVariable::SetBool(bool value)
 void
 OGL4ShaderVariable::SetBoolArray(const bool* values, SizeT count)
 {
-    // hmm... Win32's BOOL is actually an int
-    const int MaxNumBools = 128;
-    n_assert(count < MaxNumBools);
-    bool tmp[MaxNumBools];
-    IndexT i;
-    for (i = 0; i < count; i++)
-    {
-		tmp[i] = values[i];
-    }
-
     bool bufferBound = this->bufferBinding != NULL;
     switch (bufferBound)
     {
@@ -423,7 +415,7 @@ OGL4ShaderVariable::SetBoolArray(const bool* values, SizeT count)
         break;
     case false:
         n_assert(0 != this->effectVar);
-        this->effectVar->SetBoolArray((const bool*)tmp, count);
+		this->effectVar->SetBoolArray(values, count);
         break;
     }
 	

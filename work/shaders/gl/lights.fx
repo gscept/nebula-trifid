@@ -58,7 +58,7 @@ samplerstate SpotlightTextureSampler
 	BorderColor = { 0.0f, 0.0f, 0.0f, 0.0f };
 };
 
-#define SPECULAR_SCALE 12
+#define SPECULAR_SCALE 13
 #define ROUGHNESS_TO_SPECPOWER(x) exp2(SPECULAR_SCALE * x + 1)
 
 //---------------------------------------------------------------------------------------------------------------------------
@@ -361,7 +361,7 @@ GetInvertedOcclusionPointLight(float receiverDepthInLightSpace,
 	vec2 shadowSample = texture(ShadowProjCube, shadowUv).rg;
 	
 	// get pixel size of shadow projection texture	
-	return ChebyshevUpperBound(shadowSample, receiverDepthInLightSpace, 0.000000001f);
+	return ChebyshevUpperBound(shadowSample, receiverDepthInLightSpace, 0.00000001f);
 }
 
 //---------------------------------------------------------------------------------------------------------------------------
@@ -451,7 +451,7 @@ psPointShadow(in vec3 ViewSpacePosition,
 	vec4 albedoColor = texture(AlbedoBuffer, screenUV, 0);
 	float specPower = ROUGHNESS_TO_SPECPOWER(specColor.a);	
 	
-	float att = saturate(1.0 - length(lightDir) * LightPosRange.w);
+	float att = saturate(1.0 - distToSurface * LightPosRange.w);
 	att *= att;
 	lightDir = normalize(lightDir);
 	
@@ -469,7 +469,7 @@ psPointShadow(in vec3 ViewSpacePosition,
 	vec4 oColor = vec4(lightModColor.rgb * final, lightModColor.a);
 	
 	// shadows
-	float shadowFactor = GetInvertedOcclusionPointLight(distToSurface,
+	float shadowFactor = GetInvertedOcclusionPointLight(gl_FragCoord.z,
 						projDir);	
 	shadowFactor = saturate(lerp(1.0f, saturate(shadowFactor), ShadowIntensity));      	
 	

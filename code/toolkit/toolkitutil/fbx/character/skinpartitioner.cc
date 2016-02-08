@@ -105,8 +105,13 @@ SkinPartitioner::UpdateMesh( const MeshBuilder& sourceMesh, MeshBuilder& destina
 			{
 				MeshBuilderVertex vertex = sourceMesh.VertexAt(vertexIndices[vertexIndex]);
 
+				// figure out if we use UByte4 indices or unpacked indices
+				MeshBuilderVertex::ComponentIndex index;
+				if (vertex.HasComponent(MeshBuilderVertex::JIndicesBit)) index = MeshBuilderVertex::JIndicesIndex;
+				if (vertex.HasComponent(MeshBuilderVertex::JIndicesUB4Bit)) index = MeshBuilderVertex::JIndicesUB4Index;
+
 				// convert global indices to partition-local indices
-				const float4& globalIndices = vertex.GetComponent(MeshBuilderVertex::JIndicesUB4Index);
+				const float4& globalIndices = vertex.GetComponent(index);
 				float4 localIndices;
 				localIndices.x() = (float)fragment->GetLocalJointIndex((int)globalIndices.x());
 				localIndices.y() = (float)fragment->GetLocalJointIndex((int)globalIndices.y());
@@ -114,7 +119,7 @@ SkinPartitioner::UpdateMesh( const MeshBuilder& sourceMesh, MeshBuilder& destina
 				localIndices.w() = (float)fragment->GetLocalJointIndex((int)globalIndices.w());
 
 				newVertexIndices[vertexIndex] = destinationMesh.GetNumVertices();
-				vertex.SetComponent(MeshBuilderVertex::JIndicesUB4Index, localIndices);
+				vertex.SetComponent(index, localIndices);
 				destinationMesh.AddVertex(vertex);
 			}
 

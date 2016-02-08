@@ -55,8 +55,8 @@ readwrite IMAGE_FORMAT_TYPE imageCube WriteImage;
 #define SQRT_LN2 0.832554611f
 #define BLUR_SHARPNESS 8.0f
 
-#define KERNEL_RADIUS 3
-#define KERNEL_RADIUS_FLOAT 3.0f
+#define KERNEL_RADIUS 16
+#define KERNEL_RADIUS_FLOAT 16.0f
 #define HALF_KERNEL_RADIUS (KERNEL_RADIUS/2.0f)
 
 #define BLUR_TILE_WIDTH 320
@@ -71,15 +71,15 @@ groupshared IMAGE_LOAD_VEC SharedMemory[SHARED_MEM_SIZE];
 	The coords are 1D for our kernel since it operators on a single row/column at a time.
 */
 IMAGE_LOAD_VEC
-BilateralWeight(IMAGE_LOAD_VEC p, IMAGE_LOAD_VEC pi, float u)
+BilateralWeight(IMAGE_LOAD_VEC p, IMAGE_LOAD_VEC pi, float u, float ui)
 {
 	const float sigma = (KERNEL_RADIUS * 2 + 1) * 0.5f;
 	const float falloff = INV_LN2 / (2.0f * sigma * sigma);
-	//IMAGE_LOAD_VEC pixelDiff = IMAGE_LOAD_VEC(lessThan(saturate(pi - p), IMAGE_LOAD_VEC(2.0f * SQRT_LN2 / BLUR_SHARPNESS)));
+	IMAGE_LOAD_VEC pixelDiff = IMAGE_LOAD_VEC(lessThan(saturate(pi - p), IMAGE_LOAD_VEC(2.0f * SQRT_LN2 / BLUR_SHARPNESS)));
 	//IMAGE_LOAD_VEC pixelDiff = pi;
-	IMAGE_LOAD_VEC pixelDiff = saturate(pi - p);
+	//IMAGE_LOAD_VEC pixelDiff = saturate(pi - p);
 	//IMAGE_LOAD_VEC pixelDiff = pi;
-    return exp2(-u*u*falloff) * pixelDiff;
+    return abs(ui - u) * pixelDiff;
 }
 
 //------------------------------------------------------------------------------
@@ -136,7 +136,7 @@ csMainX()
 		IMAGE_LOAD_VEC color = IMAGE_LOAD_SWIZZLE(imageLoad(WriteImage, ivec3(writePos, y, gl_WorkGroupID.z)));
 		//IMAGE_LOAD_VEC color = IMAGE_LOAD_SWIZZLE(textureLod(ReadImagePoint, ivec3(writePos, y, gl_WorkGroupID.z), 0));
 		IMAGE_LOAD_VEC blurTotal = color;
-		float wTotal = 1;
+		IMAGE_LOAD_VEC wTotal = IMAGE_LOAD_VEC(1);
 		float i;
 
 		#pragma unroll
@@ -145,10 +145,11 @@ csMainX()
 		    // Sample the pre-filtered data with step size = 2 pixels
 		    float r = 2.0f*i + (-KERNEL_RADIUS_FLOAT + 0.5f);
 		    uint j = 2*uint(i) + gl_LocalInvocationID.x;
+			
 		    IMAGE_LOAD_VEC samp = SharedMemory[j];
-		    //IMAGE_LOAD_VEC w = BilateralWeight(color, samp, r);
-			blurTotal += samp;
-		    wTotal++;
+		    IMAGE_LOAD_VEC w = BilateralWeight(samp, color, r, writePos);
+			blurTotal += color * w;
+		    wTotal += w;
 		}
 
 		#pragma unroll
@@ -157,10 +158,11 @@ csMainX()
 		    // Sample the pre-filtered data with step size = 2 pixels
 		    float r = 2.0f*i + 1.5f;
 		    uint j = 2*uint(i) + gl_LocalInvocationID.x + KERNEL_RADIUS + 1;
+			
 		    IMAGE_LOAD_VEC samp = SharedMemory[j];
-		    //IMAGE_LOAD_VEC w = BilateralWeight(color, samp, r);
-			blurTotal += samp;
-		    wTotal++;
+			IMAGE_LOAD_VEC w = BilateralWeight(samp, color, r, writePos);
+			blurTotal += color * w;
+		    wTotal += w;
 		}
 		
 		IMAGE_LOAD_VEC blur = blurTotal / wTotal;
@@ -201,31 +203,32 @@ csMainY()
 		// Fetch (ao,z) at the kernel center
 		IMAGE_LOAD_VEC color = IMAGE_LOAD_SWIZZLE(imageLoad(WriteImage, ivec3(x, writePos, gl_WorkGroupID.z)));
 		IMAGE_LOAD_VEC blurTotal = color;
-		float wTotal = 1;
+		IMAGE_LOAD_VEC wTotal = IMAGE_LOAD_VEC(1);
 		float i;
 
 		#pragma unroll
 		for (i = 0; i < HALF_KERNEL_RADIUS; ++i)
 		{
 		    // Sample the pre-filtered data with step size = 2 pixels
-		    float r = 2.0f*i + (-KERNEL_RADIUS_FLOAT + 0.5f);
-		    uint j = 2*uint(i) + gl_LocalInvocationID.x;
+		    float r = 2.0f * i + (-KERNEL_RADIUS_FLOAT + 0.5f);
+		    uint j = 2 * uint(i) + gl_LocalInvocationID.x;
 		    IMAGE_LOAD_VEC samp = SharedMemory[j];
-		    //IMAGE_LOAD_VEC w = BilateralWeight(color, samp, r);
-			blurTotal += samp;
-		    wTotal++;
+		    IMAGE_LOAD_VEC w = BilateralWeight(samp, color, r, writePos);
+			blurTotal += color * w;
+		    wTotal += w;
 		}
 
 		#pragma unroll
 		for (i = 0; i < HALF_KERNEL_RADIUS; ++i)
 		{
 		    // Sample the pre-filtered data with step size = 2 pixels
-		    float r = 2.0f*i + 1.5f;
-		    uint j = 2*uint(i) + gl_LocalInvocationID.x + KERNEL_RADIUS + 1;
+		    float r = 2.0f * i + 1.5f;
+		    uint j = 2 * uint(i) + gl_LocalInvocationID.x + KERNEL_RADIUS + 1;
+			
 		    IMAGE_LOAD_VEC samp = SharedMemory[j];
-		    //IMAGE_LOAD_VEC w = BilateralWeight(color, samp, r);
-			blurTotal += samp;
-		    wTotal++;
+		    IMAGE_LOAD_VEC w = BilateralWeight(samp, color, r, writePos);
+			blurTotal += color * w;
+		    wTotal += w;
 		}
 		
 		IMAGE_LOAD_VEC blur = blurTotal / wTotal;

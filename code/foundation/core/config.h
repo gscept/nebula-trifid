@@ -303,8 +303,8 @@ static const int JobMaxSliceSize = 0xFFFF;
 #define __maxTextureBytes__ (268435456)
 #endif
 
-// enable render thread
-#define NEBULA_RENDER_THREAD (1)
+// enable render thread (deprecated)
+// #define NEBULA_RENDER_THREAD (1)
 
 #define NEBULA3_THREAD_DEFAULTSTACKSIZE 65536 
 

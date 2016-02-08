@@ -61,6 +61,14 @@ SurfaceConstant::Setup(const StringAtom& name, const Util::Array<Material::Mater
 		if (activeVar)
 		{
 			var = shader->CreateVariableInstance(this->name);
+
+#ifndef PUBLIC_BUILD
+			if (var->GetValue().GetType() != this->value.GetType()) n_warning("[WARNING]: Surface constant '%s' is type '%s' but is provided with a '%s'. Behaviour is undefined (crash/corruption).\n",
+				this->name.Value(),
+				Variant::TypeToString(var->GetValue().GetType()).AsCharPtr(),
+				Variant::TypeToString(this->value.GetType()).AsCharPtr());
+#endif
+
 			var->SetValue(this->value);
 		}
 
@@ -113,7 +121,17 @@ SurfaceConstant::SetValue(const Util::Variant& value)
 	for (i = 0; i < this->bindingsByIndex.Size(); i++)
 	{
 		const ConstantBinding& binding = this->bindingsByIndex[i];
-		if (binding.active) binding.var->SetValue(value);
+		if (binding.active)
+		{
+			binding.var->SetValue(value);
+
+#ifndef PUBLIC_BUILD
+			if (binding.var->GetValue().GetType() != this->value.GetType()) n_warning("[WARNING]: Surface constant '%s' is type '%s' but is provided with a '%s'. Behaviour is undefined (crash/corruption).\n",
+				this->name.Value(),
+				Variant::TypeToString(binding.var->GetValue().GetType()),
+				Variant::TypeToString(this->value.GetType()));
+		}
+#endif
 	}
 }
 

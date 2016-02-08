@@ -91,7 +91,7 @@ BillboardEntity::OnActivate()
     this->textureVariable = surface->GetConstant("AlbedoMap");
     this->colorVariable = surface->GetConstant("Color");
 
-	// create a variable instance and set the texture
+	// create a variable instance and set the texturez
 	this->textureVariable->SetTexture(this->texture->GetTexture());
 	nodeInstance->SetInViewSpace(this->viewAligned);
 

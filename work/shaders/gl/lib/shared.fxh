@@ -16,6 +16,8 @@
 shared varblock InstanceBlock [bool System = true; bool Instancing = true;]
 {
 	mat4 ModelArray[MAX_BATCH_SIZE];
+	mat4 ModelViewArray[MAX_BATCH_SIZE];
+	mat4 ModelViewProjectionArray[MAX_BATCH_SIZE];
 	int IdArray[MAX_BATCH_SIZE];
 };
 

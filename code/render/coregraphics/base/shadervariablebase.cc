@@ -70,6 +70,7 @@ ShaderVariableBase::TypeToString(Type t)
         case IntType:       return "int";
         case FloatType:     return "float";
         case VectorType:    return "vector";
+		case Vector2Type:	return "vector2";
         case MatrixType:    return "matrix";
         case BoolType:      return "bool";
         case TextureType:   return "texture";
@@ -89,6 +90,7 @@ ShaderVariableBase::StringToType(const String& str)
     if (str == "int") return IntType;
     else if (str == "float") return FloatType;
     else if (str == "vector") return VectorType;
+	else if (str == "vector2") return Vector2Type;
     else if (str == "matrix") return MatrixType;
     else if (str == "bool") return BoolType;
     else if (str == "texture") return TextureType;

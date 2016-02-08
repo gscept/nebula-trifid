@@ -355,7 +355,6 @@ ModelConstants::Save(const Ptr<Stream>& stream)
 
 				// end character node
 				writer->EndNode();
-
 			}
 
 			// end character nodes

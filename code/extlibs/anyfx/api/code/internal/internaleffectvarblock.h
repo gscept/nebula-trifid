@@ -38,7 +38,6 @@ private:
     const eastl::string& GetSignature() const;
     /// returns size
     const size_t GetSize() const;
-
 protected:
 	friend class EffectVarblock;
     friend class EffectVariable;
@@ -56,7 +55,7 @@ protected:
     virtual void SetupDefaultValues();
 
     /// set buffer 
-    virtual void SetBuffer(void* handle) = 0;
+    virtual void SetBuffer(void* handle);
 
 	/// binds varblocks prior to updating
 	virtual void Apply();
@@ -109,6 +108,16 @@ inline const eastl::string&
 InternalEffectVarblock::GetSignature() const
 {
 	return this->signature;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+InternalEffectVarblock::SetBuffer(void* handle)
+{
+	*this->bufferHandle = handle;
+	this->masterBlock->isDirty = true;
 }
 
 } // namespace AnyFX

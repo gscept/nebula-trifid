@@ -96,6 +96,10 @@ ShaderVariableInstanceBase::Prepare(ShaderVariable::Type type)
             this->value.SetType(Variant::Float4);
             break;
 
+		case ShaderVariable::Vector2Type:
+			this->value.SetType(Variant::Float2);
+			break;
+
         case ShaderVariable::MatrixType:
             this->value.SetType(Variant::Matrix44);
             break;

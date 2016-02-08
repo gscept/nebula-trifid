@@ -122,6 +122,20 @@ CameraEntity::SetCameraSettings(const CameraSettings& settings)
 
 //------------------------------------------------------------------------------
 /**
+*/
+Math::float2
+CameraEntity::CalculateScreenSpacePosition(const Math::float4& pos)
+{
+	float4 screenPos = matrix44::transform(pos, this->GetViewProjTransform());
+	screenPos.x() /= screenPos.w();
+	screenPos.y() /= screenPos.w();
+	screenPos.x() = (screenPos.x() + 1.0f) * 0.5f;
+	screenPos.y() = 1.0f - ((screenPos.y() + 1.0f) * 0.5f);
+	return float2(screenPos.x(), screenPos.y());
+}
+
+//------------------------------------------------------------------------------
+/**
     Handle a message, override this method accordingly in subclasses!
 */
 void

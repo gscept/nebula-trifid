@@ -26,6 +26,8 @@ public:
     /// returns name of varbuffer
     const eastl::string& GetName() const;
 
+	bool isDirty;
+
 protected:
 	friend class EffectVarbuffer;
 	friend class EffectStreamLoader;
@@ -43,7 +45,7 @@ protected:
     virtual void Commit();
 
 	/// set buffer 
-	virtual void SetBuffer(void* handle) = 0;
+	virtual void SetBuffer(void* handle);
 
     /// activates variable, this makes the uniform location be the one found in the given program
     virtual void Activate(InternalEffectProgram* program);
@@ -70,6 +72,16 @@ inline const eastl::string&
 InternalEffectVarbuffer::GetName() const
 {
     return this->name;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+InternalEffectVarbuffer::SetBuffer(void* handle)
+{
+	*this->bufferHandle = handle;
+	this->masterBuffer->isDirty = true;
 }
 
 } // namespace AnyFX

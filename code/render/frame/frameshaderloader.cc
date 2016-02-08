@@ -344,6 +344,10 @@ FrameShaderLoader::ParseShaderVariableInstance(const Ptr<XmlReader>& xmlReader, 
 		shdVarInst->SetFloat4(valueStr.AsFloat4());
 		break;
 
+	case ShaderVariable::Vector2Type:
+		shdVarInst->SetFloat2(valueStr.AsFloat2());
+		break;
+
 	case ShaderVariable::MatrixType:
 		shdVarInst->SetMatrix(valueStr.AsMatrix44());
 		break;
@@ -400,6 +404,11 @@ FrameShaderLoader::ParseShaderVariableInstance(const Ptr<IO::XmlReader>& xmlRead
 	{
 		shdVarInst->Setup(ShaderVariable::VectorType);
 		shdVarInst->SetFloat4(valueStr.AsFloat4());
+	}
+	else if (valueStr.IsValidFloat2())
+	{
+		shdVarInst->Setup(ShaderVariable::Vector2Type);
+		shdVarInst->SetFloat2(valueStr.AsFloat2());
 	}
 	else if (valueStr.IsValidMatrix44())
 	{

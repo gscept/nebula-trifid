@@ -88,27 +88,27 @@
           <property name="margin">
            <number>5</number>
           </property>
-          <item row="1" column="1">
+          <item row="3" column="2">
+           <widget class="QPushButton" name="deleteMaskButton">
+            <property name="toolTip">
+             <string>Delete selected mask</string>
+            </property>
+            <property name="text">
+             <string>Delete mask</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" colspan="2">
            <widget class="QCheckBox" name="renderSkeleton">
+            <property name="toolTip">
+             <string>Check to debug render the skeleton.</string>
+            </property>
             <property name="text">
              <string>Render Skeleton</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
-           <spacer name="horizontalSpacer">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="0" column="0" colspan="2">
+          <item row="0" column="0">
            <widget class="QLabel" name="label_7">
             <property name="font">
              <font>
@@ -122,11 +122,57 @@
             </property>
            </widget>
           </item>
+          <item row="3" column="0">
+           <widget class="QComboBox" name="maskBox">
+            <property name="toolTip">
+             <string>Select a mask to edit or delete.</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLineEdit" name="maskName">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Name of the mask. This will be available to apply when playing clips later.</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QPushButton" name="newMaskButton">
+            <property name="toolTip">
+             <string>Create new mask with a placeholder name.</string>
+            </property>
+            <property name="text">
+             <string>New mask</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="3">
+           <widget class="Line" name="line_2">
+            <property name="styleSheet">
+             <string notr="true">QFrame{ color:rgb(95, 95, 95); }</string>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Plain</enum>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
        <item>
         <widget class="Line" name="line">
+         <property name="styleSheet">
+          <string notr="true">QFrame{ color:rgb(95, 95, 95); }</string>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Plain</enum>
+         </property>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>

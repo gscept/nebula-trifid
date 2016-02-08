@@ -33,9 +33,6 @@ protected:
 	/// sets up varblock from programs using a pre-existing variable block
 	void SetupSlave(eastl::vector<InternalEffectProgram*> programs, InternalEffectVarblock* master);
 
-	/// set buffer 
-	void SetBuffer(void* handle);
-
 	/// updates variable block
 	void Commit();
 	/// activates varblock uniform location

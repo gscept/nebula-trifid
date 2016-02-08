@@ -36,7 +36,8 @@ public:
         UnknownType,
         IntType,
         FloatType,
-        VectorType,
+        VectorType,		// float4
+		Vector2Type,	// float2
         MatrixType,
         BoolType,
         TextureType,
