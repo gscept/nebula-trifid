@@ -31,7 +31,8 @@ IF(N_MATH_XNA)
 	ADD_DEFINITIONS(-D__USE_XNA)
 ELSE()
 	ADD_DEFINITIONS(-D__USE_VECMATH)
-	INCLUDE_DIRECTORIES(${Nebula3_SOURCE_DIR}/code/extlibs/bullet/bullet/src)	
+	INCLUDE_DIRECTORIES(${Nebula3_SOURCE_DIR}/code/extlibs/bullet/bullet/src)
+	OPTION(N_USE_AVX "Use AVX instructionset" OFF)		
 ENDIF()
 
 
