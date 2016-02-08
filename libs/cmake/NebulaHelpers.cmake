@@ -7,6 +7,7 @@
 
 MACRO(N_WRAP_NIDL_FILES proj)		
         set(files ${ARGN})
+		set(outlist "")
         List(APPEND outlist ${argn})
         SOURCE_GROUP("NIDL Files" FILES ${files})
         FOREACH(nidl ${files})
@@ -36,6 +37,7 @@ ENDMACRO()
 
 MACRO(N_WRAP_ADD_NIDL_FILES proj)		
         set(files ${ARGN})
+		set(outlist "")
         List(APPEND outlist ${ARGN})		
         SOURCE_GROUP("NIDL Files" FILES ${files})
         FOREACH(nidl ${files})
@@ -449,3 +451,17 @@ ELSEIF(UNIX)
 	#SET(QT_UIC_EXECUTABLE /usr/bin/uic)
         
 ENDIF()
+
+MACRO(PARSE_PROJ_NIDLS name projfile)
+
+FILE(READ ${projfile} prjinf)
+string(REGEX MATCH "<NIDL>.*</NIDL>" nidbl ${prjinf})
+
+string(REGEX MATCHALL "<File name=\"[^\"]+\"/>" foo ${nidbl})
+SET(proj_nidls)
+FOREACH(entry ${foo})
+STRING(REGEX REPLACE "<File name=\"([^\"]+)\"/>" "\\1" outf ${entry})
+LIST(APPEND proj_nidls ${outf})
+ENDFOREACH()
+N_WRAP_NIDL_FILES(${name} ${proj_nidls})
+ENDMACRO()
