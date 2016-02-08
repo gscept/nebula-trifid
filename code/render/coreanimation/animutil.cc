@@ -225,6 +225,7 @@ AnimUtil::CreateSampleJob(const Ptr<AnimResource>& animResource,
                           SampleType::Code sampleType, 
                           Timing::Tick time, 
                           float timeFactor, 
+						  const Characters::CharacterJointMask* mask,
                           const Ptr<AnimSampleBuffer>& resultBuffer)
 {
     n_assert(animResource->GetClipByIndex(0).GetNumCurves() == resultBuffer->GetNumSamples());
@@ -263,7 +264,9 @@ AnimUtil::CreateSampleJob(const Ptr<AnimResource>& animResource,
     JobDataDesc outputs(outSamplesPtr, outSamplesByteSize, outSamplesByteSize,
                         outSampleCounts, Round::RoundUp16(numOutSamples), Round::RoundUp16(numOutSamples));
     JobUniformDesc uniforms(&(clip.CurveByIndex(0)), clip.GetNumCurves() * sizeof(AnimCurve),
-                            sampleMixInfo, sizeof(AnimSampleMixInfo), 0);
+                            sampleMixInfo, sizeof(AnimSampleMixInfo), 
+							(void*)mask, sizeof(Characters::CharacterJointMask),
+							0);
 
     #if __PS3__
     JobFuncDesc jobFuncDesc(_binary_jqjob_render_animjobsample_ps3_bin_start, _binary_jqjob_render_animjobsample_ps3_bin_size);
@@ -285,7 +288,8 @@ AnimUtil::CreateSampleAndMixJob(const Ptr<AnimResource>& animResource,
                                 IndexT clipIndex, 
                                 SampleType::Code sampleType, 
                                 Timing::Tick time, 
-                                float timeFactor, 
+                                float timeFactor,
+								const Characters::CharacterJointMask* mask,
                                 float mixWeight, 
                                 const Ptr<AnimSampleBuffer>& mixIn, 
                                 const Ptr<AnimSampleBuffer>& resultBuffer)
@@ -338,7 +342,9 @@ AnimUtil::CreateSampleAndMixJob(const Ptr<AnimResource>& animResource,
     JobDataDesc outputs(outSamplesPtr, outSamplesByteSize, outSamplesByteSize,
                         outSampleCounts, Round::RoundUp16(numOutSamples), Round::RoundUp16(numOutSamples));
     JobUniformDesc uniforms(&(clip.CurveByIndex(0)), clip.GetNumCurves() * sizeof(AnimCurve),
-                            sampleMixInfo, sizeof(AnimSampleMixInfo), scratchSize);
+                            sampleMixInfo, sizeof(AnimSampleMixInfo), 
+							(void*)mask, sizeof(Characters::CharacterJointMask),
+							scratchSize);
 
     #if __PS3__
     JobFuncDesc jobFuncDesc(_binary_jqjob_render_animjobsamplemix_ps3_bin_start, _binary_jqjob_render_animjobsamplemix_ps3_bin_size);

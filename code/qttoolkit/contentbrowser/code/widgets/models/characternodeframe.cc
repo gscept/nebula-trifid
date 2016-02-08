@@ -20,7 +20,7 @@ CharacterNodeFrame::CharacterNodeFrame()
 	this->ui.setupUi(this);
 
 	/// set item handler stuff
-	this->itemHandler->SetUi(&this->ui);
+	this->itemHandler->SetUI(&this->ui);
 }
 
 //------------------------------------------------------------------------------
