@@ -5,6 +5,7 @@
     <Dependency header="scriptingfeature/scriptingprotocol.h"/>
     <Dependency header="basegamefeature/basegameprotocol.h"/>
     <Dependency header="basegamefeature/managers/envquerymanager.h"/>
+    <Dependency header="basegamefeature/basegamefeatureunit.h"/>
     <Dependency header="basegamefeature/loader/levelloader.h"/>
     <Dependency header="appgame/gameapplication.h"/>
     <Dependency header="input/keyboard.h"/>
@@ -489,6 +490,14 @@
       <Code>
         <![CDATA[          
           return BaseGameFeature::LevelLoader::GetLevels();
+        ]]>
+      </Code>
+    </Command>
+    <Command name="getcurrentlevel" fourcc="gclv" desc="gets the current levels">
+      <OutArg name="levels" type="string"/>
+      <Code>
+        <![CDATA[          
+          return BaseGameFeature::BaseGameFeatureUnit::Instance()->GetCurrentLevel();
         ]]>
       </Code>
     </Command>

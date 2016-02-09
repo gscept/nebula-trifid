@@ -97,19 +97,22 @@ AnimClipController::OnFetchedClipList(const Ptr<Messaging::Message>& msg)
 	const Ptr<Graphics::FetchClips>& clipMsg = msg.downcast<Graphics::FetchClips>();
 	const Util::Array<Util::StringAtom>& clips(clipMsg->GetClips());
 	
-	if (clips.Size() == 0)
+	if (this->entity.isvalid())
 	{
-		this->ui->comboBox->addItem(this->currentValue.AsCharPtr());
-		this->ui->comboBox->setCurrentIndex(0);		
-		return;
+		if (clips.Size() == 0)
+		{
+			this->ui->comboBox->addItem(this->currentValue.AsCharPtr());
+			this->ui->comboBox->setCurrentIndex(0);
+			return;
+		}
+
+		bool connected = false;
+		connected = connect(this->ui->comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(currentIndexChanged(int)));
+		n_assert(connected);
+
+		this->ui->comboBox->setEnabled(true);
+		this->SetClips(clips, this->currentValue);
 	}
-
-	bool connected = false;
-	connected = connect(this->ui->comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(currentIndexChanged(int)));
-	n_assert(connected);
-
-	this->ui->comboBox->setEnabled(true);	
-	this->SetClips(clips, this->currentValue);
 }
 
 //------------------------------------------------------------------------------

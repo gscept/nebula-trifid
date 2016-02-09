@@ -169,6 +169,11 @@ UIDialogHandler::SetupDialog()
 	Util::Dictionary < Util::String, ScriptEntry > scripts;
 	ParseUIProperties(layouts, fonts, scripts);
 
+	// clear tables before adding stuff
+	this->ui.layoutWidget->setRowCount(0);
+	this->ui.fontWidget->setRowCount(0);
+	this->ui.scriptWidget->setRowCount(0);
+
 	Util::Array<Util::String> directories = IO::IoServer::Instance()->ListDirectories(IO::URI("gui:"), "*");
 	
 	IndexT dirIndex;
