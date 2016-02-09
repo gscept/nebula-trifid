@@ -44,3 +44,6 @@
 	path = projects/nebula-demo
 	url = https://github.com/gscept/nebula-demo.git
 	branch = master
+[submodule "code/extlibs/anyfx"]
+	path = code/extlibs/anyfx
+	url = git@github.com:Duttenheim/AnyFX.git
