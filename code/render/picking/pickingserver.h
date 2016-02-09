@@ -52,7 +52,7 @@ public:
 	/// returns picking id from pixel
 	IndexT FetchIndex(const Math::float2& position);
 	/// returns array of picking ids from a rectangle
-	Util::Array<IndexT> FetchSquare(const Math::rectangle<float>& rect);
+	void FetchSquare(const Math::rectangle<float>& rect, Util::Array<IndexT> & items, Util::Array<IndexT> & edgeItems);
 	/// returns depth of position
 	float FetchDepth(const Math::float2& position);
 	/// returns normal of position

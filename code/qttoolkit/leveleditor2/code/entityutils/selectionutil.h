@@ -81,6 +81,8 @@ private:
     void GetEntityUnderMouse();
     /// called when an entity ID have been retrieved
     void OnEntityClicked(const Ptr<Messaging::Message>& msg);
+	/// called when marquee selection has been retrieved
+	void OnEntitiesClicked(const Ptr<Messaging::Message>& msg);
 
     /// clear any previous attribute controllers, and create new for the entity
     void SetEntityForAttributeView(const Ptr<Game::Entity> entity);
@@ -100,9 +102,12 @@ private:
 	
     bool hasSelectionChanged;
     bool isActive;
-    bool multiSelect;
-    // 	bool wasActiveBefore;
-
+    bool multiSelect;	
+    bool mouseDrag;
+	bool selectInside;
+	Math::float2 clickPos;
+	Math::float2 clickPosWindow;
+	
     bool groupMode;
     Math::bbox groupBox;
     Math::matrix44 groupMatrix;
@@ -111,7 +116,7 @@ private:
     EntityTreeWidget* treeWidget;	//< the entity treeview selection should be synced with the 3dview selection
 
     Input::Key::Code keyMultiSelection;
-
+	Input::Key::Code keyMultiSelectionRemove;
 };
 
 //------------------------------------------------------------------------------

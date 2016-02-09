@@ -38,7 +38,8 @@ RenderDeviceBase::RenderDeviceBase() :
     inBeginBatch(false),
 	renderWireframe(false),
     visualizeMipMaps(false),
-	usePatches(false)
+	usePatches(false),
+	currentFrameIndex(InvalidIndex)
 {
     __ConstructSingleton;
     _setup_grouped_counter(RenderDeviceNumPrimitives, "Render");
