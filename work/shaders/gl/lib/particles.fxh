@@ -64,7 +64,7 @@ ComputeCornerVertex(in bool hemisphereNormal,
     const mat4 transform = EmitterTransform;
     
     // transform to world space
-    vec4 worldExtrude = transform * vec4(extrude, 0.0, 0.0);
+    vec4 worldExtrude = EmitterTransform * vec4(extrude, 0.0, 0.0);
     
     // depending on corner, use position or stretchPos as center point   
     // also compute uv coordinates (v: texture tiling, x: anim phases)
@@ -106,9 +106,9 @@ ComputeCornerVertex(in bool hemisphereNormal,
 		vec2 viewTangent  = mul(rotMatrix, vec2(-1.0, 0.0));
 		vec2 viewBinormal = mul(rotMatrix, vec2(0.0, 1.0));
 			
-		outputVert.worldNormal   = transform[2].xyz;
-		outputVert.worldTangent  = mat3(transform) * vec3(viewTangent, 0);
-		outputVert.worldBinormal = mat3(transform) * vec3(viewBinormal, 0);
+		outputVert.worldNormal   = EmitterTransform[2].xyz;
+		outputVert.worldTangent  = mat3(EmitterTransform) * vec3(viewTangent, 0);
+		outputVert.worldBinormal = mat3(EmitterTransform) * vec3(viewBinormal, 0);
     }
 	return outputVert;
 }
