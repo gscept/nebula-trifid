@@ -18,7 +18,6 @@
 namespace LevelEditor2
 {
 class AttributeWidgetManager;
-class EntityTreeWidget;
 
 class SelectionUtil : public Core::RefCounted
 {
@@ -37,7 +36,7 @@ public:
     /// Returns true if there are entities selected
     const bool HasSelection() const;
     /// Returns a list of selected game entities.
-    Util::Array<Ptr<Game::Entity>> GetSelectedEntities();
+    Util::Array<Ptr<Game::Entity>> GetSelectedEntities(bool withChildren = false);
     /// Returns a list of selected game entity ids
     const Util::Array<EntityGuid>& GetSelectedEntityIds();
     /// Returns a game entity from the array of entities
@@ -106,9 +105,7 @@ private:
     bool groupMode;
     Math::bbox groupBox;
     Math::matrix44 groupMatrix;
-    Util::Array<EntityGuid> entityGroup;
-
-    EntityTreeWidget* treeWidget;	//< the entity treeview selection should be synced with the 3dview selection
+    Util::Array<EntityGuid> entityGroup;    
 
     Input::Key::Code keyMultiSelection;
 
