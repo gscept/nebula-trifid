@@ -383,6 +383,7 @@ vsStaticColored(in vec3 position,
 /**
 	Transform feedback for skinned vertex buffers
 */
+/*
 shader
 void
 vsTransformSkinned(in vec3 position,
@@ -404,6 +405,7 @@ vsTransformSkinned(in vec3 position,
 	OutBinormal = SkinnedNormal(binormal, weights, indices).xyz;
 	UV = uv;
 }
+*/
 
 //------------------------------------------------------------------------------
 /**

@@ -123,4 +123,4 @@ SimpleTechnique(AlphaEnvironment, "Skinned|Alpha|Environment", vsSkinned(), psUb
 TessellationTechnique(Tessellated, "Skinned|Tessellated", vsSkinnedTessellated(), psDefault(), hsDefault(), dsDefault(), StandardState);
 TessellationTechnique(TessellatedEnvironment, "Skinned|Tessellated|Environment", vsSkinnedTessellated(), psDefault(), hsDefault(), dsDefault(), StandardState);
 
-TransformFeedbackTechnique(SkinnedFeedback, "Skinned|Alt0", vsTransformSkinned());
+//TransformFeedbackTechnique(SkinnedFeedback, "Skinned|Alt0", vsTransformSkinned());
