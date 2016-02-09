@@ -20,6 +20,17 @@ struct Joint
 	int index;
 };
 
+struct JointMask
+{
+	Util::String name;
+	Util::FixedArray<float> weights;
+
+	bool operator==(const JointMask& rhs)
+	{
+		return this->name == rhs.name;
+	}
+};
+
 struct Skinlist
 {
 	Util::String name;

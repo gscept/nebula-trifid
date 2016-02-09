@@ -159,8 +159,8 @@ SimpleResourceMapper::OnCreateManagedResource(const Rtti& resType, const Resourc
     {
         // asynchronous load initiayed and pending
         this->pendingResources.Add(resId, resource);
-    }    
-	else
+    }   
+	else if (resource->IsLoaded())
 	{
 		// synchronous loading succeeded (or failed)
 		managedResource->SetResource(resource);
@@ -256,7 +256,11 @@ SimpleResourceMapper::OnPrepare(bool waiting)
                 {
 					// FIXME: why would you do that? setting it to the placeholder defeats the whole purpose and messes up refcounting of placeholders
                     // load has failed, set the place holder resource as the actual resource
-                    this->managedResources[resource->GetResourceId()]->SetResource(this->placeholderResource);
+                    // this->managedResources[resource->GetResourceId()]->SetResource(this->placeholderResource);
+
+					// mark the managed resource as failed so that we know to use placeholder
+					// setting the resource suggests the managed resource is successful
+					this->managedResources[resource->GetResourceId()]->SetFailed(true);
                     n_printf("SimpleResourceMapper: failed to load resource '%s'!\n", resource->GetResourceId().Value());
                 }
                 else

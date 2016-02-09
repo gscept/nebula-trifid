@@ -45,9 +45,9 @@ public:
     /// stop all anim jobs
     void StopAllTracks(bool allowFadeOut=true);
 	/// pause all anim jobs on a given track
-	void PauseTrack(IndexT trackIndex);
+	void PauseTrack(IndexT trackIndex, bool pause);
 	/// pause all anim jobs
-	void PauseAllTracks();
+	void PauseAllTracks(bool pause);
 
 	/// sets current time for anim jobs
 	void SetTime(Timing::Tick time);

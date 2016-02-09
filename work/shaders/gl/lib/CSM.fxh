@@ -117,8 +117,6 @@ CSMPS(in vec4 TexShadow,
     // This for loop is not necessary when the frustum is uniformly divided and interval based selection is used.
     // In this case fCurrentPixelDepth could be used as an array lookup into the correct frustum. 
     vec4 texCoordViewspace = TexShadow / TexShadow.wwww;
-	vec2 ddx = dFdx(texCoordViewspace).xy;
-	vec2 ddy = dFdy(texCoordViewspace).xy;
 	
 	int cascadeIndex;
 	for( cascadeIndex = 0; cascadeIndex < CASCADE_COUNT_FLAG; ++cascadeIndex) 
@@ -150,7 +148,7 @@ CSMPS(in vec4 TexShadow,
 
 	vec2 sampleCoord = texCoord;
 	sampleCoord.xy *= ShadowPartitionSize;
-	sampleCoord.xy += vec2(mod(cascadeIndex, SplitsPerRow) * ShadowPartitionSize, (cascadeIndex / SplitsPerColumn) * ShadowPartitionSize);
+	sampleCoord.xy += vec2((cascadeIndex % SplitsPerRow) * ShadowPartitionSize, (cascadeIndex / SplitsPerColumn) * ShadowPartitionSize);
 
 	// do an ugly poisson sample disk
 	// this only causes errors when samples are taken outside 
@@ -187,7 +185,7 @@ CSMPS(in vec4 TexShadow,
 			
 			sampleCoord = texCoord;			
 			sampleCoord.xy *= ShadowPartitionSize;
-			sampleCoord.xy += vec2(mod(nextCascade, SplitsPerRow) * ShadowPartitionSize, (nextCascade / SplitsPerColumn) * ShadowPartitionSize);
+			sampleCoord.xy += vec2((nextCascade % SplitsPerRow) * ShadowPartitionSize, (nextCascade / SplitsPerColumn) * ShadowPartitionSize);
 			uvSample = sampleCoord.xy;
 					
 			mapDepth = textureLod(ShadowProjMap, uvSample, 0).rg;

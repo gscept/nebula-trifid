@@ -13,6 +13,8 @@
 #include "ui_characternodeinfowidget.h"
 #include "modelhandler.h"
 #include "trackcontroller.h"
+
+#include <QTimer>
 namespace Widgets
 {
 class CharacterNodeHandler : 
@@ -28,9 +30,9 @@ public:
 	virtual ~CharacterNodeHandler();
 
 	/// sets the ui
-	void SetUi(Ui::CharacterNodeInfoWidget* ui);
+	void SetUI(Ui::CharacterNodeInfoWidget* ui);
 	/// gets the ui
-	Ui::CharacterNodeInfoWidget* GetUi() const;
+	Ui::CharacterNodeInfoWidget* GetUI() const;
 
 	/// set pointer to original item handler
 	void SetItemHandler(const Ptr<ModelHandler>& itemHandler);
@@ -44,9 +46,12 @@ public:
 
 	/// constructs the internal structure for the model node item
 	void Setup();
-
 	/// discards a model node handler
 	void Discard();
+
+
+	/// render viewport handles
+	void OnFrame();
 
 private slots:
 	/// called when the add button gets pressed
@@ -82,6 +87,15 @@ private slots:
 	/// called when the clip list is fetched
 	void OnFetchedClipList(const Ptr<Messaging::Message>& msg);
 
+	/// creates a new mask and selects it
+	void OnNewMask();
+	/// deletes the mask currently selected
+	void OnDeleteMask();
+	/// called whenever the mask name is changed, this will change the name of the current mask
+	void OnMaskNameChanged(const QString& value);
+	/// handle a mask getting selected
+	void OnMaskSelected(int index);
+
 private:
 
 	friend class ModelHandler;
@@ -101,13 +115,29 @@ private:
 	QListWidgetItem* currentClipItem;
 	TrackController* trackController;
 	SizeT currentSeekInterval;
+
+	Util::FixedArray<bool> skinVisible;
+	Util::FixedArray<bool> clipsPlaying;
+	Util::FixedArray<int> clipsMask;
+	Util::FixedArray<float> clipWeights;
+	Util::FixedArray<Characters::CharacterJoint> joints;
+	int selectedJoint;
+	int numFrames;
+	int currentFrame;
+	bool paused;
+
+	IndexT currentMaskIndex;
+	Util::Array<ToolkitUtil::JointMask> masks;
+	ToolkitUtil::JointMask* currentMask;
+	Util::Array<Characters::CharacterJointMask*> characterJointMasks;
+	int selectedMask;
 }; 
 
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-CharacterNodeHandler::SetUi( Ui::CharacterNodeInfoWidget* ui )
+inline void
+CharacterNodeHandler::SetUI(Ui::CharacterNodeInfoWidget* ui)
 {
 	n_assert(ui);
 	this->ui = ui;
@@ -117,7 +147,7 @@ CharacterNodeHandler::SetUi( Ui::CharacterNodeInfoWidget* ui )
 /**
 */
 inline Ui::CharacterNodeInfoWidget* 
-CharacterNodeHandler::GetUi() const
+CharacterNodeHandler::GetUI() const
 {
 	return this->ui;
 }
@@ -125,8 +155,8 @@ CharacterNodeHandler::GetUi() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-CharacterNodeHandler::SetName( const Util::String& name )
+inline void
+CharacterNodeHandler::SetName(const Util::String& name)
 {
 	n_assert(name.IsValid());
 	this->nodeName = name;

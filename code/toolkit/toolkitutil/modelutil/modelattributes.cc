@@ -477,6 +477,32 @@ ModelAttributes::Save(const Ptr<IO::Stream>& stream)
 			writer->EndNode();
 		}
 
+		if (this->jointMasks.Size() > 0)
+		{
+			writer->BeginNode("Masks");
+
+			IndexT i;
+			for (i = 0; i < this->jointMasks.Size(); i++)
+			{
+				// get mask from list
+				const JointMask& mask = this->jointMasks[i];
+				const Util::String& name = mask.name;
+
+				writer->BeginNode("Mask");
+				writer->SetString("name", name);
+				writer->SetInt("weights", mask.weights.Size());
+				IndexT j;
+				for (j = 0; j < mask.weights.Size(); j++)
+				{
+					writer->BeginNode("Joint");
+					writer->SetInt("index", j);
+					writer->SetFloat("weight", mask.weights[j]);
+					writer->EndNode();
+				}
+				writer->EndNode();
+			}
+		}
+
 		if (this->particleAttrMap.Size() > 0)
 		{
 			// write particles
@@ -1025,9 +1051,32 @@ ModelAttributes::Load(const Ptr<IO::Stream>& stream)
 				while (reader->SetToNextChild("Clip"));
 
 			}
-			while (reader->SetToNextChild());
+			while (reader->SetToNextChild("Take"));
 
 			// go back to parent
+			reader->SetToParent();
+		}
+
+		if (reader->SetToFirstChild("Masks"))
+		{
+			if (reader->SetToFirstChild("Mask")) do 
+			{
+				SizeT numWeights = reader->GetInt("weights");
+				JointMask mask;
+				mask.weights.Resize(numWeights);
+
+				mask.name = reader->GetString("name");
+				if (reader->SetToFirstChild("Joint")) do
+				{
+					int index = reader->GetInt("index");
+					mask.weights[index] = reader->GetFloat("weight");
+				} 
+				while (reader->SetToNextChild("Joint"));
+
+				// add to dictionary
+				this->jointMasks.Append(mask);
+			} 
+			while (reader->SetToNextChild("Mask"));
 			reader->SetToParent();
 		}
 
@@ -1449,6 +1498,7 @@ ModelAttributes::Clear()
 	this->particleAttrMap.Clear();
     this->particleMeshMap.Clear();
 	this->nodeStateMap.Clear();
+	this->jointMasks.Clear();
 
     IndexT i;
     for (i = 0; i < this->takes.Size(); i++)
@@ -1469,6 +1519,7 @@ ModelAttributes::ClearTakes()
     // cleanup takes
     this->takes.Clear();
 }
+
 
 
 } // namespace Importer

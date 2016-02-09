@@ -11,6 +11,7 @@
 */
 #include "core/types.h"
 #include "characters/characterjoint.h"
+#include "characters/characterjointmask.h"
 #include "util/fixedarray.h"
 #include "util/dictionary.h"
 
@@ -29,6 +30,10 @@ public:
     void Setup(SizeT numJoints);
     /// setup a joint in the skeleton
     void SetupJoint(IndexT jointIndex, IndexT parentJointIndex, const Math::point& poseTranslation, const Math::quaternion& poseRotation, const Math::vector& poseScale, const Util::StringAtom& name);
+	/// setup list of joint masks
+	void ReserveMasks(SizeT numMasks);
+	/// setup joint mask
+	void AddJointMask(const CharacterJointMask& mask);
     /// discard the skeleton
     void Discard();
     /// return true if object has been setup
@@ -47,11 +52,25 @@ public:
     /// get pointer to default samples if no valid anim is set on character 
     const Util::FixedArray<Math::float4>& GetDefaultSamplesArray() const;
 
+	/// get amount of masks
+	SizeT GetNumMasks() const;
+	/// access mask index by name
+	const IndexT GetMaskIndexByName(const Util::StringAtom& maskName) const;
+	/// get direct access to mask by name
+	const CharacterJointMask& GetMaskByName(const Util::StringAtom& maskName) const;
+	/// get mask by index
+	const CharacterJointMask& GetMask(const IndexT index) const;
+	/// get mask by index as mutable pointer
+	CharacterJointMask* GetMask(const IndexT index);
+
 private:
     Util::FixedArray<Math::float4> defaultSamplesArray;  // used as sample result if no valid animation exists to provide samples
     Util::FixedArray<Math::matrix44> invPoseMatrixArray;
     Util::FixedArray<CharacterJoint> jointArray;
     Util::Dictionary<Util::StringAtom, IndexT> jointIndexMap;
+
+	Util::Array<CharacterJointMask> maskArray;
+	Util::Dictionary<Util::StringAtom, IndexT> maskIndexMap;
     bool isValid;
 };
 
@@ -120,6 +139,45 @@ CharacterSkeleton::GetDefaultSamplesArray() const
 {
     return this->defaultSamplesArray;
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline SizeT
+CharacterSkeleton::GetNumMasks() const
+{
+	return this->maskArray.Size();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const IndexT
+CharacterSkeleton::GetMaskIndexByName(const Util::StringAtom& maskName) const
+{
+	IndexT i = this->maskIndexMap.FindIndex(maskName);
+	if (i == InvalidIndex) return InvalidIndex;
+	else				   return this->maskIndexMap.ValueAtIndex(i);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const CharacterJointMask&
+CharacterSkeleton::GetMask(const IndexT index) const
+{
+	return this->maskArray[index];
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline CharacterJointMask*
+CharacterSkeleton::GetMask(const IndexT index)
+{
+	return &this->maskArray[index];
+}
+
 
 } // namespace Characters
 //------------------------------------------------------------------------------

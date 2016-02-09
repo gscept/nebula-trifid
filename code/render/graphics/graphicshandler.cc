@@ -282,6 +282,7 @@ GraphicsHandler::SetupGraphicsRuntime(const Ptr<SetupGraphics>& msg)
     this->resourceManager->AutoManageManagedResource("tex:system/nobump.dds", false);
     this->resourceManager->AutoManageManagedResource("tex:lighting/lightcones.dds", false);
     this->resourceManager->AutoManageManagedResource("tex:system/placeholder.dds", false);
+	this->resourceManager->AutoManageManagedResource("sur:system/placeholder.sur", false);
 
     this->isGraphicsRuntimeValid = true;
 }

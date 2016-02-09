@@ -255,7 +255,7 @@ psDefault(
 	// it's difficult to do it physically correct without photon mapping/ray tracing, so using simple but plausible emulation below
 	
 	// only the crests of water waves generate double refracted light
-	float scatter_factor = 2.5f * max(0, WorldPos.y * 0.25f + 0.25f);
+	float scatter_factor = 2.5f * max(0.0f, WorldPos.y * 0.25f + 0.25f);
 	
 	// calculate distance to point
 	float distanceToPoint = length(EyeVec);
@@ -271,11 +271,11 @@ psDefault(
 	scatter_factor *= pow(max(0.0f, 1.0f - NL), 8.0f);
 	
 	// water crests gather more light than lobes, so more light is scattered under the crests
-	scatter_factor += shadowFactor * 1.5f * WaterColorIntensity.y * max(0, WorldPos.y + 1) *
+	scatter_factor += shadowFactor * 1.5f * WaterColorIntensity.y * max(0.0f, WorldPos.y + 1) *
 		// the scattered light is best seen if observing direction is normal to slope surface
-		max(0, NV) *
+		max(0.0f, NV) *
 		// fading scattered light out at distance and if viewing direction is vertical to avoid unnatural look
-		max(0, 1 - pixel_to_eye_vector.y) * (300.0f / (300 + distanceToPoint));
+		max(0.0f, 1.0f - pixel_to_eye_vector.y) * (300.0f / (300 + distanceToPoint));
 		
 	// fading scatter out by 90% near shores so it looks better
 	scatter_factor *= 0.1 + 0.9 * DepthScale;
@@ -287,10 +287,10 @@ psDefault(
 	// calculating specular factor
 	vec3 reflected_eye_to_pixel_vector = reflect(-pixel_to_eye_vector, tNormal);
 	//float specPower = exp2(10 * WaterSpecular.a + 1);
-	float specular_factor = shadowFactor * fresnel_factor * pow(max(0, dot(pixel_to_light_vector, reflected_eye_to_pixel_vector)), 1000.0f);
+	float specular_factor = shadowFactor * fresnel_factor * pow(max(0.0f, dot(pixel_to_light_vector, reflected_eye_to_pixel_vector)), 1000.0f);
 
 	// calculating diffuse intensity of water surface itself
-	float diffuse_factor = WaterColorIntensity.x + WaterColorIntensity.y * max(0, NL);
+	float diffuse_factor = WaterColorIntensity.x + WaterColorIntensity.y * max(0.0f, NL);
 
 	// calculating disturbance which has to be applied to planar reflections/refractions to give plausible results
 	vec4 disturbance_eyespace = MV * vec4(tNormal.x, 0, tNormal.z, 0);
@@ -316,7 +316,7 @@ psDefault(
 	float nondisplaced_water_depth = water_depth;
 	
 	// scaling refraction texture displacement amount according to water depth, with some limit
-	refraction_disturbance *= min(2, water_depth);
+	refraction_disturbance *= min(2.0f, water_depth);
 
 	// picking refraction depth again, now at displaced point, need it to calculate correct water depth
 	refraction_depth = GetRefractionDepth(screenUv + refraction_disturbance);
@@ -334,7 +334,7 @@ psDefault(
 	
 	// blend between depth and float max value, by multiplying depth with -1 and clamping between 0-1. This ensures negative depth values also shows the water
 	//water_depth = lerp(water_depth, FLT_MAX, saturate(-1 * water_depth));
-	water_depth = max(0, water_depth);
+	water_depth = max(0.0f, water_depth);
 
 	// getting reflection and refraction color at disturbed texture coordinates
 	vec4 reflection_color = textureLod(EnvironmentMap, reflected_eye_to_pixel_vector + vec3(reflection_disturbance.x, 0, reflection_disturbance.y), 0); 
@@ -343,13 +343,13 @@ psDefault(
 
 	// calculating water surface color and applying atmospheric fog to it
 	vec4 water_color = diffuse_factor * vec4(WaterColor.rgb, 1);
-	water_color.rgb = lerp(CalculateFogColor(pixel_to_light_vector, pixel_to_eye_vector).rgb, water_color.rgb, min(1, exp(-distanceToPoint * FogDensity)));
+	water_color.rgb = lerp(CalculateFogColor(pixel_to_light_vector, pixel_to_eye_vector).rgb, water_color.rgb, min(1.0f, exp(-distanceToPoint * FogDensity)));
 	
 	// fading fresnel factor to 0 to soften water surface edges
-	fresnel_factor *= min(1, water_depth * 5.0f);
+	fresnel_factor *= min(1.0f, water_depth * 5.0f);
 
 	// fading refraction color to water color according to distance that refracted ray travels in water 
-	refraction_color = lerp(water_color, refraction_color, min(1, 1.0f * exp(-water_depth / 8.0f)));
+	refraction_color = lerp(water_color, refraction_color, min(1.0f, 1.0f * exp(-water_depth / 8.0f)));
 	
 	// combining final water color
 	vec4 color;

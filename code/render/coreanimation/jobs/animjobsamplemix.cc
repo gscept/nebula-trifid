@@ -6,6 +6,7 @@
 #include "jobs/stdjob.h"
 #include "animjobutil.h"
 #include "coreanimation/animsamplemixinfo.h"
+#include "characters/characterjointmask.h"
 
 namespace CoreAnimation
 {
@@ -21,6 +22,7 @@ AnimSampleMixJobFunc(const JobFuncContext& ctx)
     const AnimCurve* animCurves = (const AnimCurve*) ctx.uniforms[0];
     int numCurves = ctx.uniformSizes[0] / sizeof(AnimCurve);
     const AnimSampleMixInfo* info = (const AnimSampleMixInfo*) ctx.uniforms[1];
+	const Characters::CharacterJointMask* mask = (const Characters::CharacterJointMask*)ctx.uniforms[2];
     const float4* src0SamplePtr = (const float4*) ctx.inputs[0];
     const float4* src1SamplePtr = (const float4*) ctx.inputs[1];
     const float4* mixSamplePtr  = (const float4*) ctx.inputs[2];
@@ -41,7 +43,7 @@ AnimSampleMixJobFunc(const JobFuncContext& ctx)
     }
     
     // ...then mixing, NOTE: outSamplePtr and outSampleCounts are read and overwritten!
-    AnimJobUtilMix(animCurves, numCurves, info->mixWeight, mixSamplePtr, tmpSamplePtr, mixSampleCounts, tmpSampleCounts, outSamplePtr, outSampleCounts);
+    AnimJobUtilMix(animCurves, numCurves, mask, info->mixWeight, mixSamplePtr, tmpSamplePtr, mixSampleCounts, tmpSampleCounts, outSamplePtr, outSampleCounts);
 }
 
 } // namespace CoreAnimation
