@@ -145,7 +145,6 @@ private:
     Ptr<Graphics::GraphicsServer> graphicsServer;
     Ptr<Lighting::LightServer> lightServer;
     Ptr<Lighting::ShadowServer> shadowServer;
-	Ptr<Picking::PickingServer> pickingServer;
 	Ptr<Instancing::InstanceServer> instanceServer;
     Ptr<Frame::FrameServer> frameServer;
 	Ptr<Materials::MaterialServer> materialServer;

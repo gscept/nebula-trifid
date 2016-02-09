@@ -87,7 +87,7 @@ public:
     const Ptr<CoreGraphics::RenderTarget>& GetPassRenderTarget() const;
 
     /// begin complete frame
-    bool BeginFrame();
+    bool BeginFrame(IndexT frameIndex);
     /// begin rendering a frame pass
 	void BeginPass(const Ptr<CoreGraphics::RenderTarget>& rt, const Ptr<CoreGraphics::Shader>& passShader);
     /// begin rendering a frame pass with a multiple rendertarget
@@ -133,7 +133,7 @@ public:
 	/// end current feedback
 	void EndFeedback();
     /// end current frame
-    void EndFrame();
+	void EndFrame(IndexT frameIndex);
     /// check if inside BeginFrame
     bool IsInBeginFrame() const;
     /// present the rendered scene
@@ -215,6 +215,7 @@ protected:
 	bool renderWireframe;
     bool visualizeMipMaps;
 	bool usePatches;
+	IndexT currentFrameIndex;
 
     _declare_counter(RenderDeviceNumComputes);
     _declare_counter(RenderDeviceNumPrimitives);

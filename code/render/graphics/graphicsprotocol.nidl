@@ -99,12 +99,7 @@
         <Message name="ReloadResourceIfExists" fourcc="RRIE">
           <InArg name="ResourceName" type="Util::String" serialize="true"/>    
         </Message>
-            
-        <!-- enables/disables picking -->
-        <Message name="EnablePicking" fourcc="ENPI">
-          <InArg name="Enabled" type="bool"/>    
-        </Message>
-      
+
         <!-- Attach/Detach all environment modules -->
         <Message name="SetEnvironmentAttached" fourcc="SENA">
           <InArg name="Attached" type="bool"/>

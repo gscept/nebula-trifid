@@ -177,15 +177,6 @@ __StaticHandler(ReloadResourceIfExists)
 //------------------------------------------------------------------------------
 /**
 */
-__StaticHandler(EnablePicking)
-{
-	n_assert(PickingServer::HasInstance());
-	PickingServer::Instance()->SetEnabled(msg->GetEnabled());
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
 __StaticHandler(ItemAtPosition)
 {
 	n_assert(PickingServer::HasInstance());

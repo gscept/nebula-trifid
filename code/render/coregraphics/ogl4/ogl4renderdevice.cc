@@ -411,7 +411,7 @@ OGL4RenderDevice::SetIndexBuffer(const Ptr<IndexBuffer>& ib)
     handlers.
 */
 bool
-OGL4RenderDevice::BeginFrame()
+OGL4RenderDevice::BeginFrame(IndexT frameIndex)
 {
 	n_assert(0 != this->context);
 
@@ -423,7 +423,7 @@ OGL4RenderDevice::BeginFrame()
 			(float)this->ogl4DefaultViewport.height
 	);
 
-	return RenderDeviceBase::BeginFrame();
+	return RenderDeviceBase::BeginFrame(frameIndex);
 }
 
 //------------------------------------------------------------------------------
@@ -599,9 +599,9 @@ OGL4RenderDevice::EndFeedback()
     has happened and before Present(), and only if BeginFrame() returns true.
 */
 void
-OGL4RenderDevice::EndFrame()
+OGL4RenderDevice::EndFrame(IndexT frameIndex)
 {
-    RenderDeviceBase::EndFrame();
+    RenderDeviceBase::EndFrame(frameIndex);
 }
 
 //------------------------------------------------------------------------------

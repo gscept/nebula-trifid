@@ -16,10 +16,11 @@
 namespace Graphics
 {
 	class CameraEntity;
+	class View;
 }
 namespace CoreGraphics
 {
-	class RenderTarget;
+	class Texture;
 }
 namespace Frame
 {
@@ -45,17 +46,8 @@ public:
 	/// returns true if server is open
 	const bool IsOpen() const;
 
-	/// enables picking
-	void SetEnabled(bool b);
-	/// returns true if picking is enabled
-	const bool IsEnabled() const;
-
-	/// begins a frame with a specific camera
-	void BeginFrame(const Ptr<Graphics::CameraEntity>& camera);
 	/// renders a frame
-    void Render(IndexT frameIndex);
-	/// ends a frame
-	void EndFrame();
+    void Render();
 
 	/// returns picking id from pixel
 	IndexT FetchIndex(const Math::float2& position);
@@ -67,11 +59,13 @@ public:
 	Math::float4 FetchNormal(const Math::float2& position);
 private:
 	bool isOpen;
-	bool enabled;
 	Ptr<Frame::FrameShader> frameShader;
-	Ptr<CoreGraphics::RenderTarget> pickingBuffer;
-	Ptr<CoreGraphics::RenderTarget> depthBuffer;
-	Ptr<CoreGraphics::RenderTarget> normalBuffer;
+	Ptr<CoreGraphics::Texture> pickingBuffer;
+	Ptr<CoreGraphics::Texture> depthBuffer;
+	Ptr<CoreGraphics::Texture> normalBuffer;
+
+	Ptr<Graphics::CameraEntity> pickingCamera;
+	Ptr<Graphics::View> pickingView;
 }; 
 
 //------------------------------------------------------------------------------
@@ -81,15 +75,6 @@ inline const bool
 PickingServer::IsOpen() const
 {
 	return this->isOpen;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline const bool 
-PickingServer::IsEnabled() const
-{
-	return this->enabled;
 }
 
 } // namespace Picking

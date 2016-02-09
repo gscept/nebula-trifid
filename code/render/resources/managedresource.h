@@ -74,7 +74,7 @@ public:
     /// get the current priority
     Priority GetPriority() const;
 
-    /// get current resource loading state (Initial, Pending, Loaded, Failed, Cancelled)
+    /// get current resource loading state (Initial, Pending, Loaded, Failed, Cancelled), and if no resource is present uses the managed resources own state
     Resource::State GetState() const;
     /// get contained resource or placeholder if resource is invalid or not loaded
     const Ptr<Resource>& GetLoadedResource() const;
@@ -104,8 +104,8 @@ public: // MAY ONLY BE CALLED BY ResourceMappers!
     /// set place holder resource
     void SetPlaceholder(const Ptr<Resource>& placeholder);
 
-	/// set this managed resource to be unloadeable
-	void SetFailed(bool b);
+	/// sets the state of the managed resource if no resource is present
+	void SetState(Resource::State state);
 
 protected:
     ResourceId resourceId;
@@ -117,7 +117,7 @@ protected:
     Priority priority;
     Ptr<Resource> resource;
     Ptr<Resource> placeholder;
-	bool failed;
+	Resource::State state;
 
     bool autoManaged;
     IndexT lastFrameId;
@@ -237,21 +237,26 @@ ManagedResource::GetPriority() const
 //------------------------------------------------------------------------------
 /**
 */
+inline void
+ManagedResource::SetState(Resource::State state)
+{
+	this->state = state;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 inline Resource::State
 ManagedResource::GetState() const
 {
-	if (this->failed) return Resource::Failed;
+	if (this->resource.isvalid())
+	{
+		return this->resource->GetState();
+	}
 	else
 	{
-		if (this->resource.isvalid())
-		{
-			return this->resource->GetState();
-		}
-		else
-		{
-			return Resource::Pending;
-		}
-	}    
+		return this->state;
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -288,15 +293,6 @@ inline void
 ManagedResource::SetPlaceholder(const Ptr<Resource>& p)
 {
     this->placeholder = p;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void
-ManagedResource::SetFailed(bool b)
-{
-	this->failed = b;
 }
 
 //------------------------------------------------------------------------------

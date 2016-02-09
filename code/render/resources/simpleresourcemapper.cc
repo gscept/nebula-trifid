@@ -128,6 +128,7 @@ SimpleResourceMapper::OnCreateManagedResource(const Rtti& resType, const Resourc
     managedResource->IncrClientCount();
     managedResource->SetResourceId(resId);
     managedResource->SetResourceType(&this->GetResourceType());
+	managedResource->SetState(Resource::Pending);
     if (this->placeholderResource.isvalid())
     {
         managedResource->SetPlaceholder(this->placeholderResource);
@@ -191,7 +192,7 @@ SimpleResourceMapper::OnDiscardManagedResource(const Ptr<ManagedResource>& manag
         }
 		else
 		{
-			if(!managedResource->IsPlaceholder())
+			if (!managedResource->IsPlaceholder())
 			{
 				n_assert(managedResource->GetResource()->GetUseCount() == 0);
 				managedResource->GetResource()->Unload();
@@ -258,9 +259,8 @@ SimpleResourceMapper::OnPrepare(bool waiting)
                     // load has failed, set the place holder resource as the actual resource
                     // this->managedResources[resource->GetResourceId()]->SetResource(this->placeholderResource);
 
-					// mark the managed resource as failed so that we know to use placeholder
-					// setting the resource suggests the managed resource is successful
-					this->managedResources[resource->GetResourceId()]->SetFailed(true);
+					// set the managed resource to not be loaded
+					this->managedResources[resource->GetResourceId()]->SetState(Resource::Failed);
                     n_printf("SimpleResourceMapper: failed to load resource '%s'!\n", resource->GetResourceId().Value());
                 }
                 else

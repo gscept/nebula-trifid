@@ -109,6 +109,8 @@ ENDIF()
       characters/characterinstance.h
       characters/characterjoint.cc
       characters/characterjoint.h
+	  characters/characterjointmask.cc
+      characters/characterjointmask.h
 	  characters/charjointinfo.h
       characters/characternode.cc
       characters/characternode.h

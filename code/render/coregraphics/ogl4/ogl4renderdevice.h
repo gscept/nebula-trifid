@@ -49,7 +49,7 @@ public:
     void Close();
 
     /// begin complete frame
-    bool BeginFrame();
+	bool BeginFrame(IndexT frameIndex);
     /// set the current vertex stream source
     void SetStreamSource(IndexT streamIndex, const Ptr<CoreGraphics::VertexBuffer>& vb, IndexT offsetVertexIndex);
     /// set current vertex layout
@@ -83,7 +83,7 @@ public:
 	/// end current feedback
 	void EndFeedback();
     /// end complete frame
-    void EndFrame();
+    void EndFrame(IndexT frameIndex);
     /// present the rendered scene
     void Present();
     /// adds a render target

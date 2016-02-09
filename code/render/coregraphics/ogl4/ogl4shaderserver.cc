@@ -60,6 +60,7 @@ void
 OGL4ShaderServer::Close()
 {
     n_assert(this->IsOpen());
+	n_delete(this->factory);
     ShaderServerBase::Close();
 }
 

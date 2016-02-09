@@ -144,7 +144,6 @@ GraphicsHandler::Open()
     this->graphicsServer = GraphicsServer::Create();
     this->lightServer = LightServer::Create();
     this->shadowServer = ShadowServer::Create();
-	this->pickingServer = PickingServer::Create();
 	this->instanceServer = InstanceServer::Create();
     this->frameServer = FrameServer::Create();
 	this->materialServer = MaterialServer::Create();
@@ -182,7 +181,6 @@ GraphicsHandler::Close()
 	this->materialServer = 0;
     this->shadowServer = 0;
     this->lightServer = 0;
-	this->pickingServer = 0;
 	this->instanceServer = 0;
     this->graphicsServer = 0;
     this->modelServer = 0;
@@ -232,7 +230,6 @@ GraphicsHandler::SetupGraphicsRuntime(const Ptr<SetupGraphics>& msg)
     n_assert(!this->lightServer->IsOpen());
     n_assert(!this->shadowServer->IsOpen());
     n_assert(!this->frameServer->IsOpen());
-	n_assert(!this->pickingServer->IsOpen());
 	n_assert(!this->instanceServer->IsOpen());
 	n_assert(!this->materialServer->IsOpen());
     n_assert(!this->characterServer->IsValid());
@@ -272,7 +269,6 @@ GraphicsHandler::SetupGraphicsRuntime(const Ptr<SetupGraphics>& msg)
     this->shadowServer->Open();    
     this->particleServer->Open();    
 	this->frameServer->Open();	
-	this->pickingServer->Open();
 	this->instanceServer->Open();
 
     // HACK - pin placeholders and system stuff so they will not be automatically
@@ -307,7 +303,6 @@ GraphicsHandler::ShutdownGraphicsRuntime()
     this->modelServer->Close();
 	this->materialServer->Close();
 	this->shapeRenderer->Close();
-	this->pickingServer->Close();
     this->frameServer->Close();	
 	this->resourceManager->Close();
 	this->instanceServer->Close();
@@ -369,7 +364,6 @@ GraphicsHandler::HandleMessage(const Ptr<Message>& msg)
 	__StaticHandle(ReloadResource);
 	__StaticHandle(ReloadResourceIfExists);
 	__StaticHandle(EnableWireframe);
-	__StaticHandle(EnablePicking);
 	__StaticHandle(ItemAtPosition);
 	__StaticHandle(ItemsAtPosition);
 	__StaticHandle(DepthAtPosition);

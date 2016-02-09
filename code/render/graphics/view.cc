@@ -41,7 +41,8 @@ using namespace FrameSync;
 */
 View::View() :
     isAttachedToServer(false),
-	resolveRectValid(false)
+	resolveRectValid(false),
+	shouldUpdatePerFrame(true)
 {
     // empty
 }
@@ -282,11 +283,9 @@ View::Render(IndexT frameIndex)
 	RenderDevice* renderDev = RenderDevice::Instance();
     LightServer* lightServer = LightServer::Instance();
     ShadowServer* shadowServer = ShadowServer::Instance();
-	PickingServer* pickingServer = PickingServer::Instance();
 
     lightServer->BeginFrame(this->camera);
     shadowServer->BeginFrame(this->camera);
-	pickingServer->BeginFrame(this->camera);
 	this->frameShader->Begin();
 
 	Particles::ParticleRenderer::Instance()->BeginAttach();
@@ -323,12 +322,10 @@ View::Render(IndexT frameIndex)
 
 	// render picking
 	_start_timer(picking);
-	pickingServer->Render(frameIndex);
 	_stop_timer(picking);
 
     // tell main frame shader, light and shadow servers that rendering is finished
 	this->frameShader->End();
-	pickingServer->EndFrame();
     shadowServer->EndFrame();
     lightServer->EndFrame();	
 }
@@ -369,7 +366,7 @@ View::OnFrame(const Ptr<RenderModules::RTPluginRegistry>& pluginRegistry, Timing
 	IndexT frameIndex = FrameSyncTimer::Instance()->GetFrameIndex();
 
 	// start rendering
-	if (this->GetCameraEntity().isvalid() && renderDevice->BeginFrame())
+	if (this->GetCameraEntity().isvalid() && renderDevice->BeginFrame(frameIndex))
 	{
 		CharacterServer* charServer = CharacterServer::Instance();
 
@@ -451,7 +448,7 @@ View::OnFrame(const Ptr<RenderModules::RTPluginRegistry>& pluginRegistry, Timing
 		charServer->EndFrame();
 
 		_start_timer(ViewEndFrame)
-		renderDevice->EndFrame();
+		renderDevice->EndFrame(frameIndex);
 		_stop_timer(ViewEndFrame)
 	}
 }

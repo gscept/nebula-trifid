@@ -202,11 +202,6 @@ LevelEditorState::OnStateEnter( const Util::String& prevState )
 
 	Physics::PhysicsServer::Instance()->GetScene()->SetGravity(Math::vector(0,0,0));
 
-	// enable graphics-based picking
-	Ptr<EnablePicking> picking = EnablePicking::Create();
-	picking->SetEnabled(true);
-	GraphicsInterface::Instance()->Send(picking.upcast<Messaging::Message>());
-
 	// check for settings
 	BaseGameFeature::UserProfile* userProfile = BaseGameFeature::LoaderServer::Instance()->GetUserProfile();  
 	// make sure the important ones exist
@@ -226,6 +221,10 @@ LevelEditorState::OnStateEnter( const Util::String& prevState )
 	this->consoleHandler = Dynui::ImguiConsoleHandler::Create();
 	this->consoleHandler->Setup();
 
+	// setup picking server
+	this->pickingServer = Picking::PickingServer::Create();
+	this->pickingServer->Open();
+
 	// setup performance buffers
 	this->drawcallBuffer.SetCapacity(90);
 	this->primitivesBuffer.SetCapacity(90);
@@ -238,6 +237,9 @@ LevelEditorState::OnStateEnter( const Util::String& prevState )
 void 
 LevelEditorState::OnStateLeave( const Util::String& nextState )
 {
+	this->pickingServer->Close();
+	this->pickingServer = 0;
+
 	this->consoleHandler->Discard();
 	this->consoleHandler = 0;
 	this->console->Discard();

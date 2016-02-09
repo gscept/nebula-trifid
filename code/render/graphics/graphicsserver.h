@@ -64,7 +64,7 @@ public:
     const Util::Array<Ptr<Stage> >& GetStages() const;
 
     /// create a view object
-    Ptr<View> CreateView(const Core::Rtti& viewClass, const Util::StringAtom& name, bool isDefaultView=false);    
+    Ptr<View> CreateView(const Core::Rtti& viewClass, const Util::StringAtom& name, bool isDefaultView=false, bool updatePerFrame=true);    
     /// discard a view object
     void DiscardView(const Ptr<View>& view);
     /// discard all view objects

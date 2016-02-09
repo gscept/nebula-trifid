@@ -439,7 +439,7 @@ ModelHandler::OnNewVersion()
 void
 ModelHandler::OnFrame()
 {
-	//if (this->characterFrame) this->characterFrame->GetHandler()->OnFrame();
+	if (this->characterFrame) this->characterFrame->GetHandler()->OnFrame();
 }
 
 //------------------------------------------------------------------------------
