@@ -104,6 +104,9 @@ public: // MAY ONLY BE CALLED BY ResourceMappers!
     /// set place holder resource
     void SetPlaceholder(const Ptr<Resource>& placeholder);
 
+	/// set this managed resource to be unloadeable
+	void SetFailed(bool b);
+
 protected:
     ResourceId resourceId;
     float resourceStreamingLevelOfDetail;
@@ -114,6 +117,7 @@ protected:
     Priority priority;
     Ptr<Resource> resource;
     Ptr<Resource> placeholder;
+	bool failed;
 
     bool autoManaged;
     IndexT lastFrameId;
@@ -236,14 +240,18 @@ ManagedResource::GetPriority() const
 inline Resource::State
 ManagedResource::GetState() const
 {
-    if (this->resource.isvalid())
-    {
-        return this->resource->GetState();
-    }
-    else
-    {
-        return Resource::Pending;
-    }
+	if (this->failed) return Resource::Failed;
+	else
+	{
+		if (this->resource.isvalid())
+		{
+			return this->resource->GetState();
+		}
+		else
+		{
+			return Resource::Pending;
+		}
+	}    
 }
 
 //------------------------------------------------------------------------------
@@ -280,6 +288,15 @@ inline void
 ManagedResource::SetPlaceholder(const Ptr<Resource>& p)
 {
     this->placeholder = p;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+ManagedResource::SetFailed(bool b)
+{
+	this->failed = b;
 }
 
 //------------------------------------------------------------------------------

@@ -6,9 +6,6 @@
 	path = code/extlibs/imgui
 	url = https://github.com/gscept/imgui.git
 	branch = master
-[submodule "code/extlibs/anyfx/exts/eastl"]
-	path = code/extlibs/anyfx/exts/eastl
-	url = https://github.com/gscept/EASTL.git
 [submodule "code/extlibs/DevIL"]
 	path = code/extlibs/DevIL
 	url = https://github.com/gscept/DevIL.git
@@ -47,3 +44,6 @@
 	path = projects/nebula-demo
 	url = https://github.com/gscept/nebula-demo.git
 	branch = master
+[submodule "code/extlibs/anyfx"]
+	path = code/extlibs/anyfx
+	url = git@github.com:Duttenheim/AnyFX.git

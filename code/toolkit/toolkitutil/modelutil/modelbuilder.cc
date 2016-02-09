@@ -371,8 +371,8 @@ ModelBuilder::WritePhysics( const Ptr<N3Writer>& writer )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ModelBuilder::WriteCharacter( const Ptr<N3Writer>& writer )
+void
+ModelBuilder::WriteCharacter(const Ptr<N3Writer>& writer)
 {
 	// get list of characters
 	const Array<ModelConstants::CharacterNode>& characters = this->constants->GetCharacterNodes();
@@ -387,7 +387,8 @@ ModelBuilder::WriteCharacter( const Ptr<N3Writer>& writer )
 		writer->BeginCharacter(character.name,
 							   character.skinLists,
 							   character.joints,
-							   character.animation);
+							   character.animation,
+							   this->GetAttributes()->GetJointMasks());
 
 		// write skins
 		this->WriteSkins(writer);
@@ -401,8 +402,8 @@ ModelBuilder::WriteCharacter( const Ptr<N3Writer>& writer )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ModelBuilder::WriteSkins( const Ptr<N3Writer>& writer )
+void
+ModelBuilder::WriteSkins(const Ptr<N3Writer>& writer)
 {
 	// get list of skins
 	const Array<ModelConstants::Skin>& skins = this->constants->GetSkins();

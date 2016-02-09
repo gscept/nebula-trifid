@@ -10,6 +10,7 @@
 #include "math/float4.h"
 #include "math/quaternion.h"
 #include "coreanimation/animcurve.h"
+#include "characters/characterjointmask.h"
 
 namespace CoreAnimation
 {
@@ -80,7 +81,7 @@ AnimJobUtilSampleLinear(const AnimCurve* curves,
                         uchar* outSampleCounts)
 {
     float4 f0, f1, fDst;
-    quaternion q0, q1, qDst;
+	quaternion q0, q1, qDst;
     int i;
     for (i = 0; i < numCurves; i++)
     {
@@ -113,14 +114,14 @@ AnimJobUtilSampleLinear(const AnimCurve* curves,
                 {
                     q0.load((scalar*)src0SamplePtr);
                     q1.load((scalar*)src1SamplePtr);
-                    qDst = quaternion::slerp(q0, q1, sampleWeight);
+					qDst = quaternion::slerp(q0, q1, sampleWeight);
                     qDst.store((scalar*)outSamplePtr);
                 }
                 else
                 {
                     f0.load((scalar*)src0SamplePtr);
                     f1.load((scalar*)src1SamplePtr);
-                    fDst = float4::lerp(f0, f1, sampleWeight);
+					fDst = float4::lerp(f0, f1, sampleWeight);
                     if (CurveType::Velocity == curveType)
                     {
                         fDst = float4::multiply(fDst, velocityScale);
@@ -151,6 +152,7 @@ AnimJobUtilSampleLinear(const AnimCurve* curves,
 inline void
 AnimJobUtilMix(const AnimCurve* curves,
                int numCurves,
+			   const Characters::CharacterJointMask* mask,
                float mixWeight,
                const float4* src0SamplePtr,
                const float4* src1SamplePtr,
@@ -173,19 +175,24 @@ AnimJobUtilMix(const AnimCurve* curves,
         
         if ((src0Count > 0) && (src1Count > 0))
         {
+			float maskWeight = 1;
+
+			// we have 4 curves per joint
+			if (mask != 0) maskWeight = mask->GetWeight(i/4);
+
             // both samples valid, perform normal mixing
             if (curve.GetCurveType() == CurveType::Rotation)
             {
                 q0.load((scalar*)src0SamplePtr);
                 q1.load((scalar*)src1SamplePtr);
-                qDst = quaternion::slerp(q0, q1, mixWeight);
+				qDst = quaternion::slerp(q0, q1, mixWeight * maskWeight);
                 qDst.store((scalar*)outSamplePtr);
             }
             else
             {
                 f0.load((scalar*)src0SamplePtr);
                 f1.load((scalar*)src1SamplePtr);
-                fDst = float4::lerp(f0, f1, mixWeight);
+				fDst = float4::lerp(f0, f1, mixWeight * maskWeight);
                 fDst.store((scalar*)outSamplePtr);
             }
         }

@@ -507,11 +507,12 @@
         <!-- pauses an individual animation track -->
         <Message name="AnimPauseTrack" fourcc="ANPT" derivedFrom="GraphicsEntityMessage">
             <InArg name="TrackIndex" type="IndexT" default="0"/>
-            <InArg name="AllowFadeOut" type="bool" default="true"/>
+            <InArg name="Pause" type="bool" default="true"/>
         </Message>
       
         <!-- pauses all animation tracks -->
         <Message name="AnimPauseAllTracks" fourcc="APAT" derivedFrom="GraphicsEntityMessage">
+            <InArg name="Pause" type="bool" default="true"/>
         </Message>
       
         <!-- sets the current time for an animation -->
@@ -528,6 +529,12 @@
         <Message name="AnimModifyBlendWeight" fourcc="ANMB" derivedFrom="GraphicsEntityMessage">
             <InArg name="TrackIndex" type="IndexT" default="0" serialize="true"/>
             <InArg name="BlendWeight" type="float" default="1.0f" serialize="true"/>
+        </Message>
+      
+        <!-- modify joint mask of animations used on a given track -->
+        <Message name="AnimModifyJointMask" fourcc="AMJM" derivedFrom="GraphicsEntityMessage">
+            <InArg name="TrackIndex"  type="IndexT" default="0" serialize="true"/>
+            <InArg name="JointMask" type="Util::StringAtom" serialize="true"/>
         </Message>
 
         <!-- modify time factor of animations on given track -->
