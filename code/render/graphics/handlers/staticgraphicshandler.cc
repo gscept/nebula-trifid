@@ -199,8 +199,11 @@ __StaticHandler(ItemAtPosition)
 __StaticHandler(ItemsAtPosition)
 {
 	n_assert(PickingServer::HasInstance());
-	Util::Array<IndexT> items = PickingServer::Instance()->FetchSquare(msg->GetRectangle());
+	Util::Array<IndexT> items;
+	Util::Array<IndexT> edgeItems;
+	PickingServer::Instance()->FetchSquare(msg->GetRectangle(), items, edgeItems);
 	msg->SetItems(items);
+	msg->SetEdgeItems(edgeItems);
 }
 
 //------------------------------------------------------------------------------

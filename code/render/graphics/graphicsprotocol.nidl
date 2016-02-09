@@ -120,6 +120,7 @@
         <Message name="ItemsAtPosition" fourcc="ISAP">
           <InArg name="Rectangle" type="Math::rectangle<float>"/>
           <OutArg name="Items" type="Util::Array<IndexT>"/>
+          <OutArg name="EdgeItems" type="Util::Array<IndexT>"/>
         </Message>
       
         <!-- sends position to picking server, returns depth at pixel -->

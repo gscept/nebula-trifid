@@ -33,6 +33,7 @@
 #include "messaging/staticmessagehandler.h"
 #include "messaging/messagecallbackhandler.h"
 #include "properties/editorproperty.h"
+#include "imgui.h"
 
 
 using namespace Util;
@@ -53,13 +54,13 @@ __ImplementSingleton(LevelEditor2::SelectionUtil);
 */
 SelectionUtil::SelectionUtil() :
     hasSelectionChanged(false),
-	groupMode(false)
+	groupMode(false),
+	mouseDrag(false),
+	keyMultiSelection(Input::Key::Shift),
+	keyMultiSelectionRemove(Input::Key::LeftControl),
+	selectInside(true)
 {
-	__ConstructSingleton;
-
-    this->keyMultiSelection = Input::Key::Shift;
-	this->groupMatrix.identity();		
-
+	__ConstructSingleton;    		
 }
 
 //------------------------------------------------------------------------------
@@ -94,7 +95,7 @@ SelectionUtil::HandleInput()
         if (keyboard->KeyPressed(this->keyMultiSelection))
         {
             this->multiSelect = true;
-        }
+        }		
     }
 
     // Handle mouse input, if a valid handler is available
@@ -102,9 +103,49 @@ SelectionUtil::HandleInput()
     {
         if (mouse->ButtonDown(Input::MouseButton::LeftButton))
         {
-            this->GetEntityUnderMouse();
+			this->mouseDrag = true;
+			this->clickPos = mouse->GetPixelPosition();			
+			ImGuiIO& io = ImGui::GetIO();
+			io.WantCaptureMouse = false;
+			io.WantCaptureKeyboard = false;
 			return true;
         }
+		if (mouse->ButtonUp(Input::MouseButton::LeftButton))
+		{
+			if (this->mouseDrag)
+			{
+				ImGuiIO& io = ImGui::GetIO();
+				io.WantCaptureMouse = true;
+				io.WantCaptureKeyboard = true;
+				this->mouseDrag = false;
+				Math::float2 curPos = mouse->GetPixelPosition();				
+				if ((curPos - this->clickPos).lengthsq() < 9)
+				{
+					this->GetEntityUnderMouse();
+				}
+				else
+				{
+					Math::rectangle<float> selection;
+					selection.top = n_min(curPos.y(), this->clickPos.y());
+					selection.bottom = n_max(curPos.y(), this->clickPos.y());
+					selection.left = n_min(curPos.x(), this->clickPos.x());
+					selection.right = n_max(curPos.x(), this->clickPos.x());
+					if (curPos.y() < this->clickPos.y())
+					{
+						this->selectInside = false;
+					}
+					else
+					{
+						this->selectInside = true;
+					}
+					Ptr<Graphics::ItemsAtPosition> msg = Graphics::ItemsAtPosition::Create();
+					msg->SetRectangle(selection);
+					__StaticSend(Graphics::GraphicsInterface, msg);
+					__SingleFireCallback(SelectionUtil, OnEntitiesClicked, this, msg.upcast<Messaging::Message>());
+				}
+
+			}
+		}
     }
 	return false;
 }
@@ -169,6 +210,93 @@ SelectionUtil::OnEntityClicked(const Ptr<Messaging::Message>& msg)
 		Ptr<SelectAction> action = SelectAction::Create();
 		action->SetSelectionMode(SelectAction::ClearSelection);						
 		ActionManager::Instance()->PerformAction(action.cast<Action>());
+	}
+}
+
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+SelectionUtil::OnEntitiesClicked(const Ptr<Messaging::Message>& msg)
+{
+	const Ptr<Graphics::ItemsAtPosition>& rMsg = msg.downcast<Graphics::ItemsAtPosition>();
+	Util::Array<int> ids = rMsg->GetItems();	
+	Util::Array<int> edgeIds = rMsg->GetEdgeItems();
+	edgeIds.Sort();
+	if (ids.Size() > 0)
+	{
+		if (this->multiSelect)
+		{
+			Util::Array<EntityGuid> current = this->GetSelectedEntityIds();
+			current.Sort();
+			Util::Array<EntityGuid> entities;
+			Util::Array<EntityGuid> containedEntities;
+			for (int i = 0; i < ids.Size();i++)
+			{
+				if (BaseGameFeature::EntityManager::Instance()->ExistsEntityByUniqueId(ids[i]))
+				{
+					if (BaseGameFeature::EntityManager::Instance()->ExistsEntityByUniqueId(ids[i]))
+					{
+						if (!this->selectInside || (this->selectInside && InvalidIndex == edgeIds.BinarySearchIndex(ids[i])))
+						{
+							EntityGuid guid = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(ids[i])->GetGuid(Attr::EntityGuid);
+							if (current.BinarySearchIndex(guid) == InvalidIndex)
+							{
+								entities.Append(guid);
+							}
+							else
+							{
+								containedEntities.Append(guid);
+							}
+						}
+					}
+				}
+			}
+			if (InputServer::Instance()->GetDefaultKeyboard()->KeyPressed(this->keyMultiSelectionRemove))
+			{
+				if (!containedEntities.IsEmpty())
+				{
+					Ptr<SelectAction> action = SelectAction::Create();
+					action->SetSelectionMode(SelectAction::RemoveSelection);
+					action->SetEntities(containedEntities);
+					ActionManager::Instance()->PerformAction(action.cast<Action>());
+				}
+			}
+			else
+			{
+				if (!entities.IsEmpty())
+				{
+					Ptr<SelectAction> action = SelectAction::Create();
+					action->SetSelectionMode(SelectAction::AppendSelection);
+					action->SetEntities(entities);
+					ActionManager::Instance()->PerformAction(action.cast<Action>());
+				}
+			}
+		}
+		else
+		{
+			Ptr<SelectAction> action = SelectAction::Create();
+			action->SetSelectionMode(SelectAction::ClearSelection);
+			ActionManager::Instance()->PerformAction(action.cast<Action>());
+			Util::Array<EntityGuid> entities;
+			for (int i = 0; i < ids.Size();i++)
+			{
+				if (BaseGameFeature::EntityManager::Instance()->ExistsEntityByUniqueId(ids[i]))
+				{
+					if (!this->selectInside || (this->selectInside && InvalidIndex == edgeIds.BinarySearchIndex(ids[i])))
+					{
+						entities.Append(BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(ids[i])->GetGuid(Attr::EntityGuid));
+					}					
+				}
+			}
+			if (!entities.IsEmpty())
+			{
+				action->SetSelectionMode(SelectAction::SetSelection);
+				action->SetEntities(entities);
+				ActionManager::Instance()->PerformAction(action.cast<Action>());
+			}
+		}
 	}
 }
 
@@ -281,12 +409,8 @@ SelectionUtil::ClearSelection()
 void
 SelectionUtil::GetEntityUnderMouse()
 {    
-	Ptr<BaseGameFeature::EnvQueryManager> envQueryManager = BaseGameFeature::EnvQueryManager::Instance();
-
-	float2 mousePos = InputServer::Instance()->GetDefaultMouse()->GetPixelPosition();
-
 	Ptr<Graphics::ItemAtPosition> msg = Graphics::ItemAtPosition::Create();
-	msg->SetPosition(mousePos);
+	msg->SetPosition(this->clickPos);
 	__StaticSend(Graphics::GraphicsInterface, msg);	
 	__SingleFireCallback(SelectionUtil, OnEntityClicked, this, msg.upcast<Messaging::Message>());
 
@@ -375,6 +499,25 @@ SelectionUtil::Render()
 	{
 		// Render the box
 		this->RenderBBox(this->groupBox);
+	}
+
+	// if dragging mouse draw a rectangle
+	if (this->mouseDrag)
+	{
+		Math::float2 curPos = InputServer::Instance()->GetDefaultMouse()->GetPixelPosition();
+		float2 top = float2::minimize(curPos, this->clickPos);
+		float2 bottom = float2::maximize(curPos, this->clickPos);
+		float2 size = bottom - top;
+
+		if (size.lengthsq() > 9)
+		{			
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0);
+			ImGui::SetNextWindowPos(ImVec2(top.x(), top.y()));
+			ImGui::SetNextWindowSize(ImVec2(size.x(), size.y()));
+			ImGui::Begin("_selection", NULL, ImVec2(size.x(), size.y()), -1.0f, ImGuiWindowFlags_NoInputs| ImGuiWindowFlags_NoTitleBar);
+			ImGui::End();
+			ImGui::PopStyleVar();
+		}						
 	}
 }
 //------------------------------------------------------------------------------

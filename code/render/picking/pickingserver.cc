@@ -191,8 +191,8 @@ PickingServer::FetchIndex( const Math::float2& position )
 //------------------------------------------------------------------------------
 /**
 */
-Util::Array<IndexT> 
-PickingServer::FetchSquare( const Math::rectangle<float>& rect )
+void
+PickingServer::FetchSquare( const Math::rectangle<float>& rect, Util::Array<IndexT> & indices, Util::Array<IndexT> & edgeIndices)
 {
 	n_assert(this->IsOpen());
 	Ptr<Texture> tex = this->pickingBuffer->GetResolveTexture();
@@ -206,11 +206,12 @@ PickingServer::FetchSquare( const Math::rectangle<float>& rect )
 	bool status = tex->Map(0, ResourceBase::MapRead, info);
 	n_assert(status);
 
-	// calculate pixel offset
-	int pixelSize = PixelFormat::ToSize(tex->GetPixelFormat());
 	int width = tex->GetWidth();
-
+	int height = tex->GetHeight();
 #if (__DX11__ || __DX9__)
+#error This is most likely utterly broken now
+	// calculate pixel offset	
+	int pixelSize = PixelFormat::ToSize(tex->GetPixelFormat());
 	int calcedPitch = width * pixelSize;
 	int pitchDiff = info.rowPitch - calcedPitch;
 	width += pitchDiff / pixelSize;
@@ -223,44 +224,35 @@ PickingServer::FetchSquare( const Math::rectangle<float>& rect )
 	int yMax = (int)rect.bottom;
 #elif __OGL4__
 	// get coordinate
-	int xMin = (int)rect.left;
-	int yMin = (int)rect.bottom;
+	int xMin = Math::n_iclamp((int)rect.left, 0, width - 1);
+	int yMin = tex->GetHeight() - Math::n_iclamp((int)rect.bottom, 0, height - 1);
 
-	int xMax = (int)rect.right;
-	int yMax = (int)rect.top;
+	int xMax = Math::n_iclamp((int)rect.right, 0, width - 1);
+	int yMax = tex->GetHeight() - Math::n_iclamp((int)rect.top, 0, height - 1);
 #endif
-
-	// calculate start offset and end offset in buffer
-	int upperLeft = width * (yMin - 1) + xMin;
-	int upperRight = width * (yMin - 1) + xMax;
-	int lowerLeft = width * (yMax - 1) + xMin;
-	int lowerRight = width * (yMax - 1) + xMax;
-
-	// get offset to start
-	float* values = &((float*)(info.data))[upperLeft];
-
-	// create return list indices
-	//Util::Array<IndexT> indices;
-
-	// make a dictionary which we will use as a set, so the byte value is just a dummy
-	Util::Dictionary<IndexT, ubyte> indices;
-
-	// get values
-	IndexT i;
-	IndexT j;
-	for (i = 0; i < rect.height(); i++)
+	
+	float* values = (float*)info.data;			
+	
+	for (IndexT i = yMin; i < yMax; i++)
 	{
-		for (j = 0; j < rect.width(); j++)
+		for (IndexT j = xMin; j < xMax; j++)
 		{
-			IndexT index = IndexT(values[(i + 1) * j]);
-			if (!indices.Contains(index)) indices.Add(index, 0);
-		}
-
-		// offset values by a row
-		values += width;
+			IndexT index = IndexT(values[i*width + j]);
+			if (indices.BinarySearchIndex(index) == InvalidIndex)
+			{
+				indices.InsertSorted(index);
+			}			
+			if (i == yMin || i == yMax-1 || j == xMin || j == xMax-1)
+			{
+				if (edgeIndices.BinarySearchIndex(index) == InvalidIndex)
+				{
+					edgeIndices.InsertSorted(index);
+				}
+			}
+		}		
 	}
-
-	return indices.KeysAsArray();
+	// release texture map
+	tex->Unmap(0);	
 }
 
 //------------------------------------------------------------------------------
