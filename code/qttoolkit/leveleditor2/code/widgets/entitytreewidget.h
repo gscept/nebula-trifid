@@ -48,6 +48,8 @@ public:
 
 	/// get direct children 
 	Util::Array<Ptr<Game::Entity>> GetDirectChildren(const EntityGuid &id);
+    /// get all children 
+    Util::Array<Ptr<Game::Entity>> GetSelectionRecursive();
 
 	/// get all currently selected items
 	Util::Array<Ptr<Game::Entity>> GetSelection() const;
@@ -83,7 +85,9 @@ private:
 	void Deregister(EntityGuid id);
 	/// select recursively
 	Util::Array<EntityGuid> SelectRecursive(EntityTreeItem* item);
-	/// set parent guid recursively
+    /// get selected items and all children of selected items
+    Util::Array<EntityGuid> CollectAllChildren();
+    /// set parent guid recursively
 	void SetParentGuid(const Util::Guid & guid, EntityTreeItem * child);
 	
 	Ptr<LevelEditorState> editorState;

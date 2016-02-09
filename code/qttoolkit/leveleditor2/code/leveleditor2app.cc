@@ -427,8 +427,8 @@ LevelEditor2App::CleanupGameFeatures()
 */
 void 
 LevelEditor2App::DuplicateCurrentSelection()
-{
-	Util::Array<Ptr<Game::Entity>> entities = SelectionUtil::Instance()->GetSelectedEntities();		
+{    
+	Util::Array<Ptr<Game::Entity>> entities = SelectionUtil::Instance()->GetSelectedEntities(true);		
 	Ptr<DuplicateAction> dpl = DuplicateAction::Create();
 	dpl->SetEntities(entities);
 	Util::String msg;

@@ -314,14 +314,21 @@ SelectionUtil::HasSelectionChanged()
     of the user.
 */
 Util::Array<Ptr<Game::Entity> >
-SelectionUtil::GetSelectedEntities()
+SelectionUtil::GetSelectedEntities(bool withChildren)
 {    
-	Util::Array<Ptr<Game::Entity>> ents;
-	for(IndexT i = 0 ; i < this->selectedEntities.Size() ; i++)
-	{
-		ents.Append(LevelEditor2EntityManager::Instance()->GetEntityById(this->selectedEntities[i]));
-	}
-	return ents;
+    if (withChildren)
+    {
+        return LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->GetSelectionRecursive();        
+    }
+    else
+    {
+        Util::Array<Ptr<Game::Entity>> ents;
+        for (IndexT i = 0; i < this->selectedEntities.Size(); i++)
+        {
+            ents.Append(LevelEditor2EntityManager::Instance()->GetEntityById(this->selectedEntities[i]));
+        }
+        return ents;
+    }	
 }
 
 //------------------------------------------------------------------------------
