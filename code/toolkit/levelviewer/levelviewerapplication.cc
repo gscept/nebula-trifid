@@ -21,6 +21,7 @@
 #include "audioprotocol.h"
 #include "uicommands.h"
 #include "NIDL/levelviewercommands.h"
+#include "posteffectprotocol.h"
 
 
 namespace Tools
@@ -173,6 +174,7 @@ LevelViewerGameStateApplication::SetupGameFeatures()
 	Commands::AudioCommands::Register();
 	Commands::UICommands::Register();	
 	Commands::LevelviewerCommands::Register();
+	Commands::PostEffectCommands::Register();
 
 	this->gameServer->AttachGameFeature(this->uiFeature.cast<Game::FeatureUnit>());
 	this->gameServer->AttachGameFeature(this->postEffectFeature.cast<Game::FeatureUnit>());

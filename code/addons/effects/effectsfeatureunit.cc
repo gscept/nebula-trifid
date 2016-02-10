@@ -13,6 +13,7 @@
 #include "effects/attachmenteffect.h"
 #include "mixer/camerashakemixer.h"
 #include "graphics/graphicsprotocol.h"
+#include "effects/postfxeffect.h"
 
 namespace EffectsFeature
 {
@@ -247,6 +248,20 @@ EffectsFeatureUnit::AttachEffect(const Ptr<EffectsFeature::Effect> & effect)
 	// add affect
 	effect->OnActivate(this->curTime);
 	this->activeEffects.Append(effect);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+EffectsFeatureUnit::EmitPostFXEvent(const Util::String & preset, Timing::Time duration)
+{
+	Ptr<PostFXEffect> effect = PostFXEffect::Create();
+	effect->SetPreset(preset);
+	effect->SetDuration(duration);
+	// add effect
+	effect->OnActivate(this->curTime);
+	this->activeEffects.Append(effect.upcast<Effect>());
 }
 
 };

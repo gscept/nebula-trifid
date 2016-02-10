@@ -33,6 +33,8 @@ set(SOURCES_files_effects__effects
 	effects/camerashakeeffect.h
 	effects/effect.cc
 	effects/effect.h
+	effects/postfxeffect.cc
+	effects/postfxeffect.h
 	effects/vibrationeffect.cc
 	effects/vibrationeffect.h
 	effects/audioeffect.cc

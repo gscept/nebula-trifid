@@ -29,5 +29,12 @@
         EffectsFeature::EffectsFeatureUnit::Instance()->EmitGraphicsEffect(Transform,"mdl:" + Resource + ".n3",Duration);
       </Code>
     </Command>
+    <Command name="PostFXEffect" fourcc="pxef" desc="Generate a postfx effect">
+      <InArg name="Preset" type="string"/>
+      <InArg name="Duration" type="float"/>      
+      <Code>
+        EffectsFeature::EffectsFeatureUnit::Instance()->EmitPostFXEvent(Preset,Duration);
+      </Code>
+    </Command>
 	</Library>
 </Nebula3>

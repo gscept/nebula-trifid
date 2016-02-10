@@ -68,6 +68,9 @@ public:
 							Timing::Time delay,
 							GraphicsFeature::AttachmentManager::AttachmentRotation rotationMode);
 
+	/// create and activate posteffect effect
+	void EmitPostFXEvent(const Util::String & preset, Timing::Time duration);
+
 	/// add a effect directly
 	void AttachEffect(const Ptr<EffectsFeature::Effect> & effect);
 
