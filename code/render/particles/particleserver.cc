@@ -56,7 +56,29 @@ ParticleServer::Open()
 	emitterComponents.Append(VertexComponent(VertexComponent::Normal, 0, VertexComponent::Byte4N, 0));
 	emitterComponents.Append(VertexComponent(VertexComponent::Tangent, 0, VertexComponent::Byte4N, 0));
 
+	float x = 0 * 0.5f * 255.0f;
+	float y = 1 * 0.5f * 255.0f;
+	float z = 0 * 0.5f * 255.0f;
+	float w = 0 * 0.5f * 255.0f;
+	int xBits = (int)x;
+	int yBits = (int)y;
+	int zBits = (int)z;
+	int wBits = (int)w;
+	int normPacked = ((wBits << 24) & 0xFF000000) | ((zBits << 16) & 0x00FF0000) | ((yBits << 8) & 0x0000FF00) | (xBits & 0x000000FF);
+
+	x = 0 * 0.5f * 255.0f;
+	y = 0 * 0.5f * 255.0f;
+	z = 1 * 0.5f * 255.0f;
+	w = 0 * 0.5f * 255.0f;
+	xBits = (int)x;
+	yBits = (int)y;
+	zBits = (int)z;
+	wBits = (int)w;
+	int tangentPacked = ((wBits << 24) & 0xFF000000) | ((zBits << 16) & 0x00FF0000) | ((yBits << 8) & 0x0000FF00) | (xBits & 0x000000FF);
+
 	float vertex[] = {0, 0, 0, 0, 0};
+	*(int*)&vertex[3] = normPacked;
+	*(int*)&vertex[4] = tangentPacked;
 	emitterLoader->Setup(emitterComponents, 1, vertex, sizeof(vertex), VertexBuffer::UsageImmutable, VertexBuffer::AccessRead);
 	Ptr<VertexBuffer> vb = VertexBuffer::Create();
 	vb->SetLoader(emitterLoader.upcast<Resources::ResourceLoader>());
