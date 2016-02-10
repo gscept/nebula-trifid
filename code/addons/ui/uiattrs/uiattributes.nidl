@@ -7,6 +7,7 @@
     <Attribute name="UIFontStyle" fourcc="UIFS" accessMode="ReadWrite" type="Int"/>
     <Attribute name="UILayoutFile" fourcc="UILF" accessMode="ReadWrite" type="String"/>
     <Attribute name="UIScriptFile" fourcc="UISF" accessMode="ReadWrite" type="String"/>
-    <Attribute name="UILayout" fourcc="ULAY" accessMode="ReadWrite" type="String"/>    
+    <Attribute name="UILayout" fourcc="ULAY" accessMode="ReadWrite" type="String"/>
+    <Attribute name="UICursor" fourcc="ULMC" accessMode="ReadWrite" type="Bool" default="false"/>
   </AttributeLib>
 </Nebula3>		

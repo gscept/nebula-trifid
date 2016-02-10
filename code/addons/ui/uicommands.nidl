@@ -147,5 +147,13 @@
         ]]>
       </Code>
     </Command>
+    <Command name="SetUICursor" fourcc="seuc" desc="Selects a previously loaded cursor layout">
+      <InArg name="cursor" type="string"/>
+      <Code>
+        <![CDATA[
+          UI::UiServer::Instance()->SetCursor(cursor);
+        ]]>
+      </Code>
+    </Command>
   </Library>  
 </Nebula3>

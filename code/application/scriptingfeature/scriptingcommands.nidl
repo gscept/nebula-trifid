@@ -321,6 +321,14 @@
           ]]>
       </Code>
     </Command>
+    <Command name="showsystemcursor" fourcc="SSMC" desc="sets visibility of the system mouse pointer">
+      <InArg name="visible" type="bool"/>
+      <Code>
+        <![CDATA[         
+          Input::InputServer::Instance()->SetCursorVisible(visible);          
+          ]]>
+      </Code>
+    </Command>
     <Command name="SetPosition" fourcc="SEPO" desc="Sets a entities position">
       <InArg name="EntityID" type="uint"/>      
       <InArg name="position" type="float4"/>
