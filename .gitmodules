@@ -46,4 +46,4 @@
 	branch = master
 [submodule "code/extlibs/anyfx"]
 	path = code/extlibs/anyfx
-	url = git@github.com:Duttenheim/AnyFX.git
+	url = https://github.com/Duttenheim/AnyFX.git
