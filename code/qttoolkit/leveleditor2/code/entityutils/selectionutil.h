@@ -54,9 +54,7 @@ public:
     /// Renders a simple representation of the selection into 3D space
     void Render();
 	/// currently performing a drag operation
-	const bool IsInDrag() const;
-	/// center pivot (only works if there is a single group node selected)
-	void CenterPivot();
+	const bool IsInDrag() const;	
    
     /// Calculate bounding box of a list of entities
     static Math::bbox CalculateGroupBox(const Util::Array<EntityGuid>& entities);

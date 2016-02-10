@@ -18,6 +18,8 @@
 #include "basegamefeature/basegameprotocol.h"
 #include "actions/transformaction.h"
 #include "actions/actionmanager.h"
+#include "leveleditor2entitymanager.h"
+#include "properties/editorproperty.h"
 
 namespace LevelEditor2
 {
@@ -464,5 +466,36 @@ PlacementUtil::Setup()
 	this->scaleFeature = ScaleFeature::Create();
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PlacementUtil::CenterPivot()
+{
+	Util::Array<Ptr<Game::Entity>> selection = SelectionUtil::Instance()->GetSelectedEntities();
+	if (selection.Size() == 1)
+	{
+		Ptr<Game::Entity> entity = selection[0];
+		if (entity->GetInt(Attr::EntityType) == Group)
+		{
+			Util::Array<Ptr<Game::Entity>> entities = SelectionUtil::Instance()->GetSelectedEntities(true);
+			// this is a bit braindead 
+			Util::Array<EntityGuid> guids;
+			for (int i = 0;i < entities.Size();i++)
+			{
+				guids.Append(entities[i]->GetGuid(Attr::EntityGuid));
+			}
+			Math::bbox box = SelectionUtil::CalculateGroupBox(guids);
+			Math::matrix44 curTrans = entity->GetMatrix44(Attr::Transform);
+			curTrans.set_position(box.center());
+			Ptr<SetTransform> msg = SetTransform::Create();
+			msg->SetMatrix(curTrans);
+			msg->SetDistribute(false);
+			__SendSync(entity, msg);
+			this->selectedMatrices[0] = curTrans;
+			this->UpdateCurrentFeature();
+		}
+	}
+}
 } // namespace LevelEditor2
 

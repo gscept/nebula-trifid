@@ -735,19 +735,5 @@ SelectionUtil::UpdateModels()
 	}
 }
 
-//------------------------------------------------------------------------------
-/**
-*/
-void
-SelectionUtil::CenterPivot()
-{
-	if (this->selectedEntities.Size() == 1)
-	{
-		Ptr<Game::Entity> entity = LevelEditor2EntityManager::Instance()->GetEntityById(this->selectedEntities[0]);
-		if(entity->GetInt(Attr::EntityType) == Group)
-		{ }
-	}
-}
-
 }// namespace LevelEditor
 

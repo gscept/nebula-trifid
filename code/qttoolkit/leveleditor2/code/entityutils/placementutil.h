@@ -103,6 +103,8 @@ public:
 	/// access to the placement feature objects
 	Ptr<TransformFeature> GetPlacementFeature(TransformMode mode);
 
+	/// center pivot (only works if there is a single group node selected)
+	void CenterPivot();
 
 private:
     friend class AttributeWidgetManager;
