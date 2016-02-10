@@ -214,8 +214,6 @@ PickingServer::FetchSquare( const Math::rectangle<float>& rect, Util::Array<Inde
 	int xMax = Math::n_iclamp((int)rect.right, 0, width - 1);
 	int yMax = tex->GetHeight() - Math::n_iclamp((int)rect.top, 0, height - 1);
 #endif
-
-	
 	float* values = (float*)info.data;			
 	
 	for (IndexT i = yMin; i < yMax; i++)

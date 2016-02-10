@@ -52,11 +52,11 @@ ParticleServer::Open()
 	// setup default emitter vertex buffer and index buffer
 	Ptr<MemoryVertexBufferLoader> emitterLoader = MemoryVertexBufferLoader::Create();
 	Util::Array<VertexComponent> emitterComponents;
-	emitterComponents.Append(VertexComponent(VertexComponent::Position, 0, VertexComponent::Float4, 0));
+	emitterComponents.Append(VertexComponent(VertexComponent::Position, 0, VertexComponent::Float3, 0));
 	emitterComponents.Append(VertexComponent(VertexComponent::Normal, 0, VertexComponent::Byte4N, 0));
 	emitterComponents.Append(VertexComponent(VertexComponent::Tangent, 0, VertexComponent::Byte4N, 0));
 
-	float vertex[] = {0, 0, 0, 0, 0, 0};
+	float vertex[] = {0, 0, 0, 0, 0};
 	emitterLoader->Setup(emitterComponents, 1, vertex, sizeof(vertex), VertexBuffer::UsageImmutable, VertexBuffer::AccessRead);
 	Ptr<VertexBuffer> vb = VertexBuffer::Create();
 	vb->SetLoader(emitterLoader.upcast<Resources::ResourceLoader>());

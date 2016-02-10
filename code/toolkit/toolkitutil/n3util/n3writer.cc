@@ -175,22 +175,25 @@ void N3Writer::BeginCharacter(const Util::String& modelName,
 		this->modelWriter->EndTag();
 	}
 
-	// write number of masks
-	this->modelWriter->BeginTag("Number of masks", FourCC('NJMS'));
-	this->modelWriter->WriteInt(jointMasks.Size());
-	this->modelWriter->EndTag();
-
-	// write joint mask
-	for (int i = 0; i < jointMasks.Size(); i++)
+	if (jointMasks.Size() > 0)
 	{
-		this->modelWriter->BeginTag("Joint mask", FourCC('JOMS'));
-		this->modelWriter->WriteString(jointMasks[i].name);
-		this->modelWriter->WriteInt(jointMasks[i].weights.Size());
-		for (int j = 0; j < jointMasks[i].weights.Size(); j++)
+		// write number of masks
+		this->modelWriter->BeginTag("Number of masks", FourCC('NJMS'));
+		this->modelWriter->WriteInt(jointMasks.Size());
+		this->modelWriter->EndTag();
+
+		// write joint mask
+		for (int i = 0; i < jointMasks.Size(); i++)
 		{
-			this->modelWriter->WriteFloat(jointMasks[i].weights[j]);
+			this->modelWriter->BeginTag("Joint mask", FourCC('JOMS'));
+			this->modelWriter->WriteString(jointMasks[i].name);
+			this->modelWriter->WriteInt(jointMasks[i].weights.Size());
+			for (int j = 0; j < jointMasks[i].weights.Size(); j++)
+			{
+				this->modelWriter->WriteFloat(jointMasks[i].weights[j]);
+			}
+			this->modelWriter->EndTag();		
 		}
-		this->modelWriter->EndTag();		
 	}
 
 	this->isBeginCharacter = true;

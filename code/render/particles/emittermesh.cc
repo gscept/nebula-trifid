@@ -92,7 +92,7 @@ EmitterMesh::Setup(const Ptr<Mesh>& mesh, IndexT primGroupIndex)
 
     IndexT posCompIndex = vertexLayout->FindComponent(VertexComponent::Position, 0);
     n_assert(InvalidIndex != posCompIndex);
-    n_assert(vertexLayout->GetComponentAt(posCompIndex).GetFormat() == VertexComponent::Float4);
+    n_assert(vertexLayout->GetComponentAt(posCompIndex).GetFormat() == VertexComponent::Float3);
 
     IndexT normCompIndex = vertexLayout->FindComponent(VertexComponent::Normal, 0);
     n_assert(InvalidIndex != normCompIndex);
