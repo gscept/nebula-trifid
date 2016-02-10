@@ -53,8 +53,7 @@ __ImplementSingleton(LevelEditor2::SelectionUtil);
     Constructor
 */
 SelectionUtil::SelectionUtil() :
-    hasSelectionChanged(false),
-	groupMode(false),
+    hasSelectionChanged(false),	
 	mouseDrag(false),
 	keyMultiSelection(Input::Key::Shift),
 	keyMultiSelectionRemove(Input::Key::LeftControl),
@@ -336,7 +335,8 @@ SelectionUtil::AppendToSelection(const EntityGuid& entity)
 	{
 		this->selectedEntities.Append(entity);			
 	}	
-	this->hasSelectionChanged = true;
+	this->hasSelectionChanged = true;	
+	this->UpdateModels();
 }
 
 //------------------------------------------------------------------------------
@@ -349,7 +349,8 @@ SelectionUtil::AppendToSelection(const Util::Array<EntityGuid>& entities)
 	for(IndexT i = 0 ; i < entities.Size() ; i++)
 	{
 		this->AppendToSelection(entities[i]);
-	}		
+	}			
+	this->UpdateModels();
 }
 
 //------------------------------------------------------------------------------
@@ -363,8 +364,8 @@ void SelectionUtil::RemoveFromSelection(const EntityGuid& entity)
 	if(InvalidIndex != id)
 	{
 		this->selectedEntities.EraseIndex(id);
-	}
-		
+	}	
+	this->UpdateModels();
 }
 
 //------------------------------------------------------------------------------
@@ -377,6 +378,7 @@ void SelectionUtil::RemoveFromSelection(const Util::Array<EntityGuid>& entities)
 	{
 		RemoveFromSelection(entities[i]);
 	}	
+	this->UpdateModels();
 }
 
 //------------------------------------------------------------------------------
@@ -388,6 +390,7 @@ SelectionUtil::SetSelection(const Util::Array<EntityGuid>& entities)
 	this->selectedEntities.Clear();
 	this->hasSelectionChanged = true;
 	this->selectedEntities.AppendArray(entities);		
+	this->UpdateModels();
 }
 
 //------------------------------------------------------------------------------
@@ -397,9 +400,10 @@ Clears the whole selection
 void
 SelectionUtil::ClearSelection()
 {    
-	this->selectedEntities.Clear();
+	this->selectedEntities.Clear();	
 	this->hasSelectionChanged = true;
 	Silhouette::SilhouetteAddon::Instance()->SetModels(Util::Array<Ptr<Graphics::ModelEntity>>());
+	this->UpdateModels();
 }
 
 //------------------------------------------------------------------------------
@@ -442,65 +446,13 @@ SelectionUtil::GetEntityUnderMouse()
 void
 SelectionUtil::Render()
 {
-    Util::Array<Ptr<Graphics::ModelEntity>> modelEntities;
-    Ptr<GraphicsFeature::GetModelEntity> msg;
-
-	float4 color = LevelEditor2App::Instance()->GetWindow()->GetSelectionColour();
+    float4 color = LevelEditor2App::Instance()->GetWindow()->GetSelectionColour();
 	color.set_w(1);
-	Silhouette::SilhouetteAddon::Instance()->SetColor(color);
-    IndexT i;
-
-	bbox boundingBox;
-	boundingBox.begin_extend();
-    for(i = 0; i < this->selectedEntities.Size(); i++)
-    {
-        // try to get the bounding box of the entity if one exist
-        // (only if it has the graphics property)
-		const Ptr<Game::Entity>& selectedEntity = LevelEditor2EntityManager::Instance()->GetEntityById(this->selectedEntities[i]);
-
-        msg = GraphicsFeature::GetModelEntity::Create();
-		__SendSync(selectedEntity, msg);
-		const Ptr<Graphics::ModelEntity>& model = msg->GetEntity();
-		if (model.isvalid())
-		{
-			boundingBox.extend(model->GetGlobalBoundingBox());
-			modelEntities.Append(model);
-		}
-		else
-		{
-			// alternative solution, in case the entity have a model, we just make one up!
-			matrix44 trans = selectedEntity->GetMatrix44(Attr::Transform);
-			bbox box(trans);
-			boundingBox.extend(box);
-		}
-
-		/*
-		const Ptr<Game::Entity>& entity = LevelEditor2EntityManager::Instance()->GetEntityById(this->selectedEntities[i]);
-		if (modelEntity.isvalid())
-		{
-			bbox _box = modelEntity->GetLocalBoundingBox();
-			_box.transform(entity->GetMatrix44(Attr::Transform));
-			//this->RenderBBox(_box);
-		}		
-		*/
-    }
-
-	boundingBox.end_extend();
-	this->groupBox = boundingBox;
+	Silhouette::SilhouetteAddon::Instance()->SetColor(color);  
 
 	// set models to be rendered
-	Silhouette::SilhouetteAddon::Instance()->SetModels(modelEntities);
-
-	// calculate group box for entities
-	//this->CalculateGroupBox();
-
-	// Renders a single bounding box around the selected entities.
-	if(this->groupMode)
-	{
-		// Render the box
-		this->RenderBBox(this->groupBox);
-	}
-
+	Silhouette::SilhouetteAddon::Instance()->SetModels(this->selectedModels);
+	
 	// if dragging mouse draw a rectangle
 	if (this->mouseDrag)
 	{
@@ -670,35 +622,21 @@ SelectionUtil::RenderBBox(const bbox & origBox)
 
 //------------------------------------------------------------------------------
 /**
-    Toggles group selection.	
+    Calculates entity bounding box
 */
-void
-SelectionUtil::ToggleGroup()
+Math::bbox
+SelectionUtil::CalculateGroupBox(const Util::Array<EntityGuid>& entities)
 {
-	groupMode = !groupMode;
-}
-
-//------------------------------------------------------------------------------
-/**
-    Calculates group bounding box	
-*/
-void
-SelectionUtil::CalculateGroupBox()
-{
-	// Don't calculate if nothing is selected
-	if(this->selectedEntities.IsEmpty() && !this->groupMode)
-		return;
-
 	// Init
 	bbox boundingBox;
-	SizeT size = this->selectedEntities.Size();
+	SizeT size = entities.Size();
 	Util::Array<Ptr<Graphics::ModelEntity>> gfxEntities;
 	Ptr<GraphicsFeature::GetModelEntity> msg = GraphicsFeature::GetModelEntity::Create();
     
 	// Get all graphic entities
 	for(int i = 0; i < size; i++)
 	{
-		Ptr<Game::Entity> entity = LevelEditor2EntityManager::Instance()->GetEntityById(this->selectedEntities[i]);
+		Ptr<Game::Entity> entity = LevelEditor2EntityManager::Instance()->GetEntityById(entities[i]);
 		__SendSync(entity, msg);		
         const Ptr<Graphics::ModelEntity>& modelEntity = msg->GetEntity();
         if (modelEntity.isvalid())
@@ -724,7 +662,7 @@ SelectionUtil::CalculateGroupBox()
         // since we have no bounding boxes (due to us having no models) we just make a bounding box with center at the object and extents (1,1,1)
         for(int i = 0; i < size; i++)
         {
-            const Ptr<Game::Entity>& entity = LevelEditor2EntityManager::Instance()->GetEntityById(this->selectedEntities[i]);            
+            const Ptr<Game::Entity>& entity = LevelEditor2EntityManager::Instance()->GetEntityById(entities[i]);
             bbox entityBox;
             entityBox.set(entity->GetMatrix44(Attr::Transform).get_position(), vector(1,1,1));
             boundingBox.extend(entityBox);
@@ -733,36 +671,7 @@ SelectionUtil::CalculateGroupBox()
 
     // finish extending
     boundingBox.end_extend();   
-
-	// Create group matrix
-	Math::matrix44 newGroupMatrix;
-	newGroupMatrix.identity();
-	newGroupMatrix.set_position(boundingBox.center());
-
-	// Set calculated values
-	this->groupBox = boundingBox;
-	this->groupMatrix = newGroupMatrix;
-	this->entityGroup = this->selectedEntities;
-}
-
-//------------------------------------------------------------------------------
-/**
-    Get group box	
-*/
-Math::bbox&
-SelectionUtil::GetGroupBox()
-{
-	return groupBox;
-}
-
-//------------------------------------------------------------------------------
-/**
-    Get group matrix	
-*/
-Math::matrix44& 
-SelectionUtil::GetGroupMatrix()
-{
-	return groupMatrix;
+	return boundingBox;	
 }
 
 //------------------------------------------------------------------------------
@@ -794,6 +703,43 @@ IndexT
 SelectionUtil::GetIndexOfEntity(const Ptr<Game::Entity> entity)
 {
 	return this->selectedEntities.FindIndex(entity->GetGuid(Attr::EntityGuid));
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+SelectionUtil::UpdateModels()
+{
+	this->selectedModels.Clear();
+	for (IndexT i = 0; i < this->selectedEntities.Size(); i++)
+	{
+		// try to get the bounding box of the entity if one exist
+		// (only if it has the graphics property)
+		const Ptr<Game::Entity>& selectedEntity = LevelEditor2EntityManager::Instance()->GetEntityById(this->selectedEntities[i]);
+		Ptr<GraphicsFeature::GetModelEntity> msg;
+		msg = GraphicsFeature::GetModelEntity::Create();
+		__SendSync(selectedEntity, msg);
+		const Ptr<Graphics::ModelEntity>& model = msg->GetEntity();
+		if (model.isvalid())
+		{
+			this->selectedModels.Append(model);
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+SelectionUtil::CenterPivot()
+{
+	if (this->selectedEntities.Size() == 1)
+	{
+		Ptr<Game::Entity> entity = LevelEditor2EntityManager::Instance()->GetEntityById(this->selectedEntities[0]);
+		if(entity->GetInt(Attr::EntityType) == Group)
+		{ }
+	}
 }
 
 }// namespace LevelEditor

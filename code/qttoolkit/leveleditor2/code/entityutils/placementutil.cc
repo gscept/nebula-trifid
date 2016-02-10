@@ -34,10 +34,8 @@ __ImplementSingleton(LevelEditor2::PlacementUtil);
 */
 PlacementUtil::PlacementUtil() :
     currentTransformMode(NONE),
-    currentPlacementState(IDLE),
-	groupMode(false),
-	groupPivotTranslate(false),
-	selectionFocusIndex(0)
+    currentPlacementState(IDLE),	
+	groupPivotTranslate(false)
 {
 	__ConstructSingleton;
 
@@ -51,9 +49,7 @@ PlacementUtil::PlacementUtil() :
 	this->activateGroupTranslateKey = Input::Key::D;
     this->activateGroundPlacementKey = Input::Key::Shift;
     this->activateAxisLockKey = Input::Key::Control;
-	this->activateSnapPlacementKey = Input::Key::X;
-
-	this->selectionFocusMatrix.identity();
+	this->activateSnapPlacementKey = Input::Key::X;	
 }
 
 //------------------------------------------------------------------------------
@@ -74,11 +70,7 @@ void
 PlacementUtil::SetSelection(const Util::Array<Math::matrix44> & matrices)
 {
     this->selectedMatrices = matrices;
-    this->selectedInitialMatrices = matrices;
-	if(!matrices.IsEmpty())
-	{
-		this->selectionFocusMatrix = matrices[this->selectionFocusIndex];
-	}
+    this->selectedInitialMatrices = matrices;		
     // update current feature from selection
     this->UpdateCurrentFeature();
 }
@@ -103,8 +95,7 @@ void
 PlacementUtil::ClearSelection()
 {
     this->selectedMatrices.Clear();
-    this->selectedInitialMatrices.Clear();
-	selectionFocusIndex = 0;
+    this->selectedInitialMatrices.Clear();	
 }
 
 //------------------------------------------------------------------------------
@@ -122,16 +113,6 @@ PlacementUtil::ResetSelection()
              this->selectedMatrices[i] = this->selectedInitialMatrices[i];
          }
      }
-}
-
-//------------------------------------------------------------------------------
-/**
-    Set the the selection bounding box
-*/
-void
-PlacementUtil::SetSelectionBox(const Math::bbox& selectionBox)
-{
-     this->selectionBox = selectionBox;
 }
 
 //------------------------------------------------------------------------------
@@ -325,27 +306,14 @@ PlacementUtil::ApplyTransformFeatureToMatrices()
                     this->selectedMatrices[i] =  Math::matrix44::multiply(transformDelta, this->selectedInitialMatrices[i]);
                 }
                 else if (ROTATE == this->currentTransformMode)
-                {
-					if (!this->groupPivotTranslate)
-					{
-						// special way to rotate scaled matrices to prevent sheared results.
-						// translate to global origin, rotate, then translate back
-						Math::vector translate = this->selectedInitialMatrices[i].get_position();
-						this->selectedInitialMatrices[i].translate(translate * (-1));
-						this->selectedMatrices[i] = Math::matrix44::multiply(this->selectedInitialMatrices[i], transformDelta);
-						this->selectedInitialMatrices[i].translate(translate);
-						this->selectedMatrices[i].translate(translate);
-					}
-					else
-					{
-						Math::matrix44 newMatrix, initGroupMatrix;
-						initGroupMatrix.identity();						
-						initGroupMatrix.set_position(this->selectedInitialMatrices[0].get_position());
-						newMatrix = Math::matrix44::multiply( this->selectedInitialMatrices[i], Math::matrix44::inverse(initGroupMatrix) );
-						newMatrix = Math::matrix44::multiply( newMatrix, transformDelta );
-						newMatrix = Math::matrix44::multiply( newMatrix, initGroupMatrix );
-						this->selectedMatrices[i] = newMatrix;
-					}
+                {					
+					// special way to rotate scaled matrices to prevent sheared results.
+					// translate to global origin, rotate, then translate back
+					Math::vector translate = this->selectedInitialMatrices[i].get_position();
+					this->selectedInitialMatrices[i].translate(translate * (-1));
+					this->selectedMatrices[i] = Math::matrix44::multiply(this->selectedInitialMatrices[i], transformDelta);
+					this->selectedInitialMatrices[i].translate(translate);
+					this->selectedMatrices[i].translate(translate);
                 }
             }
 
@@ -362,20 +330,10 @@ PlacementUtil::ApplyTransformFeatureToMatrices()
 			msg->SetMatrix(this->selectedMatrices[i]);
 			if (this->groupPivotTranslate && this->selectedMatrices.Size() == 1)
 			{
-				msg->SetDistribute(false);
+				msg->SetDistribute(false);				
 			}
 			__SendSync(entity, msg);
-        }
-
-		// update group matrices
-		Math::vector translate = this->selectionInitialGroupMatrix.get_position();
-		this->selectionInitialGroupMatrix.translate(translate * (-1));
-		this->selectedGroupMatrix = Math::matrix44::multiply(this->selectionInitialGroupMatrix, transformDelta);
-		this->selectionInitialGroupMatrix.translate(translate);
-		this->selectedGroupMatrix.translate(translate);
-
-		// update focus matrix
-		this->selectionFocusMatrix = this->selectedMatrices[this->selectionFocusIndex];
+        }	
     }
 }
 
@@ -407,22 +365,17 @@ PlacementUtil::UpdateCurrentFeature()
     if (this->currentTransformFeature.isvalid())
     {
 		IndexT i;
-		for (i = 0; i<this->selectedMatrices.Size(); i++)
+		if (!this->selectedMatrices.IsEmpty())
 		{
-			if(i<this->selectedInitialMatrices.Size())
+			this->currentTransformFeature->SetInitialMatrix(this->selectedMatrices[0]);
+			for (i = 0; i < this->selectedMatrices.Size(); i++)
 			{
-				this->selectedInitialMatrices[i] = this->selectedMatrices[i];
+				if (i < this->selectedInitialMatrices.Size())
+				{
+					this->selectedInitialMatrices[i] = this->selectedMatrices[i];
+				}
 			}
-		}
-
-		if (this->groupMode)
-		{
-			this->currentTransformFeature->SetInitialMatrix(this->selectionInitialGroupMatrix);
-		}
-		else
-		{
-			this->currentTransformFeature->SetInitialMatrix(this->selectionFocusMatrix);
-		}
+		}		
     }
 }
 
@@ -471,63 +424,12 @@ PlacementUtil::GetAngleRotation( Math::matrix44& matrix )
 //------------------------------------------------------------------------------
 /**
 */
-void
-PlacementUtil::SetSelectionFocusByIndex( const int index )
-{
-	if (selectedMatrices.Size() > index)
-	{
-		this->selectionFocusMatrix = this->selectedMatrices[index]; 
-		this->selectionFocusIndex = index;
-		this->UpdateCurrentFeature();
-	}
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-PlacementUtil::ToggleGroup()
-{
-	groupMode = !groupMode;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-PlacementUtil::SetGroupMatrix( const Math::matrix44& matrix )
-{
-	selectionInitialGroupMatrix = matrix;
-	selectedGroupMatrix = matrix;
-	this->UpdateCurrentFeature();
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-PlacementUtil::EndGroupTransform()
-{
-	this->selectionInitialGroupMatrix =  this->selectedGroupMatrix;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
 void 
 PlacementUtil::SetSelectionMatrix(const IndexT& index, const Math::matrix44& matrix)
 {
 	n_assert(index < this->selectedMatrices.Size());
 	
-	this->selectedMatrices[index] = matrix;	
-	if (index == this->selectionFocusIndex)
-	{
-		this->selectionFocusMatrix = this->selectedMatrices[this->selectionFocusIndex];
-		if (this->currentTransformFeature.isvalid())
-		{			
-			this->currentTransformFeature->UpdateTransform(matrix);			
-		}
-	}
+	this->selectedMatrices[index] = matrix;		
 }
 
 //------------------------------------------------------------------------------

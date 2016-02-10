@@ -157,7 +157,7 @@ LevelEditorState::HandleInput()
 	}
 	
 	bool handled = false;
-	if (this->selectionUtil->HasSelection())
+	if (this->selectionUtil->HasSelection() && !this->selectionUtil->IsInDrag())
 	{
 		handled = this->placementUtil->HandleInput();
 	}
