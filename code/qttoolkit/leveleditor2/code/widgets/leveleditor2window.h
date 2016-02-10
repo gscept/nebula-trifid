@@ -131,6 +131,8 @@ private slots:
 	void OnCreateTemplate();
     /// show physics materials editor
     void OnShowPhysicsMaterials();
+	/// center pivot
+	void OnCenterPivot();
 
 
     public slots:

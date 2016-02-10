@@ -427,8 +427,8 @@ LevelEditor2App::CleanupGameFeatures()
 */
 void 
 LevelEditor2App::DuplicateCurrentSelection()
-{
-	Util::Array<Ptr<Game::Entity>> entities = SelectionUtil::Instance()->GetSelectedEntities();		
+{    
+	Util::Array<Ptr<Game::Entity>> entities = SelectionUtil::Instance()->GetSelectedEntities(true);		
 	Ptr<DuplicateAction> dpl = DuplicateAction::Create();
 	dpl->SetEntities(entities);
 	Util::String msg;
@@ -499,7 +499,7 @@ LevelEditor2App::FocusOnSelection()
 	if(SelectionUtil::Instance()->HasSelection())
 	{
 		// Pass values to property
-		bbox boundingBox = SelectionUtil::Instance()->GetGroupBox(); // bad, using the group box since it will be updated even if grouping isn't active
+		bbox boundingBox = SelectionUtil::CalculateGroupBox(SelectionUtil::Instance()->GetSelectedEntityIds());
 		Ptr<Game::Entity> camera_entity = PlacementUtil::Instance()->GetCameraEntity();
 		Ptr<GraphicsFeature::MayaCameraProperty> cameraProperty = camera_entity->FindProperty(GraphicsFeature::MayaCameraProperty::RTTI).downcast<GraphicsFeature::MayaCameraProperty>();
 		cameraProperty->SetCameraFocus( boundingBox.center(), boundingBox.diagonal_size() );
@@ -512,7 +512,7 @@ LevelEditor2App::FocusOnSelection()
 void 
 LevelEditor2App::CenterOnSelection()
 {
-	Util::Array< Ptr<Game::Entity>> entities = SelectionUtil::Instance()->GetSelectedEntities();
+	Util::Array<EntityGuid> entities = SelectionUtil::Instance()->GetSelectedEntityIds();
 
 	// If none is selected, do nothing
 	if( entities.IsEmpty() )
@@ -520,16 +520,9 @@ LevelEditor2App::CenterOnSelection()
 		return;
 	}
 
-	Math::point centerOfInterest;
-	if( entities.Size() > 1 || SelectionUtil::Instance()->InGroupMode() )
-	{
-		centerOfInterest = SelectionUtil::Instance()->GetGroupBox().center();
-	}
-	else
-	{
-		centerOfInterest = entities[0]->GetMatrix44(Attr::Transform).get_position();
-	}
-
+	Math::bbox boundingBox = SelectionUtil::CalculateGroupBox(entities);
+	Math::point centerOfInterest = boundingBox.center();
+	
 	// Pass it to camera property
 	Ptr<Game::Entity> camera_entity =  PlacementUtil::Instance()->GetCameraEntity();
 	Ptr<GraphicsFeature::MayaCameraProperty> cameraProperty = camera_entity->FindProperty(GraphicsFeature::MayaCameraProperty::RTTI).downcast<GraphicsFeature::MayaCameraProperty>();

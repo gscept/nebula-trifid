@@ -127,6 +127,7 @@ LevelEditor2Window::LevelEditor2Window():
 	connect(this->ui.actionUI_Properties, SIGNAL(triggered()), this, SLOT(OnShowUIProperties()));
 	connect(this->ui.actionCreate_template_from_selection, SIGNAL(triggered()), this, SLOT(OnCreateTemplate()));
 	connect(this->ui.actionBatch_game_data, SIGNAL(triggered()), this, SLOT(OnBatchGame()));
+	connect(this->ui.actionCenter_Group_Pivot, SIGNAL(triggered()), this, SLOT(OnCenterPivot()));
 
     this->addAction(this->ui.actionDuplicate);
     this->addAction(this->ui.actionGroup);
@@ -521,6 +522,15 @@ LevelEditor2Window::OnShowPhysicsMaterials()
 {
     this->materialEditor.show();
     this->materialEditor.raise();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+LevelEditor2Window::OnCenterPivot()
+{
+	PlacementUtil::Instance()->CenterPivot();
 }
 
 //------------------------------------------------------------------------------

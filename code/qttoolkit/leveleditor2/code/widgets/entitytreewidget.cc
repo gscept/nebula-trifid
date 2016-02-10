@@ -233,23 +233,32 @@ EntityTreeWidget::SelectRecursive(EntityTreeItem* item)
 //------------------------------------------------------------------------------
 /**
 */
+Util::Array<EntityGuid>
+EntityTreeWidget::CollectAllChildren()
+{
+    QList<QTreeWidgetItem *> items = this->selectedItems();
+    Util::Array<EntityGuid> guids;
+    for (int i = 0; i < items.size(); i++)
+    {
+        Util::Array<EntityGuid> childGuids = SelectRecursive(dynamic_cast<EntityTreeItem*>(items[i]));
+        for (int j = 0; j < childGuids.Size(); j++)
+        {
+            if (InvalidIndex == guids.BinarySearchIndex(childGuids[j]))
+            {
+                guids.InsertSorted(childGuids[j]);
+            }
+        }        
+    }
+    return guids;    
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 EntityTreeWidget::SelectAllChildren()
 {	
-	QList<QTreeWidgetItem *> items = this->selectedItems();
-	Util::Array<EntityGuid> guids;
-	for(int i=0;i<items.size();i++)
-	{
-		Util::Array<EntityGuid> childGuids = SelectRecursive(dynamic_cast<EntityTreeItem*>(items[i]));
-		for (int j = 0; j < childGuids.Size(); j++)
-		{
-			if (InvalidIndex == guids.BinarySearchIndex(childGuids[j]))
-			{
-				guids.InsertSorted(childGuids[j]);
-			}
-		}
-		//guids.AppendArray(SelectRecursive(dynamic_cast<EntityTreeItem*>(items[i])));
-	}
+    Util::Array<EntityGuid> guids = this->CollectAllChildren();
 	Ptr<SelectAction> action = SelectAction::Create();
 	action->SetSelectionMode(SelectAction::SetSelection);
 	action->SetEntities(guids);
@@ -270,6 +279,21 @@ EntityTreeWidget::GetDirectChildren(const EntityGuid &id)
 	}
 	return children;
 
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+Util::Array<Ptr<Game::Entity>>
+EntityTreeWidget::GetSelectionRecursive()
+{    
+    Util::Array<Ptr<Game::Entity>> entities;
+    Util::Array<Util::Guid> items = this->CollectAllChildren();
+    for (int i = 0; i < items.Size(); i++)
+    {
+        entities.Append(LevelEditor2EntityManager::Instance()->GetEntityById(items[i]));
+    }
+    return entities;
 }
 
 //------------------------------------------------------------------------------

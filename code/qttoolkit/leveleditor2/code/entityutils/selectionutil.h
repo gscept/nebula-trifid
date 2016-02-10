@@ -13,12 +13,12 @@
 #include "math/bbox.h"
 #include "core/singleton.h"
 #include "actions/selectaction.h"
+#include "graphics/modelentity.h"
 
 //------------------------------------------------------------------------------
 namespace LevelEditor2
 {
 class AttributeWidgetManager;
-class EntityTreeWidget;
 
 class SelectionUtil : public Core::RefCounted
 {
@@ -37,7 +37,7 @@ public:
     /// Returns true if there are entities selected
     const bool HasSelection() const;
     /// Returns a list of selected game entities.
-    Util::Array<Ptr<Game::Entity>> GetSelectedEntities();
+    Util::Array<Ptr<Game::Entity>> GetSelectedEntities(bool withChildren = false);
     /// Returns a list of selected game entity ids
     const Util::Array<EntityGuid>& GetSelectedEntityIds();
     /// Returns a game entity from the array of entities
@@ -53,21 +53,12 @@ public:
 
     /// Renders a simple representation of the selection into 3D space
     void Render();
-
-    /// Toggle group selection
-    void ToggleGroup();
-    /// Calculate group bbox
-    void CalculateGroupBox();
-    /// Update group box
-    //void UpdateGroupBox(const Math::matrix44& matrix);
-    /// Get group box
-    Math::bbox& GetGroupBox();
-    /// Get group matrix
-    Math::matrix44& GetGroupMatrix();
-
-    /// Returns true if this is in group mode
-    bool InGroupMode();
-
+	/// currently performing a drag operation
+	const bool IsInDrag() const;	
+   
+    /// Calculate bounding box of a list of entities
+    static Math::bbox CalculateGroupBox(const Util::Array<EntityGuid>& entities);
+      
     /// returns if the entity is selected
     bool IsSelected(const Ptr<Game::Entity>& entity);
 
@@ -94,11 +85,13 @@ private:
     void AppendToSelection(const EntityGuid& entity);
     ///
     void RemoveFromSelection(const EntityGuid& entity);
+	///
+	void UpdateModels();
 
 
     Ptr<AttributeWidgetManager> attributeWidgetManager;
     Util::Array<EntityGuid> selectedEntities;
-    Util::Array<Math::bbox> boundingBoxes;
+	Util::Array<Ptr<Graphics::ModelEntity>> selectedModels;
 	
     bool hasSelectionChanged;
     bool isActive;
@@ -107,14 +100,7 @@ private:
 	bool selectInside;
 	Math::float2 clickPos;
 	Math::float2 clickPosWindow;
-	
-    bool groupMode;
-    Math::bbox groupBox;
-    Math::matrix44 groupMatrix;
-    Util::Array<EntityGuid> entityGroup;
-
-    EntityTreeWidget* treeWidget;	//< the entity treeview selection should be synced with the 3dview selection
-
+	        
     Input::Key::Code keyMultiSelection;
 	Input::Key::Code keyMultiSelectionRemove;
 };
@@ -132,12 +118,12 @@ SelectionUtil::HasSelection() const
 //------------------------------------------------------------------------------
 /**
 */
-inline bool 
-SelectionUtil::InGroupMode()
+inline
+const bool
+SelectionUtil::IsInDrag() const
 {
-	return this->groupMode;
+	return this->mouseDrag;
 }
-
 //------------------------------------------------------------------------------
 /**
 */
