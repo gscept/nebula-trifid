@@ -25,6 +25,10 @@ public:
     const Util::String& GetError() const;
     /// get command name
     const Util::String& GetName() const;
+	/// does a displayname exist
+	const bool HasDisplayName() const;
+	/// get command display name
+	const Util::String& GetDisplayName() const;
     /// get fourcc string
     const Util::String& GetFourCC() const;
     /// get access mode
@@ -56,8 +60,10 @@ private:
 	Util::String accessMode;
 	Util::String attrType;
 	Util::String defaultValue;
+	Util::String displayName;
 	bool system;
 	bool hasDefault;	
+	bool hasDisplay;
 	Util::Dictionary<Util::String,Util::String> attributes;
 };
 
@@ -87,6 +93,32 @@ inline const Util::String&
 IDLAttribute::GetName() const
 {
 	return this->name;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const bool
+IDLAttribute::HasDisplayName() const
+{
+	return this->hasDisplay;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Util::String&
+IDLAttribute::GetDisplayName() const
+{
+	if(this->displayName.IsEmpty())
+	{
+		return this->name;
+	}
+	else
+	{
+		return this->displayName;
+	}
+	
 }
 
 //------------------------------------------------------------------------------

@@ -5,43 +5,43 @@
 	  <Attribute name="Collide" fourcc="COLL" accessMode="ReadWrite" type="Bool"/>
     <Attribute name="Mass" fourcc="MASS" accessMode="ReadWrite" type="Float" default="1.0f" minValue="0.0f"/>
 	
-	  <Attribute name="PhysicMaterial" fourcc="PHMA" accessMode="ReadWrite" type="String" editType="physicmaterial" default="InvalidMaterial"/>
+	  <Attribute name="PhysicMaterial" fourcc="PHMA" accessMode="ReadWrite" type="String" editType="physicmaterial" default="InvalidMaterial" displayName="Physics material"/>
 	  <Attribute name="TargetEntityId" fourcc="TAEN" accessMode="ReadWrite" type="Int" system="1"/>
-	  <Attribute name="VelocityVector" fourcc="VELV" accessMode="ReadWrite" type="Float4"/>
+	  <Attribute name="VelocityVector" fourcc="VELV" accessMode="ReadWrite" type="Float4" system="1"/>
 
-	  <Attribute name="RelVelocity" fourcc="RVEL" accessMode="ReadWrite" type="Float" default="600.0f" />
-	  <Attribute name="VelocityGain" fourcc="VELG" accessMode="ReadWrite" type="Float" default="0.95f" /> <!-- Currently only used in Havok -->
-    <Attribute name="AirVelocityGain" fourcc="AVEL" accessMode="ReadWrite" type="Float" default="0.05f" /> <!-- Currently only used in Havok -->
-	  <Attribute name="MaxVelocity" fourcc="MVEL" accessMode="ReadWrite" type="Float" default="10.0f" />
-	  <Attribute name="AngularSmoothing" fourcc="PPAS" accessMode="ReadWrite" type="Bool" default="false" />
+	  <Attribute name="RelVelocity" fourcc="RVEL" accessMode="ReadWrite" type="Float" default="600.0f" displayName="Acceleration"/>
+	  <Attribute name="VelocityGain" fourcc="VELG" accessMode="ReadWrite" type="Float" default="0.95f" system="1"/> <!-- Currently only used in Havok -->
+    <Attribute name="AirVelocityGain" fourcc="AVEL" accessMode="ReadWrite" type="Float" default="0.05f" system="1"/> <!-- Currently only used in Havok -->
+	  <Attribute name="MaxVelocity" fourcc="MVEL" accessMode="ReadWrite" type="Float" default="10.0f" displayName="Maximum velocity"/>
+	  <Attribute name="AngularSmoothing" fourcc="PPAS" accessMode="ReadWrite" type="Bool" default="false" displayName="Angular smoothing"/>
 	
 	  <Attribute name="Following" fourcc="FOLL" accessMode="ReadWrite" type="Bool" system="1"/>	
 	  <Attribute name="Moving" fourcc="MOVG" accessMode="ReadWrite" type="Bool" system="1"/>	
 	
 	  <Attribute name="Shape" fourcc="SHPS" accessMode="ReadWrite" type="String" editType="list" listValues="sphere;box" default="box"/>
-	  <Attribute name="TriggerActive" fourcc="TRGA" accessMode="ReadWrite" type="Bool"/>	
-	  <Attribute name="OneWayTrigger" fourcc="OWTR" accessMode="ReadWrite" type="Bool"/>	
+	  <Attribute name="TriggerActive" fourcc="TRGA" accessMode="ReadWrite" type="Bool" displayName="Trigger Active"/>	
+	  <Attribute name="OneWayTrigger" fourcc="OWTR" accessMode="ReadWrite" type="Bool" system="1"/>	
 	
-	  <Attribute name="TriggerPhaseTime" fourcc="TPHT" accessMode="ReadWrite" type="Float" />
-	  <Attribute name="ReactivateTrigger" fourcc="REAT" accessMode="ReadWrite" type="Bool" />
-	  <Attribute name="ReactivateTriggerTime" fourcc="RATT" accessMode="ReadWrite" type="Float" />
-	  <Attribute name="TriggerTimeStamp" fourcc="TTST" accessMode="ReadWrite" type="Float" />
-    <Attribute name="TriggerScale" fourcc="TSCA" accessMode="ReadWrite" type="Float4"/>
+	  <Attribute name="TriggerPhaseTime" fourcc="TPHT" accessMode="ReadWrite" type="Float" displayName="Trigger feedback interval"/>
+	  <Attribute name="ReactivateTrigger" fourcc="REAT" accessMode="ReadWrite" type="Bool" displayName="Auto reactivate trigger"/>
+	  <Attribute name="ReactivateTriggerTime" fourcc="RATT" accessMode="ReadWrite" type="Float" displayName="Reactivation delay"/>
+	  <Attribute name="TriggerTimeStamp" fourcc="TTST" accessMode="ReadWrite" type="Float" system="1"/>
+    <Attribute name="TriggerScale" fourcc="TSCA" accessMode="ReadWrite" type="Float4" displayName="Trigger scale"/>
 		
-	  <Attribute name="CollisionEnabled" fourcc="COEN" accessMode="ReadWrite" type="Bool" default="true" />
-	  <Attribute name="DynamicObject" fourcc="DYNO" accessMode="ReadWrite" type="Bool" default="false" />
+	  <Attribute name="CollisionEnabled" fourcc="COEN" accessMode="ReadWrite" type="Bool" default="true" displayName="Enable collider"/>
+	  <Attribute name="DynamicObject" fourcc="DYNO" accessMode="ReadWrite" type="Bool" default="false" displayName="Interactive object"/>
 
-	  <Attribute name="CapsuleRadius" fourcc="CAPR" accessMode="ReadWrite" type="Float" default ="0.5f"/>
-	  <Attribute name="CapsuleHeight" fourcc="CAHE" accessMode="ReadWrite" type="Float" default ="3.0f"/>
-	  <Attribute name="CrouchingCapsuleHeight" fourcc="CCHE" accessMode="ReadWrite" type="Float" default ="1.5f"/>
-	  <Attribute name="CapsuleHover" fourcc="CAHO" accessMode="ReadWrite" type="Float" />
+	  <Attribute name="CapsuleRadius" fourcc="CAPR" accessMode="ReadWrite" type="Float" default ="0.5f" displayName="Capsule radius"/>
+	  <Attribute name="CapsuleHeight" fourcc="CAHE" accessMode="ReadWrite" type="Float" default ="3.0f" displayName="Capsule height"/>
+	  <Attribute name="CrouchingCapsuleHeight" fourcc="CCHE" accessMode="ReadWrite" type="Float" default ="1.5f" displayName="Crouching height"/>
+	  <Attribute name="CapsuleHover" fourcc="CAHO" accessMode="ReadWrite" type="Float" displayName="Capsule hover"/>
 	  <Attribute name="CharacterShape" fourcc="CASH" accessMode="ReadWrite" type="String" editType="list" listValues="capsule;cylinder" default="capsule"/>
-	  <Attribute name="JumpSpeed" fourcc="CAJS" accessMode="ReadWrite" type="Float" minValue="0.0f" default="10.0f" />
-	  <Attribute name="JumpHeight" fourcc="CAJH" accessMode="ReadWrite" type="Float" minValue="0.0f" default="20.0f" />
-	  <Attribute name="CollisionFeedback" fourcc="CLFB" accessMode="ReadWrite" type="Bool" default="false"/>
+	  <Attribute name="JumpSpeed" fourcc="CAJS" accessMode="ReadWrite" type="Float" minValue="0.0f" default="10.0f" displayName="Jump speed"/>
+	  <Attribute name="JumpHeight" fourcc="CAJH" accessMode="ReadWrite" type="Float" minValue="0.0f" default="20.0f" displayName="Jump height"/>
+	  <Attribute name="CollisionFeedback" fourcc="CLFB" accessMode="ReadWrite" type="Bool" default="false" displayName="Receive collision messages"/>
 	  <Attribute name="CollisionDepthThreshold" fourcc="CDPT" accessMode="ReadWrite" type="Float" default="0.001f"/> 
 
-	  <Attribute name="JointNameLinking" fourcc="JNLK" accessMode="ReadWrite" type="Bool" default="true"/>
+	  <Attribute name="JointNameLinking" fourcc="JNLK" accessMode="ReadWrite" type="Bool" default="true" displayName="Link joints to colliders of same name"/>
   </AttributeLib>
   
   <Property name="PhysicsFeature::PhysicsProperty" derivedFrom="BaseGameFeature::TransformableProperty" header="physicsfeature/properties/physicsproperty.h">    

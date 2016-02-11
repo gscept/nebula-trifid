@@ -15,7 +15,7 @@ using namespace IO;
 /**
 */
 IDLAttribute::IDLAttribute() : 
-hasDefault(false),system(false)
+hasDefault(false),system(false),hasDisplay(false)
 {
 	// empty
 }
@@ -51,7 +51,12 @@ IDLAttribute::Parse(XmlReader* reader)
 	{
 		this->hasDefault = true;
 		this->defaultValue = reader->GetString("default");
-	}		
+	}	
+	if (reader->HasAttr("displayName"))
+	{
+		this->hasDisplay = true;
+		this->displayName = reader->GetString("displayName");		
+	}
 	Util::Array<Util::String> attrs = reader->GetAttrs();
 	IndexT i;
 	for(i=0;i<attrs.Size();i++)
