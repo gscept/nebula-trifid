@@ -486,7 +486,13 @@ LevelEditor2App::GroupSelection()
 			}				
 		}
 		LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->RebuildTree();
-	}		
+		Ptr<SelectAction> action = SelectAction::Create();
+		action->SetSelectionMode(SelectAction::SetSelection);
+		Util::Array<EntityGuid> node;
+		node.Append(id);
+		action->SetEntities(node);
+		ActionManager::Instance()->PerformAction(action.cast<Action>());
+	}			
 }
 
 //------------------------------------------------------------------------------

@@ -408,8 +408,7 @@ void
 SelectionUtil::ClearSelection()
 {    
 	this->selectedEntities.Clear();	
-	this->hasSelectionChanged = true;
-	Silhouette::SilhouetteAddon::Instance()->SetModels(Util::Array<Ptr<Graphics::ModelEntity>>());
+	this->hasSelectionChanged = true;	
 	this->UpdateModels();
 }
 
@@ -453,13 +452,7 @@ SelectionUtil::GetEntityUnderMouse()
 void
 SelectionUtil::Render()
 {
-    float4 color = LevelEditor2App::Instance()->GetWindow()->GetSelectionColour();
-	color.set_w(1);
-	Silhouette::SilhouetteAddon::Instance()->SetColor(color);  
-
-	// set models to be rendered
-	Silhouette::SilhouetteAddon::Instance()->SetModels(this->selectedModels);
-	
+  
 	// if dragging mouse draw a rectangle
 	if (this->mouseDrag)
 	{
@@ -718,11 +711,9 @@ SelectionUtil::GetIndexOfEntity(const Ptr<Game::Entity> entity)
 void
 SelectionUtil::UpdateModels()
 {
-	this->selectedModels.Clear();
+	Util::Array<Ptr<Graphics::ModelEntity>> selectedModels;			
 	for (IndexT i = 0; i < this->selectedEntities.Size(); i++)
-	{
-		// try to get the bounding box of the entity if one exist
-		// (only if it has the graphics property)
+	{				
 		const Ptr<Game::Entity>& selectedEntity = LevelEditor2EntityManager::Instance()->GetEntityById(this->selectedEntities[i]);
 		Ptr<GraphicsFeature::GetModelEntity> msg;
 		msg = GraphicsFeature::GetModelEntity::Create();
@@ -730,9 +721,32 @@ SelectionUtil::UpdateModels()
 		const Ptr<Graphics::ModelEntity>& model = msg->GetEntity();
 		if (model.isvalid())
 		{
-			this->selectedModels.Append(model);
-		}
+			selectedModels.Append(model);
+		}			
 	}
+	float4 color = LevelEditor2App::Instance()->GetWindow()->GetSelectionColour();
+	color.set_w(1);
+
+	// set models to be rendered
+	Silhouette::SilhouetteAddon::Instance()->SetModels("primary", selectedModels, color);
+
+	Util::Array<Ptr<Graphics::ModelEntity>> childModels;
+	Util::Array<Ptr<Game::Entity>> allEntities = this->GetSelectedEntities(true);
+	for (IndexT i = 0; i < allEntities.Size();i++)
+	{
+		if (this->selectedEntities.FindIndex(allEntities[i]->GetGuid(Attr::EntityGuid)) == InvalidIndex)
+		{
+			Ptr<GraphicsFeature::GetModelEntity> msg;
+			msg = GraphicsFeature::GetModelEntity::Create();
+			__SendSync(allEntities[i], msg);
+			const Ptr<Graphics::ModelEntity>& model = msg->GetEntity();
+			if (model.isvalid())
+			{
+				childModels.Append(model);
+			}
+		}
+	}	
+	Silhouette::SilhouetteAddon::Instance()->SetModels("secondary", childModels, float4(1.0f));
 }
 
 }// namespace LevelEditor

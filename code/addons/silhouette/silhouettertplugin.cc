@@ -98,43 +98,48 @@ SilhouetteRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
 			this->shader->SelectActiveVariation(shaderServer->GetFeatureBits());
 			this->shader->Apply();
 
-			IndexT modelIndex;
+			IndexT modelIndex;			
 			for (modelIndex = 0; modelIndex < this->models.Size(); modelIndex++)
 			{
-				const Ptr<Graphics::ModelEntity>& model = models[modelIndex];
-				if (model->IsValid())
+				const Util::KeyValuePair<Math::float4, Util::Array<Ptr<Graphics::ModelEntity>>> & entry = models.ValueAtIndex(modelIndex);
+				const Util::Array<Ptr<Graphics::ModelEntity>>& groupModels = entry.Value();
+				for (IndexT i = 0;i < groupModels.Size();i++)
 				{
-					const Util::Array<Ptr<ModelNode>>& nodes = model->GetModelInstance()->GetModel()->GetNodes();
-					const Util::Array<Ptr<ModelNodeInstance>>& nodeInstances = model->GetModelInstance()->GetNodeInstances();
-
-					// set transform
-                    this->shader->BeginUpdate();
-					this->colorVar->SetFloat4(this->color);
-                    this->shader->EndUpdate();
-
-					// render stencil first
-					IndexT nodeInstIndex;
-					for (nodeInstIndex = 0; nodeInstIndex < nodeInstances.Size(); nodeInstIndex++)
+					const Ptr<Graphics::ModelEntity>& model = groupModels[i];
+					if (model->IsValid())
 					{
-						//get node
-						Ptr<ModelNodeInstance> nodeInstance = nodeInstances[nodeInstIndex];
+						const Util::Array<Ptr<ModelNode>>& nodes = model->GetModelInstance()->GetModel()->GetNodes();
+						const Util::Array<Ptr<ModelNodeInstance>>& nodeInstances = model->GetModelInstance()->GetNodeInstances();
 
-						if (nodeInstance->IsVisible())
+						// set transform
+						this->shader->BeginUpdate();
+						this->colorVar->SetFloat4(entry.Key());
+						this->shader->EndUpdate();
+
+						// render stencil first
+						IndexT nodeInstIndex;
+						for (nodeInstIndex = 0; nodeInstIndex < nodeInstances.Size(); nodeInstIndex++)
 						{
-							// apply shared state, which means mesh and feature bits
-							nodeInstance->GetModelNode()->ApplySharedState(-1);
+							//get node
+							Ptr<ModelNodeInstance> nodeInstance = nodeInstances[nodeInstIndex];
 
-							// apply node
-                            nodeInstance->ApplyState(frameIndex, 0, this->shader);
-
-							// only apply model for shapes
-							if (nodeInstance->IsA(ShapeNodeInstance::RTTI))
+							if (nodeInstance->IsVisible())
 							{
-								// draw!
-								this->shader->Commit();
-								nodeInstance->Render();
+								// apply shared state, which means mesh and feature bits
+								nodeInstance->GetModelNode()->ApplySharedState(-1);
+
+								// apply node
+								nodeInstance->ApplyState(frameIndex, 0, this->shader);
+
+								// only apply model for shapes
+								if (nodeInstance->IsA(ShapeNodeInstance::RTTI))
+								{
+									// draw!
+									this->shader->Commit();
+									nodeInstance->Render();
+								}
 							}
-						}						
+						}
 					}
 				}
 			}
@@ -142,5 +147,30 @@ SilhouetteRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
 	}
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+SilhouetteRTPlugin::SetModels(const Util::String& group, const Util::Array<Ptr<Graphics::ModelEntity>>& mdls, const Math::float4& colour)
+{
+	if (this->models.Contains(group))
+	{
+		this->models[group] = Util::KeyValuePair<Math::float4, Util::Array<Ptr<Graphics::ModelEntity>>>(colour, mdls);
+	}
+	else
+	{
+		this->models.Add(group, Util::KeyValuePair<Math::float4, Util::Array<Ptr<Graphics::ModelEntity>>>(colour, mdls));
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+SilhouetteRTPlugin::ClearModelGroup(const Util::String& group)
+{
+	n_assert(this->models.Contains(group));
+	this->models.Erase(group);
+}
 
 } // namespace Grid

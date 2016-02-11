@@ -64,18 +64,18 @@ SilhouetteAddon::SetVisible(bool b)
 /**
 */
 void
-SilhouetteAddon::SetModels(const Util::Array<Ptr<Graphics::ModelEntity>>& mdls)
+SilhouetteAddon::SetModels(const Util::String& group, const Util::Array<Ptr<Graphics::ModelEntity>>& mdls, const Math::float4& colour)
 {
-	this->plugin->SetModels(mdls);
+	this->plugin->SetModels(group, mdls, colour);
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-SilhouetteAddon::SetColor(const Math::float4& col)
+SilhouetteAddon::ClearModelGroup(const Util::String& group)
 {
-	this->plugin->SetColor(col);
+	this->plugin->ClearModelGroup(group);
 }
 
 } // namespace Grid
