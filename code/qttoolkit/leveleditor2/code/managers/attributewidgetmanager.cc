@@ -132,6 +132,11 @@ AttributeWidgetManager::ViewEntityAttributes(const Ptr<Game::Entity>& entity)
 					this->transformController = dynamic_cast<Matrix44Controller*>(attributeController->GetControllerWidget());;
 					retrievedTransformController = true;
 				}
+				else if (attrs[i].GetAttrId() == Attr::Graphics && entityType == MultiSelection)
+				{
+					attributeController->LockWidgets();
+				}
+
 
 				// if the attribute is read only, only view their values
 				if (ReadOnly == attrs[i].GetAccessMode())
@@ -497,7 +502,7 @@ AttributeWidgetManager::OnValueChanged(QtAttributeControllerAddon::BaseAttribute
 		// call parent method: sets the value to the entity
 		CallbackManager::OnValueChanged(controller);
 	}
-
+	
 	if (Attr::Id.GetFourCC() == attrFourCC)
 	{
 		Ptr<BaseGameFeature::GetAttribute> msg = BaseGameFeature::GetAttribute::Create();
@@ -509,6 +514,18 @@ AttributeWidgetManager::OnValueChanged(QtAttributeControllerAddon::BaseAttribute
 		Util::Guid guid = controller->GetGameEntity()->GetGuid(Attr::EntityGuid);
 		EntityTreeItem* treeItem = this->treeWidget->GetEntityTreeItem(guid);
 		treeItem->SetText(newId);
+	}
+
+	if (Attr::Graphics.GetFourCC() == attrFourCC)
+	{
+		// if the graphics have changed we have to trigger lots of refreshed (silhouette, attributes, etc)
+		// set same selection again to trigger an update
+		Util::Array<EntityGuid> ents = SelectionUtil::Instance()->GetSelectedEntityIds();
+		SelectionUtil::Instance()->SetSelection(ents);
+
+		this->ClearAttributeControllers();
+		Util::Array<Ptr<Game::Entity>> realents = SelectionUtil::Instance()->GetSelectedEntities();
+		this->ViewEntityAttributes(realents);
 	}
 }
 
