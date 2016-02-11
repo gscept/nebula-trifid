@@ -48,7 +48,16 @@ AnimClipController::AnimClipController(QWidget* parent, const Ptr<Game::Entity>&
 	{
 		Ptr<Graphics::FetchClips> clipsMsg = Graphics::FetchClips::Create();
 		__Send(entityMsg->GetEntity(), clipsMsg);
-		__SingleFireCallback(AnimClipController, OnFetchedClipList, this, clipsMsg.upcast<Messaging::Message>());
+		if (clipsMsg->Handled())
+		{
+			this->OnFetchedClipList(clipsMsg.upcast<Messaging::Message>());
+		}
+		else
+		{
+			// should never happen in a tools context as all models are loaded synchronously anyway
+			__SingleFireCallback(AnimClipController, OnFetchedClipList, this, clipsMsg.upcast<Messaging::Message>());
+		}
+		
 	}		
 }
 

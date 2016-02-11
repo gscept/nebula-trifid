@@ -353,6 +353,9 @@ LevelEditor2App::SetupGameFeatures()
     // register input proxy for inputs from nebula to the qt app
     this->qtFeature->RegisterQtInputProxy(this->editorWindow);	
 
+	// set all resource mappers to be synchronized
+	Resources::ResourceManager::Instance()->SetMappersAsync(false);
+
 	// close splash
 	this->splash->Close();
 	this->splash = 0;
@@ -478,12 +481,21 @@ LevelEditor2App::GroupSelection()
 	{
 		EntityGuid realId = LevelEditor2EntityManager::Instance()->GetEntityById(id)->GetGuid(Attr::EntityGuid);
 		Util::Array<Ptr<Game::Entity>> entities = SelectionUtil::Instance()->GetSelectedEntities();
+		bool sameParent = true;
+		EntityGuid lastGuid = entities[0]->GetGuid(Attr::ParentGuid);
 		for(IndexT i = 0 ; i < entities.Size() ; i++)
-		{
-			if(!entities[i]->GetGuid(Attr::ParentGuid).IsValid())
+		{	
+			EntityGuid next = entities[i]->GetGuid(Attr::ParentGuid);
+			if (next != lastGuid)
 			{
-				entities[i]->SetGuid(Attr::ParentGuid,realId);
-			}				
+				sameParent = false;
+			}
+			entities[i]->SetGuid(Attr::ParentGuid,realId);
+							
+		}
+		if (sameParent && lastGuid.IsValid())
+		{
+			LevelEditor2EntityManager::Instance()->GetEntityById(id)->SetGuid(Attr::ParentGuid, lastGuid);
 		}
 		LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->RebuildTree();
 		Ptr<SelectAction> action = SelectAction::Create();
@@ -492,6 +504,7 @@ LevelEditor2App::GroupSelection()
 		node.Append(id);
 		action->SetEntities(node);
 		ActionManager::Instance()->PerformAction(action.cast<Action>());
+		LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->GetEntityTreeItem(id)->setExpanded(true);
 	}			
 }
 
