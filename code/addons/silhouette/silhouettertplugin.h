@@ -1,9 +1,9 @@
 #pragma once
 //------------------------------------------------------------------------------
 /**
-	@class Grid::GridRTPlugin
+	@class Silhouette::SilhouetteRTPlugin
 	
-	The GridRTPlugin injects itself into the main frameshader and renders the grid in the shape-pass.
+	The SilhouetteRTPlugin renders silhouettes of provided model entities
 	
 	(C) 2012-2015 Individual contributors, see AUTHORS file
 */
@@ -16,6 +16,7 @@
 #include "resources/managedtexture.h"
 #include "graphics/modelentity.h"
 #include "renderutil/drawfullscreenquad.h"
+
 namespace Silhouette
 {
 class SilhouetteRTPlugin : public RenderModules::RTPlugin
@@ -37,26 +38,23 @@ public:
 
 	/// set if grid should be visible
 	void SetVisible(bool b);
-	/// set models to be rendered
-	void SetModels(const Util::Array<Ptr<Graphics::ModelEntity>>& mdls);
-	/// set color to be used for rendering silhouette
-	void SetColor(const Math::float4& col);
+	/// set models for a specific group to be rendered with colour. if the group doesnt exist it will be added
+	void SetModels(const Util::String& group, const Util::Array<Ptr<Graphics::ModelEntity>>& mdls, const Math::float4& colour);	
+	/// clear a group and remove it from rendering
+	void ClearModelGroup(const Util::String& group);
 
 private:
 	bool visible;
 
-	// model
+	// model tables
 	Ptr<Graphics::ModelEntity> model;
-	Util::Array<Ptr<Graphics::ModelEntity>> models;
+	Util::Dictionary<Util::String, Util::KeyValuePair<Math::float4, Util::Array<Ptr<Graphics::ModelEntity>>>> models;
 
 	// shader
 	Ptr<CoreGraphics::Shader> shader;
 	Ptr<CoreGraphics::ShaderVariable> colorVar;
 	CoreGraphics::ShaderFeature::Mask prepassVariation;	
-	CoreGraphics::ShaderFeature::Mask outlineVariation;
-
-	// color
-	Math::float4 color;
+	CoreGraphics::ShaderFeature::Mask outlineVariation;	
 };
 
 //------------------------------------------------------------------------------
@@ -68,22 +66,4 @@ SilhouetteRTPlugin::SetVisible(bool b)
 	this->visible = b;
 }
 
-//------------------------------------------------------------------------------
-/**
-*/
-inline void
-SilhouetteRTPlugin::SetModels(const Util::Array<Ptr<Graphics::ModelEntity>>& mdls)
-{
-	this->models = mdls;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void
-SilhouetteRTPlugin::SetColor(const Math::float4& col)
-{
-	this->color = col;
-}
-
-} // namespace Grid
+} // namespace Silhouette

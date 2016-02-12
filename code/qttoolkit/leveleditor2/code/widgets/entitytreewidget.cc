@@ -548,7 +548,15 @@ EntityTreeWidget::RebuildTree()
 					EntityTreeItem* treeItem = dynamic_cast<EntityTreeItem*>(this->GetEntityTreeItem(entities[i]->GetGuid(Attr::EntityGuid)));				
 					EntityTreeItem* parentTreeItem = dynamic_cast<EntityTreeItem*>(this->GetEntityTreeItem(parent->GetGuid(Attr::EntityGuid)));								
 					int idx = this->indexOfTopLevelItem (treeItem);
-					this->takeTopLevelItem(idx);
+					if (idx != -1)
+					{
+						this->takeTopLevelItem(idx);
+					}
+					else
+					{
+						idx = treeItem->parent()->indexOfChild(treeItem);
+						treeItem->parent()->takeChild(idx);
+					}					
 					parentTreeItem->addChild(treeItem);
 				}
 			}		

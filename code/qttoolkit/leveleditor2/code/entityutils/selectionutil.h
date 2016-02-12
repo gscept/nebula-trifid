@@ -91,8 +91,7 @@ private:
 
     Ptr<AttributeWidgetManager> attributeWidgetManager;
     Util::Array<EntityGuid> selectedEntities;
-	Util::Array<Ptr<Graphics::ModelEntity>> selectedModels;
-	
+			
     bool hasSelectionChanged;
     bool isActive;
     bool multiSelect;	

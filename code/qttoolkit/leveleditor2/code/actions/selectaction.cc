@@ -46,14 +46,13 @@ SelectAction::Perform()
 			}			
 			break;
 		case AppendSelection:
-			{
-				SelectionUtil::Instance()->AppendToSelection(this->entityIds);
-				
+			{							
 				for(IndexT i = 0 ; i < entityIds.Size() ; i++)
 				{				
 					tree->AppendToSelection(this->entityIds[i]);
 					LevelEditor2EntityManager::Instance()->GetEntityById(this->entityIds[i])->SetBool(Attr::IsSelected,true);					
 				}
+				SelectionUtil::Instance()->AppendToSelection(this->entityIds);
 
 				AttributeWidgetManager::Instance()->ClearAttributeControllers();		
 				Util::Array<Ptr<Game::Entity>> ents = SelectionUtil::Instance()->GetSelectedEntities();
@@ -66,13 +65,13 @@ SelectAction::Perform()
 			}
 			break;
 		case RemoveSelection:
-			{
-				SelectionUtil::Instance()->RemoveFromSelection(this->entityIds);
+			{				
 				for(IndexT i = 0 ; i < entityIds.Size() ; i++)
 				{				
 					tree->RemoveFromSelection(this->entityIds[i]);
 					LevelEditor2EntityManager::Instance()->GetEntityById(this->entityIds[i])->SetBool(Attr::IsSelected,false);
 				}
+				SelectionUtil::Instance()->RemoveFromSelection(this->entityIds);
 
 				AttributeWidgetManager::Instance()->ClearAttributeControllers();		
 				Util::Array<Ptr<Game::Entity>> ents = SelectionUtil::Instance()->GetSelectedEntities();
@@ -91,13 +90,13 @@ SelectAction::Perform()
 					tree->RemoveFromSelection(this->lastEntityIds[i]);
 					LevelEditor2EntityManager::Instance()->GetEntityById(this->lastEntityIds[i])->SetBool(Attr::IsSelected,false);
 				}
-
-				SelectionUtil::Instance()->SetSelection(this->entityIds);						
+						
 				for(IndexT i = 0 ; i < entityIds.Size() ; i++)
 				{
 					tree->AppendToSelection(this->entityIds[i]);
 					LevelEditor2EntityManager::Instance()->GetEntityById(this->entityIds[i])->SetBool(Attr::IsSelected,true);										
 				}
+				SelectionUtil::Instance()->SetSelection(this->entityIds);
 
 				AttributeWidgetManager::Instance()->ClearAttributeControllers();		
 				Util::Array<Ptr<Game::Entity>> ents = SelectionUtil::Instance()->GetSelectedEntities();

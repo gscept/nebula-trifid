@@ -55,6 +55,11 @@ AttributeControllerWidget::AttributeControllerWidget(const Ptr<Game::Entity>& en
 	if (blueprintManager->HasAttributeByName(attrId.GetName()))
 	{
 		Ptr<Tools::IDLAttribute> idl = blueprintManager->GetAttributeByName(attrId.GetName());
+		if (idl->HasDisplayName())
+		{
+			this->ui->nameLabel->setText(idl->GetDisplayName().AsCharPtr());			
+			this->ui->nameLabel->setToolTip(attrId.GetName().AsCharPtr());
+		}				
 		if (idl->GetAttributes().Contains("editType"))
 		{
 			this->InitInputWidget(entity, idl);
