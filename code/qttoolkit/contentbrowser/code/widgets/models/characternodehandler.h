@@ -12,7 +12,6 @@
 #include "graphics/modelentity.h"
 #include "ui_characternodeinfowidget.h"
 #include "modelhandler.h"
-#include "trackcontroller.h"
 
 #include <QTimer>
 namespace Widgets
@@ -54,33 +53,14 @@ public:
 	void OnFrame();
 
 private slots:
-	/// called when the add button gets pressed
-	void OnAddClip();
-	/// called when the remove button gets pressed
-	void OnRemoveClip();
-	/// called whenever a clip is double-clicked
-	void OnPlayClip();
-	/// called whenever a playing clip is double-clicked
-	void OnPauseClip();
-	/// called whenever a clip gets stopped
-	void OnStopClip();
-	/// called whenever the clip seek slider is pressed
-	void OnClipSeek(int time);
-	/// called whenever a clip has been double clicked
-	void OnClipDoubleClicked(QListWidgetItem* item);
 
-	/// called whenever a weight has changed
-	void OnWeightChanged(IndexT index);
-	/// called whenever a skin is double-clicked
-	void OnSkinActivated();
-	/// called whenever a visible skin is double-clicked
-	void OnSkinDeactivated();
-	/// called whenever the show skin button is pressed
-	void OnShowSkin();
-	/// called whenever the hide skin button is pressed
-	void OnHideSkin();
 	/// called whenever the render skeleton check box gets checked
 	void OnRenderSkeleton(bool b);
+
+	/// handle joint row double click
+	void OnJointRowClicked(QTreeWidgetItem* item, int column);
+	/// handle joint row right click
+	void OnJointRowItemContextMenu(const QPoint& point);
 
 	/// called when the skin list is fetched
 	void OnFetchedSkinList(const Ptr<Messaging::Message>& msg);
@@ -104,6 +84,15 @@ private:
 	/// this is useful if we reload the model and are showing more skins than one. 
 	void ReshowSkins();
 
+	/// helper function for setting up joint hierarchy
+	void SetupJointHierarchy();
+	/// helper function to update joint weights
+	void SetupJointWeights();
+	/// helper function to recursively flood joint mask downwards
+	void RecurseFloodJointMaskDown(QTreeWidgetItem* item, float value);
+	/// helper function to recursively flood joint masks upwards
+	void RecurseFloodJointMaskUp(QTreeWidgetItem* item, float value);
+
 	Util::String nodeName;
 	Ptr<ModelHandler> itemHandler;
 	Ui::CharacterNodeInfoWidget* ui;
@@ -112,9 +101,6 @@ private:
 	Util::Array<Util::StringAtom> clips;
 	Util::Array<SizeT> durations;
     Util::FixedArray<SizeT> currentDurations;
-	QListWidgetItem* currentClipItem;
-	TrackController* trackController;
-	SizeT currentSeekInterval;
 
 	Util::FixedArray<bool> skinVisible;
 	Util::FixedArray<bool> clipsPlaying;
@@ -130,6 +116,7 @@ private:
 	Util::Array<ToolkitUtil::JointMask> masks;
 	ToolkitUtil::JointMask* currentMask;
 	Util::Array<Characters::CharacterJointMask*> characterJointMasks;
+	Util::Dictionary<int, QTreeWidgetItem*> jointIndexToItemMap;
 	int selectedMask;
 }; 
 
@@ -174,8 +161,8 @@ CharacterNodeHandler::GetName() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-CharacterNodeHandler::SetItemHandler( const Ptr<ModelHandler>& itemHandler )
+inline void
+CharacterNodeHandler::SetItemHandler(const Ptr<ModelHandler>& itemHandler)
 {
 	n_assert(itemHandler.isvalid());
 	this->itemHandler = itemHandler;

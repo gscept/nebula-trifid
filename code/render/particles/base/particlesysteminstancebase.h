@@ -62,6 +62,8 @@ public:
     void Start();
     /// stop emitting particles
     void Stop();
+	/// restart emitting particles
+	void Restart();
 
     /// currently emitting particles?
     bool IsPlaying() const;

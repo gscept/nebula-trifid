@@ -56,6 +56,7 @@ private slots:
 	void UpdatePoints();
 
 private:
+	float xVal, yVal;
 	Ui::ParticleNodeSettingsFrame ui;
 	EnvelopeCurve curve;
 	EmitterAttrs::EnvelopeAttr attr;
