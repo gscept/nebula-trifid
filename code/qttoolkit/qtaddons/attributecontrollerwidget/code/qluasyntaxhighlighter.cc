@@ -57,7 +57,7 @@ QLuaSyntaxHighlighter::QLuaSyntaxHighlighter(QTextDocument *document) :
     
 
     singleLineCommentFormat.setForeground(Qt::red);
-    rule.pattern = QRegExp("//[^\n]*");
+    rule.pattern = QRegExp("--[^\n]*");
     rule.format = singleLineCommentFormat;
     highlightingRules.append(rule);
 
@@ -74,8 +74,8 @@ QLuaSyntaxHighlighter::QLuaSyntaxHighlighter(QTextDocument *document) :
     rule.format = functionFormat;
     highlightingRules.append(rule);
 
-    commentStartExpression = QRegExp("/\\*");
-    commentEndExpression = QRegExp("\\*/");
+    commentStartExpression = QRegExp("--\\[\\[");
+    commentEndExpression = QRegExp("\\]\\]--");
 }
 
 //------------------------------------------------------------------------------
