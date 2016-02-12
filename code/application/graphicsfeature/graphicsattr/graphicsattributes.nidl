@@ -120,6 +120,7 @@
     <Attribute name="FocusLength" fourcc="DOFL" accessMode="ReadWrite" type="Float" default="100"/>
     <Attribute name="FocusRadius" fourcc="DOFR" accessMode="ReadWrite" type="Float" default="0"/>
     <Attribute name="SkyContrast" fourcc="SKYC" accessMode="ReadWrite" type="Float" default="1"/>
+    <Attribute name="SkyRotationFactor" fourcc="SKYR" accessMode="ReadWrite" type="Float" default="0.03"/>
     <Attribute name="SkyBrightness" fourcc="SKYB" accessMode="ReadWrite" type="Float" default="1"/>
     <Attribute name="SkyTexture" fourcc="SKYT" accessMode="ReadWrite" type="String" default="tex:system/sky" editType="resource" resourceBase="tex" fileSuffix="dds" />
     <Attribute name="SkyModel" fourcc="SKYM" accessMode="ReadWrite" type="String" default="system/skybox" />

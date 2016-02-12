@@ -747,6 +747,7 @@
    <Param name="SkyLayer1" type="string" defaultValue="tex:system/placeholder"/>
    <Param name="SkyLayer2" type="string" defaultValue="tex:system/placeholder"/>
    <Param name="SkyBlendFactor" type="float" defaultValue="0.0f"/>
+   <Param name="SkyRotationFactor" type="float" defaultValue="0.03f"/>
    <Param name="Contrast" type="float" defaultValue="1.0f" system="true"/>
    <Param name="Brightness" type="float" defaultValue="0.0f" system="true"/>	
    

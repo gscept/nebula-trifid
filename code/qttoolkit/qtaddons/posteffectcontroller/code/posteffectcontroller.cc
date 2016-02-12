@@ -59,6 +59,7 @@ PostEffectController::PostEffectController() :
 	connect(this->ui->fogMaxDist, SIGNAL(valueChanged(double)), this, SLOT(OnFogChanged()));
 	connect(this->ui->skyContrast, SIGNAL(valueChanged(double)), this, SLOT(OnSkyChanged()));
 	connect(this->ui->skyBrightness, SIGNAL(valueChanged(double)), this, SLOT(OnSkyChanged()));
+    connect(this->ui->skyRotation, SIGNAL(valueChanged(double)), this, SLOT(OnSkyChanged()));
 	connect(this->ui->skyTexture, SIGNAL(editingFinished()), this, SLOT(OnSkyChanged()));
 	connect(this->ui->browseSky, SIGNAL(pressed()), this, SLOT(OnSkyTextureBrowse()));
 	connect(this->ui->blendSpeed, SIGNAL(valueChanged(double)), this, SLOT(OnBlendChanged()));
@@ -281,6 +282,7 @@ PostEffectController::OnSkyChanged()
 		// get values
 		double contrast = this->ui->skyContrast->value();
 		double brightness = this->ui->skyBrightness->value();
+        double rotation = this->ui->skyRotation->value();
 		QString texture = this->ui->skyTexture->text();
 		String tex = texture.toUtf8().constData();
 
@@ -299,6 +301,7 @@ PostEffectController::OnSkyChanged()
 		this->postEffectEntity->Params().sky->SetSkyContrast(contrast);
 		this->postEffectEntity->Params().sky->SetSkyBrightness(brightness);
 		this->postEffectEntity->Params().sky->SetSkyTexturePath(tex);
+        this->postEffectEntity->Params().sky->SetSkyRotationFactor(rotation);
 		this->SetModified();
 	}
 }
@@ -410,10 +413,12 @@ PostEffectController::SetupUiFromEntity()
 		// get sky stuff
 		float contrast = skyParams->GetSkyContrast();
 		float brightness = skyParams->GetSkyBrightness();
+        float rotation = skyParams->GetSkyRotationFactor();
 		String tex = skyParams->GetSkyTexturePath();
 
 		this->ui->skyContrast->setValue(contrast);
 		this->ui->skyBrightness->setValue(brightness);
+        this->ui->skyRotation->setValue(rotation);
 		this->ui->skyTexture->setText(tex.AsCharPtr());
 
         // get ao stuff

@@ -113,6 +113,8 @@ PostEffectExporter::SetupTables()
 		AttributeDefinitionBase::RegisterDynamicAttribute("SkyTexture", Util::FourCC(), StringType, ReadWrite);
 	if (!AttrId::IsValidName("SkyContrast"))
 		AttributeDefinitionBase::RegisterDynamicAttribute("SkyContrast", Util::FourCC(), FloatType, ReadWrite);
+    if (!AttrId::IsValidName("SkyRotationFactor"))
+        AttributeDefinitionBase::RegisterDynamicAttribute("SkyRotationFactor", Util::FourCC(), FloatType, ReadWrite);
 	if (!AttrId::IsValidName("SkyBrightness"))
 		AttributeDefinitionBase::RegisterDynamicAttribute("SkyBrightness", Util::FourCC(), FloatType, ReadWrite);
 	if (!AttrId::IsValidName("SkyModel"))
@@ -200,6 +202,8 @@ PostEffectExporter::SetupTables()
 		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("SkyContrast");
 		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
+        id = AttrId("SkyRotationFactor");
+        EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("SkyBrightness");
 		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("SkyModel");
@@ -296,6 +300,7 @@ ToolkitUtil::PostEffectExporter::ExportAll()
 			valueTable->SetFloat(AttrId("FocusLength"), row, parms.dof->GetFocusLength());
 			valueTable->SetFloat(AttrId("FocusRadius"), row, parms.dof->GetFilterSize());
 			valueTable->SetFloat(AttrId("SkyContrast"), row, parms.sky->GetSkyContrast());
+            valueTable->SetFloat(AttrId("SkyRotationFactor"), row, parms.sky->GetSkyRotationFactor());
 			valueTable->SetFloat(AttrId("SkyBrightness"), row, parms.sky->GetSkyBrightness());
 			valueTable->SetString(AttrId("SkyTexture"), row, parms.sky->GetSkyTexturePath());
 			valueTable->SetFloat(AttrId("AOStrength"), row, parms.ao->GetStrength());

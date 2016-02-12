@@ -178,6 +178,7 @@ private:
     Ptr<Materials::SurfaceConstant> skyBlendFactor;
     Ptr<Materials::SurfaceConstant> skyBlendTexture;
     Ptr<Materials::SurfaceConstant> skyBaseTexture;
+    Ptr<Materials::SurfaceConstant> skyRotationFactor;
     bool skyLoaded; // flag is true if sky model was loaded and all shader params could be initialized
 
 	/// handle to sky entity

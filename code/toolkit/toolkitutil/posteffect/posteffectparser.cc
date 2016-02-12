@@ -72,6 +72,7 @@ PostEffectParser::Load(const Util::String & path, PostEffect::PostEffectEntity::
 
 	parms.sky->SetSkyContrast(reader->GetFloat("SkyContrast"));
 	parms.sky->SetSkyBrightness(reader->GetFloat("SkyBrightness"));
+    parms.sky->SetSkyRotationFactor(reader->GetOptFloat("SkyRotationFactor", 0.03f));
 	parms.sky->SetSkyTexturePath(reader->GetString("SkyTexture"));
 
 	parms.ao->SetStrength(reader->GetFloat("AOStrength"));
@@ -125,7 +126,8 @@ PostEffectParser::Save(const Util::String & path, const PostEffect::PostEffectEn
 	writer->SetFloat("FocusDistance", parms.dof->GetFocusDistance());
 	writer->SetFloat("FocusLength", parms.dof->GetFocusLength());
 	writer->SetFloat("FocusRadius", parms.dof->GetFilterSize());
-	writer->SetFloat("SkyContrast", parms.sky->GetSkyContrast());
+    writer->SetFloat("SkyContrast", parms.sky->GetSkyContrast());
+	writer->SetFloat("SkyRotationFactor", parms.sky->GetSkyRotationFactor());
 	writer->SetFloat("SkyBrightness", parms.sky->GetSkyBrightness());
 	writer->SetString("SkyTexture", parms.sky->GetSkyTexturePath());
 	writer->SetFloat("AOStrength", parms.ao->GetStrength());

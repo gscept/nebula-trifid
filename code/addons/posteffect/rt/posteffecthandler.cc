@@ -261,6 +261,7 @@ PostEffectHandler::OnBlendSky(const Ptr<BlendSky>& msg)
     targetParas->SetSkyBrightness(msg->GetBrightness());
     targetParas->SetSkyContrast(msg->GetContrast());
     targetParas->SetSkyTexturePath(msg->GetTexture());
+    targetParas->SetSkyRotationFactor(msg->GetRotationFactor());
     targetParas->ResetTextureBlendFactor();
  
     // start
