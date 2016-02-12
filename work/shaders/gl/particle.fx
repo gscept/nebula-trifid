@@ -13,13 +13,30 @@
 sampler2D DepthBuffer;
 float LightMapIntensity;
 
+sampler2D Layer1;
+sampler2D Layer2;
+sampler2D Layer3;
+sampler2D Layer4;
+
+float2 UVAnim1;
+float2 UVAnim2;
+float2 UVAnim3;
+float2 UVAnim4;
+
 // samplers
 samplerstate ParticleSampler
 {
-	Samplers = { SpecularMap, EmissiveMap, NormalMap, AlbedoMap, DisplacementMap, RoughnessMap };
+	Samplers = { SpecularMap, EmissiveMap, NormalMap, AlbedoMap, DisplacementMap, RoughnessMap, Layer1, Layer2, Layer3, Layer4 };
 	Filter = MinMagMipLinear;
 	AddressU = Wrap;
 	AddressV = Wrap;
+};
+
+samplerstate LayerSampler
+{
+	Samplers = {Layer1, Layer2, Layer3, Layer4 };
+	AddressU = Mirror;
+	AddressV = Mirror;
 };
 
 state LitParticleState
@@ -50,6 +67,18 @@ state UnlitAdditiveParticleState
 	BlendEnabled[0] = true;
 	SrcBlend[0] = SrcAlpha;
 	DstBlend[0] = One;
+	
+	CullMode = None;
+	DepthEnabled = true;
+	DepthWrite = false;
+	DepthFunc = Less;
+};
+
+state UnlitParticleStateBlendAdd
+{
+	BlendEnabled[0] = true;
+	SrcBlend[0] = One;
+	DstBlend[0] = OneMinusSrcAlpha;
 	
 	CullMode = None;
 	DepthEnabled = true;
@@ -153,16 +182,91 @@ psUnlit(in vec4 ViewSpacePosition,
 	vec2 pixelSize = GetPixelSize(DepthBuffer);
 	vec2 screenUV = psComputeScreenCoord(gl_FragCoord.xy, pixelSize.xy);
 	vec4 diffColor = texture(AlbedoMap, UV);
-	vec4 emsvColor = texture(EmissiveMap, UV);
 	
-	vec4 color = diffColor + vec4(Color.rgb, 0) + emsvColor * LightMapIntensity;
-	float Alpha = diffColor.a * Color.a;
+	vec4 color = diffColor * vec4(Color.rgb, 0);
 	float depth = textureLod(DepthBuffer, screenUV, 0).r;
 	float particleDepth = length(ViewSpacePosition);
 	float AlphaMod = saturate(abs(depth - particleDepth));
-	color.a = Alpha * AlphaMod;
-	FinalColor = EncodeHDR(color);
-	//Unshaded = vec4(0, 0, 0, color.a);
+	color.a = diffColor.a * Color.a * AlphaMod;
+	FinalColor = color;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+shader
+void
+psUnlit2Layers(in vec4 ViewSpacePosition,
+	in vec4 Color,
+	in vec2 UV,
+	[color0] out vec4 FinalColor) 
+{
+	vec2 pixelSize = GetPixelSize(DepthBuffer);
+	vec2 screenUV = psComputeScreenCoord(gl_FragCoord.xy, pixelSize.xy);
+	vec4 layer1 = texture(Layer1, UV + UVAnim1 * TimeAndRandom.x);
+	vec4 layer2 = texture(Layer2, UV + UVAnim2 * TimeAndRandom.x);
+	
+	vec4 color = layer1 * layer2 * 2;
+	float depth = textureLod(DepthBuffer, screenUV, 0).r;
+	float particleDepth = length(ViewSpacePosition);
+	float AlphaMod = saturate(abs(depth - particleDepth));
+	color.a = saturate(color.a);
+	color.rgb += Color.rgb * color.a;
+	color *= Color.a * AlphaMod;
+	FinalColor = color;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+shader
+void
+psUnlit3Layers(in vec4 ViewSpacePosition,
+	in vec4 Color,
+	in vec2 UV,
+	[color0] out vec4 FinalColor) 
+{
+	vec2 pixelSize = GetPixelSize(DepthBuffer);
+	vec2 screenUV = psComputeScreenCoord(gl_FragCoord.xy, pixelSize.xy);
+	vec4 layer1 = texture(Layer1, UV + UVAnim1 * TimeAndRandom.x);
+	vec4 layer2 = texture(Layer2, UV + UVAnim2 * TimeAndRandom.x);
+	vec4 layer3 = texture(Layer3, UV + UVAnim3 * TimeAndRandom.x);
+	
+	vec4 color = ((layer1 * layer2 * 2) * layer3 * 2);
+	float depth = textureLod(DepthBuffer, screenUV, 0).r;
+	float particleDepth = length(ViewSpacePosition);
+	float AlphaMod = saturate(abs(depth - particleDepth));
+	color.a = saturate(color.a);
+	color.rgb += Color.rgb * color.a;
+	color *= Color.a * AlphaMod;
+	FinalColor = color;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+shader
+void
+psUnlit4Layers(in vec4 ViewSpacePosition,
+	in vec4 Color,
+	in vec2 UV,
+	[color0] out vec4 FinalColor) 
+{
+	vec2 pixelSize = GetPixelSize(DepthBuffer);
+	vec2 screenUV = psComputeScreenCoord(gl_FragCoord.xy, pixelSize.xy);
+	vec4 layer1 = texture(Layer1, UV + UVAnim1 * TimeAndRandom.x);
+	vec4 layer2 = texture(Layer2, UV + UVAnim2 * TimeAndRandom.x);
+	vec4 layer3 = texture(Layer3, UV + UVAnim3 * TimeAndRandom.x);
+	vec4 layer4 = texture(Layer4, UV + UVAnim4 * TimeAndRandom.x);
+	
+	vec4 color = ((layer1 * layer2 * 2) * layer3 * 2) * layer4;
+	float depth = textureLod(DepthBuffer, screenUV, 0).r;
+	float particleDepth = length(ViewSpacePosition);
+	float AlphaMod = saturate(abs(depth - particleDepth));
+	color.a = saturate(color.a);
+	color.rgb += Color.rgb * color.a;
+	color *= Color.a * AlphaMod;
+	FinalColor = color;
 }
 
 //------------------------------------------------------------------------------
@@ -212,4 +316,8 @@ psLit(in vec4 ViewSpacePosition,
 */
 SimpleTechnique(Unlit, "Unlit", vsUnlit(), psUnlit(), UnlitParticleState);
 SimpleTechnique(UnlitAdditive, "Unlit|Alt0", vsUnlit(), psUnlit(), UnlitAdditiveParticleState);
+SimpleTechnique(UnlitBlendAdd, "Unlit|Alt1", vsUnlit(), psUnlit(), UnlitParticleStateBlendAdd);
+SimpleTechnique(UnlitBlendAdd2Layers, "Unlit|Alt2", vsUnlit(), psUnlit2Layers(), UnlitParticleStateBlendAdd);
+SimpleTechnique(UnlitBlendAdd3Layers, "Unlit|Alt3", vsUnlit(), psUnlit3Layers(), UnlitParticleStateBlendAdd);
+SimpleTechnique(UnlitBlendAdd4Layers, "Unlit|Alt4", vsUnlit(), psUnlit4Layers(), UnlitParticleStateBlendAdd);
 SimpleTechnique(Lit, "Static", vsLit(), psLit(), LitParticleState);

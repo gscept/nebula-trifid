@@ -101,6 +101,7 @@ ParticleNodeHandler::Setup(const Util::String& resource)
 
 	// connect browser button
 	connect(this->particleUi->browseEmitterMesh, SIGNAL(pressed()), this, SLOT(BrowseMesh()));
+	connect(this->particleUi->restartParticle, SIGNAL(pressed()), this, SLOT(Restart()));
 
     // get state node
     Ptr<PreviewState> previewState = ContentBrowserApp::Instance()->GetPreviewState();
@@ -361,6 +362,16 @@ ParticleNodeHandler::BrowseMesh()
 
 //------------------------------------------------------------------------------
 /**
+	Start particle if it has stopped
+*/
+void
+ParticleNodeHandler::Restart()
+{
+	this->particleStateNode->GetParticleSystemInstance()->Restart();
+}
+
+//------------------------------------------------------------------------------
+/**
 */
 void
 ParticleNodeHandler::PrimitiveGroupIndexChanged(int i)
@@ -419,8 +430,8 @@ ParticleNodeHandler::EnvelopeChanged(EmitterAttrs::EnvelopeAttr attr)
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ParticleNodeHandler::EmissionDurationChanged( double f )
+void
+ParticleNodeHandler::EmissionDurationChanged(double f)
 {
 	this->attrs.SetFloat(EmitterAttrs::EmissionDuration, f);
 
@@ -431,8 +442,8 @@ ParticleNodeHandler::EmissionDurationChanged( double f )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ParticleNodeHandler::ActivityDistanceChanged( double f )
+void
+ParticleNodeHandler::ActivityDistanceChanged(double f)
 {
 	this->attrs.SetFloat(EmitterAttrs::ActivityDistance, f);
 
@@ -443,8 +454,8 @@ ParticleNodeHandler::ActivityDistanceChanged( double f )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ParticleNodeHandler::StartRotationMinChanged( double f )
+void
+ParticleNodeHandler::StartRotationMinChanged(double f)
 {
 	this->attrs.SetFloat(EmitterAttrs::StartRotationMin, f);
 
@@ -455,8 +466,8 @@ ParticleNodeHandler::StartRotationMinChanged( double f )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ParticleNodeHandler::StartRotationMaxChanged( double f )
+void
+ParticleNodeHandler::StartRotationMaxChanged(double f)
 {
 	this->attrs.SetFloat(EmitterAttrs::StartRotationMax, f);
 
@@ -467,8 +478,8 @@ ParticleNodeHandler::StartRotationMaxChanged( double f )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ParticleNodeHandler::GravityChanged( double f )
+void
+ParticleNodeHandler::GravityChanged(double f)
 {
 	this->attrs.SetFloat(EmitterAttrs::Gravity, f);
 
@@ -479,8 +490,8 @@ ParticleNodeHandler::GravityChanged( double f )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ParticleNodeHandler::ParticleStretchChanged( double f )
+void
+ParticleNodeHandler::ParticleStretchChanged(double f)
 {
 	this->attrs.SetFloat(EmitterAttrs::ParticleStretch, f);
 
@@ -491,8 +502,8 @@ ParticleNodeHandler::ParticleStretchChanged( double f )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ParticleNodeHandler::VelocityRandomizeChanged( double f )
+void
+ParticleNodeHandler::VelocityRandomizeChanged(double f)
 {
 	this->attrs.SetFloat(EmitterAttrs::VelocityRandomize, f);
 
@@ -503,8 +514,8 @@ ParticleNodeHandler::VelocityRandomizeChanged( double f )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ParticleNodeHandler::RotationRandomizeChanged( double f )
+void
+ParticleNodeHandler::RotationRandomizeChanged(double f)
 {
 	this->attrs.SetFloat(EmitterAttrs::RotationRandomize, f);
 
@@ -515,8 +526,8 @@ ParticleNodeHandler::RotationRandomizeChanged( double f )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ParticleNodeHandler::SizeRandomizeChanged( double f )
+void
+ParticleNodeHandler::SizeRandomizeChanged(double f)
 {
 	this->attrs.SetFloat(EmitterAttrs::SizeRandomize, f);
 
@@ -527,8 +538,8 @@ ParticleNodeHandler::SizeRandomizeChanged( double f )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ParticleNodeHandler::PrecalcTimeChanged( double f )
+void
+ParticleNodeHandler::PrecalcTimeChanged(double f)
 {
 	this->attrs.SetFloat(EmitterAttrs::PrecalcTime, f);
 
@@ -539,8 +550,8 @@ ParticleNodeHandler::PrecalcTimeChanged( double f )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ParticleNodeHandler::StartDelayChanged( double f )
+void
+ParticleNodeHandler::StartDelayChanged(double f)
 {
 	this->attrs.SetFloat(EmitterAttrs::StartDelay, f);
 
@@ -551,8 +562,8 @@ ParticleNodeHandler::StartDelayChanged( double f )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ParticleNodeHandler::TextureTileChanged( double f )
+void
+ParticleNodeHandler::TextureTileChanged(double f)
 {
 	this->attrs.SetFloat(EmitterAttrs::TextureTile, f);
 
@@ -563,8 +574,8 @@ ParticleNodeHandler::TextureTileChanged( double f )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ParticleNodeHandler::PhasesPerSecondChanged( double f )
+void
+ParticleNodeHandler::PhasesPerSecondChanged(double f)
 {
 	this->attrs.SetFloat(EmitterAttrs::PhasesPerSecond, f);
 
@@ -590,8 +601,8 @@ ParticleNodeHandler::WindDirectionChanged()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ParticleNodeHandler::LoopingChanged( bool b )
+void
+ParticleNodeHandler::LoopingChanged(bool b)
 {
 	this->attrs.SetBool(EmitterAttrs::Looping, b);
 
@@ -602,8 +613,8 @@ ParticleNodeHandler::LoopingChanged( bool b )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ParticleNodeHandler::RandomizeRotationChanged( bool b )
+void
+ParticleNodeHandler::RandomizeRotationChanged(bool b)
 {
 	this->attrs.SetBool(EmitterAttrs::RandomizeRotation, b);
 
@@ -614,8 +625,8 @@ ParticleNodeHandler::RandomizeRotationChanged( bool b )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ParticleNodeHandler::StretchToStartChanged( bool b )
+void
+ParticleNodeHandler::StretchToStartChanged(bool b)
 {
 	this->attrs.SetBool(EmitterAttrs::StretchToStart, b);
 
@@ -626,8 +637,8 @@ ParticleNodeHandler::StretchToStartChanged( bool b )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ParticleNodeHandler::RenderOldestFirst( bool b )
+void
+ParticleNodeHandler::RenderOldestFirst(bool b)
 {
 	this->attrs.SetBool(EmitterAttrs::RenderOldestFirst, b);
 
@@ -638,8 +649,8 @@ ParticleNodeHandler::RenderOldestFirst( bool b )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ParticleNodeHandler::ViewAngleFadeChanged( bool b )
+void
+ParticleNodeHandler::ViewAngleFadeChanged(bool b)
 {
 	this->attrs.SetBool(EmitterAttrs::ViewAngleFade, b);
 
@@ -650,8 +661,8 @@ ParticleNodeHandler::ViewAngleFadeChanged( bool b )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ParticleNodeHandler::BillboardChanged( bool b )
+void
+ParticleNodeHandler::BillboardChanged(bool b)
 {
 	this->attrs.SetBool(EmitterAttrs::Billboard, b);
 
@@ -662,8 +673,8 @@ ParticleNodeHandler::BillboardChanged( bool b )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ParticleNodeHandler::StretchDetailChanged( int i )
+void
+ParticleNodeHandler::StretchDetailChanged(int i)
 {
 	this->attrs.SetInt(EmitterAttrs::StretchDetail, i);
 
@@ -674,8 +685,8 @@ ParticleNodeHandler::StretchDetailChanged( int i )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ParticleNodeHandler::AnimPhasesChanged( int i )
+void
+ParticleNodeHandler::AnimPhasesChanged(int i)
 {
 	this->attrs.SetInt(EmitterAttrs::AnimPhases, i);
 

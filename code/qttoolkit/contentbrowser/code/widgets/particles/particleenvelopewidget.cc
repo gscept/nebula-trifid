@@ -20,15 +20,10 @@ ParticleEnvelopeWidget::ParticleEnvelopeWidget(QWidget* parent) :
 	// setup ui
 	this->ui.setupUi(this);
 
-	this->ui.xVal->setSingleStep(0.01f);
-	this->ui.yVal->setSingleStep(0.01f);
 	this->ui.min->setSingleStep(0.01f);
 	this->ui.max->setSingleStep(0.01f);
 	this->ui.frequency->setSingleStep(0.01f);
 	this->ui.amplitude->setSingleStep(0.01f);
-
-	connect(this->ui.xVal, SIGNAL(valueChanged(double)), this, SLOT(PointValueChanged()));
-	connect(this->ui.yVal, SIGNAL(valueChanged(double)), this, SLOT(PointValueChanged()));
 
 	connect(this->ui.renderWidget, SIGNAL(PointUpdated(QPointF)), this, SLOT(PointValueUpdated(QPointF)));
 	connect(this->ui.renderWidget, SIGNAL(PointSelected(int)), this, SLOT(PointSelected(int)));
@@ -56,8 +51,6 @@ void
 ParticleEnvelopeWidget::Setup( const EnvelopeCurve& curve, EmitterAttrs::EnvelopeAttr attr )
 {
 	// block all signals
-	this->ui.xVal->blockSignals(true);
-	this->ui.yVal->blockSignals(true);
 	this->ui.min->blockSignals(true);
 	this->ui.max->blockSignals(true);
 	this->ui.frequency->blockSignals(true);
@@ -95,8 +88,6 @@ ParticleEnvelopeWidget::Setup( const EnvelopeCurve& curve, EmitterAttrs::Envelop
 	this->ui.renderWidget->Setup(p0, p1, p2, p3);
 
 	// unlock signals
-	this->ui.xVal->blockSignals(false);
-	this->ui.yVal->blockSignals(false);
 	this->ui.min->blockSignals(false);
 	this->ui.max->blockSignals(false);
 	this->ui.frequency->blockSignals(false);
@@ -121,8 +112,8 @@ ParticleEnvelopeWidget::PointValueChanged()
 	float span = limits[1] - limits[0];
 
 	// calculate y-val
-	float yVal = this->ui.yVal->value() / span - limits[0];
-	float xVal = n_clamp(this->ui.xVal->value(), 0.0f, 1.0f);
+	float yVal = this->yVal / span - limits[0];
+	float xVal = n_clamp(this->xVal, 0.0f, 1.0f);
 
 	switch(this->activePoint)
 	{
@@ -172,36 +163,30 @@ ParticleEnvelopeWidget::PointValueUpdated(QPointF point)
 	float values[4] = { this->curve.GetValues()[0], this->curve.GetValues()[1], this->curve.GetValues()[2], this->curve.GetValues()[3] };
 
 	// disable signals
-	this->ui.xVal->blockSignals(true);
-	this->ui.yVal->blockSignals(true);
 
 	switch(this->activePoint)
 	{
 	case 0:
-		this->ui.yVal->setValue(yVal);
+		this->yVal = yVal;
 		values[this->activePoint] = yVal;
 		break;
 	case 1:
 		this->curve.SetKeyPos0(xVal);
-		this->ui.xVal->setValue(xVal);
-		this->ui.yVal->setValue(yVal);
+		this->yVal = yVal;
+		this->xVal = xVal;
 		values[this->activePoint] = yVal;
 		break;
 	case 2:
 		this->curve.SetKeyPos1(xVal);
-		this->ui.xVal->setValue(xVal);
-		this->ui.yVal->setValue(yVal);
+		this->yVal = yVal;
+		this->xVal = xVal;
 		values[this->activePoint] = yVal;
 		break;
 	case 3:
-		this->ui.yVal->setValue(yVal);
+		this->yVal = yVal;
 		values[this->activePoint] = yVal;
 		break;
 	}
-
-	// enable signals again
-	this->ui.xVal->blockSignals(false);
-	this->ui.yVal->blockSignals(false);
 
 	// set values
 	this->curve.SetValues(values[0], values[1], values[2], values[3]);
@@ -213,8 +198,8 @@ ParticleEnvelopeWidget::PointValueUpdated(QPointF point)
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ParticleEnvelopeWidget::PointSelected( int point )
+void
+ParticleEnvelopeWidget::PointSelected(int point)
 {
 	// set selected point
 	this->activePoint = point;
@@ -222,43 +207,25 @@ ParticleEnvelopeWidget::PointSelected( int point )
 	// get values
 	float values[4] = { this->curve.GetValues()[0], this->curve.GetValues()[1], this->curve.GetValues()[2], this->curve.GetValues()[3] };
 
-	// disable signals again
-	this->ui.xVal->blockSignals(true);
-	this->ui.yVal->blockSignals(true);
-
 	switch(point)
 	{
 	case 0:
-		this->ui.xVal->setMinimum(0.0f);
-		this->ui.xVal->setValue(0.0f);
-		this->ui.xVal->setDisabled(true);
-		this->ui.yVal->setValue(values[0]);
+		this->xVal = 0.0f;
+		this->yVal = values[0];
 		break;
 	case 1:
-		this->ui.xVal->setMinimum(0.0f);
-		this->ui.xVal->setMaximum(this->curve.GetKeyPos1());
-		this->ui.xVal->setDisabled(false);
-		this->ui.xVal->setValue(this->curve.GetKeyPos0());
-		this->ui.yVal->setValue(values[1]);
+		this->xVal = this->curve.GetKeyPos0();
+		this->yVal = values[1];
 		break;
 	case 2:
-		this->ui.xVal->setMinimum(this->curve.GetKeyPos0());
-		this->ui.xVal->setMaximum(1.0f);
-		this->ui.xVal->setDisabled(false);
-		this->ui.xVal->setValue(this->curve.GetKeyPos1());
-		this->ui.yVal->setValue(values[2]);
+		this->xVal = this->curve.GetKeyPos1();
+		this->yVal = values[2];
 		break;
 	case 3:
-		this->ui.xVal->setMaximum(1.0f);
-		this->ui.xVal->setValue(1.0f);
-		this->ui.xVal->setDisabled(true);
-		this->ui.yVal->setValue(values[3]);
+		this->xVal = 1.0f;
+		this->yVal = values[1];
 		break;
 	}
-
-	// enable signals again
-	this->ui.xVal->blockSignals(false);
-	this->ui.yVal->blockSignals(false);
 
 	// set values
 	this->curve.SetValues(values[0], values[1], values[2], values[3]);
@@ -267,8 +234,8 @@ ParticleEnvelopeWidget::PointSelected( int point )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ParticleEnvelopeWidget::MaxValueChanged( double max )
+void
+ParticleEnvelopeWidget::MaxValueChanged(double max)
 {
 	// get values
 	float values[4] = { this->curve.GetValues()[0], this->curve.GetValues()[1], this->curve.GetValues()[2], this->curve.GetValues()[3] };
@@ -277,7 +244,7 @@ ParticleEnvelopeWidget::MaxValueChanged( double max )
 	float limits[2] = { this->curve.GetLimits()[0], this->curve.GetLimits()[1] };
 
 	// calculate span
-	float span = limits[1] - limits[0];
+	float span = limits[1] == limits[0] ? limits[1] : limits[1] - limits[0];
 
 	int i;
 	for(i = 0; i < 4; i++)
@@ -314,17 +281,8 @@ ParticleEnvelopeWidget::MaxValueChanged( double max )
 	// restrain min box
 	this->ui.min->setMaximum(max);
 
-	// block signals
-	this->ui.yVal->blockSignals(true);
-
-	// restrain yval
-	this->ui.yVal->setMaximum(max);
-
 	// set recalculated values
-	this->ui.yVal->setValue(values[this->activePoint]);
-
-	// enable signals again
-	this->ui.yVal->blockSignals(false);
+	this->yVal = values[this->activePoint];
 
 	// update points
 	this->UpdatePoints();
@@ -336,8 +294,8 @@ ParticleEnvelopeWidget::MaxValueChanged( double max )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ParticleEnvelopeWidget::MinValueChanged( double min )
+void
+ParticleEnvelopeWidget::MinValueChanged(double min)
 {
 	// get values
 	float values[4] = { this->curve.GetValues()[0], this->curve.GetValues()[1], this->curve.GetValues()[2], this->curve.GetValues()[3] };
@@ -346,7 +304,7 @@ ParticleEnvelopeWidget::MinValueChanged( double min )
 	float limits[2] = { this->curve.GetLimits()[0], this->curve.GetLimits()[1] };
 
 	// calculate span
-	float span = limits[1] - limits[0];
+	float span = limits[1] == limits[0] ? limits[1] : limits[1] - limits[0];
 
 	int i;
 	for(i = 0; i < 4; i++)
@@ -383,17 +341,8 @@ ParticleEnvelopeWidget::MinValueChanged( double min )
 	// restrain max box
 	this->ui.max->setMinimum(min);
 
-	// block signals
-	this->ui.yVal->blockSignals(true);
-
-	// restrain yval
-	this->ui.yVal->setMinimum(min);
-
 	// set recalculated values
-	this->ui.yVal->setValue(values[this->activePoint]);
-
-	// enable signals again
-	this->ui.yVal->blockSignals(false);
+	this->yVal = values[this->activePoint];
 
 	// update points
 	this->UpdatePoints();

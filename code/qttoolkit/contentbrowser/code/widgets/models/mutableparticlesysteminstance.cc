@@ -38,12 +38,6 @@ MutableParticleSystemInstance::UpdateEmitter(const EmitterAttrs& newAttrs, Index
 	this->Discard();
 	this->Setup(this->emitterMesh, this->primGroupIndex, this->emitterAttrs);
 	this->Start();
-	/*
-	if (!wasPlaying)
-	{
-		
-	}
-	*/
 }
 
 } // namespace Particles

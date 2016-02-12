@@ -103,7 +103,6 @@ AssetBrowser::Execute(const QString& title, const AssetFilter& filter)
 	this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	this->setAllowedAreas(Qt::NoDockWidgetArea);
 	this->setWindowModality(Qt::ApplicationModal);
-	this->setFloating(true);
 	QPalette originalPalette = this->palette();
 
 	// setup curve points
@@ -150,7 +149,6 @@ AssetBrowser::Execute(const QString& title, const AssetFilter& filter)
 	this->setWindowModality(Qt::NonModal);
 	this->setAllowedAreas(areas);
 	this->setFeatures(features);
-	this->setFloating(false);
 	this->ui->assetView->setPalette(originalPalette);
 	this->executingAnimation->stop();
 	delete this->executingAnimation;

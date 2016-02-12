@@ -12,6 +12,7 @@
 #include "graphics/modelentity.h"
 #include "characters/character.h"
 
+#include <QDoubleSpinBox>
 using namespace Graphics;
 using namespace Util;
 namespace Widgets
@@ -24,7 +25,6 @@ __ImplementClass(Widgets::CharacterNodeHandler, 'CHNH', Core::RefCounted);
 CharacterNodeHandler::CharacterNodeHandler() :
 	selectedJoint(0),
 	selectedMask(-1),
-    currentSeekInterval(0),
 	numFrames(0),
 	currentFrame(0),
 	paused(false)
@@ -61,35 +61,17 @@ CharacterNodeHandler::Setup()
 	__Send(this->model, clipMsg);
 	__SingleFireCallback(CharacterNodeHandler, OnFetchedClipList, this, clipMsg.upcast<Messaging::Message>());
 
-	// connect all shortcuts for double clicking the lists
-	connect(this->ui->availableSkins, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(OnSkinActivated()));
-	connect(this->ui->visibleSkins, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(OnSkinDeactivated()));
-
-	// connect buttons
-	connect(this->ui->addClip, SIGNAL(clicked()), this, SLOT(OnAddClip()));
-	connect(this->ui->removeClip, SIGNAL(clicked()), this, SLOT(OnRemoveClip()));
-	connect(this->ui->showSkin, SIGNAL(clicked()), this, SLOT(OnShowSkin()));
-	connect(this->ui->hideSkin, SIGNAL(clicked()), this, SLOT(OnHideSkin()));
-	connect(this->ui->playClip, SIGNAL(clicked()), this, SLOT(OnPlayClip()));
-	connect(this->ui->stopClip, SIGNAL(clicked()), this, SLOT(OnStopClip()));
-	connect(this->ui->pauseClip, SIGNAL(clicked()), this, SLOT(OnPauseClip()));
-	connect(this->ui->seekBar, SIGNAL(valueChanged(int)), this, SLOT(OnClipSeek(int)));
-
 	// connect UI used for joint mask management
 	connect(this->ui->newMaskButton, SIGNAL(clicked()), this, SLOT(OnNewMask()));
 	connect(this->ui->deleteMaskButton, SIGNAL(clicked()), this, SLOT(OnDeleteMask()));
 	connect(this->ui->maskName, SIGNAL(textEdited(const QString&)), this, SLOT(OnMaskNameChanged(const QString&)));
 	connect(this->ui->maskBox, SIGNAL(currentIndexChanged(int)), this, SLOT(OnMaskSelected(int)));
 
-	// connect clip list double click
-	connect(this->ui->clipsList, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(OnClipDoubleClicked(QListWidgetItem*)));
-
-	// create track controller
-	this->trackController = new TrackController(this->ui);
-
-	// connect controller stuff
-	connect(this->trackController, SIGNAL(WeightChanged(IndexT)), this, SLOT(OnWeightChanged(IndexT)));
-    connect(this->trackController, SIGNAL(ClipRemoved(IndexT)), this, SLOT(OnRemoveClip()));
+	// connect handler for joint tree
+	connect(this->ui->jointTree, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)), this, SLOT(OnJointRowClicked(QTreeWidgetItem*, int)));
+	connect(this->ui->jointTree, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(OnJointRowItemContextMenu(const QPoint&)));
+	this->ui->jointTree->header()->setResizeMode(QHeaderView::ResizeToContents);
+	this->ui->jointTree->setContextMenuPolicy(Qt::CustomContextMenu);
 
 	// connect skeleton render bool
 	connect(this->ui->renderSkeleton, SIGNAL(toggled(bool)), this, SLOT(OnRenderSkeleton(bool)));
@@ -102,8 +84,6 @@ void
 CharacterNodeHandler::Discard()
 {
 	this->model = 0;
-	delete this->trackController;
-	this->trackController = 0;
     this->currentDurations.Clear();
 	this->skinVisible.Clear();
 	this->clipsPlaying.Clear();
@@ -115,236 +95,6 @@ CharacterNodeHandler::Discard()
 
 	// make sure this object doesn't get called if the handler has been destroyed
 	__AbortSingleFireCallbacks(CharacterNodeHandler, this);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-CharacterNodeHandler::OnSkinActivated()
-{
-	// get current item
-	QListWidgetItem* currentItem = this->ui->availableSkins->currentItem();
-
-	Ptr<ShowSkin> showSkin = ShowSkin::Create();
-	showSkin->SetSkin(currentItem->text().toUtf8().constData());
-	this->model->HandleMessage(showSkin.upcast<Messaging::Message>());
-
-	// now remove item from visible skins and add it to available
-	this->ui->visibleSkins->addItem(currentItem->text());
-	this->ui->availableSkins->takeItem(this->ui->availableSkins->row(currentItem));
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-CharacterNodeHandler::OnSkinDeactivated()
-{
-	// get current item
-	QListWidgetItem* currentItem = this->ui->visibleSkins->currentItem();
-
-	Ptr<HideSkin> hideSkin = HideSkin::Create();
-	hideSkin->SetSkin(currentItem->text().toUtf8().constData());
-	this->model->HandleMessage(hideSkin.upcast<Messaging::Message>());
-
-	// now remove item from visible skins and add it to available
-	this->ui->availableSkins->addItem(currentItem->text());
-	this->ui->visibleSkins->takeItem(this->ui->visibleSkins->row(currentItem));
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-CharacterNodeHandler::OnAddClip()
-{
-	// get selected item and index
-	QListWidgetItem* item = this->ui->clipsList->selectedItems()[0];
-	this->trackController->AddClip(item->text().toUtf8().constData());
-
-    // set current duration in slot to be the actual duration
-    SizeT duration = this->durations[this->ui->clipsList->currentIndex().row()];
-    this->currentDurations[this->ui->clipsList->currentIndex().row()] = duration;
-
-    // calculate maximum and set the seek bar to show this amount of frames
-    SizeT maximum = 0;
-    IndexT i;
-    for (i = 0; i < this->currentDurations.Size(); i++)
-    {
-        maximum = Math::n_max(maximum, this->currentDurations[i]);
-    }
-    this->ui->seekBar->setMaximum(maximum / 40);
-
-    // automatically start clips
-	this->OnPlayClip();
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-CharacterNodeHandler::OnRemoveClip()
-{
-	// get selected index
-	QModelIndex index = this->ui->trackView->currentIndex();
-	this->trackController->RemoveClip(index.row());
-
-    // set duration to be 0
-    this->currentDurations[this->ui->clipsList->currentIndex().row()] = 0;
-
-    // calculate maximum and set the seek bar to show this amount of frames
-    SizeT maximum = 0;
-    IndexT i;
-    for (i = 0; i < this->currentDurations.Size(); i++)
-    {
-        maximum = Math::n_max(maximum, this->currentDurations[i]);
-    }
-    this->ui->seekBar->setMaximum(maximum / 40);
-
-    // automatically start clips
-	this->OnPlayClip();
-}
-
-//------------------------------------------------------------------------------
-/**
-	Plays clip from track controller, if we have conflicting weights on the same track, 
-	the latter clip will take over.
-*/
-void 
-CharacterNodeHandler::OnPlayClip()
-{
-	// stop all prior clips
-	Ptr<AnimStopAllTracks> stopMsg = AnimStopAllTracks::Create();
-	stopMsg->SetAllowFadeOut(false);
-	this->model->HandleMessage(stopMsg.upcast<Messaging::Message>());
-
-	// get data from controller
-	const Array<String>& clips = this->trackController->GetClips();
-	const Array<IndexT>& tracks = this->trackController->GetTracks();
-	const Array<float>& weights = this->trackController->GetWeights();
-
-	// reset seek bar
-	this->ui->seekBar->setValue(0);
-
-	// iterate through clips
-	IndexT i;
-	for (i = 0; i < clips.Size(); i++)
-	{
-		// create message
-		Ptr<AnimPlayClip> msg = AnimPlayClip::Create();
-
-		// create message
-		msg->SetClipName(clips[i]);
-		msg->SetTrackIndex(i);
-		msg->SetBlendWeight(weights[i]);
-		msg->SetLoopCount(0);
-
-		// send to model
-        this->model->HandleMessage(msg.upcast<Messaging::Message>());
-	}
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-CharacterNodeHandler::OnPauseClip()
-{
-	// create message and send to model
-	Ptr<AnimPauseAllTracks> msg = AnimPauseAllTracks::Create();
-	this->model->HandleMessage(msg.upcast<Messaging::Message>());
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-CharacterNodeHandler::OnStopClip()
-{
-	// create message and send to model
-	Ptr<AnimStopAllTracks> msg = AnimStopAllTracks::Create();
-	msg->SetAllowFadeOut(false);
-	this->model->HandleMessage(msg.upcast<Messaging::Message>());
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-CharacterNodeHandler::OnClipSeek(int time)
-{
-	Ptr<AnimSeek> msg = AnimSeek::Create();
-	msg->SetTime(time * 40);
-    this->ui->currentFrame->setValue(time);
-	this->model->HandleMessage(msg.upcast<Messaging::Message>());
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-CharacterNodeHandler::OnClipDoubleClicked(QListWidgetItem* item)
-{
-	// simply call add clip
-	this->OnAddClip();
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-CharacterNodeHandler::OnWeightChanged(int index)
-{
-	// get weight and track
-	float weight = this->trackController->GetWeights()[index];
-
-	// create message
-	Ptr<AnimModifyBlendWeight> msg = AnimModifyBlendWeight::Create();
-	msg->SetBlendWeight(weight);
-	msg->SetTrackIndex(index);
-	this->model->HandleMessage(msg.upcast<Messaging::Message>());
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-CharacterNodeHandler::OnShowSkin()
-{
-	if (this->ui->availableSkins->currentItem() != NULL)
-	{
-		this->OnSkinActivated();
-	}	
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-CharacterNodeHandler::OnHideSkin()
-{
-	if (this->ui->visibleSkins->currentItem() != NULL)
-	{
-		this->OnSkinDeactivated();
-	}	
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-CharacterNodeHandler::ReshowSkins()
-{
-	SizeT numSkins = this->ui->visibleSkins->count();
-	IndexT skinIndex;
-	for (skinIndex = 0; skinIndex < numSkins; skinIndex++)
-	{
-		Ptr<ShowSkin> showSkin = ShowSkin::Create();
-		QListWidgetItem* item = this->ui->visibleSkins->item(skinIndex);
-		showSkin->SetSkin(item->text().toUtf8().constData());
-		this->model->HandleMessage(showSkin.upcast<Messaging::Message>());
-	}
 }
 
 //------------------------------------------------------------------------------
@@ -380,6 +130,7 @@ CharacterNodeHandler::OnFetchedSkinList(const Ptr<Messaging::Message>& msg)
 	{
 		this->joints[i] = skeleton.GetJoint(i);
 	}
+	this->SetupJointHierarchy();
 
 	// get masks from character
 	SizeT numMasks = this->model->GetCharacter()->Skeleton().GetNumMasks();
@@ -396,27 +147,6 @@ CharacterNodeHandler::OnFetchedSkinList(const Ptr<Messaging::Message>& msg)
 
 		// add to UI
 		this->ui->maskBox->addItem(toolkitMask.name.AsCharPtr());
-	}
-
-	// hide UI showing skins
-	this->ui->skinsFrame->setVisible(false);
-
-	if (this->skins.Size() > 0)
-	{
-		// first add the first skin to our list of visible skins
-		this->ui->visibleSkins->addItem(skins[0].AsString().AsCharPtr());
-
-		// go through skins and add to available list
-		IndexT i;
-		for (i = 1; i < skins.Size(); i++)
-		{
-			this->ui->availableSkins->addItem(this->skins[i].AsString().AsCharPtr());
-
-			// show all skins
-			Ptr<ShowSkin> showMsg = ShowSkin::Create();
-			showMsg->SetSkin(skins[i]);
-			__Send(this->model, showMsg);
-		}		
 	}
 }
 
@@ -443,13 +173,6 @@ CharacterNodeHandler::OnFetchedClipList(const Ptr<Messaging::Message>& msg)
     // resize current clip array
     this->currentDurations.Resize(this->clips.Size());
     this->currentDurations.Fill(0);
-
-	// go through clips and add them
-	IndexT i;
-	for (i = 0; i < this->clips.Size(); i++)
-	{
-		this->ui->clipsList->addItem(this->clips[i].AsString().AsCharPtr());
-	}
 }
 
 //------------------------------------------------------------------------------
@@ -515,9 +238,11 @@ CharacterNodeHandler::OnMaskSelected(int selected)
 	// if we remove items, we will automatically select the next one
 	if (!this->masks.IsEmpty())
 	{
+		this->selectedMask = selected;
 		this->currentMask = &this->masks[selected];
 		this->ui->maskName->setText(this->currentMask->name.AsCharPtr());
 		this->ui->maskName->setEnabled(true);
+		this->SetupJointWeights();
 	}	
 	else
 	{
@@ -644,72 +369,38 @@ CharacterNodeHandler::OnFrame()
 		}
 		ImGui::TreePop();
 	}
-	if (ImGui::TreeNode("Masks"))
+	if (this->ui->displayJoints->isChecked())
 	{
-		//int selected = -1;
-		ImGui::RadioButton("None", &this->selectedMask, -1);
-		IndexT i;
-		for (i = 0; i < this->characterJointMasks.Size(); i++)
-		{
-			ImGui::RadioButton(this->characterJointMasks[i]->GetName().Value(), &this->selectedMask, i);
-		}
+		// a bit lazy but whatever
+		const Ptr<CameraEntity>& cam = GraphicsServer::Instance()->GetDefaultView()->GetCameraEntity();
+		const ImGuiIO& io = ImGui::GetIO();
 
-		if (ImGui::IsMouseClicked(0) && !ImGui::IsAnyItemHovered()) selectedJoint = -1;
-		if (this->selectedMask >= 0)
+		IndexT j;
+		for (j = 0; j < this->joints.Size(); j++)
 		{
-			// a bit lazy but whatever
-			const Ptr<CameraEntity>& cam = GraphicsServer::Instance()->GetDefaultView()->GetCameraEntity();
-			const ImGuiIO& io = ImGui::GetIO();
-
-			IndexT j;
-			for (j = 0; j < this->joints.Size(); j++)
+			ImVec4 color;
+			if (this->currentMask)
 			{
-				const Characters::CharacterJoint& joint = this->joints[j];
-				Math::point pos = joint.GetPoseMatrix().get_position();
-				Math::float2 screenPos = cam->CalculateScreenSpacePosition(pos);
-				Util::StringAtom name = joint.GetName();
-
-				float mask = this->characterJointMasks[this->selectedMask]->GetWeight(j);
-				if (j == selectedJoint)
-				{
-					ImGui::Begin(name.Value(), NULL, ImVec2(), 0.1f, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_ShowBorders | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse);										
-					ImGui::SetWindowPos(ImVec2(screenPos.x() * io.DisplaySize.x - ImGui::GetWindowSize().x / 2, screenPos.y() * io.DisplaySize.y - ImGui::GetWindowSize().y / 2));
-					ImGui::PushItemWidth(100);
-					ImGui::SliderFloat("Mask", &mask, 0, 1);
-					ImGui::PopItemWidth();
-					ImGui::End();
-					if (mask != this->characterJointMasks[this->selectedMask]->GetWeight(j))
-					{
-						// set mask in character and in resource in parallel...
-						this->characterJointMasks[this->selectedMask]->SetWeight(j, mask);
-						this->masks[this->selectedMask].weights[j] = mask;
-
-						// mark model as changed
-						this->itemHandler->GetAttributes()->SetJointMasks(this->masks);
-						this->itemHandler->OnModelModified();
-					}
-				}
-				else
-				{
-					ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-					ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0,0));
-					ImGui::SetNextWindowSize(ImVec2(100, 20));
-					ImGui::Begin(name.Value(), NULL, ImVec2(), 0.0f, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
-					ImGui::SetWindowPos(ImVec2(screenPos.x() * io.DisplaySize.x - ImGui::GetWindowSize().x / 2, screenPos.y() * io.DisplaySize.y - ImGui::GetWindowSize().y / 2));
-					if (ImGui::Button(name.Value(), ImVec2(100, 20))) this->selectedJoint = j;
-					ImGui::SetWindowSize(ImGui::GetItemRectSize());
-					ImGui::End();
-					ImGui::PopStyleVar(2);
-				}
+				float weight = this->currentMask->weights[j];
+				color = ImVec4(Math::n_lerp(color.x, 1.0f, 1-weight), Math::n_lerp(color.y, 1.0f, weight), color.z, 1.0f);
 			}
+			const Characters::CharacterJoint& joint = this->joints[j];
+			Math::point pos = joint.GetPoseMatrix().get_position();
+			Math::float2 screenPos = cam->CalculateScreenSpacePosition(pos);
+			Util::StringAtom name = joint.GetName();
+
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+			ImGui::SetNextWindowSize(ImVec2(100, 20));
+			ImGui::Begin(name.Value(), NULL, ImVec2(), 0.0f, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
+			ImGui::SetWindowPos(ImVec2(screenPos.x() * io.DisplaySize.x - ImGui::GetWindowSize().x / 2, screenPos.y() * io.DisplaySize.y - ImGui::GetWindowSize().y / 2));
+			ImGui::TextColored(color, joint.GetName().Value());
+			ImGui::SetWindowSize(ImGui::GetItemRectSize());
+			ImGui::End();
+			ImGui::PopStyleVar(2);
 		}
-		else
-		{
-			// new mask, selected the 0 joint
-			selectedJoint = -1;
-		}
-		ImGui::TreePop();
 	}
+
 	int frame = this->currentFrame;
 	ImGui::SliderInt("Seek", &frame, 0, this->numFrames);
 	if (frame != this->currentFrame)
@@ -746,6 +437,226 @@ CharacterNodeHandler::OnFrame()
 		this->currentFrame = 0;
 	}
 	ImGui::End();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+CharacterNodeHandler::OnJointRowClicked(QTreeWidgetItem* item, int column)
+{
+	QObject* obj = this->sender();
+	if (column == 1 && this->currentMask != 0)
+	{
+		Characters::CharacterJoint* joint = (Characters::CharacterJoint*)item->data(column, Qt::ItemDataRole::UserRole).constData();
+		const int index = item->data(0, Qt::ItemDataRole::UserRole).toInt();
+
+		QDialog dialog;
+		dialog.setModal(true);
+		dialog.setWindowFlags(Qt::FramelessWindowHint);
+
+		QVBoxLayout layout;
+		dialog.setLayout(&layout);
+		layout.setContentsMargins(QMargins(0, 0, 0, 0));
+
+		QDoubleSpinBox box;
+		box.setRange(0, 1);
+		box.setSingleStep(0.01);
+		layout.addWidget(&box);
+		box.setValue(this->currentMask->weights[index]);
+
+		//QShortcut shortcut(&dialog);
+		//shortcut.setKey(Qt::Key_Enter);
+		//connect(&shortcut, SIGNAL(activated()), &dialog, SLOT(accept()));
+
+		connect(&box, SIGNAL(editingFinished()), &dialog, SLOT(accept()));
+		QSize size = item->sizeHint(column);
+		bool expanded = item->isExpanded();
+		QWidget* widget = this->ui->jointTree->itemWidget(item, column);
+		this->ui->jointTree->setItemWidget(item, column, &dialog);
+
+		int result = dialog.exec();
+		if (result == QDialog::Accepted)
+		{
+			// only update if it has changed
+			if (this->currentMask->weights[index] != box.value())
+			{
+				// mark model as changed
+				this->masks[this->selectedMask].weights[index] = box.value();
+				this->characterJointMasks[this->selectedMask]->SetWeight(index, box.value());
+				this->itemHandler->GetAttributes()->SetJointMasks(this->masks);
+				this->itemHandler->OnModelModified();
+			}
+
+			// reset item state
+			this->ui->jointTree->setItemWidget(item, column, widget);
+			item->setText(1, QString::number(box.value()));
+			item->setSizeHint(column, size);
+			item->setExpanded(expanded);
+		}
+	}
+	else
+	{
+		item->setExpanded(!item->isExpanded());
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+CharacterNodeHandler::OnJointRowItemContextMenu(const QPoint& point)
+{
+	if (this->currentMask == 0) return;
+
+	QMenu menu;
+	QAction* action1 = menu.addAction("Flood up");
+	QAction* action2 = menu.addAction("Flood down");
+	QTreeWidgetItem* item = this->ui->jointTree->itemAt(point);
+
+	QPoint globalPos = this->ui->jointTree->mapToGlobal(point);
+	QAction* selectedAction = menu.exec(globalPos);
+	if (selectedAction != 0)
+	{
+		QDialog dialog;
+		dialog.setWindowModality(Qt::WindowModal);
+		dialog.setWindowFlags(Qt::FramelessWindowHint);
+
+		QVBoxLayout layout;
+		dialog.setLayout(&layout);
+		layout.setContentsMargins(QMargins(0, 0, 0, 0));
+
+		QFrame frame;
+		layout.addWidget(&frame);
+		frame.setFrameShadow(QFrame::Plain);
+		frame.setFrameShape(QFrame::Box);
+		
+		QVBoxLayout frameLayout;
+		frame.setLayout(&frameLayout);
+		frame.setContentsMargins(QMargins(1, 1, 1, 1));
+
+		QDoubleSpinBox box;
+		box.setRange(0, 1);
+		box.setSingleStep(0.1);
+		frameLayout.addWidget(&box);
+		box.setValue(0.0f);
+		connect(&box, SIGNAL(editingFinished()), &dialog, SLOT(accept()));
+		dialog.move(globalPos);
+
+		int result = dialog.exec();
+		if (result == QDialog::Accepted)
+		{
+			if (selectedAction == action1)
+			{	
+				// update joint mask upwards
+				this->RecurseFloodJointMaskUp(item, box.value());
+
+				// we have changes, so update the state
+				this->itemHandler->GetAttributes()->SetJointMasks(this->masks);
+				this->itemHandler->OnModelModified();
+			}
+			else if (selectedAction == action2)
+			{
+				// update joint mask downwards
+				this->RecurseFloodJointMaskDown(item, box.value());
+
+				// we have changes, so update the state
+				this->itemHandler->GetAttributes()->SetJointMasks(this->masks);
+				this->itemHandler->OnModelModified();
+			}
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+CharacterNodeHandler::SetupJointHierarchy()
+{
+	this->ui->jointTree->clear();
+	this->jointIndexToItemMap.Clear();
+	IndexT i;
+	for (i = 0; i < this->joints.Size(); i++)
+	{
+		const Characters::CharacterJoint& joint = this->joints[i];
+		QTreeWidgetItem* newItem = new QTreeWidgetItem;
+		newItem->setData(1, Qt::ItemDataRole::UserRole, &joint);
+		newItem->setData(0, Qt::ItemDataRole::UserRole, i);
+		newItem->setText(0, joint.GetName().Value());
+		newItem->setText(1, "N/A");
+		if (this->jointIndexToItemMap.Contains(joint.GetParentJointIndex()))
+		{
+			QTreeWidgetItem* item = this->jointIndexToItemMap[joint.GetParentJointIndex()];
+			item->addChild(newItem);
+		}
+		else
+		{
+			this->ui->jointTree->addTopLevelItem(newItem);
+		}
+		this->jointIndexToItemMap.Add(i, newItem);
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+CharacterNodeHandler::SetupJointWeights()
+{
+	IndexT i;
+	for (i = 0; i < this->joints.Size(); i++)
+	{
+		const Characters::CharacterJoint& joint = this->joints[i];
+		float weight = this->currentMask->weights[i];
+		QTreeWidgetItem* item = this->jointIndexToItemMap[i];
+		item->setText(1, QString::number(weight));
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+CharacterNodeHandler::RecurseFloodJointMaskDown(QTreeWidgetItem* item, float value)
+{
+	// get joint and index
+	Characters::CharacterJoint* joint = (Characters::CharacterJoint*)item->data(1, Qt::ItemDataRole::UserRole).constData();
+	const int index = item->data(0, Qt::ItemDataRole::UserRole).toInt();
+
+	// update UI and mask
+	item->setText(1, QString::number(value));
+	this->masks[this->selectedMask].weights[index] = value;
+	this->characterJointMasks[this->selectedMask]->SetWeight(index, value);
+
+	// recurse to children
+	int numchildren = item->childCount();
+	for (int i = 0; i < numchildren; i++)
+	{
+		this->RecurseFloodJointMaskDown(item->child(i), value);
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+CharacterNodeHandler::RecurseFloodJointMaskUp(QTreeWidgetItem* item, float value)
+{
+	while (item->parent() != 0)
+	{
+		// get joint and index
+		Characters::CharacterJoint* joint = (Characters::CharacterJoint*)item->data(1, Qt::ItemDataRole::UserRole).constData();
+		const int index = item->data(0, Qt::ItemDataRole::UserRole).toInt();
+
+		// update UI and mask
+		item->setText(1, QString::number(value));
+		this->masks[this->selectedMask].weights[index] = value;
+		this->characterJointMasks[this->selectedMask]->SetWeight(index, value);
+
+		// set to next parent
+		item = item->parent();
+	}
 }
 
 } // namespace Widgets

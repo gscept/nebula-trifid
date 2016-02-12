@@ -1224,14 +1224,18 @@ ContentBrowserWindow::OnModelSelected(const QString& mdl)
 void
 ContentBrowserWindow::OnSurfaceSelected(const QString& sur)
 {
+	bool b = true;
     if (this->materialHandler->IsSetup())
     {
-        this->materialHandler->Discard();
+		b = this->materialHandler->Discard();
     }
-    this->materialInfoWindow->show();
-    this->materialInfoWindow->raise();
-    this->materialInfoWindow->setEnabled(true);
-    this->materialHandler->Setup(sur);
+	if (b)
+	{ 
+		this->materialInfoWindow->show();
+		this->materialInfoWindow->raise();
+		this->materialInfoWindow->setEnabled(true);
+		this->materialHandler->Setup(sur);
+	}    
 }
 
 //------------------------------------------------------------------------------
