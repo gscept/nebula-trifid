@@ -31,7 +31,13 @@ QLuaSyntaxHighlighter::QLuaSyntaxHighlighter(QTextDocument *document) :
 {
     HighlightingRule rule;
 
-    keywordFormat.setForeground(Qt::yellow);
+	// start with identifiers, everything else that matches will override this
+	identifierFormat.setForeground(QBrush(qRgb(240, 200, 130)));
+	rule.pattern = QRegExp("\\b[A-Za-z0-9_]+");
+	rule.format = identifierFormat;
+	highlightingRules.append(rule);
+
+	keywordFormat.setForeground(QBrush(qRgb(110, 110, 230)));
     keywordFormat.setFontWeight(QFont::Bold);
     QStringList keywordPatterns;
     keywordPatterns << "\\band\\b" << "\\bbreak\\b" << "\\bdo\\b"
@@ -54,28 +60,43 @@ QLuaSyntaxHighlighter::QLuaSyntaxHighlighter(QTextDocument *document) :
         rule.format = keywordFormat;
         highlightingRules.append(rule);
     }
-    
 
-    singleLineCommentFormat.setForeground(Qt::red);
-    rule.pattern = QRegExp("--[^\n]*");
-    rule.format = singleLineCommentFormat;
-    highlightingRules.append(rule);
 
-    multiLineCommentFormat.setForeground(Qt::red);
-
-    quotationFormat.setForeground(Qt::white);
+	// string literals
+	quotationFormat.setForeground(QBrush(qRgb(255, 230, 230)));
     rule.pattern = QRegExp("\".*\"");
     rule.format = quotationFormat;
     highlightingRules.append(rule);
 
+	// numbers
+	numberFormat.setForeground(QBrush(qRgb(240, 240, 255)));
+	rule.pattern = QRegExp("[0-9]+");
+	rule.format = numberFormat;
+	highlightingRules.append(rule);
+
+	// function headers and calls
 	functionFormat.setFontWeight(QFont::Bold);
-    functionFormat.setForeground(Qt::cyan);
+	functionFormat.setForeground(QBrush(qRgb(250, 210, 10)));
     rule.pattern = QRegExp("\\b[A-Za-z0-9_]+(?=\\()");
     rule.format = functionFormat;
     highlightingRules.append(rule);
 
+	// operators
+	operatorFormat.setForeground(QBrush(qRgb(255, 255, 255)));
+	rule.pattern = QRegExp("[(){}*/+-,.\\^]");
+	rule.format = operatorFormat;
+	highlightingRules.append(rule);
+
+	// add comments last
+	singleLineCommentFormat.setForeground(QBrush(qRgb(0, 200, 0)));
+	rule.pattern = QRegExp("--[^\n]*");
+	rule.format = singleLineCommentFormat;
+	highlightingRules.append(rule);
+
+	// add these for multiline comments
+	multiLineCommentFormat.setForeground(QBrush(qRgb(0, 200, 0)));
     commentStartExpression = QRegExp("--\\[\\[");
-    commentEndExpression = QRegExp("\\]\\]--");
+    commentEndExpression = QRegExp("\\]\\]");
 }
 
 //------------------------------------------------------------------------------
@@ -100,8 +121,8 @@ void QLuaSyntaxHighlighter::highlightBlock(const QString &text)
             index = expression.indexIn(text, index + length);
         }
     }
-    setCurrentBlockState(0);
 
+    setCurrentBlockState(0);	
     int startIndex = 0;
     if (previousBlockState() != 1)
         startIndex = commentStartExpression.indexIn(text);

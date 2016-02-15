@@ -396,7 +396,7 @@ __Handler(ModelEntity, AnimModifyBlendWeight)
 //------------------------------------------------------------------------------
 /**
 */
-__Handler(ModelEntity, AnimModifyJointMask)
+__Handler(ModelEntity, AnimSetJointMask)
 {
 	// character related messages can only be handled once character has loaded
 	if (!obj->IsValid())
@@ -656,7 +656,7 @@ __Dispatcher(ModelEntity)
 	__Handle(ModelEntity, AnimTime);
     __Handle(ModelEntity, AnimIsClipPlaying);
     __Handle(ModelEntity, AnimModifyBlendWeight);
-	__Handle(ModelEntity, AnimModifyJointMask);
+	__Handle(ModelEntity, AnimSetJointMask);
     __Handle(ModelEntity, AnimModifyTimeFactor);
     __Handle(ModelEntity, ApplySkinList);
 	__Handle(ModelEntity, FetchSkinList);

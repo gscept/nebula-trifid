@@ -46,6 +46,7 @@ ImageLoaderThread::run()
 			// get unit and lock it so that we don't delete it
 			ImageLoaderUnit* unit = this->queue.Dequeue();
 			unit->Load();
+			unit->Release();
 		}
 		n_sleep(0.1);
 	}	

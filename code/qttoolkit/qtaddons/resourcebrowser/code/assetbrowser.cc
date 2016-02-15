@@ -223,6 +223,7 @@ void
 AssetBrowser::Close()
 {
 	this->Reject();
+	this->ui->assetView->Clear();
 	AssetBrowser::loaderThread->Stop();
 	delete AssetBrowser::loaderThread;
 }

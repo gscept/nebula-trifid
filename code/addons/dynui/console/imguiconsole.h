@@ -37,15 +37,17 @@ public:
 	/// add line to the log
 	void AppendToLog(const Util::String & msg);
 
+	Util::Dictionary<Util::String, Ptr<Scripting::Command>> commands;
+	Util::Array<Util::String> previousCommands;
+	int previousCommandIndex;
+
 private:
 	/// run script command
 	void Execute(const Util::String& command);
 
 	char command[65535];
 	Util::RingBuffer<Util::String> consoleBuffer;	
-	Util::Array<Util::String> previousCommands;
 	IndexT selectedSuggestion;
-	Util::Dictionary<Util::String, Ptr<Scripting::Command>> commands;
 	Ptr<Scripting::ScriptServer> scriptServer;
 	bool moveScroll;
 	bool visible;
