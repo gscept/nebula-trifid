@@ -146,6 +146,7 @@ PostEffectServer::FindCurrentSkyEntities()
                     this->skyBlendFactor = surface->GetConstant(ShaderVariable::Name(NEBULA3_SEMANTIC_SKYBLENDFACTOR));
                     this->skyBrightness = surface->GetConstant(ShaderVariable::Name(NEBULA3_SEMANTIC_BRIGHTNESS));
                     this->skyContrast = surface->GetConstant(ShaderVariable::Name(NEBULA3_SEMANTIC_CONTRAST));
+                    this->skyRotationFactor = surface->GetConstant(ShaderVariable::Name(NEBULA3_SEMANTIC_SKYROTATIONFACTOR));;
 
 					// set base texture
 					this->skyBaseTexture->SetTexture(this->FindTexture("tex:system/sky")->GetTexture());
@@ -190,8 +191,9 @@ PostEffectServer::Close()
     this->skyContrast = 0;
     this->skyBrightness = 0;
     this->skyBlendFactor = 0;
+    this->skyRotationFactor = 0;
     this->skyBlendTexture = 0;
-    this->skyBaseTexture = 0;
+    this->skyBaseTexture = 0;    
     this->globalLight = 0;
     this->skyLoaded = false;
     this->frameShader = 0;
@@ -444,6 +446,7 @@ PostEffectServer::ApplySkyParameters()
 
     this->skyBrightness->SetValue(currentPara->GetSkyBrightness());
     this->skyContrast->SetValue(currentPara->GetSkyContrast());
+    this->skyRotationFactor->SetValue(currentPara->GetSkyRotationFactor());    
     
     // if blending finished, apply blend texture as current
     if(1.0f - currentPara->GetTextureBlendFactor() <= N_TINY || targetPara == currentPara)
@@ -613,6 +616,7 @@ PostEffectServer::SetSkyEntity( const Ptr<Graphics::ModelEntity>& entity )
 		this->skyContrast = 0;
 		this->skyBrightness = 0;
 		this->skyBlendFactor = 0;
+        this->skyRotationFactor = 0;
 		this->skyBlendTexture = 0;
 		this->skyBaseTexture = 0;
 		this->skyLoaded = false;

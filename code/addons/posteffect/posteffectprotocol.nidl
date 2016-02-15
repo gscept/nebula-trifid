@@ -90,7 +90,8 @@
         <Message name="BlendSky" fourcc="sets" derivedFrom="BlendBase">
 		      <InArg name="Contrast" type="float"/>
 		      <InArg name="Brightness" type="float"/>
-		      <InArg name="Texture" type="Util::String"/>
+          <InArg name="RotationFactor" type="float"/>
+          <InArg name="Texture" type="Util::String"/>
         </Message>      
     </Protocol>
   <Library name="PostEffectCommands">

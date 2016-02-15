@@ -115,6 +115,7 @@
 #define NEBULA3_SEMANTIC_CONTRAST					"Contrast"
 #define NEBULA3_SEMANTIC_BRIGHTNESS					"Brightness"
 #define NEBULA3_SEMANTIC_SKYBLENDFACTOR				"SkyBlendFactor"
+#define NEBULA3_SEMANTIC_SKYROTATIONFACTOR          "SkyRotationFactor"
 #define NEBULA3_SEMANTIC_SKY1						"SkyLayer1"
 #define NEBULA3_SEMANTIC_SKY2						"SkyLayer2"
 #define NEBULA3_SEMANTIC_ENVIRONMENT				"EnvironmentMap"
