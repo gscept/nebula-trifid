@@ -75,26 +75,44 @@
 
     <!-- Play animation clip -->
     <Message name="PlayAnimClip" fourcc="PACL" scripted="true">
-      <InArg name="Clip" type="Util::String" serialize="true"/>      
+      <InArg name="ClipName" type="Util::String" serialize="true"/>      
       <InArg name="LoopCount" type="float" serialize="true"/>
       <InArg name="Queue" type="bool"  serialize="true"/>
       <Desc>Play animation clip</Desc>
     </Message>
 
-    <Message name="PlayAnimClipFull" fourcc="PACF" scripted="true">
-      <InArg name="ClipName" type="Util::String"/>
-      <InArg name="TrackIndex" type="int" default="0"/>
-      <InArg name="LoopCount" type="float" default="1.0f"/>
-      <InArg name="StartTime" type="int" default="0"/>
-      <InArg name="FadeInTime" type="int" default="200"/>
-      <InArg name="FadeOutTime" type="int" default="200"/>
-      <InArg name="TimeOffset" type="int" default="0"/>
-      <InArg name="TimeFactor" type="float" default="1.0f"/>
-      <InArg name="BlendWeight" type="float" default="1.0f"/>      
-      <InArg name="EnqueueMode" type="Util::String" default='"Intercept"'/>
-      <Desc>Play animation clip with all parameters, EnqueueMode can be Intercept, Append, IgnoreIfSame</Desc>
+    <!-- Play animation clip on specific track -->
+    <Message name="PlayAnimClipTrack" fourcc="PACT" scripted="true">
+      <InArg name="ClipName" type="Util::String" serialize="true"/>
+      <InArg name="TrackIndex" type="int" default="0" serialize="true"/>
+      <InArg name="BlendWeight" type="float" default="1.0f" serialize="true"/>
+      <InArg name="LoopCount" type="float" serialize="true"/>
+      <InArg name="Queue" type="bool"  serialize="true"/>
+      <Desc>Play animation clip on a given track</Desc>
     </Message>
 
+    <!-- Play animation with all parameters -->
+    <Message name="PlayAnimClipFull" fourcc="PACF" scripted="true">
+      <InArg name="ClipName" type="Util::String"  serialize="true"/>
+      <InArg name="TrackIndex" type="int" default="0" serialize="true"/>
+      <InArg name="LoopCount" type="float" default="1.0f" serialize="true"/>
+      <InArg name="StartTime" type="int" default="0" serialize="true"/>
+      <InArg name="FadeInTime" type="int" default="200" serialize="true"/>
+      <InArg name="FadeOutTime" type="int" default="200" serialize="true"/>
+      <InArg name="TimeOffset" type="int" default="0" serialize="true"/>
+      <InArg name="TimeFactor" type="float" default="1.0f" serialize="true"/>
+      <InArg name="BlendWeight" type="float" default="1.0f" serialize="true"/>
+      <InArg name="EnqueueMode" type="Util::String" default='"Intercept"' serialize="true"/>
+      <Desc>Play animation clip with all parameters, EnqueueMode can be Intercept, Append, IgnoreIfSame</Desc>
+    </Message>
+    
+    <!-- Use joint mask -->
+    <Message name="UseAnimJointMask" fourcc="UAJM" scripted="true">
+      <InArg name="MaskName" type="Util::String" serialize="true"/>
+      <InArg name="Track" type="int" default="0" serialize="true"/>
+    </Message>
+
+    <!-- Pause all animations-->
     <Message name="PauseAllAnims" fourcc="PAAN" scripted="true">
       <Desc>Toggle pause on all animation clips on entity</Desc>
     </Message>
@@ -187,20 +205,45 @@
       <InArg name="EnvironmentProbe" type="Ptr<Lighting::EnvironmentProbe>" default="0"/>
     </Message>
 
+    <!-- Add attachment using a full matrix -->
     <Message name="AddGraphicsAttachment" fourcc="ADAT" scripted="true">      
       <InArg name="Resource" type="Util::String" serialize="true"/>
-      <InArg name="Offset" type="Math::matrix44" serialize="true"/>      
+      <InArg name="Offset" type="Math::matrix44" serialize="true"/>
+      <Desc>
+        Attach one entity on another, this will mean a model will be loaded and attached on this entity.
+      </Desc>
     </Message>
+    
+    <!-- Add attachment using position, rotation vector and angle -->
+    <Message name="AddGraphicsAttachmentPosAxis" fourcc="AGPA" scripted="true">
+      <InArg name="Resource" type="Util::String" serialize="true"/>
+      <InArg name="Position" type="Math::float4" serialize="true"/>
+      <InArg name="Axis" type="Math::float4" serialize="true"/>
+      <InArg name="Angle" type="float" serialize="true"/>
+    </Message>
+
+    <!-- Add attachment on a joint -->
     <Message name="AddGraphicsAttachmentOnJoint" fourcc="ADJT" derivedFrom="AddGraphicsAttachment" scripted="true">
       <InArg name="Joint" type="Util::String" serialize="true"/>
       <InArg name="Rotation" type="int" serialize="true"/>
+      <Desc>
+        Attach one entity on another, this will mean a model will be loaded and attached on this joint, and will follow along through animations.
+      </Desc>
     </Message>
 
-    <Message name="ClearAttachmentsOnEntity" fourcc="CLAT" scripted="true">      
+    <!-- Clear attachments on entity -->
+    <Message name="ClearAttachmentsOnEntity" fourcc="CLAT" scripted="true">
+      <Desc>
+        Clear all if any attachments currently active on this entity.
+      </Desc>
     </Message>
-    
+
+    <!-- Clear attachments on joint -->
     <Message name="ClearAttachmentsOnJoint" fourcc="CLJT" scripted="true">      
       <InArg name="Joint" type="Util::String" serialize="true"/>
+      <Desc>
+        Clear all if any attachments currently active on a given joint.
+      </Desc>
     </Message>
 
     <Message name="MouseEnter" fourcc="ONME"/>

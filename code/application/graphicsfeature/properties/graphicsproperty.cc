@@ -142,6 +142,9 @@ GraphicsProperty::SetupAcceptedMessages()
     this->RegisterMessage(GraphicsFeature::SetShaderVariable::Id);
 	this->RegisterMessage(GraphicsFeature::SetMaterialVariable::Id);
 	this->RegisterMessage(GraphicsFeature::PlayAnimClip::Id);
+	this->RegisterMessage(GraphicsFeature::PlayAnimClipTrack::Id);
+	this->RegisterMessage(GraphicsFeature::PlayAnimClipFull::Id);
+	this->RegisterMessage(GraphicsFeature::UseAnimJointMask::Id);
 	this->RegisterMessage(GraphicsFeature::PauseAllAnims::Id);
     this->RegisterMessage(GraphicsFeature::CreateGraphicsEffectUpVec::Id);
 	this->RegisterMessage(GraphicsFeature::UpdateProbeInfluence::Id);
@@ -206,13 +209,13 @@ GraphicsProperty::HandleMessage(const Ptr<Messaging::Message>& msg)
 		{
 			Ptr<Graphics::ShowSkin> showSkin = Graphics::ShowSkin::Create();
 			showSkin->SetSkin(pmsg->GetSkin());
-			this->modelEntity->HandleMessage(showSkin.upcast<Messaging::Message>());
+			__Send(this->modelEntity, showSkin);
 		}
 		else
 		{
 			Ptr<Graphics::HideSkin> showSkin = Graphics::HideSkin::Create();
 			showSkin->SetSkin(pmsg->GetSkin());
-			this->modelEntity->HandleMessage(showSkin.upcast<Messaging::Message>());
+			__Send(this->modelEntity, showSkin);
 		}
 		__DistributeNetworkMessage(this->entity, msg);
 	}
@@ -221,7 +224,7 @@ GraphicsProperty::HandleMessage(const Ptr<Messaging::Message>& msg)
 		Ptr<PlayAnimClip> pmsg = msg.cast<PlayAnimClip>();
 		Ptr<Graphics::AnimPlayClip> amsg = Graphics::AnimPlayClip::Create();
 		
-		amsg->SetClipName(pmsg->GetClip());
+		amsg->SetClipName(pmsg->GetClipName());
 		amsg->SetLoopCount(pmsg->GetLoopCount());
 		if(pmsg->GetQueue())
 		{
@@ -231,7 +234,36 @@ GraphicsProperty::HandleMessage(const Ptr<Messaging::Message>& msg)
 		{
 			amsg->SetEnqueueMode(Animation::AnimJobEnqueueMode::Intercept);
 		}		
-		this->modelEntity->HandleMessage(amsg.cast<Messaging::Message>());
+		__Send(this->modelEntity, amsg);
+		__DistributeNetworkMessage(this->entity, msg);
+	}
+	else if (msg->CheckId(PlayAnimClipTrack::Id))
+	{
+		Ptr<PlayAnimClipTrack> pmsg = msg.cast<PlayAnimClipTrack>();
+		Ptr<Graphics::AnimPlayClip> amsg = Graphics::AnimPlayClip::Create();
+
+		amsg->SetClipName(pmsg->GetClipName());
+		amsg->SetLoopCount(pmsg->GetLoopCount());
+		amsg->SetTrackIndex(pmsg->GetTrackIndex());
+		amsg->SetBlendWeight(pmsg->GetBlendWeight());
+		if (pmsg->GetQueue())
+		{
+			amsg->SetEnqueueMode(Animation::AnimJobEnqueueMode::Append);
+		}
+		else
+		{
+			amsg->SetEnqueueMode(Animation::AnimJobEnqueueMode::Intercept);
+		}
+		__Send(this->modelEntity, amsg);
+		__DistributeNetworkMessage(this->entity, msg);
+	}
+	else if (msg->CheckId(UseAnimJointMask::Id))
+	{
+		Ptr<UseAnimJointMask> pmsg = msg.cast<UseAnimJointMask>();
+		Ptr<AnimSetJointMask> amsg = AnimSetJointMask::Create();
+		amsg->SetJointMask(pmsg->GetMaskName());
+		amsg->SetTrackIndex(pmsg->GetTrack());
+		__Send(this->modelEntity, amsg);
 		__DistributeNetworkMessage(this->entity, msg);
 	}
 	else if (msg->CheckId(PlayAnimClipFull::Id))
@@ -260,12 +292,12 @@ GraphicsProperty::HandleMessage(const Ptr<Messaging::Message>& msg)
 		{
 			amsg->SetEnqueueMode(Animation::AnimJobEnqueueMode::IgnoreIfSameClipActive);
 		}
-		this->modelEntity->HandleMessage(amsg.cast<Messaging::Message>());
+		__Send(this->modelEntity, amsg);
 	}
 	else if (msg->CheckId(PauseAllAnims::Id))
 	{	
 		Ptr<Graphics::AnimPauseAllTracks> amsg = Graphics::AnimPauseAllTracks::Create();		
-		this->modelEntity->HandleMessage(amsg.cast<Messaging::Message>());
+		__Send(this->modelEntity, amsg);
 	}
 	else if (msg->CheckId(UpdateProbeInfluence::Id))
 	{
@@ -286,6 +318,14 @@ GraphicsProperty::HandleMessage(const Ptr<Messaging::Message>& msg)
 	{
 		Ptr<AddGraphicsAttachment> amsg = msg.cast<AddGraphicsAttachment>();
 		GraphicsFeature::AttachmentUtil::AddAttachment(this->entity, amsg->GetResource(), amsg->GetOffset());
+		__DistributeNetworkMessage(this->entity, msg);
+	}
+	else if (msg->CheckId(AddGraphicsAttachmentPosAxis::Id))
+	{
+		Ptr<AddGraphicsAttachmentPosAxis> amsg = msg.cast<AddGraphicsAttachmentPosAxis>();
+		Math::matrix44 offset = Math::matrix44::rotationaxis(amsg->GetAxis(), amsg->GetAngle());
+		offset.set_position(amsg->GetPosition());
+		GraphicsFeature::AttachmentUtil::AddAttachment(this->entity, amsg->GetResource(), offset);
 		__DistributeNetworkMessage(this->entity, msg);
 	}
 	else if (msg->CheckId(AddGraphicsAttachmentOnJoint::Id))

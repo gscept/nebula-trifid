@@ -527,7 +527,7 @@
         </Message>
       
         <!-- modify joint mask of animations used on a given track -->
-        <Message name="AnimModifyJointMask" fourcc="AMJM" derivedFrom="GraphicsEntityMessage">
+        <Message name="AnimSetJointMask" fourcc="AMJM" derivedFrom="GraphicsEntityMessage">
             <InArg name="TrackIndex"  type="IndexT" default="0" serialize="true"/>
             <InArg name="JointMask" type="Util::StringAtom" serialize="true"/>
         </Message>
