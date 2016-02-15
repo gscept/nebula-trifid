@@ -335,7 +335,7 @@ CharacterNodeHandler::OnFrame()
 
 					if (item != this->clipsMask[i])
 					{
-						Ptr<AnimModifyJointMask> msg = AnimModifyJointMask::Create();
+						Ptr<AnimSetJointMask> msg = AnimSetJointMask::Create();
 						msg->SetJointMask(names[item]);
 						msg->SetTrackIndex(i);
 						__Send(this->model, msg);
