@@ -387,8 +387,7 @@ ENDIF()
       ELSEIF(N_BUILD_OGL4)
 	  set(Render_files_coregraphics_displaydevice__impl
 			coregraphics/glfw/glfwdisplaydevice.cc
-			coregraphics/glfw/glfwdisplaydevice.h)
-			
+			coregraphics/glfw/glfwdisplaydevice.h)			
       set(Render_files_coregraphics__ogl4
 		${Render_files_coregraphics_displaydevice__impl}
 		coregraphics/ogl4/ogl4bufferlock.cc
@@ -464,6 +463,85 @@ ENDIF()
 
       set(Render_coregraphics__imp
         ${Render_files_coregraphics__ogl4}
+      )
+	  ELSEIF(N_BUILD_VULKAN)
+	  set(Render_files_coregraphics_displaydevice__impl
+			coregraphics/vk/vkdisplaydevice.cc
+			coregraphics/vk/vkdisplaydevice.h)
+	  set(Render_files_coregraphics__vk
+		${Render_files_coregraphics_displaydevice__impl}
+		coregraphics/vk/vkfence.cc
+		coregraphics/vk/vkfence.h
+		coregraphics/vk/vkdepthstenciltarget.cc
+		coregraphics/vk/vkdepthstenciltarget.h
+		coregraphics/vk/vkfeedbackbuffer.cc
+		coregraphics/vk/vkfeedbackbuffer.h
+        coregraphics/vk/vkindexbuffer.cc
+        coregraphics/vk/vkindexbuffer.h
+        coregraphics/vk/vkmemoryindexbufferloader.cc
+        coregraphics/vk/vkmemoryindexbufferloader.h
+        coregraphics/vk/vkmemoryvertexbufferloader.cc
+        coregraphics/vk/vkmemoryvertexbufferloader.h
+    	coregraphics/vk/vkmemorytextureloader.cc
+		coregraphics/vk/vkmemorytextureloader.h
+		coregraphics/vk/vkmultiplerendertarget.cc
+        coregraphics/vk/vkmultiplerendertarget.h
+        coregraphics/vk/vkrenderdevice.cc
+        coregraphics/vk/vkrenderdevice.h
+		coregraphics/vk/vkrendertargetcube.cc
+        coregraphics/vk/vkrendertargetcube.h
+        coregraphics/vk/vkrendertarget.cc
+        coregraphics/vk/vkrendertarget.h
+        coregraphics/vk/vkshader.cc
+        coregraphics/vk/vkshader.h
+		coregraphics/vk/vkshaderstoragebuffer.cc
+		coregraphics/vk/vkshaderstoragebuffer.h
+		coregraphics/vk/vkshaderimage.cc
+        coregraphics/vk/vkshaderimage.h
+        coregraphics/vk/vkshaderinstance.cc
+        coregraphics/vk/vkshaderinstance.h
+        coregraphics/vk/vkshaderserver.cc
+        coregraphics/vk/vkshaderserver.h
+        coregraphics/vk/vkshadervariable.cc
+        coregraphics/vk/vkshadervariable.h
+		coregraphics/vk/vkshadervariableinstance.cc
+        coregraphics/vk/vkshadervariableinstance.h
+        coregraphics/vk/vkshaderprogram.cc
+        coregraphics/vk/vkshaderprogram.h
+        coregraphics/vk/vkshaperenderer.cc
+        coregraphics/vk/vkshaperenderer.h
+        coregraphics/vk/vkstreammeshloader.cc
+        coregraphics/vk/vkstreammeshloader.h
+        coregraphics/vk/vkstreamshaderloader.cc
+        coregraphics/vk/vkstreamshaderloader.h
+        coregraphics/vk/vkstreamtextureloader.cc
+        coregraphics/vk/vkstreamtextureloader.h
+        coregraphics/vk/vkstreamtexturesaver.cc
+        coregraphics/vk/vkstreamtexturesaver.h
+        coregraphics/vk/vktextrenderer.cc
+        coregraphics/vk/vktextrenderer.h
+        coregraphics/vk/vktexture.cc
+        coregraphics/vk/vktexture.h
+        coregraphics/vk/vktransformdevice.cc
+        coregraphics/vk/vktransformdevice.h
+        coregraphics/vk/vktypes.cc
+        coregraphics/vk/vktypes.h
+		coregraphics/vk/vkuniformbuffer.h
+		coregraphics/vk/vkuniformbuffer.cc
+        coregraphics/vk/vkvertexbuffer.cc
+        coregraphics/vk/vkvertexbuffer.h
+        coregraphics/vk/vkvertexlayoutserver.cc
+        coregraphics/vk/vkvertexlayoutserver.h
+        coregraphics/vk/vkvertexlayout.cc
+        coregraphics/vk/vkvertexlayout.h
+        #coregraphics/ogl4/glfwdisplaydevice.cc
+        #coregraphics/ogl4/glfwdisplaydevice.h
+      )
+	  
+	  source_group("coregraphics\\vk" FILES ${Render_files_coregraphics__vk})
+
+      set(Render_coregraphics__imp
+        ${Render_files_coregraphics__vk}
       )
       ENDIF()
 
@@ -915,7 +993,7 @@ ENDIF()
 	)
 	source_group("instancing\\base" FILES ${Render_instancing__base})
 
-	if(N_BUILD_DX11)
+	IF(N_BUILD_DX11)
 	set(Render_instancing__imp
 		instancing/d3d11/d3d11instancerenderer.h
 		instancing/d3d11/d3d11instancerenderer.cc
@@ -923,7 +1001,7 @@ ENDIF()
 		instancing/d3d11/d3d11instanceserver.cc
 	)
 	source_group("instancing\\d3d11" FILES ${Render_instancing__imp})
-	elseif(N_BUILD_OGL4)
+	ELSEIF(N_BUILD_OGL4)
 	set(Render_instancing__imp
 		instancing/ogl4/ogl4instancerenderer.h
 		instancing/ogl4/ogl4instancerenderer.cc
@@ -931,7 +1009,15 @@ ENDIF()
 		instancing/ogl4/ogl4instanceserver.cc
 	)
 	source_group("instancing\\ogl4" FILES ${Render_instancing__imp})
-	endif()
+	ELSEIF(N_BUILD_VULKAN)
+	set(Render_instancing__imp
+		instancing/vk/vkinstancerenderer.h
+		instancing/vk/vkinstancerenderer.cc
+		instancing/vk/vkinstanceserver.h
+		instancing/vk/vkinstanceserver.cc
+	)
+	source_group("instancing\\vk" FILES ${Render_instancing__imp})
+	ENDIF()
 
 	set(Render_instancing
 		${Render_instancing__base}
@@ -1127,6 +1213,18 @@ ENDIF()
       set(Render_particles__imp
         ${Render_files_particles__ogl4}
       )
+	  ELSEIF(N_BUILD_VULKAN)
+	  set(Render_files_particles__vk
+        particles/vk/vkparticlerenderer.cc
+        particles/vk/vkparticlerenderer.h
+        particles/vk/vkparticlesysteminstance.cc
+        particles/vk/vkparticlesysteminstance.h
+      )
+      source_group("particles\\vk" FILES ${Render_files_particles__vk})
+
+      set(Render_particles__imp
+        ${Render_files_particles__vk}
+      )
       ENDIF()
 
     set(Render_files_particles
@@ -1246,6 +1344,20 @@ ENDIF()
 
       set(Render_resources__streaming__imp
         ${Render_files_resources__ogl4streaming}
+      )
+	  ELSEIF(N_BUILD_VULKAN)
+      set(Render_files_resources__vkstreaming
+        resources/vkstreaming/vktexturecreator.cc
+        resources/vkstreaming/vktexturecreator.h
+        resources/vkstreaming/vktextureinfo.cc
+        resources/vkstreaming/vktextureinfo.h
+        resources/vkstreaming/vktexturestreamer.cc
+        resources/vkstreaming/vktexturestreamer.h
+      )
+      source_group("resources\\vkstreaming" FILES ${Render_files_resources__vkstreaming})
+
+      set(Render_resources__streaming__imp
+        ${Render_files_resources__vkstreaming}
       )
       ENDIF()
 
