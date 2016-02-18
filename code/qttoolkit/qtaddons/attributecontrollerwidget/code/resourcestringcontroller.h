@@ -53,6 +53,8 @@ protected slots:
 	void OnBrowse();
 	/// edit button clicked
 	void OnEdit();
+	/// line edit updated
+	void OnLineEdit();
 
 private:
 	Ui::ResourceStringController* ui;
