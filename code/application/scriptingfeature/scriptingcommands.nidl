@@ -52,6 +52,18 @@
         return m;
       </Code>
     </Command>
+    <Command name="Transform" fourcc="SETT" desc="Sets an entities transform matrix">
+      <InArg name="entityid" type="uint"/>
+      <InArg name="Position" type="matrix44"/>
+      <Code>
+        <![CDATA[ 
+        Ptr<Game::Entity> ents = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(entityid);
+        Ptr<BaseGameFeature::SetTransform> msg = BaseGameFeature::SetTransform::Create();
+        msg->SetMatrix(Position);
+        __SendSync(ents,msg);
+        ]]>
+    </Code>
+    </Command>
     <Command name="createentitybytemplate" fourcc="CEBT" desc="Creates an entity by category and template">
       <InArg name="category" type="string"/>
       <InArg name="templ" type="string"/>
