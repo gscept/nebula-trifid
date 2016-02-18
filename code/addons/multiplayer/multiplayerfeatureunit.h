@@ -22,6 +22,11 @@ class MultiplayerFeatureUnit : public Game::FeatureUnit
     __DeclareInterfaceSingleton(MultiplayerFeatureUnit);   
 
 public:
+	enum ServerType
+	{
+		NATPunchFCM,
+		LAN
+	};
     /// constructor
     MultiplayerFeatureUnit();
     /// destructor
@@ -42,6 +47,9 @@ public:
 	/// called when game debug visualization is on
 	virtual void OnRenderDebug();
 
+	/// create server object
+	void Setup(ServerType mode);
+
 	/// set application port
 	void SetApplicationPort(ushort val);
 	/// get application port
@@ -58,11 +66,14 @@ public:
 	/// get local player instance
 	Ptr<MultiplayerFeature::NetworkPlayer> & GetPlayer();
 
+	/// access to server
+	Ptr<MultiplayerFeature::NetworkServer> & GetServer();
+
 	/// get our unique id
 	const Multiplayer::UniquePlayerId & GetUniqueId() const;
 
 	/// restart network
-	void RestartNetwork();
+	void RestartNetwork();	
 
 protected:
 	Ptr<MultiplayerFeature::NetworkServer> server;
@@ -125,6 +136,16 @@ Ptr<MultiplayerFeature::NetworkPlayer> &
 MultiplayerFeatureUnit::GetPlayer()
 {
 	return this->player;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline
+Ptr<MultiplayerFeature::NetworkServer> &
+MultiplayerFeatureUnit::GetServer()
+{
+	return this->server;
 }
 }; // namespace Multiplayer
 //------------------------------------------------------------------------------

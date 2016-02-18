@@ -80,12 +80,7 @@ public:
 	void CancelRoom();
 	/// get master server list
 	const Ptr<Attr::AttributeTable>& GetMasterList() const;
-	/// post to master server
-	void PublishToMaster();
-	/// remove from master
-	void UnpublishFromMaster();
-	/// has game been published to master server
-	const bool IsPublished() const;
+	
 	/// start game (if host)
 	void StartGame();
 		
@@ -135,6 +130,9 @@ public:
 
 	/// whenever joining a room this is called if the game is started
 	virtual bool CanJoinInGame();
+
+	/// set the master server list
+	void ReceiveMasterList(Ptr<Attr::AttributeTable> & masterList);
 
 protected:
 	/// 
@@ -196,9 +194,6 @@ private:
 	/// handle message
 	virtual void HandleMessage(const Ptr<Messaging::Message> &msg);
 
-
-	/// set the master server list
-	void ReceiveMasterList(Ptr<Attr::AttributeTable> & masterList);	
 	/// get in game
 	void StartInGame();
 
@@ -207,15 +202,13 @@ private:
 	bool canJoin;
 	bool inLobby;	
 
-	bool updateMaster;
-	int masterServerRow;	
+	bool updateMaster;	
 	int currentPlayers;
 	int maxPlayers;
 
 
 	/// these are local
-	bool creator;
-	bool delayedMaster;
+	bool creator;	
 	RakNet::Time nextMasterServerUpdate;	
 	Util::Dictionary<uint64_t, Ptr<MultiplayerFeature::NetworkPlayer>> players;
 	Ptr<Attr::AttributeTable> serverList;
@@ -232,16 +225,6 @@ const bool
 NetworkGame::IsCreator() const
 {
 	return this->creator;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline 
-const bool
-NetworkGame::IsPublished() const
-{
-	return this->masterServerRow >= 0;
 }
 
 //------------------------------------------------------------------------------

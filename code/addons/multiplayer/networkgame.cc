@@ -36,14 +36,11 @@ namespace MultiplayerFeature
 NetworkGame::NetworkGame() :
 		gameName("DefaultGame"),
 		canJoin(true),
-		inLobby(false),
-		updateMaster(true),
-		masterServerRow(-1),
+		inLobby(false),		
 		nextMasterServerUpdate(),
 		maxPlayers(8),
 		currentPlayers(1),
-		creator(false),
-		delayedMaster(false)
+		creator(false)
 {
 	__ConstructInterfaceSingleton;
 }
@@ -96,9 +93,7 @@ NetworkGame::SerializeConstructionExisting(RakNet::BitStream *constructionBitstr
 {
 	constructionBitstream->Write(this->gameName.AsCharPtr());
 	constructionBitstream->Write(this->canJoin);
-	constructionBitstream->Write(this->inLobby);
-	constructionBitstream->Write(this->updateMaster);
-	constructionBitstream->Write(this->masterServerRow);
+	constructionBitstream->Write(this->inLobby);	
 	constructionBitstream->Write(this->maxPlayers);
 	Ptr<BitWriter> writer = BitWriter::Create();
 	writer->SetStream(constructionBitstream);
@@ -115,9 +110,7 @@ NetworkGame::DeserializeConstructionExisting(RakNet::BitStream *constructionBits
 	constructionBitstream->Read(name);
 	this->gameName = name.C_String();
 	constructionBitstream->Read(this->canJoin);
-	constructionBitstream->Read(this->inLobby);
-	constructionBitstream->Read(this->updateMaster);
-	constructionBitstream->Read(this->masterServerRow);
+	constructionBitstream->Read(this->inLobby);	
 	constructionBitstream->Read(this->maxPlayers);
 	Ptr<BitReader> reader = BitReader::Create();
 	reader->SetStream(constructionBitstream);
@@ -166,9 +159,7 @@ NetworkGame::Serialize(RakNet::SerializeParameters *serializeParameters)
 		serializeParameters->outputBitstream[0].Write(true);
 		serializeParameters->outputBitstream[0].Write(this->gameName.AsCharPtr());
 		serializeParameters->outputBitstream[0].Write(this->canJoin);
-		serializeParameters->outputBitstream[0].Write(this->inLobby);
-		serializeParameters->outputBitstream[0].Write(this->updateMaster);
-		serializeParameters->outputBitstream[0].Write(this->masterServerRow);
+		serializeParameters->outputBitstream[0].Write(this->inLobby);		
 	}
 	else
 	{
@@ -230,8 +221,6 @@ NetworkGame::Deserialize(RakNet::DeserializeParameters *deserializeParameters)
 				this->inLobby = b;
 				//FIXME tell system about being back in lobby (or game)
 			}
-			deserializeParameters->serializationBitstream[0].Read(this->updateMaster);
-			deserializeParameters->serializationBitstream[0].Read(masterServerRow);
 		}
 		Ptr<BitReader> reader = BitReader::Create();
 		reader->SetStream(&deserializeParameters->serializationBitstream[0]);
@@ -326,7 +315,7 @@ NetworkGame::QueryActionOnPopConnection(RakNet::Connection_RM3 *droppedConnectio
 void
 NetworkGame::UpdateRoomList()
 {
-	NetworkServer::Instance()->UpdateRoomList();
+	NetworkServer::Instance()->SearchForGames();
 }
 
 //------------------------------------------------------------------------------
@@ -363,93 +352,7 @@ NetworkGame::ReceiveMasterList(Ptr<Attr::AttributeTable> & masterList)
 	this->OnReceiverMasterList();
 }
 
-//------------------------------------------------------------------------------
-/**
-*/
-void
-NetworkGame::PublishToMaster()
-{
-	this->delayedMaster = false;
-	Util::String req;
-	req.Format("http://" MASTER_SERVER_ADDRESS "/testServer");
-	IO::URI serverUri = req;
-	Ptr<Http::HttpClient> client = Http::HttpClientRegistry::Instance()->ObtainConnection(serverUri);
-	
-	IO::URI requri = req;	
-	Util::String rowStr = "";
-	if (this->masterServerRow != -1)
-	{
-		rowStr.Format(",'__rowId':%d", this->masterServerRow);
-	}
-	Ptr<IO::MemoryStream> stream = IO::MemoryStream::Create();
-	stream->SetAccessMode(IO::Stream::ReadWriteAccess);
-	stream->Open();
-	// encode gamename in base64 to avoid any encoding issues
-	Util::String gamename = this->GetGameName().AsBase64();
-	// we dont want linefeeds
-	gamename.Strip("\r");	
-	req.Format("{'__gameId':'%s','__clientReqId': '0','__timeoutSec': '30','roomName':'%s','guid':'%s','currentPlayers':%d,'maxPlayers':%d %s}", 
-		this->gameID.AsCharPtr(), gamename.AsCharPtr(), NetworkServer::Instance()->GetRakPeerInterface()->GetMyGUID().ToString(),
-		this->GetCurrentAmountOfPlayers(), this->maxPlayers, rowStr.AsCharPtr());
-	n_printf("%s\n", req.AsCharPtr());
-	Http::HttpStatus::Code res = client->SendRequest(Http::HttpMethod::Post, requri, req, stream.cast<IO::Stream>());
-	n_printf("Publish: %s\n", Http::HttpStatus::ToHumanReadableString(res).AsCharPtr());
-	if(res == Http::HttpStatus::OK)
-	{	
-		Util::String buf;
-		buf.Set((const char*)stream->GetRawPointer(), stream->GetSize());
-		json_error_t error;
-		json_t * root = json_loads(buf.AsCharPtr(), JSON_REJECT_DUPLICATES, &error);
-		if (NULL == root)
-		{
-			n_warning("error parsing json from master server\n");	
-			Http::HttpClientRegistry::Instance()->ReleaseConnection(serverUri);
-			return;
-		}
 
-		void *iter = json_object_iter(root);
-		if (iter)
-		{
-			Util::String firstKey = json_object_iter_key(iter);
-
-			if (firstKey == "POST")
-			{
-				json_t* object = json_object_iter_value(iter);			
-				json_t* val = json_object_get(object, "__rowId");
-				n_assert(val->type == JSON_INTEGER);
-				this->masterServerRow = (int)json_integer_value(val);
-			}
-		}
-	}
-	else if (res == Http::HttpStatus::ServiceUnavailable)
-	{
-		// sometimes master server times out, try again later
-		this->delayedMaster = true;
-	}
-	Http::HttpClientRegistry::Instance()->ReleaseConnection(serverUri);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-NetworkGame::UnpublishFromMaster()
-{
-	Util::String req;
-	req.Format("http://" MASTER_SERVER_ADDRESS "/testServer");
-	IO::URI serverUri = req;
-	Ptr<Http::HttpClient> client = Http::HttpClientRegistry::Instance()->ObtainConnection(serverUri);	
-	IO::URI requri = req;
-	req.Format("testServer?__gameId=%s&__rowId=%d", this->gameID.AsCharPtr(),this->masterServerRow);
-	requri.SetLocalPath(req);
-	Ptr<IO::MemoryStream> stream = IO::MemoryStream::Create();
-	stream->SetAccessMode(IO::Stream::ReadWriteAccess);
-	stream->Open();	
-	Http::HttpStatus::Code res = client->SendRequest(Http::HttpMethod::Delete, requri, stream.cast<IO::Stream>());
-	n_printf("Unpublish: %s\n", Http::HttpStatus::ToHumanReadableString(res).AsCharPtr());
-	Http::HttpClientRegistry::Instance()->ReleaseConnection(serverUri);
-	this->masterServerRow = -1;
-}
 
 //------------------------------------------------------------------------------
 /**
@@ -467,8 +370,7 @@ void
 NetworkGame::CreateRoom()
 {
 	this->creator = true;
-	NetworkServer::Instance()->CreateRoom();
-	PublishToMaster();	
+	NetworkServer::Instance()->CreateRoom();	
 	__SetSyncEventCallback(MultiplayerFeature::NetworkGame, OnReadyChanged, this, "_READY");
 	__SetSyncEventAllCallback(MultiplayerFeature::NetworkGame, OnAllReady, this, "_READY");
 	SyncPoint::AddToTracking("_READY", MultiplayerFeature::MultiplayerFeatureUnit::Instance()->GetPlayer()->GetUniqueId());
@@ -484,7 +386,7 @@ NetworkGame::JoinRoom(const Util::String & guid)
 	this->creator = false;
 	RakNet::RakNetGUID rguid;
 	rguid.FromString(guid.AsCharPtr());
-	NetworkServer::Instance()->NatConnect(rguid);
+	NetworkServer::Instance()->Connect(rguid);
 }
 
 //------------------------------------------------------------------------------
@@ -493,10 +395,6 @@ NetworkGame::JoinRoom(const Util::String & guid)
 void
 NetworkGame::CancelRoom()
 {
-	if (this->IsPublished())
-	{
-		this->UnpublishFromMaster();
-	}
 	this->queuedMessages.Clear();
 	this->currentMessages.Clear();
 	for (int i = 0 ; i<this->players.Size();i++)
@@ -630,18 +528,18 @@ NetworkGame::GetPlayerByIndex(IndexT idx)
 void
 NetworkGame::OnFrame()
 {
-	if (this->GetMasterServerUpdate())
-	{
-		if (NetworkServer::Instance()->IsHost() && (this->IsPublished() || this->delayedMaster))
-		{
-			RakNet::Time interval = this->delayedMaster ? 5000 : 20000;
-			if ((RakNet::GetTimeMS() - this->nextMasterServerUpdate) > interval)
-			{
-				this->PublishToMaster();
-				this->nextMasterServerUpdate = RakNet::GetTimeMS();
-			}
-		}
-	}
+// 	if (this->GetMasterServerUpdate())
+// 	{
+// 		if (NetworkServer::Instance()->IsHost() && (this->IsPublished() || this->delayedMaster))
+// 		{
+// 			RakNet::Time interval = this->delayedMaster ? 5000 : 20000;
+// 			if ((RakNet::GetTimeMS() - this->nextMasterServerUpdate) > interval)
+// 			{
+// 				this->PublishToMaster();
+// 				this->nextMasterServerUpdate = RakNet::GetTimeMS();
+// 			}
+// 		}
+// 	}
 }
 
 }

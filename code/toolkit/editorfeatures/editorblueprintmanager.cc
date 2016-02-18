@@ -902,12 +902,13 @@ EditorBlueprintManager::CreateCategoryTables( const Ptr<Db::Database> & staticDb
 
         // create instance tables and populate columns
         Ptr<Table> instanceTable = this->CreateTable(instanceDb, "_Instance_" + category);
-        // for instance tables _ID is the primary unique key
-        this->CreateColumn(instanceTable, Column::Primary, Attr::_ID);
+        // for instance tables Guid is the primary unique key
+		this->CreateColumn(instanceTable, Column::Primary, Attr::Guid);
+        
         // add other required columns
         this->CreateColumn(instanceTable, Column::Default, Attr::_Level);
         this->CreateColumn(instanceTable, Column::Default, Attr::_Layers);
-        this->CreateColumn(instanceTable, Column::Default, Attr::Guid);
+		this->CreateColumn(instanceTable, Column::Default, Attr::_ID);
         this->CreateColumn(instanceTable, Column::Default, Attr::_LevelEntity);
         this->AddAttributeColumns(instanceTable, attrs);
         instanceDb->AddTable(instanceTable);
