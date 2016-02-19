@@ -18,9 +18,6 @@
 	path = code/extlibs/glfw
 	url = https://github.com/gscept/glfw.git
 	branch = master
-[submodule "code/extlibs/jansson"]
-	path = code/extlibs/jansson
-	url = https://github.com/akheron/jansson.git
 [submodule "code/extlibs/miniupnp"]
 	path = code/extlibs/miniupnp
 	url = https://github.com/gscept/miniupnp.git
