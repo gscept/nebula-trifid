@@ -58,6 +58,8 @@ public:
 
 	/// extracts rotation, translation and scaling
 	virtual void ExtractTransform();
+	/// extracts rotation, translation and scaling
+	virtual void ExtractTransform(const FbxMatrix& transform);
 
 	/// sets the initial rotation (overrides extracted data)
 	void SetInitialRotation(const Math::quaternion& rot);

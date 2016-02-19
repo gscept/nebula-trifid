@@ -109,13 +109,26 @@ NFbxScene::Setup( FbxScene* scene, const ExportFlags& exportFlags, const ExportM
 	int nodeCount = scene->GetSrcObjectCount<FbxNode>();
 	this->nodes.Reserve(nodeCount);
 
+
+	FbxPose * bindpose = 0;
+	int poses = scene->GetPoseCount();
+	for (int i = 0; i < poses; i++)
+	{
+		FbxPose * pose = scene->GetPose(i);
+		if (pose->IsBindPose())
+		{
+			bindpose = pose;
+			break;
+		}
+	}
+
 	// gather all joints
 	for (int jointIndex = 0; jointIndex < jointCount; jointIndex++)
 	{
 		Ptr<NFbxJointNode> jointNode = NFbxJointNode::Create();
 		jointNode->fbxScene = this->scene;
 		FbxNode* fbxJointNode = scene->GetSrcObject<FbxSkeleton>(jointIndex)->GetNode();
-		jointNode->Setup(fbxJointNode, this, jointIndex);
+		jointNode->Setup(fbxJointNode, this, jointIndex, bindpose);
 
 		this->jointNodes.Add(fbxJointNode, jointNode);
 		this->nodes.Add(fbxJointNode, jointNode.upcast<NFbxNode>());
