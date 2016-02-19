@@ -21,7 +21,6 @@
 #include "app/application.h"
 #include "http/httpclient.h"
 #include "io/memorystream.h"
-#include "jansson/src/jansson.h"
 #include "attr/attributetable.h"
 #include "multiplayerattrs.h"
 #include "basegamefeature/basegameattr/basegameattributes.h"
@@ -515,6 +514,7 @@ NatNetworkServer::StartGame()
 void
 NatNetworkServer::PublishToMaster()
 {
+#if 0
 	this->delayedMaster = false;
 	Util::String req;
 	req.Format("http://" MASTER_SERVER_ADDRESS "/testServer");
@@ -573,6 +573,7 @@ NatNetworkServer::PublishToMaster()
 		this->delayedMaster = true;
 	}
 	Http::HttpClientRegistry::Instance()->ReleaseConnection(serverUri);
+#endif
 }
 
 

@@ -12,8 +12,6 @@
 #include "attr/attributetable.h"
 #include "messaging/message.h"
 #include "networkserver.h"
-#include "src/jansson.h"
-
 
 namespace RakNet
 {

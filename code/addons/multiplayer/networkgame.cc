@@ -17,7 +17,6 @@
 #include "multiplayerattrs.h"
 #include "appgame/gameapplication.h"
 #include "statehandlers/gamestatehandler.h"
-#include "jansson/src/jansson.h"
 #include "multiplayerfeatureunit.h"
 #include "GetTime.h"
 

@@ -44,3 +44,6 @@
 [submodule "code/extlibs/anyfx"]
 	path = code/extlibs/anyfx
 	url = https://github.com/Duttenheim/AnyFX.git
+[submodule "code/extlibs/cjson/cJSON"]
+	path = code/extlibs/cjson/cJSON
+	url = https://github.com/kbranigan/cJSON.git

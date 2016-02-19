@@ -25,7 +25,7 @@
 #include "syncpoint.h"
 #include "networkentity.h"
 #include "bitreader.h"
-#include "src/jansson.h"
+#include "cjson/cJSON.h"
 
 namespace MultiplayerFeature
 {
@@ -315,12 +315,12 @@ void
 NetworkServer::ParseServerResponse(const Util::String & response)
 {
 	n_printf("got master server results:\n%s", response.AsCharPtr());
-	json_error_t error;
-	json_t * root = json_loads(response.AsCharPtr(), JSON_REJECT_DUPLICATES, &error);
+
+	
+    cJSON * root = cJSON_Parse(response.AsCharPtr());
 	if (NULL == root)
 	{
-		n_warning("error parsing json from master server: %s\n", error.text);
-		// FIXME which state now
+        n_warning("error parsing json from master server\n");	
 		return;
 	}
 
@@ -345,80 +345,61 @@ NetworkServer::ParseServerResponse(const Util::String & response)
 		table = this->masterResult;
 	}
 
-	void *iter = json_object_iter(root);
-	while (iter)
-	{
-		String firstKey = json_object_iter_key(iter);
+    cJSON * get = cJSON_GetObjectItem(root, "GET");
 
+    if (get)
+    {
+        size_t arraySize = cJSON_GetArraySize(get);
+        for (unsigned int i = 0; i < arraySize; i++)
+        {
+            cJSON* object = cJSON_GetArrayItem(get, i);
 
-		if (firstKey == "GET")
-		{
-			json_t* jsonArray = json_object_iter_value(iter);
-			size_t arraySize = json_array_size(jsonArray);
-			for (unsigned int i = 0; i < arraySize; i++)
-			{
-				json_t* object = json_array_get(jsonArray, i);
+            cJSON * val = cJSON_GetObjectItem(object, "guid");
+            Util::String eguid = val->valuestring;
+            if (InvalidIndex != table->FindRowIndexByAttr(Attr::Attribute(Attr::Id, eguid)))
+            {
+                continue;
+            }
 
-				json_t * val = json_object_get(object, "guid");
-				Util::String eguid = json_string_value(val);
-				if (InvalidIndex != table->FindRowIndexByAttr(Attr::Attribute(Attr::Id, eguid)))
-				{
-					continue;
-				}
+            IndexT row = table->AddRow();
+            val = cJSON_GetObjectItem(object, "roomName");
+            Util::String room = val->valuestring;
+            room.Append("\r");
+            Util::String decRoom = Util::String::FromBase64(room);
+            table->SetString(Attr::RoomName, row, decRoom);
 
-				IndexT row = table->AddRow();				
-				val = json_object_get(object, "roomName");
-				n_assert(val->type == JSON_STRING);
-				Util::String room = json_string_value(val);
-				room.Append("\r");
-				Util::String decRoom = Util::String::FromBase64(room);
-				table->SetString(Attr::RoomName, row, decRoom);
+            val = cJSON_GetObjectItem(object, "__gameId");            
+            Util::String gameId = val->valuestring;
+            table->SetString(Attr::GameID, row, gameId);
 
-				val = json_object_get(object, "__gameId");
-				n_assert(val->type == JSON_STRING);
-				Util::String gameId = json_string_value(val);
-				table->SetString(Attr::GameID, row, gameId);
+            val = cJSON_GetObjectItem(object, "__timeoutSec");            
+            Util::String strval = val->valuestring;
+            int timeout = strval.AsInt();
+            table->SetInt(Attr::GameAge, row, timeout);
 
-				val = json_object_get(object, "__timeoutSec");
-				n_assert(val->type == JSON_STRING);
-				Util::String strval = json_string_value(val);
-				int timeout = strval.AsInt();
-				table->SetInt(Attr::GameAge, row, timeout);
+            val = cJSON_GetObjectItem(object, "__addr");            
+            Util::String ipAddr = val->valuestring;
+            table->SetString(Attr::GameServerAddress, row, ipAddr);
 
-				val = json_object_get(object, "__addr");
-				n_assert(val->type == JSON_STRING);
-				Util::String ipAddr = json_string_value(val);
-				table->SetString(Attr::GameServerAddress, row, ipAddr);
+            val = cJSON_GetObjectItem(object, "guid");
+            Util::String guid = val->valuestring;
+            table->SetString(Attr::Id, row, guid);
 
-				val = json_object_get(object, "guid");
-				n_assert(val->type == JSON_STRING);
-				Util::String guid = json_string_value(val);
-				table->SetString(Attr::Id, row, guid);
+            val = cJSON_GetObjectItem(object, "__rowId");            
+            int gameRow = (int)val->valueint;
+            table->SetInt(Attr::GameRow, row, gameRow);
 
-				val = json_object_get(object, "__rowId");
-				n_assert(val->type == JSON_INTEGER);
-				int gameRow = (int)json_integer_value(val);
-				table->SetInt(Attr::GameRow, row, gameRow);
+            val = cJSON_GetObjectItem(object, "currentPlayers");            
+            int current = (int)val->valueint;
+            table->SetInt(Attr::CurrentPlayers, row, current);
 
-				val = json_object_get(object, "currentPlayers");
-				n_assert(val->type == JSON_INTEGER);
-				int current = (int)json_integer_value(val);
-				table->SetInt(Attr::CurrentPlayers, row, current);
-
-				val = json_object_get(object, "maxPlayers");
-				n_assert(val->type == JSON_INTEGER);
-				int maxplayers = (int)json_integer_value(val);
-				table->SetInt(Attr::MaxPlayers, row, maxplayers);
-				n_printf("Room name: %s, Server: %s, players: %d/%d\n", room.AsCharPtr(), ipAddr.AsCharPtr(), current, maxplayers);
-			}
-			iter = json_object_iter_next(root, iter);
-		}
-		else
-		{
-			iter = json_object_iter_next(root, iter);
-		}
-	}
-	json_decref(root);	
+            val = cJSON_GetObjectItem(object, "maxPlayers");            
+            int maxplayers = (int)val->valueint;
+            table->SetInt(Attr::MaxPlayers, row, maxplayers);
+            n_printf("Room name: %s, Server: %s, players: %d/%d\n", room.AsCharPtr(), ipAddr.AsCharPtr(), current, maxplayers);
+        }
+    }
+    cJSON_Delete(root);
 }
 
 //------------------------------------------------------------------------------

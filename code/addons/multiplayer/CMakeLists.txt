@@ -41,7 +41,7 @@ INCLUDE_DIRECTORIES(${Nebula3_SOURCE_DIR}/code
 	
 
 add_library( multiplayer STATIC ${SRCSBASE} ${SRCSPROP} ${SOURCES_files})
-TARGET_LINK_LIBRARIES(multiplayer multiplayer_NIDLS application RakNetLibStatic upnpc-static jansson)
+TARGET_LINK_LIBRARIES(multiplayer multiplayer_NIDLS application RakNetLibStatic upnpc-static cjson)
 TARGET_INCLUDE_DIRECTORIES(multiplayer PUBLIC ${Nebula3_SOURCE_DIR}/code/addons/multiplayer ${Nebula3_SOURCE_DIR}/code/extlibs/raknet/Source)
 SET_TARGET_PROPERTIES(multiplayer PROPERTIES FOLDER "N3SDK/addons")
 

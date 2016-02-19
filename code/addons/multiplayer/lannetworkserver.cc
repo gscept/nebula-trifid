@@ -25,6 +25,7 @@
 #include "syncpoint.h"
 #include "networkentity.h"
 #include "bitreader.h"
+#include "cJSON.h"
 
 namespace MultiplayerFeature
 {
@@ -305,22 +306,25 @@ void
 LanNetworkServer::UpdateServerInfo()
 {
 	Util::String name = NetworkGame::Instance()->GetGameName().AsBase64();
-	json_t * entry = json_object();
-	json_object_set(entry, "__gameId", json_string(NetworkGame::Instance()->GetGameID().AsCharPtr()));
-	json_object_set(entry, "roomName", json_string(name.AsCharPtr()));
-	json_object_set(entry, "guid", json_string(this->rakPeer->GetMyGUID().ToString()));
-	json_object_set(entry, "__timeoutSec", json_string("1.0"));
-	json_object_set(entry, "__addr", json_string(this->rakPeer->GetInternalID().ToString()));
-	json_object_set(entry, "__rowId", json_integer(1));
-	json_object_set(entry, "currentPlayers", json_integer(NetworkGame::Instance()->GetCurrentAmountOfPlayers()));
-	json_object_set(entry, "maxPlayers", json_integer(NetworkGame::Instance()->GetMaxPlayers()));				
-	json_t * root = json_object();
-	json_t * arr = json_array();
-	json_array_append(arr, entry);
-	json_object_set(root, "GET", arr);
-	this->serverInfoString = json_dumps(root, 0);
-	json_decref(root);
-	json_decref(entry);
+
+    cJSON * entry = cJSON_CreateObject();
+    cJSON_AddStringToObject(entry, "__gameId", NetworkGame::Instance()->GetGameID().AsCharPtr());
+    cJSON_AddStringToObject(entry, "roomName", name.AsCharPtr());
+    cJSON_AddStringToObject(entry, "guid", this->rakPeer->GetMyGUID().ToString());
+    cJSON_AddStringToObject(entry, "__timeoutSec", "1.0");
+    cJSON_AddStringToObject(entry, "__addr", this->rakPeer->GetInternalID().ToString());
+    cJSON_AddNumberToObject(entry, "__rowId", 1);
+    cJSON_AddNumberToObject(entry, "currentPlayers", NetworkGame::Instance()->GetCurrentAmountOfPlayers());
+    cJSON_AddNumberToObject(entry, "maxPlayers", NetworkGame::Instance()->GetMaxPlayers());
+
+	
+    cJSON * root = cJSON_CreateObject();
+    cJSON * arr = cJSON_CreateArray();
+    cJSON_AddItemToArray(arr, entry);
+    cJSON_AddItemReferenceToObject(root, "GET", arr);	
+    char* json_string = cJSON_Print(root);
+    this->serverInfoString = json_string;
+    free(json_string);	
 }
 
 //------------------------------------------------------------------------------
