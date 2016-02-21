@@ -99,8 +99,10 @@ ScriptEditor::EditFile(const IO::URI& file, const Util::String& title)
         QFrame* tabFrame = new QFrame;
         layout->addWidget(textEdit);
 		Util::String scripttxt = txstream->ReadAll();
+		bool forseSave = false;
 		if (scripttxt.Length() == 0)
 		{
+			forseSave = true;
 			// empty script file, add some defaults to it
 			scripttxt = "-- this is the default script with some predefined callbacks\n\
 -- uncomment the callbacks you need\n\n\
@@ -142,7 +144,7 @@ ScriptEditor::EditFile(const IO::URI& file, const Util::String& title)
 --end";
 
 		}
-        textEdit->setPlainText(scripttxt.AsCharPtr());
+		textEdit->setPlainText(scripttxt.AsCharPtr());		
         tabFrame->setLayout(layout);
 
         // close stream
@@ -161,6 +163,10 @@ ScriptEditor::EditFile(const IO::URI& file, const Util::String& title)
         this->ui->fileTabWidget->addTab(tabFrame, title.AsCharPtr());      
         this->ui->fileTabWidget->setVisible(true);
         this->backgroundLabel->setVisible(false);
+		if (forseSave)
+		{
+			this->Save();
+		}
     }
     else
     {
