@@ -13,7 +13,7 @@
 	  <Attribute name="VelocityGain" fourcc="VELG" accessMode="ReadWrite" type="Float" default="0.95f" system="1"/> <!-- Currently only used in Havok -->
     <Attribute name="AirVelocityGain" fourcc="AVEL" accessMode="ReadWrite" type="Float" default="0.05f" system="1"/> <!-- Currently only used in Havok -->
 	  <Attribute name="MaxVelocity" fourcc="MVEL" accessMode="ReadWrite" type="Float" default="10.0f" displayName="Maximum velocity"/>
-	  <Attribute name="AngularSmoothing" fourcc="PPAS" accessMode="ReadWrite" type="Bool" default="false" displayName="Angular smoothing"/>
+	  <Attribute name="AngularSmoothing" fourcc="PPAS" accessMode="ReadWrite" type="Bool" default="true" displayName="Movement smoothing"/>
 	
 	  <Attribute name="Following" fourcc="FOLL" accessMode="ReadWrite" type="Bool" system="1"/>	
 	  <Attribute name="Moving" fourcc="MOVG" accessMode="ReadWrite" type="Bool" system="1"/>	
