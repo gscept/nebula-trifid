@@ -511,10 +511,13 @@ __Handler(ModelEntity, FetchSkinList)
 		Characters::CharacterSkinLibrary& skinLib = obj->GetCharacter()->SkinLibrary();
 		int skinCount = skinLib.GetNumSkins();
 		Util::Array<Util::StringAtom> skinList;
-		skinList.Reserve(skinCount);
-		for (int skinIndex = 0; skinIndex < skinCount; skinIndex++)
+		if (skinCount > 0)
 		{
-			skinList.Append(skinLib.GetSkin(skinIndex).GetName());
+			skinList.Reserve(skinCount);
+			for (int skinIndex = 0; skinIndex < skinCount; skinIndex++)
+			{
+				skinList.Append(skinLib.GetSkin(skinIndex).GetName());
+			}
 		}
 		msg->SetSkins(skinList);
 	}

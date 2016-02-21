@@ -99,6 +99,11 @@
         <Message name="ReloadResourceIfExists" fourcc="RRIE">
           <InArg name="ResourceName" type="Util::String" serialize="true"/>    
         </Message>
+      
+        <!-- Invalidates all existing models that use a resource (slow) -->
+        <Message name="ReloadModelByResource" fourcc="RMBR">
+          <InArg name="ResourceName" type="Util::String" serialize="true"/>
+        </Message>
 
         <!-- Attach/Detach all environment modules -->
         <Message name="SetEnvironmentAttached" fourcc="SENA">

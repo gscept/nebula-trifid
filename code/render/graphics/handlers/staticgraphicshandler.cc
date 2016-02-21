@@ -30,6 +30,7 @@
 #include "lighting/lightserver.h"
 #include "environment/environmentserver.h"
 #include "input/inputserver.h"
+#include "graphics/reloadmodelentity.h"
 
 using namespace Util;
 using namespace CoreGraphics;
@@ -170,6 +171,29 @@ __StaticHandler(ReloadResourceIfExists)
 		if (res.isvalid())
 		{
 			res->Reload();
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+__StaticHandler(ReloadModelByResource)
+{	
+	const Util::String & resource = msg->GetResourceName();
+	Ptr<ResourceManager> resManager = ResourceManager::Instance();
+	if (resManager->HasResource(resource))
+	{
+		const Util::Array<Ptr<GraphicsEntity> >& entities = GraphicsServer::Instance()->GetEntities();
+		for (IndexT i = 0;i < entities.Size();i++)
+		{
+			if (entities[i]->IsA(Graphics::ModelEntity::RTTI))
+			{
+				if (entities[i].cast<Graphics::ModelEntity>()->GetResourceId() == resource)
+				{
+					entities[i].cast<Graphics::ReloadModelEntity>()->Reload();
+				}
+			}
 		}
 	}
 }

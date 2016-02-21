@@ -401,7 +401,7 @@ ModelEntity::OnRenderBefore(IndexT frameIndex)
 	if (this->renderBeforeFrameIndex != frameIndex)
 	{
 		// update character if valid
-		if (this->charInst.isvalid())
+		if (this->charInst.isvalid() && this->charInst->IsValid())
 		{
 			this->charInst->WaitUpdateDone();
 			this->HandleCharacterAnimDrivenMotion();

@@ -363,6 +363,7 @@ GraphicsHandler::HandleMessage(const Ptr<Message>& msg)
 	__StaticHandle(EnableResourcesAsync);
 	__StaticHandle(ReloadResource);
 	__StaticHandle(ReloadResourceIfExists);
+	__StaticHandle(ReloadModelByResource);
 	__StaticHandle(EnableWireframe);
 	__StaticHandle(ItemAtPosition);
 	__StaticHandle(ItemsAtPosition);

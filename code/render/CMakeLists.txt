@@ -779,6 +779,8 @@ ENDIF()
 	  graphics/lightprobeentity.h
       graphics/modelentity.cc
       graphics/modelentity.h
+	  graphics/reloadmodelentity.cc
+      graphics/reloadmodelentity.h	  
       graphics/mouserenderer.cc
       graphics/mouserenderer.h
       graphics/pointlightentity.cc
