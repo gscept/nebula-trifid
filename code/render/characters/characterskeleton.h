@@ -60,10 +60,13 @@ public:
 	const CharacterJointMask& GetMaskByName(const Util::StringAtom& maskName) const;
 	/// get mask by index
 	const CharacterJointMask& GetMask(const IndexT index) const;
+	/// get direct access to mask by name
+	CharacterJointMask* GetMaskByName(const Util::StringAtom& maskName);
 	/// get mask by index as mutable pointer
 	CharacterJointMask* GetMask(const IndexT index);
 
-private:
+
+protected:
     Util::FixedArray<Math::float4> defaultSamplesArray;  // used as sample result if no valid animation exists to provide samples
     Util::FixedArray<Math::matrix44> invPoseMatrixArray;
     Util::FixedArray<CharacterJoint> jointArray;
@@ -177,7 +180,6 @@ CharacterSkeleton::GetMask(const IndexT index)
 {
 	return &this->maskArray[index];
 }
-
 
 } // namespace Characters
 //------------------------------------------------------------------------------

@@ -147,4 +147,14 @@ CharacterSkeleton::GetMaskByName(const Util::StringAtom& maskName) const
 }
 
 
+//------------------------------------------------------------------------------
+/**
+*/
+CharacterJointMask*
+CharacterSkeleton::GetMaskByName(const Util::StringAtom& maskName)
+{
+	n_assert(this->maskIndexMap.Contains(maskName));
+	return &this->maskArray[this->maskIndexMap[maskName]];
+}
+
 } // namespace Characters

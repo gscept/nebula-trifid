@@ -72,7 +72,7 @@ private slots:
 	/// deletes the mask currently selected
 	void OnDeleteMask();
 	/// called whenever the mask name is changed, this will change the name of the current mask
-	void OnMaskNameChanged(const QString& value);
+	void OnMaskNameChanged();
 	/// handle a mask getting selected
 	void OnMaskSelected(int index);
 
@@ -107,6 +107,7 @@ private:
 	Util::FixedArray<int> clipsMask;
 	Util::FixedArray<float> clipWeights;
 	Util::FixedArray<Characters::CharacterJoint> joints;
+	Characters::CharacterSkeleton* skeleton;
 	int selectedJoint;
 	int numFrames;
 	int currentFrame;
