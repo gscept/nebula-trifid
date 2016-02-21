@@ -104,7 +104,7 @@ void
 ImageLoaderUnit::Load()
 {
 	// lock mutex
-	this->mutex.lock();
+	this->mutex->lock();
 
 	// get parameters
 	Util::String path = this->path;
@@ -126,7 +126,7 @@ ImageLoaderUnit::Load()
 	emit this->OnLoaded();
 
 	// unlock mutex
-	this->mutex.unlock();
+	this->mutex->unlock();
 }
 
 //------------------------------------------------------------------------------
