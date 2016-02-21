@@ -347,7 +347,7 @@ LanNetworkServer::Connect(const RakNet::RakNetGUID &guid)
 bool
 LanNetworkServer::HasHost() const
 {
-	return true;
+	return this->state > IDLE;
 }
 
 } // namespace MultiplayerFeature
