@@ -12,21 +12,29 @@
 #include "math/vector.h"
 #include "physics/physicsobject.h"
 #include "physics/collider.h"
-#include "../contact.h"
+#include "physics/contact.h"
 #include "timing/time.h"
 #include "physics/base/basescene.h"
+#include "physxprobe.h"
 
 namespace physx
 {
 	class PxScene;
 	class PxDefaultCpuDispatcher;
+	class PxControllerManager;
+}
+
+namespace Physics
+{
+	class PhysicsBody;
+	class FilterSet;
+	class PhysicsProbe;
+	class AreaImpulse;
 }
 
 namespace PhysX
 {
-class PhysicsBody;
-class FilterSet;
-class AreaImpulse;
+
 
 class PhysXScene: public Physics::BaseScene
 {
@@ -61,12 +69,12 @@ public:
 	virtual void Detach(const Ptr<Physics::PhysicsObject> & obj);
 	
 	/// return all entities within a spherical area
-	virtual int GetObjectsInSphere(const Math::vector& pos, float radius, const FilterSet& excludeSet, Util::Array<Ptr<Physics::PhysicsObject> >& result) {return 0;}
+	virtual int GetObjectsInSphere(const Math::vector& pos, float radius, const Physics::FilterSet& excludeSet, Util::Array<Ptr<Physics::PhysicsObject> >& result) {return 0;}
 	/// return all entities within a box 
-	virtual int GetObjectsInBox(const Math::vector& scale, const Math::matrix44& m, const FilterSet& excludeSet, Util::Array<Ptr<Physics::PhysicsObject> >& result) {return 0;}
+	virtual int GetObjectsInBox(const Math::vector& scale, const Math::matrix44& m, const Physics::FilterSet& excludeSet, Util::Array<Ptr<Physics::PhysicsObject> >& result) {return 0;}
 
 	/// Do a ray check starting from position `pos' along ray `dir'.
-    virtual Util::Array<Ptr<Physics::Contact>> RayCheck(const Math::vector& pos, const Math::vector& dir, const FilterSet& excludeSet, RayTestType rayType);
+    virtual Util::Array<Ptr<Physics::Contact>> RayCheck(const Math::vector& pos, const Math::vector& dir, const Physics::FilterSet& excludeSet, RayTestType rayType);
 			
 
 	/// disable collision between two bodies
@@ -74,6 +82,9 @@ public:
 	
 	class physx::PxScene * scene;
 	class physx::PxDefaultCpuDispatcher* dispatcher;
+	class physx::PxControllerManager * controllerManager;
+private:
+	Util::Array<Ptr<PhysX::PhysXProbe>> triggers;
 };
 
 

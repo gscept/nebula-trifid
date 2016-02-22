@@ -1,11 +1,11 @@
 #pragma once
 //------------------------------------------------------------------------------
 /**
-    @class Physics::BaseContact
+    @class PhysX::Contact
 
     Contact points with position and Face-Up vector.
 
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2016 Individual contributors, see AUTHORS file
 */
 #include "math/vector.h"
 #include "physics/materialtable.h"

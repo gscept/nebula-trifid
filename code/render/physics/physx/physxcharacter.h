@@ -1,48 +1,39 @@
 #pragma once
 //------------------------------------------------------------------------------
 /**
-    @class Physics::Actor
+	@class PhysX::PhysXCharacter
 
     A physics entity for a controllable actor.
 
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2016 Individual contributors, see AUTHORS file
 */
-#include "physics/physicsobject.h"
+#include "physics/base/basecharacter.h"
+
+namespace physx
+{
+	class PxController;
+}
 
 //------------------------------------------------------------------------------
-
-namespace Physics
+namespace PhysX
 {
-class BaseCharacter : public Physics::PhysicsObject
+class PhysXCharacter : public Physics::BaseCharacter
 {
-	__DeclareClass(BaseCharacter);
+	__DeclareClass(PhysXCharacter);
 public:
 
-	enum CharacterShape
-	{
-		Capsule = 0,
-		Cylinder
-	};
-
     /// constructor
-    BaseCharacter();
+	PhysXCharacter();
     /// destructor
-    virtual ~BaseCharacter();
-
-	/// get the height of the character
-	float GetHeight() const;
+    virtual ~PhysXCharacter();
+	
 	/// set the height of the character
 	virtual void SetHeight(float height);
     /// Sets crouching height
-    virtual void SetCrouchingHeight(float height);
-    /// Gets crouching height
-    virtual float GetCrouchingHeight() const;
-	/// get the radius of the character
-	float GetRadius() const;
+    virtual void SetCrouchingHeight(float height);	
 	/// set the radius of the character
 	virtual void SetRadius(float radius);
-	/// get the shape of the character
-	CharacterShape GetShape() const;
+	
 	// set the shape of the character
 	virtual void SetShape(CharacterShape shape);
 
@@ -61,7 +52,7 @@ public:
 	/// returns true if character is on the ground
 	virtual bool OnGround();
 	/// returns linear velocity
-	virtual Math::vector GetLinearVelocity() = 0;
+	virtual Math::vector GetLinearVelocity();
 
     /// set crouching
     virtual void SetCrouching(bool enable);
@@ -74,183 +65,12 @@ public:
 	virtual void SetVelocityGain(float gain, float airGain);
 
 protected:
+	/// called when character gets attached
+	void Attach(Physics::BaseScene* world);
+	/// called when character gets detached
+	void Detach();
 
-	CharacterShape shape; //< defaults to Capsule
-	float radius;
-	float height;
-    float crouchingHeight;
+	physx::PxController* controller;
+	float jumpHeight;
 };
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline float 
-BaseCharacter::GetHeight() const
-{
-	return height;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void 
-BaseCharacter::SetHeight( float height )
-{
-	this->height = height;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline float 
-BaseCharacter::GetCrouchingHeight() const
-{
-    return crouchingHeight;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void 
-BaseCharacter::SetCrouchingHeight( float height )
-{
-    this->crouchingHeight = height;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline float 
-BaseCharacter::GetRadius() const
-{
-	return radius;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void 
-BaseCharacter::SetRadius( float radius )
-{
-	this->radius = radius;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void 
-BaseCharacter::SetMaxTraversableSlopeAngle( float angle )
-{
-	// override in subclass
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void 
-BaseCharacter::SetMotionVector( const Math::vector& movement )
-{
-	// override in subclass
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void 
-BaseCharacter::SetFallSpeed( float fallSpeed )
-{
-	// override in subclass
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void 
-BaseCharacter::Jump()
-{
-	// override in subclass
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void 
-BaseCharacter::SetJumpSpeed( float jumpSpeed )
-{
-	// override in subclass
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void 
-BaseCharacter::SetMaxJumpHeight( float maxJumpHeight )
-{
-	// override in subclass
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline bool 
-BaseCharacter::OnGround()
-{
-	// override in subclass
-	return false;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void 
-BaseCharacter::SetMovementSpeed(float speed)
-{
-	// empty, override in subclass
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void 
-BaseCharacter::SetMaxLinearAcceleration(float acceleration)
-{
-	// empty, override in subclass
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void 
-BaseCharacter::SetVelocityGain(float gain, float airGain)
-{
-	// empty, override in subclass
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void 
-BaseCharacter::SetCrouching(bool enable)
-{
-    // override in subclass
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline BaseCharacter::CharacterShape 
-BaseCharacter::GetShape() const
-{
-	return this->shape;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void 
-BaseCharacter::SetShape(CharacterShape shape)
-{
-	this->shape = shape;
-}
-
 }

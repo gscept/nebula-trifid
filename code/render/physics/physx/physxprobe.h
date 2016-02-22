@@ -10,11 +10,15 @@
 #include "physics/collider.h"
 #include "math/matrix44.h"
 
+namespace physx
+{ 
+	class PxActor;
+}
 
 namespace PhysX
 {
 
-class PhysXProbe : public BaseProbe
+class PhysXProbe : public Physics::BaseProbe
 {
 	__DeclareClass(PhysXProbe);
 
@@ -29,11 +33,15 @@ public:
 	/// convenience function
 	void Init(const Ptr<Physics::Collider> & coll, const Math::matrix44 & trans);
 
-
+	///
+	void ClearOverlap();
+	///
+	void AddOverlap(physx::PxActor * other);
 protected:	
     ///
     void Attach(Physics::BaseScene * world);
     ///
     void Detach();
+	Util::Array<Ptr<Core::RefCounted>> overlap;
 };
 }

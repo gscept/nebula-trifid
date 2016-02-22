@@ -90,7 +90,7 @@ PhysXPhysicsMesh::GetMesh(int primGroup)
 
 	PxTriangleMeshDesc meshDesc;
 	meshDesc.points.count = group.GetNumVertices();
-	meshDesc.points.stride = this->vertexStride;
+	meshDesc.points.stride = this->vertexStride * sizeof(float);
 	meshDesc.points.data = this->vertexData;
 
 	meshDesc.triangles.count = group.GetNumPrimitives();
@@ -100,7 +100,7 @@ PhysXPhysicsMesh::GetMesh(int primGroup)
 #ifdef _DEBUG
 	// mesh should be validated before cooked without the mesh cleaning
 	bool res = PhysXServer::Instance()->cooking->validateTriangleMesh(meshDesc);
-	n_assert(res);
+	//n_assert(res);
 #endif
 
 	PxTriangleMesh* aTriangleMesh = PhysXServer::Instance()->cooking->createTriangleMesh(meshDesc, PhysXServer::Instance()->physics->getPhysicsInsertionCallback());

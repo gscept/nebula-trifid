@@ -81,7 +81,7 @@ PhysicsObject::CreateFromStream(const Util::String & filename, const Math::matri
 	n_assert2(IO::IoServer::Instance()->FileExists(filename), "failed to open file");
 
 	Util::Array<Ptr<PhysicsObject> > ret;
-
+#if 0
 	Ptr<IO::XmlReader> xmlReader = IO::XmlReader::Create();
 	xmlReader->SetStream(IO::IoServer::Instance()->CreateStream(filename));
 	if (xmlReader->Open())
@@ -181,6 +181,7 @@ PhysicsObject::CreateFromStream(const Util::String & filename, const Math::matri
 	}else{
 		n_error("Failed to open physics resource file");
 	}
+#endif
 	return ret;
 
 }

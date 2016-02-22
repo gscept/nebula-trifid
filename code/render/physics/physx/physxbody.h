@@ -112,9 +112,7 @@ public:
 	///
 	bool GetKinematic();
     ///
-	bool HasTransformChanged();
-	
-	
+	bool HasTransformChanged();	
 
 protected:        		
     ///

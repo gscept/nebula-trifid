@@ -111,8 +111,8 @@ PhysXCollider::CreateCapsule(PxRigidActor * target, const ColliderDescription & 
 void
 PhysXCollider::CreatePhysicsMesh(PxRigidActor * target, const ColliderDescription & desc, const Math::float4 &scale, const Math::quaternion & quat, const Math::float4 &trans, const physx::PxMaterial& material)
 {
-    Ptr<ManagedPhysicsMesh> colliderMesh = Resources::ResourceManager::Instance()->CreateManagedResource(PhysicsMesh::RTTI, desc.mesh.meshResource).cast<ManagedPhysicsMesh>();
-	Ptr<PhysXPhysicsMesh> mesh = colliderMesh.cast<PhysXPhysicsMesh>();
+    Ptr<ManagedPhysicsMesh> colliderMesh = Resources::ResourceManager::Instance()->CreateManagedResource(PhysicsMesh::RTTI, desc.mesh.meshResource,0,true).cast<ManagedPhysicsMesh>();
+	Ptr<PhysXPhysicsMesh> mesh = colliderMesh->GetMesh().cast<PhysXPhysicsMesh>();
 	
 	switch (desc.mesh.meshType)
 	{

@@ -61,7 +61,7 @@ PhysXStatic::SetupFromTemplate(const PhysicsCommon & templ)
     PxTransform pxStartTrans(Neb2PxVec(pos), Neb2PxQuat(rotation));
     this->body = PhysXServer::Instance()->physics->createRigidStatic(pxStartTrans);
     PxMaterial * mat;
-    if (templ.material == InvalidMaterial)
+    if (templ.material == InvalidMaterial && templ.friction >= 0.0f)
     {
         mat = PhysXServer::Instance()->physics->createMaterial(templ.friction, templ.friction, templ.restitution);
     }

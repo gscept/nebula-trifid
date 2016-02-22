@@ -274,7 +274,12 @@ ActorPhysicsProperty::EnablePhysics()
 		float radius = this->GetEntity()->GetFloat(Attr::CapsuleRadius);
 		float height = this->GetEntity()->GetFloat(Attr::CapsuleHeight);
 		offset.translate(Math::vector(0, height*0.5f + 2.0f* radius, 0));
-		coll->AddCapsule(radius, height, offset);
+		Physics::ColliderDescription desc;
+		desc.type = Physics::ColliderCapsule;
+		desc.capsule.radius = radius;
+		desc.capsule.height = height;
+		desc.transform = offset;
+		coll->AddFromDescription(desc);
 		Physics::PhysicsCommon common;
 		common.bodyFlags = Physics::Kinematic;
 		common.collider = coll;

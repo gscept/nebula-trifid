@@ -15,12 +15,42 @@
 #include "physxphysicsserver.h"
 #include "physxutils.h"
 #include "PxPhysics.h"
+#include "PxRigidActor.h"
+#include "PxSimulationEventCallback.h"
+#include "physics/physicsprobe.h"
+#include "characterkinematic/PxControllerManager.h"
+#include "PxQueryReport.h"
+#include "physics/physicsobject.h"
 
 namespace PhysX
 {
 
 using namespace Physics;
 using namespace physx;
+
+
+class EventCallBack : public physx::PxSimulationEventCallback
+{
+public:
+	///
+	virtual void onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs);	
+	///
+	virtual void onTrigger(PxTriggerPair* pairs, PxU32 count) = 0;
+};
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+EventCallBack::onTrigger(PxTriggerPair* pairs, PxU32 count)
+{
+	for (PxU32 i = 0; i < count;i++)
+	{
+		n_assert(pairs[i].triggerActor->userData && ((Core::RefCounted*)pairs[i].triggerActor->userData)->IsA(Physics::PhysicsProbe::RTTI));
+		PhysX::PhysXProbe * probe = (PhysX::PhysXProbe*)pairs[i].triggerActor->userData;
+
+	}
+}
 
 __ImplementAbstractClass(PhysX::PhysXScene, 'PXSC', Physics::BaseScene);
 
@@ -47,6 +77,10 @@ PhysXScene::~PhysXScene()
 void 
 PhysXScene::Attach(const Ptr<Physics::PhysicsObject> & obj)
 {
+	if (obj->IsA(PhysX::PhysXProbe::RTTI))
+	{
+		this->triggers.InsertSorted(obj.cast<PhysX::PhysXProbe>());
+	}
 	BaseScene::Attach(obj);
 }
 
@@ -56,6 +90,12 @@ PhysXScene::Attach(const Ptr<Physics::PhysicsObject> & obj)
 void
 PhysXScene::Detach(const Ptr<Physics::PhysicsObject> & obj)
 {
+	if (obj->IsA(PhysX::PhysXProbe::RTTI))
+	{
+		IndexT idx = this->triggers.BinarySearchIndex(obj.cast<PhysX::PhysXProbe>());
+		n_assert(idx != InvalidIndex);
+		this->triggers.EraseIndex(idx);
+	}
 	BaseScene::Detach(obj);
 }
 
@@ -74,8 +114,22 @@ PhysXScene::RenderDebug()
 Util::Array<Ptr<Physics::Contact>>
 PhysXScene::RayCheck(const Math::vector& pos, const Math::vector& dir, const FilterSet& excludeSet, RayTestType rayType)
 {	
-    n_error("not implemented");
-    return Util::Array<Ptr<Physics::Contact>>();
+	Math::vector ndir = Math::vector::normalize3(dir);
+	PxRaycastBuffer hits;
+	Util::Array<Ptr<Physics::Contact>> contacts;
+	//FIXME setup filter
+	PxQueryFilterData filter;
+	filter.flags = PxQueryFlag::eANY_HIT;
+	if (this->scene->raycast(Neb2PxVec(pos), Neb2PxVec(ndir), dir.length3(), hits, PxHitFlag::eDEFAULT, filter))
+	{
+		Ptr<Physics::Contact> contact = Physics::Contact::Create();		
+		const PxRaycastHit & hit = hits.touches[0];
+		contact->SetPoint(Px2NebPoint(hit.position));
+		contact->SetType(Physics::BaseContact::Type::RayCheck);
+		contact->SetCollisionObject((Physics::PhysicsObject*)hit.actor->userData);
+		contacts.Append(contact);
+	}
+	return contacts;
 }
 
 //------------------------------------------------------------------------------
@@ -110,6 +164,7 @@ PhysXScene::OnActivate()
 	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
 	this->scene = PhysXServer::Instance()->physics->createScene(sceneDesc);
 	this->time = -1.0f;
+	this->controllerManager= PxCreateControllerManager(*this->scene);
 }
 
 //------------------------------------------------------------------------------
@@ -119,6 +174,7 @@ void
 PhysXScene::OnDeactivate()
 {
 	BaseScene::OnDeactivate();
+	this->controllerManager->release();
 	this->scene->release();
 	this->dispatcher->release();
 }
@@ -142,6 +198,14 @@ PhysXScene::Trigger()
 	else
 	{		
 		Timing::Time delta = this->simulationSpeed * (PhysXServer::Instance()->GetTime() - this->time);
+		if (delta > simulationFrameTime)
+		{
+			// clear triggers
+			for (int i = 0;i < this->triggers.Size();i++)
+			{
+				this->triggers[i]->ClearOverlap();
+			}			
+		}
 		while (delta > simulationFrameTime)
 		{
 			this->scene->simulate(simulationFrameTime);

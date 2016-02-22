@@ -55,7 +55,7 @@ PhysXBody::SetupFromTemplate(const PhysicsCommon & templ)
 	PxTransform pxStartTrans(Neb2PxVec(pos), Neb2PxQuat(rotation));
 	this->body = PhysXServer::Instance()->physics->createRigidDynamic(pxStartTrans);    
     PxMaterial * mat;
-    if(templ.material == InvalidMaterial)
+    if(templ.material == InvalidMaterial && templ.friction >= 0.0f)
     { 
         mat = PhysXServer::Instance()->physics->createMaterial(templ.friction, templ.friction, templ.restitution);
     }
@@ -249,6 +249,71 @@ float
 PhysXBody::GetLinearDamping() const
 {
 	return this->body->getLinearDamping();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PhysXBody::SetSleeping(bool sleeping)
+{
+	if (sleeping)
+	{
+		this->body->putToSleep();
+	}
+	else
+	{
+		this->body->wakeUp();
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+PhysXBody::GetSleeping()
+{
+	return this->body->isSleeping();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+PhysXBody::HasTransformChanged()
+{
+	return !this->body->isSleeping();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PhysXBody::SetCollideCategory(unsigned int coll)
+{
+
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+unsigned int
+PhysXBody::GetCollideCategory() const
+{
+	return 0;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PhysXBody::OnFrameBefore()
+{
+	if (this->HasTransformChanged())
+	{
+		PxTransform trans = this->body->getGlobalPose();
+		this->transform = Px2NebMat(trans);
+	}
 }
 
 } // namespace PhysX

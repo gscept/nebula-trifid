@@ -6,11 +6,20 @@
 #include "physics/physicsprobe.h"
 #include "physics/collider.h"
 #include "PxSimulationEventCallback.h"
+#include "foundation/PxTransform.h"
+#include "physxphysicsserver.h"
+#include "PxMaterial.h"
+#include "PxShape.h"
+#include "PxScene.h"
+#include "PxPhysics.h"
+#include "physics/physx/physxbody.h"
+#include "PxRigidStatic.h"
+#include "physxscene.h"
+#include "physxutils.h"
 
 using namespace Physics;
 using namespace Math;
-
-PxSimulationEventCallback sdaf;
+using namespace physx;
 
 namespace PhysX
 {
@@ -33,7 +42,7 @@ PhysXProbe::PhysXProbe()
 
 PhysXProbe::~PhysXProbe()
 {
-
+	this->overlap.Clear();
 }
 
 //------------------------------------------------------------------------------
@@ -42,14 +51,14 @@ PhysXProbe::~PhysXProbe()
 Util::Array<Ptr<Core::RefCounted>>
 PhysXProbe::GetOverlappingObjects()
 {
-
+	return this->overlap;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void 
-PhysXProbe::Init(const Ptr<Collider> & coll, const Math::matrix44 & trans)
+PhysXProbe::Init(const Ptr<Physics::Collider> & coll, const Math::matrix44 & trans)
 {
     this->common.collider = coll;
     this->common.startTransform = trans;
@@ -91,6 +100,36 @@ PhysXProbe::Detach()
 {
     n_assert(this->attached);
     this->scene->removeActor(*this->body);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PhysXProbe::ClearOverlap()
+{
+	this->overlap.Clear();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PhysXProbe::AddOverlap(physx::PxActor * other)
+{
+	if (other->userData && ((Core::RefCounted*)other->userData)->IsA(PhysX::PhysXBody::RTTI))
+	{
+		PhysX::PhysXBody * otherBody = (PhysX::PhysXBody*)other->userData;
+		if (otherBody->GetUserData() && otherBody->GetUserData()->object.isvalid())
+		{
+			Ptr<Core::RefCounted> obj = otherBody->GetUserData()->object;
+			// if we do multiple simulation steps we might get called multiple times	
+			if (this->overlap.BinarySearchIndex(obj) != InvalidIndex)
+			{
+				this->overlap.InsertSorted(obj);
+			}
+		}
+	}	
 }
 
 }

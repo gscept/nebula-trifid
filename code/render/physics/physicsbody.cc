@@ -10,7 +10,7 @@ namespace Physics
 #if (__USE_BULLET__)
 	__ImplementClass(Physics::PhysicsBody, 'PHBO', Bullet::BulletBody);
 #elif(__USE_PHYSX__)
-	__ImplementClass(Physics::PhysicsBody, 'PHBO', PhysX::PhysXActor);
+	__ImplementClass(Physics::PhysicsBody, 'PHBO', PhysX::PhysXBody);
 #elif(__USE_HAVOK__)	
 	__ImplementClass(Physics::PhysicsBody, 'PHBO', Havok::HavokBody);
 #else
