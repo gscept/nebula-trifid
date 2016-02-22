@@ -8,6 +8,8 @@
 #include "resources/resourcemanager.h"
 #include "geometry/PxPlaneGeometry.h"
 #include "physxutils.h"
+#include "PxShape.h"
+#include "PxRigidActor.h"
 #include "geometry/PxBoxGeometry.h"
 #include "geometry/PxSphereGeometry.h"
 #include "geometry/PxCapsuleGeometry.h"
@@ -52,106 +54,72 @@ PhysXCollider::RenderDebug(const Math::matrix44& t)
 /**
 */
 void
-PhysXCollider::AddPlane(const Math::plane &plane, const Math::matrix44 &localTransform)
+PhysXCollider::CreatePlane(PxRigidActor * target, const ColliderDescription & desc, const Math::float4 &scale, const Math::quaternion & quat, const Math::float4 &trans, const physx::PxMaterial& material)
 {
 	PxPlaneGeometry * geom = n_new(PxPlaneGeometry);
-	PxPlane pxplane(Neb2PxVec(plane.get_point()), Neb2PxVec(plane.get_normal()));
-	PxTransform trans = PxTransformFromPlaneEquation(pxplane);
-	this->geometry.Append(geom);
-	this->transforms.Append(trans);
+    Math::float4 point = desc.plane.plane.get_point();
+    point *= scale;
+	PxPlane pxplane(Neb2PxVec(point), Neb2PxVec(desc.plane.plane.get_normal()));
+	PxTransform ptrans = PxTransformFromPlaneEquation(pxplane);
+    if (!quat.isidentity())
+    {
+        n_warning("ignoring local rotation with plane %s", desc.name.AsCharPtr());
+    }
+    target->createShape(*geom, material, ptrans);
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-PhysXCollider::AddBox(const Math::vector &halfWidth, const Math::matrix44 &localTransform)
+PhysXCollider::CreateBox(PxRigidActor * target, const ColliderDescription & desc, const Math::float4 &scale, const Math::quaternion & quat, const Math::float4 &trans, const physx::PxMaterial& material)
 {
-	PxBoxGeometry * geom = n_new(PxBoxGeometry(Neb2PxVec(halfWidth)));
-	PxTransform trans = Neb2PxTrans(localTransform);
-	this->geometry.Append(geom);
-	this->transforms.Append(trans);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-PhysXCollider::AddBox(const Math::bbox & box)
-{
-	n_error("deprecated");
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-PhysXCollider::AddCylinder(float radius, float height, const Math::matrix44 &localTransform)
-{
-	n_error("not supported");
+    Math::float4 half = desc.box.halfWidth;
+    half *= scale;
+    PxBoxGeometry * geom = n_new(PxBoxGeometry(Neb2PxVec(half)));    
+    PxTransform ptrans(Neb2PxVec(trans), Neb2PxQuat(quat));
+    target->createShape(*geom, material, ptrans);
 }
 
 
 //------------------------------------------------------------------------------
 /**
 */
-void
-PhysXCollider::AddCylinder(const Math::vector& pointA, const Math::vector& pointB, float radius, const Math::matrix44 &localTransform)
+void 
+PhysXCollider::CreateSphere(PxRigidActor * target, const ColliderDescription & desc, const Math::float4 &scale, const Math::float4 &trans, const physx::PxMaterial& material)
 {
-	n_error("not supported");
-}
-
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-PhysXCollider::AddSphere(float radius, const Math::matrix44 &localTransform)
-{
-	PxSphereGeometry * geom = n_new(PxSphereGeometry(radius));
-	PxTransform trans = Neb2PxTrans(localTransform);
-	this->geometry.Append(geom);
-	this->transforms.Append(trans);
+    float rscale = n_max(n_max(scale.x(), scale.y()), scale.z());
+	PxSphereGeometry * geom = n_new(PxSphereGeometry(desc.sphere.radius *rscale));
+    PxTransform ptrans(Neb2PxVec(trans));
+    target->createShape(*geom, material, ptrans);
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-PhysXCollider::AddCapsule(float radius, float height, const Math::matrix44 &localTransform)
+PhysXCollider::CreateCapsule(PxRigidActor * target, const ColliderDescription & desc, const Math::float4 &scale, const Math::quaternion & quat, const Math::float4 &trans, const physx::PxMaterial& material)
 {
-	PxCapsuleGeometry * geom = n_new(PxCapsuleGeometry(radius, 0.5f * height));
-	PxTransform trans = Neb2PxTrans(localTransform);
-	this->geometry.Append(geom);
-	this->transforms.Append(trans);
+	PxCapsuleGeometry * geom = n_new(PxCapsuleGeometry(desc.capsule.radius * n_max(scale.x(),scale.z()), 0.5f * desc.capsule.height * scale.y()));
+    PxTransform ptrans(Neb2PxVec(trans), Neb2PxQuat(quat));
+    target->createShape(*geom, material, ptrans);
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-PhysXCollider::AddCapsule(const Math::vector& pointA, const Math::vector& pointB, float radius, const Math::matrix44 &localTransform)
+PhysXCollider::CreatePhysicsMesh(PxRigidActor * target, const ColliderDescription & desc, const Math::float4 &scale, const Math::quaternion & quat, const Math::float4 &trans, const physx::PxMaterial& material)
 {
-	n_error("not implemented");
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-PhysXCollider::AddPhysicsMesh(Ptr<Physics::ManagedPhysicsMesh> colliderMesh, const Math::matrix44 & localTransform, Physics::MeshTopologyType meshType, int primGroup)
-{
+    Ptr<ManagedPhysicsMesh> colliderMesh = Resources::ResourceManager::Instance()->CreateManagedResource(PhysicsMesh::RTTI, desc.mesh.meshResource).cast<ManagedPhysicsMesh>();
 	Ptr<PhysXPhysicsMesh> mesh = colliderMesh.cast<PhysXPhysicsMesh>();
-	Math::float4 scale;
-	Math::quaternion quat;
-	Math::float4 trans;
-	localTransform.decompose(scale, quat, trans);
-	switch (meshType)
+	
+	switch (desc.mesh.meshType)
 	{
 		case MeshConvex:
 		{
 			n_warning("using convex mesh as concave");
-			PxConvexMesh * cmesh = mesh->GetConvexMesh(primGroup);
+			PxConvexMesh * cmesh = mesh->GetConvexMesh(desc.mesh.primGroup);
 			PxConvexMeshGeometry* geom;
 			if (!float4::nearequal3(scale, float4(1.0f, 1.0f, 1.0f, 1.0f), float4(0.01f, 0.01f, 0.01f, 0.01f)))
 			{
@@ -162,15 +130,14 @@ PhysXCollider::AddPhysicsMesh(Ptr<Physics::ManagedPhysicsMesh> colliderMesh, con
 			{
 				geom = n_new(PxConvexMeshGeometry(cmesh));
 			}
-			this->geometry.Append(geom);
-			PxTransform ptrans(Neb2PxVec(trans), Neb2PxQuat(quat));
-			this->transforms.Append(ptrans);			
+            PxTransform ptrans(Neb2PxVec(trans), Neb2PxQuat(quat));
+            target->createShape(*geom, material, ptrans);
 		}
 		break;
 		case MeshConcave:
 		case MeshStatic:
 		{
-			PxTriangleMesh * tmesh = mesh->GetMesh(primGroup);
+			PxTriangleMesh * tmesh = mesh->GetMesh(desc.mesh.primGroup);
 			PxTriangleMeshGeometry * geom;
 			if (!float4::nearequal3(scale, float4(1.0f, 1.0f, 1.0f, 1.0f), float4(0.01f, 0.01f, 0.01f, 0.01f)))
 			{
@@ -181,16 +148,15 @@ PhysXCollider::AddPhysicsMesh(Ptr<Physics::ManagedPhysicsMesh> colliderMesh, con
 			else
 			{
 				geom = n_new(PxTriangleMeshGeometry(tmesh));
-			}			
-			this->geometry.Append(geom);
+			}						
 			PxTransform ptrans(Neb2PxVec(trans), Neb2PxQuat(quat));
-			this->transforms.Append(ptrans);
+            target->createShape(*geom, material, ptrans);
 		}
 		break;
 		case MeshConvexHull:
 		case MeshConvexDecomposition:
 		{
-			PxConvexMesh * cmesh = mesh->GetConvexHullMesh(primGroup);
+			PxConvexMesh * cmesh = mesh->GetConvexHullMesh(desc.mesh.primGroup);
 			PxConvexMeshGeometry* geom;
 			if (!float4::nearequal3(scale, float4(1.0f, 1.0f, 1.0f, 1.0f), float4(0.01f, 0.01f, 0.01f, 0.01f)))
 			{
@@ -201,12 +167,54 @@ PhysXCollider::AddPhysicsMesh(Ptr<Physics::ManagedPhysicsMesh> colliderMesh, con
 			{
 				geom = n_new(PxConvexMeshGeometry(cmesh));
 			}
-			this->geometry.Append(geom);
-			PxTransform ptrans(Neb2PxVec(trans), Neb2PxQuat(quat));
-			this->transforms.Append(ptrans);		
+            PxTransform ptrans(Neb2PxVec(trans), Neb2PxQuat(quat));
+            target->createShape(*geom, material, ptrans);
 		}
 		break;			
 	}
+
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PhysXCollider::CreateInstance(PxRigidActor * target, Math::vector & xscale, const physx::PxMaterial& material)
+{
+    for (int i = 0; i < this->descriptions.Size(); i++)
+    {
+        const ColliderDescription & desc = this->descriptions[i];
+
+        Math::float4 scale;
+        Math::quaternion quat;
+        Math::float4 trans;
+        desc.transform.decompose(scale, quat, trans);
+        scale *= xscale;
+        trans *= xscale;
+        switch (desc.type)
+        {
+        default:
+            break;
+        case ColliderSphere:
+            this->CreateSphere(target, desc, scale, trans, material);
+            break;
+        case ColliderCube:
+            this->CreateBox(target, desc, scale, quat, trans, material);
+            break;
+        case ColliderCylinder:
+            this->CreateCapsule(target, desc, scale, quat, trans, material);
+            break;
+        case ColliderCapsule:
+            this->CreateCapsule(target, desc, scale, quat, trans, material);
+            break;
+        case ColliderPlane:
+            this->CreatePlane(target, desc, scale, quat, trans, material);
+            break;
+        case ColliderMesh:
+            this->CreatePhysicsMesh(target, desc, scale, quat, trans, material);
+            break;
+        }
+    }
 
 }
 

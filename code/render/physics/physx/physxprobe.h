@@ -1,35 +1,39 @@
 #pragma once
 //------------------------------------------------------------------------------
 /**
-    @class Physics::BaseProbe
+    @class PhysX::PhysXProbe
     
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2016 Individual contributors, see AUTHORS file
 */
 
-#include "physics/staticobject.h"
+#include "physics/base/baseprobe.h"
 #include "physics/collider.h"
 #include "math/matrix44.h"
 
 
-namespace Physics
+namespace PhysX
 {
 
-class Scene;
-
-class BaseProbe : public StaticObject
+class PhysXProbe : public BaseProbe
 {
-	__DeclareClass(BaseProbe);
+	__DeclareClass(PhysXProbe);
 
 public:
-	BaseProbe(){}
-	~BaseProbe(){}
+    ///
+    PhysXProbe();
+    ///
+    ~PhysXProbe();
 
-	virtual Util::Array<Ptr<Core::RefCounted>> GetOverlappingObjects() = 0;
+    ///
+    virtual Util::Array<Ptr<Core::RefCounted>> GetOverlappingObjects();
 	/// convenience function
-	void Init(const Ptr<Collider> & coll, const Math::matrix44 & trans);
+	void Init(const Ptr<Physics::Collider> & coll, const Math::matrix44 & trans);
 
 
 protected:	
-
+    ///
+    void Attach(Physics::BaseScene * world);
+    ///
+    void Detach();
 };
 }

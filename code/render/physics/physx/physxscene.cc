@@ -71,10 +71,11 @@ PhysXScene::RenderDebug()
 //------------------------------------------------------------------------------
 /**
 */
-Util::Array<Ptr<Physics::Contact> >
+Util::Array<Ptr<Physics::Contact>>
 PhysXScene::RayCheck(const Math::vector& pos, const Math::vector& dir, const FilterSet& excludeSet, RayTestType rayType)
-{
-	n_error("not implemented");
+{	
+    n_error("not implemented");
+    return Util::Array<Ptr<Physics::Contact>>();
 }
 
 //------------------------------------------------------------------------------

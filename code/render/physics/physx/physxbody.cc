@@ -8,8 +8,11 @@
 #include "PxRigidDynamic.h"
 #include "physxutils.h"
 #include "PxPhysics.h"
+#include "PxMaterial.h"
 #include "extensions/PxRigidBodyExt.h"
 #include "physxphysicsserver.h"
+#include "physxcollider.h"
+#include "physics/physicsbody.h"
 
 using namespace Physics;
 using namespace physx;
@@ -22,9 +25,11 @@ __ImplementClass(PhysX::PhysXBody, 'PXRB', Physics::BaseRigidBody);
 //------------------------------------------------------------------------------
 /**
 */
-PhysXBody::PhysXBody()
+PhysXBody::PhysXBody():
+    body(NULL),
+    scene(NULL)
 {
-	
+    this->common.type = Physics::PhysicsBody::RTTI.GetFourCC();
 }
 
 //------------------------------------------------------------------------------
@@ -42,17 +47,24 @@ void
 PhysXBody::SetupFromTemplate(const PhysicsCommon & templ)
 {
 	BaseRigidBody::SetupFromTemplate(templ);
-	Math::quaternion startRotation = Math::quaternion::rotationmatrix(templ.startTransform);
-	startRotation = Math::quaternion::normalize(startRotation);
-	Math::vector startPosition = templ.startTransform.get_position();
-	PxTransform pxStartTrans(Neb2PxVec(startPosition), Neb2PxQuat(startRotation));
-	this->body = PhysXServer::Instance()->physics->createRigidDynamic(pxStartTrans);
-	Ptr<PhysXCollider> coll = templ.collider.cast<PhysXCollider>();
-	for (int i = 0;i < coll->geometry.Size();i++)
-	{
-		
-	}
+    Math::vector scale;
+    Math::quaternion rotation;
+    Math::float4 pos;
+    templ.startTransform.decompose(scale, rotation, pos);
 	
+	PxTransform pxStartTrans(Neb2PxVec(pos), Neb2PxQuat(rotation));
+	this->body = PhysXServer::Instance()->physics->createRigidDynamic(pxStartTrans);    
+    PxMaterial * mat;
+    if(templ.material == InvalidMaterial)
+    { 
+        mat = PhysXServer::Instance()->physics->createMaterial(templ.friction, templ.friction, templ.restitution);
+    }
+    else
+    {
+        mat = PhysXServer::Instance()->GetMaterial(templ.material);
+    }
+    templ.collider.cast<PhysXCollider>()->CreateInstance(this->body, scale, *mat);
+    this->body->userData = this;
 }
 
 //------------------------------------------------------------------------------

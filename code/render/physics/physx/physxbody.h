@@ -111,7 +111,7 @@ public:
 	virtual void SetKinematic(bool);
 	///
 	bool GetKinematic();
-
+    ///
 	bool HasTransformChanged();
 	
 	
@@ -119,7 +119,7 @@ public:
 protected:        		
     ///
 	void SetupFromTemplate(const Physics::PhysicsCommon & templ);
-
+    ///
 	void Attach(Physics::BaseScene * world);
 	///
 	void Detach();

@@ -1,29 +1,45 @@
 #pragma once
 //------------------------------------------------------------------------------
 /**
-    @class Physics::BaseStatic
+    @class PhysX::PhysXStatic
 
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2016 Individual contributors, see AUTHORS file
 */
-#include "physics/physicsobject.h"
+#include "physics/base/basestatic.h"
 #include "physics/collider.h"
 #include "math/matrix44.h"
 
-namespace Physics
+namespace physx
 {
-class Scene;
+    class PxRigidStatic;
+    class PxScene;
+}
 
-class BaseStatic : public PhysicsObject
+namespace PhysX
 {
-__DeclareClass(BaseStatic);
+
+
+class PhysXStatic : public Physics::BaseStatic
+{
+__DeclareClass(PhysXStatic);
 
 public:
-	BaseStatic(){}
-	~BaseStatic(){}
+    ///
+    PhysXStatic();
+    ///
+    ~PhysXStatic();
+       
 	
 protected:	
 	friend class PhysicsObject;
-	virtual void SetupFromTemplate(const PhysicsCommon & templ);
+    ///
+	virtual void SetupFromTemplate(const Physics::PhysicsCommon & templ);
+    ///
+    void Attach(Physics::BaseScene * world);
+    ///
+    void Detach();
 
+    physx::PxRigidStatic * body;
+    physx::PxScene *scene;
 };
 }

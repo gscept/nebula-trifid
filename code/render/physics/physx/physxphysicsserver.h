@@ -31,7 +31,8 @@ namespace physx
 	class PxFoundation;
 	class PxProfileZoneManager;
 	class PxPhysics;
-	class PxCooking;	
+	class PxCooking;
+    class PxMaterial;
 }
 
 namespace PhysX
@@ -77,13 +78,16 @@ public:
 	virtual void RenderDebug();
 	///
 	virtual void HandleCollisions();
-
+    ///
+    physx::PxMaterial * GetMaterial(Physics::MaterialType type);
 
 	physx::PxFoundation * foundation;
 	physx::PxProfileZoneManager * profileZoneManager;
 	physx::PxPhysics * physics;
 	physx::PxCooking * cooking;
 	physx::PxVisualDebuggerConnection *pvd;	 
+private:
+    Util::FixedArray<physx::PxMaterial*> materials;
 };
 
 //------------------------------------------------------------------------------
@@ -102,6 +106,16 @@ inline void
 NebulaAllocatorCallback::deallocate(void* ptr)
 {
 	Memory::Free(Memory::PhysicsHeap, ptr);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline physx::PxMaterial *
+PhysXServer::GetMaterial(Physics::MaterialType type)
+{
+    n_assert2(type + 1 < this->materials.Size(), "unkown material");
+    return this->materials[type + 1];
 }
 
 }; // namespace PhysX

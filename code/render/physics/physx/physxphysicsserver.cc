@@ -10,6 +10,7 @@
 #include "extensions/PxDefaultAllocator.h"
 #include "physxprofilesdk/PxProfileZoneManager.h"
 #include "common/PxTolerancesScale.h"
+#include "../materialtable.h"
 
 #define PVD_HOST "127.0.0.1"
 
@@ -55,12 +56,7 @@ PhysXServer::~PhysXServer()
 
 //------------------------------------------------------------------------------
 /**
-    Set the current physics level. The refcount of the level will be 
-    incremented, the refcount of the previous level will be decremented
-    (if exists). A 0 pointer is valid and will just release the
-    previous level.
-
-    @param  level   pointer to a Physics::Level object
+   
 */
 void
 PhysXServer::SetScene(Physics::Scene * level)
@@ -70,11 +66,7 @@ PhysXServer::SetScene(Physics::Scene * level)
 
 //------------------------------------------------------------------------------
 /**
-    Initialize the physics subsystem.
-
-    - 25-May-05 jo   Don't create default physics level.
-
-    @return     true if physics subsystem initialized successfully
+   
 */
 bool
 PhysXServer::Open()
@@ -108,15 +100,22 @@ PhysXServer::Open()
 			n_error("PxInitExtensions failed!");
 		}
 			
-
-
+        Util::Array<Physics::MaterialTable::Material> mats = Physics::MaterialTable::GetMaterialTable();
+        this->materials.SetSize(mats.Size()+1);
+        for (int i = 0; i < mats.Size(); i++)
+        {
+            PxMaterial * newMat = this->physics->createMaterial(mats[i].friction, mats[i].friction, mats[i].restitution);            
+            this->materials[i + 1] = newMat;
+        }
+        PxMaterial * invalidMat = this->physics->createMaterial(0.5, 0.5, 0.5);
+        this->materials[0] = invalidMat;
 	}
     return false;
 }
 
 //------------------------------------------------------------------------------
 /**
-    Close the physics subsystem.
+    
 */
 void
 PhysXServer::Close()
@@ -130,8 +129,7 @@ PhysXServer::Close()
 
 //------------------------------------------------------------------------------
 /**
-    Perform one or more simulation steps. The number of simulation steps
-    performed depends on the time of the last call to Trigger().
+    
 */
 void
 PhysXServer::Trigger()
@@ -141,7 +139,7 @@ PhysXServer::Trigger()
 
 //------------------------------------------------------------------------------
 /**
-    Renders the debug visualization of the level.
+    
 */
 void
 PhysXServer::RenderDebug()
