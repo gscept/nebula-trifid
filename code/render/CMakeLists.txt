@@ -1496,6 +1496,32 @@ ENDIF()
 		#base/basematerial.h
 		#base/basematerial.cc
     )
+	
+	 set(SOURCES_files_physics_physx
+    	physics/physx/physxscene.h
+		physics/physx/physxscene.cc
+		physics/physx/physxbody.h
+		physics/physx/physxbody.cc
+		physics/physx/physxcollider.h
+		physics/physx/physxcollider.cc
+		physics/physx/physxcontact.h
+		physics/physx/physxcontact.cc
+		physics/physx/physxcontactlistener.h
+		physics/physx/physxcontactlistener.cc
+		physics/physx/physxstatic.h
+		physics/physx/physxstatic.cc
+		physics/physx/physxprobe.h
+		physics/physx/physxprobe.cc
+		physics/physx/physxcharacter.h
+		physics/physx/physxcharacter.cc		
+		physics/physx/physxphysicsserver.h
+		physics/physx/physxphysicsserver.cc
+		physics/physx/physxvisualdebuggerserver.h
+		physics/physx/physxvisualdebuggerserver.cc		
+		physics/physx/physxphysicsmesh.cc
+		physics/physx/physxphysicsmesh.h
+		physics/physx/physxutils.h
+    )
 
     SET(SOURCES_files_bullet 
 		physics/bullet/bulletcharacter.h
@@ -1616,6 +1642,7 @@ ENDIF()
     source_group("physics\\resource" FILES ${SOURCES_files_physics_resource})
     source_group("physics\\bullet" FILES ${SOURCES_files_bullet})
 	source_group("physics\\havok" FILES ${SOURCES_files_havok})    
+	source_group("physics\\physx" FILES ${SOURCES_files_physics_physx})    
     source_group("physics\\base" FILES ${SOURCES_files_physics_base})
 	source_group("physics\\util" FILES ${SOURCES_files_physics_util})
 	source_group("physics\\joints" FILES ${SOURCES_files_physics_joints})
@@ -1638,6 +1665,15 @@ IF(N_BUILD_BULLET)
 		${SOURCES_files_bullet}
 	)
 ENDIF()
+
+IF(N_BUILD_PHYSX)
+	set(SOURCES_physics
+		${SOURCES_physics_core}
+		${SOURCES_files_physics_physx}
+	)
+	SET(PHYSX_DIR NOTFOUND CACHE PATH "PhysX SDK Path")
+ENDIF()
+
 
 IF(N_BUILD_HAVOK)					
 	set(SOURCES_physics
@@ -1763,11 +1799,30 @@ IF(N_BUILD_HAVOK)
 ELSEIF(N_BUILD_BULLET)
 	ADD_DEPENDENCIES(render BulletDynamics BulletCollision LinearMath)
 	TARGET_LINK_LIBRARIES(render PUBLIC $<$<BOOL:${N_BUILD_BULLET}>:BulletDynamics BulletCollision LinearMath> )
+ELSEIF(N_BUILD_PHYSX)
+	IF(MSVC12)
+		SET(PHYSX_LIB_DIR ${PHYSX_DIR}/PhysXSDK/lib/vc12win32)
+	ELSEIF(MSVC14)
+		SET(PHYSX_LIB_DIR ${PHYSX_DIR}/PhysXSDK/lib/vc14win32)		
+	ENDIF()
+	SET(PHYSX_RELEASE_LIBS_NAMES 	LowLevel.lib LowLevelCloth.lib PhysX3_x86.lib PhysXCharacterKinematic_x86.lib PhysX3Common_x86.lib PhysX3Cooking_x86.lib PhysX3Extensions_x86.lib PhysX3Verhicle.lib 
+							PvdRuntime.lib PxTask.lib SceneQuery.lib SimulationController.lib )
+	SET(PHYSX_CHECKED_LIBS_NAMES 	LowLevelCHECKED.lib LowLevelClothCHECKED.lib PhysX3_x86CHECKED.lib PhysXCharacterKinematic_x86CHECKED.lib PhysX3Common_x86CHECKED.lib PhysX3Cooking_x86CHECKED.lib PhysX3Extensions_x86CHECKED.lib PhysX3VerhicleCHECKED.lib 
+							PvdRuntimeCHECKED.lib PxTaskCHECKED.lib SceneQueryCHECKED.lib SimulationController.lib )
+	SET(PHYSX_RELASE_LIBS)
+	FOREACH(CUR_LIB ${PHYSX_RELEASE_LIBS_NAMES})
+		LIST(APPEND PHYSX_RELEASE_LIBS ${PHYSX_LIB_DIR}/${CUR_LIB})
+	ENDFOREACH()
+	SET(PHYSX_CHECKED_LIBS)
+	FOREACH(CUR_LIB ${PHYSX_CHECKED_LIBS_NAMES})
+		LIST(APPEND PHYSX_CHECKED_LIBS ${PHYSX_LIB_DIR}/${CUR_LIB})
+	ENDFOREACH()
 ENDIF()
 
 
 TARGET_INCLUDE_DIRECTORIES(render PUBLIC $<$<BOOL:${N_BUILD_HAVOK}>:${Havok_SOURCE_DIR}>)
-
+TARGET_INCLUDE_DIRECTORIES(render PUBLIC $<$<BOOL:${N_BUILD_PHYSX}>:${PHYSX_DIR}/include>)
+TARGET_LINK_LIBRARIES(render PUBLIC $<$<CONFIG:Debug>:${PHYSX_CHECKED_LIBS}> $<$<CONFIG:Release>:${PHYSX_RELASE_LIBS}> $<$<CONFIG:RelWithDebInfo>:${PHYSX_RELASE_LIBS}>)
 
 TARGET_LINK_LIBRARIES(render PUBLIC $<$<BOOL:${N_BUILD_OGL4}>: DevIL ILU ILUT> )
 
