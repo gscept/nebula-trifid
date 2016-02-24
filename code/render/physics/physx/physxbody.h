@@ -114,6 +114,9 @@ public:
     ///
 	bool HasTransformChanged();	
 
+	///
+	physx::PxRigidDynamic* GetBody();
+
 protected:        		
     ///
 	void SetupFromTemplate(const Physics::PhysicsCommon & templ);
@@ -124,8 +127,20 @@ protected:
 	
 	physx::PxRigidDynamic *body;
 	physx::PxScene *scene;
+	Math::vector scale;
 };
 
+
+//------------------------------------------------------------------------------
+/**
+
+*/
+inline
+physx::PxRigidDynamic*
+PhysXBody::GetBody()
+{
+	return this->body;
+}
 
 }; // namespace PhysX
 

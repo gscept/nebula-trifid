@@ -121,6 +121,7 @@ void
 PhysXServer::Close()
 {
 	BasePhysicsServer::Close();
+	PxCloseExtensions();
 	this->cooking->release();	
 	this->physics->release();
 	this->profileZoneManager->release();

@@ -13,10 +13,11 @@
 #include "physics/scene.h"
 #include "physics/resource/managedphysicsmodel.h"
 #include "debug/debugtimer.h"
-#include "physics/joints.h"
+//#include "physics/joints.h"
 #include "physics/resource/physicsmesh.h"
 #include "physics/visualdebuggerserver.h"
 #include "io/assignregistry.h"
+#include "../resource/managedphysicsmesh.h"
 
 namespace Physics
 {
@@ -94,10 +95,6 @@ BasePhysicsServer::GetScene()
 //------------------------------------------------------------------------------
 /**
     Initialize the physics subsystem.
-
-    - 25-May-05 jo   Don't create default physics level.
-
-    @return     true if physics subsystem initialized successfully
 */
 bool
 BasePhysicsServer::Open()

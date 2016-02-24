@@ -1506,6 +1506,8 @@ ENDIF()
 		physics/physx/physxcollider.cc				
 		physics/physx/physxstatic.h
 		physics/physx/physxstatic.cc
+		physics/physx/physxjoint.cc
+		physics/physx/physxjoint.h
 		physics/physx/physxprobe.h
 		physics/physx/physxprobe.cc
 		physics/physx/physxcharacter.h
@@ -1514,6 +1516,14 @@ ENDIF()
 		physics/physx/physxphysicsserver.cc		
 		physics/physx/physxphysicsmesh.cc
 		physics/physx/physxphysicsmesh.h
+		physics/physx/physxpointtopoint.cc
+		physics/physx/physxpointtopoint.h
+		physics/physx/physxslider.cc
+		physics/physx/physxslider.h
+		physics/physx/physxhinge.cc
+		physics/physx/physxhinge.h
+		physics/physx/physxuniversaljoint.cc
+		physics/physx/physxuniversaljoint.h
 		physics/physx/physxutils.h
     )
 

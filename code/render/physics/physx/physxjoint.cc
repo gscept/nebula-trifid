@@ -1,60 +1,29 @@
 //------------------------------------------------------------------------------
-//  physics/basejoint.cc
-//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//  physxjoint.cc
+//  (C) 2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "physics/physicsbody.h"
-#include "physics/base/basejoint.h"
+#include "physics/physx/physxjoint.h"
 
-namespace Physics
+namespace PhysX
 {
-__ImplementAbstractClass(Physics::BaseJoint, 'PJO2', Core::RefCounted);
+__ImplementClass(PhysX::PhysXJoint, 'PXO2', Physics::BaseJoint);
 
 //------------------------------------------------------------------------------
 /**
 */
-BaseJoint::BaseJoint() : 
-    type(InvalidType),
-    isAttached(false)
+PhysXJoint::PhysXJoint()
 {
-    // empty
-}
-
-
-void
-BaseJoint::SetType(JointType t)
-{
-	type = t;
+	this->joint.joint = NULL;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-void 
-BaseJoint::SetBodies(const Ptr<PhysicsBody> & body1, const Ptr<PhysicsBody> & body2)
+PhysXJoint::~PhysXJoint()
 {
-    this->rigidBody1 = body1;
-    this->rigidBody2 = body2;
-}
-
-//------------------------------------------------------------------------------
-/**
-    Pointer to the first body to which the joint is attached to.
-*/
-const Ptr<PhysicsBody> &
-BaseJoint::GetBody1() const
-{
-    return this->rigidBody1;
-}
-
-//------------------------------------------------------------------------------
-/**
-    Pointer to the second body to which the joint is attached to.
-*/
-const Ptr<PhysicsBody> &
-BaseJoint::GetBody2() const
-{
-    return this->rigidBody2;
+	// empty
 }
 
 //------------------------------------------------------------------------------
@@ -62,9 +31,31 @@ BaseJoint::GetBody2() const
     Render the debug visualization of this shape.
 */
 void
-BaseJoint::RenderDebug()
+PhysXJoint::RenderDebug()
 {
     // empty
 }
 
-} // namespace Physics
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PhysXJoint::Attach(Physics::BaseScene * world)
+{
+	// nothing to be done here
+	n_assert(!this->isAttached);	
+	this->isAttached = true;		
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PhysXJoint::Detach()
+{
+	// nothing to be done here
+	n_assert(this->isAttached);
+	this->isAttached = false;
+}
+
+}

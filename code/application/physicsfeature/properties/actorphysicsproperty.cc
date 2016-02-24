@@ -180,7 +180,10 @@ ActorPhysicsProperty::EnablePhysics()
 		//{
 		//    this->charPhysicsEntity->SetOverwriteMaterialType(physicsMaterial);
 		//}
-
+		if (this->GetEntity()->HasAttr(Attr::Mass))
+		{
+			this->charPhysicsEntity->SetWeight(this->GetEntity()->GetFloat(Attr::Mass));
+		}
 		if (this->GetEntity()->HasAttr(Attr::CapsuleRadius))
 		{
 			this->charPhysicsEntity->SetRadius(this->GetEntity()->GetFloat(Attr::CapsuleRadius));
@@ -233,9 +236,12 @@ ActorPhysicsProperty::EnablePhysics()
 		// attach physics entity to physics level
 		const Ptr<Physics::Scene>& physicsLevel = Physics::PhysicsServer::Instance()->GetScene();
 		n_assert(physicsLevel);
-		physicsLevel->Attach(this->charPhysicsEntity.upcast<Physics::PhysicsObject>());
 
 		this->charPhysicsEntity->SetMaxJumpHeight(this->GetEntity()->GetFloat(Attr::JumpHeight));
+
+		physicsLevel->Attach(this->charPhysicsEntity.upcast<Physics::PhysicsObject>());
+
+		
 		this->charPhysicsEntity->SetJumpSpeed(this->GetEntity()->GetFloat(Attr::JumpSpeed));
 
 		this->charPhysicsEntity->SetMovementSpeed(this->GetEntity()->GetFloat(Attr::MaxVelocity));

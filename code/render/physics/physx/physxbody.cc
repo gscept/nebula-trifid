@@ -46,11 +46,10 @@ PhysXBody::~PhysXBody()
 void 
 PhysXBody::SetupFromTemplate(const PhysicsCommon & templ)
 {
-	BaseRigidBody::SetupFromTemplate(templ);
-    Math::vector scale;
+	BaseRigidBody::SetupFromTemplate(templ);    
     Math::quaternion rotation;
     Math::float4 pos;
-    templ.startTransform.decompose(scale, rotation, pos);
+    templ.startTransform.decompose(this->scale, rotation, pos);
 	
 	PxTransform pxStartTrans(Neb2PxVec(pos), Neb2PxQuat(rotation));
 	this->body = PhysXServer::Instance()->physics->createRigidDynamic(pxStartTrans);    
@@ -63,7 +62,7 @@ PhysXBody::SetupFromTemplate(const PhysicsCommon & templ)
     {
         mat = PhysXServer::Instance()->GetMaterial(templ.material);
     }
-    templ.collider.cast<PhysXCollider>()->CreateInstance(this->body, scale, *mat);
+    templ.collider.cast<PhysXCollider>()->CreateInstance(this->body, this->scale, *mat);
     this->body->userData = this;
 }
 
@@ -312,7 +311,8 @@ PhysXBody::OnFrameBefore()
 	if (this->HasTransformChanged())
 	{
 		PxTransform trans = this->body->getGlobalPose();
-		this->transform = Px2NebMat(trans);
+		Math::point origin;
+		this->transform = Math::matrix44::transformation(origin, origin, this->scale, origin, Px2NebQuat(trans.q), Px2NebPoint(trans.p));
 	}
 }
 

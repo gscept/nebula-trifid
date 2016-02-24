@@ -8,15 +8,19 @@
     (C) 2016 Individual contributors, see AUTHORS file
 */
 #include "physics/base/basecharacter.h"
+#include "timing/time.h"
 
 namespace physx
 {
 	class PxController;
+	class PxControllerFilters;
 }
 
 //------------------------------------------------------------------------------
 namespace PhysX
 {
+class CharacterHitReport;
+
 class PhysXCharacter : public Physics::BaseCharacter
 {
 	__DeclareClass(PhysXCharacter);
@@ -27,15 +31,14 @@ public:
     /// destructor
     virtual ~PhysXCharacter();
 	
-	/// set the height of the character
-	virtual void SetHeight(float height);
-    /// Sets crouching height
-    virtual void SetCrouchingHeight(float height);	
 	/// set the radius of the character
 	virtual void SetRadius(float radius);
 	
 	// set the shape of the character
 	virtual void SetShape(CharacterShape shape);
+
+	/// set transform
+	virtual void SetTransform(const Math::matrix44 & trans);
 
 	/// set movement direction
 	virtual void SetMotionVector(const Math::vector& movement);
@@ -63,6 +66,8 @@ public:
 	virtual void SetMaxLinearAcceleration(float acceleration);
 	/// set velocity gain, between 0 and 1
 	virtual void SetVelocityGain(float gain, float airGain);
+	///
+	void OnFrameAfter();
 
 protected:
 	/// called when character gets attached
@@ -70,7 +75,42 @@ protected:
 	/// called when character gets detached
 	void Detach();
 
+	/// check if possible to stand up
+	void TryStandup();
+
+	friend class CharacterHitReport;
 	physx::PxController* controller;
-	float jumpHeight;
+	physx::PxControllerFilters *filters;
+
+	float jumpForce;
+	float jumpHeight;	
+	float moveSpeed;
+
+	bool crouching;
+	bool standup;
+	bool onGround;
+
+	Math::vector motionVector;
+
+	Timing::Time lastFrame;
+
+	class JumpController
+	{
+	public:
+		bool inJump;		
+		float jumpGravity;
+		float jumpForce;
+		float jumpStart;		
+		///
+		JumpController();
+		///
+		float GetCurrentHeight(float delta);
+		/// 
+		void Jump(float force);
+		///
+		void Stop();		
+	};
+	JumpController jump;	
+	CharacterHitReport * hitReport;
 };
 }
