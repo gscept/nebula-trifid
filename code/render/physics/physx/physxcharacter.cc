@@ -122,8 +122,10 @@ PhysXCharacter::Attach(Physics::BaseScene* world)
 	desc.reportCallback = this->hitReport;
 	desc.density = this->mass;
 	desc.userData = this;
-	this->controller = ((PhysXScene*)world)->controllerManager->createController(desc);	
+	this->controller = ((PhysXScene*)world)->controllerManager->createController(desc);
+	this->controller->setUserData(this);
 	PxRigidDynamic* actor = this->controller->getActor();
+	actor->userData = this;
 	PxShape* ctrlShape;
 	actor->getShapes(&ctrlShape, 1);
 	ctrlShape->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, false);		

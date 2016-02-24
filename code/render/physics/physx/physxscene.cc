@@ -32,10 +32,18 @@ using namespace physx;
 class EventCallBack : public physx::PxSimulationEventCallback
 {
 public:
+	EventCallBack(PhysXScene * scene) { this->scene = scene; }
 	///
-	virtual void onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs);	
+	virtual void onConstraintBreak(PxConstraintInfo* constraints, PxU32 count) {}
 	///
-	virtual void onTrigger(PxTriggerPair* pairs, PxU32 count) = 0;
+	virtual void onWake(PxActor** actors, PxU32 count) {}
+	///
+	virtual void onSleep(PxActor** actors, PxU32 count){}
+	///
+	virtual void onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs){}
+	///
+	virtual void onTrigger(PxTriggerPair* pairs, PxU32 count);
+	PhysXScene * scene;
 };
 
 //------------------------------------------------------------------------------
@@ -48,7 +56,10 @@ EventCallBack::onTrigger(PxTriggerPair* pairs, PxU32 count)
 	{
 		n_assert(pairs[i].triggerActor->userData && ((Core::RefCounted*)pairs[i].triggerActor->userData)->IsA(Physics::PhysicsProbe::RTTI));
 		PhysX::PhysXProbe * probe = (PhysX::PhysXProbe*)pairs[i].triggerActor->userData;
-
+		if (pairs[i].otherActor->userData)
+		{
+			probe->AddOverlap(pairs[i].otherActor);
+		}		
 	}
 }
 
@@ -163,6 +174,8 @@ PhysXScene::OnActivate()
 	sceneDesc.cpuDispatcher = this->dispatcher;
 	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
 	this->scene = PhysXServer::Instance()->physics->createScene(sceneDesc);
+	this->eventCallback = n_new(EventCallBack(this));
+	this->scene->setSimulationEventCallback(this->eventCallback);
 	this->time = -1.0f;
 	this->controllerManager= PxCreateControllerManager(*this->scene);
 }
@@ -174,6 +187,7 @@ void
 PhysXScene::OnDeactivate()
 {
 	BaseScene::OnDeactivate();
+	n_delete(this->eventCallback);
 	this->controllerManager->release();
 	this->scene->release();
 	this->dispatcher->release();

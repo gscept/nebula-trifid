@@ -89,7 +89,7 @@ PhysXServer::Open()
 			this->physics->getVisualDebugger()->setVisualizeConstraints(true);
 			this->physics->getVisualDebugger()->setVisualDebuggerFlag(PxVisualDebuggerFlag::eTRANSMIT_CONTACTS, true);
 			this->physics->getVisualDebugger()->setVisualDebuggerFlag(PxVisualDebuggerFlag::eTRANSMIT_SCENEQUERIES, true);
-			this->pvd = PxVisualDebuggerExt::createConnection(this->physics->getPvdConnectionManager(), PVD_HOST, 5425, 10);
+			this->pvd = PxVisualDebuggerExt::createConnection(this->physics->getPvdConnectionManager(), PVD_HOST, 5425, 10, PxVisualDebuggerExt::getAllConnectionFlags());
 		}
 
 		this->cooking = PxCreateCooking(PX_PHYSICS_VERSION, *this->foundation, PxCookingParams(PxTolerancesScale()));

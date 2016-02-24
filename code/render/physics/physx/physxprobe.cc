@@ -16,6 +16,7 @@
 #include "PxRigidStatic.h"
 #include "physxscene.h"
 #include "physxutils.h"
+#include "physxcharacter.h"
 
 using namespace Physics;
 using namespace Math;
@@ -117,19 +118,23 @@ PhysXProbe::ClearOverlap()
 void
 PhysXProbe::AddOverlap(physx::PxActor * other)
 {
-	if (other->userData && ((Core::RefCounted*)other->userData)->IsA(PhysX::PhysXBody::RTTI))
+	if (other->userData)
 	{
-		PhysX::PhysXBody * otherBody = (PhysX::PhysXBody*)other->userData;
-		if (otherBody->GetUserData() && otherBody->GetUserData()->object.isvalid())
+		Core::RefCounted* obj = (Core::RefCounted*)other->userData;
+		if (obj->IsA(PhysX::PhysXBody::RTTI) || obj->IsA(PhysX::PhysXCharacter::RTTI))
 		{
-			Ptr<Core::RefCounted> obj = otherBody->GetUserData()->object;
-			// if we do multiple simulation steps we might get called multiple times	
-			if (this->overlap.BinarySearchIndex(obj) != InvalidIndex)
+			Physics::PhysicsObject * otherBody = (Physics::PhysicsObject*)other->userData;
+			if (otherBody->GetUserData() && otherBody->GetUserData()->object.isvalid())
 			{
-				this->overlap.InsertSorted(obj);
+				Ptr<Core::RefCounted> obj = otherBody->GetUserData()->object;
+				// if we do multiple simulation steps we might get called multiple times	
+				if (this->overlap.BinarySearchIndex(obj) == InvalidIndex)
+				{
+					this->overlap.InsertSorted(obj);
+				}
 			}
 		}
-	}	
+	}
 }
 
 }

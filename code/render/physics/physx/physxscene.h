@@ -34,7 +34,7 @@ namespace Physics
 
 namespace PhysX
 {
-
+class EventCallBack;
 
 class PhysXScene: public Physics::BaseScene
 {
@@ -84,6 +84,7 @@ public:
 	class physx::PxDefaultCpuDispatcher* dispatcher;
 	class physx::PxControllerManager * controllerManager;
 private:
+	EventCallBack* eventCallback;
 	Util::Array<Ptr<PhysX::PhysXProbe>> triggers;
 };
 
