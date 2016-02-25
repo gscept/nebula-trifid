@@ -29,6 +29,8 @@ public:
     ///
     ~PhysXStatic();
        
+	///
+	virtual void SetCollideCategory(Physics::CollideCategory coll);
 	
 protected:	
 	friend class PhysicsObject;

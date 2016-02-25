@@ -107,7 +107,7 @@ public:
 	virtual void RenderDebug();    
 
 	///
-	virtual void SetCollideCategory(unsigned int coll);
+	virtual void SetCollideCategory(Physics::CollideCategory coll);
 	///
 	unsigned int GetCollideCategory() const;
 	///

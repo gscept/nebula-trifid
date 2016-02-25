@@ -57,6 +57,8 @@ public:
 	/// returns linear velocity
 	virtual Math::vector GetLinearVelocity();
 
+	///
+	virtual void SetCollideCategory(Physics::CollideCategory coll);
     /// set crouching
     virtual void SetCrouching(bool enable);
 

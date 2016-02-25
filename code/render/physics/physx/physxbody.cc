@@ -64,7 +64,7 @@ PhysXBody::SetupFromTemplate(const PhysicsCommon & templ)
         mat = PhysXServer::Instance()->GetMaterial(templ.material);
     }
     templ.collider.cast<PhysXCollider>()->CreateInstance(this->body, this->scale, *mat);
-	PxSetGroup(*this->body, Physics::Default);
+	this->SetCollideCategory(Physics::Default);
     this->body->userData = this;
 }
 
@@ -290,10 +290,10 @@ PhysXBody::HasTransformChanged()
 /**
 */
 void
-PhysXBody::SetCollideCategory(unsigned int coll)
+PhysXBody::SetCollideCategory(CollideCategory coll)
 {
-	n_assert(coll < 65536);
-	PxSetGroup(*this->body, coll);
+	BaseRigidBody::SetCollideCategory(coll);
+	PhysXScene::SetCollideCategory(this->body, (CollideCategory)coll);
 }
 
 //------------------------------------------------------------------------------

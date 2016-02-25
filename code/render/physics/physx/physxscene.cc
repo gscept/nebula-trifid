@@ -21,6 +21,7 @@
 #include "characterkinematic/PxControllerManager.h"
 #include "PxQueryReport.h"
 #include "physics/physicsobject.h"
+#include "../filterset.h"
 
 namespace PhysX
 {
@@ -117,20 +118,60 @@ Util::Array<Ptr<Physics::Contact>>
 PhysXScene::RayCheck(const Math::vector& pos, const Math::vector& dir, const FilterSet& excludeSet, RayTestType rayType)
 {	
 	Math::vector ndir = Math::vector::normalize3(dir);
-	PxRaycastBuffer hits;
+	
 	Util::Array<Ptr<Physics::Contact>> contacts;
 	//FIXME setup filter
 	PxQueryFilterData filter;
-	filter.flags = PxQueryFlag::eANY_HIT;
-	if (this->scene->raycast(Neb2PxVec(pos), Neb2PxVec(ndir), dir.length3(), hits, PxHitFlag::eDEFAULT, filter))
+	filter.data.word0 = ~(excludeSet.GetCollideBits());
+	switch (rayType)
 	{
-		Ptr<Physics::Contact> contact = Physics::Contact::Create();		
-		const PxRaycastHit & hit = hits.touches[0];
-		contact->SetPoint(Px2NebPoint(hit.position));
-		contact->SetType(Physics::BaseContact::Type::RayCheck);
-		contact->SetCollisionObject((Physics::PhysicsObject*)hit.actor->userData);
-		contacts.Append(contact);
+	case BaseScene::Test_Closest:
+	{
+		PxRaycastBuffer hits;
+		filter.flags |= PxQueryFlag::eANY_HIT;
+		if (this->scene->raycast(Neb2PxVec(pos), Neb2PxVec(ndir), dir.length3(), hits, PxHitFlag::eDEFAULT, filter))
+		{
+			if (hits.hasBlock)
+			{
+				Ptr<Physics::Contact> contact = Physics::Contact::Create();
+				contact->SetPoint(Px2NebPoint(hits.block.position));
+				contact->SetNormalVector(Px2NebVec(hits.block.normal));
+				contact->SetType(Physics::BaseContact::Type::RayCheck);
+				contact->SetDepth(hits.block.distance);
+				contact->SetCollisionObject((Physics::PhysicsObject*)hits.block.actor->userData);
+				contacts.Append(contact);
+			}
+		}
 	}
+	break;
+	case BaseScene::Test_All:
+	{
+		const unsigned int hitBufferSize = 256;
+		PxRaycastHit hitBuffer[hitBufferSize];
+
+		PxRaycastBuffer hits(hitBuffer, hitBufferSize);
+
+		filter.flags |= PxQueryFlag::eNO_BLOCK;
+		if (this->scene->raycast(Neb2PxVec(pos), Neb2PxVec(ndir), dir.length3(), hits, PxHitFlag::eDEFAULT, filter))
+		{
+			if (hits.nbTouches)
+			{
+				for (unsigned int i = 0;i < hits.nbTouches;i++)
+				{
+					Ptr<Physics::Contact> contact = Physics::Contact::Create();
+					contact->SetPoint(Px2NebPoint(hits.touches[i].position));
+					contact->SetNormalVector(Px2NebVec(hits.touches[i].normal));
+					contact->SetType(Physics::BaseContact::Type::RayCheck);
+					contact->SetDepth(hits.touches[i].distance);
+					contact->SetCollisionObject((Physics::PhysicsObject*)hits.touches[i].actor->userData);
+					contacts.Append(contact);
+				}				
+			}
+		}
+	}
+	break;
+	}
+	
 	return contacts;
 }
 
@@ -219,14 +260,6 @@ PhysXScene::Trigger()
 	}		
 }
 
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-PhysXScene::AddIgnoreCollisionPair(const Ptr<Physics::PhysicsBody>& bodyA, const Ptr<Physics::PhysicsBody>& bodyB)
-{
-	n_error("BaseScene::AddIgnoreCollisionPair: Do not use the base method, implement and use the method from a sub class from this");
-}
 
 //------------------------------------------------------------------------------
 /**
@@ -244,6 +277,24 @@ bool
 PhysXScene::IsCollisionEnabled(Physics::CollideCategory a, Physics::CollideCategory b)
 {
 	return PxGetGroupCollisionFlag(a, b);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PhysXScene::SetCollideCategory(physx::PxRigidActor* actor, Physics::CollideCategory coll)
+{
+	n_assert(coll < 65536);
+	PxSetGroup(*actor, coll);
+	for (unsigned int i = 0;i < actor->getNbShapes();i++)
+	{
+		PxShape * shape;
+		actor->getShapes(&shape, 1, i);
+		PxFilterData fd;
+		fd.word0 = coll;
+		shape->setQueryFilterData(fd);
+	}
 }
 
 }

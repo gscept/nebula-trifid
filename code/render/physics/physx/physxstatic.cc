@@ -71,7 +71,7 @@ PhysXStatic::SetupFromTemplate(const PhysicsCommon & templ)
         mat = PhysXServer::Instance()->GetMaterial(templ.material);
     }
     templ.collider.cast<PhysXCollider>()->CreateInstance(this->body, scale, *mat);
-	PxSetGroup(*this->body, Physics::Static);
+	this->SetCollideCategory(Physics::Static);
     this->body->userData = this;
 }
 
@@ -94,6 +94,16 @@ PhysXStatic::Detach()
 {
     n_assert(this->attached);
     this->scene->removeActor(*this->body);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PhysXStatic::SetCollideCategory(CollideCategory coll)
+{
+	BaseStatic::SetCollideCategory(coll);
+	PhysXScene::SetCollideCategory(this->body, coll);
 }
 
 }

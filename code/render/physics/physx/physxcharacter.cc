@@ -370,6 +370,16 @@ PhysXCharacter::SetTransform(const Math::matrix44 & trans)
 //------------------------------------------------------------------------------
 /**
 */
+void
+PhysXCharacter::SetCollideCategory(Physics::CollideCategory coll)
+{
+	BaseCharacter::SetCollideCategory(coll);
+	PhysXScene::SetCollideCategory(this->controller->getActor(), coll);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 PhysXCharacter::JumpController::JumpController():
 	inJump(false),
 	jumpGravity(20.0f)

@@ -87,10 +87,10 @@ public:
 	/// enable/disable collision between categories
 	void CollisionEnable(Physics::CollideCategory a, Physics::CollideCategory b, bool enable);
 	/// get collision filtering between categories
-	bool IsCollisionEnabled(Physics::CollideCategory a, Physics::CollideCategory b);
-			
-	/// disable collision between two bodies
-	virtual void AddIgnoreCollisionPair(const Ptr<Physics::PhysicsBody>& bodyA, const Ptr<Physics::PhysicsBody>& bodyB);
+	bool IsCollisionEnabled(Physics::CollideCategory a, Physics::CollideCategory b);				
+
+	///
+	static void SetCollideCategory(physx::PxRigidActor* actor, Physics::CollideCategory);
 	
 	class physx::PxScene * scene;
 	class physx::PxDefaultCpuDispatcher* dispatcher;
