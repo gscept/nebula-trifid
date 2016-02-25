@@ -53,11 +53,11 @@ PhysXPhysicsMesh::GetConvexMesh(int primGroup)
 
 	PxConvexMeshDesc convexDesc;
 	convexDesc.points.count = group.GetNumVertices();
-	convexDesc.points.stride = this->vertexStride;
+    convexDesc.points.stride = this->vertexStride * sizeof(float);
 	convexDesc.points.data = this->vertexData;
-	convexDesc.indices.count = group.GetNumIndices();
-	convexDesc.indices.data = (void*)&(this->indexData[group.GetBaseIndex()]);
-	convexDesc.indices.stride = sizeof(unsigned int);		
+    convexDesc.triangles.count = group.GetNumPrimitives();
+    convexDesc.triangles.data = (void*)&(this->indexData[group.GetBaseIndex()]);	
+	convexDesc.triangles.stride = 3 * sizeof(unsigned int);
 
 	PxDefaultMemoryOutputStream buf;
 	PxConvexMeshCookingResult::Enum result;
@@ -117,12 +117,12 @@ PhysXPhysicsMesh::GetConvexHullMesh(int primGroup)
 
 	PxConvexMeshDesc convexDesc;
 	convexDesc.points.count = group.GetNumVertices();
-	convexDesc.points.stride = this->vertexStride;
+	convexDesc.points.stride = this->vertexStride * sizeof(float);
 	convexDesc.points.data = this->vertexData;
-	convexDesc.indices.count = group.GetNumIndices();
-	convexDesc.indices.data = (void*)&(this->indexData[group.GetBaseIndex()]);
-	convexDesc.indices.stride = sizeof(unsigned int);
-	convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
+    convexDesc.triangles.count = group.GetNumPrimitives();
+	convexDesc.triangles.data = (void*)&(this->indexData[group.GetBaseIndex()]);
+	convexDesc.triangles.stride = 3 * sizeof(unsigned int);
+	convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX| PxConvexFlag::eINFLATE_CONVEX;    
 
 	PxDefaultMemoryOutputStream buf;
 	PxConvexMeshCookingResult::Enum result;
