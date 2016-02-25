@@ -16,6 +16,8 @@
 #include "geometry/PxConvexMeshGeometry.h"
 #include "geometry/PxTriangleMeshGeometry.h"
 #include "../model/templates.h"
+#include "PxFiltering.h"
+#include "extensions/PxDefaultSimulationFilterShader.h"
 
 using namespace physx;
 using namespace Math;

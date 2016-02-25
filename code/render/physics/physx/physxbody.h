@@ -83,6 +83,9 @@ public:
 	///
 	bool GetEnableGravity() const;
 
+	///
+	void SetEnableCollisionCallback(bool enable);
+
     /// transform a global point into the body's local space
 	Math::vector GlobalToLocalPoint(const Math::vector& p) const;
     /// transform a body-local point into global space

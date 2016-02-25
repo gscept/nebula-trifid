@@ -23,6 +23,7 @@
 #include "physics/base/physicsserverbase.h"
 #include "foundation/PxAllocatorCallback.h"
 #include "physxvisualdebuggersdk/PvdConnection.h"
+#include "PxSimulationEventCallback.h"
 
 //------------------------------------------------------------------------------
 
@@ -50,7 +51,7 @@ public:
 	void deallocate(void* ptr);
 };
 
-class PhysXServer : public Physics::BasePhysicsServer
+class PhysXServer : public Physics::BasePhysicsServer, public physx::PxSimulationEventCallback
 {
 	__DeclareClass(PhysXServer);
 	/// this is not a threadlocal singleton, it expects the physics simulation to be threadsafe!
@@ -86,8 +87,22 @@ public:
 	physx::PxPhysics * physics;
 	physx::PxCooking * cooking;
 	physx::PxVisualDebuggerConnection *pvd;	 
+
+	/// these are implementations of PxSimulationEventCallback
+	///
+	virtual void onConstraintBreak(physx::PxConstraintInfo* constraints, physx::PxU32 count) {}
+	///
+	virtual void onWake(physx::PxActor** actors, physx::PxU32 count) {}
+	///
+	virtual void onSleep(physx::PxActor** actors, physx::PxU32 count) {}
+	///
+	virtual void onContact(const physx::PxContactPairHeader& pairHeader, const physx::PxContactPair* pairs, physx::PxU32 nbPairs);
+	///
+	virtual void onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count);
+	PhysXScene * scene;
 private:
     Util::FixedArray<physx::PxMaterial*> materials;
+	Threading::CriticalSection critSect;
 };
 
 //------------------------------------------------------------------------------

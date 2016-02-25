@@ -16,6 +16,7 @@
 #include "physxutils.h"
 #include "PxPhysics.h"
 #include "PxScene.h"
+#include "extensions/PxDefaultSimulationFilterShader.h"
 
 using namespace Physics;
 using namespace Math;
@@ -70,6 +71,7 @@ PhysXStatic::SetupFromTemplate(const PhysicsCommon & templ)
         mat = PhysXServer::Instance()->GetMaterial(templ.material);
     }
     templ.collider.cast<PhysXCollider>()->CreateInstance(this->body, scale, *mat);
+	PxSetGroup(*this->body, Physics::Static);
     this->body->userData = this;
 }
 

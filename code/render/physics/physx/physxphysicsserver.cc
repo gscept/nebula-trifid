@@ -10,11 +10,16 @@
 #include "extensions/PxDefaultAllocator.h"
 #include "physxprofilesdk/PxProfileZoneManager.h"
 #include "common/PxTolerancesScale.h"
-#include "../materialtable.h"
+#include "physics/materialtable.h"
+#include "physics/physicsprobe.h"
+#include "physics/contact.h"
+#include "physxutils.h"
+#include "physxbody.h"
 
 #define PVD_HOST "127.0.0.1"
 
 using namespace physx;
+using namespace Physics;
 
 static PhysX::NebulaAllocatorCallback gDefaultAllocatorCallback;
 
@@ -155,6 +160,107 @@ void
 PhysXServer::HandleCollisions()
 {
 	n_error("not implemented");
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PhysXServer::onTrigger(PxTriggerPair* pairs, PxU32 count)
+{
+	this->critSect.Enter();
+	for (PxU32 i = 0; i < count;i++)
+	{
+		n_assert(pairs[i].triggerActor->userData && ((Core::RefCounted*)pairs[i].triggerActor->userData)->IsA(Physics::PhysicsProbe::RTTI));
+		PhysX::PhysXProbe * probe = (PhysX::PhysXProbe*)pairs[i].triggerActor->userData;
+		if (pairs[i].otherActor->userData)
+		{
+			probe->AddOverlap(pairs[i].otherActor);
+		}
+	}
+	this->critSect.Leave();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PhysXServer::onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs)
+{
+	this->critSect.Enter();
+	if (pairHeader.actors[0]->userData && pairHeader.actors[1]->userData)
+	{
+		Physics::PhysicsObject* objA = (Physics::PhysicsObject*)pairHeader.actors[0]->userData;
+		Physics::PhysicsObject* objB = (Physics::PhysicsObject*)pairHeader.actors[1]->userData;
+
+		// check if neither of the objects wants a callback at all
+		if (!objA->GetUserData()->enableCollisionCallback && !objB->GetUserData()->enableCollisionCallback)
+		{
+			return;
+		}
+
+		Ptr<Contact> contact = Contact::Create();
+		Util::Array<Math::point> points;
+		Util::Array<Math::vector> normals;
+
+		// limit amount of processed contact points
+		PxContactPairPoint contactPoints[10];
+		float penetration = FLT_MAX;
+		for (PxU32 i = 0;i < nbPairs;i++)
+		{
+			PxU32 contactCount = Math::n_min(10, pairs[i].contactCount);
+			if (contactCount)
+			{				
+				pairs[i].extractContacts(contactPoints, contactCount);
+
+				for (PxU32 j = 0;j < contactCount;j++)
+				{
+					float seperation = contactPoints[j].separation;
+					if (seperation < penetration)
+					{
+						penetration = seperation;
+					}
+					points.Append(Px2NebPoint(contactPoints[j].position));
+					normals.Append(Px2NebVec(contactPoints[j].normal));					
+				}
+			}
+		}
+		contact->SetNormalVectors(normals);
+		contact->SetPoints(points);
+		contact->SetDepth(penetration);		
+		
+		if (objA->IsA(PhysX::PhysXBody::RTTI) && objB->IsA(PhysX::PhysXBody::RTTI))
+		{
+			contact->SetType(BaseContact::DynamicType);
+		}
+		else
+		{
+			contact->SetType(BaseContact::StaticType);
+		}
+		
+		if (objA->GetUserData()->enableCollisionCallback)
+		{
+			contact->SetOwnerObject(objA);
+			contact->SetCollisionObject(objB);
+			contact->SetMaterial(objB->GetMaterialType());
+			for (Util::Array<CollisionReceiver*>::Iterator iter = this->receivers.Begin();iter != this->receivers.End();iter++)
+			{
+				(*iter)->OnCollision(objA, objB, contact);
+			}
+		}
+
+		if (objB->GetUserData()->enableCollisionCallback)
+		{
+			contact->SetOwnerObject(objB);
+			contact->SetCollisionObject(objA);
+			contact->SetMaterial(objA->GetMaterialType());
+			for (Util::Array<CollisionReceiver*>::Iterator iter = this->receivers.Begin();iter != this->receivers.End();iter++)
+			{
+				(*iter)->OnCollision(objB, objA, contact);
+			}
+		}
+	}
+	this->critSect.Leave();
 }
 
 } // namespace PhysX

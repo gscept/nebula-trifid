@@ -28,40 +28,31 @@ namespace PhysX
 using namespace Physics;
 using namespace physx;
 
-
-class EventCallBack : public physx::PxSimulationEventCallback
+PxFilterFlags Simulationfilter(PxFilterObjectAttributes	attributes0,
+	PxFilterData				filterData0,
+	PxFilterObjectAttributes	attributes1,
+	PxFilterData				filterData1,
+	PxPairFlags&				pairFlags,
+	const void*					constantBlock,
+	PxU32						constantBlockSize)
 {
-public:
-	EventCallBack(PhysXScene * scene) { this->scene = scene; }
-	///
-	virtual void onConstraintBreak(PxConstraintInfo* constraints, PxU32 count) {}
-	///
-	virtual void onWake(PxActor** actors, PxU32 count) {}
-	///
-	virtual void onSleep(PxActor** actors, PxU32 count){}
-	///
-	virtual void onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs){}
-	///
-	virtual void onTrigger(PxTriggerPair* pairs, PxU32 count);
-	PhysXScene * scene;
-};
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-EventCallBack::onTrigger(PxTriggerPair* pairs, PxU32 count)
-{
-	for (PxU32 i = 0; i < count;i++)
+	PxFilterFlags filterFlags = PxDefaultSimulationFilterShader(attributes0,
+		filterData0, attributes1, filterData1, pairFlags, constantBlock, constantBlockSize);
+	if (pairFlags & PxPairFlag::eSOLVE_CONTACT)
 	{
-		n_assert(pairs[i].triggerActor->userData && ((Core::RefCounted*)pairs[i].triggerActor->userData)->IsA(Physics::PhysicsProbe::RTTI));
-		PhysX::PhysXProbe * probe = (PhysX::PhysXProbe*)pairs[i].triggerActor->userData;
-		if (pairs[i].otherActor->userData)
+		if (filterData0.word1 & CollisionFeedbackFull || filterData1.word1 & CollisionFeedbackFull)
 		{
-			probe->AddOverlap(pairs[i].otherActor);
-		}		
+			pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eNOTIFY_TOUCH_PERSISTS | PxPairFlag::eNOTIFY_TOUCH_LOST | PxPairFlag::eDETECT_DISCRETE_CONTACT | PxPairFlag::eNOTIFY_CONTACT_POINTS;
+		}
+		else if (filterData0.word1 & CollisionSingle || filterData1.word1 & CollisionSingle)
+		{
+			pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eDETECT_DISCRETE_CONTACT | PxPairFlag::eNOTIFY_CONTACT_POINTS;
+		}
 	}
+	return filterFlags;
 }
+
+
 
 __ImplementAbstractClass(PhysX::PhysXScene, 'PXSC', Physics::BaseScene);
 
@@ -172,12 +163,11 @@ PhysXScene::OnActivate()
 	sceneDesc.gravity = Neb2PxVec(this->GetGravity());
 	this->dispatcher = PxDefaultCpuDispatcherCreate(2);
 	sceneDesc.cpuDispatcher = this->dispatcher;
-	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
-	this->scene = PhysXServer::Instance()->physics->createScene(sceneDesc);
-	this->eventCallback = n_new(EventCallBack(this));
-	this->scene->setSimulationEventCallback(this->eventCallback);
+	sceneDesc.filterShader = Simulationfilter;
+	this->scene = PhysXServer::Instance()->physics->createScene(sceneDesc);	
+	this->scene->setSimulationEventCallback(PhysXServer::Instance());
 	this->time = -1.0f;
-	this->controllerManager= PxCreateControllerManager(*this->scene);
+	this->controllerManager= PxCreateControllerManager(*this->scene);	
 }
 
 //------------------------------------------------------------------------------
@@ -186,8 +176,7 @@ PhysXScene::OnActivate()
 void
 PhysXScene::OnDeactivate()
 {
-	BaseScene::OnDeactivate();
-	n_delete(this->eventCallback);
+	BaseScene::OnDeactivate();	
 	this->controllerManager->release();
 	this->scene->release();
 	this->dispatcher->release();
@@ -237,6 +226,24 @@ void
 PhysXScene::AddIgnoreCollisionPair(const Ptr<Physics::PhysicsBody>& bodyA, const Ptr<Physics::PhysicsBody>& bodyB)
 {
 	n_error("BaseScene::AddIgnoreCollisionPair: Do not use the base method, implement and use the method from a sub class from this");
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PhysXScene::CollisionEnable(Physics::CollideCategory a, Physics::CollideCategory b, bool enable)
+{
+	PxSetGroupCollisionFlag(a, b, enable);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+PhysXScene::IsCollisionEnabled(Physics::CollideCategory a, Physics::CollideCategory b)
+{
+	return PxGetGroupCollisionFlag(a, b);
 }
 
 }

@@ -13,6 +13,7 @@
 #include "physxphysicsserver.h"
 #include "physxcollider.h"
 #include "physics/physicsbody.h"
+#include "extensions/PxDefaultSimulationFilterShader.h"
 
 using namespace Physics;
 using namespace physx;
@@ -63,6 +64,7 @@ PhysXBody::SetupFromTemplate(const PhysicsCommon & templ)
         mat = PhysXServer::Instance()->GetMaterial(templ.material);
     }
     templ.collider.cast<PhysXCollider>()->CreateInstance(this->body, this->scale, *mat);
+	PxSetGroup(*this->body, Physics::Default);
     this->body->userData = this;
 }
 
@@ -290,7 +292,8 @@ PhysXBody::HasTransformChanged()
 void
 PhysXBody::SetCollideCategory(unsigned int coll)
 {
-
+	n_assert(coll < 65536);
+	PxSetGroup(*this->body, coll);
 }
 
 //------------------------------------------------------------------------------
@@ -299,7 +302,7 @@ PhysXBody::SetCollideCategory(unsigned int coll)
 unsigned int
 PhysXBody::GetCollideCategory() const
 {
-	return 0;
+	return PxGetGroup(*this->body);
 }
 
 //------------------------------------------------------------------------------
@@ -314,6 +317,30 @@ PhysXBody::OnFrameBefore()
 		Math::point origin;
 		this->transform = Math::matrix44::transformation(origin, origin, this->scale, origin, Px2NebQuat(trans.q), Px2NebPoint(trans.p));
 	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PhysXBody::SetEnableCollisionCallback(bool enable)
+{
+	BaseRigidBody::SetEnableCollisionCallback(enable);
+	for (unsigned int i = 0;i < this->body->getNbShapes();i++)
+	{
+		PxShape * shape;
+		this->body->getShapes(&shape, 1, i);
+		PxFilterData fd = shape->getSimulationFilterData();
+		if (enable)
+		{
+			fd.word1 = CollisionSingle;
+		}
+		else
+		{
+			fd.word1 = 0;
+		}
+		shape->setSimulationFilterData(fd);
+	}	
 }
 
 } // namespace PhysX

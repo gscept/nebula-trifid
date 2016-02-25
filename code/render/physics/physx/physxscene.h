@@ -36,6 +36,14 @@ namespace PhysX
 {
 class EventCallBack;
 
+enum CollisionFeedbackFlag
+{
+	/// callbacks for begin, persist, and end collision
+	CollisionFeedbackFull	= 1,
+	/// only on first contact
+	CollisionSingle			= 2
+};
+
 class PhysXScene: public Physics::BaseScene
 {
 	__DeclareClass(PhysXScene);
@@ -75,16 +83,19 @@ public:
 
 	/// Do a ray check starting from position `pos' along ray `dir'.
     virtual Util::Array<Ptr<Physics::Contact>> RayCheck(const Math::vector& pos, const Math::vector& dir, const Physics::FilterSet& excludeSet, RayTestType rayType);
-			
 
+	/// enable/disable collision between categories
+	void CollisionEnable(Physics::CollideCategory a, Physics::CollideCategory b, bool enable);
+	/// get collision filtering between categories
+	bool IsCollisionEnabled(Physics::CollideCategory a, Physics::CollideCategory b);
+			
 	/// disable collision between two bodies
 	virtual void AddIgnoreCollisionPair(const Ptr<Physics::PhysicsBody>& bodyA, const Ptr<Physics::PhysicsBody>& bodyB);
 	
 	class physx::PxScene * scene;
 	class physx::PxDefaultCpuDispatcher* dispatcher;
 	class physx::PxControllerManager * controllerManager;
-private:
-	EventCallBack* eventCallback;
+private:	
 	Util::Array<Ptr<PhysX::PhysXProbe>> triggers;
 };
 
