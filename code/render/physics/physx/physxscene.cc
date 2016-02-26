@@ -240,7 +240,7 @@ PhysXScene::OnActivate()
 #ifdef _DEBUG
     this->scene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1.0f);
     this->scene->setVisualizationParameter(PxVisualizationParameter::eWORLD_AXES, 1.0f);
-    this->scene->setVisualizationParameter(PxVisualizationParameter::eBODY_AXES, 1.0f);    ;
+    this->scene->setVisualizationParameter(PxVisualizationParameter::eBODY_AXES, 1.0f);
     this->scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1.0f);
 #endif
 }
