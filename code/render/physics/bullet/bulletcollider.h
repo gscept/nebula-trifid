@@ -51,7 +51,7 @@ public:
 	void AddPhysicsMesh(Ptr<Physics::ManagedPhysicsMesh> colliderMesh, const Math::matrix44 & localTransform, Physics::MeshTopologyType meshType, int primGroup);
 
 	///
-	virtual void AddFromDescription(const ColliderDescription & description);
+	virtual void AddFromDescription(const Physics::ColliderDescription & description);
 	/// creates a new collider with a scaled collision shape
 	Ptr<BulletCollider> GetScaledCopy(const Math::vector &scale);
 	

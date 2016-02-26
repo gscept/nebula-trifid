@@ -8,6 +8,7 @@
 #include "physics/bullet/conversion.h"
 #include "physics/collider.h"
 #include "math/bbox.h"
+#include "resources/resourcemanager.h"
 
 
 namespace Bullet
@@ -15,6 +16,7 @@ namespace Bullet
 	__ImplementClass(Bullet::BulletCollider, 'PBCO', Physics::BaseCollider);
 
 using namespace Math;
+using namespace Physics;
 
 //------------------------------------------------------------------------------
 /**
@@ -136,7 +138,7 @@ BulletCollider::GetScaledCopy(const vector &scale)
 /**
 */
 void 
-BulletCollider::AddFromDescription(const ColliderDescription & description)
+BulletCollider::AddFromDescription(const Physics::ColliderDescription & description)
 {	
 	
 	switch(description.type)
@@ -173,7 +175,7 @@ BulletCollider::AddFromDescription(const ColliderDescription & description)
 			}
 			break;
 	}
-	BaseCollder::AddFromDescription(description);
+	BaseCollider::AddFromDescription(description);
 }
 //------------------------------------------------------------------------------
 /**

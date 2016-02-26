@@ -73,6 +73,7 @@ protected:
 	Math::matrix44 capsuleOffset, inverseCapsuleOffset;
     Math::matrix44 crouchingCapsuleOffset, inverseCrouchingCapsuleOffset;
     bool crouching;
-}; 
+    float maxJumpHeight;
+};
 } // namespace Bullet
 //------------------------------------------------------------------------------
