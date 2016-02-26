@@ -23,6 +23,8 @@
 #include "physics/physicsobject.h"
 #include "../filterset.h"
 #include "geometry/PxSphereGeometry.h"
+#include "coregraphics/rendershape.h"
+#include "debugrender/debugshaperenderer.h"
 
 namespace PhysX
 {
@@ -103,13 +105,38 @@ PhysXScene::Detach(const Ptr<Physics::PhysicsObject> & obj)
 	BaseScene::Detach(obj);
 }
 
+
+static Math::float4 Px2Colour(PxU32 col)
+{
+    const float div = 1.0f / 255.0f;
+    return Math::float4(div * (col >> 24), div * ((col & 0x00FF0000) >> 16), div * ((col & 0x0000FF00) >> 8), div * (col & 0xFF));
+}
 //------------------------------------------------------------------------------
 /**
 */
 void
 PhysXScene::RenderDebug()
 {
-	n_error("not implemented");
+    const PxRenderBuffer& rb = this->scene->getRenderBuffer();
+    static CoreGraphics::RenderShape::RenderShapeVertex vert[1024];
+    unsigned int counter = 0;    
+    for (PxU32 i = 0; i < rb.getNbLines(); i++)
+    {
+        const PxDebugLine& line = rb.getLines()[i];
+        vert[counter].pos = Px2NebPoint(line.pos0);
+        vert[counter++].color = Px2Colour(line.color0);
+        vert[counter].pos = Px2NebPoint(line.pos1);
+        vert[counter++].color = Px2Colour(line.color1);
+        if (counter == 1024)
+        {
+            Debug::DebugShapeRenderer::Instance()->DrawPrimitives(Math::matrix44::identity(), CoreGraphics::PrimitiveTopology::LineList, 512, vert, Math::float4(1), CoreGraphics::RenderShape::AlwaysOnTop);
+            counter = 0;
+        }        
+    }
+    if (counter)
+    {
+        Debug::DebugShapeRenderer::Instance()->DrawPrimitives(Math::matrix44::identity(), CoreGraphics::PrimitiveTopology::LineList, counter >> 1, vert, Math::float4(1), CoreGraphics::RenderShape::AlwaysOnTop);
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -210,6 +237,12 @@ PhysXScene::OnActivate()
 	this->scene->setSimulationEventCallback(PhysXServer::Instance());
 	this->time = -1.0f;
 	this->controllerManager= PxCreateControllerManager(*this->scene);	
+#ifdef _DEBUG
+    this->scene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1.0f);
+    this->scene->setVisualizationParameter(PxVisualizationParameter::eWORLD_AXES, 1.0f);
+    this->scene->setVisualizationParameter(PxVisualizationParameter::eBODY_AXES, 1.0f);    ;
+    this->scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1.0f);
+#endif
 }
 
 //------------------------------------------------------------------------------
