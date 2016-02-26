@@ -242,19 +242,15 @@ struct ContactCallback : public btCollisionWorld::ContactResultCallback {
     @return             number of entities touching the box
 */
 int 
-BulletScene::GetObjectsInBox(const Math::vector& scale, const Math::matrix44& m, const Physics::FilterSet& excludeSet, Util::Array<Ptr<Physics::PhysicsObject> >& result)
+BulletScene::GetObjectsInBox(const Math::point& pos, const Math::vector& halfWidth, const Physics::FilterSet& excludeSet, Util::Array<Ptr<Physics::PhysicsObject> >& result)
 {
-	// first remove scaling from transformation matrix	
 	matrix44 pure = matrix44::identity();
-	pure.set_position(m.get_position());
-	pure.set_xaxis(float4::normalize(m.get_xaxis()));
-	pure.set_yaxis(float4::normalize(m.get_yaxis()));
-	pure.set_zaxis(float4::normalize(m.get_zaxis()));
+	pure.set_position(pos);
 	
 	btCollisionObject * coll = n_new(btCollisionObject);
 
 	coll->setWorldTransform(Neb2BtM44Transform(m));	
-	btCollisionShape * shape = n_new(btBoxShape(Neb2BtVector(scale)));
+	btCollisionShape * shape = n_new(btBoxShape(Neb2BtVector(halfWidth)));
 	coll->setCollisionShape(shape);
 
 	GetEntitiesInShape(coll,excludeSet,result);

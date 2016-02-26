@@ -31,9 +31,7 @@ public:
 	virtual float GetAngularLowLimit() = 0;
 	virtual float GetAngularHighLimit() = 0;
 	virtual float GetLinearLowLimit() = 0;
-	virtual float GetLinearHighLimit() = 0;
-
-	virtual void SetAxis(const Math::vector & axis) = 0;
+	virtual float GetLinearHighLimit() = 0;	
 
 	virtual void SetAngularMotor(float targetVelocity, float maxImpulse) = 0;
 	virtual void SetEnableAngularMotor(bool enable) = 0;
@@ -43,6 +41,10 @@ public:
 	
 	virtual float GetLinearPosition() = 0;
 	virtual float GetAngularPosition() = 0;
+	///
+	virtual void SetAngularFlags(float damping, float spring) {}
+	///
+	virtual void SetLinearFlags(float damping, float spring) {}
 };
 }
 

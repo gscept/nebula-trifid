@@ -135,6 +135,49 @@ BulletCollider::GetScaledCopy(const vector &scale)
 //------------------------------------------------------------------------------
 /**
 */
+void 
+BulletCollider::AddFromDescription(const ColliderDescription & description)
+{	
+	
+	switch(description.type)
+	{
+		case ColliderSphere:
+			{
+				AddSphere(description.sphere.radius,description.transform);
+			}
+			break;
+		case ColliderCube:
+			{
+				AddBox(description.box.halfWidth,description.transform);
+			}
+			break;
+		case ColliderCylinder:
+			{
+				AddCylinder(description.cylinder.radius,description.cylinder.height,description.transform);
+			}
+			break;
+		case ColliderCapsule:
+			{
+				AddCapsule(description.capsule.radius,description.capsule.height,description.transform);
+			}
+			break;
+		case ColliderPlane:
+			{
+				AddPlane(description.plane.plane,description.transform);
+			}
+			break;
+		case ColliderMesh:
+			{
+				Ptr<ManagedPhysicsMesh> mesh = Resources::ResourceManager::Instance()->CreateManagedResource(PhysicsMesh::RTTI,description.mesh.meshResource).cast<ManagedPhysicsMesh>();				
+				AddPhysicsMesh(mesh,description.transform,description.mesh.meshType,description.mesh.primGroup);				
+			}
+			break;
+	}
+	BaseCollder::AddFromDescription(description);
+}
+//------------------------------------------------------------------------------
+/**
+*/
 void
 BulletCollider::RenderDebug(const matrix44 & trans)
 {

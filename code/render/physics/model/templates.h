@@ -15,8 +15,7 @@ namespace Physics
 	{
 		MeshConvex = 0,
 		MeshConcave = 1,
-		MeshConvexHull = 2,	
-		MeshConvexDecomposition = 3,
+		MeshConvexHull = 2,			
 		MeshStatic = 4
 	};
 

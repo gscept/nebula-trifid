@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>964</width>
-    <height>765</height>
+    <width>966</width>
+    <height>642</height>
    </rect>
   </property>
   <property name="font">
@@ -16,7 +16,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>Nebula 3 Model Importer[*]</string>
+   <string>Nebula Model Importer[*]</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
@@ -958,21 +958,34 @@ p, li { white-space: pre-wrap; }
                 <enum>QFrame::Plain</enum>
                </property>
                <layout class="QGridLayout" name="gridLayout_21">
-                <item row="1" column="0">
-                 <widget class="Line" name="line_2">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                 </widget>
-                </item>
                 <item row="0" column="0">
                  <widget class="QLabel" name="label_14">
                   <property name="text">
-                   <string>Mesh Options</string>
+                   <string>Dynamic geometry usage options</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="0">
+                 <widget class="QRadioButton" name="phUseStatic">
+                  <property name="toolTip">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Object will only be used as a static object. No assumptions about geometry or topology are made. Can be transformed, but not used as rigid bodies&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                  <property name="text">
+                   <string>Static immovable object</string>
                   </property>
                  </widget>
                 </item>
                 <item row="2" column="0">
+                 <widget class="QRadioButton" name="phUseConvex">
+                  <property name="toolTip">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Assumes mesh is convex, no actual checks are done that it is. Will result in undefined behaviour if non-convex. Faster than concave handing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                  <property name="text">
+                   <string>Use as convex (make sure it is)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
                  <widget class="QRadioButton" name="phUseConcave">
                   <property name="toolTip">
                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Assumes the mesh is concave, slowest and limited in usability for movable objects&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -986,48 +999,61 @@ p, li { white-space: pre-wrap; }
                  </widget>
                 </item>
                 <item row="3" column="0">
-                 <widget class="QRadioButton" name="phUseConvex">
-                  <property name="toolTip">
-                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Assumes mesh is convex, no actual checks are done that it is. Will result in undefined behaviour if non-convex. Faster than concave handing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                  </property>
-                  <property name="text">
-                   <string>Use as convex (make sure it is)</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="0">
                  <widget class="QRadioButton" name="phCreateConvex">
                   <property name="toolTip">
                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tries to create a convex hull from the mesh&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                   <property name="text">
-                   <string>Create convex hull</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="6" column="0">
-                 <widget class="QRadioButton" name="phSplit">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                  <property name="toolTip">
-                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Not implemented at the time&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                  </property>
-                  <property name="text">
-                   <string>Split into convex</string>
-                  </property>
-                  <property name="checkable">
-                   <bool>false</bool>
+                   <string>Create convex hull.</string>
                   </property>
                  </widget>
                 </item>
                 <item row="5" column="0">
-                 <widget class="QRadioButton" name="phUseStatic">
-                  <property name="toolTip">
-                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Object will only be used as a static object. No assumptions about geometry or topology are made. Can be transformed, but not used as rigid bodies&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                  </property>
+                 <widget class="QLabel" name="label_10">
                   <property name="text">
-                   <string>Static Object</string>
+                   <string>Static geometry usage options</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="0">
+                 <widget class="Line" name="line_6">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="8" column="0">
+                 <widget class="QLabel" name="label_11">
+                  <property name="text">
+                   <string>Bounding volume options</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="7" column="0">
+                 <widget class="Line" name="line_2">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="9" column="0">
+                 <widget class="QRadioButton" name="phUseBox">
+                  <property name="text">
+                   <string>Box shape</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="10" column="0">
+                 <widget class="QRadioButton" name="phUseSphere">
+                  <property name="text">
+                   <string>Sphere shape</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="11" column="0">
+                 <widget class="QRadioButton" name="phUseCapsule">
+                  <property name="text">
+                   <string>Capsule shape</string>
                   </property>
                  </widget>
                 </item>
@@ -1043,6 +1069,13 @@ p, li { white-space: pre-wrap; }
                 <enum>QFrame::Plain</enum>
                </property>
                <layout class="QGridLayout" name="gridLayout_20">
+                <item row="1" column="0">
+                 <widget class="Line" name="line_5">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
                 <item row="0" column="0">
                  <widget class="QLabel" name="label_13">
                   <property name="font">
@@ -1057,43 +1090,36 @@ p, li { white-space: pre-wrap; }
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="0">
-                 <widget class="Line" name="line_5">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                 </widget>
-                </item>
                 <item row="2" column="0">
                  <widget class="QRadioButton" name="phUseProvidedPh">
                   <property name="toolTip">
                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Uses the physics mesh provided in the model (if available)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                   <property name="text">
-                   <string>Use physics shape from file</string>
+                   <string>Use physics shape from model</string>
                   </property>
                   <property name="checked">
                    <bool>true</bool>
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="0">
+                <item row="4" column="0">
                  <widget class="QRadioButton" name="phCreateBBox">
                   <property name="toolTip">
                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use the graphical models bounding boxes as physics shape&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                   <property name="text">
-                   <string>Create from bounding boxes</string>
+                   <string>Use bounding volume</string>
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="0">
+                <item row="3" column="0">
                  <widget class="QRadioButton" name="phUseGraphics">
                   <property name="toolTip">
                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Uses the same mesh for physics as for rendering&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                   <property name="text">
-                   <string>Use graphics mesh</string>
+                   <string>Use graphics mesh as collider</string>
                   </property>
                  </widget>
                 </item>
@@ -1154,12 +1180,10 @@ p, li { white-space: pre-wrap; }
   <tabstop>scaleBox</tabstop>
   <tabstop>phUseProvidedPh</tabstop>
   <tabstop>phCreateBBox</tabstop>
-  <tabstop>phUseGraphics</tabstop>
   <tabstop>phUseConcave</tabstop>
   <tabstop>phUseConvex</tabstop>
   <tabstop>phCreateConvex</tabstop>
   <tabstop>phUseStatic</tabstop>
-  <tabstop>phSplit</tabstop>
   <tabstop>importButton</tabstop>
   <tabstop>infoText</tabstop>
  </tabstops>

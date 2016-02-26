@@ -26,7 +26,7 @@ public:
 #include "physics/physx/physxphysicsserver.h"
 namespace Physics
 {
-class PhysicsServer : public PhysX::PhysXPhysicsServer
+class PhysicsServer : public PhysX::PhysXServer
 {
 	__DeclareClass(PhysicsServer);
 	__DeclareInterfaceSingleton(PhysicsServer);

@@ -55,10 +55,15 @@ public slots:
 
 	/// called when 
 	void ToggleCreateConvex(bool b);
-	/// called when 
-	void ToggleHACD(bool b);	
-	
+	///
 	void ToggleStatic(bool b);
+
+	///
+	void ToggleBox( bool);
+	///
+	void ToggleSphere( bool);
+	///
+	void ToggleCapsule( bool);
 	
 private:
 

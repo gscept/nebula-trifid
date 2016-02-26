@@ -15,6 +15,15 @@ class Character : public Bullet::BulletCharacter
 	__DeclareClass(Character);
 };
 }
+#elif(__USE_PHYSX__)
+#include "physics/physx/physxcharacter.h"
+namespace Physics
+{
+class Character : public PhysX::PhysXCharacter
+{
+	__DeclareClass(Character);
+};
+}
 #elif (__USE_HAVOK__)	
 #include "physics/havok/havokcharacterphantom.h"
 #include "physics/havok/havokcharacterrigidbody.h"
