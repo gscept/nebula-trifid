@@ -98,6 +98,22 @@ PhysicsController::ReaderLoaded( int status, const IO::URI& path )
 			this->ui->phUseBox->setEnabled(false);
 			this->ui->phUseSphere->setEnabled(false);
 			this->ui->phUseCapsule->setEnabled(false);
+            if (meshMode == Physics::MeshConcave)
+            {
+                this->ui->phUseConcave->setChecked(true);
+            }
+            else if (meshMode == Physics::MeshConvex)
+            {
+                this->ui->phUseConvex->setChecked(true);
+            }
+            else if (meshMode == Physics::MeshConvexHull)
+            {
+                this->ui->phCreateConvex->setChecked(true);
+            }
+            else if (meshMode == Physics::MeshStatic)
+            {
+                this->ui->phUseStatic->setChecked(true);
+            }
 		}
 		else if ((exportMode == ToolkitUtil::UseBoundingBox)|| (exportMode == ToolkitUtil::UseBoundingSphere)|| (exportMode == ToolkitUtil::UseBoundingCapsule))
 		{
@@ -134,25 +150,27 @@ PhysicsController::ReaderLoaded( int status, const IO::URI& path )
 			this->ui->phUseBox->setEnabled(false);
 			this->ui->phUseSphere->setEnabled(false);
 			this->ui->phUseCapsule->setEnabled(false);
+
+            if (meshMode == Physics::MeshConcave)
+            {
+                this->ui->phUseConcave->setChecked(true);
+            }
+            else if (meshMode == Physics::MeshConvex)
+            {
+                this->ui->phUseConvex->setChecked(true);
+            }
+            else if (meshMode == Physics::MeshConvexHull)
+            {
+                this->ui->phCreateConvex->setChecked(true);
+            }
+            else if (meshMode == Physics::MeshStatic)
+            {
+                this->ui->phUseStatic->setChecked(true);
+            }
 		}
 
 
-		if (meshMode == Physics::MeshConcave)
-		{
-			this->ui->phUseConcave->setChecked(true);
-		}
-		else if (meshMode == Physics::MeshConvex)
-		{
-			this->ui->phUseConvex->setChecked(true);
-		}
-		else if (meshMode == Physics::MeshConvexHull)
-		{
-			this->ui->phCreateConvex->setChecked(true);
-		}
-		else if (meshMode == Physics::MeshStatic)
-		{
-			this->ui->phUseStatic->setChecked(true);
-		}				
+		
 	}
 }
 
@@ -162,64 +180,86 @@ PhysicsController::ReaderLoaded( int status, const IO::URI& path )
 void 
 PhysicsController::ToggleUseProvided( bool b )
 {
-	this->currentOptions->SetExportMode(UsePhysics);
-	this->ui->phUseConcave->setEnabled(b);
-	this->ui->phUseConvex->setEnabled(b);
-	this->ui->phCreateConvex->setEnabled(b);	
-	this->ui->phUseStatic->setEnabled(b);
-	this->ui->phUseBox->setEnabled(!b);
-	this->ui->phUseSphere->setEnabled(!b);
-	this->ui->phUseCapsule->setEnabled(!b);
+    if (b)
+    {
+        this->currentOptions->SetExportMode(UsePhysics);
+        this->ui->phUseConcave->setEnabled(b);
+        this->ui->phUseConvex->setEnabled(b);
+        this->ui->phCreateConvex->setEnabled(b);
+        this->ui->phUseStatic->setEnabled(b);
+        this->ui->phUseBox->setEnabled(!b);
+        this->ui->phUseSphere->setEnabled(!b);
+        this->ui->phUseCapsule->setEnabled(!b);
+    }
 }
 
 void 
 PhysicsController::ToggleCreateBBox( bool b )
 {
-	this->currentOptions->SetExportMode(UseBoundingBox);
-	this->ui->phUseConcave->setEnabled(!b);
-	this->ui->phUseConvex->setEnabled(!b);
-	this->ui->phCreateConvex->setEnabled(!b);	
-	this->ui->phUseStatic->setEnabled(!b);
-	this->ui->phUseBox->setEnabled(b);
-	this->ui->phUseSphere->setEnabled(b);
-	this->ui->phUseCapsule->setEnabled(b);
+    if (b)
+    {
+        this->currentOptions->SetExportMode(UseBoundingBox);
+        this->ui->phUseConcave->setEnabled(!b);
+        this->ui->phUseConvex->setEnabled(!b);
+        this->ui->phCreateConvex->setEnabled(!b);
+        this->ui->phUseStatic->setEnabled(!b);
+        this->ui->phUseBox->setEnabled(b);
+        this->ui->phUseBox->setChecked(b);
+        this->ui->phUseSphere->setEnabled(b);
+        this->ui->phUseCapsule->setEnabled(b);
+    }
 }
 
 void 
 PhysicsController::ToggleUseGraphics( bool b )
 {
-	this->currentOptions->SetExportMode(UseGraphicsMesh);
-	this->ui->phUseConcave->setEnabled(b);
-	this->ui->phUseConvex->setEnabled(b);
-	this->ui->phCreateConvex->setEnabled(b);	
-	this->ui->phUseStatic->setEnabled(b);
-	this->ui->phUseBox->setEnabled(!b);
-	this->ui->phUseSphere->setEnabled(!b);
-	this->ui->phUseCapsule->setEnabled(!b);
+    if (b)
+    {
+        this->currentOptions->SetExportMode(UseGraphicsMesh);
+        this->ui->phUseConcave->setEnabled(b);
+        this->ui->phUseConvex->setEnabled(b);
+        this->ui->phCreateConvex->setEnabled(b);
+        this->ui->phUseStatic->setEnabled(b);
+        this->ui->phUseBox->setEnabled(!b);
+        this->ui->phUseSphere->setEnabled(!b);
+        this->ui->phUseCapsule->setEnabled(!b);
+    }
 }
 
 void 
 PhysicsController::ToggleConcave( bool b )
 {
-	this->currentOptions->SetMeshMode(Physics::MeshConcave);	
+    if (b) 
+    {
+        this->currentOptions->SetMeshMode(Physics::MeshConcave); 
+    }
 }
 
 void 
 PhysicsController::ToggleConvex( bool b )
 {
-	this->currentOptions->SetMeshMode(Physics::MeshConvex);	
+    if (b)
+    {
+        this->currentOptions->SetMeshMode(Physics::MeshConvex);
+    }
 }
 
 void 
 PhysicsController::ToggleCreateConvex( bool b )
 {
-	this->currentOptions->SetMeshMode(Physics::MeshConvexHull);	
+    if(b)
+    {
+        this->currentOptions->SetMeshMode(Physics::MeshConvexHull);
+    }	
 }
 
 void 
 PhysicsController::ToggleStatic( bool b )
 {
-	this->currentOptions->SetMeshMode(Physics::MeshStatic);	
+    if (b)
+    {
+        this->currentOptions->SetMeshMode(Physics::MeshStatic);
+    }
 }
 
 void 
@@ -236,25 +276,34 @@ PhysicsController::SetHasPhysics(bool enable)
 void
 PhysicsController::ToggleBox( bool enable)
 {
-	this->currentOptions->SetExportMode(UseBoundingBox);	
+    if (enable)
+    {
+        this->currentOptions->SetExportMode(UseBoundingBox);
+    }	
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-PhysicsController::ToggleSphere( bool)
+PhysicsController::ToggleSphere( bool enable)
 {
-	this->currentOptions->SetExportMode(UseBoundingSphere);
+    if (enable)
+    {
+        this->currentOptions->SetExportMode(UseBoundingSphere);
+    }
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-PhysicsController::ToggleCapsule( bool)
+PhysicsController::ToggleCapsule( bool enable)
 {
-	this->currentOptions->SetExportMode(UseBoundingCapsule);
+    if (enable)
+    {
+        this->currentOptions->SetExportMode(UseBoundingCapsule);
+    }
 }
 
 }
