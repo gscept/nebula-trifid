@@ -22,6 +22,7 @@
 #include "PxQueryReport.h"
 #include "physics/physicsobject.h"
 #include "../filterset.h"
+#include "geometry/PxSphereGeometry.h"
 
 namespace PhysX
 {
@@ -295,6 +296,58 @@ PhysXScene::SetCollideCategory(physx::PxRigidActor* actor, Physics::CollideCateg
 		fd.word0 = coll;
 		shape->setQueryFilterData(fd);
 	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+int
+PhysXScene::GetObjectsInSphere(const Math::point& pos, float radius, const Physics::FilterSet& excludeSet, Util::Array<Ptr<Physics::PhysicsObject> >& result)
+{
+	PxSphereGeometry geom(radius);
+	PxTransform spos(Neb2PxVec(pos));
+	PxOverlapBuffer hit;
+	PxQueryFilterData fd(PxQueryFlag::eNO_BLOCK | PxQueryFlag::eSTATIC | PxQueryFlag::eDYNAMIC);
+	fd.data.word0 = ~(excludeSet.GetCollideBits());
+
+	if (scene->overlap(geom, spos, hit, fd))
+	{
+		for (unsigned int i = 0; i < hit.nbTouches;i++)
+		{
+			if (hit.touches[i].actor->userData)
+			{
+				result.Append((Physics::PhysicsObject*)hit.touches[i].actor->userData);
+			}
+		}
+	}
+	return result.Size();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+int
+PhysXScene::GetObjectsInBox(const Math::matrix44& transform, const Math::vector& halfWidth, const Physics::FilterSet& excludeSet, Util::Array<Ptr<Physics::PhysicsObject> >& result)
+{
+	PxBoxGeometry geom(Neb2PxVec(halfWidth));
+	PxVec3 pxpos = Neb2PxVec(transform.get_position());
+	PxQuat rot = Neb2PxQuat(Math::matrix44::rotationmatrix(transform));
+	PxTransform spos(pxpos,rot);
+	PxOverlapBuffer hit;
+	PxQueryFilterData fd(PxQueryFlag::eNO_BLOCK | PxQueryFlag::eSTATIC | PxQueryFlag::eDYNAMIC);
+	fd.data.word0 = ~(excludeSet.GetCollideBits());
+
+	if (scene->overlap(geom, spos, hit, fd))
+	{
+		for (unsigned int i = 0; i < hit.nbTouches;i++)
+		{
+			if (hit.touches[i].actor->userData)
+			{
+				result.Append((Physics::PhysicsObject*)hit.touches[i].actor->userData);
+			}
+		}
+	}
+	return result.Size();
 }
 
 }

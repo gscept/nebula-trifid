@@ -59,6 +59,13 @@ PhysXPhysicsMesh::GetConvexMesh(int primGroup)
     convexDesc.triangles.data = (void*)&(this->indexData[group.GetBaseIndex()]);	
 	convexDesc.triangles.stride = 3 * sizeof(unsigned int);
 
+	// physx does not support convex meshes with more than 256 triangles, let it build its own convex hull instead
+	if(convexDesc.triangles.count >255)
+	{ 
+		n_warning("Mesh %s has %d triangles which exceeds the 256 limit, creating convex hull", this->GetResourceId().AsString().AsCharPtr(), convexDesc.triangles.count);
+		convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX | PxConvexFlag::eINFLATE_CONVEX;
+	}
+
 	PxDefaultMemoryOutputStream buf;
 	PxConvexMeshCookingResult::Enum result;
 	if (!PhysXServer::Instance()->cooking->cookConvexMesh(convexDesc, buf, &result))

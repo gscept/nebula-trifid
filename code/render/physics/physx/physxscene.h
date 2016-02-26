@@ -77,9 +77,9 @@ public:
 	virtual void Detach(const Ptr<Physics::PhysicsObject> & obj);
 	
 	/// return all entities within a spherical area
-	virtual int GetObjectsInSphere(const Math::vector& pos, float radius, const Physics::FilterSet& excludeSet, Util::Array<Ptr<Physics::PhysicsObject> >& result) {return 0;}
+	virtual int GetObjectsInSphere(const Math::point& pos, float radius, const Physics::FilterSet& excludeSet, Util::Array<Ptr<Physics::PhysicsObject> >& result);
 	/// return all entities within a box 
-	virtual int GetObjectsInBox(const Math::vector& scale, const Math::matrix44& m, const Physics::FilterSet& excludeSet, Util::Array<Ptr<Physics::PhysicsObject> >& result) {return 0;}
+	virtual int GetObjectsInBox(const Math::matrix44& transform, const Math::vector& halfWidth, const Physics::FilterSet& excludeSet, Util::Array<Ptr<Physics::PhysicsObject> >& result);
 
 	/// Do a ray check starting from position `pos' along ray `dir'.
     virtual Util::Array<Ptr<Physics::Contact>> RayCheck(const Math::vector& pos, const Math::vector& dir, const Physics::FilterSet& excludeSet, RayTestType rayType);

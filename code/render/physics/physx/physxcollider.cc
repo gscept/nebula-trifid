@@ -155,8 +155,7 @@ PhysXCollider::CreatePhysicsMesh(PxRigidActor * target, const ColliderDescriptio
             target->createShape(*geom, material, ptrans);
 		}
 		break;
-		case MeshConvexHull:
-		case MeshConvexDecomposition:
+		case MeshConvexHull:		
 		{
 			PxConvexMesh * cmesh = mesh->GetConvexHullMesh(desc.mesh.primGroup);
 			PxConvexMeshGeometry* geom;
