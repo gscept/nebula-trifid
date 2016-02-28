@@ -78,6 +78,7 @@ PhysXCollider::CreateBox(PxRigidActor * target, const ColliderDescription & desc
 {
     Math::float4 half = desc.box.halfWidth;
     half *= scale;
+	half = Math::float4::maximize(half, Math::float4(0.01f, 0.01f, 0.01f, 1));
     PxBoxGeometry * geom = n_new(PxBoxGeometry(Neb2PxVec(half)));    
     PxTransform ptrans(Neb2PxVec(trans), Neb2PxQuat(quat));
     target->createShape(*geom, material, ptrans);

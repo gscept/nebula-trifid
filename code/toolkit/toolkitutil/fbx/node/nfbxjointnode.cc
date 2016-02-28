@@ -163,11 +163,19 @@ NFbxJointNode::RecursiveConvertToLocal( const Ptr<NFbxJointNode>& parent )
 	}	
 
 	// we have a global matrix retrieved from the bindpose, apply inverse parent
-	if (this->matrixIsGlobal && this != parent && parent.isvalid())
+	if (this->matrixIsGlobal)		
 	{
-		FbxMatrix parentMatrix = parent->globalMatrix;
-		FbxMatrix localMatrix = parentMatrix.Inverse() * this->globalMatrix;
-		this->ExtractTransform(localMatrix);
+		if (this != parent && parent.isvalid())
+		{
+			FbxMatrix parentMatrix = parent->globalMatrix;
+			FbxMatrix localMatrix = parentMatrix.Inverse() * this->globalMatrix;
+			this->ExtractTransform(localMatrix);
+		}
+		else
+		{
+			// we are root
+			this->ExtractTransform(this->globalMatrix);			
+		}
 	}
 	// go through children and do the same
 	IndexT childIndex;
