@@ -3,6 +3,8 @@
   <AttributeLib>
     <Dependency header="navigationattributes.h"/>
     <Dependency header="graphicsfeature/graphicsattr/graphicsattributes.h"/>
+    <Dependency header="leveleditor2entitymanager.h"/>
+    <Dependency header="properties/editorproperty.h"/>
   </AttributeLib>
   <Property name="LevelEditor2::EditorNavMeshProperty" header="properties/editornavmeshproperty.h">
     <Attribute name="MaxEdgeLength" />
@@ -126,6 +128,28 @@
         Ptr<BaseGameFeature::SetAttribute> msg = BaseGameFeature::SetAttribute::Create();
         msg->SetAttr(newatt);
         __SendSync(entity,msg);
+       ]]>
+      </Code>
+    </Command>
+    <Command name="creategroup" fourcc="crgr" desc="create a new group node">      
+      <InArg name="name" type="string"/>
+      <OutArg name="id" type="string"/>
+      <Code>
+        <![CDATA[
+         Util::Guid g = LevelEditor2::LevelEditor2EntityManager::Instance()->CreateTransformEntity(name);
+         return g.AsString();
+       ]]>
+      </Code>
+    </Command>
+    <Command name="addtogroup" fourcc="adgr" desc="adds entity to group">      
+      <InArg name="groupguid" type="string"/>
+      <InArg name="entityid" type="uint"/>
+      <Code>
+        <![CDATA[
+        Util::Guid g = Util::Guid::FromString(groupguid);
+        Ptr<Game::Entity> entity = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(entityid);        
+         entity->SetGuid(Attr::ParentGuid,g);
+         LevelEditor2::LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->RebuildTree();
        ]]>
       </Code>
     </Command>

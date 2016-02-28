@@ -62,5 +62,6 @@ private:
 	Util::String resourceType;
 	Util::String fileSuffix;
 	bool editable;
+	bool fullName;
 };
 }

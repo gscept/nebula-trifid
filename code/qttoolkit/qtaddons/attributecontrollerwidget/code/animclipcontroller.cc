@@ -21,7 +21,9 @@ namespace QtAttributeControllerAddon
 //------------------------------------------------------------------------------
 /**
 */
-AnimClipController::AnimClipController(QWidget* parent, const Ptr<Game::Entity>& entity, const Ptr<Tools::IDLAttribute>& idlattr) :BaseAttributeController(parent)
+AnimClipController::AnimClipController(QWidget* parent, const Ptr<Game::Entity>& entity, const Ptr<Tools::IDLAttribute>& idlattr) :
+	BaseAttributeController(parent),
+	permitEmpty(false)
 {
 	this->entity = entity;	
 	this->attributeId = AttrId(idlattr->GetName());
@@ -33,6 +35,10 @@ AnimClipController::AnimClipController(QWidget* parent, const Ptr<Game::Entity>&
 
 	this->ui->comboBox->installEventFilter(this);
 
+	if (idlattr->HasAttribute("permitEmpty"))
+	{
+		this->permitEmpty = idlattr->GetAttribute("permitEmpty").AsBool();
+	}
 
 	Ptr<BaseGameFeature::GetAttribute> msg = BaseGameFeature::GetAttribute::Create();
 	msg->SetAttributeId(this->attributeId);
@@ -104,7 +110,11 @@ void
 AnimClipController::OnFetchedClipList(const Ptr<Messaging::Message>& msg)
 {
 	const Ptr<Graphics::FetchClips>& clipMsg = msg.downcast<Graphics::FetchClips>();
-	const Util::Array<Util::StringAtom>& clips(clipMsg->GetClips());
+	Util::Array<Util::StringAtom> clips = clipMsg->GetClips();
+	if (this->permitEmpty)
+	{
+		clips.Append("");
+	}
 	
 	if (this->entity.isvalid())
 	{
@@ -121,7 +131,7 @@ AnimClipController::OnFetchedClipList(const Ptr<Messaging::Message>& msg)
 
 		this->ui->comboBox->setEnabled(true);
 		this->SetClips(clips, this->currentValue);
-	}
+	}	
 }
 
 //------------------------------------------------------------------------------
@@ -140,7 +150,7 @@ AnimClipController::SetClips(const Util::Array<Util::StringAtom> & clips, const 
 		{
 			selection = i;
 		}
-	}
+	}	
 	this->ui->comboBox->setCurrentIndex(selection);
 }
 

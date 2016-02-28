@@ -57,5 +57,6 @@ private:
 
 	Ui::StringListController* ui;
 	Util::String currentValue;
+	bool permitEmpty;
 };
 }

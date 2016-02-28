@@ -73,8 +73,11 @@ LightProperty::OnActivate()
         case LightType::Spot:
             {
                 this->lightEntity = SpotLightEntity::Create();
-                this->entity->SetString(Attr::LightProjectionMap, "tex:lighting/lightcones.dds");
-
+				if (this->entity->GetString(Attr::LightProjectionMap).IsEmpty())
+				{
+					this->entity->SetString(Attr::LightProjectionMap, "tex:lighting/lightcones.dds");
+				}
+                
                 // build spot light transform from attributes and current entity transform
                 this->SetSpotLightTransform();
 
@@ -83,8 +86,11 @@ LightProperty::OnActivate()
                 break;
             }
         case LightType::Point:
-            this->lightEntity = PointLightEntity::Create();			
-            this->entity->SetString(Attr::LightProjectionMap, "tex:lighting/lightcube.dds");
+            this->lightEntity = PointLightEntity::Create();		
+			if (this->entity->GetString(Attr::LightProjectionMap).IsEmpty())
+			{
+				this->entity->SetString(Attr::LightProjectionMap, "tex:lighting/lightcube.dds");
+			}            
             break;
     }	   
 

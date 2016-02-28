@@ -381,6 +381,14 @@ LevelEditor2EntityManager::CreateEntityFromAttrContainer(const Util::String & ca
 		at.Append(Attribute(Attr::EntityCategory,"Light"));
 		at.Append(Attribute(Attr::Graphics,"system/placeholder"));
 		newEnt = CreateEntityByAttrs(at,"EditorLight", attrs.GetGuid(Attr::Guid).AsString());
+		const Util::Dictionary<AttrId, Attribute>& arr = attrs.GetAttrs();
+		for (int i = 0; i < arr.Size();i++)
+		{
+			if(newEnt->HasAttr(arr.KeyAtIndex(i)))
+			{
+				newEnt->SetAttr(arr.ValueAtIndex(i));
+			}
+		}
 		newEnt->SetString(Attr::EntityLevel,Level::Instance()->GetName());		
 	}
 	else if(category == "_Group")
