@@ -6,7 +6,7 @@
     Overrides the base QTreeWidget in order to implement extra functionality.
 	This widget views the contents of a EntityStructureModel.
 
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include <QTreeWidget>

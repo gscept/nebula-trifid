@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 // posteffectrendermodule.cc
 // (C) 2009 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 
 #include "stdneb.h"
@@ -9,7 +9,7 @@
 #include "rt/forestrtplugin.h"
 #include "graphics/graphicsinterface.h"
 #include "graphics/graphicsprotocol.h"
-#include "forestprotocol.h"
+#include "forest/forestprotocol.h"
 #include "forest/forestrendermodule.h"
 
 namespace Forest

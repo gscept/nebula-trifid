@@ -5,12 +5,12 @@
 	
 	Takes an input CoreGraphics::Texture and filters it if it's a cubemap.
 	
-	(C) 2015 Individual contributors, see AUTHORS file
+	(C) 2015-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
 #include "coregraphics/texture.h"
-#include "extlibs/CubeMapGen/CCubeMapProcessor.h"
+#include "CubeMapGen/CCubeMapProcessor.h"
 #include "io/uri.h"
 namespace ToolkitUtil
 {

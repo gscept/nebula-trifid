@@ -5,7 +5,7 @@
     
     An undoable action which creates an object.
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 #include "action.h"
 #include "game/entity.h"

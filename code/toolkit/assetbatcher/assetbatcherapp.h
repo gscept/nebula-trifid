@@ -1,11 +1,11 @@
 #pragma once
 //------------------------------------------------------------------------------
 /**
-    @class TookitUtil::FBXBatcher3App
+    @class TookitUtil::AssetBatcherApp
     
-    Entry point for FBX batcher
+    Entry point for asset batcher
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 #include "distributedtools/distributedtoolkitapp.h"
 #include "modelutil/modeldatabase.h"

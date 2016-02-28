@@ -22,7 +22,7 @@ PCH_QT4_WRAP_CPP(remoteinterface_HEADERS_MOC ${QTMOCFILES})
 SET(qttoolkitutil_NIDLS
 	qtremoteprotocol.nidl
 )
-N_WRAP_ADD_NIDL_FILES(CODE ${qttoolkitutil_NIDLS})
+N_WRAP_ADD_NIDL_FILES(remoteinterface CODE ${qttoolkitutil_NIDLS})
 
 LIST(APPEND ALLSRCS ${CODE} ${PCH_files} ${remoteinterface_HEADERS_MOC})
 ADD_LIBRARY(remoteinterface STATIC ${ALLSRCS})

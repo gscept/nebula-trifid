@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  attributecontrollerwidget.cc
-//  (C) 2013-2014 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "attributecontrollerwidget.h"
@@ -14,12 +14,12 @@
 #include "boolcontroller.h"
 #include "guidcontroller.h"
 #include "matrix44controller.h"
-#include "toolkit/toolkitutil/idldocument/idlattribute.h"
+#include "idldocument/idlattribute.h"
 #include "stringlistcontroller.h"
 #include "resourcestringcontroller.h"
 #include "colourcontroller.h"
 #include "animclipcontroller.h"
-#include "toolkit/editorfeatures/editorblueprintmanager.h"
+#include "editorfeatures/editorblueprintmanager.h"
 #include "physicsmaterialcontroller.h"
 
 using namespace Util;

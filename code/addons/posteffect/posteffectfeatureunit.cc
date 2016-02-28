@@ -1,11 +1,14 @@
 //------------------------------------------------------------------------------
 //  posteffect/posteffectfeatureunit.cc
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "posteffectfeatureunit.h"
 #include "graphicsfeature/graphicsfeatureunit.h"
 #include "graphics/modelentity.h"
+#include "basegamefeatureunit.h"
+#include "graphicsfeature/graphicsattr/graphicsattributes.h"
+#include "managers/levelattrsmanager.h"
 
 
 namespace PostEffect
@@ -131,4 +134,33 @@ PostEffectFeatureUnit::CleanupDefaultWorld()
 	this->skyEntity = 0;
 	PostEffect::PostEffectServer::Instance()->SetGlobalLightEntity(0);
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PostEffectFeatureUnit::OnLoad()
+{
+	Util::String preset = BaseGameFeature::LevelAttrsManager::Instance()->GetString(Attr::PostEffectPreset);
+	this->ApplyPreset(preset);	
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PostEffectFeatureUnit::OnBeforeLoad()
+{
+	this->SetupDefaultWorld();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PostEffectFeatureUnit::OnBeforeCleanup()
+{
+	this->CleanupDefaultWorld();
+}
+
 };

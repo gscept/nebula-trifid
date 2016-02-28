@@ -1,11 +1,11 @@
 #pragma once
 //------------------------------------------------------------------------------
 /**
-    @class ToolkitUtil::Event
+    @class ToolkitUtil::ClipEvent
     
     Implements a per-clip timed animation event. Simlar to animevent.h
     
-    (C) 2015 Individual contributors, see AUTHORS file
+    (C) 2015-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"

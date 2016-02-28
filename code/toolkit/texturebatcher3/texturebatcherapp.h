@@ -8,7 +8,7 @@
     @todo WaitForKey not implemented!
     
     (C) 2008 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "toolkitutil/toolkitapp.h"
 #include "distributedtools/distributedtoolkitapp.h"

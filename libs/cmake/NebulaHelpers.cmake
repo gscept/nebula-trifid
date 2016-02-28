@@ -35,7 +35,7 @@ MACRO(N_WRAP_NIDL_FILES proj)
         SET_TARGET_PROPERTIES(${proj} PROPERTIES FOLDER "NIDL")
 ENDMACRO()
 
-MACRO(N_WRAP_ADD_NIDL_FILES proj)		
+MACRO(N_WRAP_ADD_NIDL_FILES projname proj)		
         set(files ${ARGN})
 		set(outlist "")
         List(APPEND outlist ${ARGN})		
@@ -46,20 +46,20 @@ MACRO(N_WRAP_ADD_NIDL_FILES proj)
                 STRING(FIND "${CMAKE_CURRENT_SOURCE_DIR}"  "/" last REVERSE)
                 STRING(SUBSTRING "${CMAKE_CURRENT_SOURCE_DIR}" ${last}+1 -1 folder)				
                 IF(WIN32)
-                    ADD_CUSTOM_COMMAND( OUTPUT "${CMAKE_BINARY_DIR}/nidl/${outfile}" "${CMAKE_BINARY_DIR}/nidl/${outfileh}"
-                                        PRE_BUILD COMMAND "${N3ROOT}/bin/win32/idlc.toolkit.exe" -output "${CMAKE_BINARY_DIR}/nidl/" "${nidl}"
+                    ADD_CUSTOM_COMMAND( OUTPUT "${CMAKE_BINARY_DIR}/nidl/${projname}/${outfile}" "${CMAKE_BINARY_DIR}/nidl/${projname}/${outfileh}"
+                                        PRE_BUILD COMMAND "${N3ROOT}/bin/win32/idlc.toolkit.exe" -output "${CMAKE_BINARY_DIR}/nidl/${projname}/" "${nidl}"
                                         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" 
                                         MAIN_DEPENDENCY "${nidl}"
                                         VERBATIM PRE_BUILD)
                 ELSEIF(UNIX)
-                    ADD_CUSTOM_COMMAND( OUTPUT ${CMAKE_BINARY_DIR}/nidl/${outfile} ${CMAKE_BINARY_DIR}/nidl/${outfileh}
-                                        COMMAND ${N3ROOT}/bin/posix/idlc.toolkit -output ${CMAKE_BINARY_DIR}/nidl/ ${nidl}
+                    ADD_CUSTOM_COMMAND( OUTPUT ${CMAKE_BINARY_DIR}/nidl/${projname}/${outfile} ${CMAKE_BINARY_DIR}/nidl/${projname}/${outfileh}
+                                        COMMAND ${N3ROOT}/bin/posix/idlc.toolkit -output ${CMAKE_BINARY_DIR}/nidl/${projname}/ ${nidl}
                                         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} 
                                         MAIN_DEPENDENCY ${nidl}
                                         )
                 ENDIF()				
-                SOURCE_GROUP("Generated" FILES "${CMAKE_BINARY_DIR}/nidl/${outfile}" "${CMAKE_BINARY_DIR}/nidl/${outfileh}")
-                List(APPEND outlist ${nidl} "${CMAKE_BINARY_DIR}/nidl/${outfile}" "${CMAKE_BINARY_DIR}/nidl/${outfileh}")
+                SOURCE_GROUP("Generated" FILES "${CMAKE_BINARY_DIR}/nidl/${projname}/${outfile}" "${CMAKE_BINARY_DIR}/nidl/${projname}/${outfileh}")
+                List(APPEND outlist ${nidl} "${CMAKE_BINARY_DIR}/nidl/${projname}/${outfile}" "${CMAKE_BINARY_DIR}/nidl/${projname}/${outfileh}")
         ENDFOREACH()
 		List(APPEND ${proj} ${outlist})
 ENDMACRO()
@@ -451,6 +451,13 @@ ELSEIF(UNIX)
 	#SET(QT_UIC_EXECUTABLE /usr/bin/uic)
         
 ENDIF()
+
+MACRO(N_CREATE_FEATURE featurename files nidls)
+	SET(filevar ${${files}})
+	N_WRAP_ADD_NIDL_FILES(${featurename} filevar ${${nidls}})
+	ADD_LIBRARY(${featurename} STATIC ${filevar})	
+	SET_TARGET_PROPERTIES(${featurename} PROPERTIES FOLDER "N3SDK/N3/features")	
+ENDMACRO()
 
 MACRO(PARSE_PROJ_NIDLS name projfile)
 

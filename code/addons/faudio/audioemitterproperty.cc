@@ -1,13 +1,13 @@
 //------------------------------------------------------------------------------
 //  audioemitterproperty.cc
-//  (C) 2015 Individual contributors, see AUTHORS file
+//  (C) 2015-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "faudio/audioemitterproperty.h"
 #include "game/entity.h"
 #include "basegamefeature/basegameattr/basegameattributes.h"
 #include "faudio/audiodevice.h"
-#include "audioprotocol.h"
+#include "faudio/audioprotocol.h"
 #include "physicsfeature/physicsattr/physicsattributes.h"
 #include "basegamefeature/basegameprotocol.h"
 

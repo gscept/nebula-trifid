@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  game/PhysicsFeatureUnit.cc
 //  (C) 2007 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "physicsfeatureunit.h"
@@ -195,6 +195,24 @@ bool
 PhysicsFeatureUnit::GetInitVisualDebuggerFlag() const
 {
 	return this->initVisualDebugger;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PhysicsFeatureUnit::OnBeforeLoad()
+{
+	this->CreateDefaultPhysicsWorld();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PhysicsFeatureUnit::OnBeforeCleanup()
+{
+	this->CleanupPhysicsWorld();
 }
 
 }; // namespace PhysicsFeature

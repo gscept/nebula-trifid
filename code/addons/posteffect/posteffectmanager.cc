@@ -1,14 +1,13 @@
 //------------------------------------------------------------------------------
 //  posteffect/posteffectmanager.cc
 //  (C) 2008 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "posteffect/posteffectmanager.h"
 #include "basegametiming/gametimesource.h"
-#include "basegamefeature/managers/enventitymanager.h"
 #include "basegametiming/systemtimesource.h"
-#include "posteffectprotocol.h"
+#include "posteffect/posteffectprotocol.h"
 #include "graphics/graphicsinterface.h"
 #include "graphics/graphicsprotocol.h"
 #include "rt/posteffectrtplugin.h"

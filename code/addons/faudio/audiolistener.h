@@ -6,7 +6,7 @@
     Singleton which defines the position, orientation and
     velocity of the audio listener.
         
-    (C) 2014 Individual contributors, see AUTHORS file
+    (C) 2014-2016 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
 #include "core/singleton.h"

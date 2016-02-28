@@ -1,10 +1,10 @@
 //------------------------------------------------------------------------------
 //  leveleditor2/editorproperty.cc
-//  (C) 2012 Johannes Hirche, LTU Skelleftea
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "properties/editorproperty.h"
-#include "leveleditor2protocol.h"
+#include "leveleditor2/leveleditor2protocol.h"
 #include "messaging/staticmessagehandler.h"
 #include "basegamefeature/basegameprotocol.h"
 #include "entityguid.h"

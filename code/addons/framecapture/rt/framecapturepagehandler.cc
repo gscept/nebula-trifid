@@ -1,12 +1,12 @@
 //------------------------------------------------------------------------------
 // framecapturepagehandler.cc
 // (C) 2010 Radon Labs GmbH
-// (C) 2013-2015 Individual contributors, see AUTHORS file
+// (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "framecapture/rt/framecapturepagehandler.h"
 #include "framecapture/rt/framecaptureserver.h"
-#include "framecaptureprotocol.h"
+#include "framecapture/framecaptureprotocol.h"
 #include "http/html/htmlpagewriter.h"
 #include "graphics/graphicsinterface.h"
 #include "io/assignregistry.h"

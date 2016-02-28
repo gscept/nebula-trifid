@@ -19,7 +19,7 @@
     OnFrame of the feature so
 
     (C) 2007 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "game/featureunit.h"
 #include "physics/physicsserver.h"
@@ -53,6 +53,11 @@ public:
 	/// called from within GameServer::OnStart() after OnLoad when the complete world exist
 	virtual void OnStart(){}      
 
+	/// called from within GameServer::NotifySetupDefault() before the database is loaded
+	virtual void OnBeforeLoad();
+	/// called from within GameServer::NotifyCleanup() before shutting down a level
+	virtual void OnBeforeCleanup();
+
 	/// called on begin of frame
 	virtual void OnBeginFrame(){}
 	/// called in the middle of the feature trigger cycle
@@ -63,11 +68,7 @@ public:
     /// called when game debug visualization is on
     virtual void OnRenderDebug();
 
-    /// create default physics world
-    void CreateDefaultPhysicsWorld();
-    /// cleanup physics world
-    void CleanupPhysicsWorld();
-
+	///
 	virtual bool OnCollision(const Ptr<Physics::PhysicsObject> & receiver, const Ptr<Physics::PhysicsObject> & collidedWith, const Ptr<Physics::Contact> & c);
 
 	/// returns whether the physics-vdb camera is being synced with the camera 
@@ -83,6 +84,10 @@ public:
 	bool GetInitVisualDebuggerFlag() const;
 
 protected:	
+	/// create default physics world
+	void CreateDefaultPhysicsWorld();
+	/// cleanup physics world
+	void CleanupPhysicsWorld();
 
 	bool syncVDBCamera;		// whether the physics-visualdebugger camera should be synced with the view camera
 	bool initVisualDebugger; // whether the physicsserver is supposed to initiate its visualdebugger (defaults to true)

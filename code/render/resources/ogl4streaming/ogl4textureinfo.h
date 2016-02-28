@@ -6,6 +6,7 @@
     OGL4TextureInfo holds texture information such as like height, width, format etc ...
 
     (C) 2010 Radon Labs GmbH
+	(C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
 #include "resources/streaming/resourceinfo.h"

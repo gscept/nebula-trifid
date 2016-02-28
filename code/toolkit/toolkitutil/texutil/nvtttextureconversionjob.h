@@ -6,7 +6,7 @@
     Implementation of a conversion job, that converts a texture for
     the linux platform using the nvidia-texture-tools
     
-    (C) 2013 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "toolkitutil/texutil/textureconversionjob.h"
 #include "toolkitutil/applauncher.h"

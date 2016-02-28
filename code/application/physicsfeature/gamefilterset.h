@@ -5,7 +5,7 @@
 
     A filter set object allows to define checking for game entity id exclusion as well
     
-    (C) 2013 Johannes Hirche
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "util/array.h"
 #include "physics/filterset.h"

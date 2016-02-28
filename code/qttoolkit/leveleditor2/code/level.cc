@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  level.cc
-//  (C) 2013 Johannes Hirche, LTU Skelleftea
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "level.h"
@@ -17,7 +17,7 @@
 #include "entityguid.h"
 #include "graphicsfeature/graphicsattr/graphicsattributes.h"
 #include "basegamefeature/basegameattr/basegameattributes.h"
-#include "leveleditor2protocol.h"
+#include "leveleditor2/leveleditor2protocol.h"
 #include "game/levelexporter.h"
 #include "physicsfeature/physicsattr/physicsattributes.h"
 #include "posteffect/posteffectmanager.h"

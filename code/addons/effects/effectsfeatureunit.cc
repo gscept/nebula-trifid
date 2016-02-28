@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  effectsfeatureunit.cc
 //  (C) 2009 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "effectsfeatureunit.h"
@@ -59,6 +59,7 @@ EffectsFeatureUnit::OnActivate()
 void
 EffectsFeatureUnit::OnDeactivate()
 {
+	this->FlushAll();
 	// discard registry
 	this->animRegistry->Discard();
 	this->animRegistry = 0;
@@ -262,6 +263,15 @@ EffectsFeatureUnit::EmitPostFXEvent(const Util::String & preset, Timing::Time du
 	// add effect
 	effect->OnActivate(this->curTime);
 	this->activeEffects.Append(effect.upcast<Effect>());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+EffectsFeatureUnit::OnBeforeCleanup()
+{
+	this->FlushAll();
 }
 
 };

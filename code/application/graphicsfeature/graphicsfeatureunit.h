@@ -14,7 +14,7 @@
     the input server.
 
     (C) 2007 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file	
+    (C) 2013-2016 Individual contributors, see AUTHORS file	
 */
 #include "game/featureunit.h"
 #include "graphics/graphicsinterface.h"
@@ -57,6 +57,12 @@ public:
     virtual void OnActivate();
     /// called from GameServer::DeactivateProperties()
     virtual void OnDeactivate();           
+	/// called from within GameServer::NotifySetupDefault() before the database is loaded
+	virtual void OnBeforeLoad();
+	/// called from within GameServer::NotifyCleanup() before shutting down a level
+	virtual void OnBeforeCleanup();
+	/// called from within GameServer::Load() after attributes are loaded
+	virtual void OnLoad();
     /// called from within GameServer::OnStart() after OnLoad when the complete world exist
     virtual void OnStart();      
     /// called on begin of frame
@@ -90,9 +96,7 @@ public:
 	/// get global light entity
 	const Ptr<Graphics::GlobalLightEntity>& GetGlobalLightEntity() const;
 	/// get world bounding box
-	const Math::bbox& GetWorldBoundingBox() const;
-    /// on entities loaded
-    void OnEntitiesLoaded();       
+	const Math::bbox& GetWorldBoundingBox() const;    
     /// on setup resource mappers
     void OnSetupResourceMappers();
 
@@ -138,6 +142,7 @@ protected:
 	Math::bbox worldBoundingBox;	  
     Ptr<GraphicsFeature::AttachmentManager> attachmentManager;
     Ptr<GraphicsFeature::GameAnimEventHandler> animEventHandler;
+	Ptr<EnvEntityManager> envEntityManager;
 	Ptr<Resources::SimpleResourceMapper> animPathMapper;
 
     bool decorated;

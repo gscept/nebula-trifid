@@ -1,13 +1,13 @@
 //------------------------------------------------------------------------------
 //  qtremoteclient.cc
-//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "qtremoteclient.h"
 #include "io/memorystream.h"
 #include "io/binarywriter.h"
 #include "net/socket/ipaddress.h"
-#include "qtremoteprotocol.h"
+#include "remoteinterface/qtremoteprotocol.h"
 
 using namespace Net;
 using namespace Util;

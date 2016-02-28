@@ -70,7 +70,7 @@ SET(PCH_files
 )
 SOURCE_GROUP("Precompiled" FILES ${PCH_files})
 
-N_WRAP_NIDL_FILES(shady_NIDLS code/simulation/simulationcommands.nidl)
+N_WRAP_ADD_NIDL_FILES(shady CODE code/simulation/simulationcommands.nidl)
 
 PCH_QT4_WRAP_CPP(shady_HEADERS_MOC ${QTMOCFILES})
 SOURCE_GROUP("MOC" FILES ${shady_HEADERS_MOC})
@@ -90,15 +90,13 @@ IF(SHADY_APPLICATION)
     N_SET_EXE_LINKER_DEFAULTS(shady)
     N_SET_EXE_SUBSYSTEM(shady Windows)
 
-    ADD_DEPENDENCIES(shady
-        shady_NIDLS
+    ADD_DEPENDENCIES(shady        
         libqimg
 	    ${NEBULA_DEFAULT_LIBS}
 	    nody
 	    toolkitutil
     )
-    TARGET_LINK_LIBRARIES(shady
-        shady_NIDLS
+    TARGET_LINK_LIBRARIES(shady        
         libqimg
         ${NEBULA_DEFAULT_LIBS}
 	    ${NEBULA_TOOLKIT_LIBS}

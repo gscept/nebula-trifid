@@ -13,7 +13,7 @@
     game entity which has a StaticGraphicsProperty attached.
         
     (C) 2005 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "game/property.h"
 #include "graphics/modelentity.h"

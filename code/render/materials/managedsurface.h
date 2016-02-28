@@ -5,7 +5,7 @@
 	
 	Implements a managed resource container for a surface resource.
 	
-	(C) 2015 Individual contributors, see AUTHORS file
+	(C) 2015-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "resources/managedresource.h"

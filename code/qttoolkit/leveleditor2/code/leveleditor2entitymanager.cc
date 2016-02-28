@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  leveleditor2entitymanager.cc
-//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "leveleditor2entitymanager.h"
@@ -16,7 +16,7 @@
 #include "managers/categorymanager.h"
 #include "managers/factorymanager.h"
 #include "properties/editorproperty.h"
-#include "leveleditor2protocol.h"
+#include "leveleditor2/leveleditor2protocol.h"
 #include "io/ioserver.h"
 #include "io/xmlreader.h"
 #include "leveleditor2app.h"
@@ -289,6 +289,8 @@ LevelEditor2EntityManager::DuplicateEntity(const Ptr<Game::Entity>& entity)
 
 	// make sure it's not selected, since our currently selected entity will surely be!
 	newentity->SetBool(Attr::IsSelected, false);
+	Ptr<Layers::LayerHandler> handler = LevelEditor2App::Instance()->GetWindow()->GetLayerHandler();
+	handler->HandleEntityCreated(newentity);
 	return newguid;
 }
 

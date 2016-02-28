@@ -5,7 +5,7 @@
 	
 	A light probe entity is used to render reflections and irradiance to a local area.
 	
-	(C) 2012-2014 Individual contributors, see AUTHORS file
+	(C) 2012-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "graphicsentity.h"

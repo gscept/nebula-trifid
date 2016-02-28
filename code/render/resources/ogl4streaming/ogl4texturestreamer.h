@@ -7,6 +7,7 @@
     synchronous and asynchronous loading. Specialized for DirectX 9.
     
     (C) 2010 Radon Labs GmbH
+	(C) 2013-2016 Individual contributors, see AUTHORS file
 */    
 #include "resources/streamresourceloader.h"
 #include "debug/debugtimer.h"

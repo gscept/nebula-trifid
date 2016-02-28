@@ -6,6 +6,7 @@
     A specialized creator for directX9-textures.
 
     (C) 2010 Radon Labs GmbH
+	(C) 2013-2016 Individual contributors, see AUTHORS file
 */
 
 #include "resources/streaming/resourcecreator.h"

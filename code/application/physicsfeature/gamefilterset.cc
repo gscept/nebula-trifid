@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
-//  physicsfeatyre/gamefilterset.cc
-//  (C) 2012 Johannes Hirche
+//  physicsfeature/gamefilterset.cc
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "physicsfeature/gamefilterset.h"

@@ -5,7 +5,7 @@
   
     An alternative to ShapeNode when using materials instead of single shaders
     
-    (C) 2011-2013 Individual contributors, see AUTHORS file
+    (C) 2011-2016 Individual contributors, see AUTHORS file
 */    
 #include "models/nodes/statenode.h"
 #include "resources/managedmesh.h"

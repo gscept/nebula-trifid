@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  multiplayer/multiplayerfeatureunit.cc
-//  (C) 2015 Individual contributors, see AUTHORS file
+//  (C) 2015-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "multiplayerfeatureunit.h"
@@ -120,6 +120,15 @@ MultiplayerFeatureUnit::RestartNetwork()
 	this->server->SetupLowlevelNetworking();
 
 	ReplicationManager::Instance()->Reference(dynamic_cast<RakNet::Replica3*>(this->player.get_unsafe()));
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+MultiplayerFeatureUnit::OnBeforeCleanup()
+{
+	this->SetEnableEntitySync(false);	
 }
 
 //------------------------------------------------------------------------------

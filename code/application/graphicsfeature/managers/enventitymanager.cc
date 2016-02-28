@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  enventitymanager.cc
 //  (C) 2007 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "basegamefeature/basegameattr/basegameattributes.h"
@@ -21,12 +21,12 @@
 #include "physicsfeature/physicsattr/physicsattributes.h"
 #include "graphics/billboardentity.h"
 
-namespace BaseGameFeature
+namespace GraphicsFeature
 {
 __ImplementClass(EnvEntityManager, 'MENV', Game::Manager);
 __ImplementSingleton(EnvEntityManager);
 
-using namespace GraphicsFeature;
+using namespace BaseGameFeature;
 using namespace Util;
 using namespace Math;
 using namespace Game;
@@ -380,8 +380,12 @@ EnvEntityManager::ClearEnvEntity()
 {
     if (this->envEntity.isvalid())
     {
-        EntityManager* entityManager = EntityManager::Instance();
-        entityManager->RemoveEntity(this->envEntity);
+		if (this->envEntity->IsActive())
+		{
+			EntityManager* entityManager = EntityManager::Instance();
+			entityManager->RemoveEntity(this->envEntity);
+		}
+        
         this->envEntity = 0;
         this->envGraphicsProperty = 0;     
         this->envCollideProperty = 0;    

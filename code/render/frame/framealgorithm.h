@@ -5,7 +5,7 @@
     
     Encapsulates a render algorithm execution.
     
-    (C) 2013 gscept
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "frame/framepassbase.h"

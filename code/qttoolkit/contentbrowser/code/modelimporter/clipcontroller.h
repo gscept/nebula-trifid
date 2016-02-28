@@ -5,7 +5,7 @@
     
     Controller class for handling clips
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include <QObject>

@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  managers/editorbasegamefeature.cc
-//  (C) 2012 Johannes Hirche
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 
@@ -14,7 +14,7 @@
 #include "appgame/appconfig.h"
 #include "game/gameserver.h"
 #include "game/gameserver.h"
-#include "addons/db/dbserver.h"
+#include "db/dbserver.h"
 #include "io/ioserver.h"
 #include "io/console.h"
 #include "loader/entityloader.h"
@@ -39,6 +39,7 @@
 #include "game/templateexporter.h"
 #include "db/sqlite3/sqlite3factory.h"
 #include "posteffect/posteffectexporter.h"
+#include "managers/levelattrsmanager.h"
 
 namespace Toolkit
 {
@@ -134,16 +135,10 @@ EditorBaseGameFeatureUnit::OnActivate()
 	{
 		n_error("BaseGameFeature: Failed to open static database 'editordb:game.db4'!");
 	}
-	
-	// create additional servers    
-	this->loaderServer = BaseGameFeature::LoaderServer::Create();
-	this->loaderServer->Open();
-
+		
 	// attach loader to BaseGameFeature::LoaderServer
-	Ptr<BaseGameFeature::EntityLoader> entityloader = BaseGameFeature::EntityLoader::Create();
-	Ptr<BaseGameFeature::EnvironmentLoader> environmentloader = BaseGameFeature::EnvironmentLoader::Create();
-	this->loaderServer->AttachEntityLoader(entityloader.upcast<BaseGameFeature::EntityLoaderBase>());
-	this->loaderServer->AttachEntityLoader(environmentloader.upcast<BaseGameFeature::EntityLoaderBase>());
+	Ptr<BaseGameFeature::EntityLoader> entityloader = BaseGameFeature::EntityLoader::Create();	
+	this->loaderServer->AttachEntityLoader(entityloader.upcast<BaseGameFeature::EntityLoaderBase>());	
 
 	// create manager and attach to fetaure
 	this->timeManager = TimeManager::Create();
@@ -156,9 +151,8 @@ EditorBaseGameFeatureUnit::OnActivate()
 	this->focusManager = FocusManager::Create();
 	this->entityManager = EntityManager::Create();
 	this->globalAttrManager = GlobalAttrsManager::Create();
-	this->categoryManager = CategoryManager::Create();
-	this->envEntityManager = EnvEntityManager::Create();
-    this->crowdManager = Navigation::CrowdManager::Create();
+    this->levelAttrManager = LevelAttrsManager::Create();
+	this->categoryManager = CategoryManager::Create();	
 	this->audioManager = AudioManager::Create();
 
 	this->AttachManager(this->timeManager.upcast<Game::Manager>());
@@ -166,9 +160,8 @@ EditorBaseGameFeatureUnit::OnActivate()
 	this->AttachManager(this->focusManager.upcast<Game::Manager>());
 	this->AttachManager(this->entityManager.upcast<Game::Manager>());
 	this->AttachManager(this->globalAttrManager.upcast<Game::Manager>()); 
-	this->AttachManager(this->categoryManager.upcast<Game::Manager>());
-	this->AttachManager(this->envEntityManager.upcast<Game::Manager>());	
-    this->AttachManager(this->crowdManager.upcast<Game::Manager>());
+    this->AttachManager(this->levelAttrManager.upcast<Game::Manager>());
+    this->AttachManager(this->categoryManager.upcast<Game::Manager>());
 	this->AttachManager(this->audioManager.upcast<Game::Manager>());
 
 	this->envQueryManager = EnvQueryManager::Create();    
@@ -190,10 +183,9 @@ EditorBaseGameFeatureUnit::OnActivate()
 
 	// close after all globals loading from globalattrmanager and everyone who needs it on start
 	//this->dbServer->CloseGameDatabase();
-
-	// setup vib interface
-	this->vibInterface = Vibration::VibrationInterface::Create();
-	this->vibInterface->Open();
+    // setup vib interface
+    this->vibInterface = Vibration::VibrationInterface::Create();
+    this->vibInterface->Open();
 }
 
 //------------------------------------------------------------------------------

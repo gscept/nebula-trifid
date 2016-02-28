@@ -6,7 +6,7 @@
     Http page handler, that provides control over the frame capture render module.
 
     (C) 2010 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "http/httprequesthandler.h"
 

@@ -5,7 +5,7 @@
     
     Wrap an IDL property definition
     
-    (C) 2012 Johannes Hirche
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
 #include "io/xmlreader.h"

@@ -1,22 +1,23 @@
 //------------------------------------------------------------------------------
 //  loader/environmentloader.cc
 //  (C) 2007 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "loader/environmentloader.h"
-#include "loader/loaderserver.h"
-#include "managers/categorymanager.h"
+#include "basegamefeature/loader/loaderserver.h"
+#include "basegamefeature/managers/categorymanager.h"
 #include "managers/enventitymanager.h"
 #include "basegamefeature/basegameattr/basegameattributes.h"
 #include "graphicsfeature/graphicsattr/graphicsattributes.h"
 
-namespace BaseGameFeature
+namespace GraphicsFeature
 {
 using namespace Game;
 using namespace Util;
+using namespace BaseGameFeature;
 
-__ImplementClass(EnvironmentLoader, 'LENV', EntityLoaderBase);
+__ImplementClass(GraphicsFeature::EnvironmentLoader, 'LENV', EntityLoaderBase);
 
 //------------------------------------------------------------------------------
 /**
@@ -63,4 +64,4 @@ EnvironmentLoader::UpdateProgressIndicator(const Util::String& resName)
     //loaderServer->UpdateProgressDisplay();
 }
 
-}; // namespace BaseGameFeature
+}; // namespace GraphicsFeature

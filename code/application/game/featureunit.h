@@ -14,7 +14,7 @@
     The Game::GameServer will start, load, save, trigger and close your feature.
 
     (C) 2007 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
 #include "game/manager.h"
@@ -48,6 +48,11 @@ public:
     /// called from within GameServer::Save() before attributes are saved back to database
     virtual void OnSave();
     
+	/// called from within GameServer::NotifyBeforeLoad() before the database is loaded
+	virtual void OnBeforeLoad();
+	/// called from within GameServer::NotifyBeforeCleanup() before shutting down a level
+	virtual void OnBeforeCleanup();
+
     /// called on begin of frame
     virtual void OnBeginFrame();    
     /// called in the middle of the feature trigger cycle

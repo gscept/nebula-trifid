@@ -90,7 +90,7 @@ void
 GameBatcherApp::ShowHelp()
 {
 	n_printf("Nebula Trifid Game Batcher.\n"
-		"(C) 2012-2015 Individual contributors, see AUTHORS file.\n");	
+		"(C) 2012-2016 Individual contributors, see AUTHORS file.\n");	
 	n_printf("-help         --display this help\n"			 
 			 "-dir          --category name\n"
 			 "-file         --file name (if empty, dir will be parsed)\n"

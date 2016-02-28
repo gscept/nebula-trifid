@@ -5,7 +5,7 @@
     
     Wraps a IDL attribute library definition.
 
-    (C) 2012 Johannes Hirche, LTU Skelleftea
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
 #include "util/string.h"
