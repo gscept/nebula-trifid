@@ -9,7 +9,6 @@
 */
 #include "core/refcounted.h"
 #include "math/matrix44.h"
-#include "physics/collider.h"
 #include "core/weakptr.h"
 #include "physics/materialtable.h"
 #include "physics/contact.h"

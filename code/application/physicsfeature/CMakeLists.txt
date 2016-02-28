@@ -51,7 +51,7 @@ set(feature_nidls
 
 N_CREATE_FEATURE(physicsfeature feature_sources feature_nidls)
 TARGET_INCLUDE_DIRECTORIES(physicsfeature PUBLIC ${Nebula3_SOURCE_DIR}/code/application/physicsfeature)
-TARGET_LINK_LIBRARIES(physicsfeature PUBLIC application render navigation)
+TARGET_LINK_LIBRARIES(physicsfeature PUBLIC application render navigation effects)
 ADD_DEPENDENCIES(physicsfeature application_NIDLS)
 
 N_SET_COMPILER_DEFAULTS()

@@ -11,6 +11,7 @@
 #include "graphicsfeature/graphicsfeatureunit.h"
 #include "renderutil/mouserayutil.h"
 #include "physics/physicsserver.h"
+#include "physics/filterset.h"
 #include "graphicsfeature/graphicsfeatureprotocol.h"
 
 namespace BaseGameFeature

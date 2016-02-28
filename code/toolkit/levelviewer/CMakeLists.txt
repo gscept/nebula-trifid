@@ -34,10 +34,10 @@ ENDIF()
 ADD_DEPENDENCIES(levelviewer
 	graphicsfeature physicsfeature scriptingfeature stateobjectfeature ui
 	remoteinterface
-	dynui	
+	dynui navigation	
 	)
 TARGET_LINK_LIBRARIES(levelviewer 	
 	remoteinterface
 	graphicsfeature physicsfeature scriptingfeature stateobjectfeature ui	
-	dynui	
+	dynui navigation
 )
