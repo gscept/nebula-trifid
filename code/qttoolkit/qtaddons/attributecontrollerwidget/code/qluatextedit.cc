@@ -17,7 +17,7 @@ namespace QtAttributeControllerAddon
 QLuaTextEdit::QLuaTextEdit(QWidget *parent):
 QPlainTextEdit(parent)
 {
-	this->setTabStopWidth(16);
+	this->setTabStopWidth(8);
 	highLight = new QLuaSyntaxHighlighter(document());
 }
 

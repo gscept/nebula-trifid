@@ -22,8 +22,9 @@
 	Alt1						14
 	Alt2						15
 	Alt3						16
+	Alt4						17
 	
-	Empty						17
+	Empty						18
 	
 	MAX IS 32
 	
@@ -524,7 +525,6 @@
  
   
   <Material name="Particle" virtual="true" desc="Base material for particles">
-   <Param name="AlbedoMap" type="string" defaultValue="tex:system/placeholder"/>
   
    <!-- system variables -->
    <Param name="EmitterTransform" type="matrix44" system="true" defaultValue="1.0f, 0.0f, 0.0f, 0.0f, 
@@ -541,12 +541,62 @@
   
   <Material name="ParticleUnlit" type="particle" inherits="Particle" desc="Standard unlit particle material.">
    <Pass batch="ParticleUnlit" shader="particle" variation="Unlit"/>
+   <Param name="AlbedoMap" type="string" defaultValue="tex:system/placeholder"/>
    
    <Param name="ObjectId" type="int" system="true"/>
   </Material>
   
-  <Material name="ParticleUnlitAdditive" type="particle" inherits="Particle" desc="Standard unlit particle material.">
+  <Material name="ParticleUnlitAdditive" type="particle" inherits="Particle" desc="Unlit particle using an additive blending method.">
    <Pass batch="ParticleUnlit" shader="particle" variation="Unlit|Alt0"/>
+   <Param name="AlbedoMap" type="string" defaultValue="tex:system/placeholder"/>
+   
+   <Param name="ObjectId" type="int" system="true"/>
+  </Material>
+  
+  <Material name="ParticleUnlitBlendAdd" type="particle" inherits="Particle" desc="Unlit particle using the blend-add method. These particles are easier to see in bright and dark environments.">
+   <Pass batch="ParticleUnlit" shader="particle" variation="Unlit|Alt1"/>
+   <Param name="AlbedoMap" type="string" defaultValue="tex:system/placeholder"/>
+   
+   <Param name="ObjectId" type="int" system="true"/>
+  </Material>
+  
+  <Material name="ParticleUnlitBlendAdd2Layers" type="particle" inherits="Particle" desc="Unlit particle using the blend-add method with two layers. Each layer is blended with the A * B * 2 method.">
+   <Pass batch="ParticleUnlit" shader="particle" variation="Unlit|Alt2"/>
+   
+   <Param name="Layer1" type="string" defaultValue="tex:system/placeholder"/>
+   <Param name="Layer2" type="string" defaultValue="tex:system/placeholder"/>
+   <Param name="UVAnim1" type="float2" defaultValue="0.0f, 0.0f" max="10.0f, 10.0f"/>
+   <Param name="UVAnim2" type="float2" defaultValue="0.0f, 0.0f" max="10.0f, 10.0f"/>   
+   
+   <Param name="ObjectId" type="int" system="true"/>
+  </Material>
+  
+  <Material name="ParticleUnlitBlendAdd3Layers" type="particle" inherits="Particle" desc="Unlit particle using the blend-add method with three layers. Each layer is blended with the A * B * 2 method.">
+   <Pass batch="ParticleUnlit" shader="particle" variation="Unlit|Alt3"/>
+   
+   <Param name="Layer1" type="string" defaultValue="tex:system/placeholder"/>
+   <Param name="Layer2" type="string" defaultValue="tex:system/placeholder"/>
+   <Param name="Layer3" type="string" defaultValue="tex:system/placeholder"/>
+   
+   <Param name="UVAnim1" type="float2" defaultValue="0.0f, 0.0f" max="10.0f, 10.0f"/>
+   <Param name="UVAnim2" type="float2" defaultValue="0.0f, 0.0f" max="10.0f, 10.0f"/>
+   <Param name="UVAnim3" type="float2" defaultValue="0.0f, 0.0f" max="10.0f, 10.0f"/>
+   
+   <Param name="ObjectId" type="int" system="true"/>
+  </Material>
+  
+  <Material name="ParticleUnlitBlendAdd4Layers" type="particle" inherits="Particle" desc="Unlit particle using the blend-add method with four layers, the fourth layer is used as a flat multiplier.">
+   <Pass batch="ParticleUnlit" shader="particle" variation="Unlit|Alt4"/>
+   
+   <Param name="Layer1" type="string" defaultValue="tex:system/placeholder"/>
+   <Param name="Layer2" type="string" defaultValue="tex:system/placeholder"/>
+   <Param name="Layer3" type="string" defaultValue="tex:system/placeholder"/>
+   <Param name="Layer4" type="string" defaultValue="tex:system/placeholder"/>
+   
+   <Param name="UVAnim1" type="float2" defaultValue="0.0f, 0.0f" max="10.0f, 10.0f"/>
+   <Param name="UVAnim2" type="float2" defaultValue="0.0f, 0.0f" max="10.0f, 10.0f"/>
+   <Param name="UVAnim3" type="float2" defaultValue="0.0f, 0.0f" max="10.0f, 10.0f"/>
+   <Param name="UVAnim4" type="float2" defaultValue="0.0f, 0.0f" max="10.0f, 10.0f"/>
    
    <Param name="ObjectId" type="int" system="true"/>
   </Material>
@@ -697,6 +747,7 @@
    <Param name="SkyLayer1" type="string" defaultValue="tex:system/placeholder"/>
    <Param name="SkyLayer2" type="string" defaultValue="tex:system/placeholder"/>
    <Param name="SkyBlendFactor" type="float" defaultValue="0.0f"/>
+   <Param name="SkyRotationFactor" type="float" defaultValue="0.03f"/>
    <Param name="Contrast" type="float" defaultValue="1.0f" system="true"/>
    <Param name="Brightness" type="float" defaultValue="0.0f" system="true"/>	
    

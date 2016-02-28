@@ -157,7 +157,17 @@ void
 ParticleSystemInstanceBase::Stop()
 {
     n_assert(this->IsValid());
-    this->stateChangeMask = ParticleSystemState::Stopped;
+	this->stateChangeMask = ParticleSystemState::Stopped;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ParticleSystemInstanceBase::Restart()
+{
+	n_assert(this->IsValid());
+	this->stateChangeMask = ParticleSystemState::Restarting;
 }
 
 //------------------------------------------------------------------------------
@@ -180,7 +190,6 @@ void
 ParticleSystemInstanceBase::Update(Timing::Time time)
 {
     n_assert(this->IsValid());
-
 	
     // update the state of the particle system (started, stopped, etc...)
     this->UpdateState((float)time);
@@ -189,7 +198,7 @@ ParticleSystemInstanceBase::Update(Timing::Time time)
     // when particle system is starting
     Timing::Time timeDiff = time - this->curStepTime;
     n_assert(timeDiff >= 0.0f);
-    if(timeDiff > 0.5f)
+    if (timeDiff > 0.5f)
     {
         this->curStepTime = time - ParticleSystem::StepTime;
         timeDiff = ParticleSystem::StepTime;
@@ -247,6 +256,18 @@ ParticleSystemInstanceBase::UpdateState(float time)
                        
             this->stateMask = ParticleSystemState::Playing;
         }
+
+		if (0 != (ParticleSystemState::Restarting & this->stateChangeMask))
+		{
+			this->curStepTime = time - ParticleSystem::StepTime;
+			this->lastEmissionTime = 0.0f;
+			this->timeSinceEmissionStart = 0.0f;
+			this->firstEmissionFrame = true;
+			this->numLivingParticles = 0;
+			this->particles.Reset();
+
+			this->stateMask = ParticleSystemState::Playing;
+		}
 
         // if requested to stop, and currently playing...
         if ((0 != (ParticleSystemState::Stopped & this->stateChangeMask)) && this->IsPlaying())
@@ -440,7 +461,7 @@ ParticleSystemInstanceBase::EmitParticle(IndexT emissionSampleIndex, float initi
     // setup rotation and rotationVariation
     float startRotMin = emAttrs.GetFloat(EmitterAttrs::StartRotationMin);
     float startRotMax = emAttrs.GetFloat(EmitterAttrs::StartRotationMax);
-    particle.rotation = n_lerp(startRotMin, startRotMax, n_rand());
+	particle.rotation = n_clamp(n_rand(), startRotMin, startRotMax);
     float rotVar = 1.0f - (n_rand() * emAttrs.GetFloat(EmitterAttrs::RotationRandomize));
     if (emAttrs.GetBool(EmitterAttrs::RandomizeRotation) && (n_rand() < 0.5f))
     {

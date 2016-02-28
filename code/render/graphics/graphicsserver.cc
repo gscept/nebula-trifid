@@ -199,13 +199,14 @@ GraphicsServer::GetStages() const
 /**
 */
 Ptr<View>
-GraphicsServer::CreateView(const Core::Rtti& viewClass, const StringAtom& viewName, bool isDefaultView)
+GraphicsServer::CreateView(const Core::Rtti& viewClass, const StringAtom& viewName, bool isDefaultView, bool updatePerFrame)
 {
     n_assert(!this->viewIndexMap.Contains(viewName));
     n_assert(viewClass.IsDerivedFrom(View::RTTI));
 
     Ptr<View> newView = (View*) viewClass.Create();
     newView->SetName(viewName);
+	newView->SetUpdatePerFrame(updatePerFrame);
     newView->OnAttachToServer();
 
     this->views.Append(newView);
@@ -454,10 +455,15 @@ GraphicsServer::OnFrame(Timing::Time curTime, Timing::Time globalTimeFactor)
 		{
 			// get view
 			Ptr<View> view = this->views[i];
-            this->currentView = view;
 
-			// render frame
-			view->OnFrame(this->rtPluginRegistry, curTime, globalTimeFactor, this->renderDebug);
+			// if view is tagged to update per frame update through view
+			if (view->GetUpdatePerFrame())
+			{
+				this->currentView = view;
+
+				// render frame
+				view->OnFrame(this->rtPluginRegistry, curTime, globalTimeFactor, this->renderDebug);
+			}            
 		}
 		_stop_timer(GfxServerRenderViews);
 

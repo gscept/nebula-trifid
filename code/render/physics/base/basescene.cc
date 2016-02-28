@@ -19,7 +19,7 @@ BaseScene::BaseScene():
 	simulationSpeed(1.0f),
 	time(0)
 {
-	this->gravity.set(0, 0, 0);
+	this->gravity.set(0, -9.81f, 0);
 }
 
 //------------------------------------------------------------------------------

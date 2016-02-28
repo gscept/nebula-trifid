@@ -173,6 +173,7 @@
     <addaction name="actionDelete"/>
     <addaction name="actionDuplicate"/>
     <addaction name="actionGroup"/>
+    <addaction name="actionCenter_Group_Pivot"/>
     <addaction name="separator"/>
     <addaction name="actionCenter"/>
     <addaction name="actionFocus"/>
@@ -1022,6 +1023,14 @@
   <action name="actionPhysics_Materials">
    <property name="text">
     <string>Physics Materials</string>
+   </property>
+  </action>
+  <action name="actionCenter_Group_Pivot">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Center Group Pivot</string>
    </property>
   </action>
  </widget>

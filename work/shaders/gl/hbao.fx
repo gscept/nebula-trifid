@@ -41,7 +41,7 @@ samplerstate WrapSampler
 };
 
 #define RANDOM_TEXTURE_WIDTH 4
-#define NUM_STEPS 6
+#define NUM_STEPS 6.0f
 #define NUM_DIRECTIONS 8
 #define M_PI 3.14159265358979323846f
 #define SAMPLE_FIRST_STEP 1
@@ -89,7 +89,7 @@ void ComputeSteps(inout vec2 stepSizeUv, inout float numSteps, float rayRadiusPi
 	{
 		// Use dithering to avoid AO discontinuities
 		numSteps = floor(maxNumSteps + rand);
-		numSteps = max(numSteps, 1);
+		numSteps = max(numSteps, 1.0f);
 		stepSizePix = MaxRadiusPixels / numSteps;	
 	}
 	// Step size in uv space

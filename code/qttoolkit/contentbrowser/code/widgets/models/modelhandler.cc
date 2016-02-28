@@ -119,6 +119,7 @@ ModelHandler::Setup()
 	this->ui->saveButton->setEnabled(true);
 	this->ui->saveAsButton->setEnabled(true);
 	this->ui->reconfigureButton->setEnabled(true);
+	this->ui->addParticleNode->setEnabled(true);
 
 	// call base class
 	BaseHandler::Setup();	
@@ -149,12 +150,17 @@ ModelHandler::Setup()
     {
 		QMessageBox box;
 		QString message;
-		message.sprintf("The model '%s' doesn't exist!", attrPath.AsCharPtr());
+		message.sprintf("The model '%s' either has inaccessible attributes or they are missing!", attrPath.AsCharPtr());
 		box.setText(message);
 		box.setIcon(QMessageBox::Warning);
 		box.setStandardButtons(QMessageBox::Close);
 		box.setDefaultButton(QMessageBox::Close);
 		box.exec();
+
+		this->ui->saveButton->setEnabled(false);
+		this->ui->saveAsButton->setEnabled(false);
+		this->ui->reconfigureButton->setEnabled(false);
+		this->ui->addParticleNode->setEnabled(false);
 
 		// discard and return
 		this->DiscardNoCancel();
@@ -433,7 +439,7 @@ ModelHandler::OnNewVersion()
 void
 ModelHandler::OnFrame()
 {
-	//if (this->characterFrame) this->characterFrame->GetHandler()->OnFrame();
+	if (this->characterFrame) this->characterFrame->GetHandler()->OnFrame();
 }
 
 //------------------------------------------------------------------------------

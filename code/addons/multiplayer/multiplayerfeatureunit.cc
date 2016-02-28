@@ -6,6 +6,8 @@
 #include "multiplayerfeatureunit.h"
 #include "basegamefeature/basegametiming/gametimesource.h"
 #include "basegamefeatureunit.h"
+#include "natnetworkserver.h"
+#include "lannetworkserver.h"
 
 using namespace Multiplayer;
 
@@ -37,20 +39,10 @@ MultiplayerFeatureUnit::~MultiplayerFeatureUnit()
 void
 MultiplayerFeatureUnit::OnActivate()
 {
-    FeatureUnit::OnActivate();
-
-	this->server = NetworkServer::Create();
-	this->server->Open();
-
+	FeatureUnit::OnActivate();
 	this->factory = NetworkFactoryManager::Create();
-
 	BaseGameFeature::BaseGameFeatureUnit::Instance()->SetFactoryManager(this->factory.cast<BaseGameFeature::FactoryManager>());
-
-    this->SetRenderDebug(true);
-	
-	this->server->SetupLowlevelNetworking();
-
-	ReplicationManager::Instance()->Reference(dynamic_cast<RakNet::Replica3*>(this->player.get_unsafe()));
+	this->SetRenderDebug(true);
 }
 
 //------------------------------------------------------------------------------
@@ -60,7 +52,10 @@ void
 MultiplayerFeatureUnit::OnDeactivate()
 {
 	this->player = 0;
-	this->server->Close();
+	if (this->server.isvalid())
+	{
+		this->server->Close();
+	}	
 	this->server = 0;
 	this->factory = 0;
     FeatureUnit::OnDeactivate();    
@@ -125,6 +120,32 @@ MultiplayerFeatureUnit::RestartNetwork()
 	this->server->SetupLowlevelNetworking();
 
 	ReplicationManager::Instance()->Reference(dynamic_cast<RakNet::Replica3*>(this->player.get_unsafe()));
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+MultiplayerFeatureUnit::Setup(ServerType mode)
+{
+	switch (mode)
+	{
+	case NATPunchFCM:
+		this->server = NatNetworkServer::Create();
+		break;
+	case LAN:
+		this->server = LanNetworkServer::Create();
+		break;
+	default:
+		n_error("no valid server mode selected");
+		break;
+	}
+	
+	this->server->Open();		
+	this->server->SetupLowlevelNetworking();
+
+	ReplicationManager::Instance()->Reference(dynamic_cast<RakNet::Replica3*>(this->player.get_unsafe()));
+
 }
 
 }; // namespace MultiplayerFeature

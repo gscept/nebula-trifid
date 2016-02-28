@@ -33,6 +33,7 @@
 #include "messaging/staticmessagehandler.h"
 #include "messaging/messagecallbackhandler.h"
 #include "properties/editorproperty.h"
+#include "imgui.h"
 
 
 using namespace Util;
@@ -52,14 +53,13 @@ __ImplementSingleton(LevelEditor2::SelectionUtil);
     Constructor
 */
 SelectionUtil::SelectionUtil() :
-    hasSelectionChanged(false),
-	groupMode(false)
+    hasSelectionChanged(false),	
+	mouseDrag(false),
+	keyMultiSelection(Input::Key::Shift),
+	keyMultiSelectionRemove(Input::Key::LeftControl),
+	selectInside(true)
 {
-	__ConstructSingleton;
-
-    this->keyMultiSelection = Input::Key::Shift;
-	this->groupMatrix.identity();		
-
+	__ConstructSingleton;    		
 }
 
 //------------------------------------------------------------------------------
@@ -94,7 +94,7 @@ SelectionUtil::HandleInput()
         if (keyboard->KeyPressed(this->keyMultiSelection))
         {
             this->multiSelect = true;
-        }
+        }		
     }
 
     // Handle mouse input, if a valid handler is available
@@ -102,9 +102,49 @@ SelectionUtil::HandleInput()
     {
         if (mouse->ButtonDown(Input::MouseButton::LeftButton))
         {
-            this->GetEntityUnderMouse();
+			this->mouseDrag = true;
+			this->clickPos = mouse->GetPixelPosition();			
+			ImGuiIO& io = ImGui::GetIO();
+			io.WantCaptureMouse = false;
+			io.WantCaptureKeyboard = false;
 			return true;
         }
+		if (mouse->ButtonUp(Input::MouseButton::LeftButton))
+		{
+			if (this->mouseDrag)
+			{
+				ImGuiIO& io = ImGui::GetIO();
+				io.WantCaptureMouse = true;
+				io.WantCaptureKeyboard = true;
+				this->mouseDrag = false;
+				Math::float2 curPos = mouse->GetPixelPosition();				
+				if ((curPos - this->clickPos).lengthsq() < 9)
+				{
+					this->GetEntityUnderMouse();
+				}
+				else
+				{
+					Math::rectangle<float> selection;
+					selection.top = n_min(curPos.y(), this->clickPos.y());
+					selection.bottom = n_max(curPos.y(), this->clickPos.y());
+					selection.left = n_min(curPos.x(), this->clickPos.x());
+					selection.right = n_max(curPos.x(), this->clickPos.x());
+					if (curPos.y() < this->clickPos.y())
+					{
+						this->selectInside = false;
+					}
+					else
+					{
+						this->selectInside = true;
+					}
+					Ptr<Graphics::ItemsAtPosition> msg = Graphics::ItemsAtPosition::Create();
+					msg->SetRectangle(selection);
+					__StaticSend(Graphics::GraphicsInterface, msg);
+					__SingleFireCallback(SelectionUtil, OnEntitiesClicked, this, msg.upcast<Messaging::Message>());
+				}
+
+			}
+		}
     }
 	return false;
 }
@@ -172,6 +212,93 @@ SelectionUtil::OnEntityClicked(const Ptr<Messaging::Message>& msg)
 	}
 }
 
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+SelectionUtil::OnEntitiesClicked(const Ptr<Messaging::Message>& msg)
+{
+	const Ptr<Graphics::ItemsAtPosition>& rMsg = msg.downcast<Graphics::ItemsAtPosition>();
+	Util::Array<int> ids = rMsg->GetItems();	
+	Util::Array<int> edgeIds = rMsg->GetEdgeItems();
+	edgeIds.Sort();
+	if (ids.Size() > 0)
+	{
+		if (this->multiSelect)
+		{
+			Util::Array<EntityGuid> current = this->GetSelectedEntityIds();
+			current.Sort();
+			Util::Array<EntityGuid> entities;
+			Util::Array<EntityGuid> containedEntities;
+			for (int i = 0; i < ids.Size();i++)
+			{
+				if (BaseGameFeature::EntityManager::Instance()->ExistsEntityByUniqueId(ids[i]))
+				{
+					if (BaseGameFeature::EntityManager::Instance()->ExistsEntityByUniqueId(ids[i]))
+					{
+						if (!this->selectInside || (this->selectInside && InvalidIndex == edgeIds.BinarySearchIndex(ids[i])))
+						{
+							EntityGuid guid = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(ids[i])->GetGuid(Attr::EntityGuid);
+							if (current.BinarySearchIndex(guid) == InvalidIndex)
+							{
+								entities.Append(guid);
+							}
+							else
+							{
+								containedEntities.Append(guid);
+							}
+						}
+					}
+				}
+			}
+			if (InputServer::Instance()->GetDefaultKeyboard()->KeyPressed(this->keyMultiSelectionRemove))
+			{
+				if (!containedEntities.IsEmpty())
+				{
+					Ptr<SelectAction> action = SelectAction::Create();
+					action->SetSelectionMode(SelectAction::RemoveSelection);
+					action->SetEntities(containedEntities);
+					ActionManager::Instance()->PerformAction(action.cast<Action>());
+				}
+			}
+			else
+			{
+				if (!entities.IsEmpty())
+				{
+					Ptr<SelectAction> action = SelectAction::Create();
+					action->SetSelectionMode(SelectAction::AppendSelection);
+					action->SetEntities(entities);
+					ActionManager::Instance()->PerformAction(action.cast<Action>());
+				}
+			}
+		}
+		else
+		{
+			Ptr<SelectAction> action = SelectAction::Create();
+			action->SetSelectionMode(SelectAction::ClearSelection);
+			ActionManager::Instance()->PerformAction(action.cast<Action>());
+			Util::Array<EntityGuid> entities;
+			for (int i = 0; i < ids.Size();i++)
+			{
+				if (BaseGameFeature::EntityManager::Instance()->ExistsEntityByUniqueId(ids[i]))
+				{
+					if (!this->selectInside || (this->selectInside && InvalidIndex == edgeIds.BinarySearchIndex(ids[i])))
+					{
+						entities.Append(BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(ids[i])->GetGuid(Attr::EntityGuid));
+					}					
+				}
+			}
+			if (!entities.IsEmpty())
+			{
+				action->SetSelectionMode(SelectAction::SetSelection);
+				action->SetEntities(entities);
+				ActionManager::Instance()->PerformAction(action.cast<Action>());
+			}
+		}
+	}
+}
+
 //------------------------------------------------------------------------------
 /**
 */
@@ -215,7 +342,8 @@ SelectionUtil::AppendToSelection(const EntityGuid& entity)
 	{
 		this->selectedEntities.Append(entity);			
 	}	
-	this->hasSelectionChanged = true;
+	this->hasSelectionChanged = true;	
+	this->UpdateModels();
 }
 
 //------------------------------------------------------------------------------
@@ -228,7 +356,8 @@ SelectionUtil::AppendToSelection(const Util::Array<EntityGuid>& entities)
 	for(IndexT i = 0 ; i < entities.Size() ; i++)
 	{
 		this->AppendToSelection(entities[i]);
-	}		
+	}			
+	this->UpdateModels();
 }
 
 //------------------------------------------------------------------------------
@@ -242,8 +371,8 @@ void SelectionUtil::RemoveFromSelection(const EntityGuid& entity)
 	if(InvalidIndex != id)
 	{
 		this->selectedEntities.EraseIndex(id);
-	}
-		
+	}	
+	this->UpdateModels();
 }
 
 //------------------------------------------------------------------------------
@@ -256,6 +385,7 @@ void SelectionUtil::RemoveFromSelection(const Util::Array<EntityGuid>& entities)
 	{
 		RemoveFromSelection(entities[i]);
 	}	
+	this->UpdateModels();
 }
 
 //------------------------------------------------------------------------------
@@ -267,6 +397,7 @@ SelectionUtil::SetSelection(const Util::Array<EntityGuid>& entities)
 	this->selectedEntities.Clear();
 	this->hasSelectionChanged = true;
 	this->selectedEntities.AppendArray(entities);		
+	this->UpdateModels();
 }
 
 //------------------------------------------------------------------------------
@@ -276,9 +407,9 @@ Clears the whole selection
 void
 SelectionUtil::ClearSelection()
 {    
-	this->selectedEntities.Clear();
-	this->hasSelectionChanged = true;
-	Silhouette::SilhouetteAddon::Instance()->SetModels(Util::Array<Ptr<Graphics::ModelEntity>>());
+	this->selectedEntities.Clear();	
+	this->hasSelectionChanged = true;	
+	this->UpdateModels();
 }
 
 //------------------------------------------------------------------------------
@@ -288,12 +419,8 @@ SelectionUtil::ClearSelection()
 void
 SelectionUtil::GetEntityUnderMouse()
 {    
-	Ptr<BaseGameFeature::EnvQueryManager> envQueryManager = BaseGameFeature::EnvQueryManager::Instance();
-
-	float2 mousePos = InputServer::Instance()->GetDefaultMouse()->GetPixelPosition();
-
 	Ptr<Graphics::ItemAtPosition> msg = Graphics::ItemAtPosition::Create();
-	msg->SetPosition(mousePos);
+	msg->SetPosition(this->clickPos);
 	__StaticSend(Graphics::GraphicsInterface, msg);	
 	__SingleFireCallback(SelectionUtil, OnEntityClicked, this, msg.upcast<Messaging::Message>());
 
@@ -325,63 +452,24 @@ SelectionUtil::GetEntityUnderMouse()
 void
 SelectionUtil::Render()
 {
-    Util::Array<Ptr<Graphics::ModelEntity>> modelEntities;
-    Ptr<GraphicsFeature::GetModelEntity> msg;
-
-	float4 color = LevelEditor2App::Instance()->GetWindow()->GetSelectionColour();
-	color.set_w(1);
-	Silhouette::SilhouetteAddon::Instance()->SetColor(color);
-    IndexT i;
-
-	bbox boundingBox;
-	boundingBox.begin_extend();
-    for(i = 0; i < this->selectedEntities.Size(); i++)
-    {
-        // try to get the bounding box of the entity if one exist
-        // (only if it has the graphics property)
-		const Ptr<Game::Entity>& selectedEntity = LevelEditor2EntityManager::Instance()->GetEntityById(this->selectedEntities[i]);
-
-        msg = GraphicsFeature::GetModelEntity::Create();
-		__SendSync(selectedEntity, msg);
-		const Ptr<Graphics::ModelEntity>& model = msg->GetEntity();
-		if (model.isvalid())
-		{
-			boundingBox.extend(model->GetGlobalBoundingBox());
-			modelEntities.Append(model);
-		}
-		else
-		{
-			// alternative solution, in case the entity have a model, we just make one up!
-			matrix44 trans = selectedEntity->GetMatrix44(Attr::Transform);
-			bbox box(trans);
-			boundingBox.extend(box);
-		}
-
-		/*
-		const Ptr<Game::Entity>& entity = LevelEditor2EntityManager::Instance()->GetEntityById(this->selectedEntities[i]);
-		if (modelEntity.isvalid())
-		{
-			bbox _box = modelEntity->GetLocalBoundingBox();
-			_box.transform(entity->GetMatrix44(Attr::Transform));
-			//this->RenderBBox(_box);
-		}		
-		*/
-    }
-
-	boundingBox.end_extend();
-	this->groupBox = boundingBox;
-
-	// set models to be rendered
-	Silhouette::SilhouetteAddon::Instance()->SetModels(modelEntities);
-
-	// calculate group box for entities
-	//this->CalculateGroupBox();
-
-	// Renders a single bounding box around the selected entities.
-	if(this->groupMode)
+  
+	// if dragging mouse draw a rectangle
+	if (this->mouseDrag)
 	{
-		// Render the box
-		this->RenderBBox(this->groupBox);
+		Math::float2 curPos = InputServer::Instance()->GetDefaultMouse()->GetPixelPosition();
+		float2 top = float2::minimize(curPos, this->clickPos);
+		float2 bottom = float2::maximize(curPos, this->clickPos);
+		float2 size = bottom - top;
+
+		if (size.lengthsq() > 9)
+		{			
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0);
+			ImGui::SetNextWindowPos(ImVec2(top.x(), top.y()));
+			ImGui::SetNextWindowSize(ImVec2(size.x(), size.y()));
+			ImGui::Begin("_selection", NULL, ImVec2(size.x(), size.y()), -1.0f, ImGuiWindowFlags_NoInputs| ImGuiWindowFlags_NoTitleBar);
+			ImGui::End();
+			ImGui::PopStyleVar();
+		}						
 	}
 }
 //------------------------------------------------------------------------------
@@ -534,35 +622,21 @@ SelectionUtil::RenderBBox(const bbox & origBox)
 
 //------------------------------------------------------------------------------
 /**
-    Toggles group selection.	
+    Calculates entity bounding box
 */
-void
-SelectionUtil::ToggleGroup()
+Math::bbox
+SelectionUtil::CalculateGroupBox(const Util::Array<EntityGuid>& entities)
 {
-	groupMode = !groupMode;
-}
-
-//------------------------------------------------------------------------------
-/**
-    Calculates group bounding box	
-*/
-void
-SelectionUtil::CalculateGroupBox()
-{
-	// Don't calculate if nothing is selected
-	if(this->selectedEntities.IsEmpty() && !this->groupMode)
-		return;
-
 	// Init
 	bbox boundingBox;
-	SizeT size = this->selectedEntities.Size();
+	SizeT size = entities.Size();
 	Util::Array<Ptr<Graphics::ModelEntity>> gfxEntities;
 	Ptr<GraphicsFeature::GetModelEntity> msg = GraphicsFeature::GetModelEntity::Create();
     
 	// Get all graphic entities
 	for(int i = 0; i < size; i++)
 	{
-		Ptr<Game::Entity> entity = LevelEditor2EntityManager::Instance()->GetEntityById(this->selectedEntities[i]);
+		Ptr<Game::Entity> entity = LevelEditor2EntityManager::Instance()->GetEntityById(entities[i]);
 		__SendSync(entity, msg);		
         const Ptr<Graphics::ModelEntity>& modelEntity = msg->GetEntity();
         if (modelEntity.isvalid())
@@ -588,7 +662,7 @@ SelectionUtil::CalculateGroupBox()
         // since we have no bounding boxes (due to us having no models) we just make a bounding box with center at the object and extents (1,1,1)
         for(int i = 0; i < size; i++)
         {
-            const Ptr<Game::Entity>& entity = LevelEditor2EntityManager::Instance()->GetEntityById(this->selectedEntities[i]);            
+            const Ptr<Game::Entity>& entity = LevelEditor2EntityManager::Instance()->GetEntityById(entities[i]);
             bbox entityBox;
             entityBox.set(entity->GetMatrix44(Attr::Transform).get_position(), vector(1,1,1));
             boundingBox.extend(entityBox);
@@ -597,36 +671,7 @@ SelectionUtil::CalculateGroupBox()
 
     // finish extending
     boundingBox.end_extend();   
-
-	// Create group matrix
-	Math::matrix44 newGroupMatrix;
-	newGroupMatrix.identity();
-	newGroupMatrix.set_position(boundingBox.center());
-
-	// Set calculated values
-	this->groupBox = boundingBox;
-	this->groupMatrix = newGroupMatrix;
-	this->entityGroup = this->selectedEntities;
-}
-
-//------------------------------------------------------------------------------
-/**
-    Get group box	
-*/
-Math::bbox&
-SelectionUtil::GetGroupBox()
-{
-	return groupBox;
-}
-
-//------------------------------------------------------------------------------
-/**
-    Get group matrix	
-*/
-Math::matrix44& 
-SelectionUtil::GetGroupMatrix()
-{
-	return groupMatrix;
+	return boundingBox;	
 }
 
 //------------------------------------------------------------------------------
@@ -658,6 +703,50 @@ IndexT
 SelectionUtil::GetIndexOfEntity(const Ptr<Game::Entity> entity)
 {
 	return this->selectedEntities.FindIndex(entity->GetGuid(Attr::EntityGuid));
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+SelectionUtil::UpdateModels()
+{
+	Util::Array<Ptr<Graphics::ModelEntity>> selectedModels;			
+	for (IndexT i = 0; i < this->selectedEntities.Size(); i++)
+	{				
+		const Ptr<Game::Entity>& selectedEntity = LevelEditor2EntityManager::Instance()->GetEntityById(this->selectedEntities[i]);
+		Ptr<GraphicsFeature::GetModelEntity> msg;
+		msg = GraphicsFeature::GetModelEntity::Create();
+		__SendSync(selectedEntity, msg);
+		const Ptr<Graphics::ModelEntity>& model = msg->GetEntity();
+		if (model.isvalid())
+		{
+			selectedModels.Append(model);
+		}			
+	}
+	float4 color = LevelEditor2App::Instance()->GetWindow()->GetSelectionColour();
+	color.set_w(1);
+
+	// set models to be rendered
+	Silhouette::SilhouetteAddon::Instance()->SetModels("primary", selectedModels, color);
+
+	Util::Array<Ptr<Graphics::ModelEntity>> childModels;
+	Util::Array<Ptr<Game::Entity>> allEntities = this->GetSelectedEntities(true);
+	for (IndexT i = 0; i < allEntities.Size();i++)
+	{
+		if (this->selectedEntities.FindIndex(allEntities[i]->GetGuid(Attr::EntityGuid)) == InvalidIndex)
+		{
+			Ptr<GraphicsFeature::GetModelEntity> msg;
+			msg = GraphicsFeature::GetModelEntity::Create();
+			__SendSync(allEntities[i], msg);
+			const Ptr<Graphics::ModelEntity>& model = msg->GetEntity();
+			if (model.isvalid())
+			{
+				childModels.Append(model);
+			}
+		}
+	}	
+	Silhouette::SilhouetteAddon::Instance()->SetModels("secondary", childModels, float4(1.0f));
 }
 
 }// namespace LevelEditor

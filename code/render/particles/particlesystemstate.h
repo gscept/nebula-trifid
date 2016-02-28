@@ -19,10 +19,11 @@ public:
     /// particle system state bits
     enum Bits
     {
-        Initial  = (1<<0),      // has been created but not started yet
-        Playing  = (1<<1),      // is currently emitting particles
-        Stopping = (1<<2),      // is currently stopping (no longer emits, but some particles still alive)
-        Stopped  = (1<<3),      // no longer emitting and no more particles alive
+        Initial  =		(1<<0),      // has been created but not started yet
+        Playing  =		(1<<1),      // is currently emitting particles
+        Stopping =		(1<<2),      // is currently stopping (no longer emits, but some particles still alive)
+        Stopped  =		(1<<3),      // no longer emitting and no more particles alive
+		Restarting =	(1<<4),		 // we are restarting this particle from the start
     };
     typedef ushort Mask;
 };

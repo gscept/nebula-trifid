@@ -151,7 +151,7 @@ vsStaticInstCSM(in vec3 position,
 	out vec4 ProjPos,
 	out int Instance) 
 {
-	int csmStride = int(mod(gl_InstanceID, 4));
+	int csmStride = gl_InstanceID % 4;
 	int modelStride = int(gl_InstanceID / 4);
 	ProjPos = ViewMatrixArray[csmStride] * ModelArray[modelStride] * vec4(position, 1);
 	Instance = csmStride;
@@ -213,7 +213,7 @@ vsStaticInstPoint(in vec3 position,
 	out vec4 ProjPos,
 	out int Instance) 
 {
-	int csmStride = int(mod(gl_InstanceID, 4));
+	int csmStride = gl_InstanceID % 4;
 	int modelStride = int(gl_InstanceID / 4);
 	ProjPos = ViewMatrixArray[csmStride] * ModelArray[modelStride] * vec4(position, 1);
 	Instance = csmStride;

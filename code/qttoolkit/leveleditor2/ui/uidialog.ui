@@ -24,7 +24,7 @@
      <item row="0" column="0">
       <widget class="QTabWidget" name="tabWidget">
        <property name="currentIndex">
-        <number>2</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="layoutTab">
         <attribute name="title">
@@ -40,7 +40,7 @@
             <enum>QAbstractItemView::SingleSelection</enum>
            </property>
            <property name="columnCount">
-            <number>3</number>
+            <number>4</number>
            </property>
            <attribute name="verticalHeaderVisible">
             <bool>false</bool>
@@ -53,6 +53,11 @@
            <column>
             <property name="text">
              <string>Layout Name</string>
+            </property>
+           </column>
+           <column>
+            <property name="text">
+             <string>Mouse Cursor</string>
             </property>
            </column>
            <column>

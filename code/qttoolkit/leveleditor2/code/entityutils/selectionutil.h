@@ -13,6 +13,7 @@
 #include "math/bbox.h"
 #include "core/singleton.h"
 #include "actions/selectaction.h"
+#include "graphics/modelentity.h"
 
 //------------------------------------------------------------------------------
 namespace LevelEditor2
@@ -52,21 +53,12 @@ public:
 
     /// Renders a simple representation of the selection into 3D space
     void Render();
-
-    /// Toggle group selection
-    void ToggleGroup();
-    /// Calculate group bbox
-    void CalculateGroupBox();
-    /// Update group box
-    //void UpdateGroupBox(const Math::matrix44& matrix);
-    /// Get group box
-    Math::bbox& GetGroupBox();
-    /// Get group matrix
-    Math::matrix44& GetGroupMatrix();
-
-    /// Returns true if this is in group mode
-    bool InGroupMode();
-
+	/// currently performing a drag operation
+	const bool IsInDrag() const;	
+   
+    /// Calculate bounding box of a list of entities
+    static Math::bbox CalculateGroupBox(const Util::Array<EntityGuid>& entities);
+      
     /// returns if the entity is selected
     bool IsSelected(const Ptr<Game::Entity>& entity);
 
@@ -80,6 +72,8 @@ private:
     void GetEntityUnderMouse();
     /// called when an entity ID have been retrieved
     void OnEntityClicked(const Ptr<Messaging::Message>& msg);
+	/// called when marquee selection has been retrieved
+	void OnEntitiesClicked(const Ptr<Messaging::Message>& msg);
 
     /// clear any previous attribute controllers, and create new for the entity
     void SetEntityForAttributeView(const Ptr<Game::Entity> entity);
@@ -91,24 +85,23 @@ private:
     void AppendToSelection(const EntityGuid& entity);
     ///
     void RemoveFromSelection(const EntityGuid& entity);
+	///
+	void UpdateModels();
 
 
     Ptr<AttributeWidgetManager> attributeWidgetManager;
     Util::Array<EntityGuid> selectedEntities;
-    Util::Array<Math::bbox> boundingBoxes;
-	
+			
     bool hasSelectionChanged;
     bool isActive;
-    bool multiSelect;
-    // 	bool wasActiveBefore;
-
-    bool groupMode;
-    Math::bbox groupBox;
-    Math::matrix44 groupMatrix;
-    Util::Array<EntityGuid> entityGroup;    
-
+    bool multiSelect;	
+    bool mouseDrag;
+	bool selectInside;
+	Math::float2 clickPos;
+	Math::float2 clickPosWindow;
+	        
     Input::Key::Code keyMultiSelection;
-
+	Input::Key::Code keyMultiSelectionRemove;
 };
 
 //------------------------------------------------------------------------------
@@ -124,12 +117,12 @@ SelectionUtil::HasSelection() const
 //------------------------------------------------------------------------------
 /**
 */
-inline bool 
-SelectionUtil::InGroupMode()
+inline
+const bool
+SelectionUtil::IsInDrag() const
 {
-	return this->groupMode;
+	return this->mouseDrag;
 }
-
 //------------------------------------------------------------------------------
 /**
 */

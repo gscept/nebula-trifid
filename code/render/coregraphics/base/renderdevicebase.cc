@@ -38,7 +38,8 @@ RenderDeviceBase::RenderDeviceBase() :
     inBeginBatch(false),
 	renderWireframe(false),
     visualizeMipMaps(false),
-	usePatches(false)
+	usePatches(false),
+	currentFrameIndex(InvalidIndex)
 {
     __ConstructSingleton;
     _setup_grouped_counter(RenderDeviceNumPrimitives, "Render");
@@ -276,7 +277,7 @@ RenderDeviceBase::NotifyEventHandlers(const RenderEvent& event)
 /**
 */
 bool
-RenderDeviceBase::BeginFrame()
+RenderDeviceBase::BeginFrame(IndexT frameIndex)
 {
     n_assert(!this->inBeginFrame);
     n_assert(!this->inBeginPass);
@@ -289,9 +290,12 @@ RenderDeviceBase::BeginFrame()
         n_assert(!this->streamVertexBuffers[i].isvalid());
     }
 
-	_begin_counter(RenderDeviceNumComputes);
-    _begin_counter(RenderDeviceNumPrimitives);
-    _begin_counter(RenderDeviceNumDrawCalls);
+	if (frameIndex != this->currentFrameIndex)
+	{
+		_begin_counter(RenderDeviceNumComputes);
+		_begin_counter(RenderDeviceNumPrimitives);
+		_begin_counter(RenderDeviceNumDrawCalls);
+	}
 
     this->inBeginFrame = true;
     return true;
@@ -502,13 +506,17 @@ RenderDeviceBase::EndFeedback()
 /**
 */
 void
-RenderDeviceBase::EndFrame()
+RenderDeviceBase::EndFrame(IndexT frameIndex)
 {
     n_assert(this->inBeginFrame);
 
-	_end_counter(RenderDeviceNumComputes);
-    _end_counter(RenderDeviceNumPrimitives);
-    _end_counter(RenderDeviceNumDrawCalls);
+	if (this->currentFrameIndex != frameIndex)
+	{
+		_end_counter(RenderDeviceNumComputes);
+		_end_counter(RenderDeviceNumPrimitives);
+		_end_counter(RenderDeviceNumDrawCalls);
+		this->currentFrameIndex = frameIndex;
+	}	
     
     this->inBeginFrame = false;
     IndexT i;

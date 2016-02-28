@@ -310,7 +310,7 @@ __Handler(ModelEntity, AnimPauseTrack)
 	else
 	{
 		n_assert(obj->HasCharacter());
-		obj->GetCharacterInstance()->AnimController().PauseTrack(msg->GetTrackIndex());
+		obj->GetCharacterInstance()->AnimController().PauseTrack(msg->GetTrackIndex(), msg->GetPause());
 	}
 }
 
@@ -327,7 +327,7 @@ __Handler(ModelEntity, AnimPauseAllTracks)
 	else
 	{
 		n_assert(obj->HasCharacter());
-		obj->GetCharacterInstance()->AnimController().PauseAllTracks();
+		obj->GetCharacterInstance()->AnimController().PauseAllTracks(msg->GetPause());
 	}
 }
 
@@ -392,6 +392,39 @@ __Handler(ModelEntity, AnimModifyBlendWeight)
 		}
     }
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+__Handler(ModelEntity, AnimSetJointMask)
+{
+	// character related messages can only be handled once character has loaded
+	if (!obj->IsValid())
+	{
+		obj->AddDeferredMessage(msg.cast<Message>());
+	}
+	else
+	{
+		n_assert(obj->HasCharacter());
+		const AnimSequencer& sequencer = obj->GetCharacterInstance()->AnimController().AnimSequencer();
+		IndexT trackIndex = msg->GetTrackIndex();
+		const Characters::CharacterJointMask* mask = 0;
+		const Characters::CharacterSkeleton& skeleton = obj->GetCharacter()->Skeleton();
+		IndexT maskIndex = skeleton.GetMaskIndexByName(msg->GetJointMask());
+		if (maskIndex != InvalidIndex) mask = &skeleton.GetMask(maskIndex);
+		if (sequencer.GetAllAnimJobs().Size() > 0)
+		{
+			Util::Array<Ptr<AnimJob> > animJobs = sequencer.GetAnimJobsByTrackIndex(trackIndex);
+			
+			IndexT i;
+			for (i = 0; i < animJobs.Size(); ++i)
+			{
+				animJobs[i]->SetMask(mask);
+			}
+		}
+	}
+}
+
 
 //------------------------------------------------------------------------------
 /**
@@ -478,10 +511,13 @@ __Handler(ModelEntity, FetchSkinList)
 		Characters::CharacterSkinLibrary& skinLib = obj->GetCharacter()->SkinLibrary();
 		int skinCount = skinLib.GetNumSkins();
 		Util::Array<Util::StringAtom> skinList;
-		skinList.Reserve(skinCount);
-		for (int skinIndex = 0; skinIndex < skinCount; skinIndex++)
+		if (skinCount > 0)
 		{
-			skinList.Append(skinLib.GetSkin(skinIndex).GetName());
+			skinList.Reserve(skinCount);
+			for (int skinIndex = 0; skinIndex < skinCount; skinIndex++)
+			{
+				skinList.Append(skinLib.GetSkin(skinIndex).GetName());
+			}
 		}
 		msg->SetSkins(skinList);
 	}
@@ -623,6 +659,7 @@ __Dispatcher(ModelEntity)
 	__Handle(ModelEntity, AnimTime);
     __Handle(ModelEntity, AnimIsClipPlaying);
     __Handle(ModelEntity, AnimModifyBlendWeight);
+	__Handle(ModelEntity, AnimSetJointMask);
     __Handle(ModelEntity, AnimModifyTimeFactor);
     __Handle(ModelEntity, ApplySkinList);
 	__Handle(ModelEntity, FetchSkinList);

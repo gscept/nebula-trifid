@@ -23,7 +23,7 @@ class ImageLoaderUnit : public QObject
 {
 	Q_OBJECT
 public:
-	QMutex mutex;
+	QMutex* mutex;
 	Util::String path;
 	QImage* texture;
 	FileWatcher thumbnailWatcher;
@@ -34,6 +34,7 @@ public:
 	{
 		connect(&this->thumbnailWatcher, SIGNAL(fileChanged(const QString&)), this, SLOT(OnThumbnailFileChanged()));
 		this->texture = new QImage;
+		this->mutex = new QMutex;
 	}
 
 	/// destructor
@@ -41,6 +42,7 @@ public:
 	{
 		disconnect(&this->thumbnailWatcher, SIGNAL(fileChanged(const QString&)), this, SLOT(OnThumbnailFileChanged()));
 		delete this->texture;
+		delete this->mutex;
 	}
 
 	/// bump a ref
@@ -112,7 +114,9 @@ ImageLoaderThread::Enqueue(ImageLoaderUnit* unit)
 inline void
 ImageLoaderUnit::Retain()
 {
+	this->mutex->lock();
 	this->refCount++;
+	this->mutex->unlock();
 }
 
 //------------------------------------------------------------------------------
@@ -121,7 +125,9 @@ ImageLoaderUnit::Retain()
 inline void
 ImageLoaderUnit::Release()
 {
+	this->mutex->lock();
 	this->refCount--;
+	this->mutex->unlock();
 	if (this->refCount == 0)
 	{
 		delete this;

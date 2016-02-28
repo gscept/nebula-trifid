@@ -99,12 +99,12 @@
         <Message name="ReloadResourceIfExists" fourcc="RRIE">
           <InArg name="ResourceName" type="Util::String" serialize="true"/>    
         </Message>
-            
-        <!-- enables/disables picking -->
-        <Message name="EnablePicking" fourcc="ENPI">
-          <InArg name="Enabled" type="bool"/>    
-        </Message>
       
+        <!-- Invalidates all existing models that use a resource (slow) -->
+        <Message name="ReloadModelByResource" fourcc="RMBR">
+          <InArg name="ResourceName" type="Util::String" serialize="true"/>
+        </Message>
+
         <!-- Attach/Detach all environment modules -->
         <Message name="SetEnvironmentAttached" fourcc="SENA">
           <InArg name="Attached" type="bool"/>
@@ -120,6 +120,7 @@
         <Message name="ItemsAtPosition" fourcc="ISAP">
           <InArg name="Rectangle" type="Math::rectangle<float>"/>
           <OutArg name="Items" type="Util::Array<IndexT>"/>
+          <OutArg name="EdgeItems" type="Util::Array<IndexT>"/>
         </Message>
       
         <!-- sends position to picking server, returns depth at pixel -->
@@ -506,11 +507,12 @@
         <!-- pauses an individual animation track -->
         <Message name="AnimPauseTrack" fourcc="ANPT" derivedFrom="GraphicsEntityMessage">
             <InArg name="TrackIndex" type="IndexT" default="0"/>
-            <InArg name="AllowFadeOut" type="bool" default="true"/>
+            <InArg name="Pause" type="bool" default="true"/>
         </Message>
       
         <!-- pauses all animation tracks -->
         <Message name="AnimPauseAllTracks" fourcc="APAT" derivedFrom="GraphicsEntityMessage">
+            <InArg name="Pause" type="bool" default="true"/>
         </Message>
       
         <!-- sets the current time for an animation -->
@@ -527,6 +529,12 @@
         <Message name="AnimModifyBlendWeight" fourcc="ANMB" derivedFrom="GraphicsEntityMessage">
             <InArg name="TrackIndex" type="IndexT" default="0" serialize="true"/>
             <InArg name="BlendWeight" type="float" default="1.0f" serialize="true"/>
+        </Message>
+      
+        <!-- modify joint mask of animations used on a given track -->
+        <Message name="AnimSetJointMask" fourcc="AMJM" derivedFrom="GraphicsEntityMessage">
+            <InArg name="TrackIndex"  type="IndexT" default="0" serialize="true"/>
+            <InArg name="JointMask" type="Util::StringAtom" serialize="true"/>
         </Message>
 
         <!-- modify time factor of animations on given track -->

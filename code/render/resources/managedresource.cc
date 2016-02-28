@@ -21,6 +21,7 @@ ManagedResource::ManagedResource() :
     clientCount(0),
     renderCount(0),
     priority(NormalPriority),
+	state(Resource::Initial),
     autoManaged(true)
 {
     // empty

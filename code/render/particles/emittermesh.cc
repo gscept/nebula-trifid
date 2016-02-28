@@ -92,7 +92,7 @@ EmitterMesh::Setup(const Ptr<Mesh>& mesh, IndexT primGroupIndex)
 
     IndexT posCompIndex = vertexLayout->FindComponent(VertexComponent::Position, 0);
     n_assert(InvalidIndex != posCompIndex);
-    n_assert(vertexLayout->GetComponentAt(posCompIndex).GetFormat() == VertexComponent::Float4);
+    n_assert(vertexLayout->GetComponentAt(posCompIndex).GetFormat() == VertexComponent::Float3);
 
     IndexT normCompIndex = vertexLayout->FindComponent(VertexComponent::Normal, 0);
     n_assert(InvalidIndex != normCompIndex);
@@ -134,9 +134,9 @@ EmitterMesh::Setup(const Ptr<Mesh>& mesh, IndexT primGroupIndex)
             dst.tangent = float4::cross3(float4(0.0, 1.0, 0.0, 1.0), dst.normal);
         }
 #else
-        dst.normal.load_ubyte4n_signed(src + normByteOffset, 0.0f);
+        dst.normal.load_byte4n(src + normByteOffset, 0.0f);
         dst.normal = Math::float4::normalize(dst.normal);
-		dst.tangent.load_ubyte4n_signed(src + tanByteOffset, 0.0f);
+		dst.tangent.load_byte4n(src + tanByteOffset, 0.0f);
         dst.tangent = Math::float4::normalize(dst.tangent);
 #endif
     }

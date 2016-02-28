@@ -56,6 +56,8 @@ ResourceStringController::ResourceStringController(QWidget* _parent, const Ptr<G
 		this->editable = this->attr->GetAttributes()["edit"].AsBool();
 	}
 	this->ui->editButton->setEnabled(this->editable);
+	this->ui->lineEdit->setReadOnly(!this->editable);
+	this->ui->lineEdit->setEnabled(this->editable);
 
 	this->ui->lineEdit->setText(msg->GetAttr().GetString().AsCharPtr());
 
@@ -63,6 +65,8 @@ ResourceStringController::ResourceStringController(QWidget* _parent, const Ptr<G
 	connected = connect(this->ui->browseButton, SIGNAL(clicked()), this, SLOT(OnBrowse()));
 	n_assert(connected);
 	connected = connect(this->ui->editButton, SIGNAL(clicked()), this, SLOT(OnEdit()));
+	n_assert(connected);
+	connected = connect(this->ui->lineEdit, SIGNAL(editingFinished()), this, SLOT(OnLineEdit()));
 	n_assert(connected);
 }
 
@@ -164,6 +168,15 @@ ResourceStringController::OnEdit()
 		IO::URI uri(this->resourceType + ":" + current + "." + this->fileSuffix);
         ScriptEditor::Instance()->EditFile(uri, current);
 	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ResourceStringController::OnLineEdit()
+{
+	BaseAttributeController::OnValueChanged();
 }
 
 } // namespace QtAttributeControllerAddon

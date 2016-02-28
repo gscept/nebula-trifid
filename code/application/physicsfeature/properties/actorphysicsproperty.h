@@ -49,7 +49,7 @@ public:
     virtual void OnActivate();
     /// called from Entity::DeactivateProperties()
     virtual void OnDeactivate();
-
+	
     /// called before movement has happened
     virtual void OnMoveBefore();
     /// called after movement has happened

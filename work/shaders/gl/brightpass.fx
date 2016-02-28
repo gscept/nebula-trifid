@@ -57,7 +57,7 @@ psMain(in vec2 uv,
 	vec4 fLumAvg = textureLod(LuminanceTexture, vec2(0.5f, 0.5f), 0);
 	
 	vec4 tonedColor = ToneMap(sampleColor, fLumAvg);
-	vec3 brightColor = max(tonedColor.rgb - HDRBrightPassThreshold, 0);
+	vec3 brightColor = max(tonedColor.rgb - HDRBrightPassThreshold, vec3(0.0f));
 	Color = HDRBloomColor * vec4(brightColor, sampleColor.a);
 }
 

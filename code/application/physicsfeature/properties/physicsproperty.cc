@@ -365,7 +365,15 @@ PhysicsProperty::IsSimulationHost()
 	{
 		if (this->entity->HasAttr(Attr::_LevelEntity) && this->entity->GetBool(Attr::_LevelEntity))
 		{
-			return (MultiplayerFeature::NetworkServer::Instance()->IsHost());
+			// if we dont have a host we havent started a networked level yet and we just assume that we are the host for the time being
+			if (MultiplayerFeature::NetworkServer::Instance()->HasHost())
+			{
+				return (MultiplayerFeature::NetworkServer::Instance()->IsHost());
+			}
+			else
+			{
+				return true;
+			}
 		}
 		if (this->entity->HasAttr(Attr::IsMaster) && this->entity->GetBool(Attr::IsMaster))
 		{

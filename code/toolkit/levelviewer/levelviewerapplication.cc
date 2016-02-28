@@ -21,6 +21,7 @@
 #include "audioprotocol.h"
 #include "uicommands.h"
 #include "NIDL/levelviewercommands.h"
+#include "posteffectprotocol.h"
 
 
 namespace Tools
@@ -173,6 +174,7 @@ LevelViewerGameStateApplication::SetupGameFeatures()
 	Commands::AudioCommands::Register();
 	Commands::UICommands::Register();	
 	Commands::LevelviewerCommands::Register();
+	Commands::PostEffectCommands::Register();
 
 	this->gameServer->AttachGameFeature(this->uiFeature.cast<Game::FeatureUnit>());
 	this->gameServer->AttachGameFeature(this->postEffectFeature.cast<Game::FeatureUnit>());
@@ -183,8 +185,11 @@ LevelViewerGameStateApplication::SetupGameFeatures()
 	this->consoleHandler = Dynui::ImguiConsoleHandler::Create();
 	this->consoleHandler->Setup();
 
-	this->uiFeature->CreateLayout("_levellist", "bin:../../data/levelviewer/levellist.rml");
-	this->uiFeature->CreateLayout("_layoutlist", "bin:../../data/levelviewer/layoutlist.rml");
+	if (IO::IoServer::Instance()->FileExists("bin:../../data/levelviewer/levellist.rml"))
+	{
+		this->uiFeature->CreateLayout("_levellist", "bin:../../data/levelviewer/levellist.rml");
+		this->uiFeature->CreateLayout("_layoutlist", "bin:../../data/levelviewer/layoutlist.rml");
+	}	
 	Util::String script = "bin:../../data/levelviewer/levellist.lua";
 	if (IO::IoServer::Instance()->FileExists(script))
 	{

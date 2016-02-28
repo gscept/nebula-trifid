@@ -72,12 +72,15 @@ public:
 	virtual void SetMaxLinearAcceleration(float acceleration);
 	/// set velocity gain, between 0 and 1
 	virtual void SetVelocityGain(float gain, float airGain);
+	/// set characters weight
+	virtual void SetWeight(float mass);
 
 protected:
 
 	CharacterShape shape; //< defaults to Capsule
 	float radius;
 	float height;
+	float mass;
     float crouchingHeight;
 };
 
@@ -97,6 +100,15 @@ inline void
 BaseCharacter::SetHeight( float height )
 {
 	this->height = height;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+BaseCharacter::SetWeight(float mass)
+{
+	this->mass = mass;
 }
 
 //------------------------------------------------------------------------------

@@ -11,6 +11,7 @@
 float Contrast = 1.0f;
 float Brightness = 1.0f;
 float SkyBlendFactor = 0.0f;
+float SkyRotationFactor = 0.03;
 
 // declare two textures, one main texture and one blend texture together with a wrapping sampler
 samplerCube SkyLayer1;
@@ -48,7 +49,7 @@ vsMain(in vec3 position,
 {
 	vec3 tempPos = normalize(position);
 	gl_Position = Projection * vec4(tempPos, 1);	
-	float animationSpeed = TimeAndRandom.x * 0.03f;
+	float animationSpeed = TimeAndRandom.x * SkyRotationFactor;	
 	mat3 rotMat = mat3( cos(animationSpeed), 0, sin(animationSpeed),
 						0, 1, 0,
 						-sin(animationSpeed), 0, cos(animationSpeed));

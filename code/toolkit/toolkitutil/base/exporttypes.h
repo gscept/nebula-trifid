@@ -44,7 +44,9 @@ enum PhysicsExportMode
 {
 	UsePhysics = 0,
 	UseBoundingBox = 1,
-	UseGraphicsMesh = 2
+	UseGraphicsMesh = 2,
+	UseBoundingSphere = 3,
+	UseBoundingCapsule = 4
 };
 
 } // namespace ToolkitUtil

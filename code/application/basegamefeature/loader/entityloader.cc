@@ -13,6 +13,7 @@
 #include "graphicsfeature/graphicsattr/graphicsattributes.h"
 #include "loader/loaderserver.h"
 #include "multiplayer/networkserver.h"
+#include "multiplayerfeatureunit.h"
 
 namespace BaseGameFeature
 {
@@ -33,9 +34,9 @@ EntityLoader::Load(const Util::Array<Util::String>& activeLayers)
 
 	// if we are singleplayer we are always master, in case of multiplayer check who is the host
 	bool master = true;
-	if (MultiplayerFeature::NetworkServer::HasInstance())
+	if (MultiplayerFeature::MultiplayerFeatureUnit::HasInstance())
 	{
-		master = MultiplayerFeature::NetworkServer::Instance()->IsHost();
+		master = MultiplayerFeature::MultiplayerFeatureUnit::Instance()->GetServer()->IsHost();
 	}
 
     // flag that we are loading

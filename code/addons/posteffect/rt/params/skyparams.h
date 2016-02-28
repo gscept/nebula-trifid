@@ -52,10 +52,16 @@ public:
     /// get sky brightness
     float GetSkyBrightness() const;
 
+    /// set sky rotation factor
+    void SetSkyRotationFactor(float f);
+    /// get sky rotation factor
+    float GetSkyRotationFactor() const;
+
 private:
     float textureBlendFactor;
     float skyContrast;
     float skyBrightness;
+    float skyRotationFactor;
     Util::String skyTexture;
 };
 
@@ -137,6 +143,25 @@ float
 SkyParams::GetSkyBrightness() const
 {
     return this->skyBrightness;
+}
+//------------------------------------------------------------------------------
+/**
+*/
+inline
+void
+SkyParams::SetSkyRotationFactor(float f)
+{
+    this->skyRotationFactor = f;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline
+float
+SkyParams::GetSkyRotationFactor() const
+{
+    return this->skyRotationFactor;
 }
 }
 //------------------------------------------------------------------------------

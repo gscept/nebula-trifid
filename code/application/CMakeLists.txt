@@ -503,12 +503,12 @@ set(application_SRCS
 )
 
 add_library( application STATIC ${application_SRCS} )
-TARGET_LINK_LIBRARIES(application PUBLIC application_NIDLS render posteffect scripting ui attr db framecapture navigation multiplayer faudio remote effects vibration)
+TARGET_LINK_LIBRARIES(application PUBLIC application_NIDLS render posteffect scripting ui attr db framecapture navigation multiplayer faudio remote effects vibration physics)
 TARGET_INCLUDE_DIRECTORIES(application PUBLIC ${Nebula3_SOURCE_DIR}/code/application ${Nebula3_SOURCE_DIR}/code/application/basegamefeature ${Nebula3_SOURCE_DIR}/code/application/graphicsfeature ${Nebula3_SOURCE_DIR}/code/application/physicsfeature)
 TARGET_INCLUDE_DIRECTORIES(application_NIDLS PUBLIC $<TARGET_PROPERTY:application,INTERFACE_INCLUDE_DIRECTORIES>)
 SET_TARGET_PROPERTIES(application PROPERTIES FOLDER "N3SDK/N3")
 
-ADD_DEPENDENCIES(application application_NIDLS multiplayer_NIDLS foundation render attr db sqlite tinyxml zlib ${PHYSICS_DEPENDENCIES})
+ADD_DEPENDENCIES(application application_NIDLS multiplayer_NIDLS foundation render attr db sqlite tinyxml zlib physics)
 ADD_DEPENDENCIES(application_NIDLS render_NIDLS)
 
 TARGET_LINK_LIBRARIES(application_NIDLS render)

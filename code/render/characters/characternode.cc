@@ -8,6 +8,7 @@
 #include "characters/characternodeinstance.h"
 #include "resources/resourcemanager.h"
 #include "models/modelinstance.h"
+#include "characterjointmask.h"
 
 namespace Characters
 {
@@ -236,6 +237,27 @@ CharacterNode::ParseDataTag(const FourCC& fourCC, const Ptr<BinaryReader>& reade
 
         this->character->Skeleton().SetupJoint(jointIndex, parentJointIndex, poseTranslation, poseRotation, poseScale, jointName);
     }
+	else if (FourCC('NJMS') == fourCC)
+	{
+		SizeT numMasks = reader->ReadInt();
+		this->character->Skeleton().ReserveMasks(numMasks);
+	}
+	else if (FourCC('JOMS') == fourCC)
+	{
+		CharacterJointMask mask;
+		StringAtom maskName = reader->ReadString();
+		SizeT num = reader->ReadInt();
+		Util::FixedArray<scalar> weights;
+		weights.Resize(num);
+		IndexT i;
+		for (i = 0; i < num; i++)
+		{
+			weights[i] = reader->ReadFloat();
+		}
+		mask.SetName(maskName);
+		mask.SetWeights(weights);
+		this->character->Skeleton().AddJointMask(mask);
+	}
     else if (FourCC('VART') == fourCC)
     {
         // variation resource name

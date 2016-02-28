@@ -1,31 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Nebula3>
   <AttributeLib>
-    <Attribute name="Graphics" fourcc="GRAP" accessMode="ReadWrite" type="String" editType="resource" resourceBase="mdl" fileSuffix="n3" />
-    <Attribute name="LoadSynced" fourcc="GRLS" accessMode="ReadWrite" type="Bool" default="false"/>
-    <Attribute name="AnimSet" fourcc="ANMS" accessMode="ReadWrite" type="String"/>
-	  <Attribute name="CharacterSet" fourcc="CHRS" accessMode="ReadWrite" type="String"/>
-	  <Attribute name="StartAnimation" fourcc="STAM" accessMode="ReadWrite" type="String" editType="animclip" />
-	  <Attribute name="IdleAnim" fourcc="IDAN" accessMode="ReadWrite" type="String" editType="animclip" />
-	  <Attribute name="WalkAnim" fourcc="WAAN" accessMode="ReadWrite" type="String" editType="animclip" />
-    <Attribute name="BackAnim" fourcc="BAAN" accessMode="ReadWrite" type="String" editType="animclip" />
-    <Attribute name="RunAnim" fourcc="RUAN" accessMode="ReadWrite" type="String" editType="animclip" />
-    <Attribute name="StrafeRightAnim" fourcc="SRRA" accessMode="ReadWrite" type="String" editType="animclip" />
-    <Attribute name="StrafeLeftAnim" fourcc="SRLA" accessMode="ReadWrite" type="String" editType="animclip" />
-    <Attribute name="UseStrafeAnim" fourcc="USRN" accessMode="ReadWrite" type="Bool" default="false" />
-    <Attribute name="JumpAnim" fourcc="JUAN" accessMode="ReadWrite" type="String" editType="animclip" />
-    <Attribute name="DeathAnim" fourcc="DEAN" accessMode="ReadWrite" type="String" editType="animclip" />    
-    <Attribute name="UseAnim" fourcc="USAN" accessMode="ReadWrite" type="String" editType="animclip" />
-    <Attribute name="UseReversedAnim" fourcc="USRA" accessMode="ReadWrite" type="Bool" default="false"/>
-    <Attribute name="UseFallbackAnim" fourcc="USFA" accessMode="ReadWrite" type="Bool" default="true"/>
-	  <Attribute name="LoopStartAnimation" fourcc="LOST" accessMode="ReadWrite" type="Bool"/>    
-    <Attribute name="AmbienceBubbleEnabled" fourcc="ABEN" accessMode="ReadWrite" default="true" type="Bool"/>
-    <Attribute name="AmbienceBubblePriority" fourcc="ABPR" accessMode="ReadWrite" type="Int"/>
+    <Attribute name="Graphics" fourcc="GRAP" accessMode="ReadWrite" type="String" editType="resource" resourceBase="mdl" fileSuffix="n3" displayName="Graphics model"/>
+    <Attribute name="LoadSynced" fourcc="GRLS" accessMode="ReadWrite" type="Bool" default="false" displayName="Load synchronized"/>
+    <Attribute name="AnimSet" fourcc="ANMS" accessMode="ReadWrite" type="String" system="1" displayName="OBSOLETE"/>
+	  <Attribute name="CharacterSet" fourcc="CHRS" accessMode="ReadWrite" type="String" system="1" displayName="This seems to be the starting skinlist, currently not really useful"/>
+	  <Attribute name="StartAnimation" fourcc="STAM" accessMode="ReadWrite" type="String" editType="animclip" displayName="Starting animation" />
+	  <Attribute name="IdleAnim" fourcc="IDAN" accessMode="ReadWrite" type="String" editType="animclip" displayName="Idle animation"/>
+	  <Attribute name="WalkAnim" fourcc="WAAN" accessMode="ReadWrite" type="String" editType="animclip" displayName="Walking animation"/>
+    <Attribute name="BackAnim" fourcc="BAAN" accessMode="ReadWrite" type="String" editType="animclip" displayName="Backwards animation"/>
+    <Attribute name="RunAnim" fourcc="RUAN" accessMode="ReadWrite" type="String" editType="animclip" displayName="Running animation"/>
+    <Attribute name="StrafeRightAnim" fourcc="SRRA" accessMode="ReadWrite" type="String" editType="animclip" displayName="Right strafe animation"/>
+    <Attribute name="StrafeLeftAnim" fourcc="SRLA" accessMode="ReadWrite" type="String" editType="animclip" displayName="Left strafe animation"/>
+    <Attribute name="UseStrafeAnim" fourcc="USRN" accessMode="ReadWrite" type="Bool" default="false" displayName="Use trafe animations"/>
+    <Attribute name="JumpAnim" fourcc="JUAN" accessMode="ReadWrite" type="String" editType="animclip" displayName="Jump animation"/>
+    <Attribute name="DeathAnim" fourcc="DEAN" accessMode="ReadWrite" type="String" editType="animclip" displayName="Death animation"/>    
+    <Attribute name="UseAnim" fourcc="USAN" accessMode="ReadWrite" type="String" editType="animclip" displayName="Using animation"/>
+    <Attribute name="UseReversedAnim" fourcc="USRA" accessMode="ReadWrite" type="Bool" default="false" displayName="Use reversed animations for backing"/>
+    <Attribute name="UseFallbackAnim" fourcc="USFA" accessMode="ReadWrite" type="Bool" default="true" displayName="Use animation fallbacks"/>
+	  <Attribute name="LoopStartAnimation" fourcc="LOST" accessMode="ReadWrite" type="Bool" displayName="Loop starting animation"/>    
+    <Attribute name="AmbienceBubbleEnabled" fourcc="ABEN" accessMode="ReadWrite" default="true" type="Bool" displayName="Enable ambience bubble"/>
+    <Attribute name="AmbienceBubblePriority" fourcc="ABPR" accessMode="ReadWrite" type="Int" displayName="Ambience bubble priority"/>
     <Attribute name="Instanced" fourcc="INST" accessMode="ReadWrite" type="Bool" default="false" />
-    <Attribute name="CastShadows" fourcc="CASD" accessMode="ReadWrite" type="Bool" default="true" />
+    <Attribute name="CastShadows" fourcc="CASD" accessMode="ReadWrite" type="Bool" default="true" displayName="Casts shadows"/>
     <Attribute name="Static" fourcc="STIC" accessMode="ReadWrite" type="Bool" default="false" />
-    <Attribute name="CameraFocus" fourcc="CAMF" accessMode="ReadWrite" type="Bool" default="true" />
-    <Attribute name="InputFocus" fourcc="IFOC" accessMode="ReadWrite" type="Bool" default="true" />
+    <Attribute name="CameraFocus" fourcc="CAMF" accessMode="ReadWrite" type="Bool" default="true" displayName="Active camera"/>
+    <Attribute name="InputFocus" fourcc="IFOC" accessMode="ReadWrite" type="Bool" default="true" displayName="Receive input events"/>
 	  <Attribute name="IsBillboard" fourcc="IBLB" accessMode="ReadOnly" type="Bool" default="false" />
     <Attribute name="LightType" fourcc="LITY" accessMode="ReadOnly" type="Int" default="1" system="1"/>
     <Attribute name="LightColor" fourcc="LCOL" accessMode="ReadWrite" type="Float4" editType="colour" default="1.0,1.0,1.0,1.0"/>
@@ -52,19 +52,19 @@
     <Attribute name="AnimPlaying" fourcc="ANPL" accessMode="ReadWrite" type="Bool" />
     <Attribute name="AnimPathOffset" fourcc="ANPO" accessMode="ReadWrite" type="Float4" default="0,0,0,0"/>
 
-    <Attribute name="CameraDistance" fourcc="CADI" accessMode="ReadWrite" type="Float" minValue="1.0f" default="15.0"/>
-    <Attribute name="CameraMinDistance" fourcc="CMID" accessMode="ReadWrite" type="Float" default="1.0"/>
-    <Attribute name="CameraMaxDistance" fourcc="CMAD" accessMode="ReadWrite" type="Float" default="125.0"/>
-    <Attribute name="CameraDistanceStep" fourcc="CDST" accessMode="ReadWrite" type="Float" default="1.0"/>
-    <Attribute name="CameraOffset" fourcc="COFF" accessMode="ReadWrite" type="Float4" default="0.0,1.5,0.0,0.0"/>
-    <Attribute name="CameraLowStop" fourcc="CLOS" accessMode="ReadWrite" type="Float" default="-45.0"/>
-    <Attribute name="CameraHighStop" fourcc="CHIS" accessMode="ReadWrite" type="Float" default="45.0"/>
-    <Attribute name="CameraAngularVelocity" fourcc="CAVE" accessMode="ReadWrite" type="Float" default="0.2"/>
-    <Attribute name="CameraLinearGain" fourcc="CLIG" accessMode="ReadWrite" type="Float" default="-30.0"/>
-    <Attribute name="CameraAngularGain" fourcc="CAGE" accessMode="ReadWrite" type="Float" default="-50.0"/>
-    <Attribute name="CameraDefaultTheta" fourcc="CTHE" accessMode="ReadWrite" type="Float" default="-0.35"/>
-    <Attribute name="CameraDefaultRho" fourcc="CRHO" accessMode="ReadWrite" type="Float" default="0.175"/>
-    <Attribute name="InputMouseGrab" fourcc="IPGM" accessMode="ReadWrite" type="Bool" default="false"/>
+    <Attribute name="CameraDistance" fourcc="CADI" accessMode="ReadWrite" type="Float" minValue="1.0f" default="15.0" displayName="Camera starting distance"/>
+    <Attribute name="CameraMinDistance" fourcc="CMID" accessMode="ReadWrite" type="Float" default="1.0" displayName="Camera minimum distance"/>
+    <Attribute name="CameraMaxDistance" fourcc="CMAD" accessMode="ReadWrite" type="Float" default="125.0" displayName="Camera maximum distance"/>
+    <Attribute name="CameraDistanceStep" fourcc="CDST" accessMode="ReadWrite" type="Float" default="1.0" />
+    <Attribute name="CameraOffset" fourcc="COFF" accessMode="ReadWrite" type="Float4" default="0.0,1.5,0.0,0.0" displayName="Camera Offset"/>
+    <Attribute name="CameraLowStop" fourcc="CLOS" accessMode="ReadWrite" type="Float" default="-45.0" displayName="Camera low angle limit"/>
+    <Attribute name="CameraHighStop" fourcc="CHIS" accessMode="ReadWrite" type="Float" default="45.0" displayName="Camera high angle limit"/>
+    <Attribute name="CameraAngularVelocity" fourcc="CAVE" accessMode="ReadWrite" type="Float" default="0.2" displayName="Camera rotation speed"/>
+    <Attribute name="CameraLinearGain" fourcc="CLIG" accessMode="ReadWrite" type="Float" default="-30.0" displayName="Camera linear acceleration"/>
+    <Attribute name="CameraAngularGain" fourcc="CAGE" accessMode="ReadWrite" type="Float" default="-50.0" displayName="Camera rotation acceleration"/>
+    <Attribute name="CameraDefaultTheta" fourcc="CTHE" accessMode="ReadWrite" type="Float" default="-0.35" displayName="Camera default vertical angle"/>
+    <Attribute name="CameraDefaultRho" fourcc="CRHO" accessMode="ReadWrite" type="Float" default="0.175" displayName="Camera default horizontal angle"/>
+    <Attribute name="InputMouseGrab" fourcc="IPGM" accessMode="ReadWrite" type="Bool" default="false" displayName="Grab mouse"/>
     <Attribute name="MayaCameraCenterOfInterest" fourcc="MCCI" accessMode="ReadWrite" type="Float4" />
     <Attribute name="MayaCameraDefaultUpVec" fourcc="MCDU" accessMode="ReadWrite" type="Float4" default="0.0,1.0,0.0,1.0"/>
 	  <Attribute name="MayaCameraRenderCenterOfInterest" fourcc="MCRI" accessMode="ReadWrite" type="Bool" default="false" />
@@ -120,6 +120,7 @@
     <Attribute name="FocusLength" fourcc="DOFL" accessMode="ReadWrite" type="Float" default="100"/>
     <Attribute name="FocusRadius" fourcc="DOFR" accessMode="ReadWrite" type="Float" default="0"/>
     <Attribute name="SkyContrast" fourcc="SKYC" accessMode="ReadWrite" type="Float" default="1"/>
+    <Attribute name="SkyRotationFactor" fourcc="SKYR" accessMode="ReadWrite" type="Float" default="0.03"/>
     <Attribute name="SkyBrightness" fourcc="SKYB" accessMode="ReadWrite" type="Float" default="1"/>
     <Attribute name="SkyTexture" fourcc="SKYT" accessMode="ReadWrite" type="String" default="tex:system/sky" editType="resource" resourceBase="tex" fileSuffix="dds" />
     <Attribute name="SkyModel" fourcc="SKYM" accessMode="ReadWrite" type="String" default="system/skybox" />

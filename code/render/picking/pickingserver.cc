@@ -28,7 +28,11 @@ __ImplementSingleton(Picking::PickingServer);
 PickingServer::PickingServer() :
 	isOpen(false),
 	frameShader(0),
-	enabled(false)
+	pickingCamera(0),
+	pickingView(0),
+	pickingBuffer(0),
+	depthBuffer(0),
+	normalBuffer(0)
 {
 	__ConstructSingleton;
 }
@@ -49,6 +53,23 @@ PickingServer::Open()
 {
 	n_assert(!this->IsOpen());
 	this->isOpen = true;
+
+	// get picking shader
+	const Ptr<Graphics::View>& view = Graphics::GraphicsServer::Instance()->GetDefaultView();
+	const Ptr<Graphics::Stage>& stage = view->GetStage();
+
+	this->pickingCamera = Graphics::CameraEntity::Create();
+	stage->AttachEntity(this->pickingCamera.upcast<Graphics::GraphicsEntity>());
+	
+	this->frameShader = FrameServer::Instance()->LookupFrameShader("picking");
+	this->pickingView = Graphics::GraphicsServer::Instance()->CreateView(Graphics::View::RTTI, "PickingView", false, false);
+	this->pickingView->SetStage(stage);
+	this->pickingView->SetFrameShader(this->frameShader);
+	this->pickingView->SetCameraEntity(this->pickingCamera);
+
+	this->pickingBuffer = Resources::ResourceManager::Instance()->LookupResource("PickingBuffer").downcast<Texture>();
+	this->depthBuffer = Resources::ResourceManager::Instance()->LookupResource("DepthBuffer").downcast<Texture>();
+	this->normalBuffer = Resources::ResourceManager::Instance()->LookupResource("NormalBuffer").downcast<Texture>();
 }
 
 //------------------------------------------------------------------------------
@@ -58,92 +79,51 @@ void
 PickingServer::Close()
 {
 	n_assert(this->IsOpen());
-	if (this->frameShader.isvalid())
-	{
-		this->frameShader->Discard();
-		this->frameShader = 0;
 
-		this->pickingBuffer = 0;
-		this->normalBuffer = 0;
-		this->depthBuffer = 0;
-	}
+	Graphics::GraphicsServer::Instance()->DiscardView(this->pickingView);
+	this->pickingView = 0;
+	this->frameShader->Discard();
+	this->frameShader = 0;
+
+	this->pickingBuffer = 0;
+	this->depthBuffer = 0;
+	this->normalBuffer = 0;
+
 	this->isOpen = false;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-void
-PickingServer::BeginFrame(const Ptr<Graphics::CameraEntity>& camera)
-{
-	// empty
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
 void 
-PickingServer::Render(IndexT frameIndex)
+PickingServer::Render()
 {
 	n_assert(this->IsOpen());
+
+	// render view first
+	const Ptr<Graphics::CameraEntity>& defaultCam = Graphics::GraphicsServer::Instance()->GetDefaultView()->GetCameraEntity();
+	const Math::matrix44& camTrans = defaultCam->GetTransform();
+	const Graphics::CameraSettings& settings = defaultCam->GetCameraSettings();
+	this->pickingCamera->SetTransform(camTrans);
+	this->pickingCamera->SetCameraSettings(settings);
+	this->pickingView->OnFrame(NULL, 0, 0, false);
+	/*
 	if (this->frameShader.isvalid() && this->enabled)
 	{
         this->frameShader->Render(frameIndex);
 	}
+	*/
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-void 
-PickingServer::EndFrame()
+IndexT
+PickingServer::FetchIndex(const Math::float2& position)
 {
-	// empty
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-PickingServer::SetEnabled( bool b )
-{
-	n_assert(this->IsOpen());
-	this->enabled = b;
-	if (b)
-	{
-		// get picking shader
-		this->frameShader = FrameServer::Instance()->LookupFrameShader("picking");
-
-		// also get default frame shader to get geometry buffers
-        const Ptr<FrameShader>& defaultFrameShader = Graphics::GraphicsServer::Instance()->GetDefaultView()->GetFrameShader();
-
-		// get render target from frame shader
-		this->pickingBuffer = this->frameShader->GetRenderTargetByName("PickingBuffer");
-		this->depthBuffer = defaultFrameShader->GetRenderTargetByName("DepthBuffer");
-		this->normalBuffer = defaultFrameShader->GetRenderTargetByName("NormalBuffer");
-	}
-	else
-	{
-		n_assert(this->frameShader.isvalid());
-
-		// unload picking buffer pointer
-		this->pickingBuffer = 0;
-
-		// unload frame shader if it's loaded
-		this->frameShader->Discard();
-		this->frameShader = 0;		
-	}
-}
-
-
-//------------------------------------------------------------------------------
-/**
-*/
-IndexT 
-PickingServer::FetchIndex( const Math::float2& position )
-{
-	n_assert(this->IsOpen());
-	Ptr<Texture> tex = this->pickingBuffer->GetResolveTexture();
+	// render first
+	this->Render();
+	Ptr<Texture> tex = this->pickingBuffer;
 
 #if __DX11__
 	// ugly fix for DX11 which lets us copy the GPU texture to CPU, so that we can read it
@@ -191,11 +171,12 @@ PickingServer::FetchIndex( const Math::float2& position )
 //------------------------------------------------------------------------------
 /**
 */
-Util::Array<IndexT> 
-PickingServer::FetchSquare( const Math::rectangle<float>& rect )
+void
+PickingServer::FetchSquare( const Math::rectangle<float>& rect, Util::Array<IndexT> & indices, Util::Array<IndexT> & edgeIndices)
 {
-	n_assert(this->IsOpen());
-	Ptr<Texture> tex = this->pickingBuffer->GetResolveTexture();
+	// render first
+	this->Render();
+	Ptr<Texture> tex = this->pickingBuffer;
 
 #if __DX11__
 	// ugly fix for DX11 which lets us copy the GPU texture to CPU, so that we can read it
@@ -210,7 +191,11 @@ PickingServer::FetchSquare( const Math::rectangle<float>& rect )
 	int pixelSize = PixelFormat::ToSize(tex->GetPixelFormat());
 	int width = tex->GetWidth();
 
+	int height = tex->GetHeight();
 #if (__DX11__ || __DX9__)
+#error This is most likely utterly broken now
+	// calculate pixel offset	
+	int pixelSize = PixelFormat::ToSize(tex->GetPixelFormat());
 	int calcedPitch = width * pixelSize;
 	int pitchDiff = info.rowPitch - calcedPitch;
 	width += pitchDiff / pixelSize;
@@ -223,54 +208,45 @@ PickingServer::FetchSquare( const Math::rectangle<float>& rect )
 	int yMax = (int)rect.bottom;
 #elif __OGL4__
 	// get coordinate
-	int xMin = (int)rect.left;
-	int yMin = (int)rect.bottom;
+	int xMin = Math::n_iclamp((int)rect.left, 0, width - 1);
+	int yMin = tex->GetHeight() - Math::n_iclamp((int)rect.bottom, 0, height - 1);
 
-	int xMax = (int)rect.right;
-	int yMax = (int)rect.top;
+	int xMax = Math::n_iclamp((int)rect.right, 0, width - 1);
+	int yMax = tex->GetHeight() - Math::n_iclamp((int)rect.top, 0, height - 1);
 #endif
-
-	// calculate start offset and end offset in buffer
-	int upperLeft = width * (yMin - 1) + xMin;
-	int upperRight = width * (yMin - 1) + xMax;
-	int lowerLeft = width * (yMax - 1) + xMin;
-	int lowerRight = width * (yMax - 1) + xMax;
-
-	// get offset to start
-	float* values = &((float*)(info.data))[upperLeft];
-
-	// create return list indices
-	//Util::Array<IndexT> indices;
-
-	// make a dictionary which we will use as a set, so the byte value is just a dummy
-	Util::Dictionary<IndexT, ubyte> indices;
-
-	// get values
-	IndexT i;
-	IndexT j;
-	for (i = 0; i < rect.height(); i++)
+	float* values = (float*)info.data;			
+	
+	for (IndexT i = yMin; i < yMax; i++)
 	{
-		for (j = 0; j < rect.width(); j++)
+		for (IndexT j = xMin; j < xMax; j++)
 		{
-			IndexT index = IndexT(values[(i + 1) * j]);
-			if (!indices.Contains(index)) indices.Add(index, 0);
-		}
-
-		// offset values by a row
-		values += width;
+			IndexT index = IndexT(values[i*width + j]);
+			if (indices.BinarySearchIndex(index) == InvalidIndex)
+			{
+				indices.InsertSorted(index);
+			}			
+			if (i == yMin || i == yMax-1 || j == xMin || j == xMax-1)
+			{
+				if (edgeIndices.BinarySearchIndex(index) == InvalidIndex)
+				{
+					edgeIndices.InsertSorted(index);
+				}
+			}
+		}		
 	}
 
-	return indices.KeysAsArray();
+	// release texture map
+	tex->Unmap(0);	
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-float 
-PickingServer::FetchDepth( const Math::float2& position )
+float
+PickingServer::FetchDepth(const Math::float2& position)
 {
 	n_assert(this->IsOpen());
-	Ptr<Texture> tex = this->depthBuffer->GetResolveTexture();
+	Ptr<Texture> tex = this->depthBuffer;
 
 #if __DX11__
 	// ugly fix for DX11 which lets us copy the GPU texture to CPU, so that we can read it
@@ -315,11 +291,11 @@ PickingServer::FetchDepth( const Math::float2& position )
 //------------------------------------------------------------------------------
 /**
 */
-Math::float4 
-PickingServer::FetchNormal( const Math::float2& position )
+Math::float4
+PickingServer::FetchNormal(const Math::float2& position)
 {
 	n_assert(this->IsOpen());
-	Ptr<Texture> tex = this->pickingBuffer->GetResolveTexture();
+	Ptr<Texture> tex = this->pickingBuffer;
 
 #if __DX11__
 	// ugly fix for DX11 which lets us copy the GPU texture to CPU, so that we can read it

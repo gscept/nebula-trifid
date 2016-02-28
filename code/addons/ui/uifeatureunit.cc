@@ -171,7 +171,14 @@ UiFeatureUnit::LoadUITables()
             {
 				if (IO::IoServer::Instance()->FileExists(layoutFile))
 				{
-					this->server->CreateLayout(layoutName, layoutFile);
+					if (lreader->HasAttr(Attr::UICursor) && lreader->GetBool(Attr::UICursor))
+					{
+						this->server->LoadCursor(layoutFile);
+					}
+					else
+					{
+						this->server->CreateLayout(layoutName, layoutFile);
+					}					
 				}
 				else
 				{

@@ -159,11 +159,17 @@ LevelViewerGameState::HandleInput()
 	}
 	if (kbd->KeyDown(Input::Key::F10))
 	{
-		UI::UiFeatureUnit::Instance()->GetLayout("_levellist")->Toggle();
+		if (UI::UiFeatureUnit::Instance()->HasLayout("_levellist"))
+		{
+			UI::UiFeatureUnit::Instance()->GetLayout("_levellist")->Toggle();
+		}		
 	}
 	if (kbd->KeyDown(Input::Key::F11))
 	{
-		UI::UiFeatureUnit::Instance()->GetLayout("_layoutlist")->Toggle();
+		if (UI::UiFeatureUnit::Instance()->HasLayout("_layoutlist"))
+		{
+			UI::UiFeatureUnit::Instance()->GetLayout("_layoutlist")->Toggle();
+		}		
 	}
 }
 

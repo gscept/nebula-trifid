@@ -10,6 +10,7 @@
         <Dependency header="posteffect/rt/params/lightparams.h"/>
         <Dependency header="posteffect/rt/params/skyparams.h"/>
         <Dependency header="graphics/graphicsentity.h"/>
+        <Dependency header="posteffect/posteffectfeatureunit.h"/>
         
         <!-- create and setup render-side posteffect system -->
         <Message name="SetupPostEffectSystem" fourcc="sepe"/>        
@@ -89,9 +90,23 @@
         <Message name="BlendSky" fourcc="sets" derivedFrom="BlendBase">
 		      <InArg name="Contrast" type="float"/>
 		      <InArg name="Brightness" type="float"/>
-		      <InArg name="Texture" type="Util::String"/>
-        </Message>
-      
+          <InArg name="RotationFactor" type="float"/>
+          <InArg name="Texture" type="Util::String"/>
+        </Message>      
     </Protocol>
+  <Library name="PostEffectCommands">
+    <Command name="ActivatePostFXPreset" fourcc="apxp" desc="Activate a postfx preset">
+      <InArg name="Preset" type="string"/>      
+      <Code>
+        PostEffect::PostEffectFeatureUnit::Instance()->ApplyPreset(Preset);
+      </Code>
+    </Command>
+    <Command name="GetCurrentPostFXPreset" fourcc="gcpx" desc="Retrieves current postfx preset">
+      <OutArg name="Preset" type="string"/>
+      <Code>
+        return PostEffect::PostEffectFeatureUnit::Instance()->GetLastPreset();
+      </Code>
+    </Command>
+  </Library>
 </Nebula3>    
     

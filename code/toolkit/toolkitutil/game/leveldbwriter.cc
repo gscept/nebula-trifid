@@ -101,7 +101,16 @@ LevelDbWriter::AddEntity(const Util::String & category, const Attr::AttributeCon
     {
         if(valueTable->HasColumn(attrDic.KeyAtIndex(i)))
         {
-            valueTable->SetAttr(attrDic.ValueAtIndex(i), row);
+			if (attrDic.KeyAtIndex(i) == Attr::Guid)
+			{
+				Util::Guid newguid;
+				newguid.Generate();
+				valueTable->SetAttr(Attr::Attribute(Attr::Guid, newguid), row);
+			}
+			else
+			{
+				valueTable->SetAttr(attrDic.ValueAtIndex(i), row);
+			}            
         }
         else
         {

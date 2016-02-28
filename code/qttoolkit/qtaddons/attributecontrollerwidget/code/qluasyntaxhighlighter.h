@@ -51,6 +51,9 @@ protected:
     QTextCharFormat multiLineCommentFormat;
     QTextCharFormat quotationFormat;
     QTextCharFormat functionFormat;
+	QTextCharFormat operatorFormat;
+	QTextCharFormat numberFormat;
+	QTextCharFormat identifierFormat;
 };
 
 #endif // QLUASYNTAXHIGHLIGHTER_P_H

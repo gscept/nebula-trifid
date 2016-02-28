@@ -242,26 +242,26 @@ struct ContactCallback : public btCollisionWorld::ContactResultCallback {
     @return             number of entities touching the box
 */
 int 
-BulletScene::GetObjectsInBox(const Math::vector& scale, const Math::matrix44& m, const Physics::FilterSet& excludeSet, Util::Array<Ptr<Physics::PhysicsObject> >& result)
+BulletScene::GetObjectsInBox(const Math::matrix44& transform, const Math::vector& halfWidth, const Physics::FilterSet& excludeSet, Util::Array<Ptr<Physics::PhysicsObject>>& result)
 {
-	// first remove scaling from transformation matrix	
-	matrix44 pure = matrix44::identity();
-	pure.set_position(m.get_position());
-	pure.set_xaxis(float4::normalize(m.get_xaxis()));
-	pure.set_yaxis(float4::normalize(m.get_yaxis()));
-	pure.set_zaxis(float4::normalize(m.get_zaxis()));
-	
-	btCollisionObject * coll = n_new(btCollisionObject);
+    // first remove scaling from transformation matrix	
+    matrix44 pure = matrix44::identity();
+    pure.set_position(transform.get_position());
+    pure.set_xaxis(float4::normalize(transform.get_xaxis()));
+    pure.set_yaxis(float4::normalize(transform.get_yaxis()));
+    pure.set_zaxis(float4::normalize(transform.get_zaxis()));
 
-	coll->setWorldTransform(Neb2BtM44Transform(m));	
-	btCollisionShape * shape = n_new(btBoxShape(Neb2BtVector(scale)));
-	coll->setCollisionShape(shape);
+    btCollisionObject * coll = n_new(btCollisionObject);
 
-	GetEntitiesInShape(coll,excludeSet,result);
+    coll->setWorldTransform(Neb2BtM44Transform(transform));
+    btCollisionShape * shape = n_new(btBoxShape(Neb2BtVector(halfWidth)));
+    coll->setCollisionShape(shape);
 
-	n_delete(shape);
-	n_delete(coll);
-	return result.Size();
+    GetEntitiesInShape(coll, excludeSet, result);
+
+    n_delete(shape);
+    n_delete(coll);
+    return result.Size();
 }
 
 //------------------------------------------------------------------------------

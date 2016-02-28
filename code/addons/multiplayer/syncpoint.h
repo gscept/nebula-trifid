@@ -54,6 +54,9 @@ public:
 	static void SetAllCallback(const Util::String &name, CLASS* obj);
 
 
+	///
+	static void SetupSyncPoint(RakNet::ReadyEvent *ready);
+
 protected:
 	///
 	virtual void OnEventChanged(unsigned eventid, unsigned char msg, RakNet::RakNetGUID sender);
@@ -64,8 +67,7 @@ protected:
 
 private:
 	friend class MultiplayerFeature::NetworkServer;
-	///
-	static void SetupSyncPoint(RakNet::ReadyEvent *ready);
+	
 	static RakNet::ReadyEvent *readyEvent;
 
 	static Util::Dictionary<IndexT, Util::Delegate<const Util::KeyValuePair<Multiplayer::UniquePlayerId, bool>&>> DelegateSetDict;

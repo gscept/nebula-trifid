@@ -200,6 +200,8 @@ ModelBuilder::WritePhysics( const Ptr<N3Writer>& writer )
 	switch(this->physics->GetExportMode())
 	{
 		case UseBoundingBox:
+		case UseBoundingSphere:
+		case UseBoundingCapsule:
 			{
 				Array<Physics::ColliderDescription> colls;
 				const Array<ModelConstants::ShapeNode> & nodes = this->constants->GetShapeNodes();
@@ -224,8 +226,30 @@ ModelBuilder::WritePhysics( const Ptr<N3Writer>& writer )
 					Physics::ColliderDescription col;
 					col.name = iter->name;
 					col.transform = nodetrans;
-					col.type = Physics::ColliderCube;
-					col.box.halfWidth = colBox.extents();
+					switch (this->physics->GetExportMode())
+					{
+					case UseBoundingBox:
+						col.type = Physics::ColliderCube;
+						col.box.halfWidth = colBox.extents();
+						break;
+					case UseBoundingSphere:
+					{
+						col.type = Physics::ColliderSphere;
+						Math::vector v = colBox.size();
+						col.sphere.radius = 0.5f * Math::n_min(v.x(), Math::n_min(v.y(), v.z()));
+					}
+					break;
+					case UseBoundingCapsule:
+					{
+						col.type = Physics::ColliderCapsule;
+						Math::vector v = colBox.size();
+						col.capsule.height = v.y();
+						col.capsule.radius = Math::n_min(v.z(), v.x());						
+					}
+					break;
+					default:
+						break;
+					}
 					colls.Append(col);
 				}
 				const Array<ModelConstants::ParticleNode> & particleNodes = this->constants->GetParticleNodes();
@@ -371,8 +395,8 @@ ModelBuilder::WritePhysics( const Ptr<N3Writer>& writer )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ModelBuilder::WriteCharacter( const Ptr<N3Writer>& writer )
+void
+ModelBuilder::WriteCharacter(const Ptr<N3Writer>& writer)
 {
 	// get list of characters
 	const Array<ModelConstants::CharacterNode>& characters = this->constants->GetCharacterNodes();
@@ -387,7 +411,8 @@ ModelBuilder::WriteCharacter( const Ptr<N3Writer>& writer )
 		writer->BeginCharacter(character.name,
 							   character.skinLists,
 							   character.joints,
-							   character.animation);
+							   character.animation,
+							   this->GetAttributes()->GetJointMasks());
 
 		// write skins
 		this->WriteSkins(writer);
@@ -401,8 +426,8 @@ ModelBuilder::WriteCharacter( const Ptr<N3Writer>& writer )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ModelBuilder::WriteSkins( const Ptr<N3Writer>& writer )
+void
+ModelBuilder::WriteSkins(const Ptr<N3Writer>& writer)
 {
 	// get list of skins
 	const Array<ModelConstants::Skin>& skins = this->constants->GetSkins();

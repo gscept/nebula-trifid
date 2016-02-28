@@ -8,6 +8,7 @@
 #include "physics/bullet/conversion.h"
 #include "physics/collider.h"
 #include "math/bbox.h"
+#include "resources/resourcemanager.h"
 
 
 namespace Bullet
@@ -15,6 +16,7 @@ namespace Bullet
 	__ImplementClass(Bullet::BulletCollider, 'PBCO', Physics::BaseCollider);
 
 using namespace Math;
+using namespace Physics;
 
 //------------------------------------------------------------------------------
 /**
@@ -132,6 +134,49 @@ BulletCollider::GetScaledCopy(const vector &scale)
 	return newColl;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+BulletCollider::AddFromDescription(const Physics::ColliderDescription & description)
+{	
+	
+	switch(description.type)
+	{
+		case ColliderSphere:
+			{
+				AddSphere(description.sphere.radius,description.transform);
+			}
+			break;
+		case ColliderCube:
+			{
+				AddBox(description.box.halfWidth,description.transform);
+			}
+			break;
+		case ColliderCylinder:
+			{
+				AddCylinder(description.cylinder.radius,description.cylinder.height,description.transform);
+			}
+			break;
+		case ColliderCapsule:
+			{
+				AddCapsule(description.capsule.radius,description.capsule.height,description.transform);
+			}
+			break;
+		case ColliderPlane:
+			{
+				AddPlane(description.plane.plane,description.transform);
+			}
+			break;
+		case ColliderMesh:
+			{
+				Ptr<ManagedPhysicsMesh> mesh = Resources::ResourceManager::Instance()->CreateManagedResource(PhysicsMesh::RTTI,description.mesh.meshResource).cast<ManagedPhysicsMesh>();				
+				AddPhysicsMesh(mesh,description.transform,description.mesh.meshType,description.mesh.primGroup);				
+			}
+			break;
+	}
+	BaseCollider::AddFromDescription(description);
+}
 //------------------------------------------------------------------------------
 /**
 */

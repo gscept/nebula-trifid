@@ -54,6 +54,8 @@ CharacterSkeleton::Discard()
     this->jointArray.Clear();
     this->jointIndexMap.Clear();
     this->invPoseMatrixArray.Clear();
+	this->maskIndexMap.Clear();
+	this->maskIndexMap.Clear();
 }
 
 //------------------------------------------------------------------------------
@@ -96,6 +98,28 @@ CharacterSkeleton::SetupJoint(IndexT jointIndex, IndexT parentJointIndex, const 
 //------------------------------------------------------------------------------
 /**
 */
+void
+CharacterSkeleton::ReserveMasks(SizeT numMasks)
+{
+	n_assert(numMasks > 0);
+	this->maskArray.Reserve(numMasks);
+	this->maskIndexMap.Reserve(numMasks);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+CharacterSkeleton::AddJointMask(const CharacterJointMask& mask)
+{
+	n_assert(!this->maskIndexMap.Contains(mask.GetName()));
+	this->maskArray.Append(mask);
+	this->maskIndexMap.Add(mask.GetName(), this->maskArray.Size() - 1);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 const CharacterJoint& 
 CharacterSkeleton::GetRootJoint() const
 {
@@ -110,6 +134,27 @@ CharacterSkeleton::GetRootJoint() const
 	}
 
 	return *joint;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+const CharacterJointMask&
+CharacterSkeleton::GetMaskByName(const Util::StringAtom& maskName) const
+{
+	n_assert(this->maskIndexMap.Contains(maskName));
+	return this->maskArray[this->maskIndexMap[maskName]];
+}
+
+
+//------------------------------------------------------------------------------
+/**
+*/
+CharacterJointMask*
+CharacterSkeleton::GetMaskByName(const Util::StringAtom& maskName)
+{
+	n_assert(this->maskIndexMap.Contains(maskName));
+	return &this->maskArray[this->maskIndexMap[maskName]];
 }
 
 } // namespace Characters

@@ -65,7 +65,7 @@ psMain(vec2 UV,
 
 	//vec3	col = pow( pow( Alum, 0.25 ) + ( pow( Clum, 0.25 ) - pow( Alum, 0.25 ) ) * ( 1.0 - pow( 0.98, 30 * dtime ) ), 4.0);
 	vec4 Color = lastLum + (currentLum - lastLum) * (1.0 - pow(0.98, 30.0 * TimeDiff));
-	Color.x = clamp(Color.x, 0.25f, 5);
+	Color.x = clamp(Color.x, 0.25f, 5.0f);
 	//Color.y = clamp(Color.y, 0.5f, 2);
 	//gl_FragColor = vec4(col.x,col.y, 0.0, 1.0);
 	result = vec4(Color.x, Color.y, 0, 1);

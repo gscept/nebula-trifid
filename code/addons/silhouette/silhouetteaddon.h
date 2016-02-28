@@ -1,9 +1,9 @@
 #pragma once
 //------------------------------------------------------------------------------
 /**
-	@class Grid::GridAddon
+	@class Silhouette::SilhouetteAddon
 	
-	Renders an infinite grid in X-Z space.
+	Renders an silhouette around selected modelentities
 	
 	(C) 2012-2015 Individual contributors, see AUTHORS file
 */
@@ -29,12 +29,12 @@ public:
 	/// discard
 	void Discard();
 
-	/// set if grid should be visible
+	/// set if silhouette should be visible
 	void SetVisible(bool b);
-	/// set model to be rendered with a silhouette (only one is allowed)
-	void SetModels(const Util::Array<Ptr<Graphics::ModelEntity>>& mdls);
-	/// set color to use for silhouette
-	void SetColor(const Math::float4& col);
+	/// set models for a specific group to be rendered with colour. if the group doesnt exist it will be added
+	void SetModels(const Util::String& group, const Util::Array<Ptr<Graphics::ModelEntity>>& mdls, const Math::float4& colour);
+	/// clear a group and remove it from rendering
+	void ClearModelGroup(const Util::String& group);
 
 private:
 	Ptr<SilhouetteRTPlugin> plugin;

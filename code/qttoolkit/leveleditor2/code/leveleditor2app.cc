@@ -353,6 +353,9 @@ LevelEditor2App::SetupGameFeatures()
     // register input proxy for inputs from nebula to the qt app
     this->qtFeature->RegisterQtInputProxy(this->editorWindow);	
 
+	// set all resource mappers to be synchronized
+	Resources::ResourceManager::Instance()->SetMappersAsync(false);
+
 	// close splash
 	this->splash->Close();
 	this->splash = 0;
@@ -478,15 +481,31 @@ LevelEditor2App::GroupSelection()
 	{
 		EntityGuid realId = LevelEditor2EntityManager::Instance()->GetEntityById(id)->GetGuid(Attr::EntityGuid);
 		Util::Array<Ptr<Game::Entity>> entities = SelectionUtil::Instance()->GetSelectedEntities();
+		bool sameParent = true;
+		EntityGuid lastGuid = entities[0]->GetGuid(Attr::ParentGuid);
 		for(IndexT i = 0 ; i < entities.Size() ; i++)
-		{
-			if(!entities[i]->GetGuid(Attr::ParentGuid).IsValid())
+		{	
+			EntityGuid next = entities[i]->GetGuid(Attr::ParentGuid);
+			if (next != lastGuid)
 			{
-				entities[i]->SetGuid(Attr::ParentGuid,realId);
-			}				
+				sameParent = false;
+			}
+			entities[i]->SetGuid(Attr::ParentGuid,realId);
+							
+		}
+		if (sameParent && lastGuid.IsValid())
+		{
+			LevelEditor2EntityManager::Instance()->GetEntityById(id)->SetGuid(Attr::ParentGuid, lastGuid);
 		}
 		LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->RebuildTree();
-	}		
+		Ptr<SelectAction> action = SelectAction::Create();
+		action->SetSelectionMode(SelectAction::SetSelection);
+		Util::Array<EntityGuid> node;
+		node.Append(id);
+		action->SetEntities(node);
+		ActionManager::Instance()->PerformAction(action.cast<Action>());
+		LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->GetEntityTreeItem(id)->setExpanded(true);
+	}			
 }
 
 //------------------------------------------------------------------------------
@@ -499,7 +518,7 @@ LevelEditor2App::FocusOnSelection()
 	if(SelectionUtil::Instance()->HasSelection())
 	{
 		// Pass values to property
-		bbox boundingBox = SelectionUtil::Instance()->GetGroupBox(); // bad, using the group box since it will be updated even if grouping isn't active
+		bbox boundingBox = SelectionUtil::CalculateGroupBox(SelectionUtil::Instance()->GetSelectedEntityIds());
 		Ptr<Game::Entity> camera_entity = PlacementUtil::Instance()->GetCameraEntity();
 		Ptr<GraphicsFeature::MayaCameraProperty> cameraProperty = camera_entity->FindProperty(GraphicsFeature::MayaCameraProperty::RTTI).downcast<GraphicsFeature::MayaCameraProperty>();
 		cameraProperty->SetCameraFocus( boundingBox.center(), boundingBox.diagonal_size() );
@@ -512,7 +531,7 @@ LevelEditor2App::FocusOnSelection()
 void 
 LevelEditor2App::CenterOnSelection()
 {
-	Util::Array< Ptr<Game::Entity>> entities = SelectionUtil::Instance()->GetSelectedEntities();
+	Util::Array<EntityGuid> entities = SelectionUtil::Instance()->GetSelectedEntityIds();
 
 	// If none is selected, do nothing
 	if( entities.IsEmpty() )
@@ -520,16 +539,9 @@ LevelEditor2App::CenterOnSelection()
 		return;
 	}
 
-	Math::point centerOfInterest;
-	if( entities.Size() > 1 || SelectionUtil::Instance()->InGroupMode() )
-	{
-		centerOfInterest = SelectionUtil::Instance()->GetGroupBox().center();
-	}
-	else
-	{
-		centerOfInterest = entities[0]->GetMatrix44(Attr::Transform).get_position();
-	}
-
+	Math::bbox boundingBox = SelectionUtil::CalculateGroupBox(entities);
+	Math::point centerOfInterest = boundingBox.center();
+	
 	// Pass it to camera property
 	Ptr<Game::Entity> camera_entity =  PlacementUtil::Instance()->GetCameraEntity();
 	Ptr<GraphicsFeature::MayaCameraProperty> cameraProperty = camera_entity->FindProperty(GraphicsFeature::MayaCameraProperty::RTTI).downcast<GraphicsFeature::MayaCameraProperty>();

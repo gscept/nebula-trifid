@@ -9,6 +9,123 @@
 #include "input/inputserver.h"
 #include "input/keyboard.h"
 
+static int
+TextEditCallback(ImGuiTextEditCallbackData* data)
+{
+	Dynui::ImguiConsole* console = (Dynui::ImguiConsole*)data->UserData;
+
+	switch (data->EventFlag)
+	{
+	case ImGuiInputTextFlags_CallbackCompletion:
+	{
+		// Locate beginning of current word
+		const char* word_end = data->Buf + data->CursorPos;
+		const char* word_start = word_end;
+		while (word_start > data->Buf)
+		{
+			const char c = word_start[-1];
+			if (c == ' ' || c == '\t' || c == ',' || c == ';')
+				break;
+			word_start--;
+		}
+
+		// get command
+		Util::String command(word_start);
+
+		Util::Array<Util::String> commands;
+		IndexT i;
+		for (i = 0; i < console->commands.Size(); i++)
+		{
+			const Util::String& name = console->commands.KeyAtIndex(i);
+			if (name.FindStringIndex(command) == 0 && name != command)
+			{
+				commands.Append(name);
+			}
+		}
+
+		if (commands.IsEmpty())
+		{
+			n_printf("No completion for '%s'\n", command.AsCharPtr());
+		}
+		else if (commands.Size() == 1)
+		{
+			// Single match. Delete the beginning of the word and replace it entirely so we've got nice casing
+			data->DeleteChars((int)(word_start - data->Buf), (int)(word_end - word_start));
+			data->InsertChars(data->CursorPos, commands[0].AsCharPtr());
+			data->InsertChars(data->CursorPos, " ");
+		}
+		else
+		{
+			int match_len = command.Length();
+			for (;;)
+			{
+				int c = 0;
+				bool all_candidates_matches = true;
+				for (int i = 0; i < commands.Size() && all_candidates_matches; i++)
+					if (i == 0)
+						c = toupper(commands[i][match_len]);
+					else if (c != toupper(commands[i][match_len]))
+						all_candidates_matches = false;
+				if (!all_candidates_matches)
+					break;
+				match_len++;
+			}
+
+			if (match_len > 0)
+			{
+				data->DeleteChars((int)(word_start - data->Buf), (int)(word_end - word_start));
+				data->InsertChars(data->CursorPos, commands[0].AsCharPtr(), commands[0].AsCharPtr() + match_len);
+			}
+
+			n_printf("Candidates:\n");
+			IndexT i;
+			for (i = 0; i < commands.Size(); i++)
+			{
+				n_printf("- %s\n", commands[i].AsCharPtr());
+			}
+		}
+		
+		
+		break;
+	}
+	case ImGuiInputTextFlags_CallbackHistory:
+	{
+		// Example of HISTORY
+		const int prev_history_pos = console->previousCommandIndex;
+		if (data->EventKey == ImGuiKey_UpArrow)
+		{
+			if (console->previousCommandIndex == -1)
+				console->previousCommandIndex = console->previousCommands.Size() - 1;
+			else if (console->previousCommandIndex > 0)
+				console->previousCommandIndex--;
+		}
+		else if (data->EventKey == ImGuiKey_DownArrow)
+		{
+			if (console->previousCommandIndex != -1)
+				if (++console->previousCommandIndex >= console->previousCommands.Size())
+					console->previousCommandIndex = -1;
+		}
+
+		// A better implementation would preserve the data on the current input line along with cursor position.
+		if (prev_history_pos != console->previousCommandIndex)
+		{
+			Util::String lastCommand = (console->previousCommandIndex >= 0) ? console->previousCommands[console->previousCommandIndex] : "";
+			lastCommand = lastCommand.ExtractRange(0, Math::n_min(lastCommand.Length(), data->BufSize));
+			sprintf(data->Buf, "%s", lastCommand.AsCharPtr());
+			data->BufDirty = true;
+			data->CursorPos = data->SelectionStart = data->SelectionEnd = (int)strlen(data->Buf);
+		}
+
+		break;
+	}
+
+	}
+		
+	
+
+	return 0;
+}
+
 using namespace Input;
 namespace Dynui
 {
@@ -22,7 +139,8 @@ __ImplementInterfaceSingleton(Dynui::ImguiConsole);
 ImguiConsole::ImguiConsole() :
 	moveScroll(false),
 	visible(false),
-	selectedSuggestion(0)
+	selectedSuggestion(0),
+	previousCommandIndex(-1)
 {
 	__ConstructInterfaceSingleton;
 }
@@ -73,7 +191,7 @@ void
 ImguiConsole::Render()
 {
 	ImGuiIO& io = ImGui::GetIO();
-	if (Input::InputServer::Instance()->GetDefaultKeyboard()->KeyDown(Input::Key::F9))
+	if (io.KeysDownDuration[Key::F8] == 0.0f)
 	{
 		this->visible = !this->visible;
 	}	
@@ -95,7 +213,7 @@ ImguiConsole::Render()
 		}
 	ImGui::EndChild();
 
-	if (ImGui::InputText("input", this->command, sizeof(this->command), ImGuiInputTextFlags_EnterReturnsTrue))
+	if (ImGui::InputText("input", this->command, sizeof(this->command), ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory, TextEditCallback, (void*)this))
 	{
 		ImGui::SetKeyboardFocusHere();
 		moveScroll = true;
@@ -104,14 +222,26 @@ ImguiConsole::Render()
 			this->consoleBuffer.Add((const char*)this->command);
 			this->consoleBuffer.Add("\n");
 
+			this->previousCommandIndex = -1;
+			for (int i = 0; i < this->previousCommands.Size(); i++)
+			{
+				if (this->previousCommands[i] == this->command)
+				{
+					this->previousCommands.EraseIndex(i);
+					break;
+				}
+			}
+
 			// execute script
 			this->Execute(this->command);
+			this->previousCommands.Append(this->command);
 
 			// reset command to b empty
 			memset(this->command, '\0', sizeof(this->command));
 		}
 	}		
 
+	/*
 	if (this->command[0] != '\0')
 	{
 		Util::Array<Ptr<Scripting::Command>> matches;
@@ -125,11 +255,11 @@ ImguiConsole::Render()
 		// handle matches
 		if (matches.Size() > 0)
 		{
-			if (io.KeysDown[Key::Up])	this->selectedSuggestion--;
-			if (io.KeysDown[Key::Down]) this->selectedSuggestion++;
+			if (io.KeysDownDuration[Key::Up] == 0.0f)	this->selectedSuggestion--;
+			if (io.KeysDownDuration[Key::Down] == 0.0f) this->selectedSuggestion++;
 			this->selectedSuggestion = Math::n_iclamp(this->selectedSuggestion, 0, matches.Size() - 1);
 
-			if (io.KeysDown[Key::Tab])
+			if (io.KeysDownDuration[Key::Tab] == 0.0f)
 			{
 				const Util::String& firstCommand = matches[this->selectedSuggestion]->GetName();
 				memcpy(this->command, firstCommand.AsCharPtr(), firstCommand.Length());
@@ -149,6 +279,7 @@ ImguiConsole::Render()
 			}
 		}
 	}
+	*/
 	
 	ImGui::PopItemWidth();
 	ImGui::End();

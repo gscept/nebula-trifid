@@ -54,14 +54,9 @@ IF(NOT N_BUILD_FIRSTTIME)
 	
 	add_subdirectory(miniupnp/miniupnpc)
 		SET_TARGET_PROPERTIES(upnpc-static PROPERTIES FOLDER "extlibs")
-	
-	set(JANSSON_STATIC_CRT ON CACHE BOOL "Link the static CRT libraries")
-	set(JANSSON_EXAMPLES OFF CACHE BOOL "Compile example applications")
-	set(JANSSON_BUILD_DOCS OFF CACHE BOOL "Build documentation (uses python-sphinx).")
-	set(JANSSON_WITHOUT_TESTS ON CACHE BOOL "Don't build tests ('make test' to execute tests)")
-	add_subdirectory(jansson)
-		SET_TARGET_PROPERTIES(jansson PROPERTIES FOLDER "extlibs")
+		
 	add_subdirectory(base64)
+	add_subdirectory(cjson)
 	
 	
     add_subdirectory(librocket)    
@@ -74,10 +69,13 @@ IF(NOT N_BUILD_FIRSTTIME)
         add_subdirectory(glew)		
 			SET_TARGET_PROPERTIES(glew PROPERTIES FOLDER "extlibs/glew")
         add_subdirectory(SOIL)
-		
+		IF(MSVC)
+				SET(BISON_EXECUTABLE "${CMAKE_CURRENT_SOURCE_DIR}/anyfx/exts/glslang/tools/bison.exe")
+			ENDIF()
 		SET(ANYFX_FOLDER "extlibs/anyfx")
+		SET(ANYFX_GLEW_FOLDER ${CMAKE_CURRENT_SOURCE_DIR}/extlibs/glew)
         add_subdirectory(anyfx)
-			SET(ANYFX_GLEW_FOLDER ${CMAKE_CURRENT_SOURCE_DIR}/extlibs/glew)
+			
 			SET_TARGET_PROPERTIES(compiler PROPERTIES FOLDER "extlibs/anyfx")
 			SET_TARGET_PROPERTIES(mcpp PROPERTIES FOLDER "extlibs/anyfx")
 			SET_TARGET_PROPERTIES(antlr PROPERTIES FOLDER "extlibs/anyfx")

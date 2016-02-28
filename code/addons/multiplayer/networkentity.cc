@@ -494,7 +494,7 @@ NetworkEntity::OnActivate()
 				ReplicationManager::Instance()->Reference(this);
 			}
 			else
-			{				
+			{			
 				ReplicationManager::Instance()->Reference(this);
 			}
 		}		

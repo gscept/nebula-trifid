@@ -30,6 +30,7 @@
 #include "lighting/lightserver.h"
 #include "environment/environmentserver.h"
 #include "input/inputserver.h"
+#include "graphics/reloadmodelentity.h"
 
 using namespace Util;
 using namespace CoreGraphics;
@@ -177,10 +178,24 @@ __StaticHandler(ReloadResourceIfExists)
 //------------------------------------------------------------------------------
 /**
 */
-__StaticHandler(EnablePicking)
-{
-	n_assert(PickingServer::HasInstance());
-	PickingServer::Instance()->SetEnabled(msg->GetEnabled());
+__StaticHandler(ReloadModelByResource)
+{	
+	const Util::String & resource = msg->GetResourceName();
+	Ptr<ResourceManager> resManager = ResourceManager::Instance();
+	if (resManager->HasResource(resource))
+	{
+		const Util::Array<Ptr<GraphicsEntity> >& entities = GraphicsServer::Instance()->GetEntities();
+		for (IndexT i = 0;i < entities.Size();i++)
+		{
+			if (entities[i]->IsA(Graphics::ModelEntity::RTTI))
+			{
+				if (entities[i].cast<Graphics::ModelEntity>()->GetResourceId() == resource)
+				{
+					entities[i].cast<Graphics::ReloadModelEntity>()->Reload();
+				}
+			}
+		}
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -199,8 +214,11 @@ __StaticHandler(ItemAtPosition)
 __StaticHandler(ItemsAtPosition)
 {
 	n_assert(PickingServer::HasInstance());
-	Util::Array<IndexT> items = PickingServer::Instance()->FetchSquare(msg->GetRectangle());
+	Util::Array<IndexT> items;
+	Util::Array<IndexT> edgeItems;
+	PickingServer::Instance()->FetchSquare(msg->GetRectangle(), items, edgeItems);
 	msg->SetItems(items);
+	msg->SetEdgeItems(edgeItems);
 }
 
 //------------------------------------------------------------------------------

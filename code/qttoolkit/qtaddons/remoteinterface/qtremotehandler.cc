@@ -37,6 +37,15 @@ __Handler(QtRemoteServer, ReloadResourceIfExists)
 //------------------------------------------------------------------------------
 /**
 */
+__Handler(QtRemoteServer, ReloadModelByResource)
+{
+	// quite simply just send to graphics interface
+	GraphicsInterface::Instance()->Send(msg.upcast<Messaging::Message>());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 __Handler(QtRemoteServer, LoadLevel)
 {
 	const Ptr<BaseGameFeature::GameStateHandler>& state = App::GameApplication::Instance()->FindStateHandlerByName("Reload").cast<BaseGameFeature::GameStateHandler>();
@@ -60,6 +69,7 @@ __Dispatcher(QtRemoteServer)
 {
 	__Handle(QtRemoteServer, ReloadResource);
 	__Handle(QtRemoteServer, ReloadResourceIfExists);
+	__Handle(QtRemoteServer, ReloadModelByResource);	
 	__Handle(QtRemoteServer, LoadLevel);
 	__Handle(QtRemoteServer, KeepAlive);
 }

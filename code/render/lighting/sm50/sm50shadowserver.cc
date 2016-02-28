@@ -442,10 +442,10 @@ SM50ShadowServer::UpdateSpotLightShadowBuffers()
 		// render shadow casters in current light volume to shadow buffer
 		const Ptr<SpotLightEntity>& lightEntity = this->spotLightEntities[lightIndex];
 
-		// perform visibility resolve for current light
-		visResolver->BeginResolve(lightEntity->GetTransform());
+		// perform visibility resolve for current light		
 		const Array<Ptr<GraphicsEntity> >& visLinks = lightEntity->GetLinks(GraphicsEntity::LightLink);
 		if (visLinks.Size() == 0) continue;
+		visResolver->BeginResolve(lightEntity->GetTransform());
 		IndexT linkIndex;
 		for (linkIndex = 0; linkIndex < visLinks.Size(); linkIndex++)
 		{

@@ -6,9 +6,6 @@
 	path = code/extlibs/imgui
 	url = https://github.com/gscept/imgui.git
 	branch = master
-[submodule "code/extlibs/anyfx/exts/eastl"]
-	path = code/extlibs/anyfx/exts/eastl
-	url = https://github.com/gscept/EASTL.git
 [submodule "code/extlibs/DevIL"]
 	path = code/extlibs/DevIL
 	url = https://github.com/gscept/DevIL.git
@@ -21,9 +18,6 @@
 	path = code/extlibs/glfw
 	url = https://github.com/gscept/glfw.git
 	branch = master
-[submodule "code/extlibs/jansson"]
-	path = code/extlibs/jansson
-	url = https://github.com/akheron/jansson.git
 [submodule "code/extlibs/miniupnp"]
 	path = code/extlibs/miniupnp
 	url = https://github.com/gscept/miniupnp.git
@@ -47,3 +41,9 @@
 	path = projects/nebula-demo
 	url = https://github.com/gscept/nebula-demo.git
 	branch = master
+[submodule "code/extlibs/anyfx"]
+	path = code/extlibs/anyfx
+	url = https://github.com/Duttenheim/AnyFX.git
+[submodule "code/extlibs/cjson/cJSON"]
+	path = code/extlibs/cjson/cJSON
+	url = https://github.com/kbranigan/cJSON.git

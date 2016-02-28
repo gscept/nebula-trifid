@@ -401,7 +401,7 @@ ModelEntity::OnRenderBefore(IndexT frameIndex)
 	if (this->renderBeforeFrameIndex != frameIndex)
 	{
 		// update character if valid
-		if (this->charInst.isvalid())
+		if (this->charInst.isvalid() && this->charInst->IsValid())
 		{
 			this->charInst->WaitUpdateDone();
 			this->HandleCharacterAnimDrivenMotion();
@@ -437,9 +437,12 @@ ModelEntity::ValidateModelInstance()
     n_assert(!this->IsValid());
     if (!this->modelInstance.isvalid())
     {
-        if (this->managedModel->GetState() == Resource::Loaded)
+		// if model is loaded (resource) or failed (placeholder), setup entity
+		// if pending, wait for it to load
+        if (this->managedModel->GetState() == Resource::Loaded ||
+			this->managedModel->GetState() == Resource::Failed)
         {
-            const Ptr<Model> model = this->managedModel->GetModel();
+            const Ptr<Model>& model = this->managedModel->GetModel();
             n_assert(model->IsLoaded());
             
             // only set the entity to valid if the complete 
@@ -485,6 +488,7 @@ ModelEntity::ValidateModelInstance()
                 this->HandleDeferredMessages();
             }
         }
+		/*
         else if (this->managedModel->GetState() == Resource::Failed)
         {
             // loading failed, will use placeholder
@@ -513,6 +517,7 @@ ModelEntity::ValidateModelInstance()
             // output message to inform this entity is placeholder
             n_printf("Failed to load model entity '%s'!", this->resId.Value());
         }
+		*/
     }
 }
 

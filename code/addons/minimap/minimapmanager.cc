@@ -239,7 +239,7 @@ MinimapManager::OnBeginFrame()
             this->portraitVar->SetTexture(tex);
 
             // start batch
-            renderDev->BeginFrame();
+            renderDev->BeginFrame(InvalidIndex);
             renderDev->BeginPass(this->minimapTarget, this->minimapShader);
 
             // setup primitive
@@ -251,7 +251,7 @@ MinimapManager::OnBeginFrame()
             renderDev->DrawIndexedInstanced(numBatchEntities, 0);
 
             renderDev->EndPass();
-            renderDev->EndFrame();
+			renderDev->EndFrame(InvalidIndex);
         }
 	}
 }

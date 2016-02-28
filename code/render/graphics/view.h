@@ -62,6 +62,10 @@ public:
 	const Math::rectangle<int>& GetResolveRect() const;
     /// returns true if view should use resolve rect
     const bool UseResolveRect() const;
+	/// sets if this view should be updated automatically every frame
+	void SetUpdatePerFrame(bool b);
+	/// gets if this view should be updated every frame
+	const bool GetUpdatePerFrame() const;
 
     /// add a view which this view depends on
     void AddDependency(const Ptr<View>& view);
@@ -95,6 +99,7 @@ protected:
 	/// resolve visibility for shadow casting entities
 	void ResolveVisibleShadowCasters(IndexT frameIndex);
 
+	bool shouldUpdatePerFrame;
     bool isAttachedToServer;
     Util::StringAtom name;
     Ptr<Stage> stage;
@@ -232,6 +237,24 @@ inline const bool
 View::UseResolveRect() const
 {
     return this->resolveRectValid;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+View::SetUpdatePerFrame(bool b)
+{
+	this->shouldUpdatePerFrame = b;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const bool
+View::GetUpdatePerFrame() const
+{
+	return this->shouldUpdatePerFrame;
 }
 
 } // namespace Graphics

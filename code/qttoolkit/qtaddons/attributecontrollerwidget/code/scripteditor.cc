@@ -43,7 +43,7 @@ ScriptEditor::ScriptEditor(QWidget* parent) :
     pen.setColor(QColor(64, 64, 64, 0));
     painter.setPen(QPen(Qt::darkGray));
     QFont font;
-    font.setFamily("Arial");
+    font.setFamily("Segoe UI");
     font.setPointSize(28);
     painter.setFont(font);
     painter.drawText(QRect(0, 0, 800, 600), Qt::AlignCenter, "No files. Many alone. Much empty. Such sad.");
@@ -74,8 +74,8 @@ ScriptEditor::~ScriptEditor()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ScriptEditor::EditFile( const IO::URI& file, const Util::String& title )
+void
+ScriptEditor::EditFile(const IO::URI& file, const Util::String& title)
 {
     n_assert(file.IsValid());
     IndexT index = this->files.FindIndex(file);
@@ -94,12 +94,15 @@ ScriptEditor::EditFile( const IO::URI& file, const Util::String& title )
 
         // create UI
         QGridLayout* layout = new QGridLayout;
+		layout->setContentsMargins(QMargins(1, 1, 1, 1));
         QLuaTextEdit* textEdit = new QLuaTextEdit;
         QFrame* tabFrame = new QFrame;
         layout->addWidget(textEdit);
 		Util::String scripttxt = txstream->ReadAll();
+		bool forseSave = false;
 		if (scripttxt.Length() == 0)
 		{
+			forseSave = true;
 			// empty script file, add some defaults to it
 			scripttxt = "-- this is the default script with some predefined callbacks\n\
 -- uncomment the callbacks you need\n\n\
@@ -141,7 +144,7 @@ ScriptEditor::EditFile( const IO::URI& file, const Util::String& title )
 --end";
 
 		}
-        textEdit->setPlainText(scripttxt.AsCharPtr());
+		textEdit->setPlainText(scripttxt.AsCharPtr());		
         tabFrame->setLayout(layout);
 
         // close stream
@@ -160,6 +163,10 @@ ScriptEditor::EditFile( const IO::URI& file, const Util::String& title )
         this->ui->fileTabWidget->addTab(tabFrame, title.AsCharPtr());      
         this->ui->fileTabWidget->setVisible(true);
         this->backgroundLabel->setVisible(false);
+		if (forseSave)
+		{
+			this->Save();
+		}
     }
     else
     {
@@ -251,8 +258,8 @@ ScriptEditor::Save()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ScriptEditor::Close( int index )
+void
+ScriptEditor::Close(int index)
 {
     // remove tab
     this->ui->fileTabWidget->removeTab(index);

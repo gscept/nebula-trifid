@@ -22,6 +22,7 @@ typedef struct
 {
 	Util::String resource;
 	Util::String name;
+	bool cursor;
 	bool autoload;
 }LayoutEntry;
 
@@ -67,6 +68,7 @@ ParseUIProperties(Util::Dictionary<Util::String, LayoutEntry> & layouts, Util::D
                    entry.resource = reader->GetString("Id");
                    entry.name = reader->GetString("Name");
                    entry.autoload = reader->GetBool("AutoLoad");
+				   entry.cursor = reader->GetOptBool("UICursor", false);
                    layouts.Add(entry.resource, entry);
                 }
                 while (reader->SetToNextChild("Item"));
@@ -193,24 +195,31 @@ UIDialogHandler::SetupDialog()
 				this->ui.layoutWidget->setItem(fileIndex, 0, fname);
 				String name;
 				bool autoload;
+				bool cursor;
 				if (layouts.Contains(resource))
 				{
 					name = layouts[resource].name;
 					autoload = layouts[resource].autoload;
+					cursor = layouts[resource].cursor;
 				}
 				else
 				{
 					name = resource.ExtractFileName();
 					name.StripFileExtension();
 					autoload = false;
+					cursor = false;
 				}
 				QTableWidgetItem * iname = new QTableWidgetItem(name.AsCharPtr());
 				this->ui.layoutWidget->setItem(fileIndex, 1, iname);
 				iname->setFlags(Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 
+				QCheckBox * cursorcheck = new QCheckBox;
+				cursorcheck->setChecked(cursor);
+				this->ui.layoutWidget->setCellWidget(fileIndex, 2, cursorcheck);
+
 				QCheckBox * autoloadcheck = new QCheckBox;
 				autoloadcheck->setChecked(autoload);
-				this->ui.layoutWidget->setCellWidget(fileIndex, 2, autoloadcheck);
+				this->ui.layoutWidget->setCellWidget(fileIndex, 3, autoloadcheck);
 			}
 		}
 		{
@@ -305,23 +314,14 @@ UIDialogHandler::SetupDialog()
 void
 UIDialogHandler::CloseDialog()
 {
-	ui.layoutWidget->clearContents();
-	int rows = ui.layoutWidget->rowCount();
-	for (int i = 0; i < rows; i++)
-	{
-		ui.layoutWidget->removeRow(0);
-	}
-	ui.fontWidget->clearContents();
-	rows = ui.fontWidget->rowCount();
-	for (int i = 0; i < rows; i++)
-	{
-		ui.fontWidget->removeRow(0);
-	}
-	rows = ui.scriptWidget->rowCount();
-	for (int i = 0; i < rows; i++)
-	{
-		ui.scriptWidget->removeRow(0);
-	}
+	this->ui.layoutWidget->clearContents();
+	this->ui.layoutWidget->setRowCount(0);
+	
+	this->ui.fontWidget->clearContents();
+	this->ui.fontWidget->setRowCount(0);
+	
+	this->ui.scriptWidget->clearContents();
+	this->ui.scriptWidget->setRowCount(0);
 }
 
 //------------------------------------------------------------------------------
@@ -368,11 +368,13 @@ UIDialogHandler::SaveUIProperties()
 	    {
 		    Util::String fname(ui.layoutWidget->item(i, 0)->text().toLatin1().constData());
 		    Util::String name(ui.layoutWidget->item(i, 1)->text().toLatin1().constData());
-		    QCheckBox * box = (QCheckBox*)ui.layoutWidget->cellWidget(i, 2);
+			QCheckBox * cursorbox = (QCheckBox*)ui.layoutWidget->cellWidget(i, 2);
+		    QCheckBox * autobox = (QCheckBox*)ui.layoutWidget->cellWidget(i, 3);
 		    writer->BeginNode("Item");
 		    writer->SetString("Id", fname);
 		    writer->SetString("Name", name);
-		    writer->SetBool("AutoLoad", box->isChecked());
+			writer->SetBool("UICursor", cursorbox->isChecked());
+		    writer->SetBool("AutoLoad", autobox->isChecked());
 		    writer->EndNode();
 	    }
 	    writer->EndNode();

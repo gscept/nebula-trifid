@@ -98,6 +98,8 @@ private slots:
 	void SinglePointEmitterPressed();
 	/// browse a mesh
 	void BrowseMesh();
+	/// restart particle
+	void Restart();
 
 	/// called when the delete button is pressed
 	void OnDeleteParticleNode();

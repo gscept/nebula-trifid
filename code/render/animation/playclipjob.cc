@@ -85,6 +85,7 @@ PlayClipJob::CreateEvaluationJob(Timing::Tick time, const Ptr<AnimSampleBuffer>&
                                         SampleType::Linear,
                                         this->curSampleTime,
                                         this->timeFactor,
+										this->mask,
                                         resultBuffer);
     }
     else
@@ -96,6 +97,7 @@ PlayClipJob::CreateEvaluationJob(Timing::Tick time, const Ptr<AnimSampleBuffer>&
                                               SampleType::Linear,
                                               this->curSampleTime,
                                               this->timeFactor,
+											  this->mask,
                                               curMixWeight,
                                               optMixIn,
                                               resultBuffer);

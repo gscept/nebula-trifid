@@ -419,20 +419,10 @@ ShaderCompiler::CompileGLSL(const Util::String& srcPath)
 			
 			AnyFXErrorBlob* errors = NULL;
 
-            GLint minor, major;
-            glGetIntegerv(GL_MAJOR_VERSION, &major);
-            glGetIntegerv(GL_MINOR_VERSION, &minor);
-
 			// this will get the highest possible value for the GL version, now clamp the minor and major to the one supported by glew
-			major = Math::n_min(major, 4);
-			minor = Math::n_min(minor, 4);
+			int major = 4;
+			int minor = 4;
 			
-			// create vendor string
-			Util::String vendor = (const char*)glGetString(GL_VENDOR);
-			if (vendor.FindStringIndex("NVIDIA") != InvalidIndex) vendor = "NVIDIA";
-			else if (vendor.FindStringIndex("AMD") != InvalidIndex) vendor = "AMD";
-			else if (vendor.FindStringIndex("Intel") != InvalidIndex) vendor = "INTEL";
-
             Util::String target;
             target.Format("gl%d%d", major, minor);
 			Util::String escapedSrc = src.LocalPath();
@@ -440,7 +430,7 @@ ShaderCompiler::CompileGLSL(const Util::String& srcPath)
 			Util::String escapedDst = dst.LocalPath();
 			//escapedDst.SubstituteString(" ", "\\ ");
 			
-			bool res = AnyFXCompile(escapedSrc.AsCharPtr(), escapedDst.AsCharPtr(), target.AsCharPtr(), vendor.AsCharPtr(), defines, flags, &errors);
+			bool res = AnyFXCompile(escapedSrc.AsCharPtr(), escapedDst.AsCharPtr(), target.AsCharPtr(), "Khronos", defines, flags, &errors);
 			if (!res)
 			{
 				if (errors)

@@ -379,7 +379,7 @@ ImguiRenderer::HandleInput(const Input::InputEvent& event)
 		io.KeysDown[event.GetKey()] = false;
 		if (event.GetKey() == Key::LeftControl || event.GetKey() == Key::RightControl) io.KeyCtrl = false;
 		if (event.GetKey() == Key::LeftShift || event.GetKey() == Key::RightShift) io.KeyShift = false;
-		return false;									// not a bug, this allows keys to be let go even if we are over the UI
+		return io.WantCaptureKeyboard;									// not a bug, this allows keys to be let go even if we are over the UI
 	case InputEvent::Character:
 	{
 		char c = event.GetChar();

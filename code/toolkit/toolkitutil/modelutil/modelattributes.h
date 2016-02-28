@@ -75,6 +75,13 @@ public:
 	/// clears list of takes
 	void ClearTakes();
 
+	/// set joint mask
+	void SetJointMask(const JointMask& mask);
+	/// set all joint masks
+	void SetJointMasks(const Util::Array<JointMask>& masks);
+	/// get all joint masks
+	const Util::Array<JointMask>& GetJointMasks() const;
+
 	/// sets the export flags
 	void SetExportFlags(const ToolkitUtil::ExportFlags& exportFlags);
 	/// gets the export flags
@@ -100,6 +107,7 @@ private:
 	Util::String checksum;
 	float scaleFactor;
 	Util::Array<Ptr<Take> > takes;
+	Util::Array<JointMask> jointMasks;
 
 	ToolkitUtil::ExportFlags exportFlags;
 	ToolkitUtil::ExportMode exportMode;
@@ -181,5 +189,34 @@ ModelAttributes::GetExportMode() const
 	return this->exportMode;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+ModelAttributes::SetJointMask(const JointMask& mask)
+{
+	IndexT i = this->jointMasks.FindIndex(mask);
+	if (i == InvalidIndex)  this->jointMasks.Append(mask);
+	else					this->jointMasks[i].weights = mask.weights;
+
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+ModelAttributes::SetJointMasks(const Util::Array<JointMask>& masks)
+{
+	this->jointMasks = masks;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Util::Array<JointMask>&
+ModelAttributes::GetJointMasks() const
+{
+	return this->jointMasks;
+}
 } // namespace Importer
 //------------------------------------------------------------------------------

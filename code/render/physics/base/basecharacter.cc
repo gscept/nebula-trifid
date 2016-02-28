@@ -16,6 +16,7 @@ BaseCharacter::BaseCharacter() :
 	radius(1.0f), 
 	height(4.0f),
 	crouchingHeight(height * 0.55f),
+	mass(10.0f),
 	shape(Capsule)
 {
 	// empty

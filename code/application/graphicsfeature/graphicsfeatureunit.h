@@ -116,7 +116,7 @@ public:
 	void ApplyDisplaySettings();
 	/// get reference to current display mode object
 	CoreGraphics::DisplayMode& DisplayMode();
-
+	
 protected:
     /// called to configure display device
     virtual void OnConfigureDisplay();

@@ -75,7 +75,6 @@ TiledTextureItem::Discard()
 	TiledGraphicsItem::Discard();
 
 	// make sure our thread is using the mutex, then delete the loader unit
-    this->loader->mutex.lock();
 	this->loader->Release();
 }
 

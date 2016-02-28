@@ -9,38 +9,29 @@
 #include "timing/time.h"
 #include "replicationmanager.h"
 #include "threading/thread.h"
-#include "FullyConnectedMesh2.h"
 #include "threading/safeflag.h"
 #include "attr/attributetable.h"
 #include "syncpoint.h"
 #include "messaging/message.h"
+#include "RakPeerInterface.h"
 
-//FIXME these should be replaced by own implementations, leave them for the time being
-#define DEFAULT_SERVER_PORT 61111
-#define DEFAULT_SERVER_ADDRESS "natpunch.jenkinssoftware.com"
-#define MASTER_SERVER_ADDRESS "masterserver2.raknet.com"
-#define MASTER_SERVER_PORT "80"
-
-#define IS_HOST (MultiplayerFeature::NetworkServer::Instance()->IsHost())
+//FIXME
+#define IS_HOST (MultiplayerFeature::MultiplayerFeatureUnit::Instance()->GetServer()->IsHost())
 
 namespace RakNet
 {
 	class RakPeerInterface;
 	class NetworkIDManager;
-	class TCPInterface;
-	class NatPunchthroughClient;
-	class RPC4;	
-	class HTTPConnection2;
-	class ReadyEvent;
-	class CloudClient;
+	class TCPInterface;	
+	class RPC4;		
+	class ReadyEvent;	
 }
 //------------------------------------------------------------------------------
 namespace MultiplayerFeature
 {
 class NetworkServer : public Core::RefCounted
 {
-	__DeclareClass(NetworkServer);
-	__DeclareInterfaceSingleton(NetworkServer);
+	__DeclareClass(NetworkServer);	
 public:
 
 	enum NetworkServerState
@@ -48,6 +39,7 @@ public:
 		IDLE,
 		NETWORK_STARTED,
 		IN_LOBBY_WAITING_FOR_HOST_DETERMINATION,
+		SERVER_LOBBY,
 		IN_LOBBY,
 		IN_GAME,
 	};
@@ -57,27 +49,31 @@ public:
 	virtual ~NetworkServer();
 
     /// open the RakNetServer 
-    void Open();
+    virtual void Open();
     /// close the RakNetServer
-    void Close();
+    virtual void Close();
 
     /// perform client-side per-frame updates
-    void OnFrame();
+    virtual void OnFrame();
 
-	/// setup low level network handling, NAT punch, UPNP
-	bool SetupLowlevelNetworking();	
+	/// setup low level network handling
+	virtual bool SetupLowlevelNetworking();
 	    
 	/// shut down low level networking
-	void ShutdownLowlevelNetworking();
+	virtual void ShutdownLowlevelNetworking();
 
     /// get rakpeer interface
 	RakNet::RakPeerInterface* GetRakPeerInterface() const;
 
 	/// are we the host of the session
-	bool IsHost() const;
+	virtual bool IsHost() const = 0;
 
 	/// is the host determined yet
-	bool HasHost();	
+	virtual bool HasHost() const = 0;	
+	/// start searching for games
+	virtual void SearchForGames() = 0;
+	///
+	virtual void Connect(const RakNet::RakNetGUID &guid) = 0;
 
 	/// internal
 	void DispatchMessageStream(RakNet::BitStream * msgStream, RakNet::Packet *packet);
@@ -85,41 +81,28 @@ public:
 	void SendMessageStream(RakNet::BitStream* msgStream);
 	/// Allow/Disallow clients to join server while in-game
 	void LockInGameJoin(bool flag);
-private:
+
+	///
+	static NetworkServer* Instance();
+	
+protected:
 	/// returns status if allowed to join a game
 	bool IsInGameJoinUnLocked();
 
-	class MasterHelperThread : public Threading::Thread
-	{
-		__DeclareClass(MasterHelperThread)			
-	public:
-		Util::String gameId;
-	protected:
-		/// implements the actual listener method
-		virtual void DoWork();
-	};
 	
-	friend class MasterHelperThread;
-
-	/// callback function for masterserver worker
-	void MasterServerResult(Util::String response);
-
-	/// connect to server using nat punchthrough
-	void NatConnect(const RakNet::RakNetGUID &guid);
-	/// start searching for games
-	void SearchForGames();
 
 	/// start the game
-	void StartGame();
+	virtual void StartGame();
 	/// create room
-	void CreateRoom();
+	virtual void CreateRoom();
 	/// cancel room
-	void CancelRoom();
-	/// trigger refresh of available rooms on master
-	void UpdateRoomList();
-	/// deal with a packet
-	bool HandlePacket(RakNet::Packet * packet);
+	virtual void CancelRoom();
 	
+	/// deal with a packet
+	virtual bool HandlePacket(RakNet::Packet * packet) = 0;
+	
+	/// parse a json response
+	void ParseServerResponse(const Util::String & response);
 
 	/// get replica via network id
  	RakNet::Replica3 * LookupReplica(RakNet::NetworkID replicaId);
@@ -131,19 +114,12 @@ private:
 	NetworkServerState state;
 	RakNet::RakPeerInterface *rakPeer;	
 	Ptr<MultiplayerFeature::ReplicationManager> replicationManager;
-	RakNet::NetworkIDManager *networkIDManager;
-	RakNet::NatPunchthroughClient *natPunchthroughClient;
-	RakNet::RPC4 *rpc;
-	RakNet::FullyConnectedMesh2 *fullyConnectedMesh;
-	Multiplayer::SyncPoint *readyEvent;	
-	RakNet::RakNetGUID natPunchServerGuid;
-	RakNet::SystemAddress natPunchServerAddress;		
-	Ptr<MasterHelperThread> masterThread;
-	Util::String natServer;
-	bool connectedToNatPunchThrough;		
-	Ptr<Attr::AttributeTable> masterResult;
-	Threading::SafeFlag doneFlag;	
+	RakNet::NetworkIDManager *networkIDManager;	
+	RakNet::RPC4 *rpc;	
+	Multiplayer::SyncPoint *readyEvent;				
 	Util::Dictionary<RakNet::NetworkID, Util::Array<Ptr<Messaging::Message>>> deferredMessages;
+	Util::Array<RakNet::RakNetGUID> participants;
+	Ptr<Attr::AttributeTable> masterResult;
 };
 
 //------------------------------------------------------------------------------
@@ -155,27 +131,6 @@ NetworkServer::GetRakPeerInterface() const
 {
 	return this->rakPeer;
 }
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline
-bool
-NetworkServer::IsHost() const
-{	
-	return this->fullyConnectedMesh->IsHostSystem();
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline
-bool
-NetworkServer::HasHost()
-{
-	return this->state > IN_LOBBY_WAITING_FOR_HOST_DETERMINATION;
-}
-
 
 } // namespace MultiplayerFeature
 //------------------------------------------------------------------------------

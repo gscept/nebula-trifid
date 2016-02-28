@@ -24,6 +24,7 @@
 #include "math/vector.h"
 #include "math/point.h"
 #include "animation/animjobenqueuemode.h"
+#include "characters/characterjointmask.h"
 
 //------------------------------------------------------------------------------
 namespace Animation
@@ -107,6 +108,11 @@ public:
     /// get blend weight of the anim job
     float GetBlendWeight() const;
 
+	/// set joint mask
+	void SetMask(const Characters::CharacterJointMask* mask);
+	/// get joint mask
+	const Characters::CharacterJointMask* GetMask() const;
+
     /// get the absolute start time (BaseTime + StartTime)
     Timing::Tick GetAbsoluteStartTime() const;
     /// get the absolute end time (BaseTime + StartTime + Duration)
@@ -138,10 +144,11 @@ protected:
     /// stop the anim job at the given time
     virtual void Stop(Timing::Tick time);
 	/// pause the anim job at the given time
-	virtual void Pause();
+	virtual void Pause(bool pause);
 
 
     const AnimSequencer* animSequencer;
+	const Characters::CharacterJointMask* mask;
     Util::StringAtom name;
     AnimJobEnqueueMode::Code enqueueMode;
     IndexT trackIndex;
@@ -368,6 +375,24 @@ inline float
 AnimJob::GetBlendWeight() const
 {
     return this->blendWeight;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+AnimJob::SetMask(const Characters::CharacterJointMask* mask)
+{
+	this->mask = mask;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Characters::CharacterJointMask*
+AnimJob::GetMask() const
+{
+	return this->mask;
 }
 
 //------------------------------------------------------------------------------

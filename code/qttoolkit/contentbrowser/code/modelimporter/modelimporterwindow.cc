@@ -339,6 +339,11 @@ ModelImporterWindow::Import()
 	modelMsg->SetResourceName(model);
 	GraphicsInterface::Instance()->Send(modelMsg.upcast<Messaging::Message>());
 
+	Ptr<ReloadModelByResource> rmMsg = ReloadModelByResource::Create();
+	rmMsg->SetResourceName(model);
+	GraphicsInterface::Instance()->Send(rmMsg.upcast<Messaging::Message>());
+	QtRemoteInterfaceAddon::QtRemoteClient::GetClient("editor")->Send(rmMsg.upcast<Messaging::Message>());
+
 	// now copy to intermediate if it exists
 	String tempModel;
 	tempModel.Format("int:models/%s_temp.n3", this->currentOptions->GetName().AsCharPtr());

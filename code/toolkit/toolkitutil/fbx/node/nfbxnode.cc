@@ -315,6 +315,15 @@ void
 NFbxNode::ExtractTransform()
 {
 	FbxMatrix localTrans = this->fbxNode->EvaluateLocalTransform();
+	this->ExtractTransform(localTrans);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+NFbxNode::ExtractTransform(const FbxMatrix& localTrans)
+{
 	FbxQuaternion rotation;
 	FbxVector4 translation;
 	FbxVector4 scale;
