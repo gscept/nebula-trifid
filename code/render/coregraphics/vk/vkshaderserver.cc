@@ -40,12 +40,6 @@ VkShaderServer::Open()
 
 	// create anyfx factory
 	this->factory = n_new(AnyFX::EffectFactory);
-
-	// setup context and cache within AnyFX
-	AnyFX::VkContext::currentContext = VkRenderDevice::dev;
-	AnyFX::VkContext::currentCache = VkRenderDevice::cache;
-	AnyFX::VkContext::currentPool = VkRenderDevice::descPool;
-
 	ShaderServerBase::Open();
 
 	return true;

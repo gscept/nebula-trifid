@@ -8,6 +8,7 @@
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
 #include "coregraphics/base/vertexlayoutbase.h"
+#include "vkrenderdevice.h"
 namespace Vulkan
 {
 class VkVertexLayout : public Base::VertexLayoutBase

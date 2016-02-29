@@ -65,7 +65,7 @@ VkStreamShaderLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 
 		// setup shader variations
 		const eastl::vector<AnyFX::ProgramBase*>& programs = effect->GetPrograms();
-		for (int i = 0; i < programs.size(); i++)
+		for (uint i = 0; i < programs.size(); i++)
 		{
 			// a shader variation in Nebula is equal to a program object in AnyFX
 			Ptr<ShaderVariation> variation = ShaderVariation::Create();
@@ -86,7 +86,7 @@ VkStreamShaderLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 
 		// load uniforms
 		const eastl::vector<AnyFX::VariableBase*>& variables = effect->GetVariables();
-		for (int i = 0; i < variables.size(); i++)
+		for (uint i = 0; i < variables.size(); i++)
 		{
 			// get AnyFX variable
 			AnyFX::VkVariable* effectVar = static_cast<AnyFX::VkVariable*>(variables[i]);
@@ -102,7 +102,7 @@ VkStreamShaderLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 
 		// load shader storage buffer variables
 		const eastl::vector<AnyFX::VarblockBase*>& varblocks = effect->GetVarblocks();
-		for (int i = 0; i < varblocks.size(); i++)
+		for (uint i = 0; i < varblocks.size(); i++)
 		{
 			// get AnyFX variable
 			AnyFX::VkVarblock* block = static_cast<AnyFX::VkVarblock*>(varblocks[i]);
@@ -117,7 +117,7 @@ VkStreamShaderLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 
 		// load uniform block variables
 		const eastl::vector<AnyFX::VarbufferBase*>& varbuffers = effect->GetVarbuffers();
-		for (int i = 0; i < varbuffers.size(); i++)
+		for (uint i = 0; i < varbuffers.size(); i++)
 		{
 			// get varblock
 			AnyFX::VkVarbuffer* buffer = static_cast<AnyFX::VkVarbuffer*>(varbuffers[i]);
@@ -153,7 +153,7 @@ VkStreamShaderLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 				{
 					// bind this variable to a shader global buffer, if this variable is instanced, it can either point to its
 					// own buffer, or point directly to this block (if variable instance is not bound to a buffer)
-					const Ptr<ShaderVariable>& var = res->variablesByName[vars[j]->name];
+					const Ptr<ShaderVariable>& var = res->variablesByName[vars[j]->name.c_str()];
 					var->BindToUniformBuffer(res->globalBlockBuffer, program->variableBlockOffsets[vars[j]->name], vars[j]->byteSize, (int8_t*)vars[j]->currentValue);
 				}
 				res->globalBlockBuffer->EndUpdateSync();

@@ -29,7 +29,7 @@ public:
 	/// begin complete frame
 	bool BeginFrame(IndexT frameIndex);
 	/// set the current vertex stream source
-	void SetStreamSource(IndexT streamIndex, const Ptr<CoreGraphics::VertexBuffer>& vb, IndexT offsetVertexIndex);
+	void SetStreamVertexBuffer(IndexT streamIndex, const Ptr<CoreGraphics::VertexBuffer>& vb, IndexT offsetVertexIndex);
 	/// set current vertex layout
 	void SetVertexLayout(const Ptr<CoreGraphics::VertexLayout>& vl);
 	/// set current index buffer
@@ -138,7 +138,7 @@ private:
 	/// update descriptors
 	void UpdateDescriptors(const Util::FixedArray<VkDescriptorSet>& descriptors, const VkPipelineLayout& layout, uint32_t baseSet, uint32_t setCount, uint32_t* offsets, uint32_t offsetCount);
 	/// update push ranges
-	void UpdatePushRanges(const VkShaderStageFlags& stages, uint32_t offset, uint32_t size, void* data);
+	void UpdatePushRanges(const VkShaderStageFlags& stages, const VkPipelineLayout& layout, uint32_t offset, uint32_t size, void* data);
 
 	/// setup queue from display
 	void SetupQueue(uint32_t queueFamily, uint32_t queueIndex);
@@ -171,6 +171,7 @@ private:
 	IndexT currentThread;
 	VkCommandBuffer dispatchableCmdBuffers[NumThreads];
 	Ptr<VkCmdBufferThread> threads[NumThreads];
+	Threading::Event completionEvent[NumThreads];
 
 	enum CmdCreationUsage
 	{

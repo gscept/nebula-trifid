@@ -8,6 +8,7 @@
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
 #include "coregraphics/base/shaderserverbase.h"
+#include "effectfactory.h"
 namespace Vulkan
 {
 class VkShaderServer : public Base::ShaderServerBase

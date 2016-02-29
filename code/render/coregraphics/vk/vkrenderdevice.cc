@@ -403,7 +403,7 @@ esc:
 	n_assert(res == VK_SUCCESS);
 
 	// create main command buffer for computes
-	VkCommandBufferAllocateInfo cmdAllocInfo =
+	cmdAllocInfo =
 	{
 		VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
 		NULL,
@@ -415,7 +415,7 @@ esc:
 	n_assert(res == VK_SUCCESS);
 
 	// create main command buffer for transfers
-	VkCommandBufferAllocateInfo cmdAllocInfo =
+	cmdAllocInfo =
 	{
 		VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
 		NULL,
@@ -428,7 +428,6 @@ esc:
 
 	// setup threads
 	Util::String threadName;
-	IndexT i;
 	for (i = 0; i < NumThreads; i++)
 	{
 		threadName.Format("RenderThread%d", i);
@@ -540,9 +539,9 @@ VkRenderDevice::BeginFrame(IndexT frameIndex)
 /**
 */
 void
-VkRenderDevice::SetStreamSource(IndexT streamIndex, const Ptr<CoreGraphics::VertexBuffer>& vb, IndexT offsetVertexIndex)
+VkRenderDevice::SetStreamVertexBuffer(IndexT streamIndex, const Ptr<CoreGraphics::VertexBuffer>& vb, IndexT offsetVertexIndex)
 {
-	RenderDeviceBase::SetStreamSource(streamIndex, vb, offsetVertexIndex);
+	RenderDeviceBase::SetStreamVertexBuffer(streamIndex, vb, offsetVertexIndex);
 	VkCmdBufferThread::Command cmd;
 	cmd.vbo.buffer = vb->GetVkBuffer();
 	cmd.vbo.index = streamIndex;
@@ -717,7 +716,12 @@ VkRenderDevice::EndBatch()
 	IndexT i;
 	for (i = 0; i < NumThreads; i++)
 	{ 
-		this->threads[i]->Stop();
+		VkCmdBufferThread::Command cmd;
+		cmd.type = VkCmdBufferThread::Sync;
+		cmd.syncEvent = &this->completionEvent[i];
+		this->threads[i]->PushCommand(cmd);
+		this->completionEvent[i].Wait();
+		this->completionEvent[i].Reset();
 	}
 	
 	// stop recording command buffers

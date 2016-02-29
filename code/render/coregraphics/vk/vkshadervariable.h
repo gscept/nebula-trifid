@@ -8,7 +8,9 @@
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
 #include "coregraphics/base/shadervariablebase.h"
-#include "lowlevel/afxapi.h"
+#include "lowlevel/vk/vkvariable.h"
+#include "lowlevel/vk/vkvarblock.h"
+#include "lowlevel/vk/vkvarbuffer.h"
 
 namespace CoreGraphics
 {
@@ -38,10 +40,10 @@ private:
 	friend class Vulkan::VkShaderInstance;
 
 	/// setup from AnyFX variable
-	void Setup(AnyFX::EffectVariable* var);
+	void Setup(AnyFX::VkVariable* var);
 	/// setup from AnyFX varbuffer
-	void Setup(AnyFX::EffectVarbuffer* var);
+	void Setup(AnyFX::VkVarbuffer* var);
 	/// setup from AnyFX varblock
-	void Setup(AnyFX::EffectVarblock* var);
+	void Setup(AnyFX::VkVarblock* var);
 };
 } // namespace Vulkan

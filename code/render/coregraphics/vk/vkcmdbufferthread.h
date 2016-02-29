@@ -43,7 +43,8 @@ private:
 		Draw,
 		Dispatch,
 		BindDescriptors,
-		PushRange
+		PushRange,
+		Sync
 	};
 
 	struct Command
@@ -104,6 +105,8 @@ private:
 				uint32_t size;
 				void* data;
 			} pushranges;
+
+			Threading::Event* syncEvent;
 		};		
 	};
 

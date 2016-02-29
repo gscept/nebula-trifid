@@ -4,6 +4,7 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "vkcmdbufferthread.h"
+#include "threading/event.h"
 
 namespace Vulkan
 {
@@ -79,8 +80,13 @@ VkCmdBufferThread::DoWork()
 			case PushRange:
 				vkCmdPushConstants(this->commandBuffer, cmd.pushranges.layout, cmd.pushranges.stages, cmd.pushranges.offset, cmd.pushranges.size, cmd.pushranges.data);
 				break;
+			case Sync:
+				cmd.syncEvent->Signal();
+				break;
 			}
 		}
+
+		this->commands.Wait();
 	}
 }
 

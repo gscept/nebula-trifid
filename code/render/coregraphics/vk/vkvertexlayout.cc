@@ -91,15 +91,6 @@ VkVertexLayout::Discard()
 /**
 */
 void
-VkVertexLayout::SetStreamBuffer(IndexT streamIndex, VkBuffer vertexBuffer)
-{
-	//VkFormat::
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
 VkVertexLayout::Apply()
 {
 	VkRenderDevice::Instance()->SetVertexLayoutPipelineInfo(this->info);

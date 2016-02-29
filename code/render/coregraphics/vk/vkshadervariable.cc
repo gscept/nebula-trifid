@@ -38,7 +38,7 @@ VkShaderVariable::BindToUniformBuffer(const Ptr<CoreGraphics::ConstantBuffer>& b
 /**
 */
 void
-VkShaderVariable::Setup(AnyFX::EffectVariable* var)
+VkShaderVariable::Setup(AnyFX::VkVariable* var)
 {
 
 }
@@ -47,7 +47,7 @@ VkShaderVariable::Setup(AnyFX::EffectVariable* var)
 /**
 */
 void
-VkShaderVariable::Setup(AnyFX::EffectVarbuffer* var)
+VkShaderVariable::Setup(AnyFX::VkVarbuffer* var)
 {
 
 }
@@ -56,7 +56,7 @@ VkShaderVariable::Setup(AnyFX::EffectVarbuffer* var)
 /**
 */
 void
-VkShaderVariable::Setup(AnyFX::EffectVarblock* var)
+VkShaderVariable::Setup(AnyFX::VkVarblock* var)
 {
 
 }

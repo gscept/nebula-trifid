@@ -17,7 +17,7 @@ class BufferLock : public OpenGL4::OGL4BufferLock
 };
 }
 #elif __VULKAN__
-#include "coregraphics/vk/vkfence.h"
+#include "coregraphics/vk/vkcpusyncfence.h"
 namespace CoreGraphics
 {
 class BufferLock : public Vulkan::VkCpuSyncFence
