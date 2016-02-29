@@ -14,6 +14,8 @@ __ImplementClass(CoreGraphics::ShapeRenderer, 'SHPR', Direct3D11::D3D11ShapeRend
 __ImplementClass(CoreGraphics::ShapeRenderer, 'SHPR', Win360::D3D9ShapeRenderer);
 #elif __OGL4__
 __ImplementClass(CoreGraphics::ShapeRenderer, 'SHPR', OpenGL4::OGL4ShapeRenderer);
+#elif __VULKAN__
+__ImplementClass(CoreGraphics::ShapeRenderer, 'SHPR', Vulkan::VkShapeRenderer);
 #elif __WII__
 __ImplementClass(CoreGraphics::ShapeRenderer, 'SHPR', Wii::WiiShapeRenderer);
 #elif __PS3__

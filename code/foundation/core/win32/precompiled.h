@@ -70,9 +70,8 @@
 #endif
 
 #ifdef __VULKAN__
-#include <vulkan/vk_platform.h>
 #include <vulkan/vulkan.h>
-#include "GLFW/glfw3.h"
+#include <GLFW/glfw3.h>
 #endif
 
 #ifdef __OGL4__

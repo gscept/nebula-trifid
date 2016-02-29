@@ -40,6 +40,21 @@ public:
 	virtual ~InstanceServer();
 };
 } // namespace Instancing
+#elif __VULKAN__
+#include "instancing/vk/vkinstanceserver.h"
+namespace Instancing
+{
+class InstanceServer : public Vulkan::VkInstanceServer
+{
+	__DeclareClass(InstanceServer);
+	__DeclareSingleton(InstanceServer);
+public:
+	/// constructor
+	InstanceServer();
+	/// destructor
+	virtual ~InstanceServer();
+};
+} // namespace Instancing
 #else
 #error "InstanceServer not implemented on this platform!"
 #endif

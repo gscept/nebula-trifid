@@ -22,7 +22,7 @@ shared varblock InstanceBlock [bool System = true; bool Instancing = true;]
 };
 
 // contains the state of the camera (and time)
-shared varblock CameraBlock [bool System = true;]
+group(5) shared varblock CameraBlock [bool System = true;]
 {
 	mat4 View;
 	mat4 InvView;
@@ -73,9 +73,6 @@ shared varblock LightBlock [bool System = true;]
 };
 
 sampler2D	LightShadowTexture;
-	
-// the smartest thing to do is to make the buffer count equal to the number of draw calls we want per frame
-// also tagged as nosync, which limits us to doing 8192 draw calls per frame (which should be FINE but one never knows)
 
 // contains variables which are guaranteed to be unique per object.
 shared varblock ObjectBlock [bool System = true;]

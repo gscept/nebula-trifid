@@ -38,8 +38,6 @@ public:
 	/// returns true if server is open
 	bool IsOpen();
 	
-	/// calculate vertex byte size from list of components
-	SizeT CalculateVertexSize(const Util::Array<CoreGraphics::VertexComponent>& vertexComponents);
 	/// create vertex layout
 	Ptr<CoreGraphics::VertexLayout> CreateSharedVertexLayout(const Util::Array<CoreGraphics::VertexComponent>& vertexComponents);
 

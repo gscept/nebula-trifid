@@ -29,6 +29,15 @@ class ShaderVariable : public OpenGL4::OGL4ShaderVariable
 	__DeclareClass(ShaderVariable);
 };
 }
+#elif __VULKAN__
+#include "coregraphics/vk/vkshadervariable.h"
+namespace CoreGraphics
+{
+class ShaderVariable : public Vulkan::VkShaderVariable
+{
+	__DeclareClass(ShaderVariable);
+};
+}
 #elif __DX9__
 #include "coregraphics/d3d9/d3d9shadervariable.h"
 namespace CoreGraphics

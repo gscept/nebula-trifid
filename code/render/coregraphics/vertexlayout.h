@@ -26,6 +26,15 @@ class VertexLayout : public OpenGL4::OGL4VertexLayout
 	__DeclareClass(VertexLayout);
 };
 }
+#elif __VULKAN__
+#include "coregraphics/vk/vkvertexlayout.h"
+namespace CoreGraphics
+{
+class VertexLayout : public Vulkan::VkVertexLayout
+{
+	__DeclareClass(VertexLayout);
+};
+}
 #elif __DX9__
 #include "coregraphics/d3d9/d3d9vertexlayout.h"
 namespace CoreGraphics

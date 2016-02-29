@@ -38,6 +38,15 @@ class TextureStreamer : public Resources::OGL4TextureStreamer
     __DeclareClass(TextureStreamer);
 };
 } // namespace Resources
+#elif __VULKAN__
+#include "resources/vkstreaming/vktexturestreamer.h"
+namespace Resources
+{
+class TextureStreamer : public Vulkan::VkTextureStreamer
+{
+    __DeclareClass(TextureStreamer);
+};
+} // namespace Resources
 #else
 #error "TextureStreamer class not implemented on this platform!"
 #endif

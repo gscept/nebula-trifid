@@ -35,6 +35,15 @@ class ParticleSystemInstance : public OpenGL4::OGL4ParticleSystemInstance
 	__DeclareClass(ParticleSystemInstance);
 };
 }
+#elif __VULKAN__
+#include "particles/vk/vkparticlesysteminstance.h"
+namespace Particles
+{
+class ParticleSystemInstance : public Vulkan::VkParticleSystemInstance
+{
+	__DeclareClass(ParticleSystemInstance);
+};
+}
 #elif __XBOX360__
 #include "particles/xbox360/xbox360particlesysteminstance.h"
 namespace Particles

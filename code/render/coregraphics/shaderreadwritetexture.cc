@@ -10,6 +10,11 @@ namespace CoreGraphics
 {
 __ImplementClass(CoreGraphics::ShaderReadWriteTexture, 'SRWT', OpenGL4::OGL4ShaderImage);
 }
+#elif __VULKAN__
+namespace CoreGraphics
+{
+__ImplementClass(CoreGraphics::ShaderReadWriteTexture, 'SRWT', Vulkan::VkShaderImage);
+}
 #else
 #error "ShaderBuffer class not implemented on this platform!"
 #endif

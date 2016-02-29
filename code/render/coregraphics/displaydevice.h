@@ -39,6 +39,21 @@ public:
 	virtual ~DisplayDevice();
 };
 } // namespace CoreGraphics
+#elif __VULKAN__
+#include "coregraphics/vk/vkdisplaydevice.h"
+namespace CoreGraphics
+{
+class DisplayDevice : public Vulkan::VkDisplayDevice
+{
+	__DeclareClass(DisplayDevice);
+	__DeclareSingleton(DisplayDevice);
+public:
+	/// constructor
+	DisplayDevice();
+	/// destructor
+	virtual ~DisplayDevice();
+};
+} // namespace CoreGraphics
 #elif __DX9__
 #include "coregraphics/d3d9/d3d9displaydevice.h"
 namespace CoreGraphics

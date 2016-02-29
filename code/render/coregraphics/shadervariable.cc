@@ -16,6 +16,11 @@ namespace CoreGraphics
 {
 __ImplementClass(CoreGraphics::ShaderVariable, 'SHDV', OpenGL4::OGL4ShaderVariable);
 }
+#elif __VULKAN__
+namespace CoreGraphics
+{
+__ImplementClass(CoreGraphics::ShaderVariable, 'SHDV', Vulkan::VkShaderVariable);
+}
 #elif __DX9__
 namespace CoreGraphics
 {

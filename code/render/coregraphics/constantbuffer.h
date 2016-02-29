@@ -17,6 +17,15 @@ class ConstantBuffer : public OpenGL4::OGL4UniformBuffer
     __DeclareClass(ConstantBuffer);
 };
 }
+#elif __VULKAN__
+#include "coregraphics/vk/vkuniformbuffer.h"
+namespace CoreGraphics
+{
+class ConstantBuffer : public Vulkan::VkUniformBuffer
+{
+	__DeclareClass(ConstantBuffer);
+};
+}
 #else
 #error "ShaderBuffer class not implemented on this platform!"
 #endif

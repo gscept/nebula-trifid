@@ -26,6 +26,15 @@ class IndexBuffer : public OpenGL4::OGL4IndexBuffer
 	__DeclareClass(IndexBuffer);
 };
 }
+#elif __VULKAN__
+#include "coregraphics/vk/vkindexbuffer.h"
+namespace CoreGraphics
+{
+class IndexBuffer : public Vulkan::VkIndexBuffer
+{
+	__DeclareClass(IndexBuffer);
+};
+}
 #elif __DX9__
 #include "coregraphics/d3d9/d3d9indexbuffer.h"
 namespace CoreGraphics

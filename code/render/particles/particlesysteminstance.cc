@@ -14,6 +14,8 @@ __ImplementClass(Particles::ParticleSystemInstance, 'PASI', Direct3D11::D3D11Par
 __ImplementClass(Particles::ParticleSystemInstance, 'PASI', Direct3D9::D3D9ParticleSystemInstance);
 #elif __OGL4__
 __ImplementClass(Particles::ParticleSystemInstance, 'PASI', OpenGL4::OGL4ParticleSystemInstance);
+#elif __VULKAN__
+__ImplementClass(Particles::ParticleSystemInstance, 'PASI', Vulkan::VkParticleSystemInstance);
 #elif __XBOX360__
 __ImplementClass(Particles::ParticleSystemInstance, 'PASI', Xbox360::Xbox360ParticleSystemInstance);
 #elif __WII__

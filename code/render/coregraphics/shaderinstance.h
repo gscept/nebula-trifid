@@ -29,6 +29,15 @@ class ShaderInstance : public OpenGL4::OGL4ShaderInstance
 	__DeclareClass(ShaderInstance);
 };
 }
+#elif __VULKAN__
+#include "coregraphics/vk/vkshaderinstance.h"
+namespace CoreGraphics
+{
+class ShaderInstance : public Vulkan::VkShaderInstance
+{
+	__DeclareClass(ShaderInstance);
+};
+}
 #elif __DX9__
 #include "coregraphics/d3d9/d3d9shaderinstance.h"
 namespace CoreGraphics

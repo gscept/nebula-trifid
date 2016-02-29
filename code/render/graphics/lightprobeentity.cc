@@ -8,6 +8,7 @@
 #include "math/clipstatus.h"
 #include "coregraphics/shaderserver.h"
 #include "coregraphics/shadersemantics.h"
+#include "coregraphics/constantbuffer.h"
 
 namespace Graphics
 {

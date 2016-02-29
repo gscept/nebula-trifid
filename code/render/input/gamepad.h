@@ -8,7 +8,7 @@
     (C) 2007 Radon Labs GmbH
     (C) 2013-2015 Individual contributors, see AUTHORS file
 */ 
-#if (__OGL4__)
+#if (__OGL4__ || __VULKAN__)
 #include "input/base/gamepadbase.h"
 namespace Input
 {

@@ -162,6 +162,9 @@ FrameBatch::RenderBatch(IndexT frameIndex)
 		// get materials matching the batch type
         const Util::Array<Ptr<Material>>& materials = matServer->GetMaterialsByBatchGroup(this->batchGroup);
 
+		// start batch
+		renderDevice->BeginBatch(this->batchType);
+
 		IndexT materialIndex;
 		for (materialIndex = 0; materialIndex < materials.Size(); materialIndex++)
 		{
@@ -243,9 +246,6 @@ FrameBatch::RenderBatch(IndexT frameIndex)
 							// begin instancing, if we are doing force instancing, use the instancing count, otherwise the multiplier is 1
 							if (this->forceInstancing) instanceServer->BeginInstancing(modelNode, this->instancingCount, shader, pass.index);
 							else					   instanceServer->BeginInstancing(modelNode, 1, shader, pass.index);
-
-							// start batch
-							renderDevice->BeginBatch(this->batchType);
 
 #if NEBULA3_ENABLE_PROFILING
 							modelNode->StartTimer();
@@ -335,9 +335,6 @@ FrameBatch::RenderBatch(IndexT frameIndex)
 							modelNode->StopTimer();
 #endif
 
-							// end batch
-							renderDevice->EndBatch();
-
 							// render instances
 							instanceServer->Render(frameIndex);
 
@@ -348,6 +345,9 @@ FrameBatch::RenderBatch(IndexT frameIndex)
 				}
             }
 		}
+
+		// end batch
+		renderDevice->EndBatch();
     }
 
     _stop_timer(this->debugTimer);

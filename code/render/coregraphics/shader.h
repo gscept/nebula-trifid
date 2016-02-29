@@ -27,6 +27,15 @@ class Shader : public OpenGL4::OGL4Shader
 	__DeclareClass(Shader);
 };
 }
+#elif __VULKAN__
+#include "coregraphics/vk/vkshader.h"
+namespace CoreGraphics
+{
+class Shader : public Vulkan::VkShader
+{
+	__DeclareClass(Shader);
+};
+}
 #elif __DX9__
 #include "coregraphics/d3d9/d3d9shader.h"
 namespace CoreGraphics

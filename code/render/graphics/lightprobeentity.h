@@ -11,6 +11,11 @@
 #include "graphicsentity.h"
 #include "lighting/environmentprobe.h"
 #include "coregraphics/shaderinstance.h"
+
+namespace CoreGraphics
+{
+	class ConstantBuffer;
+}
 namespace Graphics
 {
 class LightProbeEntity : public GraphicsEntity

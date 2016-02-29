@@ -36,6 +36,15 @@ class TextureCreator : public Resources::OGL4TextureCreator
     __DeclareClass(TextureCreator);
 };
 } // namespace Resources
+#elif __VULKAN__
+#include "resources/vkstreaming/vktexturecreator.h"
+namespace Resources
+{
+class TextureCreator : public Vulkan::VkTextureCreator
+{
+    __DeclareClass(TextureCreator);
+};
+} // namespace Resources
 
 #else
 #error "TextureCreator class not implemented on this platform!"

@@ -16,6 +16,11 @@ namespace CoreGraphics
 {
 __ImplementClass(CoreGraphics::ShaderInstance, 'SINS', OpenGL4::OGL4ShaderInstance);
 }
+#elif __VULKAN__
+namespace CoreGraphics
+{
+__ImplementClass(CoreGraphics::ShaderInstance, 'SINS', Vulkan::VkShaderInstance);
+}
 #elif __DX9__
 namespace CoreGraphics
 {

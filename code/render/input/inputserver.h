@@ -26,7 +26,7 @@ public:
     virtual ~InputServer();
 };
 }
-#elif __OGL4__
+#elif (__OGL4__ || __VULKAN__)
 #include "input/glfw/glfwinputserver.h"
 namespace Input
 {

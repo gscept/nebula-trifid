@@ -23,6 +23,15 @@ class MemoryTextureLoader : public OpenGL4::OGL4MemoryTextureLoader
 	__DeclareClass(MemoryTextureLoader);
 };
 }
+#elif __VULKAN__
+#include "coregraphics/vk/vkmemorytextureloader.h"
+namespace CoreGraphics
+{
+class MemoryTextureLoader : public Vulkan::VkMemoryTextureLoader
+{
+	__DeclareClass(MemoryTextureLoader);
+};
+}
 #elif __DX9__
 #include "coregraphics/d3d9/d3d9memorytextureloader.h"
 namespace CoreGraphics

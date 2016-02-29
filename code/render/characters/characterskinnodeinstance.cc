@@ -176,7 +176,6 @@ CharacterSkinNodeInstance::OnRenderBefore(IndexT frameIndex, Timing::Time time)
 
 		// update joint palette, then draw into the feedback buffer
 		//renderDev->SetPrimitiveGroup(this->feedbackBuffer->GetPrimitiveGroup());
-		this->feedbackBuffer->Swap();
 		charServer->UpdateGPUSkinnedJointPalette(this->characterInstance, jointPalette, this->skinningJointPaletteVar);
 		renderDev->BeginFeedback(this->feedbackBuffer, mesh->GetPrimitiveGroupAtIndex(primIndex).GetPrimitiveTopology(), this->skinningShader);
 		mesh->ApplyPrimitives(primIndex);

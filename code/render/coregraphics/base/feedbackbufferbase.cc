@@ -87,4 +87,5 @@ FeedbackBufferBase::Unmap()
     n_error("VertexBufferBase::Unmap() called!");
 }
 
+
 } // namespace Base

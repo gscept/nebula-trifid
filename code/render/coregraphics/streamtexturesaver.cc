@@ -16,6 +16,11 @@ namespace CoreGraphics
 {
 __ImplementClass(CoreGraphics::StreamTextureSaver, 'STXS', OpenGL4::OGL4StreamTextureSaver);
 }
+#elif __VULKAN__
+namespace CoreGraphics
+{
+__ImplementClass(CoreGraphics::StreamTextureSaver, 'STXS', Vulkan::VkStreamTextureSaver);
+}
 #elif __DX9__
 namespace CoreGraphics
 {

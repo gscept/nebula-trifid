@@ -14,6 +14,9 @@ __ImplementSingleton(CoreGraphics::ShaderServer);
 #elif __OGL4__
 __ImplementClass(CoreGraphics::ShaderServer, 'SHSV', OpenGL4::OGL4ShaderServer);
 __ImplementSingleton(CoreGraphics::ShaderServer);
+#elif __VULKAN__
+__ImplementClass(CoreGraphics::ShaderServer, 'SHSV', Vulkan::VkShaderServer);
+__ImplementSingleton(CoreGraphics::ShaderServer);
 #elif __DX9__
 __ImplementClass(CoreGraphics::ShaderServer, 'SHSV', Direct3D9::D3D9ShaderServer);
 __ImplementSingleton(CoreGraphics::ShaderServer);

@@ -41,6 +41,21 @@ public:
 	virtual ~RenderDevice();
 };
 } // namespace CoreGraphics
+#elif __VULKAN__
+#include "coregraphics/vk/vkrenderdevice.h"
+namespace CoreGraphics
+{
+class RenderDevice : public Vulkan::VkRenderDevice
+{
+	__DeclareClass(RenderDevice);
+	__DeclareSingleton(RenderDevice);
+public:
+	/// constructor
+	RenderDevice();
+	/// destructor
+	virtual ~RenderDevice();
+};
+} // namespace CoreGraphics
 #elif __DX9__
 #include "coregraphics/d3d9/d3d9renderdevice.h"
 namespace CoreGraphics

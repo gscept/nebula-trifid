@@ -28,6 +28,7 @@ public:
     static const CoreId NetworkThreadCore   = 5;
 
     static const CoreId JobThreadFirstCore  = 6;
+	static const CoreId RenderThreadFirstCore = 16;
 };
 
 } // namespace Win32    

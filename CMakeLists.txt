@@ -73,6 +73,7 @@ SET_PROPERTY(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
 	$<$<BOOL:${N_BUILD_VULKAN}>:__VULKAN__ __ANYFX__ IL_STATIC_LIB> 
 	$<$<BOOL:${N_BUILD_DX11}>:__DX11__> 
 	$<$<BOOL:${N_BUILD_DX9}>:__DX9__>)
+
 INCLUDE_DIRECTORIES($<$<BOOL:${N_BUILD_OGL4}>:${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/api/code
 												${Nebula3_SOURCE_DIR}/code/extlibs/glew/include
 												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/api/code
@@ -80,7 +81,15 @@ INCLUDE_DIRECTORIES($<$<BOOL:${N_BUILD_OGL4}>:${Nebula3_SOURCE_DIR}/code/extlibs
 												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/compiler/code
 												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/exts/eastl/include
 												${Nebula3_SOURCE_DIR}/code/extlibs/glfw/include>
-												$<$<BOOL:${N_BUILD_DX11}>:$ENV{DXSDK_DIR}/include ${Nebula3_SOURCE_DIR}/code/extlibs/Effects11> $<$<BOOL:${N_BUILD_DX9}>:$ENV{DXSDK_DIR}/include>)
+					$<$<BOOL:${N_BUILD_VULKAN}>:${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/api/code
+												${Nebula3_SOURCE_DIR}/code/extlibs/glew/include
+												${VULKAN_INCLUDE_DIR}
+												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/api/code
+												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/util/code
+												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/compiler/code
+												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/exts/eastl/include
+												${Nebula3_SOURCE_DIR}/code/extlibs/glfw/include>
+					$<$<BOOL:${N_BUILD_DX11}>:$ENV{DXSDK_DIR}/include ${Nebula3_SOURCE_DIR}/code/extlibs/Effects11> $<$<BOOL:${N_BUILD_DX9}>:$ENV{DXSDK_DIR}/include>)
 
 
 # select physics implementation

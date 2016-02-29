@@ -16,6 +16,11 @@ namespace CoreGraphics
 {
 __ImplementClass(CoreGraphics::VertexBuffer, 'VTXB', OpenGL4::OGL4VertexBuffer);
 }
+#elif __VULKAN__
+namespace CoreGraphics
+{
+__ImplementClass(CoreGraphics::VertexBuffer, 'VTXB', Vulkan::VkVertexBuffer);
+}
 #elif __DX9__
 namespace CoreGraphics
 {

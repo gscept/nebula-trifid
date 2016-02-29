@@ -11,8 +11,6 @@
 #include "util/array.h"
 #include "threading/thread.h"
 
-
-
 //------------------------------------------------------------------------------
 namespace OpenGL4
 {
@@ -94,9 +92,9 @@ protected:
 	friend class OGL4RenderDevice;
     friend class GLFWInputServer;
 	/// open window
-	bool OpenWindow();
+	virtual bool OpenWindow();
 	/// open embedded window
-	bool EmbedWindow();
+	virtual bool EmbedWindow();
 	/// opaque glfw data structure
 	GLFWwindow * window;
 	/// retrieve monitor from adapter. can be NULL

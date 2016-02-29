@@ -10,6 +10,11 @@ namespace CoreGraphics
 {
 __ImplementClass(CoreGraphics::FeedbackBuffer, 'FEDB', OpenGL4::OGL4FeedbackBuffer);
 }
+#elif __VULKAN__
+namespace CoreGraphics
+{
+__ImplementClass(CoreGraphics::FeedbackBuffer, 'FEDB', Vulkan::VkFeedbackBuffer);
+}
 #else
 #error "FeedbackBuffer class not implemented on this platform!"
 #endif

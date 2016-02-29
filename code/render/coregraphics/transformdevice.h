@@ -44,6 +44,21 @@ public:
 	virtual ~TransformDevice();
 };
 }
+#elif __VULKAN__
+#include "coregraphics/vk/vktransformdevice.h"
+namespace CoreGraphics
+{
+class TransformDevice : public Vulkan::VkTransformDevice
+{
+	__DeclareClass(TransformDevice);
+	__DeclareSingleton(TransformDevice);
+public:
+	/// constructor
+	TransformDevice();
+	/// destructor
+	virtual ~TransformDevice();
+};
+}
 #elif __DX9__
 #include "coregraphics/win360/d3d9transformdevice.h"
 namespace CoreGraphics

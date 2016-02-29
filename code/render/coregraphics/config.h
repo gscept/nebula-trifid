@@ -36,5 +36,12 @@
     #else
         #define	NEBULA3_OPENGL4_DEBUG (0)
     #endif
+#elif __VULKAN__
+	#define SHADER_MODEL_5 (1)
+	#ifdef _DEBUG
+		#define NEBULAT_VULKAN_DEBUG (1)
+	#else
+		#define NEBULAT_VULKAN_DEBUG (0)
+	#endif
 #endif
 //------------------------------------------------------------------------------

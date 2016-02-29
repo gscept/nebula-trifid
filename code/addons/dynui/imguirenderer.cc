@@ -12,6 +12,7 @@
 #include "math/rectangle.h"
 #include "coregraphics/shaderserver.h"
 #include "coregraphics/displaydevice.h"
+#include "coregraphics/renderdevice.h"
 #include "coregraphics/memoryindexbufferloader.h"
 
 using namespace Math;

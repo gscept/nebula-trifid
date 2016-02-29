@@ -39,6 +39,21 @@ public:
 	virtual ~TextRenderer();
 };
 } // namespace CoreGraphics
+#elif __VULKAN__
+#include "coregraphics/vk/vktextrenderer.h"
+namespace CoreGraphics
+{
+class TextRenderer : public Vulkan::VkTextRenderer
+{
+	__DeclareClass(TextRenderer);
+	__DeclareSingleton(TextRenderer);
+public:
+	/// constructor
+	TextRenderer();
+	/// destructor
+	virtual ~TextRenderer();
+};
+} // namespace CoreGraphics
 #elif __DX9__
 #include "coregraphics/d3d9/d3d9textrenderer.h"
 namespace CoreGraphics

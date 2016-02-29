@@ -21,12 +21,10 @@ class MultipleRenderTargetBase : public Core::RefCounted
 {
     __DeclareClass(MultipleRenderTargetBase);
 public:
-#if __DX11__
+#if (__OGL4__ || __VULKAN__ || __DX11__)
 	static const IndexT MaxNumRenderTargets = 8;
-#elif __DX9__
+#else
 	static const IndexT MaxNumRenderTargets = 4;
-#elif __OGL4__
-	static const IndexT MaxNumRenderTargets = 8;
 #endif
 
     /// constructor

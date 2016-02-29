@@ -53,6 +53,21 @@ public:
 	virtual ~ParticleRenderer();
 };
 }
+#elif __VULKAN__
+#include "particles/vk/vkparticlerenderer.h"
+namespace Particles
+{
+class ParticleRenderer : public Vulkan::VkParticleRenderer
+{
+	__DeclareClass(ParticleRenderer);
+	__DeclareSingleton(ParticleRenderer);
+public:
+	/// constructor
+	ParticleRenderer();
+	/// destructor
+	virtual ~ParticleRenderer();
+};
+}
 #elif __XBOX360__
 #include "particles/xbox360/xbox360particlerenderer.h"
 namespace Particles

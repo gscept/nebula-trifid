@@ -21,6 +21,11 @@ namespace CoreGraphics
 {
 __ImplementClass(CoreGraphics::StreamMeshLoader, 'SMLD', OpenGL4::OGL4StreamMeshLoader);
 }
+#elif __VULKAN__
+namespace CoreGraphics
+{
+__ImplementClass(CoreGraphics::StreamMeshLoader, 'SMLD', Vulkan::VkStreamMeshLoader);
+}
 #elif __WII__
 namespace CoreGraphics
 {

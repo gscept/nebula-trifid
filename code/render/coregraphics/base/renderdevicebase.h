@@ -36,6 +36,7 @@ class VertexLayout;
 class ShaderInstance;
 class RenderTarget;
 class MultipleRenderTarget;
+class BufferLock;
 };
 
 //------------------------------------------------------------------------------
@@ -99,9 +100,9 @@ public:
     /// begin rendering a batch
     void BeginBatch(CoreGraphics::FrameBatchType::Code batchType);
     /// set the current vertex stream source
-    void SetStreamVertexBuffer(IndexT streamIndex, const Ptr<CoreGraphics::VertexBuffer>& vb, IndexT offsetVertexIndex);
+    void SetStreamSource(IndexT streamIndex, const Ptr<CoreGraphics::VertexBuffer>& vb, IndexT offsetVertexIndex);
     /// get currently set vertex buffer
-    const Ptr<CoreGraphics::VertexBuffer>& GetStreamVertexBuffer(IndexT streamIndex) const;
+    const Ptr<CoreGraphics::VertexBuffer>& GetStreamSource(IndexT streamIndex) const;
     /// get currently set vertex stream offset
     IndexT GetStreamVertexOffset(IndexT streamIndex) const;
     /// set current vertex layout

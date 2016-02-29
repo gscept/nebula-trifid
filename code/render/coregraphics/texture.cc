@@ -16,6 +16,11 @@ namespace CoreGraphics
 {
 __ImplementClass(CoreGraphics::Texture, 'TEXR', OpenGL4::OGL4Texture);
 }
+#elif __VULKAN__
+namespace CoreGraphics
+{
+__ImplementClass(CoreGraphics::Texture, 'TEXR', Vulkan::VkTexture);
+}
 #elif __DX9__
 namespace CoreGraphics
 {

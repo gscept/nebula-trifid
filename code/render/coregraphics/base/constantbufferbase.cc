@@ -4,7 +4,7 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "constantbufferbase.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shader.h"
 #include "coregraphics/shadervariable.h"
 
 namespace Base
@@ -49,7 +49,7 @@ ConstantBufferBase::Setup(const SizeT numBackingBuffers)
 /**
 */
 void
-ConstantBufferBase::SetupFromBlockInShader(const Ptr<CoreGraphics::ShaderInstance>& shader, const Util::String& blockName, const SizeT numBackingBuffers)
+ConstantBufferBase::SetupFromBlockInShader(const Ptr<CoreGraphics::Shader>& shader, const Util::String& blockName, const SizeT numBackingBuffers)
 {
     // implement in subclass
 }

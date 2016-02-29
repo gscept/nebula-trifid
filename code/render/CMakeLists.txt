@@ -466,12 +466,16 @@ ENDIF()
       )
 	  ELSEIF(N_BUILD_VULKAN)
 	  set(Render_files_coregraphics_displaydevice__impl
+			coregraphics/glfw/glfwdisplaydevice.cc
+			coregraphics/glfw/glfwdisplaydevice.h
 			coregraphics/vk/vkdisplaydevice.cc
 			coregraphics/vk/vkdisplaydevice.h)
 	  set(Render_files_coregraphics__vk
 		${Render_files_coregraphics_displaydevice__impl}
-		coregraphics/vk/vkfence.cc
-		coregraphics/vk/vkfence.h
+		coregraphics/vk/vkcmdbufferthread.cc
+		coregraphics/vk/vkcmdbufferthread.h
+		coregraphics/vk/vkcpusyncfence.cc
+		coregraphics/vk/vkcpusyncfence.h
 		coregraphics/vk/vkdepthstenciltarget.cc
 		coregraphics/vk/vkdepthstenciltarget.h
 		coregraphics/vk/vkfeedbackbuffer.cc
@@ -925,7 +929,7 @@ ENDIF()
 		)
 	ENDIF()
 
-	  IF(N_BUILD_OGL4)
+	  IF(N_BUILD_OGL4 OR N_BUILD_VULKAN)
 	  set(Render_files_input_platform 
 			input/glfw/glfwinputdisplayeventhandler.cc
 			input/glfw/glfwinputdisplayeventhandler.h
@@ -1822,8 +1826,11 @@ ENDIF()
   
 N_WRAP_NIDL_FILES(render_NIDLS ${Render_NIDLS})
 
-
+	
 add_library(render STATIC ${Render_SRCS} )
+
+
+
 TARGET_INCLUDE_DIRECTORIES(render 	PUBLIC ${Nebula3_SOURCE_DIR}/code/render/ 
 									${Nebula3_SOURCE_DIR}/code/extlibs/DevIL/DevIL/include)
 
@@ -1874,12 +1881,10 @@ ELSEIF(N_BUILD_BULLET)
 	ADD_DEPENDENCIES(render BulletDynamics BulletCollision LinearMath)
 	TARGET_LINK_LIBRARIES(render PUBLIC $<$<BOOL:${N_BUILD_BULLET}>:BulletDynamics BulletCollision LinearMath> )
 ENDIF()
-
-
 TARGET_INCLUDE_DIRECTORIES(render PUBLIC $<$<BOOL:${N_BUILD_HAVOK}>:${Havok_SOURCE_DIR}>)
 
 
-TARGET_LINK_LIBRARIES(render PUBLIC $<$<BOOL:${N_BUILD_OGL4}>: DevIL ILU ILUT> )
+TARGET_LINK_LIBRARIES(render PUBLIC $<$<BOOL:${N_BUILD_OGL4} OR ${N_BUILD_VULKAN}>: DevIL ILU ILUT> )
 
 N_SET_COMPILER_DEFAULTS()
 IF(N_USE_PRECOMPILED_HEADERS)

@@ -47,7 +47,8 @@ public:
     
     /// create shared vertex layout object
     Ptr<CoreGraphics::VertexLayout> CreateSharedVertexLayout(const Util::Array<CoreGraphics::VertexComponent>& vertexComponents);
-
+	/// calculate vertex size based components
+	SizeT CalculateVertexSize(const Util::Array<CoreGraphics::VertexComponent>& vertexComponents);
 protected:
     bool isOpen;
     Util::Dictionary<Util::StringAtom, Ptr<CoreGraphics::VertexLayout> > vertexLayouts;

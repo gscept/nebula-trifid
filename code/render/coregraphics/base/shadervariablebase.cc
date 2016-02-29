@@ -143,7 +143,16 @@ ShaderVariableBase::SetFloatArray(const float* values, SizeT count)
 /**
 */
 void 
-ShaderVariableBase::SetFloat2(const Math::float2& value)
+ShaderVariableBase::SetFloat2(const float2& value)
+{
+	// empty, override in subclass
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+ShaderVariableBase::SetFloat2Array(const float2* value, SizeT count)
 {
 	// empty, override in subclass
 }
@@ -209,6 +218,14 @@ void
 ShaderVariableBase::SetTexture(const Ptr<Texture>& value)
 {
     // empty, override in subclass
+}
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ShaderVariableBase::SetBufferHandle(void* handle)
+{
+	// empty, override in subclass
 }
 
 //------------------------------------------------------------------------------

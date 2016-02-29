@@ -39,7 +39,7 @@ public:
     virtual ~LightServer();
 };
 } // namespace Lighting
-#elif (__DX11__ || __OGL4__)
+#elif (__DX11__ || __OGL4__ || __VULKAN__)
 #include "lighting/sm50/sm50lightserver.h"
 namespace Lighting
 {

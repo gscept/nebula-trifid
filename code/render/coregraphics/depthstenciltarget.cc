@@ -19,6 +19,11 @@ namespace CoreGraphics
 {
 __ImplementClass(CoreGraphics::DepthStencilTarget, 'DSTG', OpenGL4::OGL4DepthStencilTarget);
 }
+#elif __VULKAN__
+namespace CoreGraphics
+{
+__ImplementClass(CoreGraphics::DepthStencilTarget, 'DSTG', Vulkan::VkDepthStencilTarget);
+}
 #else
 #error "MultipleRenderTarget class not implemented on this platform!"
 #endif

@@ -85,4 +85,23 @@ VertexLayoutServerBase::CreateSharedVertexLayout(const Util::Array<VertexCompone
     }
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+SizeT
+VertexLayoutServerBase::CalculateVertexSize(const Util::Array<CoreGraphics::VertexComponent>& vertexComponents)
+{
+	n_assert(this->IsOpen());
+	n_assert(vertexComponents.Size() > 0);
+
+	SizeT retval = 0;
+
+	IndexT i;
+	for (i = 0; i < vertexComponents.Size(); i++)
+	{
+		retval += vertexComponents[i].GetByteSize();
+	}
+	return retval;
+}
+
 } // namespace Base

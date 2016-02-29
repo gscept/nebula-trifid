@@ -41,6 +41,21 @@ public:
 	virtual ~InstanceRenderer();
 };
 } // namespace Instancing
+#elif __VULKAN__
+#include "instancing/vk/vkinstancerenderer.h"
+namespace Instancing
+{
+class InstanceRenderer : public Vulkan::VkInstanceRenderer
+{
+	__DeclareClass(InstanceRenderer);
+	__DeclareSingleton(InstanceRenderer);
+public:
+	/// constructor
+	InstanceRenderer();
+	/// destructor
+	virtual ~InstanceRenderer();
+};
+} // namespace Instancing
 #else
 #error "InstanceRenderer not implemented on this platform!"
 #endif

@@ -23,6 +23,15 @@ class VertexLayoutServer : public OpenGL4::OGL4VertexLayoutServer
 	__DeclareClass(VertexLayoutServer);
 };
 }
+#elif __VULKAN__
+#include "coregraphics/vk/vkvertexlayoutserver.h"
+namespace CoreGraphics
+{
+class VertexLayoutServer : public Vulkan::VkVertexLayoutServer
+{
+	__DeclareClass(VertexLayoutServer);
+};
+}
 #else
 #include "coregraphics/base/vertexlayoutserverbase.h"
 namespace CoreGraphics

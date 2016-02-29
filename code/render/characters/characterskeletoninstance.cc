@@ -15,6 +15,7 @@
 #include "debugrender/debugrender.h"
 #include "graphics/cameraentity.h"
 #include "graphics/graphicsserver.h"
+#include "graphics/view.h"
 
 namespace Characters
 {

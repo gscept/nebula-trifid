@@ -8,7 +8,7 @@
 
 namespace Lighting
 {
-#if (__DX11__ || __OGL4__)
+#if (__DX11__ || __OGL4__ || __VULKAN__)
 __ImplementClass(Lighting::ShadowServer, 'SDSV', Lighting::SM50ShadowServer);
 #elif __DX9__
 __ImplementClass(Lighting::ShadowServer, 'SDSV', Lighting::SM30ShadowServer);

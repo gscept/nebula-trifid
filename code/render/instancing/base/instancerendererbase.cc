@@ -8,9 +8,9 @@
 
 using namespace CoreGraphics;
 using namespace Math;
-namespace Instancing
+namespace Base
 {
-__ImplementClass(Instancing::InstanceRendererBase, 'INRB', Core::RefCounted);
+__ImplementClass(Base::InstanceRendererBase, 'INRB', Core::RefCounted);
 
 //------------------------------------------------------------------------------
 /**

@@ -107,8 +107,6 @@ GLFWInputServer::SetCursorVisible( bool enable )
     {
         glfwSetInputMode(GLFWDisplayDevice::Instance()->window,GLFW_CURSOR,GLFW_CURSOR_HIDDEN);
     }
-
-
 }
 
 void GLFWInputServer::SetCursorLocked( bool enable)

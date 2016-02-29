@@ -26,6 +26,15 @@ class MemoryIndexBufferLoader : public OpenGL4::OGL4MemoryIndexBufferLoader
 	__DeclareClass(MemoryIndexBufferLoader);
 };
 }
+#elif __VULKAN__
+#include "coregraphics/vk/vkmemoryindexbufferloader.h"
+namespace CoreGraphics
+{
+class MemoryIndexBufferLoader : public Vulkan::VkMemoryIndexBufferLoader
+{
+	__DeclareClass(MemoryIndexBufferLoader);
+};
+}
 #elif __DX9__
 #include "coregraphics/d3d9/d3d9memoryindexbufferloader.h"
 namespace CoreGraphics

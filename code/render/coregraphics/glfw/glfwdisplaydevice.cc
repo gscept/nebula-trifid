@@ -6,8 +6,9 @@
 #include "stdneb.h"
 #include "coregraphics/config.h"
 #include "coregraphics/glfw/glfwdisplaydevice.h"
-#include "coregraphics/ogl4/ogl4renderdevice.h"
+#if __OGL4__
 #include "coregraphics/ogl4/ogl4types.h"
+#endif
 #include "coregraphics/renderdevice.h"
 #include "GLFW/glfw3native.h"
 #include <GLFW/glfw3.h>
@@ -329,7 +330,7 @@ GLFWDisplayDevice::OpenWindow()
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 	glfwSetErrorCallback(NebulaGLFWErrorCallback);    
     n_printf("Creating OpenGL debug context\n");
-#else
+#elseif __OGL4__
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_FALSE);
 	glDisable(GL_DEBUG_OUTPUT);
 #endif
@@ -369,7 +370,7 @@ GLFWDisplayDevice::EmbedWindow()
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 	glfwSetErrorCallback(NebulaGLFWErrorCallback);
 	n_printf("Creating OpenGL debug context\n");
-#else
+	#elseif __OGL4__
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_FALSE);
 	glDisable(GL_DEBUG_OUTPUT);
 #endif

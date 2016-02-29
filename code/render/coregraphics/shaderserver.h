@@ -39,6 +39,21 @@ public:
 	virtual ~ShaderServer();
 };
 }
+#elif __VULKAN__
+#include "coregraphics/vk/vkshaderserver.h"
+namespace CoreGraphics
+{
+class ShaderServer : public Vulkan::VkShaderServer
+{
+	__DeclareClass(ShaderServer);
+	__DeclareSingleton(ShaderServer);
+public:
+	/// constructor
+	ShaderServer();
+	/// destructor
+	virtual ~ShaderServer();
+};
+}
 #elif __DX9__
 #include "coregraphics/d3d9/d3d9shaderserver.h"
 namespace CoreGraphics

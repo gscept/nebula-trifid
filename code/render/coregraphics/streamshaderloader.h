@@ -26,6 +26,15 @@ class StreamShaderLoader : public OpenGL4::OGL4StreamShaderLoader
 	__DeclareClass(StreamShaderLoader);
 };
 }
+#elif __VULKAN__
+#include "coregraphics/vk/vkstreamshaderloader.h"
+namespace CoreGraphics
+{
+class StreamShaderLoader : public Vulkan::VkStreamShaderLoader
+{
+	__DeclareClass(StreamShaderLoader);
+};
+}
 #elif __DX9__
 #include "coregraphics/d3d9/d3d9streamshaderloader.h"
 namespace CoreGraphics

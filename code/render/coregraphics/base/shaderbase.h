@@ -18,7 +18,7 @@
 #include "coregraphics/shaderidentifier.h"
 #include "coregraphics/shaderfeature.h"
 #include "coregraphics/shadervariable.h"
-#include "../shadervariation.h"
+#include "coregraphics/shadervariation.h"
 
 namespace CoreGraphics
 {

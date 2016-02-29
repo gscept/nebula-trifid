@@ -26,6 +26,14 @@ namespace Resources
 	{
 	}; // namespace Resources
 }
+#elif __VULKAN__
+#include "resources/vkstreaming/vktextureinfo.h"
+namespace Resources
+{
+	class TextureInfo : public Vulkan::VkTextureInfo
+	{
+	}; // namespace Resources
+}
 #elif __DX9__
 #include "resources/d3d9streaming/d3d9textureinfo.h"
 namespace Resources

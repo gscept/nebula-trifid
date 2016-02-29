@@ -16,7 +16,10 @@
 
 namespace Instancing
 {
-class InstanceRenderer;
+	class InstanceRenderer;
+}
+namespace Base
+{
 class InstanceServerBase : public Core::RefCounted
 {
 	__DeclareSingleton(InstanceServerBase);	
@@ -46,7 +49,7 @@ public:
 protected:
     IndexT pass;
     Ptr<CoreGraphics::Shader> shader;
-	Ptr<InstanceRenderer> renderer;
+	Ptr<Instancing::InstanceRenderer> renderer;
 	Ptr<Models::ModelNode> modelNode;
     Util::Dictionary<IndexT, Util::Array<Ptr<Models::ModelNodeInstance>>> instancesByCode;
 	bool isBeginInstancing;

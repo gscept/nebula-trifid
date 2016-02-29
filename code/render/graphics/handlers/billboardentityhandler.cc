@@ -8,6 +8,8 @@
 #include "messaging/staticmessagehandler.h"
 #include "graphics/billboardentity.h"
 #include "graphics/graphicsentity.h"
+#include "../graphicsserver.h"
+#include "../stage.h"
 
 using namespace Billboards;
 using namespace Graphics;

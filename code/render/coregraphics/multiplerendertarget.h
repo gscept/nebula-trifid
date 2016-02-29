@@ -36,6 +36,15 @@ class MultipleRenderTarget : public OpenGL4::OGL4MultipleRenderTarget
 	__DeclareClass(MultipleRenderTarget);
 };
 }
+#elif __VULKAN__
+#include "coregraphics/vk/vkmultiplerendertarget.h"
+namespace CoreGraphics
+{
+class MultipleRenderTarget : public Vulkan::VkMultipleRenderTarget
+{
+	__DeclareClass(MultipleRenderTarget);
+};
+}
 #else
 #error "MultipleRenderTarget class not implemented on this platform!"
 #endif

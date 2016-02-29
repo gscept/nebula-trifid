@@ -59,7 +59,7 @@ ResourceDictionaryBuilder::ReadTextureData(Ptr<Stream>& stream, TextureInfo& for
 	HRESULT hr;
 	D3DX11_IMAGE_INFO imageInfo = {0};
 	hr = D3DX11GetImageInfoFromMemory(srcData, srcDataSize, NULL, &imageInfo, NULL);
-#elif __OGL4__
+#elif (__OGL4__ || __VULKAN__)
 	ILint imageInfo = ilGenImage();
 	ilBindImage(imageInfo);
 	ILboolean success = ilLoadL(IL_DDS, srcData, srcDataSize);

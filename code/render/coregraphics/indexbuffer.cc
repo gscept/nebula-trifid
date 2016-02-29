@@ -16,6 +16,11 @@ namespace CoreGraphics
 {
 __ImplementClass(CoreGraphics::IndexBuffer, 'IDXB', OpenGL4::OGL4IndexBuffer);
 }
+#elif __VULKAN__
+namespace CoreGraphics
+{
+__ImplementClass(CoreGraphics::IndexBuffer, 'IDXB', Vulkan::VkIndexBuffer);
+}
 #elif __DX9__
 namespace CoreGraphics
 {

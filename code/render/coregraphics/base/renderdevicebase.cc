@@ -11,6 +11,7 @@
 #include "coregraphics/indexbuffer.h"
 #include "coregraphics/feedbackbuffer.h"
 #include "coregraphics/shaderinstance.h"
+#include "coregraphics/bufferlock.h"
 #include "frame/frameserver.h"
 #include "coregraphics/displaydevice.h"
 #include "math/scalar.h"
@@ -25,7 +26,7 @@ using namespace Util;
 using namespace CoreGraphics;
 using namespace Graphics;
 
-Util::Queue<RenderDeviceBase::__BufferLockData> RenderDevice::bufferLockQueue;
+Util::Queue<RenderDeviceBase::__BufferLockData> RenderDeviceBase::bufferLockQueue;
 //------------------------------------------------------------------------------
 /**
 */

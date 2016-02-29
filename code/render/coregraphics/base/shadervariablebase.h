@@ -82,6 +82,9 @@ public:
 
 	/// set vector vector value
 	void SetFloat2(const Math::float2& value);
+		/// set vector array values
+	void SetFloat2Array(const Math::float2* values, SizeT count);
+	
     /// set vector value
     void SetFloat4(const Math::float4& value);	
     /// set vector array values

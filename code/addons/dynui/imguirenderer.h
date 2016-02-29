@@ -9,6 +9,7 @@
 */
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
+#include "core/singleton.h"
 #include "coregraphics/texture.h"
 #include "coregraphics/shaderinstance.h"
 #include "coregraphics/bufferlock.h"
