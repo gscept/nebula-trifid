@@ -166,14 +166,17 @@ AudioEmitterProperty::OnGainActivity()
 void
 AudioEmitterProperty::Update3DParameters()
 {
-	const Math::matrix44 trans = this->entity->GetMatrix44(Attr::Transform);
-	Math::vector velocity(0);
-	if (this->entity->HasAttr(Attr::VelocityVector))
-	{
-		velocity = this->entity->GetFloat4(Attr::VelocityVector);
-	}
-	Math::vector forward = trans.get_zaxis();
-	this->eventInstance->Set3DAttributes(trans.get_position(), velocity, &forward);
+    if (this->eventInstance.isvalid())
+    {
+        const Math::matrix44 trans = this->entity->GetMatrix44(Attr::Transform);
+        Math::vector velocity(0);
+        if (this->entity->HasAttr(Attr::VelocityVector))
+        {
+            velocity = this->entity->GetFloat4(Attr::VelocityVector);
+        }
+        Math::vector forward = trans.get_zaxis();
+        this->eventInstance->Set3DAttributes(trans.get_position(), velocity, &forward);
+    }
 }
 
 }; // namespace Game
