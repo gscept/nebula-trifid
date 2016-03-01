@@ -32,8 +32,7 @@ using namespace BaseGameFeature;
 /**
 */
 GraphicsProperty::GraphicsProperty() :
-	nodesDirty(true),
-    loadSync(false)
+	nodesDirty(true)
 {
     // empty
 }

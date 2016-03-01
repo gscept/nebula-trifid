@@ -85,10 +85,8 @@ protected:
 	
     Ptr<Graphics::ModelEntity> modelEntity;
 	Util::Array<Util::String> modelNodeNames;
-
-    bool loadSync;
+    
 	bool nodesDirty;
-
 };
 __RegisterClass(GraphicsProperty);
 //------------------------------------------------------------------------------

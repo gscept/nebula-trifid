@@ -70,7 +70,7 @@ ActorGraphicsProperty::SetupGraphics()
     this->modelEntity = ModelEntity::Create();
     this->modelEntity->SetResourceId(resId);
     this->modelEntity->SetTransform(worldMatrix);
-    this->modelEntity->SetLoadSynced(this->loadSync);
+	this->modelEntity->SetLoadSynced(this->entity->GetBool(Attr::LoadSynced));
 	this->modelEntity->SetPickingId(this->GetEntity()->GetUniqueId());
     stage->AttachEntity(this->modelEntity.upcast<GraphicsEntity>());
     
