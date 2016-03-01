@@ -655,6 +655,7 @@ Level::SaveLevel()
                 this->WriteString(xmlWriter, "Id",entity->GetString(Attr::Id));
                 this->WriteString(xmlWriter, "Guid",entity->GetGuid(Attr::EntityGuid).AsString());				
                 this->WriteString(xmlWriter, "_Level", this->name.AsCharPtr());
+				this->WriteString(xmlWriter, "_Layers", entity->GetString(Attr::_Layers));
                 this->WriteString(xmlWriter, "Graphics",entity->GetString(Attr::Graphics));
                 this->WriteString(xmlWriter, "ParentGuid",entity->GetGuid(Attr::ParentGuid).AsString());		
                 this->WriteString(xmlWriter, "Transform", Util::String::FromMatrix44(entity->GetMatrix44(Attr::Transform)));
