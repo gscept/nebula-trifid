@@ -124,7 +124,7 @@ n_fchop(scalar f)
 /**
 */
 __forceinline scalar
-	n_fmod(scalar x, scalar y)
+n_fmod(scalar x, scalar y)
 {
 	return fmodf(x, y);
 }

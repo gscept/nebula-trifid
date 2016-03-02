@@ -50,7 +50,17 @@ private:
 	/// called by ogl4 shader server when ogl4 device is reset
 	void OnResetDevice();
 
+	/// setup descriptors
+	void SetupDescriptorSets();
+
 	AnyFX::ShaderEffect* vkEffect;
+	VkPipelineLayout pipelineLayout;
+
+	Util::Array<VkSampler> immutableSamplers;
+	VkPushConstantRange constantRange;
+	Util::FixedArray<VkDescriptorSetLayout> layouts;
+	Util::FixedArray<VkDescriptorSet> descriptorSets;
+
 	Ptr<CoreGraphics::ConstantBuffer> globalBlockBuffer;
 	Ptr<CoreGraphics::ShaderVariable> globalBlockBufferVar;
 };

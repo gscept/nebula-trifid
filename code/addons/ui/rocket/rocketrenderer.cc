@@ -190,7 +190,7 @@ RocketRenderer::RenderCompiledGeometry(Rocket::Core::CompiledGeometryHandle geom
 		// setup render device and draw
 		device->SetVertexLayout(nebGeometry->vb->GetVertexLayout());
 		device->SetIndexBuffer(nebGeometry->ib);
-		device->SetStreamSource(0, nebGeometry->vb, 0);
+		device->SetStreamVertexBuffer(0, nebGeometry->vb, 0);
 		device->SetPrimitiveGroup(nebGeometry->primGroup);
 		device->Draw();
 	}

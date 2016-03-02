@@ -39,7 +39,7 @@ private:
 	};
 
 	/// setup from AnyFX program
-	void Setup(AnyFX::VkProgram* program);
+	void Setup(AnyFX::VkProgram* program, VkPipelineLayout pipeline);
 
 	/// create shader object
 	void CreateShader(VkShaderModule* shader, unsigned binarySize, char* binary);
@@ -51,7 +51,6 @@ private:
 	AnyFX::VkProgram* program;
 	AnyFX::VkRenderState* renderState;
 
-	VkPushConstantRange constantRange;
 	Util::Array<VkDescriptorSetLayout> descriptorLayouts;
 	Util::Array<VkDescriptorSet> descriptorSets;
 
@@ -62,4 +61,6 @@ private:
 	VkGraphicsPipelineCreateInfo shaderPipelineInfo;
 	PipelineType pipelineType;
 };
+
+
 } // namespace Vulkan

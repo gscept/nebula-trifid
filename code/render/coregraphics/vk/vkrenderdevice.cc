@@ -202,6 +202,8 @@ VkRenderDevice::OpenVulkanContext()
 
 	this->surfaceSupport = (PFN_vkGetPhysicalDeviceSurfaceSupportKHR)vkGetInstanceProcAddr(this->instance, "vkGetPhysicalDeviceSurfaceSupportKHR");
 	this->surfaceFormats = (PFN_vkGetPhysicalDeviceSurfaceFormatsKHR)vkGetInstanceProcAddr(this->instance, "vkGetPhysicalDeviceSurfaceFormatsKHR");
+	this->surfaceCaps = (PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR)vkGetInstanceProcAddr(this->instance, "vkGetPhysicalDeviceSurfaceCapabilitiesKHR");
+	this->presentModes = (PFN_vkGetPhysicalDeviceSurfacePresentModesKHR)vkGetInstanceProcAddr(this->instance, "vkGetPhysicalDeviceSurfacePresentModesKHR");
 	n_assert(surfaceSupport != NULL);
 	n_assert(surfaceFormats != NULL);
 	VkBool32* canPresent = n_new_array(VkBool32, numQueues);
@@ -212,6 +214,9 @@ VkRenderDevice::OpenVulkanContext()
 
 	uint32_t gfxIdx = UINT32_MAX;
 	uint32_t queueIdx = UINT32_MAX;
+	this->renderQueueIdx = UINT32_MAX;
+	this->computeQueueIdx = UINT32_MAX;
+	this->transferQueueIdx = UINT32_MAX;
 
 	for (i = 0; i < numQueues; i++)
 	{
@@ -225,23 +230,25 @@ VkRenderDevice::OpenVulkanContext()
 					this->renderQueueIdx = j;
 					gfxIdx = i;
 					queueIdx = j;
-					goto esc;
+					break;
 				}
 			}
+			continue;
 		}
 
 		// also setup compute and transfer queues
-		if (this->queuesProps[i].queueFlags & VK_QUEUE_COMPUTE_BIT)
+		if (this->queuesProps[i].queueFlags & VK_QUEUE_COMPUTE_BIT && this->computeQueueIdx == UINT32_MAX)
 		{
 			this->computeQueueIdx = i;
+			continue;
 		}
-		if (this->queuesProps[i].queueFlags & VK_QUEUE_TRANSFER_BIT)
+		if (this->queuesProps[i].queueFlags & VK_QUEUE_TRANSFER_BIT && this->transferQueueIdx == UINT32_MAX)
 		{
 			this->transferQueueIdx = i;
+			continue;
 		}
 	}
 
-esc:
 	if (queueIdx == UINT32_MAX || gfxIdx == UINT32_MAX) n_error("VkDisplayDevice: Could not find a queue that supported screen present and graphics.\n");
 
 	// delete array of present flags
@@ -262,6 +269,9 @@ esc:
 	// get physical device features
 	VkPhysicalDeviceFeatures features;
 	vkGetPhysicalDeviceFeatures(this->physicalDev, &features);
+
+	VkPhysicalDeviceProperties props;
+	vkGetPhysicalDeviceProperties(this->physicalDev, &props);
 
 	VkDeviceCreateInfo deviceInfo =
 	{
@@ -286,6 +296,7 @@ esc:
 	this->swapChainDtor = (PFN_vkDestroySwapchainKHR)vkGetInstanceProcAddr(this->instance, "vkDestroySwapchainKHR");
 	this->swapChainNextImage = (PFN_vkAcquireNextImageKHR)vkGetInstanceProcAddr(this->instance, "vkAcquireNextImageKHR");
 	this->swapChainPresent = (PFN_vkQueuePresentKHR)vkGetInstanceProcAddr(this->instance, "vkQueuePresentKHR");
+	this->swapChainGetImages = (PFN_vkGetSwapchainImagesKHR)vkGetInstanceProcAddr(this->instance, "vkGetSwapchainImagesKHR");
 	n_assert(this->swapChainCtor != NULL);
 	n_assert(this->swapChainDtor != NULL);
 	n_assert(this->swapChainNextImage != NULL);
@@ -313,6 +324,90 @@ esc:
 		this->format = formats[0].format;
 	}
 	this->colorSpace = formats[0].colorSpace;
+
+	// get surface capabilities
+	VkSurfaceCapabilitiesKHR surfCaps;
+	res = this->surfaceCaps(this->physicalDev, VkDisplayDevice::Instance()->surface, &surfCaps);
+	n_assert(res == VK_SUCCESS);
+
+	uint32_t numPresentModes;
+	res = this->presentModes(this->physicalDev, VkDisplayDevice::Instance()->surface, &numPresentModes, NULL);
+	n_assert(res == VK_SUCCESS);
+
+	// get present modes
+	VkPresentModeKHR* presentModes = n_new_array(VkPresentModeKHR, numPresentModes);
+	res = this->presentModes(this->physicalDev, VkDisplayDevice::Instance()->surface, &numPresentModes, presentModes);
+	n_assert(res == VK_SUCCESS);
+
+	VkExtent2D swapchainExtent;
+	if (surfCaps.currentExtent.width == -1)
+	{
+		const DisplayMode& mode = DisplayDevice::Instance()->GetDisplayMode();
+		swapchainExtent.width = mode.GetWidth();
+		swapchainExtent.height = mode.GetHeight();
+	}
+	else
+	{
+		swapchainExtent = surfCaps.currentExtent;
+	}
+
+	// figure out the best present mode, mailo
+	VkPresentModeKHR swapchainPresentMode = VK_PRESENT_MODE_FIFO_KHR;
+	for (i = 0; i < numPresentModes; i++)
+	{
+		if (presentModes[i] == VK_PRESENT_MODE_MAILBOX_KHR)
+		{
+			swapchainPresentMode = VK_PRESENT_MODE_MAILBOX_KHR;
+			break;
+		}
+		if ((swapchainPresentMode != VK_PRESENT_MODE_MAILBOX_KHR) && (presentModes[i] == VK_PRESENT_MODE_IMMEDIATE_KHR))
+		{
+			swapchainPresentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
+		}
+	}
+
+	// get the optimal set of swap chain images, the more the better
+	uint32_t numSwapchainImages = surfCaps.minImageCount + 1;
+	if ((surfCaps.maxImageCount > 0) && (numSwapchainImages > surfCaps.maxImageCount)) numSwapchainImages = surfCaps.maxImageCount;
+
+	// create a transform
+	VkSurfaceTransformFlagBitsKHR transform;
+	if (surfCaps.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR) transform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+	else																	  transform = surfCaps.currentTransform;
+
+	VkSwapchainCreateInfoKHR swapchainInfo =
+	{
+		VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
+		NULL,
+		0,
+		VkDisplayDevice::Instance()->surface,
+		numSwapchainImages,
+		this->format,
+		this->colorSpace,
+		swapchainExtent,
+		1,
+		VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+		VK_SHARING_MODE_EXCLUSIVE,
+		this->renderQueueIdx,
+		NULL,
+		transform,
+		VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+		swapchainPresentMode,
+		true,
+		NULL
+	};
+
+	// create swapchain
+	res = this->swapChainCtor(this->dev, &swapchainInfo, NULL, &this->swapchain);
+	n_assert(res == VK_SUCCESS);
+
+	// get back buffers
+	uint32_t numSwapchainBackbuffers;
+	res = this->swapChainGetImages(this->dev, this->swapchain, &numSwapchainBackbuffers, NULL);
+	n_assert(res == VK_SUCCESS);
+
+	this->backbuffers = n_new_array(VkImage, numSwapchainBackbuffers);
+	res = this->swapChainGetImages(this->dev, this->swapchain, &numSwapchainBackbuffers, this->backbuffers);
 
 	VkPipelineCacheCreateInfo cacheInfo =
 	{
@@ -448,7 +543,33 @@ esc:
 void
 VkRenderDevice::CloseVulkanDevice()
 {
+	this->swapChainDtor(this->dev, this->swapchain, NULL);
+	delete[] this->backbuffers;
 
+	IndexT i;
+	for (i = 0; i < NumThreads; i++)
+	{
+		this->threads[i]->Stop();
+		this->threads[i] = 0;
+	}
+
+	// wait for all commands to be done first
+	VkResult res = vkQueueWaitIdle(this->displayQueue);
+	n_assert(res == VK_SUCCESS);
+
+	// free our main buffers, our secondary buffers should be fine so the pools should be free to destroy
+	vkFreeCommandBuffers(this->dev, this->cmdGfxPool[0], 1, &this->mainCmdGfxBuffer);
+	vkFreeCommandBuffers(this->dev, this->cmdCmpPool[0], 1, &this->mainCmdCmpBuffer);
+	vkFreeCommandBuffers(this->dev, this->cmdTransPool[0], 1, &this->mainCmdTransBuffer);
+	vkDestroyCommandPool(this->dev, this->cmdGfxPool[0], NULL);
+	vkDestroyCommandPool(this->dev, this->cmdGfxPool[1], NULL);
+	vkDestroyCommandPool(this->dev, this->cmdCmpPool[0], NULL);
+	vkDestroyCommandPool(this->dev, this->cmdCmpPool[1], NULL);
+	vkDestroyCommandPool(this->dev, this->cmdTransPool[0], NULL);
+	vkDestroyCommandPool(this->dev, this->cmdTransPool[1], NULL);
+
+	vkDestroyDevice(this->dev, NULL);
+	vkDestroyInstance(this->instance, NULL);
 }
 
 //------------------------------------------------------------------------------
@@ -519,19 +640,37 @@ VkRenderDevice::SetupBufferFormats()
 bool
 VkRenderDevice::BeginFrame(IndexT frameIndex)
 {
-	VkCommandBufferBeginInfo info =
+	const VkCommandBufferBeginInfo cmdInfo =
 	{
 		VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
 		NULL,
 		VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT,
 		VK_NULL_HANDLE
 	};
-	vkBeginCommandBuffer(this->mainCmdGfxBuffer, &info);
-	vkBeginCommandBuffer(this->mainCmdCmpBuffer, &info);
-	vkBeginCommandBuffer(this->mainCmdTransBuffer, &info);
+	vkBeginCommandBuffer(this->mainCmdGfxBuffer, &cmdInfo);
+	vkBeginCommandBuffer(this->mainCmdCmpBuffer, &cmdInfo);
+	vkBeginCommandBuffer(this->mainCmdTransBuffer, &cmdInfo);
 
 	// reset current thread
 	this->currentThread = 0;
+
+	const VkSemaphoreCreateInfo semInfo =
+	{
+		VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+		NULL,
+		0
+	};
+	vkCreateSemaphore(this->dev, &semInfo, NULL, &this->displaySemaphore);
+
+	VkResult res = this->swapChainNextImage(this->dev, this->swapchain, UINT64_MAX, this->displaySemaphore, VK_NULL_HANDLE, &this->currentBackbuffer);
+	if (res == VK_ERROR_OUT_OF_DATE_KHR)
+	{
+		// this means our swapchain needs a resize!
+	}
+	else
+	{
+		n_assert(res == VK_SUCCESS);
+	}
 	return RenderDeviceBase::BeginFrame(frameIndex);
 }
 
@@ -628,7 +767,7 @@ VkRenderDevice::BeginBatch(CoreGraphics::FrameBatchType::Code batchType)
 	RenderDeviceBase::BeginBatch(batchType);
 	
 	// allocate a command buffer per thread
-	VkCommandBufferAllocateInfo info =
+	const VkCommandBufferAllocateInfo info =
 	{
 		VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
 		NULL,
@@ -640,7 +779,7 @@ VkRenderDevice::BeginBatch(CoreGraphics::FrameBatchType::Code batchType)
 	n_assert(res == VK_SUCCESS);
 
 	// begin buffers
-	VkCommandBufferBeginInfo beginInfo =
+	const VkCommandBufferBeginInfo beginInfo =
 	{
 		VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
 		NULL,
@@ -730,8 +869,8 @@ VkRenderDevice::EndBatch()
 		vkEndCommandBuffer(this->dispatchableCmdBuffers[i]);
 	}
 
-	VkPipelineStageFlags flags = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT;
-	VkSubmitInfo info =
+	const VkPipelineStageFlags flags = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT;
+	const VkSubmitInfo info =
 	{
 		VK_STRUCTURE_TYPE_SUBMIT_INFO,
 		NULL,
@@ -790,16 +929,47 @@ VkRenderDevice::EndFrame(IndexT frameIndex)
 void
 VkRenderDevice::Present()
 {
+	// submit a sync point
+	VkPipelineStageFlags flags = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+	const VkSubmitInfo submitInfo = 
+	{
+		VK_STRUCTURE_TYPE_SUBMIT_INFO,
+		NULL,
+		1,
+		&this->displaySemaphore,
+		&flags, 
+		0,
+		NULL,
+		0,
+		NULL
+	};
+	VkResult res = vkQueueSubmit(this->displayQueue, 1, &submitInfo, NULL);
+	n_assert(res == VK_SUCCESS);
+
+	// destroy semaphore
+	vkDestroySemaphore(this->dev, this->displaySemaphore, NULL);
+
+	// present frame
 	const VkPresentInfoKHR info =
 	{
 		VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
 		NULL,
 		0,
 		NULL,
-
+		1,
+		&this->swapchain,
+		&this->currentBackbuffer
 	};
-	this->swapChainPresent(this->displayQueue, &info);
-	this->swapChainNextImage(this->dev, )
+	res = this->swapChainPresent(this->displayQueue, &info);
+
+	if (res == VK_ERROR_OUT_OF_DATE_KHR)
+	{
+		// window has been resized!
+	}
+	else
+	{
+		n_assert(res == VK_SUCCESS);
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -832,10 +1002,10 @@ void
 VkRenderDevice::SetViewport(const Math::rectangle<int>& rect, int index)
 {
 	VkViewport vp;
-	vp.width = rect.width();
-	vp.height = rect.height();
-	vp.x = rect.left;
-	vp.y = rect.top;
+	vp.width = (float)rect.width();
+	vp.height = (float)rect.height();
+	vp.x = (float)rect.left;
+	vp.y = (float)rect.top;
 	vkCmdSetViewport(this->mainCmdGfxBuffer, index, 1, &vp);
 }
 

@@ -18,6 +18,15 @@ public:
 	VkShaderStorageBuffer();
 	/// destructor
 	virtual ~VkShaderStorageBuffer();
+
+	/// setup buffer
+	void Setup(const SizeT numBackingBuffers = DefaultNumBackingBuffers);
+	/// discard buffer
+	void Discard();
 private:
+
+	void* buffer;
+	VkBuffer buf;
+	VkDeviceMemory mem;
 };
 } // namespace Vulkan

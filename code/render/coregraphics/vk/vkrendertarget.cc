@@ -213,10 +213,10 @@ VkRenderTarget::SetResolveRect(const Math::rectangle<int>& r)
 {
 	this->viewports.SetSize(1);
 	VkViewport viewport;
-	viewport.width = r.width();
-	viewport.height = r.height();
-	viewport.x = r.left;
-	viewport.y = r.top;
+	viewport.width = (float)r.width();
+	viewport.height = (float)r.height();
+	viewport.x = (float)r.left;
+	viewport.y = (float)r.top;
 	this->viewports[0] = viewport;
 }
 
@@ -231,10 +231,10 @@ VkRenderTarget::SetResolveRectArray(const Util::Array<Math::rectangle<int> >& re
 	for (i = 0; i < rects.Size(); i++)
 	{
 		VkViewport viewport;
-		viewport.width = rects[i].width();
-		viewport.height = rects[i].height();
-		viewport.x = rects[i].left;
-		viewport.y = rects[i].top;
+		viewport.width = (float)rects[i].width();
+		viewport.height = (float)rects[i].height();
+		viewport.x = (float)rects[i].left;
+		viewport.y = (float)rects[i].top;
 		this->viewports[i] = viewport;
 	}
 }

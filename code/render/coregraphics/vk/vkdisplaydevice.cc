@@ -64,6 +64,7 @@ VkDisplayDevice::SetupSwapchain()
 
 	VkResult status;
 	status = glfwCreateWindowSurface(inst, this->window, NULL, &this->surface);
+	
 	n_assert(status == VK_SUCCESS);
 }
 

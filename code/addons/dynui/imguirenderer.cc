@@ -62,7 +62,7 @@ ImguiDrawFunction(ImDrawData* data)
     shader->EndUpdate();
 
 	// setup device
-	device->SetStreamSource(0, vbo, 0);
+	device->SetStreamVertexBuffer(0, vbo, 0);
 	device->SetVertexLayout(vbo->GetVertexLayout());
 	device->SetIndexBuffer(ibo);
 

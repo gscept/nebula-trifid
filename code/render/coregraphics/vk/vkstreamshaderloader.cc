@@ -62,6 +62,7 @@ VkStreamShaderLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 		res->vkEffect = effect;
 		res->shaderName = res->GetResourceId().AsString();
 		res->shaderIdentifierCode = ShaderIdentifier::FromName(res->shaderName.AsString());
+		res->SetupDescriptorSets();
 
 		// setup shader variations
 		const eastl::vector<AnyFX::ProgramBase*>& programs = effect->GetPrograms();
@@ -76,7 +77,7 @@ VkStreamShaderLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 			// program is only valid if either vertex shader (for graphics) or compute shader (for computes)
 			if (program->shaderBlock.vs != NULL || program->shaderBlock.cs != NULL)
 			{
-				variation->Setup(program);
+				variation->Setup(program, res->pipelineLayout);
 				res->variations.Add(variation->GetFeatureMask(), variation);
 			}
 		}
@@ -97,7 +98,7 @@ VkStreamShaderLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 			// setup variable from AnyFX variable
 			var->Setup(effectVar);
 			res->variables.Append(var);
-			res->variablesByName.Add(var->GetName(), var);
+			res->variablesByName.Add(effectVar->name.c_str(), var);
 		}
 
 		// load shader storage buffer variables
@@ -110,9 +111,10 @@ VkStreamShaderLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 			// create new variable
 			Ptr<ShaderVariable> var = ShaderVariable::Create();
 
+			// setup variable from AnyFX varblock
 			var->Setup(block);
 			res->variables.Append(var);
-			res->variablesByName.Add(var->GetName(), var);
+			res->variablesByName.Add(block->name.c_str(), var);
 		}
 
 		// load uniform block variables
@@ -125,10 +127,10 @@ VkStreamShaderLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 			// create a new variable
 			Ptr<ShaderVariable> var = ShaderVariable::Create();
 
-			// setup variable on varblock, this allow us to set the buffer the block should use
+			// setup variable from AnyFX varbuffer
 			var->Setup(buffer);
 			res->variables.Append(var);
-			res->variablesByName.Add(var->GetName(), var);
+			res->variablesByName.Add(buffer->name.c_str(), var);
 		}
 
 		// setup variables belonging to the 'default' variable block, which is where all global variables end up

@@ -16,7 +16,13 @@ __ImplementClass(Vulkan::VkShaderProgram, 'VKSP', Base::ShaderVariationBase);
 //------------------------------------------------------------------------------
 /**
 */
-VkShaderProgram::VkShaderProgram()
+VkShaderProgram::VkShaderProgram() :
+	vs(VK_NULL_HANDLE),
+	hs(VK_NULL_HANDLE),
+	ds(VK_NULL_HANDLE),
+	gs(VK_NULL_HANDLE),
+	ps(VK_NULL_HANDLE),
+	cs(VK_NULL_HANDLE)
 {
 	// empty
 }
@@ -55,12 +61,13 @@ VkShaderProgram::Commit()
 /**
 */
 void
-VkShaderProgram::Setup(AnyFX::VkProgram* program)
+VkShaderProgram::Setup(AnyFX::VkProgram* program, VkPipelineLayout pipeline)
 {
 	this->program = program;
 	this->renderState = renderState;
 	String mask = program->GetAnnotationString("Mask").c_str();
 	String name = program->name.c_str();
+	this->pipelineLayout = pipeline;
 
 	this->CreateShader(&this->vs, program->shaderBlock.vsBinarySize, program->shaderBlock.vsBinary);
 	this->CreateShader(&this->hs, program->shaderBlock.hsBinarySize, program->shaderBlock.hsBinary);
@@ -218,17 +225,6 @@ VkShaderProgram::SetupAsGraphics()
 	};
 	vkRenderState->SetupBlend(&blendInfo);
 
-	VkPipelineLayoutCreateInfo layoutInfo =
-	{
-		VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
-		NULL,
-		0,
-		this->descriptorLayouts.Size(),
-		&this->descriptorLayouts[0],
-		1,
-		&this->constantRange
-	};
-
 	// setup dynamic state, we only support dynamic viewports and scissor rects
 	VkDynamicState dynamicStates[] = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
 	VkPipelineDynamicStateCreateInfo dynamicInfo = 
@@ -239,10 +235,6 @@ VkShaderProgram::SetupAsGraphics()
 		sizeof(dynamicStates) / sizeof(VkDynamicState),
 		dynamicStates
 	};
-
-	// create 
-	VkResult res = vkCreatePipelineLayout(VkRenderDevice::dev, &layoutInfo, NULL, &this->pipelineLayout);
-	assert(res == VK_SUCCESS);
 
 	// setup pipeline information regarding the shader state
 	this->shaderPipelineInfo =

@@ -101,6 +101,8 @@ private:
 	friend class VkRenderTargetCube;
 	friend class VkMultipleRenderTarget;
 	friend class VkVertexLayout;
+	friend class VkUniformBuffer;
+	friend class VkShaderStorageBuffer;
 
 	enum PipelineInfoBits
 	{
@@ -205,6 +207,7 @@ private:
 	PFN_vkDestroySwapchainKHR swapChainDtor;
 	PFN_vkAcquireNextImageKHR swapChainNextImage;
 	PFN_vkQueuePresentKHR swapChainPresent;
+	PFN_vkGetSwapchainImagesKHR swapChainGetImages;
 
 	uint32_t numQueues;
 	VkQueueFamilyProperties* queuesProps;
@@ -216,8 +219,15 @@ private:
 	// stuff used for the swap chain
 	VkFormat format;
 	VkColorSpaceKHR colorSpace;
+	VkSwapchainKHR swapchain;
+
+	uint32_t currentBackbuffer;
+	VkImage* backbuffers;
+	VkSemaphore displaySemaphore;
 
 	PFN_vkGetPhysicalDeviceSurfaceSupportKHR surfaceSupport;
 	PFN_vkGetPhysicalDeviceSurfaceFormatsKHR surfaceFormats;
+	PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR surfaceCaps;
+	PFN_vkGetPhysicalDeviceSurfacePresentModesKHR presentModes;
 };
 } // namespace Vulkan

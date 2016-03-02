@@ -45,5 +45,20 @@ private:
 	void Setup(AnyFX::VkVarbuffer* var);
 	/// setup from AnyFX varblock
 	void Setup(AnyFX::VkVarblock* var);
+
+	struct BufferBinding
+	{
+		Ptr<CoreGraphics::ConstantBuffer> uniformBuffer;
+		uint32_t offset;
+		uint32_t size;
+		int8_t* defaultValue;
+	} *bufferBinding;
+
+	union
+	{
+		AnyFX::VkVariable* var;
+		AnyFX::VkVarbuffer* buffer;
+		AnyFX::VkVarblock* block;
+	};
 };
 } // namespace Vulkan

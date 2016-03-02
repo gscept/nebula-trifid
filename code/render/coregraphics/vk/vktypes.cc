@@ -85,4 +85,13 @@ VkTypes::AsVkNumComponents(CoreGraphics::VertexComponent::Format f)
 	return 0;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+VkFormat
+VkTypes::AsVkVertexType(CoreGraphics::VertexComponent::Format f)
+{
+	return VK_FORMAT_R32_SINT;
+}
+
 } // namespace Vulkan
