@@ -73,7 +73,7 @@ public:
 	/// trigger refresh of available rooms on master
 	virtual void UpdateRoomList();
 	/// join a server returned by the master server
-	void JoinRoom(const Util::String & guid);
+    void JoinRoom(const Util::String & guid, bool isIp=false);
 	/// create lobby and publish to master server (if enabled)
 	void CreateRoom();
 	/// unpublishes and resets network

@@ -74,6 +74,8 @@ public:
 	virtual void SearchForGames() = 0;
 	///
 	virtual void Connect(const RakNet::RakNetGUID &guid) = 0;
+    ///
+    virtual void ConnectDirect(const RakNet::SystemAddress &addr) = 0;
 
 	/// internal
 	void DispatchMessageStream(RakNet::BitStream * msgStream, RakNet::Packet *packet);

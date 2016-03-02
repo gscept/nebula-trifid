@@ -380,12 +380,20 @@ NetworkGame::CreateRoom()
 /**
 */
 void
-NetworkGame::JoinRoom(const Util::String & guid)
+NetworkGame::JoinRoom(const Util::String & guid, bool isIp)
 {
 	this->creator = false;
-	RakNet::RakNetGUID rguid;
-	rguid.FromString(guid.AsCharPtr());
-	NetworkServer::Instance()->Connect(rguid);
+    if (isIp)
+    {
+        RakNet::SystemAddress adr(guid.AsCharPtr());
+        NetworkServer::Instance()->ConnectDirect(adr);
+    }
+    else
+    {
+        RakNet::RakNetGUID rguid;
+        rguid.FromString(guid.AsCharPtr());
+        NetworkServer::Instance()->Connect(rguid);
+    }
 }
 
 //------------------------------------------------------------------------------

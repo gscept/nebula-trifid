@@ -44,8 +44,10 @@ public:
     /// perform client-side per-frame updates
 	virtual void OnFrame();
 
-	/// connect to server using direct punchthrough
+	/// connect to server using 
 	void Connect(const RakNet::RakNetGUID &guid);
+    ///
+    void ConnectDirect(const RakNet::SystemAddress &addr);
 
 	/// setup low level network handling, NAT punch, UPNP
 	virtual bool SetupLowlevelNetworking();

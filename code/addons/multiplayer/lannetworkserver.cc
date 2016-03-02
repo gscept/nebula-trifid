@@ -259,7 +259,7 @@ LanNetworkServer::CreateRoom()
 	RakNet::SocketDescriptor sd;
 	sd.socketFamily = AF_INET; // Only IPV4 supports broadcast on 255.255.255.255
 	sd.port = SERVER_PORT;
-
+    
 	StartupResult sr = rakPeer->Startup(32, &sd, 1);
 	RakAssert(sr == RAKNET_STARTED);
 	this->rakPeer->SetMaximumIncomingConnections(32);
@@ -339,6 +339,15 @@ LanNetworkServer::Connect(const RakNet::RakNetGUID &guid)
 	RakNet::SystemAddress client(table->GetString(Attr::GameServerAddress, row).AsCharPtr());
 
 	this->rakPeer->Connect(client.ToString(false),client.GetPort(),0,0);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+LanNetworkServer::ConnectDirect(const RakNet::SystemAddress &client)
+{
+    this->rakPeer->Connect(client.ToString(false), client.GetPort(), 0, 0);
 }
 
 //------------------------------------------------------------------------------

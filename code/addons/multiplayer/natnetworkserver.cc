@@ -603,6 +603,15 @@ NatNetworkServer::UnpublishFromMaster()
 /**
 */
 void
+NatNetworkServer::ConnectDirect(const RakNet::SystemAddress &addr)
+{
+    n_error("not implemented");
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 NatNetworkServer::MasterHelperThread::DoWork()
 {
 	Ptr<Http::HttpClient> client = Http::HttpClient::Create();
