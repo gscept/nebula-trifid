@@ -49,7 +49,6 @@ private:
 	void SetupAsCompute();
 
 	AnyFX::VkProgram* program;
-	AnyFX::VkRenderState* renderState;
 
 	Util::Array<VkDescriptorSetLayout> descriptorLayouts;
 	Util::Array<VkDescriptorSet> descriptorSets;

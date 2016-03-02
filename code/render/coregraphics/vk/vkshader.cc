@@ -132,6 +132,7 @@ VkShader::SetupDescriptorSets()
 	for (i = 0; i < varblocks.size(); i++)
 	{
 		AnyFX::VkVarblock* block = static_cast<AnyFX::VkVarblock*>(varblocks[i]);
+		if (block->variables.empty()) continue;
 		if (block->push)
 		{
 			this->constantRange.stageFlags = VK_SHADER_STAGE_ALL;
@@ -214,6 +215,8 @@ VkShader::SetupDescriptorSets()
 		}
 	}
 
+	// skip the rest if we don't have any descriptor sets
+	if (sets.IsEmpty()) return;
 	this->layouts.Resize(sets.Size());
 	for (IndexT i = 0; i < sets.Size(); i++)
 	{
@@ -251,7 +254,7 @@ VkShader::SetupDescriptorSets()
 		NULL,
 		0,
 		this->layouts.Size(),
-		&this->layouts[0],
+		layouts.Size() > 0 ? &this->layouts[0] : NULL,
 		1,
 		&this->constantRange
 	};
@@ -267,12 +270,12 @@ VkShader::SetupDescriptorSets()
 		NULL,
 		VkRenderDevice::descPool,
 		layouts.Size(),
-		&layouts[0]
+		layouts.Size() > 0 ? &this->layouts[0] : NULL
 	};
 
 	debug++;
 	this->descriptorSets.Resize(layouts.Size());
-	res = vkAllocateDescriptorSets(VkRenderDevice::dev, &setInfo, &this->descriptorSets[0]);
+	res = vkAllocateDescriptorSets(VkRenderDevice::dev, &setInfo, this->descriptorSets.Size() > 0 ? &this->descriptorSets[0] : NULL);
 	assert(res == VK_SUCCESS);
 }
 

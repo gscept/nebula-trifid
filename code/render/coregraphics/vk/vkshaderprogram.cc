@@ -64,7 +64,6 @@ void
 VkShaderProgram::Setup(AnyFX::VkProgram* program, VkPipelineLayout pipeline)
 {
 	this->program = program;
-	this->renderState = renderState;
 	String mask = program->GetAnnotationString("Mask").c_str();
 	String name = program->name.c_str();
 	this->pipelineLayout = pipeline;
@@ -99,7 +98,7 @@ VkShaderProgram::CreateShader(VkShaderModule* shader, unsigned binarySize, char*
 			VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
 			NULL,
 			0,										// flags
-			binarySize / sizeof(unsigned),	// Vulkan expects the binary to be uint32, so we must assume size is in units of 4 bytes
+			binarySize,	// Vulkan expects the binary to be uint32, so we must assume size is in units of 4 bytes
 			(unsigned*)binary
 		};
 
@@ -253,7 +252,7 @@ VkShaderProgram::SetupAsGraphics()
 		this->pipelineLayout,
 		NULL,							// pass specific stuff, keep as NULL
 		0,
-		0, -1							// base pipeline is kept as NULL too, because this is the base for all derivatives
+		VK_NULL_HANDLE, 0							// base pipeline is kept as NULL too, because this is the base for all derivatives
 	};
 
 	// be sure to flag compute shader as null
@@ -268,15 +267,18 @@ void
 VkShaderProgram::SetupAsCompute()
 {
 	// create 6 shader info stages for each shader type
-	VkPipelineShaderStageCreateInfo shader;
+	n_assert(0 != this->cs);
 
-	if (0 != this->cs)
+	VkPipelineShaderStageCreateInfo shader =
 	{
-		shader.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		shader.pNext = NULL;
-		shader.stage = VK_SHADER_STAGE_COMPUTE_BIT;
-		shader.module = this->cs;
-	}
+		VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+		NULL,
+		0,
+		VK_SHADER_STAGE_COMPUTE_BIT,
+		this->cs,
+		"main",
+		NULL,
+	};
 
 	VkComputePipelineCreateInfo info =
 	{
@@ -284,12 +286,13 @@ VkShaderProgram::SetupAsCompute()
 		NULL,
 		VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT,
 		shader,
-		NULL,
-		NULL, -1							// base pipeline is kept as 'NULL' too, because this is the base for all derivatives
+		this->pipelineLayout,
+		VK_NULL_HANDLE, 0							// base pipeline is kept as 'NULL' too, because this is the base for all derivatives
 	};
 
 	// create pipeline
-	vkCreateComputePipelines(VkRenderDevice::dev, VkRenderDevice::cache, 1, &info, NULL, &this->computePipeline);
+	VkResult res = vkCreateComputePipelines(VkRenderDevice::dev, VkRenderDevice::cache, 1, &info, NULL, &this->computePipeline);
+	n_assert(res == VK_SUCCESS);
 	this->pipelineType = Compute;
 }
 

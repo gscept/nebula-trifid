@@ -107,6 +107,7 @@ VkStreamShaderLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 		{
 			// get AnyFX variable
 			AnyFX::VkVarblock* block = static_cast<AnyFX::VkVarblock*>(varblocks[i]);
+			if (block->variables.empty()) continue;
 
 			// create new variable
 			Ptr<ShaderVariable> var = ShaderVariable::Create();

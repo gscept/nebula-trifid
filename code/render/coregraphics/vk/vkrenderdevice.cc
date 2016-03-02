@@ -3,6 +3,7 @@
 // (C) 2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
+#include "coregraphics/config.h"
 #include "vkrenderdevice.h"
 #include "coregraphics/displaydevice.h"
 #include "app/application.h"
@@ -43,6 +44,8 @@ __ImplementSingleton(Vulkan::VkRenderDevice);
 
 VkDevice VkRenderDevice::dev;
 VkQueue VkRenderDevice::displayQueue;
+VkQueue VkRenderDevice::computeQueue;
+VkQueue VkRenderDevice::transferQueue;
 VkInstance VkRenderDevice::instance;
 VkPhysicalDevice VkRenderDevice::physicalDev;
 VkPipelineCache VkRenderDevice::cache;
@@ -135,10 +138,10 @@ VkRenderDevice::OpenVulkanContext()
 		this->extensions[this->usedExtensions++] = requiredExtensions[i];
 	}
 	
-	const char* layers[] = { "VK_LAYER_LUNARG_mem_tracker" };
+	const char* layers[] = { "VK_LAYER_LUNARG_mem_tracker", "VK_LAYER_LUNARG_threading", "VK_LAYER_LUNARG_param_checker", "VK_LAYER_LUNARG_draw_state" };
 #if NEBULAT_VULKAN_DEBUG
 	this->extensions[this->usedExtensions++] = VK_EXT_DEBUG_REPORT_EXTENSION_NAME;
-	const int numLayers = 1;
+	const int numLayers = 4;
 #else
 	const int numLayers = 0;
 #endif
@@ -213,11 +216,17 @@ VkRenderDevice::OpenVulkanContext()
 	}
 
 	uint32_t gfxIdx = UINT32_MAX;
+	uint32_t computeIdx = UINT32_MAX;
+	uint32_t transferIdx = UINT32_MAX;
 	uint32_t queueIdx = UINT32_MAX;
 	this->renderQueueIdx = UINT32_MAX;
 	this->computeQueueIdx = UINT32_MAX;
 	this->transferQueueIdx = UINT32_MAX;
 
+	// create three queues for each family
+	Util::FixedArray<uint> indexMap;
+	indexMap.Resize(numQueues);
+	indexMap.Fill(0);
 	for (i = 0; i < numQueues; i++)
 	{
 		if (this->queuesProps[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
@@ -228,43 +237,53 @@ VkRenderDevice::OpenVulkanContext()
 				if (canPresent[i] == VK_TRUE)
 				{
 					this->renderQueueIdx = j;
-					gfxIdx = i;
-					queueIdx = j;
+					gfxIdx = indexMap[i];
+					indexMap[i]++;
 					break;
 				}
 			}
-			continue;
 		}
 
 		// also setup compute and transfer queues
 		if (this->queuesProps[i].queueFlags & VK_QUEUE_COMPUTE_BIT && this->computeQueueIdx == UINT32_MAX)
 		{
-			this->computeQueueIdx = i;
-			continue;
+			computeIdx = i;
+			this->computeQueueIdx = indexMap[i];
+			indexMap[i]++;
 		}
 		if (this->queuesProps[i].queueFlags & VK_QUEUE_TRANSFER_BIT && this->transferQueueIdx == UINT32_MAX)
 		{
-			this->transferQueueIdx = i;
-			continue;
+			transferIdx = i;
+			this->transferQueueIdx = indexMap[i];
+			indexMap[i]++;
 		}
 	}
 
-	if (queueIdx == UINT32_MAX || gfxIdx == UINT32_MAX) n_error("VkDisplayDevice: Could not find a queue that supported screen present and graphics.\n");
+	if (this->renderQueueIdx == UINT32_MAX || gfxIdx == UINT32_MAX) n_error("VkDisplayDevice: Could not find a queue that supported screen present and graphics.\n");
 
 	// delete array of present flags
 	n_delete_array(canPresent);
 
 	// create device
-	float prios[] = {0.0f};
-	VkDeviceQueueCreateInfo queueInfo =
+	Util::FixedArray<Util::FixedArray<float>> prios;
+	Util::FixedArray<VkDeviceQueueCreateInfo> queueInfos;
+	queueInfos.Resize(numQueues);
+	prios.Resize(numQueues);
+
+	for (i = 0; i < numQueues; i++)
 	{
-		VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
-		NULL,
-		0,
-		gfxIdx,
-		1,
-		prios
-	};
+		prios[i].Resize(indexMap[i]);
+		prios[i].Fill(0.0f);
+		queueInfos[i] =
+		{
+			VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+			NULL,
+			0,
+			i,
+			indexMap[i],
+			&prios[i][0]
+		};
+	}
 
 	// get physical device features
 	VkPhysicalDeviceFeatures features;
@@ -278,8 +297,8 @@ VkRenderDevice::OpenVulkanContext()
 		VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
 		NULL,
 		0,
-		1,
-		&queueInfo,
+		queueInfos.Size(),
+		&queueInfos[0],
 		numLayers,
 		layers,
 		this->usedPhysicalExtensions,
@@ -302,8 +321,10 @@ VkRenderDevice::OpenVulkanContext()
 	n_assert(this->swapChainNextImage != NULL);
 	n_assert(this->swapChainPresent != NULL);
 
-	// setup display queue in render device
-	vkGetDeviceQueue(VkRenderDevice::dev, gfxIdx, queueIdx, &VkRenderDevice::displayQueue);
+	// setup display queue in render device (gfxIdx is different, because it's family doesn't have to be the displayable one)
+	vkGetDeviceQueue(VkRenderDevice::dev, gfxIdx, this->renderQueueIdx, &VkRenderDevice::displayQueue);
+	vkGetDeviceQueue(VkRenderDevice::dev, computeIdx, this->computeQueueIdx, &VkRenderDevice::computeQueue);
+	vkGetDeviceQueue(VkRenderDevice::dev, transferIdx, this->transferQueueIdx, &VkRenderDevice::transferQueue);
 
 	// find available surface formats
 	uint32_t numFormats;
@@ -413,6 +434,7 @@ VkRenderDevice::OpenVulkanContext()
 	{
 		VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO,
 		NULL,
+		0,
 		0,
 		NULL
 	};

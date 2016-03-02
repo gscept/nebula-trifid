@@ -160,6 +160,8 @@ private:
 
 	static VkDevice dev;
 	static VkQueue displayQueue;
+	static VkQueue computeQueue;
+	static VkQueue transferQueue;
 	static VkInstance instance;
 	static VkPhysicalDevice physicalDev;
 	static VkPipelineCache cache;
