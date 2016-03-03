@@ -19,5 +19,7 @@ public:
 	/// destructor
 	virtual ~VkStreamTextureLoader();
 private:
+	/// setup the texture from a Nebula3 stream
+	virtual bool SetupResourceFromStream(const Ptr<IO::Stream>& stream);
 };
 } // namespace Vulkan

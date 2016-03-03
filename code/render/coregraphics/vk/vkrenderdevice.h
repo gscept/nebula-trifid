@@ -103,6 +103,7 @@ private:
 	friend class VkVertexLayout;
 	friend class VkUniformBuffer;
 	friend class VkShaderStorageBuffer;
+	friend class VkStreamTextureLoader;
 
 	enum PipelineInfoBits
 	{

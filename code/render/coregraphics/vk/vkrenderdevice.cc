@@ -1087,7 +1087,7 @@ VkRenderDevice::AllocateBufferMemory(const VkBuffer& buf, VkDeviceMemory& bufmem
 	vkGetBufferMemoryRequirements(VkRenderDevice::dev, buf, &req);
 
 	uint32_t memtype;
-	VkResult err = VkRenderDevice::Instance()->GetMemoryType(req.memoryTypeBits, flags, memtype);
+	VkResult err = this->GetMemoryType(req.memoryTypeBits, flags, memtype);
 	n_assert(err == VK_SUCCESS);
 	VkMemoryAllocateInfo meminfo =
 	{
@@ -1117,10 +1117,10 @@ VkRenderDevice::AllocateImageMemory(const VkImage& img, VkDeviceMemory& imgmem, 
 {
 	// now attain memory requirements so we get a properly aligned memory storage
 	VkMemoryRequirements req;
-	vkGetImageMemoryRequirements(VkRenderDevice::dev, imgmem, &req);
+	vkGetImageMemoryRequirements(VkRenderDevice::dev, img, &req);
 
 	uint32_t memtype;
-	VkResult err = VkRenderDevice::Instance()->GetMemoryType(req.memoryTypeBits, flags, memtype);
+	VkResult err = this->GetMemoryType(req.memoryTypeBits, flags, memtype);
 	n_assert(err == VK_SUCCESS);
 	VkMemoryAllocateInfo meminfo =
 	{

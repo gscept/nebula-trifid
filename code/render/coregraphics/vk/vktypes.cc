@@ -20,6 +20,15 @@ VkTypes::AsVkFormat(CoreGraphics::PixelFormat::Code p)
 //------------------------------------------------------------------------------
 /**
 */
+VkFormat
+VkTypes::AsVkFormat(ILenum p)
+{
+	return VK_FORMAT_UNDEFINED;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 CoreGraphics::PixelFormat::Code
 VkTypes::AsNebulaPixelFormat(VkFormat f)
 {

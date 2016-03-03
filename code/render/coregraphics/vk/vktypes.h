@@ -14,6 +14,7 @@
 #include "coregraphics/imagefileformat.h"
 #include "coregraphics/indextype.h"
 #include "coregraphics/base/resourcebase.h"
+#include "IL/il.h"
 namespace Vulkan
 {
 class VkTypes
@@ -23,6 +24,8 @@ public:
 #pragma region Pixel stuff
 	/// convert Nebula pixel format to vulkan pixel format
 	static VkFormat AsVkFormat(CoreGraphics::PixelFormat::Code p);
+	/// convert Nebula pixel format to vulkan pixel format
+	static VkFormat AsVkFormat(ILenum p);
 	/// convert vulkan format back to nebula format
 	static CoreGraphics::PixelFormat::Code AsNebulaPixelFormat(VkFormat f);
 	/// convert pixel format to Vulkan component mapping
