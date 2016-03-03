@@ -233,17 +233,20 @@ LanNetworkServer::HandlePacket(RakNet::Packet * packet)
 void
 LanNetworkServer::SearchForGames()
 {	
-	RakNet::SocketDescriptor sd;
-	sd.socketFamily = AF_INET; // Only IPV4 supports broadcast on 255.255.255.255
-	sd.port = CLIENT_PORT;
+	if (this->state == NetworkServer::IDLE)
+	{
+		RakNet::SocketDescriptor sd;
+		sd.socketFamily = AF_INET; // Only IPV4 supports broadcast on 255.255.255.255
+		sd.port = CLIENT_PORT;
 
-	StartupResult sr = rakPeer->Startup(32, &sd, 1);
-	RakAssert(sr == RAKNET_STARTED);
-	this->rakPeer->SetMaximumIncomingConnections(32);
-	this->rakPeer->SetTimeoutTime(CONNECTION_TIMEOUT, RakNet::UNASSIGNED_SYSTEM_ADDRESS);
-	n_printf("Our guid is %s\n", this->rakPeer->GetGuidFromSystemAddress(RakNet::UNASSIGNED_SYSTEM_ADDRESS).ToString());
-	n_printf("Started on %s\n", this->rakPeer->GetMyBoundAddress().ToString(true));
-	this->state = NetworkServer::NETWORK_STARTED;
+		StartupResult sr = rakPeer->Startup(32, &sd, 1);
+		RakAssert(sr == RAKNET_STARTED);
+		this->rakPeer->SetMaximumIncomingConnections(32);
+		this->rakPeer->SetTimeoutTime(CONNECTION_TIMEOUT, RakNet::UNASSIGNED_SYSTEM_ADDRESS);
+		n_printf("Our guid is %s\n", this->rakPeer->GetGuidFromSystemAddress(RakNet::UNASSIGNED_SYSTEM_ADDRESS).ToString());
+		n_printf("Started on %s\n", this->rakPeer->GetMyBoundAddress().ToString(true));
+		this->state = NetworkServer::NETWORK_STARTED;
+	}
 	this->host = false;
 }
 
@@ -277,14 +280,10 @@ LanNetworkServer::CreateRoom()
 void
 LanNetworkServer::CancelRoom()
 {
-	RakNet::SocketDescriptor sd;
-	sd.socketFamily = AF_INET; // Only IPV4 supports broadcast on 255.255.255.255
-	sd.port = CLIENT_PORT;
-
-	StartupResult sr = rakPeer->Startup(32, &sd, 1);
-	RakAssert(sr == RAKNET_STARTED);
-	this->rakPeer->SetMaximumIncomingConnections(32);
-	this->rakPeer->SetTimeoutTime(CONNECTION_TIMEOUT, RakNet::UNASSIGNED_SYSTEM_ADDRESS);
+	if (this->state != NetworkServer::IDLE)
+	{
+		this->rakPeer->Shutdown(100);
+	}	
 	this->host = false;
 	this->state = IDLE;
 }
