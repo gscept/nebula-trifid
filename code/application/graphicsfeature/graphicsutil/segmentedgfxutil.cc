@@ -30,8 +30,7 @@ SegmentedGfxUtil::SegmentedGfxUtil()
 //------------------------------------------------------------------------------
 /**
 */
-Util::Array<Ptr<Graphics::ModelEntity> >
-SegmentedGfxUtil::CreateAndSetupGraphicsEntities(const Util::String& resName, const Math::matrix44& worldMatrix, IndexT pickingId, const Ptr<Graphics::Stage> stage, bool instanced, bool castShadows)
+Util::Array<Ptr<Graphics::ModelEntity> > SegmentedGfxUtil::CreateAndSetupGraphicsEntities(const Util::String& resName, const Math::matrix44& worldMatrix, IndexT pickingId, const Ptr<Graphics::Stage> stage /*= 0*/, bool instanced /*= false*/, bool castShadows /*= true*/, bool loadSynced /*= false*/)
 {
     Util::Array<Ptr<Graphics::ModelEntity> > graphicsEntities;
 
@@ -103,6 +102,7 @@ SegmentedGfxUtil::CreateAndSetupGraphicsEntities(const Util::String& resName, co
     ge->SetTransform(worldMatrix);
 	ge->SetPickingId(pickingId);
 	ge->SetCastsShadows(castShadows);
+	ge->SetLoadSynced(loadSynced);
     if (stage.isvalid())
     {
         stage->AttachEntity(ge.upcast<Graphics::GraphicsEntity>());

@@ -142,7 +142,9 @@ EnvEntityManager::CreateEnvEntity(const Ptr<Db::ValueTable>& instTable, IndexT i
 	bool collide = instTable->GetBool(Attr::CollisionEnabled, instTableRowIndex);
 	
 	bool dynamic = instTable->GetBool(Attr::DynamicObject, instTableRowIndex);
-			
+	
+	bool synced = instTable->GetBool(Attr::LoadSynced, instTableRowIndex);
+
 	if (collide)
     {		
 		if(dynamic)
@@ -188,7 +190,7 @@ EnvEntityManager::CreateEnvEntity(const Ptr<Db::ValueTable>& instTable, IndexT i
 		else
 		{
 			// create graphics entity(s) and attach to graphics property 
-			Util::Array<Ptr<Graphics::ModelEntity> > gfxEntities = segGfxUtil.CreateAndSetupGraphicsEntities(resName, worldMatrix, envEntity->GetUniqueId(),NULL,instanced,castShadows);			
+			Util::Array<Ptr<Graphics::ModelEntity> > gfxEntities = segGfxUtil.CreateAndSetupGraphicsEntities(resName, worldMatrix, envEntity->GetUniqueId(),NULL,instanced,castShadows, synced);			
 			this->envGraphicsProperty->AddGraphicsEntities(id, worldMatrix, gfxEntities);
 			if (!startAnim.IsEmpty())
 			{
