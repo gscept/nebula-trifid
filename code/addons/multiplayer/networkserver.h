@@ -86,6 +86,9 @@ public:
 
 	///
 	static NetworkServer* Instance();
+
+	///
+	virtual NetworkServerState GetState() const;
 	
 protected:
 	/// returns status if allowed to join a game
@@ -123,6 +126,16 @@ protected:
 	Util::Array<RakNet::RakNetGUID> participants;
 	Ptr<Attr::AttributeTable> masterResult;
 };
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline
+NetworkServer::NetworkServerState
+NetworkServer::GetState() const
+{
+	return this->state;
+}
 
 //------------------------------------------------------------------------------
 /**
