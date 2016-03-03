@@ -138,10 +138,10 @@ VkRenderDevice::OpenVulkanContext()
 		this->extensions[this->usedExtensions++] = requiredExtensions[i];
 	}
 	
-	const char* layers[] = { "VK_LAYER_LUNARG_mem_tracker", "VK_LAYER_LUNARG_threading", "VK_LAYER_LUNARG_param_checker", "VK_LAYER_LUNARG_draw_state" };
+	const char* layers[] = { "VK_LAYER_LUNARG_mem_tracker", "VK_LAYER_LUNARG_object_tracker", "VK_LAYER_LUNARG_device_limits", "VK_LAYER_LUNARG_threading", "VK_LAYER_LUNARG_param_checker", "VK_LAYER_LUNARG_draw_state" };
 #if NEBULAT_VULKAN_DEBUG
 	this->extensions[this->usedExtensions++] = VK_EXT_DEBUG_REPORT_EXTENSION_NAME;
-	const int numLayers = 4;
+	const int numLayers = 5;
 #else
 	const int numLayers = 0;
 #endif
@@ -189,6 +189,7 @@ VkRenderDevice::OpenVulkanContext()
 	dbgInfo.pfnCallback = NebulaVulkanDebugCallback;
 	dbgInfo.pUserData = NULL;
 	res = this->debugCallback(this->instance, &dbgInfo, NULL, &this->debugCallbackHandle);
+	n_assert(res == VK_SUCCESS);
 #endif
 
 	// get number of queues
@@ -196,7 +197,6 @@ VkRenderDevice::OpenVulkanContext()
 	n_assert(this->numQueues > 0);
 
 	// now get queues from device
-	this->queuesProps = n_new_array(VkQueueFamilyProperties, this->numQueues);
 	vkGetPhysicalDeviceQueueFamilyProperties(this->physicalDev, &this->numQueues, this->queuesProps);
 	vkGetPhysicalDeviceMemoryProperties(this->physicalDev, &this->memoryProps);
 
@@ -247,12 +247,14 @@ VkRenderDevice::OpenVulkanContext()
 		// also setup compute and transfer queues
 		if (this->queuesProps[i].queueFlags & VK_QUEUE_COMPUTE_BIT && this->computeQueueIdx == UINT32_MAX)
 		{
+			if (this->queuesProps[i].queueCount == indexMap[i]) continue;
 			computeIdx = i;
 			this->computeQueueIdx = indexMap[i];
 			indexMap[i]++;
 		}
 		if (this->queuesProps[i].queueFlags & VK_QUEUE_TRANSFER_BIT && this->transferQueueIdx == UINT32_MAX)
 		{
+			if (this->queuesProps[i].queueCount == indexMap[i]) continue;
 			transferIdx = i;
 			this->transferQueueIdx = indexMap[i];
 			indexMap[i]++;
@@ -266,15 +268,15 @@ VkRenderDevice::OpenVulkanContext()
 
 	// create device
 	Util::FixedArray<Util::FixedArray<float>> prios;
-	Util::FixedArray<VkDeviceQueueCreateInfo> queueInfos;
-	queueInfos.Resize(numQueues);
+	Util::Array<VkDeviceQueueCreateInfo> queueInfos;
 	prios.Resize(numQueues);
 
 	for (i = 0; i < numQueues; i++)
 	{
+		if (indexMap[i] == 0) continue;
 		prios[i].Resize(indexMap[i]);
 		prios[i].Fill(0.0f);
-		queueInfos[i] =
+		queueInfos.Append(
 		{
 			VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
 			NULL,
@@ -282,7 +284,7 @@ VkRenderDevice::OpenVulkanContext()
 			i,
 			indexMap[i],
 			&prios[i][0]
-		};
+		});
 	}
 
 	// get physical device features
@@ -302,7 +304,7 @@ VkRenderDevice::OpenVulkanContext()
 		numLayers,
 		layers,
 		this->usedPhysicalExtensions,
-		this->physicalExtensions,
+		this->deviceExtensionStrings,
 		&features
 	};
 
@@ -616,33 +618,28 @@ VkRenderDevice::SetupAdapter()
 
 	if (gpuCount > 0)
 	{
-		VkPhysicalDevice* devices = new VkPhysicalDevice[gpuCount];
-		res = vkEnumeratePhysicalDevices(this->instance, &gpuCount, devices);
+		res = vkEnumeratePhysicalDevices(this->instance, &gpuCount, this->devices);
 		n_assert(res == VK_SUCCESS);
 
 		// hmm, this is ugly, perhaps implement a way to get a proper device
-		physicalDev = devices[0];
-		delete[] devices;
+		this->physicalDev = devices[0];
 	}
 	else
 	{
 		n_error("VkRenderDevice::SetupAdapter(): No GPU available.\n");
 	}
 
-	uint32_t numExtensions;
-	res = vkEnumerateDeviceExtensionProperties(this->physicalDev, NULL, &numExtensions, NULL);
+	res = vkEnumerateDeviceExtensionProperties(this->physicalDev, NULL, &this->usedPhysicalExtensions, NULL);
 	n_assert(res == VK_SUCCESS);
 
-	if (numExtensions > 0)
+	if (this->usedPhysicalExtensions > 0)
 	{
-		VkExtensionProperties* exts = n_new_array(VkExtensionProperties, numExtensions);
-		res = vkEnumerateDeviceExtensionProperties(this->physicalDev, NULL, &numExtensions, exts);
+		res = vkEnumerateDeviceExtensionProperties(this->physicalDev, NULL, &this->usedPhysicalExtensions, this->physicalExtensions);
 
-		this->usedPhysicalExtensions = 0;
 		uint32_t i;
-		for (i = 0; i < numExtensions; i++)
+		for (i = 0; i < this->usedPhysicalExtensions; i++)
 		{
-			this->physicalExtensions[this->usedPhysicalExtensions++] = exts[i].extensionName;
+			this->deviceExtensionStrings[i] = this->physicalExtensions[i].extensionName;
 		}
 	}
 }

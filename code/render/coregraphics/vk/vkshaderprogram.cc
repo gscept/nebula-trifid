@@ -22,7 +22,9 @@ VkShaderProgram::VkShaderProgram() :
 	ds(VK_NULL_HANDLE),
 	gs(VK_NULL_HANDLE),
 	ps(VK_NULL_HANDLE),
-	cs(VK_NULL_HANDLE)
+	cs(VK_NULL_HANDLE),
+	pipelineType(InvalidType),
+	computePipeline(VK_NULL_HANDLE)
 {
 	// empty
 }
@@ -181,18 +183,6 @@ VkShaderProgram::SetupAsGraphics()
 		shaderIdx++;
 	}
 
-	if (0 != this->cs)
-	{
-		shaders[shaderIdx].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		shaders[shaderIdx].pNext = NULL;
-		shaders[shaderIdx].flags = 0;
-		shaders[shaderIdx].stage = VK_SHADER_STAGE_COMPUTE_BIT;
-		shaders[shaderIdx].module = this->cs;
-		shaders[shaderIdx].pName = "main";
-		shaders[shaderIdx].pSpecializationInfo = NULL;
-		shaderIdx++;
-	}
-
 	// retrieve implementation specific state
 	AnyFX::VkRenderState* vkRenderState = static_cast<AnyFX::VkRenderState*>(this->program->renderState);
 
@@ -256,7 +246,6 @@ VkShaderProgram::SetupAsGraphics()
 	};
 
 	// be sure to flag compute shader as null
-	this->computePipeline = VK_NULL_HANDLE;
 	this->pipelineType = Graphics;
 }
 
@@ -277,7 +266,7 @@ VkShaderProgram::SetupAsCompute()
 		VK_SHADER_STAGE_COMPUTE_BIT,
 		this->cs,
 		"main",
-		NULL,
+		VK_NULL_HANDLE,
 	};
 
 	VkComputePipelineCreateInfo info =
@@ -287,7 +276,7 @@ VkShaderProgram::SetupAsCompute()
 		VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT,
 		shader,
 		this->pipelineLayout,
-		VK_NULL_HANDLE, 0							// base pipeline is kept as 'NULL' too, because this is the base for all derivatives
+		VK_NULL_HANDLE, -1
 	};
 
 	// create pipeline

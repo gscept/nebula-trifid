@@ -155,8 +155,21 @@ private:
 	uint32_t adapter;
 	uint32_t frameId;
 
-	const uint32_t VkPoolMaxSets = 1024;
+	const uint32_t VkPoolMaxSets = 65535;
 	const uint32_t VkPoolSetSize = 64;
+
+	VkPhysicalDevice devices[64];
+
+	VkExtensionProperties physicalExtensions[64];
+
+	uint32_t usedPhysicalExtensions;
+	const char* deviceExtensionStrings[64];
+
+	uint32_t usedExtensions;
+	const char* extensions[64];
+
+	uint32_t numQueues;
+	VkQueueFamilyProperties queuesProps[64];
 
 	static VkDevice dev;
 	static VkQueue displayQueue;
@@ -194,12 +207,6 @@ private:
 	VkPipeline currentPipeline;
 	uint currentPipelineBits;
 
-	uint32_t usedExtensions;
-	const char* extensions[64];
-
-	uint32_t usedPhysicalExtensions;
-	const char* physicalExtensions[64];
-
 #if NEBULAT_VULKAN_DEBUG
 	PFN_vkCreateDebugReportCallbackEXT debugCallback;
 	VkDebugReportCallbackEXT debugCallbackHandle;
@@ -211,8 +218,6 @@ private:
 	PFN_vkQueuePresentKHR swapChainPresent;
 	PFN_vkGetSwapchainImagesKHR swapChainGetImages;
 
-	uint32_t numQueues;
-	VkQueueFamilyProperties* queuesProps;
 	VkPhysicalDeviceMemoryProperties memoryProps;
 	uint32_t renderQueueIdx;
 	uint32_t computeQueueIdx;

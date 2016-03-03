@@ -15,6 +15,7 @@ namespace Vulkan
 
 
 static int debug = 0;
+static int debug2 = 0;
 __ImplementClass(Vulkan::VkShader, 'VKSH', Base::ShaderBase);
 //------------------------------------------------------------------------------
 /**
@@ -225,23 +226,10 @@ VkShader::SetupDescriptorSets()
 		info.pNext = NULL;
 		info.flags = 0;
 		
-
 		const Util::Array<VkDescriptorSetLayoutBinding>& binds = sets.ValueAtIndex(i);
 		info.bindingCount = binds.Size();
 		info.pBindings = &binds[0];
-		/*IndexT index = sets.FindIndex(i);
-		if (index != InvalidIndex)
-		{
-			const Util::Array<VkDescriptorSetLayoutBinding>& binds = sets.ValueAtIndex(index);
-			info.bindingCount = binds.Size();
-			info.pBindings = &binds[0];
-		}
-		else
-		{
-			// no set found for this index, so we use a 'null' layout
-			info.pBindings = VK_NULL_HANDLE;
-			info.bindingCount = 0;
-		}*/
+		debug2 += binds.Size();
 
 		// create layout
 		VkResult res = vkCreateDescriptorSetLayout(VkRenderDevice::dev, &info, NULL, &this->layouts[i]);
@@ -254,8 +242,8 @@ VkShader::SetupDescriptorSets()
 		NULL,
 		0,
 		this->layouts.Size(),
-		layouts.Size() > 0 ? &this->layouts[0] : NULL,
-		1,
+		this->layouts.Size() > 0 ? &this->layouts[0] : NULL,
+		0,
 		&this->constantRange
 	};
 
@@ -269,12 +257,12 @@ VkShader::SetupDescriptorSets()
 		VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
 		NULL,
 		VkRenderDevice::descPool,
-		layouts.Size(),
-		layouts.Size() > 0 ? &this->layouts[0] : NULL
+		this->layouts.Size(),
+		this->layouts.Size() > 0 ? &this->layouts[0] : NULL
 	};
 
-	debug++;
-	this->descriptorSets.Resize(layouts.Size());
+	debug += this->layouts.Size();
+	this->descriptorSets.Resize(this->layouts.Size());
 	res = vkAllocateDescriptorSets(VkRenderDevice::dev, &setInfo, this->descriptorSets.Size() > 0 ? &this->descriptorSets[0] : NULL);
 	assert(res == VK_SUCCESS);
 }
