@@ -172,6 +172,7 @@ struct ContactCallback : public btCollisionWorld::ContactResultCallback {
 	
 	btCollisionObject & testShape;
 	Util::Array<Ptr<PhysicsObject> >& results;
+	Util::Array<PhysicsObject::Id> resultIds;
 	const FilterSet & filter;
 		
 	//! Called with each contact for your own processing (e.g. test if contacts fall in within sensor parameters)
@@ -189,8 +190,13 @@ struct ContactCallback : public btCollisionWorld::ContactResultCallback {
 		PhysicsObject * body = (PhysicsObject*)foo->getUserPointer();
 		if(body)
 		{
-			Ptr<PhysicsObject> ent(body);
-			results.Append(ent);
+			if (InvalidIndex == resultIds.BinarySearchIndex(body->GetUniqueId()))
+			{
+				Ptr<PhysicsObject> ent(body);
+				results.Append(ent);
+				resultIds.InsertSorted(body->GetUniqueId());
+			}
+			
 		}
 		// do stuff with the collision point
 		return 0; // not actually sure if return value is used for anything...?
