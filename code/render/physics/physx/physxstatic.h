@@ -29,6 +29,9 @@ public:
     ///
     ~PhysXStatic();
        
+
+	/// set transform
+	void SetTransform(const Math::matrix44 & trans);
 	///
 	virtual void SetCollideCategory(Physics::CollideCategory coll);
 	

@@ -107,34 +107,50 @@ PhysXProbe::Detach()
 /**
 */
 void
-PhysXProbe::ClearOverlap()
-{
-	this->overlap.Clear();
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-PhysXProbe::AddOverlap(physx::PxActor * other)
-{
-	if (other->userData)
+PhysXProbe::OnTriggerEvent(PxPairFlag::Enum eventType, physx::PxActor * other)
+{	
+	Core::RefCounted* obj = (Core::RefCounted*)other->userData;
+	if (obj->IsA(PhysX::PhysXBody::RTTI) || obj->IsA(PhysX::PhysXCharacter::RTTI))
 	{
-		Core::RefCounted* obj = (Core::RefCounted*)other->userData;
-		if (obj->IsA(PhysX::PhysXBody::RTTI) || obj->IsA(PhysX::PhysXCharacter::RTTI))
+		Physics::PhysicsObject * otherBody = (Physics::PhysicsObject*)other->userData;
+		if (otherBody->GetUserData() && otherBody->GetUserData()->object.isvalid())
 		{
-			Physics::PhysicsObject * otherBody = (Physics::PhysicsObject*)other->userData;
-			if (otherBody->GetUserData() && otherBody->GetUserData()->object.isvalid())
+			Ptr<Core::RefCounted> obj = otherBody->GetUserData()->object;
+			switch (eventType)
+			{			
+			case PxPairFlag::eNOTIFY_TOUCH_FOUND:
 			{
-				Ptr<Core::RefCounted> obj = otherBody->GetUserData()->object;
 				// if we do multiple simulation steps we might get called multiple times	
 				if (this->overlap.BinarySearchIndex(obj) == InvalidIndex)
 				{
 					this->overlap.InsertSorted(obj);
 				}
 			}
+			break;			
+			case PxPairFlag::eNOTIFY_TOUCH_LOST:				
+			{
+				IndexT idx = this->overlap.BinarySearchIndex(obj);
+				if (idx != InvalidIndex)
+				{
+					this->overlap.EraseIndex(idx);
+				}
+			}
+			break;
+			default:
+				break;
+			}			
 		}
-	}
+	}	
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PhysXProbe::SetTransform(const Math::matrix44 & trans)
+{
+	BaseProbe::SetTransform(trans);
+	this->body->setGlobalPose(Neb2PxTrans(trans));
 }
 
 }

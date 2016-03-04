@@ -52,7 +52,7 @@ PhysXPhysicsMesh::GetConvexMesh(int primGroup)
 	const CoreGraphics::PrimitiveGroup& group = this->meshes[primGroup];
 
 	PxConvexMeshDesc convexDesc;
-	convexDesc.points.count = group.GetNumVertices();
+	convexDesc.points.count = this->numVertices;
     convexDesc.points.stride = this->vertexStride * sizeof(float);
 	convexDesc.points.data = this->vertexData;
     convexDesc.triangles.count = group.GetNumPrimitives();
@@ -96,14 +96,14 @@ PhysXPhysicsMesh::GetMesh(int primGroup)
 	const CoreGraphics::PrimitiveGroup& group = this->meshes[primGroup];
 
 	PxTriangleMeshDesc meshDesc;
-	meshDesc.points.count = group.GetNumVertices();
+	meshDesc.points.count = this->numVertices;
 	meshDesc.points.stride = this->vertexStride * sizeof(float);
 	meshDesc.points.data = this->vertexData;
 
 	meshDesc.triangles.count = group.GetNumPrimitives();
 	meshDesc.triangles.stride = 3 * sizeof(unsigned int);
 	meshDesc.triangles.data = (void*)&(this->indexData[group.GetBaseIndex()]);
-
+	
 #ifdef _DEBUG
 	// mesh should be validated before cooked without the mesh cleaning
 	bool res = PhysXServer::Instance()->cooking->validateTriangleMesh(meshDesc);
@@ -123,7 +123,7 @@ PhysXPhysicsMesh::GetConvexHullMesh(int primGroup)
 	const CoreGraphics::PrimitiveGroup& group = this->meshes[primGroup];
 
 	PxConvexMeshDesc convexDesc;
-	convexDesc.points.count = group.GetNumVertices();
+	convexDesc.points.count = this->numVertices;
 	convexDesc.points.stride = this->vertexStride * sizeof(float);
 	convexDesc.points.data = this->vertexData;
     convexDesc.triangles.count = group.GetNumPrimitives();

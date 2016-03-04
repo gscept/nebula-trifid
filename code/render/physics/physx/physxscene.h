@@ -22,6 +22,7 @@ namespace physx
 	class PxScene;
 	class PxDefaultCpuDispatcher;
 	class PxControllerManager;
+	struct PxOverlapHit;
 }
 
 namespace Physics
@@ -92,11 +93,12 @@ public:
 	///
 	static void SetCollideCategory(physx::PxRigidActor* actor, Physics::CollideCategory);
 	
-	class physx::PxScene * scene;
-	class physx::PxDefaultCpuDispatcher* dispatcher;
-	class physx::PxControllerManager * controllerManager;
+	physx::PxScene * scene;
+	physx::PxDefaultCpuDispatcher* dispatcher;
+	physx::PxControllerManager * controllerManager;
 private:	
 	Util::Array<Ptr<PhysX::PhysXProbe>> triggers;
+	physx::PxOverlapHit * hitBuffer;
 };
 
 

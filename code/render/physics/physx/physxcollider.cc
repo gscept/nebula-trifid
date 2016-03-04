@@ -182,41 +182,88 @@ PhysXCollider::CreatePhysicsMesh(PxRigidActor * target, const ColliderDescriptio
 void
 PhysXCollider::CreateInstance(PxRigidActor * target, Math::vector & xscale, const physx::PxMaterial& material)
 {
-    for (int i = 0; i < this->descriptions.Size(); i++)
-    {
-        const ColliderDescription & desc = this->descriptions[i];
+	for (int i = 0; i < this->descriptions.Size(); i++)
+	{
+		const ColliderDescription & desc = this->descriptions[i];
 
-        Math::float4 scale;
-        Math::quaternion quat;
-        Math::float4 trans;
-        desc.transform.decompose(scale, quat, trans);
-        scale *= xscale;
-        trans *= xscale;
-        switch (desc.type)
-        {
-        default:
-            break;
-        case ColliderSphere:
-            this->CreateSphere(target, desc, scale, trans, material);
-            break;
-        case ColliderCube:
-            this->CreateBox(target, desc, scale, quat, trans, material);
-            break;
-        case ColliderCylinder:
-            this->CreateCapsule(target, desc, scale, quat, trans, material);
-            break;
-        case ColliderCapsule:
-            this->CreateCapsule(target, desc, scale, quat, trans, material);
-            break;
-        case ColliderPlane:
-            this->CreatePlane(target, desc, scale, quat, trans, material);
-            break;
-        case ColliderMesh:
-            this->CreatePhysicsMesh(target, desc, scale, quat, trans, material);
-            break;
-        }
-    }
+		switch (desc.type)
+		{
+		default:
+			break;
+		case ColliderSphere:
+		{
+			Math::float4 scale;
+			Math::quaternion quat;
+			Math::float4 trans;
+			desc.transform.decompose(scale, quat, trans);
+			scale *= xscale;
+			trans *= xscale;
+			this->CreateSphere(target, desc, scale, trans, material);
+		}
+		break;
+		case ColliderCube:
+		{
+			Math::float4 scale;
+			Math::quaternion quat;
+			Math::float4 trans;
+			desc.transform.decompose(scale, quat, trans);
+			scale *= xscale;
+			trans *= xscale;
+			this->CreateBox(target, desc, scale, quat, trans, material);
+		}
 
+		break;
+		case ColliderCylinder:
+		{
+			Math::float4 scale;
+			Math::quaternion quat;
+			Math::float4 trans;
+			Math::matrix44 rot = Math::matrix44::rotationz(1.57079632679489661923f);
+			rot = Math::matrix44::multiply(rot, desc.transform);
+			rot.decompose(scale, quat, trans);
+			scale *= xscale;
+			trans *= xscale;
+			this->CreateCapsule(target, desc, scale, quat, trans, material);
+		}
+		break;
+		case ColliderCapsule:
+		{
+			Math::float4 scale;
+			Math::quaternion quat;
+			Math::float4 trans;
+			// physx has its capsule sitting on the side
+			Math::matrix44 rot = Math::matrix44::rotationz(1.57079632679489661923f);
+			rot = Math::matrix44::multiply(rot, desc.transform);
+			rot.decompose(scale, quat, trans);
+			scale *= xscale;
+			trans *= xscale;
+			this->CreateCapsule(target, desc, scale, quat, trans, material);
+		}
+		break;
+		case ColliderPlane:
+		{
+			Math::float4 scale;
+			Math::quaternion quat;
+			Math::float4 trans;
+			desc.transform.decompose(scale, quat, trans);
+			scale *= xscale;
+			trans *= xscale;
+			this->CreatePlane(target, desc, scale, quat, trans, material);
+		}
+		break;
+		case ColliderMesh:
+		{
+			Math::float4 scale;
+			Math::quaternion quat;
+			Math::float4 trans;
+			desc.transform.decompose(scale, quat, trans);
+			scale *= xscale;
+			trans *= xscale;
+			this->CreatePhysicsMesh(target, desc, scale, quat, trans, material);
+		}
+		break;
+		}
+	}
 }
 
 } // namespace PhysX

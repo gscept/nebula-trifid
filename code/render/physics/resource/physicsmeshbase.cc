@@ -49,6 +49,8 @@ PhysicsMeshBase::SetMeshData(float * vertexData, uint numVertices, uint verticeS
 	this->vertexData = (float*)Memory::Alloc(Memory::PhysicsHeap, vertexbytes);
 	Memory::Copy(vertexData, (void*)this->vertexData, vertexbytes);
 	this->vertexStride = verticeStride;
+	this->numVertices = numVertices;
+	this->numIndices = numIndices;
 }
 
 }

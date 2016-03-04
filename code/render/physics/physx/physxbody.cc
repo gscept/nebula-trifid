@@ -54,6 +54,11 @@ PhysXBody::SetupFromTemplate(const PhysicsCommon & templ)
 	
 	PxTransform pxStartTrans(Neb2PxVec(pos), Neb2PxQuat(rotation));
 	this->body = PhysXServer::Instance()->physics->createRigidDynamic(pxStartTrans);    
+	if (templ.bodyFlags & Physics::Kinematic)
+	{
+		this->SetKinematic(true);
+	}
+
     PxMaterial * mat;
     if(templ.material == InvalidMaterial && templ.friction >= 0.0f)
     { 
@@ -65,6 +70,7 @@ PhysXBody::SetupFromTemplate(const PhysicsCommon & templ)
     }
     templ.collider.cast<PhysXCollider>()->CreateInstance(this->body, this->scale, *mat);
 	this->SetCollideCategory(Physics::Default);
+	
     this->body->userData = this;
 }
 
@@ -341,6 +347,16 @@ PhysXBody::SetEnableCollisionCallback(bool enable)
 		}
 		shape->setSimulationFilterData(fd);
 	}	
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PhysXBody::SetTransform(const Math::matrix44 & trans)
+{
+	BaseRigidBody::SetTransform(trans);
+	this->body->setGlobalPose(Neb2PxTrans(trans));
 }
 
 } // namespace PhysX

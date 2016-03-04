@@ -36,6 +36,8 @@ public:
     /// destructor
     virtual ~PhysXBody();
 
+	/// set transform
+	void SetTransform(const Math::matrix44 & trans);
 
     /// set the body's linear velocity
 	virtual void SetLinearVelocity(const Math::vector& v);

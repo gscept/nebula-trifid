@@ -26,6 +26,8 @@
 #include "coregraphics/rendershape.h"
 #include "debugrender/debugshaperenderer.h"
 
+#define MAX_SHAPE_OVERLAPS 128
+
 namespace PhysX
 {
 
@@ -64,7 +66,8 @@ __ImplementAbstractClass(PhysX::PhysXScene, 'PXSC', Physics::BaseScene);
 /**
 */
 PhysXScene::PhysXScene():
-	scene(NULL)
+	scene(NULL),
+	hitBuffer(NULL)
 {
 	// empty
 }
@@ -237,6 +240,7 @@ PhysXScene::OnActivate()
 	this->scene->setSimulationEventCallback(PhysXServer::Instance());
 	this->time = -1.0f;
 	this->controllerManager= PxCreateControllerManager(*this->scene);	
+	this->hitBuffer = (PxOverlapHit *)Memory::Alloc(Memory::PhysicsHeap, MAX_SHAPE_OVERLAPS * sizeof(PxOverlapHit));
 #ifdef _DEBUG
     this->scene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1.0f);
     this->scene->setVisualizationParameter(PxVisualizationParameter::eWORLD_AXES, 1.0f);
@@ -255,6 +259,7 @@ PhysXScene::OnDeactivate()
 	this->controllerManager->release();
 	this->scene->release();
 	this->dispatcher->release();
+	Memory::Free(Memory::PhysicsHeap, this->hitBuffer);
 }
 
 //------------------------------------------------------------------------------
@@ -275,15 +280,7 @@ PhysXScene::Trigger()
 	}
 	else
 	{		
-		Timing::Time delta = this->simulationSpeed * (PhysXServer::Instance()->GetTime() - this->time);
-		if (delta > simulationFrameTime)
-		{
-			// clear triggers
-			for (int i = 0;i < this->triggers.Size();i++)
-			{
-				this->triggers[i]->ClearOverlap();
-			}			
-		}
+		Timing::Time delta = this->simulationSpeed * (PhysXServer::Instance()->GetTime() - this->time);		
 		while (delta > simulationFrameTime)
 		{
 			this->scene->simulate(simulationFrameTime);
@@ -338,10 +335,13 @@ int
 PhysXScene::GetObjectsInSphere(const Math::point& pos, float radius, const Physics::FilterSet& excludeSet, Util::Array<Ptr<Physics::PhysicsObject> >& result)
 {
 	PxSphereGeometry geom(radius);
-	PxTransform spos(Neb2PxVec(pos));
-	PxOverlapBuffer hit;
+	PxTransform spos(Neb2PxVec(pos));	
+	
+	Memory::Clear(this->hitBuffer, MAX_SHAPE_OVERLAPS * sizeof(PxOverlapHit));
+	PxOverlapBuffer hit(this->hitBuffer, MAX_SHAPE_OVERLAPS);
 	PxQueryFilterData fd(PxQueryFlag::eNO_BLOCK | PxQueryFlag::eSTATIC | PxQueryFlag::eDYNAMIC);
 	fd.data.word0 = ~(excludeSet.GetCollideBits());
+	
 
 	if (scene->overlap(geom, spos, hit, fd))
 	{
@@ -366,7 +366,9 @@ PhysXScene::GetObjectsInBox(const Math::matrix44& transform, const Math::vector&
 	PxVec3 pxpos = Neb2PxVec(transform.get_position());
 	PxQuat rot = Neb2PxQuat(Math::matrix44::rotationmatrix(transform));
 	PxTransform spos(pxpos,rot);
-	PxOverlapBuffer hit;
+
+	Memory::Clear(this->hitBuffer, MAX_SHAPE_OVERLAPS * sizeof(PxOverlapHit));
+	PxOverlapBuffer hit(this->hitBuffer, MAX_SHAPE_OVERLAPS);
 	PxQueryFilterData fd(PxQueryFlag::eNO_BLOCK | PxQueryFlag::eSTATIC | PxQueryFlag::eDYNAMIC);
 	fd.data.word0 = ~(excludeSet.GetCollideBits());
 

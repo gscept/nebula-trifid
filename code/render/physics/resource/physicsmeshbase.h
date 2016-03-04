@@ -29,6 +29,8 @@ protected:
 	uint * indexData;
 	float * vertexData;
 	uint vertexStride;
+	uint numVertices;
+	uint numIndices;
 };
 
 }
