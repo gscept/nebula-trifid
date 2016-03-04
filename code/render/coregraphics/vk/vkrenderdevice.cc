@@ -1061,7 +1061,7 @@ VkRenderDevice::DisplayResized(SizeT width, SizeT height)
 VkResult
 VkRenderDevice::GetMemoryType(uint32_t bits, VkMemoryPropertyFlags flags, uint32_t& index)
 {
-	for (uint32_t i = 0; i < 32; i++)
+	for (uint32_t i = 0; i < VK_MAX_MEMORY_TYPES; i++)
 	{
 		if ((bits & 1) == 1)
 		{

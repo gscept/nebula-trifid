@@ -53,7 +53,7 @@ VkTexture::Map(IndexT mipLevel, MapType mapType, MapInfo& outMapInfo)
 		int32_t mipHeight;
 		VkImageSubresource subres;
 		subres.arrayLayer = 0;
-		subres.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		subres.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT | VK_IMAGE_ASPECT_METADATA_BIT;
 		subres.mipLevel = mipLevel;
 		VkSubresourceLayout layout;
 		vkGetImageSubresourceLayout(VkRenderDevice::dev, this->img, &subres, &layout);
@@ -187,7 +187,10 @@ VkTexture::Update(void* data, SizeT size, SizeT width, SizeT height, IndexT left
 void
 VkTexture::SetupFromVkTexture(VkImage img, CoreGraphics::PixelFormat::Code format, GLint numMips /*= 0*/, const bool setLoaded /*= true*/, const bool isAttachment /*= false*/)
 {
-
+	this->type = Texture2D;
+	this->pixelFormat = format;
+	this->img = img;
+	this->numMipLevels = numMips;
 }
 
 //------------------------------------------------------------------------------
@@ -196,7 +199,10 @@ VkTexture::SetupFromVkTexture(VkImage img, CoreGraphics::PixelFormat::Code forma
 void
 VkTexture::SetupFromVkMultisampleTexture(VkImage img, CoreGraphics::PixelFormat::Code format, GLint numMips /*= 0*/, const bool setLoaded /*= true*/, const bool isAttachment /*= false*/)
 {
-
+	this->type = Texture2D;
+	this->pixelFormat = format;
+	this->img = img;
+	this->numMipLevels = numMips;
 }
 
 //------------------------------------------------------------------------------
@@ -205,7 +211,10 @@ VkTexture::SetupFromVkMultisampleTexture(VkImage img, CoreGraphics::PixelFormat:
 void
 VkTexture::SetupFromVkCubeTexture(VkImage img, CoreGraphics::PixelFormat::Code format, GLint numMips /*= 0*/, const bool setLoaded /*= true*/, const bool isAttachment /*= false*/)
 {
-
+	this->type = TextureCube;
+	this->pixelFormat = format;
+	this->img = img;
+	this->numMipLevels = numMips;
 }
 
 //------------------------------------------------------------------------------
@@ -214,7 +223,10 @@ VkTexture::SetupFromVkCubeTexture(VkImage img, CoreGraphics::PixelFormat::Code f
 void
 VkTexture::SetupFromVkVolumeTexture(VkImage img, CoreGraphics::PixelFormat::Code format, GLint numMips /*= 0*/, const bool setLoaded /*= true*/, const bool isAttachment /*= false*/)
 {
-
+	this->type = Texture3D;
+	this->pixelFormat = format;
+	this->img = img;
+	this->numMipLevels = numMips;
 }
 
 //------------------------------------------------------------------------------

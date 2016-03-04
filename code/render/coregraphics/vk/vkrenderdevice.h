@@ -172,6 +172,20 @@ private:
 	uint32_t numQueues;
 	VkQueueFamilyProperties queuesProps[64];
 
+	VkPhysicalDeviceMemoryProperties memoryProps;
+	uint32_t renderQueueIdx;
+	uint32_t computeQueueIdx;
+	uint32_t transferQueueIdx;
+
+	// stuff used for the swap chain
+	VkFormat format;
+	VkColorSpaceKHR colorSpace;
+	VkSwapchainKHR swapchain;
+
+	uint32_t currentBackbuffer;
+	VkImage* backbuffers;
+	VkSemaphore displaySemaphore;
+
 	static VkDevice dev;
 	static VkQueue displayQueue;
 	static VkQueue computeQueue;
@@ -218,20 +232,6 @@ private:
 	PFN_vkAcquireNextImageKHR swapChainNextImage;
 	PFN_vkQueuePresentKHR swapChainPresent;
 	PFN_vkGetSwapchainImagesKHR swapChainGetImages;
-
-	VkPhysicalDeviceMemoryProperties memoryProps;
-	uint32_t renderQueueIdx;
-	uint32_t computeQueueIdx;
-	uint32_t transferQueueIdx;
-
-	// stuff used for the swap chain
-	VkFormat format;
-	VkColorSpaceKHR colorSpace;
-	VkSwapchainKHR swapchain;
-
-	uint32_t currentBackbuffer;
-	VkImage* backbuffers;
-	VkSemaphore displaySemaphore;
 
 	PFN_vkGetPhysicalDeviceSurfaceSupportKHR surfaceSupport;
 	PFN_vkGetPhysicalDeviceSurfaceFormatsKHR surfaceFormats;

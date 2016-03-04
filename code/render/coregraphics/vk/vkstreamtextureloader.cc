@@ -65,34 +65,34 @@ VkStreamTextureLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 		ILuint depth = ilGetInteger(IL_IMAGE_DEPTH);
 		ILuint mips = ilGetInteger(IL_NUM_MIPMAPS);
 		ILenum cube = ilGetInteger(IL_IMAGE_CUBEFLAGS);
-		ILenum format = ilGetInteger(IL_IMAGE_FORMAT);
-		ILenum dxtformat = ilGetInteger(IL_DXTC_DATA_FORMAT);
+		ILenum format = ilGetInteger(IL_PIXEL_FORMAT);	// only available when loading DDS, so this might need some work...
 
 		VkFormat vkformat = VkTypes::AsVkFormat(format);
 		VkExtent3D extents;
 		extents.width = width;
 		extents.height = height;
-		extents.depth = depth;
+		extents.depth = 1;
 		VkImageCreateInfo info =
 		{
 			VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
 			NULL,
 			0,
-			height > 1 ? (depth > 1 ? VK_IMAGE_TYPE_3D : VK_IMAGE_TYPE_2D) : VK_IMAGE_TYPE_1D,
+			height > 1 ? VK_IMAGE_TYPE_2D : VK_IMAGE_TYPE_1D,
 			vkformat,
 			extents,
 			mips,
-			1,
+			depth,
 			VK_SAMPLE_COUNT_1_BIT,
 			VK_IMAGE_TILING_OPTIMAL,
 			VK_IMAGE_USAGE_SAMPLED_BIT,
-			VK_SHARING_MODE_EXCLUSIVE,
+			VK_SHARING_MODE_CONCURRENT,
 			1,
 			&VkRenderDevice::Instance()->renderQueueIdx,
-			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+			VK_IMAGE_LAYOUT_GENERAL
 		};
 		VkImage img;
-		vkCreateImage(VkRenderDevice::dev, &info, NULL, &img);
+		VkResult stat = vkCreateImage(VkRenderDevice::dev, &info, NULL, &img);
+		n_assert(stat == VK_SUCCESS);
 
 		// setup texture
 		if (depth > 1)
@@ -120,7 +120,8 @@ VkStreamTextureLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 
 				VkDeviceMemory mem;
 				uint32_t alignedSize;
-				VkRenderDevice::Instance()->AllocateImageMemory(img, mem, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, alignedSize);
+				VkRenderDevice::Instance()->AllocateImageMemory(img, mem, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, alignedSize);
+				vkBindImageMemory(VkRenderDevice::dev, img, mem, 0);
 				VkTexture::MapInfo mapinfo;
 				res->Map(j, VkTexture::MapWrite, mapinfo);
 				memcpy(mapinfo.data, buf, size);
@@ -130,6 +131,44 @@ VkStreamTextureLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 				ilActiveMipmap(j);
 			}
 		}
+
+		// create view
+		VkImageViewType viewType;
+		if (cube) viewType = VK_IMAGE_VIEW_TYPE_CUBE;
+		else
+		{
+			if (height > 1)
+			{
+				if (depth > 1) viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+				else		   viewType = VK_IMAGE_VIEW_TYPE_2D;
+			}
+			else
+			{
+				if (depth > 1) viewType = VK_IMAGE_VIEW_TYPE_1D_ARRAY;
+				else		   viewType = VK_IMAGE_VIEW_TYPE_1D;
+			}
+		}
+
+		VkImageSubresourceRange viewRange;
+		viewRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		viewRange.baseMipLevel = 0;
+		viewRange.levelCount = mips;
+		viewRange.baseArrayLayer = 0;
+		viewRange.layerCount = depth;
+		VkImageViewCreateInfo viewCreate =
+		{
+			VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+			NULL,
+			0,
+			img,
+			viewType,
+			vkformat,
+			VkTypes::AsVkMapping(format),
+			viewRange
+		};
+		VkImageView view;
+		stat = vkCreateImageView(VkRenderDevice::dev, &viewCreate, NULL, &view);
+		n_assert(stat == VK_SUCCESS);
 
 		stream->Unmap();
 		stream->Close();
