@@ -6,6 +6,7 @@
 #include "minimapplugin.h"
 #include "resources/resourceid.h"
 #include "resources/resourcemanager.h"
+#include "minimapmanager.h"
 
 using namespace Util;
 using namespace CoreGraphics;
@@ -15,8 +16,6 @@ using namespace Models;
 
 namespace Minimap
 {
-__ImplementClass(Minimap::MinimapPlugin, 'MMPG', UI::UiPlugin);
-
 
 //------------------------------------------------------------------------------
 /**
@@ -37,20 +36,40 @@ MinimapPlugin::~MinimapPlugin()
 //------------------------------------------------------------------------------
 /**
 */
-void
-MinimapPlugin::OnRegister()
+Rocket::Core::EventListener*
+MinimapPlugin::InstanceEventListener(const Rocket::Core::String& value, Rocket::Core::Element* element)
 {
-	// empty
+	if (element->GetTagName() == "minimap")
+	{
+		return this;
+	}
+	return 0;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-MinimapPlugin::OnUnregister()
+MinimapPlugin::ProcessEvent(Rocket::Core::Event& event)
 {
-	// empty
+	if (event.GetType() == "click")
+	{
+		float x = event.GetParameter<float>("mouse_x", 0);
+		float y = event.GetParameter<float>("mouse_y", 0);
+
+	}
+
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+MinimapPlugin::Release()
+{
+
+}
+
 
 } // namespace Minimap
 

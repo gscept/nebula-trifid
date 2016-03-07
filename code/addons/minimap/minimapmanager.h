@@ -33,6 +33,8 @@ public:
 
     /// called when attached to game server
     virtual void OnActivate();
+	///
+	virtual void OnLoad();
     /// called when removed from game server
     virtual void OnDeactivate();
     /// called before frame by the game server
@@ -42,9 +44,12 @@ public:
 	void RegisterEntity(const Util::String& texture, const Ptr<Game::Entity>& entity);
 	/// unregister an entity from the minimap
 	void UnregisterEntity(const Util::String& texture, const Ptr<Game::Entity>& entity);
-
-	/// access to ui plugin
-	const Ptr<Minimap::MinimapPlugin> & GetPlugin() const;
+	
+	/// set minimap world size
+	void SetWorldSize(const Math::bbox & box);
+	///
+	void SetBackgroundTexture(const Util::String& texture);
+	
 
 	static const uint MinimapResolutionX = 512;
 	static const uint MinimapResolutionY = 512;
@@ -52,6 +57,7 @@ public:
 		 	
 private:              
 
+	friend Minimap::MinimapPlugin;
     // shading related variables
 	Ptr<CoreGraphics::RenderTarget> minimapTarget;
 	Ptr<CoreGraphics::Shader> minimapShader;
@@ -75,18 +81,10 @@ private:
 	Util::HashTable<Util::String, Util::Array<Ptr<Game::Entity>>> entities;
 	Util::HashTable<Util::String, Ptr<Resources::ManagedTexture>> texturePool;
 	Util::Array<Util::String> textures;	
+	Util::String backgroundName;
+	Ptr<Resources::ManagedTexture> backgroundTexture;
 
-	Ptr<Minimap::MinimapPlugin> plugin;	
+	Minimap::MinimapPlugin* plugin;	
 };
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline
-const Ptr<Minimap::MinimapPlugin> & 
-MinimapManager::GetPlugin() const
-{
-	return plugin;
-}
 
 } // namespace Minimap

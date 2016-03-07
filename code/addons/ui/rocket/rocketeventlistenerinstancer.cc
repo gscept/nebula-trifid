@@ -34,8 +34,20 @@ RocketEventListenerInstancer::~RocketEventListenerInstancer()
 */
 Rocket::Core::EventListener* 
 RocketEventListenerInstancer::InstanceEventListener(const Rocket::Core::String& value, Rocket::Core::Element* element)
-{
+{	
 	Ptr<RocketServer> rocketServer = RocketServer::Instance();
+
+	/// check the additionals first
+	for (int i = 0;i < rocketServer->GetEventListenerInstancers().Size();i++)
+	{
+		Rocket::Core::EventListener* listener;
+		listener = rocketServer->GetEventListenerInstancers()[i]->InstanceEventListener(value, element);
+		if (listener)
+		{
+			return listener;
+		}
+	}
+
 	String script = value.CString();
 
 	Array<String> parts = script.Tokenize(".");

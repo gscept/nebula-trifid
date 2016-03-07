@@ -71,6 +71,11 @@ public:
 	/// get rocket context
 	Rocket::Core::Context* GetContext();
 
+	/// add extra eventlistener instancer
+	void AddEventListenerInstancer(Rocket::Core::EventListenerInstancer* instancer);
+	///
+	const Util::Array<Rocket::Core::EventListenerInstancer*> & GetEventListenerInstancers();
+
 	friend class RocketLayout;
 
 private:
@@ -79,7 +84,8 @@ private:
 	Rocket::Core::Context* context;
 	RocketInterface system;
 	RocketRenderer renderer;
-	RocketEventListenerInstancer* listenerInstancer;
+	RocketEventListenerInstancer* listenerInstancer;	
+	Util::Array<Rocket::Core::EventListenerInstancer*> extraInstancers;
 }; 
 
 
@@ -92,6 +98,14 @@ RocketServer::GetContext()
 	return this->context;
 }
 
-
+//------------------------------------------------------------------------------
+/**
+*/
+inline
+const Util::Array<Rocket::Core::EventListenerInstancer*> &
+RocketServer::GetEventListenerInstancers()
+{
+	return this->extraInstancers;
+}
 } // namespace Rocket
 //------------------------------------------------------------------------------
