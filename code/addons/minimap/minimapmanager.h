@@ -33,8 +33,7 @@ public:
 
     /// called when attached to game server
     virtual void OnActivate();
-	///
-	virtual void OnLoad();
+
     /// called when removed from game server
     virtual void OnDeactivate();
     /// called before frame by the game server

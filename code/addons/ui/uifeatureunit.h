@@ -38,7 +38,7 @@ public:
     virtual void OnActivate();
     /// called from GameServer::DeactivateProperties()
     virtual void OnDeactivate();
-    
+
     /// called in the middle of the feature trigger cycle
     virtual void OnFrame();
 

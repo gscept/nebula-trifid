@@ -16,16 +16,21 @@
 //------------------------------------------------------------------------------
 namespace Minimap
 {
-class MinimapPlugin : public Rocket::Core::EventListenerInstancer, public Rocket::Core::EventListener
+class MinimapPlugin : public UI::UiPlugin, public Rocket::Core::EventListenerInstancer, public Rocket::Core::EventListener
 {
-    
+    __DeclareClass(Minimap::MinimapPlugin);
+
 public:
     /// constructor
     MinimapPlugin();
     /// destructor
     virtual ~MinimapPlugin();
 
-    
+    /// called when plugin is registered
+    virtual void OnRegister();
+    /// called when plugin is unregistered
+    virtual void OnUnregister();
+
 	/// create instance of event
 	virtual Rocket::Core::EventListener* InstanceEventListener(const Rocket::Core::String& value, Rocket::Core::Element* element);
 	///
@@ -33,6 +38,8 @@ public:
 
 	/// releases instancer
 	virtual void Release();
+private:
+    Util::String eventValue;
 };
 
 } // namespace Minimap

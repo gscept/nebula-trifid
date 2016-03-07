@@ -96,6 +96,8 @@ MinimapManager::MinimapManager():
 	plugin(NULL)
 {
 	__ConstructSingleton;	
+    this->plugin = n_new(MinimapPlugin);
+    UiFeatureUnit::Instance()->RegisterUIRenderPlugin(this->plugin);
 }
 
 //------------------------------------------------------------------------------
@@ -103,6 +105,9 @@ MinimapManager::MinimapManager():
 */
 MinimapManager::~MinimapManager()
 {
+    UiFeatureUnit::Instance()->UnregisterUIRenderPlugin(this->plugin);
+    n_delete(this->plugin);
+    this->plugin = 0;
 	__DestructSingleton;	
 }
 
@@ -352,24 +357,27 @@ MinimapManager::OnBeginFrame()
 
                 numBatchEntities++;
             }
-			ShaderServer::Instance()->SetActiveShader(this->minimapShader);
-			this->minimapShader->Apply();
-            // update variables
-			this->minimapShader->BeginUpdate();
-            this->transformsVar->SetMatrixArray(&this->transforms[0], numBatchEntities);
-            this->colorsVar->SetFloat4Array(&this->colors[0], numBatchEntities);            
-            this->portraitVar->SetTexture(tex);
-			this->minimapShader->EndUpdate();
-			this->minimapShader->Commit();
-            
-            // setup primitive
-			renderDev->SetVertexLayout(this->quadVb->GetVertexLayout());
-            renderDev->SetStreamSource(0, this->quadVb, 0);
-            renderDev->SetIndexBuffer(this->quadIb);
-            renderDev->SetPrimitiveGroup(this->quadPrim);
+            if (numBatchEntities)
+            {
+                ShaderServer::Instance()->SetActiveShader(this->minimapShader);
+                this->minimapShader->Apply();
+                // update variables
+                this->minimapShader->BeginUpdate();
+                this->transformsVar->SetMatrixArray(&this->transforms[0], numBatchEntities);
+                this->colorsVar->SetFloat4Array(&this->colors[0], numBatchEntities);
+                this->portraitVar->SetTexture(tex);
+                this->minimapShader->EndUpdate();
+                this->minimapShader->Commit();
 
-            // draw
-            renderDev->DrawIndexedInstanced(numBatchEntities, 0);
+                // setup primitive
+                renderDev->SetVertexLayout(this->quadVb->GetVertexLayout());
+                renderDev->SetStreamSource(0, this->quadVb, 0);
+                renderDev->SetIndexBuffer(this->quadIb);
+                renderDev->SetPrimitiveGroup(this->quadPrim);
+
+                // draw
+                renderDev->DrawIndexedInstanced(numBatchEntities, 0);
+            }
         }
 	}
 	renderDev->EndPass();
@@ -397,19 +405,6 @@ MinimapManager::SetBackgroundTexture(const Util::String& texture)
 		this->backgroundTexture = ResourceManager::Instance()->CreateManagedResource(Texture::RTTI, this->backgroundName, 0, true).downcast<ManagedTexture>();
 		ResourceManager::Instance()->RequestResourceForLoading(this->backgroundTexture.upcast<ManagedResource>());	
 	}	
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-MinimapManager::OnLoad()
-{
-	if (this->plugin == NULL)
-	{
-		this->plugin = n_new(MinimapPlugin);
-		LibRocket::RocketServer::Instance()->AddEventListenerInstancer(this->plugin);
-	}
 }
 
 } // namespace Minimap

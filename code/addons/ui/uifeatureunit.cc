@@ -54,19 +54,23 @@ UiFeatureUnit::OnActivate()
 
 	RenderModules::RTPluginRegistry::Instance()->RegisterRTPlugin(&UI::UiRTPlugin::RTTI);
 
+    for (int i = 0; i < this->plugins.Size(); i++)
+    {
+        this->plugins[i]->OnRegister();
+    }
+
     // create and attach input handler
 	this->inputHandler = UI::UiInputHandler::Create();
 	Input::InputServer::Instance()->AttachInputHandler(Input::InputPriority::Gui, this->inputHandler.cast<Input::InputHandler>());
 
     // create event hander
     this->uiEventHandler = UiEventHandler::Create();
-
-	// load default ui fonts and layouts
-	if (this->autoLoad)
-	{
-		this->LoadUITables();
-	}
-
+	
+    // load default ui fonts and layouts
+    if (this->autoLoad)
+    {
+        this->LoadUITables();
+    }
 
     FeatureUnit::OnActivate();
 }
@@ -324,7 +328,8 @@ void
 UiFeatureUnit::RegisterUIRenderPlugin( const Ptr<UI::UiPlugin> & uiRt )
 {
 	this->plugins.Append(uiRt);
-	uiRt->OnRegister();
+    // we delay this in order to allow for custom eventlistenerinstancers in librocket. this should be rewritten
+	//uiRt->OnRegister();
 }
 
 //------------------------------------------------------------------------------

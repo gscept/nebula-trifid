@@ -7,6 +7,7 @@
 #include "resources/resourceid.h"
 #include "resources/resourcemanager.h"
 #include "minimapmanager.h"
+#include "uifeatureunit.h"
 
 using namespace Util;
 using namespace CoreGraphics;
@@ -16,6 +17,7 @@ using namespace Models;
 
 namespace Minimap
 {
+    __ImplementClass(MinimapPlugin, 'MIMP', UI::UiPlugin);
 
 //------------------------------------------------------------------------------
 /**
@@ -41,6 +43,7 @@ MinimapPlugin::InstanceEventListener(const Rocket::Core::String& value, Rocket::
 {
 	if (element->GetTagName() == "minimap")
 	{
+        this->eventValue = value.CString();
 		return this;
 	}
 	return 0;
@@ -52,13 +55,25 @@ MinimapPlugin::InstanceEventListener(const Rocket::Core::String& value, Rocket::
 void
 MinimapPlugin::ProcessEvent(Rocket::Core::Event& event)
 {
-	if (event.GetType() == "click")
+	if (event.GetType() == "click" && !this->eventValue.IsEmpty())
 	{
-		float x = event.GetParameter<float>("mouse_x", 0);
-		float y = event.GetParameter<float>("mouse_y", 0);
+		float x = (float)event.GetParameter<int>("mouse_x", 0);
+		float y = (float)event.GetParameter<int>("mouse_y", 0);
+        Rocket::Core::Vector2f offset = event.GetCurrentElement()->GetAbsoluteOffset(Rocket::Core::Box::CONTENT);
+        float width = event.GetCurrentElement()->GetClientWidth();
+        float height = event.GetCurrentElement()->GetClientHeight();
+        
+        x -= offset.x;
+        y -= offset.y;        
+        x /= width;
+        y /= height;        
 
-	}
-
+        Util::String format;
+        format.Format("%s(%f,%f)", this->eventValue.AsCharPtr(), x, y);
+        // translate to UIEvent and add event to server
+        UI::UiEvent ev("", "minimap", format, UI::UiEvent::ValueChanged);
+        UI::UiFeatureUnit::Instance()->ProcessEvent(ev);
+    }	
 }
 
 //------------------------------------------------------------------------------
@@ -70,6 +85,23 @@ MinimapPlugin::Release()
 
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+MinimapPlugin::OnRegister()
+{
+    LibRocket::RocketServer::Instance()->AddEventListenerInstancer(this);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+MinimapPlugin::OnUnregister()
+{
+
+}
 
 } // namespace Minimap
 
