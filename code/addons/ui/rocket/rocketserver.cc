@@ -309,6 +309,19 @@ RocketServer::AddEventListenerInstancer(Rocket::Core::EventListenerInstancer* in
 	this->extraInstancers.Append(instancer);
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+RocketServer::RemoveEventListenerInstancer(Rocket::Core::EventListenerInstancer* instancer)
+{
+	IndexT idx = this->extraInstancers.FindIndex(instancer);
+	if (idx != InvalidIndex)
+	{
+		this->extraInstancers.EraseIndex(idx);
+	}
+}
+
 #endif
 
 } // namespace Rocket

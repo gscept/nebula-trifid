@@ -74,8 +74,10 @@ public:
 	/// add extra eventlistener instancer
 	void AddEventListenerInstancer(Rocket::Core::EventListenerInstancer* instancer);
 	///
+	void RemoveEventListenerInstancer(Rocket::Core::EventListenerInstancer* instancer);
+	///
 	const Util::Array<Rocket::Core::EventListenerInstancer*> & GetEventListenerInstancers();
-
+	
 	friend class RocketLayout;
 
 private:

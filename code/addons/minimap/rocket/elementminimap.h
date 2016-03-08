@@ -33,13 +33,17 @@ protected:
 	virtual void OnRender();
 	/// 
 	bool GetIntrinsicDimensions(Core::Vector2f& dimensions);
+	///
+	virtual void OnPropertyChange(const Rocket::Core::PropertyNameList& changed_properties);
 
 private:
 	/// Called when value has changed.
 	void GenerateGeometry();
 	
 	Core::Geometry geometry;
-	Core::Texture texture;
+	Core::Geometry overlayGeometry;
+	Core::Texture *texture;
+	Core::Texture *overlay;
 	Core::Vector2f dimensions;
 	bool geometry_dirty;
 
