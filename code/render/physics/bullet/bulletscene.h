@@ -16,6 +16,7 @@ class btConstraintSolver;
 class btCollisionDispatcher;
 class btDiscreteDynamicsWorld;
 class btCollisionObject;
+class btPairCachingGhostObject;
 
 
 namespace Bullet
@@ -89,7 +90,7 @@ private:
 
 
 	btDynamicsWorld * GetWorld();
-	int GetEntitiesInShape(btCollisionObject * shape, const Physics::FilterSet& excludeSet, Util::Array<Ptr<Physics::PhysicsObject> >& result );
+	int GetEntitiesInShape(btPairCachingGhostObject * shape, const Physics::FilterSet& excludeSet, Util::Array<Ptr<Physics::PhysicsObject> >& result);
 	
 };
 
