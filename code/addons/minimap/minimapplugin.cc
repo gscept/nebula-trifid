@@ -32,7 +32,7 @@ MinimapPlugin::MinimapPlugin()
 */
 MinimapPlugin::~MinimapPlugin()
 {
-	// empty
+	this->RemoveReference();
 }
 
 //------------------------------------------------------------------------------
@@ -92,6 +92,9 @@ void
 MinimapPlugin::OnRegister()
 {
     LibRocket::RocketServer::Instance()->AddEventListenerInstancer(this);
+	Rocket::Core::StyleSheetSpecification::RegisterProperty("minimaptexture", "", false).AddParser("string");
+	Rocket::Core::StyleSheetSpecification::RegisterProperty("minimapoverlay", "", false).AddParser("string");
+	Rocket::Core::StyleSheetSpecification::RegisterProperty("minimapoffset", "0", false).AddParser("number");
 }
 
 //------------------------------------------------------------------------------
@@ -100,7 +103,7 @@ MinimapPlugin::OnRegister()
 void
 MinimapPlugin::OnUnregister()
 {
-
+	//empty
 }
 
 } // namespace Minimap

@@ -247,6 +247,7 @@ RocketRenderer::SetScissorRegion( int x, int y, int width, int height )
 bool 
 RocketRenderer::LoadTexture( Rocket::Core::TextureHandle& texture_handle, Rocket::Core::Vector2i& texture_dimensions, const Rocket::Core::String& source )
 {
+	Util::String nsource = source.CString();
 	// check for special loaders
 	if (source[0] == '?')
 	{
@@ -260,7 +261,7 @@ RocketRenderer::LoadTexture( Rocket::Core::TextureHandle& texture_handle, Rocket
 		texture_dimensions.y = texture->GetHeight();
 		texture_handle = reinterpret_cast<Rocket::Core::TextureHandle>(tex);
 		return true;
-	}
+	}	
 	else
 	{
 		int width, height, channels;
