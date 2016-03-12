@@ -104,6 +104,7 @@ NatNetworkServer::SetupLowlevelNetworking()
 	this->replicationManager->SetAutoManageConnections(false, true);
 
 	NetworkServer::SetupLowlevelNetworking();
+	this->replicationManager->SetAutoManageConnections(false, true);
 
 	RakNet::SocketDescriptor sd;
 	sd.socketFamily = AF_INET; // Only IPV4 supports broadcast on 255.255.255.255
