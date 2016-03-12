@@ -72,8 +72,8 @@ ElementMiniMap::GenerateGeometry()
 		if (prop)
 		{
 			this->overlay = n_new(Rocket::Core::Texture);
-			Rocket::Core::String target = prop->Get<String>();
-			this->overlay->Load(target.CString());
+			Rocket::Core::String target = prop->Get<String>();            
+			this->overlay->Load(target.CString(), this->GetOwnerDocument()->GetSourceURL());
 		}
 	}
 	if (this->overlay)
@@ -117,14 +117,15 @@ ElementMiniMap::GenerateGeometry()
 	}
 	// Generate the texture coordinates.
 	Vector2f texcoords[2];
-	texcoords[0] = Vector2f(offset, offset);
-	texcoords[1] = Vector2f(1.0f - offset, 1.0f - offset);
+    texcoords[0] = Vector2f(0.0f, 0.0f);
+    texcoords[1] = Vector2f(1.0f, 1.0f);
+    Vector2f box = this->GetBox().GetSize(Rocket::Core::Box::CONTENT);
 
 
-	Rocket::Core::GeometryUtilities::GenerateQuad(&vertices[0],									// vertices to write to
-		&indices[0],									// indices to write to
-		Vector2f(0, 0),					// origin of the quad
-		GetBox().GetSize(Rocket::Core::Box::CONTENT),	// size of the quad
+    Rocket::Core::GeometryUtilities::GenerateQuad(&vertices[0],									// vertices to write to
+        &indices[0],									// indices to write to
+        box * offset,
+        box * (1.0f - (2.0f * offset)),
 		Colourb(255, 255, 255, 255),		// colour of the vertices
 		texcoords[0],									// top-left texture coordinate
 		texcoords[1]);								// top-right texture coordinate
