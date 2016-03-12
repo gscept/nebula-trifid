@@ -252,8 +252,12 @@ PhysicsProperty::EnablePhysics()
 	{
 		this->GetPhysicsBody()->SetKinematic(true);
 	}
-	// apply small impulse down to earth
-	this->ApplyImpulseAtPos(vector(0,0.1,0), point::origin());							     	
+	else
+	{
+		// apply small impulse down to earth
+		this->ApplyImpulseAtPos(vector(0, 0.1, 0), point::origin());
+	}
+	
 }
 
 //------------------------------------------------------------------------------
