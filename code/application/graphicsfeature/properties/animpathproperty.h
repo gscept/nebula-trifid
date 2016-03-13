@@ -46,6 +46,7 @@ private:
 	bool paused;
 	float lastSample;
 	Math::float4 pos;
+	Math::matrix44 baseRotation;
 	Ptr<PathAnimationTrack> currentTrack;
 	Ptr<ManagedPathAnimation> animPath;
 };

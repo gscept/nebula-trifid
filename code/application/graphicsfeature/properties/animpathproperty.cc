@@ -70,7 +70,10 @@ void
 AnimPathProperty::OnActivate()
 {
 	Game::Property::OnActivate();
-	this->pos = this->entity->GetMatrix44(Attr::Transform).get_position();
+	matrix44 trans = this->entity->GetMatrix44(Attr::Transform);
+	this->pos = trans.get_position();
+	trans.set_position(0.0f);
+	this->baseRotation = trans;
 	
 	// get resource from entity and load resource
 	// TODO: handle failed load? must it be synced?
@@ -152,6 +155,8 @@ AnimPathProperty::HandleMessage(const Ptr<Messaging::Message>& msg)
 		Ptr<SetTransform> rmsg = msg.downcast<SetTransform>();
 		matrix44 trans = rmsg->GetMatrix();
 		this->pos = trans.get_position();
+		trans.set_position(0.0f);
+		this->baseRotation = trans;
 	}
 	else
 	{
@@ -170,7 +175,7 @@ AnimPathProperty::Update()
 	Math::float4 scale = this->currentTrack->scaling.Sample(this->lastSample);
 
 	matrix44 transform = matrix44::scaling(scale);
-	transform = matrix44::multiply(transform, matrix44::rotationyawpitchroll(rotation.y(), rotation.x(), rotation.z()));
+	transform = matrix44::multiply(transform, matrix44::multiply(this->baseRotation, matrix44::rotationyawpitchroll(rotation.y(), rotation.x(), rotation.z())));
 	transform.set_position(translation + this->pos);
 
 	Ptr<UpdateTransform> msg = UpdateTransform::Create();
