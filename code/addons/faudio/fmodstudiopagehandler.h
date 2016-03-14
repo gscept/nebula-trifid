@@ -8,7 +8,7 @@
     Usage:
     http://host/fmodstudio
         
-    (C) 2015 Individual contributors, see AUTHORS file
+    (C) 2015-2016 Individual contributors, see AUTHORS file
 */    
 #include "http/httprequesthandler.h"
 #include "resources/resourceid.h"

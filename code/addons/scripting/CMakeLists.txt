@@ -53,7 +53,7 @@ set(SOURCES_SRCS
 	${SOURCES_scripting}
 	${SOURCES_files}	
 )
-N_WRAP_ADD_NIDL_FILES(SOURCES_SRCS ${P_NIDL_FILES})
+N_WRAP_ADD_NIDL_FILES(scripting SOURCES_SRCS ${P_NIDL_FILES})
 
 add_library(scripting STATIC ${SOURCES_SRCS} )
 TARGET_LINK_LIBRARIES(scripting lua foundation)

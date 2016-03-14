@@ -5,7 +5,7 @@
     
     Handles anim events coupled with a game entity, sending a message to the entity whenever an anim event gets triggered.
     
-    (C) 2015 Individual contributors, see AUTHORS file
+    (C) 2015-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"

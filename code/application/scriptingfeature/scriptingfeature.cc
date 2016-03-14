@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  scripting/scriptingfeature.cc
-//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "scriptingfeature/scriptingfeature.h"
@@ -11,6 +11,9 @@
 #include "managers/entitymanager.h"
 #include "managers/factorymanager.h"
 #include "io/textreader.h"
+#include "input/inputpriority.h"
+#include "input/inputserver.h"
+#include "io/ioserver.h"
 
 namespace ScriptingFeature
 {

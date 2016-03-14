@@ -1,12 +1,10 @@
 //------------------------------------------------------------------------------
 //  game/basegamefeature.cc
 //  (C) 2007 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "basegamefeature/basegamefeatureunit.h"
-#include "graphicsfeature/graphicsfeatureunit.h"
-#include "physicsfeature/physicsfeatureunit.h"
 #include "appgame/gameapplication.h"
 #include "core/factory.h"
 #include "basegamefeature/basegameattr/basegameattributes.h"
@@ -18,7 +16,6 @@
 #include "io/ioserver.h"
 #include "io/console.h"
 #include "loader/entityloader.h"
-#include "loader/environmentloader.h"
 #include "basegametiming/systemtimesource.h"
 #include "basegametiming/inputtimesource.h"
 #include "basegametiming/gametimesource.h"
@@ -31,13 +28,10 @@
 // include all properties for known by managers::factorymanager
 #include "properties/timeproperty.h"
 #include "properties/transformableproperty.h"
-#include "effects/effectsfeatureunit.h"
-#include "navigation/crowdmanager.h"
-#include "posteffectfeatureunit.h"
-#include "multiplayer/replicationmanager.h"
-#include "multiplayer/multiplayerfeatureunit.h"
+#include "multiplayerfeatureunit.h"
+#include "networkgame.h"
 #include "multiplayerattrs.h"
-#include "multiplayer/networkgame.h"
+#include "managers/levelattrsmanager.h"
 
 namespace BaseGameFeature
 {
@@ -56,6 +50,9 @@ BaseGameFeatureUnit::BaseGameFeatureUnit() :
 	enableAutosave(true)
 {
     __ConstructSingleton;
+	// create additional servers    
+	this->loaderServer = BaseGameFeature::LoaderServer::Create();
+	this->loaderServer->Open();
 }
 
 //------------------------------------------------------------------------------
@@ -64,6 +61,8 @@ BaseGameFeatureUnit::BaseGameFeatureUnit() :
 BaseGameFeatureUnit::~BaseGameFeatureUnit()
 {
     __DestructSingleton;
+	this->loaderServer->Close();
+	this->loaderServer = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -90,16 +89,11 @@ BaseGameFeatureUnit::OnActivate()
     {
         n_error("BaseGameFeature: Failed to open static database 'export/db/static.db4'!");
     }
-    // create additional servers    
-    this->loaderServer = BaseGameFeature::LoaderServer::Create();
-    this->loaderServer->Open();
-    
+        
     // attach loader to BaseGameFeature::LoaderServer
-    Ptr<BaseGameFeature::EntityLoader> entityloader = BaseGameFeature::EntityLoader::Create();
-    Ptr<BaseGameFeature::EnvironmentLoader> environmentloader = BaseGameFeature::EnvironmentLoader::Create();	
+    Ptr<BaseGameFeature::EntityLoader> entityloader = BaseGameFeature::EntityLoader::Create();  
     this->loaderServer->AttachEntityLoader(entityloader.upcast<BaseGameFeature::EntityLoaderBase>());
-    this->loaderServer->AttachEntityLoader(environmentloader.upcast<BaseGameFeature::EntityLoaderBase>());	
-
+    
     // create manager and attach to fetaure
     this->timeManager = TimeManager::Create();
     if (!this->factoryManager.isvalid())
@@ -110,8 +104,7 @@ BaseGameFeatureUnit::OnActivate()
     this->entityManager = EntityManager::Create();
     this->globalAttrManager = GlobalAttrsManager::Create();
     this->categoryManager = CategoryManager::Create();
-    this->envEntityManager = EnvEntityManager::Create();    
-    this->crowdManager = Navigation::CrowdManager::Create();
+	this->levelAttrManager = LevelAttrsManager::Create();
 	this->audioManager = AudioManager::Create();
 
     this->AttachManager(this->timeManager.upcast<Game::Manager>());
@@ -119,9 +112,8 @@ BaseGameFeatureUnit::OnActivate()
     this->AttachManager(this->focusManager.upcast<Game::Manager>());
     this->AttachManager(this->entityManager.upcast<Game::Manager>());
     this->AttachManager(this->globalAttrManager.upcast<Game::Manager>()); 
-    this->AttachManager(this->categoryManager.upcast<Game::Manager>());
-    this->AttachManager(this->envEntityManager.upcast<Game::Manager>());    
-    this->AttachManager(this->crowdManager.upcast<Game::Manager>());
+	this->AttachManager(this->levelAttrManager.upcast<Game::Manager>());
+    this->AttachManager(this->categoryManager.upcast<Game::Manager>());    
 	this->AttachManager(this->audioManager.upcast<Game::Manager>());
 
     this->envQueryManager = EnvQueryManager::Create();    
@@ -165,28 +157,23 @@ BaseGameFeatureUnit::OnDeactivate()
     this->RemoveManager(this->focusManager.upcast<Game::Manager>());
     this->RemoveManager(this->entityManager.upcast<Game::Manager>());
     this->RemoveManager(this->globalAttrManager.upcast<Game::Manager>()); 
-    this->RemoveManager(this->categoryManager.upcast<Game::Manager>());
-    this->RemoveManager(this->envEntityManager.upcast<Game::Manager>());    
-    this->RemoveManager(this->timeManager.upcast<Game::Manager>());
-    this->RemoveManager(this->crowdManager.upcast<Game::Manager>());
+    this->RemoveManager(this->categoryManager.upcast<Game::Manager>());    
+    this->RemoveManager(this->timeManager.upcast<Game::Manager>());    
 	this->RemoveManager(this->audioManager.upcast<Game::Manager>());
-
-    this->envEntityManager = 0;  
+	this->RemoveManager(this->levelAttrManager.upcast<Game::Manager>());
+    
     this->factoryManager = 0;
     this->focusManager = 0;
     this->entityManager = 0;
     this->globalAttrManager = 0;
     this->categoryManager = 0;    
-    this->timeManager = 0;
-    this->crowdManager = 0;
+    this->timeManager = 0;    
+	this->levelAttrManager = 0;
 	this->audioManager = 0;
 
     this->RemoveManager(this->envQueryManager.upcast<Game::Manager>());
     this->envQueryManager = 0;
-
-    this->loaderServer->Close();
-    this->loaderServer = 0;
-    
+  
     this->dbServer->Close();
     this->dbServer = 0;
 
@@ -472,27 +459,8 @@ BaseGameFeatureUnit::SetupEmptyWorld()
 {
     n_assert(!EntityManager::Instance()->HasActiveEntities());
 
-    // if no world exist create default one
-    if (!GraphicsFeature::GraphicsFeatureUnit::Instance()->GetDefaultStage().isvalid())
-    {
-        GraphicsFeature::GraphicsFeatureUnit::Instance()->SetupDefaultGraphicsWorld();
-    }
-    
-    // create a new physics world
-    if (PhysicsFeature::PhysicsFeatureUnit::HasInstance())
-    {
-        PhysicsFeature::PhysicsFeatureUnit::Instance()->CreateDefaultPhysicsWorld();
-    }
-    else
-    {
-        n_printf("No PhysicsFeatureUnit created!");
-    }   
-
-	// create posteffect 
-	if (PostEffect::PostEffectFeatureUnit::HasInstance())
-	{
-		PostEffect::PostEffectFeatureUnit::Instance()->SetupDefaultWorld();
-	}
+	Game::GameServer::Instance()->NotifyBeforeLoad();
+   	
 }
 
 //------------------------------------------------------------------------------
@@ -504,17 +472,9 @@ void
 BaseGameFeatureUnit::SetupWorldFromCurrentLevel()
 {
     n_assert(!EntityManager::Instance()->HasActiveEntities());
-    // if no world exist create default one
-    if (!GraphicsFeature::GraphicsFeatureUnit::Instance()->GetDefaultStage().isvalid())
-    {
-        GraphicsFeature::GraphicsFeatureUnit::Instance()->SetupDefaultGraphicsWorld();
-    }
 
-	// create posteffect 
-	if (PostEffect::PostEffectFeatureUnit::HasInstance())
-	{
-		PostEffect::PostEffectFeatureUnit::Instance()->SetupDefaultWorld();
-	}
+	Game::GameServer::Instance()->NotifyBeforeLoad();
+   	
     // load level from database
     BaseGameFeature::LoaderServer::Instance()->LoadLevel(this->GetCurrentLevel(), this->activeLayers);
 
@@ -539,40 +499,10 @@ BaseGameFeatureUnit::CleanupWorld()
         Game::GameServer::Instance()->NotifyGameSave();
     }
 
-	if (MultiplayerFeature::ReplicationManager::HasInstance())
-	{
-		MultiplayerFeature::MultiplayerFeatureUnit::Instance()->SetEnableEntitySync(false);
-		//MultiplayerFeature::ReplicationManager::Instance()->Clear();		
-	}
+	// cleanup entities
+	this->entityManager->Cleanup();
 
-    // cleanup enviornment entity
-    this->envEntityManager->ClearEnvEntity();
-
-    // cleanup entities
-    this->entityManager->Cleanup();
-
-	// remove any current effects
-	if (EffectsFeature::EffectsFeatureUnit::HasInstance())
-	{
-		EffectsFeature::EffectsFeatureUnit::Instance()->FlushAll();
-	}
-	// remove posteffect 
-	if (PostEffect::PostEffectFeatureUnit::HasInstance())
-	{
-		PostEffect::PostEffectFeatureUnit::Instance()->CleanupDefaultWorld();
-	}
-
-    // cleanup graphics world
-    GraphicsFeature::GraphicsFeatureUnit::Instance()->DiscardDefaultGraphicsWorld();
-
-    // cleanup physics world
-    if (PhysicsFeature::PhysicsFeatureUnit::HasInstance())
-    {
-        PhysicsFeature::PhysicsFeatureUnit::Instance()->CleanupPhysicsWorld();
-    }
-    
-    //// shutdown some subsystems
-    Navigation::CrowdManager::Instance()->Cleanup();
+	Game::GameServer::Instance()->NotifyBeforeCleanup();            
 }
 
 //------------------------------------------------------------------------------

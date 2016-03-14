@@ -1,6 +1,7 @@
 //------------------------------------------------------------------------------
 //  loader/LoaderServer.cc
 //  (C) 2003 RadonLabs GmbH
+//  (C)2013 - 2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "loader/loaderserver.h"

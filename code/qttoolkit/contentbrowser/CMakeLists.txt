@@ -176,12 +176,12 @@ ADD_DEPENDENCIES(contentbrowser
 	dynui
 	grid
 	nody
-	shady
-	shady_NIDLS
+	shady	
 	resourcebrowser
 	toolkitutil
 	remoteinterface	
 	qttools
+	qtfeature
 	globalprobecontroller
 	editorfeatures
 	video
@@ -193,8 +193,7 @@ TARGET_LINK_LIBRARIES(contentbrowser
 	libqimg
 	splash	
 	dynui
-	grid
-	shady_NIDLS
+	grid	
 	resourcebrowser
 	miniexporter
 	remoteinterface

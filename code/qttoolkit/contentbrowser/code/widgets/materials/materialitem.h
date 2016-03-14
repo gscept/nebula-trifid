@@ -5,7 +5,7 @@
 	
 	An item representing a material.
 	
-	(C) 2015 Individual contributors, see AUTHORS file
+	(C) 2015-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "widgets/baseitem.h"

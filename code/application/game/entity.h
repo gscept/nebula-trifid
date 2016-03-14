@@ -16,7 +16,7 @@
     states etc. is stored in the attributeTable.
 
     (C) 2007 RadonLabs GmbH
-	(C) 2013-2015 Individual contributors, see AUTHORS file
+	(C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
 #include "core/ptr.h"
@@ -37,8 +37,12 @@ namespace Messaging
 namespace BaseGameFeature
 {
     class FactoryManager;	
-    class EntityManager;
-    class EnvEntityManager;
+    class EntityManager;    
+}
+
+namespace GraphicsFeature
+{
+	class EnvEntityManager;
 }
 
 // sends message to game entity
@@ -184,7 +188,7 @@ public:
 private:
     friend class BaseGameFeature::FactoryManager;		
     friend class BaseGameFeature::EntityManager;    
-    friend class BaseGameFeature::EnvEntityManager;
+    friend class GraphicsFeature::EnvEntityManager;
 
     /// set entity category
     void SetCategory(const Util::String& cat);    

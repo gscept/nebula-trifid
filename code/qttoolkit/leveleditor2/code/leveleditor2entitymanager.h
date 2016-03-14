@@ -13,7 +13,7 @@
 	Important note: if you want create or remove an entity and let it be
 	undoable, then do it through the ActionManager instead.
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 #include "game/manager.h"
 #include "core/singleton.h"

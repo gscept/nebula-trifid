@@ -19,6 +19,7 @@
     begining a new game, load or save a game.
     
     (C) 2007 RadonLabs GmbH
+	(C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
 #include "core/ptr.h"
@@ -60,6 +61,11 @@ public:
     virtual void OnFrame();
 	/// trigger actions after rendering the game world
 	virtual void OnEndFrame();
+
+	/// call OnSetupDefaultWorld on all game features
+	virtual void NotifyBeforeLoad();
+	/// call OnCleanupWorld on all game features
+	virtual void NotifyBeforeCleanup();
    
     /// call OnLoad on all game features
     virtual void NotifyGameLoad();

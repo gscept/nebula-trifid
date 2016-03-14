@@ -5,7 +5,7 @@
   
     Helper for quickly queing animations 
         
-    (C) 2015 Individual contributors, see AUTHORS file
+    (C) 2015-2016 Individual contributors, see AUTHORS file
 */    
 #include "graphics/graphicsprotocol.h"
 #include "game/entity.h"

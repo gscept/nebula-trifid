@@ -4,7 +4,7 @@
 	@class ScriptingFeature::ScriptingFeatureUnit
     
     The FeatureUnit initializes the scripting subsystem
-	(C) 2012-2015 Individual contributors, see AUTHORS file	
+	(C) 2012-2016 Individual contributors, see AUTHORS file	
 */
 #include "game/featureunit.h"
 #include "scripting/scriptserver.h"

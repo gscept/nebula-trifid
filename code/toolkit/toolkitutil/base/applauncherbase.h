@@ -5,7 +5,7 @@
     
     Base class for launching an external application.
         
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "util/string.h"
 #include "io/uri.h"

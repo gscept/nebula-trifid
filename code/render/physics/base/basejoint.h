@@ -5,7 +5,7 @@
 
     A joint (also known as constraint) connects two Actors    
 
-    (C) 2012-2015 Johannes Hirche, LTU Skelleftea
+    (C) 2012-2016 Johannes Hirche, LTU Skelleftea
 */
 #include "core/refcounted.h"
 #include "core/ptr.h"

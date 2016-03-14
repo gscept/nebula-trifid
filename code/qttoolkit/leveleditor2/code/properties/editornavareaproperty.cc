@@ -1,10 +1,10 @@
 //------------------------------------------------------------------------------
 //  leveleditor2/propeerties/editornavareaproperty.cc
-//  (C) 2015 Individual contributors, see AUTHORS file
+//  (C) 2015-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "properties/editornavareaproperty.h"
-#include "leveleditor2protocol.h"
+#include "leveleditor2/leveleditor2protocol.h"
 #include "basegamefeature/basegameprotocol.h"
 #include "leveleditor2app.h"
 

@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  audiodevice.cc
-//  (C) 2014 Individual contributors, see AUTHORS file
+//  (C) 2014-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "faudio/audiodevice.h"

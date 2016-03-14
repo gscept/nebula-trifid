@@ -11,7 +11,7 @@
     messages but they are not required to do so.
 
     (C) 2007 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file	
+    (C) 2013-2016 Individual contributors, see AUTHORS file	
 */
 #include "messaging/port.h"
 #include "messaging/message.h"

@@ -87,7 +87,7 @@ endforeach()
 
 LIST(APPEND ALLSRCS ${CODE} ${PCH_files} ${leveleditor2_HEADERS_MOC} ${leveleditor2_FORMS_HEADERS} ${leveleditor2_RESOURCES_RCC} code/leveleditor.rc)
 
-N_WRAP_ADD_NIDL_FILES(ALLSRCS ${P_NIDL_FILES})
+N_WRAP_ADD_NIDL_FILES(leveleditor2 ALLSRCS ${P_NIDL_FILES})
 
 #STRING(REPLACE "/MTd" "/MDd" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
 #STRING(REPLACE "/MT" "/MD" CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
@@ -119,11 +119,13 @@ ADD_DEPENDENCIES(leveleditor2
 	editorfeatures
 	remoteinterface	
 	qttools
+	qtfeature
 	posteffectcontroller
 	physicsmaterialeditor
 	globalprobecontroller
 	splash
 	dynui
+	graphicsfeature physicsfeature scriptingfeature ui
 	navigation	
 )
 
@@ -145,6 +147,7 @@ TARGET_LINK_LIBRARIES(leveleditor2
 	splash	
 	navigation	
 	dynui
+	graphicsfeature physicsfeature scriptingfeature ui
 	${QT_WIN_LIBS}	
 	${QT_LIBRARIES} ${QT_QTMAIN_LIBRARY}	
 )

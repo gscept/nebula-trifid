@@ -5,7 +5,7 @@
     
     Holds level specific data, loads and saves as well
     
-    (C) 2013 Johannes Hirche, LTU Skelleftea
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"

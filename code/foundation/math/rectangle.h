@@ -8,6 +8,7 @@
     A 2d rectangle class.
     
     (C) 2003 RadonLabs GmbH
+	(C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/types.h"
 

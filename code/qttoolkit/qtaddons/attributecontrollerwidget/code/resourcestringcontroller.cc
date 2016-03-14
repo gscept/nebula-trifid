@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  resourcestringcontroller.cc
-//  (C) 2013-2014 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "resourcestringcontroller.h"
@@ -8,7 +8,7 @@
 #include "db/valuetable.h"
 #include "ui_resourcestringcontroller.h"
 #include "basegamefeature/basegameprotocol.h"
-#include "toolkit/toolkitutil/idldocument/idlattribute.h"
+#include "idldocument/idlattribute.h"
 #include "io/assignregistry.h"
 #include "qfiledialog.h"
 #include "qmessagebox.h"

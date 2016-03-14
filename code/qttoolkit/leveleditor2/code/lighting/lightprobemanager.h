@@ -5,7 +5,7 @@
 	
 	Keeps track of all lightprobes in the scene, configures how they are supposed to be output, and to where the output is to be generated.
 	
-	(C) 2012-2015 Individual contributors, see AUTHORS file
+	(C) 2012-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"

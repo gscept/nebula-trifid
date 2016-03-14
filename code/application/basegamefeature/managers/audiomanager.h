@@ -7,7 +7,7 @@
 	Sets up the FAudio components, loads default audio banks and triggers 
 	the server
         
-    (C) 2015 Individual contributors, see AUTHORS file
+    (C) 2015-2016 Individual contributors, see AUTHORS file
 */
 #include "game/manager.h"
 #include "faudio/audioserver.h"

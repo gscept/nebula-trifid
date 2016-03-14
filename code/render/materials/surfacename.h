@@ -5,7 +5,7 @@
     
     SurfaceName is a unique and consistent registry used for surfaces.
 
-    (C) 2015 Individual contributors, see AUTHORS file
+    (C) 2015-2016 Individual contributors, see AUTHORS file
 */
 #include "core/types.h"
 #include "util/stringatom.h"

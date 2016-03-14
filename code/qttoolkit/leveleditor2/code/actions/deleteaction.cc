@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  deleteaction.cc
-//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "deleteaction.h"
@@ -9,7 +9,7 @@
 #include "managers/factorymanager.h"
 #include "basegamefeature/basegameattr/basegameattributes.h"
 #include "properties/editorproperty.h"
-#include "leveleditor2protocol.h"
+#include "leveleditor2/leveleditor2protocol.h"
 #include "physicsfeature/physicsprotocol.h"
 
 using namespace BaseGameFeature;

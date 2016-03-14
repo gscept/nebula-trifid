@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  ogl4memorytextureloader.cc
-//  (C) 2013 gscept
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "coregraphics/pixelformat.h"

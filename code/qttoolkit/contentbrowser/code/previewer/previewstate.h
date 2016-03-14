@@ -5,7 +5,7 @@
     
     Base state for previewer window
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 #include "basegamefeature/statehandlers/gamestatehandler.h"
 #include "graphics/globallightentity.h"

@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  leveleditor2window.cc
-//  (C) 2012-2014 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "leveleditor2window.h"
@@ -22,7 +22,7 @@
 #include "applauncher.h"
 #include "qmessagebox.h"
 #include "remoteinterface/qtremoteclient.h"
-#include "qtremoteprotocol.h"
+#include "remoteinterface/qtremoteprotocol.h"
 #include "toolkitversion.h"
 #include "qurl.h"
 #include "scripteditor.h"
@@ -31,7 +31,7 @@
 #include "qcolordialog.h"
 #include "uidialoghandler.h"
 #include "properties/editorproperty.h"
-#include "leveleditor2protocol.h"
+#include "leveleditor2/leveleditor2protocol.h"
 #include "game/templateexporter.h"
 #include "db/dbfactory.h"
 #include "game/gameexporter.h"

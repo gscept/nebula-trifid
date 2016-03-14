@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  animclipcontroller.cc
-//  (C) 2013-2014 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "animclipcontroller.h"
@@ -8,7 +8,7 @@
 #include "db/valuetable.h"
 #include "ui_stringlistcontroller.h"
 #include "basegamefeature/basegameprotocol.h"
-#include "toolkit/toolkitutil/idldocument/idlattribute.h"
+#include "idldocument/idlattribute.h"
 #include "graphicsfeature/graphicsfeatureprotocol.h"
 #include "messaging/messagecallbackhandler.h"
 

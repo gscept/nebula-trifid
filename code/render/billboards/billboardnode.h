@@ -6,7 +6,7 @@
      representation of a billboard shape. 
 	Is basically a shape node but without a mesh load from file.
     
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "models/nodes/statenode.h"

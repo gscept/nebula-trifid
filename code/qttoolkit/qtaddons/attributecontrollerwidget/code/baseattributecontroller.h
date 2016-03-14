@@ -6,7 +6,7 @@
     Base class for attribute controllers. Contains reference to the entity, and
     an attribute (id plus type) of the entity.
     
-    (C) 2013-2014 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 
 #include <QWidget>

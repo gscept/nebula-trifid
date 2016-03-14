@@ -5,7 +5,7 @@
 	
 	The SilhouetteRTPlugin renders silhouettes of provided model entities
 	
-	(C) 2012-2015 Individual contributors, see AUTHORS file
+	(C) 2012-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "rendermodules/rt/rtplugin.h"

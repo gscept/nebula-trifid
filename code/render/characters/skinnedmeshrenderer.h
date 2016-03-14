@@ -6,7 +6,7 @@
     Wrapper class for platform-specific skinned mesh rendering.
     
     (C) 2008 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #if ( __WIN32__ || __LINUX__ )
 #include "characters/gpuskinnedmeshrenderer.h"

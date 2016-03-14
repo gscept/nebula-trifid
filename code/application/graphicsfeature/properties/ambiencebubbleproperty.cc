@@ -1,21 +1,17 @@
 //------------------------------------------------------------------------------
 //  ambiencebubbleproperty.cc
 //  (C) 2006 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "properties/ambiencebubbleproperty.h"
 #include "game/entity.h"
 #include "posteffect/posteffectmanager.h"
 #include "properties/lightproperty.h"
-//#include "msg/EnableAmbienceBubble.h"
-//#include "msg/attributesupdated.h"
-//#include "gfx2/ngfxserver2.h"
-//#include "managers/debugmanager.h"
 #include "basegamefeature/basegameprotocol.h"
 #include "math/polar.h"
 #include "graphicsfeatureunit.h"
-#include "posteffectprotocol.h"
+#include "posteffect/posteffectprotocol.h"
 #include "graphicsfeature/graphicsattr/graphicsattributes.h"
 #include "posteffectregistry.h"
 

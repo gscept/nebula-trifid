@@ -1,6 +1,7 @@
 //------------------------------------------------------------------------------
 //  remotejobservice.cc
-// (C) 2009 RadonLabs GmbH
+//  (C) 2009 RadonLabs GmbH
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "remotejobservice.h"

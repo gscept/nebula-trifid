@@ -5,7 +5,7 @@
   
     Offers an alternative to the ShapeNodeInstance, where an object would rely on a material instead of a shader
     
-    (C) 2011-2013 Individual contributors, see AUTHORS file
+    (C) 2011-2016 Individual contributors, see AUTHORS file
 */
 #include "models/nodes/statenodeinstance.h"
 //------------------------------------------------------------------------------
