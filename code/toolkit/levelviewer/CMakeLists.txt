@@ -19,7 +19,7 @@ SOURCE_GROUP("Precompiled" FILES ${PCH_files})
 
 LIST(APPEND ALLSRCS ${SRCSBASE} ${SRCSGAMESTATES} ${PCH_files} levelviewer.rc)
 
-N_WRAP_ADD_NIDL_FILES(levelviewer ALLSRCS nidl/levelviewercommands.nidl)
+N_WRAP_ADD_PROJ_NIDL_FILES(levelviewer ALLSRCS nidl/levelviewercommands.nidl)
 
 ADD_EXECUTABLE(levelviewer ${ALLSRCS})
 SET_TARGET_PROPERTIES(levelviewer PROPERTIES FOLDER "N3SDK/Toolkit")

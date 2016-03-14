@@ -29,7 +29,7 @@ set(SOURCES_
 	${SOURCES_posteffect}
 	${SOURCES_files}		
 )
-N_WRAP_ADD_NIDL_FILES(vibration SOURCES_ ${P_NIDL_FILES})
+N_WRAP_ADD_PROJ_NIDL_FILES(vibration SOURCES_ ${P_NIDL_FILES})
 
 add_library( vibration STATIC ${SOURCES_} )
 add_dependencies(vibration application)

@@ -70,7 +70,7 @@ SET(PCH_files
 )
 SOURCE_GROUP("Precompiled" FILES ${PCH_files})
 
-N_WRAP_ADD_NIDL_FILES(shady CODE code/simulation/simulationcommands.nidl)
+N_WRAP_ADD_PROJ_NIDL_FILES(shady CODE code/simulation/simulationcommands.nidl)
 
 PCH_QT4_WRAP_CPP(shady_HEADERS_MOC ${QTMOCFILES})
 SOURCE_GROUP("MOC" FILES ${shady_HEADERS_MOC})

@@ -6,6 +6,7 @@
 */
 #include "math/vector.h"
 #include "util/string.h"
+#include "util/fourcc.h"
 #include "physics/materialtable.h"
 
 namespace Physics

@@ -4,6 +4,7 @@
 //  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
+#include "collider.h"
 #include "physics/filterset.h"
 #include "physics/physicsobject.h"
 

@@ -44,7 +44,7 @@ set(SOURCES_SRCS
 	${SOURCES_files}	
 )
 
-N_WRAP_ADD_NIDL_FILES(framecapture SOURCES_SRCS ${P_NIDL_FILES})
+N_WRAP_ADD_PROJ_NIDL_FILES(framecapture SOURCES_SRCS ${P_NIDL_FILES})
 
 add_library( framecapture STATIC ${SOURCES_SRCS} )
 add_dependencies(framecapture render)

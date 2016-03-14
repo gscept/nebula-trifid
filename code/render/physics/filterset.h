@@ -10,11 +10,13 @@
 	(C) 2012-2016 Individual contributors, see AUTHORS file
 */
 #include "util/array.h"
-#include "physics/physicsobject.h"
+#include "model/templates.h"
 
 //------------------------------------------------------------------------------
 namespace Physics
 {
+class PhysicsObject;
+
 class FilterSet
 {
 public:

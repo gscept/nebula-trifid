@@ -25,8 +25,6 @@
 #include "physicsfeature/physicsprotocol.h"
 #include "scripting/scriptserver.h"
 #include "eventid.h"
-#include "animeventregistry.h"
-#include "effectsfeatureunit.h"
 
 namespace PhysicsFeature
 {

@@ -118,7 +118,7 @@ set(graphics_nidls
 
 N_CREATE_FEATURE(graphicsfeature application_graphicsfeature graphics_nidls)
 TARGET_INCLUDE_DIRECTORIES(graphicsfeature PUBLIC ${Nebula3_SOURCE_DIR}/code/application/graphicsfeature)
-TARGET_LINK_LIBRARIES(graphicsfeature PUBLIC application render posteffect effects)
+TARGET_LINK_LIBRARIES(graphicsfeature PUBLIC application render posteffect effects physics)
 ADD_DEPENDENCIES(graphicsfeature application_NIDLS render_NIDLS posteffect)
 
 N_SET_COMPILER_DEFAULTS()

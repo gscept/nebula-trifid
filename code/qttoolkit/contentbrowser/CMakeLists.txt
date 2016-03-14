@@ -181,6 +181,7 @@ ADD_DEPENDENCIES(contentbrowser
 	toolkitutil
 	remoteinterface	
 	qttools
+	application_features
 	qtfeature
 	globalprobecontroller
 	editorfeatures
@@ -200,6 +201,7 @@ TARGET_LINK_LIBRARIES(contentbrowser
 	qttools
 	globalprobecontroller
 	editorfeatures
+	application_features
 	toolkitutil	
 	video
 	nody
