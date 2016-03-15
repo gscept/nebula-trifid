@@ -24,6 +24,7 @@ class LevelEditorState;
 
 class EntityTreeWidget : public QTreeWidget
 {
+	Q_OBJECT
 public:
 	/// constructor
 	EntityTreeWidget(QWidget* parent);
@@ -66,6 +67,10 @@ public:
 	/// rebuild tree from guid information
 	void RebuildTree();
 
+	/// call before loading a level (turns of sorting in case its active)
+	void OnBeginLoad();
+	/// call after loading level is completed
+	void OnEndLoad();
 
 	friend class EntityTreeItem;
 protected:
@@ -79,6 +84,9 @@ protected:
 	void contextMenuEvent(QContextMenuEvent * event);
 	/// prepare mime data for drag event
 	QMimeData* mimeData(const QList<QTreeWidgetItem*> items) const;
+protected slots:
+	/// header context menu
+	void HeaderContextMenu(const QPoint & pos);
 
 private:
 	/// remove an id from the dictionary
@@ -94,6 +102,7 @@ private:
 	
 	Util::Dictionary<EntityGuid, EntityTreeItem*> itemDictionary;	//< keep a dictionary for quick access of entities, much quicker than traversing all nodes and check their guids
 	bool blockSignal;
+	bool sortingEnabled;
 }; 
 
 //------------------------------------------------------------------------------
@@ -112,6 +121,8 @@ public:
 	void SetText(const Util::String& text);	
 	/// set icon according to type
 	void SetIcon(const EntityType& newType);
+	///
+	void SetCategory(const Util::String& category);
 private:
 	EntityGuid entityGuid;	//< the guid of the entity this item represents
 };
@@ -162,6 +173,15 @@ inline void
 EntityTreeItem::SetText(const Util::String& text)
 {
 	this->setText(0, text.AsCharPtr());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+EntityTreeItem::SetCategory(const Util::String& text)
+{
+	this->setText(1, text.AsCharPtr());
 }
 
 } // namespace LevelEditor2

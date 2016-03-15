@@ -562,6 +562,44 @@ LevelEditor2EntityManager::AddTreeviewNode(const Ptr<Game::Entity>& node)
 	item->setText(0, text.AsCharPtr());
 	item->SetEntityGuid(node->GetGuid(Attr::EntityGuid));
 
+	int entityType = node->GetInt(Attr::EntityType);
+	switch (entityType)
+	{
+		case Game:
+		{
+			Util::String cat = node->GetString(Attr::EntityCategory);
+			item->SetCategory(cat);		
+		}
+		break;
+		case Environment:
+		{
+			Util::String model = node->GetString(Attr::Graphics);
+			item->SetCategory("Environment ("+model + ")");
+		}
+			break;
+		case Light:
+		{
+			int lightType = node->GetInt(Attr::LightType);
+			switch (lightType)
+			{
+			case 0:
+				item->SetCategory("Global Light");
+				break;
+			case 1:
+				item->SetCategory("Spotlight");
+				break;
+			case 2:
+				item->SetCategory("Pointlight");
+				break;
+			default:
+				break;
+			}	
+		}
+		break;
+		default:
+		break;
+	}
+
 	this->entityTreeWidget->AddEntityTreeItem(item);
 }
 

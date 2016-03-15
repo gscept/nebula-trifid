@@ -72,6 +72,7 @@ Level::LoadLevel(const Util::String& level)
 	{
 		return false;
 	}
+	LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->OnBeginLoad();
 	LevelEditor2EntityManager::Instance()->RemoveAllEntities();
 
 	LevelEditor2App::Instance()->GetWindow()->GetLayerHandler()->Discard();
@@ -109,7 +110,7 @@ Level::LoadLevel(const Util::String& level)
             }
         }
 	}
-		
+	LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->OnEndLoad();
 	// add wrapper entity for global light
 	LevelEditor2EntityManager::Instance()->CreateLightEntity("GlobalLight");
 	return result;	
