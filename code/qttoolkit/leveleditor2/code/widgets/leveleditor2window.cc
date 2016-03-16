@@ -552,7 +552,7 @@ LevelEditor2Window::OnCenterPivot()
 void
 LevelEditor2Window::OnImport()
 {
-
+    Level::Instance()->LoadEntities("work:levels/snippets/test.xml", false);
 }
 
 //------------------------------------------------------------------------------

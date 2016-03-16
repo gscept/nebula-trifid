@@ -45,7 +45,7 @@ __ImplementSingleton(LevelEditor2::Level);
 //------------------------------------------------------------------------------
 /**
 */
-Level::Level(): startLevel(false), autoBatch(true)
+Level::Level(): startLevel(false), autoBatch(true), inImport(false)
 {
 	__ConstructSingleton;
 }
@@ -483,7 +483,14 @@ Level::AddLayer(const Util::String & name, bool visible, bool autoload, bool loc
 void 
 Level::AddEntity(const Util::String & category, const Attr::AttributeContainer & attrs)
 {
-    LevelEditor2EntityManager::Instance()->CreateEntityFromAttrContainer(category,attrs);
+    if (this->inImport)
+    {
+        this->importedEntities.Append(Util::KeyValuePair<Util::String, Attr::AttributeContainer>(category, attrs));
+    }
+    else
+    {
+        LevelEditor2EntityManager::Instance()->CreateEntityFromAttrContainer(category, attrs);
+    }    
 }
 
 //------------------------------------------------------------------------------
@@ -767,6 +774,82 @@ Level::SaveEntityArray(const Util::Array<Ptr<Game::Entity>> & entities, const IO
 	xmlWriter->Close();
 	stream->Flush();
 	stream->Close();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+Level::LoadEntities(const IO::URI & fileName, bool cleanPerLevelData)
+{
+    
+    Ptr<IO::IoServer> ioServer = IO::IoServer::Instance();    
+    if (!ioServer->FileExists(fileName))
+    {
+        return false;
+    }
+    
+
+    Ptr<IO::Stream> stream = ioServer->CreateStream(fileName);
+    stream->SetAccessMode(IO::Stream::ReadAccess);
+    if (!stream->Open())
+    {
+        return false;
+    }    
+    this->inImport = !cleanPerLevelData;
+    Ptr<IO::XmlReader> reader = IO::XmlReader::Create();
+    reader->SetStream(stream);
+    if (reader->Open())
+    {
+        reader->SetToRoot();
+
+        if (reader->HasNode("/Entities"))        
+        {
+
+            reader->SetToFirstChild();
+            do
+            {
+                this->LoadEntity(reader);
+            } while (reader->SetToNextChild("Object"));
+        }
+
+        reader->Close();
+        stream->Close();
+    }
+
+    if (!this->importedEntities.IsEmpty())
+    {
+        LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->OnBeginLoad();
+
+        Dictionary<Util::Guid, Util::Guid> newGuids;
+        // generate new guids first
+        for (int i = 0; i < this->importedEntities.Size(); i++)
+        {            
+            Attr::AttributeContainer & cont = this->importedEntities[i].Value();
+            Util::Guid newGuid;
+            newGuid.Generate();
+            newGuids.Add(cont.GetGuid(Attr::Guid), newGuid);
+            cont.SetGuid(Attr::Guid, newGuid);
+        }
+        for (int i = 0; i < this->importedEntities.Size(); i++)
+        {
+            Util::String category = this->importedEntities[i].Key();
+            Attr::AttributeContainer & cont = this->importedEntities[i].Value();
+            Util::Guid parent = cont.GetGuid(Attr::ParentGuid);
+            if (newGuids.Contains(parent))
+            {
+                cont.SetGuid(Attr::ParentGuid, newGuids[parent]);
+            }
+            LevelEditor2EntityManager::Instance()->CreateEntityFromAttrContainer(category, cont);
+        }
+                
+        // reparent all items
+        LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->RebuildTree();       
+        LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->OnEndLoad();
+    }
+    
+    this->inImport = false;
+    return true;
 }
 
 } // namespace LevelEditor2

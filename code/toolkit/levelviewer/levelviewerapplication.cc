@@ -21,7 +21,7 @@
 #include "faudio/audioprotocol.h"
 #include "ui/uicommands.h"
 #include "levelviewer/NIDL/levelviewercommands.h"
-#include "posteffectprotocol.h"
+#include "posteffect/posteffectprotocol.h"
 
 
 namespace Tools
