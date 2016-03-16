@@ -15,6 +15,7 @@
 #include "math/bbox.h"
 #include "game/levelparser.h"
 #include "game/entity.h"
+#include "attributecontainer.h"
 
 namespace PostEffect
 {
@@ -60,7 +61,7 @@ public:
 	/// save array of entities
 	void SaveEntityArray(const Util::Array<Ptr<Game::Entity>> & entities, const IO::URI& filename);
 	/// load a level section
-	void LoadEntities(const IO::URI & filename, bool cleanPerLevelData);
+	bool LoadEntities(const IO::URI & filename, bool cleanPerLevelData);
 
 protected:
 
@@ -92,6 +93,7 @@ protected:
 	bool autoBatch;	
 	bool inImport;
 	Util::Dictionary<Util::String,int> objectCounters;
+    Util::Array<Util::KeyValuePair<Util::String, Attr::AttributeContainer>> importedEntities;
 }; 
 
 //------------------------------------------------------------------------------------
