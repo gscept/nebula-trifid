@@ -6,7 +6,7 @@
     Entites with this property can be transformed.
   
     (C) 2007 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "game/property.h"
 #include "basegamefeature/basegameattr/basegameattributes.h"

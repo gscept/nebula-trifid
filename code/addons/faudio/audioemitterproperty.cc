@@ -1,13 +1,13 @@
 //------------------------------------------------------------------------------
 //  audioemitterproperty.cc
-//  (C) 2015 Individual contributors, see AUTHORS file
+//  (C) 2015-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "faudio/audioemitterproperty.h"
 #include "game/entity.h"
 #include "basegamefeature/basegameattr/basegameattributes.h"
 #include "faudio/audiodevice.h"
-#include "audioprotocol.h"
+#include "faudio/audioprotocol.h"
 #include "physicsfeature/physicsattr/physicsattributes.h"
 #include "basegamefeature/basegameprotocol.h"
 
@@ -166,14 +166,17 @@ AudioEmitterProperty::OnGainActivity()
 void
 AudioEmitterProperty::Update3DParameters()
 {
-	const Math::matrix44 trans = this->entity->GetMatrix44(Attr::Transform);
-	Math::vector velocity(0);
-	if (this->entity->HasAttr(Attr::VelocityVector))
-	{
-		velocity = this->entity->GetFloat4(Attr::VelocityVector);
-	}
-	Math::vector forward = trans.get_zaxis();
-	this->eventInstance->Set3DAttributes(trans.get_position(), velocity, &forward);
+    if (this->eventInstance.isvalid())
+    {
+        const Math::matrix44 trans = this->entity->GetMatrix44(Attr::Transform);
+        Math::vector velocity(0);
+        if (this->entity->HasAttr(Attr::VelocityVector))
+        {
+            velocity = this->entity->GetFloat4(Attr::VelocityVector);
+        }
+        Math::vector forward = trans.get_zaxis();
+        this->eventInstance->Set3DAttributes(trans.get_position(), velocity, &forward);
+    }
 }
 
 }; // namespace Game

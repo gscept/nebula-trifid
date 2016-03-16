@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  entityseletionutil.cc
 //  (C) 2009 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 
 #include "stdneb.h"
@@ -25,7 +25,7 @@
 #include "physicsfeature/physicsprotocol.h"
 #include "physicsfeatureunit.h"
 #include "coregraphics/rendershape.h"
-#include "leveleditor2protocol.h"
+#include "leveleditor2/leveleditor2protocol.h"
 #include "leveleditor2app.h"
 #include "managers/attributewidgetmanager.h"
 #include "graphics/graphicsprotocol.h"

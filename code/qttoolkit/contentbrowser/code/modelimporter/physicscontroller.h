@@ -5,7 +5,7 @@
     
     Handles physics-specific options and GUI
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include <QObject>
@@ -55,10 +55,15 @@ public slots:
 
 	/// called when 
 	void ToggleCreateConvex(bool b);
-	/// called when 
-	void ToggleHACD(bool b);	
-	
+	///
 	void ToggleStatic(bool b);
+
+	///
+	void ToggleBox( bool);
+	///
+	void ToggleSphere( bool);
+	///
+	void ToggleCapsule( bool);
 	
 private:
 

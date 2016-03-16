@@ -56,7 +56,7 @@ INCLUDE_DIRECTORIES(
 		${SOURCES_remote}
 		${SOURCES_files}		
 	)
-	N_WRAP_ADD_NIDL_FILES(SOURCES_ ${P_NIDL_FILES})
+	N_WRAP_ADD_PROJ_NIDL_FILES(remote SOURCES_ ${P_NIDL_FILES})
 
   add_library( remote STATIC ${SOURCES_} )
   add_dependencies(remote foundation)

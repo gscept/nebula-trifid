@@ -3,7 +3,7 @@
 /**
 	@class Physics::PhysicsMeshBase
 
-	(C) 2012-2015 Individual contributors, see AUTHORS file
+	(C) 2012-2016 Individual contributors, see AUTHORS file
 */
 #include "resources/resource.h"
 #include "coregraphics/primitivegroup.h"
@@ -29,6 +29,8 @@ protected:
 	uint * indexData;
 	float * vertexData;
 	uint vertexStride;
+	uint numVertices;
+	uint numIndices;
 };
 
 }

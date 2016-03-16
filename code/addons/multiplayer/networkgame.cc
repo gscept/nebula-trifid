@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  networkgame.cc
-//  (C) 2015 Individual contributors, see AUTHORS file
+//  (C) 2015-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "networkgame.h"
@@ -380,12 +380,20 @@ NetworkGame::CreateRoom()
 /**
 */
 void
-NetworkGame::JoinRoom(const Util::String & guid)
+NetworkGame::JoinRoom(const Util::String & guid, bool isIp)
 {
 	this->creator = false;
-	RakNet::RakNetGUID rguid;
-	rguid.FromString(guid.AsCharPtr());
-	NetworkServer::Instance()->Connect(rguid);
+    if (isIp)
+    {
+        RakNet::SystemAddress adr(guid.AsCharPtr());
+        NetworkServer::Instance()->ConnectDirect(adr);
+    }
+    else
+    {
+        RakNet::RakNetGUID rguid;
+        rguid.FromString(guid.AsCharPtr());
+        NetworkServer::Instance()->Connect(rguid);
+    }
 }
 
 //------------------------------------------------------------------------------

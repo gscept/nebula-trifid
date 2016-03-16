@@ -5,7 +5,7 @@
     
     Implements a bullet-specific character
     
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "physics/base/basecharacter.h"
@@ -73,6 +73,7 @@ protected:
 	Math::matrix44 capsuleOffset, inverseCapsuleOffset;
     Math::matrix44 crouchingCapsuleOffset, inverseCrouchingCapsuleOffset;
     bool crouching;
-}; 
+    float maxJumpHeight;
+};
 } // namespace Bullet
 //------------------------------------------------------------------------------

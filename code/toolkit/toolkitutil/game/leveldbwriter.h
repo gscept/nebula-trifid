@@ -4,7 +4,7 @@
     @class ToolkitUtil::LevelDbWriter
         
     
-    (C) 2015 Individual contributors, see AUTHORS file
+    (C) 2015-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"

@@ -5,7 +5,7 @@
     
     A widget which represents a dropbox with string values
     
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include <QWidget>
 #include "util/string.h"

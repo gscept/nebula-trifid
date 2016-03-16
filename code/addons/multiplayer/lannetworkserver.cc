@@ -11,6 +11,7 @@
 #include "TCPInterface.h"
 #include "RPC4Plugin.h"
 #include "ReadyEvent.h"
+#include "FullyConnectedMesh2.h"
 #include "networkgame.h"
 #include "MessageIdentifiers.h"
 #include "networkplayer.h"
@@ -54,7 +55,8 @@ using namespace RakNet;
 */
 LanNetworkServer::LanNetworkServer() :	
 	host(false),
-	serverStarted(false)
+	serverStarted(false),
+	fullyConnectedMesh(NULL)
 {
 	__ConstructInterfaceSingleton;
 }
@@ -74,6 +76,9 @@ void
 LanNetworkServer::Open()
 {
 	NetworkServer::Open();
+	this->fullyConnectedMesh = FullyConnectedMesh2::GetInstance();
+	this->rakPeer->AttachPlugin(this->fullyConnectedMesh);
+
 }
 
 //------------------------------------------------------------------------------
@@ -83,8 +88,10 @@ bool
 LanNetworkServer::SetupLowlevelNetworking()
 {
 	NetworkServer::SetupLowlevelNetworking();
+	this->fullyConnectedMesh->SetAutoparticipateConnections(false);
+	this->fullyConnectedMesh->SetConnectOnNewRemoteConnection(false, "");
 	this->replicationManager->SetNetworkIDManager(this->networkIDManager);
-	this->replicationManager->SetAutoManageConnections(true, true);
+	this->replicationManager->SetAutoManageConnections(false, true);
 		
 	
 	this->state = IDLE;
@@ -99,6 +106,7 @@ LanNetworkServer::SetupLowlevelNetworking()
 void
 LanNetworkServer::ShutdownLowlevelNetworking()
 {
+	this->fullyConnectedMesh->Clear();
 	NetworkServer::ShutdownLowlevelNetworking();
 	
 }
@@ -109,6 +117,7 @@ LanNetworkServer::ShutdownLowlevelNetworking()
 void
 LanNetworkServer::Close()
 {
+	delete this->fullyConnectedMesh;
 	NetworkServer::Close();	
 }
 
@@ -118,11 +127,12 @@ LanNetworkServer::Close()
 void 
 LanNetworkServer::OnFrame()
 {
-	if (this->state == SERVER_LOBBY)
+	if (this->state == SERVER_LOBBY || (this->state == IN_LOBBY && this->IsHost()))
 	{
 		RakNet::Time now = RakNet::GetTime();
 		if (now - this->lastBroadcast > 4000)
 		{
+			this->UpdateServerInfo();
 			rakPeer->AdvertiseSystem("255.255.255.255", CLIENT_PORT, this->serverInfoString.AsCharPtr(), this->serverInfoString.Length(), 0);
 			this->lastBroadcast = now;
 		}
@@ -156,7 +166,7 @@ LanNetworkServer::HandlePacket(RakNet::Packet * packet)
 		IndexT idx = this->participants.FindIndex(packet->guid);
 		if (idx != InvalidIndex)
 		{
-			this->participants.EraseIndex(idx);
+			//this->participants.EraseIndex(idx);
 		}
 	}
 	break;
@@ -166,7 +176,7 @@ LanNetworkServer::HandlePacket(RakNet::Packet * packet)
 		IndexT idx = this->participants.FindIndex(packet->guid);
 		if (idx != InvalidIndex)
 		{
-			this->participants.EraseIndex(idx);
+			//this->participants.EraseIndex(idx);
 		}		
 	}
 	break;
@@ -177,20 +187,94 @@ LanNetworkServer::HandlePacket(RakNet::Packet * packet)
 	break;
 	case ID_NEW_INCOMING_CONNECTION:
 	{
+		if (this->fullyConnectedMesh->IsHostSystem())
+		{
+			n_printf("Sending player list to new connection: %s\n", packet->guid.ToString());
+			this->fullyConnectedMesh->StartVerifiedJoin(packet->guid);
+		}
 		n_printf("ID_NEW_INCOMING_CONNECTION\n");
-		this->participants.Append(packet->guid);
+		//this->participants.Append(packet->guid);
 	}
 	break;
+	case ID_FCM2_VERIFIED_JOIN_START:
+	{
+		DataStructures::List<RakNet::SystemAddress> addresses;
+		DataStructures::List<RakNet::RakNetGUID> guids;
+		DataStructures::List<RakNet::BitStream*> streams;
+		this->fullyConnectedMesh->GetVerifiedJoinRequiredProcessingList(packet->guid, addresses, guids, streams);
+		for (unsigned int i = 0; i < guids.Size(); i++)
+		{
+			ConnectionAttemptResult car = this->rakPeer->Connect(addresses[i].ToString(false), addresses[i].GetPort(), 0, 0);			
+		}
+	}
+	break;
+	case ID_FCM2_VERIFIED_JOIN_CAPABLE:
+	{
+		//If server not full and you're in lobby or allowed to join while game has started
+		if (this->fullyConnectedMesh->GetParticipantCount() + 1 < NetworkGame::Instance()->GetMaxPlayers() && IsInGameJoinUnLocked())
+		{
+			this->fullyConnectedMesh->RespondOnVerifiedJoinCapable(packet, true, 0);
+		}
+		else
+		{
+			RakNet::BitStream answer;
+			answer.Write("Server Full\n");
+			this->fullyConnectedMesh->RespondOnVerifiedJoinCapable(packet, false, &answer);
+		}
+	}
+		break;
+	case ID_FCM2_VERIFIED_JOIN_ACCEPTED:
+	{
+		DataStructures::List<RakNet::RakNetGUID> systemsAccepted;
+		bool thisSystemAccepted;
+		this->fullyConnectedMesh->GetVerifiedJoinAcceptedAdditionalData(packet, &thisSystemAccepted, systemsAccepted, 0);
+		if (thisSystemAccepted)
+		{
+			n_printf("Game join request accepted\n");
+		}
+		else
+		{
+			n_printf("System %s joined the mesh\n", systemsAccepted[0].ToString());
+		}
 
+		for (unsigned int i = 0; i < systemsAccepted.Size(); i++)
+		{
+			this->replicationManager->PushConnection(this->replicationManager->AllocConnection(rakPeer->GetSystemAddressFromGuid(systemsAccepted[i]), systemsAccepted[i]));
+		}
+		this->participants.Clear();
+		DataStructures::List<RakNetGUID> meshclients;
+		this->fullyConnectedMesh->GetParticipantList(meshclients);
+		for (unsigned int i = 0; i < meshclients.Size(); i++)
+		{
+			this->participants.Append(meshclients[i]);
+		}
+	}
+		break;
 	case ID_CONNECTION_REQUEST_ACCEPTED:
 	{
 		n_printf("Connection request to %s accepted\n", targetName.AsCharPtr());
 		n_printf("connection guid: %s\n", packet->guid.ToString());	
-		this->participants.Append(packet->guid);
+		//this->participants.Append(packet->guid);
 		
 	}
 	break;
-	
+	case ID_FCM2_NEW_HOST:
+	{
+		if (packet->guid == rakPeer->GetMyGUID())
+		{
+			n_printf("we are the host\n");
+			this->state = IN_LOBBY;
+			// Original host dropped. I am the new session host. Upload to the cloud so new players join this system.
+			//RakNet::CloudKey cloudKey(NetworkGame::Instance()->GetGameID().AsCharPtr(), 0);
+			//cloudClient->Post(&cloudKey, 0, 0, rakPeer->GetGuidFromSystemAddress(this->natPunchServerAddress));			
+		}
+		else
+		{
+			this->state = IN_LOBBY;
+			n_printf("the new host is %s\n", packet->guid.ToString());
+		}
+	}
+		break;
 	case ID_CONNECTION_ATTEMPT_FAILED:
 	{
 		n_printf("Connection attempt to %s failed\n", targetName.AsCharPtr());
@@ -233,17 +317,24 @@ LanNetworkServer::HandlePacket(RakNet::Packet * packet)
 void
 LanNetworkServer::SearchForGames()
 {	
-	RakNet::SocketDescriptor sd;
-	sd.socketFamily = AF_INET; // Only IPV4 supports broadcast on 255.255.255.255
-	sd.port = CLIENT_PORT;
-
-	StartupResult sr = rakPeer->Startup(32, &sd, 1);
-	RakAssert(sr == RAKNET_STARTED);
-	this->rakPeer->SetMaximumIncomingConnections(32);
-	this->rakPeer->SetTimeoutTime(CONNECTION_TIMEOUT, RakNet::UNASSIGNED_SYSTEM_ADDRESS);
-	n_printf("Our guid is %s\n", this->rakPeer->GetGuidFromSystemAddress(RakNet::UNASSIGNED_SYSTEM_ADDRESS).ToString());
-	n_printf("Started on %s\n", this->rakPeer->GetMyBoundAddress().ToString(true));
-	this->state = NetworkServer::NETWORK_STARTED;
+	if (this->state == NetworkServer::IDLE)
+	{
+		RakNet::SocketDescriptor sd;
+		sd.socketFamily = AF_INET; // Only IPV4 supports broadcast on 255.255.255.255
+#if 0
+		// use this to enable multiple clients
+		sd.port = CLIENT_PORT + Math::n_irand(1,10);
+#else
+		sd.port = CLIENT_PORT;
+#endif
+		StartupResult sr = rakPeer->Startup(32, &sd, 1);
+		RakAssert(sr == RAKNET_STARTED);
+		this->rakPeer->SetMaximumIncomingConnections(32);
+		this->rakPeer->SetTimeoutTime(CONNECTION_TIMEOUT, RakNet::UNASSIGNED_SYSTEM_ADDRESS);
+		n_printf("Our guid is %s\n", this->rakPeer->GetGuidFromSystemAddress(RakNet::UNASSIGNED_SYSTEM_ADDRESS).ToString());
+		n_printf("Started on %s\n", this->rakPeer->GetMyBoundAddress().ToString(true));
+		this->state = NetworkServer::NETWORK_STARTED;
+	}
 	this->host = false;
 }
 
@@ -259,7 +350,7 @@ LanNetworkServer::CreateRoom()
 	RakNet::SocketDescriptor sd;
 	sd.socketFamily = AF_INET; // Only IPV4 supports broadcast on 255.255.255.255
 	sd.port = SERVER_PORT;
-
+    
 	StartupResult sr = rakPeer->Startup(32, &sd, 1);
 	RakAssert(sr == RAKNET_STARTED);
 	this->rakPeer->SetMaximumIncomingConnections(32);
@@ -277,14 +368,10 @@ LanNetworkServer::CreateRoom()
 void
 LanNetworkServer::CancelRoom()
 {
-	RakNet::SocketDescriptor sd;
-	sd.socketFamily = AF_INET; // Only IPV4 supports broadcast on 255.255.255.255
-	sd.port = CLIENT_PORT;
-
-	StartupResult sr = rakPeer->Startup(32, &sd, 1);
-	RakAssert(sr == RAKNET_STARTED);
-	this->rakPeer->SetMaximumIncomingConnections(32);
-	this->rakPeer->SetTimeoutTime(CONNECTION_TIMEOUT, RakNet::UNASSIGNED_SYSTEM_ADDRESS);
+	if (this->state != NetworkServer::IDLE)
+	{
+		this->rakPeer->Shutdown(100);
+	}	
 	this->host = false;
 	this->state = IDLE;
 }
@@ -344,10 +431,10 @@ LanNetworkServer::Connect(const RakNet::RakNetGUID &guid)
 //------------------------------------------------------------------------------
 /**
 */
-bool
-LanNetworkServer::HasHost() const
+void
+LanNetworkServer::ConnectDirect(const RakNet::SystemAddress &client)
 {
-	return this->state > IDLE;
+    this->rakPeer->Connect(client.ToString(false), client.GetPort(), 0, 0);
 }
 
 } // namespace MultiplayerFeature

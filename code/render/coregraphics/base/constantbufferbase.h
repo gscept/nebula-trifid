@@ -22,7 +22,7 @@
 	This type of behavior might only be relevant in non-direct APIs such as <DX11 and OpenGL, since
 	we can't actually tell whenever the buffer gets updated with a persistently mapped buffe.rb
 	
-	(C) 2015 Individual contributors, see AUTHORS file
+	(C) 2015-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"

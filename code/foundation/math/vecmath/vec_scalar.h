@@ -5,7 +5,7 @@
     
     Scalar typedef and math functions for VectorMath math functions.
         
-    (C) 2013 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/types.h"
 
@@ -20,7 +20,7 @@ const scalar LN_2 = 0.693147180559945f;
 #endif
 // the half circle
 #ifndef N_PI
-#define N_PI (Math::scalar(PI))
+#define N_PI (Math::scalar(3.1415926535897932384626433832795028841971693993751))
 #endif
 
 #define _DECLSPEC_ALIGN_16_ __declspec(align(16))

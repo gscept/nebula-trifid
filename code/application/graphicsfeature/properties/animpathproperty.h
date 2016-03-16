@@ -5,7 +5,7 @@
 	
 	This property uses two anim paths to animate the rotation and translation of the object.
 	
-	(C) 2015 Individual contributors, see AUTHORS file
+	(C) 2015-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "game/property.h"
@@ -46,6 +46,7 @@ private:
 	bool paused;
 	float lastSample;
 	Math::float4 pos;
+	Math::matrix44 baseRotation;
 	Ptr<PathAnimationTrack> currentTrack;
 	Ptr<ManagedPathAnimation> animPath;
 };

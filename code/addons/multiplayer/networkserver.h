@@ -3,7 +3,7 @@
 /**
     @class MultiplayerFeature::NetworkServer       
                 
-    (C) 2015 Individual contributors, see AUTHORS file
+    (C) 2015-2016 Individual contributors, see AUTHORS file
 */
 #include "util/dictionary.h"
 #include "timing/time.h"
@@ -74,6 +74,8 @@ public:
 	virtual void SearchForGames() = 0;
 	///
 	virtual void Connect(const RakNet::RakNetGUID &guid) = 0;
+    ///
+    virtual void ConnectDirect(const RakNet::SystemAddress &addr) = 0;
 
 	/// internal
 	void DispatchMessageStream(RakNet::BitStream * msgStream, RakNet::Packet *packet);
@@ -84,6 +86,9 @@ public:
 
 	///
 	static NetworkServer* Instance();
+
+	///
+	virtual NetworkServerState GetState() const;
 	
 protected:
 	/// returns status if allowed to join a game
@@ -121,6 +126,16 @@ protected:
 	Util::Array<RakNet::RakNetGUID> participants;
 	Ptr<Attr::AttributeTable> masterResult;
 };
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline
+NetworkServer::NetworkServerState
+NetworkServer::GetState() const
+{
+	return this->state;
+}
 
 //------------------------------------------------------------------------------
 /**

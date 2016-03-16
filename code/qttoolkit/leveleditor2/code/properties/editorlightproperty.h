@@ -6,7 +6,7 @@
     Based on the normal LightProperty, 
 	additionally it renders a wireframe representation
     
-    (C) 2012 Johannes Hirche, LTU Skelleftea
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 #include "game/property.h"
 #include "graphicsfeature/properties/lightproperty.h"

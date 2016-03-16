@@ -5,12 +5,12 @@
     
     Message handler for the Audio subsystem.
 
-    (C) 2015 Individual contributors, see AUTHORS file
+    (C) 2015-2016 Individual contributors, see AUTHORS file
 */
 
 #include "messaging/port.h"
 #include "messaging/message.h"
-#include "audioprotocol.h"
+#include "faudio/audioprotocol.h"
 #include "http/httpserverproxy.h"
 #include "timing/timer.h"
 #include "messaging/staticmessagehandler.h"

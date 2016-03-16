@@ -5,7 +5,7 @@
 
     A physics PhysicsServer
 
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 #if (__USE_BULLET__)
 #include "physics/bullet/bulletphysicsserver.h"
@@ -26,7 +26,7 @@ public:
 #include "physics/physx/physxphysicsserver.h"
 namespace Physics
 {
-class PhysicsServer : public PhysX::PhysXPhysicsServer
+class PhysicsServer : public PhysX::PhysXServer
 {
 	__DeclareClass(PhysicsServer);
 	__DeclareInterfaceSingleton(PhysicsServer);

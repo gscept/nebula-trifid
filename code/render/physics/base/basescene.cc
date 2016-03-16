@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  basescene.cc
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 
 #include "stdneb.h"
@@ -19,7 +19,7 @@ BaseScene::BaseScene():
 	simulationSpeed(1.0f),
 	time(0)
 {
-	this->gravity.set(0, 0, 0);
+	this->gravity.set(0, -9.81f, 0);
 }
 
 //------------------------------------------------------------------------------

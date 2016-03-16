@@ -9,7 +9,7 @@
     The feature unit is also responsible for continously update the UI subsystem through its perframe callback.
 
     (C) 2008 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "game/featureunit.h"
 #include "ui/uiserver.h"
@@ -38,7 +38,7 @@ public:
     virtual void OnActivate();
     /// called from GameServer::DeactivateProperties()
     virtual void OnDeactivate();
-    
+
     /// called in the middle of the feature trigger cycle
     virtual void OnFrame();
 

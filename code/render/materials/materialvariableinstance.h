@@ -6,7 +6,7 @@
     Describes a variable instance which holds the same information as a shader variable, 
 	but only uses the information when Apply is called. Resembles the ShaderVariableInstance.
     
-    (C) 2011-2013 Individual contributors, see AUTHORS file
+    (C) 2011-2016 Individual contributors, see AUTHORS file
 */
 #include "materials/materialvariable.h"
 #include "core/refcounted.h"

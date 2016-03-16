@@ -6,7 +6,7 @@
     Multiplatform batch exporter class for audio content.
     
     (C) 2008 Radon Labs GmbH
-    (C) 2013-2014 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "toolkitutil/platform.h"
 #include "util/string.h"

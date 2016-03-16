@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  physicsmeshbase.cc
-//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "physics/resource/physicsmeshbase.h"
@@ -49,6 +49,8 @@ PhysicsMeshBase::SetMeshData(float * vertexData, uint numVertices, uint verticeS
 	this->vertexData = (float*)Memory::Alloc(Memory::PhysicsHeap, vertexbytes);
 	Memory::Copy(vertexData, (void*)this->vertexData, vertexbytes);
 	this->vertexStride = verticeStride;
+	this->numVertices = numVertices;
+	this->numIndices = numIndices;
 }
 
 }

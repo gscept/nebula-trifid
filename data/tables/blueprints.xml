@@ -19,9 +19,11 @@
     </Entity>
     <Entity cppclass="Entity" type="Light" desc="a light entity">
         <Property type="BaseGameFeature::TimeProperty" />
+		<Property type="BaseGameFeature::TransformableProperty" />
         <Property type="GraphicsFeature::LightProperty" />
     </Entity>
 	<Entity cppclass="Entity" type="LightProbe" desc="A light probe entity used to project reflections and irradiance into the scene">
+		<Property type="BaseGameFeature::TransformableProperty" />
         <Property type="GraphicsFeature::LightProbeProperty" />
     </Entity>
     <Entity cppclass="Entity" type="PostEffectBubble" desc="a bubble of post effects">

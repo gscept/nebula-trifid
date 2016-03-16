@@ -11,7 +11,7 @@
 	This class also supports rendering out an irradiance map, which goes together
 	with the reflection map to create a fully offline diffuse and specular global illumination.
 	
-	(C) 2012-2015 Individual contributors, see AUTHORS file
+	(C) 2012-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"

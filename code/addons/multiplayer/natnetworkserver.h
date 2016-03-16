@@ -89,6 +89,8 @@ private:
 
 	/// connect to server using nat punchthrough
 	void Connect(const RakNet::RakNetGUID &guid);
+    ///
+    void ConnectDirect(const RakNet::SystemAddress &addr);
 
 
 	/// start the game

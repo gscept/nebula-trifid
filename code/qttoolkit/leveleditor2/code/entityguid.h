@@ -5,7 +5,7 @@
     
     Defines the id type of an entity, as well as the EntityType enumerator.
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 
 #include "util/guid.h"

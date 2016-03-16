@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  physicsfeature/properties/physicsproperty.cc
 //  (C) 2005 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "physicsfeature/properties/animatedphysicsproperty.h"
@@ -319,6 +319,7 @@ AnimatedPhysicsProperty::AttachByNames()
 	}
 	if(this->trackedModel->IsValid())
 	{
+		this->untrackedBodies = this->physicsEntities;
 		Ptr<Graphics::ModelEntity> imodel = this->trackedModel;
 		if(imodel->GetModelInstance().isvalid())
 		{
@@ -333,12 +334,27 @@ AnimatedPhysicsProperty::AttachByNames()
 				{
 					this->trackedModel->AddTrackedCharJoint(jointname);
 					this->trackedJoints.Append(jointname);
-					this->jointHash.Add(jointname,bodyHash[jointname]);
+					this->jointHash.Add(jointname, this->bodyHash[jointname]);
 					this->jointOffsets.Add(jointname, joint.GetInvPoseMatrix());
+					this->untrackedBodies.EraseIndex(this->untrackedBodies.FindIndex(this->bodyHash[jointname]));
 				}
 			}
 			this->linked = true;		
 		}		
 	}	
+
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+AnimatedPhysicsProperty::UpdateTransform(const Math::matrix44 & transform)
+{
+	for (Util::Array<Ptr<Physics::PhysicsBody>>::Iterator iter = this->untrackedBodies.Begin();iter != this->untrackedBodies.End();iter++)
+	{
+		(*iter)->SetTransform(transform);
+	}
+}
+
 }

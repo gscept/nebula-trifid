@@ -5,7 +5,7 @@
     
     Holds level specific data, loads and saves as well
     
-    (C) 2013 Johannes Hirche, LTU Skelleftea
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
@@ -14,6 +14,8 @@
 #include "io/xmlreader.h"
 #include "math/bbox.h"
 #include "game/levelparser.h"
+#include "game/entity.h"
+
 namespace PostEffect
 {
 class PostEffectEntity;
@@ -55,6 +57,11 @@ public:
 	/// get current bounding box
 	Math::bbox GetBoundingBox();
 
+	/// save array of entities
+	void SaveEntityArray(const Util::Array<Ptr<Game::Entity>> & entities, const IO::URI& filename);
+	/// load a level section
+	void LoadEntities(const IO::URI & filename, bool cleanPerLevelData);
+
 protected:
 
     /// set level name
@@ -68,11 +75,9 @@ protected:
     /// level dimensions
     virtual void SetDimensions(const Math::bbox & box);
 
-
-	/// load a legacy level file
-	bool LoadLegacyLevel(const Ptr<IO::XmlReader>& reader);
-	/// load regular level file
-	bool LoadVersionedLevel(const Ptr<IO::XmlReader>& reader);
+	/// save single entity
+	void SaveEntity(const Ptr<Game::Entity>& entity, const Ptr<IO::XmlWriter>& stream);
+	
 	/// export level to database
 	void ExportLevel(const Util::String&level);
 	/// construct an _ID from type optional category and name
@@ -85,6 +90,7 @@ protected:
 	Util::String name;
 	bool startLevel;
 	bool autoBatch;	
+	bool inImport;
 	Util::Dictionary<Util::String,int> objectCounters;
 }; 
 

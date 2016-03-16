@@ -38,6 +38,7 @@ SET(QTMOCFILES  "qtnebulawidget.h")
 PCH_QT4_WRAP_CPP(qtfeature_HEADERS_MOC ${QTMOCFILES})
 
 ADD_LIBRARY( qtfeature STATIC ${SOURCES_files} ${qtfeature_HEADERS_MOC})
+ADD_DEPENDENCIES(qtfeature application_NIDLS)
 SET_TARGET_PROPERTIES(qtfeature PROPERTIES FOLDER "N3SDK/addons")
 
 

@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  basecharacter.cc
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "physics/base/basecharacter.h"
@@ -16,6 +16,7 @@ BaseCharacter::BaseCharacter() :
 	radius(1.0f), 
 	height(4.0f),
 	crouchingHeight(height * 0.55f),
+	mass(10.0f),
 	shape(Capsule)
 {
 	// empty

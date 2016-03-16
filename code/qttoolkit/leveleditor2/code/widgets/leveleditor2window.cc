@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  leveleditor2window.cc
-//  (C) 2012-2014 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "leveleditor2window.h"
@@ -22,7 +22,7 @@
 #include "applauncher.h"
 #include "qmessagebox.h"
 #include "remoteinterface/qtremoteclient.h"
-#include "qtremoteprotocol.h"
+#include "remoteinterface/qtremoteprotocol.h"
 #include "toolkitversion.h"
 #include "qurl.h"
 #include "scripteditor.h"
@@ -31,7 +31,7 @@
 #include "qcolordialog.h"
 #include "uidialoghandler.h"
 #include "properties/editorproperty.h"
-#include "leveleditor2protocol.h"
+#include "leveleditor2/leveleditor2protocol.h"
 #include "game/templateexporter.h"
 #include "db/dbfactory.h"
 #include "game/gameexporter.h"
@@ -128,6 +128,9 @@ LevelEditor2Window::LevelEditor2Window():
 	connect(this->ui.actionCreate_template_from_selection, SIGNAL(triggered()), this, SLOT(OnCreateTemplate()));
 	connect(this->ui.actionBatch_game_data, SIGNAL(triggered()), this, SLOT(OnBatchGame()));
 	connect(this->ui.actionCenter_Group_Pivot, SIGNAL(triggered()), this, SLOT(OnCenterPivot()));
+
+	connect(this->ui.actionExport_Selection, SIGNAL(triggered()), this, SLOT(OnExportSelection()));
+	connect(this->ui.actionImport, SIGNAL(triggered()), this, SLOT(OnImport()));
 
     this->addAction(this->ui.actionDuplicate);
     this->addAction(this->ui.actionGroup);
@@ -368,6 +371,16 @@ LevelEditor2Window::dropEvent(QDropEvent* e)
 //------------------------------------------------------------------------------
 /**
 */
+void
+LevelEditor2Window::OnExportSelection()
+{
+	Util::Array<Ptr<Game::Entity>> selected = SelectionUtil::Instance()->GetSelectedEntities();
+	Level::Instance()->SaveEntityArray(selected, "work:levels/snippets/test.xml");
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 LevelEditor2Window::OnNewEnvironmentEntity()
 {
@@ -531,6 +544,15 @@ void
 LevelEditor2Window::OnCenterPivot()
 {
 	PlacementUtil::Instance()->CenterPivot();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+LevelEditor2Window::OnImport()
+{
+
 }
 
 //------------------------------------------------------------------------------

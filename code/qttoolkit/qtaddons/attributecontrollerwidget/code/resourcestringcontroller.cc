@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  resourcestringcontroller.cc
-//  (C) 2013-2014 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "resourcestringcontroller.h"
@@ -8,7 +8,7 @@
 #include "db/valuetable.h"
 #include "ui_resourcestringcontroller.h"
 #include "basegamefeature/basegameprotocol.h"
-#include "toolkit/toolkitutil/idldocument/idlattribute.h"
+#include "idldocument/idlattribute.h"
 #include "io/assignregistry.h"
 #include "qfiledialog.h"
 #include "qmessagebox.h"
@@ -30,7 +30,8 @@ namespace QtAttributeControllerAddon
 ResourceStringController::ResourceStringController(QWidget* _parent, const Ptr<Game::Entity>& _entity, const Ptr<Tools::IDLAttribute>& _attr):
 	BaseAttributeController(_parent),
 	attr(_attr),
-	editable(false)
+	editable(false),
+	fullName(false)
 {
 	this->entity = _entity;	
 	this->attributeId = AttrId(_attr->GetName());
@@ -55,11 +56,26 @@ ResourceStringController::ResourceStringController(QWidget* _parent, const Ptr<G
 	{
 		this->editable = this->attr->GetAttributes()["edit"].AsBool();
 	}
+	if (this->attr->HasAttribute("fullName"))
+	{
+		this->fullName = this->attr->GetAttribute("fullName").AsBool();
+	}
+	this->ui->editButton->setVisible(this->editable);
 	this->ui->editButton->setEnabled(this->editable);
 	this->ui->lineEdit->setReadOnly(!this->editable);
 	this->ui->lineEdit->setEnabled(this->editable);
 
-	this->ui->lineEdit->setText(msg->GetAttr().GetString().AsCharPtr());
+	if (this->fullName)
+	{
+		Util::String full = msg->GetAttr().GetString();
+		full.StripAssignPrefix();
+		full.StripFileExtension();
+		this->ui->lineEdit->setText(full.AsCharPtr());
+	}
+	else
+	{
+		this->ui->lineEdit->setText(msg->GetAttr().GetString().AsCharPtr());
+	}	
 
 	bool connected = false;
 	connected = connect(this->ui->browseButton, SIGNAL(clicked()), this, SLOT(OnBrowse()));
@@ -85,7 +101,14 @@ Util::Variant
 ResourceStringController::GetValue() const
 {
 	Util::String value = this->ui->lineEdit->text().toUtf8().constData();
-	return Util::Variant(value);
+	if (this->fullName)
+	{
+		return Util::Variant(this->resourceType + ":" + value + "." + this->fileSuffix);
+	}
+	else
+	{
+		return Util::Variant(value);
+	}	
 }
 
 //------------------------------------------------------------------------------

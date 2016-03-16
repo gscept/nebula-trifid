@@ -8,7 +8,7 @@
 	If you derive your own class make sure to implement the serialization
 	functions and add the variables you want to get synced.
 
-(C) 2015 Individual contributors, see AUTHORS file
+(C) 2015-2016 Individual contributors, see AUTHORS file
 */
 
 #include "util/dictionary.h"
@@ -73,7 +73,7 @@ public:
 	/// trigger refresh of available rooms on master
 	virtual void UpdateRoomList();
 	/// join a server returned by the master server
-	void JoinRoom(const Util::String & guid);
+    void JoinRoom(const Util::String & guid, bool isIp=false);
 	/// create lobby and publish to master server (if enabled)
 	void CreateRoom();
 	/// unpublishes and resets network

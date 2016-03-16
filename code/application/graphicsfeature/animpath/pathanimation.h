@@ -8,7 +8,7 @@
 
 	By default, the translation, rotation and scaling attributes are constant, and must be defined as cycling if such behavior is wanted.
 	
-	(C) 2015 Individual contributors, see AUTHORS file
+	(C) 2015-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "resources/resource.h"

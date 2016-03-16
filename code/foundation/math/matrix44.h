@@ -8,7 +8,7 @@
     Frontend header for matrix classes.
 
     (C) 2006 Radon Labs GmbH
-    (C) 2013-2014 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #if __USE_XNA
 #include "math/xnamath/xna_matrix44.h"

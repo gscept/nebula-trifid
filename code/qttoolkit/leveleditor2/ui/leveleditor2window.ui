@@ -180,6 +180,9 @@
     <addaction name="separator"/>
     <addaction name="actionNew_layer"/>
     <addaction name="actionMoveEntityToSelectedLayer"/>
+    <addaction name="separator"/>
+    <addaction name="actionExport_Selection"/>
+    <addaction name="actionImport"/>
    </widget>
    <widget class="QMenu" name="menuWindow">
     <property name="title">
@@ -335,8 +338,20 @@
        <property name="indentation">
         <number>20</number>
        </property>
-       <attribute name="headerVisible">
+       <property name="uniformRowHeights">
+        <bool>true</bool>
+       </property>
+       <property name="sortingEnabled">
         <bool>false</bool>
+       </property>
+       <property name="headerHidden">
+        <bool>false</bool>
+       </property>
+       <property name="columnCount">
+        <number>2</number>
+       </property>
+       <attribute name="headerVisible">
+        <bool>true</bool>
        </attribute>
        <attribute name="headerCascadingSectionResizes">
         <bool>false</bool>
@@ -345,14 +360,22 @@
         <number>100</number>
        </attribute>
        <attribute name="headerMinimumSectionSize">
-        <number>27</number>
+        <number>50</number>
+       </attribute>
+       <attribute name="headerShowSortIndicator" stdset="0">
+        <bool>false</bool>
        </attribute>
        <attribute name="headerStretchLastSection">
         <bool>true</bool>
        </attribute>
        <column>
         <property name="text">
-         <string notr="true">1</string>
+         <string notr="true">Name</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Type</string>
         </property>
        </column>
       </widget>
@@ -1031,6 +1054,16 @@
    </property>
    <property name="text">
     <string>Center Group Pivot</string>
+   </property>
+  </action>
+  <action name="actionExport_Selection">
+   <property name="text">
+    <string>Export Selection</string>
+   </property>
+  </action>
+  <action name="actionImport">
+   <property name="text">
+    <string>Import </string>
    </property>
   </action>
  </widget>

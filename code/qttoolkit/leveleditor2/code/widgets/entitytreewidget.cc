@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  entitytreewidget.cc
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 
 #include "stdneb.h"
@@ -10,7 +10,7 @@
 #include "qevent.h"
 #include "qstandarditemmodel.h"
 #include "managers/entitymanager.h"
-#include "leveleditor2protocol.h"
+#include "leveleditor2/leveleditor2protocol.h"
 #include "leveleditor2app.h"
 #include "QInputDialog"
 #include "editorfeatures/editorblueprintmanager.h"
@@ -76,7 +76,8 @@ EntityTreeItem::SetIcon(const EntityType& type)
 */
 EntityTreeWidget::EntityTreeWidget(QWidget* parent) :
 	QTreeWidget(parent),
-	blockSignal(false)
+	blockSignal(false),
+	sortingEnabled(false)
 {
 	this->setDragEnabled(true);
 	this->setAcceptDrops(true);	
@@ -84,6 +85,9 @@ EntityTreeWidget::EntityTreeWidget(QWidget* parent) :
 	this->setDefaultDropAction(Qt::MoveAction);
 	this->viewport()->setAcceptDrops(true);
 	this->setDropIndicatorShown(true);	
+	this->header()->setResizeMode(QHeaderView::ResizeToContents);
+	this->header()->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(this->header(), SIGNAL(customContextMenuRequested(const QPoint&)),	this, SLOT(HeaderContextMenu(const QPoint&)));
 }
 
 //------------------------------------------------------------------------------
@@ -340,7 +344,7 @@ EntityTreeWidget::contextMenuEvent(QContextMenuEvent * event)
 {
 	EntityTreeItem * myitem = (EntityTreeItem*)this->itemAt(event->pos());
 	if (myitem == NULL)
-	{
+	{				
 		return;
 	}
 	if (this->selectedItems().count() > 1)
@@ -483,6 +487,30 @@ EntityTreeWidget::mimeData(const QList<QTreeWidgetItem*> items) const
 //------------------------------------------------------------------------------
 /**
 */
+void
+EntityTreeWidget::HeaderContextMenu(const QPoint & pos)
+{
+	QMenu menu;
+	QAction * sortAction = menu.addAction(this->isSortingEnabled() ? "Disable Sorting" : " Enable Sorting");	
+	QAction *sel = menu.exec(this->header()->mapToGlobal(pos));
+	if (sel == sortAction)
+	{
+		if (this->isSortingEnabled())
+		{
+			this->header()->setSortIndicatorShown(false);
+			this->setSortingEnabled(false);
+		}
+		else
+		{
+			this->header()->setSortIndicatorShown(true);
+			this->setSortingEnabled(true);
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 Util::Guid 
 EntityTreeWidget::GetParent(const Util::Guid & guid)
 {
@@ -562,6 +590,28 @@ EntityTreeWidget::RebuildTree()
 			}		
 		}		
 	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+EntityTreeWidget::OnBeginLoad()
+{
+	if (this->isSortingEnabled())
+	{
+		this->sortingEnabled = true;
+		this->setSortingEnabled(false);
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+EntityTreeWidget::OnEndLoad()
+{
+	this->setSortingEnabled(this->sortingEnabled);
 }
 
 } // namespace LevelEditor2

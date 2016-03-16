@@ -12,11 +12,13 @@
 #include "attr/attributetable.h"
 #include "messaging/message.h"
 #include "networkserver.h"
+#include "FullyConnectedMesh2.h"
 
 namespace RakNet
 {
 	class RakPeerInterface;
 	class NetworkIDManager;
+	class FullyConnectedMesh2;
 	class TCPInterface;
 	class RPC4;	
 	class HTTPConnection2;
@@ -44,8 +46,10 @@ public:
     /// perform client-side per-frame updates
 	virtual void OnFrame();
 
-	/// connect to server using direct punchthrough
+	/// connect to server using 
 	void Connect(const RakNet::RakNetGUID &guid);
+    ///
+    void ConnectDirect(const RakNet::SystemAddress &addr);
 
 	/// setup low level network handling, NAT punch, UPNP
 	virtual bool SetupLowlevelNetworking();
@@ -84,6 +88,8 @@ private:
 	bool host;
 	bool serverStarted;	
 	Util::String serverInfoString;
+	RakNet::FullyConnectedMesh2 *fullyConnectedMesh;
+
 };
 
 
@@ -94,8 +100,8 @@ private:
 inline
 bool
 LanNetworkServer::IsHost() const
-{	
-	return this->host;
+{
+	return this->fullyConnectedMesh->IsHostSystem();
 }
 
 //------------------------------------------------------------------------------
@@ -103,7 +109,7 @@ LanNetworkServer::IsHost() const
 */
 inline
 bool
-NetworkServer::HasHost() const
+LanNetworkServer::HasHost() const
 {
 	return this->state > IN_LOBBY_WAITING_FOR_HOST_DETERMINATION;
 }

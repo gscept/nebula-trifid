@@ -5,7 +5,7 @@
 	
 	Level editor version of a light probe property. Works as a placeholder from which we render light probes which are then used in game.
 	
-	(C) 2012-2015 Individual contributors, see AUTHORS file
+	(C) 2012-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "game/property.h"

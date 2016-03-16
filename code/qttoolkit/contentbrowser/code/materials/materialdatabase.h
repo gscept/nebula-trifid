@@ -5,7 +5,7 @@
     
     Implements a material database, which can load materials and store them for easy access.
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "core/singleton.h"

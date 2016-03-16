@@ -5,7 +5,7 @@
     
     property that will call entity scripts on different evens like entered trigger, inside trigger and exited trigger
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 

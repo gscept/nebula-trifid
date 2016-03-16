@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  framealgorithm.cc
-//  (C) 2013 gscept
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "framealgorithm.h"

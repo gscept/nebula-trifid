@@ -11,7 +11,7 @@
 #include "math/float4.h"
 #include "io/ioserver.h"
 #include "graphics/graphicsinterface.h"
-#include "posteffectprotocol.h"
+#include "posteffect/posteffectprotocol.h"
 #include "posteffect/posteffectmanager.h"
 #include "posteffect/posteffectparser.h"
 #include "posteffect/posteffectregistry.h"

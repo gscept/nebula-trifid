@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  enventitymanager.cc
 //  (C) 2007 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "basegamefeature/basegameattr/basegameattributes.h"
@@ -21,12 +21,12 @@
 #include "physicsfeature/physicsattr/physicsattributes.h"
 #include "graphics/billboardentity.h"
 
-namespace BaseGameFeature
+namespace GraphicsFeature
 {
 __ImplementClass(EnvEntityManager, 'MENV', Game::Manager);
 __ImplementSingleton(EnvEntityManager);
 
-using namespace GraphicsFeature;
+using namespace BaseGameFeature;
 using namespace Util;
 using namespace Math;
 using namespace Game;
@@ -142,7 +142,9 @@ EnvEntityManager::CreateEnvEntity(const Ptr<Db::ValueTable>& instTable, IndexT i
 	bool collide = instTable->GetBool(Attr::CollisionEnabled, instTableRowIndex);
 	
 	bool dynamic = instTable->GetBool(Attr::DynamicObject, instTableRowIndex);
-			
+	
+	bool synced = instTable->GetBool(Attr::LoadSynced, instTableRowIndex);
+
 	if (collide)
     {		
 		if(dynamic)
@@ -188,7 +190,7 @@ EnvEntityManager::CreateEnvEntity(const Ptr<Db::ValueTable>& instTable, IndexT i
 		else
 		{
 			// create graphics entity(s) and attach to graphics property 
-			Util::Array<Ptr<Graphics::ModelEntity> > gfxEntities = segGfxUtil.CreateAndSetupGraphicsEntities(resName, worldMatrix, envEntity->GetUniqueId(),NULL,instanced,castShadows);			
+			Util::Array<Ptr<Graphics::ModelEntity> > gfxEntities = segGfxUtil.CreateAndSetupGraphicsEntities(resName, worldMatrix, envEntity->GetUniqueId(),NULL,instanced,castShadows, synced);			
 			this->envGraphicsProperty->AddGraphicsEntities(id, worldMatrix, gfxEntities);
 			if (!startAnim.IsEmpty())
 			{
@@ -380,8 +382,12 @@ EnvEntityManager::ClearEnvEntity()
 {
     if (this->envEntity.isvalid())
     {
-        EntityManager* entityManager = EntityManager::Instance();
-        entityManager->RemoveEntity(this->envEntity);
+		if (this->envEntity->IsActive())
+		{
+			EntityManager* entityManager = EntityManager::Instance();
+			entityManager->RemoveEntity(this->envEntity);
+		}
+        
         this->envEntity = 0;
         this->envGraphicsProperty = 0;     
         this->envCollideProperty = 0;    

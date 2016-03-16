@@ -9,7 +9,7 @@
     segmentation helps in visibility culling large environmental objects.
 
     (C) 2007 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "graphics/modelentity.h"
 
@@ -22,7 +22,7 @@ public:
     /// constructor
     SegmentedGfxUtil();
     /// create and setup one or more graphics entities from hierarchy nodes
-	Util::Array<Ptr<Graphics::ModelEntity> > CreateAndSetupGraphicsEntities(const Util::String& resName, const Math::matrix44& worldMatrix, IndexT pickingId, const Ptr<Graphics::Stage> stage = 0, bool instanced = false, bool castShadows = true);
+	Util::Array<Ptr<Graphics::ModelEntity> > CreateAndSetupGraphicsEntities(const Util::String& resName, const Math::matrix44& worldMatrix, IndexT pickingId, const Ptr<Graphics::Stage> stage = 0, bool instanced = false, bool castShadows = true, bool loadSynced = false);
 };
 
 }; // namespace GraphicsFeature

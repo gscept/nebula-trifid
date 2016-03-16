@@ -9,7 +9,7 @@
 */
 //------------------------------------------------------------------------------
 #include <QDialog>
-#include "addons/posteffect/posteffectentity.h"
+#include "posteffect/posteffectentity.h"
 
 namespace Ui
 {

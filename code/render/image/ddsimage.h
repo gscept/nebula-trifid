@@ -7,7 +7,7 @@
 	DDS Header: http://msdn.microsoft.com/en-us/library/windows/desktop/bb943982(v=vs.85).aspx
 	DDS Extended Header: http://msdn.microsoft.com/en-us/library/windows/desktop/bb943983(v=vs.85).aspx
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "imagebase.h"

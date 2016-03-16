@@ -5,7 +5,7 @@
     
     Converts an XML file to binary .n3
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 #include "io/xmlreader.h"
 #include "toolkitutil/binarymodelwriter.h"

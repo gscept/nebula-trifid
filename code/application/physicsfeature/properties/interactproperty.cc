@@ -8,6 +8,7 @@
 #include "scriptingfeature/properties/scriptingproperty.h"
 #include "input/inputserver.h"
 #include "input/keyboard.h"
+#include "managers/envquerymanager.h"
 
 
 namespace PhysicsFeature

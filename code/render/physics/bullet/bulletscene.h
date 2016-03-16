@@ -3,7 +3,7 @@
 /**
 	@class Bullet::BulletScene
 
-	(C) 2012-2015 Individual contributors, see AUTHORS file
+	(C) 2012-2016 Individual contributors, see AUTHORS file
 */
 #include "physics/base/basescene.h"
 #include "physics/physicsobject.h"
@@ -51,9 +51,9 @@ public:
 	const Ptr<Physics::PhysicsObject> & SimpleRayCheck(const Math::vector & start, const Math::vector & end, uint objectTypes = Physics::All);
 
 	/// return all entities within a spherical area
-	int GetObjectsInSphere(const Math::vector& pos, float radius, const Physics::FilterSet& excludeSet, Util::Array<Ptr<Physics::PhysicsObject> >& result);
+	int GetObjectsInSphere(const Math::vector& pos, float radius, const Physics::FilterSet& excludeSet, Util::Array<Ptr<Physics::PhysicsObject>>& result);
 	/// return all entities within a box 
-	int GetObjectsInBox(const Math::vector& halfScale, const Math::matrix44& m, const Physics::FilterSet& excludeSet, Util::Array<Ptr<Physics::PhysicsObject> >& result);
+    int GetObjectsInBox(const Math::matrix44& transform, const Math::vector& halfWidth, const Physics::FilterSet& excludeSet, Util::Array<Ptr<Physics::PhysicsObject>>& result);
 
 	/// Do a ray check starting from position `pos' along ray `dir'.
 	Util::Array<Ptr<Physics::Contact> >RayCheck(const Math::vector& pos, const Math::vector& dir, const Physics::FilterSet& excludeSet, RayTestType rayType);

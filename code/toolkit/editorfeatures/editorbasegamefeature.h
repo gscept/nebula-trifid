@@ -7,7 +7,7 @@
 	Creates an instance of game and static dbs using the data: from the sdk
 	or toolkit folder and uses the blueprints from the sdk as well
 
-    (C) 2012 Johannes Hirche, LTU Skelleftea
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 #include "game/featureunit.h"
 #include "basegamefeature/basegamefeatureunit.h"

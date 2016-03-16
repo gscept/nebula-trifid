@@ -5,7 +5,7 @@
     
     Exports both levels and templates, and ensures the database is always clean
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 #include "base/exporterbase.h"
 #include "levelexporter.h"

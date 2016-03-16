@@ -104,6 +104,7 @@ NatNetworkServer::SetupLowlevelNetworking()
 	this->replicationManager->SetAutoManageConnections(false, true);
 
 	NetworkServer::SetupLowlevelNetworking();
+	this->replicationManager->SetAutoManageConnections(false, true);
 
 	RakNet::SocketDescriptor sd;
 	sd.socketFamily = AF_INET; // Only IPV4 supports broadcast on 255.255.255.255
@@ -597,6 +598,15 @@ NatNetworkServer::UnpublishFromMaster()
 	n_printf("Unpublish: %s\n", Http::HttpStatus::ToHumanReadableString(res).AsCharPtr());
 	Http::HttpClientRegistry::Instance()->ReleaseConnection(serverUri);
 	this->masterServerRow = -1;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+NatNetworkServer::ConnectDirect(const RakNet::SystemAddress &addr)
+{
+    n_error("not implemented");
 }
 
 //------------------------------------------------------------------------------

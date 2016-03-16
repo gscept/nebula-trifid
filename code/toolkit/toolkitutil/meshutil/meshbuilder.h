@@ -6,7 +6,7 @@
     A mesh builder utility class. Useful for exporter and converter tools.
     
     (C) 2009 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "toolkitutil/meshutil/meshbuildervertex.h"
 #include "toolkitutil/meshutil/meshbuildertriangle.h"

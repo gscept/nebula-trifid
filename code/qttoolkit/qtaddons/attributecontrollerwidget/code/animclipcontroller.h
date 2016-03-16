@@ -5,7 +5,7 @@
     
     A widget which represents a dropbox with with anim clips
     
-    (C) 2015 Individual contributors, see AUTHORS file
+    (C) 2015-2016 Individual contributors, see AUTHORS file
 */
 #include <QWidget>
 #include "util/string.h"
@@ -57,5 +57,6 @@ private:
 
 	Ui::StringListController* ui;
 	Util::String currentValue;
+	bool permitEmpty;
 };
 }

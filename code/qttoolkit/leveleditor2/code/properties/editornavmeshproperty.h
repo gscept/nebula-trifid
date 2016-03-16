@@ -5,7 +5,7 @@
 
     Property for handling navmesh generation in level editor
     
-    (C) 2013 Johannes Hirche, LTU Skelleftea
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/ptr.h"
 #include "game/property.h"

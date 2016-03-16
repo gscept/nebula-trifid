@@ -7,7 +7,7 @@
 
     This isn't based on an exporter class, because it has no need for incremental batching.
 	
-	(C) 2015 Individual contributors, see AUTHORS file
+	(C) 2015-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "toolkitutil/base/exporterbase.h"

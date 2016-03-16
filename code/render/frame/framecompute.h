@@ -6,7 +6,7 @@
     A frame compute performs a compute shader calculation inline with other frame based effects.
     
     (C) 2007 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "frame/framepassbase.h"
 #include "renderutil/drawfullscreenquad.h"

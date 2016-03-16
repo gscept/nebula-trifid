@@ -64,6 +64,7 @@
 			<File name="code/addons/effects/effectsattributes.nidl"/>
 			<File name="code/addons/faudio/audioprotocol.nidl"/>
 			<File name="code/addons/ui/uiattrs/uiattributes.nidl"/>
+			<File name="code/addons/minimap/minimap.nidl"/>
 		</NIDL>
 
     </Project>

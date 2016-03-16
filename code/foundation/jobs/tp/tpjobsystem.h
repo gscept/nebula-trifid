@@ -6,7 +6,7 @@
     Implementation of JobSystem for jobs running in a CPU thread pool.
     
     (C) 2009 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "jobs/base/jobsystembase.h"
 #include "jobs/tp/tpjobthreadpool.h"

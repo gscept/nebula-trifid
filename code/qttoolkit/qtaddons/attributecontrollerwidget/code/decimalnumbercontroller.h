@@ -5,7 +5,7 @@
     
     A widget which represents an editable decimal number attribute.
     
-    (C) 2013-2014 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 
 #include <QWidget>

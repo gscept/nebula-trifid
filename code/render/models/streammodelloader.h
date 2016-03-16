@@ -9,7 +9,7 @@
     parsing.
     
     (C) 2007 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "resources/resourceloader.h"
 #include "io/stream.h"

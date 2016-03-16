@@ -33,7 +33,7 @@ N_SET_COMPILER_DEFAULTS()
 
 ADD_EXECUTABLE(surfacegenerator ${ALLSRCS})
 
-TARGET_INCLUDE_DIRECTORIES(surfacegenerator PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${Nebula3_SOURCE_DIR}/code/qttoolkit/surfacegenerator/code)
+TARGET_INCLUDE_DIRECTORIES(surfacegenerator PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${Nebula3_SOURCE_DIR}/code/qttoolkit/surfacegenerator/code ${Nebula3_SOURCE_DIR}/code/qttoolkit)
 
 
 N_SET_QT_PROPERTIES(surfacegenerator "N3SDK/QtToolkit")

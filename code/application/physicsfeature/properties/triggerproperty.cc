@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  triggerproperty.cc
 //  (C) 2008 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "properties/triggerproperty.h"
@@ -516,14 +516,20 @@ TriggerProperty::CreateCollisionShape()
 	}
 	Ptr<Physics::Collider> coll = Physics::Collider::Create();
 
+	Physics::ColliderDescription desc;
     if (this->shape == "sphere")
     {
-		coll->AddSphere(0.5f * scale,Math::matrix44::identity());        
+		desc.type = Physics::ColliderSphere;
+		desc.sphere.radius = 0.5f * scale;		
     }
     else
     {
-		coll->AddBox(Math::vector(0.5,0.5,0.5) * scale, Math::matrix44::identity());
+		desc.type = Physics::ColliderCube;
+		Math::vector width = Math::vector(0.5, 0.5, 0.5);
+		width *= scale;
+		desc.box.halfWidth = width;		
     }	
+	coll->AddFromDescription(desc);
 	this->probeObject = Physics::PhysicsProbe::Create();
 
 	this->probeObject->Init(coll,m);

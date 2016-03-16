@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  stringlistcontroller.cc
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "stringlistcontroller.h"
@@ -8,7 +8,7 @@
 #include "db/valuetable.h"
 #include "ui_stringlistcontroller.h"
 #include "basegamefeature/basegameprotocol.h"
-#include "toolkit/toolkitutil/idldocument/idlattribute.h"
+#include "idldocument/idlattribute.h"
 
 using namespace Util;
 using namespace Attr;

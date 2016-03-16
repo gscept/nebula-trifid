@@ -8,7 +8,7 @@
     LUA backend for the Nebula3 scripting subsystem.
     
     (C) 2006 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "scripting/scriptserver.h"
 #include "lua/lua.h"

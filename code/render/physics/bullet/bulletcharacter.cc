@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  bulletcharacter.cc
-//  (C) 2013 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "physics/bullet/bulletcharacter.h"
@@ -44,7 +44,8 @@ BulletCharacter::BulletCharacter() :
     crouchingGhostObject(NULL),
 	characterController(NULL),
 	world(NULL),
-    crouching(false)
+    crouching(false),
+    maxJumpHeight(0.0f)
 {
 	// empty
 }
@@ -118,6 +119,7 @@ BulletCharacter::Attach( Physics::BaseScene* world )
 
 	// create character controller
 	this->characterController = new NBKinematicCharacterController(this->ghostObject, this->capsule, 0.35f);
+    this->characterController->setMaxJumpHeight(this->maxJumpHeight);
 
 	PhysicsObject::SetCollideCategory(Physics::Characters);
 	this->world->addCollisionObject(this->ghostObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::AllFilter);
@@ -243,8 +245,12 @@ BulletCharacter::SetJumpSpeed( float jumpSpeed )
 */
 void 
 BulletCharacter::SetMaxJumpHeight( float maxJumpHeight )
-{
-	this->characterController->setMaxJumpHeight(maxJumpHeight);
+{    
+    if (this->characterController)
+    {
+        this->characterController->setMaxJumpHeight(maxJumpHeight);
+    }	
+    this->maxJumpHeight = maxJumpHeight;
 }
 
 //------------------------------------------------------------------------------

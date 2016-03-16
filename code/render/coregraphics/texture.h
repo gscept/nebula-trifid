@@ -6,7 +6,7 @@
     Front-end class for texture objects.
     
     (C) 2007 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #if __DX11__
 #include "coregraphics/d3d11/d3d11texture.h"

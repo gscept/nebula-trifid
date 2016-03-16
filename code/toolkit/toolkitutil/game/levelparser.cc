@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  levelparser.cc
-//  (C) 2015 Individual contributors, see AUTHORS file
+//  (C) 2015-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "levelparser.h"
@@ -71,81 +71,17 @@ LevelParser::LoadXmlLevel(const Ptr<IO::XmlReader> & reader)
         {
             reader->SetToFirstChild("Entities");
         }
-
-        bool foundInvalidAttr = false;
-        Util::Array<Util::String> invalidAttrs;
-
+        
+		this->invalidAttrs.Clear();
 
         reader->SetToFirstChild();
         do 
         {
-            Util::String name = reader->GetCurrentNodeName();
-            if(name == "Object")
-            {
-                AttributeContainer entAttrs;
-                String category = reader->GetString("category");
-                if (reader->SetToFirstChild("Attributes"))
-                {
+			this->LoadEntity(reader);            
+        }
+		while(reader->SetToNextChild("Object"));
 
-                    reader->SetToFirstChild();
-                    do
-                    {
-                        String name = reader->GetCurrentNodeName();
-                        String val;
-                        if(reader->HasContent())
-                        {
-                            val = reader->GetContent();
-                        }						
-
-                        Attr::AttrId id(Attr::AttributeDefinitionBase::FindByName(name));
-
-                        if (!id.IsValid())
-                        {
-                            foundInvalidAttr = true;
-
-                            if (InvalidIndex == invalidAttrs.FindIndex(name))	invalidAttrs.Append(name);
-
-                            continue;
-                        }
-
-                        switch(id.GetValueType())
-                        {
-                        case IntType:
-                            entAttrs.SetAttr(Attribute(id,val.AsInt()));
-                            break;
-                        case FloatType:
-                            entAttrs.SetAttr(Attribute(id,val.AsFloat()));
-                            break;
-                        case BoolType:
-                            entAttrs.SetAttr(Attribute(id,val.AsBool()));
-                            break;
-                        case Float4Type:
-                            entAttrs.SetAttr(Attribute(id,val.AsFloat4()));
-                            break;
-                        case StringType:
-                            entAttrs.SetAttr(Attribute(id,val));
-                            break;
-                        case Matrix44Type:
-                            entAttrs.SetAttr(Attribute(id,val.AsMatrix44()));
-                            break;
-                        case GuidType:
-                            entAttrs.SetAttr(Attribute(id,Util::Guid::FromString(val)));
-                            break;
-                        case BlobType:
-                            entAttrs.SetAttr(Attribute(id,val.AsBlob()));
-                            break;
-                        default:
-                            break;
-                        }						
-                    }
-                    while(reader->SetToNextChild());				
-                    reader->SetToParent();
-                }
-                this->AddEntity(category, entAttrs);                
-            }
-        }while(reader->SetToNextChild("Object"));
-
-        if (foundInvalidAttr)
+        if (!this->invalidAttrs.IsEmpty())
         {
             // throw an error message telling which attributes that are missing
             Util::String errorMessage;
@@ -190,6 +126,81 @@ LevelParser::LoadXmlLevel(const Ptr<IO::XmlReader> & reader)
         return true;
     }
     return false;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+LevelParser::LoadEntity(const Ptr<IO::XmlReader> & reader)
+{
+	Util::String name = reader->GetCurrentNodeName();
+	if (name == "Object")
+	{
+		AttributeContainer entAttrs;
+		String category = reader->GetString("category");
+		if (reader->SetToFirstChild("Attributes"))
+		{
+
+			reader->SetToFirstChild();
+			do
+			{
+				String name = reader->GetCurrentNodeName();
+				String val;
+				if (reader->HasContent())
+				{
+					val = reader->GetContent();
+				}
+
+				Attr::AttrId id(Attr::AttributeDefinitionBase::FindByName(name));
+
+				if (!id.IsValid())
+				{
+
+					if (InvalidIndex == this->invalidAttrs.FindIndex(name))
+					{
+						this->invalidAttrs.Append(name);
+					}
+
+					continue;
+				}
+
+				switch (id.GetValueType())
+				{
+				case IntType:
+					entAttrs.SetAttr(Attribute(id, val.AsInt()));
+					break;
+				case FloatType:
+					entAttrs.SetAttr(Attribute(id, val.AsFloat()));
+					break;
+				case BoolType:
+					entAttrs.SetAttr(Attribute(id, val.AsBool()));
+					break;
+				case Float4Type:
+					entAttrs.SetAttr(Attribute(id, val.AsFloat4()));
+					break;
+				case StringType:
+					entAttrs.SetAttr(Attribute(id, val));
+					break;
+				case Matrix44Type:
+					entAttrs.SetAttr(Attribute(id, val.AsMatrix44()));
+					break;
+				case GuidType:
+					entAttrs.SetAttr(Attribute(id, Util::Guid::FromString(val)));
+					break;
+				case BlobType:
+					entAttrs.SetAttr(Attribute(id, val.AsBlob()));
+					break;
+				default:
+					break;
+				}
+			} while (reader->SetToNextChild());
+			reader->SetToParent();
+		}
+		this->AddEntity(category, entAttrs);
+		return true;
+	}
+	return false;
 }
 
 } // namespace ToolkitUtil
