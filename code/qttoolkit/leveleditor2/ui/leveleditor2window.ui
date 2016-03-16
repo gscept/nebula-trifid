@@ -180,6 +180,9 @@
     <addaction name="separator"/>
     <addaction name="actionNew_layer"/>
     <addaction name="actionMoveEntityToSelectedLayer"/>
+    <addaction name="separator"/>
+    <addaction name="actionExport_Selection"/>
+    <addaction name="actionImport"/>
    </widget>
    <widget class="QMenu" name="menuWindow">
     <property name="title">
@@ -1051,6 +1054,16 @@
    </property>
    <property name="text">
     <string>Center Group Pivot</string>
+   </property>
+  </action>
+  <action name="actionExport_Selection">
+   <property name="text">
+    <string>Export Selection</string>
+   </property>
+  </action>
+  <action name="actionImport">
+   <property name="text">
+    <string>Import </string>
    </property>
   </action>
  </widget>

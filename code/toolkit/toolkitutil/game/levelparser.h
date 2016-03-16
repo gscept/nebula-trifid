@@ -26,6 +26,8 @@ public:
     /// Loads a level from an xml file in work:levels. 
     bool LoadXmlLevel(const Ptr<IO::XmlReader> & reader);
 protected:
+	/// parse a single object
+	bool LoadEntity(const Ptr<IO::XmlReader> & reader);
     /// set level name
     virtual void SetName(const Util::String & name) = 0;
     /// parse layer information
@@ -38,6 +40,8 @@ protected:
     virtual void SetDimensions(const Math::bbox & box) = 0;
     /// parsing done
     virtual void CommitLevel(){}
+private:
+	Util::Array<Util::String> invalidAttrs;
 
 }; 
 } // namespace ToolkitUtil

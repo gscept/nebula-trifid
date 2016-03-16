@@ -129,6 +129,9 @@ LevelEditor2Window::LevelEditor2Window():
 	connect(this->ui.actionBatch_game_data, SIGNAL(triggered()), this, SLOT(OnBatchGame()));
 	connect(this->ui.actionCenter_Group_Pivot, SIGNAL(triggered()), this, SLOT(OnCenterPivot()));
 
+	connect(this->ui.actionExport_Selection, SIGNAL(triggered()), this, SLOT(OnExportSelection()));
+	connect(this->ui.actionImport, SIGNAL(triggered()), this, SLOT(OnImport()));
+
     this->addAction(this->ui.actionDuplicate);
     this->addAction(this->ui.actionGroup);
     this->addAction(this->ui.actionTranslate);
@@ -368,6 +371,16 @@ LevelEditor2Window::dropEvent(QDropEvent* e)
 //------------------------------------------------------------------------------
 /**
 */
+void
+LevelEditor2Window::OnExportSelection()
+{
+	Util::Array<Ptr<Game::Entity>> selected = SelectionUtil::Instance()->GetSelectedEntities();
+	Level::Instance()->SaveEntityArray(selected, "work:levels/snippets/test.xml");
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 LevelEditor2Window::OnNewEnvironmentEntity()
 {
@@ -531,6 +544,15 @@ void
 LevelEditor2Window::OnCenterPivot()
 {
 	PlacementUtil::Instance()->CenterPivot();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+LevelEditor2Window::OnImport()
+{
+
 }
 
 //------------------------------------------------------------------------------

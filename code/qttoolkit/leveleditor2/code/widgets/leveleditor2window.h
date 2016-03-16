@@ -133,6 +133,8 @@ private slots:
     void OnShowPhysicsMaterials();
 	/// center pivot
 	void OnCenterPivot();
+	///
+	void OnImport();
 
 
     public slots:
@@ -147,7 +149,8 @@ private slots:
 	void dragEnterEvent(QDragEnterEvent* e);
 	/// drop event
 	void dropEvent(QDropEvent* e);
-
+	///
+	void OnExportSelection();
 
 private:
 
