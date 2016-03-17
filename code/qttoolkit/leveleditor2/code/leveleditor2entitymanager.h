@@ -80,7 +80,7 @@ public:
 	Util::Array<EntityGuid> DuplicateEntities(const Util::Array<Ptr<Game::Entity>> & entities);
 
 	/// creates an entity from the values defined in the attributecontainer, filling up missing attributes	
-	void CreateEntityFromAttrContainer(const Util::String & category, Attr::AttributeContainer attrs);
+	void CreateEntityFromAttrContainer(const Util::String & levelName, const Util::String & category, Attr::AttributeContainer attrs);
 
 	/// clear all entities
 	void RemoveAllEntities();

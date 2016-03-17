@@ -87,24 +87,17 @@ Level::UpdateGuids()
 	}
 }
 
-
 //------------------------------------------------------------------------------------
 /**
 */
 bool
-Level::ImportLevel(const Util::String& level)
+Level::LoadLevel(const Util::String& level, LoadMode mode)
 {
-	this->inImport = true;
-	return this->LoadLevel(level, false);
-	this->inImport = false;
-}
-
-//------------------------------------------------------------------------------------
-/**
-*/
-bool
-Level::LoadLevel(const Util::String& level, bool clear)
-{
+    if (mode == Reference && level == this->name)
+    {
+        n_warning("Trying to reference yourself");
+        return false;
+    }
 	Ptr<IO::IoServer> ioServer = IO::IoServer::Instance();
 	Util::String fileName;
 	fileName.Format("work:levels/%s.xml",level.AsCharPtr());
@@ -120,13 +113,17 @@ Level::LoadLevel(const Util::String& level, bool clear)
 	}
 
 	LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->OnBeginLoad();
-	if (clear)
+	if (mode == Replace)
 	{
 		LevelEditor2EntityManager::Instance()->RemoveAllEntities();
 
 		LevelEditor2App::Instance()->GetWindow()->GetLayerHandler()->Discard();
 		LevelEditor2App::Instance()->GetWindow()->GetLayerHandler()->Setup();
 	}
+    else
+    {
+        this->inImport = true;
+    }
 
 	this->importedEntities.Clear();
 	bool result = false;
@@ -143,13 +140,29 @@ Level::LoadLevel(const Util::String& level, bool clear)
 	
 	if(result)
 	{
-		if (!clear)
-		{
-			this->UpdateGuids();
-		}
+        Util::String entityLevel;
+        switch(mode)
+        {
+        case Replace:
+            entityLevel = this->name;
+            break;
+        case Merge:
+            entityLevel = this->name;
+            this->UpdateGuids();
+            break;
+        case Reference:
+            {
+                entityLevel = level;
+                LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->AddReference(level);
+            }            
+            break;
+        default:
+            break;
+        }
+		
 		for (int i = 0;i < this->importedEntities.Size();i++)
 		{
-			LevelEditor2EntityManager::Instance()->CreateEntityFromAttrContainer(this->importedEntities[i].Key(), this->importedEntities[i].Value());
+			LevelEditor2EntityManager::Instance()->CreateEntityFromAttrContainer(entityLevel, this->importedEntities[i].Key(), this->importedEntities[i].Value());
 		}
 
 
@@ -166,10 +179,11 @@ Level::LoadLevel(const Util::String& level, bool clear)
 	}
 	LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->OnEndLoad();
 	// add wrapper entity for global light
-	if (clear)
+	if (mode == Replace)
 	{
 		LevelEditor2EntityManager::Instance()->CreateLightEntity("GlobalLight");
 	}
+    this->inImport = false;
 	return result;	
 }
 
@@ -581,7 +595,10 @@ Level::AddEntity(const Util::String & category, const Attr::AttributeContainer &
 void 
 Level::SetPosteffect(const Util::String & preset, const Math::matrix44 & globallightTransform)
 {
- 
+    if (this->inImport)
+    {
+        return;
+    }
     if (PostEffect::PostEffectRegistry::Instance()->HasPreset(preset))
     {
         LevelEditor2App::Instance()->GetWindow()->GetPostEffectController()->ActivatePrefix(preset);					
@@ -913,7 +930,7 @@ Level::LoadEntities(const IO::URI & fileName, bool cleanPerLevelData)
 		this->UpdateGuids();
         for (int i = 0; i < this->importedEntities.Size(); i++)
         {            
-			LevelEditor2EntityManager::Instance()->CreateEntityFromAttrContainer(this->importedEntities[i].Key(), this->importedEntities[i].Value());
+			LevelEditor2EntityManager::Instance()->CreateEntityFromAttrContainer(this->name, this->importedEntities[i].Key(), this->importedEntities[i].Value());
         }
                 
         // reparent all items

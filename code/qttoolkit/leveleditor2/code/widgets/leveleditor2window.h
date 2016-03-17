@@ -139,6 +139,8 @@ private slots:
 	void OnImportLevel();
 	///
 	void OnExportSelectionLevel();
+    ///
+    void OnAddReference();
 
     public slots:
     /// collapse property page

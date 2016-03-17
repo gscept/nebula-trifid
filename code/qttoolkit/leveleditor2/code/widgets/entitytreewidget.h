@@ -19,6 +19,7 @@
 namespace LevelEditor2
 {
 class EntityTreeItem;
+class ReferenceTreeItem;
 class SelectionUtil;
 class LevelEditorState;
 
@@ -71,6 +72,9 @@ public:
 	void OnBeginLoad();
 	/// call after loading level is completed
 	void OnEndLoad();
+    
+    /// adds a new reference root node in case it does not exist yet
+    void AddReference(const Util::String & name);
 
 	friend class EntityTreeItem;
 protected:
@@ -97,6 +101,8 @@ private:
     Util::Array<EntityGuid> CollectAllChildren();
     /// set parent guid recursively
 	void SetParentGuid(const Util::Guid & guid, EntityTreeItem * child);
+
+    Util::Dictionary<Util::String, EntityTreeItem*> referenceItems;
 	
 	Ptr<LevelEditorState> editorState;
 	
@@ -126,8 +132,6 @@ public:
 private:
 	EntityGuid entityGuid;	//< the guid of the entity this item represents
 };
-
-
 
 //------------------------------------------------------------------------------
 /**

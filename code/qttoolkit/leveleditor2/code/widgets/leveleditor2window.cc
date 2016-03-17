@@ -133,6 +133,9 @@ LevelEditor2Window::LevelEditor2Window():
 	connect(this->ui.actionImport, SIGNAL(triggered()), this, SLOT(OnImport()));
 	connect(this->ui.actionImport_Level, SIGNAL(triggered()), this, SLOT(OnImportLevel()));
 	connect(this->ui.actionExport_Selection_as_Level, SIGNAL(triggered()), this, SLOT(OnExportSelectionLevel()));
+    connect(this->ui.actionAdd_Level_Reference, SIGNAL(triggered()), this, SLOT(OnAddReference()));
+
+    
 
     this->addAction(this->ui.actionDuplicate);
     this->addAction(this->ui.actionGroup);
@@ -266,6 +269,7 @@ LevelEditor2Window::OnExportSelectionLevel()
 		Level::Instance()->SaveSelection(full);		
 	}
 }
+
 //------------------------------------------------------------------------------
 /**
 */
@@ -333,7 +337,7 @@ LevelEditor2Window::OnLoad()
 		Util::String full = path.GetTail().ExtractFileName();
 		full.StripFileExtension();
 
-		Level::Instance()->LoadLevel(full);		
+		Level::Instance()->LoadLevel(full, Level::Replace);		
 		this->ui.actionSave->setEnabled(true);
 		this->SetWindowTitle(full);
 		ActionManager::Instance()->ClearStack();
@@ -352,12 +356,30 @@ LevelEditor2Window::OnImportLevel()
 		Util::String full = path.GetTail().ExtractFileName();
 		full.StripFileExtension();
 
-		Level::Instance()->LoadLevel(full, false);
+		Level::Instance()->LoadLevel(full, Level::Merge);
 		this->ui.actionSave->setEnabled(true);
-		this->SetWindowTitle(full);
-		ActionManager::Instance()->ClearStack();
+		this->SetWindowTitle(full);		
 	}
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+LevelEditor2Window::OnAddReference()
+{
+    IO::URI path;
+    if (this->PickLevelFile("Import Level", "work:level", path, false))
+    {
+        Util::String full = path.GetTail().ExtractFileName();
+        full.StripFileExtension();
+
+        Level::Instance()->LoadLevel(full, Level::Reference);
+        this->ui.actionSave->setEnabled(true);
+        this->SetWindowTitle(full);        
+    }
+}
+
 //------------------------------------------------------------------------------
 /**
 */

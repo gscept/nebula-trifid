@@ -328,7 +328,7 @@ LevelEditor2EntityManager::DuplicateEntities(const Util::Array<Ptr<Game::Entity>
 /**
 */
 void 
-LevelEditor2EntityManager::CreateEntityFromAttrContainer(const Util::String & category, Attr::AttributeContainer attrs)
+LevelEditor2EntityManager::CreateEntityFromAttrContainer(const Util::String & levelName, const Util::String & category, Attr::AttributeContainer attrs)
 {
 	Util::Array<Attr::Attribute> at = attrs.GetAttrs().ValuesAsArray();				
 
@@ -375,7 +375,7 @@ LevelEditor2EntityManager::CreateEntityFromAttrContainer(const Util::String & ca
 			at.Append(Attribute(Attr::StartAnimation, ""));
 		}
 		newEnt = CreateEntityByAttrs(at,"EditorEntity", attrs.GetGuid(Attr::Guid).AsString());		
-		newEnt->SetString(Attr::EntityLevel,Level::Instance()->GetName());		
+		newEnt->SetString(Attr::EntityLevel, levelName);
 	}
 	else if(category == "Light")
 	{	
@@ -391,14 +391,14 @@ LevelEditor2EntityManager::CreateEntityFromAttrContainer(const Util::String & ca
 				newEnt->SetAttr(arr.ValueAtIndex(i));
 			}
 		}
-		newEnt->SetString(Attr::EntityLevel,Level::Instance()->GetName());		
+		newEnt->SetString(Attr::EntityLevel, levelName);
 	}
 	else if(category == "_Group")
 	{
 		at.Append(Attribute(Attr::EntityType,Group));
 		at.Append(Attribute(Attr::EntityCategory,"Transform"));
 		newEnt = CreateEntityByAttrs(at,"EditorTransform", attrs.GetGuid(Attr::Guid).AsString());
-		newEnt->SetString(Attr::EntityLevel,Level::Instance()->GetName());		
+        newEnt->SetString(Attr::EntityLevel, levelName);
 	}
     else if(category == "NavMeshData")
     {
@@ -407,7 +407,7 @@ LevelEditor2EntityManager::CreateEntityFromAttrContainer(const Util::String & ca
         at.Append(Attribute(Attr::EntityGuid,attrs.GetGuid(Attr::Guid)));
         at.Append(Attribute(Attr::EntityLevel,Level::Instance()->GetName()));
         newEnt = CreateEntityByAttrs(at,"EditorNavMesh",attrs.GetGuid(Attr::Guid).AsString());
-		newEnt->SetString(Attr::EntityLevel,Level::Instance()->GetName());		
+		newEnt->SetString(Attr::EntityLevel, levelName);
     }
     else if(category == "_NavigationArea")
     {
@@ -418,14 +418,14 @@ LevelEditor2EntityManager::CreateEntityFromAttrContainer(const Util::String & ca
         at.Append(Attribute(Attr::NavMeshAreaCost, attrs.GetInt(Attr::NavMeshAreaCost)));
 		at.Append(Attribute(Attr::NavMeshAreaFlags, attrs.GetInt(Attr::NavMeshAreaFlags)));
         newEnt = CreateEntityByAttrs(at,"EditorNavAreaMarker",attrs.GetGuid(Attr::Guid).AsString());
-        newEnt->SetString(Attr::EntityLevel,Level::Instance()->GetName());		
+        newEnt->SetString(Attr::EntityLevel, levelName);
     }
 	else if (category == "LightProbe")
 	{
 		at.Append(Attribute(Attr::EntityType, Probe));
 		at.Append(Attribute(Attr::EntityCategory, "LightProbe"));
 		newEnt = CreateEntityByAttrs(at, "EditorLightProbe", attrs.GetGuid(Attr::Guid).AsString());
-		newEnt->SetString(Attr::EntityLevel, Level::Instance()->GetName());
+		newEnt->SetString(Attr::EntityLevel, levelName);
 	}
 	else 
 	{
@@ -463,7 +463,7 @@ LevelEditor2EntityManager::CreateEntityFromAttrContainer(const Util::String & ca
 			attributes.Append(attrs.GetAttr(Attr::Id));
 
 			newEnt = CreateEntityByAttrs(attributes, "EditorEntity", attrs.GetGuid(Attr::Guid).AsString());
-			newEnt->SetString(Attr::EntityLevel, Level::Instance()->GetName());
+			newEnt->SetString(Attr::EntityLevel, levelName);
 			if (attrs.HasAttr(Attr::ParentGuid))
 			{
 				newEnt->SetGuid(Attr::ParentGuid, attrs.GetGuid(Attr::ParentGuid));

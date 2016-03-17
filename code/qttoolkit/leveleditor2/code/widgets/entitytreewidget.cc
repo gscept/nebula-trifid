@@ -342,7 +342,7 @@ EntityTreeWidget::dropEvent ( QDropEvent * event )
 void
 EntityTreeWidget::contextMenuEvent(QContextMenuEvent * event)
 {
-	EntityTreeItem * myitem = (EntityTreeItem*)this->itemAt(event->pos());
+	EntityTreeItem * myitem = dynamic_cast<EntityTreeItem*>(this->itemAt(event->pos()));
 	if (myitem == NULL)
 	{				
 		return;
@@ -546,14 +546,16 @@ EntityTreeWidget::SetParentGuids()
 void 
 EntityTreeWidget::SetParentGuid(const Util::Guid & guid, EntityTreeItem * child)
 {
-	Ptr<Game::Entity> entity = LevelEditor2EntityManager::Instance()->GetEntityById(child->GetEntityGuid());
-	entity->SetGuid(Attr::ParentGuid, guid);
-	Util::Guid itemGuid = entity->GetGuid(Attr::EntityGuid);
-	for(int i=0 ; i < child->childCount();i++)
-	{
-		this->SetParentGuid(itemGuid, dynamic_cast<EntityTreeItem*>(child->child(i)));		
-	}
-
+    if (child)
+    {
+        Ptr<Game::Entity> entity = LevelEditor2EntityManager::Instance()->GetEntityById(child->GetEntityGuid());
+        entity->SetGuid(Attr::ParentGuid, guid);
+        Util::Guid itemGuid = entity->GetGuid(Attr::EntityGuid);
+        for (int i = 0; i < child->childCount(); i++)
+        {
+            this->SetParentGuid(itemGuid, dynamic_cast<EntityTreeItem*>(child->child(i)));
+        }
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -587,7 +589,27 @@ EntityTreeWidget::RebuildTree()
 					}					
 					parentTreeItem->addChild(treeItem);
 				}
-			}		
+			}
+            else
+            {
+                Util::String entLevel = entities[i]->GetString(Attr::EntityLevel);
+                if (entLevel != Level::Instance()->GetName() && !entLevel.IsEmpty())
+                {
+                    EntityTreeItem* treeItem = dynamic_cast<EntityTreeItem*>(this->GetEntityTreeItem(entities[i]->GetGuid(Attr::EntityGuid)));
+                    EntityTreeItem * parentTreeItem = this->referenceItems[entLevel];
+                    int idx = this->indexOfTopLevelItem(treeItem);
+                    if (idx != -1)
+                    {
+                        this->takeTopLevelItem(idx);
+                    }
+                    else
+                    {
+                        idx = treeItem->parent()->indexOfChild(treeItem);
+                        treeItem->parent()->takeChild(idx);
+                    }
+                    parentTreeItem->addChild(treeItem);
+                }
+            }
 		}		
 	}
 }
@@ -612,6 +634,22 @@ void
 EntityTreeWidget::OnEndLoad()
 {
 	this->setSortingEnabled(this->sortingEnabled);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+EntityTreeWidget::AddReference(const Util::String & name)
+{
+    if (!this->referenceItems.Contains(name))
+    {
+        EntityTreeItem * ent = new EntityTreeItem();
+        ent->SetText(name);
+        this->referenceItems.Add(name, ent);                
+        ent->setFlags(Qt::ItemIsEnabled| Qt::ItemIsDropEnabled);
+        this->insertTopLevelItem(0, ent);
+    }
 }
 
 } // namespace LevelEditor2

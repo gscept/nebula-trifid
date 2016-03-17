@@ -29,16 +29,21 @@ class Level : public ToolkitUtil::LevelParser
 	__DeclareClass(Level);
 	__DeclareSingleton(Level);
 public:
+    enum LoadMode
+    {
+        Replace,
+        Merge,
+        Reference
+    };
+
 	/// constructor
 	Level();
 	/// destructor
 	virtual ~Level();
 
 	/// Loads a level from an xml file in work:levels. creates entities via CreateEntityByAttrs and CreateGameEntityByAttrs
-	/// will clear level with RemoveAllEntities when file exists	
-	bool LoadLevel(const Util::String& name, bool clear = true);
-	///
-	bool ImportLevel(const Util::String& name);
+	bool LoadLevel(const Util::String& name, LoadMode mode);
+	
 	/// Save level with different name, name is only basename, without path or extension
 	void SaveLevelAs(const Util::String& name);
 	/// Save level
@@ -96,7 +101,7 @@ protected:
 	/// write a string node
 	void WriteString(const Ptr<IO::XmlWriter> & xmlWriter, const Util::String & node, const Util::String& content );
     /// loads generic PE attribute by attribute name and string value
-    void ReadPostEffectAttribute(const Util::String& attrName, const Util::String& content, const Ptr<PostEffect::PostEffectEntity>& postEffectEntity);
+    void ReadPostEffectAttribute(const Util::String& attrName, const Util::String& content, const Ptr<PostEffect::PostEffectEntity>& postEffectEntity);    
 
 	Util::String name;
 	bool startLevel;
