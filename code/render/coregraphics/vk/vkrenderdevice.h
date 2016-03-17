@@ -155,6 +155,7 @@ private:
 
 	uint32_t adapter;
 	uint32_t frameId;
+	VkPhysicalDeviceMemoryProperties memoryProps;
 
 	const uint32_t VkPoolMaxSets = 65535;
 	const uint32_t VkPoolSetSize = 64;
@@ -172,7 +173,6 @@ private:
 	uint32_t numQueues;
 	VkQueueFamilyProperties queuesProps[64];
 
-	VkPhysicalDeviceMemoryProperties memoryProps;
 	uint32_t renderQueueIdx;
 	uint32_t computeQueueIdx;
 	uint32_t transferQueueIdx;
@@ -223,19 +223,8 @@ private:
 	uint currentPipelineBits;
 
 #if NEBULAT_VULKAN_DEBUG
-	PFN_vkCreateDebugReportCallbackEXT debugCallback;
 	VkDebugReportCallbackEXT debugCallbackHandle;
+	PFN_vkCreateDebugReportCallbackEXT debugCallbackPtr;
 #endif
-
-	PFN_vkCreateSwapchainKHR swapChainCtor;
-	PFN_vkDestroySwapchainKHR swapChainDtor;
-	PFN_vkAcquireNextImageKHR swapChainNextImage;
-	PFN_vkQueuePresentKHR swapChainPresent;
-	PFN_vkGetSwapchainImagesKHR swapChainGetImages;
-
-	PFN_vkGetPhysicalDeviceSurfaceSupportKHR surfaceSupport;
-	PFN_vkGetPhysicalDeviceSurfaceFormatsKHR surfaceFormats;
-	PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR surfaceCaps;
-	PFN_vkGetPhysicalDeviceSurfacePresentModesKHR presentModes;
 };
 } // namespace Vulkan

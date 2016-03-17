@@ -179,16 +179,14 @@ VkRenderDevice::OpenVulkanContext()
 	this->SetupAdapter();
 
 #if NEBULAT_VULKAN_DEBUG
-	this->debugCallback = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(this->instance, "vkCreateDebugReportCallbackEXT");
-	n_assert(this->debugCallback != NULL);
-
+	this->debugCallbackPtr = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(this->instance, "vkCreateDebugReportCallbackEXT");
 	VkDebugReportCallbackCreateInfoEXT dbgInfo;
 	dbgInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
 	dbgInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;
 	dbgInfo.pNext = NULL;
 	dbgInfo.pfnCallback = NebulaVulkanDebugCallback;
 	dbgInfo.pUserData = NULL;
-	res = this->debugCallback(this->instance, &dbgInfo, NULL, &this->debugCallbackHandle);
+	res = this->debugCallbackPtr(this->instance, &dbgInfo, NULL, &this->debugCallbackHandle);
 	n_assert(res == VK_SUCCESS);
 #endif
 
@@ -203,16 +201,11 @@ VkRenderDevice::OpenVulkanContext()
 	// setup swap chain in display
 	VkDisplayDevice::Instance()->SetupSwapchain();
 
-	this->surfaceSupport = (PFN_vkGetPhysicalDeviceSurfaceSupportKHR)vkGetInstanceProcAddr(this->instance, "vkGetPhysicalDeviceSurfaceSupportKHR");
-	this->surfaceFormats = (PFN_vkGetPhysicalDeviceSurfaceFormatsKHR)vkGetInstanceProcAddr(this->instance, "vkGetPhysicalDeviceSurfaceFormatsKHR");
-	this->surfaceCaps = (PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR)vkGetInstanceProcAddr(this->instance, "vkGetPhysicalDeviceSurfaceCapabilitiesKHR");
-	this->presentModes = (PFN_vkGetPhysicalDeviceSurfacePresentModesKHR)vkGetInstanceProcAddr(this->instance, "vkGetPhysicalDeviceSurfacePresentModesKHR");
-	n_assert(surfaceSupport != NULL);
-	n_assert(surfaceFormats != NULL);
 	VkBool32* canPresent = n_new_array(VkBool32, numQueues);
 	for (i = 0; i < numQueues; i++)
 	{
-		this->surfaceSupport(VkRenderDevice::Instance()->physicalDev, i, VkDisplayDevice::Instance()->surface, &canPresent[i]);
+		vkGetPhysicalDeviceSurfaceSupportKHR(VkRenderDevice::Instance()->physicalDev, i, VkDisplayDevice::Instance()->surface, &canPresent[i]);
+		//this->surfaceSupport();
 	}
 
 	uint32_t gfxIdx = UINT32_MAX;
@@ -313,15 +306,6 @@ VkRenderDevice::OpenVulkanContext()
 	n_assert(res == VK_SUCCESS);
 
 	// grab implementation functions for swap chain management.
-	this->swapChainCtor = (PFN_vkCreateSwapchainKHR)vkGetInstanceProcAddr(this->instance, "vkCreateSwapchainKHR");
-	this->swapChainDtor = (PFN_vkDestroySwapchainKHR)vkGetInstanceProcAddr(this->instance, "vkDestroySwapchainKHR");
-	this->swapChainNextImage = (PFN_vkAcquireNextImageKHR)vkGetInstanceProcAddr(this->instance, "vkAcquireNextImageKHR");
-	this->swapChainPresent = (PFN_vkQueuePresentKHR)vkGetInstanceProcAddr(this->instance, "vkQueuePresentKHR");
-	this->swapChainGetImages = (PFN_vkGetSwapchainImagesKHR)vkGetInstanceProcAddr(this->instance, "vkGetSwapchainImagesKHR");
-	n_assert(this->swapChainCtor != NULL);
-	n_assert(this->swapChainDtor != NULL);
-	n_assert(this->swapChainNextImage != NULL);
-	n_assert(this->swapChainPresent != NULL);
 
 	// setup display queue in render device (gfxIdx is different, because it's family doesn't have to be the displayable one)
 	vkGetDeviceQueue(VkRenderDevice::dev, gfxIdx, this->renderQueueIdx, &VkRenderDevice::displayQueue);
@@ -330,11 +314,11 @@ VkRenderDevice::OpenVulkanContext()
 
 	// find available surface formats
 	uint32_t numFormats;
-	res = this->surfaceFormats(VkRenderDevice::physicalDev, VkDisplayDevice::Instance()->surface, &numFormats, NULL);
+	res = vkGetPhysicalDeviceSurfaceFormatsKHR(VkRenderDevice::physicalDev, VkDisplayDevice::Instance()->surface, &numFormats, NULL);
 	n_assert(res == VK_SUCCESS);
 
 	VkSurfaceFormatKHR* formats = n_new_array(VkSurfaceFormatKHR, numFormats);
-	res = this->surfaceFormats(VkRenderDevice::physicalDev, VkDisplayDevice::Instance()->surface, &numFormats, formats);
+	res = vkGetPhysicalDeviceSurfaceFormatsKHR(VkRenderDevice::physicalDev, VkDisplayDevice::Instance()->surface, &numFormats, formats);
 	n_assert(res == VK_SUCCESS);
 	if (numFormats == 1 && formats[0].format == VK_FORMAT_UNDEFINED)
 	{
@@ -350,16 +334,16 @@ VkRenderDevice::OpenVulkanContext()
 
 	// get surface capabilities
 	VkSurfaceCapabilitiesKHR surfCaps;
-	res = this->surfaceCaps(this->physicalDev, VkDisplayDevice::Instance()->surface, &surfCaps);
+	res = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(this->physicalDev, VkDisplayDevice::Instance()->surface, &surfCaps);
 	n_assert(res == VK_SUCCESS);
 
 	uint32_t numPresentModes;
-	res = this->presentModes(this->physicalDev, VkDisplayDevice::Instance()->surface, &numPresentModes, NULL);
+	res = vkGetPhysicalDeviceSurfacePresentModesKHR(this->physicalDev, VkDisplayDevice::Instance()->surface, &numPresentModes, NULL);
 	n_assert(res == VK_SUCCESS);
 
 	// get present modes
 	VkPresentModeKHR* presentModes = n_new_array(VkPresentModeKHR, numPresentModes);
-	res = this->presentModes(this->physicalDev, VkDisplayDevice::Instance()->surface, &numPresentModes, presentModes);
+	res = vkGetPhysicalDeviceSurfacePresentModesKHR(this->physicalDev, VkDisplayDevice::Instance()->surface, &numPresentModes, presentModes);
 	n_assert(res == VK_SUCCESS);
 
 	VkExtent2D swapchainExtent;
@@ -421,16 +405,16 @@ VkRenderDevice::OpenVulkanContext()
 	};
 
 	// create swapchain
-	res = this->swapChainCtor(this->dev, &swapchainInfo, NULL, &this->swapchain);
+	res = vkCreateSwapchainKHR(this->dev, &swapchainInfo, NULL, &this->swapchain);
 	n_assert(res == VK_SUCCESS);
 
 	// get back buffers
 	uint32_t numSwapchainBackbuffers;
-	res = this->swapChainGetImages(this->dev, this->swapchain, &numSwapchainBackbuffers, NULL);
+	res = vkGetSwapchainImagesKHR(this->dev, this->swapchain, &numSwapchainBackbuffers, NULL);
 	n_assert(res == VK_SUCCESS);
 
 	this->backbuffers = n_new_array(VkImage, numSwapchainBackbuffers);
-	res = this->swapChainGetImages(this->dev, this->swapchain, &numSwapchainBackbuffers, this->backbuffers);
+	res = vkGetSwapchainImagesKHR(this->dev, this->swapchain, &numSwapchainBackbuffers, this->backbuffers);
 
 	VkPipelineCacheCreateInfo cacheInfo =
 	{
@@ -567,7 +551,7 @@ VkRenderDevice::OpenVulkanContext()
 void
 VkRenderDevice::CloseVulkanDevice()
 {
-	this->swapChainDtor(this->dev, this->swapchain, NULL);
+	vkDestroySwapchainKHR(this->dev, this->swapchain, NULL);
 	delete[] this->backbuffers;
 
 	IndexT i;
@@ -681,7 +665,7 @@ VkRenderDevice::BeginFrame(IndexT frameIndex)
 	};
 	vkCreateSemaphore(this->dev, &semInfo, NULL, &this->displaySemaphore);
 
-	VkResult res = this->swapChainNextImage(this->dev, this->swapchain, UINT64_MAX, this->displaySemaphore, VK_NULL_HANDLE, &this->currentBackbuffer);
+	VkResult res = vkAcquireNextImageKHR(this->dev, this->swapchain, UINT64_MAX, this->displaySemaphore, VK_NULL_HANDLE, &this->currentBackbuffer);
 	if (res == VK_ERROR_OUT_OF_DATE_KHR)
 	{
 		// this means our swapchain needs a resize!
@@ -979,7 +963,7 @@ VkRenderDevice::Present()
 		&this->swapchain,
 		&this->currentBackbuffer
 	};
-	res = this->swapChainPresent(this->displayQueue, &info);
+	res = vkQueuePresentKHR(this->displayQueue, &info);
 
 	if (res == VK_ERROR_OUT_OF_DATE_KHR)
 	{

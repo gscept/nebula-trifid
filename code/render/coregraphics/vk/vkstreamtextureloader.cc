@@ -72,23 +72,25 @@ VkStreamTextureLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 		extents.width = width;
 		extents.height = height;
 		extents.depth = 1;
+
+		uint32_t queues[] = { VkRenderDevice::Instance()->renderQueueIdx, VkRenderDevice::Instance()->transferQueueIdx };
 		VkImageCreateInfo info =
 		{
 			VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
 			NULL,
-			0,
+			cube ? VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT : 0,
 			height > 1 ? VK_IMAGE_TYPE_2D : VK_IMAGE_TYPE_1D,
 			vkformat,
 			extents,
 			mips,
 			depth,
 			VK_SAMPLE_COUNT_1_BIT,
-			VK_IMAGE_TILING_OPTIMAL,
+			VK_IMAGE_TILING_LINEAR,
 			VK_IMAGE_USAGE_SAMPLED_BIT,
 			VK_SHARING_MODE_CONCURRENT,
-			1,
-			&VkRenderDevice::Instance()->renderQueueIdx,
-			VK_IMAGE_LAYOUT_GENERAL
+			2,
+			queues,
+			VK_IMAGE_LAYOUT_UNDEFINED
 		};
 		VkImage img;
 		VkResult stat = vkCreateImage(VkRenderDevice::dev, &info, NULL, &img);
@@ -120,7 +122,7 @@ VkStreamTextureLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 
 				VkDeviceMemory mem;
 				uint32_t alignedSize;
-				VkRenderDevice::Instance()->AllocateImageMemory(img, mem, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, alignedSize);
+				VkRenderDevice::Instance()->AllocateImageMemory(img, mem, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, alignedSize);
 				vkBindImageMemory(VkRenderDevice::dev, img, mem, 0);
 				VkTexture::MapInfo mapinfo;
 				res->Map(j, VkTexture::MapWrite, mapinfo);
