@@ -158,6 +158,8 @@
     <addaction name="actionNew"/>
     <addaction name="separator"/>
     <addaction name="actionLoad"/>
+    <addaction name="actionImport_Level"/>
+    <addaction name="actionExport_Selection_as_Level"/>
     <addaction name="separator"/>
     <addaction name="actionSave"/>
     <addaction name="actionSave_As"/>
@@ -1058,12 +1060,22 @@
   </action>
   <action name="actionExport_Selection">
    <property name="text">
-    <string>Export Selection</string>
+    <string>Export Selection as Fragment</string>
    </property>
   </action>
   <action name="actionImport">
    <property name="text">
-    <string>Import </string>
+    <string>Import Fragment</string>
+   </property>
+  </action>
+  <action name="actionImport_Level">
+   <property name="text">
+    <string>Import Level</string>
+   </property>
+  </action>
+  <action name="actionExport_Selection_as_Level">
+   <property name="text">
+    <string>Export Selection as Level</string>
    </property>
   </action>
  </widget>

@@ -131,6 +131,8 @@ LevelEditor2Window::LevelEditor2Window():
 
 	connect(this->ui.actionExport_Selection, SIGNAL(triggered()), this, SLOT(OnExportSelection()));
 	connect(this->ui.actionImport, SIGNAL(triggered()), this, SLOT(OnImport()));
+	connect(this->ui.actionImport_Level, SIGNAL(triggered()), this, SLOT(OnImportLevel()));
+	connect(this->ui.actionExport_Selection_as_Level, SIGNAL(triggered()), this, SLOT(OnExportSelectionLevel()));
 
     this->addAction(this->ui.actionDuplicate);
     this->addAction(this->ui.actionGroup);
@@ -235,16 +237,9 @@ LevelEditor2Window::OnSave()
 void 
 LevelEditor2Window::OnSaveAs()
 {
-	QFileDialog fileDialog(this, "Save Level As", IO::URI("root:work/levels").GetHostAndLocalPath().AsCharPtr(), "*.xml");
-	fileDialog.setAcceptMode(QFileDialog::AcceptSave);
-	fileDialog.setOptions(QFileDialog::HideNameFilterDetails);
-	fileDialog.setNameFilterDetailsVisible(false);
-	fileDialog.setDefaultSuffix("xml");
-
-	if (fileDialog.exec() == QDialog::Accepted)
+	IO::URI path;
+	if (this->PickLevelFile("Save Level as", "work:levels", path, true))
 	{
-		QString fullPath = fileDialog.selectedFiles()[0];
-		IO::URI path(fullPath.toUtf8().constData());
 		Util::String full = path.GetTail().ExtractFileName();
 		
 		full.StripFileExtension();
@@ -255,6 +250,22 @@ LevelEditor2Window::OnSaveAs()
 	}		
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+LevelEditor2Window::OnExportSelectionLevel()
+{
+	IO::URI path;
+	if (this->PickLevelFile("Export Selection as", "work:levels", path, true))
+	{		
+		Util::String full = path.GetTail().ExtractFileName();
+
+		full.StripFileExtension();
+
+		Level::Instance()->SaveSelection(full);		
+	}
+}
 //------------------------------------------------------------------------------
 /**
 */
@@ -284,18 +295,41 @@ LevelEditor2Window::OnNew()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-LevelEditor2Window::OnLoad()
+bool
+LevelEditor2Window::PickLevelFile(const Util::String & title, const Util::String & folder, IO::URI & file, bool save)
 {
-	QFileDialog fileDialog(this, "Load Level", IO::URI("root:work/levels").GetHostAndLocalPath().AsCharPtr(), "*.xml");
-	fileDialog.setAcceptMode(QFileDialog::AcceptOpen);
-	fileDialog.setOptions(QFileDialog::HideNameFilterDetails|QFileDialog::ReadOnly);
+	
+	QFileDialog fileDialog(this, title.AsCharPtr(), IO::URI(folder).GetHostAndLocalPath().AsCharPtr(), "*.xml");
+	if (save)
+	{
+		fileDialog.setAcceptMode(QFileDialog::AcceptSave);
+		fileDialog.setOptions(QFileDialog::HideNameFilterDetails);
+	}
+	else
+	{
+		fileDialog.setAcceptMode(QFileDialog::AcceptOpen);
+		fileDialog.setOptions(QFileDialog::HideNameFilterDetails | QFileDialog::ReadOnly);
+	}
 	fileDialog.setNameFilterDetailsVisible(false);
 	fileDialog.setDefaultSuffix("xml");
 	if (fileDialog.exec() == QDialog::Accepted)
 	{
 		QString fullPath = fileDialog.selectedFiles()[0];
-		IO::URI path(fullPath.toUtf8().constData());
+		file.Set(fullPath.toUtf8().constData());
+		return true;
+	}
+	return false;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+LevelEditor2Window::OnLoad()
+{
+	IO::URI path;
+	if(this->PickLevelFile("Load Level", "work:levels", path, false))
+	{
 		Util::String full = path.GetTail().ExtractFileName();
 		full.StripFileExtension();
 
@@ -304,6 +338,37 @@ LevelEditor2Window::OnLoad()
 		this->SetWindowTitle(full);
 		ActionManager::Instance()->ClearStack();
 	}	
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+LevelEditor2Window::OnImportLevel()
+{
+	IO::URI path;
+	if (this->PickLevelFile("Import Level", "work:level", path, false))
+	{
+		Util::String full = path.GetTail().ExtractFileName();
+		full.StripFileExtension();
+
+		Level::Instance()->LoadLevel(full, false);
+		this->ui.actionSave->setEnabled(true);
+		this->SetWindowTitle(full);
+		ActionManager::Instance()->ClearStack();
+	}
+}
+//------------------------------------------------------------------------------
+/**
+*/
+void
+LevelEditor2Window::OnImport()
+{
+	IO::URI path;
+	if (this->PickLevelFile("Import Fragment", "work:levelfragments", path, false))
+	{
+		Level::Instance()->LoadEntities(path, false);
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -374,8 +439,15 @@ LevelEditor2Window::dropEvent(QDropEvent* e)
 void
 LevelEditor2Window::OnExportSelection()
 {
-	Util::Array<Ptr<Game::Entity>> selected = SelectionUtil::Instance()->GetSelectedEntities();
-	Level::Instance()->SaveEntityArray(selected, "work:levels/snippets/test.xml");
+	Ptr<IO::IoServer> ioServer = IO::IoServer::Instance();
+	// make sure the directory exists
+	ioServer->CreateDirectory("work:levelfragments");
+	IO::URI path;
+	if(this->PickLevelFile("Export Fragment as", "work:levelfragments", path, true))
+	{				
+		Util::Array<Ptr<Game::Entity>> selected = SelectionUtil::Instance()->GetSelectedEntities();
+		Level::Instance()->SaveEntityArray(selected, path);
+	}	
 }
 
 //------------------------------------------------------------------------------
@@ -544,15 +616,6 @@ void
 LevelEditor2Window::OnCenterPivot()
 {
 	PlacementUtil::Instance()->CenterPivot();
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-LevelEditor2Window::OnImport()
-{
-    Level::Instance()->LoadEntities("work:levels/snippets/test.xml", false);
 }
 
 //------------------------------------------------------------------------------

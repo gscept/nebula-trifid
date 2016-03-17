@@ -36,11 +36,15 @@ public:
 
 	/// Loads a level from an xml file in work:levels. creates entities via CreateEntityByAttrs and CreateGameEntityByAttrs
 	/// will clear level with RemoveAllEntities when file exists	
-	bool LoadLevel(const Util::String& name);
+	bool LoadLevel(const Util::String& name, bool clear = true);
+	///
+	bool ImportLevel(const Util::String& name);
 	/// Save level with different name, name is only basename, without path or extension
 	void SaveLevelAs(const Util::String& name);
 	/// Save level
-	void SaveLevel();
+	void SaveLevel();	
+	/// saves selected entities as a new level
+	void SaveSelection(const Util::String & name);
 
 	/// get level name
 	const Util::String& GetName() const;
@@ -65,6 +69,9 @@ public:
 
 protected:
 
+	/// performs the actual saving
+	void SaveLevelFile(const Util::String& name, const IO::URI & filename, bool selectedOnly);
+
     /// set level name
     virtual void SetName(const Util::String & name);
     /// parse layer information
@@ -77,7 +84,10 @@ protected:
     virtual void SetDimensions(const Math::bbox & box);
 
 	/// save single entity
-	void SaveEntity(const Ptr<Game::Entity>& entity, const Ptr<IO::XmlWriter>& stream);
+	bool SaveEntity(const Util::String & levelName, const Ptr<Game::Entity>& entity, const Ptr<IO::XmlWriter>& stream, bool selectedOnly);
+
+	/// replace guids in importedEntities array and update parent guids
+	void UpdateGuids();
 	
 	/// export level to database
 	void ExportLevel(const Util::String&level);

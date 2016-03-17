@@ -22,7 +22,7 @@ namespace Attr
 	DeclareString(EntityLevel,'ETLV',ReadWrite);	
 	DeclareGuid(EntityGuid,'ETGU',ReadWrite);
 	DeclareGuid(ParentGuid,'PAGU',ReadWrite);
-	DeclareBool(IsSelected,'ISCT',ReadWrite);
+	DeclareBool(IsSelected,'ISCT',ReadWrite);	
 };
 
 //------------------------------------------------------------------------------

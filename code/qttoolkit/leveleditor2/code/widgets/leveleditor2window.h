@@ -135,7 +135,10 @@ private slots:
 	void OnCenterPivot();
 	///
 	void OnImport();
-
+	///
+	void OnImportLevel();
+	///
+	void OnExportSelectionLevel();
 
     public slots:
     /// collapse property page
@@ -153,6 +156,9 @@ private slots:
 	void OnExportSelection();
 
 private:
+
+	///
+	bool PickLevelFile(const Util::String & title, const Util::String & folder, IO::URI & file, bool save);	
 
 	/// forcibly release the ctrl key
 	void ForceReleaseCtrlKey();
