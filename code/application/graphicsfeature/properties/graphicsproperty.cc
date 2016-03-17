@@ -153,6 +153,7 @@ GraphicsProperty::SetupAcceptedMessages()
 	this->RegisterMessage(GraphicsFeature::AddGraphicsAttachmentOnJoint::Id);	
 	this->RegisterMessage(GraphicsFeature::ClearAttachmentsOnEntity::Id);
 	this->RegisterMessage(GraphicsFeature::ClearAttachmentsOnJoint::Id);
+    this->RegisterMessage(GraphicsFeature::SetSkinVisible::Id);
     Property::SetupAcceptedMessages();
 }
 
