@@ -80,6 +80,10 @@ VkCmdBufferThread::DoWork()
 			case PushRange:
 				vkCmdPushConstants(this->commandBuffer, cmd.pushranges.layout, cmd.pushranges.stages, cmd.pushranges.offset, cmd.pushranges.size, cmd.pushranges.data);
 				break;
+			case UpdateBuffer:
+				vkCmdUpdateBuffer(this->commandBuffer, cmd.updBuffer.buf, cmd.updBuffer.offset, cmd.updBuffer.size, cmd.updBuffer.data);
+				if (cmd.updBuffer.deleteWhenDone) delete[] cmd.updBuffer.data;
+				break;
 			case Sync:
 				cmd.syncEvent->Signal();
 				break;

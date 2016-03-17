@@ -7,6 +7,7 @@
 #include "coregraphics/shaderserver.h"
 #include "coregraphics/memoryvertexbufferloader.h"
 #include "coregraphics/memoryindexbufferloader.h"
+#include "coregraphics/renderdevice.h"
 #include "coregraphics/transformdevice.h"
 #include "coregraphics/displaydevice.h"
 #include "resources/resourcemanager.h"
@@ -121,7 +122,7 @@ GridRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
         this->shader->EndUpdate();
 		this->shader->Commit();
 
-		device->SetStreamSource(0, this->vbo, 0);
+		device->SetStreamVertexBuffer(0, this->vbo, 0);
 		device->SetVertexLayout(this->vbo->GetVertexLayout());
 		device->SetIndexBuffer(this->ibo);
 		device->SetPrimitiveGroup(this->primitive);

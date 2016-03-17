@@ -44,6 +44,7 @@ private:
 		Dispatch,
 		BindDescriptors,
 		PushRange,
+		UpdateBuffer,
 		Sync
 	};
 
@@ -96,6 +97,15 @@ private:
 				uint32_t numOffsets;
 				uint32_t* offsets;
 			} descriptor;
+
+			struct UpdateBuffer
+			{
+				bool deleteWhenDone;
+				VkBuffer buf;
+				VkDeviceSize offset;
+				VkDeviceSize size;
+				uint32_t* data;
+			} updBuffer;
 
 			struct PushConstants
 			{

@@ -38,6 +38,7 @@ VkStreamTextureLoader::~VkStreamTextureLoader()
 
 //------------------------------------------------------------------------------
 /**
+	FIXME: use transfer queue to update texture asynchronously.
 */
 bool
 VkStreamTextureLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
@@ -63,6 +64,9 @@ VkStreamTextureLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 		ILuint width = ilGetInteger(IL_IMAGE_WIDTH);
 		ILuint height = ilGetInteger(IL_IMAGE_HEIGHT);
 		ILuint depth = ilGetInteger(IL_IMAGE_DEPTH);
+		ILuint numImages = ilGetInteger(IL_NUM_IMAGES);
+		ILuint numFaces = ilGetInteger(IL_NUM_FACES);
+		ILuint numLayers = ilGetInteger(IL_NUM_LAYERS);
 		ILuint mips = ilGetInteger(IL_NUM_MIPMAPS);
 		ILenum cube = ilGetInteger(IL_IMAGE_CUBEFLAGS);
 		ILenum format = ilGetInteger(IL_PIXEL_FORMAT);	// only available when loading DDS, so this might need some work...
@@ -72,6 +76,7 @@ VkStreamTextureLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 		extents.width = width;
 		extents.height = height;
 		extents.depth = 1;
+		uint32_t queues[] = { VkRenderDevice::Instance()->renderQueueIdx, VkRenderDevice::Instance()->transferQueueIdx };
 		VkImageCreateInfo info =
 		{
 			VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
@@ -81,56 +86,81 @@ VkStreamTextureLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 			vkformat,
 			extents,
 			mips,
-			depth,
+			cube ? numFaces : numImages,
 			VK_SAMPLE_COUNT_1_BIT,
 			VK_IMAGE_TILING_OPTIMAL,
 			VK_IMAGE_USAGE_SAMPLED_BIT,
 			VK_SHARING_MODE_CONCURRENT,
 			1,
-			&VkRenderDevice::Instance()->renderQueueIdx,
+			queues,
 			VK_IMAGE_LAYOUT_GENERAL
 		};
 		VkImage img;
 		VkResult stat = vkCreateImage(VkRenderDevice::dev, &info, NULL, &img);
 		n_assert(stat == VK_SUCCESS);
 
+		// allocate memory backing
+		VkDeviceMemory mem;
+		uint32_t alignedSize;
+		VkRenderDevice::Instance()->AllocateImageMemory(img, mem, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, alignedSize);
+		vkBindImageMemory(VkRenderDevice::dev, img, mem, 0);
+
 		// setup texture
 		if (depth > 1)
 		{
-			if (cube)	res->SetupFromVkCubeTexture(img, VkTypes::AsNebulaPixelFormat(vkformat), mips);
-			else		res->SetupFromVkVolumeTexture(img, VkTypes::AsNebulaPixelFormat(vkformat), mips);
+			if (cube)	res->SetupFromVkCubeTexture(img, mem, VkTypes::AsNebulaPixelFormat(vkformat), mips);
+			else		res->SetupFromVkVolumeTexture(img, mem, VkTypes::AsNebulaPixelFormat(vkformat), mips);
 		}
 		else
 		{
-			res->SetupFromVkTexture(img, VkTypes::AsNebulaPixelFormat(vkformat), mips);
+			res->SetupFromVkTexture(img, mem, VkTypes::AsNebulaPixelFormat(vkformat), mips);
 		}
 
 		// now load texture by walking through all images and mips
 		ILuint i;
 		ILuint j;
-		
-		for (i = 0; i < depth; i++)
+		if (cube)
 		{
-			ilActiveImage(i);
+			for (i = 0; i < 6; i++)
+			{
+				ilBindImage(image);
+				ilActiveFace(i);
+				ilActiveMipmap(0);
+				for (j = 0; j < mips; j++)
+				{
+					// move to next mip
+					ilActiveMipmap(j);
+
+					ILuint size = ilGetInteger(IL_IMAGE_SIZE_OF_DATA);
+					ILubyte* buf = ilGetData();
+
+					VkTexture::MapInfo mapinfo;
+					res->MapCubeFace((Texture::CubeFace)i, j, VkTexture::MapWrite, mapinfo);
+					memcpy(mapinfo.data, buf, size);
+					res->UnmapCubeFace((Texture::CubeFace)i, j);
+
+				}
+			}
+		}
+		else
+		{
 			ilActiveMipmap(0);
 			for (j = 0; j < mips; j++)
 			{
+				// move to next mip
+				ilActiveMipmap(j);
+
 				ILuint size = ilGetInteger(IL_IMAGE_SIZE_OF_DATA);
 				ILubyte* buf = ilGetData();
 
-				VkDeviceMemory mem;
-				uint32_t alignedSize;
-				VkRenderDevice::Instance()->AllocateImageMemory(img, mem, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, alignedSize);
-				vkBindImageMemory(VkRenderDevice::dev, img, mem, 0);
 				VkTexture::MapInfo mapinfo;
 				res->Map(j, VkTexture::MapWrite, mapinfo);
 				memcpy(mapinfo.data, buf, size);
 				res->Unmap(j);
-
-				// move to next mip
-				ilActiveMipmap(j);
 			}
-		}
+		}	
+
+		ilDeleteImage(image);
 
 		// create view
 		VkImageViewType viewType;

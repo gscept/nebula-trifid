@@ -58,7 +58,7 @@ VkTexture::Map(IndexT mipLevel, MapType mapType, MapInfo& outMapInfo)
 		VkSubresourceLayout layout;
 		vkGetImageSubresourceLayout(VkRenderDevice::dev, this->img, &subres, &layout);
 		mipWidth = (int32_t)(layout.rowPitch / size);
-		mipHeight = (int32_t)(layout.depthPitch / layout.rowPitch);
+		mipHeight = (int32_t)(layout.depthPitch / mipWidth);
 
 		// the row pitch must be the size of one pixel times the number of pixels in width
 		outMapInfo.mipWidth = mipWidth;
@@ -136,7 +136,7 @@ VkTexture::MapCubeFace(CubeFace face, IndexT mipLevel, MapType mapType, MapInfo&
 	vkGetImageSubresourceLayout(VkRenderDevice::dev, this->img, &subres, &layout);
 	mipWidth = (int32_t)(layout.rowPitch / size);
 	mipHeight = (int32_t)(layout.depthPitch / layout.rowPitch);
-	mipDepth = (int32_t)(layout.arrayPitch / layout.depthPitch);
+	mipDepth = (int32_t)(layout.size / layout.depthPitch);
 
 	// the row pitch must be the size of one pixel times the number of pixels in width
 	outMapInfo.mipWidth = mipWidth;
@@ -185,48 +185,52 @@ VkTexture::Update(void* data, SizeT size, SizeT width, SizeT height, IndexT left
 /**
 */
 void
-VkTexture::SetupFromVkTexture(VkImage img, CoreGraphics::PixelFormat::Code format, GLint numMips /*= 0*/, const bool setLoaded /*= true*/, const bool isAttachment /*= false*/)
+VkTexture::SetupFromVkTexture(VkImage img, VkDeviceMemory mem, CoreGraphics::PixelFormat::Code format, GLint numMips /*= 0*/, const bool setLoaded /*= true*/, const bool isAttachment /*= false*/)
 {
 	this->type = Texture2D;
 	this->pixelFormat = format;
 	this->img = img;
 	this->numMipLevels = numMips;
+	this->mem = mem;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-VkTexture::SetupFromVkMultisampleTexture(VkImage img, CoreGraphics::PixelFormat::Code format, GLint numMips /*= 0*/, const bool setLoaded /*= true*/, const bool isAttachment /*= false*/)
+VkTexture::SetupFromVkMultisampleTexture(VkImage img, VkDeviceMemory mem, CoreGraphics::PixelFormat::Code format, GLint numMips /*= 0*/, const bool setLoaded /*= true*/, const bool isAttachment /*= false*/)
 {
 	this->type = Texture2D;
 	this->pixelFormat = format;
 	this->img = img;
 	this->numMipLevels = numMips;
+	this->mem = mem;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-VkTexture::SetupFromVkCubeTexture(VkImage img, CoreGraphics::PixelFormat::Code format, GLint numMips /*= 0*/, const bool setLoaded /*= true*/, const bool isAttachment /*= false*/)
+VkTexture::SetupFromVkCubeTexture(VkImage img, VkDeviceMemory mem, CoreGraphics::PixelFormat::Code format, GLint numMips /*= 0*/, const bool setLoaded /*= true*/, const bool isAttachment /*= false*/)
 {
 	this->type = TextureCube;
 	this->pixelFormat = format;
 	this->img = img;
 	this->numMipLevels = numMips;
+	this->mem = mem;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-VkTexture::SetupFromVkVolumeTexture(VkImage img, CoreGraphics::PixelFormat::Code format, GLint numMips /*= 0*/, const bool setLoaded /*= true*/, const bool isAttachment /*= false*/)
+VkTexture::SetupFromVkVolumeTexture(VkImage img, VkDeviceMemory mem, CoreGraphics::PixelFormat::Code format, GLint numMips /*= 0*/, const bool setLoaded /*= true*/, const bool isAttachment /*= false*/)
 {
 	this->type = Texture3D;
 	this->pixelFormat = format;
 	this->img = img;
 	this->numMipLevels = numMips;
+	this->mem = mem;
 }
 
 //------------------------------------------------------------------------------

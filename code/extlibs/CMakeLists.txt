@@ -101,6 +101,8 @@ IF(NOT N_BUILD_FIRSTTIME)
 			SET(ANYFX_FOLDER "extlibs/anyfx")
 			add_subdirectory(anyfx)
 			
+			add_subdirectory(SOIL) #still need the stb image stuff in SOIL
+			
 			#SET_TARGET_PROPERTIES(compiler PROPERTIES FOLDER "extlibs/anyfx")
 			#SET_TARGET_PROPERTIES(mcpp PROPERTIES FOLDER "extlibs/anyfx")
 			#SET_TARGET_PROPERTIES(antlr PROPERTIES FOLDER "extlibs/anyfx")

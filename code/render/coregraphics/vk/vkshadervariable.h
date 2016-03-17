@@ -8,9 +8,9 @@
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
 #include "coregraphics/base/shadervariablebase.h"
-#include "lowlevel/vk/vkvariable.h"
 #include "lowlevel/vk/vkvarblock.h"
 #include "lowlevel/vk/vkvarbuffer.h"
+#include "lowlevel/vk/vkvariable.h"
 
 namespace CoreGraphics
 {

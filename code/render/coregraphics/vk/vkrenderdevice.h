@@ -100,6 +100,7 @@ private:
 	friend class VkRenderTarget;
 	friend class VkRenderTargetCube;
 	friend class VkMultipleRenderTarget;
+	friend class VkDepthStencilTarget;
 	friend class VkVertexLayout;
 	friend class VkUniformBuffer;
 	friend class VkShaderStorageBuffer;
@@ -152,12 +153,14 @@ private:
 	void AllocateBufferMemory(const VkBuffer& buf, VkDeviceMemory& bufmem, VkMemoryPropertyFlagBits flags, uint32_t& bufsize);
 	/// allocate an image memory storage
 	void AllocateImageMemory(const VkImage& img, VkDeviceMemory& imgmem, VkMemoryPropertyFlagBits flags, uint32_t& imgsize);
+	/// update buffer memory from CPU memory, if deleteWhenDone is true, then the render device will assume the data is safe to take ownership of
+	void PushBufferUpdate(const VkBuffer& buf, VkDeviceSize offset, VkDeviceSize size, uint32_t* data, bool deleteWhenDone);
 
 	uint32_t adapter;
 	uint32_t frameId;
 
 	const uint32_t VkPoolMaxSets = 65535;
-	const uint32_t VkPoolSetSize = 64;
+	const uint32_t VkPoolSetSize = 65535;
 
 	VkPhysicalDevice devices[64];
 
@@ -187,23 +190,29 @@ private:
 	VkSemaphore displaySemaphore;
 
 	static VkDevice dev;
+	static VkDescriptorPool descPool;
 	static VkQueue displayQueue;
 	static VkQueue computeQueue;
 	static VkQueue transferQueue;
 	static VkInstance instance;
 	static VkPhysicalDevice physicalDev;
 	static VkPipelineCache cache;
-	static VkDescriptorPool descPool;
 	static VkCommandBuffer mainCmdGfxBuffer;
 	static VkCommandBuffer mainCmdCmpBuffer;
 	static VkCommandBuffer mainCmdTransBuffer;
 
-	static const SizeT NumThreads = 4;
+	static const SizeT NumDrawThreads = 4;
 
-	IndexT currentThread;
-	VkCommandBuffer dispatchableCmdBuffers[NumThreads];
-	Ptr<VkCmdBufferThread> threads[NumThreads];
-	Threading::Event completionEvent[NumThreads];
+	IndexT currentDrawThread;
+	VkCommandBuffer dispatchableDrawCmdBuffers[NumDrawThreads];
+	Ptr<VkCmdBufferThread> drawThreads[NumDrawThreads];
+	Threading::Event drawCompletionEvent[NumDrawThreads];
+
+	static const SizeT NumTransferThreads = 1;
+	IndexT currentTransThread;
+	VkCommandBuffer dispatchableTransCmdBuffers[NumTransferThreads];
+	Ptr<VkCmdBufferThread> transThreads[NumTransferThreads];
+	Threading::Event transCompletionEvent[NumTransferThreads];
 
 	enum CmdCreationUsage
 	{
