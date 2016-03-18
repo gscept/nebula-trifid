@@ -860,7 +860,7 @@ EntityManager::GetEntitiesByAttr(const Attribute& attr, bool onlyFirstEntity)
 
     // get all category manager instances according to the parameters
     Util::Array<CategoryManager::Entry> catEntries;
-    catEntries = catManager->GetInstancesByAttr(attr, onlyFirstEntity, false);
+    catEntries = catManager->GetInstancesByAttr(attr, false, onlyFirstEntity);
 
     // update result, and create any missing entities
     IndexT i;
@@ -896,9 +896,13 @@ EntityManager::GetEntitiesByAttrs(const Util::Array<Attribute>& attrs, bool only
     for (i = 0; i < catEntries.Size(); i++)
     {
         Ptr<Game::Entity> entity = (Game::Entity*) catEntries[i].Values()->GetRowUserData(catEntries[i].RowIndex());
-        n_assert(entity.isvalid());
-        n_assert(entity->IsA(Game::Entity::RTTI));
-        result.Append(entity);
+		// FIXME why do we assert here, and why does instance table contain invalid entities to begin with (they seem to be deleted)
+		//   n_assert(entity.isvalid());
+		//   n_assert(entity->IsA(Game::Entity::RTTI));
+		if (entity.isvalid() && entity->IsA(Game::Entity::RTTI))
+		{
+			result.Append(entity);
+		}        
     }
     return result;
 }
