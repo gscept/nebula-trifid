@@ -71,9 +71,19 @@ VkVertexLayout::Setup(const Util::Array<CoreGraphics::VertexComponent>& c)
 		curOffset[component.GetStreamIndex()] += component.GetByteSize();
 	}
 
+	this->vertexInfo =
+	{
+		VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
+		NULL,
+		0,
+		this->components.Size(),
+		this->binds,
+		this->components.Size(),
+		this->attrs
+	};
+
 	// finish up the info struct
-	info.pVertexBindingDescriptions = this->binds;
-	info.pVertexAttributeDescriptions = this->attrs;
+	this->info.pVertexInputState = &this->vertexInfo;
 }
 
 //------------------------------------------------------------------------------

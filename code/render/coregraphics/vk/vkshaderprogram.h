@@ -63,6 +63,13 @@ private:
 
 	VkPipeline computePipeline;
 	VkPipelineLayout pipelineLayout;
+
+	VkPipelineRasterizationStateCreateInfo rasterizerInfo;
+	VkPipelineMultisampleStateCreateInfo multisampleInfo;
+	VkPipelineDepthStencilStateCreateInfo depthStencilInfo;
+	VkPipelineColorBlendStateCreateInfo colorBlendInfo;
+	VkPipelineDynamicStateCreateInfo dynamicInfo;
+	VkPipelineShaderStageCreateInfo shaderInfos[5];
 	VkGraphicsPipelineCreateInfo shaderPipelineInfo;
 	PipelineType pipelineType;
 };

@@ -119,107 +119,104 @@ VkShaderProgram::CreateShader(VkShaderModule* shader, unsigned binarySize, char*
 void
 VkShaderProgram::SetupAsGraphics()
 {
-	// create 6 shader info stages for each shader type
-	VkPipelineShaderStageCreateInfo shaders[6];
-
 	// we have to keep track of how MANY shaders we are using too
 	unsigned shaderIdx = 0;
 
 	// attach vertex shader
 	if (0 != this->vs)
 	{
-		shaders[shaderIdx].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		shaders[shaderIdx].pNext = NULL;
-		shaders[shaderIdx].flags = 0;
-		shaders[shaderIdx].stage = VK_SHADER_STAGE_VERTEX_BIT;
-		shaders[shaderIdx].module = this->vs;
-		shaders[shaderIdx].pName = "main";
-		shaders[shaderIdx].pSpecializationInfo = NULL;
+		this->shaderInfos[shaderIdx].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		this->shaderInfos[shaderIdx].pNext = NULL;
+		this->shaderInfos[shaderIdx].flags = 0;
+		this->shaderInfos[shaderIdx].stage = VK_SHADER_STAGE_VERTEX_BIT;
+		this->shaderInfos[shaderIdx].module = this->vs;
+		this->shaderInfos[shaderIdx].pName = "main";
+		this->shaderInfos[shaderIdx].pSpecializationInfo = NULL;
 		shaderIdx++;
 	}
 
 	if (0 != this->hs)
 	{
-		shaders[shaderIdx].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		shaders[shaderIdx].pNext = NULL;
-		shaders[shaderIdx].flags = 0;
-		shaders[shaderIdx].stage = VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
-		shaders[shaderIdx].module = this->hs;
-		shaders[shaderIdx].pName = "main";
-		shaders[shaderIdx].pSpecializationInfo = NULL;
+		this->shaderInfos[shaderIdx].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		this->shaderInfos[shaderIdx].pNext = NULL;
+		this->shaderInfos[shaderIdx].flags = 0;
+		this->shaderInfos[shaderIdx].stage = VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
+		this->shaderInfos[shaderIdx].module = this->hs;
+		this->shaderInfos[shaderIdx].pName = "main";
+		this->shaderInfos[shaderIdx].pSpecializationInfo = NULL;
 		shaderIdx++;
 	}
 
 	if (0 != this->ds)
 	{
-		shaders[shaderIdx].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		shaders[shaderIdx].pNext = NULL;
-		shaders[shaderIdx].flags = 0;
-		shaders[shaderIdx].stage = VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
-		shaders[shaderIdx].module = this->ds;
-		shaders[shaderIdx].pName = "main";
-		shaders[shaderIdx].pSpecializationInfo = NULL;
+		this->shaderInfos[shaderIdx].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		this->shaderInfos[shaderIdx].pNext = NULL;
+		this->shaderInfos[shaderIdx].flags = 0;
+		this->shaderInfos[shaderIdx].stage = VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
+		this->shaderInfos[shaderIdx].module = this->ds;
+		this->shaderInfos[shaderIdx].pName = "main";
+		this->shaderInfos[shaderIdx].pSpecializationInfo = NULL;
 		shaderIdx++;
 	}
 
 	if (0 != this->gs)
 	{
-		shaders[shaderIdx].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		shaders[shaderIdx].pNext = NULL;
-		shaders[shaderIdx].flags = 0;
-		shaders[shaderIdx].stage = VK_SHADER_STAGE_GEOMETRY_BIT;
-		shaders[shaderIdx].module = this->gs;
-		shaders[shaderIdx].pName = "main";
-		shaders[shaderIdx].pSpecializationInfo = NULL;
+		this->shaderInfos[shaderIdx].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		this->shaderInfos[shaderIdx].pNext = NULL;
+		this->shaderInfos[shaderIdx].flags = 0;
+		this->shaderInfos[shaderIdx].stage = VK_SHADER_STAGE_GEOMETRY_BIT;
+		this->shaderInfos[shaderIdx].module = this->gs;
+		this->shaderInfos[shaderIdx].pName = "main";
+		this->shaderInfos[shaderIdx].pSpecializationInfo = NULL;
 		shaderIdx++;
 	}
 
 	if (0 != this->ps)
 	{
-		shaders[shaderIdx].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		shaders[shaderIdx].pNext = NULL;
-		shaders[shaderIdx].flags = 0;
-		shaders[shaderIdx].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-		shaders[shaderIdx].module = this->ps;
-		shaders[shaderIdx].pName = "main";
-		shaders[shaderIdx].pSpecializationInfo = NULL;
+		this->shaderInfos[shaderIdx].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		this->shaderInfos[shaderIdx].pNext = NULL;
+		this->shaderInfos[shaderIdx].flags = 0;
+		this->shaderInfos[shaderIdx].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+		this->shaderInfos[shaderIdx].module = this->ps;
+		this->shaderInfos[shaderIdx].pName = "main";
+		this->shaderInfos[shaderIdx].pSpecializationInfo = NULL;
 		shaderIdx++;
 	}
 
 	// retrieve implementation specific state
 	AnyFX::VkRenderState* vkRenderState = static_cast<AnyFX::VkRenderState*>(this->program->renderState);
 
-	VkPipelineRasterizationStateCreateInfo rastInfo =
+	this->rasterizerInfo =
 	{
 		VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
 		NULL,
 	};
-	vkRenderState->SetupRasterization(&rastInfo);
+	vkRenderState->SetupRasterization(&this->rasterizerInfo);
 
-	VkPipelineMultisampleStateCreateInfo msInfo =
+	this->multisampleInfo =
 	{
 		VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
 		NULL,
 	};
-	vkRenderState->SetupMultisample(&msInfo);
+	vkRenderState->SetupMultisample(&this->multisampleInfo);
 
-	VkPipelineDepthStencilStateCreateInfo dsInfo =
+	this->depthStencilInfo =
 	{
 		VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
 		NULL,
 	};
-	vkRenderState->SetupDepthStencil(&dsInfo);
+	vkRenderState->SetupDepthStencil(&this->depthStencilInfo);
 
-	VkPipelineColorBlendStateCreateInfo blendInfo =
+	this->colorBlendInfo =
 	{
 		VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
 		NULL,
 	};
-	vkRenderState->SetupBlend(&blendInfo);
+	vkRenderState->SetupBlend(&this->colorBlendInfo);
 
 	// setup dynamic state, we only support dynamic viewports and scissor rects
 	VkDynamicState dynamicStates[] = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
-	VkPipelineDynamicStateCreateInfo dynamicInfo = 
+	this->dynamicInfo = 
 	{
 		VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
 		NULL,
@@ -235,17 +232,17 @@ VkShaderProgram::SetupAsGraphics()
 		NULL,
 		VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT,
 		shaderIdx,
-		shaders,
+		this->shaderInfos,
 		NULL, NULL, NULL, NULL,			// these are our primitive and viewport infos, keep them null to create derivatives later
-		&rastInfo,
-		&msInfo,
-		&dsInfo,
-		&blendInfo,
-		&dynamicInfo,					
+		&this->rasterizerInfo,
+		&this->multisampleInfo,
+		&this->depthStencilInfo,
+		&this->colorBlendInfo,
+		&this->dynamicInfo,					
 		this->pipelineLayout,
 		NULL,							// pass specific stuff, keep as NULL
 		0,
-		VK_NULL_HANDLE, 0							// base pipeline is kept as NULL too, because this is the base for all derivatives
+		VK_NULL_HANDLE, 0				// base pipeline is kept as NULL too, because this is the base for all derivatives
 	};
 
 	// be sure to flag compute shader as null

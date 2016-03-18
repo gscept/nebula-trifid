@@ -40,9 +40,32 @@ VkRenderTarget::Setup()
 	// call parent class
 	RenderTargetBase::Setup();
 
+	this->viewportInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+	this->viewportInfo.pNext = NULL;
+	this->viewportInfo.flags = 0;
+	this->viewportInfo.scissorCount = 0;
+	this->viewportInfo.pScissors = NULL;
+
 	if (this->isDefaultRenderTarget)
 	{
+		DisplayDevice* displayDevice = DisplayDevice::Instance();
+		this->SetWidth(displayDevice->GetDisplayMode().GetWidth());
+		this->SetHeight(displayDevice->GetDisplayMode().GetHeight());
+		this->SetAntiAliasQuality(AntiAliasQuality::None);
+		this->SetColorBufferFormat(displayDevice->GetDisplayMode().GetPixelFormat());
 
+		VkViewport viewport;
+		viewport.x = 0;
+		viewport.y = 0;
+		viewport.width = (float)displayDevice->GetDisplayMode().GetWidth();
+		viewport.height = (float)displayDevice->GetDisplayMode().GetHeight();
+		viewport.minDepth = 0;
+		viewport.maxDepth = FLT_MAX;
+		this->viewports.Resize(1);
+		this->viewports[0] = viewport;
+
+		this->viewportInfo.viewportCount = this->viewports.Size();
+		this->viewportInfo.pViewports = this->viewports.Begin();
 	}
 	else
 	{
@@ -55,6 +78,19 @@ VkRenderTarget::Setup()
 
 		SizeT resolveWidth = this->resolveTextureDimensionsValid ? this->resolveTextureWidth : this->width;
 		SizeT resolveHeight = this->resolveTextureDimensionsValid ? this->resolveTextureHeight : this->height;
+
+		VkViewport viewport;
+		viewport.x = 0;
+		viewport.y = 0;
+		viewport.width = (float)resolveWidth;
+		viewport.height = (float)resolveHeight;
+		viewport.minDepth = 0;
+		viewport.maxDepth = FLT_MAX;
+		this->viewports.Resize(1);
+		this->viewports[0] = viewport;
+
+		this->viewportInfo.viewportCount = this->viewports.Size();
+		this->viewportInfo.pViewports = this->viewports.Begin();
 
 		VkExtent3D extents;
 		extents.width = resolveWidth;
@@ -146,6 +182,7 @@ VkRenderTarget::Setup()
 
 		// create just one subpass which is just using our single color attachment and optional depth stencil attachment
 		VkSubpassDescription subpass;
+		subpass.flags = 0;
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 		subpass.inputAttachmentCount = 0;
 		subpass.pInputAttachments = VK_NULL_HANDLE;
@@ -167,7 +204,7 @@ VkRenderTarget::Setup()
 			attachment[1].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 			attachment[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
 			attachment[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
-			attachment[1].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			attachment[1].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 			attachment[1].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 			numattachments++;
 		}
@@ -266,6 +303,8 @@ VkRenderTarget::SetResolveRect(const Math::rectangle<int>& r)
 	viewport.x = (float)r.left;
 	viewport.y = (float)r.top;
 	this->viewports[0] = viewport;
+	this->viewportInfo.viewportCount = this->viewports.Size();
+	this->viewportInfo.pViewports = this->viewports.Begin();
 }
 
 //------------------------------------------------------------------------------
@@ -285,6 +324,8 @@ VkRenderTarget::SetResolveRectArray(const Util::Array<Math::rectangle<int> >& re
 		viewport.y = (float)rects[i].top;
 		this->viewports[i] = viewport;
 	}
+	this->viewportInfo.viewportCount = this->viewports.Size();
+	this->viewportInfo.pViewports = this->viewports.Begin();
 }
 
 //------------------------------------------------------------------------------

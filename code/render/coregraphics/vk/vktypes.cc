@@ -70,6 +70,8 @@ VkTypes::AsVkFormat(ILenum p)
 {
 	switch (p)
 	{
+	case PF_ARGB:				return VK_FORMAT_R8G8B8A8_UINT;
+	case PF_RGB:				return VK_FORMAT_R8G8B8_UINT;
 	case PF_DXT1:				return VK_FORMAT_BC1_RGBA_UNORM_BLOCK;
 	case PF_DXT3:				return VK_FORMAT_BC2_UNORM_BLOCK;
 	case PF_DXT5:				return VK_FORMAT_BC3_UNORM_BLOCK;
@@ -180,6 +182,8 @@ VkTypes::AsVkMapping(ILenum p)
 
 	switch (p)
 	{
+	case PF_ARGB:
+	case PF_RGB:
 	case PF_DXT1:				
 	case PF_DXT3:				
 	case PF_DXT5:				
@@ -206,7 +210,7 @@ VkTypes::AsVkMapping(ILenum p)
 		mapping.r = VK_COMPONENT_SWIZZLE_G;
 	default:
 		{
-			n_error("VkTypes::AsVkFormat(): invalid compression '%d'", p);
+			n_error("VkTypes::AsVkMapping(): invalid pixel swizzle '%d'", p);
 		}
 	}
 
@@ -228,7 +232,28 @@ VkTypes::AsVkPrimitiveType(CoreGraphics::PrimitiveTopology::Code t)
 uint32_t
 VkTypes::AsByteSize(uint32_t semantic)
 {
-	return 0;
+	switch (semantic)
+	{
+	case VertexComponent::Position:
+		return sizeof(uint32_t) * 4;
+	case VertexComponent::Normal:
+		return sizeof(uint32_t) * 3;
+	case VertexComponent::Tangent:
+		return sizeof(uint32_t) * 3;
+	case VertexComponent::Binormal:
+		return sizeof(uint32_t) * 3;
+	case VertexComponent::TexCoord1:
+		return sizeof(uint32_t) * 2;
+	case VertexComponent::Color:
+		return sizeof(uint32_t);
+	case VertexComponent::SkinWeights:
+		return sizeof(uint32_t) * 4;
+	case VertexComponent::SkinJIndices:
+		return sizeof(uint32_t) * 4;
+	default:
+		n_error("Unknown vertex input semantic!");
+		return 0;
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -237,7 +262,24 @@ VkTypes::AsByteSize(uint32_t semantic)
 uint32_t
 VkTypes::AsVkSize(CoreGraphics::VertexComponent::Format f)
 {
-	return 0;
+	switch (f)
+	{
+	case VertexComponent::Float:    return 4;
+	case VertexComponent::Float2:   return 8;
+	case VertexComponent::Float3:   return 12;
+	case VertexComponent::Float4:   return 16;
+	case VertexComponent::UByte4:   return 4;
+	case VertexComponent::Byte4:    return 4;
+	case VertexComponent::Short2:   return 4;
+	case VertexComponent::Short4:   return 8;
+	case VertexComponent::UByte4N:  return 4;
+	case VertexComponent::Byte4N:   return 4;
+	case VertexComponent::Short2N:  return 4;
+	case VertexComponent::Short4N:  return 8;
+	default:
+		n_error("OGL4Types::AsOGL4Size(): invalid input parameter!");
+		return 1;
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -246,7 +288,24 @@ VkTypes::AsVkSize(CoreGraphics::VertexComponent::Format f)
 uint32_t
 VkTypes::AsVkNumComponents(CoreGraphics::VertexComponent::Format f)
 {
-	return 0;
+	switch (f)
+	{
+	case VertexComponent::Float:    return 1;
+	case VertexComponent::Float2:   return 2;
+	case VertexComponent::Float3:   return 3;
+	case VertexComponent::Float4:   return 4;
+	case VertexComponent::UByte4:   return 4;
+	case VertexComponent::Byte4:    return 4;
+	case VertexComponent::Short2:   return 2;
+	case VertexComponent::Short4:   return 4;
+	case VertexComponent::UByte4N:  return 4;
+	case VertexComponent::Byte4N:   return 4;
+	case VertexComponent::Short2N:  return 2;
+	case VertexComponent::Short4N:  return 4;
+	default:
+		n_error("OGL4Types::AsOGL4Size(): invalid input parameter!");
+		return 1;
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -255,7 +314,24 @@ VkTypes::AsVkNumComponents(CoreGraphics::VertexComponent::Format f)
 VkFormat
 VkTypes::AsVkVertexType(CoreGraphics::VertexComponent::Format f)
 {
-	return VK_FORMAT_R32_SINT;
+	switch (f)
+	{
+	case VertexComponent::Float:    return VK_FORMAT_R32_SFLOAT;
+	case VertexComponent::Float2:   return VK_FORMAT_R32G32_SFLOAT;
+	case VertexComponent::Float3:   return VK_FORMAT_R32G32B32_SFLOAT;
+	case VertexComponent::Float4:   return VK_FORMAT_R32G32B32A32_SFLOAT;
+	case VertexComponent::UByte4:   return VK_FORMAT_R8G8B8A8_UINT;
+	case VertexComponent::Byte4:	return VK_FORMAT_R8G8B8A8_SINT;
+	case VertexComponent::Short2:   return VK_FORMAT_R16G16_SINT;
+	case VertexComponent::Short4:   return VK_FORMAT_R16G16B16A16_SINT;
+	case VertexComponent::UByte4N:  return VK_FORMAT_R8G8B8A8_UNORM;
+	case VertexComponent::Byte4N:	return VK_FORMAT_R8G8B8A8_SNORM;
+	case VertexComponent::Short2N:  return VK_FORMAT_R16G16_SNORM;
+	case VertexComponent::Short4N:  return VK_FORMAT_R16G16B16A16_SNORM;
+	default:
+		n_error("OGL4Types::AsOGL4SymbolicType(): invalid input parameter!");
+		return VK_FORMAT_R32G32B32A32_SFLOAT;
+	}
 }
 
 } // namespace Vulkan

@@ -39,6 +39,11 @@ public:
     /// getnumber of rendertargets used
     SizeT GetNumRendertargets() const;
 
+	/// setup render target
+	void Setup();
+	/// discard render target
+	void Discard();
+
 	/// sets depth-stencil target
 	void SetDepthStencilTarget(const Ptr<CoreGraphics::DepthStencilTarget>& dt);
 	/// get depth-stencil target
@@ -89,6 +94,8 @@ protected:
 	uint depthStencilClearFlags;
     bool clearDepthStencil;
     SizeT numRenderTargets;
+
+	bool isSetup;
 };
 
 //------------------------------------------------------------------------------
