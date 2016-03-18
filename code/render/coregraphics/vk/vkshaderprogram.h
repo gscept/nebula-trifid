@@ -10,6 +10,7 @@
 #include "coregraphics/base/shadervariationbase.h"
 #include "lowlevel/vk/vkprogram.h"
 #include "lowlevel/vk/vkrenderstate.h"
+#include "lowlevel/afxapi.h"
 
 namespace Vulkan
 {
@@ -39,7 +40,7 @@ private:
 	};
 
 	/// setup from AnyFX program
-	void Setup(AnyFX::VkProgram* program, VkPipelineLayout pipeline);
+	void Setup(AnyFX::VkProgram* program, AnyFX::ShaderEffect* effect);
 
 	/// create shader object
 	void CreateShader(VkShaderModule* shader, unsigned binarySize, char* binary);
@@ -48,10 +49,15 @@ private:
 	/// create this program as a compute program (can be done immediately)
 	void SetupAsCompute();
 
+	/// setup descriptor pipeline layout
+	void SetupDescriptorLayout(AnyFX::ShaderEffect* effect);
+
 	AnyFX::VkProgram* program;
 
-	Util::Array<VkDescriptorSetLayout> descriptorLayouts;
-	Util::Array<VkDescriptorSet> descriptorSets;
+	Util::Array<VkSampler> immutableSamplers;
+	VkPushConstantRange constantRange;
+	Util::FixedArray<VkDescriptorSetLayout> layouts;
+	Util::FixedArray<VkDescriptorSet> descriptorSets;
 
 	VkShaderModule vs, hs, ds, gs, ps, cs;
 

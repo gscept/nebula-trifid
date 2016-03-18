@@ -243,7 +243,7 @@ MinimapManager::OnBeginFrame()
             renderDev->BeginPass(this->minimapTarget, this->minimapShader);
 
             // setup primitive
-            renderDev->SetStreamSource(0, this->quadVb, 0);
+            renderDev->SetStreamVertexBuffer(0, this->quadVb, 0);
             renderDev->SetIndexBuffer(this->quadIb);
             renderDev->SetPrimitiveGroup(this->quadPrim);
 

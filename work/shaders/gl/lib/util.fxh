@@ -219,8 +219,8 @@ DecodeHDR4(in vec4 rgba)
 const float MiddleGrey = 0.5f; 
 const float Key = 0.3f;
 float MaxLuminance = 1.0f; 
-//const vec4 Luminance = vec4(0.2126f, 0.7152f, 0.0722f, 0.0f);
-const vec4 Luminance = vec4(0.299f, 0.587f, 0.114f, 0.0f);
+const vec4 Luminance = vec4(0.2126f, 0.7152f, 0.0722f, 0.0f);
+//const vec4 Luminance = vec4(0.299f, 0.587f, 0.114f, 0.0f);
 
 
 //------------------------------------------------------------------------------

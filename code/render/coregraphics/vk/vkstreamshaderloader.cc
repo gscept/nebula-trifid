@@ -62,7 +62,6 @@ VkStreamShaderLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 		res->vkEffect = effect;
 		res->shaderName = res->GetResourceId().AsString();
 		res->shaderIdentifierCode = ShaderIdentifier::FromName(res->shaderName.AsString());
-		res->SetupDescriptorSets();
 
 		// setup shader variations
 		const eastl::vector<AnyFX::ProgramBase*>& programs = effect->GetPrograms();
@@ -77,7 +76,7 @@ VkStreamShaderLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 			// program is only valid if either vertex shader (for graphics) or compute shader (for computes)
 			if (program->shaderBlock.vs != NULL || program->shaderBlock.cs != NULL)
 			{
-				variation->Setup(program, res->pipelineLayout);
+				variation->Setup(program, effect);
 				res->variations.Add(variation->GetFeatureMask(), variation);
 			}
 		}

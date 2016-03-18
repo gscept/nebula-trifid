@@ -36,13 +36,13 @@ public:
 	void Update(void* data, SizeT size, SizeT width, SizeT height, IndexT left, IndexT top, IndexT mip);
 
 	/// setup from an opengl 2D texture
-	void SetupFromVkTexture(VkImage img, CoreGraphics::PixelFormat::Code format, GLint numMips = 0, const bool setLoaded = true, const bool isAttachment = false);
+	void SetupFromVkTexture(VkImage img, VkDeviceMemory mem, CoreGraphics::PixelFormat::Code format, GLint numMips = 0, const bool setLoaded = true, const bool isAttachment = false);
 	/// setup from an opengl 2d multisample texture
-	void SetupFromVkMultisampleTexture(VkImage img, CoreGraphics::PixelFormat::Code format, GLint numMips = 0, const bool setLoaded = true, const bool isAttachment = false);
+	void SetupFromVkMultisampleTexture(VkImage img, VkDeviceMemory mem, CoreGraphics::PixelFormat::Code format, GLint numMips = 0, const bool setLoaded = true, const bool isAttachment = false);
 	/// setup from an opengl texture cube
-	void SetupFromVkCubeTexture(VkImage img, CoreGraphics::PixelFormat::Code format, GLint numMips = 0, const bool setLoaded = true, const bool isAttachment = false);
+	void SetupFromVkCubeTexture(VkImage img, VkDeviceMemory mem, CoreGraphics::PixelFormat::Code format, GLint numMips = 0, const bool setLoaded = true, const bool isAttachment = false);
 	/// setup from an opengl volume texture
-	void SetupFromVkVolumeTexture(VkImage img, CoreGraphics::PixelFormat::Code format, GLint numMips = 0, const bool setLoaded = true, const bool isAttachment = false);
+	void SetupFromVkVolumeTexture(VkImage img, VkDeviceMemory mem, CoreGraphics::PixelFormat::Code format, GLint numMips = 0, const bool setLoaded = true, const bool isAttachment = false);
 
 	/// calculate the size of a texture given a certain mip, use face 0 when not accessing a cube or array texture
 	void MipDimensions(IndexT mip, IndexT face, SizeT& width, SizeT& height, SizeT& depth);

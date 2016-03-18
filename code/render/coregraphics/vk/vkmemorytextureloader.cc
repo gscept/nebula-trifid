@@ -31,7 +31,7 @@ VkMemoryTextureLoader::OnLoadRequested()
 	n_assert(this->image != 0);
 	const Ptr<Texture>& res = this->resource.downcast<Texture>();
 	n_assert(!res->IsLoaded());
-	res->SetupFromVkTexture(this->image, this->format);
+	//res->SetupFromVkTexture(this->image, mem, this->format);
 	res->SetState(Resource::Loaded);
 	this->SetState(Resource::Loaded);
 	return true;

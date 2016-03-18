@@ -7,6 +7,7 @@
 #include "vkrenderdevice.h"
 #include "coregraphics/shaderserver.h"
 #include "lowlevel/vk/vkrenderstate.h"
+#include "lowlevel/vk/vksampler.h"
 
 using namespace Util;
 namespace Vulkan
@@ -63,12 +64,11 @@ VkShaderProgram::Commit()
 /**
 */
 void
-VkShaderProgram::Setup(AnyFX::VkProgram* program, VkPipelineLayout pipeline)
+VkShaderProgram::Setup(AnyFX::VkProgram* program, AnyFX::ShaderEffect* effect)
 {
 	this->program = program;
 	String mask = program->GetAnnotationString("Mask").c_str();
 	String name = program->name.c_str();
-	this->pipelineLayout = pipeline;
 
 	this->CreateShader(&this->vs, program->shaderBlock.vsBinarySize, program->shaderBlock.vsBinary);
 	this->CreateShader(&this->hs, program->shaderBlock.hsBinarySize, program->shaderBlock.hsBinary);
@@ -76,6 +76,9 @@ VkShaderProgram::Setup(AnyFX::VkProgram* program, VkPipelineLayout pipeline)
 	this->CreateShader(&this->gs, program->shaderBlock.gsBinarySize, program->shaderBlock.gsBinary);
 	this->CreateShader(&this->ps, program->shaderBlock.psBinarySize, program->shaderBlock.psBinary);
 	this->CreateShader(&this->cs, program->shaderBlock.csBinarySize, program->shaderBlock.csBinary);
+
+	// setup pipeline layout
+	this->SetupDescriptorLayout(effect);
 
 	// if we have a compute shader, it will be the one we use, otherwise use the graphics one
 	if (this->cs) this->SetupAsCompute();
@@ -273,7 +276,7 @@ VkShaderProgram::SetupAsCompute()
 	{
 		VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO,
 		NULL,
-		VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT,
+		0,
 		shader,
 		this->pipelineLayout,
 		VK_NULL_HANDLE, -1
@@ -283,6 +286,155 @@ VkShaderProgram::SetupAsCompute()
 	VkResult res = vkCreateComputePipelines(VkRenderDevice::dev, VkRenderDevice::cache, 1, &info, NULL, &this->computePipeline);
 	n_assert(res == VK_SUCCESS);
 	this->pipelineType = Compute;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkShaderProgram::SetupDescriptorLayout(AnyFX::ShaderEffect* effect)
+{
+	Util::Dictionary<IndexT, Util::Array<VkDescriptorSetLayoutBinding>> sets;
+
+	const eastl::vector<AnyFX::VarblockBase*>& varblocks = effect->GetVarblocks();
+	const eastl::vector<AnyFX::VarbufferBase*>& varbuffers = effect->GetVarbuffers();
+	const eastl::vector<AnyFX::VariableBase*>& variables = effect->GetVariables();
+	const eastl::vector<AnyFX::SamplerBase*>& samplers = effect->GetSamplers();
+
+	this->constantRange.size = 0;
+	this->constantRange.offset = 0;
+	this->constantRange.stageFlags = VK_SHADER_STAGE_ALL;
+	uint32_t numsets = 0;
+
+#define uint_max(a, b) (a > b ? a : b)
+	uint i;
+	for (i = 0; i < varblocks.size(); i++)
+	{
+		AnyFX::VkVarblock* block = static_cast<AnyFX::VkVarblock*>(varblocks[i]);
+		//if (this->program->activeVarblockNames.find(block->name) == this->program->activeVarblockNames.end()) continue;
+		if (block->variables.empty()) continue;
+		if (block->push)
+		{
+			this->constantRange.stageFlags = VK_SHADER_STAGE_ALL;
+			this->constantRange.size = block->byteSize;
+			this->constantRange.offset = 0;
+		}
+		else
+		{
+			IndexT index = sets.FindIndex(block->set);
+			if (index == InvalidIndex)
+			{
+				Util::Array<VkDescriptorSetLayoutBinding> arr;
+				arr.Append(block->bindingLayout);
+				sets.Add(block->set, arr);
+			}
+			else
+			{
+				sets.ValueAtIndex(index).Append(block->bindingLayout);
+			}
+			numsets = uint_max(numsets, block->set);
+		}
+	}
+
+	for (i = 0; i < varbuffers.size(); i++)
+	{
+		AnyFX::VkVarbuffer* buffer = static_cast<AnyFX::VkVarbuffer*>(varbuffers[i]);
+
+		IndexT index = sets.FindIndex(buffer->set);
+		if (index == InvalidIndex)
+		{
+			Util::Array<VkDescriptorSetLayoutBinding> arr;
+			arr.Append(buffer->bindingLayout);
+			sets.Add(buffer->set, arr);
+		}
+		else
+		{
+			sets.ValueAtIndex(index).Append(buffer->bindingLayout);
+		}
+	}
+
+	for (i = 0; i < samplers.size(); i++)
+	{
+		AnyFX::VkSampler* sampler = static_cast<AnyFX::VkSampler*>(samplers[i]);
+
+		VkSampler vkSampler;
+		VkResult res = vkCreateSampler(VkRenderDevice::dev, &sampler->samplerInfo, NULL, &vkSampler);
+		n_assert(res == VK_SUCCESS);
+
+		// add to list so we can remove it later
+		this->immutableSamplers.Append(vkSampler);
+
+		uint j;
+		for (j = 0; j < sampler->textureVariables.size(); j++)
+		{
+			AnyFX::VkVariable* var = static_cast<AnyFX::VkVariable*>(sampler->textureVariables[j]);
+			n_assert(var->type >= AnyFX::Sampler1D && var->type <= AnyFX::SamplerCubeArray);
+			var->bindingLayout.pImmutableSamplers = &vkSampler;
+		}
+	}
+
+	for (i = 0; i < variables.size(); i++)
+	{
+		AnyFX::VkVariable* variable = static_cast<AnyFX::VkVariable*>(variables[i]);
+		//if (this->program->activeVariableNames.find(variable->name) == this->program->activeVariableNames.end()) continue;
+		if (variable->type >= AnyFX::Sampler1D && variable->type <= AnyFX::TextureCubeArray)
+		{
+			IndexT index = sets.FindIndex(variable->set);
+			if (index == InvalidIndex)
+			{
+				Util::Array<VkDescriptorSetLayoutBinding> arr;
+				arr.Append(variable->bindingLayout);
+				sets.Add(variable->set, arr);
+			}
+			else
+			{
+				sets.ValueAtIndex(index).Append(variable->bindingLayout);
+			}
+			numsets = uint_max(numsets, variable->set);
+		}
+	}
+
+	// skip the rest if we don't have any descriptor sets
+	if (!sets.IsEmpty())
+	{
+		//this->layouts.Resize(sets.Size());
+		this->layouts.Resize(numsets + 1);
+		for (IndexT i = 0; i < layouts.Size(); i++)
+		{
+			VkDescriptorSetLayoutCreateInfo info;
+			info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+			info.pNext = NULL;
+			info.flags = 0;
+			info.bindingCount = 0;
+			info.pBindings = NULL;
+
+			if (sets.Contains(i))
+			{
+				const Util::Array<VkDescriptorSetLayoutBinding>& binds = sets[i];
+				info.bindingCount = binds.Size();
+				info.pBindings = &binds[0];
+			}			
+
+			// create layout
+			VkResult res = vkCreateDescriptorSetLayout(VkRenderDevice::dev, &info, NULL, &this->layouts[i]);
+			assert(res == VK_SUCCESS);
+		}
+	}
+
+	VkPipelineLayoutCreateInfo layoutInfo =
+	{
+		VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
+		NULL,
+		0,
+		this->layouts.Size(),
+		this->layouts.Size() > 0 ? &this->layouts[0] : NULL,
+		0,
+		&this->constantRange
+	};
+
+	// create pipeline layout, every program should inherit this one
+	VkResult res = vkCreatePipelineLayout(VkRenderDevice::dev, &layoutInfo, NULL, &this->pipelineLayout);
+	assert(res == VK_SUCCESS);
 }
 
 } // namespace Vulkan

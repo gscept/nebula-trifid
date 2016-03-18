@@ -17,6 +17,7 @@ __ImplementClass(Vulkan::VkMemoryVertexBufferLoader, 'VKVO', Base::MemoryVertexB
 
 //------------------------------------------------------------------------------
 /**
+	FIXME: Go through the transfer queue if possible to update the vertex data
 */
 bool
 VkMemoryVertexBufferLoader::OnLoadRequested()
@@ -38,7 +39,7 @@ VkMemoryVertexBufferLoader::OnLoadRequested()
 		VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
 		NULL,
 		0,					// use for sparse buffers
-		this->vertexDataSize,
+		vertexSize * this->numVertices,
 		VkBufferUsageFlagBits::VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
 		VkSharingMode::VK_SHARING_MODE_EXCLUSIVE,				// can only be accessed from the creator queue,
 		1,														// number of queues in family
@@ -54,17 +55,20 @@ VkMemoryVertexBufferLoader::OnLoadRequested()
 	uint32_t alignedSize;
 	VkRenderDevice::Instance()->AllocateBufferMemory(buf, mem, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, alignedSize);
 
-	// map memory so we can initialize it
-	void* data;
-	err = vkMapMemory(VkRenderDevice::dev, mem, 0, alignedSize, 0, &data);
-	n_assert(err == VK_SUCCESS);
-	n_assert(this->vertexDataSize <= (int32_t)alignedSize);
-	memcpy(data, this->vertexDataPtr, this->vertexDataSize);
-	vkUnmapMemory(VkRenderDevice::dev, mem);
-
 	// now bind memory to buffer
 	err = vkBindBufferMemory(VkRenderDevice::dev, buf, mem, 0);
 	n_assert(err == VK_SUCCESS);
+
+	if (this->vertexDataPtr != 0)
+	{
+		// map memory so we can initialize it
+		void* data;
+		err = vkMapMemory(VkRenderDevice::dev, mem, 0, alignedSize, 0, &data);
+		n_assert(err == VK_SUCCESS);
+		n_assert(this->vertexDataSize <= (int32_t)alignedSize);
+		memcpy(data, this->vertexDataPtr, this->vertexDataSize);
+		vkUnmapMemory(VkRenderDevice::dev, mem);
+	}
 
 	Ptr<VertexLayout> vertexLayout = VertexLayout::Create();
 	vertexLayout->SetStreamBuffer(0, buf);

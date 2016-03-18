@@ -19,6 +19,19 @@ public:
 	/// destructor
 	virtual ~VkDepthStencilTarget();
 
+	/// setup depth-stencil target
+	void Setup();
+	/// discard depth-stencil target
+	void Discard();
+
+	/// called after we change the display size
+	void OnDisplayResized(SizeT width, SizeT height);
+
+	/// begins pass
+	void BeginPass();
+	/// ends pass
+	void EndPass();
+
 	/// return handle to the view
 	VkImageView GetVkImageView();
 private:

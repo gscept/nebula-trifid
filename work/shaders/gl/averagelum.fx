@@ -46,7 +46,7 @@ vsMain(in vec3 position,
 shader
 void
 psMain(vec2 UV,
-	[color0] out vec4 result)
+	[color0] out float result)
 {
 	vec2 pixelSize = GetPixelSize(ColorSource);
 	
@@ -55,8 +55,8 @@ psMain(vec2 UV,
 	vec4 sample2 = texelFetch(ColorSource, ivec2(0, 1), 8);
 	vec4 sample3 = texelFetch(ColorSource, ivec2(1, 1), 8);
 	vec4 sample4 = texelFetch(ColorSource, ivec2(0, 0), 8);
-	vec4 currentLum = (sample1 + sample2 + sample3 + sample4) * 0.25f;
-	vec4 lastLum = texelFetch(PreviousLum, ivec2(0, 0), 0);
+	float currentLum = dot((sample1 + sample2 + sample3 + sample4) * 0.25f, vec4(0.2126f, 0.7152f, 0.0722f, 0));
+	float lastLum = texelFetch(PreviousLum, ivec2(0, 0), 0).r;
 	
 /*	float	sigma = 0.04/(0.04 + Clum.x);
 	float	tau = sigma*0.4 + (1.0 - sigma)*0.1;
@@ -64,11 +64,11 @@ psMain(vec2 UV,
 */
 
 	//vec3	col = pow( pow( Alum, 0.25 ) + ( pow( Clum, 0.25 ) - pow( Alum, 0.25 ) ) * ( 1.0 - pow( 0.98, 30 * dtime ) ), 4.0);
-	vec4 Color = lastLum + (currentLum - lastLum) * (1.0 - pow(0.98, 30.0 * TimeDiff));
-	Color.x = clamp(Color.x, 0.25f, 5.0f);
+	float lum = lastLum + (currentLum - lastLum) * (1.0 - pow(0.98, 30.0 * TimeDiff));
+	lum = clamp(lum, 0.25f, 5.0f);
 	//Color.y = clamp(Color.y, 0.5f, 2);
 	//gl_FragColor = vec4(col.x,col.y, 0.0, 1.0);
-	result = vec4(Color.x, Color.y, 0, 1);
+	result = lum;
 }
 
 //------------------------------------------------------------------------------

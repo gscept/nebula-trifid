@@ -7,7 +7,6 @@
 #include "graphics/graphicsprotocol.h"
 #include "events/event.h"
 #include "graphics/graphicsinterface.h"
-#include "graphicsfeature/graphicsfeatureunit.h"
 
 #if __WIN32__
     #include <windows.h>

@@ -16,6 +16,7 @@ __ImplementClass(Vulkan::VkMemoryIndexBufferLoader, 'VKMI', Base::MemoryIndexBuf
 
 //------------------------------------------------------------------------------
 /**
+	FIXME: Go through the transfer queue if possible to update the index data
 */
 bool
 VkMemoryIndexBufferLoader::OnLoadRequested()
@@ -38,7 +39,7 @@ VkMemoryIndexBufferLoader::OnLoadRequested()
 		VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
 		NULL,
 		0,					// use for sparse buffers
-		this->indexDataSize,
+		this->numIndices * IndexType::SizeOf(this->indexType),
 		VkBufferUsageFlagBits::VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
 		VkSharingMode::VK_SHARING_MODE_EXCLUSIVE,				// can only be accessed from the creator queue,
 		1,														// number of queues in family
@@ -54,17 +55,20 @@ VkMemoryIndexBufferLoader::OnLoadRequested()
 	uint32_t alignedSize;
 	VkRenderDevice::Instance()->AllocateBufferMemory(buf, mem, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, alignedSize);
 
-	// map memory so we can initialize it
-	void* data;
-	err = vkMapMemory(VkRenderDevice::dev, mem, 0, alignedSize, 0, &data);
-	n_assert(err == VK_SUCCESS);
-	n_assert(this->indexDataSize <= (int32_t)alignedSize);
-	memcpy(data, this->indexDataPtr, this->indexDataSize);
-	vkUnmapMemory(VkRenderDevice::dev, mem);
-
 	// now bind memory to buffer
 	err = vkBindBufferMemory(VkRenderDevice::dev, buf, mem, 0);
 	n_assert(err == VK_SUCCESS);
+
+	if (this->indexDataPtr != 0)
+	{
+		// map memory so we can initialize it
+		void* data;
+		err = vkMapMemory(VkRenderDevice::dev, mem, 0, alignedSize, 0, &data);
+		n_assert(err == VK_SUCCESS);
+		n_assert(this->indexDataSize <= (int32_t)alignedSize);
+		memcpy(data, this->indexDataPtr, this->indexDataSize);
+		vkUnmapMemory(VkRenderDevice::dev, mem);
+	}	
 
 	// setup our IndexBuffer resource
 	const Ptr<IndexBuffer>& res = this->resource.downcast<IndexBuffer>();

@@ -81,10 +81,10 @@ INCLUDE_DIRECTORIES($<$<BOOL:${N_BUILD_OGL4}>:${Nebula3_SOURCE_DIR}/code/extlibs
 												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/compiler/code
 												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/exts/eastl/include
 												${Nebula3_SOURCE_DIR}/code/extlibs/glfw/include>
-					$<$<BOOL:${N_BUILD_VULKAN}>:${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/api/code
+					$<$<BOOL:${N_BUILD_VULKAN}>:${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/api/lowlevel
+												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/api
 												${Nebula3_SOURCE_DIR}/code/extlibs/glew/include
 												${VULKAN_INCLUDE_DIR}
-												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/api/code
 												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/util/code
 												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/compiler/code
 												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/exts/eastl/include

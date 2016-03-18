@@ -6,10 +6,14 @@
 #include "vkrendertarget.h"
 #include "vkrenderdevice.h"
 #include "vktypes.h"
+#include "resources/resourcemanager.h"
+#include "../displaydevice.h"
 
 namespace Vulkan
 {
 
+using namespace Resources;
+using namespace CoreGraphics;
 __ImplementClass(Vulkan::VkRenderTarget, 'VURT', Base::RenderTargetBase);
 //------------------------------------------------------------------------------
 /**
@@ -42,6 +46,13 @@ VkRenderTarget::Setup()
 	}
 	else
 	{
+		if (this->relativeSizeValid)
+		{
+			DisplayDevice* displayDevice = DisplayDevice::Instance();
+			this->SetWidth(SizeT(displayDevice->GetDisplayMode().GetWidth() * this->relWidth));
+			this->SetHeight(SizeT(displayDevice->GetDisplayMode().GetHeight() * this->relHeight));
+		}		
+
 		SizeT resolveWidth = this->resolveTextureDimensionsValid ? this->resolveTextureWidth : this->width;
 		SizeT resolveHeight = this->resolveTextureDimensionsValid ? this->resolveTextureHeight : this->height;
 
@@ -104,46 +115,34 @@ VkRenderTarget::Setup()
 		n_assert(res == VK_SUCCESS);
 
 		uint32_t numviews = 1;
+		uint32_t numattachments = 1;
 		VkImageView views[2];
 		views[0] = this->imageView;
 
 		if (this->depthStencilTarget.isvalid()) views[numviews++] = this->depthStencilTarget->GetVkImageView();
 
-		VkFramebufferCreateInfo fbInfo = 
-		{
-			VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
-			NULL,
-			0,
-			this->pass,
-			numviews,
-			views,
-			resolveWidth, resolveHeight, 1		// dimensions is 
-		};
-
-		// create framebuffer
-		res = vkCreateFramebuffer(VkRenderDevice::dev, &fbInfo, NULL, &this->framebuffer);
-		n_assert(res == VK_SUCCESS);
-
 		// we create a very default attachment behavior where we assume to write 
 		// to the framebuffer and read from it once the operations are done
-		VkAttachmentDescription attachment;
-		attachment.format = VkTypes::AsVkFormat(this->colorBufferFormat);
-		attachment.samples = sampleCount;
-		attachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-		attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-		attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-		attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
-		attachment.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-		attachment.finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		VkAttachmentDescription attachment[2];
+		attachment[0].format = VkTypes::AsVkFormat(this->colorBufferFormat);
+		attachment[0].samples = sampleCount;
+		attachment[0].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+		attachment[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+		attachment[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+		attachment[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
+		attachment[0].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		attachment[0].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
 		VkAttachmentReference depthAttachmentRef;
 		depthAttachmentRef.attachment = VK_ATTACHMENT_UNUSED;
+		depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 		VkAttachmentReference resolveAttachmentRef;
 		resolveAttachmentRef.attachment = VK_ATTACHMENT_UNUSED;
+		resolveAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
 		VkAttachmentReference attachmentRef;
-		attachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 		attachmentRef.attachment = 0;
+		attachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
 		// create just one subpass which is just using our single color attachment and optional depth stencil attachment
 		VkSubpassDescription subpass;
@@ -161,6 +160,16 @@ VkRenderTarget::Setup()
 		{
 			depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 			depthAttachmentRef.attachment = 1;
+
+			attachment[1].format = VK_FORMAT_D24_UNORM_S8_UINT;
+			attachment[1].samples = VK_SAMPLE_COUNT_1_BIT;
+			attachment[1].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+			attachment[1].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+			attachment[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+			attachment[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
+			attachment[1].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			attachment[1].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			numattachments++;
 		}
 
 		// setup render pass info
@@ -169,8 +178,8 @@ VkRenderTarget::Setup()
 			VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
 			NULL,
 			0,
-			1,
-			&attachment,
+			numattachments,
+			attachment,
 			1,
 			&subpass,
 			0,
@@ -184,6 +193,42 @@ VkRenderTarget::Setup()
 		// setup info
 		this->framebufferPipelineInfo.renderPass = this->pass;
 		this->framebufferPipelineInfo.subpass = 0;
+
+		VkFramebufferCreateInfo fbInfo =
+		{
+			VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
+			NULL,
+			0,
+			this->pass,
+			numviews,
+			views,
+			resolveWidth, resolveHeight, 1		// dimensions is 
+		};
+
+		// create framebuffer
+		res = vkCreateFramebuffer(VkRenderDevice::dev, &fbInfo, NULL, &this->framebuffer);
+		n_assert(res == VK_SUCCESS);
+
+		// setup texture resource
+		if (this->resolveTextureResId.IsValid())
+		{
+			this->resolveTexture = ResourceManager::Instance()->CreateUnmanagedResource(this->resolveTextureResId, Texture::RTTI).downcast<Texture>();
+		}
+		else
+		{
+			// just create a texture natively without managing it
+			this->resolveTexture = CoreGraphics::Texture::Create();
+		}
+
+		// setup actual texture
+		if (sampleCount > 1)
+		{
+			this->resolveTexture->SetupFromVkMultisampleTexture(this->image, this->imageMem, this->colorBufferFormat, 0, true, true);
+		}
+		else
+		{
+			this->resolveTexture->SetupFromVkTexture(this->image, this->imageMem, this->colorBufferFormat, 0, true, true);
+		}
 	}
 }
 
@@ -193,7 +238,10 @@ VkRenderTarget::Setup()
 void
 VkRenderTarget::Discard()
 {
-
+	RenderTargetBase::Discard();
+	vkDestroyImageView(VkRenderDevice::dev, this->imageView, NULL);
+	vkDestroyImage(VkRenderDevice::dev, this->image, NULL);
+	vkFreeMemory(VkRenderDevice::dev, this->imageMem, NULL);
 }
 
 //------------------------------------------------------------------------------
