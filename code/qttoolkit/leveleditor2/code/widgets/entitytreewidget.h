@@ -120,6 +120,9 @@ private:
 class EntityTreeItem : public QTreeWidgetItem
 {
 public:
+    ///
+    EntityTreeItem();
+    ///
 	virtual ~EntityTreeItem();
 	/// set entity guid
 	void SetEntityGuid(EntityGuid id);
@@ -133,10 +136,16 @@ public:
 	void SetCategory(const Util::String& category);
 	///
 	void SetLevel(const Util::String & level);
+    ///
+    void SetLocked(bool lock);
+    ///
+    void SetVisible(bool visible);
 
 	EntityGuid entityGuid;	//< the guid of the entity this item represents
 	EntityType type;
 	Util::String level;
+    bool locked;
+    bool visible;
 };
 
 //------------------------------------------------------------------------------

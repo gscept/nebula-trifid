@@ -146,6 +146,15 @@ ParsedLevel::LoadEntities(const IO::URI & fileName)
 	return true;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ParsedLevel::AddReference(const Util::String & name)
+{
+    this->references.Append(name);
+}
+
 __ImplementClass(LevelEditor2::ParsedLevel, 'PRVL', ToolkitUtil::LevelParser);
 
 
@@ -170,15 +179,54 @@ Level::~Level()
 	__DestructSingleton;
 }
 
-
-
 //------------------------------------------------------------------------------------
 /**
 */
 bool
 Level::LoadLevel(const Util::String& level, LoadMode mode)
 {
-    if (mode == Reference && level == this->name)
+    LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->OnBeginLoad();
+    if (mode == Replace)
+    {
+        LevelEditor2EntityManager::Instance()->RemoveAllEntities(true);
+
+        LevelEditor2App::Instance()->GetWindow()->GetLayerHandler()->Discard();
+        LevelEditor2App::Instance()->GetWindow()->GetLayerHandler()->Setup();
+        LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->ClearReferences();
+        this->refLevels.Clear();
+        LevelEditor2EntityManager::Instance()->CreateLightEntity("GlobalLight");
+    }
+   
+    if (this->LoadLevelFile(level, mode))
+    {
+        Ptr<ParsedLevel> lvl = this->refLevels[level];
+
+        for (int i = 0; i < lvl->references.Size(); i++)
+        {
+            this->LoadLevelFile(lvl->references[i], Reference);
+        }
+        // reparent all items
+        LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->RebuildTree();
+        this->startLevel = false;
+        if (LevelEditor2App::Instance()->GetGlobalAttrs()->HasAttr(Attr::_DefaultLevel))
+        {
+            if (LevelEditor2App::Instance()->GetGlobalAttrs()->GetString(Attr::_DefaultLevel) == this->name)
+            {
+                this->startLevel = true;
+            }
+        }       
+    }
+    LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->OnEndLoad();   
+    return true;
+}
+
+//------------------------------------------------------------------------------------
+/**
+*/
+bool
+Level::LoadLevelFile(const Util::String& level, LoadMode mode)
+{    
+    if (mode == Reference && this->refLevels.Contains(level))
     {
         n_warning("Trying to reference yourself");
         return false;
@@ -196,18 +244,7 @@ Level::LoadLevel(const Util::String& level, LoadMode mode)
 	{
 		return false;
 	}
-
-	LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->OnBeginLoad();
-	if (mode == Replace)
-	{
-		LevelEditor2EntityManager::Instance()->RemoveAllEntities();
-
-		LevelEditor2App::Instance()->GetWindow()->GetLayerHandler()->Discard();
-		LevelEditor2App::Instance()->GetWindow()->GetLayerHandler()->Setup();
-		LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->ClearReferences();
-		this->refLevels.Clear();
-	}
-   
+	   
 	bool result = false;
 
 	Ptr<ParsedLevel> lvl = ParsedLevel::Create();
@@ -231,21 +268,20 @@ Level::LoadLevel(const Util::String& level, LoadMode mode)
 			this->SetName(lvl->name);
             entityLevel = this->name;
 			this->SetPosteffect(lvl->preset, lvl->lightTrans);
+            this->refLevels.Add(this->name, lvl);
             break;
         case Merge:
             entityLevel = this->name;
             lvl->UpdateGuids();
             break;
-        case Reference:
-            {
-                entityLevel = level;
-                LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->AddReference(level);
-				this->refLevels.Add(level, lvl);
-            }            
+        case Reference:            
+            entityLevel = level;
+            LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->AddReference(level);				
+            this->refLevels.Add(level, lvl);            
             break;
         default:
             break;
-        }
+        }        
 		for (int i = 0;i < lvl->layers.Size();i++)
 		{
 			const ParsedLevel::_Layer & l = lvl->layers[i];
@@ -254,26 +290,8 @@ Level::LoadLevel(const Util::String& level, LoadMode mode)
 		for (int i = 0;i < lvl->entities.Size();i++)
 		{
 			LevelEditor2EntityManager::Instance()->CreateEntityFromAttrContainer(entityLevel, lvl->entities[i].Key(), lvl->entities[i].Value());
-		}
-
-
-		// reparent all items
-		LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->RebuildTree();
-        this->startLevel = false;
-        if(LevelEditor2App::Instance()->GetGlobalAttrs()->HasAttr(Attr::_DefaultLevel))
-        {
-            if(LevelEditor2App::Instance()->GetGlobalAttrs()->GetString(Attr::_DefaultLevel) == this->name )
-            {
-                this->startLevel = true;
-            }
-        }
-	}
-	LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->OnEndLoad();
-	// add wrapper entity for global light
-	if (mode == Replace)
-	{
-		LevelEditor2EntityManager::Instance()->CreateLightEntity("GlobalLight");
-	}    
+		}		
+	}		    
 	return result;	
 }
 
@@ -284,6 +302,7 @@ void
 Level::SaveLevelAs(const Util::String& newName)
 {
 	this->name = newName;
+    //FIXMEEEEEE
 	this->SaveLevel();
 }
 
@@ -402,6 +421,7 @@ Level::SaveLevel()
 	this->SaveLevelFile(this->name, IO::URI(fileName), false);
 	for (int i = 0;i < this->refLevels.Size();i++)
 	{
+        if (refLevels.KeyAtIndex(i) == this->name) continue;
 		fileName.Format("work:levels/%s.xml", this->refLevels.KeyAtIndex(i).AsCharPtr());
 		this->SaveLevelFile(this->refLevels.KeyAtIndex(i), fileName, false);
 	}
@@ -520,6 +540,8 @@ Level::SaveLevelFile(const Util::String& name, const IO::URI & fileName, bool se
 	{		
 		for (int i = 0;i < this->refLevels.Size();i++)
 		{
+            if (refLevels.KeyAtIndex(i) == this->name)
+                continue;
 			xmlWriter->BeginNode("Reference");
 			xmlWriter->SetString("Level", refLevels.KeyAtIndex(i));
 			xmlWriter->EndNode();
@@ -985,6 +1007,20 @@ void
 Level::Clear()
 {
 	this->refLevels.Clear();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+Level::RemoveReference(const Util::String & level)
+{
+    Util::Array<Ptr<Game::Entity>> ents = BaseGameFeature::EntityManager::Instance()->GetEntitiesByAttr(Attr::Attribute(Attr::EntityLevel, level));
+    for (int i = 0; i < ents.Size(); i++)
+    {
+        LevelEditor2EntityManager::Instance()->RemoveEntity(ents[i]);
+    }
+    this->refLevels.Erase(level);
 }
 
 } // namespace LevelEditor2

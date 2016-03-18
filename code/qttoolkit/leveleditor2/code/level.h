@@ -41,6 +41,9 @@ public:
 	bool LoadEntities(const IO::URI & fileName);
 	/// level dimensions
 	virtual void SetDimensions(const Math::bbox & box) {}
+    ///
+    virtual void AddReference(const Util::String & name);
+
 
 	/// 
 	void UpdateGuids();
@@ -57,6 +60,7 @@ public:
 	Math::matrix44 lightTrans;
 	Util::Array<Util::KeyValuePair<Util::String, Attr::AttributeContainer>> entities;
 	Util::Array<_Layer> layers;
+    Util::Array<Util::String> references;
 };
 
 class Level : public ToolkitUtil::LevelParser
@@ -109,10 +113,15 @@ public:
 	///
 	void Clear();
 
+    /// 
+    void RemoveReference(const Util::String & level);
+
 protected:
 
 	/// performs the actual saving
 	void SaveLevelFile(const Util::String& name, const IO::URI & filename, bool selectedOnly);
+
+    bool LoadLevelFile(const Util::String& name, LoadMode mode);
 
     /// set level name
     virtual void SetName(const Util::String & name);
@@ -124,6 +133,8 @@ protected:
     virtual void SetPosteffect(const Util::String & preset, const Math::matrix44 & globallightTransform);
     /// level dimensions
     virtual void SetDimensions(const Math::bbox & box);
+    ///
+    virtual void AddReference(const Util::String & name) {}
 
 	/// save single entity
 	bool SaveEntity(const Util::String & levelName, const Ptr<Game::Entity>& entity, const Ptr<IO::XmlWriter>& stream);

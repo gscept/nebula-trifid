@@ -121,6 +121,14 @@ LevelParser::LoadXmlLevel(const Ptr<IO::XmlReader> & reader)
             }
             Math::bbox box(center, extends);
             this->SetDimensions(box);
+            if (reader->SetToFirstChild("Reference"))
+            {
+                do
+                {
+                    Util::String name = reader->GetString("Level");                    
+                    this->AddReference(name);
+                } while (reader->SetToNextChild());
+            }
         }        
         this->CommitLevel();
         return true;

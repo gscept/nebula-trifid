@@ -39,6 +39,8 @@ protected:
     virtual void SetPosteffect(const Util::String & preset, const Math::matrix44 & globallightTransform);
     /// level dimensions
     virtual void SetDimensions(const Math::bbox & box);
+    ///
+    virtual void AddReference(const Util::String & name) {}
     /// commit per level info to db
     virtual void CommitLevel();
 

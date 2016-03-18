@@ -22,6 +22,7 @@ namespace Attr
 	DefineGuid(EntityGuid,'ETGU',ReadWrite);
 	DefineGuid(ParentGuid,'PAGU',ReadWrite);
 	DefineBool(IsSelected,'ISCT',ReadWrite);
+    DefineBool(IsLocked, 'ISLK', ReadWrite);
 }
 
 //------------------------------------------------------------------------------
@@ -182,6 +183,7 @@ EditorProperty::SetupDefaultAttributes()
 	SetupAttr(Attr::EntityGuid, false);
 	SetupAttr(Attr::ParentGuid, false);
 	SetupAttr(Attr::IsSelected, false);
+    SetupAttr(Attr::IsLocked, false);
 }
 
 //------------------------------------------------------------------------------

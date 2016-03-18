@@ -21,6 +21,17 @@ namespace LevelEditor2
 //------------------------------------------------------------------------------
 /**
 */
+
+EntityTreeItem::EntityTreeItem():
+    locked(false),
+    visible(true)
+{
+
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 EntityTreeItem::~EntityTreeItem()
 {
 	if (this->entityGuid.IsValid())
@@ -73,6 +84,15 @@ EntityTreeItem::SetIcon(const EntityType& type)
 		}
 		break;
 	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+EntityTreeItem::SetLocked(bool lock)
+{
+    this->locked = lock;
 }
 
 //------------------------------------------------------------------------------
@@ -353,6 +373,38 @@ EntityTreeWidget::contextMenuEvent(QContextMenuEvent * event)
 	}
 	if (myitem->type == LevelReference)
 	{
+        QMenu menu;
+        QAction * remove = menu.addAction("Remove reference");
+        QAction * lock = menu.addAction(myitem->locked ? "Unlock" : "Lock");
+        QAction * visible = menu.addAction(myitem->visible ? "Hide" : "Show");
+        QAction * sel = menu.exec(event->globalPos());
+        if (sel == remove)
+        {
+            Level::Instance()->RemoveReference(myitem->level);
+            IndexT idx = this->referenceItems.FindIndex(myitem->level);
+            this->referenceItems.EraseAtIndex(idx);
+            delete myitem;
+        }
+        else if (sel == lock)
+        {
+            myitem->locked = !myitem->locked;
+            Util::Array<Ptr<Game::Entity>> ents = BaseGameFeature::EntityManager::Instance()->GetEntitiesByAttr(Attr::Attribute(Attr::EntityLevel, myitem->level));
+            for (int i = 0; i < ents.Size(); i++)
+            {
+                ents[i]->SetBool(Attr::IsLocked, myitem->locked);
+            }
+        }
+        else if (sel == visible)
+        {
+            myitem->visible = !myitem->visible;
+            Util::Array<Ptr<Game::Entity>> ents = BaseGameFeature::EntityManager::Instance()->GetEntitiesByAttr(Attr::Attribute(Attr::EntityLevel, myitem->level));
+            Ptr<GraphicsFeature::SetGraphicsVisible> msg = GraphicsFeature::SetGraphicsVisible::Create();
+            msg->SetVisible(myitem->visible);
+            for (int i = 0; i < ents.Size(); i++)
+            {
+                __SendSync(ents[i], msg);
+            }            
+        }
 		return;
 	}
 	if (this->selectedItems().count() > 1)
@@ -589,7 +641,7 @@ EntityTreeWidget::RebuildTree()
 	const Util::Array<Ptr<Game::Entity>> entities = BaseGameFeature::EntityManager::Instance()->GetEntities();	
 	for(int i = 0 ; i < entities.Size() ; i++)
 	{						
-		if(entities[i]->HasAttr(Attr::EntityType) && !BaseGameFeature::EntityManager::Instance()->IsEntityInDelayedJobs(entities[i]) && entities[i]->HasAttr(Attr::ParentGuid))
+		if(entities[i].isvalid() && entities[i]->HasAttr(Attr::EntityType) && !BaseGameFeature::EntityManager::Instance()->IsEntityInDelayedJobs(entities[i]) && entities[i]->HasAttr(Attr::ParentGuid))
 		{
 			Util::Guid parentGuid = entities[i]->GetGuid(Attr::ParentGuid);
 			if(parentGuid.IsValid())
@@ -687,6 +739,7 @@ EntityTreeWidget::ClearReferences()
 	{
 		delete this->referenceItems.ValueAtIndex(i);
 	}
+    this->referenceItems.Clear();
 }
 
 } // namespace LevelEditor2

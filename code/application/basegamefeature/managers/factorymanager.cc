@@ -491,7 +491,7 @@ FactoryManager::AddBlueprint(const Util::String& type, const Util::String &cppCl
 	tablename.Format("_Instance_%s",type.AsCharPtr());
 	table->SetName(tablename);
 	table->AddColumn(Db::Column(Attr::Id));
-	table->AddColumn(Db::Column(Attr::Guid));
+	table->AddColumn(Db::Column(Attr::Guid, Db::Column::Primary));
 	table->AddColumn(Db::Column(Attr::_Level));
 	table->AddColumn(Db::Column(Attr::_Layers));
 	Db::DbServer::Instance()->GetGameDatabase()->AddTable(table);

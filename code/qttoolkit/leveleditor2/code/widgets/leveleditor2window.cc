@@ -295,6 +295,8 @@ LevelEditor2Window::OnNew()
 	this->SetWindowTitle("Untitled");
 	this->layerHandler->Setup();
 	Level::Instance()->Clear();
+    LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->ClearReferences();
+
 }
 
 //------------------------------------------------------------------------------
@@ -338,7 +340,7 @@ LevelEditor2Window::OnLoad()
 		Util::String full = path.GetTail().ExtractFileName();
 		full.StripFileExtension();
 
-		Level::Instance()->LoadLevel(full, Level::Replace);		
+		LevelEditor2EntityManager::Instance()->LoadLevel(full, Level::Replace);		
 		this->ui.actionSave->setEnabled(true);
 		this->SetWindowTitle(full);
 		ActionManager::Instance()->ClearStack();
