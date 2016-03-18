@@ -176,6 +176,9 @@ private:
 	uint32_t numQueues;
 	VkQueueFamilyProperties queuesProps[64];
 
+	uint32_t renderQueueFamily;
+	uint32_t computeQueueFamily;
+	uint32_t transferQueueFamily;
 	uint32_t renderQueueIdx;
 	uint32_t computeQueueIdx;
 	uint32_t transferQueueIdx;

@@ -29,6 +29,12 @@ public:
 
 	/// returns a const ref to the pipeline information created by this render target
 	const VkGraphicsPipelineCreateInfo& GetVkPipelineInfo();
+	/// returns render pass 
+	const VkRenderPass& GetVkRenderPass() const;
+	/// returns framebuffer
+	const VkFramebuffer& GetVkFramebuffer() const;
+	/// returns list of clear values
+	const Util::FixedArray<VkClearValue>& GetVkClearValues();
 
 	/// set the current resolve rectangle (in pixels)
 	void SetResolveRect(const Math::rectangle<int>& r);
@@ -49,6 +55,7 @@ private:
 	VkFramebuffer framebuffer;
 	Util::FixedArray<VkViewport> viewports;
 
+	Util::FixedArray<VkClearValue> clearValues;
 	VkPipelineViewportStateCreateInfo viewportInfo;
 	VkGraphicsPipelineCreateInfo framebufferPipelineInfo;
 	VkRenderPass pass;
@@ -71,6 +78,33 @@ inline const VkImageView&
 VkRenderTarget::GetVkImageView() const
 {
 	return this->imageView;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const VkRenderPass&
+VkRenderTarget::GetVkRenderPass() const
+{
+	return this->pass;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const VkFramebuffer&
+VkRenderTarget::GetVkFramebuffer() const
+{
+	return this->framebuffer;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Util::FixedArray<VkClearValue>&
+VkRenderTarget::GetVkClearValues()
+{
+	return this->clearValues;
 }
 
 } // namespace Vulkan

@@ -35,7 +35,7 @@ VkUniformBuffer::Setup(const SizeT numBackingBuffers)
 {
 	ConstantBufferBase::Setup(numBackingBuffers);
 
-	uint32_t queues[] = { VkRenderDevice::Instance()->renderQueueIdx, VkRenderDevice::Instance()->computeQueueIdx, VkRenderDevice::Instance()->transferQueueIdx };
+	uint32_t queues[] = { VkRenderDevice::Instance()->renderQueueFamily, VkRenderDevice::Instance()->computeQueueFamily, VkRenderDevice::Instance()->transferQueueFamily };
 	VkBufferCreateInfo info =
 	{
 		VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
@@ -44,7 +44,7 @@ VkUniformBuffer::Setup(const SizeT numBackingBuffers)
 		this->size,
 		VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
 		VK_SHARING_MODE_CONCURRENT,
-		sizeof(queues) / sizeof(uint32_t),
+		3,
 		queues
 	};
 	VkResult res = vkCreateBuffer(VkRenderDevice::dev, &info, NULL, &this->buf);

@@ -23,6 +23,10 @@ public:
 	void AddRenderTarget(const Ptr<CoreGraphics::RenderTarget>& rt);
 	/// set depth-stencil target
 	void SetDepthStencilTarget(const Ptr<CoreGraphics::DepthStencilTarget>& dt);
+	/// returns render pass 
+	const VkRenderPass& GetVkRenderPass() const;
+	/// returns framebuffer
+	const VkFramebuffer& GetVkFramebuffer() const;
 
 	/// setup render target
 	void Setup();
@@ -58,5 +62,24 @@ inline const VkGraphicsPipelineCreateInfo&
 VkMultipleRenderTarget::GetVkPipelineInfo()
 {
 	return this->framebufferPipelineInfo;
+}
+
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const VkRenderPass&
+VkMultipleRenderTarget::GetVkRenderPass() const
+{
+	return this->pass;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const VkFramebuffer&
+VkMultipleRenderTarget::GetVkFramebuffer() const
+{
+	return this->framebuffer;
 }
 } // namespace Vulkan

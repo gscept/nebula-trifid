@@ -76,7 +76,7 @@ VkStreamTextureLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 		extents.width = width;
 		extents.height = height;
 		extents.depth = 1;
-		uint32_t queues[] = { VkRenderDevice::Instance()->renderQueueIdx, VkRenderDevice::Instance()->transferQueueIdx };
+		uint32_t queues[] = { VkRenderDevice::Instance()->renderQueueFamily, VkRenderDevice::Instance()->transferQueueFamily };
 		VkImageCreateInfo info =
 		{
 			VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
@@ -91,9 +91,9 @@ VkStreamTextureLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 			VK_IMAGE_TILING_OPTIMAL,
 			VK_IMAGE_USAGE_SAMPLED_BIT,
 			VK_SHARING_MODE_CONCURRENT,
-			1,
+			2,
 			queues,
-			VK_IMAGE_LAYOUT_GENERAL
+			VK_IMAGE_LAYOUT_PREINITIALIZED
 		};
 		VkImage img;
 		VkResult stat = vkCreateImage(VkRenderDevice::dev, &info, NULL, &img);

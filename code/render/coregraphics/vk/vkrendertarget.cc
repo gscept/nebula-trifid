@@ -92,6 +92,14 @@ VkRenderTarget::Setup()
 		this->viewportInfo.viewportCount = this->viewports.Size();
 		this->viewportInfo.pViewports = this->viewports.Begin();
 
+		if (this->depthStencilTarget.isvalid()) this->clearValues.Resize(1);
+		else									this->clearValues.Resize(2);
+
+		this->clearValues[0].color.float32[0] = this->clearColor.x();
+		this->clearValues[0].color.float32[1] = this->clearColor.y();
+		this->clearValues[0].color.float32[2] = this->clearColor.z();
+		this->clearValues[0].color.float32[3] = this->clearColor.w();
+
 		VkExtent3D extents;
 		extents.width = resolveWidth;
 		extents.height = resolveHeight;
@@ -155,14 +163,19 @@ VkRenderTarget::Setup()
 		VkImageView views[2];
 		views[0] = this->imageView;
 
-		if (this->depthStencilTarget.isvalid()) views[numviews++] = this->depthStencilTarget->GetVkImageView();
+		if (this->depthStencilTarget.isvalid())
+		{
+			views[numviews++] = this->depthStencilTarget->GetVkImageView();
+			this->clearValues[1].depthStencil.depth = this->depthStencilTarget->GetClearDepth();
+			this->clearValues[1].depthStencil.stencil = this->depthStencilTarget->GetClearStencil();
+		}
 
 		// we create a very default attachment behavior where we assume to write 
 		// to the framebuffer and read from it once the operations are done
 		VkAttachmentDescription attachment[2];
 		attachment[0].format = VkTypes::AsVkFormat(this->colorBufferFormat);
 		attachment[0].samples = sampleCount;
-		attachment[0].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+		attachment[0].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;						// set to clear
 		attachment[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 		attachment[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
 		attachment[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;

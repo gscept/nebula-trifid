@@ -324,12 +324,12 @@ VkShaderProgram::SetupDescriptorLayout(AnyFX::ShaderEffect* effect)
 				Util::Array<VkDescriptorSetLayoutBinding> arr;
 				arr.Append(block->bindingLayout);
 				sets.Add(block->set, arr);
+				numsets++;
 			}
 			else
 			{
 				sets.ValueAtIndex(index).Append(block->bindingLayout);
 			}
-			numsets = uint_max(numsets, block->set);
 		}
 	}
 
@@ -382,35 +382,29 @@ VkShaderProgram::SetupDescriptorLayout(AnyFX::ShaderEffect* effect)
 				Util::Array<VkDescriptorSetLayoutBinding> arr;
 				arr.Append(variable->bindingLayout);
 				sets.Add(variable->set, arr);
+				numsets++;
 			}
 			else
 			{
 				sets.ValueAtIndex(index).Append(variable->bindingLayout);
 			}
-			numsets = uint_max(numsets, variable->set);
 		}
 	}
 
 	// skip the rest if we don't have any descriptor sets
 	if (!sets.IsEmpty())
 	{
-		//this->layouts.Resize(sets.Size());
-		this->layouts.Resize(numsets + 1);
-		for (IndexT i = 0; i < layouts.Size(); i++)
+		this->layouts.Resize(numsets);
+		for (IndexT i = 0; i < sets.Size(); i++)
 		{
 			VkDescriptorSetLayoutCreateInfo info;
 			info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 			info.pNext = NULL;
 			info.flags = 0;
-			info.bindingCount = 0;
-			info.pBindings = NULL;
 
-			if (sets.Contains(i))
-			{
-				const Util::Array<VkDescriptorSetLayoutBinding>& binds = sets[i];
-				info.bindingCount = binds.Size();
-				info.pBindings = &binds[0];
-			}			
+			const Util::Array<VkDescriptorSetLayoutBinding>& binds = sets.ValueAtIndex(i);
+			info.bindingCount = binds.Size();
+			info.pBindings = binds.Size() > 0 ? &binds[0] : VK_NULL_HANDLE;
 
 			// create layout
 			VkResult res = vkCreateDescriptorSetLayout(VkRenderDevice::dev, &info, NULL, &this->layouts[i]);

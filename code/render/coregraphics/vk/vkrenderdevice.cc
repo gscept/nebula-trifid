@@ -127,8 +127,8 @@ VkRenderDevice::OpenVulkanContext()
 		1,					// application version
 		"Nebula Trifid",	// engine name
 		1,					// engine version
+		VK_MAKE_VERSION(1, 0, 4)
 		//VK_API_VERSION		// API version
-		VK_MAKE_VERSION(1, 0, 3)
 	};
 
 	this->usedExtensions = 0;
@@ -140,10 +140,10 @@ VkRenderDevice::OpenVulkanContext()
 		this->extensions[this->usedExtensions++] = requiredExtensions[i];
 	}
 	
-	const char* layers[] = { "VK_LAYER_LUNARG_mem_tracker", "VK_LAYER_LUNARG_object_tracker", "VK_LAYER_LUNARG_device_limits", "VK_LAYER_LUNARG_param_checker", "VK_LAYER_LUNARG_draw_state" };
+	const char* layers[] = { "VK_LAYER_LUNARG_mem_tracker", "VK_LAYER_LUNARG_object_tracker", "VK_LAYER_LUNARG_device_limits", "VK_LAYER_LUNARG_param_checker", "VK_LAYER_LUNARG_draw_state", "VK_LAYER_GOOGLE_threading" };
 #if NEBULAT_VULKAN_DEBUG
 	this->extensions[this->usedExtensions++] = VK_EXT_DEBUG_REPORT_EXTENSION_NAME;
-	const int numLayers = 5;
+	const int numLayers = 6;
 #else
 	const int numLayers = 0;
 #endif
@@ -226,6 +226,7 @@ VkRenderDevice::OpenVulkanContext()
 	{
 		if (this->queuesProps[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
 		{
+			this->renderQueueFamily = i;
 			uint32_t j;
 			for (j = 0; j < numQueues; j++)
 			{
@@ -242,6 +243,7 @@ VkRenderDevice::OpenVulkanContext()
 		// also setup compute and transfer queues
 		if (this->queuesProps[i].queueFlags & VK_QUEUE_COMPUTE_BIT && this->computeQueueIdx == UINT32_MAX)
 		{
+			this->computeQueueFamily = i;
 			if (this->queuesProps[i].queueCount == indexMap[i]) continue;
 			computeIdx = i;
 			this->computeQueueIdx = indexMap[i];
@@ -249,6 +251,7 @@ VkRenderDevice::OpenVulkanContext()
 		}
 		if (this->queuesProps[i].queueFlags & VK_QUEUE_TRANSFER_BIT && this->transferQueueIdx == UINT32_MAX)
 		{
+			this->transferQueueFamily = i;
 			if (this->queuesProps[i].queueCount == indexMap[i]) continue;
 			transferIdx = i;
 			this->transferQueueIdx = indexMap[i];
@@ -760,6 +763,26 @@ VkRenderDevice::BeginPass(const Ptr<CoreGraphics::RenderTarget>& rt, const Ptr<C
 	this->SetFramebufferLayoutInfo(rt->GetVkPipelineInfo());
 	const Util::FixedArray<VkViewport>& viewports = rt->GetVkViewports();
 	vkCmdSetViewport(this->mainCmdGfxBuffer, 0, viewports.Size(), &viewports[0]);
+
+	VkRect2D rect;
+	rect.offset.x = 0;
+	rect.offset.y = 0;
+	rect.extent.width = rt->GetWidth();
+	rect.extent.height = rt->GetHeight();
+
+	const Util::FixedArray<VkClearValue>& clear = rt->GetVkClearValues();
+	
+	VkRenderPassBeginInfo info =
+	{
+		VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+		NULL,
+		rt->GetVkRenderPass(),
+		rt->GetVkFramebuffer(),
+		rect,
+		clear.Size(),
+		clear.Size() > 0 ? clear.Begin() : VK_NULL_HANDLE
+	};
+	vkCmdBeginRenderPass(this->mainCmdGfxBuffer, &info, VK_SUBPASS_CONTENTS_INLINE);
 	this->currentPipelineBits = 0;
 	this->SetFramebufferLayoutInfo(rt->GetVkPipelineInfo());
 }
@@ -771,6 +794,26 @@ void
 VkRenderDevice::BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt, const Ptr<CoreGraphics::Shader>& passShader)
 {
 	RenderDeviceBase::BeginPass(mrt, passShader);
+
+	VkRect2D rect;
+	rect.offset.x = 0;
+	rect.offset.y = 0;
+	rect.extent.width = mrt->GetRenderTarget(0)->GetWidth();
+	rect.extent.height = mrt->GetRenderTarget(0)->GetHeight();
+
+	const Util::FixedArray<VkClearValue>& clear = rt->GetVkClearValues();
+
+	VkRenderPassBeginInfo info =
+	{
+		VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+		NULL,
+		rt->GetVkRenderPass(),
+		rt->GetVkFramebuffer(),
+		rect,
+		clear.Size(),
+		clear.Size() > 0 ? clear.Begin() : VK_NULL_HANDLE
+	};
+	vkCmdBeginRenderPass(this->mainCmdGfxBuffer, &info, VK_SUBPASS_CONTENTS_INLINE);
 	this->currentPipelineBits = 0;
 	this->SetFramebufferLayoutInfo(mrt->GetVkPipelineInfo());
 }
@@ -809,7 +852,7 @@ VkRenderDevice::BeginBatch(CoreGraphics::FrameBatchType::Code batchType)
 		VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
 		NULL,
 		this->cmdGfxPool[Transient],
-		VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+		VK_COMMAND_BUFFER_LEVEL_SECONDARY,
 		NumDrawThreads
 	};
 	VkResult res = vkAllocateCommandBuffers(this->dev, &info, this->dispatchableDrawCmdBuffers);
@@ -830,6 +873,27 @@ VkRenderDevice::BeginBatch(CoreGraphics::FrameBatchType::Code batchType)
 		this->drawThreads[i]->SetCommandBuffer(this->dispatchableDrawCmdBuffers[i]);
 	}
 
+	// submit transfers before we start issuing draws
+	const VkPipelineStageFlags flags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+	const VkSubmitInfo info =
+	{
+		VK_STRUCTURE_TYPE_SUBMIT_INFO,
+		NULL,
+		0,
+		NULL,
+		&flags,
+		1,
+		&this->mainCmdTransBuffer,
+		0,
+		NULL
+	};
+
+	// submit to queue
+	VkResult res = vkQueueSubmit(this->transferQueue, 1, &info, VK_NULL_HANDLE);
+	n_assert(res == VK_SUCCESS);
+	
+	res = vkResetCommandBuffer(this->mainCmdTransBuffer, 0);
+	n_assert(res == VK_SUCCESS);
 }
 
 //------------------------------------------------------------------------------
@@ -906,6 +970,10 @@ VkRenderDevice::EndBatch()
 		vkEndCommandBuffer(this->dispatchableDrawCmdBuffers[i]);
 	}
 
+	// add to main command
+	vkCmdExecuteCommands(this->mainCmdGfxBuffer, NumDrawThreads, this->dispatchableDrawCmdBuffers);
+
+	/*
 	const VkPipelineStageFlags flags = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT;
 	const VkSubmitInfo info =
 	{
@@ -923,6 +991,7 @@ VkRenderDevice::EndBatch()
 	// submit to queue
 	VkResult res = vkQueueSubmit(this->displayQueue, 1, &info, VK_NULL_HANDLE);
 	n_assert(res == VK_SUCCESS);
+	*/
 
 	// free up our command buffers
 	vkFreeCommandBuffers(this->dev, this->cmdGfxPool[Transient], NumDrawThreads, this->dispatchableDrawCmdBuffers);
@@ -1283,6 +1352,11 @@ VkRenderDevice::PushBufferUpdate(const VkBuffer& buf, VkDeviceSize offset, VkDev
 		Memory::Copy(data, dataCopy, (SizeT)size);
 	}
 
+	// push to main buffer
+	vkCmdUpdateBuffer(this->mainCmdTransBuffer, buf, offset, size, dataCopy);
+	if (deleteWhenDone) delete[] dataCopy;
+	
+	/*
 	VkCmdBufferThread::Command cmd;
 	cmd.type = VkCmdBufferThread::UpdateBuffer;
 	cmd.updBuffer.deleteWhenDone = deleteWhenDone;
@@ -1291,6 +1365,7 @@ VkRenderDevice::PushBufferUpdate(const VkBuffer& buf, VkDeviceSize offset, VkDev
 	cmd.updBuffer.size = size;
 	cmd.updBuffer.offset = offset;
 	this->transThreads[this->currentTransThread]->PushCommand(cmd);
+	*/
 }
 
 } // namespace Vulkan
