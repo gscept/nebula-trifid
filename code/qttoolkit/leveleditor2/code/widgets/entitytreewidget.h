@@ -75,6 +75,8 @@ public:
     
     /// adds a new reference root node in case it does not exist yet
     void AddReference(const Util::String & name);
+	///
+	void ClearReferences();
 
 	friend class EntityTreeItem;
 protected:
@@ -100,7 +102,7 @@ private:
     /// get selected items and all children of selected items
     Util::Array<EntityGuid> CollectAllChildren();
     /// set parent guid recursively
-	void SetParentGuid(const Util::Guid & guid, EntityTreeItem * child);
+	void SetParentGuid(const Util::String & level, const Util::Guid & guid, EntityTreeItem * child);
 
     Util::Dictionary<Util::String, EntityTreeItem*> referenceItems;
 	
@@ -129,8 +131,12 @@ public:
 	void SetIcon(const EntityType& newType);
 	///
 	void SetCategory(const Util::String& category);
-private:
+	///
+	void SetLevel(const Util::String & level);
+
 	EntityGuid entityGuid;	//< the guid of the entity this item represents
+	EntityType type;
+	Util::String level;
 };
 
 //------------------------------------------------------------------------------
@@ -177,6 +183,15 @@ inline void
 EntityTreeItem::SetText(const Util::String& text)
 {
 	this->setText(0, text.AsCharPtr());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+EntityTreeItem::SetLevel(const Util::String& text)
+{
+	this->level = text;
 }
 
 //------------------------------------------------------------------------------

@@ -26,6 +26,7 @@ enum EntityType
 	NavMesh = 5,
 	Probe = 6,
     NavMeshArea = 7,
-	MultiSelection = 8
+	MultiSelection = 8,
+	LevelReference = 9
 };
 }

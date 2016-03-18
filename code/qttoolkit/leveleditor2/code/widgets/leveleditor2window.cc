@@ -294,6 +294,7 @@ LevelEditor2Window::OnNew()
 	this->postEffectController.ActivatePrefix("Default");
 	this->SetWindowTitle("Untitled");
 	this->layerHandler->Setup();
+	Level::Instance()->Clear();
 }
 
 //------------------------------------------------------------------------------
@@ -357,8 +358,7 @@ LevelEditor2Window::OnImportLevel()
 		full.StripFileExtension();
 
 		Level::Instance()->LoadLevel(full, Level::Merge);
-		this->ui.actionSave->setEnabled(true);
-		this->SetWindowTitle(full);		
+		this->ui.actionSave->setEnabled(true);		
 	}
 }
 
@@ -369,14 +369,13 @@ void
 LevelEditor2Window::OnAddReference()
 {
     IO::URI path;
-    if (this->PickLevelFile("Import Level", "work:level", path, false))
+    if (this->PickLevelFile("Import Level", "work:levels", path, false))
     {
         Util::String full = path.GetTail().ExtractFileName();
         full.StripFileExtension();
 
         Level::Instance()->LoadLevel(full, Level::Reference);
-        this->ui.actionSave->setEnabled(true);
-        this->SetWindowTitle(full);        
+        this->ui.actionSave->setEnabled(true);        
     }
 }
 
@@ -389,7 +388,7 @@ LevelEditor2Window::OnImport()
 	IO::URI path;
 	if (this->PickLevelFile("Import Fragment", "work:levelfragments", path, false))
 	{
-		Level::Instance()->LoadEntities(path, false);
+		Level::Instance()->LoadEntities(path);
 	}
 }
 

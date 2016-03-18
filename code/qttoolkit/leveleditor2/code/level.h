@@ -24,6 +24,41 @@ class PostEffectEntity;
 
 namespace LevelEditor2
 {
+
+class ParsedLevel : public ToolkitUtil::LevelParser
+{
+	__DeclareClass(ParsedLevel);
+public:
+	/// set level name
+	virtual void SetName(const Util::String & name);
+	/// parse layer information
+	virtual void AddLayer(const Util::String & name, bool visible, bool autoload, bool locked);
+	/// add entity
+	virtual void AddEntity(const Util::String & category, const Attr::AttributeContainer & attrs);
+	/// posteffect
+	virtual void SetPosteffect(const Util::String & preset, const Math::matrix44 & globallightTransform);
+	///
+	bool LoadEntities(const IO::URI & fileName);
+	/// level dimensions
+	virtual void SetDimensions(const Math::bbox & box) {}
+
+	/// 
+	void UpdateGuids();
+
+	struct _Layer
+	{
+		Util::String name;
+		bool visible;
+		bool autoload;
+		bool locked;
+	};
+	Util::String name;
+	Util::String preset;
+	Math::matrix44 lightTrans;
+	Util::Array<Util::KeyValuePair<Util::String, Attr::AttributeContainer>> entities;
+	Util::Array<_Layer> layers;
+};
+
 class Level : public ToolkitUtil::LevelParser
 {
 	__DeclareClass(Level);
@@ -70,7 +105,9 @@ public:
 	/// save array of entities
 	void SaveEntityArray(const Util::Array<Ptr<Game::Entity>> & entities, const IO::URI& filename);
 	/// load a level section
-	bool LoadEntities(const IO::URI & filename, bool cleanPerLevelData);
+	bool LoadEntities(const IO::URI & filename);
+	///
+	void Clear();
 
 protected:
 
@@ -89,7 +126,7 @@ protected:
     virtual void SetDimensions(const Math::bbox & box);
 
 	/// save single entity
-	bool SaveEntity(const Util::String & levelName, const Ptr<Game::Entity>& entity, const Ptr<IO::XmlWriter>& stream, bool selectedOnly);
+	bool SaveEntity(const Util::String & levelName, const Ptr<Game::Entity>& entity, const Ptr<IO::XmlWriter>& stream);
 
 	/// replace guids in importedEntities array and update parent guids
 	void UpdateGuids();
@@ -103,12 +140,11 @@ protected:
     /// loads generic PE attribute by attribute name and string value
     void ReadPostEffectAttribute(const Util::String& attrName, const Util::String& content, const Ptr<PostEffect::PostEffectEntity>& postEffectEntity);    
 
-	Util::String name;
+	Util::String name;	
 	bool startLevel;
-	bool autoBatch;	
-	bool inImport;
-	Util::Dictionary<Util::String,int> objectCounters;
-    Util::Array<Util::KeyValuePair<Util::String, Attr::AttributeContainer>> importedEntities;
+	bool autoBatch;		
+	Util::Dictionary<Util::String,int> objectCounters;    
+	Util::Dictionary<Util::String,Ptr<ParsedLevel>> refLevels;
 }; 
 
 //------------------------------------------------------------------------------------

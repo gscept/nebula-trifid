@@ -38,6 +38,118 @@ using namespace Math;
 namespace LevelEditor2
 {
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ParsedLevel::SetName(const Util::String & name)
+{
+	this->name = name;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ParsedLevel::AddLayer(const Util::String & name, bool visible, bool autoload, bool locked)
+{
+	_Layer layer = { name, visible, autoload, locked };
+	this->layers.Append(layer);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ParsedLevel::AddEntity(const Util::String & category, const Attr::AttributeContainer & attrs)
+{
+	this->entities.Append(Util::KeyValuePair<Util::String, Attr::AttributeContainer>(category, attrs));
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ParsedLevel::SetPosteffect(const Util::String & preset, const Math::matrix44 & globallightTransform)
+{
+	this->preset = preset;
+	this->lightTrans = globallightTransform;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ParsedLevel::UpdateGuids()
+{
+	Dictionary<Util::Guid, Util::Guid> newGuids;
+	// generate new guids first
+	for (int i = 0; i < this->entities.Size(); i++)
+	{
+		Attr::AttributeContainer & cont = this->entities[i].Value();
+		Util::Guid newGuid;
+		newGuid.Generate();
+		newGuids.Add(cont.GetGuid(Attr::Guid), newGuid);
+		cont.SetGuid(Attr::Guid, newGuid);
+	}
+	// now update any parent guids that were replaced
+	for (int i = 0; i < this->entities.Size(); i++)
+	{
+		Util::String category = this->entities[i].Key();
+		Attr::AttributeContainer & cont = this->entities[i].Value();
+		Util::Guid parent = cont.GetGuid(Attr::ParentGuid);
+		if (newGuids.Contains(parent))
+		{
+			cont.SetGuid(Attr::ParentGuid, newGuids[parent]);
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+ParsedLevel::LoadEntities(const IO::URI & fileName)
+{
+	Ptr<IO::IoServer> ioServer = IO::IoServer::Instance();
+	if (!ioServer->FileExists(fileName))
+	{
+		return false;
+	}
+
+	Ptr<IO::Stream> stream = ioServer->CreateStream(fileName);
+	stream->SetAccessMode(IO::Stream::ReadAccess);
+	if (!stream->Open())
+	{
+		return false;
+	}
+	
+	Ptr<IO::XmlReader> reader = IO::XmlReader::Create();
+	reader->SetStream(stream);
+	if (reader->Open())
+	{
+		reader->SetToRoot();
+
+		if (reader->HasNode("/Entities"))
+		{
+
+			reader->SetToFirstChild();
+			do
+			{
+				this->LoadEntity(reader);
+			} while (reader->SetToNextChild("Object"));
+		}
+
+		reader->Close();
+		stream->Close();
+	}	
+	return true;
+}
+
+__ImplementClass(LevelEditor2::ParsedLevel, 'PRVL', ToolkitUtil::LevelParser);
+
+
+
 __ImplementClass(LevelEditor2::Level, 'LEVL', ToolkitUtil::LevelParser);
 __ImplementSingleton(LevelEditor2::Level);
 
@@ -45,7 +157,7 @@ __ImplementSingleton(LevelEditor2::Level);
 //------------------------------------------------------------------------------
 /**
 */
-Level::Level(): startLevel(false), autoBatch(true), inImport(false)
+Level::Level(): startLevel(false), autoBatch(true)
 {
 	__ConstructSingleton;
 }
@@ -58,34 +170,7 @@ Level::~Level()
 	__DestructSingleton;
 }
 
-//------------------------------------------------------------------------------
-/**
-*/
-void
-Level::UpdateGuids()
-{
-	Dictionary<Util::Guid, Util::Guid> newGuids;
-	// generate new guids first
-	for (int i = 0; i < this->importedEntities.Size(); i++)
-	{
-		Attr::AttributeContainer & cont = this->importedEntities[i].Value();
-		Util::Guid newGuid;
-		newGuid.Generate();
-		newGuids.Add(cont.GetGuid(Attr::Guid), newGuid);
-		cont.SetGuid(Attr::Guid, newGuid);
-	}
-	// now update any parent guids that were replaced
-	for (int i = 0; i < this->importedEntities.Size(); i++)
-	{
-		Util::String category = this->importedEntities[i].Key();
-		Attr::AttributeContainer & cont = this->importedEntities[i].Value();
-		Util::Guid parent = cont.GetGuid(Attr::ParentGuid);
-		if (newGuids.Contains(parent))
-		{
-			cont.SetGuid(Attr::ParentGuid, newGuids[parent]);
-		}
-	}
-}
+
 
 //------------------------------------------------------------------------------------
 /**
@@ -119,20 +204,19 @@ Level::LoadLevel(const Util::String& level, LoadMode mode)
 
 		LevelEditor2App::Instance()->GetWindow()->GetLayerHandler()->Discard();
 		LevelEditor2App::Instance()->GetWindow()->GetLayerHandler()->Setup();
+		LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->ClearReferences();
+		this->refLevels.Clear();
 	}
-    else
-    {
-        this->inImport = true;
-    }
-
-	this->importedEntities.Clear();
+   
 	bool result = false;
 
+	Ptr<ParsedLevel> lvl = ParsedLevel::Create();
+	
 	Ptr<IO::XmlReader> reader = IO::XmlReader::Create();
 	reader->SetStream(stream);
 	if(reader->Open())
 	{
-		result = this->LoadXmlLevel(reader);		
+		result = lvl->LoadXmlLevel(reader);		
 		reader->Close();
 		stream->Close();
 	}
@@ -144,25 +228,32 @@ Level::LoadLevel(const Util::String& level, LoadMode mode)
         switch(mode)
         {
         case Replace:
+			this->SetName(lvl->name);
             entityLevel = this->name;
+			this->SetPosteffect(lvl->preset, lvl->lightTrans);
             break;
         case Merge:
             entityLevel = this->name;
-            this->UpdateGuids();
+            lvl->UpdateGuids();
             break;
         case Reference:
             {
                 entityLevel = level;
                 LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->AddReference(level);
+				this->refLevels.Add(level, lvl);
             }            
             break;
         default:
             break;
         }
-		
-		for (int i = 0;i < this->importedEntities.Size();i++)
+		for (int i = 0;i < lvl->layers.Size();i++)
 		{
-			LevelEditor2EntityManager::Instance()->CreateEntityFromAttrContainer(entityLevel, this->importedEntities[i].Key(), this->importedEntities[i].Value());
+			const ParsedLevel::_Layer & l = lvl->layers[i];
+			this->AddLayer(l.name, l.visible, l.autoload, l.locked);
+		}
+		for (int i = 0;i < lvl->entities.Size();i++)
+		{
+			LevelEditor2EntityManager::Instance()->CreateEntityFromAttrContainer(entityLevel, lvl->entities[i].Key(), lvl->entities[i].Value());
 		}
 
 
@@ -182,8 +273,7 @@ Level::LoadLevel(const Util::String& level, LoadMode mode)
 	if (mode == Replace)
 	{
 		LevelEditor2EntityManager::Instance()->CreateLightEntity("GlobalLight");
-	}
-    this->inImport = false;
+	}    
 	return result;	
 }
 
@@ -310,6 +400,11 @@ Level::SaveLevel()
 	Util::String fileName;
 	fileName.Format("work:levels/%s.xml", this->name.AsCharPtr());
 	this->SaveLevelFile(this->name, IO::URI(fileName), false);
+	for (int i = 0;i < this->refLevels.Size();i++)
+	{
+		fileName.Format("work:levels/%s.xml", this->refLevels.KeyAtIndex(i).AsCharPtr());
+		this->SaveLevelFile(this->refLevels.KeyAtIndex(i), fileName, false);
+	}
 }
 
 
@@ -364,80 +459,48 @@ Level::SaveLevelFile(const Util::String& name, const IO::URI & fileName, bool se
 	
 	xmlWriter->BeginNode("Entities"); //Entities node	
 	
-	// get environment entities and sort the stuff
 	
-	Array<Ptr<Game::Entity>> envEntities = SortEntityArray(BaseGameFeature::EntityManager::Instance()->GetEntitiesByAttr(Attr::Attribute(Attr::EntityType,Environment)),Attr::EntityGuid);
-	for(int i=0;i<envEntities.Size();i++)
-	{		
-		
-		if (this->SaveEntity(name, envEntities[i], xmlWriter, selectedOnly))
+	// build filter 
+	Util::Array<Attr::Attribute> filter;
+	filter.Append(Attr::Attribute(Attr::EntityLevel, name));
+	if (selectedOnly)
+	{
+		filter.Append(Attr::Attribute(Attr::IsSelected, true));
+	}
+	Array<Ptr<Game::Entity>> ents = BaseGameFeature::EntityManager::Instance()->GetEntitiesByAttr(filter[0]);
+
+	//Array<Ptr<Game::Entity>> ents = BaseGameFeature::EntityManager::Instance()->GetEntitiesByAttrs(filter);
+	for (int i = 0;i < ents.Size();i++)
+	{
+		EntityType type = (EntityType)ents[i]->GetInt(Attr::EntityType);
+		if (type == Environment || type == Game)
 		{
 			Ptr<GraphicsFeature::GetModelEntity> msg = GraphicsFeature::GetModelEntity::Create();
-			envEntities[i]->SendSync(msg.cast<Messaging::Message>());
+			ents[i]->SendSync(msg.cast<Messaging::Message>());
 			const Ptr<Graphics::ModelEntity> & model = msg->GetEntity();
 			box.extend(model->GetGlobalBoundingBox());
 		}
-	}
+		this->SaveEntity(name, ents[i], xmlWriter);
 
-	// real game entities
-	Array<Ptr<Game::Entity>> gameEntities = SortEntityArray(BaseGameFeature::EntityManager::Instance()->GetEntitiesByAttr(Attr::Attribute(Attr::EntityType,Game)),Attr::EntityGuid);
-	for(int i=0;i<gameEntities.Size();i++)
-	{
-		if (this->SaveEntity(name, gameEntities[i], xmlWriter, selectedOnly))
-		{
-			Ptr<GraphicsFeature::GetModelEntity> msg = GraphicsFeature::GetModelEntity::Create();
-			gameEntities[i]->SendSync(msg.cast<Messaging::Message>());
-			const Ptr<Graphics::ModelEntity> & model = msg->GetEntity();
-			box.extend(model->GetGlobalBoundingBox());
-		}				
 	}
-	/// lights
-	Array<Ptr<Game::Entity>> lightEntities = SortEntityArray(BaseGameFeature::EntityManager::Instance()->GetEntitiesByAttr(Attr::Attribute(Attr::EntityType,Light)),Attr::EntityGuid);
-	for(int i=0;i<lightEntities.Size();i++)
-	{	
-		// ignore the global light, it gets handled by posteffect
-		if (lightEntities[i]->GetInt(Attr::LightType) == Lighting::LightType::Global)
-		{
-			continue;
-		}
-		this->SaveEntity(name, lightEntities[i], xmlWriter, selectedOnly);
-	}
-
-
-	Array<Ptr<Game::Entity>> groupEntities = BaseGameFeature::EntityManager::Instance()->GetEntitiesByAttr(Attr::Attribute(Attr::EntityType,Group));
-	for(int i=0;i<groupEntities.Size();i++)
-	{
-		this->SaveEntity(name, groupEntities[i], xmlWriter, selectedOnly);
-	}
-    Array<Ptr<Game::Entity>> navMeshes = BaseGameFeature::EntityManager::Instance()->GetEntitiesByAttr(Attr::Attribute(Attr::EntityType,NavMesh));
-	for(int i=0;i<navMeshes.Size();i++)
-    {
-		this->SaveEntity(name, navMeshes[i], xmlWriter, selectedOnly);
-        Ptr<SaveNavMesh> msg = SaveNavMesh::Create();
-        navMeshes[i]->SendSync(msg.cast<Messaging::Message>());
-    }
-    Array<Ptr<Game::Entity>> navAreas = BaseGameFeature::EntityManager::Instance()->GetEntitiesByAttr(Attr::Attribute(Attr::EntityType,NavMeshArea));
-    for(int i=0;i<navAreas.Size();i++)
-    {
-        const Ptr<Game::Entity>& entity = navAreas[i];
-		this->SaveEntity(name, entity, xmlWriter, selectedOnly);
-    }
-	Array<Ptr<Game::Entity>> lightProbes = BaseGameFeature::EntityManager::Instance()->GetEntitiesByAttr(Attr::Attribute(Attr::EntityType, Probe));
-	for (int i = 0; i < lightProbes.Size(); i++)
-	{
-		const Ptr<Game::Entity>& entity = lightProbes[i];
-		this->SaveEntity(name, entity, xmlWriter, selectedOnly);
-	}
-
 	xmlWriter->EndNode();	
 	
 	// global stuff
 	xmlWriter->BeginNode("Global");
 	xmlWriter->SetFloat4("WorldCenter", box.center());
 	xmlWriter->SetFloat4("WorldExtents", box.size());
-	xmlWriter->SetString("PostEffectPreset", LevelEditor2App::Instance()->GetWindow()->GetPostEffectController()->GetPreset());
-	PostEffect::PostEffectEntity::ParamSet parms = PostEffect::PostEffectManager::Instance()->GetDefaultEntity()->Params();
-
+	if (name != this->name && this->refLevels.Contains(name))
+	{
+		xmlWriter->SetString("PostEffectPreset", refLevels[name]->preset);
+		xmlWriter->SetString("GlobalLightTransform", Util::String::FromMatrix44(refLevels[name]->lightTrans));
+	}
+	else
+	{
+		xmlWriter->SetString("PostEffectPreset", LevelEditor2App::Instance()->GetWindow()->GetPostEffectController()->GetPreset());
+		PostEffect::PostEffectEntity::ParamSet parms = PostEffect::PostEffectManager::Instance()->GetDefaultEntity()->Params();
+		xmlWriter->SetString("GlobalLightTransform", Util::String::FromMatrix44(parms.light->GetLightTransform()));
+	}
+		
 	const Ptr<Layers::LayerHandler> layerHandler = LevelEditor2App::Instance()->GetWindow()->GetLayerHandler();
 	Util::Array<Ptr<Layers::Layer>> layers = layerHandler->layers.ValuesAsArray();
 	Util::String layerstring;
@@ -453,7 +516,16 @@ Level::SaveLevelFile(const Util::String& name, const IO::URI & fileName, bool se
 		}
 	}
 	xmlWriter->SetString("_Layers", layerstring);
-	xmlWriter->SetString("GlobalLightTransform", Util::String::FromMatrix44(parms.light->GetLightTransform()));
+	if (name == this->name && !this->refLevels.IsEmpty())
+	{		
+		for (int i = 0;i < this->refLevels.Size();i++)
+		{
+			xmlWriter->BeginNode("Reference");
+			xmlWriter->SetString("Level", refLevels.KeyAtIndex(i));
+			xmlWriter->EndNode();
+		}
+	}
+	
 	xmlWriter->EndNode();
 
 	xmlWriter->EndNode();
@@ -544,10 +616,7 @@ Level::ReadPostEffectAttribute( const Util::String& attrName, const Util::String
 void 
 Level::SetName(const Util::String & name)
 {
-	if (!this->inImport)
-	{
-		this->name = name;
-	}    
+	this->name = name;	 
 }
 
 //------------------------------------------------------------------------------
@@ -586,7 +655,7 @@ Level::AddLayer(const Util::String & name, bool visible, bool autoload, bool loc
 void 
 Level::AddEntity(const Util::String & category, const Attr::AttributeContainer & attrs)
 {
-    this->importedEntities.Append(Util::KeyValuePair<Util::String, Attr::AttributeContainer>(category, attrs));        
+	LevelEditor2EntityManager::Instance()->CreateEntityFromAttrContainer(this->name, category, attrs);
 }
 
 //------------------------------------------------------------------------------
@@ -595,11 +664,7 @@ Level::AddEntity(const Util::String & category, const Attr::AttributeContainer &
 void 
 Level::SetPosteffect(const Util::String & preset, const Math::matrix44 & globallightTransform)
 {
-    if (this->inImport)
-    {
-        return;
-    }
-    if (PostEffect::PostEffectRegistry::Instance()->HasPreset(preset))
+	if (PostEffect::PostEffectRegistry::Instance()->HasPreset(preset))
     {
         LevelEditor2App::Instance()->GetWindow()->GetPostEffectController()->ActivatePrefix(preset);					
     }
@@ -639,12 +704,9 @@ AttributeLesser(const Attr::Attribute& lhs, const Attr::Attribute& rhs)
 /**
 */
 bool
-Level::SaveEntity(const Util::String & levelName, const Ptr<Game::Entity>& entity, const Ptr<IO::XmlWriter>& stream, bool selectedOnly)
+Level::SaveEntity(const Util::String & levelName, const Ptr<Game::Entity>& entity, const Ptr<IO::XmlWriter>& stream)
 {
-	if (selectedOnly && !entity->GetBool(Attr::IsSelected))
-	{
-		return false;
-	}
+	
 	EntityType entityType = (EntityType)entity->GetInt(Attr::EntityType);	
 	switch (entityType)
 	{
@@ -708,7 +770,10 @@ Level::SaveEntity(const Util::String & levelName, const Ptr<Game::Entity>& entit
 		break;
 	case Light:
 	{
-		
+		if (entity->GetInt(Attr::LightType) == Lighting::LightType::Global)
+		{
+			return true;
+		}
 		stream->BeginNode("Object");
 		stream->SetString("category", "Light");
 		stream->BeginNode("Attributes");
@@ -785,6 +850,8 @@ Level::SaveEntity(const Util::String & levelName, const Ptr<Game::Entity>& entit
 				this->WriteString(stream, "NavMeshMeshString", entity->GetString(Attr::NavMeshMeshString));
 			stream->EndNode();
 		stream->EndNode();
+		Ptr<SaveNavMesh> msg = SaveNavMesh::Create();
+		entity->SendSync(msg.cast<Messaging::Message>());
 	}
 		break;
 	case Probe:
@@ -872,7 +939,7 @@ Level::SaveEntityArray(const Util::Array<Ptr<Game::Entity>> & entities, const IO
 
 	for (int i = 0; i < entities.Size();i++)
 	{
-		this->SaveEntity("_NOTUSED", entities[i], xmlWriter, false);
+		this->SaveEntity("_NOTUSED", entities[i], xmlWriter);
 	}
 
 	xmlWriter->EndNode();
@@ -881,65 +948,43 @@ Level::SaveEntityArray(const Util::Array<Ptr<Game::Entity>> & entities, const IO
 	stream->Close();
 }
 
+
+
 //------------------------------------------------------------------------------
 /**
 */
 bool
-Level::LoadEntities(const IO::URI & fileName, bool cleanPerLevelData)
+Level::LoadEntities(const IO::URI & fileName)
 {
-    
-    Ptr<IO::IoServer> ioServer = IO::IoServer::Instance();    
-    if (!ioServer->FileExists(fileName))
-    {
-        return false;
-    }
-    
+	Ptr<ParsedLevel> lvl = ParsedLevel::Create();
+	if (lvl->LoadEntities(fileName))
+	{
+		if (!lvl->entities.IsEmpty())
+		{
+			LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->OnBeginLoad();
 
-    Ptr<IO::Stream> stream = ioServer->CreateStream(fileName);
-    stream->SetAccessMode(IO::Stream::ReadAccess);
-    if (!stream->Open())
-    {
-        return false;
-    }    
-    this->inImport = true;
-	this->importedEntities.Clear();
-    Ptr<IO::XmlReader> reader = IO::XmlReader::Create();
-    reader->SetStream(stream);
-    if (reader->Open())
-    {
-        reader->SetToRoot();
+			lvl->UpdateGuids();
+			for (int i = 0; i < lvl->entities.Size(); i++)
+			{
+				LevelEditor2EntityManager::Instance()->CreateEntityFromAttrContainer(this->name, lvl->entities[i].Key(), lvl->entities[i].Value());
+			}
 
-        if (reader->HasNode("/Entities"))        
-        {
+			// reparent all items
+			LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->RebuildTree();
+			LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->OnEndLoad();
+		}
+		return true;
+	}
+	return false;
+}
 
-            reader->SetToFirstChild();
-            do
-            {
-                this->LoadEntity(reader);
-            } while (reader->SetToNextChild("Object"));
-        }
-
-        reader->Close();
-        stream->Close();
-    }
-
-    if (!this->importedEntities.IsEmpty())
-    {
-        LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->OnBeginLoad();
-
-		this->UpdateGuids();
-        for (int i = 0; i < this->importedEntities.Size(); i++)
-        {            
-			LevelEditor2EntityManager::Instance()->CreateEntityFromAttrContainer(this->name, this->importedEntities[i].Key(), this->importedEntities[i].Value());
-        }
-                
-        // reparent all items
-        LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->RebuildTree();       
-        LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->OnEndLoad();
-    }
-    
-    this->inImport = false;
-    return true;
+//------------------------------------------------------------------------------
+/**
+*/
+void
+Level::Clear()
+{
+	this->refLevels.Clear();
 }
 
 } // namespace LevelEditor2
