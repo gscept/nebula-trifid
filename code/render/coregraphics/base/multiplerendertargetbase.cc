@@ -18,6 +18,7 @@ using namespace Resources;
 */
 MultipleRenderTargetBase::MultipleRenderTargetBase() :
     clearDepthStencil(false),
+	isSetup(false),
 	depthStencilTarget(0),
     numRenderTargets(0)
 {
@@ -51,6 +52,25 @@ MultipleRenderTargetBase::AddRenderTarget(const Ptr<RenderTarget>& rt)
     this->numRenderTargets++;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+MultipleRenderTargetBase::Setup()
+{
+	n_assert(!this->isSetup);
+	this->isSetup = true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+MultipleRenderTargetBase::Discard()
+{
+	n_assert(this->isSetup);
+	this->isSetup = false;
+}
 
 //------------------------------------------------------------------------------
 /**

@@ -922,6 +922,8 @@ FrameShaderLoader::ParseMultipleRenderTarget(const Ptr<IO::XmlReader>& xmlReader
         }   
     }
     while (xmlReader->SetToNextChild("RenderTarget"));
+
+	multipleRenderTarget->Setup();
     frameShader->AddMultipleRenderTarget(name, multipleRenderTarget);
 }
 

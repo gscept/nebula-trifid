@@ -38,6 +38,9 @@ public:
 	void ResetResolveRects();
 	/// get the vulkan viewports
 	const Util::FixedArray<VkViewport>& GetVkViewports();
+
+	/// get the vulkan image
+	const VkImageView& GetVkImageView() const;
 private:
 
 	VkImage image;
@@ -46,6 +49,7 @@ private:
 	VkFramebuffer framebuffer;
 	Util::FixedArray<VkViewport> viewports;
 
+	VkPipelineViewportStateCreateInfo viewportInfo;
 	VkGraphicsPipelineCreateInfo framebufferPipelineInfo;
 	VkRenderPass pass;
 };
@@ -58,6 +62,15 @@ inline const VkGraphicsPipelineCreateInfo&
 VkRenderTarget::GetVkPipelineInfo()
 {
 	return this->framebufferPipelineInfo;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const VkImageView&
+VkRenderTarget::GetVkImageView() const
+{
+	return this->imageView;
 }
 
 } // namespace Vulkan

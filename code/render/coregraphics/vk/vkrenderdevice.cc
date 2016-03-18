@@ -568,6 +568,12 @@ VkRenderDevice::OpenVulkanContext()
 		this->transThreads[i]->Start();
 	}
 
+	// setup pipeline construction struct
+	this->currentPipelineInfo.pNext = NULL;
+	this->currentPipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+	this->currentPipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+	this->currentPipelineInfo.basePipelineIndex = -1;
+
 	// yay, Vulkan!
 	return true;
 }
@@ -718,6 +724,7 @@ VkRenderDevice::SetStreamVertexBuffer(IndexT streamIndex, const Ptr<CoreGraphics
 {
 	RenderDeviceBase::SetStreamVertexBuffer(streamIndex, vb, offsetVertexIndex);
 	VkCmdBufferThread::Command cmd;
+	cmd.type = VkCmdBufferThread::InputAssemblyVertex;
 	cmd.vbo.buffer = vb->GetVkBuffer();
 	cmd.vbo.index = streamIndex;
 	cmd.vbo.offset = offsetVertexIndex;
@@ -730,6 +737,8 @@ VkRenderDevice::SetStreamVertexBuffer(IndexT streamIndex, const Ptr<CoreGraphics
 void
 VkRenderDevice::SetVertexLayout(const Ptr<CoreGraphics::VertexLayout>& vl)
 {
+	RenderDeviceBase::SetVertexLayout(vl);
+	vl->Apply();
 }
 
 //------------------------------------------------------------------------------
@@ -739,6 +748,7 @@ void
 VkRenderDevice::SetIndexBuffer(const Ptr<CoreGraphics::IndexBuffer>& ib)
 {
 	VkCmdBufferThread::Command cmd;
+	cmd.type = VkCmdBufferThread::InputAssemblyIndex;
 	cmd.ibo.buffer = ib->GetVkBuffer();
 	cmd.ibo.indexType = ib->GetIndexType() == IndexType::Index16 ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32;
 	cmd.ibo.offset = 0;
@@ -765,6 +775,8 @@ VkRenderDevice::BeginPass(const Ptr<CoreGraphics::RenderTarget>& rt, const Ptr<C
 	this->SetFramebufferLayoutInfo(rt->GetVkPipelineInfo());
 	const Util::FixedArray<VkViewport>& viewports = rt->GetVkViewports();
 	vkCmdSetViewport(this->mainCmdGfxBuffer, 0, viewports.Size(), &viewports[0]);
+	this->currentPipelineBits = 0;
+	this->SetFramebufferLayoutInfo(rt->GetVkPipelineInfo());
 }
 
 //------------------------------------------------------------------------------
@@ -774,6 +786,8 @@ void
 VkRenderDevice::BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt, const Ptr<CoreGraphics::Shader>& passShader)
 {
 	RenderDeviceBase::BeginPass(mrt, passShader);
+	this->currentPipelineBits = 0;
+	this->SetFramebufferLayoutInfo(mrt->GetVkPipelineInfo());
 }
 
 //------------------------------------------------------------------------------
@@ -783,6 +797,8 @@ void
 VkRenderDevice::BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& rtc, const Ptr<CoreGraphics::Shader>& passShader)
 {
 	RenderDeviceBase::BeginPass(rtc, passShader);
+	this->currentPipelineBits = 0;
+	this->SetFramebufferLayoutInfo(rtc->GetVkPipelineInfo());
 }
 
 //------------------------------------------------------------------------------
@@ -1167,11 +1183,12 @@ VkRenderDevice::SetShaderPipelineInfo(const VkGraphicsPipelineCreateInfo& shader
 	this->currentPipelineInfo.pDepthStencilState = shader.pDepthStencilState;
 	this->currentPipelineInfo.pRasterizationState = shader.pRasterizationState;
 	this->currentPipelineInfo.pMultisampleState = shader.pMultisampleState;
+	this->currentPipelineInfo.pDynamicState = shader.pDynamicState;
 	this->currentPipelineInfo.stageCount = shader.stageCount;
 	this->currentPipelineInfo.pStages = shader.pStages;
 	this->currentPipelineInfo.layout = shader.layout;
 	
-	if (this->currentPipelineBits & AllInfoSet)
+	if (this->currentPipelineBits == AllInfoSet)
 	{
 		this->CreatePipeline();
 	}
@@ -1192,7 +1209,7 @@ VkRenderDevice::SetVertexLayoutPipelineInfo(const VkGraphicsPipelineCreateInfo& 
 	this->currentPipelineInfo.pInputAssemblyState = vertexLayout.pInputAssemblyState;
 
 	// if all bits are set, create a graphics pipeline and set it
-	if (this->currentPipelineBits & AllInfoSet)
+	if (this->currentPipelineBits == AllInfoSet)
 	{
 		this->CreatePipeline();
 	}
@@ -1207,8 +1224,9 @@ VkRenderDevice::SetFramebufferLayoutInfo(const VkGraphicsPipelineCreateInfo& fra
 	this->currentPipelineBits |= FramebufferLayoutInfoSet;
 	this->currentPipelineInfo.renderPass = framebufferLayout.renderPass;
 	this->currentPipelineInfo.subpass = framebufferLayout.subpass;
+	this->currentPipelineInfo.pViewportState = framebufferLayout.pViewportState;
 
-	if (this->currentPipelineBits & AllInfoSet)
+	if (this->currentPipelineBits == AllInfoSet)
 	{
 		this->CreatePipeline();
 	}
@@ -1227,6 +1245,7 @@ VkRenderDevice::CreatePipeline()
 	// send pipeline bind command, this is the first step in our procedure, so we use this as a trigger to switch threads
 	this->currentDrawThread = (this->currentDrawThread + 1) % NumDrawThreads;
 	VkCmdBufferThread::Command cmd;
+	cmd.type = VkCmdBufferThread::GraphicsPipeline;
 	cmd.pipeline = pipeline;
 	this->drawThreads[this->currentDrawThread]->PushCommand(cmd);
 }

@@ -32,6 +32,7 @@ public:
 	void Apply();
 private:
 	VkGraphicsPipelineCreateInfo info;
+	VkPipelineVertexInputStateCreateInfo vertexInfo;
 
 	VkBuffer vertexStreams[VkRenderDevice::MaxNumVertexStreams];
 	VkVertexInputBindingDescription* binds;
