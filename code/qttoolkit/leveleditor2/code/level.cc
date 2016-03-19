@@ -199,12 +199,19 @@ Level::LoadLevel(const Util::String& level, LoadMode mode)
    
     if (this->LoadLevelFile(level, mode))
     {
-        Ptr<ParsedLevel> lvl = this->refLevels[level];
+		if (mode == Replace)
+		{
+			if (this->refLevels.Contains(level))
+			{
+				Ptr<ParsedLevel> lvl = this->refLevels[level];
 
-        for (int i = 0; i < lvl->references.Size(); i++)
-        {
-            this->LoadLevelFile(lvl->references[i], Reference);
-        }
+				for (int i = 0; i < lvl->references.Size(); i++)
+				{
+					this->LoadLevelFile(lvl->references[i], Reference);
+				}
+				this->refLevels.Erase(level);
+			}
+		}
         // reparent all items
         LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->RebuildTree();
         this->startLevel = false;
@@ -301,8 +308,12 @@ Level::LoadLevelFile(const Util::String& level, LoadMode mode)
 void 
 Level::SaveLevelAs(const Util::String& newName)
 {
-	this->name = newName;
-    //FIXMEEEEEE
+	Util::Array<Ptr<Game::Entity>> ents = BaseGameFeature::EntityManager::Instance()->GetEntitiesByAttr(Attr::Attribute(Attr::EntityLevel, this->name));
+	for (int i = 0;i < ents.Size();i++)
+	{
+		ents[i]->SetString(Attr::EntityLevel, newName);
+	}
+	this->name = newName;    
 	this->SaveLevel();
 }
 
@@ -397,13 +408,14 @@ Level::GetBoundingBox()
 void
 Level::SaveSelection(const Util::String & name)
 {
+	Math::bbox box;
 	Ptr<IO::IoServer> ioServer = IO::IoServer::Instance();
 	// make sure the levels directory exists
 	ioServer->CreateDirectory("work:levels");
 	// build a filename for the level file
 	Util::String fileName;
 	fileName.Format("work:levels/%s.xml", name.AsCharPtr());
-	this->SaveLevelFile(name, IO::URI(fileName),true);
+	this->SaveLevelFile(name, IO::URI(fileName),true, box);
 }
 
 //------------------------------------------------------------------------------
@@ -417,14 +429,18 @@ Level::SaveLevel()
 	ioServer->CreateDirectory("work:levels");
 	// build a filename for the level file
 	Util::String fileName;
-	fileName.Format("work:levels/%s.xml", this->name.AsCharPtr());
-	this->SaveLevelFile(this->name, IO::URI(fileName), false);
+	Math::bbox box;
 	for (int i = 0;i < this->refLevels.Size();i++)
 	{
-        if (refLevels.KeyAtIndex(i) == this->name) continue;
+		Math::bbox lvlbox;
+		if (refLevels.KeyAtIndex(i) == this->name) continue;
 		fileName.Format("work:levels/%s.xml", this->refLevels.KeyAtIndex(i).AsCharPtr());
-		this->SaveLevelFile(this->refLevels.KeyAtIndex(i), fileName, false);
+		this->SaveLevelFile(this->refLevels.KeyAtIndex(i), fileName, false, lvlbox);
+		box.extend(lvlbox);
 	}
+
+	fileName.Format("work:levels/%s.xml", this->name.AsCharPtr());
+	this->SaveLevelFile(this->name, IO::URI(fileName), false, box);
 }
 
 
@@ -432,7 +448,7 @@ Level::SaveLevel()
 /**
 */
 void
-Level::SaveLevelFile(const Util::String& name, const IO::URI & fileName, bool selectedOnly)
+Level::SaveLevelFile(const Util::String& name, const IO::URI & filename, bool selectedOnly, Math::bbox& box)
 {
 	
 	Ptr<IO::IoServer> ioServer = IO::IoServer::Instance();
@@ -441,7 +457,7 @@ Level::SaveLevelFile(const Util::String& name, const IO::URI & fileName, bool se
 	Ptr<IO::XmlWriter> xmlWriter = IO::XmlWriter::Create();
 	Ptr<IO::Stream> stream;
 
-	stream = ioServer->CreateStream(fileName);
+	stream = ioServer->CreateStream(filename);
 	stream->SetAccessMode(IO::Stream::WriteAccess);
 	stream->Open();
 
@@ -449,9 +465,6 @@ Level::SaveLevelFile(const Util::String& name, const IO::URI & fileName, bool se
 	{
 		return;
 	}	
-
-	Math::bbox box;
-	box.set(Math::point(0,0,0),Math::vector(10,10,10));
 
 	this->objectCounters.Clear();
 
@@ -482,14 +495,16 @@ Level::SaveLevelFile(const Util::String& name, const IO::URI & fileName, bool se
 	
 	// build filter 
 	Util::Array<Attr::Attribute> filter;
-	filter.Append(Attr::Attribute(Attr::EntityLevel, name));
 	if (selectedOnly)
 	{
 		filter.Append(Attr::Attribute(Attr::IsSelected, true));
 	}
-	Array<Ptr<Game::Entity>> ents = BaseGameFeature::EntityManager::Instance()->GetEntitiesByAttr(filter[0]);
-
-	//Array<Ptr<Game::Entity>> ents = BaseGameFeature::EntityManager::Instance()->GetEntitiesByAttrs(filter);
+	else
+	{
+		filter.Append(Attr::Attribute(Attr::EntityLevel, name));
+	}
+		
+	Array<Ptr<Game::Entity>> ents = BaseGameFeature::EntityManager::Instance()->GetEntitiesByAttrs(filter);
 	for (int i = 0;i < ents.Size();i++)
 	{
 		EntityType type = (EntityType)ents[i]->GetInt(Attr::EntityType);
@@ -565,7 +580,7 @@ Level::SaveLevelFile(const Util::String& name, const IO::URI & fileName, bool se
 
 	if(this->autoBatch)
 	{
-		this->ExportLevel(fileName.LocalPath());
+		this->ExportLevel(filename.LocalPath());
 	}
 }
 

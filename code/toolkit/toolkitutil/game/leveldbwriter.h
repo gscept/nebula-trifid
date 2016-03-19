@@ -28,6 +28,12 @@ public:
     void Open(const Ptr<Db::Database> & gameDb, const Ptr<Db::Database> & staticDb);
     ///
     void Close();
+	///
+	const Util::Array<Util::String>& GetReferences() const;
+	///
+	void SetReferenceMode(bool enable);
+	///
+	void ClearReferences();
 protected:
     /// set level name
     virtual void SetName(const Util::String & name);
@@ -40,7 +46,7 @@ protected:
     /// level dimensions
     virtual void SetDimensions(const Math::bbox & box);
     ///
-    virtual void AddReference(const Util::String & name) {}
+	virtual void AddReference(const Util::String & name);
     /// commit per level info to db
     virtual void CommitLevel();
 
@@ -53,8 +59,39 @@ protected:
     Util::Dictionary<Util::String,Ptr<Db::Table>> instanceTables;
     Util::Dictionary<Util::String,Ptr<Db::Dataset>> instanceDataset;
     Util::Dictionary<Util::String,Ptr<Db::ValueTable>> instanceValues;
-    
-
+	Util::Array<Util::String> references;
+	bool inReference;
 }; 
+
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline
+const Util::Array<Util::String>&
+LevelDbWriter::GetReferences() const
+{
+	return this->references;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline
+void
+LevelDbWriter::SetReferenceMode(bool enable)
+{
+	this->inReference = enable;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline
+void
+LevelDbWriter::ClearReferences()
+{
+	this->references.Clear();
+}
 } // namespace ToolkitUtil
 //------------------------------------------------------------------------------

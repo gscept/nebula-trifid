@@ -119,7 +119,7 @@ public:
 protected:
 
 	/// performs the actual saving
-	void SaveLevelFile(const Util::String& name, const IO::URI & filename, bool selectedOnly);
+	void SaveLevelFile(const Util::String& name, const IO::URI & filename, bool selectedOnly, Math::bbox& box);
 
     bool LoadLevelFile(const Util::String& name, LoadMode mode);
 
@@ -155,7 +155,7 @@ protected:
 	bool startLevel;
 	bool autoBatch;		
 	Util::Dictionary<Util::String,int> objectCounters;    
-	Util::Dictionary<Util::String,Ptr<ParsedLevel>> refLevels;
+	Util::Dictionary<Util::String,Ptr<ParsedLevel>> refLevels;	
 }; 
 
 //------------------------------------------------------------------------------------
