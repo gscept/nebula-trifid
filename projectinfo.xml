@@ -30,7 +30,8 @@
 			
             <!-- texture conversion -->
             <Attr name="TextureTool" value="toolkit:bin/win32/nvdxt.exe"/>            
-            <Attr name="TextureSrcDir" value="src:textures"/>
+            <Attr name="TextureAttrTable" value="src:assets"/>
+            <Attr name="TextureSrcDir" value="src:assets"/>
             <Attr name="TextureDstDir" value="dst:textures"/>
                                    
             <!-- audio export -->
