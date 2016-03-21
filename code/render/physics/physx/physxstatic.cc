@@ -106,4 +106,13 @@ PhysXStatic::SetCollideCategory(CollideCategory coll)
 	PhysXScene::SetCollideCategory(this->body, coll);
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PhysXStatic::SetTransform(const Math::matrix44 & trans)
+{
+	BaseStatic::SetTransform(trans);
+	this->body->setGlobalPose(Neb2PxTrans(trans));
+}
 }

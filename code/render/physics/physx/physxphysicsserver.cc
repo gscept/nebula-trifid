@@ -175,7 +175,7 @@ PhysXServer::onTrigger(PxTriggerPair* pairs, PxU32 count)
 		PhysX::PhysXProbe * probe = (PhysX::PhysXProbe*)pairs[i].triggerActor->userData;
 		if (pairs[i].otherActor->userData)
 		{
-			probe->AddOverlap(pairs[i].otherActor);
+			probe->OnTriggerEvent(pairs[i].status, pairs[i].otherActor);
 		}
 	}
 	this->critSect.Leave();

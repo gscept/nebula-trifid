@@ -52,7 +52,7 @@ CallbackManager::OnValueChanged(BaseAttributeController* controller)
 	Util::Variant value = controller->GetValue();
 	Variant::Type type = controller->GetAttributeType();
 
-	if (Matrix44Type == type)
+	if (Matrix44Type == type )
 	{
 		// special handling for matrices
 		// note: Attr::Transform should be updated via a SetTransform message (better to this in a manager derived from this)
@@ -63,7 +63,10 @@ CallbackManager::OnValueChanged(BaseAttributeController* controller)
 		quaternion qrot(rot);
 		
 		matrix44 newMatrix = matrix44::transformation(float4::zerovector(), quaternion::identity(), scale, float4::zerovector(), qrot, position);
-		entity->SetMatrix44(attrId, newMatrix);
+		if (attrId == Attr::Transform)
+		{
+			entity->SetMatrix44(attrId, newMatrix);
+		}		
 		Ptr<BaseGameFeature::SetAttribute> msg = BaseGameFeature::SetAttribute::Create();
 		Attribute attr(attrId);
 		attr.SetMatrix44(newMatrix);
