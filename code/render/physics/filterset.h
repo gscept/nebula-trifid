@@ -7,14 +7,16 @@
     physics entities. It is used to include or exclude physics entities
     from various tests (like stabbing checks).
     
-	(C) 2012-2015 Individual contributors, see AUTHORS file
+	(C) 2012-2016 Individual contributors, see AUTHORS file
 */
 #include "util/array.h"
-#include "physics/physicsobject.h"
+#include "model/templates.h"
 
 //------------------------------------------------------------------------------
 namespace Physics
 {
+class PhysicsObject;
+
 class FilterSet
 {
 public:

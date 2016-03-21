@@ -6,7 +6,7 @@
     A Job in the Nebula3 job system.  
     
     (C) 2009 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */ 
 #include "core/config.h"
 #if __PS3__

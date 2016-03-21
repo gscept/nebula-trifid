@@ -8,7 +8,7 @@
     Nebula's quaternion class.
 
     (C) 2004 RadonLabs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 
 */
 

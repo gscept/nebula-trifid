@@ -5,7 +5,7 @@
   
     Central class of the fmod core audio subsystem. It implements the fmod Environment.    
         
-    (C) 2014 Individual contributors, see AUTHORS file
+    (C) 2014-2016 Individual contributors, see AUTHORS file
 */
 
 #include "core/refcounted.h"

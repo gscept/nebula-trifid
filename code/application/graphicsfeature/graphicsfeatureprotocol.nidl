@@ -52,6 +52,12 @@
         <InArg name="Visible" type="bool" serialize="true"/>
       <Desc>Shows or hides all graphics entities of a game entity.</Desc>
     </Message>
+    
+    <!-- Retrieves visibilty of graphics entities of a game entity. -->
+    <Message name="GetGraphicsVisible" fourcc="GGVS" scripted="true">
+      <OutArg name="Visible" type="bool" serialize="true"/>
+      <Desc>Retrieves visibilty of graphics entities of a game entity.</Desc>
+    </Message>
 
     <!-- Set an overwrite color -->
     <Message name="SetOverwriteColor" fourcc="SEOC" scripted="true">

@@ -11,7 +11,73 @@
 #include "minimap.h"
 #include "coregraphics/memoryvertexbufferloader.h"
 #include "coregraphics/memoryindexbufferloader.h"
+#include "rocket/elementminimap.h"
+#include "coregraphics/vertexbuffer.h"
+#include "resources/resource.h"
+#include "resources/resourcemanager.h"
+#include "graphicsfeature/graphicsfeatureprotocol.h"
 
+
+
+
+
+
+
+namespace Rocket {
+namespace MiniMap {
+
+
+//------------------------------------------------------------------------------
+/**
+*/
+void RegisterElementInstancers()
+{
+    Core::ElementInstancer* instancer = new Core::ElementInstancerGeneric<ElementMiniMap>();
+    Core::Factory::RegisterElementInstancer("minimap", instancer);
+    instancer->RemoveReference();
+}
+
+static bool initialised = false;
+
+
+//------------------------------------------------------------------------------
+/**
+*/
+class MiniMapPlugin : public Rocket::Core::Plugin
+{
+public:
+	void OnShutdown()
+	{
+		initialised = false;
+		delete this;
+	}
+
+	int GetEventClasses()
+	{
+		return Rocket::Core::Plugin::EVT_BASIC;
+	}
+};
+
+
+//------------------------------------------------------------------------------
+/**
+*/
+void Initialise()
+{
+	// Prevent double initialisation
+	if (!initialised)
+	{
+		RegisterElementInstancers();
+
+		// Register the progress bar plugin, so we'll be notified on Shutdown
+		Rocket::Core::RegisterPlugin(new MiniMapPlugin());
+
+		initialised = true;
+	}
+}
+}
+}
+ 
 namespace Minimap
 {
 __ImplementClass(Minimap::MinimapManager, 'MMPR', Game::Manager);
@@ -26,9 +92,12 @@ using namespace Resources;
 //------------------------------------------------------------------------------
 /**
 */
-MinimapManager::MinimapManager()
+MinimapManager::MinimapManager():
+	plugin(NULL)
 {
 	__ConstructSingleton;	
+    this->plugin = n_new(MinimapPlugin);
+    UiFeatureUnit::Instance()->RegisterUIRenderPlugin(this->plugin);
 }
 
 //------------------------------------------------------------------------------
@@ -36,6 +105,9 @@ MinimapManager::MinimapManager()
 */
 MinimapManager::~MinimapManager()
 {
+    UiFeatureUnit::Instance()->UnregisterUIRenderPlugin(this->plugin);
+    n_delete(this->plugin);
+    this->plugin = 0;
 	__DestructSingleton;	
 }
 
@@ -45,8 +117,7 @@ MinimapManager::~MinimapManager()
 void 
 MinimapManager::OnActivate()
 {
-	this->plugin = Minimap::MinimapPlugin::Create();
-	UiFeatureUnit::Instance()->RegisterUIRenderPlugin(this->plugin.cast<UI::UiPlugin>());
+//	this->plugin = Minimap::MinimapPlugin::Create();
 
     // setup render target
     this->minimapTarget = RenderTarget::Create();
@@ -54,6 +125,9 @@ MinimapManager::OnActivate()
     this->minimapTarget->SetHeight(512);
     this->minimapTarget->SetAntiAliasQuality(AntiAliasQuality::None);
     this->minimapTarget->SetColorBufferFormat(PixelFormat::A8R8G8B8);
+	this->minimapTarget->SetResolveTextureResourceId("Minimap");
+	this->minimapTarget->SetClearColor(float4(0, 0, 0, 0));
+	this->minimapTarget->SetClearFlags(Base::RenderTargetBase::ClearColor);
     this->minimapTarget->Setup();
 
     // resize transforms array
@@ -62,15 +136,14 @@ MinimapManager::OnActivate()
     this->iconSizes.Resize(this->MaxNumIconsPerBatch);
 
 	// create shader
-	this->minimapShader = ShaderServer::Instance()->GetShader("minimap");
-	this->transformsVar = this->minimapShader->GetVariableByName("ModelArray");
-    this->portraitVar = this->minimapShader->GetVariableByName("Portrait");
-    this->portraitScalesVar = this->minimapShader->GetVariableByName("PortraitScaleArray");
+	this->minimapShader = ShaderServer::Instance()->GetShader("shd:minimap");
+	this->transformsVar = this->minimapShader->GetVariableByName("TransArray");
+    this->portraitVar = this->minimapShader->GetVariableByName("Portrait");    
     this->colorsVar = this->minimapShader->GetVariableByName("ColorArray");
 
     // setup vertex and index buffers
     Array<VertexComponent> cornerComponents;
-    cornerComponents.Append(VertexComponent(VertexComponent::TexCoord1, 0, VertexComponent::Float2, 0));
+    cornerComponents.Append(VertexComponent(VertexComponent::Position, 0, VertexComponent::Float2, 0));
     float cornerVertexData[] = { 0, 0,  1, 0,  1, 1,  0, 1 };
     Ptr<MemoryVertexBufferLoader> cornerVBLoader = MemoryVertexBufferLoader::Create();
     cornerVBLoader->Setup(cornerComponents, 4, cornerVertexData, sizeof(cornerVertexData), VertexBuffer::UsageImmutable, VertexBuffer::AccessNone);
@@ -109,6 +182,14 @@ MinimapManager::OnActivate()
     this->quadPrim.SetBaseIndex(0);
     this->quadPrim.SetNumIndices(6);
     this->quadPrim.SetPrimitiveTopology(PrimitiveTopology::TriangleList);
+
+	Rocket::MiniMap::Initialise();
+
+	if(!this->backgroundName.IsEmpty())
+	{
+		this->backgroundTexture = ResourceManager::Instance()->CreateManagedResource(Texture::RTTI, this->backgroundName, 0, true).downcast<ManagedTexture>();
+		ResourceManager::Instance()->RequestResourceForLoading(this->backgroundTexture.upcast<ManagedResource>());
+	}	
 }
 
 //------------------------------------------------------------------------------
@@ -141,9 +222,8 @@ MinimapManager::OnDeactivate()
     this->transforms.Clear();
     this->colors.Clear();
     this->iconSizes.Clear();
-
-	UiFeatureUnit::Instance()->UnregisterUIRenderPlugin(this->plugin.cast<UI::UiPlugin>());
-	this->plugin = 0;
+	
+//	this->plugin = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -160,6 +240,13 @@ MinimapManager::RegisterEntity( const Util::String& texture, const Ptr<Game::Ent
 	{
 		this->entities.Add(texture, Util::Array<Ptr<Game::Entity>>());
 		this->entities[texture].Append(entity);
+		if (!texture.IsEmpty())
+		{
+			Ptr<ManagedTexture> managedTexture = ResourceManager::Instance()->CreateManagedResource(Texture::RTTI, texture, 0, true).downcast<ManagedTexture>();
+			ResourceManager::Instance()->RequestResourceForLoading(managedTexture.upcast<ManagedResource>());
+			this->texturePool.Add(texture,managedTexture);
+			this->textures.Append(texture);
+		}
 	}	
 }
 
@@ -182,6 +269,39 @@ void
 MinimapManager::OnBeginFrame()
 {
 	const Ptr<CoreGraphics::RenderDevice>& renderDev = CoreGraphics::RenderDevice::Instance();
+	renderDev->BeginFrame(InvalidIndex);
+	renderDev->BeginPass(this->minimapTarget, this->minimapShader);
+	// render background	
+	if(this->backgroundTexture.isvalid())
+	{
+		Math::matrix44 trans;
+		trans.translate(float4(-0.5f, -0.5f, 0.0f, 0.0f));
+		trans.scale(float4(2.0f, 2.0f, 1.0f, 1.0f));
+		this->transforms[0] = trans;
+		ShaderServer::Instance()->SetActiveShader(this->minimapShader);
+		this->minimapShader->Apply();
+		// update variables
+		this->minimapShader->BeginUpdate();
+		this->transformsVar->SetMatrixArray(&this->transforms[0], 1);
+		this->colorsVar->SetFloat4Array(&this->colors[0], 1);
+		this->portraitVar->SetTexture(this->backgroundTexture->GetTexture());
+		this->minimapShader->EndUpdate();
+		this->minimapShader->Commit();
+
+		// start batch		
+		
+
+		// setup primitive
+		renderDev->SetVertexLayout(this->quadVb->GetVertexLayout());
+		renderDev->SetStreamSource(0, this->quadVb, 0);
+		renderDev->SetIndexBuffer(this->quadIb);
+		renderDev->SetPrimitiveGroup(this->quadPrim);
+
+		// draw
+		renderDev->DrawIndexedInstanced(1, 0);
+		
+	}
+
 
 	// iterate through textures 
 	IndexT i;
@@ -194,7 +314,7 @@ MinimapManager::OnBeginFrame()
 		const Util::Array<Ptr<Game::Entity>>& ents = this->entities[this->textures[i]];
 
 		// get reference for minimap
-		const vector& size = this->minimapBox.size();
+		const vector& size = this->minimapBox.extents();
 
         // get number of entities
         SizeT numEntities = ents.Size();
@@ -214,46 +334,77 @@ MinimapManager::OnBeginFrame()
             for (j = batchIndex * this->MaxNumIconsPerBatch; j < numEntities; j++)
             {
                 const Ptr<Game::Entity>& ent = ents[j];
+				Ptr<GraphicsFeature::GetGraphicsVisible> vmsg = GraphicsFeature::GetGraphicsVisible::Create();
+				__SendSync(ent,vmsg);
+				if (!vmsg->GetVisible())
+				{
+					continue;
+				}
                 const float4& pos = ent->GetMatrix44(Attr::Transform).get_position();
                 const float4& iconSize = ent->GetFloat4(Attr::MinimapIconSize);
                 const float4& color = ent->GetFloat4(Attr::MinimapIconColor);
 
                 // calculate map relative coordinates
-                float x = (pos.x() + size.x() * 0.5f) / size.x() * this->MinimapResolutionX;
-                float z = (pos.z() + size.z() * 0.5f) / size.z() * this->MinimapResolutionY;
-
-                // create transform matrix, 0 z, and x, z will be mapped to x, y
-                matrix44 trans = matrix44::translation(x, z, 0);
-
-                this->colors[numBatchEntities] = color;
-                this->transforms[numBatchEntities] = trans;
+				Math::matrix44 trans;
+				trans.scale(iconSize);
+				float x = (pos.x() ) / size.x();
+				float z = (pos.z() ) / size.z();
+				trans.translate(float4(x, z, 0, 0));
+                
+				this->transforms[numBatchEntities] = trans;
+                this->colors[numBatchEntities] = color;                
                 this->iconSizes[numBatchEntities] = float2(iconSize.x(), iconSize.y());
 
                 numBatchEntities++;
             }
+            if (numBatchEntities)
+            {
+                ShaderServer::Instance()->SetActiveShader(this->minimapShader);
+                this->minimapShader->Apply();
+                // update variables
+                this->minimapShader->BeginUpdate();
+                this->transformsVar->SetMatrixArray(&this->transforms[0], numBatchEntities);
+                this->colorsVar->SetFloat4Array(&this->colors[0], numBatchEntities);
+                this->portraitVar->SetTexture(tex);
+                this->minimapShader->EndUpdate();
+                this->minimapShader->Commit();
 
-            // update variables
-            this->transformsVar->SetMatrixArray(&this->transforms[0], numBatchEntities);
-            this->colorsVar->SetFloat4Array(&this->colors[0], numBatchEntities);
-            this->portraitScalesVar->SetFloat2Array(&this->iconSizes[0], numBatchEntities);
-            this->portraitVar->SetTexture(tex);
+                // setup primitive
+                renderDev->SetVertexLayout(this->quadVb->GetVertexLayout());
+                renderDev->SetStreamSource(0, this->quadVb, 0);
+                renderDev->SetIndexBuffer(this->quadIb);
+                renderDev->SetPrimitiveGroup(this->quadPrim);
 
-            // start batch
-            renderDev->BeginFrame(InvalidIndex);
-            renderDev->BeginPass(this->minimapTarget, this->minimapShader);
-
-            // setup primitive
-            renderDev->SetStreamSource(0, this->quadVb, 0);
-            renderDev->SetIndexBuffer(this->quadIb);
-            renderDev->SetPrimitiveGroup(this->quadPrim);
-
-            // draw
-            renderDev->DrawIndexedInstanced(numBatchEntities, 0);
-
-            renderDev->EndPass();
-			renderDev->EndFrame(InvalidIndex);
+                // draw
+                renderDev->DrawIndexedInstanced(numBatchEntities, 0);
+            }
         }
 	}
+	renderDev->EndPass();
+	renderDev->EndFrame(InvalidIndex);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+MinimapManager::SetWorldSize(const Math::bbox & box)
+{
+	this->minimapBox = box;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+MinimapManager::SetBackgroundTexture(const Util::String& texture)
+{
+	if (this->backgroundName != texture)
+	{
+		this->backgroundName = texture;
+		this->backgroundTexture = ResourceManager::Instance()->CreateManagedResource(Texture::RTTI, this->backgroundName, 0, true).downcast<ManagedTexture>();
+		ResourceManager::Instance()->RequestResourceForLoading(this->backgroundTexture.upcast<ManagedResource>());	
+	}	
 }
 
 } // namespace Minimap

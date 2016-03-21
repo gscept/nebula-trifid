@@ -5,7 +5,7 @@
     
 	Builds models for all .constants, .attributes and .physics files
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 #include "distributedtools/distributedtoolkitapp.h"
 #include "toolkitutil/modelutil/modelbuilder.h"

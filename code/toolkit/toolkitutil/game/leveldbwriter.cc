@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  leveldbwriter.cc
-//  (C) 2015 Individual contributors, see AUTHORS file
+//  (C) 2015-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "leveldbwriter.h"
@@ -21,7 +21,8 @@ __ImplementClass(ToolkitUtil::LevelDbWriter, 'LDBW', Core::RefCounted);
 //------------------------------------------------------------------------------
 /**
 */
-LevelDbWriter::LevelDbWriter()
+LevelDbWriter::LevelDbWriter():
+	inReference(false)
 {
 	// empty
 }
@@ -41,9 +42,10 @@ LevelDbWriter::~LevelDbWriter()
 void 
 LevelDbWriter::SetName(const Util::String & name)
 {
-    this->levelname = name;
-   
-    
+	if (!this->inReference)
+	{
+		this->levelname = name;
+	}    
 }
 
 //------------------------------------------------------------------------------
@@ -52,7 +54,7 @@ LevelDbWriter::SetName(const Util::String & name)
 void 
 LevelDbWriter::AddLayer(const Util::String & name, bool visible, bool autoload, bool locked)
 {
-    if(autoload)
+    if(autoload && !this->inReference)
     {
         this->layers.Append(name);
     }
@@ -107,10 +109,16 @@ LevelDbWriter::AddEntity(const Util::String & category, const Attr::AttributeCon
 				newguid.Generate();
 				valueTable->SetAttr(Attr::Attribute(Attr::Guid, newguid), row);
 			}
+			// override level field
+			else if (attrDic.KeyAtIndex(i) == Attr::_Level)
+			{
+				valueTable->SetAttr(Attr::Attribute(Attr::_Level, this->levelname), row);
+			}
 			else
 			{
 				valueTable->SetAttr(attrDic.ValueAtIndex(i), row);
-			}            
+			}   
+			
         }
         else
         {
@@ -131,8 +139,11 @@ LevelDbWriter::AddEntity(const Util::String & category, const Attr::AttributeCon
 void 
 LevelDbWriter::SetPosteffect(const Util::String & preset, const Math::matrix44 & globallightTransform)
 {
-    this->postEffectPreset = preset;
-    this->globallightTransform = globallightTransform;
+	if (!this->inReference)
+	{
+		this->postEffectPreset = preset;
+		this->globallightTransform = globallightTransform;
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -141,7 +152,10 @@ LevelDbWriter::SetPosteffect(const Util::String & preset, const Math::matrix44 &
 void 
 LevelDbWriter::SetDimensions(const Math::bbox & box)
 {
-    this->dimensions = box;
+	if (!this->inReference)	
+	{
+		this->dimensions = box;
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -158,7 +172,8 @@ LevelDbWriter::Close()
     this->instanceValues.Clear();
     this->instanceDataset.Clear();
     this->instanceTables.Clear();
-   
+	this->references.Clear();
+	this->inReference = false;
     this->gameDb = 0;
     this->staticDb = 0;
 }
@@ -171,6 +186,7 @@ LevelDbWriter::Open(const Ptr<Db::Database> & gameDb, const Ptr<Db::Database> & 
 {
     this->gameDb = gameDb;
     this->staticDb = staticDb;
+	this->inReference = false;
 }
 
 //------------------------------------------------------------------------------
@@ -179,6 +195,11 @@ LevelDbWriter::Open(const Ptr<Db::Database> & gameDb, const Ptr<Db::Database> & 
 void 
 LevelDbWriter::CommitLevel()
 {
+	if (this->inReference)
+	{
+		return;
+	}	
+
     Ptr<Table> table = this->staticDb->GetTableByName("_Template_Levels");
     Ptr<Db::Dataset> dataset;
     Ptr<Db::ValueTable> valueTable;
@@ -230,6 +251,15 @@ LevelDbWriter::CommitLevel()
     valueTable->SetMatrix44(Attr::GlobalLightTransform, row, this->globallightTransform);
     valueTable->SetString(Attr::_Layers, row, String::Concatenate(this->layers,";"));
     dataset->CommitChanges();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+LevelDbWriter::AddReference(const Util::String & name)
+{
+	this->references.Append(name);
 }
 
 } // namespace ToolkitUtil

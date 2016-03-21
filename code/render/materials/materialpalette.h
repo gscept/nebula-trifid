@@ -5,7 +5,7 @@
     
     Holds a material palette which in turn holds one or several materials
     
-    (C) 2011-2013 Individual contributors, see AUTHORS file
+    (C) 2011-2016 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
 #include "resources/resource.h"

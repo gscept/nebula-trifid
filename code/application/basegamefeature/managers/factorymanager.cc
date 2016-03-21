@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  managers/factorymanager.cc
 //  (C) 2007 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "core/factory.h"
@@ -15,9 +15,6 @@
 #include "basegamefeatureunit.h"
 #include "game/gameserver.h"
 
-#include "scriptfeature/conditions/and.h"
-#include "scriptfeature/conditions/not.h"
-#include "scriptfeature/conditions/or.h"
 
 namespace BaseGameFeature
 {
@@ -494,7 +491,7 @@ FactoryManager::AddBlueprint(const Util::String& type, const Util::String &cppCl
 	tablename.Format("_Instance_%s",type.AsCharPtr());
 	table->SetName(tablename);
 	table->AddColumn(Db::Column(Attr::Id));
-	table->AddColumn(Db::Column(Attr::Guid));
+	table->AddColumn(Db::Column(Attr::Guid, Db::Column::Primary));
 	table->AddColumn(Db::Column(Attr::_Level));
 	table->AddColumn(Db::Column(Attr::_Layers));
 	Db::DbServer::Instance()->GetGameDatabase()->AddTable(table);

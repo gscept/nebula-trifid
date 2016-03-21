@@ -5,7 +5,7 @@
 
     Property for modifying multiple entities
     
-    (C) 2015 Individual contributors, see AUTHORS file
+    (C) 2015-2016 Individual contributors, see AUTHORS file
 */
 #include "game/property.h"
 #include "attr/attributedefinition.h"

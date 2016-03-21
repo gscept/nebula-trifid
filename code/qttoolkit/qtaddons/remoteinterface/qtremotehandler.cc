@@ -1,15 +1,15 @@
 //------------------------------------------------------------------------------
 //  qtremotehandler.cc
-//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "messaging/staticmessagehandler.h"
 #include "qtremoteserver.h"
-#include "qtremoteprotocol.h"
+#include "remoteinterface/qtremoteprotocol.h"
 #include "graphics/graphicsprotocol.h"
 #include "graphics/graphicsinterface.h"
-#include "application/appgame/gameapplication.h"
-#include "application/basegamefeature/statehandlers/gamestatehandler.h"
+#include "appgame/gameapplication.h"
+#include "basegamefeature/statehandlers/gamestatehandler.h"
 
 using namespace QtRemoteInterfaceAddon;
 using namespace Graphics;

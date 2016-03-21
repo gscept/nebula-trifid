@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  properties/cameraproperty.cc
 //  (C) 2007 Radon Labs GmbH
-//  (C) 2013-2014 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "properties/cameraproperty.h"
@@ -143,7 +143,10 @@ CameraProperty::OnLoseCameraFocus()
     {
         this->defaultView->SetCameraEntity(0);
     }
-    this->defaultStage->RemoveEntity(this->cameraEntity.cast<Graphics::GraphicsEntity>());
+	if (this->cameraEntity->IsActive())
+	{
+		this->defaultStage->RemoveEntity(this->cameraEntity.cast<Graphics::GraphicsEntity>());
+	}    
     this->defaultStage = 0;
     this->defaultView = 0;
 

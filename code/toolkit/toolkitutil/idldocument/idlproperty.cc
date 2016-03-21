@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  idlproperty.cc
-//  (C) 2012 Johannes Hirche
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "toolkitutil/idldocument/idlproperty.h"

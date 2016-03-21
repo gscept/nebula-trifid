@@ -13,7 +13,7 @@
 	AnimPaths can be relative to the original 'state' of a variable by using the Begin/End APIs,
 	or simply as an animated offset.
 	
-	(C) 2015 Individual contributors, see AUTHORS file
+	(C) 2015-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 

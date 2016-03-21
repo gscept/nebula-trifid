@@ -5,7 +5,7 @@
     
     Script editor which can edit scripts using syntax highlighting and multiple tabs.
     
-    (C) 2013-2014 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 
 #include <QObject>

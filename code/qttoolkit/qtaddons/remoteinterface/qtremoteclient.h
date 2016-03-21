@@ -5,7 +5,7 @@
     
     A remote client acts as a sender of messages to a QtRemoteServer.
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include <QObject>

@@ -5,7 +5,7 @@
     
     Handles undoable actions, such as create entity, transform entity etc.
     
-    (C) 2012-2014 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 
 #include "core/singleton.h"

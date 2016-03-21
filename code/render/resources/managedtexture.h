@@ -6,7 +6,7 @@
     A specialized managed resource for texture resources.
     
     (C) 2007 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "resources/managedresource.h"
 #include "coregraphics/texture.h"

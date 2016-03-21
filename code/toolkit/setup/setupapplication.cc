@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  setupapplication.cc
-//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "setupapplication.h"
@@ -81,7 +81,7 @@ void
 SetupApplication::ShowHelp()
 {
 	n_printf("NebulaT Setup application.\n"
-		"(C) 2012-2015 Individual contributors, see AUTHORS file.\n");
+		"(C) 2012-2016 Individual contributors, see AUTHORS file.\n");
 	n_printf("-help         --display this help\n"
 		"-nody      --nody path override"
 		"-working   --nebula working folder (where bins are located)\n"

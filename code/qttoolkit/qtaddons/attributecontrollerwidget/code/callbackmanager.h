@@ -9,7 +9,7 @@
 
 	(This probably should not be a manager, you can change it if you want)
     
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 
 #include "core/singleton.h"

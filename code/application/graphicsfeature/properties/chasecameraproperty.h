@@ -6,7 +6,7 @@
     A chase camera for 3rd person camera control.
     
     (C) 2005 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "graphicsfeature/properties/cameraproperty.h"
 #include "math/polar.h"

@@ -5,7 +5,7 @@
     
 	Defines different buffer locks for different platforms.
 	
-	(C) 2012-2015 Individual contributors, see AUTHORS file
+	(C) 2012-2016 Individual contributors, see AUTHORS file
 */
 #if __OGL4__
 #include "coregraphics/ogl4/ogl4bufferlock.h"

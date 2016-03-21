@@ -5,7 +5,7 @@
 	
 	Used to load animation path resources.
 	
-	(C) 2015 Individual contributors, see AUTHORS file
+	(C) 2015-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "resources/streamresourceloader.h"

@@ -8,7 +8,7 @@
     its a macro, since we need info about source-file and line in code,
     where the error occurred
     
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/debug.h"
 

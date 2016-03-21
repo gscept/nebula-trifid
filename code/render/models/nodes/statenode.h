@@ -7,7 +7,7 @@
 	it's rendered with. It inherits StateNode to avoid recreating the texture
 	handling functions, but bypasses the StateNode tag-parsing. 
     
-    (C) 2011-2013 Individual contributors, see AUTHORS file
+    (C) 2011-2016 Individual contributors, see AUTHORS file
 */
 #include "models/nodes/transformnode.h"
 #include "util/variant.h"

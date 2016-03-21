@@ -1,13 +1,13 @@
 //------------------------------------------------------------------------------
 //  categorymanager.cc
 //  (C) 2007 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "managers/categorymanager.h"
-#include "addons/db/dbserver.h"
-#include "addons/db/reader.h"
-#include "addons/db/dbfactory.h"
+#include "db/dbserver.h"
+#include "db/reader.h"
+#include "db/dbfactory.h"
 #include "basegamefeature/basegameattr/basegameattributes.h"
 #include "basegamefeature/managers/factorymanager.h"
 

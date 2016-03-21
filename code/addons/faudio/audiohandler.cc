@@ -1,11 +1,11 @@
 //------------------------------------------------------------------------------
 //  audiohandler.cc
-//  (C) 2014 Individual contributors, see AUTHORS file
+//  (C) 2014-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "faudio/audiohandler.h"
 #include "faudio/fmodstudiopagehandler.h"
-#include "audioprotocol.h"
+#include "faudio/audioprotocol.h"
 #include "faudio/audiodevice.h"
 #include "faudio/fmoderror.h"
 #include "faudio/eventinstance.h"

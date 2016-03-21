@@ -6,7 +6,7 @@
 	Simple audio emitter that contains an eventinstance and will track its position.
 	Supports play/stop
 
-	(C) 2015 Individual contributors, see AUTHORS file
+	(C) 2015-2016 Individual contributors, see AUTHORS file
 */
 
 #include "game/property.h"

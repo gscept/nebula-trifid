@@ -5,7 +5,7 @@
     
     A utility class for generating navmeshes via recast
     
-    (C) 2014 Johannes Hirche
+    (C) 2014-2016 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
 #include "io/uri.h"
@@ -111,7 +111,7 @@ public:
 	void SetBoundingBox(const Math::bbox & ibox);
 
     /// load all settings from a db
-    bool LoadNavMeshGenerationData(const Ptr<Db::Reader>& reader);
+    bool LoadNavMeshGenerationData(const Ptr<Db::ValueTable>& reader, IndexT row);
 
     /// add extra mesh to navmesh generation (use the graphics resource)
     void AddExtraMesh(const Util::String & res, const Math::matrix44 & transform);

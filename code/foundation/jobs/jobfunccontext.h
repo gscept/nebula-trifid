@@ -8,7 +8,7 @@
     on the SPU side on PS3.
    
     (C) 2009 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 
 #define JOBFUNCCONTEXT_MAXINPUTS 4

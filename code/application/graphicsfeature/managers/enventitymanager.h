@@ -1,7 +1,7 @@
 #pragma once
 //------------------------------------------------------------------------------
 /**
-    @class BaseGameFeature::EnvEntityManager
+    @class GraphicsFeature::EnvEntityManager
     
     Manages creation and updating of environment entities. All simple 
     environment entities are kept in a single game entity to prevent pollution 
@@ -13,7 +13,7 @@
     types of environment entities.
     
     (C) 2007 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file	
+    (C) 2013-2016 Individual contributors, see AUTHORS file	
 */
 #include "core/singleton.h"
 #include "game/manager.h"
@@ -28,7 +28,7 @@ namespace PhysicsFeature
 }
 
 //------------------------------------------------------------------------------
-namespace BaseGameFeature
+namespace GraphicsFeature
 {
 class EnvEntityManager : public Game::Manager
 {
@@ -57,7 +57,7 @@ public:
     /// get graphics entities by id (may return empty array)
     Util::Array<Ptr<Graphics::ModelEntity> > GetGraphicsEntities(const Util::String& id) const;
 
-    /// clear enviornment entity
+    /// clear environment entity
     void ClearEnvEntity();
 
 private:
@@ -74,5 +74,5 @@ private:
 
 };
 
-} // namespace BaseGameFeature
+} // namespace GraphicsFeature
 //------------------------------------------------------------------------------

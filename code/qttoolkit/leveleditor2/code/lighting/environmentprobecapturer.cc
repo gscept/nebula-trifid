@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  lightprobe.cc
-//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "environmentprobecapturer.h"
@@ -16,7 +16,7 @@
 #include "texutil/cubefilterer.h"
 #include <QPlainTextEdit>
 #include "level.h"
-#include "leveleditor2protocol.h"
+#include "leveleditor2/leveleditor2protocol.h"
 #include "basegamefeature/basegameprotocol.h"
 #include "graphicsfeature/graphicsfeatureprotocol.h"
 

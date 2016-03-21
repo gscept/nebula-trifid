@@ -5,7 +5,7 @@
     
     A widget which represents an editable 4x4 matrix.
     
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include <QWidget>
 #include "util/string.h"

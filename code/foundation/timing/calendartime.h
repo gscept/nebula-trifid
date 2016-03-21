@@ -8,7 +8,7 @@
     format the time to a human readable string.
     
     (C) 2007 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/config.h"
 #if (__WIN32__ || __XBOX360__)

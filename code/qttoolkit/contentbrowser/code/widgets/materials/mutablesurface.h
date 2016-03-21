@@ -5,7 +5,7 @@
 	
 	Inherits the SurfaceMaterial class to expose editor-specific functionalities.
 	
-	(C) 2015 Individual contributors, see AUTHORS file
+	(C) 2015-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "materials/surface.h"

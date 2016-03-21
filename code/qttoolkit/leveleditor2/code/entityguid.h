@@ -5,7 +5,7 @@
     
     Defines the id type of an entity, as well as the EntityType enumerator.
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 
 #include "util/guid.h"
@@ -26,6 +26,7 @@ enum EntityType
 	NavMesh = 5,
 	Probe = 6,
     NavMeshArea = 7,
-	MultiSelection = 8
+	MultiSelection = 8,
+	LevelReference = 9
 };
 }

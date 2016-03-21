@@ -11,8 +11,7 @@
   <Protocol namespace="ScriptingFeature" name="ScriptingProtocol">
 
     <!-- dependencies -->
-    <Dependency header="scriptingfeature/scriptingfeature.h"/>
-    <Dependency header="scriptingfeature/scriptingcommands.h"/>
+    <Dependency header="scriptingfeature/scriptingfeature.h"/>    
 
     <!-- loads a script from file -->
     <Message name="LoadScript" fourcc="LDSC">

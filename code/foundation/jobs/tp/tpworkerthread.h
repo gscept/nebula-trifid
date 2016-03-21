@@ -6,7 +6,7 @@
     The worker thread class of the thread-pool job system.
     
     (C) 2009 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "threading/thread.h"
 #include "threading/safequeue.h"

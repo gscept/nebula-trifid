@@ -5,7 +5,7 @@
     
     Nebula/qt application used as the main window for the level editor.
     
-    (C) 2012-2014 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 
@@ -133,7 +133,14 @@ private slots:
     void OnShowPhysicsMaterials();
 	/// center pivot
 	void OnCenterPivot();
-
+	///
+	void OnImport();
+	///
+	void OnImportLevel();
+	///
+	void OnExportSelectionLevel();
+    ///
+    void OnAddReference();
 
     public slots:
     /// collapse property page
@@ -147,9 +154,13 @@ private slots:
 	void dragEnterEvent(QDragEnterEvent* e);
 	/// drop event
 	void dropEvent(QDropEvent* e);
-
+	///
+	void OnExportSelection();
 
 private:
+
+	///
+	bool PickLevelFile(const Util::String & title, const Util::String & folder, IO::URI & file, bool save);	
 
 	/// forcibly release the ctrl key
 	void ForceReleaseCtrlKey();
