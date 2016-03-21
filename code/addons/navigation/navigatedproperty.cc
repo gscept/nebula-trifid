@@ -113,8 +113,11 @@ void
 NavigatedProperty::OnStart()
 {
 	Property::OnStart();
-	this->EnableCrowdManagement(true);
-    CrowdManager::Instance()->UpdateAgentTarget(this->entity, this->entity->GetFloat4(Attr::TargetPos));    
+    if (this->entity->GetBool(Attr::EnableAgentOnStart))
+    {
+        this->EnableCrowdManagement(true);
+        CrowdManager::Instance()->UpdateAgentTarget(this->entity, this->entity->GetFloat4(Attr::TargetPos));
+    }	    
 }
 
 //------------------------------------------------------------------------------
