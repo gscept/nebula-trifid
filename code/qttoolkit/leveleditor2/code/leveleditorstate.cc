@@ -31,6 +31,7 @@
 #include "dynui/imguiaddon.h"
 #include "imgui/imgui.h"
 #include "debug/debugserver.h"
+#include "managers/attributewidgetmanager.h"
 
 using namespace Util;
 using namespace Graphics;
@@ -317,7 +318,7 @@ LevelEditorState::ClearSelection()
 	SelectionUtil::Instance()->ClearSelection();
 	PlacementUtil::Instance()->ClearSelection();
 	LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->clearSelection();
-	
+    AttributeWidgetManager::Instance()->ClearAttributeControllers();
 }
 
 //------------------------------------------------------------------------------
