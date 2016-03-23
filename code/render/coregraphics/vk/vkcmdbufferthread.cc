@@ -62,10 +62,10 @@ VkCmdBufferThread::DoWork()
 				vkCmdBindPipeline(this->commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, cmd.pipeline);
 				break;
 			case InputAssemblyVertex:
-				vkCmdBindIndexBuffer(this->commandBuffer, cmd.ibo.buffer, cmd.ibo.offset, cmd.ibo.indexType);
+				vkCmdBindVertexBuffers(this->commandBuffer, cmd.vbo.index, 1, &cmd.vbo.buffer, &cmd.vbo.offset);
 				break;
 			case InputAssemblyIndex:
-				vkCmdBindVertexBuffers(this->commandBuffer, cmd.vbo.index, 1, &cmd.vbo.buffer, &cmd.vbo.offset);
+				vkCmdBindIndexBuffer(this->commandBuffer, cmd.ibo.buffer, cmd.ibo.offset, cmd.ibo.indexType);
 				break;
 			case Draw:
 				if (cmd.draw.numIndices > 0) vkCmdDraw(this->commandBuffer, cmd.draw.numVerts, cmd.draw.numInstances, cmd.draw.baseVertex, cmd.draw.baseInstance);
@@ -80,9 +80,17 @@ VkCmdBufferThread::DoWork()
 			case PushRange:
 				vkCmdPushConstants(this->commandBuffer, cmd.pushranges.layout, cmd.pushranges.stages, cmd.pushranges.offset, cmd.pushranges.size, cmd.pushranges.data);
 				break;
+			case Viewport:
+				vkCmdSetViewport(this->commandBuffer, cmd.viewport.index, 1, &cmd.viewport.vp);
+				break;
+			case ScissorRect:
+				vkCmdSetScissor(this->commandBuffer, cmd.scissorRect.index, 1, &cmd.scissorRect.sc);
+				break;
+			case ScissorRectArray:
+				vkCmdSetScissor(this->commandBuffer, cmd.scissorRectArray.first, cmd.scissorRectArray.num, cmd.scissorRectArray.scs);
+				break;
 			case UpdateBuffer:
 				vkCmdUpdateBuffer(this->commandBuffer, cmd.updBuffer.buf, cmd.updBuffer.offset, cmd.updBuffer.size, cmd.updBuffer.data);
-				if (cmd.updBuffer.deleteWhenDone) delete[] cmd.updBuffer.data;
 				break;
 			case Sync:
 				cmd.syncEvent->Signal();

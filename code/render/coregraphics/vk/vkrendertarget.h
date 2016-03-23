@@ -34,7 +34,7 @@ public:
 	/// returns framebuffer
 	const VkFramebuffer& GetVkFramebuffer() const;
 	/// returns list of clear values
-	const Util::FixedArray<VkClearValue>& GetVkClearValues();
+	const Util::FixedArray<VkClearValue>& GetVkClearValues() const;
 
 	/// set the current resolve rectangle (in pixels)
 	void SetResolveRect(const Math::rectangle<int>& r);
@@ -43,7 +43,9 @@ public:
 	/// remove resolve rects from render target
 	void ResetResolveRects();
 	/// get the vulkan viewports
-	const Util::FixedArray<VkViewport>& GetVkViewports();
+	const Util::FixedArray<VkViewport>& GetVkViewports() const;
+	/// get the vulkan scissor rectangles
+	const Util::FixedArray<VkRect2D>& GetVkScissorRects() const;
 
 	/// get the vulkan image
 	const VkImageView& GetVkImageView() const;
@@ -54,6 +56,7 @@ private:
 	VkDeviceMemory imageMem;
 	VkFramebuffer framebuffer;
 	Util::FixedArray<VkViewport> viewports;
+	Util::FixedArray<VkRect2D> scissors;
 
 	Util::FixedArray<VkClearValue> clearValues;
 	VkPipelineViewportStateCreateInfo viewportInfo;
@@ -102,9 +105,26 @@ VkRenderTarget::GetVkFramebuffer() const
 /**
 */
 inline const Util::FixedArray<VkClearValue>&
-VkRenderTarget::GetVkClearValues()
+VkRenderTarget::GetVkClearValues() const
 {
 	return this->clearValues;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Util::FixedArray<VkViewport>&
+VkRenderTarget::GetVkViewports() const
+{
+	return this->viewports;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Util::FixedArray<VkRect2D>&
+VkRenderTarget::GetVkScissorRects() const
+{
+	return this->scissors;
+} 
 } // namespace Vulkan

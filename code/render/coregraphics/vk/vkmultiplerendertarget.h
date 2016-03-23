@@ -27,6 +27,12 @@ public:
 	const VkRenderPass& GetVkRenderPass() const;
 	/// returns framebuffer
 	const VkFramebuffer& GetVkFramebuffer() const;
+	/// returns the clear values
+	const Util::FixedArray<VkClearValue>& GetVkClearValues() const;
+	/// get viewports
+	const Util::FixedArray<VkViewport>& GetVkViewports() const;
+	/// get scissors
+	const Util::FixedArray<VkRect2D>& GetVkScissorRects() const;
 
 	/// setup render target
 	void Setup();
@@ -49,8 +55,10 @@ private:
 	uint32_t numattachments;
 	VkBool32 usedepthstencil;
 
-	Util::FixedArray<VkViewport> viewports;
+	Util::FixedArray<VkClearValue> clearColors;
 
+	Util::FixedArray<VkViewport> viewports;
+	Util::FixedArray<VkRect2D> scissors;
 	VkPipelineViewportStateCreateInfo viewportInfo;
 	VkGraphicsPipelineCreateInfo framebufferPipelineInfo;
 };
@@ -82,4 +90,32 @@ VkMultipleRenderTarget::GetVkFramebuffer() const
 {
 	return this->framebuffer;
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Util::FixedArray<VkClearValue>&
+VkMultipleRenderTarget::GetVkClearValues() const
+{
+	return this->clearColors;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Util::FixedArray<VkViewport>&
+VkMultipleRenderTarget::GetVkViewports() const
+{
+	return this->viewports;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Util::FixedArray<VkRect2D>&
+VkMultipleRenderTarget::GetVkScissorRects() const
+{
+	return this->scissors;
+}
+
 } // namespace Vulkan

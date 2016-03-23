@@ -190,6 +190,7 @@ VkShaderProgram::SetupAsGraphics()
 	{
 		VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
 		NULL,
+		0
 	};
 	vkRenderState->SetupRasterization(&this->rasterizerInfo);
 
@@ -197,6 +198,7 @@ VkShaderProgram::SetupAsGraphics()
 	{
 		VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
 		NULL,
+		0
 	};
 	vkRenderState->SetupMultisample(&this->multisampleInfo);
 
@@ -204,6 +206,7 @@ VkShaderProgram::SetupAsGraphics()
 	{
 		VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
 		NULL,
+		0
 	};
 	vkRenderState->SetupDepthStencil(&this->depthStencilInfo);
 
@@ -211,11 +214,20 @@ VkShaderProgram::SetupAsGraphics()
 	{
 		VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
 		NULL,
+		0
 	};
 	vkRenderState->SetupBlend(&this->colorBlendInfo);
 
+	this->tessInfo =
+	{
+		VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO,
+		NULL,
+		0,
+		this->program->patchSize
+	};
+
 	// setup dynamic state, we only support dynamic viewports and scissor rects
-	VkDynamicState dynamicStates[] = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
+	static const VkDynamicState dynamicStates[] = { VK_DYNAMIC_STATE_SCISSOR };
 	this->dynamicInfo = 
 	{
 		VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
@@ -233,7 +245,9 @@ VkShaderProgram::SetupAsGraphics()
 		VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT,
 		shaderIdx,
 		this->shaderInfos,
-		NULL, NULL, NULL, NULL,			// these are our primitive and viewport infos, keep them null to create derivatives later
+		NULL, NULL,					// these are vertex related and will depend upon the vertex layout we use
+		program->supportsTessellation ? &this->tessInfo : VK_NULL_HANDLE,
+		NULL,						// this is our viewport and is setup by the framebuffer
 		&this->rasterizerInfo,
 		&this->multisampleInfo,
 		&this->depthStencilInfo,
@@ -303,6 +317,8 @@ VkShaderProgram::SetupDescriptorLayout(AnyFX::ShaderEffect* effect)
 	this->constantRange.stageFlags = VK_SHADER_STAGE_ALL;
 	uint32_t numsets = 0;
 
+#define AMD_DESC_SETS 1
+
 #define uint_max(a, b) (a > b ? a : b)
 	uint i;
 	for (i = 0; i < varblocks.size(); i++)
@@ -324,7 +340,12 @@ VkShaderProgram::SetupDescriptorLayout(AnyFX::ShaderEffect* effect)
 				Util::Array<VkDescriptorSetLayoutBinding> arr;
 				arr.Append(block->bindingLayout);
 				sets.Add(block->set, arr);
+#ifdef AMD_DESC_SETS
+				numsets = uint_max(numsets, block->set + 1);
+#else
 				numsets++;
+#endif
+				
 			}
 			else
 			{
@@ -382,7 +403,12 @@ VkShaderProgram::SetupDescriptorLayout(AnyFX::ShaderEffect* effect)
 				Util::Array<VkDescriptorSetLayoutBinding> arr;
 				arr.Append(variable->bindingLayout);
 				sets.Add(variable->set, arr);
+				
+#ifdef AMD_DESC_SETS
+				numsets = uint_max(numsets, variable->set + 1);
+#else
 				numsets++;
+#endif
 			}
 			else
 			{
@@ -395,16 +421,27 @@ VkShaderProgram::SetupDescriptorLayout(AnyFX::ShaderEffect* effect)
 	if (!sets.IsEmpty())
 	{
 		this->layouts.Resize(numsets);
-		for (IndexT i = 0; i < sets.Size(); i++)
+		for (IndexT i = 0; i < this->layouts.Size(); i++)
 		{
 			VkDescriptorSetLayoutCreateInfo info;
 			info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 			info.pNext = NULL;
 			info.flags = 0;
+			info.bindingCount = 0;
+			info.pBindings = VK_NULL_HANDLE;
 
+#if AMD_DESC_SETS
+			if (sets.Contains(i))
+			{
+				const Util::Array<VkDescriptorSetLayoutBinding>& binds = sets[i];
+				info.bindingCount = binds.Size();
+				info.pBindings = binds.Size() > 0 ? &binds[0] : VK_NULL_HANDLE;
+			}
+#else
 			const Util::Array<VkDescriptorSetLayoutBinding>& binds = sets.ValueAtIndex(i);
 			info.bindingCount = binds.Size();
 			info.pBindings = binds.Size() > 0 ? &binds[0] : VK_NULL_HANDLE;
+#endif
 
 			// create layout
 			VkResult res = vkCreateDescriptorSetLayout(VkRenderDevice::dev, &info, NULL, &this->layouts[i]);

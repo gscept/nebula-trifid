@@ -8,6 +8,8 @@
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
 #include "instancing/base/instancerendererbase.h"
+#include "coregraphics/constantbuffer.h"
+
 namespace Vulkan
 {
 class VkInstanceRenderer : public Base::InstanceRendererBase
@@ -18,6 +20,23 @@ public:
 	VkInstanceRenderer();
 	/// destructor
 	virtual ~VkInstanceRenderer();
+
+	/// setup renderer
+	void Setup();
+	/// close rendered
+	void Close();
+
+	/// render
+	void Render(const SizeT multiplier);
 private:
+	Ptr<CoreGraphics::ConstantBuffer> instancingBuffer;
+	Ptr<CoreGraphics::ShaderVariable> instancingBlockVar;
+
+	Ptr<CoreGraphics::ShaderVariable> modelArrayVar;
+	Ptr<CoreGraphics::ShaderVariable> modelViewArrayVar;
+	Ptr<CoreGraphics::ShaderVariable> modelViewProjectionArrayVar;
+	Ptr<CoreGraphics::ShaderVariable> idArrayVar;
+
+	static const int MaxInstancesPerBatch = 256;
 };
 } // namespace Vulkan

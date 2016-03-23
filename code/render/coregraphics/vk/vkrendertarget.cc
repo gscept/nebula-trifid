@@ -64,8 +64,18 @@ VkRenderTarget::Setup()
 		this->viewports.Resize(1);
 		this->viewports[0] = viewport;
 
+		VkRect2D scissor;
+		scissor.offset.x = 0;
+		scissor.offset.y = 0;
+		scissor.extent.width = displayDevice->GetDisplayMode().GetWidth();
+		scissor.extent.height = displayDevice->GetDisplayMode().GetHeight();
+		this->scissors.Resize(1);
+		this->scissors[0] = scissor;
+
 		this->viewportInfo.viewportCount = this->viewports.Size();
 		this->viewportInfo.pViewports = this->viewports.Begin();
+		this->viewportInfo.scissorCount = this->scissors.Size();
+		this->viewportInfo.pScissors = this->scissors.Begin();
 	}
 	else
 	{
@@ -79,21 +89,33 @@ VkRenderTarget::Setup()
 		SizeT resolveWidth = this->resolveTextureDimensionsValid ? this->resolveTextureWidth : this->width;
 		SizeT resolveHeight = this->resolveTextureDimensionsValid ? this->resolveTextureHeight : this->height;
 
+		// setup viewport
 		VkViewport viewport;
 		viewport.x = 0;
 		viewport.y = 0;
 		viewport.width = (float)resolveWidth;
 		viewport.height = (float)resolveHeight;
-		viewport.minDepth = 0;
-		viewport.maxDepth = FLT_MAX;
+		viewport.minDepth = 0.0f;
+		viewport.maxDepth = 1.0f;
 		this->viewports.Resize(1);
 		this->viewports[0] = viewport;
 
+		// setup scissor rect
+		VkRect2D scissor;
+		scissor.offset.x = 0;
+		scissor.offset.y = 0;
+		scissor.extent.width = resolveWidth;
+		scissor.extent.height = resolveHeight;
+		this->scissors.Resize(1);
+		this->scissors[0] = scissor;
+
 		this->viewportInfo.viewportCount = this->viewports.Size();
 		this->viewportInfo.pViewports = this->viewports.Begin();
+		this->viewportInfo.scissorCount = this->scissors.Size();
+		this->viewportInfo.pScissors = this->scissors.Begin();
 
-		if (this->depthStencilTarget.isvalid()) this->clearValues.Resize(1);
-		else									this->clearValues.Resize(2);
+		if (this->depthStencilTarget.isvalid()) this->clearValues.Resize(2);
+		else									this->clearValues.Resize(1);
 
 		this->clearValues[0].color.float32[0] = this->clearColor.x();
 		this->clearValues[0].color.float32[1] = this->clearColor.y();
@@ -173,11 +195,11 @@ VkRenderTarget::Setup()
 		// we create a very default attachment behavior where we assume to write 
 		// to the framebuffer and read from it once the operations are done
 		VkAttachmentDescription attachment[2];
-		attachment[0].format = VkTypes::AsVkFormat(this->colorBufferFormat);
+		attachment[0].format = VkTypes::AsVkFramebufferFormat(this->colorBufferFormat);
 		attachment[0].samples = sampleCount;
 		attachment[0].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;						// set to clear
 		attachment[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-		attachment[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+		attachment[0].stencilLoadOp = this->clearFlags & CoreGraphics::RenderTarget::ClearColor ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
 		attachment[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
 		attachment[0].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 		attachment[0].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -213,9 +235,9 @@ VkRenderTarget::Setup()
 
 			attachment[1].format = VK_FORMAT_D24_UNORM_S8_UINT;
 			attachment[1].samples = VK_SAMPLE_COUNT_1_BIT;
-			attachment[1].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+			attachment[1].loadOp = depthStencilTarget->GetClearFlags() & CoreGraphics::DepthStencilTarget::ClearDepth ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
 			attachment[1].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-			attachment[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+			attachment[1].stencilLoadOp = depthStencilTarget->GetClearFlags() & CoreGraphics::DepthStencilTarget::ClearStencil ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
 			attachment[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
 			attachment[1].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 			attachment[1].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -309,15 +331,28 @@ VkRenderTarget::OnDisplayResized(SizeT width, SizeT height)
 void
 VkRenderTarget::SetResolveRect(const Math::rectangle<int>& r)
 {
-	this->viewports.SetSize(1);
+	this->viewports.Resize(1);
 	VkViewport viewport;
 	viewport.width = (float)r.width();
 	viewport.height = (float)r.height();
 	viewport.x = (float)r.left;
 	viewport.y = (float)r.top;
+	viewport.minDepth = 0.0f;
+	viewport.maxDepth = 1.0f;
 	this->viewports[0] = viewport;
+
+	this->scissors.Resize(1);
+	VkRect2D scissor;
+	scissor.offset.x = r.left;
+	scissor.offset.y = r.top;
+	scissor.extent.width = r.width();
+	scissor.extent.height = r.height();
+	this->scissors[0] = scissor;
+
 	this->viewportInfo.viewportCount = this->viewports.Size();
 	this->viewportInfo.pViewports = this->viewports.Begin();
+	this->viewportInfo.scissorCount = this->scissors.Size();
+	this->viewportInfo.pScissors = this->scissors.Begin();
 }
 
 //------------------------------------------------------------------------------
@@ -326,7 +361,9 @@ VkRenderTarget::SetResolveRect(const Math::rectangle<int>& r)
 void
 VkRenderTarget::SetResolveRectArray(const Util::Array<Math::rectangle<int> >& rects)
 {
-	this->viewports.SetSize(rects.Size());
+	this->viewports.Resize(rects.Size());
+	this->scissors.Resize(rects.Size());
+	
 	IndexT i;
 	for (i = 0; i < rects.Size(); i++)
 	{
@@ -335,10 +372,22 @@ VkRenderTarget::SetResolveRectArray(const Util::Array<Math::rectangle<int> >& re
 		viewport.height = (float)rects[i].height();
 		viewport.x = (float)rects[i].left;
 		viewport.y = (float)rects[i].top;
+		viewport.minDepth = 0.0f;
+		viewport.maxDepth = 1.0f;
 		this->viewports[i] = viewport;
+
+		VkRect2D scissor;
+		scissor.offset.x = rects[i].left;
+		scissor.offset.y = rects[i].top;
+		scissor.extent.width = rects[i].width();
+		scissor.extent.height = rects[i].height();
+		this->scissors[i] = scissor;
 	}
+
 	this->viewportInfo.viewportCount = this->viewports.Size();
 	this->viewportInfo.pViewports = this->viewports.Begin();
+	this->viewportInfo.scissorCount = this->scissors.Size();
+	this->viewportInfo.pScissors = this->scissors.Begin();
 }
 
 //------------------------------------------------------------------------------
@@ -348,15 +397,6 @@ void
 VkRenderTarget::ResetResolveRects()
 {
 	this->viewports.Clear();
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-const Util::FixedArray<VkViewport>&
-VkRenderTarget::GetVkViewports()
-{
-	return this->viewports;
 }
 
 } // namespace Vulkan

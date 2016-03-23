@@ -45,9 +45,9 @@ VkMultipleRenderTarget::AddRenderTarget(const Ptr<CoreGraphics::RenderTarget>& r
 		aa == CoreGraphics::AntiAliasQuality::Medium ? VkSampleCountFlagBits::VK_SAMPLE_COUNT_16_BIT : VkSampleCountFlagBits::VK_SAMPLE_COUNT_32_BIT;
 
 	this->attachments[this->numattachments].flags = 0;
-	this->attachments[this->numattachments].format = VkTypes::AsVkFormat(rt->GetColorBufferFormat());
+	this->attachments[this->numattachments].format = VkTypes::AsVkFramebufferFormat(rt->GetColorBufferFormat());
 	this->attachments[this->numattachments].samples = sampleCount;
-	this->attachments[this->numattachments].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+	this->attachments[this->numattachments].loadOp = rt->GetClearFlags() & CoreGraphics::RenderTarget::ClearColor ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
 	this->attachments[this->numattachments].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 	this->attachments[this->numattachments].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
 	this->attachments[this->numattachments].stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -75,9 +75,9 @@ VkMultipleRenderTarget::SetDepthStencilTarget(const Ptr<CoreGraphics::DepthStenc
 	this->attachments[this->numattachments].flags = 0;
 	this->attachments[this->numattachments].format = VK_FORMAT_D24_UNORM_S8_UINT;
 	this->attachments[this->numattachments].samples = VK_SAMPLE_COUNT_1_BIT;
-	this->attachments[this->numattachments].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+	this->attachments[this->numattachments].loadOp = dt->GetClearFlags() & CoreGraphics::DepthStencilTarget::ClearDepth ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
 	this->attachments[this->numattachments].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-	this->attachments[this->numattachments].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+	this->attachments[this->numattachments].stencilLoadOp = dt->GetClearFlags() & CoreGraphics::DepthStencilTarget::ClearStencil ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
 	this->attachments[this->numattachments].stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
 	this->attachments[this->numattachments].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 	this->attachments[this->numattachments].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -150,20 +150,32 @@ VkMultipleRenderTarget::Setup()
 	n_assert(res == VK_SUCCESS);
 
 	// setup viewports, get the first viewport from all render targets
-	this->viewports.Resize(this->numRenderTargets);
+	// also setup clear colors
+	this->viewports.Resize(this->numRenderTargets);	
+	this->scissors.Resize(this->numRenderTargets);
+	this->clearColors.Resize(this->numRenderTargets);
 	IndexT i;
 	for (i = 0; i < this->numRenderTargets; i++)
 	{
 		this->viewports[i] = this->renderTarget[i]->GetVkViewports()[0];
+		this->scissors[i] = this->renderTarget[i]->GetVkScissorRects()[0];
+		VkClearValue clearValue;
+		const Math::float4& clear = this->renderTarget[i]->GetClearColor();
+		clearValue.color.float32[0] = clear.x();
+		clearValue.color.float32[1] = clear.y();
+		clearValue.color.float32[2] = clear.z();
+		clearValue.color.float32[3] = clear.w();
+		this->clearColors[i] = clearValue;
 	}
 
 	this->viewportInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
 	this->viewportInfo.pNext = NULL;
 	this->viewportInfo.flags = 0;
-	this->viewportInfo.scissorCount = 0;
-	this->viewportInfo.pScissors = NULL;
+
 	this->viewportInfo.viewportCount = this->viewports.Size();
 	this->viewportInfo.pViewports = this->viewports.Begin();
+	this->viewportInfo.scissorCount = this->scissors.Size();
+	this->viewportInfo.pScissors = this->scissors.Begin();
 
 	// setup info
 	this->framebufferPipelineInfo.renderPass = this->pass;

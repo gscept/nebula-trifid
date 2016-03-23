@@ -35,8 +35,9 @@ private:
 	VkPipelineVertexInputStateCreateInfo vertexInfo;
 
 	VkBuffer vertexStreams[VkRenderDevice::MaxNumVertexStreams];
-	VkVertexInputBindingDescription* binds;
-	VkVertexInputAttributeDescription* attrs;
+
+	Util::FixedArray<VkVertexInputBindingDescription> binds;
+	Util::FixedArray<VkVertexInputAttributeDescription> attrs;
 };
 
 

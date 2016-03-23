@@ -22,10 +22,12 @@ class VkTypes
 public:
 
 #pragma region Pixel stuff
-	/// convert Nebula pixel format to vulkan pixel format
+	/// convert Nebula pixel format to Vulkan pixel format
 	static VkFormat AsVkFormat(CoreGraphics::PixelFormat::Code p);
 	/// convert DevIL pixel format to Vulkan format
 	static VkFormat AsVkFormat(ILenum p);
+	/// convert Nebula pixel format to Vulkan render target format
+	static VkFormat AsVkFramebufferFormat(CoreGraphics::PixelFormat::Code p);
 	/// convert DevIL pixel format to Vulkan component mapping
 	static VkComponentMapping AsVkMapping(ILenum p);
 	/// convert vulkan format back to nebula format

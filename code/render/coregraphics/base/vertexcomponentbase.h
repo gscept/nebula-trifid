@@ -308,9 +308,11 @@ VertexComponentBase::FormatToString(Format f)
         case Float3:    return "Float3";
         case Float4:    return "Float4";
         case UByte4:    return "UByte4";
+		case Byte4:		return "Byte4";
         case Short2:    return "Short2";
         case Short4:    return "Short4";
         case UByte4N:   return "UByte4N";
+		case Byte4N:	return "Byte4N";
         case Short2N:   return "Short2N";
         case Short4N:   return "Short4N";
 

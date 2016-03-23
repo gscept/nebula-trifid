@@ -55,16 +55,16 @@ void
 MeshBase::ApplyPrimitives(IndexT primGroupIndex)
 {
     RenderDevice* renderDevice = RenderDevice::Instance();
+	renderDevice->SetPrimitiveGroup(this->GetPrimitiveGroupAtIndex(primGroupIndex));
     if (this->vertexBuffer.isvalid())
     {
-        renderDevice->SetStreamVertexBuffer(0, this->vertexBuffer, 0);        
 		renderDevice->SetVertexLayout(this->vertexBuffer->GetVertexLayout());
+        renderDevice->SetStreamVertexBuffer(0, this->vertexBuffer, 0);        
     }
     if (this->indexBuffer.isvalid())
     {
         renderDevice->SetIndexBuffer(this->indexBuffer);
     }
-    renderDevice->SetPrimitiveGroup(this->GetPrimitiveGroupAtIndex(primGroupIndex));
 }
 
 } // namespace Base

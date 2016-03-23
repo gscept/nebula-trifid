@@ -11,6 +11,7 @@
 #include "coregraphics/indexbuffer.h"
 #include "jobs/tp/tpjobthreadpool.h"
 #include "system/cpu.h"
+#include "vktypes.h"
 
 using namespace CoreGraphics;
 //------------------------------------------------------------------------------
@@ -28,11 +29,11 @@ NebulaVulkanDebugCallback(VkFlags msgFlags, VkDebugReportObjectTypeEXT objectTyp
 
 	if (msgFlags & VK_DEBUG_REPORT_ERROR_BIT_EXT)
 	{
-		n_error("VULKAN ERROR: [%s], code %d : %s", layerPrefix, msgCode, msg);
+		n_error("VULKAN ERROR: [%s], code %d : %s\n", layerPrefix, msgCode, msg);
 	}
 	else if (msgFlags & VK_DEBUG_REPORT_WARNING_BIT_EXT)
 	{
-		n_error("VULKAN WARNING: [%s], code %d : %s", layerPrefix, msgCode, msg);
+		n_error("VULKAN WARNING: [%s], code %d : %s\n", layerPrefix, msgCode, msg);
 	} 
 	return ret;
 }
@@ -44,7 +45,7 @@ __ImplementSingleton(Vulkan::VkRenderDevice);
 
 VkDevice VkRenderDevice::dev;
 VkDescriptorPool VkRenderDevice::descPool;
-VkQueue VkRenderDevice::displayQueue;
+VkQueue VkRenderDevice::renderQueue;
 VkQueue VkRenderDevice::computeQueue;
 VkQueue VkRenderDevice::transferQueue;
 VkInstance VkRenderDevice::instance;
@@ -127,7 +128,7 @@ VkRenderDevice::OpenVulkanContext()
 		1,					// application version
 		"Nebula Trifid",	// engine name
 		1,					// engine version
-		VK_MAKE_VERSION(1, 0, 4)
+		VK_MAKE_VERSION(1, 0, 3)
 		//VK_API_VERSION		// API version
 	};
 
@@ -184,7 +185,7 @@ VkRenderDevice::OpenVulkanContext()
 	this->debugCallbackPtr = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(this->instance, "vkCreateDebugReportCallbackEXT");
 	VkDebugReportCallbackCreateInfoEXT dbgInfo;
 	dbgInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
-	dbgInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;
+	dbgInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_DEBUG_BIT_EXT | VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT;
 	dbgInfo.pNext = NULL;
 	dbgInfo.pfnCallback = NebulaVulkanDebugCallback;
 	dbgInfo.pUserData = NULL;
@@ -313,7 +314,7 @@ VkRenderDevice::OpenVulkanContext()
 	// grab implementation functions for swap chain management.
 
 	// setup display queue in render device (gfxIdx is different, because it's family doesn't have to be the displayable one)
-	vkGetDeviceQueue(VkRenderDevice::dev, gfxIdx, this->renderQueueIdx, &VkRenderDevice::displayQueue);
+	vkGetDeviceQueue(VkRenderDevice::dev, gfxIdx, this->renderQueueIdx, &VkRenderDevice::renderQueue);
 	vkGetDeviceQueue(VkRenderDevice::dev, computeIdx, this->computeQueueIdx, &VkRenderDevice::computeQueue);
 	vkGetDeviceQueue(VkRenderDevice::dev, transferIdx, this->transferQueueIdx, &VkRenderDevice::transferQueue);
 
@@ -556,11 +557,50 @@ VkRenderDevice::OpenVulkanContext()
 		this->transThreads[i]->Start();
 	}
 
+	this->currentDeferredDelegate = 0;
+	this->freeDelegates.Reserve(NumDeferredDelegates);
+	this->usedDelegates.Reserve(NumDeferredDelegates);
+	for (i = 0; i < NumDeferredDelegates; i++)
+	{
+		VkFenceCreateInfo fenceInfo =
+		{
+			VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+			NULL,
+			0
+		};
+		res = vkCreateFence(this->dev, &fenceInfo, NULL, &this->deferredDelegates[i].fence);
+		this->deferredDelegates[i].dev = this->dev;
+		n_assert(res == VK_SUCCESS);
+	}
+
+	this->passInfo = 
+	{
+		VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO,
+		NULL,
+		0,
+	};
+
 	// setup pipeline construction struct
 	this->currentPipelineInfo.pNext = NULL;
 	this->currentPipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+	this->currentPipelineInfo.flags = 0;
 	this->currentPipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 	this->currentPipelineInfo.basePipelineIndex = -1;
+	this->currentPipelineInfo.pColorBlendState = &this->blendInfo;
+
+	this->inputInfo.pNext = NULL;
+	this->inputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+	this->inputInfo.flags = 0;
+
+	this->blendInfo.pNext = NULL;
+	this->blendInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+	this->blendInfo.flags = 0;
+
+	const CoreGraphics::DisplayMode& displayMode = DisplayDevice::Instance()->GetDisplayMode();
+	this->displayRect.offset.x = 0;
+	this->displayRect.offset.y = 0;
+	this->displayRect.extent.width = displayMode.GetWidth();
+	this->displayRect.extent.height = displayMode.GetHeight();
 
 	// yay, Vulkan!
 	return true;
@@ -589,7 +629,7 @@ VkRenderDevice::CloseVulkanDevice()
 	}
 
 	// wait for all commands to be done first
-	VkResult res = vkQueueWaitIdle(this->displayQueue);
+	VkResult res = vkQueueWaitIdle(this->renderQueue);
 	n_assert(res == VK_SUCCESS);
 
 	// free our main buffers, our secondary buffers should be fine so the pools should be free to destroy
@@ -701,6 +741,10 @@ VkRenderDevice::BeginFrame(IndexT frameIndex)
 	{
 		n_assert(res == VK_SUCCESS);
 	}
+
+	// runs through delegate list and updates them one by one
+	this->UpdateDelegates();
+
 	return RenderDeviceBase::BeginFrame(frameIndex);
 }
 
@@ -747,6 +791,18 @@ VkRenderDevice::SetIndexBuffer(const Ptr<CoreGraphics::IndexBuffer>& ib)
 /**
 */
 void
+VkRenderDevice::SetPrimitiveGroup(const CoreGraphics::PrimitiveGroup& pg)
+{
+	RenderDeviceBase::SetPrimitiveGroup(pg);
+	this->inputInfo.primitiveRestartEnable = VK_FALSE;
+	this->inputInfo.topology = VkTypes::AsVkPrimitiveType(pg.GetPrimitiveTopology());
+	this->SetInputLayoutInfo(&this->inputInfo);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 VkRenderDevice::Compute(int dimX, int dimY, int dimZ, uint flag /*= NoBarrier*/)
 {
 	RenderDeviceBase::Compute(dimX, dimY, dimZ);
@@ -774,7 +830,7 @@ VkRenderDevice::BeginPass(const Ptr<CoreGraphics::RenderTarget>& rt, const Ptr<C
 	
 	VkRenderPassBeginInfo info =
 	{
-		VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+		VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
 		NULL,
 		rt->GetVkRenderPass(),
 		rt->GetVkFramebuffer(),
@@ -782,9 +838,25 @@ VkRenderDevice::BeginPass(const Ptr<CoreGraphics::RenderTarget>& rt, const Ptr<C
 		clear.Size(),
 		clear.Size() > 0 ? clear.Begin() : VK_NULL_HANDLE
 	};
-	vkCmdBeginRenderPass(this->mainCmdGfxBuffer, &info, VK_SUBPASS_CONTENTS_INLINE);
+	vkCmdBeginRenderPass(this->mainCmdGfxBuffer, &info, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
 	this->currentPipelineBits = 0;
 	this->SetFramebufferLayoutInfo(rt->GetVkPipelineInfo());
+
+	this->blendInfo.attachmentCount = 1;
+
+	this->passInfo.framebuffer = rt->GetVkFramebuffer();
+	this->passInfo.renderPass = rt->GetVkRenderPass();
+	this->passInfo.subpass = 0;
+	this->passInfo.pipelineStatistics = 0;
+	this->passInfo.queryFlags = 0;
+	this->passInfo.occlusionQueryEnable = VK_FALSE;
+
+	const Util::FixedArray<VkRect2D>& scissors = rt->GetVkScissorRects();
+	this->numRasterizerSets = scissors.Size();
+	this->passScissorRects = scissors.Begin();
+
+	// submit
+	//this->SubmitToQueue(this->renderQueue, 1, &this->mainCmdGfxBuffer);
 }
 
 //------------------------------------------------------------------------------
@@ -801,21 +873,43 @@ VkRenderDevice::BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt, co
 	rect.extent.width = mrt->GetRenderTarget(0)->GetWidth();
 	rect.extent.height = mrt->GetRenderTarget(0)->GetHeight();
 
-	const Util::FixedArray<VkClearValue>& clear = rt->GetVkClearValues();
+	const Util::FixedArray<VkClearValue>& clear = mrt->GetVkClearValues();
 
 	VkRenderPassBeginInfo info =
 	{
-		VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+		VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
 		NULL,
-		rt->GetVkRenderPass(),
-		rt->GetVkFramebuffer(),
+		mrt->GetVkRenderPass(),
+		mrt->GetVkFramebuffer(),
 		rect,
 		clear.Size(),
 		clear.Size() > 0 ? clear.Begin() : VK_NULL_HANDLE
 	};
-	vkCmdBeginRenderPass(this->mainCmdGfxBuffer, &info, VK_SUBPASS_CONTENTS_INLINE);
+	vkCmdBeginRenderPass(this->mainCmdGfxBuffer, &info, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
 	this->currentPipelineBits = 0;
 	this->SetFramebufferLayoutInfo(mrt->GetVkPipelineInfo());
+
+	this->blendInfo.attachmentCount = mrt->GetNumRendertargets();
+
+	this->passInfo.framebuffer = mrt->GetVkFramebuffer();
+	this->passInfo.renderPass = mrt->GetVkRenderPass();
+	this->passInfo.subpass = 0;
+	this->passInfo.pipelineStatistics = 0;
+	this->passInfo.queryFlags = 0;
+	this->passInfo.occlusionQueryEnable = VK_FALSE;
+
+	const Util::FixedArray<VkRect2D>& scissors = mrt->GetVkScissorRects();
+	this->numRasterizerSets = scissors.Size();
+	this->passScissorRects = scissors.Begin();
+
+	// submit
+	//this->SubmitToQueue(this->renderQueue, 1, &this->mainCmdGfxBuffer);
+
+	//VkResult res = vkResetCommandBuffer(this->mainCmdGfxBuffer, 0);
+	//n_assert(res == VK_SUCCESS);
+
+	// start constructing draws
+	this->BeginCmdThreads();
 }
 
 //------------------------------------------------------------------------------
@@ -827,6 +921,17 @@ VkRenderDevice::BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& rtc, const 
 	RenderDeviceBase::BeginPass(rtc, passShader);
 	this->currentPipelineBits = 0;
 	this->SetFramebufferLayoutInfo(rtc->GetVkPipelineInfo());
+
+	// submit
+	this->SubmitToQueue(this->renderQueue, 1, &this->mainCmdGfxBuffer);
+
+	this->blendInfo.attachmentCount = 1;
+
+	VkResult res = vkResetCommandBuffer(this->mainCmdGfxBuffer, 0);
+	n_assert(res == VK_SUCCESS);
+
+	// start constructing draws
+	this->BeginCmdThreads();
 }
 
 //------------------------------------------------------------------------------
@@ -845,55 +950,15 @@ void
 VkRenderDevice::BeginBatch(CoreGraphics::FrameBatchType::Code batchType)
 {
 	RenderDeviceBase::BeginBatch(batchType);
-	
-	// allocate a command buffer per thread
-	const VkCommandBufferAllocateInfo info =
-	{
-		VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-		NULL,
-		this->cmdGfxPool[Transient],
-		VK_COMMAND_BUFFER_LEVEL_SECONDARY,
-		NumDrawThreads
-	};
-	VkResult res = vkAllocateCommandBuffers(this->dev, &info, this->dispatchableDrawCmdBuffers);
-	n_assert(res == VK_SUCCESS);
+		
+	// hmm, because we have dynamic scissor rects, we need to 'init' all buffers with the default scissors first
+	VkCmdBufferThread::Command cmd;
+	cmd.type = VkCmdBufferThread::ScissorRectArray;
+	cmd.scissorRectArray.first = 0;
+	cmd.scissorRectArray.num = this->numRasterizerSets;
+	cmd.scissorRectArray.scs = this->passScissorRects;
 
-	// begin buffers
-	const VkCommandBufferBeginInfo beginInfo =
-	{
-		VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-		NULL,
-		VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
-		VK_NULL_HANDLE
-	};
-
-	for (IndexT i = 0; i < NumDrawThreads; i++)
-	{
-		vkBeginCommandBuffer(this->dispatchableDrawCmdBuffers[i], &beginInfo);
-		this->drawThreads[i]->SetCommandBuffer(this->dispatchableDrawCmdBuffers[i]);
-	}
-
-	// submit transfers before we start issuing draws
-	const VkPipelineStageFlags flags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-	const VkSubmitInfo info =
-	{
-		VK_STRUCTURE_TYPE_SUBMIT_INFO,
-		NULL,
-		0,
-		NULL,
-		&flags,
-		1,
-		&this->mainCmdTransBuffer,
-		0,
-		NULL
-	};
-
-	// submit to queue
-	VkResult res = vkQueueSubmit(this->transferQueue, 1, &info, VK_NULL_HANDLE);
-	n_assert(res == VK_SUCCESS);
-	
-	res = vkResetCommandBuffer(this->mainCmdTransBuffer, 0);
-	n_assert(res == VK_SUCCESS);
+	for (IndexT i = 0; i < NumDrawThreads; i++) this->drawThreads[i]->PushCommand(cmd);
 }
 
 //------------------------------------------------------------------------------
@@ -952,49 +1017,12 @@ VkRenderDevice::DrawFeedbackInstanced(const Ptr<CoreGraphics::FeedbackBuffer>& f
 void
 VkRenderDevice::EndBatch()
 {
-	// wait for our jobs to finish
-	IndexT i;
-	for (i = 0; i < NumDrawThreads; i++)
-	{ 
-		VkCmdBufferThread::Command cmd;
-		cmd.type = VkCmdBufferThread::Sync;
-		cmd.syncEvent = &this->drawCompletionEvent[i];
-		this->drawThreads[i]->PushCommand(cmd);
-		this->drawCompletionEvent[i].Wait();
-		this->drawCompletionEvent[i].Reset();
-	}
-	
-	// stop recording command buffers
-	for (IndexT i = 0; i < NumDrawThreads; i++)
-	{
-		vkEndCommandBuffer(this->dispatchableDrawCmdBuffers[i]);
-	}
+	// submit threaded buffers
+	//this->SubmitToQueue(this->renderQueue, NumDrawThreads, this->dispatchableDrawCmdBuffers);
 
-	// add to main command
-	vkCmdExecuteCommands(this->mainCmdGfxBuffer, NumDrawThreads, this->dispatchableDrawCmdBuffers);
 
-	/*
-	const VkPipelineStageFlags flags = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT;
-	const VkSubmitInfo info =
-	{
-		VK_STRUCTURE_TYPE_SUBMIT_INFO,
-		NULL,
-		0,
-		NULL,
-		&flags,
-		NumDrawThreads,
-		this->dispatchableDrawCmdBuffers,
-		0,
-		NULL
-	};
-
-	// submit to queue
-	VkResult res = vkQueueSubmit(this->displayQueue, 1, &info, VK_NULL_HANDLE);
-	n_assert(res == VK_SUCCESS);
-	*/
-
-	// free up our command buffers
-	vkFreeCommandBuffers(this->dev, this->cmdGfxPool[Transient], NumDrawThreads, this->dispatchableDrawCmdBuffers);
+	// free up our threaded command buffers
+	//vkFreeCommandBuffers(this->dev, this->cmdGfxPool[Transient], NumDrawThreads, this->dispatchableDrawCmdBuffers);
 	RenderDeviceBase::EndBatch();
 }
 
@@ -1004,6 +1032,33 @@ VkRenderDevice::EndBatch()
 void
 VkRenderDevice::EndPass()
 {
+	/*
+	// submit
+	this->SubmitToQueue(this->renderQueue, 1, &this->mainCmdGfxBuffer);
+
+	// reset buffer 
+	VkResult res = vkResetCommandBuffer(this->mainCmdGfxBuffer, 0);
+	n_assert(res == VK_SUCCESS);
+
+	// begin buffer again
+	const VkCommandBufferBeginInfo cmdInfo =
+	{
+		VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+		NULL,
+		VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT,
+		VK_NULL_HANDLE
+	};
+
+	// begin main command buffer again
+	vkBeginCommandBuffer(this->mainCmdGfxBuffer, &cmdInfo);
+	*/
+
+	// end render pass
+	vkCmdEndRenderPass(this->mainCmdGfxBuffer);
+
+	// finish command buffer threads
+	this->EndCmdThreads();
+
 	this->currentPipelineBits = 0;
 	Memory::Clear(&this->currentPipelineInfo, sizeof(VkGraphicsPipelineCreateInfo));
 }
@@ -1024,9 +1079,24 @@ void
 VkRenderDevice::EndFrame(IndexT frameIndex)
 {
 	RenderDeviceBase::EndFrame(frameIndex);
-	vkEndCommandBuffer(this->mainCmdGfxBuffer);
-	vkEndCommandBuffer(this->mainCmdCmpBuffer);
-	vkEndCommandBuffer(this->mainCmdTransBuffer);
+
+	// submit main render buffer to queue
+	this->SubmitToQueue(this->renderQueue, 1, &this->mainCmdGfxBuffer);
+	VkResult res = vkResetCommandBuffer(this->mainCmdGfxBuffer, 0);
+	n_assert(res == VK_SUCCESS);
+
+	// submit transfer stuff
+	this->SubmitToQueue(this->transferQueue, 1, &this->mainCmdTransBuffer);
+	res = vkResetCommandBuffer(this->mainCmdTransBuffer, 0);
+	n_assert(res == VK_SUCCESS);
+
+	this->SubmitToQueue(this->computeQueue, 1, &this->mainCmdCmpBuffer);
+	res = vkResetCommandBuffer(this->mainCmdCmpBuffer, 0);
+	n_assert(res == VK_SUCCESS);
+
+	//vkEndCommandBuffer(this->mainCmdGfxBuffer);
+	//vkEndCommandBuffer(this->mainCmdCmpBuffer);
+	//vkEndCommandBuffer(this->mainCmdTransBuffer);
 }
 
 //------------------------------------------------------------------------------
@@ -1049,7 +1119,7 @@ VkRenderDevice::Present()
 		0,
 		NULL
 	};
-	VkResult res = vkQueueSubmit(this->displayQueue, 1, &submitInfo, NULL);
+	VkResult res = vkQueueSubmit(this->renderQueue, 1, &submitInfo, NULL);
 	n_assert(res == VK_SUCCESS);
 
 	// destroy semaphore
@@ -1066,7 +1136,7 @@ VkRenderDevice::Present()
 		&this->swapchain,
 		&this->currentBackbuffer
 	};
-	res = vkQueuePresentKHR(this->displayQueue, &info);
+	res = vkQueuePresentKHR(this->renderQueue, &info);
 
 	if (res == VK_ERROR_OUT_OF_DATE_KHR)
 	{
@@ -1082,15 +1152,6 @@ VkRenderDevice::Present()
 /**
 */
 void
-VkRenderDevice::AddRenderTarget(const GLuint& renderTarget) const
-{
-
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
 VkRenderDevice::SetScissorRect(const Math::rectangle<int>& rect, int index)
 {
 	VkRect2D sc;
@@ -1098,7 +1159,12 @@ VkRenderDevice::SetScissorRect(const Math::rectangle<int>& rect, int index)
 	sc.extent.width = rect.width();
 	sc.offset.x = rect.left;
 	sc.offset.y = rect.top;
-	vkCmdSetScissor(this->mainCmdGfxBuffer, index, 1, &sc);
+	VkCmdBufferThread::Command cmd;
+	cmd.type = VkCmdBufferThread::ScissorRect;
+	cmd.scissorRect.index = index;
+	cmd.scissorRect.sc = sc;
+	this->drawThreads[this->currentDrawThread]->PushCommand(cmd);
+	//vkCmdSetScissor(this->mainCmdGfxBuffer, index, 1, &sc);
 }
 
 //------------------------------------------------------------------------------
@@ -1112,7 +1178,12 @@ VkRenderDevice::SetViewport(const Math::rectangle<int>& rect, int index)
 	vp.height = (float)rect.height();
 	vp.x = (float)rect.left;
 	vp.y = (float)rect.top;
-	vkCmdSetViewport(this->mainCmdGfxBuffer, index, 1, &vp);
+	VkCmdBufferThread::Command cmd;
+	cmd.type = VkCmdBufferThread::Viewport;
+	cmd.viewport.index = index;
+	cmd.viewport.vp = vp;
+	this->drawThreads[this->currentDrawThread]->PushCommand(cmd);
+	//vkCmdSetViewport(this->mainCmdGfxBuffer, index, 1, &vp);
 }
 
 //------------------------------------------------------------------------------
@@ -1233,11 +1304,17 @@ VkRenderDevice::SetShaderPipelineInfo(const VkGraphicsPipelineCreateInfo& shader
 {
 	this->currentPipelineBits |= ShaderInfoSet;
 
-	this->currentPipelineInfo.pColorBlendState = shader.pColorBlendState;
+	this->blendInfo.pAttachments = shader.pColorBlendState->pAttachments;
+	memcpy(this->blendInfo.blendConstants, shader.pColorBlendState->blendConstants, sizeof(float) * 4);
+	this->blendInfo.logicOp = shader.pColorBlendState->logicOp;
+	this->blendInfo.logicOpEnable = shader.pColorBlendState->logicOpEnable;
+
+	//this->currentPipelineInfo.pColorBlendState = shader.pColorBlendState;
 	this->currentPipelineInfo.pDepthStencilState = shader.pDepthStencilState;
 	this->currentPipelineInfo.pRasterizationState = shader.pRasterizationState;
 	this->currentPipelineInfo.pMultisampleState = shader.pMultisampleState;
 	this->currentPipelineInfo.pDynamicState = shader.pDynamicState;
+	this->currentPipelineInfo.pTessellationState = shader.pTessellationState;
 	this->currentPipelineInfo.stageCount = shader.stageCount;
 	this->currentPipelineInfo.pStages = shader.pStages;
 	this->currentPipelineInfo.layout = shader.layout;
@@ -1260,7 +1337,6 @@ VkRenderDevice::SetVertexLayoutPipelineInfo(const VkGraphicsPipelineCreateInfo& 
 {
 	this->currentPipelineBits |= VertexLayoutInfoSet;
 	this->currentPipelineInfo.pVertexInputState = vertexLayout.pVertexInputState;
-	this->currentPipelineInfo.pInputAssemblyState = vertexLayout.pInputAssemblyState;
 
 	// if all bits are set, create a graphics pipeline and set it
 	if (this->currentPipelineBits == AllInfoSet)
@@ -1290,11 +1366,26 @@ VkRenderDevice::SetFramebufferLayoutInfo(const VkGraphicsPipelineCreateInfo& fra
 /**
 */
 void
+VkRenderDevice::SetInputLayoutInfo(VkPipelineInputAssemblyStateCreateInfo* inputLayout)
+{
+	this->currentPipelineBits |= InputLayoutInfoSet;
+	this->currentPipelineInfo.pInputAssemblyState = inputLayout;
+
+	if (this->currentPipelineBits == AllInfoSet)
+	{
+		this->CreatePipeline();
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 VkRenderDevice::CreatePipeline()
 {
 	VkPipeline pipeline;
 	VkResult res = vkCreateGraphicsPipelines(this->dev, this->cache, 1, &this->currentPipelineInfo, NULL, &pipeline);
-	n_assert(res);
+	n_assert(res == VK_SUCCESS);
 
 	// send pipeline bind command, this is the first step in our procedure, so we use this as a trigger to switch threads
 	this->currentDrawThread = (this->currentDrawThread + 1) % NumDrawThreads;
@@ -1354,7 +1445,12 @@ VkRenderDevice::PushBufferUpdate(const VkBuffer& buf, VkDeviceSize offset, VkDev
 
 	// push to main buffer
 	vkCmdUpdateBuffer(this->mainCmdTransBuffer, buf, offset, size, dataCopy);
-	if (deleteWhenDone) delete[] dataCopy;
+
+	// push delegate which will free the memory when we are done
+	VkDeferredDelegate del;
+	del.del.type = VkDeferredDelegate::FreeMemory;
+	del.del.memory.data = data;
+	this->PushDeferredDelegate(del);
 	
 	/*
 	VkCmdBufferThread::Command cmd;
@@ -1366,6 +1462,164 @@ VkRenderDevice::PushBufferUpdate(const VkBuffer& buf, VkDeviceSize offset, VkDev
 	cmd.updBuffer.offset = offset;
 	this->transThreads[this->currentTransThread]->PushCommand(cmd);
 	*/
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+Vulkan::VkRenderDevice::SubmitToQueue(VkQueue queue, uint32_t numBuffers, VkCommandBuffer* buffers)
+{
+	uint32_t i;
+	for (i = 0; i < numBuffers; i++)
+	{
+		VkResult res = vkEndCommandBuffer(buffers[i]);
+		n_assert(res == VK_SUCCESS);
+	}
+
+	// submit to queue
+	const VkPipelineStageFlags flags = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT;
+	const VkSubmitInfo submitInfo =
+	{
+		VK_STRUCTURE_TYPE_SUBMIT_INFO,
+		NULL,
+		0,
+		NULL,
+		&flags,
+		numBuffers,
+		buffers,
+		0,
+		NULL
+	};
+
+	// submit to queue
+	VkResult res = vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
+	n_assert(res == VK_SUCCESS);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::SubmitToQueue(VkQueue queue, VkFence fence)
+{
+	// submit to queue
+	VkResult res = vkQueueSubmit(queue, 0, VK_NULL_HANDLE, fence);
+	n_assert(res == VK_SUCCESS);
+}
+
+//------------------------------------------------------------------------------
+/**
+	An array-linked list would be PERFECT for this.
+	We can tell how many fences we need first.
+	We can always get a free and unused fence, and if we are full, we can just wait until we have a free space.
+*/
+void
+VkRenderDevice::PushDeferredDelegate(VkDeferredDelegate& del)
+{
+	while (this->freeDelegates.IsEmpty()) this->UpdateDelegates();
+	IndexT freeIndex = this->freeDelegates.Dequeue();
+	this->usedDelegates.Enqueue(freeIndex);
+	this->deferredDelegates[freeIndex] = del;
+	/*
+	// find next delegate in the list
+	//this->currentDeferredDelegate = (this->currentDeferredDelegate + 1) % NumDeferredDelegates;
+
+	// if it's not done already, we can try to find some other which is, but the easiest is to just wait for this one
+	if (this->deferredDelegates[this->currentDeferredDelegate].GetStatus() == VK_NOT_READY)
+	{
+		// perform synchronous wait
+		this->deferredDelegates[this->currentDeferredDelegate].CheckSync();
+	}
+	this->deferredDelegates[this->currentDeferredDelegate] = del;
+	*/
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::UpdateDelegates()
+{
+	IndexT i;
+	for (i = 0; i < this->usedDelegates.Size(); i++)
+	{
+		VkDeferredDelegate& del = this->deferredDelegates[this->usedDelegates[i]];
+		del.CheckAsync();
+		if (del.GetStatus() == VK_SUCCESS)
+		{
+			this->freeDelegates.Enqueue(this->usedDelegates.Dequeue());
+			i--;
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::BeginCmdThreads()
+{
+	// allocate a command buffer per thread
+	const VkCommandBufferAllocateInfo info =
+	{
+		VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+		NULL,
+		this->cmdGfxPool[Transient],
+		VK_COMMAND_BUFFER_LEVEL_SECONDARY,
+		NumDrawThreads
+	};
+	VkResult res = vkAllocateCommandBuffers(this->dev, &info, this->dispatchableDrawCmdBuffers);
+	n_assert(res == VK_SUCCESS);
+
+	// setup begin using pass info
+	const VkCommandBufferBeginInfo beginInfo =
+	{
+		VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+		NULL,
+		VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT,
+		&this->passInfo
+	};
+
+	for (IndexT i = 0; i < NumDrawThreads; i++)
+	{
+		vkBeginCommandBuffer(this->dispatchableDrawCmdBuffers[i], &beginInfo);
+		this->drawThreads[i]->SetCommandBuffer(this->dispatchableDrawCmdBuffers[i]);
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::EndCmdThreads()
+{
+	// wait for our jobs to finish
+	IndexT i;
+	for (i = 0; i < NumDrawThreads; i++)
+	{
+		VkCmdBufferThread::Command cmd;
+		cmd.type = VkCmdBufferThread::Sync;
+		cmd.syncEvent = &this->drawCompletionEvent[i];
+		this->drawThreads[i]->PushCommand(cmd);
+		this->drawCompletionEvent[i].Wait();
+		this->drawCompletionEvent[i].Reset();
+		this->drawThreads[i]->SetCommandBuffer(VK_NULL_HANDLE);
+
+		VkResult res = vkEndCommandBuffer(this->dispatchableDrawCmdBuffers[i]);
+		n_assert(res == VK_SUCCESS);
+	}
+
+	// execute on main buffer
+	vkCmdExecuteCommands(this->mainCmdGfxBuffer, NumDrawThreads, this->dispatchableDrawCmdBuffers);
+
+	// use a delegate to free up the command buffers used by the thread this batch at some later point
+	VkDeferredDelegate del;
+	del.del.type = VkDeferredDelegate::FreeCmdBuffers;
+	del.del.cmdbufferfree.numBuffers = NumDrawThreads;
+	del.del.cmdbufferfree.pool = this->cmdGfxPool[Transient];
+	memcpy(del.del.cmdbufferfree.buffers, this->dispatchableDrawCmdBuffers, sizeof(VkCommandBuffer) * NumDrawThreads);
+	this->PushDeferredDelegate(del);
 }
 
 } // namespace Vulkan

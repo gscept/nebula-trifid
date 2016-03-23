@@ -476,6 +476,8 @@ ENDIF()
 		coregraphics/vk/vkcmdbufferthread.h
 		coregraphics/vk/vkcpusyncfence.cc
 		coregraphics/vk/vkcpusyncfence.h
+		coregraphics/vk/vkdeferreddelegate.cc
+		coregraphics/vk/vkdeferreddelegate.h
 		coregraphics/vk/vkdepthstenciltarget.cc
 		coregraphics/vk/vkdepthstenciltarget.h
 		coregraphics/vk/vkfeedbackbuffer.cc

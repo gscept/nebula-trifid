@@ -44,6 +44,9 @@ private:
 		Dispatch,
 		BindDescriptors,
 		PushRange,
+		Viewport,
+		ScissorRect,
+		ScissorRectArray,
 		UpdateBuffer,
 		Sync
 	};
@@ -115,6 +118,25 @@ private:
 				uint32_t size;
 				void* data;
 			} pushranges;
+
+			struct Viewport
+			{
+				VkViewport vp;
+				uint32_t index;
+			} viewport;
+
+			struct ScissorRect
+			{
+				VkRect2D sc;
+				uint32_t index;
+			} scissorRect;
+
+			struct ScissorRectArray
+			{
+				VkRect2D* scs;
+				uint32_t first;
+				uint32_t num;
+			} scissorRectArray;
 
 			Threading::Event* syncEvent;
 		};		

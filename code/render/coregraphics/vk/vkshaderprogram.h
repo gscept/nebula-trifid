@@ -69,6 +69,7 @@ private:
 	VkPipelineDepthStencilStateCreateInfo depthStencilInfo;
 	VkPipelineColorBlendStateCreateInfo colorBlendInfo;
 	VkPipelineDynamicStateCreateInfo dynamicInfo;
+	VkPipelineTessellationStateCreateInfo tessInfo;
 	VkPipelineShaderStageCreateInfo shaderInfos[5];
 	VkGraphicsPipelineCreateInfo shaderPipelineInfo;
 	PipelineType pipelineType;

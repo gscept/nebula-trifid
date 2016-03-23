@@ -8,6 +8,7 @@
 //------------------------------------------------------------------------------
 #include "coregraphics/base/renderdevicebase.h"
 #include "vkcmdbufferthread.h"
+#include "vkdeferreddelegate.h"
 namespace Vulkan
 {
 class VkRenderDevice : public Base::RenderDeviceBase
@@ -34,6 +35,8 @@ public:
 	void SetVertexLayout(const Ptr<CoreGraphics::VertexLayout>& vl);
 	/// set current index buffer
 	void SetIndexBuffer(const Ptr<CoreGraphics::IndexBuffer>& ib);
+	/// set the primitive group
+	void SetPrimitiveGroup(const CoreGraphics::PrimitiveGroup& pg);
 	/// perform computation
 	void Compute(int dimX, int dimY, int dimZ, uint flag = NoBarrier); // use MemoryBarrierFlag
 	/// begins pass with single rendertarget
@@ -64,8 +67,6 @@ public:
 	void EndFrame(IndexT frameIndex);
 	/// present the rendered scene
 	void Present();
-	/// adds a render target
-	void AddRenderTarget(const GLuint& renderTarget) const;
 	/// adds a scissor rect
 	void SetScissorRect(const Math::rectangle<int>& rect, int index);
 	/// sets viewport
@@ -111,8 +112,9 @@ private:
 		ShaderInfoSet = 1,
 		VertexLayoutInfoSet = 2,
 		FramebufferLayoutInfoSet = 4,
+		InputLayoutInfoSet = 8,
 
-		AllInfoSet = 7
+		AllInfoSet = 15
 	};
 
 	// open Vulkan device context
@@ -136,6 +138,8 @@ private:
 	void SetVertexLayoutPipelineInfo(const VkGraphicsPipelineCreateInfo& vertexLayout);
 	/// sets the current framebuffer layout information
 	void SetFramebufferLayoutInfo(const VkGraphicsPipelineCreateInfo& framebufferLayout);
+	/// sets the current primitive layout information
+	void SetInputLayoutInfo(VkPipelineInputAssemblyStateCreateInfo* inputLayout);
 	/// create a new pipeline (or fetch from cache) and bind to command queue
 	void CreatePipeline();
 
@@ -155,6 +159,19 @@ private:
 	void AllocateImageMemory(const VkImage& img, VkDeviceMemory& imgmem, VkMemoryPropertyFlagBits flags, uint32_t& imgsize);
 	/// update buffer memory from CPU memory, if deleteWhenDone is true, then the render device will assume the data is safe to take ownership of
 	void PushBufferUpdate(const VkBuffer& buf, VkDeviceSize offset, VkDeviceSize size, uint32_t* data, bool deleteWhenDone);
+
+	/// helper function to submit a command buffer
+	void SubmitToQueue(VkQueue queue, uint32_t numBuffers, VkCommandBuffer* buffers);
+	/// helper function to submit a fence
+	void SubmitToQueue(VkQueue queue, VkFence fence);
+	/// push a deferred delegate for execution, if the current index used already has a delegate waiting to run, it will be waited on before this is executed
+	void PushDeferredDelegate(VkDeferredDelegate& del);
+	/// wait for deferred delegates to complete
+	void UpdateDelegates();
+	/// begin using the worker threads to build command buffers
+	void BeginCmdThreads();
+	/// end using the worker threads
+	void EndCmdThreads();
 
 	uint32_t adapter;
 	uint32_t frameId;
@@ -191,10 +208,11 @@ private:
 	uint32_t currentBackbuffer;
 	VkImage* backbuffers;
 	VkSemaphore displaySemaphore;
+	VkRect2D displayRect;
 
 	static VkDevice dev;
 	static VkDescriptorPool descPool;
-	static VkQueue displayQueue;
+	static VkQueue renderQueue;
 	static VkQueue computeQueue;
 	static VkQueue transferQueue;
 	static VkInstance instance;
@@ -203,6 +221,10 @@ private:
 	static VkCommandBuffer mainCmdGfxBuffer;
 	static VkCommandBuffer mainCmdCmpBuffer;
 	static VkCommandBuffer mainCmdTransBuffer;
+
+	VkCommandBufferInheritanceInfo passInfo;
+	VkPipelineInputAssemblyStateCreateInfo inputInfo;
+	VkPipelineColorBlendStateCreateInfo blendInfo;
 
 	static const SizeT NumDrawThreads = 4;
 
@@ -216,6 +238,17 @@ private:
 	VkCommandBuffer dispatchableTransCmdBuffers[NumTransferThreads];
 	Ptr<VkCmdBufferThread> transThreads[NumTransferThreads];
 	Threading::Event transCompletionEvent[NumTransferThreads];
+
+	static const SizeT NumDeferredDelegates = 128;
+	uint32_t currentDeferredDelegate;
+	VkFence deferredDelegateFences[NumDeferredDelegates];
+	VkDeferredDelegate deferredDelegates[NumDeferredDelegates];
+	Util::Queue<IndexT> freeDelegates;
+	Util::Queue<IndexT> usedDelegates;
+
+	VkViewport* passViewports;
+	VkRect2D* passScissorRects;
+	uint32_t numRasterizerSets;
 
 	enum CmdCreationUsage
 	{
@@ -239,4 +272,5 @@ private:
 	PFN_vkCreateDebugReportCallbackEXT debugCallbackPtr;
 #endif
 };
+
 } // namespace Vulkan
