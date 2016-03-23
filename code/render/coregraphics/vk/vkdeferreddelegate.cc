@@ -22,7 +22,7 @@ VkDeferredDelegate::VkDeferredDelegate() :
 */
 VkDeferredDelegate::~VkDeferredDelegate()
 {
-	if (this->currentStatus == VK_NOT_READY) this->CheckSync();
+	// empty
 }
 
 //------------------------------------------------------------------------------

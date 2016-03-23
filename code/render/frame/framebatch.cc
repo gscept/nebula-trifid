@@ -117,6 +117,10 @@ FrameBatch::RenderBatch(IndexT frameIndex)
 	MaterialServer* matServer = MaterialServer::Instance();
     
 	_start_timer(this->debugTimer);
+
+	// start batch
+	renderDevice->BeginBatch(this->batchType);
+
     // handle special cases
     if (FrameBatchType::UI == this->batchType)
     {
@@ -161,9 +165,6 @@ FrameBatch::RenderBatch(IndexT frameIndex)
     {
 		// get materials matching the batch type
         const Util::Array<Ptr<Material>>& materials = matServer->GetMaterialsByBatchGroup(this->batchGroup);
-
-		// start batch
-		renderDevice->BeginBatch(this->batchType);
 
 		IndexT materialIndex;
 		for (materialIndex = 0; materialIndex < materials.Size(); materialIndex++)
@@ -345,10 +346,10 @@ FrameBatch::RenderBatch(IndexT frameIndex)
 				}
             }
 		}
-
-		// end batch
-		renderDevice->EndBatch();
     }
+
+	// end batch
+	renderDevice->EndBatch();
 
     _stop_timer(this->debugTimer);
 }

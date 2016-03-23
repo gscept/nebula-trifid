@@ -32,8 +32,14 @@ public:
 	/// generates mipmaps
 	void GenerateMipmaps();
 
-	/// updates texture
-	void Update(void* data, SizeT size, SizeT width, SizeT height, IndexT left, IndexT top, IndexT mip);
+	/// updates texture region
+	void Update(void* data, SizeT dataSize, SizeT width, SizeT height, IndexT left, IndexT top, IndexT mip);
+	/// updates entire texture
+	void Update(void* data, SizeT dataSize, IndexT mip);
+	/// updates texture cube face region
+	void UpdateArray(void* data, SizeT dataSize, SizeT width, SizeT height, IndexT left, IndexT top, IndexT mip, IndexT layer);
+	/// updates texture cube face region
+	void UpdateArray(void* data, SizeT dataSize, IndexT mip, IndexT layer);
 
 	/// setup from an opengl 2D texture
 	void SetupFromVkTexture(VkImage img, VkDeviceMemory mem, CoreGraphics::PixelFormat::Code format, GLint numMips = 0, const bool setLoaded = true, const bool isAttachment = false);

@@ -36,6 +36,8 @@ private:
 
 	enum CommandType
 	{
+		BeginCommand,
+		EndCommand,
 		GraphicsPipeline,
 		ComputePipeline,
 		InputAssemblyVertex,
@@ -58,6 +60,12 @@ private:
 		union
 		{
 			VkPipeline pipeline;
+
+			struct BeginCmd
+			{
+				VkCommandBufferBeginInfo info;
+				VkCommandBuffer buf;
+			} bgCmd;
 
 			struct VBO
 			{

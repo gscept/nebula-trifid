@@ -55,6 +55,14 @@ VkCmdBufferThread::DoWork()
 			// use the data in the command dependent on what type we have
 			switch (cmd.type)
 			{
+			case BeginCommand:
+				this->commandBuffer = cmd.bgCmd.buf;
+				n_assert(vkBeginCommandBuffer(this->commandBuffer, &cmd.bgCmd.info) == VK_SUCCESS);
+				break;
+			case EndCommand:
+				n_assert(vkEndCommandBuffer(this->commandBuffer) == VK_SUCCESS);
+				this->commandBuffer = VK_NULL_HANDLE;
+				break;
 			case GraphicsPipeline:
 				vkCmdBindPipeline(this->commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, cmd.pipeline);
 				break;

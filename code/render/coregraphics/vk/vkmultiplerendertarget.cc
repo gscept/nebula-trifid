@@ -52,7 +52,7 @@ VkMultipleRenderTarget::AddRenderTarget(const Ptr<CoreGraphics::RenderTarget>& r
 	this->attachments[this->numattachments].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
 	this->attachments[this->numattachments].stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
 	this->attachments[this->numattachments].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-	this->attachments[this->numattachments].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	this->attachments[this->numattachments].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
 	this->resolveReferences[this->numcolorreferences].attachment = VK_ATTACHMENT_UNUSED;
 	this->resolveReferences[this->numcolorreferences].layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
@@ -80,7 +80,7 @@ VkMultipleRenderTarget::SetDepthStencilTarget(const Ptr<CoreGraphics::DepthStenc
 	this->attachments[this->numattachments].stencilLoadOp = dt->GetClearFlags() & CoreGraphics::DepthStencilTarget::ClearStencil ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
 	this->attachments[this->numattachments].stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
 	this->attachments[this->numattachments].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-	this->attachments[this->numattachments].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	this->attachments[this->numattachments].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
 	this->depthReference.attachment = VK_ATTACHMENT_UNUSED;
 	this->depthReference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;

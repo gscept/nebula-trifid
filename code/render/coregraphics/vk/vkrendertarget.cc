@@ -109,6 +109,9 @@ VkRenderTarget::Setup()
 		this->scissors.Resize(1);
 		this->scissors[0] = scissor;
 
+		this->viewportInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+		this->viewportInfo.pNext = NULL;
+		this->viewportInfo.flags = 0;
 		this->viewportInfo.viewportCount = this->viewports.Size();
 		this->viewportInfo.pViewports = this->viewports.Begin();
 		this->viewportInfo.scissorCount = this->scissors.Size();
@@ -202,7 +205,7 @@ VkRenderTarget::Setup()
 		attachment[0].stencilLoadOp = this->clearFlags & CoreGraphics::RenderTarget::ClearColor ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
 		attachment[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
 		attachment[0].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-		attachment[0].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		attachment[0].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
 		VkAttachmentReference depthAttachmentRef;
 		depthAttachmentRef.attachment = VK_ATTACHMENT_UNUSED;
@@ -240,7 +243,7 @@ VkRenderTarget::Setup()
 			attachment[1].stencilLoadOp = depthStencilTarget->GetClearFlags() & CoreGraphics::DepthStencilTarget::ClearStencil ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
 			attachment[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
 			attachment[1].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-			attachment[1].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			attachment[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 			numattachments++;
 		}
 
@@ -265,6 +268,7 @@ VkRenderTarget::Setup()
 		// setup info
 		this->framebufferPipelineInfo.renderPass = this->pass;
 		this->framebufferPipelineInfo.subpass = 0;
+		this->framebufferPipelineInfo.pViewportState = &this->viewportInfo;
 
 		VkFramebufferCreateInfo fbInfo =
 		{

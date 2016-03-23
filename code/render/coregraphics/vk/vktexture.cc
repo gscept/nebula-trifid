@@ -174,11 +174,100 @@ VkTexture::GenerateMipmaps()
 
 //------------------------------------------------------------------------------
 /**
+	Eeh, how to update just a region?
 */
 void
-VkTexture::Update(void* data, SizeT size, SizeT width, SizeT height, IndexT left, IndexT top, IndexT mip)
+VkTexture::Update(void* data, SizeT dataSize, SizeT width, SizeT height, IndexT left, IndexT top, IndexT mip)
 {
+	n_assert(this->img != VK_NULL_HANDLE);
+	n_assert(this->mem != VK_NULL_HANDLE);
+	uint32_t size = CoreGraphics::PixelFormat::ToSize(this->pixelFormat);
 
+	int32_t mipWidth;
+	int32_t mipHeight;
+	int32_t mipDepth;
+	VkImageSubresource subres;
+	subres.arrayLayer = 0;
+	subres.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	subres.mipLevel = mip;
+	VkSubresourceLayout layout;
+	vkGetImageSubresourceLayout(VkRenderDevice::dev, this->img, &subres, &layout);
+	mipWidth = (int32_t)(layout.rowPitch / size);
+	mipHeight = (int32_t)(layout.depthPitch / layout.rowPitch);
+	mipDepth = (int32_t)(layout.size / layout.depthPitch);
+
+	// push update
+	VkRenderDevice::Instance()->PushBufferUpdate(this->img, layout.offset, dataSize, (uint32_t*)data, true);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkTexture::Update(void* data, SizeT dataSize, IndexT mip)
+{
+	n_assert(this->img != VK_NULL_HANDLE);
+	n_assert(this->mem != VK_NULL_HANDLE);
+	uint32_t size = CoreGraphics::PixelFormat::ToSize(this->pixelFormat);
+
+	VkImageSubresource subres;
+	subres.arrayLayer = 0;
+	subres.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	subres.mipLevel = mip;
+	VkSubresourceLayout layout;
+	vkGetImageSubresourceLayout(VkRenderDevice::dev, this->img, &subres, &layout);
+
+	// push update
+	VkRenderDevice::Instance()->PushBufferUpdate(this->img, layout.offset, dataSize, (uint32_t*)data, true);
+}
+
+//------------------------------------------------------------------------------
+/**
+	Eeh, how to update just a region?
+*/
+void
+VkTexture::UpdateArray(void* data, SizeT dataSize, SizeT width, SizeT height, IndexT left, IndexT top, IndexT mip, IndexT layer)
+{
+	n_assert(this->img != VK_NULL_HANDLE);
+	n_assert(this->mem != VK_NULL_HANDLE);
+	uint32_t size = CoreGraphics::PixelFormat::ToSize(this->pixelFormat);
+
+	int32_t mipWidth;
+	int32_t mipHeight;
+	int32_t mipDepth;
+	VkImageSubresource subres;
+	subres.arrayLayer = (int32_t)layer;
+	subres.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	subres.mipLevel = mip;
+	VkSubresourceLayout layout;
+	vkGetImageSubresourceLayout(VkRenderDevice::dev, this->img, &subres, &layout);
+	mipWidth = (int32_t)(layout.rowPitch / size);
+	mipHeight = (int32_t)(layout.depthPitch / layout.rowPitch);
+	mipDepth = (int32_t)(layout.size / layout.depthPitch);
+
+	// push update
+	VkRenderDevice::Instance()->PushBufferUpdate(this->img, layout.offset, dataSize, (uint32_t*)data, true);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkTexture::UpdateArray(void* data, SizeT dataSize, IndexT mip, IndexT layer)
+{
+	n_assert(this->img != VK_NULL_HANDLE);
+	n_assert(this->mem != VK_NULL_HANDLE);
+	uint32_t size = CoreGraphics::PixelFormat::ToSize(this->pixelFormat);
+
+	VkImageSubresource subres;
+	subres.arrayLayer = (int32_t)layer;
+	subres.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	subres.mipLevel = mip;
+	VkSubresourceLayout layout;
+	vkGetImageSubresourceLayout(VkRenderDevice::dev, this->img, &subres, &layout);
+
+	// push update
+	VkRenderDevice::Instance()->PushBufferUpdate(this->img, layout.offset, dataSize, (uint32_t*)data, true);
 }
 
 //------------------------------------------------------------------------------
@@ -262,5 +351,6 @@ VkTexture::Copy(const Ptr<CoreGraphics::Texture>& from, uint32_t fromMip, uint32
 {
 	// TODO: implement me
 }
+
 
 } // namespace Vulkan

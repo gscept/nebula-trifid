@@ -102,7 +102,7 @@ VkStreamTextureLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 		// allocate memory backing
 		VkDeviceMemory mem;
 		uint32_t alignedSize;
-		VkRenderDevice::Instance()->AllocateImageMemory(img, mem, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, alignedSize);
+		VkRenderDevice::Instance()->AllocateImageMemory(img, mem, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, alignedSize);
 		vkBindImageMemory(VkRenderDevice::dev, img, mem, 0);
 
 		// setup texture
@@ -134,11 +134,13 @@ VkStreamTextureLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 					ILuint size = ilGetInteger(IL_IMAGE_SIZE_OF_DATA);
 					ILubyte* buf = ilGetData();
 
+					//res->UpdateArray(buf, size, j, i);
+					/*
 					VkTexture::MapInfo mapinfo;
 					res->MapCubeFace((Texture::CubeFace)i, j, VkTexture::MapWrite, mapinfo);
 					memcpy(mapinfo.data, buf, size);
 					res->UnmapCubeFace((Texture::CubeFace)i, j);
-
+					*/
 				}
 			}
 		}
@@ -153,10 +155,13 @@ VkStreamTextureLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 				ILuint size = ilGetInteger(IL_IMAGE_SIZE_OF_DATA);
 				ILubyte* buf = ilGetData();
 
+				//res->Update(buf, size, j);
+				/*
 				VkTexture::MapInfo mapinfo;
 				res->Map(j, VkTexture::MapWrite, mapinfo);
 				memcpy(mapinfo.data, buf, size);
 				res->Unmap(j);
+				*/
 			}
 		}	
 
