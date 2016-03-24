@@ -151,8 +151,9 @@ NFbxScene::Setup( FbxScene* scene, const ExportFlags& exportFlags, const ExportM
 	for (int meshIndex = 0; meshIndex < meshCount; meshIndex++)
 	{
 		Ptr<NFbxMeshNode> meshNode = NFbxMeshNode::Create();
-		meshNode->fbxScene = this->scene;
+		meshNode->fbxScene = this->scene;		
 		FbxNode* fbxMeshNode = scene->GetSrcObject<FbxMesh>(meshIndex)->GetNode();
+		n_assert_fmt(fbxMeshNode, "Mesh lacks connection to node (possibly corrupt file?)\nfile: %s\n", this->name.AsCharPtr());
 
 		// set export flags before setup, since setup will extract the mesh information
 		meshNode->SetExportFlags(exportFlags);
