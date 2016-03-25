@@ -56,8 +56,6 @@ FpsCameraProperty::SetupCallbacks()
 void
 FpsCameraProperty::OnStart()
 {
-	
-	
 	this->head = this->entity->GetString(Attr::CameraJoint);
 	float fov = this->entity->GetFloat(Attr::CameraFov);
 	float nearPlane = this->entity->GetFloat(Attr::CameraMinDistance);
@@ -82,9 +80,7 @@ FpsCameraProperty::OnStart()
 	Ptr<SetTransform> setTransformMsg = SetTransform::Create();
 	setTransformMsg->SetMatrix(this->cameraEntity->GetTransform());
 	__SendSync(this->entity, setTransformMsg); 	
-	InputServer::Instance()->SetCursorLocked(this->entity->GetBool(Attr::InputFocus));
-
-	
+	InputServer::Instance()->SetCursorLocked(this->entity->GetBool(Attr::InputFocus));	
 }
 
 //------------------------------------------------------------------------------

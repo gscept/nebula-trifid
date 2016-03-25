@@ -82,6 +82,8 @@ set(application_files_graphicsfeature__properties
 	properties/animpathproperty.h
 	properties/pathanimproperty.cc
 	properties/pathanimproperty.h
+	properties/freemoveproperty.cc
+	properties/freemoveproperty.h
 )
 source_group("graphicsfeature\\properties" FILES ${application_files_graphicsfeature__properties})
 

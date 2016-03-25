@@ -1,0 +1,3 @@
+<FreeCamera IsVirtualCategory="false">
+  <Item Placeholder="examples/camera" Id="FreeCamera" Graphics="examples/camera"/>
+</FreeCamera>

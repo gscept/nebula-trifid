@@ -262,4 +262,5 @@
     <Attribute name="InputFocus"/>
     <Attribute name="InputMouseGrab" />
   </Property>
+  <Property name="GraphicsFeature::FreeMoveProperty" derivedFrom="BaseGameFeature::TransformableProperty" header="graphicsfeature/properties/freemoveproperty.h"/>
 </Nebula3>		
