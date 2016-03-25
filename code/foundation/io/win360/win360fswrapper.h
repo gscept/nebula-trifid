@@ -49,6 +49,8 @@ public:
     static void SetReadOnly(const Util::String& path, bool readOnly);
     /// get read-only status of a file
     static bool IsReadOnly(const Util::String& path);
+	/// get locked status of file
+	static bool IsLocked(const Util::String& path);
     /// delete a file
     static bool DeleteFile(const Util::String& path);
     /// delete an empty directory

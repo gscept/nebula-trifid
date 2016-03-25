@@ -74,6 +74,8 @@ public:
     bool DeleteFile(const URI& path) const;
     /// return true if file exists
     bool FileExists(const URI& path) const;
+	/// return if file is locked
+	bool IsLocked(const URI& path) const;
     /// set the readonly status of a file
     void SetReadOnly(const URI& path, bool b) const;
     /// return read only status of a file

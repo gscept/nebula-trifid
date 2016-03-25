@@ -275,6 +275,25 @@ Win360FSWrapper::IsReadOnly(const String& path)
 
 //------------------------------------------------------------------------------
 /**
+	try to check for a lock by trying to lock the file. inherently racey, but
+	good enough in some situations
+*/
+bool
+Win360FSWrapper::IsLocked(const Util::String& path)
+{
+	n_assert(path.IsValid());
+	Handle h = Win360FSWrapper::OpenFile(path, Stream::ReadWriteAccess, Stream::Sequential);	
+	OVERLAPPED overlap = { 0 };
+	if (LockFileEx(h, LOCKFILE_EXCLUSIVE_LOCK| LOCKFILE_FAIL_IMMEDIATELY, 0, MAXDWORD, MAXDWORD, &overlap))
+	{
+		UnlockFileEx(h, 0, MAXDWORD, MAXDWORD, &overlap);
+		return true;
+	}
+	return false;
+}
+
+//------------------------------------------------------------------------------
+/**
     Deletes a file. Returns true if the operation was successful. The delete
     will fail if the fail doesn't exist or the file is read-only.
 */
