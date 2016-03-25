@@ -141,9 +141,9 @@ EditorNavMeshProperty::OnRender()
 /**
 */
 void
-EditorNavMeshProperty::OnActivate()
+EditorNavMeshProperty::OnStart()
 {
-    Property::OnActivate();
+    Property::OnStart();
 	if (entity->GetString(Attr::NavMeshData).IsValid())
 	{
 		if(IO::IoServer::Instance()->FileExists(IO::URI(entity->GetString(Attr::NavMeshData))))

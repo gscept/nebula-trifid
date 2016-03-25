@@ -388,7 +388,7 @@ Level::GetBoundingBox()
 	Util::Array<Ptr<Game::Entity>> ents = BaseGameFeature::EntityManager::Instance()->GetEntities();
 	for(IndexT i = 0 ; i < ents.Size() ; i++)
 	{
-		if(ents[i]->HasAttr(Attr::EntityType))
+		if(ents[i].isvalid() && ents[i]->HasAttr(Attr::EntityType))
 		{
 			Ptr<GraphicsFeature::GetModelEntity> msg = GraphicsFeature::GetModelEntity::Create();
 			ents[i]->SendSync(msg.cast<Messaging::Message>());

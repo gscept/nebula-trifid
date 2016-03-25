@@ -27,7 +27,8 @@ using namespace BaseGameFeature;
 //------------------------------------------------------------------------------
 /**
 */
-CameraProperty::CameraProperty()
+CameraProperty::CameraProperty():
+	applyEntityTransform(true)
 {
     this->cameraEntity = Graphics::CameraEntity::Create();
 }
@@ -56,6 +57,8 @@ void
 CameraProperty::SetupAcceptedMessages()
 {
     this->RegisterMessage(CameraFocus::Id);    
+	this->RegisterMessage(GetCameraEntity::Id);
+	this->RegisterMessage(GetCameraTransform::Id);
     Game::Property::SetupAcceptedMessages();
 }
 
@@ -108,6 +111,18 @@ CameraProperty::HandleMessage(const Ptr<Messaging::Message>& msg)
             this->OnLoseCameraFocus();
         }
     }
+	else if (msg->CheckId(GetCameraTransform::Id))
+	{
+		Ptr<GetCameraTransform> m = msg.cast<GetCameraTransform>();
+		m->SetHandled(true);
+		m->SetTransform(this->cameraEntity->GetTransform());
+	}
+	if (msg->CheckId(GetCameraEntity::Id))
+	{
+		Ptr<GetCameraEntity> m = msg.cast<GetCameraEntity>();
+		m->SetHandled(true);
+		m->SetCamera(this->cameraEntity);
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -197,9 +212,12 @@ CameraProperty::OnRender()
 
         // set point of interest in post effect manager
         PostEffect::PostEffectManager::Instance()->SetPointOfInterest(trans.get_position());
-
-        // apply transform		
-        this->cameraEntity->SetTransform(trans);
+		
+		if (this->applyEntityTransform)
+		{
+			// apply transform		
+			this->cameraEntity->SetTransform(trans);
+		}
     }
 }
 
@@ -217,4 +235,5 @@ CameraProperty::UpdateAudioListenerPosition() const
     }
     FAudio::AudioListener::Instance()->SetTransform(transform);
 }
+
 }; // namespace GraphicsFeature

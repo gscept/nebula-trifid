@@ -150,7 +150,7 @@ PhysXCharacter::Detach()
 void
 PhysXCharacter::SetRadius(float radius)
 {
-
+	this->radius = radius;
 }
 
 //------------------------------------------------------------------------------
