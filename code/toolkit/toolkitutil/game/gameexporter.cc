@@ -134,7 +134,11 @@ GameExporter::ExportAll()
     }
     
    
-    bm->CreateDatabases("export:/db/");
+	if (!bm->CreateDatabases("export:/db/"))
+	{
+		n_warning("Aborting export of game data as databases are in use\n");
+		return;
+	}
 	bm->SaveBlueprint("export:data/tables/blueprints.xml");
 
 	blog.AddEntry(console, "Blueprint Manager", "data/tables");

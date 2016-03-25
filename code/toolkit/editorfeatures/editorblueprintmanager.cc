@@ -1060,11 +1060,16 @@ EditorBlueprintManager::WriteTemplates( const Ptr<Db::Table> & table, const Util
 Ptr<Db::Database>
 EditorBlueprintManager::CreateDatabase(const IO::URI & filename)
 {    
+	Ptr<Db::Database> db;
     if(IO::IoServer::Instance()->FileExists(filename))
     {
+		if (IO::IoServer::Instance()->IsLocked(filename))
+		{
+			return db;
+		}
         IO::IoServer::Instance()->DeleteFile(filename);
     }
-    Ptr<Database> db = DbFactory::Instance()->CreateDatabase();
+    db = DbFactory::Instance()->CreateDatabase();
     db->SetURI(filename);
     db->SetAccessMode(Database::ReadWriteCreate);
     db->SetIgnoreUnknownColumns(true);
@@ -1075,12 +1080,17 @@ EditorBlueprintManager::CreateDatabase(const IO::URI & filename)
 //------------------------------------------------------------------------------
 /**
 */
-void 
+bool 
 EditorBlueprintManager::CreateDatabases(const Util::String & folder)
 {
    Ptr<Database> staticDb = this->CreateDatabase(folder + "static.db4");
    Ptr<Database> gameDb = this->CreateDatabase(folder + "game.db4");
 
+   if (!staticDb.isvalid() || !gameDb.isvalid())
+   {
+	   n_warning("Databases locked\n");
+	   return false;
+   }
    this->WriteAttributes(staticDb);
    this->WriteAttributes(gameDb);
    this->CreateCategoryTables(staticDb, gameDb);   
@@ -1094,6 +1104,7 @@ EditorBlueprintManager::CreateDatabases(const Util::String & folder)
    this->CreateEmptyLevel(staticDb, gameDb);
    staticDb->Close();
    gameDb->Close();
+   return true;
 }
 
 //------------------------------------------------------------------------------

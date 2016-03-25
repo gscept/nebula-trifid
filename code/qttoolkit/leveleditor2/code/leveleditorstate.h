@@ -67,6 +67,7 @@ private:
 	Ptr<Dynui::ImguiConsole> console;
 	Ptr<Dynui::ImguiConsoleHandler> consoleHandler;
 	Ptr<Game::Entity> defaultCam;	
+	Ptr<Game::Entity> fpsCam;
 	Ptr<TransformAction> activeTransformAction;
 	Ptr<Picking::PickingServer> pickingServer;
 	Input::Key::Code activateSelectionZoom;

@@ -140,6 +140,7 @@ LevelEditorState::OnFrame()
 
 	Navigation::NavigationServer::Instance()->RenderDebug();
 	Dynui::ImguiAddon::EndFrame();
+	
 	return GameStateHandler::OnFrame();
 }
 
@@ -194,6 +195,11 @@ LevelEditorState::OnStateEnter( const Util::String& prevState )
 	this->defaultCam->SetMatrix44(Attr::Transform, camTrans);
 	this->defaultCam->SetFloat4(Attr::MayaCameraCenterOfInterest, Math::float4(0, 0, 0, 1));	
 	BaseGameFeature::EntityManager::Instance()->AttachEntity(defaultCam);
+	this->fpsCam = BaseGameFeature::FactoryManager::Instance()->CreateEntityByTemplate("FreeCamera", "FreeCamera");
+	this->fpsCam->SetBool(Attr::CameraFocus, false);
+	this->fpsCam->SetBool(Attr::InputFocus, false);
+	BaseGameFeature::EntityManager::Instance()->AttachEntity(fpsCam);
+	
 
 	// create selection and placement utility
 	this->selectionUtil = SelectionUtil::Create();
