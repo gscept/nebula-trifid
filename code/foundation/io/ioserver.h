@@ -94,6 +94,9 @@ public:
     /// list all subdirectories matching a pattern in a directory
     Util::Array<Util::String> ListDirectories(const URI& dir, const Util::String& pattern, bool asFullPath=false) const;
 
+	/// create a temporary file name
+	URI CreateTemporaryFilename(const URI& path) const;
+
 private:
     /// helper function to add path prefix to file or dir names in array
     Util::Array<Util::String> AddPathPrefixToArray(const Util::String& prefix, const Util::Array<Util::String>& filenames) const;

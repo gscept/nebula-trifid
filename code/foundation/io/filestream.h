@@ -55,7 +55,7 @@ public:
     /// unmap stream
     virtual void Unmap();
 
-private:
+protected:
     FSWrapper::Handle handle;
     void* mappedContent;
 };

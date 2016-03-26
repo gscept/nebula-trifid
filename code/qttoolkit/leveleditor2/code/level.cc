@@ -448,7 +448,7 @@ Level::SaveLevel()
 /**
 */
 void
-Level::SaveLevelFile(const Util::String& name, const IO::URI & filename, bool selectedOnly, Math::bbox& box)
+Level::SaveLevelFile(const Util::String& name, const IO::URI & realfilename, bool selectedOnly, Math::bbox& box)
 {
 	
 	Ptr<IO::IoServer> ioServer = IO::IoServer::Instance();
@@ -457,6 +457,9 @@ Level::SaveLevelFile(const Util::String& name, const IO::URI & filename, bool se
 	Ptr<IO::XmlWriter> xmlWriter = IO::XmlWriter::Create();
 	Ptr<IO::Stream> stream;
 
+	IO::URI filename;
+	filename.SetScheme("safefile");
+	filename.SetLocalPath(realfilename.LocalPath());
 	stream = ioServer->CreateStream(filename);
 	stream->SetAccessMode(IO::Stream::WriteAccess);
 	stream->Open();

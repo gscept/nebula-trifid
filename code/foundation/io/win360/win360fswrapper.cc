@@ -284,9 +284,9 @@ Win360FSWrapper::IsLocked(const Util::String& path)
 	n_assert(path.IsValid());
 	Handle h = Win360FSWrapper::OpenFile(path, Stream::ReadWriteAccess, Stream::Sequential);	
 	OVERLAPPED overlap = { 0 };
-	if (LockFileEx(h, LOCKFILE_EXCLUSIVE_LOCK| LOCKFILE_FAIL_IMMEDIATELY, 0, MAXDWORD, MAXDWORD, &overlap))
+	if (::LockFileEx(h, LOCKFILE_EXCLUSIVE_LOCK| LOCKFILE_FAIL_IMMEDIATELY, 0, MAXDWORD, MAXDWORD, &overlap))
 	{
-		UnlockFileEx(h, 0, MAXDWORD, MAXDWORD, &overlap);
+		::UnlockFileEx(h, 0, MAXDWORD, MAXDWORD, &overlap);
 		return true;
 	}
 	return false;
@@ -310,6 +310,19 @@ Win360FSWrapper::DeleteFile(const String& path)
         Win32::Win32StringConverter::UTF8ToWide(path, widePath, sizeof(widePath));
         return (0 != ::DeleteFileW((LPCWSTR)widePath));
     #endif
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+Win360FSWrapper::ReplaceFile(const Util::String& source, const Util::String& target)
+{
+	ushort wideSourcePath[1024];
+	ushort wideTargetPath[1024];
+	Win32::Win32StringConverter::UTF8ToWide(source, wideSourcePath, sizeof(wideSourcePath));
+	Win32::Win32StringConverter::UTF8ToWide(target, wideTargetPath, sizeof(wideTargetPath));
+	return (0 != ::ReplaceFileW((LPCWSTR)wideTargetPath, (LPCWSTR)wideSourcePath, NULL, 0, 0, 0));
 }
 
 //------------------------------------------------------------------------------
@@ -446,6 +459,22 @@ Win360FSWrapper::CreateDirectory(const String& path)
         Win32::Win32StringConverter::UTF8ToWide(path, widePath, sizeof(widePath));
         return (0 != ::CreateDirectoryW((LPCWSTR)widePath, NULL));
     #endif
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+Util::String
+Win360FSWrapper::CreateTemporaryFilename(const Util::String& path)
+{
+	n_assert(path.IsValid());
+	const String& nativePath = path;
+	ushort widePath[1024];
+	Win32::Win32StringConverter::UTF8ToWide(path, widePath, sizeof(widePath));
+	const wchar_t* prefix = L"NEB";
+	wchar_t name[MAX_PATH];
+	n_assert(GetTempFileNameW((LPCWSTR)widePath, prefix, 0, name));
+	return Win32::Win32StringConverter::WideToUTF8((ushort*)name);
 }
 
 //------------------------------------------------------------------------------
