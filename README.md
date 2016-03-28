@@ -10,6 +10,8 @@ Nebula Trifid is intended to be both an SDK as well as a programming platform to
 
 Nebula Trifid also contains a complete toolkit which allows for content management in a game project, as well as a level editor which is used to design levels and script events. It's also easy to set up, all you need is CMake. 
 
+Check out the [Changelog](https://github.com/gscept/nebula-trifid/wiki/Changelog) as well.
+
 A more detailed list of features in Nebula Trifid can be seen here:
 
 # Foundation
