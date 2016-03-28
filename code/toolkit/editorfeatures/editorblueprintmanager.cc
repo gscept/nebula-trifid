@@ -1063,11 +1063,10 @@ EditorBlueprintManager::CreateDatabase(const IO::URI & filename)
 	Ptr<Db::Database> db;
     if(IO::IoServer::Instance()->FileExists(filename))
     {
-		if (IO::IoServer::Instance()->IsLocked(filename))
+		if (!IO::IoServer::Instance()->DeleteFile(filename))
 		{
 			return db;
-		}
-        IO::IoServer::Instance()->DeleteFile(filename);
+		}        
     }
     db = DbFactory::Instance()->CreateDatabase();
     db->SetURI(filename);

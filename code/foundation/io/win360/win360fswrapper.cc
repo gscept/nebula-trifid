@@ -284,12 +284,14 @@ Win360FSWrapper::IsLocked(const Util::String& path)
 	n_assert(path.IsValid());
 	Handle h = Win360FSWrapper::OpenFile(path, Stream::ReadWriteAccess, Stream::Sequential);	
 	OVERLAPPED overlap = { 0 };
+	bool locked = true;
 	if (::LockFileEx(h, LOCKFILE_EXCLUSIVE_LOCK| LOCKFILE_FAIL_IMMEDIATELY, 0, MAXDWORD, MAXDWORD, &overlap))
 	{
-		::UnlockFileEx(h, 0, MAXDWORD, MAXDWORD, &overlap);
-		return true;
+		BOOL ret = ::UnlockFileEx(h, 0, MAXDWORD, MAXDWORD, &overlap);		
+		locked = false;
 	}
-	return false;
+	Win360FSWrapper::CloseFile(h);
+	return locked;
 }
 
 //------------------------------------------------------------------------------
