@@ -134,6 +134,7 @@ LevelEditor2Window::LevelEditor2Window():
 	connect(this->ui.actionImport_Level, SIGNAL(triggered()), this, SLOT(OnImportLevel()));
 	connect(this->ui.actionExport_Selection_as_Level, SIGNAL(triggered()), this, SLOT(OnExportSelectionLevel()));
     connect(this->ui.actionAdd_Level_Reference, SIGNAL(triggered()), this, SLOT(OnAddReference()));
+    connect(this->ui.actionBatch_on_save, SIGNAL(toggled(bool)), this, SLOT(OnBatchToggle(bool)));
 
     
 
@@ -149,6 +150,10 @@ LevelEditor2Window::LevelEditor2Window():
 
     this->ui.centralwidget->update();
     this->SetWindowTitle("Untitled");
+
+    this->progressBar = new QProgressBar();
+    this->progressBar->setFixedSize(300, 15);    
+    this->statusBar()->addPermanentWidget(this->progressBar);
 
 }
 
@@ -379,6 +384,15 @@ LevelEditor2Window::OnAddReference()
         Level::Instance()->LoadLevel(full, Level::Reference);
         this->ui.actionSave->setEnabled(true);        
     }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+LevelEditor2Window::OnBatchToggle(bool batch)
+{
+    Level::Instance()->SetAutoBatch(batch);
 }
 
 //------------------------------------------------------------------------------
@@ -877,6 +891,21 @@ LevelEditor2Window::OnBatchGame()
 	exporter->Open();
 	exporter->ExportAll();
 	exporter->Close();	
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+n_status(const char *fmt, ...)
+{
+    va_list argList;
+    va_start(argList, fmt);
+    Util::String str;
+    str.FormatArgList(fmt, argList);
+    n_printf(str.AsCharPtr());
+    LevelEditor2App::Instance()->GetWindow()->statusBar()->showMessage(str.AsCharPtr(), 5000);
+    va_end(argList);
 }
 
 } // namespace LevelEditor2

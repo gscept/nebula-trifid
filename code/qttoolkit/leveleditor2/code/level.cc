@@ -232,28 +232,32 @@ Level::LoadLevel(const Util::String& level, LoadMode mode)
 */
 bool
 Level::LoadLevelFile(const Util::String& level, LoadMode mode)
-{    
+{
+    LevelEditor2Window * window = LevelEditor2App::Instance()->GetWindow();
     if (mode == Reference && this->refLevels.Contains(level))
-    {
-        n_warning("Trying to reference yourself");
+    {        
+        n_status("Trying to reference yourself\n");
         return false;
-    }
+    }    
+    n_status("Loading %s\n", level.AsCharPtr());
 	Ptr<IO::IoServer> ioServer = IO::IoServer::Instance();
 	Util::String fileName;
 	fileName.Format("work:levels/%s.xml",level.AsCharPtr());
 	if(!ioServer->FileExists(fileName))
 	{
+        n_status("File %s does not exist\n", fileName.AsCharPtr());
 		return false;
 	}
 	Ptr<IO::Stream> stream = ioServer->CreateStream(fileName);
 	stream->SetAccessMode(IO::Stream::ReadAccess);
 	if (!stream->Open())
 	{
+        n_status("Cannot open file: %s", fileName.AsCharPtr());
 		return false;
 	}
 	   
 	bool result = false;
-
+    window->GetProgressBar()->reset();
 	Ptr<ParsedLevel> lvl = ParsedLevel::Create();
 	
 	Ptr<IO::XmlReader> reader = IO::XmlReader::Create();
@@ -264,7 +268,7 @@ Level::LoadLevelFile(const Util::String& level, LoadMode mode)
 		reader->Close();
 		stream->Close();
 	}
-
+    window->GetProgressBar()->setMaximum(lvl->entities.Size()-1);
 	
 	if(result)
 	{
@@ -294,11 +298,15 @@ Level::LoadLevelFile(const Util::String& level, LoadMode mode)
 			const ParsedLevel::_Layer & l = lvl->layers[i];
 			this->AddLayer(l.name, l.visible, l.autoload, l.locked);
 		}
+        QProgressBar * bar = window->GetProgressBar();
 		for (int i = 0;i < lvl->entities.Size();i++)
 		{
 			LevelEditor2EntityManager::Instance()->CreateEntityFromAttrContainer(entityLevel, lvl->entities[i].Key(), lvl->entities[i].Value());
+            bar->setValue(bar->value() + 1);
 		}		
-	}		    
+        n_status("Success");
+        bar->reset();
+	}	
 	return result;	
 }
 
@@ -424,6 +432,7 @@ Level::SaveSelection(const Util::String & name)
 void 
 Level::SaveLevel()
 {
+    n_status("Saving level...");
 	Ptr<IO::IoServer> ioServer = IO::IoServer::Instance();
 	// make sure the levels directory exists
 	ioServer->CreateDirectory("work:levels");
@@ -441,6 +450,7 @@ Level::SaveLevel()
 
 	fileName.Format("work:levels/%s.xml", this->name.AsCharPtr());
 	this->SaveLevelFile(this->name, IO::URI(fileName), false, box);
+    n_status("Done");
 }
 
 
@@ -466,11 +476,12 @@ Level::SaveLevelFile(const Util::String& name, const IO::URI & realfilename, boo
 
 	if (!stream->IsOpen())
 	{
+        n_status("Failed to open file\n");
 		return;
 	}	
-
+    
 	this->objectCounters.Clear();
-
+    n_status("Saving level: %s\n", realfilename.LocalPath().AsCharPtr());
 	xmlWriter->SetStream(stream);
 	xmlWriter->Open();
 	xmlWriter->BeginNode("Level"); //Root node
@@ -506,8 +517,12 @@ Level::SaveLevelFile(const Util::String& name, const IO::URI & realfilename, boo
 	{
 		filter.Append(Attr::Attribute(Attr::EntityLevel, name));
 	}
-		
+	
+    QProgressBar * bar = LevelEditor2App::Instance()->GetWindow()->GetProgressBar();
+    bar->reset();
+
 	Array<Ptr<Game::Entity>> ents = BaseGameFeature::EntityManager::Instance()->GetEntitiesByAttrs(filter);
+    bar->setMaximum(ents.Size()-1);
 	for (int i = 0;i < ents.Size();i++)
 	{
 		EntityType type = (EntityType)ents[i]->GetInt(Attr::EntityType);
@@ -519,7 +534,7 @@ Level::SaveLevelFile(const Util::String& name, const IO::URI & realfilename, boo
 			box.extend(model->GetGlobalBoundingBox());
 		}
 		this->SaveEntity(name, ents[i], xmlWriter);
-
+        bar->setValue(bar->value() + 1);
 	}
 	xmlWriter->EndNode();	
 	
@@ -580,11 +595,14 @@ Level::SaveLevelFile(const Util::String& name, const IO::URI & realfilename, boo
         LevelEditor2App::Instance()->GetGlobalAttrs()->SetString(Attr::_DefaultLevel,this->name);
         LevelEditor2App::Instance()->GetGlobalAttrs()->Save();
     }
-
+    
 	if(this->autoBatch)
 	{
+        n_status("Batching level\n");
 		this->ExportLevel(filename.LocalPath());
 	}
+    bar->reset();
+    n_status("Success");
 }
 
 //------------------------------------------------------------------------------
