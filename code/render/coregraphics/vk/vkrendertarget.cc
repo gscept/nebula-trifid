@@ -18,7 +18,8 @@ __ImplementClass(Vulkan::VkRenderTarget, 'VURT', Base::RenderTargetBase);
 //------------------------------------------------------------------------------
 /**
 */
-VkRenderTarget::VkRenderTarget()
+VkRenderTarget::VkRenderTarget() :
+	swapbufferIdx(0)
 {
 	// empty
 }
@@ -45,6 +46,11 @@ VkRenderTarget::Setup()
 	this->viewportInfo.flags = 0;
 	this->viewportInfo.scissorCount = 0;
 	this->viewportInfo.pScissors = NULL;
+
+	VkSampleCountFlagBits sampleCount =
+		this->antiAliasQuality == CoreGraphics::AntiAliasQuality::None ? VkSampleCountFlagBits::VK_SAMPLE_COUNT_1_BIT :
+		this->antiAliasQuality == CoreGraphics::AntiAliasQuality::Low ? VkSampleCountFlagBits::VK_SAMPLE_COUNT_4_BIT :
+		this->antiAliasQuality == CoreGraphics::AntiAliasQuality::Medium ? VkSampleCountFlagBits::VK_SAMPLE_COUNT_16_BIT : VkSampleCountFlagBits::VK_SAMPLE_COUNT_32_BIT;
 
 	if (this->isDefaultRenderTarget)
 	{
@@ -76,6 +82,75 @@ VkRenderTarget::Setup()
 		this->viewportInfo.pViewports = this->viewports.Begin();
 		this->viewportInfo.scissorCount = this->scissors.Size();
 		this->viewportInfo.pScissors = this->scissors.Begin();
+
+		VkAttachmentReference attachmentRef;
+		attachmentRef.attachment = 0;
+		attachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+		// create just one subpass which is just using our single color attachment and optional depth stencil attachment
+		VkSubpassDescription subpass;
+		subpass.flags = 0;
+		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+		subpass.inputAttachmentCount = 0;
+		subpass.pInputAttachments = VK_NULL_HANDLE;
+		subpass.colorAttachmentCount = 1;
+		subpass.pColorAttachments = &attachmentRef;
+		subpass.preserveAttachmentCount = 0;
+		subpass.pPreserveAttachments = VK_NULL_HANDLE;
+		subpass.pDepthStencilAttachment = VK_NULL_HANDLE;
+		subpass.pResolveAttachments = VK_NULL_HANDLE;
+
+		VkAttachmentDescription attachment;
+		attachment.format = VkTypes::AsVkFramebufferFormat(this->colorBufferFormat);
+		attachment.samples = sampleCount;
+		attachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;						// set to clear
+		attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+		attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+		attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
+		attachment.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		attachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+		// setup render pass info
+		VkRenderPassCreateInfo renderPassInfo =
+		{
+			VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
+			NULL,
+			0,
+			1,
+			&attachment,
+			1,
+			&subpass,
+			0,
+			VK_NULL_HANDLE
+		};
+
+		// create pass
+		VkResult res = vkCreateRenderPass(VkRenderDevice::dev, &renderPassInfo, NULL, &this->pass);
+		n_assert(res == VK_SUCCESS);
+
+		this->swapbuffers.Resize(VkRenderDevice::Instance()->numBackbuffers);
+
+		IndexT i;
+		for (i = 0; i < this->swapbuffers.Size(); i++)
+		{
+			const VkFramebufferCreateInfo fbInfo =
+			{
+				VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
+				NULL,
+				0,
+				this->pass,
+				1,
+				&VkRenderDevice::Instance()->backbufferViews[i],
+				this->width,
+				this->height,
+				1,
+			};
+
+			// create framebuffer
+			res = vkCreateFramebuffer(VkRenderDevice::dev, &fbInfo, NULL, &this->swapbuffers[i]);
+			n_assert(res == VK_SUCCESS);
+		}
+		
 	}
 	else
 	{
@@ -130,11 +205,6 @@ VkRenderTarget::Setup()
 		extents.height = resolveHeight;
 		extents.depth = 1;
 
-		VkSampleCountFlagBits sampleCount = 
-			 this->antiAliasQuality == CoreGraphics::AntiAliasQuality::None ? VkSampleCountFlagBits::VK_SAMPLE_COUNT_1_BIT :
-			this->antiAliasQuality == CoreGraphics::AntiAliasQuality::Low ? VkSampleCountFlagBits::VK_SAMPLE_COUNT_4_BIT :
-			this->antiAliasQuality == CoreGraphics::AntiAliasQuality::Medium ? VkSampleCountFlagBits::VK_SAMPLE_COUNT_16_BIT : VkSampleCountFlagBits::VK_SAMPLE_COUNT_32_BIT;
-
 		VkImageCreateInfo imgInfo = 
 		{
 			VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
@@ -151,7 +221,7 @@ VkRenderTarget::Setup()
 			VK_SHARING_MODE_EXCLUSIVE,
 			1,
 			&VkRenderDevice::Instance()->renderQueueIdx,
-			VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+			VK_IMAGE_LAYOUT_UNDEFINED
 		};
 
 		// create image
@@ -168,6 +238,7 @@ VkRenderTarget::Setup()
 		subres.baseMipLevel = 0;
 		subres.layerCount = 1;
 		subres.levelCount = 1;
+		subres.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 		VkImageViewCreateInfo viewInfo =
 		{
 			VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
@@ -236,7 +307,7 @@ VkRenderTarget::Setup()
 			depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 			depthAttachmentRef.attachment = 1;
 
-			attachment[1].format = VK_FORMAT_D24_UNORM_S8_UINT;
+			attachment[1].format = VK_FORMAT_D32_SFLOAT_S8_UINT;
 			attachment[1].samples = VK_SAMPLE_COUNT_1_BIT;
 			attachment[1].loadOp = depthStencilTarget->GetClearFlags() & CoreGraphics::DepthStencilTarget::ClearDepth ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
 			attachment[1].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -401,6 +472,47 @@ void
 VkRenderTarget::ResetResolveRects()
 {
 	this->viewports.Clear();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderTarget::Copy(const Ptr<CoreGraphics::RenderTarget>& tex)
+{
+	VkImageBlit region;
+	region.srcSubresource.mipLevel = 0;
+	region.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	region.srcSubresource.baseArrayLayer = 0;
+	region.srcSubresource.layerCount = 1;
+	region.srcOffsets[0].x = region.srcOffsets[0].y = region.srcOffsets[0].z = 0;
+	region.srcOffsets[1].x = this->GetResolveTextureWidth();
+	region.srcOffsets[1].y = this->GetResolveTextureHeight();
+	region.srcOffsets[1].z = 1;
+
+	region.dstSubresource.mipLevel = 0;
+	region.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	region.dstSubresource.baseArrayLayer = 0;
+	region.dstSubresource.layerCount = 1;
+	region.dstOffsets[0].x = region.dstOffsets[0].y = region.dstOffsets[0].z = 0;
+	region.dstOffsets[1].x = tex->GetResolveTextureWidth();
+	region.dstOffsets[1].y = tex->GetResolveTextureHeight();
+	region.dstOffsets[1].z = 1;
+
+	// copy between images
+	//vkCmdCopyImage(VkRenderDevice::mainCmdGfxBuffer, this->image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, tex->image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 1, &region);
+	vkCmdBlitImage(VkRenderDevice::mainCmdGfxBuffer, this->image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, tex->image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 1, &region, VK_FILTER_NEAREST);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderTarget::SwapBuffers()
+{
+	n_assert(this->isDefaultRenderTarget);
+	this->swapbufferIdx = (this->swapbufferIdx + 1) % this->swapbuffers.Size();
+	this->framebuffer = this->swapbuffers[this->swapbufferIdx];
 }
 
 } // namespace Vulkan

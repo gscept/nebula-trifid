@@ -76,8 +76,8 @@ VkCmdBufferThread::DoWork()
 				vkCmdBindIndexBuffer(this->commandBuffer, cmd.ibo.buffer, cmd.ibo.offset, cmd.ibo.indexType);
 				break;
 			case Draw:
-				if (cmd.draw.numIndices > 0) vkCmdDraw(this->commandBuffer, cmd.draw.numVerts, cmd.draw.numInstances, cmd.draw.baseVertex, cmd.draw.baseInstance);
-				else						 vkCmdDrawIndexed(this->commandBuffer, cmd.draw.numIndices, cmd.draw.numInstances, cmd.draw.baseIndex, cmd.draw.baseVertex, cmd.draw.baseInstance);
+				if (cmd.draw.numIndices > 0)	vkCmdDrawIndexed(this->commandBuffer, cmd.draw.numIndices, cmd.draw.numInstances, cmd.draw.baseIndex, cmd.draw.baseVertex, cmd.draw.baseInstance);
+				else							vkCmdDraw(this->commandBuffer, cmd.draw.numVerts, cmd.draw.numInstances, cmd.draw.baseVertex, cmd.draw.baseInstance);
 				break;
 			case Dispatch:
 				vkCmdDispatch(this->commandBuffer, cmd.dispatch.numGroupsX, cmd.dispatch.numGroupsY, cmd.dispatch.numGroupsZ);
@@ -102,6 +102,17 @@ VkCmdBufferThread::DoWork()
 				break;
 			case Sync:
 				cmd.syncEvent->Signal();
+				break;
+			case LunarGCircumventValidation:
+				const float blend[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+				vkCmdSetBlendConstants(this->commandBuffer, blend);
+				vkCmdSetDepthBias(this->commandBuffer, 1.0f, 0.0f, 1.0f);
+				vkCmdSetDepthBounds(this->commandBuffer, 0, 1);
+				vkCmdSetLineWidth(this->commandBuffer, 1.0f);
+				vkCmdSetStencilCompareMask(this->commandBuffer, VK_STENCIL_FRONT_AND_BACK, 0xFFFFFFFF);
+				vkCmdSetStencilReference(this->commandBuffer, VK_STENCIL_FRONT_AND_BACK, 0xFFFFFFFF);
+				vkCmdSetStencilWriteMask(this->commandBuffer, VK_STENCIL_FRONT_AND_BACK, 0xFFFFFFFF);
+
 				break;
 			}
 		}

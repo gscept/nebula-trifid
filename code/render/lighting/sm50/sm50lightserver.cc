@@ -402,9 +402,6 @@ SM50LightServer::RenderPointLights()
 		RenderDevice* renderDevice = RenderDevice::Instance();
 		ShaderServer* shaderServer = ShaderServer::Instance();
 
-		// apply mesh
-		this->pointLightMesh->GetMesh()->ApplyPrimitives(0);
-
 		IndexT shadowIdx;
 		for (shadowIdx = 0; shadowIdx < NumShadowFlags; ++shadowIdx)
 		{
@@ -412,6 +409,9 @@ SM50LightServer::RenderPointLights()
 			{
 				this->lightShader->SelectActiveVariation(this->pointLightFeatureBits[shadowIdx]);
                 this->lightShader->Apply();
+
+				// apply mesh
+				this->pointLightMesh->GetMesh()->ApplyPrimitives(0);
 
 				IndexT i;
 				for (i = 0; i < this->pointLights[shadowIdx].Size(); i++)
@@ -475,16 +475,16 @@ SM50LightServer::RenderSpotLights()
 		TransformDevice* tformDevice = TransformDevice::Instance();
 		RenderDevice* renderDevice = RenderDevice::Instance();
 
-		// apply mesh
-		this->spotLightMesh->GetMesh()->ApplyPrimitives(0);
-
 		IndexT shadowIdx;
 		for (shadowIdx = 0; shadowIdx < NumShadowFlags; ++shadowIdx)
 		{
 			if (this->spotLights[shadowIdx].Size())
 			{
 				this->lightShader->SelectActiveVariation(this->spotLightFeatureBits[shadowIdx]);
-                this->lightShader->Apply();
+                this->lightShader->Apply();				
+
+				// apply mesh
+				this->spotLightMesh->GetMesh()->ApplyPrimitives(0);
 
 				IndexT i;
 				for (i = 0; i < this->spotLights[shadowIdx].Size(); i++)
@@ -612,7 +612,7 @@ SM50LightServer::RenderLightProbes()
 		entity->ApplyProbe(probe);
 
 		// apply shader and draw
-		shader->Apply();		
+		shader->Apply();
         shader->Commit();
 		renderDevice->Draw();
 	}

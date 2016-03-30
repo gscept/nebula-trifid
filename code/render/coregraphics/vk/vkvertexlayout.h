@@ -27,10 +27,17 @@ public:
 
 	/// set the vertex buffer associated with the stream index
 	void SetStreamBuffer(IndexT streamIndex, VkBuffer vertexBuffer);
+	
+	/// get derivative, and create if needed
+	const VkPipelineVertexInputStateCreateInfo& GetDerivative(const Ptr<VkShaderProgram>& program);
 
 	/// applies layout before rendering
 	void Apply();
 private:
+
+	/// create derivative info from shader
+	const VkPipelineVertexInputStateCreateInfo& CreateDerivative(const Ptr<VkShaderProgram>& program);
+
 	VkGraphicsPipelineCreateInfo info;
 	VkPipelineVertexInputStateCreateInfo vertexInfo;
 
@@ -38,6 +45,14 @@ private:
 
 	Util::FixedArray<VkVertexInputBindingDescription> binds;
 	Util::FixedArray<VkVertexInputAttributeDescription> attrs;
+
+	struct DerivativeLayout
+	{
+		VkPipelineVertexInputStateCreateInfo info;
+		Util::Array<VkVertexInputAttributeDescription> attrs;
+	};
+
+	Util::HashTable<Ptr<VkShaderProgram>, DerivativeLayout*> derivatives;
 };
 
 

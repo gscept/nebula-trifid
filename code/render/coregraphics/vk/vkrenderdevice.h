@@ -49,6 +49,8 @@ public:
 	void BeginFeedback(const Ptr<CoreGraphics::FeedbackBuffer>& fb, CoreGraphics::PrimitiveTopology::Code primType, const Ptr<CoreGraphics::Shader>& passShader);
 	/// begin batch
 	void BeginBatch(CoreGraphics::FrameBatchType::Code batchType);
+	/// bake the current state of the render device (only used on DX12 and Vulkan renderers where pipeline creation is required)
+	void BuildRenderPipeline();
 	/// draw current primitives
 	void Draw();
 	/// draw indexed, instanced primitives (see method header for details)
@@ -114,7 +116,9 @@ private:
 		FramebufferLayoutInfoSet = 4,
 		InputLayoutInfoSet = 8,
 
-		AllInfoSet = 15
+		AllInfoSet = 15,
+
+		PipelineBuilt = 16
 	};
 
 	// open Vulkan device context
@@ -133,9 +137,9 @@ private:
 	void SyncGPU();
 
 	/// sets the current shader pipeline information
-	void SetShaderPipelineInfo(const VkGraphicsPipelineCreateInfo& shader);
+	void SetShaderPipelineInfo(const VkGraphicsPipelineCreateInfo& shader, const Ptr<VkShaderProgram>& program);
 	/// sets the current vertex layout information
-	void SetVertexLayoutPipelineInfo(const VkGraphicsPipelineCreateInfo& vertexLayout);
+	void SetVertexLayoutPipelineInfo(const VkPipelineVertexInputStateCreateInfo& vertexLayout);
 	/// sets the current framebuffer layout information
 	void SetFramebufferLayoutInfo(const VkGraphicsPipelineCreateInfo& framebufferLayout);
 	/// sets the current primitive layout information
@@ -177,7 +181,7 @@ private:
 	uint32_t frameId;
 	VkPhysicalDeviceMemoryProperties memoryProps;
 
-	const uint32_t VkPoolMaxSets = 65535;
+	const uint32_t VkPoolMaxSets = 1024;
 	const uint32_t VkPoolSetSize = 65535;
 
 	VkPhysicalDevice devices[64];
@@ -206,7 +210,9 @@ private:
 	VkSwapchainKHR swapchain;
 
 	uint32_t currentBackbuffer;
-	VkImage* backbuffers;
+	Util::FixedArray<VkImage> backbuffers;
+	Util::FixedArray<VkImageView> backbufferViews;
+	uint32_t numBackbuffers;
 	VkSemaphore displaySemaphore;
 	VkRect2D displayRect;
 
@@ -246,9 +252,9 @@ private:
 	Util::Queue<IndexT> freeDelegates;
 	Util::Queue<IndexT> usedDelegates;
 
+	VkPipelineVertexInputStateCreateInfo vertexInfo;
 	VkViewport* passViewports;
-	VkRect2D* passScissorRects;
-	uint32_t numRasterizerSets;
+	uint32_t numVsInputs;
 
 	enum CmdCreationUsage
 	{
@@ -266,6 +272,8 @@ private:
 	VkGraphicsPipelineCreateInfo currentPipelineInfo;
 	VkPipeline currentPipeline;
 	uint currentPipelineBits;
+
+	Ptr<VkShaderProgram> currentProgram;
 
 #if NEBULAT_VULKAN_DEBUG
 	VkDebugReportCallbackEXT debugCallbackHandle;

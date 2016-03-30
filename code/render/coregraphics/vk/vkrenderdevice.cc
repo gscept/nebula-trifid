@@ -67,7 +67,8 @@ VkRenderDevice::VkRenderDevice() :
 	computeQueueIdx(-1),
 	transferQueueIdx(-1),
 	currentDrawThread(0),
-	currentTransThread(0)
+	currentTransThread(0),
+	currentProgram(0)
 {
 	__ConstructSingleton;
 }
@@ -128,8 +129,8 @@ VkRenderDevice::OpenVulkanContext()
 		1,					// application version
 		"Nebula Trifid",	// engine name
 		1,					// engine version
-		VK_MAKE_VERSION(1, 0, 3)
-		//VK_API_VERSION		// API version
+		//VK_MAKE_VERSION(1, 0, 4)
+		VK_API_VERSION		// API version
 	};
 
 	this->usedExtensions = 0;
@@ -141,10 +142,10 @@ VkRenderDevice::OpenVulkanContext()
 		this->extensions[this->usedExtensions++] = requiredExtensions[i];
 	}
 	
-	const char* layers[] = { "VK_LAYER_LUNARG_mem_tracker", "VK_LAYER_LUNARG_object_tracker", "VK_LAYER_LUNARG_device_limits", "VK_LAYER_LUNARG_param_checker", "VK_LAYER_LUNARG_draw_state", "VK_LAYER_GOOGLE_threading" };
+	const char* layers[] = { "VK_LAYER_LUNARG_standard_validation", "VK_LAYER_LUNARG_mem_tracker", "VK_LAYER_LUNARG_object_tracker", "VK_LAYER_LUNARG_device_limits", "VK_LAYER_LUNARG_param_checker", "VK_LAYER_LUNARG_draw_state", "VK_LAYER_GOOGLE_threading" };
 #if NEBULAT_VULKAN_DEBUG
 	this->extensions[this->usedExtensions++] = VK_EXT_DEBUG_REPORT_EXTENSION_NAME;
-	const int numLayers = 5;
+	const int numLayers = 1;
 #else
 	const int numLayers = 0;
 #endif
@@ -204,7 +205,7 @@ VkRenderDevice::OpenVulkanContext()
 	// setup swap chain in display
 	VkDisplayDevice::Instance()->SetupSwapchain();
 
-	VkBool32* canPresent = n_new_array(VkBool32, numQueues);
+	Util::FixedArray<VkBool32> canPresent(numQueues);
 	for (i = 0; i < numQueues; i++)
 	{
 		vkGetPhysicalDeviceSurfaceSupportKHR(VkRenderDevice::Instance()->physicalDev, i, VkDisplayDevice::Instance()->surface, &canPresent[i]);
@@ -261,9 +262,6 @@ VkRenderDevice::OpenVulkanContext()
 	}
 
 	if (this->renderQueueIdx == UINT32_MAX || gfxIdx == UINT32_MAX) n_error("VkDisplayDevice: Could not find a queue that supported screen present and graphics.\n");
-
-	// delete array of present flags
-	n_delete_array(canPresent);
 
 	// create device
 	Util::FixedArray<Util::FixedArray<float>> prios;
@@ -323,8 +321,8 @@ VkRenderDevice::OpenVulkanContext()
 	res = vkGetPhysicalDeviceSurfaceFormatsKHR(VkRenderDevice::physicalDev, VkDisplayDevice::Instance()->surface, &numFormats, NULL);
 	n_assert(res == VK_SUCCESS);
 
-	VkSurfaceFormatKHR* formats = n_new_array(VkSurfaceFormatKHR, numFormats);
-	res = vkGetPhysicalDeviceSurfaceFormatsKHR(VkRenderDevice::physicalDev, VkDisplayDevice::Instance()->surface, &numFormats, formats);
+	Util::FixedArray<VkSurfaceFormatKHR> formats(numFormats);
+	res = vkGetPhysicalDeviceSurfaceFormatsKHR(VkRenderDevice::physicalDev, VkDisplayDevice::Instance()->surface, &numFormats, formats.Begin());
 	n_assert(res == VK_SUCCESS);
 	if (numFormats == 1 && formats[0].format == VK_FORMAT_UNDEFINED)
 	{
@@ -348,8 +346,8 @@ VkRenderDevice::OpenVulkanContext()
 	n_assert(res == VK_SUCCESS);
 
 	// get present modes
-	VkPresentModeKHR* presentModes = n_new_array(VkPresentModeKHR, numPresentModes);
-	res = vkGetPhysicalDeviceSurfacePresentModesKHR(this->physicalDev, VkDisplayDevice::Instance()->surface, &numPresentModes, presentModes);
+	Util::FixedArray<VkPresentModeKHR> presentModes(numPresentModes);
+	res = vkGetPhysicalDeviceSurfacePresentModesKHR(this->physicalDev, VkDisplayDevice::Instance()->surface, &numPresentModes, presentModes.Begin());
 	n_assert(res == VK_SUCCESS);
 
 	VkExtent2D swapchainExtent;
@@ -415,12 +413,29 @@ VkRenderDevice::OpenVulkanContext()
 	n_assert(res == VK_SUCCESS);
 
 	// get back buffers
-	uint32_t numSwapchainBackbuffers;
-	res = vkGetSwapchainImagesKHR(this->dev, this->swapchain, &numSwapchainBackbuffers, NULL);
+	res = vkGetSwapchainImagesKHR(this->dev, this->swapchain, &this->numBackbuffers, NULL);
 	n_assert(res == VK_SUCCESS);
 
-	this->backbuffers = n_new_array(VkImage, numSwapchainBackbuffers);
-	res = vkGetSwapchainImagesKHR(this->dev, this->swapchain, &numSwapchainBackbuffers, this->backbuffers);
+	this->backbuffers.Resize(this->numBackbuffers);
+	res = vkGetSwapchainImagesKHR(this->dev, this->swapchain, &this->numBackbuffers, this->backbuffers.Begin());
+
+	this->backbufferViews.Resize(this->numBackbuffers);
+	for (i = 0; i < this->numBackbuffers; i++)
+	{
+		VkImageViewCreateInfo backbufferViewInfo = 
+		{
+			VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+			NULL,
+			0,
+			this->backbuffers[i],
+			VK_IMAGE_VIEW_TYPE_2D,
+			this->format,
+			{ VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A },
+			{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 }
+		};
+		res = vkCreateImageView(this->dev, &backbufferViewInfo, NULL, &this->backbufferViews[i]);
+		n_assert(res == VK_SUCCESS);
+	}
 
 	VkPipelineCacheCreateInfo cacheInfo =
 	{
@@ -592,6 +607,7 @@ VkRenderDevice::OpenVulkanContext()
 	this->currentPipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 	this->currentPipelineInfo.basePipelineIndex = -1;
 	this->currentPipelineInfo.pColorBlendState = &this->blendInfo;
+	this->currentPipelineInfo.pVertexInputState = &this->vertexInfo;
 
 	this->inputInfo.pNext = NULL;
 	this->inputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -618,7 +634,6 @@ void
 VkRenderDevice::CloseVulkanDevice()
 {
 	vkDestroySwapchainKHR(this->dev, this->swapchain, NULL);
-	delete[] this->backbuffers;
 
 	IndexT i;
 	for (i = 0; i < NumDrawThreads; i++)
@@ -759,6 +774,9 @@ VkRenderDevice::BeginFrame(IndexT frameIndex)
 void
 VkRenderDevice::SetStreamVertexBuffer(IndexT streamIndex, const Ptr<CoreGraphics::VertexBuffer>& vb, IndexT offsetVertexIndex)
 {
+	// hmm, build pipeline before we start setting this stuff
+	this->BuildRenderPipeline();
+
 	RenderDeviceBase::SetStreamVertexBuffer(streamIndex, vb, offsetVertexIndex);
 	VkCmdBufferThread::Command cmd;
 	cmd.type = VkCmdBufferThread::InputAssemblyVertex;
@@ -774,8 +792,9 @@ VkRenderDevice::SetStreamVertexBuffer(IndexT streamIndex, const Ptr<CoreGraphics
 void
 VkRenderDevice::SetVertexLayout(const Ptr<CoreGraphics::VertexLayout>& vl)
 {
+	n_assert(this->currentProgram.isvalid());
 	RenderDeviceBase::SetVertexLayout(vl);
-	vl->Apply();
+	this->SetVertexLayoutPipelineInfo(vl->GetDerivative(this->currentProgram));
 }
 
 //------------------------------------------------------------------------------
@@ -784,6 +803,9 @@ VkRenderDevice::SetVertexLayout(const Ptr<CoreGraphics::VertexLayout>& vl)
 void
 VkRenderDevice::SetIndexBuffer(const Ptr<CoreGraphics::IndexBuffer>& ib)
 {
+	// hmm, build pipeline before we start setting this stuff
+	this->BuildRenderPipeline();
+
 	VkCmdBufferThread::Command cmd;
 	cmd.type = VkCmdBufferThread::InputAssemblyIndex;
 	cmd.ibo.buffer = ib->GetVkBuffer();
@@ -821,6 +843,9 @@ void
 VkRenderDevice::BeginPass(const Ptr<CoreGraphics::RenderTarget>& rt, const Ptr<CoreGraphics::Shader>& passShader)
 {
 	RenderDeviceBase::BeginPass(rt, passShader);
+
+	// remember to swap, kids!
+	if (rt->IsDefaultRenderTarget()) rt->SwapBuffers();
 	this->SetFramebufferLayoutInfo(rt->GetVkPipelineInfo());
 
 	VkRect2D rect;
@@ -855,8 +880,7 @@ VkRenderDevice::BeginPass(const Ptr<CoreGraphics::RenderTarget>& rt, const Ptr<C
 	this->passInfo.occlusionQueryEnable = VK_FALSE;
 
 	const Util::FixedArray<VkRect2D>& scissors = rt->GetVkScissorRects();
-	this->numRasterizerSets = scissors.Size();
-	this->passScissorRects = scissors.Begin();
+	const Util::FixedArray<VkViewport>& viewports = rt->GetVkViewports();
 
 	// submit
 	//this->SubmitToQueue(this->renderQueue, 1, &this->mainCmdGfxBuffer);
@@ -865,13 +889,20 @@ VkRenderDevice::BeginPass(const Ptr<CoreGraphics::RenderTarget>& rt, const Ptr<C
 	this->BeginCmdThreads();
 
 	// hmm, because we have dynamic scissor rects, we need to 'init' all buffers with the default scissors first
-	VkCmdBufferThread::Command cmd;
-	cmd.type = VkCmdBufferThread::ScissorRectArray;
-	cmd.scissorRectArray.first = 0;
-	cmd.scissorRectArray.num = this->numRasterizerSets;
-	cmd.scissorRectArray.scs = this->passScissorRects;
+	VkCmdBufferThread::Command scissorCmd;
+	scissorCmd.type = VkCmdBufferThread::ScissorRectArray;
+	scissorCmd.scissorRectArray.first = 0;
+	scissorCmd.scissorRectArray.num = scissors.Size();
+	scissorCmd.scissorRectArray.scs = scissors.Begin();
 
-	for (IndexT i = 0; i < NumDrawThreads; i++) this->drawThreads[i]->PushCommand(cmd);
+	for (IndexT i = 0; i < NumDrawThreads; i++) this->drawThreads[i]->PushCommand(scissorCmd);
+
+	VkCmdBufferThread::Command viewportCmd;
+	viewportCmd.type = VkCmdBufferThread::Viewport;
+	viewportCmd.viewport.index = 0;
+	viewportCmd.viewport.vp = viewports[0];
+
+	for (IndexT i = 0; i < NumDrawThreads; i++) this->drawThreads[i]->PushCommand(viewportCmd);
 }
 
 //------------------------------------------------------------------------------
@@ -914,8 +945,7 @@ VkRenderDevice::BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt, co
 	this->passInfo.occlusionQueryEnable = VK_FALSE;
 
 	const Util::FixedArray<VkRect2D>& scissors = mrt->GetVkScissorRects();
-	this->numRasterizerSets = scissors.Size();
-	this->passScissorRects = scissors.Begin();
+	const Util::FixedArray<VkViewport>& viewports = mrt->GetVkViewports();
 
 	// submit
 	//this->SubmitToQueue(this->renderQueue, 1, &this->mainCmdGfxBuffer);
@@ -930,10 +960,17 @@ VkRenderDevice::BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt, co
 	VkCmdBufferThread::Command cmd;
 	cmd.type = VkCmdBufferThread::ScissorRectArray;
 	cmd.scissorRectArray.first = 0;
-	cmd.scissorRectArray.num = this->numRasterizerSets;
-	cmd.scissorRectArray.scs = this->passScissorRects;
+	cmd.scissorRectArray.num = scissors.Size();
+	cmd.scissorRectArray.scs = scissors.Begin();
 
 	for (IndexT i = 0; i < NumDrawThreads; i++) this->drawThreads[i]->PushCommand(cmd);
+
+	VkCmdBufferThread::Command viewportCmd;
+	viewportCmd.type = VkCmdBufferThread::Viewport;
+	viewportCmd.viewport.index = 0;
+	viewportCmd.viewport.vp = viewports[0];
+
+	for (IndexT i = 0; i < NumDrawThreads; i++) this->drawThreads[i]->PushCommand(viewportCmd);
 }
 
 //------------------------------------------------------------------------------
@@ -956,15 +993,6 @@ VkRenderDevice::BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& rtc, const 
 
 	// start constructing draws
 	this->BeginCmdThreads();
-
-	// hmm, because we have dynamic scissor rects, we need to 'init' all buffers with the default scissors first
-	VkCmdBufferThread::Command cmd;
-	cmd.type = VkCmdBufferThread::ScissorRectArray;
-	cmd.scissorRectArray.first = 0;
-	cmd.scissorRectArray.num = this->numRasterizerSets;
-	cmd.scissorRectArray.scs = this->passScissorRects;
-
-	for (IndexT i = 0; i < NumDrawThreads; i++) this->drawThreads[i]->PushCommand(cmd);
 }
 
 //------------------------------------------------------------------------------
@@ -1048,16 +1076,8 @@ VkRenderDevice::EndBatch()
 	// free up our threaded command buffers
 	//vkFreeCommandBuffers(this->dev, this->cmdGfxPool[Transient], NumDrawThreads, this->dispatchableDrawCmdBuffers);
 
-	this->currentPipelineBits = 0;
-	Memory::Clear(&this->currentPipelineInfo, sizeof(VkGraphicsPipelineCreateInfo));
-
-	// setup pipeline construction struct
-	this->currentPipelineInfo.pNext = NULL;
-	this->currentPipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-	this->currentPipelineInfo.flags = 0;
-	this->currentPipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
-	this->currentPipelineInfo.basePipelineIndex = -1;
-	this->currentPipelineInfo.pColorBlendState = &this->blendInfo;
+	this->currentPipelineBits = FramebufferLayoutInfoSet;
+	//Memory::Clear(&this->currentPipelineInfo, sizeof(VkGraphicsPipelineCreateInfo));
 
 	RenderDeviceBase::EndBatch();
 }
@@ -1090,6 +1110,8 @@ VkRenderDevice::EndPass()
 	// begin main command buffer again
 	vkBeginCommandBuffer(this->mainCmdGfxBuffer, &cmdInfo);
 	*/
+
+	this->currentPipelineBits = 0;
 
 	// finish command buffer threads
 	this->EndCmdThreads();
@@ -1335,8 +1357,10 @@ VkRenderDevice::AllocateImageMemory(const VkImage& img, VkDeviceMemory& imgmem, 
 /**
 */
 void
-VkRenderDevice::SetShaderPipelineInfo(const VkGraphicsPipelineCreateInfo& shader)
+VkRenderDevice::SetShaderPipelineInfo(const VkGraphicsPipelineCreateInfo& shader, const Ptr<VkShaderProgram>& program)
 {
+#define uint_min(a, b) (a < b ? a : b)
+	this->currentProgram = program;
 	this->currentPipelineBits |= ShaderInfoSet;
 
 	this->blendInfo.pAttachments = shader.pColorBlendState->pAttachments;
@@ -1344,7 +1368,6 @@ VkRenderDevice::SetShaderPipelineInfo(const VkGraphicsPipelineCreateInfo& shader
 	this->blendInfo.logicOp = shader.pColorBlendState->logicOp;
 	this->blendInfo.logicOpEnable = shader.pColorBlendState->logicOpEnable;
 
-	//this->currentPipelineInfo.pColorBlendState = shader.pColorBlendState;
 	this->currentPipelineInfo.pDepthStencilState = shader.pDepthStencilState;
 	this->currentPipelineInfo.pRasterizationState = shader.pRasterizationState;
 	this->currentPipelineInfo.pMultisampleState = shader.pMultisampleState;
@@ -1353,11 +1376,7 @@ VkRenderDevice::SetShaderPipelineInfo(const VkGraphicsPipelineCreateInfo& shader
 	this->currentPipelineInfo.stageCount = shader.stageCount;
 	this->currentPipelineInfo.pStages = shader.pStages;
 	this->currentPipelineInfo.layout = shader.layout;
-	
-	if (this->currentPipelineBits == AllInfoSet)
-	{
-		this->CreatePipeline();
-	}
+	this->currentPipelineBits &= ~PipelineBuilt;
 }
 
 //------------------------------------------------------------------------------
@@ -1368,16 +1387,15 @@ VkRenderDevice::SetShaderPipelineInfo(const VkGraphicsPipelineCreateInfo& shader
 			Vertex layout
 */
 void
-VkRenderDevice::SetVertexLayoutPipelineInfo(const VkGraphicsPipelineCreateInfo& vertexLayout)
+VkRenderDevice::SetVertexLayoutPipelineInfo(const VkPipelineVertexInputStateCreateInfo& vertexLayout)
 {
-	this->currentPipelineBits |= VertexLayoutInfoSet;
-	this->currentPipelineInfo.pVertexInputState = vertexLayout.pVertexInputState;
+#define uint_min(a, b) (a < b ? a : b)
 
-	// if all bits are set, create a graphics pipeline and set it
-	if (this->currentPipelineBits == AllInfoSet)
-	{
-		this->CreatePipeline();
-	}
+	this->currentPipelineBits |= VertexLayoutInfoSet;
+	this->vertexInfo = vertexLayout;
+
+	this->currentPipelineBits &= ~InputLayoutInfoSet;
+	this->currentPipelineBits &= ~PipelineBuilt;
 }
 
 //------------------------------------------------------------------------------
@@ -1390,11 +1408,7 @@ VkRenderDevice::SetFramebufferLayoutInfo(const VkGraphicsPipelineCreateInfo& fra
 	this->currentPipelineInfo.renderPass = framebufferLayout.renderPass;
 	this->currentPipelineInfo.subpass = framebufferLayout.subpass;
 	this->currentPipelineInfo.pViewportState = framebufferLayout.pViewportState;
-
-	if (this->currentPipelineBits == AllInfoSet)
-	{
-		this->CreatePipeline();
-	}
+	this->currentPipelineBits &= ~PipelineBuilt;
 }
 
 //------------------------------------------------------------------------------
@@ -1405,11 +1419,7 @@ VkRenderDevice::SetInputLayoutInfo(VkPipelineInputAssemblyStateCreateInfo* input
 {
 	this->currentPipelineBits |= InputLayoutInfoSet;
 	this->currentPipelineInfo.pInputAssemblyState = inputLayout;
-
-	if (this->currentPipelineBits == AllInfoSet)
-	{
-		this->CreatePipeline();
-	}
+	this->currentPipelineBits &= ~PipelineBuilt;
 }
 
 //------------------------------------------------------------------------------
@@ -1615,6 +1625,9 @@ VkRenderDevice::BeginCmdThreads()
 		VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT | VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT,
 		&this->passInfo
 	};
+
+	VkCmdBufferThread::Command hax;
+	hax.type = VkCmdBufferThread::LunarGCircumventValidation;
 	
 	for (IndexT i = 0; i < NumDrawThreads; i++)
 	{
@@ -1623,6 +1636,7 @@ VkRenderDevice::BeginCmdThreads()
 		beginCommand.bgCmd.info = beginInfo;
 		beginCommand.bgCmd.buf = this->dispatchableDrawCmdBuffers[i];
 		this->drawThreads[i]->PushCommand(beginCommand);
+		this->drawThreads[i]->PushCommand(hax);
 		//vkBeginCommandBuffer(this->dispatchableDrawCmdBuffers[i], &beginInfo);
 		//this->drawThreads[i]->SetCommandBuffer(this->dispatchableDrawCmdBuffers[i]);
 	}
@@ -1663,6 +1677,20 @@ VkRenderDevice::EndCmdThreads()
 	del.del.cmdbufferfree.pool = this->cmdGfxPool[Transient];
 	memcpy(del.del.cmdbufferfree.buffers, this->dispatchableDrawCmdBuffers, sizeof(VkCommandBuffer) * NumDrawThreads);
 	this->PushDeferredDelegate(del);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::BuildRenderPipeline()
+{
+	n_assert((this->currentPipelineBits & AllInfoSet) != 0);
+	if ((this->currentPipelineBits & PipelineBuilt) == 0)
+	{
+		this->CreatePipeline();
+		this->currentPipelineBits |= PipelineBuilt;
+	}
 }
 
 } // namespace Vulkan

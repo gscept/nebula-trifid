@@ -18,7 +18,7 @@
 #if NEBULA3_DEBUG
 #if (__XBOX360__ || __WIN32__)
 #pragma warning( push )
-// warnung unused param
+// warning unused param
 #pragma warning(disable: 4189)
 #endif
 #if __PS3__
@@ -72,6 +72,9 @@ public:
     TYPE* get() const;
     /// return direct pointer (returns null pointer)
     TYPE* get_unsafe() const;
+
+	/// calculate hash code for Util::HashTable (basically just the adress)
+	IndexT HashCode() const;
 
 private:
     TYPE* ptr;
@@ -311,6 +314,18 @@ Ptr<TYPE>::get_unsafe() const
 {
     return this->ptr;
 }
+
+
+//------------------------------------------------------------------------------
+/**
+*/
+template<class TYPE>
+IndexT
+Ptr<TYPE>::HashCode() const
+{
+	return (IndexT)this->ptr;
+}
+
 //------------------------------------------------------------------------------
 
 #if (__XBOX360__ || __WIN32__) && NEBULA3_DEBUG

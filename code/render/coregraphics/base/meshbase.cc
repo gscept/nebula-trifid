@@ -55,10 +55,10 @@ void
 MeshBase::ApplyPrimitives(IndexT primGroupIndex)
 {
     RenderDevice* renderDevice = RenderDevice::Instance();
-	renderDevice->SetPrimitiveGroup(this->GetPrimitiveGroupAtIndex(primGroupIndex));
     if (this->vertexBuffer.isvalid())
     {
 		renderDevice->SetVertexLayout(this->vertexBuffer->GetVertexLayout());
+		renderDevice->SetPrimitiveGroup(this->GetPrimitiveGroupAtIndex(primGroupIndex));
         renderDevice->SetStreamVertexBuffer(0, this->vertexBuffer, 0);        
     }
     if (this->indexBuffer.isvalid())

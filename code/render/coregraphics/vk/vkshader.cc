@@ -87,9 +87,6 @@ VkShader::Cleanup()
 		vkDestroyDescriptorSetLayout(VkRenderDevice::dev, this->layouts[i], NULL);
 	}
 	this->layouts.Clear();
-
-	vkFreeDescriptorSets(VkRenderDevice::dev, VkRenderDevice::descPool, this->descriptorSets.Size(), &this->descriptorSets[0]);
-	this->descriptorSets.Clear();
 }
 
 //------------------------------------------------------------------------------
@@ -114,25 +111,26 @@ VkShader::OnResetDevice()
 /**
 */
 void
-VkShader::SetupDescriptorSets()
+VkShader::CreateDescriptorSetLayout(AnyFX::ShaderEffect* effect)
 {
-	Util::Dictionary<IndexT, Util::Array<VkDescriptorSetLayoutBinding>> sets;
-
-	const eastl::vector<AnyFX::VarblockBase*>& varblocks = this->vkEffect->GetVarblocks();
-	const eastl::vector<AnyFX::VarbufferBase*>& varbuffers = this->vkEffect->GetVarbuffers();
-	const eastl::vector<AnyFX::VariableBase*>& variables = this->vkEffect->GetVariables();
-	const eastl::vector<AnyFX::SamplerBase*>& samplers = this->vkEffect->GetSamplers();
+	const eastl::vector<AnyFX::VarblockBase*>& varblocks = effect->GetVarblocks();
+	const eastl::vector<AnyFX::VarbufferBase*>& varbuffers = effect->GetVarbuffers();
+	const eastl::vector<AnyFX::VariableBase*>& variables = effect->GetVariables();
+	const eastl::vector<AnyFX::SamplerBase*>& samplers = effect->GetSamplers();
 
 	this->constantRange.size = 0;
 	this->constantRange.offset = 0;
 	this->constantRange.stageFlags = VK_SHADER_STAGE_ALL;
+	uint32_t numsets = 0;
+
+#define AMD_DESC_SETS 1
 
 #define uint_max(a, b) (a > b ? a : b)
-	uint numsets = 0;
 	uint i;
 	for (i = 0; i < varblocks.size(); i++)
 	{
 		AnyFX::VkVarblock* block = static_cast<AnyFX::VkVarblock*>(varblocks[i]);
+		//if (this->program->activeVarblockNames.find(block->name) == this->program->activeVarblockNames.end()) continue;
 		if (block->variables.empty()) continue;
 		if (block->push)
 		{
@@ -147,13 +145,18 @@ VkShader::SetupDescriptorSets()
 			{
 				Util::Array<VkDescriptorSetLayoutBinding> arr;
 				arr.Append(block->bindingLayout);
-				sets.Add(block->set, arr);
+				this->sets.Add(block->set, arr);
+#ifdef AMD_DESC_SETS
+				numsets = uint_max(numsets, block->set + 1);
+#else
+				numsets++;
+#endif
+
 			}
 			else
 			{
-				sets.ValueAtIndex(index).Append(block->bindingLayout);
+				this->sets.ValueAtIndex(index).Append(block->bindingLayout);
 			}
-			numsets = uint_max(numsets, block->set);
 		}
 	}
 
@@ -161,18 +164,17 @@ VkShader::SetupDescriptorSets()
 	{
 		AnyFX::VkVarbuffer* buffer = static_cast<AnyFX::VkVarbuffer*>(varbuffers[i]);
 
-		IndexT index = sets.FindIndex(buffer->set);
+		IndexT index = this->sets.FindIndex(buffer->set);
 		if (index == InvalidIndex)
 		{
 			Util::Array<VkDescriptorSetLayoutBinding> arr;
 			arr.Append(buffer->bindingLayout);
-			sets.Add(buffer->set, arr);
+			this->sets.Add(buffer->set, arr);
 		}
 		else
 		{
-			sets.ValueAtIndex(index).Append(buffer->bindingLayout);
+			this->sets.ValueAtIndex(index).Append(buffer->bindingLayout);
 		}
-		numsets = uint_max(numsets, buffer->set);
 	}
 
 	for (i = 0; i < samplers.size(); i++)
@@ -198,42 +200,59 @@ VkShader::SetupDescriptorSets()
 	for (i = 0; i < variables.size(); i++)
 	{
 		AnyFX::VkVariable* variable = static_cast<AnyFX::VkVariable*>(variables[i]);
-
+		//if (this->program->activeVariableNames.find(variable->name) == this->program->activeVariableNames.end()) continue;
 		if (variable->type >= AnyFX::Sampler1D && variable->type <= AnyFX::TextureCubeArray)
 		{
-			IndexT index = sets.FindIndex(variable->set);
+			IndexT index = this->sets.FindIndex(variable->set);
 			if (index == InvalidIndex)
 			{
 				Util::Array<VkDescriptorSetLayoutBinding> arr;
 				arr.Append(variable->bindingLayout);
-				sets.Add(variable->set, arr);
+				this->sets.Add(variable->set, arr);
+
+#ifdef AMD_DESC_SETS
+				numsets = uint_max(numsets, variable->set + 1);
+#else
+				numsets++;
+#endif
 			}
 			else
 			{
-				sets.ValueAtIndex(index).Append(variable->bindingLayout);
+				this->sets.ValueAtIndex(index).Append(variable->bindingLayout);
 			}
-			numsets = uint_max(numsets, variable->set);
 		}
 	}
 
 	// skip the rest if we don't have any descriptor sets
-	if (sets.IsEmpty()) return;
-	this->layouts.Resize(sets.Size());
-	for (IndexT i = 0; i < sets.Size(); i++)
+	if (!sets.IsEmpty())
 	{
-		VkDescriptorSetLayoutCreateInfo info;
-		info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-		info.pNext = NULL;
-		info.flags = 0;
-		
-		const Util::Array<VkDescriptorSetLayoutBinding>& binds = sets.ValueAtIndex(i);
-		info.bindingCount = binds.Size();
-		info.pBindings = &binds[0];
-		debug2 += binds.Size();
+		this->layouts.Resize(numsets);
+		for (IndexT i = 0; i < this->layouts.Size(); i++)
+		{
+			VkDescriptorSetLayoutCreateInfo info;
+			info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+			info.pNext = NULL;
+			info.flags = 0;
 
-		// create layout
-		VkResult res = vkCreateDescriptorSetLayout(VkRenderDevice::dev, &info, NULL, &this->layouts[i]);
-		assert(res == VK_SUCCESS);
+#ifdef AMD_DESC_SETS
+			info.bindingCount = 0;
+			info.pBindings = VK_NULL_HANDLE;
+			if (this->sets.Contains(i))
+			{
+				const Util::Array<VkDescriptorSetLayoutBinding>& binds = this->sets[i];
+				info.bindingCount = binds.Size();
+				info.pBindings = binds.Size() > 0 ? &binds[0] : VK_NULL_HANDLE;
+			}
+#else
+			const Util::Array<VkDescriptorSetLayoutBinding>& binds = sets.ValueAtIndex(i);
+			info.bindingCount = binds.Size();
+			info.pBindings = binds.Size() > 0 ? &binds[0] : VK_NULL_HANDLE;
+#endif
+
+			// create layout
+			VkResult res = vkCreateDescriptorSetLayout(VkRenderDevice::dev, &info, NULL, &this->layouts[i]);
+			assert(res == VK_SUCCESS);
+		}
 	}
 
 	VkPipelineLayoutCreateInfo layoutInfo =
@@ -249,21 +268,6 @@ VkShader::SetupDescriptorSets()
 
 	// create pipeline layout, every program should inherit this one
 	VkResult res = vkCreatePipelineLayout(VkRenderDevice::dev, &layoutInfo, NULL, &this->pipelineLayout);
-	assert(res == VK_SUCCESS);
-
-	// allocate descriptor sets
-	VkDescriptorSetAllocateInfo setInfo =
-	{
-		VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
-		NULL,
-		VkRenderDevice::descPool,
-		this->layouts.Size(),
-		this->layouts.Size() > 0 ? &this->layouts[0] : NULL
-	};
-
-	debug += this->layouts.Size();
-	this->descriptorSets.Resize(this->layouts.Size());
-	res = vkAllocateDescriptorSets(VkRenderDevice::dev, &setInfo, this->descriptorSets.Size() > 0 ? &this->descriptorSets[0] : NULL);
 	assert(res == VK_SUCCESS);
 }
 

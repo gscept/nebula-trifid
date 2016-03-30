@@ -138,10 +138,10 @@ BillboardNodeInstance::Render()
 	RenderDevice* renderDevice = RenderDevice::Instance();
 
 	// setup rendering
-	renderDevice->SetStreamVertexBuffer(0, this->vb, 0);
 	renderDevice->SetVertexLayout(this->vb->GetVertexLayout());
-	renderDevice->SetIndexBuffer(this->ib);
 	renderDevice->SetPrimitiveGroup(this->primGroup);
+	renderDevice->SetStreamVertexBuffer(0, this->vb, 0);
+	renderDevice->SetIndexBuffer(this->ib);
 
 	// draw geometry
 	renderDevice->Draw();

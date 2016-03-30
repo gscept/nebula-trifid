@@ -107,8 +107,8 @@ VkTypes::AsVkFramebufferFormat(CoreGraphics::PixelFormat::Code p)
 	switch (p)
 	{
 	case PixelFormat::X8R8G8B8:         
-	case PixelFormat::A8R8G8B8:         return VK_FORMAT_R8G8B8A8_USCALED;
-	case PixelFormat::R8G8B8:           return VK_FORMAT_R8G8B8_USCALED;
+	case PixelFormat::A8R8G8B8:         return VK_FORMAT_R8G8B8A8_SINT;
+	case PixelFormat::R8G8B8:           return VK_FORMAT_R8G8B8_SINT;
 	case PixelFormat::R5G6B5:           return VK_FORMAT_R5G6B5_UNORM_PACK16;
 	case PixelFormat::SRGBA8:			return VK_FORMAT_R8G8B8A8_SRGB;
 	case PixelFormat::A1R5G5B5:         return VK_FORMAT_R5G5B5A1_UNORM_PACK16;

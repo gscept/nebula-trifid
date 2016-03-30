@@ -73,7 +73,7 @@ VkMultipleRenderTarget::SetDepthStencilTarget(const Ptr<CoreGraphics::DepthStenc
 {
 	MultipleRenderTargetBase::SetDepthStencilTarget(dt);
 	this->attachments[this->numattachments].flags = 0;
-	this->attachments[this->numattachments].format = VK_FORMAT_D24_UNORM_S8_UINT;
+	this->attachments[this->numattachments].format = VK_FORMAT_D32_SFLOAT_S8_UINT;
 	this->attachments[this->numattachments].samples = VK_SAMPLE_COUNT_1_BIT;
 	this->attachments[this->numattachments].loadOp = dt->GetClearFlags() & CoreGraphics::DepthStencilTarget::ClearDepth ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
 	this->attachments[this->numattachments].storeOp = VK_ATTACHMENT_STORE_OP_STORE;

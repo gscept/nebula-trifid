@@ -47,8 +47,14 @@ public:
 	/// get the vulkan scissor rectangles
 	const Util::FixedArray<VkRect2D>& GetVkScissorRects() const;
 
+	/// copy from this render target to the target texture
+	void Copy(const Ptr<CoreGraphics::RenderTarget>& tex);
+
 	/// get the vulkan image
 	const VkImageView& GetVkImageView() const;
+
+	/// swap framebuffers
+	void SwapBuffers();
 private:
 
 	VkImage image;
@@ -62,6 +68,9 @@ private:
 	VkPipelineViewportStateCreateInfo viewportInfo;
 	VkGraphicsPipelineCreateInfo framebufferPipelineInfo;
 	VkRenderPass pass;
+
+	uint32_t swapbufferIdx;
+	Util::FixedArray<VkFramebuffer> swapbuffers;
 };
 
 

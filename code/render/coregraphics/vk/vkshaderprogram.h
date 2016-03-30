@@ -27,6 +27,15 @@ public:
 	void Apply();
 	/// performs a variable commit to the current program
 	void Commit();
+
+	/// get the number of vertex shader inputs
+	const uint32_t GetNumVertexInputs() const;
+	/// get the number of pixel shader outputs
+	const uint32_t GetNumPixelOutputs() const;
+	/// get AnyFX program backend
+	const AnyFX::VkProgram* GetVkProgram() const;
+	/// get unique id
+	const uint32_t GetUniqueId() const;
 private:
 
 	friend class VkShader;
@@ -40,7 +49,7 @@ private:
 	};
 
 	/// setup from AnyFX program
-	void Setup(AnyFX::VkProgram* program, AnyFX::ShaderEffect* effect);
+	void Setup(AnyFX::VkProgram* program, const VkPipelineLayout& layout);
 
 	/// create shader object
 	void CreateShader(VkShaderModule* shader, unsigned binarySize, char* binary);
@@ -49,21 +58,20 @@ private:
 	/// create this program as a compute program (can be done immediately)
 	void SetupAsCompute();
 
-	/// setup descriptor pipeline layout
-	void SetupDescriptorLayout(AnyFX::ShaderEffect* effect);
-
 	AnyFX::VkProgram* program;
+	uint32_t uniqueId;
+
+	static uint32_t uniqueIdCounter;
 
 	Util::Array<VkSampler> immutableSamplers;
 	VkPushConstantRange constantRange;
-	Util::FixedArray<VkDescriptorSetLayout> layouts;
-	Util::FixedArray<VkDescriptorSet> descriptorSets;
 
 	VkShaderModule vs, hs, ds, gs, ps, cs;
 
 	VkPipeline computePipeline;
 	VkPipelineLayout pipelineLayout;
 
+	VkPipelineVertexInputStateCreateInfo vertexInfo;
 	VkPipelineRasterizationStateCreateInfo rasterizerInfo;
 	VkPipelineMultisampleStateCreateInfo multisampleInfo;
 	VkPipelineDepthStencilStateCreateInfo depthStencilInfo;
@@ -75,5 +83,22 @@ private:
 	PipelineType pipelineType;
 };
 
+//------------------------------------------------------------------------------
+/**
+*/
+inline const AnyFX::VkProgram*
+VkShaderProgram::GetVkProgram() const
+{
+	return this->program;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const uint32_t
+VkShaderProgram::GetUniqueId() const
+{
+	return this->uniqueId;
+}
 
 } // namespace Vulkan

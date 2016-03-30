@@ -25,4 +25,31 @@ VkShapeRenderer::~VkShapeRenderer()
 	// empty
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkShapeRenderer::Open()
+{
+	ShapeRendererBase::Open();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkShapeRenderer::Close()
+{
+	ShapeRendererBase::Close();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkShapeRenderer::DrawShapes()
+{
+
+}
+
 } // namespace Vulkan

@@ -321,8 +321,7 @@ VolumetricLightAlgorithm::RenderGlobalLight()
 		// begin shader update
 		this->volumeLightShader->BeginUpdate();
 
-		// apply global light mesh
-		this->globalLightMesh->GetMesh()->ApplyPrimitives(0);
+		// setup camera
 		const Ptr<CameraEntity>& cam = GraphicsServer::Instance()->GetCurrentView()->GetCameraEntity();
 		matrix44 viewProj = cam->GetViewProjTransform();
 		matrix44 camTrans = cam->GetTransform();
@@ -362,6 +361,9 @@ VolumetricLightAlgorithm::RenderGlobalLight()
 		this->volumeLightShader->SelectActiveVariation(this->globalLightFeatureBits);
 		this->volumeLightShader->Apply();
 
+		// apply global light mesh
+		this->globalLightMesh->GetMesh()->ApplyPrimitives(0);
+
 		// commit shader, only need to do this once
 		this->volumeLightShader->Commit();
 
@@ -371,6 +373,11 @@ VolumetricLightAlgorithm::RenderGlobalLight()
 		// select variation for global light base plate and draw
 		this->volumeLightShader->SelectActiveVariation(this->globalLightMeshFeatureBits);
 		this->volumeLightShader->Apply();
+
+		// apply global light mesh
+		this->globalLightMesh->GetMesh()->ApplyPrimitives(0);
+
+		// draw
 		renderDevice->Draw();
 
         // end pass

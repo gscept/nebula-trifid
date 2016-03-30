@@ -542,6 +542,15 @@ RenderDeviceBase::Present()
 /**
 */
 void
+RenderDeviceBase::BuildRenderPipeline()
+{
+	// empty, override in subclass
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 RenderDeviceBase::Draw()
 {
     n_assert(this->inBeginPass);
@@ -584,7 +593,7 @@ RenderDeviceBase::DrawFeedbackInstanced(const Ptr<CoreGraphics::FeedbackBuffer>&
 void 
 RenderDeviceBase::Compute(int dimX, int dimY, int dimZ, uint flag)
 {
-    n_assert(this->inBeginPass);
+    //n_assert(this->inBeginPass);
     // override in subclass!
 }
 

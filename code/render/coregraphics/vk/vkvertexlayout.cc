@@ -14,7 +14,8 @@ __ImplementClass(Vulkan::VkVertexLayout, 'VKVL', Base::VertexLayoutBase);
 //------------------------------------------------------------------------------
 /**
 */
-VkVertexLayout::VkVertexLayout()
+VkVertexLayout::VkVertexLayout() :
+	derivatives(128)
 {
 	// empty
 	memset(this->vertexStreams, 0, sizeof(this->vertexStreams));
@@ -89,6 +90,13 @@ VkVertexLayout::Setup(const Util::Array<CoreGraphics::VertexComponent>& c)
 void
 VkVertexLayout::Discard()
 {
+	const Util::Array<DerivativeLayout*> dervs = this->derivatives.ValuesAsArray();
+	IndexT i;
+	for (i = 0; i <dervs.Size(); i++)
+	{
+		n_delete(dervs[i]);
+	}
+	this->derivatives.Clear();
 	VertexLayoutBase::Discard();
 }
 
@@ -98,7 +106,53 @@ VkVertexLayout::Discard()
 void
 VkVertexLayout::Apply()
 {
-	VkRenderDevice::Instance()->SetVertexLayoutPipelineInfo(this->info);
+	//VkRenderDevice::Instance()->SetVertexLayoutPipelineInfo(this->info);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+const VkPipelineVertexInputStateCreateInfo&
+VkVertexLayout::CreateDerivative(const Ptr<VkShaderProgram>& program)
+{
+	const AnyFX::VkProgram* prog = program->GetVkProgram();
+
+	DerivativeLayout* derivative = n_new(DerivativeLayout);
+	derivative->info = this->vertexInfo;
+
+	uint32_t i;
+	IndexT j;
+	for (i = 0; i < prog->vsInputSlots.size(); i++)
+	{
+		uint32_t slot = prog->vsInputSlots[i];
+		for (j = 0; j < this->attrs.Size(); j++)
+		{
+			VkVertexInputAttributeDescription attr = this->attrs[j];
+			if (attr.location == slot)
+			{
+				derivative->attrs.Append(attr);
+				break;
+			}
+		}
+		
+	}
+	derivative->info.vertexAttributeDescriptionCount = derivative->attrs.Size();
+	derivative->info.pVertexAttributeDescriptions = derivative->attrs.Begin();
+	this->derivatives.Add(program, derivative);
+	return derivative->info;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+const VkPipelineVertexInputStateCreateInfo&
+VkVertexLayout::GetDerivative(const Ptr<VkShaderProgram>& program)
+{
+	if (this->derivatives.Contains(program)) return this->derivatives[program]->info;
+	else
+	{
+		return this->CreateDerivative(program);
+	}
 }
 
 } // namespace Vulkan

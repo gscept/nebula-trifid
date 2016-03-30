@@ -31,6 +31,9 @@ public:
 	/// returns effect
 	AnyFX::ShaderEffect* GetVkEffect() const;
 
+	/// create descriptor set layout
+	void CreateDescriptorSetLayout(AnyFX::ShaderEffect* effect);
+
 	/// begin updating shader state
 	void BeginUpdate();
 	/// end updating shader state
@@ -41,6 +44,7 @@ public:
 
 private:
 	friend class VkStreamShaderLoader;
+	friend class VkShaderInstance;
 
 	/// cleans up the shader
 	void Cleanup();
@@ -50,16 +54,13 @@ private:
 	/// called by ogl4 shader server when ogl4 device is reset
 	void OnResetDevice();
 
-	/// setup descriptors
-	void SetupDescriptorSets();
-
 	AnyFX::ShaderEffect* vkEffect;
 	VkPipelineLayout pipelineLayout;
 
 	Util::Array<VkSampler> immutableSamplers;
 	VkPushConstantRange constantRange;
 	Util::FixedArray<VkDescriptorSetLayout> layouts;
-	Util::FixedArray<VkDescriptorSet> descriptorSets;
+	Util::Dictionary<IndexT, Util::Array<VkDescriptorSetLayoutBinding>> sets;
 
 	Ptr<CoreGraphics::ConstantBuffer> globalBlockBuffer;
 	Ptr<CoreGraphics::ShaderVariable> globalBlockBufferVar;

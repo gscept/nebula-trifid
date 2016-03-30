@@ -50,7 +50,8 @@ private:
 		ScissorRect,
 		ScissorRectArray,
 		UpdateBuffer,
-		Sync
+		Sync,
+		LunarGCircumventValidation
 	};
 
 	struct Command

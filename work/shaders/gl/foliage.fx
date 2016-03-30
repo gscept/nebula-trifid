@@ -187,11 +187,11 @@ vsGrassInstanced(in vec3 position,
 */
 shader
 void
-vsTreeShadow(vec4 position,
-	vec3 normal,
-	vec2 uv,
-	vec3 tangent,
-	vec3 binormal,
+vsTreeShadow(in vec4 position,
+	in vec3 normal,
+	in vec2 uv,
+	in vec3 tangent,
+	in vec3 binormal,
 	out vec2 UV,
 	out vec4 ProjPos)
 {
@@ -214,11 +214,11 @@ vsTreeShadow(vec4 position,
 */
 shader
 void
-vsGrassShadow(vec4 position,
-	vec3 normal,
-	vec2 uv,
-	vec3 tangent,
-	vec3 binormal,
+vsGrassShadow(in vec4 position,
+	in vec3 normal,
+	in vec2 uv,
+	in vec3 tangent,
+	in vec3 binormal,
 	[slot=5] in vec4 color,
 	out vec2 UV,
 	out vec4 ProjPos) 
@@ -242,11 +242,11 @@ vsGrassShadow(vec4 position,
 */
 shader
 void
-vsTreeShadowCSM(vec4 position,
-	vec3 normal,
-	vec2 uv,
-	vec3 tangent,
-	vec3 binormal,
+vsTreeShadowCSM(in vec4 position,
+	in vec3 normal,
+	in vec2 uv,
+	in vec3 tangent,
+	in vec3 binormal,
 	out vec2 UV,
 	out vec4 ProjPos,
 	out int Instance) 
@@ -270,11 +270,11 @@ vsTreeShadowCSM(vec4 position,
 */
 shader
 void
-vsGrassShadowCSM(vec4 position,
-	vec3 normal,
-	vec2 uv,
-	vec3 tangent,
-	vec3 binormal,
+vsGrassShadowCSM(in vec4 position,
+	in vec3 normal,
+	in vec2 uv,
+	in vec3 tangent,
+	in vec3 binormal,
 	[slot=5] in vec4 color,
 	out vec2 UV,
 	out vec4 ProjPos,
@@ -299,11 +299,11 @@ vsGrassShadowCSM(vec4 position,
 */
 shader
 void
-vsTreeShadowPoint(vec4 position,
-	vec3 normal,
-	vec2 uv,
-	vec3 tangent,
-	vec3 binormal,
+vsTreeShadowPoint(in vec4 position,
+	in vec3 normal,
+	in vec2 uv,
+	in vec3 tangent,
+	in vec3 binormal,
 	out vec2 UV,
 	out vec4 ProjPos,
 	out int Instance) 
@@ -327,11 +327,11 @@ vsTreeShadowPoint(vec4 position,
 */
 shader
 void
-vsGrassShadowPoint(vec4 position,
-	vec3 normal,
-	vec2 uv,
-	vec3 tangent,
-	vec3 binormal,
+vsGrassShadowPoint(in vec4 position,
+	in vec3 normal,
+	in vec2 uv,
+	in vec3 tangent,
+	in vec3 binormal,
 	[slot=5] in vec4 color,
 	out vec2 UV,
 	out vec4 ProjPos,

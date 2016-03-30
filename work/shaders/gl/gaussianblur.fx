@@ -48,7 +48,7 @@ state GaussianBlurState
 */
 shader
 void
-vsMain(vec3 position,
+vsMain(in vec3 position,
 	[slot=2] in vec2 uv,
 	out vec2 UV) 
 {

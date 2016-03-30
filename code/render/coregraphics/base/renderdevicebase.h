@@ -117,6 +117,8 @@ public:
     void SetPrimitiveGroup(const CoreGraphics::PrimitiveGroup& pg);
     /// get current primitive group
     const CoreGraphics::PrimitiveGroup& GetPrimitiveGroup() const;
+	/// bake the current state of the render device (only used on DX12 and Vulkan renderers where pipeline creation is required)
+	void BuildRenderPipeline();
     /// draw current primitives
     void Draw();
     /// draw indexed, instanced primitives

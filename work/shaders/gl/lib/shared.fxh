@@ -22,7 +22,7 @@ shared varblock InstanceBlock [bool System = true; bool Instancing = true;]
 };
 
 // contains the state of the camera (and time)
-group(1) shared varblock CameraBlock [bool System = true;]
+group(5) shared varblock CameraBlock [bool System = true;]
 {
 	mat4 View;
 	mat4 InvView;

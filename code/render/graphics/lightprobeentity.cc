@@ -44,7 +44,7 @@ LightProbeEntity::~LightProbeEntity()
 Math::ClipStatus::Type
 LightProbeEntity::ComputeClipStatus(const Math::bbox& box)
 {	
-	ClipStatus::Type clipStatus = box.clipstatus(this->transform);
+	ClipStatus::Type clipStatus = box.clipstatus(this->GetTransform());
 	return clipStatus;
 }
 
