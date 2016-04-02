@@ -67,6 +67,7 @@
     <Attribute name="CameraFov" fourcc="CFOV" accessMode="ReadWrite" type="Float" default="90.0" displayName="Camera FOV"/>  
     <Attribute name="CameraSensitivity" fourcc="CSEN" accessMode="ReadWrite" type="Float" default="3.0f" displayName="Camera Sensitivity" minValue="0.1"/>
     <Attribute name="FreeMoveSpeed" fourcc="FRMS" accessMode="ReadWrite" type="Float" default="0.5f" displayName="Free move speed factor" minValue="0.001"/>
+    <Attribute name="CameraRelativeMove" fourcc="CMRL" accessMode="ReadWrite" type="Bool" default="true" />
     <Attribute name="CameraJoint" fourcc="CMJN" accessMode="ReadWrite" type="String" displayName="Joint to track for camera movements"/>
     <Attribute name="CharacterSkin" fourcc="CSKN" accessMode="ReadWrite" type="String" displayName="Skin that gets hidden when in entity has focus"/>
     <Attribute name="CameraTrackPosition" fourcc="CTPN" accessMode="ReadWrite" type="Bool" displayName="Only apply position of joint to camera, not orientation"/>
@@ -262,6 +263,7 @@
   <Property name="GraphicsFeature::InputProperty" header="graphicsfeature/properties/inputproperty.h">
     <Attribute name="InputFocus"/>
     <Attribute name="InputMouseGrab" />
+    <Attribute name="CameraRelativeMove"/>
   </Property>
   <Property name="GraphicsFeature::FreeMoveProperty" derivedFrom="BaseGameFeature::TransformableProperty" header="graphicsfeature/properties/freemoveproperty.h">
     <Attribute name="FreeMoveSpeed" />
