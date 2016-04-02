@@ -123,6 +123,7 @@ vsMain(in vec3 position,
 	WorldViewVec = modelSpace.xyz - EyePos.xyz;
 }
 
+#define USE_DISTANCE_IMAGE 1
 //------------------------------------------------------------------------------
 /**
 	Calculate reflection projection using a box, basically the same as circle except we are using a signed distance function to determine falloff.
@@ -156,7 +157,11 @@ psMain(in vec3 viewSpacePosition,
 		// load biggest distance from texture, basically solving the distance field blending
 		float weight = imageLoad(DistanceFieldWeightMap, ivec2(gl_FragCoord.xy)).r;		
 		memoryBarrierImage();
+#if USE_DISTANCE_IMAGE
 		float diff = saturate(distanceFalloff - weight);
+#else
+		float diff = saturate(distanceFalloff);
+#endif
 		imageStore(DistanceFieldWeightMap, ivec2(gl_FragCoord.xy), vec4(max(weight, distanceFalloff)));
 	
 		// sample normal and specular, do some pseudo-PBR energy balance between albedo and spec

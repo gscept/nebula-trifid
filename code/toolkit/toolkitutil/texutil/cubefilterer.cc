@@ -159,7 +159,7 @@ CubeFilterer::Filter(bool irradiance, void* messageHandler, void(*CubeFilterer_P
 	}
 
 	// perform filtering!
-	this->processor.InitiateFiltering(0, 1, 2, CP_FILTER_TYPE_COSINE, CP_FIXUP_WARP, 4, true, true, this->power, 0.25f, mipLevels, CP_COSINEPOWER_CHAIN_DROP, true, irradiance, CP_LIGHTINGMODEL_PHONG, 10, 1);
+	this->processor.InitiateFiltering(0, 1, 2, CP_FILTER_TYPE_COSINE, CP_FIXUP_WARP, 4, true, true, this->power, 0.25f, mipLevels, CP_COSINEPOWER_CHAIN_DROP, true, irradiance, CP_LIGHTINGMODEL_PHONG, 12, 1);
 
 	// wait for thread to be done
 	while (this->processor.GetStatus() == CP_STATUS_PROCESSING)
