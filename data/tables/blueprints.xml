@@ -9,6 +9,11 @@
         <Property type="GraphicsFeature::MayaCameraProperty" />
         <Property type="GraphicsFeature::InputProperty" masterOnly="true"/>
     </Entity>
+	    <Entity cppclass="Entity" type="FreeCamera" desc="a camera entity with free fly movement">
+        <Property type="GraphicsFeature::FpsCameraProperty" />
+        <Property type="GraphicsFeature::InputProperty" masterOnly="true"/>
+		<Property type="GraphicsFeature::FreeMoveProperty" />
+    </Entity>
     <Entity cppclass="Entity" type="CameraGripper" desc="a camera entity with like maya input and mousegripper">
         <Property type="GraphicsFeature::MayaCameraProperty" />
         <Property type="PhysicsFeature::MouseGripperProperty" />

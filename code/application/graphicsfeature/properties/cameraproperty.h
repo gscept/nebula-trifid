@@ -62,11 +62,13 @@ public:
 protected:
 
     /// update audio listener position
-    void UpdateAudioListenerPosition() const;
+    void UpdateAudioListenerPosition() const;		
 
     Ptr<Graphics::CameraEntity> cameraEntity;
     Ptr<Graphics::View> defaultView;
     Ptr<Graphics::Stage> defaultStage;
+	/// enable if OnRender should apply the entity transform to the camera
+	bool applyEntityTransform;
 };
 __RegisterClass(CameraProperty);
 

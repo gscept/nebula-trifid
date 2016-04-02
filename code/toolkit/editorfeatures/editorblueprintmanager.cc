@@ -849,7 +849,7 @@ EditorBlueprintManager::CreateCategoryTables( const Ptr<Db::Database> & staticDb
     this->CreateColumn(categoryTable, Column::Default, Attr::CategoryTemplateTable);
     this->CreateColumn(categoryTable, Column::Default, Attr::CategoryInstanceTable);
     staticDb->AddTable(categoryTable);
-
+	
     Ptr<Dataset> categoryDataset;
     Ptr<ValueTable> categoryValues;
 
@@ -909,12 +909,27 @@ EditorBlueprintManager::CreateCategoryTables( const Ptr<Db::Database> & staticDb
         this->CreateColumn(instanceTable, Column::Default, Attr::_Level);
         this->CreateColumn(instanceTable, Column::Default, Attr::_Layers);
 		this->CreateColumn(instanceTable, Column::Default, Attr::_ID);
+		this->CreateColumn(instanceTable, Column::Default, Attr::Id);
         this->CreateColumn(instanceTable, Column::Default, Attr::_LevelEntity);
         this->AddAttributeColumns(instanceTable, attrs);
         instanceDb->AddTable(instanceTable);
         instanceTable->CommitChanges();  
+		Util::Array<Attr::AttrId> ids;
+		ids.Append(Attr::Guid);
+		instanceTable->CreateMultiColumnIndex(ids);
+		ids.Clear();
+		ids.Append(Attr::_Level);
+		instanceTable->CreateMultiColumnIndex(ids);
+		ids.Clear();
+		ids.Append(Attr::Id);
+		instanceTable->CreateMultiColumnIndex(ids);
+		instanceTable->CommitChanges();
     }
     categoryDataset->CommitChanges();    
+	Util::Array<Attr::AttrId> ids;
+	ids.Append(Attr::CategoryName);
+	categoryTable->CreateMultiColumnIndex(ids);
+	categoryDataset->CommitChanges();
 }
 
 //------------------------------------------------------------------------------
@@ -982,16 +997,16 @@ EditorBlueprintManager::CreateTable( const Ptr<Database>& db, const Util::String
 //------------------------------------------------------------------------------
 /**
 */
-void 
-EditorBlueprintManager::CreateColumn( const Ptr<Table>& table, Column::Type type, AttrId attributeId )
+void
+EditorBlueprintManager::CreateColumn( const Ptr<Db::Table>& table, Db::Column::Type type, Attr::AttrId attributeId )
 {
     if(false == table->HasColumn(attributeId))
     {
         Column column;
         column.SetType(type);
         column.SetAttrId(attributeId);
-        table->AddColumn(column);
-    }
+        table->AddColumn(column);		
+    }	
 }
 
 //------------------------------------------------------------------------------
@@ -1045,11 +1060,15 @@ EditorBlueprintManager::WriteTemplates( const Ptr<Db::Table> & table, const Util
 Ptr<Db::Database>
 EditorBlueprintManager::CreateDatabase(const IO::URI & filename)
 {    
+	Ptr<Db::Database> db;
     if(IO::IoServer::Instance()->FileExists(filename))
     {
-        IO::IoServer::Instance()->DeleteFile(filename);
+		if (!IO::IoServer::Instance()->DeleteFile(filename))
+		{
+			return db;
+		}        
     }
-    Ptr<Database> db = DbFactory::Instance()->CreateDatabase();
+    db = DbFactory::Instance()->CreateDatabase();
     db->SetURI(filename);
     db->SetAccessMode(Database::ReadWriteCreate);
     db->SetIgnoreUnknownColumns(true);
@@ -1060,12 +1079,17 @@ EditorBlueprintManager::CreateDatabase(const IO::URI & filename)
 //------------------------------------------------------------------------------
 /**
 */
-void 
+bool 
 EditorBlueprintManager::CreateDatabases(const Util::String & folder)
 {
    Ptr<Database> staticDb = this->CreateDatabase(folder + "static.db4");
    Ptr<Database> gameDb = this->CreateDatabase(folder + "game.db4");
 
+   if (!staticDb.isvalid() || !gameDb.isvalid())
+   {
+	   n_warning("Databases locked\n");
+	   return false;
+   }
    this->WriteAttributes(staticDb);
    this->WriteAttributes(gameDb);
    this->CreateCategoryTables(staticDb, gameDb);   
@@ -1079,6 +1103,7 @@ EditorBlueprintManager::CreateDatabases(const Util::String & folder)
    this->CreateEmptyLevel(staticDb, gameDb);
    staticDb->Close();
    gameDb->Close();
+   return true;
 }
 
 //------------------------------------------------------------------------------
@@ -1098,6 +1123,13 @@ EditorBlueprintManager::CreateLevelTables(const Ptr<Db::Database> & db, const Ut
     this->CreateColumn(table, Column::Default, Attr::GlobalLightTransform);    
     db->AddTable(table);
     table->CommitChanges();
+	Util::Array<Attr::AttrId> ids;
+	ids.Append(Attr::Id);	
+	table->CreateMultiColumnIndex(ids);
+	ids.Clear();
+	ids.Append(Attr::Name);
+	table->CreateMultiColumnIndex(ids);
+	table->CommitChanges();
 }
 
 //------------------------------------------------------------------------------

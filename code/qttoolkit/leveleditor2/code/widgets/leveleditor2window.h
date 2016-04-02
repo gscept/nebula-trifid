@@ -19,6 +19,7 @@
 #include "levelpropertieshandler.h"
 #include "ui_gridsizedialog.h"
 #include "qscrollarea.h"
+#include "qprogressbar.h"
 #include "blueprinthandler.h"
 #include "applauncher.h"
 #include "resourcestringcontroller.h"
@@ -31,6 +32,13 @@
 
 namespace LevelEditor2
 {
+
+//------------------------------------------------------------------------------
+/**
+    writes a message to the status bar and to n_printfs it as well
+*/
+void n_status(const char *fmt, ...);
+
 class LevelEditor2App;
 
 class LevelEditor2Window : public QMainWindow
@@ -48,6 +56,8 @@ public:
 	ViewerWidget* GetNebulaWidget();
 	/// returns the entity treeview
 	EntityTreeWidget* GetEntityTreeWidget();
+    ///
+    QProgressBar* GetProgressBar();    
 	/// returns the container for entity attribute widgets
 	QLayout* GetAttributeWidgetContainer();
 	/// returns the posteffect controller
@@ -135,7 +145,14 @@ private slots:
 	void OnCenterPivot();
 	///
 	void OnImport();
-
+	///
+	void OnImportLevel();
+	///
+	void OnExportSelectionLevel();
+    ///
+    void OnAddReference();
+    ///
+    void OnBatchToggle(bool);
 
     public slots:
     /// collapse property page
@@ -153,6 +170,9 @@ private slots:
 	void OnExportSelection();
 
 private:
+
+	///
+	bool PickLevelFile(const Util::String & title, const Util::String & folder, IO::URI & file, bool save);	
 
 	/// forcibly release the ctrl key
 	void ForceReleaseCtrlKey();
@@ -172,6 +192,7 @@ private:
 	QVBoxLayout *attributeControllerVLayout;	
 	QDialog * gridSizeDialog;
 	QByteArray defaultState;
+    QProgressBar * progressBar;
     QtAttributeControllerAddon::ScriptEditor* scriptEditor;
 	Ui::GridSizeDialog gridSizeUi;
 	AudioDialogHandler * audioDialog;
@@ -219,6 +240,15 @@ inline EntityTreeWidget*
 LevelEditor2Window::GetEntityTreeWidget()
 {
     return this->ui.treeWidget;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline QProgressBar*
+LevelEditor2Window::GetProgressBar()
+{
+    return this->progressBar;
 }
 
 //------------------------------------------------------------------------------

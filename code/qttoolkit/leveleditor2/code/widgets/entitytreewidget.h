@@ -19,6 +19,7 @@
 namespace LevelEditor2
 {
 class EntityTreeItem;
+class ReferenceTreeItem;
 class SelectionUtil;
 class LevelEditorState;
 
@@ -71,6 +72,11 @@ public:
 	void OnBeginLoad();
 	/// call after loading level is completed
 	void OnEndLoad();
+    
+    /// adds a new reference root node in case it does not exist yet
+    void AddReference(const Util::String & name);
+	///
+	void ClearReferences();
 
 	friend class EntityTreeItem;
 protected:
@@ -96,7 +102,9 @@ private:
     /// get selected items and all children of selected items
     Util::Array<EntityGuid> CollectAllChildren();
     /// set parent guid recursively
-	void SetParentGuid(const Util::Guid & guid, EntityTreeItem * child);
+	void SetParentGuid(const Util::String & level, const Util::Guid & guid, EntityTreeItem * child);
+
+    Util::Dictionary<Util::String, EntityTreeItem*> referenceItems;
 	
 	Ptr<LevelEditorState> editorState;
 	
@@ -112,6 +120,9 @@ private:
 class EntityTreeItem : public QTreeWidgetItem
 {
 public:
+    ///
+    EntityTreeItem();
+    ///
 	virtual ~EntityTreeItem();
 	/// set entity guid
 	void SetEntityGuid(EntityGuid id);
@@ -123,11 +134,19 @@ public:
 	void SetIcon(const EntityType& newType);
 	///
 	void SetCategory(const Util::String& category);
-private:
+	///
+	void SetLevel(const Util::String & level);
+    ///
+    void SetLocked(bool lock);
+    ///
+    void SetVisible(bool visible);
+
 	EntityGuid entityGuid;	//< the guid of the entity this item represents
+	EntityType type;
+	Util::String level;
+    bool locked;
+    bool visible;
 };
-
-
 
 //------------------------------------------------------------------------------
 /**
@@ -173,6 +192,15 @@ inline void
 EntityTreeItem::SetText(const Util::String& text)
 {
 	this->setText(0, text.AsCharPtr());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+EntityTreeItem::SetLevel(const Util::String& text)
+{
+	this->level = text;
 }
 
 //------------------------------------------------------------------------------

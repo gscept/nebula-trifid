@@ -355,8 +355,14 @@ PhysXBody::SetEnableCollisionCallback(bool enable)
 void
 PhysXBody::SetTransform(const Math::matrix44 & trans)
 {
+    Math::quaternion q;
+    Math::float4 scale;
+    Math::float4 pos;
+    trans.decompose(scale, q, pos);
 	BaseRigidBody::SetTransform(trans);
-	this->body->setGlobalPose(Neb2PxTrans(trans));
+    // we have to remove any possible scaling
+    PxTransform pose(Neb2PxVec(pos), Neb2PxQuat(q));
+	this->body->setGlobalPose(pose);
 }
 
 } // namespace PhysX

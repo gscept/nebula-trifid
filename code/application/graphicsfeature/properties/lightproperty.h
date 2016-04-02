@@ -1,7 +1,7 @@
 #pragma once
 //------------------------------------------------------------------------------
 /**
-    @class Properties::LightProperty
+    @class GraphicsFeature::LightProperty
 
     A light property adds a light source object (Graphics::LightEntity) 
     to a game entity.

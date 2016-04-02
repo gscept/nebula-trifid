@@ -23,6 +23,7 @@ namespace Attr
 	DeclareGuid(EntityGuid,'ETGU',ReadWrite);
 	DeclareGuid(ParentGuid,'PAGU',ReadWrite);
 	DeclareBool(IsSelected,'ISCT',ReadWrite);
+    DeclareBool(IsLocked, 'ISLK', ReadWrite);
 };
 
 //------------------------------------------------------------------------------

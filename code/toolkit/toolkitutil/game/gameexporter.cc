@@ -134,7 +134,11 @@ GameExporter::ExportAll()
     }
     
    
-    bm->CreateDatabases("export:/db/");
+	if (!bm->CreateDatabases("export:/db/"))
+	{
+		n_warning("Aborting export of game data as databases are in use\n");
+		return;
+	}
 	bm->SaveBlueprint("export:data/tables/blueprints.xml");
 
 	blog.AddEntry(console, "Blueprint Manager", "data/tables");
@@ -173,6 +177,28 @@ GameExporter::ExportAll()
 		llog.AddEntry(console, "Level Writer", files[fileIndex]);
 		console->Clear();
 		this->logs.Append(llog);
+		if (!dbwriter->GetReferences().IsEmpty())
+		{
+			dbwriter->SetReferenceMode(true);
+			const Util::Array<Util::String> refs = dbwriter->GetReferences();
+			for (int refIndex = 0; refIndex < refs.Size();refIndex++)
+			{
+				IO::URI path("work:levels/" + refs[refIndex] + ".xml");
+				Ptr<IO::Stream> levelStream = IoServer::Instance()->CreateStream(path);
+				Ptr<XmlReader> xmlReader = XmlReader::Create();
+				levelStream->Open();
+				xmlReader->SetStream(levelStream);
+				xmlReader->Open();
+				dbwriter->LoadXmlLevel(xmlReader);
+				xmlReader->Close();
+				levelStream->Close();
+				llog.AddEntry(console, "Level Writer", refs[refIndex]);
+				console->Clear();
+				this->logs.Append(llog);
+			}
+			dbwriter->SetReferenceMode(false);
+			dbwriter->ClearReferences();
+		}
     }
     dbwriter->Close();    
     gamedb->Close();

@@ -74,6 +74,8 @@ public:
     bool DeleteFile(const URI& path) const;
     /// return true if file exists
     bool FileExists(const URI& path) const;
+	/// return if file is locked
+	bool IsLocked(const URI& path) const;
     /// set the readonly status of a file
     void SetReadOnly(const URI& path, bool b) const;
     /// return read only status of a file
@@ -91,6 +93,9 @@ public:
     Util::Array<Util::String> ListFiles(const URI& dir, const Util::String& pattern, bool asFullPath=false) const;
     /// list all subdirectories matching a pattern in a directory
     Util::Array<Util::String> ListDirectories(const URI& dir, const Util::String& pattern, bool asFullPath=false) const;
+
+	/// create a temporary file name
+	URI CreateTemporaryFilename(const URI& path) const;
 
 private:
     /// helper function to add path prefix to file or dir names in array

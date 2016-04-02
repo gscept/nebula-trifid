@@ -254,6 +254,8 @@ LevelEditor2EntityManager::CreateEntityByAttrs( const Util::Array<Attr::Attribut
     }
     
     entity->SetGuid(Attr::EntityGuid,entguid);
+    entity->SetString(Attr::EntityLevel, Level::Instance()->GetName());
+    //entity->SetString(Attr::_ID, entguid.AsString());
 	// attach game entity to world
 	this->AddEntity(entity);
 	
@@ -328,7 +330,7 @@ LevelEditor2EntityManager::DuplicateEntities(const Util::Array<Ptr<Game::Entity>
 /**
 */
 void 
-LevelEditor2EntityManager::CreateEntityFromAttrContainer(const Util::String & category, Attr::AttributeContainer attrs)
+LevelEditor2EntityManager::CreateEntityFromAttrContainer(const Util::String & levelName, const Util::String & category, Attr::AttributeContainer attrs)
 {
 	Util::Array<Attr::Attribute> at = attrs.GetAttrs().ValuesAsArray();				
 
@@ -374,8 +376,12 @@ LevelEditor2EntityManager::CreateEntityFromAttrContainer(const Util::String & ca
 		{
 			at.Append(Attribute(Attr::StartAnimation, ""));
 		}
+        if (!attrs.HasAttr(Attr::VelocityVector))
+        {
+            at.Append(Attribute(Attr::VelocityVector, Math::vector(0)));
+        }
 		newEnt = CreateEntityByAttrs(at,"EditorEntity", attrs.GetGuid(Attr::Guid).AsString());		
-		newEnt->SetString(Attr::EntityLevel,Level::Instance()->GetName());		
+		newEnt->SetString(Attr::EntityLevel, levelName);
 	}
 	else if(category == "Light")
 	{	
@@ -391,14 +397,14 @@ LevelEditor2EntityManager::CreateEntityFromAttrContainer(const Util::String & ca
 				newEnt->SetAttr(arr.ValueAtIndex(i));
 			}
 		}
-		newEnt->SetString(Attr::EntityLevel,Level::Instance()->GetName());		
+		newEnt->SetString(Attr::EntityLevel, levelName);
 	}
 	else if(category == "_Group")
 	{
 		at.Append(Attribute(Attr::EntityType,Group));
 		at.Append(Attribute(Attr::EntityCategory,"Transform"));
 		newEnt = CreateEntityByAttrs(at,"EditorTransform", attrs.GetGuid(Attr::Guid).AsString());
-		newEnt->SetString(Attr::EntityLevel,Level::Instance()->GetName());		
+        newEnt->SetString(Attr::EntityLevel, levelName);
 	}
     else if(category == "NavMeshData")
     {
@@ -407,7 +413,7 @@ LevelEditor2EntityManager::CreateEntityFromAttrContainer(const Util::String & ca
         at.Append(Attribute(Attr::EntityGuid,attrs.GetGuid(Attr::Guid)));
         at.Append(Attribute(Attr::EntityLevel,Level::Instance()->GetName()));
         newEnt = CreateEntityByAttrs(at,"EditorNavMesh",attrs.GetGuid(Attr::Guid).AsString());
-		newEnt->SetString(Attr::EntityLevel,Level::Instance()->GetName());		
+		newEnt->SetString(Attr::EntityLevel, levelName);
     }
     else if(category == "_NavigationArea")
     {
@@ -418,14 +424,14 @@ LevelEditor2EntityManager::CreateEntityFromAttrContainer(const Util::String & ca
         at.Append(Attribute(Attr::NavMeshAreaCost, attrs.GetInt(Attr::NavMeshAreaCost)));
 		at.Append(Attribute(Attr::NavMeshAreaFlags, attrs.GetInt(Attr::NavMeshAreaFlags)));
         newEnt = CreateEntityByAttrs(at,"EditorNavAreaMarker",attrs.GetGuid(Attr::Guid).AsString());
-        newEnt->SetString(Attr::EntityLevel,Level::Instance()->GetName());		
+        newEnt->SetString(Attr::EntityLevel, levelName);
     }
 	else if (category == "LightProbe")
 	{
 		at.Append(Attribute(Attr::EntityType, Probe));
 		at.Append(Attribute(Attr::EntityCategory, "LightProbe"));
 		newEnt = CreateEntityByAttrs(at, "EditorLightProbe", attrs.GetGuid(Attr::Guid).AsString());
-		newEnt->SetString(Attr::EntityLevel, Level::Instance()->GetName());
+		newEnt->SetString(Attr::EntityLevel, levelName);
 	}
 	else 
 	{
@@ -463,7 +469,7 @@ LevelEditor2EntityManager::CreateEntityFromAttrContainer(const Util::String & ca
 			attributes.Append(attrs.GetAttr(Attr::Id));
 
 			newEnt = CreateEntityByAttrs(attributes, "EditorEntity", attrs.GetGuid(Attr::Guid).AsString());
-			newEnt->SetString(Attr::EntityLevel, Level::Instance()->GetName());
+			newEnt->SetString(Attr::EntityLevel, levelName);
 			if (attrs.HasAttr(Attr::ParentGuid))
 			{
 				newEnt->SetGuid(Attr::ParentGuid, attrs.GetGuid(Attr::ParentGuid));
@@ -542,12 +548,19 @@ LevelEditor2EntityManager::RemoveEntity(EntityGuid id)
 /**
 */
 void 
-LevelEditor2EntityManager::RemoveEntity(const Ptr<Game::Entity>& entity)
+LevelEditor2EntityManager::RemoveEntity(const Ptr<Game::Entity>& entity, bool immediate)
 {
 	// update the treeview	
 	this->RemoveTreeviewNode(entity);	
 	// remove the entity from the world
-	BaseGameFeature::EntityManager::Instance()->DeleteEntity(entity);	
+    if (immediate)
+    {
+        BaseGameFeature::EntityManager::Instance()->DeleteEntityImmediate(entity);
+    }
+    else
+    {
+        BaseGameFeature::EntityManager::Instance()->DeleteEntity(entity);
+    }	
 }
 
 //------------------------------------------------------------------------------
@@ -714,7 +727,7 @@ LevelEditor2EntityManager::GetGlobalLight()
 /**
 */
 void 
-LevelEditor2EntityManager::RemoveAllEntities()
+LevelEditor2EntityManager::RemoveAllEntities(bool immediate)
 {
 	// FIXME ugly
 	LevelEditor2App::Instance()->GetCurrentStateHandler().cast<LevelEditorState>()->ClearSelection();
@@ -722,37 +735,37 @@ LevelEditor2EntityManager::RemoveAllEntities()
 	Util::Array<Ptr<Game::Entity>> entities = BaseGameFeature::EntityManager::Instance()->GetEntitiesByAttr(Attr::Attribute(Attr::EntityType,Environment));	
 	for(IndexT i = 0; i< entities.Size();i++)
 	{
-		this->RemoveEntity(entities[i]);		
+		this->RemoveEntity(entities[i], immediate);
 	}
 	entities = BaseGameFeature::EntityManager::Instance()->GetEntitiesByAttr(Attr::Attribute(Attr::EntityType,Game));	
 	for(IndexT i = 0; i< entities.Size();i++)
 	{
-		this->RemoveEntity(entities[i]);
+		this->RemoveEntity(entities[i], immediate);
 	}
 	entities = BaseGameFeature::EntityManager::Instance()->GetEntitiesByAttr(Attr::Attribute(Attr::EntityType,Light));	
 	for(IndexT i = 0; i< entities.Size();i++)
 	{
-		this->RemoveEntity(entities[i]);
+		this->RemoveEntity(entities[i], immediate);
 	}
 	entities = BaseGameFeature::EntityManager::Instance()->GetEntitiesByAttr(Attr::Attribute(Attr::EntityType,Group));	
 	for(IndexT i = 0; i< entities.Size();i++)
 	{
-		this->RemoveEntity(entities[i]);
+		this->RemoveEntity(entities[i], immediate);
 	}
     entities = BaseGameFeature::EntityManager::Instance()->GetEntitiesByAttr(Attr::Attribute(Attr::EntityType,NavMesh));	
     for(IndexT i = 0; i< entities.Size();i++)
     {
-        this->RemoveEntity(entities[i]);
+        this->RemoveEntity(entities[i], immediate);
     }
 	entities = BaseGameFeature::EntityManager::Instance()->GetEntitiesByAttr(Attr::Attribute(Attr::EntityType, Probe));
 	for (IndexT i = 0; i < entities.Size(); i++)
 	{
-		this->RemoveEntity(entities[i]);
+		this->RemoveEntity(entities[i], immediate);
 	}
     entities = BaseGameFeature::EntityManager::Instance()->GetEntitiesByAttr(Attr::Attribute(Attr::EntityType,NavMeshArea));	
     for(IndexT i = 0; i< entities.Size();i++)
     {
-        this->RemoveEntity(entities[i]);
+        this->RemoveEntity(entities[i], immediate);
     }
 }
 
@@ -859,6 +872,30 @@ LevelEditor2EntityManager::MorphEntity(Ptr<Game::Entity> entity, const Util::Str
 	}
 	entity->SetString(Attr::EntityCategory, target);
 	LevelEditor2App::Instance()->GetCurrentStateHandler().cast<LevelEditor2::LevelEditorState>()->ClearSelection();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+LevelEditor2EntityManager::LoadLevel(const Util::String & name, Level::LoadMode mode)
+{
+    this->delayedLevel = name;
+    this->delayedMode = mode;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+LevelEditor2EntityManager::OnEndFrame()
+{
+    Manager::OnEndFrame();
+    if (!this->delayedLevel.IsEmpty())
+    {
+        Level::Instance()->LoadLevel(this->delayedLevel, this->delayedMode);
+        this->delayedLevel.Clear();
+    }
 }
 
 } // namespace LevelEditor2

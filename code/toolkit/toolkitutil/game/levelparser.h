@@ -38,6 +38,8 @@ protected:
     virtual void SetPosteffect(const Util::String & preset, const Math::matrix44 & globallightTransform) = 0;
     /// level dimensions
     virtual void SetDimensions(const Math::bbox & box) = 0;
+    /// add level reference
+    virtual void AddReference(const Util::String & name) = 0;
     /// parsing done
     virtual void CommitLevel(){}
 private:

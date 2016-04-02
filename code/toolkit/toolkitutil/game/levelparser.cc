@@ -50,6 +50,18 @@ LevelParser::LoadXmlLevel(const Ptr<IO::XmlReader> & reader)
             return false;
         }
 
+		if (reader->HasStream())
+		{
+			Util::String fileName = reader->GetStream()->GetURI().LocalPath().ExtractFileName();
+			fileName.StripFileExtension();
+			if (fileName != levelName)
+			{
+				// someone changed the filename outside of the leveleditor, use the external one instead
+				levelName = fileName;
+			}
+		}
+
+
         this->SetName(levelName);
 
         if (reader->SetToFirstChild("Layers"))
@@ -121,6 +133,14 @@ LevelParser::LoadXmlLevel(const Ptr<IO::XmlReader> & reader)
             }
             Math::bbox box(center, extends);
             this->SetDimensions(box);
+            if (reader->SetToFirstChild("Reference"))
+            {
+                do
+                {
+                    Util::String name = reader->GetString("Level");                    
+                    this->AddReference(name);
+                } while (reader->SetToNextChild());
+            }
         }        
         this->CommitLevel();
         return true;

@@ -21,6 +21,7 @@
 #include "attr/attribute.h"
 #include "widgets/entitytreewidget.h"
 #include "attr/attributecontainer.h"
+#include "level.h"
 
 namespace Game
 {
@@ -49,7 +50,11 @@ public:
 	/// remove an entity with the given id (uses EntityGuid)
 	void RemoveEntity(EntityGuid id);
 	/// remove an entity
-	void RemoveEntity(const Ptr<Game::Entity>& entity);
+	void RemoveEntity(const Ptr<Game::Entity>& entity, bool immediate = false);
+
+    void LoadLevel(const Util::String & name, Level::LoadMode mode);
+    ///
+    void OnEndFrame();
 
 	/// returns true if an entity with the id exists (uses EntityGuid)
 	bool EntityExists(EntityGuid id) const;
@@ -80,10 +85,10 @@ public:
 	Util::Array<EntityGuid> DuplicateEntities(const Util::Array<Ptr<Game::Entity>> & entities);
 
 	/// creates an entity from the values defined in the attributecontainer, filling up missing attributes	
-	void CreateEntityFromAttrContainer(const Util::String & category, Attr::AttributeContainer attrs);
+	void CreateEntityFromAttrContainer(const Util::String & levelName, const Util::String & category, Attr::AttributeContainer attrs);
 
 	/// clear all entities
-	void RemoveAllEntities();
+	void RemoveAllEntities(bool immediate = false);
 		
 	/// get the global light entity, can be null
 	Ptr<Game::Entity> GetGlobalLight();
@@ -104,6 +109,8 @@ private:
 	/// remove a entity node from the treeview
 	void RemoveTreeviewNode(const Ptr<Game::Entity>& node);
    
+    Util::String delayedLevel;
+    Level::LoadMode delayedMode;
 
 	EntityTreeWidget* entityTreeWidget;
 

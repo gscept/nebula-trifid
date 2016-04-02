@@ -9,6 +9,7 @@
 #include "io/filestream.h"
 #include "http/httpstream.h"
 #include "http/httpnzstream.h"
+#include "safefilestream.h"
 
 namespace IO
 {
@@ -160,6 +161,7 @@ void
 SchemeRegistry::SetupStandardSchemes()
 {
     this->RegisterUriScheme("file", FileStream::RTTI);
+	this->RegisterUriScheme("safefile", SafeFileStream::RTTI);
 
 #if __NEBULA3_HTTP_FILESYSTEM__
     this->RegisterUriScheme("http", Http::HttpStream::RTTI);

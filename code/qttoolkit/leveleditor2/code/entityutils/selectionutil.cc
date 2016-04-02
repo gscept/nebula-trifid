@@ -163,7 +163,10 @@ SelectionUtil::OnEntityClicked(const Ptr<Messaging::Message>& msg)
 		{
 			return;
 		}
-
+        if (entity->GetBool(Attr::IsLocked))
+        {
+            return;
+        }
 		int entityIndexInSelectedList = this->selectedEntities.FindIndex(entity->GetGuid(Attr::EntityGuid));
 		if(entityIndexInSelectedList!=InvalidIndex)
 		{	
@@ -239,7 +242,13 @@ SelectionUtil::OnEntitiesClicked(const Ptr<Messaging::Message>& msg)
 					{
 						if (!this->selectInside || (this->selectInside && InvalidIndex == edgeIds.BinarySearchIndex(ids[i])))
 						{
-							EntityGuid guid = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(ids[i])->GetGuid(Attr::EntityGuid);
+                            Ptr<Game::Entity> ent = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(ids[i]);
+                            if (ent->GetBool(Attr::IsLocked) || LevelEditor2App::Instance()->GetWindow()->GetLayerHandler()->IsEntityInLockedLayer(ent))
+                            {
+                                continue;
+                            }
+							EntityGuid guid = ent->GetGuid(Attr::EntityGuid);
+                            
 							if (current.BinarySearchIndex(guid) == InvalidIndex)
 							{
 								entities.Append(guid);
@@ -283,6 +292,11 @@ SelectionUtil::OnEntitiesClicked(const Ptr<Messaging::Message>& msg)
 			{
 				if (BaseGameFeature::EntityManager::Instance()->ExistsEntityByUniqueId(ids[i]))
 				{
+                    Ptr<Game::Entity> ent = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(ids[i]);
+                    if (ent->GetBool(Attr::IsLocked) || LevelEditor2App::Instance()->GetWindow()->GetLayerHandler()->IsEntityInLockedLayer(ent))
+                    {
+                        continue;
+                    }
 					if (!this->selectInside || (this->selectInside && InvalidIndex == edgeIds.BinarySearchIndex(ids[i])))
 					{
 						entities.Append(BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(ids[i])->GetGuid(Attr::EntityGuid));

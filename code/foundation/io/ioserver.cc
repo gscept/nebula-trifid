@@ -582,4 +582,29 @@ IoServer::ReadFile(const URI& path) const
 	return ret;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+IoServer::IsLocked(const URI& uri) const
+{
+	n_assert(uri.Scheme() == "file");
+	n_assert(this->FileExists(uri));
+	const String path = uri.GetHostAndLocalPath();
+	n_assert(path.IsValid());
+	return FSWrapper::IsLocked(path);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+IO::URI
+IoServer::CreateTemporaryFilename(const URI& uri) const
+{
+	n_assert(uri.Scheme() == "file");	
+	const String path = uri.GetHostAndLocalPath();
+	n_assert(path.IsValid());	
+	return URI(FSWrapper::CreateTemporaryFilename(path));
+}
+
 } // namespace IO

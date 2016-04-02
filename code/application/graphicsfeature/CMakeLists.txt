@@ -60,6 +60,8 @@ set(application_files_graphicsfeature__properties
 	properties/animationcontrolproperty.h
 	properties/cameraproperty.cc
 	properties/cameraproperty.h
+	properties/fpscameraproperty.cc
+	properties/fpscameraproperty.h
 	properties/chasecameraproperty.cc
 	properties/chasecameraproperty.h
 	properties/cutscenecameraproperty.cc
@@ -80,6 +82,8 @@ set(application_files_graphicsfeature__properties
 	properties/animpathproperty.h
 	properties/pathanimproperty.cc
 	properties/pathanimproperty.h
+	properties/freemoveproperty.cc
+	properties/freemoveproperty.h
 )
 source_group("graphicsfeature\\properties" FILES ${application_files_graphicsfeature__properties})
 

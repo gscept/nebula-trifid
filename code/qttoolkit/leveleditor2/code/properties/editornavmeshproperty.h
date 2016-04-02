@@ -39,7 +39,7 @@ public:
     /// save nav mesh blob to file
     virtual void SaveMesh();
     /// called from Entity::ActivateProperties()
-    virtual void OnActivate();
+    virtual void OnStart();
     /// called from Entity::DeactivateProperties()
     virtual void OnDeactivate();
 

@@ -130,7 +130,7 @@ public:
     ///
     static void CreateColumn(const Ptr<Db::Table>& table, Db::Column::Type type, Attr::AttrId attributeId);
     /// create both static and instance databases
-    void CreateDatabases(const Util::String & folder);    
+    bool CreateDatabases(const Util::String & folder);    
 protected:
 
     /// 
@@ -286,4 +286,4 @@ EditorBlueprintManager::SetLogger(ToolkitUtil::Logger * log)
 {
 	this->logger = log;
 }
-}
+}	
