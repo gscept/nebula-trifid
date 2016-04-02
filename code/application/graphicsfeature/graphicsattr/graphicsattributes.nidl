@@ -80,7 +80,7 @@
     <Attribute name="ProbeInfluenceShapeType" fourcc="PIST" accessMode="ReadWrite" type="String" editType="list" default="sphere" listValues="sphere;box"/>
     <Attribute name="ProbeInfluenceLayer" fourcc="PINP" accessMode="ReadWrite" type="Int"/>
     <Attribute name="ProbeInfluenceFalloff" fourcc="PIFF" accessMode="ReadWrite" type="Float" minValue="0.01f" maxValue="1.0f" default="0.2f"/>
-    <Attribute name="ProbeInfluencePower" fourcc="PIFP" accessMode="ReadWrite" type="Float" minValue="1.0" maxValue="256.0f" default="16.0f"/>
+    <Attribute name="ProbeInfluencePower" fourcc="PIFP" accessMode="ReadWrite" type="Float" minValue="1.0" maxValue="16.0f" default="1.0f"/>
 
     <Attribute name="ProbeParallaxCorrected" fourcc="PRPC" accessMode="ReadWrite" type="Bool" default="false"/>
     <Attribute name="ProbeBBExtents" fourcc="PRMN" accessMode="ReadWrite" type="Float4" default="1,1,1,0"/>

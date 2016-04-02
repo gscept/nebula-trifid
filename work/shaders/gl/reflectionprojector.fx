@@ -153,6 +153,8 @@ psMain(in vec3 viewSpacePosition,
 		// calculate distance field and falloff
 		float d = calcDistanceField(localPos.xyz, FalloffDistance);	
 		float distanceFalloff = pow(1-d, FalloffPower);
+		//float distanceFalloff = exp(1-d) * FalloffPower;
+		//float distanceFalloff = 1 / (pow(d, FalloffPower));
 		
 		// load biggest distance from texture, basically solving the distance field blending
 		float weight = imageLoad(DistanceFieldWeightMap, ivec2(gl_FragCoord.xy)).r;		
@@ -162,7 +164,8 @@ psMain(in vec3 viewSpacePosition,
 #else
 		float diff = saturate(distanceFalloff);
 #endif
-		imageStore(DistanceFieldWeightMap, ivec2(gl_FragCoord.xy), vec4(max(weight, distanceFalloff)));
+		imageStore(DistanceFieldWeightMap, ivec2(gl_FragCoord.xy), vec4(max(weight, d)));
+		//float distanceFalloff = pow(1 - diff, FalloffPower);
 	
 		// sample normal and specular, do some pseudo-PBR energy balance between albedo and spec
 		vec3 viewSpaceNormal = UnpackViewSpaceNormal(textureLod(NormalMap, screenUV, 0));
