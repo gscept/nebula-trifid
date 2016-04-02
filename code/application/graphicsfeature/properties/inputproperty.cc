@@ -275,8 +275,8 @@ InputProperty::OnBeginFrame()
         if (movement)
         {
             Ptr<MoveDirection> msg = MoveDirection::Create();
-            msg->SetDirection(float4::normalize(moveVec));
-            msg->SetCameraRelative(true);
+            msg->SetDirection(float4::normalize(moveVec));			
+            msg->SetCameraRelative(this->entity->GetBool(Attr::CameraRelativeMove));
             this->entity->SendSync(msg.cast<Messaging::Message>());   
 
             this->lastFrameSendMovement = true;
