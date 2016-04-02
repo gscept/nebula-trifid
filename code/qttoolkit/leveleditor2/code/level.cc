@@ -268,7 +268,7 @@ Level::LoadLevelFile(const Util::String& level, LoadMode mode)
 		reader->Close();
 		stream->Close();
 	}
-    window->GetProgressBar()->setMaximum(lvl->entities.Size()-1);
+    window->GetProgressBar()->setMaximum(lvl->entities.Size());
 	
 	if(result)
 	{
@@ -304,9 +304,9 @@ Level::LoadLevelFile(const Util::String& level, LoadMode mode)
 			LevelEditor2EntityManager::Instance()->CreateEntityFromAttrContainer(entityLevel, lvl->entities[i].Key(), lvl->entities[i].Value());
             bar->setValue(bar->value() + 1);
 		}		
-        n_status("Success");
-        bar->reset();
+        n_status("Success");        
 	}	
+	window->GetProgressBar()->reset();
 	return result;	
 }
 
