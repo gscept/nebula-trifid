@@ -206,6 +206,16 @@ InputProperty::OnBeginFrame()
 			moveVec += vector(1.0f, 0.0f, 0.0f);
 			movement = true;
 		}
+		if (kbd->KeyPressed(Input::Key::Z))
+		{
+			moveVec += vector(0.0f, -1.0f, 0.0f);
+			movement = true;
+		}
+		if (kbd->KeyPressed(Input::Key::Q))
+		{
+			moveVec += vector(0.0f, 1.0f, 0.0f);
+			movement = true;
+		}
 		if(kbd->KeyPressed(Input::Key::E))
 		{
 			Ptr<MoveJump> msg = MoveJump::Create();

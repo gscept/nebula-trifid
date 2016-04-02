@@ -6,6 +6,7 @@
 #include "properties/freemoveproperty.h"
 #include "game/entity.h"
 #include "basegamefeature/basegameattr/basegameattributes.h"
+#include "graphicsfeature/graphicsattr/graphicsattributes.h"
 #include "basegamefeature/basegameprotocol.h"
 #include "messaging/staticmessagehandler.h"
 #include "graphicsfeatureunit.h"
@@ -54,18 +55,20 @@ FreeMoveProperty::HandleMessage(const Ptr<Messaging::Message>& msg)
     if (msg->CheckId(MoveDirection::Id))
     {
 		const Ptr<MoveDirection> & mmsg = msg.downcast<MoveDirection>();
+		float speed = this->entity->GetFloat(Attr::FreeMoveSpeed);
 		Math::matrix44 trans = this->entity->GetMatrix44(Attr::Transform);
 		if (mmsg->GetCameraRelative())
 		{
 			Math::matrix44 camtrans = GraphicsFeature::GraphicsFeatureUnit::Instance()->GetDefaultView()->GetCameraEntity()->GetTransform();
 			camtrans.set_position(Math::point(0.0f));
 			Math::vector dir = mmsg->GetDirection();
+			dir *= speed;
 			dir = Math::matrix44::transform(dir, camtrans);
 			trans.translate(dir);
 		}
 		else
 		{			
-			trans.translate(Math::vector(mmsg->GetDirection()));
+			trans.translate(Math::vector(mmsg->GetDirection() * speed));
 		}
 		Ptr<SetTransform> tmsg = SetTransform::Create();
 		tmsg->SetMatrix(trans);
