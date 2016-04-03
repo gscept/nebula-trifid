@@ -95,10 +95,12 @@ SM50LightServer::Open()
 	this->spotLightFeatureBits[CastShadows]		= shdServer->FeatureStringToMask("Spot|Alt0");
 
 	// todo: rename variations in shader...
-	this->lightProbeFeatureBits[LightProbeEntity::Box] = shdServer->FeatureStringToMask("Alt0");
 	this->lightProbeFeatureBits[LightProbeEntity::Sphere] = shdServer->FeatureStringToMask("Alt1");
-	this->lightProbeFeatureBits[LightProbeEntity::Box + 2] = shdServer->FeatureStringToMask("Alt0|Alt2");
+	this->lightProbeFeatureBits[LightProbeEntity::Box] = shdServer->FeatureStringToMask("Alt0");
 	this->lightProbeFeatureBits[LightProbeEntity::Sphere + 2] = shdServer->FeatureStringToMask("Alt1|Alt2");
+	this->lightProbeFeatureBits[LightProbeEntity::Box + 2] = shdServer->FeatureStringToMask("Alt0|Alt2");
+	this->lightProbeFeatureBits[LightProbeEntity::Sphere + 4] = shdServer->FeatureStringToMask("Alt1|Alt3");
+	this->lightProbeFeatureBits[LightProbeEntity::Box + 4] = shdServer->FeatureStringToMask("Alt0|Alt3");	
 
 	// global light variables used for shadowing
 	this->globalLightCascadeOffset				= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_CASCADEOFFSET);
@@ -568,8 +570,8 @@ SortProbesLayer(const Ptr<LightProbeEntity>& lhs, const Ptr<LightProbeEntity>& r
 bool
 SortProbesType(const Ptr<LightProbeEntity>& lhs, const Ptr<LightProbeEntity>& rhs)
 {
-	int lhsPrio = lhs->GetShapeType() + lhs->GetParallaxCorrected() * 2;
-	int rhsPrio = rhs->GetShapeType() + rhs->GetParallaxCorrected() * 2;
+	int lhsPrio = lhs->GetShapeType() + lhs->GetCorrectionMode() * LightProbeEntity::NumProbeShapeTypes;
+	int rhsPrio = rhs->GetShapeType() + rhs->GetCorrectionMode() * LightProbeEntity::NumProbeShapeTypes;
 	return lhsPrio < rhsPrio;
 }
 
@@ -606,7 +608,7 @@ SM50LightServer::RenderLightProbes()
 		 
 		// 0 is for box, 1 is for sphere, but this would be better to use the same shape and render them based on shape instead...
 		// 
-		shader->SelectActiveVariation(this->lightProbeFeatureBits[shapeType + (entity->GetParallaxCorrected() ? 2 : 0)]);
+		shader->SelectActiveVariation(this->lightProbeFeatureBits[shapeType + entity->GetCorrectionMode() * LightProbeEntity::NumProbeShapeTypes]);
 
 		// apply mesh at shape type
 		entity->ApplyProbe(probe);

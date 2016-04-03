@@ -28,6 +28,7 @@ shared varblock ReflectionProjectorBlock
 
 samplerCube EnvironmentMap;
 samplerCube IrradianceMap;
+samplerCube DepthConeMap;
 
 samplerstate GeometrySampler
 {
@@ -41,7 +42,7 @@ samplerstate GeometrySampler
 
 samplerstate EnvironmentSampler
 {
-	Samplers = { EnvironmentMap, IrradianceMap };
+	Samplers = { EnvironmentMap, IrradianceMap, DepthConeMap };
 	Filter = MinMagMipLinear;
 	AddressU = Wrap;
 	AddressV = Wrap;
@@ -101,6 +102,60 @@ subroutine (CalculateCubemapCorrection) vec3 NoCorrection(
 	in vec3 worldSpacePos, in vec3 reflectVec, in vec4 bboxmin, in vec4 bboxmax, in vec4 bboxcenter)
 {
 	return reflectVec;
+}
+
+#define MAX_NUM_STEPS 4
+#define DEPTH_THRESHOLD 1000
+#define STEP_SIZE 0.01f
+subroutine (CalculateCubemapCorrection) vec3 DepthCorrect(
+	in vec3 worldSpacePos, in vec3 reflectVec, in vec4 bboxmin, in vec4 bboxmax, in vec4 bboxcenter)
+{
+	vec3 normed = normalize(reflectVec);
+	vec3 localPos = worldSpacePos - bboxcenter.xyz;
+	float rl = textureLod(DepthConeMap, normed, 0).r;
+	float dp = rl - dot(localPos, normed);
+	float3 p = localPos + normed * dp;
+	float ppp = length(p) / textureLod(DepthConeMap, p, 0).r;
+	float dun = 0, dov = 0, pun = ppp, pov = ppp;
+	if (ppp < 1) dun = dp;
+	else 		 dov = dp;
+	float dl = max(dp + rl * (1 - ppp), 0);
+	float3 l = localPos + normed * dl;
+	
+	for (int i = 0; i < MAX_NUM_STEPS; i++)
+	{
+		float ddl;
+		float llp = length(l) / textureLod(DepthConeMap, l, 0).r;
+		if (llp < 1)
+		{
+			dun = dl; pun = llp;
+			ddl = (dov == 0) ? rl * (1 - llp) : (dl - dov) * (1 - llp) / (llp-pov);
+		}
+		else
+		{
+			dov = dl; pov = llp;
+			ddl = (dun == 0) ? rl * (1 - llp) : (dl - dun) * (1 - llp) / (llp-pun);
+		}
+		dl = max(dl + ddl, 0);
+		l = localPos + normed * dl;
+	}
+	return l;
+	/*
+	vec3 normed = normalize(reflectVec);
+	float curr = textureLod(DepthConeMap, normed, 0).r;
+	//vec3 depth = normed * curr;
+	vec3 ray = normed;
+	
+	for (int i = 0; i < MAX_NUM_STEPS; i++)
+	{
+		if (length(ray) > curr) break;
+		//if ((dot(ray, depth) / length(depth)) > 0) break;
+		ray = normed * STEP_SIZE * i;
+		curr = textureLod(DepthConeMap, ray, 0).r;
+		//depth = ray * curr;
+	}
+	return (worldSpacePos + ray - bboxcenter.xyz);
+	*/
 }
 
 CalculateCubemapCorrection calcCubemapCorrection;
@@ -201,3 +256,5 @@ SimpleTechnique(BoxProjector, "Alt0", vsMain(), psMain(calcDistanceField = Box, 
 SimpleTechnique(SphereProjector, "Alt1", vsMain(), psMain(calcDistanceField = Sphere, calcCubemapCorrection = NoCorrection), ProjectorState);
 SimpleTechnique(CorrectedBoxProjector, "Alt0|Alt2", vsMain(), psMain(calcDistanceField = Box, calcCubemapCorrection = ParallaxCorrect), ProjectorState);
 SimpleTechnique(CorrectedSphereProjector, "Alt1|Alt2", vsMain(), psMain(calcDistanceField = Sphere, calcCubemapCorrection = ParallaxCorrect), ProjectorState);
+SimpleTechnique(ExactBoxProjector, "Alt0|Alt3", vsMain(), psMain(calcDistanceField = Box, calcCubemapCorrection = DepthCorrect), ProjectorState);
+SimpleTechnique(ExactSphereProjector, "Alt1|Alt3", vsMain(), psMain(calcDistanceField = Sphere, calcCubemapCorrection = DepthCorrect), ProjectorState);

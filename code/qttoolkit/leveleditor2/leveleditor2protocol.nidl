@@ -33,6 +33,7 @@
     <Attribute name="ProbeResolutionHeight"/>
     <Attribute name="ProbeBuildReflections"/>
     <Attribute name="ProbeBuildIrradiance"/>
+    <Attribute name="ProbeBuildDepth"/>
     <Attribute name="ProbeGenerateMipmaps"/>
     <Attribute name="ProbeAutoAssignMaps"/>
     <Attribute name="ProbeOutputFolder"/>
@@ -82,6 +83,10 @@
 
     <Message name="SetMultiSelection" fourcc="SMSL">
       <InArg name="Entities" type="Util::Array<Ptr<Game::Entity>>"/>      
+    </Message>
+    <Message name="BeginProbeBuild" fourcc="BGPB">
+    </Message>
+    <Message name="EndProbeBuild" fourcc="ENPB">
     </Message>
   </Protocol>
   <Library name="LeveleditorCommands">

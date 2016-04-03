@@ -79,20 +79,23 @@
 
     <Attribute name="ProbeReflectionMap" fourcc="PRFM" accessMode="ReadWrite" type="String" editType="resource" resourceBase="tex" fileSuffix="dds" default="system/sky"/>
     <Attribute name="ProbeIrradianceMap" fourcc="PIRM" accessMode="ReadWrite" type="String" editType="resource" resourceBase="tex" fileSuffix="dds" default="system/sky_irr"/>
+    <Attribute name="ProbeDepthMap" fourcc="PRDM" accessMode="ReadWrite" type="String" editType="resource" resourceBase="tex" fileSuffix="dds" default="system/black"/>
     <Attribute name="ProbeInfluenceShapeType" fourcc="PIST" accessMode="ReadWrite" type="String" editType="list" default="sphere" listValues="sphere;box"/>
     <Attribute name="ProbeInfluenceLayer" fourcc="PINP" accessMode="ReadWrite" type="Int"/>
     <Attribute name="ProbeInfluenceFalloff" fourcc="PIFF" accessMode="ReadWrite" type="Float" minValue="0.01f" maxValue="1.0f" default="0.2f"/>
     <Attribute name="ProbeInfluencePower" fourcc="PIFP" accessMode="ReadWrite" type="Float" minValue="1.0" maxValue="16.0f" default="1.0f"/>
 
-    <Attribute name="ProbeParallaxCorrected" fourcc="PRPC" accessMode="ReadWrite" type="Bool" default="false"/>
-    <Attribute name="ProbeBBExtents" fourcc="PRMN" accessMode="ReadWrite" type="Float4" default="1,1,1,0"/>
+    <Attribute name="ProbeCorrectionMethod" fourcc="PRCM" accessMode="ReadWrite" type="String" editType="list" default="none" listValues="none;parallax;depth"/>
+    <Attribute name="ProbeDebugRender" fourcc="PRDR" accessMode="ReadWrite" type="Bool" default="false" displayName="Debug render probe"/>
+    <Attribute name="ProbeParallaxBox" fourcc="PRMN" accessMode="ReadWrite" type="Float4" default="1,1,1,0"/>
     
     <Attribute name="ProbeName" fourcc="PRNA" accessMode="ReadWrite" type="String"/>
     <Attribute name="ProbeResolutionWidth" fourcc="PRRW" accessMode="ReadWrite" type="Int" default="256"/>
     <Attribute name="ProbeResolutionHeight" fourcc="PRRH" accessMode="ReadWrite" type="Int" default="256"/>
 
     <Attribute name="ProbeBuildReflections" fourcc="PRBR" accessMode="ReadWrite" type="Bool" default="true"/>
-    <Attribute name="ProbeBuildIrradiance" fourcc="PRBI" accessMode="ReadWrite" type="Bool" default="true"/>    
+    <Attribute name="ProbeBuildIrradiance" fourcc="PRBI" accessMode="ReadWrite" type="Bool" default="true"/>
+    <Attribute name="ProbeBuildDepth" fourcc="PRBD" accessMode="ReadWrite" type="Bool" default="true"/>
     <Attribute name="ProbeGenerateMipmaps" fourcc="PRGM" accessMode="ReadWrite" type="Bool" default="true"/>    
     
     <Attribute name="ProbeOutputFolder" fourcc="PROF" accessMode="ReadWrite" type="String" default="#LEVEL#"/>
@@ -190,13 +193,15 @@
   <Property name="GraphicsFeature::LightProbeProperty" header="graphicsfeature/properties/lightprobeproperty.h">
     <Attribute name="ProbeReflectionMap"/>
     <Attribute name="ProbeIrradianceMap"/>
+    <Attribute name="ProbeDepthMap"/>
     <Attribute name="ProbeInfluenceShapeType"/>
     <Attribute name="ProbeInfluenceLayer"/>
     <Attribute name="ProbeInfluenceFalloff"/>
     <Attribute name="ProbeInfluencePower"/>
-    <Attribute name="ProbeBBExtents"/>
+    <Attribute name="ProbeParallaxBox"/>
+    <Attribute name="ProbeDebugRender"/>
     <Attribute name="ProbeInfluencePower"/>
-    <Attribute name="ProbeParallaxCorrected"/>    
+    <Attribute name="ProbeCorrectionMethod"/>    
   </Property>
   <Property name="GraphicsFeature::CameraProperty" header="graphicsfeature/properties/cameraproperty.h">
     <Attribute name="CameraFocus" />
