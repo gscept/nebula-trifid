@@ -335,7 +335,9 @@ LevelEditor2App::SetupGameFeatures()
 	Commands::LeveleditorCommands::Register();
 	Commands::LevelEditor2Protocol::Register();
 
-	this->ScanPropertyScripts();
+	Scripting::ScriptServer::Instance()->AddPath("toolkit:data/scripts/?.lua");
+
+	this->ScanScripts();
 
 	// open light probe manager
 	this->lightProbeManager->Open();
@@ -622,7 +624,7 @@ LevelEditor2App::UpdateNavMesh()
 /**
 */
 void
-LevelEditor2App::ScanPropertyScripts()
+LevelEditor2App::ScanScripts()
 {
 	if (IO::IoServer::Instance()->DirectoryExists("toolkit:data/leveleditor/scripts"))
 	{
@@ -634,6 +636,11 @@ LevelEditor2App::ScanPropertyScripts()
 			{
 				Scripting::ScriptServer::Instance()->Eval(script);
 				Scripting::ScriptServer::Instance()->Eval("__property_init()");
+			}
+			if (Scripting::ScriptServer::Instance()->ScriptHasFunction(script, "__init"))
+			{
+				Scripting::ScriptServer::Instance()->Eval(script);
+				Scripting::ScriptServer::Instance()->Eval("__init()");
 			}
 		}
 	}
@@ -687,6 +694,30 @@ LevelEditor2App::PropertCallback()
 	Util::String exec;
 	exec.Format(script.AsCharPtr(), box->property("entity").toUInt());
 	Scripting::ScriptServer::Instance()->Eval(exec);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+LevelEditor2App::RegisterScript(const Util::String & displayName, const Util::String & scriptFunc)
+{
+	QAction * action = this->editorWindow->GetUi().menu_Scripts->addAction(displayName.AsCharPtr());
+	this->scriptCallbacks.Add(action, scriptFunc);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+LevelEditor2App::ScriptAction(QAction* action)
+{
+	n_assert(this->scriptCallbacks.Contains(action));
+	Scripting::ScriptServer::Instance()->Eval(this->scriptCallbacks[action]);
+	if (Scripting::ScriptServer::Instance()->HasError())
+	{
+		n_status("Scrip action error: %s\n", Scripting::ScriptServer::Instance()->GetError().AsCharPtr());
+	}
 }
 
 } // namespace LevelEditor2

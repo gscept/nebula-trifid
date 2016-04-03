@@ -56,14 +56,16 @@ public:
     /// call previously registered function with an array of arguments
     virtual bool CallFunction(const Util::String& table, unsigned int entry, const Util::Array<Util::Variant>& params);
 
+	/// set lua package search path
+	virtual void AddPath(const IO::URI & path);
+
 private:
     struct LuaStringReaderData
     {
         const Util::String* str;
     };
 
-	/// set lua package search path
-	void AddLuaPath(const IO::URI & path);
+	
 
     /// LUA function callback
     static int LuaFunctionCallback(lua_State* s);
