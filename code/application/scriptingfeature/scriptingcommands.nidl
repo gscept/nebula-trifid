@@ -521,5 +521,13 @@
         ]]>
       </Code>
     </Command>
+    <Command name="printconsole" fourcc="prts" desc="Prints message to the console">
+      <InArg name="msg" type="string"/>
+      <Code>
+        <![CDATA[ 
+          n_printf("%s\n",msg.AsCharPtr());
+        ]]>
+      </Code>
+    </Command>
   </Library>  
 </Nebula3>

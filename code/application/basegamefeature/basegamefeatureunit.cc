@@ -47,7 +47,7 @@ using namespace GraphicsFeature;
 /**
 */
 BaseGameFeatureUnit::BaseGameFeatureUnit() :
-	enableAutosave(true)
+	enableAutosave(false)
 {
     __ConstructSingleton;
 	// create additional servers    
