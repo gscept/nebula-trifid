@@ -13,6 +13,7 @@
 #include "physics/scene.h"
 #include "util/fixedarray.h"
 #include "physics/base/basebody.h"
+#include "physics/materialtable.h"
 
 namespace physx
 {
@@ -118,6 +119,8 @@ public:
 	bool GetKinematic();
     ///
 	bool HasTransformChanged();	
+	/// set material
+	virtual void SetMaterialType(Physics::MaterialType t);
 
 	///
 	physx::PxRigidDynamic* GetBody();
