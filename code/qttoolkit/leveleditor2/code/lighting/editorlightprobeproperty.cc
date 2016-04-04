@@ -174,6 +174,12 @@ EditorLightProbeProperty::HandleMessage(const Ptr<Messaging::Message>& msg)
 		Ptr<GraphicsFeature::GetModelEntity> gMsg = msg.downcast<GraphicsFeature::GetModelEntity>();
 		gMsg->SetEntity(this->reflectionMapPreview);
 	}
+	else if (msg->CheckId(GraphicsFeature::SetGraphicsVisible::Id))
+	{
+		Ptr<GraphicsFeature::SetGraphicsVisible> gMsg = msg.downcast<GraphicsFeature::SetGraphicsVisible>();
+		this->reflectionMapPreview->SetVisible(gMsg->GetVisible());
+		LightProbeProperty::HandleMessage(msg);
+	}
 	else if (msg->CheckId(LevelEditor2::BeginProbeBuild::Id))
 	{
 		this->reflectionMapPreview->SetVisible(false);

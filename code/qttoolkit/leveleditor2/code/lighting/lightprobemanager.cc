@@ -198,7 +198,7 @@ LightProbeManager::Build()
 
 	Ptr<Resources::ManagedTexture> origReflection = Lighting::EnvironmentProbe::DefaultEnvironmentProbe->GetReflectionMap();
 	Ptr<Resources::ManagedTexture> origIrradiance = Lighting::EnvironmentProbe::DefaultEnvironmentProbe->GetIrradianceMap();
-	Ptr<Resources::ManagedTexture> black = Resources::ResourceManager::Instance()->CreateManagedResource(CoreGraphics::Texture::RTTI, "tex:system/black.dds", NULL, true).downcast<Resources::ManagedTexture>();
+	Ptr<Resources::ManagedTexture> black = Resources::ResourceManager::Instance()->CreateManagedResource(CoreGraphics::Texture::RTTI, "tex:system/blackcube.dds", NULL, true).downcast<Resources::ManagedTexture>();
 
 	// first, unset the default probe
 	Lighting::EnvironmentProbe::DefaultEnvironmentProbe->AssignReflectionMap(black);
