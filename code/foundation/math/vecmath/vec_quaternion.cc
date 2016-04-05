@@ -54,5 +54,21 @@ quaternion::rotationmatrix(const matrix44& m)
 }
 
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+quaternion::to_euler(const quaternion& q, float4& outangles)
+{
+	float q0 = q.x();
+	float q1 = q.y();
+	float q2 = q.z();
+	float q3 = q.w();
+	float x = atan2f(2.0f * (q0 * q1 + q2*q3), 1.0f - 2.0f * (q1*q1 + q2*q2));
+	float y = asinf(2.0f * (q0*q2 - q3*q1));
+	float z = atanf((2.0f * (q0*q3 + q1*q2))/( 1.0f - 2.0f *(q2*q2 + q3*q3)));
+	outangles.set(x, y, z, 0.0f);
+}
+
 }
 

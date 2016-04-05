@@ -183,7 +183,7 @@ GameExporter::ExportAll()
 			const Util::Array<Util::String> refs = dbwriter->GetReferences();
 			for (int refIndex = 0; refIndex < refs.Size();refIndex++)
 			{
-				IO::URI path("work:levels/" + refs[refIndex] + ".xml");
+				IO::URI path("proj:work/levels/" + refs[refIndex] + ".xml");
 				Ptr<IO::Stream> levelStream = IoServer::Instance()->CreateStream(path);
 				Ptr<XmlReader> xmlReader = XmlReader::Create();
 				levelStream->Open();

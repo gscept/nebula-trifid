@@ -142,7 +142,8 @@ public:
     static quaternion squad(const quaternion& q1, const quaternion& a, const quaternion& b, const quaternion& c, scalar t);
     /// convert quaternion to axis and angle
     static void to_axisangle(const quaternion& q, float4& outAxis, scalar& outAngle);
-
+	/// convert to euler angles
+	static void to_euler(const quaternion& q, float4& outangles);
 private:
     friend class matrix44;
 

@@ -155,6 +155,8 @@ LevelEditor2Window::LevelEditor2Window():
     this->progressBar->setFixedSize(300, 15);    
     this->statusBar()->addPermanentWidget(this->progressBar);
 
+	connect(this->ui.menu_Scripts, SIGNAL(triggered(QAction*)), LevelEditor2App::Instance(), SLOT(ScriptAction(QAction*)));
+
 }
 
 //------------------------------------------------------------------------------

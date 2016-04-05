@@ -142,13 +142,13 @@
     </Message>
     
     <!-- Play animation (not character animation) -->
-    <Message name="AnimPlay" fourcc="ANPL" scripted="false"/>   
+    <Message name="AnimPlay" fourcc="ANPL" scripted="true"/>   
 
     <!-- Rewind animation back to the start -->
-    <Message name="AnimRewind" fourcc="ANRE" scripted="false"/>
+    <Message name="AnimRewind" fourcc="ANRE" scripted="true"/>
 
     <!-- Stop the animation in its tracks, will retain the current value -->
-    <Message name="AnimStop" fourcc="ANST" scripted="false"/>
+    <Message name="AnimStop" fourcc="ANST" scripted="true"/>
 
     <!-- Change the animation resource -->
     <Message name="AnimUpdate" fourcc="ANUP" scripted="false">

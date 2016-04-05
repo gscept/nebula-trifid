@@ -287,4 +287,13 @@ ScriptServer::SetError(const Util::String& err)
 	this->error = err;		
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ScriptServer::AddPath(const IO::URI& path)
+{
+	n_error("Implement in subclass");
+}
+
 } // namespace Scripting
