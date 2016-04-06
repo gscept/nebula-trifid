@@ -47,6 +47,6 @@
 [submodule "code/extlibs/cjson/cJSON"]
 	path = code/extlibs/cjson/cJSON
 	url = https://github.com/kbranigan/cJSON.git
-[submodule "core-project"]
+[submodule "projects/core-project"]
 	path = projects/core-project
 	url = https://github.com/Core-Game-Project-2016/core-project.git
