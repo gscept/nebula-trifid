@@ -42,21 +42,21 @@ public:
     virtual void OnFrame();
 
     /// set input and camera focus to entity, null ptr allowed
-    virtual void SetFocusEntity(const Ptr<Game::Entity>& entity);
+	virtual void SetFocusEntity(const Ptr<Game::Entity>& entity, bool distribute = true);
     /// get common focus entity, will fail if input != camera focus entity
     virtual const Ptr<Game::Entity>& GetFocusEntity() const;
     /// switch input and camera focus to next entity
     virtual void SetFocusToNextEntity();
 
     /// set the current input focus entity, null ptr allowed
-    virtual void SetInputFocusEntity(const Ptr<Game::Entity>& entity);
+	virtual void SetInputFocusEntity(const Ptr<Game::Entity>& entity, bool distribute = true);
     /// get the current input focus entity
     virtual const Ptr<Game::Entity>& GetInputFocusEntity() const;
     /// set input focus to next entity
     virtual void SetInputFocusToNextEntity();
 
     /// set the current camera focus entity, null ptr allowed
-    virtual void SetCameraFocusEntity(const Ptr<Game::Entity>& entity);
+	virtual void SetCameraFocusEntity(const Ptr<Game::Entity>& entity, bool distribute = true);
     /// get the current camera focus entity
     virtual const Ptr<Game::Entity>& GetCameraFocusEntity() const;
     /// set camera focus to next entity

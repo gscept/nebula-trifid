@@ -51,10 +51,10 @@ FocusManager::~FocusManager()
     will fail.
 */
 void
-FocusManager::SetFocusEntity(const Ptr<Entity>& entity)
+FocusManager::SetFocusEntity(const Ptr<Entity>& entity, bool distribute)
 {
-    this->SetInputFocusEntity(entity);
-    this->SetCameraFocusEntity(entity);
+	this->SetInputFocusEntity(entity, distribute);
+	this->SetCameraFocusEntity(entity, distribute);
 }
 
 //------------------------------------------------------------------------------
@@ -211,13 +211,14 @@ FocusManager::SwitchFocusEntities()
     an InputProperty attached for this to work.
 */
 void
-FocusManager::SetInputFocusEntity(const Ptr<Entity>& entity)
+FocusManager::SetInputFocusEntity(const Ptr<Entity>& entity, bool distribute)
 {
     // clear input focus on existing focus entity
     if (this->inputFocusEntity.isvalid())
     {
         Ptr<InputFocus> inputFocus = InputFocus::Create();
         inputFocus->SetObtainFocus(false);
+		inputFocus->SetDistribute(distribute);
         this->inputFocusEntity->SendSync(inputFocus.upcast<Messaging::Message>());
         n_assert(this->inputFocusEntity->GetBool(Attr::InputFocus) == false);
     }
@@ -257,13 +258,14 @@ FocusManager::SetInputFocusToNextEntity()
     a CameraProperty attached for this to work.
 */
 void
-FocusManager::SetCameraFocusEntity(const Ptr<Entity>& entity)
+FocusManager::SetCameraFocusEntity(const Ptr<Entity>& entity, bool distribute)
 {
     // clear camera focus on existing focus entity
     if (this->cameraFocusEntity.isvalid())
     {
         Ptr<CameraFocus> cameraFocus = CameraFocus::Create();
         cameraFocus->SetObtainFocus(false);
+		cameraFocus->SetDistribute(distribute);
         this->cameraFocusEntity->SendSync(cameraFocus.upcast<Messaging::Message>());
         n_assert(this->cameraFocusEntity->GetBool(Attr::CameraFocus) == false);
     }
