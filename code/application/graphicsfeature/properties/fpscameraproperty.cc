@@ -141,6 +141,7 @@ FpsCameraProperty::GetJointPos(IndexT index) const
 	//Get joint position
 	const Ptr<Characters::CharacterInstance>& charInst = this->modelEntity.cast<Graphics::ModelEntity>()->GetCharacterInstance();
 	charInst->WaitUpdateDone();
+
 	return charInst->Skeleton().GetJointMatrix(index);
 }
 
