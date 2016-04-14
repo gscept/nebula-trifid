@@ -455,18 +455,18 @@ ModelHandler::OnAddParticleNode()
 
 	// we should now have an empty particle effect, so now we need a node
 	String name;
-	IndexT number = consts->GetParticleNodes().Size();
+	IndexT number = attrs->GetAppendixNodes().Size();
 	name.Format("node_%d", number);
-	while (consts->HasParticleNode(name)) name.Format("node_%d", number++);
+	while (attrs->HasAppendixNode(name)) name.Format("node_%d", number++);
 
-	ModelConstants::ParticleNode node;	
+	ModelAttributes::AppendixNode node;
 	node.name = name;
-	node.type = "particle";
+	node.type = ModelAttributes::ParticleNode;
 	node.path = "root/" + name;
-	node.primitiveGroupIndex = 0;
+	node.data.particle.primGroup = 0;
 
 	// now add particle node to constants
-	consts->AddParticleNode(name, node);
+	attrs->AddAppendixNode(name, node);
 
 	// create state
 	State state;
@@ -527,7 +527,7 @@ ModelHandler::RemoveParticleNode(const Util::String path, const Util::String nod
 	attrs->DeleteState(path);
 	attrs->DeleteEmitterAttrs(path);
 	attrs->DeleteEmitterMesh(path);
-	consts->DeleteParticleNode(node);
+	attrs->DeleteAppendixNode(node);
 
 	// apply modifications
 	this->OnModelModified(true);
@@ -848,7 +848,7 @@ ModelHandler::SetupTabs()
 		IndexT i;
 		for (i = 0; i < shapes.Size(); i++)
 		{
-			nodeFrame->AddModelNode(shapes[i].type, shapes[i].name, shapes[i].path, res);
+			nodeFrame->AddModelNode(shapes[i].name, shapes[i].path, res);
 		}
 	}
 
@@ -896,33 +896,38 @@ ModelHandler::SetupTabs()
 				continue;
 			}
 
-			nodeFrame->AddModelNode(skins[i].type, skins[i].name, skins[i].path, res);
+			nodeFrame->AddModelNode(skins[i].name, skins[i].path, res);
 		}
 	}
 
-	// get a list of all particles
-	const Array<ModelConstants::ParticleNode>& particleNodes = this->constants->GetParticleNodes();
-	for (i = 0; i < particleNodes.Size(); i++)
+	// get a list of all appendix nodes defined in the attributes
+	const Array<ModelAttributes::AppendixNode>& appendixNodes = this->attributes->GetAppendixNodes();
+	for (i = 0; i < appendixNodes.Size(); i++)
 	{
-		// create new frame
-		ParticleNodeFrame* nodeFrame = new ParticleNodeFrame;
-		this->particleFrames.Append(nodeFrame);
+		const ModelAttributes::AppendixNode& node = appendixNodes[i];
 
-		// get state
-		const State& state = this->attributes->GetState(particleNodes[i].path);
+		if (node.type == ModelAttributes::ParticleNode)
+		{
+			// create new frame
+			ParticleNodeFrame* nodeFrame = new ParticleNodeFrame;
+			this->particleFrames.Append(nodeFrame);
 
-		// get attrs
-		const Particles::EmitterAttrs& attrs = this->attributes->GetEmitterAttrs(particleNodes[i].path);
+			// get state
+			const State& state = this->attributes->GetState(node.path);
 
-		// setup handler
-		nodeFrame->GetHandler()->SetModelHandler(this);
-		nodeFrame->GetHandler()->SetType(particleNodes[i].type);
-		nodeFrame->GetHandler()->SetName(particleNodes[i].name);
-		nodeFrame->GetHandler()->SetPath(particleNodes[i].path);
-		nodeFrame->GetHandler()->Setup(res);
+			// get attrs
+			const Particles::EmitterAttrs& attrs = this->attributes->GetEmitterAttrs(node.path);
 
-		// add frame to tab box
-		nodeWidget->addTab(nodeFrame, "Particle");
+			// setup handler
+			nodeFrame->GetHandler()->SetModelHandler(this);
+			nodeFrame->GetHandler()->SetName(node.name);
+			nodeFrame->GetHandler()->SetPath(node.path);
+			nodeFrame->GetHandler()->Setup(res);
+
+			// add frame to tab box
+			nodeWidget->addTab(nodeFrame, "Particle");
+		}
+
 	}
 
 	const Array<ModelConstants::PhysicsNode>& physicsNodes = this->constants->GetPhysicsNodes();

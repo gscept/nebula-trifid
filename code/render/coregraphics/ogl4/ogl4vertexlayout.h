@@ -31,9 +31,6 @@ public:
     /// discard the vertex layout object
     void Discard();
 
-	/// set the vertex buffer associated with the stream index
-	void SetStreamBuffer(IndexT streamIndex, GLuint vertexBuffer);
-
     /// get opengl vertex array object
     const GLuint& GetOGL4VertexArrayObject() const;
 
@@ -43,20 +40,9 @@ public:
 private:
 
 	GLuint ogl4Vao;
-	GLuint vertexStreams[CoreGraphics::RenderDevice::MaxNumVertexStreams];
 	static const SizeT maxElements = 24;
 	Util::String semanticName[32];	
 };
-
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void 
-OGL4VertexLayout::SetStreamBuffer( IndexT streamIndex, GLuint vertexBuffer )
-{
-	this->vertexStreams[streamIndex] = vertexBuffer;
-}
 
 //------------------------------------------------------------------------------
 /**

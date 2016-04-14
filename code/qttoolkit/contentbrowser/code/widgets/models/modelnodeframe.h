@@ -24,7 +24,7 @@ public:
 	virtual ~ModelNodeFrame();
 
 	/// add a new model node to the frame
-	void AddModelNode(const Util::String& type, const Util::String& name, const Util::String& path, const Util::String& res);
+	void AddModelNode(const Util::String& name, const Util::String& path, const Util::String& res);
 
 	/// set the model handler to which this model node frame should operate on, do this prior to adding model nodes
 	void SetModelHandler(const Ptr<ModelHandler>& handler);

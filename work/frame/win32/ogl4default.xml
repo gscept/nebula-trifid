@@ -39,7 +39,7 @@
   <DeclareTexture format="R16F" relHeight="1" relWidth="1" msaa="false" name="DistanceFieldWeightBuffer"/>
   
   <!-- used to render shapes -->
-  <DeclareRenderTarget format="A8R8G8B8" relHeight="1" relWidth="1" name="ShapeBuffer" depthTarget="DefaultDepthBuffer"/>
+  <!--<DeclareRenderTarget format="A8R8G8B8" relHeight="1" relWidth="1" name="ShapeBuffer" depthTarget="DefaultDepthBuffer"/>-->
   
   <!-- HDR buffers -->
   <DeclareRenderTarget format="A8R8G8B8" relHeight="0.5" msaa="false" relWidth="0.5" name="BrightBuffer"/>
@@ -269,7 +269,7 @@
   </PostEffect>
   
   <!-- batch render shapes before we finalize, we do this to avoid stuff like fogging and DoF for debug shapes -->
-  <Pass renderTarget="ShapeBuffer" name="Shape" clearColor="0,0,0,0">
+  <Pass multipleRenderTarget="UnlitBuffer" name="Shape">
 	<Batch type="Shapes"/>
   </Pass>
     
@@ -278,7 +278,7 @@
    <ApplyShaderVariable sem="LuminanceTexture" value="AverageLum"/>
    <ApplyShaderVariable sem="BloomTexture" value="BloomBuffer0"/>
    <ApplyShaderVariable sem="ColorTexture" value="ColorBuffer"/>
-   <ApplyShaderVariable sem="ShapeTexture" value="ShapeBuffer"/>
+   <!--<ApplyShaderVariable sem="ShapeTexture" value="ShapeBuffer"/>-->
    <ApplyShaderVariable sem="GodrayTexture" value="GodrayBuffer"/>
       
    <Batch type="UI"/>

@@ -14,6 +14,7 @@
 #include "debugrender/debugshaperenderer.h"
 #include "leveleditor2app.h"
 #include "managers/entitymanager.h"
+#include "leveleditor2/leveleditor2protocol.h"
 
 using namespace Math;
 using namespace Lighting;
@@ -67,6 +68,7 @@ EditorLightProbeProperty::OnActivate()
 	this->environmentCapturer->SetGenerateMipmaps(this->entity->GetBool(Attr::ProbeGenerateMipmaps));
 	this->environmentCapturer->SetRenderIrradiance(this->entity->GetBool(Attr::ProbeBuildIrradiance));
 	this->environmentCapturer->SetRenderReflections(this->entity->GetBool(Attr::ProbeBuildReflections));
+	this->environmentCapturer->SetGenerateDepthCube(this->entity->GetBool(Attr::ProbeBuildDepth));
 	this->environmentCapturer->SetOutput(this->entity->GetString(Attr::ProbeOutputFolder), this->entity->GetString(Attr::ProbeOutputFilename));
 	this->environmentCapturer->SetName(this->entity->GetString(Attr::ProbeName));
 	this->environmentCapturer->SetEntity(this->entity);
@@ -84,7 +86,7 @@ EditorLightProbeProperty::OnActivate()
 	transform.set_zaxis(Math::float4::normalize(transform.get_zaxis()));
 	this->reflectionMapPreview->SetTransform(transform);
 
-	bbox zone(transform.get_position(), this->entity->GetFloat4(Attr::ProbeBBExtents));
+	bbox zone(transform.get_position(), this->entity->GetFloat4(Attr::ProbeParallaxBox));
 	this->environmentCapturer->SetCaptureZone(zone);
 
 	// attach model to stage
@@ -119,6 +121,17 @@ EditorLightProbeProperty::OnDeactivate()
 /**
 */
 void
+EditorLightProbeProperty::SetupAcceptedMessages()
+{
+	LightProbeProperty::SetupAcceptedMessages();
+	this->RegisterMessage(LevelEditor2::BeginProbeBuild::Id);
+	this->RegisterMessage(LevelEditor2::EndProbeBuild::Id);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 EditorLightProbeProperty::HandleMessage(const Ptr<Messaging::Message>& msg)
 {
 	if (msg->CheckId(BaseGameFeature::UpdateTransform::Id))
@@ -126,7 +139,7 @@ EditorLightProbeProperty::HandleMessage(const Ptr<Messaging::Message>& msg)
 		matrix44 transform = (msg.cast<BaseGameFeature::UpdateTransform>())->GetMatrix();
 
 		// update zone
-		Math::bbox zone(transform.get_position(), this->entity->GetFloat4(Attr::ProbeBBExtents));
+		Math::bbox zone(transform.get_position(), this->entity->GetFloat4(Attr::ProbeParallaxBox));
 		this->lightProbeEntity->SetZone(zone);
 		this->environmentCapturer->SetCaptureZone(zone);
 		
@@ -144,7 +157,7 @@ EditorLightProbeProperty::HandleMessage(const Ptr<Messaging::Message>& msg)
 		LightProbeProperty::HandleMessage(msg);
 
 		// update zone
-		Math::bbox zone(this->entity->GetMatrix44(Attr::Transform).get_position(), this->entity->GetFloat4(Attr::ProbeBBExtents));
+		Math::bbox zone(this->entity->GetMatrix44(Attr::Transform).get_position(), this->entity->GetFloat4(Attr::ProbeParallaxBox));
 		this->lightProbeEntity->SetZone(zone);
 
 		// update light probe from attributes
@@ -152,6 +165,7 @@ EditorLightProbeProperty::HandleMessage(const Ptr<Messaging::Message>& msg)
 		this->environmentCapturer->SetGenerateMipmaps(this->entity->GetBool(Attr::ProbeGenerateMipmaps));
 		this->environmentCapturer->SetRenderIrradiance(this->entity->GetBool(Attr::ProbeBuildIrradiance));
 		this->environmentCapturer->SetRenderReflections(this->entity->GetBool(Attr::ProbeBuildReflections));
+		this->environmentCapturer->SetGenerateDepthCube(this->entity->GetBool(Attr::ProbeBuildDepth));
 		this->environmentCapturer->SetOutput(this->entity->GetString(Attr::ProbeOutputFolder), this->entity->GetString(Attr::ProbeOutputFilename));
 		this->environmentCapturer->SetName(this->entity->GetString(Attr::ProbeName));
 	}
@@ -159,6 +173,20 @@ EditorLightProbeProperty::HandleMessage(const Ptr<Messaging::Message>& msg)
 	{
 		Ptr<GraphicsFeature::GetModelEntity> gMsg = msg.downcast<GraphicsFeature::GetModelEntity>();
 		gMsg->SetEntity(this->reflectionMapPreview);
+	}
+	else if (msg->CheckId(GraphicsFeature::SetGraphicsVisible::Id))
+	{
+		Ptr<GraphicsFeature::SetGraphicsVisible> gMsg = msg.downcast<GraphicsFeature::SetGraphicsVisible>();
+		this->reflectionMapPreview->SetVisible(gMsg->GetVisible());
+		LightProbeProperty::HandleMessage(msg);
+	}
+	else if (msg->CheckId(LevelEditor2::BeginProbeBuild::Id))
+	{
+		this->reflectionMapPreview->SetVisible(false);
+	}
+	else if (msg->CheckId(LevelEditor2::EndProbeBuild::Id))
+	{
+		this->reflectionMapPreview->SetVisible(true);
 	}
 	else
 	{
@@ -172,7 +200,7 @@ EditorLightProbeProperty::HandleMessage(const Ptr<Messaging::Message>& msg)
 void
 EditorLightProbeProperty::OnRender()
 {
-	if (this->entity->GetBool(Attr::IsSelected))
+	if (this->entity->GetBool(Attr::IsSelected) && this->entity->GetBool(Attr::ProbeDebugRender))
 	{
 		int influenceType = this->entity->GetString(Attr::ProbeInfluenceShapeType) == "sphere" ? 0 : 1;
 		Math::matrix44 trans;
@@ -180,7 +208,7 @@ EditorLightProbeProperty::OnRender()
 		trans = this->entity->GetMatrix44(Attr::Transform);
 	
 		// draw capture zone as box
-		Math::bbox zone(trans.get_position(), this->entity->GetFloat4(Attr::ProbeBBExtents));
+		Math::bbox zone(trans.get_position(), this->entity->GetFloat4(Attr::ProbeParallaxBox));
 		Math::float4 color = float4(1) - LevelEditor2App::Instance()->GetWindow()->GetSelectionColour();
 		color.set_w(0.5f);
 		Debug::DebugShapeRenderer::Instance()->DrawBox(zone.to_matrix44(), color, CoreGraphics::RenderShape::CheckDepth);

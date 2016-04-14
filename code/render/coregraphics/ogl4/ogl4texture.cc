@@ -70,11 +70,11 @@ OGL4Texture::Map(IndexT mipLevel, MapType mapType, MapInfo& outMapInfo)
 	switch (mapType)
 	{
 	case MapRead:
-		n_assert(AccessRead == this->access);
+		n_assert(AccessRead & this->access);
 		flags = GL_STREAM_READ;
 		break;
 	case MapWrite:
-		n_assert((UsageDynamic == this->usage) && (AccessWrite == this->access));
+		n_assert((UsageDynamic == this->usage) && (AccessWrite & this->access));
 		flags = GL_STREAM_DRAW;
 		break;
 	case MapReadWrite:
@@ -82,7 +82,7 @@ OGL4Texture::Map(IndexT mipLevel, MapType mapType, MapInfo& outMapInfo)
 		flags = GL_STREAM_COPY;
 		break;
 	case MapWriteDiscard:
-		n_assert((UsageDynamic == this->usage) && (AccessWrite == this->access));
+		n_assert((UsageDynamic == this->usage) && (AccessWrite & this->access));
 		flags = GL_STREAM_COPY;
 		break;
 	}
@@ -231,11 +231,11 @@ OGL4Texture::MapCubeFace(CubeFace face, IndexT mipLevel, MapType mapType, MapInf
     switch (mapType)
     {
 	case MapRead:
-		n_assert(AccessRead == this->access);
+		n_assert(AccessRead & this->access);
 		flags = GL_STREAM_READ;
 		break;
 	case MapWrite:
-		n_assert((UsageDynamic == this->usage) && (AccessWrite == this->access));
+		n_assert((UsageDynamic == this->usage) && (AccessWrite & this->access));
 		flags = GL_STREAM_DRAW;
 		break;
 	case MapReadWrite:
@@ -243,7 +243,7 @@ OGL4Texture::MapCubeFace(CubeFace face, IndexT mipLevel, MapType mapType, MapInf
 		flags = GL_STREAM_COPY;
 		break;
 	case MapWriteDiscard:
-		n_assert((UsageDynamic == this->usage) && (AccessWrite == this->access));
+		n_assert((UsageDynamic == this->usage) && (AccessWrite & this->access));
 		flags = GL_STREAM_COPY;
 		break;
     }
@@ -377,7 +377,7 @@ OGL4Texture::SetupFromOGL4Texture(const GLuint& texture, CoreGraphics::PixelForm
     this->SetDepth(1);
 	this->SetNumMipLevels(Math::n_max(1, numMips));
     this->SetPixelFormat(format);
-	this->access = ResourceBase::AccessRead;
+	this->access = ResourceBase::AccessReadWrite;
 	this->isRenderTargetAttachment = isAttachment;
     if (setLoaded)
     {
@@ -428,7 +428,7 @@ OGL4Texture::SetupFromOGL4MultisampleTexture(const GLuint& texture, CoreGraphics
 	this->SetDepth(1);
 	this->SetNumMipLevels(Math::n_max(1, numMips));
 	this->SetPixelFormat(format);
-	this->access = ResourceBase::AccessRead;
+	this->access = ResourceBase::AccessReadWrite;
 	this->isRenderTargetAttachment = isAttachment;
 	if (setLoaded)
 	{
@@ -483,7 +483,7 @@ OGL4Texture::SetupFromOGL4VolumeTexture(const GLuint& texture, CoreGraphics::Pix
     this->SetDepth(depth);
 	this->SetNumMipLevels(Math::n_max(1, numMips));
     this->SetPixelFormat(format);
-	this->access = ResourceBase::AccessRead;
+	this->access = ResourceBase::AccessReadWrite;
 	this->isRenderTargetAttachment = isAttachment;
     if (setLoaded)
     {
@@ -538,7 +538,7 @@ OGL4Texture::SetupFromOGL4CubeTexture(const GLuint& texCube, CoreGraphics::Pixel
     this->SetDepth(6);
 	this->SetNumMipLevels(Math::n_max(1, numMips));
     this->SetPixelFormat(format);
-	this->access = ResourceBase::AccessRead;
+	this->access = ResourceBase::AccessReadWrite;
 	this->isRenderTargetAttachment = isAttachment;
     if (setLoaded)
     {

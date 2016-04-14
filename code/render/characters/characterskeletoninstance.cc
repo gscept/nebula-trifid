@@ -71,6 +71,7 @@ CharacterSkeletonInstance::Setup(const CharacterSkeleton& skeleton)
     this->startJointComponentsArray.SetSize(numJoints);
     this->scaledMatrixArray.SetSize(numJoints);
     this->skinMatrixArray.SetSize(numJoints);
+	this->mixMatrixArray.SetSize(numJoints);
     this->jointComponentsArrayPtr = &this->startJointComponentsArray;
 
     // setup instance joints
@@ -126,8 +127,10 @@ CharacterSkeletonInstance::SetupEvalJob()
 
     // setup the job, patch the sample buffer data later
     this->evalJob = Job::Create();
-    const FixedArray<matrix44>& invPoseMatrixArray = this->skeletonPtr->GetInvPoseMatrixArray();
-    JobUniformDesc uniform(invPoseMatrixArray.Begin(), invPoseMatrixArray.Size() * sizeof(matrix44), outBufSize);
+	this->bindPoseMatrixArray = this->skeletonPtr->GetInvPoseMatrixArray();
+	JobUniformDesc uniform(this->bindPoseMatrixArray.Begin(), this->bindPoseMatrixArray.Size() * sizeof(matrix44),
+						   this->mixMatrixArray.Begin(), this->mixMatrixArray.Size() * sizeof(matrix44),
+							outBufSize);
     JobDataDesc input(this->jointComponentsArrayPtr->Begin(), compBufferSize, compBufferSize,
                       0, 16, 16);
 
@@ -161,7 +164,7 @@ void
 CharacterSkeletonInstance::EvaluateAsync(const Ptr<Jobs::JobPort>& jobPort,
                                          const Math::float4* sampleBuffer, SizeT numSamples, 
                                          void* jointTextureRowPtr, SizeT jointTextureRowSize,
-                                         bool waitAnimJobsDone)
+										 bool waitAnimJobsDone, SkeletonEvalMode mode)
 {
     // patch input and optional joint texture row pointers into the eval job
     // NOTE: The sampleBuffer pointer may be 0, if this is the case, there is
@@ -172,6 +175,19 @@ CharacterSkeletonInstance::EvaluateAsync(const Ptr<Jobs::JobPort>& jobPort,
     // patch the input buffer into the job
     SizeT sampleBufferSize = numSamples * sizeof(float4);
     JobDataDesc input = this->evalJob->GetInputDesc();
+	JobUniformDesc uniform = this->evalJob->GetUniformDesc();
+	if (mode == BindPose)
+	{
+		uniform.Update(0, this->bindPoseMatrixArray.Begin(), this->bindPoseMatrixArray.Size() * sizeof(matrix44));
+		uniform.Update(1, 0, 0);
+	}
+	else if (mode == Mix)
+	{
+		uniform.Update(0, this->bindPoseMatrixArray.Begin(), this->bindPoseMatrixArray.Size() * sizeof(matrix44));
+		uniform.Update(1, this->mixMatrixArray.Begin(), this->mixMatrixArray.Size() * sizeof(matrix44));
+	}
+	this->evalJob->PatchUniformDesc(uniform);
+
     input.Update(1, (void*)sampleBuffer, sampleBufferSize, sampleBufferSize);
     if (this->jointComponentsDirty)
     {

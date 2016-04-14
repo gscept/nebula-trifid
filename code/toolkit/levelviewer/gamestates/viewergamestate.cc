@@ -109,10 +109,11 @@ LevelViewerGameState::OnFrame()
 	}
 
 	// test text rendering
-	Timing::Time frameTime = (float)BaseGameFeature::GameTimeSource::Instance()->GetFrameTime();
+	/*Timing::Time frameTime = (float)BaseGameFeature::GameTimeSource::Instance()->GetFrameTime();
 	Util::String fpsTxt;
 	fpsTxt.Format("Game FPS: %.2f", 1/frameTime);
 	_debug_text(fpsTxt, Math::float2(0.0,0.0), Math::float4(1,1,1,1));
+	*/
 
 	QtRemoteInterfaceAddon::QtRemoteServer::Instance()->OnFrame();
 	Dynui::ImguiAddon::EndFrame();

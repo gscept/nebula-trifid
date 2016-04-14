@@ -24,8 +24,8 @@ public:
 	/// destructor
 	virtual ~CubeFilterer();
 
-	/// set texture to be used as source
-	void SetCubemap(const Ptr<CoreGraphics::Texture>& cubeMap);
+	/// set cube faces to be used for the pass
+	void SetCubeFaces(const Util::FixedArray<Ptr<CoreGraphics::Texture>>& cubefaces);
 	/// set the output texture name
 	void SetOutputFile(const IO::URI& output);
 	/// set the output size (squared size)
@@ -38,9 +38,11 @@ public:
 
 	/// generates sampled cube map and saves into output, the third argument is a function pointer to a function which handles progress
 	void Filter(bool irradiance, void* messageHandler, void(*CubeFilterer_Progress)(const Util::String&, void*));
+	/// generate cube map for depth
+	void DepthCube(bool genConeMap, void* messageHandler, void(*CubeFilterer_Progress)(const Util::String&, void*));
 
 private:
-	Ptr<CoreGraphics::Texture> cubeMap;
+	Util::FixedArray<Ptr<CoreGraphics::Texture>> cubefaces;
 	IO::URI output;
 	bool generateMips;
 	uint power;
@@ -53,9 +55,9 @@ private:
 /**
 */
 inline void
-CubeFilterer::SetCubemap(const Ptr<CoreGraphics::Texture>& cubeMap)
+CubeFilterer::SetCubeFaces(const Util::FixedArray<Ptr<CoreGraphics::Texture>>& cubefaces)
 {
-	this->cubeMap = cubeMap;
+	this->cubefaces = cubefaces;
 }
 
 //------------------------------------------------------------------------------

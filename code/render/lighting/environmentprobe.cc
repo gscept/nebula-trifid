@@ -108,4 +108,37 @@ EnvironmentProbe::AssignIrradianceMap(const Resources::ResourceId& irr)
 	return false;
 }
 
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+EnvironmentProbe::AssignDepthMap(const Resources::ResourceId& depth)
+{
+	Ptr<ResourceManager> resManager = ResourceManager::Instance();
+
+	// only apply if resource is valid, 
+	if (depth.IsValid())
+	{
+		if (this->depthMap.isvalid())
+		{
+			if (this->depthMap->GetResourceId() != depth)
+			{
+				resManager->DiscardManagedResource(this->depthMap.upcast<ManagedResource>());
+				this->depthMap = resManager->CreateManagedResource(Texture::RTTI, depth).downcast<ManagedTexture>();
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else
+		{
+			this->depthMap = resManager->CreateManagedResource(Texture::RTTI, depth).downcast<ManagedTexture>();
+		}
+		return true;
+	}
+	return false;
+}
+
 } // namespace Lighting

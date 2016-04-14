@@ -51,6 +51,8 @@ public:
     //CharacterTextureSet& TextureSet();
     /// access to the character's variation
     void SetVariationSetName(const Util::StringAtom& variationSetName);
+	/// set character update mode
+	void SetCharacterEvalMode(const CharacterSkeletonInstance::SkeletonEvalMode& mode);
     /// render a debug visualization of the character
     void RenderDebug(const Math::matrix44& modelTransform);
     /// wait for the character to become valid after StartUpdateAsync()
@@ -72,6 +74,7 @@ private:
 
     Ptr<Character> character;
     Ptr<Models::ModelInstance> modelInstance;
+	CharacterSkeletonInstance::SkeletonEvalMode skeletonEvalMode;
     CharacterSkeletonInstance skeletonInst;
     CharacterSkinSet skinSet;
     CharacterAnimationController animController;
@@ -126,6 +129,15 @@ inline CharacterAnimationController&
 CharacterInstance::AnimController()
 {
     return this->animController;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+CharacterInstance::SetCharacterEvalMode(const CharacterSkeletonInstance::SkeletonEvalMode& mode)
+{
+	this->skeletonEvalMode = mode;
 }
 
 //------------------------------------------------------------------------------
