@@ -136,6 +136,17 @@ CameraEntity::CalculateScreenSpacePosition(const Math::float4& pos)
 
 //------------------------------------------------------------------------------
 /**
+*/
+Math::float4
+CameraEntity::CalculateWorldSpacePosition(const Math::float2& pos)
+{
+	float4 worldpos = float4(pos.x(), pos.y(), this->camSettings.GetZNear(), 1);
+	worldpos = matrix44::transform(worldpos, matrix44::inverse(this->GetViewProjTransform()));
+	return worldpos;
+}
+
+//------------------------------------------------------------------------------
+/**
     Handle a message, override this method accordingly in subclasses!
 */
 void

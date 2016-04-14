@@ -34,6 +34,7 @@ using namespace Jobs;
 /**
 */
 CharacterInstance::CharacterInstance():
+	skeletonEvalMode(CharacterSkeletonInstance::BindPose),
     updateFrameIndex(InvalidIndex),
     jointTextureRowIndex(InvalidIndex),
     isValidForRendering(false)
@@ -178,7 +179,7 @@ CharacterInstance::StartUpdate()
     this->skeletonInst.EvaluateAsync(this->jobPort, 
                                      samplesPtr, numSamples, 
                                      jointTextureRowPtr, jointTextureRowSize,
-                                     animUpdateValid);
+									 animUpdateValid, this->skeletonEvalMode);
 }
 
 //------------------------------------------------------------------------------

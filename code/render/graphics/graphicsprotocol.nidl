@@ -35,6 +35,7 @@
         <Dependency header="models/modelnode.h"/>
         <Dependency header="resources/resourceid.h"/>
         <Dependency header="particles/emitterattrs.h"/>
+        <Dependency header="characters/characterskeletoninstance.h"/>
         
         <!-- register a render-thread plugin -->
         <Message name="RegisterRTPlugin" fourcc="RRTP">
@@ -572,6 +573,17 @@
         <!-- set a character variation -->
         <Message name="SetVariation" fourcc="SEVA" derivedFrom="GraphicsEntityMessage">
             <InArg name="VariationName" type="Util::StringAtom"/>
+        </Message>
+      
+        <!-- set a character skeleton eval mode -->
+        <Message name="SetSkeletonEvalMode" fourcc="SSEM" derivedFrom="GraphicsEntityMessage">
+            <InArg name="Mode" type="Characters::CharacterSkeletonInstance::SkeletonEvalMode"/>
+        </Message>
+      
+        <!-- set a character skeleton joint direct transform -->
+        <Message name="SetSkeletonJointMatrix" fourcc="SSJM" derivedFrom="GraphicsEntityMessage">
+            <InArg name="Index" type="IndexT"/>
+            <InArg name="Transform" type="Math::matrix44"/>
         </Message>
 
         <!-- set timing factor -->

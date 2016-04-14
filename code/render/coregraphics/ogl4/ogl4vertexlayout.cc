@@ -6,6 +6,7 @@
 #include "stdneb.h"
 #include "coregraphics/ogl4/ogl4vertexlayout.h"
 #include "coregraphics/ogl4/ogl4types.h"
+#include "coregraphics/vertexbuffer.h"
 #include "coregraphics/renderdevice.h"
 #include "coregraphics/shaderserver.h"
 #include "resources/resourceid.h"
@@ -72,10 +73,10 @@ OGL4VertexLayout::Setup(const Array<VertexComponent>& c)
 		GLenum type = OGL4Types::AsOGL4SymbolicType(component.GetFormat());
 
 		// bind buffer
-		glBindBuffer(GL_ARRAY_BUFFER, this->vertexStreams[component.GetStreamIndex()]);
+		glBindBuffer(GL_ARRAY_BUFFER, this->vertexStreams[component.GetStreamIndex()]->GetOGL4VertexBuffer());
 
 		// avoid working with empty array buffers
-		if (vertexStreams[component.GetStreamIndex()] == 0) continue;
+		if (this->vertexStreams[component.GetStreamIndex()] == 0) continue;
 
 #if __OGL43__
 		// activate vertex attribute

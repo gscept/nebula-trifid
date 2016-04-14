@@ -178,7 +178,7 @@ vsMain(in vec3 position,
 	WorldViewVec = modelSpace.xyz - EyePos.xyz;
 }
 
-#define USE_DISTANCE_IMAGE 0
+#define USE_DISTANCE_IMAGE 1
 //------------------------------------------------------------------------------
 /**
 	Calculate reflection projection using a box, basically the same as circle except we are using a signed distance function to determine falloff.

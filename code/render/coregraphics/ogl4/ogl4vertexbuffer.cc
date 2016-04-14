@@ -45,8 +45,6 @@ OGL4VertexBuffer::Unload()
 	glDeleteBuffers(1, &this->ogl4VertexBuffer);
 	this->ogl4VertexBuffer = 0;
 
-	this->vertexLayout->Discard();
-	this->vertexLayout = 0;
     VertexBufferBase::Unload();
 }
 
@@ -91,7 +89,7 @@ OGL4VertexBuffer::Map(MapType mapType)
 	glBindBuffer(GL_ARRAY_BUFFER, this->ogl4VertexBuffer);
 
 	// glMapBufferRange is a more modern way of mapping buffers, this can be done without any implicit synchronization, which is nice and fast!
-	void* data = glMapBufferRange(GL_ARRAY_BUFFER, 0, this->numVertices * this->vertexLayout->GetVertexByteSize(), mapFlags);
+	void* data = glMapBufferRange(GL_ARRAY_BUFFER, 0, this->numVertices * this->vertexByteSize, mapFlags);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);	
 	n_assert(data);
 	return data;
