@@ -11,7 +11,7 @@
 	This class also supports rendering out an irradiance map, which goes together
 	with the reflection map to create a fully offline diffuse and specular global illumination.
 	
-	(C) 2012-2015 Individual contributors, see AUTHORS file
+	(C) 2012-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
@@ -59,6 +59,8 @@ public:
 	void SetRenderIrradiance(bool b);
 	/// set if we should calculate reflections
 	void SetRenderReflections(bool b);
+	/// set if we should save a depth cube
+	void SetGenerateDepthCube(bool b);
 	/// set if we should generate mipmaps for reflections
 	void SetGenerateMipmaps(bool b);
 
@@ -69,15 +71,21 @@ public:
 	/// get name of generated irradiance map
 	const Util::String& GetIrradianceMapName() const;
 
+	/// handle stuff to do before rendering
+	void BeforeRender();
 	/// renders environment into cube map
 	void Render(QPlainTextEdit* progressBar);
+	/// handle stuff to do after rendering
+	void AfterRender();
 
-private:
+private:	
 	Util::String name;
 	bool calculateReflections;
 	bool calculateIrradiance;
+	bool captureDepth;
 	bool generateMipmaps;
 	SizeT resolutionX, resolutionY;
+	
 	Util::Array<Ptr<Graphics::GraphicsEntity>> hideLinks;
 	Math::float4 position;
 	Math::bbox captureZone;
@@ -87,6 +95,7 @@ private:
 	Ptr<CoreGraphics::RenderTargetCube> probeMap;
 	Util::String reflectionMapName;
 	Util::String irradianceMapName;
+	Util::String depthMapName;
 
 	Ptr<Game::Entity> entity;
 };
@@ -171,6 +180,15 @@ inline void
 EnvironmentProbeCapturer::SetRenderReflections(bool b)
 {
 	this->calculateReflections = b;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+EnvironmentProbeCapturer::SetGenerateDepthCube(bool b)
+{
+	this->captureDepth = b;
 }
 
 //------------------------------------------------------------------------------

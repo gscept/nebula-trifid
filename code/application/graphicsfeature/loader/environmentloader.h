@@ -1,21 +1,21 @@
 #pragma once
 //------------------------------------------------------------------------------
 /**
-    @class BaseGameFeature::EnvironmentLoader
+    @class GraphicsFeature::EnvironmentLoader
     
     Helper class which loads all the environment objects into a level.
     Called by BaseGameFeature::LevelLoader.
     
     (C) 2007 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "util/string.h"
-#include "loader/entityloaderbase.h"
+#include "basegamefeature/loader/entityloaderbase.h"
 
 //------------------------------------------------------------------------------
-namespace BaseGameFeature
+namespace GraphicsFeature
 {
-class EnvironmentLoader : public EntityLoaderBase
+class EnvironmentLoader : public BaseGameFeature::EntityLoaderBase
 {
     __DeclareClass(EnvironmentLoader);
 public:
@@ -27,5 +27,5 @@ private:
     void UpdateProgressIndicator(const Util::String& resName);
 };
 
-} // namespace BaseGameFeature
+} // namespace GraphicsFeature
 //------------------------------------------------------------------------------

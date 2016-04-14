@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  contentbrowser.cc
-//  (C) 2012-2014 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "contentbrowserwindow.h"
@@ -2256,14 +2256,14 @@ ContentBrowserWindow::OnCreateParticleEffect()
 		emitterMesh.SubstituteString("msh:", "parmsh:");
 
 		// we should now have an empty particle effect, so now we need a node
-		ModelConstants::ParticleNode node;
+		ModelAttributes::AppendixNode node;
 		node.name = "node_0";
-		node.type = "particle";
+		node.type = ModelAttributes::ParticleNode;
 		node.path = "root/" + node.name;
-		node.primitiveGroupIndex = 0;
+		node.data.particle.primGroup = 0;
 
 		// now add particle node to constants
-		consts->AddParticleNode(node.name, node);
+		attrs->AddAppendixNode(node.name, node);
 
 		// create state
 		State state;

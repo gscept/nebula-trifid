@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  vertexbufferbase.cc
 //  (C) 2007 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "coregraphics/base/vertexbufferbase.h"
@@ -33,7 +33,11 @@ VertexBufferBase::~VertexBufferBase()
 void
 VertexBufferBase::Unload()
 {
-    this->vertexLayout = 0;
+	if (this->vertexLayout.isvalid())
+	{
+		this->vertexLayout->Discard();
+		this->vertexLayout = 0;
+	}
     ResourceBase::Unload();
 }
 

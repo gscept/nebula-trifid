@@ -5,7 +5,7 @@
   
     Implements the interface to the subsystem.
 
-    (C) 2014 Individual contributors, see AUTHORS file
+    (C) 2014-2016 Individual contributors, see AUTHORS file
 */    
 #include "messaging/port.h"
 #include "core/singleton.h"

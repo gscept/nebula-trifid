@@ -5,7 +5,7 @@
     
     Represents an FBX light as a nebula light
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "fbx/node/nfbxnode.h"

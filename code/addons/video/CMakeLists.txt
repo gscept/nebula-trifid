@@ -60,7 +60,7 @@ set(SOURCES_
 	${SOURCES_video}
 	${SOURCES_files}		
 )
-N_WRAP_ADD_NIDL_FILES(SOURCES_ ${P_NIDL_FILES})
+N_WRAP_ADD_PROJ_NIDL_FILES(video SOURCES_ ${P_NIDL_FILES})
 
 add_library( video STATIC ${SOURCES_} )
 

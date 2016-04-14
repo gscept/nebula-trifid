@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  properties/inputproperty.cc
 //  (C) 2007 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "properties/inputproperty.h"
@@ -206,6 +206,16 @@ InputProperty::OnBeginFrame()
 			moveVec += vector(1.0f, 0.0f, 0.0f);
 			movement = true;
 		}
+		if (kbd->KeyPressed(Input::Key::Z))
+		{
+			moveVec += vector(0.0f, -1.0f, 0.0f);
+			movement = true;
+		}
+		if (kbd->KeyPressed(Input::Key::Q))
+		{
+			moveVec += vector(0.0f, 1.0f, 0.0f);
+			movement = true;
+		}
 		if(kbd->KeyPressed(Input::Key::E))
 		{
 			Ptr<MoveJump> msg = MoveJump::Create();
@@ -265,8 +275,8 @@ InputProperty::OnBeginFrame()
         if (movement)
         {
             Ptr<MoveDirection> msg = MoveDirection::Create();
-            msg->SetDirection(float4::normalize(moveVec));
-            msg->SetCameraRelative(true);
+            msg->SetDirection(float4::normalize(moveVec));			
+            msg->SetCameraRelative(this->entity->GetBool(Attr::CameraRelativeMove));
             this->entity->SendSync(msg.cast<Messaging::Message>());   
 
             this->lastFrameSendMovement = true;

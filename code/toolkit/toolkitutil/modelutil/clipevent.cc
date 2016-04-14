@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
-//  event.cc
-//  (C) 2015 Individual contributors, see AUTHORS file
+//  clipevent.cc
+//  (C) 2015-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "clipevent.h"

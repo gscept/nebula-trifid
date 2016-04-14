@@ -26,12 +26,17 @@ INCLUDE_DIRECTORIES(${Nebula3_SOURCE_DIR}/code
 		LIST(APPEND SRCSPROP ${SRC} ${HEAD})
 		SOURCE_GROUP("multiplayer\\properties" FILES ${SRCSPROP})
 
+	
         
 	set(SOURCES_files
 		../stdneb.h
 		../stdneb.cc
 	)
 	SOURCE_GROUP("Precompiled" FILES ${SOURCES_files})
+
+	SET(multplayer_sources ${SRCSBASE} ${SRCSPROP} ${SOURCES_files})
+
+	
 	
 	set(P_NIDL_FILES 		
 		multiplayerattrs.nidl		
@@ -40,10 +45,10 @@ INCLUDE_DIRECTORIES(${Nebula3_SOURCE_DIR}/code
 	N_WRAP_NIDL_FILES(multiplayer_NIDLS ${P_NIDL_FILES})
 	
 
-add_library( multiplayer STATIC ${SRCSBASE} ${SRCSPROP} ${SOURCES_files})
+	N_CREATE_FEATURE(multiplayer multplayer_sources "")
+
 TARGET_LINK_LIBRARIES(multiplayer multiplayer_NIDLS application RakNetLibStatic upnpc-static cjson)
 TARGET_INCLUDE_DIRECTORIES(multiplayer PUBLIC ${Nebula3_SOURCE_DIR}/code/addons/multiplayer ${Nebula3_SOURCE_DIR}/code/extlibs/raknet/Source)
-SET_TARGET_PROPERTIES(multiplayer PROPERTIES FOLDER "N3SDK/addons")
 
 ADD_DEPENDENCIES(multiplayer application RakNetLibStatic )
 

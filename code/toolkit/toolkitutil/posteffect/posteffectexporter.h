@@ -5,7 +5,7 @@
 
 Exports posteffect presets 
 
-(C) 2015 Individual contributors, see AUTHORS file
+(C) 2015-2016 Individual contributors, see AUTHORS file
 */
 #include "base/exporterbase.h"
 #include "db/dbfactory.h"

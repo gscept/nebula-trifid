@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  luaserver.cc
 //  (C) 2006 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "scripting/lua/luaserver.h"
@@ -101,7 +101,7 @@ LuaServer::LuaStringReader(lua_State* /*s*/, LuaStringReaderData* data, size_t* 
 /**
 */
 void
-LuaServer::AddLuaPath(const IO::URI & path)
+LuaServer::AddPath(const IO::URI & path)
 {	
 	lua_getglobal(this->luaState, "package");
 	lua_getfield(this->luaState, -1, "path"); // get field "path" from table at top of stack (-1)
@@ -357,8 +357,8 @@ LuaServer::Open()
 
         // provide access to some standard libraries
 		luaL_openlibs(this->luaState);        		
-		this->AddLuaPath("scr:/?/init.lua");
-		this->AddLuaPath("scr:/?.lua");
+		this->AddPath("scr:/?/init.lua");
+		this->AddPath("scr:/?.lua");
         return true;
     }
     return false;

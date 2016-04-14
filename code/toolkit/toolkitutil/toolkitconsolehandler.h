@@ -6,7 +6,7 @@
 	Console handler for toolkit applications that will not abort in case of errors but 
 	log the result of operations so that parent applications can handle the errors
     
-    (C) 2015 Individual contributors, see AUTHORS file
+    (C) 2015-2016 Individual contributors, see AUTHORS file
 */
 #include "io/consolehandler.h"
 #include "util/array.h"

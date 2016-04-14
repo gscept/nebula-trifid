@@ -77,6 +77,7 @@ void
 PhysXCollider::CreateBox(PxRigidActor * target, const ColliderDescription & desc, const Math::float4 &scale, const Math::quaternion & quat, const Math::float4 &trans, const physx::PxMaterial& material)
 {
     Math::float4 half = desc.box.halfWidth;
+    half = Math::float4::maximize(half, Math::float4(0.01f, 0.01f, 0.01f, 1.0f));
     half *= scale;
     PxBoxGeometry * geom = n_new(PxBoxGeometry(Neb2PxVec(half)));    
     PxTransform ptrans(Neb2PxVec(trans), Neb2PxQuat(quat));
@@ -121,7 +122,7 @@ PhysXCollider::CreatePhysicsMesh(PxRigidActor * target, const ColliderDescriptio
 		case MeshConvex:
 		{
 			n_warning("using convex mesh as concave");
-			PxConvexMesh * cmesh = mesh->GetConvexMesh(desc.mesh.primGroup);
+            PxConvexMesh * cmesh = mesh->GetConvexHullMesh(desc.mesh.primGroup);
 			PxConvexMeshGeometry* geom;
 			if (!float4::nearequal3(scale, float4(1.0f, 1.0f, 1.0f, 1.0f), float4(0.01f, 0.01f, 0.01f, 0.01f)))
 			{

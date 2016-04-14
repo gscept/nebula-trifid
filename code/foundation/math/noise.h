@@ -10,6 +10,7 @@
     See http://mrl.nyu.edu/~perlin/noise/ for details.
 
     (C) 2006 RadonLabs GmbH
+	(C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/types.h"
 

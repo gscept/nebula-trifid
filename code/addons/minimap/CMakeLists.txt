@@ -16,12 +16,18 @@ INCLUDE_DIRECTORIES(..
 		minimapmanager.cc
 		minimapmanager.h
 		minimapplugin.cc
-		minimapplugin.h
+		minimapplugin.h		
     )
     source_group("minimap" FILES ${SOURCES_files_minimap})
+	SET(ROCKET_SRC 
+		rocket/elementminimap.cc
+		rocket/elementminimap.h	
+	)
+	source_group("minimap\\rocket" FILES ${ROCKET_SRC})
 
     set(SOURCES_minimap
       ${SOURCES_files_minimap}
+	  ${ROCKET_SRC}
     )
 
   set(SOURCES_files
@@ -29,7 +35,7 @@ INCLUDE_DIRECTORIES(..
     ../stdneb.cc
   )
 	
-N_WRAP_NIDL_FILES(minimap_NIDLS minimap.nidl)
+N_WRAP_ADD_NIDL_FILES(SOURCES_minimap minimap.nidl)
 	
 	SOURCE_GROUP("Precompiled" FILES ${SOURCES_files})
 	set(SOURCES_SRCS
@@ -44,4 +50,3 @@ N_SET_COMPILER_DEFAULTS()
 IF(N_USE_PRECOMPILED_HEADERS)
     N_SET_PCH(minimap stdneb.h stdneb.cc ../)
 ENDIF()
-ADD_DEPENDENCIES(minimap minimap_NIDLS)

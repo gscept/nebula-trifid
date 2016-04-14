@@ -6,7 +6,7 @@
     Standard shader variable semantic names.
     
     (C) 2009 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/types.h"
 
@@ -120,6 +120,7 @@
 #define NEBULA3_SEMANTIC_SKY2						"SkyLayer2"
 #define NEBULA3_SEMANTIC_ENVIRONMENT				"EnvironmentMap"
 #define NEBULA3_SEMANTIC_IRRADIANCE					"IrradianceMap"
+#define NEBULA3_SEMANTIC_DEPTHCONEMAP				"DepthConeMap"
 #define NEBULA3_SEMANTIC_ENVFALLOFF					"FalloffDistance"
 #define NEBULA3_SEMANTIC_ENVFALLOFFDISTANCE			"FalloffDistance"
 #define NEBULA3_SEMANTIC_ENVFALLOFFPOWER			"FalloffPower"

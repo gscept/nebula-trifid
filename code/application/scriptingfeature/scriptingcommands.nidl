@@ -375,6 +375,23 @@
           ]]>
       </Code>
     </Command>
+    <Command name="GetOrientation" fourcc="GTRI" desc="Retrieve euler angles">
+      <InArg name="EntityID" type="uint"/>
+      <OutArg name="angles" type="float4"/>
+      <Code>
+        <![CDATA[
+            Ptr<Game::Entity> ents = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(EntityID);
+            Math::float4 r;
+            if(ents.isvalid())
+            {
+              Math::matrix44 mat = ents->GetMatrix44(Attr::Transform);
+              Math::quaternion q = Math::matrix44::rotationmatrix(mat);              
+              Math::quaternion::to_euler(q,r);              
+            }
+            return r;
+          ]]>
+      </Code>
+    </Command>
     <Command name="SetOrientation" fourcc="SEOR" desc="Sets a entities orientation">
       <InArg name="EntityID" type="uint"/>
       <InArg name="xangle" type="float"/>
@@ -518,6 +535,14 @@
       <Code>
         <![CDATA[          
           return BaseGameFeature::BaseGameFeatureUnit::Instance()->GetCurrentLevel();
+        ]]>
+      </Code>
+    </Command>
+    <Command name="printconsole" fourcc="prts" desc="Prints message to the console">
+      <InArg name="msg" type="string"/>
+      <Code>
+        <![CDATA[ 
+          n_printf("%s\n",msg.AsCharPtr());
         ]]>
       </Code>
     </Command>

@@ -8,6 +8,7 @@
 	In OpenGL, the semantics and semantic locations of vertex attributes are completely ignored.
     
     (C) 2007 Radon Labs GmbH
+	(C) 2013-2016 Individual contributors, see AUTHORS file
 */    
 #include "coregraphics/base/vertexlayoutbase.h"
 #include "coregraphics/base/vertexcomponentbase.h"
@@ -30,9 +31,6 @@ public:
     /// discard the vertex layout object
     void Discard();
 
-	/// set the vertex buffer associated with the stream index
-	void SetStreamBuffer(IndexT streamIndex, GLuint vertexBuffer);
-
     /// get opengl vertex array object
     const GLuint& GetOGL4VertexArrayObject() const;
 
@@ -42,20 +40,9 @@ public:
 private:
 
 	GLuint ogl4Vao;
-	GLuint vertexStreams[CoreGraphics::RenderDevice::MaxNumVertexStreams];
 	static const SizeT maxElements = 24;
 	Util::String semanticName[32];	
 };
-
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void 
-OGL4VertexLayout::SetStreamBuffer( IndexT streamIndex, GLuint vertexBuffer )
-{
-	this->vertexStreams[streamIndex] = vertexBuffer;
-}
 
 //------------------------------------------------------------------------------
 /**

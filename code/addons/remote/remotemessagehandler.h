@@ -9,13 +9,13 @@
     messages sent to the RemoteInterface from other threads.
 
     (C) 2008 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "interface/interfacehandlerbase.h"
 #include "messaging/message.h"
 #include "io/console.h"
 #include "remote/remotecontrol.h"
-#include "remoteprotocol.h"
+#include "remote/remoteprotocol.h"
 
 //------------------------------------------------------------------------------
 namespace Remote

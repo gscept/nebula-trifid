@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  characterinstance.cc
 //  (C) 2008 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "characters/characterinstance.h"
@@ -34,6 +34,7 @@ using namespace Jobs;
 /**
 */
 CharacterInstance::CharacterInstance():
+	skeletonEvalMode(CharacterSkeletonInstance::BindPose),
     updateFrameIndex(InvalidIndex),
     jointTextureRowIndex(InvalidIndex),
     isValidForRendering(false)
@@ -178,7 +179,7 @@ CharacterInstance::StartUpdate()
     this->skeletonInst.EvaluateAsync(this->jobPort, 
                                      samplesPtr, numSamples, 
                                      jointTextureRowPtr, jointTextureRowSize,
-                                     animUpdateValid);
+									 animUpdateValid, this->skeletonEvalMode);
 }
 
 //------------------------------------------------------------------------------

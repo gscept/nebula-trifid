@@ -5,7 +5,7 @@
     
     Implements a gray palette.
     
-    (C) 2012-2015 Gustav Sterbrant
+    (C) 2012-2016 Gustav Sterbrant
 */
 //------------------------------------------------------------------------------
 #include <QPalette>

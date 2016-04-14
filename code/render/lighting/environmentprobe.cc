@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  environmentprobe.cc
-//  (C) 2012-2014 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "environmentprobe.h"
@@ -102,6 +102,39 @@ EnvironmentProbe::AssignIrradianceMap(const Resources::ResourceId& irr)
 		else
 		{
 			this->irradianceMap = resManager->CreateManagedResource(Texture::RTTI, irr).downcast<ManagedTexture>();
+		}
+		return true;
+	}
+	return false;
+}
+
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+EnvironmentProbe::AssignDepthMap(const Resources::ResourceId& depth)
+{
+	Ptr<ResourceManager> resManager = ResourceManager::Instance();
+
+	// only apply if resource is valid, 
+	if (depth.IsValid())
+	{
+		if (this->depthMap.isvalid())
+		{
+			if (this->depthMap->GetResourceId() != depth)
+			{
+				resManager->DiscardManagedResource(this->depthMap.upcast<ManagedResource>());
+				this->depthMap = resManager->CreateManagedResource(Texture::RTTI, depth).downcast<ManagedTexture>();
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else
+		{
+			this->depthMap = resManager->CreateManagedResource(Texture::RTTI, depth).downcast<ManagedTexture>();
 		}
 		return true;
 	}

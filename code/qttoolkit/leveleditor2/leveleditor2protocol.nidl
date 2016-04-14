@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Nebula3>
   <AttributeLib>
-    <Dependency header="navigationattributes.h"/>
+    <Dependency header="navigation/navigationattributes.h"/>
     <Dependency header="graphicsfeature/graphicsattr/graphicsattributes.h"/>
     <Dependency header="leveleditor2entitymanager.h"/>
     <Dependency header="properties/editorproperty.h"/>
+    <Dependency header="basegamefeature/managers/entitymanager.h"/>
   </AttributeLib>
   <Property name="LevelEditor2::EditorNavMeshProperty" header="properties/editornavmeshproperty.h">
     <Attribute name="MaxEdgeLength" />
@@ -33,6 +34,7 @@
     <Attribute name="ProbeResolutionHeight"/>
     <Attribute name="ProbeBuildReflections"/>
     <Attribute name="ProbeBuildIrradiance"/>
+    <Attribute name="ProbeBuildDepth"/>
     <Attribute name="ProbeGenerateMipmaps"/>
     <Attribute name="ProbeAutoAssignMaps"/>
     <Attribute name="ProbeOutputFolder"/>
@@ -83,6 +85,10 @@
     <Message name="SetMultiSelection" fourcc="SMSL">
       <InArg name="Entities" type="Util::Array<Ptr<Game::Entity>>"/>      
     </Message>
+    <Message name="BeginProbeBuild" fourcc="BGPB">
+    </Message>
+    <Message name="EndProbeBuild" fourcc="ENPB">
+    </Message>
   </Protocol>
   <Library name="LeveleditorCommands">
     <Command name="geteditorcamera" fourcc="gedc" desc="retrieves current camera in leveleditor">
@@ -98,9 +104,16 @@
       <InArg name="cam" type="matrix44"/>
       <Code>
         <![CDATA[
-        Ptr<BaseGameFeature::SetTransform> msg = BaseGameFeature::SetTransform::Create();
-        msg->SetMatrix(cam);
-        __SendSync(BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(eid), msg);        
+        Ptr<LevelEditor2::TransformAction> action = LevelEditor2::TransformAction::Create();
+        Util::Array<Ptr<Game::Entity>> entArray;
+        entArray.Append(BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(eid));
+        Util::Array<Math::matrix44> trans;
+        trans.Append(entArray[0]->GetMatrix44(Attr::Transform));
+        action->SetEntitiesStart(entArray,trans);
+        trans.Clear();
+        trans.Append(cam);
+        action->SetEntitiesEnd(trans);
+			  LevelEditor2::ActionManager::Instance()->PerformAction(action.upcast<LevelEditor2::Action>());        
        ]]>
       </Code>
     </Command>
@@ -111,6 +124,15 @@
       <Code>
         <![CDATA[
         LevelEditor2::LevelEditor2App::Instance()->RegisterPropertyCallback(property, name, script);
+       ]]>
+      </Code>
+    </Command>
+    <Command name="RegisterScript" fourcc="RSCR" desc="register a script">     
+      <InArg name="name" type="string"/>
+      <InArg name="script" type="string"/>
+      <Code>
+        <![CDATA[
+        LevelEditor2::LevelEditor2App::Instance()->RegisterScript(name, script);
        ]]>
       </Code>
     </Command>
@@ -151,6 +173,39 @@
          entity->SetGuid(Attr::ParentGuid,g);
          LevelEditor2::LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->RebuildTree();
        ]]>
+      </Code>
+    </Command>
+    <Command name="getselection" fourcc="gslt" desc="retrieves selected entities in leveleditor">
+      <OutArg name="items" type="intArray"/>
+      <Code>
+        <![CDATA[
+          Util::Array<Ptr<Game::Entity>> ents = LevelEditor2::SelectionUtil::Instance()->GetSelectedEntities();
+          Util::Array<int> ids;
+          for(int i = 0 ; i<ents.Size();i++)
+          {
+            ids.Append(ents[i]->GetUniqueId());
+          }
+          return ids;
+        ]]>
+      </Code>
+    </Command>
+    <Command name="getsize" fourcc="gtbx" desc="retrieve bounding box size">
+      <InArg name="id" type="uint"/>
+      <OutArg name="mat" type="float4"/>
+      <Code>
+        <![CDATA[
+          Ptr<Game::Entity> ent = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(id);
+          Ptr<GraphicsFeature::GetModelEntity> msg = GraphicsFeature::GetModelEntity::Create();
+			    ent->SendSync(msg.cast<Messaging::Message>());
+			    const Ptr<Graphics::ModelEntity>& model = msg->GetEntity();
+          Math::vector vec(1);
+          if(model.isvalid())
+          {
+                Math::bbox box = model->GetGlobalBoundingBox();
+                return box.size();
+          }            
+          return vec;
+        ]]>
       </Code>
     </Command>
   </Library>

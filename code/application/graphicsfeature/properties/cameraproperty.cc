@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  properties/cameraproperty.cc
 //  (C) 2007 Radon Labs GmbH
-//  (C) 2013-2014 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "properties/cameraproperty.h"
@@ -27,7 +27,8 @@ using namespace BaseGameFeature;
 //------------------------------------------------------------------------------
 /**
 */
-CameraProperty::CameraProperty()
+CameraProperty::CameraProperty():
+	applyEntityTransform(true)
 {
     this->cameraEntity = Graphics::CameraEntity::Create();
 }
@@ -56,6 +57,8 @@ void
 CameraProperty::SetupAcceptedMessages()
 {
     this->RegisterMessage(CameraFocus::Id);    
+	this->RegisterMessage(GetCameraEntity::Id);
+	this->RegisterMessage(GetCameraTransform::Id);
     Game::Property::SetupAcceptedMessages();
 }
 
@@ -108,6 +111,18 @@ CameraProperty::HandleMessage(const Ptr<Messaging::Message>& msg)
             this->OnLoseCameraFocus();
         }
     }
+	else if (msg->CheckId(GetCameraTransform::Id))
+	{
+		Ptr<GetCameraTransform> m = msg.cast<GetCameraTransform>();
+		m->SetHandled(true);
+		m->SetTransform(this->cameraEntity->GetTransform());
+	}
+	if (msg->CheckId(GetCameraEntity::Id))
+	{
+		Ptr<GetCameraEntity> m = msg.cast<GetCameraEntity>();
+		m->SetHandled(true);
+		m->SetCamera(this->cameraEntity);
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -143,7 +158,10 @@ CameraProperty::OnLoseCameraFocus()
     {
         this->defaultView->SetCameraEntity(0);
     }
-    this->defaultStage->RemoveEntity(this->cameraEntity.cast<Graphics::GraphicsEntity>());
+	if (this->cameraEntity->IsActive())
+	{
+		this->defaultStage->RemoveEntity(this->cameraEntity.cast<Graphics::GraphicsEntity>());
+	}    
     this->defaultStage = 0;
     this->defaultView = 0;
 
@@ -194,9 +212,12 @@ CameraProperty::OnRender()
 
         // set point of interest in post effect manager
         PostEffect::PostEffectManager::Instance()->SetPointOfInterest(trans.get_position());
-
-        // apply transform		
-        this->cameraEntity->SetTransform(trans);
+		
+		if (this->applyEntityTransform)
+		{
+			// apply transform		
+			this->cameraEntity->SetTransform(trans);
+		}
     }
 }
 
@@ -214,4 +235,5 @@ CameraProperty::UpdateAudioListenerPosition() const
     }
     FAudio::AudioListener::Instance()->SetTransform(transform);
 }
+
 }; // namespace GraphicsFeature

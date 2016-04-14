@@ -6,7 +6,7 @@
     Overloaded factory manager that will override addproperties in order
     to ignore unknown properties
 
-    (C) 2015 Individual contributors, see AUTHORS file
+    (C) 2015-2016 Individual contributors, see AUTHORS file
 */
 
 #include "managers/factorymanager.h"

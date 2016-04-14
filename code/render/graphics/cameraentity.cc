@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  cameraentity.cc
 //  (C) 2007 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "graphics/cameraentity.h"
@@ -132,6 +132,17 @@ CameraEntity::CalculateScreenSpacePosition(const Math::float4& pos)
 	screenPos.x() = (screenPos.x() + 1.0f) * 0.5f;
 	screenPos.y() = 1.0f - ((screenPos.y() + 1.0f) * 0.5f);
 	return float2(screenPos.x(), screenPos.y());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+Math::float4
+CameraEntity::CalculateWorldSpacePosition(const Math::float2& pos)
+{
+	float4 worldpos = float4(pos.x(), pos.y(), this->camSettings.GetZNear(), 1);
+	worldpos = matrix44::transform(worldpos, matrix44::inverse(this->GetViewProjTransform()));
+	return worldpos;
 }
 
 //------------------------------------------------------------------------------

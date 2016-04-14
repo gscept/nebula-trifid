@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  io/ioserver.cc
 //  (C) 2006 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "io/ioserver.h"
@@ -580,6 +580,31 @@ IoServer::ReadFile(const URI& path) const
 		stream->Close();
 	}
 	return ret;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+IoServer::IsLocked(const URI& uri) const
+{
+	n_assert(uri.Scheme() == "file");
+	n_assert(this->FileExists(uri));
+	const String path = uri.GetHostAndLocalPath();
+	n_assert(path.IsValid());
+	return FSWrapper::IsLocked(path);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+IO::URI
+IoServer::CreateTemporaryFilename(const URI& uri) const
+{
+	n_assert(uri.Scheme() == "file");	
+	const String path = uri.GetHostAndLocalPath();
+	n_assert(path.IsValid());	
+	return URI(FSWrapper::CreateTemporaryFilename(path));
 }
 
 } // namespace IO

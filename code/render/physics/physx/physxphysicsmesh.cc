@@ -58,6 +58,7 @@ PhysXPhysicsMesh::GetConvexMesh(int primGroup)
     convexDesc.triangles.count = group.GetNumPrimitives();
     convexDesc.triangles.data = (void*)&(this->indexData[group.GetBaseIndex()]);	
 	convexDesc.triangles.stride = 3 * sizeof(unsigned int);
+    convexDesc.flags = PxConvexFlag::eINFLATE_CONVEX;
 
 	// physx does not support convex meshes with more than 256 triangles, let it build its own convex hull instead
 	if(convexDesc.triangles.count >255)

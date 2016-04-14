@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  lightprobeentity.cc
-//  (C) 2012-2014 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "lightprobeentity.h"
@@ -23,7 +23,7 @@ LightProbeEntity::LightProbeEntity() :
 	falloff(0.2f),
 	power(16.0f),
 	shape(Box),
-	parallaxCorrected(true),
+	correctionMethod(None),
 	probe(Lighting::EnvironmentProbe::DefaultEnvironmentProbe)
 {
 	this->SetType(GraphicsEntityType::LightProbe);
@@ -61,6 +61,7 @@ LightProbeEntity::OnActivate()
     // light probe variables
     this->lightProbeReflectionVar = this->shader->GetVariableByName(NEBULA3_SEMANTIC_ENVIRONMENT);
 	this->lightProbeIrradianceVar = this->shader->GetVariableByName(NEBULA3_SEMANTIC_IRRADIANCE);
+	this->lightProbeDepthVar = this->shader->GetVariableByName(NEBULA3_SEMANTIC_DEPTHCONEMAP);
 
 	// create variable buffer
 	this->lightProbeVariableBuffer = CoreGraphics::ConstantBuffer::Create();
@@ -118,6 +119,7 @@ LightProbeEntity::ApplyProbe(const Ptr<Lighting::EnvironmentProbe>& probe)
 {
     this->lightProbeReflectionVar->SetTexture(probe->GetReflectionMap()->GetTexture());
     this->lightProbeIrradianceVar->SetTexture(probe->GetIrradianceMap()->GetTexture());
+	this->lightProbeDepthVar->SetTexture(probe->GetDepthMap()->GetTexture());
 	this->numMips = probe->GetReflectionMap()->GetTexture()->GetNumMipLevels();
 
 	// enable buffer

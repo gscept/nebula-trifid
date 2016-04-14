@@ -115,4 +115,20 @@ PhysXStatic::SetTransform(const Math::matrix44 & trans)
 	BaseStatic::SetTransform(trans);
 	this->body->setGlobalPose(Neb2PxTrans(trans));
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PhysXStatic::SetMaterialType(Physics::MaterialType t)
+{
+	BaseStatic::SetMaterialType(t);
+	PxMaterial * mat = PhysXServer::Instance()->GetMaterial(t);
+	for (unsigned int i = 0; i < this->body->getNbShapes(); i++)
+	{
+		PxShape * shape;
+		this->body->getShapes(&shape, 1, i);
+		shape->setMaterials(&mat, 1);
+	}
+}
 }

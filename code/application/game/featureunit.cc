@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  game/featureunit.cc
 //  (C) 2007 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "game/featureunit.h"
@@ -278,4 +278,23 @@ FeatureUnit::RemoveManager(const Ptr<Manager>& manager)
         #endif
     }
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+FeatureUnit::OnBeforeLoad()
+{
+	// overwrite in subclass if needed
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+FeatureUnit::OnBeforeCleanup()
+{
+	// overwrite in subclass if needed
+}
+
 }; // namespace Game

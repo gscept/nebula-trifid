@@ -26,7 +26,17 @@
         <InArg name="HorizontalRotation" type="float" default="0.0f"/>
         <InArg name="VerticalRotation" type="float" default="0.0f"/>
     </Message>
-      
+    
+    <Message name="GetCameraEntity" fourcc="GCME">
+      <OutArg name="Camera" type="Ptr<Graphics::CameraEntity>"/>
+    </Message>
+    
+    <Message name="GetCameraTransform" fourcc="GCMT" scripted="true">
+      <OutArg name="Transform" type="Math::matrix44"/>
+      <Desc>Returns the actual camera transform which may be different from the entities main transform</Desc>
+    </Message>
+    
+
     <!-- A camera reset message. -->
     <Message name="CameraReset" fourcc="CARE" scripted="true">
       <Desc>Resets the camera</Desc>
@@ -51,6 +61,12 @@
     <Message name="SetGraphicsVisible" fourcc="MGFV" scripted="true">
         <InArg name="Visible" type="bool" serialize="true"/>
       <Desc>Shows or hides all graphics entities of a game entity.</Desc>
+    </Message>
+    
+    <!-- Retrieves visibilty of graphics entities of a game entity. -->
+    <Message name="GetGraphicsVisible" fourcc="GGVS" scripted="true">
+      <OutArg name="Visible" type="bool" serialize="true"/>
+      <Desc>Retrieves visibilty of graphics entities of a game entity.</Desc>
     </Message>
 
     <!-- Set an overwrite color -->
@@ -126,13 +142,13 @@
     </Message>
     
     <!-- Play animation (not character animation) -->
-    <Message name="AnimPlay" fourcc="ANPL" scripted="false"/>   
+    <Message name="AnimPlay" fourcc="ANPL" scripted="true"/>   
 
     <!-- Rewind animation back to the start -->
-    <Message name="AnimRewind" fourcc="ANRE" scripted="false"/>
+    <Message name="AnimRewind" fourcc="ANRE" scripted="true"/>
 
     <!-- Stop the animation in its tracks, will retain the current value -->
-    <Message name="AnimStop" fourcc="ANST" scripted="false"/>
+    <Message name="AnimStop" fourcc="ANST" scripted="true"/>
 
     <!-- Change the animation resource -->
     <Message name="AnimUpdate" fourcc="ANUP" scripted="false">

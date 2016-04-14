@@ -7,23 +7,57 @@
     </Entity>
     <Entity cppclass="Entity" type="Camera" desc="a camera entity with like maya input">
         <Property type="GraphicsFeature::MayaCameraProperty" />
-        <Property type="GraphicsFeature::InputProperty" masterOnly="true"/>
+        <Property type="GraphicsFeature::InputProperty" masterOnly="true" />
     </Entity>
     <Entity cppclass="Entity" type="CameraGripper" desc="a camera entity with like maya input and mousegripper">
         <Property type="GraphicsFeature::MayaCameraProperty" />
         <Property type="PhysicsFeature::MouseGripperProperty" />
     </Entity>
+    <Entity cppclass="Entity" type="ClickPlayer">
+        <Property type="GraphicsFeature::ChaseCameraProperty" />
+        <Property type="GraphicsFeature::ActorGraphicsProperty" />
+        <Property type="PhysicsFeature::ActorPhysicsProperty" />
+        <Property type="GraphicsFeature::AnimationControlProperty" />
+        <Property type="ScriptingFeature::ScriptingProperty" />
+    </Entity>
     <Entity cppclass="Entity" type="EmptyEntity" desc="Empty entity with no properties" />
-    <Entity cppclass="Entity" type="Graphics" desc="a graphics only entity">
+    <Entity cppclass="Entity" type="FreeCamera" desc="a camera entity with free fly movement">
+        <Property type="GraphicsFeature::FpsCameraProperty" />
+        <Property type="GraphicsFeature::InputProperty" masterOnly="true" />
+        <Property type="GraphicsFeature::FreeMoveProperty" />
+    </Entity>
+    <Entity cppclass="Entity" type="FreeCamera2">
         <Property type="GraphicsFeature::GraphicsProperty" />
+        <Property type="GraphicsFeature::InputProperty" />
+        <Property type="GraphicsFeature::ChaseCameraProperty" />
+        <Property type="GraphicsFeature::FreeMoveProperty" />
+    </Entity>
+    <Entity cppclass="Entity" type="Graphics">
+        <Property type="GraphicsFeature::GraphicsProperty" />
+        <Property type="ScriptingFeature::ScriptingProperty" />
+    </Entity>
+    <Entity cppclass="Entity" type="GraphicsInput">
+        <Property type="GraphicsFeature::GraphicsProperty" />
+        <Property type="GraphicsFeature::InputProperty" />
+        <Property type="PhysicsFeature::PhysicsProperty" />
+        <Property type="ScriptingFeature::ScriptingProperty" />
     </Entity>
     <Entity cppclass="Entity" type="Light" desc="a light entity">
         <Property type="BaseGameFeature::TimeProperty" />
-		<Property type="BaseGameFeature::TransformableProperty" />
+        <Property type="BaseGameFeature::TransformableProperty" />
         <Property type="GraphicsFeature::LightProperty" />
     </Entity>
-	<Entity cppclass="Entity" type="LightProbe" desc="A light probe entity used to project reflections and irradiance into the scene">
+    <Entity cppclass="Entity" type="LightProbe" desc="A light probe entity used to project reflections and irradiance into the scene">
+        <Property type="BaseGameFeature::TransformableProperty" />
         <Property type="GraphicsFeature::LightProbeProperty" />
+    </Entity>
+    <Entity cppclass="Entity" type="Player">
+        <Property type="GraphicsFeature::InputProperty" masterOnly="true" />
+        <Property type="GraphicsFeature::ChaseCameraProperty" masterOnly="true" />
+        <Property type="GraphicsFeature::ActorGraphicsProperty" />
+        <Property type="PhysicsFeature::ActorPhysicsProperty" />
+        <Property type="GraphicsFeature::AnimationControlProperty" />
+        <Property type="ScriptingFeature::ScriptingProperty" />
     </Entity>
     <Entity cppclass="Entity" type="PostEffectBubble" desc="a bubble of post effects">
         <Property type="BaseGameFeature::TransformableProperty" />
@@ -42,5 +76,5 @@
     <Entity cppclass="Entity" type="Trigger" desc="trigger entity with scripting support">
         <Property type="PhysicsFeature::TriggerProperty" />
         <Property type="ScriptingFeature::ScriptingTriggerProperty" />
-    </Entity>   
+    </Entity>
 </BluePrints>

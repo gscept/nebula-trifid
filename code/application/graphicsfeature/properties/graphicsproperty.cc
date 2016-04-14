@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  properties/graphicsproperty.h
 //  (C) 2007 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "properties/graphicsproperty.h"
@@ -136,6 +136,7 @@ GraphicsProperty::SetupAcceptedMessages()
 {
     this->RegisterMessage(BaseGameFeature::UpdateTransform::Id);
     this->RegisterMessage(GraphicsFeature::SetGraphicsVisible::Id);
+	this->RegisterMessage(GraphicsFeature::GetGraphicsVisible::Id);
     this->RegisterMessage(GraphicsFeature::GetModelEntity::Id);
     this->RegisterMessage(GraphicsFeature::SetOverwriteColor::Id);
     this->RegisterMessage(GraphicsFeature::SetShaderVariable::Id);
@@ -152,6 +153,7 @@ GraphicsProperty::SetupAcceptedMessages()
 	this->RegisterMessage(GraphicsFeature::AddGraphicsAttachmentOnJoint::Id);	
 	this->RegisterMessage(GraphicsFeature::ClearAttachmentsOnEntity::Id);
 	this->RegisterMessage(GraphicsFeature::ClearAttachmentsOnJoint::Id);
+    this->RegisterMessage(GraphicsFeature::SetSkinVisible::Id);
     Property::SetupAcceptedMessages();
 }
 
@@ -171,6 +173,11 @@ GraphicsProperty::HandleMessage(const Ptr<Messaging::Message>& msg)
         this->SetVisible((msg.cast<GraphicsFeature::SetGraphicsVisible>())->GetVisible());
 		__DistributeNetworkMessage(this->entity, msg);
     }
+	else if (msg->CheckId(GraphicsFeature::GetGraphicsVisible::Id))
+	{
+		(msg.cast<GetGraphicsVisible>())->SetVisible(this->modelEntity->IsVisible());		
+		msg->SetHandled(true);
+	}
     else if (msg->CheckId(GraphicsFeature::GetModelEntity::Id))
     {
         (msg.cast<GetModelEntity>())->SetEntity(this->modelEntity);

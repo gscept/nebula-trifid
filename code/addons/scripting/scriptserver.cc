@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  scriptserver.cc
 //  (C) 2006 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "scripting/scriptserver.h"
@@ -285,6 +285,15 @@ void
 ScriptServer::SetError(const Util::String& err)
 {
 	this->error = err;		
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ScriptServer::AddPath(const IO::URI& path)
+{
+	n_error("Implement in subclass");
 }
 
 } // namespace Scripting

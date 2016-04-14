@@ -1,13 +1,13 @@
 #pragma once
 //------------------------------------------------------------------------------
 /**
-    @class Properties::LightProperty
+    @class GraphicsFeature::LightProperty
 
     A light property adds a light source object (Graphics::LightEntity) 
     to a game entity.
     
     (C) 2005 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "game/property.h"
 #include "graphics/abstractlightentity.h"

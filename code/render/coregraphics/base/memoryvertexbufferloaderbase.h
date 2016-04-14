@@ -7,7 +7,7 @@
     data in memory.
     
     (C) 2007 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "resources/resourceloader.h"
 #include "coregraphics/vertexcomponent.h"
@@ -29,7 +29,8 @@ public:
 		SizeT vertexDataSize, 
 		CoreGraphics::VertexBuffer::Usage usage, 
 		CoreGraphics::VertexBuffer::Access access, 
-		CoreGraphics::VertexBuffer::Syncing syncing = CoreGraphics::VertexBuffer::SyncingSimple);
+		CoreGraphics::VertexBuffer::Syncing syncing = CoreGraphics::VertexBuffer::SyncingSimple,
+		bool createLayout = true);
 
 protected:
     Util::Array<CoreGraphics::VertexComponent> vertexComponents;
@@ -39,6 +40,7 @@ protected:
 	CoreGraphics::VertexBuffer::Usage usage;
 	CoreGraphics::VertexBuffer::Access access;
 	CoreGraphics::VertexBuffer::Syncing syncing;
+	bool createLayout;
 };
 
 } // namespace Base

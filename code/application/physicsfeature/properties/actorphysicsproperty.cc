@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  properties/actorphysicsproperty.cc
 //  (C) 2005 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "properties/actorphysicsproperty.h"
@@ -182,7 +182,13 @@ ActorPhysicsProperty::EnablePhysics()
 		//}
 		if (this->GetEntity()->HasAttr(Attr::Mass))
 		{
-			this->charPhysicsEntity->SetWeight(this->GetEntity()->GetFloat(Attr::Mass));
+			float mass = this->GetEntity()->GetFloat(Attr::Mass);
+			n_assert_fmt(mass > 0.0f, "Character mass cant be 0!\nEntity Id: %s\n", this->entity->GetString(Attr::Id).AsCharPtr());
+			this->charPhysicsEntity->SetWeight(mass);
+		}
+		else
+		{
+			this->charPhysicsEntity->SetWeight(1.0f);
 		}
 		if (this->GetEntity()->HasAttr(Attr::CapsuleRadius))
 		{
@@ -191,6 +197,7 @@ ActorPhysicsProperty::EnablePhysics()
 		if (this->GetEntity()->HasAttr(Attr::CapsuleHeight))
 		{
 			this->charPhysicsEntity->SetHeight(this->GetEntity()->GetFloat(Attr::CapsuleHeight));
+			n_assert_fmt(this->charPhysicsEntity->GetHeight() > 0.0f, "Character height cant be 0!\nEntity Id: %s\n", this->entity->GetString(Attr::Id).AsCharPtr());
 		}
 		if (this->GetEntity()->HasAttr(Attr::CrouchingCapsuleHeight))
 		{

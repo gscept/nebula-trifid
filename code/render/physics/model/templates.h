@@ -2,10 +2,11 @@
 //------------------------------------------------------------------------------
 /**
 
-	(C) 2012-2015 Individual contributors, see AUTHORS file
+	(C) 2012-2016 Individual contributors, see AUTHORS file
 */
 #include "math/vector.h"
 #include "util/string.h"
+#include "util/fourcc.h"
 #include "physics/materialtable.h"
 
 namespace Physics

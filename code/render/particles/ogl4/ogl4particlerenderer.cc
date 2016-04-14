@@ -1,6 +1,7 @@
 //------------------------------------------------------------------------------
 //  OGL4particlerenderer.cc
 //  (C) 2008 Radon Labs GmbH
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 
@@ -74,7 +75,7 @@ OGL4ParticleRenderer::Setup()
     cornerComponents.Append(VertexComponent((VertexComponentBase::SemanticName)0, 0, VertexComponent::Float2, 0));
     float cornerVertexData[] = { 0, 0,  1, 0,  1, 1,  0, 1 };
     Ptr<MemoryVertexBufferLoader> cornerVBLoader = MemoryVertexBufferLoader::Create();
-    cornerVBLoader->Setup(cornerComponents, 4, cornerVertexData, sizeof(cornerVertexData), VertexBuffer::UsageImmutable, VertexBuffer::AccessNone);
+	cornerVBLoader->Setup(cornerComponents, 4, cornerVertexData, sizeof(cornerVertexData), VertexBuffer::UsageImmutable, VertexBuffer::AccessNone, VertexBuffer::SyncingSimple, false);
 
     this->cornerVertexBuffer = VertexBuffer::Create();
     this->cornerVertexBuffer->SetLoader(cornerVBLoader.upcast<ResourceLoader>());
@@ -117,7 +118,7 @@ OGL4ParticleRenderer::Setup()
 	particleComponents.Append(VertexComponent((VertexComponentBase::SemanticName)5, 0, VertexComponent::Float4, 1, VertexComponent::PerInstance, 1));   // x: Particle::rotation, y: Particle::size
 
     Ptr<MemoryVertexBufferLoader> particleVBLoader = MemoryVertexBufferLoader::Create();
-    particleVBLoader->Setup(particleComponents, MaxNumRenderedParticles * 3, NULL, 0, VertexBuffer::UsageDynamic, VertexBuffer::AccessWrite, VertexBuffer::SyncingCoherentPersistent);
+    particleVBLoader->Setup(particleComponents, MaxNumRenderedParticles * 3, NULL, 0, VertexBuffer::UsageDynamic, VertexBuffer::AccessWrite, VertexBuffer::SyncingCoherentPersistent, false);
 
     this->particleVertexBuffer = VertexBuffer::Create();
     this->particleVertexBuffer->SetLoader(particleVBLoader.upcast<ResourceLoader>());
@@ -138,8 +139,8 @@ OGL4ParticleRenderer::Setup()
 	Array<VertexComponent> components = cornerComponents;
 	components.AppendArray(particleComponents);
 	this->vertexLayout = VertexLayout::Create();
-	this->vertexLayout->SetStreamBuffer(0, this->cornerVertexBuffer->GetOGL4VertexBuffer());
-	this->vertexLayout->SetStreamBuffer(1, this->particleVertexBuffer->GetOGL4VertexBuffer());
+	this->vertexLayout->SetStreamBuffer(0, this->cornerVertexBuffer);
+	this->vertexLayout->SetStreamBuffer(1, this->particleVertexBuffer);
 	this->vertexLayout->Setup(components);
 }
 

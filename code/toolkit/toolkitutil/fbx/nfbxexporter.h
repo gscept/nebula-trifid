@@ -5,7 +5,7 @@
     
     Exports an FBX file into the binary nebula format
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 #include "base/exporterbase.h"
 #include "node/nfbxscene.h"

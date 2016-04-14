@@ -5,7 +5,7 @@
     
     Copies from one render target to another inside a frame shader.
     
-    (C) 2015 Individual contributors, see AUTHORS file
+    (C) 2015-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "framepassbase.h"

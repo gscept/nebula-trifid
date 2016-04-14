@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  characternodehandler.cc
-//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "characternodehandler.h"
@@ -16,6 +16,7 @@
 
 #include <QDoubleSpinBox>
 #include "mutablecharacterskeleton.h"
+#include "graphicsfeatureunit.h"
 
 using namespace Graphics;
 using namespace Util;
@@ -304,6 +305,7 @@ CharacterNodeHandler::OnMaskSelected(int selected)
 	}
 }
 
+static int jointidx = 0;
 //------------------------------------------------------------------------------
 /**
 */
@@ -342,6 +344,33 @@ CharacterNodeHandler::OnFrame()
 	}	
 	if (ImGui::TreeNode("Animations"))
 	{
+		int prevJointIdx = jointidx;
+		ImGui::InputInt("Test joint index", &jointidx);
+		if (ImGui::Button("Test Mix anim"))
+		{
+			Ptr<Graphics::SetSkeletonEvalMode> eval = Graphics::SetSkeletonEvalMode::Create();
+			eval->SetMode(Characters::CharacterSkeletonInstance::Mix);
+			__Send(this->model, eval);
+		}
+
+		if (prevJointIdx != jointidx)
+		{
+			Ptr<Graphics::SetSkeletonJointMatrix> joint = Graphics::SetSkeletonJointMatrix::Create();
+			joint->SetIndex(prevJointIdx);
+			joint->SetTransform(Math::matrix44::identity());
+			__Send(this->model, joint);
+		}
+		{
+			Ptr<Graphics::SetSkeletonJointMatrix> joint = Graphics::SetSkeletonJointMatrix::Create();
+			Math::float4 pos = this->joints[jointidx].GetPoseMatrix().get_position();
+			Math::float4 at = GraphicsFeature::GraphicsFeatureUnit::Instance()->GetDefaultView()->GetCameraEntity()->GetTransform().get_position();
+			Math::matrix44 trans = Math::matrix44::lookatrh(pos, at, Math::vector::upvec());
+			trans.set_position(Math::point(0));
+			joint->SetTransform(trans);
+			joint->SetIndex(jointidx);
+			__Send(this->model, joint);
+		}
+
 		bool isFirstClipPlaying = true;
 		IndexT i;
 		for (i = 0; i < this->clips.Size(); i++)

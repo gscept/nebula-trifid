@@ -299,6 +299,29 @@ RocketServer::SetRenderDebug( bool b )
 {
 	Rocket::Debugger::SetVisible(b);
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+RocketServer::AddEventListenerInstancer(Rocket::Core::EventListenerInstancer* instancer)
+{
+	this->extraInstancers.Append(instancer);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+RocketServer::RemoveEventListenerInstancer(Rocket::Core::EventListenerInstancer* instancer)
+{
+	IndexT idx = this->extraInstancers.FindIndex(instancer);
+	if (idx != InvalidIndex)
+	{
+		this->extraInstancers.EraseIndex(idx);
+	}
+}
+
 #endif
 
 } // namespace Rocket

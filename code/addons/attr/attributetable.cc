@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  attributetable.cc
 //  (C) 2006 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "attr/attributetable.h"
@@ -526,8 +526,10 @@ AttributeTable::DeleteRow(IndexT rowIndex)
         this->isModified = true;
     }
     this->userData[rowIndex] = 0;
-    // free memory for unused celldata
-    this->DeleteRowData(rowIndex);
+	// FIXME this causes delete command on the database to fail as the primary key (usually a guid) used to match rows with is gone
+	// its a (minor) memleak that should get cleaned up after the table is removed
+    // // free memory for unused celldata
+    // this->DeleteRowData(rowIndex);
 }
 
 //------------------------------------------------------------------------------

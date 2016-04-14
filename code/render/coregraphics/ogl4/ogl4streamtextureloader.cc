@@ -1,6 +1,7 @@
 //------------------------------------------------------------------------------
 //  OGL4StreamTextureLoader.cc
 //  (C) 2007 Radon Labs GmbH
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "coregraphics/ogl4/ogl4streamtextureloader.h"
@@ -67,6 +68,10 @@ OGL4StreamTextureLoader::SetupResourceFromStream(const Ptr<Stream>& stream)
 		{
 			// calculate how many mips we will have	
 			res->SetupFromOGL4VolumeTexture(texture, nebFormat, mips);
+		}
+		else
+		{
+			n_warning("Failed to load texture '%s' to GL.\n", stream->GetURI().LocalPath().AsCharPtr());
 		}
 
         stream->Unmap();

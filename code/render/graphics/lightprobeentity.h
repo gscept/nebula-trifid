@@ -5,7 +5,7 @@
 	
 	A light probe entity is used to render reflections and irradiance to a local area.
 	
-	(C) 2012-2014 Individual contributors, see AUTHORS file
+	(C) 2012-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "graphicsentity.h"
@@ -24,6 +24,15 @@ public:
 		Box,
 
 		NumProbeShapeTypes
+	};
+
+	enum ReflectionCorrectionMethod
+	{
+		None,
+		Parallax,
+		Depth,
+
+		NumCorrectionMethods
 	};
 
 	/// constructor
@@ -58,10 +67,10 @@ public:
 	void SetZone(const Math::bbox& box);
 	/// get zone
 	const Math::bbox& GetZone() const;
-	/// set if this light probe should perform parallax correctness
-	void SetParallaxCorrected(bool b);
-	/// returns true if this probe performs parallax correction
-	const bool GetParallaxCorrected() const;
+	/// set correction mode
+	void SetCorrectionMode(const ReflectionCorrectionMethod mode);
+	/// get correction mode
+	const ReflectionCorrectionMethod& GetCorrectionMode() const;
 	
     /// get shader
     const Ptr<CoreGraphics::Shader>& GetShader() const;
@@ -83,7 +92,8 @@ protected:
 private:
 	int layer;
     bool isDirty;
-	bool parallaxCorrected;
+
+	ReflectionCorrectionMethod correctionMethod;
 	Math::scalar falloff;
 	Math::scalar power;
 	Math::bbox zone;
@@ -93,6 +103,7 @@ private:
     Ptr<CoreGraphics::Shader> shader;
     Ptr<CoreGraphics::ShaderVariable> lightProbeReflectionVar;
     Ptr<CoreGraphics::ShaderVariable> lightProbeIrradianceVar;
+	Ptr<CoreGraphics::ShaderVariable> lightProbeDepthVar;
     Ptr<CoreGraphics::ShaderVariable> lightProbeFalloffVar;
     Ptr<CoreGraphics::ShaderVariable> lightProbePowerVar;
     Ptr<CoreGraphics::ShaderVariable> lightProbeReflectionNumMipsVar;
@@ -188,19 +199,18 @@ LightProbeEntity::GetZone() const
 /**
 */
 inline void
-LightProbeEntity::SetParallaxCorrected(bool b)
+LightProbeEntity::SetCorrectionMode(const ReflectionCorrectionMethod mode)
 {
-	this->parallaxCorrected = b;
-    this->isDirty = true;
+	this->correctionMethod = mode;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-inline const bool
-LightProbeEntity::GetParallaxCorrected() const
+inline const LightProbeEntity::ReflectionCorrectionMethod&
+LightProbeEntity::GetCorrectionMode() const
 {
-	return this->parallaxCorrected;
+	return this->correctionMethod;
 }
 
 //------------------------------------------------------------------------------

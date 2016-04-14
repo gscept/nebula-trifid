@@ -35,6 +35,36 @@ MACRO(N_WRAP_NIDL_FILES proj)
         SET_TARGET_PROPERTIES(${proj} PROPERTIES FOLDER "NIDL")
 ENDMACRO()
 
+MACRO(N_WRAP_ADD_NIDL_FILES projname proj)		
+        set(files ${ARGN})
+		set(outlist "")
+        List(APPEND outlist ${ARGN})		
+        SOURCE_GROUP("NIDL Files" FILES ${files})
+        FOREACH(nidl ${files})
+                STRING(REPLACE ".nidl" ".cc" outfile ${nidl}) 
+                STRING(REPLACE ".nidl" ".h" outfileh ${nidl})
+                STRING(FIND "${CMAKE_CURRENT_SOURCE_DIR}"  "/" last REVERSE)
+                STRING(SUBSTRING "${CMAKE_CURRENT_SOURCE_DIR}" ${last}+1 -1 folder)				
+                IF(WIN32)
+                    ADD_CUSTOM_COMMAND( OUTPUT "${CMAKE_BINARY_DIR}/nidl/${projname}/${outfile}" "${CMAKE_BINARY_DIR}/nidl/${projname}/${outfileh}"
+                                        PRE_BUILD COMMAND "${N3ROOT}/bin/win32/idlc.toolkit.exe" -output "${CMAKE_BINARY_DIR}/nidl/${projname}/" "${nidl}"
+                                        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" 
+                                        MAIN_DEPENDENCY "${nidl}"
+                                        VERBATIM PRE_BUILD)
+                ELSEIF(UNIX)
+                    ADD_CUSTOM_COMMAND( OUTPUT ${CMAKE_BINARY_DIR}/nidl/${projname}/${outfile} ${CMAKE_BINARY_DIR}/nidl/${projname}/${outfileh}
+                                        COMMAND ${N3ROOT}/bin/posix/idlc.toolkit -output ${CMAKE_BINARY_DIR}/nidl/${projname}/ ${nidl}
+                                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} 
+                                        MAIN_DEPENDENCY ${nidl}
+                                        )
+                ENDIF()				
+                SOURCE_GROUP("Generated" FILES "${CMAKE_BINARY_DIR}/nidl/${projname}/${outfile}" "${CMAKE_BINARY_DIR}/nidl/${projname}/${outfileh}")
+                List(APPEND outlist ${nidl} "${CMAKE_BINARY_DIR}/nidl/${projname}/${outfile}" "${CMAKE_BINARY_DIR}/nidl/${projname}/${outfileh}")
+        ENDFOREACH()
+		List(APPEND ${proj} ${outlist})
+ENDMACRO()
+
+
 MACRO(N_WRAP_ADD_NIDL_FILES proj)		
         set(files ${ARGN})
 		set(outlist "")
@@ -60,6 +90,35 @@ MACRO(N_WRAP_ADD_NIDL_FILES proj)
                 ENDIF()				
                 SOURCE_GROUP("Generated" FILES "${CMAKE_BINARY_DIR}/nidl/${outfile}" "${CMAKE_BINARY_DIR}/nidl/${outfileh}")
                 List(APPEND outlist ${nidl} "${CMAKE_BINARY_DIR}/nidl/${outfile}" "${CMAKE_BINARY_DIR}/nidl/${outfileh}")
+        ENDFOREACH()
+		List(APPEND ${proj} ${outlist})
+ENDMACRO()
+
+MACRO(N_WRAP_ADD_PROJ_NIDL_FILES projname proj)		
+        set(files ${ARGN})
+		set(outlist "")
+        List(APPEND outlist ${ARGN})		
+        SOURCE_GROUP("NIDL Files" FILES ${files})
+        FOREACH(nidl ${files})
+                STRING(REPLACE ".nidl" ".cc" outfile ${nidl}) 
+                STRING(REPLACE ".nidl" ".h" outfileh ${nidl})
+                STRING(FIND "${CMAKE_CURRENT_SOURCE_DIR}"  "/" last REVERSE)
+                STRING(SUBSTRING "${CMAKE_CURRENT_SOURCE_DIR}" ${last}+1 -1 folder)				
+                IF(WIN32)
+                    ADD_CUSTOM_COMMAND( OUTPUT "${CMAKE_BINARY_DIR}/nidl/${projname}/${outfile}" "${CMAKE_BINARY_DIR}/nidl/${projname}/${outfileh}"
+                                        PRE_BUILD COMMAND "${N3ROOT}/bin/win32/idlc.toolkit.exe" -output "${CMAKE_BINARY_DIR}/nidl/${projname}/" "${nidl}"
+                                        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" 
+                                        MAIN_DEPENDENCY "${nidl}"
+                                        VERBATIM PRE_BUILD)
+                ELSEIF(UNIX)
+                    ADD_CUSTOM_COMMAND( OUTPUT ${CMAKE_BINARY_DIR}/nidl/${projname}/${outfile} ${CMAKE_BINARY_DIR}/nidl/${projname}/${outfileh}
+                                        COMMAND ${N3ROOT}/bin/posix/idlc.toolkit -output ${CMAKE_BINARY_DIR}/nidl/${projname}/ ${nidl}
+                                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} 
+                                        MAIN_DEPENDENCY ${nidl}
+                                        )
+                ENDIF()				
+                SOURCE_GROUP("Generated" FILES "${CMAKE_BINARY_DIR}/nidl/${projname}/${outfile}" "${CMAKE_BINARY_DIR}/nidl/${projname}/${outfileh}")
+                List(APPEND outlist ${nidl} "${CMAKE_BINARY_DIR}/nidl/${projname}/${outfile}" "${CMAKE_BINARY_DIR}/nidl/${projname}/${outfileh}")
         ENDFOREACH()
 		List(APPEND ${proj} ${outlist})
 ENDMACRO()
@@ -257,10 +316,10 @@ MACRO(N_SET_COMPILER_DEFAULTS)
                                 "/D_DEBUG /Od /Gm /RTC1 /MTd /Gy /Zi"
                                 CACHE STRING "Flags used by the compiler during debug builds." FORCE)
                         SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO
-                                "/Ob2 /Oi /Os /Oy ${N_GL} /FD /MT /GS- /Zi /MP"
+                                "/Ob2 /Oi /Os /Oy ${N_GL} /FD /MT /GS- /Zi /MP /DNDEBUG"
                                 CACHE STRING "Flags used by the compiler during release builds." FORCE)
                         SET(CMAKE_CXX_FLAGS_RELEASE
-                                "/Ob2 /Oi /Os /Oy ${N_GL} /FD /MT /GS- /MP"
+                                "/Ob2 /Oi /Os /Oy ${N_GL} /FD /MT /GS- /MP /DNDEBUG"
                                 CACHE STRING "Flags used by the compiler during release builds." FORCE)
                         # C compiler (force compilation of .c files using C++ compiler)
                         SET(CMAKE_C_FLAGS 
@@ -270,10 +329,10 @@ MACRO(N_SET_COMPILER_DEFAULTS)
                                 "/D_DEBUG /Od /Gm /RTC1 /MTd /Gy /Zi"
                                 CACHE STRING "Flags used by the compiler during debug builds." FORCE)
                         SET(CMAKE_C_FLAGS_RELWITHDEBINFO
-                                "/Ob2 /Oi /Os /Oy ${N_GL} /FD /MT /GS- /Zi /MP"
+                                "/Ob2 /Oi /Os /Oy ${N_GL} /FD /MT /GS- /Zi /MP /DNDEBUG"
                                 CACHE STRING "Flags used by the compiler during release builds." FORCE)
                         SET(CMAKE_C_FLAGS_RELEASE
-                                "/Ob2 /Oi /Os /Oy ${N_GL} /FD /MT /GS- /MP"
+                                "/Ob2 /Oi /Os /Oy ${N_GL} /FD /MT /GS- /MP /DNDEBUG"
                                 CACHE STRING "Flags used by the compiler during release builds." FORCE)		
                 ELSE()
                         # C++ compiler		
@@ -284,10 +343,10 @@ MACRO(N_SET_COMPILER_DEFAULTS)
                                 "/D_DEBUG /Od /RTC1 /MTd /Gy /ZI"
                                 CACHE STRING "Flags used by the compiler during debug builds." FORCE)
                         SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO
-                                "/Ob2 /Oi /Ot /Oy ${N_GL} /FD /MT /GS- /Zi"
+                                "/Ob2 /Oi /Ot /Oy ${N_GL} /FD /MT /GS- /Zi /DNDEBUG"
                                 CACHE STRING "Flags used by the compiler during release builds." FORCE)
                         SET(CMAKE_CXX_FLAGS_RELEASE
-                                "/Ob2 /Oi /Ot /Oy ${N_GL} /FD /MT /GS- /DPUBLIC_BUILD"
+                                "/Ob2 /Oi /Ot /Oy ${N_GL} /FD /MT /GS- /DPUBLIC_BUILD /DNDEBUG"
                                 CACHE STRING "Flags used by the compiler during release builds." FORCE)
                         # C compiler (force compilation of .c files using C++ compiler)
                         SET(CMAKE_C_FLAGS 
@@ -297,10 +356,10 @@ MACRO(N_SET_COMPILER_DEFAULTS)
                                 "/D_DEBUG /Od /RTC1 /MTd /Gy /ZI"
                                 CACHE STRING "Flags used by the compiler during debug builds." FORCE)
                         SET(CMAKE_C_FLAGS_RELWITHDEBINFO
-                                "/Ob2 /Oi /Ot /Oy ${N_GL} /FD /MT /GS- /Zi"
+                                "/Ob2 /Oi /Ot /Oy ${N_GL} /FD /MT /GS- /Zi /DNDEBUG"
                                 CACHE STRING "Flags used by the compiler during release builds." FORCE)
                         SET(CMAKE_C_FLAGS_RELEASE
-                                "/Ob2 /Oi /Ot /Oy ${N_GL} /FD /MT /GS- /DPUBLIC_BUILD"
+                                "/Ob2 /Oi /Ot /Oy ${N_GL} /FD /MT /GS- /DPUBLIC_BUILD /DNDEBUG"
                                 CACHE STRING "Flags used by the compiler during release builds." FORCE)
                 ENDIF()
     ELSEIF(UNIX)
@@ -451,6 +510,13 @@ ELSEIF(UNIX)
 	#SET(QT_UIC_EXECUTABLE /usr/bin/uic)
         
 ENDIF()
+
+MACRO(N_CREATE_FEATURE featurename files nidls)
+	SET(filevar ${${files}})
+	N_WRAP_ADD_PROJ_NIDL_FILES(${featurename} filevar ${${nidls}})
+	ADD_LIBRARY(${featurename} STATIC ${filevar})	
+	SET_TARGET_PROPERTIES(${featurename} PROPERTIES FOLDER "N3SDK/N3/features")	
+ENDMACRO()
 
 MACRO(PARSE_PROJ_NIDLS name projfile)
 

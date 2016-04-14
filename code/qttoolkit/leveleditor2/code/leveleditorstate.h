@@ -5,7 +5,7 @@
     
     Base state for leveleditor window
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 #include "basegamefeature/statehandlers/gamestatehandler.h"
 #include "graphics/globallightentity.h"
@@ -67,6 +67,7 @@ private:
 	Ptr<Dynui::ImguiConsole> console;
 	Ptr<Dynui::ImguiConsoleHandler> consoleHandler;
 	Ptr<Game::Entity> defaultCam;	
+	Ptr<Game::Entity> fpsCam;
 	Ptr<TransformAction> activeTransformAction;
 	Ptr<Picking::PickingServer> pickingServer;
 	Input::Key::Code activateSelectionZoom;

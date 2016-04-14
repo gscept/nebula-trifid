@@ -5,7 +5,7 @@
 	
 	An environment probe contains information about the environment and irradiance map being used in an area.
 
-	(C) 2012-2014 Individual contributors, see AUTHORS file
+	(C) 2012-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
@@ -28,7 +28,11 @@ public:
 	/// assign irradiance map resource, returns true if a texture was loaded
 	bool AssignIrradianceMap(const Resources::ResourceId& irr);
 	/// assign irradiance map using texture
-	void AssignIrradianceMap(const Ptr<Resources::ManagedTexture>& irr);
+	void AssignIrradianceMap(const Ptr<Resources::ManagedTexture>& irr);	
+	/// assign depth map resource, returns true if a texture was loaded
+	bool AssignDepthMap(const Resources::ResourceId& irr);
+	/// assign depth map using texture
+	void AssignDepthMap(const Ptr<Resources::ManagedTexture>& irr);
 
 	/// discard probe, unloads textures
 	void Discard();
@@ -37,6 +41,8 @@ public:
 	const Ptr<Resources::ManagedTexture>& GetReflectionMap() const;
 	/// get irradiance map
 	const Ptr<Resources::ManagedTexture>& GetIrradianceMap() const;
+	/// get depth map
+	const Ptr<Resources::ManagedTexture>& GetDepthMap() const;
 
 	/// the default environment probe which is automatically assigned to all model entitys upon startup
 	static Ptr<EnvironmentProbe> DefaultEnvironmentProbe;
@@ -45,6 +51,7 @@ private:
 	
 	Ptr<Resources::ManagedTexture> reflectionMap;
 	Ptr<Resources::ManagedTexture> irradianceMap;
+	Ptr<Resources::ManagedTexture> depthMap;
 };
 
 //------------------------------------------------------------------------------
@@ -70,6 +77,16 @@ EnvironmentProbe::AssignIrradianceMap(const Ptr<Resources::ManagedTexture>& irr)
 //------------------------------------------------------------------------------
 /**
 */
+inline void
+EnvironmentProbe::AssignDepthMap(const Ptr<Resources::ManagedTexture>& depth)
+{
+	n_assert(depth.isvalid());
+	this->depthMap = depth;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 inline const Ptr<Resources::ManagedTexture>&
 EnvironmentProbe::GetReflectionMap() const
 {
@@ -83,6 +100,15 @@ inline const Ptr<Resources::ManagedTexture>&
 EnvironmentProbe::GetIrradianceMap() const
 {
 	return this->irradianceMap;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Ptr<Resources::ManagedTexture>&
+EnvironmentProbe::GetDepthMap() const
+{
+	return this->depthMap;
 }
 
 } // namespace Lighting

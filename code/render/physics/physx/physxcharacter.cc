@@ -150,7 +150,7 @@ PhysXCharacter::Detach()
 void
 PhysXCharacter::SetRadius(float radius)
 {
-
+	this->radius = radius;
 }
 
 //------------------------------------------------------------------------------
@@ -335,6 +335,8 @@ PhysXCharacter::TryStandup()
 	PxCapsuleController* capsuleCtrl = static_cast<PxCapsuleController*>(this->controller);
 
 	PxReal r = capsuleCtrl->getRadius();
+    n_assert2(this->crouchingHeight < this->height, "crouching height cant be larger than height");
+        
 	PxReal dh = this->height - this->crouchingHeight - 2 * r;
 	PxCapsuleGeometry geom(r, dh*.5f);
 

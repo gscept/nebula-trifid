@@ -5,7 +5,7 @@
     
     Implements a remote interface which should be used between Qt Nebula applications to send messages.
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"

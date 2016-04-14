@@ -1,10 +1,10 @@
 //------------------------------------------------------------------------------
 //  leveleditor2/properties/editornavmeshproperty.cc
-//  (C) 2012 Johannes Hirche, LTU Skelleftea
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "properties/editornavmeshproperty.h"
-#include "leveleditor2protocol.h"
+#include "leveleditor2/leveleditor2protocol.h"
 #include "messaging/staticmessagehandler.h"
 #include "basegamefeature/basegameattr/basegameattributes.h"
 #include "basegamefeature/basegameprotocol.h"
@@ -141,9 +141,9 @@ EditorNavMeshProperty::OnRender()
 /**
 */
 void
-EditorNavMeshProperty::OnActivate()
+EditorNavMeshProperty::OnStart()
 {
-    Property::OnActivate();
+    Property::OnStart();
 	if (entity->GetString(Attr::NavMeshData).IsValid())
 	{
 		if(IO::IoServer::Instance()->FileExists(IO::URI(entity->GetString(Attr::NavMeshData))))

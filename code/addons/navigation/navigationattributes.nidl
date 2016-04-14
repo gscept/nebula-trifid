@@ -14,6 +14,7 @@
     <Attribute name="AgentRadius" fourcc="AGRA" accessMode="ReadWrite" type="Float" default="0.5"/>
     <Attribute name="AgentHeight" fourcc="AGHE" accessMode="ReadWrite" type="Float" default="2.0"/>
     <Attribute name="AgentMaxClimb" fourcc="AMXL" accessMode="ReadWrite" type="Float" default="0.2"/>
+    <Attribute name="EnableAgentOnStart" fourcc="ENGS" accessMode="ReadWrite" type="Bool" default="true"/>
 
     <Attribute name="MaxEdgeError" fourcc="MXER" accessMode="ReadWrite" type="Float" default="1.3"/>
     <Attribute name="DetailSampleDist" fourcc="DSDI" accessMode="ReadWrite" type="Float" default="6.0"/>
@@ -41,6 +42,7 @@
     <Attribute name="AgentNavMesh"/>
     <Attribute name="AvoidanceQuality"/>
     <Attribute name="TargetPos"/>
+    <Attribute name="EnableAgentOnStart"/>
   </Property>
   <Property name="Navigation::ConvexAreaMarkerProperty" header="navigation/convexareamarkerproperty.h">
     <Attribute name="Transform"/>

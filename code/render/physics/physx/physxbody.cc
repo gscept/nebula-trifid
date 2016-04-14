@@ -219,7 +219,9 @@ PhysXBody::GetKinematic()
 void
 PhysXBody::ApplyImpulseAtPos(const Math::vector& impulse, const Math::point& pos, bool multByMass /*= false*/)
 {
-	PxRigidBodyExt::addForceAtPos(*this->body, Neb2PxVec(impulse), Neb2PxVec(pos), PxForceMode::eIMPULSE);	
+	Math::matrix44 m = Math::matrix44::inverse(this->GetTransform());
+	Math::vector rpos = Math::matrix44::transform(pos, m);
+	PxRigidBodyExt::addForceAtPos(*this->body, Neb2PxVec(impulse), Neb2PxVec(rpos), PxForceMode::eIMPULSE);
 }
 
 //------------------------------------------------------------------------------
@@ -355,8 +357,30 @@ PhysXBody::SetEnableCollisionCallback(bool enable)
 void
 PhysXBody::SetTransform(const Math::matrix44 & trans)
 {
+    Math::quaternion q;
+    Math::float4 scale;
+    Math::float4 pos;
+    trans.decompose(scale, q, pos);
 	BaseRigidBody::SetTransform(trans);
-	this->body->setGlobalPose(Neb2PxTrans(trans));
+    // we have to remove any possible scaling
+    PxTransform pose(Neb2PxVec(pos), Neb2PxQuat(q));
+	this->body->setGlobalPose(pose);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PhysXBody::SetMaterialType(Physics::MaterialType t)
+{
+	BaseRigidBody::SetMaterialType(t);
+	PxMaterial * mat = PhysXServer::Instance()->GetMaterial(t);
+	for (unsigned int i = 0; i < this->body->getNbShapes(); i++)
+	{
+		PxShape * shape;
+		this->body->getShapes(&shape, 1, i);
+		shape->setMaterials(&mat, 1);
+	}
 }
 
 } // namespace PhysX

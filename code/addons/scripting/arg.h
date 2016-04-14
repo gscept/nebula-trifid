@@ -8,7 +8,7 @@
     An argument for scripting, this is just a typedef from Util::Variant.
     
     (C) 2006 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "util/variant.h"
 

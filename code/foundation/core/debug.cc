@@ -40,10 +40,33 @@ n_barf2(const char* exp, const char* msg, const char* file, int line)
     }
     else
     {
-    	Util::String msg;
-    	msg.Format("*** NEBULA ASSERTION ***\nexpression: %s\nfile: %s\nline: %d\n", exp, file, line);
-        Core::SysFunc::Error(msg.AsCharPtr());
+    	Util::String fmt;
+		fmt.Format("*** NEBULA ASSERTION ***\nprogrammer says: %s\nexpression: %s\nfile: %s\nline: %d\n", msg, exp, file, line);
+        Core::SysFunc::Error(fmt.AsCharPtr());
     }
+}
+
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+n_barf_fmt(const char *	exp, const char *fmt, const char *file, int line, ...)
+{
+	Util::String msg;
+	va_list argList;
+	va_start(argList, line);
+	msg.FormatArgList(fmt, argList);
+	va_end(argList);
+	Util::String format = Util::String::Sprintf("*** NEBULA ASSERTION ***\nprogrammer says : %s\nfile : %s\nline : %d\nexpression : %s\n", msg.AsCharPtr(), file, line, exp);
+	if (IO::Console::HasInstance())
+	{
+		n_error(format.AsCharPtr());
+	}
+	else
+	{
+		Core::SysFunc::Error(format.AsCharPtr());
+	}
 }
 
 //------------------------------------------------------------------------------

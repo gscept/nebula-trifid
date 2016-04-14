@@ -84,6 +84,9 @@ public:
     /// print help on a command on stdout
     void PrintCommandHelp(const Util::String& cmdName) const;
 
+	/// add folder to script search path
+	virtual void AddPath(const IO::URI& path);
+
 protected:
     /// clear current error
     void ClearError();

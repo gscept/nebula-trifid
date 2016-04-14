@@ -1,6 +1,7 @@
 //------------------------------------------------------------------------------
 //  port.cc
 //  (C) 2006 RadonLabs GmbH
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "messaging/port.h"

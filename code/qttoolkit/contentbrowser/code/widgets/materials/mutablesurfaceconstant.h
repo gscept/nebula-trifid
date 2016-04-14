@@ -6,7 +6,7 @@
 	Similar to MutableSurfaceMaterial in that it exposes functions in 
 	surface constants which should not be accessible during runtime.
 	
-	(C) 2015 Individual contributors, see AUTHORS file
+	(C) 2015-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "materials/surfaceconstant.h"

@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  ogl4renderdevice.cc
-//  (C) 2012 Johannes Hirche, Gustav Sterbrant
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "coregraphics/config.h"
@@ -864,16 +864,20 @@ OGL4RenderDevice::SaveScreenshot(ImageFileFormat::Code fmt, const Ptr<IO::Stream
 	DisplayMode mode = DisplayDevice::Instance()->GetDisplayMode();
 	GLuint size = mode.GetWidth() * mode.GetHeight() * 4;
 
+	// set a proper byte alignment for the read-back
+	GLuint pixelAlignment = OGL4Types::AsOGL4PixelByteAlignment(PixelFormat::SRGBA8);
+	glPixelStorei(GL_PACK_ALIGNMENT, pixelAlignment);
+
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 	glReadBuffer(GL_COLOR_ATTACHMENT0);
 	GLubyte* data = n_new_array(GLubyte, size);
-	glReadPixels(0, 0, mode.GetWidth(), mode.GetHeight(), GL_RGB, GL_UNSIGNED_BYTE, data);	
+	glReadPixels(0, 0, mode.GetWidth(), mode.GetHeight(), GL_RGBA, GL_UNSIGNED_BYTE, data);	
 
 	ILint image = ilGenImage();
 	ilBindImage(image);
 
 	ILboolean result;
-	result = ilTexImage(mode.GetWidth(), mode.GetHeight(), 1, 3, IL_RGB, IL_UNSIGNED_BYTE, data);
+	result = ilTexImage(mode.GetWidth(), mode.GetHeight(), 1, 4, IL_RGBA, IL_UNSIGNED_BYTE, data);
 	iluImageParameter(ILU_PLACEMENT, ILU_UPPER_LEFT);
 	ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);
 
@@ -887,7 +891,9 @@ OGL4RenderDevice::SaveScreenshot(ImageFileFormat::Code fmt, const Ptr<IO::Stream
         outStream->Close();
         outStream->SetMediaType(ImageFileFormat::ToMediaType(ImageFileFormat::PNG));
     }
-	
+
+	glPixelStorei(GL_PACK_ALIGNMENT, 4);
+
 	// cleanup image
 	ilDeleteImage(image);
 	n_delete_array(data);
@@ -907,16 +913,20 @@ OGL4RenderDevice::SaveScreenshot(CoreGraphics::ImageFileFormat::Code fmt, const 
 	DisplayMode mode = DisplayDevice::Instance()->GetDisplayMode();
 	GLuint size = mode.GetWidth() * mode.GetHeight() * 3;
 
+	// set a proper byte alignment for the read-back
+	GLuint pixelAlignment = OGL4Types::AsOGL4PixelByteAlignment(PixelFormat::SRGBA8);
+	glPixelStorei(GL_PACK_ALIGNMENT, pixelAlignment);
+
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 	glReadBuffer(GL_COLOR_ATTACHMENT0);
 	GLubyte* data = n_new_array(GLubyte, size);
-	glReadPixels(rect.left, rect.top, rect.width(), rect.height(), GL_RGB, GL_UNSIGNED_BYTE, data);
+	glReadPixels(rect.left, rect.top, rect.width(), rect.height(), GL_RGBA, GL_UNSIGNED_BYTE, data);
 
 	ILint image = ilGenImage();
 	ilBindImage(image);
 
 	ILboolean result;
-	result = ilTexImage(rect.width(), rect.height(), 1, 3, IL_RGB, IL_UNSIGNED_BYTE, data);
+	result = ilTexImage(rect.width(), rect.height(), 1, 4, IL_RGBA, IL_UNSIGNED_BYTE, data);
 	iluImageParameter(ILU_PLACEMENT, ILU_UPPER_LEFT);
 	ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);
 	result = iluScale(x, y, 1);
@@ -931,6 +941,8 @@ OGL4RenderDevice::SaveScreenshot(CoreGraphics::ImageFileFormat::Code fmt, const 
 		outStream->Close();
 		outStream->SetMediaType(ImageFileFormat::ToMediaType(ImageFileFormat::PNG));
 	}
+
+	glPixelStorei(GL_PACK_ALIGNMENT, 4);
 
 	// cleanup image
 	ilDeleteImage(image);

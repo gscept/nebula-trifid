@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  win360fswrapper.cc
 //  (C) 2007 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "io/win360/win360fswrapper.h"
@@ -275,6 +275,27 @@ Win360FSWrapper::IsReadOnly(const String& path)
 
 //------------------------------------------------------------------------------
 /**
+	try to check for a lock by trying to lock the file. inherently racey, but
+	good enough in some situations
+*/
+bool
+Win360FSWrapper::IsLocked(const Util::String& path)
+{
+	n_assert(path.IsValid());
+	Handle h = Win360FSWrapper::OpenFile(path, Stream::ReadWriteAccess, Stream::Sequential);	
+	OVERLAPPED overlap = { 0 };
+	bool locked = true;
+	if (::LockFileEx(h, LOCKFILE_EXCLUSIVE_LOCK| LOCKFILE_FAIL_IMMEDIATELY, 0, MAXDWORD, MAXDWORD, &overlap))
+	{
+		BOOL ret = ::UnlockFileEx(h, 0, MAXDWORD, MAXDWORD, &overlap);		
+		locked = false;
+	}
+	Win360FSWrapper::CloseFile(h);
+	return locked;
+}
+
+//------------------------------------------------------------------------------
+/**
     Deletes a file. Returns true if the operation was successful. The delete
     will fail if the fail doesn't exist or the file is read-only.
 */
@@ -291,6 +312,19 @@ Win360FSWrapper::DeleteFile(const String& path)
         Win32::Win32StringConverter::UTF8ToWide(path, widePath, sizeof(widePath));
         return (0 != ::DeleteFileW((LPCWSTR)widePath));
     #endif
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+Win360FSWrapper::ReplaceFile(const Util::String& source, const Util::String& target)
+{
+	ushort wideSourcePath[1024];
+	ushort wideTargetPath[1024];
+	Win32::Win32StringConverter::UTF8ToWide(source, wideSourcePath, sizeof(wideSourcePath));
+	Win32::Win32StringConverter::UTF8ToWide(target, wideTargetPath, sizeof(wideTargetPath));
+	return (0 != ::ReplaceFileW((LPCWSTR)wideTargetPath, (LPCWSTR)wideSourcePath, NULL, 0, 0, 0));
 }
 
 //------------------------------------------------------------------------------
@@ -427,6 +461,22 @@ Win360FSWrapper::CreateDirectory(const String& path)
         Win32::Win32StringConverter::UTF8ToWide(path, widePath, sizeof(widePath));
         return (0 != ::CreateDirectoryW((LPCWSTR)widePath, NULL));
     #endif
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+Util::String
+Win360FSWrapper::CreateTemporaryFilename(const Util::String& path)
+{
+	n_assert(path.IsValid());
+	const String& nativePath = path;
+	ushort widePath[1024];
+	Win32::Win32StringConverter::UTF8ToWide(path, widePath, sizeof(widePath));
+	const wchar_t* prefix = L"NEB";
+	wchar_t name[MAX_PATH];
+	n_assert(GetTempFileNameW((LPCWSTR)widePath, prefix, 0, name));
+	return Win32::Win32StringConverter::WideToUTF8((ushort*)name);
 }
 
 //------------------------------------------------------------------------------

@@ -23,6 +23,7 @@
     a more complex message processing infrastructure underneath.
 
     (C) 2007 RadonLabs GmbH
+	(C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/ptr.h"
 #include "messaging/port.h"

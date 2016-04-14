@@ -5,7 +5,7 @@
     
     A newer version of the light prepass server, used for deferred lighting
     
-    (C) 2011-2013 Individual contributors, see AUTHORS file
+    (C) 2011-2016 Individual contributors, see AUTHORS file
 */
 #include "lighting/base/lightserverbase.h"
 #include "graphics/pointlightentity.h"
@@ -72,6 +72,8 @@ protected:
 		Sphere,
 		BoxParallax,
 		SphereParallax,
+		BoxDepth,
+		SphereDepth,
 
 		NumProbeFlags
 	};
@@ -82,7 +84,7 @@ protected:
 	CoreGraphics::ShaderFeature::Mask pointLightFeatureBits[NumShadowFlags];
 	CoreGraphics::ShaderFeature::Mask spotLightFeatureBits[NumShadowFlags];
 	CoreGraphics::ShaderFeature::Mask globalLightFeatureBits[NumShadowFlags];
-	CoreGraphics::ShaderFeature::Mask lightProbeFeatureBits[Graphics::LightProbeEntity::NumProbeShapeTypes + 2];
+	CoreGraphics::ShaderFeature::Mask lightProbeFeatureBits[Graphics::LightProbeEntity::NumProbeShapeTypes * Graphics::LightProbeEntity::NumCorrectionMethods];
 	RenderUtil::DrawFullScreenQuad fullScreenQuadRenderer;          // fs quad renderer
 
 	Ptr<Frame::FrameShader> godRayFrameShader;

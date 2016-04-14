@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  networkserver.cc
-//  (C) 2015 Individual contributors, see AUTHORS file
+//  (C) 2015-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "networkserver.h"
@@ -283,7 +283,7 @@ NetworkServer::SetupLowlevelNetworking()
 	n_assert2(NetworkGame::HasInstance(), "No NetworkGame or subclass instance exists, cant continue\n");
 
 	this->replicationManager->SetNetworkIDManager(this->networkIDManager);
-	this->replicationManager->SetAutoManageConnections(false, true);
+	this->replicationManager->SetAutoManageConnections(true, true);
 
 	Ptr<NetworkGame> game = NetworkGame::Instance();
 	game->SetNetworkIDManager(this->networkIDManager);

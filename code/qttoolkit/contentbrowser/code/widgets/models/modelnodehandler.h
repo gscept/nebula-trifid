@@ -5,7 +5,7 @@
     
     Implements an item handler for ModelNode group boxes
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
@@ -89,7 +89,6 @@ protected:
 	bool actionUpdateMode;
 	Util::String nodeName;
 	Util::String nodePath;
-	Util::String nodeType;
 	Util::String resource;
 	Util::String material;
 
@@ -157,24 +156,6 @@ inline const Util::String&
 ModelNodeHandler::GetPath() const
 {
 	return this->nodePath;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void 
-ModelNodeHandler::SetType( const Util::String& type )
-{
-	this->nodeType = type;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline const Util::String& 
-ModelNodeHandler::GetType() const
-{
-	return this->nodeType;
 }
 
 //------------------------------------------------------------------------------

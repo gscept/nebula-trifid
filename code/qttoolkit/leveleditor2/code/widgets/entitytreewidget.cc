@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  entitytreewidget.cc
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 
 #include "stdneb.h"
@@ -10,7 +10,7 @@
 #include "qevent.h"
 #include "qstandarditemmodel.h"
 #include "managers/entitymanager.h"
-#include "leveleditor2protocol.h"
+#include "leveleditor2/leveleditor2protocol.h"
 #include "leveleditor2app.h"
 #include "QInputDialog"
 #include "editorfeatures/editorblueprintmanager.h"
@@ -21,9 +21,23 @@ namespace LevelEditor2
 //------------------------------------------------------------------------------
 /**
 */
+
+EntityTreeItem::EntityTreeItem():
+    locked(false),
+    visible(true)
+{
+
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 EntityTreeItem::~EntityTreeItem()
 {
-	LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->Deregister(this->entityGuid);	
+	if (this->entityGuid.IsValid())
+	{
+		LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->Deregister(this->entityGuid);
+	}	
 }
 
 //------------------------------------------------------------------------------
@@ -32,6 +46,7 @@ EntityTreeItem::~EntityTreeItem()
 void
 EntityTreeItem::SetIcon(const EntityType& type)
 {	
+	this->type = type;
 	switch (type)
 	{
 
@@ -74,9 +89,19 @@ EntityTreeItem::SetIcon(const EntityType& type)
 //------------------------------------------------------------------------------
 /**
 */
+void
+EntityTreeItem::SetLocked(bool lock)
+{
+    this->locked = lock;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 EntityTreeWidget::EntityTreeWidget(QWidget* parent) :
 	QTreeWidget(parent),
-	blockSignal(false)
+	blockSignal(false),
+	sortingEnabled(false)
 {
 	this->setDragEnabled(true);
 	this->setAcceptDrops(true);	
@@ -84,6 +109,9 @@ EntityTreeWidget::EntityTreeWidget(QWidget* parent) :
 	this->setDefaultDropAction(Qt::MoveAction);
 	this->viewport()->setAcceptDrops(true);
 	this->setDropIndicatorShown(true);	
+	this->header()->setResizeMode(QHeaderView::ResizeToContents);
+	this->header()->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(this->header(), SIGNAL(customContextMenuRequested(const QPoint&)),	this, SLOT(HeaderContextMenu(const QPoint&)));
 }
 
 //------------------------------------------------------------------------------
@@ -338,9 +366,45 @@ EntityTreeWidget::dropEvent ( QDropEvent * event )
 void
 EntityTreeWidget::contextMenuEvent(QContextMenuEvent * event)
 {
-	EntityTreeItem * myitem = (EntityTreeItem*)this->itemAt(event->pos());
+	EntityTreeItem * myitem = dynamic_cast<EntityTreeItem*>(this->itemAt(event->pos()));
 	if (myitem == NULL)
+	{				
+		return;
+	}
+	if (myitem->type == LevelReference)
 	{
+        QMenu menu;
+        QAction * remove = menu.addAction("Remove reference");
+        QAction * lock = menu.addAction(myitem->locked ? "Unlock" : "Lock");
+        QAction * visible = menu.addAction(myitem->visible ? "Hide" : "Show");
+        QAction * sel = menu.exec(event->globalPos());
+        if (sel == remove)
+        {
+            Level::Instance()->RemoveReference(myitem->level);
+            IndexT idx = this->referenceItems.FindIndex(myitem->level);
+            this->referenceItems.EraseAtIndex(idx);
+            delete myitem;
+        }
+        else if (sel == lock)
+        {
+            myitem->locked = !myitem->locked;
+            Util::Array<Ptr<Game::Entity>> ents = BaseGameFeature::EntityManager::Instance()->GetEntitiesByAttr(Attr::Attribute(Attr::EntityLevel, myitem->level));
+            for (int i = 0; i < ents.Size(); i++)
+            {
+                ents[i]->SetBool(Attr::IsLocked, myitem->locked);
+            }
+        }
+        else if (sel == visible)
+        {
+            myitem->visible = !myitem->visible;
+            Util::Array<Ptr<Game::Entity>> ents = BaseGameFeature::EntityManager::Instance()->GetEntitiesByAttr(Attr::Attribute(Attr::EntityLevel, myitem->level));
+            Ptr<GraphicsFeature::SetGraphicsVisible> msg = GraphicsFeature::SetGraphicsVisible::Create();
+            msg->SetVisible(myitem->visible);
+            for (int i = 0; i < ents.Size(); i++)
+            {
+                __SendSync(ents[i], msg);
+            }            
+        }
 		return;
 	}
 	if (this->selectedItems().count() > 1)
@@ -483,6 +547,30 @@ EntityTreeWidget::mimeData(const QList<QTreeWidgetItem*> items) const
 //------------------------------------------------------------------------------
 /**
 */
+void
+EntityTreeWidget::HeaderContextMenu(const QPoint & pos)
+{
+	QMenu menu;
+	QAction * sortAction = menu.addAction(this->isSortingEnabled() ? "Disable Sorting" : " Enable Sorting");	
+	QAction *sel = menu.exec(this->header()->mapToGlobal(pos));
+	if (sel == sortAction)
+	{
+		if (this->isSortingEnabled())
+		{
+			this->header()->setSortIndicatorShown(false);
+			this->setSortingEnabled(false);
+		}
+		else
+		{
+			this->header()->setSortIndicatorShown(true);
+			this->setSortingEnabled(true);
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 Util::Guid 
 EntityTreeWidget::GetParent(const Util::Guid & guid)
 {
@@ -508,24 +596,40 @@ EntityTreeWidget::SetParentGuids()
 	Util::Guid invalid;
 	for(int i = 0 ; i<this->topLevelItemCount(); i++)
 	{
-		this->SetParentGuid(invalid, dynamic_cast<EntityTreeItem*>(this->topLevelItem(i)));
+		EntityTreeItem* item = dynamic_cast<EntityTreeItem*>(this->topLevelItem(i));
+		if (item->type == LevelReference)
+		{
+			for (int i = 0; i < item->childCount(); i++)
+			{
+				this->SetParentGuid(item->level, invalid, dynamic_cast<EntityTreeItem*>(item->child(i)));
+			}			
+		}
+		else
+		{
+			this->SetParentGuid(Level::Instance()->GetName(), invalid, dynamic_cast<EntityTreeItem*>(this->topLevelItem(i)));
+
+		}
+		
 	}
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-void 
-EntityTreeWidget::SetParentGuid(const Util::Guid & guid, EntityTreeItem * child)
+void
+EntityTreeWidget::SetParentGuid(const Util::String & level, const Util::Guid & guid, EntityTreeItem * child)
 {
-	Ptr<Game::Entity> entity = LevelEditor2EntityManager::Instance()->GetEntityById(child->GetEntityGuid());
-	entity->SetGuid(Attr::ParentGuid, guid);
-	Util::Guid itemGuid = entity->GetGuid(Attr::EntityGuid);
-	for(int i=0 ; i < child->childCount();i++)
-	{
-		this->SetParentGuid(itemGuid, dynamic_cast<EntityTreeItem*>(child->child(i)));		
-	}
-
+    if (child)
+    {
+        Ptr<Game::Entity> entity = LevelEditor2EntityManager::Instance()->GetEntityById(child->GetEntityGuid());
+        entity->SetGuid(Attr::ParentGuid, guid);
+		entity->SetString(Attr::EntityLevel, level);
+        Util::Guid itemGuid = entity->GetGuid(Attr::EntityGuid);
+        for (int i = 0; i < child->childCount(); i++)
+        {
+            this->SetParentGuid(level, itemGuid, dynamic_cast<EntityTreeItem*>(child->child(i)));
+        }
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -537,7 +641,7 @@ EntityTreeWidget::RebuildTree()
 	const Util::Array<Ptr<Game::Entity>> entities = BaseGameFeature::EntityManager::Instance()->GetEntities();	
 	for(int i = 0 ; i < entities.Size() ; i++)
 	{						
-		if(entities[i]->HasAttr(Attr::EntityType) && !BaseGameFeature::EntityManager::Instance()->IsEntityInDelayedJobs(entities[i]) && entities[i]->HasAttr(Attr::ParentGuid))
+		if(entities[i].isvalid() && entities[i]->HasAttr(Attr::EntityType) && !BaseGameFeature::EntityManager::Instance()->IsEntityInDelayedJobs(entities[i]) && entities[i]->HasAttr(Attr::ParentGuid))
 		{
 			Util::Guid parentGuid = entities[i]->GetGuid(Attr::ParentGuid);
 			if(parentGuid.IsValid())
@@ -559,9 +663,83 @@ EntityTreeWidget::RebuildTree()
 					}					
 					parentTreeItem->addChild(treeItem);
 				}
-			}		
+			}
+            else
+            {
+                Util::String entLevel = entities[i]->GetString(Attr::EntityLevel);
+                if (entLevel != Level::Instance()->GetName() && !entLevel.IsEmpty())
+                {
+                    EntityTreeItem* treeItem = dynamic_cast<EntityTreeItem*>(this->GetEntityTreeItem(entities[i]->GetGuid(Attr::EntityGuid)));
+                    EntityTreeItem * parentTreeItem = this->referenceItems[entLevel];
+                    int idx = this->indexOfTopLevelItem(treeItem);
+                    if (idx != -1)
+                    {
+                        this->takeTopLevelItem(idx);
+                    }
+                    else
+                    {
+                        idx = treeItem->parent()->indexOfChild(treeItem);
+                        treeItem->parent()->takeChild(idx);
+                    }
+                    parentTreeItem->addChild(treeItem);
+                }
+            }
 		}		
 	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+EntityTreeWidget::OnBeginLoad()
+{
+	if (this->isSortingEnabled())
+	{
+		this->sortingEnabled = true;
+		this->setSortingEnabled(false);
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+EntityTreeWidget::OnEndLoad()
+{
+	this->setSortingEnabled(this->sortingEnabled);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+EntityTreeWidget::AddReference(const Util::String & name)
+{
+    if (!this->referenceItems.Contains(name))
+    {
+        EntityTreeItem * ent = new EntityTreeItem();
+        ent->SetText(name);		
+		ent->SetLevel(name);	
+		ent->SetCategory("Level Reference");
+        this->referenceItems.Add(name, ent);                
+        ent->setFlags(Qt::ItemIsEnabled| Qt::ItemIsDropEnabled);
+        this->insertTopLevelItem(0, ent);
+		ent->SetIcon(LevelReference);
+    }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+EntityTreeWidget::ClearReferences()
+{
+	for (int i = 0;i < this->referenceItems.Size();i++)
+	{
+		delete this->referenceItems.ValueAtIndex(i);
+	}
+    this->referenceItems.Clear();
 }
 
 } // namespace LevelEditor2

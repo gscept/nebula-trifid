@@ -1,10 +1,10 @@
 //------------------------------------------------------------------------------
 //  leveleditor2/editorproperty.cc
-//  (C) 2012 Johannes Hirche, LTU Skelleftea
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "properties/editorproperty.h"
-#include "leveleditor2protocol.h"
+#include "leveleditor2/leveleditor2protocol.h"
 #include "messaging/staticmessagehandler.h"
 #include "basegamefeature/basegameprotocol.h"
 #include "entityguid.h"
@@ -22,6 +22,7 @@ namespace Attr
 	DefineGuid(EntityGuid,'ETGU',ReadWrite);
 	DefineGuid(ParentGuid,'PAGU',ReadWrite);
 	DefineBool(IsSelected,'ISCT',ReadWrite);
+    DefineBool(IsLocked, 'ISLK', ReadWrite);
 }
 
 //------------------------------------------------------------------------------
@@ -182,6 +183,7 @@ EditorProperty::SetupDefaultAttributes()
 	SetupAttr(Attr::EntityGuid, false);
 	SetupAttr(Attr::ParentGuid, false);
 	SetupAttr(Attr::IsSelected, false);
+    SetupAttr(Attr::IsLocked, false);
 }
 
 //------------------------------------------------------------------------------

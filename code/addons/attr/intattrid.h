@@ -6,7 +6,7 @@
     Typed attribute id for integer type.
     
     (C) 2006 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "attr/attrid.h"
 

@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  leveleditor2app.cc
-//  (C) 2012-2014 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "leveleditor2app.h"
@@ -15,7 +15,7 @@
 #include "graphics/graphicsinterface.h"
 #include "io/xmlwriter.h"
 #include "properties/editorproperty.h"
-#include "leveleditor2protocol.h"
+#include "leveleditor2/leveleditor2protocol.h"
 #include "properties/lightproperty.h"
 #include "basegamefeature/basegameprotocol.h"
 #include "math/scalar.h"
@@ -277,6 +277,9 @@ LevelEditor2App::SetupGameFeatures()
 	this->splash->SetTitle("Level Editor");
 	this->splash->Open();
 
+    // create game feature
+    this->baseFeature = Toolkit::EditorBaseGameFeatureUnit::Create();
+
     // add arguments for embedding the Nebula context in the desired Nebula frame
     String extraArgs;
     extraArgs.Format("-embedded");
@@ -285,12 +288,11 @@ LevelEditor2App::SetupGameFeatures()
     this->graphicsFeature->SetCmdLineArgs(this->GetCmdLineArgs());
     this->graphicsFeature->SetWindowData(this->editorWindow->GetNebulaWindowData());
 	this->graphicsFeature->SetupDisplay();
+
+    // game feature needs to be attached before graphicsfeature (but after setupdisplay)
+    
     this->gameServer->AttachGameFeature(this->graphicsFeature.upcast<Game::FeatureUnit>());
-
-    // setup base game feature
-    this->baseFeature = Toolkit::EditorBaseGameFeatureUnit::Create();	
-    this->gameServer->AttachGameFeature(this->baseFeature.upcast<Game::FeatureUnit>());
-
+	this->gameServer->AttachGameFeature(this->baseFeature.upcast<Game::FeatureUnit>());
     // create and attach the leveleditor-specific managers
     Ptr<ActionManager> actionManager = ActionManager::Create();
     this->baseFeature->AttachManager(actionManager.upcast<Game::Manager>());
@@ -333,7 +335,9 @@ LevelEditor2App::SetupGameFeatures()
 	Commands::LeveleditorCommands::Register();
 	Commands::LevelEditor2Protocol::Register();
 
-	this->ScanPropertyScripts();
+	Scripting::ScriptServer::Instance()->AddPath("toolkit:data/scripts/?.lua");
+
+	this->ScanScripts();
 
 	// open light probe manager
 	this->lightProbeManager->Open();
@@ -349,6 +353,9 @@ LevelEditor2App::SetupGameFeatures()
 	// setup silhouette
 	this->silhouette = Silhouette::SilhouetteAddon::Create();
 	this->silhouette->Setup();
+
+    this->navigationFeature = Navigation::NavigationFeatureUnit::Create();
+    this->gameServer->AttachGameFeature(navigationFeature.upcast<Game::FeatureUnit>());
 
     // register input proxy for inputs from nebula to the qt app
     this->qtFeature->RegisterQtInputProxy(this->editorWindow);	
@@ -419,6 +426,7 @@ LevelEditor2App::CleanupGameFeatures()
 	this->graphicsFeature = 0;
 	this->gameServer->RemoveGameFeature(this->qtFeature.upcast<Game::FeatureUnit>());
 	this->qtFeature = 0;
+    this->gameServer->RemoveGameFeature(this->navigationFeature.upcast<Game::FeatureUnit>());
 	this->editorState = 0;
 
 	GameApplication::CleanupGameFeatures();
@@ -616,7 +624,7 @@ LevelEditor2App::UpdateNavMesh()
 /**
 */
 void
-LevelEditor2App::ScanPropertyScripts()
+LevelEditor2App::ScanScripts()
 {
 	if (IO::IoServer::Instance()->DirectoryExists("toolkit:data/leveleditor/scripts"))
 	{
@@ -628,6 +636,11 @@ LevelEditor2App::ScanPropertyScripts()
 			{
 				Scripting::ScriptServer::Instance()->Eval(script);
 				Scripting::ScriptServer::Instance()->Eval("__property_init()");
+			}
+			if (Scripting::ScriptServer::Instance()->ScriptHasFunction(script, "__init"))
+			{
+				Scripting::ScriptServer::Instance()->Eval(script);
+				Scripting::ScriptServer::Instance()->Eval("__init()");
 			}
 		}
 	}
@@ -681,6 +694,30 @@ LevelEditor2App::PropertCallback()
 	Util::String exec;
 	exec.Format(script.AsCharPtr(), box->property("entity").toUInt());
 	Scripting::ScriptServer::Instance()->Eval(exec);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+LevelEditor2App::RegisterScript(const Util::String & displayName, const Util::String & scriptFunc)
+{
+	QAction * action = this->editorWindow->GetUi().menu_Scripts->addAction(displayName.AsCharPtr());
+	this->scriptCallbacks.Add(action, scriptFunc);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+LevelEditor2App::ScriptAction(QAction* action)
+{
+	n_assert(this->scriptCallbacks.Contains(action));
+	Scripting::ScriptServer::Instance()->Eval(this->scriptCallbacks[action]);
+	if (Scripting::ScriptServer::Instance()->HasError())
+	{
+		n_status("Scrip action error: %s\n", Scripting::ScriptServer::Instance()->GetError().AsCharPtr());
+	}
 }
 
 } // namespace LevelEditor2

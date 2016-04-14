@@ -5,7 +5,7 @@
 
     Paths in a 3d environment with several properties.
 
-    (C) 2015 Individual contributors, see AUTHORS file
+    (C) 2015-2016 Individual contributors, see AUTHORS file
 */
 
 #include "util/array.h"

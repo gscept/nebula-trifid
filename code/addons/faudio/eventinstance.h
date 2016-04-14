@@ -5,7 +5,7 @@
     
     Wrapper class for FMOD::Studio::EventInstance
     
-    (C) 2014 Individual contributors, see AUTHORS file
+    (C) 2014-2016 Individual contributors, see AUTHORS file
 */
 
 #include "core/refcounted.h"

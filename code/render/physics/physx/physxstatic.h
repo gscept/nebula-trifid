@@ -8,6 +8,7 @@
 #include "physics/base/basestatic.h"
 #include "physics/collider.h"
 #include "math/matrix44.h"
+#include "physics/materialtable.h"
 
 namespace physx
 {
@@ -34,6 +35,8 @@ public:
 	void SetTransform(const Math::matrix44 & trans);
 	///
 	virtual void SetCollideCategory(Physics::CollideCategory coll);
+	/// set material
+	virtual void SetMaterialType(Physics::MaterialType t);
 	
 protected:	
 	friend class PhysicsObject;

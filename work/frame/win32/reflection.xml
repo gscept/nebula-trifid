@@ -33,6 +33,9 @@
   <!-- special buffers, background for skybox, color buffer for composed color, shape buffer for depth-checked shapes -->
   <DeclareRenderTarget format="A16B16G16R16F" relHeight="1" msaa="false" relWidth="1" name="ReflColorBuffer"/>
   <DeclareRenderTarget format="A16B16G16R16F" relHeight="1" msaa="false" relWidth="1" name="ReflColorBufferCopy"/>
+  
+  <!-- special buffer for reflection to change depth to not be in view-space position -->
+  <DeclareRenderTarget format="R32F" relHeight="1" msaa="false" relWidth="1" name="ZDepth"/>  
     
   <!-- MRT for opaque geometry -->
   <DeclareMRT name="ReflGeometryBuffer">
@@ -186,6 +189,10 @@
 		<ApplyShaderVariable sem="ColorMap" value="ReflColorBufferCopy"/>
 	</Batch>
   </Pass>
+  
+  <PostEffect shader="vsdepthtoz" name="ReflViewspaceDepthToZ" renderTarget="ZDepth">
+	<ApplyShaderVariable sem="DepthBuffer" value="ReflDepthBuffer"/>
+  </PostEffect>
     
   <!-- apply last touches before presenting frame -->
   <PostEffect shader="finalize_simple" name="ReflFinalize">
