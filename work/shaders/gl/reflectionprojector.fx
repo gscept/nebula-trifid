@@ -119,7 +119,7 @@ subroutine (CalculateCubemapCorrection) vec3 DepthCorrect(
 	float dun = 0, dov = 0, pun = ppp, pov = ppp;
 	if (ppp < 1) dun = dp;
 	else 		 dov = dp;
-	float dl = max(dp + rl * (1 - ppp), 0);
+	float dl = max(dp + rl * (1 - ppp), 0.0f);
 	float3 l = localPos + normed * dl;
 	
 	for (int i = 0; i < MAX_NUM_STEPS; i++)
@@ -136,7 +136,7 @@ subroutine (CalculateCubemapCorrection) vec3 DepthCorrect(
 			dov = dl; pov = llp;
 			ddl = (dun == 0) ? rl * (1 - llp) : (dl - dun) * (1 - llp) / (llp-pun);
 		}
-		dl = max(dl + ddl, 0);
+		dl = max(dl + ddl, 0.0f);
 		l = localPos + normed * dl;
 	}
 	return l;
