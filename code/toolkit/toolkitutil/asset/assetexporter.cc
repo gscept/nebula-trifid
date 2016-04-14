@@ -119,7 +119,7 @@ AssetExporter::ExportFolder(const Util::String& assetPath, const Util::String& c
     if (this->mode & ExportModes::Models)
     {
         // export models
-        Array<String> files = IoServer::Instance()->ListFiles(assetPath, "*.constants");
+        Array<String> files = IoServer::Instance()->ListFiles(assetPath, "*.attributes");
         for (fileIndex = 0; fileIndex < files.Size(); fileIndex++)
         {
 			console->Clear();

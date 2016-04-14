@@ -20,6 +20,7 @@ namespace Graphics
 {
     class ModelEntity;
 	class BillboardEntity;
+	class MeshEntity;
 }
 
 namespace Physics
@@ -90,6 +91,7 @@ protected:
     friend class VisResolver;
     friend class Graphics::ModelEntity;
 	friend class Graphics::BillboardEntity;
+	friend class Graphics::MeshEntity;
 
     /// setup the ModelInstance from a root model node
     void Setup(const Ptr<Model>& model, const Ptr<ModelNode>& rootModelNode);

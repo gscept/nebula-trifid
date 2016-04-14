@@ -136,14 +136,15 @@ psMain(in vec2 UV,
 	c = ToneMap(c, fLumAvg);
 	vec4 bloom = DecodeHDR(textureLod(BloomTexture, UV, 0));
 	vec4 godray = textureLod(GodrayTexture, UV, 0);
-	vec4 shape = textureLod(ShapeTexture, UV, 0);
+	//vec4 shape = textureLod(ShapeTexture, UV, 0);
 	c += bloom;   
 	c.rgb += godray.rgb;
 	//c.rgb += godray.rgb;
 	vec4 grey = vec4(dot(c.xyz, Luminance.xyz));
 	c = Balance * lerp(grey, c, Saturation);
 	c.rgb *= FadeValue;
-	c.rgb = lerp(c.rgb, shape.rgb, shape.a);
+	//c.rgb = lerp(c.rgb, shape.rgb, shape.a);
+	//c.a = max(c.a, shape.a);
 	color = c;	
 }
 

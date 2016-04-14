@@ -40,6 +40,7 @@ public:
 	static const SizeT NumBuffers = 3;
 
 private:
+	Util::FixedArray<Ptr<CoreGraphics::VertexBuffer>> vbos;
 	Util::FixedArray<Ptr<CoreGraphics::VertexLayout>> layouts;
 	Util::FixedArray<GLuint> ogl4TransformFeedbackBuffer;
 	GLuint ogl4TransformFeedback;

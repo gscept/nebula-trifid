@@ -69,6 +69,10 @@ OGL4StreamTextureLoader::SetupResourceFromStream(const Ptr<Stream>& stream)
 			// calculate how many mips we will have	
 			res->SetupFromOGL4VolumeTexture(texture, nebFormat, mips);
 		}
+		else
+		{
+			n_warning("Failed to load texture '%s' to GL.\n", stream->GetURI().LocalPath().AsCharPtr());
+		}
 
         stream->Unmap();
         stream->Close();

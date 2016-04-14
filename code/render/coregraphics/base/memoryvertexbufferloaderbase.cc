@@ -39,7 +39,8 @@ MemoryVertexBufferLoaderBase::Setup(const Util::Array<CoreGraphics::VertexCompon
                                     SizeT vertexDataSize_, 
                                     VertexBuffer::Usage usage_, 
                                     VertexBuffer::Access access_,
-									VertexBuffer::Syncing syncing_)
+									VertexBuffer::Syncing syncing_,
+									bool createLayout_)
 {
     n_assert(numVertices_ > 0);
     if (VertexBuffer::UsageImmutable == usage_)
@@ -55,6 +56,7 @@ MemoryVertexBufferLoaderBase::Setup(const Util::Array<CoreGraphics::VertexCompon
     this->usage				= usage_;
     this->access			= access_;
 	this->syncing			= syncing_;
+	this->createLayout		= createLayout_;
 }
 
 } // namespace Base

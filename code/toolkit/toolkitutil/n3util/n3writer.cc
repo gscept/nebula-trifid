@@ -361,7 +361,7 @@ N3Writer::BeginSkinnedModel( const Util::String& name,
 	Writes a particle model to a .n3 file
 */
 void 
-N3Writer::BeginParticleModel( const Util::String& name, const Transform& transform, const Util::String& meshResource, const State& state, const Util::String& material, const Particles::EmitterAttrs& emitterAttrs )
+N3Writer::BeginParticleModel(const Util::String& name, const Transform& transform, const Util::String& meshResource, const IndexT primGroup, const State& state, const Util::String& material, const Particles::EmitterAttrs& emitterAttrs)
 {
 	n_assert(this->isOpen);
 	n_assert(this->isBeginModel);
@@ -369,7 +369,7 @@ N3Writer::BeginParticleModel( const Util::String& name, const Transform& transfo
 	Math::bbox box;
 	this->modelWriter->BeginModelNode("ParticleSystemNode", FourCC('PSND'), name);
 	this->WriteTransform(transform);
-	this->WriteState(meshResource, box, 0, state, material);
+	this->WriteState(meshResource, box, primGroup, state, material);
 
 	// write Emission Frequency Curve
 	this->modelWriter->BeginTag("Emission Frequency", FourCC('EFRQ'));

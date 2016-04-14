@@ -177,7 +177,7 @@ subroutine (CalculateEnvironment) mat2x3 PBR(
 	float x = dot(-viewSpaceNormal, normalize(viewSpacePos));
 	vec3 rim = FresnelSchlickGloss(specularColor.rgb, x, roughness);
 	ret[1] = textureLod(EnvironmentMap, reflectVec, (1.0f - roughness) * NumEnvMips).rgb * rim;
-	ret[0] = textureLod(IrradianceMap, worldNorm.xyz, 0).rgb;
+	ret[0] = textureLod(IrradianceMap, worldNorm.xyz, 0).rgb;	
 	return ret;
 }
 

@@ -777,6 +777,8 @@ ENDIF()
 	  graphics/graphicsinterface.h
 	  graphics/lightprobeentity.cc
 	  graphics/lightprobeentity.h
+	  graphics/meshentity.cc
+	  graphics/meshentity.h
       graphics/modelentity.cc
       graphics/modelentity.h
 	  graphics/reloadmodelentity.cc
@@ -1034,6 +1036,10 @@ ENDIF()
         models/nodes/animkey.h
         models/nodes/animkeyarray.h
         models/nodes/animlooptype.h
+		models/nodes/meshnode.cc
+		models/nodes/meshnode.h
+		models/nodes/meshnodeinstance.cc
+		models/nodes/meshnodeinstance.h
         models/nodes/shapenode.cc
         models/nodes/shapenode.h
         models/nodes/shapenodeinstance.cc

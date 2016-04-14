@@ -29,6 +29,8 @@ public:
 	virtual void OnActivate();
 	/// called from Entity::DeactivateProperties()
 	virtual void OnDeactivate();
+	/// override to register accepted messages
+	virtual void SetupAcceptedMessages();
 	/// handle a single message
 	virtual void HandleMessage(const Ptr<Messaging::Message>& msg);
 	/// called before rendering happens

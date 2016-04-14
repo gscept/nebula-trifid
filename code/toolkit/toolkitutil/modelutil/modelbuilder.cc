@@ -85,6 +85,9 @@ ModelBuilder::SaveN3( const IO::URI& uri, Platform::Code platform )
 			// write particles
 			this->WriteParticles(n3Writer);
 
+			// write appendix nodes
+			this->WriteAppendix(n3Writer);
+
 			// end root
 			n3Writer->EndRoot();
 		}		
@@ -476,8 +479,8 @@ ModelBuilder::WriteSkins(const Ptr<N3Writer>& writer)
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ModelBuilder::WriteParticles( const Ptr<N3Writer>& writer )
+void
+ModelBuilder::WriteParticles(const Ptr<N3Writer>& writer)
 {
 	// get list of particles
 	const Array<ModelConstants::ParticleNode>& particlesNodes = this->constants->GetParticleNodes();
@@ -505,6 +508,7 @@ ModelBuilder::WriteParticles( const Ptr<N3Writer>& writer )
 		writer->BeginParticleModel(name, 
 										   particleNode.transform,
 										   emitterMesh,
+										   particleNode.primitiveGroupIndex,
 										   state,
 										   state.material,
 										   attrs);
@@ -513,4 +517,47 @@ ModelBuilder::WriteParticles( const Ptr<N3Writer>& writer )
 
 	}
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ModelBuilder::WriteAppendix(const Ptr<N3Writer>& writer)
+{
+	const Array<ModelAttributes::AppendixNode>& appendices = this->attributes->GetAppendixNodes();
+
+	IndexT i;
+	for (i = 0; i < appendices.Size(); i++)
+	{
+		// get particle node
+		const ModelAttributes::AppendixNode& node = appendices[i];
+
+		// get name of particle
+		const String& name = node.name;
+
+		// get state of particle
+		const State& state = this->attributes->GetState(node.path);
+
+		if (node.type == ModelAttributes::ParticleNode)
+		{
+			// get attributes
+			const EmitterAttrs& attrs = this->attributes->GetEmitterAttrs(node.path);
+
+			// get emitter mesh
+			const String& emitterMesh = this->attributes->GetEmitterMesh(node.path);
+
+			// begin and close particle (modelnode)
+			writer->BeginParticleModel(name,
+				node.transform,
+				emitterMesh,
+				node.data.particle.primGroup,
+				state,
+				state.material,
+				attrs);
+
+			writer->EndModelNode();
+		}
+	}
+}
+
 } // namespace ToolkitUtil
