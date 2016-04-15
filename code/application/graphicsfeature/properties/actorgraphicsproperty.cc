@@ -32,7 +32,8 @@ ActorGraphicsProperty::SetupAcceptedMessages()
     this->RegisterMessage(Graphics::AnimModifyTimeFactor::Id);
     this->RegisterMessage(Graphics::ApplySkinList::Id);
     this->RegisterMessage(Graphics::ShowSkin::Id);
-    this->RegisterMessage(Graphics::HideSkin::Id);	
+    this->RegisterMessage(Graphics::HideSkin::Id);
+	this->RegisterMessage(SetSkinVisible::Id);
 }
 
 //------------------------------------------------------------------------------
