@@ -343,11 +343,11 @@
     <ROW File="finalize.fx" Component_="animated.fx" FileName="finalize.fx" Attributes="0" SourcePath="work\shaders\fx\finalize.fx" SelfReg="false" NextFile="foliage.fx"/>
     <ROW File="finalize.fx_1" Component_="animated.fx_1" FileName="finalize.fx" Attributes="0" SourcePath="work\shaders\gl\finalize.fx" SelfReg="false" NextFile="finalize_simple.fx"/>
     <ROW File="finalize_simple.fx" Component_="animated.fx_1" FileName="FINALI~1.FX|finalize_simple.fx" Attributes="0" SourcePath="work\shaders\gl\finalize_simple.fx" SelfReg="false" NextFile="foliage.fx_1"/>
-    <ROW File="fmod.dll" Component_="fmod.dll" FileName="fmod.dll" Attributes="0" SourcePath="FMOD\fmod.dll" SelfReg="false" NextFile="fmodstudio.dll"/>
-    <ROW File="fmodstudio.dll" Component_="fmodstudio.dll" FileName="FMODST~1.DLL|fmodstudio.dll" Attributes="0" SourcePath="FMOD\fmodstudio.dll" SelfReg="false" NextFile="authors.txt"/>
+    <ROW File="fmod.dll" Component_="fmod.dll" FileName="fmod.dll" Attributes="0" SourcePath="bin\win32\fmod.dll" SelfReg="false" NextFile="fmodstudio.dll"/>
+    <ROW File="fmodstudio.dll" Component_="fmodstudio.dll" FileName="FMODST~1.DLL|fmodstudio.dll" Attributes="0" SourcePath="bin\win32\fmodstudio.dll" SelfReg="false" NextFile="authors.txt"/>
     <ROW File="foliage.fx" Component_="animated.fx" FileName="foliage.fx" Attributes="0" SourcePath="work\shaders\fx\foliage.fx" SelfReg="false" NextFile="gather.fx"/>
     <ROW File="foliage.fx_1" Component_="animated.fx_1" FileName="foliage.fx" Attributes="0" SourcePath="work\shaders\gl\foliage.fx" SelfReg="false" NextFile="gather.fx_1"/>
-    <ROW File="freecamera.xml" Component_="animeventcamshake.xml" FileName="FREECA~1.XML|freecamera.xml" Attributes="0" SourcePath="data\tables\db\freecamera.xml" SelfReg="false"/>
+    <ROW File="freecamera.xml" Component_="animeventcamshake.xml" FileName="FREECA~1.XML|freecamera.xml" Attributes="0" SourcePath="data\tables\db\freecamera.xml" SelfReg="false" NextFile="vsdepthtoz.fx"/>
     <ROW File="gamebatch.dll" Component_="gamebatch.dll" FileName="GAMEBA~1.DLL|gamebatch.dll" Attributes="0" SourcePath="bin\win32\gamebatch.dll" SelfReg="false" NextFile="cbdefault.ini"/>
     <ROW File="gamebatcher3.exe" Component_="gamebatcher3.exe" FileName="gameba~1.exe|gamebatcher3.exe" Attributes="0" SourcePath="bin\win32\gamebatcher3.exe" SelfReg="false" NextFile="fbxbatcher3.exe" DigSign="true"/>
     <ROW File="gather.fx" Component_="animated.fx" FileName="gather.fx" Attributes="0" SourcePath="work\shaders\fx\gather.fx" SelfReg="false" NextFile="gatheralpha.fx"/>
@@ -601,6 +601,7 @@
     <ROW File="volumefog.fx" Component_="animated.fx" FileName="VOLUME~1.FX|volumefog.fx" Attributes="0" SourcePath="work\shaders\fx\volumefog.fx" SelfReg="false" NextFile="water.fx"/>
     <ROW File="volumefog.fx_1" Component_="animated.fx_1" FileName="VOLUME~1.FX|volumefog.fx" Attributes="0" SourcePath="work\shaders\gl\volumefog.fx" SelfReg="false" NextFile="volumelight.fx"/>
     <ROW File="volumelight.fx" Component_="animated.fx_1" FileName="VOLUME~2.FX|volumelight.fx" Attributes="0" SourcePath="work\shaders\gl\volumelight.fx" SelfReg="false" NextFile="water.fx_1"/>
+    <ROW File="vsdepthtoz.fx" Component_="animated.fx_1" FileName="VSDEPT~1.FX|vsdepthtoz.fx" Attributes="0" SourcePath="work\shaders\gl\vsdepthtoz.fx" SelfReg="false"/>
     <ROW File="water.fx" Component_="animated.fx" FileName="water.fx" Attributes="0" SourcePath="work\shaders\fx\water.fx" SelfReg="false" NextFile="lightcones.psd"/>
     <ROW File="water.fx_1" Component_="animated.fx_1" FileName="water.fx" Attributes="0" SourcePath="work\shaders\gl\water.fx" SelfReg="false" NextFile="nvToolsExt32_1.dll"/>
     <ROW File="white.dds" Component_="bigbox.attributes" FileName="white.dds" Attributes="0" SourcePath="work\assets\system\white.dds" SelfReg="false" NextFile="minimap.nidl"/>
