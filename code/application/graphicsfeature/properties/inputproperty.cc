@@ -186,32 +186,32 @@ InputProperty::OnBeginFrame()
 
         bool movement = false;
         vector moveVec(0.0f, 0.0f, 0.0f);
-        if (kbd->KeyPressed(Input::Key::W) || kbd->KeyPressed(Input::Key::Up))
+		if (kbd->KeyDown(Input::Key::W) || kbd->KeyDown(Input::Key::Up))
         {
             moveVec += vector(0.0f, 0.0f, -1.0f);
             movement = true;
         }
-        if (kbd->KeyPressed(Input::Key::S) || kbd->KeyPressed(Input::Key::Down))
+		if (kbd->KeyDown(Input::Key::S) || kbd->KeyDown(Input::Key::Down))
         {
             moveVec += vector(0.0f, 0.0f, 1.0f);
             movement = true;
         }
-        if (kbd->KeyPressed(Input::Key::A) || kbd->KeyPressed(Input::Key::Left))
+		if (kbd->KeyDown(Input::Key::A) || kbd->KeyDown(Input::Key::Left))
         {
             moveVec += vector(-1.0f, 0.0f, 0.0f);
             movement = true;
         }        
-		if (kbd->KeyPressed(Input::Key::D) || kbd->KeyPressed(Input::Key::Right))
+		if (kbd->KeyDown(Input::Key::D) || kbd->KeyDown(Input::Key::Right))
 		{
 			moveVec += vector(1.0f, 0.0f, 0.0f);
 			movement = true;
 		}
-		if (kbd->KeyPressed(Input::Key::Z))
+		if (kbd->KeyDown(Input::Key::Z))
 		{
 			moveVec += vector(0.0f, -1.0f, 0.0f);
 			movement = true;
 		}
-		if (kbd->KeyPressed(Input::Key::Q))
+		if (kbd->KeyDown(Input::Key::Q))
 		{
 			moveVec += vector(0.0f, 1.0f, 0.0f);
 			movement = true;
