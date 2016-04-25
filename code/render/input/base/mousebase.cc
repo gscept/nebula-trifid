@@ -92,12 +92,7 @@ MouseBase::OnBeginFrame()
         // NOTE: if the button was released in the previous frame,
         // clear the pressed state (see the ButtonUp-handling
         // code in OnEvent for details why this is a good thing)
-        if (state.up)
-        {
-            state.pressed = false;
-        }
-        state.down = false;
-        state.up = false;
+		if (state.pressed) state.pressed = false;
         state.doubleClicked = false;
     }
     this->beginFramePixelPosition = this->pixelPosition;
@@ -140,6 +135,7 @@ MouseBase::OnEvent(const InputEvent& inputEvent)
                     this->buttonStates[btn].pressed = true;
                     this->UpdateMousePositions(inputEvent.GetAbsMousePos(), inputEvent.GetNormMousePos());
                 }
+				this->buttonStates[btn].up = false;
             }
             return true;
 
@@ -149,6 +145,7 @@ MouseBase::OnEvent(const InputEvent& inputEvent)
                 if (MouseButton::InvalidMouseButton != btn)
                 {
                     this->buttonStates[btn].up = true;
+					this->buttonStates[btn].down = false;
                     // NOTE: we don't clear the pressed flag here because
                     // it may happen that a button was only tapped shortly
                     // within a frame, and in this case we still want the
@@ -265,6 +262,7 @@ MouseBase::OnReset()
         ButtonState& state = this->buttonStates[i];
         if (state.pressed)
         {
+			state.pressed = false;
             state.up = true;
         }
         else

@@ -82,15 +82,11 @@ KeyboardBase::OnBeginFrame()
         // NOTE: if the key was released in the previous frame,
         // clear the pressed state (see the KeyUp-handling
         // code in OnEvent for details why this is a good thing)
-        if (nextKeyState.up)
-        {
-            nextKeyState.pressed = false;
-        }
-        keyState.pressed = nextKeyState.pressed;
+		keyState.pressed = nextKeyState.pressed;
+		if (nextKeyState.pressed) nextKeyState.pressed = false;
+        
         keyState.down = nextKeyState.down;
         keyState.up = nextKeyState.up;
-        nextKeyState.down = false;
-        nextKeyState.up = false;
     }
 
     // clear character input
@@ -123,6 +119,7 @@ KeyboardBase::OnEvent(const InputEvent& inputEvent)
                     keyState.down = true;
                     keyState.pressed = true;
                 }
+				keyState.up = false;
             }
 			return true;
 
@@ -131,6 +128,7 @@ KeyboardBase::OnEvent(const InputEvent& inputEvent)
             {
                 KeyState& keyState = this->nextKeyStates[inputEvent.GetKey()];
                 keyState.up = true;
+				keyState.down = false;
                 // NOTE: we don't clear the pressed flag here because
                 // it may happen that a key was only tapped shortly
                 // within a frame, and in this case we still want the
