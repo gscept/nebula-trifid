@@ -546,5 +546,12 @@
         ]]>
       </Code>
     </Command>
+    <Command name="uri" fourcc="urir" desc="Resolves a URI in a script to a full path">
+      <InArg name="path" type="string"/>
+      <OutArg name="uri" type="string"/>
+      <Code>
+        return IO::URI(path).GetHostAndLocalPath();
+      </Code>
+    </Command>
   </Library>  
 </Nebula3>

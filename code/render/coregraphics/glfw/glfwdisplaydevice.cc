@@ -389,7 +389,7 @@ GLFWDisplayDevice::EmbedWindow()
     // update display mode
     this->displayMode.SetWidth(width);
     this->displayMode.SetHeight(height);
-	this->displayMode.SetAspectRatio(width / float(height));
+	this->displayMode.SetAspectRatio(height / float(width));
 
     if (this->verticalSync)
     {

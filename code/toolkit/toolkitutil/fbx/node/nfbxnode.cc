@@ -332,7 +332,7 @@ NFbxNode::ExtractTransform(const FbxMatrix& localTrans)
 
 	// decompose elements
 	localTrans.GetElements(translation, rotation, shear, scale, sign);
-	translation *= NFbxScene::Instance()->GetScale();
+	//translation *= NFbxScene::Instance()->GetScale();
 
 	// decompose matrix into rows
 	FbxVector4 xRow = localTrans.GetRow(0);
