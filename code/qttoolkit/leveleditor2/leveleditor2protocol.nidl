@@ -5,7 +5,7 @@
     <Dependency header="graphicsfeature/graphicsattr/graphicsattributes.h"/>
     <Dependency header="leveleditor2entitymanager.h"/>
     <Dependency header="properties/editorproperty.h"/>
-    <Dependency header="basegamefeature/managers/entitymanager.h"/>
+    <Dependency header="basegamefeature/managers/entitymanager.h"/>  
   </AttributeLib>
   <Property name="LevelEditor2::EditorNavMeshProperty" header="properties/editornavmeshproperty.h">
     <Attribute name="MaxEdgeLength" />
@@ -206,6 +206,22 @@
           }            
           return vec;
         ]]>
+      </Code>
+    </Command>
+    <Command name="CreateEnvironmentEntity" fourcc="CREE" desc="Creates an environment entity using a position and euler angles">
+      <InArg name="Position" type="float4"/>
+      <InArg name="Angles" type="float4"/>
+      <InArg name="Resource" type="string"/>
+      <Code>
+        <![CDATA[
+            Math::matrix44 mat = Math::matrix44::multiply(Math::matrix44::rotationyawpitchroll(Angles.x(), Angles.y(), Angles.z()), Math::matrix44::translation(Position));
+            LevelEditor2::EntityGuid uid = LevelEditor2::LevelEditor2EntityManager::Instance()->CreateEnvironmentEntity(Resource);
+            const Ptr<Game::Entity>& ent = LevelEditor2::LevelEditor2EntityManager::Instance()->GetEntityById(uid);
+            Ptr<BaseGameFeature::UpdateTransform> msg = BaseGameFeature::UpdateTransform::Create();
+            msg->SetMatrix(mat);
+            ent->SetMatrix44(Attr::Transform, mat);
+            __SendSync(ent, msg);
+            ]]>
       </Code>
     </Command>
   </Library>

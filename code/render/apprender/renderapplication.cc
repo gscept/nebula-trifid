@@ -232,7 +232,7 @@ RenderApplication::OnConfigureDisplay()
     {
         displayMode.SetHeight(this->args.GetInt("-h"));
     }
-    displayMode.SetAspectRatio(float(displayMode.GetWidth()) / float(displayMode.GetHeight()));
+    displayMode.SetAspectRatio(float(displayMode.GetHeight()) / float(displayMode.GetWidth()));
     this->display->Settings().DisplayMode() = displayMode;
     this->display->Settings().SetFullscreen(this->args.GetBoolFlag("-fullscreen"));
     this->display->Settings().SetAlwaysOnTop(this->args.GetBoolFlag("-alwaysontop"));
