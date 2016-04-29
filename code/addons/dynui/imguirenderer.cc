@@ -389,7 +389,7 @@ ImguiRenderer::HandleInput(const Input::InputEvent& event)
 		{
 			io.AddInputCharacter((unsigned short)c);
 		}
-		return io.WantCaptureKeyboard;
+		return io.WantTextInput;
 	}
 	case InputEvent::MouseMove:
 		io.MousePos = ImVec2(event.GetAbsMousePos().x(), event.GetAbsMousePos().y());
