@@ -163,6 +163,7 @@ LanNetworkServer::HandlePacket(RakNet::Packet * packet)
 	case ID_DISCONNECTION_NOTIFICATION:
 	{
 		n_printf("ID_DISCONNECTION_NOTIFICATION from %s\n", targetName.AsCharPtr());
+		NetworkGame::Instance()->OnPlayerDisconnect(packet->guid);
 		IndexT idx = this->participants.FindIndex(packet->guid);
 		if (idx != InvalidIndex)
 		{

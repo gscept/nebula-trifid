@@ -25,6 +25,7 @@
 #include "networkplayer.h"
 #include "attr/attributetable.h"
 #include "messaging/message.h"
+#include "multiplayerattrs.h"
 
 namespace RakNet
 {
@@ -293,8 +294,10 @@ NetworkGame::SetGameID(const Util::String & name)
 inline
 const Ptr<Attr::AttributeTable>& 
 NetworkGame::GetMasterList() const
-{
+{	
+	n_printf("finding servers!\n");
 	return this->serverList;
+
 }
 
 //------------------------------------------------------------------------------
