@@ -26,12 +26,14 @@ public:
     void Save(const Ptr<Project>& project, const IO::URI& path);
 
 protected:
-    /// helper function for reading global state
+    /// helper function for writing global state
     virtual void WriteGlobalState(const Ptr<IO::BinaryWriter>& writer, const Ptr<Project>& project);
-    /// helper function for reading nodes
+    /// helper function for writing nodes
     virtual void WriteNodes(const Ptr<IO::BinaryWriter>& writer, const Ptr<Project>& project);
-    /// helper function for reading links
+    /// helper function for writing links
     virtual void WriteLinks(const Ptr<IO::BinaryWriter>& writer, const Ptr<Project>& project);
+	/// helper function for writing implementation information
+	virtual void WriteImplementation(const Ptr<IO::BinaryWriter>& writer, const Ptr<Project>& project);
 }; 
 } // namespace Nody
 //------------------------------------------------------------------------------

@@ -63,7 +63,8 @@ FILE(GLOB RESOURCES ${QTTOOLS}/ui/*.qrc)
 
 SET(QTMOCFILES  
     "code/node/graphics/shadynodegraphics.h"
-	"code/shadywindow.h")
+	"code/shadywindow.h"
+	"code/materialwindow.h")
 
 SET(PCH_files	
     ../stdneb.cc

@@ -387,7 +387,8 @@ ImguiRenderer::HandleInput(const Input::InputEvent& event)
 		// ignore backspace as a character
 		if (c > 0 && c < 0x10000)
 		{
-			io.AddInputCharacter((unsigned short)c);
+			const char chars[] = { c, '\0' };
+			io.AddInputCharactersUTF8(chars);
 		}
 		return io.WantTextInput;
 	}
@@ -395,6 +396,8 @@ ImguiRenderer::HandleInput(const Input::InputEvent& event)
 		io.MousePos = ImVec2(event.GetAbsMousePos().x(), event.GetAbsMousePos().y());
 		return io.WantCaptureMouse;
 	case InputEvent::MouseButtonDoubleClick:
+		io.MouseDoubleClicked[event.GetMouseButton()] = true;
+		return io.WantCaptureMouse;
 	case InputEvent::MouseButtonDown:
 		io.MouseDown[event.GetMouseButton()] = true;
 		return io.WantCaptureMouse;

@@ -25,6 +25,8 @@ public:
 private:
     /// helper function for reading global state
     void ReadGlobalState(const Ptr<IO::BinaryReader>& reader, const Ptr<Nody::Project>& project);
+	/// helper function for reading implementation specific information
+	void ReadImplementation(const Ptr<IO::BinaryReader>& reader, const Ptr<Project>& project);
 }; 
 } // namespace Shady
 //------------------------------------------------------------------------------

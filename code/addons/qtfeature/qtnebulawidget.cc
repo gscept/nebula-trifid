@@ -147,7 +147,7 @@ QtNebulaWidget::resizeEvent( QResizeEvent* e )
         CoreGraphics::DisplayMode mode;
         mode.SetWidth(size.width());
         mode.SetHeight(size.height());
-		mode.SetAspectRatio(Math::n_max(size.height() / float(size.width()), 0.01f));
+		mode.SetAspectRatio(Math::n_max(size.width() / float(size.height()), 0.01f));
         msg->SetFullscreen(false);
         msg->SetWindowData(Util::Blob(this->windowData, this->windowDataSize));
         msg->SetDisplayMode(mode);

@@ -92,9 +92,6 @@ ShadyWindow::Setup()
     // get default super variation
     this->superVariation = this->variationDatabase->GetSuperVariationByName("Default");
 
-    // setup new scene
-    this->SetupNewScene();
-
     // setup dialogs
     this->buildSettingsUi = new Ui::BuildSettings;
     this->validationUi = new Ui::Validation;
@@ -197,6 +194,9 @@ void
 ShadyWindow::showEvent(QShowEvent* e)
 {
     this->nodeScene->GetNodeSceneGraphics()->SetInteractiveMode(true);
+
+	// setup new scene first time we show the window
+	this->SetupNewScene();
 }
 
 //------------------------------------------------------------------------------
@@ -206,6 +206,10 @@ void
 ShadyWindow::closeEvent(QCloseEvent* e)
 {
     this->nodeScene->GetNodeSceneGraphics()->SetInteractiveMode(false);
+
+	// discard main node
+	this->nodeScene->Clear();
+	this->mainNode = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -428,8 +432,8 @@ Q_DECLARE_METATYPE(Shady::NodeAttributeGroup)
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ShadyWindow::OnNodeClicked( const Ptr<Nody::Node>& node )
+void
+ShadyWindow::OnNodeClicked(const Ptr<Nody::Node>& node)
 {
     // clear properties
     this->ui->propertiesTable->clearContents();
@@ -522,8 +526,8 @@ ShadyWindow::OnNodeValueChanged()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ShadyWindow::ConsoleMessage( const char* format, ... )
+void
+ShadyWindow::ConsoleMessage(const char* format, ...)
 {
     va_list arg;
     va_start(arg, format);
@@ -539,8 +543,8 @@ ShadyWindow::ConsoleMessage( const char* format, ... )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ShadyWindow::ConsoleError( const char* format, ... )
+void
+ShadyWindow::ConsoleError(const char* format, ...)
 {
     va_list arg;
     va_start(arg, format);
@@ -556,8 +560,8 @@ ShadyWindow::ConsoleError( const char* format, ... )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ShadyWindow::ConsoleWarning( const char* format, ... )
+void
+ShadyWindow::ConsoleWarning(const char* format, ...)
 {
     va_list arg;
     va_start(arg, format);
