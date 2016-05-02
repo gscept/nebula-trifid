@@ -213,7 +213,7 @@ ImguiConsole::Render()
 		}
 	ImGui::EndChild();
 
-	if (ImGui::InputText("input", this->command, sizeof(this->command), ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory, TextEditCallback, (void*)this))
+	if (ImGui::InputText("console_input", this->command, sizeof(this->command), ImGuiInputTextFlags_EnterReturnsTrue, TextEditCallback, (void*)this))
 	{
 		//ImGui::SetKeyboardFocusHere();
 		moveScroll = true;
