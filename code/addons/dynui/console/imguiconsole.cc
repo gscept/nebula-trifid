@@ -215,7 +215,7 @@ ImguiConsole::Render()
 
 	if (ImGui::InputText("input", this->command, sizeof(this->command), ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory, TextEditCallback, (void*)this))
 	{
-		ImGui::SetKeyboardFocusHere();
+		//ImGui::SetKeyboardFocusHere();
 		moveScroll = true;
 		if (this->command[0] != '\0')
 		{

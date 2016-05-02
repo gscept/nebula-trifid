@@ -292,7 +292,7 @@ RTPluginRegistry::OnFrameAfter(IndexT frameId, Timing::Time time)
 	IndexT i;
 	for (i = 0; i < this->plugins.Size(); i++)
 	{
-		this->plugins[i]->OnFrameBefore(frameId, time);
+		this->plugins[i]->OnFrameAfter(frameId, time);
 	}
 }
 

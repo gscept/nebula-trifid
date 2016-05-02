@@ -99,14 +99,14 @@ LevelViewerGameState::OnStateLeave( const Util::String& nextState )
 Util::String 
 LevelViewerGameState::OnFrame()
 {
-	Dynui::ImguiAddon::BeginFrame();
-	Dynui::ImguiConsole::Instance()->Render();	
-
 	//handle all user input
 	if (Input::InputServer::HasInstance() && this->entitiesLoaded)
 	{
 		this->HandleInput();
 	}
+
+	Dynui::ImguiAddon::BeginFrame();
+	Dynui::ImguiConsole::Instance()->Render();	
 
 	// test text rendering
 	/*Timing::Time frameTime = (float)BaseGameFeature::GameTimeSource::Instance()->GetFrameTime();

@@ -4,6 +4,7 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "imguirtplugin.h"
+#include "imguiaddon.h"
 
 namespace Dynui
 {
@@ -67,5 +68,7 @@ ImguiRTPlugin::OnWindowResized(SizeT width, SizeT height)
 	n_assert(this->renderer.isvalid());
 	this->renderer->SetRectSize(width, height);
 }
+
+
 
 } // namespace Imgui

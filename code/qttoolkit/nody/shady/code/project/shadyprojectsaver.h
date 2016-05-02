@@ -25,6 +25,8 @@ public:
 private:
     /// helper function for reading global state
     void WriteGlobalState(const Ptr<IO::BinaryWriter>& writer, const Ptr<Nody::Project>& project);
+	/// helper function for writing implementation information
+	void WriteImplementation(const Ptr<IO::BinaryWriter>& writer, const Ptr<Project>& project);
 }; 
 } // namespace Shady
 //------------------------------------------------------------------------------
