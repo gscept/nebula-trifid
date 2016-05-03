@@ -71,7 +71,7 @@ ChaseCameraProperty::OnActivate()
     this->collideExcludeSet.AddMaterialType(Physics::MaterialTable::StringToMaterialType("Probe"));
     this->collideExcludeSet.AddMaterialType(Physics::MaterialTable::StringToMaterialType("Character"));
 #endif
-
+    this->collideExcludeSet.SetCollideBits(Physics::Characters | Physics::SensorTrigger);
     // reset the camera
     this->HandleCameraReset();
 }
