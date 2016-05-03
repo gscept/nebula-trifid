@@ -710,6 +710,10 @@ N3Writer::EndColliders()
 void 
 N3Writer::WritePhysicsColliders(const Util::String& name, const Util::Array<Physics::ColliderDescription> & colliders)
 {
+	if (colliders.IsEmpty())
+	{
+		return;
+	}
 	this->modelWriter->BeginModelNode("ColliderGroup",FourCC('CLGR'),name);	
 	for(Util::Array<Physics::ColliderDescription>::Iterator iter = colliders.Begin();iter != colliders.End();iter++)
 	{
