@@ -162,8 +162,10 @@ inline
 FMOD::Studio::Bank * 
 AudioDevice::GetBank(const Util::String & bankFile)
 {
+	if (!this->hasSoundDevice) return 0;
+	
 	n_assert(this->banks.Contains(bankFile));
-	return this->banks[bankFile];
+	return this->banks[bankFile];	
 }
 
 //------------------------------------------------------------------------------
