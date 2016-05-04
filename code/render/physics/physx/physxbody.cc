@@ -58,7 +58,7 @@ PhysXBody::SetupFromTemplate(const PhysicsCommon & templ)
 	{
 		this->SetKinematic(true);
 	}
-
+    this->SetMass(templ.mass);
     PxMaterial * mat;
     if(templ.material == InvalidMaterial && templ.friction >= 0.0f)
     { 
