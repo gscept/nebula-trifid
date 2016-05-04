@@ -25,6 +25,7 @@
 #include "geometry/PxSphereGeometry.h"
 #include "coregraphics/rendershape.h"
 #include "debugrender/debugshaperenderer.h"
+#include "math/scalar.h"
 
 #define MAX_SHAPE_OVERLAPS 128
 
@@ -159,7 +160,7 @@ PhysXScene::RayCheck(const Math::vector& pos, const Math::vector& dir, const Fil
 	case BaseScene::Test_Closest:
 	{
 		PxRaycastBuffer hits;
-		filter.flags |= PxQueryFlag::eANY_HIT;
+		filter.flags |= PxQueryFlag::eSTATIC| PxQueryFlag::eDYNAMIC;
 		if (this->scene->raycast(Neb2PxVec(pos), Neb2PxVec(ndir), dir.length3(), hits, PxHitFlag::eDEFAULT, filter))
 		{
 			if (hits.hasBlock)
@@ -317,7 +318,7 @@ void
 PhysXScene::SetCollideCategory(physx::PxRigidActor* actor, Physics::CollideCategory coll)
 {
 	n_assert(coll < 65536);
-	PxSetGroup(*actor, coll);
+	PxSetGroup(*actor, Math::n_mostsignificant((unsigned long)coll));
 	for (unsigned int i = 0;i < actor->getNbShapes();i++)
 	{
 		PxShape * shape;

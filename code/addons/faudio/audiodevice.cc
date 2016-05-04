@@ -255,6 +255,8 @@ AudioDevice::OnFrame()
 void
 AudioDevice::LoadBank(const Util::String & bankFile, bool nonblocking)
 {
+	if (!this->hasSoundDevice) return;
+
 	if (!this->BankLoaded(bankFile))
 	{
 		// open must be called before loading an event project
@@ -280,6 +282,8 @@ AudioDevice::LoadBank(const Util::String & bankFile, bool nonblocking)
 void
 AudioDevice::UnloadBank(const Util::String & bankFile)
 {    
+	if (!this->hasSoundDevice) return;
+
 	n_assert(bankFile.IsValid());
 	n_assert(this->banks.Contains(bankFile));
 
@@ -311,6 +315,8 @@ AudioDevice::UnloadBank(const Util::String & bankFile)
 void
 AudioDevice::UnloadAll()
 {	
+	if (!this->hasSoundDevice) return;
+
 	FMOD_RESULT result = this->system->unloadAll();
 	FMOD_CHECK_ERROR(result);
 }
@@ -320,7 +326,7 @@ AudioDevice::UnloadAll()
 */
 Util::Array<Util::String> 
 AudioDevice::FindBankFiles()
-{
+{	
 	Util::Array<Util::String> rawbanks = IO::IoServer::Instance()->ListFiles(IO::URI("audio:"), "*.bank");
 	Util::Array<Util::String> realBanks;
 	for (int i = 0; i < rawbanks.Size(); i++)
@@ -338,7 +344,7 @@ AudioDevice::FindBankFiles()
 Ptr<FAudio::EventInstance> 
 AudioDevice::CreateEvent(const FAudio::EventId &eventId)
 {    
-    n_assert(this->system);
+	n_assert(this->system);
     n_assert(eventId.IsValid());
 
 	Ptr<EventInstance> newevent = EventInstance::Create();
@@ -352,7 +358,7 @@ AudioDevice::CreateEvent(const FAudio::EventId &eventId)
 */
 void
 AudioDevice::DiscardEvent(const Ptr<FAudio::EventInstance> &wrapper)
-{    
+{    	
 	n_assert(this->system);
     n_assert(wrapper.isvalid());
 
@@ -370,7 +376,7 @@ AudioDevice::DiscardEvent(const Ptr<FAudio::EventInstance> &wrapper)
 */
 void
 AudioDevice::DiscardAllEvents()
-{    
+{  
     int index;
     for(index = 0; index < this->events.Size(); ++index)
     {
@@ -386,6 +392,8 @@ AudioDevice::DiscardAllEvents()
 FMOD::Studio::Bus* 
 AudioDevice::GetBus(const FAudio::BusId & busId)
 {
+	if (!this->hasSoundDevice) return 0;
+
     n_assert(this->system);
 	n_assert(busId.IsValid());
 
@@ -401,6 +409,8 @@ AudioDevice::GetBus(const FAudio::BusId & busId)
 void
 AudioDevice::SetListener(const Math::matrix44& transform, const Math::vector& velocity)
 {    
+	if (!this->hasSoundDevice) return;
+
     this->listener->Set(transform, velocity);
 }
 
@@ -440,7 +450,8 @@ AudioDevice::DumpMemoryInfo(const char *where) const
 void 
 AudioDevice::EventPlayFireAndForget(const FAudio::EventId &eventId, float volume)
 {
-    
+	if (!this->hasSoundDevice) return;
+
 	n_assert(this->system);
 
 	FMOD::Studio::EventDescription* eventDesc = NULL;
@@ -506,6 +517,8 @@ AudioDevice::EventPlayFireAndForget3D(const FAudio::EventId &eventId, const matr
 void
 AudioDevice::EventPlayFireAndForget3D(const FAudio::EventId &eventId, const Math::point &position, const Math::vector & forward, const Math::vector &up, const Math::vector &velocity, float volume)
 {
+	if (!this->hasSoundDevice) return;
+
 	n_assert(this->system);
 	FMOD_3D_ATTRIBUTES newattrs;
 
@@ -599,6 +612,8 @@ AudioDevice::ParseAutoload(const IO::URI & path)
 void
 AudioDevice::SetMasterVolume(float volume)
 {
+	if (!this->hasSoundDevice) return;
+
 	n_assert(this->lowlevelSystem);
 
 	FMOD::ChannelGroup * group;
@@ -614,6 +629,8 @@ AudioDevice::SetMasterVolume(float volume)
 float
 AudioDevice::GetMasterVolume()
 {
+	if (!this->hasSoundDevice) return 0.0f;
+
 	n_assert(this->lowlevelSystem);
 
 	FMOD::ChannelGroup * group;
@@ -631,6 +648,8 @@ AudioDevice::GetMasterVolume()
 void
 AudioDevice::SetMasterPitch(float pitch)
 {
+	if (!this->hasSoundDevice) return;
+
 	n_assert(this->lowlevelSystem);
 
 	FMOD::ChannelGroup * group;
@@ -646,6 +665,8 @@ AudioDevice::SetMasterPitch(float pitch)
 float
 AudioDevice::GetMasterPitch()
 {
+	if (!this->hasSoundDevice) return 0.0f;
+
 	n_assert(this->lowlevelSystem);
 
 	FMOD::ChannelGroup * group;
@@ -663,6 +684,8 @@ AudioDevice::GetMasterPitch()
 void
 AudioDevice::SetMasterMute(bool mute)
 {
+	if (!this->hasSoundDevice) return;
+
 	n_assert(this->lowlevelSystem);
 
 	FMOD::ChannelGroup * group;
@@ -678,6 +701,8 @@ AudioDevice::SetMasterMute(bool mute)
 void
 FAudio::AudioDevice::SetVCAVolume(float volume, const Util::String & id)
 {
+	if (!this->hasSoundDevice) return;
+
 	FMOD::Studio::VCA *vca;
 	FMOD_RESULT res = this->system->getVCA(id.AsCharPtr(), &vca);
 	FMOD_CHECK_ERROR(res);
@@ -691,6 +716,8 @@ FAudio::AudioDevice::SetVCAVolume(float volume, const Util::String & id)
 float
 FAudio::AudioDevice::GetVCAVolume(const Util::String & id)
 {
+	if (!this->hasSoundDevice) return 0.0f;
+
 	FMOD::Studio::VCA *vca;
 	FMOD_RESULT res = this->system->getVCA(id.AsCharPtr(), &vca);
 	FMOD_CHECK_ERROR(res);
@@ -706,6 +733,8 @@ FAudio::AudioDevice::GetVCAVolume(const Util::String & id)
 float
 FAudio::AudioDevice::GetBusVolume(const FAudio::BusId & id)
 {
+	if (!this->hasSoundDevice) return 0.0f;
+
 	FMOD::Studio::Bus *bus;
 	FMOD_RESULT res = this->system->getBus(id.GetBus().AsCharPtr(), &bus);
 	FMOD_CHECK_ERROR(res);
@@ -721,6 +750,8 @@ FAudio::AudioDevice::GetBusVolume(const FAudio::BusId & id)
 void
 FAudio::AudioDevice::SetBusVolume(float volume, const FAudio::BusId & id)
 {
+	if (!this->hasSoundDevice) return;
+
 	FMOD::Studio::Bus *bus;
 	FMOD_RESULT res = this->system->getBus(id.GetBus().AsCharPtr(), &bus);
 	FMOD_CHECK_ERROR(res);
@@ -734,6 +765,8 @@ FAudio::AudioDevice::SetBusVolume(float volume, const FAudio::BusId & id)
 void
 AudioDevice::SetBusPaused(bool paused, const FAudio::BusId & id)
 {
+	if (!this->hasSoundDevice) return;
+
 	FMOD::Studio::Bus *bus;
 	FMOD_RESULT res = this->system->getBus(id.GetBus().AsCharPtr(), &bus);
 	FMOD_CHECK_ERROR(res);

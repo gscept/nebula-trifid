@@ -374,6 +374,22 @@ n_irand(int min, int max)
 	return min + unit;
 }
 
+//------------------------------------------------------------------------------
+/**
+	Returns the position of the most significant bit of the number
+*/
+__forceinline int
+n_mostsignificant(uint val)
+{
+#ifdef WIN32
+	unsigned long ret;
+	n_assert2(_BitScanReverse(&ret, val),"failed to calculate most significant bit\n");
+	return ret + 1;
+#else
+	n_error("not implemented\n");
+#endif
+}
+
 #endif // #if !SPU
 
 } // namespace Math

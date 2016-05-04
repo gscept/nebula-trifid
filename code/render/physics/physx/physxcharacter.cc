@@ -13,6 +13,7 @@
 #include "PxSceneLock.h"
 #include "physxutils.h"
 #include "PxQueryFiltering.h"
+#include "math/scalar.h"
 
 using namespace Physics;
 using namespace Math;
@@ -125,13 +126,11 @@ PhysXCharacter::Attach(Physics::BaseScene* world)
 	this->controller = ((PhysXScene*)world)->controllerManager->createController(desc);
 	this->controller->setUserData(this);
 	PxRigidDynamic* actor = this->controller->getActor();
-	actor->userData = this;
-	PxShape* ctrlShape;
-	actor->getShapes(&ctrlShape, 1);
-	ctrlShape->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, false);		
+	actor->userData = this;		
 	this->filters = n_new(physx::PxControllerFilters());	
 	this->lastFrame = PhysXServer::Instance()->GetTime();	
 	this->SetTransform(this->transform);
+	this->SetCollideCategory(Physics::Characters);
 }
 
 //------------------------------------------------------------------------------

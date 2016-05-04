@@ -370,7 +370,8 @@ LanNetworkServer::CancelRoom()
 {
 	if (this->state != NetworkServer::IDLE)
 	{
-		this->rakPeer->Shutdown(100);
+        this->ShutdownLowlevelNetworking();
+        this->SetupLowlevelNetworking();		
 	}	
 	this->host = false;
 	this->state = IDLE;
