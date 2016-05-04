@@ -42,7 +42,7 @@ ShadyProjectLoader::ReadGlobalState(const Ptr<IO::BinaryReader>& reader, const P
 /**
 */
 void
-ShadyProjectLoader::ReadImplementation(const Ptr<IO::BinaryReader>& reader, const Ptr<Project>& project)
+ShadyProjectLoader::ReadImplementation(const Ptr<IO::BinaryReader>& reader, const Ptr<Nody::Project>& project)
 {
 	// save shady specific stuff
 	const Ptr<Shady::ShadyProject>& sproj = project.downcast<Shady::ShadyProject>();
@@ -53,7 +53,7 @@ ShadyProjectLoader::ReadImplementation(const Ptr<IO::BinaryReader>& reader, cons
 		{
 		case 'MATE':
 		{
-			uint numpasses = reader->ReadUInt();
+			SizeT numpasses = reader->ReadUInt();
 			IndexT i;
 			for (i = 0; i < numpasses; i++)
 			{

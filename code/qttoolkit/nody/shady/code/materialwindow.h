@@ -28,5 +28,6 @@ public:
 private:
 	Ui::MaterialWizard ui;
 	QGridLayout layout;
+	QFrame contents;
 };
 } // namespace Shady

@@ -42,7 +42,7 @@ ShadyProjectSaver::WriteGlobalState(const Ptr<IO::BinaryWriter>& writer, const P
 /**
 */
 void
-ShadyProjectSaver::WriteImplementation(const Ptr<IO::BinaryWriter>& writer, const Ptr<Project>& project)
+ShadyProjectSaver::WriteImplementation(const Ptr<IO::BinaryWriter>& writer, const Ptr<Nody::Project>& project)
 {
 	// load shady specific stuff
 	const Ptr<Shady::ShadyProject>& sproj = project.downcast<Shady::ShadyProject>();
