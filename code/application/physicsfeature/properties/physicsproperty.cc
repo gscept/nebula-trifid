@@ -248,7 +248,7 @@ PhysicsProperty::EnablePhysics()
 		
 	}				
 
-	if (!this->IsSimulationHost())
+	if (!this->IsSimulationHost() || (this->entity->HasAttr(Attr::Kinematic) && this->entity->GetBool(Attr::Kinematic)))
 	{
 		this->GetPhysicsBody()->SetKinematic(true);
 	}
