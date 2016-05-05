@@ -86,6 +86,8 @@ public:
     Util::Array<Ptr<Game::Entity> > GetEntitiesByAttr(const Attr::Attribute& attr, bool onlyFirstEntity = false);
     /// get the entities by multiple matching attributes 
     Util::Array<Ptr<Game::Entity> > GetEntitiesByAttrs(const Util::Array<Attr::Attribute>& attr, bool onlyFirstEntity = false);
+	/// get entities by category
+	Util::Array<Ptr<Game::Entity>> GetEntitiesByCategory(const Util::String & category);
     /// get a single entity by a single attribute 
     Ptr<Game::Entity> GetEntityByAttr(const Attr::Attribute& attr, bool failOnError = true);
     /// get a single entity by multiple matching attributes 
