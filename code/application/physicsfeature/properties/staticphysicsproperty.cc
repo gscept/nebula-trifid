@@ -150,7 +150,7 @@ StaticPhysicsProperty::EnablePhysics()
         Physics::MaterialType mat = Physics::MaterialTable::StringToMaterialType(this->entity->GetString(Attr::PhysicMaterial));
         object->SetMaterialType(mat);
 
-		this->physicsEntity = object.cast<StaticObject>();		
+		this->physicsEntity = object.cast<StaticObject>();
 		this->physicsEntity->SetUserData(this->entity.cast<Core::RefCounted>());
 		
 		if(this->entity->HasAttr(Attr::CollisionFeedback))
