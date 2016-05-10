@@ -44,7 +44,11 @@ PhysXStatic::PhysXStatic():
 
 PhysXStatic::~PhysXStatic()
 {
-
+	if (this->body)
+	{
+		this->body->release();
+		this->body = NULL;
+	}
 }
 
 //------------------------------------------------------------------------------

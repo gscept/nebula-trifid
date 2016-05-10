@@ -38,7 +38,11 @@ PhysXBody::PhysXBody():
 */
 PhysXBody::~PhysXBody()
 {
-
+	if (this->body)
+	{
+		this->body->release();
+		this->body = NULL;
+	}
 }
 
 //------------------------------------------------------------------------------

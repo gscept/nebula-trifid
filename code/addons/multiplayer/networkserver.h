@@ -15,6 +15,7 @@
 #include "messaging/message.h"
 #include "RakPeerInterface.h"
 #include "game/entity.h"
+#include "networkentity.h"
 
 //FIXME
 #define IS_HOST (MultiplayerFeature::MultiplayerFeatureUnit::Instance()->GetServer()->IsHost())
