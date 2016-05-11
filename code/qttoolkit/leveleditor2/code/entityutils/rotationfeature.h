@@ -16,13 +16,16 @@ namespace LevelEditor2
 {
 class RotationFeature : public TransformFeature
 {
-__DeclareClass(RotationFeature);
+	__DeclareClass(RotationFeature);
 public:
 
     /// Constructor
     RotationFeature();
     /// Destructor
     ~RotationFeature();
+
+	/// setup transform feature
+	void Setup();
 
     /// Checks the screen position of the mouse and tries to lock mouse input to feature
     void StartDrag();
@@ -78,6 +81,8 @@ private:
     Math::plane yPlane;
     Math::plane zPlane;
     Math::plane viewPlane;
+
+	
 };
 
 

@@ -40,6 +40,15 @@ ScaleFeature::~ScaleFeature()
 //------------------------------------------------------------------------------
 /**
 */
+void
+ScaleFeature::Setup()
+{
+
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 TransformFeature::DragMode
 ScaleFeature::GetMouseHandle(const Math::line& worldMouseRay)
 {

@@ -30,6 +30,9 @@ public:
     TranslateFeature();
     /// Destructor
     ~TranslateFeature();
+
+	/// setup transform feature
+	void Setup();
  
     /// begin a drag
     void StartDrag();

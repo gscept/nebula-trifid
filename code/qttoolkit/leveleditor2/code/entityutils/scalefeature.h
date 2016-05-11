@@ -17,14 +17,16 @@ namespace LevelEditor2
 {
 class ScaleFeature : public TransformFeature
 {
-__DeclareClass(ScaleFeature);
-//------------------------------------------------------------------------------
+	__DeclareClass(ScaleFeature);
 public:
 
     /// Constructor
     ScaleFeature();
     /// Destructor
     ~ScaleFeature();
+
+	/// setup transform feature
+	virtual void Setup();
 
     /// Checks the screen position of the mouse and tries to lock mouse input to feature
     void StartDrag();

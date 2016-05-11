@@ -12,6 +12,7 @@
 
 #include "core/refcounted.h"
 #include "game/entity.h"
+#include "graphics/meshentity.h"
 
 //------------------------------------------------------------------------------
 namespace LevelEditor2
@@ -44,6 +45,9 @@ public:
     TransformFeature();
     /// Destructor
     ~TransformFeature();
+
+	/// setup transform feature
+	virtual void Setup();
 
 	/// handle ordinary move from mouse
 	virtual DragEvent OnMove(bool move);
@@ -97,6 +101,8 @@ protected:
     Math::matrix44 deltaMatrix;
     Math::matrix44 startDragMatrix;
 	DragMode currentDragMode;
+
+	Util::FixedArray<Ptr<Graphics::MeshEntity>> handleGraphicsEntities;
 };
 
 //------------------------------------------------------------------------------

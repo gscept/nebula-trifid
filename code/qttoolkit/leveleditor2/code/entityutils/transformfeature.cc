@@ -38,6 +38,15 @@ TransformFeature::~TransformFeature()
 
 //------------------------------------------------------------------------------
 /**
+*/
+void
+TransformFeature::Setup()
+{
+
+}
+
+//------------------------------------------------------------------------------
+/**
 	Render handles, unique for each transform feature.
 */
 void

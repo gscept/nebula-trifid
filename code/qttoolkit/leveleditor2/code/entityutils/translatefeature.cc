@@ -50,6 +50,15 @@ TranslateFeature::~TranslateFeature()
 //------------------------------------------------------------------------------
 /**
 */
+void
+TranslateFeature::Setup()
+{
+
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 TranslateFeature::DragMode 
 TranslateFeature::GetMouseHandle( const Math::line& worldMouseRay )
 {

@@ -12,8 +12,11 @@
 #include "input/mouse.h"
 #include "debugrender/debugrender.h"
 #include "debugrender/debugshaperenderer.h"
+#include "coregraphics/memoryvertexbufferloader.h"
 
 using namespace Math;
+using namespace CoreGraphics;
+using namespace Graphics;
 
 namespace LevelEditor2
 {
@@ -40,6 +43,63 @@ RotationFeature::RotationFeature() :
 RotationFeature::~RotationFeature()
 {
     // empty
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+RotationFeature::Setup()
+{
+	Util::Array<CoreGraphics::VertexComponent> comps;
+	comps.Append(VertexComponent(VertexComponent::Position, 0, VertexComponent::Float4));
+	this->handleGraphicsEntities.Resize(4);
+
+	IndexT i;
+
+	const int lineCount = 40;
+	vector help;
+	Math::float4 handlePoints[lineCount * 2];
+	Math::vector circleVector;
+	circleVector = vector::upvec();
+	for (i = 0; i < (lineCount * 2) - 1; i += 2)
+	{
+		help.set(circleVector.x(), circleVector.y(), circleVector.z());
+		this->RotateVector(help, this->xAxis, (float)-PI * (i / 2) / lineCount);
+		handlePoints[i] = this->origin + help;
+
+		help = circleVector;
+		this->RotateVector(help, this->xAxis, (float)-PI * (i / 2 + 1) / lineCount);
+		handlePoints[i + 1] = this->origin + help;
+	}
+
+	Ptr<VertexBuffer> vbo = VertexBuffer::Create();
+	Ptr<MemoryVertexBufferLoader> vboLoader = MemoryVertexBufferLoader::Create();
+	vboLoader->Setup(comps, lineCount, handlePoints, sizeof(handlePoints), VertexBuffer::UsageImmutable, VertexBuffer::AccessNone);
+	vbo->SetLoader(vboLoader.downcast<Resources::ResourceLoader>());
+	vbo->SetAsyncEnabled(false);
+	vbo->Load();
+	n_assert(vbo->IsLoaded());
+	vbo->SetLoader(NULL);
+
+	const Math::matrix44 transforms[] = { Math::matrix44::rotationaxis(Math::vector(1, 0, 0), 0), Math::matrix44::rotationaxis(Math::vector(0, 1, 0), 0), Math::matrix44::rotationaxis(Math::vector(0, 0, 1), 0), Math::matrix44::identity() };
+	for (i = 0; i < this->handleGraphicsEntities.Size(); i++)
+	{ 
+		CoreGraphics::PrimitiveGroup prim;
+		prim.SetBaseIndex(0);
+		prim.SetBaseVertex(0);
+		prim.SetNumIndices(0);
+		prim.SetNumVertices(lineCount * 2);
+		prim.SetPrimitiveTopology(PrimitiveTopology::LineList);
+
+		this->handleGraphicsEntities[i] = Graphics::MeshEntity::Create();
+		this->handleGraphicsEntities[i]->SetVertexComponents(comps);
+		this->handleGraphicsEntities[i]->SetVertexBuffer(0, vbo);
+		this->handleGraphicsEntities[i]->AddNode("xaxis", prim, "sur:system/leveleditorhandle.sur", Math::bbox());
+		this->handleGraphicsEntities[i]->SetAlwaysVisible(true);
+		this->handleGraphicsEntities[i]->SetTransform(transforms[i]);
+		GraphicsFeature::GraphicsFeatureUnit::Instance()->GetDefaultStage()->AttachEntity(this->handleGraphicsEntities[i].upcast<GraphicsEntity>());
+	}	
 }
 
 //------------------------------------------------------------------------------
@@ -235,6 +295,7 @@ RotationFeature::RenderHandles()
 {
 	Ptr<BaseGameFeature::EnvQueryManager> envQueryManager = BaseGameFeature::EnvQueryManager::Instance();
 	Ptr<Graphics::View> defaultView = GraphicsFeature::GraphicsFeatureUnit::Instance()->GetDefaultView();
+	return;
     
     // The following part is needed to get a mouse over visualization
     // for the handles. For thta calculations like in StartDrag() are

@@ -462,8 +462,11 @@ void
 PlacementUtil::Setup()
 {
 	this->rotationFeature = RotationFeature::Create();
+	this->rotationFeature->Setup();
 	this->translateFeature = TranslateFeature::Create();
+	this->translateFeature->Setup();
 	this->scaleFeature = ScaleFeature::Create();
+	this->scaleFeature->Setup();
 }
 
 //------------------------------------------------------------------------------
