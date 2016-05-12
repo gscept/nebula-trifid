@@ -47,3 +47,7 @@
 [submodule "code/extlibs/cjson/cJSON"]
 	path = code/extlibs/cjson/cJSON
 	url = https://github.com/kbranigan/cJSON.git
+[submodule "code/extlibs/openvr"]
+	path = code/extlibs/openvr
+	url = https://github.com/ValveSoftware/openvr.git
+	branch = master
