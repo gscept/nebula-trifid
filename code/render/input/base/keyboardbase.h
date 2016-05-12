@@ -35,9 +35,9 @@ public:
 
     /// return true if a key is currently pressed
     bool KeyPressed(Input::Key::Code keyCode) const;
-    /// return true if key was down at least once in current frame
+    /// return true if key was pushed down at least once in current frame
     bool KeyDown(Input::Key::Code keyCode) const;
-    /// return true if key was up at least once in current frame
+    /// return true if key was released at least once in current frame
     bool KeyUp(Input::Key::Code keyCode) const;
     /// get character input in current frame
     const Util::String& GetCharInput() const;

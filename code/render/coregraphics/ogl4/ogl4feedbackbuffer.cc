@@ -6,6 +6,7 @@
 #include "coregraphics/ogl4/ogl4feedbackbuffer.h"
 #include "coregraphics/renderdevice.h"
 #include "coregraphics/ogl4/ogl4types.h"
+#include "../memoryvertexbufferloader.h"
 
 namespace OpenGL4
 {
@@ -22,6 +23,7 @@ OGL4FeedbackBuffer::OGL4FeedbackBuffer() :
 	bufferOffset(0),
     mapCount(0),
 	ogl4TransformFeedbackBuffer(NumBuffers),
+	vbos(NumBuffers),
 	layouts(NumBuffers)
 {
     // empty
@@ -48,13 +50,16 @@ OGL4FeedbackBuffer::Setup()
 	IndexT i;
 	for (i = 0; i < NumBuffers; i++)
 	{
-		glBindBuffer(GL_ARRAY_BUFFER, this->ogl4TransformFeedbackBuffer[i]);
-		glBufferData(GL_ARRAY_BUFFER, this->size * this->numElements, NULL, GL_STREAM_DRAW);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		// load vertex buffers
+		Ptr<MemoryVertexBufferLoader> vboLoader = MemoryVertexBufferLoader::Create();
+		vboLoader->Setup(this->components, this->numElements, NULL, 0, VertexBuffer::UsageDynamic, VertexBuffer::AccessRead);
+		this->vbos[i]->SetLoader(vboLoader.upcast<Resources::ResourceLoader>());
+		this->vbos[i]->Load();
+		n_assert(this->vbos[i]->IsLoaded());
+		this->vbos[i]->SetLoader(NULL);
 
-		this->layouts[i] = VertexLayout::Create();
-		this->layouts[i]->SetStreamBuffer(0, this->ogl4TransformFeedbackBuffer[i]);
-		this->layouts[i]->Setup(this->components);
+		// save layout
+		this->layouts[i] = this->vbos[i]->GetVertexLayout();
 	}
 	
 
@@ -84,10 +89,12 @@ OGL4FeedbackBuffer::Discard()
 	glDeleteBuffers(NumBuffers, &this->ogl4TransformFeedbackBuffer[0]);
 	this->ogl4TransformFeedbackBuffer.Clear();
 	IndexT i;
-	for (i = 0; i < this->layouts.Size(); i++)
+	for (i = 0; i < this->vbos.Size(); i++)
 	{
+		this->vbos[i]->Unload();
 		this->layouts[i]->Discard();
 	}
+	this->vbos.Clear();
 	this->layouts.Clear();
 	//this->layout->Discard();
 	this->layout = 0;
@@ -101,32 +108,7 @@ void*
 OGL4FeedbackBuffer::Map(Base::ResourceBase::MapType mapType)
 {
 	n_assert(0 != this->ogl4TransformFeedbackBuffer[0]);
-    this->mapCount++;
-	GLenum mapFlags = 0;
-	switch (mapType)
-	{
-	case Base::ResourceBase::MapRead:
-		mapFlags = GL_MAP_READ_BIT;
-		break;
-	case Base::ResourceBase::MapWrite:
-		mapFlags = GL_MAP_WRITE_BIT;
-		break;
-	case Base::ResourceBase::MapReadWrite:
-		mapFlags = GL_MAP_READ_BIT | GL_MAP_WRITE_BIT;
-		break;
-	case Base::ResourceBase::MapWriteDiscard:
-		mapFlags = GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT;
-		break;
-	}
-
-	// bind buffer prior to mapping
-	glBindBuffer(GL_ARRAY_BUFFER, this->ogl4TransformFeedbackBuffer[this->bufferIndex]);
-
-	// glMapBufferRange is a more modern way of mapping buffers, this can be done without any implicit synchronization, which is nice and fast!
-	void* data = glMapBufferRange(GL_ARRAY_BUFFER, 0, this->size * this->numElements, mapFlags);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	n_assert(data);
-	return data;
+	return this->vbos[this->bufferIndex]->Map(mapType);
 }
 
 //------------------------------------------------------------------------------
@@ -137,11 +119,7 @@ OGL4FeedbackBuffer::Unmap()
 {
 	n_assert(0 != this->ogl4TransformFeedback);
     n_assert(this->mapCount > 0);
-	glBindBuffer(GL_ARRAY_BUFFER, this->ogl4TransformFeedbackBuffer[this->bufferIndex]);
-	GLboolean result = glUnmapBuffer(GL_ARRAY_BUFFER);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	n_assert(result);
-    this->mapCount--;
+	this->vbos[this->bufferIndex]->Unmap();
 }
 
 //------------------------------------------------------------------------------

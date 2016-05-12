@@ -28,7 +28,9 @@ public:
 	JobUniformDesc(void* ptr0, SizeT bufSize0, void* ptr1, SizeT bufSize1, void* ptr2, SizeT bufSize2, SizeT scratchSize);
 
     /// update the uniform desc, all sizes in bytes
-    void Update(IndexT index, void* ptr, SizeT bufSize, SizeT scratchSize);
+    void Update(IndexT index, void* ptr, SizeT bufSize);
+	/// update only scratch size
+	void Update(SizeT scratchSize);
 
     /// get number of buffers
     SizeT GetNumBuffers() const;
@@ -110,12 +112,20 @@ JobUniformDesc::JobUniformDesc(void* ptr0_, SizeT bufSize0_, void* ptr1_, SizeT 
 /**
 */
 inline void
-JobUniformDesc::Update(IndexT index, void* ptr_, SizeT size_, SizeT scratchSize_)
+JobUniformDesc::Update(IndexT index, void* ptr_, SizeT size_)
 {
     n_assert(index < this->numBuffers);
     this->ptr[index] = ptr_;
     this->bufferSize[index] = size_;
-    this->scratchSize = scratchSize_;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+JobUniformDesc::Update(SizeT scratchSize_)
+{
+	this->scratchSize = scratchSize_;
 }
 
 //------------------------------------------------------------------------------

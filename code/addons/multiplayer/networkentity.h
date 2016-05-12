@@ -12,9 +12,15 @@ The networked game entity class.
 #include "game/entity.h"
 #include "ReplicaManager3.h"
 
+//------------------------------------------------------------------------------
+namespace MultiplayerFeature
+{
+	typedef RakNet::NetworkID NetworkID;
+}
+
 #define __SendNetworkMessage(OBJ, MSG) n_assert2(OBJ->IsA(MultiplayerFeature::NetworkEntity::RTTI.GetFourCC()), "Not a NetworkEntity");OBJ.cast<MultiplayerFeature::NetworkEntity>()->SendNetwork(MSG.cast<Messaging::Message>());
 #define __DistributeNetworkMessage(OBJ,MSG) if(MSG->GetDistribute() && OBJ->IsA(MultiplayerFeature::NetworkEntity::RTTI.GetFourCC())){OBJ.cast<MultiplayerFeature::NetworkEntity>()->SendNetwork(MSG.cast<Messaging::Message>());}
-		
+#define __GetNetworkID(OBJ) ((RakNet::NetworkID)OBJ.cast<MultiplayerFeature::NetworkEntity>()->GetNetworkID())
 
 
 //------------------------------------------------------------------------------

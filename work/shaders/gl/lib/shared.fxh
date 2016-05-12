@@ -11,6 +11,7 @@
 
 // define how many objects we can render simultaneously 
 #define MAX_BATCH_SIZE 256
+#define INFINITE_DEPTH -1000
 
 // instancing transforms
 shared varblock InstanceBlock [bool System = true; bool Instancing = true;]

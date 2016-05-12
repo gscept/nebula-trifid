@@ -50,6 +50,8 @@ public:
 
 	/// calculate position as a screen space coordinate
 	Math::float2 CalculateScreenSpacePosition(const Math::float4& pos);
+	/// calculate position in word using screen space coordinate
+	Math::float4 CalculateWorldSpacePosition(const Math::float2& pos);
 
     /// handle a message
     virtual void HandleMessage(const Ptr<Messaging::Message>& msg);

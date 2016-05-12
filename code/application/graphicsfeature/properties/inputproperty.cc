@@ -186,17 +186,17 @@ InputProperty::OnBeginFrame()
 
         bool movement = false;
         vector moveVec(0.0f, 0.0f, 0.0f);
-        if (kbd->KeyPressed(Input::Key::W) || kbd->KeyPressed(Input::Key::Up))
+		if (kbd->KeyPressed(Input::Key::W) || kbd->KeyPressed(Input::Key::Up))
         {
             moveVec += vector(0.0f, 0.0f, -1.0f);
             movement = true;
         }
-        if (kbd->KeyPressed(Input::Key::S) || kbd->KeyPressed(Input::Key::Down))
+		if (kbd->KeyPressed(Input::Key::S) || kbd->KeyPressed(Input::Key::Down))
         {
             moveVec += vector(0.0f, 0.0f, 1.0f);
             movement = true;
         }
-        if (kbd->KeyPressed(Input::Key::A) || kbd->KeyPressed(Input::Key::Left))
+		if (kbd->KeyPressed(Input::Key::A) || kbd->KeyPressed(Input::Key::Left))
         {
             moveVec += vector(-1.0f, 0.0f, 0.0f);
             movement = true;

@@ -23,7 +23,7 @@ CameraEntity::CameraEntity()
 {
     this->SetType(GraphicsEntityType::Camera);
     float aspectRatio = DisplayDevice::Instance()->GetDisplayMode().GetAspectRatio();
-    this->camSettings.SetupPerspectiveFov(n_deg2rad(90.0f), aspectRatio, 0.0001f, 2500.0f);
+    this->camSettings.SetupPerspectiveFov(n_deg2rad(60.0f), aspectRatio, 0.01f, 2500.0f);
 }
 
 //------------------------------------------------------------------------------
@@ -132,6 +132,17 @@ CameraEntity::CalculateScreenSpacePosition(const Math::float4& pos)
 	screenPos.x() = (screenPos.x() + 1.0f) * 0.5f;
 	screenPos.y() = 1.0f - ((screenPos.y() + 1.0f) * 0.5f);
 	return float2(screenPos.x(), screenPos.y());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+Math::float4
+CameraEntity::CalculateWorldSpacePosition(const Math::float2& pos)
+{
+	float4 worldpos = float4(pos.x(), pos.y(), this->camSettings.GetZNear(), 1);
+	worldpos = matrix44::transform(worldpos, matrix44::inverse(this->GetViewProjTransform()));
+	return worldpos;
 }
 
 //------------------------------------------------------------------------------

@@ -410,4 +410,19 @@ NetworkServer::Instance()
 {
 	return MultiplayerFeature::MultiplayerFeatureUnit::Instance()->GetServer();
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+Ptr<Game::Entity>
+NetworkServer::GetEntityByNetworkID(const MultiplayerFeature::NetworkID &id)
+{
+	RakNet::Replica3* replica = this->LookupReplica(id);
+	n_assert2(replica, "unkown network id\n");
+	MultiplayerFeature::NetworkEntity * entity = dynamic_cast<MultiplayerFeature::NetworkEntity*>(replica);
+	n_assert2(entity, "replica not a network entity\n");
+	Ptr<Game::Entity> ent = entity;
+	return ent;
+}
+
 } // namespace MultiplayerFeature

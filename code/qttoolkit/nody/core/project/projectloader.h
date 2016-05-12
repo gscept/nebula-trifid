@@ -33,6 +33,8 @@ protected:
     virtual void ReadNodes(const Ptr<IO::BinaryReader>& reader, const Ptr<Project>& project);
     /// helper function for reading links
     virtual void ReadLinks(const Ptr<IO::BinaryReader>& reader, const Ptr<Project>& project);
+	/// helper function for reading implementation specific information
+	virtual void ReadImplementation(const Ptr<IO::BinaryReader>& reader, const Ptr<Project>& project);
 }; 
 } // namespace Nody
 //------------------------------------------------------------------------------

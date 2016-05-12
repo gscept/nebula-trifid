@@ -14,6 +14,8 @@
 #include "syncpoint.h"
 #include "messaging/message.h"
 #include "RakPeerInterface.h"
+#include "game/entity.h"
+#include "networkentity.h"
 
 //FIXME
 #define IS_HOST (MultiplayerFeature::MultiplayerFeatureUnit::Instance()->GetServer()->IsHost())
@@ -89,6 +91,9 @@ public:
 
 	///
 	virtual NetworkServerState GetState() const;
+
+	/// get entity by a network id
+	Ptr<Game::Entity> GetEntityByNetworkID(const MultiplayerFeature::NetworkID &id);
 	
 protected:
 	/// returns status if allowed to join a game

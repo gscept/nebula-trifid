@@ -54,6 +54,8 @@ private:
 	void WritePhysics(const Ptr<N3Writer>& writer);
 	/// writes particles
 	void WriteParticles(const Ptr<N3Writer>& writer);
+	/// write appendix nodes
+	void WriteAppendix(const Ptr<N3Writer>& writer);
 
 
 	Ptr<ModelConstants> constants;

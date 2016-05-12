@@ -31,10 +31,17 @@ public:
 private:
 
     friend class ShadyWindow;
+	friend class ShadyProjectLoader;
+	friend class ShadyProjectSaver;
     struct Settings
     {
 
     } settings;
+
+	struct Material
+	{
+		Util::Array<Util::String> batches;
+	} material;
 }; 
 } // namespace Shady
 //------------------------------------------------------------------------------

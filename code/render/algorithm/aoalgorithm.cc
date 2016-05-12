@@ -576,7 +576,7 @@ void
 AOAlgorithm::Disable()
 {
     // clear output
-    //this->output->Clear(RenderTarget::ClearColor);
+    this->output->Clear(Math::float4(0));
 }
 
 } // namespace Algorithm

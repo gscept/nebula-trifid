@@ -78,7 +78,7 @@ ParticleNodeHandler::Setup(const Util::String& resource)
 	Ptr<ModelConstants> constants = this->modelHandler->GetConstants();
 
 	// set primitive group index
-	this->primGroupIndex = constants->GetParticleNode(this->nodeName).primitiveGroupIndex;
+	this->primGroupIndex = attributes->GetAppendixNode(this->nodeName).data.particle.primGroup;
 
 	String mesh = attributes->GetEmitterMesh(this->nodePath);
 	this->attrs = attributes->GetEmitterAttrs(this->nodePath);
@@ -377,12 +377,12 @@ void
 ParticleNodeHandler::PrimitiveGroupIndexChanged(int i)
 {
 	// update mesh
-	Ptr<ModelConstants> constants = this->modelHandler->GetConstants();
-	ToolkitUtil::ModelConstants::ParticleNode node = constants->GetParticleNode(this->nodeName);
-	node.primitiveGroupIndex = this->particleUi->primitiveGroupIndex->value();
-	this->primGroupIndex = node.primitiveGroupIndex;
-	constants->DeleteParticleNode(this->nodeName);
-	constants->AddParticleNode(this->nodeName, node);
+	Ptr<ModelAttributes> attrs = this->modelHandler->GetAttributes();
+	ToolkitUtil::ModelAttributes::AppendixNode node = attrs->GetAppendixNode(this->nodeName);
+	node.data.particle.primGroup = this->particleUi->primitiveGroupIndex->value();
+	this->primGroupIndex = node.data.particle.primGroup;
+	attrs->DeleteAppendixNode(this->nodeName);
+	attrs->AddAppendixNode(this->nodeName, node);
 
 	// apply updates
 	this->Apply();

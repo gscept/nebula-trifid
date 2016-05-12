@@ -383,7 +383,14 @@
     </property>
     <addaction name="actionValidate"/>
    </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="actionSet_render_passes"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
    <addaction name="menuBuild"/>
    <addaction name="menuDebug"/>
    <addaction name="menuHelp"/>
@@ -486,6 +493,11 @@
    </property>
    <property name="text">
     <string>Real-time visualize</string>
+   </property>
+  </action>
+  <action name="actionSet_render_passes">
+   <property name="text">
+    <string>Set render passes</string>
    </property>
   </action>
  </widget>

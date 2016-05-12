@@ -44,6 +44,7 @@ LightProbeProperty::OnActivate()
 	this->environmentProbe = EnvironmentProbe::Create();
 	this->environmentProbe->AssignIrradianceMap("tex:" + this->entity->GetString(Attr::ProbeIrradianceMap) + NEBULA3_TEXTURE_EXTENSION);
 	this->environmentProbe->AssignReflectionMap("tex:" + this->entity->GetString(Attr::ProbeReflectionMap) + NEBULA3_TEXTURE_EXTENSION);
+	this->environmentProbe->AssignDepthMap("tex:" + this->entity->GetString(Attr::ProbeDepthMap) + NEBULA3_TEXTURE_EXTENSION);
 
 	// get matrix
 	Math::matrix44 transform = this->entity->GetMatrix44(Attr::Transform);
@@ -54,7 +55,7 @@ LightProbeProperty::OnActivate()
 	this->lightProbeEntity->SetTransform(transform);
 
 	// set capture zone in probe entity
-	Math::bbox zone(transform.get_position(), this->entity->GetFloat4(Attr::ProbeBBExtents));
+	Math::bbox zone(transform.get_position(), this->entity->GetFloat4(Attr::ProbeParallaxBox));
 	this->lightProbeEntity->SetZone(zone);
 
 	// set shape type
@@ -63,7 +64,11 @@ LightProbeProperty::OnActivate()
 	this->lightProbeEntity->SetLayer(this->entity->GetInt(Attr::ProbeInfluenceLayer));
 	this->lightProbeEntity->SetFalloff(this->entity->GetFloat(Attr::ProbeInfluenceFalloff));
 	this->lightProbeEntity->SetPower(this->entity->GetFloat(Attr::ProbeInfluencePower));
-	this->lightProbeEntity->SetParallaxCorrected(this->entity->GetBool(Attr::ProbeParallaxCorrected));
+
+	const Util::String& correctionString = this->entity->GetString(Attr::ProbeCorrectionMethod);
+	if (correctionString == "none") this->lightProbeEntity->SetCorrectionMode(LightProbeEntity::None);
+	if (correctionString == "parallax") this->lightProbeEntity->SetCorrectionMode(LightProbeEntity::Parallax);
+	if (correctionString == "depth") this->lightProbeEntity->SetCorrectionMode(LightProbeEntity::Depth);
 
 	// attach model to stage
 	Ptr<Graphics::Stage> stage = GraphicsFeatureUnit::Instance()->GetDefaultStage();
@@ -124,6 +129,7 @@ LightProbeProperty::HandleMessage(const Ptr<Messaging::Message>& msg)
 		// update light probe from attributes
 		this->environmentProbe->AssignReflectionMap("tex:" + this->entity->GetString(Attr::ProbeReflectionMap) + NEBULA3_TEXTURE_EXTENSION);
 		this->environmentProbe->AssignIrradianceMap("tex:" + this->entity->GetString(Attr::ProbeIrradianceMap) + NEBULA3_TEXTURE_EXTENSION);
+		this->environmentProbe->AssignDepthMap("tex:" + this->entity->GetString(Attr::ProbeDepthMap) + NEBULA3_TEXTURE_EXTENSION);
 
 		// 0 is sphere, 1 is box
 		LightProbeEntity::LightProbeShapeType type = this->entity->GetString(Attr::ProbeInfluenceShapeType) == "sphere" ? LightProbeEntity::Sphere : LightProbeEntity::Box;
@@ -131,7 +137,11 @@ LightProbeProperty::HandleMessage(const Ptr<Messaging::Message>& msg)
 		this->lightProbeEntity->SetLayer(this->entity->GetInt(Attr::ProbeInfluenceLayer));
 		this->lightProbeEntity->SetFalloff(this->entity->GetFloat(Attr::ProbeInfluenceFalloff));
 		this->lightProbeEntity->SetPower(this->entity->GetFloat(Attr::ProbeInfluencePower));
-		this->lightProbeEntity->SetParallaxCorrected(this->entity->GetBool(Attr::ProbeParallaxCorrected));
+		
+		const Util::String& correctionString = this->entity->GetString(Attr::ProbeCorrectionMethod);
+		if (correctionString == "none") this->lightProbeEntity->SetCorrectionMode(LightProbeEntity::None);
+		if (correctionString == "parallax") this->lightProbeEntity->SetCorrectionMode(LightProbeEntity::Parallax);
+		if (correctionString == "depth") this->lightProbeEntity->SetCorrectionMode(LightProbeEntity::Depth);
 
 		// notify entity that attributes have been changed
 		Ptr<BaseGameFeature::AttributesUpdated> upd = BaseGameFeature::AttributesUpdated::Create();

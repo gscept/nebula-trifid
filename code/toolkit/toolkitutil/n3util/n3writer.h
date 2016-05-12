@@ -60,14 +60,12 @@ public:
 	void BeginCharacter(const Util::String& modelName, const Util::Array<Skinlist>& skins, const Util::Array<Joint>& jointArray, const Util::String& animationResource, const Util::Array<JointMask>& jointMasks);
 	/// ends a character node
 	void EndCharacter();	
-	/// writes a particle model using a shader
-	void BeginParticleModel(const Util::String& name, const Transform& transform, const Math::bbox& boundingBox, const Util::String& meshResource, const State& state, const Util::String& shader);
 	/// writes a static model using materials
 	void BeginStaticModel(const Util::String& name, const Transform& transform, PrimitiveGroupIndex groupIndex, const Math::bbox& boundingBox, const Util::String& meshResource, const State& state, const Util::String& material);	
 	/// wrapper function which takes a mesh (skin), a list of shader variables, textures, joints, animations and a material to be written as a character
 	void BeginSkinnedModel(const Util::String& name, const Transform& transform, const Math::bbox& boundingBox, int fragmentIndex, int fragmentCount, const Util::Array<ModelConstants::SkinNode>& skinNodes, const Util::String& skinResource, const State& state, const Util::String& material);
 	/// wrapper function which takes a mesh, a list of shader variables and textures, to be written as a particle mesh
-	void BeginParticleModel(const Util::String& name, const Transform& transform, const Util::String& meshResource, const State& state, const Util::String& material,  const Particles::EmitterAttrs& emitterAttrs );
+	void BeginParticleModel(const Util::String& name, const Transform& transform, const Util::String& meshResource, const IndexT primGroup, const State& state, const Util::String& material, const Particles::EmitterAttrs& emitterAttrs);
 	/// wrapper function for writing  a physics node
 	void BeginPhysicsNode(const Util::String& name);
 	/// begins colliders section

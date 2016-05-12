@@ -99,20 +99,21 @@ LevelViewerGameState::OnStateLeave( const Util::String& nextState )
 Util::String 
 LevelViewerGameState::OnFrame()
 {
-	Dynui::ImguiAddon::BeginFrame();
-	Dynui::ImguiConsole::Instance()->Render();	
-
 	//handle all user input
 	if (Input::InputServer::HasInstance() && this->entitiesLoaded)
 	{
 		this->HandleInput();
 	}
 
+	Dynui::ImguiAddon::BeginFrame();
+	Dynui::ImguiConsole::Instance()->Render();	
+
 	// test text rendering
-	Timing::Time frameTime = (float)BaseGameFeature::GameTimeSource::Instance()->GetFrameTime();
+	/*Timing::Time frameTime = (float)BaseGameFeature::GameTimeSource::Instance()->GetFrameTime();
 	Util::String fpsTxt;
 	fpsTxt.Format("Game FPS: %.2f", 1/frameTime);
 	_debug_text(fpsTxt, Math::float2(0.0,0.0), Math::float4(1,1,1,1));
+	*/
 
 	QtRemoteInterfaceAddon::QtRemoteServer::Instance()->OnFrame();
 	Dynui::ImguiAddon::EndFrame();

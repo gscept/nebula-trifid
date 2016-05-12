@@ -33,7 +33,11 @@ VertexBufferBase::~VertexBufferBase()
 void
 VertexBufferBase::Unload()
 {
-    this->vertexLayout = 0;
+	if (this->vertexLayout.isvalid())
+	{
+		this->vertexLayout->Discard();
+		this->vertexLayout = 0;
+	}
     ResourceBase::Unload();
 }
 

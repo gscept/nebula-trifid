@@ -910,6 +910,23 @@ EntityManager::GetEntitiesByAttrs(const Util::Array<Attribute>& attrs, bool only
 //------------------------------------------------------------------------------
 /**
 */
+Util::Array<Ptr<Game::Entity>>
+EntityManager::GetEntitiesByCategory(const Util::String & category)
+{
+	Util::Array<Ptr<Game::Entity>> result;
+	CategoryManager* catManager = CategoryManager::Instance();
+	Ptr<Db::ValueTable> instances = catManager->GetInstanceTable(category);
+	for (int i = 0; i < instances->GetNumRows(); i++)
+	{
+		Ptr<Game::Entity> ent = (Game::Entity*)instances->GetRowUserData(i);
+		result.Append(ent);
+	}
+	return result;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 void
 EntityManager::OnRenderDebug() 
 {

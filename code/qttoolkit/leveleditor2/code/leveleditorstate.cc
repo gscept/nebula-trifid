@@ -73,8 +73,8 @@ LevelEditorState::~LevelEditorState()
 Util::String 
 LevelEditorState::OnFrame()
 {
-	Dynui::ImguiAddon::BeginFrame();
 	this->HandleInput();
+	Dynui::ImguiAddon::BeginFrame();
 	this->console->Render();
 	this->selectionUtil->Render();
 	this->placementUtil->Render();

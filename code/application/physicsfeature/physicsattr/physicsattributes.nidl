@@ -8,6 +8,7 @@
 	  <Attribute name="PhysicMaterial" fourcc="PHMA" accessMode="ReadWrite" type="String" editType="physicmaterial" default="InvalidMaterial" displayName="Physics material"/>
 	  <Attribute name="TargetEntityId" fourcc="TAEN" accessMode="ReadWrite" type="Int" system="1"/>
 	  <Attribute name="VelocityVector" fourcc="VELV" accessMode="ReadWrite" type="Float4" system="1"/>
+    <Attribute name="Kinematic" fourcc="KINM" accessMode="ReadWrite" type="Bool" default ="false"/>
 
 	  <Attribute name="RelVelocity" fourcc="RVEL" accessMode="ReadWrite" type="Float" default="600.0f" displayName="Acceleration"/>
 	  <Attribute name="VelocityGain" fourcc="VELG" accessMode="ReadWrite" type="Float" default="0.95f" system="1"/> <!-- Currently only used in Havok -->
@@ -51,6 +52,12 @@
     <Attribute name="CollisionDepthThreshold"/>
     <Attribute name="PhysicMaterial"/>
     <Attribute name="Mass"/>
+    <Attribute name="Kinematic"/>
+  </Property>
+  <Property name="PhysicsFeature::StaticPhysicsProperty" derivedFrom="BaseGameFeature::TransformableProperty" header="physicsfeature/properties/staticphysicsproperty.h">    
+    <Attribute name="Physics"/>
+    <Attribute name="CollisionFeedback"/>    
+    <Attribute name="PhysicMaterial"/>    
   </Property>
   <Property name="PhysicsFeature::AnimatedPhysicsProperty" derivedFrom="BaseGameFeature::TransformableProperty" header="physicsfeature/properties/animatedphysicsproperty.h">
     <Attribute name="JointNameLinking"/>

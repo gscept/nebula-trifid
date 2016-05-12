@@ -97,7 +97,7 @@ GLFWInputServer::OnFrame()
 /**    
 */
 void
-GLFWInputServer::SetCursorVisible( bool enable )
+GLFWInputServer::SetCursorVisible(bool enable)
 {
     if(enable)
     {
@@ -111,7 +111,11 @@ GLFWInputServer::SetCursorVisible( bool enable )
 
 }
 
-void GLFWInputServer::SetCursorLocked( bool enable)
+//------------------------------------------------------------------------------
+/**
+*/
+void
+GLFWInputServer::SetCursorLocked(bool enable)
 {
 	if(enable)
 	{

@@ -28,20 +28,20 @@ public:
     // cpu access flags
     enum Access
     {
-        AccessNone,         // CPU does not require access to the resource (best)
-        AccessWrite,        // CPU has write access
-        AccessRead,         // CPU has read access
-        AccessReadWrite,    // CPU has read/write access
+        AccessNone			= 0,							// CPU does not require access to the resource (best)
+        AccessWrite			= 1,							// CPU has write access
+        AccessRead			= 2,							// CPU has read access
+        AccessReadWrite		= AccessWrite + AccessRead,		// CPU has read/write access
     };
 
     // mapping types
     enum MapType
     {
-        MapRead,                // gain read access, must be UsageDynamic and AccessRead
-        MapWrite,               // gain write access, must be UsageDynamic and AccessWrite
-        MapReadWrite,           // gain read/write access, must be UsageDynamic and AccessReadWrite
-        MapWriteDiscard,        // gain write access, discard previous content, must be UsageDynamic and AccessWrite
-        MapWriteNoOverwrite,    // gain write access, must be UsageDynamic and AccessWrite, see D3D10 docs for details
+        MapRead					= 1,						// gain read access, must be UsageDynamic and AccessRead
+        MapWrite				= 2,						// gain write access, must be UsageDynamic and AccessWrite
+        MapReadWrite			= MapRead + MapWrite,       // gain read/write access, must be UsageDynamic and AccessReadWrite
+        MapWriteDiscard			= 4,						// gain write access, discard previous content, must be UsageDynamic and AccessWrite
+        MapWriteNoOverwrite		= 8,						// gain write access, must be UsageDynamic and AccessWrite, see D3D10 docs for details
     };
 
 	// streaming methods

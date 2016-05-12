@@ -926,18 +926,20 @@ Level::SaveEntity(const Util::String & levelName, const Ptr<Game::Entity>& entit
 				this->WriteString(stream, "Transform", Util::String::FromMatrix44(entity->GetMatrix44(Attr::Transform)));
 				this->WriteString(stream, "ProbeReflectionMap", entity->GetString(Attr::ProbeReflectionMap));
 				this->WriteString(stream, "ProbeIrradianceMap", entity->GetString(Attr::ProbeIrradianceMap));
+				this->WriteString(stream, "ProbeDepthMap", entity->GetString(Attr::ProbeDepthMap));
 				this->WriteString(stream, "ProbeInfluenceShapeType", entity->GetString(Attr::ProbeInfluenceShapeType));
 				this->WriteString(stream, "ProbeInfluenceLayer", Util::String::FromInt(entity->GetInt(Attr::ProbeInfluenceLayer)));
 				this->WriteString(stream, "ProbeInfluenceFalloff", Util::String::FromFloat(entity->GetFloat(Attr::ProbeInfluenceFalloff)));
 				this->WriteString(stream, "ProbeInfluencePower", Util::String::FromFloat(entity->GetFloat(Attr::ProbeInfluencePower)));
-				this->WriteString(stream, "ProbeBBExtents", Util::String::FromFloat4(entity->GetFloat4(Attr::ProbeBBExtents)));
-				this->WriteString(stream, "ProbeParallaxCorrected", Util::String::FromBool(entity->GetBool(Attr::ProbeParallaxCorrected)));
+				this->WriteString(stream, "ProbeParallaxBox", Util::String::FromFloat4(entity->GetFloat4(Attr::ProbeParallaxBox)));
+				this->WriteString(stream, "ProbeCorrectionMethod", entity->GetString(Attr::ProbeCorrectionMethod));
 
 				this->WriteString(stream, "ProbeResolutionWidth", Util::String::FromInt(entity->GetInt(Attr::ProbeResolutionWidth)));
 				this->WriteString(stream, "ProbeResolutionHeight", Util::String::FromInt(entity->GetInt(Attr::ProbeResolutionHeight)));
 				this->WriteString(stream, "ProbeName", entity->GetString(Attr::ProbeName));
 				this->WriteString(stream, "ProbeBuildIrradiance", Util::String::FromBool(entity->GetBool(Attr::ProbeBuildIrradiance)));
 				this->WriteString(stream, "ProbeBuildReflections", Util::String::FromBool(entity->GetBool(Attr::ProbeBuildReflections)));
+				this->WriteString(stream, "ProbeBuildReflections", Util::String::FromBool(entity->GetBool(Attr::ProbeBuildDepth)));
 				this->WriteString(stream, "ProbeGenerateMipmaps", Util::String::FromBool(entity->GetBool(Attr::ProbeGenerateMipmaps)));
 				this->WriteString(stream, "ProbeAutoAssignMaps", Util::String::FromBool(entity->GetBool(Attr::ProbeAutoAssignMaps)));
 				this->WriteString(stream, "ProbeOutputFolder", entity->GetString(Attr::ProbeOutputFolder));
