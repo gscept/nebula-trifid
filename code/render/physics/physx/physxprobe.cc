@@ -149,8 +149,11 @@ PhysXProbe::OnTriggerEvent(PxPairFlag::Enum eventType, physx::PxActor * other)
 void
 PhysXProbe::SetTransform(const Math::matrix44 & trans)
 {
-	BaseProbe::SetTransform(trans);
-	this->body->setGlobalPose(Neb2PxTrans(trans));
+	PhysicsObject::SetTransform(trans);
+	// physx does not allow rescaling of a trigger, ignore all but position
+	physx::PxTransform ptrans = this->body->getGlobalPose();
+	ptrans.p = Neb2PxVec(trans.get_position());
+	this->body->setGlobalPose(ptrans);
 }
 
 }
