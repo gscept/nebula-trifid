@@ -38,7 +38,11 @@ PhysXBody::PhysXBody():
 */
 PhysXBody::~PhysXBody()
 {
-
+	if (this->body)
+	{
+		this->body->release();
+		this->body = NULL;
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -58,7 +62,7 @@ PhysXBody::SetupFromTemplate(const PhysicsCommon & templ)
 	{
 		this->SetKinematic(true);
 	}
-
+    this->SetMass(templ.mass);
     PxMaterial * mat;
     if(templ.material == InvalidMaterial && templ.friction >= 0.0f)
     { 
@@ -165,7 +169,14 @@ PhysXBody::Detach()
 void
 PhysXBody::SetMass(float m)
 {
-	PxRigidBodyExt::setMassAndUpdateInertia(*this->body, m);	
+    if (m > 0.0f)
+    {
+        PxRigidBodyExt::setMassAndUpdateInertia(*this->body, m);
+    }
+    else
+    {
+        this->body->setMass(0.0f);
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -265,13 +276,14 @@ PhysXBody::GetLinearDamping() const
 */
 void
 PhysXBody::SetSleeping(bool sleeping)
-{
+{    
 	if (sleeping)
 	{
-		this->body->putToSleep();
+        this->body->getActorFlags().set(PxActorFlag::eDISABLE_SIMULATION);
 	}
 	else
 	{
+        this->body->getActorFlags().clear(PxActorFlag::eDISABLE_SIMULATION);
 		this->body->wakeUp();
 	}
 }

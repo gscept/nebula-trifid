@@ -142,6 +142,8 @@ private:
 	///
 	void OnReadyChanged(const Util::KeyValuePair<Multiplayer::UniquePlayerId, bool>& change);
 	
+	/// loaded syncpoint has been reached
+	void OnLoaded(bool dummy);
 
 	/// raknet sync stuff below many of these dont need to be overloaded in this case but are pure virtual
 	///

@@ -689,6 +689,7 @@ LevelEditor2EntityManager::CreateLightEntity(const Util::String& lightType)
 
 	
 		
+
 	entity = BaseGameFeature::FactoryManager::Instance()->CreateEntityByAttrs("EditorLight", attributes);
 
 	entity->SetMatrix44(Attr::Transform, trans);
@@ -701,6 +702,7 @@ LevelEditor2EntityManager::CreateLightEntity(const Util::String& lightType)
     Util::Guid guid;
     guid.Generate();
     entity->SetGuid(Attr::EntityGuid,guid);
+	entity->SetString(Attr::EntityLevel, Level::Instance()->GetName());
 
 	// attach entitiy to the world
 	this->AddEntity(entity);

@@ -14,6 +14,8 @@ set(application_files_physicsfeature__properties
 	properties/mousegripperproperty.h
 	properties/physicsproperty.cc
 	properties/physicsproperty.h        
+	properties/staticphysicsproperty.cc
+	properties/staticphysicsproperty.h        
 	properties/triggerproperty.cc
 	properties/triggerproperty.h
 	properties/pointnclickinputproperty.cc
