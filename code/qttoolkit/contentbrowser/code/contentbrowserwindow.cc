@@ -2280,8 +2280,8 @@ ContentBrowserWindow::OnCreateParticleEffect()
 		emitterAttrs.SetFloat(EmitterAttrs::EmissionDuration, 25.0f);
 		emitterAttrs.SetFloat(EmitterAttrs::Gravity, -9.82f);
 		emitterAttrs.SetFloat(EmitterAttrs::ActivityDistance, 100.0f);
-		emitterAttrs.SetFloat(EmitterAttrs::StartRotationMin, 20.0f);
-		emitterAttrs.SetFloat(EmitterAttrs::StartRotationMax, 60.0f);
+		emitterAttrs.SetFloat(EmitterAttrs::StartRotationMin, 0.0f);
+		emitterAttrs.SetFloat(EmitterAttrs::StartRotationMax, 180.0f);
 		emitterAttrs.SetInt(EmitterAttrs::AnimPhases, 1);
 		EnvelopeCurve lifeTime;
 		lifeTime.Setup(1, 1, 1, 1, 0.33f, 0.66f, 0, 0, EnvelopeCurve::Sine);
@@ -2292,11 +2292,17 @@ ContentBrowserWindow::OnCreateParticleEffect()
 		alpha.Setup(0, 0.5f, 0.5f, 0, 0.33f, 0.66f, 1, 0, EnvelopeCurve::Sine);
 		EnvelopeCurve size;
 		size.Setup(0, 0.5f, 0.5f, 0.0f, 0.33f, 0.66f, 1, 1, EnvelopeCurve::Sine);
+		EnvelopeCurve color;
+		color.Setup(1, 1, 1, 1, 0.33f, 0.66f, 0, 0, EnvelopeCurve::Sine);
 		emitterAttrs.SetEnvelope(EmitterAttrs::LifeTime, lifeTime);
 		emitterAttrs.SetEnvelope(EmitterAttrs::VelocityFactor, lifeTime);
 		emitterAttrs.SetEnvelope(EmitterAttrs::EmissionFrequency, emissionFrequency);
 		emitterAttrs.SetEnvelope(EmitterAttrs::Alpha, alpha);
 		emitterAttrs.SetEnvelope(EmitterAttrs::Size, size);
+		emitterAttrs.SetEnvelope(EmitterAttrs::Alpha, color);
+		emitterAttrs.SetEnvelope(EmitterAttrs::Red, color);
+		emitterAttrs.SetEnvelope(EmitterAttrs::Green, color);
+		emitterAttrs.SetEnvelope(EmitterAttrs::Blue, color);
 
 		// set attributes
 		attrs->SetEmitterAttrs(node.path, emitterAttrs);
