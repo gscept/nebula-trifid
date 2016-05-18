@@ -61,7 +61,8 @@ MaterialServer::Open()
     this->LoadMaterialPalette("base.xml");
 
     // get materials folder and load all
-    Util::Array<Util::String> files = IO::IoServer::Instance()->ListFiles("mat:", "*_custom.xml");
+    Util::Array<Util::String> files = IO::IoServer::Instance()->ListFiles("mat:", "*.xml");
+	files.EraseIndex(files.FindIndex("base.xml"));
 
     // load other materials
     IndexT i;

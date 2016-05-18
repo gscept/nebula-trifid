@@ -55,6 +55,8 @@ public:
 
 	/// resizes quadtree
 	virtual void OnWorldChanged(const Math::bbox& box);
+	/// update cell sizes
+	virtual void ResizeVisibilityCells(const Ptr<VisibilityCell>& cell, uchar curLevel, ushort curCol, ushort curRow);
                 
     /// attach visibility job to port
     virtual Ptr<Jobs::Job> CreateVisibilityJob(IndexT frameId, const Ptr<ObserverContext>& observer, Util::FixedArray<Ptr<VisibilityContext> >& outEntitiyArray, uint& entityMask);

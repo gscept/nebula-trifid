@@ -113,6 +113,9 @@ MeshEntity::OnActivate()
 	this->stagingNodes.Clear();
 	
 	this->modelInstance = this->model->CreateInstance();
+	this->modelInstance->SetPickingId(this->pickingId);
+	this->modelInstance->SetTransform(this->transform);
+	this->transformChanged = true;	
 	this->SetValid(true);	
 }
 
@@ -131,6 +134,17 @@ MeshEntity::OnDeactivate()
 		nodes[i]->UnloadResources();
 	}
 	this->model->Unload();
+	if (this->ibo.isvalid())
+	{
+		this->ibo->Unload();
+		this->ibo = 0;
+	}	
+
+	for (i = 0; i < this->vbos.Size(); i++)
+	{
+		this->vbos[i].Value()->Unload();
+	}
+	this->vbos.Clear();
 
 	// up to parent class
 	GraphicsEntity::OnDeactivate();
