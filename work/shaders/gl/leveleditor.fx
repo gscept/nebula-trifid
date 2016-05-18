@@ -12,7 +12,7 @@
 vec4 MatDiffuse;
 state PickingState
 {
-	CullMode = Back;
+	CullMode = None;
 	DepthWrite = false;
 	DepthEnabled = false;
 	FillMode = Line;

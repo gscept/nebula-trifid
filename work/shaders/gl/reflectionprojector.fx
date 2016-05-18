@@ -52,17 +52,19 @@ samplerstate EnvironmentSampler
 state ProjectorState
 {
 	BlendEnabled[0] = true;
-	//SrcBlend[0] = One;
-	//DstBlend[0] = One;
-	SrcBlend[0] = SrcAlpha;
-	DstBlend[0] = OneMinusSrcAlpha;
-	//SrcBlendAlpha[0] = One;
-	//DstBlendAlpha[0] = One;
-	//SeparateBlend = true;
+	
+	// we use premultiplied alpha with the distance
+	// these blend settings is just to pass the alpha value through
+	// but still allow for the src and dst to be blended
+	// however alpha is transfered directly
+	SrcBlend[0] = One;
+	DstBlend[0] = One;
+	SrcBlendAlpha[0] = Zero;
+	DstBlendAlpha[0] = One;
+	SeparateBlend = true;
 	CullMode = Front;
 	DepthEnabled = true;
 	DepthFunc = Greater;
-	//DepthClamp = false;
 	DepthWrite = false;
 };
 
@@ -243,7 +245,7 @@ psMain(in vec3 viewSpacePosition,
 		vec3 rim = FresnelSchlickGloss(spec.rgb, x, spec.a);
 		vec3 refl = textureLod(EnvironmentMap, reflectVec, oneMinusSpec.a * NumEnvMips).rgb * rim;
 		vec3 irr = textureLod(IrradianceMap, worldNormal.xyz, 0).rgb;
-		Color = vec4(irr * albedo + refl, diff);
+		Color = vec4((irr * albedo + refl) * diff, 0);
 	}
 	else
 	{

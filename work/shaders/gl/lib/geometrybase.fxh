@@ -663,7 +663,7 @@ psUber(in vec3 ViewSpacePos,
 	mat2x3 env = calcEnv(specColor, bumpNormal, ViewSpacePos, WorldViewVec, InvView, roughness);
 	vec4 spec = calcSpec(specColor.rgb, roughness);
 	vec4 albedo = calcColor(diffColor, vec4(1), spec);	
-	vec4 emissive = vec4((env[0] * albedo.rgb + env[1]) * cavity, -1);
+	vec4 emissive = vec4((env[0] * albedo.rgb + env[1]), cavity);
 
 	Specular = spec;
 	Albedo = albedo;
@@ -703,7 +703,7 @@ psUberAlphaTest(in vec3 ViewSpacePos,
 	mat2x3 env = calcEnv(specColor, bumpNormal, ViewSpacePos, WorldViewVec, InvView, roughness);
 	vec4 spec = calcSpec(specColor.rgb, roughness);
 	vec4 albedo = calcColor(diffColor, vec4(1), spec);	
-	vec4 emissive = vec4((env[0] * albedo.rgb + env[1]) * cavity, -1);
+	vec4 emissive = vec4((env[0] * albedo.rgb + env[1]), cavity);
 
 	Specular = spec;
 	Albedo = albedo;
@@ -742,7 +742,7 @@ psUberVertexColor(in vec3 ViewSpacePos,
 	mat2x3 env = calcEnv(specColor, bumpNormal, ViewSpacePos, WorldViewVec, InvView, roughness);
 	vec4 spec = calcSpec(specColor.rgb, roughness);
 	vec4 albedo = calcColor(diffColor, Color, spec);	
-	vec4 emissive = vec4((env[0] * albedo.rgb + env[1]) * cavity, -1);
+	vec4 emissive = vec4((env[0] * albedo.rgb + env[1]), cavity);
 
 	Specular = spec;
 	Albedo = albedo;
