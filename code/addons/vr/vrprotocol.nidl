@@ -2,4 +2,5 @@
 <Nebula3>
     <Protocol namespace="VR" name="VrProtocol">
 	</Protocol>
+  <Property name="VR::VRCameraProperty" derivedFrom="GraphicsFeature::CameraProperty" header="vr/vrcameraproperty.h" />   
 </Nebula3>

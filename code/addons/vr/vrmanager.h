@@ -16,6 +16,15 @@ namespace vr
 //------------------------------------------------------------------------------
 namespace VR
 {
+enum TrackerType
+{
+	HMDisplay = 0,
+	LeftControl = 1,
+	RightControl = 2,
+
+	TRACKER_COUNT
+};
+
 class VRManager : public Game::Manager
 {
 	__DeclareClass(VRManager);
@@ -32,14 +41,17 @@ public:
 	/// 
 	virtual void OnDeactivate();
 	/// 
-	virtual void OnFrame();
+	virtual void OnBeginFrame();
 	///
 	const vr::IVRSystem* GetHMD() const;
 
+	const Math::matrix44 & GetTrackedObject(VR::TrackerType t) const;
 	///
 	const bool HasHMD() const;
 private:
-	vr::IVRSystem * HMD;	
+	vr::IVRSystem * HMD;			
+	Util::FixedArray<Math::matrix44> trackedObjects;
+	uint32_t trackerIds[VR::TrackerType::TRACKER_COUNT];
 };
 
 //------------------------------------------------------------------------------
@@ -52,6 +64,15 @@ VRManager::HasHMD() const
 	return this->HMD != NULL;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+inline
+const Math::matrix44 &
+VRManager::GetTrackedObject(VR::TrackerType t) const
+{
+	return this->trackedObjects[this->trackerIds[t]];
+}
 //------------------------------------------------------------------------------
 /**
 */
