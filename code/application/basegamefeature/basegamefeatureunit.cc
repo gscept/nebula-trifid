@@ -419,6 +419,8 @@ BaseGameFeatureUnit::LoadNetworkedLevel(const Util::String& levelName)
 	this->SetupWorldFromCurrentLevel();
 	curAppStateHandler->OnLoadAfter();
 
+	Multiplayer::SyncPoint::SetReady("_LOADED", true);
+
 	return true;
 }
 

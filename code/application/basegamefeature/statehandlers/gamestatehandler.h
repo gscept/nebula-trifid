@@ -63,8 +63,7 @@ private:
     SetupMode setupMode;
     Util::String exitState;
     Util::String levelName;
-    Util::String saveGame;
-	bool delayedStart;
+    Util::String saveGame;	
 };
 
 //------------------------------------------------------------------------------

@@ -20,7 +20,7 @@ using namespace App;
 //------------------------------------------------------------------------------
 /**
 */
-GameStateHandler::GameStateHandler() : delayedStart(false)
+GameStateHandler::GameStateHandler()
 {
     // empty
 }
@@ -66,8 +66,7 @@ GameStateHandler::OnStateEnter(const Util::String& prevState)
 
 		case LoadNetworkedLevel:
 			n_assert2(MultiplayerFeature::MultiplayerFeatureUnit::HasInstance(), "No multiplayerfeature singleton exists");
-			BaseGameFeatureUnit::Instance()->LoadNetworkedLevel(this->GetLevelName());
-			delayedStart = true;
+			BaseGameFeatureUnit::Instance()->LoadNetworkedLevel(this->GetLevelName());			
 			break;
 
         case LoadSaveGame:
@@ -112,12 +111,7 @@ GameStateHandler::OnStateLeave(const Util::String& nextState)
 */
 Util::String
 GameStateHandler::OnFrame()
-{
-	if(delayedStart && MultiplayerFeature::ReplicationManager::Instance()->GetAllConnectionDownloadsCompleted())
-	{
-		delayedStart = false;
-		OnNetworkStarted();
-	}
+{	
     if (Game::GameServer::Instance()->IsQuitRequested())
     {
         return "Exit";
@@ -128,13 +122,14 @@ GameStateHandler::OnFrame()
     }
 }
 
-/************************************************************************/
-/* OVERLOAD IN INHERITED CLASS -  Called once the level is synced		*/
-/************************************************************************/
+//------------------------------------------------------------------------------
+/**
+	Called once all clients loaded the level into memory
+*/
 void
 GameStateHandler::OnNetworkStarted()
 {
-
+	// empty
 }
 
 } // namespace Application
