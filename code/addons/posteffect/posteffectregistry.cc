@@ -91,6 +91,23 @@ PostEffectRegistry::OnActivate()
 		parms.sky->SetSkyContrast(reader->GetFloat(Attr::SkyContrast));
 		parms.sky->SetSkyBrightness(reader->GetFloat(Attr::SkyBrightness));
 		parms.sky->SetSkyTexturePath(reader->GetString(Attr::SkyTexture));
+        parms.sky->SetSkyRotationFactor(reader->GetFloat(Attr::SkyRotationFactor));
+        if (reader->HasAttr(Attr::ProbeIrradianceMap))
+        {
+            parms.sky->SetIrradianceTexturePath(reader->GetString(Attr::ProbeIrradianceMap));
+        }
+        else
+        {
+            parms.sky->SetIrradianceTexturePath("tex:system/sky_irr");
+        }
+        if (reader->HasAttr(Attr::ProbeReflectionMap))
+        {
+            parms.sky->SetReflectanceTexturePath(reader->GetString(Attr::ProbeReflectionMap));
+        }
+        else
+        {
+            parms.sky->SetReflectanceTexturePath("tex:system/sky_refl");
+        }
 				
 		parms.ao->SetStrength(reader->GetFloat(Attr::AOStrength));
 		parms.ao->SetRadius(reader->GetFloat(Attr::AORadius));

@@ -454,6 +454,8 @@ PostEffectServer::ApplySkyParameters()
         // set current as target, reset blend factor and delete target
         currentPara->ResetTextureBlendFactor();
         currentPara->SetSkyTexturePath(targetPara->GetSkyTexturePath());
+        currentPara->SetIrradianceTexturePath(targetPara->GetIrradianceTexturePath());
+        currentPara->SetReflectanceTexturePath(targetPara->GetReflectanceTexturePath());
         this->StopBlending(Sky);
 
 		// set texture
@@ -461,11 +463,14 @@ PostEffectServer::ApplySkyParameters()
 
         // set base texture, other one is not needed
         this->skyBlendFactor->SetValue(currentPara->GetTextureBlendFactor());
+        // apply reflectance and irradiance
+        Lighting::EnvironmentProbe::DefaultEnvironmentProbe->AssignReflectionMap(currentPara->GetReflectanceTexturePath() + NEBULA3_TEXTURE_EXTENSION);
+        Lighting::EnvironmentProbe::DefaultEnvironmentProbe->AssignIrradianceMap(currentPara->GetIrradianceTexturePath() + NEBULA3_TEXTURE_EXTENSION);
     }
     else
     {
 		// set blend texture
-		this->skyBlendTexture->SetTexture(this->FindTexture(targetPara->GetSkyTexturePath())->GetTexture());
+		this->skyBlendTexture->SetTexture(this->FindTexture(targetPara->GetSkyTexturePath())->GetTexture());       
 
 	    // set base and blend texture
         this->skyBlendFactor->SetValue(currentPara->GetTextureBlendFactor());
