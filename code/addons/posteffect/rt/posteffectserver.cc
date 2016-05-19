@@ -439,7 +439,7 @@ PostEffectServer::ApplySkyParameters()
     // get textures
     const Ptr<SkyParams>& targetPara = this->postEffects[Sky].target.cast<SkyParams>();
     const Ptr<SkyParams>& currentPara = this->postEffects[Sky].current.cast<SkyParams>();
-
+	
 	// preload textures
 	this->PreloadTexture(targetPara->GetSkyTexturePath());
 	this->PreloadTexture(currentPara->GetSkyTexturePath());
@@ -626,5 +626,16 @@ PostEffectServer::SetSkyEntity( const Ptr<Graphics::ModelEntity>& entity )
 	this->skyEntity->SetAlwaysVisible(true);
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PostEffectServer::StopAllBlending()
+{
+	for (int i = 0; i < this->postEffects.Size(); i++)
+	{
+		this->postEffects[i].target = 0;
+	}
+}
 
 } // namespace PostEffect

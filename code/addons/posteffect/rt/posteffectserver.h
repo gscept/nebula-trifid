@@ -94,6 +94,8 @@ public:
     void StartBlending(const Ptr<ParamBase>& target, Timing::Time fadeTime, PostEffectType postEffectType);
     /// stops blending for specified effect
     void StopBlending(PostEffectType postEffectType);
+	/// stop all blending operations
+	void StopAllBlending();
 
 	/// set the sky entity
 	void SetSkyEntity(const Ptr<Graphics::ModelEntity>& entity);
