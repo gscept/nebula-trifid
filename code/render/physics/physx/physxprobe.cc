@@ -150,9 +150,13 @@ void
 PhysXProbe::SetTransform(const Math::matrix44 & trans)
 {
 	PhysicsObject::SetTransform(trans);
-	// physx does not allow rescaling of a trigger, ignore all but position
-	physx::PxTransform ptrans = this->body->getGlobalPose();
-	ptrans.p = Neb2PxVec(trans.get_position());
+	// physx does not allow rescaling of a trigger, ignore scale
+	Math::vector scale;
+	Math::quaternion rotation;
+	Math::float4 pos;
+	trans.decompose(scale, rotation, pos);
+
+	PxTransform ptrans(Neb2PxVec(pos), Neb2PxQuat(rotation));	
 	this->body->setGlobalPose(ptrans);
 }
 
