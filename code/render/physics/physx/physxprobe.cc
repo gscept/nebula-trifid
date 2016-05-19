@@ -79,6 +79,9 @@ PhysXProbe::Init(const Ptr<Physics::Collider> & coll, const Math::matrix44 & tra
     this->body->getShapes(&shape, 1);
     shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
     shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);
+	PxFilterData fd;
+	fd.word0 = Physics::SensorTrigger;
+	shape->setQueryFilterData(fd);
     this->body->userData = this;
 }
 
