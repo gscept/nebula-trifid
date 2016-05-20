@@ -22,6 +22,7 @@ LightProbeEntity::LightProbeEntity() :
 	layer(0),
 	falloff(0.2f),
 	power(16.0f),
+    numMips(0),
 	shape(Box),
 	correctionMethod(None),
 	probe(Lighting::EnvironmentProbe::DefaultEnvironmentProbe)
@@ -120,10 +121,15 @@ LightProbeEntity::ApplyProbe(const Ptr<Lighting::EnvironmentProbe>& probe)
     this->lightProbeReflectionVar->SetTexture(probe->GetReflectionMap()->GetTexture());
     this->lightProbeIrradianceVar->SetTexture(probe->GetIrradianceMap()->GetTexture());
 	this->lightProbeDepthVar->SetTexture(probe->GetDepthMap()->GetTexture());
-	this->numMips = probe->GetReflectionMap()->GetTexture()->GetNumMipLevels();
+    uint mips = probe->GetReflectionMap()->GetTexture()->GetNumMipLevels();
+	if (mips != this->numMips)
+    {
+        this->numMips = mips;
+        this->isDirty = true;
+    }
 
 	// enable buffer
-	this->lightProbeBufferVar->SetBufferHandle(this->lightProbeVariableBuffer->GetHandle());
+	this->lightProbeBufferVar->SetBufferHandle(this->lightProbeVariableBuffer->GetHandle());    
 }
 
 //------------------------------------------------------------------------------
