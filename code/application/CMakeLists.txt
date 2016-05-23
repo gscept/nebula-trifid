@@ -210,6 +210,7 @@ ADD_SUBDIRECTORY(physicsfeature)
 ADD_SUBDIRECTORY(scriptfeature)
 ADD_SUBDIRECTORY(scriptingfeature)
 ADD_SUBDIRECTORY(stateobjectfeature)
+ADD_SUBDIRECTORY(inputfeature)
 
 ADD_LIBRARY(application_features INTERFACE)
 TARGET_LINK_LIBRARIES(application_features INTERFACE application graphicsfeature physicsfeature scriptingfeature scriptfeature stateobjectfeature)

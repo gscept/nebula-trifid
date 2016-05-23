@@ -54,10 +54,6 @@ MeshEntity::ApplyState(const CoreGraphics::PrimitiveGroup& prim)
 {
 	CoreGraphics::RenderDevice* renderDev = CoreGraphics::RenderDevice::Instance();
 
-	// apply layout and node primitive
-	renderDev->SetVertexLayout(this->layout);
-	renderDev->SetPrimitiveGroup(prim);
-
 	// apply buffers
 	IndexT i;
 	for (i = 0; i < this->vbos.Size(); i++)
@@ -65,10 +61,15 @@ MeshEntity::ApplyState(const CoreGraphics::PrimitiveGroup& prim)
 		const VboBinding& binding = this->vbos[i];
 		renderDev->SetStreamVertexBuffer(binding.Key(), binding.Value(), 0);
 	}
+	renderDev->SetVertexLayout(this->layout);
+
 	if (this->ibo.isvalid())
 	{
 		renderDev->SetIndexBuffer(this->ibo);
 	}
+
+	// apply layout and node primitive
+	renderDev->SetPrimitiveGroup(prim);
 }
 
 //------------------------------------------------------------------------------
@@ -94,6 +95,14 @@ MeshEntity::OnActivate()
 	this->layout->Setup(this->components);
 	this->components.Clear();
 
+	Ptr<Models::TransformNode> rootNode = Models::TransformNode::Create();
+	rootNode->SetName("root");
+
+	this->model->AttachNode(rootNode.upcast<ModelNode>());
+
+	Math::bbox globalBox;
+	globalBox.begin_extend();
+	
 	for (i = 0; i < this->stagingNodes.Size(); i++)
 	{
 		const __StagingModelNode& data = this->stagingNodes[i];
@@ -106,11 +115,16 @@ MeshEntity::OnActivate()
 		node->SetSurface(data.surface);
 		node->SetBoundingBox(data.boundingbox);
 		node->LoadResources(true);
+
+		globalBox.extend(data.boundingbox);
 		
 		// add node to model
+		rootNode->AddChild(node.upcast<ModelNode>());
 		this->model->AttachNode(node.upcast<ModelNode>());
 	}	
 	this->stagingNodes.Clear();
+	globalBox.end_extend();
+	rootNode->SetBoundingBox(globalBox);
 	
 	this->modelInstance = this->model->CreateInstance();
 	this->modelInstance->SetPickingId(this->pickingId);
@@ -125,26 +139,13 @@ MeshEntity::OnActivate()
 void
 MeshEntity::OnDeactivate()
 {
-	this->model->DiscardInstance(this->modelInstance);
-
-	const Util::Array<Ptr<Models::ModelNode>>& nodes = this->model->GetNodes();
-	IndexT i;
-	for (i = 0; i < nodes.Size(); i++)
-	{
-		nodes[i]->UnloadResources();
-	}
-	this->model->Unload();
-	if (this->ibo.isvalid())
-	{
-		this->ibo->Unload();
-		this->ibo = 0;
-	}	
-
-	for (i = 0; i < this->vbos.Size(); i++)
-	{
-		this->vbos[i].Value()->Unload();
-	}
+	this->ibo = 0;
 	this->vbos.Clear();
+	this->layout->Discard();
+	this->layout = 0;
+
+	this->model->DiscardInstance(this->modelInstance);
+	this->model->Unload();
 
 	// up to parent class
 	GraphicsEntity::OnDeactivate();

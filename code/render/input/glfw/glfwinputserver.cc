@@ -47,11 +47,6 @@ GLFWInputServer::Open()
     n_assert(!this->IsOpen());
     InputServerBase::Open();
 
-    // setup a display event handler which translates
-    // some display events into input events
-    this->eventHandler = GLFWInputDisplayEventHandler::Create();
-    Graphics::Display::Instance()->AttachDisplayEventHandler(this->eventHandler.upcast<DisplayEventHandler>());
-
     // create a default keyboard and mouse handler
     this->defaultKeyboard = Keyboard::Create();
     this->AttachInputHandler(InputPriority::Game, this->defaultKeyboard.upcast<InputHandler>());
@@ -75,9 +70,6 @@ void
 GLFWInputServer::Close()
 {
     n_assert(this->IsOpen());
-
-    // remove our event handler from the display device
-    Graphics::Display::Instance()->RemoveDisplayEventHandler(this->eventHandler.upcast<DisplayEventHandler>());
 
     // call parent class
     InputServerBase::Close();

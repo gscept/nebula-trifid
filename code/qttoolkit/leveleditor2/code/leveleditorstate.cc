@@ -75,6 +75,7 @@ LevelEditorState::OnFrame()
 {
 	this->HandleInput();
 	Dynui::ImguiAddon::BeginFrame();
+	Picking::PickingServer::Instance()->Render();
 	this->console->Render();
 	this->selectionUtil->Render();
 	this->placementUtil->Render();
@@ -258,6 +259,8 @@ LevelEditorState::OnStateLeave( const Util::String& nextState )
 	// cleanup scene before quitting application
 	this->selectionUtil->ClearSelection();
 	this->selectionUtil = 0;
+	
+	this->placementUtil->Discard();
 	this->placementUtil = 0;
 
 	// save settings

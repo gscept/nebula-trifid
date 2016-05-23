@@ -10,12 +10,22 @@
 
 
 vec4 MatDiffuse;
-state PickingState
+state WireframeState
 {
 	CullMode = None;
 	DepthWrite = false;
 	DepthEnabled = false;
 	FillMode = Line;
+	MultisampleEnabled = true;
+};
+
+state SolidState
+{
+	CullMode = None;
+	DepthWrite = false;
+	DepthEnabled = false;
+	FillMode = Fill;
+	MultisampleEnabled = true;
 };
 
 
@@ -53,5 +63,8 @@ psColor([color0] out vec4 Color)
 //------------------------------------------------------------------------------
 /**
 */
-SimpleTechnique(Color, "Alt0", vsMain(), psColor(), PickingState);
-SimpleTechnique(Picking, "Alt1", vsMain(), psPicking(), PickingState);
+SimpleTechnique(Color, "Alt0", vsMain(), psColor(), WireframeState);
+SimpleTechnique(Picking, "Alt1", vsMain(), psPicking(), WireframeState);
+
+SimpleTechnique(ColorSolid, "Alt0|Alt2", vsMain(), psColor(), SolidState);
+SimpleTechnique(PickingSolid, "Alt1|Alt2", vsMain(), psPicking(), SolidState);

@@ -13,6 +13,8 @@
 #include "debugrender/debugrender.h"
 #include "debugrender/debugshaperenderer.h"
 #include "coregraphics/memoryvertexbufferloader.h"
+#include "models/nodes/meshnodeinstance.h"
+#include "math/rectangle.h"
 
 using namespace Math;
 using namespace CoreGraphics;
@@ -53,112 +55,62 @@ RotationFeature::Setup()
 {
 	Util::Array<CoreGraphics::VertexComponent> comps;
 	comps.Append(VertexComponent(VertexComponent::Position, 0, VertexComponent::Float4));
-	this->handleGraphicsEntities.Resize(4);
+
+	const uint numHandles = 4;
+	this->handleGraphicsEntities.Resize(numHandles);
+	this->handleSurfaces.Resize(numHandles);
+	this->handleIndices.Resize(numHandles);
+	this->handleColors.Resize(numHandles);
+
+	this->vbos.Resize(2);
 
 	IndexT i;
 
-	const int lineCount = 40;
-	vector help;
-	Math::float4 handlePoints[lineCount * 2];
-	Math::vector circleVector;
-	circleVector = vector::upvec();
-	for (i = 0; i < (lineCount * 2) - 1; i += 2)
+	RotationFeature::MeshBundle halfCircle = this->CreateHalfCircle(comps);
+	RotationFeature::MeshBundle fullCircle = this->CreateCircle(comps);
+
+	this->vbos[0] = halfCircle.vbo;
+	this->vbos[1] = fullCircle.vbo;
+
+	const Math::float4 colors[] = { 
+		Math::float4(1, 0, 0, 0), 
+		Math::float4(0, 1, 0, 0), 
+		Math::float4(0, 0, 1, 0), 
+		Math::float4(0.5f, 0.5f, 1.0f, 0) };
+
+	RotationFeature::MeshBundle vbos[] =
 	{
-		help.set(circleVector.x(), circleVector.y(), circleVector.z());
-		this->RotateVector(help, this->xAxis, (float)-PI * (i / 2) / lineCount);
-		handlePoints[i] = this->origin + help;
+		halfCircle,
+		halfCircle,
+		halfCircle,
+		fullCircle
+	};
 
-		help = circleVector;
-		this->RotateVector(help, this->xAxis, (float)-PI * (i / 2 + 1) / lineCount);
-		handlePoints[i + 1] = this->origin + help;
-	}
-
-	Ptr<VertexBuffer> vbo = VertexBuffer::Create();
-	Ptr<MemoryVertexBufferLoader> vboLoader = MemoryVertexBufferLoader::Create();
-	vboLoader->Setup(comps, lineCount, handlePoints, sizeof(handlePoints), VertexBuffer::UsageImmutable, VertexBuffer::AccessNone);
-	vbo->SetLoader(vboLoader.downcast<Resources::ResourceLoader>());
-	vbo->SetAsyncEnabled(false);
-	vbo->Load();
-	n_assert(vbo->IsLoaded());
-	vbo->SetLoader(NULL);
-
-	const Math::matrix44 transforms[] = { Math::matrix44::rotationaxis(Math::vector(1, 0, 0), 0), Math::matrix44::rotationaxis(Math::vector(0, 1, 0), 0), Math::matrix44::rotationaxis(Math::vector(0, 0, 1), 0), Math::matrix44::identity() };
 	for (i = 0; i < this->handleGraphicsEntities.Size(); i++)
 	{ 
 		CoreGraphics::PrimitiveGroup prim;
 		prim.SetBaseIndex(0);
 		prim.SetBaseVertex(0);
 		prim.SetNumIndices(0);
-		prim.SetNumVertices(lineCount * 2);
+		prim.SetNumVertices(vbos[i].vbo->GetNumVertices());
 		prim.SetPrimitiveTopology(PrimitiveTopology::LineList);
 
 		this->handleGraphicsEntities[i] = Graphics::MeshEntity::Create();
 		this->handleGraphicsEntities[i]->SetVertexComponents(comps);
-		this->handleGraphicsEntities[i]->SetVertexBuffer(0, vbo);
-		this->handleGraphicsEntities[i]->AddNode("xaxis", prim, "sur:system/leveleditorhandle.sur", Math::bbox());
+		this->handleGraphicsEntities[i]->SetVertexBuffer(0, vbos[i].vbo);
+		this->handleGraphicsEntities[i]->AddNode("circle", prim, "sur:system/leveleditorhandlewireframe", vbos[i].box);
 		this->handleGraphicsEntities[i]->SetAlwaysVisible(true);
-		this->handleGraphicsEntities[i]->SetTransform(transforms[i]);
+
+		this->handleColors[i] = colors[i];
+		this->handleIndices[i] = -(i + 1);
+		this->handleGraphicsEntities[i]->SetPickingId(this->handleIndices[i]);
 		GraphicsFeature::GraphicsFeatureUnit::Instance()->GetDefaultStage()->AttachEntity(this->handleGraphicsEntities[i].upcast<GraphicsEntity>());
+		const Ptr<Models::ModelNodeInstance>& node = this->handleGraphicsEntities[i]->GetModelInstance()->LookupNodeInstance("root/circle");
+		const Ptr<Models::MeshNodeInstance>& mshNode = node.cast<Models::MeshNodeInstance>();
+		this->handleSurfaces[i] = mshNode->GetSurfaceInstance();
+		this->handleSurfaces[i]->SetValue("MatDiffuse", colors[i]);
+		this->handleGraphicsEntities[i]->SetVisible(false);
 	}	
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-RotationFeature::DragMode 
-RotationFeature::GetMouseHandle( const Math::line& worldMouseRay )
-{
-	const float maxAngleDifference(0.2f);
-	const float outerRadiusTolerance(0.5f);
-
-	// define picking sphere radius
-	float radius(this->handleDistance * this->handleScale);
-	float outerRadius(radius * this->outerCircleScale);
-
-	// get collision point of ray with sphere
-	vector collisionPoint = GetSphereIntersectionPoint(worldMouseRay, this->origin, radius);
-
-	// vector from collision point to handle origin
-	vector colVec = collisionPoint - this->origin;
-	colVec = vector::normalize(colVec);
-
-	if (worldMouseRay.distance(this->origin) < radius)
-	{
-		float closestHandle = 0;
-		vector plane_normal1, plane_normal2, plane_normal3;
-		DragMode retval = NONE;
-		float smallestAngle = FLT_MAX;	
-		DragMode modes[] = {X_AXIS, Y_AXIS, Z_AXIS};
-		vector normals[] = {xPlane.get_normal(), yPlane.get_normal(), zPlane.get_normal()};
-
-		IndexT i;
-		for (i = 0; i < 3; i++)
-		{
-			vector normal = normals[i];
-			float angle;
-			normal = vector::normalize(normal);
-			angle = 0.5f*(float)PI - ((float)acos(vector::dot3(normal, colVec)));
-			if (abs(angle) < maxAngleDifference &&
-				abs(angle) < smallestAngle) 
-			{
-				retval = modes[i];
-				smallestAngle = angle;
-			}
-		}
-
-		return retval;
-	}
-	else
-	{
-		float distanceRayHandle(worldMouseRay.distance(this->origin));
-		if (distanceRayHandle < outerRadius + outerRadiusTolerance * this->handleScale &&
-			distanceRayHandle > outerRadius - outerRadiusTolerance * this->handleScale)
-		{
-			return VIEW_AXIS;
-		}
-	}
-
-	return NONE;
 }
 
 //------------------------------------------------------------------------------
@@ -222,37 +174,35 @@ RotationFeature::Drag()
     const float rayLength = 5000.0f;
     line worldMouseRay = envQueryManager->ComputeMouseWorldRay(mousePos, rayLength, defaultView);
     vector currentDragVec = this->ComputeDragVector(worldMouseRay, this->currentDragMode);
-
 	
-	//float angleDiff = n_acos(vector::dot3(currentDragVec, this->startDragOrientation));
-	//vector cross = vector::cross3(currentDragVec, this->startDragOrientation);
-	//if (vector::dot3(this->view_plane.get_normal(), cross) >= 0) angleDiff = -angleDiff;
-	
-    if (X_AXIS == this->currentDragMode)
+    if (X_DRAG == this->currentDragMode)
     {
 		float dot = vector::dot3(currentDragVec, this->startDragOrientation);
 		float det = vector::dot3(this->xAxis, vector::cross3(this->startDragOrientation, currentDragVec));
 		float angleDiff = atan2f(det, dot);
 
-		this->deltaMatrix = matrix44::rotationaxis(this->xAxis, angleDiff);
+		vector axis = matrix44::transform(this->xAxis, matrix44::inverse(this->deltaMatrix));
+		this->deltaMatrix = matrix44::rotationaxis(axis, angleDiff);
     }
-    else if (Y_AXIS == this->currentDragMode)
+    else if (Y_DRAG == this->currentDragMode)
     {
 		float dot = vector::dot3(currentDragVec, this->startDragOrientation);
 		float det = vector::dot3(this->yAxis, vector::cross3(this->startDragOrientation, currentDragVec));
 		float angleDiff = atan2f(det, dot);
 
-		this->deltaMatrix = matrix44::rotationaxis(this->yAxis, angleDiff);
+		vector axis = matrix44::transform(this->yAxis, matrix44::inverse(this->deltaMatrix));
+		this->deltaMatrix = matrix44::rotationaxis(axis, angleDiff);
     }
-    else if (Z_AXIS == this->currentDragMode)
+    else if (Z_DRAG == this->currentDragMode)
     {
 		float dot = vector::dot3(currentDragVec, this->startDragOrientation);
 		float det = vector::dot3(this->zAxis, vector::cross3(this->startDragOrientation, currentDragVec));
 		float angleDiff = atan2f(det, dot);
 
-		this->deltaMatrix = matrix44::rotationaxis(this->zAxis, angleDiff);
+		vector axis = matrix44::transform(this->zAxis, matrix44::inverse(this->deltaMatrix));
+		this->deltaMatrix = matrix44::rotationaxis(axis, angleDiff);
     }
-    else if (VIEW_AXIS == this->currentDragMode)
+    else if (GLOBAL_DRAG == this->currentDragMode)
     {
 		float dot = vector::dot3(currentDragVec, this->startDragOrientation);
 		float det = vector::dot3(this->viewAxis, vector::cross3(this->startDragOrientation, currentDragVec));
@@ -275,17 +225,7 @@ RotationFeature::ComputeDragVector(const line& ray, DragMode mode)
 	this->viewPlane.intersectline(ray.start(), ray.end(), t);
 	return vector::normalize(t - this->origin);
 }
-
-//------------------------------------------------------------------------------
-/**
-    This is called when the user finished dragging a feature	
-*/
-void
-RotationFeature::ReleaseDrag()
-{
-    TransformFeature::ReleaseDrag();
-}
-
+ 
 //------------------------------------------------------------------------------
 /**
 	Renders the rotation handles, which can be dragged
@@ -293,194 +233,84 @@ RotationFeature::ReleaseDrag()
 void
 RotationFeature::RenderHandles()
 {
-	Ptr<BaseGameFeature::EnvQueryManager> envQueryManager = BaseGameFeature::EnvQueryManager::Instance();
-	Ptr<Graphics::View> defaultView = GraphicsFeature::GraphicsFeatureUnit::Instance()->GetDefaultView();
-	return;
+	TransformFeature::RenderHandles();
     
     // The following part is needed to get a mouse over visualization
     // for the handles. For thta calculations like in StartDrag() are
     // required.
-    
-    // define picking sphere radius
-    float radius(this->handleDistance * this->handleScale);
 
-    // get mouse position on screen
-	const float2& mousePos = Input::InputServer::Instance()->GetDefaultMouse()->GetScreenPosition();
+	plane planes[] =
+	{
+		this->xPlane,
+		this->yPlane,
+		this->zPlane,
+		this->viewPlane
+	};
 
-    // get mouse ray
-    const float rayLength = 5000.0f;
-    line worldMouseRay = envQueryManager->ComputeMouseWorldRay(mousePos, rayLength, defaultView);
-	DragMode mode = NONE;
-	if (!this->isInDragMode) mode = this->GetMouseHandle(worldMouseRay);
+	vector axis[] = 
+	{
+		this->xAxis,
+		-this->yAxis,
+		this->zAxis,
+		this->viewAxis
+	};
 
-    // get collision point of ray with sphere
-    point collisionPoint = GetSphereIntersectionPoint(worldMouseRay, this->origin, radius);
+	vector normals[] =
+	{
+		this->xPlane.get_normal(),
+		this->yPlane.get_normal(),
+		this->zPlane.get_normal(),
+		this->viewPlane.get_normal()
+	};
 
-    // compute angle between vector from collision point to handle origin
-    // and axis planes.
-    vector colVec = collisionPoint - this->origin;
-	colVec = vector::normalize(colVec);
-
-    // declare some variables
-    float4 color;
-    const int lineCount = 40;
-    vector help;
-    CoreGraphics::RenderShape::RenderShapeVertex handlePoints[lineCount * 2];
-    vector circleVector;
+	vector coordinateAxis[4];
+	vector centerVector;
 	vector planeNormal;
-    IndexT i;
-    line intersectionLine;
-	planeNormal = vector(this->viewPlane.a(),this->viewPlane.b(), this->viewPlane.c());
+	line intersectionLine;
+	planeNormal = vector(this->viewPlane.a(), this->viewPlane.b(), this->viewPlane.c());
 
-    // compute and draw x handle points    
-	planeNormal = vector(this->xPlane.a(),this->xPlane.b(), this->xPlane.c());
-    PlaneIntersect(this->viewPlane, this->xPlane, intersectionLine);
-    circleVector = intersectionLine.vec();
+	IndexT handleGfxIdx;
+	for (handleGfxIdx = 0; handleGfxIdx < this->handleGraphicsEntities.Size() - 1; handleGfxIdx++)
+	{
+		planeNormal = vector(planes[handleGfxIdx].a(), planes[handleGfxIdx].b(), planes[handleGfxIdx].c());
+		this->viewPlane.intersectplane(planes[handleGfxIdx], intersectionLine);
+		vector circleVector = intersectionLine.vec();
+		circleVector = vector::normalize(circleVector);
+		circleVector *= this->handleDistance * this->handleScale;
+		this->RotateVector(circleVector, axis[handleGfxIdx], PI/2);
+		vector yvec = normals[handleGfxIdx];
+		vector zvec = vector::cross3(yvec, circleVector);
+		matrix44 modelTransform = matrix44::identity();
+		modelTransform.set_xaxis(circleVector);
+		modelTransform.set_yaxis(yvec);
+		modelTransform.set_zaxis(zvec);
+		modelTransform.set_position(this->origin);
+		
+		this->handleGraphicsEntities[handleGfxIdx]->SetTransform(modelTransform);
+	}
+
+	vector normal = this->viewPlane.get_normal();
+	vector circleVector = FindOrtho(normal);
 	circleVector = vector::normalize(circleVector);
-    circleVector *= this->handleDistance * this->handleScale;
+	circleVector *= this->handleDistance * this->handleScale * this->outerCircleScale;
 
-	if (X_AXIS == this->currentDragMode || X_AXIS == mode)
+	vector yvec = normals[handleGfxIdx];
+	vector zvec = vector::cross3(yvec, circleVector);
+	matrix44 modelTransform = matrix44::identity();
+	modelTransform.set_xaxis(circleVector);
+	modelTransform.set_yaxis(yvec);
+	modelTransform.set_zaxis(zvec);
+	modelTransform.set_position(this->origin);
+
+	this->handleGraphicsEntities[handleGfxIdx]->SetTransform(modelTransform);
+	this->handleGraphicsEntities[handleGfxIdx]->SetVisible(true);
+
+	IndexT i;
+	for (i = 0; i < this->handleGraphicsEntities.Size(); i++)
 	{
-		color = float4(1, 1, 0, 1);
+		if (this->currentDragMode != i + 1)	this->handleSurfaces[i]->SetValue("MatDiffuse", this->handleColors[i]);
 	}
-	else
-	{
-		color = float4(.8f, 0, 0, 1);
-	}
-
-    for (i = 0; i < (lineCount*2) - 1; i += 2)
-    {
-        help.set(circleVector.x(),circleVector.y(),circleVector.z());
-		this->RotateVector(help, this->xAxis, (float)-PI * (i / 2) / lineCount);
-		handlePoints[i].pos = this->origin + help;
-
-		help = circleVector;
-		this->RotateVector(help, this->xAxis, (float)-PI * (i / 2 + 1) / lineCount);
-		handlePoints[i+1].pos = this->origin + help;  
-
-		handlePoints[i].color = color;
-		handlePoints[i + 1].color = color;
-    }
-    
-    // draw X axis
-    Debug::DebugShapeRenderer::Instance()->DrawPrimitives(matrix44::identity(),
-        CoreGraphics::PrimitiveTopology::LineList,
-        lineCount,
-        handlePoints,
-        color,
-		CoreGraphics::RenderShape::AlwaysOnTop);
-
-    // compute and draw y handle points    
-    PlaneIntersect(this->viewPlane, this->yPlane,intersectionLine);
-    circleVector = intersectionLine.vec();
-	circleVector = vector::normalize(circleVector);
-    circleVector *= this->handleDistance * this->handleScale;
-
-
-	if (Y_AXIS == this->currentDragMode || Y_AXIS == mode)
-	{
-		color = float4(1, 1, 0, 1);
-	}
-	else
-	{
-		color = float4(0, .8f, 0, 1);
-	}
-
-    for (i=0; i<(lineCount*2)-1; i+=2)
-    {
-        help = circleVector;
-		this->RotateVector(help, this->yAxis, (float)PI * (i / 2) / lineCount);
-        handlePoints[i].pos = this->origin + help;
-
-        help = circleVector;
-        this->RotateVector(help, this->yAxis,(float)PI * (i/2 +1) / lineCount);
-        handlePoints[i+1].pos = this->origin + help;  
-
-		handlePoints[i].color = color;
-		handlePoints[i+1].color = color;
-    }
-    
-    // draw Y axis
-    Debug::DebugShapeRenderer::Instance()->DrawPrimitives(matrix44::identity(),
-        CoreGraphics::PrimitiveTopology::LineList,
-        lineCount,
-        handlePoints,
-        color,
-		CoreGraphics::RenderShape::AlwaysOnTop);
-
-    // compute and draw z handle points    
-	PlaneIntersect(this->viewPlane, this->zPlane,intersectionLine);
-    circleVector = intersectionLine.vec();
-	circleVector = vector::normalize(circleVector);
-    circleVector *= this->handleDistance * this->handleScale;
-
-	if (Z_AXIS == this->currentDragMode || Z_AXIS == mode)
-	{
-		color = float4(1, 1, 0, 1);
-	}
-	else
-	{
-		color = float4(0, 0, .8f, 1);
-	}
-
-    for (i=0; i<(lineCount*2)-1; i+=2)
-    {
-        help = circleVector;
-        this->RotateVector(help, this->zAxis,-(float)PI * (i/2) / lineCount);
-        handlePoints[i].pos = this->origin + help;
-
-        help = circleVector;
-        this->RotateVector(help, this->zAxis,-(float)PI * (i/2 +1) / lineCount);
-        handlePoints[i+1].pos = this->origin + help;  
-
-		handlePoints[i].color = color;
-		handlePoints[i + 1].color = color;
-    }
-    
-    // draw Z axis
-    Debug::DebugShapeRenderer::Instance()->DrawPrimitives(matrix44::identity(),
-        CoreGraphics::PrimitiveTopology::LineList,
-        lineCount,
-        handlePoints,
-        color,
-		CoreGraphics::RenderShape::AlwaysOnTop);
-    
-    // draw outer circle
-    vector normal = vector(this->viewPlane.a(), this->viewPlane.b(), this->viewPlane.c());
-    circleVector = FindOrtho(normal);
-	circleVector = vector::normalize(circleVector);
-    circleVector *= this->handleDistance * this->handleScale * this->outerCircleScale;
-
-	if (VIEW_AXIS == this->currentDragMode || VIEW_AXIS == mode)
-	{
-		color = float4(1, 1, 0, 1);
-	}
-	else
-	{
-		color = float4(.5f, .5f, 1.0f, 1.0f);
-	}
-
-    for (i=0; i<(lineCount*2)-1; i+=2)
-    {
-        help = circleVector;
-        this->RotateVector(help, normal, 2*(float)PI * (i/2) / lineCount);
-        handlePoints[i].pos = this->origin + help;
-
-        help = circleVector;
-        this->RotateVector(help, normal, 2*(float)PI * (i/2 +1) / lineCount);
-        handlePoints[i+1].pos = this->origin + help;  
-
-		handlePoints[i].color = color;
-		handlePoints[i + 1].color = color;
-    }
-
-    // draw it
-    Debug::DebugShapeRenderer::Instance()->DrawPrimitives(matrix44::identity(), 
-        CoreGraphics::PrimitiveTopology::LineList, 
-        lineCount, 
-        handlePoints, 
-        color, 
-		CoreGraphics::RenderShape::AlwaysOnTop);
+	if (this->currentHandleHovered != NONE) this->handleSurfaces[this->currentHandleHovered - 1]->SetValue("MatDiffuse", float4(1, 1, 0, 1));
 }
 
 // ------------------------------------------------------------------------------
@@ -510,9 +340,10 @@ RotationFeature::UpdateHandlePositions()
     // make the handles small
     this->handleScale *= 0.03f;
 
-	this->xAxis = matrix44::transform(vector(1, 0, 0), this->deltaMatrix);
-	this->yAxis = matrix44::transform(vector(0, 1, 0), this->deltaMatrix);
-	this->zAxis = matrix44::transform(vector(0, 0, 1), this->deltaMatrix);
+	matrix44 orientation = matrix44::multiply(this->initialMatrix, this->deltaMatrix);
+	this->xAxis = matrix44::transform(vector(1, 0, 0), orientation);
+	this->yAxis = matrix44::transform(vector(0, 1, 0), orientation);
+	this->zAxis = matrix44::transform(vector(0, 0, 1), orientation);
     this->origin = (this->decomposedTranslation);
 
     // create orthogonal planes to the feature axis
@@ -568,45 +399,101 @@ RotationFeature::GetSphereIntersectionPoint(const line& ray,const vector& locati
 //------------------------------------------------------------------------------
 /**
 */
-void 
-RotationFeature::RotateVector( vector& i_v, vector& axis, float angle )
+RotationFeature::MeshBundle
+RotationFeature::CreateHalfCircle(const Util::Array<CoreGraphics::VertexComponent>& comps)
 {
-    matrix44 rot = matrix44::rotationaxis(axis, angle);
-    i_v = matrix44::transform(i_v, rot);
+	const int lineCount = 40;
+	vector help;
+	Math::float4 handlePoints[lineCount * 2];
+	Math::vector circleVector;
+	circleVector = vector(0, 0, 1.0f);
+	//Math::vector axis = Math::matrix44::transform(Math::vector::upvec(), Math::matrix44::rotationy(n_deg2rad(-180.0f)));
+	Math::vector axis = Math::vector::upvec();
+	Math::bbox visbox;
+	visbox.begin_extend();
+	IndexT i;
+	for (i = 0; i < (lineCount * 2) - 1; i += 2)
+	{
+		help.set(circleVector.x(), circleVector.y(), circleVector.z());
+		this->RotateVector(help, axis, (float)-PI * (i / 2) / lineCount);
+		handlePoints[i] = point() + help;
+
+		help = circleVector;
+		this->RotateVector(help, axis, (float)-PI * (i / 2 + 1) / lineCount);
+		handlePoints[i + 1] = point() + help;
+
+		visbox.extend(handlePoints[i]);
+		visbox.extend(handlePoints[i + 1]);
+	}
+	visbox.end_extend();
+
+	// create vertex buffer
+	Ptr<VertexBuffer> vbo = VertexBuffer::Create();
+	Ptr<MemoryVertexBufferLoader> vboLoader = MemoryVertexBufferLoader::Create();
+	vboLoader->Setup(comps, lineCount * 2, handlePoints, sizeof(handlePoints), VertexBuffer::UsageImmutable, VertexBuffer::AccessNone);
+	vbo->SetLoader(vboLoader.downcast<Resources::ResourceLoader>());
+	vbo->SetAsyncEnabled(false);
+	vbo->Load();
+	n_assert(vbo->IsLoaded());
+	vbo->SetLoader(NULL);
+
+	MeshBundle mesh;
+	mesh.vbo = vbo;
+	mesh.box = visbox;
+	return mesh;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-bool 
-RotationFeature::PlaneIntersect(plane& p1, plane &p2, line& l )
+RotationFeature::MeshBundle
+RotationFeature::CreateCircle(const Util::Array<CoreGraphics::VertexComponent>& comps)
 {
-	vector n0(p1.a(),p1.b(),p1.c());
-	vector n1(p2.a(),p2.b(),p2.c());
-	float n00 = vector::dot3(n0,n0);
-	float n01 = vector::dot3(n0,n1);
-	float n11 = vector::dot3(n1,n1);
-	float det = n00 * n11 - n01 * n01;
-	const float tol = 1e-06f;
-	if (fabs(det) < tol) 
+	const int lineCount = 80;
+	vector help;
+	Math::float4 handlePoints[lineCount * 2];
+	Math::vector circleVector;
+	circleVector = vector(0, 0, 1.0f);
+	Math::vector axis = Math::vector::upvec();
+	Math::bbox visbox;
+	visbox.begin_extend();
+
+	IndexT i;
+	for (i = 0; i < (lineCount * 2) - 1; i += 2)
 	{
-		return false;
+		help.set(circleVector.x(), circleVector.y(), circleVector.z());
+		this->RotateVector(help, axis, 2 * (float)-PI * (i / 2) / lineCount);
+		handlePoints[i] = point() + help;
+
+		help = circleVector;
+		this->RotateVector(help, axis, 2 * (float)-PI * (i / 2 + 1) / lineCount);
+		handlePoints[i + 1] = point() + help;
+
+		visbox.extend(handlePoints[i]);
+		visbox.extend(handlePoints[i + 1]);
 	}
-	else 
-	{
-		float inv_det = 1.0f/det;
-		float c0 = (n11 * p1.d() - n01 * p2.d())* inv_det;
-		float c1 = (n00 * p2.d() - n01 * p1.d())* inv_det;
-		l.m = vector::cross3(n0,n1);
-		l.b = n0 * c0 + n1 * c1;
-		return true;
-	}
+	visbox.end_extend();
+
+	// create vertex buffer
+	Ptr<VertexBuffer> vbo = VertexBuffer::Create();
+	Ptr<MemoryVertexBufferLoader> vboLoader = MemoryVertexBufferLoader::Create();
+	vboLoader->Setup(comps, lineCount * 2, handlePoints, sizeof(handlePoints), VertexBuffer::UsageImmutable, VertexBuffer::AccessNone);
+	vbo->SetLoader(vboLoader.downcast<Resources::ResourceLoader>());
+	vbo->SetAsyncEnabled(false);
+	vbo->Load();
+	n_assert(vbo->IsLoaded());
+	vbo->SetLoader(NULL);
+
+	MeshBundle mesh;
+	mesh.vbo = vbo;
+	mesh.box = visbox;
+	return mesh;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-void RotationFeature::GetAnglesFromMat( const Math::matrix44& i_m, float& x, float& y, float& z )
+void RotationFeature::GetAnglesFromMat(const Math::matrix44& i_m, float& x, float& y, float& z)
 {
 	//extract rotation from matrix
 	quaternion _q = matrix44::rotationmatrix(i_m);

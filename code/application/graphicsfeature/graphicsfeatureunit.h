@@ -63,10 +63,6 @@ public:
 	virtual void OnBeforeCleanup();
 	/// called from within GameServer::Load() after attributes are loaded
 	virtual void OnLoad();
-    /// called from within GameServer::OnStart() after OnLoad when the complete world exist
-    virtual void OnStart();      
-    /// called on begin of frame
-    virtual void OnBeginFrame();
     /// called in the middle of the feature trigger cycle
     virtual void OnFrame();        
     /// called at the end of the feature trigger cycle
@@ -110,6 +106,8 @@ public:
     void SetDecorated(bool b);
     /// sets allow resize
     void SetResizeable(bool b);
+	/// sets if this feature unit is supposed to handle input
+	void SetHandleInput(bool b);
 	/// sets the AA settings
 	void SetAntiAliasing(const Util::String& aa);
 	/// sets the parent window
@@ -133,7 +131,6 @@ protected:
     Util::Blob windowData;
     Ptr<Graphics::GraphicsServer> graphicsServer;
     Ptr<Graphics::CameraEntity> defaultCamera;	
-    Ptr<Input::InputServer> inputServer;
     Ptr<Graphics::Stage> defaultStage;
     Ptr<Graphics::View> defaultView;
 	Ptr<Graphics::GlobalLightEntity> globalLight;
@@ -148,6 +145,7 @@ protected:
     bool decorated;
     bool resizable;
 	bool defaultGraphicsWorld;
+	bool handleInput;
 };
 
 
@@ -235,8 +233,8 @@ GraphicsFeatureUnit::GetWorldBoundingBox() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-GraphicsFeatureUnit::SetResizeable( bool b )
+inline void
+GraphicsFeatureUnit::SetResizeable(bool b)
 {
     this->resizable = b;
     if(this->display.isvalid())
@@ -248,8 +246,17 @@ GraphicsFeatureUnit::SetResizeable( bool b )
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-GraphicsFeatureUnit::SetDecorated( bool b )
+inline void
+GraphicsFeatureUnit::SetHandleInput(bool b)
+{
+	this->handleInput = b;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+GraphicsFeatureUnit::SetDecorated(bool b)
 {
     this->decorated = b;
     if(this->display.isvalid())

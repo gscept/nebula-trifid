@@ -246,6 +246,9 @@ OGL4ShapeRenderer::DrawShapes()
 	renderDevice->SetPassShader(0);
 	glEnable(GL_LINE_SMOOTH);    
 
+	glLineWidth(1.0f);
+	glPointSize(1.0f);
+
 	// delete the shapes of my own thread id, all other shapes
 	// are from other threads and will be deleted through DeleteShapesByThreadId()
 	this->DeleteShapesByThreadId(Thread::GetMyThreadId());

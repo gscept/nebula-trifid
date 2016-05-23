@@ -81,7 +81,7 @@ public:
     /// render a debug view of the world
     virtual void RenderDebug();
 	/// handle on frame callback from main rendering pipeline
-	virtual void OnFrame(const Ptr<RenderModules::RTPluginRegistry>& pluginRegistry, Timing::Time curTime, Timing::Time globalTimeFactor, bool renderDebug);
+	virtual void OnFrame(const Ptr<RenderModules::RTPluginRegistry>& pluginRegistry, Timing::Time curTime, Timing::Time globalTimeFactor, bool renderDebug, bool updateCamera = true);
 
 protected:
     friend class GraphicsServer;

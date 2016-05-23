@@ -19,6 +19,7 @@
 static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 #endif
+#include "graphics/display.h"
 
 
 #if NEBULA3_OPENGL4_DEBUG
@@ -100,8 +101,13 @@ GLFWDisplayDevice::Open()
 			success = this->OpenWindow();
 		}
 
-		if(success)
+		if (success)
 		{
+			// setup event handler for input when we created the display
+			this->eventHandler = GLFWInputDisplayEventHandler::Create();    
+			this->AttachEventHandler(this->eventHandler.upcast<DisplayEventHandler>());
+
+			// enable window event callbacks
 			this->EnableCallbacks();
 		}
 
@@ -118,7 +124,8 @@ void
 GLFWDisplayDevice::Close()
 {
 	n_assert(this->IsOpen());
-
+	this->RemoveEventHandler(this->eventHandler.upcast<DisplayEventHandler>());
+	this->eventHandler = 0;
 	glfwDestroyWindow(this->window);
 	this->window = NULL;
 	DisplayDeviceBase::Close();

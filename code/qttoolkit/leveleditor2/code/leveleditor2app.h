@@ -33,6 +33,7 @@
 #include "posteffect/posteffectfeatureunit.h"
 #include "logger.h"
 #include "navigationfeatureunit.h"
+#include "inputfeature/inputfeatureunit.h"
 
 
 //------------------------------------------------------------------------------
@@ -147,6 +148,7 @@ private:
     Ptr<PostEffect::PostEffectEntity> postEffectEntity;
 	Ptr<PostEffect::PostEffectFeatureUnit> postEffectFeature;
     Ptr<Navigation::NavigationFeatureUnit> navigationFeature;
+	Ptr<InputFeature::InputFeatureUnit> inputFeature;
     Ptr<LevelEditor2::Level> level;
     LevelEditor2Window* editorWindow;
     Ptr<Navigation::NavigationServer> navigation;

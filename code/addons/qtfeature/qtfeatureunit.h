@@ -33,7 +33,7 @@ public:
     virtual void OnDeactivate();
     
     /// called in the middle of the feature trigger cycle
-    virtual void OnFrame();
+	virtual void OnBeginFrame();
 
     /// called when game debug visualization is on
     virtual void OnRenderDebug();

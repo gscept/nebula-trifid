@@ -11,7 +11,7 @@
 #include "input/inputserver.h"
 #include "input/mouse.h"
 
-//------------------------------------------------------------------------------
+using namespace Math;
 namespace LevelEditor2
 {
 __ImplementClass(LevelEditor2::TransformFeature,'LETF',Core::RefCounted);
@@ -22,6 +22,7 @@ __ImplementClass(LevelEditor2::TransformFeature,'LETF',Core::RefCounted);
 */
 TransformFeature::TransformFeature() :
 	currentDragMode(NONE),
+	currentHandleHovered(NONE),
     isInDragMode(false)
 {
 	this->deltaMatrix = Math::matrix44::identity();
@@ -42,8 +43,38 @@ TransformFeature::~TransformFeature()
 void
 TransformFeature::Setup()
 {
-
+	// handle in subclass
 }
+
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+TransformFeature::Discard()
+{
+	IndexT i;
+	for (i = 0; i < this->handleGraphicsEntities.Size(); i++)
+	{
+		this->handleGraphicsEntities[i]->GetStage()->RemoveEntity(this->handleGraphicsEntities[i].upcast<Graphics::GraphicsEntity>());
+	}
+	this->handleGraphicsEntities.Clear();
+	this->handleIndices.Clear();
+	this->handleColors.Clear();
+
+	for (i = 0; i < this->vbos.Size(); i++)
+	{
+		this->vbos[i]->Unload();
+	}
+	this->vbos.Clear();
+
+	for (i = 0; i < this->ibos.Size(); i++)
+	{
+		this->ibos[i]->Unload();
+	}
+	this->ibos.Clear();
+}
+
 
 //------------------------------------------------------------------------------
 /**
@@ -52,7 +83,7 @@ TransformFeature::Setup()
 void
 TransformFeature::RenderHandles()
 {
-    // override in subclass...
+	if (this->currentDragMode == NONE) this->currentHandleHovered = this->GetMouseHandle();
 }
 
 //------------------------------------------------------------------------------
@@ -64,15 +95,8 @@ TransformFeature::OnMove(bool move)
 	Ptr<BaseGameFeature::EnvQueryManager> envQueryManager = BaseGameFeature::EnvQueryManager::Instance();
 	Ptr<Graphics::View> defaultView = GraphicsFeature::GraphicsFeatureUnit::Instance()->GetDefaultView();
 
-	// get mouse position on screen
-	const Math::float2& mousePos = Input::InputServer::Instance()->GetDefaultMouse()->GetScreenPosition();
-
-	// get mouse ray
-	const float rayLength = 5000.0f;
-	Math::line worldMouseRay = envQueryManager->ComputeMouseWorldRay(mousePos, rayLength, defaultView);
-
 	// get drag mode, only do this once per 'click' so that it sticks
-	if (this->currentDragMode == NONE && move)	this->currentDragMode = this->GetMouseHandle(worldMouseRay);
+	if (this->currentDragMode == NONE && move) this->currentDragMode = this->currentHandleHovered;
 
 	if (this->currentDragMode != NONE)
 	{
@@ -145,6 +169,7 @@ void
 TransformFeature::ReleaseDrag()
 {
     this->isInDragMode = false;
+	this->currentDragMode = NONE;
 }
 
 //------------------------------------------------------------------------------
@@ -223,10 +248,34 @@ TransformFeature::FindOrtho( Math::vector& v )
 /**
 */
 TransformFeature::DragMode
-TransformFeature::GetMouseHandle(const Math::line& worldMouseRay)
+TransformFeature::GetMouseHandle()
 {
-	// implement in subclass...
-	return NONE;
+	// get mouse position on screen
+	const Math::float2& mousePos = Input::InputServer::Instance()->GetDefaultMouse()->GetPixelPosition();
+	const float rectSize = 10.0f; // 10 pixels
+	const Math::rectangle<float> mouseRect(mousePos.x() - rectSize, mousePos.y() - rectSize, mousePos.x() + rectSize, mousePos.y() + rectSize);
+	Util::Array<IndexT> items;
+	Util::Array<IndexT> dummy;
+	Picking::PickingServer::Instance()->FetchSquare(mouseRect, items, dummy);
+
+	DragMode modes[] = { X_DRAG, Y_DRAG, Z_DRAG, GLOBAL_DRAG };
+	DragMode mode = NONE;
+
+	IndexT handleIdx;
+	for (handleIdx = 0; handleIdx < this->handleIndices.Size(); handleIdx++)
+	{
+		bool handleHovered = false;
+		IndexT itemIdx;
+		for (itemIdx = 0; itemIdx < items.Size(); itemIdx++)
+		{
+			if (items[itemIdx] == this->handleIndices[handleIdx])
+			{
+				mode = modes[handleIdx];
+				return mode;
+			}
+		}
+	}
+	return mode;
 }
 
 //------------------------------------------------------------------------------
@@ -248,5 +297,52 @@ TransformFeature::DecomposeInitialMatrix()
 	this->initialMatrix.decompose(this->decomposedScale, quat, this->decomposedTranslation);
 	this->decomposedRotation = Math::matrix44::rotationquaternion(quat);
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+TransformFeature::ComposeInitialMatrix()
+{
+	this->initialMatrix = matrix44::transformation(float4(0), float4(0), this->scale, float4(0), this->rotation, this->position);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+TransformFeature::OnGainFocus()
+{
+	IndexT i;
+	for (i = 0; i < this->handleGraphicsEntities.Size(); i++)
+	{
+		this->handleGraphicsEntities[i]->SetVisible(true);
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+TransformFeature::OnLoseFocus()
+{
+	IndexT i;
+	for (i = 0; i < this->handleGraphicsEntities.Size(); i++)
+	{
+		this->handleGraphicsEntities[i]->SetVisible(false);
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+TransformFeature::RotateVector(Math::vector &i_v, Math::vector &axis, float angle)
+{
+	matrix44 rot = matrix44::rotationaxis(axis, angle);
+	i_v = matrix44::transform(i_v, rot);
+}
+
+
 
 }

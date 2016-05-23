@@ -116,6 +116,7 @@
 	<ApplyShaderVariable sem="NormalBuffer" value="NormalBuffer"/>
 	<ApplyShaderVariable sem="DepthBuffer" value="DepthBuffer"/>
 	<ApplyShaderVariable sem="AlbedoBuffer" value="AlbedoBuffer"/>
+	<ApplyShaderVariable sem="EmissiveBuffer" value="EmissiveBuffer"/>
 	<ApplyShaderVariable sem="SpecularBuffer" value="SpecularBuffer"/>
 	<ApplyShaderVariable sem="ShadowProjMap" value="ShadowBuffer"/>
 	<Batch type="Lights"/>
@@ -157,6 +158,7 @@
 	<ApplyShaderVariable sem="NormalBuffer" value="AlphaNormalBuffer"/>
 	<ApplyShaderVariable sem="DepthBuffer" value="AlphaDepthBuffer"/>
 	<ApplyShaderVariable sem="AlbedoBuffer" value="AlphaAlbedoBuffer"/>
+	<ApplyShaderVariable sem="EmissiveBuffer" value="AlphaEmissiveBuffer"/>
 	<ApplyShaderVariable sem="SpecularBuffer" value="AlphaSpecularBuffer"/>
 	<ApplyShaderVariable sem="ShadowProjMap" value="ShadowBuffer"/>
 	<Batch type="Lights"/>
@@ -271,6 +273,7 @@
   <!-- batch render shapes before we finalize, we do this to avoid stuff like fogging and DoF for debug shapes -->
   <Pass multipleRenderTarget="UnlitBuffer" name="Shape">
 	<Batch type="Shapes"/>
+	<Batch batchGroup="DirectToColor" sorting="None" lighting="None" type="Geometry"/>
   </Pass>
     
   <!-- apply last touches before presenting frame -->

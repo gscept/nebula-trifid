@@ -387,7 +387,7 @@ void
 OGL4RenderDevice::SetIndexBuffer(const Ptr<IndexBuffer>& ib)
 {
 	// only apply if the currently bound index buffer is not equal to the one being passed
-	if (this->indexBuffer != ib)
+	//if (this->indexBuffer != ib)
 	{
 		if (!ib.isvalid())
 		{
@@ -681,7 +681,7 @@ OGL4RenderDevice::Draw()
 				primType,															// primitive type
 				this->primitiveGroup.GetNumIndices(),								// number of primitives
 				indexType,															// type of index				
-				(GLvoid*)(this->primitiveGroup.GetBaseIndex() * indexSize),			// pointer to indices (NULL since we use VAOs or IBOs)
+				(GLvoid*)(this->primitiveGroup.GetBaseIndex() * indexSize),			// offset into index buffer
 				this->primitiveGroup.GetBaseVertex()								// vertex offset
 			);				
 		}

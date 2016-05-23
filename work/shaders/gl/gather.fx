@@ -74,7 +74,7 @@ psMain(in vec2 UV,
 	float ssao = textureLod(SSAOTexture, UV, 0).r;
 	
 	// blend non-blurred light with SSS light
-	vec4 color = vec4(lerp(light.rgb + emissiveColor.rgb * emissiveColor.a, sssLight.rgb, sssLight.a) * (1.0f - ssao), light.a);
+	vec4 color = vec4(lerp(light.rgb + emissiveColor.rgb * light.a, sssLight.rgb, sssLight.a) * (1.0f - ssao), 1.0f);
 	
 	float depth = textureLod(DepthTexture, UV, 0).r;
 	color = psFog(depth, color);

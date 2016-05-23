@@ -261,10 +261,10 @@ void
 View::ApplyCameraSettings()
 {
     TransformDevice* transformDevice = TransformDevice::Instance();
-    transformDevice->SetProjTransform(this->camera->GetProjTransform());
-    transformDevice->SetViewTransform(this->camera->GetViewTransform());  
-    transformDevice->SetFocalLength(this->camera->GetCameraSettings().GetFocalLength());
-    transformDevice->ApplyViewSettings();
+	transformDevice->SetProjTransform(this->camera->GetProjTransform());
+	transformDevice->SetViewTransform(this->camera->GetViewTransform());
+	transformDevice->SetFocalLength(this->camera->GetCameraSettings().GetFocalLength());
+	transformDevice->ApplyViewSettings();
 }
 
 //------------------------------------------------------------------------------
@@ -359,7 +359,7 @@ View::RenderDebug()
 /**
 */
 void
-View::OnFrame(const Ptr<RenderModules::RTPluginRegistry>& pluginRegistry, Timing::Time curTime, Timing::Time globalTimeFactor, bool renderDebug)
+View::OnFrame(const Ptr<RenderModules::RTPluginRegistry>& pluginRegistry, Timing::Time curTime, Timing::Time globalTimeFactor, bool renderDebug, bool updateCamera)
 {
 	RenderDevice* renderDevice = RenderDevice::Instance();
 	DisplayDevice* displayDevice = DisplayDevice::Instance();
@@ -374,7 +374,7 @@ View::OnFrame(const Ptr<RenderModules::RTPluginRegistry>& pluginRegistry, Timing
 		charServer->BeginFrame(frameIndex);
 
 		// update transform device with camera transforms for this frame
-		this->ApplyCameraSettings();
+		if (updateCamera) this->ApplyCameraSettings();
 
 		// begin gathering skins
 		charServer->BeginGather();

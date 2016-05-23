@@ -111,7 +111,7 @@ PickingServer::Render()
 		const Graphics::CameraSettings& settings = defaultCam->GetCameraSettings();
 		this->pickingCamera->SetTransform(camTrans);
 		this->pickingCamera->SetCameraSettings(settings);
-		this->pickingView->OnFrame(NULL, 0, 0, false);
+		this->pickingView->OnFrame(NULL, 0, 0, false, false);
 		this->frameIndex = idx;
 	}
 	

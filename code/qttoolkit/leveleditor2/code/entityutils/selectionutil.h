@@ -96,6 +96,7 @@ private:
     bool isActive;
     bool multiSelect;	
     bool mouseDrag;
+	bool marqueeSelecting;
 	bool selectInside;
 	Math::float2 clickPos;
 	Math::float2 clickPosWindow;
@@ -107,8 +108,7 @@ private:
 //------------------------------------------------------------------------------
 /**
 */
-inline
-const bool 
+inline const bool 
 SelectionUtil::HasSelection() const
 {
 	return this->selectedEntities.Size() > 0;
@@ -117,8 +117,7 @@ SelectionUtil::HasSelection() const
 //------------------------------------------------------------------------------
 /**
 */
-inline
-const bool
+inline const bool
 SelectionUtil::IsInDrag() const
 {
 	return this->mouseDrag;
@@ -126,8 +125,7 @@ SelectionUtil::IsInDrag() const
 //------------------------------------------------------------------------------
 /**
 */
-inline
-const Util::Array<EntityGuid> &
+inline const Util::Array<EntityGuid>&
 SelectionUtil::GetSelectedEntityIds()
 {
 	return this->selectedEntities;

@@ -47,19 +47,27 @@ public:
 
 
 private:
-        
-    /// returns true, if mouse is pointing on a handle
-	bool IsMouseOverHandle(DragMode handle, const Math::line& worldMouseRay);
-	/// returns the handle above which the mouse is currently over
-	DragMode GetMouseHandle(const Math::line& worldMouseRay);
 
     /// checks current initial matrix and feature scale to compute handle positions in space.
     void UpdateHandlePositions();
 
-	Math::point xAxis;
-	Math::point yAxis;
-	Math::point zAxis;
-	Math::point origin;
+	struct MeshBundle
+	{
+		Ptr<CoreGraphics::VertexBuffer> vbo;
+		Ptr<CoreGraphics::IndexBuffer> ibo;
+		Math::bbox box;
+	};
+
+	/// create box with line handle
+	MeshBundle CreateHandle(const Util::Array<CoreGraphics::VertexComponent>& comps);
+	/// create box
+	MeshBundle CreateBox(const Util::Array<CoreGraphics::VertexComponent>& comps);
+
+	struct SurfaceBundle
+	{
+		Ptr<Materials::SurfaceInstance> box;
+	};
+	Util::FixedArray<SurfaceBundle> handleSurfaces;
 
     float handleScale;
 

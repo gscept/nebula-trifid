@@ -79,7 +79,7 @@ private:
 inline void
 KeyboardBase::SetKeyDown(Input::Key::Code keyCode)
 {
-	KeyState& keyState = this->nextKeyStates[keyCode];
+	KeyState& keyState = this->keyStates[keyCode];
 	if (!keyState.pressed)
 	{
 		keyState.down = true;
@@ -93,7 +93,7 @@ KeyboardBase::SetKeyDown(Input::Key::Code keyCode)
 inline void
 KeyboardBase::SetKeyUp(Input::Key::Code keyCode)
 {
-	this->nextKeyStates[keyCode].up = true;
+	this->keyStates[keyCode].up = true;
 }
 
 //------------------------------------------------------------------------------

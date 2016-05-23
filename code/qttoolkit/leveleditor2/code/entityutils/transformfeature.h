@@ -13,6 +13,7 @@
 #include "core/refcounted.h"
 #include "game/entity.h"
 #include "graphics/meshentity.h"
+#include "materials/surfaceinstance.h"
 
 //------------------------------------------------------------------------------
 namespace LevelEditor2
@@ -26,11 +27,13 @@ public:
 	enum DragMode
 	{
 		NONE,
-		X_AXIS,
-		Y_AXIS,
-		Z_AXIS,
-		VIEW_AXIS,
-		ORIGIN
+		X_DRAG,
+		Y_DRAG,
+		Z_DRAG,
+		GLOBAL_DRAG,
+		CUSTOM_DRAG1,
+		CUSTOM_DRAG2,
+		CUSTOM_DRAG3
 	};
 
 	enum DragEvent
@@ -48,6 +51,13 @@ public:
 
 	/// setup transform feature
 	virtual void Setup();
+	/// destroy transform feature
+	virtual void Discard();
+
+	/// handle getting focus
+	void OnGainFocus();
+	/// handle losing focus
+	void OnLoseFocus();
 
 	/// handle ordinary move from mouse
 	virtual DragEvent OnMove(bool move);
@@ -71,7 +81,7 @@ public:
     
     /// Renders the handles for the user input
     virtual void RenderHandles();
-	Math::vector FindOrtho( Math::vector& v );
+	Math::vector FindOrtho(Math::vector& v);
 
 	/// Sets the camera entity
 	void SetCameraEntity(Ptr<Game::Entity> camera);
@@ -85,14 +95,25 @@ public:
 protected:
 
 	/// returns the handle above which the mouse is currently over
-	virtual DragMode GetMouseHandle(const Math::line& worldMouseRay);
+	virtual DragMode GetMouseHandle();
 
+	/// rotate vector in a circle using an axis ad pivot
+	void RotateVector(Math::vector &i_v, Math::vector &axis, float angle);
 	/// decomposes the current transform matrix in translation vector, scale vector and rotation matrix.
 	void DecomposeInitialMatrix();
+	/// compose initial matrix using position, rotation and scale
+	void ComposeInitialMatrix();
+
+	Util::FixedArray<Ptr<CoreGraphics::VertexBuffer>> vbos;
+	Util::FixedArray<Ptr<CoreGraphics::IndexBuffer>> ibos;
 
 	Math::vector decomposedTranslation;
 	Math::vector decomposedScale;
 	Math::matrix44 decomposedRotation;
+
+	Math::point position;
+	Math::quaternion rotation;
+	Math::vector scale;
     
 	Ptr<Game::Entity> cameraEntity;
     bool isInDragMode;
@@ -101,8 +122,19 @@ protected:
     Math::matrix44 deltaMatrix;
     Math::matrix44 startDragMatrix;
 	DragMode currentDragMode;
+	DragMode currentHandleHovered;
+
+	// handle axis
+	Math::vector xAxis;
+	Math::vector yAxis;
+	Math::vector zAxis;
+	Math::vector viewAxis;
+	Math::point origin;
+	Math::plane viewPlane;
 
 	Util::FixedArray<Ptr<Graphics::MeshEntity>> handleGraphicsEntities;
+	Util::FixedArray<IndexT> handleIndices;
+	Util::FixedArray<Math::float4> handleColors;
 };
 
 //------------------------------------------------------------------------------
