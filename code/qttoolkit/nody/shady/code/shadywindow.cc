@@ -376,6 +376,7 @@ ShadyWindow::OnBuild()
             Ptr<AnyFXGenerator> generator = AnyFXGenerator::Create();
 			generator->SetVisualize(this->ui->actionDebug_code_generation->isChecked(), 500);
             generator->GenerateToBuffer(this->nodeScene, result);
+			generator->Validate(this->nodeScene, "GLSL", result);
 
             // run generation, if successful, also stop timer
             success = generator->GetStatus();

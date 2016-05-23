@@ -93,18 +93,16 @@ IF(SHADY_APPLICATION)
 
     ADD_DEPENDENCIES(shady        
         libqimg
-	    ${NEBULA_DEFAULT_LIBS}
+		compiler
 	    nody
 	    toolkitutil
     )
     TARGET_LINK_LIBRARIES(shady        
         libqimg
-        ${NEBULA_DEFAULT_LIBS}
-	    ${NEBULA_TOOLKIT_LIBS}
+		compiler
 	    nody 
 	    toolkitutil
 	    ${QT_WIN_LIBS}
-	    ${N_EXTRA_LIBS}
 	    ${QT_LIBRARIES} ${QT_QTMAIN_LIBRARY}
 	    d3dx11.lib 
 	    d3dcompiler.lib 

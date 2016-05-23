@@ -141,7 +141,7 @@ public:
     void Trim(const String& charSet);
     /// substitute every occurance of a string with another string
     void SubstituteString(const String& str, const String& substStr);
-    /// substiture every occurance of a character with another character
+    /// substitute every occurance of a character with another character
     void SubstituteChar(char c, char subst);
     /// format string printf-style
     void __cdecl Format(const char* fmtString, ...);
@@ -151,7 +151,7 @@ public:
     static String Sprintf(const char* fmtString, ...);
     /// return true if string only contains characters from charSet argument
     bool CheckValidCharSet(const String& charSet) const;
-    /// replace any char set character within a srtring with the replacement character
+    /// replace any char set character within a string with the replacement character
     void ReplaceChars(const String& charSet, char replacement);
     /// concatenate array of strings into new string
     static String Concatenate(const Array<String>& strArray, const String& whiteSpace);

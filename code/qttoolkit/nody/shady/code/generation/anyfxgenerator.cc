@@ -15,8 +15,10 @@
 #include "node/shadynode.h"
 #include "shadywindow.h"
 #include "io/ioserver.h"
+#include "anyfx/compiler/code/afxcompiler.h"
 
 #include <QApplication>
+#include "config.h"
 
 using namespace Nody;
 namespace Shady
@@ -336,9 +338,55 @@ AnyFXGenerator::DoWork(const Ptr<Nody::NodeScene>& scene)
     This is where you compile your code in order to make sure that it works.
 */
 void
-AnyFXGenerator::Validate(const Util::Blob& buffer)
+AnyFXGenerator::Validate(const Ptr<Nody::NodeScene>& scene, const Util::String& language, const Util::Blob& buffer)
 {
-    // FIXME!
+	// begin compilation
+	AnyFXBeginCompile();
+
+	IO::IoServer* ioServer = IO::IoServer::Instance();
+	ioServer->CreateDirectory("intermediate:anyfx");
+	IO::URI path("intermediate:anyfx/shader.fx");
+	IO::URI dest("intermediate:anyfx/shaderbin.fx");
+	Ptr<IO::Stream> stream = ioServer->CreateStream(path);
+	if (stream->Open())
+	{
+		std::vector<std::string> defines;
+		std::vector<std::string> flags;
+		Util::String define;
+		define.Format("-D GLSL");
+		defines.push_back(define.AsCharPtr());
+
+		// get main node, this will be used to get the first level links which will be used to build each function
+		const Ptr<Node>& start = scene->GetSuperNode();
+		const Ptr<ShadySuperVariation>& superVariation = start->GetSuperVariation()->GetOriginalSuperVariation().downcast<ShadySuperVariation>();
+
+		// get includes
+		Util::Array<IO::URI> includes = superVariation->GetIncludes(language);
+		IndexT i;
+		for (i = 0; i < includes.Size(); i++)
+		{
+			define.Format("-I%s/", includes[i].LocalPath().AsCharPtr());
+			defines.push_back(define.AsCharPtr());
+		}
+
+		// set flags
+		flags.push_back("/NOSUB");		// deactivate subroutine usage
+		flags.push_back("/GBLOCK");		// put all shader variables outside of explicit buffers in one global block
+
+		// get target language
+		Util::String target = superVariation->GetTarget();
+
+		AnyFXErrorBlob* error;
+		AnyFXCompile(path.LocalPath().AsCharPtr(), dest.LocalPath().AsCharPtr(), target.AsCharPtr(), "Khronos", defines, flags, &error);
+		ioServer->DeleteFile(path);
+	}
+	else
+	{
+		SHADY_ERROR_FORMAT("Cannot create intermediate file %s for compilation!", path.LocalPath().AsCharPtr());
+	}
+
+	// end compilation
+	AnyFXEndCompile();
 }
 
 //------------------------------------------------------------------------------

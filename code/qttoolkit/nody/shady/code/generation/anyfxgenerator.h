@@ -36,7 +36,7 @@ public:
     void GenerateToBuffer(const Ptr<Nody::NodeScene>& scene, Util::Blob& output);
 
     /// validate generated buffer
-    void Validate(const Util::Blob& buffer);
+	void Validate(const Ptr<Nody::NodeScene>& scene, const Util::String& language, const Util::Blob& buffer);
 
 protected:
     /// handle single node
