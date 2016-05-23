@@ -129,6 +129,10 @@ PostEffectExporter::SetupTables()
 		AttributeDefinitionBase::RegisterDynamicAttribute("AOAngleBias", Util::FourCC(), FloatType, ReadWrite);
 	if (!AttrId::IsValidName("PEBlendTime"))
 		AttributeDefinitionBase::RegisterDynamicAttribute("PEBlendTime", Util::FourCC(), FloatType, ReadWrite);	
+    if (!AttrId::IsValidName("ProbeReflectionMap"))
+        AttributeDefinitionBase::RegisterDynamicAttribute("ProbeReflectionMap", Util::FourCC(), StringType, ReadWrite);
+    if (!AttrId::IsValidName("ProbeIrradianceMap"))
+        AttributeDefinitionBase::RegisterDynamicAttribute("ProbeIrradianceMap", Util::FourCC(), StringType, ReadWrite);
 
 	if (this->staticDb->HasTable("_PostEffect_Presets"))
 	{
@@ -220,6 +224,10 @@ PostEffectExporter::SetupTables()
 		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 		id = AttrId("PEBlendTime");
 		EditorBlueprintManager::CreateColumn(table, Column::Default, id);
+        id = AttrId("ProbeReflectionMap");
+        EditorBlueprintManager::CreateColumn(table, Column::Default, id);
+        id = AttrId("ProbeIrradianceMap");
+        EditorBlueprintManager::CreateColumn(table, Column::Default, id);
 	}
 }
 
@@ -303,6 +311,8 @@ ToolkitUtil::PostEffectExporter::ExportAll()
             valueTable->SetFloat(AttrId("SkyRotationFactor"), row, parms.sky->GetSkyRotationFactor());
 			valueTable->SetFloat(AttrId("SkyBrightness"), row, parms.sky->GetSkyBrightness());
 			valueTable->SetString(AttrId("SkyTexture"), row, parms.sky->GetSkyTexturePath());
+            valueTable->SetString(AttrId("ProbeReflectionMap"), row, parms.sky->GetReflectanceTexturePath());
+            valueTable->SetString(AttrId("ProbeIrradianceMap"), row, parms.sky->GetIrradianceTexturePath());
 			valueTable->SetFloat(AttrId("AOStrength"), row, parms.ao->GetStrength());
 			valueTable->SetFloat(AttrId("AORadius"), row, parms.ao->GetRadius());
 			valueTable->SetFloat(AttrId("AOPower"), row, parms.ao->GetPower());

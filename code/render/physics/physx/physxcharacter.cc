@@ -342,9 +342,10 @@ PhysXCharacter::TryStandup()
 	PxExtendedVec3 position = this->controller->getPosition();
 	PxVec3 pos((float)position.x, (float)position.y + this->height*.5f + r, (float)position.z);
 	PxQuat orientation(PxHalfPi, PxVec3(0.0f, 0.0f, 1.0f));
-
+	PxQueryFilterData qd(PxQueryFlag::eANY_HIT | PxQueryFlag::eSTATIC | PxQueryFlag::eDYNAMIC);
+	qd.data.word0 = Physics::Default | Physics::Static ;
 	PxOverlapBuffer hit;
-	if (scene->overlap(geom, PxTransform(pos, orientation), hit, PxQueryFilterData(PxQueryFlag::eANY_HIT | PxQueryFlag::eSTATIC | PxQueryFlag::eDYNAMIC)))
+	if (scene->overlap(geom, PxTransform(pos, orientation), hit, qd))
 		return;
 	// if no hit, we can stand up
 	this->controller->resize(this->height);

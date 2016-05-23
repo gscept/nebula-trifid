@@ -126,6 +126,7 @@ PostEffectFeatureUnit::SetupDefaultWorld()
 void
 PostEffectFeatureUnit::CleanupDefaultWorld()
 {	
+	PostEffect::PostEffectServer::Instance()->StopAllBlending();
 	Ptr<Graphics::Stage> stage = GraphicsFeature::GraphicsFeatureUnit::Instance()->GetDefaultStage();
 	if (stage.isvalid())
 	{

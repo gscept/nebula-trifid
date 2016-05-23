@@ -20,7 +20,9 @@ SkyParams::SkyParams() :
     skyRotationFactor(0.03f),
     skyContrast(1.0f),
     skyBrightness(1.0f),
-	skyTexture("tex:system/sky")
+	skyTexture("tex:system/sky"),
+    reflTexture("tex:system/sky_refl"),
+    irrTexture("tex:system/sky_irr")
 {
     // empty
 }
@@ -45,6 +47,8 @@ SkyParams::Copy( const Ptr<ParamBase>& rhs )
 	{
 		this->textureBlendFactor = rhs.cast<SkyParams>()->textureBlendFactor;
 		this->skyTexture = rhs.cast<SkyParams>()->skyTexture;
+        this->reflTexture = rhs.cast<SkyParams>()->reflTexture;
+        this->irrTexture = rhs.cast<SkyParams>()->irrTexture;
 		this->skyContrast = rhs.cast<SkyParams>()->skyContrast;
 		this->skyBrightness = rhs.cast<SkyParams>()->skyBrightness;
         this->skyRotationFactor = rhs.cast<SkyParams>()->skyRotationFactor;

@@ -10,6 +10,7 @@
 //------------------------------------------------------------------------------
 #include <QDialog>
 #include "ui_environmentprobedialog.h"
+#include "util/string.h"
 namespace Lighting
 {
 class EnvironmentProbeWindow : public QDialog
@@ -21,6 +22,15 @@ public:
 	/// destructor
 	virtual ~EnvironmentProbeWindow();
 
+    /// set the reflection map
+    void SetReflectionMap(const Util::String & refl);
+    /// set the irradiance map
+    void SetIrradianceMap(const Util::String & irr);
+
+protected:
+    ///
+    void showEvent(QShowEvent * event);
+
 private slots:
 	/// call when the reflection map is changed
 	void OnReflectionChanged();
@@ -31,6 +41,11 @@ private slots:
 	void OnBrowseReflection();
 	/// call when asked to browse irradiance maps
 	void OnBrowseIrradiance();
+
+    ///
+    void OnAccepted();
+    ///
+    void OnRejected();
 
 private:
 	Ui::EnvironmentProbeDialog ui;
