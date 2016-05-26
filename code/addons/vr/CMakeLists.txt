@@ -11,6 +11,8 @@ set(SOURCES_vr
 	vrmanager.h
 	vrcameraproperty.cc
 	vrcameraproperty.h
+	vivemote.cc
+	vivemote.h
 )
 source_group("vr" FILES ${SOURCES_vr})
 

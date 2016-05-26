@@ -29,7 +29,7 @@ InputServerBase::InputServerBase() :
 	hasFocus(false),
     inputHandlersLockCount(0),
     maxNumLocalPlayers(4),
-    defaultGamePad(GamePad::GetMaxNumPlayers()),
+    defaultGamePad(GamePad::GetMaxNumControllers()),
     creatorThreadId(Threading::Thread::GetMyThreadId())
 {
     // empty
@@ -56,7 +56,7 @@ void
 InputServerBase::SetMaxNumLocalPlayers(SizeT num)
 {
     n_assert(!this->isOpen);
-    n_assert(num <= GamePad::GetMaxNumPlayers());
+    n_assert(num <= GamePad::GetMaxNumControllers());
     this->maxNumLocalPlayers = num;
 }
 

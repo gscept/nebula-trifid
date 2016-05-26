@@ -12,6 +12,8 @@
 #include "threading/criticalsection.h"
 #include "threading/thread.h"
 
+#define MAX_GAMEPADS 4
+
 //------------------------------------------------------------------------------
 namespace Base
 {
@@ -92,12 +94,12 @@ public:
 
     /// return true if this game pad is currently connected
     bool IsConnected() const;
-    /// set player index -> TODO make threadsafe
-    void SetPlayerIndex(IndexT i);
-    /// get the player index of this game pad
-    IndexT GetPlayerIndex() const;
-    /// get maximum number of players
-    static SizeT GetMaxNumPlayers();
+    /// set index -> TODO make threadsafe
+    void SetIndex(IndexT i);
+    /// get the index of this game pad
+    IndexT GetIndex() const;
+    /// get maximum number of controllers
+    static SizeT GetMaxNumControllers();
 
     /// return true if a button is currently pressed
     bool ButtonPressed(Button btn) const;
@@ -107,6 +109,10 @@ public:
     bool ButtonUp(Button btn) const;
     /// get current axis value
     float GetAxisValue(Axis axis) const;
+	/// check if device has 3d location sensor
+	bool HasTransform() const;
+	/// get current position (if supported by device, identity otherwise)
+	const Math::matrix44 & GetTransform() const;
 
     /// set low-frequency vibration effect (0.0f .. 1.0f)
     void SetLowFrequencyVibrator(float f);
@@ -137,15 +143,17 @@ protected:
         bool up;
     };
 
-    IndexT playerIndex;
+    IndexT index;
     bool isConnected;
     Util::FixedArray<ButtonState> buttonStates;
     Util::FixedArray<float> axisValues;
     bool vibratorsDirty;
+	bool hasTransform;
     float lowFreqVibrator;
     float highFreqVibrator;
     Threading::CriticalSection critSect;
     Threading::ThreadId creatorThreadId;
+	Math::matrix44 transform;
 };
 
 //------------------------------------------------------------------------------
@@ -161,29 +169,38 @@ GamePadBase::IsConnected() const
 //------------------------------------------------------------------------------
 /**
 */
+inline bool
+GamePadBase::HasTransform() const
+{	
+	return this->hasTransform;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 inline void
-GamePadBase::SetPlayerIndex(IndexT i)
+GamePadBase::SetIndex(IndexT i)
 {
-    n_assert(i < this->GetMaxNumPlayers());
-    this->playerIndex = i;
+    n_assert(i < this->GetMaxNumControllers());
+    this->index = i;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 inline IndexT
-GamePadBase::GetPlayerIndex() const
+GamePadBase::GetIndex() const
 {
-    return this->playerIndex;
+    return this->index;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 inline SizeT
-GamePadBase::GetMaxNumPlayers()
+GamePadBase::GetMaxNumControllers()
 {
-    return 4;
+	return MAX_GAMEPADS;
 }
 
 //------------------------------------------------------------------------------

@@ -8,6 +8,8 @@
 #include "game/manager.h"
 #include "core/debug.h"
 #include "vrcameraproperty.h"
+#include "vivemote.h"
+#include "input/inputserver.h"
 
 namespace VR
 {
@@ -57,6 +59,13 @@ VRManager::OnActivate()
 	}
 	this->trackedObjects.SetSize(vr::k_unMaxTrackedDeviceCount);
 
+	this->RetrieveTrackers();
+	this->mites[0] = ViveMote::Create();
+	this->mites[0]->SetTracker(LeftControl);
+	Input::InputServer::Instance()->AttachInputHandler(Input::InputPriority::Game, this->mites[0].cast<Input::InputHandler>());
+	this->mites[1] = ViveMote::Create();
+	this->mites[1]->SetTracker(RightControl);
+	Input::InputServer::Instance()->AttachInputHandler(Input::InputPriority::Game, this->mites[1].cast<Input::InputHandler>());	
 }
 
 //------------------------------------------------------------------------------
@@ -76,32 +85,36 @@ VRManager::OnDeactivate()
 void
 VRManager::OnBeginFrame()
 {
+	this->RetrieveTrackers();
+}
+
+void VRManager::RetrieveTrackers()
+{
 	if (this->HMD)
 	{
 		static vr::TrackedDevicePose_t tracked[vr::k_unMaxTrackedDeviceCount];
 		static uint32_t trackerIds[vr::k_unMaxTrackedDeviceCount];
 		vr::EVRCompositorError ret = vr::VRCompositor()->WaitGetPoses(NULL, 0, tracked, vr::k_unMaxTrackedDeviceCount);
 		n_assert(ret == EVRCompositorError::VRCompositorError_None);
-				
+
 		for (int i = 0; i < vr::k_unMaxTrackedDeviceCount; i++)
 		{
 			if (tracked[i].bPoseIsValid)
-			{				
+			{
 				for (int j = 0; j < 3; j++)
 				{
-					this->trackedObjects[i].row(j).loadu(tracked[i].mDeviceToAbsoluteTracking.m[j]);					
-				}					
+					this->trackedObjects[i].row(j).loadu(tracked[i].mDeviceToAbsoluteTracking.m[j]);
+				}
 			}
 		}
 		// FIXME these should only be updated if a connect/disconnect event occured
 		static uint32_t ids[3];
 		this->HMD->GetSortedTrackedDeviceIndicesOfClass(TrackedDeviceClass_HMD, ids, 3, -1);
-		this->trackerIds[HMDisplay] = ids[0];		
+		this->trackerIds[HMDisplay] = ids[0];
 		this->trackerIds[LeftControl] = this->HMD->GetTrackedDeviceIndexForControllerRole(TrackedControllerRole_LeftHand);
-		this->trackerIds[RightControl] = this->HMD->GetTrackedDeviceIndexForControllerRole(TrackedControllerRole_RightHand);				
+		this->trackerIds[RightControl] = this->HMD->GetTrackedDeviceIndexForControllerRole(TrackedControllerRole_RightHand);
 	}
-	
-}
 
+}
 
 }
