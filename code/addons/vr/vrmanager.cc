@@ -101,10 +101,12 @@ void VRManager::RetrieveTrackers()
 		{
 			if (tracked[i].bPoseIsValid)
 			{
+				Math::matrix44 mat;
 				for (int j = 0; j < 3; j++)
 				{
-					this->trackedObjects[i].row(j).loadu(tracked[i].mDeviceToAbsoluteTracking.m[j]);
-				}
+					mat.row(j).loadu(tracked[i].mDeviceToAbsoluteTracking.m[j]);
+				}				
+				this->trackedObjects[i] = Math::matrix44::multiply(Math::matrix44::transpose(mat), this->origin);
 			}
 		}
 		// FIXME these should only be updated if a connect/disconnect event occured
@@ -115,6 +117,23 @@ void VRManager::RetrieveTrackers()
 		this->trackerIds[RightControl] = this->HMD->GetTrackedDeviceIndexForControllerRole(TrackedControllerRole_RightHand);
 	}
 
+}
+
+const Ptr<VR::ViveMote> & VRManager::GetViveMote(VR::TrackerType t)
+{
+	switch (t)
+	{
+	case VR::LeftControl:
+		return this->mites[0];
+		break;
+	case VR::RightControl:
+		return this->mites[1];
+		break;
+	default:
+		n_assert("wrong type of tracker for vivemote")
+			break;
+	}
+	return this->mites[0];
 }
 
 }

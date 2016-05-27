@@ -10,6 +10,7 @@
 
 #include "vrmanager.h"
 #include "input/gamepad.h"
+#include "openvr.h"
 
 //------------------------------------------------------------------------------
 namespace VR

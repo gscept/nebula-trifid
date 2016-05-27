@@ -2,5 +2,11 @@
 <Nebula3>
     <Protocol namespace="VR" name="VrProtocol">
 	</Protocol>
-  <Property name="VR::VRCameraProperty" derivedFrom="GraphicsFeature::CameraProperty" header="vr/vrcameraproperty.h" />   
+  <AttributeLib>
+    <Attribute name="ControllerHand" fourcc="CTLH" accessMode="ReadWrite" type="String" />    
+  </AttributeLib>
+  <Property name="VR::VRCameraProperty" derivedFrom="GraphicsFeature::CameraProperty" header="vr/vrcameraproperty.h" />
+  <Property name="VR::ViveInteractProperty" header="vr/viveinteractproperty.h">
+    <Attribute name="ControllerHand"/>
+  </Property>
 </Nebula3>

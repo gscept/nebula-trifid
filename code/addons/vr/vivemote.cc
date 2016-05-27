@@ -142,7 +142,7 @@ ViveMote::UpdateButtonState(vr::EVRButtonId xiBtn, GamePadBase::Button btn)
 		this->buttonStates[btn].pressed = false;
 		this->buttonStates[btn].down = false;
 	}
-#if _DEBUG
+#if 0
 	if (this->buttonStates[btn].pressed)
 	{
 		n_printf("button pressed: %s\n", Base::GamePadBase::ButtonAsString(btn).AsCharPtr());

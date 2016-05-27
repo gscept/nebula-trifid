@@ -178,6 +178,16 @@ GamePadBase::HasTransform() const
 //------------------------------------------------------------------------------
 /**
 */
+inline 
+const Math::matrix44 &
+GamePadBase::GetTransform() const
+{	
+	return this->transform;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 inline void
 GamePadBase::SetIndex(IndexT i)
 {

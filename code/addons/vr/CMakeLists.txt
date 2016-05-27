@@ -13,6 +13,8 @@ set(SOURCES_vr
 	vrcameraproperty.h
 	vivemote.cc
 	vivemote.h
+	viveinteractproperty.cc
+	viveinteractproperty.h
 )
 source_group("vr" FILES ${SOURCES_vr})
 

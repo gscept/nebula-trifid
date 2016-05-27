@@ -61,8 +61,7 @@ VRCameraProperty::OnBeginFrame()
 	{
 		if (VRManager::Instance()->HasHMD())
 		{
-			Math::matrix44 mat = VRManager::Instance()->GetTrackedObject(VR::HMDisplay);
-			mat = Math::matrix44::transpose(mat);
+			Math::matrix44 mat = VRManager::Instance()->GetTrackedObject(VR::HMDisplay);			
 			Ptr<BaseGameFeature::SetTransform> msg = BaseGameFeature::SetTransform::Create();
 			msg->SetMatrix(mat);
 			this->entity->SetMatrix44(Attr::Transform, mat);
