@@ -57,6 +57,7 @@ GraphicsFeatureUnit::GraphicsFeatureUnit() :
     resizable(true),
     decorated(true),
 	defaultGraphicsWorld(true),
+	viewClass(View::RTTI),
 	frameShader(ResourceId(NEBULA3_DEFAULT_FRAMESHADER_NAME))
 {
     __ConstructSingleton;
@@ -146,7 +147,7 @@ GraphicsFeatureUnit::SetupDefaultGraphicsWorld()
     visSystems.Append(visSystem.cast<VisibilitySystemBase>());
     this->defaultStage = this->graphicsServer->CreateStage(defaultStageName, visSystems);
         
-    this->defaultView = this->graphicsServer->CreateView(Graphics::View::RTTI,
+    this->defaultView = this->graphicsServer->CreateView(this->viewClass,
                                                          defaultViewName,
                                                          true);
 

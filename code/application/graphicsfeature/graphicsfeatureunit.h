@@ -102,6 +102,8 @@ public:
 
 	/// set main frame shader, only viable before running SetupDefaultGraphicsWorld()
 	void SetFrameShader(const Resources::ResourceId& frameShader);
+	/// set type of view to be used
+	void SetViewClass(const Core::Rtti& type);
 	/// sets display to render in full screen
 	void SetFullscreen(bool b);
 	/// gets fullscreen
@@ -144,6 +146,8 @@ protected:
     Ptr<GraphicsFeature::GameAnimEventHandler> animEventHandler;
 	Ptr<EnvEntityManager> envEntityManager;
 	Ptr<Resources::SimpleResourceMapper> animPathMapper;
+
+	Core::Rtti viewClass;
 
     bool decorated;
     bool resizable;
@@ -198,11 +202,21 @@ GraphicsFeatureUnit::GetDefaultAnimEventHandler() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-GraphicsFeatureUnit::SetFrameShader( const Resources::ResourceId& frameShader )
+inline void
+GraphicsFeatureUnit::SetFrameShader(const Resources::ResourceId& frameShader)
 {
 	n_assert(frameShader.IsValid());
 	this->frameShader = frameShader;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+GraphicsFeatureUnit::SetViewClass(const Core::Rtti& type)
+{
+	n_assert(type.IsDerivedFrom(Graphics::View::RTTI));
+	this->viewClass = type;
 }
 
 //------------------------------------------------------------------------------

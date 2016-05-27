@@ -9,6 +9,8 @@ IF(N_VR_SUPPORT)
 set(SOURCES_vr 
 	vrmanager.cc
 	vrmanager.h
+	vrview.h
+	vrview.cc
 	vrcameraproperty.cc
 	vrcameraproperty.h
 	vivemote.cc
