@@ -439,7 +439,7 @@ PostEffectServer::ApplySkyParameters()
     // get textures
     const Ptr<SkyParams>& targetPara = this->postEffects[Sky].target.cast<SkyParams>();
     const Ptr<SkyParams>& currentPara = this->postEffects[Sky].current.cast<SkyParams>();
-
+	
 	// preload textures
 	this->PreloadTexture(targetPara->GetSkyTexturePath());
 	this->PreloadTexture(currentPara->GetSkyTexturePath());
@@ -454,6 +454,8 @@ PostEffectServer::ApplySkyParameters()
         // set current as target, reset blend factor and delete target
         currentPara->ResetTextureBlendFactor();
         currentPara->SetSkyTexturePath(targetPara->GetSkyTexturePath());
+        currentPara->SetIrradianceTexturePath(targetPara->GetIrradianceTexturePath());
+        currentPara->SetReflectanceTexturePath(targetPara->GetReflectanceTexturePath());
         this->StopBlending(Sky);
 
 		// set texture
@@ -461,11 +463,14 @@ PostEffectServer::ApplySkyParameters()
 
         // set base texture, other one is not needed
         this->skyBlendFactor->SetValue(currentPara->GetTextureBlendFactor());
+        // apply reflectance and irradiance
+        Lighting::EnvironmentProbe::DefaultEnvironmentProbe->AssignReflectionMap(currentPara->GetReflectanceTexturePath() + NEBULA3_TEXTURE_EXTENSION);
+        Lighting::EnvironmentProbe::DefaultEnvironmentProbe->AssignIrradianceMap(currentPara->GetIrradianceTexturePath() + NEBULA3_TEXTURE_EXTENSION);
     }
     else
     {
 		// set blend texture
-		this->skyBlendTexture->SetTexture(this->FindTexture(targetPara->GetSkyTexturePath())->GetTexture());
+		this->skyBlendTexture->SetTexture(this->FindTexture(targetPara->GetSkyTexturePath())->GetTexture());       
 
 	    // set base and blend texture
         this->skyBlendFactor->SetValue(currentPara->GetTextureBlendFactor());
@@ -626,5 +631,16 @@ PostEffectServer::SetSkyEntity( const Ptr<Graphics::ModelEntity>& entity )
 	this->skyEntity->SetAlwaysVisible(true);
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PostEffectServer::StopAllBlending()
+{
+	for (int i = 0; i < this->postEffects.Size(); i++)
+	{
+		this->postEffects[i].target = 0;
+	}
+}
 
 } // namespace PostEffect

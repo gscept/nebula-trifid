@@ -61,7 +61,7 @@ protected:
 	///
 	virtual void OnEventChanged(unsigned eventid, unsigned char msg, RakNet::RakNetGUID sender);
 	///
-	static void ReadyEventChanged(IndexT name, const Util::KeyValuePair<Multiplayer::UniquePlayerId, bool>& val);
+	static void ReadyEventChanged(IndexT name, const Util::KeyValuePair<Multiplayer::UniquePlayerId, bool>& val);	
 	///
 	static void AllReadyEvent(IndexT name);
 
@@ -72,7 +72,8 @@ private:
 
 	static Util::Dictionary<IndexT, Util::Delegate<const Util::KeyValuePair<Multiplayer::UniquePlayerId, bool>&>> DelegateSetDict;
 	static Util::Dictionary<IndexT, Util::Delegate<bool>> DelegateAllSetDict;
-		
+	///
+	virtual void OnEventAllSet(unsigned eventid);
 };
 
 #define __SetSyncEventCallback(CLASS, METHOD, OBJ, NAME) Multiplayer::SyncPoint::SetCallback<CLASS, &CLASS::METHOD>(NAME, OBJ);

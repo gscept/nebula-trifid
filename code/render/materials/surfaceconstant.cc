@@ -130,8 +130,9 @@ SurfaceConstant::SetValue(const Util::Variant& value)
 				this->name.Value(),
 				Variant::TypeToString(binding.var->GetValue().GetType()),
 				Variant::TypeToString(this->value.GetType()));
-		}
 #endif
+		}
+
 	}
 }
 

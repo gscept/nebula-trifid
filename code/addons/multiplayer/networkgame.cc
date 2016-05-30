@@ -326,6 +326,7 @@ NetworkGame::AddPlayer(const Ptr<MultiplayerFeature::NetworkPlayer> & player)
 	n_assert(!this->players.Contains(player->GetUniqueId().GetRaknetGuid().g));
 	this->players.Add(player->GetUniqueId().GetRaknetGuid().g, player);
 	SyncPoint::AddToTracking("_READY", player->GetUniqueId());
+	SyncPoint::AddToTracking("_LOADED", player->GetUniqueId());
 	this->OnPlayerJoined(player);
 	n_printf("\nADDING PLAYER");
 }
@@ -338,6 +339,7 @@ NetworkGame::RemovePlayer(const Ptr<MultiplayerFeature::NetworkPlayer> & player)
 {
 	n_assert(this->players.Contains(player->GetUniqueId().GetRaknetGuid().g));
 	SyncPoint::RemoveFromTracking("_READY", player->GetUniqueId());
+	SyncPoint::RemoveFromTracking("_LOADED", player->GetUniqueId());
 	this->players.Erase(player->GetUniqueId().GetRaknetGuid().g);
 }
 
@@ -372,8 +374,11 @@ NetworkGame::CreateRoom()
 	NetworkServer::Instance()->CreateRoom();	
 	__SetSyncEventCallback(MultiplayerFeature::NetworkGame, OnReadyChanged, this, "_READY");
 	__SetSyncEventAllCallback(MultiplayerFeature::NetworkGame, OnAllReady, this, "_READY");
+	__SetSyncEventAllCallback(MultiplayerFeature::NetworkGame, OnLoaded, this, "_LOADED");
 	SyncPoint::AddToTracking("_READY", MultiplayerFeature::MultiplayerFeatureUnit::Instance()->GetPlayer()->GetUniqueId());
-
+	SyncPoint::AddToTracking("_LOADED", MultiplayerFeature::MultiplayerFeatureUnit::Instance()->GetPlayer()->GetUniqueId());
+	SyncPoint::SetReady("_READY", false);
+	SyncPoint::SetReady("_LOADED", false);
 }
 
 //------------------------------------------------------------------------------
@@ -393,7 +398,7 @@ NetworkGame::JoinRoom(const Util::String & guid, bool isIp)
         RakNet::RakNetGUID rguid;
         rguid.FromString(guid.AsCharPtr());
         NetworkServer::Instance()->Connect(rguid);
-    }
+    }	
 }
 
 //------------------------------------------------------------------------------
@@ -443,7 +448,7 @@ NetworkGame::HandleMessage(const Ptr<Messaging::Message> &msg)
 		const Ptr<BaseGameFeature::GameStateHandler>& state = App::GameApplication::Instance()->FindStateHandlerByName(smsg->GetState()).cast<BaseGameFeature::GameStateHandler>();
 		state->SetLevelName(smsg->GetLevel());
 		state->SetSetupMode(BaseGameFeature::GameStateHandler::LoadNetworkedLevel);
-		App::GameApplication::Instance()->RequestState(smsg->GetState());
+		App::GameApplication::Instance()->RequestState(smsg->GetState());		
 	}
 	else
 	{
@@ -468,6 +473,9 @@ NetworkGame::PostDeserializeConstructionExisting(RakNet::BitStream *construction
 {		
 	__SetSyncEventCallback(MultiplayerFeature::NetworkGame, OnReadyChanged, this, "_READY");
 	__SetSyncEventAllCallback(MultiplayerFeature::NetworkGame, OnAllReady, this, "_READY");
+	__SetSyncEventAllCallback(MultiplayerFeature::NetworkGame, OnLoaded, this, "_LOADED");
+	SyncPoint::SetReady("_READY", false);
+	SyncPoint::SetReady("_LOADED", false);
 	this->OnJoinedRoom();
 }
 
@@ -547,6 +555,16 @@ NetworkGame::OnFrame()
 // 			}
 // 		}
 // 	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+NetworkGame::OnLoaded(bool dummy)
+{	
+	SyncPoint::SetReady("_LOADED", false);
+	App::GameApplication::Instance()->GetCurrentStateHandler().cast<BaseGameFeature::GameStateHandler>()->OnNetworkStarted();
 }
 
 }

@@ -171,11 +171,13 @@ PhysXServer::onTrigger(PxTriggerPair* pairs, PxU32 count)
 	this->critSect.Enter();
 	for (PxU32 i = 0; i < count;i++)
 	{
-		n_assert(pairs[i].triggerActor->userData && ((Core::RefCounted*)pairs[i].triggerActor->userData)->IsA(Physics::PhysicsProbe::RTTI));
-		PhysX::PhysXProbe * probe = (PhysX::PhysXProbe*)pairs[i].triggerActor->userData;
-		if (!pairs[i].flags.isSet(PxTriggerPairFlag::eDELETED_SHAPE_OTHER) && pairs[i].otherActor->userData)
+		if (!pairs[i].flags.isSet(PxTriggerPairFlag::eDELETED_SHAPE_OTHER) && !pairs[i].flags.isSet(PxTriggerPairFlag::eREMOVED_SHAPE_TRIGGER))
 		{
-			probe->OnTriggerEvent(pairs[i].status, pairs[i].otherActor);
+			PhysX::PhysXProbe * probe = (PhysX::PhysXProbe*)pairs[i].triggerActor->userData;
+			if (pairs[i].otherActor->userData)
+			{
+				probe->OnTriggerEvent(pairs[i].status, pairs[i].otherActor);
+			}
 		}
 	}
 	this->critSect.Leave();

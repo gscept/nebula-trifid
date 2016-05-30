@@ -116,9 +116,9 @@ LanNetworkServer::ShutdownLowlevelNetworking()
 */
 void
 LanNetworkServer::Close()
-{
-	delete this->fullyConnectedMesh;
+{	
 	NetworkServer::Close();	
+	delete this->fullyConnectedMesh;
 }
 
 //------------------------------------------------------------------------------
