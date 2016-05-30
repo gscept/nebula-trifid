@@ -490,7 +490,7 @@ ByteOrder::Convert<double>(Type fromByteOrder, Type toByteOrder, double val)
 /**
 */
 template<> __forceinline uint64_t
-ByteOrder::Convert<uint64_t>(Type fromByteOrder, Type toByteOrder, uint64_t val) const
+ByteOrder::Convert<uint64_t>(Type fromByteOrder, Type toByteOrder, uint64_t val)
 {
     if (fromByteOrder != toByteOrder)
     {        
@@ -506,7 +506,7 @@ ByteOrder::Convert<uint64_t>(Type fromByteOrder, Type toByteOrder, uint64_t val)
 /**
 */
 template<> __forceinline int64_t
-ByteOrder::Convert<int64_t>(Type fromByteOrder, Type toByteOrder, int64_t val) const
+ByteOrder::Convert<int64_t>(Type fromByteOrder, Type toByteOrder, int64_t val)
 {
     if (fromByteOrder != toByteOrder)
     {
