@@ -34,7 +34,8 @@ void
 VRCameraProperty::OnActivate()
 {
 	CameraProperty::OnActivate();
-	
+	Math::matrix44 startTrans = this->entity->GetMatrix44(Attr::Transform);
+	VRManager::Instance()->SetTrackingOrigin(startTrans);
 }
 
 //------------------------------------------------------------------------------

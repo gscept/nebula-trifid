@@ -14,6 +14,7 @@
 #include "debugrender/debugshaperenderer.h"
 #include "physics/filterset.h"
 #include "physics/physicsserver.h"
+#include "physicsbody.h"
 
 
 namespace VR
@@ -92,15 +93,20 @@ ViveInteractProperty::OnBeginFrame()
 		linePoints[0].color.set(1.0f, 0.0f, 0.0f, 1.0f);
 
 		Physics::FilterSet fs;
-		Util::Array<Ptr<Physics::Contact>> points = Physics::PhysicsServer::Instance()->GetScene()->RayCheck(trans.get_position(), trans.get_zaxis()* (-50.f), fs, Physics::BaseScene::Test_Closest);
+		Util::Array<Ptr<Physics::Contact>> points = Physics::PhysicsServer::Instance()->GetScene()->RayCheck(trans.get_position(), trans.get_zaxis()* (-500.f), fs, Physics::BaseScene::Test_Closest);
 		if (points.Size())
 		{
+			if (points[0]->GetCollisionObject().isvalid() != 0 && points[0]->GetCollisionObject()->GetUserData()->object.isvalid() && points[0]->GetCollisionObject()->GetUserData()->object->IsA(Game::Entity::RTTI))
+			{
+				Ptr<VR::ViveHover> msg = VR::ViveHover::Create();
+				__SendSync(points[0]->GetCollisionObject()->GetUserData()->object.cast<Game::Entity>(), msg);
+			}
 			linePoints[1].pos = points[0]->GetPoint();
-			linePoints[1].color.set(1.0f, 0.0f, 0.0f, 1.0f);
+			linePoints[1].color.set(1.0f, 1.0f, 0.0f, 1.0f);
 		}
 		else
 		{
-			linePoints[1].pos = linePoints[0].pos - (trans.get_zaxis() * 50.0f);
+			linePoints[1].pos = linePoints[0].pos - (trans.get_zaxis() * 500.0f);
 			linePoints[1].color.set(1.0f, 0.0f, 0.0f, 1.0f);
 		}
 		Debug::DebugShapeRenderer::Instance()->DrawPrimitives(Math::matrix44::identity(),
