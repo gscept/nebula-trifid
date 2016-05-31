@@ -21,7 +21,7 @@ CameraSettings::CameraSettings() :
     viewProjMatrix(matrix44::identity())
 {
 	DisplayMode mode = DisplayDevice::Instance()->GetDisplayMode();
-    this->SetupPerspectiveFov(n_deg2rad(60.0f), mode.GetHeight() / (float)mode.GetWidth(), 0.001f, 2500.0f);
+    this->SetupPerspectiveFov(n_deg2rad(60.0f), mode.GetHeight() / (float)mode.GetWidth(), 0.1f, 2500.0f);
 }
 
 //------------------------------------------------------------------------------

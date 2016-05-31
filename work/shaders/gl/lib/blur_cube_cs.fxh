@@ -11,11 +11,22 @@
 #include "lib/std.fxh"
 #include "lib/util.fxh"
 #include "lib/techniques.fxh"
+#include "lib/compute.fxh"
 
 #if IMAGE_IS_RGBA16F
 #define IMAGE_FORMAT_TYPE rgba16f
 #define IMAGE_LOAD_VEC vec4
 #define IMAGE_LOAD_SWIZZLE(vec) vec.xyzw
+#define RESULT_TO_VEC4(vec) vec
+#elif IMAGE_IS_RGBA16
+#define IMAGE_FORMAT_TYPE rgba16
+#define IMAGE_LOAD_VEC vec4
+#define IMAGE_LOAD_SWIZZLE(vec) vec4(vec.xyzw)
+#define RESULT_TO_VEC4(vec) vec
+#elif IMAGE_IS_BGRA16F
+#define IMAGE_FORMAT_TYPE rgba16f
+#define IMAGE_LOAD_VEC vec4
+#define IMAGE_LOAD_SWIZZLE(vec) vec.zyxw
 #define RESULT_TO_VEC4(vec) vec
 #elif IMAGE_IS_RG16F
 #define IMAGE_FORMAT_TYPE rg16f
@@ -29,57 +40,47 @@
 #define RESULT_TO_VEC4(vec) vec4(vec.xy, 0, 0)
 #endif
 
-samplerCube ReadImageLinear;
-samplerCube ReadImagePoint;
-samplerstate LinearState
-{
-	Samplers = {ReadImageLinear};
-	Filter = Linear;
-	AddressU = Clamp;
-	AddressV = Clamp;
-	AddressW = Clamp;
-};
-
-samplerstate PointSate
-{
-	Samplers = {ReadImagePoint};
-	Filter = Point;
-	AddressU = Clamp;
-	AddressV = Clamp;
-	AddressW = Clamp;
-};
-
-
 readwrite IMAGE_FORMAT_TYPE imageCube WriteImage;
 #define INV_LN2 1.44269504f
 #define SQRT_LN2 0.832554611f
-#define BLUR_SHARPNESS 8.0f
 
-#define KERNEL_RADIUS 16
-#define KERNEL_RADIUS_FLOAT 16.0f
-#define HALF_KERNEL_RADIUS (KERNEL_RADIUS/2.0f)
+#ifndef BLUR_SHARPNESS
+	#define BLUR_SHARPNESS 8.0f
+#endif
+
+#ifndef KERNEL_RADIUS
+	#define KERNEL_RADIUS 15
+#endif
+#define HALF_KERNEL_RADIUS ((KERNEL_RADIUS - 1)/2)
 
 #define BLUR_TILE_WIDTH 320
 #define SHARED_MEM_SIZE (KERNEL_RADIUS + BLUR_TILE_WIDTH + KERNEL_RADIUS)
-groupshared IMAGE_LOAD_VEC SharedMemory[SHARED_MEM_SIZE];
 
+#if KERNEL_RADIUS == 15
+const float GaussianWeights[] = { 
+0.023089, 0.034587, 0.048689, 0.064408, 0.080066, 0.093531, 0.102673, 0.105915, 0.102673, 0.093531, 0.080066, 0.064408, 0.048689, 0.034587, 0.023089};
+#elif KERNEL_RADIUS == 9
+const float GaussianWeights[] = { 
+	0.000229,
+	0.005977,
+	0.060598,
+	0.241732,
+	0.382928,
+	0.241732,
+	0.060598,
+	0.005977,
+	0.000229
+};
+#elif KERNEL_RADIUS == 5
+const float GaussianWeights[] = { 0.166852f, 0.215677f, 0.234942f, 0.215677f, 0.166852f };
+#endif
 //------------------------------------------------------------------------------
 /**
-	Calculate bilateral weight function, which is
-	
-	Fcolor(abs(I[xi] - I[x])) * Fcoord(abs(xi - x))
-	The coords are 1D for our kernel since it operators on a single row/column at a time.
 */
 IMAGE_LOAD_VEC
-BilateralWeight(IMAGE_LOAD_VEC p, IMAGE_LOAD_VEC pi, float u, float ui)
+GaussianBlur(uint index, IMAGE_LOAD_VEC samp)
 {
-	const float sigma = (KERNEL_RADIUS * 2 + 1) * 0.5f;
-	const float falloff = INV_LN2 / (2.0f * sigma * sigma);
-	IMAGE_LOAD_VEC pixelDiff = IMAGE_LOAD_VEC(lessThan(saturate(pi - p), IMAGE_LOAD_VEC(2.0f * SQRT_LN2 / BLUR_SHARPNESS)));
-	//IMAGE_LOAD_VEC pixelDiff = pi;
-	//IMAGE_LOAD_VEC pixelDiff = saturate(pi - p);
-	//IMAGE_LOAD_VEC pixelDiff = pi;
-    return abs(ui - u) * pixelDiff;
+	return samp * GaussianWeights[index];
 }
 
 //------------------------------------------------------------------------------
@@ -102,6 +103,8 @@ GenerateCubemapCoord(in vec2 uv, in uint face)
 	return normalize(v);
 }
 
+groupshared IMAGE_LOAD_VEC SharedMemory[SHARED_MEM_SIZE];
+
 //------------------------------------------------------------------------------
 /**
 */
@@ -114,58 +117,31 @@ csMainX()
 	ivec2 size = imageSize(WriteImage);
 	
 	// calculate offsets
-	const uint         tileStart = int(gl_WorkGroupID.x) * BLUR_TILE_WIDTH;
-	const uint           tileEnd = tileStart + BLUR_TILE_WIDTH;
-	const uint        apronStart = tileStart - KERNEL_RADIUS;
-	const uint          apronEnd = tileEnd   + KERNEL_RADIUS;
-	
-	const uint x = apronStart + gl_LocalInvocationID.x;
-	const uint y = gl_WorkGroupID.y;
+	uint x, y, start, end;
+	ComputePixelX(BLUR_TILE_WIDTH, HALF_KERNEL_RADIUS, gl_WorkGroupID.xy, gl_LocalInvocationID.xy, x, y, start, end);
 	
 	// load into workgroup saved memory, this allows us to use the original pixel even though 
 	// we might have replaced it with the result from this thread!
 	SharedMemory[gl_LocalInvocationID.x] = IMAGE_LOAD_SWIZZLE(imageLoad(WriteImage, ivec3(x, y, gl_WorkGroupID.z)));
 	barrier();
 
-	const uint writePos = tileStart + gl_LocalInvocationID.x;
-	const uint tileEndClamped = min(tileEnd, uint(size.x));
+	const uint writePos = start + gl_LocalInvocationID.x;
+	const uint tileEndClamped = min(end, uint(size.x));
 	
 	if (writePos < tileEndClamped)
 	{
-		// Fetch (ao,z) at the kernel center
-		IMAGE_LOAD_VEC color = IMAGE_LOAD_SWIZZLE(imageLoad(WriteImage, ivec3(writePos, y, gl_WorkGroupID.z)));
-		//IMAGE_LOAD_VEC color = IMAGE_LOAD_SWIZZLE(textureLod(ReadImagePoint, ivec3(writePos, y, gl_WorkGroupID.z), 0));
-		IMAGE_LOAD_VEC blurTotal = color;
-		IMAGE_LOAD_VEC wTotal = IMAGE_LOAD_VEC(1);
-		float i;
+		IMAGE_LOAD_VEC blurTotal = IMAGE_LOAD_VEC(0);
+		uint i;
 
 		#pragma unroll
-		for (i = 0; i < HALF_KERNEL_RADIUS; ++i)
+		for (i = 0; i < KERNEL_RADIUS; ++i)
 		{
-		    // Sample the pre-filtered data with step size = 2 pixels
-		    float r = 2.0f*i + (-KERNEL_RADIUS_FLOAT + 0.5f);
-		    uint j = 2*uint(i) + gl_LocalInvocationID.x;
-			
-		    IMAGE_LOAD_VEC samp = SharedMemory[j];
-		    IMAGE_LOAD_VEC w = BilateralWeight(samp, color, r, writePos);
-			blurTotal += color * w;
-		    wTotal += w;
-		}
-
-		#pragma unroll
-		for (i = 0; i < HALF_KERNEL_RADIUS; ++i)
-		{
-		    // Sample the pre-filtered data with step size = 2 pixels
-		    float r = 2.0f*i + 1.5f;
-		    uint j = 2*uint(i) + gl_LocalInvocationID.x + KERNEL_RADIUS + 1;
-			
-		    IMAGE_LOAD_VEC samp = SharedMemory[j];
-			IMAGE_LOAD_VEC w = BilateralWeight(samp, color, r, writePos);
-			blurTotal += color * w;
-		    wTotal += w;
+			uint j = uint(i) + gl_LocalInvocationID.x;
+			IMAGE_LOAD_VEC samp = SharedMemory[j];
+			blurTotal += GaussianBlur(i, samp);
 		}
 		
-		IMAGE_LOAD_VEC blur = blurTotal / wTotal;
+		IMAGE_LOAD_VEC blur = blurTotal;
 		imageStore(WriteImage, ivec3(writePos, y, gl_WorkGroupID.z), RESULT_TO_VEC4(blur));
 	}
 }
@@ -182,56 +158,31 @@ csMainY()
 	ivec2 size = imageSize(WriteImage);
 	
 	// calculate offsets
-	const uint         tileStart = int(gl_WorkGroupID.x) * BLUR_TILE_WIDTH;
-	const uint           tileEnd = tileStart + BLUR_TILE_WIDTH;
-	const uint        apronStart = tileStart - KERNEL_RADIUS;
-	const uint          apronEnd = tileEnd   + KERNEL_RADIUS;
-	
-	const uint x = gl_WorkGroupID.y;
-	const uint y = apronStart + gl_LocalInvocationID.x;
+	uint x, y, start, end;
+	ComputePixelY(BLUR_TILE_WIDTH, HALF_KERNEL_RADIUS, gl_WorkGroupID.xy, gl_LocalInvocationID.xy, x, y, start, end);
 	
 	// load into workgroup saved memory, this allows us to use the original pixel even though 
 	// we might have replaced it with the result from this thread!
 	SharedMemory[gl_LocalInvocationID.x] = IMAGE_LOAD_SWIZZLE(imageLoad(WriteImage, ivec3(x, y, gl_WorkGroupID.z)));
 	barrier();
 	
-	const uint writePos = tileStart + gl_LocalInvocationID.x;
-	const uint tileEndClamped = min(tileEnd, uint(size.y));
+	const uint writePos = start + gl_LocalInvocationID.x;
+	const uint tileEndClamped = min(end, uint(size.y));
 	
 	if (writePos < tileEndClamped)
 	{
-		// Fetch (ao,z) at the kernel center
-		IMAGE_LOAD_VEC color = IMAGE_LOAD_SWIZZLE(imageLoad(WriteImage, ivec3(x, writePos, gl_WorkGroupID.z)));
-		IMAGE_LOAD_VEC blurTotal = color;
-		IMAGE_LOAD_VEC wTotal = IMAGE_LOAD_VEC(1);
-		float i;
+		IMAGE_LOAD_VEC blurTotal = IMAGE_LOAD_VEC(0);
+		uint i;
 
 		#pragma unroll
-		for (i = 0; i < HALF_KERNEL_RADIUS; ++i)
+		for (i = 0; i < KERNEL_RADIUS; ++i)
 		{
-		    // Sample the pre-filtered data with step size = 2 pixels
-		    float r = 2.0f * i + (-KERNEL_RADIUS_FLOAT + 0.5f);
-		    uint j = 2 * uint(i) + gl_LocalInvocationID.x;
-		    IMAGE_LOAD_VEC samp = SharedMemory[j];
-		    IMAGE_LOAD_VEC w = BilateralWeight(samp, color, r, writePos);
-			blurTotal += color * w;
-		    wTotal += w;
-		}
-
-		#pragma unroll
-		for (i = 0; i < HALF_KERNEL_RADIUS; ++i)
-		{
-		    // Sample the pre-filtered data with step size = 2 pixels
-		    float r = 2.0f * i + 1.5f;
-		    uint j = 2 * uint(i) + gl_LocalInvocationID.x + KERNEL_RADIUS + 1;
-			
-		    IMAGE_LOAD_VEC samp = SharedMemory[j];
-		    IMAGE_LOAD_VEC w = BilateralWeight(samp, color, r, writePos);
-			blurTotal += color * w;
-		    wTotal += w;
+			uint j = uint(i) + gl_LocalInvocationID.x;
+			IMAGE_LOAD_VEC samp = SharedMemory[j];
+			blurTotal += GaussianBlur(i, samp);
 		}
 		
-		IMAGE_LOAD_VEC blur = blurTotal / wTotal;
+		IMAGE_LOAD_VEC blur = blurTotal;
 		imageStore(WriteImage, ivec3(x, writePos, gl_WorkGroupID.z), RESULT_TO_VEC4(blur));
 	}
 }

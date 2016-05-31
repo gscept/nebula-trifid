@@ -573,6 +573,7 @@ FrameShaderLoader::ParseFrameCompute(const Ptr<IO::XmlReader>& xmlReader, const 
     ResourceId shdResId = ResourceId("shd:" + xmlReader->GetString("shader"));
     Ptr<Shader> shader = ShaderServer::Instance()->GetShader(shdResId);
     frameComp->SetShader(shader);
+	frameComp->SetName(xmlReader->GetString("name"));
 
     // add shader variable instances
     if (xmlReader->SetToFirstChild("ApplyShaderVariable")) do
@@ -582,16 +583,16 @@ FrameShaderLoader::ParseFrameCompute(const Ptr<IO::XmlReader>& xmlReader, const 
     while (xmlReader->SetToNextChild("ApplyShaderVariable"));
 
     // get relative width
-    if (xmlReader->HasAttr("relativeWidth"))
+    if (xmlReader->HasAttr("relDimX"))
     {
-        float rel = xmlReader->GetFloat("relativeWidth");
+        float rel = xmlReader->GetFloat("relDimX");
         frameComp->SetRelativeWidth(rel);
     }
 
     // get relative height
-    if (xmlReader->HasAttr("relativeHeight"))
+    if (xmlReader->HasAttr("relDimY"))
     {
-        float rel = xmlReader->GetFloat("relativeHeight");
+        float rel = xmlReader->GetFloat("relDimY");
         frameComp->SetRelativeHeight(rel);
     }
 

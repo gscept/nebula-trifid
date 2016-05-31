@@ -74,21 +74,21 @@ CubeFilterer::Filter(bool irradiance, void* messageHandler, void(*CubeFilterer_P
 	ILuint byteSize;
 	switch (this->cubefaces[0]->GetPixelFormat())
 	{
-	case PixelFormat::A16B16G16R16:
+	case PixelFormat::R16G16B16A16:
 		format = CP_VAL_UNORM16;
 		channels = 4;
 		components = IL_RGBA;
 		type = IL_SHORT;
 		byteSize = 2;
 		break;
-	case PixelFormat::A16B16G16R16F:
+	case PixelFormat::R16G16B16A16F:
 		format = CP_VAL_FLOAT16;
 		components = IL_RGBA;
 		type = IL_HALF;
 		channels = 4;
 		byteSize = 2;
 		break;
-	case PixelFormat::A32B32G32R32F:
+	case PixelFormat::R32G32B32A32F:
 		format = CP_VAL_FLOAT32;
 		components = IL_RGBA;
 		type = IL_FLOAT;

@@ -677,7 +677,7 @@ PostEffectController::OnShadowChanged()
 	Ptr<LightParams> params = this->postEffectEntity->Params().light;
 
 	// get values
-	float shadowIntensity = this->ui->lightShadowIntensity->value() / 100.0f;
+	float shadowIntensity = this->ui->lightShadowIntensity->value() / 10.0f;
 	float shadowBias = this->ui->lightShadowBias->value() / 10000.0f;
 	bool castShadows = this->ui->lightCastShadows->isChecked();
 

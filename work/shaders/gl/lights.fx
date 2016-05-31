@@ -41,7 +41,7 @@ samplerCube ShadowProjCube;
 samplerstate PointLightTextureSampler
 {
 	Samplers = { ShadowProjCube };
-	Filter = MinMagLinearMipPoint;
+	//Filter = MinMagLinearMipPoint;
 };
 
 samplerstate GeometrySampler
@@ -193,6 +193,7 @@ state SpotLightState
 
 //---------------------------------------------------------------------------------------------------------------------------
 /**
+	Still uses VSM
 */
 float 
 GetInvertedOcclusionSpotLight(float receiverDepthInLightSpace,
@@ -372,10 +373,11 @@ GetInvertedOcclusionPointLight(float receiverDepthInLightSpace,
 	vec3 shadowUv = lightSpaceUv;
 	
 	// get pixel size of shadow projection texture
-	vec2 shadowSample = texture(ShadowProjCube, shadowUv).rg;
+	vec4 shadowSample = texture(ShadowProjCube, shadowUv);
+	return MSMShadowSample(shadowSample, 0, receiverDepthInLightSpace, 0);
 	
 	// get pixel size of shadow projection texture	
-	return ChebyshevUpperBound(shadowSample, receiverDepthInLightSpace, 0.00000001f);
+	//return ChebyshevUpperBound(shadowSample, receiverDepthInLightSpace, 0.00000001f);
 }
 
 //---------------------------------------------------------------------------------------------------------------------------

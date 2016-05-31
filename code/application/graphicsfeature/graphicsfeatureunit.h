@@ -106,8 +106,6 @@ public:
     void SetDecorated(bool b);
     /// sets allow resize
     void SetResizeable(bool b);
-	/// sets if this feature unit is supposed to handle input
-	void SetHandleInput(bool b);
 	/// sets the AA settings
 	void SetAntiAliasing(const Util::String& aa);
 	/// sets the parent window
@@ -145,7 +143,6 @@ protected:
     bool decorated;
     bool resizable;
 	bool defaultGraphicsWorld;
-	bool handleInput;
 };
 
 
@@ -241,15 +238,6 @@ GraphicsFeatureUnit::SetResizeable(bool b)
     {
         this->display->Settings().SetResizable(b);    
     }    
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void
-GraphicsFeatureUnit::SetHandleInput(bool b)
-{
-	this->handleInput = b;
 }
 
 //------------------------------------------------------------------------------

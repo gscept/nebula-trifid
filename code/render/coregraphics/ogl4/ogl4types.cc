@@ -39,12 +39,12 @@ OGL4Types::AsOGL4PixelFormat(PixelFormat::Code p)
 	case PixelFormat::BC7sRGB:			return GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM_ARB;
 	case PixelFormat::R16F:             return GL_R16F;
 	case PixelFormat::G16R16F:          return GL_RG16F;
-	case PixelFormat::A16B16G16R16F:    return GL_RGBA16F;
-	case PixelFormat::A16B16G16R16:		return GL_RGBA16;
+	case PixelFormat::R16G16B16A16F:    return GL_RGBA16F;
+	case PixelFormat::R16G16B16A16:		return GL_RGBA16;
 	case PixelFormat::R11G11B10F:		return GL_R11F_G11F_B10F;
 	case PixelFormat::R32F:             return GL_R32F;
 	case PixelFormat::G32R32F:          return GL_RG32F;							
-	case PixelFormat::A32B32G32R32F:    return GL_RGBA32F;
+	case PixelFormat::R32G32B32A32F:    return GL_RGBA32F;
 	case PixelFormat::R32G32B32F:		return GL_RGB32F;							
 	case PixelFormat::A8:               return GL_ALPHA8;						
 	case PixelFormat::R8:               return GL_R8;						
@@ -115,12 +115,12 @@ OGL4Types::AsNebulaPixelFormat(GLenum f)
 		case GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM_ARB:	return PixelFormat::BC7sRGB;
 		case GL_R16F:									return PixelFormat::R16F;
 		case GL_RG16F:									return PixelFormat::G16R16F;
-		case GL_RGBA16F:								return PixelFormat::A16B16G16R16F;
-		case GL_RGBA16:									return PixelFormat::A16B16G16R16;
+		case GL_RGBA16F:								return PixelFormat::R16G16B16A16F;
+		case GL_RGBA16:									return PixelFormat::R16G16B16A16;
 		case GL_R11F_G11F_B10F:							return PixelFormat::R11G11B10F;
 		case GL_R32F:									return PixelFormat::R32F;
 		case GL_RG32F:									return PixelFormat::G32R32F;
-		case GL_RGBA32F:								return PixelFormat::A32B32G32R32F;
+		case GL_RGBA32F:								return PixelFormat::R32G32B32A32F;
 		case GL_ALPHA8:									return PixelFormat::A8;
 		case GL_RGB10_A2:								return PixelFormat::A2R10G10B10;
 		case GL_RG16:									return PixelFormat::G16R16;
@@ -136,8 +136,8 @@ OGL4Types::AsNebulaPixelFormat(GLenum f)
 //------------------------------------------------------------------------------
 /**
 */
-GLenum 
-OGL4Types::AsOGL4PixelComponents( CoreGraphics::PixelFormat::Code p )
+GLenum
+OGL4Types::AsOGL4PixelComponents(CoreGraphics::PixelFormat::Code p)
 {
 	switch (p)
 	{
@@ -161,12 +161,12 @@ OGL4Types::AsOGL4PixelComponents( CoreGraphics::PixelFormat::Code p )
 	case PixelFormat::R16F:             return GL_RED;
 	case PixelFormat::G16R16:			return GL_RG;
 	case PixelFormat::G16R16F:          return GL_RG;
-	case PixelFormat::A16B16G16R16F:    return GL_BGRA;
-	case PixelFormat::A16B16G16R16:		return GL_BGRA;
+	case PixelFormat::R16G16B16A16F:    return GL_RGBA;
+	case PixelFormat::R16G16B16A16:		return GL_RGBA;
 	case PixelFormat::R11G11B10F:		return GL_RGB;
 	case PixelFormat::R32F:             return GL_RED;
 	case PixelFormat::G32R32F:          return GL_RG;							
-	case PixelFormat::A32B32G32R32F:    return GL_RGBA;
+	case PixelFormat::R32G32B32A32F:    return GL_RGBA;
 	case PixelFormat::R32G32B32F:		return GL_RGB;							
 	case PixelFormat::A8:               return GL_ALPHA;						
 	case PixelFormat::R8:               return GL_RED;
@@ -186,8 +186,8 @@ OGL4Types::AsOGL4PixelComponents( CoreGraphics::PixelFormat::Code p )
 //------------------------------------------------------------------------------
 /**
 */
-GLenum 
-OGL4Types::AsOGL4PixelType( CoreGraphics::PixelFormat::Code p )
+GLenum
+OGL4Types::AsOGL4PixelType(CoreGraphics::PixelFormat::Code p)
 {
 	switch (p)
 	{
@@ -195,9 +195,9 @@ OGL4Types::AsOGL4PixelType( CoreGraphics::PixelFormat::Code p )
 	case PixelFormat::A8R8G8B8:         return GL_UNSIGNED_BYTE;			
     case PixelFormat::R8G8B8:           return GL_UNSIGNED_BYTE;			
 	case PixelFormat::R5G6B5:           return GL_UNSIGNED_SHORT_5_6_5;
-	case PixelFormat::A16B16G16R16:		return GL_SHORT;
-	case PixelFormat::A16B16G16R16F:	return GL_HALF_FLOAT;
-    case PixelFormat::A32B32G32R32F:    return GL_FLOAT;
+	case PixelFormat::R16G16B16A16:		return GL_UNSIGNED_SHORT;
+	case PixelFormat::R16G16B16A16F:	return GL_HALF_FLOAT;
+    case PixelFormat::R32G32B32A32F:    return GL_FLOAT;
 	case PixelFormat::A1R5G5B5:         return GL_UNSIGNED_SHORT_1_5_5_5_REV;						
 	case PixelFormat::DXT1:             return GL_UNSIGNED_BYTE;
 	case PixelFormat::DXT1A:            return GL_UNSIGNED_BYTE;
@@ -212,7 +212,7 @@ OGL4Types::AsOGL4PixelType( CoreGraphics::PixelFormat::Code p )
 	case PixelFormat::SRGBA8:			return GL_UNSIGNED_BYTE;
 	case PixelFormat::R11G11B10F:		return GL_UNSIGNED_INT_10F_11F_11F_REV;
 	case PixelFormat::R16F:             return GL_HALF_FLOAT;
-	case PixelFormat::G16R16:			return GL_SHORT;
+	case PixelFormat::G16R16:			return GL_UNSIGNED_SHORT;
 	case PixelFormat::G16R16F:          return GL_HALF_FLOAT;
 	case PixelFormat::G32R32F:			return GL_FLOAT;
 	case PixelFormat::R32F:             return GL_FLOAT;
@@ -242,9 +242,9 @@ OGL4Types::AsOGL4PixelByteAlignment(CoreGraphics::PixelFormat::Code p)
 	case PixelFormat::A8R8G8B8:         return 4;
 	case PixelFormat::R8G8B8:           return 3;
 	case PixelFormat::R5G6B5:           return 2;
-	case PixelFormat::A16B16G16R16:		return 8;
-	case PixelFormat::A16B16G16R16F:	return 8;
-	case PixelFormat::A32B32G32R32F:    return 4;
+	case PixelFormat::R16G16B16A16:		return 8;
+	case PixelFormat::R16G16B16A16F:	return 8;
+	case PixelFormat::R32G32B32A32F:    return 4;
 	case PixelFormat::A1R5G5B5:         return 2;
 	case PixelFormat::DXT1:             return 4;
 	case PixelFormat::DXT1A:            return 4;

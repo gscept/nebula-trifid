@@ -10,8 +10,8 @@
   <DeclareRenderTarget format="R32F" relHeight="1" msaa="false" relWidth="1" name="DepthBuffer"/>  
   <DeclareRenderTarget format="A8R8G8B8" depthTarget="DefaultDepthBuffer" relHeight="1" msaa="true" relWidth="1" name="AlbedoBuffer"/>
   <DeclareRenderTarget format="A8R8G8B8" relHeight="1" msaa="true" relWidth="1" name="SpecularBuffer"/>
-  <DeclareRenderTarget format="A16B16G16R16F" relHeight="1" msaa="true" relWidth="1" name="EmissiveBuffer"/>
-  <DeclareRenderTarget format="A16B16G16R16F" depthTarget="DefaultDepthBuffer" relHeight="1" msaa="false" relWidth="1" name="LightBuffer"/>  
+  <DeclareRenderTarget format="R16G16B16A16F" relHeight="1" msaa="true" relWidth="1" name="EmissiveBuffer"/>
+  <DeclareRenderTarget format="R16G16B16A16F" depthTarget="DefaultDepthBuffer" relHeight="1" msaa="false" relWidth="1" name="LightBuffer"/>  
   
   <!-- buffer used for god ray projection -->
   <DeclareRenderTarget format="A8R8G8B8" depthTarget="DefaultDepthBuffer" relHeight="1" msaa="false" relWidth="1" name="UnshadedBuffer"/>
@@ -21,8 +21,8 @@
   <DeclareRenderTarget format="R32F" relHeight="1" msaa="false" relWidth="1" name="AlphaDepthBuffer"/>  
   <DeclareRenderTarget format="A8R8G8B8" relHeight="1" msaa="false" relWidth="1" name="AlphaAlbedoBuffer"/>
   <DeclareRenderTarget format="A8R8G8B8" relHeight="1" msaa="false" relWidth="1" name="AlphaSpecularBuffer"/>  
-  <DeclareRenderTarget format="A16B16G16R16F" relHeight="1" msaa="false" relWidth="1" name="AlphaEmissiveBuffer"/>
-  <DeclareRenderTarget format="A16B16G16R16F" relHeight="1" msaa="false" relWidth="1" name="AlphaLightBuffer"/>
+  <DeclareRenderTarget format="R16G16B16A16F" relHeight="1" msaa="false" relWidth="1" name="AlphaEmissiveBuffer"/>
+  <DeclareRenderTarget format="R16G16B16A16F" relHeight="1" msaa="false" relWidth="1" name="AlphaLightBuffer"/>
   
   <!-- SSS textures, maybe move to its own server? -->
   <DeclareRenderTarget format="A8R8G8B8" relHeight="1" msaa="false" relWidth="1" name="SSSBuffer1"/>  
@@ -32,8 +32,8 @@
   <DeclareRenderTarget format="A8R8G8B8" relHeight="1" msaa="false" relWidth="1" name="SSSMask"/>
   
   <!-- special buffers, background for skybox, color buffer for composed color, shape buffer for depth-checked shapes -->
-  <DeclareRenderTarget format="A16B16G16R16F" relHeight="1" msaa="false" relWidth="1" name="ColorBuffer"/>
-  <DeclareRenderTarget format="A16B16G16R16F" relHeight="1" msaa="false" relWidth="1" name="ColorBufferCopy"/>
+  <DeclareRenderTarget format="R16G16B16A16F" relHeight="1" msaa="false" relWidth="1" name="ColorBuffer"/>
+  <DeclareRenderTarget format="R16G16B16A16F" relHeight="1" msaa="false" relWidth="1" name="ColorBufferCopy"/>
   
   <!-- special buffer used for the reflection projector -->
   <DeclareTexture format="R16F" relHeight="1" relWidth="1" msaa="false" name="DistanceFieldWeightBuffer"/>
@@ -256,10 +256,18 @@
   
     
   <!-- perform HDR bloom -->
+  <!--
   <PostEffect renderTarget="BrightBuffer" shader="brightpass" name="BrightPass">
-   <ApplyShaderVariable sem="ColorSource" value="ColorBuffer"/>
-   <ApplyShaderVariable sem="LuminanceTexture" value="AverageLum"/>
+	<ApplyShaderVariable sem="ColorSource" value="ColorBuffer"/>
+	<ApplyShaderVariable sem="LuminanceTexture" value="AverageLum"/>
   </PostEffect>
+  
+  -->
+  <Compute shader="brightpass_cs" name="BrightPass" relDimX="0.5" relDimY="0.5" groupsX="320">
+	<ApplyShaderVariable sem="ColorSource" value="ColorBuffer"/>
+	<ApplyShaderVariable sem="BrightBuffer" value="BrightBuffer"/>
+	<ApplyShaderVariable sem="LuminanceTexture" value="AverageLum"/>
+  </Compute>
   <PostEffect renderTarget="BloomBuffer0" shader="gaussianblur" name="BrightBlur">
    <ApplyShaderVariable sem="SourceMap" value="BrightBuffer"/>
   </PostEffect>

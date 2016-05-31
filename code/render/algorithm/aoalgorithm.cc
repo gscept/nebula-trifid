@@ -240,7 +240,7 @@ AOAlgorithm::Setup()
 	// setup random texture
 	this->randomTexture = CoreGraphics::Texture::Create();
 	Ptr<MemoryTextureLoader> loader = MemoryTextureLoader::Create();
-	loader->SetImageBuffer(data, RANDOM_TEXTURE_WIDTH, RANDOM_TEXTURE_WIDTH, PixelFormat::A16B16G16R16);
+	loader->SetImageBuffer(data, RANDOM_TEXTURE_WIDTH, RANDOM_TEXTURE_WIDTH, PixelFormat::R16G16B16A16);
 	this->randomTexture->SetLoader(loader.upcast<Resources::ResourceLoader>());
 	this->randomTexture->SetResourceId("HBAORandomTexture");
 	this->randomTexture->SetAsyncEnabled(false);

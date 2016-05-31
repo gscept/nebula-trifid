@@ -465,8 +465,8 @@ SimpleTechnique(
 //	Shadowing methods
 //------------------------------------------------------------------------------
 SimpleTechnique(DefaultShadow, "Static|Spot", vsTreeShadow(), psShadowAlpha(), FoliageState);
-GeometryTechnique(CSMShadow, "Static|Global", vsTreeShadowCSM(), psVSMAlpha(), gsCSM(), FoliageState);
-GeometryTechnique(PointlightShadow, "Static|Point", vsTreeShadowPoint(), psVSMAlphaPoint(), gsPoint(), FoliageState);
+GeometryTechnique(CSMShadow, "Static|Global", vsTreeShadowCSM(), PS_METHOD_ALPHA, gsCSM(), FoliageState);
+GeometryTechnique(PointlightShadow, "Static|Point", vsTreeShadowPoint(), PS_METHOD_ALPHA, gsPoint(), FoliageState);
 SimpleTechnique(Picking, "Static|Picking", vsTreeShadow(), psPicking(), FoliageState);
 
 //------------------------------------------------------------------------------

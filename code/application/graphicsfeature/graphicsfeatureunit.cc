@@ -57,7 +57,6 @@ GraphicsFeatureUnit::GraphicsFeatureUnit() :
     resizable(true),
     decorated(true),
 	defaultGraphicsWorld(true),
-	handleInput(true),
 	frameShader(ResourceId(NEBULA3_DEFAULT_FRAMESHADER_NAME))
 {
     __ConstructSingleton;

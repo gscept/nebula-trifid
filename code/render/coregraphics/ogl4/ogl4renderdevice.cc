@@ -269,6 +269,7 @@ OGL4RenderDevice::OpenOpenGL4Context()
 	glEnable(GL_LINE_SMOOTH);
     //glHint(GL_TEXTURE_COMPRESSION_HINT, GL_FASTEST);
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+	glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE);
     //glHint(GL_POLYGON_SMOOTH_HINT, GL_FASTEST);
 
 	// setup vsync

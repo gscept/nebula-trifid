@@ -59,7 +59,7 @@ FrameCompute::Setup()
 /**
 */
 void
-FrameCompute::Render()
+FrameCompute::Render(IndexT frameIndex)
 {
     RenderDevice* renderDevice = RenderDevice::Instance();
 	ShaderServer* shaderServer = ShaderServer::Instance();
@@ -82,10 +82,12 @@ FrameCompute::Render()
     // commit shader variables
     this->shader->Commit();
 
+#define DivAndRoundUp(a, b) (a % b != 0) ? (a / b + 1) : (a / b)
+
 	// run
-    renderDevice->Compute(this->computeSizes[0] / this->groupSizes[0], 
-                          this->computeSizes[1] / this->groupSizes[1], 
-                          this->computeSizes[2] / this->groupSizes[2]);
+	renderDevice->Compute(DivAndRoundUp(this->computeSizes[0], this->groupSizes[0]),
+						  DivAndRoundUp(this->computeSizes[1], this->groupSizes[1]),
+						  DivAndRoundUp(this->computeSizes[2], this->groupSizes[2]));
 
 }
 

@@ -40,11 +40,11 @@ public:
 		BC7sRGB,
         R16F,                       // 16 bit float, red only
         G16R16F,                    // 32 bit float, 16 bit red, 16 bit green
-        A16B16G16R16F,              // 64 bit float, 16 bit rgba each
-		A16B16G16R16,				// 64 bit int, 16 bit rgba each
+        R16G16B16A16F,              // 64 bit float, 16 bit rgba each
+		R16G16B16A16,				// 64 bit int, 16 bit rgba each
         R32F,                       // 32 bit float, red only
         G32R32F,                    // 64 bit float, 32 bit red, 32 bit green
-        A32B32G32R32F,              // 128 bit float, 32 bit rgba each
+        R32G32B32A32F,              // 128 bit float, 32 bit rgba each
 		R32G32B32F,					// 96 bit float, 32 bit rgb each
 		R11G11B10F,					// 32 bit float, 11 bits red and green, 10 bit blue
         A8,

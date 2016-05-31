@@ -3,8 +3,8 @@
  <FrameShader>
  
   <!-- god ray buffers -->
-  <DeclareRenderTarget format="A16B16G16R16F" relHeight="1" msaa="false" relWidth="1" name="GodrayBuffer0" depth="false"/>  
-  <DeclareRenderTarget format="A16B16G16R16F" relHeight="1" msaa="false" relWidth="1" name="GodrayBuffer1" depth="false"/>  
+  <DeclareRenderTarget format="R16G16B16A16F" relHeight="1" msaa="false" relWidth="1" name="GodrayBuffer0" depth="false"/>  
+  <DeclareRenderTarget format="R16G16B16A16F" relHeight="1" msaa="false" relWidth="1" name="GodrayBuffer1" depth="false"/>  
   
   <!-- render GOD RAYZ -->
   <PostEffect renderTarget="GodrayBuffer0" shader="lightscatter" name="LightScatter" clearColor="0,0,0,0"/>

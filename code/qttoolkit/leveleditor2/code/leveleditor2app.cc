@@ -271,7 +271,6 @@ LevelEditor2App::SetupGameFeatures()
     // create and attach default graphic features
     this->graphicsFeature = GraphicsFeature::GraphicsFeatureUnit::Create();
     this->graphicsFeature->SetRenderDebug(true);
-	this->graphicsFeature->SetHandleInput(false);
 
     // open window
     this->editorWindow->show();
