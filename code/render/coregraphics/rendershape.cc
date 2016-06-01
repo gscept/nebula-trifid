@@ -136,7 +136,7 @@ RenderShape::SetupIndexedPrimitives(ThreadId threadId_, const Math::matrix44& mo
 /**
 */
 void 
-RenderShape::SetupMesh(Threading::ThreadId threadId, const Math::matrix44& modelTransform, const Ptr<Mesh>& mesh, const Math::float4& color, RenderFlag depthFlag)
+RenderShape::SetupMesh(Threading::ThreadId threadId, const Math::matrix44& modelTransform, const Ptr<Mesh>& mesh, const IndexT groupIndex, const Math::float4& color, RenderFlag depthFlag)
 {
 	n_assert(!this->IsValid());
 	n_assert(mesh.isvalid());
@@ -147,6 +147,7 @@ RenderShape::SetupMesh(Threading::ThreadId threadId, const Math::matrix44& model
 	this->modelTransform = modelTransform;
 	this->color          = color;
 	this->mesh			 = mesh;
+	this->groupIndex	 = groupIndex;
 }
 
 } // namespace CoreGraphics

@@ -201,8 +201,8 @@ PreviewState::OnFrame()
 			if (node->IsA(Models::ShapeNode::RTTI))
 			{
 				const Ptr<Models::ShapeNode>& shapeNode = node.downcast<Models::ShapeNode>();
-				Debug::DebugShapeRenderer::Instance()->DrawMesh(matrix44::identity(), shapeNode->GetManagedMesh()->GetMesh(), float4(0, 0, 0.75f, 0.8f), CoreGraphics::RenderShape::Wireframe);
-
+				Math::matrix44 trans = Math::matrix44::transformation(shapeNode->GetScalePivot(), shapeNode->GetRotation(), shapeNode->GetScale(), shapeNode->GetRotatePivot(), shapeNode->GetRotation(), shapeNode->GetPosition());
+				Debug::DebugShapeRenderer::Instance()->DrawMesh(trans, shapeNode->GetManagedMesh()->GetMesh(), shapeNode->GetPrimitiveGroupIndex(), float4(0, 0, 0.75f, 0.8f), CoreGraphics::RenderShape::Wireframe);
 			}
 		}
 	}

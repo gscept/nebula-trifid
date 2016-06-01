@@ -49,7 +49,7 @@ readwrite IMAGE_FORMAT_TYPE imageCube WriteImage;
 #endif
 
 #ifndef KERNEL_RADIUS
-	#define KERNEL_RADIUS 15
+	#define KERNEL_RADIUS 9
 #endif
 #define HALF_KERNEL_RADIUS ((KERNEL_RADIUS - 1)/2)
 
