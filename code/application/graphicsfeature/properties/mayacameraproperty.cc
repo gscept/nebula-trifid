@@ -167,7 +167,7 @@ MayaCameraProperty::OnRender()
         float zoomOut = 0.0f;
         float2 panning(0.0f, 0.0f);
         float2 orbiting(0.0f, 0.0f);
-        if (gamePad->IsConnected())
+        if (gamePad.isvalid() && gamePad->IsConnected())
         {
             const float gamePadZoomSpeed = 50.0f;
             const float gamePadOrbitSpeed = 10.0f;

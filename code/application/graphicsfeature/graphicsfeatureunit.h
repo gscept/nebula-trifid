@@ -147,7 +147,7 @@ protected:
 	Ptr<EnvEntityManager> envEntityManager;
 	Ptr<Resources::SimpleResourceMapper> animPathMapper;
 
-	Core::Rtti viewClass;
+	Core::Rtti & viewClass;
 
     bool decorated;
     bool resizable;
