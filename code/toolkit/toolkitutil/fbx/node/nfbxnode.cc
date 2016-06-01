@@ -347,9 +347,12 @@ NFbxNode::ExtractTransform(const FbxMatrix& localTrans)
 	// construct nebula matrix from rows	
 	this->transform = matrix44(x, y, z, w);
 
+	// calculate inverse scale
+	float inverseScale = float(fbxScene->GetGlobalSettings().GetSystemUnit().GetScaleFactor());
+
 	this->rotation = quaternion((scalar)rotation[0], (scalar)rotation[1], (scalar)rotation[2], (scalar)rotation[3]);
 	this->position = float4((scalar)translation[0], (scalar)translation[1], (scalar)translation[2], 0);
-	this->scale = float4((scalar)scale[0], (scalar)scale[1], (scalar)scale[2], 0);
+	this->scale = float4((scalar)scale[0] * inverseScale, (scalar)scale[1] * inverseScale, (scalar)scale[2] * inverseScale, 0);
 }
 
 //------------------------------------------------------------------------------

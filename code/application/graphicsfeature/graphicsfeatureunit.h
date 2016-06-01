@@ -63,10 +63,6 @@ public:
 	virtual void OnBeforeCleanup();
 	/// called from within GameServer::Load() after attributes are loaded
 	virtual void OnLoad();
-    /// called from within GameServer::OnStart() after OnLoad when the complete world exist
-    virtual void OnStart();      
-    /// called on begin of frame
-    virtual void OnBeginFrame();
     /// called in the middle of the feature trigger cycle
     virtual void OnFrame();        
     /// called at the end of the feature trigger cycle
@@ -135,7 +131,6 @@ protected:
     Util::Blob windowData;
     Ptr<Graphics::GraphicsServer> graphicsServer;
     Ptr<Graphics::CameraEntity> defaultCamera;	
-    Ptr<Input::InputServer> inputServer;
     Ptr<Graphics::Stage> defaultStage;
     Ptr<Graphics::View> defaultView;
 	Ptr<Graphics::GlobalLightEntity> globalLight;
@@ -249,8 +244,8 @@ GraphicsFeatureUnit::GetWorldBoundingBox() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-GraphicsFeatureUnit::SetResizeable( bool b )
+inline void
+GraphicsFeatureUnit::SetResizeable(bool b)
 {
     this->resizable = b;
     if(this->display.isvalid())
@@ -262,8 +257,8 @@ GraphicsFeatureUnit::SetResizeable( bool b )
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-GraphicsFeatureUnit::SetDecorated( bool b )
+inline void
+GraphicsFeatureUnit::SetDecorated(bool b)
 {
     this->decorated = b;
     if(this->display.isvalid())

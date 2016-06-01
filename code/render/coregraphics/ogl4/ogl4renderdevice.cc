@@ -269,6 +269,7 @@ OGL4RenderDevice::OpenOpenGL4Context()
 	glEnable(GL_LINE_SMOOTH);
     //glHint(GL_TEXTURE_COMPRESSION_HINT, GL_FASTEST);
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+	glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE);
     //glHint(GL_POLYGON_SMOOTH_HINT, GL_FASTEST);
 
 	// setup vsync
@@ -387,7 +388,7 @@ void
 OGL4RenderDevice::SetIndexBuffer(const Ptr<IndexBuffer>& ib)
 {
 	// only apply if the currently bound index buffer is not equal to the one being passed
-	if (this->indexBuffer != ib)
+	//if (this->indexBuffer != ib)
 	{
 		if (!ib.isvalid())
 		{
@@ -681,7 +682,7 @@ OGL4RenderDevice::Draw()
 				primType,															// primitive type
 				this->primitiveGroup.GetNumIndices(),								// number of primitives
 				indexType,															// type of index				
-				(GLvoid*)(this->primitiveGroup.GetBaseIndex() * indexSize),			// pointer to indices (NULL since we use VAOs or IBOs)
+				(GLvoid*)(this->primitiveGroup.GetBaseIndex() * indexSize),			// offset into index buffer
 				this->primitiveGroup.GetBaseVertex()								// vertex offset
 			);				
 		}

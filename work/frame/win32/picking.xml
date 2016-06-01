@@ -11,6 +11,7 @@
   <!-- draw all pickable objects -->
   <Pass renderTarget="PickingBuffer" clearColor="0,0,0,0" clearDepth="1" name="Picking">
 	<Batch batchGroup="Picking" sorting="None" lighting="None" type="Geometry"/>
+	<Batch batchGroup="PickingInFront" sorting="None" lighting="None" type="Geometry"/>
   </Pass>
  </FrameShader>
 </Nebula3>

@@ -26,7 +26,7 @@ public:
     /// setup the post effect
     void Setup();
     /// render the post effect
-    virtual void Render();
+	virtual void Render(IndexT frameIndex);
 
     /// set the relative width of the computation
     void SetRelativeWidth(float f);

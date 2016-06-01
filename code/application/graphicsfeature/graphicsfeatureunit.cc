@@ -119,18 +119,6 @@ GraphicsFeatureUnit::OnDeactivate()
 /**
 */
 void
-GraphicsFeatureUnit::OnStart()
-{
-    // reset input events, e.g. needed after new gamestate is set
-    this->inputServer->Reset();
-
-    Game::FeatureUnit::OnStart();
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
 GraphicsFeatureUnit::SetupDefaultGraphicsWorld()
 {
     n_assert(!this->defaultStage.isvalid());
@@ -194,23 +182,10 @@ GraphicsFeatureUnit::DiscardDefaultGraphicsWorld()
 /**
 */
 void
-GraphicsFeatureUnit::OnBeginFrame()
-{  
-    this->inputServer->BeginFrame();
-
-	// enter lock step
-    Game::FeatureUnit::OnBeginFrame();
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
 GraphicsFeatureUnit::OnFrame()
 {    
 	this->debugShapeRenderer->OnFrame();
     this->debugTextRenderer->OnFrame();
-	this->inputServer->OnFrame();
 
 	// draw frame
     GraphicsInterface::Instance()->OnFrame();
@@ -224,13 +199,6 @@ GraphicsFeatureUnit::OnFrame()
 void
 GraphicsFeatureUnit::OnEndFrame()
 {
-    // handle quit requested
-    if (this->inputServer->IsQuitRequested())
-    {
-        Game::GameServer::Instance()->SetQuitRequested();
-    }
-    this->inputServer->EndFrame();
-
     // in windowed mode, give other apps time slice
     if (!this->display->Settings().IsFullscreen())
     {
@@ -395,10 +363,6 @@ GraphicsFeatureUnit::SetupDisplay()
 	this->debugShapeRenderer = Debug::DebugShapeRenderer::Create();
 	this->debugTextRenderer = Debug::DebugTextRenderer::Create();
 
-	// setup input subsystem
-	this->inputServer = InputServer::Create();
-	this->inputServer->Open();
-
 	// append standard managers
 	this->attachmentManager = GraphicsFeature::AttachmentManager::Create();
 	this->AttachManager(this->attachmentManager.cast<Game::Manager>());
@@ -436,10 +400,7 @@ GraphicsFeatureUnit::DiscardDisplay()
 
 	// discard resource manager
 	this->resManager = 0;
-
-	// shutdown Nebula3
-	this->inputServer->Close();
-	this->inputServer = 0;
+	
 	this->display->Close();
 	this->display = 0;
 	this->graphicsInterface->Close();

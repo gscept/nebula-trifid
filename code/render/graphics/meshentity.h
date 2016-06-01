@@ -38,6 +38,14 @@ public:
 	/// add a node to be rendered, this is a piece of the vertex/index buffer with a surface
 	void AddNode(const Util::StringAtom& name, const CoreGraphics::PrimitiveGroup& group, const Resources::ResourceId& surface, const Math::bbox& box);
 
+	/// get model instance
+	const Ptr<Models::ModelInstance>& GetModelInstance() const;
+
+	/// sets picking id
+	void SetPickingId(const IndexT& i);
+	/// gets picking id
+	const IndexT& GetPickingId() const;
+
 	/// apply state
 	void ApplyState(const CoreGraphics::PrimitiveGroup& prim);
 
@@ -70,6 +78,8 @@ private:
 	void OnNotifyCullingVisible(const Ptr<GraphicsEntity>& observer, IndexT frameIndex);
 	/// prepare rendering
 	void OnRenderBefore(IndexT frameIndex);
+
+	IndexT pickingId;
 
 	Util::Array<__StagingModelNode> stagingNodes;
 	Ptr<Models::Model> model;
@@ -111,5 +121,33 @@ MeshEntity::SetIndexBuffer(const Ptr<CoreGraphics::IndexBuffer>& ibo)
 	n_assert(ibo.isvalid());
 	this->ibo = ibo;
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+MeshEntity::SetPickingId(const IndexT& i)
+{
+	this->pickingId = i;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const IndexT&
+MeshEntity::GetPickingId() const
+{
+	return this->pickingId;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Ptr<Models::ModelInstance>&
+MeshEntity::GetModelInstance() const
+{
+	return this->modelInstance;
+}
+
 
 } // namespace Graphics

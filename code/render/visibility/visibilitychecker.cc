@@ -96,8 +96,8 @@ VisibilityChecker::RemoveVisibilitySystem(const Ptr<VisibilitySystemBase>& syste
 //------------------------------------------------------------------------------
 /**
 */
-void 
-VisibilityChecker::WorldChanged( const Math::bbox& worldBox )
+void
+VisibilityChecker::WorldChanged(const Math::bbox& worldBox)
 {
 	n_assert(this->isOpen);    
 	IndexT i;

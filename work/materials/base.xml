@@ -767,7 +767,7 @@
 	This is also assigned to skinned meshes, although the Static variation will be forced to be Static|Skinned (look in shader)
   -->
   <Material name="Placeholder" type="all" desc="Placeholder material which gets applied to a mesh if it doesn't yet have a shader">
-   <Pass batch="Unlit" shader="placeholder" variation="Static"/>
+   <Pass batch="DirectToColor" shader="placeholder" variation="Static"/>
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <Param name="AlbedoMap" type="string" defaultValue="tex:system/placeholder"/>
    
@@ -776,7 +776,7 @@
   </Material>
   
   <Material name="PlaceholderSkinned" type="all" desc="Placeholder material which gets applied to a mesh if it doesn't yet have a shader, but is skinned.">
-   <Pass batch="Unlit" shader="placeholder" variation="Skinned"/>
+   <Pass batch="DirectToColor" shader="placeholder" variation="Skinned"/>
    <Pass batch="Picking" shader="picking" variation="Skinned"/>
    <Param name="AlbedoMap" type="string" defaultValue="tex:system/placeholder"/>
    

@@ -31,9 +31,9 @@ CSMUtil::CSMUtil() :
 	blurSize(1),
 	floorTexels(true)
 {
-	this->cascadeDistances[0] = 5;
-	this->cascadeDistances[1] = 15;
-	this->cascadeDistances[2] = 60;
+	this->cascadeDistances[0] = 1;
+	this->cascadeDistances[1] = 5;
+	this->cascadeDistances[2] = 30;
 	this->cascadeDistances[3] = 100;
 }
 
@@ -471,7 +471,7 @@ CSMUtil::Compute()
 			// fit zero-one
 		}
 
-		// okay, so making this matrix an LH matrix apparently works, instead of swapping the near and far plane...
+		// okay, so making this matrix an LH matrix apparently works, algorithm assumes a DX handed mode
 		matrix44 cascadeProjectionMatrix = matrix44::orthooffcenterlh(lightCameraOrthographicMin.x(),
 																	  lightCameraOrthographicMax.x(),
 																	  lightCameraOrthographicMin.y(),

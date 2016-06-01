@@ -121,6 +121,10 @@ ContentBrowserApp::SetupGameFeatures()
     IO::AssignRegistry::Instance()->SetAssign(IO::Assign("dst", this->projInfo.GetAttr("DstDir")));
     IO::AssignRegistry::Instance()->SetAssign(IO::Assign("int", this->projInfo.GetAttr("IntDir")));
 
+	// setup feature
+	this->inputFeature = InputFeature::InputFeatureUnit::Create();
+	this->gameServer->AttachGameFeature(this->inputFeature.upcast<Game::FeatureUnit>());
+
     // create and attach qt feature
     this->qtFeature = QtFeature::QtFeatureUnit::Create();
     this->gameServer->AttachGameFeature(this->qtFeature.upcast<Game::FeatureUnit>());
@@ -266,6 +270,8 @@ ContentBrowserApp::CleanupGameFeatures()
 	this->graphicsFeature = 0;
 	this->gameServer->RemoveGameFeature(this->qtFeature.upcast<Game::FeatureUnit>());
 	this->qtFeature = 0;	
+	this->gameServer->RemoveGameFeature(this->inputFeature.upcast<Game::FeatureUnit>());
+	this->inputFeature = 0;
 
 	// clear state
 	this->previewState = 0;

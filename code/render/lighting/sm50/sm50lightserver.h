@@ -46,7 +46,7 @@ public:
 	void RenderLights();
 	/// render light probes
 	void RenderLightProbes();
-	
+
 protected:
 
 	/// render the global light

@@ -61,6 +61,7 @@ void sincos(float angle, out float sinus, out float cosinus)
 #define fmod mod
 #define saturate(x) clamp(x, 0.0f, 1.0f)
 #define mul(x, y) y * x
+#define mad(x, y, z) x * y + z
 
 #elif HLSL
 int2 NPixelSize(Texture2D tex, int lod)

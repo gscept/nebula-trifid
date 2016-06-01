@@ -11,6 +11,7 @@
 #include "resources/resourcemanager.h"
 #include "graphics/graphicsserver.h"
 #include "graphics/view.h"
+#include "framesync/framesynctimer.h"
 
 
 using namespace Base;
@@ -27,6 +28,7 @@ __ImplementSingleton(Picking::PickingServer);
 */
 PickingServer::PickingServer() :
 	isOpen(false),
+	frameIndex(0),
 	frameShader(0),
 	pickingCamera(0),
 	pickingView(0),
@@ -100,13 +102,19 @@ PickingServer::Render()
 {
 	n_assert(this->IsOpen());
 
-	// render view first
-	const Ptr<Graphics::CameraEntity>& defaultCam = Graphics::GraphicsServer::Instance()->GetDefaultView()->GetCameraEntity();
-	const Math::matrix44& camTrans = defaultCam->GetTransform();
-	const Graphics::CameraSettings& settings = defaultCam->GetCameraSettings();
-	this->pickingCamera->SetTransform(camTrans);
-	this->pickingCamera->SetCameraSettings(settings);
-	this->pickingView->OnFrame(NULL, 0, 0, false);
+	IndexT idx = FrameSync::FrameSyncTimer::Instance()->GetFrameIndex();
+	if (idx != this->frameIndex)
+	{
+		// render view first
+		const Ptr<Graphics::CameraEntity>& defaultCam = Graphics::GraphicsServer::Instance()->GetDefaultView()->GetCameraEntity();
+		const Math::matrix44& camTrans = defaultCam->GetTransform();
+		const Graphics::CameraSettings& settings = defaultCam->GetCameraSettings();
+		this->pickingCamera->SetTransform(camTrans);
+		this->pickingCamera->SetCameraSettings(settings);
+		this->pickingView->OnFrame(NULL, 0, 0, false, false);
+		this->frameIndex = idx;
+	}
+	
 	/*
 	if (this->frameShader.isvalid() && this->enabled)
 	{

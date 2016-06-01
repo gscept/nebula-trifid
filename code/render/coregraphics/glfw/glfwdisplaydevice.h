@@ -10,7 +10,7 @@
 #include "coregraphics/base/displaydevicebase.h"
 #include "util/array.h"
 #include "threading/thread.h"
-
+#include "input/glfw/glfwinputdisplayeventhandler.h"
 
 
 //------------------------------------------------------------------------------
@@ -73,6 +73,7 @@ public:
 	friend void staticCharFunc(GLFWwindow* window, unsigned int key);
 
 protected:
+	Ptr<GLFWInputDisplayEventHandler> eventHandler;
 
 	/// Keyboard callback
 	void KeyFunc(GLFWwindow *window, int key, int scancode, int action, int mods);

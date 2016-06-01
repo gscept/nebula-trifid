@@ -60,6 +60,8 @@ public:
 
 	/// create different transform tools
 	void Setup();
+	/// discard tools
+	void Discard();
 
     /// Handles the input
     bool HandleInput();

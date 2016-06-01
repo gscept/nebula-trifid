@@ -139,7 +139,7 @@ EnvironmentProbeCapturer::Render(QPlainTextEdit* progressBar)
 	for (i = 0; i < 6; i++)
 	{
 		colorFaceTargets[i] = RenderTarget::Create();
-		colorFaceTargets[i]->SetColorBufferFormat(CoreGraphics::PixelFormat::A16B16G16R16F);
+		colorFaceTargets[i]->SetColorBufferFormat(CoreGraphics::PixelFormat::R16G16B16A16F);
 		colorFaceTargets[i]->SetResolveTextureResourceId(Util::String::Sprintf("LightProbeReflection%d", i));
 		colorFaceTargets[i]->SetWidth(this->resolutionX);
 		colorFaceTargets[i]->SetHeight(this->resolutionY);

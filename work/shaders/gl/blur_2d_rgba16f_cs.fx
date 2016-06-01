@@ -5,6 +5,9 @@
 //------------------------------------------------------------------------------
 
 #define IMAGE_IS_RGBA16F 1
+#define KERNEL_RADIUS 9
+#define KERNEL_RADIUS_FLOAT 9.0f
+#define BLUR_SHARPNESS 1.0f
 #include "lib/blur_2d_cs.fxh"
 
 //------------------------------------------------------------------------------

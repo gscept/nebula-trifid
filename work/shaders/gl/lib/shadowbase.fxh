@@ -7,6 +7,15 @@
 #ifndef SHADOWBASE_FXH
 #define SHADOWBASE_FXH
 
+#define USE_MSM (1)
+#if USE_MSM
+#define PS_METHOD_STANDARD 	psMSM()
+#define PS_METHOD_ALPHA 	psMSMAlpha()
+#else
+#define PS_METHOD_STANDARD	psVSM()
+#define PS_METHOD_ALPHA		psVSMAlpha()
+#endif
+
 #include "lib/defaultsamplers.fxh"
 
 const float DepthScaling = 5.0f;
@@ -32,11 +41,11 @@ state ShadowState
 state ShadowStateCSM
 {
 	CullMode = Front;
-	DepthClamp = false;
-	DepthEnabled = false;
-	DepthWrite = false;
-	BlendEnabled[0] = true;
-	BlendOp[0] = Min;
+	//DepthClamp = false;
+	//DepthEnabled = false;
+	//DepthWrite = false;
+	//BlendEnabled[0] = true;
+	//BlendOp[0] = Min;
 };
 
 //------------------------------------------------------------------------------
@@ -667,20 +676,12 @@ psVSMAlpha(in vec2 UV,
 [earlydepth]
 shader
 void
-psVSMPoint(in vec2 UV,
+psMSM(in vec2 UV,
 	in vec4 ProjPos,
-	[color0] out vec2 ShadowColor) 
+	[color0] out vec4 ShadowColor) 
 {
-	float depth = ProjPos.z / ProjPos.w;
-	float moment1 = depth;
-	float moment2 = depth * depth;
-	
-	// Adjusting moments (this is sort of bias per pixel) using derivative
-	//float dx = dFdx(depth);
-	//float dy = dFdy(depth);
-	//moment2 += 0.25f*(dx*dx+dy*dy);
-	
-	ShadowColor = vec2(moment1, moment2);
+	float depth = ProjPos.z;
+	ShadowColor = EncodeMSM4(depth);
 }
 
 //------------------------------------------------------------------------------
@@ -688,23 +689,15 @@ psVSMPoint(in vec2 UV,
 */
 shader
 void
-psVSMAlphaPoint(in vec2 UV,
+psMSMAlpha(in vec2 UV,
 	in vec4 ProjPos,
-	[color0] out vec2 ShadowColor) 
+	[color0] out vec4 ShadowColor) 
 {
 	float alpha = texture(AlbedoMap, UV).a;
 	if (alpha < AlphaSensitivity) discard;
 	
-	float depth = ProjPos.z / ProjPos.w;
-	float moment1 = depth;
-	float moment2 = depth * depth;
-	
-	// Adjusting moments (this is sort of bias per pixel) using derivative
-	//float dx = dFdx(depth);
-	//float dy = dFdy(depth);
-	//moment2 += 0.25f*(dx*dx+dy*dy);
-	
-	ShadowColor = vec2(moment1, moment2);
+	float depth = ProjPos.z;
+	ShadowColor = EncodeMSM4(depth);
 }
 
 //---------------------------------------------------------------------------------------------------------------------------
@@ -771,4 +764,91 @@ ExponentialShadowSample(float mapDepth, float depth, float bias)
     //float occlusion = saturate(exp(DarkeningFactor * occluderReceiverDistance));  
     return occlusion;
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+const mat4 EncodeMSMMatrix = mat4(-2.07224649f,   13.7948857237f,  0.105877704f,   9.7924062118f,
+                     32.23703778f,  -59.4683975703f, -1.9077466311f,-33.7652110555f,
+                    -68.571074599f,  82.0359750338f,  9.3496555107f, 47.9456096605f,
+                     39.3703274134f,-35.364903257f,  -6.6543490743f,-23.9728048165f);
+					 
+const mat4 DecodeMSMMatrix = mat4(0.2227744146f, 0.1549679261f, 0.1451988946f, 0.163127443f,
+                 0.0771972861f,0.1394629426f,0.2120202157f,0.2591432266f,
+                 0.7926986636f, 0.7963415838f, 0.7258694464f, 0.6539092497f,
+                 0.0319417555f,-0.1722823173f,-0.2758014811f,-0.3376131734f);
+//------------------------------------------------------------------------------
+/**
+*/
+vec4
+EncodeMSM4(float depth)
+{
+	float sq = depth * depth;
+	vec4 moments = vec4(depth, sq, sq * depth, sq * sq);
+	moments = EncodeMSMMatrix * moments;
+	moments[0] += 0.035955884801f;
+	return moments;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+vec4
+EncodeMSM4Vec(vec4 moments)
+{
+	vec4 res = moments;
+	res = EncodeMSMMatrix * res;	
+	res[0] += 0.035955884801f;
+	return res;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+vec4
+DecodeMSM4(vec4 moments)
+{
+	vec4 res = moments;
+	res[0] -= 0.035955884801f;
+	res = DecodeMSMMatrix * res;
+	return res;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+float
+MSMShadowSample(vec4 moments, float momentBias, float depth, float depthBias)
+{
+	vec4 decoded = DecodeMSM4(moments);
+	vec4 b = lerp(decoded, vec4(0.5f), momentBias);
+	vec3 z;
+	z[0] = depth - depthBias;
+	
+	float l32d22 = mad(-b[0], b[1], b[2]);
+	float d22 = mad(-b[0], b[0], b[1]);
+	float squaredVariance = mad(-b[1], b[1], b[3]);
+	float d33d22 = dot(vec2(squaredVariance, -l32d22), vec2(d22, l32d22));
+	float invd22 = 1.0f / d22;
+	float l32 = l32d22 * invd22;
+	vec3 c = vec3(1, z[0], z[0] * z[0]);
+	c[1] -= b.x;
+	c[2] -= b.y + l32 * c[1];
+	c[1] *= invd22;
+	c[2] *= d22/d33d22;
+	c[1] -= l32 * c[2];
+	c[0] -= dot(c.yz, b.xy);
+	float p = c[1]/c[2];
+	float q = c[0]/c[2];
+	float r = sqrt((p*p*0.25f) - q);
+	z[1] = -p*0.5f - r;
+	z[2] = -p*0.5f + r;
+	vec4 select = 
+	(z[2] < z[0]) ? vec4(z[1], z[0], 1, 1) : (
+	(z[1] < z[0]) ? vec4(z[0], z[1], 0, 1) : 
+	vec4(0));
+	float quot = (select[0] * z[2] - b[0] * (select[0] + z[2]) + b[1]) / ((z[2] - select[1]) * (z[0] - z[1]));
+	return select[2] + select[3] * quot;
+}
+
 #endif // SHADOWBASE_FXH

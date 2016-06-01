@@ -735,7 +735,7 @@ ParticleSystemInstanceBase::RenderDebug()
 
     // render debug
     RenderShape emitterShape;
-    emitterShape.SetupMesh(Threading::Thread::GetMyThreadId(), this->transform, this->emitterMesh, float4(0, 1, 0, 0.75f), RenderShape::CheckDepth);
+    emitterShape.SetupMesh(Threading::Thread::GetMyThreadId(), this->transform, this->emitterMesh, this->primGroupIndex, float4(0, 1, 0, 0.75f), RenderShape::CheckDepth);
     ShapeRenderer::Instance()->AddShape(emitterShape);
 }
 

@@ -113,7 +113,7 @@ VolumetricLightAlgorithm::Setup()
     this->volumeLightBuffer1->SetRelativeWidth(1.0f);
     this->volumeLightBuffer1->SetRelativeHeight(1.0f);
 	this->volumeLightBuffer1->SetAntiAliasQuality(AntiAliasQuality::None);
-	this->volumeLightBuffer1->SetColorBufferFormat(PixelFormat::A16B16G16R16F);
+	this->volumeLightBuffer1->SetColorBufferFormat(PixelFormat::R16G16B16A16F);
 
     // set depth-stencil in  buffer
 	this->volumeLightBuffer1->SetDepthStencilTarget(this->albedoRenderTarget->GetDepthStencilTarget());
@@ -125,7 +125,7 @@ VolumetricLightAlgorithm::Setup()
     this->volumeLightBuffer2->SetRelativeWidth(1.0f);
     this->volumeLightBuffer2->SetRelativeHeight(1.0f);
 	this->volumeLightBuffer2->SetAntiAliasQuality(AntiAliasQuality::None);
-	this->volumeLightBuffer2->SetColorBufferFormat(PixelFormat::A16B16G16R16F);
+	this->volumeLightBuffer2->SetColorBufferFormat(PixelFormat::R16G16B16A16F);
 	this->volumeLightBuffer2->Setup();
 
 	// setup output
@@ -134,7 +134,7 @@ VolumetricLightAlgorithm::Setup()
     this->output->SetRelativeWidth(1.0f);
     this->output->SetRelativeHeight(1.0f);
 	this->output->SetAntiAliasQuality(AntiAliasQuality::None);
-	this->output->SetColorBufferFormat(PixelFormat::A16B16G16R16F);
+	this->output->SetColorBufferFormat(PixelFormat::R16G16B16A16F);
 	this->output->Setup();
 
 	// setup fsq

@@ -45,7 +45,7 @@ public:
     /// draw indexed primitives
     void DrawIndexedPrimitives(const Math::matrix44& modelTransform, CoreGraphics::PrimitiveTopology::Code topology, SizeT numPrimitives, const CoreGraphics::RenderShape::RenderShapeVertex* vertices, SizeT numVertices, const void* indices, CoreGraphics::IndexType::Code indexType, const Math::float4& color, CoreGraphics::RenderShape::RenderFlag depthFlag = CoreGraphics::RenderShape::CheckDepth);
     /// draw nvx2 mesh
-    void DrawMesh(const Math::matrix44& modelTransform, const Ptr<CoreGraphics::Mesh>& mesh, const Math::float4& color, CoreGraphics::RenderShape::RenderFlag depthFlag = CoreGraphics::RenderShape::CheckDepth);
+    void DrawMesh(const Math::matrix44& modelTransform, const Ptr<CoreGraphics::Mesh>& mesh, const IndexT& groupIndex, const Math::float4& color, CoreGraphics::RenderShape::RenderFlag depthFlag = CoreGraphics::RenderShape::CheckDepth);
     /// call once per frame to send of accumulated draw commands
     void OnFrame();
 

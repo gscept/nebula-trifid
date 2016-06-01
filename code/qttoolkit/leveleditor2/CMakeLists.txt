@@ -126,7 +126,7 @@ ADD_DEPENDENCIES(leveleditor2
 	globalprobecontroller
 	splash
 	dynui
-	graphicsfeature physicsfeature scriptingfeature ui
+	inputfeature graphicsfeature physicsfeature scriptingfeature ui
 	navigation	
 )
 
@@ -148,7 +148,7 @@ TARGET_LINK_LIBRARIES(leveleditor2
 	splash	
 	navigation	
 	dynui
-	graphicsfeature physicsfeature scriptingfeature ui
+	inputfeature graphicsfeature physicsfeature scriptingfeature ui
 	${QT_WIN_LIBS}	
 	${QT_LIBRARIES} ${QT_QTMAIN_LIBRARY}	
 )

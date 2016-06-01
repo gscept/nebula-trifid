@@ -230,6 +230,10 @@ LevelEditor2App::SetupGameFeatures()
     IO::AssignRegistry::Instance()->SetAssign(IO::Assign("int", this->projInfo.GetAttr("IntDir")));
 	IO::AssignRegistry::Instance()->SetAssign(IO::Assign("work", "root:work"));
 
+	// setup feature
+	this->inputFeature = InputFeature::InputFeatureUnit::Create();
+	this->gameServer->AttachGameFeature(this->inputFeature.upcast<Game::FeatureUnit>());
+
     // create and attach qt feature
     this->qtFeature = QtFeature::QtFeatureUnit::Create();
     this->gameServer->AttachGameFeature(this->qtFeature.upcast<Game::FeatureUnit>());    
@@ -290,9 +294,9 @@ LevelEditor2App::SetupGameFeatures()
 	this->graphicsFeature->SetupDisplay();
 
     // game feature needs to be attached before graphicsfeature (but after setupdisplay)
-    
     this->gameServer->AttachGameFeature(this->graphicsFeature.upcast<Game::FeatureUnit>());
 	this->gameServer->AttachGameFeature(this->baseFeature.upcast<Game::FeatureUnit>());
+
     // create and attach the leveleditor-specific managers
     Ptr<ActionManager> actionManager = ActionManager::Create();
     this->baseFeature->AttachManager(actionManager.upcast<Game::Manager>());
@@ -428,6 +432,8 @@ LevelEditor2App::CleanupGameFeatures()
 	this->qtFeature = 0;
     this->gameServer->RemoveGameFeature(this->navigationFeature.upcast<Game::FeatureUnit>());
 	this->editorState = 0;
+	this->gameServer->RemoveGameFeature(this->inputFeature.upcast<Game::FeatureUnit>());
+	this->inputFeature = 0;
 
 	GameApplication::CleanupGameFeatures();
 }

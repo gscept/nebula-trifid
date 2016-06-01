@@ -59,6 +59,7 @@ public:
 	Math::float4 FetchNormal(const Math::float2& position);
 private:
 	bool isOpen;
+	IndexT frameIndex;
 	Ptr<Frame::FrameShader> frameShader;
 	Ptr<CoreGraphics::Texture> pickingBuffer;
 	Ptr<CoreGraphics::Texture> depthBuffer;

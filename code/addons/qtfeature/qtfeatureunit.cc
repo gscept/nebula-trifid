@@ -72,7 +72,7 @@ QtFeatureUnit::OnRenderDebug()
 /**
 */
 void
-QtFeatureUnit::OnFrame()
+QtFeatureUnit::OnBeginFrame()
 {    
     this->qtServer->Trigger();
 	Qt::KeyboardModifiers mods = QApplication::queryKeyboardModifiers();

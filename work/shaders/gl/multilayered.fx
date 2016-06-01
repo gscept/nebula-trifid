@@ -286,7 +286,7 @@ psMultilayered(in vec3 ViewSpacePos,
 	mat2x3 env = PBRSpec(specColor, bumpNormal, ViewSpacePos, WorldViewVec, invView, roughness);
 	vec4 spec = calcSpec(specColor.rgb, roughness);
 	vec4 albedo = calcColor(diffColor, vec4(1), spec);	
-	vec4 emissive = vec4((env[0] * albedo.rgb + env[1]), -1);
+	vec4 emissive = vec4((env[0] * albedo.rgb + env[1]), 1);
 
 	Specular = spec;
 	Albedo = albedo;
@@ -597,7 +597,7 @@ SimpleTechnique(MLP, "Static", vsColored(), psMultilayered(
 		calcEnv = PBR), MLPState);
 		
 SimpleTechnique(MLPShadow, "Spot|Static", vsColoredShadow(), psShadow(), ShadowState);
-GeometryTechnique(MLPCSM, "Global|Static", vsColoredCSM(), psVSM(), gsMain(), ShadowStateCSM);
+GeometryTechnique(MLPCSM, "Global|Static", vsColoredCSM(), PS_METHOD_STANDARD, gsMain(), ShadowStateCSM);
 //TessellationTechnique(MLPTessellated, "Static|Tessellated|Colored", vsColoredTessellated(), psMultilayered(), hsDefault(), dsDefault(), MLPState);
 //FullTechnique(MLPTessellatedShadow, "Static|Tessellated|Colored|Shadow", vsColoredCSMTessellated(), psMultilayeredShadowVSM(), hsShadowMLP(), dsShadowMLP(), gsMain(), MLPState);
 //TessellationTechnique(MLPTessellatedCSM, "Static|Tessellated|Colored|CSM", vsColoredShadowTessellated(), psMultilayeredShadowVSM(), hsShadowMLP(), dsShadowMLP(), MLPState);

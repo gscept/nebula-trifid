@@ -30,6 +30,9 @@ public:
     TranslateFeature();
     /// Destructor
     ~TranslateFeature();
+
+	/// setup transform feature
+	void Setup();
  
     /// begin a drag
     void StartDrag();
@@ -65,15 +68,20 @@ private:
     
     /// checks current initial matrix and feature translation to compute handle positions in space.
     void UpdateHandlePositions();
-    
-	/// returns the handle above which the mouse is currently over
-	DragMode GetMouseHandle(const Math::line& worldMouseRay);
+   
 
-	Math::point xAxis;
-	Math::point yAxis;
-	Math::point zAxis;
-    Math::point origin;
-	Math::plane viewPlane;
+	struct MeshBundle
+	{
+		Ptr<CoreGraphics::VertexBuffer> vbo;
+		Ptr<CoreGraphics::IndexBuffer> ibo;
+		Math::bbox box;
+	};
+	Util::FixedArray<Ptr<Materials::SurfaceInstance>> handleSurfaces;
+
+	/// create cone with line handle
+	MeshBundle CreateHandle(const Util::Array<CoreGraphics::VertexComponent>& comps);
+	/// create center square
+	MeshBundle CreateSquare(const Util::Array<CoreGraphics::VertexComponent>& comps);
 
 	float snapOffset;
     float handleScale;

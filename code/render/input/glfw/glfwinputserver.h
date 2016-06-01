@@ -34,10 +34,6 @@ public:
     void SetCursorVisible(bool enable);
 	/// lock cursor and hide it
 	void SetCursorLocked(bool enable);
-
-protected:    
-
-    Ptr<GLFWInputDisplayEventHandler> eventHandler;
 };
 
 

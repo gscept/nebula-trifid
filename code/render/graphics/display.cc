@@ -43,6 +43,7 @@ Display::Open()
 {
     n_assert(!this->isOpen);
     n_assert(!this->resourceMappers.IsEmpty());
+	this->isOpen = true;
 
     Ptr<Graphics::SetupGraphics> msg = Graphics::SetupGraphics::Create();
     msg->SetAdapter(this->settings.GetAdapter());
@@ -73,7 +74,6 @@ Display::Open()
     this->settings.SetFullscreen(msg->GetActualFullscreen());
     this->settings.SetAdapter(msg->GetActualAdapter());
     
-    this->isOpen = true;
 }
 
 //------------------------------------------------------------------------------

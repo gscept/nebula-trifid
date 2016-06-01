@@ -10,9 +10,14 @@
 #include "graphics/view.h"
 #include "graphicsfeatureunit.h"
 #include "input/mouse.h"
+#include "coregraphics/memoryvertexbufferloader.h"
+#include "coregraphics/memoryindexbufferloader.h"
+#include "models/nodes/meshnodeinstance.h"
 //------------------------------------------------------------------------------
 
 using namespace Math;
+using namespace CoreGraphics;
+using namespace Graphics;
 
 namespace LevelEditor2
 {
@@ -40,102 +45,118 @@ ScaleFeature::~ScaleFeature()
 //------------------------------------------------------------------------------
 /**
 */
-TransformFeature::DragMode
-ScaleFeature::GetMouseHandle(const Math::line& worldMouseRay)
+void
+ScaleFeature::Setup()
 {
-	// Check distance to each of the handles of the feature.
-	// If the distance to a handle is close enough, activate drag mode.
-	float distance;
-	float activationDistance = 1.0f * this->handleScale;
+	Util::Array<CoreGraphics::VertexComponent> comps;
+	comps.Append(VertexComponent(VertexComponent::Position, 0, VertexComponent::Float4));
 
-	// needed for distance calculation of x,y,z handles
-	point rayPoint, handlePoint;
-	line axis;
-	float axis_t;
-	float nearestHandle = FLT_MAX;
+	const uint numHandles = 4;
+	this->handleGraphicsEntities.Resize(numHandles);
+	this->handleSurfaces.Resize(numHandles);
+	this->handleIndices.Resize(numHandles);
+	this->handleColors.Resize(numHandles);
 
-	DragMode modes[] = { X_AXIS, Y_AXIS, Z_AXIS };
-	vector handles[] = { this->xAxis, this->yAxis, this->zAxis };
-	vector handlePointSize[] = { vector(this->handleScale, 0, 0), vector(0, this->handleScale, 0), vector(0, 0, this->handleScale) };
-	DragMode retval = NONE;
+	this->vbos.Resize(2);
+	this->ibos.Resize(2);
 
-	// if we're not above the origin handle, we proceed to check the other handles
+	ScaleFeature::MeshBundle handle = this->CreateHandle(comps);
+
+	const Math::float4 colors[] = {
+		Math::float4(1, 0, 0, 0),
+		Math::float4(0, 1, 0, 0),
+		Math::float4(0, 0, 1, 0),
+		Math::float4(1, 1, 1, 0)};
+
 	IndexT i;
-	for (i = 0; i < 3; i++)
+	for (i = 0; i < this->handleGraphicsEntities.Size() - 1; i++)
 	{
-		// check z handle
-		axis.set(this->origin + handlePointSize[i] * 0.5f, handles[i] + handlePointSize[i]);
-		worldMouseRay.intersect(axis, rayPoint, handlePoint);
-		axis_t = axis.closestpoint(rayPoint);
-		distance = axis.distance(rayPoint);
-		if (distance < activationDistance && axis_t < 1 && axis_t > 0 && distance < nearestHandle)
-		{
-			nearestHandle = distance;
-			retval = modes[i];
-		}
+		CoreGraphics::PrimitiveGroup primBox;
+		primBox.SetBaseIndex(0);
+		primBox.SetBaseVertex(0);
+		primBox.SetNumIndices(36);
+		primBox.SetNumVertices(0);
+		primBox.SetPrimitiveTopology(PrimitiveTopology::TriangleList);
+
+		CoreGraphics::PrimitiveGroup primLine;
+		primLine.SetBaseIndex(0);
+		primLine.SetBaseVertex(8);
+		primLine.SetNumIndices(0);
+		primLine.SetNumVertices(2);
+		primLine.SetPrimitiveTopology(PrimitiveTopology::LineList);
+
+		CoreGraphics::PrimitiveGroup axisLine;
+		axisLine.SetBaseIndex(0);
+		axisLine.SetBaseVertex(10 + i * 3);
+		axisLine.SetNumIndices(0);
+		axisLine.SetNumVertices(3);
+		axisLine.SetPrimitiveTopology(PrimitiveTopology::LineStrip);
+
+		this->handleGraphicsEntities[i] = Graphics::MeshEntity::Create();
+		this->handleGraphicsEntities[i]->SetVertexComponents(comps);
+		this->handleGraphicsEntities[i]->SetVertexBuffer(0, handle.vbo);
+		this->handleGraphicsEntities[i]->SetIndexBuffer(handle.ibo);
+		this->handleGraphicsEntities[i]->AddNode("line", primLine, "sur:system/leveleditorhandlewireframenopick", handle.box);
+		this->handleGraphicsEntities[i]->AddNode("box", primBox, "sur:system/leveleditorhandlesolid", handle.box);
+		//this->handleGraphicsEntities[i]->AddNode("axis", axisLine, "sur:system/leveleditorhandlewireframe", handle.box);
+		this->handleGraphicsEntities[i]->SetAlwaysVisible(true);
+
+		this->handleColors[i] = colors[i];
+		this->handleIndices[i] = -(i + 1);
+		this->handleGraphicsEntities[i]->SetPickingId(this->handleIndices[i]);
+		GraphicsFeature::GraphicsFeatureUnit::Instance()->GetDefaultStage()->AttachEntity(this->handleGraphicsEntities[i].upcast<GraphicsEntity>());
+		Ptr<Models::ModelNodeInstance> mdlNode = this->handleGraphicsEntities[i]->GetModelInstance()->LookupNodeInstance("root/box");
+		Ptr<Models::MeshNodeInstance> boxNode = mdlNode.cast<Models::MeshNodeInstance>();
+		mdlNode = this->handleGraphicsEntities[i]->GetModelInstance()->LookupNodeInstance("root/line");
+		Ptr<Models::MeshNodeInstance> lineNode = mdlNode.cast<Models::MeshNodeInstance>();
+
+		SurfaceBundle bundle = { boxNode->GetSurfaceInstance() };
+		this->handleSurfaces[i] = bundle;
+		this->handleSurfaces[i].box->SetValue("MatDiffuse", colors[i]);
+		this->handleGraphicsEntities[i]->SetVisible(false);
+
+		// set line to be gray
+		lineNode->GetSurfaceInstance()->SetValue("MatDiffuse", float4(0.25f));
+
+		/*
+		mdlNode = this->handleGraphicsEntities[i]->GetModelInstance()->LookupNodeInstance("root/axis");
+		Ptr<Models::MeshNodeInstance> axisNode = mdlNode.cast<Models::MeshNodeInstance>();
+		axisNode->GetSurfaceInstance()->SetValue("MatDiffuse", float4(1));
+		*/
 	}
 
-	// check origin handle
-	distance = worldMouseRay.distance(this->origin);
-	if (distance < activationDistance)
-	{
-		retval = ORIGIN;
-	}
+	ScaleFeature::MeshBundle box = this->CreateBox(comps);
 
-	return retval;
-}
+	CoreGraphics::PrimitiveGroup primBox;
+	primBox.SetBaseIndex(0);
+	primBox.SetBaseVertex(0);
+	primBox.SetNumIndices(36);
+	primBox.SetNumVertices(0);
+	primBox.SetPrimitiveTopology(PrimitiveTopology::TriangleList);
 
-//------------------------------------------------------------------------------
-/**
-    Checks the mouse position and returns true if the mouse hovers over
-    the handle for the given drag mode.
-*/
-bool
-ScaleFeature::IsMouseOverHandle(DragMode handle,const line& worldMouseRay)
-{
-    // Check distance to each of the handles of the feature.
-    // If the distance to a handle is close enough, activate drag mode.
-    float distance;
-    float activationDistance = 1.0f;
+	this->handleGraphicsEntities[i] = Graphics::MeshEntity::Create();
+	this->handleGraphicsEntities[i]->SetVertexComponents(comps);
+	this->handleGraphicsEntities[i]->SetVertexBuffer(0, box.vbo);
+	this->handleGraphicsEntities[i]->SetIndexBuffer(box.ibo);
+	this->handleGraphicsEntities[i]->AddNode("box", primBox, "sur:system/leveleditorhandlesolid", box.box);
+	this->handleGraphicsEntities[i]->SetAlwaysVisible(true);
 
-    // needed for distance calculation of x,y,z handles
-    point rayPoint,handlePoint;
-    line axis;
-    float axis_t;
+	this->handleColors[i] = colors[i];
+	this->handleIndices[i] = -(i + 1);
+	this->handleGraphicsEntities[i]->SetPickingId(this->handleIndices[i]);
+	GraphicsFeature::GraphicsFeatureUnit::Instance()->GetDefaultStage()->AttachEntity(this->handleGraphicsEntities[i].upcast<GraphicsEntity>());
+	Ptr<Models::ModelNodeInstance> mdlNode = this->handleGraphicsEntities[i]->GetModelInstance()->LookupNodeInstance("root/box");
+	Ptr<Models::MeshNodeInstance> boxNode = mdlNode.cast<Models::MeshNodeInstance>();
 
-    if (ORIGIN == handle)
-    {
-        distance = worldMouseRay.distance(this->origin);
-        return (distance < activationDistance * this->handleScale);
-    }
-    else if (X_AXIS == handle)
-    {
-        // check x handle
-        axis.set(this->origin,this->xAxis+vector(this->handleScale,0,0));
-        worldMouseRay.intersect(axis,rayPoint,handlePoint);
-        axis_t = axis.closestpoint(rayPoint);
-        distance = axis.distance(rayPoint);
-        return (distance < activationDistance * this->handleScale && axis_t < 1 && axis_t > 0);
-    }
-    else if (Y_AXIS == handle)
-    {
-        // check y handle
-        axis.set(this->origin,this->yAxis+vector(0,this->handleScale,0));
-        worldMouseRay.intersect(axis,rayPoint,handlePoint);
-        axis_t = axis.closestpoint(rayPoint);
-        distance = axis.distance(rayPoint);
-        return (distance < activationDistance * this->handleScale && axis_t < 1 && axis_t > 0);
-    }
-    else if (Z_AXIS == handle)
-    {
-        // check z handle
-        axis.set(this->origin,this->zAxis+vector(0,0,this->handleScale));
-        worldMouseRay.intersect(axis,rayPoint,handlePoint);
-        axis_t = axis.closestpoint(rayPoint);
-        distance = axis.distance(rayPoint);
-        return (distance < activationDistance * this->handleScale && axis_t < 1 && axis_t > 0);
-    }
-    return false;
+	SurfaceBundle bundle = { boxNode->GetSurfaceInstance() };
+	this->handleSurfaces[i] = bundle;
+	this->handleSurfaces[i].box->SetValue("MatDiffuse", colors[i]);
+	this->handleGraphicsEntities[i]->SetVisible(false);
+
+	this->vbos[0] = handle.vbo;
+	this->ibos[0] = handle.ibo;
+	this->vbos[1] = box.vbo;
+	this->ibos[1] = box.ibo;
 }
 
 //------------------------------------------------------------------------------
@@ -162,54 +183,48 @@ ScaleFeature::StartDrag()
     line worldMouseRay = envQueryManager->ComputeMouseWorldRay(mousePos, rayLength, defaultView);
 
     // check origin handle
-    if (this->IsMouseOverHandle(ORIGIN, worldMouseRay))
+    if (this->currentDragMode == GLOBAL_DRAG)
     {
         this->dragStartMousePosition = mousePos;
-		this->currentDragMode = ORIGIN;
         this->isInDragMode = true;
         return;
     }
 
     // check x handle
-    if (this->IsMouseOverHandle(X_AXIS,worldMouseRay))
+    if (this->currentDragMode == X_DRAG)
     {
         worldMouseRay.intersect(line(this->origin,this->xAxis),rayPoint,handlePoint);
         this->dragStartMouseRayOffset = (
             rayPoint -
             this->xAxis
             );
-		this->currentDragMode = X_AXIS;
         this->isInDragMode = true;
         return;
     }
 
     // check y handle
-    if (this->IsMouseOverHandle(Y_AXIS,worldMouseRay))
+    if (this->currentDragMode == Y_DRAG)
     {
         worldMouseRay.intersect(line(this->origin,this->yAxis),rayPoint,handlePoint);
         this->dragStartMouseRayOffset = (
             rayPoint -
             this->yAxis
             );
-		this->currentDragMode = Y_AXIS;
         this->isInDragMode = true;
         return;
     }
 
     // check z handle
-    if (this->IsMouseOverHandle(Z_AXIS,worldMouseRay))
+	if (this->currentDragMode == Z_DRAG)
     {
         worldMouseRay.intersect(line(this->origin,this->zAxis),rayPoint,handlePoint);
         this->dragStartMouseRayOffset = (
             rayPoint -
             this->zAxis
             );
-		this->currentDragMode = Z_AXIS;
         this->isInDragMode = true;
         return;
     }
-   
-    this->currentDragMode = NONE;
 }
 
 //------------------------------------------------------------------------------
@@ -232,7 +247,7 @@ ScaleFeature::Drag()
     line worldMouseRay = envQueryManager->ComputeMouseWorldRay(mousePos, rayLength, defaultView);
 
     // update in X direction
-    if (X_AXIS == this->currentDragMode)
+    if (X_DRAG == this->currentDragMode)
     {
         line x_axis(this->origin,this->xAxis);
         point mouseraypoint;
@@ -258,7 +273,7 @@ ScaleFeature::Drag()
     }
 
     // update in Y direction
-    if (Y_AXIS == this->currentDragMode)
+    if (Y_DRAG == this->currentDragMode)
     {
         line y_axis(this->origin,this->yAxis);
         point mouseraypoint;
@@ -284,7 +299,7 @@ ScaleFeature::Drag()
     }
 
     // update in Z direction
-    if (Z_AXIS == this->currentDragMode)
+    if (Z_DRAG == this->currentDragMode)
     {
         line z_axis(this->origin,this->zAxis);
         point mouseraypoint;
@@ -310,7 +325,7 @@ ScaleFeature::Drag()
     }
         
     // update in ALL directions
-    if (ORIGIN == this->currentDragMode)
+    if (GLOBAL_DRAG == this->currentDragMode)
     {
         float all_scale = 1;
         float2 mouseDelta = mousePos - this->dragStartMousePosition;
@@ -342,8 +357,6 @@ void
 ScaleFeature::ReleaseDrag()
 {
     TransformFeature::ReleaseDrag();
-    
-    this->currentDragMode = NONE;
     this->scale = vector(1.0f,1.0f,1.0f);
 }
 
@@ -354,135 +367,59 @@ ScaleFeature::ReleaseDrag()
 void
 ScaleFeature::RenderHandles()
 {
-	Ptr<BaseGameFeature::EnvQueryManager> envQueryManager = BaseGameFeature::EnvQueryManager::Instance();
-	Ptr<Graphics::View> defaultView = GraphicsFeature::GraphicsFeatureUnit::Instance()->GetDefaultView();
-
-    // get mouse position on screen
-    const float2& mousePos = Input::InputServer::Instance()->GetDefaultMouse()->GetScreenPosition();
-
-    // get mouse ray
-    const float rayLength = 5000.0f;
-    line worldMouseRay = envQueryManager->ComputeMouseWorldRay(mousePos, rayLength, defaultView);
-	DragMode mode = NONE;
-	if (!this->isInDragMode) mode = this->GetMouseHandle(worldMouseRay);
-
-    float4 color;
-    matrix44 m;
-    
-    // shrink box handles a little.
-    const float boxScale(0.3f);
-
-	// draw origin
-	if (ORIGIN == this->currentDragMode || ORIGIN == mode)
+	TransformFeature::RenderHandles();
+	matrix44 matrices[] =
 	{
-		color.set(1.0f, 1.0f, 0.0f, 1.0f);
-	}
-	else
+		matrix44::rotationy(n_deg2rad(90.0f)),
+		matrix44::rotationx(n_deg2rad(-90.0f)),
+		matrix44::identity(),
+		matrix44::identity()
+	};
+	IndexT handleGfxIdx;
+	for (handleGfxIdx = 0; handleGfxIdx < this->handleGraphicsEntities.Size() - 1; handleGfxIdx++)
 	{
-		color.set(0.85f, 0.85f, 0.85f, 0.5f);
+		matrix44 modelTransform = matrices[handleGfxIdx];
+		modelTransform.scale(vector(this->handleScale * this->handleDistance));
+		modelTransform = matrix44::multiply(modelTransform, this->decomposedRotation);
+		modelTransform.set_position(this->origin);
+		this->handleGraphicsEntities[handleGfxIdx]->SetTransform(modelTransform);
+		this->handleGraphicsEntities[handleGfxIdx]->SetVisible(true);
 	}
 
-	// define a line pointing in x direction
-	CoreGraphics::RenderShape::RenderShapeVertex line[2];
-	line[0].pos = vector(0, 0, 0);
-	line[1].pos = vector(1, 0, 0);
-	line[0].color = color;
-	line[1].color = color;
+	matrix44 modelTransform = matrix44::identity();
+	modelTransform.scale(vector(this->handleScale * this->handleDistance));
+	modelTransform = matrix44::multiply(modelTransform, this->decomposedRotation);
+	modelTransform.set_position(this->origin);
+	this->handleGraphicsEntities[handleGfxIdx]->SetTransform(modelTransform);
+	this->handleGraphicsEntities[handleGfxIdx]->SetVisible(true);
 
-    m = matrix44::identity();
-    m.scale(vector(this->handleScale,this->handleScale,this->handleScale));
-    m = matrix44::multiply(m, this->decomposedRotation); // m*= this->decomposedRotation;
-    m.set_position(this->origin);
-	Debug::DebugShapeRenderer::Instance()->DrawBox(m, color, CoreGraphics::RenderShape::AlwaysOnTop);
-
-    // draw X axis + handle
-	if (X_AXIS == this->currentDragMode || X_AXIS == mode)
+	IndexT i;
+	for (i = 0; i < this->handleGraphicsEntities.Size(); i++)
 	{
-		if (this->axisLocking)	color.set(1, 1, 1, 1);
-		else					color.set(1, 1, 0, 1);
+		if (this->axisLocking && this->currentHandleHovered != NONE)
+		{
+			this->handleSurfaces[i].box->SetValue("MatDiffuse", float4(1, 1, 0, 1));
+		}
+		else
+		{
+			if (this->currentDragMode != i + 1)
+			{
+				this->handleSurfaces[i].box->SetValue("MatDiffuse", this->handleColors[i]);
+			}
+		}
 	}
-    else
-    {
-		color = float4(.8f, 0, 0, 1);
-    }
 
-    m = matrix44::identity();
-    m.scale(vector(this->handleScale,this->handleScale,this->handleScale));
-	m = matrix44::multiply(m, this->decomposedRotation);
-    m.set_position(this->xAxis);
-	Debug::DebugShapeRenderer::Instance()->DrawBox(m, color, CoreGraphics::RenderShape::AlwaysOnTop);
-    
-	m = matrix44::identity();
-	line[0].pos = this->origin;
-    line[1].pos = this->xAxis;
-	line[0].color = color;
-	line[1].color = color;
-    Debug::DebugShapeRenderer::Instance()->DrawPrimitives(matrix44::identity(),
-        CoreGraphics::PrimitiveTopology::LineList,
-        1,
-        line,
-        color,
-		CoreGraphics::RenderShape::AlwaysOnTop);
-
-    // draw Y axis + handle    
-	if (Y_AXIS == this->currentDragMode || Y_AXIS == mode)
+	if (this->currentHandleHovered != NONE)
 	{
-		if (this->axisLocking)	color.set(1, 1, 1, 1);
-		else					color.set(1, 1, 0, 1);
+		if (this->axisLocking)
+		{
+			this->handleSurfaces[this->currentHandleHovered - 1].box->SetValue("MatDiffuse", float4(1, 1, 1, 1));
+		}
+		else
+		{
+			this->handleSurfaces[this->currentHandleHovered - 1].box->SetValue("MatDiffuse", float4(1, 1, 0, 1));
+		}
 	}
-    else
-    {
-		color = float4(0, .8f, 0, 1);
-    }
-
-    m = matrix44::identity();
-    m.scale(vector(this->handleScale,this->handleScale,this->handleScale));
-	m = matrix44::multiply(m, matrix44::rotationz(N_PI/2.0f));
-    m = matrix44::multiply(m, this->decomposedRotation);
-    m.set_position(this->yAxis);
-	Debug::DebugShapeRenderer::Instance()->DrawBox(m, color, CoreGraphics::RenderShape::AlwaysOnTop);
-
-    line[0].pos = this->origin;
-    line[1].pos = this->yAxis;
-	line[0].color = color;
-	line[1].color = color;
-    Debug::DebugShapeRenderer::Instance()->DrawPrimitives(matrix44::identity(),
-        CoreGraphics::PrimitiveTopology::LineList,
-        1,
-        line,
-        color,
-		CoreGraphics::RenderShape::AlwaysOnTop);
-
-    // draw Z axis + handle
-	if (Z_AXIS == this->currentDragMode || Z_AXIS == mode)
-	{
-		if (this->axisLocking)	color.set(1, 1, 1, 1);
-		else					color.set(1, 1, 0, 1);
-	}
-    else
-    {
-		color = float4(0, 0, .8f, 1);
-    }
-
-    m = matrix44::identity();
-    m.scale(vector(this->handleScale,this->handleScale,this->handleScale));
-    m = matrix44::multiply(m, matrix44::rotationy(-N_PI/2.0f));
-    m = matrix44::multiply(m, this->decomposedRotation);
-    m.set_position(this->zAxis);
-	Debug::DebugShapeRenderer::Instance()->DrawBox(m,
-        color,
-        CoreGraphics::RenderShape::AlwaysOnTop);
-
-    line[0].pos = this->origin;
-    line[1].pos = this->zAxis;
-	line[0].color = color;
-	line[1].color = color;
-	Debug::DebugShapeRenderer::Instance()->DrawPrimitives(matrix44::identity(),
-        CoreGraphics::PrimitiveTopology::LineList,
-        1,
-        line,
-        color,
-        CoreGraphics::RenderShape::AlwaysOnTop);
 }
 
 //------------------------------------------------------------------------------
@@ -521,6 +458,139 @@ ScaleFeature::UpdateHandlePositions()
 
     // set z handle transform
 	this->zAxis = this->origin + matrix44::transform(vector(0.0f, 0.0f, this->handleDistance * this->handleScale * this->scale.z()), this->decomposedRotation);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+ScaleFeature::MeshBundle
+ScaleFeature::CreateHandle(const Util::Array<CoreGraphics::VertexComponent>& comps)
+{
+	point handlePoints[] =
+	{
+		point(0.1f, 0.1f, 0.9f),
+		point(-0.1f, 0.1f, 0.9f),
+		point(0.1f, -0.1f, 0.9f),
+		point(-0.1f, -0.1f, 0.9f),
+		point(0.1f, 0.1f, 1.1f),
+		point(-0.1f, 0.1f, 1.1f),
+		point(0.1f, -0.1f, 1.1f),
+		point(-0.1f, -0.1f, 1.1f),
+		point(0, 0, 0),					// line start
+		point(0, 0, 1),					// line end
+		point(0.2f, 0, 0),				// x-to-y handle start
+		point(0.2f, 0.2f, 0),			// x-to-y handle corner
+		point(0, 0.2f, 0),				// x-to-y handle end
+		point(0, 0, 0.2f),				// z-to-y handle start
+		point(0, 0.2f, 0.2f),			// z-to-y handle corner
+		point(0, 0.2f, 0),				// z-to-y handle end
+		point(0, 0, 0.2f),				// z-to-x handle start
+		point(0.2f, 0, 0.2f),			// z-to-x handle corner
+		point(0.2f, 0, 0)				// z-to-x handle end
+	};
+
+	static short indices[] =
+	{
+		0, 1, 2, 1, 2, 3,  /* box indices*/
+		4, 5, 6, 5, 6, 7,
+		0, 2, 4, 2, 4, 6,
+		1, 3, 5, 3, 5, 7,
+		0, 1, 4, 1, 4, 5,
+		2, 3, 6, 3, 6, 7,
+	};
+
+	// extend box
+	Math::bbox visbox;
+	visbox.begin_extend();
+	IndexT i;
+	for (i = 0; i < 36; i++) visbox.extend(handlePoints[i]);
+	visbox.end_extend();
+
+	// create vertex buffer
+	Ptr<VertexBuffer> vbo = VertexBuffer::Create();
+	Ptr<MemoryVertexBufferLoader> vboLoader = MemoryVertexBufferLoader::Create();
+	vboLoader->Setup(comps, 19, handlePoints, sizeof(handlePoints), VertexBuffer::UsageImmutable, VertexBuffer::AccessNone);
+	vbo->SetLoader(vboLoader.downcast<Resources::ResourceLoader>());
+	vbo->SetAsyncEnabled(false);
+	vbo->Load();
+	n_assert(vbo->IsLoaded());
+	vbo->SetLoader(NULL);
+
+	Ptr<IndexBuffer> ibo = IndexBuffer::Create();
+	Ptr<MemoryIndexBufferLoader> iboLoader = MemoryIndexBufferLoader::Create();
+	iboLoader->Setup(IndexType::Index16, 36, indices, sizeof(indices));
+	ibo->SetLoader(iboLoader.downcast<Resources::ResourceLoader>());
+	ibo->SetAsyncEnabled(false);
+	ibo->Load();
+	n_assert(ibo->IsLoaded());
+	ibo->SetLoader(NULL);
+
+	MeshBundle mesh;
+	mesh.vbo = vbo;
+	mesh.box = visbox;
+	mesh.ibo = ibo;
+	return mesh;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+ScaleFeature::MeshBundle
+ScaleFeature::CreateBox(const Util::Array<CoreGraphics::VertexComponent>& comps)
+{
+	point handlePoints[] =
+	{
+		point(0.1f, 0.1f, -0.1f),
+		point(-0.1f, 0.1f, -0.1f),
+		point(0.1f, -0.1f, -0.1f),
+		point(-0.1f, -0.1f, -0.1f),
+		point(0.1f, 0.1f, 0.1f),
+		point(-0.1f, 0.1f, 0.1f),
+		point(0.1f, -0.1f, 0.1f),
+		point(-0.1f, -0.1f, 0.1f),
+	};
+
+	static short indices[] =
+	{
+		0, 1, 2, 1, 2, 3,  /* box indices*/
+		4, 5, 6, 5, 6, 7,
+		0, 2, 4, 2, 4, 6,
+		1, 3, 5, 3, 5, 7,
+		0, 1, 4, 1, 4, 5,
+		2, 3, 6, 3, 6, 7,
+	};
+
+	// extend box
+	Math::bbox visbox;
+	visbox.begin_extend();
+	IndexT i;
+	for (i = 0; i < 8; i++) visbox.extend(handlePoints[i]);
+	visbox.end_extend();
+
+	// create vertex buffer
+	Ptr<VertexBuffer> vbo = VertexBuffer::Create();
+	Ptr<MemoryVertexBufferLoader> vboLoader = MemoryVertexBufferLoader::Create();
+	vboLoader->Setup(comps, 8, handlePoints, sizeof(handlePoints), VertexBuffer::UsageImmutable, VertexBuffer::AccessNone);
+	vbo->SetLoader(vboLoader.downcast<Resources::ResourceLoader>());
+	vbo->SetAsyncEnabled(false);
+	vbo->Load();
+	n_assert(vbo->IsLoaded());
+	vbo->SetLoader(NULL);
+
+	Ptr<IndexBuffer> ibo = IndexBuffer::Create();
+	Ptr<MemoryIndexBufferLoader> iboLoader = MemoryIndexBufferLoader::Create();
+	iboLoader->Setup(IndexType::Index16, 36, indices, sizeof(indices));
+	ibo->SetLoader(iboLoader.downcast<Resources::ResourceLoader>());
+	ibo->SetAsyncEnabled(false);
+	ibo->Load();
+	n_assert(ibo->IsLoaded());
+	ibo->SetLoader(NULL);
+
+	MeshBundle mesh;
+	mesh.vbo = vbo;
+	mesh.box = visbox;
+	mesh.ibo = ibo;
+	return mesh;
 }
 
 //------------------------------------------------------------------------------

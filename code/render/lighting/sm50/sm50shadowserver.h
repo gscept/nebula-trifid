@@ -93,13 +93,14 @@ private:
 
 	// global light
 	Ptr<Frame::FramePass> globalLightHotPass;
-	Ptr<Frame::FramePostEffect> globalLightBlurPass;
 	Ptr<Frame::FrameBatch> globalLightShadowBatch;
 	Ptr<CoreGraphics::RenderTarget> globalLightShadowBuffer;
+	Ptr<CoreGraphics::DepthStencilTarget> globalLightDepthBuffer;
 	Ptr<CoreGraphics::RenderTarget> globalLightShadowBufferFinal;
 
 	// generic stuff
-	Ptr<CoreGraphics::Shader> blurShader;
+	Ptr<CoreGraphics::Shader> csmBlurShader;
+	Ptr<CoreGraphics::ShaderVariable> csmBlurWrite;
 	Ptr<CoreGraphics::ShaderVariable> shadowCascadeViewVar;
 	PSSMUtil pssmUtil;
 	CSMUtil csmUtil;
@@ -124,7 +125,7 @@ SM50ShadowServer::GetSpotLightShadowBufferTexture() const
 inline const Ptr<CoreGraphics::Texture>& 
 SM50ShadowServer::GetGlobalLightShadowBufferTexture() const
 {
-	return this->globalLightShadowBufferFinal->GetResolveTexture();
+	return this->globalLightShadowBuffer->GetResolveTexture();
 }
 
 //------------------------------------------------------------------------------

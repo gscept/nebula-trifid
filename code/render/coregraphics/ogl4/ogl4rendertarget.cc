@@ -393,11 +393,11 @@ OGL4RenderTarget::OnDisplayResized(SizeT w, SizeT h)
 
 		if (this->msCount > 1)
 		{
-			this->resolveTexture->SetupFromOGL4MultisampleTexture(this->ogl4ResolveTexture, this->colorBufferFormat);
+			this->resolveTexture->SetupFromOGL4MultisampleTexture(this->ogl4ResolveTexture, this->colorBufferFormat, 0, true, true);
 		}
 		else
 		{
-			this->resolveTexture->SetupFromOGL4Texture(this->ogl4ResolveTexture, this->colorBufferFormat);
+			this->resolveTexture->SetupFromOGL4Texture(this->ogl4ResolveTexture, this->colorBufferFormat, 0, true, true);
 		}
 	}
 	else if (this->isDefaultRenderTarget)

@@ -76,6 +76,7 @@ void
 SilhouetteRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
 {
 #if __OGL4__
+	// fix this in shader
 	glLineWidth(5.0f);
 #endif
     // get current frame index from graphics server
@@ -145,6 +146,9 @@ SilhouetteRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
 			}
 		}
 	}
+#if __OGL4__
+	glLineWidth(1.0f);
+#endif
 }
 
 //------------------------------------------------------------------------------

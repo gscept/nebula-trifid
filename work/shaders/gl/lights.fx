@@ -32,20 +32,21 @@ sampler2D NormalBuffer;
 sampler2D DepthBuffer;
 sampler2D SpecularBuffer;
 sampler2D AlbedoBuffer;
+sampler2D EmissiveBuffer;
+
 sampler2D LightProjMap;
 samplerCube LightProjCube;
-
 samplerCube ShadowProjCube;
 
 samplerstate PointLightTextureSampler
 {
 	Samplers = { ShadowProjCube };
-	Filter = MinMagLinearMipPoint;
+	//Filter = MinMagLinearMipPoint;
 };
 
 samplerstate GeometrySampler
 {
-	Samplers = { NormalBuffer, DepthBuffer, SpecularBuffer };
+	Samplers = { AlbedoBuffer, NormalBuffer, DepthBuffer, SpecularBuffer, EmissiveBuffer };
 	Filter = Point;
 };
 
@@ -101,6 +102,7 @@ psGlob(in vec3 ViewSpacePosition,
 	float Depth = texture(DepthBuffer, UV).r;
 	
 	vec4 albedoColor = texture(AlbedoBuffer, UV);	
+	vec4 emissiveColor = texture(EmissiveBuffer, UV);
 	if (Depth < 0) { Color = EncodeHDR(albedoColor); return; };
 	
 	float NL = saturate(dot(GlobalLightDir.xyz, ViewSpaceNormal));
@@ -121,7 +123,7 @@ psGlob(in vec3 ViewSpacePosition,
 	BRDFLighting(NH, NL, NV, HL, specPower, specColor.rgb, spec);
 	vec3 final = (albedoColor.rgb + spec) * diff;
 	
-	Color = EncodeHDR(vec4(final, 1));
+	Color = EncodeHDR(vec4(final, emissiveColor.a));
 }
 
 //------------------------------------------------------------------------------
@@ -137,6 +139,7 @@ psGlobShadow(in vec3 ViewSpacePosition,
 	float Depth = texture(DepthBuffer, UV).r;
 		
 	vec4 albedoColor = texture(AlbedoBuffer, UV);
+	vec4 emissiveColor = texture(EmissiveBuffer, UV);
 	if (Depth < 0) { Color = EncodeHDR(albedoColor); return; };
 	
 	float NL = saturate(dot(GlobalLightDir.xyz, ViewSpaceNormal));
@@ -150,7 +153,7 @@ psGlobShadow(in vec3 ViewSpacePosition,
 	shadowFactor = CSMPS(texShadow,
 						UV,
 						debug);		
-	shadowFactor = lerp(1.0f, shadowFactor, ShadowIntensity);
+	shadowFactor = lerp(1.0f, saturate(1 - shadowFactor), ShadowIntensity);
 
 	// multiply specular with power of shadow factor, this makes shadowed areas not reflect specular light
 	vec4 specColor = texture(SpecularBuffer, UV);
@@ -167,7 +170,7 @@ psGlobShadow(in vec3 ViewSpacePosition,
 	vec3 spec;
 	BRDFLighting(NH, NL, NV, HL, specPower, specColor.rgb, spec);
 	vec3 final = (albedoColor.rgb + spec) * diff;
-	Color = EncodeHDR(vec4(final * saturate(shadowFactor), 1));
+	Color = EncodeHDR(vec4(final * saturate(shadowFactor), emissiveColor.a));
 }
 
 //---------------------------------------------------------------------------------------------------------------------------
@@ -179,6 +182,9 @@ state SpotLightState
 	BlendEnabled[0] = true;
 	SrcBlend[0] = One;
 	DstBlend[0] = One;
+	SrcBlendAlpha[0] = Zero;
+	DstBlendAlpha[0] = DstAlpha;
+	SeparateBlend = true;
 	CullMode = Front;
 	DepthEnabled = true;
 	DepthWrite = false;
@@ -187,6 +193,7 @@ state SpotLightState
 
 //---------------------------------------------------------------------------------------------------------------------------
 /**
+	Still uses VSM
 */
 float 
 GetInvertedOcclusionSpotLight(float receiverDepthInLightSpace,
@@ -245,8 +252,9 @@ psSpot(in vec3 ViewSpacePosition,
 	vec2 lightSpaceUv = vec2(((projLightPos.xy / projLightPos.ww) * vec2(0.5f, -0.5f)) + 0.5f);
 	
 	vec4 lightModColor = textureLod(LightProjMap, lightSpaceUv, mipSelect);
-	vec4 specColor = texture(SpecularBuffer, screenUV, 0);
-	vec4 albedoColor = texture(AlbedoBuffer, screenUV, 0);
+	vec4 specColor = textureLod(SpecularBuffer, screenUV, 0);
+	vec4 albedoColor = textureLod(AlbedoBuffer, screenUV, 0);
+	vec4 emissiveColor = textureLod(EmissiveBuffer, screenUV, 0);
 	float specPower = ROUGHNESS_TO_SPECPOWER(specColor.a);	
 	
 	float NL = dot(lightDir, ViewSpaceNormal);
@@ -260,7 +268,7 @@ psSpot(in vec3 ViewSpacePosition,
 	BRDFLighting(NH, NL, NV, HL, specPower, specColor.rgb, spec);
 	vec3 final = (albedoColor.rgb + spec) * diff;
 	
-	vec4 oColor = vec4(lightModColor.rgb * final, lightModColor.a);
+	vec4 oColor = vec4(lightModColor.rgb * final * lightModColor.a, emissiveColor.a);
 	
 	Color = EncodeHDR(oColor);
 }
@@ -292,8 +300,9 @@ psSpotShadow(in vec3 ViewSpacePosition,
 	vec2 lightSpaceUv = (projLightPos.xy / projLightPos.ww) * vec2(0.5f, -0.5f) + 0.5f;
 	
 	vec4 lightModColor = textureLod(LightProjMap, lightSpaceUv, mipSelect);
-	vec4 specColor = texture(SpecularBuffer, screenUV, 0);
-	vec4 albedoColor = texture(AlbedoBuffer, screenUV, 0);
+	vec4 specColor = textureLod(SpecularBuffer, screenUV, 0);
+	vec4 albedoColor = textureLod(AlbedoBuffer, screenUV, 0);
+	vec4 emissiveColor = textureLod(EmissiveBuffer, screenUV, 0);
 	float specPower = ROUGHNESS_TO_SPECPOWER(specColor.a);	
 	
 	float NL = dot(lightDir, ViewSpaceNormal);
@@ -306,7 +315,7 @@ psSpotShadow(in vec3 ViewSpacePosition,
 	vec3 spec;
 	BRDFLighting(NH, NL, NV, HL, specPower, specColor.rgb, spec);
 	vec3 final = (albedoColor.rgb + spec) * diff;
-	vec4 oColor = vec4(lightModColor.rgb * final, lightModColor.a);
+	vec4 oColor = vec4(lightModColor.rgb * final * lightModColor.a, emissiveColor.a);
 	
 	// shadows
 	vec4 shadowProjLightPos = ShadowProjTransform * vec4(surfacePos, 1.0f);
@@ -329,6 +338,9 @@ state PointLightStateStandard
 	BlendEnabled[0] = true;
 	SrcBlend[0] = One;
 	DstBlend[0] = One;
+	SrcBlendAlpha[0] = Zero;
+	DstBlendAlpha[0] = DstAlpha;
+	SeparateBlend = true;
 	CullMode = Front;
 	DepthEnabled = true;
 	DepthWrite = false;
@@ -340,6 +352,9 @@ state PointLightStateShadow
 	BlendEnabled[0] = true;
 	SrcBlend[0] = One;
 	DstBlend[0] = One;
+	SrcBlendAlpha[0] = Zero;
+	DstBlendAlpha[0] = DstAlpha;
+	SeparateBlend = true;
 	CullMode = Front;
 	DepthEnabled = true;
 	DepthWrite = false;
@@ -358,10 +373,11 @@ GetInvertedOcclusionPointLight(float receiverDepthInLightSpace,
 	vec3 shadowUv = lightSpaceUv;
 	
 	// get pixel size of shadow projection texture
-	vec2 shadowSample = texture(ShadowProjCube, shadowUv).rg;
+	vec4 shadowSample = texture(ShadowProjCube, shadowUv);
+	return MSMShadowSample(shadowSample, 0, receiverDepthInLightSpace, 0);
 	
 	// get pixel size of shadow projection texture	
-	return ChebyshevUpperBound(shadowSample, receiverDepthInLightSpace, 0.00000001f);
+	//return ChebyshevUpperBound(shadowSample, receiverDepthInLightSpace, 0.00000001f);
 }
 
 //---------------------------------------------------------------------------------------------------------------------------
@@ -401,8 +417,9 @@ psPoint(in vec3 ViewSpacePosition,
 	vec3 lightDir = (LightPosRange.xyz - surfacePos);
 	vec3 projDir = (InvView * vec4(-lightDir, 0)).xyz;
 	vec4 lightModColor = textureLod(LightProjCube, projDir, 0);
-	vec4 specColor = texture(SpecularBuffer, screenUV, 0);
-	vec4 albedoColor = texture(AlbedoBuffer, screenUV, 0);
+	vec4 specColor = textureLod(SpecularBuffer, screenUV, 0);
+	vec4 albedoColor = textureLod(AlbedoBuffer, screenUV, 0);
+	vec4 emissiveColor = textureLod(EmissiveBuffer, screenUV, 0);
 	float specPower = ROUGHNESS_TO_SPECPOWER(specColor.a);	// magic formulae to calculate specular power from color in the range [0..1]
 	
 	float att = saturate(1.0 - length(lightDir) * LightPosRange.w);
@@ -417,10 +434,10 @@ psPoint(in vec3 ViewSpacePosition,
 	float NV = saturate(dot(ViewSpaceNormal, -viewVec));
 	float HL = saturate(dot(H, lightDir));
 	vec3 spec;
-	BRDFLighting(NH, NL, NV, HL, specPower, specColor.rgb, spec);
+	BRDFLighting(NH, NL, NV, HL, specPower, specColor.rgb, spec); 
 	vec3 final = (albedoColor.rgb + spec) * diff;
 	
-	vec4 oColor = vec4(lightModColor.rgb * final, lightModColor.a);
+	vec4 oColor = vec4(lightModColor.rgb * final * lightModColor.a, emissiveColor.a);
 	              
 	Color = EncodeHDR(oColor);
 }
@@ -447,8 +464,9 @@ psPointShadow(in vec3 ViewSpacePosition,
 	float distToSurface = length(lightDir);
 	
 	vec4 lightModColor = textureLod(LightProjCube, projDir, 0);
-	vec4 specColor = texture(SpecularBuffer, screenUV, 0);
-	vec4 albedoColor = texture(AlbedoBuffer, screenUV, 0);
+	vec4 specColor = textureLod(SpecularBuffer, screenUV, 0);
+	vec4 albedoColor = textureLod(AlbedoBuffer, screenUV, 0);
+	vec4 emissiveColor = textureLod(EmissiveBuffer, screenUV, 0);
 	float specPower = ROUGHNESS_TO_SPECPOWER(specColor.a);	
 	
 	float att = saturate(1.0 - distToSurface * LightPosRange.w);
@@ -466,7 +484,7 @@ psPointShadow(in vec3 ViewSpacePosition,
 	BRDFLighting(NH, NL, NV, HL, specPower, specColor.rgb, spec);
 	vec3 final = (albedoColor.rgb + spec) * diff;
 	
-	vec4 oColor = vec4(lightModColor.rgb * final, lightModColor.a);
+	vec4 oColor = vec4(lightModColor.rgb * final * lightModColor.a, emissiveColor.a);
 	
 	// shadows
 	float shadowFactor = GetInvertedOcclusionPointLight(gl_FragCoord.z,
