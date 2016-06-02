@@ -18,6 +18,7 @@ using namespace IO;
 /**
 */
 IDLCodeGenerator::IDLCodeGenerator()
+    :hasError(false)
 {
     // empty
 }
@@ -107,10 +108,13 @@ IDLCodeGenerator::BuildSourceUri() const
 void
 IDLCodeGenerator::SetError(const char* fmt, ...)
 {
+    this->hasError = true;
+    Util::String err;
     va_list argList;
     va_start(argList, fmt);
-    this->error.FormatArgList(fmt, argList);
+    err.FormatArgList(fmt, argList);
     va_end(argList);
+    this->error.Append(err);
 }
 
 //------------------------------------------------------------------------------
@@ -141,22 +145,25 @@ IDLCodeGenerator::GenerateIncludeFile()
         if (writer->Open())
         {
             this->WriteIncludeHeader(writer);
-			this->WriteAttributeLibraryDeclaration(writer);
+            this->WriteAttributeLibraryDeclaration(writer);
             this->WriteLibraryDeclarations(writer);
-            this->WriteProtocolDeclarations(writer);
+            if (!this->WriteProtocolDeclarations(writer))
+            {
+                return false;
+            }
             this->WriteIncludeFooter(writer);
             writer->Close();
         }
         else
         {
-            n_printf("Could not open text writer on stream '%s'!\n", uri.AsString().AsCharPtr());
+            this->SetError("Could not open text writer on stream '%s'!\n", uri.AsString().AsCharPtr());
             return false;
         }
         stream->Close();
     }
     else
     {
-        n_printf("Could not open stream '%s' for writing!\n", uri.AsString().AsCharPtr());
+        this->SetError("Could not open stream '%s' for writing!\n", uri.AsString().AsCharPtr());
         return false;
     }
     return true;
@@ -188,14 +195,14 @@ IDLCodeGenerator::GenerateSourceFile()
         }
         else
         {
-            n_printf("Could not open text writer on stream '%s'!\n", uri.AsString().AsCharPtr());
+            this->SetError("Could not open text writer on stream '%s'!\n", uri.AsString().AsCharPtr());
             return false;
         }
         stream->Close();
     }
     else
     {
-        n_printf("Could not open stream '%s' for writing!\n", uri.AsString().AsCharPtr());
+        this->SetError("Could not open stream '%s' for writing!\n", uri.AsString().AsCharPtr());
         return false;
     }
     return true;
@@ -207,7 +214,7 @@ IDLCodeGenerator::GenerateSourceFile()
     OBSOLETE??? -> old math types?
 */
 String
-IDLCodeGenerator::GetNebulaRefType(const String& type) const
+IDLCodeGenerator::GetNebulaRefType(const String& type) 
 {
     if ("string" == type)               return "const Util::String&";    
     else if ("float4" == type)          return "const Math::float4&";
@@ -231,7 +238,7 @@ IDLCodeGenerator::GetNebulaRefType(const String& type) const
     else if ("Ptr<Game::Entity>" == type) return "const Ptr<Game::Entity>&";
     else
     {
-        n_error("IDLCodeGenerator::GetNebulaRefType(): Invalid IDL type '%s'!", type.AsCharPtr());
+        this->SetError("IDLCodeGenerator::GetNebulaRefType(): Invalid IDL type '%s'!", type.AsCharPtr());
         return "";
     }
 }
@@ -242,7 +249,7 @@ IDLCodeGenerator::GetNebulaRefType(const String& type) const
     OBSOLETE??? -> old math types?
 */
 String
-IDLCodeGenerator::GetNebulaType(const String& type) const
+IDLCodeGenerator::GetNebulaType(const String& type) 
 {
     if ("string" == type)               return "Util::String";    
     else if ("float4" == type)          return "Math::float4";
@@ -266,7 +273,7 @@ IDLCodeGenerator::GetNebulaType(const String& type) const
     else if ("GameEntity" == type)      return "Ptr<Game::Entity>";
     else
     {
-        n_error("IDLCodeGenerator::GetNebulaType(): Invalid IDL type '%s'!", type.AsCharPtr());
+        this->SetError("IDLCodeGenerator::GetNebulaType(): Invalid IDL type '%s'!", type.AsCharPtr());
         return "";
     }
 }
@@ -277,7 +284,7 @@ IDLCodeGenerator::GetNebulaType(const String& type) const
     OBSOLETE??? -> old math types?
 */
 String
-IDLCodeGenerator::GetNebulaArgType(const String& type) const
+IDLCodeGenerator::GetNebulaArgType(const String& type) 
 {
     if ("string" == type)               return "Scripting::Arg::String";    
     else if ("float4" == type)          return "Scripting::Arg::Float4";
@@ -301,7 +308,7 @@ IDLCodeGenerator::GetNebulaArgType(const String& type) const
     
     else
     {
-        n_error("IDLCodeGenerator::GetNebulaArgType(): Invalid IDL type '%s'!", type.AsCharPtr());
+        this->SetError("IDLCodeGenerator::GetNebulaArgType(): Invalid IDL type '%s'!", type.AsCharPtr());
         return "";
     }
 }
@@ -312,7 +319,7 @@ IDLCodeGenerator::GetNebulaArgType(const String& type) const
     OBSOLETE??? -> old math types?
 */
 String
-IDLCodeGenerator::GetNebulaGetterMethod(const String& type) const
+IDLCodeGenerator::GetNebulaGetterMethod(const String& type) 
 {
     if ("string" == type)               return "GetString()";    
     else if ("float4" == type)          return "GetFloat4()";
@@ -335,7 +342,7 @@ IDLCodeGenerator::GetNebulaGetterMethod(const String& type) const
     else if ("guidArray" == type)       return "GetGuidArray";
     else
     {
-        n_error("IDLCodeGenerator::GetNebulaGetterMethod(): Invalid IDL type '%s'!", type.AsCharPtr());
+        this->SetError("IDLCodeGenerator::GetNebulaGetterMethod(): Invalid IDL type '%s'!", type.AsCharPtr());
         return "";
     }
 }
@@ -346,7 +353,7 @@ IDLCodeGenerator::GetNebulaGetterMethod(const String& type) const
     OBSOLETE??? -> old math types?
 */
 String
-IDLCodeGenerator::GetNebulaSetterMethod(const String& type) const
+IDLCodeGenerator::GetNebulaSetterMethod(const String& type) 
 {
     if ("string" == type)               return "SetString";    
     else if ("float4" == type)          return "SetFloat4";
@@ -369,7 +376,7 @@ IDLCodeGenerator::GetNebulaSetterMethod(const String& type) const
     else if ("guidArray" == type)       return "SetGuidArray";
     else
     {
-        n_error("IDLCodeGenerator::GetNebulaSetterMethod(): Invalid IDL type '%s'!", type.AsCharPtr());
+        this->SetError("IDLCodeGenerator::GetNebulaSetterMethod(): Invalid IDL type '%s'!", type.AsCharPtr());
         return "";
     }
 }
@@ -378,7 +385,7 @@ IDLCodeGenerator::GetNebulaSetterMethod(const String& type) const
 /**
 */
 String
-IDLCodeGenerator::BuildCallbackPrototype(IDLCommand* cmd, bool withClassName) const
+IDLCodeGenerator::BuildCallbackPrototype(IDLCommand* cmd, bool withClassName) 
 {
     const Util::Array<Ptr<IDLArg>> inArgs = cmd->GetInputArgs();
     const Util::Array<Ptr<IDLArg>> outArgs = cmd->GetOutputArgs();
@@ -426,7 +433,7 @@ IDLCodeGenerator::BuildCallbackPrototype(IDLCommand* cmd, bool withClassName) co
 /**
 */
 void
-IDLCodeGenerator::WriteIncludeHeader(TextWriter* writer) const
+IDLCodeGenerator::WriteIncludeHeader(TextWriter* writer) 
 {
     n_assert(0 != writer);
     writer->WriteLine("#pragma once");
@@ -441,8 +448,7 @@ IDLCodeGenerator::WriteIncludeHeader(TextWriter* writer) const
     }
     if (!this->document->GetProtocols().IsEmpty())
     {
-        writer->WriteLine("#include \"messaging/message.h\"");        
-        writer->WriteLine("#include \"multiplayer/networkserver.h\"");
+        writer->WriteLine("#include \"messaging/message.h\"");                
     }
 
     // write dependencies
@@ -490,7 +496,7 @@ IDLCodeGenerator::WriteIncludeHeader(TextWriter* writer) const
 /**
 */
 void
-IDLCodeGenerator::WriteLibraryDeclarations(TextWriter* writer) const
+IDLCodeGenerator::WriteLibraryDeclarations(TextWriter* writer) 
 {
     n_assert(0 != writer);
     if (!this->document->GetLibraries().IsEmpty())
@@ -532,8 +538,8 @@ IDLCodeGenerator::WriteLibraryDeclarations(TextWriter* writer) const
 /**
     FIXME: hmm, enable different namespaces for message protocols?
 */
-void
-IDLCodeGenerator::WriteProtocolDeclarations(TextWriter* writer) const
+bool 
+IDLCodeGenerator::WriteProtocolDeclarations(IO::TextWriter* writer) 
 {
     n_assert(0 != writer);
     if (!this->document->GetProtocols().IsEmpty())
@@ -555,18 +561,20 @@ IDLCodeGenerator::WriteProtocolDeclarations(TextWriter* writer) const
             IndexT msgIndex;
             for (msgIndex = 0; msgIndex < msgs.Size(); msgIndex++)
             {
-                this->WriteMessageDeclaration(curProtocol, msgs[msgIndex], writer);
+                if (!this->WriteMessageDeclaration(curProtocol, msgs[msgIndex], writer))
+                    return false;
             }
             writer->WriteFormatted("} // namespace %s\n", curProtocol->GetNameSpace().AsCharPtr());
         }
     }
+    return true;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-IDLCodeGenerator::WriteCommandDeclaration(IDLCommand* cmd, TextWriter* writer) const
+IDLCodeGenerator::WriteCommandDeclaration(IDLCommand* cmd, TextWriter* writer) 
 {
     n_assert(0 != cmd);
     n_assert(0 != writer);
@@ -588,8 +596,8 @@ IDLCodeGenerator::WriteCommandDeclaration(IDLCommand* cmd, TextWriter* writer) c
 //------------------------------------------------------------------------------
 /**
 */
-void
-IDLCodeGenerator::WriteMessageDeclaration(IDLProtocol* prot, IDLMessage* msg, TextWriter* writer) const
+bool 
+IDLCodeGenerator::WriteMessageDeclaration(IDLProtocol* prot, IDLMessage* msg, IO::TextWriter* writer) 
 {
     n_assert(0 != prot);
     n_assert(0 != msg);
@@ -652,17 +660,20 @@ IDLCodeGenerator::WriteMessageDeclaration(IDLProtocol* prot, IDLMessage* msg, Te
     }
 
     // write encode and decode 
-    this->WriteEncodeImplementation(msg, writer);
-    this->WriteDecodeImplementation(msg, writer);    
+    if (!this->WriteEncodeImplementation(msg, writer) || !this->WriteDecodeImplementation(msg, writer))
+    {
+        return false;
+    }
 
     writer->WriteLine("};");
+    return true;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-IDLCodeGenerator::WriteMessageArg(IDLProtocol* prot, IDLMessage* msg, IDLArg* arg, TextWriter* writer, bool isInputArg) const
+IDLCodeGenerator::WriteMessageArg(IDLProtocol* prot, IDLMessage* msg, IDLArg* arg, TextWriter* writer, bool isInputArg) 
 {
     n_assert(0 != arg);
     n_assert(0 != writer);
@@ -734,7 +745,7 @@ IDLCodeGenerator::WriteMessageArg(IDLProtocol* prot, IDLMessage* msg, IDLArg* ar
     
 */
 void
-IDLCodeGenerator::WriteAttributeLibraryDeclaration(TextWriter* writer) const
+IDLCodeGenerator::WriteAttributeLibraryDeclaration(TextWriter* writer) 
 {
     if (!this->document->GetAttributeLibs().IsEmpty())
     {
@@ -770,7 +781,7 @@ IDLCodeGenerator::WriteAttributeLibraryDeclaration(TextWriter* writer) const
 /**
 */
 void
-IDLCodeGenerator::WriteIncludeFooter(TextWriter* writer) const
+IDLCodeGenerator::WriteIncludeFooter(TextWriter* writer) 
 {
     n_assert(0 != writer);
     writer->WriteLine("//------------------------------------------------------------------------------");
@@ -780,7 +791,7 @@ IDLCodeGenerator::WriteIncludeFooter(TextWriter* writer) const
 /**
 */
 void
-IDLCodeGenerator::WriteSourceHeader(TextWriter* writer) const
+IDLCodeGenerator::WriteSourceHeader(TextWriter* writer) 
 {
     n_assert(0 != writer);
     writer->WriteLine("//------------------------------------------------------------------------------");
@@ -934,7 +945,7 @@ IDLCodeGenerator::WriteSourceHeader(TextWriter* writer) const
 /**
 */
 void
-IDLCodeGenerator::WriteSourceFooter(TextWriter* writer) const
+IDLCodeGenerator::WriteSourceFooter(TextWriter* writer) 
 {
     n_assert(0 != writer);
     writer->WriteLine("//------------------------------------------------------------------------------");
@@ -944,7 +955,7 @@ IDLCodeGenerator::WriteSourceFooter(TextWriter* writer) const
 /**
 */
 void
-IDLCodeGenerator::WriteLibraryImplementations(TextWriter* writer) const
+IDLCodeGenerator::WriteLibraryImplementations(TextWriter* writer) 
 {
     n_assert(0 != writer);
     
@@ -991,7 +1002,7 @@ IDLCodeGenerator::WriteLibraryImplementations(TextWriter* writer) const
 /**
 */
 void
-IDLCodeGenerator::WriteCommandImplementation(IDLCommand* cmd, TextWriter* writer) const
+IDLCodeGenerator::WriteCommandImplementation(IDLCommand* cmd, TextWriter* writer) 
 {
     n_assert(0 != cmd);
     n_assert(0 != writer);
@@ -1103,8 +1114,8 @@ IDLCodeGenerator::WriteCommandImplementation(IDLCommand* cmd, TextWriter* writer
 //------------------------------------------------------------------------------
 /**
 */
-void
-IDLCodeGenerator::WriteEncodeImplementation(IDLMessage* msg, IO::TextWriter* writer) const
+bool
+IDLCodeGenerator::WriteEncodeImplementation(IDLMessage* msg, IO::TextWriter* writer)
 {
     String str;
     str.Append("public:\n");
@@ -1122,7 +1133,10 @@ IDLCodeGenerator::WriteEncodeImplementation(IDLMessage* msg, IO::TextWriter* wri
         {
             String type = inArgs[argIndex]->GetType();           
             String name = inArgs[argIndex]->GetName();
-            this->TypeEncode(type, name, inArgs[argIndex], str);
+            if (!this->TypeEncode(type, name, inArgs[argIndex], str))
+            {
+                return false;
+            }
             writeString = true;                
         } 
     }    
@@ -1137,13 +1151,14 @@ IDLCodeGenerator::WriteEncodeImplementation(IDLMessage* msg, IO::TextWriter* wri
     {
         writer->WriteString(str);
     }
+    return true;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-void
-IDLCodeGenerator::WriteDecodeImplementation(IDLMessage* msg, IO::TextWriter* writer) const 
+bool 
+IDLCodeGenerator::WriteDecodeImplementation(IDLMessage* msg, IO::TextWriter* writer) 
 {
     String str;
     str.Append("public:\n");
@@ -1161,7 +1176,10 @@ IDLCodeGenerator::WriteDecodeImplementation(IDLMessage* msg, IO::TextWriter* wri
         {
             String type = inArgs[argIndex]->GetType();                        
             String name = inArgs[argIndex]->GetName();
-            this->TypeDecode(type, name, inArgs[argIndex], str);
+            if (!this->TypeDecode(type, name, inArgs[argIndex], str))
+            {
+                return false;
+            }
             writeString = true; 
         }
     }     
@@ -1177,13 +1195,14 @@ IDLCodeGenerator::WriteDecodeImplementation(IDLMessage* msg, IO::TextWriter* wri
     {
         writer->WriteString(str);
     }
+    return true;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 Util::String 
-IDLCodeGenerator::ConvertToCamelNotation(const Util::String& lowerCaseType) const
+IDLCodeGenerator::ConvertToCamelNotation(const Util::String& lowerCaseType) 
 {
     if (lowerCaseType == "char") return "Char";
     else if (lowerCaseType == "float") return "Float";                                 
@@ -1213,71 +1232,83 @@ IDLCodeGenerator::ConvertToCamelNotation(const Util::String& lowerCaseType) cons
 //------------------------------------------------------------------------------
 /**
 */
-void
-IDLCodeGenerator::TypeEncode(const Util::String & type, const Util::String & name, const Ptr<IDLArg> & arg, Util::String & target) const
-{	
-	Util::String newtype = this->ConvertToCamelNotation(type);
-	if (newtype.Length())
-	{
-		// check valid type
-		if (!IDLArg::IsValidType(newtype))
-		{
-			n_error("IDLCodeGenerator::TypeEncode: type %s not valid for serialization!!!", newtype.AsCharPtr());
-		}		
-		target.Append("        writer->Write" + newtype + "(this->Get" + name + "());\n");
-	}
-	else
-	{
-		if (arg->GetWrappingType().Length())
-		{
-			Util::String wrap = this->ConvertToCamelNotation(arg->GetWrappingType());
-			target.Append("        writer->Write" + wrap + "((" + arg->GetWrappingType() + ")this->Get" + name + "());\n");		
-		}
-		else if (type == "StringAtom")
-		{
-			target.Append("        writer->WriteString(this->Get" + name + "().Value());\n");
-		}				
+bool 
+IDLCodeGenerator::TypeEncode(const Util::String & type, const Util::String & name, const Ptr<IDLArg> & arg, Util::String & target)
+{
+    Util::String newtype = this->ConvertToCamelNotation(type);
+    if (newtype.Length())
+    {
+        // check valid type
+        if (!IDLArg::IsValidType(newtype))
+        {
+            this->SetError("IDLCodeGenerator::TypeEncode: type %s not valid for serialization!!!", newtype.AsCharPtr());
+            return false;
+        }
+        target.Append("        writer->Write" + newtype + "(this->Get" + name + "());\n");
+    }
+    else
+    {
+        if (arg->GetWrappingType().Length())
+        {
+            Util::String wrap = this->ConvertToCamelNotation(arg->GetWrappingType());
+            target.Append("        writer->Write" + wrap + "((" + arg->GetWrappingType() + ")this->Get" + name + "());\n");
+        }
+        else if (type == "StringAtom")
+        {
+            target.Append("        writer->WriteString(this->Get" + name + "().Value());\n");
+        }
         else if (type == "Ptr<Game::Entity>")
         {
             target.Append("        writer->WriteUInt64(__GetNetworkID(this->Get" + name + "()));\n");
         }
         else
-        {
-            n_error("IDLCodeGenerator::TypeEncode: type %s not valid for serialization!!!", type.AsCharPtr());
+        {            
+            this->SetError("IDLCodeGenerator::TypeEncode: type %s not valid for serialization!!!", type.AsCharPtr());
+            return false;
         }
-	}
+    }
+    return true;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-void
-IDLCodeGenerator::TypeDecode(const Util::String & type, const Util::String & name, const Ptr<IDLArg> & arg, Util::String & target) const
+bool
+IDLCodeGenerator::TypeDecode(const Util::String & type, const Util::String & name, const Ptr<IDLArg> & arg, Util::String & target)
 {
-	Util::String newtype = this->ConvertToCamelNotation(type);
-	if (newtype.Length())
-	{
-		// check valid type
-		if (!IDLArg::IsValidType(newtype))
-		{
-			n_error("IDLCodeGenerator::TypeDecode: type %s not valid for serialization!!!", type.AsCharPtr());
-		}
-		target.Append("        this->Set" + name + "(reader->Read" + newtype + "());\n");
-	}
-	else
-	{
-		if (arg->GetWrappingType().Length())
-		{			
-			target.Append("        this->Set" + name + "((" + arg->GetType() + ")reader->Read" + this->ConvertToCamelNotation(arg->GetWrappingType()) + "());\n");		
-		}
-		else if (type == "StringAtom")
-		{
-			target.Append("        this->Set" + name + "(reader->ReadString());\n");
-		}
+    Util::String newtype = this->ConvertToCamelNotation(type);
+    if (newtype.Length())
+    {
+        // check valid type
+        if (!IDLArg::IsValidType(newtype))
+        {
+            n_printf("foo\n");
+            this->SetError("IDLCodeGenerator::TypeDecode: type %s not valid for serialization!!!", type.AsCharPtr());
+            return false;
+        }
+        target.Append("        this->Set" + name + "(reader->Read" + newtype + "());\n");
+    }
+    else
+    {
+        if (arg->GetWrappingType().Length())
+        {
+            target.Append("        this->Set" + name + "((" + arg->GetType() + ")reader->Read" + this->ConvertToCamelNotation(arg->GetWrappingType()) + "());\n");
+        }
+        else if (type == "StringAtom")
+        {
+            target.Append("        this->Set" + name + "(reader->ReadString());\n");
+        }
         else if (type == "Ptr<Game::Entity>")
-        {            
+        {
             target.Append("        this->Set" + name + "(MultiplayerFeature::NetworkServer::Instance()->GetEntityByNetworkID(reader->ReadUInt64()));\n");
         }
-	}
+        else
+        {
+            n_printf("foo2\n");
+            this->SetError("IDLCodeGenerator::TypeDecode: type %s not valid for serialization!!!", type.AsCharPtr());
+            return false;
+        }
+    }
+    return true;
 }
 } // namespace Tools

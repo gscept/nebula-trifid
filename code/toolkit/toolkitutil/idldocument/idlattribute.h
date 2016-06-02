@@ -53,6 +53,8 @@ public:
 private:
 	/// set error string
 	void SetError(const Util::String& e);
+	/// check if attribute is a valid type
+	bool IsValidType(const Util::String& t);
 
 	Util::String error;
 	Util::String name;

@@ -9,6 +9,7 @@
 #if __WIN32__
 #include "util/win32/win32stringconverter.h"
 #endif
+#include <direct.h>
 
 namespace Win360
 {
@@ -662,6 +663,19 @@ Win360FSWrapper::GetProgramsDirectory()
         // there is no programs: assign on the 360
         return "";
     #endif
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+String
+Win360FSWrapper::GetCurrentDirectory()
+{
+    char buffer[NEBULA3_MAXPATH] = { 0 };
+    n_assert(_getcwd(buffer, NEBULA3_MAXPATH));
+    String result = buffer;
+    result.ConvertBackslashes();
+    return String("file:///") + result;    
 }
 
 //------------------------------------------------------------------------------

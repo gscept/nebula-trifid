@@ -38,6 +38,13 @@ IDLAttribute::Parse(XmlReader* reader)
     if (reader->HasAttr("type"))
     {
         this->attrType = reader->GetString("type");
+        if (!this->IsValidType(this->attrType))
+        {
+            Util::String fmt;
+            fmt.Format("Invalid type %s for attribute %s", this->attrType.AsCharPtr(), this->name.AsCharPtr());
+            this->SetError(fmt);
+            return false;
+        }
     }
     if (reader->HasAttr("accessMode"))
     {
@@ -67,5 +74,25 @@ IDLAttribute::Parse(XmlReader* reader)
     return true;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+IDLAttribute::IsValidType(const Util::String& str)
+{
+    if ((str == "String")
+        || (str == "Float")
+        || (str == "Float4")
+        || (str == "Int")
+        || (str == "Bool")
+        || (str == "Matrix44")
+        || (str == "Transform44")
+        || (str == "Blob")
+        || (str == "Guid"))
+    {
+        return true;
+    }
+    return false;
+}
 
 } // namespace Tools
