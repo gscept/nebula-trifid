@@ -38,6 +38,6 @@ ADD_DEPENDENCIES(levelviewer
 	)
 TARGET_LINK_LIBRARIES(levelviewer 	
 	remoteinterface
-	graphicsfeature physicsfeature scriptingfeature stateobjectfeature ui	
+	graphicsfeature physicsfeature scriptingfeature stateobjectfeature ui	inputfeature
 	dynui	
 )
