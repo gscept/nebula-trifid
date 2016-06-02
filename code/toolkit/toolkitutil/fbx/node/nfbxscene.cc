@@ -95,8 +95,8 @@ NFbxScene::Setup( FbxScene* scene, const ExportFlags& exportFlags, const ExportM
 	// Okay so we want to do this, we really do, but if we do, 
 	// the GetSrcObjectCount will give us an INCORRECT amount of meshes, 
 	// and getting the mesh will give us invalid meshes...
-	//converter->SplitMeshesPerMaterial(scene, true);
-	delete converter;
+	//bool foo = converter->SplitMeshesPerMaterial(scene, true);
+	//delete converter;
 		
 	// split meshes by materials
 	int meshCount = scene->GetSrcObjectCount<FbxMesh>();

@@ -179,8 +179,8 @@ LevelEditorState::HandleInput()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-LevelEditorState::OnStateEnter( const Util::String& prevState )
+void
+LevelEditorState::OnStateEnter(const Util::String& prevState)
 {
 	GameStateHandler::OnStateEnter(prevState);
 

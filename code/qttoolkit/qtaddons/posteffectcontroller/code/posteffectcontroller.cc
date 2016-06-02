@@ -16,6 +16,7 @@
 #include "posteffect/posteffectparser.h"
 #include "posteffect/posteffectregistry.h"
 #include <QMessageBox>
+#include "environmentprobewindow.h"
 
 using namespace IO;
 using namespace Util;
@@ -62,6 +63,7 @@ PostEffectController::PostEffectController() :
     connect(this->ui->skyRotation, SIGNAL(valueChanged(double)), this, SLOT(OnSkyChanged()));
 	connect(this->ui->skyTexture, SIGNAL(editingFinished()), this, SLOT(OnSkyChanged()));
 	connect(this->ui->browseSky, SIGNAL(pressed()), this, SLOT(OnSkyTextureBrowse()));
+    connect(this->ui->lightProbeButton, SIGNAL(pressed()), this, SLOT(OnBrowseLightProbe()));
 	connect(this->ui->blendSpeed, SIGNAL(valueChanged(double)), this, SLOT(OnBlendChanged()));
 	connect(this->ui->lightAmbient, SIGNAL(pressed()), this, SLOT(OnSelectAmbient()));
 	connect(this->ui->lightDiffuse, SIGNAL(pressed()), this, SLOT(OnSelectDiffuse()));
@@ -80,6 +82,8 @@ PostEffectController::PostEffectController() :
 	connect(this->ui->resetButton, SIGNAL(pressed()), this, SLOT(OnReset()));
 	connect(this->ui->deleteButton, SIGNAL(pressed()), this, SLOT(OnDelete()));
 	connect(this->ui->presetCombo, SIGNAL(currentIndexChanged(const QString &)), this, SLOT(OnPresetChanged(const QString&)));	
+    connect(&this->probeWindow, SIGNAL(accepted()), this, SLOT(OnProbeAccepted()));
+    connect(&this->probeWindow, SIGNAL(rejected()), this, SLOT(OnProbeRejected()));
 }
 
 //------------------------------------------------------------------------------
@@ -509,6 +513,44 @@ PostEffectController::OnSelectHDRColor()
 		params->SetHdrBloomColor(color);
 		this->SetModified();
 	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PostEffectController::OnBrowseLightProbe()
+{
+     
+    probeWindow.SetIrradianceMap(this->postEffectEntity->Params().sky->GetIrradianceTexturePath());
+    probeWindow.SetReflectionMap(this->postEffectEntity->Params().sky->GetReflectanceTexturePath());
+    probeWindow.show();
+    probeWindow.raise();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PostEffectController::OnProbeAccepted()
+{
+    Util::String tex = Lighting::EnvironmentProbe::DefaultEnvironmentProbe->GetIrradianceMap()->GetTexture()->GetResourceId().AsString();
+    tex.StripFileExtension();
+    this->postEffectEntity->Params().sky->SetIrradianceTexturePath(tex);
+    tex = Lighting::EnvironmentProbe::DefaultEnvironmentProbe->GetReflectionMap()->GetTexture()->GetResourceId().AsString();
+    tex.StripFileExtension();
+    this->postEffectEntity->Params().sky->SetReflectanceTexturePath(tex);
+    this->SetModified();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PostEffectController::OnProbeRejected()
+{
+    Lighting::EnvironmentProbe::DefaultEnvironmentProbe->AssignIrradianceMap(this->postEffectEntity->Params().sky->GetIrradianceTexturePath());
+    Lighting::EnvironmentProbe::DefaultEnvironmentProbe->AssignReflectionMap(this->postEffectEntity->Params().sky->GetReflectanceTexturePath());
 }
 
 //------------------------------------------------------------------------------

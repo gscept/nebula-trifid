@@ -79,6 +79,9 @@ PhysXProbe::Init(const Ptr<Physics::Collider> & coll, const Math::matrix44 & tra
     this->body->getShapes(&shape, 1);
     shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
     shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);
+	PxFilterData fd;
+	fd.word0 = Physics::SensorTrigger;
+	shape->setQueryFilterData(fd);
     this->body->userData = this;
 }
 
@@ -149,8 +152,15 @@ PhysXProbe::OnTriggerEvent(PxPairFlag::Enum eventType, physx::PxActor * other)
 void
 PhysXProbe::SetTransform(const Math::matrix44 & trans)
 {
-	BaseProbe::SetTransform(trans);
-	this->body->setGlobalPose(Neb2PxTrans(trans));
+	PhysicsObject::SetTransform(trans);
+	// physx does not allow rescaling of a trigger, ignore scale
+	Math::vector scale;
+	Math::quaternion rotation;
+	Math::float4 pos;
+	trans.decompose(scale, rotation, pos);
+
+	PxTransform ptrans(Neb2PxVec(pos), Neb2PxQuat(rotation));	
+	this->body->setGlobalPose(ptrans);
 }
 
 }

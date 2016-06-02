@@ -198,6 +198,48 @@ BinaryReader::ReadUInt()
 //------------------------------------------------------------------------------
 /**
 */
+int64_t
+BinaryReader::ReadInt64()
+{
+    int64_t val;
+    if (this->isMapped)
+    {
+        // note: the memory copy is necessary to circumvent alignment problem on some CPUs
+        n_assert((this->mapCursor + sizeof(int64_t)) <= this->mapEnd);
+        Memory::Copy(this->mapCursor, &val, sizeof(val));
+        this->mapCursor += sizeof(val);
+    }
+    else
+    {
+        this->stream->Read(&val, sizeof(val));
+    }
+    return this->byteOrder.Convert<int64_t>(val);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+uint64_t
+BinaryReader::ReadUInt64()
+{
+    uint64_t val;
+    if (this->isMapped)
+    {
+        // note: the memory copy is necessary to circumvent alignment problem on some CPUs
+        n_assert((this->mapCursor + sizeof(uint64_t)) <= this->mapEnd);
+        Memory::Copy(this->mapCursor, &val, sizeof(val));
+        this->mapCursor += sizeof(val);
+    }
+    else
+    {
+        this->stream->Read(&val, sizeof(val));
+    }
+    return this->byteOrder.Convert<uint64_t>(val);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 float
 BinaryReader::ReadFloat()
 {

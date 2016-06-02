@@ -489,6 +489,70 @@ ByteOrder::Convert<double>(Type fromByteOrder, Type toByteOrder, double val)
 //------------------------------------------------------------------------------
 /**
 */
+template<> __forceinline uint64_t
+ByteOrder::Convert<uint64_t>(Type fromByteOrder, Type toByteOrder, uint64_t val)
+{
+    if (fromByteOrder != toByteOrder)
+    {        
+        return  _byteswap_uint64(val);     
+    }
+    else
+    {
+        return val;
+    }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+template<> __forceinline int64_t
+ByteOrder::Convert<int64_t>(Type fromByteOrder, Type toByteOrder, int64_t val)
+{
+    if (fromByteOrder != toByteOrder)
+    {
+        return  _byteswap_uint64(val);
+    }
+    else
+    {
+        return val;
+    }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+template<> __forceinline int64_t
+ByteOrder::Convert<int64_t>(int64_t val) const
+{
+    if (this->from != this->to)
+    {
+        return  _byteswap_uint64(val);
+    }
+    else
+    {
+        return val;
+    }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+template<> __forceinline uint64_t
+ByteOrder::Convert<uint64_t>(uint64_t val) const
+{
+    if (this->from != this->to)
+    {
+        return  _byteswap_uint64(val);
+    }
+    else
+    {
+        return val;
+    }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 template<> __forceinline double
 ByteOrder::Convert<double>(double val) const
 {

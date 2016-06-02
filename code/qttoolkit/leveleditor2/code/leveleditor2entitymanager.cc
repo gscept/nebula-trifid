@@ -702,7 +702,10 @@ LevelEditor2EntityManager::CreateLightEntity(const Util::String& lightType)
     Util::Guid guid;
     guid.Generate();
     entity->SetGuid(Attr::EntityGuid,guid);
-	entity->SetString(Attr::EntityLevel, Level::Instance()->GetName());
+    if (lightType != "GlobalLight")
+    {
+        entity->SetString(Attr::EntityLevel, Level::Instance()->GetName());
+    }	
 
 	// attach entitiy to the world
 	this->AddEntity(entity);

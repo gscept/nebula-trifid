@@ -42,6 +42,16 @@ public:
     /// get sky texture path
     const Util::String& GetSkyTexturePath() const;
 
+    /// set default reflectance texture path
+    void SetReflectanceTexturePath(const Util::String& p);
+    /// get default reflectance texture path
+    const Util::String& GetReflectanceTexturePath() const;
+
+    /// set default irradiance texture path
+    void SetIrradianceTexturePath(const Util::String& p);
+    /// get default irradiance texture path
+    const Util::String& GetIrradianceTexturePath() const;
+
     /// set sky contrast
     void SetSkyContrast(float f);
     /// get sky contrast
@@ -63,6 +73,8 @@ private:
     float skyBrightness;
     float skyRotationFactor;
     Util::String skyTexture;
+    Util::String reflTexture;
+    Util::String irrTexture;
 };
 
 //------------------------------------------------------------------------------
@@ -105,6 +117,45 @@ SkyParams::GetSkyTexturePath() const
     return this->skyTexture;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+inline
+void
+SkyParams::SetReflectanceTexturePath(const Util::String& p)
+{
+    this->reflTexture = p;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline
+const Util::String&
+SkyParams::GetReflectanceTexturePath() const
+{
+    return this->reflTexture;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline
+void
+SkyParams::SetIrradianceTexturePath(const Util::String& p)
+{
+    this->irrTexture = p;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline
+const Util::String&
+SkyParams::GetIrradianceTexturePath() const
+{
+    return this->irrTexture;
+}
 //------------------------------------------------------------------------------
 /**
 */

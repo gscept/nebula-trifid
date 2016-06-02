@@ -219,7 +219,7 @@ CSMPS(in vec4 TexShadow,
 	//Debug = DebugColors[cascadeIndex];
 	Debug = mapDepth;
 	//return 1 - smoothstep(0.7f, 1.0f, occlusion);
-	return 1 - occlusion;
+	return occlusion;
 	//return occlusion;
 }
 

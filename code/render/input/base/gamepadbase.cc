@@ -17,8 +17,9 @@ using namespace Util;
 /**
 */
 GamePadBase::GamePadBase() :
-    playerIndex(0),
+    index(0),
     isConnected(false),
+	hasTransform(false),
     buttonStates(NumButtons),
     axisValues(NumAxes, 0.0f),
     vibratorsDirty(false),

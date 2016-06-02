@@ -85,6 +85,8 @@ public:
     static Util::String GetBinDirectory();
     /// get path to the "c:/program files" directory
     static Util::String GetProgramsDirectory();
+    /// get current working directory
+    static Util::String GetCurrentDirectory();
     /// return true when the string is a device name (e.g. "C:")
     static bool IsDeviceName(const Util::String& str);
 

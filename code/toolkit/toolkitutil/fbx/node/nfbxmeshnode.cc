@@ -141,7 +141,7 @@ NFbxMeshNode::ExtractMesh()
     }    
 
 	// get scale
-	float scaleFactor = NFbxScene::Instance()->GetScale();
+	float scaleFactor = NFbxScene::Instance()->GetScale() * 1 / float(fbxScene->GetGlobalSettings().GetSystemUnit().GetScaleFactor());
 
 	// reserve mesh
 	this->mesh->Reserve(vertexCount, polyCount);
@@ -268,10 +268,6 @@ NFbxMeshNode::ExtractMesh()
 
 	// compute boundingbox
 	this->boundingBox = this->mesh->ComputeBoundingBox();
-
-	// scale bounding box, since node transformation will handle per-vertex scaling
-	float unitscale = float(1 / fbxScene->GetGlobalSettings().GetSystemUnit().GetScaleFactor());
-	this->boundingBox.transform(Math::matrix44::scaling(unitscale));
 
 	// calculate binormals and tangents if either the CalcNormals flag is on, or CalcBinormalsAndTangents is on, or if the model contains no binormals or tangents
 	if (this->exportFlags & ToolkitUtil::CalcNormals || 

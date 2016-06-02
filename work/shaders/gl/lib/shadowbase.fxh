@@ -848,7 +848,7 @@ MSMShadowSample(vec4 moments, float momentBias, float depth, float depthBias)
 	(z[1] < z[0]) ? vec4(z[0], z[1], 0, 1) : 
 	vec4(0));
 	float quot = (select[0] * z[2] - b[0] * (select[0] + z[2]) + b[1]) / ((z[2] - select[1]) * (z[0] - z[1]));
-	return saturate(select[2] + select[3] * quot);
+	return select[2] + select[3] * quot;
 }
 
 #endif // SHADOWBASE_FXH

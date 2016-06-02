@@ -74,6 +74,8 @@ IDLArg::IsValidType(const Util::String& str)
         ||(str == "Float4")
         ||(str == "Int")
         ||(str == "UInt")
+        ||(str == "Int64")
+        ||(str == "UInt64")
         ||(str == "Bool")
         ||(str == "Matrix44")
         ||(str == "Transform44")
@@ -84,7 +86,8 @@ IDLArg::IsValidType(const Util::String& str)
         ||(str == "UShort")
         ||(str == "Blob")
         ||(str == "Guid")
-        ||(str == "StringAtom"))
+        ||(str == "Ptr<Game::Entity>")
+		||(str == "StringAtom"))
     {
         return true;
     }   

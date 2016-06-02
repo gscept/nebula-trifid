@@ -1023,7 +1023,7 @@
             </property>
            </widget>
           </item>
-          <item row="5" column="0" colspan="3">
+          <item row="7" column="0" colspan="3">
            <spacer name="verticalSpacer_5">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
@@ -1071,6 +1071,13 @@
             </property>
             <property name="value">
              <double>0.030000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="QPushButton" name="lightProbeButton">
+            <property name="text">
+             <string>Edit Global Lightprobe textures</string>
             </property>
            </widget>
           </item>

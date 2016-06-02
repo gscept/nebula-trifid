@@ -153,7 +153,7 @@ psGlobShadow(in vec3 ViewSpacePosition,
 	shadowFactor = CSMPS(texShadow,
 						UV,
 						debug);		
-	shadowFactor = lerp(1.0f, shadowFactor, ShadowIntensity);
+	shadowFactor = lerp(1.0f, saturate(1 - shadowFactor), ShadowIntensity);
 
 	// multiply specular with power of shadow factor, this makes shadowed areas not reflect specular light
 	vec4 specColor = texture(SpecularBuffer, UV);

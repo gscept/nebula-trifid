@@ -239,7 +239,7 @@ OGL4ShapeRenderer::DrawShapes()
 		for (i = 0; i < this->shapes[depthType].Size(); i++)
 		{
 			const RenderShape& curShape = this->shapes[depthType][i];
-			if (curShape.GetShapeType() == RenderShape::RenderMesh) this->DrawMesh(curShape.GetModelTransform(), curShape.GetMesh(), curShape.GetColor());
+			if (curShape.GetShapeType() == RenderShape::RenderMesh) this->DrawMesh(curShape.GetModelTransform(), curShape.GetMesh(), curShape.GetPrimitiveGroupIndex(), curShape.GetColor());
 			else													this->DrawSimpleShape(curShape.GetModelTransform(), curShape.GetShapeType(), curShape.GetColor());
 		}
 	}
@@ -291,7 +291,7 @@ OGL4ShapeRenderer::DrawSimpleShape(const matrix44& modelTransform, RenderShape::
 /**
 */
 void
-OGL4ShapeRenderer::DrawMesh(const Math::matrix44& modelTransform, const Ptr<CoreGraphics::Mesh>& mesh, const Math::float4& color)
+OGL4ShapeRenderer::DrawMesh(const Math::matrix44& modelTransform, const Ptr<CoreGraphics::Mesh>& mesh, const IndexT& groupIndex, const Math::float4& color)
 {
 	n_assert(mesh.isvalid());
 	Ptr<RenderDevice> renderDevice = RenderDevice::Instance();
@@ -309,7 +309,7 @@ OGL4ShapeRenderer::DrawMesh(const Math::matrix44& modelTransform, const Ptr<Core
 
 	Ptr<CoreGraphics::VertexBuffer> vb = mesh->GetVertexBuffer();
 	Ptr<CoreGraphics::IndexBuffer> ib = mesh->GetIndexBuffer();
-	PrimitiveGroup group = mesh->GetPrimitiveGroupAtIndex(0);
+	PrimitiveGroup group = mesh->GetPrimitiveGroupAtIndex(groupIndex);
 
 	// setup render device
 	renderDevice->SetStreamVertexBuffer(0, vb, 0);

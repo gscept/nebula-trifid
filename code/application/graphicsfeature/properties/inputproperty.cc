@@ -240,7 +240,7 @@ InputProperty::OnBeginFrame()
             msg->SetEnable(false);
             __SendSync(this->entity,msg);
         }
-        if (gpad->IsConnected())
+        if (gpad.isvalid() && gpad->IsConnected())
         {
             if (gpad->ButtonDown(GamePad::StartButton))
             {

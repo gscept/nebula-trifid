@@ -17,6 +17,7 @@
 #elif __XBOX360__
 #include "memory/xbox360/xbox360memory.h"
 #endif
+#pragma warning (disable : 4595)
 
 namespace Memory
 {
