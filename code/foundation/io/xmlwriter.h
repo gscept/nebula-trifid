@@ -53,6 +53,8 @@ public:
     void SetFloat4(const Util::String& name, const Math::float4& value);
     /// set matrix44 attribute on current node
     void SetMatrix44(const Util::String& name, const Math::matrix44& value);
+	/// set transform44 attribute on current node
+	void SetTransform44(const Util::String& name, const Math::transform44& value);
     #endif
     /// generic setter, template specializations implemented in nebula3/code/addons/nebula2
     template<typename T> void Set(const Util::String& name, const T &value);

@@ -31,7 +31,7 @@ IDLArg::Parse(XmlReader* reader)
     this->name = reader->GetString("name");
     this->type = reader->GetString("type");
     this->defaultValue = reader->GetOptString("default", "");
-	this->wrappingType = reader->GetOptString("wrappedType","");
+    this->wrappingType = reader->GetOptString("wrappedType","");
     this->serialize = reader->GetOptBool("serialize", false);
     if (reader->SetToFirstChild("Encode"))
     {
@@ -51,13 +51,13 @@ IDLArg::Parse(XmlReader* reader)
 */
 bool
 IDLArg::CreateFromArgs(const Util::String & iname, const Util::String & itype, const Util::String & idefaultValue, const Util::String & iwrappingType)
-{	
-	this->name = iname;
-	this->type = itype;
-	this->defaultValue = idefaultValue;
-	this->serialize = false;
-	this->wrappingType = iwrappingType;
-	return true;
+{
+    this->name = iname;
+    this->type = itype;
+    this->defaultValue = idefaultValue;
+    this->serialize = false;
+    this->wrappingType = iwrappingType;
+    return true;
 }
 
 //------------------------------------------------------------------------------
@@ -70,12 +70,13 @@ IDLArg::IsValidType(const Util::String& str)
         ||(str == "String")
         ||(str == "Float")
         ||(str == "Float2")
-		||(str == "Vector")
+        ||(str == "Vector")
         ||(str == "Float4")
         ||(str == "Int")
         ||(str == "UInt")
         ||(str == "Bool")
         ||(str == "Matrix44")
+        ||(str == "Transform44")
         ||(str == "Point")
         ||(str == "Vector")
         ||(str == "Double")
@@ -83,7 +84,7 @@ IDLArg::IsValidType(const Util::String& str)
         ||(str == "UShort")
         ||(str == "Blob")
         ||(str == "Guid")
-		||(str == "StringAtom"))
+        ||(str == "StringAtom"))
     {
         return true;
     }   

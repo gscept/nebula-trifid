@@ -210,21 +210,22 @@ String
 IDLCodeGenerator::GetNebulaRefType(const String& type) const
 {
     if ("string" == type)               return "const Util::String&";    
-    else if ("float4" == type)         return "const Math::float4&";
+    else if ("float4" == type)          return "const Math::float4&";
     else if ("matrix44" == type)        return "const Math::matrix44&";
+	else if ("transform44" == type)     return "const Math::transform44&";
     else if ("bool" == type)            return "bool";
     else if ("guid" == type)            return "const Util::Guid&";
     else if ("int" == type)             return "int";
 	else if ("uint" == type)			return "uint";
-	else if ("float" == type)             return "float";
+	else if ("float" == type)           return "float";
     else if ("object" == type)          return "Core::RefCounted*";
     else if ("voidptr" == type)         return "void*";
     else if ("intArray" == type)        return "const Util::Array<int>&";
     else if ("floatArray" == type)      return "const Util::Array<float>&";
     else if ("boolArray" == type)       return "const Util::Array<bool>&";
     else if ("stringArray" == type)     return "const Util::Array<Util::String>&";
-    else if ("vectorArray" == type)    return "const Util::Array<Math::vector>&";
-    else if ("float4Array" == type)    return "const Util::Array<Math::float4>&";
+    else if ("vectorArray" == type)     return "const Util::Array<Math::vector>&";
+    else if ("float4Array" == type)     return "const Util::Array<Math::float4>&";
     else if ("matrix44Array" == type)   return "const Util::Array<Math::matrix44>&";
     else if ("guidArray" == type)       return "const Util::Array<Util::Guid>&";
     else
@@ -243,21 +244,22 @@ String
 IDLCodeGenerator::GetNebulaType(const String& type) const
 {
     if ("string" == type)               return "Util::String";    
-    else if ("float4" == type)         return "Math::float4";
+    else if ("float4" == type)          return "Math::float4";
     else if ("matrix44" == type)        return "Math::matrix44";
+    else if ("transform44" == type)     return "Math::transform44";
     else if ("bool" == type)            return "bool";
     else if ("guid" == type)            return "Util::Guid";
     else if ("int" == type)             return "int";
-	else if ("uint" == type)             return "uint";
-	else if ("float" == type)             return "float";
+    else if ("uint" == type)            return "uint";
+    else if ("float" == type)           return "float";
     else if ("object" == type)          return "Core::RefCounted*";
     else if ("voidptr" == type)         return "void*";
     else if ("intArray" == type)        return "Util::Array<int>";
     else if ("floatArray" == type)      return "Util::Array<float>";
     else if ("boolArray" == type)       return "Util::Array<bool>";
     else if ("stringArray" == type)     return "Util::Array<Util::String>";
-    else if ("vectorArray" == type)    return "Util::Array<Math::vector>";
-    else if ("float4Array" == type)    return "Util::Array<Math::float4>";
+    else if ("vectorArray" == type)     return "Util::Array<Math::vector>";
+    else if ("float4Array" == type)     return "Util::Array<Math::float4>";
     else if ("matrix44Array" == type)   return "Util::Array<Math::matrix44>";
     else if ("guidArray" == type)       return "Util::Array<Util::Guid>";
     else
@@ -276,21 +278,22 @@ String
 IDLCodeGenerator::GetNebulaArgType(const String& type) const
 {
     if ("string" == type)               return "Scripting::Arg::String";    
-    else if ("float4" == type)         return "Scripting::Arg::Float4";
+    else if ("float4" == type)          return "Scripting::Arg::Float4";
     else if ("matrix44" == type)        return "Scripting::Arg::Matrix44";
+    else if ("transform44" == type)     return "Scripting::Arg::Transform44";
     else if ("bool" == type)            return "Scripting::Arg::Bool";
     else if ("guid" == type)            return "Scripting::Arg::Guid";
     else if ("int" == type)             return "Scripting::Arg::Int";
-	else if ("uint" == type)             return "Scripting::Arg::UInt";
-	else if ("float" == type)           return "Scripting::Arg::Float";
+    else if ("uint" == type)            return "Scripting::Arg::UInt";
+    else if ("float" == type)           return "Scripting::Arg::Float";
     else if ("object" == type)          return "Scripting::Arg::Object";
     else if ("voidptr" == type)         return "Scripting::Arg::VoidPtr";
     else if ("intArray" == type)        return "Scripting::Arg::IntArray";
     else if ("floatArray" == type)      return "Scripting::Arg::FloatArray";
     else if ("boolArray" == type)       return "Scripting::Arg::BoolArray";
     else if ("stringArray" == type)     return "Scripting::Arg::StringArray";
-    else if ("vectorArray" == type)    return "Scripting::Arg::VectorArray";
-    else if ("float4Array" == type)    return "Scripting::Arg::Float4Array";
+    else if ("vectorArray" == type)     return "Scripting::Arg::VectorArray";
+    else if ("float4Array" == type)     return "Scripting::Arg::Float4Array";
     else if ("matrix44Array" == type)   return "Scripting::Arg::Matrix44Array";
     else if ("guidArray" == type)       return "Scripting::Arg::GuidArray";
     
@@ -310,21 +313,22 @@ String
 IDLCodeGenerator::GetNebulaGetterMethod(const String& type) const
 {
     if ("string" == type)               return "GetString()";    
-    else if ("float4" == type)         return "GetFloat4()";
+    else if ("float4" == type)          return "GetFloat4()";
     else if ("matrix44" == type)        return "GetMatrix44()";
+    else if ("transform44" == type)     return "GetTransform44()";
     else if ("bool" == type)            return "GetBool()";
     else if ("guid" == type)            return "GetGuid()";
     else if ("int" == type)             return "GetInt()";
-	else if ("uint" == type)             return "GetUInt()";
-	else if ("float" == type)           return "GetFloat()";
+    else if ("uint" == type)            return "GetUInt()";
+    else if ("float" == type)           return "GetFloat()";
     else if ("object" == type)          return "GetObject()";
     else if ("voidptr" == type)         return "GetVoidPtr()";
     else if ("intArray" == type)        return "GetIntArray()";
     else if ("floatArray" == type)      return "GetFloatArray()";
     else if ("boolArray" == type)       return "GetBoolArray()";
     else if ("stringArray" == type)     return "GetStringArray()";
-    else if ("vectorArray" == type)    return "GetVectorArray()";
-    else if ("float4Array" == type)    return "GetFloat4Array()";
+    else if ("vectorArray" == type)     return "GetVectorArray()";
+    else if ("float4Array" == type)     return "GetFloat4Array()";
     else if ("matrix44Array" == type)   return "GetMatrix44Array()";
     else if ("guidArray" == type)       return "GetGuidArray";
     else
@@ -343,21 +347,22 @@ String
 IDLCodeGenerator::GetNebulaSetterMethod(const String& type) const
 {
     if ("string" == type)               return "SetString";    
-    else if ("float4" == type)         return "SetFloat4";
+    else if ("float4" == type)          return "SetFloat4";
     else if ("matrix44" == type)        return "SetMatrix44";
+    else if ("transform44" == type)     return "SetTransform44";
     else if ("bool" == type)            return "SetBool";
     else if ("guid" == type)            return "SetGuid";
     else if ("int" == type)             return "SetInt";
-	else if ("uint" == type)             return "SetUInt";
-	else if ("float" == type)           return "SetFloat";
+    else if ("uint" == type)            return "SetUInt";
+    else if ("float" == type)           return "SetFloat";
     else if ("object" == type)          return "SetObject";
     else if ("voidptr" == type)         return "SetVoidPtr";
     else if ("intArray" == type)        return "SetIntArray";
     else if ("floatArray" == type)      return "SetFloatArray";
     else if ("boolArray" == type)       return "SetBoolArray";
     else if ("stringArray" == type)     return "SetStringArray";
-    else if ("vectorArray" == type)    return "SetVectorArray";
-    else if ("float4Array" == type)    return "SetFloat4Array";
+    else if ("vectorArray" == type)     return "SetVectorArray";
+    else if ("float4Array" == type)     return "SetFloat4Array";
     else if ("matrix44Array" == type)   return "SetMatrix44Array";
     else if ("guidArray" == type)       return "SetGuidArray";
     else
@@ -396,14 +401,14 @@ IDLCodeGenerator::BuildCallbackPrototype(IDLCommand* cmd, bool withClassName) co
     IndexT inArgIndex;
     for (inArgIndex = 0; inArgIndex < inArgs.Size(); inArgIndex++)
     {
-		if(inArgs[inArgIndex]->GetWrappingType().IsEmpty())
-		{
-			str.Append(this->GetNebulaRefType(inArgs[inArgIndex]->GetType()));
-		}
-		else
-		{
-			str.Append(inArgs[inArgIndex]->GetWrappingType());
-		}
+        if (inArgs[inArgIndex]->GetWrappingType().IsEmpty())
+        {
+            str.Append(this->GetNebulaRefType(inArgs[inArgIndex]->GetType()));
+        }
+        else
+        {
+            str.Append(inArgs[inArgIndex]->GetWrappingType());
+        }
         str.Append(" ");
         str.Append(inArgs[inArgIndex]->GetName());
         if (inArgIndex < (inArgs.Size() - 1))
@@ -434,7 +439,7 @@ IDLCodeGenerator::WriteIncludeHeader(TextWriter* writer) const
     }
     if (!this->document->GetProtocols().IsEmpty())
     {
-		writer->WriteLine("#include \"messaging/message.h\"");        
+        writer->WriteLine("#include \"messaging/message.h\"");        
     }
 
     // write dependencies
@@ -462,19 +467,19 @@ IDLCodeGenerator::WriteIncludeHeader(TextWriter* writer) const
             writer->WriteFormatted("#include \"%s\"\n", dep->GetHeader().AsCharPtr());
         }
     }
-	/// Write dependencies from the AttributeLib's too! ^^
-	const Array<Ptr<IDLAttributeLib>>& attributes = this->document->GetAttributeLibs();
-	IndexT attrIndex;
-	for (attrIndex = 0; attrIndex < attributes.Size(); attrIndex++)
-	{
-		const Ptr<IDLAttributeLib>& curAttrLib= attributes[attrIndex];
-		IndexT depIndex;
-		for (depIndex = 0; depIndex < curAttrLib->GetDependencies().Size(); depIndex++)
-		{
-			IDLDependency* dep = curAttrLib->GetDependencies()[depIndex];
-			writer->WriteFormatted("#include \"%s\"\n", dep->GetHeader().AsCharPtr());
-		}
-	}
+    /// Write dependencies from the AttributeLib's too! ^^
+    const Array<Ptr<IDLAttributeLib>>& attributes = this->document->GetAttributeLibs();
+    IndexT attrIndex;
+    for (attrIndex = 0; attrIndex < attributes.Size(); attrIndex++)
+    {
+        const Ptr<IDLAttributeLib>& curAttrLib = attributes[attrIndex];
+        IndexT depIndex;
+        for (depIndex = 0; depIndex < curAttrLib->GetDependencies().Size(); depIndex++)
+        {
+            IDLDependency* dep = curAttrLib->GetDependencies()[depIndex];
+            writer->WriteFormatted("#include \"%s\"\n", dep->GetHeader().AsCharPtr());
+        }
+    }
     writer->WriteLine("");
 }
 
@@ -644,8 +649,8 @@ IDLCodeGenerator::WriteMessageDeclaration(IDLProtocol* prot, IDLMessage* msg, Te
     }
 
     // write encode and decode 
-	this->WriteEncodeImplementation(msg, writer);
-	this->WriteDecodeImplementation(msg, writer);    
+    this->WriteEncodeImplementation(msg, writer);
+    this->WriteDecodeImplementation(msg, writer);    
 
     writer->WriteLine("};");
 }
@@ -686,7 +691,7 @@ IDLCodeGenerator::WriteMessageArg(IDLProtocol* prot, IDLMessage* msg, IDLArg* ar
     str.Append(argTypeString);
     str.Append(" val)\n");
     str.Append("    {\n");
-	str.Append("        n_assert(!this->handled);\n");    
+    str.Append("        n_assert(!this->handled);\n");    
     str.Append("        this->");
     str.Append(argMemberName);
     str.Append(" = val;\n");
@@ -728,35 +733,35 @@ IDLCodeGenerator::WriteMessageArg(IDLProtocol* prot, IDLMessage* msg, IDLArg* ar
 void
 IDLCodeGenerator::WriteAttributeLibraryDeclaration(TextWriter* writer) const
 {
-	if (!this->document->GetAttributeLibs().IsEmpty())
-	{
+    if (!this->document->GetAttributeLibs().IsEmpty())
+    {
 
-		writer->WriteLine("#include \"attr/attrid.h\"");
-		writer->WriteLine("#include \"attr/attributedefinition.h\"");
-		
-		const Array<Ptr<IDLAttributeLib>>& attributeLibs = this->document->GetAttributeLibs();
-		IndexT attrlIndex;
-		for (attrlIndex = 0; attrlIndex < attributeLibs.Size(); attrlIndex++)
-		{
-			const Ptr<IDLAttributeLib>& curAttrl = attributeLibs[attrlIndex];			
+        writer->WriteLine("#include \"attr/attrid.h\"");
+        writer->WriteLine("#include \"attr/attributedefinition.h\"");
 
-			writer->WriteLine("namespace Attr");
-			writer->WriteLine("{");
-			IndexT aIndex;
-			for (aIndex = 0; aIndex < curAttrl->GetAttributes().Size(); aIndex++)
-			{
-				const Ptr<IDLAttribute>& attr = curAttrl->GetAttributes()[aIndex];  
-								
-				writer->WriteFormatted("    Declare%s(%s, '%s', %s);\n",
-						attr->GetType().AsCharPtr(),
-						attr->GetName().AsCharPtr(),
-						attr->GetFourCC().AsCharPtr(),
-						attr->GetAccessMode().AsCharPtr());									
+        const Array<Ptr<IDLAttributeLib>>& attributeLibs = this->document->GetAttributeLibs();
+        IndexT attrlIndex;
+        for (attrlIndex = 0; attrlIndex < attributeLibs.Size(); attrlIndex++)
+        {
+            const Ptr<IDLAttributeLib>& curAttrl = attributeLibs[attrlIndex];
 
-			}
-			writer->WriteLine("} // attr");
-		}
-	}
+            writer->WriteLine("namespace Attr");
+            writer->WriteLine("{");
+            IndexT aIndex;
+            for (aIndex = 0; aIndex < curAttrl->GetAttributes().Size(); aIndex++)
+            {
+                const Ptr<IDLAttribute>& attr = curAttrl->GetAttributes()[aIndex];
+
+                writer->WriteFormatted("    Declare%s(%s, '%s', %s);\n",
+                    attr->GetType().AsCharPtr(),
+                    attr->GetName().AsCharPtr(),
+                    attr->GetFourCC().AsCharPtr(),
+                    attr->GetAccessMode().AsCharPtr());
+
+            }
+            writer->WriteLine("} // attr");
+        }
+    }
 }
 //------------------------------------------------------------------------------
 /**
@@ -788,29 +793,29 @@ IDLCodeGenerator::WriteSourceHeader(TextWriter* writer) const
         writer->WriteLine("#include \"scripting/arg.h\"");
     }
 
-	/// Include this header
-	writer->WriteFormatted("#include \"%s\"\n", headerFile.AsCharPtr());	
-	writer->WriteLine("");	
+    /// Include this header
+    writer->WriteFormatted("#include \"%s\"\n", headerFile.AsCharPtr());
+    writer->WriteLine("");
 
-	if (!this->document->GetAttributeLibs().IsEmpty())
-	{
-		writer->WriteLine("#include \"attr/attribute.h\"");
-		/// Write the additional attributeLib dependencies here too, since they will be needed when registering the inherited attributes
-		const Array<Ptr<IDLAttributeLib>>& attributeLibs = this->document->GetAttributeLibs();
-		IndexT attrlIndex;
-		for (attrlIndex = 0; attrlIndex < attributeLibs.Size(); attrlIndex++)
-		{
-			const Ptr<IDLAttributeLib>& curAttrl = attributeLibs[attrlIndex];			
-			writer->WriteLine("// Additional includes by AttributeLib");
-			Util::Array<Ptr<Tools::IDLDependency>> dependencies =	curAttrl->GetDependencies();
-			IndexT includeIndex;
-			for (includeIndex = 0; includeIndex < dependencies.Size(); ++includeIndex){
-				Ptr<Tools::IDLDependency> depencency = dependencies[includeIndex];
-				writer->WriteFormatted("#include \"%s\"\n", depencency->GetHeader().AsCharPtr());
-			}
-		}
-	}
-	writer->WriteLine("");
+    if (!this->document->GetAttributeLibs().IsEmpty())
+    {
+        writer->WriteLine("#include \"attr/attribute.h\"");
+        /// Write the additional attributeLib dependencies here too, since they will be needed when registering the inherited attributes
+        const Array<Ptr<IDLAttributeLib>>& attributeLibs = this->document->GetAttributeLibs();
+        IndexT attrlIndex;
+        for (attrlIndex = 0; attrlIndex < attributeLibs.Size(); attrlIndex++)
+        {
+            const Ptr<IDLAttributeLib>& curAttrl = attributeLibs[attrlIndex];
+            writer->WriteLine("// Additional includes by AttributeLib");
+            Util::Array<Ptr<Tools::IDLDependency>> dependencies = curAttrl->GetDependencies();
+            IndexT includeIndex;
+            for (includeIndex = 0; includeIndex < dependencies.Size(); ++includeIndex) {
+                Ptr<Tools::IDLDependency> depencency = dependencies[includeIndex];
+                writer->WriteFormatted("#include \"%s\"\n", depencency->GetHeader().AsCharPtr());
+            }
+        }
+    }
+    writer->WriteLine("");
 
     // write __ImplementClass macros
     if (!this->document->GetLibraries().IsEmpty())
@@ -840,85 +845,85 @@ IDLCodeGenerator::WriteSourceHeader(TextWriter* writer) const
             writer->WriteLine("{");
             IndexT msgIndex;
             for (msgIndex = 0; msgIndex < curProt->GetMessages().Size(); msgIndex++)
-			{
-				const Ptr<IDLMessage>& msg = curProt->GetMessages()[msgIndex];                                
-				writer->WriteFormatted("    __ImplementClass(%s::%s, '%s', %s);\n",
-					curProt->GetNameSpace().AsCharPtr(),
-					msg->GetName().AsCharPtr(),
-					msg->GetFourCC().AsCharPtr(),
-					msg->GetParentClass().AsCharPtr());
-				writer->WriteFormatted("    __ImplementMsgId(%s);\n", msg->GetName().AsCharPtr());                
-			}
+            {
+                const Ptr<IDLMessage>& msg = curProt->GetMessages()[msgIndex];
+                writer->WriteFormatted("    __ImplementClass(%s::%s, '%s', %s);\n",
+                    curProt->GetNameSpace().AsCharPtr(),
+                    msg->GetName().AsCharPtr(),
+                    msg->GetFourCC().AsCharPtr(),
+                    msg->GetParentClass().AsCharPtr());
+                writer->WriteFormatted("    __ImplementMsgId(%s);\n", msg->GetName().AsCharPtr());
+            }
             writer->WriteFormatted("} // %s\n", curProt->GetNameSpace().AsCharPtr());
         }
     }
-	if (!this->document->GetAttributeLibs().IsEmpty())
-	{
-		writer->WriteLine("// Defining AttributeLib");
-		const Array<Ptr<IDLAttributeLib>>& attributeLibs = this->document->GetAttributeLibs();
-		IndexT attrlIndex;
-		for (attrlIndex = 0; attrlIndex < attributeLibs.Size(); attrlIndex++)
-		{
-			const Ptr<IDLAttributeLib>& curAttrl = attributeLibs[attrlIndex];			
-			
-			writer->WriteLine("namespace Attr");
-			writer->WriteLine("{");
-			IndexT aIndex;
-			for (aIndex = 0; aIndex < curAttrl->GetAttributes().Size(); aIndex++)
-			{
-				const Ptr<IDLAttribute>& attr = curAttrl->GetAttributes()[aIndex];  
-				if(attr->HasDefault())
-				{
-					writer->WriteFormatted("    Define%sWithDefault(%s, '%s', %s, %s);\n",
-						attr->GetType().AsCharPtr(),
-						attr->GetName().AsCharPtr(),
-						attr->GetFourCC().AsCharPtr(),
-						attr->GetAccessMode().AsCharPtr(),
-						attr->GetDefault().AsCharPtr());					
-				}
-				else
-				{
-					writer->WriteFormatted("    Define%s(%s, '%s', %s);\n",
-					attr->GetType().AsCharPtr(),
-					attr->GetName().AsCharPtr(),
-					attr->GetFourCC().AsCharPtr(),
-					attr->GetAccessMode().AsCharPtr());					
-				}
-				
-			}
-			writer->WriteLine("} // attr");
-		}
-	}
-	if(!this->document->GetProperties().IsEmpty())
-	{
-		writer->WriteLine("#include \"basegamefeature/managers/categorymanager.h\"");
-		const Array<Ptr<IDLProperty>>& props = this->document->GetProperties();
-		IndexT propIndex;
-		for (propIndex = 0; propIndex < props.Size(); propIndex++)
-		{
-			const Ptr<IDLProperty>& curProp = props[propIndex];			
+    if (!this->document->GetAttributeLibs().IsEmpty())
+    {
+        writer->WriteLine("// Defining AttributeLib");
+        const Array<Ptr<IDLAttributeLib>>& attributeLibs = this->document->GetAttributeLibs();
+        IndexT attrlIndex;
+        for (attrlIndex = 0; attrlIndex < attributeLibs.Size(); attrlIndex++)
+        {
+            const Ptr<IDLAttributeLib>& curAttrl = attributeLibs[attrlIndex];
 
-			if(!curProp->GetHeader().IsEmpty())
-			{
-				writer->WriteFormatted("#include \"%s\"\n",curProp->GetHeader().AsCharPtr());
-			}
+            writer->WriteLine("namespace Attr");
+            writer->WriteLine("{");
+            IndexT aIndex;
+            for (aIndex = 0; aIndex < curAttrl->GetAttributes().Size(); aIndex++)
+            {
+                const Ptr<IDLAttribute>& attr = curAttrl->GetAttributes()[aIndex];
+                if (attr->HasDefault())
+                {
+                    writer->WriteFormatted("    Define%sWithDefault(%s, '%s', %s, %s);\n",
+                        attr->GetType().AsCharPtr(),
+                        attr->GetName().AsCharPtr(),
+                        attr->GetFourCC().AsCharPtr(),
+                        attr->GetAccessMode().AsCharPtr(),
+                        attr->GetDefault().AsCharPtr());
+                }
+                else
+                {
+                    writer->WriteFormatted("    Define%s(%s, '%s', %s);\n",
+                        attr->GetType().AsCharPtr(),
+                        attr->GetName().AsCharPtr(),
+                        attr->GetFourCC().AsCharPtr(),
+                        attr->GetAccessMode().AsCharPtr());
+                }
 
-			writer->WriteFormatted("void %s::SetupExternalAttributes()\n{\n",curProp->GetName().AsCharPtr());						
-			const Array<Util::String> & propAttrs = curProp->GetAttributes();
-			const Array<bool> & serialize = curProp->GetSerialize();
-			IndexT paIndex;
-			for(paIndex = 0; paIndex < propAttrs.Size();paIndex++)
-			{
-				Util::String serializeString = serialize[paIndex] ? "true" : "false";
-				writer->WriteFormatted("	SetupAttr(Attr::%s, %s);\n",propAttrs[paIndex].AsCharPtr(),serializeString.AsCharPtr());
-			}
-			if(!curProp->GetParentClass().IsEmpty())
-			{
-				writer->WriteFormatted("	%s::SetupExternalAttributes();\n",curProp->GetParentClass().AsCharPtr());
-			}
-			writer->WriteLine("}\n");
-		}
-	}
+            }
+            writer->WriteLine("} // attr");
+        }
+    }
+    if (!this->document->GetProperties().IsEmpty())
+    {
+        writer->WriteLine("#include \"basegamefeature/managers/categorymanager.h\"");
+        const Array<Ptr<IDLProperty>>& props = this->document->GetProperties();
+        IndexT propIndex;
+        for (propIndex = 0; propIndex < props.Size(); propIndex++)
+        {
+            const Ptr<IDLProperty>& curProp = props[propIndex];
+
+            if (!curProp->GetHeader().IsEmpty())
+            {
+                writer->WriteFormatted("#include \"%s\"\n", curProp->GetHeader().AsCharPtr());
+            }
+
+            writer->WriteFormatted("void %s::SetupExternalAttributes()\n{\n", curProp->GetName().AsCharPtr());
+            const Array<Util::String> & propAttrs = curProp->GetAttributes();
+            const Array<bool> & serialize = curProp->GetSerialize();
+            IndexT paIndex;
+            for (paIndex = 0; paIndex < propAttrs.Size(); paIndex++)
+            {
+                Util::String serializeString = serialize[paIndex] ? "true" : "false";
+                writer->WriteFormatted("	SetupAttr(Attr::%s, %s);\n", propAttrs[paIndex].AsCharPtr(), serializeString.AsCharPtr());
+            }
+            if (!curProp->GetParentClass().IsEmpty())
+            {
+                writer->WriteFormatted("	%s::SetupExternalAttributes();\n", curProp->GetParentClass().AsCharPtr());
+            }
+            writer->WriteLine("}\n");
+        }
+    }
     writer->WriteLine("");
 }
 
@@ -1000,7 +1005,7 @@ IDLCodeGenerator::WriteCommandImplementation(IDLCommand* cmd, TextWriter* writer
     for (inArgIndex = 0; inArgIndex < cmd->GetInputArgs().Size(); inArgIndex++)
     {
         IDLArg* arg = cmd->GetInputArgs()[inArgIndex];
-		const Util::String & argType = arg->GetWrappingType().IsEmpty()?arg->GetType():arg->GetWrappingType();
+        const Util::String & argType = arg->GetWrappingType().IsEmpty()?arg->GetType():arg->GetWrappingType();
         writer->WriteFormatted("    this->args.AddArg(\"%s\", %s);\n", 
             arg->GetName().AsCharPtr(), this->GetNebulaArgType(argType).AsCharPtr());
     }
@@ -1008,7 +1013,7 @@ IDLCodeGenerator::WriteCommandImplementation(IDLCommand* cmd, TextWriter* writer
     for (outArgIndex = 0; outArgIndex < cmd->GetOutputArgs().Size(); outArgIndex++)
     {
         IDLArg* arg = cmd->GetOutputArgs()[outArgIndex];
-		const Util::String & argType = arg->GetWrappingType().IsEmpty()?arg->GetType():arg->GetWrappingType();
+        const Util::String & argType = arg->GetWrappingType().IsEmpty()?arg->GetType():arg->GetWrappingType();
         writer->WriteFormatted("    this->results.AddArg(\"%s\", %s);\n",
             arg->GetName().AsCharPtr(), this->GetNebulaArgType(argType).AsCharPtr());
     }
@@ -1038,7 +1043,7 @@ IDLCodeGenerator::WriteCommandImplementation(IDLCommand* cmd, TextWriter* writer
     for (inArgIndex = 0; inArgIndex < cmd->GetInputArgs().Size(); inArgIndex++)
     {
         IDLArg* arg = cmd->GetInputArgs()[inArgIndex];
-		const Util::String & argType = arg->GetWrappingType().IsEmpty()?arg->GetType():arg->GetWrappingType();
+        const Util::String & argType = arg->GetWrappingType().IsEmpty()?arg->GetType():arg->GetWrappingType();
         writer->WriteFormatted("    %s %s = this->args.GetArgValue(%d).%s;\n",
             this->GetNebulaRefType(argType).AsCharPtr(),
             arg->GetName().AsCharPtr(),
@@ -1119,8 +1124,8 @@ IDLCodeGenerator::WriteEncodeImplementation(IDLMessage* msg, IO::TextWriter* wri
             {
                 type = type.ExtractToEnd(namespaceIdx+2);
             } 
-			String name = inArgs[argIndex]->GetName();			
-			this->TypeEncode(type, name, inArgs[argIndex], str);            
+            String name = inArgs[argIndex]->GetName();
+            this->TypeEncode(type, name, inArgs[argIndex], str);
             writeString = true;                
         } 
     }    
@@ -1164,8 +1169,8 @@ IDLCodeGenerator::WriteDecodeImplementation(IDLMessage* msg, IO::TextWriter* wri
             {
                 type = type.ExtractToEnd(namespaceIdx+2);
             }            
-			String name = inArgs[argIndex]->GetName();
-			this->TypeDecode(type, name, inArgs[argIndex], str);            
+            String name = inArgs[argIndex]->GetName();
+            this->TypeDecode(type, name, inArgs[argIndex], str);
             writeString = true; 
         }
     }     
@@ -1199,13 +1204,14 @@ IDLCodeGenerator::ConvertToCamelNotation(const Util::String& lowerCaseType) cons
     else if (lowerCaseType == "ushort") return "UShort";    
     else if (lowerCaseType == "string" || lowerCaseType == "String") return "String";  // class names are uppercase 
     else if (lowerCaseType == "matrix44" || lowerCaseType == "Matrix44") return "Matrix44";  
+    else if (lowerCaseType == "transform44" || lowerCaseType == "Transform44") return "Transform44";
     else if (lowerCaseType == "float2" || lowerCaseType == "Float2") return "Float2";
     else if (lowerCaseType == "float4" || lowerCaseType == "Float4") return "Float4";
     else if (lowerCaseType == "point" || lowerCaseType == "Point") return "Point";
     else if (lowerCaseType == "vector" || lowerCaseType == "Vector") return "Vector";
     else if (lowerCaseType == "blob" || lowerCaseType == "Blob") return "Blob";
     else if (lowerCaseType == "guid" || lowerCaseType == "Guid") return "Guid";	
-	else if (lowerCaseType == "IndexT" || lowerCaseType == "Tick") return "Int";
+    else if (lowerCaseType == "IndexT" || lowerCaseType == "Tick") return "Int";
 
    // n_error("Invalid type %s", lowerCaseType.AsCharPtr());
     return "";
@@ -1216,29 +1222,29 @@ IDLCodeGenerator::ConvertToCamelNotation(const Util::String& lowerCaseType) cons
 */
 void
 IDLCodeGenerator::TypeEncode(const Util::String & type, const Util::String & name, const Ptr<IDLArg> & arg, Util::String & target) const
-{	
-	Util::String newtype = this->ConvertToCamelNotation(type);
-	if (newtype.Length())
-	{
-		// check valid type
-		if (!IDLArg::IsValidType(newtype))
-		{
-			n_error("IDLCodeGenerator::TypeEncode: type %s not valid for serialization!!!", newtype.AsCharPtr());
-		}		
-		target.Append("        writer->Write" + newtype + "(this->Get" + name + "());\n");
-	}
-	else
-	{
-		if (arg->GetWrappingType().Length())
-		{
-			Util::String wrap = this->ConvertToCamelNotation(arg->GetWrappingType());
-			target.Append("        writer->Write" + wrap + "((" + arg->GetWrappingType() + ")this->Get" + name + "());\n");		
-		}
-		else if (type == "StringAtom")
-		{
-			target.Append("        writer->WriteString(this->Get" + name + "().Value());\n");
-		}				
-	}
+{
+    Util::String newtype = this->ConvertToCamelNotation(type);
+    if (newtype.Length())
+    {
+        // check valid type
+        if (!IDLArg::IsValidType(newtype))
+        {
+            n_error("IDLCodeGenerator::TypeEncode: type %s not valid for serialization!!!", newtype.AsCharPtr());
+        }
+        target.Append("        writer->Write" + newtype + "(this->Get" + name + "());\n");
+    }
+    else
+    {
+        if (arg->GetWrappingType().Length())
+        {
+            Util::String wrap = this->ConvertToCamelNotation(arg->GetWrappingType());
+            target.Append("        writer->Write" + wrap + "((" + arg->GetWrappingType() + ")this->Get" + name + "());\n");
+        }
+        else if (type == "StringAtom")
+        {
+            target.Append("        writer->WriteString(this->Get" + name + "().Value());\n");
+        }
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -1247,26 +1253,26 @@ IDLCodeGenerator::TypeEncode(const Util::String & type, const Util::String & nam
 void
 IDLCodeGenerator::TypeDecode(const Util::String & type, const Util::String & name, const Ptr<IDLArg> & arg, Util::String & target) const
 {
-	Util::String newtype = this->ConvertToCamelNotation(type);
-	if (newtype.Length())
-	{
-		// check valid type
-		if (!IDLArg::IsValidType(newtype))
-		{
-			n_error("IDLCodeGenerator::TypeDecode: type %s not valid for serialization!!!", type.AsCharPtr());
-		}
-		target.Append("        this->Set" + name + "(reader->Read" + newtype + "());\n");
-	}
-	else
-	{
-		if (arg->GetWrappingType().Length())
-		{			
-			target.Append("        this->Set" + name + "((" + arg->GetType() + ")reader->Read" + this->ConvertToCamelNotation(arg->GetWrappingType()) + "());\n");		
-		}
-		else if (type == "StringAtom")
-		{
-			target.Append("        this->Set" + name + "(reader->ReadString());\n");
-		}
-	}
+    Util::String newtype = this->ConvertToCamelNotation(type);
+    if (newtype.Length())
+    {
+        // check valid type
+        if (!IDLArg::IsValidType(newtype))
+        {
+            n_error("IDLCodeGenerator::TypeDecode: type %s not valid for serialization!!!", type.AsCharPtr());
+        }
+        target.Append("        this->Set" + name + "(reader->Read" + newtype + "());\n");
+    }
+    else
+    {
+        if (arg->GetWrappingType().Length())
+        {
+            target.Append("        this->Set" + name + "((" + arg->GetType() + ")reader->Read" + this->ConvertToCamelNotation(arg->GetWrappingType()) + "());\n");
+        }
+        else if (type == "StringAtom")
+        {
+            target.Append("        this->Set" + name + "(reader->ReadString());\n");
+        }
+    }
 }
 } // namespace Tools

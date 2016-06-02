@@ -59,6 +59,10 @@ AttributeDefinition<VALUETYPE,TYPE>::AttributeDefinition(const Util::String& n, 
 #define DefineMatrix44(NAME,FOURCC,ACCESSMODE) const AttributeDefinition<Attr::Matrix44TypeClass, const Math::matrix44&> NAME(#NAME,FOURCC,ACCESSMODE, Math::matrix44());
 #define DefineMatrix44WithDefault(NAME,FOURCC,ACCESSMODE,DEFVAL) const AttributeDefinition<Attr::Matrix44TypeClass, const Math::matrix44&> NAME(#NAME,FOURCC,ACCESSMODE,DEFVAL);
 
+#define DeclareTransform44(NAME,FOURCC,ACCESSMODE) extern const AttributeDefinition<Attr::Transform44TypeClass, const Math::transform44&> NAME;
+#define DefineTransform44(NAME,FOURCC,ACCESSMODE) const AttributeDefinition<Attr::Transform44TypeClass, const Math::transform44&> NAME(#NAME,FOURCC,ACCESSMODE, Math::transform44());
+#define DefineTransform44WithDefault(NAME,FOURCC,ACCESSMODE,DEFVAL) const AttributeDefinition<Attr::Transform44TypeClass, const Math::transform44&> NAME(#NAME,FOURCC,ACCESSMODE,DEFVAL);
+
 #define DeclareBlob(NAME,FOURCC,ACCESSMODE) extern const AttributeDefinition<Attr::BlobTypeClass, const Util::Blob&> NAME;
 #define DefineBlob(NAME,FOURCC,ACCESSMODE) const AttributeDefinition<Attr::BlobTypeClass, const Util::Blob&> NAME(#NAME,FOURCC,ACCESSMODE, Util::Blob());
 #define DefineBlobWithDefault(NAME,FOURCC,ACCESSMODE,DEFVAL) const AttributeDefinition<Attr::BlobTypeClass, const Util::Blob&> NAME(#NAME,FOURCC,ACCESSMODE,DEFVAL);

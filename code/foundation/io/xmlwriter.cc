@@ -241,6 +241,19 @@ XmlWriter::SetMatrix44(const String& name, const matrix44& value)
 
 //------------------------------------------------------------------------------
 /**
+Set the provided attribute to a transform44 value.  The stream must be
+in Write or ReadWrite mode for this.
+*/
+void
+XmlWriter::SetTransform44(const String& name, const transform44& value)
+{
+	String s;
+	s.SetTransform44(value);
+	this->SetString(name, s);
+}
+
+//------------------------------------------------------------------------------
+/**
 */
 void 
 XmlWriter::SetFloat2(const Util::String& name, const Math::float2& value)

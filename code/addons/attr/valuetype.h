@@ -23,6 +23,7 @@ enum ValueType
     Float4Type = Util::Variant::Float4,
     StringType = Util::Variant::String,
     Matrix44Type = Util::Variant::Matrix44,
+	Transform44Type = Util::Variant::Transform44,
     BlobType = Util::Variant::Blob,
     GuidType = Util::Variant::Guid,
 };
@@ -39,6 +40,7 @@ class StringTypeClass {};
 class Matrix44TypeClass {};
 class BlobTypeClass {};
 class GuidTypeClass {};
+class Transform44TypeClass {};
 
 } // namespace Attr 
 //------------------------------------------------------------------------------
