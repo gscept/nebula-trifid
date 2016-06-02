@@ -164,6 +164,16 @@ Reader::GetMatrix44(Attr::Matrix44AttrId attrId) const
 //------------------------------------------------------------------------------
 /**
 */
+const Math::transform44
+Reader::GetTransform44(Attr::Transform44AttrId attrId) const
+{
+	n_assert(this->isOpen);
+	return this->valueTable->GetTransform44(attrId, this->curRowIndex);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 const Util::Guid&
 Reader::GetGuid(Attr::GuidAttrId attrId) const
 {

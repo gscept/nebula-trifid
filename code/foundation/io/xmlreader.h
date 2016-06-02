@@ -85,6 +85,8 @@ public:
     Math::float4 GetFloat4(const char* attr) const;
     /// get matrix44 attribute value from current node
     Math::matrix44 GetMatrix44(const char* attr) const;
+	/// get transform44 attribute value from current node
+	Math::transform44 GetTransform44(const char* attr) const;
     #endif
     /// generic getter for extension types
     template<typename T> T Get(const char* attr) const;
@@ -104,6 +106,8 @@ public:
     Math::float4 GetOptFloat4(const char* attr, const Math::float4& defaultValue) const;
     /// get optional matrix44 attribute value from current node
     Math::matrix44 GetOptMatrix44(const char* attr, const Math::matrix44& defaultValue) const;
+	/// get transform44 attribute value from current node
+	Math::transform44 GetOptTransform44(const char* attr, const Math::transform44& defaultValue) const;
     #endif
     
 private:

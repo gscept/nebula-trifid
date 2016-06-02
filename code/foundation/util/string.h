@@ -33,6 +33,7 @@
 #include "math/float4.h"
 #include "math/float2.h"
 #include "math/matrix44.h"
+#include "math/transform44.h"
 #endif
 
 #include "memory/poolarrayallocator.h"
@@ -180,6 +181,8 @@ public:
     void SetFloat4(const Math::float4& v);
     /// set as matrix44 value
     void SetMatrix44(const Math::matrix44& v);
+	/// set as transform44 value
+	void SetTransform44(const Math::transform44& v);
     #endif
     /// generic setter
     template<typename T> void Set(const T& t);
@@ -218,6 +221,8 @@ public:
     Math::float4 AsFloat4() const;
     /// return contents as matrix44
     Math::matrix44 AsMatrix44() const;
+	/// return contents as transform44
+	Math::transform44 AsTransform44() const;
     #endif
     /// return contents as blob
     Util::Blob AsBlob() const;
@@ -239,6 +244,8 @@ public:
     bool IsValidFloat4() const;
     /// return true if content is a valid matrix44
     bool IsValidMatrix44() const;
+	/// return true if content is a valid transform44
+	bool IsValidTransform44() const;
     #endif
     /// generic valid checker
     template<typename T> bool IsValid() const;
@@ -256,8 +263,12 @@ public:
     static String FromFloat2(const Math::float2& v);
     /// construct a string from float4
     static String FromFloat4(const Math::float4& v);
+	/// construct a string from quaternion
+	static String FromQuaternion(const Math::quaternion& q);
     /// construct a string from matrix44
     static String FromMatrix44(const Math::matrix44& m);
+	/// construct a string from transform44
+	static String FromTransform44(const Math::transform44& m);
     #endif
     /// create from blob
     static String FromBlob(const Util::Blob & b);
@@ -543,6 +554,21 @@ String::SetMatrix44(const Math::matrix44& m)
                  m.getrow1().x(), m.getrow1().y(), m.getrow1().z(), m.getrow1().w(),
                  m.getrow2().x(), m.getrow2().y(), m.getrow2().z(), m.getrow2().w(),
                  m.getrow3().x(), m.getrow3().y(), m.getrow3().z(), m.getrow3().w());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+String::SetTransform44(const Math::transform44& t)
+{
+	this->Format("%s|%s|%s|%s|%s|%s",
+		this->FromFloat4(t.getposition()).AsCharPtr(),
+		this->FromQuaternion(t.getrotate()).AsCharPtr(),
+		this->FromFloat4(t.getscale()).AsCharPtr(),
+		this->FromFloat4(t.getrotatepivot()).AsCharPtr(),
+		this->FromFloat4(t.getscalepivot()).AsCharPtr(),
+		this->FromMatrix44(t.getoffset()).AsCharPtr());
 }
 #endif // __OSX__
     
@@ -887,6 +913,18 @@ String::IsValidMatrix44() const
     
 //------------------------------------------------------------------------------
 /**
+Note: this method is not 100% correct, it just checks for invalid characters.
+*/
+inline bool
+String::IsValidTransform44() const
+{
+	Array<String> tokens(6, 0);
+	this->Tokenize("|", tokens);
+	return this->CheckValidCharSet("| \t-+.,e1234567890") && tokens.Size() == 6;
+}
+
+//------------------------------------------------------------------------------
+/**
     Returns content as float2. Note: this method doesn't check whether the
     contents is actually a valid float4. Use the IsValidFloat2() method
     for this!
@@ -998,11 +1036,33 @@ String::FromFloat4(const Math::float4& v)
 /**
 */
 inline String
+String::FromQuaternion(const Math::quaternion& q)
+{
+	String str;
+	str.SetFloat4(Math::float4(q.x(),q.y(),q.z(),q.w()));
+	return str;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline String
 String::FromMatrix44(const Math::matrix44& m)
 {
     String str;
     str.SetMatrix44(m);
     return str;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline String
+String::FromTransform44(const Math::transform44& t)
+{
+	String str;
+	str.SetTransform44(t);
+	return str;
 }
 #endif
     

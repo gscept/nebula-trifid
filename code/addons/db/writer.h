@@ -59,6 +59,8 @@ public:
     void SetFloat4(Attr::Float4AttrId id, const Math::float4& v);
     /// set matrix44 attribute in current row
     void SetMatrix44(Attr::Matrix44AttrId id, const Math::matrix44& m);
+	/// set transform44 attribute in current row
+	void SetTransform44(Attr::Transform44AttrId id, const Math::transform44& m);
     /// set guid attribute in current row
     void SetGuid(Attr::GuidAttrId id, const Util::Guid& guid);
     /// set blob attribute in current row
@@ -180,6 +182,16 @@ Writer::SetMatrix44(Attr::Matrix44AttrId id, const Math::matrix44& m)
 {
     n_assert(this->inBeginRow);
     this->valueTable->SetMatrix44(id, this->rowIndex, m);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+Writer::SetTransform44(Attr::Transform44AttrId id, const Math::transform44& t)
+{
+	n_assert(this->inBeginRow);
+	this->valueTable->SetTransform44(id, this->rowIndex, t);
 }
 
 //------------------------------------------------------------------------------

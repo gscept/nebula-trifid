@@ -72,6 +72,9 @@ AttrContainerDBStorage::Load()
                 case Attr::Matrix44Type:
                     this->SetMatrix44(attrId, values->GetMatrix44(attrId, 0));
                     break;
+				case Attr::Transform44Type:
+					this->SetTransform44(attrId, values->GetTransform44(attrId, 0));
+					break;
                 case Attr::GuidType:
                     this->SetGuid(attrId, values->GetGuid(attrId, 0));
                     break;
@@ -144,6 +147,9 @@ AttrContainerDBStorage::Save()
             case Attr::Matrix44Type:
                 dbWriter->SetMatrix44(attrId, value.GetMatrix44());
                 break;
+			case Attr::Transform44Type:
+				dbWriter->SetTransform44(attrId, value.GetTransform44());
+				break;
             case Attr::GuidType:
                 dbWriter->SetGuid(attrId, value.GetGuid());
                 break;

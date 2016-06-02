@@ -64,6 +64,8 @@ public:
     const Math::float4 GetFloat4(Attr::Float4AttrId attrId) const;
     /// return matrix44 attribute value
     const Math::matrix44 GetMatrix44(Attr::Matrix44AttrId attrId) const;
+	/// return transform44 attribute value
+	const Math::transform44 GetTransform44(Attr::Transform44AttrId attrId) const;
     /// return guid attribute value
     const Util::Guid& GetGuid(Attr::GuidAttrId attrId) const;
     /// return blob attribute value

@@ -18,11 +18,17 @@
 //------------------------------------------------------------------------------
 namespace Math
 {
-class transform44
+class NEBULA3_ALIGN16 transform44
 {
 public:
     /// constructor
     transform44();
+	/// equality operator
+	bool operator==(const transform44& rhs) const;
+	/// load content from unaligned memory
+	void loadu(const scalar* ptr);	
+	/// write content to unaligned memory through the write cache
+	void storeu(scalar* ptr) const;
     /// set position
     void setposition(const point& p);
     /// get position
@@ -84,11 +90,48 @@ transform44::transform44() :
 //------------------------------------------------------------------------------
 /**
 */
+inline bool
+transform44::operator==(const transform44& rhs) const
+{
+	return (this->position == rhs.position) && (this->rotate == rhs.rotate) && (this->scale == rhs.scale) && (this->rotatePivot == rhs.rotatePivot) && (this->scalePivot == rhs.scalePivot) && (this->matrix == rhs.matrix);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+__forceinline void
+transform44::loadu(const scalar* ptr)
+{
+	this->position.loadu(ptr);
+	this->rotate.loadu(ptr + 4);
+	this->scale.loadu(ptr + 8);
+	this->rotatePivot.loadu(ptr + 12);
+	this->scalePivot.loadu(ptr + 16);
+	this->offset.loadu(ptr + 20);	
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+__forceinline void
+transform44::storeu(scalar* ptr) const
+{
+	this->position.storeu(ptr);
+	this->rotate.storeu(ptr + 4);
+	this->scale.storeu(ptr + 8);
+	this->rotatePivot.storeu(ptr + 12);
+	this->scalePivot.storeu(ptr + 16);
+	this->offset.storeu(ptr + 20);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 inline void
 transform44::setposition(const point& p)
 {
-    this->position = p;
-    this->isDirty = true;
+	this->position = p;
+	this->isDirty = true;
 }
 
 //------------------------------------------------------------------------------

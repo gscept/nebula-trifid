@@ -355,6 +355,19 @@ Sqlite3Command::ReadRow()
                     }                   
                     break;
 
+				case Attr::Transform44Type:
+					{
+						n_assert(SQLITE_BLOB == sqliteColumnType);
+						const void* ptr = sqlite3_column_blob(this->sqliteStatement, resultColumnIndex);
+						int size = sqlite3_column_bytes(this->sqliteStatement, resultColumnIndex);
+						n_assert(size == (sizeof(Math::transform44) - sizeof(Math::matrix44)));     
+						// we ignore byte order with transforms
+						Math::transform44 t;
+						t.loadu((scalar*)ptr);
+						this->valueTable->SetTransform44(valueTableColumnIndex, rowIndex, t);
+					}
+					break;
+
                 case Attr::BlobType:
                     {
                         n_assert(SQLITE_BLOB == sqliteColumnType);
@@ -507,6 +520,21 @@ Sqlite3Command::BindMatrix44(IndexT index, const Math::matrix44& val)
 
 //------------------------------------------------------------------------------
 /**
+
+*/
+void
+Sqlite3Command::BindTransform44(IndexT index, const Math::transform44& val)
+{
+	n_assert(0 != this->sqliteStatement);
+	// NOTE: Math::transform44's will be saved as blobs in the database, since the 	
+	ByteOrder byteOrder(System::ByteOrder::LittleEndian, System::ByteOrder::Host);
+	transform44 convertedVal = val;	
+	int err = sqlite3_bind_blob(this->sqliteStatement, index + 1, &val, sizeof(val) - sizeof(matrix44), SQLITE_TRANSIENT);
+	n_assert(SQLITE_OK == err);
+}
+
+//------------------------------------------------------------------------------
+/**
     Bind a string value by placeholder index. Either get the index from
     one of the IndexOf methods or use a 0-based index.. NOTE: the 
     string should be in UTF-8 format.
@@ -594,6 +622,15 @@ void
 Sqlite3Command::BindMatrix44(const Util::String& name, const Math::matrix44& val)
 {
     Sqlite3Command::BindMatrix44(Sqlite3Command::IndexOf(name), val);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+Sqlite3Command::BindTransform44(const Util::String& name, const Math::transform44& val)
+{
+	Sqlite3Command::BindTransform44(Sqlite3Command::IndexOf(name), val);
 }
 
 //------------------------------------------------------------------------------

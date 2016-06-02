@@ -12,6 +12,7 @@
 #include "attr/floatattrid.h"
 #include "attr/intattrid.h"
 #include "attr/matrix44attrid.h"
+#include "attr/transform44attrid.h"
 #include "attr/float4attrid.h"
 #include "attr/stringattrid.h"
 #include "attr/guidattrid.h"
@@ -19,6 +20,7 @@
 #include "util/variant.h"
 #include "math/float4.h"
 #include "math/matrix44.h"
+#include "math/transform44.h"
 #include "util/keyvaluepair.h"
 #include "util/guid.h"
 #include "util/blob.h"
@@ -43,6 +45,8 @@ public:
     Attribute(const IntAttrId& id, int val);
     /// construct from matrix44
     Attribute(const Matrix44AttrId& id, const Math::matrix44& val);
+	/// construct from transform44
+	Attribute(const Transform44AttrId& id, const Math::transform44& val);
     /// construct from string
     Attribute(const StringAttrId& id, const Util::String& val);
     /// construct from float4
@@ -77,6 +81,8 @@ public:
     void operator=(int rhs);
     /// matrix44 assignment operator
     void operator=(const Math::matrix44& rhs);
+	/// transform44 assignment operator
+	void operator=(const Math::transform44& rhs);
     /// string assignment operator
     void operator=(const Util::String& rhs);
     /// float4 assignment operator
@@ -136,6 +142,10 @@ public:
     void SetMatrix44(const Math::matrix44& val);
     /// get matrix44 value
     const Math::matrix44& GetMatrix44() const;
+	/// set transform44 value
+	void SetTransform44(const Math::transform44& val);
+	/// get transform44 value
+	const Math::transform44& GetTransform44() const;
     /// set float4 value
     void SetFloat4(const Math::float4& val);
     /// get float4 value
@@ -230,6 +240,16 @@ Attribute::Attribute(const Matrix44AttrId& id, const Math::matrix44& val) :
     Util::KeyValuePair<AttrId,Util::Variant>(id, Util::Variant(val))
 {
     // empty
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline
+Attribute::Attribute(const Transform44AttrId& id, const Math::transform44& val) :
+	Util::KeyValuePair<AttrId, Util::Variant>(id, Util::Variant(val))
+{
+	// empty
 }
 
 //------------------------------------------------------------------------------
@@ -388,6 +408,18 @@ Attribute::operator=(const Math::matrix44& rhs)
     n_assert(this->GetAccessMode() == ReadWrite);
     this->valueData = rhs;
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+Attribute::operator=(const Math::transform44& rhs)
+{
+	n_assert(this->GetValueType() == Transform44Type);
+	n_assert(this->GetAccessMode() == ReadWrite);
+	this->valueData = rhs;
+}
+
 
 //------------------------------------------------------------------------------
 /**
@@ -670,6 +702,27 @@ Attribute::GetMatrix44() const
 /**
 */
 inline void
+Attribute::SetTransform44(const Math::transform44& val)
+{
+	n_assert(this->GetValueType() == Transform44Type);
+	n_assert(this->GetAccessMode() == ReadWrite);
+	this->valueData = val;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Math::transform44&
+Attribute::GetTransform44() const
+{
+	n_assert(this->GetValueType() == Transform44Type);
+	return this->valueData.GetTransform44();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
 Attribute::SetFloat4(const Math::float4& val)
 {
     n_assert(this->GetValueType() == Float4Type);
@@ -762,6 +815,10 @@ Attribute::SetValueFromString(const Util::String& str)
             this->valueData = str.AsMatrix44();
             break;
 
+		case Transform44Type:
+			this->valueData = str.AsTransform44();
+			break;
+
         case GuidType:
             this->valueData = Util::Guid::FromString(str);
             break;
@@ -805,6 +862,10 @@ Attribute::ValueAsString() const
         case Matrix44Type:
             str.SetMatrix44(this->GetMatrix44());
             break;
+
+		case Transform44Type:
+			str.SetTransform44(this->GetTransform44());
+			break;
 
         case GuidType:
             str = this->GetGuid().AsString();
