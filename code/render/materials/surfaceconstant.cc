@@ -132,6 +132,7 @@ SurfaceConstant::SetValue(const Util::Variant& value)
 				Variant::TypeToString(this->value.GetType()));
 #endif
 		}
+
 	}
 }
 
