@@ -36,6 +36,8 @@ private:
     void ParseInput(const Ptr<IO::XmlReader>& reader, const Ptr<ShadySuperVariation>& variation);
     /// parse source
     void ParseSource(const Ptr<IO::XmlReader>& reader, const Ptr<ShadySuperVariation>& variation);
+	/// parse include
+	void ParseInclude(const Ptr<IO::XmlReader>& reader, const Util::String& language, const Ptr<ShadySuperVariation>& variation);
 }; 
 } // namespace Shady
 //------------------------------------------------------------------------------

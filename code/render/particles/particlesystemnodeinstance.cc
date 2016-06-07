@@ -282,7 +282,8 @@ ParticleSystemNodeInstance::ApplyState(IndexT frameIndex, const IndexT& pass, co
 		this->particleObjectBuffer->CycleBuffers();
 		if (billboard)
 		{
-			this->emitterOrientationVar->SetMatrix(TransformDevice::Instance()->GetInvViewTransform());
+			const Math::matrix44 billboardTransform = Math::matrix44::multiply(this->GetParticleSystemInstance()->GetTransform(), TransformDevice::Instance()->GetInvViewTransform());
+			this->emitterOrientationVar->SetMatrix(billboardTransform);
 		}
 		else
 		{

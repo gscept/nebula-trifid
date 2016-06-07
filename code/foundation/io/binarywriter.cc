@@ -195,6 +195,46 @@ BinaryWriter::WriteUInt(unsigned int i)
 /**
 */
 void
+BinaryWriter::WriteInt64(int64_t i)
+{
+    i = this->byteOrder.Convert<int64_t>(i);
+    if (this->isMapped)
+    {
+        // note: the memory copy is necessary to circumvent alignment problem on some CPUs
+        n_assert((this->mapCursor + sizeof(i)) <= this->mapEnd);
+        Memory::Copy(&i, this->mapCursor, sizeof(i));
+        this->mapCursor += sizeof(i);
+    }
+    else
+    {
+        this->stream->Write(&i, sizeof(i));
+    }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+BinaryWriter::WriteUInt64(uint64_t i)
+{
+    i = this->byteOrder.Convert<uint64_t>(i);
+    if (this->isMapped)
+    {
+        // note: the memory copy is necessary to circumvent alignment problem on some CPUs
+        n_assert((this->mapCursor + sizeof(i)) <= this->mapEnd);
+        Memory::Copy(&i, this->mapCursor, sizeof(i));
+        this->mapCursor += sizeof(i);
+    }
+    else
+    {
+        this->stream->Write(&i, sizeof(i));
+    }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 BinaryWriter::WriteFloat(float f)
 {
     f = this->byteOrder.Convert<float>(f);

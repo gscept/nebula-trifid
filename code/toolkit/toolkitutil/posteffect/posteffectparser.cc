@@ -74,6 +74,10 @@ PostEffectParser::Load(const Util::String & path, PostEffect::PostEffectEntity::
 	parms.sky->SetSkyBrightness(reader->GetFloat("SkyBrightness"));
     parms.sky->SetSkyRotationFactor(reader->GetOptFloat("SkyRotationFactor", 0.03f));
 	parms.sky->SetSkyTexturePath(reader->GetString("SkyTexture"));
+    parms.sky->SetReflectanceTexturePath(reader->GetOptString("ProbeReflectionMap", "tex:system/sky_refl"));
+    parms.sky->SetIrradianceTexturePath(reader->GetOptString("ProbeIrradianceMap", "tex:system/sky_irr"));
+    
+
 
 	parms.ao->SetStrength(reader->GetFloat("AOStrength"));
 	parms.ao->SetRadius(reader->GetFloat("AORadius"));
@@ -130,6 +134,8 @@ PostEffectParser::Save(const Util::String & path, const PostEffect::PostEffectEn
 	writer->SetFloat("SkyRotationFactor", parms.sky->GetSkyRotationFactor());
 	writer->SetFloat("SkyBrightness", parms.sky->GetSkyBrightness());
 	writer->SetString("SkyTexture", parms.sky->GetSkyTexturePath());
+    writer->SetString("ProbeReflectionMap", parms.sky->GetReflectanceTexturePath());
+    writer->SetString("ProbeIrradianceMap", parms.sky->GetIrradianceTexturePath());
 	writer->SetFloat("AOStrength", parms.ao->GetStrength());
 	writer->SetFloat("AORadius", parms.ao->GetRadius());
 	writer->SetFloat("AOPower", parms.ao->GetPower());
