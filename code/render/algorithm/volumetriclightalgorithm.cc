@@ -420,9 +420,9 @@ VolumetricLightAlgorithm::OnDisplayResized(SizeT width, SizeT height)
 	n_assert(this->volumeLightBuffer2.isvalid());
 
 	// resize rendertargets
-	this->volumeLightBuffer1->OnDisplayResized(width, height);
-	this->volumeLightBuffer2->OnDisplayResized(width, height);
-	this->output->OnDisplayResized(width, height);
+	this->volumeLightBuffer1->OnWindowResized(width, height);
+	this->volumeLightBuffer2->OnWindowResized(width, height);
+	this->output->OnWindowResized(width, height);
 
 	// set light scatter texture again
 	this->lightScatterUnshadedTextureVar->SetTexture(this->volumeLightBuffer1->GetResolveTexture());

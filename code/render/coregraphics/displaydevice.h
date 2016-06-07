@@ -1,12 +1,12 @@
 #pragma once
 //------------------------------------------------------------------------------
 /**
-@class CoreGraphics::DisplayDevice
+	@class CoreGraphics::DisplayDevice
 
-A DisplayDevice object represents the display where the RenderDevice
-presents the rendered frame. 
+	A DisplayDevice object represents the display where the RenderDevice
+	presents the rendered frame. 
 
-(C) 2007 Radon Labs GmbH
+	(C) 2007 Radon Labs GmbH
     (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #if __DX11__

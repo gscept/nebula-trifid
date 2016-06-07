@@ -45,8 +45,8 @@ OGL4DepthStencilTarget::Setup()
 	if (this->useRelativeSize)
 	{
 		DisplayDevice* displayDevice = DisplayDevice::Instance();
-		this->SetWidth(SizeT(displayDevice->GetDisplayMode().GetWidth() * this->relWidth));
-		this->SetHeight(SizeT(displayDevice->GetDisplayMode().GetHeight() * this->relHeight));
+		this->SetWidth(SizeT(displayDevice->GetCurrentWindow()->GetDisplayMode().GetWidth() * this->relWidth));
+		this->SetHeight(SizeT(displayDevice->GetCurrentWindow()->GetDisplayMode().GetHeight() * this->relHeight));
 	}
 
 	// generate render buffer for depth-stencil texture
@@ -130,7 +130,7 @@ OGL4DepthStencilTarget::Clear(uint flags)
 /**
 */
 void 
-OGL4DepthStencilTarget::OnDisplayResized(SizeT width, SizeT height)
+OGL4DepthStencilTarget::OnWindowResized(SizeT width, SizeT height)
 {
 	n_assert(0 != this->ogl4DepthStencilRenderbuffer);
 

@@ -36,7 +36,7 @@ public:
     virtual void Render(IndexT frameIndex);
 
     /// called from frame shader whenever the display resizes
-	virtual void OnDisplayResize(SizeT width, SizeT height);
+	virtual void OnWindowResize(SizeT width, SizeT height);
 
 #if NEBULA3_ENABLE_PROFILING
     /// add batch profiler

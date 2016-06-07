@@ -41,7 +41,7 @@ public:
 	const Ptr<Algorithm::AlgorithmBase>& GetAlgorithm() const;
 
 	/// implement display resizing
-	void OnDisplayResize(SizeT width, SizeT height);
+	void OnWindowResize(SizeT width, SizeT height);
 
 private:
 	Util::String className;

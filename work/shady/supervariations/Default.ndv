@@ -5,6 +5,9 @@
 		<Input type="vec4" name="Emissive" result="pixel" defines="USE_CUSTOM_EMISSIVE"/>
 		<Input type="vec4" name="Specular" result="pixel" defines="USE_CUSTOM_SPECULAR"/>
 		<Input type="float" name="Roughness" result="pixel" defines="USE_CUSTOM_ROUGHNESS"/>
-		<Source type="GLSL" template="toolkit:work/shady/supervariations/templates/glsltemplate.fxh" header="toolkit:work/shady/supervariations/templates/glslheader.fxh"/>
+		<Source type="GLSL" target="gl44" template="toolkit:work/shady/supervariations/templates/glsltemplate.fxh" header="toolkit:work/shady/supervariations/templates/glslheader.fxh">
+			<Include path="toolkit:work/shaders/gl"/>
+			<Include path="proj:work/shaders/gl"/>
+		</Source>
 	</SuperVariation>
 </Shady>

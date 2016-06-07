@@ -185,7 +185,7 @@ RTPlugin::OnRenderWithoutView(IndexT frameId, Timing::Time time)
 /**
 */
 void 
-RTPlugin::OnWindowResized( SizeT width, SizeT height )
+RTPlugin::OnWindowResized(IndexT windowId, SizeT width, SizeT height)
 {
 	// empty
 }

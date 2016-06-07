@@ -37,7 +37,7 @@ public:
     const CameraSettings& GetCameraSettings() const;
 
 	/// update camera if the display has been resized
-	void OnDisplayResized();
+	void OnWindowResized(float aspect);
 
     /// get projection matrix
     const Math::matrix44& GetProjTransform() const;

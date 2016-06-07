@@ -58,11 +58,8 @@ public:
 	/// convert shader feature bit mask into string
 	Util::String FeatureMaskToString(Materials::MaterialFeature::Mask mask);
 
-	/// reloads the render materials palette
-	void ReloadRenderMaterials();
-
 	/// gain access to a material palette by name, will be loaded if it isn't already
-	Ptr<MaterialPalette> LookupMaterialPalette(const Resources::ResourceId& name);
+	const Ptr<MaterialPalette>& LookupMaterialPalette(const Resources::ResourceId& name);
 	
 private:
     friend class MaterialType;

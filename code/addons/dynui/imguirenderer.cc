@@ -207,7 +207,7 @@ ImguiRenderer::Setup()
 
 	// get display mode, this will be our default size
 	Ptr<DisplayDevice> display = DisplayDevice::Instance();
-	DisplayMode mode = display->GetDisplayMode();
+	DisplayMode mode = display->GetCurrentWindow()->GetDisplayMode();
 
 	// setup Imgui
 	ImGuiIO& io = ImGui::GetIO();

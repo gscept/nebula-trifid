@@ -42,7 +42,8 @@ using namespace FrameSync;
 View::View() :
     isAttachedToServer(false),
 	resolveRectValid(false),
-	shouldUpdatePerFrame(true)
+	shouldUpdatePerFrame(true),
+	windowId(InvalidIndex)
 {
     // empty
 }
@@ -312,8 +313,9 @@ View::Render(IndexT frameIndex)
 
 	// if we have a resolve rect, we set the resolve rectangle for the default render target
 	// this will cause any frame shaders aimed at the default render target (screen) to be rendered to a subregion of the screen
-	if (this->resolveRectValid)	renderDev->GetDefaultRenderTarget()->SetResolveRect(this->resolveRect);
-	else						renderDev->GetDefaultRenderTarget()->ResetResolveRects();
+	const Ptr<Window>& wnd = DisplayDevice::Instance()->GetWindow(this->windowId);
+	if (this->resolveRectValid)	wnd->GetRenderTarget()->SetResolveRect(this->resolveRect);
+	else						wnd->GetRenderTarget()->ResetResolveRects();
 
     // render the world...
 	_start_timer(render);
@@ -364,6 +366,9 @@ View::OnFrame(const Ptr<RenderModules::RTPluginRegistry>& pluginRegistry, Timing
 	RenderDevice* renderDevice = RenderDevice::Instance();
 	DisplayDevice* displayDevice = DisplayDevice::Instance();
 	IndexT frameIndex = FrameSyncTimer::Instance()->GetFrameIndex();
+
+	// make view window current
+	if (this->windowId != InvalidIndex) displayDevice->MakeWindowCurrent(this->windowId);
 
 	// start rendering
 	if (this->GetCameraEntity().isvalid() && renderDevice->BeginFrame(frameIndex))
@@ -471,6 +476,28 @@ View::SetCameraEntity(const Ptr<CameraEntity>& newCameraEntity)
         this->camera = newCameraEntity;
         this->camera->OnAttachToView(this);
     }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+View::OnWindowResized(IndexT windowId) const
+{
+	if (this->windowId == windowId)
+	{
+		const Ptr<CoreGraphics::Window>& window = CoreGraphics::DisplayDevice::Instance()->GetWindow(windowId);
+		const CoreGraphics::DisplayMode& mode = window->GetDisplayMode();
+
+		// resize frame shader for this view
+		this->frameShader->OnWindowResized(mode.GetWidth(), mode.GetHeight());
+
+		// notify camera the aspect may have changed
+		this->camera->OnWindowResized(mode.GetAspectRatio());
+
+		// notify rt plugins that the display has been resized
+		RenderModules::RTPluginRegistry::Instance()->OnWindowResized(windowId, mode.GetWidth(), mode.GetHeight());
+	}
 }
 
 } // namespace Graphics

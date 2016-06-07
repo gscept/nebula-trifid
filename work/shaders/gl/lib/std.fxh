@@ -47,10 +47,10 @@
 #define TextureCube samplerCube
 #define TextureCubeArray samplerCubeArray
 
-void sincos(float angle, out float sinus, out float cosinus)
+void sincos(float angle, out float sine, out float cosine)
 {
-	sinus = sin(angle);
-	cosinus = cos(angle);
+	sine = sin(angle);
+	cosine = cos(angle);
 }
 
 #define ddx dFdx

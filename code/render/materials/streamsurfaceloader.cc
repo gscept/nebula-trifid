@@ -213,7 +213,8 @@ StreamSurfaceLoader::SetupMaterialFromStream(const Ptr<IO::Stream>& stream)
 
             // add to the static values in the surface
             surface->staticValues.Add(paramName, obj);
-		} while (reader->SetToNextChild("Param"));
+		}
+		while (reader->SetToNextChild("Param"));
 
         surface->Setup(material);
     }

@@ -199,7 +199,7 @@ GraphicsServer::GetStages() const
 /**
 */
 Ptr<View>
-GraphicsServer::CreateView(const Core::Rtti& viewClass, const StringAtom& viewName, bool isDefaultView, bool updatePerFrame)
+GraphicsServer::CreateView(const Core::Rtti& viewClass, const StringAtom& viewName, const IndexT windowId, bool isDefaultView, bool updatePerFrame)
 {
     n_assert(!this->viewIndexMap.Contains(viewName));
     n_assert(viewClass.IsDerivedFrom(View::RTTI));
@@ -208,6 +208,7 @@ GraphicsServer::CreateView(const Core::Rtti& viewClass, const StringAtom& viewNa
     newView->SetName(viewName);
 	newView->SetUpdatePerFrame(updatePerFrame);
     newView->OnAttachToServer();
+	newView->SetWindowId(windowId);
 
     this->views.Append(newView);
     this->viewIndexMap.Add(viewName, this->views.Size() - 1);
@@ -431,9 +432,6 @@ GraphicsServer::OnFrame(Timing::Time curTime, Timing::Time globalTimeFactor)
 	// call rt plugin registry prior to frame update
 	this->rtPluginRegistry->OnFrameBefore(frameIndex, curTime);
 
-    // process window messages
-    //displayDevice->ProcessWindowMessages();
-
     // notify render modules
     IndexT i;
     for (i = 0; i < this->renderModules.Size(); i++)
@@ -484,7 +482,7 @@ GraphicsServer::OnFrame(Timing::Time curTime, Timing::Time globalTimeFactor)
     ResourceManager::Instance()->Update(frameIndex);
 
     // if we're running in windowed mode, give up time-slice
-    if (!displayDevice->IsFullscreen())
+	if (!displayDevice->IsFullscreen())
     {
         Timing::Sleep(0.0);
     }

@@ -180,7 +180,7 @@ __StaticHandler(ReloadResourceIfExists)
 */
 __StaticHandler(ReloadModelByResource)
 {	
-	const Util::String & resource = msg->GetResourceName();
+	const Util::String& resource = msg->GetResourceName();
 	Ptr<ResourceManager> resManager = ResourceManager::Instance();
 	if (resManager->HasResource(resource))
 	{
@@ -194,6 +194,28 @@ __StaticHandler(ReloadModelByResource)
 					entities[i].cast<Graphics::ReloadModelEntity>()->Reload();
 				}
 			}
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+__StaticHandler(ReloadShader)
+{
+	Ptr<ShaderServer> shdServer = ShaderServer::Instance();
+	if (shdServer->HasShader(msg->GetShaderName()))
+	{
+		// get shader and reload
+		const Ptr<Shader>& shader = shdServer->GetShader(msg->GetShaderName());
+		shader->Reload();
+
+		// get materials and reload them using shader
+		const Util::Array<Ptr<Material>>& mats = MaterialServer::Instance()->GetMaterials();
+		IndexT i;
+		for (i = 0; i < mats.Size(); i++)
+		{
+			mats[i]->Reload(shader);
 		}
 	}
 }
@@ -358,15 +380,22 @@ __StaticHandler(CreateGraphicsView)
     const StringAtom& stageName = msg->GetStageName();
     const ResourceId& frameShaderName = msg->GetFrameShaderName();
     bool isDefaultView = msg->GetDefaultView();
-
-    Ptr<FrameShader> frameShader = FrameServer::Instance()->LookupFrameShader(frameShaderName);
+	IndexT windowId = msg->GetWindow();
+    
     const Ptr<Stage>& stage = GraphicsServer::Instance()->GetStageByName(stageName);
-    Ptr<View> view = GraphicsServer::Instance()->CreateView(*viewClass, viewName, isDefaultView);
+    Ptr<View> view = GraphicsServer::Instance()->CreateView(*viewClass, viewName, windowId, isDefaultView);
 	if (msg->GetUseResolveRect())
 	{
 		view->SetResolveRect(msg->GetResolveRect());
 	}
     view->SetStage(stage);
+
+	// set window to be current so the frame shader is relative to this window
+	if (windowId != InvalidIndex) DisplayDevice::Instance()->MakeWindowCurrent(windowId);
+
+	// create and assign frame shader, can't use if already loaded
+	n_assert(!FrameServer::Instance()->HasFrameShader(frameShaderName));
+	Ptr<FrameShader> frameShader = FrameServer::Instance()->LookupFrameShader(frameShaderName);
     view->SetFrameShader(frameShader);
 
     msg->GetObjectRef()->Validate<View>(view.get());

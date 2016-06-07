@@ -61,23 +61,25 @@ OGL4RenderTarget::Setup()
         // this assumes a render pipeline where the actual rendering goes
         // into an offscreen render target and is then resolved to the back buffer
         DisplayDevice* displayDevice = DisplayDevice::Instance();
-        this->SetWidth(displayDevice->GetDisplayMode().GetWidth());
-        this->SetHeight(displayDevice->GetDisplayMode().GetHeight());
+		const CoreGraphics::DisplayMode& mode = displayDevice->GetCurrentWindow()->GetDisplayMode();
+		this->SetWidth(mode.GetWidth());
+		this->SetHeight(mode.GetHeight());
         this->SetAntiAliasQuality(AntiAliasQuality::None);
-        this->SetColorBufferFormat(displayDevice->GetDisplayMode().GetPixelFormat());
+		this->SetColorBufferFormat(mode.GetPixelFormat());
 
 		this->resolveRect.left = 0;
 		this->resolveRect.top = 0;
-		this->resolveRect.right = displayDevice->GetDisplayMode().GetWidth();
-		this->resolveRect.bottom = displayDevice->GetDisplayMode().GetHeight();
+		this->resolveRect.right = mode.GetWidth();
+		this->resolveRect.bottom = mode.GetHeight();
 		
 		this->ogl4ResolveTexture = 0;
     }
 	else if (this->relativeSizeValid)
 	{
 		DisplayDevice* displayDevice = DisplayDevice::Instance();
-		this->SetWidth(SizeT(displayDevice->GetDisplayMode().GetWidth() * this->relWidth));
-		this->SetHeight(SizeT(displayDevice->GetDisplayMode().GetHeight() * this->relHeight));
+		const CoreGraphics::DisplayMode& mode = displayDevice->GetCurrentWindow()->GetDisplayMode();
+		this->SetWidth(SizeT(mode.GetWidth() * this->relWidth));
+		this->SetHeight(SizeT(mode.GetHeight() * this->relHeight));
 	}
 
     // setup our pixel format and multisample parameters (order important!)
@@ -345,7 +347,7 @@ OGL4RenderTarget::GenerateMipLevels()
 /**
 */
 void 
-OGL4RenderTarget::OnDisplayResized(SizeT w, SizeT h)
+OGL4RenderTarget::OnWindowResized(SizeT w, SizeT h)
 {
 	DisplayDevice* displayDevice = DisplayDevice::Instance();
 

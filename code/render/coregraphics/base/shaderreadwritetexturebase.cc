@@ -58,7 +58,7 @@ ShaderReadWriteTextureBase::SetupWithRelativeSize(const Math::scalar relWidth, c
 	this->useRelativeSize = true;
 
 	// setup texture with relative size
-	CoreGraphics::DisplayMode mode = CoreGraphics::DisplayDevice::Instance()->GetDisplayMode();
+	CoreGraphics::DisplayMode mode = CoreGraphics::DisplayDevice::Instance()->GetCurrentWindow()->GetDisplayMode();
 	SizeT width = SizeT(mode.GetWidth() * this->relWidth);
 	SizeT height = SizeT(mode.GetHeight() * this->relHeight);
 	this->Setup(width, height, format, id);

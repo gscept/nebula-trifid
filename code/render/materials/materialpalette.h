@@ -37,11 +37,13 @@ public:
 	const Ptr<Material>& GetMaterialByIndex(const IndexT index) const;
 	/// get material by name
 	Ptr<Material> GetMaterialByName(const Resources::ResourceId& resource) const;
+	/// returns true if palette contains material
+	bool HasMaterial(const Resources::ResourceId& resource) const;
 	/// get the list of materials
 	const Util::Array<Ptr<Material> >& GetMaterials() const;
 private:
 	Util::Array<Ptr<Material> > materials;
-	Util::Dictionary<Resources::ResourceId, Ptr<Material> > materialsByShader;
+	Util::Dictionary<Resources::ResourceId, Ptr<Material> > materialsByName;
 
 	Resources::ResourceId name;
 };
@@ -97,6 +99,18 @@ MaterialPalette::GetMaterialByName(const Resources::ResourceId& resource) const
 	return 0;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+inline bool
+MaterialPalette::HasMaterial(const Resources::ResourceId& resource) const
+{
+	for (int i = 0; i < this->materials.Size(); i++)
+	{
+		if (this->materials[i]->GetName() == resource) return true;
+	}
+	return false;
+}
 
 //------------------------------------------------------------------------------
 /**

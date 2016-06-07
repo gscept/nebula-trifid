@@ -47,7 +47,7 @@ public:
     const bool GetStatus() const;
 
     /// validate generated buffer
-    virtual void Validate(const Util::Blob& buffer);
+	virtual void Validate(const Ptr<Nody::NodeScene>& scene, const Util::String& language);
 
 protected:
     /// handles a single node in the network

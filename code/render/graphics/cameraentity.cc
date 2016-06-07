@@ -22,7 +22,7 @@ using namespace CoreGraphics;
 CameraEntity::CameraEntity()
 {
     this->SetType(GraphicsEntityType::Camera);
-    float aspectRatio = DisplayDevice::Instance()->GetDisplayMode().GetAspectRatio();
+    float aspectRatio = DisplayDevice::Instance()->GetCurrentWindow()->GetDisplayMode().GetAspectRatio();
     this->camSettings.SetupPerspectiveFov(n_deg2rad(60.0f), aspectRatio, 0.01f, 2500.0f);
 }
 
@@ -104,10 +104,9 @@ CameraEntity::ComputeClipStatus(const bbox& box)
 /**
 */
 void
-CameraEntity::OnDisplayResized()
+CameraEntity::OnWindowResized(float aspect)
 {
-	float aspectRatio = DisplayDevice::Instance()->GetDisplayMode().GetAspectRatio();
-	this->camSettings.SetupPerspectiveFov(this->camSettings.GetFov(), aspectRatio, this->camSettings.GetZNear(), this->camSettings.GetZFar());
+	this->camSettings.SetupPerspectiveFov(this->camSettings.GetFov(), aspect, this->camSettings.GetZNear(), this->camSettings.GetZFar());
 }
 
 //------------------------------------------------------------------------------

@@ -28,13 +28,13 @@ GLFWInputDisplayEventHandler::HandleEvent(const DisplayEvent& displayEvent)
             inputServer->SetQuitRequested(true);
             break;
 
-        case DisplayEvent::DisplayMinimized:
+        case DisplayEvent::WindowMinimized:
         case DisplayEvent::KillFocus:
             inputEvent.SetType(InputEvent::AppLoseFocus);
             inputServer->PutEvent(inputEvent);            
             return true;
 
-        case DisplayEvent::DisplayRestored:
+        case DisplayEvent::WindowRestored:
         case DisplayEvent::SetFocus:
             inputEvent.SetType(InputEvent::AppObtainFocus);
             inputServer->PutEvent(inputEvent);            

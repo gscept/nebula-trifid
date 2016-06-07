@@ -119,7 +119,7 @@ public:
 	void InsertAfterPass(const Ptr<FramePassBase>& framePass, const Resources::ResourceId& after);
 
 	/// called after display resize is done
-	void OnDisplayResized(SizeT width, SizeT height);
+	void OnWindowResized(SizeT width, SizeT height);
 
 private:
     Resources::ResourceId name;

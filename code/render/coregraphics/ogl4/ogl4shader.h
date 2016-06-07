@@ -54,7 +54,6 @@ private:
 	Ptr<CoreGraphics::ShaderVariable> globalBlockBufferVar;
 };
 
-
 //------------------------------------------------------------------------------
 /**
 */

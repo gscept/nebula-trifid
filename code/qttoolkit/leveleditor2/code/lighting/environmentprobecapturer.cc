@@ -128,7 +128,7 @@ EnvironmentProbeCapturer::Render(QPlainTextEdit* progressBar)
 	
 	// create frame shader which uses a simplified path compared to the standard one, then resize to fit our resolution
 	Ptr<Frame::FrameShader> frameShader = LightProbeManager::Instance()->GetReflectionFrameShader();
-	frameShader->OnDisplayResized(this->resolutionX, this->resolutionY);
+	frameShader->OnWindowResized(this->resolutionX, this->resolutionY);
 
 	// create render target cube
 	Util::FixedArray<Ptr<RenderTarget>> colorFaceTargets;

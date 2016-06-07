@@ -387,11 +387,17 @@
     <property name="title">
      <string>Edit</string>
     </property>
-    <addaction name="actionSet_render_passes"/>
+   </widget>
+   <widget class="QMenu" name="menuMaterial">
+    <property name="title">
+     <string>Material</string>
+    </property>
+    <addaction name="actionOpen_material_editor"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuBuild"/>
+   <addaction name="menuMaterial"/>
    <addaction name="menuDebug"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -498,6 +504,22 @@
   <action name="actionSet_render_passes">
    <property name="text">
     <string>Set render passes</string>
+   </property>
+  </action>
+  <action name="actionCreate_material">
+   <property name="text">
+    <string>Create material...</string>
+   </property>
+   <property name="toolTip">
+    <string>Create material based on shader and exposed parameters, with a predefined pass using said shader.</string>
+   </property>
+  </action>
+  <action name="actionOpen_material_editor">
+   <property name="text">
+    <string>Open material editor...</string>
+   </property>
+   <property name="toolTip">
+    <string>Open the material editor</string>
    </property>
   </action>
  </widget>

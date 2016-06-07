@@ -65,9 +65,6 @@ public:
     /// test if a compatible render device can be created on this machine
     static bool CanCreate();
 
-    /// set an override for the default render target (call before Open()!)
-    void SetOverrideDefaultRenderTarget(const Ptr<CoreGraphics::RenderTarget>& rt);
-
     /// open the device
     bool Open();
     /// close the device
@@ -79,8 +76,6 @@ public:
     /// remove a render event handler
     void RemoveEventHandler(const Ptr<CoreGraphics::RenderEventHandler>& h);
 
-    /// get default render target
-    const Ptr<CoreGraphics::RenderTarget>& GetDefaultRenderTarget() const;   
     /// is a pass rendertarget set?
     bool HasPassRenderTarget() const;
     /// get current set pass render target
@@ -167,9 +162,6 @@ public:
 	/// gets whether or not the render device should tessellate
 	bool GetUsePatches();
 
-	/// call when window gets resized
-	void DisplayResized(SizeT width, SizeT height);
-
 	/// adds a viewport
 	void SetViewport(const Math::rectangle<int>& rect, int index);
 	/// adds a scissor rect
@@ -195,7 +187,6 @@ protected:
     
 	static Util::Queue<__BufferLockData> bufferLockQueue;
     Util::Array<Ptr<CoreGraphics::RenderEventHandler> > eventHandlers;
-    Ptr<CoreGraphics::RenderTarget> defaultRenderTarget;
     Ptr<CoreGraphics::VertexBuffer> streamVertexBuffers[MaxNumVertexStreams];
     IndexT streamVertexOffsets[MaxNumVertexStreams];
     Ptr<CoreGraphics::VertexLayout> vertexLayout;
@@ -238,16 +229,6 @@ inline const CoreGraphics::PrimitiveGroup&
 RenderDeviceBase::GetPrimitiveGroup() const
 {
     return this->primitiveGroup;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline const Ptr<CoreGraphics::RenderTarget>&
-RenderDeviceBase::GetDefaultRenderTarget() const
-{
-    n_assert(this->defaultRenderTarget.isvalid());
-    return this->defaultRenderTarget;
 }
 
 //------------------------------------------------------------------------------

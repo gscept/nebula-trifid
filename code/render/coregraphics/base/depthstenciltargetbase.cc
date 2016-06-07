@@ -101,7 +101,7 @@ DepthStencilTargetBase::Clear(uint flags)
 /**
 */
 void 
-DepthStencilTargetBase::OnDisplayResized(SizeT width, SizeT height)
+DepthStencilTargetBase::OnWindowResized(SizeT width, SizeT height)
 {
 	n_error("DepthStencilTargetBase::OnDisplayResized() not implemented!");
 }

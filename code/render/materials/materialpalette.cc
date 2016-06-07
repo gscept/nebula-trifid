@@ -36,7 +36,7 @@ MaterialPalette::Discard()
 		this->materials[i]->Discard();
 	}
 	this->materials.Clear();
-	this->materialsByShader.Clear();
+	this->materialsByName.Clear();
 }
 
 } // namespace Materials

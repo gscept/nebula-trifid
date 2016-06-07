@@ -78,7 +78,7 @@ public:
 	float GetRelativeHeight() const;
 
 	/// called after we change the display size
-	void OnDisplayResized(SizeT width, SizeT height);
+	void OnWindowResized(SizeT width, SizeT height);
 
 	/// add a color buffer
 	void SetDepthStencilBufferFormat(CoreGraphics::PixelFormat::Code colorFormat);

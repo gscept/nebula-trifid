@@ -67,7 +67,7 @@ UiRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
 /**
 */
 void 
-UiRTPlugin::OnWindowResized( SizeT width, SizeT height )
+UiRTPlugin::OnWindowResized(IndexT windowId, SizeT width, SizeT height)
 {
 	n_assert(this->uiServer.isvalid());
 	this->uiServer->Resize(width, height);	

@@ -196,16 +196,16 @@ OGL4RenderDevice::SetupBufferFormats()
 
 //------------------------------------------------------------------------------
 /**
-    Initialize the Direct3D device with initial device state.
+    Initialize the OpenGL4 device with initial device state.
 */
 void
 OGL4RenderDevice::SetInitialDeviceState()
 {
 	DisplayDevice* displayDevice = DisplayDevice::Instance();
-	this->ogl4DefaultViewport.x = displayDevice->GetDisplayMode().GetXPos();
-	this->ogl4DefaultViewport.y = displayDevice->GetDisplayMode().GetYPos();
-	this->ogl4DefaultViewport.width = displayDevice->GetDisplayMode().GetWidth();
-	this->ogl4DefaultViewport.height = displayDevice->GetDisplayMode().GetHeight();
+	this->ogl4DefaultViewport.x = displayDevice->GetCurrentWindow()->GetDisplayMode().GetXPos();
+	this->ogl4DefaultViewport.y = displayDevice->GetCurrentWindow()->GetDisplayMode().GetYPos();
+	this->ogl4DefaultViewport.width = displayDevice->GetCurrentWindow()->GetDisplayMode().GetWidth();
+	this->ogl4DefaultViewport.height = displayDevice->GetCurrentWindow()->GetDisplayMode().GetHeight();
 
 	IndexT i;
 	for (i = 0; i < MaxNumViewports; i++)
@@ -232,11 +232,11 @@ OGL4RenderDevice::OpenOpenGL4Context()
     this->SetupAdapter();
 
 #if __WIN32__
-	glfwMakeContextCurrent(displayDevice->window);
-	this->context = glfwGetWGLContext(displayDevice->window);
+	glfwMakeContextCurrent(displayDevice->currentWindow->window);
+	this->context = glfwGetWGLContext(displayDevice->currentWindow->window);
 #else
-	glfwMakeContextCurrent(displayDevice->window);
-    this->context = glfwGetGLXContext(displayDevice->window);
+	glfwMakeContextCurrent(displayDevice->currentWindow->window);
+	this->context = glfwGetGLXContext(displayDevice->currentWindow->window);
 #endif
 
 	GLenum status = glewInit();
@@ -620,8 +620,7 @@ OGL4RenderDevice::Present()
     this->frameId++;
 	
 	// swap buffers
-	DisplayDevice* displayDevice = DisplayDevice::Instance();
-	displayDevice->SwapBuffers();
+	DisplayDevice::Instance()->GetCurrentWindow()->SwapBuffers();
 }
 
 //------------------------------------------------------------------------------
@@ -862,7 +861,7 @@ OGL4RenderDevice::SaveScreenshot(ImageFileFormat::Code fmt, const Ptr<IO::Stream
 	n_assert(!this->inBeginFrame);
     n_assert(0 != this->context);
 
-	DisplayMode mode = DisplayDevice::Instance()->GetDisplayMode();
+	DisplayMode mode = DisplayDevice::Instance()->GetCurrentWindow()->GetDisplayMode();
 	GLuint size = mode.GetWidth() * mode.GetHeight() * 4;
 
 	// set a proper byte alignment for the read-back
@@ -911,7 +910,7 @@ OGL4RenderDevice::SaveScreenshot(CoreGraphics::ImageFileFormat::Code fmt, const 
 	n_assert(!this->inBeginFrame);
 	n_assert(0 != this->context);
 
-	DisplayMode mode = DisplayDevice::Instance()->GetDisplayMode();
+	DisplayMode mode = DisplayDevice::Instance()->GetCurrentWindow()->GetDisplayMode();
 	GLuint size = mode.GetWidth() * mode.GetHeight() * 3;
 
 	// set a proper byte alignment for the read-back
@@ -987,12 +986,12 @@ OGL4RenderDevice::SyncGPU()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-OGL4RenderDevice::SetScissorRect( const Math::rectangle<int>& rect, int index )
+void
+OGL4RenderDevice::SetScissorRect(const Math::rectangle<int>& rect, int index)
 {
 	// Hmm, a bit iffy, the scissor rect is only defined for the back buffer since we use the display as a basis for our offsets
-	DisplayDevice* disp = DisplayDevice::Instance();
-	int bottom = disp->GetDisplayMode().GetHeight() - rect.bottom;
+	Window* wnd = DisplayDevice::Instance()->GetCurrentWindow();
+	int bottom = wnd->GetDisplayMode().GetHeight() - rect.bottom;
 	glScissorIndexed(index, rect.left, bottom, rect.width(), rect.height());	
 }
 
@@ -1003,16 +1002,6 @@ void
 OGL4RenderDevice::SetViewport(const Math::rectangle<int>& rect, int index)
 {
 	glViewportIndexedf(index, (float)rect.left, (float)rect.top, (float)rect.width(), (float)rect.height());
-}
-
-//------------------------------------------------------------------------------
-/**
-	This function basically tries to flush ALL pending commands in the GL command queue so that we can resize the render targets.
-*/
-void
-OGL4RenderDevice::DisplayResized(SizeT width, SizeT height)
-{
-	Base::RenderDeviceBase::DisplayResized(width, height);
 }
 
 } // namespace CoreGraphics

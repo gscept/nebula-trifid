@@ -56,7 +56,7 @@ AOAlgorithm::Setup()
 
 #if HBAO_COMPUTE
 	// setup output
-	DisplayMode mode = DisplayDevice::Instance()->GetDisplayMode();
+	DisplayMode mode = DisplayDevice::Instance()->GetCurrentWindow()->GetDisplayMode();
 	this->output = ShaderReadWriteTexture::Create();
 	this->output->Setup(mode.GetWidth(), mode.GetHeight(), PixelFormat::R16F, this->outputNames[0]);
 #else

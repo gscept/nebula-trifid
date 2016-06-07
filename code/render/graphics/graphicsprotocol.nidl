@@ -53,6 +53,7 @@
             <InArg name="DisplayMode" type="CoreGraphics::DisplayMode"/>
             <InArg name="AntiAliasQuality" type="CoreGraphics::AntiAliasQuality::Code"/>
             <InArg name="Fullscreen" type="bool"/>
+            <InArg name="Monitor" type="IndexT" default="0"/>
             <InArg name="DisplayModeSwitchEnabled" type="bool"/>
             <InArg name="TripleBufferingEnabled" type="bool"/>
             <InArg name="AlwaysOnTop" type="bool"/>
@@ -76,14 +77,10 @@
           <InArg name="DisplayMode" type="CoreGraphics::DisplayMode"/>
           <InArg name="AntiAliasQuality" type="CoreGraphics::AntiAliasQuality::Code" default="CoreGraphics::AntiAliasQuality::None"/>
           <InArg name="Fullscreen" type="bool"/>
+          <InArg name="Monitor" type="IndexT" default="0"/>
           <InArg name="WindowData" type="Util::Blob" default="0"/>
           <InArg name="TripleBufferingEnabled" type="bool"/>
           <OutArg name="Success" type="bool"/>
-        </Message>
-      
-        <!-- post a window event -->
-        <Message name="PostWindowEvent" fourcc="POEV">
-          <InArg name="WindowEvent" type="Event"/>
         </Message>
       
         <!-- sets the resource manager to enable/disable asynchronous loading -->
@@ -104,6 +101,11 @@
         <!-- Invalidates all existing models that use a resource (slow) -->
         <Message name="ReloadModelByResource" fourcc="RMBR">
           <InArg name="ResourceName" type="Util::String" serialize="true"/>
+        </Message>
+      
+        <!-- Reloads shader and materials using shader -->
+        <Message name="ReloadShader" fourcc="RLSH">
+          <InArg name="ShaderName" type="Util::String" serialize="true"/>
         </Message>
 
         <!-- Attach/Detach all environment modules -->
@@ -236,6 +238,7 @@
             <InArg name="UseResolveRect" type="bool" default="false"/>
             <InArg name="ResolveRect" type="Math::rectangle<int>" />
             <InArg name="ObjectRef" type="Ptr<Threading::ObjectRef>"/>
+            <InArg name="Window" type="IndexT" default="0"/>
         </Message>
         
         <!-- discard a graphics view -->

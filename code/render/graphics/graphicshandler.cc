@@ -333,11 +333,6 @@ GraphicsHandler::HandleMessage(const Ptr<Message>& msg)
         this->OnSetupGraphics(msg.cast<SetupGraphics>());
         return true;
     }
-	else if (msg->CheckId(PostWindowEvent::Id))
-	{
-		this->OnPostEvent(msg.cast<PostWindowEvent>());
-		return true;
-	}
 	else if (msg->CheckId(UpdateDisplay::Id))
 	{
 		this->OnUpdateDisplay(msg.cast<UpdateDisplay>());
@@ -364,6 +359,7 @@ GraphicsHandler::HandleMessage(const Ptr<Message>& msg)
 	__StaticHandle(ReloadResource);
 	__StaticHandle(ReloadResourceIfExists);
 	__StaticHandle(ReloadModelByResource);
+	__StaticHandle(ReloadShader);
 	__StaticHandle(EnableWireframe);
 	__StaticHandle(ItemAtPosition);
 	__StaticHandle(ItemsAtPosition);
@@ -431,6 +427,7 @@ GraphicsHandler::DoWork()
 
 //------------------------------------------------------------------------------
 /**
+	Setup graphics by creating a default window, which is responsible for creating a context.
 */
 void
 GraphicsHandler::OnSetupGraphics(const Ptr<SetupGraphics>& msg)
@@ -440,65 +437,52 @@ GraphicsHandler::OnSetupGraphics(const Ptr<SetupGraphics>& msg)
     // configure the display device and setup the graphics runtime
     DisplayDevice* disp = this->displayDevice;
     disp->SetAdapter(msg->GetAdapter());
-    disp->SetDisplayMode(msg->GetDisplayMode());
-    disp->SetAntiAliasQuality(msg->GetAntiAliasQuality());
-    disp->SetFullscreen(msg->GetFullscreen());
-    disp->SetDisplayModeSwitchEnabled(msg->GetDisplayModeSwitchEnabled());
-    disp->SetTripleBufferingEnabled(msg->GetTripleBufferingEnabled());
-    disp->SetAlwaysOnTop(msg->GetAlwaysOnTop());
-    disp->SetVerticalSyncEnabled(msg->GetVerticalSyncEnabled());
-    disp->SetIconName(msg->GetIconName());
-    disp->SetWindowTitle(msg->GetWindowTitle());
-    disp->SetWindowData(msg->GetWindowData());
-	disp->SetEmbedded(msg->GetEmbedded());
-    disp->SetDecorated(msg->GetDecorated());
-    disp->SetResizable(msg->GetResizable());
+	const Util::Blob& windowData = msg->GetWindowData();
+	Ptr<Window> window;
+	if (windowData.IsValid())
+	{
+		window = disp->EmbedWindow(windowData);
+	}
+	else
+	{
+		window = disp->SetupWindow(msg->GetWindowTitle(), msg->GetIconName(), msg->GetDisplayMode());
+		window->SetAntiAliasQuality(msg->GetAntiAliasQuality());
+		window->SetFullscreen(msg->GetFullscreen(), msg->GetMonitor());
+		window->SetDisplayModeSwitchEnabled(msg->GetDisplayModeSwitchEnabled());
+		window->SetTripleBufferingEnabled(msg->GetTripleBufferingEnabled());
+		window->SetAlwaysOnTop(msg->GetAlwaysOnTop());
+		window->SetEmbedded(msg->GetEmbedded());
+		window->SetDecorated(msg->GetDecorated());
+		window->SetResizable(msg->GetResizable());
+	}	
     this->SetupGraphicsRuntime(msg);
 
-    msg->SetActualDisplayMode(disp->GetDisplayMode());
-    msg->SetActualAdapter(disp->GetAdapter());
-    msg->SetActualFullscreen(disp->IsFullscreen());
+	msg->SetActualDisplayMode(window->GetDisplayMode());
+	msg->SetActualAdapter(disp->GetAdapter());
+	msg->SetActualFullscreen(window->IsFullscreen());
 }
 
 //------------------------------------------------------------------------------
 /**
+	Updates the display settings on the default window.
 */
-void 
-GraphicsHandler::OnUpdateDisplay( const Ptr<Graphics::UpdateDisplay>& msg )
+void
+GraphicsHandler::OnUpdateDisplay(const Ptr<Graphics::UpdateDisplay>& msg)
 {
 	n_assert(this->isGraphicsRuntimeValid);
 
-	// configure the display device and setup the graphics runtime
+	// get the default window and apply settings
 	DisplayDevice* disp = this->displayDevice;
-
-	disp->SetDisplayMode(msg->GetDisplayMode());
-	disp->SetAntiAliasQuality(msg->GetAntiAliasQuality());
-	disp->SetFullscreen(msg->GetFullscreen());
-    if(msg->GetWindowData().Size() > 0)
-    {
-	    disp->SetWindowData(msg->GetWindowData());
-    }
-	disp->SetTripleBufferingEnabled(msg->GetTripleBufferingEnabled());
+	const Ptr<Window>& wnd = disp->GetWindow(0);
+	
+	wnd->SetDisplayMode(msg->GetDisplayMode());
+	wnd->SetAntiAliasQuality(msg->GetAntiAliasQuality());
+	wnd->SetFullscreen(msg->GetFullscreen(), msg->GetMonitor());
+	wnd->SetTripleBufferingEnabled(msg->GetTripleBufferingEnabled());
 
 	// reopen display
-    disp->DisableCallbacks();
-	disp->Reopen();
-    disp->EnableCallbacks();
+	wnd->Reopen();
 }
 
-//------------------------------------------------------------------------------
-/**
-	Posts a message event handled by another WinProc than the one for Nebula
-*/
-void 
-GraphicsHandler::OnPostEvent( const Ptr<Graphics::PostWindowEvent>& msg )
-{
-	if (this->isGraphicsRuntimeValid)
-	{
-		// get display device and post message
-		DisplayDevice* disp = this->displayDevice;
-		disp->PostEvent(msg->GetWindowEvent());
-	}	
-}
 } // namespace Graphics
 

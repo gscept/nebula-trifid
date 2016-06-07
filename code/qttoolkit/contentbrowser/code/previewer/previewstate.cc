@@ -275,7 +275,7 @@ PreviewState::OnStateEnter(const Util::String& prevState)
 	Util::Array<Ptr<Visibility::VisibilitySystemBase> > visSystems;
 	visSystems.Append(visSystem.cast<Visibility::VisibilitySystemBase>());
 	this->surfaceStage = Graphics::GraphicsServer::Instance()->CreateStage("SurfacePreviewStage", visSystems);
-	this->surfaceView = Graphics::GraphicsServer::Instance()->CreateView(Graphics::View::RTTI, "SurfacePreviewView", false, false);
+	this->surfaceView = Graphics::GraphicsServer::Instance()->CreateView(Graphics::View::RTTI, "SurfacePreviewView", InvalidIndex, false, false);
 	this->surfaceView->SetStage(this->surfaceStage);
 	this->surfaceView->SetFrameShader(frameShader);
 	Math::rectangle<int> viewport;

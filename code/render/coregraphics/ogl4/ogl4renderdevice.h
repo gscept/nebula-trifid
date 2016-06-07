@@ -103,9 +103,6 @@ public:
     /// gets whether or not the render device should tessellate
     bool GetUsePatches();
 
-	/// call when window gets resized
-	void DisplayResized(SizeT width, SizeT height);
-
     static const short MaxNumRenderTargets = 8;
     static const short MaxNumViewports = 16;
 

@@ -136,6 +136,7 @@ GraphicsFeatureUnit::SetupDefaultGraphicsWorld()
         
     this->defaultView = this->graphicsServer->CreateView(Graphics::View::RTTI,
                                                          defaultViewName,
+														 0,
                                                          true);
 
     Ptr<Frame::FrameShader> frameShader = Frame::FrameServer::Instance()->LookupFrameShader(this->frameShader);

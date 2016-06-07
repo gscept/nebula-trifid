@@ -63,7 +63,7 @@ ImguiRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
 /**
 */
 void
-ImguiRTPlugin::OnWindowResized(SizeT width, SizeT height)
+ImguiRTPlugin::OnWindowResized(IndexT windowId, SizeT width, SizeT height)
 {
 	n_assert(this->renderer.isvalid());
 	this->renderer->SetRectSize(width, height);

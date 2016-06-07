@@ -79,6 +79,11 @@ public:
     /// get the shared shader
     const Ptr<CoreGraphics::Shader>& GetSharedShader();
 
+	/// reloads a shader
+	void ReloadShader(Ptr<CoreGraphics::Shader> shader);
+	/// explicitly loads a shader by resource id
+	void LoadShader(const Resources::ResourceId& shdName);
+
 protected:
     friend class CoreGraphics::ShaderIdentifier;
     friend class ShaderBase;

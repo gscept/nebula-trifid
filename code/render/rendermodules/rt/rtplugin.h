@@ -83,7 +83,7 @@ public:
     /// called if no view exists, and no default camera is set in view
     virtual void OnRenderWithoutView(IndexT frameId, Timing::Time time);
 	/// called if the window size has changed
-	virtual void OnWindowResized(SizeT width, SizeT height);
+	virtual void OnWindowResized(IndexT windowId, SizeT width, SizeT height);
 };
 
 } // namespace RenderModules

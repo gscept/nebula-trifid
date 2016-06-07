@@ -158,7 +158,7 @@ FramePostEffect::Render(IndexT frameIndex)
 /**
 */
 void 
-FramePostEffect::OnDisplayResize(SizeT width, SizeT height)
+FramePostEffect::OnWindowResize(SizeT width, SizeT height)
 {
     n_assert(this->renderTarget.isvalid());
     n_assert(this->drawFullScreenQuad.IsValid());

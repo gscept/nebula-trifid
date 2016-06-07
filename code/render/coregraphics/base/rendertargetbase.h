@@ -139,7 +139,7 @@ public:
 	void ResetResolveRects();
 
 	/// called after we change the display size
-	void OnDisplayResized(SizeT width, SizeT height);
+	void OnWindowResized(SizeT width, SizeT height);
 
     /// setup the render target object
     void Setup();

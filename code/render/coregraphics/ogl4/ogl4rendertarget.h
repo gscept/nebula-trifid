@@ -47,7 +47,7 @@ public:
     void Reload();
 
 	/// called after we change the display size
-	void OnDisplayResized(SizeT width, SizeT height);
+	void OnWindowResized(SizeT width, SizeT height);
 
 	/// return viewport
 	const Viewport& GetViewport() const;

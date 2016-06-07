@@ -12,6 +12,7 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}
                     ${Nebula3_SOURCE_DIR}/code/extlibs		
                     ${Nebula3_SOURCE_DIR}/code/addons
                     ${Nebula3_SOURCE_DIR}/code/toolkit
+					${Nebula3_SOURCE_DIR}/code/render
 					code)
 					
 LINK_DIRECTORIES(${N_LIBDIRS})
@@ -58,13 +59,19 @@ FILE(GLOB HEAD "code/simulation/*.h")
 SOURCE_GROUP("shady\\simulation" FILES ${SRC} ${HEAD})
 LIST(APPEND CODE ${SRC} ${HEAD})
 
+FILE(GLOB SRC "code/rendering/*.cc") 
+FILE(GLOB HEAD "code/rendering/*.h")
+SOURCE_GROUP("shady\\rendering" FILES ${SRC} ${HEAD})
+LIST(APPEND CODE ${SRC} ${HEAD})
+
 FILE(GLOB FORMS "ui/*.ui")
 FILE(GLOB RESOURCES ${QTTOOLS}/ui/*.qrc)
 
 SET(QTMOCFILES  
     "code/node/graphics/shadynodegraphics.h"
 	"code/shadywindow.h"
-	"code/materialwindow.h")
+	"code/rendering/materialwindow.h"
+	"code/rendering/frameshaderviz.h")
 
 SET(PCH_files	
     ../stdneb.cc

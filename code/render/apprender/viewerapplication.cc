@@ -77,6 +77,7 @@ ViewerApplication::Open()
         // FIXME: sucks that I have to use Graphics here!
         this->view = this->graphicsServer->CreateView(Graphics::View::RTTI,
                                                       defaultViewName,
+													  0,
                                                       true);
 
         Ptr<Frame::FrameShader> frameShader = Frame::FrameServer::Instance()->LookupFrameShader(ResourceId(NEBULA3_DEFAULT_FRAMESHADER_NAME));

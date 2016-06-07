@@ -327,13 +327,13 @@ RTPluginRegistry::OnRenderWithoutView(IndexT frameId, Timing::Time time)
 /**
 */
 void 
-RTPluginRegistry::OnWindowResized(SizeT width, SizeT height)
+RTPluginRegistry::OnWindowResized(IndexT windowId, SizeT width, SizeT height)
 {
 	n_assert(this->IsValid());
 	IndexT i;
 	for (i = 0; i < this->plugins.Size(); i++)
 	{
-		this->plugins[i]->OnWindowResized(width, height);
+		this->plugins[i]->OnWindowResized(windowId, width, height);
 	}
 }
 

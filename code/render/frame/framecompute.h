@@ -39,7 +39,7 @@ public:
     void SetGroupSize(uint x, uint y, uint z);
 
     /// handle display resizing
-	void OnDisplayResize(SizeT width, SizeT height);
+	void OnWindowResize(SizeT width, SizeT height);
 
 private:
     bool displayRelative;

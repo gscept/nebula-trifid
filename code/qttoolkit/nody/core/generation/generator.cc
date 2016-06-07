@@ -51,7 +51,7 @@ Generator::GenerateToBuffer(const Ptr<NodeScene>& scene, Util::Blob& output)
 /**
 */
 void
-Generator::Validate(const Util::Blob& buffer)
+Generator::Validate(const Ptr<Nody::NodeScene>& scene, const Util::String& language)
 {
     // empty, override in subclass
 }

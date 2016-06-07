@@ -104,6 +104,10 @@ public:
 	void Unload();	
 	/// discards the material and all its instances
 	void Discard();
+	/// reloads entire material
+	void Reload();
+	/// reloads material passes related to shader
+	void Reload(const Ptr<CoreGraphics::Shader>& shader);
 
 	/// add a shader to the material
 	void AddPass(const Frame::BatchGroup::Code& code, const Ptr<CoreGraphics::Shader>& shader, const CoreGraphics::ShaderFeature::Mask& mask);

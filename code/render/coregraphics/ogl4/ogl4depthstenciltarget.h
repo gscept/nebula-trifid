@@ -26,7 +26,7 @@ public:
 	void Discard();
 
 	/// called after we change the display size
-	void OnDisplayResized(SizeT width, SizeT height);
+	void OnWindowResized(SizeT width, SizeT height);
 
 	/// begins pass
 	void BeginPass();

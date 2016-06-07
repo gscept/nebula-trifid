@@ -100,7 +100,7 @@ public:
     uchar GetClearStencil() const;
 
 	/// called from frame shader whenever the display resizes
-	virtual void OnDisplayResize(SizeT width, SizeT height);
+	virtual void OnWindowResize(SizeT width, SizeT height);
 
 protected:
     Resources::ResourceId name;

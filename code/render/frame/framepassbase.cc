@@ -104,7 +104,7 @@ FramePassBase::End()
 /**
 */
 void 
-FramePassBase::OnDisplayResize(SizeT width, SizeT height)
+FramePassBase::OnWindowResize(SizeT width, SizeT height)
 {
 	// implement in subclass
 }

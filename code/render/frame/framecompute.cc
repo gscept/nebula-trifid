@@ -48,9 +48,9 @@ FrameCompute::Setup()
     if (this->displayRelative)
     {
         DisplayDevice* dispDevice = DisplayDevice::Instance();
-
-        this->computeSizes[0] = int(dispDevice->GetDisplayMode().GetWidth() * this->relativeWidth);
-        this->computeSizes[1] = int(dispDevice->GetDisplayMode().GetHeight() * this->relativeHeight);
+		const CoreGraphics::DisplayMode& mode = dispDevice->GetCurrentWindow()->GetDisplayMode();
+        this->computeSizes[0] = int(mode.GetWidth() * this->relativeWidth);
+        this->computeSizes[1] = int(mode.GetHeight() * this->relativeHeight);
         this->computeSizes[2] = 1; // set Z to be 1 since we are working in 2D
     }
 }
@@ -95,7 +95,7 @@ FrameCompute::Render(IndexT frameIndex)
 /**
 */
 void 
-FrameCompute::OnDisplayResize(SizeT width, SizeT height)
+FrameCompute::OnWindowResize(SizeT width, SizeT height)
 {
     // setup computation sizes if this is a screen-relative computation
     if (this->displayRelative)

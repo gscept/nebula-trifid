@@ -173,5 +173,48 @@ ShaderServerBase::ApplyObjectId(IndexT i)
     }       
 }
 
+//------------------------------------------------------------------------------
+/**
+Must be called from within Shader
+*/
+void
+ShaderServerBase::ReloadShader(Ptr<CoreGraphics::Shader> shader)
+{
+	n_assert(0 != shader);
+	shader->SetLoader(StreamShaderLoader::Create());
+	shader->SetAsyncEnabled(false);
+	shader->Load();
+	if (shader->IsLoaded())
+	{
+		shader->SetLoader(0);
+	}
+	else
+	{
+		n_error("Failed to load shader '%s'!", shader->GetResourceId().Value());
+	}
+}
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ShaderServerBase::LoadShader(const Resources::ResourceId& shdName)
+{
+	n_assert(shdName.IsValid());
+	Ptr<Shader> shader = Shader::Create();
+	shader->SetResourceId(shdName);
+	shader->SetLoader(StreamShaderLoader::Create());
+	shader->SetAsyncEnabled(false);
+	shader->Load();
+	if (shader->IsLoaded())
+	{
+		shader->SetLoader(0);
+		this->shaders.Add(shdName, shader);
+	}
+	else
+	{
+		n_warning("Failed to explicitly load shader '%s'!", shdName.Value());
+		shader->Unload();
+	}
+}
 } // namespace Base

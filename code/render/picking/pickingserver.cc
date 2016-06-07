@@ -64,7 +64,7 @@ PickingServer::Open()
 	stage->AttachEntity(this->pickingCamera.upcast<Graphics::GraphicsEntity>());
 	
 	this->frameShader = FrameServer::Instance()->LookupFrameShader("picking");
-	this->pickingView = Graphics::GraphicsServer::Instance()->CreateView(Graphics::View::RTTI, "PickingView", false, false);
+	this->pickingView = Graphics::GraphicsServer::Instance()->CreateView(Graphics::View::RTTI, "PickingView", InvalidIndex, false, false);
 	this->pickingView->SetStage(stage);
 	this->pickingView->SetFrameShader(this->frameShader);
 	this->pickingView->SetCameraEntity(this->pickingCamera);

@@ -78,8 +78,6 @@ private:
     void OnSetupGraphics(const Ptr<Graphics::SetupGraphics>& msg);
 	/// handle UpdateDisplay message
 	void OnUpdateDisplay(const Ptr<Graphics::UpdateDisplay>& msg);
-	/// handle posted event
-	void OnPostEvent(const Ptr<Graphics::PostWindowEvent>& msg);
     /// handle AdapterExists message
     void OnAdapterExists(const Ptr<Graphics::AdapterExists>& msg);
     /// handle GetAvailableDisplayModes message

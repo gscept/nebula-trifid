@@ -137,22 +137,9 @@ MaterialServer::AddMaterial(const Ptr<Material>& material)
 
 //------------------------------------------------------------------------------
 /**
-    Hmm, doesn't maintain material instance parameters...
 */
-void 
-MaterialServer::ReloadRenderMaterials()
-{
-	Ptr<MaterialPalette> renderMaterials = this->materialPalettes["rendermaterials"];
-	renderMaterials->Discard();
-	this->materialPalettes.Erase("rendermaterials");
-	this->LoadMaterialPalette("rendermaterials");
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-Ptr<MaterialPalette> 
-MaterialServer::LookupMaterialPalette( const Resources::ResourceId& name )
+const Ptr<MaterialPalette>&
+MaterialServer::LookupMaterialPalette(const Resources::ResourceId& name)
 {
 	if (!this->materialPalettes.Contains(name))
 	{
@@ -164,8 +151,8 @@ MaterialServer::LookupMaterialPalette( const Resources::ResourceId& name )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-MaterialServer::LoadMaterialPalette( const Resources::ResourceId& name )
+void
+MaterialServer::LoadMaterialPalette(const Resources::ResourceId& name)
 {
 	n_assert(!this->materialPalettes.Contains(name));
 	Util::String path("mat:");
@@ -177,8 +164,8 @@ MaterialServer::LoadMaterialPalette( const Resources::ResourceId& name )
 //------------------------------------------------------------------------------
 /**
 */
-Materials::MaterialFeature::Mask 
-MaterialServer::FeatureStringToMask( const Util::String& str )
+Materials::MaterialFeature::Mask
+MaterialServer::FeatureStringToMask(const Util::String& str)
 {
 	return this->materialFeature.StringToMask(str);
 }

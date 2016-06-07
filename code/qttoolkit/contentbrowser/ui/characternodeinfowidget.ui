@@ -186,6 +186,9 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="frameShadow">
+             <enum>QFrame::Plain</enum>
+            </property>
             <property name="editTriggers">
              <set>QAbstractItemView::EditKeyPressed</set>
             </property>

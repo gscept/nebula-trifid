@@ -262,6 +262,8 @@ ENDIF()
         coregraphics/base/vertexlayoutbase.h
         coregraphics/base/vertexlayoutserverbase.cc
         coregraphics/base/vertexlayoutserverbase.h
+		coregraphics/base/windowbase.cc
+        coregraphics/base/windowbase.h
       )
       source_group("coregraphics\\base" FILES ${Render_files_coregraphics__base})
 
@@ -387,7 +389,9 @@ ENDIF()
       ELSEIF(N_BUILD_OGL4)
 	  set(Render_files_coregraphics_displaydevice__impl
 			coregraphics/glfw/glfwdisplaydevice.cc
-			coregraphics/glfw/glfwdisplaydevice.h)
+			coregraphics/glfw/glfwdisplaydevice.h
+			coregraphics/glfw/glfwwindow.cc
+			coregraphics/glfw/glfwwindow.h)
 			
       set(Render_files_coregraphics__ogl4
 		${Render_files_coregraphics_displaydevice__impl}
@@ -616,6 +620,8 @@ ENDIF()
       coregraphics/vertexlayout.h
       coregraphics/vertexlayoutserver.cc
       coregraphics/vertexlayoutserver.h
+	  coregraphics/window.cc
+      coregraphics/window.h
     )
     source_group("coregraphics" FILES ${Render_files_coregraphics})
 
@@ -794,6 +800,8 @@ ENDIF()
       graphics/stagebuilders.h
       graphics/view.cc
       graphics/view.h
+	  graphics/viewdisplayhandler.cc
+	  graphics/viewdisplayhandler.h
     )
     source_group("graphics" FILES ${Render_files_graphics})
 

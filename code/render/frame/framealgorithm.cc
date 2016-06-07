@@ -68,7 +68,7 @@ FrameAlgorithm::End()
 /**
 */
 void 
-FrameAlgorithm::OnDisplayResize(SizeT width, SizeT height)
+FrameAlgorithm::OnWindowResize(SizeT width, SizeT height)
 {
 	this->algorithm->OnDisplayResized(width, height);
 }

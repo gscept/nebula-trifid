@@ -31,7 +31,7 @@ public:
     virtual void OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch);
 
 	/// called if the window size has changed
-	virtual void OnWindowResized(SizeT width, SizeT height);
+	virtual void OnWindowResized(IndexT windowId, SizeT width, SizeT height);
 
 private:
 	Ptr<UiServer> uiServer;

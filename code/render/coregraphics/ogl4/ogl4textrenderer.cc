@@ -165,7 +165,7 @@ OGL4TextRenderer::DrawTextElements()
 	n_assert(this->IsOpen());
 	
 	// get display mode
-	const DisplayMode& displayMode = DisplayDevice::Instance()->GetDisplayMode();
+	const DisplayMode& displayMode = DisplayDevice::Instance()->GetCurrentWindow()->GetDisplayMode();
 
 	// get render device and set it up
 	Ptr<RenderDevice> dev = RenderDevice::Instance();

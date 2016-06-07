@@ -61,17 +61,17 @@ FrameShader::Discard()
 /**
 */
 void 
-FrameShader::OnDisplayResized(SizeT width, SizeT height)
+FrameShader::OnWindowResized(SizeT width, SizeT height)
 {
 	IndexT i;
 	for (i = 0; i < this->depthStencilTargets.Size(); i++)
 	{
-		this->depthStencilTargets.ValueAtIndex(i)->OnDisplayResized(width, height);
+		this->depthStencilTargets.ValueAtIndex(i)->OnWindowResized(width, height);
 	}
 
 	for (i = 0; i < this->renderTargets.Size(); i++)
 	{
-		this->renderTargets.ValueAtIndex(i)->OnDisplayResized(width, height);
+		this->renderTargets.ValueAtIndex(i)->OnWindowResized(width, height);
 	}
 	
 	for (i = 0; i < this->textures.Size(); i++)
@@ -81,7 +81,7 @@ FrameShader::OnDisplayResized(SizeT width, SizeT height)
 
 	for(i = 0; i < this->framePasses.Size(); i++)
 	{
-		this->framePasses[i]->OnDisplayResize(width, height);
+		this->framePasses[i]->OnWindowResize(width, height);
 	}
 }
 

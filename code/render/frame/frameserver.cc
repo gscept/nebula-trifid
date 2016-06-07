@@ -96,12 +96,11 @@ FrameServer::LookupFrameShader(const ResourceId& resId)
     return this->frameShaders[resId];
 }
 
-
 //------------------------------------------------------------------------------
 /**
 */
-void 
-FrameServer::DiscardFrameShader( const Ptr<FrameShader>& frameShader )
+void
+FrameServer::DiscardFrameShader(const Ptr<FrameShader>& frameShader)
 {
 	n_assert(this->frameShaders.Contains(frameShader->GetName()));
 	this->frameShaders.Erase(frameShader->GetName());
@@ -118,7 +117,8 @@ FrameServer::DisplayResized(SizeT width, SizeT height)
 	IndexT i;
 	for (i = 0; i < this->frameShaders.Size(); i++)
 	{
-		this->frameShaders.ValueAtIndex(i)->OnDisplayResized(width, height);
+		this->frameShaders.ValueAtIndex(i)->OnWindowResized(width, height);
 	}
 }
+
 } // namespace Frame

@@ -15,8 +15,10 @@
 #include "node/shadynode.h"
 #include "shadywindow.h"
 #include "io/ioserver.h"
+#include "anyfx/compiler/code/afxcompiler.h"
 
 #include <QApplication>
+#include "config.h"
 
 using namespace Nody;
 namespace Shady
@@ -63,6 +65,7 @@ AnyFXGenerator::GenerateToFile(const Ptr<NodeScene>& scene, const IO::URI& path)
     else
     {
         SHADY_ERROR_FORMAT("Path '%s' is not valid", path.LocalPath().AsCharPtr());
+		this->error = true;
     }
 }
 
@@ -118,7 +121,7 @@ AnyFXGenerator::DoWork(const Ptr<Nody::NodeScene>& scene)
     intro.Append("//------------------------------------------------------------------------------\n\n");
 
     // define default program, we should be able to modify this to select either default, geometry, tessellation or geometry-tessellation
-    intro.Append("#define DEFAULT_PROGRAM\n");
+    intro.Append("#define DEFAULT_PROGRAM (1)\n");
     intro.Append("\n");
 	Util::String variationDefineString = superVariation->GetDefines();
 	Util::Array<Util::String> variationDefines = variationDefineString.Tokenize(";");
@@ -171,19 +174,19 @@ AnyFXGenerator::DoWork(const Ptr<Nody::NodeScene>& scene)
         switch (origTo->GetResult())
         {
         case ShadyVariable::VertexResult:
-            paramType = "VertexShaderParams";
+            paramType = "VertexShaderParameters";
             break;
         case ShadyVariable::HullResult:
-            paramType = "HullShaderParams";
+            paramType = "HullShaderParameters";
             break;
         case ShadyVariable::DomainResult:
-            paramType = "DomainShaderParams";
+            paramType = "DomainShaderParameters";
             break;
         case ShadyVariable::GeometryResult:
-            paramType = "GeometryShaderParams";
+            paramType = "GeometryShaderParameters";
             break;
         case ShadyVariable::PixelResult:
-            paramType = "PixelShaderParams";
+            paramType = "PixelShaderParameters";
             break;
         }
 
@@ -336,9 +339,57 @@ AnyFXGenerator::DoWork(const Ptr<Nody::NodeScene>& scene)
     This is where you compile your code in order to make sure that it works.
 */
 void
-AnyFXGenerator::Validate(const Util::Blob& buffer)
+AnyFXGenerator::Validate(const Ptr<Nody::NodeScene>& scene, const Util::String& language)
 {
-    // FIXME!
+	// begin compilation
+	AnyFXBeginCompile();
+
+	IO::IoServer* ioServer = IO::IoServer::Instance();
+	IO::URI path("int:anyfx/shader.fx");
+	IO::URI dest("int:anyfx/shaderbin.fx");
+	std::vector<std::string> defines;
+	std::vector<std::string> flags;
+	Util::String define;
+	define.Format("-DGLSL");
+	defines.push_back(define.AsCharPtr());
+
+	// get main node, this will be used to get the first level links which will be used to build each function
+	const Ptr<Node>& start = scene->GetSuperNode();
+	const Ptr<ShadySuperVariation>& superVariation = start->GetSuperVariation()->GetOriginalSuperVariation().downcast<ShadySuperVariation>();
+
+	// get includes
+	Util::Array<IO::URI> includes = superVariation->GetIncludes(language);
+	IndexT i;
+	for (i = 0; i < includes.Size(); i++)
+	{
+		define.Format("-I%s/", includes[i].LocalPath().AsCharPtr());
+		defines.push_back(define.AsCharPtr());
+	}
+
+	// set flags
+	flags.push_back("/NOSUB");		// deactivate subroutine usage
+	flags.push_back("/GBLOCK");		// put all shader variables outside of explicit buffers in one global block
+
+	// get target language
+	Util::String target = superVariation->GetTarget();
+
+	AnyFXErrorBlob* error;
+	AnyFXCompile(path.LocalPath().AsCharPtr(), dest.LocalPath().AsCharPtr(), target.AsCharPtr(), "Khronos", defines, flags, &error);
+	if (error)
+	{
+		Util::String buf;
+		buf.Set(error->buffer, error->size);
+		SHADY_ERROR_FORMAT("Compilation error: %s", buf.AsCharPtr());
+		delete error;
+		this->error = true;
+	}
+
+	ioServer->DeleteFile(path);
+	ioServer->DeleteFile(dest);
+	ioServer->DeleteDirectory("int:anyfx");
+
+	// end compilation
+	AnyFXEndCompile();
 }
 
 //------------------------------------------------------------------------------

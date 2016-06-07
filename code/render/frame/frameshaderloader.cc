@@ -49,7 +49,7 @@ FrameShaderLoader::LoadFrameShader(const ResourceId& name, const URI& uri)
 {
     Ptr<FrameShader> frameShader;
     Ptr<Stream> stream = IoServer::Instance()->CreateStream(uri);
-    Ptr<XmlReader> xmlReader = XmlReader::Create();
+	Ptr<BXmlReader> xmlReader = BXmlReader::Create();
     xmlReader->SetStream(stream);
     if (xmlReader->Open())
     {
@@ -76,7 +76,7 @@ FrameShaderLoader::LoadFrameShader(const ResourceId& name, const URI& uri)
 /**
 */
 void
-FrameShaderLoader::ParseFrameShader(const Ptr<XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader)
+FrameShaderLoader::ParseFrameShader(const Ptr<BXmlReader>& xmlReader, const Ptr<FrameShader>& frameShader)
 {
 	// parse depth-stencil target declarations
 	if (xmlReader->SetToFirstChild("DeclareDepthStencilTarget")) do
@@ -155,13 +155,13 @@ FrameShaderLoader::ParseFrameShader(const Ptr<XmlReader>& xmlReader, const Ptr<F
 /**
 */
 void
-FrameShaderLoader::ParseRenderTarget(const Ptr<XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader)
+FrameShaderLoader::ParseRenderTarget(const Ptr<BXmlReader>& xmlReader, const Ptr<FrameShader>& frameShader)
 {
     n_assert(DisplayDevice::Instance()->IsOpen());
 
     // create and configure a new render target
     Ptr<RenderTarget> renderTarget = RenderTarget::Create();
-    const DisplayMode& displayMode = DisplayDevice::Instance()->GetDisplayMode();
+    const DisplayMode& displayMode = DisplayDevice::Instance()->GetCurrentWindow()->GetDisplayMode();
     String name = xmlReader->GetString("name");
     renderTarget->SetResolveTextureResourceId(name);
     renderTarget->SetColorBufferFormat(PixelFormat::FromString(xmlReader->GetString("format")));
@@ -205,7 +205,7 @@ FrameShaderLoader::ParseRenderTarget(const Ptr<XmlReader>& xmlReader, const Ptr<
     {
         if (xmlReader->GetBool("msaa"))
         {
-            renderTarget->SetAntiAliasQuality(DisplayDevice::Instance()->GetAntiAliasQuality());
+            renderTarget->SetAntiAliasQuality(DisplayDevice::Instance()->GetCurrentWindow()->GetAntiAliasQuality());
         }
     }
     if (xmlReader->HasAttr("cpuAccess"))
@@ -234,8 +234,8 @@ FrameShaderLoader::ParseRenderTarget(const Ptr<XmlReader>& xmlReader, const Ptr<
 //------------------------------------------------------------------------------
 /**
 */
-void 
-FrameShaderLoader::ParseRenderTargetCube( const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader )
+void
+FrameShaderLoader::ParseRenderTargetCube(const Ptr<IO::BXmlReader>& xmlReader, const Ptr<FrameShader>& frameShader)
 {
     n_assert(DisplayDevice::Instance()->IsOpen());
 
@@ -290,7 +290,7 @@ FrameShaderLoader::ParseRenderTargetCube( const Ptr<IO::XmlReader>& xmlReader, c
 /**
 */
 void 
-FrameShaderLoader::ParseDepthStencilTarget( const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader )
+FrameShaderLoader::ParseDepthStencilTarget(const Ptr<IO::BXmlReader>& xmlReader, const Ptr<FrameShader>& frameShader)
 {
 	Ptr<DepthStencilTarget> depthStencilTarget = DepthStencilTarget::Create();
 	String name = xmlReader->GetString("name");
@@ -321,7 +321,7 @@ FrameShaderLoader::ParseDepthStencilTarget( const Ptr<IO::XmlReader>& xmlReader,
 /**
 */
 void
-FrameShaderLoader::ParseShaderVariableInstance(const Ptr<XmlReader>& xmlReader, const Ptr<Shader>& shd, const Ptr<FramePassBase>& pass)
+FrameShaderLoader::ParseShaderVariableInstance(const Ptr<BXmlReader>& xmlReader, const Ptr<Shader>& shd, const Ptr<FramePassBase>& pass)
 {
     /// create a shader variable instance by semantic
     String name = xmlReader->GetString("sem");
@@ -382,7 +382,7 @@ FrameShaderLoader::ParseShaderVariableInstance(const Ptr<XmlReader>& xmlReader, 
 /**
 */
 void
-FrameShaderLoader::ParseShaderVariableInstance(const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameBatch>& batch)
+FrameShaderLoader::ParseShaderVariableInstance(const Ptr<IO::BXmlReader>& xmlReader, const Ptr<FrameBatch>& batch)
 {
 	/// create a shader variable instance by semantic
 	String semantic = xmlReader->GetString("sem");
@@ -442,7 +442,7 @@ FrameShaderLoader::ParseShaderVariableInstance(const Ptr<IO::XmlReader>& xmlRead
 /**
 */
 void
-FrameShaderLoader::ParseFramePass(const Ptr<XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader)
+FrameShaderLoader::ParseFramePass(const Ptr<BXmlReader>& xmlReader, const Ptr<FrameShader>& frameShader)
 {
     // create frame pass, optionally of requested class (default is FramePass)
     String framePassClass = xmlReader->GetOptString("class", "Frame::FramePass");
@@ -481,10 +481,10 @@ FrameShaderLoader::ParseFramePass(const Ptr<XmlReader>& xmlReader, const Ptr<Fra
         }
         else
         {
-            n_error("FrameShaderLoader: render target '%s' not declared (%s, line %d)",
+            n_error("FrameShaderLoader: render target '%s' not declared (%s, node %s)",
                 rtName.AsCharPtr(),
                 xmlReader->GetStream()->GetURI().AsString().AsCharPtr(), 
-                xmlReader->GetCurrentNodeLineNumber());
+                xmlReader->GetCurrentNodeName().AsCharPtr());
         }    
     }
     else if (xmlReader->HasAttr("multipleRenderTarget"))
@@ -497,14 +497,15 @@ FrameShaderLoader::ParseFramePass(const Ptr<XmlReader>& xmlReader, const Ptr<Fra
         }
         else
         {
-            n_error("FrameShaderLoader: multiple render target '%s' not declared (%s, line %d)",
+            n_error("FrameShaderLoader: multiple render target '%s' not declared (%s, node %s)",
                 rtName.AsCharPtr(),
                 xmlReader->GetStream()->GetURI().AsString().AsCharPtr(), 
-                xmlReader->GetCurrentNodeLineNumber());
+				xmlReader->GetCurrentNodeName().AsCharPtr());
         } 
     }
     else if (xmlReader->HasAttr("renderTargetCube"))
     {
+		useDefaultRendertarget = false;
         String rtName = xmlReader->GetString("renderTargetCube");
         if (frameShader->HasRenderTargetCube(rtName))
         {
@@ -512,16 +513,16 @@ FrameShaderLoader::ParseFramePass(const Ptr<XmlReader>& xmlReader, const Ptr<Fra
         }
         else
         {
-            n_error("FrameShaderLoader: render target cube '%s' not declared (%s, line %d)",
+            n_error("FrameShaderLoader: render target cube '%s' not declared (%s, node %s)",
                 rtName.AsCharPtr(),
                 xmlReader->GetStream()->GetURI().AsString().AsCharPtr(), 
-                xmlReader->GetCurrentNodeLineNumber());
+				xmlReader->GetCurrentNodeName().AsCharPtr());
         } 
     }
 
     if (useDefaultRendertarget)
     {
-        framePass->SetRenderTarget(RenderDevice::Instance()->GetDefaultRenderTarget());
+		framePass->SetRenderTarget(DisplayDevice::Instance()->GetCurrentWindow()->GetRenderTarget());
     }
 
     // setup the clear color, depth and stencil (if defined)
@@ -564,7 +565,7 @@ FrameShaderLoader::ParseFramePass(const Ptr<XmlReader>& xmlReader, const Ptr<Fra
 /**
 */
 void
-FrameShaderLoader::ParseFrameCompute(const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader)
+FrameShaderLoader::ParseFrameCompute(const Ptr<IO::BXmlReader>& xmlReader, const Ptr<FrameShader>& frameShader)
 {
     // create frame compute object
     Ptr<FrameCompute> frameComp = FrameCompute::Create();
@@ -619,7 +620,7 @@ FrameShaderLoader::ParseFrameCompute(const Ptr<IO::XmlReader>& xmlReader, const 
 /**
 */
 void
-FrameShaderLoader::ParseCopy(const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader)
+FrameShaderLoader::ParseCopy(const Ptr<IO::BXmlReader>& xmlReader, const Ptr<FrameShader>& frameShader)
 {
     Ptr<FrameRenderTargetBlit> copy = FrameRenderTargetBlit::Create();
 
@@ -641,7 +642,7 @@ FrameShaderLoader::ParseCopy(const Ptr<IO::XmlReader>& xmlReader, const Ptr<Fram
 /**
 */
 void
-FrameShaderLoader::ParseClear(const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader)
+FrameShaderLoader::ParseClear(const Ptr<IO::BXmlReader>& xmlReader, const Ptr<FrameShader>& frameShader)
 {
 	Ptr<FrameTexClear> clear = FrameTexClear::Create();
 	String tex = xmlReader->GetString("name");
@@ -659,7 +660,7 @@ FrameShaderLoader::ParseClear(const Ptr<IO::XmlReader>& xmlReader, const Ptr<Fra
 /**
 */
 void
-FrameShaderLoader::ParseFrameAlgorithm(const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader)
+FrameShaderLoader::ParseFrameAlgorithm(const Ptr<IO::BXmlReader>& xmlReader, const Ptr<FrameShader>& frameShader)
 {
 	// create frame algorithm object
 	Ptr<FrameAlgorithm> frameAlg = FrameAlgorithm::Create();
@@ -715,7 +716,7 @@ FrameShaderLoader::ParseFrameAlgorithm(const Ptr<IO::XmlReader>& xmlReader, cons
 /**
 */
 Ptr<FrameBatch>
-FrameShaderLoader::ParseFrameBatch(const Ptr<XmlReader>& xmlReader, const Util::String& passName)
+FrameShaderLoader::ParseFrameBatch(const Ptr<BXmlReader>& xmlReader, const Util::String& passName)
 {
     Ptr<FrameBatch> frameBatch = FrameBatch::Create();
 
@@ -764,7 +765,7 @@ FrameShaderLoader::ParseFrameBatch(const Ptr<XmlReader>& xmlReader, const Util::
 /**
 */
 void
-FrameShaderLoader::ParsePostEffect(const Ptr<XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader)
+FrameShaderLoader::ParsePostEffect(const Ptr<BXmlReader>& xmlReader, const Ptr<FrameShader>& frameShader)
 {
     // create and configure a new post effect
     Ptr<FramePostEffect> framePostEffect = FramePostEffect::Create();
@@ -788,10 +789,10 @@ FrameShaderLoader::ParsePostEffect(const Ptr<XmlReader>& xmlReader, const Ptr<Fr
         }
         else
         {
-            n_error("FrameShaderLoader: render target '%s' not declared (%s, line %d)",
+            n_error("FrameShaderLoader: render target '%s' not declared (%s, node %s)",
                 rtName.AsCharPtr(),
                 xmlReader->GetStream()->GetURI().AsString().AsCharPtr(), 
-                xmlReader->GetCurrentNodeLineNumber());
+				xmlReader->GetCurrentNodeName().AsCharPtr());
         }    
     }
     if (xmlReader->HasAttr("multipleRenderTarget"))
@@ -804,16 +805,16 @@ FrameShaderLoader::ParsePostEffect(const Ptr<XmlReader>& xmlReader, const Ptr<Fr
         }
         else
         {
-            n_error("FrameShaderLoader: mutliple render target '%s' not declared (%s, line %d)",
+            n_error("FrameShaderLoader: mutliple render target '%s' not declared (%s, node %s)",
                 rtName.AsCharPtr(),
                 xmlReader->GetStream()->GetURI().AsString().AsCharPtr(), 
-                xmlReader->GetCurrentNodeLineNumber());
+				xmlReader->GetCurrentNodeName().AsCharPtr());
         } 
     }
 
     if (useDefaultRendertarget)
     {
-        framePostEffect->SetRenderTarget(RenderDevice::Instance()->GetDefaultRenderTarget());
+		framePostEffect->SetRenderTarget(DisplayDevice::Instance()->GetCurrentWindow()->GetRenderTarget());
     }
 
 	int clearFlags = 0;
@@ -858,7 +859,7 @@ FrameShaderLoader::ParsePostEffect(const Ptr<XmlReader>& xmlReader, const Ptr<Fr
 /**
 */
 void 
-FrameShaderLoader::ParseMultipleRenderTarget(const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader)
+FrameShaderLoader::ParseMultipleRenderTarget(const Ptr<IO::BXmlReader>& xmlReader, const Ptr<FrameShader>& frameShader)
 {
     n_assert(DisplayDevice::Instance()->IsOpen());
 
@@ -888,10 +889,10 @@ FrameShaderLoader::ParseMultipleRenderTarget(const Ptr<IO::XmlReader>& xmlReader
 		}
 		else
 		{
-			n_error("FrameShaderLoader: render target '%s' not declared (%s, line %d)",
+			n_error("FrameShaderLoader: render target '%s' not declared (%s, node %s)",
 				dtName.AsCharPtr(),
 				xmlReader->GetStream()->GetURI().AsString().AsCharPtr(), 
-				xmlReader->GetCurrentNodeLineNumber());
+				xmlReader->GetCurrentNodeName().AsCharPtr());
 		}  
 		xmlReader->SetToParent();
 	}
@@ -916,10 +917,10 @@ FrameShaderLoader::ParseMultipleRenderTarget(const Ptr<IO::XmlReader>& xmlReader
         }
         else
         {
-            n_error("FrameShaderLoader: render target '%s' not declared (%s, line %d)",
+            n_error("FrameShaderLoader: render target '%s' not declared (%s, node %s)",
                 rtName.AsCharPtr(),
                 xmlReader->GetStream()->GetURI().AsString().AsCharPtr(), 
-                xmlReader->GetCurrentNodeLineNumber());
+				xmlReader->GetCurrentNodeName().AsCharPtr());
         }   
     }
     while (xmlReader->SetToNextChild("RenderTarget"));
@@ -930,7 +931,7 @@ FrameShaderLoader::ParseMultipleRenderTarget(const Ptr<IO::XmlReader>& xmlReader
 /** 
 */
 void 
-FrameShaderLoader::ParseTexture(const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader)
+FrameShaderLoader::ParseTexture(const Ptr<IO::BXmlReader>& xmlReader, const Ptr<FrameShader>& frameShader)
 {
     n_assert(DisplayDevice::Instance()->IsOpen());
 

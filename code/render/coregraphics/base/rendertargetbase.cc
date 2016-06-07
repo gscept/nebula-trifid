@@ -148,7 +148,7 @@ RenderTargetBase::EndPass()
 /**
 */
 void 
-RenderTargetBase::OnDisplayResized(SizeT width, SizeT height)
+RenderTargetBase::OnWindowResized(SizeT width, SizeT height)
 {
 	n_error("RenderTargetBase::OnDisplayResized() not implemented!");
 }
@@ -221,8 +221,8 @@ RenderTargetBase::ResetResolveRects()
 	DisplayDevice* displayDevice = DisplayDevice::Instance();
 	this->resolveRect.left = 0;
 	this->resolveRect.top = 0;
-	this->resolveRect.right = displayDevice->GetDisplayMode().GetWidth();
-	this->resolveRect.bottom = displayDevice->GetDisplayMode().GetHeight();
+	this->resolveRect.right = displayDevice->GetCurrentWindow()->GetDisplayMode().GetWidth();
+	this->resolveRect.bottom = displayDevice->GetCurrentWindow()->GetDisplayMode().GetHeight();
 }
 
 } // namespace Base

@@ -66,7 +66,7 @@ LightProbeManager::Open()
 	Ptr<Stage> stage = GraphicsServer::Instance()->GetStageByName("DefaultStage");
 	stage->AttachEntity(this->reflectionCamera.cast<GraphicsEntity>());
 
-	this->reflectionView = GraphicsServer::Instance()->CreateView(Graphics::View::RTTI, "Reflection");
+	this->reflectionView = GraphicsServer::Instance()->CreateView(Graphics::View::RTTI, "Reflection", InvalidIndex);
 	this->reflectionView->SetStage(stage);
 	this->isOpen = true;
 }

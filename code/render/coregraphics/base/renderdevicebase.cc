@@ -79,20 +79,6 @@ RenderDeviceBase::CanCreate()
 
 //------------------------------------------------------------------------------
 /**
-    Override the default render target (which is normally created in Open())
-    with a render target provided by the application, this is normally only
-    useful for debugging and testing purposes.
-*/
-void
-RenderDeviceBase::SetOverrideDefaultRenderTarget(const Ptr<CoreGraphics::RenderTarget>& rt)
-{
-    n_assert(!this->isOpen);
-    n_assert(!this->defaultRenderTarget.isvalid());
-    this->defaultRenderTarget = rt;
-}
-
-//------------------------------------------------------------------------------
-/**
 */
 bool
 RenderDeviceBase::Open()
@@ -107,13 +93,7 @@ RenderDeviceBase::Open()
     RenderEvent openEvent(RenderEvent::DeviceOpen);
     this->NotifyEventHandlers(openEvent);
 
-    // create default render target (if not overriden by application
-    if (!this->defaultRenderTarget.isvalid())
-    {
-        this->defaultRenderTarget = RenderTarget::Create();
-        this->defaultRenderTarget->SetDefaultRenderTarget(true);
-        this->defaultRenderTarget->Setup();
-    }
+
 
     return true;
 }
@@ -128,13 +108,6 @@ RenderDeviceBase::Close()
     n_assert(!this->inBeginFrame);
     n_assert(!this->inBeginPass);
     n_assert(!this->inBeginBatch);
-
-    // release default render target
-    if (this->defaultRenderTarget->IsValid())
-    {
-        this->defaultRenderTarget->Discard();
-    }
-    this->defaultRenderTarget = 0;
 
 	// clear buffer locks
 	this->bufferLockQueue.Clear();
@@ -605,27 +578,6 @@ RenderDeviceBase::SaveScreenshot(CoreGraphics::ImageFileFormat::Code fmt, const 
 {
 	// override in subclass!
 	return fmt;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-RenderDeviceBase::DisplayResized(SizeT width, SizeT height)
-{
-    n_assert(this->IsOpen());
-
-	// update frame server
-	Frame::FrameServer::Instance()->DisplayResized(width, height);
-
-	// update main camera
-	GraphicsServer::Instance()->GetDefaultView()->GetCameraEntity()->OnDisplayResized();
-
-    // notify rt plugins that the display has been resized
-    RenderModules::RTPluginRegistry::Instance()->OnWindowResized(width, height);
-
-	// also update the default render target
-	this->defaultRenderTarget->OnDisplayResized(width, height);
 }
 
 //------------------------------------------------------------------------------

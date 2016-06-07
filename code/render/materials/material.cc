@@ -213,4 +213,36 @@ Material::GetPassesByCode(const Frame::BatchGroup::Code& code)
 	return this->passesByBatchGroup[code];
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+Material::Reload()
+{
+	// IMPLEMENT ME, should reload all passes and variables, then do the same for the surfaces.
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+Material::Reload(const Ptr<CoreGraphics::Shader>& shader)
+{
+	IndexT i;
+	for (i = 0; i < this->passesByIndex.Size(); i++)
+	{
+		MaterialPass& pass = this->passesByIndex[i];
+		if (pass.shader->GetResourceId() == shader->GetResourceId())
+		{
+			pass.shader = shader;
+		}
+	}
+
+	// go through and reload all surfaces
+	for (i = 0; i < this->surfaces.Size(); i++)
+	{
+		this->surfaces[i]->Reload();
+	}
+}
+
 } // namespace Materials
