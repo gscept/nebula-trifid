@@ -15,14 +15,14 @@
 //------------------------------------------------------------------------------
 namespace BaseGameFeature
 {
-	class AudioManager : public Game::Manager
+class AudioManager : public Game::Manager
 {
-	__DeclareClass(AudioManager);
+    __DeclareClass(AudioManager);
 public:
     /// constructor
-	AudioManager();
+    AudioManager();
     /// destructor
-	virtual ~AudioManager();
+    virtual ~AudioManager();
 
     /// called when attached to game server
     virtual void OnActivate();
@@ -36,11 +36,11 @@ public:
     virtual void OnRenderDebug();
 
 private:
-	Ptr<FAudio::AudioServer> audioServer;
+    Ptr<FAudio::AudioServer> audioServer;
 };
 
 
-}; // namespace Game
+}; // namespace BaseGameFeature
 //------------------------------------------------------------------------------
  
     

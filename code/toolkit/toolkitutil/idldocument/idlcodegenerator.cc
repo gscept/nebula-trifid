@@ -130,7 +130,7 @@ IDLCodeGenerator::GenerateIncludeFile()
     URI uri = this->BuildHeaderUri();
     Ptr<Stream> stream = IoServer::Instance()->CreateStream(uri);
     stream->SetAccessMode(Stream::WriteAccess);
-	// FIXME. do we need this
+    // FIXME. do we need this
     Util::String folder = uri.LocalPath().ExtractDirName();
     URI furi(folder);
     furi.SetScheme("file");    
@@ -219,12 +219,12 @@ IDLCodeGenerator::GetNebulaRefType(const String& type)
     if ("string" == type)               return "const Util::String&";    
     else if ("float4" == type)          return "const Math::float4&";
     else if ("matrix44" == type)        return "const Math::matrix44&";
-	else if ("transform44" == type)     return "const Math::transform44&";
+    else if ("transform44" == type)     return "const Math::transform44&";
     else if ("bool" == type)            return "bool";
     else if ("guid" == type)            return "const Util::Guid&";
     else if ("int" == type)             return "int";
-	else if ("uint" == type)			return "uint";
-	else if ("float" == type)           return "float";
+    else if ("uint" == type)            return "uint";
+    else if ("float" == type)           return "float";
     else if ("object" == type)          return "Core::RefCounted*";
     else if ("voidptr" == type)         return "void*";
     else if ("intArray" == type)        return "const Util::Array<int>&";
@@ -1213,15 +1213,15 @@ IDLCodeGenerator::ConvertToCamelNotation(const Util::String& lowerCaseType)
     else if (lowerCaseType == "short") return "Short";
     else if (lowerCaseType == "ushort") return "UShort";    
     else if (lowerCaseType == "string" || lowerCaseType == "String" || lowerCaseType == "Util::String") return "String";  // class names are uppercase 
-    else if (lowerCaseType == "matrix44" || lowerCaseType == "Matrix44" || lowerCaseType == "Math::Matrix44") return "Matrix44";
-    else if (lowerCaseType == "float2" || lowerCaseType == "Float2" || lowerCaseType == "Math::Float2") return "Float2";
-    else if (lowerCaseType == "float4" || lowerCaseType == "Float4" || lowerCaseType == "Math::Float4") return "Float4";
-    else if (lowerCaseType == "point" || lowerCaseType == "Point" || lowerCaseType == "Math::Point") return "Point";
-    else if (lowerCaseType == "vector" || lowerCaseType == "Vector" || lowerCaseType == "Math::Vector") return "Vector";
+    else if (lowerCaseType == "matrix44" || lowerCaseType == "Matrix44" || lowerCaseType == "Math::matrix44") return "Matrix44";
+    else if (lowerCaseType == "float2" || lowerCaseType == "Float2" || lowerCaseType == "Math::float2") return "Float2";
+    else if (lowerCaseType == "float4" || lowerCaseType == "Float4" || lowerCaseType == "Math::float4") return "Float4";
+    else if (lowerCaseType == "point" || lowerCaseType == "Point" || lowerCaseType == "Math::point") return "Point";
+    else if (lowerCaseType == "vector" || lowerCaseType == "Vector" || lowerCaseType == "Math::vector") return "Vector";
     else if (lowerCaseType == "blob" || lowerCaseType == "Blob" || lowerCaseType == "Util::Blob") return "Blob";
     else if (lowerCaseType == "guid" || lowerCaseType == "Guid" || lowerCaseType == "Util::Guid") return "Guid";
-    else if (lowerCaseType == "transform44" || lowerCaseType == "Transform44") return "Transform44";
-    else if (lowerCaseType == "IndexT" || lowerCaseType == "Tick") return "Int";
+    else if (lowerCaseType == "transform44" || lowerCaseType == "Transform44" || lowerCaseType == "Math::transform44") return "Transform44";
+    else if (lowerCaseType == "IndexT" || lowerCaseType == "Tick" || lowerCaseType == "Timing::Tick") return "Int";
     else if (lowerCaseType == "int64_t") return "Int64";
     else if (lowerCaseType == "uint64_t") return "UInt64";
 
@@ -1253,7 +1253,7 @@ IDLCodeGenerator::TypeEncode(const Util::String & type, const Util::String & nam
             Util::String wrap = this->ConvertToCamelNotation(arg->GetWrappingType());
             target.Append("        writer->Write" + wrap + "((" + arg->GetWrappingType() + ")this->Get" + name + "());\n");
         }
-        else if (type == "StringAtom")
+        else if (type == "StringAtom" || type == "Util::StringAtom")
         {
             target.Append("        writer->WriteString(this->Get" + name + "().Value());\n");
         }
@@ -1294,7 +1294,7 @@ IDLCodeGenerator::TypeDecode(const Util::String & type, const Util::String & nam
         {
             target.Append("        this->Set" + name + "((" + arg->GetType() + ")reader->Read" + this->ConvertToCamelNotation(arg->GetWrappingType()) + "());\n");
         }
-        else if (type == "StringAtom")
+        else if (type == "StringAtom" || type == "Util::StringAtom")
         {
             target.Append("        this->Set" + name + "(reader->ReadString());\n");
         }
