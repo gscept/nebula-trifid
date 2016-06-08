@@ -25,7 +25,7 @@ SOURCE_GROUP("Precompiled" FILES ${SOURCES_files})
 )
 
 add_library( editorfeatures STATIC ${SOURCES_SRCS} )
-TARGET_LINK_LIBRARIES(editorfeatures application toolkitutil)
+TARGET_LINK_LIBRARIES(editorfeatures application toolkitutil idldocument)
 SET_TARGET_PROPERTIES(editorfeatures PROPERTIES FOLDER "N3SDK/Toolkit")
 N_SET_COMPILER_DEFAULTS()
 IF(N_USE_PRECOMPILED_HEADERS)

@@ -1,59 +1,62 @@
 #pragma once
-#ifndef TOOLS_IDLLIBRARY_H
-#define TOOLS_IDLLIBRARY_H
+#ifndef TOOLS_IDLPROTOCOL_H
+#define TOOLS_IDLPROTOCOL_H
 //------------------------------------------------------------------------------
 /**
-    @class Tools::IDLLibrary
+    @class Tools::IDLProtocol
     
-    Wraps a IDL library definition.
-
+    Wraps an IDL protocol definition.
+    
     (C) 2006 Radon Labs GmbH
     (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
 #include "util/string.h"
 #include "io/xmlreader.h"
-#include "toolkitutil/idldocument/idldependency.h"
-#include "toolkitutil/idldocument/idlcommand.h"
-#include "toolkitutil/idldocument/idlprotocol.h"
+#include "idldocument/idldependency.h"
+#include "idldocument/idlmessage.h"
 
 //------------------------------------------------------------------------------
 namespace Tools
 {
-class IDLLibrary : public Core::RefCounted
+class IDLProtocol : public Core::RefCounted
 {
-    __DeclareClass(IDLLibrary);
+    __DeclareClass(IDLProtocol);
 public:
     /// constructor
-    IDLLibrary();
+    IDLProtocol();
     /// parse the object from an XmlReader
     bool Parse(IO::XmlReader* reader);
     /// get error string
     const Util::String& GetError() const;
-    /// get library name
+    /// get protocol name
     const Util::String& GetName() const;
+    /// get protocol namespace
+    const Util::String& GetNameSpace() const;
+    /// get protocol fourcc code
+    const Util::String& GetFourCC() const;
     /// get dependencies
     const Util::Array<Ptr<IDLDependency>>& GetDependencies() const;
-    /// get commands
-    const Util::Array<Ptr<IDLCommand>>& GetCommands() const;
-	/// wrap a protocol file
-	bool WrapProtocol(const Ptr<IDLProtocol> & protocol);
-
+    /// get messages
+    const Util::Array<Ptr<IDLMessage>>& GetMessages() const;	    
+	
 private:
     /// set error string
     void SetError(const Util::String& e);
 
     Util::String error;
     Util::String name;
+    Util::String nameSpace;
+    Util::String fourcc;	
     Util::Array<Ptr<IDLDependency>> dependencies;
-    Util::Array<Ptr<IDLCommand>> commands;
+    Util::Array<Ptr<IDLMessage>> messages;  	
 };
 
 //------------------------------------------------------------------------------
 /**
 */
 inline void
-IDLLibrary::SetError(const Util::String& e)
+IDLProtocol::SetError(const Util::String& e)
 {
     this->error = e;
 }
@@ -62,7 +65,7 @@ IDLLibrary::SetError(const Util::String& e)
 /**
 */
 inline const Util::String&
-IDLLibrary::GetError() const
+IDLProtocol::GetError() const
 {
     return this->error;
 }
@@ -71,7 +74,7 @@ IDLLibrary::GetError() const
 /**
 */
 inline const Util::String&
-IDLLibrary::GetName() const
+IDLProtocol::GetName() const
 {
     return this->name;
 }
@@ -79,8 +82,26 @@ IDLLibrary::GetName() const
 //------------------------------------------------------------------------------
 /**
 */
+inline const Util::String&
+IDLProtocol::GetNameSpace() const
+{
+    return this->nameSpace;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Util::String&
+IDLProtocol::GetFourCC() const
+{
+    return this->fourcc;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 inline const Util::Array<Ptr<IDLDependency>>&
-IDLLibrary::GetDependencies() const
+IDLProtocol::GetDependencies() const
 {
     return this->dependencies;
 }
@@ -88,10 +109,10 @@ IDLLibrary::GetDependencies() const
 //------------------------------------------------------------------------------
 /**
 */
-inline const Util::Array<Ptr<IDLCommand>>&
-IDLLibrary::GetCommands() const
+inline const Util::Array<Ptr<IDLMessage>>&
+IDLProtocol::GetMessages() const
 {
-    return this->commands;
+    return this->messages;
 }
 
 } // namespace Tools

@@ -13,7 +13,7 @@
 #include "core/refcounted.h"
 #include "io/uri.h"
 #include "io/textwriter.h"
-#include "toolkitutil/idldocument/idldocument.h"
+#include "idldocument/idldocument.h"
 
 //------------------------------------------------------------------------------
 namespace Tools
