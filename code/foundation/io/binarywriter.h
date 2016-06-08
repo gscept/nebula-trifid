@@ -57,9 +57,9 @@ public:
     /// write an 32-bit unsigned int to the stream
     void WriteUInt(unsigned int i);
     /// write an 64-bit signed int to the stream
-    void WriteInt64(int64_t i);
+	void WriteInt64(long long i);
     /// write an 64-bit unsigned int to the stream
-    void WriteUInt64(uint64_t i);
+	void WriteUInt64(unsigned long long i);
     /// write a float value to the stream    
     void WriteFloat(float f);
     /// write a compressed float value to the stream, lossy and needed to be in the range of -1.0 and +1.0

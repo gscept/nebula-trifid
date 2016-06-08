@@ -28,7 +28,8 @@ WindowBase::WindowBase() :
 	resizable(true),
 	decorated(true),
 	cursorVisible(true),
-	cursorLocked(false)
+	cursorLocked(false),
+	defaultRenderTarget(0)
 {
 	this->windowId = uniqueWindowCounter++;
 }

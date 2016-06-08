@@ -9,11 +9,11 @@
 namespace CoreGraphics
 {
 #if __DX11__
-__ImplementClass(CoreGraphics::Window, 'DDVC', Direct3D11::D3D11Window);
+__ImplementClass(CoreGraphics::Window, 'WNDO', Direct3D11::D3D11Window);
 #elif __OGL4__
-__ImplementClass(CoreGraphics::Window, 'DDVC', OpenGL4::GLFWWindow);
+__ImplementClass(CoreGraphics::Window, 'WNDO', OpenGL4::GLFWWindow);
 #elif __DX9__
-__ImplementClass(CoreGraphics::Window, 'DDVC', Direct3D9::D3D9Window);
+__ImplementClass(CoreGraphics::Window, 'WNDO', Direct3D9::D3D9Window);
 #else
 #error "Window class not implemented on this platform!"
 #endif

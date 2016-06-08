@@ -652,6 +652,7 @@
       
         <Message name="ShowSystemCursor" fourcc="SSCU">
           <InArg name="Visible" type="bool"/>
+          <InArg name="Window" type="IndexT"/>
         </Message>
       </Protocol>    
 </Nebula3>

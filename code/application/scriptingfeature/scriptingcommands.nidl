@@ -16,6 +16,7 @@
     <Dependency header="graphicsfeature/graphicsfeatureunit.h"/>
     <Dependency header="graphics/graphicsprotocol.h"/>
     <Dependency header="graphics/modelentity.h"/>
+    <Dependency header="coregraphics/displaydevice.h"/>
     <Dependency header="effects/effectsfeatureunit.h"/>
     <Dependency header="coregraphics/displaydevice.h"/>
     <Command name="SetAttribute" fourcc="SETA" desc="Sets an attribute on an entity by name">
@@ -335,9 +336,10 @@
     </Command>
     <Command name="showsystemcursor" fourcc="SSMC" desc="sets visibility of the system mouse pointer">
       <InArg name="visible" type="bool"/>
+      <InArg name="window" type="int"/>
       <Code>
         <![CDATA[         
-          Input::InputServer::Instance()->SetCursorVisible(visible);          
+          CoreGraphics::DisplayDevice::Instance()->GetWindow(window)->SetCursorVisible(visible);
           ]]>
       </Code>
     </Command>

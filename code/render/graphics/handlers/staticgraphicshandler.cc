@@ -554,9 +554,12 @@ __StaticHandler(ReleaseSharedResources)
     ResourceManager::Instance()->ReleaseResources();
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
 __StaticHandler(ShowSystemCursor)
 {
-    Input::InputServer::Instance()->SetCursorVisible(msg->GetVisible());
+	DisplayDevice::Instance()->GetWindow(msg->GetWindow())->SetCursorVisible(msg->GetVisible());
 }
 
 

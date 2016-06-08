@@ -489,8 +489,8 @@ ByteOrder::Convert<double>(Type fromByteOrder, Type toByteOrder, double val)
 //------------------------------------------------------------------------------
 /**
 */
-template<> __forceinline uint64_t
-ByteOrder::Convert<uint64_t>(Type fromByteOrder, Type toByteOrder, uint64_t val) const
+template<> __forceinline unsigned long long
+ByteOrder::Convert<unsigned long long>(Type fromByteOrder, Type toByteOrder, unsigned long long val)
 {
     if (fromByteOrder != toByteOrder)
     {        
@@ -505,8 +505,8 @@ ByteOrder::Convert<uint64_t>(Type fromByteOrder, Type toByteOrder, uint64_t val)
 //------------------------------------------------------------------------------
 /**
 */
-template<> __forceinline int64_t
-ByteOrder::Convert<int64_t>(Type fromByteOrder, Type toByteOrder, int64_t val) const
+template<> __forceinline long long
+ByteOrder::Convert<long long>(Type fromByteOrder, Type toByteOrder, long long val)
 {
     if (fromByteOrder != toByteOrder)
     {
@@ -521,8 +521,8 @@ ByteOrder::Convert<int64_t>(Type fromByteOrder, Type toByteOrder, int64_t val) c
 //------------------------------------------------------------------------------
 /**
 */
-template<> __forceinline int64_t
-ByteOrder::Convert<int64_t>(int64_t val) const
+template<> __forceinline long long
+ByteOrder::Convert<long long>(long long val) const
 {
     if (this->from != this->to)
     {
@@ -537,8 +537,8 @@ ByteOrder::Convert<int64_t>(int64_t val) const
 //------------------------------------------------------------------------------
 /**
 */
-template<> __forceinline uint64_t
-ByteOrder::Convert<uint64_t>(uint64_t val) const
+template<> __forceinline unsigned long long
+ByteOrder::Convert<unsigned long long>(unsigned long long val) const
 {
     if (this->from != this->to)
     {

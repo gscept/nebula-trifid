@@ -89,7 +89,7 @@ RocketServer::Setup()
 	Rocket::Controls::Initialise();
 
 	Ptr<DisplayDevice> display = DisplayDevice::Instance();
-	DisplayMode mode = display->GetDisplayMode();
+	DisplayMode mode = display->GetWindow(0)->GetDisplayMode();
 	Rocket::Core::Vector2i dimensions(mode.GetWidth(), mode.GetHeight());
 	this->context = Rocket::Core::CreateContext("main", dimensions);
 

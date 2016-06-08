@@ -279,7 +279,6 @@ OGL4RenderTarget::BeginPass()
 	Ptr<Shader> shader = RenderDevice::Instance()->GetPassShader();
     if (shader.isvalid() && shader->HasVariableByName(NEBULA3_SEMANTIC_RENDERTARGETDIMENSIONS))
 	{
-        const Ptr<DisplayDevice>& dispDev = DisplayDevice::Instance();
         Ptr<ShaderVariable> var = shader->GetVariableByName(NEBULA3_SEMANTIC_RENDERTARGETDIMENSIONS);
         uint width = this->width;
         uint height = this->height; 

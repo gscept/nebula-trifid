@@ -198,14 +198,14 @@ BinaryReader::ReadUInt()
 //------------------------------------------------------------------------------
 /**
 */
-int64_t
+long long
 BinaryReader::ReadInt64()
 {
-    int64_t val;
+	long long val;
     if (this->isMapped)
     {
         // note: the memory copy is necessary to circumvent alignment problem on some CPUs
-        n_assert((this->mapCursor + sizeof(int64_t)) <= this->mapEnd);
+		n_assert((this->mapCursor + sizeof(long long)) <= this->mapEnd);
         Memory::Copy(this->mapCursor, &val, sizeof(val));
         this->mapCursor += sizeof(val);
     }
@@ -213,20 +213,20 @@ BinaryReader::ReadInt64()
     {
         this->stream->Read(&val, sizeof(val));
     }
-    return this->byteOrder.Convert<int64_t>(val);
+	return this->byteOrder.Convert<long long>(val);
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-uint64_t
+unsigned long long
 BinaryReader::ReadUInt64()
 {
-    uint64_t val;
+	unsigned long long val;
     if (this->isMapped)
     {
         // note: the memory copy is necessary to circumvent alignment problem on some CPUs
-        n_assert((this->mapCursor + sizeof(uint64_t)) <= this->mapEnd);
+		n_assert((this->mapCursor + sizeof(unsigned long long)) <= this->mapEnd);
         Memory::Copy(this->mapCursor, &val, sizeof(val));
         this->mapCursor += sizeof(val);
     }
@@ -234,7 +234,7 @@ BinaryReader::ReadUInt64()
     {
         this->stream->Read(&val, sizeof(val));
     }
-    return this->byteOrder.Convert<uint64_t>(val);
+	return this->byteOrder.Convert<unsigned long long>(val);
 }
 
 //------------------------------------------------------------------------------

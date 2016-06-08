@@ -42,11 +42,6 @@ bool
 DisplayDeviceBase::Open()
 {
     n_assert(!this->IsOpen());
-
-    // notify all event handlers
-    DisplayEvent openEvent(DisplayEvent::WindowOpen);
-    this->NotifyEventHandlers(openEvent);
-
     this->isOpen = true;
     return true;
 }
@@ -59,12 +54,14 @@ void
 DisplayDeviceBase::Close()
 {
     n_assert(this->IsOpen());
-
-    // notify all event handlers
-    DisplayEvent closeEvent(DisplayEvent::WindowClose);
-    this->NotifyEventHandlers(closeEvent);
-
     this->isOpen = false;
+
+	IndexT i;
+	for (i = 0; i < this->windows.Size(); i++)
+	{
+		this->windows[i]->Close();
+	}
+	this->windows.Clear();
 }
 
 //------------------------------------------------------------------------------
@@ -203,6 +200,8 @@ DisplayDeviceBase::SetupWindow(const Util::String& title, const Util::String& ic
 	wnd->SetAntiAliasQuality(aa);
 	if (this->windows.IsEmpty()) this->currentWindow = wnd;
 	this->windows.Append(wnd);
+	wnd->Open();
+
 	return wnd;
 }
 
@@ -216,6 +215,8 @@ DisplayDeviceBase::EmbedWindow(const Util::Blob& windowData)
 	wnd->SetWindowData(windowData);
 	if (this->windows.IsEmpty()) this->currentWindow = wnd;
 	this->windows.Append(wnd);
+	wnd->Open();
+
 	return wnd;
 }
 
@@ -225,7 +226,7 @@ DisplayDeviceBase::EmbedWindow(const Util::Blob& windowData)
 void
 DisplayDeviceBase::MakeWindowCurrent(const IndexT index)
 {
-	n_assert(this->windows.Size() < index);
+	n_assert(this->windows.Size() > index);
 	this->currentWindow = this->windows[index];
 	this->currentWindow->MakeCurrent();
 }

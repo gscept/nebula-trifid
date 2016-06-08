@@ -480,7 +480,7 @@ PreviewState::SaveThumbnail(const Util::String& path, bool swapStage)
 	// render a single frame
 	if (swapStage)
 	{
-		CoreGraphics::DisplayMode mode = CoreGraphics::DisplayDevice::Instance()->GetDisplayMode();
+		CoreGraphics::DisplayMode mode = CoreGraphics::DisplayDevice::Instance()->GetWindow(0)->GetDisplayMode();
 		Graphics::CameraSettings settings;
 		settings.SetupPerspectiveFov(n_deg2rad(60.0f), 1, 0.1f, 1000);
 

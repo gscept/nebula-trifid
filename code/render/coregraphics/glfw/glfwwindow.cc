@@ -15,10 +15,12 @@ using namespace Math;
 namespace OpenGL4
 {
 
+__ImplementClass(GLFWWindow, 'GFWW', Base::WindowBase);
 //------------------------------------------------------------------------------
 /**
 */
-GLFWWindow::GLFWWindow()
+GLFWWindow::GLFWWindow() :
+	window(NULL)
 {
 	// empty
 }
@@ -37,7 +39,6 @@ GLFWWindow::~GLFWWindow()
 void
 GLFWWindow::Open()
 {
-	WindowBase::Open();
 #if NEBULA3_OPENGL4_DEBUG
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 	glfwSetErrorCallback(NebulaGLFWErrorCallback);
@@ -97,6 +98,7 @@ GLFWWindow::Open()
 
 	// enable callbacks
 	this->EnableCallbacks();
+	WindowBase::Open();
 }
 
 //------------------------------------------------------------------------------
