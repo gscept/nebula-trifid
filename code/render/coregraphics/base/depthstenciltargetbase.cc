@@ -22,7 +22,8 @@ DepthStencilTargetBase::DepthStencilTargetBase() :
 	isValid(false),    
 	inBeginPass(false),
 	clearFlags(0),
-	format(PixelFormat::D24S8)
+	format(PixelFormat::D24S8),
+	antiAliasQuality(AntiAliasQuality::None)
 {
 	// empty
 }

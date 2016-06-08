@@ -3,7 +3,7 @@
  <FrameShader>
   
   <!-- depth-stencil buffers -->
-  <DeclareDepthStencilTarget format="D24S8" relHeight="1" relWidth="1" name="DefaultDepthBuffer"/>
+  <DeclareDepthStencilTarget format="D24S8" relHeight="1" relWidth="1" msaa="true" name="DefaultDepthBuffer"/>
   
   <!-- deferred geometry for opaque geometry -->
   <DeclareRenderTarget format="A8R8G8B8" relHeight="1" msaa="false" relWidth="1" name="NormalBuffer"/>
@@ -268,6 +268,16 @@
 	<ApplyShaderVariable sem="BrightBuffer" value="BrightBuffer"/>
 	<ApplyShaderVariable sem="LuminanceTexture" value="AverageLum"/>
   </Compute>
+  <!--
+  <Compute shader="brightblur_cs" name="BrightBlur" relDimX="0.25" relDimY="0.25" groupsX="320">
+	<ApplyShaderVariable sem="ReadImage" value="BrightBuffer"/>
+	<ApplyShaderVariable sem="WriteImage" value="BloomBuffer0"/>
+  </Compute>
+  <Compute shader="blur_2d_rgba16f_cs" name="BloomVertical" relDimX="0.25" relDimY="0.25" groupsX="320">
+	<ApplyShaderVariable sem="ReadWriteImage" value="BloomBuffer0"/>
+  </Compute>
+  -->
+  
   <PostEffect renderTarget="BloomBuffer0" shader="gaussianblur" name="BrightBlur">
    <ApplyShaderVariable sem="SourceMap" value="BrightBuffer"/>
   </PostEffect>
@@ -296,6 +306,6 @@
    <Batch type="Text"/>   
    
   </PostEffect>  
-   
+
  </FrameShader>
 </Nebula3>

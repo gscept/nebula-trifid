@@ -5,6 +5,8 @@
 #include "stdneb.h"
 #include "ogl4depthstenciltarget.h"
 #include "coregraphics/displaydevice.h"
+#include "ogl4renderdevice.h"
+#include "ogl4types.h"
 
 
 namespace OpenGL4
@@ -49,14 +51,29 @@ OGL4DepthStencilTarget::Setup()
 		this->SetHeight(SizeT(displayDevice->GetDisplayMode().GetHeight() * this->relHeight));
 	}
 
+	// setup multisampling
+	this->SetupMultiSampleType();
+
 	// generate render buffer for depth-stencil texture
 	glGenRenderbuffers(1, &this->ogl4DepthStencilRenderbuffer);
 	glBindRenderbuffer(GL_RENDERBUFFER, this->ogl4DepthStencilRenderbuffer);
-	glRenderbufferStorage(
-		GL_RENDERBUFFER,
-		GL_DEPTH24_STENCIL8,
-		this->width,
-		this->height);
+	if (this->msCount > 1)
+	{
+		glRenderbufferStorageMultisample(
+			GL_RENDERBUFFER,
+			this->msCount,
+			GL_DEPTH24_STENCIL8,
+			this->width,
+			this->height);
+	}
+	else
+	{
+		glRenderbufferStorage(
+			GL_RENDERBUFFER,
+			GL_DEPTH24_STENCIL8,
+			this->width,
+			this->height);
+	}
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 	n_assert(GLSUCCESS);
 }
@@ -142,13 +159,59 @@ OGL4DepthStencilTarget::OnDisplayResized(SizeT width, SizeT height)
 
 		// bind buffer and bind a new storage
 		glBindRenderbuffer(GL_RENDERBUFFER, this->ogl4DepthStencilRenderbuffer);
-		glRenderbufferStorage(
-			GL_RENDERBUFFER,
-			GL_DEPTH24_STENCIL8,
-			this->width,
-			this->height);
+
+		if (this->msCount > 1)
+		{
+			glRenderbufferStorageMultisample(
+				GL_RENDERBUFFER,
+				this->msCount,
+				GL_DEPTH24_STENCIL8,
+				this->width,
+				this->height);
+		}
+		else
+		{
+			glRenderbufferStorage(
+				GL_RENDERBUFFER,
+				GL_DEPTH24_STENCIL8,
+				this->width,
+				this->height);
+		}
 		glBindRenderbuffer(GL_RENDERBUFFER, 0);
 		n_assert(GLSUCCESS);
 	}
 }
+
+//------------------------------------------------------------------------------
+/**
+Select the antialias parameters that most closely resemble
+the preferred settings in the DisplayDevice object.
+*/
+void
+OGL4DepthStencilTarget::SetupMultiSampleType()
+{
+	n_assert(0 != this->format);
+	OGL4RenderDevice* renderDevice = OGL4RenderDevice::Instance();
+
+	// convert Nebula3 antialias quality into D3D type
+	this->msCount = OGL4Types::AsOGL4MultiSampleType(this->antiAliasQuality);
+
+	if (this->msCount > 0)
+	{
+		// check if the multisample type is compatible with the selected display mode
+		GLuint availableQualityLevels = 0;
+		GLuint depthBufferQualityLevels = 0;
+
+		// clamp multisample quality to the available quality levels
+		if (availableQualityLevels > 0)
+		{
+			this->msQuality = availableQualityLevels;
+		}
+		else
+		{
+			this->msQuality = 0;
+		}
+	}
+}
+
 } // namespace OpenGL4

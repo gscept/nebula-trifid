@@ -353,7 +353,6 @@ ModelInstance::OnHide(Timing::Time time)
     SizeT num = this->nodeInstances.Size();
     for (i = 0; i < num; i++)
     {
-        //this->nodeInstances[i]->OnHide(time); //SIMON fix?
 		this->nodeInstances[i]->SetVisible(false,time);
     }
 }

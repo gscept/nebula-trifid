@@ -40,6 +40,12 @@ public:
 	const GLuint& GetDepthStencilRenderbuffer() const;
 
 private:
+
+	/// setup compatible multisample type
+	void SetupMultiSampleType();
+
+	GLuint msCount;
+	GLuint msQuality;
 	GLuint ogl4DepthStencilRenderbuffer;
 }; 
 

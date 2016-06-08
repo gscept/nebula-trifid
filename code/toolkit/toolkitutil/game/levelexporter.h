@@ -15,7 +15,7 @@
 #include "db/column.h"
 #include "attr/attrid.h"
 #include "io/xmlreader.h"
-#include "logger.h"
+#include "toolkitutil/logger.h"
 
 //------------------------------------------------------------------------------
 namespace ToolkitUtil

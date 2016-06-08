@@ -49,6 +49,27 @@ vsLightmapped(in vec3 position,
 
 //------------------------------------------------------------------------------
 /**
+	Used for lightmapped geometry
+*/
+shader
+void
+vsLightmappedUnlit(in vec3 position,
+	in vec3 normal,
+	in vec2 uv1,
+	in vec3 tangent,
+	in vec3 binormal,
+	[slot=6] in vec2 uv2,
+	out vec2 UV1,
+	out vec2 UV2) 
+{
+	gl_Position = ViewProjection * Model * vec4(position, 1);
+	UV1 = uv1;
+	UV2 = uv2;
+	mat4 modelView = View * Model;
+}
+
+//------------------------------------------------------------------------------
+/**
 	Used for lightmapped geometry with vertex colors
 */
 shader
@@ -78,6 +99,30 @@ vsLightmappedVertexColors(in vec3 position,
 	Tangent = (modelView * vec4(tangent, 0)).xyz;
 	Normal = (modelView * vec4(normal, 0)).xyz;
 	Binormal = (modelView * vec4(binormal, 0)).xyz;
+}
+
+//------------------------------------------------------------------------------
+/**
+	Used for lightmapped geometry with vertex colors
+*/
+shader
+void
+vsLightmappedVertexColorsUnlit(in vec3 position,
+	in vec3 normal,
+	in vec2 uv1,	
+	in vec3 tangent,
+	in vec3 binormal,
+	[slot=5] in vec4 color,
+	[slot=6] in vec2 uv2,
+	out vec2 UV1,
+	out vec2 UV2,
+	out vec4 Color) 
+{
+	gl_Position = ViewProjection * Model * vec4(position, 1);
+	UV1 = uv1;
+	UV2 = uv2;
+	mat4 modelView = View * Model;
+	Color = color;
 }
 
 //------------------------------------------------------------------------------
@@ -198,9 +243,9 @@ vsShadowFoliage(in vec3 position,
 	Standard techniques
 */
 SimpleTechnique(Lit, "Static", vsLightmapped(), psLightmappedLit(), LightmapState);
-SimpleTechnique(Unlit, "Static|Unlit", vsLightmapped(), psLightmappedUnlit(), LightmapState);
+SimpleTechnique(Unlit, "Static|Unlit", vsLightmappedUnlit(), psLightmappedUnlit(), LightmapState);
 SimpleTechnique(LitVertexColors, "Static|Colored", vsLightmappedVertexColors(), psLightmappedLitVertexColors(), LightmapState);
-SimpleTechnique(UnlitVertexColors, "Static|Unlit|Colored", vsLightmappedVertexColors(), psLightmappedUnlitVertexColors(), LightmapState);
+SimpleTechnique(UnlitVertexColors, "Static|Unlit|Colored", vsLightmappedVertexColorsUnlit(), psLightmappedUnlitVertexColors(), LightmapState);
 
 //------------------------------------------------------------------------------
 /**

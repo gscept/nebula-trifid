@@ -6,10 +6,11 @@
 #include "lib/std.fxh"
 #include "lib/util.fxh"
 #include "lib/techniques.fxh"
+#include "lib/shared.fxh"
 	
 float Density = 0.93f;
 float Decay = 0.74f;
-float Weight = 0.20f;
+float Weight = 0.3f;
 float Exposure = 0.21f;
 vec2 LightPos = vec2(0.5f, 0.5f);
 
@@ -94,7 +95,8 @@ psMainGlobal(in vec2 UV,
 	
 	for (int i = 0; i < NUM_GLOBAL_SAMPLES; i++)
 	{
-		screenUV -= deltaTexCoord;
+		float dist = distance(screenUV, lightScreenPos);
+		screenUV -= deltaTexCoord * (1 + noise1(dist)) * 0.8f;				
 		vec3 sampleColor = textureLod(ColorSource, screenUV, 0).rgb;
 		sampleColor *= illuminationDecay * Weight;
 		color += vec4(sampleColor, 0);

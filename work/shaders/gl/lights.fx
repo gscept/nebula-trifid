@@ -53,7 +53,7 @@ samplerstate GeometrySampler
 samplerstate SpotlightTextureSampler
 {
 	Samplers = { LightProjMap, LightProjCube };
-	Filter = MinMagLinearMipPoint;
+	Filter = MinMagMipLinear;
 	AddressU = Border;
 	AddressV = Border;
 	BorderColor = { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -169,7 +169,7 @@ psGlobShadow(in vec3 ViewSpacePosition,
 	float HL = saturate(dot(H, GlobalLightDir.xyz));
 	vec3 spec;
 	BRDFLighting(NH, NL, NV, HL, specPower, specColor.rgb, spec);
-	vec3 final = (albedoColor.rgb + spec) * diff;
+	vec3 final = (albedoColor.rgb + spec) * diff;// + debug.rgb;
 	Color = EncodeHDR(vec4(final * saturate(shadowFactor), emissiveColor.a));
 }
 
@@ -386,15 +386,11 @@ GetInvertedOcclusionPointLight(float receiverDepthInLightSpace,
 shader
 void
 vsPoint(in vec3 position,
-	out vec3 ViewSpacePosition,
-	out vec3 WorldPosition,
-	out vec4 ProjPosition) 
+	out vec3 ViewSpacePosition) 
 {
 	vec4 modelSpace = LightTransform * vec4(position, 1);
 	gl_Position = ViewProjection * modelSpace;
-	WorldPosition = modelSpace.xyz;
 	ViewSpacePosition = (View * modelSpace).xyz;
-	ProjPosition = gl_Position;
 }
 
 //---------------------------------------------------------------------------------------------------------------------------
@@ -403,8 +399,6 @@ vsPoint(in vec3 position,
 shader
 void
 psPoint(in vec3 ViewSpacePosition,	
-	in vec3 WorldPosition,
-	in vec4 ProjPosition,
 	[color0] out vec4 Color) 
 {
 	vec2 pixelSize = GetPixelSize(DepthBuffer);
@@ -448,8 +442,6 @@ psPoint(in vec3 ViewSpacePosition,
 shader
 void
 psPointShadow(in vec3 ViewSpacePosition,	
-	in vec3 WorldPosition,
-	in vec4 ProjPosition,
 	[color0] out vec4 Color) 
 {
 	vec2 pixelSize = GetPixelSize(DepthBuffer);

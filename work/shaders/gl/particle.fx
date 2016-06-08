@@ -139,12 +139,9 @@ vsLit(in vec2 corner,
 	in vec4 uvMinMax,
 	in vec4 rotSize,
 	out vec4 ViewSpacePos,
-	out vec4 ProjPos,
-	out vec4 WorldPos,
 	out vec3 Normal,
 	out vec3 Tangent,
 	out vec3 Binormal,
-	out vec3 WorldEyeVec,
 	out vec4 Color,
 	out vec2 UV) 
 {
@@ -161,11 +158,8 @@ vsLit(in vec2 corner,
 	Tangent = mat3(modelView) * cornerVert.worldTangent;
 	Binormal = mat3(modelView) * cornerVert.worldBinormal;
 	UV = cornerVert.UV;
-	WorldEyeVec = normalize(EyePos - cornerVert.worldPos).xyz;
-	WorldPos = cornerVert.worldPos;
 	gl_Position = ViewProjection * cornerVert.worldPos;
 	ViewSpacePos = View * cornerVert.worldPos;
-	ProjPos = gl_Position;
 	Color = color;
 }
 
@@ -271,6 +265,15 @@ psUnlit4Layers(in vec4 ViewSpacePosition,
 
 //------------------------------------------------------------------------------
 /**
+	out vec4 ViewSpacePos,
+	out vec4 ProjPos,
+	out vec4 WorldPos,
+	out vec3 Normal,
+	out vec3 Tangent,
+	out vec3 Binormal,
+	out vec3 WorldEyeVec,
+	out vec4 Color,
+	out vec2 UV) 
 */
 shader
 void
@@ -280,7 +283,6 @@ psLit(in vec4 ViewSpacePosition,
 	in vec3 Normal,
 	in vec3 Tangent,
 	in vec3 Binormal,
-	in vec3 WorldEyeVec,
 	in vec4 Color,
 	in vec2 UV,
 	[color0] out vec4 Albedo,

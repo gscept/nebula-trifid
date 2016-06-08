@@ -49,7 +49,7 @@ readwrite IMAGE_FORMAT_TYPE imageCube WriteImage;
 #endif
 
 #ifndef KERNEL_RADIUS
-	#define KERNEL_RADIUS 9
+	#define KERNEL_RADIUS 15
 #endif
 #define HALF_KERNEL_RADIUS ((KERNEL_RADIUS - 1)/2)
 
@@ -123,7 +123,7 @@ csMainX()
 	// load into workgroup saved memory, this allows us to use the original pixel even though 
 	// we might have replaced it with the result from this thread!
 	SharedMemory[gl_LocalInvocationID.x] = IMAGE_LOAD_SWIZZLE(imageLoad(WriteImage, ivec3(x, y, gl_WorkGroupID.z)));
-	barrier();
+	memoryBarrierImage();
 
 	const uint writePos = start + gl_LocalInvocationID.x;
 	const uint tileEndClamped = min(end, uint(size.x));
@@ -164,7 +164,7 @@ csMainY()
 	// load into workgroup saved memory, this allows us to use the original pixel even though 
 	// we might have replaced it with the result from this thread!
 	SharedMemory[gl_LocalInvocationID.x] = IMAGE_LOAD_SWIZZLE(imageLoad(WriteImage, ivec3(x, y, gl_WorkGroupID.z)));
-	barrier();
+	memoryBarrierImage();
 	
 	const uint writePos = start + gl_LocalInvocationID.x;
 	const uint tileEndClamped = min(end, uint(size.y));

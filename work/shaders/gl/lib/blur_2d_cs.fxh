@@ -13,6 +13,14 @@
 #include "lib/techniques.fxh"
 #include "lib/compute.fxh"
 
+#ifndef IMAGE_DECODE_FUNCTION
+#define IMAGE_DECODE_FUNCTION(x) x
+#endif
+
+#ifndef IMAGE_ENCODE_FUNCTION
+#define IMAGE_ENCODE_FUNCTION(x) x
+#endif
+
 #if IMAGE_IS_RGBA16F
 #define IMAGE_FORMAT_TYPE rgba16f
 #define IMAGE_LOAD_VEC vec4
@@ -38,14 +46,6 @@
 #define IMAGE_LOAD_VEC vec2
 #define IMAGE_LOAD_SWIZZLE(vec) vec.xy
 #define RESULT_TO_VEC4(vec) vec4(vec.xy, 0, 0)
-#endif
-
-readwrite IMAGE_FORMAT_TYPE image2D WriteImage;
-#define INV_LN2 1.44269504f
-#define SQRT_LN2 0.832554611f
-
-#ifndef BLUR_SHARPNESS
-	#define BLUR_SHARPNESS 8.0f
 #endif
 
 #ifndef KERNEL_RADIUS
@@ -76,6 +76,17 @@ const float GaussianWeights[] = {
 const float GaussianWeights[] = { 0.166852f, 0.215677f, 0.234942f, 0.215677f, 0.166852f };
 #endif
 
+#if READ_WRITE_SEPARATE
+#define READ_IMAGE 	ReadImage
+#define WRITE_IMAGE WriteImage
+read IMAGE_FORMAT_TYPE image2D ReadImage;
+write IMAGE_FORMAT_TYPE image2D WriteImage;
+#else
+#define READ_IMAGE  ReadWriteImage
+#define WRITE_IMAGE ReadWriteImage
+readwrite IMAGE_FORMAT_TYPE image2D ReadWriteImage;
+#endif
+
 //------------------------------------------------------------------------------
 /**
 */
@@ -87,26 +98,27 @@ GaussianBlur(uint index, IMAGE_LOAD_VEC samp)
 
 //------------------------------------------------------------------------------
 /**
+	Apply an X-wise gaussian kernel.
+	@param WriteImage is the image to produce the result to.
+	@param ReadImage is the image to read from.
+	@param ReadTexel is the texel to fetch the pixel value.
+	@param WorkGroup is the work group ID vector (gl_WorkGroupID)
+	@param LocalId is the local invocation ID within the work group (gl_LocalInvocationID)
+	@param kernelLimits is the min (x) and max (y) values for the kernel to traverse.
 */
-[localsizex] = SHARED_MEM_SIZE
-shader
 void
-csMainX() 
+GaussianXKernel(ivec2 WriteTexel, ivec2 ReadTexel, uvec3 WorkGroup, uvec3 LocalId, uvec2 kernelLimits)
 {
-	// get full resolution and inverse full resolution
-	ivec2 size = imageSize(WriteImage);
-	
-	// calculate offsets
-	uint x, y, start, end;
-	ComputePixelX(BLUR_TILE_WIDTH, HALF_KERNEL_RADIUS, gl_WorkGroupID.xy, gl_LocalInvocationID.xy, x, y, start, end);
-	
 	// load into workgroup saved memory, this allows us to use the original pixel even though 
 	// we might have replaced it with the result from this thread!
-	SharedMemory[gl_LocalInvocationID.x] = IMAGE_LOAD_SWIZZLE(imageLoad(WriteImage, ivec2(x, y)));
+	SharedMemory[LocalId.x] = IMAGE_DECODE_FUNCTION(IMAGE_LOAD_SWIZZLE(imageLoad(READ_IMAGE, ReadTexel)));
 	barrier();
 	
-	const uint writePos = start + gl_LocalInvocationID.x;
-	const uint tileEndClamped = min(end, uint(size.x));
+	// get full resolution and inverse full resolution
+	ivec2 size = imageSize(READ_IMAGE);
+	
+	const uint writePos = kernelLimits.x + LocalId.x;
+	const uint tileEndClamped = min(kernelLimits.y, uint(size.x));
 	
 	if (writePos < tileEndClamped)
 	{
@@ -116,14 +128,71 @@ csMainX()
 		#pragma unroll
 		for (i = 0; i < KERNEL_RADIUS; ++i)
 		{
-			uint j = uint(i) + gl_LocalInvocationID.x;
+			uint j = uint(i) + LocalId.x;
 			IMAGE_LOAD_VEC samp = SharedMemory[j];
 			blurTotal += GaussianBlur(i, samp);
 		}
 		
 		IMAGE_LOAD_VEC blur = blurTotal;
-		imageStore(WriteImage, ivec2(writePos, y), RESULT_TO_VEC4(blur));
+		imageStore(WRITE_IMAGE, WriteTexel, IMAGE_ENCODE_FUNCTION(RESULT_TO_VEC4(blur)));
 	}
+}
+
+//------------------------------------------------------------------------------
+/**
+	Apply an X-wise gaussian kernel.
+	@param WriteImage is the image to produce the result to.
+	@param ReadImage is the image to read from.
+	@param ReadTexel is the texel to fetch the pixel value.
+	@param WorkGroup is the work group ID vector (gl_WorkGroupID)
+	@param LocalId is the local invocation ID within the work group (gl_LocalInvocationID)
+	@param kernelLimits is the min (x) and max (y) values for the kernel to traverse.
+*/
+void
+GaussianYKernel(ivec2 WriteTexel, ivec2 ReadTexel, uvec3 WorkGroup, uvec3 LocalId, uvec2 kernelLimits)
+{
+	// load into workgroup saved memory, this allows us to use the original pixel even though 
+	// we might have replaced it with the result from this thread!
+	SharedMemory[LocalId.x] = IMAGE_DECODE_FUNCTION(IMAGE_LOAD_SWIZZLE(imageLoad(READ_IMAGE, ReadTexel)));
+	barrier();
+	
+	// get full resolution and inverse full resolution
+	ivec2 size = imageSize(READ_IMAGE);
+		
+	const uint writePos = kernelLimits.x + LocalId.x;
+	const uint tileEndClamped = min(kernelLimits.y, uint(size.y));
+	
+	if (writePos < tileEndClamped)
+	{
+		IMAGE_LOAD_VEC blurTotal = IMAGE_LOAD_VEC(0);
+		uint i;
+
+		#pragma unroll
+		for (i = 0; i < KERNEL_RADIUS; ++i)
+		{
+			uint j = uint(i) + LocalId.x;
+			IMAGE_LOAD_VEC samp = SharedMemory[j];
+			blurTotal += GaussianBlur(i, samp);
+		}
+		
+		IMAGE_LOAD_VEC blur = blurTotal;
+		imageStore(WRITE_IMAGE, WriteTexel, IMAGE_ENCODE_FUNCTION(RESULT_TO_VEC4(blur)));
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+[localsizex] = SHARED_MEM_SIZE
+shader
+void
+csMainX() 
+{
+	// calculate offsets
+	uint x, y, start, end;
+	ComputePixelX(BLUR_TILE_WIDTH, HALF_KERNEL_RADIUS, gl_WorkGroupID.xy, gl_LocalInvocationID.xy, x, y, start, end);
+	const uint writePos = start + gl_LocalInvocationID.x;
+	GaussianXKernel(ivec2(writePos, y), ivec2(x, y), gl_WorkGroupID, gl_LocalInvocationID, uvec2(start, end));
 }
 
 //------------------------------------------------------------------------------
@@ -134,35 +203,9 @@ shader
 void
 csMainY() 
 {
-	// get full resolution and inverse full resolution
-	ivec2 size = imageSize(WriteImage);
-	
 	// calculate offsets
 	uint x, y, start, end;
 	ComputePixelY(BLUR_TILE_WIDTH, HALF_KERNEL_RADIUS, gl_WorkGroupID.xy, gl_LocalInvocationID.xy, x, y, start, end);
-	
-	// load into workgroup saved memory, this allows us to use the original pixel even though 
-	// we might have replaced it with the result from this thread!
-	SharedMemory[gl_LocalInvocationID.x] = IMAGE_LOAD_SWIZZLE(imageLoad(WriteImage, ivec2(x, y)));
-	barrier();
-	
 	const uint writePos = start + gl_LocalInvocationID.x;
-	const uint tileEndClamped = min(end, uint(size.y));
-	
-	if (writePos < tileEndClamped)
-	{
-		IMAGE_LOAD_VEC blurTotal = IMAGE_LOAD_VEC(0);
-		uint i;
-
-		#pragma unroll
-		for (i = 0; i < KERNEL_RADIUS; ++i)
-		{
-			uint j = uint(i) + gl_LocalInvocationID.x;
-			IMAGE_LOAD_VEC samp = SharedMemory[j];
-			blurTotal += GaussianBlur(i, samp);
-		}
-		
-		IMAGE_LOAD_VEC blur = blurTotal;
-		imageStore(WriteImage, ivec2(x, writePos), RESULT_TO_VEC4(blur));
-	}
+	GaussianYKernel(ivec2(x, writePos), ivec2(x, y), gl_WorkGroupID, gl_LocalInvocationID, uvec2(start, end));
 }

@@ -58,7 +58,7 @@ const mm128_vec _id_w =  {0.0f, 0.0f, 0.0f, 1.0f};
 const mm128_vec _minus1 = {-1.0f, -1.0f, -1.0f, -1.0f};
 const mm128_vec _plus1 = {1.0f, 1.0f, 1.0f, 1.0f};
 const mm128_uivec _sign = {0x80000000, 0x80000000, 0x80000000, 0x80000000};
-
+const mm128_vec _zero = {0.0f, 0.0f, 0.0f, 0.0f};
 
 
 

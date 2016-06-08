@@ -1,13 +1,11 @@
 //------------------------------------------------------------------------------
-//  blur_2d_rgba16f_cs.fxh
+//  blur_2d_rgba16_cs.fx
 //
 //  (C) 2016 Gustav Sterbrant
 //------------------------------------------------------------------------------
 
 #define IMAGE_IS_RGBA16 1
-#define KERNEL_RADIUS 9
-#define KERNEL_RADIUS_FLOAT 9.0f
-#define BLUR_SHARPNESS 1.0f
+#define KERNEL_RADIUS 5
 #include "lib/blur_2d_cs.fxh"
 
 //------------------------------------------------------------------------------

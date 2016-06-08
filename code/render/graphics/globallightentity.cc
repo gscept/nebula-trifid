@@ -56,7 +56,7 @@ GlobalLightEntity::OnTransformChanged()
     this->lightDir = float4::normalize(this->transform.getrow2());
 	
 	// calculate shadow transform by doing a simple lookat
-	this->shadowTransform = matrix44::lookatrh(point(0,0,0), this->lightDir, vector::upvec());
+	this->shadowTransform = matrix44::lookatrh(point(0), this->lightDir, vector::upvec());
 
     // extend shadow casting frustum so that the global light resolves everything within the shadow casting range
     this->transform.set_xaxis(float4::normalize(this->transform.get_xaxis()) * 1000000.0f);

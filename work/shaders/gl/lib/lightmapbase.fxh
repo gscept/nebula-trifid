@@ -96,11 +96,7 @@ psLightmappedLitVertexColors(in vec3 ViewSpacePos,
 */
 shader
 void
-psLightmappedUnlit(in vec3 ViewSpacePos,
-	in vec3 Tangent,
-	in vec3 Normal,
-	in vec3 Binormal,
-	in vec2 UV1,
+psLightmappedUnlit(in vec2 UV1,
 	in vec2 UV2,
 	[color0] out vec4 Albedo) 
 {
@@ -119,11 +115,7 @@ psLightmappedUnlit(in vec3 ViewSpacePos,
 */
 shader
 void
-psLightmappedUnlitVertexColors(in vec3 ViewSpacePos,
-	in vec3 Tangent,
-	in vec3 Normal,
-	in vec3 Binormal,
-	in vec2 UV1,
+psLightmappedUnlitVertexColors(in vec2 UV1,
 	in vec2 UV2,
 	in vec4 Color,
 	[color0] out vec4 Albedo) 

@@ -10,6 +10,7 @@
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
 #include "coregraphics/texture.h"
+#include "../antialiasquality.h"
 
 namespace Base
 {
@@ -76,6 +77,10 @@ public:
 	void SetRelativeHeight(float h);
 	/// get render target relative height
 	float GetRelativeHeight() const;
+	/// set antialias quality
+	void SetAntiAliasQuality(CoreGraphics::AntiAliasQuality::Code c);
+	/// get anti-alias-quality
+	CoreGraphics::AntiAliasQuality::Code GetAntiAliasQuality() const;
 
 	/// called after we change the display size
 	void OnDisplayResized(SizeT width, SizeT height);
@@ -97,6 +102,7 @@ protected:
 	float relWidth;
 	float relHeight;
 	CoreGraphics::PixelFormat::Code format;
+	CoreGraphics::AntiAliasQuality::Code antiAliasQuality;
 	Resources::ResourceId resolveTextureResId;
 	Ptr<CoreGraphics::Texture> resolveDepthTexture;
 }; 
@@ -135,6 +141,24 @@ inline SizeT
 DepthStencilTargetBase::GetHeight() const
 {
 	return this->height;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+DepthStencilTargetBase::SetAntiAliasQuality(CoreGraphics::AntiAliasQuality::Code aaq)
+{
+	this->antiAliasQuality = aaq;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline CoreGraphics::AntiAliasQuality::Code
+DepthStencilTargetBase::GetAntiAliasQuality() const
+{
+	return this->antiAliasQuality;
 }
 
 //------------------------------------------------------------------------------

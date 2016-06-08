@@ -123,8 +123,8 @@ BillboardEntity::SetPickingId( IndexT i )
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-BillboardEntity::SetTexture( const Resources::ResourceId& texture )
+inline void
+BillboardEntity::SetTexture(const Resources::ResourceId& texture)
 {
 	n_assert(texture.IsValid());
 	this->resource = texture;

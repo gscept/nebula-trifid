@@ -63,7 +63,7 @@ OGL4RenderTarget::Setup()
         DisplayDevice* displayDevice = DisplayDevice::Instance();
         this->SetWidth(displayDevice->GetDisplayMode().GetWidth());
         this->SetHeight(displayDevice->GetDisplayMode().GetHeight());
-        this->SetAntiAliasQuality(AntiAliasQuality::None);
+		this->SetAntiAliasQuality(displayDevice->GetAntiAliasQuality());
         this->SetColorBufferFormat(displayDevice->GetDisplayMode().GetPixelFormat());
 
 		this->resolveRect.left = 0;
@@ -148,16 +148,18 @@ OGL4RenderTarget::Setup()
 
         // setup frame buffer
         glGenFramebuffers(1, &this->ogl4Framebuffer);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->ogl4Framebuffer);
-        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->ogl4ResolveTexture, 0);
+		
+		glBindFramebuffer(GL_FRAMEBUFFER, this->ogl4Framebuffer);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, this->antiAliasQuality == AntiAliasQuality::None ? GL_TEXTURE_2D : GL_TEXTURE_2D_MULTISAMPLE, this->ogl4ResolveTexture, 0);
         if (this->depthStencilTarget.isvalid())
         {
-            glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, this->depthStencilTarget->GetDepthStencilRenderbuffer());
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, this->depthStencilTarget->GetDepthStencilRenderbuffer());
         }
 		
 		// ensure framebuffer is valid, then unbind it
-		n_assert(glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+		GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+		n_assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         // setup texture resource
         if (this->resolveTextureResId.IsValid())
@@ -213,7 +215,7 @@ OGL4RenderTarget::Discard()
 
 //------------------------------------------------------------------------------
 /**
-    Select the antialias parameters that most closely resembly 
+    Select the antialias parameters that most closely resemble 
     the preferred settings in the DisplayDevice object.
 */
 void
@@ -222,30 +224,25 @@ OGL4RenderTarget::SetupMultiSampleType()
     n_assert(0 != this->ogl4ColorBufferFormat);
     OGL4RenderDevice* renderDevice = OGL4RenderDevice::Instance();
 
-    #if NEBULA3_DIRECT3D_DEBUG
-        this->msCount = 0;
-        this->msQuality = 0;
-    #else
-        // convert Nebula3 antialias quality into D3D type
-        this->msCount = OGL4Types::AsOGL4MultiSampleType(this->antiAliasQuality);
+    // convert Nebula3 antialias quality into D3D type
+    this->msCount = OGL4Types::AsOGL4MultiSampleType(this->antiAliasQuality);
 
-		if ( this->msCount > 0)
+	if (this->msCount > 0)
+	{
+		// check if the multisample type is compatible with the selected display mode
+		GLuint availableQualityLevels = 0;
+		GLuint depthBufferQualityLevels = 0;
+
+		// clamp multisample quality to the available quality levels
+		if (availableQualityLevels > 0)
 		{
-			// check if the multisample type is compatible with the selected display mode
-			GLuint availableQualityLevels = 0;
-			GLuint depthBufferQualityLevels = 0;
-
-			// clamp multisample quality to the available quality levels
-			if (availableQualityLevels > 0)
-			{
-				this->msQuality = availableQualityLevels;
-			}
-			else
-			{
-				this->msQuality = 0;
-			}
+			this->msQuality = availableQualityLevels;
 		}
-    #endif
+		else
+		{
+			this->msQuality = 0;
+		}
+	}
 }  
 
 //------------------------------------------------------------------------------

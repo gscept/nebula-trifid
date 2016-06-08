@@ -40,8 +40,10 @@ EnvironmentProbe::Discard()
 	Ptr<ResourceManager> resManager = ResourceManager::Instance();
 	resManager->DiscardManagedResource(this->reflectionMap.upcast<ManagedResource>());
 	resManager->DiscardManagedResource(this->irradianceMap.upcast<ManagedResource>());
+	if (this->depthMap.isvalid()) resManager->DiscardManagedResource(this->depthMap.upcast<ManagedResource>());
 	this->reflectionMap = 0;
 	this->irradianceMap = 0;
+	this->depthMap = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -61,17 +63,14 @@ EnvironmentProbe::AssignReflectionMap(const Resources::ResourceId& refl)
 			{
 				resManager->DiscardManagedResource(this->reflectionMap.upcast<ManagedResource>());
 				this->reflectionMap = resManager->CreateManagedResource(Texture::RTTI, refl).downcast<ManagedTexture>();
-			}
-			else
-			{
-				return false;
+				return true;
 			}
 		}
 		else
 		{
 			this->reflectionMap = resManager->CreateManagedResource(Texture::RTTI, refl).downcast<ManagedTexture>();
+			return true;
 		}
-		return true;
 	}	
 	return false;
 }
@@ -93,17 +92,14 @@ EnvironmentProbe::AssignIrradianceMap(const Resources::ResourceId& irr)
 			{
 				resManager->DiscardManagedResource(this->irradianceMap.upcast<ManagedResource>());
 				this->irradianceMap = resManager->CreateManagedResource(Texture::RTTI, irr).downcast<ManagedTexture>();
-			}
-			else
-			{
-				return false;
+				return true;
 			}
 		}
 		else
 		{
 			this->irradianceMap = resManager->CreateManagedResource(Texture::RTTI, irr).downcast<ManagedTexture>();
+			return true;
 		}
-		return true;
 	}
 	return false;
 }
@@ -126,17 +122,14 @@ EnvironmentProbe::AssignDepthMap(const Resources::ResourceId& depth)
 			{
 				resManager->DiscardManagedResource(this->depthMap.upcast<ManagedResource>());
 				this->depthMap = resManager->CreateManagedResource(Texture::RTTI, depth).downcast<ManagedTexture>();
-			}
-			else
-			{
-				return false;
+				return true;
 			}
 		}
 		else
 		{
 			this->depthMap = resManager->CreateManagedResource(Texture::RTTI, depth).downcast<ManagedTexture>();
+			return true;
 		}
-		return true;
 	}
 	return false;
 }

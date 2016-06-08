@@ -42,7 +42,7 @@ OGL4MultipleRenderTarget::AddRenderTarget(const Ptr<CoreGraphics::RenderTarget>&
 {
 	n_assert(rt.isvalid());
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->ogl4Framebuffer);
-	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + this->numRenderTargets, GL_TEXTURE_2D, rt->GetTexture(), 0);
+	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + this->numRenderTargets, rt->GetAntiAliasQuality() == AntiAliasQuality::None ? GL_TEXTURE_2D : GL_TEXTURE_2D_MULTISAMPLE, rt->GetTexture(), 0);
 	n_assert(glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 	MultipleRenderTargetBase::AddRenderTarget(rt);

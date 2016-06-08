@@ -170,13 +170,11 @@ vsMain(in vec3 position,
 	in vec3 normal,
 	in vec2 uv,
 	out vec3 ViewSpacePosition,
-	out vec3 WorldViewVec,
-	out vec2 UV) 
+	out vec3 WorldViewVec) 
 {
 	vec4 modelSpace = Transform * vec4(position, 1);
 	ViewSpacePosition = (View * modelSpace).xyz;
     gl_Position = ViewProjection * modelSpace;
-    UV = uv;
 	WorldViewVec = modelSpace.xyz - EyePos.xyz;
 }
 
@@ -190,7 +188,6 @@ shader
 void
 psMain(in vec3 viewSpacePosition,	
 	in vec3 worldViewVec,
-	in vec2 uv,
 	[color0] out vec4 Color)
 {	
 	vec2 pixelSize = GetPixelSize(DepthMap);
@@ -214,14 +211,15 @@ psMain(in vec3 viewSpacePosition,
 		//float distanceFalloff = 1 / (pow(d, FalloffPower));
 		
 		// load biggest distance from texture, basically solving the distance field blending
+		memoryBarrier();
 		float weight = imageLoad(DistanceFieldWeightMap, ivec2(gl_FragCoord.xy)).r;		
 #if USE_DISTANCE_IMAGE
 		float diff = saturate(distanceFalloff - weight);
 #else
 		float diff = saturate(distanceFalloff);
 #endif
-		if (diff <= 0.001f) discard;
-		memoryBarrierImage();
+		//if (diff <= 0.001f) discard;
+		memoryBarrier();
 		imageStore(DistanceFieldWeightMap, ivec2(gl_FragCoord.xy), vec4(max(weight, distanceFalloff)));
 		
 		//float distanceFalloff = pow(1 - diff, FalloffPower);

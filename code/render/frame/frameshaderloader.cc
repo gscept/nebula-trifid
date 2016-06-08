@@ -312,7 +312,13 @@ FrameShaderLoader::ParseDepthStencilTarget( const Ptr<IO::XmlReader>& xmlReader,
 	{
 		depthStencilTarget->SetRelativeHeight(xmlReader->GetFloat("relHeight"));
 	}
-
+	if (xmlReader->HasAttr("msaa"))
+	{
+		if (xmlReader->GetBool("msaa"))
+		{
+			depthStencilTarget->SetAntiAliasQuality(DisplayDevice::Instance()->GetAntiAliasQuality());
+		}
+	}
 	depthStencilTarget->Setup();
 	frameShader->AddDepthStencilTarget(name, depthStencilTarget);
 }

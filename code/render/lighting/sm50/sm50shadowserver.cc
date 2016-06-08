@@ -252,7 +252,7 @@ SM50ShadowServer::Open()
 	// create pass
 	this->globalLightHotPass = FramePass::Create();
 	this->globalLightHotPass->SetRenderTarget(this->globalLightShadowBuffer);
-	this->globalLightHotPass->SetClearColor(float4(0, 0, 0, 0));
+	this->globalLightHotPass->SetClearColor(float4(0.9999991, 0.997559, 0.893437, 0));
 	this->globalLightHotPass->SetClearDepth(1);
 	this->globalLightHotPass->SetClearFlags(RenderTarget::ClearColor | DepthStencilTarget::ClearDepth);
 	this->globalLightHotPass->SetName("GlobalLightHotPass");
@@ -260,7 +260,7 @@ SM50ShadowServer::Open()
 
 	// get blur shader
 	this->csmBlurShader = ShaderServer::Instance()->GetShader("shd:blur_2d_rgba16_cs");
-	this->csmBlurWrite = this->csmBlurShader->GetVariableByName("WriteImage");
+	this->csmBlurWrite = this->csmBlurShader->GetVariableByName("ReadWriteImage");
 
 #if NEBULA3_ENABLE_PROFILING
 	{
@@ -295,7 +295,7 @@ SM50ShadowServer::Open()
 	this->globalLightShadowBuffer->SetResolveRectArray(rectArray);
 
 	this->csmUtil.SetTextureWidth(csmWidth / SplitsPerRow);
-	this->csmUtil.SetClampingMethod(CSMUtil::AABB);
+	this->csmUtil.SetClampingMethod(CSMUtil::SceneAABB);
 	this->csmUtil.SetFittingMethod(CSMUtil::Scene);
 
 #if NEBULA3_ENABLE_PROFILING
@@ -622,11 +622,11 @@ SM50ShadowServer::PrepareGlobalShadowBuffer()
 	this->csmUtil.SetGlobalLight(this->globalLightEntity);
 	Math::bbox box = GraphicsServer::Instance()->GetDefaultView()->GetStage()->GetGlobalBoundingBox();
 
-	// add extension to bounding box, this ensures our ENTIRE level gets into a cascade (hopefully), but clamp the box to not be bigger than 1000, 1000, 1000
+	// add extension to bounding box, this ensures our ENTIRE level gets into a cascade (hopefully), but clamp the box to not be bigger than 200, 200, 200
 	vector extents = box.extents() + vector(10, 10, 10);
-	extents = float4::clamp(extents, vector(-500), vector(500));
+	extents = float4::clamp(extents, vector(-100), vector(100));
 
-	box.set(point(0), extents);
+	box.set(box.center(), extents);
 	this->csmUtil.SetShadowBox(box);
 	this->csmUtil.Compute();
 

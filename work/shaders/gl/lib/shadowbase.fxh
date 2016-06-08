@@ -680,7 +680,7 @@ psMSM(in vec2 UV,
 	in vec4 ProjPos,
 	[color0] out vec4 ShadowColor) 
 {
-	float depth = ProjPos.z;
+	float depth = ProjPos.z / ProjPos.w;
 	ShadowColor = EncodeMSM4(depth);
 }
 
@@ -696,8 +696,22 @@ psMSMAlpha(in vec2 UV,
 	float alpha = texture(AlbedoMap, UV).a;
 	if (alpha < AlphaSensitivity) discard;
 	
-	float depth = ProjPos.z;
+	float depth = ProjPos.z / ProjPos.w;
 	ShadowColor = EncodeMSM4(depth);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+shader
+void
+psMSMAlphaBlend(in vec2 UV,
+	in vec4 ProjPos,
+	[color0] out vec4 ShadowColor) 
+{
+	float alpha = texture(AlbedoMap, UV).a;
+	float depth = ProjPos.z / ProjPos.w;
+	ShadowColor = EncodeMSM4(depth) * alpha;
 }
 
 //---------------------------------------------------------------------------------------------------------------------------
@@ -825,9 +839,9 @@ MSMShadowSample(vec4 moments, float momentBias, float depth, float depthBias)
 	vec3 z;
 	z[0] = depth - depthBias;
 	
-	float l32d22 = mad(-b[0], b[1], b[2]);
-	float d22 = mad(-b[0], b[0], b[1]);
-	float squaredVariance = mad(-b[1], b[1], b[3]);
+	float l32d22 = mad(-b.r, b.g, b.b);
+	float d22 = mad(-b.r, b.r, b.g);
+	float squaredVariance = mad(-b.g, b.g, b.a);
 	float d33d22 = dot(vec2(squaredVariance, -l32d22), vec2(d22, l32d22));
 	float invd22 = 1.0f / d22;
 	float l32 = l32d22 * invd22;
@@ -848,7 +862,7 @@ MSMShadowSample(vec4 moments, float momentBias, float depth, float depthBias)
 	(z[1] < z[0]) ? vec4(z[0], z[1], 0, 1) : 
 	vec4(0));
 	float quot = (select[0] * z[2] - b[0] * (select[0] + z[2]) + b[1]) / ((z[2] - select[1]) * (z[0] - z[1]));
-	return select[2] + select[3] * quot;
+	return saturate(select[2] + select[3] * quot);
 }
 
 #endif // SHADOWBASE_FXH

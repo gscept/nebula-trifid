@@ -69,10 +69,11 @@ float4::angle(const float4 & v0, const float4 &v1)
 /**
 */
 float4
-float4::select( const float4& v0, const float4& v1, const float4& control )
+float4::select(const float4& v0, const float4& v1, const float4& control)
 {
-	__m128 v0masked = _mm_andnot_ps(control.vec.vec, v0.vec.vec);
-	__m128 v1masked = _mm_and_ps(v1.vec.vec, control.vec.vec);
+	__m128 mask = _mm_mul_ps(_mm_cmpneq_ps(control.vec.vec, _zero), _mm_set1_ps(0xFFFFFFFF));
+	__m128 v0masked = _mm_andnot_ps(mask, v0.vec.vec);
+	__m128 v1masked = _mm_and_ps(v1.vec.vec, mask);
     return _mm_or_ps(v0masked, v1masked);
 }
 

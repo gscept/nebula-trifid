@@ -221,6 +221,7 @@ EditorLightProperty::OnRender()
 		// draw mesh as a debug shape
 		Debug::DebugShapeRenderer::Instance()->DrawMesh(m, 
 				this->lightMesh->GetMesh(), 
+				0,
 				LevelEditor2App::Instance()->GetWindow()->GetSelectionColour(), 
 				CoreGraphics::RenderShape::CheckDepth);
 

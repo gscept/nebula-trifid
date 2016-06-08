@@ -31,9 +31,9 @@ CSMUtil::CSMUtil() :
 	blurSize(1),
 	floorTexels(true)
 {
-	this->cascadeDistances[0] = 1;
-	this->cascadeDistances[1] = 5;
-	this->cascadeDistances[2] = 30;
+	this->cascadeDistances[0] = 3;
+	this->cascadeDistances[1] = 15;
+	this->cascadeDistances[2] = 60;
 	this->cascadeDistances[3] = 100;
 }
 
@@ -50,9 +50,10 @@ CSMUtil::~CSMUtil()
 	Compute frustum points using computed frustum and cascade intervals,
 	basically stolen from Math::frustum
 */
-void 
-CSMUtil::ComputeFrustumPoints( float cascadeBegin, float cascadeEnd, const Math::matrix44& projection, float4* frustumCorners )
+void
+CSMUtil::ComputeFrustumPoints(float cascadeBegin, float cascadeEnd, const Math::matrix44& projection, float4* frustumCorners)
 {
+
 	// frustum corners in projection space
 	frustumCorners[0].set(1.0f, 1.0f, cascadeBegin, 1.0f);
 	frustumCorners[1].set(1.0f, -1.0f, cascadeBegin, 1.0f);
@@ -73,6 +74,58 @@ CSMUtil::ComputeFrustumPoints( float cascadeBegin, float cascadeEnd, const Math:
 		p *= 1.0f / p.w();
 		frustumCorners[i] = p;
 	}
+	/*
+	static float4 HomogenousPoints[6] =
+	{
+		float4(1.0f, 0.0f, 1.0f, 1.0f),   // right (at far plane)
+		float4(-1.0f, 0.0f, 1.0f, 1.0f),   // left
+		float4(0.0f, 1.0f, 1.0f, 1.0f),   // top
+		float4(0.0f, -1.0f, 1.0f, 1.0f),   // bottom
+	};
+
+	matrix44 inverseProj = matrix44::inverse(projection);
+	float4 Points[4];
+	for (IndexT i = 0; i < 4; i++)
+	{
+		Points[i] = matrix44::transform(HomogenousPoints[i], inverseProj);
+	}
+
+	// compute slopes
+	Points[0] = float4::multiply(Points[0], float4::reciprocal(float4::splat_z(Points[0])));
+	Points[1] = float4::multiply(Points[1], float4::reciprocal(float4::splat_z(Points[1])));
+	Points[2] = float4::multiply(Points[2], float4::reciprocal(float4::splat_z(Points[2])));
+	Points[3] = float4::multiply(Points[3], float4::reciprocal(float4::splat_z(Points[3])));
+	float rightSlope = Points[0].x();
+	float leftSlope = Points[1].x();
+	float topSlope = Points[2].y();
+	float bottomSlope = Points[3].y();
+
+	// compute near and far
+	float znear = cascadeBegin;
+	float zfar = cascadeEnd;
+
+	static const float4 grabY(0, 0xFFFFFFFF, 0, 0);
+	static const float4 grabX(0xFFFFFFFF, 0, 0, 0);
+
+	float4 rightTop(rightSlope, topSlope, 1, 1);
+	float4 leftBottom(leftSlope, bottomSlope, 1, 1);
+	float4 nearplane(znear, znear, znear, 1);
+	float4 farplane(zfar, zfar, zfar, 1);
+	point rightTopNear = float4::multiply(rightTop, nearplane);
+	point rightTopFar = float4::multiply(rightTop, farplane);
+	point leftBottomNear = float4::multiply(leftBottom, nearplane);
+	point leftBottomFar = float4::multiply(leftBottom, farplane);
+
+	frustumCorners[0] = leftBottomNear;
+	frustumCorners[1] = float4::select(rightTopNear, leftBottomNear, grabY);
+	frustumCorners[2] = rightTopNear;
+	frustumCorners[3] = float4::select(rightTopNear, leftBottomNear, grabX);
+
+	frustumCorners[4] = leftBottomFar;
+	frustumCorners[5] = float4::select(rightTopFar, leftBottomFar, grabY);
+	frustumCorners[6] = rightTopFar;
+	frustumCorners[7] = float4::select(rightTopFar, leftBottomFar, grabX);
+	*/
 }
 
 //------------------------------------------------------------------------------
@@ -350,10 +403,15 @@ CSMUtil::Compute()
 	// calculate light AABB based on the AABB of the scene
 	float4 sceneCenter = this->shadowBox.center();
 	float4 sceneExtents = this->shadowBox.extents();
+	
 	float4 sceneAABBLightPoints[8];
 	this->ComputeAABB(sceneAABBLightPoints, sceneCenter, sceneExtents);
+	matrix44 lightRotation = this->globalLight->GetShadowTransform();
+	//float4 lightPos = lightRotation.get_position();
+	//lightRotation.set_position(float4(0, 0, 0, 1));
 	for (int index = 0; index < 8; ++index)
 	{
+		//sceneAABBLightPoints[index] = matrix44::transform(sceneAABBLightPoints[index], lightRotation) + lightPos;
 		sceneAABBLightPoints[index] = matrix44::transform(sceneAABBLightPoints[index], lightView);
 	}
 
@@ -363,8 +421,12 @@ CSMUtil::Compute()
 
 	// calculate near and far range based on scene bounding box
 	//float nearFarRange = camSettings.GetZFar() - camSettings.GetZNear();
+	//float nearFarRange = 281.747955f;
 	float nearFarRange = this->shadowBox.diagonal_size();
 	float4 unitsPerTexel = float4(0,0,0,0);
+
+	// need to create lh space projection matrix
+	//matrix44 camProj = matrix44::perspfovlh(camSettings.GetFov(), camSettings.GetAspect(), camSettings.GetZNear(), camSettings.GetZFar());
 
 	for (int cascadeIndex = 0; cascadeIndex < NumCascades; ++cascadeIndex)
 	{
@@ -476,7 +538,7 @@ CSMUtil::Compute()
 																	  lightCameraOrthographicMax.x(),
 																	  lightCameraOrthographicMin.y(),
 																	  lightCameraOrthographicMax.y(),
-																	  nearPlane, farPlane);			
+																	  nearPlane, farPlane);
 
 		this->intervalDistances[cascadeIndex] = intervalEnd;
 		this->cascadeProjectionTransform[cascadeIndex] = cascadeProjectionMatrix;

@@ -396,6 +396,38 @@ vsTreeLightmapped(in vec3 position,
 
 //------------------------------------------------------------------------------
 /**
+	Used for lightmapped 
+*/
+shader
+void
+vsTreeLightmappedUnlit(in vec3 position,
+	in vec3 normal,
+	in vec2 uv1,
+	in vec3 tangent,
+	in vec3 binormal,
+	[slot=5] in vec4 color,
+	[slot=6] in vec2 uv2,
+	out vec2 UV1,
+	out vec2 UV2)
+{
+	vec4 dir = InvModel * vec4(WindDirection.xyz, 0);
+	vec4 windDir = WindForce * normalize(dir);
+	float len = length(position);
+	
+	float windSpeed = WindSpeed * (TimeAndRandom.x + ObjectId);
+	float windAmplitude = len / WindWaveSize;
+	float windStrength = sin(windSpeed + windAmplitude);
+	
+	vec4 finalOffset = windDir * windStrength * color.a;
+	vec4 finalPos = vec4(position + finalOffset.xyz, 1);
+	
+	gl_Position = ViewProjection * Model * finalPos;
+	UV1 = uv1;
+	UV2 = uv2;
+}
+
+//------------------------------------------------------------------------------
+/**
 */
 shader
 void
@@ -473,4 +505,4 @@ SimpleTechnique(Picking, "Static|Picking", vsTreeShadow(), psPicking(), FoliageS
 //	Lightmapped methods
 //------------------------------------------------------------------------------
 SimpleTechnique(LitFoliage, "Static|Lightmapped", vsTreeLightmapped(), psLightmappedLit(), FoliageState);
-SimpleTechnique(UnlitFoliage, "Static|Unlit|Lightmapped", vsTreeLightmapped(), psLightmappedUnlit(), FoliageState);
+SimpleTechnique(UnlitFoliage, "Static|Unlit|Lightmapped", vsTreeLightmappedUnlit(), psLightmappedUnlit(), FoliageState);
