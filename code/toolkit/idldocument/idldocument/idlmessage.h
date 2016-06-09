@@ -12,7 +12,7 @@
 */
 #include "core/refcounted.h"
 #include "io/xmlreader.h"
-#include "toolkitutil/idldocument/idlarg.h"
+#include "idldocument/idlarg.h"
 
 //------------------------------------------------------------------------------
 namespace Tools

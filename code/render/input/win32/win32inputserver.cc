@@ -65,11 +65,11 @@ Win32InputServer::Open()
     this->AttachInputHandler(InputPriority::Game, this->defaultMouse.upcast<InputHandler>());
 
     // create 4 default gamepads (none of them have to be connected)
-    IndexT playerIndex;
+    IndexT playerIndex = MAX_GAMEPADS;
     for (playerIndex = 0; playerIndex < this->maxNumLocalPlayers; playerIndex++)
     {
         this->defaultGamePad[playerIndex] = GamePad::Create();
-        this->defaultGamePad[playerIndex]->SetPlayerIndex(playerIndex);
+        this->defaultGamePad[playerIndex]->SetIndex(playerIndex);
         this->AttachInputHandler(InputPriority::Game, this->defaultGamePad[playerIndex].upcast<InputHandler>());
     }
 }

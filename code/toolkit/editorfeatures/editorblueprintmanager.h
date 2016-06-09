@@ -10,8 +10,8 @@
 */
 
 #include "basegamefeature/managers/factorymanager.h"
-#include "toolkitutil/idldocument/idlattribute.h"
-#include "toolkitutil/idldocument/idlproperty.h"
+#include "idldocument/idlattribute.h"
+#include "idldocument/idlproperty.h"
 #include "attr/attributecontainer.h"
 #include "toolkitutil/logger.h"
 

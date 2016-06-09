@@ -13,7 +13,7 @@
 #include "core/refcounted.h"
 #include "io/uri.h"
 #include "io/textwriter.h"
-#include "toolkitutil/idldocument/idldocument.h"
+#include "idldocument/idldocument.h"
 
 //------------------------------------------------------------------------------
 namespace Tools
@@ -40,64 +40,67 @@ public:
     bool GenerateIncludeFile();
     /// generate the source file
     bool GenerateSourceFile();
+    /// check for error
+    bool HasError() const;
     /// get error message
     const Util::String& GetError() const;
-	/// set an optional output folder
-	void SetOutputURI(const IO::URI& uri);
+    /// set an optional output folder
+    void SetOutputURI(const IO::URI& uri);
 
 private:
     /// set an error string
     void __cdecl SetError(const char* fmt, ...);
     /// convert IDL data type to Nebula C++ reference type
-    Util::String GetNebulaRefType(const Util::String& idlType) const;
+    Util::String GetNebulaRefType(const Util::String& idlType) ;
     /// convert IDL data type to Nebula C++ type
-    Util::String GetNebulaType(const Util::String& idlType) const;
+    Util::String GetNebulaType(const Util::String& idlType) ;
     /// convert IDL data type to Nebula Arg::Type
-    Util::String GetNebulaArgType(const Util::String& idlType) const;
+    Util::String GetNebulaArgType(const Util::String& idlType) ;
     /// convert IDL data type to Nebula getter method
-    Util::String GetNebulaGetterMethod(const Util::String& idlType) const;
+    Util::String GetNebulaGetterMethod(const Util::String& idlType) ;
     /// convert IDL data type to Nebula setter method
-    Util::String GetNebulaSetterMethod(const Util::String& idlType) const;
+    Util::String GetNebulaSetterMethod(const Util::String& idlType) ;
     /// build a call back C++ function prototype
-    Util::String BuildCallbackPrototype(IDLCommand* cmd, bool withClassName) const;
+    Util::String BuildCallbackPrototype(IDLCommand* cmd, bool withClassName) ;
     /// write header for include file
-    void WriteIncludeHeader(IO::TextWriter* writer) const;
+    void WriteIncludeHeader(IO::TextWriter* writer) ;
     /// write command library declaration to include file
-    void WriteLibraryDeclarations(IO::TextWriter* writer) const;
+    void WriteLibraryDeclarations(IO::TextWriter* writer) ;
     /// write message protocol declaration to include file
-    void WriteProtocolDeclarations(IO::TextWriter* writer) const;
+    bool WriteProtocolDeclarations(IO::TextWriter* writer) ;
     /// write a command declaration to include file
-    void WriteCommandDeclaration(IDLCommand* cmd, IO::TextWriter* writer) const;
+    void WriteCommandDeclaration(IDLCommand* cmd, IO::TextWriter* writer) ;
     /// write a message declaration to include file
-    void WriteMessageDeclaration(IDLProtocol* prot, IDLMessage* msg, IO::TextWriter* writer) const;
+    bool WriteMessageDeclaration(IDLProtocol* prot, IDLMessage* msg, IO::TextWriter* writer) ;
     /// write declaration statements for a single message to the include file
-    void WriteMessageArg(IDLProtocol* prot, IDLMessage* msg, IDLArg* arg, IO::TextWriter* writer, bool isInputArg) const;
+    void WriteMessageArg(IDLProtocol* prot, IDLMessage* msg, IDLArg* arg, IO::TextWriter* writer, bool isInputArg) ;
     /// write footer for include file
-    void WriteIncludeFooter(IO::TextWriter* writer) const;
+    void WriteIncludeFooter(IO::TextWriter* writer) ;
     /// write the source header
-    void WriteSourceHeader(IO::TextWriter* writer) const;
+    void WriteSourceHeader(IO::TextWriter* writer) ;
     /// write library implementation to source file
-    void WriteLibraryImplementations(IO::TextWriter* writer) const;
+    void WriteLibraryImplementations(IO::TextWriter* writer) ;
     /// write source file footer to source file
-    void WriteSourceFooter(IO::TextWriter* writer) const;
+    void WriteSourceFooter(IO::TextWriter* writer) ;
     /// write a command implementation to the source file
-    void WriteCommandImplementation(IDLCommand* cmd, IO::TextWriter* writer) const;
+    void WriteCommandImplementation(IDLCommand* cmd, IO::TextWriter* writer) ;
     /// write encode function
-    void WriteEncodeImplementation(IDLMessage* msg, IO::TextWriter* writer) const;
+    bool WriteEncodeImplementation(IDLMessage* msg, IO::TextWriter* writer);
     /// write decode function
-    void WriteDecodeImplementation(IDLMessage* msg, IO::TextWriter* writer) const;
+    bool WriteDecodeImplementation(IDLMessage* msg, IO::TextWriter* writer);
     /// convert type to streamwriter type
-    Util::String ConvertToCamelNotation(const Util::String& lowerCaseType) const;
-	/// write attribute declarations to include file
-	void WriteAttributeLibraryDeclaration(IO::TextWriter* writer) const;
-	/// write encode function for a given type
-	void TypeEncode(const Util::String & type, const Util::String & name, const Ptr<IDLArg> & arg, Util::String & target) const;
-	/// write decode function for a given type
-	void TypeDecode(const Util::String & type, const Util::String & name, const Ptr<IDLArg> & arg, Util::String & target) const;
+    Util::String ConvertToCamelNotation(const Util::String& lowerCaseType) ;
+    /// write attribute declarations to include file
+    void WriteAttributeLibraryDeclaration(IO::TextWriter* writer) ;
+    /// write encode function for a given type
+    bool TypeEncode(const Util::String & type, const Util::String & name, const Ptr<IDLArg> & arg, Util::String & target);
+    /// write decode function for a given type
+    bool TypeDecode(const Util::String & type, const Util::String & name, const Ptr<IDLArg> & arg, Util::String & target);
 
     IO::URI uri;
-	IO::URI outputUri;
+    IO::URI outputUri;
     Util::String error;
+    bool hasError;
     Ptr<IDLDocument> document;
 };
 
@@ -108,6 +111,15 @@ inline const Util::String&
 IDLCodeGenerator::GetError() const
 {
     return this->error;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline bool
+IDLCodeGenerator::HasError() const
+{
+    return this->hasError;
 }
 
 //------------------------------------------------------------------------------
@@ -137,6 +149,8 @@ IDLCodeGenerator::SetDocument(IDLDocument* doc)
 {
     n_assert(0 != doc);
     this->document = doc;
+    this->error = "";
+    this->hasError = false;
 }
 
 //------------------------------------------------------------------------------

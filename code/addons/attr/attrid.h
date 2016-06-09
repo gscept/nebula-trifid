@@ -74,6 +74,8 @@ public:
     Math::float4 GetFloat4DefValue() const;
     /// get matrix44 default value
     const Math::matrix44& GetMatrix44DefValue() const;
+	/// get transform44 default value
+	const Math::transform44& GetTransform44DefValue() const;
     /// get blob default value
     const Util::Blob& GetBlobDefValue() const;
     /// get guid default value
@@ -360,6 +362,17 @@ AttrId::GetMatrix44DefValue() const
 {
     n_assert(0 != this->defPtr);
     return this->defPtr->GetDefaultValue().GetMatrix44();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline
+const Math::transform44&
+AttrId::GetTransform44DefValue() const
+{
+	n_assert(0 != this->defPtr);
+	return this->defPtr->GetDefaultValue().GetTransform44();
 }
 
 //------------------------------------------------------------------------------

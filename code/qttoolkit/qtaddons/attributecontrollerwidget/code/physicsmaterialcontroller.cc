@@ -8,7 +8,7 @@
 #include "db/valuetable.h"
 #include "ui_stringlistcontroller.h"
 #include "basegamefeature/basegameprotocol.h"
-#include "toolkit/toolkitutil/idldocument/idlattribute.h"
+#include "idldocument/idlattribute.h"
 #include "physics/materialtable.h"
 
 using namespace Util;

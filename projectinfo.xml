@@ -66,6 +66,7 @@
 			<File name="code/addons/faudio/audioprotocol.nidl"/>
 			<File name="code/addons/ui/uiattrs/uiattributes.nidl"/>
 			<File name="code/addons/minimap/minimap.nidl"/>
+			<File name="code/addons/vr/vrprotocol.nidl"/>
 		</NIDL>
 
     </Project>

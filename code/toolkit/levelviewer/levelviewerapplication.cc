@@ -119,6 +119,9 @@ LevelViewerGameStateApplication::SetupGameFeatures()
 {
 	GameApplication::SetupGameFeatures();
 
+    // setup input feature
+    this->inputFeature = InputFeature::InputFeatureUnit::Create();
+    this->gameServer->AttachGameFeature(this->inputFeature.upcast<Game::FeatureUnit>());
 	// setup remote server
 	this->remoteServer = QtRemoteServer::Create();
 	this->remoteServer->SetPort(2104);
@@ -251,6 +254,8 @@ LevelViewerGameStateApplication::CleanupGameFeatures()
 	this->graphicsFeature = 0;
 	this->gameServer->RemoveGameFeature(this->baseGameFeature.upcast<Game::FeatureUnit>());
 	this->baseGameFeature = 0;
+    this->gameServer->RemoveGameFeature(this->inputFeature.upcast<Game::FeatureUnit>());
+    this->inputFeature = 0;
 
 	GameApplication::CleanupGameFeatures();
 }

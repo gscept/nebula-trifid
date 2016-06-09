@@ -24,6 +24,7 @@
     Float:      sizeof(float)       usually 4 bytes
     Float4:     sizeof(float4)      usually 16 bytes
     Matrix44:   sizeof(matrix44)    usually 48 bytes
+	Transform44:sizeof(transform44) usually 68 bytes
     String:     sizeof(char*)       usually 4 bytes
 
     The AttributeTable object keeps track of all changes (added columns,
@@ -164,6 +165,10 @@ public:
     void SetMatrix44(const Matrix44AttrId& colAttrId, IndexT rowIndex, const Math::matrix44& val);
     /// get matrix44 value
     Math::matrix44 GetMatrix44(const Matrix44AttrId& colAttrId, IndexT rowIndex) const;
+	/// set transform44 value
+	void SetTransform44(const Transform44AttrId& colAttrId, IndexT rowIndex, const Math::transform44& val);
+	/// get matrix44 value
+	Math::transform44 GetTransform44(const Transform44AttrId& colAttrId, IndexT rowIndex) const;
     /// set guid value
     void SetGuid(const GuidAttrId& colAttrId, IndexT rowIndex, const Util::Guid& guid);
     /// get guid value
@@ -199,6 +204,10 @@ public:
     void SetMatrix44(IndexT colIndex, IndexT rowIndex, const Math::matrix44& val);
     /// get matrix44 value by column index
     Math::matrix44 GetMatrix44(IndexT colIndex, IndexT rowIndex) const;
+	/// set transform44 value by column index
+	void SetTransform44(IndexT colIndex, IndexT rowIndex, const Math::transform44& val);
+	/// get transform44 value by column index
+	Math::transform44 GetTransform44(IndexT colIndex, IndexT rowIndex) const;
     /// set guid value by column index
     void SetGuid(IndexT colIndex, IndexT rowIndex, const Util::Guid& guid);
     /// get guid value by column index
@@ -632,14 +641,45 @@ AttributeTable::SetMatrix44(IndexT colIndex, IndexT rowIndex, const Math::matrix
 //------------------------------------------------------------------------------
 /**
 */
+inline void
+AttributeTable::SetTransform44(IndexT colIndex, IndexT rowIndex, const Math::transform44& val)
+{
+	n_assert(this->GetColumnValueType(colIndex) == Transform44Type);
+	n_assert(!this->IsRowDeleted(rowIndex));
+	Math::scalar* valuePtr = (Math::scalar*) this->GetValuePtr(colIndex, rowIndex);
+	val.storeu(valuePtr);	
+	if (this->trackModifications)
+	{
+		this->rowModifiedBuffer[rowIndex] = 1;
+		this->isModified = true;
+		this->rowsModified = true;
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline Math::transform44
+AttributeTable::GetTransform44(IndexT colIndex, IndexT rowIndex) const
+{
+    n_assert(this->GetColumnValueType(colIndex) == Transform44Type);
+    Math::scalar* valuePtr = (Math::scalar*) this->GetValuePtr(colIndex, rowIndex);
+    Math::transform44 t;
+	t.loadu(valuePtr);	
+    return t;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 inline Math::matrix44
 AttributeTable::GetMatrix44(IndexT colIndex, IndexT rowIndex) const
 {
-    n_assert(this->GetColumnValueType(colIndex) == Matrix44Type);
-    Math::scalar* valuePtr = (Math::scalar*) this->GetValuePtr(colIndex, rowIndex);
-    Math::matrix44 mx;
-    mx.loadu(valuePtr);
-    return mx;
+	n_assert(this->GetColumnValueType(colIndex) == Matrix44Type);
+	Math::scalar* valuePtr = (Math::scalar*) this->GetValuePtr(colIndex, rowIndex);
+	Math::matrix44 mx;
+	mx.loadu(valuePtr);
+	return mx;
 }
 
 //------------------------------------------------------------------------------
@@ -814,6 +854,24 @@ inline Math::matrix44
 AttributeTable::GetMatrix44(const Matrix44AttrId& colAttrId, IndexT rowIndex) const
 {
     return this->GetMatrix44(this->indexMap[colAttrId], rowIndex);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+AttributeTable::SetTransform44(const Transform44AttrId& colAttrId, IndexT rowIndex, const Math::transform44& val)
+{
+	this->SetTransform44(this->indexMap[colAttrId], rowIndex, val);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline Math::transform44
+AttributeTable::GetTransform44(const Transform44AttrId& colAttrId, IndexT rowIndex) const
+{
+	return this->GetTransform44(this->indexMap[colAttrId], rowIndex);
 }
 
 //------------------------------------------------------------------------------

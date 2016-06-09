@@ -100,6 +100,8 @@ public:
     scalar z() const;
     /// read-only access to w component
     scalar w() const;
+    ///
+    __m128 m128() const;
 
     /// return true if quaternion is identity
     bool isidentity() const;
@@ -410,6 +412,15 @@ __forceinline scalar
 quaternion::w() const
 {
     return this->vec.getW();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+__forceinline __m128
+quaternion::m128() const
+{
+    return this->vec.get128();
 }
 
 //------------------------------------------------------------------------------

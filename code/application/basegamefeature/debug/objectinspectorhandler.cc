@@ -242,6 +242,7 @@ void ObjectInspectorHandler::WriteEntityInfo( const Util::String &category,
                     Math::float4 valueFloat4;
                     float valueFloat;
                     Math::matrix44 matrix;
+                    Math::transform44 trans;
                     switch (valueType)
                     {
                         case Attr::IntType:
@@ -318,6 +319,45 @@ void ObjectInspectorHandler::WriteEntityInfo( const Util::String &category,
                             htmlWriter->Element( HtmlElement::TableData, valueString );
                             htmlWriter->End(HtmlElement::TableRow);
                             htmlWriter->End( HtmlElement::Table );
+                            break;
+                        case Attr::Transform44Type:
+                            // to make the matrix more readable create a table
+                            trans = attrTable->GetTransform44(colIndex, rowIndex);
+                            htmlWriter->AddAttr("cellpadding", "3");
+                            //htmlWriter->AddAttr("border", "0");
+                            //htmlWriter->AddAttr("rules", "cols");
+                            htmlWriter->Begin(HtmlElement::Table);
+                            htmlWriter->Begin(HtmlElement::TableRow);
+                            htmlWriter->Element(HtmlElement::TableData, "Position");
+                            htmlWriter->End(HtmlElement::TableRow);
+                            htmlWriter->Begin(HtmlElement::TableRow);
+                            valueFloat4 = trans.getposition();
+                            valueString.Format("(%.3f, %.3f, %.3f, %.3f)",
+                                valueFloat4.x(), valueFloat4.y(),
+                                valueFloat4.z(), valueFloat4.w());
+                            htmlWriter->Element(HtmlElement::TableData, valueString);
+                            htmlWriter->End(HtmlElement::TableRow);
+                            htmlWriter->Begin(HtmlElement::TableRow);
+                            htmlWriter->Element(HtmlElement::TableData, "Rotation");
+                            htmlWriter->End(HtmlElement::TableRow);
+                            htmlWriter->Begin(HtmlElement::TableRow);
+                            valueFloat4 = trans.getrotate().m128();
+                            valueString.Format("(%.3f, %.3f, %.3f, %.3f)",
+                                valueFloat4.x(), valueFloat4.y(),
+                                valueFloat4.z(), valueFloat4.w());
+                            htmlWriter->Element(HtmlElement::TableData, valueString);
+                            htmlWriter->End(HtmlElement::TableRow);
+                            htmlWriter->Begin(HtmlElement::TableRow);
+                            htmlWriter->Element(HtmlElement::TableData, "Scale");
+                            htmlWriter->End(HtmlElement::TableRow);
+                            htmlWriter->Begin(HtmlElement::TableRow);
+                            valueFloat4 = trans.getscale();
+                            valueString.Format("(%.3f, %.3f, %.3f, %.3f)",
+                                valueFloat4.x(), valueFloat4.y(),
+                                valueFloat4.z(), valueFloat4.w());
+                            htmlWriter->Element(HtmlElement::TableData, valueString);
+                            htmlWriter->End(HtmlElement::TableRow);
+                            htmlWriter->End(HtmlElement::Table);
                             break;
                         case Attr::BlobType:
                             // there is no implementation to write out blob data yet

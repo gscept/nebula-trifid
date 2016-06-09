@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Nebula3>
+    <Protocol namespace="VR" name="VRProtocol">
+      <Message name="ViveHover" fourcc="VVHO" />
+      <Message name="ViveClick" fourcc="VVCL" />
+    </Protocol>
+    <AttributeLib>
+      <Attribute name="ControllerHand" fourcc="CTLH" accessMode="ReadWrite" type="String" />
+    </AttributeLib>
+    <Property name="VR::VRCameraProperty" derivedFrom="GraphicsFeature::CameraProperty" header="vr/vrcameraproperty.h" />
+    <Property name="VR::ViveInteractProperty" header="vr/viveinteractproperty.h">
+      <Attribute name="ControllerHand"/>
+    </Property>   
+</Nebula3>

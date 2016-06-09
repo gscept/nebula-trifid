@@ -152,6 +152,10 @@ public:
     void SetMatrix44(const Attr::Matrix44AttrId& attrId, const Math::matrix44& m);
     /// get matrix44 attribute from the entity
     const Math::matrix44 GetMatrix44(const Attr::Matrix44AttrId& attrid) const;
+    /// set transform44 attribute on the entity
+    void SetTransform44(const Attr::Transform44AttrId& attrId, const Math::transform44& m);
+    /// get transform44 attribute from the entity
+    const Math::transform44 GetTransform44(const Attr::Transform44AttrId& attrid) const;
     /// set guid attribute on the entity
     void SetGuid(const Attr::GuidAttrId& attrId, const Util::Guid& guid);
     /// get guid attribute on the entity
@@ -173,6 +177,8 @@ public:
     void AddFloat4(const Attr::Float4AttrId& attrId);
     /// add matrix44 attribute if not exists
     void AddMatrix44(const Attr::Matrix44AttrId& attrId);
+    /// add transform44 attribute if not exists
+    void AddTransform44(const Attr::Transform44AttrId& attrId);
     /// add guid attribute if not exists
     void AddGuid(const Attr::GuidAttrId& attrId);
     /// add blob attribute if not exists
@@ -415,6 +421,24 @@ inline const Math::matrix44
 Entity::GetMatrix44(const Attr::Matrix44AttrId& attrId) const
 {
     return this->attrTable->GetMatrix44(attrId, this->attrTableRowIndex);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+Entity::SetTransform44(const Attr::Transform44AttrId& attrId, const Math::transform44& m)
+{
+    this->attrTable->SetTransform44(attrId, this->attrTableRowIndex, m);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Math::transform44
+Entity::GetTransform44(const Attr::Transform44AttrId& attrId) const
+{
+    return this->attrTable->GetTransform44(attrId, this->attrTableRowIndex);
 }
 
 //------------------------------------------------------------------------------

@@ -20,6 +20,7 @@
 #include "levelviewerfactorymanager.h"
 #include "gamestates/viewergamestate.h"
 #include "navigationfeatureunit.h"
+#include "inputfeature/inputfeatureunit.h"
 
 //------------------------------------------------------------------------------
 /**
@@ -66,6 +67,7 @@ private:
 	Ptr<UI::UiFeatureUnit> uiFeature;
 	Ptr<PostEffect::PostEffectFeatureUnit> postEffectFeature;
 	Ptr<Navigation::NavigationFeatureUnit> navigationFeature;
+    Ptr<InputFeature::InputFeatureUnit> inputFeature;
 
 	Ptr<Tools::LevelViewerGameState> viewerState;
 

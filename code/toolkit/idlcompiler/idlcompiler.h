@@ -15,7 +15,7 @@
     (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "app/consoleapplication.h"
-#include "toolkitutil/idldocument/idldocument.h"
+#include "idldocument/idldocument.h"
 #include "io/uri.h"
 
 //------------------------------------------------------------------------------

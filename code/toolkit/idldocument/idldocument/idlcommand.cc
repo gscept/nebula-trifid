@@ -4,7 +4,7 @@
 //  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "toolkitutil/idldocument/idlcommand.h"
+#include "idlcommand.h"
 
 namespace Tools
 {
@@ -76,30 +76,31 @@ IDLCommand::Parse(XmlReader* reader)
 String
 FromNebulaRefType(const String& type) 
 {
-	if ("Util::String" == type)               return "string";    
-	else if ("Math::float4" == type)         return "float4";
-	else if ("Math::vector" == type)         return "float4";
-	else if ("Math::matrix44" == type)        return "matrix44";
-	else if ("bool" == type)            return "bool";
-	else if ("Util::Guid" == type)            return "guid";
-	else if ("int" == type)             return "int";
-	else if ("uint" == type)             return "uint";
-	else if ("float" == type)             return "float";
-	else if ("Util::Array<int>" == type)        return "intArray";
-	else if ("Util::Array<float>" == type)      return "floatArray";
-	else if ("Util::Array<bool>" == type)       return "boolArray";
-	else if ("Util::Array<Util::String>" == type)     return "stringArray";
-	else if ("Util::Array<Math::vector>" == type)    return "vectorArray";
-	else if ("Util::Array<Math::float4>" == type)    return "float4Array";
-	else if ("Util::Array<Math::matrix44>" == type)   return "matrix44Array";
-	else if ("Util::Array<Util::Guid>" == type)       return "guidArray";
-	// hopefully a wrapped type, otherwise output will be crap
-	else return type;
-	//else
-	//{
-	//	n_error("Invalid IDL type '%s'!", type.AsCharPtr());
-	//	return "";
-	//}
+    if ("Util::String" == type)                     return "string";
+    else if ("Math::float4" == type)                return "float4";
+    else if ("Math::vector" == type)                return "float4";
+    else if ("Math::matrix44" == type)              return "matrix44";
+    else if ("Math::transform44" == type)           return "transform44";
+    else if ("bool" == type)                        return "bool";
+    else if ("Util::Guid" == type)                  return "guid";
+    else if ("int" == type)                         return "int";
+    else if ("uint" == type)                        return "uint";
+    else if ("float" == type)                       return "float";
+    else if ("Util::Array<int>" == type)            return "intArray";
+    else if ("Util::Array<float>" == type)          return "floatArray";
+    else if ("Util::Array<bool>" == type)           return "boolArray";
+    else if ("Util::Array<Util::String>" == type)   return "stringArray";
+    else if ("Util::Array<Math::vector>" == type)   return "vectorArray";
+    else if ("Util::Array<Math::float4>" == type)   return "float4Array";
+    else if ("Util::Array<Math::matrix44>" == type) return "matrix44Array";
+    else if ("Util::Array<Util::Guid>" == type)     return "guidArray";
+    // hopefully a wrapped type, otherwise output will be crap
+    else return type;
+    //else
+    //{
+    //	n_error("Invalid IDL type '%s'!", type.AsCharPtr());
+    //	return "";
+    //}
 }
 
 //------------------------------------------------------------------------------

@@ -1,14 +1,13 @@
 //------------------------------------------------------------------------------
-//  idlprotocol.cc
-//  (C) 2006 Radon Labs GmbH
-//  (C) 2013-2016 Individual contributors, see AUTHORS file
+//  idlattributelib.cc
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "toolkitutil/idldocument/idlprotocol.h"
+#include "idlattributelib.h"
 
 namespace Tools
 {
-__ImplementClass(Tools::IDLProtocol, 'ILPR', Core::RefCounted);
+__ImplementClass(Tools::IDLAttributeLib, 'ILAL', Core::RefCounted);
 
 using namespace Util;
 using namespace IO;
@@ -16,24 +15,20 @@ using namespace IO;
 //------------------------------------------------------------------------------
 /**
 */
-IDLProtocol::IDLProtocol() 
+IDLAttributeLib::IDLAttributeLib() 
 {
-    // empty
+	// empty
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 bool
-IDLProtocol::Parse(XmlReader* reader)
+IDLAttributeLib::Parse(XmlReader* reader)
 {
     n_assert(0 != reader);
-    n_assert(reader->GetCurrentNodeName() == "Protocol");
+    n_assert(reader->GetCurrentNodeName() == "AttributeLib");
 
-    // parse attributes
-    this->name = reader->GetString("name");
-    this->nameSpace = reader->GetString("namespace");	
-    
     // parse dependency definitions
     if (reader->SetToFirstChild("Dependency")) do
     {
@@ -46,19 +41,18 @@ IDLProtocol::Parse(XmlReader* reader)
         this->dependencies.Append(dep);
     }
     while (reader->SetToNextChild("Dependency"));
-    
-    // parse message definitions
-    if (reader->SetToFirstChild("Message")) do
+
+    // parse attribute definitions
+    if (reader->SetToFirstChild("Attribute")) do
     {
-        Ptr<IDLMessage> msg = IDLMessage::Create();
-        if (!msg->Parse(reader))
+        Ptr<IDLAttribute> attr = IDLAttribute::Create();
+        if (!attr->Parse(reader))
         {
-            this->SetError(msg->GetError());
+            this->SetError(attr->GetError());
             return false;
-        }
-        this->messages.Append(msg);
+        }attributes.Append(attr);
     }
-    while (reader->SetToNextChild("Message"));
+    while (reader->SetToNextChild("Attribute"));
     return true;
 }
 

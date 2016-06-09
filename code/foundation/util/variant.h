@@ -13,6 +13,7 @@
 #include "math/float2.h"
 #include "math/float4.h"
 #include "math/matrix44.h"
+#include "math/transform44.h"
 #include "util/string.h"
 #include "util/guid.h"
 #include "util/blob.h"
@@ -37,6 +38,7 @@ public:
         Float4,
         String,
         Matrix44,
+		Transform44,
         Blob,
         Guid,
         Object,
@@ -68,6 +70,8 @@ public:
     Variant(const Math::float4& v);
     /// matrix44 constructor
     Variant(const Math::matrix44& m);
+	/// transform44 constructor
+	Variant(const Math::transform44& m);
     /// string constructor
     Variant(const Util::String& rhs);
     /// blob constructor
@@ -126,6 +130,8 @@ public:
     void operator=(const Math::float4& val);
     /// matrix44 assignment operator
     void operator=(const Math::matrix44& val);
+	/// transform44 assignment operator
+	void operator=(const Math::transform44& val);
     /// string assignment operator
     void operator=(const Util::String& s);
     /// blob assignment operator
@@ -248,6 +254,10 @@ public:
     void SetMatrix44(const Math::matrix44& val);
     /// get matrix44 content
     const Math::matrix44& GetMatrix44() const;
+	/// set transform44 content
+	void SetTransform44(const Math::transform44& val);
+	/// get transform44 content
+	const Math::transform44& GetTransform44() const;
     /// set blob 
     void SetBlob(const Util::Blob& val);
     /// get blob
@@ -327,6 +337,7 @@ private:
         bool b;
         float f[4];
         Math::matrix44* m;
+		Math::transform44* t;
         Util::String* string;
         Util::Guid* guid;
         Util::Blob* blob;
@@ -502,6 +513,9 @@ Variant::Copy(const Variant& rhs)
         case Matrix44:
             this->m = n_new(Math::matrix44(*rhs.m));
             break;
+		case Transform44:
+			this->t = n_new(Math::transform44(*rhs.t));
+			break;
         case Blob:
             this->blob = n_new(Util::Blob(*rhs.blob));
             break;
@@ -683,6 +697,16 @@ Variant::Variant(const Math::matrix44& rhs) :
 /**
 */
 inline
+Variant::Variant(const Math::transform44& rhs) :
+	type(Transform44)
+{
+	this->t = n_new(Math::transform44(rhs));
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline
 Variant::Variant(const Util::Blob& rhs) :
     type(Blob)
 {
@@ -814,6 +838,9 @@ Variant::SetType(Type t)
         case Matrix44:
             this->m = n_new(Math::matrix44);
             break;
+		case Transform44:
+			this->t = n_new(Math::transform44);
+			break;
         case Blob:
             this->blob = n_new(Util::Blob);
             break;
@@ -989,6 +1016,23 @@ Variant::operator=(const Math::matrix44& val)
     this->type = Matrix44;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+Variant::operator=(const Math::transform44& val)
+{
+	if (Transform44 == this->type)
+	{
+		*this->t = val;
+	}
+	else
+	{
+		this->Delete();
+		this->t = n_new(Math::transform44(val));
+	}
+	this->type = Transform44;
+}
 //------------------------------------------------------------------------------
 /**
 */
@@ -1253,6 +1297,8 @@ Variant::operator==(const Variant& rhs) const
                 return (this->voidPtr == rhs.voidPtr);
             case Matrix44:
                 return ((*this->m) == (*rhs.m));
+			case Transform44:
+				return ((*this->t) == (*rhs.t));
             default:
                 n_error("Variant::operator==(): invalid variant type!");
                 return false;
@@ -1832,6 +1878,25 @@ Variant::GetMatrix44() const
 /**
 */
 inline void
+Variant::SetTransform44(const Math::transform44& val)
+{
+	*this = val;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Math::transform44&
+Variant::GetTransform44() const
+{
+	n_assert(Transform44 == this->type);
+	return *(this->t);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
 Variant::SetGuid(const Util::Guid& val)
 {
     *this = val;
@@ -2096,6 +2161,7 @@ Variant::ToString() const
         case Float4:        { retval = Util::String::FromFloat4(this->GetFloat4()); break; }
         case String:        { retval = this->GetString(); break; }
         case Matrix44:      { retval = Util::String::FromMatrix44(this->GetMatrix44()); break; }
+		case Transform44:   { retval = Util::String::FromTransform44(this->GetTransform44()); break; }
         case Blob:          { retval = Util::String::FromBlob(this->GetBlob()); break; }
         case Guid:          { retval = this->GetGuid().AsString(); break; }
         case IntArray:      { const Util::Array<int>& arr = this->GetIntArray(); for (int i = 0; i < arr.Size(); i++) { retval.AppendInt(arr[i]); retval += (i < arr.Size() - 1 ? "," : ""); } break; }
@@ -2121,13 +2187,14 @@ Util::Variant::SetParseString(const Util::String& string)
     switch (this->type)
     {
         case Int:
-        case UInt:              { if(string.IsValidInt())       { this->SetUInt(string.AsInt()); retval = true; break; } }
-        case Float:             { if(string.IsValidFloat())     { this->SetFloat(string.AsFloat()); retval = true; break; } }
-        case Bool:              { if(string.IsValidBool())      { this->SetBool(string.AsBool()); retval = true; break; } }
-        case Float2:            { if(string.IsValidFloat2())    { this->SetFloat2(string.AsFloat2()); retval = true; break; } }
-        case Float4:            { if(string.IsValidFloat4())    { this->SetFloat4(string.AsFloat4()); retval = true; break; } }
-        case String:            {                                 this->SetString(string); retval = true; break; }
-        case Matrix44:          { if(string.IsValidMatrix44())  { this->SetMatrix44(string.AsMatrix44()); retval = true; break; } }
+        case UInt:              { if(string.IsValidInt())          { this->SetUInt(string.AsInt()); retval = true; break; } }
+        case Float:             { if(string.IsValidFloat())        { this->SetFloat(string.AsFloat()); retval = true; break; } }
+        case Bool:              { if(string.IsValidBool())         { this->SetBool(string.AsBool()); retval = true; break; } }
+        case Float2:            { if(string.IsValidFloat2())       { this->SetFloat2(string.AsFloat2()); retval = true; break; } }
+        case Float4:            { if(string.IsValidFloat4())       { this->SetFloat4(string.AsFloat4()); retval = true; break; } }
+        case String:            {                                    this->SetString(string); retval = true; break; }
+        case Matrix44:          { if(string.IsValidMatrix44())     { this->SetMatrix44(string.AsMatrix44()); retval = true; break; } }
+		case Transform44:       { if (string.IsValidTransform44()) { this->SetTransform44(string.AsTransform44()); retval = true; break; } }
 
         case IntArray:          
             { 
@@ -2223,6 +2290,7 @@ Variant::TypeToString(Type t)
         case Float4:        return "float4";
         case String:        return "string";
         case Matrix44:      return "matrix44";
+		case Transform44:   return "transform44";
         case Blob:          return "blob";
         case Guid:          return "guid";
         case Object:        return "object";
@@ -2258,6 +2326,7 @@ Variant::StringToType(const Util::String& str)
     else if ("color" == str)            return Float4; // NOT A BUG!
     else if ("string" == str)           return String;
     else if ("matrix44" == str)         return Matrix44;
+	else if ("transform44" == str)         return Transform44;
     else if ("blob" == str)             return Blob;
     else if ("guid" == str)             return Guid;
     else if ("object" == str)           return Object;

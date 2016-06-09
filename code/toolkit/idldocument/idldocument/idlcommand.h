@@ -12,8 +12,8 @@
 */
 #include "core/refcounted.h"
 #include "io/xmlreader.h"
-#include "toolkitutil/idldocument/idlarg.h"
-#include "toolkitutil/idldocument/idlmessage.h"
+#include "idldocument/idlarg.h"
+#include "idldocument/idlmessage.h"
 
 //------------------------------------------------------------------------------
 namespace Tools

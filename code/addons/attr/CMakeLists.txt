@@ -23,6 +23,7 @@ set(SOURCES_files_attr
 	guidattrid.h
 	intattrid.h
 	matrix44attrid.h
+	transform44attrid.h
 	stringattrid.h
 	valuetype.h
 	io/attrcontainerstoragebase.cc

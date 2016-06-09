@@ -38,6 +38,8 @@ public:
     explicit AttributeDefinitionBase(const Util::String& name, const Util::FourCC& fourCC, AccessMode accessMode, const Math::float4& defVal, bool isDynamic);
     /// matrix44 constructor
     explicit AttributeDefinitionBase(const Util::String& name, const Util::FourCC& fourCC, AccessMode accessMode, const Math::matrix44& defVal, bool isDynamic);
+	/// transform44 constructor
+	explicit AttributeDefinitionBase(const Util::String& name, const Util::FourCC& fourCC, AccessMode accessMode, const Math::transform44& defVal, bool isDynamic);
     /// blob constructor
     explicit AttributeDefinitionBase(const Util::String& name, const Util::FourCC& fourCC, AccessMode accessMode, const Util::Blob& defVal, bool isDynamic);
     /// guid constructor

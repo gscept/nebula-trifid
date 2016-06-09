@@ -235,12 +235,6 @@
     <addaction name="separator"/>
     <addaction name="actionBatch_game_data"/>
    </widget>
-   <widget class="QMenu" name="menuWindow_2">
-    <property name="title">
-     <string>Window</string>
-    </property>
-    <addaction name="actionShow_global_light_probe"/>
-   </widget>
    <widget class="QMenu" name="menu_Scripts">
     <property name="title">
      <string> Scripts</string>
@@ -255,7 +249,6 @@
    <addaction name="menuDisplay"/>
    <addaction name="menu_Scripts"/>
    <addaction name="menuTest_Level"/>
-   <addaction name="menuWindow_2"/>
    <addaction name="menuAbout"/>
   </widget>
   <widget class="QToolBar" name="toolBar">

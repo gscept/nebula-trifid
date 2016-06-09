@@ -55,7 +55,7 @@ public:
     /// get the CameraEntity this View looks through
     const Ptr<CameraEntity>& GetCameraEntity() const;
     /// set the view's frame shader 
-    void SetFrameShader(const Ptr<Frame::FrameShader>& frameShader);
+    virtual void SetFrameShader(const Ptr<Frame::FrameShader>& frameShader);
     /// get the view's frame shader
     const Ptr<Frame::FrameShader>& GetFrameShader() const;
 	/// sets the view's resolve rect
@@ -77,7 +77,7 @@ public:
     /// update the visibility links for this view 
     virtual void UpdateVisibilityLinks();
     /// apply camera settings
-    void ApplyCameraSettings();
+    virtual void ApplyCameraSettings();
     /// render the view into its render target
     virtual void Render(IndexT frameIndex);
     /// render a debug view of the world
