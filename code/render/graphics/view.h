@@ -117,6 +117,7 @@ protected:
     Util::Array<Ptr<View> > dependencies;
 	bool resolveRectValid;
 	Math::rectangle<int> resolveRect;
+	Ptr<ViewDisplayHandler> displayHandler;
     
 	_declare_timer(resolveVisibleShadowCasters);
     _declare_timer(resolveVisibleModelNodeInstances);

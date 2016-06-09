@@ -9,12 +9,27 @@
 
 #define USE_MSM (1)
 #if USE_MSM
-#define PS_METHOD_STANDARD 	psMSM()
-#define PS_METHOD_ALPHA 	psMSMAlpha()
+#define PS_METHOD_STANDARD 		psMSM()
+#define PS_METHOD_ALPHA_TEST 	psMSMAlphaTest()
+#define PS_METHOD_ALPHA			psMSMAlpha()
 #else
-#define PS_METHOD_STANDARD	psVSM()
-#define PS_METHOD_ALPHA		psVSMAlpha()
+#define PS_METHOD_STANDARD		psVSM()
+#define PS_METHOD_ALPHA_TEST	psVSMAlphaTest()
+#define PS_METHOD_ALPHA			psVSMAlpha()
 #endif
+
+#define SPOTLIGHT_SHADOW(VS, STATE) 					program Spotlight [ string Mask = "Spot"; ] { VertexShader = VS; PixelShader = psShadow(); RenderState = STATE; }
+#define SPOTLIGHT_SHADOW_ALPHATEST(VS, STATE) 			program Spotlight [ string Mask = "Spot"; ] { VertexShader = VS; PixelShader = psShadowAlphaTest(); RenderState = STATE; }
+#define SPOTLIGHT_SHADOW_ALPHA(VS, STATE) 				program Spotlight [ string Mask = "Spot"; ] { VertexShader = VS; PixelShader = psShadowAlpha(); RenderState = STATE; }
+#define POINTLIGHT_SHADOW(VS, STATE) 					program Pointlight [ string Mask = "Point"; ] { VertexShader = VS; PixelShader = PS_METHOD_STANDARD; GeometryShader = gsPoint(); RenderState = STATE; }
+#define POINTLIGHT_SHADOW_ALPHATEST(VS, STATE) 			program Pointlight [ string Mask = "Point"; ] { VertexShader = VS; PixelShader = PS_METHOD_ALPHA_TEST; GeometryShader = gsPoint(); RenderState = STATE; }
+#define POINTLIGHT_SHADOW_ALPHA(VS, STATE) 				program Pointlight [ string Mask = "Point"; ] { VertexShader = VS; PixelShader = PS_METHOD_ALPHA; GeometryShader = gsPoint(); RenderState = STATE; }
+#define GLOBALLIGHT_SHADOW(VS, STATE) 					program Globallight [ string Mask = "Global"; ] { VertexShader = VS; PixelShader = PS_METHOD_STANDARD; GeometryShader = gsCSM(); RenderState = STATE; }
+#define GLOBALLIGHT_SHADOW_ALPHATEST(VS, STATE)			program Globallight [ string Mask = "Global"; ] { VertexShader = VS; PixelShader = PS_METHOD_ALPHA_TEST; GeometryShader = gsCSM(); RenderState = STATE; }
+#define GLOBALLIGHT_SHADOW_ALPHA(VS, STATE) 			program Globallight [ string Mask = "Global"; ] { VertexShader = VS; PixelShader = PS_METHOD_ALPHA; GeometryShader = gsCSM(); RenderState = STATE; }
+#define GLOBALLIGHT_SHADOW_INST(VS, STATE) 				program Globallight [ string Mask = "Global"; ] { VertexShader = VS; PixelShader = PS_METHOD_STANDARD; GeometryShader = gsCSMInst(); RenderState = STATE; }
+#define GLOBALLIGHT_SHADOW_INST_ALPHATEST(VS, STATE)	program Globallight [ string Mask = "Global"; ] { VertexShader = VS; PixelShader = PS_METHOD_ALPHA_TEST; GeometryShader = gsCSMInst(); RenderState = STATE; }
+#define GLOBALLIGHT_SHADOW_INST_ALPHA(VS, STATE) 		program Globallight [ string Mask = "Global"; ] { VertexShader = VS; PixelShader = PS_METHOD_ALPHA; GeometryShader = gsCSMInst(); RenderState = STATE; }
 
 #include "lib/defaultsamplers.fxh"
 
@@ -32,21 +47,39 @@ state ShadowState
 {
 	CullMode = Back;
 	DepthClamp = false;
-	DepthEnabled = false;
-	DepthWrite = false;
-	BlendEnabled[0] = true;
-	BlendOp[0] = Min;
 };
 
+state ShadowStateAlpha
+{
+	CullMode = Back;
+	DepthClamp = false;
+	BlendEnabled[0] = true;
+	SrcBlend[0] = One;
+	DstBlend[0] = One;
+};
+
+// csm states use LH projection matrix, so we must cull front faces...
 state ShadowStateCSM
 {
 	CullMode = Front;
-	//DepthClamp = false;
+	DepthClamp = false;
 	//DepthEnabled = false;
 	//DepthWrite = false;
 	//BlendEnabled[0] = true;
 	//BlendOp[0] = Min;
 };
+
+state ShadowStateCSMAlpha
+{
+	CullMode = Front;
+	DepthClamp = false;
+	//DepthEnabled = false;
+	//DepthWrite = false;
+	BlendEnabled[0] = true;
+	SrcBlend[0] = One;
+	DstBlend[0] = One;
+};
+
 
 //------------------------------------------------------------------------------
 /**
@@ -234,8 +267,6 @@ vsStaticInstPoint(in vec3 position,
 	Geometry shader for point light shadow instancing.
 	We copy the geometry and project into each direction frustum.
 	We then point to which render target we wish to write to using gl_Layer.
-	
-	Doesn't work though...
 */
 [inputprimitive] = triangles
 [outputprimitive] = triangle_strip
@@ -295,22 +326,40 @@ gsCSM(in vec2 uv[], in vec4 pos[], flat in int instance[], out vec2 UV, out vec4
 	gl_Position = ProjPos;
 	EmitVertex();
 	EndPrimitive();
-	/*
-	for (int instance = 0; instance < 4; instance++)
-	{
-		mat4 splitMatrix = ViewMatrixArray[instance];
-		
-		for (int vertex = 0; vertex < 3; vertex++)
-		{
-			vec4 pos = splitMatrix * gl_in[vertex].gl_Position;
-			UV = uv[vertex];
-			ProjPos = pos;
-			gl_Position = pos;
-			EmitVertex();
-		}
-		EndPrimitive();
-	}
-	*/
+}
+
+//------------------------------------------------------------------------------
+/**
+	Geometry shader for CSM shadow instancing.
+	We copy the geometry and project into each frustum.
+	We then point to which viewport we wish to use using gl_ViewportIndex
+*/
+[inputprimitive] = triangles
+[outputprimitive] = triangle_strip
+[maxvertexcount] = 3
+[instances] = CASCADE_COUNT_FLAG
+shader
+void 
+gsCSMInst(in vec2 uv[], in vec4 pos[], out vec2 UV, out vec4 ProjPos)
+{
+	gl_ViewportIndex = gl_InvocationID;
+	
+	// simply pass geometry straight through and set viewport
+	UV = uv[0];
+	ProjPos = pos[0];
+	gl_Position = ViewMatrixArray[gl_InvocationID] * ProjPos;
+	EmitVertex();
+	
+	UV = uv[1];
+	ProjPos = pos[1];
+	gl_Position = ViewMatrixArray[gl_InvocationID] * ProjPos;
+	EmitVertex();
+	
+	UV = uv[2];
+	ProjPos = pos[2];
+	gl_Position = ViewMatrixArray[gl_InvocationID] * ProjPos;
+	EmitVertex();
+	EndPrimitive();
 }
 
 //------------------------------------------------------------------------------
@@ -578,7 +627,7 @@ psShadow(in vec2 UV,
 */
 shader
 void
-psShadowAlpha(in vec2 UV,
+psShadowAlphaTest(in vec2 UV,
 	in vec4 ProjPos,
 	[color0] out vec2 ShadowColor) 
 {
@@ -680,7 +729,23 @@ psMSM(in vec2 UV,
 	in vec4 ProjPos,
 	[color0] out vec4 ShadowColor) 
 {
-	float depth = ProjPos.z;
+	float depth = ProjPos.z / ProjPos.w;
+	ShadowColor = EncodeMSM4(depth);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+shader
+void
+psMSMAlphaTest(in vec2 UV,
+	in vec4 ProjPos,
+	[color0] out vec4 ShadowColor) 
+{
+	float alpha = texture(AlbedoMap, UV).a;
+	if (alpha < AlphaSensitivity) discard;
+	
+	float depth = ProjPos.z / ProjPos.w;
 	ShadowColor = EncodeMSM4(depth);
 }
 
@@ -694,10 +759,9 @@ psMSMAlpha(in vec2 UV,
 	[color0] out vec4 ShadowColor) 
 {
 	float alpha = texture(AlbedoMap, UV).a;
-	if (alpha < AlphaSensitivity) discard;
 	
-	float depth = ProjPos.z;
-	ShadowColor = EncodeMSM4(depth);
+	float depth = ProjPos.z / ProjPos.w;
+	ShadowColor = EncodeMSM4(depth) * alpha;
 }
 
 //---------------------------------------------------------------------------------------------------------------------------

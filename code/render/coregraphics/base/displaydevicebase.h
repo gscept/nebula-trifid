@@ -172,7 +172,7 @@ DisplayDeviceBase::GetCurrentWindow() const
 inline const Ptr<CoreGraphics::Window>&
 DisplayDeviceBase::GetWindow(IndexT index) const
 {
-	n_assert(this->windows.Size() > index);
+	n_assert(this->windows.Size() > index && index != InvalidIndex);
 	return this->windows[index];
 }
 

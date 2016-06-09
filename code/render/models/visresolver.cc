@@ -62,6 +62,7 @@ VisResolver::Close()
 {
     n_assert(this->isOpen);
     n_assert(!this->inResolve);
+	n_assert(this->states.IsEmpty());
     this->visibleModels.Reset();
     this->isOpen = false;
 }
@@ -135,6 +136,24 @@ const Array<Ptr<ModelNodeInstance> >&
 VisResolver::GetVisibleModelNodeInstances(const Materials::SurfaceName::Code& surfaceName, const Ptr<ModelNode>& modelNode) const
 {
     return modelNode->GetVisibleModelNodeInstances(surfaceName);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VisResolver::PushResolve()
+{
+	this->states.Push(this->visibleModels);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VisResolver::PopResolve()
+{
+	this->visibleModels = this->states.Pop();
 }
 
 } // namespace Models

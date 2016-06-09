@@ -226,7 +226,7 @@ DisplayDeviceBase::EmbedWindow(const Util::Blob& windowData)
 void
 DisplayDeviceBase::MakeWindowCurrent(const IndexT index)
 {
-	n_assert(this->windows.Size() > index);
+	n_assert(this->windows.Size() > index && index != InvalidIndex);
 	this->currentWindow = this->windows[index];
 	this->currentWindow->MakeCurrent();
 }

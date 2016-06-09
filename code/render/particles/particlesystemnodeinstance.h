@@ -33,6 +33,8 @@ public:
 	virtual void ApplyState(IndexT frameIndex, const IndexT& pass, const Ptr<CoreGraphics::Shader>& shader);
     /// perform rendering
     virtual void Render();
+	/// perform instanced rendering
+	virtual void RenderInstanced(SizeT numInstances);
 
 	/// set surface instance
 	virtual void SetSurfaceInstance(const Ptr<Materials::SurfaceInstance>& material);

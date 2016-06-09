@@ -25,16 +25,16 @@ namespace Lighting
 /**
 */
 CSMUtil::CSMUtil() :
-	cascadeMaxDistance(100),
+	cascadeMaxDistance(300),
 	fittingMethod(Scene),
 	clampingMethod(SceneAABB),
 	blurSize(1),
 	floorTexels(true)
 {
-	this->cascadeDistances[0] = 1;
-	this->cascadeDistances[1] = 5;
-	this->cascadeDistances[2] = 30;
-	this->cascadeDistances[3] = 100;
+	this->cascadeDistances[0] = 5;
+	this->cascadeDistances[1] = 50;
+	this->cascadeDistances[2] = 120;
+	this->cascadeDistances[3] = 300;
 }
 
 //------------------------------------------------------------------------------
@@ -78,12 +78,8 @@ CSMUtil::ComputeFrustumPoints( float cascadeBegin, float cascadeEnd, const Math:
 //------------------------------------------------------------------------------
 /**
 */
-void 
-CSMUtil::ComputeNearAndFar( float& nearPlane, 
-							float& farPlane, 
-							const Math::float4& lightCameraOrtoMin, 
-							const Math::float4& lightCameraOrtoMax, 
-							const Math::float4* lightAABBPoints )
+void
+CSMUtil::ComputeNearAndFar(float& nearPlane, float& farPlane, const Math::float4& lightCameraOrtoMin, const Math::float4& lightCameraOrtoMax, const Math::float4* lightAABBPoints)
 {
 	nearPlane = FLT_MAX;
 	farPlane = -FLT_MAX; 
@@ -361,9 +357,8 @@ CSMUtil::Compute()
 	float4 lightCameraOrthographicMin;
 	float4 lightCameraOrthographicMax;
 
-	// calculate near and far range based on scene bounding box
-	//float nearFarRange = camSettings.GetZFar() - camSettings.GetZNear();
-	float nearFarRange = this->shadowBox.diagonal_size();
+	// calculate near and far range based on half the scene bounding box, but clamp within 'resonable' range
+	float nearFarRange = n_min(this->shadowBox.diagonal_size() / 2, 300.0f);
 	float4 unitsPerTexel = float4(0,0,0,0);
 
 	for (int cascadeIndex = 0; cascadeIndex < NumCascades; ++cascadeIndex)
@@ -488,15 +483,15 @@ CSMUtil::Compute()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-CSMUtil::ComputeAABB( float4* lightAABBPoints, const float4& sceneCenter, const float4& sceneExtents )
+void
+CSMUtil::ComputeAABB(float4* lightAABBPoints, const float4& sceneCenter, const float4& sceneExtents)
 {
 	static const float4 extentsMap[] = 
 	{ 
 		float4(1.0f, 1.0f, -1.0f, 1.0f), 
-		float4(-1.0f, 1.0f, -1.0f, 1.0f), 
-		float4(1.0f, -1.0f, -1.0f, 1.0f), 
-		float4(-1.0f, -1.0f, -1.0f, 1.0f), 
+		float4(-1.0f, 1.0f, -1.0f, 1.0f),
+		float4(1.0f, -1.0f, -1.0f, 1.0f),
+		float4(-1.0f, -1.0f, -1.0f, 1.0f),
 		float4(1.0f, 1.0f, 1.0f, 1.0f), 
 		float4(-1.0f, 1.0f, 1.0f, 1.0f), 
 		float4(1.0f, -1.0f, 1.0f, 1.0f), 

@@ -14,6 +14,7 @@
 #include "core/refcounted.h"
 #include "core/singleton.h"
 #include "models/visresolvecontainer.h"
+#include "util/stack.h"
 
 //------------------------------------------------------------------------------
 namespace Models
@@ -49,6 +50,11 @@ public:
     /// end resolve
     void EndResolve();
 
+	/// push current resolve unto stack
+	void PushResolve();
+	/// pop resolve from stack
+	void PopResolve();
+
     /// post-resolve: get Models with visible ModelNodeInstances by node type
     const Util::Array<Ptr<Model>>& GetVisibleModels(const Materials::SurfaceName::Code& surfaceName) const;
     /// post-resolve: get visible ModelNodes of a Model by node type
@@ -62,6 +68,7 @@ private:
     /// add a visible model by node type
     void AddVisibleModel(IndexT frameIndex, const Materials::SurfaceName::Code& surfaceName, const Ptr<Model>& model);
 
+	Util::Stack<VisResolveContainer<Model, Materials::SurfaceName::Code, Materials::SurfaceName::MaxNumSurfaceNames>> states;
     VisResolveContainer<Model, Materials::SurfaceName::Code, Materials::SurfaceName::MaxNumSurfaceNames> visibleModels;
     Math::matrix44 cameraTransform;
     IndexT resolveCount;

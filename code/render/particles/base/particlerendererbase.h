@@ -34,15 +34,15 @@ public:
     /// begin adding visible particle systems
     virtual void BeginAttach();
     /// attach a visible particle system instance
-    void AddVisibleParticleSystem(const Ptr<Particles::ParticleSystemInstance> &particleSystemInstance);
+    void AddVisibleParticleSystem(const Ptr<Particles::ParticleSystemInstance>& particleSystemInstance);
     /// is renderer in attach?
     bool IsInAttach() const;
     /// finish adding visible particle sytems
     virtual void EndAttach();
 
     /// render particles of previously attached particle system
-    void RenderParticleSystem(const Ptr<Particles::ParticleSystemInstance> &particleSystemInstance);
-    
+    void RenderParticleSystem(const Ptr<Particles::ParticleSystemInstance>& particleSystemInstance);
+
 protected:
     bool isValid;
     bool inAttach;

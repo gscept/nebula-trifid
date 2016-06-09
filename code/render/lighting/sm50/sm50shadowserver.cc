@@ -252,7 +252,7 @@ SM50ShadowServer::Open()
 	// create pass
 	this->globalLightHotPass = FramePass::Create();
 	this->globalLightHotPass->SetRenderTarget(this->globalLightShadowBuffer);
-	this->globalLightHotPass->SetClearColor(float4(0, 0, 0, 0));
+	this->globalLightHotPass->SetClearColor(float4(0.999991, 0.997559, 0.893437, 0));
 	this->globalLightHotPass->SetClearDepth(1);
 	this->globalLightHotPass->SetClearFlags(RenderTarget::ClearColor | DepthStencilTarget::ClearDepth);
 	this->globalLightHotPass->SetName("GlobalLightHotPass");
@@ -295,7 +295,7 @@ SM50ShadowServer::Open()
 	this->globalLightShadowBuffer->SetResolveRectArray(rectArray);
 
 	this->csmUtil.SetTextureWidth(csmWidth / SplitsPerRow);
-	this->csmUtil.SetClampingMethod(CSMUtil::AABB);
+	this->csmUtil.SetClampingMethod(CSMUtil::SceneAABB);
 	this->csmUtil.SetFittingMethod(CSMUtil::Scene);
 
 #if NEBULA3_ENABLE_PROFILING
@@ -439,6 +439,7 @@ SM50ShadowServer::UpdateSpotLightShadowBuffers()
 		// perform visibility resolve for current light		
 		const Array<Ptr<GraphicsEntity> >& visLinks = lightEntity->GetLinks(GraphicsEntity::LightLink);
 		if (visLinks.Size() == 0) continue;
+		visResolver->PushResolve();
 		visResolver->BeginResolve(lightEntity->GetTransform());
 		IndexT linkIndex;
 		for (linkIndex = 0; linkIndex < visLinks.Size(); linkIndex++)
@@ -465,6 +466,9 @@ SM50ShadowServer::UpdateSpotLightShadowBuffers()
 		matrix44 viewProj = matrix44::multiply(lightEntity->GetShadowInvTransform(), lightEntity->GetShadowProjTransform());
 		transDev->ApplyViewMatrixArray(&viewProj, 1);
         this->spotLightPass->Render(frameIndex);
+
+		// pop back previous visibility result
+		visResolver->PopResolve();
 
 		// render first SAT pass
         this->spotLightVertPass->Render(frameIndex);
@@ -516,6 +520,7 @@ SM50ShadowServer::UpdatePointLightShadowBuffers()
 		const Ptr<PointLightEntity>& lightEntity = this->pointLightEntities[lightIndex];
 
 		// perform visibility resolve for current light
+		visResolver->PushResolve();
 		visResolver->BeginResolve(lightEntity->GetTransform());
 		const Array<Ptr<GraphicsEntity> >& visLinks = lightEntity->GetLinks(GraphicsEntity::LightLink);
 		if (visLinks.Size() == 0) continue;
@@ -575,7 +580,9 @@ SM50ShadowServer::UpdatePointLightShadowBuffers()
 		this->pointLightPass->SetRenderTargetCube(cube);
 		this->pointLightPass->Render(frameIndex);
 
-		// blur
+		// pop back previous visibility result
+		visResolver->PopResolve();
+
 #define TILE_WIDTH 320
 
 		// calculate execution dimensions
@@ -622,11 +629,12 @@ SM50ShadowServer::PrepareGlobalShadowBuffer()
 	this->csmUtil.SetGlobalLight(this->globalLightEntity);
 	Math::bbox box = GraphicsServer::Instance()->GetDefaultView()->GetStage()->GetGlobalBoundingBox();
 
-	// add extension to bounding box, this ensures our ENTIRE level gets into a cascade (hopefully), but clamp the box to not be bigger than 1000, 1000, 1000
-	vector extents = box.extents() + vector(10, 10, 10);
-	extents = float4::clamp(extents, vector(-500), vector(500));
-
-	box.set(point(0), extents);
+	// clamp box to ensure we only capture a limited area, keep Z inifinitely big
+	//box.pmin = float4::maximize(box.pmin, vector(-50, -50, -FLT_MAX));
+	//box.pmax = float4::minimize(box.pmax, vector(50, 50, FLT_MAX));
+	
+	// add a small region so that we are guaranteed to fully envelope what is within the clamped
+	box.set(box.center(), box.extents() + vector(10, 10, 10));
 	this->csmUtil.SetShadowBox(box);
 	this->csmUtil.Compute();
 
@@ -663,6 +671,7 @@ SM50ShadowServer::UpdateHotGlobalShadowBuffer()
 
 	// perform visibility resolve, directional lights don't really have a position
 	// thus we're feeding an identity matrix as camera transform
+	visResolver->PushResolve();
 	visResolver->BeginResolve(cascadeViewProjection);
 	const Array<Ptr<GraphicsEntity>>& visLinks = this->globalLightEntity->GetLinks(GraphicsEntity::LightLink);
 	IndexT linkIndex;
@@ -680,7 +689,10 @@ SM50ShadowServer::UpdateHotGlobalShadowBuffer()
 	visResolver->EndResolve();
 
 	// render batch
-    this->globalLightHotPass->Render(frameIndex);
+	this->globalLightHotPass->Render(frameIndex);
+
+	// pop back previous visibility result
+	visResolver->PopResolve();
 
 #define TILE_WIDTH 320
 	// calculate execution dimensions

@@ -19,9 +19,9 @@
 */
 // Spotlight methods
 SimpleTechnique(Spotlight, "Spot|Static", 								vsStatic(), psShadow(), ShadowState);
-SimpleTechnique(SpotlightAlpha, "Spot|Alpha", 							vsStatic(), psShadowAlpha(), ShadowState);
+SimpleTechnique(SpotlightAlpha, "Spot|Alpha", 							vsStatic(), psShadowAlphaTest(), ShadowState);
 SimpleTechnique(SpotlightSkinned, "Spot|Skinned", 						vsSkinned(), psShadow(), ShadowState);
-SimpleTechnique(SpotlightSkinnedAlpha, "Spot|Skinned|Alpha", 			vsSkinned(), psShadowAlpha(), ShadowState);
+SimpleTechnique(SpotlightSkinnedAlpha, "Spot|Skinned|Alpha", 			vsSkinned(), psShadowAlphaTest(), ShadowState);
 SimpleTechnique(SpotlightInstanced, "Spot|Static|Instanced", 			vsStaticInst(), psShadow(), ShadowState);
 TessellationTechnique(SpotlightTessellated, "Spot|Static|Tessellated", 	vsTess(), psShadow(), hsShadow(), dsShadow(), ShadowState);
 
@@ -35,9 +35,10 @@ GeometryTechnique(PointlightInstanced, "Point|Static|Instanced", 	vsStaticInstPo
 
 // CSM methods
 GeometryTechnique(CSM, "Global|Static", 							vsStaticCSM(), PS_METHOD_STANDARD, gsCSM(), ShadowStateCSM);
-GeometryTechnique(CSMAlpha, "Global|Alpha", 						vsStaticCSM(), PS_METHOD_ALPHA, gsCSM(), ShadowStateCSM);
+GeometryTechnique(CSMAlphaTest, "Global|AlphaTest", 				vsStaticCSM(), PS_METHOD_ALPHA_TEST, gsCSM(), ShadowStateCSM);
+GeometryTechnique(CSMTrans, "Global|Alpha", 						vsStaticCSM(), PS_METHOD_ALPHA, gsCSM(), ShadowStateCSMAlpha);
 GeometryTechnique(CSMInstanced, "Global|Static|Instanced", 			vsStaticInstCSM(), PS_METHOD_STANDARD, gsCSM(), ShadowStateCSM);
-GeometryTechnique(CSMInstancedAlpha, "Global|Alpha|Instanced", 		vsStaticInstCSM(), PS_METHOD_ALPHA, gsCSM(), ShadowStateCSM);
+GeometryTechnique(CSMInstancedAlpha, "Global|AlphaTest|Instanced", 	vsStaticInstCSM(), PS_METHOD_ALPHA_TEST, gsCSM(), ShadowStateCSM);
 GeometryTechnique(CSMSkinned, "Global|Skinned", 					vsSkinnedCSM(), PS_METHOD_STANDARD, gsCSM(), ShadowStateCSM);
-GeometryTechnique(CSMSkinnedAlpha, "Global|Skinned|Alpha", 			vsSkinnedCSM(), PS_METHOD_ALPHA, gsCSM(), ShadowStateCSM);
+GeometryTechnique(CSMSkinnedAlpha, "Global|Skinned|AlphaTest", 		vsSkinnedCSM(), PS_METHOD_ALPHA_TEST, gsCSM(), ShadowStateCSM);
 FullTechnique(CSMTessellated, "Global|Static|Tessellated", 			vsTessCSM(), PS_METHOD_STANDARD, hsShadow(), dsCSM(), gsCSM(), ShadowStateCSM);

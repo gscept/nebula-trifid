@@ -112,7 +112,7 @@
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <Pass batch="SpotLightShadow" shader="shadow" variation="Alpha|Spot"/>
    <Pass batch="PointLightShadow" shader="shadow" variation="Alpha|Point"/>
-   <Pass batch="GlobalShadow" shader="shadow" variation="Alpha|Global"/>
+   <Pass batch="GlobalShadow" shader="shadow" variation="AlphaTest|Global"/>
    <Pass batch="FlatGeometryAlphaLit" shader="static" variation="Alpha"/>   
    
    <Param name="AlbedoMap" type="string" defaultValue="tex:system/placeholder"/>
@@ -145,7 +145,7 @@
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <Pass batch="SpotLightShadow" shader="shadow" variation="Alpha|Spot"/>
    <Pass batch="PointLightShadow" shader="shadow" variation="Alpha|Point"/>
-   <Pass batch="GlobalShadow" shader="shadow" variation="Alpha|Global"/>
+   <Pass batch="GlobalShadow" shader="shadow" variation="AlphaTest|Global"/>
    <Pass batch="FlatGeometryLit" shader="static" variation="Static|Environment|AlphaTest"/>
 
   </Material>
@@ -326,9 +326,9 @@
   -->
   <Material name="LightMappedLit" type="static|secondaryuvs" inherits="PBR + IBL" desc="Special material for use with objects with a secondary UV set. Affected by lights.">
    <Pass batch="Picking" shader="picking" variation="Static"/>
-   <Pass batch="SpotLightShadow" shader="shadow" variation="Static|Spot"/>
-   <Pass batch="PointLightShadow" shader="shadow" variation="Static|Point"/>
-   <Pass batch="GlobalShadow" shader="shadow" variation="Static|Global"/>
+   <Pass batch="SpotLightShadow" shader="shadow" variation="Spot"/>
+   <Pass batch="PointLightShadow" shader="shadow" variation="Point"/>
+   <Pass batch="GlobalShadow" shader="shadow" variation="Global"/>
    <Pass batch="FlatGeometryLit" shader="lightmapped" variation="Static"/>
    
    <Param name="LightMap" type="string" defaultValue="tex:system/white"/>
@@ -349,9 +349,9 @@
   
   <Material name="LightMappedLitVertexColors" type="static|secondaryuvs|vertexcolors" inherits="PBR + IBL" desc="Special material for use with objects with a secondary UV set. Affected by lights.">
    <Pass batch="Picking" shader="picking" variation="Static"/>
-   <Pass batch="SpotLightShadow" shader="shadow" variation="Static|Spot"/>
-   <Pass batch="PointLightShadow" shader="shadow" variation="Static|Point"/>
-   <Pass batch="GlobalShadow" shader="shadow" variation="Static|Global"/>
+   <Pass batch="SpotLightShadow" shader="shadow" variation="Spot"/>
+   <Pass batch="PointLightShadow" shader="shadow" variation="Point"/>
+   <Pass batch="GlobalShadow" shader="shadow" variation="Global"/>
    <Pass batch="FlatGeometryLit" shader="lightmapped" variation="Static|Colored"/>
    
    <Param name="LightMap" type="string" defaultValue="tex:system/white"/>
@@ -375,9 +375,9 @@
   
   <Material name="LightMappedLitFoliage" type="static|secondaryuvs|vertexcolors" inherits="PBR + IBL|Alpha test" desc="Special material for use with objects with a secondary UV set and with vertex colors. Uses wind simulation to displace vertices. Uses the vertex color A channel as a wind influence weight. Affected by lights.">
    <Pass batch="Picking" shader="picking" variation="Static"/>
-   <Pass batch="SpotLightShadow" shader="foliage" variation="Static|Spot"/>
-   <Pass batch="PointLightShadow" shader="shadow" variation="Static|Point"/>
-   <Pass batch="GlobalShadow" shader="foliage" variation="Static|Global"/>
+   <Pass batch="SpotLightShadow" shader="foliage" variation="Spot"/>
+   <Pass batch="PointLightShadow" shader="shadow" variation="Point"/>
+   <Pass batch="GlobalShadow" shader="foliage" variation="Global"/>
    <Pass batch="FlatGeometryLit" shader="foliage" variation="Static|Lightmapped"/>
    
    <Param name="LightMap" type="string" defaultValue="tex:system/white"/>
@@ -436,7 +436,7 @@
   <Material name="UnlitAlpha" type="static" desc="Static material for standard meshes but with support for alpha-blending. Is not affected by lights.">
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <!--<Pass batch="SpotLightShadow" shader="shadow" variation="Alpha|Spot"/>
-   <Pass batch="GlobalShadow" shader="shadow" variation="Alpha|Global"/>-->
+   <Pass batch="GlobalShadow" shader="shadow" variation="AlphaTest|Global"/>-->
    <Pass batch="Unlit" shader="unlit" variation="Alpha"/>
    
    <Param name="AlbedoMap" type="string" defaultValue="tex:system/placeholder"/>
@@ -603,15 +603,16 @@
   
   <Material name="ParticleLit" type="particle" inherits="PBR + IBL|Particle" desc="Standard lit particle material.">
    <Pass batch="ParticleLit" shader="particle" variation="Static"/>
+   <Pass batch="GlobalShadow" shader="particle" variation="Global"/>
    
    <Param name="ObjectId" type="int" system="true"/>
   </Material>
   
   <Material name="Foliage" type="static|vertexcolors" inherits="PBR + IBL" desc="Uses a mesh with vertex colors. Material which uses a wind simulation to displace vertices.">
    <Pass batch="Picking" shader="picking" variation="Static"/>
-   <Pass batch="SpotLightShadow" shader="foliage" variation="Static|Spot"/>
-   <Pass batch="PointLightShadow" shader="foliage" variation="Static|Point"/>
-   <Pass batch="GlobalShadow" shader="foliage" variation="Static|Global"/>
+   <Pass batch="SpotLightShadow" shader="foliage" variation="Spot"/>
+   <Pass batch="PointLightShadow" shader="foliage" variation="Point"/>
+   <Pass batch="GlobalShadow" shader="foliage" variation="Global"/>
    <Pass batch="FlatGeometryLit" shader="foliage" variation="Static"/>
    
    <!-- wind parameters -->

@@ -20,6 +20,7 @@
 #include "coregraphics/displaydevice.h"
 #include "characters/characterserver.h"
 #include "framesync/framesynctimer.h"
+#include "viewdisplayhandler.h"
 
 namespace Graphics
 {
@@ -69,6 +70,11 @@ View::OnAttachToServer()
 {
     n_assert(!this->IsAttachedToServer());
     this->isAttachedToServer = true;
+
+	// attach event handler for window events
+	this->displayHandler = ViewDisplayHandler::Create();
+	this->displayHandler->SetView(this);
+	DisplayDevice::Instance()->AttachEventHandler(this->displayHandler.upcast<DisplayEventHandler>());
 
 #if NEBULA3_ENABLE_PROFILING
 	this->resolveVisibleShadowCasters = Debug::DebugTimer::Create();
@@ -125,6 +131,9 @@ View::OnRemoveFromServer()
     this->frameShader = 0;
     this->dependencies.Clear();
     this->isAttachedToServer = false;
+
+	DisplayDevice::Instance()->RemoveEventHandler(this->displayHandler.upcast<DisplayEventHandler>());
+	this->displayHandler = 0;
 
 	_discard_timer(resolveVisibleShadowCasters);
     _discard_timer(resolveVisibleModelNodeInstances);
@@ -235,8 +244,8 @@ View::ResolveVisibleModelNodeInstances(IndexT frameIndex)
 /**
 	Resolves entities seen by the global light
 */
-void 
-View::ResolveVisibleShadowCasters( IndexT frameIndex )
+void
+View::ResolveVisibleShadowCasters(IndexT frameIndex)
 {
 	// resolve visibility for the global light
 	const Ptr<GlobalLightEntity>& globalLight = GraphicsServer::Instance()->GetCurrentGlobalLightEntity();
@@ -291,31 +300,31 @@ View::Render(IndexT frameIndex)
 
 	Particles::ParticleRenderer::Instance()->BeginAttach();
 
-	_start_timer(resolveVisibleShadowCasters);
 	// resolve visible light source
+	_start_timer(resolveVisibleShadowCasters);
 	this->ResolveVisibleLights(frameIndex);
-
-	// resolve visible shadow casters for global light
-	//this->ResolveVisibleShadowCasters(frameIndex);
 	_stop_timer(resolveVisibleShadowCasters);
+
+	// resolve visible ModelNodeInstances
+	_start_timer(resolveVisibleModelNodeInstances);
+	this->ResolveVisibleModelNodeInstances(frameIndex);
+	_stop_timer(resolveVisibleModelNodeInstances);
+
+    Particles::ParticleRenderer::Instance()->EndAttach();
 
 	_start_timer(updateShadowBuffers);
 	// update local shadows
 	shadowServer->UpdateShadowBuffers();
 	_stop_timer(updateShadowBuffers);
 
-	_start_timer(resolveVisibleModelNodeInstances);
-	// resolve visible ModelNodeInstances
-	this->ResolveVisibleModelNodeInstances(frameIndex);
-	_stop_timer(resolveVisibleModelNodeInstances);
-
-    Particles::ParticleRenderer::Instance()->EndAttach();
-
 	// if we have a resolve rect, we set the resolve rectangle for the default render target
 	// this will cause any frame shaders aimed at the default render target (screen) to be rendered to a subregion of the screen
-	const Ptr<Window>& wnd = DisplayDevice::Instance()->GetWindow(this->windowId);
-	if (this->resolveRectValid)	wnd->GetRenderTarget()->SetResolveRect(this->resolveRect);
-	else						wnd->GetRenderTarget()->ResetResolveRects();
+	if (this->windowId != InvalidIndex)
+	{
+		const Ptr<Window>& wnd = DisplayDevice::Instance()->GetWindow(this->windowId);
+		if (this->resolveRectValid)	wnd->GetRenderTarget()->SetResolveRect(this->resolveRect);
+		else						wnd->GetRenderTarget()->ResetResolveRects();
+	}	
 
     // render the world...
 	_start_timer(render);

@@ -596,8 +596,8 @@ SimpleTechnique(MLP, "Static", vsColored(), psMultilayered(
 		calcDepth = ViewSpaceDepthFunctor,
 		calcEnv = PBR), MLPState);
 		
-SimpleTechnique(MLPShadow, "Spot|Static", vsColoredShadow(), psShadow(), ShadowState);
-GeometryTechnique(MLPCSM, "Global|Static", vsColoredCSM(), PS_METHOD_STANDARD, gsMain(), ShadowStateCSM);
+SPOTLIGHT_SHADOW(vsColoredShadow(), ShadowState);
+GLOBALLIGHT_SHADOW(vsColoredCSM(), ShadowStateCSM);
 //TessellationTechnique(MLPTessellated, "Static|Tessellated|Colored", vsColoredTessellated(), psMultilayered(), hsDefault(), dsDefault(), MLPState);
 //FullTechnique(MLPTessellatedShadow, "Static|Tessellated|Colored|Shadow", vsColoredCSMTessellated(), psMultilayeredShadowVSM(), hsShadowMLP(), dsShadowMLP(), gsMain(), MLPState);
 //TessellationTechnique(MLPTessellatedCSM, "Static|Tessellated|Colored|CSM", vsColoredShadowTessellated(), psMultilayeredShadowVSM(), hsShadowMLP(), dsShadowMLP(), MLPState);

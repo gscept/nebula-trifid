@@ -81,8 +81,6 @@ FpsCameraProperty::OnStart()
 	Ptr<SetTransform> setTransformMsg = SetTransform::Create();
 	setTransformMsg->SetMatrix(this->cameraEntity->GetTransform());
 	__SendSync(this->entity, setTransformMsg); 	
-
-	CoreGraphics::DisplayDevice::Instance()->GetWindow(0)->SetCursorVisible(false);
 }
 
 //------------------------------------------------------------------------------
@@ -165,6 +163,7 @@ FpsCameraProperty::HandleMessage(const Ptr<Messaging::Message>& msg)
 	if (msg->CheckId(InputFocus::Id))
 	{
 		CoreGraphics::DisplayDevice::Instance()->GetWindow(0)->SetCursorLocked(msg.cast<InputFocus>()->GetObtainFocus());
+		CoreGraphics::DisplayDevice::Instance()->GetWindow(0)->SetCursorVisible(msg.cast<InputFocus>()->GetObtainFocus());
 	}		
 	CameraProperty::HandleMessage(msg);
 }

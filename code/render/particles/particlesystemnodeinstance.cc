@@ -334,6 +334,17 @@ ParticleSystemNodeInstance::Render()
 
 //------------------------------------------------------------------------------
 /**
+	Just render as normal, and assume the shader can handle the instancing
+*/
+void
+ParticleSystemNodeInstance::RenderInstanced(SizeT numInstances)
+{
+	StateNodeInstance::RenderInstanced(numInstances);
+	ParticleRenderer::Instance()->RenderParticleSystem(this->particleSystemInstance);
+}
+
+//------------------------------------------------------------------------------
+/**
 */
 void
 ParticleSystemNodeInstance::RenderDebug()

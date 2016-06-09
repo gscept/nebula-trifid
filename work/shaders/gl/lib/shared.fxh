@@ -73,10 +73,9 @@ shared varblock LightBlock [bool System = true;]
 	bool		LightCastsShadowsArray[MAX_NUM_LIGHTS];
 };
 
-sampler2D	LightShadowTexture;
-	
-// the smartest thing to do is to make the buffer count equal to the number of draw calls we want per frame
-// also tagged as nosync, which limits us to doing 8192 draw calls per frame (which should be FINE but one never knows)
+// shadow map for spotlights is a single atlas, point lights have separate cubes
+sampler2D	SpotlightShadowAtlas;
+samplerCubeArray PointLightCubeArray;
 
 // contains variables which are guaranteed to be unique per object.
 shared varblock ObjectBlock [bool System = true;]

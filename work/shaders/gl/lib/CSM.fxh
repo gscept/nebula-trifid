@@ -43,10 +43,10 @@ samplerstate ShadowProjMapSampler
 {
 	Samplers = { ShadowProjMap };
 	//Filter = MinMagLinearMipPoint;
-	//AddressU = Border;
-	//AddressV = Border;
+	AddressU = Border;
+	AddressV = Border;
 	//MaxAnisotropic = 16;
-	//BorderColor = { 1,1,1,1 };
+	BorderColor = { 1,1,1,1 };
 };
 
 const float CascadeBlendArea = 0.2f;
@@ -151,7 +151,7 @@ CSMPS(in vec4 TexShadow,
 	// if we have no matching cascade, return with a fully lit pixel
 	if (!cascadeFound)
 	{
-		return 1.0f;
+		return 0.0f;
 	}		
 	
 	// calculate texture coordinate in shadow space
@@ -184,11 +184,11 @@ CSMPS(in vec4 TexShadow,
 	
 	// get pixel size of shadow projection texture
 	vec4 mapDepth = textureLod(ShadowProjMap, sampleCoord, 0);
-	float occlusion = MSMShadowSample(mapDepth,  3e-5f, depth, 5e-5f);
+	float occlusion = MSMShadowSample(mapDepth, 4e-5f, depth, 5e-5f);
 	//float occlusion = ExponentialShadowSample(mapDepth, depth, 0.0f);
 		
 	int nextCascade = cascadeIndex + 1; 
-	float occlusionBlend = 1.0f;
+	float occlusionBlend = 0.0f;
 	if (blendBandLocation < CascadeBlendArea)
 	{
 		if (nextCascade < CASCADE_COUNT_FLAG)
@@ -205,7 +205,7 @@ CSMPS(in vec4 TexShadow,
 			uvSample = sampleCoord.xy;
 					
 			mapDepth = textureLod(ShadowProjMap, uvSample, 0);
-			occlusionBlend = MSMShadowSample(mapDepth, 3e-5f, depth, 5e-5f);
+			occlusionBlend = MSMShadowSample(mapDepth, 4e-5f, depth, 5e-5f);
 		}
 		
 		// blend next cascade onto previous
@@ -216,8 +216,8 @@ CSMPS(in vec4 TexShadow,
 	
 	
 	// finally clamp all shadow values 0.5, this avoids any weird color differences when blending between cascades
-	//Debug = DebugColors[cascadeIndex];
-	Debug = mapDepth;
+	Debug = DebugColors[cascadeIndex];
+	//Debug = mapDepth;
 	//return 1 - smoothstep(0.7f, 1.0f, occlusion);
 	return occlusion;
 	//return occlusion;
