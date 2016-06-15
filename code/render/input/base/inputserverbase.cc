@@ -447,4 +447,18 @@ InputServerBase::GetDefaultGamePad(IndexT playerIndex) const
     return result;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+InputServerBase::AddGamePad(const Ptr<Input::GamePad> pad, IndexT playerIndex)
+{
+    n_assert(playerIndex < this->maxNumLocalPlayers);
+    this->critSect.Enter();
+    n_assert(!this->defaultGamePad[playerIndex].isvalid());
+    this->defaultGamePad[playerIndex] = pad;
+    this->critSect.Leave();
+    
+}
+
 } // namespace Base

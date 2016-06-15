@@ -63,6 +63,8 @@ public:
     void AttachInputHandler(Input::InputPriority::Code pri, const Ptr<Input::InputHandler>& inputHandler);
     /// remove an input handler
     void RemoveInputHandler(const Ptr<Input::InputHandler>& inputHandler);
+    ///
+    void AddGamePad(const Ptr<Input::GamePad> pad, IndexT playerIndex);
 
     /// call before processing window events
     virtual void BeginFrame();

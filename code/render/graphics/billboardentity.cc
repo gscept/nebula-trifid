@@ -34,7 +34,8 @@ BillboardEntity::BillboardEntity() :
 	texture(0),
     color(1,1,1,1),
 	modelInstance(0),
-	viewAligned(false)
+	viewAligned(false),
+    resource("tex:system/placeholder")
 {
 	this->SetType(GraphicsEntityType::Model);
 }

@@ -100,7 +100,7 @@ void ViveMote::OnBeginFrame()
 				//FIXME hardcoded
 				this->axisValues[RightTriggerAxis] = this->state->rAxis[1].x;
 				this->axisValues[RightThumbXAxis] = this->state->rAxis[0].x;
-				this->axisValues[RightThumbYAxis] = this->state->rAxis[0].y;								
+				this->axisValues[RightThumbYAxis] = this->state->rAxis[0].y;                
 			}
 		}
 	}
@@ -143,10 +143,14 @@ ViveMote::UpdateButtonState(vr::EVRButtonId xiBtn, GamePadBase::Button btn)
 		this->buttonStates[btn].down = false;
 	}
 #if 0
-	if (this->buttonStates[btn].pressed)
+    if (this->buttonStates[btn].down)
 	{
-		n_printf("button pressed: %s\n", Base::GamePadBase::ButtonAsString(btn).AsCharPtr());
+		n_printf("button down: %s\n", Base::GamePadBase::ButtonAsString(btn).AsCharPtr());
 	}
+    if (this->buttonStates[btn].up)
+    {
+        n_printf("button up: %s\n", Base::GamePadBase::ButtonAsString(btn).AsCharPtr());
+    }
 #endif
 }
 } // namespace VR

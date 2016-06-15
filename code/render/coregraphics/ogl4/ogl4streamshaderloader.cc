@@ -155,7 +155,7 @@ OGL4StreamShaderLoader::SetupResourceFromStream(const Ptr<Stream>& stream)
                 res->globalBlockBuffer = ConstantBuffer::Create();
                 res->globalBlockBuffer->SetSize(effectBlock->GetSize());
                 res->globalBlockBuffer->SetSync(true);
-                res->globalBlockBuffer->Setup(1);
+                res->globalBlockBuffer->Setup(2);
 
 				res->globalBlockBuffer->BeginUpdateSync();
                 for (unsigned j = 0; j < variableBinds.size(); j++)

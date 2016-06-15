@@ -91,6 +91,34 @@ CameraSettings::UpdateViewProjMatrix() const
     this->viewProjMatrix = matrix44::multiply(this->viewMatrix, this->projMatrix);
 }
 
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+CameraSettings::SetProjectionMatrix(const Math::matrix44 & proj, float fov, float aspect, float zNear, float zFar)
+{    
+    this->viewProjDirty = true;
+    this->zFar = zFar;
+    this->zNear = zNear;
+    this->projMatrix = proj;
+    this->aspect = aspect;
+    this->fov = fov;
+    this->isPersp = true;
+    this->invProjMatrix = matrix44::inverse(this->projMatrix);
+
+
+    this->nearWidth = 2.0f * this->zNear / this->projMatrix.getrow0().x();
+    this->nearHeight = 2.0f * this->zNear / this->projMatrix.getrow1().y();
+    this->farWidth = (this->nearWidth / this->zNear) * this->zFar;
+    this->farHeight = (this->nearHeight / this->zNear) * this->zFar;
+    float yLen = Math::n_tan(0.5f * this->fov);
+    float xLen = yLen * this->aspect;
+    this->focalLength.set(xLen, yLen);
+
+    this->viewProjDirty = true;
+}
+
 //------------------------------------------------------------------------------
 /**
 */

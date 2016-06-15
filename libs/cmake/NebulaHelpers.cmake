@@ -316,7 +316,7 @@ MACRO(N_SET_COMPILER_DEFAULTS)
                                 "/D_DEBUG /Od /Gm /RTC1 /MTd /Gy /Zi"
                                 CACHE STRING "Flags used by the compiler during debug builds." FORCE)
                         SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO
-                                "/Ob2 /Oi /Os /Oy ${N_GL} /FD /MT /GS- /Zi /MP /DNDEBUG"
+                                "/Ob2 /Oi /Os /Oy- ${N_GL} /FD /MT /GS- /Zi /MP /DNDEBUG"
                                 CACHE STRING "Flags used by the compiler during release builds." FORCE)
                         SET(CMAKE_CXX_FLAGS_RELEASE
                                 "/Ob2 /Oi /Os /Oy ${N_GL} /FD /MT /GS- /MP /DNDEBUG"
@@ -329,7 +329,7 @@ MACRO(N_SET_COMPILER_DEFAULTS)
                                 "/D_DEBUG /Od /Gm /RTC1 /MTd /Gy /Zi"
                                 CACHE STRING "Flags used by the compiler during debug builds." FORCE)
                         SET(CMAKE_C_FLAGS_RELWITHDEBINFO
-                                "/Ob2 /Oi /Os /Oy ${N_GL} /FD /MT /GS- /Zi /MP /DNDEBUG"
+                                "/Ob2 /Oi /Os /Oy- ${N_GL} /FD /MT /GS- /Zi /MP /DNDEBUG"
                                 CACHE STRING "Flags used by the compiler during release builds." FORCE)
                         SET(CMAKE_C_FLAGS_RELEASE
                                 "/Ob2 /Oi /Os /Oy ${N_GL} /FD /MT /GS- /MP /DNDEBUG"
@@ -343,7 +343,7 @@ MACRO(N_SET_COMPILER_DEFAULTS)
                                 "/D_DEBUG /Od /RTC1 /MTd /Gy /ZI"
                                 CACHE STRING "Flags used by the compiler during debug builds." FORCE)
                         SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO
-                                "/Ob2 /Oi /Ot /Oy ${N_GL} /FD /MT /GS- /Zi /DNDEBUG"
+                                "/Ob2 /Oi /Ot /Oy- ${N_GL} /FD /MT /GS- /Zi /DNDEBUG"
                                 CACHE STRING "Flags used by the compiler during release builds." FORCE)
                         SET(CMAKE_CXX_FLAGS_RELEASE
                                 "/Ob2 /Oi /Ot /Oy ${N_GL} /FD /MT /GS- /DPUBLIC_BUILD /DNDEBUG"
@@ -356,7 +356,7 @@ MACRO(N_SET_COMPILER_DEFAULTS)
                                 "/D_DEBUG /Od /RTC1 /MTd /Gy /ZI"
                                 CACHE STRING "Flags used by the compiler during debug builds." FORCE)
                         SET(CMAKE_C_FLAGS_RELWITHDEBINFO
-                                "/Ob2 /Oi /Ot /Oy ${N_GL} /FD /MT /GS- /Zi /DNDEBUG"
+                                "/Ob2 /Oi /Ot /Oy- ${N_GL} /FD /MT /GS- /Zi /DNDEBUG"
                                 CACHE STRING "Flags used by the compiler during release builds." FORCE)
                         SET(CMAKE_C_FLAGS_RELEASE
                                 "/Ob2 /Oi /Ot /Oy ${N_GL} /FD /MT /GS- /DPUBLIC_BUILD /DNDEBUG"

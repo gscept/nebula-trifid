@@ -6,6 +6,7 @@
     (C) 2016 Individual contributors, see AUTHORS file	
 */
 #include "game/property.h"
+#include "graphics/modelentity.h"
 #include "vivemote.h"
 
 
@@ -42,7 +43,10 @@ public:
     virtual void HandleMessage(const Ptr<Messaging::Message>& msg);	
     
 protected:
-	Ptr<VR::ViveMote> mote;
+    Ptr<VR::ViveMote> mote;
+    Ptr<Graphics::ModelEntity> stick;
+    Ptr<Graphics::ModelEntity> redstick;
+    Ptr<Graphics::ModelEntity> floorMarker;
 };
 __RegisterClass(ViveInteractProperty);
 

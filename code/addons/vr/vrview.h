@@ -16,6 +16,12 @@ class VrView : public Graphics::View
 {
 	__DeclareClass(VrView);
 public:
+    enum CameraEnum
+    {
+        DefaultCamera = 0,
+        LeftCamera = 1,
+        RightCamera = 2,
+    };
 	/// constructor
 	VrView();
 	/// destructor
@@ -25,6 +31,8 @@ public:
 	virtual void SetFrameShader(const Ptr<Frame::FrameShader>& frameShader);
 	/// render the view into its render target
 	virtual void Render(IndexT frameIndex);
+    /// access to camera settings
+    Graphics::CameraSettings & CameraSetting(CameraEnum cm);
 	
 private:
 	/// called when attached to graphics server
@@ -34,14 +42,26 @@ private:
 
 	Ptr<CoreGraphics::RenderTarget> leftEyeTarget;
 	Ptr<CoreGraphics::RenderTarget> rightEyeTarget;
-	Ptr<Frame::FramePassBase> lastPass;
+	Ptr<Frame::FramePassBase> lastPass;    
 
+    Graphics::CameraSettings camSettings[3];
 	Math::matrix44 leftEyeProj;
 	Math::matrix44 rightEyeProj;
-	Math::matrix44 leftEyeDisplace;
-	Math::matrix44 rightEyeDisplace;
+    Math::matrix44 leftEyeDisplace;
+    Math::matrix44 rightEyeDisplace;
 
 	uint32_t HMDWidth;
 	uint32_t HMDHeight;
 };
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline
+Graphics::CameraSettings &
+VrView::CameraSetting(VrView::CameraEnum cm)
+{
+    return this->camSettings[cm];
+}
+
 } // namespace VR

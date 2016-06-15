@@ -13,6 +13,8 @@ set(SOURCES_vr
 	vrview.cc
 	vrcameraproperty.cc
 	vrcameraproperty.h
+	vrcameraentity.cc
+	vrcameraentity.h
 	vivemote.cc
 	vivemote.h
 	viveinteractproperty.cc

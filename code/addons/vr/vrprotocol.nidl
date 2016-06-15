@@ -10,5 +10,6 @@
     <Property name="VR::VRCameraProperty" derivedFrom="GraphicsFeature::CameraProperty" header="vr/vrcameraproperty.h" />
     <Property name="VR::ViveInteractProperty" header="vr/viveinteractproperty.h">
       <Attribute name="ControllerHand"/>
+      <Attribute name="Graphics"/>
     </Property>   
 </Nebula3>

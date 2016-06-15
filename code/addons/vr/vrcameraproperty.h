@@ -31,6 +31,8 @@ namespace VR
 		virtual void OnDeactivate();
 		/// called on begin of frame
 		virtual void OnBeginFrame();
+        /// called when camera focus is obtained
+        virtual void OnObtainCameraFocus();
 
 	protected:
 
