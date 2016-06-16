@@ -142,8 +142,11 @@ PostEffectFeatureUnit::CleanupDefaultWorld()
 void
 PostEffectFeatureUnit::OnLoad()
 {
-	Util::String preset = BaseGameFeature::LevelAttrsManager::Instance()->GetString(Attr::PostEffectPreset);
-	this->ApplyPreset(preset);	
+    if (BaseGameFeature::LevelAttrsManager::HasInstance())
+    {
+        Util::String preset = BaseGameFeature::LevelAttrsManager::Instance()->GetString(Attr::PostEffectPreset);
+        this->ApplyPreset(preset);
+    }
 }
 
 //------------------------------------------------------------------------------

@@ -440,6 +440,10 @@ GraphicsFeatureUnit::SetFullscreen(bool enable)
 void
 GraphicsFeatureUnit::OnLoad()
 {
+    if (!BaseGameFeature::LevelAttrsManager::HasInstance())
+    {
+        return;
+    }
 	// get world extents
 	Math::float4 bbCenter = BaseGameFeature::LevelAttrsManager::Instance()->GetFloat4(Attr::WorldCenter);
 	Math::float4 bbExtents = BaseGameFeature::LevelAttrsManager::Instance()->GetFloat4(Attr::WorldExtents);

@@ -85,9 +85,9 @@ public:
 	void SetAutosaveEnabled(bool b);
 
     /// set current level name
-    void SetCurrentLevel(const Util::String& n);
+    static void SetCurrentLevel(const Util::String& n);
     /// get current level name
-    Util::String GetCurrentLevel() const;
+    static Util::String GetCurrentLevel();
     /// set optional world dimensions
     void SetWorldDimensions(const Math::bbox& box);
     /// get world dimensions

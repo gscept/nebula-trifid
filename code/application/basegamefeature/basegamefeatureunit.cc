@@ -440,7 +440,7 @@ BaseGameFeatureUnit::SetCurrentLevel(const Util::String& levelName)
     Get the current level name directly from the database.
 */
 Util::String
-BaseGameFeatureUnit::GetCurrentLevel() const
+BaseGameFeatureUnit::GetCurrentLevel()
 {
     if (GlobalAttrsManager::Instance()->HasAttr(Attr::CurrentLevel))
     {

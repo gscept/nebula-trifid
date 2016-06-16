@@ -40,7 +40,7 @@ public:
     /// create a new entity from its category name
 	virtual Ptr<Game::Entity> CreateEntityByCategory(const Util::String& categoryName, const Ptr<Db::ValueTable>& attrTable, IndexT attrTableRowIndex, bool isMaster = true) const;
     /// create a new entity from scratch and initialize it with the provided attributes
-    virtual Ptr<Game::Entity> CreateEntityByAttrs(const Util::String& categoryName, const Util::Array<Attr::Attribute>& attrs, bool isMaster = true) const;;
+    virtual Ptr<Game::Entity> CreateEntityByAttrs(const Util::String& categoryName, const Util::Array<Attr::Attribute>& attrs, bool isMaster = true) const;
     /// create a new entity from a database template entry
 	virtual Ptr<Game::Entity> CreateEntityByTemplate(const Util::String& categoryName, const Util::String& templateName, bool isMaster = true) const;
     /// create a new entity from a database template entry, and add it into a different category

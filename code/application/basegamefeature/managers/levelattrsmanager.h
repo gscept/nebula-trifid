@@ -62,7 +62,7 @@ private:
 inline void
 LevelAttrsManager::ValidateLevel()
 {
-	Util::String level = BaseGameFeature::BaseGameFeatureUnit::Instance()->GetCurrentLevel();
+	Util::String level = BaseGameFeature::BaseGameFeatureUnit::GetCurrentLevel();
 	if (this->currentLevel != level)
 	{
 		this->UpdateLevelTable(level);
