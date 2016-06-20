@@ -116,10 +116,24 @@ ModelHandler::Setup()
 	this->ui->frame->setDisabled(false);
 	this->ui->modelName->setText((this->category + "/" + this->file).AsCharPtr());
 
-	this->ui->saveButton->setEnabled(true);
-	this->ui->saveAsButton->setEnabled(true);
-	this->ui->reconfigureButton->setEnabled(true);
-	this->ui->addParticleNode->setEnabled(true);
+	// setup file save menu
+	this->saveMenu = new QMenu();
+	this->saveAction = this->saveMenu->addAction("Save model");
+	this->saveAsAction = this->saveMenu->addAction("Save model as...");
+	this->saveMenu->addSeparator();
+	this->reconfigAction = this->saveMenu->addAction("Reconfigure...");
+	this->particleNodeAction = this->saveMenu->addAction("Add particle...");
+	this->ui->fileMenu->setMenu(this->saveMenu);
+	this->savedStyle = this->ui->fileMenu->styleSheet();
+	this->unsavedStyle = this->savedStyle + "QToolButton{ background-color: rgb(200, 4, 0); color: white; }";
+
+	// enable actions
+	this->saveAction->setEnabled(true);
+	this->saveAsAction->setEnabled(true);
+	this->reconfigAction->setEnabled(true);
+	this->particleNodeAction->setEnabled(true);
+
+	this->ui->nodeWidget->setContentsMargins(0, 2, 0, 0);
 
 	// call base class
 	BaseHandler::Setup();	
@@ -157,10 +171,10 @@ ModelHandler::Setup()
 		box.setDefaultButton(QMessageBox::Close);
 		box.exec();
 
-		this->ui->saveButton->setEnabled(false);
-		this->ui->saveAsButton->setEnabled(false);
-		this->ui->reconfigureButton->setEnabled(false);
-		this->ui->addParticleNode->setEnabled(false);
+		this->saveAction->setEnabled(false);
+		this->saveAsAction->setEnabled(false);
+		this->reconfigAction->setEnabled(false);
+		this->particleNodeAction->setEnabled(false);
 
 		// discard and return
 		this->DiscardNoCancel();
@@ -168,14 +182,21 @@ ModelHandler::Setup()
     }
 
 	// reset saved state
-	this->ui->saveButton->setStyleSheet("background-color: rgb(4, 200, 0); color: white");
+	this->ui->fileMenu->setStyleSheet(this->savedStyle);
 	this->SetupTabs();
 
 	// connect reload buttons to actions
+	connect(this->saveAction, SIGNAL(triggered()), this, SLOT(OnSave()));
+	connect(this->saveAsAction, SIGNAL(triggered()), this, SLOT(OnSaveAs()));
+	connect(this->reconfigAction, SIGNAL(triggered()), this, SLOT(OnReconfigure()));
+	connect(this->particleNodeAction, SIGNAL(triggered()), this, SLOT(OnAddParticleNode()));
+
+	/*
 	connect(this->ui->saveButton, SIGNAL(clicked()), this, SLOT(OnSave()));
 	connect(this->ui->saveAsButton, SIGNAL(clicked()), this, SLOT(OnSaveAs()));
-	connect(this->ui->addParticleNode, SIGNAL(clicked()), this, SLOT(OnAddParticleNode()));
 	connect(this->ui->reconfigureButton, SIGNAL(clicked()), this, SLOT(OnReconfigure()));
+	connect(this->ui->addParticleNode, SIGNAL(clicked()), this, SLOT(OnAddParticleNode()));
+	*/
 }
 
 //------------------------------------------------------------------------------
@@ -248,10 +269,19 @@ ModelHandler::Discard()
 	// clear actions from application
 	ContentBrowserApp::Instance()->ClearActions();
 
-	// disconnect stuff
-	disconnect(this->ui->saveButton, SIGNAL(clicked()), this, SLOT(OnSave()));
-	disconnect(this->ui->saveAsButton, SIGNAL(clicked()), this, SLOT(OnSaveAs()));
-	disconnect(this->ui->addParticleNode, SIGNAL(clicked()), this, SLOT(OnAddParticleNode()));
+
+	// delete menu
+	delete this->saveMenu;
+	this->saveMenu = 0;
+	this->saveAction = 0;
+	this->saveAsAction = 0;
+	this->reconfigAction = 0;
+	this->particleNodeAction = 0;
+
+	disconnect(this->saveAction, SIGNAL(triggered()), this, SLOT(OnSave()));
+	disconnect(this->saveAsAction, SIGNAL(triggered()), this, SLOT(OnSaveAs()));
+	disconnect(this->reconfigAction, SIGNAL(triggered()), this, SLOT(OnReconfigure()));
+	disconnect(this->particleNodeAction, SIGNAL(triggered()), this, SLOT(OnAddParticleNode()));
 
 	return BaseHandler::Discard();
 }
@@ -319,9 +349,18 @@ ModelHandler::DiscardNoCancel()
 	// set setup bool to false
 	this->isSetup = false;
 
-	// disconnect stuff
-	disconnect(this->ui->saveButton, SIGNAL(clicked()), this, SLOT(OnSave()));
-	disconnect(this->ui->saveAsButton, SIGNAL(clicked()), this, SLOT(OnSaveAs()));
+	// delete menu
+	delete this->saveMenu;
+	this->saveMenu = 0;
+	this->saveAction = 0;
+	this->saveAsAction = 0;
+	this->reconfigAction = 0;
+	this->particleNodeAction = 0;
+
+	disconnect(this->saveAction, SIGNAL(triggered()), this, SLOT(OnSave()));
+	disconnect(this->saveAsAction, SIGNAL(triggered()), this, SLOT(OnSaveAs()));
+	disconnect(this->reconfigAction, SIGNAL(triggered()), this, SLOT(OnReconfigure()));
+	disconnect(this->particleNodeAction, SIGNAL(triggered()), this, SLOT(OnAddParticleNode()));
 }
 
 //------------------------------------------------------------------------------
@@ -380,7 +419,7 @@ ModelHandler::OnModelModified(bool structureChange)
 	this->OnNewVersion();
 
 	// mark save button
-	this->ui->saveButton->setStyleSheet("background-color: rgb(200, 4, 0); color: white");
+	this->ui->fileMenu->setStyleSheet(this->unsavedStyle);
 
 	// finally push action to stack
 	ContentBrowserApp::Instance()->PushAction(this->action.upcast<BaseAction>());
@@ -608,7 +647,7 @@ ModelHandler::OnSave()
 	previewState->SaveThumbnail(thumbnail, true);
 
 	// mark save button
-	this->ui->saveButton->setStyleSheet("background-color: rgb(4, 200, 0); color: white");
+	this->ui->fileMenu->setStyleSheet(this->savedStyle);
 
 	// update thumbnail
 	this->UpdateModelThumbnail();
@@ -736,7 +775,7 @@ ModelHandler::OnSaveAs()
 		previewState->SaveThumbnail(thumbnail, true);
 
 		// mark save button
-		this->ui->saveButton->setStyleSheet("background-color: rgb(4, 200, 0); color: white");
+		this->ui->fileMenu->setStyleSheet(this->savedStyle);
 
 		// update thumbnail
 		this->UpdateModelThumbnail();
@@ -823,7 +862,7 @@ ModelHandler::SetupTabs()
 	QTabWidget* nodeWidget = this->ui->nodeWidget;
 
 	// enable add particle button
-	this->ui->addParticleNode->setEnabled(true);
+	this->particleNodeAction->setEnabled(true);
 
 	// remove tabs
 	while (nodeWidget->currentWidget())
@@ -852,7 +891,6 @@ ModelHandler::SetupTabs()
 		}
 	}
 
-
 	// get list of characters
 	const Array<ModelConstants::CharacterNode>& characters = this->constants->GetCharacterNodes();
 	n_assert(characters.Size() <= 1);
@@ -872,7 +910,7 @@ ModelHandler::SetupTabs()
 		nodeWidget->addTab(nodeFrame, "Animation");
 
 		// disable add particle button
-		this->ui->addParticleNode->setEnabled(false);
+		this->particleNodeAction->setEnabled(false);
 	}
 
 	// get list of all skins
@@ -960,8 +998,17 @@ ModelHandler::UpdateModelThumbnail()
 	QPixmap pixmap;
 	IO::URI texFile = thumbnail;
 	pixmap.load(texFile.LocalPath().AsCharPtr());
-	pixmap = pixmap.scaled(QSize(67, 67), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-	this->ui->modelThumbnail->setPixmap(pixmap);
+	pixmap = pixmap.scaled(QSize(48, 48), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+	
+	QPixmap res(48, 48);
+	res.fill(Qt::transparent);
+	QPainter painter(&res);
+	painter.setBrush(QBrush(pixmap));
+	painter.setPen(Qt::transparent);
+	painter.setRenderHint(QPainter::Antialiasing);
+	painter.drawRoundedRect(0, 0, 48, 48, 5, 5);
+	this->ui->modelThumbnail->setFixedSize(50, 50);
+	this->ui->modelThumbnail->setPixmap(res);
 }
 
 } // namespace Widgets

@@ -113,6 +113,7 @@ SM50LightServer::Open()
     this->globalLightBuffer                     = ConstantBuffer::Create();
     this->globalLightBuffer->SetupFromBlockInShader(this->lightShader, "GlobalLightBlock");
     this->globalLightDir                        = this->globalLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_GLOBALLIGHTDIR);
+	this->globalLightDirWorldspace				= this->globalLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_GLOBALLIGHTDIRWORLDSPACE);
     this->globalLightColor                      = this->globalLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_GLOBALLIGHTCOLOR);
     this->globalBackLightColor                  = this->globalLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_GLOBALBACKLIGHTCOLOR);
     this->globalAmbientLightColor               = this->globalLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_GLOBALAMBIENTLIGHTCOLOR);
@@ -179,6 +180,7 @@ SM50LightServer::Close()
 	this->globalBackLightOffset = 0;
 	this->globalLightColor = 0;
 	this->globalLightDir = 0;
+	this->globalLightDirWorldspace = 0;
 	this->globalLightColor = 0;
 	this->globalLightCascadeOffset = 0;
 	this->globalLightCascadeScale = 0;				
@@ -331,6 +333,7 @@ SM50LightServer::RenderGlobalLight()
 		this->globalLightBuffer->CycleBuffers();
 		this->globalLightBuffer->BeginUpdateSync();
 		this->globalLightDir->SetFloat4(viewSpaceLightDir);
+		this->globalLightDirWorldspace->SetFloat4(worldSpaceLightDir);
 		this->globalLightColor->SetFloat4(this->globalLightEntity->GetColor());
 		this->globalBackLightColor->SetFloat4(this->globalLightEntity->GetBackLightColor());
 		this->globalAmbientLightColor->SetFloat4(this->globalLightEntity->GetAmbientLightColor());

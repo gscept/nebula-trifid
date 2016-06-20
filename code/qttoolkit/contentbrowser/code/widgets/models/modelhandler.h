@@ -21,6 +21,11 @@
 #include "messaging/message.h"
 #include "code/filewatcher.h"
 
+namespace ContentBrowser
+{
+	class ContentBrowserWindow;
+}
+
 namespace Widgets
 {
 class CharacterNodeFrame;
@@ -98,6 +103,8 @@ public slots:
 	void RemoveParticleNode(const Util::String path, const Util::String node);
 
 private slots:
+	friend class ContentBrowser::ContentBrowserWindow;
+
 	/// add new particle node to model
 	void OnAddParticleNode();
 	/// saves changes 
@@ -126,6 +133,17 @@ private:
 	Ptr<ToolkitUtil::ModelConstants> constants;
 	Ptr<ToolkitUtil::ModelPhysics> physics;
 	ResourceBrowser::FileWatcher thumbnailWatcher;
+
+	QMenu* saveMenu;
+	QAction* saveAction;
+	QAction* saveAsAction;
+	QAction* reconfigAction;
+	QAction* particleNodeAction;
+	QIcon savedIcon;
+	QIcon unsavedIcon;
+	QIcon blankIcon;
+	QString savedStyle;
+	QString unsavedStyle;
 }; 
 
 //------------------------------------------------------------------------------

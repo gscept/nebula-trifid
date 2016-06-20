@@ -13,6 +13,8 @@ namespace Widgets
 ModelNodeFrame::ModelNodeFrame()
 {
 	this->setLayout(&this->layout);
+	this->layout.setContentsMargins(0, 2, 0, 0);
+	this->layout.addStretch();
 }
 
 //------------------------------------------------------------------------------
@@ -38,7 +40,7 @@ ModelNodeFrame::AddModelNode(const Util::String& name, const Util::String& path,
 	handler->SetName(name);
 	handler->SetPath(path);
 	handler->Setup(res);
-	this->layout.addWidget(frame);
+	this->layout.insertWidget(0, frame);
 	this->itemHandlers.Append(handler);
 	this->itemFrames.Append(frame);
 }

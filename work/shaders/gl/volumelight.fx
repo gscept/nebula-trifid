@@ -7,6 +7,7 @@
 #include "lib/util.fxh"
 #include "lib/shared.fxh"
 #include "lib/techniques.fxh"
+#include "lib/preetham.fxh"
 
 mat4 Transform;
 vec4 LightColor = vec4(1,1,1,1);
@@ -58,9 +59,12 @@ vsGeometry(in vec3 position,
 	in vec2 uv,
 	in vec3 tangent,
 	in vec3 binormal,
-	out vec2 UV) 
+	out vec2 UV,
+	out vec3 Direction) 
 {
-	gl_Position = ViewProjection * Transform * vec4(position, 1);
+	vec4 modelSpace = Transform * vec4(position, 1);
+	gl_Position = ViewProjection * modelSpace;
+	Direction = modelSpace.xyz;
 	UV = uv;
 }
 
@@ -79,7 +83,8 @@ vsVolumetric(in vec3 position,
 	out vec3 Tangent,
 	out vec3 Normal,
 	out vec3 Binormal,
-	out vec2 UV) 
+	out vec2 UV,
+	out vec3 Direction) 
 {
 	mat4 modelView = View * Transform;
 	Tangent 	= (modelView * vec4(tangent, 0)).xyz;
@@ -88,6 +93,7 @@ vsVolumetric(in vec3 position,
 	ViewSpacePos = (modelView * vec4(position, 1)).xyz;
 	WorldPos = vec4(position * VolumetricScale, 1).xyz;
 	gl_Position = ViewProjection * Transform * vec4(position * VolumetricScale, 1);
+	Direction = (Transform * vec4(WorldPos, 1)).xyz;
 	UV = uv;
 }
 
@@ -106,7 +112,7 @@ psVolumetricSpot(in vec3 ViewSpacePos,
 		in vec3 Normal,
 		in vec3 Binormal,
 		in vec2 UV,
-	[color0] out vec4 Color) 
+		[color0] out vec4 Color) 
 {	
 	// calculate freznel effect to give a smooth linear falloff of the godray effect
 	mat3 tangentViewMatrix = mat3(normalize(Tangent.xyz), normalize(Binormal.xyz), normalize(Normal.xyz));   
@@ -160,12 +166,18 @@ psVolumetricGlobal(in vec3 ViewSpacePos,
 		in vec3 Normal,
 		in vec3 Binormal,
 		in vec2 UV,
+		in vec3 Direction,
 		[color0] out vec4 Color) 
 {
 	vec2 pixelSize = RenderTargetDimensions.xy;
 	vec2 screenUV = psComputeScreenCoord(gl_FragCoord.xy, pixelSize.xy);
 	
 	float unshaded = texture(UnshadedTexture, screenUV).a;
+	
+	// calculate sky contribution
+	vec3 lightDir = normalize(GlobalLightDirWorldspace.xyz);
+	vec3 dir = normalize(Direction);
+	vec3 atmo = Preetham(dir, lightDir, A, B, C, D, E) * GlobalLightColor.rgb;
 	
 	// calculate freznel effect to give a smooth linear falloff of the godray effect
 	mat3 tangentViewMatrix = mat3(normalize(Tangent.xyz), normalize(Binormal.xyz), normalize(Normal.xyz));   
@@ -176,7 +188,7 @@ psVolumetricGlobal(in vec3 ViewSpacePos,
 	float rim = pow(abs(abs(dot(normalize(ViewSpacePos.xyz), worldSpaceNormal))), 3);
 	
 	vec4 colorSample = textureLod(LightProjMap, UV, 0);
-	Color = colorSample * LightColor * ONE_OVER_PI * rim * VolumetricIntensity;
+	Color.rgb = saturate(atmo) * colorSample.rgb * ONE_OVER_PI * rim * VolumetricIntensity;
 	Color.a = 1.0f;
 	
 	gl_FragDepth = 1.0f;
@@ -205,13 +217,19 @@ psLocalLight(in vec2 UV,
 shader
 void
 psGlobalLight(in vec2 UV,
+	in vec3 Direction,
 	[color0] out vec4 Color) 
 {
+	// calculate sky contribution
+	vec3 lightDir = normalize(GlobalLightDirWorldspace.xyz);
+	vec3 dir = normalize(Direction);
+	vec3 atmo = Preetham(dir, lightDir, A, B, C, D, E) * GlobalLightColor.rgb;
+	
 	vec4 sunSample = texture(LightProjMap, UV);
 	vec2 texSize = textureSize(LightProjMap, 0);
-	float falloff = distance(gl_FragCoord.xy/texSize, LightCenter);
-	Color = LightColor * sunSample * falloff * 4;
-	Color.a = 0.4f;
+	float falloff = saturate(distance(gl_FragCoord.xy / texSize, LightCenter));
+	Color.rgb = atmo * sunSample.rgb * falloff * VolumetricIntensity;
+	Color.a = 1.0f;
 	
 	gl_FragDepth = 1.0f;
 }

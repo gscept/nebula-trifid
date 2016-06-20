@@ -28,7 +28,7 @@
 #include "actions/duplicateaction.h"
 #include "entityutils/placementutil.h"
 #include "properties/mayacameraproperty.h"
-#include "style/graypalette.h"
+#include "style/nebulastyletool.h"
 #include <QPlastiqueStyle>
 #include "toolkitconsolehandler.h"
 
@@ -239,9 +239,12 @@ LevelEditor2App::SetupGameFeatures()
     this->gameServer->AttachGameFeature(this->qtFeature.upcast<Game::FeatureUnit>());    
 
     // create palette
-    QtToolkitUtil::GrayPalette palette;
+    QtToolkitUtil::NebulaStyleTool palette;
     QApplication::setPalette(palette);
     QApplication::setStyle(new QPlastiqueStyle);
+	QApplication* app = (QApplication*)QApplication::instance();
+	app->setFont(palette.font);
+	app->setStyleSheet(palette.globalStyleSheet);
 
     // setup remote server
     this->remoteServer = QtRemoteServer::Create();

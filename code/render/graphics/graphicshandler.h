@@ -77,7 +77,7 @@ private:
     /// handle SetupGraphics message
     void OnSetupGraphics(const Ptr<Graphics::SetupGraphics>& msg);
 	/// handle UpdateDisplay message
-	void OnUpdateDisplay(const Ptr<Graphics::UpdateDisplay>& msg);
+	void OnUpdateWindow(const Ptr<Graphics::UpdateWindow>& msg);
     /// handle AdapterExists message
     void OnAdapterExists(const Ptr<Graphics::AdapterExists>& msg);
     /// handle GetAvailableDisplayModes message

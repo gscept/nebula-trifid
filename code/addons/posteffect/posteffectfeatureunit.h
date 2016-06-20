@@ -8,6 +8,7 @@
 #include "game/featureunit.h"
 #include "posteffect/posteffectmanager.h"
 #include "posteffectregistry.h"
+#include "clouds/cloudsaddon.h"
 
 namespace PostEffect
 {
@@ -55,6 +56,7 @@ private:
 	Ptr<PostEffect::PostEffectEntity> defaultPostEffect;
 	Ptr<PostEffect::PostEffectRegistry> postEffectRegistry;   
 	Ptr<Graphics::ModelEntity> skyEntity;
+	Ptr<Clouds::CloudsAddon> cloudsAddon;
 	Util::String lastPreset;
 };
 

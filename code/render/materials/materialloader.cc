@@ -98,6 +98,7 @@ MaterialLoader::ParseMaterial(const Ptr<IO::BXmlReader>& xmlReader, const Ptr<Ma
 	String name = xmlReader->GetString("name");
 	String desc = xmlReader->GetOptString("desc", "");
     String inherits = xmlReader->GetOptString("inherits", "");
+	String group = xmlReader->GetOptString("group", "Ungrouped");
 
 	n_assert2(!name.ContainsCharFromSet("|"), "Name of material may not contain character '|' since it's used to denote multiple inheritance");
 	
@@ -119,6 +120,7 @@ MaterialLoader::ParseMaterial(const Ptr<IO::BXmlReader>& xmlReader, const Ptr<Ma
 	material->SetName(name);
 	material->SetVirtual(isVirtual);
 	material->SetDescription(desc);	
+	material->SetGroup(group);
 	material->SetCode(Materials::MaterialType::FromName(name));
 
     // load inherited material

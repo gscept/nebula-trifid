@@ -95,7 +95,7 @@ Display::Close()
 void 
 Display::Reopen()
 {
-	Ptr<Graphics::UpdateDisplay> updDisp = Graphics::UpdateDisplay::Create();
+	Ptr<Graphics::UpdateWindow> updDisp = Graphics::UpdateWindow::Create();
 	updDisp->SetAntiAliasQuality(this->settings.GetAntiAliasQuality());
 	updDisp->SetDisplayMode(this->settings.DisplayMode());
 	updDisp->SetFullscreen(this->settings.IsFullscreen());

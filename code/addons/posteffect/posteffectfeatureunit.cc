@@ -56,6 +56,10 @@ PostEffectFeatureUnit::OnActivate()
 	this->postEffectManager->ResetPostEffectSystem();
 	this->postEffectManager->AttachEntity(this->defaultPostEffect);
 
+	// create clouds addon
+	this->cloudsAddon = Clouds::CloudsAddon::Create();
+	this->cloudsAddon->Setup();
+
 	// set name to default until something else is applied
 	this->lastPreset = "Default";
 }
@@ -66,6 +70,9 @@ PostEffectFeatureUnit::OnActivate()
 void
 PostEffectFeatureUnit::OnDeactivate()
 {	
+	this->cloudsAddon->Discard();
+	this->cloudsAddon = 0;
+
 	this->postEffectManager->RemoveEntity(this->defaultPostEffect);
 	this->defaultPostEffect = 0;
 	// remove post effect manager

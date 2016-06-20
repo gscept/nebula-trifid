@@ -333,9 +333,9 @@ GraphicsHandler::HandleMessage(const Ptr<Message>& msg)
         this->OnSetupGraphics(msg.cast<SetupGraphics>());
         return true;
     }
-	else if (msg->CheckId(UpdateDisplay::Id))
+	else if (msg->CheckId(UpdateWindow::Id))
 	{
-		this->OnUpdateDisplay(msg.cast<UpdateDisplay>());
+		this->OnUpdateWindow(msg.cast<UpdateWindow>());
 		return true;
 	}
 
@@ -467,13 +467,13 @@ GraphicsHandler::OnSetupGraphics(const Ptr<SetupGraphics>& msg)
 	Updates the display settings on the default window.
 */
 void
-GraphicsHandler::OnUpdateDisplay(const Ptr<Graphics::UpdateDisplay>& msg)
+GraphicsHandler::OnUpdateWindow(const Ptr<Graphics::UpdateWindow>& msg)
 {
 	n_assert(this->isGraphicsRuntimeValid);
 
 	// get the default window and apply settings
 	DisplayDevice* disp = this->displayDevice;
-	const Ptr<Window>& wnd = disp->GetWindow(0);
+	const Ptr<Window>& wnd = disp->GetWindow(msg->GetWindow());
 	
 	wnd->SetDisplayMode(msg->GetDisplayMode());
 	wnd->SetAntiAliasQuality(msg->GetAntiAliasQuality());

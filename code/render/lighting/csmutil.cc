@@ -357,7 +357,7 @@ CSMUtil::Compute()
 	float4 lightCameraOrthographicMin;
 	float4 lightCameraOrthographicMax;
 
-	// calculate near and far range based on half the scene bounding box, but clamp within 'resonable' range
+	// calculate near and far range based on half the scene bounding box, but clamp within 'reasonable range
 	float nearFarRange = n_min(this->shadowBox.diagonal_size() / 2, 300.0f);
 	float4 unitsPerTexel = float4(0,0,0,0);
 

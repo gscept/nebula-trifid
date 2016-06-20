@@ -18,7 +18,7 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}
 FILE(GLOB_RECURSE SRC "code/*.cc") 
 FILE(GLOB_RECURSE HEAD "code/*.h")
 
-SET(QTMOCS "code/tools/progressnotifier.h" )
+SET(QTMOCS "code/tools/progressnotifier.h" "code/style/stylewidgets.h" )
 
 PCH_QT4_WRAP_CPP(qttools_HEADERS_MOC ${QTMOCS})
 LIST(APPEND SRCS ${SRC} ${HEAD} ${qttools_FORMS_HEADERS})

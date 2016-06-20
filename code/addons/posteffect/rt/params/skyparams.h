@@ -52,6 +52,11 @@ public:
     /// get default irradiance texture path
     const Util::String& GetIrradianceTexturePath() const;
 
+	/// set sky turbidity
+	void SetSkyTurbidity(float f);
+	/// get sky turbidity
+	float GetSkyTurbidity() const;
+
     /// set sky contrast
     void SetSkyContrast(float f);
     /// get sky contrast
@@ -68,10 +73,12 @@ public:
     float GetSkyRotationFactor() const;
 
 private:
+	
     float textureBlendFactor;
     float skyContrast;
     float skyBrightness;
     float skyRotationFactor;
+	float skyTurbidity;
     Util::String skyTexture;
     Util::String reflTexture;
     Util::String irrTexture;
@@ -80,8 +87,7 @@ private:
 //------------------------------------------------------------------------------
 /**
 */
-inline
-void
+inline void
 SkyParams::ResetTextureBlendFactor()
 {
     this->textureBlendFactor = 0.0f;
@@ -90,8 +96,7 @@ SkyParams::ResetTextureBlendFactor()
 //------------------------------------------------------------------------------
 /**
 */
-inline
-float
+inline float
 SkyParams::GetTextureBlendFactor() const
 {
     return this->textureBlendFactor;
@@ -100,8 +105,7 @@ SkyParams::GetTextureBlendFactor() const
 //------------------------------------------------------------------------------
 /**
 */
-inline
-void 
+inline void 
 SkyParams::SetSkyTexturePath(const Util::String& p)
 {
     this->skyTexture = p;
@@ -110,8 +114,7 @@ SkyParams::SetSkyTexturePath(const Util::String& p)
 //------------------------------------------------------------------------------
 /**
 */
-inline
-const Util::String&
+inline const Util::String&
 SkyParams::GetSkyTexturePath() const
 {
     return this->skyTexture;
@@ -120,8 +123,7 @@ SkyParams::GetSkyTexturePath() const
 //------------------------------------------------------------------------------
 /**
 */
-inline
-void
+inline void
 SkyParams::SetReflectanceTexturePath(const Util::String& p)
 {
     this->reflTexture = p;
@@ -130,8 +132,7 @@ SkyParams::SetReflectanceTexturePath(const Util::String& p)
 //------------------------------------------------------------------------------
 /**
 */
-inline
-const Util::String&
+inline const Util::String&
 SkyParams::GetReflectanceTexturePath() const
 {
     return this->reflTexture;
@@ -140,8 +141,7 @@ SkyParams::GetReflectanceTexturePath() const
 //------------------------------------------------------------------------------
 /**
 */
-inline
-void
+inline void
 SkyParams::SetIrradianceTexturePath(const Util::String& p)
 {
     this->irrTexture = p;
@@ -150,17 +150,34 @@ SkyParams::SetIrradianceTexturePath(const Util::String& p)
 //------------------------------------------------------------------------------
 /**
 */
-inline
-const Util::String&
+inline const Util::String&
 SkyParams::GetIrradianceTexturePath() const
 {
     return this->irrTexture;
 }
+
 //------------------------------------------------------------------------------
 /**
 */
-inline
-void
+inline void
+SkyParams::SetSkyTurbidity(float f)
+{
+	this->skyTurbidity = f;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline float
+SkyParams::GetSkyTurbidity() const
+{
+	return this->skyTurbidity;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
 SkyParams::SetSkyContrast(float f)
 {
     this->skyContrast = f;
@@ -169,8 +186,7 @@ SkyParams::SetSkyContrast(float f)
 //------------------------------------------------------------------------------
 /**
 */
-inline
-float
+inline float
 SkyParams::GetSkyContrast() const
 {
     return this->skyContrast;
@@ -179,8 +195,7 @@ SkyParams::GetSkyContrast() const
 //------------------------------------------------------------------------------
 /**
 */
-inline
-void
+inline void
 SkyParams::SetSkyBrightness(float f)
 {
     this->skyBrightness = f;
@@ -189,8 +204,7 @@ SkyParams::SetSkyBrightness(float f)
 //------------------------------------------------------------------------------
 /**
 */
-inline
-float
+inline float
 SkyParams::GetSkyBrightness() const
 {
     return this->skyBrightness;
@@ -198,8 +212,7 @@ SkyParams::GetSkyBrightness() const
 //------------------------------------------------------------------------------
 /**
 */
-inline
-void
+inline void
 SkyParams::SetSkyRotationFactor(float f)
 {
     this->skyRotationFactor = f;
@@ -208,11 +221,11 @@ SkyParams::SetSkyRotationFactor(float f)
 //------------------------------------------------------------------------------
 /**
 */
-inline
-float
+inline float
 SkyParams::GetSkyRotationFactor() const
 {
     return this->skyRotationFactor;
 }
+
 }
 //------------------------------------------------------------------------------

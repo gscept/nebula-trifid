@@ -135,30 +135,23 @@ QtNebulaWidget::keyReleaseEvent(QKeyEvent* e)
 //------------------------------------------------------------------------------
 /**
 */
-void 
-QtNebulaWidget::resizeEvent( QResizeEvent* e )
+void
+QtNebulaWidget::resizeEvent(QResizeEvent* e)
 {
     if (Graphics::GraphicsInterface::HasInstance())
     {
         QSize size = e->size();
 
         // update display mode
-        Ptr<Graphics::UpdateDisplay> msg = Graphics::UpdateDisplay::Create();
+        Ptr<Graphics::UpdateWindow> msg = Graphics::UpdateWindow::Create();
         CoreGraphics::DisplayMode mode;
         mode.SetWidth(size.width());
         mode.SetHeight(size.height());
-		mode.SetAspectRatio(Math::n_max(size.height() / float(size.width()), 0.01f));
+		mode.SetAspectRatio(Math::n_max(size.width() / float(size.width()), 0.01f));
         msg->SetFullscreen(false);
         msg->SetWindowData(Util::Blob(this->windowData, this->windowDataSize));
         msg->SetDisplayMode(mode);
         Graphics::GraphicsInterface::Instance()->Send(msg.upcast<Messaging::Message>());  
-
-        // also update camera
-        const Ptr<Graphics::View>& view = Graphics::GraphicsServer::Instance()->GetDefaultView();
-        const Ptr<Graphics::CameraEntity>& defaultCamera = view->GetCameraEntity();
-        Graphics::CameraSettings camSettings = defaultCamera->GetCameraSettings();
-        camSettings.SetupPerspectiveFov(camSettings.GetFov(), mode.GetAspectRatio(), camSettings.GetZNear(), camSettings.GetZFar());
-        defaultCamera->SetCameraSettings(camSettings);
     }
 }
 

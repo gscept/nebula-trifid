@@ -251,8 +251,8 @@ VolumetricLightAlgorithm::Render()
 //------------------------------------------------------------------------------
 /**
 */
-bool 
-VolumetricLightAlgorithm::HandleMessage( const Ptr<Messaging::Message>& msg )
+bool
+VolumetricLightAlgorithm::HandleMessage(const Ptr<Messaging::Message>& msg)
 {
 	if (msg->CheckId(EnableVolumetricLighting::Id))
 	{
@@ -286,7 +286,7 @@ VolumetricLightAlgorithm::HandleMessage( const Ptr<Messaging::Message>& msg )
 
 		if (light->IsA(GlobalLightEntity::RTTI))
 		{
-			this->globalLight = 0;
+			if (this->globalLight == light)	this->globalLight = 0;
 		}
 		else if (light->IsA(SpotLightEntity::RTTI))
 		{
@@ -333,7 +333,7 @@ VolumetricLightAlgorithm::RenderGlobalLight()
 		else				this->lightProjMapVar->SetTexture(this->whiteMap->GetTexture());
 
 		// calculate position
-		float4 pos = curLight->GetLightDirection() * 10 + camTrans.get_position();
+		float4 pos = curLight->GetLightDirection() * 50 + camTrans.get_position();
 		pos.w() = 1.0f;
 
 		// calculate screen position

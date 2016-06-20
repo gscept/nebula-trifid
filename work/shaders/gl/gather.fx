@@ -7,6 +7,7 @@
 #include "lib/util.fxh"
 #include "lib/shared.fxh"
 #include "lib/techniques.fxh"
+#include "lib/preetham.fxh"
 
 vec4 FogDistances = vec4(0.0, 2500.0, 0.0, 1.0);
 vec4 FogColor = vec4(0.5, 0.5, 0.63, 0.0);
@@ -15,12 +16,13 @@ vec4 FogColor = vec4(0.5, 0.5, 0.63, 0.0);
 sampler2D LightTexture;
 sampler2D DepthTexture;
 sampler2D EmissiveTexture;
+sampler2D NormalTexture;
 sampler2D SSSTexture;
 sampler2D SSAOTexture;
 
 samplerstate GatherSampler
 {
-	Samplers = { LightTexture, SSSTexture, SSAOTexture, DepthTexture, EmissiveTexture };
+	Samplers = { LightTexture, SSSTexture, SSAOTexture, DepthTexture, EmissiveTexture, NormalTexture };
 	Filter = Point;
 	AddressU = Border;
 	AddressV = Border;
@@ -40,10 +42,10 @@ state GatherState
     pass and a fog color.
 */
 vec4 
-psFog(float fogDepth, vec4 color)
+psFog(float fogDepth, vec4 color, vec3 atmo)
 {
     float fogIntensity = clamp((FogDistances.y - fogDepth) / (FogDistances.y - FogDistances.x), FogColor.a, 1.0);
-    return vec4(lerp(FogColor.rgb, color.rgb, fogIntensity), color.a);
+    return vec4(lerp(FogColor.rgb * atmo, color.rgb, fogIntensity), color.a);
 }
 
 //------------------------------------------------------------------------------
@@ -71,13 +73,15 @@ psMain(in vec2 UV,
 	vec4 sssLight = DecodeHDR(textureLod(SSSTexture, UV, 0));
 	vec4 light = DecodeHDR(textureLod(LightTexture, UV, 0));
 	vec4 emissiveColor = textureLod(EmissiveTexture, UV, 0);
+	vec3 ViewSpaceNormal = UnpackViewSpaceNormal(texture(NormalTexture, UV));
+	vec3 atmo = Preetham(ViewSpaceNormal, GlobalLightDir.xyz, A, B, C, D, E);
 	float ssao = textureLod(SSAOTexture, UV, 0).r;
 	
-	// blend non-blurred light with SSS light
+	// blend non-blurred light with SSS light, make sure emissive is multiplied by atmosphere
 	vec4 color = vec4(lerp(light.rgb + emissiveColor.rgb * light.a, sssLight.rgb, sssLight.a) * (1.0f - ssao), 1.0f);
 	
 	float depth = textureLod(DepthTexture, UV, 0).r;
-	color = psFog(depth, color);
+	color = psFog(depth, color, saturate(atmo * ONE_OVER_PI));
 	MergedColor = EncodeHDR(color);
 }
 

@@ -95,6 +95,8 @@ ContentBrowserWindow::ContentBrowserWindow() :
 	AssignRegistry::Instance()->SetAssign(Assign("intmdl", "root:intermediate/models"));
 	AssignRegistry::Instance()->SetAssign(Assign("inttex", "root:intermediate/textures"));
 
+	this->setContentsMargins(2, 2, 2, 2);
+
 	// setup model info
 	this->modelInfoWindow = this->ui.modelDockWidget;
 	this->modelInfoWindow->setVisible(false);
@@ -2179,8 +2181,8 @@ ContentBrowserWindow::OnShowGrid()
 void
 ContentBrowserWindow::OnSaveAll()
 {
-	if (this->materialHandler->IsSetup()) this->materialHandler->GetUI()->saveButton->click();
-	if (this->modelHandler->IsSetup()) this->modelHandler->GetUI()->saveButton->click();
+	if (this->materialHandler->IsSetup()) this->materialHandler->Save();
+	if (this->modelHandler->IsSetup()) this->modelHandler->OnSave();
 }
 
 //------------------------------------------------------------------------------
@@ -2401,7 +2403,7 @@ ContentBrowserWindow::OnConnectToLevelEditor()
 void 
 ContentBrowserWindow::OnDisconnectFromLevelEditor()
 {
-	this->ui.connectionStatus->setText("<b><span style=\"color:#aa3c3c\">Not connected with Level Editor</span><\b>");
+	this->ui.connectionStatus->setText("<b><span style=\"color:#FF7272\">Not connected with Level Editor</span><\b>");
 }
 
 //------------------------------------------------------------------------------

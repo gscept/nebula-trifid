@@ -245,4 +245,6 @@ Material::Reload(const Ptr<CoreGraphics::Shader>& shader)
 	}
 }
 
+
+
 } // namespace Materials

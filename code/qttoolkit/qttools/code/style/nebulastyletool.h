@@ -9,15 +9,19 @@
 */
 //------------------------------------------------------------------------------
 #include <QPalette>
+#include <QFont>
 namespace QtToolkitUtil
 {
-class GrayPalette :	public QPalette
+class NebulaStyleTool :	public QPalette
 {
 public:
 	/// constructor
-	GrayPalette();
+	NebulaStyleTool();
 	/// destructor
-	virtual ~GrayPalette();
+	virtual ~NebulaStyleTool();
+
+	QString globalStyleSheet;
+	QFont font;
 }; 
 
 } // namespace QtToolkitUtil

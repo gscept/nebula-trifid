@@ -39,12 +39,27 @@ shared varblock CameraBlock [bool System = true;]
 // constains the state of a global light
 shared varblock GlobalLightBlock [bool System = true;]
 {
+	vec4 GlobalLightDirWorldspace;
 	vec4 GlobalLightDir;
 	vec4 GlobalLightColor;
 	vec4 GlobalBackLightColor;
 	vec4 GlobalAmbientLightColor;
 	float GlobalBackLightOffset;
 	mat4 CSMShadowMatrix;
+};
+
+// contains the environmental state
+shared varblock EnvironmentParamBlock [bool System = true;]
+{
+	vec4 GlobalWindDirection;
+	
+	// these params are for the Preetham sky model
+	vec4 A;
+	vec4 B;
+	vec4 C;
+	vec4 D;
+	vec4 E;
+	vec4 Z;
 };
 
 // contains the state of either a point light shadow caster (6 view matrices) or the 4 CSM projection matrices

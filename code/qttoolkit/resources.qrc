@@ -1,5 +1,9 @@
 <RCC>
   <qresource prefix="icons">
+    <file>icons/diagonalarrows.png</file>
+    <file>icons/downarrow.png</file>
+    <file>icons/uparrow.png</file>
+    <file>icons/blank.png</file>
     <file>icons/audio.png</file>
     <file>icons/envprobes.png</file>
     <file>icons/gui.png</file>

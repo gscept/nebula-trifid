@@ -97,6 +97,7 @@ protected:
     Ptr<CoreGraphics::ConstantBuffer> globalLightBuffer;
     Ptr<CoreGraphics::ShaderVariable> globalLightBlockVar;
 	Ptr<CoreGraphics::ShaderVariable> globalLightFocalLength;
+	Ptr<CoreGraphics::ShaderVariable> globalLightDirWorldspace;
 	Ptr<CoreGraphics::ShaderVariable> globalLightDir;
 	Ptr<CoreGraphics::ShaderVariable> globalLightColor;
 	Ptr<CoreGraphics::ShaderVariable> globalBackLightColor;

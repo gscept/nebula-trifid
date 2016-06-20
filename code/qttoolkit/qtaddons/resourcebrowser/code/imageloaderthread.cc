@@ -59,12 +59,13 @@ void
 ImageLoaderThread::Start()
 {
 	this->start();
-	ImageLoaderThread::NoThumbnailPixmap = new QPixmap(96, 96);
+	ImageLoaderThread::NoThumbnailPixmap = new QPixmap(48, 48);
 	ImageLoaderThread::NoThumbnailPixmap->fill(Qt::transparent);
 	QPainter painter(ImageLoaderThread::NoThumbnailPixmap);
-	painter.setFont(QFont("Segoe UI", 10, QFont::Bold));
+	painter.setFont(QFont("Tahoma", 6, QFont::Bold));
 	painter.setPen(Qt::red);
-	painter.drawText(QRectF(0, 0, 96, 96), Qt::AlignCenter, "No thumbnail");
+	painter.setRenderHint(QPainter::TextAntialiasing, false);
+	painter.drawText(QRectF(0, 0, 48, 48), Qt::AlignCenter, "No thumbnail");
 }
 
 //------------------------------------------------------------------------------
@@ -118,7 +119,7 @@ ImageLoaderUnit::Load()
 
 	// load image and scale
 	QImage localImage(uri.LocalPath().AsCharPtr());
-	if (!localImage.isNull()) *image = localImage.scaled(96, 96, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+	if (!localImage.isNull()) *image = localImage.scaled(48, 48, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 	else                      *image = ImageLoaderThread::NoThumbnailPixmap->toImage();
 	this->thumbnailWatcher.WatchFile(uri.LocalPath());
 

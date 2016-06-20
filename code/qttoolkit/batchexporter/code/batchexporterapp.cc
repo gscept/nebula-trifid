@@ -13,7 +13,7 @@
 #include "batchexporterapp.h"
 #include "ui_about.h"
 #include "tools/progressnotifier.h"
-#include "style/graypalette.h"
+#include "style/nebulastyletool.h"
 #include "util/string.h"
 #include "system/nebulasettings.h"
 #include "io/fswrapper.h"
@@ -85,7 +85,7 @@ BatchExporterApp::BatchExporterApp(const CommandLineArgs& args) :
 	this->args = args;
 	
 	// create palette
-	QtToolkitUtil::GrayPalette palette;
+	QtToolkitUtil::NebulaStyleTool palette;
 	QApplication::setPalette(palette);
 	this->ui.progress->setStyle(new QPlastiqueStyle);
 	this->ui.progress->setVisible(false);

@@ -4,7 +4,7 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "particleconverterwindow.h"
-#include "qttools/code/style/graypalette.h"
+#include "qttools/code/style/nebulastyletool.h"
 #include "core/coreserver.h"
 #include "io/fswrapper.h"
 #include "io/ioserver.h"
@@ -24,7 +24,7 @@ ParticleConverterWindow::ParticleConverterWindow()
 	this->ui.setupUi(this);
 	this->ui.searchbar->setVisible(false);
 
-	QtToolkitUtil::GrayPalette palette;
+	QtToolkitUtil::NebulaStyleTool palette;
 	QApplication::setPalette(palette);
 	connect(this->ui.scanButton, SIGNAL(pressed()), this, SLOT(OnScanClicked()));
 }

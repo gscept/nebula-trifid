@@ -175,12 +175,21 @@ private:
     Ptr<CoreGraphics::ShaderVariable> hdrColorVariable;
     Ptr<CoreGraphics::ShaderVariable> hdrThresholdVariable;
     Ptr<CoreGraphics::ShaderVariable> dofShaderVariable;
+
     Ptr<Materials::SurfaceConstant> skyContrast;
     Ptr<Materials::SurfaceConstant> skyBrightness;
     Ptr<Materials::SurfaceConstant> skyBlendFactor;
     Ptr<Materials::SurfaceConstant> skyBlendTexture;
     Ptr<Materials::SurfaceConstant> skyBaseTexture;
     Ptr<Materials::SurfaceConstant> skyRotationFactor;
+
+	Ptr<CoreGraphics::ConstantBuffer> environmentConstantBuffer;
+	Ptr<CoreGraphics::ShaderVariable> skyPreethamA;
+	Ptr<CoreGraphics::ShaderVariable> skyPreethamB;
+	Ptr<CoreGraphics::ShaderVariable> skyPreethamC;
+	Ptr<CoreGraphics::ShaderVariable> skyPreethamD;
+	Ptr<CoreGraphics::ShaderVariable> skyPreethamE;
+	Ptr<CoreGraphics::ShaderVariable> skyPreethamZ;
     bool skyLoaded; // flag is true if sky model was loaded and all shader params could be initialized
 
 	/// handle to sky entity

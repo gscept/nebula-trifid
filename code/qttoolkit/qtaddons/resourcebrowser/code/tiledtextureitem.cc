@@ -61,7 +61,7 @@ TiledTextureItem::Setup()
 
 	// format string with the 'clean' name
 	QString format;
-	format.sprintf("<p align=\"center\"><b>Texture</b><br>%s</p>", this->filename.AsCharPtr());
+	format.sprintf("<p align=\"center\">%s</p>", this->filename.AsCharPtr());
 	this->label->setTextWidth(this->background->boundingRect().width());
 	this->label->setHtml(format);
 }

@@ -39,7 +39,7 @@ TiledDirectoryItem::Setup()
 	TiledGraphicsItem::Setup();
 
 	QPixmap pix(":/icons/qtaddons/resourcebrowser/ui/folder_512.png");
-	pix = pix.scaled(96, 96, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+	pix = pix.scaled(48, 48, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 	this->graphics->setPixmap(pix);
 	QString format;
 	format.sprintf("<p align=\"center\">%s</p>", this->dir.AsCharPtr());
@@ -53,7 +53,7 @@ TiledDirectoryItem::Setup()
 		this->background->boundingRect().width() / 2 - this->graphics->boundingRect().height() / 2);	// using width twice is not a bug, we want the same margin!
 
 	// move label to appear underneath graphics
-	this->label->setPos(this->label->pos().x(), this->graphics->boundingRect().height() + 10);
+	this->label->setPos(this->label->pos().x(), this->graphics->boundingRect().height() + 1);
 }
 
 //------------------------------------------------------------------------------

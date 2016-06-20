@@ -79,7 +79,7 @@
          <enum>QTabWidget::Rounded</enum>
         </property>
         <property name="currentIndex">
-         <number>2</number>
+         <number>1</number>
         </property>
         <property name="iconSize">
          <size>
@@ -242,7 +242,7 @@ p, li { white-space: pre-wrap; }
                 <item row="0" column="0" colspan="3">
                  <widget class="QFrame" name="clipFrame">
                   <property name="frameShape">
-                   <enum>QFrame::StyledPanel</enum>
+                   <enum>QFrame::NoFrame</enum>
                   </property>
                   <property name="frameShadow">
                    <enum>QFrame::Raised</enum>
@@ -448,7 +448,7 @@ p, li { white-space: pre-wrap; }
                 <item row="2" column="0" colspan="3">
                  <widget class="QFrame" name="eventFrame">
                   <property name="frameShape">
-                   <enum>QFrame::StyledPanel</enum>
+                   <enum>QFrame::NoFrame</enum>
                   </property>
                   <property name="frameShadow">
                    <enum>QFrame::Raised</enum>

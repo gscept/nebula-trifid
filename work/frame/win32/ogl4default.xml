@@ -191,6 +191,7 @@
    <ApplyShaderVariable sem="DepthTexture" value="DepthBuffer"/>
    <ApplyShaderVariable sem="LightTexture" value="LightBuffer"/>
    <ApplyShaderVariable sem="EmissiveTexture" value="EmissiveBuffer"/>
+   <ApplyShaderVariable sem="NormalTexture" value="NormalBuffer"/>
    <ApplyShaderVariable sem="SSSTexture" value="SSSBuffer"/>
    <ApplyShaderVariable sem="SSAOTexture" value="SSAOTexture"/>
   </PostEffect>
@@ -199,6 +200,7 @@
   <Pass multipleRenderTarget="UnlitBuffer" name="Background">
 		<!-- render skybox, next render will render alpha objects, and the skybox will just write them over otherwise -->
 		<Batch batchGroup="Background" sorting="None" lighting="None" type="Geometry"/>
+		<Batch batchGroup="Foreground" sorting="None" lighting="None" type="Geometry"/>
   </Pass>
   
   <!-- same as the one above but for the alpha buffers -->

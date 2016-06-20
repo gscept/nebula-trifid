@@ -12,7 +12,7 @@
 #include "resources/resource.h"
 #include "graphics/graphicsprotocol.h"
 #include "graphics/graphicsinterface.h"
-#include "style/graypalette.h"
+#include "style/nebulastyletool.h"
 #include "remoteinterface/qtremoteprotocol.h"
 #include "editorfeatures/editorbasegamefeature.h"
 #include "platform.h"
@@ -130,9 +130,12 @@ ContentBrowserApp::SetupGameFeatures()
     this->gameServer->AttachGameFeature(this->qtFeature.upcast<Game::FeatureUnit>());
 
     // create palette
-    QtToolkitUtil::GrayPalette palette;
+    QtToolkitUtil::NebulaStyleTool palette;
     QApplication::setPalette(palette);
     QApplication::setStyle(new QPlastiqueStyle);
+	QApplication* app = (QApplication*)QApplication::instance();
+	app->setFont(palette.font);
+	app->setStyleSheet(palette.globalStyleSheet);
 
     // run mini exporter
     Ptr<MiniExporterAddon::MiniExporter> miniExporter = MiniExporterAddon::MiniExporter::Create();

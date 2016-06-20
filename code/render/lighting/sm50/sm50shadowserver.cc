@@ -384,6 +384,8 @@ SM50ShadowServer::UpdateShadowBuffers()
 {
 	n_assert(this->inBeginFrame);
 	n_assert(!this->inBeginAttach);
+	const Ptr<VisResolver>& visResolver = VisResolver::Instance();
+	visResolver->PushResolve();
 
 	// update local lights shadow buffer
 	_start_timer(spotLightShadow);
@@ -409,6 +411,8 @@ SM50ShadowServer::UpdateShadowBuffers()
 		this->UpdateHotGlobalShadowBuffer();
 	}
 	_stop_timer(globalShadow);
+
+	visResolver->PopResolve();
 }
 
 //------------------------------------------------------------------------------
@@ -439,7 +443,6 @@ SM50ShadowServer::UpdateSpotLightShadowBuffers()
 		// perform visibility resolve for current light		
 		const Array<Ptr<GraphicsEntity> >& visLinks = lightEntity->GetLinks(GraphicsEntity::LightLink);
 		if (visLinks.Size() == 0) continue;
-		visResolver->PushResolve();
 		visResolver->BeginResolve(lightEntity->GetTransform());
 		IndexT linkIndex;
 		for (linkIndex = 0; linkIndex < visLinks.Size(); linkIndex++)
@@ -466,9 +469,6 @@ SM50ShadowServer::UpdateSpotLightShadowBuffers()
 		matrix44 viewProj = matrix44::multiply(lightEntity->GetShadowInvTransform(), lightEntity->GetShadowProjTransform());
 		transDev->ApplyViewMatrixArray(&viewProj, 1);
         this->spotLightPass->Render(frameIndex);
-
-		// pop back previous visibility result
-		visResolver->PopResolve();
 
 		// render first SAT pass
         this->spotLightVertPass->Render(frameIndex);
@@ -520,7 +520,6 @@ SM50ShadowServer::UpdatePointLightShadowBuffers()
 		const Ptr<PointLightEntity>& lightEntity = this->pointLightEntities[lightIndex];
 
 		// perform visibility resolve for current light
-		visResolver->PushResolve();
 		visResolver->BeginResolve(lightEntity->GetTransform());
 		const Array<Ptr<GraphicsEntity> >& visLinks = lightEntity->GetLinks(GraphicsEntity::LightLink);
 		if (visLinks.Size() == 0) continue;
@@ -579,9 +578,6 @@ SM50ShadowServer::UpdatePointLightShadowBuffers()
 		this->pointLightPosVar->SetFloat4(lightPos);
 		this->pointLightPass->SetRenderTargetCube(cube);
 		this->pointLightPass->Render(frameIndex);
-
-		// pop back previous visibility result
-		visResolver->PopResolve();
 
 #define TILE_WIDTH 320
 
@@ -671,7 +667,6 @@ SM50ShadowServer::UpdateHotGlobalShadowBuffer()
 
 	// perform visibility resolve, directional lights don't really have a position
 	// thus we're feeding an identity matrix as camera transform
-	visResolver->PushResolve();
 	visResolver->BeginResolve(cascadeViewProjection);
 	const Array<Ptr<GraphicsEntity>>& visLinks = this->globalLightEntity->GetLinks(GraphicsEntity::LightLink);
 	IndexT linkIndex;
@@ -690,9 +685,6 @@ SM50ShadowServer::UpdateHotGlobalShadowBuffer()
 
 	// render batch
 	this->globalLightHotPass->Render(frameIndex);
-
-	// pop back previous visibility result
-	visResolver->PopResolve();
 
 #define TILE_WIDTH 320
 	// calculate execution dimensions

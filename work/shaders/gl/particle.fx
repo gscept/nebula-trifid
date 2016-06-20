@@ -299,7 +299,7 @@ psUnlit3Layers(in vec4 ViewSpacePosition,
 	vec4 layer2 = texture(Layer2, UV + UVAnim2 * TimeAndRandom.x);
 	vec4 layer3 = texture(Layer3, UV + UVAnim3 * TimeAndRandom.x);
 	
-	vec4 color = ((layer1 * layer2 * 2) * layer3 * 2);
+	vec4 color = layer1 * layer2 * 2 * layer3 * 2;
 	float depth = textureLod(DepthBuffer, screenUV, 0).r;
 	float particleDepth = length(ViewSpacePosition);
 	float AlphaMod = saturate(abs(depth - particleDepth));
@@ -326,7 +326,7 @@ psUnlit4Layers(in vec4 ViewSpacePosition,
 	vec4 layer3 = texture(Layer3, UV + UVAnim3 * TimeAndRandom.x);
 	vec4 layer4 = texture(Layer4, UV + UVAnim4 * TimeAndRandom.x);
 	
-	vec4 color = ((layer1 * layer2 * 2) * layer3 * 2) * layer4;
+	vec4 color = layer1 * layer2 * 2 * layer3 * 2 * layer4;
 	float depth = textureLod(DepthBuffer, screenUV, 0).r;
 	float particleDepth = length(ViewSpacePosition);
 	float AlphaMod = saturate(abs(depth - particleDepth));

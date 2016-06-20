@@ -133,7 +133,7 @@
 					STATIC MATERIALS
   
   -->
-  <Material name="Static" inherits="PBR + IBL" type="static" desc="PBR + IBL based dielectric/metal material.">
+  <Material name="Static" inherits="PBR + IBL" type="static" desc="PBR + IBL based dielectric/metal material." group="Standard">
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <Pass batch="SpotLightShadow" shader="shadow" variation="Static|Spot"/>
    <Pass batch="PointLightShadow" shader="shadow" variation="Static|Point"/>
@@ -141,7 +141,7 @@
    <Pass batch="FlatGeometryLit" shader="static" variation="Static|Environment"/>
   </Material>
   
-  <Material name="Static + Alpha test" inherits="PBR + IBL|Alpha test" type="static" desc="PBR + IBL based dielectric/metal material, but with added alpha testing.">
+  <Material name="Static + Alpha test" inherits="PBR + IBL|Alpha test" type="static" desc="PBR + IBL based dielectric/metal material, but with added alpha testing." group="Standard">
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <Pass batch="SpotLightShadow" shader="shadow" variation="Alpha|Spot"/>
    <Pass batch="PointLightShadow" shader="shadow" variation="Alpha|Point"/>
@@ -150,12 +150,12 @@
 
   </Material>
   
-  <Material name="Static + Alpha blending" inherits="PBR + IBL|Alpha blend" type="static" desc="PBR + IBL based dielectric/metal material. With alpha blending.">
+  <Material name="Static + Alpha blending" inherits="PBR + IBL|Alpha blend" type="static" desc="PBR + IBL based dielectric/metal material. With alpha blending." group="Standard">
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <Pass batch="FlatGeometryAlphaLit" shader="static" variation="Static|Environment|Alpha"/>
   </Material>
   
-  <Material name="Static + Emissive" inherits="PBR + IBL|Emissive" type="static" desc="PBR + IBL based dielectric/metal material. With added emissive mapping.">
+  <Material name="Static + Emissive" inherits="PBR + IBL|Emissive" type="static" desc="PBR + IBL based dielectric/metal material. With added emissive mapping." group="Standard">
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <Pass batch="SpotLightShadow" shader="shadow" variation="Static|Spot"/>
    <Pass batch="PointLightShadow" shader="shadow" variation="Static|Point"/>
@@ -163,7 +163,7 @@
    <Pass batch="FlatGeometryLit" shader="static" variation="Static|Environment"/>
   </Material>
   
-  <Material name="Organic" type="static" inherits="PBR + IBL" desc="Specialized PBR + IBL based dielectric/metal material, but with an added subsurface scattering pass.">
+  <Material name="Organic" type="static" inherits="PBR + IBL" desc="Specialized PBR + IBL based dielectric/metal material, but with an added subsurface scattering pass." group="Subsurface">
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <Pass batch="SpotLightShadow" shader="shadow" variation="Static|Spot"/>
    <Pass batch="PointLightShadow" shader="shadow" variation="Static|Point"/>
@@ -187,7 +187,7 @@
 					SKINNED MATERIALS
   
   -->
-  <Material name="Skinned" type="skeletal" inherits="PBR + IBL" desc="Skinned version PBR + IBL based dielectric/metal material, but with added alpha testing.">
+  <Material name="Skinned" type="skeletal" inherits="PBR + IBL" desc="Skinned version PBR + IBL based dielectric/metal material, but with added alpha testing." group="Standard">
    <Pass batch="Picking" shader="picking" variation="Skinned"/>
    <Pass batch="SpotLightShadow" shader="shadow" variation="Skinned|Spot"/>
    <Pass batch="PointLightShadow" shader="shadow" variation="Skinned|Point"/>
@@ -195,7 +195,7 @@
    <Pass batch="FlatGeometryLit" shader="skinned" variation="Skinned"/>
   </Material>
   
-  <Material name="Skinned + Alpha test" type="skeletal" inherits="PBR + IBL|Alpha test" desc="Skinned version of the static PBR + IBL based dielectric/metal material, but with added alpha testing.">
+  <Material name="Skinned + Alpha test" type="skeletal" inherits="PBR + IBL|Alpha test" desc="Skinned version of the static PBR + IBL based dielectric/metal material, but with added alpha testing." group="Standard">
    <Pass batch="Picking" shader="picking" variation="Skinned"/>
    <Pass batch="SpotLightShadow" shader="shadow" variation="Skinned|Spot"/>
    <Pass batch="PointLightShadow" shader="shadow" variation="Skinned|Point"/>
@@ -203,12 +203,12 @@
    <Pass batch="FlatGeometryLit" shader="skinned" variation="Skinned|AlphaTest"/>   
   </Material>
   
-  <Material name="Skinned + Alpha blending" type="skeletal" inherits="PBR + IBL|Alpha blend" desc="Skinned material which uses a mesh with joint indices and joint weights, and is also alpha-blended. Useful for characters. Affected by lights.">
+  <Material name="Skinned + Alpha blending" type="skeletal" inherits="PBR + IBL|Alpha blend" desc="Skinned material which uses a mesh with joint indices and joint weights, and is also alpha-blended. Useful for characters. Affected by lights." group="Standard">
    <Pass batch="Picking" shader="picking" variation="Skinned"/>
    <Pass batch="FlatGeometryAlphaLit" shader="skinned" variation="Skinned|Alpha"/>
   </Material>
   
-  <Material name="Skin" type="skeletal" inherits="PBR + IBL" desc="Skinned material which uses a mesh with joint indices and joint weights. Uses a subsurface scattering approximation to simulate an organic material. Useful for characters. Affected by lights.">
+  <Material name="Skin" type="skeletal" inherits="PBR + IBL" desc="Skinned material which uses a mesh with joint indices and joint weights. Uses a subsurface scattering approximation to simulate an organic material. Useful for characters. Affected by lights." group="Subsurface">
    <Pass batch="Picking" shader="picking" variation="Skinned"/>
    <Pass batch="SpotLightShadow" shader="shadow" variation="Skinned|Spot"/>
    <Pass batch="PointLightShadow" shader="shadow" variation="Skinned|Point"/>
@@ -231,7 +231,7 @@
 					DEPRECATED MATERIALS
   
   -->
-  <Material name="Static classic" type="static" inherits="Classic rendering" desc="Standard material for static meshes without PBR or IBL. Affected by lights.">
+  <Material name="Static classic" type="static" inherits="Classic rendering" desc="Standard material for static meshes without PBR or IBL. Affected by lights." group="Deprecated">
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <Pass batch="SpotLightShadow" shader="shadow" variation="Static|Spot"/>
    <Pass batch="PointLightShadow" shader="shadow" variation="Static|Point"/>
@@ -239,7 +239,7 @@
    <Pass batch="FlatGeometryLit" shader="static" variation="Static"/>   
   </Material>
   
-  <Material name="Static classic tessellated" type="static" inherits="Classic rendering|Tessellation" desc="Standard material for static meshes with support for real-time tessellation without PBR or IBL. Affected by lights.">
+  <Material name="Static classic tessellated" type="static" inherits="Classic rendering|Tessellation" desc="Standard material for static meshes with support for real-time tessellation without PBR or IBL. Affected by lights." group="Deprecated">
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <Pass batch="SpotLightShadow" shader="shadow" variation="Static|Spot"/>
    <Pass batch="PointLightShadow" shader="shadow" variation="Static|Point"/>
@@ -247,7 +247,7 @@
    <Pass batch="TessellatedGeometryLit" shader="static" variation="Static|Tessellated"/>
   </Material>
   
-  <Material name="Vertex colored" inherits="PBR + IBL" type="static|vertexcolors" desc="Standard material for static meshes with vertex colors. Multiplies vertex colors with final diffuse. Affected by lights.">
+  <Material name="Vertex colored" inherits="PBR + IBL" type="static|vertexcolors" desc="Standard material for static meshes with vertex colors. Multiplies vertex colors with final diffuse. Affected by lights." group="Deprecated">
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <Pass batch="SpotLightShadow" shader="shadow" variation="Static|Spot"/>
    <Pass batch="PointLightShadow" shader="shadow" variation="Static|Point"/>
@@ -255,7 +255,7 @@
    <Pass batch="FlatGeometryLit" shader="static" variation="Static|Environment"/>
   </Material>
   
-  <Material name="Skinned tessellated" inherits="PBR + IBL" type="skeletal" desc="Skinned material which uses a mesh with joint indices and joint weights. Supports tessellation. Useful for characters. Affected by lights.">
+  <Material name="Skinned tessellated" inherits="PBR + IBL" type="skeletal" desc="Skinned material which uses a mesh with joint indices and joint weights. Supports tessellation. Useful for characters. Affected by lights." group="Deprecated">
    <Pass batch="Picking" shader="picking" variation="Skinned"/>
    <Pass batch="SpotLightShadow" shader="shadow" variation="Skinned|Spot"/>
    <Pass batch="PointLightShadow" shader="shadow" variation="Static|Point"/>
@@ -274,7 +274,7 @@
 					MULTILAYERED MATERIALS
   
   -->
-  <Material name="Multilayered" type="static|vertexcolors" inherits="Tiled|PBR + IBL" desc="Special material used for meshes with vertex colors. RGB controls the influence of each texture layer in order 1,2,3. Affected by lights.">
+  <Material name="Multilayered" type="static|vertexcolors" inherits="Tiled|PBR + IBL" desc="Special material used for meshes with vertex colors. RGB controls the influence of each texture layer in order 1,2,3. Affected by lights." group="Terrain">
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <Pass batch="SpotLightShadow" shader="shadow" variation="Static|Spot"/>
    <Pass batch="GlobalShadow" shader="shadow" variation="Static|Global"/>
@@ -297,7 +297,7 @@
    <Param name="ObjectId" type="int" system="true"/>
   </Material>
   
-  <Material name="MultilayeredTessellated" type="static|vertexcolors" inherits="Tiled|Tessellation" desc="Special material used for meshes with vertex colors. RGB controls the influence of each texture layer in order 1,2,3. Supports tessellation. Affected by lights.">
+  <Material name="MultilayeredTessellated" type="static|vertexcolors" inherits="Tiled|Tessellation" desc="Special material used for meshes with vertex colors. RGB controls the influence of each texture layer in order 1,2,3. Supports tessellation. Affected by lights." group="Terrain">
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <Pass batch="SpotLightShadow" shader="shadow" variation="Static|Spot"/>
    <Pass batch="GlobalShadow" shader="shadow" variation="Static|Global"/>
@@ -324,7 +324,7 @@
 					LIGHTMAPPED MATERIALS
   
   -->
-  <Material name="LightMappedLit" type="static|secondaryuvs" inherits="PBR + IBL" desc="Special material for use with objects with a secondary UV set. Affected by lights.">
+  <Material name="LightMappedLit" type="static|secondaryuvs" inherits="PBR + IBL" desc="Special material for use with objects with a secondary UV set. Affected by lights." group="Lightmapped">
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <Pass batch="SpotLightShadow" shader="shadow" variation="Spot"/>
    <Pass batch="PointLightShadow" shader="shadow" variation="Point"/>
@@ -347,7 +347,7 @@
    <Param name="ObjectId" type="int" system="true"/>
   </Material>
   
-  <Material name="LightMappedLitVertexColors" type="static|secondaryuvs|vertexcolors" inherits="PBR + IBL" desc="Special material for use with objects with a secondary UV set. Affected by lights.">
+  <Material name="LightMappedLitVertexColors" type="static|secondaryuvs|vertexcolors" inherits="PBR + IBL" desc="Special material for use with objects with a secondary UV set. Affected by lights." group="Lightmapped">
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <Pass batch="SpotLightShadow" shader="shadow" variation="Spot"/>
    <Pass batch="PointLightShadow" shader="shadow" variation="Point"/>
@@ -361,7 +361,7 @@
    <Param name="ObjectId" type="int" system="true"/>
   </Material>
   
-  <Material name="LightMappedUnlitVertexColors" type="static|secondaryuvs|vertexcolors" desc="Special material for use with objects with a secondary UV set. Is not affected by lights.">
+  <Material name="LightMappedUnlitVertexColors" type="static|secondaryuvs|vertexcolors" desc="Special material for use with objects with a secondary UV set. Is not affected by lights." group="Lightmapped">
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <Pass batch="Unlit" shader="lightmapped" variation="Static|Unlit|Colored"/>
    
@@ -373,7 +373,7 @@
    <Param name="ObjectId" type="int" system="true"/>
   </Material>
   
-  <Material name="LightMappedLitFoliage" type="static|secondaryuvs|vertexcolors" inherits="PBR + IBL|Alpha test" desc="Special material for use with objects with a secondary UV set and with vertex colors. Uses wind simulation to displace vertices. Uses the vertex color A channel as a wind influence weight. Affected by lights.">
+  <Material name="LightMappedLitFoliage" type="static|secondaryuvs|vertexcolors" inherits="PBR + IBL|Alpha test" desc="Special material for use with objects with a secondary UV set and with vertex colors. Uses wind simulation to displace vertices. Uses the vertex color A channel as a wind influence weight. Affected by lights." group="Vegetation">
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <Pass batch="SpotLightShadow" shader="foliage" variation="Spot"/>
    <Pass batch="PointLightShadow" shader="shadow" variation="Point"/>
@@ -391,7 +391,7 @@
    <Param name="ObjectId" type="int" system="true"/>   
   </Material>
   
-  <Material name="LightMappedUnlitFoliage" type="static|secondaryuvs|vertexcolors" desc="Special material for use with objects with a secondary UV set and vertex colors. Uses wind simulation to displace vertices. Uses the vertex color A channel as a wind influence weight.">
+  <Material name="LightMappedUnlitFoliage" type="static|secondaryuvs|vertexcolors" desc="Special material for use with objects with a secondary UV set and vertex colors. Uses wind simulation to displace vertices. Uses the vertex color A channel as a wind influence weight." group="Vegetation">
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <Pass batch="Unlit" shader="foliage" variation="Static|Unlit|Lightmapped"/>
    
@@ -419,7 +419,7 @@
 					UNLIT MATERIALS
   
   -->
-  <Material name="Unlit" type="static" desc="Static material for standard meshes. Is not affected by lights.">
+  <Material name="Unlit" type="static" desc="Static material for standard meshes. Is not affected by lights." group="No lighting">
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <!--<Pass batch="SpotLightShadow" shader="shadow" variation="Static|Spot"/>
    <Pass batch="GlobalShadow" shader="shadow" variation="Static|Global"/>-->
@@ -433,7 +433,7 @@
    <Param name="ObjectId" type="int" system="true"/>
   </Material>
   
-  <Material name="UnlitAlpha" type="static" desc="Static material for standard meshes but with support for alpha-blending. Is not affected by lights.">
+  <Material name="UnlitAlpha" type="static" desc="Static material for standard meshes but with support for alpha-blending. Is not affected by lights." group="No lighting">
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <!--<Pass batch="SpotLightShadow" shader="shadow" variation="Alpha|Spot"/>
    <Pass batch="GlobalShadow" shader="shadow" variation="AlphaTest|Global"/>-->
@@ -463,7 +463,7 @@
   <!--
 		STATIC VERSIONS
   -->
-  <Material name="Animated" type="static" inherits="PBR + IBL|Tiled|Animated UVs" desc="Animates UV shells, supports tiling, uses PBR and IBL.">
+  <Material name="Animated" type="static" inherits="PBR + IBL|Tiled|Animated UVs" desc="Animates UV shells, supports tiling, uses PBR and IBL." group="UV animated">
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <Pass batch="SpotLightShadow" shader="shadow" variation="Static|Spot"/>
    <Pass batch="PointLightShadow" shader="shadow" variation="Static|Point"/>
@@ -471,7 +471,7 @@
    <Pass batch="FlatGeometryLit" shader="animated" variation="Static"/>
   </Material>
   
-  <Material name="Animated + Vertex colors" type="static|vertexcolors" inherits="PBR + IBL|Tiled|Animated UVs" desc="Animates UV shells, supports tiling, uses PBR and IBL. Uses vertex colors.">
+  <Material name="Animated + Vertex colors" type="static|vertexcolors" inherits="PBR + IBL|Tiled|Animated UVs" desc="Animates UV shells, supports tiling, uses PBR and IBL. Uses vertex colors." group="UV animated">
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <Pass batch="SpotLightShadow" shader="shadow" variation="Static|Spot"/>
    <Pass batch="PointLightShadow" shader="shadow" variation="Static|Point"/>
@@ -479,12 +479,12 @@
    <Pass batch="FlatGeometryLit" shader="animated" variation="Static|Colored"/>
   </Material>
   
-  <Material name="Animated + Alpha blending" type="static" inherits="PBR + IBL|Tiled|Animated UVs|Alpha blend" desc="Animates UV shells, supports tiling, uses PBR and IBL. Uses alpha blending">
+  <Material name="Animated + Alpha blending" type="static" inherits="PBR + IBL|Tiled|Animated UVs|Alpha blend" desc="Animates UV shells, supports tiling, uses PBR and IBL. Uses alpha blending" group="UV animated">
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <Pass batch="FlatGeometryAlphaLit" shader="animated" variation="Alpha"/>   
   </Material>
   
-  <Material name="Animated + Alpha + Vertex color" type="static|vertexcolors" inherits="PBR + IBL|Tiled|Animated UVs|Alpha blend" desc="Static material for standard meshes but with alpha-blending. Can animate the UV shell using the given parameters. Affected by lights.">
+  <Material name="Animated + Alpha + Vertex color" type="static|vertexcolors" inherits="PBR + IBL|Tiled|Animated UVs|Alpha blend" desc="Static material for standard meshes but with alpha-blending. Can animate the UV shell using the given parameters. Affected by lights." group="UV animated">
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <Pass batch="FlatGeometryAlphaLit" shader="animated" variation="Alpha|Colored"/>   
   </Material>
@@ -492,7 +492,7 @@
   <!--
 		SKINNED VERSIONS
   -->
-  <Material name="Animated + Skinned" type="skeletal" inherits="PBR + IBL|Tiled|Animated UVs" desc="Animates UV shells, supports tiling, uses PBR and IBL.">
+  <Material name="Animated + Skinned" type="skeletal" inherits="PBR + IBL|Tiled|Animated UVs" desc="Animates UV shells, supports tiling, uses PBR and IBL." group="UV animated">
    <Pass batch="Picking" shader="picking" variation="Skinned"/>
    <Pass batch="SpotLightShadow" shader="shadow" variation="Skinned|Spot"/>
    <Pass batch="PointLightShadow" shader="shadow" variation="Skinned|Point"/>
@@ -500,7 +500,7 @@
    <Pass batch="FlatGeometryLit" shader="animated" variation="Skinned"/>
   </Material>
   
-  <Material name="Animated + Vertex colors + Skinned" type="skeletal|vertexcolors" inherits="PBR + IBL|Tiled|Animated UVs" desc="Animates UV shells, supports tiling, uses PBR and IBL. Uses vertex colors.">
+  <Material name="Animated + Vertex colors + Skinned" type="skeletal|vertexcolors" inherits="PBR + IBL|Tiled|Animated UVs" desc="Animates UV shells, supports tiling, uses PBR and IBL. Uses vertex colors." group="UV animated">
    <Pass batch="Picking" shader="picking" variation="Skinned"/>
    <Pass batch="SpotLightShadow" shader="shadow" variation="Skinned|Spot"/>
    <Pass batch="PointLightShadow" shader="shadow" variation="Skinned|Point"/>
@@ -508,12 +508,12 @@
    <Pass batch="FlatGeometryLit" shader="animated" variation="Skinned|Colored"/>
   </Material>
   
-  <Material name="Animated + Alpha blending + Skinned" type="skeletal" inherits="PBR + IBL|Tiled|Animated UVs|Alpha blend" desc="Animates UV shells, supports tiling, uses PBR and IBL. Uses alpha blending">
+  <Material name="Animated + Alpha blending + Skinned" type="skeletal" inherits="PBR + IBL|Tiled|Animated UVs|Alpha blend" desc="Animates UV shells, supports tiling, uses PBR and IBL. Uses alpha blending" group="UV animated">
    <Pass batch="Picking" shader="picking" variation="Skinned"/>
    <Pass batch="FlatGeometryAlphaLit" shader="animated" variation="Skinned|Alpha"/>   
   </Material>
   
-  <Material name="Animated + Alpha + Vertex color + Skinned" type="skeletal|vertexcolors" inherits="PBR + IBL|Tiled|Animated UVs|Alpha blend" desc="Static material for standard meshes but with alpha-blending. Can animate the UV shell using the given parameters. Affected by lights.">
+  <Material name="Animated + Alpha + Vertex color + Skinned" type="skeletal|vertexcolors" inherits="PBR + IBL|Tiled|Animated UVs|Alpha blend" desc="Static material for standard meshes but with alpha-blending. Can animate the UV shell using the given parameters. Affected by lights." group="UV animated">
    <Pass batch="Picking" shader="picking" variation="Skinned"/>
    <Pass batch="FlatGeometryAlphaLit" shader="animated" variation="Skinned|Alpha|Colored"/>   
   </Material>
@@ -524,7 +524,7 @@
   -->
  
   
-  <Material name="Particle" virtual="true" desc="Base material for particles">
+  <Material name="Particle" virtual="true" desc="Base material for particles" group="Particles">
   
    <!-- system variables -->
    <Param name="EmitterTransform" type="matrix44" system="true" defaultValue="1.0f, 0.0f, 0.0f, 0.0f, 
@@ -539,28 +539,28 @@
    <Param name="DepthBuffer" type="string" system="true" defaultValue="tex:system/black"/>
   </Material>
   
-  <Material name="ParticleUnlit" type="particle" inherits="Particle" desc="Standard unlit particle material.">
+  <Material name="ParticleUnlit" type="particle" inherits="Particle" desc="Standard unlit particle material." group="Particles">
    <Pass batch="ParticleUnlit" shader="particle" variation="Unlit"/>
    <Param name="AlbedoMap" type="string" defaultValue="tex:system/placeholder"/>
    
    <Param name="ObjectId" type="int" system="true"/>
   </Material>
   
-  <Material name="ParticleUnlitAdditive" type="particle" inherits="Particle" desc="Unlit particle using an additive blending method.">
+  <Material name="ParticleUnlitAdditive" type="particle" inherits="Particle" desc="Unlit particle using an additive blending method." group="Particles">
    <Pass batch="ParticleUnlit" shader="particle" variation="Unlit|Alt0"/>
    <Param name="AlbedoMap" type="string" defaultValue="tex:system/placeholder"/>
    
    <Param name="ObjectId" type="int" system="true"/>
   </Material>
   
-  <Material name="ParticleUnlitBlendAdd" type="particle" inherits="Particle" desc="Unlit particle using the blend-add method. These particles are easier to see in bright and dark environments.">
+  <Material name="ParticleUnlitBlendAdd" type="particle" inherits="Particle" desc="Unlit particle using the blend-add method. These particles are easier to see in bright and dark environments." group="Particles">
    <Pass batch="ParticleUnlit" shader="particle" variation="Unlit|Alt1"/>
    <Param name="AlbedoMap" type="string" defaultValue="tex:system/placeholder"/>
    
    <Param name="ObjectId" type="int" system="true"/>
   </Material>
   
-  <Material name="ParticleUnlitBlendAdd2Layers" type="particle" inherits="Particle" desc="Unlit particle using the blend-add method with two layers. Each layer is blended with the A * B * 2 method.">
+  <Material name="ParticleUnlitBlendAdd2Layers" type="particle" inherits="Particle" desc="Unlit particle using the blend-add method with two layers. Each layer is blended with the A * B * 2 method." group="Particles">
    <Pass batch="ParticleUnlit" shader="particle" variation="Unlit|Alt2"/>
    
    <Param name="Layer1" type="string" defaultValue="tex:system/placeholder"/>
@@ -571,7 +571,7 @@
    <Param name="ObjectId" type="int" system="true"/>
   </Material>
   
-  <Material name="ParticleUnlitBlendAdd3Layers" type="particle" inherits="Particle" desc="Unlit particle using the blend-add method with three layers. Each layer is blended with the A * B * 2 method.">
+  <Material name="ParticleUnlitBlendAdd3Layers" type="particle" inherits="Particle" desc="Unlit particle using the blend-add method with three layers. Each layer is blended with the A * B * 2 method." group="Particles">
    <Pass batch="ParticleUnlit" shader="particle" variation="Unlit|Alt3"/>
    
    <Param name="Layer1" type="string" defaultValue="tex:system/placeholder"/>
@@ -585,7 +585,7 @@
    <Param name="ObjectId" type="int" system="true"/>
   </Material>
   
-  <Material name="ParticleUnlitBlendAdd4Layers" type="particle" inherits="Particle" desc="Unlit particle using the blend-add method with four layers, the fourth layer is used as a flat multiplier.">
+  <Material name="ParticleUnlitBlendAdd4Layers" type="particle" inherits="Particle" desc="Unlit particle using the blend-add method with four layers, the fourth layer is used as a flat multiplier." group="Particles">
    <Pass batch="ParticleUnlit" shader="particle" variation="Unlit|Alt4"/>
    
    <Param name="Layer1" type="string" defaultValue="tex:system/placeholder"/>
@@ -601,14 +601,14 @@
    <Param name="ObjectId" type="int" system="true"/>
   </Material>
   
-  <Material name="ParticleLit" type="particle" inherits="PBR + IBL|Particle" desc="Standard lit particle material.">
+  <Material name="ParticleLit" type="particle" inherits="PBR + IBL|Particle" desc="Standard lit particle material." group="Particles">
    <Pass batch="ParticleLit" shader="particle" variation="Static"/>
    <Pass batch="GlobalShadow" shader="particle" variation="Global"/>
    
    <Param name="ObjectId" type="int" system="true"/>
   </Material>
   
-  <Material name="Foliage" type="static|vertexcolors" inherits="PBR + IBL" desc="Uses a mesh with vertex colors. Material which uses a wind simulation to displace vertices.">
+  <Material name="Foliage" type="static|vertexcolors" inherits="PBR + IBL" desc="Uses a mesh with vertex colors. Material which uses a wind simulation to displace vertices." group="Vegetation">
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <Pass batch="SpotLightShadow" shader="foliage" variation="Spot"/>
    <Pass batch="PointLightShadow" shader="foliage" variation="Point"/>
@@ -626,7 +626,7 @@
    
   </Material>
   
-  <Material name="Water" type="static" desc="Standard material which looks like water. Uses the xz-coordinates for the vertices to tile the normal map. Renders foam when the distance is close to a surface based on a threshold. Is not affected by lights.">
+  <Material name="Water" type="static" desc="Standard material which looks like water. Uses the xz-coordinates for the vertices to tile the normal map. Renders foam when the distance is close to a surface based on a threshold. Is not affected by lights." group="Environmental">
    <Pass batch="Picking" shader="picking" variation="Static"/>	
    <Pass batch="Water" shader="water" variation="Static"/>	
    
@@ -654,7 +654,7 @@
    <Param name="ObjectId" type="int" system="true"/>
   </Material>
   
-  <Material name="WaterTessellated" type="static" desc="Standard material which looks like water. Uses the xz-coordinates for the vertices to tile the normal map. Renders foam when the distance is close to a surface based on a threshold. Supports tessellation (bugged). Is not affected by lights.">
+  <Material name="WaterTessellated" type="static" desc="Standard material which looks like water. Uses the xz-coordinates for the vertices to tile the normal map. Renders foam when the distance is close to a surface based on a threshold. Supports tessellation (bugged). Is not affected by lights." group="Environmental">
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <Pass batch="Water" shader="water" variation="Static|Tessellated"/>	
    
@@ -684,7 +684,7 @@
    <Param name="ObjectId" type="int" system="true"/>
   </Material>
   
-  <Material name="Fog" type="static|vertexcolors" desc="Requires a standard mesh. Material which approximates distance fog within a piece of geometry (bugged).">
+  <Material name="Fog" type="static|vertexcolors" desc="Requires a standard mesh. Material which approximates distance fog within a piece of geometry (bugged)." group="Environmental">
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <Pass batch="FlatGeometryLit" shader="volumefog" variation="Static"/>
    <Param name="DepthDensity" type="float" defaultValue="1.0f"/>
@@ -698,18 +698,8 @@
    <Param name="ObjectId" type="int" system="true"/>
   </Material>
   
-  <Material name="Grid" type="static" desc="Special material which is used internally for grid rendering.">
-   <Pass batch="Picking" shader="picking" variation="Static"/>
-   <Pass batch="FlatGeometryLit" shader="grid" variation="Static"/>
-   <Param name="AlbedoMap" type="string" defaultValue="tex:system/placeholder"/>
-   <Param name="SpecularMap" type="string" defaultValue="tex:system/white"/>
-   <Param name="EmissiveMap" type="string" defaultValue="tex:system/white"/>
-   <Param name="RoughnessMap" type="string" defaultValue="tex:system/darkgray"/>
-   <Param name="NormalMap" type="string" defaultValue="tex:system/nobump"/>
-   
+  <Material name="Grid" type="static" desc="Special material which is used internally for grid rendering." group="System">
    <Param name="GridSize" type="float" min="0" max="3" defaultValue="5"/>
-   <Param name="MatSpecularIntensity" type="float" defaultValue="0.0f" min="0.0f" max="1.0f" desc="Material specular reflectivity index"/>
-   <Param name="MatEmissiveIntensity" type="float" defaultValue="0.0f" min="0.0f" max="1.0f" desc="Material emissive intensity, multiplies with emissive color"/>
    <Param name="AlphaSensitivity" type="float" defaultValue="0.0f" min="0.0f" max="1.0f" desc="Alpha clip sensitivity, every value below this will cause the pixel to become discarded"/>
    
     <!-- system variables -->
@@ -732,7 +722,7 @@
    <Param name="ObjectId" type="int" system="true"/>
   </Material>
   
-  <Material name="Billboard" type="special" desc="Special material which is used internally for billboard rendering.">
+  <Material name="Billboard" type="special" desc="Special material which is used internally for billboard rendering." group="System">
    <Pass batch="Picking" shader="picking" variation="Alt0"/>
    <Pass batch="Unlit" shader="billboard" variation="Static"/>
    <Param name="AlbedoMap" type="string" defaultValue="tex:system/placeholder" system="true"/>
@@ -743,7 +733,7 @@
    <Param name="ObjectId" type="int" system="true"/>
   </Material>
   
-  <Material name="Skybox" type="special" desc="Special material which is used internally for skybox rendering.">
+  <Material name="Skybox" type="special" desc="Special material which is used internally for skybox rendering." group="System">
    <Pass batch="Background" shader="skybox" variation="Static"/>
    <Param name="SkyLayer1" type="string" defaultValue="tex:system/placeholder"/>
    <Param name="SkyLayer2" type="string" defaultValue="tex:system/placeholder"/>
@@ -751,8 +741,24 @@
    <Param name="SkyRotationFactor" type="float" defaultValue="0.03f"/>
    <Param name="Contrast" type="float" defaultValue="1.0f" system="true"/>
    <Param name="Brightness" type="float" defaultValue="0.0f" system="true"/>	
+   <Param name="A" type="float4" defaultValue="0.0f, 0.0f, 0.0f, 0.0f" system="true"/>	
+   <Param name="B" type="float4" defaultValue="0.0f, 0.0f, 0.0f, 0.0f" system="true"/>	
+   <Param name="C" type="float4" defaultValue="0.0f, 0.0f, 0.0f, 0.0f" system="true"/>	
+   <Param name="D" type="float4" defaultValue="0.0f, 0.0f, 0.0f, 0.0f" system="true"/>	
+   <Param name="E" type="float4" defaultValue="0.0f, 0.0f, 0.0f, 0.0f" system="true"/>	
+   <Param name="Z" type="float4" defaultValue="0.0f, 0.0f, 0.0f, 0.0f" system="true"/>	
    
    <!-- system variables -->
+  </Material>
+  
+  <Material name="Clouds" type="special" desc="Special material used for cloud rendering." group="System">   
+   <Pass batch="Background" shader="clouds" variation="Static"/>
+   <Param name="CloudLayer1" type="string" defaultValue="tex:system/placeholder"/>
+   <Param name="CloudLayer2" type="string" defaultValue="tex:system/white"/>
+   <Param name="CloudSize" type="float" min="0" max="3" defaultValue="5"/>
+   
+    <!-- system variables -->
+   <Param name="ObjectId" type="int" system="true"/>
   </Material>
   
   <Material name="ReflectionProjector" type="special" desc="Special material which is used internally for rendering reflections and irradiance.">
@@ -767,7 +773,7 @@
 	Special material which should be applied as a placeholder before an actual material has been assigned.
 	This is also assigned to skinned meshes, although the Static variation will be forced to be Static|Skinned (look in shader)
   -->
-  <Material name="Placeholder" type="all" desc="Placeholder material which gets applied to a mesh if it doesn't yet have a shader">
+  <Material name="Placeholder" type="all" desc="Placeholder material which gets applied to a mesh if it doesn't yet have a shader" group="System">
    <Pass batch="DirectToColor" shader="placeholder" variation="Static"/>
    <Pass batch="Picking" shader="picking" variation="Static"/>
    <Param name="AlbedoMap" type="string" defaultValue="tex:system/placeholder"/>

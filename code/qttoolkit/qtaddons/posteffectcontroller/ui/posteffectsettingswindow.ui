@@ -28,23 +28,43 @@
     <height>16777215</height>
    </size>
   </property>
-  <property name="font">
-   <font>
-    <family>Segoe UI</family>
-   </font>
-  </property>
   <property name="windowTitle">
    <string>PostEffect Settings</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <property name="margin">
+    <number>0</number>
+   </property>
    <item row="0" column="0">
     <widget class="QGroupBox" name="groupBox">
+     <property name="styleSheet">
+      <string notr="true">QGroupBox { border: 0px; }</string>
+     </property>
      <property name="title">
       <string/>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>5</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>5</number>
+      </property>
+      <property name="verticalSpacing">
+       <number>6</number>
+      </property>
       <item row="11" column="0">
-       <widget class="QDoubleSpinBox" name="blendSpeed"/>
+       <widget class="QDoubleSpinBox" name="blendSpeed">
+        <property name="styleSheet">
+         <string notr="true">margin-left: 5px; margin-right: 2px;</string>
+        </property>
+       </widget>
       </item>
       <item row="9" column="0">
        <widget class="QLabel" name="label_25">
@@ -55,6 +75,9 @@
           <bold>true</bold>
          </font>
         </property>
+        <property name="styleSheet">
+         <string notr="true">margin-left: 5px; margin-right: 2px;</string>
+        </property>
         <property name="text">
          <string>Blend Speed</string>
         </property>
@@ -62,8 +85,11 @@
       </item>
       <item row="12" column="0">
        <widget class="QTabWidget" name="tabWidget">
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>6</number>
         </property>
         <widget class="QWidget" name="tab">
          <attribute name="title">
@@ -71,7 +97,10 @@
          </attribute>
          <layout class="QGridLayout" name="gridLayout_3">
           <item row="4" column="1" colspan="3">
-           <widget class="QPushButton" name="colorBalance">
+           <widget class="QtToolkitUtil::ColorPushButton" name="colorBalance">
+            <property name="styleSheet">
+             <string notr="true">background-color: 0;</string>
+            </property>
             <property name="text">
              <string>Change...</string>
             </property>
@@ -649,12 +678,15 @@
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="QPushButton" name="hdrColor">
+           <widget class="QtToolkitUtil::ColorPushButton" name="hdrColor">
             <property name="maximumSize">
              <size>
               <width>16777215</width>
               <height>16777215</height>
              </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color: 0;</string>
             </property>
             <property name="text">
              <string>Change...</string>
@@ -1128,12 +1160,15 @@
            </widget>
           </item>
           <item row="3" column="1">
-           <widget class="QPushButton" name="lightBack">
+           <widget class="QtToolkitUtil::ColorPushButton" name="lightBack">
             <property name="focusPolicy">
              <enum>Qt::ClickFocus</enum>
             </property>
             <property name="toolTip">
              <string>Backface global light color.</string>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color: 0;</string>
             </property>
             <property name="text">
              <string>Change...</string>
@@ -1145,12 +1180,15 @@
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="QPushButton" name="lightDiffuse">
+           <widget class="QtToolkitUtil::ColorPushButton" name="lightDiffuse">
             <property name="focusPolicy">
              <enum>Qt::ClickFocus</enum>
             </property>
             <property name="toolTip">
              <string>Diffuse global light color.</string>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color: 0;</string>
             </property>
             <property name="text">
              <string>Change...</string>
@@ -1162,12 +1200,15 @@
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="QPushButton" name="lightAmbient">
+           <widget class="QtToolkitUtil::ColorPushButton" name="lightAmbient">
             <property name="focusPolicy">
              <enum>Qt::ClickFocus</enum>
             </property>
             <property name="toolTip">
              <string>Ambient global light color.</string>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color: 0;</string>
             </property>
             <property name="text">
              <string>Change...</string>
@@ -1316,8 +1357,14 @@
         </widget>
        </widget>
       </item>
-      <item row="14" column="0">
+      <item row="13" column="0">
        <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <property name="leftMargin">
+         <number>5</number>
+        </property>
+        <property name="rightMargin">
+         <number>2</number>
+        </property>
         <item>
          <widget class="QLabel" name="label_3">
           <property name="sizePolicy">
@@ -1413,18 +1460,18 @@
         </item>
        </layout>
       </item>
-      <item row="13" column="0">
-       <widget class="Line" name="line">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QtToolkitUtil::ColorPushButton</class>
+   <extends>QPushButton</extends>
+   <header>style/stylewidgets.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>saturationSlider</tabstop>
   <tabstop>saturationBox</tabstop>

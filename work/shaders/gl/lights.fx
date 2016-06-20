@@ -9,6 +9,7 @@
 #include "lib/CSM.fxh"
 #include "lib/techniques.fxh"
 #include "lib/shadowbase.fxh"
+#include "lib/preetham.fxh"
 
 const float specPower = float(32.0f);
 const float rimLighting = float(0.2f);
@@ -100,6 +101,7 @@ psGlob(in vec3 ViewSpacePosition,
 {
 	vec3 ViewSpaceNormal = UnpackViewSpaceNormal(texture(NormalBuffer, UV));
 	float Depth = texture(DepthBuffer, UV).r;
+	vec3 atmo = Preetham(ViewSpaceNormal, GlobalLightDir.xyz, A, B, C, D, E) * ONE_OVER_PI;
 	
 	vec4 albedoColor = texture(AlbedoBuffer, UV);	
 	vec4 emissiveColor = texture(EmissiveBuffer, UV);
@@ -121,7 +123,7 @@ psGlob(in vec3 ViewSpacePosition,
 	float HL = saturate(dot(H, GlobalLightDir.xyz));
 	vec3 spec;
 	BRDFLighting(NH, NL, NV, HL, specPower, specColor.rgb, spec);
-	vec3 final = (albedoColor.rgb + spec) * diff;
+	vec3 final = (albedoColor.rgb + spec) * diff * atmo;
 	
 	Color = EncodeHDR(vec4(final, emissiveColor.a));
 }
@@ -137,6 +139,7 @@ psGlobShadow(in vec3 ViewSpacePosition,
 {
 	vec3 ViewSpaceNormal = UnpackViewSpaceNormal(texture(NormalBuffer, UV));
 	float Depth = texture(DepthBuffer, UV).r;
+	vec3 atmo = Preetham(ViewSpaceNormal, GlobalLightDir.xyz, A, B, C, D, E) * ONE_OVER_PI;
 		
 	vec4 albedoColor = texture(AlbedoBuffer, UV);
 	vec4 emissiveColor = texture(EmissiveBuffer, UV);
@@ -169,7 +172,7 @@ psGlobShadow(in vec3 ViewSpacePosition,
 	float HL = saturate(dot(H, GlobalLightDir.xyz));
 	vec3 spec;
 	BRDFLighting(NH, NL, NV, HL, specPower, specColor.rgb, spec);
-	vec3 final = (albedoColor.rgb + spec) * diff;
+	vec3 final = (albedoColor.rgb + spec) * diff * atmo;
 	Color = EncodeHDR(vec4(final * saturate(shadowFactor), emissiveColor.a));
 }
 

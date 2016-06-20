@@ -89,6 +89,7 @@ GridRTPlugin::OnRegister()
 void
 GridRTPlugin::OnUnregister()
 {
+	ResourceManager::Instance()->DiscardManagedResource(this->tex.upcast<ManagedResource>());
 	this->tex = 0;
 	this->ibo->Unload();
 	this->ibo = 0;

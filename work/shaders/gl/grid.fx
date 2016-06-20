@@ -10,7 +10,6 @@
 
 float GridSize = 50;
 sampler2D GridTex;
-mat4x4 PlaneProjection;
 
 samplerstate GridSampler
 {

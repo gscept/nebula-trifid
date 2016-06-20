@@ -502,10 +502,7 @@ View::OnWindowResized(IndexT windowId) const
 		this->frameShader->OnWindowResized(mode.GetWidth(), mode.GetHeight());
 
 		// notify camera the aspect may have changed
-		this->camera->OnWindowResized(mode.GetAspectRatio());
-
-		// notify rt plugins that the display has been resized
-		RenderModules::RTPluginRegistry::Instance()->OnWindowResized(windowId, mode.GetWidth(), mode.GetHeight());
+		this->camera->OnWindowResized(mode.GetAspectRatio());		
 	}
 }
 

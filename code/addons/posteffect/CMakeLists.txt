@@ -35,6 +35,8 @@ set(SOURCES_files_posteffect__rt
 	rt/posteffectrtplugin.h
 	rt/posteffectserver.cc
 	rt/posteffectserver.h
+	rt/preethamutil.cc
+	rt/preethamutil.h
 )
 source_group("posteffect\\rt" FILES ${SOURCES_files_posteffect__rt})
 
@@ -78,10 +80,10 @@ set(SOURCES_
 
 N_CREATE_FEATURE(posteffect SOURCES_ P_NIDL_FILES)
 
-TARGET_LINK_LIBRARIES(posteffect PUBLIC foundation render )
+TARGET_LINK_LIBRARIES(posteffect PUBLIC foundation render clouds)
 TARGET_INCLUDE_DIRECTORIES(posteffect PUBLIC ${Nebula3_SOURCE_DIR}/code/addons/posteffect ${Nebula3_SOURCE_DIR}/code/application ${Nebula3_SOURCE_DIR}/code/application/basegamefeature)
 
-#ADD_DEPENDENCIES(posteffect graphicsfeature )
+ADD_DEPENDENCIES(posteffect clouds)
 N_SET_COMPILER_DEFAULTS()
 IF(N_USE_PRECOMPILED_HEADERS)
     N_SET_PCH(posteffect stdneb.h stdneb.cc ../)

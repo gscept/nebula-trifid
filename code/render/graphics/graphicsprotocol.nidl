@@ -73,10 +73,11 @@
         </Message>
       
         <!-- updates display, which enables resolution changing and fullscreen-to-windowed switching -->
-        <Message name="UpdateDisplay" fourcc="INDS">
+        <Message name="UpdateWindow" fourcc="INDS">
           <InArg name="DisplayMode" type="CoreGraphics::DisplayMode"/>
           <InArg name="AntiAliasQuality" type="CoreGraphics::AntiAliasQuality::Code" default="CoreGraphics::AntiAliasQuality::None"/>
           <InArg name="Fullscreen" type="bool"/>
+          <InArg name="Window" type="int" default="0"/>
           <InArg name="Monitor" type="IndexT" default="0"/>
           <InArg name="WindowData" type="Util::Blob" default="0"/>
           <InArg name="TripleBufferingEnabled" type="bool"/>

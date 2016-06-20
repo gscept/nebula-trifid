@@ -36,6 +36,7 @@
 #define NEBULA3_SEMANTIC_LIGHTCOLOR                 "LightColor"
 #define NEBULA3_SEMANTIC_LIGHTSHADOWBIAS			"LightShadowBias"
 #define NEBULA3_SEMANTIC_GLOBALLIGHTDIR             "GlobalLightDir"
+#define NEBULA3_SEMANTIC_GLOBALLIGHTDIRWORLDSPACE   "GlobalLightDirWorldspace"
 #define NEBULA3_SEMANTIC_GLOBALLIGHTCOLOR           "GlobalLightColor"
 #define NEBULA3_SEMANTIC_GLOBALAMBIENTLIGHTCOLOR    "GlobalAmbientLightColor"
 #define NEBULA3_SEMANTIC_GLOBALBACKLIGHTCOLOR       "GlobalBackLightColor"
