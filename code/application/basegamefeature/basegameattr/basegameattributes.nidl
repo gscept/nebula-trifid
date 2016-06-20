@@ -20,7 +20,7 @@
     <Attribute name="Id" fourcc="IDEN" accessMode="ReadWrite" type="String" />
     <Attribute name="Name" fourcc="NAME" accessMode="ReadWrite" type="String" displayName="Comment" />
     <Attribute name="Placeholder" fourcc="PLHO" accessMode="ReadWrite" type="String" system="1"/>
-    <Attribute name="Transform" fourcc="TRAN" accessMode="ReadWrite" type="Matrix44"/>
+    <Attribute name="Transform" fourcc="TRAN" accessMode="ReadWrite" type="Matrix44" system="1"/>
     <Attribute name="Dummy" fourcc="DUMY" accessMode="ReadWrite" type="String" system="1"/>
     <Attribute name="StartLevel" fourcc="STLV" accessMode="ReadWrite" type="Bool" system="1"/>    
     <Attribute name="CurrentLevel" fourcc="CLEV" accessMode="ReadWrite" type="String" system="1"/>

@@ -155,7 +155,7 @@ LevelViewerGameState::HandleInput()
 		}
 		this->ReloadLevel(applyTrans);
 		const Ptr<BaseGameFeature::GameStateHandler>& state = App::GameApplication::Instance()->FindStateHandlerByName("Reload").cast<BaseGameFeature::GameStateHandler>();
-		state->SetLevelName(BaseGameFeature::BaseGameFeatureUnit::Instance()->GetCurrentLevel());
+		state->SetLevelName(BaseGameFeature::BaseGameFeatureUnit::GetCurrentLevel());
 		LevelViewerGameStateApplication::Instance()->RequestState("Reload");
 	}
 	if (kbd->KeyDown(Input::Key::F10))
@@ -192,7 +192,7 @@ LevelViewerGameState::LoadLevel(const Util::String &level, bool applyTransform)
 void
 LevelViewerGameState::ReloadLevel(bool keepTransform)
 {
-	this->LoadLevel(BaseGameFeature::BaseGameFeatureUnit::Instance()->GetCurrentLevel(), keepTransform);
+	this->LoadLevel(BaseGameFeature::BaseGameFeatureUnit::GetCurrentLevel(), keepTransform);
 }
 
 } // namespace Tools

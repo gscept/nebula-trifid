@@ -123,7 +123,7 @@ FactoryManager::CreateEntityByAttrs(const Util::String& categoryName, const Util
         Util::Guid guid;
         guid.Generate();
         entity->SetGuid(Attr::Guid, guid);
-        entity->SetString(Attr::_Level, BaseGameFeatureUnit::Instance()->GetCurrentLevel());
+        entity->SetString(Attr::_Level, BaseGameFeatureUnit::GetCurrentLevel());
 		if (entity->GetString(Attr::_Layers).Length() == 0) entity->SetString(Attr::_Layers, "Default");
         return entity;
     }
@@ -160,7 +160,7 @@ FactoryManager::CreateEntityByTemplate(const Util::String& categoryName, const U
     Util::Guid guid;
     guid.Generate();
     entity->SetGuid(Attr::Guid, guid);
-    entity->SetString(Attr::_Level, BaseGameFeatureUnit::Instance()->GetCurrentLevel());
+    entity->SetString(Attr::_Level, BaseGameFeatureUnit::GetCurrentLevel());
     return entity;
 }
 
@@ -188,7 +188,7 @@ FactoryManager::CreateEntityByTemplateAsCategory(const Util::String& categoryNam
     Util::Guid guid;
     guid.Generate();
     entity->SetGuid(Attr::Guid, guid);
-    entity->SetString(Attr::_Level, BaseGameFeatureUnit::Instance()->GetCurrentLevel());
+    entity->SetString(Attr::_Level, BaseGameFeatureUnit::GetCurrentLevel());
     return entity;
 }
 
