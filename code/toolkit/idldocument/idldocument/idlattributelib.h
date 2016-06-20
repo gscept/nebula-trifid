@@ -10,8 +10,8 @@
 #include "core/refcounted.h"
 #include "util/string.h"
 #include "io/xmlreader.h"
-#include "toolkitutil/idldocument/idldependency.h"
-#include "toolkitutil/idldocument/idlattribute.h"
+#include "idldocument/idldependency.h"
+#include "idldocument/idlattribute.h"
 
 //------------------------------------------------------------------------------
 namespace Tools

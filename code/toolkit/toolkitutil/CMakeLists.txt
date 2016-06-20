@@ -2,8 +2,6 @@
 # Toolkit
 #-------------------------------------------------------------------------------
 
-IF(NOT N_BUILD_FIRSTTIME)
-
 	FILE(GLOB SRC "*.cc")
 	FILE(GLOB HEAD "*.h")
 	LIST(APPEND SRCST ${SRC} ${HEAD})
@@ -119,12 +117,7 @@ IF(NOT N_BUILD_FIRSTTIME)
 	FILE(GLOB SRC "modelutil/*.cc")
 	FILE(GLOB HEAD "modelutil/*.h")
 	LIST(APPEND SRCSMOD ${SRC} ${HEAD})
-	SOURCE_GROUP("toolkitutil\\modelutil" FILES ${SRCSMOD})
-
-	FILE(GLOB SRC "idldocument/*.cc")
-	FILE(GLOB HEAD "idldocument/*.h")
-	LIST(APPEND SRCSIDL ${SRC} ${HEAD})
-	SOURCE_GROUP("toolkitutil\\idl" FILES ${SRCSIDL})
+	SOURCE_GROUP("toolkitutil\\modelutil" FILES ${SRCSMOD})	
 	
 	FILE(GLOB SRC "surface/*.cc")
 	FILE(GLOB HEAD "surface/*.h")
@@ -146,29 +139,21 @@ IF(NOT N_BUILD_FIRSTTIME)
 	FILE(GLOB SRC "../distributedtools/distributedjobs/*.cc")
 	FILE(GLOB HEAD "../distributedtools/distributedjobs/*.h")
 	LIST(APPEND SRCSDD ${SRC} ${HEAD})
-	SOURCE_GROUP("distributedtools\\Jobs" FILES ${SRCSDD})
-	
-ELSE()
-	FILE(GLOB SRC "idldocument/*.cc")
-	FILE(GLOB HEAD "idldocument/*.h")
-	LIST(APPEND SRCSIDL ${SRC} ${HEAD})
-	SOURCE_GROUP("toolkitutil\\idl" FILES ${SRCSIDL})
-ENDIF()
+	SOURCE_GROUP("distributedtools\\Jobs" FILES ${SRCSDD})	
+
 set(PCH_files	
     ../stdneb.cc
 )
 SOURCE_GROUP("Precompiled" FILES ${PCH_files})
 
-LIST(APPEND ALLSRCS ${SRCST} ${SRCSA} ${SRCSAS} ${SRCSM}  ${SRCSPFX} ${SRCSN} ${SRCSX}  ${SRCSG} ${SRCSGUI}  ${SRCSB}  ${SRCSF} ${SRCSFS} ${SRCSND}  ${SRCSDD} ${SRCSD} ${SRCSMOD} ${SRCSIDL} ${SRCSUR} ${SRCSREC} ${PCH_files} ${SRCAPPLAUNCH})
+LIST(APPEND ALLSRCS ${SRCST} ${SRCSA} ${SRCSAS} ${SRCSM}  ${SRCSPFX} ${SRCSN} ${SRCSX}  ${SRCSG} ${SRCSGUI}  ${SRCSB}  ${SRCSF} ${SRCSFS} ${SRCSND}  ${SRCSDD} ${SRCSD} ${SRCSMOD}  ${SRCSUR} ${SRCSREC} ${PCH_files} ${SRCAPPLAUNCH})
 
 N_SET_COMPILER_DEFAULTS()
 
 add_library(toolkitutil STATIC ${ALLSRCS} )
-IF(N_BUILD_FIRSTTIME)
-    TARGET_LINK_LIBRARIES(toolkitutil foundation)
-ELSE()
-    TARGET_LINK_LIBRARIES(toolkitutil foundation render application graphicsfeature physicsfeature stateobjectfeature scriptfeature scriptingfeature ui sqlite compiler editorfeatures ${FBX_LIBRARY} $<$<BOOL:${N_BUILD_NVTT}>:nvcore nvtt nvimage nvmath posh squish nvthread bc6h bc7>)
-ENDIF()
+
+TARGET_LINK_LIBRARIES(toolkitutil foundation render application graphicsfeature physicsfeature stateobjectfeature scriptfeature scriptingfeature ui sqlite compiler editorfeatures ${FBX_LIBRARY} $<$<BOOL:${N_BUILD_NVTT}>:nvcore nvtt nvimage nvmath posh squish nvthread bc6h bc7>)
+
 TARGET_COMPILE_DEFINITIONS(toolkitutil PUBLIC $<$<BOOL:${N_BUILD_NVTT}>:NVTT_EXPORTS> FBXSDK_NEW_API)
 TARGET_INCLUDE_DIRECTORIES(toolkitutil PUBLIC ${Nebula3_SOURCE_DIR}/code/toolkit ${Nebula3_SOURCE_DIR}/code/toolkit/toolkitutil ${Nebula3_SOURCE_DIR}/code/extlibs)
 IF(MSVC)

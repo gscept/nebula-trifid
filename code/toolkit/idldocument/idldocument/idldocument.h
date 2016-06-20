@@ -13,9 +13,9 @@
 #include "core/refcounted.h"
 #include "util/string.h"
 #include "io/xmlreader.h"
-#include "toolkitutil/idldocument/idllibrary.h"
-#include "toolkitutil/idldocument/idlprotocol.h"
-#include "toolkitutil/idldocument/idlproperty.h"
+#include "idldocument/idllibrary.h"
+#include "idldocument/idlprotocol.h"
+#include "idldocument/idlproperty.h"
 #include "idlattributelib.h"
 
 //------------------------------------------------------------------------------

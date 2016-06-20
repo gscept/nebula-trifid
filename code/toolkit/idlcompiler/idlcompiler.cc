@@ -4,8 +4,8 @@
 //  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "idlcompiler/idlcompiler.h"
-#include "toolkitutil/idldocument/idlcodegenerator.h"
+#include "idlcompiler.h"
+#include "idldocument/idlcodegenerator.h"
 #include "io/fswrapper.h"
 
 namespace Tools

@@ -8,7 +8,7 @@
 #include "db/valuetable.h"
 #include "ui_colourcontroller.h"
 #include "basegamefeature/basegameprotocol.h"
-#include "toolkitutil/idldocument/idlattribute.h"
+#include "idldocument/idlattribute.h"
 #include "qcolordialog.h"
 
 using namespace Util;

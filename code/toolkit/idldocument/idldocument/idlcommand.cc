@@ -4,7 +4,7 @@
 //  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "toolkitutil/idldocument/idlcommand.h"
+#include "idlcommand.h"
 
 namespace Tools
 {
