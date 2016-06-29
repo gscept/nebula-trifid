@@ -54,14 +54,18 @@ GLFWWindow::Open()
 
 	// get original window, this is so we don't have to create more contexts
 	GLFWwindow* wnd = NULL;
-	const Ptr<CoreGraphics::Window>& origWindow = CoreGraphics::DisplayDevice::Instance()->GetCurrentWindow();	
+	const Ptr<CoreGraphics::Window>& origWindow = CoreGraphics::DisplayDevice::Instance()->GetMainWindow();	
 	if (origWindow.isvalid()) wnd = origWindow->window;
+
+	// avoid creating a new GL context
+	//if (wnd != NULL) glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	
 	// if we have window data, setup from alien window
 	if (this->windowData.IsValid())
 	{
 		// create window using our Qt window as child
 		this->window = glfwCreateWindowFromAlien(this->windowData.GetPtr(), wnd);
+		//if (wnd != NULL) glfwCopyContext(origWindow->window, this->window);
 		glfwMakeContextCurrent(this->window);
 
 		// get actual window size
@@ -86,6 +90,7 @@ GLFWWindow::Open()
 		if (!this->fullscreen) glfwSetWindowPos(this->window, this->displayMode.GetXPos(), this->displayMode.GetYPos());
 		else				   this->ApplyFullscreen();
 
+		//if (wnd != NULL) glfwCopyContext(origWindow->window, this->window);
 		glfwMakeContextCurrent(this->window);
 
 		// set user pointer to this window
@@ -98,6 +103,14 @@ GLFWWindow::Open()
 
 	// enable callbacks
 	this->EnableCallbacks();
+
+	// with OpenGL, we have only one context, so any extra windows will just have their own render target
+	if (origWindow.isvalid() && origWindow != this)
+	{
+		glfwReparentContext(origWindow->window, this->window);
+	}
+
+	DisplayDevice::Instance()->MakeWindowCurrent(this->windowId);
 	WindowBase::Open();
 }
 

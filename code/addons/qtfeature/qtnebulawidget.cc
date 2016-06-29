@@ -47,6 +47,8 @@ namespace QtFeature
 /**
 */
 QtNebulaWidget::QtNebulaWidget(QWidget* parent) : 
+	windowId(0),
+	view(0),
 	QFrame(parent)
 	
 {
@@ -58,6 +60,20 @@ QtNebulaWidget::QtNebulaWidget(QWidget* parent) :
     this->setFocusPolicy(Qt::NoFocus);
 }
 
+
+//------------------------------------------------------------------------------
+/**
+*/
+QtNebulaWidget::QtNebulaWidget() :
+	windowId(0)
+{
+	// tell Qt to render the Widget to screen, and to handle it as a native window
+	//this->setAttribute(Qt::WA_PaintOnScreen);
+	this->setAttribute(Qt::WA_NativeWindow);
+	this->setAttribute(Qt::WA_NoChildEventsForParent);
+	this->setAttribute(Qt::WA_PaintUnclipped);
+	this->setFocusPolicy(Qt::NoFocus);
+}
 //------------------------------------------------------------------------------
 /**
 */
@@ -74,8 +90,8 @@ void QtNebulaWidget::GenerateWindowData()
 #if __WIN32__
     // create instance of win32 data
     Win32Data data;
-	data.width = this->size().width();
-	data.height = this->size().height();	
+	data.width = Math::n_max(1, this->size().width());
+	data.height = Math::n_max(1, this->size().height());
     data.window = this->effectiveWinId();
 
     // allocate memory for window data pointer
@@ -136,6 +152,26 @@ QtNebulaWidget::keyReleaseEvent(QKeyEvent* e)
 /**
 */
 void
+QtNebulaWidget::focusInEvent(QFocusEvent* event)
+{
+	//n_assert(this->view.isvalid());
+	//this->view->SetUpdatePerFrame(true);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+QtNebulaWidget::focusOutEvent(QFocusEvent* event)
+{
+	//n_assert(this->view.isvalid());
+	//this->view->SetUpdatePerFrame(false);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 QtNebulaWidget::resizeEvent(QResizeEvent* e)
 {
     if (Graphics::GraphicsInterface::HasInstance())
@@ -151,6 +187,7 @@ QtNebulaWidget::resizeEvent(QResizeEvent* e)
         msg->SetFullscreen(false);
         msg->SetWindowData(Util::Blob(this->windowData, this->windowDataSize));
         msg->SetDisplayMode(mode);
+		msg->SetWindow(this->windowId);
         Graphics::GraphicsInterface::Instance()->Send(msg.upcast<Messaging::Message>());  
     }
 }

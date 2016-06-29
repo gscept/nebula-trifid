@@ -619,8 +619,8 @@ OGL4RenderDevice::Present()
     // we need this in order to ensure this frame is done before we start working on the next one
     this->frameId++;
 	
-	// swap buffers
-	DisplayDevice::Instance()->GetCurrentWindow()->SwapBuffers();
+	// swap buffers on main window
+	
 }
 
 //------------------------------------------------------------------------------

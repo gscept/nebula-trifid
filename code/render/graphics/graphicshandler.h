@@ -76,6 +76,8 @@ private:
     void ShutdownGraphicsRuntime();
     /// handle SetupGraphics message
     void OnSetupGraphics(const Ptr<Graphics::SetupGraphics>& msg);
+	/// handle SetupWindow message
+	void OnSetupWindow(const Ptr<Graphics::SetupWindow>& msg);
 	/// handle UpdateDisplay message
 	void OnUpdateWindow(const Ptr<Graphics::UpdateWindow>& msg);
     /// handle AdapterExists message

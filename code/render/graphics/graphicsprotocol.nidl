@@ -47,7 +47,7 @@
             <InArg name="Type" type="const Core::Rtti*"/>
         </Message>
         
-        <!-- setup the asynchronous graphics runtime -->
+        <!-- setup the asynchronous graphics runtime, also opens a default window -->
         <Message name="SetupGraphics" fourcc="SUPG">
             <InArg name="Adapter" type="CoreGraphics::Adapter::Code"/>
             <InArg name="DisplayMode" type="CoreGraphics::DisplayMode"/>
@@ -70,6 +70,24 @@
             <OutArg name="ActualDisplayMode" type="CoreGraphics::DisplayMode"/>
             <OutArg name="ActualFullscreen" type="bool"/>
             <OutArg name="ActualAdapter" type="CoreGraphics::Adapter::Code"/>
+        </Message>
+
+        <Message name="SetupWindow" fourcc="SUWN">
+          <InArg name="Adapter" type="CoreGraphics::Adapter::Code"/>
+          <InArg name="DisplayMode" type="CoreGraphics::DisplayMode"/>
+          <InArg name="AntiAliasQuality" type="CoreGraphics::AntiAliasQuality::Code"/>
+          <InArg name="Fullscreen" type="bool"/>
+          <InArg name="Monitor" type="IndexT" default="0"/>
+          <InArg name="DisplayModeSwitchEnabled" type="bool"/>
+          <InArg name="TripleBufferingEnabled" type="bool"/>
+          <InArg name="AlwaysOnTop" type="bool"/>
+          <InArg name="IconName" type="Util::String"/>
+          <InArg name="WindowTitle" type="Util::String"/>
+          <InArg name="WindowData" type="Util::Blob"/>
+          <InArg name="Embedded" type="bool"/>
+          <InArg name="Decorated" type="bool"/>
+          <InArg name="Resizable" type="bool"/>
+          <OutArg name="WindowId" type="int"/>
         </Message>
       
         <!-- updates display, which enables resolution changing and fullscreen-to-windowed switching -->

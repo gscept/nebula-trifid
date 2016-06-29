@@ -63,7 +63,6 @@ vsMain(in vec3 position,
 	UV = viewSample * rotMat;
 }
 
-
 //------------------------------------------------------------------------------
 /**
     Skybox pixel shader
@@ -74,7 +73,6 @@ psMain(in vec3 UV,
 	in vec3 Direction,
 	[color0] out vec4 Color)
 {
-
 	vec3 lightDir = normalize(GlobalLightDirWorldspace.xyz);
 	vec3 dir = normalize(Direction);
 	vec3 atmo = Preetham(dir, lightDir, A, B, C, D, E) * GlobalLightColor.rgb;

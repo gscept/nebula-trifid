@@ -819,7 +819,9 @@ MaterialHandler::ColorPickerChanged(const QColor& currentColor)
 
 	// update button
 	diaColor.setAlpha(255);
-	button->setPalette(QPalette(diaColor));
+	QPalette palette;
+	palette.setBrush(button->backgroundRole(), diaColor);
+	button->setPalette(palette);
 
 	this->Float4VariableChanged(i);
 }
@@ -857,7 +859,9 @@ MaterialHandler::ColorPickerClosed(int result)
 
 		// update button
 		diaColor.setAlpha(255);
-		button->setPalette(QPalette(diaColor));
+		QPalette palette;
+		palette.setBrush(button->backgroundRole(), diaColor);
+		button->setPalette(palette);
 
 		this->Float4VariableChanged(i);
 	}
@@ -1382,7 +1386,6 @@ MaterialHandler::MakeMaterialUI(QMenu* shaderSelect, QPushButton* materialHelp)
 
 	// setup font
 	QFont font = QFont();
-	font.setBold(true);
 
     // add textures
     Array<Material::MaterialParameter> textures = this->GetTextures(mat);
@@ -1428,7 +1431,8 @@ MaterialHandler::MakeMaterialUI(QMenu* shaderSelect, QPushButton* materialHelp)
 
         // space coming items
 		varLayout->addStretch(1);
-        texRes->setFixedWidth(250);
+		texRes->setMinimumWidth(150);
+        //texRes->setFixedWidth(250);
 
         varLayout->addWidget(texRes);
         varLayout->addWidget(texImg);
@@ -1551,11 +1555,11 @@ MaterialHandler::MakeMaterialUI(QMenu* shaderSelect, QPushButton* materialHelp)
             if (param.editType == Material::MaterialParameter::EditColor)
             {
                 // create button with color
-                QPushButton* colorChooserButton = new QtToolkitUtil::ColorPushButton;
+				QPushButton* colorChooserButton = new QtToolkitUtil::ColorPushButton;
                 colorChooserButton->setText("Set...");
                 val = float4::clamp(val, float4(0), float4(1));
-                QPalette palette(QColor(val.x() * 255, val.y() * 255, val.z() * 255));
-				colorChooserButton->setStyleSheet("background-color: 0;");
+				QPalette palette;
+				palette.setBrush(colorChooserButton->backgroundRole(), QColor(val.x() * 255, val.y() * 255, val.z() * 255));
                 colorChooserButton->setPalette(palette);
 
 				varLayout->addWidget(colorChooserButton);

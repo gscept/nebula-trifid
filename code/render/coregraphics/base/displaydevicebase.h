@@ -79,6 +79,8 @@ public:
 	Ptr<CoreGraphics::Window> SetupWindow(const Util::String& title, const Util::String& icon, const CoreGraphics::DisplayMode& displayMode, const CoreGraphics::AntiAliasQuality::Code aa = CoreGraphics::AntiAliasQuality::None);
 	/// create a window from one created by another window system
 	Ptr<CoreGraphics::Window> EmbedWindow(const Util::Blob& windowData);
+	/// get the 'main' window, if none exists, returns NULL
+	Ptr<CoreGraphics::Window> GetMainWindow() const;
 	/// get the current window
 	const Ptr<CoreGraphics::Window>& GetCurrentWindow() const;
 	/// get window using index, where 0 is the default window
@@ -155,6 +157,16 @@ inline const bool
 DisplayDeviceBase::IsFullscreen() const
 {
 	return this->isFullscreen;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline Ptr<CoreGraphics::Window>
+DisplayDeviceBase::GetMainWindow() const
+{
+	if (this->windows.Size() >= 1) return this->windows[0];
+	else						  return NULL;
 }
 
 //------------------------------------------------------------------------------

@@ -101,6 +101,7 @@ Display::Reopen()
 	updDisp->SetFullscreen(this->settings.IsFullscreen());
 	updDisp->SetWindowData(this->windowData);
 	updDisp->SetTripleBufferingEnabled(this->settings.IsTripleBufferingEnabled());
+	updDisp->SetWindow(0);	// always set default window
 	__StaticSend(GraphicsInterface, updDisp);	
 }
 

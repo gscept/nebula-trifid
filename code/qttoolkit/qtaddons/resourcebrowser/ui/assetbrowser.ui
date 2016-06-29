@@ -231,8 +231,13 @@
             </size>
            </property>
            <property name="styleSheet">
-            <string notr="true">border: 1px solid palette(midlight);
-background-color: palette(light);</string>
+            <string notr="true">.ResourceBrowser--TiledGraphicsView
+{
+border: 1px solid palette(midlight);
+background-color: palette(light);
+border-top-right-radius: 2px;
+border-bottom-right-radius: 2px;
+}</string>
            </property>
            <property name="frameShape">
             <enum>QFrame::NoFrame</enum>
@@ -277,9 +282,11 @@ background-color: palette(light);</string>
             </font>
            </property>
            <property name="styleSheet">
-            <string notr="true">QListWidget {
+            <string notr="true">.QListWidget {
 border: 1px solid palette(midlight);
 border-right: 0px;
+border-top-right-radius: 0px;
+border-bottom-right-radius: 0px;
 background-color: palette(light);
 }</string>
            </property>

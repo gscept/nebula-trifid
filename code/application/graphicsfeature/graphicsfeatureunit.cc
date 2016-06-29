@@ -349,7 +349,6 @@ GraphicsFeatureUnit::SetupDisplay()
 
 	// setup resource manager
 	this->resManager = Resources::ResourceManager::Instance();
-
 	this->display = Display::Create();
 
 	// setup default resource mappers
@@ -481,6 +480,38 @@ GraphicsFeatureUnit::OnBeforeCleanup()
 {
 	// cleanup graphics world
 	this->DiscardDefaultGraphicsWorld();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+Ptr<Graphics::View>
+GraphicsFeatureUnit::CreateWindowAndView(const Util::StringAtom& viewName, const Util::StringAtom& frameShader, const Util::Blob& optWindowData)
+{
+	Ptr<Graphics::SetupWindow> msg = Graphics::SetupWindow::Create();
+	msg->SetAdapter(this->display->Settings().GetAdapter());
+	msg->SetDisplayMode(this->display->Settings().DisplayMode());
+	msg->SetAntiAliasQuality(this->display->Settings().GetAntiAliasQuality());
+	msg->SetFullscreen(this->display->Settings().IsFullscreen());
+	msg->SetDisplayModeSwitchEnabled(this->display->Settings().IsDisplayModeSwitchEnabled());
+	msg->SetTripleBufferingEnabled(this->display->Settings().IsTripleBufferingEnabled());
+	msg->SetAlwaysOnTop(this->display->Settings().IsAlwaysOnTop());
+	msg->SetIconName(this->display->Settings().GetIconName());
+	msg->SetWindowTitle(this->display->Settings().GetWindowTitle());
+	msg->SetWindowData(optWindowData);
+	msg->SetEmbedded(this->display->Settings().IsEmbedded());
+	msg->SetResizable(this->display->Settings().IsResizable());
+	msg->SetDecorated(this->display->Settings().IsDecorated());
+
+	// create window
+	__StaticSend(GraphicsInterface, msg);
+
+	// create view using window
+	Ptr<Graphics::View> view = GraphicsServer::Instance()->CreateView(this->viewClass, viewName, msg->GetWindowId(), false, true);
+	Ptr<Frame::FrameShader> frm = Frame::FrameServer::Instance()->LookupFrameShader(frameShader);
+	view->SetFrameShader(frm);
+
+	return view;
 }
 
 } // namespace GraphicsFeature

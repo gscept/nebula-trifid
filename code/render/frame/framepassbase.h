@@ -51,6 +51,8 @@ public:
     void SetName(const Resources::ResourceId& resId);
     /// get the name of the frame pass
     const Resources::ResourceId& GetName() const;
+	/// set if render target should be default
+	void SetDefaultRenderTarget(bool b);
     /// set render target
     void SetRenderTarget(const Ptr<CoreGraphics::RenderTarget>& rt);
     /// get render target
@@ -115,6 +117,7 @@ protected:
     Math::float4 clearColor;
     float clearDepth;
     int clearStencil;
+	bool useDefaultRendertarget;
 };
 
 //------------------------------------------------------------------------------
@@ -162,6 +165,15 @@ FramePassBase::GetShader() const
 {
 	n_assert(this->shader.isvalid());
     return this->shader;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+FramePassBase::SetDefaultRenderTarget(bool b)
+{
+	this->useDefaultRendertarget = b;
 }
 
 //------------------------------------------------------------------------------

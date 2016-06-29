@@ -212,6 +212,9 @@ GraphicsServer::CreateView(const Core::Rtti& viewClass, const StringAtom& viewNa
 
     this->views.Append(newView);
     this->viewIndexMap.Add(viewName, this->views.Size() - 1);
+	if (!this->viewWindowMap.Contains(windowId)) this->viewWindowMap.Add(windowId, Util::Array<Ptr<View>>());
+	this->viewWindowMap[windowId].Append(newView);
+
     if (isDefaultView)
     {
         this->SetDefaultView(newView);
@@ -232,6 +235,7 @@ GraphicsServer::DiscardView(const Ptr<View>& view)
     n_assert(this->viewIndexMap.Contains(view->GetName()));
     this->rtPluginRegistry->OnDiscardView(view);
     this->views.EraseIndex(this->viewIndexMap[view->GetName()]);
+	this->viewWindowMap[view->GetWindowId()].EraseIndex(this->viewWindowMap[view->GetWindowId()].FindIndex(view));
 
     // need to rebuild viewIndexMap
     this->viewIndexMap.Clear();
@@ -264,6 +268,7 @@ GraphicsServer::DiscardAllViews()
     }
     this->views.Clear();
     this->viewIndexMap.Clear();
+	this->viewWindowMap.Clear();
     this->defaultView = 0;
 }
 
@@ -418,6 +423,7 @@ GraphicsServer::GetCurrentGlobalLightEntity() const
 
 //------------------------------------------------------------------------------
 /**
+	FIXME: Views should be rendered ordered by window, and SwapBuffers should be called once per window, at the end of that bucket
 */
 void
 GraphicsServer::OnFrame(Timing::Time curTime, Timing::Time globalTimeFactor)
@@ -449,19 +455,30 @@ GraphicsServer::OnFrame(Timing::Time curTime, Timing::Time globalTimeFactor)
 	if (this->views.Size() > 0)
 	{
 		_start_timer(GfxServerRenderViews);
-		for (i = 0; i < this->views.Size(); i++)
+		for (i = 0; i < this->viewWindowMap.Size(); i++)
 		{
-			// get view
-			Ptr<View> view = this->views[i];
+			IndexT windowId = this->viewWindowMap.KeyAtIndex(i);
+			const Util::Array<Ptr<View>>& viewsForWindow = this->viewWindowMap.ValueAtIndex(i);
 
-			// if view is tagged to update per frame update through view
-			if (view->GetUpdatePerFrame())
+			IndexT j;
+			for (j = 0; j < viewsForWindow.Size(); j++)
 			{
-				this->currentView = view;
+				// get view
+				Ptr<View> view = viewsForWindow[j];
 
-				// render frame
-				view->OnFrame(this->rtPluginRegistry, curTime, globalTimeFactor, this->renderDebug);
-			}            
+				// if view is tagged to update per frame update through view
+				if (view->GetUpdatePerFrame())
+				{
+					// set current view
+					this->currentView = view;
+
+					// render frame
+					view->OnFrame(this->rtPluginRegistry, curTime, globalTimeFactor, this->renderDebug);
+				}
+			}
+
+			// swap buffers for display
+			DisplayDevice::Instance()->GetCurrentWindow()->SwapBuffers(frameIndex);		
 		}
 		_stop_timer(GfxServerRenderViews);
 

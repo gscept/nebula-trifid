@@ -107,6 +107,7 @@ protected:
 
 	IndexT windowId;
 	static IndexT uniqueWindowCounter;
+	IndexT swapFrame;
 
 	bool fullscreen;
 	int monitor;

@@ -6,6 +6,7 @@
 #include "stdneb.h"
 #include "frame/framepass.h"
 #include "coregraphics/renderdevice.h"
+#include "coregraphics/displaydevice.h"
 
 namespace Frame
 {
@@ -82,6 +83,10 @@ FramePass::Render(IndexT frameIndex)
         n_assert(!this->renderTarget.isvalid());
         n_assert(!this->renderTargetCube.isvalid());
     }
+	else
+	{
+		n_assert(this->useDefaultRendertarget);
+	}
 
     // begin updating global shader state
     if (this->shader.isvalid()) this->shader->BeginUpdate();
@@ -114,7 +119,9 @@ FramePass::Render(IndexT frameIndex)
 	}
 	else
 	{
-		n_error("FramePass::Render() : No render targets assigned!");
+		n_assert(this->useDefaultRendertarget);
+		const Ptr<CoreGraphics::RenderTarget>& defaultRt = CoreGraphics::DisplayDevice::Instance()->GetCurrentWindow()->GetRenderTarget();
+		renderDevice->BeginPass(defaultRt, this->shader);
 	}
     if (this->shader.isvalid()) this->shader->EndUpdate();
 

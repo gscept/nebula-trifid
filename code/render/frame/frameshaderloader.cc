@@ -522,7 +522,7 @@ FrameShaderLoader::ParseFramePass(const Ptr<BXmlReader>& xmlReader, const Ptr<Fr
 
     if (useDefaultRendertarget)
     {
-		framePass->SetRenderTarget(DisplayDevice::Instance()->GetCurrentWindow()->GetRenderTarget());
+		framePass->SetDefaultRenderTarget(useDefaultRendertarget);
     }
 
     // setup the clear color, depth and stencil (if defined)
@@ -814,7 +814,8 @@ FrameShaderLoader::ParsePostEffect(const Ptr<BXmlReader>& xmlReader, const Ptr<F
 
     if (useDefaultRendertarget)
     {
-		framePostEffect->SetRenderTarget(DisplayDevice::Instance()->GetCurrentWindow()->GetRenderTarget());
+		framePostEffect->SetDefaultRenderTarget(useDefaultRendertarget);
+		//framePostEffect->SetRenderTarget(DisplayDevice::Instance()->GetCurrentWindow()->GetRenderTarget());
     }
 
 	int clearFlags = 0;

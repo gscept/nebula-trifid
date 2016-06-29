@@ -29,8 +29,8 @@ CloudsRTPlugin::CloudsRTPlugin() :
 {
 	// empty
 	this->cloudSettings[0] = { 256, 0.3f, "tex:system/cloudbase.dds" };
-	this->cloudSettings[1] = { 768, 0.25f, "tex:system/cloudbase.dds" };
-	this->cloudSettings[2] = { 128, 0.17f, "tex:system/cloudbase.dds" };
+	this->cloudSettings[1] = { 768, 0.25f, "tex:system/cloud1.dds" };
+	this->cloudSettings[2] = { 128, 0.17f, "tex:system/cloud2.dds" };
 }
 
 //------------------------------------------------------------------------------

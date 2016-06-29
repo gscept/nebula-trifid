@@ -121,6 +121,7 @@ private:
     Util::Array<Ptr<Stage> > stages;                         
     Util::Dictionary<Util::StringAtom, IndexT> stageIndexMap; 
     Util::Array<Ptr<View> > views;
+	Util::Dictionary<IndexT, Util::Array<Ptr<View>>> viewWindowMap;
     Util::Dictionary<Util::StringAtom, IndexT> viewIndexMap;
     Ptr<View> defaultView;
     Ptr<View> currentView;

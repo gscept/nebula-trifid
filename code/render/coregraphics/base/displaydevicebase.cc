@@ -198,10 +198,13 @@ DisplayDeviceBase::SetupWindow(const Util::String& title, const Util::String& ic
 	wnd->SetIconName(icon);
 	wnd->SetDisplayMode(displayMode);
 	wnd->SetAntiAliasQuality(aa);
+
+	// add to list, and set to current if this is the first
 	if (this->windows.IsEmpty()) this->currentWindow = wnd;
 	this->windows.Append(wnd);
-	wnd->Open();
 
+	// finally open window
+	wnd->Open();
 	return wnd;
 }
 
@@ -213,10 +216,13 @@ DisplayDeviceBase::EmbedWindow(const Util::Blob& windowData)
 {
 	Ptr<CoreGraphics::Window> wnd = CoreGraphics::Window::Create();
 	wnd->SetWindowData(windowData);
+
+	// add to list, and set to current if this is the first
 	if (this->windows.IsEmpty()) this->currentWindow = wnd;
 	this->windows.Append(wnd);
-	wnd->Open();
 
+	// finally open window
+	wnd->Open();
 	return wnd;
 }
 
@@ -227,8 +233,11 @@ void
 DisplayDeviceBase::MakeWindowCurrent(const IndexT index)
 {
 	n_assert(this->windows.Size() > index && index != InvalidIndex);
-	this->currentWindow = this->windows[index];
-	this->currentWindow->MakeCurrent();
+	if (this->currentWindow != this->windows[index])
+	{
+		this->currentWindow = this->windows[index];
+		this->currentWindow->MakeCurrent();
+	}	
 }
 
 } // namespace DisplayDevice

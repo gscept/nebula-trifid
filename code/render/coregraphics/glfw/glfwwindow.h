@@ -30,7 +30,7 @@ public:
 	void MakeCurrent();
 
 	/// swap buffers
-	void SwapBuffers();
+	void SwapBuffers(IndexT frameIndex);
 
 	/// set window title
 	void SetTitle(const Util::String& title);
@@ -93,10 +93,14 @@ protected:
 /**
 */
 inline void
-GLFWWindow::SwapBuffers()
+GLFWWindow::SwapBuffers(IndexT frameIndex)
 {
 	n_assert(this->window != 0);
-	glfwSwapBuffers(this->window);
+	if (this->swapFrame != frameIndex)
+	{
+		glfwSwapBuffers(this->window);
+		this->swapFrame = frameIndex;
+	}
 }
 
 } // namespace GLFW

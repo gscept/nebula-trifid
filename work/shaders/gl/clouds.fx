@@ -78,7 +78,7 @@ psClouds(
 {
 	
 	// calculate atmospheric contribution
-	vec3 lightDir = normalize(GlobalLightDirWorldspace.xyz);
+	vec3 lightDir = normalize(GlobalLightDir.xyz);
 	vec3 dir = normalize(WorldPos.xyz);
 	vec3 atmo = Preetham(dir, lightDir, A, B, C, D, E);
 	

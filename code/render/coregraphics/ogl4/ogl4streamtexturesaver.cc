@@ -62,7 +62,7 @@ OGL4StreamTextureSaver::OnSave()
 /**
 */
 bool
-OGL4StreamTextureSaver::SaveTexture2D(const Ptr<CoreGraphics::Texture>& tex, ILenum imageFileType)
+OGL4StreamTextureSaver::SaveTexture2D(const Ptr<CoreGraphics::Texture>& tex, uint imageFileType)
 {
 	n_assert(tex->GetType() == Texture::Texture2D);
 	bool retval = false;
@@ -128,7 +128,7 @@ OGL4StreamTextureSaver::SaveTexture2D(const Ptr<CoreGraphics::Texture>& tex, ILe
 /**
 */
 bool
-OGL4StreamTextureSaver::SaveCubemap(const Ptr<CoreGraphics::Texture>& tex, ILenum imageFileType)
+OGL4StreamTextureSaver::SaveCubemap(const Ptr<CoreGraphics::Texture>& tex, uint imageFileType)
 {
 	n_assert(tex->GetType() == Texture::TextureCube);
 	bool retval = false;
@@ -234,7 +234,7 @@ OGL4StreamTextureSaver::SaveCubemap(const Ptr<CoreGraphics::Texture>& tex, ILenu
 	Implement if required.
 */
 bool
-OGL4StreamTextureSaver::SaveTexture3D(const Ptr<CoreGraphics::Texture>& tex, ILenum imageFileType)
+OGL4StreamTextureSaver::SaveTexture3D(const Ptr<CoreGraphics::Texture>& tex, uint imageFileType)
 {
 	return false;
 }

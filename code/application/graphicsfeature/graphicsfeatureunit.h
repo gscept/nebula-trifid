@@ -118,6 +118,9 @@ public:
 	void ApplyDisplaySettings();
 	/// get reference to current display mode object
 	CoreGraphics::DisplayMode& DisplayMode();
+
+	/// create a new window and view
+	Ptr<Graphics::View> CreateWindowAndView(const Util::StringAtom& viewName, const Util::StringAtom& frameShader, const Util::Blob& optWindowData = 0);
 	
 protected:
     /// called to configure display device

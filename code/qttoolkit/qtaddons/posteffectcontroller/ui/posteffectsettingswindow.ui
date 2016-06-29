@@ -96,20 +96,6 @@
           <string>Color</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_3">
-          <item row="4" column="1" colspan="3">
-           <widget class="QtToolkitUtil::ColorPushButton" name="colorBalance">
-            <property name="styleSheet">
-             <string notr="true">background-color: 0;</string>
-            </property>
-            <property name="text">
-             <string>Change...</string>
-            </property>
-            <property name="icon">
-             <iconset>
-              <normaloff>../../../../../work/textures/system/nebulalogo.png</normaloff>../../../../../work/textures/system/nebulalogo.png</iconset>
-            </property>
-           </widget>
-          </item>
           <item row="1" column="2">
            <widget class="QSlider" name="saturationSlider">
             <property name="toolTip">
@@ -156,41 +142,10 @@
             <property name="font">
              <font>
               <pointsize>10</pointsize>
-              <weight>75</weight>
-              <bold>true</bold>
              </font>
             </property>
             <property name="text">
              <string>Saturation</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLabel" name="label_2">
-            <property name="font">
-             <font>
-              <pointsize>10</pointsize>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>Balance</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1" colspan="3">
-           <widget class="QLabel" name="label_47">
-            <property name="font">
-             <font>
-              <pointsize>12</pointsize>
-              <weight>75</weight>
-              <bold>true</bold>
-              <underline>true</underline>
-             </font>
-            </property>
-            <property name="text">
-             <string>Color &amp; Saturation</string>
             </property>
            </widget>
           </item>
@@ -213,17 +168,27 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="1">
-           <widget class="QLabel" name="label_7">
+          <item row="3" column="1">
+           <widget class="QLabel" name="label_2">
             <property name="font">
              <font>
               <pointsize>10</pointsize>
-              <weight>75</weight>
-              <bold>true</bold>
              </font>
             </property>
             <property name="text">
-             <string>Exposure</string>
+             <string>Balance</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" colspan="3">
+           <widget class="QLabel" name="label_47">
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Color &amp; Saturation</string>
             </property>
            </widget>
           </item>
@@ -250,6 +215,29 @@
             </property>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1" colspan="3">
+           <widget class="QtToolkitUtil::ColorPushButton" name="colorBalance">
+            <property name="text">
+             <string>Change...</string>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../../../../../work/textures/system/nebulalogo.png</normaloff>../../../../../work/textures/system/nebulalogo.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLabel" name="label_7">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Exposure</string>
             </property>
            </widget>
           </item>
@@ -389,9 +377,6 @@
             <property name="font">
              <font>
               <pointsize>12</pointsize>
-              <weight>75</weight>
-              <bold>true</bold>
-              <underline>true</underline>
              </font>
             </property>
             <property name="text">
@@ -625,9 +610,6 @@
             <property name="font">
              <font>
               <pointsize>12</pointsize>
-              <weight>75</weight>
-              <bold>true</bold>
-              <underline>true</underline>
              </font>
             </property>
             <property name="text">
@@ -684,9 +666,6 @@
               <width>16777215</width>
               <height>16777215</height>
              </size>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background-color: 0;</string>
             </property>
             <property name="text">
              <string>Change...</string>
@@ -757,9 +736,6 @@
             <property name="font">
              <font>
               <pointsize>12</pointsize>
-              <weight>75</weight>
-              <bold>true</bold>
-              <underline>true</underline>
              </font>
             </property>
             <property name="text">
@@ -929,9 +905,6 @@
             <property name="font">
              <font>
               <pointsize>12</pointsize>
-              <weight>75</weight>
-              <bold>true</bold>
-              <underline>true</underline>
              </font>
             </property>
             <property name="text">
@@ -1073,9 +1046,6 @@
             <property name="font">
              <font>
               <pointsize>12</pointsize>
-              <weight>75</weight>
-              <bold>true</bold>
-              <underline>true</underline>
              </font>
             </property>
             <property name="text">
@@ -1167,9 +1137,6 @@
             <property name="toolTip">
              <string>Backface global light color.</string>
             </property>
-            <property name="styleSheet">
-             <string notr="true">background-color: 0;</string>
-            </property>
             <property name="text">
              <string>Change...</string>
             </property>
@@ -1187,9 +1154,6 @@
             <property name="toolTip">
              <string>Diffuse global light color.</string>
             </property>
-            <property name="styleSheet">
-             <string notr="true">background-color: 0;</string>
-            </property>
             <property name="text">
              <string>Change...</string>
             </property>
@@ -1206,9 +1170,6 @@
             </property>
             <property name="toolTip">
              <string>Ambient global light color.</string>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background-color: 0;</string>
             </property>
             <property name="text">
              <string>Change...</string>
@@ -1343,9 +1304,6 @@
             <property name="font">
              <font>
               <pointsize>12</pointsize>
-              <weight>75</weight>
-              <bold>true</bold>
-              <underline>true</underline>
              </font>
             </property>
             <property name="text">

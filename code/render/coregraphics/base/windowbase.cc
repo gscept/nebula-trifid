@@ -29,7 +29,8 @@ WindowBase::WindowBase() :
 	decorated(true),
 	cursorVisible(true),
 	cursorLocked(false),
-	defaultRenderTarget(0)
+	defaultRenderTarget(0),
+	swapFrame(-1)
 {
 	this->windowId = uniqueWindowCounter++;
 }
@@ -48,13 +49,12 @@ WindowBase::~WindowBase()
 void
 WindowBase::Open()
 {
+	n_assert(!this->defaultRenderTarget.isvalid());
+
 	// create default render target (if not overriden by application
-	if (!this->defaultRenderTarget.isvalid())
-	{
-		this->defaultRenderTarget = CoreGraphics::RenderTarget::Create();
-		this->defaultRenderTarget->SetDefaultRenderTarget(true);
-		this->defaultRenderTarget->Setup();
-	}
+	this->defaultRenderTarget = CoreGraphics::RenderTarget::Create();
+	this->defaultRenderTarget->SetDefaultRenderTarget(true);
+	this->defaultRenderTarget->Setup();
 }
 
 //------------------------------------------------------------------------------

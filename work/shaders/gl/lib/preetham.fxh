@@ -20,14 +20,14 @@ perez(float cosTheta, float gamma, float cosGamma, vec3 A, vec3 B, vec3 C, vec3 
 
 //------------------------------------------------------------------------------
 /**
-	@param SphericalDirection The direction from the surface to the sky dome.
-	@param GlobalLightDir The direction of the global light (sky light) in world space (so multiply by InvView).
+	@param sphereDir The direction from the surface to the sky dome.
+	@param lightDir The direction of the global light (sky light) in world space (so multiply by InvView).
 */
 vec3
-Preetham(vec3 SphericalDirection, vec3 GlobalLightDir, vec4 A, vec4 B, vec4 C, vec4 D, vec4 E)
+Preetham(vec3 sphereDir, vec3 lightDir, vec4 A, vec4 B, vec4 C, vec4 D, vec4 E)
 {
-	float cosTheta = clamp(SphericalDirection.y, 0.0f, 1.0f);
-	float cosGamma = dot(SphericalDirection, GlobalLightDir.xyz);
+	float cosTheta = clamp(sphereDir.y, 0.0f, 1.0f);
+	float cosGamma = dot(sphereDir, lightDir.xyz);
 	float gamma = acos(cosGamma);
 	vec3 r_xyY = Z.xyz * perez(cosTheta, gamma, cosGamma, A.xyz, B.xyz, C.xyz, D.xyz, E.xyz);
 	vec3 r_XYZ = vec3(r_xyY.x, r_xyY.y, 1 - r_xyY.x - r_xyY.y) * r_xyY.z / r_xyY.y;

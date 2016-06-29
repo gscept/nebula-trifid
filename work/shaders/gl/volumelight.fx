@@ -64,7 +64,7 @@ vsGeometry(in vec3 position,
 {
 	vec4 modelSpace = Transform * vec4(position, 1);
 	gl_Position = ViewProjection * modelSpace;
-	Direction = modelSpace.xyz;
+	Direction = (View * modelSpace).xyz;
 	UV = uv;
 }
 
@@ -92,8 +92,9 @@ vsVolumetric(in vec3 position,
 	Binormal 	= (modelView * vec4(binormal, 0)).xyz;
 	ViewSpacePos = (modelView * vec4(position, 1)).xyz;
 	WorldPos = vec4(position * VolumetricScale, 1).xyz;
-	gl_Position = ViewProjection * Transform * vec4(position * VolumetricScale, 1);
-	Direction = (Transform * vec4(WorldPos, 1)).xyz;
+	vec4 scaledPos = vec4(position * VolumetricScale, 1);
+	gl_Position = ViewProjection * Transform * scaledPos;
+	Direction = (modelView * scaledPos).xyz;
 	UV = uv;
 }
 
@@ -175,7 +176,7 @@ psVolumetricGlobal(in vec3 ViewSpacePos,
 	float unshaded = texture(UnshadedTexture, screenUV).a;
 	
 	// calculate sky contribution
-	vec3 lightDir = normalize(GlobalLightDirWorldspace.xyz);
+	vec3 lightDir = normalize(GlobalLightDir.xyz);
 	vec3 dir = normalize(Direction);
 	vec3 atmo = Preetham(dir, lightDir, A, B, C, D, E) * GlobalLightColor.rgb;
 	
@@ -221,14 +222,14 @@ psGlobalLight(in vec2 UV,
 	[color0] out vec4 Color) 
 {
 	// calculate sky contribution
-	vec3 lightDir = normalize(GlobalLightDirWorldspace.xyz);
+	vec3 lightDir = normalize(GlobalLightDir.xyz);
 	vec3 dir = normalize(Direction);
 	vec3 atmo = Preetham(dir, lightDir, A, B, C, D, E) * GlobalLightColor.rgb;
 	
 	vec4 sunSample = texture(LightProjMap, UV);
 	vec2 texSize = textureSize(LightProjMap, 0);
 	float falloff = saturate(distance(gl_FragCoord.xy / texSize, LightCenter));
-	Color.rgb = atmo * sunSample.rgb * falloff * VolumetricIntensity;
+	Color.rgb = saturate(atmo) * sunSample.rgb * falloff * VolumetricIntensity;
 	Color.a = 1.0f;
 	
 	gl_FragDepth = 1.0f;

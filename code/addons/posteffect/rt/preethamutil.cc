@@ -37,7 +37,7 @@ PreethamUtil::Calculate(float turbidity, const Math::vector& globalLightDir, con
 
 	// scale luminance to a sane value, and ensure it's above absolute 0
 	Z.z() /= 1.1f *  turbidity / PreethamUtil::Perez(0, theta, A.z(), B.z(), C.z(), D.z(), E.z());
-	Z.z() = n_max(0.0f, Z.z());
+	Z.z() = n_max(0.0001f, Z.z());
 
 	// done!
 }

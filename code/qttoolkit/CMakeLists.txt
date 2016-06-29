@@ -21,3 +21,5 @@ add_subdirectory(qtaddons)
 add_subdirectory(qttools)
 add_subdirectory(surfacegenerator)
 add_subdirectory(particleconverter)
+
+add_subdirectory(leveleditor)

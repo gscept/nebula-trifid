@@ -333,6 +333,11 @@ GraphicsHandler::HandleMessage(const Ptr<Message>& msg)
         this->OnSetupGraphics(msg.cast<SetupGraphics>());
         return true;
     }
+	else if (msg->CheckId(SetupWindow::Id))
+	{
+		this->OnSetupWindow(msg.cast<SetupWindow>());
+		return true;
+	}
 	else if (msg->CheckId(UpdateWindow::Id))
 	{
 		this->OnUpdateWindow(msg.cast<UpdateWindow>());
@@ -460,6 +465,38 @@ GraphicsHandler::OnSetupGraphics(const Ptr<SetupGraphics>& msg)
 	msg->SetActualDisplayMode(window->GetDisplayMode());
 	msg->SetActualAdapter(disp->GetAdapter());
 	msg->SetActualFullscreen(window->IsFullscreen());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+GraphicsHandler::OnSetupWindow(const Ptr<Graphics::SetupWindow>& msg)
+{
+	n_assert(this->isGraphicsRuntimeValid);
+
+	// configure the display device and setup the graphics runtime
+	DisplayDevice* disp = this->displayDevice;
+	disp->SetAdapter(msg->GetAdapter());
+	const Util::Blob& windowData = msg->GetWindowData();
+	Ptr<Window> window;
+	if (windowData.IsValid())
+	{
+		window = disp->EmbedWindow(windowData);
+	}
+	else
+	{
+		window = disp->SetupWindow(msg->GetWindowTitle(), msg->GetIconName(), msg->GetDisplayMode());
+		window->SetAntiAliasQuality(msg->GetAntiAliasQuality());
+		window->SetFullscreen(msg->GetFullscreen(), msg->GetMonitor());
+		window->SetDisplayModeSwitchEnabled(msg->GetDisplayModeSwitchEnabled());
+		window->SetTripleBufferingEnabled(msg->GetTripleBufferingEnabled());
+		window->SetAlwaysOnTop(msg->GetAlwaysOnTop());
+		window->SetEmbedded(msg->GetEmbedded());
+		window->SetDecorated(msg->GetDecorated());
+		window->SetResizable(msg->GetResizable());
+	}
+	msg->SetWindowId(window->GetWindowId());
 }
 
 //------------------------------------------------------------------------------

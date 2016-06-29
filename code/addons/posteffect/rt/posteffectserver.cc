@@ -451,7 +451,9 @@ PostEffectServer::ApplySkyParameters()
 	Math::vector cameraVec = float4::normalize(camera->GetTransform().get_position());
 	float turbidity = currentPara->GetSkyTurbidity();
 	Math::vector A, B, C, D, E, Z;
-	PreethamUtil::Calculate(turbidity, this->globalLight->GetLightDirection(), cameraVec, A, B, C, D, E, Z);
+	float4 worldSpaceLightDir = this->globalLight->GetLightDirection();
+
+	PreethamUtil::Calculate(turbidity, worldSpaceLightDir, cameraVec, A, B, C, D, E, Z);
 	this->environmentConstantBuffer->CycleBuffers();
 	this->environmentConstantBuffer->BeginUpdateSync();
 	this->skyPreethamA->SetFloat4(A);

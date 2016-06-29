@@ -23,7 +23,8 @@ FramePassBase::FramePassBase() :
 	shader(0),
 	clearFlags(0),
     clearDepth(1.0f),
-    clearStencil(0)
+    clearStencil(0),
+	useDefaultRendertarget(false)
 {
     // empty
 }
