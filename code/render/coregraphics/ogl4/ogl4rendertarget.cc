@@ -78,8 +78,8 @@ OGL4RenderTarget::Setup()
 	{
 		DisplayDevice* displayDevice = DisplayDevice::Instance();
 		const CoreGraphics::DisplayMode& mode = displayDevice->GetCurrentWindow()->GetDisplayMode();
-		this->SetWidth(SizeT(mode.GetWidth() * this->relWidth));
-		this->SetHeight(SizeT(mode.GetHeight() * this->relHeight));
+		this->SetWidth(Math::n_max(1, SizeT(mode.GetWidth() * this->relWidth)));
+		this->SetHeight(Math::n_max(1, SizeT(mode.GetHeight() * this->relHeight)));
 	}
 
     // setup our pixel format and multisample parameters (order important!)
