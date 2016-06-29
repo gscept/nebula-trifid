@@ -3,7 +3,7 @@
 #include <QApplication>
 #include <QPlastiqueStyle>
 #include "batchexporterapp.h"
-#include "tools/style.h"
+#include "style/nebulastyletool.h"
 
 using namespace BatchExporter;
 using namespace QtTools;
