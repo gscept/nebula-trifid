@@ -34,7 +34,7 @@ set(SOURCES_files
 INCLUDE(${QT_USE_FILE})
 ADD_DEFINITIONS(${QT_DEFINITIONS})
 
-SET(QTMOCFILES  "qtnebulawidget.h" "qtnebulaproxywidget.h")
+SET(QTMOCFILES  "qtnebulawidget.h")
 PCH_QT4_WRAP_CPP(qtfeature_HEADERS_MOC ${QTMOCFILES})
 
 ADD_LIBRARY( qtfeature STATIC ${SOURCES_files} ${qtfeature_HEADERS_MOC})
