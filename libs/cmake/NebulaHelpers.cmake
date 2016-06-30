@@ -593,7 +593,7 @@ ENDIF()
 ADD_LIBRARY(qtsupport INTERFACE)
 TARGET_COMPILE_OPTIONS(qtsupport INTERFACE $<$<C_COMPILER_ID:MSVC>:/EHsc>)
 TARGET_LINK_LIBRARIES(qtsupport INTERFACE 
-	$<$<BOOL:${N_QT5}>:Qt5::Widgets Qt5::Core>	
+	$<$<BOOL:${N_QT5}>:Qt5::Widgets Qt5::Core Qt5::Network Imm32.lib winmm.lib>	
 	$<$<BOOL:${N_QT4}>:Qt4::QtGui Qt4::QtCore Qt4::QtNetwork Imm32.lib>
 	)
 
@@ -607,6 +607,13 @@ find_library(qtharf NAMES qtharfbuzzngd PATHS ${qtfolder})
 find_library(qtplatform NAMES qt5platformsupportd PATHS ${qtfolder})
 find_library(qwindows NAMES qwindowsd PATHS ${qtfolder}/../plugins/platforms)
 TARGET_LINK_LIBRARIES(qtsupport INTERFACE ${pcre} ${qtharf} ${qtplatform} ${qwindows})
+
+# static qt from http://www.npcglib.org/~stathis/blog/precompiled-qt4-qt5/ is built with ssl
+SET(OPENSSL_USE_STATIC_LIBS TRUE)
+SET(OPENSSL_MSVC_STATIC_RT TRUE)
+SET(OPENSSL_ROOT_DIR "" CACHE PATH "OpenSSL Root folder")
+FIND_PACKAGE(OpenSSL REQUIRED)
+TARGET_LINK_LIBRARIES(qtsupport INTERFACE $<$<CONFIG:Release>:${LIB_EAY_RELEASE} ${SSL_EAY_RELEASE}> $<$<CONFIG:Debug>:${LIB_EAY_DEBUG} ${SSL_EAY_DEBUG}> $<$<C_COMPILER_ID:MSVC>:Crypt32.lib>)
 ENDIF()
 
 

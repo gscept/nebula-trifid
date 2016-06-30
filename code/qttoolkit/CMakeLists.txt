@@ -8,8 +8,7 @@ SET(NODY_FOLDER "N3SDK/QtToolkit/Nody")
 
 INCLUDE_DIRECTORIES(${Nebula3_SOURCE_DIR}/foundation ${Nebula3_SOURCE_DIR}/qttoolkit)
 
-IF(N_QT4)
-	add_subdirectory(batchexporter)
+IF(N_QT4)	
 	add_subdirectory(batchexporter2)
 	add_subdirectory(contentbrowser)
 	add_subdirectory(leveleditor2)
@@ -21,7 +20,7 @@ IF(N_QT4)
 ELSE()
 	add_subdirectory(leveleditor)
 ENDIF()
-
+add_subdirectory(batchexporter)
 add_subdirectory(qtaddons)
 add_subdirectory(qttools)
 add_subdirectory(surfacegenerator)

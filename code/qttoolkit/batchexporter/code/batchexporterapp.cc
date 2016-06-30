@@ -5,7 +5,9 @@
 
 #include "stdneb.h"
 #include <QFileDialog>
+#ifdef __USE_QT4
 #include <QPlastiqueStyle>
+#endif
 #include <QMessageBox>
 #include <QScrollBar>
 #include <QTreeWidget>
@@ -87,7 +89,9 @@ BatchExporterApp::BatchExporterApp(const CommandLineArgs& args) :
 	// create palette
 	QtToolkitUtil::NebulaStyleTool palette;
 	QApplication::setPalette(palette);
+#ifdef __USE_QT4
 	this->ui.progress->setStyle(new QPlastiqueStyle);
+#endif
 	this->ui.progress->setVisible(false);
 	this->ui.status->setVisible(false);
 
@@ -552,7 +556,7 @@ BatchExporterApp::PickWorkingDir()
         if(QFile::exists(directory.path() + "/projectinfo.xml"))
         {
             this->workDir = directory.absolutePath();
-            System::NebulaSettings::WriteString("gscept","ToolkitShared","workdir",this->workDir.toAscii().constData());    
+            System::NebulaSettings::WriteString("gscept","ToolkitShared","workdir",this->workDir.toLatin1().constData());    
 			this->projInfo.Discard();
 			this->projInfo.Setup();
         }
@@ -593,7 +597,7 @@ BatchExporterApp::PickToolkitDir()
         if(QFile::exists(directory.path() + "/projectinfo.xml"))
         {
             this->toolDir = directory.absolutePath();
-            System::NebulaSettings::WriteString("gscept","ToolkitShared","path",this->toolDir.toAscii().constData());  
+            System::NebulaSettings::WriteString("gscept","ToolkitShared","path",this->toolDir.toLatin1().constData());  
 			this->projInfo.Discard();
 			this->projInfo.Setup();
         }
