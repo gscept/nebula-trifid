@@ -7,11 +7,12 @@
 #include "batchexporterapp.h"
 #include "style/nebulastyletool.h"
 
-#ifdef __USE_QT5
+#ifdef __USE_QT5 
+#ifdef __N_STATIC_BUILD
 #include <QtPlugin>
 Q_IMPORT_PLUGIN(QWindowsIntegrationPlugin);
 #endif
-
+#endif
 using namespace BatchExporter;
 using namespace QtTools;
 

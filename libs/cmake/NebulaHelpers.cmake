@@ -306,6 +306,11 @@ ENDMACRO(N_SET_EXE_LINKER_DEFAULTS)
 MACRO(N_SET_COMPILER_DEFAULTS)
 
     IF(MSVC)
+	IF(N_STATIC_BUILD)
+		SET(N_RT_TYPE "MT")
+	ELSE()
+		SET(N_RT_TYPE "MD")
+	ENDIF()
 			SET(CMAKE_EXE_LINKER_FLAGS "/ignore:4099")
                 IF(CMAKE_CL_64)
                 # C++ compiler
@@ -313,26 +318,26 @@ MACRO(N_SET_COMPILER_DEFAULTS)
                                 "/D__WIN32__ /DWIN32 /DWIN64 /D__WIN64__ /D_HAS_EXCEPTIONS=0 /GF /fp:fast /W3 /WX /nologo /errorReport:prompt /wd4091" 
                                 CACHE STRING "Flags used by the compiler during all build types." FORCE)
                         SET(CMAKE_CXX_FLAGS_DEBUG
-                                "/D_DEBUG /Od /Gm /RTC1 /MTd /Gy /Zi"
+                                "/D_DEBUG /Od /Gm /RTC1 /${N_RT_TYPE}d /Gy /Zi"
                                 CACHE STRING "Flags used by the compiler during debug builds." FORCE)
                         SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO
-                                "/Ob2 /Oi /Os /Oy ${N_GL} /FD /MT /GS- /Zi /MP /DNDEBUG"
+                                "/Ob2 /Oi /Os /Oy ${N_GL} /FD /${N_RT_TYPE} /GS- /Zi /MP /DNDEBUG"
                                 CACHE STRING "Flags used by the compiler during release builds." FORCE)
                         SET(CMAKE_CXX_FLAGS_RELEASE
-                                "/Ob2 /Oi /Os /Oy ${N_GL} /FD /MT /GS- /MP /DNDEBUG"
+                                "/Ob2 /Oi /Os /Oy ${N_GL} /FD /${N_RT_TYPE} /GS- /MP /DNDEBUG"
                                 CACHE STRING "Flags used by the compiler during release builds." FORCE)
                         # C compiler (force compilation of .c files using C++ compiler)
                         SET(CMAKE_C_FLAGS 
                                 "/D__WIN32__ /DWIN32 /DWIN64 /D__WIN64__ /D_HAS_EXCEPTIONS=0 /GF /fp:fast /W3 /WX /nologo /errorReport:prompt /wd4091" 
                                 CACHE STRING "Flags used by the compiler during all build types." FORCE)
                         SET(CMAKE_C_FLAGS_DEBUG
-                                "/D_DEBUG /Od /Gm /RTC1 /MTd /Gy /Zi"
+                                "/D_DEBUG /Od /Gm /RTC1 /${N_RT_TYPE}d /Gy /Zi"
                                 CACHE STRING "Flags used by the compiler during debug builds." FORCE)
                         SET(CMAKE_C_FLAGS_RELWITHDEBINFO
-                                "/Ob2 /Oi /Os /Oy ${N_GL} /FD /MT /GS- /Zi /MP /DNDEBUG"
+                                "/Ob2 /Oi /Os /Oy ${N_GL} /FD /${N_RT_TYPE} /GS- /Zi /MP /DNDEBUG"
                                 CACHE STRING "Flags used by the compiler during release builds." FORCE)
                         SET(CMAKE_C_FLAGS_RELEASE
-                                "/Ob2 /Oi /Os /Oy ${N_GL} /FD /MT /GS- /MP /DNDEBUG"
+                                "/Ob2 /Oi /Os /Oy ${N_GL} /FD /${N_RT_TYPE} /GS- /MP /DNDEBUG"
                                 CACHE STRING "Flags used by the compiler during release builds." FORCE)		
                 ELSE()
                         # C++ compiler		
@@ -340,26 +345,26 @@ MACRO(N_SET_COMPILER_DEFAULTS)
                                 "/D__WIN32__ /DWIN32 /D_HAS_EXCEPTIONS=0 /GF /fp:fast /W3 /WX /MP /Oi /arch:SSE /arch:SSE2 /nologo /errorReport:prompt /wd4091" 
                                 CACHE STRING "Flags used by the compiler during all build types." FORCE)
                         SET(CMAKE_CXX_FLAGS_DEBUG
-                                "/D_DEBUG /Od /RTC1 /MTd /Gy /ZI"
+                                "/D_DEBUG /Od /RTC1 /${N_RT_TYPE}d /Gy /ZI"
                                 CACHE STRING "Flags used by the compiler during debug builds." FORCE)
                         SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO
-                                "/Ob2 /Oi /Ot /Oy ${N_GL} /FD /MT /GS- /Zi /DNDEBUG"
+                                "/Ob2 /Oi /Ot /Oy ${N_GL} /FD /${N_RT_TYPE} /GS- /Zi /DNDEBUG"
                                 CACHE STRING "Flags used by the compiler during release builds." FORCE)
                         SET(CMAKE_CXX_FLAGS_RELEASE
-                                "/Ob2 /Oi /Ot /Oy ${N_GL} /FD /MT /GS- /DPUBLIC_BUILD /DNDEBUG"
+                                "/Ob2 /Oi /Ot /Oy ${N_GL} /FD /${N_RT_TYPE} /GS- /DPUBLIC_BUILD /DNDEBUG"
                                 CACHE STRING "Flags used by the compiler during release builds." FORCE)
                         # C compiler (force compilation of .c files using C++ compiler)
                         SET(CMAKE_C_FLAGS 
                                 "/D__WIN32__ /DWIN32 /D_HAS_EXCEPTIONS=0 /GF /fp:fast /W3 /WX /MP /nologo /Oi /arch:SSE /arch:SSE2 /errorReport:prompt /wd4091" 
                                 CACHE STRING "Flags used by the compiler during all build types." FORCE)
                         SET(CMAKE_C_FLAGS_DEBUG
-                                "/D_DEBUG /Od /RTC1 /MTd /Gy /ZI"
+                                "/D_DEBUG /Od /RTC1 /${N_RT_TYPE}d /Gy /ZI"
                                 CACHE STRING "Flags used by the compiler during debug builds." FORCE)
                         SET(CMAKE_C_FLAGS_RELWITHDEBINFO
-                                "/Ob2 /Oi /Ot /Oy ${N_GL} /FD /MT /GS- /Zi /DNDEBUG"
+                                "/Ob2 /Oi /Ot /Oy ${N_GL} /FD /${N_RT_TYPE} /GS- /Zi /DNDEBUG"
                                 CACHE STRING "Flags used by the compiler during release builds." FORCE)
                         SET(CMAKE_C_FLAGS_RELEASE
-                                "/Ob2 /Oi /Ot /Oy ${N_GL} /FD /MT /GS- /DPUBLIC_BUILD /DNDEBUG"
+                                "/Ob2 /Oi /Ot /Oy ${N_GL} /FD /${N_RT_TYPE} /GS- /DPUBLIC_BUILD /DNDEBUG"
                                 CACHE STRING "Flags used by the compiler during release builds." FORCE)
                 ENDIF()
     ELSEIF(UNIX)
@@ -597,23 +602,25 @@ TARGET_LINK_LIBRARIES(qtsupport INTERFACE
 	$<$<BOOL:${N_QT4}>:Qt4::QtGui Qt4::QtCore Qt4::QtNetwork Imm32.lib>
 	)
 
-IF(N_QT5_STATIC)
-# find additional qt5 libs for static linking
-FIND_PACKAGE(Qt5Core REQUIRED)
-get_target_property(qtlocation Qt5::Core LOCATION)
-get_filename_component(qtfolder ${qtlocation} DIRECTORY)
-find_library(pcre NAMES qtpcred PATHS ${qtfolder})
-find_library(qtharf NAMES qtharfbuzzngd PATHS ${qtfolder})
-find_library(qtplatform NAMES qt5platformsupportd PATHS ${qtfolder})
-find_library(qwindows NAMES qwindowsd PATHS ${qtfolder}/../plugins/platforms)
-TARGET_LINK_LIBRARIES(qtsupport INTERFACE ${pcre} ${qtharf} ${qtplatform} ${qwindows})
+IF(N_STATIC_BUILD)
+	IF(N_QT5_STATIC)
+		# find additional qt5 libs for static linking
+		FIND_PACKAGE(Qt5Core REQUIRED)
+		get_target_property(qtlocation Qt5::Core LOCATION)
+		get_filename_component(qtfolder ${qtlocation} DIRECTORY)
+		find_library(pcre NAMES qtpcred PATHS ${qtfolder})
+		find_library(qtharf NAMES qtharfbuzzngd PATHS ${qtfolder})
+		find_library(qtplatform NAMES qt5platformsupportd PATHS ${qtfolder})
+		find_library(qwindows NAMES qwindowsd PATHS ${qtfolder}/../plugins/platforms)
+		TARGET_LINK_LIBRARIES(qtsupport INTERFACE ${pcre} ${qtharf} ${qtplatform} ${qwindows})
 
-# static qt from http://www.npcglib.org/~stathis/blog/precompiled-qt4-qt5/ is built with ssl
-SET(OPENSSL_USE_STATIC_LIBS TRUE)
-SET(OPENSSL_MSVC_STATIC_RT TRUE)
-SET(OPENSSL_ROOT_DIR "" CACHE PATH "OpenSSL Root folder")
-FIND_PACKAGE(OpenSSL REQUIRED)
-TARGET_LINK_LIBRARIES(qtsupport INTERFACE $<$<CONFIG:Release>:${LIB_EAY_RELEASE} ${SSL_EAY_RELEASE}> $<$<CONFIG:Debug>:${LIB_EAY_DEBUG} ${SSL_EAY_DEBUG}> $<$<C_COMPILER_ID:MSVC>:Crypt32.lib>)
+		# static qt from http://www.npcglib.org/~stathis/blog/precompiled-qt4-qt5/ is built with ssl
+		SET(OPENSSL_USE_STATIC_LIBS TRUE)
+		SET(OPENSSL_MSVC_STATIC_RT TRUE)		
+		SET(OPENSSL_ROOT_DIR "" CACHE PATH "OpenSSL Root folder")
+		FIND_PACKAGE(OpenSSL REQUIRED)
+		TARGET_LINK_LIBRARIES(qtsupport INTERFACE $<$<CONFIG:Release>:${LIB_EAY_RELEASE} ${SSL_EAY_RELEASE}> $<$<CONFIG:Debug>:${LIB_EAY_DEBUG} ${SSL_EAY_DEBUG}> $<$<C_COMPILER_ID:MSVC>:Crypt32.lib>)
+	ENDIF()
 ENDIF()
 
 
