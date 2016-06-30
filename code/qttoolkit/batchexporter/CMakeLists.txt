@@ -24,13 +24,13 @@ FILE(GLOB FORMS "ui/*.ui")
 FILE(GLOB RESOURCES ${Nebula3_SOURCE_DIR}/code/qttoolkit/qttools/ui/*.qrc)
 FILE(GLOB RESOURCES_2 ${Nebula3_SOURCE_DIR}/code/qttoolkit/*.qrc)
 
-PCH_QT4_WRAP_CPP(batchexporter_HEADERS_MOC ${HEAD})
+PCH_QT_WRAP_CPP(batchexporter_HEADERS_MOC ${HEAD})
 LIST(APPEND SRCS ${SRC} ${HEAD})
 
 INCLUDE(${QT_USE_FILE})
 ADD_DEFINITIONS(${QT_DEFINITIONS})
-QT4_WRAP_UI(batchexporter_FORMS_HEADERS ${FORMS})
-NONPCH_QT4_ADD_RESOURCES(batchexporter_RESOURCES_RCC ${RESOURCES} ${RESOURCES_2})
+N_QT_WRAP_UI(batchexporter_FORMS_HEADERS ${FORMS})
+NONPCH_QT_ADD_RESOURCES(batchexporter_RESOURCES_RCC ${RESOURCES} ${RESOURCES_2})
 
 SOURCE_GROUP("batchexporter" FILES ${SRCS})
 
@@ -64,8 +64,7 @@ TARGET_LINK_LIBRARIES(batchexporter
     toolkitutil
 	foundation		
 	qttools
-	${QT_WIN_LIBS}	
-	${QT_LIBRARIES} ${QT_QTMAIN_LIBRARY}
+	qtsupport
 )
 
 FILE(GLOB SOURCE_GROUP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*/tools/*)

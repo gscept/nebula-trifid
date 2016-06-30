@@ -31,8 +31,8 @@ SET(QTMOCFILES
 	"code/tileddirectoryitem.h"
 	"code/imageloaderthread.h"
 	"code/filewatcher.h")
-PCH_QT4_WRAP_CPP(resourcebrowser_HEADERS_MOC ${QTMOCFILES})
-QT4_WRAP_UI(resourcebrowser_FORMS_HEADERS ${FORMS})
+PCH_QT_WRAP_CPP(resourcebrowser_HEADERS_MOC ${QTMOCFILES})
+N_QT_WRAP_UI(resourcebrowser_FORMS_HEADERS ${FORMS})
 
 SET(PCH_files	
     ../../stdneb.cc
@@ -42,6 +42,7 @@ SOURCE_GROUP("Precompiled" FILES ${PCH_files})
 
 LIST(APPEND ALLSRCS ${CODE} ${PCH_files} ${resourcebrowser_HEADERS_MOC} ${resourcebrowser_FORMS_HEADERS})
 ADD_LIBRARY(resourcebrowser STATIC ${ALLSRCS})
+TARGET_LINK_LIBRARIES(resourcebrowser qtsupport)
 SET_TARGET_PROPERTIES(resourcebrowser PROPERTIES FOLDER "N3SDK/QtAddons")
 N_SET_COMPILER_DEFAULTS()		
 

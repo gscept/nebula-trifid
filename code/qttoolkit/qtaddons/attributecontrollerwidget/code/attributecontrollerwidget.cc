@@ -21,6 +21,7 @@
 #include "animclipcontroller.h"
 #include "editorfeatures/editorblueprintmanager.h"
 #include "physicsmaterialcontroller.h"
+#include "transformcontroller.h"
 
 using namespace Util;
 using namespace Attr;
@@ -139,6 +140,9 @@ AttributeControllerWidget::InitInputWidget(const Ptr<Game::Entity>& _entity, con
 	case Matrix44Type:
 		controller = new Matrix44Controller(this, _entity, _attrId, _attrType);
 		break;
+    case Transform44Type:
+        controller = new TransformController(this, _entity, _attrId, _attrType);
+        break;
 	case GuidType:
 		controller = new GuidController(this, _entity, _attrId, _attrType);
 		break;

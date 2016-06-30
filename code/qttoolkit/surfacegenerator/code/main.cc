@@ -2,14 +2,15 @@
 #include "stdneb.h"
 #include "surfacegeneratorapp.h"
 #include <QApplication>
+#ifdef __USE_QT4
 #include <QPlastiqueStyle>
-//#include <QApplication>
-//#include <QTimer>
+#endif
 
-//#include "extlibs/libqimg/qdevilplugin.h"
+#ifdef __USE_QT4
+#include "extlibs/libqimg/qdevilplugin.h"
 //
-//Q_IMPORT_PLUGIN(qdevil);
-
+Q_IMPORT_PLUGIN(qdevil);
+#endif
 //------------------------------------------------------------------------------
 /**
 */
@@ -18,7 +19,9 @@ int __cdecl
 main(int argc, const char** argv)
 {
 	QApplication a(argc, (char**)argv);
+#ifdef __USE_QT4
 	a.setStyle(new QPlastiqueStyle);
+#endif
 	Util::CommandLineArgs args(argc, argv);
 	ToolkitUtil::SurfaceGeneratorApp app;
 	a.setQuitOnLastWindowClosed(true);

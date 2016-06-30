@@ -143,13 +143,13 @@ SET(PCH_files
     ../stdneb.cc
 )
 SOURCE_GROUP("Precompiled" FILES ${PCH_files})
-PCH_QT4_WRAP_CPP(contentbrowser_HEADERS_MOC ${QTMOCFILES})
+PCH_QT_WRAP_CPP(contentbrowser_HEADERS_MOC ${QTMOCFILES})
 SOURCE_GROUP("MOC" FILES ${contentbrowser_HEADERS_MOC})
 
 INCLUDE(${QT_USE_FILE})
 ADD_DEFINITIONS(${QT_DEFINITIONS})
-QT4_WRAP_UI(contentbrowser_FORMS_HEADERS ${FORMS})
-NONPCH_QT4_ADD_RESOURCES(contentbrowser_RESOURCES_RCC ${RESOURCES})
+N_QT_WRAP_UI(contentbrowser_FORMS_HEADERS ${FORMS})
+NONPCH_QT_ADD_RESOURCES(contentbrowser_RESOURCES_RCC ${RESOURCES})
 
 
 LIST(APPEND ALLSRCS ${CODE} ${PCH_files} ${contentbrowser_HEADERS_MOC} ${contentbrowser_FORMS_HEADERS} ${contentbrowser_RESOURCES_RCC} code/contentbrowser.rc)
@@ -209,6 +209,5 @@ TARGET_LINK_LIBRARIES(contentbrowser
 	video
 	nody
 	shady
-	${QT_WIN_LIBS}	
-	${QT_LIBRARIES} ${QT_QTMAIN_LIBRARY}	
+	qtsupport
 )

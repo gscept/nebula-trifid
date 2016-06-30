@@ -18,12 +18,10 @@ SET(PCH_files
     ../stdneb.cc
 )
 SOURCE_GROUP("Precompiled" FILES ${PCH_files})
-PCH_QT4_WRAP_CPP(particleconverter_HEADERS_MOC ${QTMOCFILES})
+PCH_QT_WRAP_CPP(particleconverter_HEADERS_MOC ${QTMOCFILES})
 
-INCLUDE(${QT_USE_FILE})
-ADD_DEFINITIONS(${QT_DEFINITIONS})
-QT4_WRAP_UI(particleconverter_FORMS_HEADERS ${FORMS})
-NONPCH_QT4_ADD_RESOURCES(particleconverter_RESOURCES_RCC ${RESOURCES})
+N_QT_WRAP_UI(particleconverter_FORMS_HEADERS ${FORMS})
+NONPCH_QT_ADD_RESOURCES(particleconverter_RESOURCES_RCC ${RESOURCES})
 
 LIST(APPEND ALLSRCS ${CODE} ${PCH_files} ${particleconverter_HEADERS_MOC} ${particleconverter_FORMS_HEADERS} ${particleconverter_RESOURCES_RCC})
 
@@ -55,6 +53,5 @@ TARGET_LINK_LIBRARIES(particleconverter
 	qtfeature
 	qttools
 	toolkitutil 
-	${QT_WIN_LIBS}	
-	${QT_LIBRARIES} ${QT_QTMAIN_LIBRARY}	
+	qtsupport
 )

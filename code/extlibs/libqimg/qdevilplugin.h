@@ -8,13 +8,21 @@
     (C) 2012 Gustav Sterbrant
 */
 //------------------------------------------------------------------------------
+#ifdef __USE_QT4
 #include <QtGui/QImageIOPlugin>
 #include <QtGui/QImageIOHandler>
+#else
+#include <QImageIOPlugin>
+#include <QImageIOHandler>
+#endif
 #include <QByteArray>
 #include <QImage>
 class QDevilPlugin : public QImageIOPlugin
 {
 	Q_OBJECT
+#ifdef __USE_QT5
+	Q_PLUGIN_METADATA(IID "org.gscept.qdevilplugin" )
+#endif
 public:
 	/// constructor
 	QDevilPlugin(QObject* parent = 0);

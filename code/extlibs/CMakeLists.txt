@@ -62,7 +62,7 @@ IF(NOT N_BUILD_FIRSTTIME)
     add_subdirectory(librocket)    
 
     IF(N_BUILD_QT)
-        add_subdirectory(libqimg)
+        add_subdirectory(libqimg)		
     ENDIF()
 
     IF(N_BUILD_OGL4)			

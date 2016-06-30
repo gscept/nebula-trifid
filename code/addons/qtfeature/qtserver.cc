@@ -39,8 +39,10 @@ QtServer::Open()
 {
 	n_assert(this->application == NULL);
 
+#ifdef __USE_QT4
     // use software rasterizer
     QApplication::setGraphicsSystem("raster");
+#endif
 
     const Util::CommandLineArgs& args = App::Application::Instance()->GetCmdLineArgs();
 	if (args.IsEmpty())

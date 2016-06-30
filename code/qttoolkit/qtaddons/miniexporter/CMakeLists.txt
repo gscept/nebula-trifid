@@ -21,7 +21,7 @@ FILE(GLOB FORMS "ui/*.ui")
 SOURCE_GROUP("miniexporter" FILES ${SRC} ${HEAD})
 LIST(APPEND CODE ${SRC} ${HEAD})
 
-QT4_WRAP_UI(miniexporter_FORMS_HEADERS ${FORMS})
+N_QT_WRAP_UI(miniexporter_FORMS_HEADERS ${FORMS})
 
 SET(PCH_files	
     ../../stdneb.cc
@@ -32,5 +32,6 @@ SOURCE_GROUP("Precompiled" FILES ${PCH_files})
 LIST(APPEND ALLSRCS ${CODE} ${PCH_files} ${miniexporter_FORMS_HEADERS})
 ADD_LIBRARY(miniexporter STATIC ${ALLSRCS})
 SET_TARGET_PROPERTIES(miniexporter PROPERTIES FOLDER "N3SDK/QtAddons")
+TARGET_LINK_LIBRARIES(miniexporter qtsupport)
 N_SET_COMPILER_DEFAULTS()		
 

@@ -65,6 +65,7 @@ FileWatcher::WatchDirectory(const Util::String& dir)
 void
 FileWatcher::FolderChanged(const QString& folder)
 {
+#ifdef __USE_QT4
 	int i;
 	for (i = 0; i < this->files.Size(); i++)
 	{
@@ -77,6 +78,9 @@ FileWatcher::FolderChanged(const QString& folder)
 			this->files.EraseIndex(i--);
 		}		
 	}
+#else
+    // FIXME what is this even used for? nothing connects to the signal
+#endif
 }
 
 } // namespace ResourceBrowser

@@ -80,13 +80,11 @@ SOURCE_GROUP("Precompiled" FILES ${PCH_files})
 
 N_WRAP_ADD_PROJ_NIDL_FILES(shady CODE code/simulation/simulationcommands.nidl)
 
-PCH_QT4_WRAP_CPP(shady_HEADERS_MOC ${QTMOCFILES})
+PCH_QT_WRAP_CPP(shady_HEADERS_MOC ${QTMOCFILES})
 SOURCE_GROUP("MOC" FILES ${shady_HEADERS_MOC})
 
-INCLUDE(${QT_USE_FILE})
-ADD_DEFINITIONS(${QT_DEFINITIONS})
-QT4_WRAP_UI(shady_FORMS_HEADERS ${FORMS})
-NONPCH_QT4_ADD_RESOURCES(shady_RESOURCES_RCC ${RESOURCES})
+N_QT_WRAP_UI(shady_FORMS_HEADERS ${FORMS})
+NONPCH_QT_ADD_RESOURCES(shady_RESOURCES_RCC ${RESOURCES})
 
 
 LIST(APPEND ALLSRCS ${CODE} ${PCH_files} ${shady_HEADERS_MOC} ${shady_FORMS_HEADERS} ${shady_RESOURCES_RCC})
@@ -109,8 +107,7 @@ IF(SHADY_APPLICATION)
 		compiler
 	    nody 
 	    toolkitutil
-	    ${QT_WIN_LIBS}
-	    ${QT_LIBRARIES} ${QT_QTMAIN_LIBRARY}
+	    qtsupport
 	    d3dx11.lib 
 	    d3dcompiler.lib 
 	    opengl32.lib

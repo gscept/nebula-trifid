@@ -9,7 +9,11 @@
 */
 //------------------------------------------------------------------------------
 #include <QObject>
+#ifdef __USE_QT4
 #include <QtGui/QFrame>
+#else
+#include <QtWidgets/QFrame>
+#endif
 #include <QResizeEvent>
 #include "graphics/view.h"
 

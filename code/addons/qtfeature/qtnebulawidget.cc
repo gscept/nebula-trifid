@@ -92,7 +92,13 @@ void QtNebulaWidget::GenerateWindowData()
     Win32Data data;
 	data.width = Math::n_max(1, this->size().width());
 	data.height = Math::n_max(1, this->size().height());
+#ifdef __USE_QT4
     data.window = this->effectiveWinId();
+#else
+	//FIXME this is supposed to be ok, but only inofficially
+    // http://lists.qt-project.org/pipermail/interest/2013-June/007650.html
+    data.window = (HWND)this->winId();    
+#endif
 
     // allocate memory for window data pointer
     this->windowData = malloc(sizeof(Win32Data));

@@ -72,8 +72,9 @@ QDevilPlugin::create( QIODevice* device, const QByteArray& format /*= QByteArray
 	return handler;
 }
 
+#ifdef __USE_QT4
 Q_EXPORT_PLUGIN2(qdevil, QDevilPlugin);
-
+#endif
 //------------------------------------------------------------------------------
 /**
 */
