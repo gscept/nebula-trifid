@@ -63,7 +63,6 @@ TARGET_LINK_LIBRARIES(batchexporter
 	foundation		
 	qttools
 	qtsupport
-	Qt5::Network
 )
 
 FILE(GLOB SOURCE_GROUP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*/tools/*)
