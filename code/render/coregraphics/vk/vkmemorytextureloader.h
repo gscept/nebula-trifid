@@ -26,5 +26,8 @@ private:
 	CoreGraphics::PixelFormat::Code format;
 	SizeT width, height;
 	VkImage image;
+	VkImageView view;
+	VkDeviceMemory mem;
+
 };
 } // namespace Vulkan

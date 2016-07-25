@@ -8,7 +8,7 @@
 //------------------------------------------------------------------------------
 #include "coregraphics/base/renderdevicebase.h"
 #include "vkcmdbufferthread.h"
-#include "vkdeferreddelegate.h"
+#include "vkdeferredcommand.h"
 namespace Vulkan
 {
 class VkRenderDevice : public Base::RenderDeviceBase
@@ -108,6 +108,8 @@ private:
 	friend class VkUniformBuffer;
 	friend class VkShaderStorageBuffer;
 	friend class VkStreamTextureLoader;
+	friend class VkStreamTextureSaver;
+	friend struct VkDeferredCommand;
 
 	enum PipelineInfoBits
 	{
@@ -161,15 +163,55 @@ private:
 	void AllocateBufferMemory(const VkBuffer& buf, VkDeviceMemory& bufmem, VkMemoryPropertyFlagBits flags, uint32_t& bufsize);
 	/// allocate an image memory storage
 	void AllocateImageMemory(const VkImage& img, VkDeviceMemory& imgmem, VkMemoryPropertyFlagBits flags, uint32_t& imgsize);
-	/// update buffer memory from CPU memory, if deleteWhenDone is true, then the render device will assume the data is safe to take ownership of
-	void PushBufferUpdate(const VkBuffer& buf, VkDeviceSize offset, VkDeviceSize size, uint32_t* data, bool deleteWhenDone);
+
+	/// update buffer memory from CPU memory, if deleteWhenDone is true, then the render device will assume the data is safe to take ownership of. (MUST BE DONE BETWEEN BeginFrame/EndFrame)
+	void BufferUpdate(const VkBuffer& buf, VkDeviceSize offset, VkDeviceSize size, uint32_t* data);
+	/// update image memory from CPU memory. (MUST BE DONE BETWEEN BeginFrame/EndFrame)
+	void ImageUpdate(const VkImage& img, VkBufferImageCopy copy, VkDeviceSize size, uint32_t* data);
+	/// setup staging buffer update for later execution
+	void PushBufferUpdate(const VkBuffer& buf, VkDeviceSize offset, VkDeviceSize size, uint32_t* data);
+	/// setup staging image update for later execution
+	void PushImageUpdate(const VkImage& img, VkBufferImageCopy copy, VkDeviceSize size, uint32_t* data);
+	/// perform image read-back, and saves to buffer (SLOW!)
+	void ReadImage(const VkImage& img, VkBufferImageCopy copy, uint32_t& outMemSize, VkDeviceMemory& outMem, VkBuffer& outBuffer);
+	/// perform image write-back, transitions data from buffer to image (SLOW!)
+	void WriteImage(const VkBuffer& buf, const VkImage& img, VkBufferImageCopy copy);
+	/// helper to begin immediate transfer
+	VkCommandBuffer BeginImmediateTransfer();
+	/// helper to end immediate transfer
+	void EndImmediateTransfer(VkCommandBuffer cmdBuf);
+	/// helper to end subpass commands
+	void EndSubpassCommands();
+	/// push delegate to direct list
+	void PushCommand(const VkDeferredCommand& del);
+	/// push delegate before frame
+	void PushCommandStaging(const VkDeferredCommand& del);
+
+	/// push image layout change
+	void PushImageLayoutTransition(VkDeferredCommand::CommandQueueType queue, VkImageMemoryBarrier barrier);
+	/// perform image layout transition immediately
+	void ImageLayoutTransition(VkDeferredCommand::CommandQueueType queue, VkImageMemoryBarrier barrier);
+	/// create image barrier
+	static VkImageMemoryBarrier ImageMemoryBarrier(const VkImage& img, VkImageSubresourceRange subres, VkImageLayout oldLayout, VkImageLayout newLayout);
+	/// transition image between layouts
+	void ChangeImageLayout(const VkImageMemoryBarrier& barrier, const VkDeferredCommand::CommandQueueType& type);
+
+	/// push image color clear
+	void PushImageColorClear(const VkImage& image, const VkDeferredCommand::CommandQueueType& queue, VkImageLayout layout, VkClearColorValue clearValue, VkImageSubresourceRange subres);
+	/// perform image color clear
+	void ImageColorClear(const VkImage& image, const VkDeferredCommand::CommandQueueType& queue, VkImageLayout layout, VkClearColorValue clearValue, VkImageSubresourceRange subres);
+	/// push image depth stencil clear
+	void PushImageDepthStencilClear(const VkImage& image, const VkDeferredCommand::CommandQueueType& queue, VkImageLayout layout, VkClearDepthStencilValue clearValue, VkImageSubresourceRange subres);
+	/// perform image depth stencil clear
+	void ImageDepthStencilClear(const VkImage& image, const VkDeferredCommand::CommandQueueType& queue, VkImageLayout layout, VkClearDepthStencilValue clearValue, VkImageSubresourceRange subres);
 
 	/// helper function to submit a command buffer
-	void SubmitToQueue(VkQueue queue, uint32_t numBuffers, VkCommandBuffer* buffers);
+	void SubmitToQueue(VkQueue queue, VkPipelineStageFlags flags, uint32_t numBuffers, VkCommandBuffer* buffers);
 	/// helper function to submit a fence
 	void SubmitToQueue(VkQueue queue, VkFence fence);
-	/// push a deferred delegate for execution, if the current index used already has a delegate waiting to run, it will be waited on before this is executed
-	void PushDeferredDelegate(VkDeferredDelegate& del);
+	/// wait for queue to finish execution using fence, also resets fence
+	void WaitForFence(VkFence fence);
+
 	/// wait for deferred delegates to complete
 	void UpdateDelegates();
 	/// begin using the worker threads to build command buffers
@@ -211,6 +253,7 @@ private:
 
 	uint32_t currentBackbuffer;
 	Util::FixedArray<VkImage> backbuffers;
+	Util::FixedArray<VkDeviceMemory> backbufferMem;
 	Util::FixedArray<VkImageView> backbufferViews;
 	uint32_t numBackbuffers;
 	VkSemaphore displaySemaphore;
@@ -227,6 +270,9 @@ private:
 	static VkCommandBuffer mainCmdGfxBuffer;
 	static VkCommandBuffer mainCmdCmpBuffer;
 	static VkCommandBuffer mainCmdTransBuffer;
+	VkFence mainCmdGfxFence;
+	VkFence mainCmdCmpFence;
+	VkFence mainCmdTransFence;
 
 	VkCommandBufferInheritanceInfo passInfo;
 	VkPipelineInputAssemblyStateCreateInfo inputInfo;
@@ -235,39 +281,46 @@ private:
 	static const SizeT NumDrawThreads = 4;
 
 	IndexT currentDrawThread;
+	VkCommandPool dispatchableCmdDrawBufferPool[NumDrawThreads];
 	VkCommandBuffer dispatchableDrawCmdBuffers[NumDrawThreads];
 	Ptr<VkCmdBufferThread> drawThreads[NumDrawThreads];
 	Threading::Event drawCompletionEvent[NumDrawThreads];
 
 	static const SizeT NumTransferThreads = 1;
 	IndexT currentTransThread;
+	VkCommandPool dispatchableCmdTransBufferPool[NumTransferThreads];
 	VkCommandBuffer dispatchableTransCmdBuffers[NumTransferThreads];
 	Ptr<VkCmdBufferThread> transThreads[NumTransferThreads];
 	Threading::Event transCompletionEvent[NumTransferThreads];
 
+	static const SizeT NumComputeThreads = 4;
+	IndexT currentComputeThread;
+	VkCommandPool dispatchableCmdCompBufferPool[NumComputeThreads];
+	VkCommandBuffer dispatchableCompCmdBuffers[NumComputeThreads];
+	Ptr<VkCmdBufferThread> compThreads[NumComputeThreads];
+	Threading::Event compCompletionEvent[NumComputeThreads];
+
 	static const SizeT NumDeferredDelegates = 128;
 	uint32_t currentDeferredDelegate;
 	VkFence deferredDelegateFences[NumDeferredDelegates];
-	VkDeferredDelegate deferredDelegates[NumDeferredDelegates];
-	Util::Queue<IndexT> freeDelegates;
-	Util::Queue<IndexT> usedDelegates;
+	Util::Queue<IndexT> freeFences;
+	Util::Queue<IndexT> usedFences;
+
+	IndexT delegateBucketIndex;
+	Util::FixedArray<Util::Array<VkDeferredCommand>> fenceDelegateBuckets;
+	Util::Array<VkDeferredCommand> nextFrameFenceDelegates;
+	Util::Array<VkDeferredCommand> nextFrameDelegates;
 
 	VkPipelineVertexInputStateCreateInfo vertexInfo;
 	VkViewport* passViewports;
 	uint32_t numVsInputs;
 
-	enum CmdCreationUsage
-	{
-		Persistent,
-		Transient,
-
-		NumCmdCreationUsages
-	};
-
 	// first pool is for persistent buffers, second is for transient
-	static VkCommandPool cmdGfxPool[NumCmdCreationUsages];
-	static VkCommandPool cmdCmpPool[NumCmdCreationUsages];		
-	static VkCommandPool cmdTransPool[NumCmdCreationUsages];
+	static VkCommandPool mainCmdGfxPool;
+	static VkCommandPool mainCmdCmpPool;
+	static VkCommandPool mainCmdTransPool;
+	
+	VkCommandPool immediateCmdTransPool;
 
 	VkGraphicsPipelineCreateInfo currentPipelineInfo;
 	VkPipeline currentPipeline;

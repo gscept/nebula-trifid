@@ -101,6 +101,7 @@ VkRenderTarget::Setup()
 		subpass.pResolveAttachments = VK_NULL_HANDLE;
 
 		VkAttachmentDescription attachment;
+		attachment.flags = 0;
 		attachment.format = VkTypes::AsVkFramebufferFormat(this->colorBufferFormat);
 		attachment.samples = sampleCount;
 		attachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;						// set to clear
@@ -129,6 +130,7 @@ VkRenderTarget::Setup()
 		n_assert(res == VK_SUCCESS);
 
 		this->swapbuffers.Resize(VkRenderDevice::Instance()->numBackbuffers);
+		this->swapimages = VkRenderDevice::Instance()->backbuffers;
 
 		IndexT i;
 		for (i = 0; i < this->swapbuffers.Size(); i++)
@@ -150,7 +152,33 @@ VkRenderTarget::Setup()
 			res = vkCreateFramebuffer(VkRenderDevice::dev, &fbInfo, NULL, &this->swapbuffers[i]);
 			n_assert(res == VK_SUCCESS);
 		}
-		
+
+		VkImageSubresourceRange subres;
+		subres.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		subres.baseArrayLayer = 0;
+		subres.baseMipLevel = 0;
+		subres.layerCount = 1;
+		subres.levelCount = 1;
+
+		VkClearColorValue clear = { 0, 0, 0, 0 };
+
+		for (i = 0; i < this->swapimages.Size(); i++)
+		{
+			VkRenderDevice::Instance()->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->swapimages[i], subres, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL));
+			VkRenderDevice::Instance()->PushImageColorClear(this->swapimages[i], VkDeferredCommand::Graphics, VK_IMAGE_LAYOUT_GENERAL, clear, subres);
+		}
+
+		// transfer backbuffers to present, except for the first one which is the one we render to
+		VkRenderDevice::Instance()->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->swapimages[0], subres, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL));
+		for (i = 1; i < this->swapimages.Size(); i++)
+		{
+			VkRenderDevice::Instance()->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->swapimages[i], subres, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR));
+		}
+
+		// setup info
+		this->framebufferPipelineInfo.renderPass = this->pass;
+		this->framebufferPipelineInfo.subpass = 0;
+		this->framebufferPipelineInfo.pViewportState = &this->viewportInfo;
 	}
 	else
 	{
@@ -211,27 +239,27 @@ VkRenderTarget::Setup()
 			NULL,
 			0,
 			VK_IMAGE_TYPE_2D,
-			VkTypes::AsVkFormat(this->colorBufferFormat),
+			VkTypes::AsVkFramebufferFormat(this->colorBufferFormat),
 			extents,
 			1,
 			1,
 			sampleCount,
 			VK_IMAGE_TILING_OPTIMAL,
-			VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+			VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
 			VK_SHARING_MODE_EXCLUSIVE,
 			1,
-			&VkRenderDevice::Instance()->renderQueueIdx,
+			&VkRenderDevice::Instance()->renderQueueFamily,
 			VK_IMAGE_LAYOUT_UNDEFINED
 		};
 
-		// create image
-		VkResult res = vkCreateImage(VkRenderDevice::dev, &imgInfo, NULL, &this->image);
+		// create image for rendering
+		VkResult res = vkCreateImage(VkRenderDevice::dev, &imgInfo, NULL, &this->targetImage);
 		n_assert(res == VK_SUCCESS);
 
 		// allocate buffer backing and bind to image
 		uint32_t size;
-		VkRenderDevice::Instance()->AllocateImageMemory(this->image, this->imageMem, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, size);
-		vkBindImageMemory(VkRenderDevice::dev, this->image, this->imageMem, 0);
+		VkRenderDevice::Instance()->AllocateImageMemory(this->targetImage, this->targetImageMem, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, size);
+		vkBindImageMemory(VkRenderDevice::dev, this->targetImage, this->targetImageMem, 0);
 
 		VkImageSubresourceRange subres;
 		subres.baseArrayLayer = 0;
@@ -244,20 +272,20 @@ VkRenderTarget::Setup()
 			VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
 			NULL,
 			0,
-			this->image,
+			this->targetImage,
 			VK_IMAGE_VIEW_TYPE_2D,
-			VkTypes::AsVkFormat(this->colorBufferFormat),
+			VkTypes::AsVkFramebufferFormat(this->colorBufferFormat),
 			VkTypes::AsVkMapping(this->colorBufferFormat),
 			subres
 		};
 
-		res = vkCreateImageView(VkRenderDevice::dev, &viewInfo, NULL, &this->imageView);
+		res = vkCreateImageView(VkRenderDevice::dev, &viewInfo, NULL, &this->targetImageView);
 		n_assert(res == VK_SUCCESS);
 
 		uint32_t numviews = 1;
 		uint32_t numattachments = 1;
-		VkImageView views[2];
-		views[0] = this->imageView;
+		VkImageView views[3];
+		views[0] = this->targetImageView;
 
 		if (this->depthStencilTarget.isvalid())
 		{
@@ -269,25 +297,26 @@ VkRenderTarget::Setup()
 		// we create a very default attachment behavior where we assume to write 
 		// to the framebuffer and read from it once the operations are done
 		VkAttachmentDescription attachment[2];
+		attachment[0].flags = 0;
 		attachment[0].format = VkTypes::AsVkFramebufferFormat(this->colorBufferFormat);
 		attachment[0].samples = sampleCount;
-		attachment[0].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;						// set to clear
+		attachment[0].loadOp = this->clearFlags & CoreGraphics::RenderTarget::ClearColor ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;;						// set to clear
 		attachment[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-		attachment[0].stencilLoadOp = this->clearFlags & CoreGraphics::RenderTarget::ClearColor ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
+		attachment[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
 		attachment[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
 		attachment[0].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 		attachment[0].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+		VkAttachmentReference attachmentRef;
+		attachmentRef.attachment = 0;
+		attachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
 		VkAttachmentReference depthAttachmentRef;
 		depthAttachmentRef.attachment = VK_ATTACHMENT_UNUSED;
 		depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 		VkAttachmentReference resolveAttachmentRef;
 		resolveAttachmentRef.attachment = VK_ATTACHMENT_UNUSED;
-		resolveAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-		VkAttachmentReference attachmentRef;
-		attachmentRef.attachment = 0;
-		attachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		resolveAttachmentRef.layout = VK_IMAGE_LAYOUT_GENERAL;
 
 		// create just one subpass which is just using our single color attachment and optional depth stencil attachment
 		VkSubpassDescription subpass;
@@ -300,13 +329,14 @@ VkRenderTarget::Setup()
 		subpass.preserveAttachmentCount = 0;
 		subpass.pPreserveAttachments = VK_NULL_HANDLE;
 		subpass.pDepthStencilAttachment = &depthAttachmentRef;
-		subpass.pResolveAttachments = &resolveAttachmentRef;
+		subpass.pResolveAttachments = VK_NULL_HANDLE;
 
 		if (this->depthStencilTarget.isvalid())
 		{
 			depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 			depthAttachmentRef.attachment = 1;
 
+			attachment[1].flags = 0;
 			attachment[1].format = VK_FORMAT_D32_SFLOAT_S8_UINT;
 			attachment[1].samples = VK_SAMPLE_COUNT_1_BIT;
 			attachment[1].loadOp = depthStencilTarget->GetClearFlags() & CoreGraphics::DepthStencilTarget::ClearDepth ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
@@ -370,12 +400,17 @@ VkRenderTarget::Setup()
 		// setup actual texture
 		if (sampleCount > 1)
 		{
-			this->resolveTexture->SetupFromVkMultisampleTexture(this->image, this->imageMem, this->colorBufferFormat, 0, true, true);
+			this->resolveTexture->SetupFromVkMultisampleTexture(this->targetImage, this->targetImageMem, this->targetImageView, this->width, this->height, this->colorBufferFormat, 0, true, true);
 		}
 		else
 		{
-			this->resolveTexture->SetupFromVkTexture(this->image, this->imageMem, this->colorBufferFormat, 0, true, true);
+			this->resolveTexture->SetupFromVkTexture(this->targetImage, this->targetImageMem, this->targetImageView, this->width, this->height, this->colorBufferFormat, 0, true, true);
 		}
+
+		// change image layout
+		VkClearColorValue clear = { 0, 0, 0, 0 };
+		VkRenderDevice::Instance()->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->targetImage, subres, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL));
+		VkRenderDevice::Instance()->PushImageColorClear(this->targetImage, VkDeferredCommand::Graphics, VK_IMAGE_LAYOUT_GENERAL, clear, subres);
 	}
 }
 
@@ -386,9 +421,53 @@ void
 VkRenderTarget::Discard()
 {
 	RenderTargetBase::Discard();
-	vkDestroyImageView(VkRenderDevice::dev, this->imageView, NULL);
-	vkDestroyImage(VkRenderDevice::dev, this->image, NULL);
-	vkFreeMemory(VkRenderDevice::dev, this->imageMem, NULL);
+	vkDestroyImageView(VkRenderDevice::dev, this->targetImageView, NULL);
+	vkDestroyImage(VkRenderDevice::dev, this->targetImage, NULL);
+	vkFreeMemory(VkRenderDevice::dev, this->targetImageMem, NULL);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderTarget::BeginPass()
+{
+	RenderTargetBase::BeginPass();
+
+	if (!this->isDefaultRenderTarget)
+	{
+		// change image layout
+		VkImageSubresourceRange subres;
+		subres.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		subres.baseArrayLayer = 0;
+		subres.baseMipLevel = 0;
+		subres.layerCount = 1;
+		subres.levelCount = 1;
+		VkRenderDevice::Instance()->ImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->targetImage, subres, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL));
+	}	
+}
+
+//------------------------------------------------------------------------------
+/**
+	Okay, we really dont have to transition the images when we end the pass, but we can't really do better either.
+	The other option would be to transition whenever (and if) this render target is used by some shader somewhere.
+*/
+void
+VkRenderTarget::EndPass()
+{
+	if (!this->isDefaultRenderTarget)
+	{
+		// change image layout
+		VkImageSubresourceRange subres;
+		subres.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		subres.baseArrayLayer = 0;
+		subres.baseMipLevel = 0;
+		subres.layerCount = 1;
+		subres.levelCount = 1;
+		VkRenderDevice::Instance()->ImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->targetImage, subres, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_GENERAL));
+	}
+
+	RenderTargetBase::EndPass();
 }
 
 //------------------------------------------------------------------------------
@@ -471,7 +550,15 @@ VkRenderTarget::SetResolveRectArray(const Util::Array<Math::rectangle<int> >& re
 void
 VkRenderTarget::ResetResolveRects()
 {
-	this->viewports.Clear();
+	VkViewport viewport;
+	viewport.x = 0;
+	viewport.y = 0;
+	viewport.width = (float)this->width;
+	viewport.height = (float)this->height;
+	viewport.minDepth = 0;
+	viewport.maxDepth = FLT_MAX;
+	this->viewports.Resize(1);
+	this->viewports[0] = viewport;
 }
 
 //------------------------------------------------------------------------------
@@ -501,7 +588,7 @@ VkRenderTarget::Copy(const Ptr<CoreGraphics::RenderTarget>& tex)
 
 	// copy between images
 	//vkCmdCopyImage(VkRenderDevice::mainCmdGfxBuffer, this->image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, tex->image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 1, &region);
-	vkCmdBlitImage(VkRenderDevice::mainCmdGfxBuffer, this->image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, tex->image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 1, &region, VK_FILTER_NEAREST);
+	vkCmdBlitImage(VkRenderDevice::mainCmdGfxBuffer, this->targetImage, VK_IMAGE_LAYOUT_GENERAL, tex->targetImage, VK_IMAGE_LAYOUT_GENERAL, 1, &region, VK_FILTER_NEAREST);
 }
 
 //------------------------------------------------------------------------------
@@ -511,8 +598,18 @@ void
 VkRenderTarget::SwapBuffers()
 {
 	n_assert(this->isDefaultRenderTarget);
+	VkImageSubresourceRange subres;
+	subres.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	subres.baseArrayLayer = 0;
+	subres.baseMipLevel = 0;
+	subres.layerCount = 1;
+	subres.levelCount = 1;
+
+	// transition between present and output
+	VkRenderDevice::Instance()->ImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->swapimages[this->swapbufferIdx], subres, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR));
 	this->swapbufferIdx = (this->swapbufferIdx + 1) % this->swapbuffers.Size();
 	this->framebuffer = this->swapbuffers[this->swapbufferIdx];
+	VkRenderDevice::Instance()->ImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->swapimages[this->swapbufferIdx], subres, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL));
 }
 
 } // namespace Vulkan

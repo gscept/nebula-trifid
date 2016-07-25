@@ -34,7 +34,7 @@ VkShaderStorageBuffer::Setup(const SizeT numBackingBuffers)
 {
 	ShaderReadWriteBufferBase::Setup(numBackingBuffers);
 
-	uint32_t queues[] = { VkRenderDevice::Instance()->renderQueueIdx, VkRenderDevice::Instance()->computeQueueIdx, VkRenderDevice::Instance()->transferQueueIdx };
+	uint32_t queues[] = { VkRenderDevice::Instance()->renderQueueFamily, VkRenderDevice::Instance()->computeQueueFamily, VkRenderDevice::Instance()->transferQueueFamily };
 	VkBufferCreateInfo info =
 	{
 		VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,

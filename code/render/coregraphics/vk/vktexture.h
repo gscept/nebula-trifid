@@ -2,6 +2,15 @@
 //------------------------------------------------------------------------------
 /**
 	Implements a Vulkan texture.
+
+	Mapping a Vulkan buffer requires an explicit buffer backing, which is created when mapping.
+	This buffer is then what you can read/write to, and when you unmap it the data will be flushed back, and the buffer deleted.
+
+	Mapping is slow for this reason, so use with caution. We can not apply a persistently mapped buffer either, since texture data is
+	non-linear and can have any type of implementation specific way of treating data as pixels.
+
+	Also be careful when to call Unload, since we might have in-flight texture updates through Update, operating on a texture which may
+	have been deleted.
 	
 	(C) 2016 Individual contributors, see AUTHORS file
 */
@@ -42,23 +51,64 @@ public:
 	void UpdateArray(void* data, SizeT dataSize, IndexT mip, IndexT layer);
 
 	/// setup from an opengl 2D texture
-	void SetupFromVkTexture(VkImage img, VkDeviceMemory mem, CoreGraphics::PixelFormat::Code format, GLint numMips = 0, const bool setLoaded = true, const bool isAttachment = false);
+	void SetupFromVkTexture(VkImage img, VkDeviceMemory mem, VkImageView imgView, uint32_t width, uint32_t height, CoreGraphics::PixelFormat::Code format, GLint numMips = 0, const bool setLoaded = true, const bool isAttachment = false);
 	/// setup from an opengl 2d multisample texture
-	void SetupFromVkMultisampleTexture(VkImage img, VkDeviceMemory mem, CoreGraphics::PixelFormat::Code format, GLint numMips = 0, const bool setLoaded = true, const bool isAttachment = false);
+	void SetupFromVkMultisampleTexture(VkImage img, VkDeviceMemory mem, VkImageView imgView, uint32_t width, uint32_t height, CoreGraphics::PixelFormat::Code format, GLint numMips = 0, const bool setLoaded = true, const bool isAttachment = false);
 	/// setup from an opengl texture cube
-	void SetupFromVkCubeTexture(VkImage img, VkDeviceMemory mem, CoreGraphics::PixelFormat::Code format, GLint numMips = 0, const bool setLoaded = true, const bool isAttachment = false);
+	void SetupFromVkCubeTexture(VkImage img, VkDeviceMemory mem, VkImageView imgView, uint32_t width, uint32_t height, CoreGraphics::PixelFormat::Code format, GLint numMips = 0, const bool setLoaded = true, const bool isAttachment = false);
 	/// setup from an opengl volume texture
-	void SetupFromVkVolumeTexture(VkImage img, VkDeviceMemory mem, CoreGraphics::PixelFormat::Code format, GLint numMips = 0, const bool setLoaded = true, const bool isAttachment = false);
+	void SetupFromVkVolumeTexture(VkImage img, VkDeviceMemory mem, VkImageView imgView, uint32_t width, uint32_t height, uint32_t, CoreGraphics::PixelFormat::Code format, GLint numMips = 0, const bool setLoaded = true, const bool isAttachment = false);
 
 	/// calculate the size of a texture given a certain mip, use face 0 when not accessing a cube or array texture
 	void MipDimensions(IndexT mip, IndexT face, SizeT& width, SizeT& height, SizeT& depth);
 	/// copy from one texture to another
-	static void Copy(const Ptr<CoreGraphics::Texture>& from, uint32_t fromMip, uint32_t fromLayer, uint32_t fromXOffset, uint32_t fromYOffset, uint32_t fromZOffset,
-					 const Ptr<CoreGraphics::Texture>& to, uint32_t toMip, uint32_t toLayer, uint32_t toXOffset, uint32_t toYOffset, uint32_t toZOffset);
+	static void Copy(const Ptr<CoreGraphics::Texture>& from, const Ptr<CoreGraphics::Texture>& to, uint32_t width, uint32_t height, uint32_t depth, 
+		uint32_t srcMip, uint32_t srcLayer, uint32_t srcXOffset, uint32_t srcYOffset, uint32_t srcZOffset,
+		uint32_t dstMip, uint32_t dstLayer, uint32_t dstXOffset, uint32_t dstYOffset, uint32_t dstZOffset);
+
+	/// get image
+	const VkImage& GetVkImage() const;
+	/// get image view
+	const VkImageView& GetVkImageView() const;
+	/// get image memory
+	const VkDeviceMemory& GetVkMemory() const;
 private:
 	void* mappedData;
 	uint32_t mapCount;
 	VkImage img;
+	VkImageView imgView;
 	VkDeviceMemory mem;
+
+	VkBuffer mappedBuf;
+	VkDeviceMemory mappedMem;
+	VkBufferImageCopy mappedBufferLayout;
 };
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const VkImage&
+VkTexture::GetVkImage() const
+{
+	return this->img;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const VkImageView&
+VkTexture::GetVkImageView() const
+{
+	return this->imgView;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const VkDeviceMemory&
+VkTexture::GetVkMemory() const
+{
+	return this->mem;
+}
+
 } // namespace Vulkan

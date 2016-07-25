@@ -62,8 +62,8 @@ ImguiDrawFunction(ImDrawData* data)
     shader->EndUpdate();
 
 	// setup device
-	device->SetStreamVertexBuffer(0, vbo, 0);
 	device->SetVertexLayout(vbo->GetVertexLayout());
+	device->SetStreamVertexBuffer(0, vbo, 0);
 	device->SetIndexBuffer(ibo);
 
 	IndexT vertexOffset = 0;

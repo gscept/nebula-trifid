@@ -56,7 +56,7 @@ VkMultipleRenderTarget::AddRenderTarget(const Ptr<CoreGraphics::RenderTarget>& r
 
 	this->resolveReferences[this->numcolorreferences].attachment = VK_ATTACHMENT_UNUSED;
 	this->resolveReferences[this->numcolorreferences].layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-	this->attachmentReferences[this->numcolorreferences].attachment = this->numcolorreferences;
+	this->attachmentReferences[this->numcolorreferences].attachment = this->numattachments;
 	this->attachmentReferences[this->numcolorreferences].layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 	this->views[this->numviews] = rt->GetVkImageView();
 
@@ -82,7 +82,7 @@ VkMultipleRenderTarget::SetDepthStencilTarget(const Ptr<CoreGraphics::DepthStenc
 	this->attachments[this->numattachments].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 	this->attachments[this->numattachments].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-	this->depthReference.attachment = VK_ATTACHMENT_UNUSED;
+	this->depthReference.attachment = this->numattachments;
 	this->depthReference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 	this->views[this->numattachments] = dt->GetVkImageView();
 	this->usedepthstencil = true;
@@ -109,7 +109,7 @@ VkMultipleRenderTarget::Setup()
 	subpass.preserveAttachmentCount = 0;
 	subpass.pPreserveAttachments = VK_NULL_HANDLE;
 	subpass.pDepthStencilAttachment = this->usedepthstencil ? &this->depthReference : VK_NULL_HANDLE;
-	subpass.pResolveAttachments = this->resolveReferences;
+	subpass.pResolveAttachments = VK_NULL_HANDLE;
 
 	// setup render pass info
 	VkRenderPassCreateInfo renderPassInfo =
@@ -142,7 +142,7 @@ VkMultipleRenderTarget::Setup()
 		this->pass,
 		this->numattachments,
 		this->views,
-		this->renderTarget[0]->GetResolveTextureWidth(), this->renderTarget[0]->GetResolveTextureHeight(), 1		// dimensions is 
+		this->renderTarget[0]->GetWidth(), this->renderTarget[0]->GetHeight(), 1		// dimensions is 
 	};
 
 	// create framebuffer

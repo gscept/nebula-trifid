@@ -372,8 +372,7 @@ VkTextureStreamer::ReuseMips()
 		tex->MipDimensions(dstMipIdx, 0, width, height, depth);
 		uint32_t textureSize = width * height * PixelFormat::ToSize(tex->GetPixelFormat());
 		uint8_t* data = n_new_array(uint8_t, textureSize);
-		VkTexture::Copy(this->reuseTexture, dstMipIdx, 0, width, height, depth,
-						tex, dstMipIdx, 0, width, height, depth);
+		VkTexture::Copy(this->reuseTexture, tex, width, height, depth, srcMipIdx, 0, 0, 0, 0, dstMipIdx, 0, 0, 0, 0);
 
 		dstMipIdx++;
 		srcMipIdx++;

@@ -43,5 +43,10 @@
 	#else
 		#define NEBULAT_VULKAN_DEBUG (0)
 	#endif
+#if __X64__
+	#define VK_DEVICE_SIZE_CONV(x) uint64_t(x)
+#else
+	#define VK_DEVICE_SIZE_CONV(x) uint32_t(x)
+#endif
 #endif
 //------------------------------------------------------------------------------

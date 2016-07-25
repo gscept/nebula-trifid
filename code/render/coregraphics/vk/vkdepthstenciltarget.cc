@@ -4,7 +4,7 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "vkdepthstenciltarget.h"
-#include "../displaydevice.h"
+#include "coregraphics/displaydevice.h"
 #include "vkrenderdevice.h"
 
 namespace Vulkan
@@ -62,10 +62,10 @@ VkDepthStencilTarget::Setup()
 		1,
 		VK_SAMPLE_COUNT_1_BIT,
 		VK_IMAGE_TILING_OPTIMAL,
-		VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+		VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
 		VK_SHARING_MODE_EXCLUSIVE,
 		1,
-		&VkRenderDevice::Instance()->renderQueueIdx,
+		&VkRenderDevice::Instance()->renderQueueFamily,
 		VK_IMAGE_LAYOUT_UNDEFINED
 	};
 
@@ -103,6 +103,11 @@ VkDepthStencilTarget::Setup()
 
 	res = vkCreateImageView(VkRenderDevice::dev, &viewInfo, NULL, &this->view);
 	n_assert(res == VK_SUCCESS);
+
+	// change image layout
+	VkClearDepthStencilValue clear = {0, 0};
+	VkRenderDevice::Instance()->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->image, subres, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL));
+	VkRenderDevice::Instance()->PushImageDepthStencilClear(this->image, VkDeferredCommand::Graphics, VK_IMAGE_LAYOUT_GENERAL, clear, subres);
 }
 
 //------------------------------------------------------------------------------
@@ -132,7 +137,16 @@ VkDepthStencilTarget::OnDisplayResized(SizeT width, SizeT height)
 void
 VkDepthStencilTarget::BeginPass()
 {
+	DepthStencilTargetBase::BeginPass();
 
+	// transfer image
+	VkImageSubresourceRange subres;
+	subres.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+	subres.baseArrayLayer = 0;
+	subres.baseMipLevel = 0;
+	subres.layerCount = 1;
+	subres.levelCount = 1;
+	VkRenderDevice::Instance()->ImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->image, subres, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL));
 }
 
 //------------------------------------------------------------------------------
@@ -141,7 +155,16 @@ VkDepthStencilTarget::BeginPass()
 void
 VkDepthStencilTarget::EndPass()
 {
-
+	// transfer image
+	VkImageSubresourceRange subres;
+	subres.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+	subres.baseArrayLayer = 0;
+	subres.baseMipLevel = 0;
+	subres.layerCount = 1;
+	subres.levelCount = 1;
+	VkRenderDevice::Instance()->ImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->image, subres, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_GENERAL));
+	
+	DepthStencilTargetBase::EndPass();
 }
 
 } // namespace Vulkan

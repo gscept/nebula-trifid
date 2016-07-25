@@ -49,11 +49,14 @@ OPTION(N_BUILD_FIRSTTIME "Build Nebula without foundation nidls (required for fi
 OPTION(N_BUILD_PUBLIC_AS_RELEASE "Instead of outputting release build as name.public.exe they are called name.exe." OFF)
 CMAKE_DEPENDENT_OPTION(N_QT_NEB_SUPPORT "Add support for Qt features within Nebula" ON "N_BUILD_QT" OFF)
 OPTION(N_BUILD_EXTERNAL_PROJECTS "Include projects included in the projects folder" ON)
+OPTION(N_VULKAN_EXPERIMENTAL "Build NebulaT using an experimental (non-release) version of Vulkan" ON)
 
 IF(!MSVC) 
 	SET(N_BUILD_NVTT ON)
 ENDIF()
 
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${N3ROOT}/libs/cmake)
+INCLUDE(NebulaHelpers)
 
 # select render api
 
@@ -73,6 +76,15 @@ SET_PROPERTY(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
 	$<$<BOOL:${N_BUILD_VULKAN}>:__VULKAN__ __ANYFX__ IL_STATIC_LIB> 
 	$<$<BOOL:${N_BUILD_DX11}>:__DX11__> 
 	$<$<BOOL:${N_BUILD_DX9}>:__DX9__>)
+	
+IF(${N_BUILD_VULKAN})
+	IF (${N_VULKAN_EXPERIMENTAL})
+		FIND_PACKAGE(VulkanExperimental)
+		MESSAGE("Using experimental Vulkan")
+	ELSE()
+		FIND_PACKAGE(Vulkan)
+	ENDIF()
+ENDIF()
 
 INCLUDE_DIRECTORIES($<$<BOOL:${N_BUILD_OGL4}>:${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/api/code
 												${Nebula3_SOURCE_DIR}/code/extlibs/glew/include
@@ -101,11 +113,6 @@ SET_PROPERTY(CACHE N_PHYSICS PROPERTY STRINGS "N_BUILD_BULLET" "N_BUILD_HAVOK")
 SET(${N_PHYSICS} ON)
 												
 SET_PROPERTY(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS  $<$<BOOL:${N_BUILD_HAVOK}>:__USE_HAVOK__> $<$<BOOL:${N_BUILD_BULLET}>:__USE_BULLET__>)
-
-SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${N3ROOT}/libs/cmake)
-INCLUDE(NebulaHelpers)
-
-
 
 INCLUDE_DIRECTORIES(${Nebula3_SOURCE_DIR}/code/extlibs/raknet/source)
 

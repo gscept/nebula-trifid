@@ -90,7 +90,6 @@ ParticleSystemNodeInstance::Setup(const Ptr<ModelInstance>& inst, const Ptr<Mode
 	// setup and start particle system
     this->particleSystemInstance->Setup(emitterMesh, particleSystemNode->GetPrimitiveGroupIndex(), particleSystemNode->GetEmitterAttrs());
 	this->particleSystemInstance->Start();
-	
 
 #if SHADER_MODEL_5
 	ShaderServer* shdServer = ShaderServer::Instance();
@@ -282,7 +281,8 @@ ParticleSystemNodeInstance::ApplyState(IndexT frameIndex, const IndexT& pass, co
 		this->particleObjectBuffer->CycleBuffers();
 		if (billboard)
 		{
-			this->emitterOrientationVar->SetMatrix(TransformDevice::Instance()->GetInvViewTransform());
+			const Math::matrix44 billboardTransform = Math::matrix44::multiply(this->GetParticleSystemInstance()->GetTransform(), TransformDevice::Instance()->GetInvViewTransform());
+			this->emitterOrientationVar->SetMatrix(billboardTransform);
 		}
 		else
 		{

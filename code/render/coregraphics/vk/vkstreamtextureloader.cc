@@ -64,6 +64,7 @@ VkStreamTextureLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 		ILuint width = ilGetInteger(IL_IMAGE_WIDTH);
 		ILuint height = ilGetInteger(IL_IMAGE_HEIGHT);
 		ILuint depth = ilGetInteger(IL_IMAGE_DEPTH);
+		ILuint bpp = ilGetInteger(IL_IMAGE_BYTES_PER_PIXEL);
 		ILuint numImages = ilGetInteger(IL_NUM_IMAGES);
 		ILuint numFaces = ilGetInteger(IL_NUM_FACES);
 		ILuint numLayers = ilGetInteger(IL_NUM_LAYERS);
@@ -72,6 +73,9 @@ VkStreamTextureLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 		ILenum format = ilGetInteger(IL_PIXEL_FORMAT);	// only available when loading DDS, so this might need some work...
 
 		VkFormat vkformat = VkTypes::AsVkFormat(format);
+
+		VkFormatProperties formatProps;
+		vkGetPhysicalDeviceFormatProperties(VkRenderDevice::physicalDev, vkformat, &formatProps);
 		VkExtent3D extents;
 		extents.width = width;
 		extents.height = height;
@@ -82,18 +86,18 @@ VkStreamTextureLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 			VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
 			NULL,
 			0,
-			height > 1 ? VK_IMAGE_TYPE_2D : VK_IMAGE_TYPE_1D,
+			depth > 1 ? VK_IMAGE_TYPE_3D : (height > 1 ? VK_IMAGE_TYPE_2D : VK_IMAGE_TYPE_1D),
 			vkformat,
 			extents,
 			mips,
 			cube ? numFaces : numImages,
 			VK_SAMPLE_COUNT_1_BIT,
 			VK_IMAGE_TILING_OPTIMAL,
-			VK_IMAGE_USAGE_SAMPLED_BIT,
-			VK_SHARING_MODE_CONCURRENT,
+			VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+			VK_SHARING_MODE_EXCLUSIVE,
 			2,
 			queues,
-			VK_IMAGE_LAYOUT_PREINITIALIZED
+			VK_IMAGE_LAYOUT_UNDEFINED
 		};
 		VkImage img;
 		VkResult stat = vkCreateImage(VkRenderDevice::dev, &info, NULL, &img);
@@ -105,16 +109,16 @@ VkStreamTextureLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 		VkRenderDevice::Instance()->AllocateImageMemory(img, mem, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, alignedSize);
 		vkBindImageMemory(VkRenderDevice::dev, img, mem, 0);
 
-		// setup texture
-		if (depth > 1)
-		{
-			if (cube)	res->SetupFromVkCubeTexture(img, mem, VkTypes::AsNebulaPixelFormat(vkformat), mips);
-			else		res->SetupFromVkVolumeTexture(img, mem, VkTypes::AsNebulaPixelFormat(vkformat), mips);
-		}
-		else
-		{
-			res->SetupFromVkTexture(img, mem, VkTypes::AsNebulaPixelFormat(vkformat), mips);
-		}
+		RenderDevice* renderDev = RenderDevice::Instance();
+
+		// transition into transfer mode
+		VkImageSubresourceRange subres;
+		subres.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		subres.baseArrayLayer = 0;
+		subres.baseMipLevel = 0;
+		subres.layerCount = cube ? numFaces : numImages;
+		subres.levelCount = mips;
+		renderDev->PushImageLayoutTransition(VkDeferredCommand::Transfer, VkRenderDevice::ImageMemoryBarrier(img, subres, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL));
 
 		// now load texture by walking through all images and mips
 		ILuint i;
@@ -134,13 +138,25 @@ VkStreamTextureLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 					ILuint size = ilGetInteger(IL_IMAGE_SIZE_OF_DATA);
 					ILubyte* buf = ilGetData();
 
-					//res->UpdateArray(buf, size, j, i);
-					/*
-					VkTexture::MapInfo mapinfo;
-					res->MapCubeFace((Texture::CubeFace)i, j, VkTexture::MapWrite, mapinfo);
-					memcpy(mapinfo.data, buf, size);
-					res->UnmapCubeFace((Texture::CubeFace)i, j);
-					*/
+					int32_t mipWidth = (int32_t)Math::n_max(1.0f, Math::n_floor(width / Math::n_pow(2, (float)j)));
+					int32_t mipHeight = (int32_t)Math::n_max(1.0f, Math::n_floor(height / Math::n_pow(2, (float)j)));
+					int32_t mipDepth = (int32_t)Math::n_max(1.0f, Math::n_floor(depth / Math::n_pow(2, (float)j)));
+
+					VkBufferImageCopy copy;
+					copy.bufferOffset = 0;
+					copy.bufferImageHeight = mipHeight;
+					copy.bufferRowLength = mipWidth * bpp;
+					copy.imageExtent.width = mipWidth;
+					copy.imageExtent.height = mipHeight;
+					copy.imageExtent.depth = 1;
+					copy.imageOffset = { 0, 0, 0 };
+					copy.imageSubresource.baseArrayLayer = i;
+					copy.imageSubresource.layerCount = 1;
+					copy.imageSubresource.mipLevel = j;
+					copy.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+
+					// push a deferred image update, since we may not be within a frame
+					renderDev->PushImageUpdate(img, copy, size, (uint32_t*)buf);
 				}
 			}
 		}
@@ -155,15 +171,30 @@ VkStreamTextureLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 				ILuint size = ilGetInteger(IL_IMAGE_SIZE_OF_DATA);
 				ILubyte* buf = ilGetData();
 
-				//res->Update(buf, size, j);
-				/*
-				VkTexture::MapInfo mapinfo;
-				res->Map(j, VkTexture::MapWrite, mapinfo);
-				memcpy(mapinfo.data, buf, size);
-				res->Unmap(j);
-				*/
+				int32_t mipWidth = (int32_t)Math::n_max(1.0f, Math::n_floor(width / Math::n_pow(2, (float)j)));
+				int32_t mipHeight = (int32_t)Math::n_max(1.0f, Math::n_floor(height / Math::n_pow(2, (float)j)));
+				int32_t mipDepth = (int32_t)Math::n_max(1.0f, Math::n_floor(depth / Math::n_pow(2, (float)j)));
+
+				VkBufferImageCopy copy;
+				copy.bufferOffset = 0;
+				copy.bufferImageHeight = mipHeight;
+				copy.bufferRowLength = mipWidth * bpp;
+				copy.imageExtent.width = mipWidth;
+				copy.imageExtent.height = mipHeight;
+				copy.imageExtent.depth = 1;
+				copy.imageOffset = { 0, 0, 0 };
+				copy.imageSubresource.baseArrayLayer = 0;
+				copy.imageSubresource.layerCount = 1;
+				copy.imageSubresource.mipLevel = j;
+				copy.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+
+				// push a deferred image update, since we may not be within a frame
+				renderDev->PushImageUpdate(img, copy, size, (uint32_t*)buf);
 			}
 		}	
+
+		// transition to something readable by shaders
+		renderDev->PushImageLayoutTransition(VkDeferredCommand::Transfer, VkRenderDevice::ImageMemoryBarrier(img, subres, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
 
 		ilDeleteImage(image);
 
@@ -189,7 +220,7 @@ VkStreamTextureLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 		viewRange.baseMipLevel = 0;
 		viewRange.levelCount = mips;
 		viewRange.baseArrayLayer = 0;
-		viewRange.layerCount = depth;
+		viewRange.layerCount = cube ? numFaces : depth;
 		VkImageViewCreateInfo viewCreate =
 		{
 			VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
@@ -204,6 +235,17 @@ VkStreamTextureLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 		VkImageView view;
 		stat = vkCreateImageView(VkRenderDevice::dev, &viewCreate, NULL, &view);
 		n_assert(stat == VK_SUCCESS);
+
+		// setup texture
+		if (depth > 1)
+		{
+			if (cube)	res->SetupFromVkCubeTexture(img, mem, view, width, height, VkTypes::AsNebulaPixelFormat(vkformat), mips);
+			else		res->SetupFromVkVolumeTexture(img, mem, view, width, height, depth, VkTypes::AsNebulaPixelFormat(vkformat), mips);
+		}
+		else
+		{
+			res->SetupFromVkTexture(img, mem, view, width, height, VkTypes::AsNebulaPixelFormat(vkformat), mips);
+		}
 
 		stream->Unmap();
 		stream->Close();

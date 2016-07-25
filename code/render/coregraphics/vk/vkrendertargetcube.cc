@@ -25,4 +25,31 @@ VkRenderTargetCube::~VkRenderTargetCube()
 	// empty
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderTargetCube::Setup()
+{
+
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderTargetCube::Discard()
+{
+
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderTargetCube::EndPass()
+{
+	RenderTargetCubeBase::EndPass();
+}
+
 } // namespace Vulkan

@@ -24,6 +24,11 @@ public:
 	/// discard the render target object
 	void Discard();
 
+	/// begin pass
+	void BeginPass();
+	/// end pass
+	void EndPass();
+
 	/// called after we change the display size
 	void OnDisplayResized(SizeT width, SizeT height);
 
@@ -57,9 +62,10 @@ public:
 	void SwapBuffers();
 private:
 
-	VkImage image;
-	VkImageView imageView;
-	VkDeviceMemory imageMem;
+	VkImage targetImage;
+	VkImageView targetImageView;
+	VkDeviceMemory targetImageMem;
+
 	VkFramebuffer framebuffer;
 	Util::FixedArray<VkViewport> viewports;
 	Util::FixedArray<VkRect2D> scissors;
@@ -71,6 +77,7 @@ private:
 
 	uint32_t swapbufferIdx;
 	Util::FixedArray<VkFramebuffer> swapbuffers;
+	Util::FixedArray<VkImage> swapimages;
 };
 
 
@@ -89,7 +96,7 @@ VkRenderTarget::GetVkPipelineInfo()
 inline const VkImageView&
 VkRenderTarget::GetVkImageView() const
 {
-	return this->imageView;
+	return this->targetImageView;
 }
 
 //------------------------------------------------------------------------------

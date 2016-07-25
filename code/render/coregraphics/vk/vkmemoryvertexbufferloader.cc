@@ -43,7 +43,7 @@ VkMemoryVertexBufferLoader::OnLoadRequested()
 		VkBufferUsageFlagBits::VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
 		VkSharingMode::VK_SHARING_MODE_EXCLUSIVE,				// can only be accessed from the creator queue,
 		1,														// number of queues in family
-		&VkRenderDevice::Instance()->renderQueueIdx				// array of queues belonging to family
+		&VkRenderDevice::Instance()->renderQueueFamily			// array of queues belonging to family
 	};
 
 	VkBuffer buf;

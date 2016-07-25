@@ -33,7 +33,7 @@ NebulaVulkanDebugCallback(VkFlags msgFlags, VkDebugReportObjectTypeEXT objectTyp
 	}
 	else if (msgFlags & VK_DEBUG_REPORT_WARNING_BIT_EXT)
 	{
-		n_error("VULKAN WARNING: [%s], code %d : %s\n", layerPrefix, msgCode, msg);
+		n_warning("VULKAN WARNING: [%s], code %d : %s\n", layerPrefix, msgCode, msg);
 	} 
 	return ret;
 }
@@ -52,9 +52,9 @@ VkInstance VkRenderDevice::instance;
 VkPhysicalDevice VkRenderDevice::physicalDev;
 VkPipelineCache VkRenderDevice::cache;
 
-VkCommandPool VkRenderDevice::cmdCmpPool[2];
-VkCommandPool VkRenderDevice::cmdTransPool[2];
-VkCommandPool VkRenderDevice::cmdGfxPool[2];
+VkCommandPool VkRenderDevice::mainCmdCmpPool;
+VkCommandPool VkRenderDevice::mainCmdTransPool;
+VkCommandPool VkRenderDevice::mainCmdGfxPool;
 VkCommandBuffer VkRenderDevice::mainCmdGfxBuffer;
 VkCommandBuffer VkRenderDevice::mainCmdCmpBuffer;
 VkCommandBuffer VkRenderDevice::mainCmdTransBuffer;
@@ -63,12 +63,15 @@ VkCommandBuffer VkRenderDevice::mainCmdTransBuffer;
 /**
 */
 VkRenderDevice::VkRenderDevice() :
+	frameId(0),
 	renderQueueIdx(-1),
 	computeQueueIdx(-1),
 	transferQueueIdx(-1),
 	currentDrawThread(0),
 	currentTransThread(0),
-	currentProgram(0)
+	currentProgram(0),
+	delegateBucketIndex(0),
+	fenceDelegateBuckets(NumDeferredDelegates)
 {
 	__ConstructSingleton;
 }
@@ -130,11 +133,11 @@ VkRenderDevice::OpenVulkanContext()
 		"Nebula Trifid",	// engine name
 		1,					// engine version
 		//VK_MAKE_VERSION(1, 0, 4)
-		VK_API_VERSION		// API version
+		VK_MAKE_VERSION(1, 0, 8)		// API version
 	};
 
 	this->usedExtensions = 0;
-	int32_t requiredExtensionsNum;
+	uint32_t requiredExtensionsNum;
 	const char** requiredExtensions = glfwGetRequiredInstanceExtensions(&requiredExtensionsNum);
 	uint32_t i;
 	for (i = 0; i < (uint32_t)requiredExtensionsNum; i++)
@@ -142,10 +145,10 @@ VkRenderDevice::OpenVulkanContext()
 		this->extensions[this->usedExtensions++] = requiredExtensions[i];
 	}
 	
-	const char* layers[] = { "VK_LAYER_LUNARG_standard_validation", "VK_LAYER_LUNARG_mem_tracker", "VK_LAYER_LUNARG_object_tracker", "VK_LAYER_LUNARG_device_limits", "VK_LAYER_LUNARG_param_checker", "VK_LAYER_LUNARG_draw_state", "VK_LAYER_GOOGLE_threading" };
+	const char* layers[] = { "VK_LAYER_GOOGLE_threading", "VK_LAYER_LUNARG_parameter_validation", "VK_LAYER_LUNARG_device_limits", "VK_LAYER_LUNARG_object_tracker", "VK_LAYER_LUNARG_image", "VK_LAYER_LUNARG_core_validation", "VK_LAYER_GOOGLE_unique_objects" };
 #if NEBULAT_VULKAN_DEBUG
 	this->extensions[this->usedExtensions++] = VK_EXT_DEBUG_REPORT_EXTENSION_NAME;
-	const int numLayers = 1;
+	const int numLayers = sizeof(layers) / sizeof(const char*);
 #else
 	const int numLayers = 0;
 #endif
@@ -324,17 +327,17 @@ VkRenderDevice::OpenVulkanContext()
 	Util::FixedArray<VkSurfaceFormatKHR> formats(numFormats);
 	res = vkGetPhysicalDeviceSurfaceFormatsKHR(VkRenderDevice::physicalDev, VkDisplayDevice::Instance()->surface, &numFormats, formats.Begin());
 	n_assert(res == VK_SUCCESS);
-	if (numFormats == 1 && formats[0].format == VK_FORMAT_UNDEFINED)
-	{
-		// is this really the goto format?
-		// perhaps assuming sRGB is a bit risky when we can't even get a format to begin with
-		this->format = VK_FORMAT_B8G8R8A8_UNORM;
-	}
-	else
-	{
-		this->format = formats[0].format;
-	}
+	this->format = formats[0].format;
 	this->colorSpace = formats[0].colorSpace;
+	for (i = 0; i < numFormats; i++)
+	{
+		if (formats[i].format == VK_FORMAT_B8G8R8A8_SRGB)
+		{
+			this->format = formats[i].format;
+			this->colorSpace = formats[i].colorSpace;
+			break;
+		}
+	}
 
 	// get surface capabilities
 	VkSurfaceCapabilitiesKHR surfCaps;
@@ -417,11 +420,18 @@ VkRenderDevice::OpenVulkanContext()
 	n_assert(res == VK_SUCCESS);
 
 	this->backbuffers.Resize(this->numBackbuffers);
+	this->backbufferMem.Resize(this->numBackbuffers);
 	res = vkGetSwapchainImagesKHR(this->dev, this->swapchain, &this->numBackbuffers, this->backbuffers.Begin());
 
 	this->backbufferViews.Resize(this->numBackbuffers);
 	for (i = 0; i < this->numBackbuffers; i++)
 	{
+		// allocate memory for back buffers
+		uint32_t size;
+		VkRenderDevice::Instance()->AllocateImageMemory(this->backbuffers[i], this->backbufferMem[i], VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, size);
+		vkBindImageMemory(this->dev, this->backbuffers[i], this->backbufferMem[i], 0);
+
+		// setup view
 		VkImageViewCreateInfo backbufferViewInfo = 
 		{
 			VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
@@ -491,27 +501,58 @@ VkRenderDevice::OpenVulkanContext()
 		VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
 		NULL,
 		VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
-		this->renderQueueIdx
+		this->renderQueueFamily
 	};
 
-	for (i = 0; i < NumCmdCreationUsages; i++)
+	res = vkCreateCommandPool(this->dev, &cmdPoolInfo, NULL, &this->mainCmdGfxPool);
+	n_assert(res == VK_SUCCESS);
+
+	cmdPoolInfo.queueFamilyIndex = this->computeQueueFamily;
+	res = vkCreateCommandPool(this->dev, &cmdPoolInfo, NULL, &this->mainCmdCmpPool);
+	n_assert(res == VK_SUCCESS);
+
+	cmdPoolInfo.queueFamilyIndex = this->transferQueueFamily;
+	res = vkCreateCommandPool(this->dev, &cmdPoolInfo, NULL, &this->mainCmdTransPool);
+	n_assert(res == VK_SUCCESS);
+
+	cmdPoolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
+	res = vkCreateCommandPool(this->dev, &cmdPoolInfo, NULL, &this->immediateCmdTransPool);
+	n_assert(res == VK_SUCCESS);
+
+	for (i = 0; i < NumDrawThreads; i++)
 	{
-		cmdPoolInfo.flags = i == Transient ? VK_COMMAND_POOL_CREATE_TRANSIENT_BIT : VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-		cmdPoolInfo.queueFamilyIndex = this->renderQueueFamily;
-		res = vkCreateCommandPool(this->dev, &cmdPoolInfo, NULL, &this->cmdGfxPool[i]);
-		n_assert(res == VK_SUCCESS);
+		VkCommandPoolCreateInfo cmdPoolInfo =
+		{
+			VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+			NULL,
+			VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
+			this->renderQueueFamily
+		};
+		res = vkCreateCommandPool(this->dev, &cmdPoolInfo, NULL, &this->dispatchableCmdDrawBufferPool[i]);
+	}
 
-		// create command pool for computes
-		cmdPoolInfo.queueFamilyIndex = this->computeQueueFamily;
+	for (i = 0; i < NumTransferThreads; i++)
+	{
+		VkCommandPoolCreateInfo cmdPoolInfo =
+		{
+			VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+			NULL,
+			VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
+			this->transferQueueFamily
+		};
+		res = vkCreateCommandPool(this->dev, &cmdPoolInfo, NULL, &this->dispatchableCmdTransBufferPool[i]);
+	}
 
-		res = vkCreateCommandPool(this->dev, &cmdPoolInfo, NULL, &this->cmdCmpPool[i]);
-		n_assert(res == VK_SUCCESS);
-
-		// create command pool for transfers
-		cmdPoolInfo.queueFamilyIndex = this->transferQueueFamily;
-
-		res = vkCreateCommandPool(this->dev, &cmdPoolInfo, NULL, &this->cmdTransPool[i]);
-		n_assert(res == VK_SUCCESS);
+	for (i = 0; i < NumComputeThreads; i++)
+	{
+		VkCommandPoolCreateInfo cmdPoolInfo =
+		{
+			VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+			NULL,
+			VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
+			this->computeQueueFamily
+		};
+		res = vkCreateCommandPool(this->dev, &cmdPoolInfo, NULL, &this->dispatchableCmdCompBufferPool[i]);
 	}
 	
 	// create main command buffer for graphics
@@ -519,7 +560,7 @@ VkRenderDevice::OpenVulkanContext()
 	{
 		VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
 		NULL,
-		this->cmdGfxPool[Persistent],
+		this->mainCmdGfxPool,
 		VK_COMMAND_BUFFER_LEVEL_PRIMARY,
 		1
 	};
@@ -531,7 +572,7 @@ VkRenderDevice::OpenVulkanContext()
 	{
 		VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
 		NULL,
-		this->cmdCmpPool[Persistent],
+		this->mainCmdCmpPool,
 		VK_COMMAND_BUFFER_LEVEL_PRIMARY,
 		1
 	};
@@ -543,7 +584,7 @@ VkRenderDevice::OpenVulkanContext()
 	{
 		VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
 		NULL,
-		this->cmdTransPool[Persistent],
+		this->mainCmdTransPool,
 		VK_COMMAND_BUFFER_LEVEL_PRIMARY,
 		1
 	};
@@ -576,22 +617,28 @@ VkRenderDevice::OpenVulkanContext()
 		this->transCompletionEvent[i] = Threading::Event(true);
 	}
 
+	VkFenceCreateInfo fenceInfo =
+	{
+		VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+		NULL,
+		0
+	};
 	this->currentDeferredDelegate = 0;
-	this->freeDelegates.Reserve(NumDeferredDelegates);
-	this->usedDelegates.Reserve(NumDeferredDelegates);
+	this->freeFences.Reserve(NumDeferredDelegates);
+	this->usedFences.Reserve(NumDeferredDelegates);
 	for (i = 0; i < NumDeferredDelegates; i++)
 	{
-		VkFenceCreateInfo fenceInfo =
-		{
-			VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
-			NULL,
-			0
-		};
-		res = vkCreateFence(this->dev, &fenceInfo, NULL, &this->deferredDelegates[i].fence);
-		this->deferredDelegates[i].dev = this->dev;
+		res = vkCreateFence(this->dev, &fenceInfo, NULL, &this->deferredDelegateFences[i]);
 		n_assert(res == VK_SUCCESS);
-		this->freeDelegates.Enqueue(i);
+		this->freeFences.Enqueue(i);
 	}
+
+	res = vkCreateFence(this->dev, &fenceInfo, NULL, &this->mainCmdGfxFence);
+	n_assert(res == VK_SUCCESS);
+	res = vkCreateFence(this->dev, &fenceInfo, NULL, &this->mainCmdCmpFence);
+	n_assert(res == VK_SUCCESS);
+	res = vkCreateFence(this->dev, &fenceInfo, NULL, &this->mainCmdTransFence);
+	n_assert(res == VK_SUCCESS);
 
 	this->passInfo = 
 	{
@@ -640,12 +687,24 @@ VkRenderDevice::CloseVulkanDevice()
 	{
 		this->drawThreads[i]->Stop();
 		this->drawThreads[i] = 0;
+
+		vkDestroyCommandPool(this->dev, this->dispatchableCmdDrawBufferPool[i], NULL);
 	}
 
 	for (i = 0; i < NumTransferThreads; i++)
 	{
 		this->transThreads[i]->Stop();
 		this->transThreads[i] = 0;
+
+		vkDestroyCommandPool(this->dev, this->dispatchableCmdTransBufferPool[i], NULL);
+	}
+
+	for (i = 0; i < NumComputeThreads; i++)
+	{
+		this->compThreads[i]->Stop();
+		this->compThreads[i] = 0;
+
+		vkDestroyCommandPool(this->dev, this->dispatchableCmdCompBufferPool[i], NULL);
 	}
 
 	// wait for all commands to be done first
@@ -653,15 +712,27 @@ VkRenderDevice::CloseVulkanDevice()
 	n_assert(res == VK_SUCCESS);
 
 	// free our main buffers, our secondary buffers should be fine so the pools should be free to destroy
-	vkFreeCommandBuffers(this->dev, this->cmdGfxPool[0], 1, &this->mainCmdGfxBuffer);
-	vkFreeCommandBuffers(this->dev, this->cmdCmpPool[0], 1, &this->mainCmdCmpBuffer);
-	vkFreeCommandBuffers(this->dev, this->cmdTransPool[0], 1, &this->mainCmdTransBuffer);
-	vkDestroyCommandPool(this->dev, this->cmdGfxPool[0], NULL);
-	vkDestroyCommandPool(this->dev, this->cmdGfxPool[1], NULL);
-	vkDestroyCommandPool(this->dev, this->cmdCmpPool[0], NULL);
-	vkDestroyCommandPool(this->dev, this->cmdCmpPool[1], NULL);
-	vkDestroyCommandPool(this->dev, this->cmdTransPool[0], NULL);
-	vkDestroyCommandPool(this->dev, this->cmdTransPool[1], NULL);
+	vkFreeCommandBuffers(this->dev, this->mainCmdGfxPool, 1, &this->mainCmdGfxBuffer);
+	vkFreeCommandBuffers(this->dev, this->mainCmdCmpPool, 1, &this->mainCmdCmpBuffer);
+	vkFreeCommandBuffers(this->dev, this->mainCmdTransPool, 1, &this->mainCmdTransBuffer);
+	vkDestroyCommandPool(this->dev, this->mainCmdGfxPool, NULL);
+	vkDestroyCommandPool(this->dev, this->mainCmdGfxPool, NULL);
+	vkDestroyCommandPool(this->dev, this->mainCmdCmpPool, NULL);
+	vkDestroyCommandPool(this->dev, this->immediateCmdTransPool, NULL);
+	vkDestroyFence(this->dev, this->mainCmdGfxFence, NULL);
+	vkDestroyFence(this->dev, this->mainCmdCmpFence, NULL);
+	vkDestroyFence(this->dev, this->mainCmdTransFence, NULL);
+
+	for (i = 0; i < (int32_t)this->numBackbuffers; i++)
+	{
+		vkDestroyImage(this->dev, this->backbuffers[i], NULL);
+		vkFreeMemory(this->dev, this->backbufferMem[i], NULL);
+	}
+
+	for (i = 0; i < NumDeferredDelegates; i++)
+	{
+		vkDestroyFence(this->dev, this->deferredDelegateFences[i], NULL);
+	}
 
 	vkDestroyDevice(this->dev, NULL);
 	vkDestroyInstance(this->instance, NULL);
@@ -762,8 +833,18 @@ VkRenderDevice::BeginFrame(IndexT frameIndex)
 		n_assert(res == VK_SUCCESS);
 	}
 
+	// if we have no free delegates for this frame, wait for the other to finish up
+	while (this->freeFences.IsEmpty()) this->UpdateDelegates();
+	IndexT freeIndex = this->freeFences.Dequeue();
+
 	// runs through delegate list and updates them one by one
 	this->UpdateDelegates();
+
+	// enqueue this frames sync
+	this->usedFences.Enqueue(freeIndex);
+	this->delegateBucketIndex = freeIndex;
+	this->fenceDelegateBuckets[freeIndex] = this->nextFrameFenceDelegates;
+	this->nextFrameFenceDelegates.Clear();	
 
 	return RenderDeviceBase::BeginFrame(frameIndex);
 }
@@ -844,8 +925,14 @@ VkRenderDevice::BeginPass(const Ptr<CoreGraphics::RenderTarget>& rt, const Ptr<C
 {
 	RenderDeviceBase::BeginPass(rt, passShader);
 
+	const Ptr<DepthStencilTarget>& dst = rt->GetDepthStencilTarget();
+	if (dst.isvalid()) dst->BeginPass();
+
 	// remember to swap, kids!
-	if (rt->IsDefaultRenderTarget()) rt->SwapBuffers();
+	if (rt->IsDefaultRenderTarget())
+	{
+		rt->SwapBuffers();
+	}
 	this->SetFramebufferLayoutInfo(rt->GetVkPipelineInfo());
 
 	VkRect2D rect;
@@ -882,9 +969,6 @@ VkRenderDevice::BeginPass(const Ptr<CoreGraphics::RenderTarget>& rt, const Ptr<C
 	const Util::FixedArray<VkRect2D>& scissors = rt->GetVkScissorRects();
 	const Util::FixedArray<VkViewport>& viewports = rt->GetVkViewports();
 
-	// submit
-	//this->SubmitToQueue(this->renderQueue, 1, &this->mainCmdGfxBuffer);
-
 	// start constructing draws
 	this->BeginCmdThreads();
 
@@ -912,6 +996,9 @@ void
 VkRenderDevice::BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt, const Ptr<CoreGraphics::Shader>& passShader)
 {
 	RenderDeviceBase::BeginPass(mrt, passShader);
+
+	const Ptr<DepthStencilTarget>& dst = mrt->GetDepthStencilTarget();
+	if (dst.isvalid()) dst->BeginPass();
 
 	VkRect2D rect;
 	rect.offset.x = 0;
@@ -947,12 +1034,6 @@ VkRenderDevice::BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt, co
 	const Util::FixedArray<VkRect2D>& scissors = mrt->GetVkScissorRects();
 	const Util::FixedArray<VkViewport>& viewports = mrt->GetVkViewports();
 
-	// submit
-	//this->SubmitToQueue(this->renderQueue, 1, &this->mainCmdGfxBuffer);
-
-	//VkResult res = vkResetCommandBuffer(this->mainCmdGfxBuffer, 0);
-	//n_assert(res == VK_SUCCESS);
-
 	// start constructing draws
 	this->BeginCmdThreads();
 
@@ -984,7 +1065,7 @@ VkRenderDevice::BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& rtc, const 
 	this->SetFramebufferLayoutInfo(rtc->GetVkPipelineInfo());
 
 	// submit
-	this->SubmitToQueue(this->renderQueue, 1, &this->mainCmdGfxBuffer);
+	this->SubmitToQueue(this->renderQueue, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, 1, &this->mainCmdGfxBuffer);
 
 	this->blendInfo.attachmentCount = 1;
 
@@ -1088,36 +1169,28 @@ VkRenderDevice::EndBatch()
 void
 VkRenderDevice::EndPass()
 {
-	RenderDeviceBase::EndPass();
-
-	/*
-	// submit
-	this->SubmitToQueue(this->renderQueue, 1, &this->mainCmdGfxBuffer);
-
-	// reset buffer 
-	VkResult res = vkResetCommandBuffer(this->mainCmdGfxBuffer, 0);
-	n_assert(res == VK_SUCCESS);
-
-	// begin buffer again
-	const VkCommandBufferBeginInfo cmdInfo =
-	{
-		VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-		NULL,
-		VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT,
-		VK_NULL_HANDLE
-	};
-
-	// begin main command buffer again
-	vkBeginCommandBuffer(this->mainCmdGfxBuffer, &cmdInfo);
-	*/
-
 	this->currentPipelineBits = 0;
 
 	// finish command buffer threads
 	this->EndCmdThreads();
 
+	// execute subpass buffers
+	this->EndSubpassCommands();
+
 	// end render pass
 	vkCmdEndRenderPass(this->mainCmdGfxBuffer);
+
+	if (this->passRenderTarget.isvalid())
+	{
+		const Ptr<DepthStencilTarget>& dst = this->passRenderTarget->GetDepthStencilTarget();
+		if (dst.isvalid()) dst->EndPass();
+	}
+	else if (this->passMultipleRenderTarget.isvalid())
+	{
+		const Ptr<DepthStencilTarget>& dst = this->passMultipleRenderTarget->GetDepthStencilTarget();
+		if (dst.isvalid()) dst->EndPass();
+	}
+	RenderDeviceBase::EndPass();
 }
 
 //------------------------------------------------------------------------------
@@ -1131,25 +1204,35 @@ VkRenderDevice::EndFeedback()
 
 //------------------------------------------------------------------------------
 /**
+	Ideally implement some way of using double-triple-N buffering here, by having more than one fence per frame.
 */
 void
 VkRenderDevice::EndFrame(IndexT frameIndex)
 {
 	RenderDeviceBase::EndFrame(frameIndex);
 
-	// submit main render buffer to queue
-	this->SubmitToQueue(this->renderQueue, 1, &this->mainCmdGfxBuffer);
-	VkResult res = vkResetCommandBuffer(this->mainCmdGfxBuffer, 0);
-	n_assert(res == VK_SUCCESS);
-
 	// submit transfer stuff
-	this->SubmitToQueue(this->transferQueue, 1, &this->mainCmdTransBuffer);
-	res = vkResetCommandBuffer(this->mainCmdTransBuffer, 0);
+	this->SubmitToQueue(this->transferQueue, VK_PIPELINE_STAGE_TRANSFER_BIT, 1, &this->mainCmdTransBuffer);
+	this->SubmitToQueue(this->transferQueue, this->deferredDelegateFences[this->delegateBucketIndex]);
+	//this->SubmitToQueue(this->transferQueue, this->mainCmdTransFence);
+	this->WaitForFence(this->mainCmdTransFence);
+	VkResult res = vkResetCommandBuffer(this->mainCmdTransBuffer, 0);
 	n_assert(res == VK_SUCCESS);
 
-	this->SubmitToQueue(this->computeQueue, 1, &this->mainCmdCmpBuffer);
+	// submit main render buffer to queue
+	this->SubmitToQueue(this->renderQueue, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, 1, &this->mainCmdGfxBuffer);
+	this->SubmitToQueue(this->renderQueue, this->mainCmdGfxFence);
+	this->WaitForFence(this->mainCmdGfxFence);
+	res = vkResetCommandBuffer(this->mainCmdGfxBuffer, 0);
+	n_assert(res == VK_SUCCESS);
+
+	this->SubmitToQueue(this->computeQueue, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 1, &this->mainCmdCmpBuffer);
+	this->SubmitToQueue(this->computeQueue, this->mainCmdCmpFence);
+	this->WaitForFence(this->mainCmdCmpFence);
 	res = vkResetCommandBuffer(this->mainCmdCmpBuffer, 0);
 	n_assert(res == VK_SUCCESS);
+
+	this->delegateBucketIndex++;
 
 	//vkEndCommandBuffer(this->mainCmdGfxBuffer);
 	//vkEndCommandBuffer(this->mainCmdCmpBuffer);
@@ -1162,6 +1245,8 @@ VkRenderDevice::EndFrame(IndexT frameIndex)
 void
 VkRenderDevice::Present()
 {
+	this->frameId++; 
+
 	// submit a sync point
 	VkPipelineStageFlags flags = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
 	const VkSubmitInfo submitInfo = 
@@ -1478,42 +1563,296 @@ VkRenderDevice::UpdatePushRanges(const VkShaderStageFlags& stages, const VkPipel
 	Heh, we have to truncate VkDeviceSize to int if we run in 32 bit...
 */
 void
-VkRenderDevice::PushBufferUpdate(const VkBuffer& buf, VkDeviceSize offset, VkDeviceSize size, uint32_t* data, bool deleteWhenDone)
+VkRenderDevice::BufferUpdate(const VkBuffer& buf, VkDeviceSize offset, VkDeviceSize size, uint32_t* data)
 {
-	// if we are going to handle the deletes ourself, then we must copy the data
-	uint32_t* dataCopy = data;
-	if (deleteWhenDone)
+#define VK_SUBMIT_MAX_SIZE 65536
+#define VK_MIN(a, b) a < b ? a : b;
+	// data size must be a multiple of 65536 bytes, so let's do some chunk based updating
+	VkDeviceSize submitSize = size;
+	VkDeviceSize submitOffset = offset;
+	while (submitSize > 0)
 	{
-		dataCopy = n_new_array(uint32_t, (SizeT)size);
-		Memory::Copy(data, dataCopy, (SizeT)size);
-	}
+		VkDeviceSize numBytesToSubmit = VK_MIN(VK_SUBMIT_MAX_SIZE, submitSize);
 
-	// push to main buffer
-	vkCmdUpdateBuffer(this->mainCmdTransBuffer, buf, offset, size, dataCopy);
+		// if we are going to handle the deletes ourself, then we must copy the data
+		// push to main buffer
+		vkCmdUpdateBuffer(this->mainCmdTransBuffer, buf, submitOffset, numBytesToSubmit, data);
+		submitOffset += numBytesToSubmit;
+		submitSize = VK_SUBMIT_MAX_SIZE > submitSize ? 0 : submitSize - VK_SUBMIT_MAX_SIZE;
+	}
+	
 
 	// push delegate which will free the memory when we are done
-	VkDeferredDelegate del;
-	del.del.type = VkDeferredDelegate::FreeMemory;
+	VkDeferredCommand del;
+	del.del.type = VkDeferredCommand::FreeMemory;
 	del.del.memory.data = data;
-	this->PushDeferredDelegate(del);
-	
-	/*
-	VkCmdBufferThread::Command cmd;
-	cmd.type = VkCmdBufferThread::UpdateBuffer;
-	cmd.updBuffer.deleteWhenDone = deleteWhenDone;
-	cmd.updBuffer.buf = buf;
-	cmd.updBuffer.data = dataCopy;
-	cmd.updBuffer.size = size;
-	cmd.updBuffer.offset = offset;
-	this->transThreads[this->currentTransThread]->PushCommand(cmd);
-	*/
+	del.dev = this->dev;
+	del.del.queue = VkDeferredCommand::Transfer;
+	this->PushCommand(del);
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-Vulkan::VkRenderDevice::SubmitToQueue(VkQueue queue, uint32_t numBuffers, VkCommandBuffer* buffers)
+VkRenderDevice::ImageUpdate(const VkImage& img, VkBufferImageCopy copy, VkDeviceSize size, uint32_t* data)
+{
+	// create transfer buffer
+	VkBufferCreateInfo info =
+	{
+		VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO, 
+		NULL, 
+		0,
+		size,
+		VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+		VK_SHARING_MODE_EXCLUSIVE,
+		1,
+		&this->transferQueueFamily
+	};
+	VkBuffer buf;
+	vkCreateBuffer(this->dev, &info, NULL, &buf);
+
+	// allocate memory
+	VkDeviceMemory bufMem;
+	uint32_t bufsize;
+	this->AllocateBufferMemory(buf, bufMem, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, bufsize);
+	vkBindBufferMemory(this->dev, buf, bufMem, 0);
+
+	// perform update of buffer, and stage a copy of buffer data to image
+	this->BufferUpdate(buf, 0, size, data);
+	vkCmdCopyBufferToImage(this->mainCmdTransBuffer, buf, img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
+
+	// finally push delegates to dealloc all our staging data
+	VkDeferredCommand del;
+	del.del.type = VkDeferredCommand::FreeBuffer;
+	del.del.buffer.buf = buf;
+	del.del.buffer.mem = bufMem;
+	del.del.queue = VkDeferredCommand::Transfer;
+	del.dev = this->dev;
+	this->PushCommand(del);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::PushBufferUpdate(const VkBuffer& buf, VkDeviceSize offset, VkDeviceSize size, uint32_t* data)
+{
+	uint32_t* bufCopy = (uint32_t*)n_new_array(uint32_t, VK_DEVICE_SIZE_CONV(size));
+	Memory::Copy(data, bufCopy, VK_DEVICE_SIZE_CONV(size));
+
+	VkDeferredCommand del;
+	del.del.type = VkDeferredCommand::UpdateBuffer;
+	del.del.bufferUpd.buf = buf;
+	del.del.bufferUpd.size = size;
+	del.del.bufferUpd.offset = offset;
+	del.del.bufferUpd.data = bufCopy;
+	del.del.queue = VkDeferredCommand::Transfer;
+	del.dev = this->dev;
+	this->PushCommandStaging(del);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::PushImageUpdate(const VkImage& img, VkBufferImageCopy copy, VkDeviceSize size, uint32_t* data)
+{
+	uint32_t* imgCopy = (uint32_t*)n_new_array(uint32_t, VK_DEVICE_SIZE_CONV(size));
+	Memory::Copy(data, imgCopy, VK_DEVICE_SIZE_CONV(size));
+
+	VkDeferredCommand del;
+	del.del.type = VkDeferredCommand::UpdateImage;
+	del.del.imageUpd.img = img;
+	del.del.imageUpd.copy = copy;
+	del.del.imageUpd.size = size;
+	del.del.imageUpd.data = imgCopy;
+	del.del.queue = VkDeferredCommand::Transfer;
+	del.dev = this->dev;
+	this->PushCommandStaging(del);
+}
+
+//------------------------------------------------------------------------------
+/**
+	Begins an immediate command buffer for data transfers, and returns the buffer within which the image data is contained.
+*/
+void
+VkRenderDevice::ReadImage(const VkImage& img, VkBufferImageCopy copy, uint32_t& outMemSize, VkDeviceMemory& outMem, VkBuffer& outBuffer)
+{
+	VkCommandBuffer cmdBuf = this->BeginImmediateTransfer();
+
+	VkImageSubresource subres;
+	subres.arrayLayer = copy.imageSubresource.baseArrayLayer;
+	subres.aspectMask = copy.imageSubresource.aspectMask;
+	subres.mipLevel = copy.imageSubresource.mipLevel;
+	VkSubresourceLayout layout;
+	vkGetImageSubresourceLayout(this->dev, img, &subres, &layout);
+
+	// create transfer buffer
+	VkBufferCreateInfo info =
+	{
+		VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+		NULL,
+		0,
+		layout.size,
+		VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+		VK_SHARING_MODE_EXCLUSIVE,
+		1,
+		&this->transferQueueIdx
+	};
+	VkBuffer buf;
+	vkCreateBuffer(this->dev, &info, NULL, &buf);
+
+	// allocate memory
+	VkDeviceMemory bufMem;
+	uint32_t bufsize;
+	this->AllocateBufferMemory(buf, bufMem, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, bufsize);
+	vkBindBufferMemory(this->dev, buf, bufMem, 0);
+
+	// perform update of buffer, and stage a copy of buffer data to image
+	vkCmdCopyImageToBuffer(this->mainCmdCmpBuffer, img, VK_IMAGE_LAYOUT_GENERAL, buf, 1, &copy);
+
+	// end immediate command buffer
+	this->EndImmediateTransfer(cmdBuf);
+
+	outBuffer = buf;
+	outMem = bufMem;
+	outMemSize = VK_DEVICE_SIZE_CONV(layout.size);
+}
+
+//------------------------------------------------------------------------------
+/**
+	
+*/
+void
+VkRenderDevice::WriteImage(const VkBuffer& buf, const VkImage& img, VkBufferImageCopy copy)
+{
+	VkCommandBuffer cmdBuf = this->BeginImmediateTransfer();
+	vkCmdCopyBufferToImage(cmdBuf, buf, img, VK_IMAGE_LAYOUT_GENERAL, 1, &copy);
+	this->EndImmediateTransfer(cmdBuf);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::PushCommand(const VkDeferredCommand& del)
+{
+	if (del.del.type < VkDeferredCommand::__RunAfterFence)	this->fenceDelegateBuckets[this->delegateBucketIndex].Append(del);
+	else													this->nextFrameDelegates.Append(del);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::PushCommandStaging(const VkDeferredCommand& del)
+{
+	if (del.del.type < VkDeferredCommand::__RunAfterFence)	this->nextFrameFenceDelegates.Append(del);
+	else													this->nextFrameDelegates.Append(del);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+VkCommandBuffer
+VkRenderDevice::BeginImmediateTransfer()
+{
+	// allocate command buffer we can use to execute 
+	VkCommandBufferAllocateInfo cmdAlloc =
+	{
+		VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+		NULL,
+		this->immediateCmdTransPool,
+		VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+		1
+	};
+	VkCommandBuffer cmdBuf;
+	vkAllocateCommandBuffers(this->dev, &cmdAlloc, &cmdBuf);
+
+	// this is why this is slow, we must perform a begin-end-submit of the command buffer for this to work
+	VkCommandBufferBeginInfo begin =
+	{
+		VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+		NULL,
+		VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
+		NULL
+	};
+	vkBeginCommandBuffer(cmdBuf, &begin);
+	return cmdBuf;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::EndImmediateTransfer(VkCommandBuffer cmdBuf)
+{
+	// end command
+	vkEndCommandBuffer(cmdBuf);
+
+	VkSubmitInfo submit =
+	{
+		VK_STRUCTURE_TYPE_SUBMIT_INFO,
+		NULL,
+		0, NULL, NULL,
+		1, &cmdBuf,
+		0, NULL
+	};
+
+	VkFenceCreateInfo fence =
+	{
+		VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+		NULL,
+		0
+	};
+
+	// create a fence we can wait for, and execute this very tiny command buffer
+	VkResult res;
+	VkFence sync;
+	res = vkCreateFence(this->dev, &fence, NULL, &sync);
+	n_assert(res == VK_SUCCESS);
+	res = vkQueueSubmit(this->transferQueue, 1, &submit, sync);
+	n_assert(res == VK_SUCCESS);
+
+	// wait for fences, this waits for our commands to finish
+	res = vkWaitForFences(this->dev, 1, &sync, true, UINT_MAX);
+	n_assert(res == VK_SUCCESS);
+
+	// cleanup fence, buffer and buffer memory
+	vkDestroyFence(this->dev, sync, NULL);
+	vkFreeCommandBuffers(this->dev, this->immediateCmdTransPool, 1, &cmdBuf);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::EndSubpassCommands()
+{
+	// execute on main buffer
+	vkCmdExecuteCommands(this->mainCmdGfxBuffer, NumDrawThreads, this->dispatchableDrawCmdBuffers);
+
+	IndexT i;
+	for (i = 0; i < NumDrawThreads; i++)
+	{
+		// use a delegate to free up the command buffers used by the thread this batch at some later point
+		VkDeferredCommand del;
+		del.del.type = VkDeferredCommand::FreeCmdBuffers;
+		del.del.cmdbufferfree.numBuffers = 1;
+		del.del.cmdbufferfree.pool = this->dispatchableCmdDrawBufferPool[i];
+		del.del.cmdbufferfree.buffers[0] = this->dispatchableDrawCmdBuffers[i];
+		del.del.queue = VkDeferredCommand::Graphics;
+		del.dev = this->dev;
+		this->PushCommand(del);
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+Vulkan::VkRenderDevice::SubmitToQueue(VkQueue queue, VkPipelineStageFlags flags, uint32_t numBuffers, VkCommandBuffer* buffers)
 {
 	uint32_t i;
 	for (i = 0; i < numBuffers; i++)
@@ -1523,7 +1862,6 @@ Vulkan::VkRenderDevice::SubmitToQueue(VkQueue queue, uint32_t numBuffers, VkComm
 	}
 
 	// submit to queue
-	const VkPipelineStageFlags flags = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT;
 	const VkSubmitInfo submitInfo =
 	{
 		VK_STRUCTURE_TYPE_SUBMIT_INFO,
@@ -1555,48 +1893,37 @@ VkRenderDevice::SubmitToQueue(VkQueue queue, VkFence fence)
 
 //------------------------------------------------------------------------------
 /**
-	An array-linked list would be PERFECT for this.
-	We can tell how many fences we need first.
-	We can always get a free and unused fence, and if we are full, we can just wait until we have a free space.
-*/
-void
-VkRenderDevice::PushDeferredDelegate(VkDeferredDelegate& del)
-{
-	while (this->freeDelegates.IsEmpty()) this->UpdateDelegates();
-	IndexT freeIndex = this->freeDelegates.Dequeue();
-	this->usedDelegates.Enqueue(freeIndex);
-	this->deferredDelegates[freeIndex] = del;
-	/*
-	// find next delegate in the list
-	//this->currentDeferredDelegate = (this->currentDeferredDelegate + 1) % NumDeferredDelegates;
-
-	// if it's not done already, we can try to find some other which is, but the easiest is to just wait for this one
-	if (this->deferredDelegates[this->currentDeferredDelegate].GetStatus() == VK_NOT_READY)
-	{
-		// perform synchronous wait
-		this->deferredDelegates[this->currentDeferredDelegate].CheckSync();
-	}
-	this->deferredDelegates[this->currentDeferredDelegate] = del;
-	*/
-}
-
-//------------------------------------------------------------------------------
-/**
 */
 void
 VkRenderDevice::UpdateDelegates()
 {
 	IndexT i;
-	for (i = 0; i < this->usedDelegates.Size(); i++)
+	for (i = 0; i < this->usedFences.Size(); i++)
 	{
-		VkDeferredDelegate& del = this->deferredDelegates[this->usedDelegates[i]];
-		del.CheckAsync();
-		if (del.GetStatus() == VK_SUCCESS)
+		VkFence fence = this->deferredDelegateFences[this->usedFences[i]];
+		VkResult res = vkGetFenceStatus(this->dev, fence);
+		if (res == VK_SUCCESS)
 		{
-			this->freeDelegates.Enqueue(this->usedDelegates.Dequeue());
-			i--;
+			const Util::Array<VkDeferredCommand>& delegates = this->fenceDelegateBuckets[i];
+
+			IndexT j;
+			for (j = 0; j < delegates.Size(); j++)
+			{
+				delegates[j].RunDelegate();
+			}
+			vkResetFences(this->dev, 1, &fence);
 		}
+		
+		this->fenceDelegateBuckets[i].Clear();
+		this->freeFences.Enqueue(this->usedFences.Dequeue());
+		i--;
 	}
+
+	for (i = 0; i < this->nextFrameDelegates.Size(); i++)
+	{
+		this->nextFrameDelegates[i].RunDelegate();
+	}
+	this->nextFrameDelegates.Clear();
 }
 
 //------------------------------------------------------------------------------
@@ -1605,18 +1932,6 @@ VkRenderDevice::UpdateDelegates()
 void
 VkRenderDevice::BeginCmdThreads()
 {
-	// allocate a command buffer per thread
-	const VkCommandBufferAllocateInfo info =
-	{
-		VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-		NULL,
-		this->cmdGfxPool[Transient],
-		VK_COMMAND_BUFFER_LEVEL_SECONDARY,
-		NumDrawThreads
-	};
-	VkResult res = vkAllocateCommandBuffers(this->dev, &info, this->dispatchableDrawCmdBuffers);
-	n_assert(res == VK_SUCCESS);
-
 	// setup begin using pass info
 	const VkCommandBufferBeginInfo beginInfo =
 	{
@@ -1626,19 +1941,26 @@ VkRenderDevice::BeginCmdThreads()
 		&this->passInfo
 	};
 
-	VkCmdBufferThread::Command hax;
-	hax.type = VkCmdBufferThread::LunarGCircumventValidation;
-	
 	for (IndexT i = 0; i < NumDrawThreads; i++)
 	{
+		const VkCommandBufferAllocateInfo info =
+		{
+			VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+			NULL,
+			this->dispatchableCmdDrawBufferPool[i],
+			VK_COMMAND_BUFFER_LEVEL_SECONDARY,
+			1
+		};
+		VkResult res = vkAllocateCommandBuffers(this->dev, &info, &this->dispatchableDrawCmdBuffers[i]);
+		n_assert(res == VK_SUCCESS);
+
+		//res = vkBeginCommandBuffer(this->dispatchableDrawCmdBuffers[i], &beginInfo);
+		//n_assert(res == VK_SUCCESS);
 		VkCmdBufferThread::Command beginCommand;
 		beginCommand.type = VkCmdBufferThread::BeginCommand;
 		beginCommand.bgCmd.info = beginInfo;
 		beginCommand.bgCmd.buf = this->dispatchableDrawCmdBuffers[i];
 		this->drawThreads[i]->PushCommand(beginCommand);
-		this->drawThreads[i]->PushCommand(hax);
-		//vkBeginCommandBuffer(this->dispatchableDrawCmdBuffers[i], &beginInfo);
-		//this->drawThreads[i]->SetCommandBuffer(this->dispatchableDrawCmdBuffers[i]);
 	}
 }
 
@@ -1666,17 +1988,6 @@ VkRenderDevice::EndCmdThreads()
 		//VkResult res = vkEndCommandBuffer(this->dispatchableDrawCmdBuffers[i]);
 		//n_assert(res == VK_SUCCESS);
 	}
-
-	// execute on main buffer
-	vkCmdExecuteCommands(this->mainCmdGfxBuffer, NumDrawThreads, this->dispatchableDrawCmdBuffers);
-
-	// use a delegate to free up the command buffers used by the thread this batch at some later point
-	VkDeferredDelegate del;
-	del.del.type = VkDeferredDelegate::FreeCmdBuffers;
-	del.del.cmdbufferfree.numBuffers = NumDrawThreads;
-	del.del.cmdbufferfree.pool = this->cmdGfxPool[Transient];
-	memcpy(del.del.cmdbufferfree.buffers, this->dispatchableDrawCmdBuffers, sizeof(VkCommandBuffer) * NumDrawThreads);
-	this->PushDeferredDelegate(del);
 }
 
 //------------------------------------------------------------------------------
@@ -1691,6 +2002,187 @@ VkRenderDevice::BuildRenderPipeline()
 		this->CreatePipeline();
 		this->currentPipelineBits |= PipelineBuilt;
 	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::PushImageLayoutTransition(VkDeferredCommand::CommandQueueType queue, VkImageMemoryBarrier barrier)
+{
+	VkDeferredCommand del;
+	del.del.type = VkDeferredCommand::ChangeImageLayout;
+	del.del.imgBarrier.barrier = barrier;
+	del.del.queue = queue;
+	del.dev = this->dev;
+	this->PushCommandStaging(del);	
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::ImageLayoutTransition(VkDeferredCommand::CommandQueueType queue, VkImageMemoryBarrier barrier)
+{
+	VkCommandBuffer buf;
+	VkPipelineStageFlags flags;
+	switch (queue)
+	{
+	case VkDeferredCommand::Graphics: buf = this->mainCmdGfxBuffer; flags = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT; break;
+	case VkDeferredCommand::Transfer: buf = this->mainCmdTransBuffer; flags = VK_PIPELINE_STAGE_TRANSFER_BIT; break;
+	case VkDeferredCommand::Compute: buf = this->mainCmdCmpBuffer; flags = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT; break;
+	}
+
+	// execute command
+	vkCmdPipelineBarrier(buf, 
+		VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 
+		0,
+		0, VK_NULL_HANDLE,
+		0, VK_NULL_HANDLE,
+		1, &barrier);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+VkImageMemoryBarrier
+VkRenderDevice::ImageMemoryBarrier(const VkImage& img, VkImageSubresourceRange subres, VkImageLayout oldLayout, VkImageLayout newLayout)
+{
+	VkImageMemoryBarrier barrier;
+	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	barrier.pNext = NULL;
+	barrier.image = img;
+	barrier.oldLayout = oldLayout;
+	barrier.newLayout = newLayout;
+	barrier.srcAccessMask = 0;
+	barrier.dstAccessMask = 0;
+	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.subresourceRange = subres;
+	switch (oldLayout)
+	{
+	case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
+	case VK_IMAGE_LAYOUT_UNDEFINED:
+	case VK_IMAGE_LAYOUT_PREINITIALIZED:
+		barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT | VK_ACCESS_HOST_WRITE_BIT;
+		break;
+	case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
+		barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		break;
+	case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
+		barrier.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+		break;
+	case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
+		barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+		break;
+	case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
+		barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+		break;
+	}
+
+	switch (newLayout)
+	{
+	case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
+		barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
+		break;
+	case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
+		barrier.srcAccessMask = barrier.srcAccessMask | VK_ACCESS_TRANSFER_READ_BIT;
+		barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
+		break;
+	case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
+		barrier.srcAccessMask = barrier.srcAccessMask | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
+		break;
+	case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
+		barrier.dstAccessMask = barrier.dstAccessMask | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+		break;
+	case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
+		barrier.srcAccessMask = barrier.srcAccessMask | VK_ACCESS_TRANSFER_WRITE_BIT | VK_ACCESS_HOST_WRITE_BIT;
+		barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+		break;
+	case VK_IMAGE_LAYOUT_PREINITIALIZED:
+		barrier.dstAccessMask = VK_ACCESS_HOST_WRITE_BIT;
+		break;
+	}
+	return barrier;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::PushImageColorClear(const VkImage& image, const VkDeferredCommand::CommandQueueType& queue, VkImageLayout layout, VkClearColorValue clearValue, VkImageSubresourceRange subres)
+{
+	VkDeferredCommand del;
+	del.del.type = VkDeferredCommand::ClearColorImage;
+	del.del.imgColorClear.clearValue = clearValue;
+	del.del.imgColorClear.img = image;
+	del.del.imgColorClear.layout = layout;
+	del.del.imgColorClear.region = subres;
+	del.del.queue = queue;
+	del.dev = this->dev;
+	this->PushCommandStaging(del);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::ImageColorClear(const VkImage& image, const VkDeferredCommand::CommandQueueType& queue, VkImageLayout layout, VkClearColorValue clearValue, VkImageSubresourceRange subres)
+{
+	VkCommandBuffer buf;
+	switch (queue)
+	{
+	case VkDeferredCommand::Graphics: buf = this->mainCmdGfxBuffer; break;
+	case VkDeferredCommand::Transfer: buf = this->mainCmdTransBuffer; break;
+	case VkDeferredCommand::Compute: buf = this->mainCmdCmpBuffer; break;
+	}
+	vkCmdClearColorImage(buf, image, layout, &clearValue, 1, &subres);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::PushImageDepthStencilClear(const VkImage& image, const VkDeferredCommand::CommandQueueType& queue, VkImageLayout layout, VkClearDepthStencilValue clearValue, VkImageSubresourceRange subres)
+{
+	VkDeferredCommand del;
+	del.del.type = VkDeferredCommand::ClearDepthStencilImage;
+	del.del.imgDepthStencilClear.clearValue = clearValue;
+	del.del.imgDepthStencilClear.img = image;
+	del.del.imgDepthStencilClear.layout = layout;
+	del.del.imgDepthStencilClear.region = subres;
+	del.del.queue = queue;
+	del.dev = this->dev;
+	this->PushCommandStaging(del);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::ImageDepthStencilClear(const VkImage& image, const VkDeferredCommand::CommandQueueType& queue, VkImageLayout layout, VkClearDepthStencilValue clearValue, VkImageSubresourceRange subres)
+{
+	VkCommandBuffer buf;
+	switch (queue)
+	{
+	case VkDeferredCommand::Graphics: buf = this->mainCmdGfxBuffer; break;
+	case VkDeferredCommand::Transfer: buf = this->mainCmdTransBuffer; break;
+	case VkDeferredCommand::Compute: buf = this->mainCmdCmpBuffer; break;
+	}
+	vkCmdClearDepthStencilImage(buf, image, layout, &clearValue, 1, &subres);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::WaitForFence(VkFence fence)
+{
+	VkResult res = vkWaitForFences(this->dev, 1, &fence, true, UINT_MAX);
+	n_assert(res == VK_SUCCESS);
+	res = vkResetFences(this->dev, 1, &fence);
+	n_assert(res == VK_SUCCESS);
 }
 
 } // namespace Vulkan

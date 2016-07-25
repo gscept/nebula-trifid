@@ -141,14 +141,14 @@ GLFWDisplayDevice::Reopen()
 		{
 			GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 			const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-			glfwSetWindowMonitor(this->window, monitor, mode->width, mode->height);
+			glfwSetWindowMonitor(this->window, monitor, 0, 0, mode->width, mode->height, 60);
 			this->displayMode.SetWidth(mode->width);
 			this->displayMode.SetHeight(mode->height);
 		}
 		else
 		{
 			// if not, set the window state and detach from the monitor
-			glfwSetWindowMonitor(this->window, NULL, this->displayMode.GetWidth(), this->displayMode.GetHeight());
+			glfwSetWindowMonitor(this->window, NULL, 0, 0, this->displayMode.GetWidth(), this->displayMode.GetHeight(), 60);
 		}
     }    
 

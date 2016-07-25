@@ -19,6 +19,14 @@ public:
 	/// destructor
 	virtual ~VkRenderTargetCube();
 
+	/// setup the render target object
+	void Setup();
+	/// discard the render target object
+	void Discard();
+
+	/// end pass
+	void EndPass();
+
 	/// returns a const ref to the pipeline information created by this render target
 	const VkGraphicsPipelineCreateInfo& GetVkPipelineInfo();
 private:
