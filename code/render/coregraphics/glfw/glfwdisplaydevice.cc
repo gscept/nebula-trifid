@@ -380,7 +380,7 @@ GLFWDisplayDevice::EmbedWindow()
 	glfwWindowHint(GLFW_SRGB_CAPABLE, GL_TRUE);
 
 	// create window using our Qt window as child
-	this->window = glfwCreateWindowFromAlien(this->windowData.GetPtr());
+	this->window = glfwCreateWindowFromAlien(this->windowData.GetPtr(), NULL);
 	glfwMakeContextCurrent(this->window);
 
     // get actual window size
