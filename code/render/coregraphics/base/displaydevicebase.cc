@@ -194,8 +194,6 @@ Ptr<CoreGraphics::Window>
 DisplayDeviceBase::SetupWindow(const Util::String& title, const Util::String& icon, const CoreGraphics::DisplayMode& displayMode, const CoreGraphics::AntiAliasQuality::Code aa)
 {
 	Ptr<CoreGraphics::Window> wnd = CoreGraphics::Window::Create();
-	wnd->SetTitle(title);
-	wnd->SetIconName(icon);
 	wnd->SetDisplayMode(displayMode);
 	wnd->SetAntiAliasQuality(aa);
 
@@ -205,6 +203,8 @@ DisplayDeviceBase::SetupWindow(const Util::String& title, const Util::String& ic
 
 	// finally open window
 	wnd->Open();
+    wnd->SetTitle(title);
+    wnd->SetIconName(icon);
 	return wnd;
 }
 

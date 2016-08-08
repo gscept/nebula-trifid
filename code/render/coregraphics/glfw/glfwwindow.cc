@@ -61,7 +61,7 @@ GLFWWindow::Open()
 	//if (wnd != NULL) glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	
 	// if we have window data, setup from alien window
-	if (this->windowData.IsValid())
+	if (this->windowData.Size() > 0)
 	{
 		// create window using our Qt window as child
 		this->window = glfwCreateWindowFromAlien(this->windowData.GetPtr(), wnd);
