@@ -168,6 +168,8 @@ public:
     void SetInt(int val);
     /// set as long value
     void SetLong(long val);
+	/// set as long long value
+	void SetLongLong(long long val);
     /// set as float value
     void SetFloat(float val);
     /// set as bool value
@@ -247,6 +249,8 @@ public:
     static String FromInt(int i);
     /// construct a string from a long
     static String FromLong(long i);
+	/// construct a string from a long long
+	static String FromLongLong(long long i);
     /// construct a string from a float
     static String FromFloat(float f);
     /// construct a string from a bool
@@ -485,6 +489,16 @@ String::SetLong(long val)
 {
 	this->Format("%ld", val);
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+String::SetLongLong(long long val)
+{
+	this->Format("%lld", val);
+}
+
 //------------------------------------------------------------------------------
 /**
 */
@@ -946,6 +960,17 @@ String::FromLong(long i)
 {	
 	String str;
 	str.SetLong(i);
+	return str;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline Util::String
+String::FromLongLong(long long i)
+{
+	String str;
+	str.SetLongLong(i);
 	return str;
 }
 

@@ -10,7 +10,7 @@
 #include "application/game/entity.h"
 #include "minimapplugin.h"
 #include "coregraphics/rendertarget.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shaderstate.h"
 #include "coregraphics/shadervariable.h"
 #include "coregraphics/vertexbuffer.h"
 #include "coregraphics/indexbuffer.h"

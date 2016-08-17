@@ -6,6 +6,7 @@
 #include "ssralgorithm.h"
 #include "coregraphics/shaderserver.h"
 #include "coregraphics/renderdevice.h"
+#include "coregraphics/config.h"
 
 #define DivAndRoundUp(a, b) (a % b != 0) ? (a / b + 1) : (a / b)
 using namespace CoreGraphics;
@@ -42,7 +43,7 @@ SSRAlgorithm::Setup()
 	this->output = this->inputs.Back();
 
 	// setup shader
-	this->ssrShader = ShaderServer::Instance()->GetShader("shd:ssr_cs");
+	this->ssrShader = ShaderServer::Instance()->GetShader("shd:ssr_cs")->CreateState({NEBULAT_DEFAULT_GROUP});
 	this->depthBuffer = this->ssrShader->GetVariableByName("DepthBuffer");
 	this->colorBuffer = this->ssrShader->GetVariableByName("ColorBuffer");
 	this->specularBuffer = this->ssrShader->GetVariableByName("SpecularBuffer");
@@ -52,17 +53,17 @@ SSRAlgorithm::Setup()
 	this->invResolution = this->ssrShader->GetVariableByName("InvResolution");
 
 	// update shader
-	this->ssrShader->BeginUpdate();
-	this->resolution->SetFloat2(Math::float2(float(this->output->GetWidth()), float(this->output->GetHeight())));
+	this->ssrShader->BeginUpdateSync();
+	//this->resolution->SetFloat2(Math::float2(float(this->output->GetWidth()), float(this->output->GetHeight())));
 	this->invResolution->SetFloat2(Math::float2(1 / float(this->output->GetWidth()), 1 / float(this->output->GetHeight())));
-	this->ssrShader->EndUpdate();
+	this->ssrShader->EndUpdateSync();
 
 	// set textures
 	this->depthBuffer->SetTexture(this->inputs[0]);
 	this->colorBuffer->SetTexture(this->inputs[1]);
 	this->specularBuffer->SetTexture(this->inputs[2]);
 	this->normalBuffer->SetTexture(this->inputs[3]);
-	this->emissiveBuffer->SetTexture(this->output);
+	this->emissiveBuffer->SetShaderReadWriteTexture(this->output);
 }
 
 //------------------------------------------------------------------------------

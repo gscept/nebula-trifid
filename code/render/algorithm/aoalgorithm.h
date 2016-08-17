@@ -22,7 +22,7 @@
 
 namespace CoreGraphics
 {
-	class ShaderInstance;
+	class ShaderState;
 	class ShaderVariable;
 	class RenderTarget;
     class ShaderFeature;
@@ -64,8 +64,8 @@ private:
 	void Disable();
 
 	RenderUtil::DrawFullScreenQuad quad;
-	Ptr<CoreGraphics::Shader> hbao;
-	Ptr<CoreGraphics::Shader> blur;
+	Ptr<CoreGraphics::ShaderState> hbao;
+	Ptr<CoreGraphics::ShaderState> blur;
 	Ptr<CoreGraphics::ShaderVariable> depthTextureVar;
 
 #ifdef HBAO_COMPUTE

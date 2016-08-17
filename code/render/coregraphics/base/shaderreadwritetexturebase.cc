@@ -16,7 +16,8 @@ __ImplementClass(Base::ShaderReadWriteTextureBase, 'SRTT', Core::RefCounted);
 /**
 */
 ShaderReadWriteTextureBase::ShaderReadWriteTextureBase() :
-	useRelativeSize(false)
+	useRelativeSize(false),
+	lockSemaphore(0)
 {
 	// empty
 }
@@ -91,6 +92,24 @@ void
 ShaderReadWriteTextureBase::Clear(const Math::float4& clearColor)
 {
 	// implement in subclass
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ShaderReadWriteTextureBase::Lock()
+{
+	this->lockSemaphore++;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ShaderReadWriteTextureBase::Unlock()
+{
+	this->lockSemaphore--;
 }
 
 } // namespace Base

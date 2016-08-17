@@ -9,7 +9,7 @@
 */
 #include "coregraphics/base/transformdevicebase.h"
 #include "coregraphics/shadervariable.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shaderstate.h"
 #include "lighting/csmutil.h"
 #include "core/singleton.h"
 

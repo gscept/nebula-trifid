@@ -11,7 +11,7 @@
 #include "models/nodes/statenode.h"
 #include "models/nodes/transformnodeinstance.h"
 #include "models/nodes/animatornode.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shaderstate.h"
 #include "coregraphics/shadervariable.h"
 #include "coregraphics/shadervariableinstance.h"
 #include "coreanimation/animresource.h"

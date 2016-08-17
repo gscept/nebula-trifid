@@ -14,6 +14,7 @@
 #include "coregraphics/shaderserver.h"
 #include "coregraphics/streamtextureloader.h"
 #include "coregraphics/vertexlayoutserver.h"
+#include "coregraphics/config.h"
 #include "rocketserver.h"
 #include "SOIL/SOIL.h"
 #include "rocketrenderer.h"
@@ -36,7 +37,7 @@ RocketRenderer::RocketRenderer()
 	this->renderDevice = RenderDevice::Instance();
 
 	// get shader and create instance
-    this->shader = shaderServer->GetShader("shd:gui");
+	this->shader = shaderServer->CreateShaderState("shd:gui", { NEBULAT_DEFAULT_GROUP });
 
 	// get texture
 	this->diffMap = this->shader->GetVariableByName("Texture");	
@@ -167,7 +168,7 @@ RocketRenderer::RenderCompiledGeometry(Rocket::Core::CompiledGeometryHandle geom
 		}
 
         // apply shader
-        shaderServer->SetActiveShader(this->shader);
+        shaderServer->SetActiveShader(this->shader->GetShader());
         this->shader->Apply();
 
 		// get dimensions
@@ -180,9 +181,9 @@ RocketRenderer::RenderCompiledGeometry(Rocket::Core::CompiledGeometryHandle geom
 
 		// combine matrices and set in shader
 		world = matrix44::multiply(matrix44::multiply(world, scale), trans);
-        this->shader->BeginUpdate();
+        this->shader->BeginUpdateSync();
 		this->modelVar->SetMatrix(world);
-        this->shader->EndUpdate();
+		this->shader->EndUpdateSync();
   
 		// commit shader
 		this->shader->Commit();

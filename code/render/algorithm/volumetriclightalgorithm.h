@@ -56,10 +56,10 @@ private:
 	void RenderGlobalLight();
 
 	RenderUtil::DrawFullScreenQuad quad;
-	Ptr<CoreGraphics::Shader> volumeLightShader;
-	Ptr<CoreGraphics::Shader> lightScatterShader;
-	Ptr<CoreGraphics::Shader> verticalBloom;
-	Ptr<CoreGraphics::Shader> horizontalBloom;
+	Ptr<CoreGraphics::ShaderState> volumeLightShader;
+	Ptr<CoreGraphics::ShaderState> lightScatterShader;
+	Ptr<CoreGraphics::ShaderState> verticalBloom;
+	Ptr<CoreGraphics::ShaderState> horizontalBloom;
 
 	Ptr<Graphics::GlobalLightEntity> globalLight;
 	Util::Array<Ptr<Graphics::PointLightEntity> > pointLights;

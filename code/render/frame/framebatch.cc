@@ -204,6 +204,9 @@ FrameBatch::RenderBatch(IndexT frameIndex)
 					shader->SelectActiveVariation(shaderServer->GetFeatureBits());
 					shader->Apply();
 
+					// get shader state
+					// const Ptr<CoreGraphics::ShaderState>& state = shader->CreateState({ NEBULAT_DEFAULT_GROUP });
+
 					// select variations based on the feature bits found in the material
 					// shaderInst->SetWireframe(renderDevice->GetRenderWireframe());
 
@@ -238,7 +241,7 @@ FrameBatch::RenderBatch(IndexT frameIndex)
 								const Util::StringAtom& name = this->shaderVariablesByName.KeyAtIndex(variableIndex);
 
 								// apply to variable in active shader
-								varInst->ApplyTo(shader->GetVariableByName(name));
+								//varInst->ApplyTo(state->GetVariableByName(name));
 							}
 							shader->EndUpdate();
 
@@ -297,7 +300,7 @@ FrameBatch::RenderBatch(IndexT frameIndex)
 								else
 								{
 									// render the node instance
-									nodeInstance->ApplyState(frameIndex, pass.index, shader);
+									nodeInstance->ApplyState(frameIndex, pass.index);
 
 									// commit shader
 									// shader->Commit();

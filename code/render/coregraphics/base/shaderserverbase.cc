@@ -9,6 +9,7 @@
 #include "io/ioserver.h"
 #include "io/textreader.h"
 #include "coregraphics/shadersemantics.h"
+#include "coregraphics/config.h"
 
 namespace Base
 {
@@ -87,7 +88,7 @@ ShaderServerBase::Open()
     // create standard shader for access to shared variables
     if (this->HasShader(ResourceId("shd:shared")))
     {
-        this->sharedVariableShader = this->GetShader("shd:shared");        
+		this->sharedVariableShader = this->GetShader("shd:shared")->CreateState({NEBULAT_DEFAULT_GROUP});
         n_assert(this->sharedVariableShader.isvalid());
 
         // get shared object id shader variable
@@ -132,12 +133,12 @@ ShaderServerBase::Close()
     to create a new shader object. When the shader instance is no longer
     needed, call UnregisterShaderInstance() for proper cleanup.
 */
-Ptr<ShaderInstance>
-ShaderServerBase::CreateShaderInstance(const ResourceId& resId)
+Ptr<ShaderState>
+ShaderServerBase::CreateShaderState(const ResourceId& resId)
 {
     n_assert(resId.IsValid());
 
-	Ptr<ShaderInstance> shaderInstance;
+	Ptr<ShaderState> shaderInstance;
     // first check if the shader is already loaded
     if (!this->shaders.Contains(resId))
     {
@@ -145,12 +146,36 @@ ShaderServerBase::CreateShaderInstance(const ResourceId& resId)
     }
 	else
 	{
-		shaderInstance = this->shaders[resId]->CreateShaderInstance();
+		shaderInstance = this->shaders[resId]->CreateState();
 	}
 
     // create a shader instance object from the shader
     
     return shaderInstance;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+Ptr<CoreGraphics::ShaderState>
+ShaderServerBase::CreateShaderState(const Resources::ResourceId& resId, const Util::Array<IndexT>& groups)
+{
+	n_assert(resId.IsValid());
+
+	Ptr<ShaderState> shaderInstance;
+	// first check if the shader is already loaded
+	if (!this->shaders.Contains(resId))
+	{
+		n_error("ShaderServer: shader '%s' not found!", resId.Value());
+	}
+	else
+	{
+		shaderInstance = this->shaders[resId]->CreateState(groups);
+	}
+
+	// create a shader instance object from the shader
+
+	return shaderInstance;
 }
 
 //------------------------------------------------------------------------------

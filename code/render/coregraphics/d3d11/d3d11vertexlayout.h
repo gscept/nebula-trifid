@@ -10,7 +10,7 @@
 */    
 //------------------------------------------------------------------------------
 #include "coregraphics/base/vertexlayoutbase.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shaderstate.h"
 
 namespace Direct3D11
 {

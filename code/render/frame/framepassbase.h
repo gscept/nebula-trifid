@@ -42,11 +42,11 @@ public:
 	virtual void End();
 
 	/// sets shader instance
-	void SetShader(const Ptr<CoreGraphics::Shader>& shd);
+	void SetShaderState(const Ptr<CoreGraphics::ShaderState>& shd);
 	/// gets the shader instance
-    const Ptr<CoreGraphics::Shader>& GetShader() const;
+	const Ptr<CoreGraphics::ShaderState>& GetShaderState() const;
 	/// returns true if frame pass base has shader
-	bool HasShader() const;
+	bool HasShaderState() const;
     /// set the name of the frame pass
     void SetName(const Resources::ResourceId& resId);
     /// get the name of the frame pass
@@ -65,15 +65,15 @@ public:
     const Ptr<CoreGraphics::RenderTargetCube>& GetRenderTargetCube() const;
 
     /// add a shader variable instance to the frame pass
-    void AddVariable(const Util::StringAtom& semantic, const Ptr<CoreGraphics::ShaderVariableInstance>& var);
+    void AddVariable(const Util::StringAtom& semantic, const Ptr<CoreGraphics::ShaderVariable>& var);
     /// get number of shader variables
     SizeT GetNumVariables() const;
     /// get shader variable by index
-    const Ptr<CoreGraphics::ShaderVariableInstance>& GetVariableByIndex(IndexT i) const;
+	const Ptr<CoreGraphics::ShaderVariable>& GetVariableByIndex(IndexT i) const;
 	/// get shader variable by name
-	const Ptr<CoreGraphics::ShaderVariableInstance>& GetVariableByName(const Util::StringAtom& name);
+	const Ptr<CoreGraphics::ShaderVariable>& GetVariableByName(const Util::StringAtom& name);
 	/// get all shader variable instances
-	const Util::Array<Ptr<CoreGraphics::ShaderVariableInstance> >& GetVariables() const;
+	const Util::Array<Ptr<CoreGraphics::ShaderVariable> >& GetVariables() const;
 
     /// add a frame batch to the frame pass
     void AddBatch(const Ptr<FrameBatch>& batch);
@@ -104,12 +104,12 @@ public:
 
 protected:
     Resources::ResourceId name;
-    Ptr<CoreGraphics::Shader> shader;
+    Ptr<CoreGraphics::ShaderState> shader;
     Ptr<CoreGraphics::RenderTarget> renderTarget;
     Ptr<CoreGraphics::MultipleRenderTarget> multipleRenderTarget;
     Ptr<CoreGraphics::RenderTargetCube> renderTargetCube;
-    Util::Array<Ptr<CoreGraphics::ShaderVariableInstance>> shaderVariables;
-	Util::Dictionary<Util::StringAtom, Ptr<CoreGraphics::ShaderVariableInstance>> shaderVariablesByName;
+	Util::Array<Ptr<CoreGraphics::ShaderVariable>> shaderVariables;
+	Util::Dictionary<Util::StringAtom, Ptr<CoreGraphics::ShaderVariable>> shaderVariablesByName;
     Util::Array<Ptr<FrameBatch> > batches;
     uint clearFlags;
     Math::float4 clearColor;
@@ -139,7 +139,7 @@ FramePassBase::GetName() const
 /**
 */
 inline void
-FramePassBase::SetShader(const Ptr<CoreGraphics::Shader>& shd)
+FramePassBase::SetShaderState(const Ptr<CoreGraphics::ShaderState>& shd)
 {
 	n_assert(shd.isvalid());
     this->shader = shd;
@@ -149,7 +149,7 @@ FramePassBase::SetShader(const Ptr<CoreGraphics::Shader>& shd)
 /**
 */
 inline bool 
-FramePassBase::HasShader() const
+FramePassBase::HasShaderState() const
 {
 	return this->shader.isvalid();
 }
@@ -157,8 +157,8 @@ FramePassBase::HasShader() const
 //------------------------------------------------------------------------------
 /**
 */
-inline const Ptr<CoreGraphics::Shader>&
-FramePassBase::GetShader() const
+inline const Ptr<CoreGraphics::ShaderState>&
+FramePassBase::GetShaderState() const
 {
 	n_assert(this->shader.isvalid());
     return this->shader;
@@ -222,7 +222,7 @@ FramePassBase::GetRenderTargetCube() const
 /**
 */
 inline void
-FramePassBase::AddVariable(const Util::StringAtom& semantic, const Ptr<CoreGraphics::ShaderVariableInstance>& var)
+FramePassBase::AddVariable(const Util::StringAtom& semantic, const Ptr<CoreGraphics::ShaderVariable>& var)
 {
 	n_assert(!this->shaderVariablesByName.Contains(semantic));
     this->shaderVariables.Append(var);
@@ -241,7 +241,7 @@ FramePassBase::GetNumVariables() const
 //------------------------------------------------------------------------------
 /**
 */
-inline const Ptr<CoreGraphics::ShaderVariableInstance>& 
+inline const Ptr<CoreGraphics::ShaderVariable>&
 FramePassBase::GetVariableByIndex(IndexT i) const
 {
     return this->shaderVariables[i];
@@ -250,8 +250,8 @@ FramePassBase::GetVariableByIndex(IndexT i) const
 //------------------------------------------------------------------------------
 /**
 */
-inline const Ptr<CoreGraphics::ShaderVariableInstance>& 
-FramePassBase::GetVariableByName( const Util::StringAtom& name )
+inline const Ptr<CoreGraphics::ShaderVariable>&
+FramePassBase::GetVariableByName(const Util::StringAtom& name)
 {
 	n_assert(this->shaderVariablesByName.Contains(name));
 	return this->shaderVariablesByName[name];
@@ -260,7 +260,7 @@ FramePassBase::GetVariableByName( const Util::StringAtom& name )
 //------------------------------------------------------------------------------
 /**
 */
-inline const Util::Array<Ptr<CoreGraphics::ShaderVariableInstance> >&
+inline const Util::Array<Ptr<CoreGraphics::ShaderVariable> >&
 FramePassBase::GetVariables() const
 {
 	return this->shaderVariables;

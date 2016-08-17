@@ -66,15 +66,18 @@ ShaderVariableBase::TypeToString(Type t)
 {
     switch (t)
     {
-        case UnknownType:   return "unknown";
-        case IntType:       return "int";
-        case FloatType:     return "float";
-        case VectorType:    return "vector";
-		case Vector2Type:	return "vector2";
-        case MatrixType:    return "matrix";
-        case BoolType:      return "bool";
-        case TextureType:   return "texture";
-		case SamplerType:	return "sampler";
+        case UnknownType:			return "unknown";
+        case IntType:				return "int";
+        case FloatType:				return "float";
+        case VectorType:			return "vector";
+		case Vector2Type:			return "vector2";
+        case MatrixType:			return "matrix";
+        case BoolType:				return "bool";
+        case TextureType:			return "texture";
+		case SamplerType:			return "sampler";
+		case ConstantBufferType:	return "constantbuffer";
+		case ImageReadWriteType:	return "image";
+		case BufferReadWriteType:	return "storagebuffer";
         default:
             n_error("ShaderVariableBase::TypeToString(): invalid type code!");
             return "";
@@ -95,6 +98,9 @@ ShaderVariableBase::StringToType(const String& str)
     else if (str == "bool") return BoolType;
     else if (str == "texture") return TextureType;
 	else if (str == "sampler") return SamplerType;
+	else if (str == "constantbuffer") return ConstantBufferType;
+	else if (str == "image") return ImageReadWriteType;
+	else if (str == "storagebuffer") return BufferReadWriteType;
     else
     {
         n_error("ShaderVariable::StringToType(): invalid string '%s'!\n", str.AsCharPtr());
@@ -219,11 +225,39 @@ ShaderVariableBase::SetTexture(const Ptr<Texture>& value)
 {
     // empty, override in subclass
 }
+
 //------------------------------------------------------------------------------
 /**
 */
 void
-ShaderVariableBase::SetBufferHandle(void* handle)
+ShaderVariableBase::SetConstantBuffer(const Ptr<CoreGraphics::ConstantBuffer>& buf)
+{
+	// empty, override in subclass
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ShaderVariableBase::SetShaderReadWriteTexture(const Ptr<CoreGraphics::ShaderReadWriteTexture>& tex)
+{
+	// empty, override in subclass
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ShaderVariableBase::SetShaderReadWriteTexture(const Ptr<CoreGraphics::Texture>& tex)
+{
+	// empty, override in subclass
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ShaderVariableBase::SetShaderReadWriteBuffer(const Ptr<CoreGraphics::ShaderReadWriteBuffer>& buf)
 {
 	// empty, override in subclass
 }
@@ -251,6 +285,13 @@ ShaderVariableBase::Reload()
 	// empty, override in le subclass
 }
 
-
+//------------------------------------------------------------------------------
+/**
+*/
+const bool
+ShaderVariableBase::IsActive() const
+{
+	return false;
+}
 
 } // namespace Base

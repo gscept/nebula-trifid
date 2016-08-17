@@ -1,24 +1,24 @@
 //------------------------------------------------------------------------------
-//  shaderinstancebase.cc
+//  shaderstatebase.cc
 //  (C) 2007 Radon Labs GmbH
 //  (C) 2013-2015 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "coregraphics/shader.h"
-#include "coregraphics/base/shaderinstancebase.h"
+#include "coregraphics/base/shaderstatebase.h"
 #include "coregraphics/shadervariation.h"
 #include "coregraphics/shaderserver.h"
 
 namespace Base
 {
-__ImplementClass(Base::ShaderInstanceBase, 'SIBS', Core::RefCounted);
+__ImplementClass(Base::ShaderStateBase, 'SSBS', Core::RefCounted);
 
 using namespace CoreGraphics;
 
 //------------------------------------------------------------------------------
 /**
 */
-ShaderInstanceBase::ShaderInstanceBase() :
+ShaderStateBase::ShaderStateBase() :
     inBegin(false),
     inBeginPass(false)
 {
@@ -28,7 +28,7 @@ ShaderInstanceBase::ShaderInstanceBase() :
 //------------------------------------------------------------------------------
 /**
 */
-ShaderInstanceBase::~ShaderInstanceBase()
+ShaderStateBase::~ShaderStateBase()
 {
     // check if Discard() has been called...
     n_assert(!this->IsValid());
@@ -38,9 +38,9 @@ ShaderInstanceBase::~ShaderInstanceBase()
 /**
 */
 bool
-ShaderInstanceBase::IsValid() const
+ShaderStateBase::IsValid() const
 {
-    return this->originalShader.isvalid();
+    return this->shader.isvalid();
 }
 
 //------------------------------------------------------------------------------
@@ -49,10 +49,10 @@ ShaderInstanceBase::IsValid() const
     for proper cleanup.
 */
 void
-ShaderInstanceBase::Discard()
+ShaderStateBase::Discard()
 {
     n_assert(this->IsValid());
-    this->originalShader->DiscardShaderInstance((ShaderInstance*)this);
+    this->shader->DiscardShaderInstance((ShaderState*)this);
 }
 
 //------------------------------------------------------------------------------
@@ -61,30 +61,49 @@ ShaderInstanceBase::Discard()
     shader instance, and call the parent class for proper setup.
 */
 void
-ShaderInstanceBase::Setup(const Ptr<Shader>& origShader)
+ShaderStateBase::Setup(const Ptr<Shader>& origShader)
 {
     n_assert(!this->IsValid());
-    this->originalShader = origShader;
+    this->shader = origShader;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ShaderStateBase::Setup(const Ptr<CoreGraphics::Shader>& origShader, const Util::Array<IndexT>& groups)
+{
+	n_assert(!this->IsValid());
+	this->shader = origShader;
+	// override and handle group specific setup
 }
 
 //------------------------------------------------------------------------------
 /**
     Override this method in an API-specific subclass to undo the
-    setup in OnInstantiate(), then call parent class to finalize
+    setup in CreateInstance(), then call parent class to finalize
     the cleanup.
 */
 void
-ShaderInstanceBase::Cleanup()
+ShaderStateBase::Cleanup()
 {
     n_assert(this->IsValid());
-    this->originalShader = 0;
+
+	IndexT i;
+	for (i = 0; i < this->variables.Size(); i++)
+	{
+		this->variables[i]->Cleanup();
+	}
+	this->variables.Clear();
+	this->variablesByName.Clear();
+	this->shader = 0;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 SizeT
-ShaderInstanceBase::Begin()
+ShaderStateBase::Begin()
 {
     n_assert(!this->inBegin);
     n_assert(!this->inBeginPass);
@@ -96,7 +115,7 @@ ShaderInstanceBase::Begin()
 /**
 */
 void
-ShaderInstanceBase::BeginPass(IndexT passIndex)
+ShaderStateBase::BeginPass(IndexT passIndex)
 {
     n_assert(this->inBegin);
     n_assert(!this->inBeginPass);
@@ -107,7 +126,7 @@ ShaderInstanceBase::BeginPass(IndexT passIndex)
 /**
 */
 void
-ShaderInstanceBase::Apply()
+ShaderStateBase::Apply()
 {
     IndexT i;
     for (i = 0; i < this->variableInstances.Size(); i++)
@@ -120,25 +139,17 @@ ShaderInstanceBase::Apply()
 /**
 */
 void
-ShaderInstanceBase::Commit()
+ShaderStateBase::Commit()
 {
     // also commit original shader
-    this->originalShader->GetActiveVariation()->Commit();
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-ShaderInstanceBase::PostDraw()
-{
+    this->shader->GetActiveVariation()->Commit();
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-ShaderInstanceBase::EndPass()
+ShaderStateBase::EndPass()
 {
     n_assert(this->inBeginPass);
     this->inBeginPass = false;
@@ -148,7 +159,7 @@ ShaderInstanceBase::EndPass()
 /**
 */
 void
-ShaderInstanceBase::End()
+ShaderStateBase::End()
 {
     n_assert(this->inBegin);
     n_assert(!this->inBeginPass);
@@ -159,16 +170,16 @@ ShaderInstanceBase::End()
 /**
 */
 bool
-ShaderInstanceBase::SelectActiveVariation(CoreGraphics::ShaderFeature::Mask mask)
+ShaderStateBase::SelectActiveVariation(CoreGraphics::ShaderFeature::Mask mask)
 {
-    return this->originalShader->SelectActiveVariation(mask);
+    return this->shader->SelectActiveVariation(mask);
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-ShaderInstanceBase::BeginUpdateSync()
+ShaderStateBase::BeginUpdateSync()
 {
 	// override in subclass
 }
@@ -177,27 +188,28 @@ ShaderInstanceBase::BeginUpdateSync()
 /**
 */
 void
-ShaderInstanceBase::EndUpdateSync()
+ShaderStateBase::EndUpdateSync()
 {
 	// override in subclass
 }
+
 //------------------------------------------------------------------------------
 /**
 */
 const CoreGraphics::ShaderIdentifier::Code&
-ShaderInstanceBase::GetCode() const
+ShaderStateBase::GetCode() const
 {
-    return this->originalShader->GetCode();
+    return this->shader->GetCode();
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 Ptr<CoreGraphics::ShaderVariableInstance>
-ShaderInstanceBase::CreateVariableInstance(const Base::ShaderVariableBase::Name& n)
+ShaderStateBase::CreateVariableInstance(const Base::ShaderVariableBase::Name& n)
 {
     n_assert(!this->variableInstancesByName.Contains(n));
-    Ptr<CoreGraphics::ShaderVariableInstance> instance = this->originalShader->GetVariableByName(n)->CreateInstance();
+    Ptr<CoreGraphics::ShaderVariableInstance> instance = this->variablesByName[n]->CreateInstance();
     this->variableInstances.Append(instance);
     this->variableInstancesByName.Add(n, instance);
     return instance;
@@ -207,7 +219,7 @@ ShaderInstanceBase::CreateVariableInstance(const Base::ShaderVariableBase::Name&
 /**
 */
 const Ptr<CoreGraphics::ShaderVariableInstance>&
-ShaderInstanceBase::GetVariableInstance(const Base::ShaderVariableBase::Name& n)
+ShaderStateBase::GetVariableInstance(const Base::ShaderVariableBase::Name& n)
 {
     n_assert(this->variableInstancesByName.Contains(n));
     return this->variableInstancesByName[n];
@@ -217,7 +229,7 @@ ShaderInstanceBase::GetVariableInstance(const Base::ShaderVariableBase::Name& n)
 /**
 */
 void
-ShaderInstanceBase::DiscardVariableInstance(const Ptr<CoreGraphics::ShaderVariableInstance>& var)
+ShaderStateBase::DiscardVariableInstance(const Ptr<CoreGraphics::ShaderVariableInstance>& var)
 {
 	IndexT i = this->variableInstances.FindIndex(var);
 	n_assert(i != InvalidIndex);

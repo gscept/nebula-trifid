@@ -235,8 +235,8 @@ ENDIF()
 		coregraphics/base/shaderreadwritebufferbase.h
 		coregraphics/base/shaderreadwritetexturebase.cc
 		coregraphics/base/shaderreadwritetexturebase.h
-        coregraphics/base/shaderinstancebase.cc
-        coregraphics/base/shaderinstancebase.h
+        coregraphics/base/shaderstatebase.cc
+        coregraphics/base/shaderstatebase.h
         coregraphics/base/shaderserverbase.cc
         coregraphics/base/shaderserverbase.h
         coregraphics/base/shadervariablebase.cc
@@ -293,8 +293,8 @@ ENDIF()
         coregraphics/d3d11/d3d11rendertarget.h
         coregraphics/d3d11/d3d11shader.cc
         coregraphics/d3d11/d3d11shader.h
-        coregraphics/d3d11/d3d11shaderinstance.cc
-        coregraphics/d3d11/d3d11shaderinstance.h
+        coregraphics/d3d11/d3d11shaderstate.cc
+        coregraphics/d3d11/d3d11shaderstate.h
         coregraphics/d3d11/d3d11shaderserver.cc
         coregraphics/d3d11/d3d11shaderserver.h
         coregraphics/d3d11/d3d11shadervariable.cc
@@ -340,8 +340,8 @@ ENDIF()
         coregraphics/d3d9/d3d9rendertarget.h
         coregraphics/d3d9/d3d9shader.cc
         coregraphics/d3d9/d3d9shader.h
-        coregraphics/d3d9/d3d9shaderinstance.cc
-        coregraphics/d3d9/d3d9shaderinstance.h
+        coregraphics/d3d9/d3d9shaderstate.cc
+        coregraphics/d3d9/d3d9shaderstate.h
         coregraphics/d3d9/d3d9shaderserver.cc
         coregraphics/d3d9/d3d9shaderserver.h
         coregraphics/d3d9/d3d9shadervariable.cc
@@ -418,8 +418,8 @@ ENDIF()
 		coregraphics/ogl4/ogl4shaderstoragebuffer.h
 		coregraphics/ogl4/ogl4shaderimage.cc
         coregraphics/ogl4/ogl4shaderimage.h
-        coregraphics/ogl4/ogl4shaderinstance.cc
-        coregraphics/ogl4/ogl4shaderinstance.h
+        coregraphics/ogl4/ogl4shaderstate.cc
+        coregraphics/ogl4/ogl4shaderstate.h
         coregraphics/ogl4/ogl4shaderserver.cc
         coregraphics/ogl4/ogl4shaderserver.h
         coregraphics/ogl4/ogl4shadervariable.cc
@@ -504,8 +504,8 @@ ENDIF()
 		coregraphics/vk/vkshaderstoragebuffer.h
 		coregraphics/vk/vkshaderimage.cc
         coregraphics/vk/vkshaderimage.h
-        coregraphics/vk/vkshaderinstance.cc
-        coregraphics/vk/vkshaderinstance.h
+        coregraphics/vk/vkshaderstate.cc
+        coregraphics/vk/vkshaderstate.h
         coregraphics/vk/vkshaderserver.cc
         coregraphics/vk/vkshaderserver.h
         coregraphics/vk/vkshadervariable.cc
@@ -660,8 +660,8 @@ ENDIF()
       coregraphics/shaderfeature.h
 	  coregraphics/shaderidentifier.cc
 	  coregraphics/shaderidentifier.h
-      coregraphics/shaderinstance.cc
-      coregraphics/shaderinstance.h
+      coregraphics/shaderstate.cc
+      coregraphics/shaderstate.h
       coregraphics/shadersemantics.h
       coregraphics/shaderserver.cc
       coregraphics/shaderserver.h

@@ -13,7 +13,7 @@
 #include "lighting/base/lightserverbase.h"
 #include "graphics/pointlightentity.h"
 #include "graphics/spotlightentity.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shaderstate.h"
 #include "resources/managedmesh.h"
 #include "resources/managedtexture.h"
 #include "renderutil/drawfullscreenquad.h"
@@ -71,10 +71,10 @@ protected:
     CoreGraphics::ShaderFeature::Mask spotLightFeatureBits[NumShadowFlags];
     CoreGraphics::ShaderFeature::Mask globalLightFeatureBits;
     RenderUtil::DrawFullScreenQuad fullScreenQuadRenderer;          // fs quad renderer
-    Ptr<CoreGraphics::Shader> lightShader;  // light source shader
-	Ptr<CoreGraphics::Shader> pointLightShaderInst;
-	Ptr<CoreGraphics::Shader> spotLightShaderInst;
-	Ptr<CoreGraphics::Shader> globalLightShaderInst;
+    Ptr<CoreGraphics::ShaderState> lightShader;  // light source shader
+	Ptr<CoreGraphics::ShaderState> pointLightShaderInst;
+	Ptr<CoreGraphics::ShaderState> spotLightShaderInst;
+	Ptr<CoreGraphics::ShaderState> globalLightShaderInst;
 
 
 	/// global light variables

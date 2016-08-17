@@ -29,7 +29,7 @@ public:
 	void Render();
 private:
 
-	Ptr<CoreGraphics::Shader> ssrShader;
+	Ptr<CoreGraphics::ShaderState> ssrShader;
 	Ptr<CoreGraphics::Texture> output;
 
 	Ptr<CoreGraphics::ShaderVariable> depthBuffer;

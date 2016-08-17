@@ -7,7 +7,7 @@
 #include "materials/materialloader.h"
 #include "materials/materialinstance.h"
 #include "materials/materialserver.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shaderstate.h"
 #include "coregraphics/shaderserver.h"
 #include "resources/resourceid.h"
 #include "io/ioserver.h"

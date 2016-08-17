@@ -5,6 +5,7 @@
 #include "stdneb.h"
 #include "vkinstancerenderer.h"
 #include "coregraphics/shaderserver.h"
+#include "coregraphics/config.h"
 
 using namespace CoreGraphics;
 namespace Vulkan
@@ -35,16 +36,16 @@ VkInstanceRenderer::Setup()
 {
 	InstanceRendererBase::Setup();
 
-	Ptr<CoreGraphics::Shader> sharedShader = CoreGraphics::ShaderServer::Instance()->GetSharedShader();
+	this->shaderState = CoreGraphics::ShaderServer::Instance()->CreateShaderState("shd:shared", { NEBULAT_INSTANCE_GROUP });
 	this->instancingBuffer = ConstantBuffer::Create();
-	this->instancingBuffer->SetupFromBlockInShader(sharedShader, "InstanceBlock", 16);
-	this->instancingBlockVar = sharedShader->GetVariableByName("InstanceBlock");
-	this->instancingBlockVar->SetBufferHandle(this->instancingBuffer->GetHandle());
+	this->instancingBuffer->SetupFromBlockInShader(this->shaderState, "InstanceBlock", 16);
+	this->instancingBlockVar = this->shaderState->GetVariableByName("InstanceBlock");
+	this->instancingBlockVar->SetConstantBuffer(this->instancingBuffer);
 
 	this->modelArrayVar = this->instancingBuffer->GetVariableByName("ModelArray");
 	//this->modelViewArrayVar = this->instancingBuffer->GetVariableByName("ModelViewArray");
 	//this->modelViewProjectionArrayVar = this->instancingBuffer->GetVariableByName("ModelViewProjectionArray");
-	this->idArrayVar = this->instancingBuffer->GetVariableByName("IdArray");
+	//this->idArrayVar = this->instancingBuffer->GetVariableByName("IdArray");
 }
 
 //------------------------------------------------------------------------------
@@ -53,6 +54,8 @@ VkInstanceRenderer::Setup()
 void
 VkInstanceRenderer::Close()
 {
+	this->shaderState->Discard();
+	this->shaderState = 0;
 	this->modelArrayVar = 0;
 	//this->modelViewArrayVar = 0;
 	//this->modelViewProjectionArrayVar = 0;

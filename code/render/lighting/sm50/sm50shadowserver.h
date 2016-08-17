@@ -70,21 +70,22 @@ private:
 	Ptr<CoreGraphics::RenderTarget> spotLightShadowMap1;
 	Ptr<CoreGraphics::RenderTarget> spotLightShadowMap2;
 	Ptr<CoreGraphics::RenderTarget> spotLightShadowBufferAtlas;
-	Ptr<CoreGraphics::Shader> satXShader;
-	Ptr<CoreGraphics::Shader> satYShader;
+	Ptr<CoreGraphics::ShaderState> satXShader;
+	Ptr<CoreGraphics::ShaderState> satYShader;
 	Ptr<Frame::FramePass> spotLightPass;
 	Ptr<Frame::FrameBatch> spotLightBatch;
 	Ptr<Frame::FramePostEffect> spotLightHoriPass;
 	Ptr<Frame::FramePostEffect> spotLightVertPass;
 
 	// point light
+	Ptr<CoreGraphics::ShaderState> shadowShader;
 	Ptr<CoreGraphics::RenderTargetCube> pointLightShadowCubes[MaxNumShadowPointLights];
 	Ptr<CoreGraphics::RenderTargetCube> pointLightShadowFilterCube;
     Ptr<Frame::FramePass> pointLightPass;
     Ptr<Frame::FrameBatch> pointLightBatch;
 	Ptr<CoreGraphics::ShaderVariable> pointLightPosVar;
 
-	Ptr<CoreGraphics::Shader> pointLightBlur;
+	Ptr<CoreGraphics::ShaderState> pointLightBlur;
 	CoreGraphics::ShaderFeature::Mask xBlurMask;
 	CoreGraphics::ShaderFeature::Mask yBlurMask;
 	Ptr<CoreGraphics::ShaderVariable> pointLightBlurReadLinear;
@@ -99,7 +100,7 @@ private:
 	Ptr<CoreGraphics::RenderTarget> globalLightShadowBufferFinal;
 
 	// generic stuff
-	Ptr<CoreGraphics::Shader> blurShader;
+	Ptr<CoreGraphics::ShaderState> blurShader;
 	Ptr<CoreGraphics::ShaderVariable> shadowCascadeViewVar;
 	PSSMUtil pssmUtil;
 	CSMUtil csmUtil;

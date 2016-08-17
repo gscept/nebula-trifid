@@ -101,6 +101,158 @@ VkTypes::AsVkFormat(ILenum p)
 //------------------------------------------------------------------------------
 /**
 */
+VkTypes::VkBlockDimensions
+VkTypes::AsVkBlockSize(CoreGraphics::PixelFormat::Code p)
+{
+	switch (p)
+	{
+	case PixelFormat::X8R8G8B8:         return { 1, 1 };
+	case PixelFormat::A8R8G8B8:         return { 1, 1 };
+	case PixelFormat::R8G8B8:           return { 1, 1 };
+	case PixelFormat::R5G6B5:           return { 1, 1 };
+	case PixelFormat::SRGBA8:			return { 1, 1 };
+	case PixelFormat::A1R5G5B5:         return { 1, 1 };
+	case PixelFormat::A4R4G4B4:         return { 1, 1 };
+	case PixelFormat::DXT1:             return { 4, 4 };
+	case PixelFormat::DXT1A:            return { 4, 4 };
+	case PixelFormat::DXT3:             return { 4, 4 };
+	case PixelFormat::DXT5:             return { 4, 4 };
+	case PixelFormat::DXT1sRGB:         return { 4, 4 };
+	case PixelFormat::DXT1AsRGB:        return { 4, 4 };
+	case PixelFormat::DXT3sRGB:         return { 4, 4 };
+	case PixelFormat::DXT5sRGB:         return { 4, 4 };
+	case PixelFormat::BC7:				return { 4, 4 };
+	case PixelFormat::BC7sRGB:			return { 4, 4 };
+	case PixelFormat::R16F:             return { 1, 1 };
+	case PixelFormat::G16R16F:          return { 1, 1 };
+	case PixelFormat::A16B16G16R16F:    return { 1, 1 };
+	case PixelFormat::A16B16G16R16:		return { 1, 1 };
+	case PixelFormat::R11G11B10F:		return { 1, 1 };
+	case PixelFormat::R32F:             return { 1, 1 };
+	case PixelFormat::G32R32F:          return { 1, 1 };
+	case PixelFormat::A32B32G32R32F:    return { 1, 1 };
+	case PixelFormat::R32G32B32F:		return { 1, 1 };
+	case PixelFormat::A8:               return { 1, 1 };
+	case PixelFormat::R8:               return { 1, 1 };
+	case PixelFormat::G8:               return { 1, 1 };
+	case PixelFormat::B8:               return { 1, 1 };
+	case PixelFormat::A2R10G10B10:      return { 1, 1 };
+	case PixelFormat::G16R16:           return { 1, 1 };
+	case PixelFormat::D24X8:			return { 1, 1 };
+	case PixelFormat::D24S8:            return { 1, 1 };
+	default:
+	{
+		n_error("VkTypes::AsVkFormat(): invalid pixel format '%d'", p);
+		return { 1, 1 };
+	}
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+Vulkan::VkTypes::VkBlockDimensions
+VkTypes::AsVkBlockSize(VkFormat fmt)
+{
+	switch (fmt)
+	{
+	case VK_FORMAT_BC1_RGB_UNORM_BLOCK:		return {4, 4};
+	case VK_FORMAT_BC1_RGBA_UNORM_BLOCK:	return {4, 4};
+	case VK_FORMAT_BC2_UNORM_BLOCK:			return {4, 4};
+	case VK_FORMAT_BC3_UNORM_BLOCK:			return {4, 4};
+	case VK_FORMAT_BC1_RGB_SRGB_BLOCK:		return {4, 4};
+	case VK_FORMAT_BC1_RGBA_SRGB_BLOCK:		return {4, 4};
+	case VK_FORMAT_BC2_SRGB_BLOCK:			return {4, 4};
+	case VK_FORMAT_BC3_SRGB_BLOCK:			return {4, 4};
+	case VK_FORMAT_BC7_UNORM_BLOCK:			return {4, 4};
+	case VK_FORMAT_BC7_SRGB_BLOCK:			return {4, 4};
+	case VK_FORMAT_ASTC_4x4_UNORM_BLOCK:	return {4, 4};
+	case VK_FORMAT_ASTC_4x4_SRGB_BLOCK:		return {4, 4};
+	case VK_FORMAT_ASTC_5x4_UNORM_BLOCK:	return {5, 4};
+	case VK_FORMAT_ASTC_5x4_SRGB_BLOCK:		return {5, 4};
+	case VK_FORMAT_ASTC_5x5_UNORM_BLOCK:	return {5, 5};
+	case VK_FORMAT_ASTC_5x5_SRGB_BLOCK:		return {5, 5};
+	case VK_FORMAT_ASTC_6x5_UNORM_BLOCK:	return {6, 5};
+	case VK_FORMAT_ASTC_6x5_SRGB_BLOCK:		return {6, 5};
+	case VK_FORMAT_ASTC_6x6_UNORM_BLOCK:	return {6, 6};
+	case VK_FORMAT_ASTC_6x6_SRGB_BLOCK:		return {6, 6};
+	case VK_FORMAT_ASTC_8x5_UNORM_BLOCK:	return {8, 5};
+	case VK_FORMAT_ASTC_8x5_SRGB_BLOCK:		return {8, 5};
+	case VK_FORMAT_ASTC_8x6_UNORM_BLOCK:	return {8, 6};
+	case VK_FORMAT_ASTC_8x6_SRGB_BLOCK:		return {8, 6};
+	case VK_FORMAT_ASTC_8x8_UNORM_BLOCK:	return {8, 8};
+	case VK_FORMAT_ASTC_8x8_SRGB_BLOCK:		return {8, 8};
+	case VK_FORMAT_ASTC_10x5_UNORM_BLOCK:	return {10, 5};
+	case VK_FORMAT_ASTC_10x5_SRGB_BLOCK:	return {10, 5};
+	case VK_FORMAT_ASTC_10x6_UNORM_BLOCK:	return {10, 6};
+	case VK_FORMAT_ASTC_10x6_SRGB_BLOCK:	return {10, 6};
+	case VK_FORMAT_ASTC_10x8_UNORM_BLOCK:	return {10, 8};
+	case VK_FORMAT_ASTC_10x8_SRGB_BLOCK:	return {10, 8};
+	case VK_FORMAT_ASTC_10x10_UNORM_BLOCK:	return {10, 10};
+	case VK_FORMAT_ASTC_10x10_SRGB_BLOCK:	return {10, 10};
+	case VK_FORMAT_ASTC_12x10_UNORM_BLOCK:	return {12, 10};
+	case VK_FORMAT_ASTC_12x10_SRGB_BLOCK:	return {12, 10};
+	case VK_FORMAT_ASTC_12x12_UNORM_BLOCK:	return {12, 12};
+	case VK_FORMAT_ASTC_12x12_SRGB_BLOCK:	return {12, 12};
+	default:
+		return { 1, 1 };
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+VkFormat
+VkTypes::AsVkMappableImageFormat(VkFormat fmt)
+{
+	switch (fmt)
+	{
+	case VK_FORMAT_BC1_RGB_UNORM_BLOCK:		return VK_FORMAT_R8G8B8_UNORM;
+	case VK_FORMAT_BC1_RGBA_UNORM_BLOCK:	return VK_FORMAT_R8G8B8A8_UNORM;
+	case VK_FORMAT_BC2_UNORM_BLOCK:			return VK_FORMAT_R8G8B8A8_UNORM;
+	case VK_FORMAT_BC3_UNORM_BLOCK:			return VK_FORMAT_R8G8B8A8_UNORM;
+	case VK_FORMAT_BC1_RGB_SRGB_BLOCK:		return VK_FORMAT_R8G8B8_UNORM;
+	case VK_FORMAT_BC1_RGBA_SRGB_BLOCK:		return VK_FORMAT_R8G8B8A8_UNORM;
+	case VK_FORMAT_BC2_SRGB_BLOCK:			return VK_FORMAT_R8G8B8A8_UNORM;
+	case VK_FORMAT_BC3_SRGB_BLOCK:			return VK_FORMAT_R8G8B8A8_UNORM;
+	case VK_FORMAT_BC7_UNORM_BLOCK:			return VK_FORMAT_R8G8B8A8_UNORM;
+	case VK_FORMAT_BC7_SRGB_BLOCK:			return VK_FORMAT_R8G8B8A8_UNORM;
+	case VK_FORMAT_ASTC_4x4_UNORM_BLOCK:	return VK_FORMAT_R8G8B8A8_UNORM;
+	case VK_FORMAT_ASTC_4x4_SRGB_BLOCK:		return VK_FORMAT_R8G8B8A8_UNORM;
+	case VK_FORMAT_ASTC_5x4_UNORM_BLOCK:	return VK_FORMAT_R8G8B8A8_UNORM;
+	case VK_FORMAT_ASTC_5x4_SRGB_BLOCK:		return VK_FORMAT_R8G8B8A8_UNORM;
+	case VK_FORMAT_ASTC_5x5_UNORM_BLOCK:	return VK_FORMAT_R8G8B8A8_UNORM;
+	case VK_FORMAT_ASTC_5x5_SRGB_BLOCK:		return VK_FORMAT_R8G8B8A8_UNORM;
+	case VK_FORMAT_ASTC_6x5_UNORM_BLOCK:	return VK_FORMAT_R8G8B8A8_UNORM;
+	case VK_FORMAT_ASTC_6x5_SRGB_BLOCK:		return VK_FORMAT_R8G8B8A8_UNORM;
+	case VK_FORMAT_ASTC_6x6_UNORM_BLOCK:	return VK_FORMAT_R8G8B8A8_UNORM;
+	case VK_FORMAT_ASTC_6x6_SRGB_BLOCK:		return VK_FORMAT_R8G8B8A8_UNORM;
+	case VK_FORMAT_ASTC_8x5_UNORM_BLOCK:	return VK_FORMAT_R8G8B8A8_UNORM;
+	case VK_FORMAT_ASTC_8x5_SRGB_BLOCK:		return VK_FORMAT_R8G8B8A8_UNORM;
+	case VK_FORMAT_ASTC_8x6_UNORM_BLOCK:	return VK_FORMAT_R8G8B8A8_UNORM;
+	case VK_FORMAT_ASTC_8x6_SRGB_BLOCK:		return VK_FORMAT_R8G8B8A8_UNORM;
+	case VK_FORMAT_ASTC_8x8_UNORM_BLOCK:	return VK_FORMAT_R8G8B8A8_UNORM;
+	case VK_FORMAT_ASTC_8x8_SRGB_BLOCK:		return VK_FORMAT_R8G8B8A8_UNORM;
+	case VK_FORMAT_ASTC_10x5_UNORM_BLOCK:	return VK_FORMAT_R8G8B8A8_UNORM;
+	case VK_FORMAT_ASTC_10x5_SRGB_BLOCK:	return VK_FORMAT_R8G8B8A8_UNORM;
+	case VK_FORMAT_ASTC_10x6_UNORM_BLOCK:	return VK_FORMAT_R8G8B8A8_UNORM;
+	case VK_FORMAT_ASTC_10x6_SRGB_BLOCK:	return VK_FORMAT_R8G8B8A8_UNORM;
+	case VK_FORMAT_ASTC_10x8_UNORM_BLOCK:	return VK_FORMAT_R8G8B8A8_UNORM;
+	case VK_FORMAT_ASTC_10x8_SRGB_BLOCK:	return VK_FORMAT_R8G8B8A8_UNORM;
+	case VK_FORMAT_ASTC_10x10_UNORM_BLOCK:	return VK_FORMAT_R8G8B8A8_UNORM;
+	case VK_FORMAT_ASTC_10x10_SRGB_BLOCK:	return VK_FORMAT_R8G8B8A8_UNORM;
+	case VK_FORMAT_ASTC_12x10_UNORM_BLOCK:	return VK_FORMAT_R8G8B8A8_UNORM;
+	case VK_FORMAT_ASTC_12x10_SRGB_BLOCK:	return VK_FORMAT_R8G8B8A8_UNORM;
+	case VK_FORMAT_ASTC_12x12_UNORM_BLOCK:	return VK_FORMAT_R8G8B8A8_UNORM;
+	case VK_FORMAT_ASTC_12x12_SRGB_BLOCK:	return VK_FORMAT_R8G8B8A8_UNORM;
+	default:
+		return fmt;
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 VkFormat
 VkTypes::AsVkFramebufferFormat(CoreGraphics::PixelFormat::Code p)
 {
@@ -225,10 +377,10 @@ VkComponentMapping
 VkTypes::AsVkMapping(ILenum p)
 {
 	VkComponentMapping mapping;
-	mapping.r = VK_COMPONENT_SWIZZLE_R;
-	mapping.g = VK_COMPONENT_SWIZZLE_G;
-	mapping.b = VK_COMPONENT_SWIZZLE_B;
-	mapping.a = VK_COMPONENT_SWIZZLE_A;
+	mapping.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+	mapping.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+	mapping.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+	mapping.a = VK_COMPONENT_SWIZZLE_IDENTITY;
 
 	switch (p)
 	{

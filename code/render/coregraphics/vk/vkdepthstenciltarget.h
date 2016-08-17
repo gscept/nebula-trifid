@@ -32,15 +32,38 @@ public:
 	/// ends pass
 	void EndPass();
 
+	/// get the vulkan viewports
+	const VkViewport& GetVkViewport() const;
+	/// get the vulkan scissor rectangles
+	const VkRect2D& GetVkScissorRect() const;
 	/// return handle to the view
 	VkImageView GetVkImageView();
 private:
 
+	VkViewport viewport;
+	VkRect2D scissor;
 	VkImage image;
 	VkDeviceMemory mem;
 	VkImageView view;
 };
 
+//------------------------------------------------------------------------------
+/**
+*/
+inline const VkViewport&
+VkDepthStencilTarget::GetVkViewport() const
+{
+	return this->viewport;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const VkRect2D&
+VkDepthStencilTarget::GetVkScissorRect() const
+{
+	return this->scissor;
+}
 
 //------------------------------------------------------------------------------
 /**

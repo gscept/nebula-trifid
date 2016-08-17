@@ -33,7 +33,7 @@ class VertexBuffer;
 class IndexBuffer;
 class FeedbackBuffer;
 class VertexLayout;
-class ShaderInstance;
+class ShaderState;
 class RenderTarget;
 class MultipleRenderTarget;
 class BufferLock;
@@ -50,13 +50,13 @@ public:
     /// max number of vertex streams
     static const IndexT MaxNumVertexStreams = 2;
 
-	enum MemoryBarrierFlag
+	enum MemoryBarrierBits
 	{
-		NoBarrier = 0,
-		ImageAccessBarrier			= 1 << 0,	// subsequent images will see data done written before barrier
-		BufferAccessBarrier			= 1 << 1,	// subsequent buffers will see data done written before barrier
-		SamplerAccessBarrier		= 1 << 2,	// subsequent texture samplers will see data done written before barrier
-		RenderTargetAccessBarrier	= 1 << 3	// subsequent samples from render targets will be visible
+		NoBarrierBit = 0,
+		ImageAccessBarrierBits			= 1 << 0,	// subsequent images will see data done written before barrier
+		BufferAccessBarrierBits			= 1 << 1,	// subsequent buffers will see data done written before barrier
+		SamplerAccessBarrierBits		= 1 << 2,	// subsequent texture samplers will see data done written before barrier
+		RenderTargetAccessBarrierBits	= 1 << 3	// subsequent samples from render targets will be visible
 	};
 
     /// constructor
@@ -90,13 +90,13 @@ public:
     /// begin complete frame
     bool BeginFrame(IndexT frameIndex);
     /// begin rendering a frame pass
-	void BeginPass(const Ptr<CoreGraphics::RenderTarget>& rt, const Ptr<CoreGraphics::Shader>& passShader);
+	void BeginPass(const Ptr<CoreGraphics::RenderTarget>& rt);
     /// begin rendering a frame pass with a multiple rendertarget
-    void BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt, const Ptr<CoreGraphics::Shader>& passShader);
+    void BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt);
     /// begin rendering a frame pass with a rendertarget cube
-    void BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& crt, const Ptr<CoreGraphics::Shader>& passShader);
+    void BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& crt);
 	/// begin rendering a transform feedback with a vertex buffer as target, updateFeedback checks if the feedback buffer should be used for updating, or for rendering
-    void BeginFeedback(const Ptr<CoreGraphics::FeedbackBuffer>& fb, CoreGraphics::PrimitiveTopology::Code primType, const Ptr<CoreGraphics::Shader>& shader);
+    void BeginFeedback(const Ptr<CoreGraphics::FeedbackBuffer>& fb, CoreGraphics::PrimitiveTopology::Code primType);
     /// begin rendering a batch
     void BeginBatch(CoreGraphics::FrameBatchType::Code batchType);
     /// set the current vertex stream source
@@ -127,8 +127,12 @@ public:
 	void DrawFeedback(const Ptr<CoreGraphics::FeedbackBuffer>& fb);
 	/// draw from stream output/transform feedback buffer, instanced
 	void DrawFeedbackInstanced(const Ptr<CoreGraphics::FeedbackBuffer>& fb, SizeT numInstances);
+	/// begin computation, if asyncAllowed is true, then implementation may perform a compute in parallel with graphics
+	void BeginCompute(bool asyncAllowed, const Util::Array<Ptr<CoreGraphics::ShaderReadWriteTexture>>& textureDependencies, const Util::Array<Ptr<CoreGraphics::ShaderReadWriteBuffer>>& bufferDependencies);
     /// perform computation
-	void Compute(int dimX, int dimY, int dimZ, uint flag = NoBarrier); // use MemoryBarrierFlag
+	void Compute(int dimX, int dimY, int dimZ);
+	/// end computation
+	void EndCompute(const Util::Array<Ptr<CoreGraphics::ShaderReadWriteTexture>>& textureDependencies, const Util::Array<Ptr<CoreGraphics::ShaderReadWriteBuffer>>& bufferDependencies);
     /// end current batch
     void EndBatch();
     /// end current pass
@@ -153,10 +157,6 @@ public:
 	void SetRenderWireframe(bool b);
 	/// get the render as wireframe flag
 	bool GetRenderWireframe() const;
-	/// sets the shader for this pass
-    void SetPassShader(const Ptr<CoreGraphics::Shader>& passShader);
-    /// gets the pass shader
-    const Ptr<CoreGraphics::Shader>& GetPassShader() const;
 
 	/// enqueue a buffer lock which will cause the render device to lock a buffer index whenever the next draw command gets executed
 	static void EnqueueBufferLockIndex(const Ptr<CoreGraphics::BufferLock>& lock, IndexT buffer);
@@ -208,13 +208,14 @@ protected:
     Ptr<CoreGraphics::MultipleRenderTarget> passMultipleRenderTarget;
     Ptr<CoreGraphics::RenderTargetCube> passRenderTargetCube;
 	Ptr<CoreGraphics::DepthStencilTarget> passDepthStencilTarget;
-    Ptr<CoreGraphics::Shader> passShader;
     bool isOpen;
     bool inNotifyEventHandlers;
     bool inBeginFrame;
     bool inBeginPass;
 	bool inBeginFeedback;
     bool inBeginBatch;
+	bool inBeginCompute;
+	bool inBeginAsyncCompute;
 	bool renderWireframe;
     bool visualizeMipMaps;
 	bool usePatches;
@@ -333,25 +334,6 @@ inline bool
 RenderDeviceBase::GetUsePatches()
 {
 	return this->usePatches;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void
-RenderDeviceBase::SetPassShader(const Ptr<CoreGraphics::Shader>& passShader)
-{
-    this->passShader = passShader;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline
-const Ptr<CoreGraphics::Shader>&
-RenderDeviceBase::GetPassShader() const
-{
-    return this->passShader;
 }
 
 //------------------------------------------------------------------------------

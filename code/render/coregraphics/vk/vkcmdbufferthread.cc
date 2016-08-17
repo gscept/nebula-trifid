@@ -100,6 +100,10 @@ VkCmdBufferThread::DoWork()
 				n_assert(this->commandBuffer != VK_NULL_HANDLE);
 				vkCmdSetViewport(this->commandBuffer, cmd.viewport.index, 1, &cmd.viewport.vp);
 				break;
+			case ViewportArray:
+				n_assert(this->commandBuffer != VK_NULL_HANDLE);
+				vkCmdSetViewport(this->commandBuffer, cmd.viewportArray.first, cmd.viewportArray.num, cmd.viewportArray.vps);
+				break;
 			case ScissorRect:
 				n_assert(this->commandBuffer != VK_NULL_HANDLE);
 				vkCmdSetScissor(this->commandBuffer, cmd.scissorRect.index, 1, &cmd.scissorRect.sc);
@@ -111,6 +115,18 @@ VkCmdBufferThread::DoWork()
 			case UpdateBuffer:
 				n_assert(this->commandBuffer != VK_NULL_HANDLE);
 				vkCmdUpdateBuffer(this->commandBuffer, cmd.updBuffer.buf, cmd.updBuffer.offset, cmd.updBuffer.size, cmd.updBuffer.data);
+				break;
+			case SetEvent:
+				n_assert(this->commandBuffer != VK_NULL_HANDLE);
+				vkCmdSetEvent(this->commandBuffer, cmd.setEvent.event, cmd.setEvent.stages);
+				break;
+			case ResetEvent:
+				n_assert(this->commandBuffer != VK_NULL_HANDLE);
+				vkCmdResetEvent(this->commandBuffer, cmd.resetEvent.event, cmd.resetEvent.stages);
+				break;
+			case WaitForEvent:
+				n_assert(this->commandBuffer != VK_NULL_HANDLE);
+				vkCmdWaitEvents(this->commandBuffer, cmd.waitEvent.numEvents, cmd.waitEvent.events, cmd.waitEvent.signalingStage, cmd.waitEvent.waitingStage, cmd.waitEvent.memoryBarrierCount, cmd.waitEvent.memoryBarriers, cmd.waitEvent.bufferBarrierCount, cmd.waitEvent.bufferBarriers, cmd.waitEvent.imageBarrierCount, cmd.waitEvent.imageBarriers);
 				break;
 			case Sync:
 				cmd.syncEvent->Signal();

@@ -13,7 +13,7 @@
 #include "resources/resourceid.h"
 #include "util/dictionary.h"
 #include "materials/materialvariable.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shaderstate.h"
 #include "frame/batchgroup.h"
 
 namespace Frame
@@ -53,9 +53,9 @@ public:
 	/// get variable by name
 	const Ptr<MaterialVariable>& GetVariableByName(const MaterialVariable::Name& n) const;
 	/// get shader instance by index
-	const Ptr<CoreGraphics::ShaderInstance>& GetShaderInstanceByIndex(IndexT i) const;
+	const Ptr<CoreGraphics::ShaderState>& GetShaderStateByIndex(IndexT i) const;
 	/// get shader instance by name
-	const Ptr<CoreGraphics::ShaderInstance>& GetShaderInstanceByCode(const Frame::BatchGroup::Code& code);
+	const Ptr<CoreGraphics::ShaderState>& GetShaderStateByCode(const Frame::BatchGroup::Code& code);
 	/// get number of shader instances
 	const SizeT GetNumShaderInstances() const;
 
@@ -67,8 +67,8 @@ private:
 	/// discard the material instance
 	void Cleanup();
 	
-	Util::Array<Ptr<CoreGraphics::ShaderInstance> > shaderInstances;
-	Util::Dictionary<Frame::BatchGroup::Code, Ptr<CoreGraphics::ShaderInstance>> shaderInstancesByCode;
+	Util::Array<Ptr<CoreGraphics::ShaderState> > shaderInstances;
+	Util::Dictionary<Frame::BatchGroup::Code, Ptr<CoreGraphics::ShaderState>> shaderInstancesByCode;
 	Util::Array<Ptr<MaterialVariable> > materialVariables;
 	Util::Dictionary<CoreGraphics::ShaderVariable::Name, Ptr<MaterialVariable>> materialVariablesByName;
 	Ptr<Material> originalMaterial;

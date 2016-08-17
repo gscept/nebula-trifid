@@ -34,7 +34,7 @@ VkShaderStorageBuffer::Setup(const SizeT numBackingBuffers)
 {
 	ShaderReadWriteBufferBase::Setup(numBackingBuffers);
 
-	uint32_t queues[] = { VkRenderDevice::Instance()->renderQueueFamily, VkRenderDevice::Instance()->computeQueueFamily, VkRenderDevice::Instance()->transferQueueFamily };
+	uint32_t queues[] = { VkRenderDevice::Instance()->drawQueueFamily, VkRenderDevice::Instance()->computeQueueFamily, VkRenderDevice::Instance()->transferQueueFamily };
 	VkBufferCreateInfo info =
 	{
 		VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
@@ -50,7 +50,7 @@ VkShaderStorageBuffer::Setup(const SizeT numBackingBuffers)
 	n_assert(res == VK_SUCCESS);
 
 	uint32_t alignedSize;
-	VkRenderDevice::Instance()->AllocateBufferMemory(this->buf, this->mem, VkMemoryPropertyFlagBits(VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT), alignedSize);
+	VkRenderDevice::Instance()->AllocateBufferMemory(this->buf, this->mem, VkMemoryPropertyFlagBits(VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT), 1, alignedSize);
 
 	// bind to buffer
 	vkBindBufferMemory(VkRenderDevice::dev, this->buf, this->mem, 0);

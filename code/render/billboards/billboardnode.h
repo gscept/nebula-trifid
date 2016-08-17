@@ -14,7 +14,7 @@
 #include "coregraphics/indexbuffer.h"
 #include "coregraphics/primitivegroup.h"
 #include "coregraphics/vertexlayout.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shaderstate.h"
 namespace Billboards
 {
 class BillboardNode : public Models::StateNode

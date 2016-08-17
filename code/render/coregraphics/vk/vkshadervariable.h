@@ -16,12 +16,16 @@ namespace CoreGraphics
 {
 class ConstantBuffer;
 class Texture;
+class ShaderReadWriteTexture;
+class ShaderReadWriteBuffer;
 }
 
 namespace Vulkan
 {
 class VkStreamShaderLoader;
-class VkShaderInstance;
+class VkShaderState;
+class VkShader;
+class VkShaderServer;
 class VkShaderVariable : public Base::ShaderVariableBase
 {
 	__DeclareClass(VkShaderVariable);
@@ -34,17 +38,56 @@ public:
 	/// bind variable to uniform buffer
 	void BindToUniformBuffer(const Ptr<CoreGraphics::ConstantBuffer>& buffer, uint32_t offset, uint32_t size, int8_t* defaultValue);
 
+	/// set int value
+	void SetInt(int value);
+	/// set int array values
+	void SetIntArray(const int* values, SizeT count);
+	/// set float value
+	void SetFloat(float value);
+	/// set float array values
+	void SetFloatArray(const float* values, SizeT count);
+	/// set vector value
+	void SetFloat2(const Math::float2& value);
+	/// set vector array values
+	void SetFloat2Array(const Math::float2* values, SizeT count);
+	/// set vector value
+	void SetFloat4(const Math::float4& value);
+	/// set vector array values
+	void SetFloat4Array(const Math::float4* values, SizeT count);
+	/// set matrix value
+	void SetMatrix(const Math::matrix44& value);
+	/// set matrix array values
+	void SetMatrixArray(const Math::matrix44* values, SizeT count);
+	/// set bool value
+	void SetBool(bool value);
+	/// set bool array values
+	void SetBoolArray(const bool* values, SizeT count);
+	/// set texture value
+	void SetTexture(const Ptr<CoreGraphics::Texture>& tex);
+	/// set constant buffer
+	void SetConstantBuffer(const Ptr<CoreGraphics::ConstantBuffer>& buf);
+	/// set shader read-write image
+	void SetShaderReadWriteTexture(const Ptr<CoreGraphics::ShaderReadWriteTexture>& tex);	
+	/// set shader read-write as texture
+	void SetShaderReadWriteTexture(const Ptr<CoreGraphics::Texture>& tex);
+	/// set shader read-write buffer
+	void SetShaderReadWriteBuffer(const Ptr<CoreGraphics::ShaderReadWriteBuffer>& buf);
+
+	/// returns true if shader variable has an offset into any uniform buffer for the shader state
+	const bool IsActive() const;
+
 private:
 
 	friend class Vulkan::VkStreamShaderLoader;
-	friend class Vulkan::VkShaderInstance;
+	friend class Vulkan::VkShaderState;
+	friend class Vulkan::VkShaderServer;
 
 	/// setup from AnyFX variable
-	void Setup(AnyFX::VkVariable* var);
+	void Setup(AnyFX::VkVariable* var, const Ptr<VkShaderState>& shader, const VkDescriptorSet& set);
 	/// setup from AnyFX varbuffer
-	void Setup(AnyFX::VkVarbuffer* var);
+	void Setup(AnyFX::VkVarbuffer* var, const Ptr<VkShaderState>& shader, const VkDescriptorSet& set);
 	/// setup from AnyFX varblock
-	void Setup(AnyFX::VkVarblock* var);
+	void Setup(AnyFX::VkVarblock* var, const Ptr<VkShaderState>& shader, const VkDescriptorSet& set);
 
 	struct BufferBinding
 	{
@@ -60,5 +103,17 @@ private:
 		AnyFX::VkVarbuffer* buffer;
 		AnyFX::VkVarblock* block;
 	};
+
+	union
+	{
+		VkDescriptorImageInfo img;
+		VkDescriptorBufferInfo buf;
+		VkBufferView texBuf;
+	};
+
+	bool active;
+	uint32_t binding;
+	Ptr<VkShaderState> shader;
+	VkDescriptorSet set;
 };
 } // namespace Vulkan

@@ -40,10 +40,10 @@ VkMemoryVertexBufferLoader::OnLoadRequested()
 		NULL,
 		0,					// use for sparse buffers
 		vertexSize * this->numVertices,
-		VkBufferUsageFlagBits::VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-		VkSharingMode::VK_SHARING_MODE_EXCLUSIVE,				// can only be accessed from the creator queue,
-		1,														// number of queues in family
-		&VkRenderDevice::Instance()->renderQueueFamily			// array of queues belonging to family
+		VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+		VK_SHARING_MODE_EXCLUSIVE,						// can only be accessed from the creator queue,
+		1,												// number of queues in family
+		&VkRenderDevice::Instance()->drawQueueFamily	// array of queues belonging to family
 	};
 
 	VkBuffer buf;
@@ -53,7 +53,7 @@ VkMemoryVertexBufferLoader::OnLoadRequested()
 	// allocate a device memory backing for this
 	VkDeviceMemory mem;
 	uint32_t alignedSize;
-	VkRenderDevice::Instance()->AllocateBufferMemory(buf, mem, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, alignedSize);
+	VkRenderDevice::Instance()->AllocateBufferMemory(buf, mem, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, 1, alignedSize);
 
 	// now bind memory to buffer
 	err = vkBindBufferMemory(VkRenderDevice::dev, buf, mem, 0);

@@ -85,15 +85,12 @@ StateNodeInstance::Setup(const Ptr<ModelInstance>& inst, const Ptr<ModelNode>& n
 
 #if SHADER_MODEL_5
     ShaderServer* shdServer = ShaderServer::Instance(); 
-    this->sharedShader = shdServer->GetSharedShader();
-    this->objectBuffer = ConstantBuffer::Create();
-    this->objectBuffer->SetupFromBlockInShader(this->sharedShader, "ObjectBlock");
-    this->modelShaderVar = this->objectBuffer->GetVariableByName(NEBULA3_SEMANTIC_MODEL);
-    this->invModelShaderVar = this->objectBuffer->GetVariableByName(NEBULA3_SEMANTIC_INVMODEL);
-    this->modelViewProjShaderVar = this->objectBuffer->GetVariableByName(NEBULA3_SEMANTIC_MODELVIEWPROJECTION);
-    this->modelViewShaderVar = this->objectBuffer->GetVariableByName(NEBULA3_SEMANTIC_MODELVIEW);
-    this->objectIdShaderVar = this->objectBuffer->GetVariableByName(NEBULA3_SEMANTIC_OBJECTID);
-    this->objectBlockShaderVar = this->sharedShader->GetVariableByName("ObjectBlock");
+	this->sharedShader = shdServer->CreateShaderState("shd:shared", { NEBULAT_OBJECT_GROUP });
+	this->modelShaderVar = this->sharedShader->GetVariableByName(NEBULA3_SEMANTIC_MODEL);
+	this->invModelShaderVar = this->sharedShader->GetVariableByName(NEBULA3_SEMANTIC_INVMODEL);
+	this->modelViewProjShaderVar = this->sharedShader->GetVariableByName(NEBULA3_SEMANTIC_MODELVIEWPROJECTION);
+	this->modelViewShaderVar = this->sharedShader->GetVariableByName(NEBULA3_SEMANTIC_MODELVIEW);
+	this->objectIdShaderVar = this->sharedShader->GetVariableByName(NEBULA3_SEMANTIC_OBJECTID);
 #endif
 }
 
@@ -106,14 +103,11 @@ StateNodeInstance::Discard()
 	this->sharedConstants.Clear();
 
 #if SHADER_MODEL_5
+	this->sharedShader->Discard();
     this->sharedShader = 0;
 
     this->surfaceInstance->Discard();
     this->surfaceInstance = 0;
-    this->objectBuffer->Discard();
-    this->objectBuffer = 0;
-	this->objectBlockShaderVar->SetBufferHandle(NULL);
-    this->objectBlockShaderVar = 0;
 
     this->modelShaderVar = 0;
     this->invModelShaderVar = 0;
@@ -129,9 +123,9 @@ StateNodeInstance::Discard()
 /**
 */
 void 
-StateNodeInstance::ApplyState(IndexT frameIndex, const IndexT& pass, const Ptr<CoreGraphics::Shader>& shader)
+StateNodeInstance::ApplyState(IndexT frameIndex, const IndexT& pass)
 {
-	TransformNodeInstance::ApplyState(frameIndex, pass, shader);
+	TransformNodeInstance::ApplyState(frameIndex, pass);
 
 	// apply any needed model transform state to shader
 	const Ptr<TransformDevice>& transformDevice = TransformDevice::Instance();
@@ -142,7 +136,6 @@ StateNodeInstance::ApplyState(IndexT frameIndex, const IndexT& pass, const Ptr<C
     if (this->objectBufferUpdateIndex != frameIndex)
     {
         // apply transforms
-        this->objectBuffer->CycleBuffers();
         this->modelShaderVar->SetMatrix(transformDevice->GetModelTransform());
         this->invModelShaderVar->SetMatrix(transformDevice->GetInvModelTransform());
         this->modelViewProjShaderVar->SetMatrix(transformDevice->GetModelViewProjTransform());
@@ -150,7 +143,7 @@ StateNodeInstance::ApplyState(IndexT frameIndex, const IndexT& pass, const Ptr<C
         this->objectIdShaderVar->SetInt(this->GetModelInstance()->GetPickingId());
         this->objectBufferUpdateIndex = frameIndex;
     }
-    this->objectBlockShaderVar->SetBufferHandle(this->objectBuffer->GetHandle());
+	this->sharedShader->Commit();
 #else
 	// apply transform attributes, layer 4 (applies transforms, so basically a piece of layer 3, also unavoidable)
 	transformDevice->ApplyModelTransforms(shader);

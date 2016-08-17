@@ -14,7 +14,7 @@
 
 namespace CoreGraphics
 {
-	class ShaderInstance;
+	class ShaderState;
 	class ShaderVariable;
 	class RenderTarget;
 	class Texture;
@@ -53,9 +53,9 @@ private:
 
 	RenderUtil::DrawFullScreenQuad downscaleQuad;
 	RenderUtil::DrawFullScreenQuad averageLumQuad;
-	Ptr<CoreGraphics::Shader> averageLum;
-	Ptr<CoreGraphics::Shader> downscale;
-	Ptr<CoreGraphics::Shader> copy;
+	Ptr<CoreGraphics::ShaderState> averageLum;
+	Ptr<CoreGraphics::ShaderState> downscale;
+	Ptr<CoreGraphics::ShaderState> copy;
 
 	Ptr<CoreGraphics::ShaderVariable> previousLuminanceVar;
 	Ptr<CoreGraphics::ShaderVariable> downscaleBufferVar;

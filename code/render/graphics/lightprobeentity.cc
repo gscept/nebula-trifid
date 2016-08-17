@@ -9,6 +9,7 @@
 #include "coregraphics/shaderserver.h"
 #include "coregraphics/shadersemantics.h"
 #include "coregraphics/constantbuffer.h"
+#include "coregraphics/config.h"
 
 namespace Graphics
 {
@@ -57,7 +58,7 @@ LightProbeEntity::OnActivate()
 	// run base class
 	GraphicsEntity::OnActivate();
 
-    this->shader = CoreGraphics::ShaderServer::Instance()->GetShader("shd:reflectionprojector");
+	this->shader = CoreGraphics::ShaderServer::Instance()->CreateShaderState("shd:reflectionprojector", { NEBULAT_DEFAULT_GROUP });
 
     // light probe variables
     this->lightProbeReflectionVar = this->shader->GetVariableByName(NEBULA3_SEMANTIC_ENVIRONMENT);
@@ -86,6 +87,9 @@ LightProbeEntity::OnActivate()
 void
 LightProbeEntity::OnDeactivate()
 {
+	this->shader->Discard();
+	this->shader = 0;
+
     // discard variables
     this->lightProbeReflectionVar = 0;
     this->lightProbeIrradianceVar = 0;
@@ -97,7 +101,7 @@ LightProbeEntity::OnDeactivate()
     this->lightProbeBboxCenterVar = 0;
     this->lightProbeTransformVar = 0;
 	this->lightProbeInvTransformVar = 0;
-	this->lightProbeBufferVar->SetBufferHandle(NULL);
+	this->lightProbeBufferVar->SetConstantBuffer(NULL);
 	this->lightProbeBufferVar = 0;
 
 	// discard buffer
@@ -122,7 +126,7 @@ LightProbeEntity::ApplyProbe(const Ptr<Lighting::EnvironmentProbe>& probe)
 	this->numMips = probe->GetReflectionMap()->GetTexture()->GetNumMipLevels();
 
 	// enable buffer
-	this->lightProbeBufferVar->SetBufferHandle(this->lightProbeVariableBuffer->GetHandle());
+	this->lightProbeBufferVar->SetConstantBuffer(this->lightProbeVariableBuffer);
 }
 
 //------------------------------------------------------------------------------

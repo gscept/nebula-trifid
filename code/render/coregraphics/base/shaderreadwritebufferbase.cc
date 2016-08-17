@@ -14,6 +14,7 @@ __ImplementClass(Base::ShaderReadWriteBufferBase, 'SHBB', Core::RefCounted);
 */
 ShaderReadWriteBufferBase::ShaderReadWriteBufferBase() :
 	isSetup(false),
+	lockSemaphore(0),
     bufferIndex(0)
 {
 	// empty
@@ -67,6 +68,24 @@ void
 ShaderReadWriteBufferBase::CycleBuffers()
 {
     this->bufferIndex = (this->bufferIndex + 1) % this->numBuffers;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ShaderReadWriteBufferBase::Lock()
+{
+	this->lockSemaphore++;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ShaderReadWriteBufferBase::Unlock()
+{
+	this->lockSemaphore--;
 }
 
 } // namespace Base

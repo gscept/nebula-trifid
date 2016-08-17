@@ -50,14 +50,14 @@ public:
 	/// updates texture cube face region
 	void UpdateArray(void* data, SizeT dataSize, IndexT mip, IndexT layer);
 
-	/// setup from an opengl 2D texture
-	void SetupFromVkTexture(VkImage img, VkDeviceMemory mem, VkImageView imgView, uint32_t width, uint32_t height, CoreGraphics::PixelFormat::Code format, GLint numMips = 0, const bool setLoaded = true, const bool isAttachment = false);
-	/// setup from an opengl 2d multisample texture
-	void SetupFromVkMultisampleTexture(VkImage img, VkDeviceMemory mem, VkImageView imgView, uint32_t width, uint32_t height, CoreGraphics::PixelFormat::Code format, GLint numMips = 0, const bool setLoaded = true, const bool isAttachment = false);
-	/// setup from an opengl texture cube
-	void SetupFromVkCubeTexture(VkImage img, VkDeviceMemory mem, VkImageView imgView, uint32_t width, uint32_t height, CoreGraphics::PixelFormat::Code format, GLint numMips = 0, const bool setLoaded = true, const bool isAttachment = false);
-	/// setup from an opengl volume texture
-	void SetupFromVkVolumeTexture(VkImage img, VkDeviceMemory mem, VkImageView imgView, uint32_t width, uint32_t height, uint32_t, CoreGraphics::PixelFormat::Code format, GLint numMips = 0, const bool setLoaded = true, const bool isAttachment = false);
+	/// setup from an Vulkan 2D texture
+	void SetupFromVkTexture(VkImage img, VkDeviceMemory mem, VkImageView imgView, uint32_t width, uint32_t height, CoreGraphics::PixelFormat::Code format, uint32_t numMips = 0, const bool setLoaded = true, const bool isAttachment = false);
+	/// setup from an Vulkan 2d multisample texture
+	void SetupFromVkMultisampleTexture(VkImage img, VkDeviceMemory mem, VkImageView imgView, uint32_t width, uint32_t height, CoreGraphics::PixelFormat::Code format, uint32_t numMips = 0, const bool setLoaded = true, const bool isAttachment = false);
+	/// setup from an Vulkan texture cube
+	void SetupFromVkCubeTexture(VkImage img, VkDeviceMemory mem, VkImageView imgView, uint32_t width, uint32_t height, CoreGraphics::PixelFormat::Code format, uint32_t numMips = 0, const bool setLoaded = true, const bool isAttachment = false);
+	/// setup from an Vulkan volume texture
+	void SetupFromVkVolumeTexture(VkImage img, VkDeviceMemory mem, VkImageView imgView, uint32_t width, uint32_t height, uint32_t depth, CoreGraphics::PixelFormat::Code format, uint32_t numMips = 0, const bool setLoaded = true, const bool isAttachment = false);
 
 	/// calculate the size of a texture given a certain mip, use face 0 when not accessing a cube or array texture
 	void MipDimensions(IndexT mip, IndexT face, SizeT& width, SizeT& height, SizeT& depth);
@@ -72,16 +72,22 @@ public:
 	const VkImageView& GetVkImageView() const;
 	/// get image memory
 	const VkDeviceMemory& GetVkMemory() const;
+
+	/// get texture unique id
+	const uint32_t GetVkId() const;
 private:
+
 	void* mappedData;
 	uint32_t mapCount;
 	VkImage img;
 	VkImageView imgView;
+	VkImageCreateInfo createInfo;
 	VkDeviceMemory mem;
 
-	VkBuffer mappedBuf;
+	uint32_t id;
+	VkImage mappedImg;
 	VkDeviceMemory mappedMem;
-	VkBufferImageCopy mappedBufferLayout;
+	VkImageCopy mappedBufferLayout;
 };
 
 //------------------------------------------------------------------------------
@@ -109,6 +115,15 @@ inline const VkDeviceMemory&
 VkTexture::GetVkMemory() const
 {
 	return this->mem;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const uint32_t
+VkTexture::GetVkId() const
+{
+	return this->id;
 }
 
 } // namespace Vulkan

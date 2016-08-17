@@ -17,7 +17,7 @@
 #include "util/stringatom.h"
 #include "resources/resource.h"
 #include "frame/batchgroup.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shaderstate.h"
 #include "models/visresolvecontainer.h"
 #include "math/bbox.h"
 #include "io/binaryreader.h"

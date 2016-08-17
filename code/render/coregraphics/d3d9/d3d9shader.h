@@ -10,7 +10,7 @@
     (C) 2007 Radon Labs GmbH
 */
 #include "coregraphics/base/shaderbase.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shaderstate.h"
 
 //------------------------------------------------------------------------------
 namespace Direct3D9

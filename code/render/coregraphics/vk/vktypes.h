@@ -21,11 +21,23 @@ class VkTypes
 {
 public:
 
+	struct VkBlockDimensions
+	{
+		uint32_t width;
+		uint32_t height;
+	};
+
 #pragma region Pixel stuff
 	/// convert Nebula pixel format to Vulkan pixel format
 	static VkFormat AsVkFormat(CoreGraphics::PixelFormat::Code p);
 	/// convert DevIL pixel format to Vulkan format
 	static VkFormat AsVkFormat(ILenum p);
+	/// convert pixel format to block size
+	static VkBlockDimensions AsVkBlockSize(CoreGraphics::PixelFormat::Code p);
+	/// convert pixel format to block size
+	static VkBlockDimensions AsVkBlockSize(VkFormat fmt);
+	/// convert Vulkan image compressed format to one which is mappable
+	static VkFormat AsVkMappableImageFormat(VkFormat fmt);
 	/// convert Nebula pixel format to Vulkan render target format
 	static VkFormat AsVkFramebufferFormat(CoreGraphics::PixelFormat::Code p);
 	/// convert DevIL pixel format to Vulkan component mapping

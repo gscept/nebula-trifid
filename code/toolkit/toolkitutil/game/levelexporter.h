@@ -15,7 +15,8 @@
 #include "db/column.h"
 #include "attr/attrid.h"
 #include "io/xmlreader.h"
-#include "logger.h"
+#include "toolkitutil/logger.h"
+
 
 //------------------------------------------------------------------------------
 namespace ToolkitUtil
@@ -44,7 +45,7 @@ public:
 	/// sets the database factory
 	void SetDbFactory(const Ptr<Db::DbFactory>& factory);
 	/// set pointer to a valid logger object
-	void SetLogger(Logger* logger);
+	void SetLogger(ToolkitUtil::Logger* logger);
 private:
 
 	/// exports level data
@@ -62,14 +63,14 @@ private:
 	Ptr<Db::DbFactory> dbFactory;
 	Ptr<Db::Database> staticDb;
 	Ptr<Db::Database> gameDb;
-	Logger* logger;
+	ToolkitUtil::Logger* logger;
 }; 
 
 //------------------------------------------------------------------------------
 /**
 */
 inline void
-LevelExporter::SetLogger(Logger* l)
+LevelExporter::SetLogger(ToolkitUtil::Logger* l)
 {
 	this->logger = l;
 }

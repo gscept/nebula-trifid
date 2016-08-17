@@ -11,7 +11,7 @@
 #include "rendermodules/rt/rtplugin.h"
 #include "coregraphics/vertexbuffer.h"
 #include "coregraphics/indexbuffer.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shaderstate.h"
 #include "coregraphics/texture.h"
 #include "resources/managedtexture.h"
 #include "graphics/modelentity.h"

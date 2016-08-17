@@ -10,7 +10,7 @@
 #include "coregraphics/base/renderdevicebase.h"
 #include "coregraphics/pixelformat.h"
 #include "coregraphics/imagefileformat.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shaderstate.h"
 #include "coregraphics/bufferlock.h"
 #include "ogl4rendertarget.h"
 

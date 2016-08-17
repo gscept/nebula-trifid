@@ -33,7 +33,7 @@ VkMemoryTextureLoader::SetImageBuffer(const void* buffer, SizeT width, SizeT hei
 	extents.width = width;
 	extents.height = height;
 	extents.depth = 1;
-	uint32_t queues[] = { VkRenderDevice::Instance()->renderQueueFamily, VkRenderDevice::Instance()->transferQueueFamily };
+	
 	VkImageCreateInfo info =
 	{
 		VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
@@ -48,9 +48,9 @@ VkMemoryTextureLoader::SetImageBuffer(const void* buffer, SizeT width, SizeT hei
 		VK_IMAGE_TILING_OPTIMAL,
 		VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
 		VK_SHARING_MODE_EXCLUSIVE,
-		2,
-		queues,
-		VK_IMAGE_LAYOUT_PREINITIALIZED
+		0,
+		NULL,
+		VK_IMAGE_LAYOUT_UNDEFINED
 	};
 	
 	VkResult stat = vkCreateImage(VkRenderDevice::dev, &info, NULL, &this->image);
@@ -58,7 +58,7 @@ VkMemoryTextureLoader::SetImageBuffer(const void* buffer, SizeT width, SizeT hei
 
 	// allocate memory backing
 	uint32_t alignedSize;
-	VkRenderDevice::Instance()->AllocateImageMemory(this->image, this->mem, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, alignedSize);
+	VkRenderDevice::Instance()->AllocateImageMemory(this->image, this->mem, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 1, alignedSize);
 	vkBindImageMemory(VkRenderDevice::dev, this->image, this->mem, 0);
 
 	RenderDevice* renderDev = RenderDevice::Instance();
@@ -70,7 +70,7 @@ VkMemoryTextureLoader::SetImageBuffer(const void* buffer, SizeT width, SizeT hei
 	subres.baseMipLevel = 0;
 	subres.layerCount = 1;
 	subres.levelCount = 1;
-	renderDev->PushImageLayoutTransition(VkDeferredCommand::Transfer, VkRenderDevice::ImageMemoryBarrier(this->image, subres, VK_IMAGE_LAYOUT_PREINITIALIZED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL));
+	renderDev->PushImageLayoutTransition(VkDeferredCommand::Transfer, VkRenderDevice::ImageMemoryBarrier(this->image, subres, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL));
 
 	VkBufferImageCopy copy;
 	copy.bufferOffset = 0;
@@ -86,10 +86,11 @@ VkMemoryTextureLoader::SetImageBuffer(const void* buffer, SizeT width, SizeT hei
 	copy.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 
 	// push a deferred image update, since we may not be within a frame
-	renderDev->PushImageUpdate(this->image, copy, width * height * size, (uint32_t*)buffer);
+	renderDev->PushImageUpdate(this->image, info, 0, 0, width * height * size, (uint32_t*)buffer);
 
 	// transition to something readable by shaders
 	renderDev->PushImageLayoutTransition(VkDeferredCommand::Transfer, VkRenderDevice::ImageMemoryBarrier(this->image, subres, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
+	renderDev->PushImageOwnershipChange(VkDeferredCommand::Transfer, VkRenderDevice::ImageMemoryBarrier(this->image, subres, VkDeferredCommand::Transfer, VkDeferredCommand::Graphics, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
 
 	// create view
 	VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_2D;

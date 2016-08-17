@@ -18,6 +18,14 @@ class VkShaderProgram : public Base::ShaderVariationBase
 {
 	__DeclareClass(VkShaderProgram);
 public:
+
+	enum PipelineType
+	{
+		InvalidType,
+		Compute,
+		Graphics
+	};
+
 	/// constructor
 	VkShaderProgram();
 	/// destructor
@@ -36,17 +44,12 @@ public:
 	const AnyFX::VkProgram* GetVkProgram() const;
 	/// get unique id
 	const uint32_t GetUniqueId() const;
+	/// get type of shader program
+	const PipelineType& GetPipelineType() const;
 private:
 
 	friend class VkShader;
 	friend class VkStreamShaderLoader;
-
-	enum PipelineType
-	{
-		InvalidType,
-		Compute,
-		Graphics
-	};
 
 	/// setup from AnyFX program
 	void Setup(AnyFX::VkProgram* program, const VkPipelineLayout& layout);
@@ -99,6 +102,15 @@ inline const uint32_t
 VkShaderProgram::GetUniqueId() const
 {
 	return this->uniqueId;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const VkShaderProgram::PipelineType&
+VkShaderProgram::GetPipelineType() const
+{
+	return this->pipelineType;
 }
 
 } // namespace Vulkan

@@ -72,10 +72,10 @@ VolumetricLightAlgorithm::Setup()
 	this->globalScatterFeatureBits			= globalLightFeatureBits;
 
 	// setup shader
-	this->volumeLightShader					= shdServer->GetShader("shd:volumelight");
-	this->lightScatterShader				= shdServer->GetShader("shd:lightscatter");
-	this->verticalBloom						= shdServer->GetShader("shd:verticalbloom");
-	this->horizontalBloom					= shdServer->GetShader("shd:horizontalbloom");
+	this->volumeLightShader					= shdServer->GetShader("shd:volumelight")->CreateState({ NEBULAT_DEFAULT_GROUP });
+	this->lightScatterShader				= shdServer->GetShader("shd:lightscatter")->CreateState({ NEBULAT_DEFAULT_GROUP });
+	this->verticalBloom						= shdServer->GetShader("shd:verticalbloom")->CreateState({ NEBULAT_DEFAULT_GROUP });
+	this->horizontalBloom					= shdServer->GetShader("shd:horizontalbloom")->CreateState({ NEBULAT_DEFAULT_GROUP });
 
 	// scatter variables
 	this->lightScatterUnshadedTextureVar	= this->lightScatterShader->GetVariableByName(NEBULA3_SEMANTIC_COLORSOURCE);
@@ -226,20 +226,16 @@ VolumetricLightAlgorithm::Render()
 
 		// perform vertical bloom, this is also our output
         this->verticalBloom->Apply();
-        renderDevice->BeginPass(this->volumeLightBuffer1, this->verticalBloom);
-        this->verticalBloom->BeginUpdate();
+        renderDevice->BeginPass(this->volumeLightBuffer1);
 		this->godrayTexVar->SetTexture(this->volumeLightBuffer2->GetResolveTexture());
-        this->verticalBloom->EndUpdate();
         this->verticalBloom->Commit();
 		this->quad.Draw();
 		renderDevice->EndPass();
 
 		// now perform the blooming process
         this->horizontalBloom->Apply();
-        renderDevice->BeginPass(this->output, this->horizontalBloom);
-        this->horizontalBloom->BeginUpdate();
+        renderDevice->BeginPass(this->output);
 		this->bloomedTexVar->SetTexture(this->volumeLightBuffer1->GetResolveTexture());
-        this->horizontalBloom->EndUpdate();
         this->horizontalBloom->Commit();
 		this->quad.Draw();
 		renderDevice->EndPass();
@@ -319,7 +315,7 @@ VolumetricLightAlgorithm::RenderGlobalLight()
 	if (this->globalLight.isvalid())
 	{
 		// begin shader update
-		this->volumeLightShader->BeginUpdate();
+		this->volumeLightShader->BeginUpdateSync();
 
 		// setup camera
 		const Ptr<CameraEntity>& cam = GraphicsServer::Instance()->GetCurrentView()->GetCameraEntity();
@@ -352,10 +348,10 @@ VolumetricLightAlgorithm::RenderGlobalLight()
         //this->volumeUnshadedTextureVar->SetTexture(this->albedoRenderTarget->GetResolveTexture());
         this->lightTransformVar->SetMatrix(sunTransform);
 		this->lightCenterPosVar->SetFloat2(screenPos);
-        this->volumeLightShader->EndUpdate();
+        this->volumeLightShader->EndUpdateSync();
 
 		// begin pass
-		renderDevice->BeginPass(this->volumeLightBuffer1, this->volumeLightShader);
+		renderDevice->BeginPass(this->volumeLightBuffer1);
 
 		// select variation for mesh
 		this->volumeLightShader->SelectActiveVariation(this->globalLightFeatureBits);
@@ -401,13 +397,13 @@ VolumetricLightAlgorithm::Scatter(const Math::float2& lightPos)
 	// begin scatter pass
     this->lightScatterShader->SelectActiveVariation(this->globalScatterFeatureBits);
     this->lightScatterShader->Apply();
-	renderDevice->BeginPass(this->volumeLightBuffer2, this->lightScatterShader);
+	renderDevice->BeginPass(this->volumeLightBuffer2);
 
 	// set position of light
-    this->lightScatterShader->BeginUpdate();
+    this->lightScatterShader->BeginUpdateSync();
 	this->lightScatterLightPosVar->SetFloat2(lightPos);
     this->lightScatterUnshadedTextureVar->SetTexture(this->volumeLightBuffer1->GetResolveTexture());
-    this->lightScatterShader->EndUpdate();
+    this->lightScatterShader->EndUpdateSync();
 
 	// draw effect
 	this->lightScatterShader->Commit();

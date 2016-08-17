@@ -10,7 +10,7 @@
 #include "models/nodes/statenodeinstance.h"
 #include "particles/particlesysteminstance.h"
 #include "coregraphics/shadervariableinstance.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shaderstate.h"
 #include "materials/materialvariable.h"
 
 //------------------------------------------------------------------------------
@@ -30,7 +30,7 @@ public:
     /// called during visibility resolve
     virtual void OnVisibilityResolve(IndexT resolveIndex, float distanceToViewer);
     /// apply per-instance state prior to rendering
-	virtual void ApplyState(IndexT frameIndex, const IndexT& pass, const Ptr<CoreGraphics::Shader>& shader);
+	virtual void ApplyState(IndexT frameIndex, const IndexT& pass);
     /// perform rendering
     virtual void Render();
 
@@ -55,7 +55,7 @@ protected:
     Ptr<ParticleSystemInstance> particleSystemInstance;    
 
 #if SHADER_MODEL_5
-	Ptr<CoreGraphics::Shader> particleShader;
+	Ptr<CoreGraphics::ShaderState> particleShader;
 	Ptr<CoreGraphics::ConstantBuffer> particleObjectBuffer;
 	Ptr<CoreGraphics::ShaderVariable> emitterOrientationVar;
 	Ptr<CoreGraphics::ShaderVariable> billBoardVar;

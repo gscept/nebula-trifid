@@ -19,8 +19,11 @@
 namespace CoreGraphics
 {
 class Texture;
-class ShaderInstance;
+class ShaderState;
 class ShaderVariableInstance;
+class ConstantBuffer;
+class ShaderReadWriteTexture;
+class ShaderReadWriteBuffer;
 }
 
 //------------------------------------------------------------------------------
@@ -42,7 +45,9 @@ public:
         BoolType,
         TextureType,
 		SamplerType,
-		BufferType
+		ConstantBufferType,
+		ImageReadWriteType,
+		BufferReadWriteType
     };
 
     /// shader variable name typedef
@@ -102,12 +107,19 @@ public:
 
     /// set texture value
     void SetTexture(const Ptr<CoreGraphics::Texture>& value);
-
-	/// sets buffer handle
-	void SetBufferHandle(void* handle);
+	/// set constant buffer
+	void SetConstantBuffer(const Ptr<CoreGraphics::ConstantBuffer>& buf);
+	/// set shader read-write image
+	void SetShaderReadWriteTexture(const Ptr<CoreGraphics::ShaderReadWriteTexture>& tex);
+	/// set shader read-write as texture
+	void SetShaderReadWriteTexture(const Ptr<CoreGraphics::Texture>& tex);
+	/// set shader read-write buffer
+	void SetShaderReadWriteBuffer(const Ptr<CoreGraphics::ShaderReadWriteBuffer>& buf);
 
 	/// reloads all variable instances
 	virtual void Reload();
+	/// returns true if this variable is active in the shader state, implement for subclass
+	const bool IsActive() const;
 
 	/// removes all instances
 	virtual void Cleanup();

@@ -153,7 +153,7 @@ DebugGraphicsHandler::OnRenderDebugView(const Ptr<Debug::RenderDebugView>& msg)
 void 
 DebugGraphicsHandler::OnIncrDebugShaderLayer(const Ptr<Debug::IncrDebugShaderLayer>& msg)
 {
-    const Ptr<Shader>& sharedShader = ShaderServer::Instance()->GetSharedShader();
+	const Ptr<ShaderState>& sharedShader = ShaderServer::Instance()->GetSharedShader();
     const Ptr<CoreGraphics::ShaderVariable>&  shdVar = sharedShader->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_DEBUGSHADERLAYER));
     n_assert(shdVar.isvalid());
     shaderDebugLayer++;
@@ -167,7 +167,7 @@ DebugGraphicsHandler::OnIncrDebugShaderLayer(const Ptr<Debug::IncrDebugShaderLay
 void 
 DebugGraphicsHandler::OnSetFloatShaderVariable(const Ptr<Debug::SetFloatShaderVariable> &msg)
 {
-    const Ptr<Shader>& sharedShader = ShaderServer::Instance()->GetSharedShader();
+	const Ptr<ShaderState>& sharedShader = ShaderServer::Instance()->GetSharedShader();
     const Ptr<CoreGraphics::ShaderVariable>& shdVar = sharedShader->GetVariableByName(msg->GetName());
     n_assert(shdVar.isvalid());
     shdVar->SetFloat(msg->GetValue());

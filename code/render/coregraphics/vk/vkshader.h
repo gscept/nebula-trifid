@@ -9,6 +9,7 @@
 #include "core/refcounted.h"
 #include "coregraphics/base/shaderbase.h"
 #include "lowlevel/afxapi.h"
+#include "util/set.h"
 
 namespace CoreGraphics
 {
@@ -32,19 +33,25 @@ public:
 	AnyFX::ShaderEffect* GetVkEffect() const;
 
 	/// create descriptor set layout
-	void CreateDescriptorSetLayout(AnyFX::ShaderEffect* effect);
-
-	/// begin updating shader state
-	void BeginUpdate();
-	/// end updating shader state
-	void EndUpdate();
+	void Setup(AnyFX::ShaderEffect* effect);
+	/// get variable offset (within its constant buffer) by name
+	static const uint32_t& GetVariableOffset(const Util::String& name);
+	/// get variable offset by index
+	static const uint32_t& GetVariableOffset(const IndexT& i);
+	/// returns variable offset index
+	static IndexT FindVariableOffset(const Util::String& name);
+	/// returns constant offset table using varblock signature
+	static const Util::Dictionary<Util::StringAtom, uint32_t>& GetConstantOffsetTable(const Util::StringAtom& signature);
 
 	/// reloads a shader from file
 	void Reload();
 
 private:
 	friend class VkStreamShaderLoader;
-	friend class VkShaderInstance;
+	friend class VkShaderState;
+
+	/// create descriptor layout signature
+	Util::String CreateSignature(const VkDescriptorSetLayoutBinding& bind);
 
 	/// cleans up the shader
 	void Cleanup();
@@ -59,13 +66,19 @@ private:
 
 	Util::Array<VkSampler> immutableSamplers;
 	VkPushConstantRange constantRange;
-	Util::FixedArray<VkDescriptorSetLayout> layouts;
-	Util::Dictionary<IndexT, Util::Array<VkDescriptorSetLayoutBinding>> sets;
+	Util::FixedArray<VkDescriptorSetLayout> setLayouts;
+	Util::FixedArray<VkPipelineLayout> pipelineSetLayouts;
+	Util::Dictionary<IndexT, Util::Array<VkDescriptorSetLayoutBinding>> setBindings;
 
-	Ptr<CoreGraphics::ConstantBuffer> globalBlockBuffer;
-	Ptr<CoreGraphics::ShaderVariable> globalBlockBufferVar;
+	Util::FixedArray<VkDescriptorSet> sets;
+	Util::Dictionary<Util::StringAtom, Ptr<CoreGraphics::ConstantBuffer>> buffers;
+
+	static Util::Dictionary<Util::StringAtom, VkDescriptorSetLayout> LayoutCache;
+	static Util::Dictionary<VkDescriptorSetLayout, VkPipelineLayout> PipelineSetLayoutCache;
+	static Util::Dictionary<Util::StringAtom, VkPipelineLayout> ShaderPipelineCache;
+
+	Util::Set<Util::String> activeBlockNames;
 };
-
 
 //------------------------------------------------------------------------------
 /**

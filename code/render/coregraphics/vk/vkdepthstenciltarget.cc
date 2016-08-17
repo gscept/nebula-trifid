@@ -50,6 +50,18 @@ VkDepthStencilTarget::Setup()
 	extents.height = this->height;
 	extents.depth = 1;
 
+	this->viewport.x = 0;
+	this->viewport.y = 0;
+	this->viewport.width = (float)this->width;
+	this->viewport.height = (float)this->height;
+	this->viewport.minDepth = 0;
+	this->viewport.maxDepth = 1;
+
+	this->scissor.offset.x = 0;
+	this->scissor.offset.y = 0;
+	this->scissor.extent.width = this->width;
+	this->scissor.extent.height = this->height;
+
 	VkImageCreateInfo imgInfo =
 	{
 		VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
@@ -64,8 +76,8 @@ VkDepthStencilTarget::Setup()
 		VK_IMAGE_TILING_OPTIMAL,
 		VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
 		VK_SHARING_MODE_EXCLUSIVE,
-		1,
-		&VkRenderDevice::Instance()->renderQueueFamily,
+		0,
+		NULL,
 		VK_IMAGE_LAYOUT_UNDEFINED
 	};
 
@@ -75,7 +87,7 @@ VkDepthStencilTarget::Setup()
 
 	// allocate buffer backing and bind to image
 	uint32_t size;
-	VkRenderDevice::Instance()->AllocateImageMemory(this->image, this->mem, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, size);
+	VkRenderDevice::Instance()->AllocateImageMemory(this->image, this->mem, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 1, size);
 	vkBindImageMemory(VkRenderDevice::dev, this->image, this->mem, 0);
 
 	VkImageSubresourceRange subres;
@@ -85,10 +97,10 @@ VkDepthStencilTarget::Setup()
 	subres.levelCount = 1;
 	subres.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
 	VkComponentMapping mapping;
-	mapping.r = VK_COMPONENT_SWIZZLE_R;
-	mapping.g = VK_COMPONENT_SWIZZLE_G;
-	mapping.b = VK_COMPONENT_SWIZZLE_B;
-	mapping.a = VK_COMPONENT_SWIZZLE_A;
+	mapping.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+	mapping.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+	mapping.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+	mapping.a = VK_COMPONENT_SWIZZLE_IDENTITY;
 	VkImageViewCreateInfo viewInfo =
 	{
 		VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
@@ -105,9 +117,10 @@ VkDepthStencilTarget::Setup()
 	n_assert(res == VK_SUCCESS);
 
 	// change image layout
-	VkClearDepthStencilValue clear = {0, 0};
+	VkClearDepthStencilValue clear = {1, 0};
 	VkRenderDevice::Instance()->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->image, subres, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL));
 	VkRenderDevice::Instance()->PushImageDepthStencilClear(this->image, VkDeferredCommand::Graphics, VK_IMAGE_LAYOUT_GENERAL, clear, subres);
+	VkRenderDevice::Instance()->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->image, subres, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL));
 }
 
 //------------------------------------------------------------------------------
@@ -146,7 +159,7 @@ VkDepthStencilTarget::BeginPass()
 	subres.baseMipLevel = 0;
 	subres.layerCount = 1;
 	subres.levelCount = 1;
-	VkRenderDevice::Instance()->ImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->image, subres, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL));
+	VkRenderDevice::Instance()->ImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->image, subres, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL));
 }
 
 //------------------------------------------------------------------------------
@@ -162,7 +175,7 @@ VkDepthStencilTarget::EndPass()
 	subres.baseMipLevel = 0;
 	subres.layerCount = 1;
 	subres.levelCount = 1;
-	VkRenderDevice::Instance()->ImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->image, subres, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_GENERAL));
+	VkRenderDevice::Instance()->ImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->image, subres, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL));
 	
 	DepthStencilTargetBase::EndPass();
 }

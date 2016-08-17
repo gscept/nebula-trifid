@@ -29,6 +29,7 @@ public:
 	/// render
 	void Render(const SizeT multiplier);
 private:
+	Ptr<CoreGraphics::ShaderState> shaderState;
 	Ptr<CoreGraphics::ConstantBuffer> instancingBuffer;
 	Ptr<CoreGraphics::ShaderVariable> instancingBlockVar;
 

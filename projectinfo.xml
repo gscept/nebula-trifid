@@ -16,7 +16,7 @@
 			-->
             <Attr name="ShaderToolParams" value="/I ../lib /I lib"/>
             <Attr name="ShaderLanguage" value="SPIRV"/>
-            <Attr name="ShaderSrcDir" value="toolkit:work/shaders/gl"/>
+            <Attr name="ShaderSrcDir" value="toolkit:work/shaders/vk"/>
             <Attr name="ShaderDstDir" value="dst:shaders"/>
             <Attr name="FrameShaderSrcDir" value="toolkit:work/frame/win32"/>
             <Attr name="FrameShaderDstDir" value="dst:frame"/>
@@ -24,7 +24,7 @@
             <Attr name="MaterialsDstDir" value="dst:materials"/>
             
 			<!-- custom shading resources -->
-			<Attr name="ShaderSrcCustomDir" value="proj:work/shaders/gl"/>
+			<Attr name="ShaderSrcCustomDir" value="proj:work/shaders/vk"/>
 			<Attr name="MaterialsSrcCustomDir" value="proj:work/materials"/>
 			<Attr name="FrameShaderSrcCustomDir" value="proj:work/frame/win32"/>            
 			

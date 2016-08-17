@@ -93,7 +93,7 @@ ParticleSystemNodeInstance::Setup(const Ptr<ModelInstance>& inst, const Ptr<Mode
 
 #if SHADER_MODEL_5
 	ShaderServer* shdServer = ShaderServer::Instance();
-	this->particleShader = shdServer->GetShader("shd:particle");
+	this->particleShader = shdServer->CreateShaderState("shd:particle", { NEBULAT_DEFAULT_GROUP });
 	this->particleObjectBuffer = ConstantBuffer::Create();
 	this->particleObjectBuffer->SetupFromBlockInShader(this->particleShader, "ParticleObjectBlock");
 	this->emitterOrientationVar = this->particleObjectBuffer->GetVariableByName(NEBULA3_SEMANTIC_EMITTERTRANSFORM);
@@ -176,7 +176,7 @@ ParticleSystemNodeInstance::Discard()
     // discard material clone
 	//this->surfaceClone->Unload();
 	this->particleShader = 0;
-	this->particleObjectBufferVar->SetBufferHandle(NULL);
+	this->particleObjectBufferVar->SetConstantBuffer(NULL);
 	this->particleObjectBufferVar = 0;
 	this->particleObjectBuffer->Discard();
 	this->emitterOrientationVar = 0;
@@ -268,7 +268,7 @@ ParticleSystemNodeInstance::OnRenderBefore(IndexT frameIndex, Timing::Time time)
 /**
 */
 void
-ParticleSystemNodeInstance::ApplyState(IndexT frameIndex, const IndexT& pass, const Ptr<CoreGraphics::Shader>& shader)
+ParticleSystemNodeInstance::ApplyState(IndexT frameIndex, const IndexT& pass)
 {
 	const Ptr<Particles::ParticleSystemInstance>& inst = this->GetParticleSystemInstance();
 	const Ptr<Particles::ParticleSystem>& system = inst->GetParticleSystem();
@@ -296,7 +296,7 @@ ParticleSystemNodeInstance::ApplyState(IndexT frameIndex, const IndexT& pass, co
 		this->billBoardVar->SetBool(billboard);
 		this->particleObjectBufferIndex = frameIndex;
 	}
-	this->particleObjectBufferVar->SetBufferHandle(this->particleObjectBuffer->GetHandle());
+	this->particleObjectBufferVar->SetConstantBuffer(this->particleObjectBuffer);
 #else
 	// set variables
 	if (billboard)
@@ -318,7 +318,7 @@ ParticleSystemNodeInstance::ApplyState(IndexT frameIndex, const IndexT& pass, co
 #endif
 
 	// call base class (applies time)
-    StateNodeInstance::ApplyState(frameIndex, pass, shader);
+    StateNodeInstance::ApplyState(frameIndex, pass);
 }
 
 //------------------------------------------------------------------------------

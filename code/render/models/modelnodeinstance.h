@@ -11,7 +11,7 @@
 */
 #include "core/refcounted.h"
 #include "util/stringatom.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shaderstate.h"
 #include "timing/time.h"
 #include "math/bbox.h"
 #include "debug/debugtimer.h"
@@ -49,7 +49,7 @@ public:
     virtual void OnVisibilityResolve(IndexT resolveIndex, float distanceToViewer);
 
     /// apply per-instance state prior to rendering
-    virtual void ApplyState(IndexT frameIndex, const IndexT& pass, const Ptr<CoreGraphics::Shader>& shader);
+	virtual void ApplyState(IndexT frameIndex, const IndexT& pass);
 
     /// perform rendering
     virtual void Render();

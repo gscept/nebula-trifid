@@ -61,7 +61,7 @@ SM30LightServer::Open()
 
     // setup shared shader variables
     ShaderServer* shdServer = ShaderServer::Instance();
-    const Ptr<Shader>& sharedShader = shdServer->GetSharedShader();
+    const Ptr<ShaderState>& sharedShader = shdServer->GetSharedShader();
     this->shdGlobalLightDir              = sharedShader->GetVariableByName(ShaderVariable::Name("GlobalLightDirection"));
     this->shdGlobalLightColor            = sharedShader->GetVariableByName(ShaderVariable::Name("GlobalLightColor"));
     this->shdGlobalBackLightColor        = sharedShader->GetVariableByName(ShaderVariable::Name("GlobalBackLightColor"));

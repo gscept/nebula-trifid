@@ -11,7 +11,7 @@
 #include "core/refcounted.h"
 #include "core/singleton.h"
 #include "coregraphics/texture.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shaderstate.h"
 #include "coregraphics/bufferlock.h"
 #include "coregraphics/vertexbuffer.h"
 #include "input/inputevent.h"
@@ -59,7 +59,7 @@ public:
 	/// get index buffer
 	const Ptr<CoreGraphics::IndexBuffer>& GetIndexBuffer() const;
 	/// get shader
-    const Ptr<CoreGraphics::Shader>& GetShader() const;
+    const Ptr<CoreGraphics::ShaderState>& GetShaderState() const;
 	/// get font texture
 	const Ptr<CoreGraphics::Texture>& GetFontTexture() const;
 	/// get shader params
@@ -68,7 +68,7 @@ public:
 private:
 
 	ImguiRendererParams params;
-	Ptr<CoreGraphics::Shader> uiShader;
+	Ptr<CoreGraphics::ShaderState> uiShader;
 	Ptr<CoreGraphics::Texture> fontTexture;
 	Ptr<CoreGraphics::VertexBuffer> vbo;
 	Ptr<CoreGraphics::IndexBuffer> ibo;
@@ -135,8 +135,8 @@ ImguiRenderer::GetIndexBuffer() const
 //------------------------------------------------------------------------------
 /**
 */
-inline const Ptr<CoreGraphics::Shader>&
-ImguiRenderer::GetShader() const
+inline const Ptr<CoreGraphics::ShaderState>&
+ImguiRenderer::GetShaderState() const
 {
 	return this->uiShader;
 }

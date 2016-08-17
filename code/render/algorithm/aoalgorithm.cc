@@ -94,8 +94,8 @@ AOAlgorithm::Setup()
 
 #ifdef HBAO_COMPUTE
 	// setup shaders
-	this->hbao = ShaderServer::Instance()->GetShader("shd:hbao_cs");
-    this->blur = ShaderServer::Instance()->GetShader("shd:hbaoblur_cs");
+	this->hbao = ShaderServer::Instance()->GetShader("shd:hbao_cs")->CreateState({ NEBULAT_DEFAULT_GROUP });
+	this->blur = ShaderServer::Instance()->GetShader("shd:hbaoblur_cs")->CreateState({ NEBULAT_DEFAULT_GROUP });
 
     this->xDirection = ShaderServer::Instance()->FeatureStringToMask("Alt0");
     this->yDirection = ShaderServer::Instance()->FeatureStringToMask("Alt1");
@@ -108,8 +108,8 @@ AOAlgorithm::Setup()
 	this->hbaoBlurRVar = this->blur->GetVariableByName("HBAOR");
 #else
 	// setup shaders
-	this->hbao = ShaderServer::Instance()->CreateShaderInstance("shd:hbao");
-	this->blur = ShaderServer::Instance()->CreateShaderInstance("shd:hbaoblur");
+	this->hbao = ShaderServer::Instance()->CreateShaderState("shd:hbao");
+	this->blur = ShaderServer::Instance()->CreateShaderState("shd:hbaoblur");
 	this->hbaoTextureVar = this->blur->GetVariableByName("HBAOBuffer");
 	this->randomTextureVar = this->hbao->GetVariableByName("RandomMap");
 	this->rVar = this->hbao->GetVariableBySemantic(NEBULA3_SEMANTIC_R);
@@ -143,7 +143,7 @@ AOAlgorithm::Setup()
     this->powerExponentVar = this->blur->GetVariableByName(NEBULA3_SEMANTIC_POWEREXPONENT);
     this->blurFalloff = this->blur->GetVariableByName(NEBULA3_SEMANTIC_FALLOFF);
     this->blurDepthThreshold = this->blur->GetVariableByName(NEBULA3_SEMANTIC_DEPTHTHRESHOLD);
-	this->powerExponentVar->SetFloat(1.5f);
+	//this->powerExponentVar->SetFloat(1.5f);
 
 	// setup fsq
 	this->quad.Setup(this->inputs[0]->GetWidth(), this->inputs[0]->GetHeight());
@@ -326,8 +326,8 @@ AOAlgorithm::Begin()
 	if (this->updateThisFrame)
 	{
 		// calculate variables
-		this->hbao->BeginUpdate();
-		this->blur->BeginUpdate();
+		this->hbao->BeginUpdateSync();
+		this->blur->BeginUpdateSync();
 
 		// calculate stuff
 		this->Calculate();
@@ -347,15 +347,15 @@ AOAlgorithm::Begin()
 		this->aoResolutionVar->SetFloat2(vars.aoResolution);
 		this->invAOResolutionVar->SetFloat2(vars.invAOResolution);
 		this->strengthVar->SetFloat(vars.strength);
-		this->tanAngleBiasVar->SetFloat(vars.tanAngleBias);
+		//this->tanAngleBiasVar->SetFloat(vars.tanAngleBias);
 
 		// set blur vars
-		this->blurFalloff->SetFloat(vars.blurFalloff);
-		this->blurDepthThreshold->SetFloat(vars.blurThreshold);
+		//this->blurFalloff->SetFloat(vars.blurFalloff);
+		//this->blurDepthThreshold->SetFloat(vars.blurThreshold);
 
 		// end updates
-		this->hbao->EndUpdate();
-		this->blur->EndUpdate();
+		this->hbao->EndUpdateSync();
+		this->blur->EndUpdateSync();
 
 		// we have performed our deferred setup, so set flag to false to avoid this happening again
 		this->updateThisFrame = false;
@@ -391,14 +391,14 @@ AOAlgorithm::Render()
 		this->hbao->SelectActiveVariation(this->xDirection);
         this->hbao->Apply();
 		this->depthTextureVar->SetTexture(this->inputs[0]);
-		this->hbao0Var->SetTexture(this->internalTargets[0]->GetTexture());
+		this->hbao0Var->SetShaderReadWriteTexture(this->internalTargets[0]->GetTexture());
 		this->hbao->Commit();
 		renderDevice->Compute(numGroupsX1, numGroupsY2, 1);
 
         this->hbao->SelectActiveVariation(this->yDirection);
         this->hbao->Apply();
-		this->hbao0Var->SetTexture(this->internalTargets[0]->GetTexture());
-		this->hbao1Var->SetTexture(this->internalTargets[1]->GetTexture());
+		this->hbao0Var->SetShaderReadWriteTexture(this->internalTargets[0]->GetTexture());
+		this->hbao1Var->SetShaderReadWriteTexture(this->internalTargets[1]->GetTexture());
 		this->hbao->Commit();
 		renderDevice->Compute(numGroupsY1, numGroupsX2, 1);
 
@@ -406,8 +406,8 @@ AOAlgorithm::Render()
         this->blur->Apply();
 		this->hbaoBlurLinearVar->SetTexture(this->internalTargets[1]->GetTexture());
 		this->hbaoBlurPointVar->SetTexture(this->internalTargets[1]->GetTexture());
-		this->hbaoBlurRGVar->SetTexture(this->internalTargets[0]->GetTexture());
-		this->hbaoBlurRVar->SetTexture(NULL);
+		this->hbaoBlurRGVar->SetShaderReadWriteTexture(this->internalTargets[0]->GetTexture());
+		this->hbaoBlurRVar->SetShaderReadWriteTexture((CoreGraphics::Texture*)NULL);
 		this->blur->Commit();
 		renderDevice->Compute(numGroupsX1, numGroupsY2, 1);
 
@@ -415,8 +415,8 @@ AOAlgorithm::Render()
         this->blur->Apply();
 		this->hbaoBlurLinearVar->SetTexture(this->internalTargets[0]->GetTexture());
 		this->hbaoBlurPointVar->SetTexture(this->internalTargets[0]->GetTexture());
-		this->hbaoBlurRGVar->SetTexture(NULL);
-		this->hbaoBlurRVar->SetTexture(this->output->GetTexture());
+		this->hbaoBlurRGVar->SetShaderReadWriteTexture((CoreGraphics::Texture*)NULL);
+		this->hbaoBlurRVar->SetShaderReadWriteTexture(this->output->GetTexture());
 		this->blur->Commit();
 		renderDevice->Compute(numGroupsY1, numGroupsX2, 1);
 #else

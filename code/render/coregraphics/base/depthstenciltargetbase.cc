@@ -21,6 +21,8 @@ DepthStencilTargetBase::DepthStencilTargetBase() :
 	height(0),
 	isValid(false),    
 	inBeginPass(false),
+	clearDepth(1),
+	clearStencil(0),
 	clearFlags(0),
 	format(PixelFormat::D24S8)
 {

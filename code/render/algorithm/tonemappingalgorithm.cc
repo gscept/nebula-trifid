@@ -75,9 +75,9 @@ ToneMappingAlgorithm::Setup()
 	this->downscaledColor = this->color->GetResolveTexture();
 
 	// create shaders
-	this->averageLum = ShaderServer::Instance()->GetShader("shd:averagelum");
-    this->downscale = ShaderServer::Instance()->GetShader("shd:downscale");
-    this->copy = ShaderServer::Instance()->GetShader("shd:copy");
+	this->averageLum = ShaderServer::Instance()->GetShader("shd:averagelum")->CreateState({ NEBULAT_DEFAULT_GROUP });
+	this->downscale = ShaderServer::Instance()->GetShader("shd:downscale")->CreateState({ NEBULAT_DEFAULT_GROUP });
+	this->copy = ShaderServer::Instance()->GetShader("shd:copy")->CreateState({ NEBULAT_DEFAULT_GROUP });
 
 	// get luminance variables
 	this->colorBufferVar = this->averageLum->GetVariableByName("ColorSource");
@@ -159,10 +159,8 @@ ToneMappingAlgorithm::Render()
 
 		// copy buffer and downscale to 512x512
         this->downscale->Apply();
-        renderDevice->BeginPass(this->color, this->downscale);
-        this->downscale->BeginUpdate();
+        renderDevice->BeginPass(this->color);
 		this->copyBufferVar->SetTexture(this->inputs[0]);
-        this->downscale->EndUpdate();
         this->downscale->Commit();
 		this->downscaleQuad.Draw();
 		renderDevice->EndPass();
@@ -172,13 +170,13 @@ ToneMappingAlgorithm::Render()
 
         // do average lum calculation
         this->averageLum->Apply();
-        renderDevice->BeginPass(this->output, this->averageLum);
+        renderDevice->BeginPass(this->output);
 
         // update time
-        this->averageLum->BeginUpdate();
+        this->averageLum->BeginUpdateSync();
 		Timing::Time time = FrameSync::FrameSyncTimer::Instance()->GetFrameTime();
 		this->timeDiffVar->SetFloat((float)time); // adjust the constant multiplier to increase transition time, the higher the slower
-        this->averageLum->EndUpdate();
+        this->averageLum->EndUpdateSync();
 
 		// now render shader which calculates the average luminance to the output
         this->averageLum->Commit();

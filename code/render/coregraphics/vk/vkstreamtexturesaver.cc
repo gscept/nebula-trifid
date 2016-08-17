@@ -93,12 +93,6 @@ VkStreamTextureSaver::SaveTexture2D(const Ptr<CoreGraphics::Texture>& tex, ILenu
 	ILboolean result = ilTexImage(mapInfo.mipWidth, mapInfo.mipHeight, 1, channels, format, type, (ILubyte*)mapInfo.data);
 	n_assert(result == IL_TRUE);
 
-	// flip image if it's a GL texture
-	if (!tex->IsRenderTargetAttachment())
-	{
-		iluFlipImage();
-	}
-
 	// now save as PNG (will support proper alpha)
 	ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
 	ILint size = ilSaveL(imageFileType, NULL, 0);

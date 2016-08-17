@@ -37,6 +37,27 @@
         #define	NEBULA3_OPENGL4_DEBUG (0)
     #endif
 #elif __VULKAN__
+
+	// define the same descriptor set slots as we do in the shaders
+	#define NEBULAT_TEXTURE_GROUP 0
+	#define NEBULAT_FRAME_GROUP 1
+	#define NEBULAT_LIGHT_GROUP 2
+	#define NEBULAT_INSTANCE_GROUP 3
+	#define NEBULAT_PASS_GROUP 4
+	#define NEBULAT_OBJECT_GROUP 5
+	#define NEBULAT_SKINNING_GROUP 6
+	#define NEBULAT_DEFERRED_GROUP 7
+	#define NEBULAT_DEFAULT_GROUP 9
+
+	#define MAX_2D_TEXTURES 4096
+	#define MAX_2D_MS_TEXTURES 64
+	#define MAX_CUBE_TEXTURES 128
+	#define MAX_3D_TEXTURES 128
+
+	#define MAX_2D_IMAGES 64
+	#define MAX_CUBE_IMAGES 64
+	#define MAX_3D_IMAGES 64
+
 	#define SHADER_MODEL_5 (1)
 	#ifdef _DEBUG
 		#define NEBULAT_VULKAN_DEBUG (1)

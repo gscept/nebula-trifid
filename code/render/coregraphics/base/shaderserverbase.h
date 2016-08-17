@@ -15,7 +15,7 @@
 #include "coregraphics/shader.h"
 #include "coregraphics/shaderfeature.h"
 #include "coregraphics/shadervariable.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shaderstate.h"
 #include "coregraphics/shaderidentifier.h"
 
 namespace CoreGraphics
@@ -45,8 +45,10 @@ public:
 
     /// return true if a shader exists
     bool HasShader(const Resources::ResourceId& resId) const;
-    /// create a new shader instance
-    Ptr<CoreGraphics::ShaderInstance> CreateShaderInstance(const Resources::ResourceId& resId);
+    /// create a new shader state
+    Ptr<CoreGraphics::ShaderState> CreateShaderState(const Resources::ResourceId& resId);
+	/// create a new shader state only for a set of groups
+	Ptr<CoreGraphics::ShaderState> CreateShaderState(const Resources::ResourceId& resId, const Util::Array<IndexT>& groups);
     /// get all loaded shaders
     const Util::Dictionary<Resources::ResourceId, Ptr<CoreGraphics::Shader> >& GetAllShaders() const;
 	/// get shader by name
@@ -77,7 +79,7 @@ public:
     /// get a shared variable by index
     const Ptr<CoreGraphics::ShaderVariable>& GetSharedVariableByIndex(IndexT i) const;
     /// get the shared shader
-    const Ptr<CoreGraphics::Shader>& GetSharedShader();
+	const Ptr<CoreGraphics::ShaderState>& GetSharedShader();
 
 protected:
     friend class CoreGraphics::ShaderIdentifier;
@@ -87,7 +89,7 @@ protected:
     CoreGraphics::ShaderFeature shaderFeature;
     CoreGraphics::ShaderFeature::Mask curShaderFeatureBits;
     Util::Dictionary<Resources::ResourceId,Ptr<CoreGraphics::Shader>> shaders;
-    Ptr<CoreGraphics::Shader> sharedVariableShader;    
+	Ptr<CoreGraphics::ShaderState> sharedVariableShader;
     Ptr<CoreGraphics::ShaderVariable> objectIdShaderVar;
     Ptr<CoreGraphics::Shader> activeShader;
     bool isOpen;
@@ -230,7 +232,7 @@ ShaderServerBase::GetSharedVariableByIndex(IndexT i) const
 //------------------------------------------------------------------------------
 /**
 */
-inline const Ptr<CoreGraphics::Shader>&
+inline const Ptr<CoreGraphics::ShaderState>&
 ShaderServerBase::GetSharedShader()
 {
     return this->sharedVariableShader;

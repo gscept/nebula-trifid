@@ -61,12 +61,18 @@ DrawFullScreenQuad::Setup(SizeT rtWidth, SizeT rtHeight)
     float top    = +1.0f + halfPixelSize.y();
     float bottom = -1.0f + halfPixelSize.y();
 
-    // compute uv coordinates
-    // FIXME: add half-pixel size here?
+    // compute uv coordinates, for GL and Vulkan, the Y coordinate is reversed
+#if (__VULKAN__ || __OGL4__)
+	float u0 = 0.0f;
+	float u1 = 1.0f;
+	float v0 = 1.0f;
+	float v1 = 0.0f;
+#else
     float u0 = 0.0f;
     float u1 = 1.0f;
     float v0 = 0.0f;
     float v1 = 1.0f;
+#endif
 
     // setup a vertex buffer with 2 triangles
     float v[6][5];

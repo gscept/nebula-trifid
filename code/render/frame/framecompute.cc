@@ -65,19 +65,8 @@ FrameCompute::Render()
 	ShaderServer* shaderServer = ShaderServer::Instance();
 
     // apply and commit shader
-    shaderServer->SetActiveShader(this->shader);
+    shaderServer->SetActiveShader(this->shader->GetShader());
     this->shader->Apply();
-
-    // begin updating shader
-    this->shader->BeginUpdate();
-
-    // apply shader variables
-    IndexT varIndex;
-    for (varIndex = 0; varIndex < this->shaderVariables.Size(); varIndex++)
-    {
-        this->shaderVariables[varIndex]->Apply();
-    }
-    this->shader->EndUpdate();
 
     // commit shader variables
     this->shader->Commit();

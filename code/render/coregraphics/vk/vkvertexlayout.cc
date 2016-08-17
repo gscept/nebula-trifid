@@ -42,6 +42,8 @@ VkVertexLayout::Setup(const Util::Array<CoreGraphics::VertexComponent>& c)
 	this->binds.Resize(VkRenderDevice::MaxNumVertexStreams);
 	this->attrs.Resize(this->components.Size());
 
+	SizeT strides[VkRenderDevice::MaxNumVertexStreams] = { 0 };
+
 	uint32_t numUsedStreams = 0;
 	IndexT streamIndex;
 	for (streamIndex = 0; streamIndex < VkRenderDevice::MaxNumVertexStreams; streamIndex++)
@@ -50,7 +52,7 @@ VkVertexLayout::Setup(const Util::Array<CoreGraphics::VertexComponent>& c)
 		{
 			this->binds[numUsedStreams].binding = numUsedStreams;
 			this->binds[numUsedStreams].inputRate = numUsedStreams > 0 ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX;
-			this->binds[numUsedStreams].stride = 1;
+			this->binds[numUsedStreams].stride = 0;
 			numUsedStreams++;
 		}
 	}
@@ -67,6 +69,7 @@ VkVertexLayout::Setup(const Util::Array<CoreGraphics::VertexComponent>& c)
 		attr->format = VkTypes::AsVkVertexType(component.GetFormat());
 		attr->offset = curOffset[component.GetStreamIndex()];
 		curOffset[component.GetStreamIndex()] += component.GetByteSize();
+		this->binds[attr->binding].stride += component.GetByteSize();
 	}
 
 	this->vertexInfo =

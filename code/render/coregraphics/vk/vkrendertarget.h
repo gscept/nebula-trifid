@@ -55,22 +55,37 @@ public:
 	/// copy from this render target to the target texture
 	void Copy(const Ptr<CoreGraphics::RenderTarget>& tex);
 
+	/// set clear color 
+	void SetClearColor(const Math::float4& c);
+	/// set clear depth
+	void SetClearDepth(float f);
+	/// set clear stencil
+	void SetClearStencil(int i);
+	/// force-clears render target, useful if clearing is required outside a frame shader
+	virtual void Clear(uint flags);
+
 	/// get the vulkan image
 	const VkImageView& GetVkImageView() const;
 
-	/// swap framebuffers
-	void SwapBuffers();
+
 private:
 
-	VkImage targetImage;
-	VkImageView targetImageView;
-	VkDeviceMemory targetImageMem;
+	/// increase backbuffer index
+	void SwapBuffers();
+	/// transition backbuffer to be rendered to (only for default render target)
+	void SwitchToRender();
+	/// transition backbuffer to be presented (only for default render target)
+	void SwitchToPresent();
 
-	VkFramebuffer framebuffer;
+	VkImage vkTargetImage;
+	VkImageView vkTargetImageView;
+	VkDeviceMemory vkTargetImageMem;
+
+	VkFramebuffer vkFramebuffer;
 	Util::FixedArray<VkViewport> viewports;
 	Util::FixedArray<VkRect2D> scissors;
 
-	Util::FixedArray<VkClearValue> clearValues;
+	Util::FixedArray<VkClearValue> vkClearValues;
 	VkPipelineViewportStateCreateInfo viewportInfo;
 	VkGraphicsPipelineCreateInfo framebufferPipelineInfo;
 	VkRenderPass pass;
@@ -96,7 +111,7 @@ VkRenderTarget::GetVkPipelineInfo()
 inline const VkImageView&
 VkRenderTarget::GetVkImageView() const
 {
-	return this->targetImageView;
+	return this->vkTargetImageView;
 }
 
 //------------------------------------------------------------------------------
@@ -114,7 +129,7 @@ VkRenderTarget::GetVkRenderPass() const
 inline const VkFramebuffer&
 VkRenderTarget::GetVkFramebuffer() const
 {
-	return this->framebuffer;
+	return this->vkFramebuffer;
 }
 
 //------------------------------------------------------------------------------
@@ -123,7 +138,7 @@ VkRenderTarget::GetVkFramebuffer() const
 inline const Util::FixedArray<VkClearValue>&
 VkRenderTarget::GetVkClearValues() const
 {
-	return this->clearValues;
+	return this->vkClearValues;
 }
 
 //------------------------------------------------------------------------------

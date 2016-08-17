@@ -10,7 +10,7 @@
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
 #include "math/matrix44.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shaderstate.h"
 #include "coregraphics/shader.h"
 namespace Base
 {

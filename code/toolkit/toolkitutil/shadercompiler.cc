@@ -6,6 +6,7 @@
 #include "shadercompiler.h"
 #include "io/ioserver.h"
 #include "io/xmlreader.h"
+#include "coregraphics/config.h"
 
 #if __DX11__
 #include <d3dx11.h>
@@ -424,6 +425,12 @@ ShaderCompiler::CompileGLSL(const Util::String& srcPath)
 			// set flags
 			flags.push_back("/NOSUB");		// deactivate subroutine usage
 			flags.push_back("/GBLOCK");		// put all shader variables outside of explicit buffers in one global block
+
+			// if using debug, output raw shader code
+			if (this->debug)
+			{
+				flags.push_back("/O");
+			}
 			
 			AnyFXErrorBlob* errors = NULL;
 
@@ -516,7 +523,7 @@ ShaderCompiler::CompileSPIRV(const Util::String& srcPath)
 		{
 			URI src(srcFile);
 			URI dst(destFile);
-			URI shaderFolder("toolkit:work/shaders/gl");
+			URI shaderFolder(this->srcShaderBaseDir);
 			std::vector<std::string> defines;
 			std::vector<std::string> flags;
 			Util::String define;
@@ -532,8 +539,15 @@ ShaderCompiler::CompileSPIRV(const Util::String& srcPath)
 			defines.push_back(define.AsCharPtr());
 
 			// set flags
-			flags.push_back("/NOSUB");		// deactivate subroutine usage
-			flags.push_back("/GBLOCK");		// put all shader variables outside of explicit buffers in one global block
+			flags.push_back("/NOSUB");			// deactivate subroutine usage
+			flags.push_back("/GBLOCK");			// put all shader variables outside of explicit buffers in one global block
+			flags.push_back(Util::String::Sprintf("/DEFAULTSET %d", NEBULAT_DEFAULT_GROUP).AsCharPtr());	// since we want the most frequently switched set as high as possible, we send the default set to 8, must match the NEBULAT_DEFAULT_GROUP in std.fxh and DEFAULT_GROUP in coregraphics/config.h
+
+			// if using debug, output raw shader code
+			if (this->debug)
+			{
+				flags.push_back("/O");
+			}
 
 			AnyFXErrorBlob* errors = NULL;
 

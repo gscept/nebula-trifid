@@ -22,15 +22,18 @@ struct VkDeferredCommand
 		FreeCmdBuffers,
 		FreeMemory,
 		FreeBuffer,
+		FreeImage,
 		__RunAfterFence,		// don't use this flag, but all delegates prior to this flag requires a frame to be complete before it can occur
+
+		BindDescriptorSets,		// this can actually be done outside of a frame (views, custom code, etc)
 
 		UpdateBuffer,
 		UpdateImage,
 
 		ClearColorImage,
 		ClearDepthStencilImage,
-
-		ChangeImageLayout
+		ImageOwnershipChange,
+		ImageLayoutTransition
 	};
 
 	enum CommandQueueType
@@ -44,6 +47,7 @@ struct VkDeferredCommand
 	{
 		DelegateType type;
 		CommandQueueType queue;
+		VkFence fence;
 		union
 		{
 			struct CmdBufferFree
@@ -64,6 +68,12 @@ struct VkDeferredCommand
 				VkDeviceMemory mem;
 			} buffer;
 
+			struct ImageFree
+			{
+				VkImage img;
+				VkDeviceMemory mem;
+			} image;
+
 			struct BufferUpdate
 			{
 				VkBuffer buf;
@@ -75,7 +85,9 @@ struct VkDeferredCommand
 			struct ImageUpdate
 			{
 				VkImage img;
-				VkBufferImageCopy copy;
+				VkImageCreateInfo info;
+				uint32_t mip;
+				uint32_t face;
 				VkDeviceSize size;
 				uint32_t* data;
 			} imageUpd;
@@ -100,11 +112,26 @@ struct VkDeferredCommand
 				VkClearDepthStencilValue clearValue;
 				VkImageSubresourceRange region;
 			} imgDepthStencilClear;
+
+			struct ImageOwnershipTransition
+			{
+				VkImageMemoryBarrier barrier;
+			} imgOwnerChange;
+
+			struct DescriptorSetBind
+			{
+				VkPipelineBindPoint type;
+				VkPipelineLayout layout;
+				uint32_t baseSet;
+				uint32_t numSets;
+				const VkDescriptorSet* sets;
+				uint32_t numOffsets;
+				const uint32_t* offsets;
+			} descSetBind;
 		};
 	} del;
 
 	VkDevice dev;
-	bool runUponCompletion;
 
 	/// run delegate action
 	void RunDelegate();

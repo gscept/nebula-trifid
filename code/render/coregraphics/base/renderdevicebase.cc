@@ -10,7 +10,7 @@
 #include "coregraphics/vertexbuffer.h"
 #include "coregraphics/indexbuffer.h"
 #include "coregraphics/feedbackbuffer.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shaderstate.h"
 #include "coregraphics/bufferlock.h"
 #include "frame/frameserver.h"
 #include "coregraphics/displaydevice.h"
@@ -143,9 +143,6 @@ RenderDeviceBase::Close()
     // notify event handlers
     RenderEvent closeEvent(RenderEvent::DeviceClose);
     this->NotifyEventHandlers(closeEvent);
-
-	// unreference shaders
-	this->passShader = 0;
 
     this->isOpen = false;
 }
@@ -306,20 +303,12 @@ RenderDeviceBase::BeginFrame(IndexT frameIndex)
 /**
 */
 void
-RenderDeviceBase::BeginPass(const Ptr<RenderTarget>& rt, const Ptr<Shader>& shd)
+RenderDeviceBase::BeginPass(const Ptr<RenderTarget>& rt)
 {
     n_assert(this->inBeginFrame);
     n_assert(!this->inBeginPass);
     n_assert(!this->inBeginBatch);
-    n_assert(!this->passShader.isvalid());
     this->inBeginPass = true;
-
-    // apply pass shader
-    this->passShader = shd;
-    if (this->passShader.isvalid())
-    {
-        //this->passShader->Commit();
-    }
 
 	// notify render targets
     this->passRenderTarget = rt;
@@ -330,20 +319,12 @@ RenderDeviceBase::BeginPass(const Ptr<RenderTarget>& rt, const Ptr<Shader>& shd)
 /**
 */
 void 
-RenderDeviceBase::BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt, const Ptr<CoreGraphics::Shader>& shd)
+RenderDeviceBase::BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt)
 {
     n_assert(this->inBeginFrame);
     n_assert(!this->inBeginPass);
     n_assert(!this->inBeginBatch);
-    n_assert(!this->passShader.isvalid());
     this->inBeginPass = true;
-
-    // apply pass shader
-    this->passShader = shd;
-    if (this->passShader.isvalid())
-    {
-        //this->passShader->Commit();
-    }
 
     // notify render targets
     this->passMultipleRenderTarget = mrt;
@@ -354,20 +335,12 @@ RenderDeviceBase::BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt, 
 /**
 */
 void 
-RenderDeviceBase::BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& crt, const Ptr<CoreGraphics::Shader>& shd)
+RenderDeviceBase::BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& crt)
 {
     n_assert(this->inBeginFrame);
     n_assert(!this->inBeginPass);
     n_assert(!this->inBeginBatch);
-    n_assert(!this->passShader.isvalid());
     this->inBeginPass = true;
-
-    // apply pass shader
-    this->passShader = shd;
-    if (this->passShader.isvalid())
-    {
-        //this->passShader->Commit();
-    }
 
     // notify render targets
     this->passRenderTargetCube = crt;
@@ -378,19 +351,11 @@ RenderDeviceBase::BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& crt, cons
 /**
 */
 void
-RenderDeviceBase::BeginFeedback(const Ptr<CoreGraphics::FeedbackBuffer>& fb, CoreGraphics::PrimitiveTopology::Code primType, const Ptr<CoreGraphics::Shader>& shader)
+RenderDeviceBase::BeginFeedback(const Ptr<CoreGraphics::FeedbackBuffer>& fb, CoreGraphics::PrimitiveTopology::Code primType)
 {
 	n_assert(this->inBeginFrame);
 	n_assert(!this->inBeginPass);
-	n_assert(!this->passShader.isvalid());
 	this->inBeginPass = true;
-
-	// apply pass shader
-	this->passShader = shader;
-	if (this->passShader.isvalid())
-	{
-		//this->passShader->Commit();
-	}
 }
 
 //------------------------------------------------------------------------------
@@ -478,11 +443,6 @@ RenderDeviceBase::EndPass()
         this->passRenderTargetCube = 0;
     }
 
-    // finish pass shader
-    if (this->passShader.isvalid())
-    {
-        this->passShader = 0;
-    }
     this->inBeginPass = false;
 }
 
@@ -494,12 +454,6 @@ void
 RenderDeviceBase::EndFeedback()
 {
 	n_assert(this->inBeginPass);
-
-	// finish pass shader
-	if (this->passShader.isvalid())
-	{
-		this->passShader = 0;
-	}
 	this->inBeginPass = false;
 }
 
@@ -590,11 +544,35 @@ RenderDeviceBase::DrawFeedbackInstanced(const Ptr<CoreGraphics::FeedbackBuffer>&
 //------------------------------------------------------------------------------
 /**
 */
-void 
-RenderDeviceBase::Compute(int dimX, int dimY, int dimZ, uint flag)
+void
+RenderDeviceBase::BeginCompute(bool asyncAllowed, const Util::Array<Ptr<CoreGraphics::ShaderReadWriteTexture>>& textureDependencies, const Util::Array<Ptr<CoreGraphics::ShaderReadWriteBuffer>>& bufferDependencies)
 {
-    //n_assert(this->inBeginPass);
+	n_assert(!this->inBeginCompute);
+	this->inBeginCompute = true;
+	this->inBeginAsyncCompute = asyncAllowed;
+	// override and implement memory barriers for buffers and textures
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+RenderDeviceBase::Compute(int dimX, int dimY, int dimZ)
+{
+    n_assert(this->inBeginCompute);
     // override in subclass!
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+RenderDeviceBase::EndCompute(const Util::Array<Ptr<CoreGraphics::ShaderReadWriteTexture>>& textureDependencies, const Util::Array<Ptr<CoreGraphics::ShaderReadWriteBuffer>>& bufferDependencies)
+{
+	n_assert(this->inBeginCompute);
+	this->inBeginCompute = false;
+	this->inBeginAsyncCompute = false;
+	// override and implement memory barriers needed for the textures and buffers
 }
 
 //------------------------------------------------------------------------------

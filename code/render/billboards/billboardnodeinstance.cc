@@ -61,8 +61,8 @@ BillboardNodeInstance::OnVisibilityResolve(IndexT resolveIndex, float distToView
 //------------------------------------------------------------------------------
 /**
 */
-void 
-BillboardNodeInstance::Setup( const Ptr<ModelInstance>& inst, const Ptr<ModelNode>& node, const Ptr<ModelNodeInstance>& parentNodeInst )
+void
+BillboardNodeInstance::Setup(const Ptr<ModelInstance>& inst, const Ptr<ModelNode>& node, const Ptr<ModelNodeInstance>& parentNodeInst)
 {
 	n_assert(!this->vb.isvalid());
 	n_assert(!this->ib.isvalid());

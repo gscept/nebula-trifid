@@ -435,7 +435,7 @@ __StaticHandler(SetTimeFactor)
 */
 __StaticHandler(UpdateSharedShaderVariable)
 {
-    const Ptr<Shader>& sharedShader = ShaderServer::Instance()->GetSharedShader();
+    const Ptr<ShaderState>& sharedShader = ShaderServer::Instance()->GetSharedShader();
     const Ptr<ShaderVariable>& shaderVar = sharedShader->GetVariableByName(msg->GetName());
     switch (msg->GetValue().GetType())
     {

@@ -206,7 +206,7 @@ static const int JobMaxSliceSize = 0xFFFF;
 #elif __OGL4__
 #define NEBULA3_DEFAULT_FRAMESHADER_NAME "ogl4default"
 #elif __VULKAN__
-#define NEBULA3_DEFAULT_FRAMESHADER_NAME "vkdefault"
+#define NEBULA3_DEFAULT_FRAMESHADER_NAME "vkdebug"
 #elif __WII__
 #define NEBULA3_DEFAULT_FRAMESHADER_NAME "wiidefault"
 #elif __PS3__

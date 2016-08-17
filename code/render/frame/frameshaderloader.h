@@ -12,7 +12,7 @@
 #include "io/uri.h"
 #include "io/xmlreader.h"
 #include "coregraphics/shadervariableinstance.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shaderstate.h"
 
 //------------------------------------------------------------------------------
 namespace Frame
@@ -34,12 +34,12 @@ private:
     static void ParseMultipleRenderTarget(const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader);
 	/// parse depth stencil render target declaration from XML
 	static void ParseDepthStencilTarget(const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader);
-    /// parse texture declaration from XML
-    static void ParseTexture(const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader);
+    /// parse read-write texture declaration from XML
+    static void ParseReadWriteTexture(const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader);
     /// parse shader variable instance from XML
-    static void ParseShaderVariableInstance(const Ptr<IO::XmlReader>& xmlReader, const Ptr<CoreGraphics::Shader>& shd, const Ptr<FramePassBase>& pass);
+    static void ParseShaderVariableValue(const Ptr<IO::XmlReader>& xmlReader, const Ptr<CoreGraphics::ShaderState>& shd, const Ptr<FramePassBase>& pass);
 	/// parse shader variable instance from XML
-	static void ParseShaderVariableInstance(const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameBatch>& batch);
+	static void ParseShaderVariableValue(const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameBatch>& batch);
     /// parse frame pass from XML
     static void ParseFramePass(const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader);
 	/// parse frame compute

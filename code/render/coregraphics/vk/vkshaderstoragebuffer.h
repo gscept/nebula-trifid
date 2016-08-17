@@ -23,10 +23,34 @@ public:
 	void Setup(const SizeT numBackingBuffers = DefaultNumBackingBuffers);
 	/// discard buffer
 	void Discard();
+
+	/// get buffer
+	const VkBuffer& GetVkBuffer() const;
+	/// get memory
+	const VkDeviceMemory& GetVkMemory() const;
 private:
 
 	void* buffer;
 	VkBuffer buf;
 	VkDeviceMemory mem;
 };
+
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const VkBuffer&
+VkShaderStorageBuffer::GetVkBuffer() const
+{
+	return this->buf;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const VkDeviceMemory&
+VkShaderStorageBuffer::GetVkMemory() const
+{
+	return this->mem;
+}
 } // namespace Vulkan

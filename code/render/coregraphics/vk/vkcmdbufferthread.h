@@ -47,9 +47,13 @@ private:
 		BindDescriptors,
 		PushRange,
 		Viewport,
+		ViewportArray,
 		ScissorRect,
 		ScissorRectArray,
 		UpdateBuffer,
+		SetEvent,					// sets event to flagged
+		ResetEvent,					// resets event to unflagged
+		WaitForEvent,
 		Sync,
 		LunarGCircumventValidation
 	};
@@ -105,9 +109,9 @@ private:
 				VkPipelineLayout layout;
 				uint32_t baseSet;
 				uint32_t numSets;
-				VkDescriptorSet* sets;
+				const VkDescriptorSet* sets;
 				uint32_t numOffsets;
-				uint32_t* offsets;
+				const uint32_t* offsets;
 			} descriptor;
 
 			struct UpdateBuffer
@@ -134,6 +138,13 @@ private:
 				uint32_t index;
 			} viewport;
 
+			struct ViewportArray
+			{
+				VkViewport* vps;
+				uint32_t first;
+				uint32_t num;
+			} viewportArray;
+
 			struct ScissorRect
 			{
 				VkRect2D sc;
@@ -146,6 +157,32 @@ private:
 				uint32_t first;
 				uint32_t num;
 			} scissorRectArray;
+
+			struct SetEvent
+			{
+				VkEvent event;
+				VkPipelineStageFlags stages;
+			} setEvent;
+
+			struct ResetEvent
+			{
+				VkEvent event;
+				VkPipelineStageFlags stages;
+			} resetEvent;
+
+			struct WaitForEvents
+			{
+				VkEvent* events;
+				uint32_t numEvents;
+				VkPipelineStageFlags signalingStage;
+				VkPipelineStageFlags waitingStage;
+				uint32_t memoryBarrierCount;
+				VkMemoryBarrier* memoryBarriers;
+				uint32_t bufferBarrierCount;
+				VkBufferMemoryBarrier* bufferBarriers;
+				uint32_t imageBarrierCount;
+				VkImageMemoryBarrier* imageBarriers;
+			} waitEvent;
 
 			Threading::Event* syncEvent;
 		};		

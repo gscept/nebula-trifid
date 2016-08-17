@@ -6,6 +6,9 @@
 	A buffer which represents a set of shader constant variables 
     (uniforms in OpenGL) which are contained within a buffer object.
 
+	Good practice is to have one constant buffer, then create instances using 
+	AllocateInstance, which returns an offset into the buffer where the new instance is.
+
 	Constant buffers can be set to be synchronized or non-synchronized.
 
 	Synchronized: will cause a GPU synchronizing command whenever the EndUpdateSync gets run.
@@ -19,8 +22,8 @@
 	Synchronized buffers are good for when you have no idea when a buffer gets updated. They let 
 	the driver take care of when the buffer is needed and will as such cause a direct flush.
 
-	This type of behavior might only be relevant in non-direct APIs such as <DX11 and OpenGL, since
-	we can't actually tell whenever the buffer gets updated with a persistently mapped buffe.rb
+	This type of behavior might only be relevant in non-direct APIs such as DX11 and OpenGL, since
+	we can't actually tell whenever the buffer gets updated with a persistently mapped buffer.
 	
 	(C) 2015 Individual contributors, see AUTHORS file
 */
@@ -48,9 +51,14 @@ public:
     /// setup buffer
     void Setup(const SizeT numBackingBuffers = DefaultNumBackingBuffers);
     /// bind variables in a block with a name in a shader to this buffer (only do this on system managed blocks)
-	void SetupFromBlockInShader(const Ptr<CoreGraphics::Shader>& shader, const Util::String& blockName, const SizeT numBackingBuffers = DefaultNumBackingBuffers);
+	void SetupFromBlockInShader(const Ptr<CoreGraphics::ShaderState>& shader, const Util::String& blockName, const SizeT numBackingBuffers = DefaultNumBackingBuffers);
     /// discard buffer
     void Discard();
+
+	/// allocates instance memory, and returns offset into buffer at new instance
+	SizeT AllocateInstance(SizeT numInstances = 1);
+	/// deallocates instance memory
+	void FreeInstance(SizeT offset);
 
     /// set if this buffer should be updated synchronously, the default behavior is not
     void SetSync(bool b);
@@ -97,6 +105,11 @@ protected:
     uint size;
     IndexT bufferIndex;
 	SizeT numBuffers;
+
+	Util::Array<IndexT> freeIndices;
+	Util::Array<IndexT> usedIndices;
+	SizeT grow;
+
 
     bool sync;
     bool inUpdateSync;

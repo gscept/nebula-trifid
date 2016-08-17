@@ -39,7 +39,7 @@ SurfaceConstantInstance::Setup(const Ptr<SurfaceConstant>& constant)
     IndexT i;
     for (i = 0; i < this->constant->variablesByShader.Size(); i++)
     {
-        const Ptr<CoreGraphics::ShaderInstance>& shader = this->constant->variablesByShader.KeyAtIndex(i);
+		const Ptr<CoreGraphics::ShaderState>& shader = this->constant->variablesByShader.KeyAtIndex(i);
         const Ptr<CoreGraphics::ShaderVariable>& var = this->constant->variablesByShader.ValueAtIndex(i);
         this->variablesByShader.Add(shader, var->CreateInstance());
     }
@@ -88,7 +88,7 @@ SurfaceConstantInstance::SetTexture(const Ptr<CoreGraphics::Texture>& tex)
 /**
 */
 void
-SurfaceConstantInstance::Apply(const Ptr<CoreGraphics::ShaderInstance>& shader)
+SurfaceConstantInstance::Apply(const Ptr<CoreGraphics::ShaderState>& shader)
 {
     // hmm, maybe shader instances deserves the zero-indexed treatment?
     if (!this->variablesByShader.Contains(shader)) return;

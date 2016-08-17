@@ -4,6 +4,9 @@
 	@class Base::ShaderReadWriteBufferBase
 	
 	A shader buffer represents a read/write buffer assignable inside a shader.
+
+	Same as for ShaderReadWriteTextureBase, this class must be unlocked prior to updating, 
+	and locked prior to being used by the GPU.
 	
 	(C) 2012-2014 Individual contributors, see AUTHORS file
 */
@@ -38,10 +41,16 @@ public:
     /// cycle to next buffer
     void CycleBuffers();
 
+	/// locks buffer, blocking any GPU calls from working on it
+	void Lock();
+	/// unlocks buffer, allowing the buffer to be updated
+	void Unlock();
+
 	static const SizeT DefaultNumBackingBuffers = 3;
 
 protected:
     bool isSetup;
+	uint lockSemaphore;
     uint size;
     IndexT bufferIndex;
 	SizeT numBuffers;

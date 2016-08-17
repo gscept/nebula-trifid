@@ -1,12 +1,12 @@
 #pragma once
 //------------------------------------------------------------------------------
 /**
-    @class Base::ShaderInstanceBase
+    @class Base::ShaderStateBase
     
-    A shader instance object is created from a shader and contains a local copy
-    of the original shader state which can be modified through ShaderVariableInstance
-    objects. Shader instance objects are created directly through the shader server.
-    
+	A shader state is an object created from a shader, and contains an instance of its state.
+	It doesn't contain the shader itself, but instead serves to contain uniforms,
+	textures, and other types of buffer bindings, which can be committed when required.
+
     (C) 2007 Radon Labs GmbH
     (C) 2013-2015 Individual contributors, see AUTHORS file
 */
@@ -16,7 +16,7 @@
 #include "coregraphics/shaderfeature.h"
 #include "coregraphics/shaderidentifier.h"
 #include "coregraphics/shadervariableinstance.h"
-
+#include "coregraphics/shader.h"
 namespace CoreGraphics
 {
 class Shader;
@@ -26,21 +26,21 @@ class ShaderVariable;
 //------------------------------------------------------------------------------
 namespace Base
 {
-class ShaderInstanceBase : public Core::RefCounted
+class ShaderStateBase : public Core::RefCounted
 {
-    __DeclareClass(ShaderInstanceBase);
+    __DeclareClass(ShaderStateBase);
 public:
     /// constructor
-    ShaderInstanceBase();
+    ShaderStateBase();
     /// destructor
-    virtual ~ShaderInstanceBase();
+    virtual ~ShaderStateBase();
     
     /// discard the shader instance, must be called when instance no longer needed
     void Discard();
     /// return true if this object is valid
     bool IsValid() const;
     /// get pointer to original shader which created this instance
-    const Ptr<CoreGraphics::Shader>& GetOriginalShader() const;
+    const Ptr<CoreGraphics::Shader>& GetShader() const;
     /// get shader code from original shader
     const CoreGraphics::ShaderIdentifier::Code& GetCode() const;
 
@@ -50,6 +50,15 @@ public:
     const Ptr<CoreGraphics::ShaderVariableInstance>& GetVariableInstance(const Base::ShaderVariableBase::Name& n);
 	/// discard variable instance
 	void DiscardVariableInstance(const Ptr<CoreGraphics::ShaderVariableInstance>& var);
+
+	/// return true if the shader instance has a variable by name
+	bool HasVariableByName(const Base::ShaderVariableBase::Name& n) const;
+	/// get number of variables
+	SizeT GetNumVariables() const;
+	/// get a variable by index
+	const Ptr<CoreGraphics::ShaderVariable>& GetVariableByIndex(IndexT i) const;
+	/// get a variable by name
+	const Ptr<CoreGraphics::ShaderVariable>& GetVariableByName(const Base::ShaderVariableBase::Name& n) const;
 
     /// shortcut to select a shader variation through the original shader
     bool SelectActiveVariation(CoreGraphics::ShaderFeature::Mask mask);    
@@ -79,23 +88,72 @@ protected:
 
     /// setup the shader instance from its original shader object
     virtual void Setup(const Ptr<CoreGraphics::Shader>& origShader);
+	/// setup the shader instance from its original shader object
+	virtual void Setup(const Ptr<CoreGraphics::Shader>& origShader, const Util::Array<IndexT>& groups);
     /// discard the shader instance
     virtual void Cleanup();
 
     bool inBegin;
     bool inBeginPass;
-    Ptr<CoreGraphics::Shader> originalShader;
+    Ptr<CoreGraphics::Shader> shader;
     Util::Array<Ptr<CoreGraphics::ShaderVariableInstance>> variableInstances;
     Util::Dictionary<Util::StringAtom, Ptr<CoreGraphics::ShaderVariableInstance>> variableInstancesByName;
+
+	Util::Array<Ptr<CoreGraphics::ShaderVariable>> variables;
+	Util::Dictionary<Base::ShaderVariableBase::Name, Ptr<CoreGraphics::ShaderVariable>> variablesByName;
 };
 
 //------------------------------------------------------------------------------
 /**
 */
 inline const Ptr<CoreGraphics::Shader>&
-ShaderInstanceBase::GetOriginalShader() const
+ShaderStateBase::GetShader() const
 {
-    return this->originalShader;
+    return this->shader;
+}
+
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline bool
+ShaderStateBase::HasVariableByName(const Base::ShaderVariableBase::Name& n) const
+{
+	return this->variablesByName.Contains(n);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline SizeT
+ShaderStateBase::GetNumVariables() const
+{
+	return this->variables.Size();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Ptr<CoreGraphics::ShaderVariable>&
+ShaderStateBase::GetVariableByIndex(IndexT i) const
+{
+	return this->variables[i];
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Ptr<CoreGraphics::ShaderVariable>&
+ShaderStateBase::GetVariableByName(const CoreGraphics::ShaderVariable::Name& n) const
+{
+#if NEBULA3_DEBUG
+	if (!this->HasVariableByName(n))
+	{
+		n_error("Invalid shader variable name '%s' in shader '%s'",
+			n.Value(), this->shader->GetResourceId().Value());
+	}
+#endif
+	return this->variablesByName[n];
 }
 
 } // namespace CoreGraphics

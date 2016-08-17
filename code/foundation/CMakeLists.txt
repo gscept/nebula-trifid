@@ -134,6 +134,7 @@ SET(foundation_util_src
 	util/dictionary.h
 	util/fixedarray.h
 	util/fixedtable.h
+	util/fixedpool.h
 	util/fourcc.h
 	util/globalstringatomtable.cc
 	util/globalstringatomtable.h
@@ -152,6 +153,7 @@ SET(foundation_util_src
 	util/round.h
 	util/runlengthcodec.cc
 	util/runlengthcodec.h
+	util/set.h
 	util/simpletree.h
 	util/sparsetable.h
 	util/stack.h

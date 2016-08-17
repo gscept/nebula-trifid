@@ -19,20 +19,26 @@ public:
 	/// destructor
 	virtual ~VkMultipleRenderTarget();
 
-	/// add render target
-	void AddRenderTarget(const Ptr<CoreGraphics::RenderTarget>& rt);
-	/// set depth-stencil target
-	void SetDepthStencilTarget(const Ptr<CoreGraphics::DepthStencilTarget>& dt);
+	/// set clear flags for color target
+	void SetClearFlags(IndexT i, uint clearFlags);
+	/// set clear flags for depth-stencil
+	void SetDepthStencilClearFlags(uint clearFlags);
+	/// set clear color
+	void SetClearColor(IndexT i, const Math::float4& color);
+	/// set clear depth
+	void SetClearDepth(float d);
+	/// set clear stencil value
+	void SetClearStencil(int s);
 	/// returns render pass 
 	const VkRenderPass& GetVkRenderPass() const;
 	/// returns framebuffer
 	const VkFramebuffer& GetVkFramebuffer() const;
 	/// returns the clear values
-	const Util::FixedArray<VkClearValue>& GetVkClearValues() const;
+	const Util::Array<VkClearValue>& GetVkClearValues() const;
 	/// get viewports
-	const Util::FixedArray<VkViewport>& GetVkViewports() const;
+	const Util::Array<VkViewport>& GetVkViewports() const;
 	/// get scissors
-	const Util::FixedArray<VkRect2D>& GetVkScissorRects() const;
+	const Util::Array<VkRect2D>& GetVkScissorRects() const;
 
 	/// setup render target
 	void Setup();
@@ -48,17 +54,25 @@ private:
 	VkImageView views[MaxNumRenderTargets];
 	VkAttachmentDescription attachments[MaxNumRenderTargets];
 	VkAttachmentReference resolveReferences[MaxNumRenderTargets];
-	VkAttachmentReference attachmentReferences[MaxNumRenderTargets];
+	VkAttachmentReference colorReferences[MaxNumRenderTargets];
 	VkAttachmentReference depthReference;
+
+	VkAttachmentLoadOp colorLoadOps[MaxNumRenderTargets];
+	VkClearValue clearValues[MaxNumRenderTargets];
+	VkViewport viewports[MaxNumRenderTargets];
+	VkRect2D scissors[MaxNumRenderTargets];
+
+	VkAttachmentLoadOp depthLoadOp;
+	VkAttachmentLoadOp stencilLoadOp;
+	VkClearValue depthStencilClearValue;
 	uint32_t numviews;
 	uint32_t numcolorreferences;
 	uint32_t numattachments;
 	VkBool32 usedepthstencil;
 
-	Util::FixedArray<VkClearValue> clearColors;
-
-	Util::FixedArray<VkViewport> viewports;
-	Util::FixedArray<VkRect2D> scissors;
+	Util::Array<VkClearValue> vkClearValues;
+	Util::Array<VkViewport> vkViewports;
+	Util::Array<VkRect2D> vkScissors;
 	VkPipelineViewportStateCreateInfo viewportInfo;
 	VkGraphicsPipelineCreateInfo framebufferPipelineInfo;
 };
@@ -94,28 +108,28 @@ VkMultipleRenderTarget::GetVkFramebuffer() const
 //------------------------------------------------------------------------------
 /**
 */
-inline const Util::FixedArray<VkClearValue>&
+inline const Util::Array<VkClearValue>&
 VkMultipleRenderTarget::GetVkClearValues() const
 {
-	return this->clearColors;
+	return this->vkClearValues;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-inline const Util::FixedArray<VkViewport>&
+inline const Util::Array<VkViewport>&
 VkMultipleRenderTarget::GetVkViewports() const
 {
-	return this->viewports;
+	return this->vkViewports;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-inline const Util::FixedArray<VkRect2D>&
+inline const Util::Array<VkRect2D>&
 VkMultipleRenderTarget::GetVkScissorRects() const
 {
-	return this->scissors;
+	return this->vkScissors;
 }
 
 } // namespace Vulkan

@@ -48,7 +48,7 @@ VkShaderProgram::Apply()
 	n_assert(this->program);
 
 	// if we are compute, we can set the pipeline straight away, otherwise we have to accumulate the infos
-	if (this->pipelineType == Compute)	vkCmdBindPipeline(VkRenderDevice::mainCmdCmpBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, this->computePipeline);
+	if (this->pipelineType == Compute)	VkRenderDevice::Instance()->BindComputePipeline(this->computePipeline, this->pipelineLayout);
 	else								VkRenderDevice::Instance()->SetShaderPipelineInfo(this->shaderPipelineInfo, this);
 }
 
@@ -238,7 +238,7 @@ VkShaderProgram::SetupAsGraphics()
 	};
 
 	// setup dynamic state, we only support dynamic viewports and scissor rects
-	static const VkDynamicState dynamicStates[] = { VK_DYNAMIC_STATE_SCISSOR };
+	static const VkDynamicState dynamicStates[] = { VK_DYNAMIC_STATE_SCISSOR, VK_DYNAMIC_STATE_VIEWPORT };
 	this->dynamicInfo = 
 	{
 		VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,

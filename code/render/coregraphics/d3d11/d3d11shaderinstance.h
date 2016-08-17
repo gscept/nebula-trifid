@@ -11,7 +11,7 @@
     (C) 2013 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
-#include "coregraphics/base/shaderinstancebase.h"
+#include "coregraphics/base/shaderstatebase.h"
 #include "coregraphics/shaderfeature.h"
 
 

@@ -14,6 +14,7 @@
 #include "coregraphics/displaydevice.h"
 #include "coregraphics/renderdevice.h"
 #include "coregraphics/memoryindexbufferloader.h"
+#include "coregraphics/config.h"
 
 using namespace Math;
 using namespace CoreGraphics;
@@ -43,7 +44,7 @@ ImguiDrawFunction(ImDrawData* data)
 
 	// get renderer
 	const Ptr<ImguiRenderer>& renderer = ImguiRenderer::Instance();
-	const Ptr<Shader>& shader = renderer->GetShader();
+	const Ptr<ShaderState>& shader = renderer->GetShaderState();
 	const Ptr<BufferLock>& vboLock = renderer->GetVertexBufferLock();
 	const Ptr<BufferLock>& iboLock = renderer->GetIndexBufferLock();
 	const Ptr<VertexBuffer>& vbo = renderer->GetVertexBuffer();
@@ -57,9 +58,9 @@ ImguiDrawFunction(ImDrawData* data)
 	matrix44 proj = matrix44::orthooffcenterrh(0.0f, io.DisplaySize.x, io.DisplaySize.y, 0.0f, -1.0f, +1.0f);
 
 	// set in shader
-    shader->BeginUpdate();
+    shader->BeginUpdateSync();
 	params.projVar->SetMatrix(proj);
-    shader->EndUpdate();
+    shader->EndUpdateSync();
 
 	// setup device
 	device->SetVertexLayout(vbo->GetVertexLayout());
@@ -164,7 +165,7 @@ void
 ImguiRenderer::Setup()
 {
 	// allocate imgui shader
-	this->uiShader = ShaderServer::Instance()->GetShader("shd:imgui");
+	this->uiShader = ShaderServer::Instance()->CreateShaderState("shd:imgui", { NEBULAT_DEFAULT_GROUP });
 	this->params.projVar = this->uiShader->GetVariableByName("TextProjectionModel");
 	this->params.fontVar = this->uiShader->GetVariableByName("Texture");
 

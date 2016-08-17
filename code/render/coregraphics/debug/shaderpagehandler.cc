@@ -88,7 +88,7 @@ ShaderPageHandler::HandleRequest(const Ptr<HttpRequest>& request)
                         htmlWriter->AddAttr("href", "/shader?shaderinfo=" + shd->GetResourceId().AsString());
                         htmlWriter->Element(HtmlElement::Anchor, shd->GetResourceId().Value());
                     htmlWriter->End(HtmlElement::TableData);
-                    htmlWriter->Element(HtmlElement::TableData, String::FromInt(shd->GetAllShaderInstances().Size()));
+                    htmlWriter->Element(HtmlElement::TableData, String::FromInt(shd->GetAllShaderStates().Size()));
                 htmlWriter->End(HtmlElement::TableRow);
             }
         htmlWriter->End(HtmlElement::Table);
@@ -155,19 +155,20 @@ ShaderPageHandler::HandleShaderInfoRequest(const ResourceId& resId, const Ptr<St
             htmlWriter->End(HtmlElement::TableRow);
             htmlWriter->Begin(HtmlElement::TableRow);
                 htmlWriter->Element(HtmlElement::TableData, "Instance Count: ");
-                htmlWriter->Element(HtmlElement::TableData, String::FromInt(shd->GetAllShaderInstances().Size()));
+                htmlWriter->Element(HtmlElement::TableData, String::FromInt(shd->GetAllShaderStates().Size()));
             htmlWriter->End(HtmlElement::TableRow);
         htmlWriter->End(HtmlElement::Table);
 
         // display shader variables
         htmlWriter->Element(HtmlElement::Heading3, "Shader Variables");
-        if (shd->GetNumVariables() > 0)
+		const Ptr<CoreGraphics::ShaderState>& state = shd->GetDebugState();
+		if (state->GetNumVariables() > 0)
         {
             IndexT i;
             Array<Ptr<ShaderVariable> > variables;
-            for (i = 0; i < shd->GetNumVariables(); i++)
+			for (i = 0; i < state->GetNumVariables(); i++)
             {
-                variables.Append(shd->GetVariableByIndex(i));
+				variables.Append(state->GetVariableByIndex(i));
             }
             this->WriteShaderVariableTable(htmlWriter, variables);
         }

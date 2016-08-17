@@ -19,6 +19,10 @@
 #include "core/refcounted.h"
 #include "util/variant.h"
 #include "coregraphics/texture.h"
+#include "coregraphics/constantbuffer.h"
+#include "coregraphics/shaderreadwritetexture.h"
+#include "coregraphics/shaderreadwritebuffer.h"
+#include "coregraphics/texture.h"
 #include "coregraphics/shadervariable.h"
 
 //------------------------------------------------------------------------------
@@ -73,6 +77,15 @@ public:
     void SetBoolArray(const bool* values, SizeT count);
     /// set texture value
     void SetTexture(const Ptr<CoreGraphics::Texture>& value);
+	/// set constant buffer
+	void SetConstantBuffer(const Ptr<CoreGraphics::ConstantBuffer>& value);
+	/// set shader read-write texture
+	void SetShaderReadWriteTexture(const Ptr<CoreGraphics::ShaderReadWriteTexture>& value);
+	/// set shader read-write texture
+	void SetShaderReadWriteTexture(const Ptr<CoreGraphics::Texture>& value);
+	/// set shader read-write buffer
+	void SetShaderReadWriteBuffer(const Ptr<CoreGraphics::ShaderReadWriteBuffer>& value);
+
 	/// set textures which may be bound later
     void SetDeferredTexture(const Util::String& name);
     /// set value directly
@@ -84,6 +97,17 @@ public:
 protected:
 	friend class ShaderVariableBase;
 
+	enum ObjectType
+	{
+		TextureObjectType,
+		ReadWriteImageObjectType,
+
+		ConstantBufferObjectType,
+		ReadWriteBufferObjectType,
+
+		NoObjectType
+	};
+
 	/// cleans up instance
 	virtual void Cleanup();
 
@@ -92,6 +116,7 @@ protected:
 
     Ptr<CoreGraphics::ShaderVariable> shaderVariable;
     Util::Variant value;        // for scalar values
+	ObjectType type;
 	Util::String deferredTexture;
 };
 
@@ -263,6 +288,46 @@ ShaderVariableInstanceBase::SetDeferredTexture(const Util::String& name)
 {
 	n_assert(this->value.GetType() == Util::Variant::Object);
 	this->deferredTexture = name;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+ShaderVariableInstanceBase::SetConstantBuffer(const Ptr<CoreGraphics::ConstantBuffer>& value)
+{
+	n_assert(this->value.GetType() == Util::Variant::Object);
+	this->value.SetObject((Core::RefCounted*)value.get());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+ShaderVariableInstanceBase::SetShaderReadWriteTexture(const Ptr<CoreGraphics::ShaderReadWriteTexture>& value)
+{
+	n_assert(this->value.GetType() == Util::Variant::Object);
+	this->value.SetObject((Core::RefCounted*)value.get());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+ShaderVariableInstanceBase::SetShaderReadWriteTexture(const Ptr<CoreGraphics::Texture>& value)
+{
+	n_assert(this->value.GetType() == Util::Variant::Object);
+	this->value.SetObject((Core::RefCounted*)value.get());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+ShaderVariableInstanceBase::SetShaderReadWriteBuffer(const Ptr<CoreGraphics::ShaderReadWriteBuffer>& value)
+{
+	n_assert(this->value.GetType() == Util::Variant::Object);
+	this->value.SetObject((Core::RefCounted*)value.get());
 }
 
 //------------------------------------------------------------------------------

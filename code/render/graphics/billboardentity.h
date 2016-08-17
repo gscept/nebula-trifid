@@ -9,7 +9,7 @@
 */
 //------------------------------------------------------------------------------
 #include "graphics/graphicsentity.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shaderstate.h"
 #include "resources/managedtexture.h"
 #include "resources/resourceid.h"
 #include "models/model.h"

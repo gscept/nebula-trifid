@@ -21,7 +21,8 @@ ConstantBufferBase::ConstantBufferBase() :
     inUpdateSync(false),
     isDirty(false),
 	numBuffers(DefaultNumBackingBuffers),
-    buffer(0)
+    buffer(0),
+	grow(8)
 {
 	// empty
 }
@@ -43,15 +44,43 @@ ConstantBufferBase::Setup(const SizeT numBackingBuffers)
     n_assert(this->size > 0);
 	n_assert(numBackingBuffers > 0);
 	this->numBuffers = numBackingBuffers;
+
+	// setup with X amount of free indices we can pick from
+	IndexT i;
+	for (i = 0; i < numBackingBuffers; i++)
+	{
+		this->freeIndices.Append(i);
+	}
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-ConstantBufferBase::SetupFromBlockInShader(const Ptr<CoreGraphics::Shader>& shader, const Util::String& blockName, const SizeT numBackingBuffers)
+ConstantBufferBase::SetupFromBlockInShader(const Ptr<CoreGraphics::ShaderState>& shader, const Util::String& blockName, const SizeT numBackingBuffers)
 {
-    // implement in subclass
+	// implement in subclass, must call Setup at some point in implementation!
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+SizeT
+ConstantBufferBase::AllocateInstance(SizeT numInstances /*= 1*/)
+{
+	n_assert(numInstances > 0);
+	return 0;
+	// implement in subclass
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ConstantBufferBase::FreeInstance(SizeT offset)
+{
+	n_assert(offset >= 0);
+	// implement in subclass
 }
 
 //------------------------------------------------------------------------------
