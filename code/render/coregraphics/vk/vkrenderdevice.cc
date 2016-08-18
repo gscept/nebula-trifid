@@ -69,7 +69,8 @@ VkRenderDevice::VkRenderDevice() :
 	drawQueueIdx(-1),
 	computeQueueIdx(-1),
 	transferQueueIdx(-1),
-	currentDrawThread(0),
+	currentDrawThread(NumDrawThreads-1),
+	numActiveThreads(0),
 	currentTransThread(0),
 	currentProgram(0),
 	commands(NumCommandPasses)
@@ -149,7 +150,7 @@ VkRenderDevice::OpenVulkanContext()
 	const char* layers[] = { "VK_LAYER_GOOGLE_threading", "VK_LAYER_LUNARG_parameter_validation", "VK_LAYER_LUNARG_device_limits", "VK_LAYER_LUNARG_object_tracker", "VK_LAYER_LUNARG_image", "VK_LAYER_LUNARG_core_validation", "VK_LAYER_GOOGLE_unique_objects" };
 #if NEBULAT_VULKAN_DEBUG
 	this->extensions[this->usedExtensions++] = VK_EXT_DEBUG_REPORT_EXTENSION_NAME;
-	const int numLayers = sizeof(layers) / sizeof(const char*);
+	const int numLayers = 0;// sizeof(layers) / sizeof(const char*);
 #else
 	const int numLayers = 0;
 #endif
@@ -823,7 +824,7 @@ VkRenderDevice::BeginFrame(IndexT frameIndex)
 	this->RunCommandPass(OnBeginFrame);
 
 	// reset current thread
-	this->currentDrawThread = 0;
+	this->currentDrawThread = NumDrawThreads - 1;
 
 	return RenderDeviceBase::BeginFrame(frameIndex);
 }
@@ -944,17 +945,19 @@ VkRenderDevice::BeginPass(const Ptr<CoreGraphics::RenderTarget>& rt)
 
 	const Util::FixedArray<VkRect2D>& scissors = rt->GetVkScissorRects();
 	const Util::FixedArray<VkViewport>& viewports = rt->GetVkViewports();
-
+	vkCmdSetScissor(this->mainCmdDrawBuffer, 0, scissors.Size(), scissors.Begin());
+	vkCmdSetViewport(this->mainCmdDrawBuffer, 0, viewports.Size(), viewports.Begin());
 	// start constructing draws
 	//this->BeginCmdThreads();
 
 	// hmm, because we have dynamic scissor rects, we need to 'init' all buffers with the default scissors first
+	/*
 	VkCmdBufferThread::Command scissorCmd;
 	scissorCmd.type = VkCmdBufferThread::ScissorRectArray;
 	scissorCmd.scissorRectArray.first = 0;
 	scissorCmd.scissorRectArray.num = scissors.Size();
 	scissorCmd.scissorRectArray.scs = scissors.Begin();
-
+	
 	for (IndexT i = 0; i < NumDrawThreads; i++) this->drawThreads[i]->PushCommand(scissorCmd);
 
 	VkCmdBufferThread::Command viewportCmd;
@@ -963,6 +966,7 @@ VkRenderDevice::BeginPass(const Ptr<CoreGraphics::RenderTarget>& rt)
 	viewportCmd.viewport.vp = viewports[0];
 
 	for (IndexT i = 0; i < NumDrawThreads; i++) this->drawThreads[i]->PushCommand(viewportCmd);
+	*/
 }
 
 //------------------------------------------------------------------------------
@@ -1013,11 +1017,14 @@ VkRenderDevice::BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt)
 
 	const Util::Array<VkRect2D>& scissors = mrt->GetVkScissorRects();
 	const Util::Array<VkViewport>& viewports = mrt->GetVkViewports();
+	vkCmdSetScissor(this->mainCmdDrawBuffer, 0, scissors.Size(), scissors.Begin());
+	vkCmdSetViewport(this->mainCmdDrawBuffer, 0, viewports.Size(), viewports.Begin());
 
 	// start constructing draws
 	//this->BeginCmdThreads();
 
 	// hmm, because we have dynamic scissor rects, we need to 'init' all buffers with the default scissors first
+	/*
 	VkCmdBufferThread::Command cmd;
 	cmd.type = VkCmdBufferThread::ScissorRectArray;
 	cmd.scissorRectArray.first = 0;
@@ -1032,6 +1039,7 @@ VkRenderDevice::BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt)
 	viewportCmd.viewport.vp = viewports[0];
 
 	for (IndexT i = 0; i < NumDrawThreads; i++) this->drawThreads[i]->PushCommand(viewportCmd);
+	*/
 }
 
 //------------------------------------------------------------------------------
@@ -1536,7 +1544,7 @@ VkRenderDevice::SetInputLayoutInfo(VkPipelineInputAssemblyStateCreateInfo* input
 void
 VkRenderDevice::BindDescriptorsGraphics(const VkDescriptorSet* descriptors, const VkPipelineLayout& layout, uint32_t baseSet, uint32_t setCount, const uint32_t* offsets, uint32_t offsetCount)
 {
-	if (this->inBeginPass)
+	if (this->numActiveThreads > 0)
 	{
 		VkCmdBufferThread::Command cmd;
 		cmd.type = VkCmdBufferThread::BindDescriptors;
@@ -1559,6 +1567,7 @@ VkRenderDevice::BindDescriptorsGraphics(const VkDescriptorSet* descriptors, cons
 		cmd.del.descSetBind.numSets = setCount;
 		cmd.del.descSetBind.sets = descriptors;
 		cmd.del.descSetBind.type = VK_PIPELINE_BIND_POINT_GRAPHICS;
+		this->PushCommandPass(cmd, OnBindGraphicsPipeline);
 	}
 }
 
@@ -1583,6 +1592,7 @@ VkRenderDevice::BindDescriptorsCompute(const VkDescriptorSet* descriptors, const
 		cmd.del.descSetBind.numSets = setCount;
 		cmd.del.descSetBind.sets = descriptors;
 		cmd.del.descSetBind.type = VK_PIPELINE_BIND_POINT_COMPUTE;
+		this->PushCommandPass(cmd, OnBindComputePipeline);
 	}
 }
 
@@ -1904,7 +1914,11 @@ VkRenderDevice::SubmitToQueue(VkQueue queue, VkFence fence)
 void
 VkRenderDevice::BindComputePipeline(const VkPipeline& pipeline, const VkPipelineLayout& layout)
 {
+	// bind compute pipeline
 	vkCmdBindPipeline(this->mainCmdCmpBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, layout);
+
+	// run command pass
+	this->RunCommandPass(OnBindComputePipeline);
 }
 
 //------------------------------------------------------------------------------
@@ -1918,20 +1932,23 @@ VkRenderDevice::CreateAndBindGraphicsPipeline()
 	n_assert(res == VK_SUCCESS);
 
 	// if all threads are in use, finish them
-	if (this->currentDrawThread == NumDrawThreads)
+	if (this->currentDrawThread == NumDrawThreads-1 && this->numActiveThreads > 0)
 	{
 		this->EndDrawThreads();
 	}
 
 	// begin new draw thread
+	this->currentDrawThread = (this->currentDrawThread + 1) % NumDrawThreads;
 	this->BeginDrawThread();
 
 	// send pipeline bind command, this is the first step in our procedure, so we use this as a trigger to switch threads
-	this->currentDrawThread = (this->currentDrawThread + 1) % NumDrawThreads;
 	VkCmdBufferThread::Command cmd;
 	cmd.type = VkCmdBufferThread::GraphicsPipeline;
 	cmd.pipeline = pipeline;
 	this->drawThreads[this->currentDrawThread]->PushCommand(cmd);
+
+	// run command pass
+	this->RunCommandPass(OnBindGraphicsPipeline);
 }
 
 //------------------------------------------------------------------------------
@@ -2111,6 +2128,7 @@ VkRenderDevice::PushImageOwnershipChange(VkDeferredCommand::CommandQueueType que
 	VkDeferredCommand del;
 	del.del.type = VkDeferredCommand::ImageOwnershipChange;
 	del.del.imgOwnerChange.barrier = barrier;
+	del.del.queue = queue;
 	del.dev = this->dev;
 	this->PushCommandPass(del, OnBeginFrame);
 }
@@ -2350,7 +2368,6 @@ VkRenderDevice::BeginDrawThread()
 	this->drawThreads[this->currentDrawThread]->PushCommand(cmd);
 
 	this->numActiveThreads++;
-	this->currentDrawThread++;
 }
 
 //------------------------------------------------------------------------------
@@ -2367,8 +2384,10 @@ VkRenderDevice::EndDrawThreads()
 		this->drawThreads[i]->PushCommand(cmd);
 
 		cmd.type = VkCmdBufferThread::Sync;
+		cmd.syncEvent = &this->drawCompletionEvents[i];
 		this->drawThreads[i]->PushCommand(cmd);
 		this->drawCompletionEvents[i].Wait();
+		this->drawCompletionEvents[i].Reset();
 	}
 
 	// run end-of-threads pass
@@ -2382,7 +2401,7 @@ VkRenderDevice::EndDrawThreads()
 	{
 		vkFreeCommandBuffers(this->dev, this->dispatchableCmdDrawBufferPool[i], 1, &this->dispatchableDrawCmdBuffers[i]);
 	}
-	this->currentDrawThread = 0;
+	this->currentDrawThread = NumDrawThreads-1;
 	this->numActiveThreads = 0;
 }
 
