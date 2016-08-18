@@ -244,7 +244,7 @@ VkShaderProgram::SetupAsGraphics()
 		VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
 		NULL,
 		0,
-		1,
+		2,
 		dynamicStates
 	};
 
