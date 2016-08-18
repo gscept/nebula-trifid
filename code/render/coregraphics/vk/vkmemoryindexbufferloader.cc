@@ -53,7 +53,7 @@ VkMemoryIndexBufferLoader::OnLoadRequested()
 	// allocate a device memory backing for this
 	VkDeviceMemory mem;
 	uint32_t alignedSize;
-	VkRenderDevice::Instance()->AllocateBufferMemory(buf, mem, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, 1, alignedSize);
+	VkRenderDevice::Instance()->AllocateBufferMemory(buf, mem, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, alignedSize);
 
 	// now bind memory to buffer
 	err = vkBindBufferMemory(VkRenderDevice::dev, buf, mem, 0);

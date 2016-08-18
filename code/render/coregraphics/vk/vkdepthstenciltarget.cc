@@ -87,7 +87,7 @@ VkDepthStencilTarget::Setup()
 
 	// allocate buffer backing and bind to image
 	uint32_t size;
-	VkRenderDevice::Instance()->AllocateImageMemory(this->image, this->mem, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 1, size);
+	VkRenderDevice::Instance()->AllocateImageMemory(this->image, this->mem, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, size);
 	vkBindImageMemory(VkRenderDevice::dev, this->image, this->mem, 0);
 
 	VkImageSubresourceRange subres;

@@ -58,7 +58,7 @@ VkMemoryTextureLoader::SetImageBuffer(const void* buffer, SizeT width, SizeT hei
 
 	// allocate memory backing
 	uint32_t alignedSize;
-	VkRenderDevice::Instance()->AllocateImageMemory(this->image, this->mem, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 1, alignedSize);
+	VkRenderDevice::Instance()->AllocateImageMemory(this->image, this->mem, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, alignedSize);
 	vkBindImageMemory(VkRenderDevice::dev, this->image, this->mem, 0);
 
 	RenderDevice* renderDev = RenderDevice::Instance();

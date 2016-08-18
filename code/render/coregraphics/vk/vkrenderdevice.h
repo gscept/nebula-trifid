@@ -197,7 +197,9 @@ private:
 	/// allocate an image memory storage, num is a multiplier for how many times the size needs to be duplicated
 	void AllocateImageMemory(const VkImage& img, VkDeviceMemory& imgmem, VkMemoryPropertyFlagBits flags, uint32_t& imgsize);
 
-	/// update image memory from CPU memory. (MUST BE DONE BETWEEN BeginFrame/EndFrame)
+	/// update buffer memory from CPU
+	void BufferUpdate(const VkBuffer& buf, VkDeviceSize offset, VkDeviceSize size, uint32_t* data);
+	/// update image memory from CPU
 	void ImageUpdate(const VkImage& img, const VkImageCreateInfo& info, uint32_t mip, uint32_t face, VkDeviceSize size, uint32_t* data);
 	/// setup staging image update for later execution
 	void PushImageUpdate(const VkImage& img, const VkImageCreateInfo& info, uint32_t mip, uint32_t face, VkDeviceSize size, uint32_t* data);
@@ -271,9 +273,13 @@ private:
 	void BeginCmdThreads(const Ptr<Vulkan::VkCmdBufferThread>* threads, VkCommandPool* commandBufferPools, IndexT firstThread, SizeT numThreads, VkCommandBuffer* buffers);
 	/// end command threads
 	void EndCmdThreads(const Ptr<Vulkan::VkCmdBufferThread>* threads, IndexT firstThread, SizeT numThreads, Threading::Event* completionEvents);
-
-	/// completes thread-constructed buffers by executing the comamnds gathered in the threads on the main buffer, syncPoint must be a pass which handles fences
+	/// completes thread-constructed buffers by executing the comands gathered in the threads on the main buffer, syncPoint must be a pass which handles fences
 	void FinishCmdThreads(VkCommandBuffer mainBuffer, IndexT firstThread, SizeT numThreads, VkCommandBuffer* threadBuffers, VkCommandPool* commandBufferPools, CommandPass syncPoint);
+
+	/// start up new draw thread
+	void BeginDrawThread();
+	/// finish current threads
+	void EndDrawThreads();
 
 	/// binds common descriptors
 	void BindSharedDescriptorSets();
@@ -366,6 +372,8 @@ private:
 	VkCommandBuffer dispatchableCompCmdBuffers[NumComputeThreads];
 	Ptr<VkCmdBufferThread> compThreads[NumComputeThreads];
 	Threading::Event compCompletionEvents[NumComputeThreads];
+
+	SizeT numActiveThreads;
 
 	static const SizeT NumDeferredDelegates = 128;
 	uint32_t currentDeferredDelegate;

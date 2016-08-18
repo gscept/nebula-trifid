@@ -116,7 +116,7 @@ VkStreamTextureLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 		// allocate memory backing
 		VkDeviceMemory mem;
 		uint32_t alignedSize;
-		VkRenderDevice::Instance()->AllocateImageMemory(img, mem, VkMemoryPropertyFlagBits(0), 1, alignedSize);
+		VkRenderDevice::Instance()->AllocateImageMemory(img, mem, VkMemoryPropertyFlagBits(0), alignedSize);
 		vkBindImageMemory(VkRenderDevice::dev, img, mem, 0);
 
 		RenderDevice* renderDev = RenderDevice::Instance();

@@ -264,7 +264,7 @@ VkRenderTarget::Setup()
 
 		// allocate buffer backing and bind to image
 		uint32_t size;
-		VkRenderDevice::Instance()->AllocateImageMemory(this->vkTargetImage, this->vkTargetImageMem, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 1, size);
+		VkRenderDevice::Instance()->AllocateImageMemory(this->vkTargetImage, this->vkTargetImageMem, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, size);
 		vkBindImageMemory(VkRenderDevice::dev, this->vkTargetImage, this->vkTargetImageMem, 0);
 
 		VkImageSubresourceRange subres;

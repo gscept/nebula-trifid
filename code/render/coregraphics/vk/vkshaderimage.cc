@@ -66,7 +66,7 @@ VkShaderImage::Setup(const SizeT width, const SizeT height, const CoreGraphics::
 
 	// allocate memory backing
 	uint32_t alignedSize;
-	VkRenderDevice::Instance()->AllocateImageMemory(this->img, this->mem, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 1, alignedSize);
+	VkRenderDevice::Instance()->AllocateImageMemory(this->img, this->mem, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, alignedSize);
 	vkBindImageMemory(VkRenderDevice::dev, this->img, this->mem, 0);
 
 	VkImageSubresourceRange viewRange;

@@ -50,7 +50,7 @@ VkShaderStorageBuffer::Setup(const SizeT numBackingBuffers)
 	n_assert(res == VK_SUCCESS);
 
 	uint32_t alignedSize;
-	VkRenderDevice::Instance()->AllocateBufferMemory(this->buf, this->mem, VkMemoryPropertyFlagBits(VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT), 1, alignedSize);
+	VkRenderDevice::Instance()->AllocateBufferMemory(this->buf, this->mem, VkMemoryPropertyFlagBits(VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT), alignedSize);
 
 	// bind to buffer
 	vkBindBufferMemory(VkRenderDevice::dev, this->buf, this->mem, 0);

@@ -1127,6 +1127,9 @@ VkRenderDevice::EndPass()
 {
 	this->currentPipelineBits = 0;
 
+	/// end draw threads, if any are remaining
+	this->EndDrawThreads();
+
 	// finish command buffer threads
 	//this->EndCmdThreads();
 
@@ -1569,6 +1572,24 @@ VkRenderDevice::UpdatePushRanges(const VkShaderStageFlags& stages, const VkPipel
 /**
 */
 void
+VkRenderDevice::BufferUpdate(const VkBuffer& buf, VkDeviceSize offset, VkDeviceSize size, uint32_t* data)
+{
+	VkDeviceSize totalSize = size;
+	VkDeviceSize totalOffset = offset;
+	while (totalSize > 0)
+	{
+		uint32_t* ptr = data + totalOffset;
+		VkDeviceSize uploadSize = totalSize < 65536 ? totalSize : 65536;
+		vkCmdUpdateBuffer(this->mainCmdTransBuffer, buf, totalOffset, uploadSize, ptr);
+		totalSize -= uploadSize;
+		totalOffset += uploadSize;
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 VkRenderDevice::ImageUpdate(const VkImage& img, const VkImageCreateInfo& info, uint32_t mip, uint32_t face, VkDeviceSize size, uint32_t* data)
 {
 	// create transfer buffer
@@ -1861,6 +1882,15 @@ VkRenderDevice::CreateAndBindGraphicsPipeline()
 	VkPipeline pipeline;
 	VkResult res = vkCreateGraphicsPipelines(this->dev, this->cache, 1, &this->currentPipelineInfo, NULL, &pipeline);
 	n_assert(res == VK_SUCCESS);
+
+	// if all threads are in use, finish them
+	if (this->currentDrawThread == NumDrawThreads)
+	{
+		this->EndDrawThreads();
+	}
+
+	// begin new draw thread
+	this->BeginDrawThread();
 
 	// send pipeline bind command, this is the first step in our procedure, so we use this as a trigger to switch threads
 	this->currentDrawThread = (this->currentDrawThread + 1) % NumDrawThreads;
@@ -2165,5 +2195,70 @@ VkRenderDevice::RunCommandPass(const CommandPass pass)
 	}
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::BeginDrawThread()
+{
+	n_assert(this->numActiveThreads < NumDrawThreads);
+
+	// allocate command buffer
+	VkCommandBufferAllocateInfo info =
+	{
+		VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+		NULL,
+		this->dispatchableCmdDrawBufferPool[this->currentDrawThread],
+		VK_COMMAND_BUFFER_LEVEL_SECONDARY,
+		1
+	};
+	vkAllocateCommandBuffers(this->dev, &info, &this->dispatchableDrawCmdBuffers[this->currentDrawThread]);
+
+	VkCommandBufferBeginInfo begin =
+	{
+		VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+		NULL,
+		VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT,
+		&this->passInfo
+	};
+	VkCmdBufferThread::Command cmd;
+	cmd.type = VkCmdBufferThread::BeginCommand;
+	cmd.bgCmd.buf = this->dispatchableDrawCmdBuffers[this->currentDrawThread];
+	cmd.bgCmd.info = begin;
+	this->drawThreads[this->currentDrawThread]->PushCommand(cmd);
+
+	this->numActiveThreads++;
+	this->currentDrawThread++;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::EndDrawThreads()
+{
+	IndexT i;
+	for (i = 0; i < this->numActiveThreads; i++)
+	{
+		VkCmdBufferThread::Command cmd;
+		cmd.type = VkCmdBufferThread::EndCommand;
+		this->drawThreads[i]->PushCommand(cmd);
+
+		cmd.type = VkCmdBufferThread::Sync;
+		this->drawThreads[i]->PushCommand(cmd);
+		this->drawCompletionEvents[i].Wait();
+	}
+
+	// execute commands
+	vkCmdExecuteCommands(this->mainCmdDrawBuffer, this->numActiveThreads, this->dispatchableDrawCmdBuffers);
+
+	// destroy command buffers
+	for (i = 0; i < this->numActiveThreads; i++)
+	{
+		vkFreeCommandBuffers(this->dev, this->dispatchableCmdDrawBufferPool[i], 1, &this->dispatchableDrawCmdBuffers[i]);
+	}
+	this->currentDrawThread = 0;
+	this->numActiveThreads = 0;
+}
 
 } // namespace Vulkan
