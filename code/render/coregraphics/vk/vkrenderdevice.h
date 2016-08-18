@@ -234,8 +234,6 @@ private:
 	void PushImageOwnershipChange(VkDeferredCommand::CommandQueueType queue, VkImageMemoryBarrier barrier);
 	/// transition image ownership
 	void ImageOwnershipChange(VkDeferredCommand::CommandQueueType queue, VkImageMemoryBarrier barrier);
-	/// transition image ownership
-	void ImageOwnershipChange(VkCommandBuffer buf, VkImageMemoryBarrier barrier);
 
 	/// push image color clear
 	void PushImageColorClear(const VkImage& image, const VkDeferredCommand::CommandQueueType& queue, VkImageLayout layout, VkClearColorValue clearValue, VkImageSubresourceRange subres);

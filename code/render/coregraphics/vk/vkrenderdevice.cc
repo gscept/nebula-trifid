@@ -197,6 +197,10 @@ VkRenderDevice::OpenVulkanContext()
 	n_assert(res == VK_SUCCESS);
 #endif
 
+	// get device props and features
+	vkGetPhysicalDeviceProperties(this->physicalDev, &this->deviceProps);
+	vkGetPhysicalDeviceFeatures(this->physicalDev, &this->deviceFeatures);
+
 	// get number of queues
 	vkGetPhysicalDeviceQueueFamilyProperties(this->physicalDev, &this->numQueues, NULL);
 	n_assert(this->numQueues > 0);
@@ -1955,6 +1959,21 @@ VkRenderDevice::ImageLayoutTransition(VkDeferredCommand::CommandQueueType queue,
 //------------------------------------------------------------------------------
 /**
 */
+void
+VkRenderDevice::ImageLayoutTransition(VkCommandBuffer buf, VkImageMemoryBarrier barrier)
+{
+	// execute command
+	vkCmdPipelineBarrier(buf,
+		VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+		0,
+		0, VK_NULL_HANDLE,
+		0, VK_NULL_HANDLE,
+		1, &barrier);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 VkImageMemoryBarrier
 VkRenderDevice::ImageMemoryBarrier(const VkImage& img, VkImageSubresourceRange subres, VkImageLayout oldLayout, VkImageLayout newLayout)
 {
@@ -2015,6 +2034,79 @@ VkRenderDevice::ImageMemoryBarrier(const VkImage& img, VkImageSubresourceRange s
 		break;
 	}
 	return barrier;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+VkImageMemoryBarrier
+VkRenderDevice::ImageMemoryBarrier(const VkImage& img, VkImageSubresourceRange subres, VkDeferredCommand::CommandQueueType fromQueue, VkDeferredCommand::CommandQueueType toQueue, VkImageLayout layout)
+{
+	uint32_t from;
+	switch (fromQueue)
+	{
+	case VkDeferredCommand::Graphics: from = VkRenderDevice::Instance()->drawQueueFamily; break;
+	case VkDeferredCommand::Compute: from = VkRenderDevice::Instance()->computeQueueFamily; break;
+	case VkDeferredCommand::Transfer: from = VkRenderDevice::Instance()->transferQueueFamily; break;
+	}
+
+	uint32_t to;
+	switch (toQueue)
+	{
+	case VkDeferredCommand::Graphics: to = VkRenderDevice::Instance()->drawQueueFamily; break;
+	case VkDeferredCommand::Compute: to = VkRenderDevice::Instance()->computeQueueFamily; break;
+	case VkDeferredCommand::Transfer: to = VkRenderDevice::Instance()->transferQueueFamily; break;
+	}
+
+	VkImageMemoryBarrier barrier;
+	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	barrier.pNext = NULL;
+	barrier.image = img;
+	barrier.oldLayout = layout;
+	barrier.newLayout = layout;
+	barrier.srcAccessMask = 0;
+	barrier.dstAccessMask = 0;
+	barrier.srcQueueFamilyIndex = from;
+	barrier.dstQueueFamilyIndex = to;
+	barrier.subresourceRange = subres;
+	return barrier;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::PushImageOwnershipChange(VkDeferredCommand::CommandQueueType queue, VkImageMemoryBarrier barrier)
+{
+	VkDeferredCommand del;
+	del.del.type = VkDeferredCommand::ImageOwnershipChange;
+	del.del.imgOwnerChange.barrier = barrier;
+	del.dev = this->dev;
+	this->PushCommandPass(del, OnBeginFrame);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::ImageOwnershipChange(VkDeferredCommand::CommandQueueType queue, VkImageMemoryBarrier barrier)
+{
+	VkCommandBuffer buf;
+	VkPipelineStageFlags flags;
+	switch (queue)
+	{
+	case VkDeferredCommand::Graphics: buf = this->mainCmdDrawBuffer; flags = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT; break;
+	case VkDeferredCommand::Transfer: buf = this->mainCmdTransBuffer; flags = VK_PIPELINE_STAGE_TRANSFER_BIT; break;
+	case VkDeferredCommand::Compute: buf = this->mainCmdCmpBuffer; flags = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT; break;
+	}
+
+	// execute command
+	vkCmdPipelineBarrier(buf,
+		VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+		0,
+		0, VK_NULL_HANDLE,
+		0, VK_NULL_HANDLE,
+		1, &barrier);
 }
 
 //------------------------------------------------------------------------------
