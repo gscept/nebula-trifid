@@ -71,7 +71,8 @@ VkRenderDevice::VkRenderDevice() :
 	transferQueueIdx(-1),
 	currentDrawThread(0),
 	currentTransThread(0),
-	currentProgram(0)
+	currentProgram(0),
+	commands(NumCommandPasses)
 {
 	__ConstructSingleton;
 }
@@ -250,13 +251,18 @@ VkRenderDevice::OpenVulkanContext()
 			this->computeQueueFamily = i;
 			this->computeQueueIdx = indexMap[i]++;
 		}
+		/*
 		if (this->queuesProps[i].queueFlags & VK_QUEUE_TRANSFER_BIT && this->transferQueueIdx == UINT32_MAX)
 		{
 			if (this->queuesProps[i].queueCount == indexMap[i]) continue;
 			this->transferQueueFamily = i;
 			this->transferQueueIdx = indexMap[i]++;
 		}
+		*/
 	}
+	n_assert(this->queuesProps[this->drawQueueFamily].queueFlags & VK_QUEUE_TRANSFER_BIT);
+	this->transferQueueFamily = this->drawQueueFamily;
+	this->transferQueueIdx = this->drawQueueIdx;
 
 	if (this->drawQueueFamily == UINT32_MAX)		n_error("VkDisplayDevice: Could not find a queue for graphics and present.\n");
 	if (this->computeQueueFamily == UINT32_MAX)		n_error("VkDisplayDevice: Could not find a queue for compute.\n");
@@ -808,6 +814,14 @@ VkRenderDevice::BeginFrame(IndexT frameIndex)
 	vkBeginCommandBuffer(this->mainCmdCmpBuffer, &cmdInfo);
 	vkBeginCommandBuffer(this->mainCmdTransBuffer, &cmdInfo);
 
+	// handle fences
+	this->RunCommandPass(OnHandleTransferFences);
+	this->RunCommandPass(OnHandleDrawFences);
+	this->RunCommandPass(OnHandleComputeFences);
+
+	// run command pass for beginning frame
+	this->RunCommandPass(OnBeginFrame);
+
 	// reset current thread
 	this->currentDrawThread = 0;
 
@@ -917,6 +931,9 @@ VkRenderDevice::BeginPass(const Ptr<CoreGraphics::RenderTarget>& rt)
 	vkCmdBeginRenderPass(this->mainCmdDrawBuffer, &info, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
 	this->currentPipelineBits = 0;
 
+	// run begin pass commands
+	this->RunCommandPass(OnBeginPass);
+
 	this->blendInfo.attachmentCount = 1;
 	this->passInfo.framebuffer = rt->GetVkFramebuffer();
 	this->passInfo.renderPass = rt->GetVkRenderPass();
@@ -983,6 +1000,9 @@ VkRenderDevice::BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt)
 	vkCmdBeginRenderPass(this->mainCmdDrawBuffer, &info, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
 	this->currentPipelineBits = 0;
 
+	// run begin pass commands
+	this->RunCommandPass(OnBeginPass);
+
 	this->blendInfo.attachmentCount = mrt->GetNumRendertargets();
 	this->passInfo.framebuffer = mrt->GetVkFramebuffer();
 	this->passInfo.renderPass = mrt->GetVkRenderPass();
@@ -1016,6 +1036,7 @@ VkRenderDevice::BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt)
 
 //------------------------------------------------------------------------------
 /**
+	FIXME!
 */
 void
 VkRenderDevice::BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& rtc)
@@ -1140,6 +1161,9 @@ VkRenderDevice::EndPass()
 	// execute subpass buffers
 	//this->EndSubpassCommands();
 
+	// run end command pass before we actually end the render pass
+	this->RunCommandPass(OnEndPass);
+
 	// end render pass
 	vkCmdEndRenderPass(this->mainCmdDrawBuffer);
 
@@ -1174,6 +1198,9 @@ VkRenderDevice::EndFrame(IndexT frameIndex)
 {
 	RenderDeviceBase::EndFrame(frameIndex);
 
+	// run end-of-frame commands
+	this->RunCommandPass(OnEndFrame);
+
 	VkFenceCreateInfo info =
 	{
 		VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
@@ -1193,6 +1220,7 @@ VkRenderDevice::EndFrame(IndexT frameIndex)
 		this->commands[OnHandleTransferFences].Clear();
 		this->SubmitToQueue(this->transferQueue, fence);
 	}
+	this->RunCommandPass(OnMainTransferSubmitted);
 
 	// submit draw stuff
 	this->SubmitToQueue(this->drawQueue, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, 1, &this->mainCmdDrawBuffer);
@@ -1206,6 +1234,7 @@ VkRenderDevice::EndFrame(IndexT frameIndex)
 		this->commands[OnHandleDrawFences].Clear();
 		this->SubmitToQueue(this->drawQueue, fence);
 	}
+	this->RunCommandPass(OnMainDrawSubmitted);
 	
 	// submit comput stuff
 	this->SubmitToQueue(this->computeQueue, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 1, &this->mainCmdCmpBuffer);
@@ -1219,6 +1248,7 @@ VkRenderDevice::EndFrame(IndexT frameIndex)
 		this->commands[OnHandleComputeFences].Clear();
 		this->SubmitToQueue(this->computeQueue, fence);
 	}
+	this->RunCommandPass(OnMainComputeSubmitted);
 
 	VkFence fences[] = { this->mainCmdDrawFence, this->mainCmdTransFence, this->mainCmdCmpFence };
 	this->WaitForFences(fences, 3, true);
@@ -2340,6 +2370,9 @@ VkRenderDevice::EndDrawThreads()
 		this->drawThreads[i]->PushCommand(cmd);
 		this->drawCompletionEvents[i].Wait();
 	}
+
+	// run end-of-threads pass
+	this->RunCommandPass(OnDrawThreadsSubmitted);
 
 	// execute commands
 	vkCmdExecuteCommands(this->mainCmdDrawBuffer, this->numActiveThreads, this->dispatchableDrawCmdBuffers);

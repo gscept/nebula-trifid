@@ -24,10 +24,10 @@ public:
 		OnBeginPass,
 		OnEndPass,
 		OnMainTransferSubmitted,
-		OnMainGraphicsSubmitted,
+		OnMainDrawSubmitted,
 		OnMainComputeSubmitted,
 		OnTransferThreadsSubmitted,
-		OnGraphicsThreadsSubmitted,
+		OnDrawThreadsSubmitted,
 		OnComputeThreadsSubmitted,
 
 		OnHandleTransferFences,
