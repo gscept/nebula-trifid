@@ -289,6 +289,8 @@ private:
 	void NextThread();
 	/// add command to thread
 	void PushToThread(const VkCmdBufferThread::Command& cmd, const IndexT& index, bool allowStaging = true);
+	/// flush remaining staging thread commands
+	void FlushToThread(const IndexT& index);
 
 	/// binds common descriptors
 	void BindSharedDescriptorSets();
@@ -361,7 +363,7 @@ private:
 	VkPipelineInputAssemblyStateCreateInfo inputInfo;
 	VkPipelineColorBlendStateCreateInfo blendInfo;
 
-	static const SizeT NumDrawThreads = 1;
+	static const SizeT NumDrawThreads = 8;
 	IndexT currentDrawThread;
 	VkCommandPool dispatchableCmdDrawBufferPool[NumDrawThreads];
 	VkCommandBuffer dispatchableDrawCmdBuffers[NumDrawThreads];
@@ -383,6 +385,7 @@ private:
 	Threading::Event compCompletionEvents[NumComputeThreads];
 
 	Util::Array<VkCmdBufferThread::Command> threadCmds[NumDrawThreads];
+	SizeT numCallsLastFrame;
 	SizeT numActiveThreads;
 	SizeT numUsedThreads;
 

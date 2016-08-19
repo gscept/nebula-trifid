@@ -1111,7 +1111,7 @@ VkRenderDevice::Draw()
 	//this->drawThreads[this->currentDrawThread]->PushCommand(cmd);
 
 	// go to next thread
-	this->NextThread();
+	//this->NextThread();
 }
 
 //------------------------------------------------------------------------------
@@ -1133,7 +1133,7 @@ VkRenderDevice::DrawIndexedInstanced(SizeT numInstances, IndexT baseInstance)
 	//this->drawThreads[this->currentDrawThread]->PushCommand(cmd);
 
 	// go to next thread
-	this->NextThread();
+	//this->NextThread();
 }
 
 //------------------------------------------------------------------------------
@@ -2446,6 +2446,10 @@ VkRenderDevice::BeginDrawThread()
 		VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT,
 		&this->passInfo
 	};
+
+	// unpause thread
+	this->drawThreads[this->currentDrawThread]->Pause(false);
+
 	VkCmdBufferThread::Command cmd;
 	cmd.type = VkCmdBufferThread::BeginCommand;
 	cmd.bgCmd.buf = this->dispatchableDrawCmdBuffers[this->currentDrawThread];
@@ -2514,17 +2518,24 @@ VkRenderDevice::EndDrawThreads()
 	IndexT i;
 	for (i = 0; i < this->numActiveThreads; i++)
 	{
+		// push remaining cmds to thread
+		this->FlushToThread(i);
+
+		// end thread
 		VkCmdBufferThread::Command cmd;
 		cmd.type = VkCmdBufferThread::EndCommand;
-		this->PushToThread(cmd, i);
+		this->PushToThread(cmd, i, false);
 		//this->drawThreads[i]->PushCommand(cmd);
 
 		cmd.type = VkCmdBufferThread::Sync;
 		cmd.syncEvent = &this->drawCompletionEvents[i];
-		this->PushToThread(cmd, i);
+		this->PushToThread(cmd, i, false);
 		//this->drawThreads[i]->PushCommand(cmd);
 		this->drawCompletionEvents[i].Wait();
 		this->drawCompletionEvents[i].Reset();
+
+		// stop thread from running
+		this->drawThreads[i]->Pause(true);
 	}
 
 	// run end-of-threads pass
@@ -2618,13 +2629,28 @@ VkRenderDevice::PushToThread(const VkCmdBufferThread::Command& cmd, const IndexT
 	//this->threadCmds[index].Append(cmd);
 	if (allowStaging)
 	{
-		//this->threadCmds[index].Append(cmd);
-		this->drawThreads[index]->PushCommand(cmd);
+		this->threadCmds[index].Append(cmd);
+		if (this->threadCmds[index].Size() == 2500)
+		{
+			this->drawThreads[index]->PushCommands(this->threadCmds[index]);
+			this->threadCmds[index].Clear();
+		}
+		//this->drawThreads[index]->PushCommand(cmd);
 	}
 	else
 	{
 		this->drawThreads[index]->PushCommand(cmd);
 	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::FlushToThread(const IndexT& index)
+{
+	this->drawThreads[index]->PushCommands(this->threadCmds[index]);
+	this->threadCmds[index].Clear();
 }
 
 } // namespace Vulkan

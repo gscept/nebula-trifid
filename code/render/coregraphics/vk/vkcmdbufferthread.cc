@@ -47,10 +47,12 @@ VkCmdBufferThread::DoWork()
 	while (true)
 	{
 		// dequeue all commands, this ensures we don't gain any new commands this thread loop
-		this->commands.DequeueAll(curCommands);
+		//this->commands.DequeueAll(curCommands);
+		// wait if paused
+		this->pause.Wait();
 
 		IndexT i;
-		for (i = 0; i < curCommands.Size(); i++)
+		for (i = 0; i < this->pendingCommands.Size(); i++)
 		{
 			const Command& cmd = curCommands[i];
 
@@ -146,10 +148,7 @@ VkCmdBufferThread::DoWork()
 				break;
 			}
 		}
-		this->commands.Wait();
-
-		// wait if paused
-		//this->pause.Wait();
+		//this->commands.Wait();
 	}
 }
 
@@ -168,7 +167,8 @@ VkCmdBufferThread::PushCommand(const Command& command)
 void
 VkCmdBufferThread::PushCommands(const Util::Array<Command>& commands)
 {
-	this->commands.EnqueueArray(commands);
+	//this->commands.EnqueueArray(commands);
+	this->pendingCommands.AppendArray(commands);
 }
 
 //------------------------------------------------------------------------------

@@ -195,6 +195,7 @@ private:
 	Threading::Event pause;
 	VkCommandBuffer commandBuffer;
 	Threading::SafeQueue<Command> commands;
+	Util::Array<Command> pendingCommands;
 };
 
 
