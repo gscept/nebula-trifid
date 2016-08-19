@@ -74,12 +74,13 @@ VkStreamTextureLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 
 		VkFormat vkformat = VkTypes::AsVkFormat(format);
 		VkTypes::VkBlockDimensions block = VkTypes::AsVkBlockSize(vkformat);
+		if (cube) return false;
 
 		// use linear if we really have to
 		VkFormatProperties formatProps;
 		vkGetPhysicalDeviceFormatProperties(VkRenderDevice::physicalDev, vkformat, &formatProps);
 		bool forceLinear = false;
-		if (!(formatProps.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT && formatProps.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT))
+		if (!(formatProps.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT))
 		{
 			forceLinear = true;
 		}

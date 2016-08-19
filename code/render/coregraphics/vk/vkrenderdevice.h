@@ -288,7 +288,7 @@ private:
 	/// continues to next thread
 	void NextThread();
 	/// add command to thread
-	void PushToThread(const VkCmdBufferThread::Command& cmd, const IndexT& index);
+	void PushToThread(const VkCmdBufferThread::Command& cmd, const IndexT& index, bool allowStaging = true);
 
 	/// binds common descriptors
 	void BindSharedDescriptorSets();

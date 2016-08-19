@@ -49,7 +49,7 @@ OPTION(N_BUILD_FIRSTTIME "Build Nebula without foundation nidls (required for fi
 OPTION(N_BUILD_PUBLIC_AS_RELEASE "Instead of outputting release build as name.public.exe they are called name.exe." OFF)
 CMAKE_DEPENDENT_OPTION(N_QT_NEB_SUPPORT "Add support for Qt features within Nebula" ON "N_BUILD_QT" OFF)
 OPTION(N_BUILD_EXTERNAL_PROJECTS "Include projects included in the projects folder" ON)
-OPTION(N_VULKAN_EXPERIMENTAL "Build NebulaT using an experimental (non-release) version of Vulkan" ON)
+OPTION(N_VULKAN_EXPERIMENTAL "Build NebulaT using an experimental (non-release) version of Vulkan" OFF)
 
 IF(!MSVC) 
 	SET(N_BUILD_NVTT ON)

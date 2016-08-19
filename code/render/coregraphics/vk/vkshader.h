@@ -11,6 +11,7 @@
 #include "lowlevel/afxapi.h"
 #include "util/set.h"
 
+#define AMD_DESC_SETS 1
 namespace CoreGraphics
 {
 	class ConstantBuffer;
@@ -69,6 +70,9 @@ private:
 	Util::FixedArray<VkDescriptorSetLayout> setLayouts;
 	Util::FixedArray<VkPipelineLayout> pipelineSetLayouts;
 	Util::Dictionary<IndexT, Util::Array<VkDescriptorSetLayoutBinding>> setBindings;
+#if !AMD_DESC_SETS
+	Util::Dictionary<IndexT, IndexT> setToIndexMap;
+#endif
 
 	Util::FixedArray<VkDescriptorSet> sets;
 	Util::Dictionary<Util::StringAtom, Ptr<CoreGraphics::ConstantBuffer>> buffers;

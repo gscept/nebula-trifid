@@ -87,7 +87,7 @@ VkRenderTarget::Setup()
 
 		VkAttachmentReference attachmentRef;
 		attachmentRef.attachment = 0;
-		attachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		attachmentRef.layout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
 		// create just one subpass which is just using our single color attachment and optional depth stencil attachment
 		VkSubpassDescription subpass;
@@ -180,7 +180,7 @@ VkRenderTarget::Setup()
 		//VkRenderDevice::Instance()->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->swapimages[0], subres, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL));
 		for (i = 0; i < this->swapimages.Size(); i++)
 		{
-			VkRenderDevice::Instance()->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->swapimages[i], subres, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR));
+			VkRenderDevice::Instance()->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->swapimages[i], subres, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL));
 		}
 
 		// setup info

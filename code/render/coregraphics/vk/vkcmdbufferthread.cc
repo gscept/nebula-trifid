@@ -46,7 +46,6 @@ VkCmdBufferThread::DoWork()
 	Util::Array<Command> curCommands;
 	while (true)
 	{
-		if (this->commands.IsEmpty()) this->YieldThread();
 		// dequeue all commands, this ensures we don't gain any new commands this thread loop
 		this->commands.DequeueAll(curCommands);
 
@@ -150,7 +149,7 @@ VkCmdBufferThread::DoWork()
 		this->commands.Wait();
 
 		// wait if paused
-		this->pause.Wait();
+		//this->pause.Wait();
 	}
 }
 

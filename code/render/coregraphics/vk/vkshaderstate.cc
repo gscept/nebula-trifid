@@ -200,7 +200,11 @@ VkShaderState::SetupVariables(const Util::Array<IndexT>& groups)
 	for (i = 0; i < groups.Size(); i++)
 	{
 		DescriptorSetBinding binding;
+#if AMD_DESC_SETS
 		binding.set = this->sets[i];
+#else
+		binding.set = this->sets[this->shader->setToIndexMap[i]];
+#endif
 		binding.slot = groups[i];
 		//binding.layout = this->shader->pipelineSetLayouts[groups[i]];
 		binding.layout = this->shader->pipelineLayout;

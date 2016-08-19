@@ -114,8 +114,6 @@ VkShader::Setup(AnyFX::ShaderEffect* effect)
 	Util::Array<VkWriteDescriptorSet> writes;
 	Util::Array<AnyFX::VkSampler*> boundSamplers;
 
-#define AMD_DESC_SETS 1
-
 #define uint_max(a, b) (a > b ? a : b)
 
 	// setup varblocks
@@ -332,6 +330,7 @@ VkShader::Setup(AnyFX::ShaderEffect* effect)
 				const Util::Array<VkDescriptorSetLayoutBinding>& binds = this->setBindings.ValueAtIndex(i);
 				info.bindingCount = binds.Size();
 				info.pBindings = binds.Size() > 0 ? &binds[0] : VK_NULL_HANDLE;
+				this->setToIndexMap.Add(this->setBindings.KeyAtIndex(i), i);
 #endif
 
 				// create layout
@@ -460,7 +459,11 @@ VkShader::Setup(AnyFX::ShaderEffect* effect)
 			write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 			write.pNext = NULL;
 			write.dstBinding = block->binding;
+#if AMD_DESC_SETS
 			write.dstSet = this->sets[block->set];
+#else
+			write.dstSet = this->sets[this->setToIndexMap[block->set]];
+#endif
 			write.descriptorCount = 1;
 			write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
 			write.dstArrayElement = 0;

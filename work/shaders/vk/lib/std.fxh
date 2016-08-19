@@ -20,7 +20,6 @@
 #define PASS_GROUP 4
 #define OBJECT_GROUP 5
 #define SKINNING_GROUP 6
-#define DEFERRED_GROUP 7
 
 /// define global macros
 #if GLSL
