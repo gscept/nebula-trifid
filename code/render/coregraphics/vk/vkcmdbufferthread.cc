@@ -157,4 +157,13 @@ VkCmdBufferThread::PushCommand(const Command& command)
 	this->commands.Enqueue(command);
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkCmdBufferThread::PushCommands(const Util::Array<Command>& commands)
+{
+	this->commands.EnqueueArray(commands);
+}
+
 } // namespace Vulkan

@@ -26,6 +26,9 @@ public:
 		OnMainTransferSubmitted,
 		OnMainDrawSubmitted,
 		OnMainComputeSubmitted,
+		OnBeginTransferThread,
+		OnBeginDrawThread,
+		OnBeginComputeThread,
 		OnTransferThreadsSubmitted,
 		OnDrawThreadsSubmitted,
 		OnComputeThreadsSubmitted,
@@ -276,8 +279,16 @@ private:
 
 	/// start up new draw thread
 	void BeginDrawThread();
-	/// finish current threads
+	/// start up all draw threads
+	void BeginDrawThreadCluster();
+	/// finish current draw threads
+	void EndDrawThreadCluster();
+	/// finish current draw threads
 	void EndDrawThreads();
+	/// continues to next thread
+	void NextThread();
+	/// add command to thread
+	void PushToThread(const VkCmdBufferThread::Command& cmd, const IndexT& index);
 
 	/// binds common descriptors
 	void BindSharedDescriptorSets();
@@ -350,7 +361,7 @@ private:
 	VkPipelineInputAssemblyStateCreateInfo inputInfo;
 	VkPipelineColorBlendStateCreateInfo blendInfo;
 
-	static const SizeT NumDrawThreads = 2;
+	static const SizeT NumDrawThreads = 8;
 	IndexT currentDrawThread;
 	VkCommandPool dispatchableCmdDrawBufferPool[NumDrawThreads];
 	VkCommandBuffer dispatchableDrawCmdBuffers[NumDrawThreads];
@@ -371,7 +382,9 @@ private:
 	Ptr<VkCmdBufferThread> compThreads[NumComputeThreads];
 	Threading::Event compCompletionEvents[NumComputeThreads];
 
+	Util::Array<VkCmdBufferThread::Command> threadCmds[NumDrawThreads];
 	SizeT numActiveThreads;
+	SizeT numUsedThreads;
 
 	static const SizeT NumDeferredDelegates = 128;
 	uint32_t currentDeferredDelegate;

@@ -29,6 +29,8 @@ public:
 	void DoWork();
 	/// push command buffer work
 	void PushCommand(const Command& command);
+	/// push command buffer work
+	void PushCommands(const Util::Array<Command>& commands);
 	/// set command buffer
 	void SetCommandBuffer(const VkCommandBuffer& buffer);
 private:
