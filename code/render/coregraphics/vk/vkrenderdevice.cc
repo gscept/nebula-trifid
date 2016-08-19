@@ -2475,6 +2475,9 @@ VkRenderDevice::BeginDrawThreadCluster()
 	IndexT i;
 	for (i = 0; i < NumDrawThreads; i++)
 	{
+		// unpause thread
+		this->drawThreads[i]->Pause(false);
+
 		// allocate command buffer
 		VkCommandBufferAllocateInfo info =
 		{
@@ -2573,11 +2576,13 @@ VkRenderDevice::EndDrawThreadCluster()
 		//this->drawCompletionEvents[i].Reset();
 
 		// actually push to thread
-		this->drawThreads[i]->PushCommands(this->threadCmds[i]);
-		this->threadCmds[i].Clear();
+		//this->drawThreads[i]->PushCommands(this->threadCmds[i]);
+		//this->threadCmds[i].Clear();
 
+		// wait for threads to finish, but this is retarded, we can't do any work
 		this->drawCompletionEvents[i].Wait();
 		this->drawCompletionEvents[i].Reset();
+		this->drawThreads[i]->Pause(true);
 	}
 
 	// run end-of-threads pass
@@ -2616,7 +2621,8 @@ VkRenderDevice::NextThread()
 void
 VkRenderDevice::PushToThread(const VkCmdBufferThread::Command& cmd, const IndexT& index)
 {
-	this->threadCmds[index].Append(cmd);
+	//this->threadCmds[index].Append(cmd);
+	this->drawThreads[index]->PushCommand(cmd);
 }
 
 } // namespace Vulkan

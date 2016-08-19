@@ -361,7 +361,7 @@ private:
 	VkPipelineInputAssemblyStateCreateInfo inputInfo;
 	VkPipelineColorBlendStateCreateInfo blendInfo;
 
-	static const SizeT NumDrawThreads = 8;
+	static const SizeT NumDrawThreads = 1;
 	IndexT currentDrawThread;
 	VkCommandPool dispatchableCmdDrawBufferPool[NumDrawThreads];
 	VkCommandBuffer dispatchableDrawCmdBuffers[NumDrawThreads];
