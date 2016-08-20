@@ -20,9 +20,9 @@ VkTypes::AsVkFormat(CoreGraphics::PixelFormat::Code p)
 {
 	switch (p)
 	{
-	case PixelFormat::X8R8G8B8:         return VK_FORMAT_R8G8B8A8_UINT;
-	case PixelFormat::A8R8G8B8:         return VK_FORMAT_R8G8B8A8_UINT;
-	case PixelFormat::R8G8B8:           return VK_FORMAT_R8G8B8_UINT;
+	case PixelFormat::X8R8G8B8:         return VK_FORMAT_R8G8B8A8_UNORM;
+	case PixelFormat::A8R8G8B8:         return VK_FORMAT_R8G8B8A8_UNORM;
+	case PixelFormat::R8G8B8:           return VK_FORMAT_R8G8B8_UNORM;
 	case PixelFormat::R5G6B5:           return VK_FORMAT_R5G6B5_UNORM_PACK16;
 	case PixelFormat::SRGBA8:			return VK_FORMAT_R8G8B8A8_SRGB;
 	case PixelFormat::A1R5G5B5:         return VK_FORMAT_R5G5B5A1_UNORM_PACK16;
@@ -46,10 +46,10 @@ VkTypes::AsVkFormat(CoreGraphics::PixelFormat::Code p)
 	case PixelFormat::G32R32F:          return VK_FORMAT_R32G32_SFLOAT;
 	case PixelFormat::A32B32G32R32F:    return VK_FORMAT_R32G32B32A32_SFLOAT;
 	case PixelFormat::R32G32B32F:		return VK_FORMAT_R32G32B32_SFLOAT;
-	case PixelFormat::A8:               return VK_FORMAT_R8_SINT;
-	case PixelFormat::R8:               return VK_FORMAT_R8_SINT;
-	case PixelFormat::G8:               return VK_FORMAT_R8_SINT;
-	case PixelFormat::B8:               return VK_FORMAT_R8_SINT;
+	case PixelFormat::A8:               return VK_FORMAT_R8_UNORM;
+	case PixelFormat::R8:               return VK_FORMAT_R8_UNORM;
+	case PixelFormat::G8:               return VK_FORMAT_R8_UNORM;
+	case PixelFormat::B8:               return VK_FORMAT_R8_UNORM;
 	case PixelFormat::A2R10G10B10:      return VK_FORMAT_A2B10G10R10_UINT_PACK32;
 	case PixelFormat::G16R16:           return VK_FORMAT_R16G16_UINT;
 	case PixelFormat::D24X8:			return VK_FORMAT_X8_D24_UNORM_PACK32;

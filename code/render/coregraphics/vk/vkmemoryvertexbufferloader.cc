@@ -53,7 +53,10 @@ VkMemoryVertexBufferLoader::OnLoadRequested()
 	// allocate a device memory backing for this
 	VkDeviceMemory mem;
 	uint32_t alignedSize;
-	VkRenderDevice::Instance()->AllocateBufferMemory(buf, mem, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, alignedSize);
+	uint32_t flags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
+	flags |= this->syncing == VertexBuffer::SyncingCoherent ? VK_MEMORY_PROPERTY_HOST_COHERENT_BIT : 0;
+	flags |= this->usage == VertexBuffer::UsageDynamic ? VK_MEMORY_PROPERTY_HOST_CACHED_BIT : 0;
+	VkRenderDevice::Instance()->AllocateBufferMemory(buf, mem, VkMemoryPropertyFlagBits(flags), alignedSize);
 
 	// now bind memory to buffer
 	err = vkBindBufferMemory(VkRenderDevice::dev, buf, mem, 0);
@@ -86,6 +89,7 @@ VkMemoryVertexBufferLoader::OnLoadRequested()
 	res->SetSyncing(this->syncing);
 	res->SetVertexLayout(vertexLayout);
 	res->SetNumVertices(this->numVertices);
+	res->SetByteSize(this->vertexDataSize);
 	res->SetVkBuffer(buf, mem);
 
 	// invalidate setup data (because we don't own our data)

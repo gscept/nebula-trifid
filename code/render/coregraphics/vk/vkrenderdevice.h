@@ -201,7 +201,9 @@ private:
 	void AllocateImageMemory(const VkImage& img, VkDeviceMemory& imgmem, VkMemoryPropertyFlagBits flags, uint32_t& imgsize);
 
 	/// update buffer memory from CPU
-	void BufferUpdate(const VkBuffer& buf, VkDeviceSize offset, VkDeviceSize size, uint32_t* data);
+	void BufferUpdate(const VkBuffer& buf, VkDeviceSize offset, VkDeviceSize size, const void* data);
+	/// update buffer memory from CPU
+	void BufferUpdate(VkCommandBuffer cmd, const VkBuffer& buf, VkDeviceSize offset, VkDeviceSize size, const void* data);
 	/// update image memory from CPU
 	void ImageUpdate(const VkImage& img, const VkImageCreateInfo& info, uint32_t mip, uint32_t face, VkDeviceSize size, uint32_t* data);
 	/// setup staging image update for later execution
@@ -214,6 +216,10 @@ private:
 	VkCommandBuffer BeginImmediateTransfer();
 	/// helper to end immediate transfer
 	void EndImmediateTransfer(VkCommandBuffer cmdBuf);
+	/// helper to begin an interlocked transfer
+	VkCommandBuffer BeginInterlockedTransfer();
+	/// helper to end interlocked transfer
+	void EndInterlockedTransfer(VkCommandBuffer cmdBuf);
 	/// push command to specific sync point
 	void PushCommandPass(const VkDeferredCommand& del, const CommandPass pass);
 	/// execute commands specific to sync point

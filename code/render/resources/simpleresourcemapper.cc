@@ -139,21 +139,29 @@ SimpleResourceMapper::OnCreateManagedResource(const Rtti& resType, const Resourc
     const Ptr<ResourceManager>& resManager = ResourceManager::Instance();
     Ptr<Resource> resource;
 
-    // previously the SharedResourceServer was requested for resource creation
-    // but now we'll create our own ones as this point should only be entered as the resource doesn't exist yet
-    resource = (Resource*)this->resourceClass->Create();
-    resource->SetResourceId(resId);
-    if (optResourceLoader.isvalid())
-    {
-        resource->SetLoader(optResourceLoader);
-    }
-    else
-    {
-        resource->SetLoader((ResourceLoader*)this->resLoaderClass->Create());
-    }
-    // initiate an synchronous or asynchronous load (depending on setting)
-    resource->SetAsyncEnabled(this->asyncEnabled && !forceSync);
-    resource->Load();
+	// if we actually requested the placeholder id
+	if (resId == this->placeholderResourceId)
+	{
+		resource = this->placeholderResource;
+	}
+	else
+	{
+		// previously the SharedResourceServer was requested for resource creation
+		// but now we'll create our own ones as this point should only be entered as the resource doesn't exist yet
+		resource = (Resource*)this->resourceClass->Create();
+		resource->SetResourceId(resId);
+		if (optResourceLoader.isvalid())
+		{
+			resource->SetLoader(optResourceLoader);
+		}
+		else
+		{
+			resource->SetLoader((ResourceLoader*)this->resLoaderClass->Create());
+		}
+		// initiate an synchronous or asynchronous load (depending on setting)
+		resource->SetAsyncEnabled(this->asyncEnabled && !forceSync);
+		resource->Load();
+	}
 
     // if loading failed, keep the resource pointer as 0
     if (resource->IsPending())
@@ -192,12 +200,13 @@ SimpleResourceMapper::OnDiscardManagedResource(const Ptr<ManagedResource>& manag
         }
 		else
 		{
-			if (!managedResource->IsPlaceholder())
+			const Ptr<Resource>& res = managedResource->GetResource();
+			if (!managedResource->IsPlaceholder() && res != this->placeholderResource)
 			{
-				n_assert(managedResource->GetResource()->GetUseCount() == 0);
-				managedResource->GetResource()->Unload();
-				managedResource->GetResource()->SetLoader(0);
-				managedResource->GetResource()->SetSaver(0);
+				n_assert(res->GetUseCount() == 0);
+				res->Unload();
+				res->SetLoader(0);
+				res->SetSaver(0);
 			}			
 		} 
 

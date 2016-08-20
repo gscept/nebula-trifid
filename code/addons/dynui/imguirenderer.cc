@@ -55,15 +55,24 @@ ImguiDrawFunction(ImDrawData* data)
     shader->Apply();
 
 	// create orthogonal matrix
+#if __VULKAN__
 	matrix44 proj = matrix44::orthooffcenterrh(0.0f, io.DisplaySize.x, io.DisplaySize.y, 0.0f, -1.0f, +1.0f);
+#else
+	matrix44 proj = matrix44::orthooffcenterrh(0.0f, io.DisplaySize.x, io.DisplaySize.y, 0.0f, -1.0f, +1.0f);
+#endif
 
 	// set in shader
     shader->BeginUpdateSync();
 	params.projVar->SetMatrix(proj);
     shader->EndUpdateSync();
 
+	// setup primitive group
+	CoreGraphics::PrimitiveGroup primitive;
+	primitive.SetPrimitiveTopology(CoreGraphics::PrimitiveTopology::TriangleList);
+
 	// setup device
 	device->SetVertexLayout(vbo->GetVertexLayout());
+	device->SetPrimitiveGroup(primitive);
 	device->SetStreamVertexBuffer(0, vbo, 0);
 	device->SetIndexBuffer(ibo);
 
@@ -84,6 +93,14 @@ ImguiDrawFunction(ImDrawData* data)
 		// if we render too many vertices, we will simply assert
 		n_assert(vertexBufferOffset + (IndexT)commandList->VtxBuffer.size() < vbo->GetNumVertices());
 		n_assert(indexBufferOffset + (IndexT)commandList->IdxBuffer.size() < ibo->GetNumIndices());
+
+		// unlock range within buffers, can cause a wait for lock
+		vbo->Unlock(vertexBufferOffset, vertexBufferSize);
+		ibo->Unlock(indexBufferOffset, indexBufferSize);
+
+		// update buffers
+		vbo->Update(vertexBuffer, vertexBufferOffset, vertexBufferSize);
+		ibo->Update(indexBuffer, indexBufferOffset, indexBufferSize);
 
 		// wait for previous draws to finish...
 		vboLock->WaitForRange(vertexBufferOffset, vertexBufferSize);
@@ -112,11 +129,9 @@ ImguiDrawFunction(ImDrawData* data)
 				shader->Commit();
 
 				// setup primitive
-				CoreGraphics::PrimitiveGroup primitive;
 				primitive.SetNumIndices(command->ElemCount);
 				primitive.SetBaseIndex(primitiveIndexOffset + indexOffset);
 				primitive.SetBaseVertex(vertexOffset);
-				primitive.SetPrimitiveTopology(CoreGraphics::PrimitiveTopology::TriangleList);
 
 				// prepare render device and draw
 				device->SetPrimitiveGroup(primitive);
@@ -130,6 +145,10 @@ ImguiDrawFunction(ImDrawData* data)
 		// bump vertices
 		vertexOffset += commandList->VtxBuffer.size();
 		indexOffset += commandList->IdxBuffer.size();
+
+		// lock range within buffers so we avoid stomping them
+		vbo->Lock(vertexBufferOffset, vertexBufferSize);
+		ibo->Lock(indexBufferOffset, indexBufferSize);
 
 		// lock buffers
 		vboLock->LockRange(vertexBufferOffset, vertexBufferSize);
@@ -177,7 +196,7 @@ ImguiRenderer::Setup()
     
 	// load vbo
 	Ptr<MemoryVertexBufferLoader> vboLoader = MemoryVertexBufferLoader::Create();
-	vboLoader->Setup(components, 1000000 * 3, NULL, 0, ResourceBase::UsageDynamic, ResourceBase::AccessWrite, ResourceBase::SyncingCoherentPersistent);
+	vboLoader->Setup(components, 1000000 * 3, NULL, 0, ResourceBase::UsageDynamic, ResourceBase::AccessWrite, ResourceBase::SyncingCoherent);
 
 	// load buffer
 	this->vbo = VertexBuffer::Create();
@@ -189,7 +208,7 @@ ImguiRenderer::Setup()
 
 	// load ibo
 	Ptr<MemoryIndexBufferLoader> iboLoader = MemoryIndexBufferLoader::Create();
-	iboLoader->Setup(IndexType::Index16, 100000 * 3, NULL, 0, ResourceBase::UsageDynamic, ResourceBase::AccessWrite, ResourceBase::SyncingCoherentPersistent);
+	iboLoader->Setup(IndexType::Index16, 100000 * 3, NULL, 0, ResourceBase::UsageDynamic, ResourceBase::AccessWrite, ResourceBase::SyncingCoherent);
 
 	// load buffer
 	this->ibo = IndexBuffer::Create();

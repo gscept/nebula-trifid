@@ -16,8 +16,7 @@ __ImplementClass(Vulkan::VkCmdBufferThread, 'VCBT', Threading::Thread);
 VkCmdBufferThread::VkCmdBufferThread() :
 	pause(true)
 {
-	// since we will be feeding the thread constantly, we don't want to emit a signal every time we want it to run
-	this->commands.SetSignalOnEnqueueEnabled(false);
+	// empty
 }
 
 //------------------------------------------------------------------------------
@@ -44,15 +43,14 @@ void
 VkCmdBufferThread::DoWork()
 {
 	Util::Array<Command> curCommands;
+	curCommands.Reserve(1000000);
 	while (true)
 	{
 		// dequeue all commands, this ensures we don't gain any new commands this thread loop
-		//this->commands.DequeueAll(curCommands);
-		// wait if paused
-		this->pause.Wait();
+		this->commands.DequeueAll(curCommands);
 
 		IndexT i;
-		for (i = 0; i < this->pendingCommands.Size(); i++)
+		for (i = 0; i < curCommands.Size(); i++)
 		{
 			const Command& cmd = curCommands[i];
 
@@ -135,20 +133,14 @@ VkCmdBufferThread::DoWork()
 			case Sync:
 				cmd.syncEvent->Signal();
 				break;
-			case LunarGCircumventValidation:
-				n_assert(this->commandBuffer != VK_NULL_HANDLE);
-				const float blend[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-				vkCmdSetBlendConstants(this->commandBuffer, blend);
-				vkCmdSetDepthBias(this->commandBuffer, 1.0f, 0.0f, 1.0f);
-				vkCmdSetDepthBounds(this->commandBuffer, 0, 1);
-				vkCmdSetLineWidth(this->commandBuffer, 1.0f);
-				vkCmdSetStencilCompareMask(this->commandBuffer, VK_STENCIL_FRONT_AND_BACK, 0xFFFFFFFF);
-				vkCmdSetStencilReference(this->commandBuffer, VK_STENCIL_FRONT_AND_BACK, 0xFFFFFFFF);
-				vkCmdSetStencilWriteMask(this->commandBuffer, VK_STENCIL_FRONT_AND_BACK, 0xFFFFFFFF);
-				break;
 			}
 		}
-		//this->commands.Wait();
+		// reset commands, but don't destroy them
+		curCommands.Reset();
+		this->commands.Wait();
+
+		// wait if paused
+		//this->pause.Wait();
 	}
 }
 
@@ -167,8 +159,7 @@ VkCmdBufferThread::PushCommand(const Command& command)
 void
 VkCmdBufferThread::PushCommands(const Util::Array<Command>& commands)
 {
-	//this->commands.EnqueueArray(commands);
-	this->pendingCommands.AppendArray(commands);
+	this->commands.EnqueueArray(commands);
 }
 
 //------------------------------------------------------------------------------

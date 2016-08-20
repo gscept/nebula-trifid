@@ -6,11 +6,12 @@
 	(C) 2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
+#include <vulkan/vulkan.h>
 #include "core/refcounted.h"
 #include "threading/thread.h"
 #include "threading/safequeue.h"
-#include <vulkan/vulkan.h>
 #include "coregraphics/primitivegroup.h"
+#include "debug/debugtimer.h"
 namespace Vulkan
 {
 class VkCmdBufferThread : public Threading::Thread
@@ -196,6 +197,9 @@ private:
 	VkCommandBuffer commandBuffer;
 	Threading::SafeQueue<Command> commands;
 	Util::Array<Command> pendingCommands;
+#if NEBULA3_ENABLE_PROFILING
+	_declare_timer(debugTimer);
+#endif
 };
 
 

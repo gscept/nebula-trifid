@@ -47,9 +47,9 @@ public:
 	// streaming methods
 	enum Syncing
 	{
-		SyncingSimple,					// CPU and GPU buffers are detached, requires Map and Unmap to transport data
-		SyncingPersistent,				// buffer is persistently mapped, no need to unmap
-		SyncingCoherentPersistent		// buffer is persistently mapped and also coherent on GPU
+		SyncingFlush,				// CPU has to flush resource to GPU in order to sync it
+		SyncingPersistent,			// buffer is persistently mapped, no need to unmap
+		SyncingCoherent				// Resource is coherent on GPU and CPU when mapped
 	};
 
     /// constructor

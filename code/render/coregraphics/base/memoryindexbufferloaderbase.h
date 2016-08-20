@@ -29,7 +29,7 @@ public:
 		SizeT indexDataSize, 
 		CoreGraphics::IndexBuffer::Usage usage = CoreGraphics::IndexBuffer::UsageImmutable, 
 		CoreGraphics::IndexBuffer::Access access = CoreGraphics::IndexBuffer::AccessNone,
-		CoreGraphics::IndexBuffer::Syncing syncing = CoreGraphics::IndexBuffer::SyncingSimple);
+		CoreGraphics::IndexBuffer::Syncing syncing = CoreGraphics::IndexBuffer::SyncingFlush);
 
 protected:
     CoreGraphics::IndexType::Code indexType;

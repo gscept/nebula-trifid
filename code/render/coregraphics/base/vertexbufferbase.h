@@ -10,12 +10,13 @@
 */
 #include "core/refcounted.h"
 #include "coregraphics/vertexlayout.h"
-#include "coregraphics/base/resourcebase.h"
+#include "coregraphics/base/bufferbase.h"
+#include "coregraphics/bufferlock.h"
 
 //------------------------------------------------------------------------------
 namespace Base
 {
-class VertexBufferBase : public ResourceBase
+class VertexBufferBase : public BufferBase
 {
     __DeclareClass(VertexBufferBase);
 public:

@@ -120,6 +120,7 @@ public:
     void RemoveSurface(const Ptr<Surface>& sur);
     /// get surfaces
     const Util::Array<Ptr<Surface>>& GetSurfaces() const;
+	/// returns true if surface is already registered
 
     /// adds parameter
     void AddParam(const Util::String& name, const Material::MaterialParameter& param);
@@ -145,6 +146,7 @@ private:
 	Util::Array<MaterialPass> passesByIndex;
 	Util::Dictionary<Frame::BatchGroup::Code, Util::Array<MaterialPass>> passesByBatchGroup;
     Util::Array<Ptr<Surface>> surfaces;
+	Util::Dictionary<Util::StringAtom, Ptr<Surface>> surfacesByName;
 }; 
 
 //------------------------------------------------------------------------------

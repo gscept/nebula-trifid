@@ -233,6 +233,7 @@ VkRenderDevice::OpenVulkanContext()
 	{
 		if (this->queuesProps[i].queueFlags & VK_QUEUE_GRAPHICS_BIT && this->drawQueueIdx == UINT32_MAX)
 		{
+			if (this->queuesProps[i].queueCount == indexMap[i]) continue;
 			uint32_t j;
 			for (j = 0; j < numQueues; j++)
 			{
@@ -240,24 +241,27 @@ VkRenderDevice::OpenVulkanContext()
 				{
 					this->drawQueueIdx = indexMap[i]++;
 					this->drawQueueFamily = i;
-					break;
+					goto skip;
 				}
 			}
 		}
-
 		// also setup compute and transfer queues
 		if (this->queuesProps[i].queueFlags & VK_QUEUE_COMPUTE_BIT && this->computeQueueIdx == UINT32_MAX)
 		{
 			if (this->queuesProps[i].queueCount == indexMap[i]) continue;
 			this->computeQueueFamily = i;
 			this->computeQueueIdx = indexMap[i]++;
+			goto skip;
 		}
-		if (this->queuesProps[i].queueFlags == VK_QUEUE_TRANSFER_BIT && this->transferQueueIdx == UINT32_MAX)
+		if (this->queuesProps[i].queueFlags & VK_QUEUE_TRANSFER_BIT && this->transferQueueIdx == UINT32_MAX)
 		{
 			if (this->queuesProps[i].queueCount == indexMap[i]) continue;
 			this->transferQueueFamily = i;
 			this->transferQueueIdx = indexMap[i]++;
+			goto skip;
 		}
+	skip:
+		continue;
 	}
 
 	if (this->transferQueueIdx == UINT32_MAX)
@@ -620,7 +624,7 @@ VkRenderDevice::OpenVulkanContext()
 	{
 		threadName.Format("DrawCmdBufferThread%d", i);
 		this->drawThreads[i] = VkCmdBufferThread::Create();
-		this->drawThreads[i]->SetPriority(Threading::Thread::High);
+		this->drawThreads[i]->SetPriority(Threading::Thread::Low);
 		this->drawThreads[i]->SetCoreId(System::Cpu::RenderThreadFirstCore + i);
 		this->drawThreads[i]->SetName(threadName);
 		this->drawThreads[i]->Start();
@@ -632,7 +636,7 @@ VkRenderDevice::OpenVulkanContext()
 	{
 		threadName.Format("TransferCmdBufferThread%d", i);
 		this->transThreads[i] = VkCmdBufferThread::Create();
-		this->transThreads[i]->SetPriority(Threading::Thread::Normal);
+		this->transThreads[i]->SetPriority(Threading::Thread::Low);
 		this->transThreads[i]->SetCoreId(System::Cpu::RenderThreadFirstCore + NumDrawThreads + i);
 		this->transThreads[i]->SetName(threadName);
 		this->transThreads[i]->Start();
@@ -1112,6 +1116,8 @@ VkRenderDevice::Draw()
 
 	// go to next thread
 	//this->NextThread();
+	_incr_counter(RenderDeviceNumDrawCalls, 1);
+	_incr_counter(RenderDeviceNumPrimitives, this->primitiveGroup.GetNumVertices()/3);
 }
 
 //------------------------------------------------------------------------------
@@ -1134,6 +1140,8 @@ VkRenderDevice::DrawIndexedInstanced(SizeT numInstances, IndexT baseInstance)
 
 	// go to next thread
 	//this->NextThread();
+	_incr_counter(RenderDeviceNumDrawCalls, 1);
+	_incr_counter(RenderDeviceNumPrimitives, this->primitiveGroup.GetNumIndices()/3);
 }
 
 //------------------------------------------------------------------------------
@@ -1523,10 +1531,6 @@ VkRenderDevice::SetShaderPipelineInfo(const VkGraphicsPipelineCreateInfo& shader
 
 //------------------------------------------------------------------------------
 /**
-	This is most likely to cause pipeline creations, because the stack is most usually
-	Framebuffer
-		Shader
-			Vertex layout
 */
 void
 VkRenderDevice::SetVertexLayoutPipelineInfo(const VkPipelineVertexInputStateCreateInfo& vertexLayout)
@@ -1536,7 +1540,6 @@ VkRenderDevice::SetVertexLayoutPipelineInfo(const VkPipelineVertexInputStateCrea
 	this->currentPipelineBits |= VertexLayoutInfoSet;
 	this->vertexInfo = vertexLayout;
 
-	this->currentPipelineBits &= ~InputLayoutInfoSet;
 	this->currentPipelineBits &= ~PipelineBuilt;
 }
 
@@ -1655,15 +1658,33 @@ VkRenderDevice::UpdatePushRanges(const VkShaderStageFlags& stages, const VkPipel
 /**
 */
 void
-VkRenderDevice::BufferUpdate(const VkBuffer& buf, VkDeviceSize offset, VkDeviceSize size, uint32_t* data)
+VkRenderDevice::BufferUpdate(const VkBuffer& buf, VkDeviceSize offset, VkDeviceSize size, const void* data)
 {
 	VkDeviceSize totalSize = size;
 	VkDeviceSize totalOffset = offset;
 	while (totalSize > 0)
 	{
-		uint32_t* ptr = data + totalOffset;
+		const uint8_t* ptr = (const uint8_t*)data + totalOffset;
 		VkDeviceSize uploadSize = totalSize < 65536 ? totalSize : 65536;
 		vkCmdUpdateBuffer(this->mainCmdTransBuffer, buf, totalOffset, uploadSize, ptr);
+		totalSize -= uploadSize;
+		totalOffset += uploadSize;
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::BufferUpdate(VkCommandBuffer cmd, const VkBuffer& buf, VkDeviceSize offset, VkDeviceSize size, const void* data)
+{
+	VkDeviceSize totalSize = size;
+	VkDeviceSize totalOffset = offset;
+	while (totalSize > 0)
+	{
+		const uint8_t* ptr = (const uint8_t*)data + totalOffset;
+		VkDeviceSize uploadSize = totalSize < 65536 ? totalSize : 65536;
+		vkCmdUpdateBuffer(cmd, buf, totalOffset, uploadSize, ptr);
 		totalSize -= uploadSize;
 		totalOffset += uploadSize;
 	}
@@ -1855,7 +1876,7 @@ VkRenderDevice::BeginImmediateTransfer()
 	{
 		VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
 		NULL,
-		VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
+		0,
 		NULL
 	};
 	vkBeginCommandBuffer(cmdBuf, &begin);
@@ -1902,6 +1923,75 @@ VkRenderDevice::EndImmediateTransfer(VkCommandBuffer cmdBuf)
 	// cleanup fence, buffer and buffer memory
 	vkDestroyFence(this->dev, sync, NULL);
 	vkFreeCommandBuffers(this->dev, this->immediateCmdTransPool, 1, &cmdBuf);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+VkCommandBuffer
+VkRenderDevice::BeginInterlockedTransfer()
+{
+	// allocate command buffer we can use to execute 
+	VkCommandBufferAllocateInfo cmdAlloc =
+	{
+		VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+		NULL,
+		this->immediateCmdTransPool,
+		VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+		1
+	};
+	VkCommandBuffer cmdBuf;
+	vkAllocateCommandBuffers(this->dev, &cmdAlloc, &cmdBuf);
+
+	// this is why this is slow, we must perform a begin-end-submit of the command buffer for this to work
+	VkCommandBufferBeginInfo begin =
+	{
+		VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+		NULL,
+		0,
+		NULL
+	};
+	vkBeginCommandBuffer(cmdBuf, &begin);
+	return cmdBuf;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::EndInterlockedTransfer(VkCommandBuffer cmdBuf)
+{
+	// end command
+	vkEndCommandBuffer(cmdBuf);
+
+	VkSubmitInfo submit =
+	{
+		VK_STRUCTURE_TYPE_SUBMIT_INFO,
+		NULL,
+		0, NULL, NULL,
+		1, &cmdBuf,
+		0, NULL
+	};
+
+	VkFenceCreateInfo fence =
+	{
+		VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+		NULL,
+		0
+	};
+
+	// create a fence we can wait for, and execute this very tiny command buffer
+	VkResult res;
+	res = vkQueueSubmit(this->transferQueue, 1, &submit, VK_NULL_HANDLE);
+	n_assert(res == VK_SUCCESS);
+
+	// add delegate to delete command buffer
+	VkDeferredCommand cmd;
+	cmd.del.cmdbufferfree.buffers[0] = cmdBuf;
+	cmd.del.cmdbufferfree.numBuffers = 1;
+	cmd.del.cmdbufferfree.pool = this->immediateCmdTransPool;
+	cmd.dev = this->dev;
+	this->PushCommandPass(cmd, OnHandleTransferFences);
 }
 
 //------------------------------------------------------------------------------
@@ -2652,5 +2742,7 @@ VkRenderDevice::FlushToThread(const IndexT& index)
 	this->drawThreads[index]->PushCommands(this->threadCmds[index]);
 	this->threadCmds[index].Clear();
 }
+
+
 
 } // namespace Vulkan

@@ -199,6 +199,8 @@ ENDIF()
     )
 
       set(Render_files_coregraphics__base
+		coregraphics/base/bufferbase.cc
+		coregraphics/base/bufferbase.h
 		coregraphics/base/bufferlockbase.cc
 		coregraphics/base/bufferlockbase.h
 		coregraphics/base/constantbufferbase.cc

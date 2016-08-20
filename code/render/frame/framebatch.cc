@@ -171,19 +171,20 @@ FrameBatch::RenderBatch(IndexT frameIndex)
 		{
 			// get material
 			const Ptr<Material>& material = materials[materialIndex];
-            const Util::Array<Ptr<Surface>>& surfaces = material->GetSurfaces();
+			const Util::Array<Material::MaterialPass>& passes = material->GetPassesByCode(this->batchGroup);
 
-            IndexT surfaceIndex;
-            for (surfaceIndex = 0; surfaceIndex < surfaces.Size(); surfaceIndex++)
-            {
-                const Ptr<Surface>& surface = surfaces[surfaceIndex];
-				const Util::Array<Material::MaterialPass>& passes = material->GetPassesByCode(this->batchGroup);
+			IndexT passIndex;
+			for (passIndex = 0; passIndex < passes.Size(); passIndex++)
+			{
+				// get pass
+				const Material::MaterialPass& pass = passes[passIndex];
+				const Ptr<Shader>& shader = pass.shader;
+				const Util::Array<Ptr<Surface>>& surfaces = material->GetSurfaces();
 
-				IndexT passIndex;
-				for (passIndex = 0; passIndex < passes.Size(); passIndex++)
+				IndexT surfaceIndex;
+				for (surfaceIndex = 0; surfaceIndex < surfaces.Size(); surfaceIndex++)
 				{
-					const Material::MaterialPass& pass = passes[passIndex];
-					const Ptr<Shader>& shader = pass.shader;
+					const Ptr<Surface>& surface = surfaces[surfaceIndex];
 
 					// get models based on material, if we can't see any models, just ignore this surface...
 					// hmm, would love to do this earlier so we can just skip unused materials

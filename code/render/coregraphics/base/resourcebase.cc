@@ -16,7 +16,7 @@ __ImplementClass(Base::ResourceBase, 'RSBS', Resources::Resource);
 ResourceBase::ResourceBase() :
     usage(UsageImmutable),
     access(AccessNone),
-	syncing(SyncingSimple)
+	syncing(SyncingFlush)
 {
     // empty
 }

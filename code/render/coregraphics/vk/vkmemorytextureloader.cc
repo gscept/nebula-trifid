@@ -85,10 +85,10 @@ VkMemoryTextureLoader::SetImageBuffer(const void* buffer, SizeT width, SizeT hei
 	copy.imageSubresource.mipLevel = 0;
 	copy.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 
-	// push a deferred image update, since we may not be within a frame
+	// update image while in transfer optimal
 	renderDev->PushImageUpdate(this->image, info, 0, 0, width * height * size, (uint32_t*)buffer);
 
-	// transition to something readable by shaders
+	// transition image to shader variable
 	renderDev->PushImageLayoutTransition(VkDeferredCommand::Transfer, VkRenderDevice::ImageMemoryBarrier(this->image, subres, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
 	renderDev->PushImageOwnershipChange(VkDeferredCommand::Transfer, VkRenderDevice::ImageMemoryBarrier(this->image, subres, VkDeferredCommand::Transfer, VkDeferredCommand::Graphics, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
 

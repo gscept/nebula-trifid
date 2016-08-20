@@ -61,4 +61,39 @@ VkVertexBuffer::Unmap()
 	this->mapcount--;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkVertexBuffer::Unlock(SizeT offset, SizeT length)
+{
+	BufferBase::Unlock(offset, length);
+
+	// wait for previous submissions to finish
+	this->lock->WaitForRange(offset, length);
+	this->updCmd = VkRenderDevice::Instance()->BeginInterlockedTransfer();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkVertexBuffer::Update(const void* data, SizeT offset, SizeT length)
+{
+	// send update 
+	VkRenderDevice::Instance()->BufferUpdate(this->updCmd, this->buf, VkDeviceSize(offset), VkDeviceSize(length), data);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkVertexBuffer::Lock(SizeT offset, SizeT length)
+{
+	VkRenderDevice::Instance()->EndInterlockedTransfer(this->updCmd);
+	this->updCmd = VK_NULL_HANDLE;
+	this->lock->LockRange(offset, length);
+	BufferBase::Lock(offset, length);
+}
+
 } // namespace Vulkan

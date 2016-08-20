@@ -114,7 +114,7 @@ VkParticleRenderer::Setup()
 	particleComponents.Append(VertexComponent((VertexComponent::SemanticName)5, 0, VertexComponent::Float4, 1, VertexComponent::PerInstance, 1));   // x: Particle::rotation, y: Particle::size
 
 	Ptr<MemoryVertexBufferLoader> particleVBLoader = MemoryVertexBufferLoader::Create();
-	particleVBLoader->Setup(particleComponents, MaxNumRenderedParticles * 3, NULL, 0, VertexBuffer::UsageDynamic, VertexBuffer::AccessWrite, VertexBuffer::SyncingCoherentPersistent);
+	particleVBLoader->Setup(particleComponents, MaxNumRenderedParticles * 3, NULL, 0, VertexBuffer::UsageDynamic, VertexBuffer::AccessWrite, VertexBuffer::SyncingCoherent);
 
 	this->particleVertexBuffer = VertexBuffer::Create();
 	this->particleVertexBuffer->SetLoader(particleVBLoader.upcast<ResourceLoader>());
