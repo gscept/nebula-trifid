@@ -74,7 +74,7 @@ VkCpuSyncFence::LockRange(IndexT startIndex, SizeT length)
 	Base::BufferRange range = { startIndex, length };
 	VkEventCreateInfo info =
 	{
-		VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+		VK_STRUCTURE_TYPE_EVENT_CREATE_INFO,
 		NULL,
 		0
 	};

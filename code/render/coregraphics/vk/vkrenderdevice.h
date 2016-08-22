@@ -362,6 +362,7 @@ private:
 	Util::FixedArray<VkImage> backbuffers;
 	Util::FixedArray<VkDeviceMemory> backbufferMem;
 	Util::FixedArray<VkImageView> backbufferViews;
+	Util::FixedArray<VkSemaphore> backbufferSemaphores;
 	uint32_t numBackbuffers;
 	VkRect2D displayRect;
 

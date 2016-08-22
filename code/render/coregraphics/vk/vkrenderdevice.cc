@@ -236,7 +236,6 @@ VkRenderDevice::OpenVulkanContext()
 			if (this->queuesProps[i].queueCount == indexMap[i]) continue;
 			this->transferQueueFamily = i;
 			this->transferQueueIdx = indexMap[i]++;
-			goto skip;
 		}
 		if (this->queuesProps[i].queueFlags & VK_QUEUE_GRAPHICS_BIT && this->drawQueueIdx == UINT32_MAX)
 		{
@@ -248,7 +247,7 @@ VkRenderDevice::OpenVulkanContext()
 				{
 					this->drawQueueIdx = indexMap[i]++;
 					this->drawQueueFamily = i;
-					goto skip;
+					break;
 				}
 			}
 		}
@@ -258,10 +257,7 @@ VkRenderDevice::OpenVulkanContext()
 			if (this->queuesProps[i].queueCount == indexMap[i]) continue;
 			this->computeQueueFamily = i;
 			this->computeQueueIdx = indexMap[i]++;
-			goto skip;
 		}
-	skip:
-		continue;
 	}
 
 	if (this->transferQueueIdx == UINT32_MAX)
@@ -415,13 +411,13 @@ VkRenderDevice::OpenVulkanContext()
 		1,
 		VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
 		VK_SHARING_MODE_EXCLUSIVE,
-		this->drawQueueIdx,
+		0,
 		NULL,
 		transform,
 		VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
 		swapchainPresentMode,
 		true,
-		NULL
+		VK_NULL_HANDLE
 	};
 
 	// create swapchain
@@ -434,15 +430,16 @@ VkRenderDevice::OpenVulkanContext()
 
 	this->backbuffers.Resize(this->numBackbuffers);
 	this->backbufferMem.Resize(this->numBackbuffers);
+	this->backbufferSemaphores.Resize(this->numBackbuffers);
 	res = vkGetSwapchainImagesKHR(this->dev, this->swapchain, &this->numBackbuffers, this->backbuffers.Begin());
 
 	this->backbufferViews.Resize(this->numBackbuffers);
 	for (i = 0; i < this->numBackbuffers; i++)
 	{
 		// allocate memory for back buffers
-		uint32_t size;
-		VkRenderDevice::Instance()->AllocateImageMemory(this->backbuffers[i], this->backbufferMem[i], VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, size);
-		vkBindImageMemory(this->dev, this->backbuffers[i], this->backbufferMem[i], 0);
+		//uint32_t size;
+		//VkRenderDevice::Instance()->AllocateImageMemory(this->backbuffers[i], this->backbufferMem[i], VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, size);
+		//vkBindImageMemory(this->dev, this->backbuffers[i], this->backbufferMem[i], 0);
 
 		// setup view
 		VkImageViewCreateInfo backbufferViewInfo = 
@@ -457,6 +454,15 @@ VkRenderDevice::OpenVulkanContext()
 			{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 }
 		};
 		res = vkCreateImageView(this->dev, &backbufferViewInfo, NULL, &this->backbufferViews[i]);
+		n_assert(res == VK_SUCCESS);
+
+		VkSemaphoreCreateInfo semaphoreCreateInfo =
+		{
+			VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+			NULL,
+			0
+		};
+		res = vkCreateSemaphore(this->dev, &semaphoreCreateInfo, NULL, &this->backbufferSemaphores[i]);
 		n_assert(res == VK_SUCCESS);
 	}
 
@@ -1241,10 +1247,6 @@ void
 VkRenderDevice::EndFrame(IndexT frameIndex)
 {
 	RenderDeviceBase::EndFrame(frameIndex);
-
-	// run end-of-frame commands
-	this->RunCommandPass(OnEndFrame);
-
 	VkFenceCreateInfo info =
 	{
 		VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
@@ -1306,6 +1308,9 @@ VkRenderDevice::EndFrame(IndexT frameIndex)
 	n_assert(res == VK_SUCCESS);
 	res = vkResetCommandBuffer(this->mainCmdDrawBuffer, 0);
 	n_assert(res == VK_SUCCESS);
+
+	// run end-of-frame commands
+	this->RunCommandPass(OnEndFrame);
 	//vkEndCommandBuffer(this->mainCmdGfxBuffer);
 	//vkEndCommandBuffer(this->mainCmdCmpBuffer);
 	//vkEndCommandBuffer(this->mainCmdTransBuffer);
@@ -1339,6 +1344,7 @@ VkRenderDevice::Present()
 	n_assert(res == VK_SUCCESS);
 
 	// present frame
+	VkResult presentResults;
 	const VkPresentInfoKHR info =
 	{
 		VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
@@ -1347,13 +1353,15 @@ VkRenderDevice::Present()
 		NULL,
 		1,
 		&this->swapchain,
-		&this->currentBackbuffer
+		&this->currentBackbuffer,
+		&presentResults
 	};
 	res = vkQueuePresentKHR(this->drawQueue, &info);
 
 	if (res == VK_ERROR_OUT_OF_DATE_KHR)
 	{
 		// window has been resized!
+		n_printf("Window resized!");
 	}
 	else
 	{
@@ -1745,8 +1753,8 @@ VkRenderDevice::ImageUpdate(const VkImage& img, const VkImageCreateInfo& info, u
 	// perform update of buffer, and stage a copy of buffer data to image
 	VkBufferImageCopy copy;
 	copy.bufferOffset = 0;
-	copy.bufferImageHeight = info.extent.height;
-	copy.bufferRowLength = VK_DEVICE_SIZE_CONV(size) / info.extent.height;
+	copy.bufferImageHeight = 0;
+	copy.bufferRowLength = 0;
 	copy.imageExtent = info.extent;
 	copy.imageOffset = { 0, 0, 0};
 	copy.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, mip, face, 1 };
@@ -2138,6 +2146,12 @@ VkRenderDevice::CreateAndBindGraphicsPipeline()
 	//this->drawThreads[this->currentDrawThread]->PushCommand(cmd);
 
 	this->BindSharedDescriptorSets();
+
+	VkDeferredCommand del;
+	del.del.type = VkDeferredCommand::DestroyPipeline;
+	del.del.pipelineDestroy.pipeline = pipeline;
+	del.dev = this->dev;
+	this->PushCommandPass(del, OnEndFrame);
 
 	// run command pass
 	this->RunCommandPass(OnBindGraphicsPipeline);

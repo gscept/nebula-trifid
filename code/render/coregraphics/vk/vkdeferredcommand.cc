@@ -67,6 +67,9 @@ VkDeferredCommand::RunDelegate()
 	case UpdateImage:
 		VkRenderDevice::Instance()->ImageUpdate(this->del.imageUpd.img, this->del.imageUpd.info, this->del.imageUpd.mip, this->del.imageUpd.face, this->del.imageUpd.size, this->del.imageUpd.data);
 		break;
+	case DestroyPipeline:
+		vkDestroyPipeline(this->dev, this->del.pipelineDestroy.pipeline, NULL);
+		break;
 	case ClearColorImage:
 		VkRenderDevice::Instance()->ImageColorClear(this->del.imgColorClear.img, this->del.queue, this->del.imgColorClear.layout, this->del.imgColorClear.clearValue, this->del.imgColorClear.region);
 		break;

@@ -30,6 +30,8 @@ struct VkDeferredCommand
 		UpdateBuffer,
 		UpdateImage,
 
+		DestroyPipeline,
+
 		ClearColorImage,
 		ClearDepthStencilImage,
 		ImageOwnershipChange,
@@ -50,31 +52,31 @@ struct VkDeferredCommand
 		VkFence fence;
 		union
 		{
-			struct CmdBufferFree
+			struct // FreeCmdBuffers
 			{
 				VkCommandBuffer buffers[64];
 				VkCommandPool pool;
 				uint32_t numBuffers;
 			} cmdbufferfree;
 
-			struct MemoryFree
+			struct // FreeMemory
 			{
 				void* data;
 			} memory;
 
-			struct BufferFree
+			struct // FreeBuffer
 			{
 				VkBuffer buf;
 				VkDeviceMemory mem;
 			} buffer;
 
-			struct ImageFree
+			struct // FreeImage
 			{
 				VkImage img;
 				VkDeviceMemory mem;
 			} image;
 
-			struct BufferUpdate
+			struct // UpdateBuffer
 			{
 				VkBuffer buf;
 				VkDeviceSize offset;
@@ -82,7 +84,7 @@ struct VkDeferredCommand
 				uint32_t* data;
 			} bufferUpd;
 
-			struct ImageUpdate
+			struct // UpdateImage
 			{
 				VkImage img;
 				VkImageCreateInfo info;
@@ -92,12 +94,17 @@ struct VkDeferredCommand
 				uint32_t* data;
 			} imageUpd;
 
-			struct ImageLayoutChange
+			struct // DestroyPipeline
+			{
+				VkPipeline pipeline;
+			} pipelineDestroy;
+
+			struct // ImageLayoutTransition
 			{
 				VkImageMemoryBarrier barrier;
 			} imgBarrier;
 
-			struct ImageColorClear
+			struct // ClearColorImage
 			{
 				VkImage img;
 				VkImageLayout layout;
@@ -105,7 +112,7 @@ struct VkDeferredCommand
 				VkImageSubresourceRange region;
 			} imgColorClear;
 
-			struct ImageDepthStencilClear
+			struct // ClearDepthStencilImage
 			{
 				VkImage img;
 				VkImageLayout layout;
@@ -113,12 +120,12 @@ struct VkDeferredCommand
 				VkImageSubresourceRange region;
 			} imgDepthStencilClear;
 
-			struct ImageOwnershipTransition
+			struct // ImageOwnershipChange
 			{
 				VkImageMemoryBarrier barrier;
 			} imgOwnerChange;
 
-			struct DescriptorSetBind
+			struct // BindDescriptorSets
 			{
 				VkPipelineBindPoint type;
 				VkPipelineLayout layout;

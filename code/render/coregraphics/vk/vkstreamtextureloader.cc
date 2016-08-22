@@ -74,7 +74,6 @@ VkStreamTextureLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 
 		VkFormat vkformat = VkTypes::AsVkFormat(format);
 		VkTypes::VkBlockDimensions block = VkTypes::AsVkBlockSize(vkformat);
-		if (cube) return false;
 
 		// use linear if we really have to
 		VkFormatProperties formatProps;
