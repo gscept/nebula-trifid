@@ -80,7 +80,11 @@ VkVertexBuffer::Unlock(SizeT offset, SizeT length)
 	{
 		// let CPU signal GPU to continue
 		this->barrier = VkRenderDevice::Instance()->BufferMemoryBarrier(this->buf, offset, length, VK_ACCESS_HOST_READ_BIT, VK_ACCESS_HOST_WRITE_BIT);
-		VkRenderDevice::Instance()->InterlockWaitGPU(VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, this->barrier);
+		this->memBarrier.pNext = NULL;
+		this->memBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
+		this->memBarrier.srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+		this->memBarrier.dstAccessMask = VK_ACCESS_HOST_WRITE_BIT;
+		VkRenderDevice::Instance()->InterlockWaitGPU(VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, this->memBarrier);
 	}
 }
 

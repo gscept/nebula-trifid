@@ -44,6 +44,7 @@ private:
 
 	VkCommandBuffer updCmd;
 	VkBufferMemoryBarrier barrier;
+	VkMemoryBarrier memBarrier;
 };
 
 //------------------------------------------------------------------------------

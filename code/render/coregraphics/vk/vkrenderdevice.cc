@@ -1253,7 +1253,7 @@ VkRenderDevice::EndFrame(IndexT frameIndex)
 	};
 
 	// submit transfer stuff
-	this->SubmitToQueue(this->transferQueue, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 1, &this->mainCmdTransBuffer);
+	this->SubmitToQueue(this->transferQueue, VK_PIPELINE_STAGE_TRANSFER_BIT, 1, &this->mainCmdTransBuffer);
 	this->SubmitToQueue(this->transferQueue, this->mainCmdTransFence);
 	if (this->putTransferFenceThisFrame)
 	{
@@ -1268,7 +1268,7 @@ VkRenderDevice::EndFrame(IndexT frameIndex)
 	this->RunCommandPass(OnMainTransferSubmitted);
 
 	// submit draw stuff
-	this->SubmitToQueue(this->drawQueue, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 1, &this->mainCmdDrawBuffer);
+	this->SubmitToQueue(this->drawQueue, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, 1, &this->mainCmdDrawBuffer);
 	this->SubmitToQueue(this->drawQueue, this->mainCmdDrawFence);
 	if (this->putDrawFenceThisFrame)
 	{
@@ -1283,7 +1283,7 @@ VkRenderDevice::EndFrame(IndexT frameIndex)
 	this->RunCommandPass(OnMainDrawSubmitted);
 	
 	// submit comput stuff
-	this->SubmitToQueue(this->computeQueue, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 1, &this->mainCmdCmpBuffer);
+	this->SubmitToQueue(this->computeQueue, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 1, &this->mainCmdCmpBuffer);
 	this->SubmitToQueue(this->computeQueue, this->mainCmdCmpFence);	
 	if (this->putComputeFenceThisFrame)
 	{
@@ -2813,7 +2813,7 @@ VkRenderDevice::PushToInterlockThread(const VkCpuGpuInterlockThread::Command& cm
 	Have the GPU wait for the interlock thread, do this on the 'right' side.
 */
 void
-VkRenderDevice::InterlockWaitGPU(VkPipelineStageFlags waitStage, VkPipelineStageFlags signalStage, VkBufferMemoryBarrier buffer)
+VkRenderDevice::InterlockWaitGPU(VkPipelineStageFlags waitStage, VkPipelineStageFlags signalStage, VkBufferMemoryBarrier& buffer)
 {
 	// wait for GPU event to trigger
 	VkCpuGpuInterlockThread::Command cpuCmd;
@@ -2854,7 +2854,7 @@ VkRenderDevice::InterlockWaitGPU(VkPipelineStageFlags waitStage, VkPipelineStage
 /**
 */
 void
-VkRenderDevice::InterlockWaitGPU(VkPipelineStageFlags waitStage, VkPipelineStageFlags signalStage, VkImageMemoryBarrier image)
+VkRenderDevice::InterlockWaitGPU(VkPipelineStageFlags waitStage, VkPipelineStageFlags signalStage, VkImageMemoryBarrier& image)
 {
 	// wait for GPU event to trigger
 	VkCpuGpuInterlockThread::Command cpuCmd;
@@ -2879,6 +2879,47 @@ VkRenderDevice::InterlockWaitGPU(VkPipelineStageFlags waitStage, VkPipelineStage
 	gpuCmd.waitEvent.memoryBarriers = NULL;
 	gpuCmd.waitEvent.imageBarrierCount = 1;
 	gpuCmd.waitEvent.imageBarriers = &image;
+	gpuCmd.waitEvent.waitingStage = waitStage;
+	gpuCmd.waitEvent.signalingStage = signalStage;
+	this->PushToThread(gpuCmd, this->currentDrawThread);
+
+	// thread can reset GPU event
+	cpuCmd.type = VkCpuGpuInterlockThread::ResetEvent;
+	cpuCmd.resetEvent.usage = VkCpuGpuInterlockThread::GPUEvent;
+	this->PushToInterlockThread(cpuCmd);
+
+	// GPU is locked now
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::InterlockWaitGPU(VkPipelineStageFlags waitStage, VkPipelineStageFlags signalStage, VkMemoryBarrier& barrier)
+{
+	// wait for GPU event to trigger
+	VkCpuGpuInterlockThread::Command cpuCmd;
+	cpuCmd.type = VkCpuGpuInterlockThread::WaitEvent;
+	cpuCmd.waitEvent.usage = VkCpuGpuInterlockThread::GPUEvent;
+	this->PushToInterlockThread(cpuCmd);
+
+	// have GPU signal the event
+	VkCmdBufferThread::Command gpuCmd;
+	gpuCmd.type = VkCmdBufferThread::SetEvent;
+	gpuCmd.setEvent.stages = signalStage;
+	gpuCmd.setEvent.event = this->interlockThread->event[VkCpuGpuInterlockThread::GPUEvent];
+	this->PushToThread(gpuCmd, this->currentDrawThread);
+
+	// GPU will stall just after signaling event
+	gpuCmd.type = VkCmdBufferThread::WaitForEvent;
+	gpuCmd.waitEvent.numEvents = 1;
+	gpuCmd.waitEvent.events = &this->interlockThread->event[VkCpuGpuInterlockThread::CPUEvent];
+	gpuCmd.waitEvent.bufferBarrierCount = 0;
+	gpuCmd.waitEvent.bufferBarriers = NULL;
+	gpuCmd.waitEvent.memoryBarrierCount = 1;
+	gpuCmd.waitEvent.memoryBarriers = &barrier;
+	gpuCmd.waitEvent.imageBarrierCount = 0;
+	gpuCmd.waitEvent.imageBarriers = NULL;
 	gpuCmd.waitEvent.waitingStage = waitStage;
 	gpuCmd.waitEvent.signalingStage = signalStage;
 	this->PushToThread(gpuCmd, this->currentDrawThread);

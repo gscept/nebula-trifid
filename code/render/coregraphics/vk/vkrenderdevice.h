@@ -308,9 +308,11 @@ private:
 	/// tell interlock thread to wait for previous draw command to finish
 	void InterlockWaitCPU(VkPipelineStageFlags stage);
 	/// tell interlock thread to block GPU thread waiting for a buffer
-	void InterlockWaitGPU(VkPipelineStageFlags waitStage, VkPipelineStageFlags signalStage, VkBufferMemoryBarrier buffer);
+	void InterlockWaitGPU(VkPipelineStageFlags waitStage, VkPipelineStageFlags signalStage, VkBufferMemoryBarrier& buffer);
 	/// tell interlock thread to block GPU thread waiting for an image
-	void InterlockWaitGPU(VkPipelineStageFlags waitStage, VkPipelineStageFlags signalStage, VkImageMemoryBarrier image);
+	void InterlockWaitGPU(VkPipelineStageFlags waitStage, VkPipelineStageFlags signalStage, VkImageMemoryBarrier& image);
+	/// tell interlock thread to block GPU thread waiting for an image
+	void InterlockWaitGPU(VkPipelineStageFlags waitStage, VkPipelineStageFlags signalStage, VkMemoryBarrier& barrier);
 	/// give interlock thread a memcpy assignment
 	void InterlockMemcpy(uint32_t size, uint32_t offset, const void* data, void* mappedData);
 
