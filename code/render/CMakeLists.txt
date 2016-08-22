@@ -476,6 +476,8 @@ ENDIF()
 		${Render_files_coregraphics_displaydevice__impl}
 		coregraphics/vk/vkcmdbufferthread.cc
 		coregraphics/vk/vkcmdbufferthread.h
+		coregraphics/vk/vkcpugpuinterlockthread.cc
+		coregraphics/vk/vkcpugpuinterlockthread.h
 		coregraphics/vk/vkcpusyncfence.cc
 		coregraphics/vk/vkcpusyncfence.h
 		coregraphics/vk/vkdeferredcommand.cc

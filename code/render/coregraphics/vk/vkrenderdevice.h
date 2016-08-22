@@ -8,6 +8,7 @@
 //------------------------------------------------------------------------------
 #include "coregraphics/base/renderdevicebase.h"
 #include "vkcmdbufferthread.h"
+#include "vkcpugpuinterlockthread.h"
 #include "vkdeferredcommand.h"
 namespace Vulkan
 {
@@ -108,6 +109,10 @@ public:
 
 	/// call when window gets resized
 	void DisplayResized(SizeT width, SizeT height);
+	/// returns true if we support parallel transfers
+	static bool AsyncTransferSupported();
+	/// returns true if we support parallel computes
+	static bool AsyncComputeSupported();
 
 	static const short MaxNumRenderTargets = 8;
 	static const short MaxNumViewports = 16;
@@ -298,6 +303,15 @@ private:
 	/// flush remaining staging thread commands
 	void FlushToThread(const IndexT& index);
 
+	/// add command to interlock thread
+	void PushToInterlockThread(const VkCpuGpuInterlockThread::Command& cmd);
+	/// tell interlock thread to wait for previous draw command to finish
+	void InterlockGPUSignal(VkPipelineStageFlags stage);
+	/// tell interlock thread to block GPU thread
+	void InterlockCPUSignal(VkPipelineStageFlags waitStage, VkPipelineStageFlags signalStage);
+	/// give interlock thread a memcpy assignment
+	void InterlockMemcpy(uint32_t size, uint32_t offset, const void* data, void* mappedData);
+
 	/// binds common descriptors
 	void BindSharedDescriptorSets();
 
@@ -395,11 +409,7 @@ private:
 	SizeT numActiveThreads;
 	SizeT numUsedThreads;
 
-	static const SizeT NumDeferredDelegates = 128;
-	uint32_t currentDeferredDelegate;
-	VkFence deferredDelegateFences[NumDeferredDelegates];
-	Util::Queue<IndexT> freeFences;
-	Util::Queue<IndexT> usedFences;
+	Ptr<VkCpuGpuInterlockThread> interlockThread;
 
 	VkPipelineVertexInputStateCreateInfo vertexInfo;
 	VkViewport* passViewports;

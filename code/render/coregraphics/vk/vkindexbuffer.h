@@ -30,7 +30,7 @@ public:
 	/// unlock range within index buffer
 	void Unlock(SizeT offset, SizeT length);
 	/// handle updating the vertex buffer
-	void Update(const void* data, SizeT offset, SizeT length);
+	void Update(const void* data, SizeT offset, SizeT length, void* mappedData = NULL);
 	/// lock range within index buffer
 	void Lock(SizeT offset, SizeT length);
 

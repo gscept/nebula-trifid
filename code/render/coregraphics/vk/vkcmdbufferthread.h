@@ -7,7 +7,6 @@
 */
 //------------------------------------------------------------------------------
 #include <vulkan/vulkan.h>
-#include "core/refcounted.h"
 #include "threading/thread.h"
 #include "threading/safequeue.h"
 #include "coregraphics/primitivegroup.h"
@@ -71,27 +70,27 @@ private:
 		{
 			VkPipeline pipeline;
 
-			struct BeginCmd
+			struct // BeginCmd
 			{
 				VkCommandBufferBeginInfo info;
 				VkCommandBuffer buf;
 			} bgCmd;
 
-			struct VBO
+			struct // VBO
 			{
 				VkBuffer buffer;
 				IndexT index;
 				VkDeviceSize offset;
 			} vbo;
 
-			struct IBO
+			struct // IBO
 			{
 				VkBuffer buffer;
 				VkDeviceSize offset;
 				VkIndexType indexType;
 			} ibo;			
 			
-			struct Draw
+			struct // Draw
 			{
 				uint32_t baseIndex;
 				uint32_t baseVertex;
@@ -101,14 +100,14 @@ private:
 				uint32_t numInstances;
 			} draw;
 
-			struct Dispatch
+			struct // Dispatch
 			{
 				uint32_t numGroupsX;
 				uint32_t numGroupsY;
 				uint32_t numGroupsZ;
 			} dispatch;
 
-			struct Descriptors
+			struct // Descriptors
 			{
 				VkPipelineBindPoint type;
 				VkPipelineLayout layout;
@@ -119,7 +118,7 @@ private:
 				const uint32_t* offsets;
 			} descriptor;
 
-			struct UpdateBuffer
+			struct // UpdateBuffer
 			{
 				bool deleteWhenDone;
 				VkBuffer buf;
@@ -128,7 +127,7 @@ private:
 				uint32_t* data;
 			} updBuffer;
 
-			struct PushConstants
+			struct // PushConstants
 			{
 				VkShaderStageFlags stages;
 				VkPipelineLayout layout;
@@ -137,45 +136,45 @@ private:
 				void* data;
 			} pushranges;
 
-			struct Viewport
+			struct // Viewport
 			{
 				VkViewport vp;
 				uint32_t index;
 			} viewport;
 
-			struct ViewportArray
+			struct // ViewportArray
 			{
 				VkViewport* vps;
 				uint32_t first;
 				uint32_t num;
 			} viewportArray;
 
-			struct ScissorRect
+			struct // ScissorRect
 			{
 				VkRect2D sc;
 				uint32_t index;
 			} scissorRect;
 
-			struct ScissorRectArray
+			struct // ScissorRectArray
 			{
 				VkRect2D* scs;
 				uint32_t first;
 				uint32_t num;
 			} scissorRectArray;
 
-			struct SetEvent
+			struct // SetEvent
 			{
 				VkEvent event;
 				VkPipelineStageFlags stages;
 			} setEvent;
 
-			struct ResetEvent
+			struct // ResetEvent
 			{
 				VkEvent event;
 				VkPipelineStageFlags stages;
 			} resetEvent;
 
-			struct WaitForEvents
+			struct // WaitForEvents
 			{
 				VkEvent* events;
 				uint32_t numEvents;
@@ -196,7 +195,6 @@ private:
 	Threading::Event pause;
 	VkCommandBuffer commandBuffer;
 	Threading::SafeQueue<Command> commands;
-	Util::Array<Command> pendingCommands;
 #if NEBULA3_ENABLE_PROFILING
 	_declare_timer(debugTimer);
 #endif
@@ -210,6 +208,24 @@ inline void
 VkCmdBufferThread::SetCommandBuffer(const VkCommandBuffer& buffer)
 {
 	this->commandBuffer = buffer;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+VkCmdBufferThread::PushCommand(const Command& command)
+{
+	this->commands.Enqueue(command);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+VkCmdBufferThread::PushCommands(const Util::Array<Command>& commands)
+{
+	this->commands.EnqueueArray(commands);
 }
 
 } // namespace Vulkan

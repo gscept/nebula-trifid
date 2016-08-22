@@ -57,6 +57,12 @@ ImguiDrawFunction(ImDrawData* data)
 	// create orthogonal matrix
 #if __VULKAN__
 	matrix44 proj = matrix44::orthooffcenterrh(0.0f, io.DisplaySize.x, io.DisplaySize.y, 0.0f, -1.0f, +1.0f);
+	Math::matrix44 correction = Math::matrix44(
+		Math::float4(1, 0, 0, 0),
+		Math::float4(0, -1, 0, 0),
+		Math::float4(0, 0, 0.5f, 0),
+		Math::float4(0, 0, 0.5f, 1));
+	proj = matrix44::multiply(proj, correction);
 #else
 	matrix44 proj = matrix44::orthooffcenterrh(0.0f, io.DisplaySize.x, io.DisplaySize.y, 0.0f, -1.0f, +1.0f);
 #endif
@@ -95,16 +101,16 @@ ImguiDrawFunction(ImDrawData* data)
 		n_assert(indexBufferOffset + (IndexT)commandList->IdxBuffer.size() < ibo->GetNumIndices());
 
 		// unlock range within buffers, can cause a wait for lock
-		vbo->Unlock(vertexBufferOffset, vertexBufferSize);
-		ibo->Unlock(indexBufferOffset, indexBufferSize);
+		//vbo->Unlock(vertexBufferOffset, vertexBufferSize);
+		//ibo->Unlock(indexBufferOffset, indexBufferSize);
 
 		// update buffers
-		vbo->Update(vertexBuffer, vertexBufferOffset, vertexBufferSize);
-		ibo->Update(indexBuffer, indexBufferOffset, indexBufferSize);
+		//vbo->Update(vertexBuffer, vertexBufferOffset, vertexBufferSize);
+		//ibo->Update(indexBuffer, indexBufferOffset, indexBufferSize);
 
 		// wait for previous draws to finish...
-		vboLock->WaitForRange(vertexBufferOffset, vertexBufferSize);
-		iboLock->WaitForRange(indexBufferOffset, indexBufferSize);
+		//vboLock->WaitForRange(vertexBufferOffset, vertexBufferSize);
+		//iboLock->WaitForRange(indexBufferOffset, indexBufferSize);
 		memcpy(renderer->GetVertexPtr() + vertexBufferOffset, vertexBuffer, vertexBufferSize);
 		memcpy(renderer->GetIndexPtr() + indexBufferOffset, indexBuffer, indexBufferSize);
 		IndexT j;
@@ -147,13 +153,13 @@ ImguiDrawFunction(ImDrawData* data)
 		indexOffset += commandList->IdxBuffer.size();
 
 		// lock range within buffers so we avoid stomping them
-		vbo->Lock(vertexBufferOffset, vertexBufferSize);
-		ibo->Lock(indexBufferOffset, indexBufferSize);
+		//vbo->Lock(vertexBufferOffset, vertexBufferSize);
+		//ibo->Lock(indexBufferOffset, indexBufferSize);
 
 		// lock buffers
-		vboLock->LockRange(vertexBufferOffset, vertexBufferSize);
+		//vboLock->LockRange(vertexBufferOffset, vertexBufferSize);
 		vertexBufferOffset += vertexBufferSize;
-		iboLock->LockRange(indexBufferOffset, indexBufferSize);
+		//iboLock->LockRange(indexBufferOffset, indexBufferSize);
 		indexBufferOffset += indexBufferSize;
 	}
 }

@@ -148,24 +148,6 @@ VkCmdBufferThread::DoWork()
 /**
 */
 void
-VkCmdBufferThread::PushCommand(const Command& command)
-{
-	this->commands.Enqueue(command);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkCmdBufferThread::PushCommands(const Util::Array<Command>& commands)
-{
-	this->commands.EnqueueArray(commands);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
 VkCmdBufferThread::Pause(bool pause)
 {
 	if (pause) this->pause.Reset();

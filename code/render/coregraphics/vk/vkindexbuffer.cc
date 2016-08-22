@@ -70,19 +70,35 @@ VkIndexBuffer::Unlock(SizeT offset, SizeT length)
 {
 	BufferBase::Unlock(offset, length);
 	
-	// unlock buffer by giving the lock the command buffer used to wait
-	this->updCmd = VkRenderDevice::Instance()->BeginImmediateTransfer();
-	this->lock->SetWaitCommandBuffer(this->updCmd, VK_PIPELINE_STAGE_TRANSFER_BIT);
-	this->lock->WaitForRange(offset, length);
+	if (VkRenderDevice::AsyncTransferSupported())
+	{
+		this->updCmd = VkRenderDevice::Instance()->BeginImmediateTransfer();
+		this->lock->SetWaitCommandBuffer(this->updCmd, VK_PIPELINE_STAGE_TRANSFER_BIT);
+		this->lock->WaitForRange(offset, length);
+	}
+	else
+	{
+		// let CPU signal GPU to continue
+		VkRenderDevice::Instance()->InterlockCPUSignal(VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT);
+	}
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-VkIndexBuffer::Update(const void* data, SizeT offset, SizeT length)
+VkIndexBuffer::Update(const void* data, SizeT offset, SizeT length, void* mappedData)
 {
-	VkRenderDevice::Instance()->BufferUpdate(this->updCmd, this->buf, VkDeviceSize(offset), VkDeviceSize(length), data);
+	if (VkRenderDevice::AsyncTransferSupported())
+	{
+		// send update 
+		VkRenderDevice::Instance()->BufferUpdate(VkRenderDevice::mainCmdDrawBuffer, this->buf, VkDeviceSize(offset), VkDeviceSize(length), data);
+	}
+	else
+	{
+		// perform interlocked memcpy
+		VkRenderDevice::Instance()->InterlockMemcpy(length, offset, data, mappedData);
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -92,11 +108,18 @@ void
 VkIndexBuffer::Lock(SizeT offset, SizeT length)
 {
 	// lock buffer by telling the main draw buffer to wait for vertex inputs
-	this->lock->SetSignalCommandBuffer(VkRenderDevice::mainCmdDrawBuffer, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT);
-	this->lock->LockRange(offset, length);
-
-	VkRenderDevice::Instance()->EndImmediateTransfer(this->updCmd);
-	this->updCmd = VK_NULL_HANDLE; 
+	if (VkRenderDevice::AsyncTransferSupported())
+	{
+		this->lock->SetSignalCommandBuffer(VkRenderDevice::mainCmdDrawBuffer, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT);
+		this->lock->LockRange(offset, length);
+		VkRenderDevice::Instance()->EndImmediateTransfer(this->updCmd);
+		this->updCmd = VK_NULL_HANDLE;
+	}
+	else
+	{
+		// let GPU signal CPU to continue
+		VkRenderDevice::Instance()->InterlockGPUSignal(VK_PIPELINE_STAGE_VERTEX_INPUT_BIT);
+	}
 	BufferBase::Lock(offset, length);
 }
 

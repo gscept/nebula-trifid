@@ -231,6 +231,13 @@ VkRenderDevice::OpenVulkanContext()
 	indexMap.Fill(0);
 	for (i = 0; i < numQueues; i++)
 	{
+		if (this->queuesProps[i].queueFlags == VK_QUEUE_TRANSFER_BIT && this->transferQueueIdx == UINT32_MAX)
+		{
+			if (this->queuesProps[i].queueCount == indexMap[i]) continue;
+			this->transferQueueFamily = i;
+			this->transferQueueIdx = indexMap[i]++;
+			goto skip;
+		}
 		if (this->queuesProps[i].queueFlags & VK_QUEUE_GRAPHICS_BIT && this->drawQueueIdx == UINT32_MAX)
 		{
 			if (this->queuesProps[i].queueCount == indexMap[i]) continue;
@@ -251,13 +258,6 @@ VkRenderDevice::OpenVulkanContext()
 			if (this->queuesProps[i].queueCount == indexMap[i]) continue;
 			this->computeQueueFamily = i;
 			this->computeQueueIdx = indexMap[i]++;
-			goto skip;
-		}
-		if (this->queuesProps[i].queueFlags & VK_QUEUE_TRANSFER_BIT && this->transferQueueIdx == UINT32_MAX)
-		{
-			if (this->queuesProps[i].queueCount == indexMap[i]) continue;
-			this->transferQueueFamily = i;
-			this->transferQueueIdx = indexMap[i]++;
 			goto skip;
 		}
 	skip:
@@ -618,7 +618,7 @@ VkRenderDevice::OpenVulkanContext()
 	res = vkAllocateCommandBuffers(VkRenderDevice::dev, &cmdAllocInfo, &this->mainCmdTransBuffer);
 	n_assert(res == VK_SUCCESS);
 
-	// setup threads
+	// setup draw threads
 	Util::String threadName;
 	for (i = 0; i < NumDrawThreads; i++)
 	{
@@ -632,6 +632,7 @@ VkRenderDevice::OpenVulkanContext()
 		this->drawCompletionEvents[i] = Threading::Event(true);
 	}
 
+	// setup transfer threads
 	for (i = 0; i < NumTransferThreads; i++)
 	{
 		threadName.Format("TransferCmdBufferThread%d", i);
@@ -644,21 +645,33 @@ VkRenderDevice::OpenVulkanContext()
 		this->transCompletionEvents[i] = Threading::Event(true);
 	}
 
+	// setup compute threads
+	for (i = 0; i < NumComputeThreads; i++)
+	{
+		threadName.Format("ComputeCmdBufferThread%d", i);
+		this->compThreads[i] = VkCmdBufferThread::Create();
+		this->compThreads[i]->SetPriority(Threading::Thread::Low);
+		this->compThreads[i]->SetCoreId(System::Cpu::RenderThreadFirstCore + NumDrawThreads + NumTransferThreads + i);
+		this->compThreads[i]->SetName(threadName);
+		this->compThreads[i]->Start();
+
+		this->compCompletionEvents[i] = Threading::Event(true);
+	}
+
+	// create interlock thread
+	this->interlockThread = VkCpuGpuInterlockThread::Create();
+	this->interlockThread->SetPriority(Threading::Thread::Low);
+	this->interlockThread->SetCoreId(System::Cpu::RenderThreadFirstCore + NumDrawThreads + NumTransferThreads + NumComputeThreads);
+	this->interlockThread->SetName("CPU-GPU interlock thread");
+	this->interlockThread->dev = this->dev;
+	this->interlockThread->Start();
+
 	VkFenceCreateInfo fenceInfo =
 	{
 		VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
 		NULL,
 		0
 	};
-	this->currentDeferredDelegate = 0;
-	this->freeFences.Reserve(NumDeferredDelegates);
-	this->usedFences.Reserve(NumDeferredDelegates);
-	for (i = 0; i < NumDeferredDelegates; i++)
-	{
-		res = vkCreateFence(this->dev, &fenceInfo, NULL, &this->deferredDelegateFences[i]);
-		n_assert(res == VK_SUCCESS);
-		this->freeFences.Enqueue(i);
-	}
 
 	res = vkCreateFence(this->dev, &fenceInfo, NULL, &this->mainCmdDrawFence);
 	n_assert(res == VK_SUCCESS);
@@ -762,11 +775,6 @@ VkRenderDevice::CloseVulkanDevice()
 	{
 		vkDestroyImage(this->dev, this->backbuffers[i], NULL);
 		vkFreeMemory(this->dev, this->backbufferMem[i], NULL);
-	}
-
-	for (i = 0; i < NumDeferredDelegates; i++)
-	{
-		vkDestroyFence(this->dev, this->deferredDelegateFences[i], NULL);
 	}
 
 	vkDestroyDevice(this->dev, NULL);
@@ -1684,6 +1692,16 @@ VkRenderDevice::BufferUpdate(VkCommandBuffer cmd, const VkBuffer& buf, VkDeviceS
 	{
 		const uint8_t* ptr = (const uint8_t*)data + totalOffset;
 		VkDeviceSize uploadSize = totalSize < 65536 ? totalSize : 65536;
+		/*
+		VkCmdBufferThread::Command cmd;
+		cmd.updBuffer.buf = buf;
+		cmd.updBuffer.data = (uint32_t*)data;
+		cmd.updBuffer.offset = offset;
+		cmd.updBuffer.size = size;
+		cmd.updBuffer.deleteWhenDone = false;
+		cmd.type = VkCmdBufferThread::UpdateBuffer;
+		*/
+		//this->PushToThread(cmd, this->currentDrawThread, true);
 		vkCmdUpdateBuffer(cmd, buf, totalOffset, uploadSize, ptr);
 		totalSize -= uploadSize;
 		totalOffset += uploadSize;
@@ -2743,6 +2761,103 @@ VkRenderDevice::FlushToThread(const IndexT& index)
 	this->threadCmds[index].Clear();
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+VkRenderDevice::AsyncTransferSupported()
+{
+	return VkRenderDevice::transferQueue != VkRenderDevice::drawQueue;
+}
 
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+VkRenderDevice::AsyncComputeSupported()
+{
+	return VkRenderDevice::computeQueue != VkRenderDevice::drawQueue;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::PushToInterlockThread(const VkCpuGpuInterlockThread::Command& cmd)
+{
+	n_assert(this->interlockThread.isvalid());
+	this->interlockThread->PushCommand(cmd);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::InterlockGPUSignal(VkPipelineStageFlags stage)
+{
+	// set event in GPU
+	VkCmdBufferThread::Command gpuCmd;
+	gpuCmd.type = VkCmdBufferThread::SetEvent;
+	gpuCmd.setEvent.event = this->interlockThread->event;
+	gpuCmd.setEvent.stages = stage;
+	this->PushToThread(gpuCmd, this->currentDrawThread);
+
+	// wait for GPU event to trigger
+	VkCpuGpuInterlockThread::Command cpuCmd;
+	cpuCmd.dev = this->dev;
+	cpuCmd.type = VkCpuGpuInterlockThread::WaitEvent;
+	this->PushToInterlockThread(cpuCmd);
+
+	// reset event so next wait will acually stop GPU
+	cpuCmd.type = VkCpuGpuInterlockThread::ResetEvent;
+	this->PushToInterlockThread(cpuCmd);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::InterlockCPUSignal(VkPipelineStageFlags waitStage, VkPipelineStageFlags signalStage)
+{
+	// let GPU wait for event
+	VkCmdBufferThread::Command gpuCmd;
+	gpuCmd.type = VkCmdBufferThread::WaitForEvent;
+	gpuCmd.waitEvent.numEvents = 1;
+	gpuCmd.waitEvent.events = &this->interlockThread->event;
+	gpuCmd.waitEvent.bufferBarrierCount = 0;
+	gpuCmd.waitEvent.bufferBarriers = NULL;
+	gpuCmd.waitEvent.memoryBarrierCount = 0;
+	gpuCmd.waitEvent.memoryBarriers = NULL;
+	gpuCmd.waitEvent.imageBarrierCount = 0;
+	gpuCmd.waitEvent.imageBarriers = NULL;
+	gpuCmd.waitEvent.waitingStage = waitStage;
+	gpuCmd.waitEvent.signalingStage = signalStage;
+	this->PushToThread(gpuCmd, this->currentDrawThread);
+
+	// signal event to unlock GPU
+	VkCpuGpuInterlockThread::Command cpuCmd;
+	cpuCmd.dev = this->dev;
+	cpuCmd.type = VkCpuGpuInterlockThread::SignalEvent;
+	this->PushToInterlockThread(cpuCmd);
+
+	// reset event
+	cpuCmd.type = VkCpuGpuInterlockThread::ResetEvent;
+	this->PushToInterlockThread(cpuCmd);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::InterlockMemcpy(uint32_t size, uint32_t offset, const void* data, void* mappedData)
+{
+	VkCpuGpuInterlockThread::Command cmd;
+	cmd.type = VkCpuGpuInterlockThread::Memcpy;
+	cmd.memCpy.data = data;
+	cmd.memCpy.size = size;
+	cmd.memCpy.offset = offset;
+	cmd.memCpy.mappedData = mappedData;
+	this->PushToInterlockThread(cmd);
+}
 
 } // namespace Vulkan

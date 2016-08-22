@@ -55,7 +55,7 @@ VkMemoryIndexBufferLoader::OnLoadRequested()
 	uint32_t alignedSize;
 	uint32_t flags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
 	flags |= this->syncing == IndexBuffer::SyncingCoherent ? VK_MEMORY_PROPERTY_HOST_COHERENT_BIT : 0;
-	flags |= this->usage == IndexBuffer::UsageDynamic ? VK_MEMORY_PROPERTY_HOST_CACHED_BIT : 0;
+	//flags |= this->usage == IndexBuffer::UsageDynamic ? VK_MEMORY_PROPERTY_HOST_CACHED_BIT : 0;
 	VkRenderDevice::Instance()->AllocateBufferMemory(buf, mem, VkMemoryPropertyFlagBits(flags), alignedSize);
 
 	// now bind memory to buffer
@@ -81,8 +81,11 @@ VkMemoryIndexBufferLoader::OnLoadRequested()
 	res->SetSyncing(this->syncing);
 	res->SetIndexType(this->indexType);
 	res->SetNumIndices(this->numIndices);
-	res->SetByteSize(this->indexDataSize);
+	res->SetByteSize(this->numIndices * IndexType::SizeOf(this->indexType));
 	res->SetVkBuffer(buf, mem);
+
+	// if requested, create lock
+	if (this->usage == IndexBuffer::UsageDynamic) res->CreateLock();
 
 	// invalidate setup data (because we don't own our data)
 	this->indexDataPtr = 0;

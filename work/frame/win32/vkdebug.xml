@@ -70,7 +70,7 @@
    <ApplyShaderVariable sem="ColorMatrix2" value="0.0f, 1.0f, 0.0f, 0.0f,	0.0f, 0.0f, 0.0f, 0.0f,		0.0f, -0.2f, 0.0f, 0.0f,		0.0f, 0.0f, 0.0f, 0.0f,"/>
    
    <Batch type="UI"/>
-   <Batch type="Text"/>  
+   <!--<Batch type="Text"/>-->
   </PostEffect>  
    
  </FrameShader>
