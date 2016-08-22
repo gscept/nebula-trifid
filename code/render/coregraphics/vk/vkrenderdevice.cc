@@ -2278,6 +2278,25 @@ VkRenderDevice::ImageMemoryBarrier(const VkImage& img, VkImageSubresourceRange s
 //------------------------------------------------------------------------------
 /**
 */
+VkBufferMemoryBarrier
+VkRenderDevice::BufferMemoryBarrier(const VkBuffer& buf, VkDeviceSize offset, VkDeviceSize size, VkAccessFlags srcAccess, VkAccessFlags dstAccess)
+{
+	VkBufferMemoryBarrier barrier;
+	barrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+	barrier.pNext = NULL;
+	barrier.buffer = buf;
+	barrier.dstAccessMask = dstAccess;
+	barrier.srcAccessMask = srcAccess;
+	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.size = size;
+	barrier.offset = offset;
+	return barrier;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 VkImageMemoryBarrier
 VkRenderDevice::ImageMemoryBarrier(const VkImage& img, VkImageSubresourceRange subres, VkDeferredCommand::CommandQueueType fromQueue, VkDeferredCommand::CommandQueueType toQueue, VkImageLayout layout)
 {
@@ -2791,41 +2810,30 @@ VkRenderDevice::PushToInterlockThread(const VkCpuGpuInterlockThread::Command& cm
 
 //------------------------------------------------------------------------------
 /**
+	Have the GPU wait for the interlock thread, do this on the 'right' side.
 */
 void
-VkRenderDevice::InterlockGPUSignal(VkPipelineStageFlags stage)
+VkRenderDevice::InterlockWaitGPU(VkPipelineStageFlags waitStage, VkPipelineStageFlags signalStage, VkBufferMemoryBarrier buffer)
 {
-	// set event in GPU
-	VkCmdBufferThread::Command gpuCmd;
-	gpuCmd.type = VkCmdBufferThread::SetEvent;
-	gpuCmd.setEvent.event = this->interlockThread->event;
-	gpuCmd.setEvent.stages = stage;
-	this->PushToThread(gpuCmd, this->currentDrawThread);
-
 	// wait for GPU event to trigger
 	VkCpuGpuInterlockThread::Command cpuCmd;
-	cpuCmd.dev = this->dev;
 	cpuCmd.type = VkCpuGpuInterlockThread::WaitEvent;
+	cpuCmd.waitEvent.usage = VkCpuGpuInterlockThread::GPUEvent;
 	this->PushToInterlockThread(cpuCmd);
 
-	// reset event so next wait will acually stop GPU
-	cpuCmd.type = VkCpuGpuInterlockThread::ResetEvent;
-	this->PushToInterlockThread(cpuCmd);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkRenderDevice::InterlockCPUSignal(VkPipelineStageFlags waitStage, VkPipelineStageFlags signalStage)
-{
-	// let GPU wait for event
+	// have GPU signal the event
 	VkCmdBufferThread::Command gpuCmd;
+	gpuCmd.type = VkCmdBufferThread::SetEvent;
+	gpuCmd.setEvent.stages = signalStage;
+	gpuCmd.setEvent.event = this->interlockThread->event[VkCpuGpuInterlockThread::GPUEvent];
+	this->PushToThread(gpuCmd, this->currentDrawThread);
+
+	// GPU will stall just after signaling event
 	gpuCmd.type = VkCmdBufferThread::WaitForEvent;
 	gpuCmd.waitEvent.numEvents = 1;
-	gpuCmd.waitEvent.events = &this->interlockThread->event;
-	gpuCmd.waitEvent.bufferBarrierCount = 0;
-	gpuCmd.waitEvent.bufferBarriers = NULL;
+	gpuCmd.waitEvent.events = &this->interlockThread->event[VkCpuGpuInterlockThread::CPUEvent];
+	gpuCmd.waitEvent.bufferBarrierCount = 1;
+	gpuCmd.waitEvent.bufferBarriers = &buffer;
 	gpuCmd.waitEvent.memoryBarrierCount = 0;
 	gpuCmd.waitEvent.memoryBarriers = NULL;
 	gpuCmd.waitEvent.imageBarrierCount = 0;
@@ -2834,15 +2842,76 @@ VkRenderDevice::InterlockCPUSignal(VkPipelineStageFlags waitStage, VkPipelineSta
 	gpuCmd.waitEvent.signalingStage = signalStage;
 	this->PushToThread(gpuCmd, this->currentDrawThread);
 
-	// signal event to unlock GPU
-	VkCpuGpuInterlockThread::Command cpuCmd;
-	cpuCmd.dev = this->dev;
-	cpuCmd.type = VkCpuGpuInterlockThread::SignalEvent;
+	// thread can reset GPU event
+	cpuCmd.type = VkCpuGpuInterlockThread::ResetEvent;
+	cpuCmd.resetEvent.usage = VkCpuGpuInterlockThread::GPUEvent;
 	this->PushToInterlockThread(cpuCmd);
 
-	// reset event
-	cpuCmd.type = VkCpuGpuInterlockThread::ResetEvent;
+	// GPU is locked now
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::InterlockWaitGPU(VkPipelineStageFlags waitStage, VkPipelineStageFlags signalStage, VkImageMemoryBarrier image)
+{
+	// wait for GPU event to trigger
+	VkCpuGpuInterlockThread::Command cpuCmd;
+	cpuCmd.type = VkCpuGpuInterlockThread::WaitEvent;
+	cpuCmd.waitEvent.usage = VkCpuGpuInterlockThread::GPUEvent;
 	this->PushToInterlockThread(cpuCmd);
+
+	// have GPU signal the event
+	VkCmdBufferThread::Command gpuCmd;
+	gpuCmd.type = VkCmdBufferThread::SetEvent;
+	gpuCmd.setEvent.stages = signalStage;
+	gpuCmd.setEvent.event = this->interlockThread->event[VkCpuGpuInterlockThread::GPUEvent];
+	this->PushToThread(gpuCmd, this->currentDrawThread);
+
+	// GPU will stall just after signaling event
+	gpuCmd.type = VkCmdBufferThread::WaitForEvent;
+	gpuCmd.waitEvent.numEvents = 1;
+	gpuCmd.waitEvent.events = &this->interlockThread->event[VkCpuGpuInterlockThread::CPUEvent];
+	gpuCmd.waitEvent.bufferBarrierCount = 0;
+	gpuCmd.waitEvent.bufferBarriers = NULL;
+	gpuCmd.waitEvent.memoryBarrierCount = 0;
+	gpuCmd.waitEvent.memoryBarriers = NULL;
+	gpuCmd.waitEvent.imageBarrierCount = 1;
+	gpuCmd.waitEvent.imageBarriers = &image;
+	gpuCmd.waitEvent.waitingStage = waitStage;
+	gpuCmd.waitEvent.signalingStage = signalStage;
+	this->PushToThread(gpuCmd, this->currentDrawThread);
+
+	// thread can reset GPU event
+	cpuCmd.type = VkCpuGpuInterlockThread::ResetEvent;
+	cpuCmd.resetEvent.usage = VkCpuGpuInterlockThread::GPUEvent;
+	this->PushToInterlockThread(cpuCmd);
+
+	// GPU is locked now
+}
+
+//------------------------------------------------------------------------------
+/**
+	Have interlock thread wait for GPU, do this on the 'left' side of a synchronized operation
+*/
+void
+VkRenderDevice::InterlockWaitCPU(VkPipelineStageFlags stage)
+{
+	// release GPU by signaling event
+	VkCpuGpuInterlockThread::Command cpuCmd;
+	cpuCmd.type = VkCpuGpuInterlockThread::SignalEvent;
+	cpuCmd.waitEvent.usage = VkCpuGpuInterlockThread::CPUEvent;
+	this->PushToInterlockThread(cpuCmd);
+
+	// have GPU reset CPU event
+	VkCmdBufferThread::Command gpuCmd;
+	gpuCmd.type = VkCmdBufferThread::ResetEvent;
+	gpuCmd.resetEvent.event = this->interlockThread->event[VkCpuGpuInterlockThread::CPUEvent];
+	gpuCmd.resetEvent.stages = stage;
+	this->PushToThread(gpuCmd, this->currentDrawThread);
+
+	// GPU is now unlocked
 }
 
 //------------------------------------------------------------------------------
@@ -2857,7 +2926,7 @@ VkRenderDevice::InterlockMemcpy(uint32_t size, uint32_t offset, const void* data
 	cmd.memCpy.size = size;
 	cmd.memCpy.offset = offset;
 	cmd.memCpy.mappedData = mappedData;
-	this->PushToInterlockThread(cmd);
+	//this->PushToInterlockThread(cmd);
 }
 
 } // namespace Vulkan

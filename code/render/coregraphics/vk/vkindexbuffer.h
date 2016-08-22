@@ -44,6 +44,7 @@ private:
 	uint32_t mapcount;
 
 	VkCommandBuffer updCmd;
+	VkBufferMemoryBarrier barrier;
 };
 
 

@@ -13,8 +13,7 @@ __ImplementClass(Vulkan::VkCpuGpuInterlockThread, 'VCPI', Threading::Thread);
 //------------------------------------------------------------------------------
 /**
 */
-VkCpuGpuInterlockThread::VkCpuGpuInterlockThread() :
-	event(VK_NULL_HANDLE)
+VkCpuGpuInterlockThread::VkCpuGpuInterlockThread()
 {
 	// empty
 }
@@ -49,7 +48,11 @@ VkCpuGpuInterlockThread::DoWork()
 		NULL,
 		0
 	};
-	vkCreateEvent(this->dev, &info, NULL, &this->event);
+	IndexT i;
+	for (i = 0; i < NumEventUsages; i++)
+	{ 
+		vkCreateEvent(this->dev, &info, NULL, &this->event[i]);
+	}	
 
 	Util::Array<Command> curCommands;
 	curCommands.Reserve(1000);
@@ -75,20 +78,19 @@ VkCpuGpuInterlockThread::DoWork()
 			case WaitEvent:
 			{
 				VkResult res;
-				do
+				while (true)
 				{
 					// wait for event to be signaled
-					res = vkGetEventStatus(cmd.dev, this->event);
-					this->YieldThread();
+					res = vkGetEventStatus(this->dev, this->event[cmd.waitEvent.usage]);
+					if (res == VK_EVENT_SET) break;
 				}
-				while (res != VK_EVENT_SET);				
 				break;
 			}
 			case ResetEvent:
-				vkResetEvent(cmd.dev, this->event);
+				vkResetEvent(this->dev, this->event[cmd.resetEvent.usage]);
 				break;
 			case SignalEvent:
-				vkSetEvent(cmd.dev, this->event);
+				vkSetEvent(this->dev, this->event[cmd.signalEvent.usage]);
 				break;
 			}
 		}
@@ -99,7 +101,10 @@ VkCpuGpuInterlockThread::DoWork()
 	}
 
 	// clean up event
-	vkDestroyEvent(this->dev, this->event, NULL);
+	for (i = 0; i < NumEventUsages; i++)
+	{
+		vkDestroyEvent(this->dev, this->event[i], NULL);
+	}
 }
 
 

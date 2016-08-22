@@ -101,18 +101,18 @@ ImguiDrawFunction(ImDrawData* data)
 		n_assert(indexBufferOffset + (IndexT)commandList->IdxBuffer.size() < ibo->GetNumIndices());
 
 		// unlock range within buffers, can cause a wait for lock
-		//vbo->Unlock(vertexBufferOffset, vertexBufferSize);
-		//ibo->Unlock(indexBufferOffset, indexBufferSize);
+		vbo->Unlock(vertexBufferOffset, vertexBufferSize);
+		ibo->Unlock(indexBufferOffset, indexBufferSize);
 
 		// update buffers
-		//vbo->Update(vertexBuffer, vertexBufferOffset, vertexBufferSize);
-		//ibo->Update(indexBuffer, indexBufferOffset, indexBufferSize);
+		vbo->Update(vertexBuffer, vertexBufferOffset, vertexBufferSize);
+		ibo->Update(indexBuffer, indexBufferOffset, indexBufferSize);
 
 		// wait for previous draws to finish...
 		//vboLock->WaitForRange(vertexBufferOffset, vertexBufferSize);
 		//iboLock->WaitForRange(indexBufferOffset, indexBufferSize);
-		memcpy(renderer->GetVertexPtr() + vertexBufferOffset, vertexBuffer, vertexBufferSize);
-		memcpy(renderer->GetIndexPtr() + indexBufferOffset, indexBuffer, indexBufferSize);
+		//memcpy(renderer->GetVertexPtr() + vertexBufferOffset, vertexBuffer, vertexBufferSize);
+		//memcpy(renderer->GetIndexPtr() + indexBufferOffset, indexBuffer, indexBufferSize);
 		IndexT j;
 		IndexT primitiveIndexOffset = 0;
 		for (j = 0; j < commandList->CmdBuffer.size(); j++)
@@ -153,8 +153,8 @@ ImguiDrawFunction(ImDrawData* data)
 		indexOffset += commandList->IdxBuffer.size();
 
 		// lock range within buffers so we avoid stomping them
-		//vbo->Lock(vertexBufferOffset, vertexBufferSize);
-		//ibo->Lock(indexBufferOffset, indexBufferSize);
+		vbo->Lock(vertexBufferOffset, vertexBufferSize);
+		ibo->Lock(indexBufferOffset, indexBufferSize);
 
 		// lock buffers
 		//vboLock->LockRange(vertexBufferOffset, vertexBufferSize);

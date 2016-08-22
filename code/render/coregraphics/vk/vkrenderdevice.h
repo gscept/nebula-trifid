@@ -236,12 +236,12 @@ private:
 	void ImageLayoutTransition(VkDeferredCommand::CommandQueueType queue, VkImageMemoryBarrier barrier);
 	/// perform image layout transition immediately
 	void ImageLayoutTransition(VkCommandBuffer buf, VkImageMemoryBarrier barrier);
-	/// create image barrier
+	/// create image memory barrier
 	static VkImageMemoryBarrier ImageMemoryBarrier(const VkImage& img, VkImageSubresourceRange subres, VkImageLayout oldLayout, VkImageLayout newLayout);
 	/// create image ownership change
 	static VkImageMemoryBarrier ImageMemoryBarrier(const VkImage& img, VkImageSubresourceRange subres, VkDeferredCommand::CommandQueueType fromQueue, VkDeferredCommand::CommandQueueType toQueue, VkImageLayout layout);
-	/// create image ownership change
-	//static VkImageMemoryBarrier ImageMemoryBarrier(const VkImage& img, VkImageSubresourceRange subres, VkAccessFlags srcAccess, VkAccessFlags dstAccess);
+	/// create buffer memory barrier
+	static VkBufferMemoryBarrier BufferMemoryBarrier(const VkBuffer& buf, VkDeviceSize offset, VkDeviceSize size, VkAccessFlags srcAccess, VkAccessFlags dstAccess);
 	/// transition image between layouts
 	void ChangeImageLayout(const VkImageMemoryBarrier& barrier, const VkDeferredCommand::CommandQueueType& type);
 	/// push transition image ownership transition
@@ -306,9 +306,11 @@ private:
 	/// add command to interlock thread
 	void PushToInterlockThread(const VkCpuGpuInterlockThread::Command& cmd);
 	/// tell interlock thread to wait for previous draw command to finish
-	void InterlockGPUSignal(VkPipelineStageFlags stage);
-	/// tell interlock thread to block GPU thread
-	void InterlockCPUSignal(VkPipelineStageFlags waitStage, VkPipelineStageFlags signalStage);
+	void InterlockWaitCPU(VkPipelineStageFlags stage);
+	/// tell interlock thread to block GPU thread waiting for a buffer
+	void InterlockWaitGPU(VkPipelineStageFlags waitStage, VkPipelineStageFlags signalStage, VkBufferMemoryBarrier buffer);
+	/// tell interlock thread to block GPU thread waiting for an image
+	void InterlockWaitGPU(VkPipelineStageFlags waitStage, VkPipelineStageFlags signalStage, VkImageMemoryBarrier image);
 	/// give interlock thread a memcpy assignment
 	void InterlockMemcpy(uint32_t size, uint32_t offset, const void* data, void* mappedData);
 

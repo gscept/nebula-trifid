@@ -50,13 +50,19 @@ private:
 		Memcpy,
 		WaitEvent,
 		ResetEvent,
-		SignalEvent,
-		SwitchEvent
+		SignalEvent
 	};
+	enum EventUsage
+	{
+		GPUEvent,
+		CPUEvent,
+
+		NumEventUsages
+	};
+
 	struct Command
 	{
 		CommandType type;
-		VkDevice dev;
 		union
 		{
 			struct // Memcpy
@@ -67,15 +73,25 @@ private:
 				uint32_t offset;
 			} memCpy;
 
-			struct // SwtichEvent
+			struct // WaitEvent
 			{
-				VkEvent event;
-			} switchEvent;
+				EventUsage usage;
+			} waitEvent;
+
+			struct // ResetEvent
+			{
+				EventUsage usage;
+			} resetEvent;
+
+			struct // SignalEvent
+			{
+				EventUsage usage;
+			} signalEvent;
 		};
 	};
 
 	VkDevice dev;
-	VkEvent event;
+	VkEvent event[NumEventUsages];
 	Threading::SafeQueue<Command> commands;
 };
 
