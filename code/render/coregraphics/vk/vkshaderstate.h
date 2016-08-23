@@ -25,6 +25,9 @@ public:
 	/// destructor
 	virtual ~VkShaderState();
 
+	/// discard the shader instance, must be called when instance no longer needed
+	void Discard();
+
 	/// begin all uniform buffers for a synchronous update
 	void BeginUpdateSync();
 	/// end buffer updates for all uniform buffers
@@ -91,6 +94,11 @@ private:
 	Util::Array<uint32_t> offsets;
 	Util::Dictionary<Util::String, uint32_t> offsetsByName;
 	Util::Dictionary<uint32_t, Util::Array<uint32_t>> offsetsByGroup;
+	Util::Dictionary<Ptr<CoreGraphics::ConstantBuffer>, uint32_t> instances;
+
+	uint8_t* pushData;
+	uint32_t pushSize;
+	VkPipelineLayout pushLayout;
 
 	AnyFX::ShaderEffect* effect;
 };

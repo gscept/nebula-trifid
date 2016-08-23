@@ -37,6 +37,8 @@ public:
 
 	/// bind variable to uniform buffer
 	void BindToUniformBuffer(const Ptr<CoreGraphics::ConstantBuffer>& buffer, uint32_t offset, uint32_t size, int8_t* defaultValue);
+	/// bind variable to push constant range
+	void BindToPushConstantRange(uint8_t* buffer, uint32_t offset, uint32_t size, int8_t* defaultValue);
 
 	/// set int value
 	void SetInt(int value);
@@ -89,6 +91,9 @@ private:
 	/// setup from AnyFX varblock
 	void Setup(AnyFX::VkVarblock* var, const Ptr<VkShaderState>& shader, const VkDescriptorSet& set);
 
+	/// update push constant buffer
+	template<class T> void UpdatePushRange(uint32_t offset, uint32_t size, const T& data);
+
 	struct BufferBinding
 	{
 		Ptr<CoreGraphics::ConstantBuffer> uniformBuffer;
@@ -96,6 +101,14 @@ private:
 		uint32_t size;
 		int8_t* defaultValue;
 	} *bufferBinding;
+
+	struct PushRangeBinding
+	{
+		uint8_t* buffer;
+		uint32_t offset;
+		uint32_t size;
+		int8_t* defaultValue;
+	} *pushRangeBinding;
 
 	union
 	{
@@ -116,4 +129,15 @@ private:
 	Ptr<VkShaderState> shader;
 	VkDescriptorSet set;
 };
+
+//------------------------------------------------------------------------------
+/**
+*/
+template<class T> void
+VkShaderVariable::UpdatePushRange(uint32_t offset, uint32_t size, const T& data)
+{
+	n_assert(this->pushRangeBinding != NULL);
+	memcpy(this->pushRangeBinding->buffer + offset, &data, size);
+}
+
 } // namespace Vulkan

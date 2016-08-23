@@ -190,7 +190,7 @@ void
 ImguiRenderer::Setup()
 {
 	// allocate imgui shader
-	this->uiShader = ShaderServer::Instance()->CreateShaderState("shd:imgui", { NEBULAT_DEFAULT_GROUP });
+	this->uiShader = ShaderServer::Instance()->CreateShaderState("shd:imgui", { NEBULAT_SYSTEM_GROUP });
 	this->params.projVar = this->uiShader->GetVariableByName("TextProjectionModel");
 	this->params.fontVar = this->uiShader->GetVariableByName("Texture");
 
@@ -202,7 +202,7 @@ ImguiRenderer::Setup()
     
 	// load vbo
 	Ptr<MemoryVertexBufferLoader> vboLoader = MemoryVertexBufferLoader::Create();
-	vboLoader->Setup(components, 1000000 * 3, NULL, 0, ResourceBase::UsageDynamic, ResourceBase::AccessWrite, ResourceBase::SyncingCoherent);
+	vboLoader->Setup(components, 1048576 * 3, NULL, 0, ResourceBase::UsageDynamic, ResourceBase::AccessWrite, ResourceBase::SyncingCoherent);
 
 	// load buffer
 	this->vbo = VertexBuffer::Create();

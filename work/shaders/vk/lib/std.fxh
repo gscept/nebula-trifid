@@ -19,7 +19,7 @@
 #define INSTANCE_GROUP 3
 #define PASS_GROUP 4
 #define OBJECT_GROUP 5
-#define SKINNING_GROUP 6
+#define SYSTEM_GROUP 6
 
 /// define global macros
 #if GLSL

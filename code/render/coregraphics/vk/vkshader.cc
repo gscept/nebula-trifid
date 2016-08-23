@@ -18,7 +18,6 @@ __ImplementClass(Vulkan::VkShader, 'VKSH', Base::ShaderBase);
 
 Util::Dictionary<Util::StringAtom, VkDescriptorSetLayout> VkShader::LayoutCache;
 Util::Dictionary<Util::StringAtom, VkPipelineLayout> VkShader::ShaderPipelineCache;
-Util::Dictionary<VkDescriptorSetLayout, VkPipelineLayout> VkShader::PipelineSetLayoutCache;
 //------------------------------------------------------------------------------
 /**
 */
@@ -102,13 +101,17 @@ VkShader::Setup(AnyFX::ShaderEffect* effect)
 	const eastl::vector<AnyFX::VariableBase*>& variables = effect->GetVariables();
 	const eastl::vector<AnyFX::SamplerBase*>& samplers = effect->GetSamplers();
 
-	this->constantRange.size = 0;
+	// smallest possible push range we can have is 4 bytes
+	// we create this bogus push range for all shaders to make them compatible
+	this->constantRange.size = 4;
 	this->constantRange.offset = 0;
 	this->constantRange.stageFlags = VK_SHADER_STAGE_ALL;
+	bool usePushConstants = false;
 	uint32_t numsets = 0;
 
 	Util::Dictionary<IndexT, Util::String> signatures;
 
+	Util::Array<VkPushConstantRange> ranges;
 	Util::Array<VkDescriptorBufferInfo> bufs;
 	Util::Array<VkDescriptorImageInfo> imgs;
 	Util::Array<VkWriteDescriptorSet> writes;
@@ -124,9 +127,25 @@ VkShader::Setup(AnyFX::ShaderEffect* effect)
 		if (block->variables.empty()) continue;
 		if (block->push)
 		{
+			// can only have one push constant block
+			n_assert(usePushConstants == false);
+			/*
+			uint i;
+			for (i = 0; i < block->variables.size(); i++)
+			{
+				AnyFX::VkVariable* var = static_cast<AnyFX::VkVariable*>(block->variables[i]);
+				VkPushConstantRange range;
+				range.stageFlags = VK_SHADER_STAGE_ALL;
+				range.size = var->byteSize;
+				range.offset = block->offsetsByName[var->name];
+				ranges.Append(range);
+			}
+			*/
+			//signatures.Add(block->set, "__pc__");
 			this->constantRange.stageFlags = VK_SHADER_STAGE_ALL;
-			this->constantRange.size = block->byteSize;
+			this->constantRange.size = block->alignedSize;
 			this->constantRange.offset = 0;
+			usePushConstants = true;
 		}
 		else
 		{
@@ -296,7 +315,6 @@ VkShader::Setup(AnyFX::ShaderEffect* effect)
 	if (!setBindings.IsEmpty())
 	{
 		this->setLayouts.Resize(numsets);
-		this->pipelineSetLayouts.Resize(numsets);
 		for (IndexT i = 0; i < this->setLayouts.Size(); i++)
 		{
 			// if signature is defined in this shader, retrieve it
@@ -351,38 +369,6 @@ VkShader::Setup(AnyFX::ShaderEffect* effect)
 		}
 	}
 
-	// create pipeline layouts for each individual descriptor set
-	for (IndexT i = 0; i < this->setLayouts.Size(); i++)
-	{
-		IndexT idx = VkShader::PipelineSetLayoutCache.FindIndex(this->setLayouts[i]);
-		if (idx == InvalidIndex)
-		{
-			// create one pipeline layout for each descriptor set, and one for the entire shader object
-			VkPipelineLayoutCreateInfo layoutInfo =
-			{
-				VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
-				NULL,
-				0,
-				1,
-				&this->setLayouts[i],
-				0,
-				NULL
-			};
-
-			// create pipeline layout, every program should inherit this one
-			res = vkCreatePipelineLayout(VkRenderDevice::dev, &layoutInfo, NULL, &this->pipelineSetLayouts[i]);
-			assert(res == VK_SUCCESS);
-
-			// add to cache
-			VkShader::PipelineSetLayoutCache.Add(this->setLayouts[i], this->pipelineSetLayouts[i]);
-		}
-		else
-		{
-			// get from cache
-			this->pipelineSetLayouts[i] = VkShader::PipelineSetLayoutCache.ValueAtIndex(idx);
-		}
-	}
-
 	IndexT idx = VkShader::ShaderPipelineCache.FindIndex(pipelineSignature);
 	if (idx == InvalidIndex)
 	{
@@ -393,8 +379,8 @@ VkShader::Setup(AnyFX::ShaderEffect* effect)
 			NULL,
 			0,
 			this->setLayouts.Size(),
-			this->setLayouts.Size() > 0 ? &this->setLayouts[0] : NULL,
-			0,
+			this->setLayouts.Size() > 0 ? this->setLayouts.Begin() : NULL,
+			1,
 			&this->constantRange
 		};
 
@@ -438,7 +424,7 @@ VkShader::Setup(AnyFX::ShaderEffect* effect)
 		if (block->HasAnnotation("System")) usedBySystem = block->GetAnnotationBool("System");
 
 		// only create buffer if block is not handled by system
-		if (!usedBySystem && block->alignedSize > 0)
+		if (!usedBySystem && block->alignedSize > 0 && !block->push)
 		{
 			// create uniform buffer, with single backing
 			Ptr<CoreGraphics::ConstantBuffer> uniformBuffer = CoreGraphics::ConstantBuffer::Create();

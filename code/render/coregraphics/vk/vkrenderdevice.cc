@@ -269,6 +269,8 @@ VkRenderDevice::OpenVulkanContext()
 		// this is actually sub-optimal, but on my AMD card, using the compute queue transfer or the sparse queue doesn't work
 		this->transferQueueFamily = this->drawQueueFamily;
 		this->transferQueueIdx = this->drawQueueIdx;
+		//this->transferQueueFamily = 2;
+		//this->transferQueueIdx = indexMap[2]++;
 	}	
 
 	if (this->drawQueueFamily == UINT32_MAX)		n_error("VkDisplayDevice: Could not find a queue for graphics and present.\n");
@@ -284,7 +286,7 @@ VkRenderDevice::OpenVulkanContext()
 	{
 		if (indexMap[i] == 0) continue;
 		prios[i].Resize(indexMap[i]);
-		prios[i].Fill(0.0f);
+		prios[i].Fill(1.0f);
 		queueInfos.Append(
 		{
 			VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,

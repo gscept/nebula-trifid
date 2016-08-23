@@ -68,7 +68,6 @@ private:
 	Util::Array<VkSampler> immutableSamplers;
 	VkPushConstantRange constantRange;
 	Util::FixedArray<VkDescriptorSetLayout> setLayouts;
-	Util::FixedArray<VkPipelineLayout> pipelineSetLayouts;
 	Util::Dictionary<IndexT, Util::Array<VkDescriptorSetLayoutBinding>> setBindings;
 #if !AMD_DESC_SETS
 	Util::Dictionary<IndexT, IndexT> setToIndexMap;
@@ -78,7 +77,6 @@ private:
 	Util::Dictionary<Util::StringAtom, Ptr<CoreGraphics::ConstantBuffer>> buffers;
 
 	static Util::Dictionary<Util::StringAtom, VkDescriptorSetLayout> LayoutCache;
-	static Util::Dictionary<VkDescriptorSetLayout, VkPipelineLayout> PipelineSetLayoutCache;
 	static Util::Dictionary<Util::StringAtom, VkPipelineLayout> ShaderPipelineCache;
 
 	Util::Set<Util::String> activeBlockNames;

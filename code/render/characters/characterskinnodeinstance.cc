@@ -61,7 +61,7 @@ CharacterSkinNodeInstance::Setup(const Ptr<ModelInstance>& inst,
 	if (skinTech == SkinningTechnique::GPUSkinningFeedback)
 	{
 		// lookup skinning shader to use for transform feedbacks, and set relevant transform feedback
-		this->skinningShader = ShaderServer::Instance()->CreateShaderState("shd:skinned", { NEBULAT_SKINNING_GROUP });
+		this->skinningShader = ShaderServer::Instance()->CreateShaderState("shd:skinned", { NEBULAT_SYSTEM_GROUP });
 		this->skinningShader->SelectActiveVariation(ShaderServer::Instance()->FeatureStringToMask("Skinned|Feedback"));
 		this->skinningJointPaletteVar = this->skinningShader->GetVariableByName(NEBULA3_SEMANTIC_JOINTPALETTE);
 
@@ -88,7 +88,7 @@ CharacterSkinNodeInstance::Setup(const Ptr<ModelInstance>& inst,
 	}
 	else if (skinTech == SkinningTechnique::GPUSkinning)
 	{
-		this->skinningShader = ShaderServer::Instance()->CreateShaderState("shd:skinned", { NEBULAT_SKINNING_GROUP });
+		this->skinningShader = ShaderServer::Instance()->CreateShaderState("shd:skinned", { NEBULAT_SYSTEM_GROUP });
 		this->skinningJointPaletteVar = this->skinningShader->GetVariableByName(NEBULA3_SEMANTIC_JOINTBLOCK);
 
 		// setup joint buffer

@@ -19,6 +19,7 @@ __ImplementClass(Vulkan::VkShaderVariable, 'VKSV', Base::ShaderVariableBase);
 */
 VkShaderVariable::VkShaderVariable() :
 	bufferBinding(0),
+	pushRangeBinding(0),
 	var(0),
 	block(0),
 	buffer(0)
@@ -32,6 +33,7 @@ VkShaderVariable::VkShaderVariable() :
 VkShaderVariable::~VkShaderVariable()
 {
 	if (this->bufferBinding) delete this->bufferBinding;
+	if (this->pushRangeBinding) delete this->pushRangeBinding;
 }
 
 //------------------------------------------------------------------------------
@@ -48,6 +50,20 @@ VkShaderVariable::BindToUniformBuffer(const Ptr<CoreGraphics::ConstantBuffer>& b
 
 	// make sure that the buffer is updated (data is array since we have a char*)
 	buffer->UpdateArray(defaultValue, offset, size, 1);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkShaderVariable::BindToPushConstantRange(uint8_t* buffer, uint32_t offset, uint32_t size, int8_t* defaultValue)
+{
+	this->pushRangeBinding = new PushRangeBinding;
+	this->pushRangeBinding->buffer = buffer;
+	this->pushRangeBinding->offset = offset;
+	this->pushRangeBinding->size = size;
+	this->pushRangeBinding->defaultValue = defaultValue;
+	memcpy(buffer + offset, defaultValue, size);
 }
 
 //------------------------------------------------------------------------------
@@ -196,9 +212,6 @@ VkShaderVariable::Setup(AnyFX::VkVarblock* var, const Ptr<VkShaderState>& shader
 	this->shader = shader;
 	this->set = set;
 	this->SetType(ConstantBufferType);
-
-	// set to null when initialized
-	this->SetConstantBuffer(NULL);
 }
 
 //------------------------------------------------------------------------------
@@ -207,8 +220,11 @@ VkShaderVariable::Setup(AnyFX::VkVarblock* var, const Ptr<VkShaderState>& shader
 void
 VkShaderVariable::SetInt(int value)
 {
-	n_assert(this->bufferBinding != NULL);
-	this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, sizeof(int));
+	n_assert(this->bufferBinding != NULL || this->pushRangeBinding != NULL);
+	if (this->bufferBinding)
+		this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, sizeof(int));
+	else
+		this->UpdatePushRange(0, sizeof(int), value);
 }
 
 //------------------------------------------------------------------------------
@@ -217,8 +233,11 @@ VkShaderVariable::SetInt(int value)
 void
 VkShaderVariable::SetIntArray(const int* values, SizeT count)
 {
-	n_assert(this->bufferBinding != NULL);
-	this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, sizeof(int), count);
+	n_assert(this->bufferBinding != NULL || this->pushRangeBinding != NULL);
+	if (this->bufferBinding)
+		this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, sizeof(int), count);
+	else
+		this->UpdatePushRange(0, sizeof(int) * count, values);
 }
 
 //------------------------------------------------------------------------------
@@ -227,8 +246,11 @@ VkShaderVariable::SetIntArray(const int* values, SizeT count)
 void
 VkShaderVariable::SetFloat(float value)
 {
-	n_assert(this->bufferBinding != NULL);
-	this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, sizeof(float));
+	n_assert(this->bufferBinding != NULL || this->pushRangeBinding != NULL);
+	if (this->bufferBinding)
+		this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, sizeof(float));
+	else
+		this->UpdatePushRange(0, sizeof(float), value);
 }
 
 //------------------------------------------------------------------------------
@@ -237,8 +259,11 @@ VkShaderVariable::SetFloat(float value)
 void
 VkShaderVariable::SetFloatArray(const float* values, SizeT count)
 {
-	n_assert(this->bufferBinding != NULL);
-	this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, sizeof(float), count);
+	n_assert(this->bufferBinding != NULL || this->pushRangeBinding != NULL);
+	if (this->bufferBinding)
+		this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, sizeof(float), count);
+	else
+		this->UpdatePushRange(0, sizeof(float) * count, values);
 }
 
 //------------------------------------------------------------------------------
@@ -247,8 +272,11 @@ VkShaderVariable::SetFloatArray(const float* values, SizeT count)
 void
 VkShaderVariable::SetFloat2(const Math::float2& value)
 {
-	n_assert(this->bufferBinding != NULL);
-	this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, sizeof(Math::float2));
+	n_assert(this->bufferBinding != NULL || this->pushRangeBinding != NULL);
+	if (this->bufferBinding)
+		this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, sizeof(Math::float2));
+	else
+		this->UpdatePushRange(0, sizeof(Math::float2), value);
 }
 
 //------------------------------------------------------------------------------
@@ -257,8 +285,11 @@ VkShaderVariable::SetFloat2(const Math::float2& value)
 void
 VkShaderVariable::SetFloat2Array(const Math::float2* values, SizeT count)
 {
-	n_assert(this->bufferBinding != NULL);
-	this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, sizeof(Math::float2), count);
+	n_assert(this->bufferBinding != NULL || this->pushRangeBinding != NULL);
+	if (this->bufferBinding)
+		this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, sizeof(Math::float2), count);
+	else
+		this->UpdatePushRange(0, sizeof(Math::float2) * count, values);
 }
 
 //------------------------------------------------------------------------------
@@ -267,8 +298,11 @@ VkShaderVariable::SetFloat2Array(const Math::float2* values, SizeT count)
 void
 VkShaderVariable::SetFloat4(const Math::float4& value)
 {
-	n_assert(this->bufferBinding != NULL);
-	this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, sizeof(Math::float4));
+	n_assert(this->bufferBinding != NULL || this->pushRangeBinding != NULL);
+	if (this->bufferBinding)
+		this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, sizeof(Math::float4));
+	else
+		this->UpdatePushRange(0, sizeof(Math::float4), value);
 }
 
 //------------------------------------------------------------------------------
@@ -277,8 +311,11 @@ VkShaderVariable::SetFloat4(const Math::float4& value)
 void
 VkShaderVariable::SetFloat4Array(const Math::float4* values, SizeT count)
 {
-	n_assert(this->bufferBinding != NULL);
-	this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, sizeof(Math::float4), count);
+	n_assert(this->bufferBinding != NULL || this->pushRangeBinding != NULL);
+	if (this->bufferBinding)
+		this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, sizeof(Math::float4), count);
+	else
+		this->UpdatePushRange(0, sizeof(Math::float4) * count, values);
 }
 
 //------------------------------------------------------------------------------
@@ -287,8 +324,11 @@ VkShaderVariable::SetFloat4Array(const Math::float4* values, SizeT count)
 void
 VkShaderVariable::SetMatrix(const Math::matrix44& value)
 {
-	n_assert(this->bufferBinding != NULL);
-	this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, sizeof(Math::matrix44));
+	n_assert(this->bufferBinding != NULL || this->pushRangeBinding != NULL);
+	if (this->bufferBinding)
+		this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, sizeof(Math::matrix44));
+	else
+		this->UpdatePushRange(0, sizeof(Math::matrix44), value);
 }
 
 //------------------------------------------------------------------------------
@@ -297,8 +337,11 @@ VkShaderVariable::SetMatrix(const Math::matrix44& value)
 void
 VkShaderVariable::SetMatrixArray(const Math::matrix44* values, SizeT count)
 {
-	n_assert(this->bufferBinding != NULL);
-	this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, sizeof(Math::matrix44), count);
+	n_assert(this->bufferBinding != NULL || this->pushRangeBinding != NULL);
+	if (this->bufferBinding)
+		this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, sizeof(Math::matrix44), count);
+	else
+		this->UpdatePushRange(0, sizeof(Math::matrix44) * count, values);
 }
 
 //------------------------------------------------------------------------------
@@ -307,8 +350,11 @@ VkShaderVariable::SetMatrixArray(const Math::matrix44* values, SizeT count)
 void
 VkShaderVariable::SetBool(bool value)
 {
-	n_assert(this->bufferBinding != NULL);
-	this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, sizeof(bool));
+	n_assert(this->bufferBinding != NULL || this->pushRangeBinding != NULL);
+	if (this->bufferBinding)
+		this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, sizeof(bool));
+	else
+		this->UpdatePushRange(0, sizeof(bool), value);
 }
 
 //------------------------------------------------------------------------------
@@ -317,8 +363,11 @@ VkShaderVariable::SetBool(bool value)
 void
 VkShaderVariable::SetBoolArray(const bool* values, SizeT count)
 {
-	n_assert(this->bufferBinding != NULL);
-	this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, sizeof(bool), count);
+	n_assert(this->bufferBinding != NULL || this->pushRangeBinding != NULL);
+	if (this->bufferBinding)
+		this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, sizeof(bool), count);
+	else
+		this->UpdatePushRange(0, sizeof(bool) * count, values);
 }
 
 //------------------------------------------------------------------------------
@@ -331,8 +380,11 @@ VkShaderVariable::SetTexture(const Ptr<CoreGraphics::Texture>& tex)
 	if (this->var->type >= AnyFX::TextureHandle && this->var->type <= AnyFX::SamplerHandle)
 	{
 		// update texture id
-		n_assert(this->bufferBinding != NULL);
-		this->bufferBinding->uniformBuffer->Update(tex->GetVkId(), this->bufferBinding->offset, sizeof(uint32_t));
+		n_assert(this->bufferBinding != NULL || this->pushRangeBinding != NULL);
+		if (this->bufferBinding)
+			this->bufferBinding->uniformBuffer->Update(tex->GetVkId(), this->bufferBinding->offset, sizeof(uint32_t));
+		else
+			this->UpdatePushRange(0, sizeof(uint32_t), tex->GetVkId());
 	}
 	else
 	{
@@ -499,5 +551,6 @@ VkShaderVariable::IsActive() const
 	if (this->type >= TextureType && this->type <= BufferReadWriteType) return true;
 	else																return this->bufferBinding != NULL;
 }
+
 
 } // namespace Vulkan

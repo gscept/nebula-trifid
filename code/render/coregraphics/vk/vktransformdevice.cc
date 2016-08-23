@@ -89,8 +89,6 @@ VkTransformDevice::ApplyViewSettings()
 {
 	TransformDeviceBase::ApplyViewSettings();
 
-
-
 	// update per frame view stuff
 	this->cameraBuffer->CycleBuffers();
 	this->cameraBuffer->BeginUpdateSync();

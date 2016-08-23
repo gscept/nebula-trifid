@@ -17,7 +17,9 @@ __ImplementClass(Vulkan::VkShaderState, 'VKSN', Base::ShaderStateBase);
 //------------------------------------------------------------------------------
 /**
 */
-VkShaderState::VkShaderState()
+VkShaderState::VkShaderState() :
+	pushData(NULL),
+	pushSize(0)
 {
 	// empty
 }
@@ -140,6 +142,12 @@ VkShaderState::Commit()
 				const Util::Array<uint32_t>& offsets = this->offsetsByGroup[binding.slot];
 				dev->BindDescriptorsGraphics(&binding.set, binding.layout, binding.slot, 1, offsets.IsEmpty() ? NULL : &offsets[0], offsets.Size());
 			}
+
+			// update push ranges
+			if (this->pushSize > 0)
+			{
+				dev->UpdatePushRanges(VK_SHADER_STAGE_ALL, this->pushLayout, 0, this->pushSize, this->pushData);
+			}
 		}
 		else
 		{
@@ -150,6 +158,12 @@ VkShaderState::Commit()
 				const DescriptorSetBinding& binding = this->setBindnings[i];
 				const Util::Array<uint32_t>& offsets = this->offsetsByGroup[binding.slot];
 				dev->BindDescriptorsCompute(&binding.set, binding.layout, binding.slot, 1, offsets.IsEmpty() ? NULL : &offsets[0], offsets.Size());
+			}
+
+			// update push ranges
+			if (this->pushSize > 0)
+			{
+				dev->UpdatePushRanges(VK_SHADER_STAGE_ALL, this->pushLayout, 0, this->pushSize, this->pushData);
 			}
 		}
 	}
@@ -163,6 +177,12 @@ VkShaderState::Commit()
 			const Util::Array<uint32_t>& offsets = this->offsetsByGroup[binding.slot];
 			dev->BindDescriptorsGraphics(&binding.set, binding.layout, binding.slot, 1, offsets.IsEmpty() ? NULL : &offsets[0], offsets.Size());
 			dev->BindDescriptorsCompute(&binding.set, binding.layout, binding.slot, 1, offsets.IsEmpty() ? NULL : &offsets[0], offsets.Size());
+		}
+
+		// push to both compute and graphics
+		if (this->pushSize > 0)
+		{
+			dev->UpdatePushRanges(VK_SHADER_STAGE_ALL, this->pushLayout, 0, this->pushSize, this->pushData);
 		}
 	}
 }
@@ -242,7 +262,7 @@ VkShaderState::SetupVariables(const Util::Array<IndexT>& groups)
 		{
 			// get AnyFX variable
 			AnyFX::VkVarblock* block = static_cast<AnyFX::VkVarblock*>(varblocks[j]);
-			if (block->variables.empty()) continue;
+			if (block->variables.empty() || block->push) continue;
 
 			// create new variable
 			Ptr<ShaderVariable> var = ShaderVariable::Create();
@@ -294,29 +314,56 @@ VkShaderState::SetupUniformBuffers(const Util::Array<IndexT>& groups)
 			{
 				// generate a name which we know will be unique
 				Util::String name = block->name.c_str();
-				n_assert(this->shader->buffers.Contains(name));
-				Ptr<CoreGraphics::ConstantBuffer> uniformBuffer = this->shader->buffers[name];
-				const Ptr<CoreGraphics::ShaderVariable>& bufferVar = this->GetVariableByName(name);
 
-				// allocate single instance within uniform buffer and get offset
-				uint32_t instanceOffset = uniformBuffer->AllocateInstance();
-				offsets.Append(instanceOffset);
-
-				// update buffer
-				uniformBuffer->BeginUpdateSync();
-				for (uint k = 0; k < block->variables.size(); k++)
+				// if we have an ordinary uniform buffer, allocate space for it
+				if (!block->push)
 				{
-					// find the shader variable and bind the constant buffer we just created to said variable
-					const AnyFX::VariableBase* var = block->variables[k];
-					Util::String name = var->name.c_str();
-					unsigned varOffset = block->offsetsByName[var->name];
-					const Ptr<CoreGraphics::ShaderVariable>& member = this->GetVariableByName(name);
-					member->BindToUniformBuffer(uniformBuffer, instanceOffset + varOffset, var->byteSize, (int8_t*)var->currentValue);
-				}
-				uniformBuffer->EndUpdateSync();
+					n_assert(this->shader->buffers.Contains(name));
+					Ptr<CoreGraphics::ConstantBuffer> uniformBuffer = this->shader->buffers[name];
+					const Ptr<CoreGraphics::ShaderVariable>& bufferVar = this->GetVariableByName(name);
 
-				// we apply the constant buffer again, in case we have to grow the buffer and reallocate it
-				bufferVar->SetConstantBuffer(uniformBuffer);
+					// allocate single instance within uniform buffer and get offset
+					uint32_t instanceOffset = uniformBuffer->AllocateInstance();
+					offsets.Append(instanceOffset);
+
+					// add to dictionary so we can dealloc later
+					this->instances.Add(uniformBuffer, instanceOffset);
+
+					// update buffer
+					uniformBuffer->BeginUpdateSync();
+					for (uint k = 0; k < block->variables.size(); k++)
+					{
+						// find the shader variable and bind the constant buffer we just created to said variable
+						const AnyFX::VariableBase* var = block->variables[k];
+						Util::String name = var->name.c_str();
+						unsigned varOffset = block->offsetsByName[var->name];
+						const Ptr<CoreGraphics::ShaderVariable>& member = this->GetVariableByName(name);
+						member->BindToUniformBuffer(uniformBuffer, instanceOffset + varOffset, var->byteSize, (int8_t*)var->currentValue);
+					}
+					uniformBuffer->EndUpdateSync();
+
+					// we apply the constant buffer again, in case we have to grow the buffer and reallocate it
+					bufferVar->SetConstantBuffer(uniformBuffer);
+				}
+				else
+				{
+					// we only allow 1 push range
+					n_assert(this->pushData == NULL);
+
+					// allocate push range
+					this->pushData = n_new_array(uint8_t, block->alignedSize);
+					this->pushSize = block->alignedSize;
+					this->pushLayout = this->shader->pipelineLayout;
+					for (uint k = 0; k < block->variables.size(); k++)
+					{
+						// find the shader variable and bind the constant buffer we just created to said variable
+						const AnyFX::VariableBase* var = block->variables[k];
+						Util::String name = var->name.c_str();
+						unsigned varOffset = block->offsetsByName[var->name];
+						const Ptr<CoreGraphics::ShaderVariable>& member = this->GetVariableByName(name);
+						member->BindToPushConstantRange(this->pushData, varOffset, var->byteSize, (int8_t*)var->currentValue);
+					}
+				}
 			}
 			else
 			{
@@ -342,6 +389,23 @@ VkShaderState::UpdateDescriptorSets()
 	{
 		vkUpdateDescriptorSets(VkRenderDevice::dev, this->pendingSetWrites.Size(), &this->pendingSetWrites[0], 0, NULL);
 		this->pendingSetWrites.Clear();
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkShaderState::Discard()
+{
+	if (this->pushData != NULL) n_delete_array(this->pushData);
+
+	// free instances
+	IndexT i;
+	for (i = 0; i < this->instances.Size(); i++)
+	{
+		const Ptr<CoreGraphics::ConstantBuffer>& buf = this->instances.KeyAtIndex(i);
+		buf->FreeInstance(this->instances.ValueAtIndex(i));
 	}
 }
 

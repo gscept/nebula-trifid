@@ -11,14 +11,24 @@
 #include "lib/shared.fxh"
 
 /// Declaring used textures
-textureHandle Texture;
+
+
+group(SYSTEM_GROUP) varblock ImGUIBlock
+{
 mat4 TextProjectionModel;
+
+};
+
+group(SYSTEM_GROUP) push varblock ImGUI
+{
+textureHandle Texture;
+};
 
 samplerstate TextureSampler
 {
 	//Samplers = { Texture };
 	Filter = Point;
-};
+}; 
 
 
 state TextState
@@ -51,7 +61,7 @@ vsMain(
 }
 
 //------------------------------------------------------------------------------
-/**
+/** 
 */
 shader
 void
@@ -60,7 +70,7 @@ psMain(
 	in vec4 Color,
 	[color0] out vec4 FinalColor) 
 {
-	vec4 texColor = sample2D(Texture, TextureSampler, UV);
+	vec4 texColor = sample2D(ImGUI.Texture, TextureSampler, UV);
 	FinalColor = Color * texColor;
 }
 
