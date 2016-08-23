@@ -128,6 +128,7 @@ SurfaceInstance::Setup(const Ptr<Surface>& surface)
             //this->SetTexture(paramName, tex);
             val.value.SetType(Util::Variant::Object);
             val.value.SetObject(tex->GetTexture());
+			this->allocatedTextures.Append(tex);
         }
 
         // setup constant
@@ -147,6 +148,12 @@ SurfaceInstance::Setup(const Ptr<Surface>& surface)
 void
 SurfaceInstance::Discard()
 {
+	IndexT i;
+	for (i = 0; i < this->allocatedTextures.Size(); i++)
+	{
+		Resources::ResourceManager::Instance()->DiscardManagedResource(this->allocatedTextures[i].upcast<Resources::ManagedResource>());
+	}
+	this->allocatedTextures.Clear();
     this->originalSurface->DiscardInstance(this);
     this->originalSurface = 0;
 }

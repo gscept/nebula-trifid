@@ -19,7 +19,10 @@ __ImplementClass(Vulkan::VkRenderTarget, 'VURT', Base::RenderTargetBase);
 /**
 */
 VkRenderTarget::VkRenderTarget() :
-	swapbufferIdx(0)
+	swapbufferIdx(0),
+	vkTargetImage(0),
+	vkTargetImageView(0),
+	vkTargetImageMem(0)
 {
 	// empty
 }
@@ -421,10 +424,10 @@ VkRenderTarget::Setup()
 void
 VkRenderTarget::Discard()
 {
-	RenderTargetBase::Discard();
+	vkFreeMemory(VkRenderDevice::dev, this->vkTargetImageMem, NULL);
 	vkDestroyImageView(VkRenderDevice::dev, this->vkTargetImageView, NULL);
 	vkDestroyImage(VkRenderDevice::dev, this->vkTargetImage, NULL);
-	vkFreeMemory(VkRenderDevice::dev, this->vkTargetImageMem, NULL);
+	RenderTargetBase::Discard();
 }
 
 //------------------------------------------------------------------------------

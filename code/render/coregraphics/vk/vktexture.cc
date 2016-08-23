@@ -19,6 +19,7 @@ __ImplementClass(Vulkan::VkTexture, 'VKTX', Base::TextureBase);
 /**
 */
 VkTexture::VkTexture() :
+	mapCount(0),
 	mappedImg(VK_NULL_HANDLE),
 	mappedMem(VK_NULL_HANDLE),
 	id(NULL)
@@ -43,6 +44,7 @@ VkTexture::Unload()
 	n_assert(this->mapCount == 0);
 	vkDestroyImage(VkRenderDevice::dev, this->img, NULL);
 	vkFreeMemory(VkRenderDevice::dev, this->mem, NULL);
+	TextureBase::Unload();
 }
 
 //------------------------------------------------------------------------------

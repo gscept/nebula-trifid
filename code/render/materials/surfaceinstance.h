@@ -68,7 +68,7 @@ protected:
     Util::Dictionary<Util::StringAtom, Ptr<SurfaceConstant>> constantsByName;
     Util::Array<Ptr<CoreGraphics::ShaderState>> shaderInstances;
 	Util::Dictionary<Ptr<CoreGraphics::Shader>, Ptr<CoreGraphics::ShaderState>> shaderInstancesByShader;
-
+	Util::Array<Ptr<Resources::ManagedTexture>> allocatedTextures;
     struct DeferredTextureBinding
     {
     public:

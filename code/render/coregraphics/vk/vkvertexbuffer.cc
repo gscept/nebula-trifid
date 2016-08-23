@@ -37,6 +37,8 @@ VkVertexBuffer::Unload()
 	n_assert(this->mapcount == 0);
 	vkFreeMemory(VkRenderDevice::dev, this->mem, NULL);
 	vkDestroyBuffer(VkRenderDevice::dev, this->buf, NULL);
+	this->vertexLayout->Discard();
+	VertexBufferBase::Unload();
 }
 
 //------------------------------------------------------------------------------

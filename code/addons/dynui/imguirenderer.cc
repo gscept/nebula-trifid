@@ -28,7 +28,9 @@ namespace Dynui
 
 //------------------------------------------------------------------------------
 /**
-	Imgui rendering function
+	Imgui rendering function.
+
+	Perhaps this one should be platform-dependent, since we can utilize rendering platform APIs more efficient if we know.
 */
 static void
 ImguiDrawFunction(ImDrawData* data)

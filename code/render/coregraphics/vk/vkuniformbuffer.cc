@@ -253,7 +253,7 @@ void
 VkUniformBuffer::FreeInstance(SizeT offset)
 {
 	ConstantBufferBase::FreeInstance(offset);
-	IndexT instance = offset / this->size;
+	IndexT instance = offset / this->stride;
 	IndexT idx = this->usedIndices.FindIndex(instance);
 	n_assert(idx != InvalidIndex);
 	this->usedIndices.EraseIndex(idx);
