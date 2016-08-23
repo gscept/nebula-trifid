@@ -15,11 +15,10 @@ const float rimLighting = float(0.2f);
 const float exaggerateSpec = float(1.8f);
 const vec3 luminanceValue = vec3(0.299f, 0.587f, 0.114f); 
 
-shared varblock LocalLightBlock
+group(LIGHT_GROUP) shared varblock LocalLightBlock [ bool System = true; ]
 {
 	vec4 LightColor;
 	vec4 LightPosRange;	
-	vec4 CameraPosition;
 	vec4 ShadowOffsetScale = vec4(0.0f, 0.0f, 0.0f, 0.0f);
 	vec4 ShadowConstants = vec4(100.0f, 100.0f, 0.003f, 1024.0f);  
 
@@ -29,21 +28,21 @@ shared varblock LocalLightBlock
 	mat4 LightProjTransform;
 	mat4 LightTransform;
 	mat4 ShadowProjTransform;
-};
 	
-/// Declaring used textures
+	textureHandle SpotLightShadowAtlas;
+	textureHandle SpotLightProjectionTexture;
+	textureHandle PointLightShadowCube;
+	textureHandle PointLightProjectionTexture;
+};
+
+// declare system textures as ordinary samplers, we don't really need to use arrays to access them
 sampler2D NormalBuffer;
 sampler2D DepthBuffer;
 sampler2D SpecularBuffer;
 sampler2D AlbedoBuffer;
 
-sampler2D LightProjMap;
-samplerCube LightProjCube;
-samplerCube ShadowProjCube;
-
-samplerstate PointLightTextureSampler
+group(LIGHT_GROUP) samplerstate PointLightTextureSampler
 {
-	Samplers = { ShadowProjCube };
 	Filter = MinMagLinearMipPoint;
 };
 
@@ -53,9 +52,9 @@ samplerstate GeometrySampler
 	Filter = Point;
 };
 
-samplerstate SpotlightTextureSampler
+group(LIGHT_GROUP) samplerstate SpotlightTextureSampler
 {
-	Samplers = { LightProjMap, LightProjCube };
+	//Samplers = { LightProjMap, LightProjCube };
 	Filter = MinMagLinearMipPoint;
 	AddressU = Border;
 	AddressV = Border;
@@ -156,6 +155,7 @@ psGlobShadow(
 	CSMConvert(worldPos, texShadow);
 	shadowFactor = CSMPS(texShadow,
 						UV,
+						GlobalLightShadowBuffer,
 						debug);		
 	shadowFactor = lerp(1.0f, shadowFactor, ShadowIntensity);
 
@@ -197,7 +197,8 @@ state SpotLightState
 */
 float 
 GetInvertedOcclusionSpotLight(float receiverDepthInLightSpace,
-                     vec2 lightSpaceUv)
+                     vec2 lightSpaceUv,
+					 uint Texture)
 {
 
     // offset and scale shadow lookup tex coordinates
@@ -206,7 +207,7 @@ GetInvertedOcclusionSpotLight(float receiverDepthInLightSpace,
     shadowUv.xy += ShadowOffsetScale.xy;
 	
 	// calculate average of 4 closest pixels
-	vec2 shadowSample = texture(ShadowProjMap, shadowUv).rg;
+	vec2 shadowSample = sample2D(Texture, SpotlightTextureSampler, shadowUv).rg;
 	
 	// get pixel size of shadow projection texture	
 	return ChebyshevUpperBound(shadowSample, receiverDepthInLightSpace, 0.000001f);
@@ -253,7 +254,7 @@ psSpot(
 	float mipSelect = 0;
 	vec2 lightSpaceUv = vec2(((projLightPos.xy / projLightPos.ww) * vec2(0.5f, -0.5f)) + 0.5f);
 	
-	vec4 lightModColor = textureLod(LightProjMap, lightSpaceUv, mipSelect);
+	vec4 lightModColor = sample2DLod(SpotLightProjectionTexture, SpotlightTextureSampler, lightSpaceUv, mipSelect);
 	vec4 specColor = texture(SpecularBuffer, screenUV, 0);
 	vec4 albedoColor = texture(AlbedoBuffer, screenUV, 0);
 	float specPower = ROUGHNESS_TO_SPECPOWER(specColor.a);	
@@ -301,7 +302,7 @@ psSpotShadow(
 	float mipSelect = 0;
 	vec2 lightSpaceUv = (projLightPos.xy / projLightPos.ww) * vec2(0.5f, -0.5f) + 0.5f;
 	
-	vec4 lightModColor = textureLod(LightProjMap, lightSpaceUv, mipSelect);
+	vec4 lightModColor = sample2DLod(SpotLightProjectionTexture, SpotlightTextureSampler, lightSpaceUv, mipSelect);
 	vec4 specColor = texture(SpecularBuffer, screenUV, 0);
 	vec4 albedoColor = texture(AlbedoBuffer, screenUV, 0);
 	float specPower = ROUGHNESS_TO_SPECPOWER(specColor.a);	
@@ -323,7 +324,7 @@ psSpotShadow(
 	vec2 shadowLookup = (shadowProjLightPos.xy / shadowProjLightPos.ww) * vec2(0.5f, -0.5f) + 0.5f; 
 	shadowLookup.y = 1 - shadowLookup.y;
 	float receiverDepth = projLightPos.z / projLightPos.w;
-	float shadowFactor = GetInvertedOcclusionSpotLight(receiverDepth, shadowLookup);	
+	float shadowFactor = GetInvertedOcclusionSpotLight(receiverDepth, shadowLookup, SpotLightShadowAtlas);	
 	//shadowFactor = smoothstep(0.0000001f, 1, shadowFactor);
 	shadowFactor = saturate(lerp(1.0f, saturate(shadowFactor), ShadowIntensity));
 	
@@ -360,15 +361,17 @@ state PointLightStateShadow
 /**
 */
 float 
-GetInvertedOcclusionPointLight(float receiverDepthInLightSpace,
-                     vec3 lightSpaceUv)
+GetInvertedOcclusionPointLight(
+					 float receiverDepthInLightSpace,
+                     vec3 lightSpaceUv,
+					 uint Texture)
 {
 
     // offset and scale shadow lookup tex coordinates
 	vec3 shadowUv = lightSpaceUv;
 	
 	// get pixel size of shadow projection texture
-	vec2 shadowSample = texture(ShadowProjCube, shadowUv).rg;
+	vec2 shadowSample = sampleCube(Texture, PointLightTextureSampler, shadowUv).rg;
 	
 	// get pixel size of shadow projection texture	
 	return ChebyshevUpperBound(shadowSample, receiverDepthInLightSpace, 0.00000001f);
@@ -412,7 +415,8 @@ psPoint(
 	vec3 surfacePos = viewVec * Depth;
 	vec3 lightDir = (LightPosRange.xyz - surfacePos);
 	vec3 projDir = (InvView * vec4(-lightDir, 0)).xyz;
-	vec4 lightModColor = textureLod(LightProjCube, projDir, 0);
+	vec4 lightModColor = sampleCubeLod(PointLightProjectionTexture, PointLightTextureSampler, projDir, 0);
+	
 	vec4 specColor = texture(SpecularBuffer, screenUV, 0);
 	vec4 albedoColor = texture(AlbedoBuffer, screenUV, 0);
 	float specPower = ROUGHNESS_TO_SPECPOWER(specColor.a);	// magic formulae to calculate specular power from color in the range [0..1]
@@ -459,7 +463,7 @@ psPointShadow(
 	vec3 projDir = (InvView * vec4(-lightDir, 0)).xyz;
 	float distToSurface = length(lightDir);
 	
-	vec4 lightModColor = textureLod(LightProjCube, projDir, 0);
+	vec4 lightModColor = sampleCubeLod(PointLightProjectionTexture, PointLightTextureSampler, projDir, 0);
 	vec4 specColor = texture(SpecularBuffer, screenUV, 0);
 	vec4 albedoColor = texture(AlbedoBuffer, screenUV, 0);
 	float specPower = ROUGHNESS_TO_SPECPOWER(specColor.a);	
@@ -483,7 +487,8 @@ psPointShadow(
 	
 	// shadows
 	float shadowFactor = GetInvertedOcclusionPointLight(gl_FragCoord.z,
-						projDir);	
+						projDir,
+						PointLightShadowCube);	
 	shadowFactor = saturate(lerp(1.0f, saturate(shadowFactor), ShadowIntensity));      	
 	
 	Color = EncodeHDR(oColor * shadowFactor);

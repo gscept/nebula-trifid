@@ -29,9 +29,9 @@ const vec4 DebugColors[8] =
     float4 ( 0.5f, 3.5f, 0.75f, 1.0f )
 };
 
-samplerstate ShadowProjMapSampler
+samplerstate CSMTextureSampler
 {
-	Samplers = { ShadowProjMap };
+	//Samplers = { ShadowProjMap };
 	//Filter = MinMagLinearMipPoint;
 	AddressU = Border;
 	AddressV = Border;
@@ -78,9 +78,9 @@ const vec2 sampleOffsets[] = {
 /**
 */
 void 
-CalculateBlendAmountForMap ( in vec4 texCoord, 
-                             out float blendBandLocation,
-                             out float blendAmount ) 
+CalculateBlendAmountForMap(in vec4 texCoord, 
+                           out float blendBandLocation,
+                           out float blendAmount)							 
 {
     // calculate the blend band for the map based selection.
     vec2 distanceToOne = vec2(1.0f - texCoord.x, 1.0f - texCoord.y);
@@ -97,6 +97,7 @@ CalculateBlendAmountForMap ( in vec4 texCoord,
 float
 CSMPS(in vec4 TexShadow,
 	  in vec2 FSUV,
+	  in uint Texture,
 	  out vec4 Debug)
 {
 	vec4 texCoordShadow = vec4(0.0f);
@@ -158,7 +159,7 @@ CSMPS(in vec4 TexShadow,
 	mapDepth /= 13.0f;
 	*/
 	
-	vec2 mapDepth = textureLod(ShadowProjMap, sampleCoord, 0).rg;
+	vec2 mapDepth = sample2DLod(Texture, CSMTextureSampler, sampleCoord, 0).rg;
 	float occlusion = ChebyshevUpperBound(mapDepth, depth, 0.0000001f);
 	//float occlusion = ExponentialShadowSample(mapDepth, depth, 0.0f);
 		
@@ -179,7 +180,7 @@ CSMPS(in vec4 TexShadow,
 			sampleCoord.xy += vec2((nextCascade % SplitsPerRow) * ShadowPartitionSize, (nextCascade / SplitsPerColumn) * ShadowPartitionSize);
 			uvSample = sampleCoord.xy;
 					
-			mapDepth = textureLod(ShadowProjMap, uvSample, 0).rg;
+			mapDepth = sample2DLod(Texture, CSMTextureSampler, uvSample, 0).rg;
 			occlusionBlend = ChebyshevUpperBound(mapDepth, depth, 0.0000001f);		
 		}
 		

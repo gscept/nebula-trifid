@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------------
 
 #include "lib/std.fxh"
-#include "lib/techniques.fxh"
+#include "lib/techniques.fxh" 
 #include "lib/shared.fxh"
 
 // put variables in push-constant block
@@ -17,7 +17,14 @@ textureHandle Texture;
 mat4 TextProjectionModel;
 };
 
-samplerstate TextureSampler
+/*
+group(SYSTEM_GROUP) varblock IMGUIBLOCK
+{
+
+};
+*/
+
+group(SYSTEM_GROUP) samplerstate TextureSampler
 {
 	//Samplers = { Texture };
 	Filter = Point;

@@ -59,6 +59,8 @@ public:
 	SizeT AllocateInstance(SizeT numInstances = 1);
 	/// deallocates instance memory
 	void FreeInstance(SizeT offset);
+	/// set active offset, this will be the base offset when updating variables in this block
+	void SetBaseOffset(SizeT offset);
 
     /// set if this buffer should be updated synchronously, the default behavior is not
     void SetSync(bool b);
@@ -102,14 +104,16 @@ protected:
     Util::Dictionary<Util::StringAtom, Ptr<CoreGraphics::ShaderVariable>> variablesByName;
     bool isSetup;
 
+	// size is total memory size of entire buffer, stride is size of single instance
     uint size;
+	uint stride;
     IndexT bufferIndex;
 	SizeT numBuffers;
 
 	Util::Array<IndexT> freeIndices;
 	Util::Array<IndexT> usedIndices;
 	SizeT grow;
-
+	IndexT baseOffset;
 
     bool sync;
     bool inUpdateSync;
@@ -152,7 +156,7 @@ inline void
 Base::ConstantBufferBase::UpdateSync(void* data, uint offset, uint size)
 {
     n_assert(this->inUpdateSync);   
-    byte* buf = (byte*)this->buffer + offset;
+	byte* buf = (byte*)this->buffer + offset + this->baseOffset;
     memcpy(buf, data, size);
 }
 
@@ -163,7 +167,7 @@ inline void
 Base::ConstantBufferBase::UpdateArraySync(void* data, uint offset, uint size, uint count)
 {
     n_assert(this->inUpdateSync);
-    byte* buf = (byte*)this->buffer + offset;
+    byte* buf = (byte*)this->buffer + offset + this->baseOffset;
     memcpy(buf, data, size * count);
 }
 
@@ -224,6 +228,15 @@ inline const Ptr<CoreGraphics::ShaderVariable>&
 ConstantBufferBase::GetVariableByName(const Util::StringAtom& name) const
 {
     return this->variablesByName[name];
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+ConstantBufferBase::SetBaseOffset(SizeT offset)
+{
+	this->baseOffset = offset;
 }
 
 } // namespace Base

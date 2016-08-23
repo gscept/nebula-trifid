@@ -1,9 +1,9 @@
 //------------------------------------------------------------------------------
-//  sm50lightserver.cc
-//  (C) 2011-2013 Individual contributors, see AUTHORS file
+//  ogl4lightserver.cc
+//  (C) 2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "lighting/sm50/sm50lightserver.h"
+#include "lighting/ogl4/ogl4lightserver.h"
 #include "resources/resourcemanager.h"
 #include "coregraphics/shaderserver.h"
 #include "coregraphics/shadersemantics.h"
@@ -22,7 +22,7 @@
 
 namespace Lighting
 {
-__ImplementClass(Lighting::SM50LightServer, 'SM5L', Lighting::LightServerBase);
+__ImplementClass(Lighting::OGL4LightServer, 'SM5L', Lighting::LightServerBase);
 
 using namespace Graphics;
 using namespace CoreGraphics;
@@ -33,7 +33,7 @@ using namespace Math;
 //------------------------------------------------------------------------------
 /**
 */
-SM50LightServer::SM50LightServer() :
+OGL4LightServer::OGL4LightServer() :
 	renderBuffersAssigned(false)
 {
 	globalLightFeatureBits[NoShadows] = 0;
@@ -47,7 +47,7 @@ SM50LightServer::SM50LightServer() :
 //------------------------------------------------------------------------------
 /**
 */
-SM50LightServer::~SM50LightServer()
+OGL4LightServer::~OGL4LightServer()
 {
 	n_assert(!this->IsOpen());
 }
@@ -56,7 +56,7 @@ SM50LightServer::~SM50LightServer()
 /**
 */
 bool 
-SM50LightServer::NeedsLightModelLinking() const
+OGL4LightServer::NeedsLightModelLinking() const
 {
 	return true;
 }
@@ -65,7 +65,7 @@ SM50LightServer::NeedsLightModelLinking() const
 /**
 */
 void
-SM50LightServer::Open()
+OGL4LightServer::Open()
 {
 	n_assert(!this->IsOpen());
 	ResourceManager* resManager = ResourceManager::Instance();
@@ -143,7 +143,7 @@ SM50LightServer::Open()
 /**
 */
 void
-SM50LightServer::Close()
+OGL4LightServer::Close()
 {
 	n_assert(this->IsOpen());
 	n_assert(this->pointLights[NoShadows].IsEmpty());   
@@ -202,7 +202,7 @@ SM50LightServer::Close()
 /**
 */
 void
-SM50LightServer::AttachVisibleLight(const Ptr<AbstractLightEntity>& lightEntity)
+OGL4LightServer::AttachVisibleLight(const Ptr<AbstractLightEntity>& lightEntity)
 {
 	if (lightEntity->GetLightType() == LightType::Point)
 	{
@@ -237,7 +237,7 @@ SM50LightServer::AttachVisibleLight(const Ptr<AbstractLightEntity>& lightEntity)
 /**
 */
 void 
-SM50LightServer::EndFrame()
+OGL4LightServer::EndFrame()
 {
 	this->pointLights[NoShadows].Clear();
 	this->pointLights[CastShadows].Clear();
@@ -250,7 +250,7 @@ SM50LightServer::EndFrame()
 /**
 */
 void 
-SM50LightServer::AssignRenderBufferTextures()
+OGL4LightServer::AssignRenderBufferTextures()
 {
 	n_assert(!this->renderBuffersAssigned);
 	const Ptr<ResourceManager>& resManager = ResourceManager::Instance();
@@ -260,7 +260,7 @@ SM50LightServer::AssignRenderBufferTextures()
 	ResourceId lightBufferId("LightBuffer");
 	if (!resManager->HasResource(lightBufferId))
 	{
-		n_error("SM50LightServer::RenderLights(): LightBuffer render target not found!\n");
+		n_error("OGL4LightServer::RenderLights(): LightBuffer render target not found!\n");
 	}
 	Ptr<Texture> lightBuffer = resManager->LookupResource(lightBufferId).downcast<Texture>();
 
@@ -272,7 +272,7 @@ SM50LightServer::AssignRenderBufferTextures()
 /**
 */
 void 
-SM50LightServer::RenderLights()
+OGL4LightServer::RenderLights()
 {
 	ShaderServer* shdServer = ShaderServer::Instance();
     ShadowServer* shadowServer = ShadowServer::Instance();
@@ -308,7 +308,7 @@ SM50LightServer::RenderLights()
 /**
 */
 void 
-SM50LightServer::RenderGlobalLight()
+OGL4LightServer::RenderGlobalLight()
 {
 	if (this->globalLightEntity.isvalid())
 	{
@@ -394,7 +394,7 @@ SM50LightServer::RenderGlobalLight()
 /**
 */
 void 
-SM50LightServer::RenderPointLights()
+OGL4LightServer::RenderPointLights()
 {
 	if ((this->pointLightMesh->GetState() == Resource::Loaded)
 		&& (this->pointLights[CastShadows].Size() > 0
@@ -468,7 +468,7 @@ SM50LightServer::RenderPointLights()
 /**
 */
 void 
-SM50LightServer::RenderSpotLights()
+OGL4LightServer::RenderSpotLights()
 {
 	if ((this->spotLightMesh->GetState() == Resource::Loaded)
 		&& (this->spotLights[CastShadows].Size() > 0
@@ -580,7 +580,7 @@ SortProbesType(const Ptr<LightProbeEntity>& lhs, const Ptr<LightProbeEntity>& rh
 	Hmm, this should be more efficient if we can render probes based on shaders
 */
 void
-SM50LightServer::RenderLightProbes()
+OGL4LightServer::RenderLightProbes()
 {
 	// sort light probes based on layers
 	this->visibleLightProbes.SortWithFunc(SortProbesType);

@@ -8,10 +8,14 @@
 
 namespace Lighting
 {
-#if (__DX11__ || __OGL4__ || __VULKAN__)
-__ImplementClass(Lighting::ShadowServer, 'SDSV', Lighting::SM50ShadowServer);
+#if __VULKAN__
+__ImplementClass(Lighting::ShadowServer, 'SDSV', Lighting::VkShadowServer);
+#elif __OGL4__
+__ImplementClass(Lighting::ShadowServer, 'SDSV', Lighting::OGL4ShadowServer);
+#elif __DX11__
+__ImplementClass(Lighting::ShadowServer, 'SDSV', Lighting::D3D11ShadowServer);
 #elif __DX9__
-__ImplementClass(Lighting::ShadowServer, 'SDSV', Lighting::SM30ShadowServer);
+__ImplementClass(Lighting::ShadowServer, 'SDSV', Lighting::D3D9ShadowServer);
 #elif __WII__
 __ImplementClass(Lighting::ShadowServer, 'SDSV', Wii::WiiShadowServer);
 #elif __PS3__

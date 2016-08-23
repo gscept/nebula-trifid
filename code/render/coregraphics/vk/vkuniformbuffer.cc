@@ -15,7 +15,8 @@ __ImplementClass(Vulkan::VkUniformBuffer, 'VKUB', Base::ConstantBufferBase);
 //------------------------------------------------------------------------------
 /**
 */
-VkUniformBuffer::VkUniformBuffer()
+VkUniformBuffer::VkUniformBuffer() :
+	binding(0)
 {
 	// empty
 }
@@ -77,6 +78,7 @@ VkUniformBuffer::SetupFromBlockInShader(const Ptr<CoreGraphics::ShaderState>& sh
 	AnyFX::VkVarblock* varblock = static_cast<AnyFX::VkVarblock*>(shader->GetVkEffect()->GetVarblock(blockName.AsCharPtr()));
 
 	// setup buffer from other buffer
+	this->binding = varblock->binding;
 	this->size = varblock->byteSize;
 	this->Setup(numBackingBuffers);
 
@@ -97,6 +99,7 @@ VkUniformBuffer::SetupFromBlockInShader(const Ptr<CoreGraphics::ShaderState>& sh
 
 		Ptr<CoreGraphics::ShaderVariable> svar = CoreGraphics::ShaderVariable::Create();
 		Ptr<VkUniformBuffer> thisPtr(this);
+		svar->Setup(var, shaderState.downcast<VkShaderState>(), VK_NULL_HANDLE);
 		svar->BindToUniformBuffer(thisPtr.downcast<CoreGraphics::ConstantBuffer>(), offset, var->byteSize, (int8_t*)var->currentValue);
 		this->variables.Append(svar);
 		this->variablesByName.Add(var->name.c_str(), svar);
@@ -122,7 +125,7 @@ void
 VkUniformBuffer::UpdateAsync(void* data, uint offset, uint size)
 {
 	n_assert(size + offset <= this->size);
-	byte* buf = (byte*)this->buffer + offset;
+	byte* buf = (byte*)this->buffer + offset + this->baseOffset;
 	memcpy(buf, data, size);
 }
 
@@ -133,7 +136,7 @@ void
 VkUniformBuffer::UpdateArrayAsync(void* data, uint offset, uint size, uint count)
 {
 	n_assert(size + offset <= this->size);
-	byte* buf = (byte*)this->buffer + offset;
+	byte* buf = (byte*)this->buffer + offset + this->baseOffset;
 	memcpy(buf, data, size * count);
 }
 
@@ -317,6 +320,20 @@ VkUniformBuffer::Grow(SizeT oldCapacity, SizeT growBy)
 	this->mem = newMem;
 	this->buffer = dstData;
 	return alignedSize;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkUniformBuffer::Reset()
+{
+	IndexT i;
+	for (i = 0; i < this->usedIndices.Size(); i++)
+	{
+		this->freeIndices.Append(this->usedIndices[i]);
+	}
+	this->usedIndices.Clear();
 }
 
 } // namespace Vulkan

@@ -216,7 +216,7 @@ ImguiRenderer::Setup()
 
 	// load ibo
 	Ptr<MemoryIndexBufferLoader> iboLoader = MemoryIndexBufferLoader::Create();
-	iboLoader->Setup(IndexType::Index16, 100000 * 3, NULL, 0, ResourceBase::UsageDynamic, ResourceBase::AccessWrite, ResourceBase::SyncingCoherent);
+	iboLoader->Setup(IndexType::Index16, 1048576 * 3, NULL, 0, ResourceBase::UsageDynamic, ResourceBase::AccessWrite, ResourceBase::SyncingCoherent);
 
 	// load buffer
 	this->ibo = IndexBuffer::Create();

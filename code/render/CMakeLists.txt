@@ -1058,40 +1058,32 @@ ENDIF()
 	set(Render_lighting__handlers
 		${Render_files_lighting__handlers}
 	)
-
-	set(Render_files_lighting__lightprepass
-		lighting/lightprepass/lightprepassserver.cc
-		lighting/lightprepass/lightprepassserver.h
+	
+	IF(N_BUILD_OGL4)
+		set(Render_files_lighting__ogl4
+		lighting/ogl4/ogl4lightserver.cc
+		lighting/ogl4/ogl4lightserver.h
+		lighting/ogl4/ogl4shadowserver.cc
+		lighting/ogl4/ogl4shadowserver.h
 	)
-	source_group("lighting\\lightprepass" FILES ${Render_files_lighting__lightprepass})
-
-	set(Render_lighting__lightprepass
-		${Render_files_lighting__lightprepass}
+	source_group("lighting\\ogl4" FILES ${Render_files_lighting__ogl4})
+	
+	set(Render_lighting__impl
+		${Render_files_lighting__ogl4}
 	)
-
-	set(Render_files_lighting__sm30
-		lighting/sm30/sm30lightserver.cc
-		lighting/sm30/sm30lightserver.h
-		lighting/sm30/sm30shadowserver.cc
-		lighting/sm30/sm30shadowserver.h
+	ELSEIF(N_BUILD_VULKAN)
+		set(Render_files_lighting__vk
+		lighting/vk/vklightserver.cc
+		lighting/vk/vklightserver.h
+		lighting/vk/vkshadowserver.cc
+		lighting/vk/vkshadowserver.h
 	)
-	source_group("lighting\\sm30" FILES ${Render_files_lighting__sm30})
-
-	set(Render_lighting__sm30
-		${Render_files_lighting__sm30}
+	source_group("lighting\\vk" FILES ${Render_files_lighting__vk})
+	
+	set(Render_lighting__impl
+		${Render_files_lighting__vk}
 	)
-
-	set(Render_files_lighting__sm50
-		lighting/sm50/sm50lightserver.cc
-		lighting/sm50/sm50lightserver.h
-		lighting/sm50/sm50shadowserver.cc
-		lighting/sm50/sm50shadowserver.h
-	)
-	source_group("lighting\\sm50" FILES ${Render_files_lighting__sm50})
-
-	set(Render_lighting__sm50
-		${Render_files_lighting__sm50}
-	)
+	ENDIF()
 
     set(Render_files_lighting
 		lighting/lightserver.cc
@@ -1112,10 +1104,11 @@ ENDIF()
     set(Render_lighting
 		${Render_lighting__base}
 		${Render_lighting__handlers}
-		${Render_lighting__lightprepass}
-		${Render_files_lighting__ao}
-		${Render_lighting__sm30}
-		${Render_lighting__sm50}
+		#${Render_lighting__lightprepass}
+		#${Render_files_lighting__ao}
+		#${Render_lighting__sm30}
+		#${Render_lighting__sm50}
+		${Render_lighting__impl}
 		${Render_files_lighting}
     )
 

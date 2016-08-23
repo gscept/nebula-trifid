@@ -18,8 +18,8 @@ __ImplementClass(Vulkan::VkShaderVariable, 'VKSV', Base::ShaderVariableBase);
 /**
 */
 VkShaderVariable::VkShaderVariable() :
-	bufferBinding(0),
-	pushRangeBinding(0),
+	bufferBinding(NULL),
+	pushRangeBinding(NULL),
 	var(0),
 	block(0),
 	buffer(0)
@@ -63,6 +63,8 @@ VkShaderVariable::BindToPushConstantRange(uint8_t* buffer, uint32_t offset, uint
 	this->pushRangeBinding->offset = offset;
 	this->pushRangeBinding->size = size;
 	this->pushRangeBinding->defaultValue = defaultValue;
+	
+	// copy data to buffer
 	memcpy(buffer + offset, defaultValue, size);
 }
 
@@ -377,45 +379,50 @@ void
 VkShaderVariable::SetTexture(const Ptr<CoreGraphics::Texture>& tex)
 {
 	if (!tex.isvalid()) return;
-	if (this->var->type >= AnyFX::TextureHandle && this->var->type <= AnyFX::SamplerHandle)
+	if (tex->GetVkImageView() != this->img.imageView)
 	{
-		// update texture id
-		n_assert(this->bufferBinding != NULL || this->pushRangeBinding != NULL);
-		if (this->bufferBinding)
-			this->bufferBinding->uniformBuffer->Update(tex->GetVkId(), this->bufferBinding->offset, sizeof(uint32_t));
-		else
-			this->UpdatePushRange(sizeof(uint32_t), tex->GetVkId());
-	}
-	else
-	{
-		// dependent on type of variable, select if sampler should be coupled with sampler or if it will be assembled in-shader
-		const VkImageView& view = tex->GetVkImageView();
-		VkDescriptorType type;
-		if (this->type == TextureType)		type = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-		else if (this->type == SamplerType) type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		if (this->var->type >= AnyFX::TextureHandle && this->var->type <= AnyFX::SamplerHandle)
+		{
+			// update texture id
+			n_assert(this->bufferBinding != NULL || this->pushRangeBinding != NULL);
+			if (this->bufferBinding)
+				this->bufferBinding->uniformBuffer->Update(tex->GetVkId(), this->bufferBinding->offset, sizeof(uint32_t));
+			else
+				this->UpdatePushRange(sizeof(uint32_t), tex->GetVkId());
+
+			this->img.imageView = tex->GetVkImageView();
+		}
 		else
 		{
-			n_error("Variable '%s' is must be either Texture or Integer to be assigned a texture!\n", this->name.Value());
+			// dependent on type of variable, select if sampler should be coupled with sampler or if it will be assembled in-shader
+			const VkImageView& view = tex->GetVkImageView();
+			VkDescriptorType type;
+			if (this->type == TextureType)		type = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+			else if (this->type == SamplerType) type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			else
+			{
+				n_error("Variable '%s' is must be either Texture or Integer to be assigned a texture!\n", this->name.Value());
+			}
+
+			VkWriteDescriptorSet set;
+			set.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			set.pNext = NULL;
+			set.descriptorCount = 1;
+			set.descriptorType = type;
+			set.dstArrayElement = 0;
+			set.dstBinding = this->binding;
+			set.dstSet = this->set;
+			set.pBufferInfo = NULL;
+			set.pTexelBufferView = NULL;
+			set.pImageInfo = &this->img;
+			this->img.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			this->img.imageView = tex->GetVkImageView();
+			this->img.sampler = VK_NULL_HANDLE;
+
+			// add to shader to update on next update
+			this->shader->AddDescriptorWrite(set);
 		}
-
-		VkWriteDescriptorSet set;
-		set.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		set.pNext = NULL;
-		set.descriptorCount = 1;
-		set.descriptorType = type;
-		set.dstArrayElement = 0;
-		set.dstBinding = this->binding;
-		set.dstSet = this->set;
-		set.pBufferInfo = NULL;
-		set.pTexelBufferView = NULL;
-		set.pImageInfo = &this->img;
-		this->img.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		this->img.imageView = tex->GetVkImageView();
-		this->img.sampler = VK_NULL_HANDLE;
-
-		// add to shader to update on next update
-		this->shader->AddDescriptorWrite(set);
-	}
+	}	
 }
 
 //------------------------------------------------------------------------------

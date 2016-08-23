@@ -21,8 +21,11 @@ ConstantBufferBase::ConstantBufferBase() :
     inUpdateSync(false),
     isDirty(false),
 	numBuffers(DefaultNumBackingBuffers),
+	size(0),
+	stride(0),
     buffer(0),
-	grow(8)
+	grow(8),
+	baseOffset(0)
 {
 	// empty
 }

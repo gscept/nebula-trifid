@@ -48,6 +48,8 @@ public:
 	const Ptr<CoreGraphics::ConstantBuffer>& GetConstantBuffer(const Util::StringAtom& name) const;
 	/// get number of uniform buffers
 	const SizeT GetNumConstantBuffers() const;
+	/// override selected offset
+	void SetConstantBufferOffset(const IndexT group, const IndexT binding, const uint32_t offset);
 private:
 	friend class Base::ShaderBase;
 	friend class VkShader;
@@ -95,6 +97,7 @@ private:
 	Util::Dictionary<Util::String, uint32_t> offsetsByName;
 	Util::Dictionary<uint32_t, Util::Array<uint32_t>> offsetsByGroup;
 	Util::Dictionary<Ptr<CoreGraphics::ConstantBuffer>, uint32_t> instances;
+	Util::Dictionary<uint32_t, Util::Dictionary<uint32_t, uint32_t>> offsetByGroupBinding;
 
 	uint8_t* pushData;
 	uint32_t pushSize;

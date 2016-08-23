@@ -1,9 +1,9 @@
 //------------------------------------------------------------------------------
-//  sm50lightserver.cc
-//  (C) 2011-2013 Individual contributors, see AUTHORS file
+//  vklightserver.cc
+//  (C) 2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "lighting/sm50/sm50lightserver.h"
+#include "lighting/vk/vklightserver.h"
 #include "resources/resourcemanager.h"
 #include "coregraphics/shaderserver.h"
 #include "coregraphics/shadersemantics.h"
@@ -12,7 +12,7 @@
 #include "coregraphics/texture.h"
 #include "lighting/shadowserver.h"
 #include "coregraphics/transformdevice.h"
-#include "sm50shadowserver.h"
+#include "vkshadowserver.h"
 #include "math/float4.h"
 #include "frame/frameserver.h"
 #include "graphics/graphicsserver.h"
@@ -22,7 +22,7 @@
 
 namespace Lighting
 {
-__ImplementClass(Lighting::SM50LightServer, 'SM5L', Lighting::LightServerBase);
+__ImplementClass(Lighting::VkLightServer, 'SM5L', Lighting::LightServerBase);
 
 using namespace Graphics;
 using namespace CoreGraphics;
@@ -33,7 +33,7 @@ using namespace Math;
 //------------------------------------------------------------------------------
 /**
 */
-SM50LightServer::SM50LightServer() :
+VkLightServer::VkLightServer() :
 	renderBuffersAssigned(false)
 {
 	globalLightFeatureBits[NoShadows] = 0;
@@ -47,7 +47,7 @@ SM50LightServer::SM50LightServer() :
 //------------------------------------------------------------------------------
 /**
 */
-SM50LightServer::~SM50LightServer()
+VkLightServer::~VkLightServer()
 {
 	n_assert(!this->IsOpen());
 }
@@ -56,7 +56,7 @@ SM50LightServer::~SM50LightServer()
 /**
 */
 bool 
-SM50LightServer::NeedsLightModelLinking() const
+VkLightServer::NeedsLightModelLinking() const
 {
 	return true;
 }
@@ -65,7 +65,7 @@ SM50LightServer::NeedsLightModelLinking() const
 /**
 */
 void
-SM50LightServer::Open()
+VkLightServer::Open()
 {
 	n_assert(!this->IsOpen());
 	ResourceManager* resManager = ResourceManager::Instance();
@@ -109,7 +109,7 @@ SM50LightServer::Open()
 	this->globalLightMaxBorderPadding			= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_MAXBORDERPADDING);
 	this->globalLightPartitionSize				= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_SHADOWPARTITIONSIZE);
 
-    // setup block for global light
+    // setup block for global light, this will only be updated once per iteration and is shared across all shaders
     this->globalLightBuffer                     = ConstantBuffer::Create();
     this->globalLightBuffer->SetupFromBlockInShader(this->lightShader, "GlobalLightBlock");
     this->globalLightDir                        = this->globalLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_GLOBALLIGHTDIR);
@@ -118,23 +118,32 @@ SM50LightServer::Open()
     this->globalAmbientLightColor               = this->globalLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_GLOBALAMBIENTLIGHTCOLOR);
     this->globalBackLightOffset                 = this->globalLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_GLOBALBACKLIGHTOFFSET);
     this->globalLightShadowMatrixVar            = this->globalLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_CSMSHADOWMATRIX);
+	this->globalLightShadowMap					= this->globalLightBuffer->GetVariableByName("GlobalLightShadowBuffer");
 
-	// bind our custom buffer to the binding spot
+	// bind our custom buffer to the binding slot
 	this->globalLightBlockVar = this->lightShader->GetVariableByName("GlobalLightBlock");
     this->globalLightBlockVar->SetConstantBuffer(this->globalLightBuffer);
 
-	// local light variables
-	this->lightPosRange							= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_LIGHTPOSRANGE);
-	this->lightColor             				= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_LIGHTCOLOR);
-	this->lightProjTransform     				= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_LIGHTPROJTRANSFORM);
-	this->lightTransform						= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_LIGHTTRANSFORM);
-	this->lightProjMapVar						= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_LIGHTPROJMAP); 
-	this->lightProjCubeVar						= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_LIGHTPROJCUBE); 
-	this->shadowProjMapVar						= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_SHADOWPROJMAP);
-    this->shadowProjCubeVar                     = this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_SHADOWPROJCUBE);
-	this->shadowProjTransform    				= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_SHADOWPROJTRANSFORM);
-	this->shadowOffsetScaleVar   				= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_SHADOWOFFSETSCALE);
-	this->shadowIntensityVar          			= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_SHADOWINTENSITY);
+	// create buffer for local lights
+	this->localLightBuffer						= ConstantBuffer::Create();
+	this->localLightBuffer->SetupFromBlockInShader(this->lightShader, "LocalLightBlock", 1);
+
+	// get local light variables from buffer
+	this->lightPosRange							= this->localLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_LIGHTPOSRANGE);
+	this->lightColor							= this->localLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_LIGHTCOLOR);
+	this->lightProjTransform					= this->localLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_LIGHTPROJTRANSFORM);
+	this->lightTransform						= this->localLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_LIGHTTRANSFORM);
+	this->lightProjMapVar						= this->localLightBuffer->GetVariableByName("SpotLightProjectionTexture");
+	this->lightProjCubeVar						= this->localLightBuffer->GetVariableByName("PointLightProjectionTexture");
+	this->shadowProjMapVar						= this->localLightBuffer->GetVariableByName("SpotLightShadowAtlas");
+	this->shadowProjCubeVar						= this->localLightBuffer->GetVariableByName("PointLightShadowCube");
+	this->shadowProjTransform					= this->localLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_SHADOWPROJTRANSFORM);
+	this->shadowOffsetScaleVar					= this->localLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_SHADOWOFFSETSCALE);
+	this->shadowIntensityVar					= this->localLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_SHADOWINTENSITY);
+
+	// bind our light buffer to the binding slot
+	this->localLightBlockVar = this->lightShader->GetVariableByName("LocalLightBlock");
+	this->localLightBlockVar->SetConstantBuffer(this->localLightBuffer);
 
 	//this->shadowConstants->SetFloat4(float4(100.0f, 100.0f, 0.003f, 1024.0f));
 }
@@ -143,7 +152,7 @@ SM50LightServer::Open()
 /**
 */
 void
-SM50LightServer::Close()
+VkLightServer::Close()
 {
 	n_assert(this->IsOpen());
 	n_assert(this->pointLights[NoShadows].IsEmpty());   
@@ -186,6 +195,9 @@ SM50LightServer::Close()
 	this->globalLightMaxBorderPadding = 0;		
 	this->globalLightPartitionSize = 0;			
 
+	this->localLightBuffer->Discard();
+	this->localLightBuffer = 0;
+
 	// discard resources
 	ResourceManager* resManager = ResourceManager::Instance();
 	resManager->DiscardManagedResource(this->pointLightMesh.upcast<ManagedResource>());
@@ -202,7 +214,7 @@ SM50LightServer::Close()
 /**
 */
 void
-SM50LightServer::AttachVisibleLight(const Ptr<AbstractLightEntity>& lightEntity)
+VkLightServer::AttachVisibleLight(const Ptr<AbstractLightEntity>& lightEntity)
 {
 	if (lightEntity->GetLightType() == LightType::Point)
 	{
@@ -230,6 +242,11 @@ SM50LightServer::AttachVisibleLight(const Ptr<AbstractLightEntity>& lightEntity)
 			this->spotLights[NoShadows].Append(lightEntity.cast<SpotLightEntity>());
 		}
 	}
+
+	// allocate buffer (or index if buffer is big enough) for the light
+	this->lightToInstanceMap.Add(lightEntity, this->localLightBuffer->AllocateInstance());
+	this->localLightBlockVar->SetConstantBuffer(this->localLightBuffer);
+
 	LightServerBase::AttachVisibleLight(lightEntity);
 }
 
@@ -237,8 +254,11 @@ SM50LightServer::AttachVisibleLight(const Ptr<AbstractLightEntity>& lightEntity)
 /**
 */
 void 
-SM50LightServer::EndFrame()
+VkLightServer::EndFrame()
 {
+	// reset light slots so we can reuse them the next frame
+	this->localLightBuffer->Reset();
+
 	this->pointLights[NoShadows].Clear();
 	this->pointLights[CastShadows].Clear();
 	this->spotLights[NoShadows].Clear();
@@ -250,7 +270,7 @@ SM50LightServer::EndFrame()
 /**
 */
 void 
-SM50LightServer::AssignRenderBufferTextures()
+VkLightServer::AssignRenderBufferTextures()
 {
 	n_assert(!this->renderBuffersAssigned);
 	const Ptr<ResourceManager>& resManager = ResourceManager::Instance();
@@ -260,7 +280,7 @@ SM50LightServer::AssignRenderBufferTextures()
 	ResourceId lightBufferId("LightBuffer");
 	if (!resManager->HasResource(lightBufferId))
 	{
-		n_error("SM50LightServer::RenderLights(): LightBuffer render target not found!\n");
+		n_error("VkLightServer::RenderLights(): LightBuffer render target not found!\n");
 	}
 	Ptr<Texture> lightBuffer = resManager->LookupResource(lightBufferId).downcast<Texture>();
 
@@ -272,7 +292,7 @@ SM50LightServer::AssignRenderBufferTextures()
 /**
 */
 void 
-SM50LightServer::RenderLights()
+VkLightServer::RenderLights()
 {
 	ShaderServer* shdServer = ShaderServer::Instance();
     ShadowServer* shadowServer = ShadowServer::Instance();
@@ -288,7 +308,7 @@ SM50LightServer::RenderLights()
 	shdServer->SetActiveShader(this->lightShader->GetShader());
 
 	// render the global light
-    this->shadowProjMapVar->SetTexture(shadowServer->GetGlobalLightShadowBufferTexture());
+	this->globalLightShadowMap->SetTexture(shadowServer->GetGlobalLightShadowBufferTexture());
 	this->RenderGlobalLight();
 
 	if (this->spotLights[CastShadows].Size() > 0)
@@ -308,7 +328,7 @@ SM50LightServer::RenderLights()
 /**
 */
 void 
-SM50LightServer::RenderGlobalLight()
+VkLightServer::RenderGlobalLight()
 {
 	if (this->globalLightEntity.isvalid())
 	{
@@ -328,8 +348,6 @@ SM50LightServer::RenderGlobalLight()
         this->lightShader->Apply();
 		
 		// setup general global light stuff
-		this->globalLightBuffer->CycleBuffers();
-		this->globalLightBuffer->BeginUpdateSync();
 		this->globalLightDir->SetFloat4(viewSpaceLightDir);
 		this->globalLightColor->SetFloat4(this->globalLightEntity->GetColor());
 		this->globalBackLightColor->SetFloat4(this->globalLightEntity->GetBackLightColor());
@@ -339,10 +357,8 @@ SM50LightServer::RenderGlobalLight()
 		matrix44 shadowView = *ShadowServer::Instance()->GetShadowView();
         shadowView = matrix44::multiply(transDev->GetInvViewTransform(), shadowView);
         this->globalLightShadowMatrixVar->SetMatrix(shadowView);
-		this->globalLightBuffer->EndUpdateSync();
 
 		// handle casting shadows using CSM
-		this->lightShader->BeginUpdateSync();
 		if (this->globalLightEntity->GetCastShadows())
 		{
 			Ptr<CoreGraphics::Texture> CSMTexture = ShadowServer::Instance()->GetGlobalLightShadowBufferTexture();
@@ -380,7 +396,6 @@ SM50LightServer::RenderGlobalLight()
 
 			this->shadowIntensityVar->SetFloat(this->globalLightEntity->GetShadowIntensity());
 		}
-		this->lightShader->EndUpdateSync();
 
 		// commit changes
 		this->lightShader->Commit();
@@ -394,7 +409,7 @@ SM50LightServer::RenderGlobalLight()
 /**
 */
 void 
-SM50LightServer::RenderPointLights()
+VkLightServer::RenderPointLights()
 {
 	if ((this->pointLightMesh->GetState() == Resource::Loaded)
 		&& (this->pointLights[CastShadows].Size() > 0
@@ -417,8 +432,13 @@ SM50LightServer::RenderPointLights()
 
 				IndexT i;
 				for (i = 0; i < this->pointLights[shadowIdx].Size(); i++)
-				{            
+				{
 					const Ptr<PointLightEntity>& curLight = this->pointLights[shadowIdx][i];
+
+					// select active index in local light buffer, this will make this lights instance active this frame
+					SizeT offset = this->lightToInstanceMap[curLight.upcast<AbstractLightEntity>()];
+					this->localLightBuffer->SetBaseOffset(offset);
+
 					const matrix44& lightTransform = curLight->GetTransform();
 					tformDevice->SetModelTransform(lightTransform);
 
@@ -428,7 +448,6 @@ SM50LightServer::RenderPointLights()
 					posAndRange.w() = 1.0f / lightTransform.get_zaxis().length();
 
 					// set projection map
-					this->lightShader->BeginUpdateSync();
 					if (curLight->GetProjectionTexture().isvalid())
 					{
 						this->lightProjCubeVar->SetTexture(curLight->GetProjectionTexture()->GetTexture());
@@ -452,10 +471,8 @@ SM50LightServer::RenderPointLights()
 						this->shadowIntensityVar->SetFloat(curLight->GetShadowIntensity());
 					}
 
-					// update shader variables
-					this->lightShader->EndUpdateSync();
-
 					// commit and draw
+					this->lightShader->SetConstantBufferOffset(NEBULAT_LIGHT_GROUP, this->localLightBuffer->GetBinding(), offset);
 					this->lightShader->Commit();
                     renderDevice->Draw();
 				}
@@ -468,7 +485,7 @@ SM50LightServer::RenderPointLights()
 /**
 */
 void 
-SM50LightServer::RenderSpotLights()
+VkLightServer::RenderSpotLights()
 {
 	if ((this->spotLightMesh->GetState() == Resource::Loaded)
 		&& (this->spotLights[CastShadows].Size() > 0
@@ -492,6 +509,11 @@ SM50LightServer::RenderSpotLights()
 				for (i = 0; i < this->spotLights[shadowIdx].Size(); i++)
 				{            
 					const Ptr<SpotLightEntity>& curLight = this->spotLights[shadowIdx][i];
+
+					// select active index in local light buffer, this will make this lights instance active this frame
+					SizeT offset = this->lightToInstanceMap[curLight.upcast<AbstractLightEntity>()];
+					this->localLightBuffer->SetBaseOffset(offset);
+
 					const matrix44& lightTransform = curLight->GetTransform();
 					tformDevice->SetModelTransform(lightTransform);
 
@@ -501,7 +523,6 @@ SM50LightServer::RenderSpotLights()
 					posAndRange.w() = 1.0f / lightTransform.get_zaxis().length();
 
 					// set projection map
-					this->lightShader->BeginUpdateSync();
 					if (curLight->GetProjectionTexture().isvalid())
 					{
 						this->lightProjMapVar->SetTexture(curLight->GetProjectionTexture()->GetTexture());
@@ -536,10 +557,8 @@ SM50LightServer::RenderSpotLights()
 						this->shadowIntensityVar->SetFloat(curLight->GetShadowIntensity());
 					}
 
-					// update shader variables
-					this->lightShader->EndUpdateSync();
-
 					// commit and draw
+					this->lightShader->SetConstantBufferOffset(NEBULAT_LIGHT_GROUP, this->localLightBuffer->GetBinding(), offset);
 					this->lightShader->Commit();
 					renderDevice->Draw();
 				}
@@ -580,7 +599,7 @@ SortProbesType(const Ptr<LightProbeEntity>& lhs, const Ptr<LightProbeEntity>& rh
 	Hmm, this should be more efficient if we can render probes based on shaders
 */
 void
-SM50LightServer::RenderLightProbes()
+VkLightServer::RenderLightProbes()
 {
 	// sort light probes based on layers
 	this->visibleLightProbes.SortWithFunc(SortProbesType);

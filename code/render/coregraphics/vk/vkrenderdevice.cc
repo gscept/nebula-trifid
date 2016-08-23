@@ -632,7 +632,7 @@ VkRenderDevice::OpenVulkanContext()
 	{
 		threadName.Format("DrawCmdBufferThread%d", i);
 		this->drawThreads[i] = VkCmdBufferThread::Create();
-		this->drawThreads[i]->SetPriority(Threading::Thread::Low);
+		this->drawThreads[i]->SetPriority(Threading::Thread::High);
 		this->drawThreads[i]->SetCoreId(System::Cpu::RenderThreadFirstCore + i);
 		this->drawThreads[i]->SetName(threadName);
 		this->drawThreads[i]->Start();

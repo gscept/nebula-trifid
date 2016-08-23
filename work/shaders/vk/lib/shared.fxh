@@ -88,6 +88,7 @@ group(LIGHT_GROUP) shared varblock GlobalLightBlock [ bool System = true; ]
 	vec4 GlobalAmbientLightColor;
 	float GlobalBackLightOffset;
 	mat4 CSMShadowMatrix;
+	textureHandle GlobalLightShadowBuffer;
 };
 
 #define FLT_MAX     3.40282347E+38F
@@ -174,7 +175,5 @@ float WindWaveSize = 1.0f;
 float WindSpeed = 0.0f;
 float WindIntensity = 0.0f;
 float WindForce = 0.0f;
-
-
 
 #endif // SHARED_H

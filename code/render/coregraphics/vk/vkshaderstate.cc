@@ -302,6 +302,7 @@ VkShaderState::SetupUniformBuffers(const Util::Array<IndexT>& groups)
 		// get varblocks by group
 		const eastl::vector<AnyFX::VarblockBase*>& varblocks = this->effect->GetVarblocks(groups[i]);
 		Util::Array<uint32_t> offsets;
+		Util::Dictionary<uint32_t, uint32_t> bindingToOffsetIndex;
 		for (uint j = 0; j < varblocks.size(); j++)
 		{
 			AnyFX::VarblockBase* block = varblocks[j];
@@ -349,10 +350,11 @@ VkShaderState::SetupUniformBuffers(const Util::Array<IndexT>& groups)
 				{
 					// we only allow 1 push range
 					n_assert(this->pushData == NULL);
+					uint32_t size = VkRenderDevice::Instance()->deviceProps.limits.maxPushConstantsSize;
 
 					// allocate push range
-					this->pushData = n_new_array(uint8_t, block->alignedSize);
-					this->pushSize = block->alignedSize;
+					this->pushData = n_new_array(uint8_t, size);
+					this->pushSize = size;
 					this->pushLayout = this->shader->pipelineLayout;
 					for (uint k = 0; k < block->variables.size(); k++)
 					{
@@ -368,9 +370,12 @@ VkShaderState::SetupUniformBuffers(const Util::Array<IndexT>& groups)
 			else
 			{
 				offsets.Append(0);
+				bindingToOffsetIndex.Add(block->binding, j);
 			}
 		}
 		this->offsetsByGroup.Add(groups[i], offsets);
+		this->offsetByGroupBinding.Add(groups[i], bindingToOffsetIndex);
+		//this->groupBindingToOffsetIndex.Add(Util::KeyValuePair<uint32_t, uint32_t>(groups[i], block->binding), j);
 	}
 
 	// perform descriptor set update, since our buffers might grow, we might have pending updates, and since the old buffer is destroyed, we want to flush all updates here.
@@ -407,6 +412,16 @@ VkShaderState::Discard()
 		const Ptr<CoreGraphics::ConstantBuffer>& buf = this->instances.KeyAtIndex(i);
 		buf->FreeInstance(this->instances.ValueAtIndex(i));
 	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkShaderState::SetConstantBufferOffset(const IndexT group, const IndexT binding, const uint32_t offset)
+{
+	// WOW
+	this->offsetsByGroup[group][this->offsetByGroupBinding[group][binding]] = offset;
 }
 
 } // namespace Vulkan

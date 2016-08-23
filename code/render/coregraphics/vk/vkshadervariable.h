@@ -26,6 +26,7 @@ class VkStreamShaderLoader;
 class VkShaderState;
 class VkShader;
 class VkShaderServer;
+class VkUniformBuffer;
 class VkShaderVariable : public Base::ShaderVariableBase
 {
 	__DeclareClass(VkShaderVariable);
@@ -83,6 +84,7 @@ private:
 	friend class Vulkan::VkStreamShaderLoader;
 	friend class Vulkan::VkShaderState;
 	friend class Vulkan::VkShaderServer;
+	friend class Vulkan::VkUniformBuffer;
 
 	/// setup from AnyFX variable
 	void Setup(AnyFX::VkVariable* var, const Ptr<VkShaderState>& shader, const VkDescriptorSet& set);
