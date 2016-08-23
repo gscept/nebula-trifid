@@ -224,7 +224,7 @@ VkShaderVariable::SetInt(int value)
 	if (this->bufferBinding)
 		this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, sizeof(int));
 	else
-		this->UpdatePushRange(0, sizeof(int), value);
+		this->UpdatePushRange(sizeof(int), value);
 }
 
 //------------------------------------------------------------------------------
@@ -237,7 +237,7 @@ VkShaderVariable::SetIntArray(const int* values, SizeT count)
 	if (this->bufferBinding)
 		this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, sizeof(int), count);
 	else
-		this->UpdatePushRange(0, sizeof(int) * count, values);
+		this->UpdatePushRange(sizeof(int) * count, values);
 }
 
 //------------------------------------------------------------------------------
@@ -250,7 +250,7 @@ VkShaderVariable::SetFloat(float value)
 	if (this->bufferBinding)
 		this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, sizeof(float));
 	else
-		this->UpdatePushRange(0, sizeof(float), value);
+		this->UpdatePushRange(sizeof(float), value);
 }
 
 //------------------------------------------------------------------------------
@@ -263,7 +263,7 @@ VkShaderVariable::SetFloatArray(const float* values, SizeT count)
 	if (this->bufferBinding)
 		this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, sizeof(float), count);
 	else
-		this->UpdatePushRange(0, sizeof(float) * count, values);
+		this->UpdatePushRange(sizeof(float) * count, values);
 }
 
 //------------------------------------------------------------------------------
@@ -276,7 +276,7 @@ VkShaderVariable::SetFloat2(const Math::float2& value)
 	if (this->bufferBinding)
 		this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, sizeof(Math::float2));
 	else
-		this->UpdatePushRange(0, sizeof(Math::float2), value);
+		this->UpdatePushRange(sizeof(Math::float2), value);
 }
 
 //------------------------------------------------------------------------------
@@ -289,7 +289,7 @@ VkShaderVariable::SetFloat2Array(const Math::float2* values, SizeT count)
 	if (this->bufferBinding)
 		this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, sizeof(Math::float2), count);
 	else
-		this->UpdatePushRange(0, sizeof(Math::float2) * count, values);
+		this->UpdatePushRange(sizeof(Math::float2) * count, values);
 }
 
 //------------------------------------------------------------------------------
@@ -302,7 +302,7 @@ VkShaderVariable::SetFloat4(const Math::float4& value)
 	if (this->bufferBinding)
 		this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, sizeof(Math::float4));
 	else
-		this->UpdatePushRange(0, sizeof(Math::float4), value);
+		this->UpdatePushRange(sizeof(Math::float4), value);
 }
 
 //------------------------------------------------------------------------------
@@ -315,7 +315,7 @@ VkShaderVariable::SetFloat4Array(const Math::float4* values, SizeT count)
 	if (this->bufferBinding)
 		this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, sizeof(Math::float4), count);
 	else
-		this->UpdatePushRange(0, sizeof(Math::float4) * count, values);
+		this->UpdatePushRange(sizeof(Math::float4) * count, values);
 }
 
 //------------------------------------------------------------------------------
@@ -328,7 +328,7 @@ VkShaderVariable::SetMatrix(const Math::matrix44& value)
 	if (this->bufferBinding)
 		this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, sizeof(Math::matrix44));
 	else
-		this->UpdatePushRange(0, sizeof(Math::matrix44), value);
+		this->UpdatePushRange(sizeof(Math::matrix44), value);
 }
 
 //------------------------------------------------------------------------------
@@ -341,7 +341,7 @@ VkShaderVariable::SetMatrixArray(const Math::matrix44* values, SizeT count)
 	if (this->bufferBinding)
 		this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, sizeof(Math::matrix44), count);
 	else
-		this->UpdatePushRange(0, sizeof(Math::matrix44) * count, values);
+		this->UpdatePushRange(sizeof(Math::matrix44) * count, values);
 }
 
 //------------------------------------------------------------------------------
@@ -354,7 +354,7 @@ VkShaderVariable::SetBool(bool value)
 	if (this->bufferBinding)
 		this->bufferBinding->uniformBuffer->Update(value, this->bufferBinding->offset, sizeof(bool));
 	else
-		this->UpdatePushRange(0, sizeof(bool), value);
+		this->UpdatePushRange(sizeof(bool), value);
 }
 
 //------------------------------------------------------------------------------
@@ -367,7 +367,7 @@ VkShaderVariable::SetBoolArray(const bool* values, SizeT count)
 	if (this->bufferBinding)
 		this->bufferBinding->uniformBuffer->UpdateArray(values, this->bufferBinding->offset, sizeof(bool), count);
 	else
-		this->UpdatePushRange(0, sizeof(bool) * count, values);
+		this->UpdatePushRange(sizeof(bool) * count, values);
 }
 
 //------------------------------------------------------------------------------
@@ -384,7 +384,7 @@ VkShaderVariable::SetTexture(const Ptr<CoreGraphics::Texture>& tex)
 		if (this->bufferBinding)
 			this->bufferBinding->uniformBuffer->Update(tex->GetVkId(), this->bufferBinding->offset, sizeof(uint32_t));
 		else
-			this->UpdatePushRange(0, sizeof(uint32_t), tex->GetVkId());
+			this->UpdatePushRange(sizeof(uint32_t), tex->GetVkId());
 	}
 	else
 	{

@@ -10,18 +10,11 @@
 #include "lib/techniques.fxh"
 #include "lib/shared.fxh"
 
-/// Declaring used textures
-
-
-group(SYSTEM_GROUP) varblock ImGUIBlock
-{
-mat4 TextProjectionModel;
-
-};
-
+// put variables in push-constant block
 group(SYSTEM_GROUP) push varblock ImGUI
 {
-textureHandle Texture;
+textureHandle Texture; 
+mat4 TextProjectionModel;
 };
 
 samplerstate TextureSampler
@@ -55,7 +48,7 @@ vsMain(
 	out vec4 Color) 
 {
 	vec4 pos = vec4(position, 0, 1);	
-	gl_Position = TextProjectionModel * pos;
+	gl_Position = ImGUI.TextProjectionModel * pos;
 	Color = color;
 	UV = uv;
 }

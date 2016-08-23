@@ -91,8 +91,8 @@ private:
 	/// setup from AnyFX varblock
 	void Setup(AnyFX::VkVarblock* var, const Ptr<VkShaderState>& shader, const VkDescriptorSet& set);
 
-	/// update push constant buffer
-	template<class T> void UpdatePushRange(uint32_t offset, uint32_t size, const T& data);
+	/// update push constant buffer, the variable already knows the offset
+	template<class T> void UpdatePushRange(uint32_t size, const T& data);
 
 	struct BufferBinding
 	{
@@ -134,10 +134,10 @@ private:
 /**
 */
 template<class T> void
-VkShaderVariable::UpdatePushRange(uint32_t offset, uint32_t size, const T& data)
+VkShaderVariable::UpdatePushRange(uint32_t size, const T& data)
 {
 	n_assert(this->pushRangeBinding != NULL);
-	memcpy(this->pushRangeBinding->buffer + offset, &data, size);
+	memcpy(this->pushRangeBinding->buffer + this->pushRangeBinding->offset, &data, size);
 }
 
 } // namespace Vulkan

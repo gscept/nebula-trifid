@@ -101,9 +101,8 @@ VkShader::Setup(AnyFX::ShaderEffect* effect)
 	const eastl::vector<AnyFX::VariableBase*>& variables = effect->GetVariables();
 	const eastl::vector<AnyFX::SamplerBase*>& samplers = effect->GetSamplers();
 
-	// smallest possible push range we can have is 4 bytes
-	// we create this bogus push range for all shaders to make them compatible
-	this->constantRange.size = 4;
+	// always create push constant range in layout, making all shaders using push constants compatible
+	this->constantRange.size = VkRenderDevice::Instance()->deviceProps.limits.maxPushConstantsSize;
 	this->constantRange.offset = 0;
 	this->constantRange.stageFlags = VK_SHADER_STAGE_ALL;
 	bool usePushConstants = false;
@@ -111,7 +110,6 @@ VkShader::Setup(AnyFX::ShaderEffect* effect)
 
 	Util::Dictionary<IndexT, Util::String> signatures;
 
-	Util::Array<VkPushConstantRange> ranges;
 	Util::Array<VkDescriptorBufferInfo> bufs;
 	Util::Array<VkDescriptorImageInfo> imgs;
 	Util::Array<VkWriteDescriptorSet> writes;
@@ -129,23 +127,8 @@ VkShader::Setup(AnyFX::ShaderEffect* effect)
 		{
 			// can only have one push constant block
 			n_assert(usePushConstants == false);
-			/*
-			uint i;
-			for (i = 0; i < block->variables.size(); i++)
-			{
-				AnyFX::VkVariable* var = static_cast<AnyFX::VkVariable*>(block->variables[i]);
-				VkPushConstantRange range;
-				range.stageFlags = VK_SHADER_STAGE_ALL;
-				range.size = var->byteSize;
-				range.offset = block->offsetsByName[var->name];
-				ranges.Append(range);
-			}
-			*/
-			//signatures.Add(block->set, "__pc__");
-			this->constantRange.stageFlags = VK_SHADER_STAGE_ALL;
-			this->constantRange.size = block->alignedSize;
-			this->constantRange.offset = 0;
-			usePushConstants = true;
+			n_assert(block->alignedSize <= this->constantRange.size);
+			// don't really do anything here...
 		}
 		else
 		{

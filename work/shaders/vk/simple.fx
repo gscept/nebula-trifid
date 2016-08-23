@@ -8,8 +8,12 @@
 #include "lib/util.fxh"
 #include "lib/techniques.fxh"
 
-mat4 ShapeModel;
-vec4 MatDiffuse;
+group(SYSTEM_GROUP) push varblock Simple
+{
+	mat4 ShapeModel;
+	vec4 MatDiffuse;
+};
+
 state WireframeState
 {
 	CullMode = None;	
@@ -52,7 +56,7 @@ vsMainPrimitives(
 	[slot=5] in vec4 color, 
 	out vec4 Color)  
 {
-	gl_Position = ViewProjection * ShapeModel * position;
+	gl_Position = ViewProjection * Simple.ShapeModel * position;
 	Color = color;
 }
 	
@@ -74,7 +78,7 @@ void
 vsMainShape(
 	[slot=0] in vec4 position)  
 {
-	gl_Position = ViewProjection * ShapeModel * position;
+	gl_Position = ViewProjection * Simple.ShapeModel * position;
 }
 	
 //------------------------------------------------------------------------------
@@ -84,7 +88,7 @@ shader
 void
 psMainShape([color0] out vec4 Color) 
 {
-	Color = MatDiffuse;
+	Color = Simple.MatDiffuse;
 }
 
 //------------------------------------------------------------------------------
