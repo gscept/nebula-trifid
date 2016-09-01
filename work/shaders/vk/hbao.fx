@@ -20,12 +20,11 @@ float Strength = 0.0f;
 float R = 0.0f;
 float R2 = 0.0f;
 
-sampler2D DepthBuffer;
 sampler2D RandomMap;
 
 samplerstate ClampSampler
 {
-	Samplers = { DepthBuffer };
+	//Samplers = { DepthBuffer };
 	Filter = Point;
 	AddressU = Clamp;
 	AddressV = Clamp;
@@ -115,7 +114,7 @@ vec3 UVToEye(vec2 uv, float eye_z)
 //----------------------------------------------------------------------------------
 vec3 FetchEyePos(vec2 uv)
 {
-	float z = textureLod(DepthBuffer, uv, 0).r;
+	float z = sample2DLod(DepthBuffer, ClampSampler, uv, 0).r;
 	return UVToEye(uv, z);
 }
 //----------------------------------------------------------------------------------

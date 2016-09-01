@@ -7,7 +7,9 @@
 #include "vkrenderdevice.h"
 #include "vktypes.h"
 #include "resources/resourcemanager.h"
-#include "../displaydevice.h"
+#include "vkdisplaydevice.h"
+#include "vkshaderserver.h"
+#include "coregraphics/displaydevice.h"
 
 namespace Vulkan
 {
@@ -22,7 +24,9 @@ VkRenderTarget::VkRenderTarget() :
 	swapbufferIdx(0),
 	vkTargetImage(0),
 	vkTargetImageView(0),
-	vkTargetImageMem(0)
+	vkTargetImageMem(0),
+	shader(0),
+	dimensionsArray(0)
 {
 	// empty
 }
@@ -187,6 +191,10 @@ VkRenderTarget::Setup()
 	}
 	else
 	{
+		// create shader state for 
+		this->shader = VkShaderServer::Instance()->CreateShaderState("shd:shared", { NEBULAT_PASS_GROUP });
+		this->dimensionsArray = this->shader->GetVariableByName("RenderTargetDimensions");
+
 		if (this->relativeSizeValid)
 		{
 			DisplayDevice* displayDevice = DisplayDevice::Instance();
@@ -457,7 +465,13 @@ VkRenderTarget::BeginPass()
 		//VkRenderDevice::Instance()->ImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->vkTargetImage, subres, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL));
 
 		// clear after binding as attachment
-		
+		Math::float4 val;
+		val.x() = (float)this->width;
+		val.y() = (float)this->height;
+		val.z() = 1 / val.x();
+		val.w() = 1 / val.y();
+		this->dimensionsArray->SetFloat4Array(&val, 1);
+		this->shader->Commit();
 	}
 }
 

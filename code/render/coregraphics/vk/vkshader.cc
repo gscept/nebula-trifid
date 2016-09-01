@@ -180,6 +180,7 @@ VkShader::Setup(AnyFX::ShaderEffect* effect)
 	}
 
 	// setup samplers as immutable coupled with the texture input, before we setup the variables so that it's part of their layout
+	this->immutableSamplers.Reserve(samplers.size() + 1);
 	for (i = 0; i < samplers.size(); i++)
 	{
 		AnyFX::VkSampler* sampler = static_cast<AnyFX::VkSampler*>(samplers[i]);

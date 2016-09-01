@@ -61,6 +61,8 @@ IF(NOT N_BUILD_FIRSTTIME)
 	set(JANSSON_WITHOUT_TESTS ON CACHE BOOL "Don't build tests ('make test' to execute tests)")
 	add_subdirectory(jansson)
 		SET_TARGET_PROPERTIES(jansson PROPERTIES FOLDER "extlibs")
+		
+	add_subdirectory(cjson)
 	add_subdirectory(base64)
 	
 	

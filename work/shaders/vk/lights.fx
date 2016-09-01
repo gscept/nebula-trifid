@@ -15,7 +15,7 @@ const float rimLighting = float(0.2f);
 const float exaggerateSpec = float(1.8f);
 const vec3 luminanceValue = vec3(0.299f, 0.587f, 0.114f); 
 
-group(LIGHT_GROUP) shared varblock LocalLightBlock [ bool System = true; ]
+shared varblock LocalLightBlock [ bool System = true; ]
 {
 	vec4 LightColor;
 	vec4 LightPosRange;	
@@ -35,24 +35,12 @@ group(LIGHT_GROUP) shared varblock LocalLightBlock [ bool System = true; ]
 	textureHandle PointLightProjectionTexture;
 };
 
-// declare system textures as ordinary samplers, we don't really need to use arrays to access them
-sampler2D NormalBuffer;
-sampler2D DepthBuffer;
-sampler2D SpecularBuffer;
-sampler2D AlbedoBuffer;
-
-group(LIGHT_GROUP) samplerstate PointLightTextureSampler
+samplerstate PointLightTextureSampler
 {
 	Filter = MinMagLinearMipPoint;
 };
 
-samplerstate GeometrySampler
-{
-	Samplers = { NormalBuffer, DepthBuffer, SpecularBuffer };
-	Filter = Point;
-};
-
-group(LIGHT_GROUP) samplerstate SpotlightTextureSampler
+samplerstate SpotlightTextureSampler
 {
 	//Samplers = { LightProjMap, LightProjCube };
 	Filter = MinMagLinearMipPoint;
@@ -102,10 +90,10 @@ psGlob(
 	in vec2 UV,
 	[color0] out vec4 Color) 
 {
-	vec3 ViewSpaceNormal = UnpackViewSpaceNormal(texture(NormalBuffer, UV));
-	float Depth = texture(DepthBuffer, UV).r;
+	vec3 ViewSpaceNormal = UnpackViewSpaceNormal(sample2DLod(NormalBuffer, PosteffectSampler, UV, 0));
+	float Depth = sample2DLod(DepthBuffer, PosteffectSampler, UV, 0).r;
 	
-	vec4 albedoColor = texture(AlbedoBuffer, UV);	
+	vec4 albedoColor = sample2DLod(AlbedoBuffer, PosteffectSampler, UV, 0);
 	if (Depth < 0) { Color = EncodeHDR(albedoColor); return; };
 	
 	float NL = saturate(dot(GlobalLightDir.xyz, ViewSpaceNormal));
@@ -114,7 +102,7 @@ psGlob(
 	diff += GlobalLightColor.xyz * saturate(NL);
 	diff += GlobalBackLightColor.xyz * saturate(-NL + GlobalBackLightOffset); 
 
-	vec4 specColor = texture(SpecularBuffer, UV);
+	vec4 specColor = sample2DLod(SpecularBuffer, PosteffectSampler, UV, 0);
 	float specPower = ROUGHNESS_TO_SPECPOWER(specColor.a);	
 	
 	vec3 viewVec = normalize(ViewSpacePosition);
@@ -139,10 +127,10 @@ psGlobShadow(
 	in vec2 UV,
 	[color0] out vec4 Color) 
 {
-	vec3 ViewSpaceNormal = UnpackViewSpaceNormal(texture(NormalBuffer, UV));
-	float Depth = texture(DepthBuffer, UV).r;
+	vec3 ViewSpaceNormal = UnpackViewSpaceNormal(sample2DLod(NormalBuffer, PosteffectSampler, UV, 0));
+	float Depth = sample2DLod(DepthBuffer, PosteffectSampler, UV, 0).r;
 		
-	vec4 albedoColor = texture(AlbedoBuffer, UV);
+	vec4 albedoColor = sample2DLod(AlbedoBuffer, PosteffectSampler, UV, 0);
 	if (Depth < 0) { Color = EncodeHDR(albedoColor); return; };
 	
 	float NL = saturate(dot(GlobalLightDir.xyz, ViewSpaceNormal));
@@ -160,7 +148,7 @@ psGlobShadow(
 	shadowFactor = lerp(1.0f, shadowFactor, ShadowIntensity);
 
 	// multiply specular with power of shadow factor, this makes shadowed areas not reflect specular light
-	vec4 specColor = texture(SpecularBuffer, UV);
+	vec4 specColor = sample2DLod(SpecularBuffer, PosteffectSampler, UV, 0);
 	float specPower = ROUGHNESS_TO_SPECPOWER(specColor.a);	
 
 	vec3 diff = GlobalAmbientLightColor.xyz;
@@ -236,10 +224,10 @@ psSpot(
 	in vec3 ViewSpacePosition,
 	[color0] out vec4 Color) 
 {
-	vec2 pixelSize = GetPixelSize(DepthBuffer);
+	vec2 pixelSize = RenderTargetDimensions[0].zw;
 	vec2 screenUV = psComputeScreenCoord(gl_FragCoord.xy, pixelSize.xy);
-	vec3 ViewSpaceNormal = UnpackViewSpaceNormal(textureLod(NormalBuffer, screenUV, 0));
-	float Depth = textureLod(DepthBuffer, screenUV, 0).r;
+	vec3 ViewSpaceNormal = UnpackViewSpaceNormal(sample2DLod(NormalBuffer, PosteffectSampler, screenUV, 0));
+	float Depth = sample2DLod(DepthBuffer, PosteffectSampler, screenUV, 0).r;
 	
 	vec3 viewVec = normalize(ViewSpacePosition);
 	vec3 surfacePos = viewVec * Depth;    
@@ -255,8 +243,8 @@ psSpot(
 	vec2 lightSpaceUv = vec2(((projLightPos.xy / projLightPos.ww) * vec2(0.5f, -0.5f)) + 0.5f);
 	
 	vec4 lightModColor = sample2DLod(SpotLightProjectionTexture, SpotlightTextureSampler, lightSpaceUv, mipSelect);
-	vec4 specColor = texture(SpecularBuffer, screenUV, 0);
-	vec4 albedoColor = texture(AlbedoBuffer, screenUV, 0);
+	vec4 specColor = sample2DLod(SpecularBuffer, PosteffectSampler, screenUV, 0);
+	vec4 albedoColor = sample2DLod(AlbedoBuffer, PosteffectSampler, screenUV, 0);
 	float specPower = ROUGHNESS_TO_SPECPOWER(specColor.a);	
 	
 	float NL = dot(lightDir, ViewSpaceNormal);
@@ -284,10 +272,10 @@ psSpotShadow(
 	in vec3 ViewSpacePosition,
 	[color0] out vec4 Color) 
 {
-	vec2 pixelSize = GetPixelSize(DepthBuffer);
+	vec2 pixelSize = RenderTargetDimensions[0].zw;
 	vec2 screenUV = psComputeScreenCoord(gl_FragCoord.xy, pixelSize.xy);
-	vec3 ViewSpaceNormal = UnpackViewSpaceNormal(textureLod(NormalBuffer, screenUV, 0));
-	float Depth = textureLod(DepthBuffer, screenUV, 0).r;
+	vec3 ViewSpaceNormal = UnpackViewSpaceNormal(sample2DLod(NormalBuffer, PosteffectSampler, screenUV, 0));
+	float Depth = sample2DLod(DepthBuffer, PosteffectSampler, screenUV, 0).r;
 	
 	vec3 viewVec = normalize(ViewSpacePosition);
 	vec3 surfacePos = viewVec * Depth;    
@@ -303,8 +291,8 @@ psSpotShadow(
 	vec2 lightSpaceUv = (projLightPos.xy / projLightPos.ww) * vec2(0.5f, -0.5f) + 0.5f;
 	
 	vec4 lightModColor = sample2DLod(SpotLightProjectionTexture, SpotlightTextureSampler, lightSpaceUv, mipSelect);
-	vec4 specColor = texture(SpecularBuffer, screenUV, 0);
-	vec4 albedoColor = texture(AlbedoBuffer, screenUV, 0);
+	vec4 specColor = sample2DLod(SpecularBuffer, PosteffectSampler, screenUV, 0);
+	vec4 albedoColor = sample2DLod(AlbedoBuffer, PosteffectSampler, screenUV, 0);
 	float specPower = ROUGHNESS_TO_SPECPOWER(specColor.a);	
 	
 	float NL = dot(lightDir, ViewSpaceNormal);
@@ -406,10 +394,10 @@ psPoint(
 	in vec4 ProjPosition,
 	[color0] out vec4 Color) 
 {
-	vec2 pixelSize = GetPixelSize(DepthBuffer);
+	vec2 pixelSize = RenderTargetDimensions[0].zw;
 	vec2 screenUV = psComputeScreenCoord(gl_FragCoord.xy, pixelSize.xy);
-	vec3 ViewSpaceNormal = UnpackViewSpaceNormal(textureLod(NormalBuffer, screenUV, 0));
-	float Depth = textureLod(DepthBuffer, screenUV, 0).r;
+	vec3 ViewSpaceNormal = UnpackViewSpaceNormal(sample2DLod(NormalBuffer, PosteffectSampler, screenUV, 0));
+	float Depth = sample2DLod(DepthBuffer, PosteffectSampler, screenUV, 0).r;
 	
 	vec3 viewVec = normalize(ViewSpacePosition);
 	vec3 surfacePos = viewVec * Depth;
@@ -417,8 +405,8 @@ psPoint(
 	vec3 projDir = (InvView * vec4(-lightDir, 0)).xyz;
 	vec4 lightModColor = sampleCubeLod(PointLightProjectionTexture, PointLightTextureSampler, projDir, 0);
 	
-	vec4 specColor = texture(SpecularBuffer, screenUV, 0);
-	vec4 albedoColor = texture(AlbedoBuffer, screenUV, 0);
+	vec4 specColor = sample2DLod(SpecularBuffer, PosteffectSampler, screenUV, 0);
+	vec4 albedoColor = sample2DLod(AlbedoBuffer, PosteffectSampler, screenUV, 0);
 	float specPower = ROUGHNESS_TO_SPECPOWER(specColor.a);	// magic formulae to calculate specular power from color in the range [0..1]
 	
 	float att = saturate(1.0 - length(lightDir) * LightPosRange.w);
@@ -452,10 +440,10 @@ psPointShadow(
 	in vec4 ProjPosition,
 	[color0] out vec4 Color) 
 {
-	vec2 pixelSize = GetPixelSize(DepthBuffer);
+	vec2 pixelSize = RenderTargetDimensions[0].zw;
 	vec2 screenUV = psComputeScreenCoord(gl_FragCoord.xy, pixelSize.xy);
-	vec3 ViewSpaceNormal = UnpackViewSpaceNormal(textureLod(NormalBuffer, screenUV, 0));
-	float Depth = textureLod(DepthBuffer, screenUV, 0).r;
+	vec3 ViewSpaceNormal = UnpackViewSpaceNormal(sample2DLod(NormalBuffer, PosteffectSampler, screenUV, 0));
+	float Depth = sample2DLod(DepthBuffer, PosteffectSampler, screenUV, 0).r;
 	
 	vec3 viewVec = normalize(ViewSpacePosition);
 	vec3 surfacePos = viewVec * Depth;
@@ -464,8 +452,8 @@ psPointShadow(
 	float distToSurface = length(lightDir);
 	
 	vec4 lightModColor = sampleCubeLod(PointLightProjectionTexture, PointLightTextureSampler, projDir, 0);
-	vec4 specColor = texture(SpecularBuffer, screenUV, 0);
-	vec4 albedoColor = texture(AlbedoBuffer, screenUV, 0);
+	vec4 specColor = sample2DLod(SpecularBuffer, PosteffectSampler, screenUV, 0);
+	vec4 albedoColor = sample2DLod(AlbedoBuffer, PosteffectSampler, screenUV, 0);
 	float specPower = ROUGHNESS_TO_SPECPOWER(specColor.a);	
 	
 	float att = saturate(1.0 - distToSurface * LightPosRange.w);

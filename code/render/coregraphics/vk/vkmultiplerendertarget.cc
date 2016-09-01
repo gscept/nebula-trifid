@@ -6,6 +6,7 @@
 #include "vkmultiplerendertarget.h"
 #include "vktypes.h"
 #include "vkrenderdevice.h"
+#include "vkshaderserver.h"
 
 namespace Vulkan
 {
@@ -18,7 +19,9 @@ VkMultipleRenderTarget::VkMultipleRenderTarget() :
 	numattachments(0),
 	numviews(0),
 	numcolorreferences(0),
-	usedepthstencil(false)
+	usedepthstencil(false),
+	shader(0),
+	dimensionsArray(0)
 {
 	VkViewport vp = { 0, 0, 0, 0, 0, 0 };
 	VkRect2D sc = { { 0, 0 }, { 0, 0 } };
@@ -76,6 +79,10 @@ void
 VkMultipleRenderTarget::Setup()
 {
 	MultipleRenderTargetBase::Setup();
+
+	// create shader state for 
+	this->shader = VkShaderServer::Instance()->CreateShaderState("shd:shared", { NEBULAT_PASS_GROUP });
+	this->dimensionsArray = this->shader->GetVariableByName("RenderTargetDimensions");
 
 	IndexT i;
 	for (i = 0; i < this->numRenderTargets; i++)
@@ -257,6 +264,33 @@ VkMultipleRenderTarget::SetClearStencil(int s)
 {
 	this->depthStencilClearValue.depthStencil.stencil = s;
 	MultipleRenderTargetBase::SetClearStencil(s);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkMultipleRenderTarget::BeginPass()
+{
+	Util::FixedArray<Math::float4> dimensions;
+	dimensions.Resize(this->numRenderTargets);
+	IndexT i;
+	for (i = 0; i < this->numRenderTargets; i++)
+	{
+		uint clearFlags = this->renderTarget[i]->GetClearFlags();
+		this->renderTarget[i]->SetClearFlags(this->clearFlags[i]);
+		this->renderTarget[i]->SetClearColor(this->clearColor[i]);
+		this->renderTarget[i]->BeginPass();
+
+		// setup render target dimensions
+		Math::float4& val = dimensions[i];
+		val.x() = (float)this->renderTarget[i]->GetWidth();
+		val.y() = (float)this->renderTarget[i]->GetHeight();
+		val.z() = 1 / val.x();
+		val.w() = 1 / val.w();
+	}
+	this->dimensionsArray->SetFloat4Array(dimensions.Begin(), dimensions.Size());
+	this->shader->Commit();
 }
 
 } // namespace Vulkan

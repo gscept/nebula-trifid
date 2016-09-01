@@ -12,7 +12,6 @@
 
 float LightMapIntensity;
 
-textureHandle DepthBuffer;
 textureHandle Layer1;
 textureHandle Layer2;
 textureHandle Layer3;
@@ -183,12 +182,12 @@ psUnlit(in vec4 ViewSpacePosition,
 {
 	//sampler2D db = sampler2D(Textures2D[DepthBuffer], ParticleSampler);
 	//vec2 pixelSize = GetPixelSize(sampler2D(Textures2D[DepthBuffer], ParticleSampler));
-	vec2 pixelSize = vec2(1);
+	vec2 pixelSize = RenderTargetDimensions[0].zw;
 	vec2 screenUV = psComputeScreenCoord(gl_FragCoord.xy, pixelSize.xy);
 	vec4 diffColor = sample2D(AlbedoMap, ParticleSampler, UV);
 	
 	vec4 color = diffColor * vec4(Color.rgb, 0);
-	float depth = textureLod(sampler2D(Textures2D[DepthBuffer], ParticleSampler), screenUV, 0).r;
+	float depth = sample2DLod(DepthBuffer, ParticleSampler, screenUV, 0).r;
 	float particleDepth = length(ViewSpacePosition);
 	float AlphaMod = saturate(abs(depth - particleDepth));
 	color.a = diffColor.a * Color.a * AlphaMod;
@@ -207,13 +206,13 @@ psUnlit2Layers(in vec4 ViewSpacePosition,
 {
 	//sampler2D db = ;
 	//vec2 pixelSize = GetPixelSize(sampler2D(Textures2D[DepthBuffer], ParticleSampler));
-	vec2 pixelSize = vec2(1);
+	vec2 pixelSize = RenderTargetDimensions[0].zw;
 	vec2 screenUV = psComputeScreenCoord(gl_FragCoord.xy, pixelSize.xy);
 	vec4 layer1 = sample2D(Layer1, LayerSampler, UV + UVAnim1 * TimeAndRandom.x);
 	vec4 layer2 = sample2D(Layer2, LayerSampler, UV + UVAnim2 * TimeAndRandom.x);
 	
 	vec4 color = layer1 * layer2 * 2;
-	float depth = textureLod(sampler2D(Textures2D[DepthBuffer], ParticleSampler), screenUV, 0).r;
+	float depth = sample2DLod(DepthBuffer, ParticleSampler, screenUV, 0).r;
 	float particleDepth = length(ViewSpacePosition);
 	float AlphaMod = saturate(abs(depth - particleDepth));
 	color.a = saturate(color.a);
@@ -234,14 +233,14 @@ psUnlit3Layers(in vec4 ViewSpacePosition,
 {
 	//sampler2D db = sampler2D(Textures2D[DepthBuffer], ParticleSampler);
 	//vec2 pixelSize = GetPixelSize(sampler2D(Textures2D[DepthBuffer], ParticleSampler));
-	vec2 pixelSize = vec2(1);
+	vec2 pixelSize = RenderTargetDimensions[0].zw;
 	vec2 screenUV = psComputeScreenCoord(gl_FragCoord.xy, pixelSize.xy);
 	vec4 layer1 = sample2D(Layer1, LayerSampler, UV + UVAnim1 * TimeAndRandom.x);
 	vec4 layer2 = sample2D(Layer2, LayerSampler, UV + UVAnim2 * TimeAndRandom.x);
 	vec4 layer3 = sample2D(Layer3, LayerSampler, UV + UVAnim3 * TimeAndRandom.x);
 	
 	vec4 color = ((layer1 * layer2 * 2) * layer3 * 2);
-	float depth = textureLod(sampler2D(Textures2D[DepthBuffer], ParticleSampler), screenUV, 0).r;
+	float depth = sample2DLod(DepthBuffer, ParticleSampler, screenUV, 0).r;
 	float particleDepth = length(ViewSpacePosition);
 	float AlphaMod = saturate(abs(depth - particleDepth));
 	color.a = saturate(color.a);
@@ -264,7 +263,7 @@ psUnlit4Layers(in vec4 ViewSpacePosition,
 	//vec2 pixelSize = vec2(textureSize(Textures2D[DepthBuffer], 0));
 	//int levels = textureQueryLevels(Textures2D[DepthBuffer]);
 	//vec2 test = textureSize(Textures2D[
-	vec2 pixelSize = vec2(1);
+	vec2 pixelSize = RenderTargetDimensions[0].zw;
 	vec2 screenUV = psComputeScreenCoord(gl_FragCoord.xy, pixelSize.xy);
 	vec4 layer1 = sample2D(Layer1, LayerSampler, UV + UVAnim1 * TimeAndRandom.x);
 	vec4 layer2 = sample2D(Layer2, LayerSampler, UV + UVAnim2 * TimeAndRandom.x);
@@ -272,7 +271,7 @@ psUnlit4Layers(in vec4 ViewSpacePosition,
 	vec4 layer4 = sample2D(Layer4, LayerSampler, UV + UVAnim4 * TimeAndRandom.x);
 	
 	vec4 color = ((layer1 * layer2 * 2) * layer3 * 2) * layer4;
-	float depth = textureLod(sampler2D(Textures2D[DepthBuffer], ParticleSampler), screenUV, 0).r;
+	float depth = sample2DLod(DepthBuffer, ParticleSampler, screenUV, 0).r;
 	float particleDepth = length(ViewSpacePosition);
 	float AlphaMod = saturate(abs(depth - particleDepth));
 	color.a = saturate(color.a);

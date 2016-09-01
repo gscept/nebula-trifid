@@ -390,7 +390,7 @@ VkShaderVariable::SetTexture(const Ptr<CoreGraphics::Texture>& tex)
 			else
 				this->UpdatePushRange(sizeof(uint32_t), tex->GetVkId());
 
-			this->img.imageView = tex->GetVkImageView();
+			//this->img.imageView = tex->GetVkImageView();
 		}
 		else
 		{

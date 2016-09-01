@@ -28,6 +28,8 @@ public:
 	/// discard buffer
 	void Discard();
 
+	/// set relative size, this will cause the size to be bytes per pixel instead of total size
+	void SetIsRelativeSize(const bool b);
 	/// set the size of the buffer
     void SetSize(const uint size);
 	/// get the size of the buffer
@@ -51,10 +53,22 @@ public:
 protected:
     bool isSetup;
 	uint lockSemaphore;
-    uint size;
+    uint byteSize;
     IndexT bufferIndex;
 	SizeT numBuffers;
+
+	bool relativeSize;
+	uint size;
 };
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+ShaderReadWriteBufferBase::SetIsRelativeSize(const bool b)
+{
+	this->relativeSize = b;
+}
 
 //------------------------------------------------------------------------------
 /**

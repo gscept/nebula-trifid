@@ -4,7 +4,7 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "framealgorithm.h"
-#include "algorithm/algorithmbase.h"
+#include "algorithm/attic/algorithmbase.h"
 
 using namespace Core;
 namespace Frame

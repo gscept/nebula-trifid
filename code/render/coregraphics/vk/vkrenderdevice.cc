@@ -14,6 +14,7 @@
 #include "vktypes.h"
 #include "vktransformdevice.h"
 #include "vkshaderserver.h"
+#include "../pass.h"
 
 using namespace CoreGraphics;
 //------------------------------------------------------------------------------
@@ -1098,6 +1099,63 @@ VkRenderDevice::BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& rtc)
 /**
 */
 void
+VkRenderDevice::BeginPass(const Ptr<CoreGraphics::Pass>& pass)
+{
+	RenderDeviceBase::BeginPass(pass);
+
+	// set info
+	this->SetFramebufferLayoutInfo(pass->GetVkFramebufferPipelineInfo());
+
+	const Util::FixedArray<VkClearValue>& clearValues = pass->GetVkClearValues();
+	VkRenderPassBeginInfo info =
+	{
+		VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
+		NULL,
+		pass->GetVkRenderPass(),
+		pass->GetVkFramebuffer(),
+		pass->GetVkRenderArea(),
+		clearValues.Size(),
+		clearValues.Size() > 0 ? clearValues.Begin() : NULL
+	};
+	vkCmdBeginRenderPass(this->mainCmdDrawBuffer, &info, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+
+	this->blendInfo.attachmentCount = pass->GetNumColorAttachments();
+	this->passInfo.framebuffer = pass->GetVkFramebuffer();
+	this->passInfo.renderPass = pass->GetVkRenderPass();
+	this->passInfo.subpass = 0;
+	this->passInfo.pipelineStatistics = 0;
+	this->passInfo.queryFlags = 0;
+	this->passInfo.occlusionQueryEnable = VK_FALSE;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::SetToNextSubpass()
+{
+	RenderDeviceBase::SetToNextSubpass();
+
+	// end this batch of draw threads
+	this->EndDrawThreads();
+
+	// run end command pass before we actually end the render pass
+	this->RunCommandPass(OnNextSubpass);
+
+	// end render pass
+	vkCmdEndRenderPass(this->mainCmdDrawBuffer);
+
+	// progress to next subpass
+	this->passInfo.subpass++;
+	this->currentPipelineInfo.subpass++;
+	this->currentPipelineBits &= ~PipelineBuilt; // hmm, this is really ugly, is it avoidable?
+	vkCmdNextSubpass(this->mainCmdDrawBuffer, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 VkRenderDevice::BeginFeedback(const Ptr<CoreGraphics::FeedbackBuffer>& fb, CoreGraphics::PrimitiveTopology::Code primType)
 {
 	RenderDeviceBase::BeginFeedback(fb, primType);
@@ -1204,14 +1262,7 @@ VkRenderDevice::EndPass()
 	this->currentPipelineBits = 0;
 
 	/// end draw threads, if any are remaining
-	//this->EndDrawThreads();
 	this->EndDrawThreads();
-
-	// finish command buffer threads
-	//this->EndCmdThreads();
-
-	// execute subpass buffers
-	//this->EndSubpassCommands();
 
 	// run end command pass before we actually end the render pass
 	this->RunCommandPass(OnEndPass);

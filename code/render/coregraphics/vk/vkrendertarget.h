@@ -8,6 +8,7 @@
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
 #include "coregraphics/base/rendertargetbase.h"
+#include "coregraphics/shaderstate.h"
 namespace Vulkan
 {
 class VkRenderTarget : public Base::RenderTargetBase
@@ -84,6 +85,9 @@ private:
 	VkFramebuffer vkFramebuffer;
 	Util::FixedArray<VkViewport> viewports;
 	Util::FixedArray<VkRect2D> scissors;
+
+	Ptr<CoreGraphics::ShaderState> shader;
+	Ptr<CoreGraphics::ShaderVariable> dimensionsArray;
 
 	Util::FixedArray<VkClearValue> vkClearValues;
 	VkPipelineViewportStateCreateInfo viewportInfo;

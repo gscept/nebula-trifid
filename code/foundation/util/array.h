@@ -212,14 +212,10 @@ Array<TYPE>::Array(SizeT initialSize, SizeT _grow, const TYPE& initialValue) :
 */
 template<class TYPE>
 Util::Array<TYPE>::Array(std::initializer_list<TYPE> list) :
-	grow(0),
+	grow(16),
 	capacity(list.size()),
 	size(list.size())
 {
-	if (0 == this->grow)
-	{
-		this->grow = 16;
-	}
 	if (this->capacity > 0)
 	{
 		this->elements = n_new_array(TYPE, this->capacity);

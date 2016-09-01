@@ -10,19 +10,6 @@
 
 sampler2D CopyBuffer;
 textureHandle TestHandle;
-float multiplier = 0.5f;
-float multiplier2 = 1;
-float multiplier3 = 1;
-
-shared varblock ColorBlock
-{
-vec4 bs1;
-vec4 bs2;
-vec4 bs3;
-mat4 ColorMatrix;
-mat4 ColorMatrix1;
-mat4 ColorMatrix2;
-};
 
 samplerstate CopySampler 
 {

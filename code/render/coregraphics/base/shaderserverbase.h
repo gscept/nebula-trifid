@@ -2,10 +2,21 @@
 //------------------------------------------------------------------------------
 /**
     @class Base::ShaderServerBase
-    
-    In Nebula3, all shaders required by an application are loaded at once
-    by the central ShaderServer. The shader server loads all shaders in
-    ShaderServer::Open() from the location defined by the "shaders:" assign.
+
+	The ShaderServer loads all shaders when created, meaning all shaders
+	in the project must be valid and hardware compatible when starting.
+
+	A shader only contains an applicable program, but to apply uniform values
+	such as textures and transforms a ShaderState is required.
+
+	ShaderStates can be created directly from the shader, however it is recommended
+	to through the shader server. Creating a shader state means that the shader
+	state contains its own setup of values, which when committed will be actually
+	applied within the shader program.
+
+	The shader server can also create shared states, which just returns a unique
+	state containing the variable groups, and will modify the same shader state if
+	any variable is applied to it. 
     
     (C) 2007 Radon Labs GmbH
     (C) 2013-2015 Individual contributors, see AUTHORS file
@@ -49,6 +60,10 @@ public:
     Ptr<CoreGraphics::ShaderState> CreateShaderState(const Resources::ResourceId& resId);
 	/// create a new shader state only for a set of groups
 	Ptr<CoreGraphics::ShaderState> CreateShaderState(const Resources::ResourceId& resId, const Util::Array<IndexT>& groups);
+	/// create a shared state, will only create a new shader state if one doesn't already exist with the given set of variable groups
+	Ptr<CoreGraphics::ShaderState> CreateSharedShaderState(const Resources::ResourceId& resId, const Util::Array<IndexT>& groups);
+	/// create a shared state, which creates a new state if none exists, otherwise just returns the one created
+	Ptr<CoreGraphics::ShaderState> CreateSharedShaderState(const Resources::ResourceId& resId);
     /// get all loaded shaders
     const Util::Dictionary<Resources::ResourceId, Ptr<CoreGraphics::Shader> >& GetAllShaders() const;
 	/// get shader by name
@@ -88,7 +103,8 @@ protected:
     CoreGraphics::ShaderIdentifier shaderIdentifierRegistry;
     CoreGraphics::ShaderFeature shaderFeature;
     CoreGraphics::ShaderFeature::Mask curShaderFeatureBits;
-    Util::Dictionary<Resources::ResourceId,Ptr<CoreGraphics::Shader>> shaders;
+	Util::Dictionary<Resources::ResourceId, Ptr<CoreGraphics::Shader>> shaders;
+	Util::Dictionary<Util::StringAtom, Ptr<CoreGraphics::ShaderState>> sharedShaderStates;
 	Ptr<CoreGraphics::ShaderState> sharedVariableShader;
     Ptr<CoreGraphics::ShaderVariable> objectIdShaderVar;
     Ptr<CoreGraphics::Shader> activeShader;

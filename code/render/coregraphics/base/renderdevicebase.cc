@@ -12,6 +12,7 @@
 #include "coregraphics/feedbackbuffer.h"
 #include "coregraphics/shaderstate.h"
 #include "coregraphics/bufferlock.h"
+#include "coregraphics/pass.h"
 #include "frame/frameserver.h"
 #include "coregraphics/displaydevice.h"
 #include "math/scalar.h"
@@ -351,6 +352,34 @@ RenderDeviceBase::BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& crt)
 /**
 */
 void
+RenderDeviceBase::BeginPass(const Ptr<CoreGraphics::Pass>& pass)
+{
+	n_assert(this->inBeginFrame);
+	n_assert(!this->inBeginPass);
+	n_assert(!this->inBeginBatch);
+	this->inBeginPass = true;
+
+	this->pass = pass;
+	this->pass->Begin();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+RenderDeviceBase::SetToNextSubpass()
+{
+	n_assert(this->inBeginFrame);
+	n_assert(this->inBeginPass);
+	n_assert(this->pass.isvalid());
+
+	this->pass->NextSubpass();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 RenderDeviceBase::BeginFeedback(const Ptr<CoreGraphics::FeedbackBuffer>& fb, CoreGraphics::PrimitiveTopology::Code primType)
 {
 	n_assert(this->inBeginFrame);
@@ -442,6 +471,11 @@ RenderDeviceBase::EndPass()
         this->passRenderTargetCube->EndPass();
         this->passRenderTargetCube = 0;
     }
+	else if (this->pass.isvalid())
+	{
+		this->pass->End();
+		this->pass = 0;
+	}
 
     this->inBeginPass = false;
 }

@@ -209,6 +209,8 @@ ENDIF()
         coregraphics/base/displaydevicebase.h
 		coregraphics/base/depthstenciltargetbase.cc
 		coregraphics/base/depthstenciltargetbase.h
+		coregraphics/base/eventbase.cc
+		coregraphics/base/eventbase.h
 		coregraphics/base/feedbackbufferbase.cc
 		coregraphics/base/feedbackbufferbase.h
         coregraphics/base/indexbufferbase.cc
@@ -223,12 +225,16 @@ ENDIF()
         coregraphics/base/mouserenderdevicebase.h
         coregraphics/base/multiplerendertargetbase.cc
         coregraphics/base/multiplerendertargetbase.h
+		coregraphics/base/passbase.cc
+		coregraphics/base/passbase.h
         coregraphics/base/renderdevicebase.cc
         coregraphics/base/renderdevicebase.h
 		coregraphics/base/rendertargetcubebase.cc
         coregraphics/base/rendertargetcubebase.h
         coregraphics/base/rendertargetbase.cc
         coregraphics/base/rendertargetbase.h
+		coregraphics/base/rendertexturebase.cc
+		coregraphics/base/rendertexturebase.h
         coregraphics/base/resourcebase.cc
         coregraphics/base/resourcebase.h
         coregraphics/base/shaderbase.cc
@@ -396,8 +402,12 @@ ENDIF()
 		coregraphics/ogl4/ogl4bufferlock.h
 		coregraphics/ogl4/ogl4depthstenciltarget.cc
 		coregraphics/ogl4/ogl4depthstenciltarget.h
+		coregraphics/ogl4/ogl4event.cc
+		coregraphics/ogl4/ogl4event.h
 		coregraphics/ogl4/ogl4feedbackbuffer.cc
 		coregraphics/ogl4/ogl4feedbackbuffer.h
+		coregraphics/ogl4/ogl4framebuffer.cc
+		coregraphics/ogl4/ogl4framebuffer.h
         coregraphics/ogl4/ogl4indexbuffer.cc
         coregraphics/ogl4/ogl4indexbuffer.h
         coregraphics/ogl4/ogl4memoryindexbufferloader.cc
@@ -408,12 +418,16 @@ ENDIF()
 		coregraphics/ogl4/ogl4memorytextureloader.h
 		coregraphics/ogl4/ogl4multiplerendertarget.cc
         coregraphics/ogl4/ogl4multiplerendertarget.h
+		coregraphics/ogl4/ogl4pass.cc
+		coregraphics/ogl4/ogl4pass.h
         coregraphics/ogl4/ogl4renderdevice.cc
         coregraphics/ogl4/ogl4renderdevice.h
 		coregraphics/ogl4/ogl4rendertargetcube.cc
         coregraphics/ogl4/ogl4rendertargetcube.h
         coregraphics/ogl4/ogl4rendertarget.cc
         coregraphics/ogl4/ogl4rendertarget.h
+		coregraphics/ogl4/ogl4rendertexture.cc
+		coregraphics/ogl4/ogl4rendertexture.h
         coregraphics/ogl4/ogl4shader.cc
         coregraphics/ogl4/ogl4shader.h
 		coregraphics/ogl4/ogl4shaderstoragebuffer.cc
@@ -484,8 +498,12 @@ ENDIF()
 		coregraphics/vk/vkdeferredcommand.h
 		coregraphics/vk/vkdepthstenciltarget.cc
 		coregraphics/vk/vkdepthstenciltarget.h
+		coregraphics/vk/vkcmdevent.cc
+		coregraphics/vk/vkcmdevent.h
 		coregraphics/vk/vkfeedbackbuffer.cc
 		coregraphics/vk/vkfeedbackbuffer.h
+		coregraphics/vk/vkpass.cc
+		coregraphics/vk/vkpass.h
         coregraphics/vk/vkindexbuffer.cc
         coregraphics/vk/vkindexbuffer.h
         coregraphics/vk/vkmemoryindexbufferloader.cc
@@ -502,6 +520,8 @@ ENDIF()
         coregraphics/vk/vkrendertargetcube.h
         coregraphics/vk/vkrendertarget.cc
         coregraphics/vk/vkrendertarget.h
+		coregraphics/vk/vkrendertexture.cc
+		coregraphics/vk/vkrendertexture.h
         coregraphics/vk/vkshader.cc
         coregraphics/vk/vkshader.h
 		coregraphics/vk/vkshaderstoragebuffer.cc
@@ -616,6 +636,8 @@ ENDIF()
       coregraphics/displaymode.h
 	  coregraphics/depthstenciltarget.cc
 	  coregraphics/depthstenciltarget.h
+	  coregraphics/event.cc
+	  coregraphics/event.h
 	  coregraphics/feedbackbuffer.cc
 	  coregraphics/feedbackbuffer.h
       coregraphics/imagefileformat.cc
@@ -638,6 +660,8 @@ ENDIF()
       coregraphics/mouserenderdevice.h
       coregraphics/multiplerendertarget.cc
       coregraphics/multiplerendertarget.h
+	  coregraphics/pass.cc
+	  coregraphics/pass.h
       coregraphics/pixelformat.cc
       coregraphics/pixelformat.h
       coregraphics/primitivegroup.h
@@ -654,6 +678,8 @@ ENDIF()
       coregraphics/rendertargetcube.h
       coregraphics/rendertarget.cc
       coregraphics/rendertarget.h
+	  coregraphics/rendertexture.cc
+	  coregraphics/rendertexture.h
       coregraphics/shader.cc
       coregraphics/shader.h
 	  coregraphics/shaderreadwritebuffer.cc
@@ -717,19 +743,8 @@ ENDIF()
     )
 
 	set(Render_files_algorithm
-		algorithm/algorithms.h
-		algorithm/algorithmbase.h
-		algorithm/algorithmbase.cc
-		algorithm/algorithmhandler.h
-		algorithm/algorithmhandler.cc
-		algorithm/aoalgorithm.h
-		algorithm/aoalgorithm.cc
-		algorithm/ssralgorithm.h
-		algorithm/ssralgorithm.cc
-		algorithm/volumetriclightalgorithm.h
-		algorithm/volumetriclightalgorithm.cc
-		algorithm/tonemappingalgorithm.h
-		algorithm/tonemappingalgorithm.cc
+		algorithm/algorithm.cc
+		algorithm/algorithm.h
 	)
 	source_group("algorithm" FILES ${Render_files_algorithm})
 
@@ -811,9 +826,50 @@ ENDIF()
       frame/sortingmode.h
     )
     source_group("frame" FILES ${Render_files_frame})
+	
+	set(Render_files_frame2
+		frame2/framebarrier.cc
+		frame2/framebarrier.h
+		frame2/frameblit.cc
+		frame2/frameblit.h
+		frame2/framecompute.cc
+		frame2/framecompute.h
+		frame2/framecomputealgorithm.cc
+		frame2/framecomputealgorithm.h
+		frame2/frameevent.cc
+		frame2/frameevent.h
+		frame2/frameglobalstate.cc
+		frame2/frameglobalstate.h
+		frame2/frameop.cc
+		frame2/frameop.h
+		frame2/framepass.cc
+		frame2/framepass.h
+		frame2/frameserver.cc
+		frame2/frameserver.h
+		frame2/framescript.cc
+		frame2/framescript.h
+		frame2/framescriptloader.cc
+		frame2/framescriptloader.h
+		frame2/framesubpass.cc
+		frame2/framesubpass.h
+		frame2/framesubpassalgorithm.cc
+		frame2/framesubpassalgorithm.h
+		frame2/framesubpassbatch.cc
+		frame2/framesubpassbatch.h
+		frame2/framesubpasscopy.cc
+		frame2/framesubpasscopy.h
+		frame2/framesubpassfullscreeneffect.cc
+		frame2/framesubpassfullscreeneffect.h
+		frame2/framesubpassorderedbatch.cc
+		frame2/framesubpassorderedbatch.h
+		frame2/framesubpasssystem.cc
+		frame2/framesubpasssystem.h
+	)
+	source_group("frame2" FILES ${Render_files_frame2})
 
     set(Render_frame
       ${Render_files_frame}
+	  ${Render_files_frame2}
     )
 	
 	set(Render_files_graphics__debug
@@ -1833,7 +1889,7 @@ add_library(render STATIC ${Render_SRCS} )
 TARGET_INCLUDE_DIRECTORIES(render 	PUBLIC ${Nebula3_SOURCE_DIR}/code/render/ 
 									${Nebula3_SOURCE_DIR}/code/extlibs/DevIL/DevIL/include)
 
-TARGET_LINK_LIBRARIES(render PUBLIC foundation render_NIDLS libjpeg libpng api  )
+TARGET_LINK_LIBRARIES(render PUBLIC foundation render_NIDLS libjpeg libpng api cjson)
 SET_TARGET_PROPERTIES(render PROPERTIES FOLDER "N3SDK/N3")
 
 ADD_DEPENDENCIES(render foundation_NIDLS render_NIDLS ${PHYSICS_DEPENDENCIES})

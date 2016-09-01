@@ -80,7 +80,6 @@ public:
 
 private:
 
-
     Util::Array<Ptr<RTPlugin> > plugins;
     bool isValid;
 };

@@ -9,9 +9,9 @@
     (C) 2013 Gustav Sterbrant
 */
 
-#include "aoalgorithm.h"
-#include "volumetriclightalgorithm.h"
-#include "tonemappingalgorithm.h"
-#include "ssralgorithm.h"
+//#include "aoalgorithm.h"
+//#include "volumetriclightalgorithm.h"
+//#include "tonemappingalgorithm.h"
+//#include "ssralgorithm.h"
 
 //------------------------------------------------------------------------------

@@ -181,6 +181,62 @@ ShaderServerBase::CreateShaderState(const Resources::ResourceId& resId, const Ut
 //------------------------------------------------------------------------------
 /**
 */
+Ptr<CoreGraphics::ShaderState>
+ShaderServerBase::CreateSharedShaderState(const Resources::ResourceId& resId, const Util::Array<IndexT>& groups)
+{
+	n_assert(resId.IsValid());
+
+	Ptr<ShaderState> shaderInstance;
+
+	// format a signature
+	Util::String signature = resId.Value();
+	Util::Array<IndexT> sortedGroups = groups;
+	sortedGroups.Sort();
+	IndexT i;
+	for (i = 0; i < sortedGroups.Size(); i++) signature.AppendInt(sortedGroups[i]);
+
+	// if we don't have the shared state, create it, otherwise just return it
+	if (this->sharedShaderStates.Contains(signature))
+	{
+		shaderInstance = this->sharedShaderStates[signature];
+	}
+	else
+	{
+		shaderInstance = this->shaders[resId]->CreateState(groups);
+		this->sharedShaderStates.Add(signature, shaderInstance);
+	}
+
+	return shaderInstance;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+Ptr<CoreGraphics::ShaderState>
+ShaderServerBase::CreateSharedShaderState(const Resources::ResourceId& resId)
+{
+	n_assert(resId.IsValid());
+
+	Ptr<ShaderState> shaderInstance;
+
+	// if we don't have the shared state, create it, otherwise just return it
+	Util::String str(resId.Value());
+	if (this->sharedShaderStates.Contains(str))
+	{
+		shaderInstance = this->sharedShaderStates[resId];
+	}
+	else
+	{
+		shaderInstance = this->shaders[resId]->CreateState();
+		this->sharedShaderStates.Add(str, shaderInstance);
+	}
+
+	return shaderInstance;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 ShaderServerBase::ApplyObjectId(IndexT i)
 {   

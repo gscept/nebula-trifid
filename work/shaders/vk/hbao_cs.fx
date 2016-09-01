@@ -5,6 +5,7 @@
 
 #include "lib/std.fxh"
 #include "lib/util.fxh"
+#include "lib/shared.fxh"
 #include "lib/techniques.fxh"
 
 vec2 UVToViewA = vec2(0.0f, 0.0f);
@@ -25,14 +26,13 @@ float R2 = 0.0f;
 #define NUM_STEPS 8
 #endif
 
-sampler2D DepthBuffer;
 //sampler2D RandomMap;
 readwrite rg16f image2D HBAO0;
 write rg16f image2D HBAO1;
 
-samplerstate DepthSampler
+samplerstate ClampSampler
 {
-	Samplers = { DepthBuffer };
+	//Samplers = { DepthBuffer };
 	Filter = Point;
 	AddressU = Clamp;
 	AddressV = Clamp;
@@ -94,7 +94,7 @@ vec2 SharedMemoryLoad(int centerId, int x)
 vec2 LoadXZFromTexture(uint x, uint y)
 { 
     vec2 uv = (vec2(x, y) + 0.5f) * InvAOResolution;
-    float z_eye = textureLod(DepthBuffer, uv, 0).r;
+    float z_eye = sample2DLod(DepthBuffer, ClampSampler, uv, 0).r;
     float x_eye = (UVToViewA.x * uv.x + UVToViewB.x) * z_eye;
     return vec2(x_eye, z_eye);
 }
@@ -105,7 +105,7 @@ vec2 LoadXZFromTexture(uint x, uint y)
 vec2 LoadYZFromTexture(uint x, uint y)
 {
     vec2 uv = (vec2(x, y) + 0.5f) * InvAOResolution;
-    float z_eye = textureLod(DepthBuffer, uv, 0).r;
+    float z_eye = sample2DLod(DepthBuffer, ClampSampler, uv, 0).r;
     float y_eye = (UVToViewA.y * uv.y + UVToViewB.y) * z_eye;
     return vec2(y_eye, z_eye);
 }

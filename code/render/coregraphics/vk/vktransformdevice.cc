@@ -44,7 +44,7 @@ bool
 VkTransformDevice::Open()
 {
 	ShaderServer* shdServer = ShaderServer::Instance();
-	this->sharedShader = shdServer->CreateShaderState("shd:shared", { NEBULAT_FRAME_GROUP });
+	this->sharedShader = shdServer->CreateSharedShaderState("shd:shared", { NEBULAT_FRAME_GROUP });
 
 	// setup camera block, update once per frame - no need to sync
 	this->cameraBuffer = ConstantBuffer::Create();

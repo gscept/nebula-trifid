@@ -36,6 +36,9 @@ public:
 	/// commit texture library to shader
 	void BindTextureDescriptorSets();
 
+	/// update global shader variable
+	void SetRenderTarget(const Util::StringAtom& name, const Ptr<Vulkan::VkTexture>& tex);
+
 	/// reloads a shader
 	void ReloadShader(Ptr<CoreGraphics::Shader> shader);
 	/// explicitly loads a shader by resource id

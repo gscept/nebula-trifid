@@ -33,6 +33,12 @@ group(TEXTURE_GROUP) shared varblock RenderTargetIndices
 	// shadow buffers
 	textureHandle CSMShadowMapIdx;
 	textureHandle SpotLightShadowMapIdx;
+	
+	textureHandle NormalBuffer;
+	textureHandle DepthBuffer;
+	textureHandle SpecularBuffer;
+	textureHandle AlbedoBuffer;
+	textureHandle LightBuffer;
 };
 
 group(TEXTURE_GROUP) texture2D 		Textures2D[MAX_2D_TEXTURES];
@@ -40,6 +46,7 @@ group(TEXTURE_GROUP) texture2DMS 	Textures2DMS[MAX_2D_MS_TEXTURES];
 group(TEXTURE_GROUP) textureCube 	TexturesCube[MAX_CUBE_TEXTURES];
 group(TEXTURE_GROUP) texture3D 		Textures3D[MAX_3D_TEXTURES];
 group(TEXTURE_GROUP) samplerstate	Basic2DSampler {};
+group(TEXTURE_GROUP) samplerstate	PosteffectSampler { Filter = Point; };
 
 #define sample2D(handle, sampler, uv) 				texture(sampler2D(Textures2D[handle], sampler), uv)
 #define sample2DLod(handle, sampler, uv, lod) 		textureLod(sampler2D(Textures2D[handle], sampler), uv, lod)

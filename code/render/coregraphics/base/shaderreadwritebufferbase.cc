@@ -4,6 +4,7 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "shaderreadwritebufferbase.h"
+#include "../displaydevice.h"
 
 namespace Base
 {
@@ -38,6 +39,16 @@ ShaderReadWriteBufferBase::Setup(const SizeT numBackingBuffers)
 	n_assert(this->size > 0);
 	this->isSetup = true;
 	this->numBuffers = numBackingBuffers;
+	if (this->relativeSize)
+	{
+		// get display mode
+		const CoreGraphics::DisplayMode& mode = CoreGraphics::DisplayDevice::Instance()->GetDisplayMode();
+		this->byteSize = this->size * mode.GetWidth() * mode.GetHeight();
+	}
+	else
+	{
+		this->byteSize = this->size;
+	}
 }
 
 //------------------------------------------------------------------------------

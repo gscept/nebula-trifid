@@ -13,6 +13,7 @@
 #include "input/mouse.h"
 #include "input/gamepad.h"
 #include "graphics/view.h"
+#include "frame2/frameserver.h"
 
 
 
@@ -83,6 +84,8 @@ ViewerApplication::Open()
         this->view->SetStage(this->stage);
         this->view->SetFrameShader(frameShader);
         if (this->useResolveRect) this->view->SetResolveRect(this->resolveRect);
+
+		Ptr<Frame2::FrameScript> frameScript = Frame2::FrameServer::Instance()->LoadFrameScript("test", "home:work/frame/win32/vkdebug.json");
 
         // create a camera entity
         this->camera = CameraEntity::Create();

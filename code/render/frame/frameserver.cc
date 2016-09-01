@@ -96,12 +96,11 @@ FrameServer::LookupFrameShader(const ResourceId& resId)
     return this->frameShaders[resId];
 }
 
-
 //------------------------------------------------------------------------------
 /**
 */
-void 
-FrameServer::DiscardFrameShader( const Ptr<FrameShader>& frameShader )
+void
+FrameServer::DiscardFrameShader(const Ptr<FrameShader>& frameShader)
 {
 	n_assert(this->frameShaders.Contains(frameShader->GetName()));
 	this->frameShaders.Erase(frameShader->GetName());

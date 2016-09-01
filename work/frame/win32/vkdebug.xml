@@ -47,10 +47,6 @@
   
   <!-- renders screen-space lighting for opaque geometry -->
   <Pass multipleRenderTarget="DeferredLightBuffer" name="LightPass" shader="lights">
-	<ApplyShaderVariable sem="NormalBuffer" value="NormalBuffer"/>
-	<ApplyShaderVariable sem="DepthBuffer" value="DepthBuffer"/>
-	<ApplyShaderVariable sem="AlbedoBuffer" value="AlbedoBuffer"/>
-	<ApplyShaderVariable sem="SpecularBuffer" value="SpecularBuffer"/>
 	<Batch type="Lights"/>
   </Pass>
   

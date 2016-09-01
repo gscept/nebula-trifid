@@ -22,7 +22,7 @@
 
 namespace Lighting
 {
-__ImplementClass(Lighting::VkLightServer, 'SM5L', Lighting::LightServerBase);
+__ImplementClass(Lighting::VkLightServer, 'VKLS', Lighting::LightServerBase);
 
 using namespace Graphics;
 using namespace CoreGraphics;
@@ -86,7 +86,7 @@ VkLightServer::Open()
 	this->lightProjMap = ResourceManager::Instance()->CreateManagedResource(Texture::RTTI, ResourceId(lightTexPath)).downcast<ManagedTexture>();
 
 	// light group is for shared variables, default is for shader local variables
-	this->lightShader							= shdServer->GetShader("shd:lights")->CreateState({ NEBULAT_LIGHT_GROUP,  NEBULAT_DEFAULT_GROUP });
+	this->lightShader							= shdServer->GetShader("shd:lights")->CreateState({ NEBULAT_LIGHT_GROUP, NEBULAT_DEFAULT_GROUP });
 	this->lightProbeShader						= shdServer->GetShader("shd:reflectionprojector")->CreateState({ NEBULAT_DEFAULT_GROUP });
 
 	this->globalLightFeatureBits[NoShadows]		= shdServer->FeatureStringToMask("Global");
@@ -111,7 +111,7 @@ VkLightServer::Open()
 
     // setup block for global light, this will only be updated once per iteration and is shared across all shaders
     this->globalLightBuffer                     = ConstantBuffer::Create();
-    this->globalLightBuffer->SetupFromBlockInShader(this->lightShader, "GlobalLightBlock");
+    this->globalLightBuffer->SetupFromBlockInShader(this->lightShader, "GlobalLightBlock", 1);
     this->globalLightDir                        = this->globalLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_GLOBALLIGHTDIR);
     this->globalLightColor                      = this->globalLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_GLOBALLIGHTCOLOR);
     this->globalBackLightColor                  = this->globalLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_GLOBALBACKLIGHTCOLOR);
@@ -258,6 +258,7 @@ VkLightServer::EndFrame()
 {
 	// reset light slots so we can reuse them the next frame
 	this->localLightBuffer->Reset();
+	this->lightToInstanceMap.Clear();
 
 	this->pointLights[NoShadows].Clear();
 	this->pointLights[CastShadows].Clear();
@@ -472,7 +473,7 @@ VkLightServer::RenderPointLights()
 					}
 
 					// commit and draw
-					this->lightShader->SetConstantBufferOffset(NEBULAT_LIGHT_GROUP, this->localLightBuffer->GetBinding(), offset);
+					this->lightShader->SetConstantBufferOffset(NEBULAT_DEFAULT_GROUP, this->localLightBuffer->GetBinding(), offset);
 					this->lightShader->Commit();
                     renderDevice->Draw();
 				}
@@ -558,7 +559,7 @@ VkLightServer::RenderSpotLights()
 					}
 
 					// commit and draw
-					this->lightShader->SetConstantBufferOffset(NEBULAT_LIGHT_GROUP, this->localLightBuffer->GetBinding(), offset);
+					this->lightShader->SetConstantBufferOffset(NEBULAT_DEFAULT_GROUP, this->localLightBuffer->GetBinding(), offset);
 					this->lightShader->Commit();
 					renderDevice->Draw();
 				}

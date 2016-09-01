@@ -49,6 +49,7 @@ PixelFormat::FromString(const Util::String& str)
     else if (str == "G16R16") return G16R16;
     else if (str == "D24S8") return D24S8;
     else if (str == "D24X8") return D24X8;
+	else if (str == "D32S8") return D32S8;
 
     // Xbox360 pixel-formats
     else if (str == "DXN") return DXN;
@@ -260,6 +261,7 @@ PixelFormat::ToSize(Code code)
 	case G16R16:        return 4;
 	case D24X8:         return 4;
 	case D24S8:         return 4;
+	case D32S8:			return 5;
 
 	default:
 		n_error("Invalid pixel format code");
@@ -307,6 +309,7 @@ PixelFormat::ToChannels(Code code)
 	case G16R16:        return 2;
 	case D24X8:         return 2;
 	case D24S8:         return 2;
+	case D32S8:			return 2;
 
 	default:
 		n_error("Invalid pixel format code");
@@ -353,6 +356,7 @@ PixelFormat::ToILComponents(Code code)
 	case PixelFormat::A2R10G10B10:      return IL_RGBA;						     
 	case PixelFormat::D24X8:            
 	case PixelFormat::D24S8:            return IL_RG;
+	case PixelFormat::D32S8:            return IL_RG;
 	case PixelFormat::R8G8B8:           return IL_RGB;
 	default:                            
 		{
@@ -400,7 +404,8 @@ PixelFormat::ToILType( Code code )
 	case PixelFormat::R8:				return IL_UNSIGNED_BYTE;
 	case PixelFormat::A2R10G10B10:      return IL_UNSIGNED_BYTE;
 	case PixelFormat::D24X8:            
-	case PixelFormat::D24S8:            return IL_INT;
+	case PixelFormat::D24S8:            return IL_FLOAT;
+	case PixelFormat::D32S8:			return IL_FLOAT;
 	case PixelFormat::R8G8B8:           return IL_UNSIGNED_BYTE;
 	default:                            
 		{

@@ -28,8 +28,8 @@
 #include "frameserver.h"
 #include "framealgorithm.h"
 #include "core/factory.h"
-#include "algorithm/algorithmbase.h"
-#include "algorithm/algorithms.h"
+#include "algorithm/attic/algorithmbase.h"
+#include "algorithm/attic/algorithms.h"
 #include "frametexclear.h"
 #include "coregraphics/config.h"
 
@@ -115,7 +115,8 @@ FrameShaderLoader::ParseFrameShader(const Ptr<XmlReader>& xmlReader, const Ptr<F
     while (xmlReader->SetToNextChild("DeclareMRT"));
 
     // parse frame passes and post effects, no other child types allowed from here!
-    if (xmlReader->SetToFirstChild("Pass") || 
+    if (xmlReader->SetToFirstChild("GlobalState") ||
+		xmlReader->SetToFirstChild("Pass") || 
 		xmlReader->SetToFirstChild("PostEffect") ||
 		xmlReader->SetToFirstChild("Lights") ||
 		xmlReader->SetToFirstChild("Text") ||
@@ -124,7 +125,11 @@ FrameShaderLoader::ParseFrameShader(const Ptr<XmlReader>& xmlReader, const Ptr<F
 		xmlReader->SetToFirstChild("Compute") ||
 		xmlReader->SetToFirstChild("Clear")) do
     {
-        if (xmlReader->GetCurrentNodeName() == "Pass")
+		if (xmlReader->GetCurrentNodeName() == "GlobalState")
+		{
+			ParseFrameGlobalState(xmlReader, frameShader);
+		}
+        else if (xmlReader->GetCurrentNodeName() == "Pass")
         {
             ParseFramePass(xmlReader, frameShader);
         }
@@ -452,6 +457,15 @@ FrameShaderLoader::ParseShaderVariableValue(const Ptr<IO::XmlReader>& xmlReader,
 
 	// add variable
 	batch->AddVariable(semantic, shdVarInst);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+FrameShaderLoader::ParseFrameGlobalState(const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader)
+{
+
 }
 
 //------------------------------------------------------------------------------

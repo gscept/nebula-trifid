@@ -21,6 +21,7 @@ SET (TEST_PROJECTS
 	testfoundation
 	testrender
 	testtoolkit
+	testframe2
 	#texturestreamingtest_win32
 	#viewerstresstest
 	zipstresstest

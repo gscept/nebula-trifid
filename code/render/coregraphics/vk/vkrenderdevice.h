@@ -23,6 +23,7 @@ public:
 		OnBeginFrame,
 		OnEndFrame,
 		OnBeginPass,
+		OnNextSubpass,
 		OnEndPass,
 		OnMainTransferSubmitted,
 		OnMainDrawSubmitted,
@@ -73,6 +74,10 @@ public:
 	void BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt);
 	/// begins pass with rendertarget cube
 	void BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& rtc);
+	/// begin a rendering pass
+	void BeginPass(const Ptr<CoreGraphics::Pass>& pass);
+	/// progress to next subpass
+	void SetToNextSubpass();
 	/// begin rendering a transform feedback with a vertex buffer as target
 	void BeginFeedback(const Ptr<CoreGraphics::FeedbackBuffer>& fb, CoreGraphics::PrimitiveTopology::Code primType);
 	/// begin batch
@@ -143,6 +148,9 @@ private:
 	friend class VkStreamTextureSaver;
 	friend class VkShaderState;
 	friend class VkShaderImage;
+	friend class VkCmdEvent;
+	friend class VkPass;
+	friend class VkRenderTexture;
 	friend struct VkDeferredCommand;
 
 	friend VKAPI_ATTR void VKAPI_CALL NebulaVkAllocCallback(void* userData, uint32_t size, VkInternalAllocationType type, VkSystemAllocationScope scope);

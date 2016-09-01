@@ -101,6 +101,8 @@ public:
 
 
 protected:
+	friend class RenderTextureBase;
+
     /// set texture type
     void SetType(Type t);
 	/// set bits per pixel

@@ -8,10 +8,7 @@
 #include "lib/techniques.fxh"
 #include "lib/shared.fxh"
 
-sampler2D DepthBuffer;
 sampler2D ColorBuffer;
-sampler2D SpecularBuffer;
-sampler2D NormalBuffer;
 readwrite rgba16f image2D EmissiveBuffer;
 
 const float SearchDist = 5.0f;
@@ -25,7 +22,7 @@ vec2 InvResolution;
 
 samplerstate LinearState
 {
-	Samplers = {DepthBuffer, SpecularBuffer, NormalBuffer};
+	//Samplers = {DepthBuffer, SpecularBuffer, NormalBuffer};
 	Filter = Point;
 	BorderColor = {0,0,0,0};
 	AddressU = Border;
@@ -69,7 +66,7 @@ RayTrace2D(in vec3 startDir, in vec3 startPos, in float startDepth, in ivec2 UV)
 	mat4 trans;
 	vec3 reflection = startPos;
 	vec2 projCoord = ConvertProjToTexCoord(trans * vec4(reflection, 1.0f));
-	float bufferDepth = textureLod(DepthBuffer, projCoord, 0).r;
+	float bufferDepth = sample2DLod(DepthBuffer, LinearState, projCoord, 0).r;
 	float reflectionDepth = length(reflection);
 	
 	for (int i = 0; i < MaxSteps; i++)
@@ -81,7 +78,7 @@ RayTrace2D(in vec3 startDir, in vec3 startPos, in float startDepth, in ivec2 UV)
 		}
 		reflection += startDir;
 		projCoord = ConvertProjToTexCoord(trans * vec4(reflection, 1.0f));
-		bufferDepth = textureLod(DepthBuffer, projCoord, 0).r;
+		bufferDepth = sample2DLod(DepthBuffer, LinearState, projCoord, 0).r;
 		reflectionDepth = length(reflection);
 	}
 	return vec2(-1);
@@ -102,8 +99,8 @@ csMain()
 	vec2 UV = ScreenCoord + vec2(0.5f) * InvResolution;
 	//UV.y = 1 - UV.y;
 	
-	float Depth = textureLod(DepthBuffer, UV, 0).r;
-	vec4 Spec = textureLod(SpecularBuffer, UV, 0);
+	float Depth = sample2DLod(DepthBuffer, LinearState, UV, 0).r;
+	vec4 Spec = sample2DLod(SpecularBuffer, LinearState, UV, 0);
 	
 	// create view vector into frustum
 	vec3 viewVec = normalize(vec3(UV * FocalLength.xy, -1));
@@ -112,7 +109,7 @@ csMain()
 	vec3 surfacePos = viewVec * Depth;
 	
 	// calculate reflection vector
-	vec3 viewSpaceNormal = UnpackViewSpaceNormal(textureLod(NormalBuffer, UV, 0));
+	vec3 viewSpaceNormal = UnpackViewSpaceNormal(sample2DLod(NormalBuffer, LinearState, UV, 0));
 	vec3 reflection = normalize(reflect(viewVec, viewSpaceNormal));
 	
 	// trace ray

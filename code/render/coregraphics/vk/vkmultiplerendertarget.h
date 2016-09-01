@@ -8,6 +8,7 @@
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
 #include "coregraphics/base/multiplerendertargetbase.h"
+#include "coregraphics/shaderstate.h"
 namespace Vulkan
 {
 class VkMultipleRenderTarget : public Base::MultipleRenderTargetBase
@@ -40,6 +41,9 @@ public:
 	/// get scissors
 	const Util::Array<VkRect2D>& GetVkScissorRects() const;
 
+	/// begin pass
+	void BeginPass();
+
 	/// setup render target
 	void Setup();
 	/// discard render target
@@ -69,6 +73,9 @@ private:
 	uint32_t numcolorreferences;
 	uint32_t numattachments;
 	VkBool32 usedepthstencil;
+
+	Ptr<CoreGraphics::ShaderState> shader;
+	Ptr<CoreGraphics::ShaderVariable> dimensionsArray;
 
 	Util::Array<VkClearValue> vkClearValues;
 	Util::Array<VkViewport> vkViewports;

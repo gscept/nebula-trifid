@@ -40,6 +40,8 @@ private:
     static void ParseShaderVariableValue(const Ptr<IO::XmlReader>& xmlReader, const Ptr<CoreGraphics::ShaderState>& shd, const Ptr<FramePassBase>& pass);
 	/// parse shader variable instance from XML
 	static void ParseShaderVariableValue(const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameBatch>& batch);
+	/// parse frame global state from XML
+	static void ParseFrameGlobalState(const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader);
     /// parse frame pass from XML
     static void ParseFramePass(const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader);
 	/// parse frame compute

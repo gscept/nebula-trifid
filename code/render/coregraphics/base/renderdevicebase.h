@@ -37,6 +37,7 @@ class ShaderState;
 class RenderTarget;
 class MultipleRenderTarget;
 class BufferLock;
+class Pass;
 };
 
 //------------------------------------------------------------------------------
@@ -95,6 +96,10 @@ public:
     void BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt);
     /// begin rendering a frame pass with a rendertarget cube
     void BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& crt);
+	/// begin a rendering pass
+	void BeginPass(const Ptr<CoreGraphics::Pass>& pass);
+	/// progress to next subpass
+	void SetToNextSubpass();
 	/// begin rendering a transform feedback with a vertex buffer as target, updateFeedback checks if the feedback buffer should be used for updating, or for rendering
     void BeginFeedback(const Ptr<CoreGraphics::FeedbackBuffer>& fb, CoreGraphics::PrimitiveTopology::Code primType);
     /// begin rendering a batch
@@ -208,6 +213,7 @@ protected:
     Ptr<CoreGraphics::MultipleRenderTarget> passMultipleRenderTarget;
     Ptr<CoreGraphics::RenderTargetCube> passRenderTargetCube;
 	Ptr<CoreGraphics::DepthStencilTarget> passDepthStencilTarget;
+	Ptr<CoreGraphics::Pass> pass;
     bool isOpen;
     bool inNotifyEventHandlers;
     bool inBeginFrame;
