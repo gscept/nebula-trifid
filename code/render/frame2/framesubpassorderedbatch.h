@@ -23,8 +23,6 @@ public:
 	/// set batch
 	void SetBatchCode(const Frame::BatchGroup::Code& code);
 
-	/// setup operation
-	void Setup();
 	/// run operation
 	void Run(const IndexT frameIndex);
 

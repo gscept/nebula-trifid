@@ -1114,6 +1114,9 @@ VkRenderDevice::BeginPass(const Ptr<CoreGraphics::Pass>& pass)
 	};
 	vkCmdBeginRenderPass(this->mainCmdDrawBuffer, &info, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
 
+	// run begin pass commands
+	this->RunCommandPass(OnBeginPass);
+
 	this->blendInfo.attachmentCount = pass->GetNumColorAttachments();
 	this->passInfo.framebuffer = pass->GetVkFramebuffer();
 	this->passInfo.renderPass = pass->GetVkRenderPass();
@@ -1121,6 +1124,13 @@ VkRenderDevice::BeginPass(const Ptr<CoreGraphics::Pass>& pass)
 	this->passInfo.pipelineStatistics = 0;
 	this->passInfo.queryFlags = 0;
 	this->passInfo.occlusionQueryEnable = VK_FALSE;
+
+	const Util::FixedArray<VkRect2D>& scissors = pass->GetVkScissorRects();
+	this->numScissors = scissors.Size();
+	this->scissors = scissors.Begin();
+	const Util::FixedArray<VkViewport>& viewports = pass->GetVkViewports();
+	this->numViewports = viewports.Size();
+	this->viewports = viewports.Begin();
 }
 
 //------------------------------------------------------------------------------
@@ -1136,9 +1146,6 @@ VkRenderDevice::SetToNextSubpass()
 
 	// run end command pass before we actually end the render pass
 	this->RunCommandPass(OnNextSubpass);
-
-	// end render pass
-	vkCmdEndRenderPass(this->mainCmdDrawBuffer);
 
 	// progress to next subpass
 	this->passInfo.subpass++;

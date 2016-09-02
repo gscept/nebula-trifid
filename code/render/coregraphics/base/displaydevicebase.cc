@@ -131,15 +131,6 @@ DisplayDeviceBase::DisableCallbacks()
 
 //------------------------------------------------------------------------------
 /**
-*/
-void 
-DisplayDeviceBase::PostEvent( const Event& event )
-{
-	// implement in subclass
-}
-
-//------------------------------------------------------------------------------
-/**
     Attach an event handler to the display device.
 */
 void

@@ -234,8 +234,8 @@ View::ResolveVisibleModelNodeInstances(IndexT frameIndex)
 /**
 	Resolves entities seen by the global light
 */
-void 
-View::ResolveVisibleShadowCasters( IndexT frameIndex )
+void
+View::ResolveVisibleShadowCasters(IndexT frameIndex)
 {
 	// resolve visibility for the global light
 	const Ptr<GlobalLightEntity>& globalLight = GraphicsServer::Instance()->GetCurrentGlobalLightEntity();
@@ -317,7 +317,8 @@ View::Render(IndexT frameIndex)
 
     // render the world...
 	_start_timer(render);
-    this->frameShader->Render(frameIndex);
+    //this->frameShader->Render(frameIndex);
+	this->frameScript->Run(frameIndex);
 	_stop_timer(render);
 
 	// render picking

@@ -41,6 +41,11 @@ public:
 	const VkGraphicsPipelineCreateInfo& GetVkFramebufferPipelineInfo();
 	/// get list of clear values
 	const Util::FixedArray<VkClearValue>& GetVkClearValues() const;
+
+	/// get scissor rects
+	const Util::FixedArray<VkRect2D>& GetVkScissorRects() const;
+	/// get viewports
+	const Util::FixedArray<VkViewport>& GetVkViewports() const;
 private:
 	Ptr<CoreGraphics::ShaderState> shaderState;
 	VkDescriptorSet inputAttachmentDescriptorSet;
@@ -50,6 +55,9 @@ private:
 	VkRect2D renderArea;
 	VkRenderPass pass;
 	VkFramebuffer framebuffer;
+
+	Util::FixedArray<VkRect2D> scissorRects;
+	Util::FixedArray<VkViewport> viewports;
 };
 
 //------------------------------------------------------------------------------
@@ -95,6 +103,24 @@ inline const Util::FixedArray<VkClearValue>&
 VkPass::GetVkClearValues() const
 {
 	return this->clearValues;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Util::FixedArray<VkRect2D>&
+VkPass::GetVkScissorRects() const
+{
+	return this->scissorRects;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Util::FixedArray<VkViewport>&
+VkPass::GetVkViewports() const
+{
+	return this->viewports;
 }
 
 } // namespace Vulkan

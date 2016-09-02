@@ -26,6 +26,7 @@
 #include "coregraphics/rendertarget.h"
 #include "rendermodules/rt/rtpluginregistry.h"
 #include "frame/frameshader.h"
+#include "frame2/framescript.h"
 #include "debug/debugtimer.h"
 
 //------------------------------------------------------------------------------
@@ -56,6 +57,10 @@ public:
     void SetFrameShader(const Ptr<Frame::FrameShader>& frameShader);
     /// get the view's frame shader
     const Ptr<Frame::FrameShader>& GetFrameShader() const;
+	/// set the view's frame script 
+	void SetFrameScript(const Ptr<Frame2::FrameScript>& frameScript);
+	/// get the view's frame script
+	const Ptr<Frame2::FrameScript>& GetFrameScript() const;
 	/// sets the view's resolve rect
 	void SetResolveRect(const Math::rectangle<int>& rect);
 	/// gets the view's resolve rect
@@ -105,6 +110,7 @@ protected:
     Ptr<Stage> stage;
     Ptr<CameraEntity> camera;
     Ptr<Frame::FrameShader> frameShader;
+	Ptr<Frame2::FrameScript> frameScript;
     Util::Array<Ptr<View> > dependencies;
 	bool resolveRectValid;
 	Math::rectangle<int> resolveRect;
@@ -209,6 +215,24 @@ inline const Ptr<Frame::FrameShader>&
 View::GetFrameShader() const
 {
     return this->frameShader;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+View::SetFrameScript(const Ptr<Frame2::FrameScript>& frameScript)
+{
+	this->frameScript = frameScript;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Ptr<Frame2::FrameScript>&
+View::GetFrameScript() const
+{
+	return this->frameScript;
 }
 
 //------------------------------------------------------------------------------

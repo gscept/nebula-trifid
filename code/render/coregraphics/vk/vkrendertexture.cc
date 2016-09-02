@@ -14,7 +14,10 @@ __ImplementClass(Vulkan::VkRenderTexture, 'VKRT', Base::RenderTextureBase);
 //------------------------------------------------------------------------------
 /**
 */
-VkRenderTexture::VkRenderTexture()
+VkRenderTexture::VkRenderTexture() :
+	img(VK_NULL_HANDLE),
+	mem(VK_NULL_HANDLE),
+	view(VK_NULL_HANDLE)
 {
 	// empty
 }

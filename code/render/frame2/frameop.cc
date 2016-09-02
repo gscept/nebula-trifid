@@ -43,4 +43,13 @@ FrameOp::DisplayResized(const SizeT width, const SizeT height)
 	// implement in subclass
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+FrameOp::Setup()
+{
+	// if operation needs any special setup, overload and perform
+}
+
 } // namespace Frame2

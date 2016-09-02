@@ -21,6 +21,7 @@
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
 #include "coregraphics/rendertexture.h"
+#include "../framebatchtype.h"
 namespace Base
 {
 class PassBase : public Core::RefCounted
@@ -68,6 +69,10 @@ public:
 
 	/// starts pass
 	void Begin();
+	/// begin a batch
+	void BeginBatch(CoreGraphics::FrameBatchType::Code batchType);
+	/// end current batch
+	void EndBatch();
 	/// progress to next subpass
 	void NextSubpass();
 	/// ends pass
@@ -87,6 +92,7 @@ protected:
 	Util::Array<Math::float4> colorAttachmentClears;
 	Util::Array<AttachmentFlagBits> colorAttachmentFlags;
 	Util::Array<Subpass> subpasses;
+	CoreGraphics::FrameBatchType::Code batchType;
 
 	Ptr<CoreGraphics::RenderTexture> depthStencilAttachment;
 	float clearDepth;
@@ -95,6 +101,7 @@ protected:
 
 	uint currentSubpass;
 	bool inBegin;
+	bool inBatch;
 };
 
 //------------------------------------------------------------------------------

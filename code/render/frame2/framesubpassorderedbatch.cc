@@ -25,4 +25,14 @@ FrameSubpassOrderedBatch::~FrameSubpassOrderedBatch()
 	// empty
 }
 
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+FrameSubpassOrderedBatch::Run(const IndexT frameIndex)
+{
+
+}
+
 } // namespace Frame2

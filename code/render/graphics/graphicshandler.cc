@@ -335,11 +335,6 @@ GraphicsHandler::HandleMessage(const Ptr<Message>& msg)
         this->OnSetupGraphics(msg.cast<SetupGraphics>());
         return true;
     }
-	else if (msg->CheckId(PostWindowEvent::Id))
-	{
-		this->OnPostEvent(msg.cast<PostWindowEvent>());
-		return true;
-	}
 	else if (msg->CheckId(UpdateDisplay::Id))
 	{
 		this->OnUpdateDisplay(msg.cast<UpdateDisplay>());
@@ -487,19 +482,5 @@ GraphicsHandler::OnUpdateDisplay( const Ptr<Graphics::UpdateDisplay>& msg )
     disp->EnableCallbacks();
 }
 
-//------------------------------------------------------------------------------
-/**
-	Posts a message event handled by another WinProc than the one for Nebula
-*/
-void 
-GraphicsHandler::OnPostEvent( const Ptr<Graphics::PostWindowEvent>& msg )
-{
-	if (this->isGraphicsRuntimeValid)
-	{
-		// get display device and post message
-		DisplayDevice* disp = this->displayDevice;
-		disp->PostEvent(msg->GetWindowEvent());
-	}	
-}
 } // namespace Graphics
 

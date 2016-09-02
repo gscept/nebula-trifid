@@ -22,8 +22,10 @@ public:
 	/// set name
 	void SetName(const Util::String& name);
 
+	/// setup operation
+	void Setup();
 	/// run operation
-	void Run(const IndexT frameIndex);
+	virtual void Run(const IndexT frameIndex);
 	/// handle display resizing
 	void DisplayResized(const SizeT width, const SizeT height);
 protected:

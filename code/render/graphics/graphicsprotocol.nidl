@@ -80,11 +80,6 @@
           <OutArg name="Success" type="bool"/>
         </Message>
       
-        <!-- post a window event -->
-        <Message name="PostWindowEvent" fourcc="POEV">
-          <InArg name="WindowEvent" type="Event"/>
-        </Message>
-      
         <!-- sets the resource manager to enable/disable asynchronous loading -->
         <Message name="EnableResourcesAsync" fourcc="REAS">
           <InArg name="Enabled" type="bool"/>    

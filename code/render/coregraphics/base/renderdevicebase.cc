@@ -402,7 +402,7 @@ RenderDeviceBase::BeginBatch(FrameBatchType::Code batchType)
 {
     n_assert(this->inBeginPass);
     n_assert(!this->inBeginBatch);
-    n_assert(this->passRenderTarget.isvalid() || this->passMultipleRenderTarget.isvalid() || this->passRenderTargetCube.isvalid());
+    n_assert(this->passRenderTarget.isvalid() || this->passMultipleRenderTarget.isvalid() || this->passRenderTargetCube.isvalid() || this->pass.isvalid());
     this->inBeginBatch = true;
 
     if (this->passRenderTarget.isvalid())
@@ -419,6 +419,10 @@ RenderDeviceBase::BeginBatch(FrameBatchType::Code batchType)
     {
         this->passRenderTargetCube->BeginBatch(batchType);
     }
+	else if (this->pass.isvalid())
+	{
+		this->pass->BeginBatch(batchType);
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -428,7 +432,7 @@ void
 RenderDeviceBase::EndBatch()
 {
     n_assert(this->inBeginBatch);
-    n_assert(this->passRenderTarget.isvalid() || this->passMultipleRenderTarget.isvalid() || this->passRenderTargetCube.isvalid());
+	n_assert(this->passRenderTarget.isvalid() || this->passMultipleRenderTarget.isvalid() || this->passRenderTargetCube.isvalid() || this->pass.isvalid());
     this->inBeginBatch = false;
 
     // notify render targets
@@ -444,6 +448,10 @@ RenderDeviceBase::EndBatch()
     {
         this->passRenderTargetCube->EndBatch();
     }
+	else if (this->pass.isvalid())
+	{
+		this->pass->EndBatch();
+	}
 }
 
 //------------------------------------------------------------------------------

@@ -166,12 +166,6 @@ FrameSubpassBatch::Run(const IndexT frameIndex)
 #if NEBULA3_ENABLE_PROFILING
 							modelNode->StopTimer();
 #endif
-
-							// render instances
-							instanceServer->Render(frameIndex);
-
-							// end instancing
-							instanceServer->EndInstancing();
 						}
 					}
 				}

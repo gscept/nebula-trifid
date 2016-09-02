@@ -251,7 +251,6 @@ VkPass::Setup()
 		subpassDeps.Size(),
 		subpassDeps.Begin()
 	};
-
 	res = vkCreateRenderPass(VkRenderDevice::dev, &info, NULL, &this->pass);
 	n_assert(res == VK_SUCCESS);
 
@@ -261,14 +260,39 @@ VkPass::Setup()
 	SizeT layers = 0;
 	Util::FixedArray<VkImageView> images;
 	images.Resize(this->colorAttachments.Size() + (this->depthStencilAttachment.isvalid() ? 1 : 0));
+	this->scissorRects.Resize(images.Size());
+	this->viewports.Resize(images.Size());
 	for (i = 0; i < this->colorAttachments.Size(); i++)
 	{
 		images[i] = this->colorAttachments[i]->GetVkImageView();
 		width = Math::n_max(width, this->colorAttachments[i]->GetWidth());
 		height = Math::n_max(height, this->colorAttachments[i]->GetHeight());
 		layers = Math::n_max(layers, this->colorAttachments[i]->GetDepth());
+
+		VkRect2D& rect = scissorRects[i];
+		rect.offset.x = 0;
+		rect.offset.y = 0;
+		rect.extent.width = this->colorAttachments[i]->GetWidth();
+		rect.extent.height = this->colorAttachments[i]->GetHeight();
+		VkViewport& viewport = viewports[i];
+		viewport.width = (float)this->colorAttachments[i]->GetWidth();
+		viewport.height = (float)this->colorAttachments[i]->GetHeight();
+		viewport.minDepth = 0;
+		viewport.maxDepth = 1;
+		viewport.x = 0;
+		viewport.y = 0;
+		
 	}
 	if (this->depthStencilAttachment.isvalid()) images[i] = this->depthStencilAttachment->GetVkImageView();
+
+	// setup viewport info
+	this->viewportInfo.pNext = NULL;
+	this->viewportInfo.flags = 0;
+	this->viewportInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+	this->viewportInfo.scissorCount = this->scissorRects.Size();
+	this->viewportInfo.pScissors = this->scissorRects.Begin();
+	this->viewportInfo.viewportCount = this->viewports.Size();
+	this->viewportInfo.pViewports = this->viewports.Begin();
 
 	// update descriptor set based on images attachments
 	for (i = 0; i < images.Size(); i++)

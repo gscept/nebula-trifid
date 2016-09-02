@@ -865,6 +865,7 @@ FrameScriptLoader::ParseSubpassFullscreenEffect(const Ptr<Frame2::FrameScript>& 
 	}
 	
 	// add op to subpass
+	op->Setup();
 	subpass->AddOp(op.upcast<Frame2::FrameOp>());
 }
 
@@ -924,7 +925,6 @@ FrameScriptLoader::ParseSubpassSystem(const Ptr<Frame2::FrameScript>& script, co
 	}
 	subpass->AddOp(op.upcast<Frame2::FrameOp>());
 }
-
 
 //------------------------------------------------------------------------------
 /**
