@@ -18,7 +18,7 @@
 #include "framesubpassbatch.h"
 #include "framesubpassorderedbatch.h"
 #include "framesubpassfullscreeneffect.h"
-#include "framesubpasscopy.h"
+#include "framecopy.h"
 #include "framesubpasssystem.h"
 #include "frameserver.h"
 #include "coregraphics/shaderserver.h"
@@ -88,6 +88,7 @@ FrameScriptLoader::ParseFrameScript(const Ptr<Frame2::FrameScript>& script, cJSO
 		else if (name == "events")				ParseEventList(script, cur);
 		else if (name == "globalState")			ParseGlobalState(script, cur);
 		else if (name == "blit")				ParseBlit(script, cur);
+		else if (name == "copy")				ParseCopy(script, cur);
 		else if (name == "compute")				ParseCompute(script, cur);
 		else if (name == "computeAlgorithm")	ParseComputeAlgorithm(script, cur);
 		else if (name == "pass")				ParsePass(script, cur);
@@ -432,6 +433,44 @@ FrameScriptLoader::ParseBlit(const Ptr<Frame2::FrameScript>& script, cJSON* node
 	n_assert(name != NULL);
 	op->SetName(name->valuestring);
 
+	cJSON* from = cJSON_GetObjectItem(node, "from");
+	n_assert(from != NULL);
+	const Ptr<CoreGraphics::RenderTexture>& fromTex = script->GetColorTexture(from->valuestring);
+
+	cJSON* to = cJSON_GetObjectItem(node, "to");
+	n_assert(to != NULL);
+	const Ptr<CoreGraphics::RenderTexture>& toTex = script->GetColorTexture(to->valuestring);
+
+	// setup blit operation
+	op->SetFromTexture(fromTex);
+	op->SetToTexture(toTex);
+	script->AddOp(op.upcast<Frame2::FrameOp>());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+FrameScriptLoader::ParseCopy(const Ptr<Frame2::FrameScript>& script, cJSON* node)
+{
+	Ptr<Frame2::FrameCopy> op = Frame2::FrameCopy::Create();
+
+	// get function and name
+	cJSON* name = cJSON_GetObjectItem(node, "name");
+	n_assert(name != NULL);
+	op->SetName(name->valuestring);
+
+	cJSON* from = cJSON_GetObjectItem(node, "from");
+	n_assert(from != NULL);
+	const Ptr<CoreGraphics::RenderTexture>& fromTex = script->GetColorTexture(from->valuestring);
+
+	cJSON* to = cJSON_GetObjectItem(node, "to");
+	n_assert(to != NULL);
+	const Ptr<CoreGraphics::RenderTexture>& toTex = script->GetColorTexture(to->valuestring);
+
+	// setup copy operation
+	op->SetFromTexture(fromTex);
+	op->SetToTexture(toTex);
 	script->AddOp(op.upcast<Frame2::FrameOp>());
 }
 
@@ -598,9 +637,10 @@ FrameScriptLoader::ParsePass(const Ptr<Frame2::FrameScript>& script, cJSON* node
 			}
 
 			// set attachment in framebuffer
-			pass->SetDepthStencilAttachment(script->GetDepthStencilTexture(cur->valuestring));
+			cJSON* ds = cJSON_GetObjectItem(cur, "name");
+			pass->SetDepthStencilAttachment(script->GetDepthStencilTexture(ds->valuestring));
 			pass->SetDepthStencilClear(clearDepth, clearStencil);
-			pass->SetDepthStencilFlags((Pass::AttachmentFlags)depthStencilClearFlags);
+			pass->SetDepthStencilFlags((Pass::AttachmentFlagBits)depthStencilClearFlags);
 		}
 		else if (name == "subpass")				ParseSubpass(script, pass, op, cur);
 		else
@@ -657,7 +697,7 @@ FrameScriptLoader::ParseAttachmentList(const Ptr<Frame2::FrameScript>& script, c
 			n_assert(clear == NULL);
 			flags |= Pass::Load;
 		}
-		pass->SetColorAttachmentFlags(i, (Pass::AttachmentFlags)flags);
+		pass->SetColorAttachmentFlags(i, (Pass::AttachmentFlagBits)flags);
 	}
 }
 
@@ -679,13 +719,13 @@ FrameScriptLoader::ParseSubpass(const Ptr<Frame2::FrameScript>& script, const Pt
 		if (name == "name")						frameSubpass->SetName(cur->valuestring);
 		else if (name == "dependencies")		ParseSubpassDependencies(subpass, cur);
 		else if (name == "attachments")			ParseSubpassAttachments(subpass, cur);
+		else if (name == "inputs")				ParseSubpassInputs(subpass, cur);
 		else if (name == "depth")				subpass.bindDepth = cur->valueint == 1 ? true : false;
 		else if (name == "resolve")				subpass.resolve = cur->valueint == 1 ? true : false;
 		else if (name == "subpassAlgorithm")	ParseSubpassAlgorithm(script, frameSubpass, cur);
 		else if (name == "batch")				ParseSubpassBatch(script, frameSubpass, cur);
 		else if (name == "sortedBatch")			ParseSubpassSortedBatch(script, frameSubpass, cur);
 		else if (name == "fullscreenEffect")	ParseSubpassFullscreenEffect(script, frameSubpass, cur);
-		else if (name == "copy")				ParseSubpassCopy(script, frameSubpass, cur);
 		else if (name == "event")				ParseSubpassEvent(script, frameSubpass, cur);
 		else if (name == "system")				ParseSubpassSystem(script, frameSubpass, cur);
 		else
@@ -828,21 +868,6 @@ FrameScriptLoader::ParseSubpassFullscreenEffect(const Ptr<Frame2::FrameScript>& 
 	subpass->AddOp(op.upcast<Frame2::FrameOp>());
 }
 
-//------------------------------------------------------------------------------
-/**
-*/
-void
-FrameScriptLoader::ParseSubpassCopy(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, cJSON* node)
-{
-	Ptr<Frame2::FrameSubpassCopy> op = Frame2::FrameSubpassCopy::Create();
-
-	// get function and name
-	cJSON* name = cJSON_GetObjectItem(node, "name");
-	n_assert(name != NULL);
-	op->SetName(name->valuestring);
-
-	subpass->AddOp(op.upcast<Frame2::FrameOp>());
-}
 
 //------------------------------------------------------------------------------
 /**

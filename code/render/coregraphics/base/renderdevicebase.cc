@@ -117,6 +117,13 @@ RenderDeviceBase::Open()
         this->defaultRenderTarget->Setup();
     }
 
+	if (!this->defaultRenderTexture.isvalid())
+	{
+		this->defaultRenderTexture = RenderTexture::Create();
+		this->defaultRenderTexture->SetIsWindowTexture(true);
+		this->defaultRenderTexture->Setup();
+	}
+
     return true;
 }
 
@@ -698,6 +705,30 @@ RenderDeviceBase::DequeueBufferLocks()
 		}
 	}
 	RenderDeviceBase::bufferLockQueue.Clear();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+RenderDeviceBase::Copy(const Ptr<CoreGraphics::Texture>& from, Math::rectangle<SizeT> fromRegion, const Ptr<CoreGraphics::Texture>& to, Math::rectangle<SizeT> toRegion)
+{
+	n_assert(from.isvalid() && to.isvalid());
+	n_assert(from->GetWidth() == to->GetWidth());
+	n_assert(from->GetHeight() == to->GetHeight());
+	n_assert(from->GetDepth() == to->GetDepth());
+	// implement in subclass
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+RenderDeviceBase::Blit(const Ptr<CoreGraphics::RenderTexture>& from, Math::rectangle<SizeT> fromRegion, const Ptr<CoreGraphics::RenderTexture>& to, Math::rectangle<SizeT> toRegion)
+{
+	n_assert(from.isvalid() && to.isvalid());
+	
+	// implement in subclass
 }
 
 } // namespace Base

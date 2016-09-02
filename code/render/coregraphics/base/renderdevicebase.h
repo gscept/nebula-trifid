@@ -29,6 +29,7 @@
 namespace CoreGraphics
 {
 class Texture;
+class RenderTexture;
 class VertexBuffer;
 class IndexBuffer;
 class FeedbackBuffer;
@@ -83,6 +84,9 @@ public:
 
     /// get default render target
     const Ptr<CoreGraphics::RenderTarget>& GetDefaultRenderTarget() const;   
+	/// get default render texture
+	const Ptr<CoreGraphics::RenderTexture>& GetDefaultRenderTexture() const;
+
     /// is a pass rendertarget set?
     bool HasPassRenderTarget() const;
     /// get current set pass render target
@@ -163,6 +167,11 @@ public:
 	/// get the render as wireframe flag
 	bool GetRenderWireframe() const;
 
+	/// copy data between textures
+	void Copy(const Ptr<CoreGraphics::Texture>& from, Math::rectangle<SizeT> fromRegion, const Ptr<CoreGraphics::Texture>& to, Math::rectangle<SizeT> toRegion);
+	/// blit between render textures
+	void Blit(const Ptr<CoreGraphics::RenderTexture>& from, Math::rectangle<SizeT> fromRegion, const Ptr<CoreGraphics::RenderTexture>& to, Math::rectangle<SizeT> toRegion);
+
 	/// enqueue a buffer lock which will cause the render device to lock a buffer index whenever the next draw command gets executed
 	static void EnqueueBufferLockIndex(const Ptr<CoreGraphics::BufferLock>& lock, IndexT buffer);
 	/// enqueue a buffer lock which will cause the render device to lock a buffer range whenever the next draw command gets executed
@@ -204,6 +213,7 @@ protected:
 	static Util::Queue<__BufferLockData> bufferLockQueue;
     Util::Array<Ptr<CoreGraphics::RenderEventHandler> > eventHandlers;
     Ptr<CoreGraphics::RenderTarget> defaultRenderTarget;
+	Ptr<CoreGraphics::RenderTexture> defaultRenderTexture;
     Ptr<CoreGraphics::VertexBuffer> streamVertexBuffers[MaxNumVertexStreams];
     IndexT streamVertexOffsets[MaxNumVertexStreams];
     Ptr<CoreGraphics::VertexLayout> vertexLayout;
@@ -258,6 +268,16 @@ RenderDeviceBase::GetDefaultRenderTarget() const
 {
     n_assert(this->defaultRenderTarget.isvalid());
     return this->defaultRenderTarget;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Ptr<CoreGraphics::RenderTexture>&
+RenderDeviceBase::GetDefaultRenderTexture() const
+{
+	n_assert(this->defaultRenderTexture.isvalid());
+	return this->defaultRenderTexture;
 }
 
 //------------------------------------------------------------------------------

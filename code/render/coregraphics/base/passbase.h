@@ -28,7 +28,7 @@ class PassBase : public Core::RefCounted
 	__DeclareClass(PassBase);
 public:
 	struct Subpass;
-	enum AttachmentFlags
+	enum AttachmentFlagBits
 	{
 		NoFlags = 0,
 		Clear = 1 << 0,
@@ -49,7 +49,7 @@ public:
 	/// set depth-stencil clear
 	void SetDepthStencilClear(float depth, uint stencil);
 	/// set depth-stencil flags
-	void SetDepthStencilFlags(const AttachmentFlags& flags);
+	void SetDepthStencilFlags(const AttachmentFlagBits& flags);
 	/// add color attachment
 	void AddColorAttachment(const Ptr<CoreGraphics::RenderTexture>& colorAttachment); 
 	/// get number of color attachments
@@ -57,7 +57,7 @@ public:
 	/// set color attachment clear
 	void SetColorAttachmentClear(const IndexT index, const Math::float4& clearValue);
 	/// set color attachment flags
-	void SetColorAttachmentFlags(const IndexT index, const AttachmentFlags& flags);
+	void SetColorAttachmentFlags(const IndexT index, const AttachmentFlagBits& flags);
 	/// add subpass
 	void AddSubpass(const Subpass& subpass);
 
@@ -85,13 +85,13 @@ public:
 protected:
 	Util::Array<Ptr<CoreGraphics::RenderTexture>> colorAttachments;
 	Util::Array<Math::float4> colorAttachmentClears;
-	Util::Array<AttachmentFlags> colorAttachmentFlags;
+	Util::Array<AttachmentFlagBits> colorAttachmentFlags;
 	Util::Array<Subpass> subpasses;
 
 	Ptr<CoreGraphics::RenderTexture> depthStencilAttachment;
 	float clearDepth;
 	uint clearStencil;
-	AttachmentFlags depthStencilFlags;
+	AttachmentFlagBits depthStencilFlags;
 
 	uint currentSubpass;
 	bool inBegin;
@@ -120,7 +120,7 @@ PassBase::SetDepthStencilClear(float depth, uint stencil)
 /**
 */
 inline void
-PassBase::SetDepthStencilFlags(const AttachmentFlags& flags)
+PassBase::SetDepthStencilFlags(const AttachmentFlagBits& flags)
 {
 	this->depthStencilFlags = flags;
 }
@@ -158,7 +158,7 @@ PassBase::SetColorAttachmentClear(const IndexT index, const Math::float4& clearV
 /**
 */
 inline void
-PassBase::SetColorAttachmentFlags(const IndexT index, const AttachmentFlags& flags)
+PassBase::SetColorAttachmentFlags(const IndexT index, const AttachmentFlagBits& flags)
 {
 	this->colorAttachmentFlags[index] = flags;
 }

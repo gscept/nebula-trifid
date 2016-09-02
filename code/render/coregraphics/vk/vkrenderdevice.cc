@@ -439,11 +439,6 @@ VkRenderDevice::OpenVulkanContext()
 	this->backbufferViews.Resize(this->numBackbuffers);
 	for (i = 0; i < this->numBackbuffers; i++)
 	{
-		// allocate memory for back buffers
-		//uint32_t size;
-		//VkRenderDevice::Instance()->AllocateImageMemory(this->backbuffers[i], this->backbufferMem[i], VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, size);
-		//vkBindImageMemory(this->dev, this->backbuffers[i], this->backbufferMem[i], 0);
-
 		// setup view
 		VkImageViewCreateInfo backbufferViewInfo = 
 		{
@@ -495,7 +490,7 @@ VkRenderDevice::OpenVulkanContext()
 		32,
 		65535,
 		256,
-		64
+		2048
 	};
 	VkDescriptorType types[] =
 	{
@@ -3035,6 +3030,40 @@ VkRenderDevice::InterlockMemcpy(uint32_t size, uint32_t offset, const void* data
 	cmd.memCpy.offset = offset;
 	cmd.memCpy.mappedData = mappedData;
 	//this->PushToInterlockThread(cmd);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::Copy(const Ptr<CoreGraphics::Texture>& from, Math::rectangle<SizeT> fromRegion, const Ptr<CoreGraphics::Texture>& to, Math::rectangle<SizeT> toRegion)
+{
+	RenderDeviceBase::Copy(from, fromRegion, to, toRegion);
+	n_assert(!this->inBeginPass);
+	VkImageCopy region;
+	region.dstOffset = { fromRegion.left, fromRegion.top, 0 };
+	region.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+	region.extent = { toRegion.width(), toRegion.height(), 1 };
+	region.srcOffset = { toRegion.left, toRegion.top, 0 };
+	region.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+	vkCmdCopyImage(this->mainCmdDrawBuffer, from->GetVkImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, to->GetVkImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::Blit(const Ptr<CoreGraphics::RenderTexture>& from, Math::rectangle<SizeT> fromRegion, const Ptr<CoreGraphics::RenderTexture>& to, Math::rectangle<SizeT> toRegion)
+{
+	n_assert(!this->inBeginPass);
+	VkImageBlit blit;
+	blit.dstOffsets[0] = { fromRegion.left, fromRegion.top, 0 };
+	blit.dstOffsets[1] = { fromRegion.right, fromRegion.bottom, 1 };
+	blit.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+	blit.srcOffsets[0] = { toRegion.left, toRegion.top, 0 };
+	blit.srcOffsets[1] = { toRegion.right, toRegion.bottom, 1 };
+	blit.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+	vkCmdBlitImage(this->mainCmdDrawBuffer, from->GetVkImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, to->GetVkImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_LINEAR);
 }
 
 } // namespace Vulkan

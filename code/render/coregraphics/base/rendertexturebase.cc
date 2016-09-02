@@ -17,13 +17,20 @@ __ImplementClass(Base::RenderTextureBase, 'RTEB', Core::RefCounted);
 /**
 */
 RenderTextureBase::RenderTextureBase() :
+	texture(NULL),
+	format(PixelFormat::InvalidPixelFormat),
+	type(Texture::InvalidType),
+	usage(InvalidAttachment),
 	width(0),
 	height(0),
 	depth(0),
-	relativeSize(false),
-	dynamicSize(false),
+	widthScale(1),
+	heightScale(1),
+	depthScale(1),
 	msaaEnabled(false),
-	usage(InvalidAttachment)
+	relativeSize(false),
+	dynamicSize(false),	
+	windowTexture(false)
 {
 	// empty
 }
@@ -42,48 +49,50 @@ RenderTextureBase::~RenderTextureBase()
 void
 RenderTextureBase::Setup()
 {
-	n_assert(this->width > 0 && this->height > 0 && this->depth > 0);
-	n_assert(this->type == Texture::Texture2D || this->type == Texture::TextureCube);
-	n_assert(this->usage != InvalidAttachment);
-	if (this->relativeSize)
+	if (this->windowTexture)
 	{
 		const DisplayMode& mode = DisplayDevice::Instance()->GetDisplayMode();
-		this->width = SizeT(mode.GetWidth() * this->widthScale);
-		this->height = SizeT(mode.GetHeight() * this->heightScale);
+		this->width = mode.GetWidth();
+		this->height = mode.GetHeight();
 		this->depth = 1;
-	}
-	else if (this->dynamicSize)
-	{
-		// add scale factor here
-		const DisplayMode& mode = DisplayDevice::Instance()->GetDisplayMode();
-		this->width = SizeT(mode.GetWidth() * this->widthScale);
-		this->height = SizeT(mode.GetHeight() * this->heightScale);
-		this->depth = 1;
-	}
 
-	// setup texture resource
-	if (this->resourceId.IsValid())
-	{
-		this->texture = ResourceManager::Instance()->CreateUnmanagedResource(this->resourceId, Texture::RTTI).downcast<Texture>();
+		// setup type and usage
+		this->type = Texture::Texture2D;
+		this->usage = ColorAttachment;
 	}
 	else
 	{
-		// just create a texture natively without managing it
-		this->texture = CoreGraphics::Texture::Create();
-	}
+		n_assert(this->width > 0 && this->height > 0 && this->depth > 0);
+		n_assert(this->type == Texture::Texture2D || this->type == Texture::TextureCube);
+		n_assert(this->usage != InvalidAttachment);
+		if (this->relativeSize)
+		{
+			const DisplayMode& mode = DisplayDevice::Instance()->GetDisplayMode();
+			this->width = SizeT(mode.GetWidth() * this->widthScale);
+			this->height = SizeT(mode.GetHeight() * this->heightScale);
+			this->depth = 1;
+		}
+		else if (this->dynamicSize)
+		{
+			// add scale factor here
+			const DisplayMode& mode = DisplayDevice::Instance()->GetDisplayMode();
+			this->width = SizeT(mode.GetWidth() * this->widthScale);
+			this->height = SizeT(mode.GetHeight() * this->heightScale);
+			this->depth = 1;
+		}
 
-	// setup texture
-	/*
-	this->texture = Texture::Create();
-	this->texture->type = this->type;
-	this->texture->pixelFormat = this->format;
-	this->texture->width = this->width;
-	this->texture->height = this->height;
-	this->texture->depth = this->depth;
-	this->texture->numMipLevels = 1;
-	this->texture->skippedMips = 0;
-	this->texture->isRenderTargetAttachment = true;
-	*/
+		// setup texture resource
+		if (this->resourceId.IsValid())
+		{
+			this->texture = ResourceManager::Instance()->CreateUnmanagedResource(this->resourceId, Texture::RTTI).downcast<Texture>();
+		}
+		else
+		{
+			// just create a texture natively without managing it
+			this->texture = CoreGraphics::Texture::Create();
+		}
+	}
+	
 }
 
 //------------------------------------------------------------------------------
@@ -131,6 +140,16 @@ RenderTextureBase::Resize()
 	this->texture->numMipLevels = 1;
 	this->texture->skippedMips = 0;
 	this->texture->isRenderTargetAttachment = true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+RenderTextureBase::SwapBuffers()
+{
+	n_assert(this->windowTexture);
+	// implement in subclass
 }
 
 

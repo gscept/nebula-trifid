@@ -107,6 +107,11 @@ public:
 	/// sets viewport
 	void SetViewport(const Math::rectangle<int>& rect, int index);
 
+	/// copy data between textures
+	void Copy(const Ptr<CoreGraphics::Texture>& from, Math::rectangle<SizeT> fromRegion, const Ptr<CoreGraphics::Texture>& to, Math::rectangle<SizeT> toRegion);
+	/// blit between render textures
+	void Blit(const Ptr<CoreGraphics::RenderTexture>& from, Math::rectangle<SizeT> fromRegion, const Ptr<CoreGraphics::RenderTexture>& to, Math::rectangle<SizeT> toRegion);
+
 	/// save a screenshot to the provided stream
 	CoreGraphics::ImageFileFormat::Code SaveScreenshot(CoreGraphics::ImageFileFormat::Code fmt, const Ptr<IO::Stream>& outStream);
 	/// save a region of the screen to the provided stream

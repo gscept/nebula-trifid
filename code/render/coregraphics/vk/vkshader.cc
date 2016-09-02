@@ -290,6 +290,27 @@ VkShader::Setup(AnyFX::ShaderEffect* effect)
 				signatures.ValueAtIndex(index).Append(CreateSignature(variable->bindingLayout));
 			}
 		}
+		else if (variable->type >= AnyFX::InputAttachment && variable->type <= AnyFX::InputAttachmentUIntegerMS)
+		{
+			IndexT index = this->setBindings.FindIndex(variable->set);
+			if (index == InvalidIndex)
+			{
+				Util::Array<VkDescriptorSetLayoutBinding> arr;
+				arr.Append(variable->bindingLayout);
+				this->setBindings.Add(variable->set, arr);
+				signatures.Add(variable->set, CreateSignature(variable->bindingLayout));
+#if AMD_DESC_SETS
+				numsets = uint_max(numsets, variable->set + 1);
+#else
+				numsets++;
+#endif
+			}
+			else
+			{
+				this->setBindings.ValueAtIndex(index).Append(variable->bindingLayout);
+				signatures.ValueAtIndex(index).Append(CreateSignature(variable->bindingLayout));
+			}
+		}
 	}
 
 	// create a string for caching pipelines

@@ -25,6 +25,9 @@ public:
 	/// resize render texture, retaining the same texture object
 	void Resize();
 
+	/// swap buffers, only valid if this is a window texture
+	void SwapBuffers();
+
 	/// get image
 	const VkImage& GetVkImage() const;
 	/// get image view
@@ -35,6 +38,8 @@ private:
 	VkImage img;
 	VkImageView view;
 	VkDeviceMemory mem;
+
+	Util::FixedArray<VkImage> swapimages;
 };
 
 //------------------------------------------------------------------------------

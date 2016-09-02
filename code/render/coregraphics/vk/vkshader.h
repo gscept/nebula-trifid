@@ -44,6 +44,9 @@ public:
 	/// returns constant offset table using varblock signature
 	static const Util::Dictionary<Util::StringAtom, uint32_t>& GetConstantOffsetTable(const Util::StringAtom& signature);
 
+	/// get layout for specific descriptor set
+	const VkDescriptorSetLayout& GetDescriptorLayout(const IndexT index);
+
 	/// reloads a shader from file
 	void Reload();
 
@@ -89,6 +92,15 @@ inline AnyFX::ShaderEffect*
 VkShader::GetVkEffect() const
 {
 	return this->vkEffect;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline  const VkDescriptorSetLayout&
+VkShader::GetDescriptorLayout(const IndexT index)
+{
+	return this->setLayouts[index];
 }
 
 } // namespace Vulkan

@@ -85,7 +85,7 @@
 				{
 					"name":"ToScreen",
 					"shader":"shd:aaa",
-					"sizeFromTexture":"__WINDOW___",
+					"sizeFromTexture":"__WINDOW__",
 					"variables":
 					[
 						{ "semantic": "CopyBuffer", "value": "LightBuffer" }

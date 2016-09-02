@@ -1,20 +1,20 @@
 //------------------------------------------------------------------------------
-// frameblit.cc
+// framecopy.cc
 // (C) 2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "frameblit.h"
+#include "framecopy.h"
 #include "coregraphics/renderdevice.h"
 
 using namespace CoreGraphics;
 namespace Frame2
 {
 
-__ImplementClass(Frame2::FrameBlit, 'FRBL', Frame2::FrameOp);
+__ImplementClass(Frame2::FrameCopy, 'FRCO', Frame2::FrameOp);
 //------------------------------------------------------------------------------
 /**
 */
-FrameBlit::FrameBlit()
+FrameCopy::FrameCopy()
 {
 	// empty
 }
@@ -22,7 +22,7 @@ FrameBlit::FrameBlit()
 //------------------------------------------------------------------------------
 /**
 */
-FrameBlit::~FrameBlit()
+FrameCopy::~FrameCopy()
 {
 	// empty
 }
@@ -31,7 +31,7 @@ FrameBlit::~FrameBlit()
 /**
 */
 void
-FrameBlit::Run(const IndexT frameIndex)
+FrameCopy::Run(const IndexT frameIndex)
 {
 	RenderDevice* renderDev = RenderDevice::Instance();
 
@@ -46,7 +46,7 @@ FrameBlit::Run(const IndexT frameIndex)
 	toRegion.top = 0;
 	toRegion.right = this->to->GetWidth();
 	toRegion.bottom = this->to->GetHeight();
-	renderDev->Blit(this->from, fromRegion, this->to, toRegion);
+	renderDev->Copy(this->from->GetTexture(), fromRegion, this->to->GetTexture(), toRegion);
 }
 
 } // namespace Frame2

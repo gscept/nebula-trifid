@@ -39,8 +39,6 @@ public:
 
 	/// add descriptor set write, which will be performed on the next begin
 	void AddDescriptorWrite(const VkWriteDescriptorSet& write);
-	/// set which descriptor sets this state should apply automatically (0 is true by default)
-	void SetApplyDescriptorSet(const IndexT& set, bool b);
 
 	/// get uniform buffer by index
 	const Ptr<CoreGraphics::ConstantBuffer>& GetConstantBuffer(IndexT i) const;
@@ -50,6 +48,9 @@ public:
 	const SizeT GetNumConstantBuffers() const;
 	/// override selected offset
 	void SetConstantBufferOffset(const IndexT group, const IndexT binding, const uint32_t offset);
+
+	/// use this if some system want to allocate and use their own descriptor sets
+	void SetDescriptorSet(const VkDescriptorSet& set, const IndexT slot);
 private:
 	friend class Base::ShaderBase;
 	friend class VkShader;
@@ -63,9 +64,6 @@ private:
 	void SetupVariables(const Util::Array<IndexT>& groups);
 	/// setup uniform buffers for shader state
 	void SetupUniformBuffers(const Util::Array<IndexT>& groups);
-
-	/// setup descriptor sets which will be maintained by this shader instance
-	void SetupDescriptorSets();
 
 	/// update descriptor sets
 	void UpdateDescriptorSets();
@@ -92,6 +90,7 @@ private:
 	Util::FixedArray<VkDescriptorSet> sets;
 	Util::FixedArray<DescriptorSetBinding> setBindnings;
 	Util::Array<VkWriteDescriptorSet> pendingSetWrites;
+	Util::Dictionary<uint32_t, uint32_t> groupIndexMap;
 
 	Util::Array<uint32_t> offsets;
 	Util::Dictionary<Util::String, uint32_t> offsetsByName;

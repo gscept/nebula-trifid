@@ -52,6 +52,7 @@ VkTypes::AsVkFormat(CoreGraphics::PixelFormat::Code p)
 	case PixelFormat::B8:               return VK_FORMAT_R8_UNORM;
 	case PixelFormat::A2R10G10B10:      return VK_FORMAT_A2B10G10R10_UINT_PACK32;
 	case PixelFormat::G16R16:           return VK_FORMAT_R16G16_UINT;
+	case PixelFormat::D32S8:			return VK_FORMAT_D32_SFLOAT_S8_UINT;
 	case PixelFormat::D24X8:			return VK_FORMAT_X8_D24_UNORM_PACK32;
 	case PixelFormat::D24S8:            return VK_FORMAT_D24_UNORM_S8_UINT;
 	default:
@@ -138,6 +139,7 @@ VkTypes::AsVkBlockSize(CoreGraphics::PixelFormat::Code p)
 	case PixelFormat::B8:               return { 1, 1 };
 	case PixelFormat::A2R10G10B10:      return { 1, 1 };
 	case PixelFormat::G16R16:           return { 1, 1 };
+	case PixelFormat::D32S8:			return { 1, 1 };
 	case PixelFormat::D24X8:			return { 1, 1 };
 	case PixelFormat::D24S8:            return { 1, 1 };
 	default:
@@ -290,6 +292,7 @@ VkTypes::AsVkFramebufferFormat(CoreGraphics::PixelFormat::Code p)
 	case PixelFormat::B8:               return VK_FORMAT_R8_SNORM;
 	case PixelFormat::A2R10G10B10:      return VK_FORMAT_A2B10G10R10_UINT_PACK32;
 	case PixelFormat::G16R16:           return VK_FORMAT_R16G16_SNORM;
+	case PixelFormat::D32S8:			return VK_FORMAT_D32_SFLOAT_S8_UINT;
 	case PixelFormat::D24X8:			return VK_FORMAT_X8_D24_UNORM_PACK32;
 	case PixelFormat::D24S8:            return VK_FORMAT_D24_UNORM_S8_UINT;
 	default:
@@ -309,36 +312,37 @@ VkTypes::AsNebulaPixelFormat(VkFormat f)
 	
 	switch (f)
 	{
-	case	VK_FORMAT_R8G8B8A8_UINT:					return	PixelFormat::A8R8G8B8;
-	case	VK_FORMAT_R8G8B8_UINT:						return	PixelFormat::R8G8B8;
-	case	VK_FORMAT_R5G6B5_UNORM_PACK16:				return	PixelFormat::R5G6B5;
-	case	VK_FORMAT_R8G8B8A8_SRGB:					return	PixelFormat::SRGBA8;
-	case	VK_FORMAT_R5G5B5A1_UNORM_PACK16:			return	PixelFormat::A1R5G5B5;
-	case	VK_FORMAT_R4G4B4A4_UNORM_PACK16:			return	PixelFormat::A4R4G4B4;
-	case	VK_FORMAT_BC1_RGB_UNORM_BLOCK:				return	PixelFormat::DXT1;
-	case	VK_FORMAT_BC1_RGBA_UNORM_BLOCK:				return	PixelFormat::DXT1A;
-	case	VK_FORMAT_BC2_UNORM_BLOCK:					return	PixelFormat::DXT3;
-	case	VK_FORMAT_BC3_UNORM_BLOCK:					return	PixelFormat::DXT5;
-	case	VK_FORMAT_BC1_RGB_SRGB_BLOCK:				return	PixelFormat::DXT1sRGB;
-	case	VK_FORMAT_BC1_RGBA_SRGB_BLOCK:				return	PixelFormat::DXT1AsRGB;
-	case	VK_FORMAT_BC2_SRGB_BLOCK:					return	PixelFormat::DXT3sRGB;
-	case	VK_FORMAT_BC3_SRGB_BLOCK:					return	PixelFormat::DXT5sRGB;
-	case	VK_FORMAT_BC7_UNORM_BLOCK:					return	PixelFormat::BC7;
-	case	VK_FORMAT_BC7_SRGB_BLOCK:					return	PixelFormat::BC7sRGB;
-	case	VK_FORMAT_R16_SFLOAT:						return	PixelFormat::R16F;
-	case	VK_FORMAT_R16G16_SFLOAT:					return	PixelFormat::G16R16F;
-	case	VK_FORMAT_R16G16B16A16_SFLOAT:				return	PixelFormat::A16B16G16R16F;
-	case	VK_FORMAT_R16G16B16A16_UINT:				return	PixelFormat::A16B16G16R16;
-	case	VK_FORMAT_B10G11R11_UFLOAT_PACK32:			return	PixelFormat::R11G11B10F;
-	case	VK_FORMAT_R32_SFLOAT:						return	PixelFormat::R32F;
-	case	VK_FORMAT_R32G32_SFLOAT:					return	PixelFormat::G32R32F;
-	case	VK_FORMAT_R32G32B32A32_SFLOAT:				return	PixelFormat::A32B32G32R32F;
-	case	VK_FORMAT_R32G32B32_SFLOAT:					return	PixelFormat::R32G32B32F;
-	case	VK_FORMAT_R8_SINT:							return	PixelFormat::R8;
-	case	VK_FORMAT_A2B10G10R10_UINT_PACK32:			return	PixelFormat::A2R10G10B10;
-	case	VK_FORMAT_R16G16_UINT:						return	PixelFormat::G16R16;
-	case	VK_FORMAT_X8_D24_UNORM_PACK32:				return	PixelFormat::D24X8;
-	case	VK_FORMAT_D24_UNORM_S8_UINT:				return	PixelFormat::D24S8;
+	case VK_FORMAT_R8G8B8A8_UINT:					return PixelFormat::A8R8G8B8;
+	case VK_FORMAT_R8G8B8_UINT:						return PixelFormat::R8G8B8;
+	case VK_FORMAT_R5G6B5_UNORM_PACK16:				return PixelFormat::R5G6B5;
+	case VK_FORMAT_R8G8B8A8_SRGB:					return PixelFormat::SRGBA8;
+	case VK_FORMAT_R5G5B5A1_UNORM_PACK16:			return PixelFormat::A1R5G5B5;
+	case VK_FORMAT_R4G4B4A4_UNORM_PACK16:			return PixelFormat::A4R4G4B4;
+	case VK_FORMAT_BC1_RGB_UNORM_BLOCK:				return PixelFormat::DXT1;
+	case VK_FORMAT_BC1_RGBA_UNORM_BLOCK:			return PixelFormat::DXT1A;
+	case VK_FORMAT_BC2_UNORM_BLOCK:					return PixelFormat::DXT3;
+	case VK_FORMAT_BC3_UNORM_BLOCK:					return PixelFormat::DXT5;
+	case VK_FORMAT_BC1_RGB_SRGB_BLOCK:				return PixelFormat::DXT1sRGB;
+	case VK_FORMAT_BC1_RGBA_SRGB_BLOCK:				return PixelFormat::DXT1AsRGB;
+	case VK_FORMAT_BC2_SRGB_BLOCK:					return PixelFormat::DXT3sRGB;
+	case VK_FORMAT_BC3_SRGB_BLOCK:					return PixelFormat::DXT5sRGB;
+	case VK_FORMAT_BC7_UNORM_BLOCK:					return PixelFormat::BC7;
+	case VK_FORMAT_BC7_SRGB_BLOCK:					return PixelFormat::BC7sRGB;
+	case VK_FORMAT_R16_SFLOAT:						return PixelFormat::R16F;
+	case VK_FORMAT_R16G16_SFLOAT:					return PixelFormat::G16R16F;
+	case VK_FORMAT_R16G16B16A16_SFLOAT:				return PixelFormat::A16B16G16R16F;
+	case VK_FORMAT_R16G16B16A16_UINT:				return PixelFormat::A16B16G16R16;
+	case VK_FORMAT_B10G11R11_UFLOAT_PACK32:			return PixelFormat::R11G11B10F;
+	case VK_FORMAT_R32_SFLOAT:						return PixelFormat::R32F;
+	case VK_FORMAT_R32G32_SFLOAT:					return PixelFormat::G32R32F;
+	case VK_FORMAT_R32G32B32A32_SFLOAT:				return PixelFormat::A32B32G32R32F;
+	case VK_FORMAT_R32G32B32_SFLOAT:				return PixelFormat::R32G32B32F;
+	case VK_FORMAT_R8_SINT:							return PixelFormat::R8;
+	case VK_FORMAT_A2B10G10R10_UINT_PACK32:			return PixelFormat::A2R10G10B10;
+	case VK_FORMAT_R16G16_UINT:						return PixelFormat::G16R16;
+	case VK_FORMAT_X8_D24_UNORM_PACK32:				return PixelFormat::D24X8;
+	case VK_FORMAT_D24_UNORM_S8_UINT:				return PixelFormat::D24S8;
+	case VK_FORMAT_D32_SFLOAT_S8_UINT:				return PixelFormat::D32S8;
 	default:
 	{
 		n_error("VkTypes::AsNebulaPixelFormat(): invalid pixel format '%d'", f);

@@ -220,6 +220,7 @@ VkShaderState::SetupVariables(const Util::Array<IndexT>& groups)
 	for (i = 0; i < groups.Size(); i++)
 	{
 		DescriptorSetBinding binding;
+		groupIndexMap.Add(groups[i], i);
 #if AMD_DESC_SETS
 		binding.set = this->sets[i];
 #else
@@ -422,6 +423,17 @@ VkShaderState::SetConstantBufferOffset(const IndexT group, const IndexT binding,
 {
 	// WOW
 	this->offsetsByGroup[group][this->offsetByGroupBinding[group][binding]] = offset;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkShaderState::SetDescriptorSet(const VkDescriptorSet& set, const IndexT slot)
+{
+	// update both references
+	this->sets[groupIndexMap[slot]] = set;
+	this->setBindnings[groupIndexMap[slot]].set = set;
 }
 
 } // namespace Vulkan

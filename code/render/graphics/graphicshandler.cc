@@ -146,6 +146,7 @@ GraphicsHandler::Open()
     this->shadowServer = ShadowServer::Create();
 	this->instanceServer = InstanceServer::Create();
     this->frameServer = FrameServer::Create();
+	this->frame2Server = Frame2::FrameServer::Create();
 	this->materialServer = MaterialServer::Create();
     this->animEventServer = Animation::AnimEventServer::Create();
     this->characterServer = Characters::CharacterServer::Create();
@@ -178,6 +179,7 @@ GraphicsHandler::Close()
     this->mouseRenderDevice = 0;
     this->characterServer = 0;
     this->frameServer = 0;
+	this->frame2Server = 0;
 	this->materialServer = 0;
     this->shadowServer = 0;
     this->lightServer = 0;

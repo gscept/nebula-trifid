@@ -7,6 +7,7 @@
 */
 //------------------------------------------------------------------------------
 #include "coregraphics/base/passbase.h"
+#include "coregraphics/shaderstate.h"
 namespace Vulkan
 {
 class VkPass : public Base::PassBase
@@ -41,7 +42,8 @@ public:
 	/// get list of clear values
 	const Util::FixedArray<VkClearValue>& GetVkClearValues() const;
 private:
-
+	Ptr<CoreGraphics::ShaderState> shaderState;
+	VkDescriptorSet inputAttachmentDescriptorSet;
 	Util::FixedArray<VkClearValue> clearValues;
 	VkGraphicsPipelineCreateInfo framebufferPipelineInfo;
 	VkPipelineViewportStateCreateInfo viewportInfo;

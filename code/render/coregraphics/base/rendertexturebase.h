@@ -22,7 +22,7 @@ class RenderTextureBase : public Core::RefCounted
 {
 	__DeclareClass(RenderTextureBase);
 public:
-	enum Usage
+	typedef enum Usage
 	{
 		ColorAttachment,
 		DepthStencilAttachment,
@@ -70,6 +70,9 @@ public:
 	void Discard();
 	/// resize render texture, retaining the same texture object
 	void Resize();
+
+	/// swap buffers, only valid if this is a window texture
+	void SwapBuffers();
 
 	/// get texture
 	const Ptr<CoreGraphics::Texture>& GetTexture() const;

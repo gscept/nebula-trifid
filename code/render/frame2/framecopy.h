@@ -1,7 +1,7 @@
 #pragma once
 //------------------------------------------------------------------------------
 /**
-	A frame blit performs an image copy with optional filtering and image type conversions.
+	Performs an image copy without any filtering or image conversion.
 	
 	(C) 2016 Individual contributors, see AUTHORS file
 */
@@ -10,14 +10,14 @@
 #include "coregraphics/rendertexture.h"
 namespace Frame2
 {
-class FrameBlit : public FrameOp
+class FrameCopy : public FrameOp
 {
-	__DeclareClass(FrameBlit);
+	__DeclareClass(FrameCopy);
 public:
 	/// constructor
-	FrameBlit();
+	FrameCopy();
 	/// destructor
-	virtual ~FrameBlit();
+	virtual ~FrameCopy();
 
 	/// set texture to copy from
 	void SetFromTexture(const Ptr<CoreGraphics::RenderTexture>& from);
@@ -35,7 +35,7 @@ private:
 /**
 */
 inline void
-FrameBlit::SetFromTexture(const Ptr<CoreGraphics::RenderTexture>& from)
+FrameCopy::SetFromTexture(const Ptr<CoreGraphics::RenderTexture>& from)
 {
 	this->from = from;
 }
@@ -44,7 +44,7 @@ FrameBlit::SetFromTexture(const Ptr<CoreGraphics::RenderTexture>& from)
 /**
 */
 inline void
-FrameBlit::SetToTexture(const Ptr<CoreGraphics::RenderTexture>& to)
+FrameCopy::SetToTexture(const Ptr<CoreGraphics::RenderTexture>& to)
 {
 	this->to = to;
 }

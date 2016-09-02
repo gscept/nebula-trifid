@@ -9,7 +9,7 @@
 #include "lib/shared.fxh"
 
 sampler2D ColorBuffer;
-readwrite rgba16f image2D EmissiveBuffer;
+readwrite rgba16f image2D EmissiveImage;
 
 const float SearchDist = 5.0f;
 const float SearchDistInv = 0.2f;
@@ -119,10 +119,10 @@ csMain()
 
 	// blend with already existing emissive
 	vec4 color = textureLod(ColorBuffer, coord, 0) * Spec;
-	vec4 emissive = imageLoad(EmissiveBuffer, PixelCoord);
+	vec4 emissive = imageLoad(EmissiveImage, PixelCoord);
 	groupMemoryBarrier();
-	imageStore(EmissiveBuffer, PixelCoord, lerp(emissive, color, modulate) + vec4(reflection.xyz / 10, 0));
-	//imageStore(EmissiveBuffer, PixelCoord, textureLod(ColorBuffer, UV, 0) * modulate);
+	imageStore(EmissiveImage, PixelCoord, lerp(emissive, color, modulate) + vec4(reflection.xyz / 10, 0));
+	//imageStore(EmissiveImage, PixelCoord, textureLod(ColorBuffer, UV, 0) * modulate);
 }
 
 //------------------------------------------------------------------------------

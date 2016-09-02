@@ -39,6 +39,8 @@ private:
 	static void ParseGlobalState(const Ptr<Frame2::FrameScript>& script, cJSON* node);
 	/// parse blit
 	static void ParseBlit(const Ptr<Frame2::FrameScript>& script, cJSON* node);
+	/// parse subpass copy
+	static void ParseCopy(const Ptr<Frame2::FrameScript>& script, cJSON* node);
 	/// parse compute
 	static void ParseCompute(const Ptr<Frame2::FrameScript>& script, cJSON* node);
 	/// parse compute algorithm
@@ -66,8 +68,6 @@ private:
 	static void ParseSubpassSortedBatch(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, cJSON* node);
 	/// parse subpass post effect
 	static void ParseSubpassFullscreenEffect(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, cJSON* node);
-	/// parse subpass copy
-	static void ParseSubpassCopy(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, cJSON* node);
 	/// parse event in subpass
 	static void ParseSubpassEvent(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, cJSON* node);
 	/// parse system in subpass

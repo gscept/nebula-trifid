@@ -836,6 +836,8 @@ ENDIF()
 		frame2/framecompute.h
 		frame2/framecomputealgorithm.cc
 		frame2/framecomputealgorithm.h
+		frame2/framecopy.cc
+		frame2/framecopy.h
 		frame2/frameevent.cc
 		frame2/frameevent.h
 		frame2/frameglobalstate.cc
@@ -856,8 +858,6 @@ ENDIF()
 		frame2/framesubpassalgorithm.h
 		frame2/framesubpassbatch.cc
 		frame2/framesubpassbatch.h
-		frame2/framesubpasscopy.cc
-		frame2/framesubpasscopy.h
 		frame2/framesubpassfullscreeneffect.cc
 		frame2/framesubpassfullscreeneffect.h
 		frame2/framesubpassorderedbatch.cc

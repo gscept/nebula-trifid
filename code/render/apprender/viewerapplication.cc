@@ -85,6 +85,7 @@ ViewerApplication::Open()
         this->view->SetFrameShader(frameShader);
         if (this->useResolveRect) this->view->SetResolveRect(this->resolveRect);
 
+		Frame2::FrameServer::Instance()->SetWindowTexture(CoreGraphics::RenderDevice::Instance()->GetDefaultRenderTexture());
 		Ptr<Frame2::FrameScript> frameScript = Frame2::FrameServer::Instance()->LoadFrameScript("test", "home:work/frame/win32/vkdebug.json");
 
         // create a camera entity

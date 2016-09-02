@@ -635,12 +635,10 @@ VkRenderTarget::SwapBuffers()
 	n_assert(this->isDefaultRenderTarget);
 
 	VkRenderDevice* dev = VkRenderDevice::Instance();
-
 	VkResult res = vkAcquireNextImageKHR(dev->dev, dev->swapchain, UINT64_MAX, dev->displaySemaphore, VK_NULL_HANDLE, &dev->currentBackbuffer);
 	if (res == VK_ERROR_OUT_OF_DATE_KHR)
 	{
 		// this means our swapchain needs a resize!
-		n_printf("Window out of date!");
 	}
 	else
 	{

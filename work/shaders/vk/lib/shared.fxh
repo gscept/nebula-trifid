@@ -33,12 +33,6 @@ group(TEXTURE_GROUP) shared varblock RenderTargetIndices
 	// shadow buffers
 	textureHandle CSMShadowMapIdx;
 	textureHandle SpotLightShadowMapIdx;
-	
-	textureHandle NormalBuffer;
-	textureHandle DepthBuffer;
-	textureHandle SpecularBuffer;
-	textureHandle AlbedoBuffer;
-	textureHandle LightBuffer;
 };
 
 group(TEXTURE_GROUP) texture2D 		Textures2D[MAX_2D_TEXTURES];
@@ -84,6 +78,17 @@ group(FRAME_GROUP) shared varblock CameraBlock [ bool System = true; ]
 group(FRAME_GROUP) shared varblock ShadowCameraBlock [ bool System = true; ]
 {
 	mat4 ViewMatrixArray[6];
+};
+
+
+group(FRAME_GROUP) shared varblock RenderTargetBlock
+{
+	textureHandle NormalBuffer;
+	textureHandle DepthBuffer;
+	textureHandle SpecularBuffer;
+	textureHandle AlbedoBuffer;
+	textureHandle EmissiveBuffer;
+	textureHandle LightBuffer;
 };
 
 // constains the state of a global light
@@ -146,7 +151,8 @@ group(OBJECT_GROUP) shared varblock ObjectBlock
 	int ObjectId;
 };
 
-group(PASS_GROUP) shared varblock PassBlock
+group(PASS_GROUP) inputAttachment InputAttachments[32];
+group(PASS_GROUP) shared varblock PassBlock [ bool System = true; ]
 {
 	// render target dimensions are size (xy) inversed size (zw)
 	vec4 RenderTargetDimensions[32];
