@@ -46,6 +46,7 @@ public:
 	static CoreGraphics::PixelFormat::Code AsNebulaPixelFormat(VkFormat f);
 	/// convert pixel format to Vulkan component mapping
 	static VkComponentMapping AsVkMapping(CoreGraphics::PixelFormat::Code p);
+
 #pragma endregion
 
 	/// convert primitive topology to vulkan

@@ -128,8 +128,8 @@ StateNodeInstance::ApplyState(IndexT frameIndex, const IndexT& pass)
 	TransformNodeInstance::ApplyState(frameIndex, pass);
 
 	// apply any needed model transform state to shader
-	const Ptr<TransformDevice>& transformDevice = TransformDevice::Instance();
-	const Ptr<ShaderServer>& shaderServer = ShaderServer::Instance();
+	TransformDevice* transformDevice = TransformDevice::Instance();
+	ShaderServer* shaderServer = ShaderServer::Instance();
 
 #if SHADER_MODEL_5
     // avoid shuffling buffers if we are in the same frame
@@ -138,8 +138,8 @@ StateNodeInstance::ApplyState(IndexT frameIndex, const IndexT& pass)
         // apply transforms
         this->modelShaderVar->SetMatrix(transformDevice->GetModelTransform());
         this->invModelShaderVar->SetMatrix(transformDevice->GetInvModelTransform());
-        this->modelViewProjShaderVar->SetMatrix(transformDevice->GetModelViewProjTransform());
-        this->modelViewShaderVar->SetMatrix(transformDevice->GetModelViewTransform());
+        //this->modelViewProjShaderVar->SetMatrix(transformDevice->GetModelViewProjTransform());
+        //this->modelViewShaderVar->SetMatrix(transformDevice->GetModelViewTransform());
         this->objectIdShaderVar->SetInt(this->GetModelInstance()->GetPickingId());
         this->objectBufferUpdateIndex = frameIndex;
     }
@@ -150,7 +150,7 @@ StateNodeInstance::ApplyState(IndexT frameIndex, const IndexT& pass)
 #endif
 
 	// apply global variables, layer 1 (this should be moved to a per-frame variable buffer and not set per object)
-	this->ApplySharedVariables();
+	//this->ApplySharedVariables();
 
     // apply this surface material instance if we have a valid batch group
 	this->surfaceInstance->Apply(pass);

@@ -34,7 +34,9 @@ public:
 	virtual void OnUnregister();
 
 	/// called when rendering a frame batch
-	virtual void OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch);
+	void OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch);
+	/// called when rendering a frame batch
+	void OnRender(const Util::StringAtom& filter);
 
 	/// set if grid should be visible
 	void SetVisible(bool b);

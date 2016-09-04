@@ -90,6 +90,7 @@ private:
 	Util::FixedArray<VkDescriptorSet> sets;
 	Util::FixedArray<DescriptorSetBinding> setBindnings;
 	Util::Array<VkWriteDescriptorSet> pendingSetWrites;
+	bool setsDirty;
 	Util::Dictionary<uint32_t, uint32_t> groupIndexMap;
 
 	Util::Array<uint32_t> offsets;
@@ -131,4 +132,5 @@ VkShaderState::GetNumConstantBuffers() const
 {
 	return this->shader->buffers.Size();
 }
+
 } // namespace Vulkan

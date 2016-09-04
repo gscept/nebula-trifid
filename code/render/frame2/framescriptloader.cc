@@ -25,6 +25,8 @@
 #include "coregraphics/config.h"
 #include "resources/resourcemanager.h"
 #include "core/factory.h"
+#include "frameswapbuffers.h"
+#include "framesubpassplugins.h"
 
 using namespace CoreGraphics;
 using namespace IO;
@@ -91,7 +93,9 @@ FrameScriptLoader::ParseFrameScript(const Ptr<Frame2::FrameScript>& script, cJSO
 		else if (name == "copy")				ParseCopy(script, cur);
 		else if (name == "compute")				ParseCompute(script, cur);
 		else if (name == "computeAlgorithm")	ParseComputeAlgorithm(script, cur);
+		else if (name == "swapbuffers")			ParseSwapbuffers(script, cur);
 		else if (name == "pass")				ParsePass(script, cur);
+		
 		else
 		{
 			n_error("Frame script operation '%s' is unrecognized.\n", name.AsCharPtr());
@@ -541,6 +545,28 @@ FrameScriptLoader::ParseComputeAlgorithm(const Ptr<Frame2::FrameScript>& script,
 /**
 */
 void
+FrameScriptLoader::ParseSwapbuffers(const Ptr<Frame2::FrameScript>& script, cJSON* node)
+{
+	Ptr<FrameSwapbuffers> op = FrameSwapbuffers::Create();
+
+	// get function and name
+	cJSON* name = cJSON_GetObjectItem(node, "name");
+	n_assert(name != NULL);
+	op->SetName(name->valuestring);
+
+	cJSON* texture = cJSON_GetObjectItem(node, "texture");
+	n_assert(texture != NULL);
+	const Ptr<CoreGraphics::RenderTexture>& tex = script->GetColorTexture(texture->valuestring);
+	op->SetTexture(tex);
+
+	// add operation
+	script->AddOp(op.upcast<Frame2::FrameOp>());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 FrameScriptLoader::ParseEvent(const Ptr<Frame2::FrameScript>& script, cJSON* node)
 {
 	Ptr<FrameEvent> op = FrameEvent::Create();
@@ -728,6 +754,7 @@ FrameScriptLoader::ParseSubpass(const Ptr<Frame2::FrameScript>& script, const Pt
 		else if (name == "fullscreenEffect")	ParseSubpassFullscreenEffect(script, frameSubpass, cur);
 		else if (name == "event")				ParseSubpassEvent(script, frameSubpass, cur);
 		else if (name == "system")				ParseSubpassSystem(script, frameSubpass, cur);
+		else if (name == "plugins")				ParseSubpassPlugins(script, frameSubpass, cur);
 		else
 		{
 			n_error("Subpass operation '%s' is invalid.\n", name.AsCharPtr());
@@ -919,10 +946,29 @@ FrameScriptLoader::ParseSubpassSystem(const Ptr<Frame2::FrameScript>& script, co
 	else if (subsystem == "LightProbes")	op->SetSubsystem(FrameSubpassSystem::LightProbes);
 	else if (subsystem == "UI")				op->SetSubsystem(FrameSubpassSystem::UI);
 	else if (subsystem == "Text")			op->SetSubsystem(FrameSubpassSystem::Text);
+	else if (subsystem == "Shapes")			op->SetSubsystem(FrameSubpassSystem::Shapes);
 	else
 	{
 		n_error("No subsystem called '%s' exists", subsystem.AsCharPtr());
 	}
+	subpass->AddOp(op.upcast<Frame2::FrameOp>());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+FrameScriptLoader::ParseSubpassPlugins(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, cJSON* node)
+{
+	Ptr<Frame2::FrameSubpassPlugins> op = Frame2::FrameSubpassPlugins::Create();
+	cJSON* name = cJSON_GetObjectItem(node, "name");
+	n_assert(name != NULL);
+	op->SetName(name->valuestring);
+
+	cJSON* filter = cJSON_GetObjectItem(node, "filter");
+	n_assert(filter != NULL);
+	op->SetPluginFilter(filter->valuestring);
+	op->Setup();
 	subpass->AddOp(op.upcast<Frame2::FrameOp>());
 }
 

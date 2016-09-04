@@ -59,6 +59,9 @@ VkRenderTexture::Setup()
 			VkRenderDevice::Instance()->PushImageColorClear(this->swapimages[i], VkDeferredCommand::Graphics, VK_IMAGE_LAYOUT_GENERAL, clear, subres);
 			VkRenderDevice::Instance()->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->swapimages[i], subres, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL));
 		}
+
+		// setup texture
+		this->texture->SetupFromVkBackbuffer(this->swapimages[0], this->width, this->height, this->depth, this->format);
 	}
 	else
 	{
@@ -186,8 +189,9 @@ VkRenderTexture::SwapBuffers()
 		n_assert(res == VK_SUCCESS);
 	}
 
-	// set image
+	// set image and update texture
 	this->img = this->swapimages[dev->currentBackbuffer];
+	this->texture->img = this->img;
 }
 
 

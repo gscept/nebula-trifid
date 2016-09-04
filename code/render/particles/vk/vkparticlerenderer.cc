@@ -24,11 +24,9 @@ __ImplementSingleton(Vulkan::VkParticleRenderer);
 /**
 */
 VkParticleRenderer::VkParticleRenderer() :
-	curParticleVertexIndex(0),
 	curParticleIndex(0),
 	mappedVertices(0),
-	curVertexPtr(0),
-	bufferIndex(0)
+	curVertexPtr(0)
 {
 	__ConstructSingleton;
 }
@@ -57,7 +55,6 @@ VkParticleRenderer::Setup()
 	n_assert(!this->cornerIndexBuffer.isvalid());
 
 	ParticleRendererBase::Setup();
-	this->curParticleVertexIndex = 0;
 	this->mappedVertices = 0;
 	this->curVertexPtr = 0;
 
@@ -114,7 +111,7 @@ VkParticleRenderer::Setup()
 	particleComponents.Append(VertexComponent((VertexComponent::SemanticName)5, 0, VertexComponent::Float4, 1, VertexComponent::PerInstance, 1));   // x: Particle::rotation, y: Particle::size
 
 	Ptr<MemoryVertexBufferLoader> particleVBLoader = MemoryVertexBufferLoader::Create();
-	particleVBLoader->Setup(particleComponents, MaxNumRenderedParticles * 3, NULL, 0, VertexBuffer::UsageDynamic, VertexBuffer::AccessWrite, VertexBuffer::SyncingCoherent);
+	particleVBLoader->Setup(particleComponents, MaxNumRenderedParticles, NULL, 0, VertexBuffer::UsageDynamic, VertexBuffer::AccessWrite, VertexBuffer::SyncingCoherent);
 
 	this->particleVertexBuffer = VertexBuffer::Create();
 	this->particleVertexBuffer->SetLoader(particleVBLoader.upcast<ResourceLoader>());
@@ -175,12 +172,8 @@ VkParticleRenderer::BeginAttach()
 	n_assert(!this->inAttach);
 	n_assert(0 != this->mappedVertices);
 	this->inAttach = true;
-	this->curVertexPtr = ((float*)this->mappedVertices) + this->bufferIndex * MaxNumRenderedParticles * 20;
-	this->curParticleVertexIndex = this->bufferIndex * MaxNumRenderedParticles;
+	this->curVertexPtr = ((float*)this->mappedVertices);
 	this->curParticleIndex = 0;
-
-	// make sure to wait for our buffer to be done with the writing until we let our particles render
-	this->particleBufferLock->WaitForBuffer(this->bufferIndex);
 }
 
 //------------------------------------------------------------------------------
@@ -193,11 +186,6 @@ VkParticleRenderer::EndAttach()
 	n_assert(0 != this->mappedVertices);
 	this->inAttach = false;
 	this->curVertexPtr = 0;
-	this->curParticleVertexIndex = 0;
-
-	// lock this segment of the buffer and traverse to our next buffer (we are using triple buffering)
-	RenderDevice::EnqueueBufferLockIndex(this->particleBufferLock, this->bufferIndex);
-	this->bufferIndex = (this->bufferIndex + 1) % 3;
 }
 
 } // namespace Vulkan

@@ -172,7 +172,7 @@ PickingServer::FetchIndex(const Math::float2& position)
 /**
 */
 void
-PickingServer::FetchSquare( const Math::rectangle<float>& rect, Util::Array<IndexT> & indices, Util::Array<IndexT> & edgeIndices)
+PickingServer::FetchSquare(const Math::rectangle<float>& rect, Util::Array<IndexT> & indices, Util::Array<IndexT> & edgeIndices)
 {
 	// render first
 	this->Render();

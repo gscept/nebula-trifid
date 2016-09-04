@@ -19,7 +19,8 @@ __ImplementClass(Vulkan::VkShaderState, 'VKSN', Base::ShaderStateBase);
 */
 VkShaderState::VkShaderState() :
 	pushData(NULL),
-	pushSize(0)
+	pushSize(0),
+	setsDirty(false)
 {
 	// empty
 }
@@ -122,7 +123,7 @@ VkShaderState::Apply()
 void
 VkShaderState::Commit()
 {
-	this->UpdateDescriptorSets();
+	if (this->setsDirty) this->UpdateDescriptorSets();
 
 	// get render device to apply state
 	VkRenderDevice* dev = VkRenderDevice::Instance();
@@ -194,6 +195,7 @@ void
 VkShaderState::AddDescriptorWrite(const VkWriteDescriptorSet& write)
 {
 	this->pendingSetWrites.Append(write);
+	this->setsDirty = true;
 }
 
 static int NumSetsAllocated = 0;
@@ -386,7 +388,7 @@ VkShaderState::SetupUniformBuffers(const Util::Array<IndexT>& groups)
 //------------------------------------------------------------------------------
 /**
 */
-void
+__forceinline void
 VkShaderState::UpdateDescriptorSets()
 {
 	// first ensure descriptor sets are up to date with whatever the variable values has been set to
@@ -395,6 +397,7 @@ VkShaderState::UpdateDescriptorSets()
 	{
 		vkUpdateDescriptorSets(VkRenderDevice::dev, this->pendingSetWrites.Size(), &this->pendingSetWrites[0], 0, NULL);
 		this->pendingSetWrites.Clear();
+		this->setsDirty = false;
 	}
 }
 

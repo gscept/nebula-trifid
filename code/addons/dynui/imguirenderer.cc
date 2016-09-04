@@ -22,42 +22,135 @@ using namespace Base;
 using namespace Input;
 
 
-
-namespace Dynui
-{
-
 //------------------------------------------------------------------------------
 /**
-	Imgui rendering function.
-
-	Perhaps this one should be platform-dependent, since we can utilize rendering platform APIs more efficient if we know.
 */
 static void
-ImguiDrawFunction(ImDrawData* data)
+OGL4Draw(const Ptr<Dynui::ImguiRenderer>& renderer, ImDrawData* data)
 {
-	// get Imgui context
-	ImGuiIO& io = ImGui::GetIO();
-	int fb_width = (int)(io.DisplaySize.x * io.DisplayFramebufferScale.x);
-	int fb_height = (int)(io.DisplaySize.y * io.DisplayFramebufferScale.y);
-	data->ScaleClipRects(io.DisplayFramebufferScale);
-
 	// get rendering device
 	const Ptr<RenderDevice>& device = RenderDevice::Instance();
 
 	// get renderer
-	const Ptr<ImguiRenderer>& renderer = ImguiRenderer::Instance();
 	const Ptr<ShaderState>& shader = renderer->GetShaderState();
 	const Ptr<BufferLock>& vboLock = renderer->GetVertexBufferLock();
 	const Ptr<BufferLock>& iboLock = renderer->GetIndexBufferLock();
 	const Ptr<VertexBuffer>& vbo = renderer->GetVertexBuffer();
 	const Ptr<IndexBuffer>& ibo = renderer->GetIndexBuffer();
-	const ImguiRendererParams& params = renderer->GetParams();
+	const Dynui::ImguiRendererParams& params = renderer->GetParams();
 
 	// apply shader
-    shader->Apply();
+	shader->Apply();
 
-	// create orthogonal matrix
-#if __VULKAN__
+	ImGuiIO& io = ImGui::GetIO();
+	matrix44 proj = matrix44::orthooffcenterrh(0.0f, io.DisplaySize.x, io.DisplaySize.y, 0.0f, -1.0f, +1.0f);
+
+	// set in shader
+	shader->BeginUpdateSync();
+	params.projVar->SetMatrix(proj);
+	shader->EndUpdateSync();
+
+	// setup primitive group
+	CoreGraphics::PrimitiveGroup primitive;
+
+	// setup device
+	device->SetVertexLayout(vbo->GetVertexLayout());
+	device->SetStreamVertexBuffer(0, vbo, 0);
+	device->SetIndexBuffer(ibo);
+
+	IndexT vertexOffset = 0;
+	IndexT indexOffset = 0;
+	IndexT vertexBufferOffset = 0;
+	IndexT indexBufferOffset = 0;
+	IndexT i;
+	for (i = 0; i < data->CmdListsCount; i++)
+	{
+		// get buffer data and calculate size of data to copy
+		const ImDrawList* commandList = data->CmdLists[i];
+		const unsigned char* vertexBuffer = (unsigned char*)&commandList->VtxBuffer.front();
+		const unsigned char* indexBuffer = (unsigned char*)&commandList->IdxBuffer.front();
+		const SizeT vertexBufferSize = commandList->VtxBuffer.size() * sizeof(ImDrawVert);					// 2 for position, 2 for uvs, 1 int for color
+		const SizeT indexBufferSize = commandList->IdxBuffer.size() * sizeof(ImDrawIdx);					// using 16 bit indices
+
+		// if we render too many vertices, we will simply assert
+		n_assert(vertexBufferOffset + (IndexT)commandList->VtxBuffer.size() < vbo->GetNumVertices());
+		n_assert(indexBufferOffset + (IndexT)commandList->IdxBuffer.size() < ibo->GetNumIndices());
+
+		// wait for previous draws to finish...
+		vboLock->WaitForRange(vertexBufferOffset, vertexBufferSize);
+		iboLock->WaitForRange(indexBufferOffset, indexBufferSize);
+		memcpy(renderer->GetVertexPtr() + vertexBufferOffset, vertexBuffer, vertexBufferSize);
+		memcpy(renderer->GetIndexPtr() + indexBufferOffset, indexBuffer, indexBufferSize);
+		IndexT j;
+		IndexT primitiveIndexOffset = 0;
+		for (j = 0; j < commandList->CmdBuffer.size(); j++)
+		{
+			const ImDrawCmd* command = &commandList->CmdBuffer[j];
+			if (command->UserCallback)
+			{
+				command->UserCallback(commandList, command);
+			}
+			else
+			{
+				// setup scissor rect
+				Math::rectangle<int> scissorRect((int)command->ClipRect.x, (int)command->ClipRect.y, (int)command->ClipRect.z, (int)command->ClipRect.w);
+				device->SetScissorRect(scissorRect, 0);
+
+				// set texture in shader, we shouldn't have to put it into ImGui
+				params.fontVar->SetTexture((CoreGraphics::Texture*)command->TextureId);
+
+				// commit variable changes
+				shader->Commit();
+
+				// setup primitive
+				primitive.SetPrimitiveTopology(CoreGraphics::PrimitiveTopology::TriangleList);
+				primitive.SetNumIndices(command->ElemCount);
+				primitive.SetBaseIndex(primitiveIndexOffset + indexOffset);
+				primitive.SetBaseVertex(vertexOffset);
+
+				// prepare render device and draw
+				device->SetPrimitiveGroup(primitive);
+				device->Draw();
+			}
+
+			// increment vertex offset
+			primitiveIndexOffset += command->ElemCount;
+		}
+
+		// bump vertices
+		vertexOffset += commandList->VtxBuffer.size();
+		indexOffset += commandList->IdxBuffer.size();
+
+		// lock buffers
+		vboLock->LockRange(vertexBufferOffset, vertexBufferSize);
+		vertexBufferOffset += vertexBufferSize;
+		iboLock->LockRange(indexBufferOffset, indexBufferSize);
+		indexBufferOffset += indexBufferSize;
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+static void
+VkDraw(const Ptr<Dynui::ImguiRenderer>& renderer, ImDrawData* data)
+{
+	// get rendering device
+	const Ptr<RenderDevice>& device = RenderDevice::Instance();
+
+	// get renderer
+	const Ptr<ShaderState>& shader = renderer->GetShaderState();
+	const Ptr<BufferLock>& vboLock = renderer->GetVertexBufferLock();
+	const Ptr<BufferLock>& iboLock = renderer->GetIndexBufferLock();
+	const Ptr<VertexBuffer>& vbo = renderer->GetVertexBuffer();
+	const Ptr<IndexBuffer>& ibo = renderer->GetIndexBuffer();
+	const Dynui::ImguiRendererParams& params = renderer->GetParams();
+
+	// apply shader
+	shader->Apply();
+
+	// correct for Vulkan coordinate system
+	ImGuiIO& io = ImGui::GetIO();
 	matrix44 proj = matrix44::orthooffcenterrh(0.0f, io.DisplaySize.x, io.DisplaySize.y, 0.0f, -1.0f, +1.0f);
 	Math::matrix44 correction = Math::matrix44(
 		Math::float4(1, 0, 0, 0),
@@ -65,14 +158,9 @@ ImguiDrawFunction(ImDrawData* data)
 		Math::float4(0, 0, 0.5f, 0),
 		Math::float4(0, 0, 0.5f, 1));
 	proj = matrix44::multiply(proj, correction);
-#else
-	matrix44 proj = matrix44::orthooffcenterrh(0.0f, io.DisplaySize.x, io.DisplaySize.y, 0.0f, -1.0f, +1.0f);
-#endif
 
 	// set in shader
-    shader->BeginUpdateSync();
 	params.projVar->SetMatrix(proj);
-    shader->EndUpdateSync();
 
 	// setup primitive group
 	CoreGraphics::PrimitiveGroup primitive;
@@ -102,17 +190,6 @@ ImguiDrawFunction(ImDrawData* data)
 		n_assert(vertexBufferOffset + (IndexT)commandList->VtxBuffer.size() < vbo->GetNumVertices());
 		n_assert(indexBufferOffset + (IndexT)commandList->IdxBuffer.size() < ibo->GetNumIndices());
 
-		// unlock range within buffers, can cause a wait for lock
-		//vbo->Unlock(vertexBufferOffset, vertexBufferSize);
-		//ibo->Unlock(indexBufferOffset, indexBufferSize);
-
-		// update buffers
-		//vbo->Update(vertexBuffer, vertexBufferOffset, vertexBufferSize);
-		//ibo->Update(indexBuffer, indexBufferOffset, indexBufferSize);
-
-		// wait for previous draws to finish...
-		//vboLock->WaitForRange(vertexBufferOffset, vertexBufferSize);
-		//iboLock->WaitForRange(indexBufferOffset, indexBufferSize);
 		memcpy(renderer->GetVertexPtr() + vertexBufferOffset, vertexBuffer, vertexBufferSize);
 		memcpy(renderer->GetIndexPtr() + indexBufferOffset, indexBuffer, indexBufferSize);
 		IndexT j;
@@ -154,16 +231,41 @@ ImguiDrawFunction(ImDrawData* data)
 		vertexOffset += commandList->VtxBuffer.size();
 		indexOffset += commandList->IdxBuffer.size();
 
-		// lock range within buffers so we avoid stomping them
-		//vbo->Lock(vertexBufferOffset, vertexBufferSize);
-		//ibo->Lock(indexBufferOffset, indexBufferSize);
-
 		// lock buffers
-		//vboLock->LockRange(vertexBufferOffset, vertexBufferSize);
 		vertexBufferOffset += vertexBufferSize;
-		//iboLock->LockRange(indexBufferOffset, indexBufferSize);
 		indexBufferOffset += indexBufferSize;
 	}
+}
+
+#if __VULKAN__
+static void(*DrawFunc)(const Ptr<Dynui::ImguiRenderer>& renderer, ImDrawData* data) = VkDraw;
+#elif __OGL4__
+static void(*DrawFunc)(const Ptr<Dynui::ImguiRenderer>& renderer, ImDrawData* data) = OGL4Draw;
+#else
+#error("ImGUI draw function is not defined for this renderer!\n");
+#endif
+
+namespace Dynui
+{
+
+//------------------------------------------------------------------------------
+/**
+	Imgui rendering function.
+
+	Perhaps this one should be platform-dependent, since we can utilize rendering platform APIs more efficient if we know.
+*/
+static void
+ImguiDrawFunction(ImDrawData* data)
+{
+	// get Imgui context
+	ImGuiIO& io = ImGui::GetIO();
+	int fb_width = (int)(io.DisplaySize.x * io.DisplayFramebufferScale.x);
+	int fb_height = (int)(io.DisplaySize.y * io.DisplayFramebufferScale.y);
+	data->ScaleClipRects(io.DisplayFramebufferScale);
+
+	// get renderer
+	const Ptr<ImguiRenderer>& renderer = ImguiRenderer::Instance();
+	DrawFunc(renderer, data);
 }
 
 __ImplementClass(Dynui::ImguiRenderer, 'IMRE', Core::RefCounted);
@@ -204,7 +306,7 @@ ImguiRenderer::Setup()
     
 	// load vbo
 	Ptr<MemoryVertexBufferLoader> vboLoader = MemoryVertexBufferLoader::Create();
-	vboLoader->Setup(components, 1048576 * 3, NULL, 0, ResourceBase::UsageDynamic, ResourceBase::AccessWrite, ResourceBase::SyncingCoherent);
+	vboLoader->Setup(components, 1048576, NULL, 0, ResourceBase::UsageDynamic, ResourceBase::AccessWrite, ResourceBase::SyncingCoherent);
 
 	// load buffer
 	this->vbo = VertexBuffer::Create();
@@ -216,7 +318,7 @@ ImguiRenderer::Setup()
 
 	// load ibo
 	Ptr<MemoryIndexBufferLoader> iboLoader = MemoryIndexBufferLoader::Create();
-	iboLoader->Setup(IndexType::Index16, 1048576 * 3, NULL, 0, ResourceBase::UsageDynamic, ResourceBase::AccessWrite, ResourceBase::SyncingCoherent);
+	iboLoader->Setup(IndexType::Index16, 1048576, NULL, 0, ResourceBase::UsageDynamic, ResourceBase::AccessWrite, ResourceBase::SyncingCoherent);
 
 	// load buffer
 	this->ibo = IndexBuffer::Create();

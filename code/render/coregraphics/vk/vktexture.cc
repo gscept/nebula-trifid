@@ -367,7 +367,6 @@ VkTexture::SetupFromVkMultisampleTexture(VkImage img, VkDeviceMemory mem, VkImag
 	this->imgView = imgView;
 	this->id = VkShaderServer::Instance()->RegisterTexture(this);
 
-	this->SetType(VkTexture::Texture2D);
 	this->SetWidth(width);
 	this->SetHeight(height);
 	this->SetDepth(1);
@@ -395,7 +394,6 @@ VkTexture::SetupFromVkCubeTexture(VkImage img, VkDeviceMemory mem, VkImageView i
 	this->imgView = imgView;
 	this->id = VkShaderServer::Instance()->RegisterTexture(this);
 
-	this->SetType(VkTexture::TextureCube);
 	this->SetWidth(width);
 	this->SetHeight(height);
 	this->SetDepth(1);
@@ -423,7 +421,6 @@ VkTexture::SetupFromVkVolumeTexture(VkImage img, VkDeviceMemory mem, VkImageView
 	this->imgView = imgView;
 	this->id = VkShaderServer::Instance()->RegisterTexture(this);
 
-	this->SetType(VkTexture::Texture3D);
 	this->SetWidth(width);
 	this->SetHeight(height);
 	this->SetDepth(depth);
@@ -435,6 +432,29 @@ VkTexture::SetupFromVkVolumeTexture(VkImage img, VkDeviceMemory mem, VkImageView
 	{
 		this->SetState(Resource::Loaded);
 	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkTexture::SetupFromVkBackbuffer(VkImage img, uint32_t width, uint32_t height, uint32_t depth, CoreGraphics::PixelFormat::Code format)
+{
+	this->type = Texture2D;
+	this->pixelFormat = format;
+	this->img = img;
+	this->numMipLevels = 1;
+	this->mem = VK_NULL_HANDLE;
+	this->imgView = VK_NULL_HANDLE;
+
+	this->SetWidth(width);
+	this->SetHeight(height);
+	this->SetDepth(depth);
+	this->SetNumMipLevels(1);
+	this->SetPixelFormat(format);
+	this->access = ResourceBase::AccessRead;
+	this->isRenderTargetAttachment = true;
+	this->SetState(Resource::Loaded);
 }
 
 //------------------------------------------------------------------------------

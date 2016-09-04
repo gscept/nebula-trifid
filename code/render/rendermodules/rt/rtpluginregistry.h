@@ -62,6 +62,8 @@ public:
     virtual void OnRenderAfter(IndexT frameId, Timing::Time time);
     /// called from when rendering a frame batch
     virtual void OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch);
+	/// called from a frame script
+	virtual void OnRender(const Util::StringAtom& filter);
 	/// called at the beginning of frame
 	virtual void OnFrameBefore(IndexT frameId, Timing::Time time);
 	/// called at the end of frame

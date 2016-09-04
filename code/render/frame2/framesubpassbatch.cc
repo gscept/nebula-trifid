@@ -125,7 +125,6 @@ FrameSubpassBatch::Run(const IndexT frameIndex)
 #if NEBULA3_ENABLE_PROFILING
 							modelNode->StartTimer();
 #endif
-
 							IndexT nodeInstIndex;
 							for (nodeInstIndex = 0; nodeInstIndex < nodeInstances.Size(); nodeInstIndex++)
 							{
@@ -135,28 +134,14 @@ FrameSubpassBatch::Run(const IndexT frameIndex)
 #if NEBULA3_ENABLE_PROFILING
 								nodeInstance->StartDebugTimer();
 #endif  
+								// render the node instance
+								nodeInstance->ApplyState(frameIndex, pass.index);
 
-								if (nodeInstance->GetModelInstance()->IsInstanced())
-								{
-									// add to server
-									const Ptr<ModelInstance>& modelInstance = nodeInstance->GetModelInstance();
-									const Ptr<ModelEntity>& entity = modelInstance->GetModelEntity();
-
-									// add instance
-									if (entity.isvalid())   instanceServer->AddInstance(entity->GetInstanceCode(), nodeInstance);
-									else                    instanceServer->AddInstance(0, nodeInstance);
-								}
-								else
-								{
-									// render the node instance
-									nodeInstance->ApplyState(frameIndex, pass.index);
-
-									// render single
-									nodeInstance->Render();
+								// render single
+								nodeInstance->Render();
 #if NEBULA3_ENABLE_PROFILING
-									modelNode->IncrementDraws();
+								modelNode->IncrementDraws();
 #endif
-								}
 
 #if NEBULA3_ENABLE_PROFILING
 								nodeInstance->StopDebugTimer();

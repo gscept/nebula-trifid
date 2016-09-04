@@ -45,6 +45,8 @@ private:
 	static void ParseCompute(const Ptr<Frame2::FrameScript>& script, cJSON* node);
 	/// parse compute algorithm
 	static void ParseComputeAlgorithm(const Ptr<Frame2::FrameScript>& script, cJSON* node);
+	/// parse swapbuffer
+	static void ParseSwapbuffers(const Ptr<Frame2::FrameScript>& script, cJSON* node);
 	/// parse event
 	static void ParseEvent(const Ptr<Frame2::FrameScript>& script, cJSON* node);
 
@@ -72,6 +74,8 @@ private:
 	static void ParseSubpassEvent(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, cJSON* node);
 	/// parse system in subpass
 	static void ParseSubpassSystem(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, cJSON* node);
+	/// parse plugins in subpass
+	static void ParseSubpassPlugins(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, cJSON* node);
 
 	/// helper to parse shader variables
 	static void ParseShaderVariables(const Ptr<Frame2::FrameScript>& script, const Ptr<CoreGraphics::ShaderState>& state, cJSON* node);

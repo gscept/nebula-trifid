@@ -1,18 +1,19 @@
 //------------------------------------------------------------------------------
-// frameglobalstate.cc
+// framesubpassplugins.cc
 // (C) 2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "frameglobalstate.h"
+#include "framesubpassplugins.h"
 
 namespace Frame2
 {
 
-__ImplementClass(Frame2::FrameGlobalState, 'FRGS', Frame2::FrameOp);
+__ImplementClass(Frame2::FrameSubpassPlugins, 'FSPL', Frame2::FrameOp);
 //------------------------------------------------------------------------------
 /**
 */
-FrameGlobalState::FrameGlobalState()
+FrameSubpassPlugins::FrameSubpassPlugins() :
+	pluginRegistry(NULL)
 {
 	// empty
 }
@@ -20,7 +21,7 @@ FrameGlobalState::FrameGlobalState()
 //------------------------------------------------------------------------------
 /**
 */
-FrameGlobalState::~FrameGlobalState()
+FrameSubpassPlugins::~FrameSubpassPlugins()
 {
 	// empty
 }
@@ -29,26 +30,19 @@ FrameGlobalState::~FrameGlobalState()
 /**
 */
 void
-FrameGlobalState::AddVariableInstance(const Ptr<CoreGraphics::ShaderVariableInstance>& var)
+FrameSubpassPlugins::Setup()
 {
-	this->variableInstances.Append(var);
+	n_assert(!this->pluginRegistry.isvalid());
+	this->pluginRegistry = RenderModules::RTPluginRegistry::Instance();
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-FrameGlobalState::Run(const IndexT frameIndex)
+FrameSubpassPlugins::Run(const IndexT frameIndex)
 {
-	// apply variable instances
-	IndexT i;
-	for (i = 0; i < this->variableInstances.Size(); i++)
-	{
-		this->variableInstances[i]->Apply();
-	}
-
-	// then commit
-	this->state->Commit();
+	this->pluginRegistry->OnRender(this->pluginFilter);
 }
 
 } // namespace Frame2

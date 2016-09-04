@@ -272,6 +272,20 @@ RTPluginRegistry::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
 /**
 */
 void
+RTPluginRegistry::OnRender(const Util::StringAtom& filter)
+{
+	n_assert(this->IsValid());
+	IndexT i;
+	for (i = 0; i < this->plugins.Size(); i++)
+	{
+		this->plugins[i]->OnRender(filter);
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 RTPluginRegistry::OnFrameBefore(IndexT frameId, Timing::Time time)
 {
 	n_assert(this->IsValid());

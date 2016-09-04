@@ -58,6 +58,8 @@ public:
 	void SetupFromVkCubeTexture(VkImage img, VkDeviceMemory mem, VkImageView imgView, uint32_t width, uint32_t height, CoreGraphics::PixelFormat::Code format, uint32_t numMips = 0, const bool setLoaded = true, const bool isAttachment = false);
 	/// setup from an Vulkan volume texture
 	void SetupFromVkVolumeTexture(VkImage img, VkDeviceMemory mem, VkImageView imgView, uint32_t width, uint32_t height, uint32_t depth, CoreGraphics::PixelFormat::Code format, uint32_t numMips = 0, const bool setLoaded = true, const bool isAttachment = false);
+	/// setup from Vulkan back-buffer
+	void SetupFromVkBackbuffer(VkImage img, uint32_t width, uint32_t height, uint32_t depth, CoreGraphics::PixelFormat::Code format);
 
 	/// calculate the size of a texture given a certain mip, use face 0 when not accessing a cube or array texture
 	void MipDimensions(IndexT mip, IndexT face, SizeT& width, SizeT& height, SizeT& depth);
@@ -76,6 +78,7 @@ public:
 	/// get texture unique id
 	const uint32_t GetVkId() const;
 private:
+	friend class VkRenderTexture;
 
 	void* mappedData;
 	uint32_t mapCount;

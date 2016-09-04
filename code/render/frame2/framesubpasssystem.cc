@@ -5,7 +5,11 @@
 #include "stdneb.h"
 #include "framesubpasssystem.h"
 #include "lighting/lightserver.h"
+#include "rendermodules/rt/rtpluginregistry.h"
+#include "coregraphics/textrenderer.h"
+#include "coregraphics/shaperenderer.h"
 
+using namespace CoreGraphics;
 using namespace Lighting;
 namespace Frame2
 {
@@ -53,8 +57,13 @@ FrameSubpassSystem::Run(const IndexT frameIndex)
 		LightServer::Instance()->RenderLightProbes();
 		break;
 	case UI:
+		//RenderModules::RTPluginRegistry::Instance()->OnRender(FrameBatchType::UI);
 		break;
 	case Text:
+		TextRenderer::Instance()->DrawTextElements();
+		break;
+	case Shapes:
+		ShapeRenderer::Instance()->DrawShapes();
 		break;
 	}
 }

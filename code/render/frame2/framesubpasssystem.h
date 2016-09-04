@@ -18,7 +18,8 @@ public:
 		Lights,
 		LightProbes,
 		UI,
-		Text
+		Text,
+		Shapes,
 	};
 
 	/// constructor

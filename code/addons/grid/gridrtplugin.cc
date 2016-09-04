@@ -130,4 +130,34 @@ GridRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
 	}
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+GridRTPlugin::OnRender(const Util::StringAtom& filter)
+{
+	static const Util::StringAtom identifier = "Unlit";
+	if (filter == identifier && this->visible)
+	{
+		Ptr<RenderDevice> device = RenderDevice::Instance();
+		Ptr<TransformDevice> trans = TransformDevice::Instance();
+
+		// start pass
+		this->shader->Apply();
+
+		// set variables
+		this->shader->BeginUpdate();
+		this->gridSizeVar->SetFloat(this->gridSize);
+		this->gridTexVar->SetTexture(this->tex->GetTexture());
+		this->shader->EndUpdate();
+		this->shader->Commit();
+
+		device->SetStreamVertexBuffer(0, this->vbo, 0);
+		device->SetVertexLayout(this->vbo->GetVertexLayout());
+		device->SetIndexBuffer(this->ibo);
+		device->SetPrimitiveGroup(this->primitive);
+		device->Draw();
+	}
+}
+
 } // namespace Grid

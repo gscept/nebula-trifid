@@ -59,6 +59,12 @@ RenderTextureBase::Setup()
 		// setup type and usage
 		this->type = Texture::Texture2D;
 		this->usage = ColorAttachment;
+
+		// just create a texture natively without managing it
+		this->texture = CoreGraphics::Texture::Create();
+		this->texture->SetPixelFormat(DisplayDevice::Instance()->GetDisplayMode().GetPixelFormat());
+		this->texture->SetWidth(this->width);
+		this->texture->SetHeight(this->height);
 	}
 	else
 	{

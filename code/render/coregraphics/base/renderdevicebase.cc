@@ -461,7 +461,7 @@ void
 RenderDeviceBase::EndPass()
 {
     n_assert(this->inBeginPass);
-    n_assert(this->passRenderTarget.isvalid() || this->passMultipleRenderTarget.isvalid() || this->passRenderTargetCube.isvalid());
+    n_assert(this->passRenderTarget.isvalid() || this->passMultipleRenderTarget.isvalid() || this->passRenderTargetCube.isvalid() || this->pass.isvalid());
 
 	// finish rendering to depth-stencil
 	if (this->passDepthStencilTarget.isvalid())

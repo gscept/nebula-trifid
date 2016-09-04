@@ -31,8 +31,8 @@ state DepthEnabledState
 	SrcBlend[0] = SrcAlpha;	
 	DstBlend[0] = OneMinusSrcAlpha;
 	DepthEnabled = true;
-	DepthWrite = true;
-	MultisampleEnabled = true;
+	DepthWrite = false;
+	//MultisampleEnabled = true;
 };
 
 state DepthDisabledState
@@ -43,7 +43,7 @@ state DepthDisabledState
 	DstBlend[0] = OneMinusSrcAlpha;
 	DepthEnabled = false;
 	DepthWrite = false;
-	MultisampleEnabled = true;
+	//MultisampleEnabled = true;
 };
 
 //------------------------------------------------------------------------------
@@ -67,7 +67,7 @@ shader
 void
 psMainPrimitives(in vec4 color, [color0] out vec4 Color) 
 {
-	Color = color;
+	Color = color * Simple.MatDiffuse;
 }
 
 //------------------------------------------------------------------------------

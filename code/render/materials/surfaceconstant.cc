@@ -101,23 +101,26 @@ SurfaceConstant::Apply(const IndexT passIndex)
 void
 SurfaceConstant::SetValue(const Util::Variant& value)
 {
-	this->value = value;
-	IndexT i;
-	for (i = 0; i < this->bindingsByIndex.Size(); i++)
+	if (this->value != value)
 	{
-		const ConstantBinding& binding = this->bindingsByIndex[i];
-		if (binding.active)
+		this->value = value;
+		IndexT i;
+		for (i = 0; i < this->bindingsByIndex.Size(); i++)
 		{
-			if (binding.var->IsActive()) this->ApplyToShaderVariable(value, binding.var);
+			const ConstantBinding& binding = this->bindingsByIndex[i];
+			if (binding.active)
+			{
+				if (binding.var->IsActive()) this->ApplyToShaderVariable(value, binding.var);
 
 #ifndef PUBLIC_BUILD
-			/*
-			if (binding.var->GetType() != this->value.GetType()) n_warning("[WARNING]: Surface constant '%s' is type '%s' but is provided with a '%s'. Behaviour is undefined (crash/corruption).\n",
+				/*
+				if (binding.var->GetType() != this->value.GetType()) n_warning("[WARNING]: Surface constant '%s' is type '%s' but is provided with a '%s'. Behaviour is undefined (crash/corruption).\n",
 				this->name.Value(),
 				ShaderVariable::TypeToString(binding.var->GetType()),
 				Variant::TypeToString(this->value.GetType()));
 				*/
 #endif
+			}
 		}
 	}
 }
@@ -128,12 +131,15 @@ SurfaceConstant::SetValue(const Util::Variant& value)
 void
 SurfaceConstant::SetTexture(const Ptr<CoreGraphics::Texture>& tex)
 {
-	this->value.SetObject(tex);
-	IndexT i;
-	for (i = 0; i < this->bindingsByIndex.Size(); i++)
+	if (this->value.GetObject() != tex)
 	{
-		const ConstantBinding& binding = this->bindingsByIndex[i];
-		if (binding.active) binding.var->SetTexture(tex);
+		this->value.SetObject(tex);
+		IndexT i;
+		for (i = 0; i < this->bindingsByIndex.Size(); i++)
+		{
+			const ConstantBinding& binding = this->bindingsByIndex[i];
+			if (binding.active) binding.var->SetTexture(tex);
+		}
 	}
 }
 

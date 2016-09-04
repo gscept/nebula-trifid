@@ -70,8 +70,8 @@ ViewerApplication::Open()
         
         Util::Array<Ptr<VisibilitySystemBase> > visSystems;
         visSystems.Append(visQuadtreeSystem.cast<VisibilitySystemBase>());
-        visSystems.Append(visClusterSystem.cast<VisibilitySystemBase>());
-		visSystems.Append(visBoxSystem.cast<VisibilitySystemBase>());
+        //visSystems.Append(visClusterSystem.cast<VisibilitySystemBase>());
+		//visSystems.Append(visBoxSystem.cast<VisibilitySystemBase>());
         this->stage = this->graphicsServer->CreateStage(defaultStageName, visSystems);
 
         // create a default view

@@ -13,8 +13,8 @@
 // put variables in push-constant block
 group(SYSTEM_GROUP) push varblock ImGUI
 {
-textureHandle Texture; 
-mat4 TextProjectionModel;
+	textureHandle Texture; 
+	mat4 TextProjectionModel;
 };
 
 /*

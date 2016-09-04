@@ -114,29 +114,32 @@ VkPass::Setup()
 			vksubpass.pDepthStencilAttachment = &ds;
 		}
 
-		IndexT idx = 0;
-		SizeT boundAttachments = 0;
-		SizeT preserveAttachments = 0;
+		// fill list of all attachments, will be removed per subpass attachment
 		IndexT j;
-		for (j = 0; j < this->colorAttachments.Size(); j++)
-		{
-			// if we can find the attachment in the subpass, use it, otherwise bind it as unused
-			IndexT foundIndex = subpass.attachments.FindIndex(j);
-			if (foundIndex != InvalidIndex)
-			{
-				VkAttachmentReference& ref = references[j];
-				ref.attachment = subpass.attachments[foundIndex];
-				ref.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		Util::Array<IndexT> allAttachments;
+		for (j = 0; j < this->colorAttachments.Size(); j++) allAttachments.Append(j);
 
-				if (subpass.resolve) resolves[j] = ref;
-			}
-			else
-			{
-				VkAttachmentReference& ref = references[j];
-				ref.attachment = VK_ATTACHMENT_UNUSED;
-				ref.layout = VK_IMAGE_LAYOUT_UNDEFINED;
-				preserves[preserveAttachments++] = j;
-			}			
+		IndexT idx = 0;
+		SizeT preserveAttachments = 0;
+		for (j = 0; j < subpass.attachments.Size(); j++)
+		{
+			VkAttachmentReference& ref = references[j];
+			ref.attachment = subpass.attachments[j];
+			ref.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+			// remove from all attachments list
+			allAttachments.EraseIndex(allAttachments.FindIndex(subpass.attachments[j]));
+
+			if (subpass.resolve) resolves[j] = ref;
+		}
+	
+		for (; j < this->colorAttachments.Size(); j++)
+		{
+			VkAttachmentReference& ref = references[j];
+			ref.attachment = VK_ATTACHMENT_UNUSED;
+			ref.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			preserves[preserveAttachments] = allAttachments[preserveAttachments];
+			preserveAttachments++;
 		}
 
 		for (j = 0; j < subpass.inputs.Size(); j++)
@@ -260,6 +263,7 @@ VkPass::Setup()
 	SizeT layers = 0;
 	Util::FixedArray<VkImageView> images;
 	images.Resize(this->colorAttachments.Size() + (this->depthStencilAttachment.isvalid() ? 1 : 0));
+	this->clearValues.Resize(images.Size());
 	this->scissorRects.Resize(images.Size());
 	this->viewports.Resize(images.Size());
 	for (i = 0; i < this->colorAttachments.Size(); i++)
@@ -281,9 +285,40 @@ VkPass::Setup()
 		viewport.maxDepth = 1;
 		viewport.x = 0;
 		viewport.y = 0;
-		
+
+		const Math::float4& value = this->colorAttachmentClears[i];
+		VkClearValue& clear = this->clearValues[i];
+		clear.color.float32[0] = value.x();
+		clear.color.float32[1] = value.y();
+		clear.color.float32[2] = value.z();
+		clear.color.float32[3] = value.w();
 	}
-	if (this->depthStencilAttachment.isvalid()) images[i] = this->depthStencilAttachment->GetVkImageView();
+	if (this->depthStencilAttachment.isvalid())
+	{
+		images[i] = this->depthStencilAttachment->GetVkImageView();
+		VkRect2D& rect = scissorRects[i];
+		rect.offset.x = 0;
+		rect.offset.y = 0;
+		rect.extent.width = this->depthStencilAttachment->GetWidth();
+		rect.extent.height = this->depthStencilAttachment->GetHeight();
+		VkViewport& viewport = viewports[i];
+		viewport.width = (float)this->depthStencilAttachment->GetWidth();
+		viewport.height = (float)this->depthStencilAttachment->GetHeight();
+		viewport.minDepth = 0;
+		viewport.maxDepth = 1;
+		viewport.x = 0;
+		viewport.y = 0;
+
+		VkClearValue& clear = this->clearValues[i];
+		clear.depthStencil.depth = this->clearDepth;
+		clear.depthStencil.stencil = this->clearStencil;
+	}
+
+	// setup render area
+	this->renderArea.offset.x = 0;
+	this->renderArea.offset.y = 0;
+	this->renderArea.extent.width = width;
+	this->renderArea.extent.height = height;
 
 	// setup viewport info
 	this->viewportInfo.pNext = NULL;
@@ -295,6 +330,8 @@ VkPass::Setup()
 	this->viewportInfo.pViewports = this->viewports.Begin();
 
 	// update descriptor set based on images attachments
+	const Ptr<CoreGraphics::ShaderVariable>& var = this->shaderState->GetVariableByName("InputAttachments");
+	
 	for (i = 0; i < images.Size(); i++)
 	{
 		VkWriteDescriptorSet write;
@@ -302,7 +339,7 @@ VkPass::Setup()
 		write.pNext = NULL;
 		write.descriptorCount = 1;
 		write.descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
-		write.dstBinding = 0;
+		write.dstBinding = var->binding;
 		write.dstArrayElement = i;
 		write.dstSet = this->inputAttachmentDescriptorSet;
 

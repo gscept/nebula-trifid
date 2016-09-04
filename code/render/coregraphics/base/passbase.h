@@ -85,6 +85,8 @@ public:
 		Util::Array<IndexT> inputs;
 		bool bindDepth;
 		bool resolve;
+
+		Subpass() : bindDepth(false), resolve(false) {};
 	};
 
 protected:

@@ -49,7 +49,7 @@ public:
 	{
 		SyncingFlush,				// CPU has to flush resource to GPU in order to sync it
 		SyncingPersistent,			// buffer is persistently mapped, no need to unmap
-		SyncingCoherent				// Resource is coherent on GPU and CPU when mapped
+		SyncingCoherent				// resource is coherent on GPU and CPU when mapped
 	};
 
     /// constructor

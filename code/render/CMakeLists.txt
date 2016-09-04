@@ -862,8 +862,12 @@ ENDIF()
 		frame2/framesubpassfullscreeneffect.h
 		frame2/framesubpassorderedbatch.cc
 		frame2/framesubpassorderedbatch.h
+		frame2/framesubpassplugins.cc
+		frame2/framesubpassplugins.h
 		frame2/framesubpasssystem.cc
 		frame2/framesubpasssystem.h
+		frame2/frameswapbuffers.cc
+		frame2/frameswapbuffers.h
 	)
 	source_group("frame2" FILES ${Render_files_frame2})
 

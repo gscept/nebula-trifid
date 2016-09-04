@@ -11,14 +11,17 @@
 #include "lib/shared.fxh"
 
 /// Declaring used textures
-textureHandle Texture;
-
+group(SYSTEM_GROUP) push varblock GUI
+{
+	textureHandle Texture;
+	mat4 Transform;
+};
 samplerstate TextureSampler
 {
 	//Samplers = { Texture };
 };
 
-mat4 Transform;
+
 
 state DefaultGUIState
 {
@@ -51,7 +54,7 @@ vsMain(
 	out vec2 UV,
 	out vec4 Color) 
 {
-	gl_Position = Transform * vec4(position, 1, 1);
+	gl_Position = GUI.Transform * vec4(position, 1, 1);
 	Color = color;
 	UV = uv;
 }
@@ -66,7 +69,7 @@ psMain(
 	in vec4 Color,
 	[color0] out vec4 FinalColor) 
 {
-	vec4 texColor = sample2D(Texture, TextureSampler, UV);
+	vec4 texColor = sample2D(GUI.Texture, TextureSampler, UV);
 	FinalColor = texColor * Color;
 }
 

@@ -22,6 +22,7 @@ VkTypes::AsVkFormat(CoreGraphics::PixelFormat::Code p)
 	{
 	case PixelFormat::X8R8G8B8:         return VK_FORMAT_R8G8B8A8_UNORM;
 	case PixelFormat::A8R8G8B8:         return VK_FORMAT_R8G8B8A8_UNORM;
+	case PixelFormat::A8B8G8R8:         return VK_FORMAT_B8G8R8A8_UNORM;
 	case PixelFormat::R8G8B8:           return VK_FORMAT_R8G8B8_UNORM;
 	case PixelFormat::R5G6B5:           return VK_FORMAT_R5G6B5_UNORM_PACK16;
 	case PixelFormat::SRGBA8:			return VK_FORMAT_R8G8B8A8_SRGB;
@@ -109,6 +110,7 @@ VkTypes::AsVkBlockSize(CoreGraphics::PixelFormat::Code p)
 	{
 	case PixelFormat::X8R8G8B8:         return { 1, 1 };
 	case PixelFormat::A8R8G8B8:         return { 1, 1 };
+	case PixelFormat::A8B8G8R8:         return { 1, 1 };
 	case PixelFormat::R8G8B8:           return { 1, 1 };
 	case PixelFormat::R5G6B5:           return { 1, 1 };
 	case PixelFormat::SRGBA8:			return { 1, 1 };
@@ -262,6 +264,7 @@ VkTypes::AsVkFramebufferFormat(CoreGraphics::PixelFormat::Code p)
 	{
 	case PixelFormat::X8R8G8B8:         
 	case PixelFormat::A8R8G8B8:         return VK_FORMAT_R8G8B8A8_SNORM;
+	case PixelFormat::A8B8G8R8:         return VK_FORMAT_B8G8R8A8_SNORM;
 	case PixelFormat::R8G8B8:           return VK_FORMAT_R8G8B8_SNORM;
 	case PixelFormat::R5G6B5:           return VK_FORMAT_R5G6B5_UNORM_PACK16;
 	case PixelFormat::SRGBA8:			return VK_FORMAT_B8G8R8A8_SRGB;
@@ -365,10 +368,14 @@ VkTypes::AsVkMapping(CoreGraphics::PixelFormat::Code p)
 
 	switch (p)
 	{
+	case CoreGraphics::PixelFormat::A16B16G16R16:
+	case CoreGraphics::PixelFormat::A16B16G16R16F:
+	case CoreGraphics::PixelFormat::A32B32G32R32F:
 	case CoreGraphics::PixelFormat::A8B8G8R8:
-		mapping.r = VK_COMPONENT_SWIZZLE_B;
-		mapping.b = VK_COMPONENT_SWIZZLE_R;
+		mapping.r = VK_COMPONENT_SWIZZLE_R;
+		mapping.b = VK_COMPONENT_SWIZZLE_B;
 		break;
+	
 	}
 
 	return mapping;

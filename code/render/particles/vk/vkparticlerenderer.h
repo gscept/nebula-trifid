@@ -31,12 +31,8 @@ public:
 	/// finish attaching visible particle systems
 	virtual void EndAttach();
 
-	/// get the current vertex index
-	IndexT GetCurParticleVertexIndex() const;
 	/// get the current particle index
 	IndexT GetCurParticleIndex() const;
-	/// add particle vertex index
-	void AddCurParticleVertexIndex(IndexT add);
 	/// add particle index
 	void AddCurParticleIndex(IndexT add);
 
@@ -64,22 +60,11 @@ private:
 	Ptr<CoreGraphics::IndexBuffer> cornerIndexBuffer;
 	CoreGraphics::PrimitiveGroup primGroup;
 	Ptr<CoreGraphics::VertexLayout> vertexLayout;
-	IndexT curParticleVertexIndex;
 	IndexT curParticleIndex;
 	void* mappedVertices;
 	void* curVertexPtr;
-	IndexT bufferIndex;
 };
 
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline IndexT
-VkParticleRenderer::GetCurParticleVertexIndex() const
-{
-	return this->curParticleVertexIndex;
-}
 
 //------------------------------------------------------------------------------
 /**
@@ -88,16 +73,6 @@ inline IndexT
 VkParticleRenderer::GetCurParticleIndex() const
 {
 	return this->curParticleIndex;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void
-VkParticleRenderer::AddCurParticleVertexIndex(IndexT add)
-{
-	n_assert(add > 0);
-	this->curParticleVertexIndex += add;
 }
 
 //------------------------------------------------------------------------------

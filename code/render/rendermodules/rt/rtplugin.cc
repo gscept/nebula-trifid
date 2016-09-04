@@ -149,6 +149,15 @@ RTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
 /**
 */
 void
+RTPlugin::OnRender(const Util::StringAtom& filter)
+{
+	// empty
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 RTPlugin::OnFrameBefore(IndexT frameId, Timing::Time time)
 {
 	// empty

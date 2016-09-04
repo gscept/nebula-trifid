@@ -307,6 +307,7 @@ VkLightServer::RenderLights()
 
 	// general preparations
 	shdServer->SetActiveShader(this->lightShader->GetShader());
+	this->lightShader->Apply();
 
 	// render the global light
 	this->globalLightShadowMap->SetTexture(shadowServer->GetGlobalLightShadowBufferTexture());
@@ -319,10 +320,10 @@ VkLightServer::RenderLights()
 	}	
 
 	// render spot lights
-	this->RenderSpotLights();
+	//this->RenderSpotLights();
 	
 	// render point lights
-	this->RenderPointLights();
+	//this->RenderPointLights();
 }
 
 //------------------------------------------------------------------------------
