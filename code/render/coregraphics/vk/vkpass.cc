@@ -329,29 +329,63 @@ VkPass::Setup()
 	this->viewportInfo.viewportCount = this->viewports.Size();
 	this->viewportInfo.pViewports = this->viewports.Begin();
 
+	// setup uniform buffer for render target information
+	this->passBlockBuffer = ConstantBuffer::Create();
+	this->passBlockBuffer->SetupFromBlockInShader(this->shaderState, "PassBlock", 1);
+	this->passBlockVar = this->shaderState->GetVariableByName("PassBlock");
+	this->renderTargetDimensionsVar = this->passBlockBuffer->GetVariableByName("RenderTargetDimensions");
+
+	VkWriteDescriptorSet write;
+	write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	write.pNext = NULL;
+	write.descriptorCount = 1;
+	write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	write.dstBinding = this->passBlockVar->binding;
+	write.dstArrayElement = 0;
+	write.dstSet = this->inputAttachmentDescriptorSet;
+
+	VkDescriptorBufferInfo buf;
+	buf.buffer = this->passBlockBuffer->GetVkBuffer();
+	buf.offset = 0;
+	buf.range = VK_WHOLE_SIZE;
+	write.pBufferInfo = &buf;
+
+	// update descriptor set with attachment
+	vkUpdateDescriptorSets(VkRenderDevice::dev, 1, &write, 0, NULL);
+
 	// update descriptor set based on images attachments
-	const Ptr<CoreGraphics::ShaderVariable>& var = this->shaderState->GetVariableByName("InputAttachments");
+	const Ptr<CoreGraphics::ShaderVariable>& inputAttachmentsVar = this->shaderState->GetVariableByName("InputAttachments");
 	
-	for (i = 0; i < images.Size(); i++)
+	// setup input attachments
+	Util::FixedArray<Math::float4> dimensions(this->colorAttachments.Size());
+	for (i = 0; i < this->colorAttachments.Size(); i++)
 	{
 		VkWriteDescriptorSet write;
 		write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		write.pNext = NULL;
 		write.descriptorCount = 1;
 		write.descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
-		write.dstBinding = var->binding;
+		write.dstBinding = inputAttachmentsVar->binding;
 		write.dstArrayElement = i;
 		write.dstSet = this->inputAttachmentDescriptorSet;
 
 		VkDescriptorImageInfo img;
 		img.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-		img.imageView = images[i];
+		img.imageView = this->colorAttachments[i]->GetVkImageView();
 		img.sampler = VK_NULL_HANDLE;
 		write.pImageInfo = &img;
 
 		// update descriptor set with attachment
 		vkUpdateDescriptorSets(VkRenderDevice::dev, 1, &write, 0, NULL);
+
+		// create dimensions float4
+		Math::float4& dims = dimensions[i];
+		dims.x() = (Math::scalar)this->colorAttachments[i]->GetWidth();
+		dims.y() = (Math::scalar)this->colorAttachments[i]->GetHeight();
+		dims.z() = 1 / dims.x();
+		dims.w() = 1 / dims.y();
 	}
+	this->renderTargetDimensionsVar->SetFloat4Array(dimensions.Begin(), dimensions.Size());
 	this->shaderState->SetDescriptorSet(this->inputAttachmentDescriptorSet, NEBULAT_PASS_GROUP);
 
 	// create framebuffer

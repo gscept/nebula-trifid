@@ -84,7 +84,7 @@ VkTextRenderer::Open()
 	this->vertexPtr = (byte*)this->vbo->Map(VertexBuffer::MapWrite);
 
 	// setup primitive group
-	this->group.SetPrimitiveTopology(PrimitiveTopology::TriangleList);
+	this->group.SetPrimitiveTopology(PrimitiveTopology::TriangleStrip);
 
 	// read font buffer
 	ttf_buffer = n_new_array(unsigned char, 1 << 25);
@@ -161,7 +161,7 @@ VkTextRenderer::DrawTextElements()
 
 	// calculate projection matrix
 	matrix44 proj = matrix44::orthooffcenterrh(0, (float)displayMode.GetWidth(), (float)displayMode.GetHeight(), 0, -1.0f, +1.0f);
-	Math::matrix44 correction = Math::matrix44(
+	const Math::matrix44 correction = Math::matrix44(
 		Math::float4(1, 0, 0, 0),
 		Math::float4(0, -1, 0, 0),
 		Math::float4(0, 0, 0.5f, 0),
@@ -215,10 +215,6 @@ VkTextRenderer::DrawTextElements()
 			{
 				stbtt_aligned_quad quad;
 				stbtt_GetBakedQuad(cdata, GLYPH_TEXTURE_SIZE, GLYPH_TEXTURE_SIZE, *text - 32, &left, &top, &quad, 1);
-
-				float width, height;
-				width = quad.x1 - quad.x0;
-				height = quad.y1 - quad.y0;
 
 				// create float4 of data (in order to utilize SSE)
 				float4 sizeScale = float4(realSize);

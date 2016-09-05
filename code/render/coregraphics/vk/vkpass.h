@@ -48,6 +48,9 @@ public:
 	const Util::FixedArray<VkViewport>& GetVkViewports() const;
 private:
 	Ptr<CoreGraphics::ShaderState> shaderState;
+	Ptr<CoreGraphics::ConstantBuffer> passBlockBuffer;
+	Ptr<CoreGraphics::ShaderVariable> passBlockVar;
+	Ptr<CoreGraphics::ShaderVariable> renderTargetDimensionsVar;
 	VkDescriptorSet inputAttachmentDescriptorSet;
 	Util::FixedArray<VkClearValue> clearValues;
 	VkGraphicsPipelineCreateInfo framebufferPipelineInfo;

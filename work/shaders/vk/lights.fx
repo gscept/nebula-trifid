@@ -77,7 +77,7 @@ vsGlob(
 {
     gl_Position = vec4(position, 1);
     UV = uv;
-    ViewSpacePosition = vec3(position.xy * FocalLength.xy, -1);
+    ViewSpacePosition = vec3(position.xy * FocalLength.xy, -1) * vec3(1, -1, 1); 
 }
 
 //------------------------------------------------------------------------------

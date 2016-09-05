@@ -28,9 +28,9 @@ public:
 	virtual ~VkUniformBuffer();
 
 	/// setup buffer
-	void Setup(const SizeT numBackingBuffers = DefaultNumBackingBuffers);
+	void Setup(const SizeT numBackingBuffers = 1);
 	/// bind variables in a block with a name in a shader to this buffer (only do this on system managed blocks)
-	void SetupFromBlockInShader(const Ptr<CoreGraphics::ShaderState>& shader, const Util::String& blockName, const SizeT numBackingBuffers = DefaultNumBackingBuffers);
+	void SetupFromBlockInShader(const Ptr<CoreGraphics::ShaderState>& shader, const Util::String& blockName, const SizeT numBackingBuffers = 1);
 	/// discard buffer
 	void Discard();
 

@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
-//  text.fx
+//  imgui.fx
 //
-//	Basic text shader
+//	Shader for ImGUI rendering
 //
 //  (C) 2013 Gustav Sterbrant
 //------------------------------------------------------------------------------
@@ -17,19 +17,10 @@ group(SYSTEM_GROUP) push varblock ImGUI
 	mat4 TextProjectionModel;
 };
 
-/*
-group(SYSTEM_GROUP) varblock IMGUIBLOCK
-{
-
-};
-*/
-
 group(SYSTEM_GROUP) samplerstate TextureSampler
 {
-	//Samplers = { Texture };
 	Filter = Point;
 }; 
-
 
 state TextState
 {

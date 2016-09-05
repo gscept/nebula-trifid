@@ -17,19 +17,20 @@ group(SYSTEM_GROUP) push varblock Text
 	mat4 TextProjectionModel;
 };
 
-samplerstate TextureSampler
+group(SYSTEM_GROUP) samplerstate TextureSampler
 {
 	Filter = Point;
 };
 
 state TextState
 {
-	//BlendEnabled[0] = true;
+	BlendEnabled[0] = true;
 	SrcBlend[0] = SrcAlpha;
 	DstBlend[0] = OneMinusSrcAlpha;
 	DepthWrite = false;
 	DepthEnabled = false;
 	CullMode = None;
+	ScissorEnabled = true;
 };
 
 //------------------------------------------------------------------------------
@@ -60,8 +61,8 @@ psMain(
 	in vec4 Color,
 	[color0] out vec4 FinalColor) 
 {
-	vec4 texColor = sample2D(Text.Texture, TextureSampler, UV).rrrr;
-	FinalColor = texColor * Color;
+	vec4 texColor = sample2D(Text.Texture, TextureSampler, UV);
+	FinalColor = texColor * Color + vec4(1);
 }
 
 //------------------------------------------------------------------------------

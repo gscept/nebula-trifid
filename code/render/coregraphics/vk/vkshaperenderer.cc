@@ -283,12 +283,12 @@ VkShapeRenderer::DrawMesh(const Math::matrix44& modelTransform, const Ptr<CoreGr
 	this->model->SetMatrix(modelTransform);
 	this->diffuseColor->SetFloat4(color);
 
-	// draw shape
 	n_assert(RenderDevice::Instance()->IsInBeginFrame());
 
 	Ptr<CoreGraphics::VertexBuffer> vb = mesh->GetVertexBuffer();
 	Ptr<CoreGraphics::IndexBuffer> ib = mesh->GetIndexBuffer();
 
+	// draw primitives in shape
 	IndexT i;
 	for (i = 0; i < mesh->GetNumPrimitiveGroups(); i++)
 	{
