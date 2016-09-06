@@ -28,7 +28,11 @@ main(int argc, const char** argv)
 
 extern "C"
 {
+#ifdef WIN32
 	__declspec(dllexport) const char* _cdecl
+#else
+	const char*
+#endif	
 	BatchGameData(void)
 	{
 		Toolkit::GameBatcherApp app;
@@ -50,11 +54,12 @@ extern "C"
 #endif
 			app.Run();
 			Util::String xmlLogs = app.GetXMLLogs();			
+                        char * data;
 #ifdef WIN32
-			char * data;
+		
 			data = (char*) CoTaskMemAlloc(xmlLogs.Length() + 1);
 #else
-			data = Memory::Alloc(xmlLogs.Length() + 1);
+			data = Memory::Alloc(Memory::ScratchHeap, xmlLogs.Length() + 1);
 #endif
 			Memory::Copy(xmlLogs.AsCharPtr(), data, xmlLogs.Length() + 1);			
 			app.Close();
