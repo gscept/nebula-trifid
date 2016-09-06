@@ -91,7 +91,6 @@ VkUniformBuffer::SetupFromBlockInShader(const Ptr<CoreGraphics::ShaderState>& sh
 	this->freeIndices.Clear();
 
 	// begin synced update, this will cause the uniform buffer to be setup straight from the start
-	this->BeginUpdateSync();
 	for (uint i = 0; i < varblock->variables.size(); i++)
 	{
 		AnyFX::VkVariable* var = static_cast<AnyFX::VkVariable*>(varblock->variables[i]);
@@ -104,7 +103,6 @@ VkUniformBuffer::SetupFromBlockInShader(const Ptr<CoreGraphics::ShaderState>& sh
 		this->variables.Append(svar);
 		this->variablesByName.Add(var->name.c_str(), svar);
 	}
-	this->EndUpdateSync();
 }
 
 //------------------------------------------------------------------------------

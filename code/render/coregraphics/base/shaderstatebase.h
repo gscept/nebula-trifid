@@ -82,6 +82,9 @@ public:
     void EndPass();
     /// end rendering through variation
     void End();
+
+	/// set if shader state should be applied shared across all shaders
+	void SetApplyShared(const bool b);
     
 protected:   
     friend class ShaderBase;
@@ -95,6 +98,7 @@ protected:
 
     bool inBegin;
     bool inBeginPass;
+	bool applyShared;
     Ptr<CoreGraphics::Shader> shader;
     Util::Array<Ptr<CoreGraphics::ShaderVariableInstance>> variableInstances;
     Util::Dictionary<Util::StringAtom, Ptr<CoreGraphics::ShaderVariableInstance>> variableInstancesByName;
@@ -111,7 +115,6 @@ ShaderStateBase::GetShader() const
 {
     return this->shader;
 }
-
 
 //------------------------------------------------------------------------------
 /**
@@ -154,6 +157,15 @@ ShaderStateBase::GetVariableByName(const CoreGraphics::ShaderVariable::Name& n) 
 	}
 #endif
 	return this->variablesByName[n];
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+ShaderStateBase::SetApplyShared(const bool b)
+{
+	this->applyShared = b;
 }
 
 } // namespace CoreGraphics

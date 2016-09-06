@@ -93,7 +93,7 @@ VkTexture::Map(IndexT mipLevel, MapType mapType, MapInfo& outMapInfo)
 		int32_t mipHeight = (int32_t)Math::n_max(1.0f, Math::n_floor(this->height / Math::n_pow(2, (float)mipLevel)));
 		int32_t mipDepth = (int32_t)Math::n_max(1.0f, Math::n_floor(this->depth / Math::n_pow(2, (float)mipLevel)));
 
-		this->mappedBufferLayout.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 1 };
+		this->mappedBufferLayout.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
 		this->mappedBufferLayout.dstOffset = { 0, 0, 0 };
 		this->mappedBufferLayout.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, mipLevel, 1, 1 };
 		this->mappedBufferLayout.srcOffset = { 0, 0, 0 };
@@ -156,7 +156,7 @@ VkTexture::MapCubeFace(CubeFace face, IndexT mipLevel, MapType mapType, MapInfo&
 	int32_t mipWidth = (int32_t)Math::n_max(1.0f, Math::n_floor(this->width / Math::n_pow(2, (float)mipLevel)));
 	int32_t mipHeight = (int32_t)Math::n_max(1.0f, Math::n_floor(this->height / Math::n_pow(2, (float)mipLevel)));
 
-	this->mappedBufferLayout.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 1 };
+	this->mappedBufferLayout.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
 	this->mappedBufferLayout.dstOffset = { 0, 0, 0 };
 	this->mappedBufferLayout.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, mipLevel, (uint32_t)face, 1 };
 	this->mappedBufferLayout.srcOffset = { 0, 0, 0 };

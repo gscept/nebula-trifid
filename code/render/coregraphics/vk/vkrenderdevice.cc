@@ -1265,6 +1265,7 @@ void
 VkRenderDevice::EndPass()
 {
 	this->currentPipelineBits = 0;
+	this->sharedDescriptorSets.Clear();
 
 	/// end draw threads, if any are remaining
 	this->EndDrawThreads();
@@ -1641,7 +1642,7 @@ VkRenderDevice::SetInputLayoutInfo(VkPipelineInputAssemblyStateCreateInfo* input
 /**
 */
 void
-VkRenderDevice::BindDescriptorsGraphics(const VkDescriptorSet* descriptors, const VkPipelineLayout& layout, uint32_t baseSet, uint32_t setCount, const uint32_t* offsets, uint32_t offsetCount)
+VkRenderDevice::BindDescriptorsGraphics(const VkDescriptorSet* descriptors, const VkPipelineLayout& layout, uint32_t baseSet, uint32_t setCount, const uint32_t* offsets, uint32_t offsetCount, bool shared)
 {
 	if (this->numActiveThreads > 0)
 	{
@@ -1667,17 +1668,33 @@ VkRenderDevice::BindDescriptorsGraphics(const VkDescriptorSet* descriptors, cons
 	}
 	else
 	{
-		VkDeferredCommand cmd;
-		cmd.del.type = VkDeferredCommand::BindDescriptorSets;
-		cmd.del.descSetBind.baseSet = baseSet;
-		cmd.del.descSetBind.numSets = setCount;
-		cmd.del.descSetBind.sets = descriptors;
-		cmd.del.descSetBind.layout = layout;
-		cmd.del.descSetBind.numOffsets = offsetCount;
-		cmd.del.descSetBind.offsets = offsets;		
-		cmd.del.descSetBind.type = VK_PIPELINE_BIND_POINT_GRAPHICS;
-		cmd.dev = this->dev;
-		this->PushCommandPass(cmd, OnBindGraphicsPipeline);
+		if (shared)
+		{
+			VkCmdBufferThread::Command cmd;
+			cmd.type = VkCmdBufferThread::BindDescriptors;
+			cmd.descriptor.baseSet = baseSet;
+			cmd.descriptor.numSets = setCount;
+			cmd.descriptor.sets = descriptors;
+			cmd.descriptor.layout = layout;
+			cmd.descriptor.numOffsets = offsetCount;
+			cmd.descriptor.offsets = offsets;
+			cmd.descriptor.type = VK_PIPELINE_BIND_POINT_GRAPHICS;
+			this->sharedDescriptorSets.Append(cmd);
+		}
+		else
+		{
+			VkDeferredCommand cmd;
+			cmd.del.type = VkDeferredCommand::BindDescriptorSets;
+			cmd.del.descSetBind.baseSet = baseSet;
+			cmd.del.descSetBind.numSets = setCount;
+			cmd.del.descSetBind.sets = descriptors;
+			cmd.del.descSetBind.layout = layout;
+			cmd.del.descSetBind.numOffsets = offsetCount;
+			cmd.del.descSetBind.offsets = offsets;
+			cmd.del.descSetBind.type = VK_PIPELINE_BIND_POINT_GRAPHICS;
+			cmd.dev = this->dev;
+			this->PushCommandPass(cmd, OnBindGraphicsPipeline);
+		}
 	}
 }
 
@@ -2522,6 +2539,12 @@ VkRenderDevice::BindSharedDescriptorSets()
 {
 	VkTransformDevice::Instance()->BindCameraDescriptorSets();
 	VkShaderServer::Instance()->BindTextureDescriptorSets();
+
+	IndexT i;
+	for (i = 0; i < this->sharedDescriptorSets.Size(); i++)
+	{
+		this->PushToThread(this->sharedDescriptorSets[i], this->currentDrawThread);
+	}
 }
 
 //------------------------------------------------------------------------------
