@@ -53,7 +53,7 @@ private:
 	Util::Dictionary<Util::String, Util::KeyValuePair<Math::float4, Util::Array<Ptr<Graphics::ModelEntity>>>> models;
 
 	// shader
-	Ptr<CoreGraphics::Shader> shader;
+	Ptr<CoreGraphics::ShaderState> shader;
 	Ptr<CoreGraphics::ShaderVariable> colorVar;
 	CoreGraphics::ShaderFeature::Mask prepassVariation;	
 	CoreGraphics::ShaderFeature::Mask outlineVariation;	

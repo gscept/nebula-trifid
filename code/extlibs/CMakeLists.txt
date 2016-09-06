@@ -55,13 +55,6 @@ IF(NOT N_BUILD_FIRSTTIME)
 	add_subdirectory(miniupnp/miniupnpc)
 		SET_TARGET_PROPERTIES(upnpc-static PROPERTIES FOLDER "extlibs")
 	
-	set(JANSSON_STATIC_CRT ON CACHE BOOL "Link the static CRT libraries")
-	set(JANSSON_EXAMPLES OFF CACHE BOOL "Compile example applications")
-	set(JANSSON_BUILD_DOCS OFF CACHE BOOL "Build documentation (uses python-sphinx).")
-	set(JANSSON_WITHOUT_TESTS ON CACHE BOOL "Don't build tests ('make test' to execute tests)")
-	add_subdirectory(jansson)
-		SET_TARGET_PROPERTIES(jansson PROPERTIES FOLDER "extlibs")
-		
 	add_subdirectory(cjson)
 	add_subdirectory(base64)
 	

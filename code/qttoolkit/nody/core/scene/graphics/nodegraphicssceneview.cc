@@ -4,7 +4,7 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "nodegraphicssceneview.h"
-#include "config.h"
+#include "nody_config.h"
 #include "io/ioserver.h"
 #include "io/stream.h"
 #include "variation/variation.h"

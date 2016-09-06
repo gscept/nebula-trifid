@@ -19,6 +19,11 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <ctype.h>
+#include <stdint.h>
+#include <cstdint>
+#include <pthread.h>
+#include <errno.h>
 
 // sse intrinsics
 #include <emmintrin.h>
@@ -29,6 +34,11 @@
 #include <GL/glu.h>
 #include "GLFW/glfw3.h"
 #define GLSUCCESS glGetError() == GL_NO_ERROR 
+#endif
+
+#ifdef __VULKAN__
+#include <vulkan/vulkan.h>
+#include <GLFW/glfw3.h>
 #endif
 
 //------------------------------------------------------------------------------

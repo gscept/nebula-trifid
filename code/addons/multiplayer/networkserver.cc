@@ -31,7 +31,7 @@
 #include "app/application.h"
 #include "http/httpclient.h"
 #include "io/memorystream.h"
-#include "jansson/src/jansson.h"
+#include "jansson.h"
 #include "attr/attributetable.h"
 #include "multiplayerattrs.h"
 #include "basegamefeature/basegameattr/basegameattributes.h"

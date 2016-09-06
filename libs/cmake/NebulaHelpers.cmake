@@ -313,7 +313,7 @@ MACRO(N_SET_COMPILER_DEFAULTS)
         
                 # C++ compiler
                 # remove multichar warning spewage
-                SET(CMAKE_CXX_FLAGS "-Wno-multichar -fpermissive -std=gnu++0x -msse4.2 -march=sandybridge -ffast-math -fno-trapping-math -funsafe-math-optimizations -ffinite-math-only -mrecip=all")
+                SET(CMAKE_CXX_FLAGS "-Wno-multichar -Wno-switch-bool -fpermissive -std=gnu++0x -msse4.2 -march=sandybridge -ffast-math -fno-trapping-math -funsafe-math-optimizations -ffinite-math-only -mrecip=all")
                 SET(CMAKE_CXX_FLAGS_DEBUG "-g -D_DEBUG")
                 SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O2 -Og -D_DEBUG")
                 SET(CMAKE_CXX_FLAGS_RELEASE " -O2 -Og -g")

@@ -3,7 +3,7 @@
 //  (C) 2012 gscept
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "config.h"
+#include "nody_config.h"
 #include "shadywindow.h"
 #include "variation/variationdatabase.h"
 #include "variation/graphics/variationlistitem.h"

@@ -51,7 +51,7 @@ private:
 	Ptr<Resources::ManagedTexture> tex;
 
 	// shader
-	Ptr<CoreGraphics::Shader> shader;
+	Ptr<CoreGraphics::ShaderState> shader;
 	Ptr<CoreGraphics::ShaderVariable> gridSizeVar;
 	Ptr<CoreGraphics::ShaderVariable> gridTexVar;
 };

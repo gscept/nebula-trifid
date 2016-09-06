@@ -62,7 +62,7 @@ MinimapManager::OnActivate()
     this->iconSizes.Resize(this->MaxNumIconsPerBatch);
 
 	// create shader
-	this->minimapShader = ShaderServer::Instance()->GetShader("minimap");
+	this->minimapShader = ShaderServer::Instance()->CreateShaderState("minimap", {NEBULAT_DEFAULT_GROUP});
 	this->transformsVar = this->minimapShader->GetVariableByName("ModelArray");
     this->portraitVar = this->minimapShader->GetVariableByName("Portrait");
     this->portraitScalesVar = this->minimapShader->GetVariableByName("PortraitScaleArray");
@@ -240,7 +240,7 @@ MinimapManager::OnBeginFrame()
 
             // start batch
             renderDev->BeginFrame(InvalidIndex);
-            renderDev->BeginPass(this->minimapTarget, this->minimapShader);
+            renderDev->BeginPass(this->minimapTarget);
 
             // setup primitive
             renderDev->SetStreamVertexBuffer(0, this->quadVb, 0);

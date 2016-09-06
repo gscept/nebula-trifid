@@ -9,7 +9,7 @@
 #include "scene/graphics/nodegraphicsscene.h"
 #include "node/node.h"
 #include "link/link.h"
-#include "config.h"
+#include "nody_config.h"
 
 using namespace Util;
 namespace Nody

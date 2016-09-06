@@ -15,6 +15,7 @@
 #include "node/shadynode.h"
 #include "shadywindow.h"
 #include "io/ioserver.h"
+#include "nody_config.h"
 
 #include <QApplication>
 

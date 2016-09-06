@@ -22,7 +22,7 @@ class RenderTextureBase : public Core::RefCounted
 {
 	__DeclareClass(RenderTextureBase);
 public:
-	typedef enum Usage
+	enum Usage
 	{
 		ColorAttachment,
 		DepthStencilAttachment,

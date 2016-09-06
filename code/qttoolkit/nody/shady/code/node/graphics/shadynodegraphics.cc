@@ -9,7 +9,7 @@
 #include "variation/variationinstance.h"
 #include "io/uri.h"
 #include "variable/graphics/variableinstancegraphics.h"
-#include "config.h"
+#include "nody_config.h"
 #include <QApplication>
 #include <QWidgetAction>
 #include <QLabel>

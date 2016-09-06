@@ -241,7 +241,7 @@ TheoraVideoPlayer::Setup(const Util::StringAtom& resName)
 	this->videoTexture->SetLoader(0);	
 	Resources::ResourceManager::Instance()->RegisterUnmanagedResource(this->videoTexture.upcast<Resources::Resource>());	
 	this->quad.Setup(this->width, this->height);
-	this->shader = CoreGraphics::ShaderServer::Instance()->GetShader("shd:copy");
+	this->shader = CoreGraphics::ShaderServer::Instance()->CreateShaderState("shd:copy", {NEBULAT_DEFAULT_GROUP});
 	this->videoTextureVariable = this->shader->GetVariableByName("CopyBuffer");
 }
 
@@ -456,9 +456,9 @@ TheoraVideoPlayer::Render()
 	if (this->isPlaying)
 	{
         this->shader->Apply();
-        this->shader->BeginUpdate();
+//        this->shader->BeginUpdate();
 		this->videoTextureVariable->SetTexture(this->videoTexture);
-        this->shader->EndUpdate();
+        //      this->shader->EndUpdate();
 		this->shader->Commit();
 		this->quad.Draw();
 	}
