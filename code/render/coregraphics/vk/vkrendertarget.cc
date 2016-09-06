@@ -471,7 +471,7 @@ VkRenderTarget::BeginPass()
 		val.z() = 1 / val.x();
 		val.w() = 1 / val.y();
 		this->dimensionsArray->SetFloat4Array(&val, 1);
-		this->shader->Commit();
+		//this->shader->Commit();
 	}
 }
 

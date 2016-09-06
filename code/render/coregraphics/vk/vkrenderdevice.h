@@ -202,7 +202,7 @@ private:
 	void BindComputePipeline(const VkPipeline& pipeline, const VkPipelineLayout& layout);
 
 	/// update descriptors
-	void BindDescriptorsGraphics(const VkDescriptorSet* descriptors, const VkPipelineLayout& layout, uint32_t baseSet, uint32_t setCount, const uint32_t* offsets, uint32_t offsetCount);
+	void BindDescriptorsGraphics(const VkDescriptorSet* descriptors, const VkPipelineLayout& layout, uint32_t baseSet, uint32_t setCount, const uint32_t* offsets, uint32_t offsetCount, bool shared = false);
 	/// update descriptors
 	void BindDescriptorsCompute(const VkDescriptorSet* descriptors, const VkPipelineLayout& layout, uint32_t baseSet, uint32_t setCount, const uint32_t* offsets, uint32_t offsetCount);
 	/// update push ranges
@@ -422,6 +422,7 @@ private:
 	Ptr<VkCmdBufferThread> compThreads[NumComputeThreads];
 	Threading::Event compCompletionEvents[NumComputeThreads];
 
+	Util::Array<VkCmdBufferThread::Command> sharedDescriptorSets;
 	Util::Array<VkCmdBufferThread::Command> threadCmds[NumDrawThreads];
 	SizeT numCallsLastFrame;
 	SizeT numActiveThreads;

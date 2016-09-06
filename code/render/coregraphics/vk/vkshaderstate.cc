@@ -141,7 +141,7 @@ VkShaderState::Commit()
 			{
 				const DescriptorSetBinding& binding = this->setBindnings[i];
 				const Util::Array<uint32_t>& offsets = this->offsetsByGroup[binding.slot];
-				dev->BindDescriptorsGraphics(&binding.set, binding.layout, binding.slot, 1, offsets.IsEmpty() ? NULL : &offsets[0], offsets.Size());
+				dev->BindDescriptorsGraphics(&binding.set, binding.layout, binding.slot, 1, offsets.IsEmpty() ? NULL : &offsets[0], offsets.Size(), this->applyShared);
 			}
 
 			// update push ranges
@@ -176,7 +176,7 @@ VkShaderState::Commit()
 		{
 			const DescriptorSetBinding& binding = this->setBindnings[i];
 			const Util::Array<uint32_t>& offsets = this->offsetsByGroup[binding.slot];
-			dev->BindDescriptorsGraphics(&binding.set, binding.layout, binding.slot, 1, offsets.IsEmpty() ? NULL : &offsets[0], offsets.Size());
+			dev->BindDescriptorsGraphics(&binding.set, binding.layout, binding.slot, 1, offsets.IsEmpty() ? NULL : &offsets[0], offsets.Size(), this->applyShared);
 			dev->BindDescriptorsCompute(&binding.set, binding.layout, binding.slot, 1, offsets.IsEmpty() ? NULL : &offsets[0], offsets.Size());
 		}
 

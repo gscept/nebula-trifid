@@ -77,7 +77,7 @@ vsGlob(
 {
     gl_Position = vec4(position, 1);
     UV = uv;
-    ViewSpacePosition = vec3(position.xy * FocalLength.xy, -1) * vec3(1, -1, 1); 
+    ViewSpacePosition = vec3(position.xy * FocalLength.xy, -1); 
 }
 
 //------------------------------------------------------------------------------
@@ -260,7 +260,7 @@ psSpot(
 	
 	vec4 oColor = vec4(lightModColor.rgb * final, lightModColor.a);
 	
-	Color = EncodeHDR(oColor);
+	Color = EncodeHDR(oColor) + vec4(1, 0, 0, 0);
 }
 
 //---------------------------------------------------------------------------------------------------------------------------

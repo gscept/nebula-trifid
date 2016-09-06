@@ -339,7 +339,7 @@ VkPass::Setup()
 	write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 	write.pNext = NULL;
 	write.descriptorCount = 1;
-	write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
 	write.dstBinding = this->passBlockVar->binding;
 	write.dstArrayElement = 0;
 	write.dstSet = this->inputAttachmentDescriptorSet;
@@ -349,6 +349,8 @@ VkPass::Setup()
 	buf.offset = 0;
 	buf.range = VK_WHOLE_SIZE;
 	write.pBufferInfo = &buf;
+	write.pImageInfo = NULL;
+	write.pTexelBufferView = NULL;
 
 	// update descriptor set with attachment
 	vkUpdateDescriptorSets(VkRenderDevice::dev, 1, &write, 0, NULL);
@@ -387,6 +389,7 @@ VkPass::Setup()
 	}
 	this->renderTargetDimensionsVar->SetFloat4Array(dimensions.Begin(), dimensions.Size());
 	this->shaderState->SetDescriptorSet(this->inputAttachmentDescriptorSet, NEBULAT_PASS_GROUP);
+	this->shaderState->SetApplyShared(true);
 
 	// create framebuffer
 	VkFramebufferCreateInfo fbInfo =

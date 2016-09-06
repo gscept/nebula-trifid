@@ -357,6 +357,7 @@ FrameScriptLoader::ParseGlobalState(const Ptr<Frame2::FrameScript>& script, cJSO
 
 	// create shared state, this will be set while running the script and update the shared state
 	Ptr<CoreGraphics::ShaderState> state = ShaderServer::Instance()->CreateSharedShaderState("shd:shared", { NEBULAT_FRAME_GROUP });
+	state->SetApplyShared(true);
 	op->SetShaderState(state);
 
 	// setup variables

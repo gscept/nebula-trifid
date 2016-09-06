@@ -290,7 +290,7 @@ VkMultipleRenderTarget::BeginPass()
 		val.w() = 1 / val.w();
 	}
 	this->dimensionsArray->SetFloat4Array(dimensions.Begin(), dimensions.Size());
-	this->shader->Commit();
+	//this->shader->Commit();
 }
 
 } // namespace Vulkan

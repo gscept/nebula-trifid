@@ -87,6 +87,7 @@ VkLightServer::Open()
 
 	// light group is for shared variables, default is for shader local variables
 	this->lightShader							= shdServer->GetShader("shd:lights")->CreateState({ NEBULAT_LIGHT_GROUP, NEBULAT_DEFAULT_GROUP });
+	//this->lightShader->SetApplyShared(true);
 	this->lightProbeShader						= shdServer->GetShader("shd:reflectionprojector")->CreateState({ NEBULAT_DEFAULT_GROUP });
 
 	this->globalLightFeatureBits[NoShadows]		= shdServer->FeatureStringToMask("Global");
@@ -320,10 +321,10 @@ VkLightServer::RenderLights()
 	}	
 
 	// render spot lights
-	//this->RenderSpotLights();
+	this->RenderSpotLights();
 	
 	// render point lights
-	//this->RenderPointLights();
+	this->RenderPointLights();
 }
 
 //------------------------------------------------------------------------------

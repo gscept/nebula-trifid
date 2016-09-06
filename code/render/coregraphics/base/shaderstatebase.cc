@@ -20,7 +20,8 @@ using namespace CoreGraphics;
 */
 ShaderStateBase::ShaderStateBase() :
     inBegin(false),
-    inBeginPass(false)
+    inBeginPass(false),
+	applyShared(false)
 {
     // empty
 }
