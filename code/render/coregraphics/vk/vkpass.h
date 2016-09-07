@@ -51,7 +51,8 @@ private:
 	Ptr<CoreGraphics::ConstantBuffer> passBlockBuffer;
 	Ptr<CoreGraphics::ShaderVariable> passBlockVar;
 	Ptr<CoreGraphics::ShaderVariable> renderTargetDimensionsVar;
-	VkDescriptorSet inputAttachmentDescriptorSet;
+	VkDescriptorSet passDescriptorSet;
+	VkPipelineLayout passPipelineLayout;
 	Util::FixedArray<VkClearValue> clearValues;
 	VkGraphicsPipelineCreateInfo framebufferPipelineInfo;
 	VkPipelineViewportStateCreateInfo viewportInfo;

@@ -39,9 +39,6 @@ public:
 	/// set view matrix array
 	void ApplyViewMatrixArray(const Math::matrix44* matrices, SizeT num);
 
-	/// set projection transform, and apply static correction matrix
-	void SetProjTransform(const Math::matrix44& m);
-
 	/// bind descriptors for view
 	void BindCameraDescriptorSets();
 private:

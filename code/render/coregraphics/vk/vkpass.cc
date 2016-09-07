@@ -43,6 +43,7 @@ VkPass::Setup()
 	// create shader state for input attachments and render target dimensions
 	this->shaderState = ShaderServer::Instance()->CreateShaderState("shd:shared", { NEBULAT_PASS_GROUP });
 	VkDescriptorSetLayout layout = this->shaderState->GetShader()->GetDescriptorLayout(NEBULAT_PASS_GROUP);
+	this->passPipelineLayout = this->shaderState->GetShader()->GetPipelineLayout();
 
 	// create descriptor set used by our pass
 	VkDescriptorSetAllocateInfo descInfo =
@@ -53,7 +54,7 @@ VkPass::Setup()
 		1,
 		&layout
 	};
-	VkResult res = vkAllocateDescriptorSets(VkRenderDevice::dev, &descInfo, &this->inputAttachmentDescriptorSet);
+	VkResult res = vkAllocateDescriptorSets(VkRenderDevice::dev, &descInfo, &this->passDescriptorSet);
 	n_assert(res == VK_SUCCESS);
 
 	Util::FixedArray<VkSubpassDescription> subpassDescs;
@@ -342,7 +343,7 @@ VkPass::Setup()
 	write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
 	write.dstBinding = this->passBlockVar->binding;
 	write.dstArrayElement = 0;
-	write.dstSet = this->inputAttachmentDescriptorSet;
+	write.dstSet = this->passDescriptorSet;
 
 	VkDescriptorBufferInfo buf;
 	buf.buffer = this->passBlockBuffer->GetVkBuffer();
@@ -369,7 +370,7 @@ VkPass::Setup()
 		write.descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
 		write.dstBinding = inputAttachmentsVar->binding;
 		write.dstArrayElement = i;
-		write.dstSet = this->inputAttachmentDescriptorSet;
+		write.dstSet = this->passDescriptorSet;
 
 		VkDescriptorImageInfo img;
 		img.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
@@ -388,7 +389,7 @@ VkPass::Setup()
 		dims.w() = 1 / dims.y();
 	}
 	this->renderTargetDimensionsVar->SetFloat4Array(dimensions.Begin(), dimensions.Size());
-	this->shaderState->SetDescriptorSet(this->inputAttachmentDescriptorSet, NEBULAT_PASS_GROUP);
+	this->shaderState->SetDescriptorSet(this->passDescriptorSet, NEBULAT_PASS_GROUP);
 	this->shaderState->SetApplyShared(true);
 
 	// create framebuffer
@@ -431,8 +432,14 @@ VkPass::Begin()
 {
 	PassBase::Begin();
 
+	VkRenderDevice* dev = VkRenderDevice::Instance();
+
 	// commit this shader state
-	this->shaderState->Commit();
+	//this->shaderState->Commit();
+
+	// bind descriptor set
+	static const uint32_t offset = 0;
+	dev->BindDescriptorsGraphics(&this->passDescriptorSet, this->passPipelineLayout, NEBULAT_PASS_GROUP, 1, &offset, 1, true);
 
 	// update framebuffer pipeline info to next subpass
 	this->framebufferPipelineInfo.subpass = this->currentSubpass;

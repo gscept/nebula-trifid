@@ -11,6 +11,7 @@
 #include "coregraphics/config.h"
 #include "coregraphics/shadersemantics.h"
 #include "framesync/framesynctimer.h"
+#include "coregraphics/renderdevice.h"
 
 
 using namespace Util;
@@ -135,21 +136,6 @@ VkTransformDevice::ApplyViewMatrixArray(const Math::matrix44* matrices, SizeT nu
 	this->shadowCameraBuffer->BeginUpdateSync();
 	this->viewMatricesVar->SetMatrixArray(matrices, num);
 	this->shadowCameraBuffer->EndUpdateSync();
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkTransformDevice::SetProjTransform(const Math::matrix44& m)
-{
-	// create correction matrix
-	Math::matrix44 correction = Math::matrix44(
-		Math::float4(1, 0, 0, 0),
-		Math::float4(0, -1, 0, 0),
-		Math::float4(0, 0, 0.5f, 0),
-		Math::float4(0, 0, 0.5f, 1));
-	TransformDeviceBase::SetProjTransform(Math::matrix44::multiply(m, correction));
 }
 
 } // namespace Vulkan

@@ -8,6 +8,10 @@
 #include "coregraphics/shaperenderer.h"
 #include "threading/thread.h"
 #include "math/polar.h"
+#include "coregraphics/renderdevice.h"
+#include "coregraphics/config.h"
+#include "coregraphics/shaderserver.h"
+#include "coregraphics/shadersemantics.h"
 
 namespace Graphics
 {
@@ -22,7 +26,8 @@ using namespace Lighting;
 //------------------------------------------------------------------------------
 /**
 */
-SpotLightEntity::SpotLightEntity()
+SpotLightEntity::SpotLightEntity() :
+	shaderState(NULL)
 {
 	// create managed resource for projection map, use default which is tex:lighting/lightcones for spotlights
 	this->projectionTextureId = Util::String("tex:lighting/lightcones") + NEBULA3_TEXTURE_EXTENSION;
@@ -102,6 +107,43 @@ SpotLightEntity::OnRenderDebug()
     ShapeRenderer::Instance()->AddShape(RenderShape(Thread::GetMyThreadId(), RenderShape::Sphere, RenderShape::CheckDepth, centerTransform, color));
 
     AbstractLightEntity::OnRenderDebug();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+SpotLightEntity::OnActivate()
+{
+	GraphicsEntity::OnActivate();
+	/*
+	n_assert(!this->shaderState.isvalid());
+	this->shaderState = CoreGraphics::ShaderServer::Instance()->CreateShaderState("shd:lights", { NEBULAT_DEFAULT_GROUP });
+
+	this->posRangeVar = this->shaderState->GetVariableByName(NEBULA3_SEMANTIC_LIGHTPOSRANGE);
+	this->colorVar = this->shaderState->GetVariableByName(NEBULA3_SEMANTIC_LIGHTCOLOR);
+	this->transformVar = this->shaderState->GetVariableByName(NEBULA3_SEMANTIC_LIGHTTRANSFORM);
+	this->texProjVar = this->shaderState->GetVariableByName(NEBULA3_SEMANTIC_LIGHTPROJTRANSFORM);
+	this->texVar = this->shaderState->GetVariableByName("SpotLightShadowAtlas");
+
+	this->shadowProjVar = this->shaderState->GetVariableByName(NEBULA3_SEMANTIC_SHADOWPROJTRANSFORM);
+	this->shadowIntensityVar = this->shaderState->GetVariableByName(NEBULA3_SEMANTIC_SHADOWINTENSITY);
+	this->shadowOffsetVar = this->shaderState->GetVariableByName(NEBULA3_SEMANTIC_SHADOWOFFSETSCALE);
+	*/
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+SpotLightEntity::OnDeactivate()
+{
+	GraphicsEntity::OnDeactivate();
+	/*
+	n_assert(this->shaderState.isvalid());
+	this->shaderState->Discard();
+	this->shaderState = 0;
+	*/
 }
 
 //------------------------------------------------------------------------------

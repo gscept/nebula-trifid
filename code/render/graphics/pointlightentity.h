@@ -11,8 +11,12 @@
 */
 #include "graphics/abstractlightentity.h"
 #include "coregraphics/rendertargetcube.h"
-
 //------------------------------------------------------------------------------
+namespace CoreGraphics
+{
+	class ShaderState;
+};
+
 namespace Graphics
 {
 class PointLightEntity : public AbstractLightEntity
@@ -34,11 +38,20 @@ public:
     /// get shadow casting cube
     const Ptr<CoreGraphics::RenderTargetCube>& GetShadowCube() const;
 
+	/// get shader state
+	const Ptr<CoreGraphics::ShaderState>& GetShaderState() const;
+
 protected:
     /// called when transform matrix changed
     virtual void OnTransformChanged();  
     /// called to render a debug visualization of the entity
     virtual void OnRenderDebug();
+	/// called when entity is created
+	virtual void OnActivate();
+	/// called before entity is destroyed
+	virtual void OnDeactivate();
+
+	Ptr<CoreGraphics::ShaderState> shaderState;
 
 private:
     Ptr<CoreGraphics::RenderTargetCube> shadowCube;
@@ -48,8 +61,8 @@ private:
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-PointLightEntity::SetShadowCube( const Ptr<CoreGraphics::RenderTargetCube>& cube )
+inline void
+PointLightEntity::SetShadowCube(const Ptr<CoreGraphics::RenderTargetCube>& cube)
 {
     this->shadowCube = cube;
 }
@@ -62,6 +75,16 @@ PointLightEntity::GetShadowCube() const
 {
     return this->shadowCube;
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Ptr<CoreGraphics::ShaderState>&
+PointLightEntity::GetShaderState() const
+{
+	return this->shaderState;
+}
+
 
 } // namespace Graphics
 //------------------------------------------------------------------------------

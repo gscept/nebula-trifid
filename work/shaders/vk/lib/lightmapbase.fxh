@@ -5,6 +5,7 @@
 
 #ifndef LIGHTMAPBASE_FXH
 #define LIGHTMAPBASE_FXH
+#include "materialparams.fxh"
 
 /// Declaring used textures
 textureHandle LightMap;

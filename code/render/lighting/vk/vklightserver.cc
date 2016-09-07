@@ -24,6 +24,7 @@ namespace Lighting
 {
 __ImplementClass(Lighting::VkLightServer, 'VKLS', Lighting::LightServerBase);
 
+using namespace Vulkan;
 using namespace Graphics;
 using namespace CoreGraphics;
 using namespace Resources;
@@ -146,6 +147,30 @@ VkLightServer::Open()
 	this->localLightBlockVar = this->lightShader->GetVariableByName("LocalLightBlock");
 	this->localLightBlockVar->SetConstantBuffer(this->localLightBuffer);
 
+	VkDescriptorSetLayout layout = this->lightShader->GetShader()->GetDescriptorLayout(NEBULAT_DEFAULT_GROUP);
+	this->localLightLayout = this->lightShader->GetShader()->GetPipelineLayout();
+	// create descriptor set used by our pass
+	VkDescriptorSetAllocateInfo descInfo =
+	{
+		VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+		NULL,
+		VkRenderDevice::descPool,
+		1,
+		&layout
+	};
+	VkResult res = vkAllocateDescriptorSets(VkRenderDevice::dev, &descInfo, &this->localLightSet);
+	n_assert(res == VK_SUCCESS);
+
+	// update descriptor
+	this->UpdateDescriptor(this->localLightBuffer->GetVkBuffer(), this->localLightBlockVar->binding, this->localLightSet);
+
+	this->offsetPool.Resize(1024);
+	IndexT i;
+	for (i = 0; i < this->offsetPool.Size(); i++)
+	{
+		this->lightShader->CreateOffsetArray(this->offsetPool.Alloc(), NEBULAT_DEFAULT_GROUP);
+	}
+	this->offsetPool.Reset();
 	//this->shadowConstants->SetFloat4(float4(100.0f, 100.0f, 0.003f, 1024.0f));
 }
 
@@ -246,7 +271,8 @@ VkLightServer::AttachVisibleLight(const Ptr<AbstractLightEntity>& lightEntity)
 
 	// allocate buffer (or index if buffer is big enough) for the light
 	this->lightToInstanceMap.Add(lightEntity, this->localLightBuffer->AllocateInstance());
-	this->localLightBlockVar->SetConstantBuffer(this->localLightBuffer);
+	//this->localLightBlockVar->SetConstantBuffer(this->localLightBuffer);
+	this->lightToOffsetMap.Add(lightEntity, this->offsetPool.Alloc());
 
 	LightServerBase::AttachVisibleLight(lightEntity);
 }
@@ -259,7 +285,9 @@ VkLightServer::EndFrame()
 {
 	// reset light slots so we can reuse them the next frame
 	this->localLightBuffer->Reset();
+	this->offsetPool.Reset();
 	this->lightToInstanceMap.Clear();
+	this->lightToOffsetMap.Clear();
 
 	this->pointLights[NoShadows].Clear();
 	this->pointLights[CastShadows].Clear();
@@ -293,11 +321,40 @@ VkLightServer::AssignRenderBufferTextures()
 //------------------------------------------------------------------------------
 /**
 */
+void
+VkLightServer::UpdateDescriptor(const VkBuffer& buffer, const IndexT binding, VkDescriptorSet set)
+{
+	VkWriteDescriptorSet write;
+	write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	write.pNext = NULL;
+	write.descriptorCount = 1;
+	write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+	write.dstBinding = binding;
+	write.dstArrayElement = 0;
+	write.dstSet = set;
+
+	VkDescriptorBufferInfo buf;
+	buf.buffer = buffer;
+	buf.offset = 0;
+	buf.range = VK_WHOLE_SIZE;
+	write.pBufferInfo = &buf;
+	write.pImageInfo = NULL;
+	write.pTexelBufferView = NULL;
+
+	vkUpdateDescriptorSets(VkRenderDevice::dev, 1, &write, 0, NULL);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 VkLightServer::RenderLights()
 {
 	ShaderServer* shdServer = ShaderServer::Instance();
     ShadowServer* shadowServer = ShadowServer::Instance();
+
+	// make sure to update the descriptor
+	this->UpdateDescriptor(this->localLightBuffer->GetVkBuffer(), this->localLightBlockVar->binding, this->localLightSet);
 
 	// if not happened yet, set the NormalDepthBuffer and LightBuffer
 	// as shader variables
@@ -475,8 +532,11 @@ VkLightServer::RenderPointLights()
 					}
 
 					// commit and draw
-					this->lightShader->SetConstantBufferOffset(NEBULAT_DEFAULT_GROUP, this->localLightBuffer->GetBinding(), offset);
-					this->lightShader->Commit();
+					Util::Array<uint32_t>& offsets = this->lightToOffsetMap[curLight.upcast<AbstractLightEntity>()];
+					offsets[this->lightShader->GetOffsetBinding(NEBULAT_DEFAULT_GROUP, this->localLightBuffer->GetBinding())] = offset;
+					//this->lightShader->ApplyOffsetArray(NEBULAT_DEFAULT_GROUP, offsets);
+					//this->lightShader->Commit();
+					renderDevice->BindDescriptorsGraphics(&this->localLightSet, this->localLightLayout, NEBULAT_DEFAULT_GROUP, 1, offsets.Begin(), offsets.Size(), false);
                     renderDevice->Draw();
 				}
 			}
@@ -561,8 +621,12 @@ VkLightServer::RenderSpotLights()
 					}
 
 					// commit and draw
-					this->lightShader->SetConstantBufferOffset(NEBULAT_DEFAULT_GROUP, this->localLightBuffer->GetBinding(), offset);
-					this->lightShader->Commit();
+					//this->lightShader->SetConstantBufferOffset(NEBULAT_DEFAULT_GROUP, this->localLightBuffer->GetBinding(), offset);
+					Util::Array<uint32_t>& offsets = this->lightToOffsetMap[curLight.upcast<AbstractLightEntity>()];
+					offsets[this->lightShader->GetOffsetBinding(NEBULAT_DEFAULT_GROUP, this->localLightBuffer->GetBinding())] = offset;
+					//this->lightShader->ApplyOffsetArray(NEBULAT_DEFAULT_GROUP, offsets);
+					//this->lightShader->Commit();
+					renderDevice->BindDescriptorsGraphics(&this->localLightSet, this->localLightLayout, NEBULAT_DEFAULT_GROUP, 1, offsets.Begin(), offsets.Size(), false);
 					renderDevice->Draw();
 				}
 			}

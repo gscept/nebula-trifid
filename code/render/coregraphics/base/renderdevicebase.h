@@ -192,6 +192,9 @@ public:
 	/// adds a scissor rect
 	void SetScissorRect(const Math::rectangle<int>& rect, int index);
 
+	/// get implementation specific correction matrix
+	static const Math::matrix44 GetProjectionCorrectionMatrix();
+
 protected:
     /// notify event handlers about an event
     bool NotifyEventHandlers(const CoreGraphics::RenderEvent& e);

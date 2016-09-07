@@ -7,6 +7,7 @@
 #include "lib/shared.fxh"
 #include "lib/util.fxh"
 #include "lib/techniques.fxh"
+#include "lib/materialparams.fxh"
 
 float Brightness = 0.0f;
 int NumTilesX = 10;

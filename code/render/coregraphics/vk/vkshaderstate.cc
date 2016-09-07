@@ -439,4 +439,31 @@ VkShaderState::SetDescriptorSet(const VkDescriptorSet& set, const IndexT slot)
 	this->setBindnings[groupIndexMap[slot]].set = set;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkShaderState::CreateOffsetArray(Util::Array<uint32_t>& outOffsets, const IndexT group)
+{
+	outOffsets = this->offsetsByGroup[group];
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+IndexT
+VkShaderState::GetOffsetBinding(const IndexT& group, const IndexT& binding)
+{
+	return this->offsetByGroupBinding[group][binding];
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkShaderState::ApplyOffsetArray(const IndexT group, const Util::Array<uint32_t>& offsets)
+{
+	this->offsetsByGroup[group] = offsets;
+}
+
 } // namespace Vulkan

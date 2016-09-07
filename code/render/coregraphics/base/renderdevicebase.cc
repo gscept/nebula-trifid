@@ -739,4 +739,13 @@ RenderDeviceBase::Blit(const Ptr<CoreGraphics::RenderTexture>& from, Math::recta
 	// implement in subclass
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+const Math::matrix44
+RenderDeviceBase::GetProjectionCorrectionMatrix()
+{
+	return Math::matrix44::identity();
+}
+
 } // namespace Base

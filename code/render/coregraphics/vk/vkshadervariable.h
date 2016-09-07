@@ -20,6 +20,11 @@ class ShaderReadWriteTexture;
 class ShaderReadWriteBuffer;
 }
 
+namespace Lighting
+{
+class VkLightServer;
+}
+
 namespace Vulkan
 {
 class VkStreamShaderLoader;
@@ -87,6 +92,7 @@ private:
 	friend class Vulkan::VkShaderServer;
 	friend class Vulkan::VkUniformBuffer;
 	friend class Vulkan::VkPass;
+	friend class Lighting::VkLightServer;
 
 	/// setup from AnyFX variable
 	void Setup(AnyFX::VkVariable* var, const Ptr<VkShaderState>& shader, const VkDescriptorSet& set);

@@ -39,7 +39,7 @@
 #elif __VULKAN__
 
 	// define the same descriptor set slots as we do in the shaders
-	#define NEBULAT_TEXTURE_GROUP 0
+	#define NEBULAT_TICK_GROUP 0
 	#define NEBULAT_FRAME_GROUP 1
 	#define NEBULAT_LIGHT_GROUP 2
 	#define NEBULAT_INSTANCE_GROUP 3

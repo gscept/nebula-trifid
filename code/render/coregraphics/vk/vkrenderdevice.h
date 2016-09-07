@@ -156,6 +156,7 @@ private:
 	friend class VkCmdEvent;
 	friend class VkPass;
 	friend class VkRenderTexture;
+	friend class Lighting::VkLightServer;
 	friend struct VkDeferredCommand;
 
 	friend VKAPI_ATTR void VKAPI_CALL NebulaVkAllocCallback(void* userData, uint32_t size, VkInternalAllocationType type, VkSystemAllocationScope scope);

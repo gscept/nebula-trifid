@@ -58,11 +58,11 @@ VkShaderServer::Open()
 	this->textureCubePool.Resize(MAX_CUBE_TEXTURES);
 
 	// create shader state for textures, and fetch variables
-	this->textureShaderState = this->CreateSharedShaderState("shd:shared", { NEBULAT_TEXTURE_GROUP });
+	this->textureShaderState = this->CreateSharedShaderState("shd:shared", { NEBULAT_TICK_GROUP });
 	this->texture2DTextureVar = this->textureShaderState->GetVariableByName("Textures2D");
 	this->texture2DMSTextureVar = this->textureShaderState->GetVariableByName("Textures2DMS");
-	this->texture3DTextureVar = this->textureShaderState->GetVariableByName("TexturesCube");
-	this->textureCubeTextureVar = this->textureShaderState->GetVariableByName("Textures3D");
+	this->textureCubeTextureVar = this->textureShaderState->GetVariableByName("TexturesCube");
+	this->texture3DTextureVar = this->textureShaderState->GetVariableByName("Textures3D");
 
 	this->depthBufferTextureVar = this->textureShaderState->GetVariableByName("DepthBufferIdx");
 	this->normalBufferTextureVar = this->textureShaderState->GetVariableByName("NormalBufferIdx");

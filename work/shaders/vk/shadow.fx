@@ -12,6 +12,8 @@
 #include "lib/shadowbase.fxh"
 #include "lib/util.fxh"
 #include "lib/techniques.fxh"
+#include "lib/materialparams.fxh"
+#include "lib/tessellationparams.fxh"
 
 //------------------------------------------------------------------------------
 /**

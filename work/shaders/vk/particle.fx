@@ -10,6 +10,8 @@
 #include "lib/techniques.fxh"
 #include "lib/defaultsamplers.fxh"
 
+#include "lib/materialparams.fxh"
+
 float LightMapIntensity;
 
 textureHandle Layer1;
@@ -21,6 +23,8 @@ float2 UVAnim1;
 float2 UVAnim2;
 float2 UVAnim3;
 float2 UVAnim4;
+
+
 
 // samplers
 samplerstate ParticleSampler

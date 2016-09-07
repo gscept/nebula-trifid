@@ -45,7 +45,9 @@ public:
 	static const Util::Dictionary<Util::StringAtom, uint32_t>& GetConstantOffsetTable(const Util::StringAtom& signature);
 
 	/// get layout for specific descriptor set
-	const VkDescriptorSetLayout& GetDescriptorLayout(const IndexT index);
+	const VkDescriptorSetLayout& GetDescriptorLayout(const IndexT group);
+	/// get pipeline layout
+	const VkPipelineLayout& GetPipelineLayout() const;
 
 	/// reloads a shader from file
 	void Reload();
@@ -97,10 +99,19 @@ VkShader::GetVkEffect() const
 //------------------------------------------------------------------------------
 /**
 */
-inline  const VkDescriptorSetLayout&
-VkShader::GetDescriptorLayout(const IndexT index)
+inline const VkDescriptorSetLayout&
+VkShader::GetDescriptorLayout(const IndexT group)
 {
-	return this->setLayouts[index];
+	return this->setLayouts[group];
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const VkPipelineLayout&
+VkShader::GetPipelineLayout() const
+{
+	return this->pipelineLayout;
 }
 
 } // namespace Vulkan

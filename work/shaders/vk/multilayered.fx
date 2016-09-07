@@ -11,6 +11,13 @@
 #include "lib/shadowbase.fxh"
 #include "lib/geometrybase.fxh"
 
+vec2 AnimationDirection;
+float AnimationAngle;
+float AnimationLinearSpeed;
+float AnimationAngularSpeed;
+int NumXTiles = 1;
+int NumYTiles = 1;
+
 textureHandle AlbedoMap2;
 textureHandle AlbedoMap3;
 textureHandle SpecularMap2;

@@ -14,6 +14,7 @@
 #include "lib/util.fxh"
 #include "lib/techniques.fxh"
 #include "lib/CSM.fxh"
+#include "lib/tessellationparams.fxh"
 
 sampler2D ColorMap;
 sampler2D DepthMap;

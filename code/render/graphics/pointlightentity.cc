@@ -7,6 +7,7 @@
 #include "graphics/pointlightentity.h"
 #include "coregraphics/shaperenderer.h"
 #include "threading/thread.h"
+#include "coregraphics/renderdevice.h"
 
 namespace Graphics
 {
@@ -22,7 +23,8 @@ using namespace Lighting;
 /**
 */
 PointLightEntity::PointLightEntity() :
-    shadowCube(0)
+    shadowCube(0),
+	shaderState(NULL)
 {
     this->projectionTextureId = Util::String("tex:lighting/lightcube") + NEBULA3_TEXTURE_EXTENSION;
     this->SetLightType(LightType::Point);
@@ -103,8 +105,35 @@ PointLightEntity::OnRenderDebug()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-PointLightEntity::SetTransformFromPosDirAndRange( const point& pos, const vector& dir, float range )
+void
+PointLightEntity::OnActivate()
+{
+	GraphicsEntity::OnActivate();
+	/*
+	n_assert(!this->shaderState.isvalid());
+	this->shaderState = CoreGraphics::ShaderServer::Instance()->CreateShaderState("shd:lights", { NEBULAT_DEFAULT_GROUP });
+	*/
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PointLightEntity::OnDeactivate()
+{
+	GraphicsEntity::OnDeactivate();
+	/*
+	n_assert(this->shaderState.isvalid());
+	this->shaderState->Discard();
+	this->shaderState = 0;
+	*/
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PointLightEntity::SetTransformFromPosDirAndRange(const point& pos, const vector& dir, float range)
 {
     matrix44 m = matrix44::lookatrh(pos, pos + dir, vector::upvec());
     float4 scale = float4(range, range, range, 1.0f);

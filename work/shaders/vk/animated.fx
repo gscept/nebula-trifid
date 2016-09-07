@@ -11,7 +11,7 @@
 #include "lib/geometrybase.fxh"
 #include "lib/skinning.fxh"
 
-
+#include "lib/animationparams.fxh"
 //------------------------------------------------------------------------------
 /**
 */

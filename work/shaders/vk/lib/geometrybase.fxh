@@ -69,6 +69,12 @@ state AlphaState
 	DepthEnabled = true;
 };
 
+float FresnelPower = 0.0f;
+float FresnelStrength = 0.0f;
+
+#include "lib/materialparams.fxh"
+#include "lib/tessellationparams.fxh"
+
 //---------------------------------------------------------------------------------------------------------------------------
 //											DIFFUSE
 //---------------------------------------------------------------------------------------------------------------------------

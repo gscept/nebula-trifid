@@ -9,17 +9,18 @@
 /*
 	Groups are ordered based on frequency of change.
 	FRAME_GROUP is updated every frame (rendering multiple frames through for example VR refreshes it)
-	TEXTURE_GROUP is updated every actual tick in the app, since textures are shared no matter which eye is used
+	TICK_GROUP is updated every actual tick in the app, since textures are shared no matter which eye is used
 	LIGHT_GROUP is updated once per frame by the light system
 	OBJECT_GROUP is updated for every object
 */
-#define TEXTURE_GROUP 0
+#define TICK_GROUP 0
 #define FRAME_GROUP 1
 #define LIGHT_GROUP 2
 #define INSTANCE_GROUP 3
 #define PASS_GROUP 4
 #define OBJECT_GROUP 5
 #define SYSTEM_GROUP 6
+#define DEFAULT_GROUP 7
 
 /// define global macros
 #if GLSL

@@ -13,7 +13,10 @@
 #include "core/refcounted.h"
 #include "coregraphics/base/shaderstatebase.h"
 #include "lowlevel/afxapi.h"
-
+namespace Lighting
+{
+	class VkLightServer;
+}
 namespace Vulkan
 {
 class VkShaderState : public Base::ShaderStateBase
@@ -54,6 +57,7 @@ public:
 private:
 	friend class Base::ShaderBase;
 	friend class VkShader;
+	friend class Lighting::VkLightServer;
 
 	/// setup the shader instance from its original shader object
 	void Setup(const Ptr<CoreGraphics::Shader>& origShader);
@@ -68,6 +72,13 @@ private:
 	/// update descriptor sets
 	void UpdateDescriptorSets();
 
+	/// create array of offsets
+	void CreateOffsetArray(Util::Array<uint32_t>& outOffsets, const IndexT group);
+	/// get index in offset array based on binding
+	IndexT GetOffsetBinding(const IndexT& group, const IndexT& binding);
+	/// apply array of offsets
+	void ApplyOffsetArray(const IndexT group, const Util::Array<uint32_t>& offsets);
+
 	struct DeferredVariableToBufferBind
 	{
 		unsigned offset;
@@ -79,7 +90,6 @@ private:
 
 	typedef Util::KeyValuePair<Ptr<CoreGraphics::ShaderVariable>, Ptr<CoreGraphics::ConstantBuffer>> BlockBufferBinding;
 	Util::Array<BlockBufferBinding> blockToBufferBindings;
-
 
 	struct DescriptorSetBinding
 	{

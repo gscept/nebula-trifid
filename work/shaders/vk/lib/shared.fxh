@@ -21,7 +21,7 @@
 #define MAX_CUBE_IMAGES 64
 #define MAX_3D_IMAGES 64
 
-group(TEXTURE_GROUP) shared varblock RenderTargetIndices
+group(TICK_GROUP) shared varblock RenderTargetIndices
 {
 	// base render targets
 	textureHandle DepthBufferIdx;
@@ -35,12 +35,21 @@ group(TEXTURE_GROUP) shared varblock RenderTargetIndices
 	textureHandle SpotLightShadowMapIdx;
 };
 
-group(TEXTURE_GROUP) texture2D 		Textures2D[MAX_2D_TEXTURES];
-group(TEXTURE_GROUP) texture2DMS 	Textures2DMS[MAX_2D_MS_TEXTURES];
-group(TEXTURE_GROUP) textureCube 	TexturesCube[MAX_CUBE_TEXTURES];
-group(TEXTURE_GROUP) texture3D 		Textures3D[MAX_3D_TEXTURES];
-group(TEXTURE_GROUP) samplerstate	Basic2DSampler {};
-group(TEXTURE_GROUP) samplerstate	PosteffectSampler { Filter = Point; };
+group(TICK_GROUP) texture2D 	Textures2D[MAX_2D_TEXTURES];
+group(TICK_GROUP) texture2DMS 	Textures2DMS[MAX_2D_MS_TEXTURES];
+group(TICK_GROUP) textureCube 	TexturesCube[MAX_CUBE_TEXTURES];
+group(TICK_GROUP) texture3D 	Textures3D[MAX_3D_TEXTURES];
+group(TICK_GROUP) samplerstate	Basic2DSampler {};
+group(TICK_GROUP) samplerstate	PosteffectSampler { Filter = Point; };
+
+group(TICK_GROUP) shared varblock WindParams [ bool System = true; ]
+{
+	vec4 WindDirection = vec4(0.0f,0.0f,0.0f,1.0f);
+	float WindWaveSize = 1.0f;
+	float WindSpeed = 0.0f;
+	float WindIntensity = 0.0f;
+	float WindForce = 0.0f;
+};
 
 #define sample2D(handle, sampler, uv) 				texture(sampler2D(Textures2D[handle], sampler), uv)
 #define sample2DLod(handle, sampler, uv, lod) 		textureLod(sampler2D(Textures2D[handle], sampler), uv, lod)
@@ -158,35 +167,5 @@ group(PASS_GROUP) shared varblock PassBlock [ bool System = true; ]
 	vec4 RenderTargetDimensions[32];
 };
 
-float FresnelPower = 0.0f;
-float FresnelStrength = 0.0f;
-
-// material properties
-float AlphaSensitivity = 1.0f;
-float AlphaBlendFactor = 0.0f;
-vec4 MatAlbedoIntensity = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-vec4 MatSpecularIntensity = vec4(1.0f, 1.0f, 1.0f, 1.0f);	
-vec4 MatEmissiveIntensity = vec4(1.0f, 1.0f, 1.0f, 1.0f);	
-vec4 MatFresnelIntensity = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-float MatRoughnessIntensity = 0.0f;
-
-float TessellationFactor = 1.0f;
-float MaxDistance = 250.0f;
-float MinDistance = 20.0f;
-float HeightScale = 0.0f;
-float SceneScale = 1.0f;
-
-vec2 AnimationDirection;
-float AnimationAngle;
-float AnimationLinearSpeed;
-float AnimationAngularSpeed;
-int NumXTiles = 1;
-int NumYTiles = 1;
-
-vec4 WindDirection = vec4(0.0f,0.0f,0.0f,1.0f);
-float WindWaveSize = 1.0f;
-float WindSpeed = 0.0f;
-float WindIntensity = 0.0f;
-float WindForce = 0.0f;
 
 #endif // SHARED_H

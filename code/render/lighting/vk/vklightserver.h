@@ -18,6 +18,7 @@
 #include "frame/frameserver.h"
 #include "renderutil/drawquad.h"
 #include "graphics/modelentity.h"
+#include "util/fixedpool.h"
 
 //------------------------------------------------------------------------------
 namespace Lighting
@@ -57,6 +58,9 @@ protected:
 	void RenderSpotLights();
 	/// assign render buffers to shaders
 	void AssignRenderBufferTextures();
+
+	/// update descriptor set
+	void UpdateDescriptor(const VkBuffer& buffer, const IndexT binding, VkDescriptorSet set);
 
 	enum ShadowFlag
 	{
@@ -130,12 +134,17 @@ protected:
 	Ptr<CoreGraphics::ConstantBuffer> localLightBuffer;
 	Ptr<CoreGraphics::ShaderVariable> localLightBlockVar;
 	Util::Dictionary<Ptr<Graphics::AbstractLightEntity>, IndexT> lightToInstanceMap;
+	Util::Dictionary<Ptr<Graphics::AbstractLightEntity>, Util::Array<uint32_t>> lightToOffsetMap;
 
 	/// shadow variables
 	Ptr<CoreGraphics::ShaderVariable> shadowConstants;
 	Ptr<CoreGraphics::ShaderVariable> shadowIntensityVar;
 	Ptr<CoreGraphics::ShaderVariable> shadowProjTransform;
 	Ptr<CoreGraphics::ShaderVariable> shadowOffsetScaleVar;
+
+	Util::FixedPool<Util::Array<uint32_t>> offsetPool;
+	VkDescriptorSet localLightSet;
+	VkPipelineLayout localLightLayout;
 
 	Ptr<Resources::ManagedMesh> pointLightMesh;         // point light mesh
 	Ptr<Resources::ManagedMesh> spotLightMesh;          // spot light mesh

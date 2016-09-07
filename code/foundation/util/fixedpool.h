@@ -28,8 +28,8 @@ public:
 	/// assignment operator
 	void operator=(const FixedArray<TYPE>& rhs);
 
-	/// allocate number of elements from pool
-	TYPE Alloc();
+	/// allocate an element in the pool
+	TYPE& Alloc();
 	/// free element allocated from pool
 	void Free(const TYPE& elem);
 
@@ -41,6 +41,9 @@ public:
 	bool IsFull() const;
 	/// clear all pool values
 	void Clear();
+
+	/// resets all used indices without clearing contents
+	void Reset();
 
 	/// set optional setup value
 	void SetSetupFunc(const std::function<void(TYPE& val, IndexT idx)>& func);
@@ -73,15 +76,13 @@ Util::FixedPool<TYPE>::FixedPool(SizeT s, std::function<void(TYPE& val, IndexT i
 {
 	this->freeValues.Reserve(s);
 	this->setupFunc = setupFunc;
-	if (this->setupFunc != nullptr)
+
+	IndexT i;
+	for (i = 0; i < this->size; i++)
 	{
-		IndexT i;
-		for (i = 0; i < this->size; i++)
-		{
-			this->freeValues.Append(TYPE());
-			setupFunc(this->freeValues[i], i);
-		}
-	}
+		this->freeValues.Append(TYPE());
+		if (this->setupFunc != nullptr) this->setupFunc(this->freeValues[i], i);
+	}	
 }
 
 //------------------------------------------------------------------------------
@@ -99,7 +100,7 @@ Util::FixedPool<TYPE>::operator=(const FixedArray<TYPE>& rhs)
 /**
 */
 template<class TYPE>
-inline TYPE
+inline TYPE&
 Util::FixedPool<TYPE>::Alloc()
 {
 	n_assert(!this->freeValues.IsEmpty());
@@ -126,6 +127,16 @@ Util::FixedPool<TYPE>::Free(const TYPE& elem)
 /**
 */
 template<class TYPE>
+SizeT
+Util::FixedPool<TYPE>::Size() const
+{
+	return this->size;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+template<class TYPE>
 inline void
 Util::FixedPool<TYPE>::Resize(SizeT newSize)
 {
@@ -134,14 +145,11 @@ Util::FixedPool<TYPE>::Resize(SizeT newSize)
 	this->freeValues.Clear();
 	this->freeValues.Reserve(newSize);
 
-	if (this->setupFunc != nullptr)
+	IndexT i;
+	for (i = 0; i < this->size; i++)
 	{
-		IndexT i;
-		for (i = 0; i < this->size; i++)
-		{
-			this->freeValues.Append(TYPE());
-			setupFunc(this->freeValues[i], i);
-		}
+		this->freeValues.Append(TYPE());
+		if (this->setupFunc != nullptr) this->setupFunc(this->freeValues[i], i);
 	}
 }
 
@@ -166,15 +174,27 @@ Util::FixedPool<TYPE>::Clear()
 	this->freeValues.Clear();
 	this->freeValues.Reserve(this->size);
 
-	if (this->setupFunc != nullptr)
+	IndexT i;
+	for (i = 0; i < this->size; i++)
 	{
-		IndexT i;
-		for (i = 0; i < this->size; i++)
-		{
-			this->freeValues.Append(TYPE());
-			setupFunc(this->freeValues[i], i);
-		}
+		this->freeValues.Append(TYPE());
+		if (this->setupFunc != nullptr) this->setupFunc(this->freeValues[i], i);
 	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+template<class TYPE>
+void
+Util::FixedPool<TYPE>::Reset()
+{
+	IndexT i;
+	for (i = 0; i < this->usedValues.Size(); i++)
+	{
+		this->freeValues.Append(this->usedValues[i]);
+	}
+	this->usedValues.Clear();
 }
 
 //------------------------------------------------------------------------------
