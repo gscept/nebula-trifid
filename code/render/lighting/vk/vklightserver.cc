@@ -149,6 +149,7 @@ VkLightServer::Open()
 
 	VkDescriptorSetLayout layout = this->lightShader->GetShader()->GetDescriptorLayout(NEBULAT_DEFAULT_GROUP);
 	this->localLightLayout = this->lightShader->GetShader()->GetPipelineLayout();
+	this->offsetIndex = this->lightShader->GetOffsetBinding(NEBULAT_DEFAULT_GROUP, this->localLightBuffer->GetBinding());
 	// create descriptor set used by our pass
 	VkDescriptorSetAllocateInfo descInfo =
 	{
@@ -365,7 +366,7 @@ VkLightServer::RenderLights()
 
 	// general preparations
 	shdServer->SetActiveShader(this->lightShader->GetShader());
-	this->lightShader->Apply();
+	//this->lightShader->Apply();
 
 	// render the global light
 	this->globalLightShadowMap->SetTexture(shadowServer->GetGlobalLightShadowBufferTexture());
@@ -533,9 +534,7 @@ VkLightServer::RenderPointLights()
 
 					// commit and draw
 					Util::Array<uint32_t>& offsets = this->lightToOffsetMap[curLight.upcast<AbstractLightEntity>()];
-					offsets[this->lightShader->GetOffsetBinding(NEBULAT_DEFAULT_GROUP, this->localLightBuffer->GetBinding())] = offset;
-					//this->lightShader->ApplyOffsetArray(NEBULAT_DEFAULT_GROUP, offsets);
-					//this->lightShader->Commit();
+					offsets[this->offsetIndex] = offset;
 					renderDevice->BindDescriptorsGraphics(&this->localLightSet, this->localLightLayout, NEBULAT_DEFAULT_GROUP, 1, offsets.Begin(), offsets.Size(), false);
                     renderDevice->Draw();
 				}
@@ -623,9 +622,7 @@ VkLightServer::RenderSpotLights()
 					// commit and draw
 					//this->lightShader->SetConstantBufferOffset(NEBULAT_DEFAULT_GROUP, this->localLightBuffer->GetBinding(), offset);
 					Util::Array<uint32_t>& offsets = this->lightToOffsetMap[curLight.upcast<AbstractLightEntity>()];
-					offsets[this->lightShader->GetOffsetBinding(NEBULAT_DEFAULT_GROUP, this->localLightBuffer->GetBinding())] = offset;
-					//this->lightShader->ApplyOffsetArray(NEBULAT_DEFAULT_GROUP, offsets);
-					//this->lightShader->Commit();
+					offsets[this->offsetIndex] = offset;
 					renderDevice->BindDescriptorsGraphics(&this->localLightSet, this->localLightLayout, NEBULAT_DEFAULT_GROUP, 1, offsets.Begin(), offsets.Size(), false);
 					renderDevice->Draw();
 				}

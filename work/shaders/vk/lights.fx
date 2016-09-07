@@ -224,7 +224,7 @@ psSpot(
 	in vec3 ViewSpacePosition,
 	[color0] out vec4 Color) 
 {
-	vec2 pixelSize = RenderTargetDimensions[0].xy;
+	vec2 pixelSize = RenderTargetDimensions[0].zw;
 	vec2 screenUV = psComputeScreenCoord(gl_FragCoord.xy, pixelSize.xy);
 	vec3 ViewSpaceNormal = UnpackViewSpaceNormal(sample2DLod(NormalBuffer, PosteffectSampler, screenUV, 0));
 	float Depth = sample2DLod(DepthBuffer, PosteffectSampler, screenUV, 0).r;
@@ -234,11 +234,11 @@ psSpot(
 	vec3 lightDir = (LightPosRange.xyz - surfacePos);
 	
 	float att = saturate(1.0 - length(lightDir) * LightPosRange.w);    
-	//if (att - 0.004 < 0) discard;
+	if (att - 0.004 < 0) discard;
 	lightDir = normalize(lightDir);
 	
 	vec4 projLightPos = LightProjTransform * vec4(surfacePos, 1.0f);
-	//if (projLightPos.z - 0.001 < 0) discard;
+	if (projLightPos.z - 0.001 < 0) discard;
 	float mipSelect = 0;
 	vec2 lightSpaceUv = vec2(((projLightPos.xy / projLightPos.ww) * vec2(0.5f, 0.5f)) + 0.5f);
 	

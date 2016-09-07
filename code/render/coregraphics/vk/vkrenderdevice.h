@@ -10,6 +10,11 @@
 #include "vkcmdbufferthread.h"
 #include "vkcpugpuinterlockthread.h"
 #include "vkdeferredcommand.h"
+
+namespace Lighting
+{
+	class VkLightServer;
+}
 namespace Vulkan
 {
 class VkRenderDevice : public Base::RenderDeviceBase

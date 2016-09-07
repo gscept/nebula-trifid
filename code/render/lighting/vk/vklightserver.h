@@ -145,6 +145,7 @@ protected:
 	Util::FixedPool<Util::Array<uint32_t>> offsetPool;
 	VkDescriptorSet localLightSet;
 	VkPipelineLayout localLightLayout;
+	uint32_t offsetIndex;
 
 	Ptr<Resources::ManagedMesh> pointLightMesh;         // point light mesh
 	Ptr<Resources::ManagedMesh> spotLightMesh;          // spot light mesh
