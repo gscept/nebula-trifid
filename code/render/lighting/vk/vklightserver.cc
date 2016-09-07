@@ -370,6 +370,7 @@ VkLightServer::RenderLights()
 
 	// render the global light
 	this->globalLightShadowMap->SetTexture(shadowServer->GetGlobalLightShadowBufferTexture());
+	this->localLightBuffer->SetBaseOffset(0);
 	this->RenderGlobalLight();
 
 	if (this->spotLights[CastShadows].Size() > 0)
@@ -536,7 +537,7 @@ VkLightServer::RenderPointLights()
 					Util::Array<uint32_t>& offsets = this->lightToOffsetMap[curLight.upcast<AbstractLightEntity>()];
 					offsets[this->offsetIndex] = offset;
 					renderDevice->BindDescriptorsGraphics(&this->localLightSet, this->localLightLayout, NEBULAT_DEFAULT_GROUP, 1, offsets.Begin(), offsets.Size(), false);
-                    renderDevice->Draw();
+					renderDevice->Draw();
 				}
 			}
 		}                             

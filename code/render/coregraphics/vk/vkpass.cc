@@ -153,10 +153,10 @@ VkPass::Setup()
 		for (j = 0; j < subpass.dependencies.Size(); j++)
 		{
 			VkSubpassDependency dep;
-			dep.srcSubpass = i;
+			dep.srcSubpass = subpass.dependencies[j];
 			dep.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 			dep.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-			dep.dstSubpass = subpass.dependencies[j];
+			dep.dstSubpass = i;
 			dep.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
 			dep.dstStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 			subpassDeps.Append(dep);

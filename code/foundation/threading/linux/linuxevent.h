@@ -9,6 +9,7 @@
     (C) 2013 Individual contributors, see AUTHORS file
 */
 #include "core/types.h"
+#include <bits/pthreadtypes.h>
 
 //------------------------------------------------------------------------------
 namespace Linux
@@ -149,7 +150,7 @@ LinuxEvent::WaitTimeout(int ms) const
             break;
         }
     }
-    if(!this->manualReset)
+    if (!this->manualReset)
     {
         __sync_lock_test_and_set(&this->signalled, 0);
     }

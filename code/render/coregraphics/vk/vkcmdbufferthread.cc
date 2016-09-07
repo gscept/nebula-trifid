@@ -132,6 +132,7 @@ VkCmdBufferThread::DoWork()
 				break;
 			case Sync:
 				cmd.syncEvent->Signal();
+				
 				break;
 			}
 		}

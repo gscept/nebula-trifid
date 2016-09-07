@@ -415,7 +415,7 @@ VkRenderDevice::OpenVulkanContext()
 		this->colorSpace,
 		swapchainExtent,
 		1,
-		VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+		VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
 		VK_SHARING_MODE_EXCLUSIVE,
 		0,
 		NULL,
@@ -1314,7 +1314,7 @@ VkRenderDevice::EndFrame(IndexT frameIndex)
 	};
 
 	// submit transfer stuff
-	this->SubmitToQueue(this->transferQueue, VK_PIPELINE_STAGE_TRANSFER_BIT, 1, &this->mainCmdTransBuffer);
+	this->SubmitToQueue(this->transferQueue, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 1, &this->mainCmdTransBuffer);
 	this->SubmitToQueue(this->transferQueue, this->mainCmdTransFence);
 	if (this->putTransferFenceThisFrame)
 	{
@@ -1328,23 +1328,8 @@ VkRenderDevice::EndFrame(IndexT frameIndex)
 	}
 	this->RunCommandPass(OnMainTransferSubmitted);
 
-	// submit draw stuff
-	this->SubmitToQueue(this->drawQueue, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, 1, &this->mainCmdDrawBuffer);
-	this->SubmitToQueue(this->drawQueue, this->mainCmdDrawFence);
-	if (this->putDrawFenceThisFrame)
-	{
-		VkFence fence;
-		VkResult res = vkCreateFence(this->dev, &info, NULL, &fence);
-		n_assert(res == VK_SUCCESS);
-		this->drawFenceCommands.Add(fence, this->commands[OnHandleDrawFences]);
-		this->commands[OnHandleDrawFences].Clear();
-		this->SubmitToQueue(this->drawQueue, fence);
-		this->putDrawFenceThisFrame = false;
-	}
-	this->RunCommandPass(OnMainDrawSubmitted);
-	
-	// submit comput stuff
-	this->SubmitToQueue(this->computeQueue, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 1, &this->mainCmdCmpBuffer);
+	// submit compute stuff
+	this->SubmitToQueue(this->computeQueue, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 1, &this->mainCmdCmpBuffer);
 	this->SubmitToQueue(this->computeQueue, this->mainCmdCmpFence);	
 	if (this->putComputeFenceThisFrame)
 	{
@@ -1357,9 +1342,24 @@ VkRenderDevice::EndFrame(IndexT frameIndex)
 		this->putComputeFenceThisFrame = false;
 	}
 	this->RunCommandPass(OnMainComputeSubmitted);
+	
+	// submit draw stuff
+	this->SubmitToQueue(this->drawQueue, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 1, &this->mainCmdDrawBuffer);
+	this->SubmitToQueue(this->drawQueue, this->mainCmdDrawFence);
+	if (this->putDrawFenceThisFrame)
+	{
+		VkFence fence;
+		VkResult res = vkCreateFence(this->dev, &info, NULL, &fence);
+		n_assert(res == VK_SUCCESS);
+		this->drawFenceCommands.Add(fence, this->commands[OnHandleDrawFences]);
+		this->commands[OnHandleDrawFences].Clear();
+		this->SubmitToQueue(this->drawQueue, fence);
+		this->putDrawFenceThisFrame = false;
+	}
+	this->RunCommandPass(OnMainDrawSubmitted);
 
-	VkFence fences[] = { this->mainCmdDrawFence, this->mainCmdTransFence, this->mainCmdCmpFence };
-	this->WaitForFences(fences, 3, true);
+	static const VkFence fences[] = { this->mainCmdDrawFence, this->mainCmdTransFence, this->mainCmdCmpFence };
+	this->WaitForFences(fences, 3, false);
 
 	VkResult res = vkResetCommandBuffer(this->mainCmdTransBuffer, 0);
 	n_assert(res == VK_SUCCESS);
@@ -2733,48 +2733,55 @@ VkRenderDevice::BeginDrawThreadCluster()
 void
 VkRenderDevice::EndDrawThreads()
 {
-	IndexT i;
-	for (i = 0; i < this->numActiveThreads; i++)
+	if (this->numActiveThreads > 0)
 	{
-		// push remaining cmds to thread
-		this->FlushToThread(i);
+		
+		IndexT i;
+		for (i = 0; i < this->numActiveThreads; i++)
+		{
+			// push remaining cmds to thread
+			this->FlushToThread(i);
 
-		// end thread
-		VkCmdBufferThread::Command cmd;
-		cmd.type = VkCmdBufferThread::EndCommand;
-		this->PushToThread(cmd, i, false);
-		//this->drawThreads[i]->PushCommand(cmd);
+			// end thread
+			VkCmdBufferThread::Command cmd;
+			cmd.type = VkCmdBufferThread::EndCommand;
+			this->PushToThread(cmd, i, false);
+			//this->drawThreads[i]->PushCommand(cmd);
 
-		cmd.type = VkCmdBufferThread::Sync;
-		cmd.syncEvent = &this->drawCompletionEvents[i];
-		this->PushToThread(cmd, i, false);
-		//this->drawThreads[i]->PushCommand(cmd);
-		this->drawCompletionEvents[i].Wait();
-		this->drawCompletionEvents[i].Reset();
+			cmd.type = VkCmdBufferThread::Sync;
+			cmd.syncEvent = &this->drawCompletionEvents[i];
+			this->PushToThread(cmd, i, false);
+			//this->drawThreads[i]->PushCommand(cmd);
+			//n_sleep(100);
+			n_printf("Begin\n");
+			this->drawCompletionEvents[i].Wait();
+			n_printf("End\n");
+			this->drawCompletionEvents[i].Reset();
 
-		// stop thread from running
-		this->drawThreads[i]->Pause(true);
+			// stop thread from running
+			this->drawThreads[i]->Pause(true);
+		}
+
+		// run end-of-threads pass
+		this->RunCommandPass(OnDrawThreadsSubmitted);
+
+		// execute commands
+		vkCmdExecuteCommands(this->mainCmdDrawBuffer, this->numActiveThreads, this->dispatchableDrawCmdBuffers);
+
+		// destroy command buffers
+		for (i = 0; i < this->numActiveThreads; i++)
+		{
+			VkDeferredCommand cmd;
+			cmd.del.type = VkDeferredCommand::FreeCmdBuffers;
+			cmd.del.cmdbufferfree.buffers[0] = this->dispatchableDrawCmdBuffers[i];
+			cmd.del.cmdbufferfree.numBuffers = 1;
+			cmd.del.cmdbufferfree.pool = this->dispatchableCmdDrawBufferPool[i];
+			cmd.dev = this->dev;
+			this->PushCommandPass(cmd, OnHandleDrawFences);
+		}
+		this->currentDrawThread = NumDrawThreads-1;
+		this->numActiveThreads = 0;
 	}
-
-	// run end-of-threads pass
-	this->RunCommandPass(OnDrawThreadsSubmitted);
-
-	// execute commands
-	vkCmdExecuteCommands(this->mainCmdDrawBuffer, this->numActiveThreads, this->dispatchableDrawCmdBuffers);
-
-	// destroy command buffers
-	for (i = 0; i < this->numActiveThreads; i++)
-	{
-		VkDeferredCommand cmd;
-		cmd.del.type = VkDeferredCommand::FreeCmdBuffers;
-		cmd.del.cmdbufferfree.buffers[0] = this->dispatchableDrawCmdBuffers[i];
-		cmd.del.cmdbufferfree.numBuffers = 1;
-		cmd.del.cmdbufferfree.pool = this->dispatchableCmdDrawBufferPool[i];
-		cmd.dev = this->dev;
-		this->PushCommandPass(cmd, OnHandleDrawFences);
-	}
-	this->currentDrawThread = NumDrawThreads-1;
-	this->numActiveThreads = 0;
 }
 
 //------------------------------------------------------------------------------
