@@ -96,7 +96,7 @@ VkCpuSyncFence::WaitForRange(IndexT startIndex, SizeT length)
 	IndexT i;
 	for (i = 0; i < this->rangeFences.Size(); i++)
 	{
-		const Util::KeyValuePair<Base::BufferRange, VkFence>& kvp = this->rangeFences.KeyValuePairAtIndex(i);
+		const Util::KeyValuePair<Base::BufferRange, VkEvent>& kvp = this->rangeFences.KeyValuePairAtIndex(i);
 		if (range.Overlaps(kvp.Key()))
 		{
 			this->Wait(kvp.Value());

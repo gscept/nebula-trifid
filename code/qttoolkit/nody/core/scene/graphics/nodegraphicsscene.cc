@@ -3,7 +3,7 @@
 //  (C) 2012 Gustav Sterbrant
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "config.h"
+#include "nody_config.h"
 #include "nodegraphicsscene.h"
 #include "scene/nodescene.h"
 #include "node/graphics/nodegraphics.h"

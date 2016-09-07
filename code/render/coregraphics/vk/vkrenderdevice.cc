@@ -14,7 +14,7 @@
 #include "vktypes.h"
 #include "vktransformdevice.h"
 #include "vkshaderserver.h"
-#include "../pass.h"
+#include "coregraphics/pass.h"
 
 using namespace CoreGraphics;
 //------------------------------------------------------------------------------
@@ -1753,7 +1753,7 @@ VkRenderDevice::BufferUpdate(const VkBuffer& buf, VkDeviceSize offset, VkDeviceS
 	{
 		const uint8_t* ptr = (const uint8_t*)data + totalOffset;
 		VkDeviceSize uploadSize = totalSize < 65536 ? totalSize : 65536;
-		vkCmdUpdateBuffer(this->mainCmdTransBuffer, buf, totalOffset, uploadSize, ptr);
+		vkCmdUpdateBuffer(this->mainCmdTransBuffer, buf, totalOffset, uploadSize, (const uint32_t*)ptr);
 		totalSize -= uploadSize;
 		totalOffset += uploadSize;
 	}
@@ -1781,7 +1781,7 @@ VkRenderDevice::BufferUpdate(VkCommandBuffer cmd, const VkBuffer& buf, VkDeviceS
 		cmd.type = VkCmdBufferThread::UpdateBuffer;
 		*/
 		//this->PushToThread(cmd, this->currentDrawThread, true);
-		vkCmdUpdateBuffer(cmd, buf, totalOffset, uploadSize, ptr);
+		vkCmdUpdateBuffer(cmd, buf, totalOffset, uploadSize, (const uint32_t*)ptr);
 		totalSize -= uploadSize;
 		totalOffset += uploadSize;
 	}
@@ -2141,7 +2141,7 @@ void
 VkRenderDevice::BindComputePipeline(const VkPipeline& pipeline, const VkPipelineLayout& layout)
 {
 	// bind compute pipeline
-	vkCmdBindPipeline(this->mainCmdCmpBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, layout);
+	vkCmdBindPipeline(this->mainCmdCmpBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
 
 	// run command pass
 	this->RunCommandPass(OnBindComputePipeline);

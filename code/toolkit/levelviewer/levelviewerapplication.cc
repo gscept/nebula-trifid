@@ -20,7 +20,7 @@
 #include "effectscommands.h"
 #include "audioprotocol.h"
 #include "uicommands.h"
-#include "NIDL/levelviewercommands.h"
+#include "nidl/levelviewercommands.h"
 #include "posteffectprotocol.h"
 
 

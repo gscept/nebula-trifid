@@ -132,7 +132,7 @@ VkTexture::Unmap(IndexT mipLevel)
 	if (this->mapCount == 0)
 	{
 		vkFreeMemory(VkRenderDevice::dev, this->mappedMem, NULL);
-		vkDestroyBuffer(VkRenderDevice::dev, this->mappedImg, NULL);
+		vkDestroyImage(VkRenderDevice::dev, this->mappedImg, NULL);
 
 		this->mappedData = 0;
 		this->mappedImg = VK_NULL_HANDLE;
@@ -194,7 +194,7 @@ VkTexture::UnmapCubeFace(CubeFace face, IndexT mipLevel)
 	if (this->mapCount == 0)
 	{
 		vkFreeMemory(VkRenderDevice::dev, this->mappedMem, NULL);
-		vkDestroyBuffer(VkRenderDevice::dev, this->mappedImg, NULL);
+		vkDestroyImage(VkRenderDevice::dev, this->mappedImg, NULL);
 
 		this->mappedData = 0;
 		this->mappedImg = VK_NULL_HANDLE;

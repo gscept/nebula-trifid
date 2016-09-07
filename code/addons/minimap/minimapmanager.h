@@ -54,7 +54,7 @@ private:
 
     // shading related variables
 	Ptr<CoreGraphics::RenderTarget> minimapTarget;
-	Ptr<CoreGraphics::Shader> minimapShader;
+	Ptr<CoreGraphics::ShaderState> minimapShader;
 	Ptr<CoreGraphics::ShaderVariable> transformsVar;
     Ptr<CoreGraphics::ShaderVariable> portraitVar;
     Ptr<CoreGraphics::ShaderVariable> portraitScalesVar;

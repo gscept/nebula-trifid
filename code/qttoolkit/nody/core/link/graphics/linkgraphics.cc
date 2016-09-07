@@ -7,7 +7,7 @@
 #include "linkgraphics.h"
 #include "scene/graphics/nodegraphicsscene.h"
 #include "variable/variableinstance.h"
-#include "config.h"
+#include "nody_config.h"
 #include <QApplication>
 
 #define LINK_DATAFLOW_ELLIPSE_RADIUS 15.0f

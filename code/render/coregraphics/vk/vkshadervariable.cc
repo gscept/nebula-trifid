@@ -19,10 +19,8 @@ __ImplementClass(Vulkan::VkShaderVariable, 'VKSV', Base::ShaderVariableBase);
 */
 VkShaderVariable::VkShaderVariable() :
 	bufferBinding(NULL),
-	pushRangeBinding(NULL),
-	var(0),
-	block(0),
-	buffer(0)
+    pushRangeBinding(NULL),
+	var(0)
 {
 	// empty
 }

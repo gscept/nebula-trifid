@@ -238,6 +238,16 @@ PosixAppLauncher::CheckIfExists()
 //------------------------------------------------------------------------------
 /**
 */
+bool
+PosixAppLauncher::CheckIfExists(const IO::URI & program)
+{
+    //FIXME: not implemented
+    return false;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 void
 PosixAppLauncher::CleanUp() const
 {
