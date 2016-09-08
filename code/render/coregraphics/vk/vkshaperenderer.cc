@@ -362,10 +362,11 @@ VkShapeRenderer::DrawIndexedPrimitives(const Math::matrix44& modelTransform, Cor
 	SizeT vbBufferSize = MaxNumVertices * MaxVertexWidth;
 	SizeT ibBufferSize = MaxNumIndices * MaxIndexWidth;
 	CoreGraphics::RenderShape::RenderShapeVertex* verts = (CoreGraphics::RenderShape::RenderShapeVertex*)this->vertexBufferPtr;
+	uint32_t* inds = (uint32_t*)this->indexBufferPtr;
 
 	// unlock buffer and copy data
 	memcpy(verts + this->numPrimitives, vertices, vertexCount * vertexWidth);
-	memcpy(this->indexBufferPtr + this->numIndices, indices, indexCount * indexSize);
+	memcpy(inds + this->numIndices, indices, indexCount * indexSize);
 
 	// append transforms
 	this->indexed.transforms.Append(modelTransform);

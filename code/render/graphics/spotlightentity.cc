@@ -26,8 +26,7 @@ using namespace Lighting;
 //------------------------------------------------------------------------------
 /**
 */
-SpotLightEntity::SpotLightEntity() :
-	shaderState(NULL)
+SpotLightEntity::SpotLightEntity()
 {
 	// create managed resource for projection map, use default which is tex:lighting/lightcones for spotlights
 	this->projectionTextureId = Util::String("tex:lighting/lightcones") + NEBULA3_TEXTURE_EXTENSION;
