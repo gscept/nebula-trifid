@@ -459,6 +459,7 @@ TheoraVideoPlayer::Render()
 //        this->shader->BeginUpdate();
 		this->videoTextureVariable->SetTexture(this->videoTexture);
         //      this->shader->EndUpdate();
+		this->quad.ApplyMesh();
 		this->shader->Commit();
 		this->quad.Draw();
 	}

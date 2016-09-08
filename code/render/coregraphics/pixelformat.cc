@@ -233,6 +233,7 @@ PixelFormat::ToSize(Code code)
 	case X8R8G8B8:      return 4;
 	case R8G8B8:        return 3;
 	case A8R8G8B8:      return 4;
+	case A8B8G8R8:      return 4;
 	case SRGBA8:		return 4;
 	case R5G6B5:        return 2;
 	case A1R5G5B5:      return 2;
@@ -278,10 +279,11 @@ PixelFormat::ToChannels(Code code)
 	switch (code)
 	{
 	case X8R8G8B8:      return 4;
+	case A8R8G8B8:      return 4;
 	case SRGBA8:		return 4;
 	case R11G11B10F:	return 3;
 	case R8G8B8:        return 3;
-	case A8R8G8B8:      return 4;
+	case A8B8G8R8:      return 4;
 	case R5G6B5:        return 3;
 	case A1R5G5B5:      return 4;
 	case A4R4G4B4:      return 4;
@@ -327,6 +329,7 @@ PixelFormat::ToILComponents(Code code)
 	{
 	case PixelFormat::X8R8G8B8:         return IL_RGBA;
 	case PixelFormat::A8R8G8B8:         return IL_RGBA;							
+	case PixelFormat::A8B8G8R8:         return IL_BGRA;
 	case PixelFormat::R5G6B5:           return IL_RGB;
 	case PixelFormat::SRGBA8:			return IL_RGBA;
 	case PixelFormat::A1R5G5B5:         return IL_RGBA;						
@@ -369,13 +372,14 @@ PixelFormat::ToILComponents(Code code)
 //------------------------------------------------------------------------------
 /**
 */
-uint 
-PixelFormat::ToILType( Code code )
+uint
+PixelFormat::ToILType(Code code)
 {
 	switch (code)
 	{
 	case PixelFormat::X8R8G8B8:         return IL_UNSIGNED_BYTE;
 	case PixelFormat::A8R8G8B8:         return IL_UNSIGNED_BYTE;							
+	case PixelFormat::A8B8G8R8:         return IL_UNSIGNED_BYTE;
 	case PixelFormat::R5G6B5:           return IL_UNSIGNED_BYTE;
 	case PixelFormat::SRGBA8:			return IL_UNSIGNED_BYTE;
 	case PixelFormat::A1R5G5B5:         return IL_UNSIGNED_BYTE;						

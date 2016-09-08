@@ -618,8 +618,8 @@ FrameScriptLoader::ParsePass(const Ptr<Frame2::FrameScript>& script, cJSON* node
 		else if (name == "attachments")		ParseAttachmentList(script, pass, cur);
 		else if (name == "depthStencil")
 		{
-			float clearDepth;
-			uint clearStencil;
+			float clearDepth = 1;
+			uint clearStencil = 0;
 			uint depthStencilClearFlags = 0;
 			cJSON* cd = cJSON_GetObjectItem(cur, "clear");
 			if (cd != NULL)

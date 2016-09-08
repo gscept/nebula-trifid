@@ -90,10 +90,11 @@ psGlob(
 	in vec2 UV,
 	[color0] out vec4 Color) 
 {
-	vec3 ViewSpaceNormal = UnpackViewSpaceNormal(sample2DLod(NormalBuffer, PosteffectSampler, UV, 0));
-	float Depth = sample2DLod(DepthBuffer, PosteffectSampler, UV, 0).r;
+	vec3 ViewSpaceNormal = UnpackViewSpaceNormal(subpassLoad(InputAttachments[1]));
+	float Depth = subpassLoad(InputAttachments[2]).r;
 	
-	vec4 albedoColor = sample2DLod(AlbedoBuffer, PosteffectSampler, UV, 0);
+	//vec4 albedoColor = sample2DLod(AlbedoBuffer, PosteffectSampler, UV, 0);
+	vec4 albedoColor = subpassLoad(InputAttachments[0]);
 	if (Depth < 0) { Color = EncodeHDR(albedoColor); return; };
 	
 	float NL = saturate(dot(GlobalLightDir.xyz, ViewSpaceNormal));
@@ -102,7 +103,7 @@ psGlob(
 	diff += GlobalLightColor.xyz * saturate(NL);
 	diff += GlobalBackLightColor.xyz * saturate(-NL + GlobalBackLightOffset); 
 
-	vec4 specColor = sample2DLod(SpecularBuffer, PosteffectSampler, UV, 0);
+	vec4 specColor = subpassLoad(InputAttachments[3]);
 	float specPower = ROUGHNESS_TO_SPECPOWER(specColor.a);	
 	
 	vec3 viewVec = normalize(ViewSpacePosition);
@@ -127,10 +128,10 @@ psGlobShadow(
 	in vec2 UV,
 	[color0] out vec4 Color) 
 {
-	vec3 ViewSpaceNormal = UnpackViewSpaceNormal(sample2DLod(NormalBuffer, PosteffectSampler, UV, 0));
-	float Depth = sample2DLod(DepthBuffer, PosteffectSampler, UV, 0).r;
+	vec3 ViewSpaceNormal = UnpackViewSpaceNormal(subpassLoad(InputAttachments[1]));
+	float Depth = subpassLoad(InputAttachments[2]).r;
 		
-	vec4 albedoColor = sample2DLod(AlbedoBuffer, PosteffectSampler, UV, 0);
+	vec4 albedoColor = subpassLoad(InputAttachments[0]);
 	if (Depth < 0) { Color = EncodeHDR(albedoColor); return; };
 	
 	float NL = saturate(dot(GlobalLightDir.xyz, ViewSpaceNormal));
@@ -148,7 +149,7 @@ psGlobShadow(
 	shadowFactor = lerp(1.0f, shadowFactor, ShadowIntensity);
 
 	// multiply specular with power of shadow factor, this makes shadowed areas not reflect specular light
-	vec4 specColor = sample2DLod(SpecularBuffer, PosteffectSampler, UV, 0);
+	vec4 specColor = subpassLoad(InputAttachments[3]);
 	float specPower = ROUGHNESS_TO_SPECPOWER(specColor.a);	
 
 	vec3 diff = GlobalAmbientLightColor.xyz;
@@ -226,8 +227,8 @@ psSpot(
 {
 	vec2 pixelSize = RenderTargetDimensions[0].zw;
 	vec2 screenUV = psComputeScreenCoord(gl_FragCoord.xy, pixelSize.xy);
-	vec3 ViewSpaceNormal = UnpackViewSpaceNormal(sample2DLod(NormalBuffer, PosteffectSampler, screenUV, 0));
-	float Depth = sample2DLod(DepthBuffer, PosteffectSampler, screenUV, 0).r;
+	vec3 ViewSpaceNormal = UnpackViewSpaceNormal(subpassLoad(InputAttachments[1]));
+	float Depth = subpassLoad(InputAttachments[2]).r;
 	
 	vec3 viewVec = normalize(ViewSpacePosition);
 	vec3 surfacePos = viewVec * Depth;    
@@ -243,8 +244,8 @@ psSpot(
 	vec2 lightSpaceUv = vec2(((projLightPos.xy / projLightPos.ww) * vec2(0.5f, 0.5f)) + 0.5f);
 	
 	vec4 lightModColor = sample2DLod(SpotLightProjectionTexture, SpotlightTextureSampler, lightSpaceUv, mipSelect);
-	vec4 specColor = sample2DLod(SpecularBuffer, PosteffectSampler, screenUV, 0);
-	vec4 albedoColor = sample2DLod(AlbedoBuffer, PosteffectSampler, screenUV, 0);
+	vec4 specColor = subpassLoad(InputAttachments[3]);
+	vec4 albedoColor = subpassLoad(InputAttachments[0]);
 	float specPower = ROUGHNESS_TO_SPECPOWER(specColor.a);	
 	
 	float NL = dot(lightDir, ViewSpaceNormal);
@@ -274,8 +275,8 @@ psSpotShadow(
 {
 	vec2 pixelSize = RenderTargetDimensions[0].zw;
 	vec2 screenUV = psComputeScreenCoord(gl_FragCoord.xy, pixelSize.xy);
-	vec3 ViewSpaceNormal = UnpackViewSpaceNormal(sample2DLod(NormalBuffer, PosteffectSampler, screenUV, 0));
-	float Depth = sample2DLod(DepthBuffer, PosteffectSampler, screenUV, 0).r;
+	vec3 ViewSpaceNormal = UnpackViewSpaceNormal(subpassLoad(InputAttachments[1]));
+	float Depth = subpassLoad(InputAttachments[2]).r;
 	
 	vec3 viewVec = normalize(ViewSpacePosition);
 	vec3 surfacePos = viewVec * Depth;    
@@ -291,8 +292,8 @@ psSpotShadow(
 	vec2 lightSpaceUv = (projLightPos.xy / projLightPos.ww) * vec2(0.5f, -0.5f) + 0.5f;
 	
 	vec4 lightModColor = sample2DLod(SpotLightProjectionTexture, SpotlightTextureSampler, lightSpaceUv, mipSelect);
-	vec4 specColor = sample2DLod(SpecularBuffer, PosteffectSampler, screenUV, 0);
-	vec4 albedoColor = sample2DLod(AlbedoBuffer, PosteffectSampler, screenUV, 0);
+	vec4 specColor = subpassLoad(InputAttachments[3]);
+	vec4 albedoColor = subpassLoad(InputAttachments[0]);
 	float specPower = ROUGHNESS_TO_SPECPOWER(specColor.a);	
 	
 	float NL = dot(lightDir, ViewSpaceNormal);
@@ -396,8 +397,8 @@ psPoint(
 {
 	vec2 pixelSize = RenderTargetDimensions[0].zw;
 	vec2 screenUV = psComputeScreenCoord(gl_FragCoord.xy, pixelSize.xy);
-	vec3 ViewSpaceNormal = UnpackViewSpaceNormal(sample2DLod(NormalBuffer, PosteffectSampler, screenUV, 0));
-	float Depth = sample2DLod(DepthBuffer, PosteffectSampler, screenUV, 0).r;
+	vec3 ViewSpaceNormal = UnpackViewSpaceNormal(subpassLoad(InputAttachments[1]));
+	float Depth = subpassLoad(InputAttachments[2]).r;
 	
 	vec3 viewVec = normalize(ViewSpacePosition);
 	vec3 surfacePos = viewVec * Depth;
@@ -405,8 +406,8 @@ psPoint(
 	vec3 projDir = (InvView * vec4(-lightDir, 0)).xyz;
 	vec4 lightModColor = sampleCubeLod(PointLightProjectionTexture, PointLightTextureSampler, projDir, 0);
 	
-	vec4 specColor = sample2DLod(SpecularBuffer, PosteffectSampler, screenUV, 0);
-	vec4 albedoColor = sample2DLod(AlbedoBuffer, PosteffectSampler, screenUV, 0);
+	vec4 specColor = subpassLoad(InputAttachments[3]);
+	vec4 albedoColor = subpassLoad(InputAttachments[0]);
 	float specPower = ROUGHNESS_TO_SPECPOWER(specColor.a);	// magic formulae to calculate specular power from color in the range [0..1]
 	
 	float att = saturate(1.0 - length(lightDir) * LightPosRange.w);
@@ -442,8 +443,8 @@ psPointShadow(
 {
 	vec2 pixelSize = RenderTargetDimensions[0].zw;
 	vec2 screenUV = psComputeScreenCoord(gl_FragCoord.xy, pixelSize.xy);
-	vec3 ViewSpaceNormal = UnpackViewSpaceNormal(sample2DLod(NormalBuffer, PosteffectSampler, screenUV, 0));
-	float Depth = sample2DLod(DepthBuffer, PosteffectSampler, screenUV, 0).r;
+	vec3 ViewSpaceNormal = UnpackViewSpaceNormal(subpassLoad(InputAttachments[1]));
+	float Depth = subpassLoad(InputAttachments[2]).r;
 	
 	vec3 viewVec = normalize(ViewSpacePosition);
 	vec3 surfacePos = viewVec * Depth;
@@ -452,8 +453,8 @@ psPointShadow(
 	float distToSurface = length(lightDir);
 	
 	vec4 lightModColor = sampleCubeLod(PointLightProjectionTexture, PointLightTextureSampler, projDir, 0);
-	vec4 specColor = sample2DLod(SpecularBuffer, PosteffectSampler, screenUV, 0);
-	vec4 albedoColor = sample2DLod(AlbedoBuffer, PosteffectSampler, screenUV, 0);
+	vec4 specColor = subpassLoad(InputAttachments[3]);
+	vec4 albedoColor = subpassLoad(InputAttachments[0]);
 	float specPower = ROUGHNESS_TO_SPECPOWER(specColor.a);	
 	
 	float att = saturate(1.0 - distToSurface * LightPosRange.w);

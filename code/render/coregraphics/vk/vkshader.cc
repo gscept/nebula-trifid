@@ -428,11 +428,12 @@ VkShader::Setup(AnyFX::ShaderEffect* effect)
 		bool usedBySystem = false;
 		if (block->HasAnnotation("System")) usedBySystem = block->GetAnnotationBool("System");
 
+		Ptr<CoreGraphics::ConstantBuffer> uniformBuffer = NULL;
 		// only create buffer if block is not handled by system
 		if (!usedBySystem && block->alignedSize > 0 && !block->push)
 		{
 			// create uniform buffer, with single backing
-			Ptr<CoreGraphics::ConstantBuffer> uniformBuffer = CoreGraphics::ConstantBuffer::Create();
+			uniformBuffer = CoreGraphics::ConstantBuffer::Create();
 			uniformBuffer->SetSize(block->alignedSize);
 			uniformBuffer->Setup(1);
 
@@ -466,6 +467,12 @@ VkShader::Setup(AnyFX::ShaderEffect* effect)
 			// add buffer to list
 			this->buffers.Add(name, uniformBuffer);
 		}
+
+		if (!block->push)
+		{
+			if (!this->buffersByGroup.Contains(block->set)) this->buffersByGroup.Add(block->set, Util::Array<Ptr<CoreGraphics::ConstantBuffer>>());
+			this->buffersByGroup[block->set].Append(uniformBuffer);
+		}		
 	}
 
 	// update descriptors

@@ -80,6 +80,7 @@ private:
 
 	Util::FixedArray<VkDescriptorSet> sets;
 	Util::Dictionary<Util::StringAtom, Ptr<CoreGraphics::ConstantBuffer>> buffers;
+	Util::Dictionary<uint32_t, Util::Array<Ptr<CoreGraphics::ConstantBuffer>>> buffersByGroup;
 
 	static Util::Dictionary<Util::StringAtom, VkDescriptorSetLayout> LayoutCache;
 	static Util::Dictionary<Util::StringAtom, VkPipelineLayout> ShaderPipelineCache;

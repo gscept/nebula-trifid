@@ -88,7 +88,7 @@ VkLightServer::Open()
 
 	// light group is for shared variables, default is for shader local variables
 	this->lightShader							= shdServer->GetShader("shd:lights")->CreateState({ NEBULAT_LIGHT_GROUP, NEBULAT_DEFAULT_GROUP });
-	//this->lightShader->SetApplyShared(true);
+	this->lightShader->SetApplyShared(true);
 	this->lightProbeShader						= shdServer->GetShader("shd:reflectionprojector")->CreateState({ NEBULAT_DEFAULT_GROUP });
 
 	this->globalLightFeatureBits[NoShadows]		= shdServer->FeatureStringToMask("Global");
@@ -147,23 +147,12 @@ VkLightServer::Open()
 	this->localLightBlockVar = this->lightShader->GetVariableByName("LocalLightBlock");
 	this->localLightBlockVar->SetConstantBuffer(this->localLightBuffer);
 
-	VkDescriptorSetLayout layout = this->lightShader->GetShader()->GetDescriptorLayout(NEBULAT_DEFAULT_GROUP);
-	this->localLightLayout = this->lightShader->GetShader()->GetPipelineLayout();
+	// setup derivative state to let us provide offsets for the lights
 	this->offsetIndex = this->lightShader->GetOffsetBinding(NEBULAT_DEFAULT_GROUP, this->localLightBuffer->GetBinding());
-	// create descriptor set used by our pass
-	VkDescriptorSetAllocateInfo descInfo =
-	{
-		VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
-		NULL,
-		VkRenderDevice::descPool,
-		1,
-		&layout
-	};
-	VkResult res = vkAllocateDescriptorSets(VkRenderDevice::dev, &descInfo, &this->localLightSet);
-	n_assert(res == VK_SUCCESS);
-
-	// update descriptor
-	this->UpdateDescriptor(this->localLightBuffer->GetVkBuffer(), this->localLightBlockVar->binding, this->localLightSet);
+	this->derivativeState = this->lightShader->CreateDerivative(NEBULAT_DEFAULT_GROUP);
+	this->derivativeState->bindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	this->derivativeState->bindShared = false;
+	this->derivativeState->buffers[this->offsetIndex] = this->localLightBuffer;
 
 	this->offsetPool.Resize(1024);
 	IndexT i;
@@ -274,6 +263,7 @@ VkLightServer::AttachVisibleLight(const Ptr<AbstractLightEntity>& lightEntity)
 	this->lightToInstanceMap.Add(lightEntity, this->localLightBuffer->AllocateInstance());
 	//this->localLightBlockVar->SetConstantBuffer(this->localLightBuffer);
 	this->lightToOffsetMap.Add(lightEntity, this->offsetPool.Alloc());
+	this->localLightBlockVar->SetConstantBuffer(this->localLightBuffer);
 
 	LightServerBase::AttachVisibleLight(lightEntity);
 }
@@ -355,7 +345,7 @@ VkLightServer::RenderLights()
     ShadowServer* shadowServer = ShadowServer::Instance();
 
 	// make sure to update the descriptor
-	this->UpdateDescriptor(this->localLightBuffer->GetVkBuffer(), this->localLightBlockVar->binding, this->localLightSet);
+	//this->UpdateDescriptor(this->localLightBuffer->GetVkBuffer(), this->localLightBlockVar->binding, this->localLightSet);
 
 	// if not happened yet, set the NormalDepthBuffer and LightBuffer
 	// as shader variables
@@ -370,7 +360,7 @@ VkLightServer::RenderLights()
 
 	// render the global light
 	this->globalLightShadowMap->SetTexture(shadowServer->GetGlobalLightShadowBufferTexture());
-	this->localLightBuffer->SetBaseOffset(0);
+	this->derivativeState->Reset();
 	this->RenderGlobalLight();
 
 	if (this->spotLights[CastShadows].Size() > 0)
@@ -459,10 +449,9 @@ VkLightServer::RenderGlobalLight()
 			this->shadowIntensityVar->SetFloat(this->globalLightEntity->GetShadowIntensity());
 		}
 
-		// commit changes
+		// commit changes and draw
+		this->fullScreenQuadRenderer.ApplyMesh();
 		this->lightShader->Commit();
-
-		// render
 		this->fullScreenQuadRenderer.Draw();
 	}
 }
@@ -499,7 +488,12 @@ VkLightServer::RenderPointLights()
 
 					// select active index in local light buffer, this will make this lights instance active this frame
 					SizeT offset = this->lightToInstanceMap[curLight.upcast<AbstractLightEntity>()];
-					this->localLightBuffer->SetBaseOffset(offset);
+					Util::Array<uint32_t>& offsets = this->lightToOffsetMap[curLight.upcast<AbstractLightEntity>()];
+					offsets[this->offsetIndex] = offset;
+					this->derivativeState->offsets = offsets.Begin();
+					this->derivativeState->offsetCount = offsets.Size();
+					this->derivativeState->Apply();
+					//this->localLightBuffer->SetBaseOffset(offset);
 
 					const matrix44& lightTransform = curLight->GetTransform();
 					tformDevice->SetModelTransform(lightTransform);
@@ -534,9 +528,9 @@ VkLightServer::RenderPointLights()
 					}
 
 					// commit and draw
-					Util::Array<uint32_t>& offsets = this->lightToOffsetMap[curLight.upcast<AbstractLightEntity>()];
-					offsets[this->offsetIndex] = offset;
-					renderDevice->BindDescriptorsGraphics(&this->localLightSet, this->localLightLayout, NEBULAT_DEFAULT_GROUP, 1, offsets.Begin(), offsets.Size(), false);
+
+					//renderDevice->BindDescriptorsGraphics(&this->localLightSet, this->localLightLayout, NEBULAT_DEFAULT_GROUP, 1, offsets.Begin(), offsets.Size(), false);
+					this->derivativeState->Commit();
 					renderDevice->Draw();
 				}
 			}
@@ -575,7 +569,11 @@ VkLightServer::RenderSpotLights()
 
 					// select active index in local light buffer, this will make this lights instance active this frame
 					SizeT offset = this->lightToInstanceMap[curLight.upcast<AbstractLightEntity>()];
-					this->localLightBuffer->SetBaseOffset(offset);
+					Util::Array<uint32_t>& offsets = this->lightToOffsetMap[curLight.upcast<AbstractLightEntity>()];
+					offsets[this->offsetIndex] = offset;
+					this->derivativeState->offsets = offsets.Begin();
+					this->derivativeState->offsetCount = offsets.Size();
+					this->derivativeState->Apply();
 
 					const matrix44& lightTransform = curLight->GetTransform();
 					tformDevice->SetModelTransform(lightTransform);
@@ -622,9 +620,10 @@ VkLightServer::RenderSpotLights()
 
 					// commit and draw
 					//this->lightShader->SetConstantBufferOffset(NEBULAT_DEFAULT_GROUP, this->localLightBuffer->GetBinding(), offset);
-					Util::Array<uint32_t>& offsets = this->lightToOffsetMap[curLight.upcast<AbstractLightEntity>()];
-					offsets[this->offsetIndex] = offset;
-					renderDevice->BindDescriptorsGraphics(&this->localLightSet, this->localLightLayout, NEBULAT_DEFAULT_GROUP, 1, offsets.Begin(), offsets.Size(), false);
+					//Util::Array<uint32_t>& offsets = this->lightToOffsetMap[curLight.upcast<AbstractLightEntity>()];
+					//offsets[this->offsetIndex] = offset;
+					//renderDevice->BindDescriptorsGraphics(&this->localLightSet, this->localLightLayout, NEBULAT_DEFAULT_GROUP, 1, offsets.Begin(), offsets.Size(), false);
+					this->derivativeState->Commit();
 					renderDevice->Draw();
 				}
 			}

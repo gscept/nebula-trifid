@@ -113,6 +113,7 @@ FramePostEffect::Render(IndexT frameIndex)
 	}
 
 	// draw
+	this->drawFullScreenQuad.ApplyMesh();
     this->shader->Commit();
     this->drawFullScreenQuad.Draw();
 

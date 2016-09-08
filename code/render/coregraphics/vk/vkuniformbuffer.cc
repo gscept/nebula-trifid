@@ -199,7 +199,6 @@ VkUniformBuffer::AllocateInstance(SizeT numInstances)
 					validRangeCount = 1;
 				}
 				
-
 				// if a valid range is found, find the offset and return
 				if (validRangeCount == numInstances)
 				{

@@ -924,6 +924,12 @@ matrix44::ortholh(scalar w, scalar h, scalar zn, scalar zf)
 {
 	matrix44 m;
 	scalar dist = 1.0f / (zf - zn);
+#if __VULKAN__
+	h *= -1;
+	dist *= 0.5f;
+#elif __OGL4__
+	dist *= 0.5f;
+#endif
 	m.setrow0(float4(2.0f / w, 0.0f, 0.0f, 0.0f));
 	m.setrow1(float4(0.0f, 2.0f / h, 0.0f, 0.0f));
 	m.setrow2(float4(0.0f, 0.0f, dist, 0.0f));
@@ -939,6 +945,12 @@ matrix44::orthorh(scalar w, scalar h, scalar zn, scalar zf)
 {
 	matrix44 m;
 	scalar dist = 1.0f / (zn - zf);
+#if __VULKAN__
+	h *= -1;
+	dist *= 0.5f;
+#elif __OGL4__
+	dist *= 0.5f;
+#endif
 	m.setrow0(float4(2.0f / w, 0.0f, 0.0f, 0.0f));
 	m.setrow1(float4(0.0f, 2.0f / h, 0.0f, 0.0f));
 	m.setrow2(float4(0.0f, 0.0f, dist, 0.0f));
@@ -956,7 +968,12 @@ matrix44::orthooffcenterlh(scalar l, scalar r, scalar b, scalar t, scalar zn, sc
 	scalar divwidth = 1.0f / (r - l);
 	scalar divheight = 1.0f / (t - b);
 	scalar dist = 1.0f / (zf - zn);
-
+#if __VULKAN__
+	divheight *= -1;
+	dist *= 0.5f;
+#elif __OGL4__
+	dist *= 0.5f;
+#endif
 	m.setrow0(float4(2.0f * divwidth, 0.0f, 0.0f, 0.0f));
 	m.setrow1(float4(0.0f, 2.0f * divheight, 0.0f, 0.0f));
 	m.setrow2(float4(0.0f, 0.0f, dist, 0.0f));
@@ -974,7 +991,12 @@ matrix44::orthooffcenterrh(scalar l, scalar r, scalar b, scalar t, scalar zn, sc
 	scalar divwidth = 1.0f / (r - l);
 	scalar divheight = 1.0f / (t - b);
 	scalar dist = 1.0f / (zn - zf);
-
+#if __VULKAN__
+	divheight *= -1;
+	dist *= 0.5f;
+#elif __OGL4__
+	dist *= 0.5f;
+#endif
 	m.setrow0(float4(2.0f * divwidth, 0.0f, 0.0f, 0.0f));
 	m.setrow1(float4(0.0f, 2.0f * divheight, 0.0f, 0.0f));
 	m.setrow2(float4(0.0f, 0.0f, dist, 0.0f));

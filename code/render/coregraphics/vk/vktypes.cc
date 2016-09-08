@@ -343,7 +343,7 @@ VkTypes::AsNebulaPixelFormat(VkFormat f)
 	case VK_FORMAT_R32G32_SFLOAT:					return PixelFormat::G32R32F;
 	case VK_FORMAT_R32G32B32A32_SFLOAT:				return PixelFormat::A32B32G32R32F;
 	case VK_FORMAT_R32G32B32_SFLOAT:				return PixelFormat::R32G32B32F;
-	case VK_FORMAT_R8_SINT:							return PixelFormat::R8;
+	case VK_FORMAT_R8_UNORM:						return PixelFormat::R8;
 	case VK_FORMAT_A2B10G10R10_UINT_PACK32:			return PixelFormat::A2R10G10B10;
 	case VK_FORMAT_R16G16_UINT:						return PixelFormat::G16R16;
 	case VK_FORMAT_X8_D24_UNORM_PACK32:				return PixelFormat::D24X8;

@@ -19,7 +19,7 @@ group(SYSTEM_GROUP) push varblock Text
 
 group(SYSTEM_GROUP) samplerstate TextureSampler
 {
-	Filter = Point;
+	Filter = Linear;
 };
 
 state TextState
@@ -61,8 +61,8 @@ psMain(
 	in vec4 Color,
 	[color0] out vec4 FinalColor) 
 {
-	vec4 texColor = sample2D(Text.Texture, TextureSampler, UV);
-	FinalColor = texColor * Color + vec4(1);
+	vec4 texColor = sample2D(Text.Texture, TextureSampler, UV).rrrr;
+	FinalColor = texColor * Color;
 }
 
 //------------------------------------------------------------------------------

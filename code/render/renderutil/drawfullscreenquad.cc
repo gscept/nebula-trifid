@@ -121,12 +121,24 @@ DrawFullScreenQuad::Discard()
 /**
 */
 void
+DrawFullScreenQuad::ApplyMesh()
+{
+	RenderDevice* renderDevice = RenderDevice::Instance();
+	renderDevice->SetVertexLayout(this->vertexBuffer->GetVertexLayout());
+	renderDevice->SetPrimitiveGroup(this->primGroup);
+	renderDevice->SetStreamVertexBuffer(0, this->vertexBuffer, 0);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 DrawFullScreenQuad::Draw()
 {
     RenderDevice* renderDevice = RenderDevice::Instance();
-	renderDevice->SetVertexLayout(this->vertexBuffer->GetVertexLayout());
-    renderDevice->SetPrimitiveGroup(this->primGroup);
-	renderDevice->SetStreamVertexBuffer(0, this->vertexBuffer, 0);
+	//renderDevice->SetVertexLayout(this->vertexBuffer->GetVertexLayout());
+    //renderDevice->SetPrimitiveGroup(this->primGroup);
+	//renderDevice->SetStreamVertexBuffer(0, this->vertexBuffer, 0);
     renderDevice->Draw();
 }
 

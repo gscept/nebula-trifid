@@ -152,12 +152,6 @@ VkDraw(const Ptr<Dynui::ImguiRenderer>& renderer, ImDrawData* data)
 	// correct for Vulkan coordinate system
 	ImGuiIO& io = ImGui::GetIO();
 	matrix44 proj = matrix44::orthooffcenterrh(0.0f, io.DisplaySize.x, io.DisplaySize.y, 0.0f, -1.0f, +1.0f);
-	const Math::matrix44 correction = Math::matrix44(
-		Math::float4(1, 0, 0, 0),
-		Math::float4(0, -1, 0, 0),
-		Math::float4(0, 0, 0.5f, 0),
-		Math::float4(0, 0, 0.5f, 1));
-	proj = matrix44::multiply(proj, correction);
 
 	// set in shader
 	params.projVar->SetMatrix(proj);

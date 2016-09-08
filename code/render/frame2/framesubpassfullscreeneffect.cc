@@ -51,6 +51,7 @@ FrameSubpassFullscreenEffect::Run(const IndexT frameIndex)
 	this->shaderState->Apply();
 
 	// draw
+	this->fsq.ApplyMesh();
 	this->shaderState->Commit();
 	this->fsq.Draw();
 }

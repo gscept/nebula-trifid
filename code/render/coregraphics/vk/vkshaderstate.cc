@@ -14,6 +14,7 @@ namespace Vulkan
 {
 
 __ImplementClass(Vulkan::VkShaderState, 'VKSN', Base::ShaderStateBase);
+__ImplementClass(Vulkan::VkShaderState::VkDerivativeState, 'VKDE', Core::RefCounted);
 //------------------------------------------------------------------------------
 /**
 */
@@ -140,8 +141,8 @@ VkShaderState::Commit()
 			for (i = 0; i < this->setBindnings.Size(); i++)
 			{
 				const DescriptorSetBinding& binding = this->setBindnings[i];
-				const Util::Array<uint32_t>& offsets = this->offsetsByGroup[binding.slot];
-				dev->BindDescriptorsGraphics(&binding.set, binding.layout, binding.slot, 1, offsets.IsEmpty() ? NULL : &offsets[0], offsets.Size(), this->applyShared);
+				const Util::Array<uint32_t>& offsets = this->setOffsets[i];
+				dev->BindDescriptorsGraphics(&binding.set, binding.layout, binding.slot, 1, offsets.IsEmpty() ? NULL : offsets.Begin(), offsets.Size(), this->applyShared);
 			}
 
 			// update push ranges
@@ -157,8 +158,8 @@ VkShaderState::Commit()
 			for (i = 0; i < this->setBindnings.Size(); i++)
 			{
 				const DescriptorSetBinding& binding = this->setBindnings[i];
-				const Util::Array<uint32_t>& offsets = this->offsetsByGroup[binding.slot];
-				dev->BindDescriptorsCompute(&binding.set, binding.layout, binding.slot, 1, offsets.IsEmpty() ? NULL : &offsets[0], offsets.Size());
+				const Util::Array<uint32_t>& offsets = this->setOffsets[i];
+				dev->BindDescriptorsCompute(&binding.set, binding.layout, binding.slot, 1, offsets.IsEmpty() ? NULL : offsets.Begin(), offsets.Size());
 			}
 
 			// update push ranges
@@ -175,9 +176,9 @@ VkShaderState::Commit()
 		for (i = 0; i < this->setBindnings.Size(); i++)
 		{
 			const DescriptorSetBinding& binding = this->setBindnings[i];
-			const Util::Array<uint32_t>& offsets = this->offsetsByGroup[binding.slot];
-			dev->BindDescriptorsGraphics(&binding.set, binding.layout, binding.slot, 1, offsets.IsEmpty() ? NULL : &offsets[0], offsets.Size(), this->applyShared);
-			dev->BindDescriptorsCompute(&binding.set, binding.layout, binding.slot, 1, offsets.IsEmpty() ? NULL : &offsets[0], offsets.Size());
+			const Util::Array<uint32_t>& offsets = this->setOffsets[i];
+			dev->BindDescriptorsGraphics(&binding.set, binding.layout, binding.slot, 1, offsets.IsEmpty() ? NULL : offsets.Begin(), offsets.Size(), this->applyShared);
+			dev->BindDescriptorsCompute(&binding.set, binding.layout, binding.slot, 1, offsets.IsEmpty() ? NULL : offsets.Begin(), offsets.Size());
 		}
 
 		// push to both compute and graphics
@@ -212,6 +213,8 @@ VkShaderState::SetupVariables(const Util::Array<IndexT>& groups)
 	// copy sets from shader
 	this->sets.Resize(groups.Size());
 	this->setBindnings.Resize(groups.Size());
+	this->setOffsets.Resize(groups.Size());
+	this->setBindingIndexMap.Resize(groups.Size());
 	IndexT i;
 	for (i = 0; i < groups.Size(); i++)
 	{
@@ -222,7 +225,7 @@ VkShaderState::SetupVariables(const Util::Array<IndexT>& groups)
 	for (i = 0; i < groups.Size(); i++)
 	{
 		DescriptorSetBinding binding;
-		groupIndexMap.Add(groups[i], i);
+		this->groupIndexMap.Add(groups[i], i);
 #if AMD_DESC_SETS
 		binding.set = this->sets[i];
 #else
@@ -370,15 +373,14 @@ VkShaderState::SetupUniformBuffers(const Util::Array<IndexT>& groups)
 					}
 				}
 			}
-			else
+			else if (!block->push)
 			{
 				offsets.Append(0);
 				bindingToOffsetIndex.Add(block->binding, j);
 			}
 		}
-		this->offsetsByGroup.Add(groups[i], offsets);
-		this->offsetByGroupBinding.Add(groups[i], bindingToOffsetIndex);
-		//this->groupBindingToOffsetIndex.Add(Util::KeyValuePair<uint32_t, uint32_t>(groups[i], block->binding), j);
+		this->setOffsets[this->groupIndexMap[groups[i]]] = offsets;
+		this->setBindingIndexMap[this->groupIndexMap[groups[i]]] = bindingToOffsetIndex;
 	}
 
 	// perform descriptor set update, since our buffers might grow, we might have pending updates, and since the old buffer is destroyed, we want to flush all updates here.
@@ -422,16 +424,6 @@ VkShaderState::Discard()
 /**
 */
 void
-VkShaderState::SetConstantBufferOffset(const IndexT group, const IndexT binding, const uint32_t offset)
-{
-	// WOW
-	this->offsetsByGroup[group][this->offsetByGroupBinding[group][binding]] = offset;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
 VkShaderState::SetDescriptorSet(const VkDescriptorSet& set, const IndexT slot)
 {
 	// update both references
@@ -445,7 +437,7 @@ VkShaderState::SetDescriptorSet(const VkDescriptorSet& set, const IndexT slot)
 void
 VkShaderState::CreateOffsetArray(Util::Array<uint32_t>& outOffsets, const IndexT group)
 {
-	outOffsets = this->offsetsByGroup[group];
+	outOffsets = this->setOffsets[this->groupIndexMap[group]];
 }
 
 //------------------------------------------------------------------------------
@@ -454,16 +446,67 @@ VkShaderState::CreateOffsetArray(Util::Array<uint32_t>& outOffsets, const IndexT
 IndexT
 VkShaderState::GetOffsetBinding(const IndexT& group, const IndexT& binding)
 {
-	return this->offsetByGroupBinding[group][binding];
+	return this->setBindingIndexMap[this->groupIndexMap[group]][binding];
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+Ptr<Vulkan::VkShaderState::VkDerivativeState>
+VkShaderState::CreateDerivative(const IndexT group)
+{
+	Ptr<VkDerivativeState> state = VkDerivativeState::Create();
+	IndexT index = this->groupIndexMap[group];
+	state->set = this->sets[index];
+	state->group = group;
+	state->layout = this->shader->pipelineLayout;
+	state->buffers = this->shader->buffersByGroup[group];
+	return state;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-VkShaderState::ApplyOffsetArray(const IndexT group, const Util::Array<uint32_t>& offsets)
+VkShaderState::VkDerivativeState::Apply()
 {
-	this->offsetsByGroup[group] = offsets;
+	n_assert(this->offsetCount == this->buffers.Size());
+	uint32_t i;
+	for (i = 0; i < this->offsetCount; i++)
+	{
+		this->buffers[i]->SetBaseOffset(this->offsets[i]);
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkShaderState::VkDerivativeState::Commit()
+{
+	VkRenderDevice* dev = VkRenderDevice::Instance();
+	switch (this->bindPoint)
+	{
+	case VK_PIPELINE_BIND_POINT_GRAPHICS:
+		dev->BindDescriptorsGraphics(&this->set, this->layout, this->group, 1, this->offsets, this->offsetCount, this->bindShared);
+		break;
+	case VK_PIPELINE_BIND_POINT_COMPUTE:
+		dev->BindDescriptorsCompute(&this->set, this->layout, this->group, 1, this->offsets, this->offsetCount);
+		break;
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkShaderState::VkDerivativeState::Reset()
+{
+	SizeT i;
+	for (i = 0; i < this->buffers.Size(); i++)
+	{
+		this->buffers[i]->SetBaseOffset(0);
+	}
 }
 
 } // namespace Vulkan

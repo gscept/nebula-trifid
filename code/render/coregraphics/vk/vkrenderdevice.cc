@@ -1358,8 +1358,8 @@ VkRenderDevice::EndFrame(IndexT frameIndex)
 	}
 	this->RunCommandPass(OnMainDrawSubmitted);
 
-	static const VkFence fences[] = { this->mainCmdDrawFence, this->mainCmdTransFence, this->mainCmdCmpFence };
-	this->WaitForFences(fences, 3, false);
+	static VkFence fences[] = { this->mainCmdDrawFence, this->mainCmdTransFence, this->mainCmdCmpFence };
+	this->WaitForFences(fences, 3, true);
 
 	VkResult res = vkResetCommandBuffer(this->mainCmdTransBuffer, 0);
 	n_assert(res == VK_SUCCESS);
@@ -1399,8 +1399,8 @@ VkRenderDevice::Present()
 	};
 	VkResult res = vkQueueSubmit(this->drawQueue, 1, &submitInfo, NULL);
 	n_assert(res == VK_SUCCESS);
-	//res = vkQueueWaitIdle(this->drawQueue);
-	//n_assert(res == VK_SUCCESS);
+	//
+	//
 
 	// present frame
 	VkResult presentResults;
@@ -1417,6 +1417,7 @@ VkRenderDevice::Present()
 	};
 	res = vkQueuePresentKHR(this->drawQueue, &info);
 
+
 	if (res == VK_ERROR_OUT_OF_DATE_KHR)
 	{
 		// window has been resized!
@@ -1426,6 +1427,9 @@ VkRenderDevice::Present()
 	{
 		n_assert(res == VK_SUCCESS);
 	}
+
+	//res = vkQueueWaitIdle(this->drawQueue);
+	//n_assert(res == VK_SUCCESS);
 }
 
 //------------------------------------------------------------------------------
@@ -1880,7 +1884,8 @@ VkRenderDevice::ReadImage(const Ptr<VkTexture>& tex, VkImageCopy copy, uint32_t&
 {
 	VkCommandBuffer cmdBuf = this->BeginImmediateTransfer();
 
-	VkFormat fmt = VkTypes::AsVkFormat(tex->GetPixelFormat());
+	VkFormat fmt = VkTypes::AsVkMappableImageFormat(VkTypes::AsVkFormat(tex->GetPixelFormat()));
+	VkTypes::VkBlockDimensions dims = VkTypes::AsVkBlockSize(tex->GetPixelFormat());
 	Texture::Type type = tex->GetType();
 	VkImageCreateInfo info =
 	{
@@ -1924,10 +1929,20 @@ VkRenderDevice::ReadImage(const Ptr<VkTexture>& tex, VkImageCopy copy, uint32_t&
 	dstSubres.baseMipLevel = copy.dstSubresource.mipLevel;
 	dstSubres.levelCount = 1;
 
+	VkImageBlit blit;
+	blit.srcOffsets[0] = copy.srcOffset;
+	blit.srcOffsets[1] = { copy.extent.width * dims.width, copy.extent.height * dims.height, copy.extent.depth };
+	blit.srcSubresource = copy.srcSubresource;
+
+	blit.dstSubresource = copy.dstSubresource;
+	blit.dstOffsets[0] = copy.dstOffset;
+	blit.dstOffsets[1] = { copy.extent.width, copy.extent.height, copy.extent.depth };
+
 	// perform update of buffer, and stage a copy of buffer data to image
 	this->ImageLayoutTransition(cmdBuf, this->ImageMemoryBarrier(img, dstSubres, VK_IMAGE_LAYOUT_PREINITIALIZED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL));
 	this->ImageLayoutTransition(cmdBuf, this->ImageMemoryBarrier(tex->GetVkImage(), srcSubres, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL));
-	vkCmdCopyImage(cmdBuf, tex->GetVkImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
+	//vkCmdCopyImage(cmdBuf, tex->GetVkImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
+	vkCmdBlitImage(cmdBuf, tex->GetVkImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_NEAREST);
 	this->ImageLayoutTransition(cmdBuf, this->ImageMemoryBarrier(tex->GetVkImage(), srcSubres, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
 	//vkCmdCopyImageToBuffer(this->mainCmdCmpBuffer, img, VK_IMAGE_LAYOUT_GENERAL, buf, 1, &copy);
 
@@ -2158,17 +2173,22 @@ VkRenderDevice::CreateAndBindGraphicsPipeline()
 	n_assert(res == VK_SUCCESS);
 
 	// if all threads are in use, finish them
-	if (this->currentDrawThread == NumDrawThreads-1 && this->numActiveThreads > 0)
+	//if (this->currentDrawThread == NumDrawThreads-1 && this->numActiveThreads > 0)
 	//if (this->numActiveThreads > 0)
 	{
-		this->EndDrawThreads();
+		//this->EndDrawThreads();
 		//this->EndDrawThreadCluster();
 	}
 
 	// begin new draw thread
 	this->currentDrawThread = (this->currentDrawThread + 1) % NumDrawThreads;
 	//this->BeginDrawThreadCluster();
-	this->BeginDrawThread();
+	if (this->numActiveThreads < NumDrawThreads)
+	{
+		// if we want a new thread, make one, then bind shared descriptor sets
+		this->BeginDrawThread();
+		this->BindSharedDescriptorSets();
+	}
 
 	VkCmdBufferThread::Command cmd;
 
@@ -2215,8 +2235,6 @@ VkRenderDevice::CreateAndBindGraphicsPipeline()
 	}
 	*/
 	//this->drawThreads[this->currentDrawThread]->PushCommand(cmd);
-
-	this->BindSharedDescriptorSets();
 
 	VkDeferredCommand del;
 	del.del.type = VkDeferredCommand::DestroyPipeline;
@@ -2735,7 +2753,6 @@ VkRenderDevice::EndDrawThreads()
 {
 	if (this->numActiveThreads > 0)
 	{
-		
 		IndexT i;
 		for (i = 0; i < this->numActiveThreads; i++)
 		{
@@ -2746,16 +2763,11 @@ VkRenderDevice::EndDrawThreads()
 			VkCmdBufferThread::Command cmd;
 			cmd.type = VkCmdBufferThread::EndCommand;
 			this->PushToThread(cmd, i, false);
-			//this->drawThreads[i]->PushCommand(cmd);
 
 			cmd.type = VkCmdBufferThread::Sync;
 			cmd.syncEvent = &this->drawCompletionEvents[i];
 			this->PushToThread(cmd, i, false);
-			//this->drawThreads[i]->PushCommand(cmd);
-			//n_sleep(100);
-			n_printf("Begin\n");
 			this->drawCompletionEvents[i].Wait();
-			n_printf("End\n");
 			this->drawCompletionEvents[i].Reset();
 
 			// stop thread from running

@@ -105,7 +105,7 @@ float2::float2()
 /**
 */
 inline
-float2::float2(scalar x) : X(x)
+float2::float2(scalar x) : X(x), Y(x)
 {
 	//  empty
 }

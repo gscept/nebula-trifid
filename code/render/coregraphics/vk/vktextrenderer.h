@@ -10,6 +10,7 @@
 #include "coregraphics/shaderstate.h"
 #include "coregraphics/vertexbuffer.h"
 #include "coregraphics/bufferlock.h"
+#include "stb/stb_truetype.h"
 namespace Vulkan
 {
 class VkTextRenderer : public Base::TextRendererBase
@@ -46,6 +47,12 @@ private:
 
 	/// helper function which moves vertex into proper position
 	Math::float2 TransformTextVertex(const Math::float2& pos, const Math::float2& offset, const Math::float2& scale);
+
+	// define tff buffer
+	unsigned char* ttf_buffer;
+	stbtt_packedchar* cdata;
+	stbtt_fontinfo font;
+	unsigned char* bitmap;
 
 	TextElementVertex vertices[MaxNumChars * 6];
 	Ptr<CoreGraphics::ShaderState> shader;

@@ -17,7 +17,7 @@
 
 #define FONT_SIZE 32.0f
 #define ONEOVERFONTSIZE 1/32.0f
-#define GLYPH_TEXTURE_SIZE 768
+#define GLYPH_TEXTURE_SIZE 1024
 
 using namespace Resources;
 using namespace CoreGraphics;
@@ -31,7 +31,11 @@ __ImplementSingleton(Vulkan::VkTextRenderer);
 //------------------------------------------------------------------------------
 /**
 */
-VkTextRenderer::VkTextRenderer()
+VkTextRenderer::VkTextRenderer() :
+	shader(NULL),
+	texVar(NULL),
+	modelVar(NULL),
+	vbo(NULL)
 {
 	__ConstructSingleton;
 }
@@ -48,10 +52,6 @@ VkTextRenderer::~VkTextRenderer()
 	__DestructSingleton;
 }
 
-// define tff buffer
-unsigned char* ttf_buffer;
-stbtt_bakedchar cdata[96];
-stbtt_fontinfo font;
 
 //------------------------------------------------------------------------------
 /**
@@ -84,24 +84,42 @@ VkTextRenderer::Open()
 	this->vertexPtr = (byte*)this->vbo->Map(VertexBuffer::MapWrite);
 
 	// setup primitive group
-	this->group.SetPrimitiveTopology(PrimitiveTopology::TriangleStrip);
+	this->group.SetPrimitiveTopology(PrimitiveTopology::TriangleList);
+	this->group.SetNumIndices(0);
+	this->group.SetBaseIndex(0);
+	this->group.SetBaseVertex(0);
 
 	// read font buffer
-	ttf_buffer = n_new_array(unsigned char, 1 << 25);
+	this->ttf_buffer = n_new_array(unsigned char, 1 << 25);
 #if __WIN32__
 	// read font from windows
-	fread(ttf_buffer, 1, 1 << 25, fopen("c:/windows/fonts/segoeui.ttf", "rb"));
+	fread(this->ttf_buffer, 1, 1 << 25, fopen("c:/windows/fonts/segoeui.ttf", "rb"));
 #else
-	fread(ttf_buffer, 1, 1 << 25, fopen("/usr/share/fonts/truetype/freefont/FreeSans.ttf", "rb"));
+	fread(this->ttf_buffer, 1, 1 << 25, fopen("/usr/share/fonts/truetype/freefont/FreeSans.ttf", "rb"));
 #endif
-	unsigned char bitmap[GLYPH_TEXTURE_SIZE*GLYPH_TEXTURE_SIZE];
-	stbtt_InitFont(&font, ttf_buffer, 0);
-	stbtt_BakeFontBitmap(ttf_buffer, stbtt_GetFontOffsetForIndex(ttf_buffer, 0), 48.0f, bitmap, GLYPH_TEXTURE_SIZE, GLYPH_TEXTURE_SIZE, 32, 96, cdata);
+	this->bitmap = n_new_array(unsigned char, GLYPH_TEXTURE_SIZE*GLYPH_TEXTURE_SIZE);
+	int charCount = 96;
+	this->cdata = n_new_array(stbtt_packedchar, charCount);
+
+	stbtt_pack_context context;
+	if (!stbtt_PackBegin(&context, this->bitmap, GLYPH_TEXTURE_SIZE, GLYPH_TEXTURE_SIZE, 0, 1, NULL))
+	{
+		n_error("VkTextRenderer::Open(): Could not load font!");
+	}
+	stbtt_PackSetOversampling(&context, 4, 4);
+	if (!stbtt_PackFontRange(&context, this->ttf_buffer, 0, 40.0f, 32, charCount, this->cdata))
+	{
+		n_error("VkTextRenderer::Open(): Could not load font!");
+	}
+	stbtt_PackEnd(&context);
+	stbtt_InitFont(&this->font, this->ttf_buffer, 0);
+	//stbtt_GetCodepointBitmap(&this->font, 0, stbtt_ScaleForPixelHeight(&this->font, 48.0f), )
+	//stbtt_BakeFontBitmap(this->ttf_buffer, stbtt_GetFontOffsetForIndex(this->ttf_buffer, 0), 48.0f, bitmap, GLYPH_TEXTURE_SIZE, GLYPH_TEXTURE_SIZE, 32, 96, cdata);
 
 	// setup random texture
 	this->glyphTexture = ResourceManager::Instance()->CreateUnmanagedResource("GlyphTexture", Texture::RTTI).downcast<Texture>();
 	Ptr<MemoryTextureLoader> loader = MemoryTextureLoader::Create();
-	loader->SetImageBuffer(bitmap, GLYPH_TEXTURE_SIZE, GLYPH_TEXTURE_SIZE, PixelFormat::R8);
+	loader->SetImageBuffer(this->bitmap, GLYPH_TEXTURE_SIZE, GLYPH_TEXTURE_SIZE, PixelFormat::R8);
 	this->glyphTexture->SetLoader(loader.upcast<ResourceLoader>());
 	this->glyphTexture->SetResourceId("GlyphTexture");
 	this->glyphTexture->SetAsyncEnabled(false);
@@ -116,6 +134,8 @@ VkTextRenderer::Open()
 	// get variable
 	this->texVar = this->shader->GetVariableByName("Texture");
 	this->modelVar = this->shader->GetVariableByName("TextProjectionModel");
+
+	n_delete_array(bitmap);
 }
 
 //------------------------------------------------------------------------------
@@ -161,12 +181,6 @@ VkTextRenderer::DrawTextElements()
 
 	// calculate projection matrix
 	matrix44 proj = matrix44::orthooffcenterrh(0, (float)displayMode.GetWidth(), (float)displayMode.GetHeight(), 0, -1.0f, +1.0f);
-	const Math::matrix44 correction = Math::matrix44(
-		Math::float4(1, 0, 0, 0),
-		Math::float4(0, -1, 0, 0),
-		Math::float4(0, 0, 0.5f, 0),
-		Math::float4(0, 0, 0.5f, 1));
-	proj = matrix44::multiply(proj, correction);
 
 	// apply shader
 	this->shader->Apply();
@@ -179,7 +193,7 @@ VkTextRenderer::DrawTextElements()
 	screenWidth = displayMode.GetWidth();
 	screenHeight = displayMode.GetHeight();
 
-	// create vertex buffer
+	// update vertex buffer
 	unsigned vert = 0;
 	unsigned totalChars = 0;
 
@@ -197,8 +211,8 @@ VkTextRenderer::DrawTextElements()
 
 		// calculate ascent, descent and gap for font
 		int ascent, descent, gap;
-		stbtt_GetFontVMetrics(&font, &ascent, &descent, &gap);
-		float scale = stbtt_ScaleForPixelHeight(&font, fontSize);
+		stbtt_GetFontVMetrics(&this->font, &ascent, &descent, &gap);
+		float scale = stbtt_ScaleForPixelHeight(&this->font, fontSize);
 		float realSize = ceil((ascent - descent + gap) * scale);
 
 		// transform position
@@ -214,7 +228,7 @@ VkTextRenderer::DrawTextElements()
 			if (*text >= 32 && *text < 128)
 			{
 				stbtt_aligned_quad quad;
-				stbtt_GetBakedQuad(cdata, GLYPH_TEXTURE_SIZE, GLYPH_TEXTURE_SIZE, *text - 32, &left, &top, &quad, 1);
+				stbtt_GetPackedQuad(this->cdata, GLYPH_TEXTURE_SIZE, GLYPH_TEXTURE_SIZE, *text - 32, &left, &top, &quad, 1);
 
 				// create float4 of data (in order to utilize SSE)
 				float4 sizeScale = float4(realSize);

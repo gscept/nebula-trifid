@@ -23,8 +23,7 @@ using namespace Lighting;
 /**
 */
 PointLightEntity::PointLightEntity() :
-    shadowCube(0),
-	shaderState(NULL)
+    shadowCube(0)
 {
     this->projectionTextureId = Util::String("tex:lighting/lightcube") + NEBULA3_TEXTURE_EXTENSION;
     this->SetLightType(LightType::Point);
@@ -100,33 +99,6 @@ PointLightEntity::OnRenderDebug()
     ShapeRenderer::Instance()->AddWireFrameBox(this->GetGlobalBoundingBox(), color, Thread::GetMyThreadId());
 
     AbstractLightEntity::OnRenderDebug();
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-PointLightEntity::OnActivate()
-{
-	GraphicsEntity::OnActivate();
-	/*
-	n_assert(!this->shaderState.isvalid());
-	this->shaderState = CoreGraphics::ShaderServer::Instance()->CreateShaderState("shd:lights", { NEBULAT_DEFAULT_GROUP });
-	*/
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-PointLightEntity::OnDeactivate()
-{
-	GraphicsEntity::OnDeactivate();
-	/*
-	n_assert(this->shaderState.isvalid());
-	this->shaderState->Discard();
-	this->shaderState = 0;
-	*/
 }
 
 //------------------------------------------------------------------------------

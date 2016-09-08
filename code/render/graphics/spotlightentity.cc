@@ -112,43 +112,6 @@ SpotLightEntity::OnRenderDebug()
 //------------------------------------------------------------------------------
 /**
 */
-void
-SpotLightEntity::OnActivate()
-{
-	GraphicsEntity::OnActivate();
-	/*
-	n_assert(!this->shaderState.isvalid());
-	this->shaderState = CoreGraphics::ShaderServer::Instance()->CreateShaderState("shd:lights", { NEBULAT_DEFAULT_GROUP });
-
-	this->posRangeVar = this->shaderState->GetVariableByName(NEBULA3_SEMANTIC_LIGHTPOSRANGE);
-	this->colorVar = this->shaderState->GetVariableByName(NEBULA3_SEMANTIC_LIGHTCOLOR);
-	this->transformVar = this->shaderState->GetVariableByName(NEBULA3_SEMANTIC_LIGHTTRANSFORM);
-	this->texProjVar = this->shaderState->GetVariableByName(NEBULA3_SEMANTIC_LIGHTPROJTRANSFORM);
-	this->texVar = this->shaderState->GetVariableByName("SpotLightShadowAtlas");
-
-	this->shadowProjVar = this->shaderState->GetVariableByName(NEBULA3_SEMANTIC_SHADOWPROJTRANSFORM);
-	this->shadowIntensityVar = this->shaderState->GetVariableByName(NEBULA3_SEMANTIC_SHADOWINTENSITY);
-	this->shadowOffsetVar = this->shaderState->GetVariableByName(NEBULA3_SEMANTIC_SHADOWOFFSETSCALE);
-	*/
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-SpotLightEntity::OnDeactivate()
-{
-	GraphicsEntity::OnDeactivate();
-	/*
-	n_assert(this->shaderState.isvalid());
-	this->shaderState->Discard();
-	this->shaderState = 0;
-	*/
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
 void 
 SpotLightEntity::SetTransformFromPosDirRangeAndCone(const Math::point& pos, const Math::vector& dir, float range, float coneAngle)
 {

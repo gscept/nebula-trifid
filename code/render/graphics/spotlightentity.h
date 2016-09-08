@@ -38,39 +38,13 @@ public:
     /// set transform using position, direction, range and cone angle
     void SetTransformFromPosDirRangeAndCone(const Math::point& pos, const Math::vector& dir, float range, float coneAngle);
 
-	/// get shader state
-	const Ptr<CoreGraphics::ShaderState>& GetShaderState() const;
-
 protected:
     /// called when transform matrix changed
     virtual void OnTransformChanged();
     /// called to render a debug visualization of the entity
     virtual void OnRenderDebug();
-	/// called when entity is created
-	virtual void OnActivate();
-	/// called before entity is destroyed
-	virtual void OnDeactivate();
-
-	Ptr<CoreGraphics::ShaderState> shaderState;
-	Ptr<CoreGraphics::ShaderVariable> posRangeVar;
-	Ptr<CoreGraphics::ShaderVariable> colorVar;
-	Ptr<CoreGraphics::ShaderVariable> transformVar;
-	Ptr<CoreGraphics::ShaderVariable> texProjVar;
-	Ptr<CoreGraphics::ShaderVariable> texVar;
-
-	Ptr<CoreGraphics::ShaderVariable> shadowProjVar;
-	Ptr<CoreGraphics::ShaderVariable> shadowIntensityVar;
-	Ptr<CoreGraphics::ShaderVariable> shadowOffsetVar;
 };
 
-//------------------------------------------------------------------------------
-/**
-*/
-inline const Ptr<CoreGraphics::ShaderState>&
-SpotLightEntity::GetShaderState() const
-{
-	return this->shaderState;
-}
 
 } // namespace Graphics
 //------------------------------------------------------------------------------

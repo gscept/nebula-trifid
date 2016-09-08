@@ -31,6 +31,9 @@ public:
     void Discard();
     /// return true if object is valid
     bool IsValid() const;
+
+	/// apply mesh
+	void ApplyMesh();
     /// draw the fullscreen quad
     void Draw();
 
