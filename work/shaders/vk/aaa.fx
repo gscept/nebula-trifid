@@ -8,12 +8,12 @@
 #include "lib/techniques.fxh"
 #include "lib/shared.fxh"
 
-sampler2D CopyBuffer;
+//sampler2D CopyBuffer;
 textureHandle TestHandle;
 
 samplerstate CopySampler 
 {
-	Samplers = { CopyBuffer };
+//	Samplers = { CopyBuffer };
 	Filter = Point;
 };
 
@@ -46,7 +46,7 @@ void
 psMain(in vec2 uv, 
 	[color0] out vec4 Color)
 {
-	Color = textureLod(CopyBuffer, uv, 0); 
+	Color = subpassLoad(InputAttachments[5]); 
 }
 
 //------------------------------------------------------------------------------

@@ -60,8 +60,8 @@ VkTexture::Map(IndexT mipLevel, MapType mapType, MapInfo& outMapInfo)
 		VkTypes::VkBlockDimensions blockSize = VkTypes::AsVkBlockSize(this->pixelFormat);
 		uint32_t size = CoreGraphics::PixelFormat::ToSize(this->pixelFormat);
 
-		int32_t mipWidth = (int32_t)Math::n_max(1.0f, Math::n_floor(this->width / Math::n_pow(2, (float)mipLevel)));
-		int32_t mipHeight = (int32_t)Math::n_max(1.0f, Math::n_floor(this->height / Math::n_pow(2, (float)mipLevel)));
+		int32_t mipWidth = (int32_t)Math::n_max(1.0f, Math::n_ceil(this->width / Math::n_pow(2, (float)mipLevel)));
+		int32_t mipHeight = (int32_t)Math::n_max(1.0f, Math::n_ceil(this->height / Math::n_pow(2, (float)mipLevel)));
 
 		this->mappedBufferLayout.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
 		this->mappedBufferLayout.dstOffset = { 0, 0, 0 };
@@ -89,9 +89,9 @@ VkTexture::Map(IndexT mipLevel, MapType mapType, MapInfo& outMapInfo)
 		VkTypes::VkBlockDimensions blockSize = VkTypes::AsVkBlockSize(this->pixelFormat);
 		uint32_t size = CoreGraphics::PixelFormat::ToSize(this->pixelFormat);
 
-		int32_t mipWidth = (int32_t)Math::n_max(1.0f, Math::n_floor(this->width / Math::n_pow(2, (float)mipLevel)));
-		int32_t mipHeight = (int32_t)Math::n_max(1.0f, Math::n_floor(this->height / Math::n_pow(2, (float)mipLevel)));
-		int32_t mipDepth = (int32_t)Math::n_max(1.0f, Math::n_floor(this->depth / Math::n_pow(2, (float)mipLevel)));
+		int32_t mipWidth = (int32_t)Math::n_max(1.0f, Math::n_ceil(this->width / Math::n_pow(2, (float)mipLevel)));
+		int32_t mipHeight = (int32_t)Math::n_max(1.0f, Math::n_ceil(this->height / Math::n_pow(2, (float)mipLevel)));
+		int32_t mipDepth = (int32_t)Math::n_max(1.0f, Math::n_ceil(this->depth / Math::n_pow(2, (float)mipLevel)));
 
 		this->mappedBufferLayout.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
 		this->mappedBufferLayout.dstOffset = { 0, 0, 0 };
@@ -153,8 +153,8 @@ VkTexture::MapCubeFace(CubeFace face, IndexT mipLevel, MapType mapType, MapInfo&
 	VkTypes::VkBlockDimensions blockSize = VkTypes::AsVkBlockSize(this->pixelFormat);
 	uint32_t size = CoreGraphics::PixelFormat::ToSize(this->pixelFormat);
 
-	int32_t mipWidth = (int32_t)Math::n_max(1.0f, Math::n_floor(this->width / Math::n_pow(2, (float)mipLevel)));
-	int32_t mipHeight = (int32_t)Math::n_max(1.0f, Math::n_floor(this->height / Math::n_pow(2, (float)mipLevel)));
+	int32_t mipWidth = (int32_t)Math::n_max(1.0f, Math::n_ceil(this->width / Math::n_pow(2, (float)mipLevel)));
+	int32_t mipHeight = (int32_t)Math::n_max(1.0f, Math::n_ceil(this->height / Math::n_pow(2, (float)mipLevel)));
 
 	this->mappedBufferLayout.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
 	this->mappedBufferLayout.dstOffset = { 0, 0, 0 };

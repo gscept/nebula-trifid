@@ -97,7 +97,7 @@ VkCmdBufferThread::DoWork()
 			case PushRange:
 				n_assert(this->commandBuffer != VK_NULL_HANDLE);
 				vkCmdPushConstants(this->commandBuffer, cmd.pushranges.layout, cmd.pushranges.stages, cmd.pushranges.offset, cmd.pushranges.size, cmd.pushranges.data);
-				n_delete_array(cmd.pushranges.data);
+				n_delete_array((uint8_t*)cmd.pushranges.data);
 				break;
 			case Viewport:
 				n_assert(this->commandBuffer != VK_NULL_HANDLE);

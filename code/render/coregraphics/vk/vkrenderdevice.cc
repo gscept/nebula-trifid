@@ -1888,6 +1888,8 @@ VkRenderDevice::ReadImage(const Ptr<VkTexture>& tex, VkImageCopy copy, uint32_t&
 
 	VkFormat fmt = VkTypes::AsVkMappableImageFormat(VkTypes::AsVkFormat(tex->GetPixelFormat()));
 	VkTypes::VkBlockDimensions dims = VkTypes::AsVkBlockSize(tex->GetPixelFormat());
+	VkFormatProperties formatProps;
+	vkGetPhysicalDeviceFormatProperties(VkRenderDevice::physicalDev, fmt, &formatProps);
 	Texture::Type type = tex->GetType();
 	VkImageCreateInfo info =
 	{

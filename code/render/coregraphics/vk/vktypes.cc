@@ -264,7 +264,7 @@ VkTypes::AsVkFramebufferFormat(CoreGraphics::PixelFormat::Code p)
 	{
 	case PixelFormat::X8R8G8B8:         
 	case PixelFormat::A8R8G8B8:         return VK_FORMAT_R8G8B8A8_SNORM;
-	case PixelFormat::A8B8G8R8:         return VK_FORMAT_B8G8R8A8_SNORM;
+	case PixelFormat::A8B8G8R8:         return VK_FORMAT_B8G8R8A8_UNORM;
 	case PixelFormat::R8G8B8:           return VK_FORMAT_R8G8B8_SNORM;
 	case PixelFormat::R5G6B5:           return VK_FORMAT_R5G6B5_UNORM_PACK16;
 	case PixelFormat::SRGBA8:			return VK_FORMAT_B8G8R8A8_SRGB;
