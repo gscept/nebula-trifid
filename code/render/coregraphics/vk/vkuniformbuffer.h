@@ -34,10 +34,6 @@ public:
 	/// discard buffer
 	void Discard();
 
-	/// allocates instance memory, and returns offset into buffer at new instance
-	SizeT AllocateInstance(SizeT numInstances = 1);
-	/// deallocates instance memory
-	void FreeInstance(SizeT offset);
 	/// clears used list without deallocating memory
 	void Reset();
 	/// get binding, valid only if SetupFromBlockInShader is used

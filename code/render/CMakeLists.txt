@@ -711,6 +711,8 @@ ENDIF()
       coregraphics/streamtextureloader.h
       coregraphics/streamtexturesaver.cc
       coregraphics/streamtexturesaver.h
+	  coregraphics/stretchybuffer.cc
+	  coregraphics/stretchybuffer.h
       coregraphics/textelement.cc
       coregraphics/textelement.h
       coregraphics/textrenderer.cc

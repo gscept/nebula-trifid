@@ -88,7 +88,7 @@ void
 SpotLightEntity::OnRenderDebug()
 {
     // render spot light frustum
-    float4 color(this->GetColor() * 0.8f);
+    float4 color = float4::normalize(this->color);
     color.w() = 0.25f;
 
     // remove scaling, its also considered in projection matrix
@@ -97,7 +97,7 @@ SpotLightEntity::OnRenderDebug()
     unscaledTransform.set_yaxis(float4::normalize(unscaledTransform.get_yaxis()));
     unscaledTransform.set_zaxis(float4::normalize(unscaledTransform.get_zaxis()));
     matrix44 frustum = matrix44::multiply(matrix44::inverse(this->GetProjTransform()), unscaledTransform);
-    ShapeRenderer::Instance()->AddShape(RenderShape(Thread::GetMyThreadId(), RenderShape::Box, RenderShape::CheckDepth, frustum, color));
+	ShapeRenderer::Instance()->AddShape(RenderShape(Thread::GetMyThreadId(), RenderShape::Box, RenderShape::AlwaysOnTop, frustum, color));
 
     // mark position
     color.x() = 1.0f;

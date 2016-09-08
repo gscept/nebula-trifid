@@ -1740,9 +1740,11 @@ VkRenderDevice::UpdatePushRanges(const VkShaderStageFlags& stages, const VkPipel
 	cmd.pushranges.offset = offset;
 	cmd.pushranges.size = size;
 	cmd.pushranges.stages = stages;
-	cmd.pushranges.data = data;
+
+	// copy data here, will be deleted in the thread
+	cmd.pushranges.data = n_new_array(uint8_t, size);
+	memcpy(cmd.pushranges.data, data, size);
 	this->PushToThread(cmd, this->currentDrawThread);
-	//this->drawThreads[this->currentDrawThread]->PushCommand(cmd);
 }
 
 //------------------------------------------------------------------------------

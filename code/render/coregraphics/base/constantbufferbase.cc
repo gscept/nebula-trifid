@@ -9,7 +9,7 @@
 
 namespace Base
 {
-__ImplementClass(Base::ConstantBufferBase, 'COBB', Core::RefCounted);
+__ImplementAbstractClass(Base::ConstantBufferBase, 'COBB', CoreGraphics::StretchyBuffer);
 
 //------------------------------------------------------------------------------
 /**
@@ -21,10 +21,7 @@ ConstantBufferBase::ConstantBufferBase() :
     inUpdateSync(false),
     isDirty(false),
 	numBuffers(DefaultNumBackingBuffers),
-	size(0),
-	stride(0),
     buffer(0),
-	grow(8),
 	baseOffset(0)
 {
 	// empty
@@ -48,12 +45,8 @@ ConstantBufferBase::Setup(const SizeT numBackingBuffers)
 	n_assert(numBackingBuffers > 0);
 	this->numBuffers = numBackingBuffers;
 
-	// setup with X amount of free indices we can pick from
-	IndexT i;
-	for (i = 0; i < numBackingBuffers; i++)
-	{
-		this->freeIndices.Append(i);
-	}
+	// set free buffers
+	StretchyBuffer::SetFree(0, numBackingBuffers);
 }
 
 //------------------------------------------------------------------------------
@@ -63,27 +56,6 @@ void
 ConstantBufferBase::SetupFromBlockInShader(const Ptr<CoreGraphics::ShaderState>& shader, const Util::String& blockName, const SizeT numBackingBuffers)
 {
 	// implement in subclass, must call Setup at some point in implementation!
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-SizeT
-ConstantBufferBase::AllocateInstance(SizeT numInstances /*= 1*/)
-{
-	n_assert(numInstances > 0);
-	return 0;
-	// implement in subclass
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-ConstantBufferBase::FreeInstance(SizeT offset)
-{
-	n_assert(offset >= 0);
-	// implement in subclass
 }
 
 //------------------------------------------------------------------------------

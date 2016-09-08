@@ -30,7 +30,11 @@ public:
 	const VkDeviceMemory& GetVkMemory() const;
 private:
 
+	/// grow uniform buffer, returns new aligned size
+	uint32_t Grow(SizeT oldCapacity, SizeT growBy);
+
 	void* buffer;
+	VkBufferCreateInfo createInfo;
 	VkBuffer buf;
 	VkDeviceMemory mem;
 };

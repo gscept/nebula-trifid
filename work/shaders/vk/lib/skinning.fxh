@@ -13,9 +13,9 @@ shared buffers=1024 varblock Joints
 	mat4 JointPalette[96];
 };
 */
-group(SYSTEM_GROUP) shared varbuffer JointBlock [ bool System = true; ]
+group(SYSTEM_GROUP) shared varblock JointBlock
 {
-	mat4 JointPalette[];
+	mat4 JointPalette[256];
 };
 
 sampler2D JointInstanceTexture;

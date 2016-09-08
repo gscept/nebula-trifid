@@ -89,17 +89,17 @@ CharacterSkinNodeInstance::Setup(const Ptr<ModelInstance>& inst,
 	else if (skinTech == SkinningTechnique::GPUSkinning)
 	{
 		this->skinningShader = ShaderServer::Instance()->CreateShaderState("shd:skinned", { NEBULAT_SYSTEM_GROUP });
-		this->skinningJointPaletteVar = this->skinningShader->GetVariableByName(NEBULA3_SEMANTIC_JOINTBLOCK);
+		this->skinningJointPaletteVar = this->skinningShader->GetVariableByName(NEBULA3_SEMANTIC_JOINTPALETTE);
 
 		// setup joint buffer
-		const Ptr<CharacterSkinNode>& charNode = this->modelNode.cast<CharacterSkinNode>();
+		//const Ptr<CharacterSkinNode>& charNode = this->modelNode.cast<CharacterSkinNode>();
 
 		// create the constant buffer representing our joints
 		// it doesn't need to be synced since nobody will notice if the same animation frame repeats
-		this->jointBuffer = ShaderReadWriteBuffer::Create();
-		this->jointBuffer->SetSize(charNode->GetFragmentJointPalette(0).Size() * sizeof(Math::matrix44));
-		this->jointBuffer->Setup();
-		this->skinningJointPaletteVar->SetShaderReadWriteBuffer(this->jointBuffer);
+		//this->jointBuffer = ShaderReadWriteBuffer::Create();
+		//this->jointBuffer->SetSize(charNode->GetFragmentJointPalette(0).Size() * sizeof(Math::matrix44));
+		//this->jointBuffer->Setup();
+		//this->skinningJointPaletteVar->SetShaderReadWriteBuffer(this->jointBuffer);
 	}
 }
 
@@ -121,9 +121,9 @@ CharacterSkinNodeInstance::Discard()
 	}
 	else if (charServer->GetSkinningTechnique() == SkinningTechnique::GPUSkinning)
 	{
-		this->jointBuffer->Discard();
-		this->jointBuffer = 0;
-		this->skinningJointPaletteVar->SetShaderReadWriteBuffer(NULL);
+		//this->jointBuffer->Discard();
+		//this->jointBuffer = 0;
+		//this->skinningJointPaletteVar->SetShaderReadWriteBuffer(NULL);
 		this->skinningJointPaletteVar = 0;
 		this->skinningShader = 0;
 	}
@@ -198,8 +198,12 @@ CharacterSkinNodeInstance::OnRenderBefore(IndexT frameIndex, Timing::Time time)
 			joints[i] = skinMatrixArray[indices[i]];
 		}
 
+		// assert we don't have more joints than in the shader
+		n_assert(numJointsInPalette <= 256);
+
 		// update joint buffer
-		this->jointBuffer->Update(&joints[0], 0, joints.Size() * sizeof(Math::matrix44));
+		this->skinningJointPaletteVar->SetMatrixArray(joints.Begin(), joints.Size());
+		//this->jointBuffer->Update(&joints[0], 0, joints.Size() * sizeof(Math::matrix44));
 	}
 
 	ShapeNodeInstance::OnRenderBefore(frameIndex, time);
@@ -233,7 +237,7 @@ CharacterSkinNodeInstance::ApplyState(IndexT frameIndex, const IndexT& pass)
 	else if (SkinningTechnique::GPUSkinning == skinTech)
 	{
 		// set handle
-		this->skinningJointPaletteVar->SetShaderReadWriteBuffer(this->jointBuffer);
+		//this->skinningJointPaletteVar->SetShaderReadWriteBuffer(this->jointBuffer);
 	}
 
 	// apply base level state
@@ -307,6 +311,7 @@ CharacterSkinNodeInstance::Render()
 			IndexT primGroupIndex = myNode->GetFragmentPrimGroupIndex(0);
 
 			// draw skin
+			this->skinningShader->Commit();
 			charServer->DrawGPUSkinnedMesh(mesh, primGroupIndex);
 		}
 	}
@@ -384,6 +389,7 @@ CharacterSkinNodeInstance::RenderInstanced(SizeT numInstances)
 			IndexT primGroupIndex = myNode->GetFragmentPrimGroupIndex(0);
 
 			// draw skin
+			this->skinningShader->Commit();
 			charServer->DrawGPUSkinnedMeshInstanced(mesh, primGroupIndex, numInstances);
 		}
 	}

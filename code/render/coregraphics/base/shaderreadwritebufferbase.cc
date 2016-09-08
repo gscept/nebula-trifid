@@ -8,7 +8,7 @@
 
 namespace Base
 {
-__ImplementClass(Base::ShaderReadWriteBufferBase, 'SHBB', Core::RefCounted);
+__ImplementAbstractClass(Base::ShaderReadWriteBufferBase, 'SHBB', CoreGraphics::StretchyBuffer);
 
 //------------------------------------------------------------------------------
 /**
@@ -39,6 +39,10 @@ ShaderReadWriteBufferBase::Setup(const SizeT numBackingBuffers)
 	n_assert(this->size > 0);
 	this->isSetup = true;
 	this->numBuffers = numBackingBuffers;
+
+	// set free buffers
+	StretchyBuffer::SetFree(0, numBackingBuffers);
+
 	if (this->relativeSize)
 	{
 		// get display mode

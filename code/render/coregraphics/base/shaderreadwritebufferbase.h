@@ -11,12 +11,12 @@
 	(C) 2012-2014 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
-#include "core/refcounted.h"
+#include "coregraphics/stretchybuffer.h"
 namespace Base
 {
-class ShaderReadWriteBufferBase : public Core::RefCounted
+class ShaderReadWriteBufferBase : public CoreGraphics::StretchyBuffer
 {
-	__DeclareClass(ShaderReadWriteBufferBase);
+	__DeclareAbstractClass(ShaderReadWriteBufferBase);
 public:
 	/// constructor
 	ShaderReadWriteBufferBase();

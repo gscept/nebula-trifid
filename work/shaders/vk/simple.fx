@@ -52,11 +52,11 @@ state DepthDisabledState
 shader
 void
 vsMainPrimitives(
-	[slot=0] in vec4 position, 
+	[slot=0] in vec3 position, 
 	[slot=5] in vec4 color, 
 	out vec4 Color)  
 {
-	gl_Position = ViewProjection * Simple.ShapeModel * position;
+	gl_Position = ViewProjection * Simple.ShapeModel * vec4(position, 1);
 	Color = color;
 }
 	
@@ -76,9 +76,9 @@ psMainPrimitives(in vec4 color, [color0] out vec4 Color)
 shader
 void
 vsMainShape(
-	[slot=0] in vec4 position)  
+	[slot=0] in vec3 position)  
 {
-	gl_Position = ViewProjection * Simple.ShapeModel * position;
+	gl_Position = ViewProjection * Simple.ShapeModel * vec4(position, 1);
 }
 	
 //------------------------------------------------------------------------------

@@ -36,6 +36,7 @@ void
 VkUniformBuffer::Setup(const SizeT numBackingBuffers)
 {
 	ConstantBufferBase::Setup(numBackingBuffers);
+	this->byteAlignment = VK_DEVICE_SIZE_CONV(VkRenderDevice::Instance()->deviceProps.limits.minUniformBufferOffsetAlignment);
 	uint32_t queues[] = { VkRenderDevice::Instance()->drawQueueFamily, VkRenderDevice::Instance()->computeQueueFamily, VkRenderDevice::Instance()->transferQueueFamily };
 	this->createInfo =
 	{
@@ -45,7 +46,7 @@ VkUniformBuffer::Setup(const SizeT numBackingBuffers)
 		this->size * numBackingBuffers,
 		VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
 		VK_SHARING_MODE_CONCURRENT,
-		3,
+		sizeof(queues) / sizeof(uint32_t),
 		queues
 	};
 	VkResult res = vkCreateBuffer(VkRenderDevice::dev, &this->createInfo, NULL, &this->buf);
@@ -82,13 +83,8 @@ VkUniformBuffer::SetupFromBlockInShader(const Ptr<CoreGraphics::ShaderState>& sh
 	this->size = varblock->byteSize;
 	this->Setup(numBackingBuffers);
 
-	// move free indices to used indices
-	IndexT i;
-	for (i = 0; i < this->freeIndices.Size(); i++)
-	{
-		this->usedIndices.Append(i);
-	}
-	this->freeIndices.Clear();
+	// set our buffer to be non-expandable
+	StretchyBuffer::SetFull();
 
 	// begin synced update, this will cause the uniform buffer to be setup straight from the start
 	for (uint i = 0; i < varblock->variables.size(); i++)
@@ -138,128 +134,6 @@ VkUniformBuffer::UpdateArrayAsync(void* data, uint offset, uint size, uint count
 	memcpy(buf, data, size * count);
 }
 
-#define ROUND_TO_POW(n, p) ((n + p - 1) & ~(p - 1))
-//------------------------------------------------------------------------------
-/**
-	Performs an expansion of the uniform buffer, based on how many instances we want to allocate.
-	If the buffer is full it is expanded to a new size.
-	If the buffer has free instances we reuse them by returning the offset into that buffer.
-	If a continuous range of numInstances fits in the free list, the offset is the offset to the first element.
-	If there is no continuous range fitting numInstances, alloc and return offset without disturbing other free instances.
-*/
-SizeT
-VkUniformBuffer::AllocateInstance(SizeT numInstances)
-{
-	ConstantBufferBase::AllocateInstance(numInstances);
-	uint32_t alignment = VK_DEVICE_SIZE_CONV(VkRenderDevice::Instance()->deviceProps.limits.minUniformBufferOffsetAlignment);
-	SizeT offset;
-
-	// pool is exhausted, allocate new elements
-	if (this->freeIndices.IsEmpty())
-	{
-		// calculate new capacity by number of instances, or grow number if bigger
-		SizeT capacity = this->usedIndices.Size();
-
-		// calculate current offset
-		offset = ROUND_TO_POW(capacity * this->stride, alignment);
-		uint32_t alignedSize = this->Grow(capacity, numInstances);		
-
-		// add instance to used indices
-		IndexT i;
-		for (i = 0; i < numInstances; i++)
-		{
-			this->usedIndices.Append(capacity + i);
-		}
-	}
-	else
-	{
-		// if pool is not exhausted, return index
-		if (numInstances == 1)
-		{
-			// grab index from free indices list
-			IndexT index = this->freeIndices.Front();
-			this->freeIndices.EraseIndex(0);
-
-			// return offset
-			offset = ROUND_TO_POW(index * this->stride, alignment);
-			this->usedIndices.Append(index);
-		}
-		else if (this->freeIndices.Size() > numInstances) // pool could possibly fit range, find range
-		{
-			// try to find range of instances
-			SizeT validRangeCount = 1;
-			IndexT freeIndex = this->freeIndices.Front();
-			IndexT i;
-			for (i = 1; i < this->freeIndices.Size(); i++)
-			{
-				IndexT idx = this->freeIndices[i];
-				if (idx-1 == freeIndex) validRangeCount++;
-				else
-				{
-					validRangeCount = 1;
-				}
-				
-				// if a valid range is found, find the offset and return
-				if (validRangeCount == numInstances)
-				{
-					// find offset to first index
-					offset = ROUND_TO_POW((idx - numInstances) * this->stride, alignment);
-					break;
-				}
-				freeIndex = idx;
-			}
-			
-			// if no range was found, alloc
-			if (validRangeCount != numInstances)
-			{
-				SizeT capacity = this->usedIndices.Size() + this->freeIndices.Size();
-
-				// calculate offset
-				offset = ROUND_TO_POW(capacity * this->stride, alignment);
-				uint32_t alignedSize = this->Grow(capacity, numInstances);				
-
-				// add instance to used indices
-				IndexT i;
-				for (i = 0; i < numInstances; i++)
-				{
-					this->usedIndices.Append(capacity + i);
-				}
-			}
-		}
-		else // fitting is impossible, but pool is not exhausted, so grow!
-		{
-			SizeT capacity = this->usedIndices.Size() + this->freeIndices.Size();
-
-			// calculate offset
-			offset = ROUND_TO_POW(capacity * this->stride, alignment);
-			uint32_t alignedSize = this->Grow(capacity, numInstances);
-
-			// add instance to used indices
-			IndexT i;
-			for (i = 0; i < numInstances; i++)
-			{
-				this->usedIndices.Append(capacity + i);
-			}
-		}
-	}
-
-	return offset;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkUniformBuffer::FreeInstance(SizeT offset)
-{
-	ConstantBufferBase::FreeInstance(offset);
-	IndexT instance = offset / this->stride;
-	IndexT idx = this->usedIndices.FindIndex(instance);
-	n_assert(idx != InvalidIndex);
-	this->usedIndices.EraseIndex(idx);
-	this->freeIndices.Append(instance);
-}
-
 //------------------------------------------------------------------------------
 /**
 */
@@ -267,7 +141,6 @@ uint32_t
 VkUniformBuffer::Grow(SizeT oldCapacity, SizeT growBy)
 {
 	// new capacity is the old one, plus the number of elements we wish to allocate, although never allocate fewer than grow
-	//SizeT newCapacity = ROUND_TO_POW(oldCapacity + growBy, this->grow);
 	SizeT increment = oldCapacity >> 1;
 	increment = Math::n_iclamp(increment, this->grow, 65535);
 	n_assert(increment >= growBy);
@@ -304,13 +177,9 @@ VkUniformBuffer::Grow(SizeT oldCapacity, SizeT growBy)
 	vkDestroyBuffer(VkRenderDevice::dev, this->buf, NULL);
 	vkFreeMemory(VkRenderDevice::dev, this->mem, NULL);
 
-	// add free indices
-	IndexT i;
-	for (i = 0; i < (newCapacity - oldCapacity - growBy); i++)
-	{
-		this->freeIndices.Append(oldCapacity + growBy + i);
-	}
-
+	// setup free indices
+	StretchyBuffer::SetFree(oldCapacity + growBy, newCapacity - oldCapacity - growBy);
+	
 	// replace old device memory and size
 	this->size = alignedSize;
 	this->buf = newBuf;

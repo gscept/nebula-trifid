@@ -253,15 +253,19 @@ VkShapeRenderer::DrawSimpleShape(const Math::matrix44& modelTransform, CoreGraph
 	Ptr<VertexBuffer> vb = mesh->GetVertexBuffer();
 	Ptr<IndexBuffer> ib = mesh->GetIndexBuffer();
 
+	// assume all primitive groups in the mesh are identical
+	PrimitiveGroup group = mesh->GetPrimitiveGroupAtIndex(0);
+	renderDevice->SetVertexLayout(vb->GetVertexLayout());
+	renderDevice->SetPrimitiveGroup(group);
+	renderDevice->SetStreamVertexBuffer(0, vb, 0);
+	renderDevice->SetIndexBuffer(ib);
+
 	IndexT i;
 	for (i = 0; i < mesh->GetNumPrimitiveGroups(); i++)
 	{
 		// setup render device
 		PrimitiveGroup group = mesh->GetPrimitiveGroupAtIndex(i);
 		renderDevice->SetPrimitiveGroup(group);
-		renderDevice->SetVertexLayout(vb->GetVertexLayout());
-		renderDevice->SetStreamVertexBuffer(0, vb, 0);
-		renderDevice->SetIndexBuffer(ib);
 		this->shapeShader->Commit();
 
 		// draw
@@ -288,6 +292,13 @@ VkShapeRenderer::DrawMesh(const Math::matrix44& modelTransform, const Ptr<CoreGr
 	Ptr<CoreGraphics::VertexBuffer> vb = mesh->GetVertexBuffer();
 	Ptr<CoreGraphics::IndexBuffer> ib = mesh->GetIndexBuffer();
 
+	// assume all primitives share the same topology
+	PrimitiveGroup group = mesh->GetPrimitiveGroupAtIndex(0);
+	renderDevice->SetVertexLayout(vb->GetVertexLayout());
+	renderDevice->SetPrimitiveGroup(group);
+	renderDevice->SetStreamVertexBuffer(0, vb, 0);
+	renderDevice->SetIndexBuffer(ib);
+
 	// draw primitives in shape
 	IndexT i;
 	for (i = 0; i < mesh->GetNumPrimitiveGroups(); i++)
@@ -295,9 +306,6 @@ VkShapeRenderer::DrawMesh(const Math::matrix44& modelTransform, const Ptr<CoreGr
 		// setup render device
 		PrimitiveGroup group = mesh->GetPrimitiveGroupAtIndex(i);
 		renderDevice->SetPrimitiveGroup(group);
-		renderDevice->SetVertexLayout(vb->GetVertexLayout());
-		renderDevice->SetStreamVertexBuffer(0, vb, 0);
-		renderDevice->SetIndexBuffer(ib);
 		this->shapeShader->Commit();
 
 		renderDevice->Draw();
@@ -391,9 +399,8 @@ void
 VkShapeRenderer::DrawBufferedPrimitives()
 {
 	Ptr<RenderDevice> renderDevice = RenderDevice::Instance();
-	renderDevice->SetPrimitiveGroup(this->primGroup);
-	renderDevice->SetVertexLayout(this->vertexLayout);
-	renderDevice->SetStreamVertexBuffer(0, this->vbo, 0);
+	//renderDevice->SetPrimitiveGroup(this->primGroup);
+	
 
 	IndexT i;
 	for (i = 0; i < this->unindexed.primitives.Size(); i++)
@@ -406,7 +413,8 @@ VkShapeRenderer::DrawBufferedPrimitives()
 		this->model->SetMatrix(modelTransform);
 
 		renderDevice->SetPrimitiveGroup(group);
-		renderDevice->BuildRenderPipeline();
+		renderDevice->SetVertexLayout(this->vertexLayout);
+		renderDevice->SetStreamVertexBuffer(0, this->vbo, 0);
 		this->shapeShader->Commit();
 
 		renderDevice->Draw();
@@ -424,10 +432,8 @@ void
 VkShapeRenderer::DrawBufferedIndexedPrimitives()
 {
 	Ptr<RenderDevice> renderDevice = RenderDevice::Instance();
-	renderDevice->SetPrimitiveGroup(this->primGroup);
-	renderDevice->SetVertexLayout(this->vertexLayout);
-	renderDevice->SetIndexBuffer(this->ibo);
-	renderDevice->SetStreamVertexBuffer(0, this->vbo, 0);
+	//renderDevice->SetPrimitiveGroup(this->primGroup);
+
 
 	IndexT i;
 	for (i = 0; i < this->indexed.primitives.Size(); i++)
@@ -440,7 +446,10 @@ VkShapeRenderer::DrawBufferedIndexedPrimitives()
 		this->model->SetMatrix(modelTransform);
 
 		renderDevice->SetPrimitiveGroup(group);
-		renderDevice->BuildRenderPipeline();
+		renderDevice->SetVertexLayout(this->vertexLayout);
+		renderDevice->SetIndexBuffer(this->ibo);
+		renderDevice->SetStreamVertexBuffer(0, this->vbo, 0);
+		//renderDevice->BuildRenderPipeline();
 		this->shapeShader->Commit();
 
 		renderDevice->Draw();

@@ -18,7 +18,7 @@ SimpleTechnique(
 	psUber(
 		calcColor = SimpleColor,
 		calcBump = NormalMapFunctor,
-		calcSpec = NonReflectiveSpecularFunctor,
+		calcSpec = NonReflectiveSpecularFunctor, 
 		calcDepth = ViewSpaceDepthFunctor,
 		calcEnv = PBR
 	),

@@ -28,9 +28,9 @@
 	(C) 2015 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
-#include "core/refcounted.h"
 #include "util/stringatom.h"
 #include "coregraphics/shadervariable.h"
+#include "coregraphics/stretchybuffer.h"
 
 namespace CoreGraphics
 {
@@ -39,9 +39,9 @@ class Shader;
 
 namespace Base
 {
-class ConstantBufferBase : public Core::RefCounted
+class ConstantBufferBase : public CoreGraphics::StretchyBuffer
 {
-	__DeclareClass(ConstantBufferBase);
+	__DeclareAbstractClass(ConstantBufferBase);
 public:
 	/// constructor
 	ConstantBufferBase();
@@ -55,10 +55,6 @@ public:
     /// discard buffer
     void Discard();
 
-	/// allocates instance memory, and returns offset into buffer at new instance
-	SizeT AllocateInstance(SizeT numInstances = 1);
-	/// deallocates instance memory
-	void FreeInstance(SizeT offset);
 	/// set active offset, this will be the base offset when updating variables in this block
 	void SetBaseOffset(SizeT offset);
 
@@ -105,14 +101,8 @@ protected:
     bool isSetup;
 
 	// size is total memory size of entire buffer, stride is size of single instance
-    uint size;
-	uint stride;
     IndexT bufferIndex;
 	SizeT numBuffers;
-
-	Util::Array<IndexT> freeIndices;
-	Util::Array<IndexT> usedIndices;
-	SizeT grow;
 	IndexT baseOffset;
 
     bool sync;
