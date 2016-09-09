@@ -164,7 +164,6 @@ Nvx2StreamReader::ReadPrimitiveGroups()
         primGroup.SetNumVertices(group->numVertices);
         primGroup.SetBaseIndex(group->firstTriangle * 3);
         primGroup.SetNumIndices(group->numTriangles * 3);
-		primGroup.SetPrimitiveTopology(PrimitiveTopology::TriangleList);
         this->primGroups.Append(primGroup);
 
         // set top next group

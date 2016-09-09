@@ -35,6 +35,8 @@ public:
 	IndexT GetCurParticleIndex() const;
 	/// add particle index
 	void AddCurParticleIndex(IndexT add);
+	/// apply mesh
+	void ApplyParticleMesh();
 
 	/// get the current vertex pointer
 	void* GetCurVertexPtr();

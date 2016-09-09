@@ -147,7 +147,7 @@ ModelNodeInstance::OnRenderBefore(IndexT frameIndex, Timing::Time time)
 /**
 */
 void 
-ModelNodeInstance::OnVisibilityResolve(IndexT resolveIndex, float distanceToViewer)
+ModelNodeInstance::OnVisibilityResolve(IndexT frameIndex, IndexT resolveIndex, float distanceToViewer)
 {
     // we are getting rendered this frame, get a instance index from modelserver
     this->frameInstanceIndex = ModelServer::Instance()->ConsumeNewModelNodeInstanceIndex();

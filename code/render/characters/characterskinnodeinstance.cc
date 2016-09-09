@@ -81,7 +81,7 @@ CharacterSkinNodeInstance::Setup(const Ptr<ModelInstance>& inst,
 
 		// create buffer to save feedback to
 		this->feedbackBuffer = FeedbackBuffer::Create();
-		this->feedbackBuffer->SetNumPrimitives(primGroup.GetNumPrimitives());
+		this->feedbackBuffer->SetNumPrimitives(primGroup.GetNumPrimitives(PrimitiveTopology::TriangleList));
 		this->feedbackBuffer->SetVertexComponents(components);
 		this->feedbackBuffer->SetPrimitiveType(PrimitiveTopology::TriangleList);
 		this->feedbackBuffer->Setup();
@@ -178,7 +178,7 @@ CharacterSkinNodeInstance::OnRenderBefore(IndexT frameIndex, Timing::Time time)
 		// update joint palette, then draw into the feedback buffer
 		//renderDev->SetPrimitiveGroup(this->feedbackBuffer->GetPrimitiveGroup());
 		charServer->UpdateGPUSkinnedJointPalette(this->characterInstance, jointPalette, this->skinningJointPaletteVar);
-		renderDev->BeginFeedback(this->feedbackBuffer, mesh->GetPrimitiveGroupAtIndex(primIndex).GetPrimitiveTopology());
+		renderDev->BeginFeedback(this->feedbackBuffer, mesh->GetTopology());
 		mesh->ApplyPrimitives(primIndex);
 		renderDev->Draw();
 		renderDev->EndFeedback();
@@ -238,6 +238,7 @@ CharacterSkinNodeInstance::ApplyState(IndexT frameIndex, const IndexT& pass)
 	{
 		// set handle
 		//this->skinningJointPaletteVar->SetShaderReadWriteBuffer(this->jointBuffer);
+		this->skinningShader->Commit();
 	}
 
 	// apply base level state
@@ -251,9 +252,9 @@ void
 CharacterSkinNodeInstance::Render()
 {   
     // different code paths for software and GPU-skinned platforms
-	Ptr<ShaderServer> shaderServer = ShaderServer::Instance();
-	Ptr<CharacterServer> charServer = CharacterServer::Instance();
-	Ptr<RenderDevice> renderDev = RenderDevice::Instance();
+	ShaderServer* shaderServer = ShaderServer::Instance();
+	CharacterServer* charServer = CharacterServer::Instance();
+	RenderDevice* renderDev = RenderDevice::Instance();
 
     SkinningTechnique::Code skinTech = charServer->GetSkinningTechnique();
     if (SkinningTechnique::SoftwareSkinning == skinTech)
@@ -311,7 +312,8 @@ CharacterSkinNodeInstance::Render()
 			IndexT primGroupIndex = myNode->GetFragmentPrimGroupIndex(0);
 
 			// draw skin
-			this->skinningShader->Commit();
+			//mesh->ApplyPrimitives(primGroupIndex);
+			mesh->ApplyPrimitiveGroup(primGroupIndex);
 			charServer->DrawGPUSkinnedMesh(mesh, primGroupIndex);
 		}
 	}

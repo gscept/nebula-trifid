@@ -41,6 +41,7 @@ RenderDeviceBase::RenderDeviceBase() :
 	renderWireframe(false),
     visualizeMipMaps(false),
 	usePatches(false),
+	primitiveTopology(CoreGraphics::PrimitiveTopology::TriangleList),
 	currentFrameIndex(InvalidIndex)
 {
     __ConstructSingleton;
@@ -229,6 +230,24 @@ const Ptr<IndexBuffer>&
 RenderDeviceBase::GetIndexBuffer() const
 {
     return this->indexBuffer;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+RenderDeviceBase::SetPrimitiveTopology(const CoreGraphics::PrimitiveTopology::Code& topo)
+{
+	this->primitiveTopology = topo;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+const CoreGraphics::PrimitiveTopology::Code&
+RenderDeviceBase::GetPrimitiveTopology() const
+{
+	return this->primitiveTopology;
 }
 
 //------------------------------------------------------------------------------
@@ -747,5 +766,6 @@ RenderDeviceBase::GetProjectionCorrectionMatrix()
 {
 	return Math::matrix44::identity();
 }
+
 
 } // namespace Base

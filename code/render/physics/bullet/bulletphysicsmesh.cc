@@ -103,7 +103,7 @@ BulletPhysicsMesh::AddMeshComponent(int id, const CoreGraphics::PrimitiveGroup& 
 	btIndexedMesh meshData;
 	meshData.m_indexType = PHY_INTEGER;
 	
-	meshData.m_numTriangles = group.GetNumPrimitives();
+	meshData.m_numTriangles = group.GetNumPrimitives(CoreGraphics::PrimitiveTopology::TriangleList);
 	meshData.m_numVertices = group.GetNumVertices();
 
 	size_t indexbytes = meshData.m_numTriangles * sizeof(uint) * 3;

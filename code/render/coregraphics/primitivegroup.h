@@ -37,23 +37,18 @@ public:
     void SetNumIndices(SizeT n);
     /// get number of indices
     SizeT GetNumIndices() const;
-    /// set the primitive topology
-    void SetPrimitiveTopology(PrimitiveTopology::Code topology);
-    /// get the primitive topology
-    PrimitiveTopology::Code GetPrimitiveTopology() const;
     /// set the primitive group's local bounding box
     void SetBoundingBox(const Math::bbox& b);
     /// get the primitive group's local bounding box
     const Math::bbox& GetBoundingBox() const;
     /// get computed number of primitives
-    SizeT GetNumPrimitives() const;
+	SizeT GetNumPrimitives(const CoreGraphics::PrimitiveTopology::Code& topo) const;
 
 private:
     IndexT baseVertex;
     SizeT numVertices;
     IndexT baseIndex;
     SizeT numIndices;
-    PrimitiveTopology::Code primitiveTopology;
     Math::bbox boundingBox;
 };
 
@@ -65,8 +60,7 @@ PrimitiveGroup::PrimitiveGroup() :
     baseVertex(0),
     numVertices(0),
     baseIndex(0),
-    numIndices(0),
-    primitiveTopology(PrimitiveTopology::InvalidPrimitiveTopology)
+    numIndices(0)
 {
     // empty
 }
@@ -147,24 +141,6 @@ PrimitiveGroup::GetNumIndices() const
 /**
 */
 inline void
-PrimitiveGroup::SetPrimitiveTopology(PrimitiveTopology::Code t)
-{
-    this->primitiveTopology = t;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline PrimitiveTopology::Code
-PrimitiveGroup::GetPrimitiveTopology() const
-{
-    return this->primitiveTopology;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void
 PrimitiveGroup::SetBoundingBox(const Math::bbox& b)
 {
     this->boundingBox = b;
@@ -183,15 +159,15 @@ PrimitiveGroup::GetBoundingBox() const
 /**
 */
 inline SizeT
-PrimitiveGroup::GetNumPrimitives() const
+PrimitiveGroup::GetNumPrimitives(const CoreGraphics::PrimitiveTopology::Code& topo) const
 {
     if (this->numIndices > 0)
     {
-        return PrimitiveTopology::NumberOfPrimitives(this->primitiveTopology, this->numIndices);
+		return PrimitiveTopology::NumberOfPrimitives(topo, this->numIndices);
     }
     else
     {
-        return PrimitiveTopology::NumberOfPrimitives(this->primitiveTopology, this->numVertices);
+		return PrimitiveTopology::NumberOfPrimitives(topo, this->numVertices);
     }
 }
 

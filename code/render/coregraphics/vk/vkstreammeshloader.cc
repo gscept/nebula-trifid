@@ -62,7 +62,7 @@ VkStreamMeshLoader::SetupResourceFromStream(const Ptr<Stream>& stream)
 
 //------------------------------------------------------------------------------
 /**
-Setup the mesh resource from legacy nvx2 file (Nebula2 binary mesh format).
+	Setup the mesh resource from legacy nvx2 file (Nebula2 binary mesh format).
 */
 #if NEBULA3_LEGACY_SUPPORT
 bool
@@ -80,6 +80,7 @@ VkStreamMeshLoader::SetupMeshFromNvx2(const Ptr<Stream>& stream)
 		res->SetVertexBuffer(nvx2Reader->GetVertexBuffer().downcast<CoreGraphics::VertexBuffer>());
 		res->SetIndexBuffer(nvx2Reader->GetIndexBuffer().downcast<CoreGraphics::IndexBuffer>());
 		res->SetPrimitiveGroups(nvx2Reader->GetPrimitiveGroups());
+		res->SetTopology(PrimitiveTopology::TriangleList);
 		nvx2Reader->Close();
 		return true;
 	}
@@ -89,8 +90,8 @@ VkStreamMeshLoader::SetupMeshFromNvx2(const Ptr<Stream>& stream)
 
 //------------------------------------------------------------------------------
 /**
-Setup the mesh resource from a nvx3 file (Nebula3's
-native binary mesh file format).
+	Setup the mesh resource from a nvx3 file (Nebula3's
+	native binary mesh file format).
 */
 bool
 VkStreamMeshLoader::SetupMeshFromNvx3(const Ptr<Stream>& stream)

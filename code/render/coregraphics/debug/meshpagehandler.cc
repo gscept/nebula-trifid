@@ -249,12 +249,12 @@ MeshPageHandler::HandleMeshInfoRequest(const ResourceId& resId, const Ptr<Stream
             {
                 const PrimitiveGroup& primGroup = mesh->GetPrimitiveGroupAtIndex(i);
                 htmlWriter->Begin(HtmlElement::TableRow);
-                    htmlWriter->Element(HtmlElement::TableData, String::FromInt(primGroup.GetNumPrimitives()));
+                    htmlWriter->Element(HtmlElement::TableData, String::FromInt(primGroup.GetNumPrimitives(mesh->GetTopology())));
                     htmlWriter->Element(HtmlElement::TableData, String::FromInt(primGroup.GetBaseVertex()));
                     htmlWriter->Element(HtmlElement::TableData, String::FromInt(primGroup.GetNumVertices()));
                     htmlWriter->Element(HtmlElement::TableData, String::FromInt(primGroup.GetBaseIndex()));
                     htmlWriter->Element(HtmlElement::TableData, String::FromInt(primGroup.GetNumIndices()));
-                    htmlWriter->Element(HtmlElement::TableData, PrimitiveTopology::ToString(primGroup.GetPrimitiveTopology()));
+                    htmlWriter->Element(HtmlElement::TableData, PrimitiveTopology::ToString(mesh->GetTopology()));
                 htmlWriter->End(HtmlElement::TableRow);
             }
         htmlWriter->End(HtmlElement::Table);

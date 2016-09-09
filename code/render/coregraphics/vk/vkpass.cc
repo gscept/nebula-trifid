@@ -411,7 +411,7 @@ VkPass::Setup()
 	// setup info
 	this->framebufferPipelineInfo.renderPass = this->pass;
 	this->framebufferPipelineInfo.subpass = 0;
-	this->framebufferPipelineInfo.pViewportState = &this->viewportInfo;
+	this->framebufferPipelineInfo.pViewportState = &this->viewportInfo;	
 }
 
 //------------------------------------------------------------------------------

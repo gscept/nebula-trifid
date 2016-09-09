@@ -58,6 +58,7 @@ MeshBase::ApplyPrimitives(IndexT primGroupIndex)
     if (this->vertexBuffer.isvalid())
     {
 		renderDevice->SetVertexLayout(this->vertexBuffer->GetVertexLayout());
+		renderDevice->SetPrimitiveTopology(this->topology);
 		renderDevice->SetPrimitiveGroup(this->GetPrimitiveGroupAtIndex(primGroupIndex));
         renderDevice->SetStreamVertexBuffer(0, this->vertexBuffer, 0);        
     }
@@ -65,6 +66,35 @@ MeshBase::ApplyPrimitives(IndexT primGroupIndex)
     {
         renderDevice->SetIndexBuffer(this->indexBuffer);
     }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+MeshBase::ApplySharedMesh()
+{
+	RenderDevice* renderDevice = RenderDevice::Instance();
+	if (this->vertexBuffer.isvalid())
+	{
+		renderDevice->SetVertexLayout(this->vertexBuffer->GetVertexLayout());
+		renderDevice->SetPrimitiveTopology(this->topology);
+		renderDevice->SetStreamVertexBuffer(0, this->vertexBuffer, 0);
+	}
+	if (this->indexBuffer.isvalid())
+	{
+		renderDevice->SetIndexBuffer(this->indexBuffer);
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+MeshBase::ApplyPrimitiveGroup(IndexT primGroupIndex)
+{
+	RenderDevice* renderDevice = RenderDevice::Instance();
+	renderDevice->SetPrimitiveGroup(this->GetPrimitiveGroupAtIndex(primGroupIndex));
 }
 
 } // namespace Base

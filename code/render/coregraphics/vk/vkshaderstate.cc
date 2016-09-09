@@ -337,7 +337,6 @@ VkShaderState::SetupUniformBuffers(const Util::Array<IndexT>& groups)
 					this->instances.Add(uniformBuffer, instanceOffset);
 
 					// update buffer
-					uniformBuffer->BeginUpdateSync();
 					for (uint k = 0; k < block->variables.size(); k++)
 					{
 						// find the shader variable and bind the constant buffer we just created to said variable
@@ -347,7 +346,6 @@ VkShaderState::SetupUniformBuffers(const Util::Array<IndexT>& groups)
 						const Ptr<CoreGraphics::ShaderVariable>& member = this->GetVariableByName(name);
 						member->BindToUniformBuffer(uniformBuffer, instanceOffset + varOffset, var->byteSize, (int8_t*)var->currentValue);
 					}
-					uniformBuffer->EndUpdateSync();
 
 					// we apply the constant buffer again, in case we have to grow the buffer and reallocate it
 					bufferVar->SetConstantBuffer(uniformBuffer);
@@ -384,7 +382,7 @@ VkShaderState::SetupUniformBuffers(const Util::Array<IndexT>& groups)
 	}
 
 	// perform descriptor set update, since our buffers might grow, we might have pending updates, and since the old buffer is destroyed, we want to flush all updates here.
-	this->UpdateDescriptorSets();
+	if (this->setsDirty) this->UpdateDescriptorSets();
 }
 
 //------------------------------------------------------------------------------
@@ -395,12 +393,9 @@ VkShaderState::UpdateDescriptorSets()
 {
 	// first ensure descriptor sets are up to date with whatever the variable values has been set to
 	// this can be destructive, because it changes the base shader state
-	if (this->pendingSetWrites.Size() > 0)
-	{
-		vkUpdateDescriptorSets(VkRenderDevice::dev, this->pendingSetWrites.Size(), &this->pendingSetWrites[0], 0, NULL);
-		this->pendingSetWrites.Clear();
-		this->setsDirty = false;
-	}
+	vkUpdateDescriptorSets(VkRenderDevice::dev, this->pendingSetWrites.Size(), &this->pendingSetWrites[0], 0, NULL);
+	this->pendingSetWrites.Clear();
+	this->setsDirty = false;
 }
 
 //------------------------------------------------------------------------------

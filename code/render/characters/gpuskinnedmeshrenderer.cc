@@ -47,7 +47,7 @@ void
 GPUSkinnedMeshRenderer::DrawGPUSkinnedMesh(const Ptr<Mesh>& mesh, IndexT primGroupIndex)
 {
 	// apply mesh data and draw skinned primitives
-	mesh->ApplyPrimitives(primGroupIndex);
+	//mesh->ApplyPrimitives(primGroupIndex);
 	RenderDevice::Instance()->Draw();
 }
 

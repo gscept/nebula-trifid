@@ -28,7 +28,7 @@ public:
     /// called from ModelEntity::OnRenderBefore
     virtual void OnRenderBefore(IndexT frameIndex, Timing::Time time);
     /// called during visibility resolve
-    virtual void OnVisibilityResolve(IndexT resolveIndex, float distanceToViewer);
+	virtual void OnVisibilityResolve(IndexT frameIndex, IndexT resolveIndex, float distanceToViewer);
     /// apply per-instance state prior to rendering
 	virtual void ApplyState(IndexT frameIndex, const IndexT& pass);
     /// perform rendering
@@ -56,14 +56,12 @@ protected:
 
 #if SHADER_MODEL_5
 	Ptr<CoreGraphics::ShaderState> particleShader;
-	Ptr<CoreGraphics::ConstantBuffer> particleObjectBuffer;
 	Ptr<CoreGraphics::ShaderVariable> emitterOrientationVar;
 	Ptr<CoreGraphics::ShaderVariable> billBoardVar;
 	Ptr<CoreGraphics::ShaderVariable> bboxCenterVar;
 	Ptr<CoreGraphics::ShaderVariable> bboxSizeVar;
 	Ptr<CoreGraphics::ShaderVariable> animPhasesVar;
 	Ptr<CoreGraphics::ShaderVariable> animsPerSecVar;
-	Ptr<CoreGraphics::ShaderVariable> particleObjectBufferVar;
 	IndexT particleObjectBufferIndex;
 #else
 	Ptr<Materials::SurfaceConstant> emitterOrientation;

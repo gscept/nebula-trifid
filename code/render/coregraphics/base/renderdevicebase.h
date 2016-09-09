@@ -122,6 +122,10 @@ public:
     void SetIndexBuffer(const Ptr<CoreGraphics::IndexBuffer>& ib);
     /// get current index buffer
     const Ptr<CoreGraphics::IndexBuffer>& GetIndexBuffer() const;
+	/// set the type of topology to be used
+	void SetPrimitiveTopology(const CoreGraphics::PrimitiveTopology::Code& topo);
+	/// get the type of topology used
+	const CoreGraphics::PrimitiveTopology::Code& GetPrimitiveTopology() const;
     /// set current primitive group
     void SetPrimitiveGroup(const CoreGraphics::PrimitiveGroup& pg);
     /// get current primitive group
@@ -221,6 +225,7 @@ protected:
     IndexT streamVertexOffsets[MaxNumVertexStreams];
     Ptr<CoreGraphics::VertexLayout> vertexLayout;
     Ptr<CoreGraphics::IndexBuffer> indexBuffer;
+	CoreGraphics::PrimitiveTopology::Code primitiveTopology;
     CoreGraphics::PrimitiveGroup primitiveGroup;
     Ptr<CoreGraphics::RenderTarget> passRenderTarget;
     Ptr<CoreGraphics::MultipleRenderTarget> passMultipleRenderTarget;
@@ -332,8 +337,8 @@ RenderDeviceBase::SetVisualizeMipMaps(bool val)
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-RenderDeviceBase::SetRenderWireframe( bool b )
+inline void
+RenderDeviceBase::SetRenderWireframe(bool b)
 {
 	this->renderWireframe = b;
 }

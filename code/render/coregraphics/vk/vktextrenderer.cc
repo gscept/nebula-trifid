@@ -84,7 +84,6 @@ VkTextRenderer::Open()
 	this->vertexPtr = (byte*)this->vbo->Map(VertexBuffer::MapWrite);
 
 	// setup primitive group
-	this->group.SetPrimitiveTopology(PrimitiveTopology::TriangleList);
 	this->group.SetNumIndices(0);
 	this->group.SetBaseIndex(0);
 	this->group.SetBaseVertex(0);
@@ -323,9 +322,10 @@ VkTextRenderer::Draw(TextElementVertex* buffer, SizeT numChars)
 	this->group.SetNumVertices(numChars * 6);
 
 	// get render device and set it up
+	dev->SetPrimitiveTopology(CoreGraphics::PrimitiveTopology::TriangleList);
 	dev->SetVertexLayout(this->vbo->GetVertexLayout());
-	dev->SetPrimitiveGroup(this->group);
 	dev->SetStreamVertexBuffer(0, this->vbo, 0);	
+	dev->SetPrimitiveGroup(this->group);
 
 	// set viewport
 	const DisplayMode& displayMode = DisplayDevice::Instance()->GetDisplayMode();

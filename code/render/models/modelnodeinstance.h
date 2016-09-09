@@ -46,7 +46,7 @@ public:
     /// called from ModelEntity::OnRenderBefore
     virtual void OnRenderBefore(IndexT frameIndex, Timing::Time time);
     /// called during visibility resolve
-    virtual void OnVisibilityResolve(IndexT resolveIndex, float distanceToViewer);
+	virtual void OnVisibilityResolve(IndexT frameIndex, IndexT resolveIndex, float distanceToViewer);
 
     /// apply per-instance state prior to rendering
 	virtual void ApplyState(IndexT frameIndex, const IndexT& pass);

@@ -78,18 +78,12 @@ VkParticleSystemInstance::Render()
 	ParticleRenderer* particleRenderer = ParticleRenderer::Instance();
 	n_assert(!particleRenderer->IsInAttach());
 	RenderDevice* renderDevice = RenderDevice::Instance();
-	SizeT numParticles = renderInfo.GetNumVertices();
+	SizeT numParticles = this->renderInfo.GetNumVertices();
 
 	if (numParticles > 0)
 	{
 		// setup vertex buffers and index buffers for rendering
-		IndexT baseVertexIndex = renderInfo.GetBaseVertexIndex();
-
-		renderDevice->SetVertexLayout(particleRenderer->GetVertexLayout());
-		renderDevice->SetPrimitiveGroup(particleRenderer->GetPrimitiveGroup());
-		renderDevice->SetStreamVertexBuffer(0, particleRenderer->GetCornerVertexBuffer(), 0);
-		renderDevice->SetStreamVertexBuffer(1, particleRenderer->GetParticleVertexBuffer(), 0);
-		renderDevice->SetIndexBuffer(particleRenderer->GetCornerIndexBuffer());
+		IndexT baseVertexIndex = this->renderInfo.GetBaseVertexIndex();
 		renderDevice->DrawIndexedInstanced(numParticles, baseVertexIndex);
 	}
 }

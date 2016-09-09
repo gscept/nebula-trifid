@@ -100,7 +100,6 @@ VkParticleRenderer::Setup()
 	this->primGroup.SetNumVertices(4);
 	this->primGroup.SetBaseIndex(0);
 	this->primGroup.SetNumIndices(6);
-	this->primGroup.SetPrimitiveTopology(PrimitiveTopology::TriangleList);
 
 	// setup the dynamic particle vertex buffer (contains one vertex per particle)
 	Array<VertexComponent> particleComponents;
@@ -186,6 +185,22 @@ VkParticleRenderer::EndAttach()
 	n_assert(0 != this->mappedVertices);
 	this->inAttach = false;
 	this->curVertexPtr = 0;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkParticleRenderer::ApplyParticleMesh()
+{
+	n_assert(!this->IsInAttach());
+	RenderDevice* renderDevice = RenderDevice::Instance();
+	renderDevice->SetPrimitiveTopology(PrimitiveTopology::TriangleList);
+	renderDevice->SetVertexLayout(this->GetVertexLayout());
+	renderDevice->SetStreamVertexBuffer(0, this->GetCornerVertexBuffer(), 0);
+	renderDevice->SetStreamVertexBuffer(1, this->GetParticleVertexBuffer(), 0);
+	renderDevice->SetIndexBuffer(this->GetCornerIndexBuffer());
+	renderDevice->SetPrimitiveGroup(this->GetPrimitiveGroup());
 }
 
 } // namespace Vulkan

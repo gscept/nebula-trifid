@@ -69,8 +69,8 @@ public:
 	void SetVertexLayout(const Ptr<CoreGraphics::VertexLayout>& vl);
 	/// set current index buffer
 	void SetIndexBuffer(const Ptr<CoreGraphics::IndexBuffer>& ib);
-	/// set the primitive group
-	void SetPrimitiveGroup(const CoreGraphics::PrimitiveGroup& pg);
+	/// set the type of topology to be used
+	void SetPrimitiveTopology(const CoreGraphics::PrimitiveTopology::Code& topo);
 	/// perform computation
 	void Compute(int dimX, int dimY, int dimZ, uint flag = NoBarrierBit); // use MemoryBarrierFlag
 	/// begins pass with single rendertarget
@@ -197,7 +197,7 @@ private:
 	/// sets the current shader pipeline information
 	void SetShaderPipelineInfo(const VkGraphicsPipelineCreateInfo& shader, const Ptr<VkShaderProgram>& program);
 	/// sets the current vertex layout information
-	void SetVertexLayoutPipelineInfo(const VkPipelineVertexInputStateCreateInfo& vertexLayout);
+	void SetVertexLayoutPipelineInfo(VkPipelineVertexInputStateCreateInfo* vertexLayout);
 	/// sets the current framebuffer layout information
 	void SetFramebufferLayoutInfo(const VkGraphicsPipelineCreateInfo& framebufferLayout);
 	/// sets the current primitive layout information
@@ -403,10 +403,6 @@ private:
 	VkPhysicalDeviceProperties deviceProps;
 	VkPhysicalDeviceFeatures deviceFeatures;
 
-	VkCommandBufferInheritanceInfo passInfo;
-	VkPipelineInputAssemblyStateCreateInfo inputInfo;
-	VkPipelineColorBlendStateCreateInfo blendInfo;
-
 	static const SizeT NumDrawThreads = 8;
 	IndexT currentDrawThread;
 	VkCommandPool dispatchableCmdDrawBufferPool[NumDrawThreads];
@@ -436,7 +432,9 @@ private:
 
 	Ptr<VkCpuGpuInterlockThread> interlockThread;
 
-	VkPipelineVertexInputStateCreateInfo vertexInfo;
+	VkCommandBufferInheritanceInfo passInfo;
+	VkPipelineInputAssemblyStateCreateInfo inputInfo;
+	VkPipelineColorBlendStateCreateInfo blendInfo;
 	VkViewport* passViewports;
 	uint32_t numVsInputs;
 

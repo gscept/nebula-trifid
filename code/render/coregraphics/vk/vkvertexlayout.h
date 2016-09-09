@@ -29,14 +29,14 @@ public:
 	void SetStreamBuffer(IndexT streamIndex, VkBuffer vertexBuffer);
 	
 	/// get derivative, and create if needed
-	const VkPipelineVertexInputStateCreateInfo& GetDerivative(const Ptr<VkShaderProgram>& program);
+	VkPipelineVertexInputStateCreateInfo* GetDerivative(const Ptr<VkShaderProgram>& program);
 
 	/// applies layout before rendering
 	void Apply();
 private:
 
 	/// create derivative info from shader
-	const VkPipelineVertexInputStateCreateInfo& CreateDerivative(const Ptr<VkShaderProgram>& program);
+	VkPipelineVertexInputStateCreateInfo* CreateDerivative(const Ptr<VkShaderProgram>& program);
 
 	VkGraphicsPipelineCreateInfo info;
 	VkPipelineVertexInputStateCreateInfo vertexInfo;

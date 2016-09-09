@@ -88,6 +88,7 @@ private:
 
 	struct IndexedDraws
 	{
+		Util::Array<CoreGraphics::PrimitiveTopology::Code> topologies;
 		Util::Array<CoreGraphics::PrimitiveGroup> primitives;
 		Util::Array<Math::float4> colors;
 		Util::Array<Math::matrix44> transforms;
@@ -95,6 +96,7 @@ private:
 
 	struct UnindexedDraws
 	{
+		Util::Array<CoreGraphics::PrimitiveTopology::Code> topologies;
 		Util::Array<CoreGraphics::PrimitiveGroup> primitives;
 		Util::Array<Math::float4> colors;
 		Util::Array<Math::matrix44> transforms;

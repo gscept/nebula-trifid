@@ -73,9 +73,7 @@ VkMemoryVertexBufferLoader::OnLoadRequested()
 		vkUnmapMemory(VkRenderDevice::dev, mem);
 	}
 
-	Ptr<VertexLayout> vertexLayout = VertexLayout::Create();
-	vertexLayout->SetStreamBuffer(0, buf);
-	vertexLayout->Setup(this->vertexComponents);
+	Ptr<VertexLayout> vertexLayout = VkVertexLayoutServer::Instance()->CreateSharedVertexLayout(this->vertexComponents);
 	if (0 != this->vertexDataPtr)
 	{
 		n_assert((this->numVertices * vertexLayout->GetVertexByteSize()) == this->vertexDataSize);

@@ -129,7 +129,6 @@ VkShapeRenderer::Open()
 	// setup primitive group
 	this->primGroup.SetBaseIndex(0);
 	this->primGroup.SetBaseVertex(0);
-	this->primGroup.SetPrimitiveTopology(PrimitiveTopology::TriangleStrip);
 }
 
 //------------------------------------------------------------------------------
@@ -254,11 +253,7 @@ VkShapeRenderer::DrawSimpleShape(const Math::matrix44& modelTransform, CoreGraph
 	Ptr<IndexBuffer> ib = mesh->GetIndexBuffer();
 
 	// assume all primitive groups in the mesh are identical
-	PrimitiveGroup group = mesh->GetPrimitiveGroupAtIndex(0);
-	renderDevice->SetVertexLayout(vb->GetVertexLayout());
-	renderDevice->SetPrimitiveGroup(group);
-	renderDevice->SetStreamVertexBuffer(0, vb, 0);
-	renderDevice->SetIndexBuffer(ib);
+	mesh->ApplySharedMesh();
 
 	IndexT i;
 	for (i = 0; i < mesh->GetNumPrimitiveGroups(); i++)
@@ -293,11 +288,7 @@ VkShapeRenderer::DrawMesh(const Math::matrix44& modelTransform, const Ptr<CoreGr
 	Ptr<CoreGraphics::IndexBuffer> ib = mesh->GetIndexBuffer();
 
 	// assume all primitives share the same topology
-	PrimitiveGroup group = mesh->GetPrimitiveGroupAtIndex(0);
-	renderDevice->SetVertexLayout(vb->GetVertexLayout());
-	renderDevice->SetPrimitiveGroup(group);
-	renderDevice->SetStreamVertexBuffer(0, vb, 0);
-	renderDevice->SetIndexBuffer(ib);
+	mesh->ApplySharedMesh();
 
 	// draw primitives in shape
 	IndexT i;
@@ -343,7 +334,7 @@ VkShapeRenderer::DrawPrimitives(const Math::matrix44& modelTransform, CoreGraphi
 	group.SetBaseVertex(this->numPrimitives);
 	group.SetNumVertices(vertexCount);
 	group.SetNumIndices(0);
-	group.SetPrimitiveTopology(topology);
+	this->unindexed.topologies.Append(topology);
 	this->unindexed.primitives.Append(group);
 	this->numPrimitives += vertexCount;
 }
@@ -386,7 +377,7 @@ VkShapeRenderer::DrawIndexedPrimitives(const Math::matrix44& modelTransform, Cor
 	group.SetNumVertices(0);										// indices decides how many primitives we draw
 	group.SetBaseIndex(this->numIndices);
 	group.SetNumIndices(indexCount);
-	group.SetPrimitiveTopology(topology);
+	this->indexed.topologies.Append(topology);
 	this->indexed.primitives.Append(group);
 	this->numPrimitives += vertexCount;
 	this->numIndices += indexCount;
@@ -401,20 +392,22 @@ VkShapeRenderer::DrawBufferedPrimitives()
 	Ptr<RenderDevice> renderDevice = RenderDevice::Instance();
 	//renderDevice->SetPrimitiveGroup(this->primGroup);
 	
-
 	IndexT i;
 	for (i = 0; i < this->unindexed.primitives.Size(); i++)
 	{
 		const CoreGraphics::PrimitiveGroup& group = this->unindexed.primitives[i];
+		const CoreGraphics::PrimitiveTopology::Code& topo = this->unindexed.topologies[i];
 		const Math::matrix44& modelTransform = this->unindexed.transforms[i];
 		const Math::float4& color = this->unindexed.colors[i];
 
 		this->diffuseColor->SetFloat4(color);
 		this->model->SetMatrix(modelTransform);
 
-		renderDevice->SetPrimitiveGroup(group);
+		renderDevice->SetPrimitiveTopology(topo);
 		renderDevice->SetVertexLayout(this->vertexLayout);
 		renderDevice->SetStreamVertexBuffer(0, this->vbo, 0);
+		renderDevice->SetPrimitiveGroup(group);
+
 		this->shapeShader->Commit();
 
 		renderDevice->Draw();
@@ -423,6 +416,7 @@ VkShapeRenderer::DrawBufferedPrimitives()
 	this->unindexed.primitives.Clear();
 	this->unindexed.transforms.Clear();
 	this->unindexed.colors.Clear();
+	this->unindexed.topologies.Clear();
 }
 
 //------------------------------------------------------------------------------
@@ -434,21 +428,22 @@ VkShapeRenderer::DrawBufferedIndexedPrimitives()
 	Ptr<RenderDevice> renderDevice = RenderDevice::Instance();
 	//renderDevice->SetPrimitiveGroup(this->primGroup);
 
-
 	IndexT i;
 	for (i = 0; i < this->indexed.primitives.Size(); i++)
 	{
 		const CoreGraphics::PrimitiveGroup& group = this->indexed.primitives[i];
+		const CoreGraphics::PrimitiveTopology::Code& topo = this->indexed.topologies[i];
 		const Math::matrix44& modelTransform = this->indexed.transforms[i];
 		const Math::float4& color = this->indexed.colors[i];
 
 		this->diffuseColor->SetFloat4(color);
 		this->model->SetMatrix(modelTransform);
-
-		renderDevice->SetPrimitiveGroup(group);
+		
+		renderDevice->SetPrimitiveTopology(topo);
 		renderDevice->SetVertexLayout(this->vertexLayout);
 		renderDevice->SetIndexBuffer(this->ibo);
 		renderDevice->SetStreamVertexBuffer(0, this->vbo, 0);
+		renderDevice->SetPrimitiveGroup(group);
 		//renderDevice->BuildRenderPipeline();
 		this->shapeShader->Commit();
 
@@ -458,6 +453,7 @@ VkShapeRenderer::DrawBufferedIndexedPrimitives()
 	this->indexed.primitives.Clear();
 	this->indexed.transforms.Clear();
 	this->indexed.colors.Clear();
+	this->indexed.topologies.Clear();
 }
 
 //------------------------------------------------------------------------------

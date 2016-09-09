@@ -25,7 +25,7 @@ public:
 	virtual ~BillboardNodeInstance();
 
 	/// called when visibility resolves
-	virtual void OnVisibilityResolve(IndexT resolveIndex, float distToViewer);
+	virtual void OnVisibilityResolve(IndexT frameIndex, IndexT resolveIndex, float distToViewer);
 	/// called when we render the billboard node
 	virtual void Render();
 	

@@ -90,7 +90,6 @@ DrawQuad::Setup(SizeT width, SizeT height)
     this->primGroup.SetNumVertices(6);
     this->primGroup.SetBaseIndex(0);
     this->primGroup.SetNumIndices(0);
-    this->primGroup.SetPrimitiveTopology(PrimitiveTopology::TriangleList);
 }
 
 //------------------------------------------------------------------------------
@@ -112,6 +111,7 @@ void
 DrawQuad::Draw()
 {
     RenderDevice* renderDevice = RenderDevice::Instance();
+	renderDevice->SetPrimitiveTopology(PrimitiveTopology::TriangleList);
     renderDevice->SetStreamVertexBuffer(0, this->vertexBuffer, 0);
     renderDevice->SetVertexLayout(this->vertexBuffer->GetVertexLayout());
     renderDevice->SetPrimitiveGroup(this->primGroup);

@@ -18,7 +18,7 @@ struct CornerVertex
 	vec2 UV;
 };
 
-shared varblock ParticleObjectBlock [bool System = true;]
+group(SYSTEM_GROUP) shared varblock ParticleObjectBlock
 {
 	mat4	EmitterTransform;
 	vec4	BBoxCenter;

@@ -16,6 +16,7 @@ using namespace Util;
 using namespace Models;
 using namespace IO;
 using namespace CoreGraphics;
+using namespace Resources;
 
 //------------------------------------------------------------------------------
 /**
@@ -115,6 +116,9 @@ CharacterSkinNode::ApplySharedState(IndexT frameIndex)
 	{
 		//ShaderServer::Instance()->SetFeatureBits(this->skinnedShaderFeatureBits);
 	}
+
+	const Ptr<Mesh>& mesh = this->managedMesh->GetMesh();
+	mesh->ApplySharedMesh();
 
     // primitives must be applied in node instance, since each 
     // node may render several skin fragments!

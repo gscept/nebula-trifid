@@ -54,9 +54,10 @@ OGL4Draw(const Ptr<Dynui::ImguiRenderer>& renderer, ImDrawData* data)
 	CoreGraphics::PrimitiveGroup primitive;
 
 	// setup device
+	device->SetPrimitiveTopology(CoreGraphics::PrimitiveTopology::TriangleList);
 	device->SetVertexLayout(vbo->GetVertexLayout());
 	device->SetStreamVertexBuffer(0, vbo, 0);
-	device->SetIndexBuffer(ibo);
+	device->SetIndexBuffer(ibo);	
 
 	IndexT vertexOffset = 0;
 	IndexT indexOffset = 0;
@@ -103,7 +104,6 @@ OGL4Draw(const Ptr<Dynui::ImguiRenderer>& renderer, ImDrawData* data)
 				shader->Commit();
 
 				// setup primitive
-				primitive.SetPrimitiveTopology(CoreGraphics::PrimitiveTopology::TriangleList);
 				primitive.SetNumIndices(command->ElemCount);
 				primitive.SetBaseIndex(primitiveIndexOffset + indexOffset);
 				primitive.SetBaseVertex(vertexOffset);
@@ -158,11 +158,10 @@ VkDraw(const Ptr<Dynui::ImguiRenderer>& renderer, ImDrawData* data)
 
 	// setup primitive group
 	CoreGraphics::PrimitiveGroup primitive;
-	primitive.SetPrimitiveTopology(CoreGraphics::PrimitiveTopology::TriangleList);
 
 	// setup device
+	device->SetPrimitiveTopology(PrimitiveTopology::TriangleList);
 	device->SetVertexLayout(vbo->GetVertexLayout());
-	device->SetPrimitiveGroup(primitive);
 	device->SetStreamVertexBuffer(0, vbo, 0);
 	device->SetIndexBuffer(ibo);
 

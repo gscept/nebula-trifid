@@ -115,7 +115,7 @@ VkVertexLayout::Apply()
 //------------------------------------------------------------------------------
 /**
 */
-const VkPipelineVertexInputStateCreateInfo&
+VkPipelineVertexInputStateCreateInfo*
 VkVertexLayout::CreateDerivative(const Ptr<VkShaderProgram>& program)
 {
 	const AnyFX::VkProgram* prog = program->GetVkProgram();
@@ -142,16 +142,16 @@ VkVertexLayout::CreateDerivative(const Ptr<VkShaderProgram>& program)
 	derivative->info.vertexAttributeDescriptionCount = derivative->attrs.Size();
 	derivative->info.pVertexAttributeDescriptions = derivative->attrs.Begin();
 	this->derivatives.Add(program, derivative);
-	return derivative->info;
+	return &derivative->info;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-const VkPipelineVertexInputStateCreateInfo&
+VkPipelineVertexInputStateCreateInfo*
 VkVertexLayout::GetDerivative(const Ptr<VkShaderProgram>& program)
 {
-	if (this->derivatives.Contains(program)) return this->derivatives[program]->info;
+	if (this->derivatives.Contains(program)) return &this->derivatives[program]->info;
 	else
 	{
 		return this->CreateDerivative(program);

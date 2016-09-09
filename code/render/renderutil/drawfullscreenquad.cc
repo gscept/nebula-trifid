@@ -102,7 +102,6 @@ DrawFullScreenQuad::Setup(SizeT rtWidth, SizeT rtHeight)
     this->primGroup.SetNumVertices(6);
     this->primGroup.SetBaseIndex(0);
     this->primGroup.SetNumIndices(0);
-    this->primGroup.SetPrimitiveTopology(PrimitiveTopology::TriangleList);
 }
 
 //------------------------------------------------------------------------------
@@ -124,6 +123,7 @@ void
 DrawFullScreenQuad::ApplyMesh()
 {
 	RenderDevice* renderDevice = RenderDevice::Instance();
+	renderDevice->SetPrimitiveTopology(PrimitiveTopology::TriangleList);
 	renderDevice->SetVertexLayout(this->vertexBuffer->GetVertexLayout());
 	renderDevice->SetPrimitiveGroup(this->primGroup);
 	renderDevice->SetStreamVertexBuffer(0, this->vertexBuffer, 0);

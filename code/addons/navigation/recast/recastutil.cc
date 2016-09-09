@@ -168,14 +168,14 @@ RecastUtil::GenerateNavMeshData()
 
 			for(int i=0;i < groups.Size();i++)
 			{
-				int ntris = groups[i].GetNumPrimitives();
+				int ntris = groups[i].GetNumPrimitives(CoreGraphics::PrimitiveTopology::TriangleList);
 				float* verts = &(vertexData[groups[i].GetBaseVertex()]);
 				int nverts = groups[i].GetNumVertices();
 				uint* tris = &(indexData[groups[i].GetBaseIndex()]);
 				
 				n_assert2(groups[i].GetPrimitiveTopology() == CoreGraphics::PrimitiveTopology::TriangleList,"Only triangle lists are supported");
 				
-				 m_triareas = (unsigned char*)Memory::Alloc(Memory::DefaultHeap, groups[i].GetNumPrimitives());								
+				m_triareas = (unsigned char*)Memory::Alloc(Memory::DefaultHeap, groups[i].GetNumPrimitives(CoreGraphics::PrimitiveTopology::TriangleList));
 				Memory::Clear(m_triareas,ntris * sizeof(unsigned char));		
 
 				rcMarkWalkableTriangles(&m_ctx, config->walkableSlopeAngle, verts, nverts, tris, ntris, m_triareas, RC_IDX_INT,nvx2Reader->GetVertexWidth());

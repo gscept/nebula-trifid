@@ -42,6 +42,10 @@ public:
     void SetIndexBuffer(const Ptr<CoreGraphics::IndexBuffer>& ib);
     /// get the index buffer object
     const Ptr<CoreGraphics::IndexBuffer>& GetIndexBuffer() const;
+	/// set mesh topology
+	void SetTopology(const CoreGraphics::PrimitiveTopology::Code& topo);
+	/// get mesh topology
+	const CoreGraphics::PrimitiveTopology::Code& GetTopology() const;
     /// set primitive groups
     void SetPrimitiveGroups(const Util::Array<CoreGraphics::PrimitiveGroup>& groups);
     /// get the number of primitive groups in the mesh
@@ -51,10 +55,15 @@ public:
 
     /// apply mesh data for rendering in renderdevice
     void ApplyPrimitives(IndexT primGroupIndex);
+	/// apply mesh resources and topology
+	void ApplySharedMesh();
+	/// apply primitive group
+	void ApplyPrimitiveGroup(IndexT primGroupIndex);
  
 protected:   
     Ptr<CoreGraphics::VertexBuffer> vertexBuffer;
     Ptr<CoreGraphics::IndexBuffer> indexBuffer;
+	CoreGraphics::PrimitiveTopology::Code topology;
     Util::Array<CoreGraphics::PrimitiveGroup> primitiveGroups;
 };
 
@@ -110,6 +119,24 @@ inline const Ptr<CoreGraphics::IndexBuffer>&
 MeshBase::GetIndexBuffer() const
 {
     return this->indexBuffer;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+MeshBase::SetTopology(const CoreGraphics::PrimitiveTopology::Code& topo)
+{
+	this->topology = topo;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const CoreGraphics::PrimitiveTopology::Code&
+MeshBase::GetTopology() const
+{
+	return this->topology;
 }
 
 //------------------------------------------------------------------------------

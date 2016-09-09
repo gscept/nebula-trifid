@@ -37,6 +37,8 @@ public:
     virtual void OnResourcesLoaded();
     /// parse data tag (called by loader code)
     virtual bool ParseDataTag(const Util::FourCC& fourCC, const Ptr<IO::BinaryReader>& reader);
+	/// apply state shared by all my ModelNodeInstances
+	virtual void ApplySharedState(IndexT frameIndex);
 
 	/// change a mesh during runtime
 	virtual void UpdateMeshResource(const Resources::ResourceId& resId);

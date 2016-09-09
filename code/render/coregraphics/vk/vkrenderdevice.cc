@@ -701,7 +701,6 @@ VkRenderDevice::OpenVulkanContext()
 	this->currentPipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 	this->currentPipelineInfo.basePipelineIndex = -1;
 	this->currentPipelineInfo.pColorBlendState = &this->blendInfo;
-	this->currentPipelineInfo.pVertexInputState = &this->vertexInfo;
 
 	this->inputInfo.pNext = NULL;
 	this->inputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -710,6 +709,13 @@ VkRenderDevice::OpenVulkanContext()
 	this->blendInfo.pNext = NULL;
 	this->blendInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
 	this->blendInfo.flags = 0;
+
+	// reset state
+	this->inputInfo.topology = VK_PRIMITIVE_TOPOLOGY_MAX_ENUM;
+	this->vertexLayout = NULL;
+	this->currentProgram = NULL;
+	this->currentPipelineInfo.pVertexInputState = NULL;
+	this->currentPipelineInfo.pInputAssemblyState = NULL;
 
 	const CoreGraphics::DisplayMode& displayMode = DisplayDevice::Instance()->GetDisplayMode();
 	this->displayRect.offset.x = 0;
@@ -937,12 +943,14 @@ VkRenderDevice::SetIndexBuffer(const Ptr<CoreGraphics::IndexBuffer>& ib)
 /**
 */
 void
-VkRenderDevice::SetPrimitiveGroup(const CoreGraphics::PrimitiveGroup& pg)
+VkRenderDevice::SetPrimitiveTopology(const CoreGraphics::PrimitiveTopology::Code& topo)
 {
-	RenderDeviceBase::SetPrimitiveGroup(pg);
-	this->inputInfo.primitiveRestartEnable = VK_FALSE;
-	this->inputInfo.topology = VkTypes::AsVkPrimitiveType(pg.GetPrimitiveTopology());
-	this->SetInputLayoutInfo(&this->inputInfo);
+	if (this->inputInfo.topology != topo)
+	{
+		this->inputInfo.topology = VkTypes::AsVkPrimitiveType(topo);
+		this->inputInfo.primitiveRestartEnable = VK_FALSE;
+		this->SetInputLayoutInfo(&this->inputInfo);
+	}	
 }
 
 //------------------------------------------------------------------------------
@@ -993,7 +1001,6 @@ VkRenderDevice::BeginPass(const Ptr<CoreGraphics::RenderTarget>& rt)
 	// run begin pass commands
 	this->RunCommandPass(OnBeginPass);
 	
-
 	this->blendInfo.attachmentCount = 1;
 	this->passInfo.framebuffer = rt->GetVkFramebuffer();
 	this->passInfo.renderPass = rt->GetVkRenderPass();
@@ -1220,7 +1227,7 @@ VkRenderDevice::DrawIndexedInstanced(SizeT numInstances, IndexT baseInstance)
 	// go to next thread
 	//this->NextThread();
 	_incr_counter(RenderDeviceNumDrawCalls, 1);
-	_incr_counter(RenderDeviceNumPrimitives, this->primitiveGroup.GetNumIndices()/3);
+	_incr_counter(RenderDeviceNumPrimitives, this->primitiveGroup.GetNumIndices() * numInstances / 3);
 }
 
 //------------------------------------------------------------------------------
@@ -1264,7 +1271,7 @@ VkRenderDevice::EndBatch()
 void
 VkRenderDevice::EndPass()
 {
-	this->currentPipelineBits = 0;
+	//this->currentPipelineBits = 0;
 	this->sharedDescriptorSets.Clear();
 
 	/// end draw threads, if any are remaining
@@ -1370,6 +1377,13 @@ VkRenderDevice::EndFrame(IndexT frameIndex)
 
 	// run end-of-frame commands
 	this->RunCommandPass(OnEndFrame);
+
+	// reset state
+	this->inputInfo.topology = VK_PRIMITIVE_TOPOLOGY_MAX_ENUM;
+	this->vertexLayout = NULL;
+	this->currentProgram = NULL;
+	this->currentPipelineInfo.pVertexInputState = NULL;
+	this->currentPipelineInfo.pInputAssemblyState = NULL;
 	//vkEndCommandBuffer(this->mainCmdGfxBuffer);
 	//vkEndCommandBuffer(this->mainCmdCmpBuffer);
 	//vkEndCommandBuffer(this->mainCmdTransBuffer);
@@ -1585,37 +1599,43 @@ void
 VkRenderDevice::SetShaderPipelineInfo(const VkGraphicsPipelineCreateInfo& shader, const Ptr<VkShaderProgram>& program)
 {
 #define uint_min(a, b) (a < b ? a : b)
-	this->currentProgram = program;
-	this->currentPipelineBits |= ShaderInfoSet;
+	if (this->currentProgram != program || !(this->currentPipelineBits & ShaderInfoSet))
+	{
+		this->currentPipelineBits |= ShaderInfoSet;
 
-	this->blendInfo.pAttachments = shader.pColorBlendState->pAttachments;
-	memcpy(this->blendInfo.blendConstants, shader.pColorBlendState->blendConstants, sizeof(float) * 4);
-	this->blendInfo.logicOp = shader.pColorBlendState->logicOp;
-	this->blendInfo.logicOpEnable = shader.pColorBlendState->logicOpEnable;
+		this->blendInfo.pAttachments = shader.pColorBlendState->pAttachments;
+		memcpy(this->blendInfo.blendConstants, shader.pColorBlendState->blendConstants, sizeof(float) * 4);
+		this->blendInfo.logicOp = shader.pColorBlendState->logicOp;
+		this->blendInfo.logicOpEnable = shader.pColorBlendState->logicOpEnable;
 
-	this->currentPipelineInfo.pDepthStencilState = shader.pDepthStencilState;
-	this->currentPipelineInfo.pRasterizationState = shader.pRasterizationState;
-	this->currentPipelineInfo.pMultisampleState = shader.pMultisampleState;
-	this->currentPipelineInfo.pDynamicState = shader.pDynamicState;
-	this->currentPipelineInfo.pTessellationState = shader.pTessellationState;
-	this->currentPipelineInfo.stageCount = shader.stageCount;
-	this->currentPipelineInfo.pStages = shader.pStages;
-	this->currentPipelineInfo.layout = shader.layout;
-	this->currentPipelineBits &= ~PipelineBuilt;
+		this->currentPipelineInfo.pDepthStencilState = shader.pDepthStencilState;
+		this->currentPipelineInfo.pRasterizationState = shader.pRasterizationState;
+		this->currentPipelineInfo.pMultisampleState = shader.pMultisampleState;
+		this->currentPipelineInfo.pDynamicState = shader.pDynamicState;
+		this->currentPipelineInfo.pTessellationState = shader.pTessellationState;
+		this->currentPipelineInfo.stageCount = shader.stageCount;
+		this->currentPipelineInfo.pStages = shader.pStages;
+		this->currentPipelineInfo.layout = shader.layout;
+		this->currentPipelineBits &= ~PipelineBuilt;
+		this->currentProgram = program;
+	}
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-VkRenderDevice::SetVertexLayoutPipelineInfo(const VkPipelineVertexInputStateCreateInfo& vertexLayout)
+VkRenderDevice::SetVertexLayoutPipelineInfo(VkPipelineVertexInputStateCreateInfo* vertexLayout)
 {
 #define uint_min(a, b) (a < b ? a : b)
+	//if (this->currentPipelineInfo.pVertexInputState != vertexLayout || !(this->currentPipelineBits & VertexLayoutInfoSet))
+	{
+		this->currentPipelineBits |= VertexLayoutInfoSet;
+		this->currentPipelineInfo.pVertexInputState = vertexLayout;
+		//this->vertexInfo = vertexLayout;
 
-	this->currentPipelineBits |= VertexLayoutInfoSet;
-	this->vertexInfo = vertexLayout;
-
-	this->currentPipelineBits &= ~PipelineBuilt;
+		this->currentPipelineBits &= ~PipelineBuilt;
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -1637,9 +1657,12 @@ VkRenderDevice::SetFramebufferLayoutInfo(const VkGraphicsPipelineCreateInfo& fra
 void
 VkRenderDevice::SetInputLayoutInfo(VkPipelineInputAssemblyStateCreateInfo* inputLayout)
 {
-	this->currentPipelineBits |= InputLayoutInfoSet;
-	this->currentPipelineInfo.pInputAssemblyState = inputLayout;
-	this->currentPipelineBits &= ~PipelineBuilt;
+	if (this->currentPipelineInfo.pInputAssemblyState != inputLayout || !(this->currentPipelineBits & InputLayoutInfoSet))
+	{
+		this->currentPipelineBits |= InputLayoutInfoSet;
+		this->currentPipelineInfo.pInputAssemblyState = inputLayout;
+		this->currentPipelineBits &= ~PipelineBuilt;
+	}	
 }
 
 //------------------------------------------------------------------------------
@@ -2871,10 +2894,10 @@ VkRenderDevice::PushToThread(const VkCmdBufferThread::Command& cmd, const IndexT
 	if (allowStaging)
 	{
 		this->threadCmds[index].Append(cmd);
-		if (this->threadCmds[index].Size() == 2500)
+		if (this->threadCmds[index].Size() == 3)
 		{
 			this->drawThreads[index]->PushCommands(this->threadCmds[index]);
-			this->threadCmds[index].Clear();
+			this->threadCmds[index].Reset();
 		}
 		//this->drawThreads[index]->PushCommand(cmd);
 	}
