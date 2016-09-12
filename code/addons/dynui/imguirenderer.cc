@@ -20,7 +20,7 @@ using namespace Math;
 using namespace CoreGraphics;
 using namespace Base;
 using namespace Input;
-
+using namespace Resources;
 
 //------------------------------------------------------------------------------
 /**
@@ -435,10 +435,10 @@ ImguiRenderer::Setup()
 	// unsigned char* texData = SOIL_load_image_from_memory(buffer, width * height * channels, &width, &height, &channels, SOIL_LOAD_AUTO);
 
 	// setup texture
-	this->fontTexture = Resources::ResourceManager::Instance()->CreateUnmanagedResource("ImguiFontTexture", Texture::RTTI).downcast<Texture>();
+	this->fontTexture = ResourceManager::Instance()->CreateUnmanagedResource("ImguiFontTexture", Texture::RTTI).downcast<Texture>();
 	Ptr<MemoryTextureLoader> texLoader = MemoryTextureLoader::Create();
 	texLoader->SetImageBuffer(buffer, width, height, PixelFormat::A8R8G8B8);
-	this->fontTexture->SetLoader(texLoader.upcast<Resources::ResourceLoader>());
+	this->fontTexture->SetLoader(texLoader.upcast<ResourceLoader>());
 	this->fontTexture->SetAsyncEnabled(false);
 	this->fontTexture->Load();
 	n_assert(this->fontTexture->IsLoaded());
@@ -455,6 +455,7 @@ ImguiRenderer::Setup()
 void
 ImguiRenderer::Discard()
 {
+	this->uiShader->Discard();
 	this->uiShader = 0;
 
 	this->vbo->Unmap();
@@ -470,7 +471,7 @@ ImguiRenderer::Discard()
 	this->vboBufferLock = 0;
 	this->iboBufferLock = 0;
 
-	this->fontTexture->Unload();
+	ResourceManager::Instance()->UnregisterUnmanagedResource(this->fontTexture.upcast<Resource>());
 	this->fontTexture = 0;
 	ImGui::Shutdown();
 }

@@ -106,6 +106,8 @@ protected:
 	Ptr<CoreGraphics::ShaderVariable> globalBackLightOffset;
     Ptr<CoreGraphics::ShaderVariable> globalLightShadowMatrixVar;
 
+	Ptr<CoreGraphics::ConstantBuffer> globalLightShadowBuffer;
+	Ptr<CoreGraphics::ShaderVariable> globalLightShadowBlockVar;
 	Ptr<CoreGraphics::ShaderVariable> globalLightCascadeOffset;
 	Ptr<CoreGraphics::ShaderVariable> globalLightCascadeScale;
 	Ptr<CoreGraphics::ShaderVariable> globalLightMinBorderPadding;

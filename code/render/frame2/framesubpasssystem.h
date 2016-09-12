@@ -17,6 +17,9 @@ public:
 	{
 		Lights,
 		LightProbes,
+		LocalShadowsSpot,
+		LocalShadowsPoint,
+		GlobalShadows,
 		UI,
 		Text,
 		Shapes,

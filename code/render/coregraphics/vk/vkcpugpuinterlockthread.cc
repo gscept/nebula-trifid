@@ -56,7 +56,7 @@ VkCpuGpuInterlockThread::DoWork()
 
 	Util::Array<Command> curCommands;
 	curCommands.Reserve(1000);
-	while (true)
+	while (!this->ThreadStopRequested())
 	{
 		// dequeue all commands, this ensures we don't gain any new commands this thread loop
 		this->commands.DequeueAll(curCommands);

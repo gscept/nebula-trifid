@@ -24,6 +24,8 @@ public:
 	/// add variable instance
 	void AddVariableInstance(const Ptr<CoreGraphics::ShaderVariableInstance>& var);
 
+	/// discard operation
+	void Discard();
 	/// run operation
 	void Run(const IndexT frameIndex);
 private:

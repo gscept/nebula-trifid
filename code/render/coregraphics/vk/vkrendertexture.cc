@@ -7,6 +7,7 @@
 #include "vktypes.h"
 #include "vkrenderdevice.h"
 
+using namespace CoreGraphics;
 namespace Vulkan
 {
 
@@ -72,6 +73,23 @@ VkRenderTexture::Setup()
 		extents.height = this->height;
 		extents.depth = this->depth;
 
+		VkImageViewType viewType;
+		switch (this->type)
+		{
+		case Texture::Texture2D:
+			viewType = VK_IMAGE_VIEW_TYPE_2D;
+			break;
+		case Texture::Texture2DArray:
+			viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+			break;
+		case Texture::TextureCube:
+			viewType = VK_IMAGE_VIEW_TYPE_CUBE;
+			break;
+		case Texture::TextureCubeArray:
+			viewType = VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
+			break;
+		}
+
 		VkImageUsageFlags usageFlags = this->usage == ColorAttachment ? VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT : VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 		VkImageCreateInfo imgInfo =
 		{
@@ -82,7 +100,7 @@ VkRenderTexture::Setup()
 			VkTypes::AsVkFramebufferFormat(this->format),
 			extents,
 			1,
-			1,
+			this->layers,
 			sampleCount,
 			VK_IMAGE_TILING_OPTIMAL,
 			usageFlags | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT,
@@ -107,13 +125,13 @@ VkRenderTexture::Setup()
 		subres.layerCount = 1;
 		subres.levelCount = 1;
 		subres.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		VkImageViewCreateInfo viewInfo =
+ 		VkImageViewCreateInfo viewInfo =
 		{
 			VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
 			NULL,
 			0,
 			this->img,
-			VK_IMAGE_VIEW_TYPE_2D,
+			viewType,
 			VkTypes::AsVkFramebufferFormat(this->format),
 			VkTypes::AsVkMapping(this->format),
 			subres
@@ -147,19 +165,18 @@ VkRenderTexture::Setup()
 			VkRenderDevice::Instance()->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->img, subres, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL));
 			VkRenderDevice::Instance()->PushImageDepthStencilClear(this->img, VkDeferredCommand::Graphics, VK_IMAGE_LAYOUT_GENERAL, clear, subres);
 			VkRenderDevice::Instance()->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->img, subres, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL));
+
+			// setup actual texture
+			if (sampleCount > 1)
+			{
+				this->texture->SetupFromVkMultisampleTexture(this->img, this->mem, this->view, this->width, this->height, this->format, 0, true, true);
+			}
+			else
+			{
+				this->texture->SetupFromVkTexture(this->img, this->mem, this->view, this->width, this->height, this->format, 0, true, true);
+			}
 		}
 	}
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkRenderTexture::Discard()
-{
-	// base class will destroy image, thus freeing image memory and image object
-	RenderTextureBase::Discard();
-	vkDestroyImageView(VkRenderDevice::dev, this->view, NULL);
 }
 
 //------------------------------------------------------------------------------

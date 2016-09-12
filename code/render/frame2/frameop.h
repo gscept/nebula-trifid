@@ -8,37 +8,55 @@
 */
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
+#include "util/stringatom.h"
 namespace Frame2
 {
 class FrameOp : public Core::RefCounted
 {
 	__DeclareClass(FrameOp);
 public:
+	typedef uint ExecutionMask;
+
 	/// constructor
 	FrameOp();
 	/// destructor
 	virtual ~FrameOp();
 
 	/// set name
-	void SetName(const Util::String& name);
+	void SetName(const Util::StringAtom& name);
+	/// get name
+	const Util::StringAtom& GetName() const;
 
 	/// setup operation
-	void Setup();
+	virtual void Setup();
+	/// discard operation
+	virtual void Discard();
 	/// run operation
 	virtual void Run(const IndexT frameIndex);
+	/// run segment
+	virtual void RunSegment(const FrameOp::ExecutionMask mask, const IndexT frameIndex);
 	/// handle display resizing
 	void DisplayResized(const SizeT width, const SizeT height);
 protected:
-	Util::String name;
+	Util::StringAtom name;
 };
 
 //------------------------------------------------------------------------------
 /**
 */
 inline void
-FrameOp::SetName(const Util::String& name)
+FrameOp::SetName(const Util::StringAtom& name)
 {
 	this->name = name;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Util::StringAtom&
+FrameOp::GetName() const
+{
+	return this->name;
 }
 
 } // namespace Frame2

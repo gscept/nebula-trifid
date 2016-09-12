@@ -28,6 +28,17 @@ FrameCompute::~FrameCompute()
 	// empty
 }
 
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+FrameCompute::Discard()
+{
+	FrameOp::Discard();
+	this->state = 0;
+}
+
 //------------------------------------------------------------------------------
 /**
 */
@@ -39,6 +50,7 @@ FrameCompute::Run(const IndexT frameIndex)
 	RenderDevice* dev = RenderDevice::Instance();
 
 	// apply state
+	this->state->SelectActiveVariation(this->mask);
 	this->state->Apply();
 	this->state->Commit();
 

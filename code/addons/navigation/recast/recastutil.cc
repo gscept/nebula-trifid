@@ -173,7 +173,7 @@ RecastUtil::GenerateNavMeshData()
 				int nverts = groups[i].GetNumVertices();
 				uint* tris = &(indexData[groups[i].GetBaseIndex()]);
 				
-				n_assert2(groups[i].GetPrimitiveTopology() == CoreGraphics::PrimitiveTopology::TriangleList,"Only triangle lists are supported");
+				//n_assert2(groups[i].GetPrimitiveTopology() == CoreGraphics::PrimitiveTopology::TriangleList,"Only triangle lists are supported");
 				
 				m_triareas = (unsigned char*)Memory::Alloc(Memory::DefaultHeap, groups[i].GetNumPrimitives(CoreGraphics::PrimitiveTopology::TriangleList));
 				Memory::Clear(m_triareas,ntris * sizeof(unsigned char));		

@@ -40,7 +40,7 @@ VkShader::~VkShader()
 void
 VkShader::Unload()
 {
-
+	ShaderBase::Unload();
 }
 
 //------------------------------------------------------------------------------

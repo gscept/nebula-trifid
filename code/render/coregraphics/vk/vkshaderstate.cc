@@ -209,16 +209,67 @@ VkShaderState::SetupVariables(const Util::Array<IndexT>& groups)
 {
 	// get layouts associated with group and setup descriptor sets for them
 	Util::FixedArray<VkDescriptorSetLayout> setLayouts;
+	Util::FixedArray<bool> createOwnSet;
 
 	// copy sets from shader
 	this->sets.Resize(groups.Size());
 	this->setBindnings.Resize(groups.Size());
 	this->setOffsets.Resize(groups.Size());
 	this->setBindingIndexMap.Resize(groups.Size());
+	createOwnSet.Resize(groups.Size());
+	createOwnSet.Fill(false);
 	IndexT i;
 	for (i = 0; i < groups.Size(); i++)
 	{
 		this->sets[i] = this->shader->sets[groups[i]];
+	}
+
+	/// find image variables to determine if we need to create our own descriptor sets
+	/// if we need another reason to setup our own descriptor set, trigger it here
+	for (i = 0; i < groups.Size(); i++)
+	{
+		const eastl::vector<AnyFX::VariableBase*>& variables = this->effect->GetVariables(groups[i]);
+		const eastl::vector<AnyFX::VarbufferBase*>& varbuffers = this->effect->GetVarbuffers(groups[i]);
+		if (varbuffers.size() > 0)
+		{
+			createOwnSet[i] = true;
+			continue;
+		}
+
+		// go through variables
+		uint j;
+		for (j = 0; j < variables.size(); j++)
+		{
+			// get AnyFX variable
+			AnyFX::VkVariable* variable = static_cast<AnyFX::VkVariable*>(variables[j]);
+			if (variable->type >= AnyFX::Image1D && variable->type <= AnyFX::ImageCubeArray)
+			{
+				createOwnSet[i] = true;
+				break;
+			}
+		}
+	}
+
+	// go through and check if we need to create our own descriptor sets
+	// this is only ever needed if we have images which unmanageable as arrays because of format * type of image
+	for (i = 0; i < createOwnSet.Size(); i++)
+	{
+		if (createOwnSet[i])
+		{
+			VkDescriptorSetLayout layout = this->shader->setLayouts[groups[i]];
+
+			// allocate descriptor sets
+			VkDescriptorSetAllocateInfo info =
+			{
+				VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+				NULL,
+				VkRenderDevice::descPool,
+				1,
+				&layout
+			};
+			VkResult res = vkAllocateDescriptorSets(VkRenderDevice::dev, &info, &this->sets[i]);
+			n_assert(res == VK_SUCCESS);
+		}
 	}
 
 	// setup binds, we will use there later when applying the shader
@@ -413,6 +464,8 @@ VkShaderState::Discard()
 		const Ptr<CoreGraphics::ConstantBuffer>& buf = this->instances.KeyAtIndex(i);
 		buf->FreeInstance(this->instances.ValueAtIndex(i));
 	}
+
+	ShaderStateBase::Discard();
 }
 
 //------------------------------------------------------------------------------

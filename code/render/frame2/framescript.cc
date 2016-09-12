@@ -5,6 +5,7 @@
 #include "stdneb.h"
 #include "framescript.h"
 
+
 namespace Frame2
 {
 
@@ -95,6 +96,17 @@ FrameScript::AddAlgorithm(const Util::StringAtom& name, const Ptr<Algorithms::Al
 /**
 */
 void
+FrameScript::AddShaderState(const Util::StringAtom& name, const Ptr<CoreGraphics::ShaderState>& state)
+{
+	n_assert(!this->shaderStatesByName.Contains(name));
+	this->shaderStatesByName.Add(name, state);
+	this->shaderStates.Append(state);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 FrameScript::AddOp(const Ptr<Frame2::FrameOp>& op)
 {
 	this->ops.Append(op);
@@ -106,7 +118,41 @@ FrameScript::AddOp(const Ptr<Frame2::FrameOp>& op)
 void
 FrameScript::Setup()
 {
+	// empty
+}
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+FrameScript::Discard()
+{
+	IndexT i;
+	for (i = 0; i < this->colorTextures.Size(); i++) this->colorTextures[i]->Discard();
+	this->colorTextures.Clear();
+	this->colorTexturesByName.Clear();
+
+	for (i = 0; i < this->depthStencilTextures.Size(); i++) this->depthStencilTextures[i]->Discard();
+	this->depthStencilTextures.Clear();
+	this->depthStencilTexturesByName.Clear();
+
+	for (i = 0; i < this->readWriteTextures.Size(); i++) this->readWriteTextures[i]->Discard();
+	this->readWriteTextures.Clear();
+	this->readWriteTexturesByName.Clear();
+
+	for (i = 0; i < this->readWriteBuffers.Size(); i++) this->readWriteBuffers[i]->Discard();
+	this->readWriteBuffers.Clear();
+	this->readWriteBuffersByName.Clear();
+
+	for (i = 0; i < this->events.Size(); i++) this->events[i]->Discard();
+	this->events.Clear();
+	this->eventsByName.Clear();
+
+	for (i = 0; i < this->shaderStates.Size(); i++) this->shaderStates[i]->Discard();
+	this->shaderStates.Clear();
+	this->shaderStatesByName.Clear();
+
+	for (i = 0; i < this->ops.Size(); i++) this->ops[i]->Discard();
 }
 
 //------------------------------------------------------------------------------
@@ -120,6 +166,88 @@ FrameScript::Run(const IndexT frameIndex)
 	{
 		this->ops[i]->Run(frameIndex);
 	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+FrameScript::RunSegment(const FrameOp::ExecutionMask mask, const IndexT frameIndex)
+{
+	IndexT start = mask & 0x000000FF;
+	IndexT end = (mask & 0x0000FF00) >> 8;
+	IndexT i;
+	for (i = start; i < end; i++)
+	{
+		this->ops[i]->Run(frameIndex);
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+	Create a mask to run a script between two operations.
+*/
+Frame2::FrameOp::ExecutionMask
+FrameScript::CreateMask(const Util::StringAtom& startOp, const Util::StringAtom& endOp)
+{
+	FrameOp::ExecutionMask mask = 0;
+	IndexT i;
+	n_assert(this->ops.Size() < 256);
+	for (i = 0; i < this->ops.Size(); i++)
+	{
+		const Ptr<FrameOp>& op = this->ops[i];
+		if (op->GetName() == startOp)
+		{
+			mask |= i & 0x000000FF;
+		}
+		else if (op->GetName() == endOp)
+		{
+			mask |= (i << 8) & 0x0000FF00;
+		}
+	}
+	n_assert((mask & 0x000000FF) < ((mask & 0x0000FF00) >> 8));
+	return mask;
+}
+
+//------------------------------------------------------------------------------
+/**
+	Create a mask to run from one subpass to another, from within a pass.
+*/
+Frame2::FrameOp::ExecutionMask
+FrameScript::CreateSubpassMask(const Ptr<FramePass>& pass, const Util::StringAtom& startOp, const Util::StringAtom& endOp)
+{
+	FrameOp::ExecutionMask mask = 0;
+	const Util::Array<Ptr<FrameSubpass>>& subpasses = pass->GetSubpasses();
+	n_assert(subpasses.Size() < 256);
+	IndexT i;
+	for (i = 0; i < subpasses.Size(); i++)
+	{
+		const Ptr<FrameSubpass>& subpass = subpasses[i];
+		if (subpass->GetName() == startOp)
+		{
+			mask |= (i << 12) & 0x00FF0000;
+		}
+		else if (subpass->GetName() == endOp)
+		{
+			mask |= (i << 16) & 0xFF000000;
+		}
+		
+	}
+	n_assert(((mask & 0x00FF0000) >> 12) < ((mask & 0xFF000000) >> 16));
+	return mask;
+}
+
+//------------------------------------------------------------------------------
+/**
+	Get operation start and end points from within script.
+*/
+void
+FrameScript::GetOps(const FrameOp::ExecutionMask mask, Ptr<FrameOp>& startOp, Ptr<FrameOp>& endOp)
+{
+	IndexT start = mask & 0x000000FF;
+	IndexT end = (mask & 0x0000FF00) >> 8;
+	startOp = this->ops[start];
+	endOp = this->ops[end];
 }
 
 } // namespace Frame2

@@ -43,6 +43,7 @@ VkTexture::Unload()
 {
 	n_assert(this->mapCount == 0);
 	vkDestroyImage(VkRenderDevice::dev, this->img, NULL);
+	vkDestroyImageView(VkRenderDevice::dev, this->imgView, NULL);
 	vkFreeMemory(VkRenderDevice::dev, this->mem, NULL);
 	TextureBase::Unload();
 }

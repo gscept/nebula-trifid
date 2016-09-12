@@ -23,6 +23,8 @@ public:
 	void SetSignaled(bool b);
 	/// setup event
 	void Setup();
+	/// discard event
+	void Discard();
 
 	/// signal
 	void Signal();

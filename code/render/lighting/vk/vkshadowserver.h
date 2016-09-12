@@ -11,12 +11,10 @@
     (C) 2012-2015 Individual contributors, see AUTHORS file
 */
 #include "lighting/base/shadowserverbase.h"
-#include "frame/frameshader.h"
-#include "frame/frameposteffect.h"
-#include "coregraphics/rendertarget.h"
-#include "lighting/pssmutil.h"
+#include "frame2/frameserver.h"
+#include "frame2/framesubpassbatch.h"
 #include "lighting/csmutil.h"
-#include "frame/framepass.h"
+#include "debug/debugtimer.h"
 
 //------------------------------------------------------------------------------
 namespace Lighting
@@ -48,62 +46,26 @@ public:
 	const Math::matrix44* GetSplitTransforms() const;  
 	/// gets CSM shadow view
 	const Math::matrix44* GetShadowView() const;
-	/// get array of PSSM frustum far plane corners
-	const Math::float4* GetFarPlane() const;
-	/// get array of PSSM frustum near plane corners
-	const Math::float4* GetNearPlane() const;
 
-private:
 	/// update spot light shadow buffers
 	void UpdateSpotLightShadowBuffers();
 	/// update point light shadow buffers
 	void UpdatePointLightShadowBuffers();
-
-	/// prepare updating global buffer
-	void PrepareGlobalShadowBuffer();
 	/// update global light shadow buffers
-	void UpdateGlobalShadowBuffer();
+	void UpdateGlobalLightShadowBuffers();
+private:
 
 	/// sort local lights by priority
 	virtual void SortLights();
 
-	// spot light
-	Ptr<CoreGraphics::RenderTarget> spotLightShadowMap1;
-	Ptr<CoreGraphics::RenderTarget> spotLightShadowMap2;
-	Ptr<CoreGraphics::RenderTarget> spotLightShadowBufferAtlas;
-	Ptr<CoreGraphics::ShaderState> satXShader;
-	Ptr<CoreGraphics::ShaderState> satYShader;
-	Ptr<Frame::FramePass> spotLightPass;
-	Ptr<Frame::FrameBatch> spotLightBatch;
-	Ptr<Frame::FramePostEffect> spotLightHoriPass;
-	Ptr<Frame::FramePostEffect> spotLightVertPass;
+	Ptr<CoreGraphics::Texture> globalLightShadowBuffer;
+	Ptr<CoreGraphics::Texture> spotLightShadowBuffer;
+	Ptr<Frame2::FrameSubpassBatch> globalLightBatch;
+	Ptr<Frame2::FrameSubpassBatch> spotLightBatch;
+	Ptr<Frame2::FrameSubpassBatch> pointLightBatch;
+	
 
-	// point light
-	Ptr<CoreGraphics::ShaderState> shadowShader;
-	Ptr<CoreGraphics::RenderTargetCube> pointLightShadowCubes[MaxNumShadowPointLights];
-	Ptr<CoreGraphics::RenderTargetCube> pointLightShadowFilterCube;
-    Ptr<Frame::FramePass> pointLightPass;
-    Ptr<Frame::FrameBatch> pointLightBatch;
-	Ptr<CoreGraphics::ShaderVariable> pointLightPosVar;
-
-	Ptr<CoreGraphics::ShaderState> pointLightBlur;
-	CoreGraphics::ShaderFeature::Mask xBlurMask;
-	CoreGraphics::ShaderFeature::Mask yBlurMask;
-	Ptr<CoreGraphics::ShaderVariable> pointLightBlurReadLinear;
-	Ptr<CoreGraphics::ShaderVariable> pointLightBlurReadPoint;
-	Ptr<CoreGraphics::ShaderVariable> pointLightBlurWrite;
-
-	// global light
-	Ptr<Frame::FramePass> globalLightHotPass;
-	Ptr<Frame::FramePostEffect> globalLightBlurPass;
-	Ptr<Frame::FrameBatch> globalLightShadowBatch;
-	Ptr<CoreGraphics::RenderTarget> globalLightShadowBuffer;
-	Ptr<CoreGraphics::RenderTarget> globalLightShadowBufferFinal;
-
-	// generic stuff
-	Ptr<CoreGraphics::ShaderState> blurShader;
-	Ptr<CoreGraphics::ShaderVariable> shadowCascadeViewVar;
-	PSSMUtil pssmUtil;
+	Ptr<Frame2::FrameScript> script;
 	CSMUtil csmUtil;
 
 	_declare_timer(globalShadow);
@@ -117,7 +79,7 @@ private:
 inline const Ptr<CoreGraphics::Texture>&
 VkShadowServer::GetSpotLightShadowBufferTexture() const
 {
-	return this->spotLightShadowBufferAtlas->GetResolveTexture();
+	return this->spotLightShadowBuffer;
 }
 
 //------------------------------------------------------------------------------
@@ -126,25 +88,7 @@ VkShadowServer::GetSpotLightShadowBufferTexture() const
 inline const Ptr<CoreGraphics::Texture>& 
 VkShadowServer::GetGlobalLightShadowBufferTexture() const
 {
-	return this->globalLightShadowBufferFinal->GetResolveTexture();
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline const Math::float4* 
-VkShadowServer::GetFarPlane() const
-{
-	return this->pssmUtil.GetFarPlane();
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline const Math::float4* 
-VkShadowServer::GetNearPlane() const
-{
-	return this->pssmUtil.GetNearPlane();
+	return this->globalLightShadowBuffer;
 }
 
 //------------------------------------------------------------------------------

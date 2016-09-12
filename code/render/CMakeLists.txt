@@ -622,6 +622,7 @@ ENDIF()
       coregraphics/adapterinfo.h
       coregraphics/antialiasquality.cc
       coregraphics/antialiasquality.h
+	  coregraphics/barrier.h
       coregraphics/framebatchtype.h
 	  coregraphics/bufferlock.cc
 	  coregraphics/bufferlock.h

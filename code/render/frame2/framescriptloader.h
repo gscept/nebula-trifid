@@ -35,6 +35,8 @@ private:
 	static void ParseAlgorithmList(const Ptr<Frame2::FrameScript>& script, cJSON* node);
 	/// parse event list
 	static void ParseEventList(const Ptr<Frame2::FrameScript>& script, cJSON* node);
+	/// parse shader state list
+	static void ParseShaderStateList(const Ptr<Frame2::FrameScript>& script, cJSON* node);
 	/// parse global state
 	static void ParseGlobalState(const Ptr<Frame2::FrameScript>& script, cJSON* node);
 	/// parse blit
@@ -49,6 +51,8 @@ private:
 	static void ParseSwapbuffers(const Ptr<Frame2::FrameScript>& script, cJSON* node);
 	/// parse event
 	static void ParseEvent(const Ptr<Frame2::FrameScript>& script, cJSON* node);
+	/// parse barrier in subpass
+	static void ParseBarrier(const Ptr<Frame2::FrameScript>& script, cJSON* node);
 
 	/// parse pass
 	static void ParsePass(const Ptr<Frame2::FrameScript>& script, cJSON* node);
@@ -62,6 +66,10 @@ private:
 	static void ParseSubpassAttachments(CoreGraphics::Pass::Subpass& subpass, cJSON* node);
 	/// parse subpass inputs
 	static void ParseSubpassInputs(CoreGraphics::Pass::Subpass& subpass, cJSON* node);
+	/// parse subpass viewports
+	static void ParseSubpassViewports(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, cJSON* node);
+	/// parse subpass scissors
+	static void ParseSubpassScissors(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, cJSON* node);
 	/// parse subpass algorithm
 	static void ParseSubpassAlgorithm(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, cJSON* node);
 	/// parse subpass batch
@@ -72,6 +80,8 @@ private:
 	static void ParseSubpassFullscreenEffect(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, cJSON* node);
 	/// parse event in subpass
 	static void ParseSubpassEvent(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, cJSON* node);
+	/// parse barrier in subpass
+	static void ParseSubpassBarrier(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, cJSON* node);
 	/// parse system in subpass
 	static void ParseSubpassSystem(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, cJSON* node);
 	/// parse plugins in subpass

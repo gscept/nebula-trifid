@@ -122,6 +122,8 @@ View::OnRemoveFromServer()
     }
     this->stage = 0;
     this->frameShader = 0;
+	this->frameScript->Discard();
+	this->frameScript = 0;
     this->dependencies.Clear();
     this->isAttachedToServer = false;
 
@@ -275,7 +277,7 @@ View::ApplyCameraSettings()
 void
 View::Render(IndexT frameIndex)
 {
-    n_assert(this->frameShader.isvalid());      
+	n_assert(this->frameScript.isvalid());
     n_assert(this->camera.isvalid());
 
     // reset model node instance index for a new render frame (view)
@@ -286,7 +288,6 @@ View::Render(IndexT frameIndex)
 
     lightServer->BeginFrame(this->camera);
     shadowServer->BeginFrame(this->camera);
-	this->frameShader->Begin();
 
 	Particles::ParticleRenderer::Instance()->BeginAttach();
 
@@ -310,14 +311,8 @@ View::Render(IndexT frameIndex)
 
     Particles::ParticleRenderer::Instance()->EndAttach();
 
-	// if we have a resolve rect, we set the resolve rectangle for the default render target
-	// this will cause any frame shaders aimed at the default render target (screen) to be rendered to a subregion of the screen
-	if (this->resolveRectValid)	renderDev->GetDefaultRenderTarget()->SetResolveRect(this->resolveRect);
-	else						renderDev->GetDefaultRenderTarget()->ResetResolveRects();
-
     // render the world...
 	_start_timer(render);
-    //this->frameShader->Render(frameIndex);
 	this->frameScript->Run(frameIndex);
 	_stop_timer(render);
 
@@ -326,7 +321,6 @@ View::Render(IndexT frameIndex)
 	_stop_timer(picking);
 
     // tell main frame shader, light and shadow servers that rendering is finished
-	this->frameShader->End();
     shadowServer->EndFrame();
     lightServer->EndFrame();	
 }
@@ -338,7 +332,7 @@ View::Render(IndexT frameIndex)
 void
 View::RenderDebug()
 {
-    n_assert(this->frameShader.isvalid());
+    n_assert(this->frameScript.isvalid());
 
     // setup global transforms...
     TransformDevice* transformDevice = TransformDevice::Instance();

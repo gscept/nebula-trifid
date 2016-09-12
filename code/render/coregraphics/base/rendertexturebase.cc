@@ -24,6 +24,7 @@ RenderTextureBase::RenderTextureBase() :
 	width(0),
 	height(0),
 	depth(0),
+	layers(1),
 	widthScale(1),
 	heightScale(1),
 	depthScale(1),
@@ -69,7 +70,7 @@ RenderTextureBase::Setup()
 	else
 	{
 		n_assert(this->width > 0 && this->height > 0 && this->depth > 0);
-		n_assert(this->type == Texture::Texture2D || this->type == Texture::TextureCube);
+		n_assert(this->type == Texture::Texture2D || this->type == Texture::TextureCube || this->type == Texture::Texture2DArray || this->type == Texture::TextureCubeArray);
 		n_assert(this->usage != InvalidAttachment);
 		if (this->relativeSize)
 		{
@@ -86,6 +87,9 @@ RenderTextureBase::Setup()
 			this->height = SizeT(mode.GetHeight() * this->heightScale);
 			this->depth = 1;
 		}
+
+		// multiply layers by 6 if cube, calculate amount of textures by dividing by 6
+		if (this->type == Texture::TextureCube || this->type == Texture::TextureCubeArray) this->layers *= 6;
 
 		// setup texture resource
 		if (this->resourceId.IsValid())
@@ -108,8 +112,16 @@ void
 RenderTextureBase::Discard()
 {
 	n_assert(this->texture.isvalid());
-	this->texture->Unload();
-	this->texture = 0;
+	if (!this->windowTexture)
+	{
+		ResourceManager::Instance()->UnregisterUnmanagedResource(this->texture.upcast<Resource>());
+		this->texture = 0;
+	}	
+	else
+	{
+		this->texture->SetState(Resource::Initial);
+		this->texture = 0;
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -158,5 +170,14 @@ RenderTextureBase::SwapBuffers()
 	// implement in subclass
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+RenderTextureBase::OnDisplayResized(SizeT width, SizeT height)
+{
+	n_assert(width > 0 && height > 0);
+	// implement in subclass
+}
 
 } // namespace Base

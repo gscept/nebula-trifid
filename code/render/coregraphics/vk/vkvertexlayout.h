@@ -24,9 +24,6 @@ public:
 	void Setup(const Util::Array<CoreGraphics::VertexComponent>& c);
 	/// discard the vertex layout object
 	void Discard();
-
-	/// set the vertex buffer associated with the stream index
-	void SetStreamBuffer(IndexT streamIndex, VkBuffer vertexBuffer);
 	
 	/// get derivative, and create if needed
 	VkPipelineVertexInputStateCreateInfo* GetDerivative(const Ptr<VkShaderProgram>& program);
@@ -41,8 +38,6 @@ private:
 	VkGraphicsPipelineCreateInfo info;
 	VkPipelineVertexInputStateCreateInfo vertexInfo;
 
-	VkBuffer vertexStreams[VkRenderDevice::MaxNumVertexStreams];
-
 	Util::FixedArray<VkVertexInputBindingDescription> binds;
 	Util::FixedArray<VkVertexInputAttributeDescription> attrs;
 
@@ -54,15 +49,5 @@ private:
 
 	Util::HashTable<Ptr<VkShaderProgram>, DerivativeLayout*> derivatives;
 };
-
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void
-VkVertexLayout::SetStreamBuffer(IndexT streamIndex, VkBuffer vertexBuffer)
-{
-	this->vertexStreams[streamIndex] = vertexBuffer;
-}
 
 } // namespace Vulkan

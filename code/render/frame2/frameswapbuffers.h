@@ -22,8 +22,10 @@ public:
 	/// set texture
 	void SetTexture(const Ptr<CoreGraphics::RenderTexture>& tex);
 
+	/// discard operation
+	void Discard();
 	/// run operation
-	virtual void Run(const IndexT frameIndex);
+	void Run(const IndexT frameIndex);
 private:
 	Ptr<CoreGraphics::RenderTexture> tex;
 };

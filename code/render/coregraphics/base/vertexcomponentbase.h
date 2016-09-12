@@ -105,6 +105,8 @@ public:
     static Format StringToFormat(const Util::String& str);
     /// convert format to string
     static Util::String FormatToString(Format f);
+	/// convert format to signature
+	static Util::String FormatToSignature(Format f);
     /// get the byte offset of this component (only valid when part of a VertexLayout)
     IndexT GetByteOffset() const;
 
@@ -331,6 +333,39 @@ VertexComponentBase::FormatToString(Format f)
 //------------------------------------------------------------------------------
 /**
 */
+inline Util::String
+VertexComponentBase::FormatToSignature(Format f)
+{
+	switch (f)
+	{
+	case Float:     return "f";
+	case Float2:    return "f2";
+	case Float3:    return "f3";
+	case Float4:    return "f4";
+	case UByte4:    return "ub4";
+	case Byte4:		return "b4";
+	case Short2:    return "s2";
+	case Short4:    return "s4";
+	case UByte4N:   return "ub4n";
+	case Byte4N:	return "b4n";
+	case Short2N:   return "s2n";
+	case Short4N:   return "s4n";
+
+		// PS3-specific
+	case Float16:   return "Float16";
+	case Float16_2: return "Float16_2";
+	case Float16_3: return "Float16_3";
+	case Float16_4: return "Float16_4";
+
+	default:
+		n_error("VertexComponent::FormatToString(): invalid Format code!");
+		return "";
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 inline VertexComponentBase::Format
 VertexComponentBase::StringToFormat(const Util::String& str)
 {
@@ -370,6 +405,7 @@ VertexComponentBase::GetSignature() const
         case Binormal:      str = "bin"; break;
         case TexCoord1:     str = "tex"; break;
         case Color:         str = "clr"; break;
+		case TexCoord2:		str = "lgh"; break;
         case SkinWeights:   str = "skw"; break;
         case SkinJIndices:  str = "sji"; break;
         default:
@@ -377,7 +413,7 @@ VertexComponentBase::GetSignature() const
             break;
     }
     str.AppendInt(this->semIndex);    
-    str.Append(FormatToString(this->format));
+    str.Append(FormatToSignature(this->format));
     return str;
 }
 

@@ -38,9 +38,11 @@ public:
 	virtual ~Algorithm();
 	
 	/// setup algorithm
-	void Setup();
+	virtual void Setup();
+	/// discard operation
+	virtual void Discard();
 	/// run algorithm using string atom and type, type cannot be mixed when executing
-	void Execute(const Util::StringAtom& str, const IndexT& frameIndex);
+	virtual void Execute(const Util::StringAtom& str, const IndexT& frameIndex);
 	/// get type of function name
 	const FunctionType& GetFunctionType(const Util::StringAtom& str);
 

@@ -26,6 +26,11 @@ public:
 	/// add subpass
 	void AddSubpass(const Ptr<FrameSubpass>& subpass);
 
+	/// get list of subpasses
+	const Util::Array<Ptr<FrameSubpass>>& GetSubpasses() const;
+
+	/// discard operation
+	void Discard();
 	/// run operation
 	void Run(const IndexT frameIndex);
 
@@ -41,6 +46,15 @@ inline void
 FramePass::SetPass(const Ptr<CoreGraphics::Pass>& pass)
 {
 	this->pass = pass;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Util::Array<Ptr<Frame2::FrameSubpass>>&
+FramePass::GetSubpasses() const
+{
+	return this->subpasses;
 }
 
 } // namespace Frame2

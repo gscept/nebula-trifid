@@ -79,7 +79,7 @@ SimpleTechnique(
 		calcBump = NormalMapFunctor,
 		calcSpec = NonReflectiveSpecularFunctor,
 		calcDepth = ViewSpaceDepthFunctor,
-		calcEnv = PBR
+		calcEnv = PBR 
 	),
 	AlphaState);
 	

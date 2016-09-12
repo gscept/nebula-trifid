@@ -28,4 +28,13 @@ ShaderVariationBase::~ShaderVariationBase()
     // empty
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ShaderVariationBase::Discard()
+{
+	// empty, override in subclass
+}
+
 } // namespace Base

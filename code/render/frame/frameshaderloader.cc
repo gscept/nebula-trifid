@@ -549,11 +549,6 @@ FrameShaderLoader::ParseFramePass(const Ptr<XmlReader>& xmlReader, const Ptr<Fra
         } 
     }
 
-    if (useDefaultRendertarget)
-    {
-        framePass->SetRenderTarget(RenderDevice::Instance()->GetDefaultRenderTarget());
-    }
-
     // setup the clear color, depth and stencil (if defined)
     uint clearFlags = 0;
     if (xmlReader->HasAttr("clearColor"))
@@ -841,11 +836,6 @@ FrameShaderLoader::ParsePostEffect(const Ptr<XmlReader>& xmlReader, const Ptr<Fr
                 xmlReader->GetStream()->GetURI().AsString().AsCharPtr(), 
                 xmlReader->GetCurrentNodeLineNumber());
         } 
-    }
-
-    if (useDefaultRendertarget)
-    {
-        framePostEffect->SetRenderTarget(RenderDevice::Instance()->GetDefaultRenderTarget());
     }
 
 	int clearFlags = 0;

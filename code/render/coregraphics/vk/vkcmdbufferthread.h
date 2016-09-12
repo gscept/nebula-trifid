@@ -33,8 +33,6 @@ public:
 	void PushCommands(const Util::Array<Command>& commands);
 	/// set command buffer
 	void SetCommandBuffer(const VkCommandBuffer& buffer);
-	/// pause thread, true is pause, false is unpause
-	void Pause(bool pause);
 private:
 	friend class VkRenderDevice;
 
@@ -58,6 +56,7 @@ private:
 		SetEvent,					// sets event to flagged
 		ResetEvent,					// resets event to unflagged
 		WaitForEvent,
+		Barrier,
 		Sync,
 		LunarGCircumventValidation
 	};
@@ -188,11 +187,23 @@ private:
 				VkImageMemoryBarrier* imageBarriers;
 			} waitEvent;
 
+			struct // Barrier
+			{
+				VkPipelineStageFlags srcMask;
+				VkPipelineStageFlags dstMask;
+				VkDependencyFlags dep;
+				uint32_t memoryBarrierCount;
+				VkMemoryBarrier* memoryBarriers;
+				uint32_t bufferBarrierCount;
+				VkBufferMemoryBarrier* bufferBarriers;
+				uint32_t imageBarrierCount;
+				VkImageMemoryBarrier* imageBarriers;
+			} barrier;
+
 			Threading::Event* syncEvent;
 		};		
 	};
 
-	Threading::Event pause;
 	VkCommandBuffer commandBuffer;
 	Threading::SafeQueue<Command> commands;
 #if NEBULA3_ENABLE_PROFILING

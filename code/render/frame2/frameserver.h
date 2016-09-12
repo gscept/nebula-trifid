@@ -27,6 +27,11 @@ public:
 	/// destructor
 	virtual ~FrameServer();
 
+	/// open server
+	void Open();
+	/// close server, discards all remaining scripts
+	void Close();
+
 	/// load frame script and save with name
 	Ptr<FrameScript> LoadFrameScript(const Resources::ResourceId& name, const IO::URI& path);
 	/// get script by name
@@ -39,6 +44,7 @@ public:
 private:
 	Util::Dictionary<Util::StringAtom, Ptr<FrameScript>> frameScripts;
 	Ptr<CoreGraphics::RenderTexture> windowTexture;
+	bool isOpen;
 };
 
 //------------------------------------------------------------------------------

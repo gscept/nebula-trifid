@@ -46,4 +46,15 @@ Algorithm::AddFunction(const Util::StringAtom& name, const FunctionType type, co
 	this->functions.Add(name, func);
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+Algorithm::Discard()
+{
+	this->nameToType.Clear();
+	this->functions.Clear();
+	// override in subclass for any special discard behavior
+}
+
 } // namespace Base

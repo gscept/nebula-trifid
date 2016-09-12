@@ -329,4 +329,20 @@ VkShaderProgram::GetNumPixelOutputs() const
 	return this->program->numPsOutputs;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkShaderProgram::Discard()
+{
+	ShaderVariationBase::Discard();
+	if (this->vs != VK_NULL_HANDLE) vkDestroyShaderModule(VkRenderDevice::dev, this->vs, NULL);
+	if (this->hs != VK_NULL_HANDLE) vkDestroyShaderModule(VkRenderDevice::dev, this->hs, NULL);
+	if (this->ds != VK_NULL_HANDLE) vkDestroyShaderModule(VkRenderDevice::dev, this->ds, NULL);
+	if (this->gs != VK_NULL_HANDLE) vkDestroyShaderModule(VkRenderDevice::dev, this->gs, NULL);
+	if (this->ps != VK_NULL_HANDLE) vkDestroyShaderModule(VkRenderDevice::dev, this->ps, NULL);
+	if (this->cs != VK_NULL_HANDLE) vkDestroyShaderModule(VkRenderDevice::dev, this->cs, NULL);
+	if (this->computePipeline != VK_NULL_HANDLE) vkDestroyPipeline(VkRenderDevice::dev, this->computePipeline, NULL);
+}
+
 } // namespace Vulkan

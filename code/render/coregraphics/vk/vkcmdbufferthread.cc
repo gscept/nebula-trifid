@@ -13,8 +13,7 @@ __ImplementClass(Vulkan::VkCmdBufferThread, 'VCBT', Threading::Thread);
 //------------------------------------------------------------------------------
 /**
 */
-VkCmdBufferThread::VkCmdBufferThread() :
-	pause(true)
+VkCmdBufferThread::VkCmdBufferThread()
 {
 	// empty
 }
@@ -44,7 +43,7 @@ VkCmdBufferThread::DoWork()
 {
 	Util::Array<Command> curCommands;
 	curCommands.Reserve(1000000);
-	while (true)
+	while (!this->ThreadStopRequested())
 	{
 		// dequeue all commands, this ensures we don't gain any new commands this thread loop
 		this->commands.DequeueAll(curCommands);
@@ -131,6 +130,10 @@ VkCmdBufferThread::DoWork()
 				n_assert(this->commandBuffer != VK_NULL_HANDLE);
 				vkCmdWaitEvents(this->commandBuffer, cmd.waitEvent.numEvents, cmd.waitEvent.events, cmd.waitEvent.waitingStage, cmd.waitEvent.signalingStage, cmd.waitEvent.memoryBarrierCount, cmd.waitEvent.memoryBarriers, cmd.waitEvent.bufferBarrierCount, cmd.waitEvent.bufferBarriers, cmd.waitEvent.imageBarrierCount, cmd.waitEvent.imageBarriers);
 				break;
+			case Barrier:
+				n_assert(this->commandBuffer != VK_NULL_HANDLE);
+				vkCmdPipelineBarrier(this->commandBuffer, cmd.barrier.srcMask, cmd.barrier.dstMask, cmd.barrier.dep, cmd.barrier.memoryBarrierCount, cmd.barrier.memoryBarriers, cmd.barrier.bufferBarrierCount, cmd.barrier.bufferBarriers, cmd.barrier.imageBarrierCount, cmd.barrier.imageBarriers);
+				break;
 			case Sync:
 				cmd.syncEvent->Signal();
 				
@@ -144,16 +147,6 @@ VkCmdBufferThread::DoWork()
 		// wait if paused
 		//this->pause.Wait();
 	}
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkCmdBufferThread::Pause(bool pause)
-{
-	if (pause) this->pause.Reset();
-	else       this->pause.Signal();
 }
 
 } // namespace Vulkan

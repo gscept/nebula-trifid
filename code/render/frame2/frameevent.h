@@ -33,6 +33,8 @@ public:
 	/// set event to use
 	void SetEvent(const Ptr<CoreGraphics::Event>& event);
 
+	/// discard operation
+	void Discard();
 	/// run operation
 	void Run(const IndexT frameIndex);
 private:

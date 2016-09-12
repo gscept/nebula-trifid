@@ -14,7 +14,8 @@ __ImplementSingleton(Frame2::FrameServer);
 //------------------------------------------------------------------------------
 /**
 */
-FrameServer::FrameServer()
+FrameServer::FrameServer() :
+	isOpen(false)
 {
 	__ConstructSingleton;
 }
@@ -30,6 +31,33 @@ FrameServer::~FrameServer()
 //------------------------------------------------------------------------------
 /**
 */
+void
+FrameServer::Open()
+{
+	n_assert(!this->isOpen);
+	this->isOpen = true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+FrameServer::Close()
+{
+	n_assert(this->isOpen);
+	/*
+	IndexT i;
+	for (i = 0; i < this->frameScripts.Size(); i++)
+	{
+		this->frameScripts.ValueAtIndex(i)->Discard();
+	}
+	*/
+	this->frameScripts.Clear();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 Ptr<Frame2::FrameScript>
 FrameServer::LoadFrameScript(const Resources::ResourceId& name, const IO::URI& path)
 {
@@ -38,5 +66,6 @@ FrameServer::LoadFrameScript(const Resources::ResourceId& name, const IO::URI& p
 	this->frameScripts.Add(name, script);
 	return script;
 }
+
 
 } // namespace Frame2

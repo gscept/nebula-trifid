@@ -11,6 +11,7 @@
 			{ "name": "SpecularBuffer", "format": "A8R8G8B8", 		"relative": true, "width": 1.0, "height": 1.0 },
 			{ "name": "EmissiveBuffer", "format": "A16B16G16R16F", 	"relative": true, "width": 1.0, "height": 1.0 },
 			{ "name": "LightBuffer", 	"format": "A16B16G16R16F", 	"relative": true, "width": 1.0, "height": 1.0 },
+			{ "name": "ColorBuffer", 	"format": "A8B8G8R8", 		"relative": true, "width": 1.0, "height": 1.0 },
 			{ "name": "__WINDOW__" }
 		],
 		
@@ -19,14 +20,19 @@
 			{ "name":"DepthBuffer", "format":"D32S8", "relative": true, "width": 1.0, "height": 1.0 }
 		],
 		
+		"shaderStates":
+		[
+			{ "name": "PostEffectState", "shader":"shd:aaa" }
+		],
+		
 		"globalState":
 		{
 			"name":"DeferredTextures",
 			"variables":
 			[
-				{ "semantic":"DepthBuffer", 	"value":"DepthBuffer" },
-				{ "semantic":"NormalBuffer", 	"value":"NormalBuffer" },
 				{ "semantic":"AlbedoBuffer", 	"value":"AlbedoBuffer" },
+				{ "semantic":"DepthBuffer", 	"value":"DepthBuffer" },
+				{ "semantic":"NormalBuffer", 	"value":"NormalBuffer" },				
 				{ "semantic":"SpecularBuffer", 	"value":"SpecularBuffer" },
 				{ "semantic":"EmissiveBuffer", 	"value":"EmissiveBuffer" },
 				{ "semantic":"LightBuffer", 	"value":"LightBuffer" }
@@ -38,13 +44,13 @@
 			"name": "DeferredPass",
 			"attachments":
 			[
-				{ "name": "NormalBuffer", 	"clear":"0.5, 0.5, 0, 0", "store": true },
-				{ "name": "DepthBuffer", 	"clear":"-1000, 0, 0, 0", "store": true },
-				{ "name": "SpecularBuffer", "clear":"0, 0, 0, 0" },
-				{ "name": "AlbedoBuffer", 	"clear":"0.1, 0.1, 0.1, 1" },
-				{ "name": "EmissiveBuffer", "clear":"0, 0, 0, -1" },
-				{ "name": "LightBuffer", 	"clear":"0.1, 0.1, 0.1, 0.1", "store": true },
-				{ "name": "__WINDOW__" }
+				{ "name": "AlbedoBuffer", 	"clear":"0.1, 0.1, 0.1, 1", "store": true	},
+				{ "name": "NormalBuffer", 	"clear":"0.5, 0.5, 0, 0", "store": true 	},
+				{ "name": "DepthBuffer", 	"clear":"-1000, 0, 0, 0", "store": true 	},
+				{ "name": "SpecularBuffer", "clear":"0, 0, 0, 0", "store": true			},
+				{ "name": "EmissiveBuffer", "clear":"0, 0, 0, -1", "store": true		},
+				{ "name": "LightBuffer", 	"clear":"0.1, 0.1, 0.1, 0.1", "store": true	},
+				{ "name": "ColorBuffer", 	"clear":"0.5, 0.5, 0.5, 1", "store": true 	}
 			],
 			
 			"depthStencil": { "name": "DepthBuffer", "clear": 1, "clearStencil": 0, "store": true },
@@ -61,7 +67,7 @@
 			"subpass":
 			{
 				"name": "LightPass",
-				"dependencies": [ "GeometryPass" ],
+				"dependencies": [0, 1],
 				"inputs": [0, 1, 2, 3, 4],
 				"depth": true,
 				"attachments": [5],
@@ -70,35 +76,43 @@
 			"subpass":
 			{
 				"name": "Unlit",
-				"dependencies": [ "LightPass" ],
+				"dependencies": [],
 				"attachments": [5],
 				"depth": true,
-				"batch": "Unlit"
+				"batch": "Unlit",
+				"batch": "ParticleUnlit",
+				"system": "Shapes"
 			},
 			"subpass":
 			{
 				"name": "FinishPass",
-				"dependencies": [ "Unlit" ],
-				"inputs": [6],
+				"dependencies": [1, 2],
+				"inputs": [5],
 				"attachments": [6],
 				"fullscreenEffect": 
 				{
-					"name":"ToScreen",
-					"shader":"shd:aaa",
-					"sizeFromTexture":"__WINDOW__",
-					"variables":
-					[
-						{ "semantic": "CopyBuffer", "value": "LightBuffer" }
-					]
+					"name": "ToScreen",
+					"shaderState": "PostEffectState",
+					"sizeFromTexture": "ColorBuffer"
 				},
-				"system": "UI",
-				"subpassAlgorithm": 
-				{ 
-					"name": "TestSubpassAlgorithm", 
-					"algorithm": "", 
-					"phase": 1 
-				}
+				"plugins":
+				{
+					"name":"UI",
+					"filter":"UI"
+				},
+				"system": "Text"
 			}
+		},
+		"swapbuffers":
+		{
+			"name":"SwapWindowBuffer",
+			"texture":"__WINDOW__"
+		},
+		"blit":
+		{
+			"name":"CopyToWindow",
+			"from":"ColorBuffer",
+			"to":"__WINDOW__"
 		}
 	}
 }
