@@ -35,9 +35,10 @@ VkShaderImage::Setup(const SizeT width, const SizeT height, const CoreGraphics::
 {
 	Base::ShaderReadWriteTextureBase::Setup(width, height, format, id);
 
-	VkFormat vkformat = VkTypes::AsVkFormat(format);
+	VkFormat vkformat = VkTypes::AsVkDataFormat(format);
 	VkFormatProperties formatProps;
 	vkGetPhysicalDeviceFormatProperties(VkRenderDevice::physicalDev, vkformat, &formatProps);
+    n_assert(formatProps.optimalTilingFeatures & VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT);
 	VkExtent3D extents;
 	extents.width = width;
 	extents.height = height;
@@ -54,7 +55,7 @@ VkShaderImage::Setup(const SizeT width, const SizeT height, const CoreGraphics::
 		1,
 		1,
 		VK_SAMPLE_COUNT_1_BIT,
-		VK_IMAGE_TILING_LINEAR,			// must be linear to be bindable to images
+		VK_IMAGE_TILING_OPTIMAL,			// must be linear to be bindable to images
 		VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
 		VK_SHARING_MODE_EXCLUSIVE,
 		2,

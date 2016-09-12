@@ -97,7 +97,6 @@ VkStreamTextureLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 			cube ? VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT : 0,
 			depth > 1 ? VK_IMAGE_TYPE_3D : (height > 1 ? VK_IMAGE_TYPE_2D : VK_IMAGE_TYPE_1D),
 			vkformat,
-			//VK_FORMAT_R8G8B8A8_UNORM,
 			extents,
 			mips,
 			cube ? numFaces : numImages,
@@ -126,13 +125,9 @@ VkStreamTextureLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 		subres.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 		subres.baseArrayLayer = 0;
 		subres.baseMipLevel = 0;
-		subres.layerCount = VK_REMAINING_ARRAY_LAYERS;
-		subres.levelCount = VK_REMAINING_MIP_LEVELS;
+		subres.layerCount = info.arrayLayers;
+		subres.levelCount = info.mipLevels;
 		renderDev->PushImageLayoutTransition(VkDeferredCommand::Transfer, VkRenderDevice::ImageMemoryBarrier(img, subres, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL));
-
-		//void* mappedData;
-		//VkResult err = vkMapMemory(VkRenderDevice::dev, mem, 0, alignedSize, 0, &mappedData);
-		//n_assert(err == VK_SUCCESS);
 		uint32_t remainingBytes = alignedSize;
 		
 		// now load texture by walking through all images and mips

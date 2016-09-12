@@ -249,7 +249,6 @@ VkRenderDevice::OpenVulkanContext()
 
 		// compute queues may not support graphics
 		if (this->queuesProps[i].queueFlags & VK_QUEUE_COMPUTE_BIT &&
-			!(this->queuesProps[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) &&
 			this->computeQueueIdx == UINT32_MAX)
 		{
 			if (this->queuesProps[i].queueCount == indexMap[i]) continue;
@@ -1660,13 +1659,7 @@ VkRenderDevice::SetShaderPipelineInfo(const VkGraphicsPipelineCreateInfo& shader
 void
 VkRenderDevice::SetVertexLayoutPipelineInfo(VkPipelineVertexInputStateCreateInfo* vertexLayout)
 {
-<<<<<<< HEAD
-//#define uint_min(a, b) (a < b ? a : b)
-	//if (this->currentPipelineInfo.pVertexInputState != vertexLayout || !(this->currentPipelineBits & VertexLayoutInfoSet))
-=======
-#define uint_min(a, b) (a < b ? a : b)
 	if (this->currentPipelineInfo.pVertexInputState != vertexLayout || !(this->currentPipelineBits & VertexLayoutInfoSet))
->>>>>>> 0902a22cad5982bafb01717004f91359bfbeabfe
 	{
 		this->currentPipelineBits |= VertexLayoutInfoSet;
 		this->currentPipelineInfo.pVertexInputState = vertexLayout;
@@ -1943,7 +1936,7 @@ VkRenderDevice::PushImageUpdate(const VkImage& img, const VkImageCreateInfo& inf
 	Begins an immediate command buffer for data transfers, and returns the buffer within which the image data is contained.
 */
 void
-VkRenderDevice::ReadImage(const Ptr<VkTexture>& tex, VkImageCopy copy, uint32_t& outMemSize, VkDeviceMemory& outMem, VkImage& outImage)
+VkRenderDevice::ReadImage(const Ptr<VkTexture>& tex, VkImageCopy copy, uint32_t& outMemSize, VkDeviceMemory& outMem, VkBuffer& outBuffer)
 {
 	VkCommandBuffer cmdBuf = this->BeginImmediateTransfer();
 
@@ -1951,6 +1944,7 @@ VkRenderDevice::ReadImage(const Ptr<VkTexture>& tex, VkImageCopy copy, uint32_t&
 	VkTypes::VkBlockDimensions dims = VkTypes::AsVkBlockSize(tex->GetPixelFormat());
 	VkFormatProperties formatProps;
 	vkGetPhysicalDeviceFormatProperties(VkRenderDevice::physicalDev, fmt, &formatProps);
+    n_assert(formatProps.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT);
 	Texture::Type type = tex->GetType();
 	VkImageCreateInfo info =
 	{
@@ -1965,7 +1959,7 @@ VkRenderDevice::ReadImage(const Ptr<VkTexture>& tex, VkImageCopy copy, uint32_t&
 		1,
 		type == Texture::TextureCube ? 6 : type == Texture::Texture3D ? tex->GetDepth() : 1,
 		VK_SAMPLE_COUNT_1_BIT,
-		VK_IMAGE_TILING_LINEAR,
+		VK_IMAGE_TILING_OPTIMAL,
 		VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
 		VK_SHARING_MODE_EXCLUSIVE,
 		0,
@@ -1973,12 +1967,13 @@ VkRenderDevice::ReadImage(const Ptr<VkTexture>& tex, VkImageCopy copy, uint32_t&
 		VK_IMAGE_LAYOUT_PREINITIALIZED
 	};
 	VkImage img;
-	vkCreateImage(this->dev, &info, NULL, &img);
+	VkResult res = vkCreateImage(this->dev, &info, NULL, &img);
+	n_assert(res == VK_SUCCESS);
 
 	// allocate memory
 	VkDeviceMemory imgMem;
 	uint32_t memSize;
-	this->AllocateImageMemory(img, imgMem, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, memSize);
+	this->AllocateImageMemory(img, imgMem, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, memSize);
 	vkBindImageMemory(this->dev, img, imgMem, 0);
 
 	VkImageSubresourceRange srcSubres;
@@ -1996,7 +1991,7 @@ VkRenderDevice::ReadImage(const Ptr<VkTexture>& tex, VkImageCopy copy, uint32_t&
 
 	VkImageBlit blit;
 	blit.srcOffsets[0] = copy.srcOffset;
-	blit.srcOffsets[1] = { copy.extent.width * dims.width, copy.extent.height * dims.height, copy.extent.depth };
+	blit.srcOffsets[1] = { copy.extent.width, copy.extent.height , copy.extent.depth };
 	blit.srcSubresource = copy.srcSubresource;
 
 	blit.dstSubresource = copy.dstSubresource;
@@ -2006,16 +2001,53 @@ VkRenderDevice::ReadImage(const Ptr<VkTexture>& tex, VkImageCopy copy, uint32_t&
 	// perform update of buffer, and stage a copy of buffer data to image
 	this->ImageLayoutTransition(cmdBuf, this->ImageMemoryBarrier(img, dstSubres, VK_IMAGE_LAYOUT_PREINITIALIZED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL));
 	this->ImageLayoutTransition(cmdBuf, this->ImageMemoryBarrier(tex->GetVkImage(), srcSubres, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL));
-	//vkCmdCopyImage(cmdBuf, tex->GetVkImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
 	vkCmdBlitImage(cmdBuf, tex->GetVkImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_NEAREST);
 	this->ImageLayoutTransition(cmdBuf, this->ImageMemoryBarrier(tex->GetVkImage(), srcSubres, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
-	//vkCmdCopyImageToBuffer(this->mainCmdCmpBuffer, img, VK_IMAGE_LAYOUT_GENERAL, buf, 1, &copy);
+	this->ImageLayoutTransition(cmdBuf, this->ImageMemoryBarrier(img, dstSubres, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL));
+
+	VkImageSubresource subres;
+	subres.arrayLayer = copy.srcSubresource.baseArrayLayer;
+	subres.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	subres.mipLevel = copy.srcSubresource.mipLevel;
+	VkSubresourceLayout layout;
+	VkBufferCreateInfo bufInfo =
+	{
+		VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+		NULL,
+		0,
+		memSize,
+		VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+		VK_SHARING_MODE_EXCLUSIVE,
+		0,
+		NULL
+	};
+	VkBuffer buf;
+	res = vkCreateBuffer(this->dev, &bufInfo, NULL, &buf);
+	n_assert(res == VK_SUCCESS);
+
+	VkDeviceMemory bufMem;
+	uint32_t bufMemSize;
+	this->AllocateBufferMemory(buf, bufMem, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, bufMemSize);
+	vkBindBufferMemory(this->dev, buf, bufMem, 0);
+
+	VkBufferImageCopy cp;
+	cp.bufferOffset = 0;
+	cp.bufferRowLength = 0;
+	cp.bufferImageHeight = 0;
+	cp.imageExtent = copy.extent;
+	cp.imageOffset = copy.dstOffset;
+	cp.imageSubresource = copy.dstSubresource;
+	vkCmdCopyImageToBuffer(cmdBuf, img, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, buf, 1, &cp);
 
 	// end immediate command buffer
 	this->EndImmediateTransfer(cmdBuf);
 
-	outImage = img;
-	outMem = imgMem;
+	// delete image
+	vkFreeMemory(this->dev, imgMem, NULL);
+	vkDestroyImage(this->dev, img, NULL);
+
+	outBuffer = buf;
+	outMem = bufMem;
 	outMemSize = VK_DEVICE_SIZE_CONV(memSize);
 }
 
@@ -2023,7 +2055,7 @@ VkRenderDevice::ReadImage(const Ptr<VkTexture>& tex, VkImageCopy copy, uint32_t&
 /**
 */
 void
-VkRenderDevice::WriteImage(const VkImage& srcImg, const VkImage& dstImg, VkImageCopy copy)
+VkRenderDevice::WriteImage(const VkBuffer& srcImg, const VkImage& dstImg, VkImageCopy copy)
 {
 	//VkCommandBuffer cmdBuf = this->BeginImmediateTransfer();
 	//vkCmdCopyBufferToImage(cmdBuf, buf, img, VK_IMAGE_LAYOUT_GENERAL, 1, &copy);

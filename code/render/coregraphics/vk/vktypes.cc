@@ -305,6 +305,37 @@ VkTypes::AsVkFramebufferFormat(CoreGraphics::PixelFormat::Code p)
 	}
 	}
 }
+//------------------------------------------------------------------------------
+/**
+*/
+VkFormat
+VkTypes::AsVkDataFormat(CoreGraphics::PixelFormat::Code p)
+{
+	switch (p)
+	{
+		case PixelFormat::X8R8G8B8:
+		case PixelFormat::A8R8G8B8:         return VK_FORMAT_R8G8B8A8_UINT;
+		case PixelFormat::A8B8G8R8:         return VK_FORMAT_R8G8B8A8_UINT;
+		case PixelFormat::R8G8B8:           return VK_FORMAT_R8G8B8_UINT;
+		case PixelFormat::G16R16F:          return VK_FORMAT_R16G16B16A16_SFLOAT;
+		case PixelFormat::A16B16G16R16F:    return VK_FORMAT_R16G16B16A16_SFLOAT;
+		case PixelFormat::A16B16G16R16:		return VK_FORMAT_R16G16B16A16_UINT;
+		case PixelFormat::R32F:             return VK_FORMAT_R32_SFLOAT;
+		case PixelFormat::G32R32F:          return VK_FORMAT_R32G32_SFLOAT;
+		case PixelFormat::A32B32G32R32F:    return VK_FORMAT_R32G32B32A32_SFLOAT;
+		case PixelFormat::R32G32B32F:		return VK_FORMAT_R32G32B32_SFLOAT;
+		case PixelFormat::A8:               return VK_FORMAT_R8_UINT;
+		case PixelFormat::R8:               return VK_FORMAT_R8_UINT;
+		case PixelFormat::G8:               return VK_FORMAT_R8_UINT;
+		case PixelFormat::B8:               return VK_FORMAT_R8_UINT;
+		case PixelFormat::G16R16:           return VK_FORMAT_R16G16_UINT;
+		default:
+		{
+			n_error("VkTypes::AsVkFormat(): invalid pixel format '%d'", p);
+			return VK_FORMAT_R8G8B8A8_UINT;
+		}
+	}
+}
 
 //------------------------------------------------------------------------------
 /**

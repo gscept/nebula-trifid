@@ -235,9 +235,9 @@ private:
 	/// setup staging image update for later execution
 	void PushImageUpdate(const VkImage& img, const VkImageCreateInfo& info, uint32_t mip, uint32_t face, VkDeviceSize size, uint32_t* data);
 	/// perform image read-back, and saves to buffer (SLOW!)
-	void ReadImage(const Ptr<VkTexture>& tex, VkImageCopy copy, uint32_t& outMemSize, VkDeviceMemory& outMem, VkImage& outImage);
+	void ReadImage(const Ptr<VkTexture>& tex, VkImageCopy copy, uint32_t& outMemSize, VkDeviceMemory& outMem, VkBuffer& outBuffer);
 	/// perform image write-back, transitions data from buffer to image (SLOW!)
-	void WriteImage(const VkImage& srcImg, const VkImage& dstImg, VkImageCopy copy);
+	void WriteImage(const VkBuffer& srcImg, const VkImage& dstImg, VkImageCopy copy);
 	/// helper to begin immediate transfer
 	VkCommandBuffer BeginImmediateTransfer();
 	/// helper to end immediate transfer

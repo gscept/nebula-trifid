@@ -17,7 +17,7 @@
 		
 		"depthStencils":
 		[
-			{ "name":"DepthBuffer", "format":"D32S8", "relative": true, "width": 1.0, "height": 1.0 }
+			{ "name":"ZBuffer", "format":"D32S8", "relative": true, "width": 1.0, "height": 1.0 }
 		],
 		
 		"shaderStates":
@@ -53,7 +53,7 @@
 				{ "name": "ColorBuffer", 	"clear":"0.5, 0.5, 0.5, 1", "store": true 	}
 			],
 			
-			"depthStencil": { "name": "DepthBuffer", "clear": 1, "clearStencil": 0, "store": true },
+			"depthStencil": { "name": "ZBuffer", "clear": 1, "clearStencil": 0, "store": true },
 			
 			"subpass":
 			{
@@ -67,7 +67,7 @@
 			"subpass":
 			{
 				"name": "LightPass",
-				"dependencies": [0, 1],
+				"dependencies": [0],
 				"inputs": [0, 1, 2, 3, 4],
 				"depth": true,
 				"attachments": [5],

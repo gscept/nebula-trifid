@@ -88,7 +88,7 @@ private:
 	VkDeviceMemory mem;
 
 	uint32_t id;
-	VkImage mappedImg;
+	VkBuffer mappedImg;
 	VkDeviceMemory mappedMem;
 	VkImageCopy mappedBufferLayout;
 };

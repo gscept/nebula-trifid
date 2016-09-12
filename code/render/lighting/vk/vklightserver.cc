@@ -366,7 +366,7 @@ VkLightServer::RenderLights()
 
 	// general preparations
 	shdServer->SetActiveShader(this->lightShader->GetShader());
-	//this->lightShader->Apply();
+	this->lightShader->Apply();
 
 	// render the global light
 	this->globalLightShadowMap->SetTexture(shadowServer->GetGlobalLightShadowBufferTexture());
