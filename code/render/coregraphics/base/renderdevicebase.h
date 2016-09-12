@@ -26,7 +26,7 @@
 #include "coregraphics/shader.h"
 #include "util/queue.h"
 #include "vertexlayoutbase.h"
-#include "../barrier.h"
+#include "coregraphics/barrier.h"
 
 namespace CoreGraphics
 {
@@ -82,8 +82,6 @@ public:
     /// remove a render event handler
     void RemoveEventHandler(const Ptr<CoreGraphics::RenderEventHandler>& h);
 
-    /// get default render target
-    const Ptr<CoreGraphics::RenderTarget>& GetDefaultRenderTarget() const;   
 	/// get default render texture
 	const Ptr<CoreGraphics::RenderTexture>& GetDefaultRenderTexture() const;
 
@@ -221,7 +219,6 @@ protected:
     
 	static Util::Queue<__BufferLockData> bufferLockQueue;
     Util::Array<Ptr<CoreGraphics::RenderEventHandler> > eventHandlers;
-    Ptr<CoreGraphics::RenderTarget> defaultRenderTarget;
 	Ptr<CoreGraphics::RenderTexture> defaultRenderTexture;
     Ptr<CoreGraphics::VertexBuffer> streamVertexBuffers[VertexLayoutBase::MaxNumVertexStreams];
 	IndexT streamVertexOffsets[VertexLayoutBase::MaxNumVertexStreams];
@@ -268,16 +265,6 @@ inline const CoreGraphics::PrimitiveGroup&
 RenderDeviceBase::GetPrimitiveGroup() const
 {
     return this->primitiveGroup;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline const Ptr<CoreGraphics::RenderTarget>&
-RenderDeviceBase::GetDefaultRenderTarget() const
-{
-    n_assert(this->defaultRenderTarget.isvalid());
-    return this->defaultRenderTarget;
 }
 
 //------------------------------------------------------------------------------

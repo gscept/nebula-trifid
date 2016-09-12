@@ -455,6 +455,7 @@ ImguiRenderer::Setup()
 void
 ImguiRenderer::Discard()
 {
+	this->uiShader->Discard();
 	this->uiShader = 0;
 
 	this->vbo->Unmap();

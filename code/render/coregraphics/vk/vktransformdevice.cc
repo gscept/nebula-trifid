@@ -79,6 +79,7 @@ void
 VkTransformDevice::Close()
 {
 	this->sharedShader->Discard();
+	this->sharedShader = 0;
 }
 
 //------------------------------------------------------------------------------

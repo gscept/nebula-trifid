@@ -189,7 +189,11 @@ VkLightServer::Close()
 	}	
 
 	// discard shader stuff
+	this->lightShader->Discard();
 	this->lightShader = 0;
+
+	this->lightProbeShader->Discard();
+	this->lightProbeShader = 0;
 
 	this->lightPosRange = 0;
 	this->lightColor = 0;

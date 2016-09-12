@@ -57,6 +57,7 @@ RocketRenderer::RocketRenderer()
 RocketRenderer::~RocketRenderer()
 {
 	this->renderDevice = 0;
+	this->shader->Discard();
 	this->shader = 0;
 	this->diffMap = 0;
 }
@@ -200,8 +201,8 @@ RocketRenderer::RenderCompiledGeometry(Rocket::Core::CompiledGeometryHandle geom
 //------------------------------------------------------------------------------
 /**
 */
-void 
-RocketRenderer::ReleaseCompiledGeometry( Rocket::Core::CompiledGeometryHandle geometry )
+void
+RocketRenderer::ReleaseCompiledGeometry(Rocket::Core::CompiledGeometryHandle geometry)
 {	
 	NebulaCompiledGeometry* nebGeometry = (NebulaCompiledGeometry*)geometry;			
 	nebGeometry->ib->Unload();
@@ -216,8 +217,8 @@ RocketRenderer::ReleaseCompiledGeometry( Rocket::Core::CompiledGeometryHandle ge
 //------------------------------------------------------------------------------
 /**
 */
-void 
-RocketRenderer::EnableScissorRegion( bool enable )
+void
+RocketRenderer::EnableScissorRegion(bool enable)
 {
 	if (enable)
 	{
@@ -232,8 +233,8 @@ RocketRenderer::EnableScissorRegion( bool enable )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-RocketRenderer::SetScissorRegion( int x, int y, int width, int height )
+void
+RocketRenderer::SetScissorRegion(int x, int y, int width, int height)
 {
 	Ptr<RenderDevice> device = RenderDevice::Instance();
 	this->scissor.set(x, y, x + width, y + height);
@@ -245,8 +246,8 @@ RocketRenderer::SetScissorRegion( int x, int y, int width, int height )
 //------------------------------------------------------------------------------
 /**
 */
-bool 
-RocketRenderer::LoadTexture( Rocket::Core::TextureHandle& texture_handle, Rocket::Core::Vector2i& texture_dimensions, const Rocket::Core::String& source )
+bool
+RocketRenderer::LoadTexture(Rocket::Core::TextureHandle& texture_handle, Rocket::Core::Vector2i& texture_dimensions, const Rocket::Core::String& source)
 {
 	int width, height, channels;
 	unsigned char* data = SOIL_load_image(source.CString(), &width, &height, &channels, SOIL_LOAD_RGBA);

@@ -81,6 +81,8 @@ VkShaderServer::Close()
 {
 	n_assert(this->IsOpen());
 	n_delete(this->factory);
+	this->textureShaderState->Discard();
+	this->textureShaderState = 0;
 	ShaderServerBase::Close();
 }
 

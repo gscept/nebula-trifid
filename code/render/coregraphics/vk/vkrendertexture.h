@@ -20,8 +20,6 @@ public:
 
 	/// setup render texture
 	void Setup();
-	/// discard texture
-	void Discard();
 	/// resize render texture, retaining the same texture object
 	void Resize();
 

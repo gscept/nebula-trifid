@@ -432,6 +432,11 @@ VkRenderTarget::Setup()
 void
 VkRenderTarget::Discard()
 {
+	if (this->shader.isvalid())
+	{
+		this->shader->Discard();
+		this->shader = 0;
+	}
 	vkDestroyRenderPass(VkRenderDevice::dev, this->pass, NULL);
 	vkDestroyFramebuffer(VkRenderDevice::dev, this->vkFramebuffer, NULL);
 	RenderTargetBase::Discard();

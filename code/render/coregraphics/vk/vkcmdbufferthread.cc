@@ -13,8 +13,7 @@ __ImplementClass(Vulkan::VkCmdBufferThread, 'VCBT', Threading::Thread);
 //------------------------------------------------------------------------------
 /**
 */
-VkCmdBufferThread::VkCmdBufferThread() :
-	pause(true)
+VkCmdBufferThread::VkCmdBufferThread()
 {
 	// empty
 }
@@ -44,7 +43,7 @@ VkCmdBufferThread::DoWork()
 {
 	Util::Array<Command> curCommands;
 	curCommands.Reserve(1000000);
-	while (true)
+	while (!this->ThreadStopRequested())
 	{
 		// dequeue all commands, this ensures we don't gain any new commands this thread loop
 		this->commands.DequeueAll(curCommands);
@@ -148,16 +147,6 @@ VkCmdBufferThread::DoWork()
 		// wait if paused
 		//this->pause.Wait();
 	}
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkCmdBufferThread::Pause(bool pause)
-{
-	if (pause) this->pause.Reset();
-	else       this->pause.Signal();
 }
 
 } // namespace Vulkan

@@ -113,6 +113,7 @@ ShaderServerBase::Close()
     // release shared instance shader
     if (this->sharedVariableShader.isvalid())
     {        
+		this->sharedVariableShader->Discard();
         this->sharedVariableShader = 0;
     } 
 

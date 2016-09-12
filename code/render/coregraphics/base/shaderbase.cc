@@ -47,7 +47,7 @@ ShaderBase::Unload()
 	IndexT i;
 	for (i = 0; i < this->variations.Size(); i++)
 	{
-		this->variations[i]->Discard();
+		this->variations.ValueAtIndex(i);
 	}
     this->variations.Clear();
 

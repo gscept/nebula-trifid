@@ -90,8 +90,6 @@ void
 RenderDeviceBase::SetOverrideDefaultRenderTarget(const Ptr<CoreGraphics::RenderTarget>& rt)
 {
     n_assert(!this->isOpen);
-    n_assert(!this->defaultRenderTarget.isvalid());
-    this->defaultRenderTarget = rt;
 }
 
 //------------------------------------------------------------------------------
@@ -110,14 +108,7 @@ RenderDeviceBase::Open()
     RenderEvent openEvent(RenderEvent::DeviceOpen);
     this->NotifyEventHandlers(openEvent);
 
-    // create default render target (if not overriden by application
-    if (!this->defaultRenderTarget.isvalid())
-    {
-        this->defaultRenderTarget = RenderTarget::Create();
-        this->defaultRenderTarget->SetDefaultRenderTarget(true);
-        this->defaultRenderTarget->Setup();
-    }
-
+	// setup default render texture
 	if (!this->defaultRenderTexture.isvalid())
 	{
 		this->defaultRenderTexture = RenderTexture::Create();
@@ -138,13 +129,6 @@ RenderDeviceBase::Close()
     n_assert(!this->inBeginFrame);
     n_assert(!this->inBeginPass);
     n_assert(!this->inBeginBatch);
-
-    // release default render target
-    if (this->defaultRenderTarget->IsValid())
-    {
-        this->defaultRenderTarget->Discard();
-    }
-    this->defaultRenderTarget = 0;
 
 	// clear buffer locks
 	this->bufferLockQueue.Clear();
@@ -690,7 +674,7 @@ RenderDeviceBase::DisplayResized(SizeT width, SizeT height)
     RenderModules::RTPluginRegistry::Instance()->OnWindowResized(width, height);
 
 	// also update the default render target
-	this->defaultRenderTarget->OnDisplayResized(width, height);
+	this->defaultRenderTexture->OnDisplayResized(width, height);
 }
 
 //------------------------------------------------------------------------------

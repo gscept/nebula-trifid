@@ -47,6 +47,7 @@ FrameGlobalState::Discard()
 	for (i = 0; i < this->variableInstances.Size(); i++) this->variableInstances[i]->Discard();
 	this->variableInstances.Clear();
 	this->state->Discard();
+	this->state = 0;
 }
 
 //------------------------------------------------------------------------------

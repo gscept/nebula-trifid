@@ -78,6 +78,9 @@ public:
 	/// swap buffers, only valid if this is a window texture
 	void SwapBuffers();
 
+	/// called after we change the display size
+	void OnDisplayResized(SizeT width, SizeT height);
+
 	/// get texture
 	const Ptr<CoreGraphics::Texture>& GetTexture() const;
 protected:

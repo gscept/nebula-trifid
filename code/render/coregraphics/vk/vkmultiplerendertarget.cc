@@ -227,6 +227,11 @@ void
 VkMultipleRenderTarget::Discard()
 {
 	MultipleRenderTargetBase::Discard();
+	if (this->shader.isvalid())
+	{
+		this->shader->Discard();
+		this->shader = 0;
+	}
 	vkDestroyFramebuffer(VkRenderDevice::dev, this->framebuffer, NULL);
 	vkDestroyRenderPass(VkRenderDevice::dev, this->pass, NULL);
 }

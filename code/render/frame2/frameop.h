@@ -28,9 +28,9 @@ public:
 	const Util::StringAtom& GetName() const;
 
 	/// setup operation
-	void Setup();
+	virtual void Setup();
 	/// discard operation
-	void Discard();
+	virtual void Discard();
 	/// run operation
 	virtual void Run(const IndexT frameIndex);
 	/// run segment

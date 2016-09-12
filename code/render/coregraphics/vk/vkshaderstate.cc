@@ -464,6 +464,8 @@ VkShaderState::Discard()
 		const Ptr<CoreGraphics::ConstantBuffer>& buf = this->instances.KeyAtIndex(i);
 		buf->FreeInstance(this->instances.ValueAtIndex(i));
 	}
+
+	ShaderStateBase::Discard();
 }
 
 //------------------------------------------------------------------------------

@@ -122,6 +122,8 @@ View::OnRemoveFromServer()
     }
     this->stage = 0;
     this->frameShader = 0;
+	this->frameScript->Discard();
+	this->frameScript = 0;
     this->dependencies.Clear();
     this->isAttachedToServer = false;
 
@@ -308,11 +310,6 @@ View::Render(IndexT frameIndex)
 	_stop_timer(resolveVisibleModelNodeInstances);
 
     Particles::ParticleRenderer::Instance()->EndAttach();
-
-	// if we have a resolve rect, we set the resolve rectangle for the default render target
-	// this will cause any frame shaders aimed at the default render target (screen) to be rendered to a subregion of the screen
-	if (this->resolveRectValid)	renderDev->GetDefaultRenderTarget()->SetResolveRect(this->resolveRect);
-	else						renderDev->GetDefaultRenderTarget()->ResetResolveRects();
 
     // render the world...
 	_start_timer(render);

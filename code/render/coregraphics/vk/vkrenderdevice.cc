@@ -232,12 +232,6 @@ VkRenderDevice::OpenVulkanContext()
 	indexMap.Fill(0);
 	for (i = 0; i < numQueues; i++)
 	{
-		if (this->queuesProps[i].queueFlags == VK_QUEUE_TRANSFER_BIT && this->transferQueueIdx == UINT32_MAX)
-		{
-			if (this->queuesProps[i].queueCount == indexMap[i]) continue;
-			this->transferQueueFamily = i;
-			this->transferQueueIdx = indexMap[i]++;
-		}
 		if (this->queuesProps[i].queueFlags & VK_QUEUE_GRAPHICS_BIT && this->drawQueueIdx == UINT32_MAX)
 		{
 			if (this->queuesProps[i].queueCount == indexMap[i]) continue;
@@ -252,12 +246,26 @@ VkRenderDevice::OpenVulkanContext()
 				}
 			}
 		}
-		// also setup compute and transfer queues
-		if (this->queuesProps[i].queueFlags & VK_QUEUE_COMPUTE_BIT && this->computeQueueIdx == UINT32_MAX)
+
+		// compute queues may not support graphics
+		if (this->queuesProps[i].queueFlags & VK_QUEUE_COMPUTE_BIT &&
+			!(this->queuesProps[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) &&
+			this->computeQueueIdx == UINT32_MAX)
 		{
 			if (this->queuesProps[i].queueCount == indexMap[i]) continue;
 			this->computeQueueFamily = i;
 			this->computeQueueIdx = indexMap[i]++;
+		}
+
+		// transfer queues may not support compute or graphics
+		if (this->queuesProps[i].queueFlags & VK_QUEUE_TRANSFER_BIT && 
+			!(this->queuesProps[i].queueFlags & VK_QUEUE_COMPUTE_BIT) &&
+			!(this->queuesProps[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) &&
+			this->transferQueueIdx == UINT32_MAX)
+		{
+			if (this->queuesProps[i].queueCount == indexMap[i]) continue;
+			this->transferQueueFamily = i;
+			this->transferQueueIdx = indexMap[i]++;
 		}
 	}
 
@@ -552,6 +560,10 @@ VkRenderDevice::OpenVulkanContext()
 	res = vkCreateCommandPool(this->dev, &cmdPoolInfo, NULL, &this->immediateCmdTransPool);
 	n_assert(res == VK_SUCCESS);
 
+	cmdPoolInfo.queueFamilyIndex = this->drawQueueFamily;
+	res = vkCreateCommandPool(this->dev, &cmdPoolInfo, NULL, &this->immediateCmdDrawPool);
+	n_assert(res == VK_SUCCESS);
+
 	for (i = 0; i < NumDrawThreads; i++)
 	{
 		VkCommandPoolCreateInfo cmdPoolInfo =
@@ -773,14 +785,18 @@ VkRenderDevice::CloseVulkanDevice()
 		vkDestroyCommandPool(this->dev, this->dispatchableCmdCompBufferPool[i], NULL);
 	}
 
+	this->interlockThread->Stop();
+	this->interlockThread = 0;
+
 	// free our main buffers, our secondary buffers should be fine so the pools should be free to destroy
 	vkFreeCommandBuffers(this->dev, this->mainCmdDrawPool, 1, &this->mainCmdDrawBuffer);
 	vkFreeCommandBuffers(this->dev, this->mainCmdCmpPool, 1, &this->mainCmdCmpBuffer);
 	vkFreeCommandBuffers(this->dev, this->mainCmdTransPool, 1, &this->mainCmdTransBuffer);
 	vkDestroyCommandPool(this->dev, this->mainCmdDrawPool, NULL);
-	vkDestroyCommandPool(this->dev, this->mainCmdDrawPool, NULL);
+	vkDestroyCommandPool(this->dev, this->mainCmdTransPool, NULL);
 	vkDestroyCommandPool(this->dev, this->mainCmdCmpPool, NULL);
 	vkDestroyCommandPool(this->dev, this->immediateCmdTransPool, NULL);
+	vkDestroyCommandPool(this->dev, this->immediateCmdDrawPool, NULL);
 	vkDestroyFence(this->dev, this->mainCmdDrawFence, NULL);
 	vkDestroyFence(this->dev, this->mainCmdCmpFence, NULL);
 	vkDestroyFence(this->dev, this->mainCmdTransFence, NULL);
@@ -2020,7 +2036,7 @@ VkRenderDevice::BeginImmediateTransfer()
 	{
 		VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
 		NULL,
-		this->immediateCmdTransPool,
+		this->immediateCmdDrawPool,
 		VK_COMMAND_BUFFER_LEVEL_PRIMARY,
 		1
 	};
@@ -2069,7 +2085,7 @@ VkRenderDevice::EndImmediateTransfer(VkCommandBuffer cmdBuf)
 	VkFence sync;
 	res = vkCreateFence(this->dev, &fence, NULL, &sync);
 	n_assert(res == VK_SUCCESS);
-	res = vkQueueSubmit(this->transferQueue, 1, &submit, sync);
+	res = vkQueueSubmit(this->drawQueue, 1, &submit, sync);
 	n_assert(res == VK_SUCCESS);
 
 	// wait for fences, this waits for our commands to finish
@@ -2078,7 +2094,7 @@ VkRenderDevice::EndImmediateTransfer(VkCommandBuffer cmdBuf)
 
 	// cleanup fence, buffer and buffer memory
 	vkDestroyFence(this->dev, sync, NULL);
-	vkFreeCommandBuffers(this->dev, this->immediateCmdTransPool, 1, &cmdBuf);
+	vkFreeCommandBuffers(this->dev, this->immediateCmdDrawPool, 1, &cmdBuf);
 }
 
 //------------------------------------------------------------------------------
@@ -2776,9 +2792,6 @@ VkRenderDevice::BeginDrawThread()
 		&this->passInfo
 	};
 
-	// unpause thread
-	this->drawThreads[this->currentDrawThread]->Pause(false);
-
 	VkCmdBufferThread::Command cmd;
 	cmd.type = VkCmdBufferThread::BeginCommand;
 	cmd.bgCmd.buf = this->dispatchableDrawCmdBuffers[this->currentDrawThread];
@@ -2802,9 +2815,6 @@ VkRenderDevice::BeginDrawThreadCluster()
 	IndexT i;
 	for (i = 0; i < NumDrawThreads; i++)
 	{
-		// unpause thread
-		this->drawThreads[i]->Pause(false);
-
 		// allocate command buffer
 		VkCommandBufferAllocateInfo info =
 		{
@@ -2862,9 +2872,6 @@ VkRenderDevice::EndDrawThreads()
 			this->PushToThread(cmd, i, false);
 			this->drawCompletionEvents[i].Wait();
 			this->drawCompletionEvents[i].Reset();
-
-			// stop thread from running
-			this->drawThreads[i]->Pause(true);
 		}
 
 		// run end-of-threads pass
@@ -2917,7 +2924,6 @@ VkRenderDevice::EndDrawThreadCluster()
 		// wait for threads to finish, but this is retarded, we can't do any work
 		this->drawCompletionEvents[i].Wait();
 		this->drawCompletionEvents[i].Reset();
-		this->drawThreads[i]->Pause(true);
 	}
 
 	// run end-of-threads pass

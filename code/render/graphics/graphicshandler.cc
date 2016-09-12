@@ -271,6 +271,7 @@ GraphicsHandler::SetupGraphicsRuntime(const Ptr<SetupGraphics>& msg)
     this->shadowServer->Open();    
     this->particleServer->Open();    
 	this->frameServer->Open();	
+	this->frame2Server->Open();
 	this->instanceServer->Open();
 
     // HACK - pin placeholders and system stuff so they will not be automatically
@@ -306,6 +307,7 @@ GraphicsHandler::ShutdownGraphicsRuntime()
 	this->materialServer->Close();
 	this->shapeRenderer->Close();
     this->frameServer->Close();	
+	this->frame2Server->Close();
 	this->resourceManager->Close();
 	this->instanceServer->Close();
     this->shaderServer->Close();

@@ -165,6 +165,16 @@ VkRenderTexture::Setup()
 			VkRenderDevice::Instance()->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->img, subres, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL));
 			VkRenderDevice::Instance()->PushImageDepthStencilClear(this->img, VkDeferredCommand::Graphics, VK_IMAGE_LAYOUT_GENERAL, clear, subres);
 			VkRenderDevice::Instance()->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->img, subres, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL));
+
+			// setup actual texture
+			if (sampleCount > 1)
+			{
+				this->texture->SetupFromVkMultisampleTexture(this->img, this->mem, this->view, this->width, this->height, this->format, 0, true, true);
+			}
+			else
+			{
+				this->texture->SetupFromVkTexture(this->img, this->mem, this->view, this->width, this->height, this->format, 0, true, true);
+			}
 		}
 	}
 }

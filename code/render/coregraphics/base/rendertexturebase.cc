@@ -112,8 +112,16 @@ void
 RenderTextureBase::Discard()
 {
 	n_assert(this->texture.isvalid());
-	this->texture->Unload();
-	this->texture = 0;
+	if (!this->windowTexture)
+	{
+		ResourceManager::Instance()->UnregisterUnmanagedResource(this->texture.upcast<Resource>());
+		this->texture = 0;
+	}	
+	else
+	{
+		this->texture->SetState(Resource::Initial);
+		this->texture = 0;
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -162,5 +170,14 @@ RenderTextureBase::SwapBuffers()
 	// implement in subclass
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+RenderTextureBase::OnDisplayResized(SizeT width, SizeT height)
+{
+	n_assert(width > 0 && height > 0);
+	// implement in subclass
+}
 
 } // namespace Base

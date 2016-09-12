@@ -421,8 +421,17 @@ VkPass::Setup()
 void
 VkPass::Discard()
 {
+	// release shader state
+	this->shaderState->Discard();
+	this->shaderState = 0;
+
+	// destroy pass and our descriptor set
+	vkFreeDescriptorSets(VkRenderDevice::dev, VkRenderDevice::descPool, 1, &this->passDescriptorSet);
 	vkDestroyRenderPass(VkRenderDevice::dev, this->pass, NULL);
 	vkDestroyFramebuffer(VkRenderDevice::dev, this->framebuffer, NULL);
+
+	// run base class discard
+	PassBase::Discard();
 }
 
 //------------------------------------------------------------------------------
