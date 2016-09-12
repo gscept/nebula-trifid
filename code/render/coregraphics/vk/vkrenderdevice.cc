@@ -1627,7 +1627,7 @@ VkRenderDevice::SetShaderPipelineInfo(const VkGraphicsPipelineCreateInfo& shader
 void
 VkRenderDevice::SetVertexLayoutPipelineInfo(VkPipelineVertexInputStateCreateInfo* vertexLayout)
 {
-#define uint_min(a, b) (a < b ? a : b)
+//#define uint_min(a, b) (a < b ? a : b)
 	//if (this->currentPipelineInfo.pVertexInputState != vertexLayout || !(this->currentPipelineBits & VertexLayoutInfoSet))
 	{
 		this->currentPipelineBits |= VertexLayoutInfoSet;

@@ -93,7 +93,7 @@ VkVertexLayout::Setup(const Util::Array<CoreGraphics::VertexComponent>& c)
 void
 VkVertexLayout::Discard()
 {
-	const Util::Array<DerivativeLayout*> dervs = this->derivatives.ValuesAsArray();
+	const Util::Array<DerivativeLayout*>& dervs = this->derivatives.ValuesAsArray();
 	IndexT i;
 	for (i = 0; i <dervs.Size(); i++)
 	{
