@@ -27,6 +27,9 @@ class VertexLayoutBase : public Core::RefCounted
 {
     __DeclareClass(VertexLayoutBase);
 public:
+	/// max number of vertex streams
+	static const IndexT MaxNumVertexStreams = 2;
+
     /// constructor
     VertexLayoutBase();
     /// destructor
@@ -60,6 +63,8 @@ protected:
 
     Util::Array<CoreGraphics::VertexComponent> components;
     SizeT vertexByteSize;
+	SizeT numUsedStreams;
+	bool usedStreams[MaxNumVertexStreams];
 };
 
 //------------------------------------------------------------------------------

@@ -59,7 +59,16 @@ EventBase::Reset()
 void
 EventBase::Setup()
 {
+	// implement in subclass
+}
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+EventBase::Discard()
+{
+	// implement in subclass
 }
 
 } // namespace Base

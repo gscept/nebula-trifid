@@ -30,6 +30,9 @@ public:
     ShaderVariationBase();
     /// destructor
     virtual ~ShaderVariationBase();
+
+	/// discard variation
+	void Discard();
     
     /// get the shader variation's name
     const Name& GetName() const;

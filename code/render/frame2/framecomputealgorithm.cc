@@ -25,6 +25,18 @@ FrameComputeAlgorithm::~FrameComputeAlgorithm()
 	// empty
 }
 
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+FrameComputeAlgorithm::Discard()
+{
+	FrameOp::Discard();
+	this->alg->Discard();
+	this->alg = 0;
+}
+
 //------------------------------------------------------------------------------
 /**
 */

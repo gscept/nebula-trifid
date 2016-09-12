@@ -24,6 +24,8 @@ public:
 	/// add function to run
 	void SetFunction(const Util::StringAtom& func);
 
+	/// discard operation
+	void Discard();
 	/// run operation
 	void Run(const IndexT frameIndex);
 private:

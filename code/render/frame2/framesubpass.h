@@ -10,6 +10,7 @@
 */
 //------------------------------------------------------------------------------
 #include "frameop.h"
+#include "math/rectangle.h"
 namespace Frame2
 {
 class FrameSubpass : public FrameOp
@@ -24,9 +25,36 @@ public:
 	/// add frame operation
 	void AddOp(const Ptr<Frame2::FrameOp>& op);
 
+	/// discard operation
+	void Discard();
 	/// run operation
 	void Run(const IndexT frameIndex);
+
+	/// add viewport
+	void AddViewport(const Math::rectangle<int>& rect);
+	/// add viewport
+	void AddScissor(const Math::rectangle<int>& rect);
 private:
 	Util::Array<Ptr<Frame2::FrameOp>> ops;
+	Util::Array<Math::rectangle<int>> viewports;
+	Util::Array<Math::rectangle<int>> scissors;
 };
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+FrameSubpass::AddViewport(const Math::rectangle<int>& rect)
+{
+	this->viewports.Append(rect);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+FrameSubpass::AddScissor(const Math::rectangle<int>& rect)
+{
+	this->scissors.Append(rect);
+}
 } // namespace Frame2

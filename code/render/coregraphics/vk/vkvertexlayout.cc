@@ -18,7 +18,6 @@ VkVertexLayout::VkVertexLayout() :
 	derivatives(128)
 {
 	// empty
-	memset(this->vertexStreams, 0, sizeof(this->vertexStreams));
 }
 
 //------------------------------------------------------------------------------
@@ -39,24 +38,24 @@ VkVertexLayout::Setup(const Util::Array<CoreGraphics::VertexComponent>& c)
 	Base::VertexLayoutBase::Setup(c);
 
 	// create binds
-	this->binds.Resize(VkRenderDevice::MaxNumVertexStreams);
+	this->binds.Resize(MaxNumVertexStreams);
 	this->attrs.Resize(this->components.Size());
 
-	SizeT strides[VkRenderDevice::MaxNumVertexStreams] = { 0 };
+	SizeT strides[MaxNumVertexStreams] = { 0 };
 
 	uint32_t numUsedStreams = 0;
 	IndexT streamIndex;
-	for (streamIndex = 0; streamIndex < VkRenderDevice::MaxNumVertexStreams; streamIndex++)
+	for (streamIndex = 0; streamIndex < MaxNumVertexStreams; streamIndex++)
 	{
-		if (this->vertexStreams[streamIndex] != 0)
+		if (this->usedStreams[streamIndex])
 		{
 			this->binds[numUsedStreams].binding = numUsedStreams;
 			this->binds[numUsedStreams].inputRate = numUsedStreams > 0 ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX;
 			this->binds[numUsedStreams].stride = 0;
 			numUsedStreams++;
-		}
+		}		
 	}
-	IndexT curOffset[VkRenderDevice::MaxNumVertexStreams] = { 0 };
+	IndexT curOffset[MaxNumVertexStreams] = { 0 };
 
 	IndexT compIndex;
 	for (compIndex = 0; compIndex < this->components.Size(); compIndex++)

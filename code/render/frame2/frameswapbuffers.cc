@@ -29,6 +29,17 @@ FrameSwapbuffers::~FrameSwapbuffers()
 /**
 */
 void
+FrameSwapbuffers::Discard()
+{
+	FrameOp::Discard();
+
+	this->tex = 0;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 FrameSwapbuffers::Run(const IndexT frameIndex)
 {
 	tex->SwapBuffers();

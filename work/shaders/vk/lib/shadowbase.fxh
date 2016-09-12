@@ -94,7 +94,7 @@ vsStaticInst(
 	out vec2 UV,
 	out vec4 ProjPos) 
 {
-	gl_Position = ViewMatrixArray[0] * ModelArray[gl_InstanceID] * vec4(position, 1);
+	gl_Position = ModelArray[gl_InstanceID] * vec4(position, 1);
 	ProjPos = gl_Position;
 	UV = uv;
 }
@@ -114,7 +114,7 @@ vsStaticCSM(
 	out vec4 ProjPos,
 	out int Instance) 
 {
-	ProjPos = ViewMatrixArray[gl_InstanceID] * Model * vec4(position, 1);
+	ProjPos = Model * vec4(position, 1);
 	Instance = gl_InstanceID;
 	UV = uv;
 }
@@ -137,7 +137,7 @@ vsSkinnedCSM(
 	out int Instance) 
 {
 	vec4 skinnedPos = SkinnedPosition(position, weights, indices);
-	ProjPos = ViewMatrixArray[gl_InstanceID] * Model * skinnedPos;
+	ProjPos = Model * skinnedPos;
 	Instance = gl_InstanceID;
 	UV = uv;
 }
@@ -158,8 +158,7 @@ vsStaticInstCSM(
 	out int Instance) 
 {
 	int csmStride = gl_InstanceID % 4;
-	int modelStride = int(gl_InstanceID / 4);
-	ProjPos = ViewMatrixArray[csmStride] * ModelArray[modelStride] * vec4(position, 1);
+	ProjPos = ModelArray[gl_InstanceID] * vec4(position, 1);
 	Instance = csmStride;
 	UV = uv;
 }
@@ -179,7 +178,7 @@ vsStaticPoint(
 	out vec4 ProjPos,
 	out int Instance) 
 {
-	ProjPos = ViewMatrixArray[gl_InstanceID] * Model * vec4(position, 1);
+	ProjPos = Model * vec4(position, 1);
 	Instance = gl_InstanceID;
 	UV = uv;
 }
@@ -202,7 +201,7 @@ vsSkinnedPoint(
 	out int Instance) 
 {
 	vec4 skinnedPos = SkinnedPosition(position, weights, indices);	
-	ProjPos = ViewMatrixArray[gl_InstanceID] * Model * skinnedPos;
+	ProjPos = Model * skinnedPos;
 	Instance = gl_InstanceID;
 	UV = uv;
 }
@@ -223,8 +222,7 @@ vsStaticInstPoint(
 	out int Instance) 
 {
 	int csmStride = gl_InstanceID % 4;
-	int modelStride = int(gl_InstanceID / 4);
-	ProjPos = ViewMatrixArray[csmStride] * ModelArray[modelStride] * vec4(position, 1);
+	ProjPos = ModelArray[gl_InstanceID] * vec4(position, 1);
 	Instance = csmStride;
 	UV = uv;
 }
@@ -240,24 +238,25 @@ vsStaticInstPoint(
 [inputprimitive] = triangles
 [outputprimitive] = triangle_strip
 [maxvertexcount] = 3
+[instances] = 6
 shader
 void 
 gsPoint(in vec2 uv[], in vec4 pos[], flat in int instance[], out vec2 UV, out vec4 ProjPos)
-{	
+{		
 	UV = uv[0];
-	ProjPos = pos[0];
+	ProjPos = ViewMatrixArray[gl_InvocationID] * pos[0];
 	gl_Position = ProjPos;
 	gl_Layer = instance[0];
 	EmitVertex();
 	
 	UV = uv[1];
-	ProjPos = pos[1];
+	ProjPos = ViewMatrixArray[gl_InvocationID] * pos[1];
 	gl_Position = ProjPos;
 	gl_Layer = instance[0];
 	EmitVertex();
 	
 	UV = uv[2];
-	ProjPos = pos[2];
+	ProjPos = ViewMatrixArray[gl_InvocationID] * pos[2];
 	gl_Position = ProjPos;
 	gl_Layer = instance[0];
 	EmitVertex();
@@ -273,25 +272,26 @@ gsPoint(in vec2 uv[], in vec4 pos[], flat in int instance[], out vec2 UV, out ve
 [inputprimitive] = triangles
 [outputprimitive] = triangle_strip
 [maxvertexcount] = 3
+[instances] = 4
 shader
 void 
 gsCSM(in vec2 uv[], in vec4 pos[], flat in int instance[], out vec2 UV, out vec4 ProjPos)
 {
-	gl_ViewportIndex = instance[0];
+	gl_ViewportIndex = gl_InvocationID;
 	
 	// simply pass geometry straight through and set viewport
 	UV = uv[0];
-	ProjPos = pos[0];
+	ProjPos = ViewMatrixArray[gl_InvocationID] * pos[0];
 	gl_Position = ProjPos;
 	EmitVertex();
 	
 	UV = uv[1];
-	ProjPos = pos[1];
+	ProjPos = ViewMatrixArray[gl_InvocationID] * pos[1];
 	gl_Position = ProjPos;
 	EmitVertex();
 	
 	UV = uv[2];
-	ProjPos = pos[2];
+	ProjPos = ViewMatrixArray[gl_InvocationID] * pos[2];
 	gl_Position = ProjPos;
 	EmitVertex();
 	EndPrimitive();

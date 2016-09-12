@@ -432,9 +432,8 @@ VkRenderTarget::Setup()
 void
 VkRenderTarget::Discard()
 {
-	vkFreeMemory(VkRenderDevice::dev, this->vkTargetImageMem, NULL);
-	vkDestroyImageView(VkRenderDevice::dev, this->vkTargetImageView, NULL);
-	vkDestroyImage(VkRenderDevice::dev, this->vkTargetImage, NULL);
+	vkDestroyRenderPass(VkRenderDevice::dev, this->pass, NULL);
+	vkDestroyFramebuffer(VkRenderDevice::dev, this->vkFramebuffer, NULL);
 	RenderTargetBase::Discard();
 }
 

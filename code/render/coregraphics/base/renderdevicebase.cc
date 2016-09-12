@@ -171,7 +171,7 @@ RenderDeviceBase::IsOpen() const
 void
 RenderDeviceBase::SetStreamVertexBuffer(IndexT streamIndex, const Ptr<VertexBuffer>& vb, IndexT offsetVertexIndex)
 {
-    n_assert((streamIndex >= 0) && (streamIndex < MaxNumVertexStreams));
+    n_assert((streamIndex >= 0) && (streamIndex < VertexLayoutBase::MaxNumVertexStreams));
     this->streamVertexBuffers[streamIndex] = vb;
     this->streamVertexOffsets[streamIndex] = offsetVertexIndex;
 }
@@ -182,7 +182,7 @@ RenderDeviceBase::SetStreamVertexBuffer(IndexT streamIndex, const Ptr<VertexBuff
 const Ptr<VertexBuffer>&
 RenderDeviceBase::GetStreamVertexBuffer(IndexT streamIndex) const
 {
-    n_assert((streamIndex >= 0) && (streamIndex < MaxNumVertexStreams));
+	n_assert((streamIndex >= 0) && (streamIndex < VertexLayoutBase::MaxNumVertexStreams));
     return this->streamVertexBuffers[streamIndex];
 }
 
@@ -192,7 +192,7 @@ RenderDeviceBase::GetStreamVertexBuffer(IndexT streamIndex) const
 IndexT
 RenderDeviceBase::GetStreamVertexOffset(IndexT streamIndex) const
 {
-    n_assert((streamIndex >= 0) && (streamIndex < MaxNumVertexStreams));
+	n_assert((streamIndex >= 0) && (streamIndex < VertexLayoutBase::MaxNumVertexStreams));
     return this->streamVertexOffsets[streamIndex];
 }
 
@@ -310,7 +310,7 @@ RenderDeviceBase::BeginFrame(IndexT frameIndex)
     n_assert(!this->indexBuffer.isvalid());
     n_assert(!this->vertexLayout.isvalid());
     IndexT i;
-    for (i = 0; i < MaxNumVertexStreams; i++)
+	for (i = 0; i < VertexLayoutBase::MaxNumVertexStreams; i++)
     {
         n_assert(!this->streamVertexBuffers[i].isvalid());
     }
@@ -543,7 +543,7 @@ RenderDeviceBase::EndFrame(IndexT frameIndex)
     
     this->inBeginFrame = false;
     IndexT i;
-    for (i = 0; i < MaxNumVertexStreams; i++)
+	for (i = 0; i < VertexLayoutBase::MaxNumVertexStreams; i++)
     {
         this->streamVertexBuffers[i] = 0;
     }
@@ -565,6 +565,15 @@ RenderDeviceBase::Present()
 */
 void
 RenderDeviceBase::BuildRenderPipeline()
+{
+	// empty, override in subclass
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+RenderDeviceBase::InsertBarrier(const CoreGraphics::Barrier& barrier)
 {
 	// empty, override in subclass
 }

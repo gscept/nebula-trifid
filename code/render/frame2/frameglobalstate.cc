@@ -34,6 +34,21 @@ FrameGlobalState::AddVariableInstance(const Ptr<CoreGraphics::ShaderVariableInst
 	this->variableInstances.Append(var);
 }
 
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+FrameGlobalState::Discard()
+{
+	FrameOp::Discard();
+
+	IndexT i;
+	for (i = 0; i < this->variableInstances.Size(); i++) this->variableInstances[i]->Discard();
+	this->variableInstances.Clear();
+	this->state->Discard();
+}
+
 //------------------------------------------------------------------------------
 /**
 */

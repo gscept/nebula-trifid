@@ -152,7 +152,7 @@ ShaderCompiler::CompileFrameShaders()
 
 	// for each base frame shader...
 	bool success = true;
-	Array<String> srcFiles = ioServer->ListFiles(this->srcFrameShaderBaseDir, "*.xml");
+	Array<String> srcFiles = ioServer->ListFiles(this->srcFrameShaderBaseDir, "*.json");
 	IndexT i;
 	for (i = 0; i < srcFiles.Size(); i++)
 	{
@@ -168,7 +168,7 @@ ShaderCompiler::CompileFrameShaders()
     if (this->srcFrameShaderCustomDir.IsValid())
     {
         // for each custom frame shader...
-        srcFiles = ioServer->ListFiles(this->srcFrameShaderCustomDir, "*.xml");
+        srcFiles = ioServer->ListFiles(this->srcFrameShaderCustomDir, "*.json");
         for (i = 0; i < srcFiles.Size(); i++)
         {
             // build absolute source and target filenames

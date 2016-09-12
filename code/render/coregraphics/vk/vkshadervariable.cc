@@ -193,9 +193,6 @@ VkShaderVariable::Setup(AnyFX::VkVarbuffer* var, const Ptr<VkShaderState>& shade
 	this->shader = shader;
 	this->set = set;
 	this->SetType(BufferReadWriteType);
-
-	// set to null when initialized
-	this->SetShaderReadWriteBuffer(NULL);
 }
 
 //------------------------------------------------------------------------------

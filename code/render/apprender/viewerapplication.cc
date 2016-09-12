@@ -80,14 +80,13 @@ ViewerApplication::Open()
                                                       defaultViewName,
                                                       true);
 
-        Ptr<Frame::FrameShader> frameShader = Frame::FrameServer::Instance()->LookupFrameShader(ResourceId(NEBULA3_DEFAULT_FRAMESHADER_NAME));
-        this->view->SetStage(this->stage);
-        this->view->SetFrameShader(frameShader);
-        if (this->useResolveRect) this->view->SetResolveRect(this->resolveRect);
-
 		Frame2::FrameServer::Instance()->SetWindowTexture(CoreGraphics::RenderDevice::Instance()->GetDefaultRenderTexture());
-		Ptr<Frame2::FrameScript> frameScript = Frame2::FrameServer::Instance()->LoadFrameScript("test", "home:work/frame/win32/vkdebug.json");
+		Ptr<Frame2::FrameScript> frameScript = Frame2::FrameServer::Instance()->LoadFrameScript("test", "frame:vkdebug.json");
+
+		// set stage
+		this->view->SetStage(this->stage);
 		this->view->SetFrameScript(frameScript);
+		if (this->useResolveRect) this->view->SetResolveRect(this->resolveRect);
 
         // create a camera entity
         this->camera = CameraEntity::Create();

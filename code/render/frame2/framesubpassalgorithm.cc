@@ -25,6 +25,19 @@ FrameSubpassAlgorithm::~FrameSubpassAlgorithm()
 	// empty
 }
 
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+FrameSubpassAlgorithm::Discard()
+{
+	FrameOp::Discard();
+
+	this->alg->Discard();
+	this->alg = 0;
+}
+
 //------------------------------------------------------------------------------
 /**
 */

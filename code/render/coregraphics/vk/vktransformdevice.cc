@@ -64,7 +64,6 @@ VkTransformDevice::Open()
 
 	// setup shadow block, make it synced so that we can update shadow maps without massive frame drops
 	this->shadowCameraBuffer = ConstantBuffer::Create();
-	this->shadowCameraBuffer->SetSync(true);
 	this->shadowCameraBuffer->SetupFromBlockInShader(this->sharedShader, "ShadowCameraBlock");
 	this->viewMatricesVar = this->shadowCameraBuffer->GetVariableByName(NEBULA3_SEMANTIC_VIEWMATRIXARRAY);
 	this->shadowCameraBlockVar = this->sharedShader->GetVariableByName("ShadowCameraBlock");
@@ -91,8 +90,6 @@ VkTransformDevice::ApplyViewSettings()
 	TransformDeviceBase::ApplyViewSettings();
 
 	// update per frame view stuff
-	this->cameraBuffer->CycleBuffers();
-	this->cameraBuffer->BeginUpdateSync();
 	this->viewProjVar->SetMatrix(this->GetViewProjTransform());
 	this->invViewProjVar->SetMatrix(this->GetInvViewTransform());
 	this->viewVar->SetMatrix(this->GetViewTransform());
@@ -107,7 +104,6 @@ VkTransformDevice::ApplyViewSettings()
 		(float)FrameSync::FrameSyncTimer::Instance()->GetTime(),
 		Math::n_rand(0, 1),
 		0, 0));
-	this->cameraBuffer->EndUpdateSync();
 }
 
 //------------------------------------------------------------------------------
@@ -132,10 +128,7 @@ VkTransformDevice::ApplyModelTransforms(const Ptr<CoreGraphics::ShaderState>& sh
 void
 VkTransformDevice::ApplyViewMatrixArray(const Math::matrix44* matrices, SizeT num)
 {
-	this->shadowCameraBuffer->CycleBuffers();
-	this->shadowCameraBuffer->BeginUpdateSync();
 	this->viewMatricesVar->SetMatrixArray(matrices, num);
-	this->shadowCameraBuffer->EndUpdateSync();
 }
 
 } // namespace Vulkan

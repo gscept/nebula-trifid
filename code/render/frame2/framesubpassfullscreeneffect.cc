@@ -41,6 +41,19 @@ FrameSubpassFullscreenEffect::Setup()
 /**
 */
 void
+FrameSubpassFullscreenEffect::Discard()
+{
+	FrameOp::Discard();
+
+	this->fsq.Discard();
+	this->tex = 0;
+	this->shaderState = 0;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 FrameSubpassFullscreenEffect::Run(const IndexT frameIndex)
 {
 	RenderDevice* renderDevice = RenderDevice::Instance();

@@ -8,6 +8,7 @@
 #include "rendermodules/rt/rtpluginregistry.h"
 #include "coregraphics/textrenderer.h"
 #include "coregraphics/shaperenderer.h"
+#include "lighting/shadowserver.h"
 
 using namespace CoreGraphics;
 using namespace Lighting;
@@ -55,6 +56,15 @@ FrameSubpassSystem::Run(const IndexT frameIndex)
 		break;
 	case LightProbes:
 		LightServer::Instance()->RenderLightProbes();
+		break;
+	case LocalShadowsSpot:
+		ShadowServer::Instance()->UpdateSpotLightShadowBuffers();
+		break;
+	case LocalShadowsPoint:
+		ShadowServer::Instance()->UpdatePointLightShadowBuffers();
+		break;
+	case GlobalShadows:
+		ShadowServer::Instance()->UpdateGlobalLightShadowBuffers();
 		break;
 	case UI:
 		//RenderModules::RTPluginRegistry::Instance()->OnRender(FrameBatchType::UI);

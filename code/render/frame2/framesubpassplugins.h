@@ -24,6 +24,8 @@ public:
 
 	/// setup plugin pass
 	void Setup();
+	/// discard operation
+	void Discard();
 	/// run plugin pass
 	void Run(const IndexT frameIndex);
 private:

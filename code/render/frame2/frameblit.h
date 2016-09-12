@@ -24,6 +24,8 @@ public:
 	/// set texture to copy to
 	void SetToTexture(const Ptr<CoreGraphics::RenderTexture>& to);
 
+	/// discard operation
+	void Discard();
 	/// run operation
 	void Run(const IndexT frameIndex);
 private:

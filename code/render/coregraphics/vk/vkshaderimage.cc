@@ -42,7 +42,7 @@ VkShaderImage::Setup(const SizeT width, const SizeT height, const CoreGraphics::
 	extents.width = width;
 	extents.height = height;
 	extents.depth = 1;
-	uint32_t queues[] = { VkRenderDevice::Instance()->drawQueueFamily };
+	uint32_t queues[] = { VkRenderDevice::Instance()->drawQueueFamily, VkRenderDevice::Instance()->computeQueueFamily };
 	VkImageCreateInfo info =
 	{
 		VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
@@ -54,10 +54,10 @@ VkShaderImage::Setup(const SizeT width, const SizeT height, const CoreGraphics::
 		1,
 		1,
 		VK_SAMPLE_COUNT_1_BIT,
-		VK_IMAGE_TILING_OPTIMAL,
-		VK_IMAGE_USAGE_STORAGE_BIT,
-		VK_SHARING_MODE_EXCLUSIVE,														// change to exclusive and use VkImageMemoryBarrier to transition from transfer to graphics when upload is done
-		1,
+		VK_IMAGE_TILING_LINEAR,			// must be linear to be bindable to images
+		VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+		VK_SHARING_MODE_EXCLUSIVE,
+		2,
 		queues,
 		VK_IMAGE_LAYOUT_UNDEFINED
 	};
@@ -72,9 +72,9 @@ VkShaderImage::Setup(const SizeT width, const SizeT height, const CoreGraphics::
 	VkImageSubresourceRange viewRange;
 	viewRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 	viewRange.baseMipLevel = 0;
-	viewRange.levelCount = 1;
 	viewRange.baseArrayLayer = 0;
-	viewRange.layerCount = 1;
+	viewRange.levelCount = VK_REMAINING_MIP_LEVELS;
+	viewRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
 	VkImageViewCreateInfo viewCreate =
 	{
 		VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,

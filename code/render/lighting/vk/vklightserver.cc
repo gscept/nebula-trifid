@@ -105,11 +105,17 @@ VkLightServer::Open()
 	this->lightProbeFeatureBits[LightProbeEntity::Sphere + 2] = shdServer->FeatureStringToMask("Alt1|Alt2");
 
 	// global light variables used for shadowing
-	this->globalLightCascadeOffset				= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_CASCADEOFFSET);
-	this->globalLightCascadeScale				= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_CASCADESCALE);
-	this->globalLightMinBorderPadding			= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_MINBORDERPADDING);
-	this->globalLightMaxBorderPadding			= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_MAXBORDERPADDING);
-	this->globalLightPartitionSize				= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_SHADOWPARTITIONSIZE);
+	this->globalLightShadowBuffer				= ConstantBuffer::Create();
+	this->globalLightShadowBuffer->SetupFromBlockInShader(this->lightShader, "CSMParamBlock", 1);
+	this->globalLightCascadeOffset				= this->globalLightShadowBuffer->GetVariableByName(NEBULA3_SEMANTIC_CASCADEOFFSET);
+	this->globalLightCascadeScale				= this->globalLightShadowBuffer->GetVariableByName(NEBULA3_SEMANTIC_CASCADESCALE);
+	this->globalLightMinBorderPadding			= this->globalLightShadowBuffer->GetVariableByName(NEBULA3_SEMANTIC_MINBORDERPADDING);
+	this->globalLightMaxBorderPadding			= this->globalLightShadowBuffer->GetVariableByName(NEBULA3_SEMANTIC_MAXBORDERPADDING);
+	this->globalLightPartitionSize				= this->globalLightShadowBuffer->GetVariableByName(NEBULA3_SEMANTIC_SHADOWPARTITIONSIZE);
+
+	// bind buffer to slot
+	this->globalLightShadowBlockVar = this->lightShader->GetVariableByName("CSMParamBlock");
+	this->globalLightShadowBlockVar->SetConstantBuffer(this->globalLightShadowBuffer);
 
     // setup block for global light, this will only be updated once per iteration and is shared across all shaders
     this->globalLightBuffer                     = ConstantBuffer::Create();

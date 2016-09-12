@@ -27,6 +27,8 @@
 #include "core/factory.h"
 #include "frameswapbuffers.h"
 #include "framesubpassplugins.h"
+#include "framebarrier.h"
+#include "coregraphics/barrier.h"
 
 using namespace CoreGraphics;
 using namespace IO;
@@ -88,6 +90,7 @@ FrameScriptLoader::ParseFrameScript(const Ptr<Frame2::FrameScript>& script, cJSO
 		else if (name == "readWriteBuffers")	ParseImageReadWriteBufferList(script, cur);
 		else if (name == "algorithms")			ParseAlgorithmList(script, cur);
 		else if (name == "events")				ParseEventList(script, cur);
+		else if (name == "shaderStates")		ParseShaderStateList(script, cur);
 		else if (name == "globalState")			ParseGlobalState(script, cur);
 		else if (name == "blit")				ParseBlit(script, cur);
 		else if (name == "copy")				ParseCopy(script, cur);
@@ -95,6 +98,7 @@ FrameScriptLoader::ParseFrameScript(const Ptr<Frame2::FrameScript>& script, cJSO
 		else if (name == "computeAlgorithm")	ParseComputeAlgorithm(script, cur);
 		else if (name == "swapbuffers")			ParseSwapbuffers(script, cur);
 		else if (name == "pass")				ParsePass(script, cur);
+		else if (name == "barrier")				ParseBarrier(script, cur);
 		
 		else
 		{
@@ -140,6 +144,9 @@ FrameScriptLoader::ParseColorTextureList(const Ptr<Frame2::FrameScript>& script,
 			tex->SetPixelFormat(fmt);
 			tex->SetUsage(RenderTexture::ColorAttachment);
 			tex->SetTextureType(Texture::Texture2D);
+
+			cJSON* layers = cJSON_GetObjectItem(cur, "layers");
+			if (layers != NULL) tex->SetLayers(layers->valueint);
 
 			// set relative, dynamic or msaa if defined
 			if (cJSON_HasObjectItem(cur, "relative")) tex->SetIsScreenRelative(cJSON_GetObjectItem(cur, "relative")->valueint == 1 ? true : false);
@@ -196,6 +203,9 @@ FrameScriptLoader::ParseDepthStencilTextureList(const Ptr<Frame2::FrameScript>& 
 		tex->SetPixelFormat(fmt);
 		tex->SetUsage(RenderTexture::DepthStencilAttachment);
 		tex->SetTextureType(Texture::Texture2D);
+
+		cJSON* layers = cJSON_GetObjectItem(cur, "layers");
+		if (layers != NULL) tex->SetLayers(layers->valueint);
 
 		// set relative, dynamic or msaa if defined
 		if (cJSON_HasObjectItem(cur, "relative")) tex->SetIsScreenRelative(cJSON_GetObjectItem(cur, "relative")->valueint == 1 ? true : false);
@@ -339,6 +349,34 @@ FrameScriptLoader::ParseEventList(const Ptr<Frame2::FrameScript>& script, cJSON*
 		// add event
 		ev->Setup();
 		script->AddEvent(name->valuestring, ev);
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+FrameScriptLoader::ParseShaderStateList(const Ptr<Frame2::FrameScript>& script, cJSON* node)
+{
+	IndexT i;
+	for (i = 0; i < cJSON_GetArraySize(node); i++)
+	{
+		cJSON* cur = cJSON_GetArrayItem(node, i);
+		cJSON* name = cJSON_GetObjectItem(cur, "name");
+		n_assert(name != NULL);
+
+		cJSON* shader = cJSON_GetObjectItem(cur, "shader");
+		n_assert(shader != NULL);
+		Ptr<CoreGraphics::ShaderState> state = ShaderServer::Instance()->CreateShaderState(shader->valuestring, { NEBULAT_DEFAULT_GROUP });
+
+		cJSON* vars = cJSON_GetObjectItem(cur, "variables");
+		if (vars != NULL)
+		{
+			ParseShaderVariables(script, state, vars);
+		}
+
+		// add state
+		script->AddShaderState(name->valuestring, state);
 	}
 }
 
@@ -493,23 +531,21 @@ FrameScriptLoader::ParseCompute(const Ptr<Frame2::FrameScript>& script, cJSON* n
 	op->SetName(name->valuestring);
 
 	// create shader state
-	cJSON* shader = cJSON_GetObjectItem(node, "shader");
+	cJSON* shader = cJSON_GetObjectItem(node, "shaderState");
 	n_assert(shader != NULL);
-	Ptr<ShaderState> state = ShaderServer::Instance()->CreateShaderState(shader->valuestring, { NEBULAT_DEFAULT_GROUP });
+	Ptr<ShaderState> state = script->GetShaderState(shader->valuestring);
 	op->SetShaderState(state);
+
+	cJSON* variation = cJSON_GetObjectItem(node, "variation");
+	n_assert(variation != NULL);
+	CoreGraphics::ShaderFeature::Mask mask = ShaderServer::Instance()->FeatureStringToMask(variation->valuestring);
+	op->SetVariation(mask);
 
 	// get dimensions, must be 3
 	cJSON* dims = cJSON_GetObjectItem(node, "dimensions");
 	n_assert(dims != NULL);
 	n_assert(cJSON_GetArraySize(dims) == 3);
 	op->SetInvocations(cJSON_GetArrayItem(dims, 0)->valueint, cJSON_GetArrayItem(dims, 1)->valueint, cJSON_GetArrayItem(dims, 2)->valueint);
-
-	// parse variables
-	cJSON* variables = cJSON_GetObjectItem(node, "variables");
-	if (variables != NULL)
-	{
-		ParseShaderVariables(script, state, variables);
-	}
 
 	// add op to script
 	script->AddOp(op.upcast<Frame2::FrameOp>());
@@ -598,6 +634,32 @@ FrameScriptLoader::ParseEvent(const Ptr<Frame2::FrameScript>& script, cJSON* nod
 	// set event in op
 	op->SetEvent(event);
 	script->AddOp(op.upcast<Frame2::FrameOp>());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+FrameScriptLoader::ParseBarrier(const Ptr<Frame2::FrameScript>& script, cJSON* node)
+{
+	Ptr<FrameBarrier> op = FrameBarrier::Create();
+	CoreGraphics::Barrier barrier;
+	barrier.SetUsage(Barrier::Subpass);
+
+	cJSON* textures = cJSON_GetObjectItem(node, "textures");
+	if (textures != NULL)
+	{
+		IndexT i;
+		for (i = 0; i < cJSON_GetArraySize(textures); i++)
+		{
+			cJSON* tex = cJSON_GetArrayItem(textures, i);
+			Util::String str(tex->valuestring);
+			const Ptr<CoreGraphics::RenderTexture>& rt = script->GetColorTexture(str);
+			barrier.AddTexture(rt);
+		}
+	}
+	op->SetBarrier(barrier);
+	script->AddOp(op.upcast<FrameOp>());
 }
 
 //------------------------------------------------------------------------------
@@ -749,11 +811,14 @@ FrameScriptLoader::ParseSubpass(const Ptr<Frame2::FrameScript>& script, const Pt
 		else if (name == "inputs")				ParseSubpassInputs(subpass, cur);
 		else if (name == "depth")				subpass.bindDepth = cur->valueint == 1 ? true : false;
 		else if (name == "resolve")				subpass.resolve = cur->valueint == 1 ? true : false;
+		else if (name == "viewports")			ParseSubpassViewports(script, frameSubpass, cur);
+		else if (name == "scissors")			ParseSubpassScissors(script, frameSubpass, cur);
 		else if (name == "subpassAlgorithm")	ParseSubpassAlgorithm(script, frameSubpass, cur);
 		else if (name == "batch")				ParseSubpassBatch(script, frameSubpass, cur);
 		else if (name == "sortedBatch")			ParseSubpassSortedBatch(script, frameSubpass, cur);
 		else if (name == "fullscreenEffect")	ParseSubpassFullscreenEffect(script, frameSubpass, cur);
 		else if (name == "event")				ParseSubpassEvent(script, frameSubpass, cur);
+		else if (name == "barrier")				ParseSubpassBarrier(script, frameSubpass, cur);
 		else if (name == "system")				ParseSubpassSystem(script, frameSubpass, cur);
 		else if (name == "plugins")				ParseSubpassPlugins(script, frameSubpass, cur);
 		else
@@ -806,6 +871,38 @@ FrameScriptLoader::ParseSubpassInputs(CoreGraphics::Pass::Subpass& subpass, cJSO
 	{
 		cJSON* cur = cJSON_GetArrayItem(node, i);
 		subpass.inputs.Append(cur->valueint);
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+FrameScriptLoader::ParseSubpassViewports(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, cJSON* node)
+{
+	IndexT i;
+	for (i = 0; i < cJSON_GetArraySize(node); i++)
+	{
+		cJSON* var = cJSON_GetArrayItem(node, i);
+		Math::float4 viewport = Util::String(var->valuestring).AsFloat4();
+		Math::rectangle<int> rect((int)viewport.x(), (int)viewport.y(), (int)viewport.z(), (int)viewport.w());
+		subpass->AddViewport(rect);
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+FrameScriptLoader::ParseSubpassScissors(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, cJSON* node)
+{
+	IndexT i;
+	for (i = 0; i < cJSON_GetArraySize(node); i++)
+	{
+		cJSON* var = cJSON_GetArrayItem(node, i);
+		Math::float4 scissor = Util::String(var->valuestring).AsFloat4();
+		Math::rectangle<int> rect((int)scissor.x(), (int)scissor.y(), (int)scissor.z(), (int)scissor.w());
+		subpass->AddScissor(rect);
 	}
 }
 
@@ -874,9 +971,9 @@ FrameScriptLoader::ParseSubpassFullscreenEffect(const Ptr<Frame2::FrameScript>& 
 	op->SetName(name->valuestring);
 	
 	// create shader state
-	cJSON* shader = cJSON_GetObjectItem(node, "shader");
-	n_assert(shader != NULL);
-	Ptr<ShaderState> state = ShaderServer::Instance()->CreateShaderState(shader->valuestring, { NEBULAT_DEFAULT_GROUP });
+	cJSON* shaderState = cJSON_GetObjectItem(node, "shaderState");
+	n_assert(shaderState != NULL);
+	Ptr<ShaderState> state = script->GetShaderState(shaderState->valuestring);
 	op->SetShaderState(state);
 
 	// get texture
@@ -884,13 +981,6 @@ FrameScriptLoader::ParseSubpassFullscreenEffect(const Ptr<Frame2::FrameScript>& 
 	n_assert(texture != NULL);
 	Ptr<CoreGraphics::RenderTexture> tex = script->GetColorTexture(texture->valuestring);
 	op->SetRenderTexture(tex);
-
-	// parse variables
-	cJSON* variables = cJSON_GetObjectItem(node, "variables");
-	if (variables != NULL)
-	{
-		ParseShaderVariables(script, state, variables);
-	}
 	
 	// add op to subpass
 	op->Setup();
@@ -938,16 +1028,45 @@ FrameScriptLoader::ParseSubpassEvent(const Ptr<Frame2::FrameScript>& script, con
 /**
 */
 void
+FrameScriptLoader::ParseSubpassBarrier(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, cJSON* node)
+{
+	Ptr<FrameBarrier> op = FrameBarrier::Create();
+	CoreGraphics::Barrier barrier;
+	barrier.SetUsage(Barrier::Subpass);
+
+	cJSON* textures = cJSON_GetObjectItem(node, "textures");
+	if (textures != NULL)
+	{
+		IndexT i;
+		for (i = 0; i < cJSON_GetArraySize(textures); i++)
+		{
+			cJSON* tex = cJSON_GetArrayItem(textures, i);
+			Util::String str(tex->valuestring);
+			const Ptr<CoreGraphics::RenderTexture>& rt = script->GetColorTexture(str);
+			barrier.AddTexture(rt);
+		}
+	}
+	op->SetBarrier(barrier);
+	subpass->AddOp(op.upcast<Frame2::FrameOp>());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 FrameScriptLoader::ParseSubpassSystem(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, cJSON* node)
 {
 	Ptr<Frame2::FrameSubpassSystem> op = Frame2::FrameSubpassSystem::Create();
 
 	Util::String subsystem(node->valuestring);
-	if (subsystem == "Lights")				op->SetSubsystem(FrameSubpassSystem::Lights);
-	else if (subsystem == "LightProbes")	op->SetSubsystem(FrameSubpassSystem::LightProbes);
-	else if (subsystem == "UI")				op->SetSubsystem(FrameSubpassSystem::UI);
-	else if (subsystem == "Text")			op->SetSubsystem(FrameSubpassSystem::Text);
-	else if (subsystem == "Shapes")			op->SetSubsystem(FrameSubpassSystem::Shapes);
+	if (subsystem == "Lights")					op->SetSubsystem(FrameSubpassSystem::Lights);
+	else if (subsystem == "LightProbes")		op->SetSubsystem(FrameSubpassSystem::LightProbes);
+	else if (subsystem == "LocalShadowsSpot")	op->SetSubsystem(FrameSubpassSystem::LocalShadowsSpot);
+	else if (subsystem == "LocalShadowsPoint")	op->SetSubsystem(FrameSubpassSystem::LocalShadowsPoint);
+	else if (subsystem == "GlobalShadows")		op->SetSubsystem(FrameSubpassSystem::GlobalShadows);
+	else if (subsystem == "UI")					op->SetSubsystem(FrameSubpassSystem::UI);
+	else if (subsystem == "Text")				op->SetSubsystem(FrameSubpassSystem::Text);
+	else if (subsystem == "Shapes")				op->SetSubsystem(FrameSubpassSystem::Shapes);
 	else
 	{
 		n_error("No subsystem called '%s' exists", subsystem.AsCharPtr());

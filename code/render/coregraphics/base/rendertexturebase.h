@@ -51,6 +51,10 @@ public:
 	const SizeT GetHeight() const;
 	/// get depth
 	const SizeT GetDepth() const;
+	/// set layers
+	void SetLayers(const SizeT layers);
+	/// get layers
+	const SizeT GetLayers() const;
 	/// set if render texture should be relative to screen, dimensions are used as multipliers
 	void SetIsScreenRelative(const bool b);
 	/// set if render texture should be dynamically scaled
@@ -90,6 +94,7 @@ protected:
 	SizeT width;
 	SizeT height;
 	SizeT depth;
+	SizeT layers;
 	float widthScale;
 	float heightScale;
 	float depthScale;
@@ -173,6 +178,25 @@ RenderTextureBase::GetDepth() const
 {
 	return this->depth;
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+RenderTextureBase::SetLayers(const SizeT layers)
+{
+	this->layers = layers;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const SizeT
+RenderTextureBase::GetLayers() const
+{
+	return this->layers;
+}
+
 //------------------------------------------------------------------------------
 /**
 */

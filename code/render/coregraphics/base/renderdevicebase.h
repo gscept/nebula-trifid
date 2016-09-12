@@ -25,6 +25,8 @@
 #include "graphics/graphicsserver.h"
 #include "coregraphics/shader.h"
 #include "util/queue.h"
+#include "vertexlayoutbase.h"
+#include "../barrier.h"
 
 namespace CoreGraphics
 {
@@ -49,8 +51,6 @@ class RenderDeviceBase : public Core::RefCounted
     __DeclareClass(RenderDeviceBase);
     __DeclareSingleton(RenderDeviceBase);
 public:
-    /// max number of vertex streams
-    static const IndexT MaxNumVertexStreams = 2;
 
 	enum MemoryBarrierBits
 	{
@@ -132,6 +132,8 @@ public:
     const CoreGraphics::PrimitiveGroup& GetPrimitiveGroup() const;
 	/// bake the current state of the render device (only used on DX12 and Vulkan renderers where pipeline creation is required)
 	void BuildRenderPipeline();
+	/// insert execution barrier
+	void InsertBarrier(const CoreGraphics::Barrier& barrier);
     /// draw current primitives
     void Draw();
     /// draw indexed, instanced primitives
@@ -221,8 +223,8 @@ protected:
     Util::Array<Ptr<CoreGraphics::RenderEventHandler> > eventHandlers;
     Ptr<CoreGraphics::RenderTarget> defaultRenderTarget;
 	Ptr<CoreGraphics::RenderTexture> defaultRenderTexture;
-    Ptr<CoreGraphics::VertexBuffer> streamVertexBuffers[MaxNumVertexStreams];
-    IndexT streamVertexOffsets[MaxNumVertexStreams];
+    Ptr<CoreGraphics::VertexBuffer> streamVertexBuffers[VertexLayoutBase::MaxNumVertexStreams];
+	IndexT streamVertexOffsets[VertexLayoutBase::MaxNumVertexStreams];
     Ptr<CoreGraphics::VertexLayout> vertexLayout;
     Ptr<CoreGraphics::IndexBuffer> indexBuffer;
 	CoreGraphics::PrimitiveTopology::Code primitiveTopology;

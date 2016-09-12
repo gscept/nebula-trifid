@@ -125,7 +125,6 @@ RocketRenderer::CompileGeometry(Rocket::Core::Vertex* vertices,
 	geometry->primGroup.SetNumVertices(num_vertices);
 	geometry->primGroup.SetBaseVertex(0);
 	geometry->primGroup.SetNumIndices(num_indices);
-	geometry->primGroup.SetPrimitiveTopology(PrimitiveTopology::TriangleList);
 	
 	return reinterpret_cast<Rocket::Core::CompiledGeometryHandle>(geometry);
 }
@@ -190,6 +189,7 @@ RocketRenderer::RenderCompiledGeometry(Rocket::Core::CompiledGeometryHandle geom
 
 		// setup render device and draw
 		device->SetVertexLayout(nebGeometry->vb->GetVertexLayout());
+		device->SetPrimitiveTopology(PrimitiveTopology::TriangleList);
 		device->SetIndexBuffer(nebGeometry->ib);
 		device->SetStreamVertexBuffer(0, nebGeometry->vb, 0);
 		device->SetPrimitiveGroup(nebGeometry->primGroup);

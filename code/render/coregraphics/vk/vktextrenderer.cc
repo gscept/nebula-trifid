@@ -161,7 +161,7 @@ VkTextRenderer::Close()
 	this->vbo = 0;
 
 	// unload texture
-	this->glyphTexture->Unload();
+	ResourceManager::Instance()->UnregisterUnmanagedResource(this->glyphTexture.upcast<Resource>());
 	this->glyphTexture = 0;
 
 	n_delete_array(ttf_buffer);

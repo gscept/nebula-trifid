@@ -36,6 +36,9 @@ public:
 	/// performs a variable commit to the current program
 	void Commit();
 
+	/// discard variation
+	void Discard();
+
 	/// get the number of vertex shader inputs
 	const uint32_t GetNumVertexInputs() const;
 	/// get the number of pixel shader outputs

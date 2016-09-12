@@ -41,10 +41,14 @@ ShaderBase::~ShaderBase()
 void
 ShaderBase::Unload()
 {
-	// unload the implicit main instance first
-	this->mainState->Discard();
-
+	// assume instances are empty
     n_assert(0 == this->shaderInstances.Size());
+
+	IndexT i;
+	for (i = 0; i < this->variations.Size(); i++)
+	{
+		this->variations[i]->Discard();
+	}
     this->variations.Clear();
 
     Resource::Unload();

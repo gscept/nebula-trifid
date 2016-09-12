@@ -7,6 +7,8 @@
 //
 //  (C) 2016 Gustav Sterbrant
 //------------------------------------------------------------------------------
+#include "lib/shared.fxh"
+
 #if IMAGE_IS_RGBA16F
 #define IMAGE_FORMAT_TYPE rgba16f
 #define IMAGE_LOAD_VEC vec4
@@ -24,7 +26,13 @@
 #define RESULT_TO_VEC4(vec) vec4(vec.xy, 0, 0)
 #endif
 
-readwrite IMAGE_FORMAT_TYPE image2D BlurImage;
+samplerstate InputSampler
+{
+	Filter = Point;
+};
+
+textureHandle InputImage;
+write IMAGE_FORMAT_TYPE image2D BlurImage;
 #define INV_LN2 1.44269504f
 
 #define KERNEL_RADIUS 16
@@ -73,7 +81,7 @@ csMainX()
 	
 	// load into workgroup saved memory, this allows us to use the original pixel even though 
 	// we might have replaced it with the result from this thread!
-	SharedMemory[gl_LocalInvocationID.x] = IMAGE_LOAD_SWIZZLE(imageLoad(BlurImage, ivec2(x, y)));
+	SharedMemory[gl_LocalInvocationID.x] = IMAGE_LOAD_SWIZZLE(fetch2D(InputImage, InputSampler, ivec2(x, y), 0));
 	barrier();
 	
 	const uint writePos = tileStart + gl_LocalInvocationID.x;
@@ -82,7 +90,7 @@ csMainX()
 	if (writePos < tileEndClamped)
 	{
 		// Fetch (ao,z) at the kernel center
-		IMAGE_LOAD_VEC color = IMAGE_LOAD_SWIZZLE(imageLoad(BlurImage, ivec2(writePos, y)));
+		IMAGE_LOAD_VEC color = IMAGE_LOAD_SWIZZLE(fetch2D(InputImage, InputSampler, ivec2(writePos, y), 0));
 		IMAGE_LOAD_VEC blurTotal = color;
 		IMAGE_LOAD_VEC wTotal = IMAGE_LOAD_VEC(1);
 		float i;
@@ -138,7 +146,7 @@ csMainY()
 	
 	// load into workgroup saved memory, this allows us to use the original pixel even though 
 	// we might have replaced it with the result from this thread!
-	SharedMemory[gl_LocalInvocationID.x] = IMAGE_LOAD_SWIZZLE(imageLoad(BlurImage, ivec2(x, y)));
+	SharedMemory[gl_LocalInvocationID.x] = IMAGE_LOAD_SWIZZLE(fetch2D(InputImage, InputSampler, ivec2(x, y), 0));
 	barrier();
 	
 	const uint writePos = tileStart + gl_LocalInvocationID.x;
@@ -147,7 +155,7 @@ csMainY()
 	if (writePos < tileEndClamped)
 	{
 		// Fetch (ao,z) at the kernel center
-		IMAGE_LOAD_VEC color = IMAGE_LOAD_SWIZZLE(imageLoad(BlurImage, ivec2(x, writePos)));
+		IMAGE_LOAD_VEC color = IMAGE_LOAD_SWIZZLE(fetch2D(InputImage, InputSampler, ivec2(x, writePos), 0));
 		IMAGE_LOAD_VEC blurTotal = color;
 		IMAGE_LOAD_VEC wTotal = IMAGE_LOAD_VEC(1);
 		float i;

@@ -435,7 +435,6 @@ VkRenderDevice::OpenVulkanContext()
 	n_assert(res == VK_SUCCESS);
 
 	this->backbuffers.Resize(this->numBackbuffers);
-	this->backbufferMem.Resize(this->numBackbuffers);
 	this->backbufferSemaphores.Resize(this->numBackbuffers);
 	res = vkGetSwapchainImagesKHR(this->dev, this->swapchain, &this->numBackbuffers, this->backbuffers.Begin());
 
@@ -741,7 +740,13 @@ VkRenderDevice::OpenVulkanContext()
 void
 VkRenderDevice::CloseVulkanDevice()
 {
-	vkDestroySwapchainKHR(this->dev, this->swapchain, NULL);
+	// wait for all commands to be done first
+	VkResult res = vkQueueWaitIdle(this->drawQueue);
+	n_assert(res == VK_SUCCESS);
+	res = vkQueueWaitIdle(this->transferQueue);
+	n_assert(res == VK_SUCCESS);
+	res = vkQueueWaitIdle(this->computeQueue);
+	n_assert(res == VK_SUCCESS);
 
 	IndexT i;
 	for (i = 0; i < NumDrawThreads; i++)
@@ -768,10 +773,6 @@ VkRenderDevice::CloseVulkanDevice()
 		vkDestroyCommandPool(this->dev, this->dispatchableCmdCompBufferPool[i], NULL);
 	}
 
-	// wait for all commands to be done first
-	VkResult res = vkQueueWaitIdle(this->drawQueue);
-	n_assert(res == VK_SUCCESS);
-
 	// free our main buffers, our secondary buffers should be fine so the pools should be free to destroy
 	vkFreeCommandBuffers(this->dev, this->mainCmdDrawPool, 1, &this->mainCmdDrawBuffer);
 	vkFreeCommandBuffers(this->dev, this->mainCmdCmpPool, 1, &this->mainCmdCmpBuffer);
@@ -786,9 +787,11 @@ VkRenderDevice::CloseVulkanDevice()
 
 	for (i = 0; i < (int32_t)this->numBackbuffers; i++)
 	{
-		vkDestroyImage(this->dev, this->backbuffers[i], NULL);
-		vkFreeMemory(this->dev, this->backbufferMem[i], NULL);
+		vkDestroyImageView(this->dev, this->backbufferViews[i], NULL);
 	}
+
+	// destroy swapchain last
+	vkDestroySwapchainKHR(this->dev, this->swapchain, NULL);
 
 	vkDestroyDevice(this->dev, NULL);
 	vkDestroyInstance(this->instance, NULL);
@@ -1457,11 +1460,18 @@ VkRenderDevice::SetScissorRect(const Math::rectangle<int>& rect, int index)
 	sc.extent.width = rect.width();
 	sc.offset.x = rect.left;
 	sc.offset.y = rect.top;
-	VkCmdBufferThread::Command cmd;
-	cmd.type = VkCmdBufferThread::ScissorRect;
-	cmd.scissorRect.index = index;
-	cmd.scissorRect.sc = sc;
-	this->PushToThread(cmd, this->currentDrawThread);
+	if (this->numActiveThreads)
+	{
+		VkCmdBufferThread::Command cmd;
+		cmd.type = VkCmdBufferThread::ScissorRect;
+		cmd.scissorRect.index = index;
+		cmd.scissorRect.sc = sc;
+		this->PushToThread(cmd, this->currentDrawThread);
+	}	
+	else
+	{
+		this->scissors[index] = sc;
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -1475,11 +1485,18 @@ VkRenderDevice::SetViewport(const Math::rectangle<int>& rect, int index)
 	vp.height = (float)rect.height();
 	vp.x = (float)rect.left;
 	vp.y = (float)rect.top;
-	VkCmdBufferThread::Command cmd;
-	cmd.type = VkCmdBufferThread::Viewport;
-	cmd.viewport.index = index;
-	cmd.viewport.vp = vp;
-	this->PushToThread(cmd, this->currentDrawThread);
+	if (this->numActiveThreads)
+	{
+		VkCmdBufferThread::Command cmd;
+		cmd.type = VkCmdBufferThread::Viewport;
+		cmd.viewport.index = index;
+		cmd.viewport.vp = vp;
+		this->PushToThread(cmd, this->currentDrawThread);
+	}
+	else
+	{
+		this->viewports[index] = vp;
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -1628,7 +1645,7 @@ void
 VkRenderDevice::SetVertexLayoutPipelineInfo(VkPipelineVertexInputStateCreateInfo* vertexLayout)
 {
 #define uint_min(a, b) (a < b ? a : b)
-	//if (this->currentPipelineInfo.pVertexInputState != vertexLayout || !(this->currentPipelineBits & VertexLayoutInfoSet))
+	if (this->currentPipelineInfo.pVertexInputState != vertexLayout || !(this->currentPipelineBits & VertexLayoutInfoSet))
 	{
 		this->currentPipelineBits |= VertexLayoutInfoSet;
 		this->currentPipelineInfo.pVertexInputState = vertexLayout;
@@ -2291,6 +2308,55 @@ VkRenderDevice::BuildRenderPipeline()
 /**
 */
 void
+VkRenderDevice::InsertBarrier(const CoreGraphics::Barrier& barrier)
+{
+	VkPipelineStageFlags srcFlags;
+	VkPipelineStageFlags dstFlags;
+	VkDependencyFlags dep;
+	const Barrier::BarrierUsage usage = barrier.GetUsage();
+	switch (usage)
+	{
+	case Barrier::Subpass:
+		dep = VK_DEPENDENCY_BY_REGION_BIT;
+		srcFlags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dstFlags = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+		break;
+	case Barrier::TransformFeedback:
+		dep = 0;
+		srcFlags = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
+		dstFlags = VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
+		break;
+	case Barrier::ComputeImage:
+		dep = 0;
+		srcFlags = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+		dstFlags = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+		break;
+	}
+
+	if (this->numActiveThreads > 0)
+	{
+		VkCmdBufferThread::Command cmd;
+		cmd.type = VkCmdBufferThread::Barrier;
+		cmd.barrier.dep = dep;
+		cmd.barrier.srcMask = srcFlags;
+		cmd.barrier.dstMask = dstFlags;
+		cmd.barrier.bufferBarrierCount = 0;
+		cmd.barrier.bufferBarriers = NULL;
+		cmd.barrier.imageBarrierCount = 0;
+		cmd.barrier.imageBarriers = NULL;
+		cmd.barrier.memoryBarrierCount = 0;
+		cmd.barrier.memoryBarriers = NULL;
+	}
+	else
+	{
+		vkCmdPipelineBarrier(this->mainCmdDrawBuffer, srcFlags, dstFlags, dep, 0, NULL, 0, NULL, 0, NULL);
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 VkRenderDevice::PushImageLayoutTransition(VkDeferredCommand::CommandQueueType queue, VkImageMemoryBarrier barrier)
 {
 	VkDeferredCommand del;
@@ -2894,7 +2960,7 @@ VkRenderDevice::PushToThread(const VkCmdBufferThread::Command& cmd, const IndexT
 	if (allowStaging)
 	{
 		this->threadCmds[index].Append(cmd);
-		if (this->threadCmds[index].Size() == 3)
+		if (this->threadCmds[index].Size() == 50)
 		{
 			this->drawThreads[index]->PushCommands(this->threadCmds[index]);
 			this->threadCmds[index].Reset();
@@ -3138,7 +3204,11 @@ VkRenderDevice::Blit(const Ptr<CoreGraphics::RenderTexture>& from, Math::rectang
 	blit.srcOffsets[0] = { toRegion.left, toRegion.top, 0 };
 	blit.srcOffsets[1] = { toRegion.right, toRegion.bottom, 1 };
 	blit.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-	vkCmdBlitImage(this->mainCmdDrawBuffer, from->GetVkImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, to->GetVkImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_LINEAR);
+
+	//this->ImageLayoutTransition(this->mainCmdDrawBuffer, this->ImageMemoryBarrier(from->GetVkImage(), blit.srcSubresource, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL));
+	//this->ImageLayoutTransition(this->mainCmdDrawBuffer, this->ImageMemoryBarrier(to->GetVkImage(), blit.dstSubresource, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL));
+
+	vkCmdBlitImage(this->mainCmdDrawBuffer, from->GetVkImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, to->GetVkImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_NEAREST);
 }
 
 } // namespace Vulkan

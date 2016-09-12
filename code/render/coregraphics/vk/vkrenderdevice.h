@@ -89,6 +89,8 @@ public:
 	void BeginBatch(CoreGraphics::FrameBatchType::Code batchType);
 	/// bake the current state of the render device (only used on DX12 and Vulkan renderers where pipeline creation is required)
 	void BuildRenderPipeline();
+	/// insert execution barrier
+	void InsertBarrier(const CoreGraphics::Barrier& barrier);
 	/// draw current primitives
 	void Draw();
 	/// draw indexed, instanced primitives (see method header for details)
@@ -379,7 +381,6 @@ private:
 
 	uint32_t currentBackbuffer;
 	Util::FixedArray<VkImage> backbuffers;
-	Util::FixedArray<VkDeviceMemory> backbufferMem;
 	Util::FixedArray<VkImageView> backbufferViews;
 	Util::FixedArray<VkSemaphore> backbufferSemaphores;
 	uint32_t numBackbuffers;

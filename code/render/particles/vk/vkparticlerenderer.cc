@@ -131,8 +131,6 @@ VkParticleRenderer::Setup()
 	Array<VertexComponent> components = cornerComponents;
 	components.AppendArray(particleComponents);
 	this->vertexLayout = VertexLayout::Create();
-	this->vertexLayout->SetStreamBuffer(0, this->cornerVertexBuffer->GetVkBuffer());
-	this->vertexLayout->SetStreamBuffer(1, this->particleVertexBuffer->GetVkBuffer());
 	this->vertexLayout->Setup(components);
 }
 

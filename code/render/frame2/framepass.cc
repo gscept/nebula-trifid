@@ -37,6 +37,22 @@ FramePass::AddSubpass(const Ptr<FrameSubpass>& subpass)
 	this->subpasses.Append(subpass);
 }
 
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+FramePass::Discard()
+{
+	FrameOp::Discard();
+
+	this->pass->Discard();
+	this->pass = 0;
+	IndexT i;
+	for (i = 0; i < this->subpasses.Size(); i++) this->subpasses[i]->Discard();
+	this->subpasses.Clear();
+}
+
 //------------------------------------------------------------------------------
 /**
 */

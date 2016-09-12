@@ -23,6 +23,8 @@ public:
 
 	/// setup
 	void Setup();
+	/// discard operation
+	void Discard();
 	/// run operation
 	void Run(const IndexT frameIndex);
 	

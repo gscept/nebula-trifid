@@ -11,6 +11,7 @@
 #include "lib/std.fxh"
 #include "lib/util.fxh"
 #include "lib/techniques.fxh"
+#include "lib/shared.fxh"
 
 #if IMAGE_IS_RGBA16F
 #define IMAGE_FORMAT_TYPE rgba16f
@@ -29,28 +30,13 @@
 #define RESULT_TO_VEC4(vec) vec4(vec.xy, 0, 0)
 #endif
 
-samplerCube ReadImageLinear;
-samplerCube ReadImagePoint;
-samplerstate LinearState
+samplerstate InputSampler
 {
-	Samplers = {ReadImageLinear};
-	Filter = Linear;
-	AddressU = Clamp;
-	AddressV = Clamp;
-	AddressW = Clamp;
-};
-
-samplerstate PointSate
-{
-	Samplers = {ReadImagePoint};
 	Filter = Point;
-	AddressU = Clamp;
-	AddressV = Clamp;
-	AddressW = Clamp;
 };
 
-
-readwrite IMAGE_FORMAT_TYPE imageCube WriteImage;
+textureHandle InputImage;
+write IMAGE_FORMAT_TYPE imageCube WriteImage;
 #define INV_LN2 1.44269504f
 #define SQRT_LN2 0.832554611f
 #define BLUR_SHARPNESS 8.0f
@@ -124,7 +110,7 @@ csMainX()
 	
 	// load into workgroup saved memory, this allows us to use the original pixel even though 
 	// we might have replaced it with the result from this thread!
-	SharedMemory[gl_LocalInvocationID.x] = IMAGE_LOAD_SWIZZLE(imageLoad(WriteImage, ivec3(x, y, gl_WorkGroupID.z)));
+	SharedMemory[gl_LocalInvocationID.x] = IMAGE_LOAD_SWIZZLE(fetchCube(InputImage, InputSampler, ivec3(x, y, gl_WorkGroupID.z), 0));
 	barrier();
 
 	const uint writePos = tileStart + gl_LocalInvocationID.x;
@@ -133,7 +119,7 @@ csMainX()
 	if (writePos < tileEndClamped)
 	{
 		// Fetch (ao,z) at the kernel center
-		IMAGE_LOAD_VEC color = IMAGE_LOAD_SWIZZLE(imageLoad(WriteImage, ivec3(writePos, y, gl_WorkGroupID.z)));
+		IMAGE_LOAD_VEC color = IMAGE_LOAD_SWIZZLE(fetchCube(InputImage, InputSampler, ivec3(writePos, y, gl_WorkGroupID.z), 0));
 		//IMAGE_LOAD_VEC color = IMAGE_LOAD_SWIZZLE(textureLod(ReadImagePoint, ivec3(writePos, y, gl_WorkGroupID.z), 0));
 		IMAGE_LOAD_VEC blurTotal = color;
 		IMAGE_LOAD_VEC wTotal = IMAGE_LOAD_VEC(1);
@@ -192,7 +178,7 @@ csMainY()
 	
 	// load into workgroup saved memory, this allows us to use the original pixel even though 
 	// we might have replaced it with the result from this thread!
-	SharedMemory[gl_LocalInvocationID.x] = IMAGE_LOAD_SWIZZLE(imageLoad(WriteImage, ivec3(x, y, gl_WorkGroupID.z)));
+	SharedMemory[gl_LocalInvocationID.x] = IMAGE_LOAD_SWIZZLE(fetchCube(InputImage, InputSampler, ivec3(x, y, gl_WorkGroupID.z), 0));
 	barrier();
 	
 	const uint writePos = tileStart + gl_LocalInvocationID.x;
@@ -201,7 +187,7 @@ csMainY()
 	if (writePos < tileEndClamped)
 	{
 		// Fetch (ao,z) at the kernel center
-		IMAGE_LOAD_VEC color = IMAGE_LOAD_SWIZZLE(imageLoad(WriteImage, ivec3(x, writePos, gl_WorkGroupID.z)));
+		IMAGE_LOAD_VEC color = IMAGE_LOAD_SWIZZLE(fetchCube(InputImage, InputSampler, ivec3(x, writePos, gl_WorkGroupID.z), 0));
 		IMAGE_LOAD_VEC blurTotal = color;
 		IMAGE_LOAD_VEC wTotal = IMAGE_LOAD_VEC(1);
 		float i;

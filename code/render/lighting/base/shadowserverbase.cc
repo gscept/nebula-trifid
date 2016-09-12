@@ -186,6 +186,33 @@ ShadowServerBase::UpdateShadowBuffers()
 
 //------------------------------------------------------------------------------
 /**
+*/
+void
+ShadowServerBase::UpdateSpotLightShadowBuffers()
+{
+	// override in subclass
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ShadowServerBase::UpdatePointLightShadowBuffers()
+{
+	// override in subclass
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ShadowServerBase::UpdateGlobalLightShadowBuffers()
+{
+	// override in subclass
+}
+
+//------------------------------------------------------------------------------
+/**
     Sort lights by their attenuation at point of interest
 */
 void 
@@ -244,4 +271,5 @@ ShadowServerBase::GetNearPlane() const
 	// implement in platform dependent class
 	return 0;
 }
+
 } // namespace Lighting

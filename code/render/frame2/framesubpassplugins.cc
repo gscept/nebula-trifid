@@ -30,6 +30,17 @@ FrameSubpassPlugins::~FrameSubpassPlugins()
 /**
 */
 void
+FrameSubpassPlugins::Discard()
+{
+	FrameOp::Discard();
+
+	this->pluginRegistry = 0;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 FrameSubpassPlugins::Setup()
 {
 	n_assert(!this->pluginRegistry.isvalid());

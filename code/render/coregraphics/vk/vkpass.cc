@@ -154,11 +154,12 @@ VkPass::Setup()
 		{
 			VkSubpassDependency dep;
 			dep.srcSubpass = subpass.dependencies[j];
-			dep.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+			dep.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 			dep.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 			dep.dstSubpass = i;
-			dep.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
-			dep.dstStageMask = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT;
+			dep.dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+			dep.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;			
+			dep.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 			subpassDeps.Append(dep);
 		}
 		
@@ -272,7 +273,7 @@ VkPass::Setup()
 		images[i] = this->colorAttachments[i]->GetVkImageView();
 		width = Math::n_max(width, this->colorAttachments[i]->GetWidth());
 		height = Math::n_max(height, this->colorAttachments[i]->GetHeight());
-		layers = Math::n_max(layers, this->colorAttachments[i]->GetDepth());
+		layers = Math::n_max(layers, this->colorAttachments[i]->GetLayers());
 
 		VkRect2D& rect = scissorRects[i];
 		rect.offset.x = 0;

@@ -131,6 +131,10 @@ VkCmdBufferThread::DoWork()
 				n_assert(this->commandBuffer != VK_NULL_HANDLE);
 				vkCmdWaitEvents(this->commandBuffer, cmd.waitEvent.numEvents, cmd.waitEvent.events, cmd.waitEvent.waitingStage, cmd.waitEvent.signalingStage, cmd.waitEvent.memoryBarrierCount, cmd.waitEvent.memoryBarriers, cmd.waitEvent.bufferBarrierCount, cmd.waitEvent.bufferBarriers, cmd.waitEvent.imageBarrierCount, cmd.waitEvent.imageBarriers);
 				break;
+			case Barrier:
+				n_assert(this->commandBuffer != VK_NULL_HANDLE);
+				vkCmdPipelineBarrier(this->commandBuffer, cmd.barrier.srcMask, cmd.barrier.dstMask, cmd.barrier.dep, cmd.barrier.memoryBarrierCount, cmd.barrier.memoryBarriers, cmd.barrier.bufferBarrierCount, cmd.barrier.bufferBarriers, cmd.barrier.imageBarrierCount, cmd.barrier.imageBarriers);
+				break;
 			case Sync:
 				cmd.syncEvent->Signal();
 				
