@@ -22,24 +22,11 @@
 #define MAX_CUBE_IMAGES 64
 #define MAX_3D_IMAGES 64
 
-group(TICK_GROUP) shared varblock RenderTargetIndices
-{
-	// base render targets
-	textureHandle DepthBufferIdx;
-	textureHandle NormalBufferIdx;
-	textureHandle AlbedoBufferIdx;	
-	textureHandle SpecularBufferIdx;
-	textureHandle LightBufferIdx;
-	
-	// shadow buffers
-	textureHandle CSMShadowMapIdx;
-	textureHandle SpotLightShadowMapIdx;
-};
 
-group(TICK_GROUP) texture2D 			Textures2D[MAX_2D_TEXTURES];
-group(TICK_GROUP) texture2DMS 			Textures2DMS[MAX_2D_MS_TEXTURES];
-group(TICK_GROUP) textureCube 			TexturesCube[MAX_CUBE_TEXTURES];
-group(TICK_GROUP) texture3D 			Textures3D[MAX_3D_TEXTURES];
+group(TICK_GROUP) texture2D			Textures2D[MAX_2D_TEXTURES];
+group(TICK_GROUP) texture2DMS			Textures2DMS[MAX_2D_MS_TEXTURES];
+group(TICK_GROUP) textureCube			TexturesCube[MAX_CUBE_TEXTURES];
+group(TICK_GROUP) texture3D			Textures3D[MAX_3D_TEXTURES];
 group(TICK_GROUP) texture2DArray		Textures2DArray[MAX_2D_ARRAY_TEXTURES];
 group(TICK_GROUP) samplerstate	Basic2DSampler {};
 group(TICK_GROUP) samplerstate	PosteffectSampler { Filter = Point; };
@@ -53,19 +40,19 @@ group(TICK_GROUP) shared varblock WindParams [ bool System = true; ]
 	float WindForce = 0.0f;
 };
 
-#define sample2D(handle, sampler, uv) 				texture(sampler2D(Textures2D[handle], sampler), uv)
-#define sample2DLod(handle, sampler, uv, lod) 		textureLod(sampler2D(Textures2D[handle], sampler), uv, lod)
-#define sample2DMS(handle, sampler, uv) 			texture(sampler2DMS(Textures2DMS[handle], sampler), uv)
-#define sample2DMSLod(handle, sampler, uv, lod) 	textureLod(sampler2DMS(Textures2DMS[handle], sampler), uv, lod)
-#define sampleCube(handle, sampler, uvw) 			texture(samplerCube(TexturesCube[handle], sampler), uvw)
-#define sampleCubeLod(handle, sampler, uvw, lod) 	textureLod(samplerCube(TexturesCube[handle], sampler), uvw, lod)
-#define sample3D(handle, sampler, uvw) 				texture(sampler3D(Textures3D[handle], sampler), uvw)
-#define sample3DLod(handle, sampler, uvw, lod) 		textureLod(sampler3D(Textures3D[handle], sampler), uvw, lod)
+#define sample2D(handle, sampler, uv)			texture(sampler2D(Textures2D[handle], sampler), uv)
+#define sample2DLod(handle, sampler, uv, lod)		textureLod(sampler2D(Textures2D[handle], sampler), uv, lod)
+#define sample2DMS(handle, sampler, uv)			texture(sampler2DMS(Textures2DMS[handle], sampler), uv)
+#define sample2DMSLod(handle, sampler, uv, lod)		textureLod(sampler2DMS(Textures2DMS[handle], sampler), uv, lod)
+#define sampleCube(handle, sampler, uvw)		texture(samplerCube(TexturesCube[handle], sampler), uvw)
+#define sampleCubeLod(handle, sampler, uvw, lod)	textureLod(samplerCube(TexturesCube[handle], sampler), uvw, lod)
+#define sample3D(handle, sampler, uvw)			texture(sampler3D(Textures3D[handle], sampler), uvw)
+#define sample3DLod(handle, sampler, uvw, lod)		textureLod(sampler3D(Textures3D[handle], sampler), uvw, lod)
 
-#define fetch2D(handle, sampler, uv, lod) 			texelFetch(sampler2D(Textures2D[handle], sampler), uv, lod)
-#define fetch2DMS(handle, sampler, uv, lod) 		texelFetch(sampler2DMS(Textures2DMS[handle], sampler), uv, lod)
-#define fetchCube(handle, sampler, uvw, lod) 		texelFetch(sampler2DArray(Textures2DArray[handle], sampler), uvw, lod)
-#define fetch3D(handle, sampler, uvw, lod) 			texelFetch(sampler3D(Textures3D[handle], sampler), uvw, lod)
+#define fetch2D(handle, sampler, uv, lod)		texelFetch(sampler2D(Textures2D[handle], sampler), uv, lod)
+#define fetch2DMS(handle, sampler, uv, lod)		texelFetch(sampler2DMS(Textures2DMS[handle], sampler), uv, lod)
+#define fetchCube(handle, sampler, uvw, lod)		texelFetch(sampler2DArray(Textures2DArray[handle], sampler), uvw, lod)
+#define fetch3D(handle, sampler, uvw, lod)		texelFetch(sampler3D(Textures3D[handle], sampler), uvw, lod)
 
 // instancing transforms
 group(INSTANCE_GROUP) shared varblock InstanceBlock [ bool System = true; ]

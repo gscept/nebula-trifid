@@ -64,12 +64,6 @@ VkShaderServer::Open()
 	this->textureCubeTextureVar = this->textureShaderState->GetVariableByName("TexturesCube");
 	this->texture3DTextureVar = this->textureShaderState->GetVariableByName("Textures3D");
 
-	this->depthBufferTextureVar = this->textureShaderState->GetVariableByName("DepthBufferIdx");
-	this->normalBufferTextureVar = this->textureShaderState->GetVariableByName("NormalBufferIdx");
-	this->albedoBufferTextureVar = this->textureShaderState->GetVariableByName("AlbedoBufferIdx");
-	this->specularBufferTextureVar = this->textureShaderState->GetVariableByName("SpecularBufferIdx");
-	this->lightBufferTextureVar = this->textureShaderState->GetVariableByName("LightBufferIdx");
-
 	return true;
 }
 

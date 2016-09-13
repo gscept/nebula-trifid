@@ -146,14 +146,13 @@ VkPipelineDatabase::GetCompiledPipeline()
 		VkGraphicsPipelineCreateInfo shaderInfo = this->currentShaderProgram->shaderPipelineInfo;
 		VkGraphicsPipelineCreateInfo passInfo = this->currentPass->framebufferPipelineInfo;
 		VkPipelineColorBlendStateCreateInfo colorBlendInfo = *shaderInfo.pColorBlendState;
-
-		// adjust blend to be the same as the shader defines, but restricted to the number of attachments we use
 		colorBlendInfo.attachmentCount = this->currentPass->GetNumColorAttachments();
+
 		VkGraphicsPipelineCreateInfo info =
 		{
 			VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
 			NULL,
-			VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT,
+			0,
 			shaderInfo.stageCount,
 			shaderInfo.pStages,
 			this->currentVertexLayout,

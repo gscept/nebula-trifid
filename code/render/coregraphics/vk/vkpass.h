@@ -46,6 +46,7 @@ public:
 	const Util::FixedArray<VkRect2D>& GetVkScissorRects() const;
 	/// get viewports
 	const Util::FixedArray<VkViewport>& GetVkViewports() const;
+
 private:
 	friend class VkPipelineDatabase;
 
