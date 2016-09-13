@@ -2319,7 +2319,7 @@ VkRenderDevice::BindComputePipeline(const VkPipeline& pipeline, const VkPipeline
 void
 VkRenderDevice::CreateAndBindGraphicsPipeline()
 {
-	VkPipeline pipeline = this->database->GetOrCreatePipeline();
+	VkPipeline pipeline = this->database->GetCompiledPipeline();
 	//VkResult res = vkCreateGraphicsPipelines(this->dev, VK_NULL_HANDLE, 1, &this->currentPipelineInfo, NULL, &pipeline);
 	//n_assert(res == VK_SUCCESS);
 	_incr_counter(NumPipelinesBuilt, 1);

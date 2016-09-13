@@ -11,6 +11,9 @@
 	(which happens on construction, meaning all children are also initial),
 	then a new graphics pipeline is created and gets associated with the DAG path.
 	
+	It can be slightly more efficient, currently, whenever a state is changed high up in the DAG,
+	child nodes are created for the rest of the currently used state. This is somewhat unnecessary,
+	instead, the nodes should be created when and if we actually do create a pipeline. 
 
 	(C) 2016 Individual contributors, see AUTHORS file
 */
@@ -55,7 +58,7 @@ public:
 	/// set input layout
 	void SetInputLayout(VkPipelineInputAssemblyStateCreateInfo* input);
 	/// gets pipeline if it already exists, or creates if exists
-	VkPipeline GetOrCreatePipeline();
+	VkPipeline GetCompiledPipeline();
 	/// resets all iterators
 	void Reset();
 private:

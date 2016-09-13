@@ -135,7 +135,7 @@ VkPipelineDatabase::SetInputLayout(VkPipelineInputAssemblyStateCreateInfo* input
 /**
 */
 VkPipeline
-VkPipelineDatabase::GetOrCreatePipeline()
+VkPipelineDatabase::GetCompiledPipeline()
 {
 	if (this->ct1->initial ||
 		this->ct2->initial ||
