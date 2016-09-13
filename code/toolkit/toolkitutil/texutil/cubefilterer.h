@@ -10,7 +10,7 @@
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
 #include "coregraphics/texture.h"
-#include "extlibs/CubeMapGen/CCubeMapProcessor.h"
+//#include "extlibs/CubeMapGen/CCubeMapProcessor.h"
 #include "io/uri.h"
 namespace ToolkitUtil
 {
@@ -46,7 +46,7 @@ private:
 	uint power;
 	uint size;
 
-	CCubeMapProcessor processor;
+	//CCubeMapProcessor processor;
 };
 
 //------------------------------------------------------------------------------

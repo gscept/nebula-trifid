@@ -539,8 +539,8 @@ ShaderCompiler::CompileSPIRV(const Util::String& srcPath)
 			defines.push_back(define.AsCharPtr());
 
 			// set flags
-			flags.push_back("/NOSUB");			// deactivate subroutine usage
-			flags.push_back("/GBLOCK");			// put all shader variables outside of explicit buffers in one global block
+			flags.push_back("/NOSUB");			// deactivate subroutine usage, effectively expands all subroutines as functions
+			flags.push_back("/GBLOCK");			// put all shader variables outside of an explicit block in one global block
 			flags.push_back(Util::String::Sprintf("/DEFAULTSET %d", NEBULAT_DEFAULT_GROUP).AsCharPtr());	// since we want the most frequently switched set as high as possible, we send the default set to 8, must match the NEBULAT_DEFAULT_GROUP in std.fxh and DEFAULT_GROUP in coregraphics/config.h
 
 			// if using debug, output raw shader code

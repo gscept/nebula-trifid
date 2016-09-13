@@ -60,7 +60,7 @@ CubeFilterer::Filter(bool irradiance, void* messageHandler, void(*CubeFilterer_P
 	else mipLevels = 1;	// 1 means we have 1 mip, which is the main texture
 
 	// mip levels should be levels - 1 because it represents the maximum mip index, not the amount of mips
-	this->processor.Init(this->cubeMap->GetWidth(), this->size, mipLevels, 4);
+	//this->processor.Init(this->cubeMap->GetWidth(), this->size, mipLevels, 4);
 
 	// eh, init IL every time isn't really THAT nice, but we need to be sure it's running so...
 	ilInit();
@@ -75,28 +75,28 @@ CubeFilterer::Filter(bool irradiance, void* messageHandler, void(*CubeFilterer_P
 	switch (this->cubeMap->GetPixelFormat())
 	{
 	case PixelFormat::A16B16G16R16:
-		format = CP_VAL_UNORM16;
+		//format = CP_VAL_UNORM16;
 		channels = 4;
 		components = IL_RGBA;
 		type = IL_SHORT;
 		byteSize = 2;
 		break;
 	case PixelFormat::A16B16G16R16F:
-		format = CP_VAL_FLOAT16;
+		//format = CP_VAL_FLOAT16;
 		components = IL_RGBA;
 		type = IL_HALF;
 		channels = 4;
 		byteSize = 2;
 		break;
 	case PixelFormat::A32B32G32R32F:
-		format = CP_VAL_FLOAT32;
+		//format = CP_VAL_FLOAT32;
 		components = IL_RGBA;
 		type = IL_FLOAT;
 		channels = 4;
 		byteSize = 4;
 		break;
 	case PixelFormat::A8B8G8R8:
-		format = CP_VAL_UNORM8_BGRA;
+		//format = CP_VAL_UNORM8_BGRA;
 		components = IL_RGBA;
 		type = IL_UNSIGNED_BYTE;
 		channels = 4;
@@ -106,7 +106,7 @@ CubeFilterer::Filter(bool irradiance, void* messageHandler, void(*CubeFilterer_P
 		components = IL_RGB;
 		channels = 3;
 		gamma = 2.2f;
-		format = CP_VAL_UNORM8;
+		//format = CP_VAL_UNORM8;
 		type = IL_UNSIGNED_BYTE;
 		byteSize = 1;
 		break;
@@ -126,7 +126,7 @@ CubeFilterer::Filter(bool irradiance, void* messageHandler, void(*CubeFilterer_P
 	case PixelFormat::BC7:
 	case PixelFormat::A8R8G8B8:
 		channels = 4;
-		format = CP_VAL_UNORM8;
+		//format = CP_VAL_UNORM8;
 		components = IL_RGBA;
 		type = IL_UNSIGNED_BYTE;
 		byteSize = 1;
@@ -135,7 +135,7 @@ CubeFilterer::Filter(bool irradiance, void* messageHandler, void(*CubeFilterer_P
 		gamma = 2.2f;
 	case PixelFormat::R8G8B8:
 	case PixelFormat::RGBA8:
-		format = CP_VAL_UNORM8;
+		//format = CP_VAL_UNORM8;
 		components = IL_RGBA;
 		type = IL_UNSIGNED_BYTE;
 		byteSize = 1;
@@ -154,13 +154,14 @@ CubeFilterer::Filter(bool irradiance, void* messageHandler, void(*CubeFilterer_P
 
 		// map face, load into processor, then unmap that face
 		this->cubeMap->MapCubeFace((Texture::CubeFace)i, 0, Texture::MapRead, mapInfo);
-		this->processor.SetInputFaceData(i, format, channels, mapInfo.rowPitch, mapInfo.data, 16, 1 / gamma, 1);
+		//this->processor.SetInputFaceData(i, format, channels, mapInfo.rowPitch, mapInfo.data, 16, 1 / gamma, 1);
 		this->cubeMap->UnmapCubeFace((Texture::CubeFace)i, 0);
 	}
 
 	// perform filtering!
-	this->processor.InitiateFiltering(0, 1, 2, CP_FILTER_TYPE_COSINE, CP_FIXUP_WARP, 4, true, true, this->power, 0.25f, mipLevels, CP_COSINEPOWER_CHAIN_DROP, true, irradiance, CP_LIGHTINGMODEL_PHONG, 10, 1);
+	//this->processor.InitiateFiltering(0, 1, 2, CP_FILTER_TYPE_COSINE, CP_FIXUP_WARP, 4, true, true, this->power, 0.25f, mipLevels, CP_COSINEPOWER_CHAIN_DROP, true, irradiance, CP_LIGHTINGMODEL_PHONG, 10, 1);
 
+	/*
 	// wait for thread to be done
 	while (this->processor.GetStatus() == CP_STATUS_PROCESSING)
 	{
@@ -174,6 +175,7 @@ CubeFilterer::Filter(bool irradiance, void* messageHandler, void(*CubeFilterer_P
 		n_sleep(0.1f);
 	}
 	this->processor.RefreshStatus();
+	*/
 
 	// time to create the texture
 	ILuint image = ilGenImage();
@@ -207,7 +209,7 @@ CubeFilterer::Filter(bool irradiance, void* messageHandler, void(*CubeFilterer_P
 			this->cubeMap->MapCubeFace((Texture::CubeFace)i, j, Texture::MapRead, mapInfo);
 
 			// save output
-			this->processor.GetOutputFaceData(i, j, format, channels, mapInfo.rowPitch, mapInfo.data, 1.0f, gamma);
+			//this->processor.GetOutputFaceData(i, j, format, channels, mapInfo.rowPitch, mapInfo.data, 1.0f, gamma);
 
 			// load into IL image, then unmap
 			ilBindImage(image);

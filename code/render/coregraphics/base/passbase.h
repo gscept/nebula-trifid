@@ -78,6 +78,9 @@ public:
 	/// ends pass
 	void End();
 
+	/// get subpasses
+	const Util::Array<Subpass>& GetSubpasses() const;
+
 	struct Subpass
 	{
 		Util::Array<IndexT> attachments;
@@ -181,4 +184,12 @@ PassBase::AddSubpass(const Subpass& subpass)
 	this->subpasses.Append(subpass);
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Util::Array<PassBase::Subpass>&
+PassBase::GetSubpasses() const
+{
+	return this->subpasses;
+}
 } // namespace Base

@@ -90,14 +90,23 @@ VkRenderTexture::Setup()
 			break;
 		}
 
+        VkFormat fmt = VkTypes::AsVkFramebufferFormat(this->format);
+        if (this->usage == ColorAttachment)
+        {
+            VkFormatProperties formatProps;
+            vkGetPhysicalDeviceFormatProperties(VkRenderDevice::physicalDev, fmt, &formatProps);
+            n_assert(formatProps.optimalTilingFeatures & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT &&
+                     formatProps.optimalTilingFeatures & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT &&
+                     formatProps.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT);
+        }
 		VkImageUsageFlags usageFlags = this->usage == ColorAttachment ? VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT : VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 		VkImageCreateInfo imgInfo =
 		{
 			VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
 			NULL,
 			0,
-			VK_IMAGE_TYPE_2D,
-			VkTypes::AsVkFramebufferFormat(this->format),
+			VK_IMAGE_TYPE_2D,   // if we have a cube map, it's just 2D * 6
+			fmt,
 			extents,
 			1,
 			this->layers,
