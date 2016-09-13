@@ -31,6 +31,7 @@ public:
 	/// applies layout before rendering
 	void Apply();
 private:
+	friend class VkPipelineDatabase;
 
 	/// create derivative info from shader
 	VkPipelineVertexInputStateCreateInfo* CreateDerivative(const Ptr<VkShaderProgram>& program);

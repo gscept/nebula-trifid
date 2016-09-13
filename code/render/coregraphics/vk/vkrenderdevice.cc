@@ -15,6 +15,7 @@
 #include "vktransformdevice.h"
 #include "vkshaderserver.h"
 #include "coregraphics/pass.h"
+#include "io/ioserver.h"
 
 using namespace CoreGraphics;
 //------------------------------------------------------------------------------
@@ -132,11 +133,11 @@ VkRenderDevice::OpenVulkanContext()
 		VK_STRUCTURE_TYPE_APPLICATION_INFO,
 		NULL,
 		App::Application::Instance()->GetAppTitle().AsCharPtr(),
-		1,					// application version
+		2,					// application version
 		"Nebula Trifid",	// engine name
-		1,					// engine version
+		2,					// engine version
 		//VK_MAKE_VERSION(1, 0, 4)
-		VK_MAKE_VERSION(1, 0, 8)		// API version
+		0		// API version
 	};
 
 	this->usedExtensions = 0;
@@ -472,6 +473,7 @@ VkRenderDevice::OpenVulkanContext()
 		res = vkCreateSemaphore(this->dev, &semaphoreCreateInfo, NULL, &this->backbufferSemaphores[i]);
 		n_assert(res == VK_SUCCESS);
 	}
+	this->currentBackbuffer = 0;
 
 	VkPipelineCacheCreateInfo cacheInfo =
 	{
@@ -646,7 +648,7 @@ VkRenderDevice::OpenVulkanContext()
 		this->drawThreads[i]->SetName(threadName);
 		this->drawThreads[i]->Start();
 
-		this->drawCompletionEvents[i] = Threading::Event(true);
+		this->drawCompletionEvents[i] = n_new(Threading::Event(true));
 	}
 
 	// setup transfer threads
@@ -659,7 +661,7 @@ VkRenderDevice::OpenVulkanContext()
 		this->transThreads[i]->SetName(threadName);
 		this->transThreads[i]->Start();
 
-		this->transCompletionEvents[i] = Threading::Event(true);
+		this->transCompletionEvents[i] = n_new(Threading::Event(true));
 	}
 
 	// setup compute threads
@@ -672,7 +674,7 @@ VkRenderDevice::OpenVulkanContext()
 		this->compThreads[i]->SetName(threadName);
 		this->compThreads[i]->Start();
 
-		this->compCompletionEvents[i] = Threading::Event(true);
+		this->compCompletionEvents[i] = n_new(Threading::Event(true));
 	}
 
 	// create interlock thread
@@ -733,6 +735,9 @@ VkRenderDevice::OpenVulkanContext()
 	this->displayRect.extent.width = displayMode.GetWidth();
 	this->displayRect.extent.height = displayMode.GetHeight();
 
+	// create pipeline database
+	this->database = VkPipelineDatabase::Create();
+
 	const VkSemaphoreCreateInfo semInfo =
 	{
 		VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
@@ -740,6 +745,16 @@ VkRenderDevice::OpenVulkanContext()
 		0
 	};
 	vkCreateSemaphore(this->dev, &semInfo, NULL, &this->displaySemaphore);
+
+	_setup_timer(DebugTimer);
+	_setup_counter(NumImageBytesAllocated);
+	_begin_counter(NumImageBytesAllocated);
+	_setup_counter(NumBufferBytesAllocated);
+	_begin_counter(NumBufferBytesAllocated);
+	_setup_counter(NumBytesAllocated);
+	_begin_counter(NumBytesAllocated);
+	_setup_counter(NumPipelinesBuilt);
+	_begin_counter(NumPipelinesBuilt);
 
 	// yay, Vulkan!
 	return true;
@@ -751,8 +766,33 @@ VkRenderDevice::OpenVulkanContext()
 void
 VkRenderDevice::CloseVulkanDevice()
 {
+	_discard_timer(DebugTimer);
+	_end_counter(NumImageBytesAllocated);
+	_discard_counter(NumImageBytesAllocated);
+	_end_counter(NumBufferBytesAllocated);
+	_discard_counter(NumBufferBytesAllocated);
+	_end_counter(NumBytesAllocated);
+	_discard_counter(NumBytesAllocated);
+	_end_counter(NumPipelinesBuilt);
+	_discard_counter(NumPipelinesBuilt);
+
+	this->database = 0;
+
+	size_t size;
+	vkGetPipelineCacheData(this->dev, this->cache, &size, NULL);
+	uint8_t* data = (uint8_t*)Memory::Alloc(Memory::ScratchHeap, size);
+	vkGetPipelineCacheData(this->dev, this->cache, &size, data);
+	Util::String path = Util::String::Sprintf("bin:%s_vkpipelinecache", App::Application::Instance()->GetAppTitle().AsCharPtr());
+	Ptr<IO::Stream> cachedData = IO::IoServer::Instance()->CreateStream(path);
+	cachedData->SetAccessMode(IO::Stream::WriteAccess);
+	if (cachedData->Open())
+	{
+		cachedData->Write(data, size);
+		cachedData->Close();
+	}
+
 	// wait for all commands to be done first
-	VkResult res = vkQueueWaitIdle(this->drawQueue);
+	VkResult res = vkQueueWaitIdle(this->drawQueue);	
 	n_assert(res == VK_SUCCESS);
 	res = vkQueueWaitIdle(this->transferQueue);
 	n_assert(res == VK_SUCCESS);
@@ -764,6 +804,7 @@ VkRenderDevice::CloseVulkanDevice()
 	{
 		this->drawThreads[i]->Stop();
 		this->drawThreads[i] = 0;
+		n_delete(this->drawCompletionEvents[i]);
 
 		vkDestroyCommandPool(this->dev, this->dispatchableCmdDrawBufferPool[i], NULL);
 	}
@@ -772,6 +813,7 @@ VkRenderDevice::CloseVulkanDevice()
 	{
 		this->transThreads[i]->Stop();
 		this->transThreads[i] = 0;
+		n_delete(this->transCompletionEvents[i]);
 
 		vkDestroyCommandPool(this->dev, this->dispatchableCmdTransBufferPool[i], NULL);
 	}
@@ -780,6 +822,7 @@ VkRenderDevice::CloseVulkanDevice()
 	{
 		this->compThreads[i]->Stop();
 		this->compThreads[i] = 0;
+		n_delete(this->compCompletionEvents[i]);
 
 		vkDestroyCommandPool(this->dev, this->dispatchableCmdCompBufferPool[i], NULL);
 	}
@@ -1128,6 +1171,8 @@ VkRenderDevice::BeginPass(const Ptr<CoreGraphics::Pass>& pass)
 
 	// set info
 	this->SetFramebufferLayoutInfo(pass->GetVkFramebufferPipelineInfo());
+	this->database->SetPass(pass.downcast<VkPass>());
+	this->database->SetSubpass(0);
 
 	const Util::FixedArray<VkClearValue>& clearValues = pass->GetVkClearValues();
 	VkRenderPassBeginInfo info =
@@ -1179,7 +1224,9 @@ VkRenderDevice::SetToNextSubpass()
 	this->passInfo.subpass++;
 	this->currentPipelineInfo.subpass++;
 	this->currentPipelineBits &= ~PipelineBuilt; // hmm, this is really ugly, is it avoidable?
+	this->database->SetSubpass(this->passInfo.subpass);
 	vkCmdNextSubpass(this->mainCmdDrawBuffer, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+
 }
 
 //------------------------------------------------------------------------------
@@ -1289,6 +1336,8 @@ VkRenderDevice::EndBatch()
 void
 VkRenderDevice::EndPass()
 {
+
+
 	//this->currentPipelineBits = 0;
 	this->sharedDescriptorSets.Clear();
 
@@ -1331,6 +1380,7 @@ void
 VkRenderDevice::EndFrame(IndexT frameIndex)
 {
 	RenderDeviceBase::EndFrame(frameIndex);
+
 	VkFenceCreateInfo info =
 	{
 		VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
@@ -1416,7 +1466,7 @@ VkRenderDevice::Present()
 	this->frameId++; 
 
 	// submit a sync point
-	VkPipelineStageFlags flags = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+	VkPipelineStageFlags flags = VK_PIPELINE_STAGE_TRANSFER_BIT;
 	const VkSubmitInfo submitInfo = 
 	{
 		VK_STRUCTURE_TYPE_SUBMIT_INFO,
@@ -1630,9 +1680,10 @@ VkRenderDevice::AllocateImageMemory(const VkImage& img, VkDeviceMemory& imgmem, 
 void
 VkRenderDevice::SetShaderPipelineInfo(const VkGraphicsPipelineCreateInfo& shader, const Ptr<VkShaderProgram>& program)
 {
-#define uint_min(a, b) (a < b ? a : b)
 	if (this->currentProgram != program || !(this->currentPipelineBits & ShaderInfoSet))
 	{
+		this->database->SetShader(program);
+
 		this->currentPipelineBits |= ShaderInfoSet;
 
 		this->blendInfo.pAttachments = shader.pColorBlendState->pAttachments;
@@ -1661,6 +1712,8 @@ VkRenderDevice::SetVertexLayoutPipelineInfo(VkPipelineVertexInputStateCreateInfo
 {
 	if (this->currentPipelineInfo.pVertexInputState != vertexLayout || !(this->currentPipelineBits & VertexLayoutInfoSet))
 	{
+		this->database->SetVertexLayout(vertexLayout);
+
 		this->currentPipelineBits |= VertexLayoutInfoSet;
 		this->currentPipelineInfo.pVertexInputState = vertexLayout;
 		//this->vertexInfo = vertexLayout;
@@ -1690,6 +1743,8 @@ VkRenderDevice::SetInputLayoutInfo(VkPipelineInputAssemblyStateCreateInfo* input
 {
 	if (this->currentPipelineInfo.pInputAssemblyState != inputLayout || !(this->currentPipelineBits & InputLayoutInfoSet))
 	{
+		this->database->SetInputLayout(inputLayout);
+
 		this->currentPipelineBits |= InputLayoutInfoSet;
 		this->currentPipelineInfo.pInputAssemblyState = inputLayout;
 		this->currentPipelineBits &= ~PipelineBuilt;
@@ -1796,7 +1851,7 @@ VkRenderDevice::UpdatePushRanges(const VkShaderStageFlags& stages, const VkPipel
 	cmd.pushranges.stages = stages;
 
 	// copy data here, will be deleted in the thread
-	cmd.pushranges.data = n_new_array(uint8_t, size);
+	cmd.pushranges.data = Memory::Alloc(Memory::ScratchHeap, size);
 	memcpy(cmd.pushranges.data, data, size);
 	this->PushToThread(cmd, this->currentDrawThread);
 }
@@ -1915,7 +1970,7 @@ VkRenderDevice::ImageUpdate(const VkImage& img, const VkImageCreateInfo& info, u
 void
 VkRenderDevice::PushImageUpdate(const VkImage& img, const VkImageCreateInfo& info, uint32_t mip, uint32_t face, VkDeviceSize size, uint32_t* data)
 {
-	uint32_t* imgCopy = (uint32_t*)n_new_array(uint32_t, VK_DEVICE_SIZE_CONV(size));
+	uint32_t* imgCopy = (uint32_t*)Memory::Alloc(Memory::ScratchHeap, VK_DEVICE_SIZE_CONV(size));
 	Memory::Copy(data, imgCopy, VK_DEVICE_SIZE_CONV(size));
 
 	VkDeferredCommand del;
@@ -1991,12 +2046,12 @@ VkRenderDevice::ReadImage(const Ptr<VkTexture>& tex, VkImageCopy copy, uint32_t&
 
 	VkImageBlit blit;
 	blit.srcOffsets[0] = copy.srcOffset;
-	blit.srcOffsets[1] = { copy.extent.width, copy.extent.height , copy.extent.depth };
+	blit.srcOffsets[1] = { (int32_t)copy.extent.width, (int32_t)copy.extent.height, (int32_t)copy.extent.depth };
 	blit.srcSubresource = copy.srcSubresource;
 
 	blit.dstSubresource = copy.dstSubresource;
 	blit.dstOffsets[0] = copy.dstOffset;
-	blit.dstOffsets[1] = { copy.extent.width, copy.extent.height, copy.extent.depth };
+	blit.dstOffsets[1] = { (int32_t)copy.extent.width, (int32_t)copy.extent.height, (int32_t)copy.extent.depth };
 
 	// perform update of buffer, and stage a copy of buffer data to image
 	this->ImageLayoutTransition(cmdBuf, this->ImageMemoryBarrier(img, dstSubres, VK_IMAGE_LAYOUT_PREINITIALIZED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL));
@@ -2009,7 +2064,6 @@ VkRenderDevice::ReadImage(const Ptr<VkTexture>& tex, VkImageCopy copy, uint32_t&
 	subres.arrayLayer = copy.srcSubresource.baseArrayLayer;
 	subres.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 	subres.mipLevel = copy.srcSubresource.mipLevel;
-	VkSubresourceLayout layout;
 	VkBufferCreateInfo bufInfo =
 	{
 		VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
@@ -2265,9 +2319,10 @@ VkRenderDevice::BindComputePipeline(const VkPipeline& pipeline, const VkPipeline
 void
 VkRenderDevice::CreateAndBindGraphicsPipeline()
 {
-	VkPipeline pipeline;
-	VkResult res = vkCreateGraphicsPipelines(this->dev, this->cache, 1, &this->currentPipelineInfo, NULL, &pipeline);
-	n_assert(res == VK_SUCCESS);
+	VkPipeline pipeline = this->database->GetOrCreatePipeline();
+	//VkResult res = vkCreateGraphicsPipelines(this->dev, VK_NULL_HANDLE, 1, &this->currentPipelineInfo, NULL, &pipeline);
+	//n_assert(res == VK_SUCCESS);
+	_incr_counter(NumPipelinesBuilt, 1);
 
 	// if all threads are in use, finish them
 	//if (this->currentDrawThread == NumDrawThreads-1 && this->numActiveThreads > 0)
@@ -2337,7 +2392,7 @@ VkRenderDevice::CreateAndBindGraphicsPipeline()
 	del.del.type = VkDeferredCommand::DestroyPipeline;
 	del.del.pipelineDestroy.pipeline = pipeline;
 	del.dev = this->dev;
-	this->PushCommandPass(del, OnEndFrame);
+	//this->PushCommandPass(del, OnEndFrame);
 
 	// run command pass
 	this->RunCommandPass(OnBindGraphicsPipeline);
@@ -2905,10 +2960,10 @@ VkRenderDevice::EndDrawThreads()
 			this->PushToThread(cmd, i, false);
 
 			cmd.type = VkCmdBufferThread::Sync;
-			cmd.syncEvent = &this->drawCompletionEvents[i];
+			cmd.syncEvent = this->drawCompletionEvents[i];
 			this->PushToThread(cmd, i, false);
-			this->drawCompletionEvents[i].Wait();
-			this->drawCompletionEvents[i].Reset();
+			this->drawCompletionEvents[i]->Wait();
+			this->drawCompletionEvents[i]->Reset();
 		}
 
 		// run end-of-threads pass
@@ -2948,7 +3003,7 @@ VkRenderDevice::EndDrawThreadCluster()
 		//this->drawThreads[i]->PushCommand(cmd);
 
 		cmd.type = VkCmdBufferThread::Sync;
-		cmd.syncEvent = &this->drawCompletionEvents[i];
+		cmd.syncEvent = this->drawCompletionEvents[i];
 		this->PushToThread(cmd, i);
 		//this->drawThreads[i]->PushCommand(cmd);
 		//this->drawCompletionEvents[i].Wait();
@@ -2959,8 +3014,8 @@ VkRenderDevice::EndDrawThreadCluster()
 		//this->threadCmds[i].Clear();
 
 		// wait for threads to finish, but this is retarded, we can't do any work
-		this->drawCompletionEvents[i].Wait();
-		this->drawCompletionEvents[i].Reset();
+		this->drawCompletionEvents[i]->Wait();
+		this->drawCompletionEvents[i]->Reset();
 	}
 
 	// run end-of-threads pass
@@ -3003,7 +3058,7 @@ VkRenderDevice::PushToThread(const VkCmdBufferThread::Command& cmd, const IndexT
 	if (allowStaging)
 	{
 		this->threadCmds[index].Append(cmd);
-		if (this->threadCmds[index].Size() == 50)
+		if (this->threadCmds[index].Size() == 250)
 		{
 			this->drawThreads[index]->PushCommands(this->threadCmds[index]);
 			this->threadCmds[index].Reset();
@@ -3227,7 +3282,7 @@ VkRenderDevice::Copy(const Ptr<CoreGraphics::Texture>& from, Math::rectangle<Siz
 	VkImageCopy region;
 	region.dstOffset = { fromRegion.left, fromRegion.top, 0 };
 	region.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-	region.extent = { toRegion.width(), toRegion.height(), 1 };
+	region.extent = { (uint32_t)toRegion.width(), (uint32_t)toRegion.height(), 1 };
 	region.srcOffset = { toRegion.left, toRegion.top, 0 };
 	region.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
 	vkCmdCopyImage(this->mainCmdDrawBuffer, from->GetVkImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, to->GetVkImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);

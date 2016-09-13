@@ -504,6 +504,8 @@ ENDIF()
 		coregraphics/vk/vkfeedbackbuffer.h
 		coregraphics/vk/vkpass.cc
 		coregraphics/vk/vkpass.h
+		coregraphics/vk/vkpipelinedatabase.cc
+		coregraphics/vk/vkpipelinedatabase.h
         coregraphics/vk/vkindexbuffer.cc
         coregraphics/vk/vkindexbuffer.h
         coregraphics/vk/vkmemoryindexbufferloader.cc

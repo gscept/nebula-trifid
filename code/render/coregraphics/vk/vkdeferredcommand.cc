@@ -41,7 +41,7 @@ VkDeferredCommand::RunDelegate()
 		vkFreeCommandBuffers(this->dev, this->del.cmdbufferfree.pool, this->del.cmdbufferfree.numBuffers, this->del.cmdbufferfree.buffers);
 		break;
 	case FreeMemory:
-		n_delete_array((uint8_t*)this->del.memory.data);
+		Memory::Free(Memory::ScratchHeap, this->del.memory.data);
 		break;
 	case FreeBuffer:
 		vkFreeMemory(this->dev, this->del.buffer.mem, NULL);

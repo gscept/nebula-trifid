@@ -10,6 +10,7 @@
 #include "vkcmdbufferthread.h"
 #include "vkcpugpuinterlockthread.h"
 #include "vkdeferredcommand.h"
+#include "vkpipelinedatabase.h"
 
 namespace Lighting
 {
@@ -163,6 +164,7 @@ private:
 	friend class VkCmdEvent;
 	friend class VkPass;
 	friend class VkRenderTexture;
+	friend class VkPipelineDatabase;
 	friend class Lighting::VkLightServer;
 	friend struct VkDeferredCommand;
 
@@ -400,6 +402,7 @@ private:
 	VkFence mainCmdDrawFence;
 	VkFence mainCmdCmpFence;
 	VkFence mainCmdTransFence;
+	Ptr<VkPipelineDatabase> database;
 
 	VkPhysicalDeviceProperties deviceProps;
 	VkPhysicalDeviceFeatures deviceFeatures;
@@ -409,21 +412,21 @@ private:
 	VkCommandPool dispatchableCmdDrawBufferPool[NumDrawThreads];
 	VkCommandBuffer dispatchableDrawCmdBuffers[NumDrawThreads];
 	Ptr<VkCmdBufferThread> drawThreads[NumDrawThreads];
-	Threading::Event drawCompletionEvents[NumDrawThreads];
+	Threading::Event* drawCompletionEvents[NumDrawThreads];
 
 	static const SizeT NumTransferThreads = 1;
 	IndexT currentTransThread;
 	VkCommandPool dispatchableCmdTransBufferPool[NumTransferThreads];
 	VkCommandBuffer dispatchableTransCmdBuffers[NumTransferThreads];
 	Ptr<VkCmdBufferThread> transThreads[NumTransferThreads];
-	Threading::Event transCompletionEvents[NumTransferThreads];
+	Threading::Event* transCompletionEvents[NumTransferThreads];
 
 	static const SizeT NumComputeThreads = 1;
 	IndexT currentComputeThread;
 	VkCommandPool dispatchableCmdCompBufferPool[NumComputeThreads];
 	VkCommandBuffer dispatchableCompCmdBuffers[NumComputeThreads];
 	Ptr<VkCmdBufferThread> compThreads[NumComputeThreads];
-	Threading::Event compCompletionEvents[NumComputeThreads];
+	Threading::Event* compCompletionEvents[NumComputeThreads];
 
 	Util::Array<VkCmdBufferThread::Command> sharedDescriptorSets;
 	Util::Array<VkCmdBufferThread::Command> threadCmds[NumDrawThreads];
@@ -463,6 +466,8 @@ private:
 	_declare_counter(NumImageBytesAllocated);
 	_declare_counter(NumBufferBytesAllocated);
 	_declare_counter(NumBytesAllocated);
+	_declare_counter(NumPipelinesBuilt);
+	_declare_timer(DebugTimer);
 
 #if NEBULAT_VULKAN_DEBUG
 	VkDebugReportCallbackEXT debugCallbackHandle;

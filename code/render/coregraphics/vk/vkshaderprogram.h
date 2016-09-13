@@ -53,6 +53,7 @@ private:
 
 	friend class VkShader;
 	friend class VkStreamShaderLoader;
+	friend class VkPipelineDatabase;
 
 	/// setup from AnyFX program
 	void Setup(AnyFX::VkProgram* program, const VkPipelineLayout& layout);

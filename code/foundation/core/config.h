@@ -255,6 +255,7 @@ static const int JobMaxSliceSize = 0xFFFF;
 #pragma warning( disable : 4610 )       // object 'class' can never be instantiated - user-defined constructor required
 #pragma warning( disable : 4510 )       // 'class' : default constructor could not be generated
 #pragma warning( disable : 4316 )		// disable warnings for potential memory alignment issues as vs12 cant possibly figure them out correctly
+#pragma warning( disable : 4838 )		// disable warnings for narrowing conversions
 #ifdef __WIN64__
 #pragma warning( disable : 4267 )
 #endif

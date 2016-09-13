@@ -47,6 +47,8 @@ public:
 	/// get viewports
 	const Util::FixedArray<VkViewport>& GetVkViewports() const;
 private:
+	friend class VkPipelineDatabase;
+
 	Ptr<CoreGraphics::ShaderState> shaderState;
 	Ptr<CoreGraphics::ConstantBuffer> passBlockBuffer;
 	Ptr<CoreGraphics::ShaderVariable> passBlockVar;

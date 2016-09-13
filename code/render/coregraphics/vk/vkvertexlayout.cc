@@ -78,7 +78,7 @@ VkVertexLayout::Setup(const Util::Array<CoreGraphics::VertexComponent>& c)
 		0,
 		numUsedStreams,
 		this->binds.Begin(),
-		this->attrs.Size(),
+		(uint32_t)this->attrs.Size(),
 		this->attrs.Begin()
 	};
 

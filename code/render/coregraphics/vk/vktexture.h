@@ -65,8 +65,8 @@ public:
 	void MipDimensions(IndexT mip, IndexT face, SizeT& width, SizeT& height, SizeT& depth);
 	/// copy from one texture to another
 	static void Copy(const Ptr<CoreGraphics::Texture>& from, const Ptr<CoreGraphics::Texture>& to, uint32_t width, uint32_t height, uint32_t depth, 
-		uint32_t srcMip, uint32_t srcLayer, uint32_t srcXOffset, uint32_t srcYOffset, uint32_t srcZOffset,
-		uint32_t dstMip, uint32_t dstLayer, uint32_t dstXOffset, uint32_t dstYOffset, uint32_t dstZOffset);
+		uint32_t srcMip, uint32_t srcLayer, int32_t srcXOffset, int32_t srcYOffset, int32_t srcZOffset,
+		uint32_t dstMip, uint32_t dstLayer, int32_t dstXOffset, int32_t dstYOffset, int32_t dstZOffset);
 
 	/// get image
 	const VkImage& GetVkImage() const;

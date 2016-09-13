@@ -61,12 +61,12 @@ VkTexture::Map(IndexT mipLevel, MapType mapType, MapInfo& outMapInfo)
 		VkTypes::VkBlockDimensions blockSize = VkTypes::AsVkBlockSize(this->pixelFormat);
 		uint32_t size = CoreGraphics::PixelFormat::ToSize(this->pixelFormat);
 
-		int32_t mipWidth = (int32_t)Math::n_max(1.0f, Math::n_ceil(this->width / Math::n_pow(2, (float)mipLevel)));
-		int32_t mipHeight = (int32_t)Math::n_max(1.0f, Math::n_ceil(this->height / Math::n_pow(2, (float)mipLevel)));
+		uint32_t mipWidth = (uint32_t)Math::n_max(1.0f, Math::n_ceil(this->width / Math::n_pow(2, (float)mipLevel)));
+		uint32_t mipHeight = (uint32_t)Math::n_max(1.0f, Math::n_ceil(this->height / Math::n_pow(2, (float)mipLevel)));
 
 		this->mappedBufferLayout.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
 		this->mappedBufferLayout.dstOffset = { 0, 0, 0 };
-		this->mappedBufferLayout.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, mipLevel, 0, 1 };
+		this->mappedBufferLayout.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, (uint32_t)mipLevel, 0, 1 };
 		this->mappedBufferLayout.srcOffset = { 0, 0, 0 };
 		this->mappedBufferLayout.extent = { mipWidth, mipHeight, 1 };
 		uint32_t memSize;
@@ -90,13 +90,13 @@ VkTexture::Map(IndexT mipLevel, MapType mapType, MapInfo& outMapInfo)
 		VkTypes::VkBlockDimensions blockSize = VkTypes::AsVkBlockSize(this->pixelFormat);
 		uint32_t size = CoreGraphics::PixelFormat::ToSize(this->pixelFormat);
 
-		int32_t mipWidth = (int32_t)Math::n_max(1.0f, Math::n_ceil(this->width / Math::n_pow(2, (float)mipLevel)));
-		int32_t mipHeight = (int32_t)Math::n_max(1.0f, Math::n_ceil(this->height / Math::n_pow(2, (float)mipLevel)));
-		int32_t mipDepth = (int32_t)Math::n_max(1.0f, Math::n_ceil(this->depth / Math::n_pow(2, (float)mipLevel)));
+		uint32_t mipWidth = (uint32_t)Math::n_max(1.0f, Math::n_ceil(this->width / Math::n_pow(2, (float)mipLevel)));
+		uint32_t mipHeight = (uint32_t)Math::n_max(1.0f, Math::n_ceil(this->height / Math::n_pow(2, (float)mipLevel)));
+		uint32_t mipDepth = (uint32_t)Math::n_max(1.0f, Math::n_ceil(this->depth / Math::n_pow(2, (float)mipLevel)));
 
 		this->mappedBufferLayout.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
 		this->mappedBufferLayout.dstOffset = { 0, 0, 0 };
-		this->mappedBufferLayout.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, mipLevel, 1, 1 };
+		this->mappedBufferLayout.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, (uint32_t)mipLevel, 1, 1 };
 		this->mappedBufferLayout.srcOffset = { 0, 0, 0 };
 		this->mappedBufferLayout.extent = { mipWidth, mipHeight, mipDepth };
 		uint32_t memSize;
@@ -154,12 +154,12 @@ VkTexture::MapCubeFace(CubeFace face, IndexT mipLevel, MapType mapType, MapInfo&
 	VkTypes::VkBlockDimensions blockSize = VkTypes::AsVkBlockSize(this->pixelFormat);
 	uint32_t size = CoreGraphics::PixelFormat::ToSize(this->pixelFormat);
 
-	int32_t mipWidth = (int32_t)Math::n_max(1.0f, Math::n_ceil(this->width / Math::n_pow(2, (float)mipLevel)));
-	int32_t mipHeight = (int32_t)Math::n_max(1.0f, Math::n_ceil(this->height / Math::n_pow(2, (float)mipLevel)));
+	uint32_t mipWidth = (uint32_t)Math::n_max(1.0f, Math::n_ceil(this->width / Math::n_pow(2, (float)mipLevel)));
+	uint32_t mipHeight = (uint32_t)Math::n_max(1.0f, Math::n_ceil(this->height / Math::n_pow(2, (float)mipLevel)));
 
 	this->mappedBufferLayout.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
 	this->mappedBufferLayout.dstOffset = { 0, 0, 0 };
-	this->mappedBufferLayout.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, mipLevel, (uint32_t)face, 1 };
+	this->mappedBufferLayout.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, (uint32_t)mipLevel, (uint32_t)face, 1 };
 	this->mappedBufferLayout.srcOffset = { 0, 0, 0 };
 	this->mappedBufferLayout.extent = { mipWidth, mipHeight, 1 };
 	uint32_t memSize;
@@ -463,8 +463,8 @@ VkTexture::SetupFromVkBackbuffer(VkImage img, uint32_t width, uint32_t height, u
 */
 void
 VkTexture::Copy(const Ptr<CoreGraphics::Texture>& from, const Ptr<CoreGraphics::Texture>& to, uint32_t width, uint32_t height, uint32_t depth,
-	uint32_t srcMip, uint32_t srcLayer, uint32_t srcXOffset, uint32_t srcYOffset, uint32_t srcZOffset,
-	uint32_t dstMip, uint32_t dstLayer, uint32_t dstXOffset, uint32_t dstYOffset, uint32_t dstZOffset)
+	uint32_t srcMip, uint32_t srcLayer, int32_t srcXOffset, int32_t srcYOffset, int32_t srcZOffset,
+	uint32_t dstMip, uint32_t dstLayer, int32_t dstXOffset, int32_t dstYOffset, int32_t dstZOffset)
 {
 	VkImageCopy copy;
 	copy.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;

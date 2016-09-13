@@ -53,7 +53,7 @@
 				{ "name": "ColorBuffer", 	"clear":"0.5, 0.5, 0.5, 1", "store": true 	}
 			],
 			
-			"depthStencil": { "name": "ZBuffer", "clear": 1, "clearStencil": 0, "store": true },
+			"depthStencil": { "name": "ZBuffer", "clear": 1, "clearStencil": 0, "store": false },
 			
 			"subpass":
 			{
