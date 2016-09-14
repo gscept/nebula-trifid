@@ -365,15 +365,16 @@ FrameScriptLoader::ParseShaderStateList(const Ptr<Frame2::FrameScript>& script, 
 		cJSON* name = cJSON_GetObjectItem(cur, "name");
 		n_assert(name != NULL);
 
+		bool createResources = false;
+		cJSON* create = cJSON_GetObjectItem(cur, "createResourceSet");
+		if (create != NULL) createResources = create->valueint == 1 ? true : false;
+
 		cJSON* shader = cJSON_GetObjectItem(cur, "shader");
 		n_assert(shader != NULL);
-		Ptr<CoreGraphics::ShaderState> state = ShaderServer::Instance()->CreateShaderState(shader->valuestring, { NEBULAT_DEFAULT_GROUP });
+		Ptr<CoreGraphics::ShaderState> state = ShaderServer::Instance()->CreateShaderState(shader->valuestring, { NEBULAT_DEFAULT_GROUP }, createResources);
 
 		cJSON* vars = cJSON_GetObjectItem(cur, "variables");
-		if (vars != NULL)
-		{
-			ParseShaderVariables(script, state, vars);
-		}
+		if (vars != NULL) ParseShaderVariables(script, state, vars);
 
 		// add state
 		script->AddShaderState(name->valuestring, state);

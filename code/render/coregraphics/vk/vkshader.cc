@@ -18,6 +18,7 @@ __ImplementClass(Vulkan::VkShader, 'VKSH', Base::ShaderBase);
 
 Util::Dictionary<Util::StringAtom, VkDescriptorSetLayout> VkShader::LayoutCache;
 Util::Dictionary<Util::StringAtom, VkPipelineLayout> VkShader::ShaderPipelineCache;
+Util::Dictionary<Util::StringAtom, VkDescriptorSet> VkShader::DescriptorSetCache;
 //------------------------------------------------------------------------------
 /**
 */
@@ -402,6 +403,7 @@ VkShader::Setup(AnyFX::ShaderEffect* effect)
 		this->pipelineLayout = VkShader::ShaderPipelineCache.ValueAtIndex(idx);
 	}
 
+	/*
 	// setup descriptor sets
 	if (!this->setLayouts.IsEmpty())
 	{
@@ -418,6 +420,44 @@ VkShader::Setup(AnyFX::ShaderEffect* effect)
 		res = vkAllocateDescriptorSets(VkRenderDevice::dev, &info, &this->sets[0]);
 		n_assert(res == VK_SUCCESS);
 	}
+	*/
+    this->sets.Resize(this->setLayouts.Size());
+    this->sets.Fill(VK_NULL_HANDLE);
+    for (IndexT i = 0; i < this->setLayouts.Size(); i++)
+    {
+        // if signature is defined in this shader, retrieve it
+        IndexT layoutIndex = InvalidIndex;
+        Util::String signature;
+        if (signatures.Contains(i))
+        {
+            signature = signatures[i];
+            layoutIndex = VkShader::LayoutCache.FindIndex(signature);
+			IndexT idx = VkShader::DescriptorSetCache.FindIndex(signature);
+			if (idx == InvalidIndex)
+			{
+				// allocate descriptor sets
+				VkDescriptorSetAllocateInfo info =
+				{
+					VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+					NULL,
+					VkRenderDevice::descPool,
+					1,
+					&this->setLayouts[i]
+				};
+				VkDescriptorSet set;
+				res = vkAllocateDescriptorSets(VkRenderDevice::dev, &info, &set);
+				n_assert(res == VK_SUCCESS);
+
+				// add to cache
+				this->sets[i] = set;
+				VkShader::DescriptorSetCache.Add(pipelineSignature, set);
+        	}
+		}
+		else
+		{
+			this->sets[i] = VkShader::DescriptorSetCache[pipelineSignature];
+		}
+    }
 
 	// setup varblock backing
 	for (i = 0; i < varblocks.size(); i++)

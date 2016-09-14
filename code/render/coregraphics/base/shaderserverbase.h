@@ -56,14 +56,10 @@ public:
 
     /// return true if a shader exists
     bool HasShader(const Resources::ResourceId& resId) const;
-    /// create a new shader state
-    Ptr<CoreGraphics::ShaderState> CreateShaderState(const Resources::ResourceId& resId);
 	/// create a new shader state only for a set of groups
-	Ptr<CoreGraphics::ShaderState> CreateShaderState(const Resources::ResourceId& resId, const Util::Array<IndexT>& groups);
+	Ptr<CoreGraphics::ShaderState> CreateShaderState(const Resources::ResourceId& resId, const Util::Array<IndexT>& groups, bool createResourceSet = false);
 	/// create a shared state, will only create a new shader state if one doesn't already exist with the given set of variable groups
 	Ptr<CoreGraphics::ShaderState> CreateSharedShaderState(const Resources::ResourceId& resId, const Util::Array<IndexT>& groups);
-	/// create a shared state, which creates a new state if none exists, otherwise just returns the one created
-	Ptr<CoreGraphics::ShaderState> CreateSharedShaderState(const Resources::ResourceId& resId);
     /// get all loaded shaders
     const Util::Dictionary<Resources::ResourceId, Ptr<CoreGraphics::Shader> >& GetAllShaders() const;
 	/// get shader by name

@@ -96,9 +96,7 @@ private:
 	friend class Lighting::VkLightServer;
 
 	/// setup the shader instance from its original shader object
-	void Setup(const Ptr<CoreGraphics::Shader>& origShader);
-	/// setup the shader instance from its original shader object
-	void Setup(const Ptr<CoreGraphics::Shader>& origShader, const Util::Array<IndexT>& groups);
+	void Setup(const Ptr<CoreGraphics::Shader>& origShader, const Util::Array<IndexT>& groups, bool createResourceSet);
 
 	/// sets up variables
 	void SetupVariables(const Util::Array<IndexT>& groups);

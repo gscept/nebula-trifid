@@ -84,6 +84,7 @@ private:
 
 	static Util::Dictionary<Util::StringAtom, VkDescriptorSetLayout> LayoutCache;
 	static Util::Dictionary<Util::StringAtom, VkPipelineLayout> ShaderPipelineCache;
+	static Util::Dictionary<Util::StringAtom, VkDescriptorSet> DescriptorSetCache;
 
 	Util::Set<Util::String> activeBlockNames;
 };

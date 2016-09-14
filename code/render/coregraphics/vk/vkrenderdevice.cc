@@ -1680,9 +1680,10 @@ VkRenderDevice::AllocateImageMemory(const VkImage& img, VkDeviceMemory& imgmem, 
 void
 VkRenderDevice::SetShaderPipelineInfo(const VkGraphicsPipelineCreateInfo& shader, const Ptr<VkShaderProgram>& program)
 {
+	this->database->SetShader(program);
 	if (this->currentProgram != program || !(this->currentPipelineBits & ShaderInfoSet))
 	{
-		this->database->SetShader(program);
+
 
 		this->currentPipelineBits |= ShaderInfoSet;
 
@@ -1710,9 +1711,10 @@ VkRenderDevice::SetShaderPipelineInfo(const VkGraphicsPipelineCreateInfo& shader
 void
 VkRenderDevice::SetVertexLayoutPipelineInfo(VkPipelineVertexInputStateCreateInfo* vertexLayout)
 {
+	this->database->SetVertexLayout(vertexLayout);
 	if (this->currentPipelineInfo.pVertexInputState != vertexLayout || !(this->currentPipelineBits & VertexLayoutInfoSet))
 	{
-		this->database->SetVertexLayout(vertexLayout);
+
 
 		this->currentPipelineBits |= VertexLayoutInfoSet;
 		this->currentPipelineInfo.pVertexInputState = vertexLayout;
@@ -1741,9 +1743,10 @@ VkRenderDevice::SetFramebufferLayoutInfo(const VkGraphicsPipelineCreateInfo& fra
 void
 VkRenderDevice::SetInputLayoutInfo(VkPipelineInputAssemblyStateCreateInfo* inputLayout)
 {
+	this->database->SetInputLayout(inputLayout);
 	if (this->currentPipelineInfo.pInputAssemblyState != inputLayout || !(this->currentPipelineBits & InputLayoutInfoSet))
 	{
-		this->database->SetInputLayout(inputLayout);
+
 
 		this->currentPipelineBits |= InputLayoutInfoSet;
 		this->currentPipelineInfo.pInputAssemblyState = inputLayout;

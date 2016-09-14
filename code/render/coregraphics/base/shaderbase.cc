@@ -57,25 +57,12 @@ ShaderBase::Unload()
 //------------------------------------------------------------------------------
 /**
 */
-Ptr<ShaderState>
-ShaderBase::CreateState()
-{
-    Ptr<ShaderState> newInst = ShaderState::Create();
-    Ptr<ShaderBase> thisPtr(this);
-    newInst->Setup(thisPtr.downcast<Shader>());
-    this->shaderInstances.Append(newInst);
-    return newInst;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
 Ptr<CoreGraphics::ShaderState>
-ShaderBase::CreateState(const Util::Array<IndexT>& groups)
+ShaderBase::CreateState(const Util::Array<IndexT>& groups, bool createResourceSet)
 {
 	Ptr<ShaderState> newInst = ShaderState::Create();
 	Ptr<ShaderBase> thisPtr(this);
-	newInst->Setup(thisPtr.downcast<Shader>(), groups);
+	newInst->Setup(thisPtr.downcast<Shader>(), groups, createResourceSet);
 	this->shaderInstances.Append(newInst);
 	return newInst;
 }
