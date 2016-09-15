@@ -921,6 +921,9 @@ VkRenderDevice::BeginFrame(IndexT frameIndex)
 	vkBeginCommandBuffer(this->mainCmdCmpBuffer, &cmdInfo);
 	vkBeginCommandBuffer(this->mainCmdTransBuffer, &cmdInfo);
 
+	// all commands are put on the main command buffer
+	this->currentCommandState = MainState;
+
 	// handle fences
 	this->RunCommandPass(OnHandleTransferFences);
 	this->RunCommandPass(OnHandleDrawFences);
@@ -952,15 +955,6 @@ VkRenderDevice::SetStreamVertexBuffer(IndexT streamIndex, const Ptr<CoreGraphics
 	cmd.vbo.index = streamIndex;
 	cmd.vbo.offset = offsetVertexIndex;
 	this->PushToThread(cmd, this->currentDrawThread);
-	//this->drawThreads[this->currentDrawThread]->PushCommand(cmd);
-	/*
-	IndexT i;
-	for (i = 0; i < NumDrawThreads; i++)
-	{
-		this->PushToThread(cmd, i);
-		//this->drawThreads[i]->PushCommand(cmd);
-	}
-	*/
 }
 
 //------------------------------------------------------------------------------
@@ -989,15 +983,6 @@ VkRenderDevice::SetIndexBuffer(const Ptr<CoreGraphics::IndexBuffer>& ib)
 	cmd.ibo.indexType = ib->GetIndexType() == IndexType::Index16 ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32;
 	cmd.ibo.offset = 0;
 	this->PushToThread(cmd, this->currentDrawThread);
-	/*
-	IndexT i;
-	for (i = 0; i < NumDrawThreads; i++)
-	{
-		//this->PushToThread(cmd, i);
-		//this->drawThreads[i]->PushCommand(cmd);
-	}
-	*/
-	//this->drawThreads[this->currentDrawThread]->PushCommand(cmd);
 }
 
 //------------------------------------------------------------------------------
@@ -1168,6 +1153,7 @@ void
 VkRenderDevice::BeginPass(const Ptr<CoreGraphics::Pass>& pass)
 {
 	RenderDeviceBase::BeginPass(pass);
+	this->currentCommandState = SharedState;
 
 	// set info
 	this->SetFramebufferLayoutInfo(pass->GetVkFramebufferPipelineInfo());
@@ -1226,7 +1212,6 @@ VkRenderDevice::SetToNextSubpass()
 	this->currentPipelineBits &= ~PipelineBuilt; // hmm, this is really ugly, is it avoidable?
 	this->database->SetSubpass(this->passInfo.subpass);
 	vkCmdNextSubpass(this->mainCmdDrawBuffer, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
-
 }
 
 //------------------------------------------------------------------------------
@@ -1245,6 +1230,9 @@ void
 VkRenderDevice::BeginBatch(CoreGraphics::FrameBatchType::Code batchType)
 {
 	RenderDeviceBase::BeginBatch(batchType);
+
+	// set to the shared state
+	this->currentCommandState = SharedState;
 }
 
 //------------------------------------------------------------------------------
@@ -1262,8 +1250,6 @@ VkRenderDevice::Draw()
 	cmd.draw.numVerts = this->primitiveGroup.GetNumVertices();
 	cmd.draw.numInstances = 1;
 	this->PushToThread(cmd, this->currentDrawThread);
-	//this->threadCmds[this->currentDrawThread].Append(cmd);
-	//this->drawThreads[this->currentDrawThread]->PushCommand(cmd);
 
 	// go to next thread
 	//this->NextThread();
@@ -1286,8 +1272,6 @@ VkRenderDevice::DrawIndexedInstanced(SizeT numInstances, IndexT baseInstance)
 	cmd.draw.numVerts = this->primitiveGroup.GetNumVertices();
 	cmd.draw.numInstances = numInstances;
 	this->PushToThread(cmd, this->currentDrawThread);
-	//this->threadCmds[this->currentDrawThread].Append(cmd);
-	//this->drawThreads[this->currentDrawThread]->PushCommand(cmd);
 
 	// go to next thread
 	//this->NextThread();
@@ -1317,15 +1301,15 @@ VkRenderDevice::DrawFeedbackInstanced(const Ptr<CoreGraphics::FeedbackBuffer>& f
 void
 VkRenderDevice::EndBatch()
 {
-	// submit threaded buffers
-	//this->SubmitToQueue(this->renderQueue, NumDrawThreads, this->dispatchableDrawCmdBuffers);
+	// transition back to the shared state
+	this->currentCommandState = SharedState;
 
-
-	// free up our threaded command buffers
-	//vkFreeCommandBuffers(this->dev, this->cmdGfxPool[Transient], NumDrawThreads, this->dispatchableDrawCmdBuffers);
-
-	this->currentPipelineBits = FramebufferLayoutInfoSet;
-	//Memory::Clear(&this->currentPipelineInfo, sizeof(VkGraphicsPipelineCreateInfo));
+	// when ending a batch, flush all threads
+	if (this->numActiveThreads > 0)
+	{
+		IndexT i;
+		for (i = 0; i < this->numActiveThreads; i++) this->FlushToThread(i);
+	}
 
 	RenderDeviceBase::EndBatch();
 }
@@ -1336,12 +1320,11 @@ VkRenderDevice::EndBatch()
 void
 VkRenderDevice::EndPass()
 {
-
-
 	//this->currentPipelineBits = 0;
 	this->sharedDescriptorSets.Clear();
+	this->currentCommandState = SharedState;
 
-	/// end draw threads, if any are remaining
+	// end draw threads, if any are remaining
 	this->EndDrawThreads();
 
 	// run end command pass before we actually end the render pass
@@ -1380,6 +1363,9 @@ void
 VkRenderDevice::EndFrame(IndexT frameIndex)
 {
 	RenderDeviceBase::EndFrame(frameIndex);
+
+	// set back to the main state
+	this->currentCommandState = MainState;
 
 	VkFenceCreateInfo info =
 	{
@@ -1525,7 +1511,7 @@ VkRenderDevice::SetScissorRect(const Math::rectangle<int>& rect, int index)
 	sc.extent.width = rect.width();
 	sc.offset.x = rect.left;
 	sc.offset.y = rect.top;
-	if (this->numActiveThreads)
+	if (this->currentCommandState == LocalState)
 	{
 		VkCmdBufferThread::Command cmd;
 		cmd.type = VkCmdBufferThread::ScissorRect;
@@ -1550,7 +1536,7 @@ VkRenderDevice::SetViewport(const Math::rectangle<int>& rect, int index)
 	vp.height = (float)rect.height();
 	vp.x = (float)rect.left;
 	vp.y = (float)rect.top;
-	if (this->numActiveThreads)
+	if (this->currentCommandState == LocalState)
 	{
 		VkCmdBufferThread::Command cmd;
 		cmd.type = VkCmdBufferThread::Viewport;
@@ -1680,11 +1666,9 @@ VkRenderDevice::AllocateImageMemory(const VkImage& img, VkDeviceMemory& imgmem, 
 void
 VkRenderDevice::SetShaderPipelineInfo(const VkGraphicsPipelineCreateInfo& shader, const Ptr<VkShaderProgram>& program)
 {
-	this->database->SetShader(program);
 	if (this->currentProgram != program || !(this->currentPipelineBits & ShaderInfoSet))
 	{
-
-
+		this->database->SetShader(program);
 		this->currentPipelineBits |= ShaderInfoSet;
 
 		this->blendInfo.pAttachments = shader.pColorBlendState->pAttachments;
@@ -1711,11 +1695,9 @@ VkRenderDevice::SetShaderPipelineInfo(const VkGraphicsPipelineCreateInfo& shader
 void
 VkRenderDevice::SetVertexLayoutPipelineInfo(VkPipelineVertexInputStateCreateInfo* vertexLayout)
 {
-	this->database->SetVertexLayout(vertexLayout);
 	if (this->currentPipelineInfo.pVertexInputState != vertexLayout || !(this->currentPipelineBits & VertexLayoutInfoSet))
 	{
-
-
+		this->database->SetVertexLayout(vertexLayout);
 		this->currentPipelineBits |= VertexLayoutInfoSet;
 		this->currentPipelineInfo.pVertexInputState = vertexLayout;
 		//this->vertexInfo = vertexLayout;
@@ -1743,11 +1725,9 @@ VkRenderDevice::SetFramebufferLayoutInfo(const VkGraphicsPipelineCreateInfo& fra
 void
 VkRenderDevice::SetInputLayoutInfo(VkPipelineInputAssemblyStateCreateInfo* inputLayout)
 {
-	this->database->SetInputLayout(inputLayout);
 	if (this->currentPipelineInfo.pInputAssemblyState != inputLayout || !(this->currentPipelineBits & InputLayoutInfoSet))
 	{
-
-
+		this->database->SetInputLayout(inputLayout);
 		this->currentPipelineBits |= InputLayoutInfoSet;
 		this->currentPipelineInfo.pInputAssemblyState = inputLayout;
 		this->currentPipelineBits &= ~PipelineBuilt;
@@ -1760,7 +1740,8 @@ VkRenderDevice::SetInputLayoutInfo(VkPipelineInputAssemblyStateCreateInfo* input
 void
 VkRenderDevice::BindDescriptorsGraphics(const VkDescriptorSet* descriptors, const VkPipelineLayout& layout, uint32_t baseSet, uint32_t setCount, const uint32_t* offsets, uint32_t offsetCount, bool shared)
 {
-	if (this->numActiveThreads > 0)
+	// iif we are in the local state, push directly to thread
+	if (this->currentCommandState == LocalState)
 	{
 		VkCmdBufferThread::Command cmd;
 		cmd.type = VkCmdBufferThread::BindDescriptors;
@@ -1771,20 +1752,12 @@ VkRenderDevice::BindDescriptorsGraphics(const VkDescriptorSet* descriptors, cons
 		cmd.descriptor.numOffsets = offsetCount;
 		cmd.descriptor.offsets = offsets;
 		cmd.descriptor.type = VK_PIPELINE_BIND_POINT_GRAPHICS;
-		/*
-		IndexT i;
-		for (i = 0; i < NumDrawThreads; i++)
-		{
-			//this->PushToThread(cmd, i);
-			//this->drawThreads[i]->PushCommand(cmd);
-		}
-		*/
 		this->PushToThread(cmd, this->currentDrawThread);
-		//this->drawThreads[this->currentDrawThread]->PushCommand(cmd);
 	}
 	else
 	{
-		if (shared)
+		// if the state should be applied in a shared manner, or we are in the shared phase (inside a Pass or Batch), push to all threads
+		if (shared || this->currentCommandState == SharedState)
 		{
 			VkCmdBufferThread::Command cmd;
 			cmd.type = VkCmdBufferThread::BindDescriptors;
@@ -1797,7 +1770,7 @@ VkRenderDevice::BindDescriptorsGraphics(const VkDescriptorSet* descriptors, cons
 			cmd.descriptor.type = VK_PIPELINE_BIND_POINT_GRAPHICS;
 			this->sharedDescriptorSets.Append(cmd);
 		}
-		else
+		else // if we are in the 'main state', we just delay the descriptor binds until we have threads
 		{
 			VkDeferredCommand cmd;
 			cmd.del.type = VkDeferredCommand::BindDescriptorSets;
@@ -2048,9 +2021,9 @@ VkRenderDevice::ReadImage(const Ptr<VkTexture>& tex, VkImageCopy copy, uint32_t&
 	dstSubres.levelCount = 1;
 
 	VkImageBlit blit;
+	blit.srcSubresource = copy.srcSubresource;
 	blit.srcOffsets[0] = copy.srcOffset;
 	blit.srcOffsets[1] = { (int32_t)copy.extent.width, (int32_t)copy.extent.height, (int32_t)copy.extent.depth };
-	blit.srcSubresource = copy.srcSubresource;
 
 	blit.dstSubresource = copy.dstSubresource;
 	blit.dstOffsets[0] = copy.dstOffset;
@@ -2063,10 +2036,6 @@ VkRenderDevice::ReadImage(const Ptr<VkTexture>& tex, VkImageCopy copy, uint32_t&
 	this->ImageLayoutTransition(cmdBuf, this->ImageMemoryBarrier(tex->GetVkImage(), srcSubres, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
 	this->ImageLayoutTransition(cmdBuf, this->ImageMemoryBarrier(img, dstSubres, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL));
 
-	VkImageSubresource subres;
-	subres.arrayLayer = copy.srcSubresource.baseArrayLayer;
-	subres.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-	subres.mipLevel = copy.srcSubresource.mipLevel;
 	VkBufferCreateInfo bufInfo =
 	{
 		VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
@@ -2084,7 +2053,7 @@ VkRenderDevice::ReadImage(const Ptr<VkTexture>& tex, VkImageCopy copy, uint32_t&
 
 	VkDeviceMemory bufMem;
 	uint32_t bufMemSize;
-	this->AllocateBufferMemory(buf, bufMem, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, bufMemSize);
+	this->AllocateBufferMemory(buf, bufMem, VkMemoryPropertyFlagBits(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT), bufMemSize);
 	vkBindBufferMemory(this->dev, buf, bufMem, 0);
 
 	VkBufferImageCopy cp;
@@ -2105,7 +2074,7 @@ VkRenderDevice::ReadImage(const Ptr<VkTexture>& tex, VkImageCopy copy, uint32_t&
 
 	outBuffer = buf;
 	outMem = bufMem;
-	outMemSize = VK_DEVICE_SIZE_CONV(memSize);
+	outMemSize = VK_DEVICE_SIZE_CONV(bufMemSize);
 }
 
 //------------------------------------------------------------------------------
@@ -2323,21 +2292,13 @@ void
 VkRenderDevice::CreateAndBindGraphicsPipeline()
 {
 	VkPipeline pipeline = this->database->GetCompiledPipeline();
-	//VkResult res = vkCreateGraphicsPipelines(this->dev, VK_NULL_HANDLE, 1, &this->currentPipelineInfo, NULL, &pipeline);
-	//n_assert(res == VK_SUCCESS);
 	_incr_counter(NumPipelinesBuilt, 1);
 
-	// if all threads are in use, finish them
-	//if (this->currentDrawThread == NumDrawThreads-1 && this->numActiveThreads > 0)
-	//if (this->numActiveThreads > 0)
-	{
-		//this->EndDrawThreads();
-		//this->EndDrawThreadCluster();
-	}
-
+	// all future commands are put on the local state
+	this->currentCommandState = LocalState;
+	
 	// begin new draw thread
 	this->currentDrawThread = (this->currentDrawThread + 1) % NumDrawThreads;
-	//this->BeginDrawThreadCluster();
 	if (this->numActiveThreads < NumDrawThreads)
 	{
 		// if we want a new thread, make one, then bind shared descriptor sets
@@ -2351,30 +2312,30 @@ VkRenderDevice::CreateAndBindGraphicsPipeline()
 	cmd.type = VkCmdBufferThread::GraphicsPipeline;
 	cmd.pipeline = pipeline;
 	this->PushToThread(cmd, this->currentDrawThread);
-	/*
-	IndexT i;
-	for (i = 0; i < NumDrawThreads; i++)
-	{
-		this->PushToThread(cmd, i);
-		//this->drawThreads[i]->PushCommand(cmd);
-	}
-	*/
-	//this->drawThreads[this->currentDrawThread]->PushCommand(cmd);
 
+	uint32_t i;
+	for (i = 0; i < this->numScissors; i++)
+	{
+		cmd.type = VkCmdBufferThread::ScissorRect;
+		cmd.scissorRect.sc = this->scissors[i];
+		cmd.scissorRect.index = i;
+		this->PushToThread(cmd, this->currentDrawThread);
+	}
+
+	for (i = 0; i < this->numViewports; i++)
+	{
+		cmd.type = VkCmdBufferThread::Viewport;
+		cmd.viewport.vp = this->viewports[i];
+		cmd.viewport.index = i;
+		this->PushToThread(cmd, this->currentDrawThread);
+	}
+	/*
 	// push scissors
 	cmd.type = VkCmdBufferThread::ScissorRectArray;
 	cmd.scissorRectArray.first = 0;
 	cmd.scissorRectArray.num = this->numScissors;
 	cmd.scissorRectArray.scs = this->scissors;
 	this->PushToThread(cmd, this->currentDrawThread);
-	/*
-	for (i = 0; i < NumDrawThreads; i++)
-	{
-		this->PushToThread(cmd, i);
-		//this->drawThreads[i]->PushCommand(cmd);
-	}
-	*/
-	//this->drawThreads[this->currentDrawThread]->PushCommand(cmd);
 
 	// push viewports
 	cmd.type = VkCmdBufferThread::ViewportArray;
@@ -2382,14 +2343,7 @@ VkRenderDevice::CreateAndBindGraphicsPipeline()
 	cmd.viewportArray.num = this->numViewports;
 	cmd.viewportArray.vps = this->viewports;
 	this->PushToThread(cmd, this->currentDrawThread);
-	/*
-	for (i = 0; i < NumDrawThreads; i++)
-	{
-		this->PushToThread(cmd, i);
-		//this->drawThreads[i]->PushCommand(cmd);
-	}
 	*/
-	//this->drawThreads[this->currentDrawThread]->PushCommand(cmd);
 
 	VkDeferredCommand del;
 	del.del.type = VkDeferredCommand::DestroyPipeline;
@@ -2408,6 +2362,7 @@ void
 VkRenderDevice::BuildRenderPipeline()
 {
 	n_assert((this->currentPipelineBits & AllInfoSet) != 0);
+	n_assert(this->inBeginBatch);
 	if ((this->currentPipelineBits & PipelineBuilt) == 0)
 	{
 		this->CreateAndBindGraphicsPipeline();
@@ -2892,7 +2847,6 @@ VkRenderDevice::BeginDrawThread()
 	cmd.bgCmd.buf = this->dispatchableDrawCmdBuffers[this->currentDrawThread];
 	cmd.bgCmd.info = begin;
 	this->PushToThread(cmd, this->currentDrawThread);
-	//this->drawThreads[this->currentDrawThread]->PushCommand(cmd);
 
 	// run begin command buffer pass
 	this->RunCommandPass(OnBeginDrawThread);
@@ -2934,8 +2888,6 @@ VkRenderDevice::BeginDrawThreadCluster()
 		cmd.bgCmd.buf = this->dispatchableDrawCmdBuffers[i];
 		cmd.bgCmd.info = begin;
 
-		// begin command buffer in thread
-		//this->drawThreads[i]->PushCommand(cmd);
 		this->PushToThread(cmd, i);
 	}
 	this->currentDrawThread = 0;
@@ -3066,7 +3018,6 @@ VkRenderDevice::PushToThread(const VkCmdBufferThread::Command& cmd, const IndexT
 			this->drawThreads[index]->PushCommands(this->threadCmds[index]);
 			this->threadCmds[index].Reset();
 		}
-		//this->drawThreads[index]->PushCommand(cmd);
 	}
 	else
 	{
@@ -3080,8 +3031,11 @@ VkRenderDevice::PushToThread(const VkCmdBufferThread::Command& cmd, const IndexT
 void
 VkRenderDevice::FlushToThread(const IndexT& index)
 {
-	this->drawThreads[index]->PushCommands(this->threadCmds[index]);
-	this->threadCmds[index].Clear();
+	if (!this->threadCmds[index].IsEmpty())
+	{
+		this->drawThreads[index]->PushCommands(this->threadCmds[index]);
+		this->threadCmds[index].Clear();
+	}
 }
 
 //------------------------------------------------------------------------------

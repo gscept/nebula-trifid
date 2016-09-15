@@ -4,7 +4,10 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "framesubpassplugins.h"
+#include "coregraphics/renderdevice.h"
+#include "coregraphics/framebatchtype.h"
 
+using namespace CoreGraphics;
 namespace Frame2
 {
 
@@ -53,7 +56,10 @@ FrameSubpassPlugins::Setup()
 void
 FrameSubpassPlugins::Run(const IndexT frameIndex)
 {
+	RenderDevice* renderDev = RenderDevice::Instance();
+	renderDev->BeginBatch(FrameBatchType::System);
 	this->pluginRegistry->OnRender(this->pluginFilter);
+	renderDev->EndBatch();
 }
 
 } // namespace Frame2

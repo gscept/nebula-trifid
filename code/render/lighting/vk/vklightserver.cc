@@ -427,7 +427,9 @@ VkLightServer::RenderGlobalLight()
 			float CSMBufferWidth = (CSMTexture->GetWidth() / (float)ShadowServerBase::SplitsPerRow);
 #if __DX11__
 			matrix44 textureScale = matrix44::scaling(0.5f, -0.5f, 1.0f);
-#elif (__OGL4__ || __VULKAN__)
+#elif __VULKAN__
+			matrix44 textureScale = matrix44::scaling(0.5f, -1.0f, 1.0f);
+#elif __OGL4__
 			matrix44 textureScale = matrix44::scaling(0.5f, 0.5f, 1.0f);
 #endif
 			matrix44 textureTranslation = matrix44::translation(0.5f, 0.5f, 0);
@@ -458,7 +460,7 @@ VkLightServer::RenderGlobalLight()
 
 			this->shadowIntensityVar->SetFloat(this->globalLightEntity->GetShadowIntensity());
 		}
-
+		
 		// commit changes and draw
 		this->fullScreenQuadRenderer.ApplyMesh();
 		this->lightShader->Commit();
@@ -625,7 +627,8 @@ VkLightServer::RenderSpotLights()
 						this->shadowOffsetScaleVar->SetFloat4(shadowOffsetScale);
 
 						// set shadow intensity
-						this->shadowIntensityVar->SetFloat(curLight->GetShadowIntensity());
+						this->shadowIntensityVar->SetFloat(curLight->GetShadowIntensity() * 10000);
+						this->shadowProjMapVar->SetTexture(ShadowServer::Instance()->GetSpotLightShadowBufferTexture());
 					}
 
 					// commit and draw

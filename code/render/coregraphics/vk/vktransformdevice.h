@@ -59,8 +59,6 @@ private:
 
 	Ptr<CoreGraphics::ShaderVariable> shadowCameraBlockVar;
 	Ptr<CoreGraphics::ShaderState> sharedShader;
-	Ptr<CoreGraphics::ConstantBuffer> cameraBuffer;
-	Ptr<CoreGraphics::ConstantBuffer> shadowCameraBuffer;
 };
 
 //------------------------------------------------------------------------------

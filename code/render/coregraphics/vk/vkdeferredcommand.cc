@@ -61,6 +61,7 @@ VkDeferredCommand::RunDelegate()
 			VkRenderDevice::Instance()->BindDescriptorsCompute(this->del.descSetBind.sets, this->del.descSetBind.layout, this->del.descSetBind.baseSet, this->del.descSetBind.numSets, this->del.descSetBind.offsets, this->del.descSetBind.numOffsets);
 		}
 		break;
+	
 	case UpdateBuffer:
 		VkRenderDevice::Instance()->BufferUpdate(this->del.bufferUpd.buf, this->del.bufferUpd.offset, this->del.bufferUpd.size, this->del.bufferUpd.data);
 		break;

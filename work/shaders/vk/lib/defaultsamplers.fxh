@@ -6,13 +6,15 @@
 #ifndef DEFAULTSAMPLERS_FXH
 #define DEFAULTSAMPLERS_FXH
 
-textureHandle AlbedoMap;
-textureHandle DisplacementMap;
-textureHandle SpecularMap;
-textureHandle EmissiveMap;
-textureHandle NormalMap;
-textureHandle RoughnessMap;
-textureHandle CavityMap;
-
+shared varblock DefaultTextures
+{
+	textureHandle AlbedoMap;
+	textureHandle DisplacementMap;
+	textureHandle SpecularMap;
+	textureHandle EmissiveMap;
+	textureHandle NormalMap;
+	textureHandle RoughnessMap;
+	textureHandle CavityMap;
+};
 
 #endif // DEFAULTSAMPLERS_FXH
