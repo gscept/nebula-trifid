@@ -9,8 +9,7 @@
 #include "lib/std.fxh"
 #include "lib/util.fxh"
 
-// define how many objects we can render simultaneously 
-#define MAX_BATCH_SIZE 256
+
 
 #define MAX_2D_TEXTURES 2048
 #define MAX_2D_MS_TEXTURES 64
@@ -54,14 +53,6 @@ group(TICK_GROUP) shared varblock WindParams [ bool System = true; ]
 #define fetchCube(handle, sampler, uvw, lod)		texelFetch(sampler2DArray(Textures2DArray[handle], sampler), uvw, lod)
 #define fetch3D(handle, sampler, uvw, lod)		texelFetch(sampler3D(Textures3D[handle], sampler), uvw, lod)
 
-// instancing transforms
-group(INSTANCE_GROUP) shared varblock InstanceBlock [ bool System = true; ]
-{
-	mat4 ModelArray[MAX_BATCH_SIZE];
-	mat4 ModelViewArray[MAX_BATCH_SIZE];
-	mat4 ModelViewProjectionArray[MAX_BATCH_SIZE];
-	int IdArray[MAX_BATCH_SIZE];
-};
 
 // contains the state of the camera (and time)
 group(FRAME_GROUP) shared varblock CameraBlock [ bool System = true; ]

@@ -444,7 +444,7 @@ VkShaderState::UpdateDescriptorSets()
 {
 	// first ensure descriptor sets are up to date with whatever the variable values has been set to
 	// this can be destructive, because it changes the base shader state
-	vkUpdateDescriptorSets(VkRenderDevice::dev, this->pendingSetWrites.Size(), &this->pendingSetWrites[0], 0, NULL);
+	vkUpdateDescriptorSets(VkRenderDevice::dev, this->pendingSetWrites.Size(), this->pendingSetWrites.Begin(), 0, NULL);
 	this->pendingSetWrites.Clear();
 	this->setsDirty = false;
 }

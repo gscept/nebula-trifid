@@ -74,6 +74,8 @@ VkMemoryVertexBufferLoader::OnLoadRequested()
 	}
 
 	Ptr<VertexLayout> vertexLayout = VkVertexLayoutServer::Instance()->CreateSharedVertexLayout(this->vertexComponents);
+	//Ptr<VertexLayout> vertexLayout = VertexLayout::Create();
+	//vertexLayout->Setup(this->vertexComponents);
 	if (0 != this->vertexDataPtr)
 	{
 		n_assert((this->numVertices * vertexLayout->GetVertexByteSize()) == this->vertexDataSize);

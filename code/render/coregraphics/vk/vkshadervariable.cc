@@ -428,7 +428,7 @@ VkShaderVariable::SetConstantBuffer(const Ptr<CoreGraphics::ConstantBuffer>& buf
 {
 	n_assert(this->type == ConstantBufferType);
 	if (!buf.isvalid()) return;
-	if (buf->GetVkBuffer() != this->buf.buffer)
+	//if (buf->GetVkBuffer() != this->buf.buffer)
 	{
 		VkWriteDescriptorSet set;
 		set.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;

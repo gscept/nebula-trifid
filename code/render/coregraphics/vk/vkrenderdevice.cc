@@ -152,7 +152,7 @@ VkRenderDevice::OpenVulkanContext()
 	const char* layers[] = { "VK_LAYER_LUNARG_standard_validation" };
 #if NEBULAT_VULKAN_DEBUG
 	this->extensions[this->usedExtensions++] = VK_EXT_DEBUG_REPORT_EXTENSION_NAME;
-	const int numLayers = 0;// sizeof(layers) / sizeof(const char*);
+	const int numLayers = 0;//sizeof(layers) / sizeof(const char*);
 #else
 	const int numLayers = 0;
 #endif
@@ -2551,8 +2551,11 @@ VkRenderDevice::ImageMemoryBarrier(const VkImage& img, VkImageSubresourceRange s
 		barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
 		break;
 	case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
-		barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+		barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
 		break;
+    case VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL:
+        barrier.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+        break;
 	}
 
 	switch (newLayout)
@@ -2569,7 +2572,7 @@ VkRenderDevice::ImageMemoryBarrier(const VkImage& img, VkImageSubresourceRange s
 		barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
 		break;
 	case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
-		barrier.dstAccessMask = barrier.dstAccessMask | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+		barrier.dstAccessMask = barrier.dstAccessMask | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
 		break;
 	case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
 		barrier.srcAccessMask = barrier.srcAccessMask | VK_ACCESS_TRANSFER_WRITE_BIT | VK_ACCESS_HOST_WRITE_BIT;
@@ -2578,6 +2581,9 @@ VkRenderDevice::ImageMemoryBarrier(const VkImage& img, VkImageSubresourceRange s
 	case VK_IMAGE_LAYOUT_PREINITIALIZED:
 		barrier.dstAccessMask = VK_ACCESS_HOST_WRITE_BIT;
 		break;
+    case VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL:
+        barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+        break;
 	}
 	return barrier;
 }
@@ -2629,8 +2635,8 @@ VkRenderDevice::ImageMemoryBarrier(const VkImage& img, VkImageSubresourceRange s
 	barrier.image = img;
 	barrier.oldLayout = layout;
 	barrier.newLayout = layout;
-	barrier.srcAccessMask = 0;
-	barrier.dstAccessMask = 0;
+	barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+	barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 	barrier.srcQueueFamilyIndex = from;
 	barrier.dstQueueFamilyIndex = to;
 	barrier.subresourceRange = subres;

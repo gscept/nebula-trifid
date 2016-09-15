@@ -141,9 +141,6 @@ FrameSubpassBatch::Run(const IndexT frameIndex)
 								nodeInstance->Render();
 #if NEBULA3_ENABLE_PROFILING
 								modelNode->IncrementDraws();
-#endif
-
-#if NEBULA3_ENABLE_PROFILING
 								nodeInstance->StopDebugTimer();
 #endif  
 							}

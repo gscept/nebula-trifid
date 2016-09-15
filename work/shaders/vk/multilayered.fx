@@ -18,6 +18,8 @@ float AnimationAngularSpeed;
 int NumXTiles = 1;
 int NumYTiles = 1;
 
+shared varblock MLPTextures
+{
 textureHandle AlbedoMap2;
 textureHandle AlbedoMap3;
 textureHandle SpecularMap2;
@@ -31,18 +33,17 @@ textureHandle RoughnessMap3;
 
 textureHandle DisplacementMap2;
 textureHandle DisplacementMap3;
+};
 
-samplerstate MLPSampler
+/*
+samplerstate Basic2DSampler
 {
-/*	Samplers = { AlbedoMap2, AlbedoMap3, SpecularMap2, 
-		     SpecularMap3, EmissiveMap2, EmissiveMap3, 
-		     NormalMap2, NormalMap3, RoughnessMap2,  
-		     RoughnessMap3, DisplacementMap2, DisplacementMap3};
-*/
 	AddressU = Wrap;
 	AddressV = Wrap;
-	Filter = MinMagMipLinear;
+	Filter = Point;
+//	Filter = MinMagMipLinear;
 };
+*/
 
 state MLPState
 {
@@ -275,24 +276,24 @@ psMultilayered(in vec3 ViewSpacePos,
 {
 	vec4 blend = Color;
 	
-	vec4 diffColor1 = sample2D(AlbedoMap, MLPSampler, UV);
-	vec4 diffColor2 = sample2D(AlbedoMap2, MLPSampler, UV);
-	vec4 diffColor3 = sample2D(AlbedoMap3, MLPSampler, UV);
+	vec4 diffColor1 = sample2D(AlbedoMap, Basic2DSampler, UV);
+	vec4 diffColor2 = sample2D(AlbedoMap2, Basic2DSampler, UV);
+	vec4 diffColor3 = sample2D(AlbedoMap3, Basic2DSampler, UV);
 	vec4 diffColor = (diffColor1 * blend.r + diffColor2 * blend.g + diffColor3 * blend.b) * MatAlbedoIntensity;
 			
-	vec4 specColor1 = sample2D(SpecularMap, MLPSampler, UV);
-	vec4 specColor2 = sample2D(SpecularMap2, MLPSampler, UV);
-	vec4 specColor3 = sample2D(SpecularMap3, MLPSampler, UV);	
+	vec4 specColor1 = sample2D(SpecularMap, Basic2DSampler, UV);
+	vec4 specColor2 = sample2D(SpecularMap2, Basic2DSampler, UV);
+	vec4 specColor3 = sample2D(SpecularMap3, Basic2DSampler, UV);	
 	vec4 specColor = (specColor1 * blend.r + specColor2 * blend.g + specColor3 * blend.b) * MatSpecularIntensity;	
 	
-	float roughness1 = sample2D(RoughnessMap, MLPSampler, UV).r;
-	float roughness2 = sample2D(RoughnessMap2, MLPSampler, UV).r;
-	float roughness3 = sample2D(RoughnessMap3, MLPSampler, UV).r;
+	float roughness1 = sample2D(RoughnessMap, Basic2DSampler, UV).r;
+	float roughness2 = sample2D(RoughnessMap2, Basic2DSampler, UV).r;
+	float roughness3 = sample2D(RoughnessMap3, Basic2DSampler, UV).r;
 	float roughness = (roughness1 * blend.r + roughness2 * blend.g + roughness3 * blend.b) * MatRoughnessIntensity;
 	
-	vec4 normals1 = sample2D(NormalMap, MLPSampler, UV);
-	vec4 normals2 = sample2D(NormalMap2, MLPSampler, UV);
-	vec4 normals3 = sample2D(NormalMap3, MLPSampler, UV);
+	vec4 normals1 = sample2D(NormalMap, Basic2DSampler, UV);
+	vec4 normals2 = sample2D(NormalMap2, Basic2DSampler, UV);
+	vec4 normals3 = sample2D(NormalMap3, Basic2DSampler, UV);
 	vec4 normals = normals1 * blend.r + normals2 * blend.g + normals3 * blend.b;
 	vec3 bumpNormal = normalize(calcBump(Tangent, Binormal, Normal, normals));
 
@@ -303,7 +304,7 @@ psMultilayered(in vec3 ViewSpacePos,
 	vec4 emissive = vec4((env[0] * albedo.rgb + env[1]), -1);
 
 	Specular = spec;
-	Albedo = albedo;
+	Albedo = diffColor;
 	Emissive = emissive;
 	Depth = calcDepth(ViewSpacePos);
 	Normals = PackViewSpaceNormal(bumpNormal);
@@ -505,9 +506,9 @@ dsDefault(
 	
 	Color = gl_TessCoord.x * color[0] + gl_TessCoord.y * color[1] + gl_TessCoord.z * color[2];
 	UV = gl_TessCoord.x * uv[0] + gl_TessCoord.y * uv[1] + gl_TessCoord.z * uv[2];
-	float height1 = 2.0f * length(sample2D(DisplacementMap, MLPSampler, UV)) - 1.0f;
-	float height2 = 2.0f * length(sample2D(DisplacementMap2, MLPSampler, UV)) - 1.0f;
-	float height3 = 2.0f * length(sample2D(DisplacementMap3, MLPSampler, UV)) - 1.0f;
+	float height1 = 2.0f * length(sample2D(DisplacementMap, Basic2DSampler, UV)) - 1.0f;
+	float height2 = 2.0f * length(sample2D(DisplacementMap2, Basic2DSampler, UV)) - 1.0f;
+	float height3 = 2.0f * length(sample2D(DisplacementMap3, Basic2DSampler, UV)) - 1.0f;
 	float height = height1 * Color.r + height2 * Color.g + height3 * Color.b;
 	
 	float Height = 2.0f * height - 1.0f;
@@ -583,9 +584,9 @@ dsShadowMLP(
 	
 	Color = gl_TessCoord.x * color[0] + gl_TessCoord.y * color[1] + gl_TessCoord.z * color[2];
 	UV = gl_TessCoord.x * uv[0] + gl_TessCoord.y * uv[1] + gl_TessCoord.z * uv[2];
-	float height1 = 2.0f * length(sample2D(DisplacementMap, MLPSampler, UV)) - 1.0f;
-	float height2 = 2.0f * length(sample2D(DisplacementMap2, MLPSampler, UV)) - 1.0f;
-	float height3 = 2.0f * length(sample2D(DisplacementMap3, MLPSampler, UV)) - 1.0f;
+	float height1 = 2.0f * length(sample2D(DisplacementMap, Basic2DSampler, UV)) - 1.0f;
+	float height2 = 2.0f * length(sample2D(DisplacementMap2, Basic2DSampler, UV)) - 1.0f;
+	float height3 = 2.0f * length(sample2D(DisplacementMap3, Basic2DSampler, UV)) - 1.0f;
 	float height = height1 * Color.r + height2 * Color.g + height3 * Color.b;
 	
 	float Height = 2.0f * height - 1.0f;

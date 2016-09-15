@@ -76,7 +76,7 @@
 			"subpass":
 			{
 				"name": "Unlit",
-				"dependencies": [],
+				"dependencies": [0, 1],
 				"attachments": [5],
 				"depth": true,
 				"batch": "Unlit",
