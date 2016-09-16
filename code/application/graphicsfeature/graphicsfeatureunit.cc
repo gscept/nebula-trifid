@@ -135,9 +135,9 @@ GraphicsFeatureUnit::SetupDefaultGraphicsWorld()
                                                          defaultViewName,
                                                          true);
 
-    Ptr<Frame::FrameShader> frameShader = Frame::FrameServer::Instance()->LookupFrameShader(this->frameShader);
+    Ptr<Frame2::FrameScript> frameShader = Frame2::FrameServer::Instance()->LoadFrameScript("main", "frame:vkdebug.json");
     this->defaultView->SetStage(this->defaultStage);
-    this->defaultView->SetFrameShader(frameShader);
+    this->defaultView->SetFrameScript(frameShader);
 
     // setup a default camera
     this->defaultCamera = CameraEntity::Create();

@@ -41,10 +41,8 @@ public:
 
     /// unload shader
     void Unload();
-    /// create a shader instance from this shader for all shader update groups
-    Ptr<CoreGraphics::ShaderState> CreateState();
 	/// create a shader instance from this shader implementing a subset of shader variables described by the array of sets
-	Ptr<CoreGraphics::ShaderState> CreateState(const Util::Array<IndexT>& groups);
+	Ptr<CoreGraphics::ShaderState> CreateState(const Util::Array<IndexT>& groups, bool createResourceSet = false);
     /// discard a shader instance
     void DiscardShaderInstance(const Ptr<CoreGraphics::ShaderState>& inst);
     /// get all instances

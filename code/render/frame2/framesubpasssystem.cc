@@ -9,6 +9,8 @@
 #include "coregraphics/textrenderer.h"
 #include "coregraphics/shaperenderer.h"
 #include "lighting/shadowserver.h"
+#include "coregraphics/renderdevice.h"
+#include "coregraphics/framebatchtype.h"
 
 using namespace CoreGraphics;
 using namespace Lighting;
@@ -49,15 +51,20 @@ FrameSubpassSystem::Setup()
 void
 FrameSubpassSystem::Run(const IndexT frameIndex)
 {
+	CoreGraphics::RenderDevice* renderDev = CoreGraphics::RenderDevice::Instance();
 	switch (this->call)
 	{
 	case Lights:
+		renderDev->BeginBatch(FrameBatchType::System);
 		LightServer::Instance()->RenderLights();
+		renderDev->EndBatch();
 		break;
 	case LightProbes:
+		renderDev->BeginBatch(FrameBatchType::System);
 		LightServer::Instance()->RenderLightProbes();
+		renderDev->EndBatch();
 		break;
-	case LocalShadowsSpot:
+	case LocalShadowsSpot:	// shadows implement their own batching
 		ShadowServer::Instance()->UpdateSpotLightShadowBuffers();
 		break;
 	case LocalShadowsPoint:
@@ -70,11 +77,17 @@ FrameSubpassSystem::Run(const IndexT frameIndex)
 		//RenderModules::RTPluginRegistry::Instance()->OnRender(FrameBatchType::UI);
 		break;
 	case Text:
+		renderDev->BeginBatch(FrameBatchType::System);
 		TextRenderer::Instance()->DrawTextElements();
+		renderDev->EndBatch();
 		break;
 	case Shapes:
+		renderDev->BeginBatch(FrameBatchType::System);
 		ShapeRenderer::Instance()->DrawShapes();
+		renderDev->EndBatch();
 		break;
+	default:
+		n_error("Invalid system call!");
 	}
 }
 

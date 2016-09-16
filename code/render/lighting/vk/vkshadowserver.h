@@ -15,6 +15,7 @@
 #include "frame2/framesubpassbatch.h"
 #include "lighting/csmutil.h"
 #include "debug/debugtimer.h"
+#include "util/fixedpool.h"
 
 //------------------------------------------------------------------------------
 namespace Lighting
@@ -32,6 +33,11 @@ public:
 	void Open();
 	/// close the shadow server
 	void Close();
+
+	/// attach a visible shadow casting light source
+	void AttachVisibleLight(const Ptr<Graphics::AbstractLightEntity>& lightEntity);
+	/// end lighting frame
+	void EndFrame();
 
 	/// update shadow buffer
 	void UpdateShadowBuffers();
@@ -58,11 +64,20 @@ private:
 	/// sort local lights by priority
 	virtual void SortLights();
 
+	// we need one shader state per shadow casting light
+	static const SizeT NumShadowCastingLights = MaxNumShadowSpotLights + MaxNumShadowPointLights + 1;
+	Ptr<CoreGraphics::ShaderState> shaderStates[NumShadowCastingLights];
+	Ptr<CoreGraphics::ShaderVariable> viewArrayVar[NumShadowCastingLights];
+
 	Ptr<CoreGraphics::Texture> globalLightShadowBuffer;
 	Ptr<CoreGraphics::Texture> spotLightShadowBuffer;
+	Ptr<CoreGraphics::Texture> spotLightShadowBufferAtlas;
 	Ptr<Frame2::FrameSubpassBatch> globalLightBatch;
 	Ptr<Frame2::FrameSubpassBatch> spotLightBatch;
 	Ptr<Frame2::FrameSubpassBatch> pointLightBatch;
+
+	Util::Dictionary<Ptr<Graphics::AbstractLightEntity>, IndexT> lightToIndexMap;
+	Util::FixedPool<IndexT> lightIndexPool;
 	
 
 	Ptr<Frame2::FrameScript> script;
@@ -79,7 +94,7 @@ private:
 inline const Ptr<CoreGraphics::Texture>&
 VkShadowServer::GetSpotLightShadowBufferTexture() const
 {
-	return this->spotLightShadowBuffer;
+	return this->spotLightShadowBufferAtlas;
 }
 
 //------------------------------------------------------------------------------

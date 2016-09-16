@@ -33,13 +33,13 @@
 			{ 
 				"name": "BoxTapHoriSubpass", "shader": "shd:box3taphori", "variables":
 				[
-					{ "semantic": "SourceBuffer", "value": "SpotLightInstance" }
+					{ "semantic": "SourceBuffer", "value": "SpotLightShadowAtlas" }
 				]
 			},
 			{
 				"name": "BoxTapVertSubpass", "shader": "shd:box3tapvert", "variables":
 				[
-					{ "semantic": "SourceBuffer", "value": "SpotLightInstanceBlur" }
+					{ "semantic": "SourceBuffer", "value": "SpotLightShadowAtlas" }
 				]
 			}
 		],
@@ -51,7 +51,7 @@
 			[
 				{ "name": "SpotLightInstance", "clear": "1000, 1000, 0, 0" },
 				{ "name": "SpotLightInstanceBlur" },
-				{ "name": "SpotLightShadowAtlas", "store": true },
+				{ "name": "SpotLightShadowAtlas", "clear": "1000, 1000, 0, 0", "store": true },
 				{ "name": "GlobalLightShadow", "clear": "1000, 1000, 0, 0", "store": true }
 			],
 			
@@ -61,31 +61,26 @@
 			{
 				"name": "SpotLightPass",
 				"dependencies": [],
-				"attachments": [0],
+				"attachments": [2],
 				"system": "LocalShadowsSpot"
 			},
 			"subpass":
 			{
-				"name": "SpotLightBlurPass",
+				"name": "SpotLightBlur",
 				"dependencies": [0],
-				"attachments": [1],
+				"inputs": [2],
+				"attachments": [2],
 				"fullscreenEffect":
 				{
-					"name": "BlurX",
+					"name": "HorizontalBlur",
 					"shaderState": "BoxTapHoriSubpass",
-					"sizeFromTexture": "SpotLightInstance"
-				}
-			},
-			"subpass":
-			{
-				"name": "SpotLightResolveToAtlas",
-				"dependencies": [1],
-				"attachments": [2],				
+					"sizeFromTexture": "SpotLightShadowAtlas"
+				},
 				"fullscreenEffect":
 				{
-					"name": "BlurY",
+					"name": "VerticalBlur",
 					"shaderState": "BoxTapVertSubpass",
-					"sizeFromTexture": "SpotLightInstance"
+					"sizeFromTexture": "SpotLightShadowAtlas"
 				}
 			},
 			"subpass":

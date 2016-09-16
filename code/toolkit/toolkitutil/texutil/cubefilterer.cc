@@ -66,7 +66,7 @@ CubeFilterer::Filter(bool irradiance, void* messageHandler, void(*CubeFilterer_P
 	ilInit();
 
 	// figure out format
-	uint format;
+	//uint format;
 	float gamma = 1.0f;
 	uint channels;
 	ILenum components;

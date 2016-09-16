@@ -183,6 +183,13 @@ private:
 		PipelineBuilt = 16
 	};
 
+	enum StateMode
+	{
+		MainState,			// commands go to the main command buffer
+		SharedState,		// commands are put on all threads, and are immediately sent when a new thread is started
+		LocalState			// commands are entirely local to a currently running thread
+	};
+
 	// open Vulkan device context
 	bool OpenVulkanContext();
 	/// close opengl4 device context
@@ -403,6 +410,8 @@ private:
 	VkFence mainCmdCmpFence;
 	VkFence mainCmdTransFence;
 	Ptr<VkPipelineDatabase> database;
+
+	StateMode currentCommandState;
 
 	VkPhysicalDeviceProperties deviceProps;
 	VkPhysicalDeviceFeatures deviceFeatures;

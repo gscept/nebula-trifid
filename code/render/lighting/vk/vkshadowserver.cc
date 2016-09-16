@@ -22,6 +22,7 @@
 #include "coregraphics/base/rendertargetbase.h"
 #include "coregraphics/renderdevice.h"
 #include "framesync/framesynctimer.h"
+#include "coregraphics/shadersemantics.h"
 
 #define DivAndRoundUp(a, b) (a % b != 0) ? (a / b + 1) : (a / b)
 namespace Lighting
@@ -70,7 +71,18 @@ VkShadowServer::Open()
 	this->script = Frame2::FrameServer::Instance()->LoadFrameScript("shadowmapping", "frame:vkshadowmapping.json");
 	this->globalLightShadowBuffer = this->script->GetColorTexture("GlobalLightShadow")->GetTexture();
 	//this->globalLightShadowBuffer = this->script->GetReadWriteTexture("GlobalLightShadowFiltered")->GetTexture();
-	this->spotLightShadowBuffer = this->script->GetColorTexture("SpotLightShadowAtlas")->GetTexture();
+	this->spotLightShadowBuffer = this->script->GetColorTexture("SpotLightInstance")->GetTexture();
+	this->spotLightShadowBufferAtlas = this->script->GetColorTexture("SpotLightShadowAtlas")->GetTexture();
+
+	IndexT i;
+	for (i = 0; i < NumShadowCastingLights; i++)
+	{
+		this->shaderStates[i] = ShaderServer::Instance()->CreateShaderState("shd:shared", { NEBULAT_FRAME_GROUP });
+		this->shaderStates[i]->SetApplyShared(true);
+		this->viewArrayVar[i] = this->shaderStates[i]->GetVariableByName(NEBULA3_SEMANTIC_VIEWMATRIXARRAY);
+	}
+	this->lightIndexPool.SetSetupFunc([](IndexT& val, IndexT idx) { val = idx;  });
+	this->lightIndexPool.Resize(NumShadowCastingLights);
 
 	this->globalLightBatch = Frame2::FrameSubpassBatch::Create();
 	this->globalLightBatch->SetBatchCode(Frame::BatchGroup::FromName("GlobalShadow"));
@@ -108,6 +120,14 @@ VkShadowServer::Close()
 	this->globalLightShadowBuffer = 0;
 	this->spotLightShadowBuffer = 0;
 
+	IndexT i;
+	for (i = 0; i < NumShadowCastingLights; i++)
+	{
+		this->viewArrayVar[i] = 0;
+		this->shaderStates[i]->Discard();
+		this->shaderStates[i] = 0;
+	}
+
 	// discard script
 	this->script->Discard();
 	this->script = 0;
@@ -118,6 +138,27 @@ VkShadowServer::Close()
 	_discard_timer(globalShadow);
 	_discard_timer(pointLightShadow);
 	_discard_timer(spotLightShadow);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkShadowServer::AttachVisibleLight(const Ptr<Graphics::AbstractLightEntity>& lightEntity)
+{
+	ShadowServerBase::AttachVisibleLight(lightEntity);
+	this->lightToIndexMap.Add(lightEntity, this->lightIndexPool.Alloc());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkShadowServer::EndFrame()
+{
+	ShadowServerBase::EndFrame();
+	this->lightIndexPool.Reset();
+	this->lightToIndexMap.Clear();
 }
 
 //------------------------------------------------------------------------------
@@ -133,7 +174,7 @@ VkShadowServer::UpdateShadowBuffers()
 	// simply run the script, it will call UpdateSpotLightShadowBuffers, UpdatePointLightShadowBuffers and UpdateGlobalLightBuffers
 	const Ptr<FrameSyncTimer>& timer = FrameSyncTimer::Instance();
 	IndexT frameIndex = timer->GetFrameIndex();
-	//this->script->Run(frameIndex);
+	this->script->Run(frameIndex);
 }
 
 //------------------------------------------------------------------------------
@@ -182,7 +223,7 @@ VkShadowServer::UpdateSpotLightShadowBuffers()
 			visResolver->EndResolve();
 
 			// prepare shadow buffer render target for rendering and 
-			// patch current shadow buffer render target into the frame shader
+			// patch current shadow buffer render target into the frame shader	
 			Math::rectangle<int> resolveRect;
 			resolveRect.left = (lightIndex % ShadowLightsPerRow) * this->spotLightShadowBuffer->GetWidth();
 			resolveRect.right = resolveRect.left + this->spotLightShadowBuffer->GetWidth();
@@ -190,8 +231,12 @@ VkShadowServer::UpdateSpotLightShadowBuffers()
 			resolveRect.bottom = resolveRect.top + this->spotLightShadowBuffer->GetHeight();
 
 			// render into shadow map
+			renderDev->SetViewport(resolveRect, 0);
+			renderDev->SetScissorRect(resolveRect, 0);
 			matrix44 viewProj = matrix44::multiply(lightEntity->GetShadowInvTransform(), lightEntity->GetShadowProjTransform());
-			transDev->ApplyViewMatrixArray(&viewProj, 1);
+			const IndexT lightIdx = this->lightToIndexMap[lightEntity.upcast<AbstractLightEntity>()];
+			this->viewArrayVar[lightIdx]->SetMatrixArray(&viewProj, 1);
+			this->shaderStates[lightIdx]->Commit();
 
 			// TODO: Render!
 			this->spotLightBatch->Run(frameIndex);
@@ -292,6 +337,10 @@ VkShadowServer::UpdatePointLightShadowBuffers()
 			views[5].set_position(lightPos);
 			views[5] = matrix44::multiply(matrix44::inverse(views[5]), proj);
 
+			const IndexT lightIdx = this->lightToIndexMap[lightEntity.upcast<AbstractLightEntity>()];
+			this->viewArrayVar[lightIdx]->SetMatrixArray(views, 6);
+			this->shaderStates[lightIdx]->Commit();
+
 			// send to transform device
 			transDev->ApplyViewMatrixArray(views, 6);
 
@@ -331,18 +380,8 @@ VkShadowServer::UpdateGlobalLightShadowBuffers()
 		this->csmUtil.SetShadowBox(box);
 		this->csmUtil.Compute();
 
-		// update view matrix array
-		matrix44 splitMatrices[CSMUtil::NumCascades];
-
-		// render shadow casters for each view volume split
-		IndexT cascadeIndex;
-		for (cascadeIndex = 0; cascadeIndex < CSMUtil::NumCascades; cascadeIndex++)
-		{
-			splitMatrices[cascadeIndex] = this->csmUtil.GetCascadeViewProjection(cascadeIndex);
-		}
-
 		// set transforms in device
-		transDev->ApplyViewMatrixArray(splitMatrices, CSMUtil::NumCascades);
+		//transDev->ApplyViewMatrixArray(splitMatrices, CSMUtil::NumCascades);
 
 		// render objects
 		const Ptr<VisResolver>& visResolver = VisResolver::Instance();
@@ -369,6 +408,20 @@ VkShadowServer::UpdateGlobalLightShadowBuffers()
 			}
 		}
 		visResolver->EndResolve();
+
+		// update view matrix array
+		matrix44 splitMatrices[CSMUtil::NumCascades];
+
+		// render shadow casters for each view volume split
+		IndexT cascadeIndex;
+		for (cascadeIndex = 0; cascadeIndex < CSMUtil::NumCascades; cascadeIndex++)
+		{
+			splitMatrices[cascadeIndex] = this->csmUtil.GetCascadeViewProjection(cascadeIndex);
+		}
+
+		const IndexT lightIdx = this->lightToIndexMap[this->globalLightEntity.upcast<AbstractLightEntity>()];
+		this->viewArrayVar[lightIdx]->SetMatrixArray(splitMatrices, CSMUtil::NumCascades);
+		this->shaderStates[lightIdx]->Commit();
 
 		// TODO: Render!
 		this->globalLightBatch->Run(frameIndex);

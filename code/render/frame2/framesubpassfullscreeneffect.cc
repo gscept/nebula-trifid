@@ -64,9 +64,11 @@ FrameSubpassFullscreenEffect::Run(const IndexT frameIndex)
 	this->shaderState->Apply();
 
 	// draw
+	renderDevice->BeginBatch(FrameBatchType::System);
 	this->fsq.ApplyMesh();
 	this->shaderState->Commit();
 	this->fsq.Draw();
+	renderDevice->EndBatch();
 }
 
 } // namespace Frame2

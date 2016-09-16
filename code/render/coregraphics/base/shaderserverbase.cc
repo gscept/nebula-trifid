@@ -130,36 +130,10 @@ ShaderServerBase::Close()
 
 //------------------------------------------------------------------------------
 /**
-    This creates a clone of a template shader. This is the only method
-    to create a new shader object. When the shader instance is no longer
-    needed, call UnregisterShaderInstance() for proper cleanup.
-*/
-Ptr<ShaderState>
-ShaderServerBase::CreateShaderState(const ResourceId& resId)
-{
-    n_assert(resId.IsValid());
-
-	Ptr<ShaderState> shaderInstance;
-    // first check if the shader is already loaded
-    if (!this->shaders.Contains(resId))
-    {
-		n_error("ShaderServer: shader '%s' not found!", resId.Value());
-    }
-	else
-	{
-		shaderInstance = this->shaders[resId]->CreateState();
-	}
-
-    // create a shader instance object from the shader
-    
-    return shaderInstance;
-}
-
-//------------------------------------------------------------------------------
-/**
+	Creates 
 */
 Ptr<CoreGraphics::ShaderState>
-ShaderServerBase::CreateShaderState(const Resources::ResourceId& resId, const Util::Array<IndexT>& groups)
+ShaderServerBase::CreateShaderState(const Resources::ResourceId& resId, const Util::Array<IndexT>& groups, bool createResourceSet)
 {
 	n_assert(resId.IsValid());
 
@@ -171,7 +145,7 @@ ShaderServerBase::CreateShaderState(const Resources::ResourceId& resId, const Ut
 	}
 	else
 	{
-		shaderInstance = this->shaders[resId]->CreateState(groups);
+		shaderInstance = this->shaders[resId]->CreateState(groups, createResourceSet);
 	}
 
 	// create a shader instance object from the shader
@@ -205,31 +179,6 @@ ShaderServerBase::CreateSharedShaderState(const Resources::ResourceId& resId, co
 	{
 		shaderInstance = this->shaders[resId]->CreateState(groups);
 		this->sharedShaderStates.Add(signature, shaderInstance);
-	}
-
-	return shaderInstance;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-Ptr<CoreGraphics::ShaderState>
-ShaderServerBase::CreateSharedShaderState(const Resources::ResourceId& resId)
-{
-	n_assert(resId.IsValid());
-
-	Ptr<ShaderState> shaderInstance;
-
-	// if we don't have the shared state, create it, otherwise just return it
-	Util::String str(resId.Value());
-	if (this->sharedShaderStates.Contains(str))
-	{
-		shaderInstance = this->sharedShaderStates[resId];
-	}
-	else
-	{
-		shaderInstance = this->shaders[resId]->CreateState();
-		this->sharedShaderStates.Add(str, shaderInstance);
 	}
 
 	return shaderInstance;

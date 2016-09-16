@@ -48,26 +48,19 @@ VkTransformDevice::Open()
 	this->sharedShader = shdServer->CreateSharedShaderState("shd:shared", { NEBULAT_FRAME_GROUP });
 
 	// setup camera block, update once per frame - no need to sync
-	this->cameraBuffer = ConstantBuffer::Create();
-	this->cameraBuffer->SetupFromBlockInShader(this->sharedShader, "CameraBlock");
-	this->viewVar = this->cameraBuffer->GetVariableByName(NEBULA3_SEMANTIC_VIEW);
-	this->invViewVar = this->cameraBuffer->GetVariableByName(NEBULA3_SEMANTIC_INVVIEW);
-	this->viewProjVar = this->cameraBuffer->GetVariableByName(NEBULA3_SEMANTIC_VIEWPROJECTION);
-	this->invViewProjVar = this->cameraBuffer->GetVariableByName(NEBULA3_SEMANTIC_INVVIEWPROJECTION);
-	this->projVar = this->cameraBuffer->GetVariableByName(NEBULA3_SEMANTIC_PROJECTION);
-	this->invProjVar = this->cameraBuffer->GetVariableByName(NEBULA3_SEMANTIC_INVPROJECTION);
-	this->eyePosVar = this->cameraBuffer->GetVariableByName(NEBULA3_SEMANTIC_EYEPOS);
-	this->focalLengthVar = this->cameraBuffer->GetVariableByName(NEBULA3_SEMANTIC_FOCALLENGTH);
-	this->timeAndRandomVar = this->cameraBuffer->GetVariableByName(NEBULA3_SEMANTIC_TIMEANDRANDOM);
+	this->viewVar = this->sharedShader->GetVariableByName(NEBULA3_SEMANTIC_VIEW);
+	this->invViewVar = this->sharedShader->GetVariableByName(NEBULA3_SEMANTIC_INVVIEW);
+	this->viewProjVar = this->sharedShader->GetVariableByName(NEBULA3_SEMANTIC_VIEWPROJECTION);
+	this->invViewProjVar = this->sharedShader->GetVariableByName(NEBULA3_SEMANTIC_INVVIEWPROJECTION);
+	this->projVar = this->sharedShader->GetVariableByName(NEBULA3_SEMANTIC_PROJECTION);
+	this->invProjVar = this->sharedShader->GetVariableByName(NEBULA3_SEMANTIC_INVPROJECTION);
+	this->eyePosVar = this->sharedShader->GetVariableByName(NEBULA3_SEMANTIC_EYEPOS);
+	this->focalLengthVar = this->sharedShader->GetVariableByName(NEBULA3_SEMANTIC_FOCALLENGTH);
+	this->timeAndRandomVar = this->sharedShader->GetVariableByName(NEBULA3_SEMANTIC_TIMEANDRANDOM);
 	this->cameraBlockVar = this->sharedShader->GetVariableByName("CameraBlock");
-	this->cameraBlockVar->SetConstantBuffer(this->cameraBuffer);
 
 	// setup shadow block, make it synced so that we can update shadow maps without massive frame drops
-	this->shadowCameraBuffer = ConstantBuffer::Create();
-	this->shadowCameraBuffer->SetupFromBlockInShader(this->sharedShader, "ShadowCameraBlock");
-	this->viewMatricesVar = this->shadowCameraBuffer->GetVariableByName(NEBULA3_SEMANTIC_VIEWMATRIXARRAY);
-	this->shadowCameraBlockVar = this->sharedShader->GetVariableByName("ShadowCameraBlock");
-	this->shadowCameraBlockVar->SetConstantBuffer(this->shadowCameraBuffer);
+	this->viewMatricesVar = this->sharedShader->GetVariableByName(NEBULA3_SEMANTIC_VIEWMATRIXARRAY);
 
 	return TransformDeviceBase::Open();
 }

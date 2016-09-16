@@ -64,26 +64,6 @@ CSMUtil::ComputeFrustumPoints( float cascadeBegin, float cascadeEnd, const Math:
 	frustumCorners[6].set(-1.0f, -1.0f, cascadeEnd, 1.0f);
 	frustumCorners[7].set(1.0f, -1.0f, cascadeEnd, 1.0f);
 
-	Math::matrix44 correctionMatrix;
-#if __VULKAN__
-	correctionMatrix.set(
-		float4(1, 0, 0, 0),
-		float4(0, -1, 0, 0),
-		float4(0, 0, 0.5f, 0),
-		float4(0, 0, 0.5f, 1));
-	correctionMatrix = matrix44::inverse(correctionMatrix);
-#elif __OGL4__
-	correctionMatrix.set(
-		float4(1, 0, 0, 0),
-		float4(0, 1, 0, 0),
-		float4(0, 0, 0.5f, 0),
-		float4(0, 0, 0.5f, 1));
-	correctionMatrix = matrix44::inverse(correctionMatrix);
-#endif
-
-	// correct projection matrix by multiplying by inverse of implementation correction
-	Math::matrix44 proj = matrix44::multiply(projection, correctionMatrix);
-
 	// compute frustum corners in world space
 	point worldPoints[8];
 	IndexT i;
@@ -99,11 +79,7 @@ CSMUtil::ComputeFrustumPoints( float cascadeBegin, float cascadeEnd, const Math:
 /**
 */
 void 
-CSMUtil::ComputeNearAndFar( float& nearPlane, 
-							float& farPlane, 
-							const Math::float4& lightCameraOrtoMin, 
-							const Math::float4& lightCameraOrtoMax, 
-							const Math::float4* lightAABBPoints )
+CSMUtil::ComputeNearAndFar(float& nearPlane, float& farPlane, const Math::float4& lightCameraOrtoMin, const Math::float4& lightCameraOrtoMax, const Math::float4* lightAABBPoints)
 {
 	nearPlane = FLT_MAX;
 	farPlane = -FLT_MAX; 
@@ -383,7 +359,7 @@ CSMUtil::Compute()
 
 	// calculate near and far range based on scene bounding box
 	//float nearFarRange = camSettings.GetZFar() - camSettings.GetZNear();
-	float nearFarRange = this->shadowBox.diagonal_size();
+	float nearFarRange = n_min(this->shadowBox.diagonal_size() / 2, 300.0f);
 	float4 unitsPerTexel = float4(0,0,0,0);
 
 	for (int cascadeIndex = 0; cascadeIndex < NumCascades; ++cascadeIndex)

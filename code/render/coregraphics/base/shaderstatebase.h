@@ -92,7 +92,7 @@ protected:
     /// setup the shader instance from its original shader object
     virtual void Setup(const Ptr<CoreGraphics::Shader>& origShader);
 	/// setup the shader instance from its original shader object
-	virtual void Setup(const Ptr<CoreGraphics::Shader>& origShader, const Util::Array<IndexT>& groups);
+	virtual void Setup(const Ptr<CoreGraphics::Shader>& origShader, const Util::Array<IndexT>& groups, bool createResourceSet);
     /// discard the shader instance
     virtual void Cleanup();
 

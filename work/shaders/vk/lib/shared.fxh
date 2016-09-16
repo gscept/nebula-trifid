@@ -55,7 +55,7 @@ group(TICK_GROUP) shared varblock WindParams [ bool System = true; ]
 
 
 // contains the state of the camera (and time)
-group(FRAME_GROUP) shared varblock CameraBlock [ bool System = true; ]
+group(FRAME_GROUP) shared varblock CameraBlock
 {
 	mat4 View;
 	mat4 InvView;
@@ -66,14 +66,9 @@ group(FRAME_GROUP) shared varblock CameraBlock [ bool System = true; ]
 	vec4 EyePos;	
 	vec4 FocalLength;
 	vec4 TimeAndRandom;
-};
-
-// contains the state of either a point light shadow caster (6 view matrices) or the 4 CSM projection matrices
-group(FRAME_GROUP) shared varblock ShadowCameraBlock [ bool System = true; ]
-{
+	
 	mat4 ViewMatrixArray[6];
 };
-
 
 group(FRAME_GROUP) shared varblock RenderTargetBlock
 {

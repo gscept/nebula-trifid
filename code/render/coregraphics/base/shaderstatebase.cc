@@ -72,7 +72,7 @@ ShaderStateBase::Setup(const Ptr<Shader>& origShader)
 /**
 */
 void
-ShaderStateBase::Setup(const Ptr<CoreGraphics::Shader>& origShader, const Util::Array<IndexT>& groups)
+ShaderStateBase::Setup(const Ptr<CoreGraphics::Shader>& origShader, const Util::Array<IndexT>& groups, bool createResourceSet)
 {
 	n_assert(!this->IsValid());
 	this->shader = origShader;

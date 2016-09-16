@@ -121,7 +121,8 @@ VkShaderProgram::SetupAsGraphics()
 {
 	// we have to keep track of how MANY shaders we are using too
 	unsigned shaderIdx = 0;
-
+	static const char* name = "main";
+	memset(this->shaderInfos, 0, sizeof(this->shaderInfos));
 	// attach vertex shader
 	if (0 != this->vs)
 	{
@@ -130,7 +131,7 @@ VkShaderProgram::SetupAsGraphics()
 		this->shaderInfos[shaderIdx].flags = 0;
 		this->shaderInfos[shaderIdx].stage = VK_SHADER_STAGE_VERTEX_BIT;
 		this->shaderInfos[shaderIdx].module = this->vs;
-		this->shaderInfos[shaderIdx].pName = "main";
+		this->shaderInfos[shaderIdx].pName = name;
 		this->shaderInfos[shaderIdx].pSpecializationInfo = NULL;
 		shaderIdx++;
 	}
@@ -142,7 +143,7 @@ VkShaderProgram::SetupAsGraphics()
 		this->shaderInfos[shaderIdx].flags = 0;
 		this->shaderInfos[shaderIdx].stage = VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
 		this->shaderInfos[shaderIdx].module = this->hs;
-		this->shaderInfos[shaderIdx].pName = "main";
+		this->shaderInfos[shaderIdx].pName = name;
 		this->shaderInfos[shaderIdx].pSpecializationInfo = NULL;
 		shaderIdx++;
 	}
@@ -154,7 +155,7 @@ VkShaderProgram::SetupAsGraphics()
 		this->shaderInfos[shaderIdx].flags = 0;
 		this->shaderInfos[shaderIdx].stage = VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
 		this->shaderInfos[shaderIdx].module = this->ds;
-		this->shaderInfos[shaderIdx].pName = "main";
+		this->shaderInfos[shaderIdx].pName = name;
 		this->shaderInfos[shaderIdx].pSpecializationInfo = NULL;
 		shaderIdx++;
 	}
@@ -166,7 +167,7 @@ VkShaderProgram::SetupAsGraphics()
 		this->shaderInfos[shaderIdx].flags = 0;
 		this->shaderInfos[shaderIdx].stage = VK_SHADER_STAGE_GEOMETRY_BIT;
 		this->shaderInfos[shaderIdx].module = this->gs;
-		this->shaderInfos[shaderIdx].pName = "main";
+		this->shaderInfos[shaderIdx].pName = name;
 		this->shaderInfos[shaderIdx].pSpecializationInfo = NULL;
 		shaderIdx++;
 	}
@@ -178,7 +179,7 @@ VkShaderProgram::SetupAsGraphics()
 		this->shaderInfos[shaderIdx].flags = 0;
 		this->shaderInfos[shaderIdx].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
 		this->shaderInfos[shaderIdx].module = this->ps;
-		this->shaderInfos[shaderIdx].pName = "main";
+		this->shaderInfos[shaderIdx].pName = name;
 		this->shaderInfos[shaderIdx].pSpecializationInfo = NULL;
 		shaderIdx++;
 	}

@@ -146,6 +146,7 @@ VkPipelineDatabase::GetCompiledPipeline()
 		VkGraphicsPipelineCreateInfo shaderInfo = this->currentShaderProgram->shaderPipelineInfo;
 		VkGraphicsPipelineCreateInfo passInfo = this->currentPass->framebufferPipelineInfo;
 		VkPipelineColorBlendStateCreateInfo colorBlendInfo = *shaderInfo.pColorBlendState;
+		colorBlendInfo.attachmentCount = this->currentPass->GetNumColorAttachments();
 		VkGraphicsPipelineCreateInfo info =
 		{
 			VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
