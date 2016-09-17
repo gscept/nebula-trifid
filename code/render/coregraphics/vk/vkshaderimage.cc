@@ -55,11 +55,11 @@ VkShaderImage::Setup(const SizeT width, const SizeT height, const CoreGraphics::
 		1,
 		1,
 		VK_SAMPLE_COUNT_1_BIT,
-		VK_IMAGE_TILING_OPTIMAL,			// must be linear to be bindable to images
-		VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+		VK_IMAGE_TILING_OPTIMAL,
+		VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
 		VK_SHARING_MODE_EXCLUSIVE,
-		2,
-		queues,
+		0,
+		NULL,
 		VK_IMAGE_LAYOUT_UNDEFINED
 	};
 	VkResult stat = vkCreateImage(VkRenderDevice::dev, &info, NULL, &this->img);

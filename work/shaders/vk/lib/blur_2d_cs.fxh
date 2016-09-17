@@ -1,12 +1,16 @@
 //------------------------------------------------------------------------------
-//  blur_2d_cs.fxh
-//
-//	Blurring kernel used for 2D textures. Implements a double pass X-Y blur with a defined kernel size.
-//
-//	Include this header and then define if you want an RGBA16F, RG16F or RG32F image as input.
-//
-//  (C) 2016 Gustav Sterbrant
-//------------------------------------------------------------------------------
+/**
+  blur_2d_cs.fxh
+
+	Blurring kernel used for 2D textures. Implements a double pass X-Y blur with a defined kernel size.
+	First pass samples from a render-able texture (Alt0) and works in the X-axis.
+	The second pass resamples from the same texture and blurs in the Y-axis.
+
+
+	Include this header and then define if you want an RGBA16F, RG16F or RG32F image as input.
+
+  (C) 2016 Gustav Sterbrant
+*/
 #include "lib/shared.fxh"
 
 #if IMAGE_IS_RGBA16F
@@ -32,7 +36,7 @@ samplerstate InputSampler
 };
 
 textureHandle InputImage;
-write IMAGE_FORMAT_TYPE image2D BlurImage;
+readwrite IMAGE_FORMAT_TYPE image2D BlurImage;
 #define INV_LN2 1.44269504f
 
 #define KERNEL_RADIUS 16
@@ -82,7 +86,7 @@ csMainX()
 	// load into workgroup saved memory, this allows us to use the original pixel even though 
 	// we might have replaced it with the result from this thread!
 	SharedMemory[gl_LocalInvocationID.x] = IMAGE_LOAD_SWIZZLE(fetch2D(InputImage, InputSampler, ivec2(x, y), 0));
-	barrier();
+	//barrier();
 	
 	const uint writePos = tileStart + gl_LocalInvocationID.x;
 	const uint tileEndClamped = min(tileEnd, uint(size.x));
@@ -146,7 +150,7 @@ csMainY()
 	
 	// load into workgroup saved memory, this allows us to use the original pixel even though 
 	// we might have replaced it with the result from this thread!
-	SharedMemory[gl_LocalInvocationID.x] = IMAGE_LOAD_SWIZZLE(fetch2D(InputImage, InputSampler, ivec2(x, y), 0));
+	SharedMemory[gl_LocalInvocationID.x] = IMAGE_LOAD_SWIZZLE(imageLoad(BlurImage, ivec2(x, y)));
 	barrier();
 	
 	const uint writePos = tileStart + gl_LocalInvocationID.x;
@@ -155,7 +159,7 @@ csMainY()
 	if (writePos < tileEndClamped)
 	{
 		// Fetch (ao,z) at the kernel center
-		IMAGE_LOAD_VEC color = IMAGE_LOAD_SWIZZLE(fetch2D(InputImage, InputSampler, ivec2(x, writePos), 0));
+		IMAGE_LOAD_VEC color = IMAGE_LOAD_SWIZZLE(imageLoad(BlurImage, ivec2(x, writePos)));
 		IMAGE_LOAD_VEC blurTotal = color;
 		IMAGE_LOAD_VEC wTotal = IMAGE_LOAD_VEC(1);
 		float i;

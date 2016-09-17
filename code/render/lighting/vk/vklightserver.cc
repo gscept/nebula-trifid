@@ -371,6 +371,7 @@ VkLightServer::RenderLights()
 	// render the global light
 	this->globalLightShadowMap->SetTexture(shadowServer->GetGlobalLightShadowBufferTexture());
 	this->derivativeState->Reset();
+	this->lightShader->SetApplyShared(true);
 	this->RenderGlobalLight();
 
 	if (this->spotLights[CastShadows].Size() > 0)
@@ -380,6 +381,7 @@ VkLightServer::RenderLights()
 	}	
 
 	// render spot lights
+	this->lightShader->SetApplyShared(false);
 	this->RenderSpotLights();
 	
 	// render point lights
@@ -627,7 +629,7 @@ VkLightServer::RenderSpotLights()
 						this->shadowOffsetScaleVar->SetFloat4(shadowOffsetScale);
 
 						// set shadow intensity
-						this->shadowIntensityVar->SetFloat(curLight->GetShadowIntensity() * 10000);
+						this->shadowIntensityVar->SetFloat(curLight->GetShadowIntensity());
 						this->shadowProjMapVar->SetTexture(ShadowServer::Instance()->GetSpotLightShadowBufferTexture());
 					}
 

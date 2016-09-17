@@ -620,7 +620,7 @@ RenderDeviceBase::BeginCompute(bool asyncAllowed, const Util::Array<Ptr<CoreGrap
 void 
 RenderDeviceBase::Compute(int dimX, int dimY, int dimZ)
 {
-    n_assert(this->inBeginCompute);
+    n_assert(!this->inBeginPass);
     // override in subclass!
 }
 

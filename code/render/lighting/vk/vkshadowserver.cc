@@ -72,7 +72,7 @@ VkShadowServer::Open()
 	this->globalLightShadowBuffer = this->script->GetColorTexture("GlobalLightShadow")->GetTexture();
 	//this->globalLightShadowBuffer = this->script->GetReadWriteTexture("GlobalLightShadowFiltered")->GetTexture();
 	this->spotLightShadowBuffer = this->script->GetColorTexture("SpotLightInstance")->GetTexture();
-	this->spotLightShadowBufferAtlas = this->script->GetColorTexture("SpotLightShadowAtlas")->GetTexture();
+	this->spotLightShadowBufferAtlas = this->script->GetReadWriteTexture("SpotLightShadowFiltered")->GetTexture();
 
 	IndexT i;
 	for (i = 0; i < NumShadowCastingLights; i++)

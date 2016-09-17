@@ -5,7 +5,8 @@
 	{
 		"renderTextures":
 		[
-			{ "name": "SpotLightShadowAtlas", 	"format": "G32R32F", "width": 2048, "height": 2048 },
+			{ "name": "SpotLightShadowAtlas", 		"format": "G32R32F", "width": 2048, "height": 2048 },
+			{ "name": "SpotLightShadowAtlasBlur", 	"format": "G32R32F", "width": 2048, "height": 2048 },
 			{ "name": "SpotLightInstance", 		"format": "G32R32F", "width": 512, "height": 512 },
 			{ "name": "SpotLightInstanceBlur", 	"format": "G32R32F", "width": 512, "height": 512 },
 			{ "name": "GlobalLightShadow",		"format": "G32R32F", "width": 2048, "height": 2048 }
@@ -13,7 +14,8 @@
 		
 		"readWriteTextures":
 		[
-			{ "name": "GlobalLightShadowFiltered", "format": "A16B16G16R16F", "width": 2048, "height": 2048 }
+			{ "name": "GlobalLightShadowFiltered", "format": "G32R32F", "width": 2048, "height": 2048 },
+			{ "name": "SpotLightShadowFiltered", "format": "G32R32F", "width": 2048, "height": 2048 }
 		],
 		
 		"depthStencils":
@@ -24,22 +26,17 @@
 		"shaderStates":
 		[
 			{ 
-				"name": "CSMComputeState", "shader":"shd:blur_2d_rg32f_cs", "variables": 
+				"name": "CSMComputeState", "shader":"shd:blur_2d_rg32f_cs", "createResourceSet": true, "variables": 
 				[
 					{ "semantic": "InputImage", "value": "GlobalLightShadow" },
 					{ "semantic": "BlurImage", "value": "GlobalLightShadowFiltered" }
 				]
 			},
 			{ 
-				"name": "BoxTapHoriSubpass", "shader": "shd:box3taphori", "variables":
+				"name": "SpotlightComputeState", "shader": "shd:blur_2d_rg32f_cs", "createResourceSet": true, "variables":
 				[
-					{ "semantic": "SourceBuffer", "value": "SpotLightShadowAtlas" }
-				]
-			},
-			{
-				"name": "BoxTapVertSubpass", "shader": "shd:box3tapvert", "variables":
-				[
-					{ "semantic": "SourceBuffer", "value": "SpotLightShadowAtlas" }
+					{ "semantic": "InputImage", "value": "SpotLightShadowAtlas" },
+					{ "semantic": "BlurImage", "value": "SpotLightShadowFiltered" }
 				]
 			}
 		],
@@ -52,6 +49,7 @@
 				{ "name": "SpotLightInstance", "clear": "1000, 1000, 0, 0" },
 				{ "name": "SpotLightInstanceBlur" },
 				{ "name": "SpotLightShadowAtlas", "clear": "1000, 1000, 0, 0", "store": true },
+				{ "name": "SpotLightShadowAtlasBlur" },
 				{ "name": "GlobalLightShadow", "clear": "1000, 1000, 0, 0", "store": true }
 			],
 			
@@ -63,25 +61,6 @@
 				"dependencies": [],
 				"attachments": [2],
 				"system": "LocalShadowsSpot"
-			},
-			"subpass":
-			{
-				"name": "SpotLightBlur",
-				"dependencies": [0],
-				"inputs": [2],
-				"attachments": [2],
-				"fullscreenEffect":
-				{
-					"name": "HorizontalBlur",
-					"shaderState": "BoxTapHoriSubpass",
-					"sizeFromTexture": "SpotLightShadowAtlas"
-				},
-				"fullscreenEffect":
-				{
-					"name": "VerticalBlur",
-					"shaderState": "BoxTapVertSubpass",
-					"sizeFromTexture": "SpotLightShadowAtlas"
-				}
 			},
 			"subpass":
 			{
@@ -101,10 +80,38 @@
 					"1024, 1024, 2048, 2048"
 				],
 				"dependencies": [],
-				"attachments": [3],
+				"attachments": [4],
 				"depth": true,
 				"system": "GlobalShadows"
 			}
+		},
+		"compute":
+		{
+			"name": "CSMHori",
+			"shaderState": "CSMComputeState",
+			"variation": "Alt0",
+			"dimensions": [6, 2048, 1]
+		},
+		"compute":
+		{
+			"name": "CSMVert",
+			"shaderState": "CSMComputeState",
+			"variation": "Alt1",
+			"dimensions": [6, 2048, 1]
+		},
+		"compute":
+		{
+			"name": "SpotHori",
+			"shaderState": "SpotlightComputeState",
+			"variation": "Alt0",
+			"dimensions": [6, 2048, 1]
+		},
+		"compute":
+		{
+			"name": "SpotVert",
+			"shaderState": "SpotlightComputeState",
+			"variation": "Alt1",
+			"dimensions": [6, 2048, 1]
 		}
 	}
 }

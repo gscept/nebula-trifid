@@ -1006,7 +1006,7 @@ void
 VkRenderDevice::Compute(int dimX, int dimY, int dimZ, uint flag /*= NoBarrier*/)
 {
 	RenderDeviceBase::Compute(dimX, dimY, dimZ);
-	vkCmdDispatch(this->mainCmdCmpBuffer, dimX, dimY, dimZ);
+	vkCmdDispatch(this->mainCmdDrawBuffer, dimX, dimY, dimZ);
 }
 
 //------------------------------------------------------------------------------
@@ -1795,7 +1795,7 @@ VkRenderDevice::BindDescriptorsCompute(const VkDescriptorSet* descriptors, const
 {
 	if (this->inBeginFrame)
 	{
-		vkCmdBindDescriptorSets(this->mainCmdCmpBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, layout, baseSet, setCount, descriptors, offsetCount, offsets);
+		vkCmdBindDescriptorSets(this->mainCmdDrawBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, layout, baseSet, setCount, descriptors, offsetCount, offsets);
 	}
 	else
 	{
@@ -2279,7 +2279,7 @@ void
 VkRenderDevice::BindComputePipeline(const VkPipeline& pipeline, const VkPipelineLayout& layout)
 {
 	// bind compute pipeline
-	vkCmdBindPipeline(this->mainCmdCmpBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
+	vkCmdBindPipeline(this->mainCmdDrawBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
 
 	// run command pass
 	this->RunCommandPass(OnBindComputePipeline);
