@@ -63,8 +63,8 @@ VkVertexLayout::Setup(const Util::Array<CoreGraphics::VertexComponent>& c)
 		const CoreGraphics::VertexComponent& component = this->components[compIndex];
 		VkVertexInputAttributeDescription* attr = &this->attrs[compIndex];
 
-		attr->binding = component.GetStreamIndex();
 		attr->location = component.GetSemanticName();
+		attr->binding = component.GetStreamIndex();
 		attr->format = VkTypes::AsVkVertexType(component.GetFormat());
 		attr->offset = curOffset[component.GetStreamIndex()];
 		curOffset[component.GetStreamIndex()] += component.GetByteSize();

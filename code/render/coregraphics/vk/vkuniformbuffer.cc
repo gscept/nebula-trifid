@@ -37,6 +37,7 @@ VkUniformBuffer::Setup(const SizeT numBackingBuffers)
 {
 	ConstantBufferBase::Setup(numBackingBuffers);
 	this->byteAlignment = VK_DEVICE_SIZE_CONV(VkRenderDevice::Instance()->deviceProps.limits.minUniformBufferOffsetAlignment);
+	//this->byteAlignment = 64;
 	uint32_t queues[] = { VkRenderDevice::Instance()->drawQueueFamily, VkRenderDevice::Instance()->computeQueueFamily, VkRenderDevice::Instance()->transferQueueFamily };
 	this->createInfo =
 	{

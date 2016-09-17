@@ -36,13 +36,14 @@ VkInstanceRenderer::Setup()
 {
 	InstanceRendererBase::Setup();
 
-	this->shaderState = CoreGraphics::ShaderServer::Instance()->CreateShaderState("shd:shared", { NEBULAT_INSTANCE_GROUP });
+    /*
+	this->shaderState = CoreGraphics::ShaderServer::Instance()->CreateShaderState("shd:shared", { NEBULAT_SYSTEM_GROUP });
 	this->instancingBuffer = ConstantBuffer::Create();
 	this->instancingBuffer->SetupFromBlockInShader(this->shaderState, "InstanceBlock", 16);
 	this->instancingBlockVar = this->shaderState->GetVariableByName("InstanceBlock");
 	this->instancingBlockVar->SetConstantBuffer(this->instancingBuffer);
-
-	this->modelArrayVar = this->instancingBuffer->GetVariableByName("ModelArray");
+*/
+	//this->modelArrayVar = this->instancingBuffer->GetVariableByName("ModelArray");
 	//this->modelViewArrayVar = this->instancingBuffer->GetVariableByName("ModelViewArray");
 	//this->modelViewProjectionArrayVar = this->instancingBuffer->GetVariableByName("ModelViewProjectionArray");
 	//this->idArrayVar = this->instancingBuffer->GetVariableByName("IdArray");

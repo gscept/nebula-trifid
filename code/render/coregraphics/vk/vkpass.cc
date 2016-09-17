@@ -122,14 +122,16 @@ VkPass::Setup()
 
 		IndexT idx = 0;
 		SizeT preserveAttachments = 0;
+		SizeT usedAttachments = 0;
 		for (j = 0; j < subpass.attachments.Size(); j++)
 		{
 			VkAttachmentReference& ref = references[j];
 			ref.attachment = subpass.attachments[j];
 			ref.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			usedAttachments++;
 
 			// remove from all attachments list
-			allAttachments.EraseIndex(allAttachments.FindIndex(subpass.attachments[j]));
+			allAttachments.EraseIndex(allAttachments.FindIndex(ref.attachment));
 
 			if (subpass.resolve) resolves[j] = ref;
 		}
@@ -164,14 +166,14 @@ VkPass::Setup()
 		}
 		
 		// set color attachments
-		vksubpass.colorAttachmentCount = references.Size();
+		vksubpass.colorAttachmentCount = usedAttachments;
 		vksubpass.pColorAttachments = references.Begin();
 
 		// if we have subpass inputs, use them
 		if (inputs.Size() > 0)
 		{
 			vksubpass.inputAttachmentCount = inputs.Size();
-			vksubpass.pInputAttachments = inputs.Begin();
+			vksubpass.pInputAttachments = inputs.IsEmpty() ? NULL : inputs.Begin();
 		}
 		else
 		{
@@ -182,7 +184,7 @@ VkPass::Setup()
 		if (preserves.Size() > 0)
 		{ 
 			vksubpass.preserveAttachmentCount = preserves.Size();
-			vksubpass.pPreserveAttachments = preserves.Begin();
+			vksubpass.pPreserveAttachments = preserves.IsEmpty() ? NULL : preserves.Begin();
 		}
 		else
 		{
@@ -250,11 +252,11 @@ VkPass::Setup()
 		NULL,
 		0,
 		numUsedAttachments,
-		attachments.Begin(),
+		numUsedAttachments == 0 ? NULL : attachments.Begin(),
 		subpassDescs.Size(),
-		subpassDescs.Begin(),
+		subpassDescs.IsEmpty() ? NULL : subpassDescs.Begin(),
 		subpassDeps.Size(),
-		subpassDeps.Begin()
+		subpassDeps.IsEmpty() ? NULL : subpassDeps.Begin()
 	};
 	res = vkCreateRenderPass(VkRenderDevice::dev, &info, NULL, &this->pass);
 	n_assert(res == VK_SUCCESS);

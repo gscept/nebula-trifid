@@ -6,7 +6,8 @@
 #ifndef DEFAULTSAMPLERS_FXH
 #define DEFAULTSAMPLERS_FXH
 
-shared varblock DefaultTextures
+
+shared varblock DefaultSamplers
 {
 	textureHandle AlbedoMap;
 	textureHandle DisplacementMap;
@@ -18,3 +19,4 @@ shared varblock DefaultTextures
 };
 
 #endif // DEFAULTSAMPLERS_FXH
+

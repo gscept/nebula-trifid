@@ -10,6 +10,7 @@
 #include "lib/shadowbase.fxh"
 #include "lib/techniques.fxh"
 #include "lib/lightmapbase.fxh"
+#include "lib/instancingparams.fxh"
 
 state FoliageState
 {

@@ -128,12 +128,13 @@ VkRenderTexture::Setup()
 		VkRenderDevice::Instance()->AllocateImageMemory(this->img, this->mem, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, size);
 		vkBindImageMemory(VkRenderDevice::dev, this->img, this->mem, 0);
 
+		VkImageAspectFlags aspect = this->usage == ColorAttachment ? VK_IMAGE_ASPECT_COLOR_BIT : VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
 		VkImageSubresourceRange subres;
 		subres.baseArrayLayer = 0;
 		subres.baseMipLevel = 0;
 		subres.layerCount = 1;
 		subres.levelCount = 1;
-		subres.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		subres.aspectMask = aspect;
  		VkImageViewCreateInfo viewInfo =
 		{
 			VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
@@ -165,7 +166,7 @@ VkRenderTexture::Setup()
 			VkClearColorValue clear = { 0, 0, 0, 0 };
 			VkRenderDevice::Instance()->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->img, subres, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL));
 			VkRenderDevice::Instance()->PushImageColorClear(this->img, VkDeferredCommand::Graphics, VK_IMAGE_LAYOUT_GENERAL, clear, subres);
-			VkRenderDevice::Instance()->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->img, subres, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL));
+			VkRenderDevice::Instance()->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->img, subres, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
 		}
 		else
 		{
