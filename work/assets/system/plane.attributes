@@ -2,7 +2,7 @@
 <Nebula3 version="1">
     <Options exportFlags="4" exportMode="0" scale="1.000000" />
     <States>
-        <ModelNode name="root/pCube1" material="Static">
+        <ModelNode name="root/pCube1" material="sur:system/default">
             <Textures>
                 <Texture name="DiffuseMap" value="tex:system/white" />
                 <Texture name="NormalMap" value="tex:system/nobump" />

@@ -23,8 +23,7 @@ LightProbeEntity::LightProbeEntity() :
 	falloff(0.2f),
 	power(16.0f),
 	shape(Box),
-	correctionMethod(None),
-	probe(Lighting::EnvironmentProbe::DefaultEnvironmentProbe)
+	correctionMethod(None)
 {
 	this->SetType(GraphicsEntityType::LightProbe);
 }
@@ -78,6 +77,8 @@ LightProbeEntity::OnActivate()
 	this->lightProbeBboxCenterVar = this->lightProbeVariableBuffer->GetVariableByName(NEBULA3_SEMANTIC_BBOXCENTER);
 	this->lightProbeTransformVar = this->lightProbeVariableBuffer->GetVariableByName("Transform");
 	this->lightProbeInvTransformVar = this->lightProbeVariableBuffer->GetVariableByName("InvTransform");
+
+	this->ApplyProbe(Lighting::EnvironmentProbe::DefaultEnvironmentProbe);
 }
 
 //------------------------------------------------------------------------------
@@ -119,7 +120,7 @@ LightProbeEntity::ApplyProbe(const Ptr<Lighting::EnvironmentProbe>& probe)
 {
     this->lightProbeReflectionVar->SetTexture(probe->GetReflectionMap()->GetTexture());
     this->lightProbeIrradianceVar->SetTexture(probe->GetIrradianceMap()->GetTexture());
-	this->lightProbeDepthVar->SetTexture(probe->GetDepthMap()->GetTexture());
+	if (probe->GetDepthMap().isvalid())	this->lightProbeDepthVar->SetTexture(probe->GetDepthMap()->GetTexture());
 	this->numMips = probe->GetReflectionMap()->GetTexture()->GetNumMipLevels();
 
 	// enable buffer

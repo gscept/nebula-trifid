@@ -2,13 +2,13 @@
 <Nebula3 version="1">
     <Options exportFlags="4" exportMode="0" scale="1.000000" />
     <States>
-        <ModelNode name="root/pSphere4" material="sur:system/placeholder">
+        <ModelNode name="root/pSphere4" material="sur:system/default">
             <Textures>
                 <Texture name="DiffuseMap" value="tex:system/placeholder" />
                 <Texture name="NormalMap" value="tex:system/nobump" />
             </Textures>
         </ModelNode>
-        <ModelNode name="root/pTorus13" material="sur:system/placeholder">
+        <ModelNode name="root/pTorus13" material="sur:system/default">
             <Textures>
                 <Texture name="DiffuseMap" value="tex:system/placeholder" />
                 <Texture name="NormalMap" value="tex:system/nobump" />
