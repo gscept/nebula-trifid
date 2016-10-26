@@ -42,8 +42,17 @@ samplerstate GeometrySampler
 
 samplerstate EnvironmentSampler
 {
-	Samplers = { EnvironmentMap, IrradianceMap, DepthConeMap };
+	Samplers = { EnvironmentMap, IrradianceMap };
 	Filter = MinMagMipLinear;
+	AddressU = Wrap;
+	AddressV = Wrap;
+	AddressW = Wrap;
+};
+
+samplerstate DepthSampler
+{
+	Samplers = { DepthConeMap };
+	Filter = Point;
 	AddressU = Wrap;
 	AddressV = Wrap;
 	AddressW = Wrap;
@@ -206,23 +215,18 @@ psMain(in vec3 viewSpacePosition,
 	{
 		// calculate distance field and falloff
 		float d = calcDistanceField(localPos.xyz, FalloffDistance);	
-		float distanceFalloff = pow(1-d, FalloffPower);
-		//float distanceFalloff = exp(1-d) * FalloffPower;
-		//float distanceFalloff = 1 / (pow(d, FalloffPower));
+		float distanceFalloff = pow(1-d, FalloffPower * 2);
 		
-		// load biggest distance from texture, basically solving the distance field blending
-		memoryBarrier();
+		// load current value from distance field image
 		float weight = imageLoad(DistanceFieldWeightMap, ivec2(gl_FragCoord.xy)).r;		
 #if USE_DISTANCE_IMAGE
-		float diff = saturate(distanceFalloff - weight);
+		float diff = saturate(distanceFalloff / weight);
 #else
 		float diff = saturate(distanceFalloff);
 #endif
 		//if (diff <= 0.001f) discard;
 		memoryBarrier();
 		imageStore(DistanceFieldWeightMap, ivec2(gl_FragCoord.xy), vec4(max(weight, distanceFalloff)));
-		
-		//float distanceFalloff = pow(1 - diff, FalloffPower);
 	
 		// sample normal and specular, do some pseudo-PBR energy balance between albedo and spec
 		vec3 viewSpaceNormal = UnpackViewSpaceNormal(textureLod(NormalMap, screenUV, 0));
