@@ -20,7 +20,8 @@ using namespace vr;
 */
 ViveMote::ViveMote() :
 	trackedObject(InvalidTracker),
-	lastState(0)
+	lastState(0),
+    enabled(true)
 {
 	this->state = n_new(vr::VRControllerState_t);
 }
@@ -77,6 +78,10 @@ ViveMote::OnReset()
 */
 void ViveMote::OnBeginFrame()
 {
+    if (!this->enabled)
+    {
+        return;
+    }
 	if (this->trackedObject == InvalidTracker && !VRManager::Instance()->HasHMD())
 	{
 		return;
@@ -102,6 +107,18 @@ void ViveMote::OnBeginFrame()
 				this->axisValues[RightThumbXAxis] = this->state->rAxis[0].x;
 				this->axisValues[RightThumbYAxis] = this->state->rAxis[0].y;                
 			}
+            else
+            {
+                // reset button up state                
+                this->buttonStates[StartButton].up = false;
+                this->buttonStates[StartButton].down = false;
+                this->buttonStates[BackButton].up = false;
+                this->buttonStates[BackButton].down = false;
+                this->buttonStates[RightShoulderButton].up = false;
+                this->buttonStates[RightShoulderButton].down = false;
+                this->buttonStates[RightThumbButton].up = false;
+                this->buttonStates[RightThumbButton].down = false;
+            }
 		}
 	}
 }
@@ -153,4 +170,51 @@ ViveMote::UpdateButtonState(vr::EVRButtonId xiBtn, GamePadBase::Button btn)
     }
 #endif
 }
+
+Util::String ViveMote::GetStateString()
+{
+    Util::String stateString;
+    stateString.Format("%f:%f:%f:%d:%d:%d:%d", this->GetAxisValue(Base::GamePadBase::RightThumbXAxis),
+        this->GetAxisValue(Base::GamePadBase::RightThumbYAxis),
+        this->GetAxisValue(Base::GamePadBase::RightTriggerAxis),
+        (this->ButtonPressed(Base::GamePadBase::StartButton) ? 0x4 : 0) + (this->ButtonDown(Base::GamePadBase::StartButton) ? 0x1 : 0) + (this->ButtonUp(Base::GamePadBase::StartButton) ? 0x2 : 0),
+        (this->ButtonPressed(Base::GamePadBase::BackButton) ? 0x4 : 0) + (this->ButtonDown(Base::GamePadBase::BackButton) ? 0x1 : 0) + (this->ButtonUp(Base::GamePadBase::BackButton) ? 0x2 : 0),
+        (this->ButtonPressed(Base::GamePadBase::RightShoulderButton) ? 0x4 : 0) + (this->ButtonDown(Base::GamePadBase::RightShoulderButton) ? 0x1 : 0) + (this->ButtonUp(Base::GamePadBase::RightShoulderButton) ? 0x2 : 0),
+        (this->ButtonPressed(Base::GamePadBase::RightThumbButton) ? 0x4 : 0) + (this->ButtonDown(Base::GamePadBase::RightThumbButton) ? 0x1 : 0) + (this->ButtonUp(Base::GamePadBase::RightThumbButton) ? 0x2 : 0)
+        );
+    return stateString;
+}
+
+void ViveMote::SetStateFromString(const Util::String & state)
+{    
+    Array<String> toks = state.Tokenize(":");
+    if (toks.Size() != 7)
+    {
+        return;
+    }
+    this->axisValues[RightThumbXAxis] = toks[0].AsFloat();
+    this->axisValues[RightThumbYAxis] = toks[1].AsFloat();
+    this->axisValues[RightTriggerAxis] = toks[2].AsFloat();
+    int button;
+    button = toks[3].AsInt();
+    this->buttonStates[StartButton].down = (button & 0x1)>0;
+    this->buttonStates[StartButton].pressed = (button & 0x4) >0;
+    this->buttonStates[StartButton].up = (button & 0x2) >0;
+
+    button = toks[4].AsInt();
+    this->buttonStates[BackButton].down = (button & 0x1) > 0;
+    this->buttonStates[BackButton].pressed = (button & 0x4) > 0;
+    this->buttonStates[BackButton].up = (button & 0x2) > 0;
+
+    button = toks[5].AsInt();
+    this->buttonStates[RightShoulderButton].down = (button & 0x1) > 0;
+    this->buttonStates[RightShoulderButton].pressed = (button & 0x4) > 0;
+    this->buttonStates[RightShoulderButton].up = (button & 0x2) > 0;
+
+    button = toks[6].AsInt();
+    this->buttonStates[RightThumbButton].down = (button & 0x1) > 0;
+    this->buttonStates[RightThumbButton].pressed = (button & 0x4) > 0;
+    this->buttonStates[RightThumbButton].up = (button & 0x2) > 0;
+}
+
 } // namespace VR

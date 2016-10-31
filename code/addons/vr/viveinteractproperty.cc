@@ -21,6 +21,8 @@
 using namespace Graphics;
 using namespace GraphicsFeature;
 using namespace Math;
+using namespace BaseGameFeature;
+
 namespace VR
 {
     __ImplementClass(VR::ViveInteractProperty, 'VVIP', Game::Property);
@@ -28,7 +30,7 @@ namespace VR
 //------------------------------------------------------------------------------
 /**
 */
-ViveInteractProperty::ViveInteractProperty()
+    ViveInteractProperty::ViveInteractProperty() :trackingEnable(Tracking::IDLE)
 {
     // empty
 }
@@ -116,10 +118,26 @@ ViveInteractProperty::OnDeactivate()
 void
 ViveInteractProperty::OnBeginFrame()
 {
-    Math::matrix44 trans = this->mote->GetTransform();
-    Ptr<BaseGameFeature::SetTransform> st = BaseGameFeature::SetTransform::Create();
-    st->SetMatrix(trans);
-    __SendSync(this->entity, st);
+    Math::matrix44 trans;
+    if (this->trackingEnable == Tracking::PLAYBACK)
+    {
+        trans = this->entity->GetMatrix44(Attr::Transform);
+        Ptr<BaseGameFeature::SetTransform> st = BaseGameFeature::SetTransform::Create();
+        st->SetMatrix(trans);
+        __SendSync(this->entity, st);
+        this->mote->SetStateFromString(this->entity->GetString(Attr::ControllerState));        
+    }
+    else
+    {
+        if (this->trackingEnable == Tracking::RECORD)
+        {
+            this->entity->SetString(Attr::ControllerState, this->mote->GetStateString());
+        }
+        trans = this->mote->GetTransform();
+        Ptr<BaseGameFeature::SetTransform> st = BaseGameFeature::SetTransform::Create();
+        st->SetMatrix(trans);
+        __SendSync(this->entity, st);
+    }
 
 
     Math::point here = trans.get_position();
@@ -237,12 +255,25 @@ ViveInteractProperty::OnBeginFrame()
 void
 ViveInteractProperty::HandleMessage(const Ptr<Messaging::Message>& msg)
 {
-    
+    if (msg->CheckId(SetTrackingMode::Id))
+    {
+        SetTrackingMode * en = msg.cast<SetTrackingMode>().get_unsafe();
+        this->trackingEnable = en->GetMode();
+        if (this->trackingEnable == Tracking::PLAYBACK)
+        {
+            this->mote->SetEnabled(false);
+        }
+        else
+        {
+            this->mote->SetEnabled(true);
+        }
+
+    }
 }
 
 void ViveInteractProperty::SetupAcceptedMessages()
 {
-
+    this->RegisterMessage(SetTrackingMode::Id);
 }
 
 }; // namespace Game

@@ -8,6 +8,7 @@
 #include "game/property.h"
 #include "graphics/modelentity.h"
 #include "vivemote.h"
+#include "managers/trackermanager.h"
 
 
 //------------------------------------------------------------------------------
@@ -44,6 +45,7 @@ public:
     
 protected:
     Ptr<VR::ViveMote> mote;
+    Tracking::TrackingMode trackingEnable;
     Ptr<Graphics::ModelEntity> stick;
     Ptr<Graphics::ModelEntity> redstick;
     Ptr<Graphics::ModelEntity> floorMarker;

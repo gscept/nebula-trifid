@@ -190,7 +190,10 @@ VrView::OnAttachToServer()
 	this->leftEyeTarget->SetHeight(this->HMDHeight);
 	this->leftEyeTarget->SetAntiAliasQuality(AntiAliasQuality::None);
 	this->leftEyeTarget->SetResolveTextureResourceId("VRLeftEye");
-	this->leftEyeTarget->SetDefaultRenderTarget(true);
+	// setting this will display the left eye on the normal window.
+	// causes issues with some drivers and openvr, better to use the 
+	// mirror view in openvr	
+    //this->leftEyeTarget->SetDefaultRenderTarget(true);
 	this->leftEyeTarget->Setup();
 
 	this->rightEyeTarget = CoreGraphics::RenderTarget::Create();

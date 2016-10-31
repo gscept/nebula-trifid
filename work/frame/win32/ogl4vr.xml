@@ -180,7 +180,7 @@
 	<ApplyShaderVariable sem="SpecularMap" value="SpecularBuffer"/>
 	<ApplyShaderVariable sem="AlbedoMap" value="AlbedoBuffer"/>
 	<ApplyShaderVariable sem="DepthMap" value="DepthBuffer"/>
-	<!--<ApplyShaderVariable sem="DistanceFieldWeightMap" value="DistanceFieldWeightBuffer"/>-->
+	<ApplyShaderVariable sem="DistanceFieldWeightMap" value="DistanceFieldWeightBuffer"/>
 	<Batch type="LightProbes"/>
   </Pass>
     

@@ -18,7 +18,7 @@ set(SOURCES_vr
 	vivemote.cc
 	vivemote.h
 	viveinteractproperty.cc
-	viveinteractproperty.h
+	viveinteractproperty.h	
 )
 source_group("vr" FILES ${SOURCES_vr})
 
@@ -40,7 +40,7 @@ N_WRAP_ADD_PROJ_NIDL_FILES(vr SOURCES_vr ${P_NIDL_FILES})
 add_library( vr STATIC ${SOURCES_vr} ${SOURCES_files} )
 
 SET_TARGET_PROPERTIES(vr PROPERTIES FOLDER "N3SDK/addons")
-TARGET_INCLUDE_DIRECTORIES(vr PRIVATE ${OPENVR_INCLUDE_DIR})
+TARGET_INCLUDE_DIRECTORIES(vr PUBLIC ${OPENVR_INCLUDE_DIR})
 TARGET_LINK_LIBRARIES(vr PUBLIC application graphicsfeature ${OPENVR_LIBRARY})
   
 

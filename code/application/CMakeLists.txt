@@ -108,6 +108,8 @@ set(application_files_basegamefeature__managers
 	basegamefeature/managers/globalattrsmanager.h
 	basegamefeature/managers/levelattrsmanager.cc
 	basegamefeature/managers/levelattrsmanager.h
+	basegamefeature/managers/trackermanager.cc
+	basegamefeature/managers/trackermanager.h
 )
 source_group("basegamefeature\\managers" FILES ${application_files_basegamefeature__managers})
 
