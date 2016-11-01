@@ -9,6 +9,7 @@ A specialized camera property for VR hmds
 */
 #include "properties/cameraproperty.h"
 #include "graphics/cameraentity.h"
+#include "managers/trackermanager.h"
 
 //------------------------------------------------------------------------------
 namespace VR
@@ -26,14 +27,16 @@ namespace VR
 		/// handle a single message
 		virtual void HandleMessage(const Ptr<Messaging::Message>& msg);
 		/// called from Entity::ActivateProperties()
-		virtual void OnActivate();
+		virtual void OnActivate();        
 		/// 
 		virtual void OnDeactivate();
 		/// called on begin of frame
 		virtual void OnBeginFrame();
+        /// called when camera focus is obtained
+        virtual void OnObtainCameraFocus();
 
 	protected:
-
+        Tracking::TrackingMode tracking;
 	};
 	__RegisterClass(VRCameraProperty);
 

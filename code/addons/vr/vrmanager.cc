@@ -63,9 +63,11 @@ VRManager::OnActivate()
 	this->mites[0] = ViveMote::Create();
 	this->mites[0]->SetTracker(LeftControl);
 	Input::InputServer::Instance()->AttachInputHandler(Input::InputPriority::Game, this->mites[0].cast<Input::InputHandler>());
+    Input::InputServer::Instance()->AddGamePad(this->mites[0].cast<Input::GamePad>(), 0);
 	this->mites[1] = ViveMote::Create();
 	this->mites[1]->SetTracker(RightControl);
 	Input::InputServer::Instance()->AttachInputHandler(Input::InputPriority::Game, this->mites[1].cast<Input::InputHandler>());	
+    Input::InputServer::Instance()->AddGamePad(this->mites[1].cast<Input::GamePad>(), 1);
 }
 
 //------------------------------------------------------------------------------
@@ -94,7 +96,7 @@ void VRManager::RetrieveTrackers()
 	{
 		static vr::TrackedDevicePose_t tracked[vr::k_unMaxTrackedDeviceCount];
 		static uint32_t trackerIds[vr::k_unMaxTrackedDeviceCount];
-		vr::EVRCompositorError ret = vr::VRCompositor()->WaitGetPoses(NULL, 0, tracked, vr::k_unMaxTrackedDeviceCount);
+        vr::EVRCompositorError ret = vr::VRCompositor()->WaitGetPoses(tracked, vr::k_unMaxTrackedDeviceCount, NULL, 0);
 		n_assert(ret == EVRCompositorError::VRCompositorError_None);
 
 		for (int i = 0; i < vr::k_unMaxTrackedDeviceCount; i++)
@@ -109,12 +111,14 @@ void VRManager::RetrieveTrackers()
 				this->trackedObjects[i] = Math::matrix44::multiply(Math::matrix44::transpose(mat), this->origin);
 			}
 		}
-		// FIXME these should only be updated if a connect/disconnect event occured
-		static uint32_t ids[3];
-		this->HMD->GetSortedTrackedDeviceIndicesOfClass(TrackedDeviceClass_HMD, ids, 3, -1);
-		this->trackerIds[HMDisplay] = ids[0];
-		this->trackerIds[LeftControl] = this->HMD->GetTrackedDeviceIndexForControllerRole(TrackedControllerRole_LeftHand);
-		this->trackerIds[RightControl] = this->HMD->GetTrackedDeviceIndexForControllerRole(TrackedControllerRole_RightHand);
+       
+            // FIXME these should only be updated if a connect/disconnect event occured
+            static uint32_t ids[3];
+            this->HMD->GetSortedTrackedDeviceIndicesOfClass(TrackedDeviceClass_HMD, ids, 3, -1);
+            this->trackerIds[HMDisplay] = ids[0];
+            this->trackerIds[LeftControl] = this->HMD->GetTrackedDeviceIndexForControllerRole(TrackedControllerRole_LeftHand);
+            this->trackerIds[RightControl] = this->HMD->GetTrackedDeviceIndexForControllerRole(TrackedControllerRole_RightHand);
+       
 	}
 
 }

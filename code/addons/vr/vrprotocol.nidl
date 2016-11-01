@@ -6,9 +6,12 @@
     </Protocol>
     <AttributeLib>
       <Attribute name="ControllerHand" fourcc="CTLH" accessMode="ReadWrite" type="String" />
+      <Attribute name="ControllerState" fourcc="CTST" accessMode="ReadWrite" type="String" />
     </AttributeLib>
     <Property name="VR::VRCameraProperty" derivedFrom="GraphicsFeature::CameraProperty" header="vr/vrcameraproperty.h" />
     <Property name="VR::ViveInteractProperty" header="vr/viveinteractproperty.h">
       <Attribute name="ControllerHand"/>
+      <Attribute name="Graphics"/>
+      <Attribute name="ControllerState"/>
     </Property>   
 </Nebula3>

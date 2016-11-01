@@ -228,7 +228,7 @@ GameServer::CheckDebugRendering()
 	    Ptr<Input::Keyboard> keyBoard = inputServer->GetDefaultKeyboard();
         Ptr<Input::GamePad> gamePad = inputServer->GetDefaultGamePad(0);
 
-        if (keyBoard->KeyDown(Input::Key::F4) || gamePad.isvalid() && gamePad->ButtonDown(Input::GamePad::RightThumbButton))
+        if (keyBoard->KeyDown(Input::Key::F4) || gamePad.isvalid() && gamePad->ButtonDown(Input::GamePad::LeftThumbButton))
 	    {
 		    // find current index
 		    IndexT index = InvalidIndex;

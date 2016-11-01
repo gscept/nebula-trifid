@@ -27,6 +27,11 @@ public:
 	/// called on InputServer::BeginFrame()
 	virtual void OnBeginFrame();
 	///
+    Util::String GetStateString();
+    ///
+    void SetStateFromString(const Util::String & state);
+    ///
+    void SetEnabled(bool enable);
         
 protected:   	
 	friend class VR::VRManager;
@@ -42,6 +47,7 @@ protected:
 	VR::TrackerType trackedObject;
 	vr::VRControllerState_t * state;
 	uint32_t lastState;
+    bool enabled;
 };
 
 //------------------------------------------------------------------------------
@@ -51,6 +57,16 @@ inline void
 ViveMote::SetTracker(VR::TrackerType tr)
 {
 	this->trackedObject = tr;
+}
+
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+ViveMote::SetEnabled(bool tr)
+{
+    this->enabled = tr;
 }
 
 } // namespace VR

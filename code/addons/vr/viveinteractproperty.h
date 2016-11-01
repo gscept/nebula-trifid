@@ -6,7 +6,9 @@
     (C) 2016 Individual contributors, see AUTHORS file	
 */
 #include "game/property.h"
+#include "graphics/modelentity.h"
 #include "vivemote.h"
+#include "managers/trackermanager.h"
 
 
 //------------------------------------------------------------------------------
@@ -42,7 +44,11 @@ public:
     virtual void HandleMessage(const Ptr<Messaging::Message>& msg);	
     
 protected:
-	Ptr<VR::ViveMote> mote;
+    Ptr<VR::ViveMote> mote;
+    Tracking::TrackingMode trackingEnable;
+    Ptr<Graphics::ModelEntity> stick;
+    Ptr<Graphics::ModelEntity> redstick;
+    Ptr<Graphics::ModelEntity> floorMarker;
 };
 __RegisterClass(ViveInteractProperty);
 
