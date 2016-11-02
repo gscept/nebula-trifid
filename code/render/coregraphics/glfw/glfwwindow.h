@@ -8,6 +8,7 @@
 //------------------------------------------------------------------------------
 #include "coregraphics/base/windowbase.h"
 #include "GLFW/glfw3.h"
+
 namespace OpenGL4
 {
 class GLFWWindow : public Base::WindowBase
@@ -58,7 +59,11 @@ public:
 	/// declare static char function as friend
 	friend void staticCharFunc(GLFWwindow* window, unsigned int key);
 protected:
+#ifdef __OGL4__
 	friend class OpenGL4::OGL4RenderDevice;
+#elseif __VULKAN__
+    friend class Vulkan::VkRenderDevice;
+#endif
 
 	/// Keyboard callback
 	void KeyFunc(int key, int scancode, int action, int mods);

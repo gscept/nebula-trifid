@@ -489,6 +489,8 @@ ENDIF()
 	  set(Render_files_coregraphics_displaydevice__impl
 			coregraphics/glfw/glfwdisplaydevice.cc
 			coregraphics/glfw/glfwdisplaydevice.h
+			coregraphics/glfw/glfwwindow.cc
+			coregraphics/glfw/glfwwindow.h
 			coregraphics/vk/vkdisplaydevice.cc
 			coregraphics/vk/vkdisplaydevice.h)
 	  set(Render_files_coregraphics__vk

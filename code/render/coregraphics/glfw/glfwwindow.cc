@@ -39,6 +39,7 @@ GLFWWindow::~GLFWWindow()
 void
 GLFWWindow::Open()
 {
+#if __OGL4__
 #if NEBULA3_OPENGL4_DEBUG
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 	glfwSetErrorCallback(NebulaGLFWErrorCallback);
@@ -46,6 +47,7 @@ GLFWWindow::Open()
 #else
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_FALSE);
 	glDisable(GL_DEBUG_OUTPUT);
+#endif
 #endif
 	glfwWindowHint(GLFW_RED_BITS, 8);
 	glfwWindowHint(GLFW_GREEN_BITS, 8);
@@ -145,7 +147,7 @@ GLFWWindow::Reopen()
 		else
 		{
 			// if not, set the window state and detach from the monitor
-			glfwSetWindowMonitor(this->window, NULL, this->displayMode.GetWidth(), this->displayMode.GetHeight());
+			glfwSetWindowMonitor(this->window, NULL, this->displayMode.GetXPos(), this->displayMode.GetYPos(), this->displayMode.GetWidth(), this->displayMode.GetHeight(), this->displayMode.GetRefreshRate());
 		}
 	}
 
@@ -186,7 +188,7 @@ GLFWWindow::SetFullscreen(bool b, int monitor)
 	}
 	else
 	{
-		glfwSetWindowMonitor(this->window, NULL, this->displayMode.GetWidth(), this->displayMode.GetHeight());
+		glfwSetWindowMonitor(this->window, NULL, this->displayMode.GetXPos(), this->displayMode.GetYPos(), this->displayMode.GetWidth(), this->displayMode.GetHeight(), this->displayMode.GetRefreshRate());
 	}
 }
 
@@ -498,7 +500,7 @@ GLFWWindow::ApplyFullscreen()
 		mon = monitors[monitor];
 	}
 	const GLFWvidmode* mode = glfwGetVideoMode(mon);
-	glfwSetWindowMonitor(this->window, mon, mode->width, mode->height);
+	glfwSetWindowMonitor(this->window, mon, 0,0, mode->width, mode->height, 60);
 }
 
 //------------------------------------------------------------------------------

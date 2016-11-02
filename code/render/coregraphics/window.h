@@ -26,6 +26,15 @@ namespace CoreGraphics
 		__DeclareClass(Window);
 	};
 } // namespace CoreGraphics
+#elif __VULKAN__
+#include "coregraphics/glfw/glfwwindow.h"
+namespace CoreGraphics
+{
+    class Window : public OpenGL4::GLFWWindow
+    {
+        __DeclareClass(Window);
+    };
+} // namespace CoreGraphics
 #elif __DX9__
 #include "coregraphics/d3d9/d3d9window.h"
 namespace CoreGraphics
