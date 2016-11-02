@@ -42,8 +42,8 @@ OGL4MemoryIndexBufferLoader::OnLoadRequested()
 	GLenum sync = OGL4Types::AsOGL4Syncing(this->syncing);
 	glGenBuffers(1, &ogl4IndexBuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ogl4IndexBuffer);
-	if (this->syncing == IndexBuffer::SyncingSimple)	glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->numIndices * IndexType::SizeOf(this->indexType), this->indexDataPtr, usage | sync);
-	else												glBufferStorage(GL_ELEMENT_ARRAY_BUFFER, this->numIndices * IndexType::SizeOf(this->indexType), this->indexDataPtr, GL_MAP_WRITE_BIT | GL_MAP_READ_BIT | sync);
+	if (this->syncing == IndexBuffer::SyncingFlush)	glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->numIndices * IndexType::SizeOf(this->indexType), this->indexDataPtr, usage | sync);
+	else											glBufferStorage(GL_ELEMENT_ARRAY_BUFFER, this->numIndices * IndexType::SizeOf(this->indexType), this->indexDataPtr, GL_MAP_WRITE_BIT | GL_MAP_READ_BIT | sync);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	n_assert(GLSUCCESS);
 
@@ -55,6 +55,7 @@ OGL4MemoryIndexBufferLoader::OnLoadRequested()
 	res->SetSyncing(this->syncing);
     res->SetIndexType(this->indexType);
     res->SetNumIndices(this->numIndices);
+	res->SetByteSize(this->indexDataSize);
     res->SetOGL4IndexBuffer(ogl4IndexBuffer);
 
     // invalidate setup data (because we don't own our data)

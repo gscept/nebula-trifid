@@ -6,6 +6,7 @@
 #include "shadercompiler.h"
 #include "io/ioserver.h"
 #include "io/xmlreader.h"
+#include "coregraphics/config.h"
 
 #if __DX11__
 #include <d3dx11.h>
@@ -50,8 +51,8 @@ ShaderCompiler::~ShaderCompiler()
 //------------------------------------------------------------------------------
 /**
 */
-bool 
-ShaderCompiler::CheckRecompile( const Util::String& srcPath, const Util::String& dstPath )
+bool
+ShaderCompiler::CheckRecompile(const Util::String& srcPath, const Util::String& dstPath)
 {
 	if (!this->force)
 	{
@@ -100,6 +101,10 @@ ShaderCompiler::CompileShaders()
 	{
 		retval = this->CompileGLSL(this->srcShaderBaseDir);
 	}
+	else if (this->language == "SPIRV")
+	{
+		retval = this->CompileSPIRV(this->srcShaderBaseDir);
+	}
 
     if (this->srcFrameShaderCustomDir.IsValid())
     {
@@ -112,6 +117,10 @@ ShaderCompiler::CompileShaders()
         {
             this->CompileGLSL(this->srcShaderCustomDir);
         }
+		else if (this->language == "SPIRV")
+		{
+			this->CompileSPIRV(this->srcShaderCustomDir);
+		}
     }    
 
 	if (retval)
@@ -149,7 +158,7 @@ ShaderCompiler::CompileFrameShaders()
 
 	// for each base frame shader...
 	bool success = true;
-	Array<String> srcFiles = ioServer->ListFiles(this->srcFrameShaderBaseDir, "*.xml");
+	Array<String> srcFiles = ioServer->ListFiles(this->srcFrameShaderBaseDir, "*.json");
 	IndexT i;
 	for (i = 0; i < srcFiles.Size(); i++)
 	{
@@ -165,7 +174,7 @@ ShaderCompiler::CompileFrameShaders()
     if (this->srcFrameShaderCustomDir.IsValid())
     {
         // for each custom frame shader...
-        srcFiles = ioServer->ListFiles(this->srcFrameShaderCustomDir, "*.xml");
+        srcFiles = ioServer->ListFiles(this->srcFrameShaderCustomDir, "*.json");
         for (i = 0; i < srcFiles.Size(); i++)
         {
             // build absolute source and target filenames
@@ -429,6 +438,12 @@ ShaderCompiler::CompileGLSL(const Util::String& srcPath)
 			// set flags
 			flags.push_back("/NOSUB");		// deactivate subroutine usage
 			flags.push_back("/GBLOCK");		// put all shader variables outside of explicit buffers in one global block
+
+			// if using debug, output raw shader code
+			if (this->debug)
+			{
+				flags.push_back("/O");
+			}
 			
 			AnyFXErrorBlob* errors = NULL;
 
@@ -471,6 +486,123 @@ ShaderCompiler::CompileGLSL(const Util::String& srcPath)
 	AnyFXEndCompile();
 #else
 #error "No GLSL compiler implemented! (use definition __ANYFX__ to fix this)"
+#endif
+
+	return true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+ShaderCompiler::CompileSPIRV(const Util::String& srcPath)
+{
+	const Ptr<IoServer>& ioServer = IoServer::Instance();
+
+	// list files in directory
+	Array<String> srcFiles = ioServer->ListFiles(srcPath, "*.fx");
+
+#ifndef __ANYFX__
+	n_printf("Error: Cannot compile DX11 shaders without DX11 support\n");
+	return false;
+#endif
+
+#if __ANYFX__
+	// start AnyFX compilation
+	AnyFXBeginCompile();
+
+	// go through all files and compile
+	IndexT j;
+	for (j = 0; j < srcFiles.Size(); j++)
+	{
+		// get file
+		String file = srcFiles[j];
+
+		// compile
+		n_printf("Compiling: %s\n", file.AsCharPtr());
+
+		// format string with file
+		String srcFile = srcPath + "/" + file;
+
+		// format destination
+		String destFile = this->dstShaderDir + "/" + file;
+		destFile.StripFileExtension();
+		file.StripFileExtension();
+
+		// add to dictionary
+		this->shaderNames.Append(file);
+
+		if (this->CheckRecompile(srcFile, destFile))
+		{
+			URI src(srcFile);
+			URI dst(destFile);
+			URI shaderFolder(this->srcShaderBaseDir);
+			std::vector<std::string> defines;
+			std::vector<std::string> flags;
+			Util::String define;
+			define.Format("-D GLSL");
+			defines.push_back(define.AsCharPtr());
+
+			// first include this folder
+			define.Format("-I%s/", URI(srcPath).LocalPath().AsCharPtr());
+			defines.push_back(define.AsCharPtr());
+
+			// then include the N3 toolkit shaders folder
+			define.Format("-I%s/", shaderFolder.LocalPath().AsCharPtr());
+			defines.push_back(define.AsCharPtr());
+
+			// set flags
+			flags.push_back("/NOSUB");			// deactivate subroutine usage, effectively expands all subroutines as functions
+			flags.push_back("/GBLOCK");			// put all shader variables outside of an explicit block in one global block
+			flags.push_back(Util::String::Sprintf("/DEFAULTSET %d", NEBULAT_DEFAULT_GROUP).AsCharPtr());	// since we want the most frequently switched set as high as possible, we send the default set to 8, must match the NEBULAT_DEFAULT_GROUP in std.fxh and DEFAULT_GROUP in coregraphics/config.h
+
+			// if using debug, output raw shader code
+			if (this->debug)
+			{
+				flags.push_back("/O");
+			}
+
+			AnyFXErrorBlob* errors = NULL;
+
+			// this will get the highest possible value for the GL version, now clamp the minor and major to the one supported by glew
+			int major = 1;
+			int minor = 0;
+
+			Util::String target;
+			target.Format("spv%d%d", major, minor);
+			Util::String escapedSrc = src.LocalPath();
+			//escapedSrc.SubstituteString(" ", "\\ ");
+			Util::String escapedDst = dst.LocalPath();
+			//escapedDst.SubstituteString(" ", "\\ ");
+
+			bool res = AnyFXCompile(escapedSrc.AsCharPtr(), escapedDst.AsCharPtr(), target.AsCharPtr(), "Khronos", defines, flags, &errors);
+			if (!res)
+			{
+				if (errors)
+				{
+					n_error("%s\n", errors->buffer);
+					delete errors;
+					errors = 0;
+				}
+				return false;
+			}
+			else if (errors)
+			{
+				n_error("%s\n", errors->buffer);
+				delete errors;
+				errors = 0;
+			}
+		}
+		else
+		{
+			n_printf("No need to recompile %s\n", file.AsCharPtr());
+		}
+	}
+
+	// stop AnyFX compilation
+	AnyFXEndCompile();
+#else
+#error "No SPIR-V compiler implemented! (use definition __ANYFX__ to fix this)"
 #endif
 
 	return true;

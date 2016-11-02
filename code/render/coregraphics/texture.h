@@ -26,6 +26,15 @@ class Texture : public OpenGL4::OGL4Texture
 	__DeclareClass(Texture);
 };
 }
+#elif __VULKAN__
+#include "coregraphics/vk/vktexture.h"
+namespace CoreGraphics
+{
+class Texture : public Vulkan::VkTexture
+{
+	__DeclareClass(Texture);
+};
+}
 #elif __DX9__
 #include "coregraphics/d3d9/d3d9texture.h"
 namespace CoreGraphics

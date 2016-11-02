@@ -26,6 +26,15 @@ class MemoryVertexBufferLoader : public OpenGL4::OGL4MemoryVertexBufferLoader
 	__DeclareClass(MemoryVertexBufferLoader);
 };
 }
+#elif __VULKAN__
+#include "coregraphics/vk/vkmemoryvertexbufferloader.h"
+namespace CoreGraphics
+{
+class MemoryVertexBufferLoader : public Vulkan::VkMemoryVertexBufferLoader
+{
+	__DeclareClass(MemoryVertexBufferLoader);
+};
+}
 #elif __DX9__
 #include "coregraphics/d3d9/d3d9memoryvertexbufferloader.h"
 namespace CoreGraphics

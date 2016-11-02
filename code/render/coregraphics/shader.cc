@@ -16,6 +16,11 @@ namespace CoreGraphics
 {
 __ImplementClass(CoreGraphics::Shader, 'SHDR', OpenGL4::OGL4Shader);
 }
+#elif __VULKAN__
+namespace CoreGraphics
+{
+__ImplementClass(CoreGraphics::Shader, 'SHDR', Vulkan::VkShader);
+}
 #elif __DX9__
 namespace CoreGraphics
 {

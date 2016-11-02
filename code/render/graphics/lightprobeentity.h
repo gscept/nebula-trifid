@@ -10,7 +10,12 @@
 //------------------------------------------------------------------------------
 #include "graphicsentity.h"
 #include "lighting/environmentprobe.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shaderstate.h"
+
+namespace CoreGraphics
+{
+	class ConstantBuffer;
+}
 namespace Graphics
 {
 class LightProbeEntity : public GraphicsEntity
@@ -73,7 +78,7 @@ public:
 	const ReflectionCorrectionMethod& GetCorrectionMode() const;
 	
     /// get shader
-    const Ptr<CoreGraphics::Shader>& GetShader() const;
+	const Ptr<CoreGraphics::ShaderState>& GetShaderState() const;
 
 	/// set shape type
 	void SetShapeType(LightProbeShapeType shape);
@@ -100,7 +105,7 @@ private:
 	LightProbeShapeType shape;
 	Ptr<Lighting::EnvironmentProbe> probe;
 
-    Ptr<CoreGraphics::Shader> shader;
+    Ptr<CoreGraphics::ShaderState> shader;
     Ptr<CoreGraphics::ShaderVariable> lightProbeReflectionVar;
     Ptr<CoreGraphics::ShaderVariable> lightProbeIrradianceVar;
 	Ptr<CoreGraphics::ShaderVariable> lightProbeDepthVar;
@@ -253,8 +258,8 @@ LightProbeEntity::GetEnvironmentProbe() const
 //------------------------------------------------------------------------------
 /**
 */
-inline const Ptr<CoreGraphics::Shader>&
-LightProbeEntity::GetShader() const
+inline const Ptr<CoreGraphics::ShaderState>&
+LightProbeEntity::GetShaderState() const
 {
     return this->shader;
 }

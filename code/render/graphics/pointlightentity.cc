@@ -7,6 +7,7 @@
 #include "graphics/pointlightentity.h"
 #include "coregraphics/shaperenderer.h"
 #include "threading/thread.h"
+#include "coregraphics/renderdevice.h"
 
 namespace Graphics
 {
@@ -103,8 +104,8 @@ PointLightEntity::OnRenderDebug()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-PointLightEntity::SetTransformFromPosDirAndRange( const point& pos, const vector& dir, float range )
+void
+PointLightEntity::SetTransformFromPosDirAndRange(const point& pos, const vector& dir, float range)
 {
     matrix44 m = matrix44::lookatrh(pos, pos + dir, vector::upvec());
     float4 scale = float4(range, range, range, 1.0f);

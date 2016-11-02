@@ -17,7 +17,7 @@ class Mouse : public Win32::Win32Mouse
     __DeclareClass(Mouse);
 };
 }
-#elif __OGL4__
+#elif (__OGL4__ || __VULKAN__)
 #include "input/base/mousebase.h"
 namespace Input
 {

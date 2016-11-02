@@ -26,6 +26,15 @@ class StreamTextureSaver : public OpenGL4::OGL4StreamTextureSaver
 	__DeclareClass(StreamTextureSaver);
 };
 }
+#elif __VULKAN__
+#include "coregraphics/vk/vkstreamtexturesaver.h"
+namespace CoreGraphics
+{
+class StreamTextureSaver : public Vulkan::VkStreamTextureSaver
+{
+	__DeclareClass(StreamTextureSaver);
+};
+}
 #elif __DX9__
 #include "coregraphics/d3d9/d3d9streamtexturesaver.h"
 namespace CoreGraphics

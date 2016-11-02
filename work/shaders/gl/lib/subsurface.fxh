@@ -92,7 +92,7 @@ vsMain(in vec3 position,
 */
 shader
 void
-psMain(vec2 UV,
+psMain(in vec2 UV,
 	[color0] out vec4 result)
 {
 	vec4 mask = textureLod(Mask, UV, 0);

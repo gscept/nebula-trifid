@@ -14,7 +14,7 @@
 #include "timing/time.h"
 #include "io/stream.h"
 #include "coregraphics/texture.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shaderstate.h"
 #include "renderutil/drawfullscreenquad.h"
 
 namespace Video
@@ -106,7 +106,7 @@ private:
 
 	Ptr<CoreGraphics::Texture> videoTexture;
 	RenderUtil::DrawFullScreenQuad quad;
-	Ptr<CoreGraphics::Shader> shader;
+	Ptr<CoreGraphics::ShaderState> shader;
 	Ptr<CoreGraphics::ShaderVariable> videoTextureVariable;
 };
 } // namespace Video

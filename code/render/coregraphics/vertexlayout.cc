@@ -15,6 +15,11 @@ namespace CoreGraphics
 {
 __ImplementClass(CoreGraphics::VertexLayout, 'VTXL', OpenGL4::OGL4VertexLayout);
 }
+#elif __VULKAN__
+namespace CoreGraphics
+{
+__ImplementClass(CoreGraphics::VertexLayout, 'VTXL', Vulkan::VkVertexLayout);
+}
 #elif __DX9__
 namespace CoreGraphics
 {

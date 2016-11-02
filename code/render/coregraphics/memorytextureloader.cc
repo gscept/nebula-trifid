@@ -16,6 +16,11 @@ namespace CoreGraphics
 {
 __ImplementClass(CoreGraphics::MemoryTextureLoader, 'MTBL', OpenGL4::OGL4MemoryTextureLoader);
 }
+#elif __VULKAN__
+namespace CoreGraphics
+{
+__ImplementClass(CoreGraphics::MemoryTextureLoader, 'MTBL', Vulkan::VkMemoryTextureLoader);
+}
 #elif __DX9__
 namespace CoreGraphics
 {

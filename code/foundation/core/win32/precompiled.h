@@ -71,6 +71,11 @@
 #define D3D_DEBUG_INFO (1)
 #endif
 
+#ifdef __VULKAN__
+#include <vulkan/vulkan.h>
+#include <GLFW/glfw3.h>
+#endif
+
 #ifdef __OGL4__
 #include <GL/glew.h>
 #include <GL/wglew.h>

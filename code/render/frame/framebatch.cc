@@ -117,6 +117,10 @@ FrameBatch::RenderBatch(IndexT frameIndex)
 	MaterialServer* matServer = MaterialServer::Instance();
     
 	_start_timer(this->debugTimer);
+
+	// start batch
+	renderDevice->BeginBatch(this->batchType);
+
     // handle special cases
     if (FrameBatchType::UI == this->batchType)
     {
@@ -167,19 +171,20 @@ FrameBatch::RenderBatch(IndexT frameIndex)
 		{
 			// get material
 			const Ptr<Material>& material = materials[materialIndex];
-            const Util::Array<Ptr<Surface>>& surfaces = material->GetSurfaces();
+			const Util::Array<Material::MaterialPass>& passes = material->GetPassesByCode(this->batchGroup);
 
-            IndexT surfaceIndex;
-            for (surfaceIndex = 0; surfaceIndex < surfaces.Size(); surfaceIndex++)
-            {
-                const Ptr<Surface>& surface = surfaces[surfaceIndex];
-				const Util::Array<Material::MaterialPass>& passes = material->GetPassesByCode(this->batchGroup);
+			IndexT passIndex;
+			for (passIndex = 0; passIndex < passes.Size(); passIndex++)
+			{
+				// get pass
+				const Material::MaterialPass& pass = passes[passIndex];
+				const Ptr<Shader>& shader = pass.shader;
+				const Util::Array<Ptr<Surface>>& surfaces = material->GetSurfaces();
 
-				IndexT passIndex;
-				for (passIndex = 0; passIndex < passes.Size(); passIndex++)
+				IndexT surfaceIndex;
+				for (surfaceIndex = 0; surfaceIndex < surfaces.Size(); surfaceIndex++)
 				{
-					const Material::MaterialPass& pass = passes[passIndex];
-					const Ptr<Shader>& shader = pass.shader;
+					const Ptr<Surface>& surface = surfaces[surfaceIndex];
 
 					// get models based on material, if we can't see any models, just ignore this surface...
 					// hmm, would love to do this earlier so we can just skip unused materials
@@ -199,6 +204,9 @@ FrameBatch::RenderBatch(IndexT frameIndex)
 					// apply shader 
 					shader->SelectActiveVariation(shaderServer->GetFeatureBits());
 					shader->Apply();
+
+					// get shader state
+					// const Ptr<CoreGraphics::ShaderState>& state = shader->CreateState({ NEBULAT_DEFAULT_GROUP });
 
 					// select variations based on the feature bits found in the material
 					// shaderInst->SetWireframe(renderDevice->GetRenderWireframe());
@@ -234,7 +242,7 @@ FrameBatch::RenderBatch(IndexT frameIndex)
 								const Util::StringAtom& name = this->shaderVariablesByName.KeyAtIndex(variableIndex);
 
 								// apply to variable in active shader
-								varInst->ApplyTo(shader->GetVariableByName(name));
+								//varInst->ApplyTo(state->GetVariableByName(name));
 							}
 							shader->EndUpdate();
 
@@ -243,9 +251,6 @@ FrameBatch::RenderBatch(IndexT frameIndex)
 							// begin instancing, if we are doing force instancing, use the instancing count, otherwise the multiplier is 1
 							if (this->forceInstancing) instanceServer->BeginInstancing(modelNode, this->instancingCount, shader, pass.index);
 							else					   instanceServer->BeginInstancing(modelNode, 1, shader, pass.index);
-
-							// start batch
-							renderDevice->BeginBatch(this->batchType);
 
 #if NEBULA3_ENABLE_PROFILING
 							modelNode->StartTimer();
@@ -296,7 +301,7 @@ FrameBatch::RenderBatch(IndexT frameIndex)
 								else
 								{
 									// render the node instance
-									nodeInstance->ApplyState(frameIndex, pass.index, shader);
+									nodeInstance->ApplyState(frameIndex, pass.index);
 
 									// commit shader
 									// shader->Commit();
@@ -335,9 +340,6 @@ FrameBatch::RenderBatch(IndexT frameIndex)
 							modelNode->StopTimer();
 #endif
 
-							// end batch
-							renderDevice->EndBatch();
-
 							// render instances
 							instanceServer->Render(frameIndex);
 
@@ -349,6 +351,9 @@ FrameBatch::RenderBatch(IndexT frameIndex)
             }
 		}
     }
+
+	// end batch
+	renderDevice->EndBatch();
 
     _stop_timer(this->debugTimer);
 }

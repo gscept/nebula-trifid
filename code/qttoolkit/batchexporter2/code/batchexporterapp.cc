@@ -19,7 +19,11 @@
 #include "io/fswrapper.h"
 #include "io/assignregistry.h"
 #include "toolkitconsolehandler.h"
+#ifdef WIN32
 #include "io/win32/win32consolehandler.h"
+#else
+#include "io/posix/posixconsolehandler.h"
+#endif
 #include "asset/assetexporter.h"
 #include "base/exporterbase.h"
 #include "QTreeWidget"
@@ -1018,9 +1022,12 @@ ShaderWorkerThread::run()
 	this->app->SystemMutex().unlock();
 }
 
-
+#ifdef WIN32
 typedef
 const char* (WINAPI *BatchFunc)(void);
+#else
+typedef const char* (*BatchFunc)(void);
+#endif
 
 //------------------------------------------------------------------------------
 /**
@@ -1082,7 +1089,7 @@ GameWorkerThread::run()
 #ifdef WIN32
 				CoTaskMemFree((LPVOID)log);
 #else
-				Memory::Free(log);
+				Memory::Free(Memory::DefaultHeap, log);
 #endif
 			}
 			n_printf("------------- Game batcher Done -----------------\n");

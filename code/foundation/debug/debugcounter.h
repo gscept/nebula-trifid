@@ -20,7 +20,7 @@
 #define _setup_grouped_counter(counter, group) counter = Debug::DebugCounter::Create(); counter->Setup(Util::StringAtom(#counter), group);
 #define _discard_counter(counter) counter->Discard(); counter = 0;
 #define _begin_counter(counter) counter->Begin();
-#define _begin_counter_noreset() counter->Begin(false);
+#define _begin_counter_noreset(counter) counter->Begin(false);
 #define _reset_counter(counter) counter->Reset();
 #define _incr_counter(counter, val) counter->Incr(val);
 #define _decr_counter(counter, val) counter->Decr(val);

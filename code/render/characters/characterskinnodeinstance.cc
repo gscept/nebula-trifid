@@ -61,7 +61,7 @@ CharacterSkinNodeInstance::Setup(const Ptr<ModelInstance>& inst,
 	if (skinTech == SkinningTechnique::GPUSkinningFeedback)
 	{
 		// lookup skinning shader to use for transform feedbacks, and set relevant transform feedback
-		this->skinningShader = ShaderServer::Instance()->GetShader("shd:skinned");
+		this->skinningShader = ShaderServer::Instance()->CreateShaderState("shd:skinned", { NEBULAT_SYSTEM_GROUP });
 		this->skinningShader->SelectActiveVariation(ShaderServer::Instance()->FeatureStringToMask("Skinned|Feedback"));
 		this->skinningJointPaletteVar = this->skinningShader->GetVariableByName(NEBULA3_SEMANTIC_JOINTPALETTE);
 
@@ -81,24 +81,25 @@ CharacterSkinNodeInstance::Setup(const Ptr<ModelInstance>& inst,
 
 		// create buffer to save feedback to
 		this->feedbackBuffer = FeedbackBuffer::Create();
-		this->feedbackBuffer->SetNumPrimitives(primGroup.GetNumPrimitives());
+		this->feedbackBuffer->SetNumPrimitives(primGroup.GetNumPrimitives(PrimitiveTopology::TriangleList));
 		this->feedbackBuffer->SetVertexComponents(components);
 		this->feedbackBuffer->SetPrimitiveType(PrimitiveTopology::TriangleList);
 		this->feedbackBuffer->Setup();
 	}
 	else if (skinTech == SkinningTechnique::GPUSkinning)
 	{
-		this->skinningShader = ShaderServer::Instance()->GetShader("shd:skinned");
-		this->skinningJointPaletteVar = this->skinningShader->GetVariableByName(NEBULA3_SEMANTIC_JOINTBLOCK);
+		this->skinningShader = ShaderServer::Instance()->CreateShaderState("shd:skinned", { NEBULAT_SYSTEM_GROUP });
+		this->skinningJointPaletteVar = this->skinningShader->GetVariableByName(NEBULA3_SEMANTIC_JOINTPALETTE);
 
 		// setup joint buffer
-		const Ptr<CharacterSkinNode>& charNode = this->modelNode.cast<CharacterSkinNode>();
+		//const Ptr<CharacterSkinNode>& charNode = this->modelNode.cast<CharacterSkinNode>();
 
 		// create the constant buffer representing our joints
 		// it doesn't need to be synced since nobody will notice if the same animation frame repeats
-		this->jointBuffer = ShaderReadWriteBuffer::Create();
-		this->jointBuffer->SetSize(charNode->GetFragmentJointPalette(0).Size() * sizeof(Math::matrix44));
-		this->jointBuffer->Setup();
+		//this->jointBuffer = ShaderReadWriteBuffer::Create();
+		//this->jointBuffer->SetSize(charNode->GetFragmentJointPalette(0).Size() * sizeof(Math::matrix44));
+		//this->jointBuffer->Setup();
+		//this->skinningJointPaletteVar->SetShaderReadWriteBuffer(this->jointBuffer);
 	}
 }
 
@@ -120,10 +121,11 @@ CharacterSkinNodeInstance::Discard()
 	}
 	else if (charServer->GetSkinningTechnique() == SkinningTechnique::GPUSkinning)
 	{
-		this->jointBuffer->Discard();
-		this->jointBuffer = 0;
-		this->skinningJointPaletteVar->SetBufferHandle(NULL);
+		//this->jointBuffer->Discard();
+		//this->jointBuffer = 0;
+		//this->skinningJointPaletteVar->SetShaderReadWriteBuffer(NULL);
 		this->skinningJointPaletteVar = 0;
+		this->skinningShader->Discard();
 		this->skinningShader = 0;
 	}
     ShapeNodeInstance::Discard();
@@ -176,9 +178,8 @@ CharacterSkinNodeInstance::OnRenderBefore(IndexT frameIndex, Timing::Time time)
 
 		// update joint palette, then draw into the feedback buffer
 		//renderDev->SetPrimitiveGroup(this->feedbackBuffer->GetPrimitiveGroup());
-		this->feedbackBuffer->Swap();
 		charServer->UpdateGPUSkinnedJointPalette(this->characterInstance, jointPalette, this->skinningJointPaletteVar);
-		renderDev->BeginFeedback(this->feedbackBuffer, mesh->GetPrimitiveGroupAtIndex(primIndex).GetPrimitiveTopology(), this->skinningShader);
+		renderDev->BeginFeedback(this->feedbackBuffer, mesh->GetTopology());
 		mesh->ApplyPrimitives(primIndex);
 		renderDev->Draw();
 		renderDev->EndFeedback();
@@ -198,8 +199,12 @@ CharacterSkinNodeInstance::OnRenderBefore(IndexT frameIndex, Timing::Time time)
 			joints[i] = skinMatrixArray[indices[i]];
 		}
 
+		// assert we don't have more joints than in the shader
+		n_assert(numJointsInPalette <= 256);
+
 		// update joint buffer
-		this->jointBuffer->Update(&joints[0], 0, joints.Size() * sizeof(Math::matrix44));
+		this->skinningJointPaletteVar->SetMatrixArray(joints.Begin(), joints.Size());
+		//this->jointBuffer->Update(&joints[0], 0, joints.Size() * sizeof(Math::matrix44));
 	}
 
 	ShapeNodeInstance::OnRenderBefore(frameIndex, time);
@@ -209,7 +214,7 @@ CharacterSkinNodeInstance::OnRenderBefore(IndexT frameIndex, Timing::Time time)
 /**
 */
 void 
-CharacterSkinNodeInstance::ApplyState(IndexT frameIndex, const IndexT& pass, const Ptr<CoreGraphics::Shader>& shader)
+CharacterSkinNodeInstance::ApplyState(IndexT frameIndex, const IndexT& pass)
 {
 	// different code paths for software and GPU-skinned platforms
 	ShaderServer* shaderServer = ShaderServer::Instance();
@@ -217,7 +222,9 @@ CharacterSkinNodeInstance::ApplyState(IndexT frameIndex, const IndexT& pass, con
 	SkinningTechnique::Code skinTech = charServer->GetSkinningTechnique();
 
 	if (SkinningTechnique::GPUTextureSkinning == skinTech)
-	{           
+	{     
+		// FIXME, if we really want this skinning method, ever...
+		/*
         if (shader->HasVariableByName(NEBULA3_SEMANTIC_CHARACTERINDEX))
 		{
 			// get shader variable
@@ -226,15 +233,17 @@ CharacterSkinNodeInstance::ApplyState(IndexT frameIndex, const IndexT& pass, con
 			// update texture
 			charServer->UpdateGPUSkinnedTextureJointPalette(this->characterInstance, var);
 		}
+		*/
 	}
 	else if (SkinningTechnique::GPUSkinning == skinTech)
 	{
 		// set handle
-		this->skinningJointPaletteVar->SetBufferHandle(this->jointBuffer->GetHandle());
+		//this->skinningJointPaletteVar->SetShaderReadWriteBuffer(this->jointBuffer);
+		this->skinningShader->Commit();
 	}
 
 	// apply base level state
-	ShapeNodeInstance::ApplyState(frameIndex, pass, shader);
+	ShapeNodeInstance::ApplyState(frameIndex, pass);
 }
 
 //------------------------------------------------------------------------------
@@ -244,9 +253,9 @@ void
 CharacterSkinNodeInstance::Render()
 {   
     // different code paths for software and GPU-skinned platforms
-	Ptr<ShaderServer> shaderServer = ShaderServer::Instance();
-	Ptr<CharacterServer> charServer = CharacterServer::Instance();
-	Ptr<RenderDevice> renderDev = RenderDevice::Instance();
+	ShaderServer* shaderServer = ShaderServer::Instance();
+	CharacterServer* charServer = CharacterServer::Instance();
+	RenderDevice* renderDev = RenderDevice::Instance();
 
     SkinningTechnique::Code skinTech = charServer->GetSkinningTechnique();
     if (SkinningTechnique::SoftwareSkinning == skinTech)
@@ -304,6 +313,8 @@ CharacterSkinNodeInstance::Render()
 			IndexT primGroupIndex = myNode->GetFragmentPrimGroupIndex(0);
 
 			// draw skin
+			//mesh->ApplyPrimitives(primGroupIndex);
+			mesh->ApplyPrimitiveGroup(primGroupIndex);
 			charServer->DrawGPUSkinnedMesh(mesh, primGroupIndex);
 		}
 	}
@@ -381,6 +392,7 @@ CharacterSkinNodeInstance::RenderInstanced(SizeT numInstances)
 			IndexT primGroupIndex = myNode->GetFragmentPrimGroupIndex(0);
 
 			// draw skin
+			this->skinningShader->Commit();
 			charServer->DrawGPUSkinnedMeshInstanced(mesh, primGroupIndex, numInstances);
 		}
 	}

@@ -10,7 +10,7 @@ namespace Input
 {
 __ImplementClass(Input::Mouse, 'MOUS', Win32::Win32Mouse);
 }
-#elif __OGL4__
+#elif (__OGL4__ || __VULKAN__)
 namespace Input
 {
 __ImplementClass(Input::Mouse, 'MOUS', Base::MouseBase);

@@ -90,7 +90,7 @@ public:
     const Ptr<CoreGraphics::RenderTargetCube>& GetRenderTargetCubeByName(const Resources::ResourceId& resId) const;
 
     /// add a texture to the frame
-	void AddTexture(const Resources::ResourceId& resId, const Ptr<CoreGraphics::ShaderReadWriteTexture>& t);
+	void AddReadWriteTexture(const Resources::ResourceId& resId, const Ptr<CoreGraphics::ShaderReadWriteTexture>& t);
     /// get number of textures
     SizeT GetNumTextures() const;
     /// get texture by index
@@ -340,7 +340,7 @@ FrameShader::GetRenderTargetCubeByName(const Resources::ResourceId& resId) const
 /**
 */
 inline void
-FrameShader::AddTexture(const Resources::ResourceId& resId, const Ptr<CoreGraphics::ShaderReadWriteTexture>& t)
+FrameShader::AddReadWriteTexture(const Resources::ResourceId& resId, const Ptr<CoreGraphics::ShaderReadWriteTexture>& t)
 {
     n_assert(!this->textures.Contains(resId));
     this->textures.Add(resId, t);

@@ -24,11 +24,8 @@ ADD_SUBDIRECTORY(qtfeature)
 ENDIF()
 #broken, uses old render code
 #ADD_SUBDIRECTORY(vegetation)
-IF(MSVC)
 
-#broken, uses bink, needs to be replaced with some ogg code from n2
 ADD_SUBDIRECTORY(video)
-ENDIF()
 ADD_SUBDIRECTORY(grid)
 ADD_SUBDIRECTORY(clouds)
 ADD_SUBDIRECTORY(silhouette)

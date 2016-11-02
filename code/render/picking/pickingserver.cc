@@ -154,7 +154,7 @@ PickingServer::FetchIndex(const Math::float2& position)
 	// get coordinate
 	int xCoord = (int)position.x();
 	int yCoord = (int)position.y();
-#elif __OGL4__
+#elif (__OGL4__ || __VULKAN__)
 	// get coordinate
 	int xCoord = (int)position.x();
 	int yCoord = tex->GetHeight() - (int)position.y();
@@ -180,7 +180,7 @@ PickingServer::FetchIndex(const Math::float2& position)
 /**
 */
 void
-PickingServer::FetchSquare( const Math::rectangle<float>& rect, Util::Array<IndexT> & indices, Util::Array<IndexT> & edgeIndices)
+PickingServer::FetchSquare(const Math::rectangle<float>& rect, Util::Array<IndexT> & indices, Util::Array<IndexT> & edgeIndices)
 {
 	// render first
 	this->Render();
@@ -214,7 +214,7 @@ PickingServer::FetchSquare( const Math::rectangle<float>& rect, Util::Array<Inde
 
 	int xMax = (int)rect.right;
 	int yMax = (int)rect.bottom;
-#elif __OGL4__
+#elif (__OGL4__ || __VULKAN__)
 	// get coordinate
 	int xMin = Math::n_iclamp((int)rect.left, 0, width - 1);
 	int yMin = tex->GetHeight() - Math::n_iclamp((int)rect.bottom, 0, height - 1);
@@ -277,7 +277,7 @@ PickingServer::FetchDepth(const Math::float2& position)
 	// get coordinate
 	int xCoord = (int)position.x();
 	int yCoord = (int)position.y();
-#elif __OGL4__
+#elif (__OGL4__ || __VULKAN__)
 	// get coordinate
 	int xCoord = (int)position.x();
 	int yCoord = tex->GetHeight() - (int)position.y();
@@ -326,7 +326,7 @@ PickingServer::FetchNormal(const Math::float2& position)
 	// get coordinate
 	int xCoord = (int)position.x();
 	int yCoord = (int)position.y();
-#elif __OGL4__
+#elif (__OGL4__ || __VULKAN__)
 	// get coordinate
 	int xCoord = (int)position.x();
 	int yCoord = tex->GetHeight() - (int)position.y();

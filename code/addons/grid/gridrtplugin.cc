@@ -7,8 +7,10 @@
 #include "coregraphics/shaderserver.h"
 #include "coregraphics/memoryvertexbufferloader.h"
 #include "coregraphics/memoryindexbufferloader.h"
+#include "coregraphics/renderdevice.h"
 #include "coregraphics/transformdevice.h"
 #include "coregraphics/displaydevice.h"
+#include "coregraphics/config.h"
 #include "resources/resourcemanager.h"
 
 using namespace Math;
@@ -43,7 +45,7 @@ void
 GridRTPlugin::OnRegister()
 {
 	// create new shader
-	this->shader = ShaderServer::Instance()->GetShader("shd:grid");
+	this->shader = ShaderServer::Instance()->CreateShaderState("shd:grid", {NEBULAT_DEFAULT_GROUP});
 	this->gridSizeVar = this->shader->GetVariableByName("GridSize");
 	this->gridTexVar = this->shader->GetVariableByName("GridTex");
 
@@ -116,13 +118,43 @@ GridRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
         this->shader->Apply();
 
 		// set variables
-        this->shader->BeginUpdate();
+        //this->shader->BeginUpdate();
 		this->gridSizeVar->SetFloat(this->gridSize);
 		this->gridTexVar->SetTexture(this->tex->GetTexture());
-        this->shader->EndUpdate();
+        //this->shader->EndUpdate();
 		this->shader->Commit();
 
-		device->SetStreamSource(0, this->vbo, 0);
+		device->SetStreamVertexBuffer(0, this->vbo, 0);
+		device->SetVertexLayout(this->vbo->GetVertexLayout());
+		device->SetIndexBuffer(this->ibo);
+		device->SetPrimitiveGroup(this->primitive);
+		device->Draw();
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+GridRTPlugin::OnRender(const Util::StringAtom& filter)
+{
+	static const Util::StringAtom identifier = "Unlit";
+	if (filter == identifier && this->visible)
+	{
+		Ptr<RenderDevice> device = RenderDevice::Instance();
+		Ptr<TransformDevice> trans = TransformDevice::Instance();
+
+		// start pass
+		this->shader->Apply();
+
+		// set variables
+		//this->shader->BeginUpdate();
+		this->gridSizeVar->SetFloat(this->gridSize);
+		this->gridTexVar->SetTexture(this->tex->GetTexture());
+//		this->shader->EndUpdate();
+		this->shader->Commit();
+
+		device->SetStreamVertexBuffer(0, this->vbo, 0);
 		device->SetVertexLayout(this->vbo->GetVertexLayout());
 		device->SetIndexBuffer(this->ibo);
 		device->SetPrimitiveGroup(this->primitive);

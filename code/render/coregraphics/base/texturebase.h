@@ -33,6 +33,11 @@ public:
         Texture2D,      //> a 2-dimensional texture
         Texture3D,      //> a 3-dimensional texture
         TextureCube,    //> a cube texture
+
+		Texture1DArray,	//> a 1-dimensional texture array, depth represents array size
+		Texture2DArray,	//> a 2-dimensional texture array, depth represents array size
+		Texture3DArray,	//> a 3-dimensional texture array, depth represents array size * size of layers in array
+		TextureCubeArray //> a cube texture array, depth represents array size * 6
     };
 
     /// cube map face
@@ -101,6 +106,8 @@ public:
 
 
 protected:
+	friend class RenderTextureBase;
+
     /// set texture type
     void SetType(Type t);
 	/// set bits per pixel

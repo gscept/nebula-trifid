@@ -47,6 +47,12 @@ public:
     void EndAttachVisibleLights();
     /// update shadow buffer
     void UpdateShadowBuffers();
+	/// update spot light shadow buffers
+	void UpdateSpotLightShadowBuffers();
+	/// update point light shadow buffers
+	void UpdatePointLightShadowBuffers();
+	/// update global light shadow buffers
+	void UpdateGlobalLightShadowBuffers();
     /// end lighting frame
     void EndFrame();      
     /// set PointOfInterest

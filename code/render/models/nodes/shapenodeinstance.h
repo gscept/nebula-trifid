@@ -21,7 +21,7 @@ public:
     virtual ~ShapeNodeInstance();
     
     /// called during visibility resolve
-    virtual void OnVisibilityResolve(IndexT resolveIndex, float distToViewer);
+	virtual void OnVisibilityResolve(IndexT frameIndex, IndexT resolveIndex, float distToViewer);
     /// perform rendering
     virtual void Render();
     /// perform instanced rendering

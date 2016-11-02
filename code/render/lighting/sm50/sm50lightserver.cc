@@ -18,6 +18,7 @@
 #include "graphics/graphicsserver.h"
 #include "graphics/view.h"
 #include "coregraphics/constantbuffer.h"
+#include "coregraphics/config.h"
 
 namespace Lighting
 {
@@ -84,8 +85,9 @@ SM50LightServer::Open()
 	// setup the shared light project map resource
 	this->lightProjMap = ResourceManager::Instance()->CreateManagedResource(Texture::RTTI, ResourceId(lightTexPath)).downcast<ManagedTexture>();
 
-	this->lightShader							= shdServer->GetShader("shd:lights");
-	this->lightProbeShader						= shdServer->GetShader("shd:reflectionprojector");
+	// light group is for shared variables, default is for shader local variables
+	this->lightShader							= shdServer->GetShader("shd:lights")->CreateState({ NEBULAT_LIGHT_GROUP,  NEBULAT_DEFAULT_GROUP });
+	this->lightProbeShader						= shdServer->GetShader("shd:reflectionprojector")->CreateState({ NEBULAT_DEFAULT_GROUP });
 
 	this->globalLightFeatureBits[NoShadows]		= shdServer->FeatureStringToMask("Global");
 	this->globalLightFeatureBits[CastShadows]	= shdServer->FeatureStringToMask("Global|Alt0");
@@ -122,7 +124,7 @@ SM50LightServer::Open()
 
 	// bind our custom buffer to the binding spot
 	this->globalLightBlockVar = this->lightShader->GetVariableByName("GlobalLightBlock");
-    this->globalLightBlockVar->SetBufferHandle(this->globalLightBuffer->GetHandle());
+    this->globalLightBlockVar->SetConstantBuffer(this->globalLightBuffer);
 
 	// local light variables
 	this->lightPosRange							= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_LIGHTPOSRANGE);
@@ -173,7 +175,7 @@ SM50LightServer::Close()
 
     this->globalLightBuffer->Discard();
     this->globalLightBuffer = 0;
-	this->globalLightBlockVar->SetBufferHandle(NULL);
+	this->globalLightBlockVar->SetConstantBuffer(NULL);
     this->globalLightBlockVar = 0;
 	this->globalAmbientLightColor = 0;
 	this->globalBackLightColor = 0;
@@ -287,7 +289,7 @@ SM50LightServer::RenderLights()
 	}
 
 	// general preparations
-	shdServer->SetActiveShader(this->lightShader);
+	shdServer->SetActiveShader(this->lightShader->GetShader());
 
 	// render the global light
     this->shadowProjMapVar->SetTexture(shadowServer->GetGlobalLightShadowBufferTexture());
@@ -345,14 +347,14 @@ SM50LightServer::RenderGlobalLight()
 		this->globalLightBuffer->EndUpdateSync();
 
 		// handle casting shadows using CSM
-		this->lightShader->BeginUpdate();
+		this->lightShader->BeginUpdateSync();
 		if (this->globalLightEntity->GetCastShadows())
 		{
 			Ptr<CoreGraphics::Texture> CSMTexture = ShadowServer::Instance()->GetGlobalLightShadowBufferTexture();
 			float CSMBufferWidth = (CSMTexture->GetWidth() / (float)ShadowServerBase::SplitsPerRow);
 #if __DX11__
 			matrix44 textureScale = matrix44::scaling(0.5f, -0.5f, 1.0f);
-#elif __OGL4__
+#elif (__OGL4__ || __VULKAN__)
 			matrix44 textureScale = matrix44::scaling(0.5f, 0.5f, 1.0f);
 #endif
 			matrix44 textureTranslation = matrix44::translation(0.5f, 0.5f, 0);
@@ -383,7 +385,7 @@ SM50LightServer::RenderGlobalLight()
 
 			this->shadowIntensityVar->SetFloat(this->globalLightEntity->GetShadowIntensity());
 		}
-		this->lightShader->EndUpdate();
+		this->lightShader->EndUpdateSync();
 
 		// commit changes
 		this->lightShader->Commit();
@@ -407,16 +409,16 @@ SM50LightServer::RenderPointLights()
 		RenderDevice* renderDevice = RenderDevice::Instance();
 		ShaderServer* shaderServer = ShaderServer::Instance();
 
-		// apply mesh
-		this->pointLightMesh->GetMesh()->ApplyPrimitives(0);
-
 		IndexT shadowIdx;
 		for (shadowIdx = 0; shadowIdx < NumShadowFlags; ++shadowIdx)
 		{
-			if(this->pointLights[shadowIdx].Size())
+			if (this->pointLights[shadowIdx].Size())
 			{
 				this->lightShader->SelectActiveVariation(this->pointLightFeatureBits[shadowIdx]);
                 this->lightShader->Apply();
+
+				// apply mesh
+				this->pointLightMesh->GetMesh()->ApplyPrimitives(0);
 
 				IndexT i;
 				for (i = 0; i < this->pointLights[shadowIdx].Size(); i++)
@@ -431,7 +433,7 @@ SM50LightServer::RenderPointLights()
 					posAndRange.w() = 1.0f / lightTransform.get_zaxis().length();
 
 					// set projection map
-                    this->lightShader->BeginUpdate();
+					this->lightShader->BeginUpdateSync();
 					if (curLight->GetProjectionTexture().isvalid())
 					{
 						this->lightProjCubeVar->SetTexture(curLight->GetProjectionTexture()->GetTexture());
@@ -456,7 +458,7 @@ SM50LightServer::RenderPointLights()
 					}
 
 					// update shader variables
-                    this->lightShader->EndUpdate();
+					this->lightShader->EndUpdateSync();
 
 					// commit and draw
 					this->lightShader->Commit();
@@ -480,16 +482,16 @@ SM50LightServer::RenderSpotLights()
 		TransformDevice* tformDevice = TransformDevice::Instance();
 		RenderDevice* renderDevice = RenderDevice::Instance();
 
-		// apply mesh
-		this->spotLightMesh->GetMesh()->ApplyPrimitives(0);
-
 		IndexT shadowIdx;
 		for (shadowIdx = 0; shadowIdx < NumShadowFlags; ++shadowIdx)
 		{
 			if (this->spotLights[shadowIdx].Size())
 			{
 				this->lightShader->SelectActiveVariation(this->spotLightFeatureBits[shadowIdx]);
-                this->lightShader->Apply();
+                this->lightShader->Apply();				
+
+				// apply mesh
+				this->spotLightMesh->GetMesh()->ApplyPrimitives(0);
 
 				IndexT i;
 				for (i = 0; i < this->spotLights[shadowIdx].Size(); i++)
@@ -504,7 +506,7 @@ SM50LightServer::RenderSpotLights()
 					posAndRange.w() = 1.0f / lightTransform.get_zaxis().length();
 
 					// set projection map
-                    this->lightShader->BeginUpdate();
+					this->lightShader->BeginUpdateSync();
 					if (curLight->GetProjectionTexture().isvalid())
 					{
 						this->lightProjMapVar->SetTexture(curLight->GetProjectionTexture()->GetTexture());
@@ -540,7 +542,7 @@ SM50LightServer::RenderSpotLights()
 					}
 
 					// update shader variables
-                    this->lightShader->EndUpdate();
+					this->lightShader->EndUpdateSync();
 
 					// commit and draw
 					this->lightShader->Commit();
@@ -601,7 +603,7 @@ SM50LightServer::RenderLightProbes()
 	{
 		const Ptr<LightProbeEntity>& entity = this->visibleLightProbes[probeIdx];
 		const Ptr<EnvironmentProbe>& probe = entity->GetEnvironmentProbe();
-        const Ptr<CoreGraphics::Shader>& shader = entity->GetShader();
+        const Ptr<CoreGraphics::ShaderState>& shader = entity->GetShaderState();
 
 		// skip rendering invisible probes
 		if (!entity->IsVisible()) continue;
@@ -617,7 +619,7 @@ SM50LightServer::RenderLightProbes()
 		entity->ApplyProbe(probe);
 
 		// apply shader and draw
-		shader->Apply();		
+		shader->Apply();
         shader->Commit();
 		renderDevice->Draw();
 	}

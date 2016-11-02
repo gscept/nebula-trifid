@@ -72,10 +72,10 @@ PostEffectServer::Open()
     this->frameShader = GraphicsServer::Instance()->GetDefaultView()->GetFrameShader();
 
 	// some variables belong in the compose shader
-	const Ptr<Shader>& composeShader = this->frameShader->GetFramePassBaseByName("Finalize")->GetShader();
-    const Ptr<Shader>& gatherShader = this->frameShader->GetFramePassBaseByName("Gather")->GetShader();
-	const Ptr<Shader>& vertBloom = this->frameShader->GetFramePassBaseByName("VerticalBloomBlur")->GetShader();
-	const Ptr<Shader>& horiBloom = this->frameShader->GetFramePassBaseByName("HorizontalBloomBlur")->GetShader();
+	const Ptr<ShaderState>& composeShader = this->frameShader->GetFramePassBaseByName("Finalize")->GetShaderState();
+	const Ptr<ShaderState>& gatherShader = this->frameShader->GetFramePassBaseByName("Gather")->GetShaderState();
+	const Ptr<ShaderState>& vertBloom = this->frameShader->GetFramePassBaseByName("VerticalBloomBlur")->GetShaderState();
+	const Ptr<ShaderState>& horiBloom = this->frameShader->GetFramePassBaseByName("HorizontalBloomBlur")->GetShaderState();
 	const Ptr<Shader>& shared = ShaderServer::Instance()->GetSharedShader();
 	this->environmentConstantBuffer = ConstantBuffer::Create();
 	this->environmentConstantBuffer->SetupFromBlockInShader(shared, "EnvironmentParamBlock");
@@ -88,7 +88,7 @@ PostEffectServer::Open()
 	shared->GetVariableByName("EnvironmentParamBlock")->SetBufferHandle(this->environmentConstantBuffer->GetHandle());
 
 	// some variables belong in the brightpass
-	const Ptr<Shader>& brightPassShader = this->frameShader->GetFramePassBaseByName("BrightPass")->GetShader();
+	const Ptr<ShaderState>& brightPassShader = this->frameShader->GetFramePassBaseByName("BrightPass")->GetShaderState();
 
     // lookup the shared post effect fade variable
     this->fadeShaderVariable = composeShader->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_FADEVALUE));

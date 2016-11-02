@@ -18,6 +18,7 @@
 #include "particles/particlesystemnodeinstance.h"
 #include "frame/frameserver.h"
 #include "framesync/framesynctimer.h"
+#include "coregraphics/config.h"
 
 using namespace Math;
 using namespace CoreGraphics;
@@ -54,7 +55,7 @@ void
 SilhouetteRTPlugin::OnRegister()
 {
 	// create new shader
-	this->shader = ShaderServer::Instance()->GetShader("shd:silhouette");
+	this->shader = ShaderServer::Instance()->CreateShaderState("shd:silhouette", {NEBULAT_DEFAULT_GROUP});
 	this->colorVar = this->shader->GetVariableByName(NEBULA3_SEMANTIC_MATDIFFUSE);
 	this->prepassVariation = ShaderServer::Instance()->FeatureStringToMask("Alt0");
 	this->outlineVariation = ShaderServer::Instance()->FeatureStringToMask("Alt1");
@@ -85,7 +86,7 @@ SilhouetteRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
     if (frameBatch->GetType() == FrameBatchType::Shapes)
 	{
 		const Ptr<ShaderServer>& shaderServer = ShaderServer::Instance();
-		shaderServer->SetActiveShader(this->shader);
+		shaderServer->SetActiveShader(this->shader->GetShader());
 
 		IndexT variationIndex;
 		for (variationIndex = 0; variationIndex < 2; variationIndex++)
@@ -113,9 +114,9 @@ SilhouetteRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
 						const Util::Array<Ptr<ModelNodeInstance>>& nodeInstances = model->GetModelInstance()->GetNodeInstances();
 
 						// set transform
-						this->shader->BeginUpdate();
+						//this->shader->BeginUpdate();
 						this->colorVar->SetFloat4(entry.Key());
-						this->shader->EndUpdate();
+						//this->shader->EndUpdate();
 
 						// render stencil first
 						IndexT nodeInstIndex;
@@ -130,7 +131,7 @@ SilhouetteRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
 								nodeInstance->GetModelNode()->ApplySharedState(-1);
 
 								// apply node
-								nodeInstance->ApplyState(frameIndex, 0, this->shader);
+								nodeInstance->ApplyState(frameIndex, 0);
 
 								// only apply model for shapes
 								if (nodeInstance->IsA(ShapeNodeInstance::RTTI))

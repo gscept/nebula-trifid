@@ -45,7 +45,7 @@ public:
 /**
 */
 __forceinline long
-	Win360Interlocked::Increment(long volatile& var)
+Win360Interlocked::Increment(long volatile& var)
 {
 	return _InterlockedIncrement((volatile LONG*)&var);
 }
@@ -54,7 +54,7 @@ __forceinline long
 /**
 */
 __forceinline long
-	Win360Interlocked::Decrement(long volatile& var)
+Win360Interlocked::Decrement(long volatile& var)
 {
 	return _InterlockedDecrement((volatile LONG*)&var);
 }
@@ -63,7 +63,7 @@ __forceinline long
 /**
 */
 __forceinline long
-	Win360Interlocked::Add(long volatile& var, long add)
+Win360Interlocked::Add(long volatile& var, long add)
 {
 	return _InterlockedExchangeAdd((volatile LONG*)&var, add);
 }
@@ -72,7 +72,7 @@ __forceinline long
 /**
 */
 __forceinline long
-	Win360Interlocked::Exchange(long volatile* dest, long value)
+Win360Interlocked::Exchange(long volatile* dest, long value)
 {
 	return _InterlockedExchange((volatile LONG*)dest, value);
 }
@@ -126,8 +126,8 @@ Win360Interlocked::Exchange(int volatile* dest, int value)
 //------------------------------------------------------------------------------
 /**
 */
-__forceinline void* 
-Win360Interlocked::ExchangePointer( void* volatile* dest, void* value )
+__forceinline void*
+Win360Interlocked::ExchangePointer(void* volatile* dest, void* value)
 {
 	return InterlockedExchangePointer(dest, value);
 }

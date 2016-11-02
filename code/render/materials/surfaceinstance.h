@@ -38,7 +38,7 @@ public:
     void Cleanup();
 
     /// apply surface based on pass
-	const Ptr<CoreGraphics::ShaderInstance>& GetShaderInstance(const IndexT passIndex);
+	const Ptr<CoreGraphics::ShaderState>& GetShaderState(const IndexT passIndex);
 
     /// set pre-defined value of a parameter, submit the true as the last argument if the material should change immediately
     void SetValue(const Util::StringAtom& param, const Util::Variant& value);
@@ -66,9 +66,9 @@ protected:
     Materials::SurfaceName::Code code;
     Util::Array<Ptr<SurfaceConstant>> constants;
     Util::Dictionary<Util::StringAtom, Ptr<SurfaceConstant>> constantsByName;
-    Util::Array<Ptr<CoreGraphics::ShaderInstance>> shaderInstances;
-	Util::Dictionary<Ptr<CoreGraphics::Shader>, Ptr<CoreGraphics::ShaderInstance>> shaderInstancesByShader;
-
+    Util::Array<Ptr<CoreGraphics::ShaderState>> shaderInstances;
+	Util::Dictionary<Ptr<CoreGraphics::Shader>, Ptr<CoreGraphics::ShaderState>> shaderInstancesByShader;
+	Util::Array<Ptr<Resources::ManagedTexture>> allocatedTextures;
     struct DeferredTextureBinding
     {
     public:

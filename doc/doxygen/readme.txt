@@ -1,3 +1,0 @@
-Doxygen config files.
-
--Floh.

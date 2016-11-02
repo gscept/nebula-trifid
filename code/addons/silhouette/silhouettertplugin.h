@@ -11,7 +11,7 @@
 #include "rendermodules/rt/rtplugin.h"
 #include "coregraphics/vertexbuffer.h"
 #include "coregraphics/indexbuffer.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shaderstate.h"
 #include "coregraphics/texture.h"
 #include "resources/managedtexture.h"
 #include "graphics/modelentity.h"
@@ -34,7 +34,9 @@ public:
 	virtual void OnUnregister();
 
 	/// called when rendering a frame batch
-	virtual void OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch);
+	void OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch);
+	/// called when rendering a frame batch
+	void OnRender(const Util::StringAtom& filter);
 
 	/// set if grid should be visible
 	void SetVisible(bool b);
@@ -51,7 +53,7 @@ private:
 	Util::Dictionary<Util::String, Util::KeyValuePair<Math::float4, Util::Array<Ptr<Graphics::ModelEntity>>>> models;
 
 	// shader
-	Ptr<CoreGraphics::Shader> shader;
+	Ptr<CoreGraphics::ShaderState> shader;
 	Ptr<CoreGraphics::ShaderVariable> colorVar;
 	CoreGraphics::ShaderFeature::Mask prepassVariation;	
 	CoreGraphics::ShaderFeature::Mask outlineVariation;	

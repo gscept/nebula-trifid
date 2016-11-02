@@ -11,7 +11,7 @@ namespace Input
 #if (__DX11__ || __DX9__ )
 __ImplementClass(Input::InputServer, 'INPS', Win32::Win32InputServer);
 __ImplementInterfaceSingleton(Input::InputServer);
-#elif __OGL4__
+#elif (__OGL4__ || __VULKAN__)
 __ImplementClass(Input::InputServer, 'INPS', OpenGL4::GLFWInputServer);
 __ImplementInterfaceSingleton(Input::InputServer);
 #else

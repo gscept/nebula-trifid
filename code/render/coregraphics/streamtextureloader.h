@@ -27,6 +27,15 @@ class StreamTextureLoader : public OpenGL4::OGL4StreamTextureLoader
 	__DeclareClass(StreamTextureLoader);
 };
 }
+#elif __VULKAN__
+#include "coregraphics/vk/vkstreamtextureloader.h"
+namespace CoreGraphics
+{
+class StreamTextureLoader : public Vulkan::VkStreamTextureLoader
+{
+	__DeclareClass(StreamTextureLoader);
+};
+}
 #elif __DX9__
 #include "coregraphics/d3d9/d3d9streamtextureloader.h"
 namespace CoreGraphics

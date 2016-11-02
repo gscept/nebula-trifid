@@ -52,7 +52,7 @@ OGL4ShaderInstance::Setup(const Ptr<CoreGraphics::Shader>& origShader)
     ShaderInstanceBase::Setup(origShader);
 
 	// copy effect pointer
-	this->effect = origShader->GetOGL4Effect();
+	this->effect = ogl4Shader->GetOGL4Effect();
 
     int varblockCount = this->effect->GetNumVarblocks();
     for (int i = 0; i < varblockCount; i++)

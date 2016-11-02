@@ -10,6 +10,7 @@
 #include "core/refcounted.h"
 #include "coregraphics/vertexlayout.h"
 #include "coregraphics/base/resourcebase.h"
+#include "coregraphics/primitivegroup.h"
 
 //------------------------------------------------------------------------------
 namespace Base
@@ -31,6 +32,9 @@ public:
     void* Map(ResourceBase::MapType mapType);
     /// unmap the resource
     void Unmap();
+
+	/// swap buffers
+	void Swap();
     
 	/// set number of primitives
     void SetNumPrimitives(SizeT numPrimitives);

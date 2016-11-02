@@ -129,6 +129,8 @@ View::OnRemoveFromServer()
     }
     this->stage = 0;
     this->frameShader = 0;
+	this->frameScript->Discard();
+	this->frameScript = 0;
     this->dependencies.Clear();
     this->isAttachedToServer = false;
 
@@ -285,7 +287,7 @@ View::ApplyCameraSettings()
 void
 View::Render(IndexT frameIndex)
 {
-    n_assert(this->frameShader.isvalid());      
+	n_assert(this->frameScript.isvalid());
     n_assert(this->camera.isvalid());
 
     // reset model node instance index for a new render frame (view)
@@ -296,7 +298,6 @@ View::Render(IndexT frameIndex)
 
     lightServer->BeginFrame(this->camera);
     shadowServer->BeginFrame(this->camera);
-	this->frameShader->Begin();
 
 	Particles::ParticleRenderer::Instance()->BeginAttach();
 
@@ -328,7 +329,7 @@ View::Render(IndexT frameIndex)
 
     // render the world...
 	_start_timer(render);
-    this->frameShader->Render(frameIndex);
+	this->frameScript->Run(frameIndex);
 	_stop_timer(render);
 
 	// render picking
@@ -336,7 +337,6 @@ View::Render(IndexT frameIndex)
 	_stop_timer(picking);
 
     // tell main frame shader, light and shadow servers that rendering is finished
-	this->frameShader->End();
     shadowServer->EndFrame();
     lightServer->EndFrame();	
 }
@@ -348,7 +348,7 @@ View::Render(IndexT frameIndex)
 void
 View::RenderDebug()
 {
-    n_assert(this->frameShader.isvalid());
+    n_assert(this->frameScript.isvalid());
 
     // setup global transforms...
     TransformDevice* transformDevice = TransformDevice::Instance();

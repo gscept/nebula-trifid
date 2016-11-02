@@ -65,6 +65,7 @@ FramePass::Render(IndexT frameIndex)
 		this->renderTarget->SetClearDepth(this->clearDepth);
 		this->renderTarget->SetClearStencil(this->clearStencil);
         this->renderTarget->SetClearColor(this->clearColor);
+		renderDevice->BeginPass(this->renderTarget);
     }  
     else if (this->renderTargetCube.isvalid())
     {
@@ -76,54 +77,24 @@ FramePass::Render(IndexT frameIndex)
         this->renderTargetCube->SetClearDepth(this->clearDepth);
         this->renderTargetCube->SetClearStencil(this->clearStencil);
         this->renderTargetCube->SetClearColor(this->clearColor);
+		renderDevice->BeginPass(this->renderTargetCube);
     }
     else if (this->multipleRenderTarget.isvalid())
     {
 		// ignore clear flags
         n_assert(!this->renderTarget.isvalid());
         n_assert(!this->renderTargetCube.isvalid());
+		renderDevice->BeginPass(this->multipleRenderTarget);
     }
-	else
-	{
-		n_assert(this->useDefaultRendertarget);
-	}
-
-    // begin updating global shader state
-    if (this->shader.isvalid()) this->shader->BeginUpdate();
-
-    // apply shader variables
-    IndexT varIndex;
-    for (varIndex = 0; varIndex < this->shaderVariables.Size(); varIndex++)
-    {
-        this->shaderVariables[varIndex]->Apply();
-    }
-   
-	// bind render target, either 2D, MRT, or Cube
-	if (this->renderTarget.isvalid())
-	{
-		n_assert(!this->multipleRenderTarget.isvalid());
-		n_assert(!this->renderTargetCube.isvalid());
-		renderDevice->BeginPass(this->renderTarget, this->shader);
-	}
-	else if (this->multipleRenderTarget.isvalid())
-	{
-		n_assert(!this->renderTarget.isvalid());
-		n_assert(!this->renderTargetCube.isvalid());
-		renderDevice->BeginPass(this->multipleRenderTarget, this->shader);
-	}
-	else if (this->renderTargetCube.isvalid())
-	{
-		n_assert(!this->renderTarget.isvalid());
-		n_assert(!this->multipleRenderTarget.isvalid());
-		renderDevice->BeginPass(this->renderTargetCube, this->shader);
-	}
 	else
 	{
 		n_assert(this->useDefaultRendertarget);
 		const Ptr<CoreGraphics::RenderTarget>& defaultRt = CoreGraphics::DisplayDevice::Instance()->GetCurrentWindow()->GetRenderTarget();
 		renderDevice->BeginPass(defaultRt, this->shader);
 	}
-    if (this->shader.isvalid()) this->shader->EndUpdate();
+
+	// if we have a shader, apply its substate
+	if (this->shader.isvalid()) this->shader->Commit();
 
 	// render batches...
     IndexT batchIndex;

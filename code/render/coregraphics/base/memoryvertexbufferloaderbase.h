@@ -29,8 +29,7 @@ public:
 		SizeT vertexDataSize, 
 		CoreGraphics::VertexBuffer::Usage usage, 
 		CoreGraphics::VertexBuffer::Access access, 
-		CoreGraphics::VertexBuffer::Syncing syncing = CoreGraphics::VertexBuffer::SyncingSimple,
-		bool createLayout = true);
+		CoreGraphics::VertexBuffer::Syncing syncing = CoreGraphics::VertexBuffer::SyncingFlush);
 
 protected:
     Util::Array<CoreGraphics::VertexComponent> vertexComponents;

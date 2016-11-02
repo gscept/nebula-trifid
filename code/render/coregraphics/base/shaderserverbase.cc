@@ -9,6 +9,7 @@
 #include "io/ioserver.h"
 #include "io/textreader.h"
 #include "coregraphics/shadersemantics.h"
+#include "coregraphics/config.h"
 
 namespace Base
 {
@@ -87,7 +88,7 @@ ShaderServerBase::Open()
     // create standard shader for access to shared variables
     if (this->HasShader(ResourceId("shd:shared")))
     {
-        this->sharedVariableShader = this->GetShader("shd:shared");        
+		this->sharedVariableShader = this->GetShader("shd:shared")->CreateState({NEBULAT_DEFAULT_GROUP});
         n_assert(this->sharedVariableShader.isvalid());
 
         // get shared object id shader variable
@@ -112,6 +113,7 @@ ShaderServerBase::Close()
     // release shared instance shader
     if (this->sharedVariableShader.isvalid())
     {        
+		this->sharedVariableShader->Discard();
         this->sharedVariableShader = 0;
     } 
 
@@ -128,29 +130,58 @@ ShaderServerBase::Close()
 
 //------------------------------------------------------------------------------
 /**
-    This creates a clone of a template shader. This is the only method
-    to create a new shader object. When the shader instance is no longer
-    needed, call UnregisterShaderInstance() for proper cleanup.
+	Creates 
 */
-Ptr<ShaderInstance>
-ShaderServerBase::CreateShaderInstance(const ResourceId& resId)
+Ptr<CoreGraphics::ShaderState>
+ShaderServerBase::CreateShaderState(const Resources::ResourceId& resId, const Util::Array<IndexT>& groups, bool createResourceSet)
 {
-    n_assert(resId.IsValid());
+	n_assert(resId.IsValid());
 
-	Ptr<ShaderInstance> shaderInstance;
-    // first check if the shader is already loaded
-    if (!this->shaders.Contains(resId))
-    {
+	Ptr<ShaderState> shaderInstance;
+	// first check if the shader is already loaded
+	if (!this->shaders.Contains(resId))
+	{
 		n_error("ShaderServer: shader '%s' not found!", resId.Value());
-    }
+	}
 	else
 	{
-		shaderInstance = this->shaders[resId]->CreateShaderInstance();
+		shaderInstance = this->shaders[resId]->CreateState(groups, createResourceSet);
 	}
 
-    // create a shader instance object from the shader
-    
-    return shaderInstance;
+	// create a shader instance object from the shader
+
+	return shaderInstance;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+Ptr<CoreGraphics::ShaderState>
+ShaderServerBase::CreateSharedShaderState(const Resources::ResourceId& resId, const Util::Array<IndexT>& groups)
+{
+	n_assert(resId.IsValid());
+
+	Ptr<ShaderState> shaderInstance;
+
+	// format a signature
+	Util::String signature = resId.Value();
+	Util::Array<IndexT> sortedGroups = groups;
+	sortedGroups.Sort();
+	IndexT i;
+	for (i = 0; i < sortedGroups.Size(); i++) signature.AppendInt(sortedGroups[i]);
+
+	// if we don't have the shared state, create it, otherwise just return it
+	if (this->sharedShaderStates.Contains(signature))
+	{
+		shaderInstance = this->sharedShaderStates[signature];
+	}
+	else
+	{
+		shaderInstance = this->shaders[resId]->CreateState(groups);
+		this->sharedShaderStates.Add(signature, shaderInstance);
+	}
+
+	return shaderInstance;
 }
 
 //------------------------------------------------------------------------------

@@ -4,12 +4,12 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "constantbufferbase.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shader.h"
 #include "coregraphics/shadervariable.h"
 
 namespace Base
 {
-__ImplementClass(Base::ConstantBufferBase, 'COBB', Core::RefCounted);
+__ImplementAbstractClass(Base::ConstantBufferBase, 'COBB', CoreGraphics::StretchyBuffer);
 
 //------------------------------------------------------------------------------
 /**
@@ -21,7 +21,8 @@ ConstantBufferBase::ConstantBufferBase() :
     inUpdateSync(false),
     isDirty(false),
 	numBuffers(DefaultNumBackingBuffers),
-    buffer(0)
+    buffer(0),
+	baseOffset(0)
 {
 	// empty
 }
@@ -43,15 +44,18 @@ ConstantBufferBase::Setup(const SizeT numBackingBuffers)
     n_assert(this->size > 0);
 	n_assert(numBackingBuffers > 0);
 	this->numBuffers = numBackingBuffers;
+
+	// set free buffers
+	StretchyBuffer::SetFree(0, numBackingBuffers);
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-ConstantBufferBase::SetupFromBlockInShader(const Ptr<CoreGraphics::ShaderInstance>& shader, const Util::String& blockName, const SizeT numBackingBuffers)
+ConstantBufferBase::SetupFromBlockInShader(const Ptr<CoreGraphics::ShaderState>& shader, const Util::String& blockName, const SizeT numBackingBuffers)
 {
-    // implement in subclass
+	// implement in subclass, must call Setup at some point in implementation!
 }
 
 //------------------------------------------------------------------------------

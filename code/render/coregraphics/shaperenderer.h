@@ -53,6 +53,21 @@ public:
     virtual ~ShapeRenderer();
 };
 } // namespace CoreGraphics
+#elif __VULKAN__
+#include "coregraphics/vk/vkshaperenderer.h"
+namespace CoreGraphics
+{
+class ShapeRenderer : public Vulkan::VkShapeRenderer
+{
+    __DeclareClass(ShapeRenderer);
+    __DeclareSingleton(ShapeRenderer);
+public:
+    /// constructor
+    ShapeRenderer();
+    /// destructor
+    virtual ~ShapeRenderer();
+};
+} // namespace CoreGraphics
 #else
 #error "ShapeRenderer class not implemented on this platform!"
 #endif

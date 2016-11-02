@@ -8,7 +8,7 @@
 
 namespace CoreGraphics
 {
-#if (__DX11__ || __DX9__ || __OGL4__)
+#if (__DX11__ || __DX9__ || __OGL4__ || __VULKAN__)
 __ImplementClass(CoreGraphics::MouseRenderDevice, 'MRDV', Base::MouseRenderDeviceBase);
 __ImplementSingleton(CoreGraphics::MouseRenderDevice);
 #else

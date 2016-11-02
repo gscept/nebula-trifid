@@ -4,16 +4,18 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "shaderreadwritebufferbase.h"
+#include "../displaydevice.h"
 
 namespace Base
 {
-__ImplementClass(Base::ShaderReadWriteBufferBase, 'SHBB', Core::RefCounted);
+__ImplementAbstractClass(Base::ShaderReadWriteBufferBase, 'SHBB', CoreGraphics::StretchyBuffer);
 
 //------------------------------------------------------------------------------
 /**
 */
 ShaderReadWriteBufferBase::ShaderReadWriteBufferBase() :
 	isSetup(false),
+	lockSemaphore(0),
     bufferIndex(0)
 {
 	// empty
@@ -37,6 +39,20 @@ ShaderReadWriteBufferBase::Setup(const SizeT numBackingBuffers)
 	n_assert(this->size > 0);
 	this->isSetup = true;
 	this->numBuffers = numBackingBuffers;
+
+	// set free buffers
+	StretchyBuffer::SetFree(0, numBackingBuffers);
+
+	if (this->relativeSize)
+	{
+		// get display mode
+		const CoreGraphics::DisplayMode& mode = CoreGraphics::DisplayDevice::Instance()->GetDisplayMode();
+		this->byteSize = this->size * mode.GetWidth() * mode.GetHeight();
+	}
+	else
+	{
+		this->byteSize = this->size;
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -67,6 +83,24 @@ void
 ShaderReadWriteBufferBase::CycleBuffers()
 {
     this->bufferIndex = (this->bufferIndex + 1) % this->numBuffers;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ShaderReadWriteBufferBase::Lock()
+{
+	this->lockSemaphore++;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ShaderReadWriteBufferBase::Unlock()
+{
+	this->lockSemaphore--;
 }
 
 } // namespace Base

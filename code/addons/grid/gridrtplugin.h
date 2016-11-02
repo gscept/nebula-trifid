@@ -11,7 +11,7 @@
 #include "rendermodules/rt/rtplugin.h"
 #include "coregraphics/vertexbuffer.h"
 #include "coregraphics/indexbuffer.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shaderstate.h"
 #include "coregraphics/texture.h"
 #include "resources/managedtexture.h"
 namespace Grid
@@ -31,7 +31,9 @@ public:
 	virtual void OnUnregister();
 
 	/// called when rendering a frame batch
-	virtual void OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch);
+	void OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch);
+	/// called when rendering a frame batch
+	void OnRender(const Util::StringAtom& filter);
 
 	/// set if grid should be visible
 	void SetVisible(bool b);
@@ -49,7 +51,7 @@ private:
 	Ptr<Resources::ManagedTexture> tex;
 
 	// shader
-	Ptr<CoreGraphics::Shader> shader;
+	Ptr<CoreGraphics::ShaderState> shader;
 	Ptr<CoreGraphics::ShaderVariable> gridSizeVar;
 	Ptr<CoreGraphics::ShaderVariable> gridTexVar;
 };

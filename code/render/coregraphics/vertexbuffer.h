@@ -26,6 +26,15 @@ class VertexBuffer : public OpenGL4::OGL4VertexBuffer
 	__DeclareClass(VertexBuffer);
 };
 }
+#elif __VULKAN__
+#include "coregraphics/vk/vkvertexbuffer.h"
+namespace CoreGraphics
+{
+class VertexBuffer : public Vulkan::VkVertexBuffer
+{
+	__DeclareClass(VertexBuffer);
+};
+}
 #elif __DX9__
 #include "coregraphics/d3d9/d3d9vertexbuffer.h"
 namespace CoreGraphics

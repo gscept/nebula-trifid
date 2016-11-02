@@ -5,7 +5,7 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "coregraphics/base/shaderbase.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shaderstate.h"
 #include "coregraphics/shader.h"
 #include "coregraphics/shaderserver.h"
 #include "shaderserverbase.h"
@@ -20,7 +20,8 @@ using namespace CoreGraphics;
 /**
 */
 ShaderBase::ShaderBase() :
-    inBeginUpdate(false)
+    inBeginUpdate(false),
+	mainState(NULL)
 {
     // empty
 }
@@ -32,8 +33,6 @@ ShaderBase::~ShaderBase()
 {
     n_assert(0 == this->shaderInstances.Size());
     n_assert(this->variations.IsEmpty());
-    n_assert(this->variables.IsEmpty());
-    n_assert(this->variablesByName.IsEmpty());
 }
 
 //------------------------------------------------------------------------------
@@ -42,36 +41,37 @@ ShaderBase::~ShaderBase()
 void
 ShaderBase::Unload()
 {
+	// assume instances are empty
     n_assert(0 == this->shaderInstances.Size());
+
+	IndexT i;
+	for (i = 0; i < this->variations.Size(); i++)
+	{
+		this->variations.ValueAtIndex(i);
+	}
     this->variations.Clear();
-    IndexT i;
-    for (i = 0; i < this->variables.Size(); i++)
-    {
-        this->variables[i]->Cleanup();
-    }
-    this->variables.Clear();
-    this->variablesByName.Clear();
+
     Resource::Unload();
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-Ptr<ShaderInstance>
-ShaderBase::CreateShaderInstance()
+Ptr<CoreGraphics::ShaderState>
+ShaderBase::CreateState(const Util::Array<IndexT>& groups, bool createResourceSet)
 {
-    Ptr<ShaderInstance> newInst = ShaderInstance::Create();
-    Ptr<ShaderBase> thisPtr(this);
-    newInst->Setup(thisPtr.downcast<Shader>());
-    this->shaderInstances.Append(newInst);
-    return newInst;
+	Ptr<ShaderState> newInst = ShaderState::Create();
+	Ptr<ShaderBase> thisPtr(this);
+	newInst->Setup(thisPtr.downcast<Shader>(), groups, createResourceSet);
+	this->shaderInstances.Append(newInst);
+	return newInst;
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-ShaderBase::DiscardShaderInstance(const Ptr<ShaderInstance>& inst)
+ShaderBase::DiscardShaderInstance(const Ptr<ShaderState>& inst)
 {
     inst->Cleanup();
     IndexT i = this->shaderInstances.FindIndex(inst);

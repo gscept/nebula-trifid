@@ -18,12 +18,13 @@
 #include "coregraphics/shaderidentifier.h"
 #include "coregraphics/shaderfeature.h"
 #include "coregraphics/shadervariable.h"
-#include "../shadervariation.h"
+#include "coregraphics/shadervariation.h"
+#include "core/config.h"
 
 namespace CoreGraphics
 {
 class ShaderVariation;
-class ShaderInstance;
+class ShaderState;
 };
 
 //------------------------------------------------------------------------------
@@ -40,25 +41,23 @@ public:
 
     /// unload shader
     void Unload();
-    /// create a shader instance from this shader
-    Ptr<CoreGraphics::ShaderInstance> CreateShaderInstance();
+	/// create a shader instance from this shader implementing a subset of shader variables described by the array of sets
+	Ptr<CoreGraphics::ShaderState> CreateState(const Util::Array<IndexT>& groups, bool createResourceSet = false);
     /// discard a shader instance
-    void DiscardShaderInstance(const Ptr<CoreGraphics::ShaderInstance>& inst);
+    void DiscardShaderInstance(const Ptr<CoreGraphics::ShaderState>& inst);
     /// get all instances
-    const Util::Array<Ptr<CoreGraphics::ShaderInstance>>& GetAllShaderInstances() const;
+    const Util::Array<Ptr<CoreGraphics::ShaderState>>& GetAllShaderStates() const;
 	/// get shader name
 	const Util::StringAtom GetShaderName() const;
     /// get unique shader identifier code
     const CoreGraphics::ShaderIdentifier::Code& GetCode() const;
+	/// get the state associated with the creation of the shader
+	const Ptr<CoreGraphics::ShaderState>& GetMainState();
 
-    /// return true if the shader instance has a variable by name
-    bool HasVariableByName(const Base::ShaderVariableBase::Name& n) const;
-    /// get number of variables
-    SizeT GetNumVariables() const;
-    /// get a variable by index
-    const Ptr<CoreGraphics::ShaderVariable>& GetVariableByIndex(IndexT i) const;
-    /// get a variable by name
-    const Ptr<CoreGraphics::ShaderVariable>& GetVariableByName(const Base::ShaderVariableBase::Name& n) const;
+#if __NEBULA3_HTTP__
+	/// get the debug shader state
+	const Ptr<CoreGraphics::ShaderState>& GetDebugState();
+#endif
 
     /// return true if variation exists by matching feature mask
     bool HasVariation(CoreGraphics::ShaderFeature::Mask featureMask) const;
@@ -84,21 +83,45 @@ public:
 
 protected:
     CoreGraphics::ShaderIdentifier::Code shaderIdentifierCode;
-    Util::Array<Ptr<CoreGraphics::ShaderInstance>> shaderInstances;
+
+	Ptr<CoreGraphics::ShaderState> mainState;
+
+#if __NEBULA3_HTTP__
+	Ptr<CoreGraphics::ShaderState> debugState; // instance of shader with all variables, only to be used by debugging
+#endif
+    Util::Array<Ptr<CoreGraphics::ShaderState>> shaderInstances;
     Ptr<CoreGraphics::ShaderVariation> activeVariation;
     bool inBeginUpdate;
 	Util::StringAtom shaderName;
 
-    Util::Array<Ptr<CoreGraphics::ShaderVariable>> variables;
-    Util::Dictionary<Base::ShaderVariableBase::Name, Ptr<CoreGraphics::ShaderVariable>> variablesByName;
     Util::Dictionary<CoreGraphics::ShaderFeature::Mask, Ptr<CoreGraphics::ShaderVariation>> variations;
 };
 
 //------------------------------------------------------------------------------
 /**
 */
-inline const Util::Array<Ptr<CoreGraphics::ShaderInstance> >&
-ShaderBase::GetAllShaderInstances() const
+inline const Ptr<CoreGraphics::ShaderState>&
+ShaderBase::GetMainState()
+{
+	return this->mainState;
+}
+
+#if __NEBULA3_HTTP__
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Ptr<CoreGraphics::ShaderState>&
+ShaderBase::GetDebugState()
+{
+	return this->debugState;
+}
+#endif
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Util::Array<Ptr<CoreGraphics::ShaderState> >&
+ShaderBase::GetAllShaderStates() const
 {
     return this->shaderInstances;
 }
@@ -163,49 +186,6 @@ inline const Ptr<CoreGraphics::ShaderVariation>&
 ShaderBase::GetActiveVariation() const
 {
     return this->activeVariation;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline bool
-ShaderBase::HasVariableByName(const Base::ShaderVariableBase::Name& n) const
-{
-    return this->variablesByName.Contains(n);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline SizeT
-ShaderBase::GetNumVariables() const
-{
-    return this->variables.Size();
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline const Ptr<CoreGraphics::ShaderVariable>&
-ShaderBase::GetVariableByIndex(IndexT i) const
-{
-    return this->variables[i];
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline const Ptr<CoreGraphics::ShaderVariable>&
-ShaderBase::GetVariableByName(const CoreGraphics::ShaderVariable::Name& n) const
-{
-#if NEBULA3_DEBUG
-    if (!this->HasVariableByName(n))
-    {
-        n_error("Invalid shader variable name '%s' in shader '%s'",
-            n.Value(), this->GetResourceId().Value());
-    }
-#endif
-    return this->variablesByName[n];
 }
 
 } // namespace Base

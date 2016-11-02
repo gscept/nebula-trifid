@@ -121,22 +121,22 @@ SM50ShadowServer::Open()
 	this->spotLightPass->AddBatch(this->spotLightBatch);
 
 	// create SAT shaders
-	this->satXShader = ShaderServer::Instance()->GetShader("shd:box3taphori");
+	this->satXShader = ShaderServer::Instance()->GetShader("shd:box3taphori")->CreateState({ NEBULAT_DEFAULT_GROUP });
 	this->satXShader->GetVariableByName("SourceBuffer")->SetTexture(this->spotLightShadowMap1->GetResolveTexture());
-    this->satYShader = ShaderServer::Instance()->GetShader("shd:box3tapvert");
+	this->satYShader = ShaderServer::Instance()->GetShader("shd:box3tapvert")->CreateState({ NEBULAT_DEFAULT_GROUP });
 	this->satYShader->GetVariableByName("SourceBuffer")->SetTexture(this->spotLightShadowMap2->GetResolveTexture());
 
 	// setup sat passes
 	this->spotLightVertPass = FramePostEffect::Create();
 	this->spotLightVertPass->SetName("SATVert");
 	this->spotLightVertPass->SetRenderTarget(this->spotLightShadowMap2);
-	this->spotLightVertPass->SetShader(this->satXShader);
+	this->spotLightVertPass->SetShaderState(this->satXShader);
 	this->spotLightVertPass->Setup();
 
 	this->spotLightHoriPass = FramePostEffect::Create();
 	this->spotLightHoriPass->SetName("SATHori");
 	this->spotLightHoriPass->SetRenderTarget(this->spotLightShadowBufferAtlas);
-	this->spotLightHoriPass->SetShader(this->satYShader);
+	this->spotLightHoriPass->SetShaderState(this->satYShader);
 	this->spotLightHoriPass->Setup();
 
 #if NEBULA3_ENABLE_PROFILING
@@ -190,10 +190,11 @@ SM50ShadowServer::Open()
     this->pointLightPass->SetName("PointLightShadowPass");
 	this->pointLightPass->SetClearColor(float4(FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX));
     this->pointLightPass->AddBatch(this->pointLightBatch);
-	this->pointLightPosVar = ShaderServer::Instance()->GetShader("shd:shadow")->GetVariableByName("LightCenter");
+	this->shadowShader = ShaderServer::Instance()->GetShader("shd:shadow")->CreateState({ NEBULAT_DEFAULT_GROUP });
+	this->pointLightPosVar = this->shadowShader->GetVariableByName("LightCenter");
 
 	// load shaders for point light blur
-	this->pointLightBlur = ShaderServer::Instance()->GetShader("shd:blur_cube_rgba16_cs");
+	this->pointLightBlur = ShaderServer::Instance()->GetShader("shd:blur_cube_rgba16_cs")->CreateState({ NEBULAT_DEFAULT_GROUP });
 	this->xBlurMask = ShaderServer::Instance()->FeatureStringToMask("Alt0");
 	this->yBlurMask = ShaderServer::Instance()->FeatureStringToMask("Alt1");
 	this->pointLightBlurWrite = this->pointLightBlur->GetVariableByName("WriteImage");
@@ -259,8 +260,15 @@ SM50ShadowServer::Open()
 	this->globalLightHotPass->AddBatch(this->globalLightShadowBatch);
 
 	// get blur shader
-	this->csmBlurShader = ShaderServer::Instance()->GetShader("shd:blur_2d_rgba16_cs");
-	this->csmBlurWrite = this->csmBlurShader->GetVariableByName("WriteImage");
+	this->blurShader = ShaderServer::Instance()->GetShader("shd:csmblur")->CreateState({ NEBULAT_DEFAULT_GROUP });
+
+	// create blur pass
+	this->globalLightBlurPass = FramePostEffect::Create();
+	this->globalLightBlurPass->SetName("GlobalLightBlurPass");
+	this->globalLightBlurPass->SetRenderTarget(this->globalLightShadowBufferFinal);
+	this->globalLightBlurPass->SetShaderState(this->blurShader);
+	this->globalLightBlurPass->Setup();
+	this->blurShader->GetVariableByName("SourceMap")->SetTexture(this->globalLightShadowBuffer->GetResolveTexture());
 
 #if NEBULA3_ENABLE_PROFILING
 	{
@@ -596,7 +604,7 @@ SM50ShadowServer::UpdatePointLightShadowBuffers()
 
 		// commit and compute
 		this->pointLightBlur->Commit();
-		renderDev->Compute(numGroupsX1, numGroupsY2, 6, RenderDevice::RenderTargetAccessBarrier);
+		renderDev->Compute(numGroupsX1, numGroupsY2, 6, RenderDevice::RenderTargetAccessBarrierBits);
 
 		// blur in Y
 		this->pointLightBlur->SelectActiveVariation(this->yBlurMask);
@@ -604,7 +612,7 @@ SM50ShadowServer::UpdatePointLightShadowBuffers()
 
 		// commit and compute
 		this->pointLightBlur->Commit();
-		renderDev->Compute(numGroupsY1, numGroupsX2, 6, RenderDevice::ImageAccessBarrier);
+		renderDev->Compute(numGroupsY1, numGroupsX2, 6, RenderDevice::ImageAccessBarrierBits);
 
 		// set texture in light
 		lightEntity->SetShadowCube(cube);

@@ -2,7 +2,7 @@
 
 SET(SOURCES cJSON/cJSON.c cJSON/cJSON.h cJSON/cJSON_Utils.h cJSON/cJSON_Utils.c)
 
-SOURCE_GROUP(cjon FILES ${SOURCES})
+SOURCE_GROUP(cjson FILES ${SOURCES})
 
 add_library(cjson STATIC ${SOURCES})
 

@@ -15,6 +15,11 @@ namespace CoreGraphics
 {
 __ImplementClass(CoreGraphics::RenderTargetCube, 'RTGC', OpenGL4::OGL4RenderTargetCube);
 }
+#elif __VULKAN__
+namespace CoreGraphics
+{
+__ImplementClass(CoreGraphics::RenderTargetCube, 'RTGC', Vulkan::VkRenderTargetCube);
+}
 #elif __DX9__
 namespace CoreGraphics
 {

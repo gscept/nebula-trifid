@@ -7,11 +7,13 @@
 #include "characters/characternodeinstance.h"
 #include "characters/characternode.h"
 #include "characters/characterserver.h"
+#include "models/modelinstance.h"
 
 namespace Characters
 {
 __ImplementClass(Characters::CharacterNodeInstance, 'CHNI', Models::TransformNodeInstance);
 
+using namespace Math;
 using namespace Models;
 using namespace Util;
 
@@ -46,6 +48,7 @@ CharacterNodeInstance::Setup(const Ptr<ModelInstance>& inst, const Ptr<ModelNode
     this->charInstance = CharacterInstance::Create();
     const Ptr<CharacterNode>& charNode = node.downcast<CharacterNode>();
     const Ptr<Character> myCharacter = charNode->GetCharacter();
+	this->diagonalSize = (int)this->GetModelInstance()->GetModel()->GetBoundingBox().diagonal_size() * 5;
     this->charInstance->Setup(myCharacter, inst);
 }
 
@@ -75,7 +78,7 @@ CharacterNodeInstance::OnNotifyCullingVisible(IndexT frameIndex, Timing::Time ti
     TransformNodeInstance::OnNotifyCullingVisible(frameIndex, time);
 
     // notify the character server
-    CharacterServer::Instance()->GatherVisibleCharacter(this->charInstance, time);
+    if (this->updateThisFrame) CharacterServer::Instance()->GatherVisibleCharacter(this->charInstance, time);
 }
 
 //------------------------------------------------------------------------------
@@ -86,6 +89,19 @@ CharacterNodeInstance::RenderDebug()
 {
     TransformNodeInstance::RenderDebug();
     this->charInstance->RenderDebug(this->modelTransform);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+CharacterNodeInstance::OnVisibilityResolve(IndexT frameIndex, IndexT resolveIndex, float distanceToViewer)
+{
+	TransformNodeInstance::OnVisibilityResolve(frameIndex, resolveIndex, distanceToViewer);
+	
+	// use diagonal size to determine if the character should be updated this frame
+	int lod = n_max((int)distanceToViewer, this->diagonalSize) / this->diagonalSize;
+	this->updateThisFrame = (frameIndex % lod == 0);
 }
 
 } // namespace Characters

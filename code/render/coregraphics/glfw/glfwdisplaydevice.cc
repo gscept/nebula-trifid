@@ -6,8 +6,9 @@
 #include "stdneb.h"
 #include "coregraphics/config.h"
 #include "coregraphics/glfw/glfwdisplaydevice.h"
-#include "coregraphics/ogl4/ogl4renderdevice.h"
+#if __OGL4__
 #include "coregraphics/ogl4/ogl4types.h"
+#endif
 #include "coregraphics/renderdevice.h"
 #include "GLFW/glfw3native.h"
 #include <GLFW/glfw3.h>

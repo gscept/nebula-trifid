@@ -26,6 +26,15 @@ class StreamMeshLoader : public OpenGL4::OGL4StreamMeshLoader
 	__DeclareClass(StreamMeshLoader);
 };
 }
+#elif __VULKAN__
+#include "coregraphics/vk/vkstreammeshloader.h"
+namespace CoreGraphics
+{
+class StreamMeshLoader : public Vulkan::VkStreamMeshLoader
+{
+	__DeclareClass(StreamMeshLoader);
+};
+}
 #elif __DX9__
 #include "coregraphics/win360/d3d9streammeshloader.h"
 namespace CoreGraphics

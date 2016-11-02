@@ -12,10 +12,19 @@
 #include "coregraphics/ogl4/ogl4shaderimage.h"
 namespace CoreGraphics
 {
-	class ShaderReadWriteTexture : public OpenGL4::OGL4ShaderImage
-	{
-		__DeclareClass(ShaderReadWriteTexture);
-	};
+class ShaderReadWriteTexture : public OpenGL4::OGL4ShaderImage
+{
+	__DeclareClass(ShaderReadWriteTexture);
+};
+}
+#elif __VULKAN__
+#include "coregraphics/vk/vkshaderimage.h"
+namespace CoreGraphics
+{
+class ShaderReadWriteTexture : public Vulkan::VkShaderImage
+{
+	__DeclareClass(ShaderReadWriteTexture);
+};
 }
 #else
 #error "ShaderReadWriteTexture class not implemented on this platform!"

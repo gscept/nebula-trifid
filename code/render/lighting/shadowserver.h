@@ -9,11 +9,39 @@
     (C) 2007 Radon Labs GmbH
     (C) 2013-2016 Individual contributors, see AUTHORS file
 */
-#if (__DX11__ || __OGL4__)
-#include "lighting/sm50/sm50shadowserver.h"
+#if __VULKAN__
+#include "lighting/vk/vkshadowserver.h"
 namespace Lighting
 {
-class ShadowServer : public SM50ShadowServer
+class ShadowServer : public VkShadowServer
+{
+	__DeclareClass(ShadowServer);
+	__DeclareSingleton(ShadowServer);
+public:
+	/// constructor
+	ShadowServer();
+	/// destructor
+	virtual ~ShadowServer();
+};
+} // namespace Lighting
+#elif __OGL4__
+namespace Lighting
+{
+class ShadowServer : public OGL4ShadowServer
+{
+	__DeclareClass(ShadowServer);
+	__DeclareSingleton(ShadowServer);
+public:
+	/// constructor
+	ShadowServer();
+	/// destructor
+	virtual ~ShadowServer();
+};
+} // namespace Lighting
+#elif __DX11__
+namespace Lighting
+{
+class ShadowServer : public D3D11ShadowServer
 {
 	__DeclareClass(ShadowServer);
 	__DeclareSingleton(ShadowServer);
@@ -25,10 +53,10 @@ public:
 };
 } // namespace Lighting
 #elif __DX9__
-#include "lighting/sm30/sm30shadowserver.h"
+#include "lighting/d3d9/d3d9shadowserver.h"
 namespace Lighting
 {
-class ShadowServer : public SM30ShadowServer
+class ShadowServer : public D3D9ShadowServer
 {
     __DeclareClass(ShadowServer);
     __DeclareSingleton(ShadowServer);

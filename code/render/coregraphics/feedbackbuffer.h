@@ -16,6 +16,15 @@ class FeedbackBuffer : public OpenGL4::OGL4FeedbackBuffer
 	__DeclareClass(FeedbackBuffer);
 };
 }
+#elif __VULKAN__
+#include "coregraphics/vk/vkfeedbackbuffer.h"
+namespace CoreGraphics
+{
+class FeedbackBuffer : public Vulkan::VkFeedbackBuffer
+{
+	__DeclareClass(FeedbackBuffer);
+};
+}
 #else
 #error "FeedbackBuffer class not implemented on this platform!"
 #endif

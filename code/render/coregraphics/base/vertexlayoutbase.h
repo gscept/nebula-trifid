@@ -28,6 +28,9 @@ class VertexLayoutBase : public Core::RefCounted
 {
     __DeclareClass(VertexLayoutBase);
 public:
+	/// max number of vertex streams
+	static const IndexT MaxNumVertexStreams = 2;
+
     /// constructor
     VertexLayoutBase();
     /// destructor
@@ -35,6 +38,8 @@ public:
     
     /// setup the vertex layout
     void Setup(const Util::Array<CoreGraphics::VertexComponent>& c);
+	/// discard the vertex layout object
+	void Discard();
     /// return true if valid has been setup
     bool IsValid() const;
 
@@ -59,14 +64,14 @@ public:
 protected:
     friend class VertexLayoutServerBase;
 
-    /// discard the vertex layout object
-    void Discard();
     /// get sharing signature for a set of vertex components
     static Util::String BuildSignature(const Util::Array<CoreGraphics::VertexComponent>& c);
 
 	Ptr<CoreGraphics::VertexBuffer> vertexStreams[2];
     Util::Array<CoreGraphics::VertexComponent> components;
     SizeT vertexByteSize;
+	SizeT numUsedStreams;
+	bool usedStreams[MaxNumVertexStreams];
 };
 
 //------------------------------------------------------------------------------

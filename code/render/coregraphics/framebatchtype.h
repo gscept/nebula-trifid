@@ -37,6 +37,7 @@ public:
 		LightProbes,		// render light probes
         WiiHBM,             // wii home button menu
         WiiPanel,           // wii render to texture
+		System,				// called by the system
     
         InvalidBatchType
     };

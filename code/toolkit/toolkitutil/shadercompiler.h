@@ -67,6 +67,8 @@ private:
     bool CompileHLSL(const Util::String& srcPath);
 	/// compiles shaders for glsl
 	bool CompileGLSL(const Util::String& srcPath);
+	/// compiles shaders for SPIRV
+	bool CompileSPIRV(const Util::String& srcPath);
 	/// write shader dictionary
 	bool WriteShaderDictionary();
 

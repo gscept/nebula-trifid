@@ -21,6 +21,11 @@ namespace Resources
 {
   __ImplementClass(Resources::TextureCreator, 'TXCT', Resources::OGL4TextureCreator);
 }
+#elif __VULKAN__
+namespace Resources
+{
+  __ImplementClass(Resources::TextureCreator, 'TXCT', Vulkan::VkTextureCreator);
+}
 #else
 #error "TextureCreator class not implemented on this platform!"
 #endif

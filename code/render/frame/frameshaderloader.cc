@@ -28,9 +28,10 @@
 #include "frameserver.h"
 #include "framealgorithm.h"
 #include "core/factory.h"
-#include "algorithm/algorithmbase.h"
-#include "algorithm/algorithms.h"
+#include "algorithm/attic/algorithmbase.h"
+#include "algorithm/attic/algorithms.h"
 #include "frametexclear.h"
+#include "coregraphics/config.h"
 
 namespace Frame
 {
@@ -102,7 +103,7 @@ FrameShaderLoader::ParseFrameShader(const Ptr<BXmlReader>& xmlReader, const Ptr<
     // parse texture declarations
     if (xmlReader->SetToFirstChild("DeclareTexture")) do
     {
-        ParseTexture(xmlReader, frameShader);
+        ParseReadWriteTexture(xmlReader, frameShader);
     }
     while (xmlReader->SetToNextChild("DeclareTexture"));
 
@@ -114,7 +115,8 @@ FrameShaderLoader::ParseFrameShader(const Ptr<BXmlReader>& xmlReader, const Ptr<
     while (xmlReader->SetToNextChild("DeclareMRT"));
 
     // parse frame passes and post effects, no other child types allowed from here!
-    if (xmlReader->SetToFirstChild("Pass") || 
+    if (xmlReader->SetToFirstChild("GlobalState") ||
+		xmlReader->SetToFirstChild("Pass") || 
 		xmlReader->SetToFirstChild("PostEffect") ||
 		xmlReader->SetToFirstChild("Lights") ||
 		xmlReader->SetToFirstChild("Text") ||
@@ -123,7 +125,11 @@ FrameShaderLoader::ParseFrameShader(const Ptr<BXmlReader>& xmlReader, const Ptr<
 		xmlReader->SetToFirstChild("Compute") ||
 		xmlReader->SetToFirstChild("Clear")) do
     {
-        if (xmlReader->GetCurrentNodeName() == "Pass")
+		if (xmlReader->GetCurrentNodeName() == "GlobalState")
+		{
+			ParseFrameGlobalState(xmlReader, frameShader);
+		}
+        else if (xmlReader->GetCurrentNodeName() == "Pass")
         {
             ParseFramePass(xmlReader, frameShader);
         }
@@ -321,41 +327,41 @@ FrameShaderLoader::ParseDepthStencilTarget(const Ptr<IO::BXmlReader>& xmlReader,
 /**
 */
 void
-FrameShaderLoader::ParseShaderVariableInstance(const Ptr<BXmlReader>& xmlReader, const Ptr<Shader>& shd, const Ptr<FramePassBase>& pass)
+FrameShaderLoader::ParseShaderVariableValue(const Ptr<XmlReader>& xmlReader, const Ptr<ShaderState>& shd, const Ptr<FramePassBase>& pass)
 {
     /// create a shader variable instance by semantic
     String name = xmlReader->GetString("sem");
 	const Ptr<ShaderVariable>& shdVar = shd->GetVariableByName(name);
-	Ptr<ShaderVariableInstance> shdVarInst = shdVar->CreateInstance();
 
 	/// get the default value of the shader variable
 	String valueStr = xmlReader->GetString("value");
-	switch (shdVarInst->GetShaderVariable()->GetType())
+	switch (shdVar->GetType())
 	{
 	case ShaderVariable::IntType:
-		shdVarInst->SetInt(valueStr.AsInt());
+		shdVar->SetInt(valueStr.AsInt());
 		break;
 
 	case ShaderVariable::FloatType:
-		shdVarInst->SetFloat(valueStr.AsFloat());
+		shdVar->SetFloat(valueStr.AsFloat());
 		break;
 
 	case ShaderVariable::VectorType:
-		shdVarInst->SetFloat4(valueStr.AsFloat4());
+		shdVar->SetFloat4(valueStr.AsFloat4());
 		break;
 
 	case ShaderVariable::Vector2Type:
-		shdVarInst->SetFloat2(valueStr.AsFloat2());
+		shdVar->SetFloat2(valueStr.AsFloat2());
 		break;
 
 	case ShaderVariable::MatrixType:
-		shdVarInst->SetMatrix(valueStr.AsMatrix44());
+		shdVar->SetMatrix(valueStr.AsMatrix44());
 		break;
 
 	case ShaderVariable::BoolType:
-		shdVarInst->SetBool(valueStr.AsBool());
+		shdVar->SetBool(valueStr.AsBool());
 		break;
 
+	case ShaderVariable::SamplerType:
 	case ShaderVariable::TextureType:
 		{                  
 			// rendertargets names are also theory resource ids, texture have a name -> resourceid mapping
@@ -363,26 +369,41 @@ FrameShaderLoader::ParseShaderVariableInstance(const Ptr<BXmlReader>& xmlReader,
             if (resManager->HasResource(valueStr))
             {
                 const Ptr<Resource>& resource = resManager->LookupResource(valueStr);
-				shdVarInst->SetTexture(resource.downcast<Texture>());
+				shdVar->SetTexture(resource.downcast<Texture>());
             }
+			else
+			{
+				const Ptr<ManagedResource>& resource = resManager->CreateManagedResource(Texture::RTTI, valueStr);
+				shdVar->SetTexture(resource.downcast<ManagedTexture>()->GetTexture());
+			}
 		}
 		break;
 
+	case ShaderVariable::ImageReadWriteType:
+		{                  
+			// rendertargets names are also theory resource ids, texture have a name -> resourceid mapping
+			const Ptr<ResourceManager>& resManager = ResourceManager::Instance();
+            if (resManager->HasResource(valueStr))
+            {
+                const Ptr<Resource>& resource = resManager->LookupResource(valueStr);
+				shdVar->SetShaderReadWriteTexture(resource.downcast<Texture>());
+            }
+		}
+		break;
 	default:
 		n_error("FrameShaderLoader::ParseShaderVariableInstance(): invalid shader variable type!\n");
 		break;
 	}
 	
 	// add variable
-	pass->AddVariable(name, shdVarInst);
-   
+	pass->AddVariable(name, shdVar);   
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-FrameShaderLoader::ParseShaderVariableInstance(const Ptr<IO::BXmlReader>& xmlReader, const Ptr<FrameBatch>& batch)
+FrameShaderLoader::ParseShaderVariableValue(const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameBatch>& batch)
 {
 	/// create a shader variable instance by semantic
 	String semantic = xmlReader->GetString("sem");
@@ -442,7 +463,16 @@ FrameShaderLoader::ParseShaderVariableInstance(const Ptr<IO::BXmlReader>& xmlRea
 /**
 */
 void
-FrameShaderLoader::ParseFramePass(const Ptr<BXmlReader>& xmlReader, const Ptr<FrameShader>& frameShader)
+FrameShaderLoader::ParseFrameGlobalState(const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader)
+{
+
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+FrameShaderLoader::ParseFramePass(const Ptr<XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader)
 {
     // create frame pass, optionally of requested class (default is FramePass)
     String framePassClass = xmlReader->GetOptString("class", "Frame::FramePass");
@@ -452,18 +482,18 @@ FrameShaderLoader::ParseFramePass(const Ptr<BXmlReader>& xmlReader, const Ptr<Fr
 	// get name
 	framePass->SetName(xmlReader->GetString("name"));
 
-	Ptr<ShaderInstance> shader = NULL;
+	Ptr<ShaderState> shader = NULL;
 	if (xmlReader->HasAttr("shader"))
 	{
 		// setup the pass shader
 		ResourceId shdResId = ResourceId("shd:" + xmlReader->GetString("shader"));
-        Ptr<Shader> shader = ShaderServer::Instance()->GetShader(shdResId);
-		framePass->SetShader(shader);
+		Ptr<ShaderState> shader = ShaderServer::Instance()->CreateShaderState(shdResId, { NEBULAT_DEFAULT_GROUP } );
+		framePass->SetShaderState(shader);
 
 		// add shader variable instances
 		if (xmlReader->SetToFirstChild("ApplyShaderVariable")) do
 		{
-			ParseShaderVariableInstance(xmlReader, shader, framePass.upcast<FramePassBase>());
+			ParseShaderVariableValue(xmlReader, shader, framePass.upcast<FramePassBase>());
 		}
 		while (xmlReader->SetToNextChild("ApplyShaderVariable"));
 	}	
@@ -520,11 +550,6 @@ FrameShaderLoader::ParseFramePass(const Ptr<BXmlReader>& xmlReader, const Ptr<Fr
         } 
     }
 
-    if (useDefaultRendertarget)
-    {
-		framePass->SetDefaultRenderTarget(useDefaultRendertarget);
-    }
-
     // setup the clear color, depth and stencil (if defined)
     uint clearFlags = 0;
     if (xmlReader->HasAttr("clearColor"))
@@ -572,14 +597,14 @@ FrameShaderLoader::ParseFrameCompute(const Ptr<IO::BXmlReader>& xmlReader, const
 
     // setup the pass shader
     ResourceId shdResId = ResourceId("shd:" + xmlReader->GetString("shader"));
-    Ptr<Shader> shader = ShaderServer::Instance()->GetShader(shdResId);
-    frameComp->SetShader(shader);
+	Ptr<ShaderState> shader = ShaderServer::Instance()->CreateShaderState(shdResId, { NEBULAT_DEFAULT_GROUP } );
+    frameComp->SetShaderState(shader);
 	frameComp->SetName(xmlReader->GetString("name"));
 
     // add shader variable instances
     if (xmlReader->SetToFirstChild("ApplyShaderVariable")) do
     {
-        ParseShaderVariableInstance(xmlReader, shader, frameComp.upcast<FramePassBase>());
+        ParseShaderVariableValue(xmlReader, shader, frameComp.upcast<FramePassBase>());
     }
     while (xmlReader->SetToNextChild("ApplyShaderVariable"));
 
@@ -742,7 +767,7 @@ FrameShaderLoader::ParseFrameBatch(const Ptr<BXmlReader>& xmlReader, const Util:
     // add shader variable instances
     if (xmlReader->SetToFirstChild("ApplyShaderVariable")) do
     {
-		ParseShaderVariableInstance(xmlReader, frameBatch);
+		ParseShaderVariableValue(xmlReader, frameBatch);
     }
     while (xmlReader->SetToNextChild("ApplyShaderVariable"));
 
@@ -773,8 +798,11 @@ FrameShaderLoader::ParsePostEffect(const Ptr<BXmlReader>& xmlReader, const Ptr<F
 
     // setup the pass shader
     ResourceId shdResId = ResourceId("shd:" + xmlReader->GetString("shader"));
-    Ptr<Shader> shader = ShaderServer::Instance()->GetShader(shdResId);
-    framePostEffect->SetShader(shader);
+
+	// heh, throw one away into the ether
+	Ptr<ShaderState> shader = ShaderServer::Instance()->CreateShaderState(shdResId, { NEBULAT_DEFAULT_GROUP });
+	//Ptr<ShaderState> shader = ShaderServer::Instance()->GetShader(shdResId)->GetMainState();
+    framePostEffect->SetShaderState(shader);
 
     // setup the render target (if not render to default render target)
     bool useDefaultRendertarget = true;
@@ -805,17 +833,11 @@ FrameShaderLoader::ParsePostEffect(const Ptr<BXmlReader>& xmlReader, const Ptr<F
         }
         else
         {
-            n_error("FrameShaderLoader: mutliple render target '%s' not declared (%s, node %s)",
+            n_error("FrameShaderLoader: multiple render target '%s' not declared (%s, line %d)",
                 rtName.AsCharPtr(),
                 xmlReader->GetStream()->GetURI().AsString().AsCharPtr(), 
 				xmlReader->GetCurrentNodeName().AsCharPtr());
         } 
-    }
-
-    if (useDefaultRendertarget)
-    {
-		framePostEffect->SetDefaultRenderTarget(useDefaultRendertarget);
-		//framePostEffect->SetRenderTarget(DisplayDevice::Instance()->GetCurrentWindow()->GetRenderTarget());
     }
 
 	int clearFlags = 0;
@@ -832,7 +854,7 @@ FrameShaderLoader::ParsePostEffect(const Ptr<BXmlReader>& xmlReader, const Ptr<F
     {
 		if (shader->HasVariableByName(xmlReader->GetString("sem")))
 		{
-			ParseShaderVariableInstance(xmlReader, shader, framePostEffect.upcast<FramePassBase>());
+			ParseShaderVariableValue(xmlReader, shader, framePostEffect.upcast<FramePassBase>());
 		}
     }
     while (xmlReader->SetToNextChild("ApplyShaderVariable"));
@@ -925,6 +947,8 @@ FrameShaderLoader::ParseMultipleRenderTarget(const Ptr<IO::BXmlReader>& xmlReade
         }   
     }
     while (xmlReader->SetToNextChild("RenderTarget"));
+
+	multipleRenderTarget->Setup();
     frameShader->AddMultipleRenderTarget(name, multipleRenderTarget);
 }
 
@@ -932,7 +956,7 @@ FrameShaderLoader::ParseMultipleRenderTarget(const Ptr<IO::BXmlReader>& xmlReade
 /** 
 */
 void 
-FrameShaderLoader::ParseTexture(const Ptr<IO::BXmlReader>& xmlReader, const Ptr<FrameShader>& frameShader)
+FrameShaderLoader::ParseReadWriteTexture(const Ptr<IO::XmlReader>& xmlReader, const Ptr<FrameShader>& frameShader)
 {
     n_assert(DisplayDevice::Instance()->IsOpen());
 
@@ -951,8 +975,7 @@ FrameShaderLoader::ParseTexture(const Ptr<IO::BXmlReader>& xmlReader, const Ptr<
 	{
 		n_error("Frame shader texture must have either relative or fixed heights and widths");
 	}
-	frameShader->AddTexture(name, texture);
+	frameShader->AddReadWriteTexture(name, texture);
 }
-
 
 } // namespace Frame

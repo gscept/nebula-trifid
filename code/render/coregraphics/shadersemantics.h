@@ -11,7 +11,7 @@
 #include "core/types.h"
 
 //------------------------------------------------------------------------------
-#if (__DX11__ || __OGL4__)
+#if (__DX11__ || __OGL4__ || __VULKAN__)
 #define NEBULA3_SEMANTIC_CHARACTERINDEX             "CharacterIndex"
 #define NEBULA3_SEMANTIC_JOINTPALETTE               "JointPalette"
 #define NEBULA3_SEMANTIC_JOINTBUFFER				"JointBuffer"

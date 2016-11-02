@@ -48,6 +48,8 @@ public:
     Array(SizeT initialSize, SizeT initialGrow, const TYPE& initialValue);
     /// copy constructor
     Array(const Array<TYPE>& rhs);
+	/// constructor from initializer list
+	Array(std::initializer_list<TYPE> list);
     /// destructor
     ~Array();
 
@@ -203,6 +205,30 @@ Array<TYPE>::Array(SizeT initialSize, SizeT _grow, const TYPE& initialValue) :
     {
         this->elements = 0;
     }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+template<class TYPE>
+Util::Array<TYPE>::Array(std::initializer_list<TYPE> list) :
+	grow(16),
+	capacity(list.size()),
+	size(list.size())
+{
+	if (this->capacity > 0)
+	{
+		this->elements = n_new_array(TYPE, this->capacity);
+		IndexT i;
+		for (i = 0; i < this->size; i++)
+		{
+			this->elements[i] = list.begin()[i];
+		}
+	}
+	else
+	{
+		this->elements = 0;
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -672,7 +698,7 @@ Array<TYPE>::EraseSwap(typename Array<TYPE>::Iterator iter)
     #if NEBULA3_BOUNDSCHECKS
     n_assert(this->elements && (iter >= this->elements) && (iter < (this->elements + this->size)));
     #endif
-    this->EraseSwapIndex(IndexT(iter - this->elements));
+	this->EraseIndexSwap(IndexT(iter - this->elements));
     return iter;
 }
 

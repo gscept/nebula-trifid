@@ -63,12 +63,25 @@ ImguiRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
 /**
 */
 void
+ImguiRTPlugin::OnRender(const Util::StringAtom& filter)
+{
+	n_assert(this->renderer.isvalid());
+	static const Util::StringAtom identifier = "UI";
+	if (filter == identifier)
+	{
+		this->renderer->Render();
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 ImguiRTPlugin::OnWindowResized(IndexT windowId, SizeT width, SizeT height)
 {
 	n_assert(this->renderer.isvalid());
 	this->renderer->SetRectSize(width, height);
 }
-
 
 
 } // namespace Imgui

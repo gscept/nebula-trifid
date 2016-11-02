@@ -50,14 +50,14 @@ ParticleSystemNodeInstance::~ParticleSystemNodeInstance()
 /**
 */
 void 
-ParticleSystemNodeInstance::OnVisibilityResolve(IndexT resolveIndex, float distanceToViewer)
+ParticleSystemNodeInstance::OnVisibilityResolve(IndexT frameIndex, IndexT resolveIndex, float distanceToViewer)
 {
     // check if node is inside lod distances or if no lod is used
     const Ptr<TransformNode>& transformNode = this->modelNode.downcast<TransformNode>();
     if (transformNode->CheckLodDistance(distanceToViewer))
     {
 		this->modelNode->AddVisibleNodeInstance(resolveIndex, this->surfaceInstance->GetCode(), this);
-        ModelNodeInstance::OnVisibilityResolve(resolveIndex, distanceToViewer);
+        ModelNodeInstance::OnVisibilityResolve(frameIndex, resolveIndex, distanceToViewer);
     }
 }
 
@@ -90,20 +90,16 @@ ParticleSystemNodeInstance::Setup(const Ptr<ModelInstance>& inst, const Ptr<Mode
 	// setup and start particle system
     this->particleSystemInstance->Setup(emitterMesh, particleSystemNode->GetPrimitiveGroupIndex(), particleSystemNode->GetEmitterAttrs());
 	this->particleSystemInstance->Start();
-	
 
 #if SHADER_MODEL_5
 	ShaderServer* shdServer = ShaderServer::Instance();
-	this->particleShader = shdServer->GetShader("shd:particle");
-	this->particleObjectBuffer = ConstantBuffer::Create();
-	this->particleObjectBuffer->SetupFromBlockInShader(this->particleShader, "ParticleObjectBlock");
-	this->emitterOrientationVar = this->particleObjectBuffer->GetVariableByName(NEBULA3_SEMANTIC_EMITTERTRANSFORM);
-	this->billBoardVar = this->particleObjectBuffer->GetVariableByName(NEBULA3_SEMANTIC_BILLBOARD);
-	this->bboxCenterVar = this->particleObjectBuffer->GetVariableByName(NEBULA3_SEMANTIC_BBOXCENTER);
-	this->bboxSizeVar = this->particleObjectBuffer->GetVariableByName(NEBULA3_SEMANTIC_BBOXSIZE);
-	this->animPhasesVar = this->particleObjectBuffer->GetVariableByName(NEBULA3_SEMANTIC_ANIMPHASES);
-	this->animsPerSecVar = this->particleObjectBuffer->GetVariableByName(NEBULA3_SEMANTIC_ANIMSPERSEC);
-	this->particleObjectBufferVar = this->particleShader->GetVariableByName("ParticleObjectBlock");
+	this->particleShader = shdServer->CreateShaderState("shd:particle", { NEBULAT_SYSTEM_GROUP });
+	this->emitterOrientationVar = this->particleShader->GetVariableByName(NEBULA3_SEMANTIC_EMITTERTRANSFORM);
+	this->billBoardVar = this->particleShader->GetVariableByName(NEBULA3_SEMANTIC_BILLBOARD);
+	this->bboxCenterVar = this->particleShader->GetVariableByName(NEBULA3_SEMANTIC_BBOXCENTER);
+	this->bboxSizeVar = this->particleShader->GetVariableByName(NEBULA3_SEMANTIC_BBOXSIZE);
+	this->animPhasesVar = this->particleShader->GetVariableByName(NEBULA3_SEMANTIC_ANIMPHASES);
+	this->animsPerSecVar = this->particleShader->GetVariableByName(NEBULA3_SEMANTIC_ANIMSPERSEC);
 #else
 	if (this->surfaceInstance->HasConstant(NEBULA3_SEMANTIC_EMITTERTRANSFORM))
 	{
@@ -177,9 +173,6 @@ ParticleSystemNodeInstance::Discard()
     // discard material clone
 	//this->surfaceClone->Unload();
 	this->particleShader = 0;
-	this->particleObjectBufferVar->SetBufferHandle(NULL);
-	this->particleObjectBufferVar = 0;
-	this->particleObjectBuffer->Discard();
 	this->emitterOrientationVar = 0;
 	this->billBoardVar = 0;
 	this->bboxCenterVar = 0;
@@ -269,7 +262,7 @@ ParticleSystemNodeInstance::OnRenderBefore(IndexT frameIndex, Timing::Time time)
 /**
 */
 void
-ParticleSystemNodeInstance::ApplyState(IndexT frameIndex, const IndexT& pass, const Ptr<CoreGraphics::Shader>& shader)
+ParticleSystemNodeInstance::ApplyState(IndexT frameIndex, const IndexT& pass)
 {
 	const Ptr<Particles::ParticleSystemInstance>& inst = this->GetParticleSystemInstance();
 	const Ptr<Particles::ParticleSystem>& system = inst->GetParticleSystem();
@@ -279,7 +272,6 @@ ParticleSystemNodeInstance::ApplyState(IndexT frameIndex, const IndexT& pass, co
 	if (this->particleObjectBufferIndex != frameIndex)
 	{
 		// apply transforms
-		this->particleObjectBuffer->CycleBuffers();
 		if (billboard)
 		{
 			const Math::matrix44 billboardTransform = Math::matrix44::multiply(this->GetParticleSystemInstance()->GetTransform(), TransformDevice::Instance()->GetInvViewTransform());
@@ -297,7 +289,7 @@ ParticleSystemNodeInstance::ApplyState(IndexT frameIndex, const IndexT& pass, co
 		this->billBoardVar->SetBool(billboard);
 		this->particleObjectBufferIndex = frameIndex;
 	}
-	this->particleObjectBufferVar->SetBufferHandle(this->particleObjectBuffer->GetHandle());
+	this->particleShader->Commit();
 #else
 	// set variables
 	if (billboard)
@@ -319,7 +311,7 @@ ParticleSystemNodeInstance::ApplyState(IndexT frameIndex, const IndexT& pass, co
 #endif
 
 	// call base class (applies time)
-    StateNodeInstance::ApplyState(frameIndex, pass, shader);
+    StateNodeInstance::ApplyState(frameIndex, pass);
 }
 
 //------------------------------------------------------------------------------
@@ -328,7 +320,10 @@ ParticleSystemNodeInstance::ApplyState(IndexT frameIndex, const IndexT& pass, co
 void 
 ParticleSystemNodeInstance::Render()
 {
+	// call base class
     StateNodeInstance::Render();
+
+	// render particle system
     ParticleRenderer::Instance()->RenderParticleSystem(this->particleSystemInstance);
 }
 

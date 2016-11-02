@@ -10,7 +10,7 @@
 #include "lighting/base/lightserverbase.h"
 #include "graphics/pointlightentity.h"
 #include "graphics/spotlightentity.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shaderstate.h"
 #include "resources/managedmesh.h"
 #include "resources/managedtexture.h"
 #include "renderutil/drawfullscreenquad.h"
@@ -89,8 +89,8 @@ protected:
 
 	Ptr<Frame::FrameShader> godRayFrameShader;
 
-	Ptr<CoreGraphics::Shader> lightShader;
-	Ptr<CoreGraphics::Shader> lightProbeShader;
+	Ptr<CoreGraphics::ShaderState> lightShader;
+	Ptr<CoreGraphics::ShaderState> lightProbeShader;
 	Ptr<Resources::ManagedTexture> lightProjMap; 
 
 	/// global light variables

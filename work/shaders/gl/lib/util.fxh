@@ -219,8 +219,8 @@ DecodeHDR4(in vec4 rgba)
 const float MiddleGrey = 0.5f; 
 const float Key = 0.3f;
 float MaxLuminance = 1.0f; 
-//const vec4 Luminance = vec4(0.2126f, 0.7152f, 0.0722f, 0.0f);
-const vec4 Luminance = vec4(0.299f, 0.587f, 0.114f, 0.0f);
+const vec4 Luminance = vec4(0.2126f, 0.7152f, 0.0722f, 0.0f);
+//const vec4 Luminance = vec4(0.299f, 0.587f, 0.114f, 0.0f);
 
 
 //------------------------------------------------------------------------------
@@ -349,10 +349,10 @@ vec4 PackViewSpaceNormal(in vec3 viewSpaceNormal)
 
     // use Stereographic Projection, to avoid saveing a sign bit
     // see http://aras-p.info/texts/CompactNormalStorage.html for further info
-    const float scale = 1.7777;
-    vec2 enc = viewSpaceNormal.xy / (viewSpaceNormal.z+1);
+    const float scale = 1.7777f;
+    vec2 enc = viewSpaceNormal.xy / (viewSpaceNormal.z+1.0f);
     enc /= scale;
-    enc = enc * 0.5 + 0.5;
+    enc = enc * 0.5f + 0.5f;
     
     // pack normal x and y
     vec4 normal = pack_normalxy_into_rgba8(enc.x, enc.y);
@@ -370,12 +370,12 @@ UnpackViewSpaceNormal(in vec4 packedDataValue)
     vec4 unpackedData = unpack_normalxy_from_rgba8(packedDataValue);
     
     // packedDataValue is vec4, with .rg containing encoded normal
-    const float scale = 1.7777;
-    vec3 nn = unpackedData.xyz * vec3(2 * scale, 2 * scale, 0) + vec3(-scale, -scale, 1);
-    float g = 2.0 / dot(nn.xyz, nn.xyz);
+    const float scale = 1.7777f;
+    vec3 nn = unpackedData.xyz * vec3(2.0f * scale, 2.0f * scale, 0.0f) + vec3(-scale, -scale, 1.0f);
+    float g = 2.0f / dot(nn.xyz, nn.xyz);
     vec3 outViewSpaceNormal;
     outViewSpaceNormal.xy = g * nn.xy;
-    outViewSpaceNormal.z = g - 1;    
+    outViewSpaceNormal.z = g - 1.0f;
     return outViewSpaceNormal;
 }
 

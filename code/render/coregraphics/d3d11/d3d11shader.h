@@ -13,7 +13,7 @@
 //------------------------------------------------------------------------------
 #include "util/blob.h"
 #include "coregraphics/base/shaderbase.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shaderstate.h"
 
 
 namespace Direct3D11

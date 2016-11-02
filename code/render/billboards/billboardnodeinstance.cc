@@ -47,22 +47,22 @@ BillboardNodeInstance::~BillboardNodeInstance()
 /**
 */
 void
-BillboardNodeInstance::OnVisibilityResolve(IndexT resolveIndex, float distToViewer)
+BillboardNodeInstance::OnVisibilityResolve(IndexT frameIndex, IndexT resolveIndex, float distToViewer)
 {
 	// check if node is inside lod distances or if no lod is used
 	const Ptr<TransformNode>& transformNode = this->modelNode.downcast<TransformNode>();
 	if (transformNode->CheckLodDistance(distToViewer))
 	{
         this->modelNode->AddVisibleNodeInstance(resolveIndex, this->surfaceInstance->GetCode(), this);
-		ModelNodeInstance::OnVisibilityResolve(resolveIndex, distToViewer);
+		ModelNodeInstance::OnVisibilityResolve(frameIndex, resolveIndex, distToViewer);
 	}
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-void 
-BillboardNodeInstance::Setup( const Ptr<ModelInstance>& inst, const Ptr<ModelNode>& node, const Ptr<ModelNodeInstance>& parentNodeInst )
+void
+BillboardNodeInstance::Setup(const Ptr<ModelInstance>& inst, const Ptr<ModelNode>& node, const Ptr<ModelNodeInstance>& parentNodeInst)
 {
 	n_assert(!this->vb.isvalid());
 	n_assert(!this->ib.isvalid());
@@ -108,7 +108,6 @@ BillboardNodeInstance::Setup( const Ptr<ModelInstance>& inst, const Ptr<ModelNod
 	this->primGroup.SetNumVertices(4);
 	this->primGroup.SetBaseIndex(0);
 	this->primGroup.SetNumIndices(6);
-	this->primGroup.SetPrimitiveTopology(PrimitiveTopology::TriangleList);
 }
 
 //------------------------------------------------------------------------------
@@ -138,8 +137,9 @@ BillboardNodeInstance::Render()
 	RenderDevice* renderDevice = RenderDevice::Instance();
 
 	// setup rendering
-	renderDevice->SetStreamVertexBuffer(0, this->vb, 0);
+	renderDevice->SetPrimitiveTopology(PrimitiveTopology::TriangleList);
 	renderDevice->SetVertexLayout(this->vb->GetVertexLayout());
+	renderDevice->SetStreamVertexBuffer(0, this->vb, 0);
 	renderDevice->SetIndexBuffer(this->ib);
 	renderDevice->SetPrimitiveGroup(this->primGroup);
 

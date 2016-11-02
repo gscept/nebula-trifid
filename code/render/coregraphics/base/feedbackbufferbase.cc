@@ -46,7 +46,6 @@ FeedbackBufferBase::Setup()
 	this->numElements = CoreGraphics::PrimitiveTopology::NumberOfVertices(this->prim, this->numPrimitives);
 	this->primGroup.SetBaseVertex(0);
 	this->primGroup.SetNumVertices(this->numElements);
-	this->primGroup.SetPrimitiveTopology(this->prim);
 
 	// create layout
 	this->layout = CoreGraphics::VertexLayout::Create();
@@ -86,5 +85,6 @@ FeedbackBufferBase::Unmap()
 {
     n_error("VertexBufferBase::Unmap() called!");
 }
+
 
 } // namespace Base

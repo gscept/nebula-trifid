@@ -13,6 +13,7 @@
 #include "input/mouse.h"
 #include "input/gamepad.h"
 #include "graphics/view.h"
+#include "frame2/frameserver.h"
 
 
 
@@ -69,8 +70,8 @@ ViewerApplication::Open()
         
         Util::Array<Ptr<VisibilitySystemBase> > visSystems;
         visSystems.Append(visQuadtreeSystem.cast<VisibilitySystemBase>());
-        visSystems.Append(visClusterSystem.cast<VisibilitySystemBase>());
-		visSystems.Append(visBoxSystem.cast<VisibilitySystemBase>());
+        //visSystems.Append(visClusterSystem.cast<VisibilitySystemBase>());
+		//visSystems.Append(visBoxSystem.cast<VisibilitySystemBase>());
         this->stage = this->graphicsServer->CreateStage(defaultStageName, visSystems);
 
         // create a default view
@@ -80,10 +81,13 @@ ViewerApplication::Open()
 													  0,
                                                       true);
 
-        Ptr<Frame::FrameShader> frameShader = Frame::FrameServer::Instance()->LookupFrameShader(ResourceId(NEBULA3_DEFAULT_FRAMESHADER_NAME));
-        this->view->SetStage(this->stage);
-        this->view->SetFrameShader(frameShader);
-        if (this->useResolveRect) this->view->SetResolveRect(this->resolveRect);
+		Frame2::FrameServer::Instance()->SetWindowTexture(CoreGraphics::RenderDevice::Instance()->GetDefaultRenderTexture());
+		Ptr<Frame2::FrameScript> frameScript = Frame2::FrameServer::Instance()->LoadFrameScript("test", "frame:vkdebug.json");
+
+		// set stage
+		this->view->SetStage(this->stage);
+		this->view->SetFrameScript(frameScript);
+		if (this->useResolveRect) this->view->SetResolveRect(this->resolveRect);
 
         // create a camera entity
         this->camera = CameraEntity::Create();

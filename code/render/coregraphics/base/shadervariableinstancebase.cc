@@ -21,7 +21,8 @@ using namespace Math;
 /**
 */
 ShaderVariableInstanceBase::ShaderVariableInstanceBase() :
-	shaderVariable(0)
+	shaderVariable(0),
+	type(NoObjectType)
 {
     // empty
 }
@@ -109,11 +110,16 @@ ShaderVariableInstanceBase::Prepare(ShaderVariable::Type type)
             break;
 
         case ShaderVariable::TextureType:
+			this->type = TextureObjectType;
+			this->value.SetType(Variant::Object);
+			break;
+		case ShaderVariable::ImageReadWriteType:
+			this->type = ReadWriteImageObjectType;
+			this->value.SetType(Variant::Object);
+			break;
+		case ShaderVariable::ConstantBufferType:
+			this->type = ConstantBufferObjectType;
             this->value.SetType(Variant::Object);
-            break;
-
-        case ShaderVariable::BufferType:
-            this->value.SetType(Variant::VoidPtr);
             break;
 
         default:
@@ -190,10 +196,36 @@ ShaderVariableInstanceBase::Apply()
             // @note: implicit Ptr<> creation!
             if (this->value.GetObject() != 0)
             {
-                this->shaderVariable->SetTexture((Texture*)this->value.GetObject());
+				switch (this->type)
+				{
+				case TextureObjectType:
+					this->shaderVariable->SetTexture((Texture*)this->value.GetObject());
+					break;
+				case ConstantBufferObjectType:
+					this->shaderVariable->SetConstantBuffer((ConstantBuffer*)this->value.GetObject());
+					break;
+				case ReadWriteImageObjectType:
+				{
+					Core::RefCounted* obj = this->value.GetObject();
+					if (obj->IsA(ShaderReadWriteTexture::RTTI))
+					{
+						this->shaderVariable->SetShaderReadWriteTexture((ShaderReadWriteTexture*)obj);
+					}
+					else
+					{
+						this->shaderVariable->SetShaderReadWriteTexture((Texture*)obj);
+					}
+					break;
+				}
+				case ReadWriteBufferObjectType:
+					this->shaderVariable->SetShaderReadWriteBuffer((ShaderReadWriteBuffer*)this->value.GetObject());
+					break;
+				default:
+					n_error("ShaderVariableInstanceBase::Apply(): Improper object type");
+					break;
+				}
             }
             break;
-
         default:
             n_error("ShaderVariableInstance::Apply(): invalid data type!");
             break;
@@ -264,15 +296,59 @@ ShaderVariableInstanceBase::ApplyTo(const Ptr<CoreGraphics::ShaderVariable>& var
         break;
     }
 	case Variant::Object:
+
 		// @note: implicit Ptr<> creation!
         if (this->value.GetObject() != 0)
         {
-            CoreGraphics::Texture* tex = (CoreGraphics::Texture*)this->value.GetObject();
-            var->SetTexture(tex);
+			switch (this->type)
+			{
+			case TextureObjectType:
+				var->SetTexture((Texture*)this->value.GetObject());
+				break;
+			case ConstantBufferObjectType:
+				var->SetConstantBuffer((ConstantBuffer*)this->value.GetObject());
+				break;
+			case ReadWriteImageObjectType:
+			{
+				Core::RefCounted* obj = this->value.GetObject();
+				if (obj->IsA(ShaderReadWriteTexture::RTTI))
+				{
+					var->SetShaderReadWriteTexture((ShaderReadWriteTexture*)obj);
+				}
+				else
+				{
+					var->SetShaderReadWriteTexture((Texture*)obj);
+				}
+				break;
+			}
+			case ReadWriteBufferObjectType:
+				var->SetShaderReadWriteBuffer((ShaderReadWriteBuffer*)this->value.GetObject());
+				break;
+			default:
+				n_error("ShaderVariableInstanceBase::Apply(): Improper object type");
+				break;
+			}
         }
         else
         {
-            var->SetTexture(NULL);
+			switch (this->type)
+			{
+			case TextureObjectType:
+				var->SetTexture(NULL);
+				break;
+			case ConstantBufferObjectType:
+				var->SetConstantBuffer(NULL);
+				break;
+			case ReadWriteImageObjectType:
+				var->SetShaderReadWriteTexture((ShaderReadWriteTexture*)NULL);
+				break;
+			case ReadWriteBufferObjectType:
+				var->SetShaderReadWriteBuffer(NULL);
+				break;
+			default:
+				n_error("ShaderVariableInstanceBase::Apply(): Improper object type");
+				break;
+			}
         }
 		break;
 	default:
@@ -280,6 +356,7 @@ ShaderVariableInstanceBase::ApplyTo(const Ptr<CoreGraphics::ShaderVariable>& var
 		break;
 	}
 }
+
 
 } // namespace Base
 

@@ -49,6 +49,7 @@ PixelFormat::FromString(const Util::String& str)
     else if (str == "G16R16") return G16R16;
     else if (str == "D24S8") return D24S8;
     else if (str == "D24X8") return D24X8;
+	else if (str == "D32S8") return D32S8;
 
     // Xbox360 pixel-formats
     else if (str == "DXN") return DXN;
@@ -232,6 +233,7 @@ PixelFormat::ToSize(Code code)
 	case X8R8G8B8:      return 4;
 	case R8G8B8:        return 3;
 	case A8R8G8B8:      return 4;
+	case A8B8G8R8:      return 4;
 	case SRGBA8:		return 4;
 	case R5G6B5:        return 2;
 	case A1R5G5B5:      return 2;
@@ -260,6 +262,7 @@ PixelFormat::ToSize(Code code)
 	case G16R16:        return 4;
 	case D24X8:         return 4;
 	case D24S8:         return 4;
+	case D32S8:			return 5;
 
 	default:
 		n_error("Invalid pixel format code");
@@ -276,10 +279,11 @@ PixelFormat::ToChannels(Code code)
 	switch (code)
 	{
 	case X8R8G8B8:      return 4;
+	case A8R8G8B8:      return 4;
 	case SRGBA8:		return 4;
 	case R11G11B10F:	return 3;
 	case R8G8B8:        return 3;
-	case A8R8G8B8:      return 4;
+	case A8B8G8R8:      return 4;
 	case R5G6B5:        return 3;
 	case A1R5G5B5:      return 4;
 	case A4R4G4B4:      return 4;
@@ -307,6 +311,7 @@ PixelFormat::ToChannels(Code code)
 	case G16R16:        return 2;
 	case D24X8:         return 2;
 	case D24S8:         return 2;
+	case D32S8:			return 2;
 
 	default:
 		n_error("Invalid pixel format code");
@@ -324,6 +329,7 @@ PixelFormat::ToILComponents(Code code)
 	{
 	case PixelFormat::X8R8G8B8:         return IL_RGBA;
 	case PixelFormat::A8R8G8B8:         return IL_RGBA;							
+	case PixelFormat::A8B8G8R8:         return IL_BGRA;
 	case PixelFormat::R5G6B5:           return IL_RGB;
 	case PixelFormat::SRGBA8:			return IL_RGBA;
 	case PixelFormat::A1R5G5B5:         return IL_RGBA;						
@@ -353,6 +359,7 @@ PixelFormat::ToILComponents(Code code)
 	case PixelFormat::A2R10G10B10:      return IL_RGBA;						     
 	case PixelFormat::D24X8:            
 	case PixelFormat::D24S8:            return IL_RG;
+	case PixelFormat::D32S8:            return IL_RG;
 	case PixelFormat::R8G8B8:           return IL_RGB;
 	default:                            
 		{
@@ -365,13 +372,14 @@ PixelFormat::ToILComponents(Code code)
 //------------------------------------------------------------------------------
 /**
 */
-uint 
-PixelFormat::ToILType( Code code )
+uint
+PixelFormat::ToILType(Code code)
 {
 	switch (code)
 	{
 	case PixelFormat::X8R8G8B8:         return IL_UNSIGNED_BYTE;
 	case PixelFormat::A8R8G8B8:         return IL_UNSIGNED_BYTE;							
+	case PixelFormat::A8B8G8R8:         return IL_UNSIGNED_BYTE;
 	case PixelFormat::R5G6B5:           return IL_UNSIGNED_BYTE;
 	case PixelFormat::SRGBA8:			return IL_UNSIGNED_BYTE;
 	case PixelFormat::A1R5G5B5:         return IL_UNSIGNED_BYTE;						
@@ -400,7 +408,8 @@ PixelFormat::ToILType( Code code )
 	case PixelFormat::R8:				return IL_UNSIGNED_BYTE;
 	case PixelFormat::A2R10G10B10:      return IL_UNSIGNED_BYTE;
 	case PixelFormat::D24X8:            
-	case PixelFormat::D24S8:            return IL_INT;
+	case PixelFormat::D24S8:            return IL_FLOAT;
+	case PixelFormat::D32S8:			return IL_FLOAT;
 	case PixelFormat::R8G8B8:           return IL_UNSIGNED_BYTE;
 	default:                            
 		{

@@ -109,8 +109,8 @@ CharacterInstance::Discard()
 /**
     Update time for sequencer
 */
-void 
-CharacterInstance::UpdateTime( const Timing::Tick time )
+void
+CharacterInstance::UpdateTime(const Timing::Tick time)
 {
     this->animController.AnimSequencer().UpdateTime(time);
 }

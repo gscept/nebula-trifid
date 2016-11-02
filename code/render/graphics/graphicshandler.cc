@@ -146,6 +146,7 @@ GraphicsHandler::Open()
     this->shadowServer = ShadowServer::Create();
 	this->instanceServer = InstanceServer::Create();
     this->frameServer = FrameServer::Create();
+	this->frame2Server = Frame2::FrameServer::Create();
 	this->materialServer = MaterialServer::Create();
     this->animEventServer = Animation::AnimEventServer::Create();
     this->characterServer = Characters::CharacterServer::Create();
@@ -178,6 +179,7 @@ GraphicsHandler::Close()
     this->mouseRenderDevice = 0;
     this->characterServer = 0;
     this->frameServer = 0;
+	this->frame2Server = 0;
 	this->materialServer = 0;
     this->shadowServer = 0;
     this->lightServer = 0;
@@ -269,6 +271,7 @@ GraphicsHandler::SetupGraphicsRuntime(const Ptr<SetupGraphics>& msg)
     this->shadowServer->Open();    
     this->particleServer->Open();    
 	this->frameServer->Open();	
+	this->frame2Server->Open();
 	this->instanceServer->Open();
 
     // HACK - pin placeholders and system stuff so they will not be automatically
@@ -304,6 +307,7 @@ GraphicsHandler::ShutdownGraphicsRuntime()
 	this->materialServer->Close();
 	this->shapeRenderer->Close();
     this->frameServer->Close();	
+	this->frame2Server->Close();
 	this->resourceManager->Close();
 	this->instanceServer->Close();
     this->shaderServer->Close();

@@ -11,7 +11,7 @@
 */    
 
 #include "coregraphics/base/textrendererbase.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shaderstate.h"
 #include "coregraphics/vertexbuffer.h"
 #include "coregraphics/bufferlock.h"
 

@@ -14,6 +14,8 @@ __ImplementClass(Particles::ParticleRenderer, 'PRRD', Direct3D11::D3D11ParticleR
 __ImplementClass(Particles::ParticleRenderer, 'PRRD', Direct3D9::D3D9ParticleRenderer);
 #elif __OGL4__
 __ImplementClass(Particles::ParticleRenderer, 'PRRD', OpenGL4::OGL4ParticleRenderer);
+#elif __VULKAN__
+__ImplementClass(Particles::ParticleRenderer, 'PRRD', Vulkan::VkParticleRenderer);
 #elif __XBOX360__
 __ImplementClass(Particles::ParticleRenderer, 'PRRD', Xbox360::Xbox360ParticleRenderer);
 #elif __WII__

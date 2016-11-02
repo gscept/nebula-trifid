@@ -81,7 +81,7 @@ OGL4UniformBuffer::UpdateAsync(void* data, uint offset, uint size)
 {
 	n_assert(size + offset <= this->size);
     GLubyte* currentBuf = (GLubyte*)this->buffer;
-	if (!this->sync) currentBuf += this->handle->offset;
+	if (!this->sync) currentBuf += this->handle->offset + this->baseOffset;
     memcpy(currentBuf + offset, data, size);
 }
 
@@ -93,7 +93,7 @@ OGL4UniformBuffer::UpdateArrayAsync(void* data, uint offset, uint size, uint cou
 {
 	n_assert(size * count + offset <= this->size);
     GLubyte* currentBuf = (GLubyte*)this->buffer;
-	if (!this->sync) currentBuf += this->handle->offset;
+	if (!this->sync) currentBuf += this->handle->offset + this->baseOffset;
 	memcpy(currentBuf + offset, data, size * count);
 }
 
@@ -105,7 +105,7 @@ OGL4UniformBuffer::UpdateSync(void* data, uint offset, uint size)
 {
 	n_assert(size + offset <= this->size);
 	GLubyte* currentBuf = (GLubyte*)this->buffer;
-	if (!this->sync) currentBuf += this->handle->offset;
+	if (!this->sync) currentBuf += this->handle->offset + this->baseOffset;
 	memcpy(currentBuf + offset, data, size);
 }
 
@@ -117,7 +117,7 @@ OGL4UniformBuffer::UpdateArraySync(void* data, uint offset, uint size, uint coun
 {
 	n_assert(size * count + offset <= this->size);
 	GLubyte* currentBuf = (GLubyte*)this->buffer;
-	if (!this->sync) currentBuf += this->handle->offset;
+	if (!this->sync) currentBuf += this->handle->offset + this->baseOffset;
 	memcpy(currentBuf + offset, data, size * count);
 }
 

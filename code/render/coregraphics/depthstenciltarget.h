@@ -34,6 +34,15 @@ class DepthStencilTarget : public OpenGL4::OGL4DepthStencilTarget
 	__DeclareClass(DepthStencilTarget);
 };
 }
+#elif __VULKAN__
+#include "coregraphics/vk/vkdepthstenciltarget.h"
+namespace CoreGraphics
+{
+class DepthStencilTarget : public Vulkan::VkDepthStencilTarget
+{
+	__DeclareClass(DepthStencilTarget);
+};
+}
 #else
 #error "DepthStencilTarget class not implemented on this platform!"
 #endif

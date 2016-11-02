@@ -5,7 +5,7 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "input/gamepad.h"
-#if (__OGL4__)
+#if (__OGL4__ || __VULKAN__)
 namespace Input
 {
 __ImplementClass(Input::GamePad, 'GMPD', Base::GamePadBase);

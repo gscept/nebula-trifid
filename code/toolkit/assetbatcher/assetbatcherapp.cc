@@ -10,7 +10,11 @@
 #include "io/textreader.h"
 #include "asset/assetexporter.h"
 #include "io/console.h"
+#ifdef WIN32
 #include "io/win32/win32consolehandler.h"
+#else
+#include "io/posix/posixconsolehandler.h"
+#endif
 
 #define PRECISION 1000000
 

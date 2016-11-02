@@ -187,7 +187,7 @@ ModelInstance::OnVisibilityResolve(IndexT frameIndex, IndexT resolveIndex, const
         // don't notify invisible node instances
         if (this->nodeInstances[i]->IsVisible())
         {
-			this->nodeInstances[i]->OnVisibilityResolve(resolveIndex, this->viewDistanceThisFrame);
+			this->nodeInstances[i]->OnVisibilityResolve(frameIndex, resolveIndex, this->viewDistanceThisFrame);
         }
     }
 }

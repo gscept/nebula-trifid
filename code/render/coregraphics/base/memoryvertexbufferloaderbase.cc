@@ -21,7 +21,7 @@ MemoryVertexBufferLoaderBase::MemoryVertexBufferLoaderBase() :
     vertexDataSize(0),
     usage(CoreGraphics::VertexBuffer::UsageImmutable),
     access(CoreGraphics::VertexBuffer::AccessNone),
-	syncing(CoreGraphics::VertexBuffer::SyncingSimple)
+	syncing(CoreGraphics::VertexBuffer::SyncingFlush)
 {
     // empty
 }

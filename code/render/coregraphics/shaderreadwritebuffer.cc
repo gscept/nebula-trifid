@@ -10,6 +10,11 @@ namespace CoreGraphics
 {
 __ImplementClass(CoreGraphics::ShaderReadWriteBuffer, 'SHBU', OpenGL4::OGL4ShaderStorageBuffer);
 }
+#elif __VULKAN__
+namespace CoreGraphics
+{
+__ImplementClass(CoreGraphics::ShaderReadWriteBuffer, 'SHBU', Vulkan::VkShaderStorageBuffer);
+}
 #else
 #error "ShaderBuffer class not implemented on this platform!"
 #endif

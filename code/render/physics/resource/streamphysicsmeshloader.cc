@@ -48,7 +48,6 @@ StreamPhysicsMeshLoader::SetupResourceFromStream(const Ptr<Stream>& stream)
 		res->SetMeshData(vertexData, nvx2Reader->GetNumVertices(), nvx2Reader->GetVertexWidth(), indexData, nvx2Reader->GetNumIndices());
 		for(int i=0;i < groups.Size();i++)
 		{
-			n_assert2(groups[i].GetPrimitiveTopology() == PrimitiveTopology::TriangleList,"Only triangle lists are supported");
 			res->AddMeshComponent(i, groups[i]);
 		}		
         nvx2Reader->Close();

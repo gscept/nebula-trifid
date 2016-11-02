@@ -14,6 +14,9 @@ __ImplementSingleton(CoreGraphics::DisplayDevice);
 #elif __OGL4__
 __ImplementClass(CoreGraphics::DisplayDevice, 'DDVC', OpenGL4::GLFWDisplayDevice);
 __ImplementSingleton(CoreGraphics::DisplayDevice);
+#elif __VULKAN__
+__ImplementClass(CoreGraphics::DisplayDevice, 'DDVC', Vulkan::VkDisplayDevice);
+__ImplementSingleton(CoreGraphics::DisplayDevice);
 #elif __DX9__
 __ImplementClass(CoreGraphics::DisplayDevice, 'DDVC', Direct3D9::D3D9DisplayDevice);
 __ImplementSingleton(CoreGraphics::DisplayDevice);

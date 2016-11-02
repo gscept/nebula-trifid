@@ -9,7 +9,7 @@
 
     (C) 2007 Radon Labs GmbH
 */
-#include "coregraphics/base/shaderinstancebase.h"
+#include "coregraphics/base/shaderstatebase.h"
 #include "coregraphics/shaderfeature.h"
 
 namespace CoreGraphics

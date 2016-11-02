@@ -10,12 +10,13 @@
 */
 #include "core/refcounted.h"
 #include "coregraphics/indextype.h"
-#include "coregraphics/base/resourcebase.h"
+#include "coregraphics/base/bufferbase.h"
+#include "coregraphics/bufferlock.h"
 
 //------------------------------------------------------------------------------
 namespace Base
 {
-class IndexBufferBase : public Base::ResourceBase
+class IndexBufferBase : public BufferBase
 {
     __DeclareClass(IndexBufferBase);
 public:

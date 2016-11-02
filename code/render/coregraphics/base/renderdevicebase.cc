@@ -10,7 +10,9 @@
 #include "coregraphics/vertexbuffer.h"
 #include "coregraphics/indexbuffer.h"
 #include "coregraphics/feedbackbuffer.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shaderstate.h"
+#include "coregraphics/bufferlock.h"
+#include "coregraphics/pass.h"
 #include "frame/frameserver.h"
 #include "coregraphics/displaydevice.h"
 #include "math/scalar.h"
@@ -25,7 +27,7 @@ using namespace Util;
 using namespace CoreGraphics;
 using namespace Graphics;
 
-Util::Queue<RenderDeviceBase::__BufferLockData> RenderDevice::bufferLockQueue;
+Util::Queue<RenderDeviceBase::__BufferLockData> RenderDeviceBase::bufferLockQueue;
 //------------------------------------------------------------------------------
 /**
 */
@@ -39,6 +41,7 @@ RenderDeviceBase::RenderDeviceBase() :
 	renderWireframe(false),
     visualizeMipMaps(false),
 	usePatches(false),
+	primitiveTopology(CoreGraphics::PrimitiveTopology::TriangleList),
 	currentFrameIndex(InvalidIndex)
 {
     __ConstructSingleton;
@@ -93,6 +96,13 @@ RenderDeviceBase::Open()
     RenderEvent openEvent(RenderEvent::DeviceOpen);
     this->NotifyEventHandlers(openEvent);
 
+	// setup default render texture
+	if (!this->defaultRenderTexture.isvalid())
+	{
+		this->defaultRenderTexture = RenderTexture::Create();
+		this->defaultRenderTexture->SetIsWindowTexture(true);
+		this->defaultRenderTexture->Setup();
+	}
 
 
     return true;
@@ -116,9 +126,6 @@ RenderDeviceBase::Close()
     RenderEvent closeEvent(RenderEvent::DeviceClose);
     this->NotifyEventHandlers(closeEvent);
 
-	// unreference shaders
-	this->passShader = 0;
-
     this->isOpen = false;
 }
 
@@ -137,7 +144,7 @@ RenderDeviceBase::IsOpen() const
 void
 RenderDeviceBase::SetStreamVertexBuffer(IndexT streamIndex, const Ptr<VertexBuffer>& vb, IndexT offsetVertexIndex)
 {
-    n_assert((streamIndex >= 0) && (streamIndex < MaxNumVertexStreams));
+    n_assert((streamIndex >= 0) && (streamIndex < VertexLayoutBase::MaxNumVertexStreams));
     this->streamVertexBuffers[streamIndex] = vb;
     this->streamVertexOffsets[streamIndex] = offsetVertexIndex;
 }
@@ -148,7 +155,7 @@ RenderDeviceBase::SetStreamVertexBuffer(IndexT streamIndex, const Ptr<VertexBuff
 const Ptr<VertexBuffer>&
 RenderDeviceBase::GetStreamVertexBuffer(IndexT streamIndex) const
 {
-    n_assert((streamIndex >= 0) && (streamIndex < MaxNumVertexStreams));
+	n_assert((streamIndex >= 0) && (streamIndex < VertexLayoutBase::MaxNumVertexStreams));
     return this->streamVertexBuffers[streamIndex];
 }
 
@@ -158,7 +165,7 @@ RenderDeviceBase::GetStreamVertexBuffer(IndexT streamIndex) const
 IndexT
 RenderDeviceBase::GetStreamVertexOffset(IndexT streamIndex) const
 {
-    n_assert((streamIndex >= 0) && (streamIndex < MaxNumVertexStreams));
+	n_assert((streamIndex >= 0) && (streamIndex < VertexLayoutBase::MaxNumVertexStreams));
     return this->streamVertexOffsets[streamIndex];
 }
 
@@ -196,6 +203,24 @@ const Ptr<IndexBuffer>&
 RenderDeviceBase::GetIndexBuffer() const
 {
     return this->indexBuffer;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+RenderDeviceBase::SetPrimitiveTopology(const CoreGraphics::PrimitiveTopology::Code& topo)
+{
+	this->primitiveTopology = topo;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+const CoreGraphics::PrimitiveTopology::Code&
+RenderDeviceBase::GetPrimitiveTopology() const
+{
+	return this->primitiveTopology;
 }
 
 //------------------------------------------------------------------------------
@@ -258,7 +283,7 @@ RenderDeviceBase::BeginFrame(IndexT frameIndex)
     n_assert(!this->indexBuffer.isvalid());
     n_assert(!this->vertexLayout.isvalid());
     IndexT i;
-    for (i = 0; i < MaxNumVertexStreams; i++)
+	for (i = 0; i < VertexLayoutBase::MaxNumVertexStreams; i++)
     {
         n_assert(!this->streamVertexBuffers[i].isvalid());
     }
@@ -278,20 +303,12 @@ RenderDeviceBase::BeginFrame(IndexT frameIndex)
 /**
 */
 void
-RenderDeviceBase::BeginPass(const Ptr<RenderTarget>& rt, const Ptr<Shader>& shd)
+RenderDeviceBase::BeginPass(const Ptr<RenderTarget>& rt)
 {
     n_assert(this->inBeginFrame);
     n_assert(!this->inBeginPass);
     n_assert(!this->inBeginBatch);
-    n_assert(!this->passShader.isvalid());
     this->inBeginPass = true;
-
-    // apply pass shader
-    this->passShader = shd;
-    if (this->passShader.isvalid())
-    {
-        //this->passShader->Commit();
-    }
 
 	// notify render targets
     this->passRenderTarget = rt;
@@ -302,20 +319,12 @@ RenderDeviceBase::BeginPass(const Ptr<RenderTarget>& rt, const Ptr<Shader>& shd)
 /**
 */
 void 
-RenderDeviceBase::BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt, const Ptr<CoreGraphics::Shader>& shd)
+RenderDeviceBase::BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt)
 {
     n_assert(this->inBeginFrame);
     n_assert(!this->inBeginPass);
     n_assert(!this->inBeginBatch);
-    n_assert(!this->passShader.isvalid());
     this->inBeginPass = true;
-
-    // apply pass shader
-    this->passShader = shd;
-    if (this->passShader.isvalid())
-    {
-        //this->passShader->Commit();
-    }
 
     // notify render targets
     this->passMultipleRenderTarget = mrt;
@@ -326,20 +335,12 @@ RenderDeviceBase::BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt, 
 /**
 */
 void 
-RenderDeviceBase::BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& crt, const Ptr<CoreGraphics::Shader>& shd)
+RenderDeviceBase::BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& crt)
 {
     n_assert(this->inBeginFrame);
     n_assert(!this->inBeginPass);
     n_assert(!this->inBeginBatch);
-    n_assert(!this->passShader.isvalid());
     this->inBeginPass = true;
-
-    // apply pass shader
-    this->passShader = shd;
-    if (this->passShader.isvalid())
-    {
-        //this->passShader->Commit();
-    }
 
     // notify render targets
     this->passRenderTargetCube = crt;
@@ -350,19 +351,39 @@ RenderDeviceBase::BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& crt, cons
 /**
 */
 void
-RenderDeviceBase::BeginFeedback(const Ptr<CoreGraphics::FeedbackBuffer>& fb, CoreGraphics::PrimitiveTopology::Code primType, const Ptr<CoreGraphics::Shader>& shader)
+RenderDeviceBase::BeginPass(const Ptr<CoreGraphics::Pass>& pass)
 {
 	n_assert(this->inBeginFrame);
 	n_assert(!this->inBeginPass);
-	n_assert(!this->passShader.isvalid());
+	n_assert(!this->inBeginBatch);
 	this->inBeginPass = true;
 
-	// apply pass shader
-	this->passShader = shader;
-	if (this->passShader.isvalid())
-	{
-		//this->passShader->Commit();
-	}
+	this->pass = pass;
+	this->pass->Begin();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+RenderDeviceBase::SetToNextSubpass()
+{
+	n_assert(this->inBeginFrame);
+	n_assert(this->inBeginPass);
+	n_assert(this->pass.isvalid());
+
+	this->pass->NextSubpass();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+RenderDeviceBase::BeginFeedback(const Ptr<CoreGraphics::FeedbackBuffer>& fb, CoreGraphics::PrimitiveTopology::Code primType)
+{
+	n_assert(this->inBeginFrame);
+	n_assert(!this->inBeginPass);
+	this->inBeginPass = true;
 }
 
 //------------------------------------------------------------------------------
@@ -373,7 +394,7 @@ RenderDeviceBase::BeginBatch(FrameBatchType::Code batchType)
 {
     n_assert(this->inBeginPass);
     n_assert(!this->inBeginBatch);
-    n_assert(this->passRenderTarget.isvalid() || this->passMultipleRenderTarget.isvalid() || this->passRenderTargetCube.isvalid());
+    n_assert(this->passRenderTarget.isvalid() || this->passMultipleRenderTarget.isvalid() || this->passRenderTargetCube.isvalid() || this->pass.isvalid());
     this->inBeginBatch = true;
 
     if (this->passRenderTarget.isvalid())
@@ -390,6 +411,10 @@ RenderDeviceBase::BeginBatch(FrameBatchType::Code batchType)
     {
         this->passRenderTargetCube->BeginBatch(batchType);
     }
+	else if (this->pass.isvalid())
+	{
+		this->pass->BeginBatch(batchType);
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -399,7 +424,7 @@ void
 RenderDeviceBase::EndBatch()
 {
     n_assert(this->inBeginBatch);
-    n_assert(this->passRenderTarget.isvalid() || this->passMultipleRenderTarget.isvalid() || this->passRenderTargetCube.isvalid());
+	n_assert(this->passRenderTarget.isvalid() || this->passMultipleRenderTarget.isvalid() || this->passRenderTargetCube.isvalid() || this->pass.isvalid());
     this->inBeginBatch = false;
 
     // notify render targets
@@ -415,6 +440,10 @@ RenderDeviceBase::EndBatch()
     {
         this->passRenderTargetCube->EndBatch();
     }
+	else if (this->pass.isvalid())
+	{
+		this->pass->EndBatch();
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -424,7 +453,7 @@ void
 RenderDeviceBase::EndPass()
 {
     n_assert(this->inBeginPass);
-    n_assert(this->passRenderTarget.isvalid() || this->passMultipleRenderTarget.isvalid() || this->passRenderTargetCube.isvalid());
+    n_assert(this->passRenderTarget.isvalid() || this->passMultipleRenderTarget.isvalid() || this->passRenderTargetCube.isvalid() || this->pass.isvalid());
 
 	// finish rendering to depth-stencil
 	if (this->passDepthStencilTarget.isvalid())
@@ -449,12 +478,12 @@ RenderDeviceBase::EndPass()
         this->passRenderTargetCube->EndPass();
         this->passRenderTargetCube = 0;
     }
+	else if (this->pass.isvalid())
+	{
+		this->pass->End();
+		this->pass = 0;
+	}
 
-    // finish pass shader
-    if (this->passShader.isvalid())
-    {
-        this->passShader = 0;
-    }
     this->inBeginPass = false;
 }
 
@@ -466,12 +495,6 @@ void
 RenderDeviceBase::EndFeedback()
 {
 	n_assert(this->inBeginPass);
-
-	// finish pass shader
-	if (this->passShader.isvalid())
-	{
-		this->passShader = 0;
-	}
 	this->inBeginPass = false;
 }
 
@@ -493,7 +516,7 @@ RenderDeviceBase::EndFrame(IndexT frameIndex)
     
     this->inBeginFrame = false;
     IndexT i;
-    for (i = 0; i < MaxNumVertexStreams; i++)
+	for (i = 0; i < VertexLayoutBase::MaxNumVertexStreams; i++)
     {
         this->streamVertexBuffers[i] = 0;
     }
@@ -508,6 +531,24 @@ void
 RenderDeviceBase::Present()
 {
     n_assert(!this->inBeginFrame);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+RenderDeviceBase::BuildRenderPipeline()
+{
+	// empty, override in subclass
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+RenderDeviceBase::InsertBarrier(const CoreGraphics::Barrier& barrier)
+{
+	// empty, override in subclass
 }
 
 //------------------------------------------------------------------------------
@@ -553,11 +594,35 @@ RenderDeviceBase::DrawFeedbackInstanced(const Ptr<CoreGraphics::FeedbackBuffer>&
 //------------------------------------------------------------------------------
 /**
 */
-void 
-RenderDeviceBase::Compute(int dimX, int dimY, int dimZ, uint flag)
+void
+RenderDeviceBase::BeginCompute(bool asyncAllowed, const Util::Array<Ptr<CoreGraphics::ShaderReadWriteTexture>>& textureDependencies, const Util::Array<Ptr<CoreGraphics::ShaderReadWriteBuffer>>& bufferDependencies)
 {
-    n_assert(this->inBeginPass);
+	n_assert(!this->inBeginCompute);
+	this->inBeginCompute = true;
+	this->inBeginAsyncCompute = asyncAllowed;
+	// override and implement memory barriers for buffers and textures
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+RenderDeviceBase::Compute(int dimX, int dimY, int dimZ)
+{
+    n_assert(this->inBeginCompute);
     // override in subclass!
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+RenderDeviceBase::EndCompute(const Util::Array<Ptr<CoreGraphics::ShaderReadWriteTexture>>& textureDependencies, const Util::Array<Ptr<CoreGraphics::ShaderReadWriteBuffer>>& bufferDependencies)
+{
+	n_assert(this->inBeginCompute);
+	this->inBeginCompute = false;
+	this->inBeginAsyncCompute = false;
+	// override and implement memory barriers needed for the textures and buffers
 }
 
 //------------------------------------------------------------------------------
@@ -629,5 +694,39 @@ RenderDeviceBase::DequeueBufferLocks()
 	}
 	RenderDeviceBase::bufferLockQueue.Clear();
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+RenderDeviceBase::Copy(const Ptr<CoreGraphics::Texture>& from, Math::rectangle<SizeT> fromRegion, const Ptr<CoreGraphics::Texture>& to, Math::rectangle<SizeT> toRegion)
+{
+	n_assert(from.isvalid() && to.isvalid());
+	n_assert(from->GetWidth() == to->GetWidth());
+	n_assert(from->GetHeight() == to->GetHeight());
+	n_assert(from->GetDepth() == to->GetDepth());
+	// implement in subclass
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+RenderDeviceBase::Blit(const Ptr<CoreGraphics::RenderTexture>& from, Math::rectangle<SizeT> fromRegion, const Ptr<CoreGraphics::RenderTexture>& to, Math::rectangle<SizeT> toRegion)
+{
+	n_assert(from.isvalid() && to.isvalid());
+	
+	// implement in subclass
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+const Math::matrix44
+RenderDeviceBase::GetProjectionCorrectionMatrix()
+{
+	return Math::matrix44::identity();
+}
+
 
 } // namespace Base

@@ -78,7 +78,7 @@ CSMUtil::ComputeFrustumPoints( float cascadeBegin, float cascadeEnd, const Math:
 //------------------------------------------------------------------------------
 /**
 */
-void
+void 
 CSMUtil::ComputeNearAndFar(float& nearPlane, float& farPlane, const Math::float4& lightCameraOrtoMin, const Math::float4& lightCameraOrtoMax, const Math::float4* lightAABBPoints)
 {
 	nearPlane = FLT_MAX;
@@ -357,7 +357,8 @@ CSMUtil::Compute()
 	float4 lightCameraOrthographicMin;
 	float4 lightCameraOrthographicMax;
 
-	// calculate near and far range based on half the scene bounding box, but clamp within 'reasonable range
+	// calculate near and far range based on scene bounding box
+	//float nearFarRange = camSettings.GetZFar() - camSettings.GetZNear();
 	float nearFarRange = n_min(this->shadowBox.diagonal_size() / 2, 300.0f);
 	float4 unitsPerTexel = float4(0,0,0,0);
 

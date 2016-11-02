@@ -12,6 +12,8 @@ namespace CoreGraphics
 __ImplementClass(CoreGraphics::RenderDevice, 'RDVC', Direct3D11::D3D11RenderDevice);
 #elif __OGL4__
 __ImplementClass(CoreGraphics::RenderDevice, 'RDVC', OpenGL4::OGL4RenderDevice);
+#elif __VULKAN__
+__ImplementClass(CoreGraphics::RenderDevice, 'RDVC', Vulkan::VkRenderDevice);
 #elif __DX9__
 __ImplementClass(CoreGraphics::RenderDevice, 'RDVC', Direct3D9::D3D9RenderDevice);
 #else

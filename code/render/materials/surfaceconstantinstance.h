@@ -11,7 +11,7 @@
 */
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shaderstate.h"
 #include "coregraphics/shadervariableinstance.h"
 namespace Materials
 {
@@ -34,7 +34,7 @@ public:
     const bool IsValid() const;
 
     /// apply constant instance to shader
-    void Apply(const Ptr<CoreGraphics::ShaderInstance>& shader);
+    void Apply(const Ptr<CoreGraphics::ShaderState>& shader);
 
     /// set value of constant, the actual shader value will only be applied whenever explicitly called with the Apply function (which should happen when rendering)
     void SetValue(const Util::Variant& value);
@@ -44,7 +44,7 @@ public:
 private:
 
     Ptr<SurfaceConstant> constant;
-    Util::Dictionary<Ptr<CoreGraphics::ShaderInstance>, Ptr<CoreGraphics::ShaderVariableInstance>> variablesByShader;
+	Util::Dictionary<Ptr<CoreGraphics::ShaderState>, Ptr<CoreGraphics::ShaderVariableInstance>> variablesByShader;
 };
 
 //------------------------------------------------------------------------------

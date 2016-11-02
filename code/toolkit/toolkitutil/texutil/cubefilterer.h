@@ -48,7 +48,7 @@ private:
 	uint power;
 	uint size;
 
-	CCubeMapProcessor processor;
+	//CCubeMapProcessor processor;
 };
 
 //------------------------------------------------------------------------------

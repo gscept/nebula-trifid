@@ -25,17 +25,22 @@
 #include "graphics/graphicsserver.h"
 #include "coregraphics/shader.h"
 #include "util/queue.h"
+#include "vertexlayoutbase.h"
+#include "coregraphics/barrier.h"
 
 namespace CoreGraphics
 {
 class Texture;
+class RenderTexture;
 class VertexBuffer;
 class IndexBuffer;
 class FeedbackBuffer;
 class VertexLayout;
-class ShaderInstance;
+class ShaderState;
 class RenderTarget;
 class MultipleRenderTarget;
+class BufferLock;
+class Pass;
 };
 
 //------------------------------------------------------------------------------
@@ -46,16 +51,14 @@ class RenderDeviceBase : public Core::RefCounted
     __DeclareClass(RenderDeviceBase);
     __DeclareSingleton(RenderDeviceBase);
 public:
-    /// max number of vertex streams
-    static const IndexT MaxNumVertexStreams = 2;
 
-	enum MemoryBarrierFlag
+	enum MemoryBarrierBits
 	{
-		NoBarrier = 0,
-		ImageAccessBarrier			= 1 << 0,	// subsequent images will see data done written before barrier
-		BufferAccessBarrier			= 1 << 1,	// subsequent buffers will see data done written before barrier
-		SamplerAccessBarrier		= 1 << 2,	// subsequent texture samplers will see data done written before barrier
-		RenderTargetAccessBarrier	= 1 << 3	// subsequent samples from render targets will be visible
+		NoBarrierBit = 0,
+		ImageAccessBarrierBits			= 1 << 0,	// subsequent images will see data done written before barrier
+		BufferAccessBarrierBits			= 1 << 1,	// subsequent buffers will see data done written before barrier
+		SamplerAccessBarrierBits		= 1 << 2,	// subsequent texture samplers will see data done written before barrier
+		RenderTargetAccessBarrierBits	= 1 << 3	// subsequent samples from render targets will be visible
 	};
 
     /// constructor
@@ -76,6 +79,9 @@ public:
     /// remove a render event handler
     void RemoveEventHandler(const Ptr<CoreGraphics::RenderEventHandler>& h);
 
+	/// get default render texture
+	const Ptr<CoreGraphics::RenderTexture>& GetDefaultRenderTexture() const;
+
     /// is a pass rendertarget set?
     bool HasPassRenderTarget() const;
     /// get current set pass render target
@@ -84,13 +90,17 @@ public:
     /// begin complete frame
     bool BeginFrame(IndexT frameIndex);
     /// begin rendering a frame pass
-	void BeginPass(const Ptr<CoreGraphics::RenderTarget>& rt, const Ptr<CoreGraphics::Shader>& passShader);
+	void BeginPass(const Ptr<CoreGraphics::RenderTarget>& rt);
     /// begin rendering a frame pass with a multiple rendertarget
-    void BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt, const Ptr<CoreGraphics::Shader>& passShader);
+    void BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt);
     /// begin rendering a frame pass with a rendertarget cube
-    void BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& crt, const Ptr<CoreGraphics::Shader>& passShader);
+    void BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& crt);
+	/// begin a rendering pass
+	void BeginPass(const Ptr<CoreGraphics::Pass>& pass);
+	/// progress to next subpass
+	void SetToNextSubpass();
 	/// begin rendering a transform feedback with a vertex buffer as target, updateFeedback checks if the feedback buffer should be used for updating, or for rendering
-    void BeginFeedback(const Ptr<CoreGraphics::FeedbackBuffer>& fb, CoreGraphics::PrimitiveTopology::Code primType, const Ptr<CoreGraphics::Shader>& shader);
+    void BeginFeedback(const Ptr<CoreGraphics::FeedbackBuffer>& fb, CoreGraphics::PrimitiveTopology::Code primType);
     /// begin rendering a batch
     void BeginBatch(CoreGraphics::FrameBatchType::Code batchType);
     /// set the current vertex stream source
@@ -107,10 +117,18 @@ public:
     void SetIndexBuffer(const Ptr<CoreGraphics::IndexBuffer>& ib);
     /// get current index buffer
     const Ptr<CoreGraphics::IndexBuffer>& GetIndexBuffer() const;
+	/// set the type of topology to be used
+	void SetPrimitiveTopology(const CoreGraphics::PrimitiveTopology::Code& topo);
+	/// get the type of topology used
+	const CoreGraphics::PrimitiveTopology::Code& GetPrimitiveTopology() const;
     /// set current primitive group
     void SetPrimitiveGroup(const CoreGraphics::PrimitiveGroup& pg);
     /// get current primitive group
     const CoreGraphics::PrimitiveGroup& GetPrimitiveGroup() const;
+	/// bake the current state of the render device (only used on DX12 and Vulkan renderers where pipeline creation is required)
+	void BuildRenderPipeline();
+	/// insert execution barrier
+	void InsertBarrier(const CoreGraphics::Barrier& barrier);
     /// draw current primitives
     void Draw();
     /// draw indexed, instanced primitives
@@ -119,8 +137,12 @@ public:
 	void DrawFeedback(const Ptr<CoreGraphics::FeedbackBuffer>& fb);
 	/// draw from stream output/transform feedback buffer, instanced
 	void DrawFeedbackInstanced(const Ptr<CoreGraphics::FeedbackBuffer>& fb, SizeT numInstances);
+	/// begin computation, if asyncAllowed is true, then implementation may perform a compute in parallel with graphics
+	void BeginCompute(bool asyncAllowed, const Util::Array<Ptr<CoreGraphics::ShaderReadWriteTexture>>& textureDependencies, const Util::Array<Ptr<CoreGraphics::ShaderReadWriteBuffer>>& bufferDependencies);
     /// perform computation
-	void Compute(int dimX, int dimY, int dimZ, uint flag = NoBarrier); // use MemoryBarrierFlag
+	void Compute(int dimX, int dimY, int dimZ);
+	/// end computation
+	void EndCompute(const Util::Array<Ptr<CoreGraphics::ShaderReadWriteTexture>>& textureDependencies, const Util::Array<Ptr<CoreGraphics::ShaderReadWriteBuffer>>& bufferDependencies);
     /// end current batch
     void EndBatch();
     /// end current pass
@@ -145,10 +167,11 @@ public:
 	void SetRenderWireframe(bool b);
 	/// get the render as wireframe flag
 	bool GetRenderWireframe() const;
-	/// sets the shader for this pass
-    void SetPassShader(const Ptr<CoreGraphics::Shader>& passShader);
-    /// gets the pass shader
-    const Ptr<CoreGraphics::Shader>& GetPassShader() const;
+
+	/// copy data between textures
+	void Copy(const Ptr<CoreGraphics::Texture>& from, Math::rectangle<SizeT> fromRegion, const Ptr<CoreGraphics::Texture>& to, Math::rectangle<SizeT> toRegion);
+	/// blit between render textures
+	void Blit(const Ptr<CoreGraphics::RenderTexture>& from, Math::rectangle<SizeT> fromRegion, const Ptr<CoreGraphics::RenderTexture>& to, Math::rectangle<SizeT> toRegion);
 
 	/// enqueue a buffer lock which will cause the render device to lock a buffer index whenever the next draw command gets executed
 	static void EnqueueBufferLockIndex(const Ptr<CoreGraphics::BufferLock>& lock, IndexT buffer);
@@ -166,6 +189,9 @@ public:
 	void SetViewport(const Math::rectangle<int>& rect, int index);
 	/// adds a scissor rect
 	void SetScissorRect(const Math::rectangle<int>& rect, int index);
+
+	/// get implementation specific correction matrix
+	static const Math::matrix44 GetProjectionCorrectionMatrix();
 
 protected:
     /// notify event handlers about an event
@@ -187,22 +213,26 @@ protected:
     
 	static Util::Queue<__BufferLockData> bufferLockQueue;
     Util::Array<Ptr<CoreGraphics::RenderEventHandler> > eventHandlers;
-    Ptr<CoreGraphics::VertexBuffer> streamVertexBuffers[MaxNumVertexStreams];
-    IndexT streamVertexOffsets[MaxNumVertexStreams];
+	Ptr<CoreGraphics::RenderTexture> defaultRenderTexture;
+    Ptr<CoreGraphics::VertexBuffer> streamVertexBuffers[VertexLayoutBase::MaxNumVertexStreams];
+	IndexT streamVertexOffsets[VertexLayoutBase::MaxNumVertexStreams];
     Ptr<CoreGraphics::VertexLayout> vertexLayout;
     Ptr<CoreGraphics::IndexBuffer> indexBuffer;
+	CoreGraphics::PrimitiveTopology::Code primitiveTopology;
     CoreGraphics::PrimitiveGroup primitiveGroup;
     Ptr<CoreGraphics::RenderTarget> passRenderTarget;
     Ptr<CoreGraphics::MultipleRenderTarget> passMultipleRenderTarget;
     Ptr<CoreGraphics::RenderTargetCube> passRenderTargetCube;
 	Ptr<CoreGraphics::DepthStencilTarget> passDepthStencilTarget;
-    Ptr<CoreGraphics::Shader> passShader;
+	Ptr<CoreGraphics::Pass> pass;
     bool isOpen;
     bool inNotifyEventHandlers;
     bool inBeginFrame;
     bool inBeginPass;
 	bool inBeginFeedback;
     bool inBeginBatch;
+	bool inBeginCompute;
+	bool inBeginAsyncCompute;
 	bool renderWireframe;
     bool visualizeMipMaps;
 	bool usePatches;
@@ -229,6 +259,16 @@ inline const CoreGraphics::PrimitiveGroup&
 RenderDeviceBase::GetPrimitiveGroup() const
 {
     return this->primitiveGroup;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Ptr<CoreGraphics::RenderTexture>&
+RenderDeviceBase::GetDefaultRenderTexture() const
+{
+	n_assert(this->defaultRenderTexture.isvalid());
+	return this->defaultRenderTexture;
 }
 
 //------------------------------------------------------------------------------
@@ -280,8 +320,8 @@ RenderDeviceBase::SetVisualizeMipMaps(bool val)
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-RenderDeviceBase::SetRenderWireframe( bool b )
+inline void
+RenderDeviceBase::SetRenderWireframe(bool b)
 {
 	this->renderWireframe = b;
 }
@@ -311,25 +351,6 @@ inline bool
 RenderDeviceBase::GetUsePatches()
 {
 	return this->usePatches;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void
-RenderDeviceBase::SetPassShader(const Ptr<CoreGraphics::Shader>& passShader)
-{
-    this->passShader = passShader;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline
-const Ptr<CoreGraphics::Shader>&
-RenderDeviceBase::GetPassShader() const
-{
-    return this->passShader;
 }
 
 //------------------------------------------------------------------------------

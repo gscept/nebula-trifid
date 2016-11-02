@@ -16,9 +16,9 @@
 #include "shadywindow.h"
 #include "io/ioserver.h"
 #include "anyfx/compiler/code/afxcompiler.h"
+#include "nody_config.h"
 
 #include <QApplication>
-#include "config.h"
 
 using namespace Nody;
 namespace Shady

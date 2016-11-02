@@ -5,7 +5,6 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "coregraphics/ogl4/ogl4streamtextureloader.h"
-#include "image/imagefactory.h"
 #include "coregraphics/texture.h"
 #include "coregraphics/renderdevice.h"
 #include "io/ioserver.h"
@@ -16,7 +15,6 @@ namespace OpenGL4
 {
 __ImplementClass(OpenGL4::OGL4StreamTextureLoader, 'O4TL', Resources::StreamResourceLoader);
 
-using namespace Image;
 using namespace CoreGraphics;
 using namespace Resources;
 using namespace IO;

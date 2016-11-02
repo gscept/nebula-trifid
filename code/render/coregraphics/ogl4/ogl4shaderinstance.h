@@ -17,7 +17,7 @@
 */
 //------------------------------------------------------------------------------
 #include "afxapi.h"
-#include "coregraphics/base/shaderinstancebase.h"
+#include "coregraphics/base/shaderstatebase.h"
 #include "coregraphics/base/shaderbase.h"
 #include "coregraphics/shaderfeature.h"
 

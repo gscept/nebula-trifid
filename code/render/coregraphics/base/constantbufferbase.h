@@ -6,6 +6,9 @@
 	A buffer which represents a set of shader constant variables 
     (uniforms in OpenGL) which are contained within a buffer object.
 
+	Good practice is to have one constant buffer, then create instances using 
+	AllocateInstance, which returns an offset into the buffer where the new instance is.
+
 	Constant buffers can be set to be synchronized or non-synchronized.
 
 	Synchronized: will cause a GPU synchronizing command whenever the EndUpdateSync gets run.
@@ -19,26 +22,26 @@
 	Synchronized buffers are good for when you have no idea when a buffer gets updated. They let 
 	the driver take care of when the buffer is needed and will as such cause a direct flush.
 
-	This type of behavior might only be relevant in non-direct APIs such as <DX11 and OpenGL, since
-	we can't actually tell whenever the buffer gets updated with a persistently mapped buffe.rb
+	This type of behavior might only be relevant in non-direct APIs such as DX11 and OpenGL, since
+	we can't actually tell whenever the buffer gets updated with a persistently mapped buffer.
 	
 	(C) 2015-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
-#include "core/refcounted.h"
 #include "util/stringatom.h"
 #include "coregraphics/shadervariable.h"
+#include "coregraphics/stretchybuffer.h"
 
 namespace CoreGraphics
 {
-class ShaderInstance;
+class Shader;
 }
 
 namespace Base
 {
-class ConstantBufferBase : public Core::RefCounted
+class ConstantBufferBase : public CoreGraphics::StretchyBuffer
 {
-	__DeclareClass(ConstantBufferBase);
+	__DeclareAbstractClass(ConstantBufferBase);
 public:
 	/// constructor
 	ConstantBufferBase();
@@ -48,9 +51,12 @@ public:
     /// setup buffer
     void Setup(const SizeT numBackingBuffers = DefaultNumBackingBuffers);
     /// bind variables in a block with a name in a shader to this buffer (only do this on system managed blocks)
-	void SetupFromBlockInShader(const Ptr<CoreGraphics::ShaderInstance>& shader, const Util::String& blockName, const SizeT numBackingBuffers = DefaultNumBackingBuffers);
+	void SetupFromBlockInShader(const Ptr<CoreGraphics::ShaderState>& shader, const Util::String& blockName, const SizeT numBackingBuffers = DefaultNumBackingBuffers);
     /// discard buffer
     void Discard();
+
+	/// set active offset, this will be the base offset when updating variables in this block
+	void SetBaseOffset(SizeT offset);
 
     /// set if this buffer should be updated synchronously, the default behavior is not
     void SetSync(bool b);
@@ -94,9 +100,10 @@ protected:
     Util::Dictionary<Util::StringAtom, Ptr<CoreGraphics::ShaderVariable>> variablesByName;
     bool isSetup;
 
-    uint size;
+	// size is total memory size of entire buffer, stride is size of single instance
     IndexT bufferIndex;
 	SizeT numBuffers;
+	IndexT baseOffset;
 
     bool sync;
     bool inUpdateSync;
@@ -139,7 +146,7 @@ inline void
 Base::ConstantBufferBase::UpdateSync(void* data, uint offset, uint size)
 {
     n_assert(this->inUpdateSync);   
-    byte* buf = (byte*)this->buffer + offset;
+	byte* buf = (byte*)this->buffer + offset + this->baseOffset;
     memcpy(buf, data, size);
 }
 
@@ -150,7 +157,7 @@ inline void
 Base::ConstantBufferBase::UpdateArraySync(void* data, uint offset, uint size, uint count)
 {
     n_assert(this->inUpdateSync);
-    byte* buf = (byte*)this->buffer + offset;
+    byte* buf = (byte*)this->buffer + offset + this->baseOffset;
     memcpy(buf, data, size * count);
 }
 
@@ -211,6 +218,15 @@ inline const Ptr<CoreGraphics::ShaderVariable>&
 ConstantBufferBase::GetVariableByName(const Util::StringAtom& name) const
 {
     return this->variablesByName[name];
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+ConstantBufferBase::SetBaseOffset(SizeT offset)
+{
+	this->baseOffset = offset;
 }
 
 } // namespace Base

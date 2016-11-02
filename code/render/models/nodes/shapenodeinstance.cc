@@ -34,14 +34,14 @@ ShapeNodeInstance::~ShapeNodeInstance()
 /**
 */
 void
-ShapeNodeInstance::OnVisibilityResolve(IndexT resolveIndex, float distToViewer)
+ShapeNodeInstance::OnVisibilityResolve(IndexT frameIndex, IndexT resolveIndex, float distanceToViewer)
 {
     // check LOD distance and tell our model node that we are a visible instance
     const Ptr<TransformNode>& transformNode = this->modelNode.downcast<TransformNode>();
 	if (transformNode->CheckLodDistance(distToViewer))
     {
         this->modelNode->AddVisibleNodeInstance(resolveIndex, this->surfaceInstance->GetCode(), this);
-		StateNodeInstance::OnVisibilityResolve(resolveIndex, distToViewer);
+        StateNodeInstance::OnVisibilityResolve(frameIndex, resolveIndex, distanceToViewer);
     }
 }
 

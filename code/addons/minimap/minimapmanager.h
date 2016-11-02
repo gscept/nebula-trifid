@@ -10,7 +10,7 @@
 #include "application/game/entity.h"
 #include "minimapplugin.h"
 #include "coregraphics/rendertarget.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shaderstate.h"
 #include "coregraphics/shadervariable.h"
 #include "coregraphics/vertexbuffer.h"
 #include "coregraphics/indexbuffer.h"
@@ -59,7 +59,7 @@ private:
 	friend Minimap::MinimapPlugin;
     // shading related variables
 	Ptr<CoreGraphics::RenderTarget> minimapTarget;
-	Ptr<CoreGraphics::Shader> minimapShader;
+	Ptr<CoreGraphics::ShaderState> minimapShader;
 	Ptr<CoreGraphics::ShaderVariable> transformsVar;
     Ptr<CoreGraphics::ShaderVariable> portraitVar;
     Ptr<CoreGraphics::ShaderVariable> portraitScalesVar;

@@ -147,7 +147,7 @@ ModelNodeInstance::OnRenderBefore(IndexT frameIndex, Timing::Time time)
 /**
 */
 void 
-ModelNodeInstance::OnVisibilityResolve(IndexT resolveIndex, float distanceToViewer)
+ModelNodeInstance::OnVisibilityResolve(IndexT frameIndex, IndexT resolveIndex, float distanceToViewer)
 {
     // we are getting rendered this frame, get a instance index from modelserver
     this->frameInstanceIndex = ModelServer::Instance()->ConsumeNewModelNodeInstanceIndex();
@@ -162,7 +162,7 @@ ModelNodeInstance::OnVisibilityResolve(IndexT resolveIndex, float distanceToView
     method of the ModelNodeInstance objects.
 */
 void
-ModelNodeInstance::ApplyState(IndexT frameIndex, const IndexT& pass, const Ptr<CoreGraphics::Shader>& shader)
+ModelNodeInstance::ApplyState(IndexT frameIndex, const IndexT& pass)
 {
     // n_printf("ModelNodeInstance::Apply() called on '%s'!\n", this->modelNode->GetName().Value());
 }

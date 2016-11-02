@@ -16,6 +16,11 @@ namespace CoreGraphics
 {
 __ImplementClass(CoreGraphics::StreamTextureLoader, 'STXL', OpenGL4::OGL4StreamTextureLoader);
 }
+#elif __VULKAN__
+namespace CoreGraphics
+{
+__ImplementClass(CoreGraphics::StreamTextureLoader, 'STXL', Vulkan::VkStreamTextureLoader);
+}
 #elif __DX9__
 namespace CoreGraphics
 {

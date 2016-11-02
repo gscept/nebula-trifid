@@ -15,6 +15,7 @@
 #include "debugrender/debugrender.h"
 #include "graphics/cameraentity.h"
 #include "graphics/graphicsserver.h"
+#include "graphics/view.h"
 
 namespace Characters
 {
@@ -264,21 +265,6 @@ CharacterSkeletonInstance::RenderDebug(const matrix44& modelTransform)
 				unscaledMatrix,
 				float4(0.65f, 0.0f, 0.0f, 0.8f));
 			ShapeRenderer::Instance()->AddShape(jointShape);
-
-            // calculate screen space position
-            const Ptr<View>& view = GraphicsServer::Instance()->GetDefaultView();
-            const Ptr<CameraEntity> cam = view->GetCameraEntity();
-            matrix44 viewProj = cam->GetViewProjTransform();
-            position = matrix44::transform(position, modelTransform);
-            Math::float4 screenPos = matrix44::transform(position, viewProj);
-            screenPos.x() /= screenPos.w();
-            screenPos.y() /= screenPos.w();
-            screenPos.x() = (screenPos.x() + 1.0f) * 0.5f;
-            screenPos.y() = 1.0f - ((screenPos.y() + 1.0f) * 0.5f);
-
-            // create text element
-            CoreGraphics::TextElement debugText(Threading::Thread::GetMyThreadId(), this->skeletonPtr->GetJoint(i).GetName().AsString(), float4(1), float2(screenPos.x(), screenPos.y()), 16);
-            TextRenderer::Instance()->AddTextElement(debugText);
         }
     }
 

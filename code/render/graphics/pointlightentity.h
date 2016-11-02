@@ -11,8 +11,12 @@
 */
 #include "graphics/abstractlightentity.h"
 #include "coregraphics/rendertargetcube.h"
-
 //------------------------------------------------------------------------------
+namespace CoreGraphics
+{
+	class ShaderState;
+};
+
 namespace Graphics
 {
 class PointLightEntity : public AbstractLightEntity
@@ -48,8 +52,8 @@ private:
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-PointLightEntity::SetShadowCube( const Ptr<CoreGraphics::RenderTargetCube>& cube )
+inline void
+PointLightEntity::SetShadowCube(const Ptr<CoreGraphics::RenderTargetCube>& cube)
 {
     this->shadowCube = cube;
 }

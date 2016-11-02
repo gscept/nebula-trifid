@@ -67,25 +67,43 @@ OPTION(N_BUILD_FIRSTTIME "Build Nebula without foundation nidls (required for fi
 OPTION(N_BUILD_PUBLIC_AS_RELEASE "Instead of outputting release build as name.public.exe they are called name.exe." OFF)
 CMAKE_DEPENDENT_OPTION(N_QT_NEB_SUPPORT "Add support for Qt features within Nebula" ON "N_BUILD_QT" OFF)
 OPTION(N_BUILD_EXTERNAL_PROJECTS "Include projects included in the projects folder" ON)
+OPTION(N_VULKAN_EXPERIMENTAL "Build NebulaT using an experimental (non-release) version of Vulkan" OFF)
 
 IF(!MSVC) 
 	SET(N_BUILD_NVTT ON)
 ENDIF()
 
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${N3ROOT}/libs/cmake)
+INCLUDE(NebulaHelpers)
 
 # select render api
 
 SET(N_BUILD_DX11 OFF)
 SET(N_BUILD_OGL4 OFF)
+SET(N_BUILD_VULKAN OFF)
 SET(N_BUILD_DX9 OFF)
 
-SET(DEFAULTRENDERER "N_BUILD_OGL4")
+SET(DEFAULTRENDERER "N_BUILD_VULKAN")
 
 SET(N_RENDERER ${DEFAULTRENDERER} CACHE STRING "Renderer chosen by CMake based on operating system")
-SET_PROPERTY(CACHE N_RENDERER PROPERTY STRINGS "N_BUILD_DX11" "N_BUILD_OGL4" "N_BUILD_DX9")
+SET_PROPERTY(CACHE N_RENDERER PROPERTY STRINGS "N_BUILD_DX11" "N_BUILD_OGL4" "N_BUILD_VULKAN" "N_BUILD_DX9")
 SET(${N_RENDERER} ON)
 # these are required for all extlibs packages that use precompiled headers from nebula
-SET_PROPERTY(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS  $<$<BOOL:${N_BUILD_OGL4}>:__OGL4__ GLEW_STATIC __ANYFX__ IL_STATIC_LIB> $<$<BOOL:${N_BUILD_DX11}>:__DX11__> $<$<BOOL:${N_BUILD_DX9}>:__DX9__>)
+SET_PROPERTY(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS  
+	$<$<BOOL:${N_BUILD_OGL4}>:__OGL4__ GLEW_STATIC __ANYFX__ IL_STATIC_LIB> 
+	$<$<BOOL:${N_BUILD_VULKAN}>:__VULKAN__ __ANYFX__ IL_STATIC_LIB> 
+	$<$<BOOL:${N_BUILD_DX11}>:__DX11__> 
+	$<$<BOOL:${N_BUILD_DX9}>:__DX9__>)
+	
+IF(${N_BUILD_VULKAN})
+	IF (${N_VULKAN_EXPERIMENTAL})
+		FIND_PACKAGE(VulkanExperimental)
+		MESSAGE("Using experimental Vulkan")
+	ELSE()
+		FIND_PACKAGE(Vulkan)
+	ENDIF()
+ENDIF()
+
 INCLUDE_DIRECTORIES($<$<BOOL:${N_BUILD_OGL4}>:${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/api/code
 												${Nebula3_SOURCE_DIR}/code/extlibs/glew/include
 												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/api/code
@@ -93,7 +111,15 @@ INCLUDE_DIRECTORIES($<$<BOOL:${N_BUILD_OGL4}>:${Nebula3_SOURCE_DIR}/code/extlibs
 												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/compiler/code
 												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/exts/eastl/include
 												${Nebula3_SOURCE_DIR}/code/extlibs/glfw/include>
-												$<$<BOOL:${N_BUILD_DX11}>:$ENV{DXSDK_DIR}/include ${Nebula3_SOURCE_DIR}/code/extlibs/Effects11> $<$<BOOL:${N_BUILD_DX9}>:$ENV{DXSDK_DIR}/include>)
+					$<$<BOOL:${N_BUILD_VULKAN}>:${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/api/lowlevel
+												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/api
+												${Nebula3_SOURCE_DIR}/code/extlibs/glew/include
+												${VULKAN_INCLUDE_DIR}
+												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/util/code
+												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/compiler/code
+												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/exts/eastl/include
+												${Nebula3_SOURCE_DIR}/code/extlibs/glfw/include>
+					$<$<BOOL:${N_BUILD_DX11}>:$ENV{DXSDK_DIR}/include ${Nebula3_SOURCE_DIR}/code/extlibs/Effects11> $<$<BOOL:${N_BUILD_DX9}>:$ENV{DXSDK_DIR}/include>)
 
 
 # select physics implementation
@@ -106,11 +132,6 @@ SET_PROPERTY(CACHE N_PHYSICS PROPERTY STRINGS "N_BUILD_BULLET" "N_BUILD_HAVOK" "
 SET(${N_PHYSICS} ON)
 												
 SET_PROPERTY(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS  $<$<BOOL:${N_BUILD_HAVOK}>:__USE_HAVOK__> $<$<BOOL:${N_BUILD_BULLET}>:__USE_BULLET__> $<$<BOOL:${N_BUILD_PHYSX}>:__USE_PHYSX__>)
-
-SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${N3ROOT}/libs/cmake)
-INCLUDE(NebulaHelpers)
-
-
 
 INCLUDE_DIRECTORIES(${Nebula3_SOURCE_DIR}/code/extlibs/raknet/source)
 

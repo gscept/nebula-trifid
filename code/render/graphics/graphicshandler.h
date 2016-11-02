@@ -27,6 +27,7 @@
 #include "lighting/lightserver.h"
 #include "lighting/shadowserver.h"
 #include "frame/frameserver.h"
+#include "frame2/frameserver.h"
 #include "threading/safeflag.h"
 #include "animation/animeventserver.h"
 #include "debug/debugtimer.h"
@@ -147,6 +148,7 @@ private:
     Ptr<Lighting::ShadowServer> shadowServer;
 	Ptr<Instancing::InstanceServer> instanceServer;
     Ptr<Frame::FrameServer> frameServer;
+	Ptr<Frame2::FrameServer> frame2Server;
 	Ptr<Materials::MaterialServer> materialServer;
     Ptr<Animation::AnimEventServer> animEventServer;
     Ptr<Characters::CharacterServer> characterServer;

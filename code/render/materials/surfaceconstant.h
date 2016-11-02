@@ -29,7 +29,7 @@
 
 namespace CoreGraphics
 {
-class ShaderInstance;
+class ShaderState;
 class ShaderVariableInstance;
 }
 
@@ -43,8 +43,8 @@ public:
 	struct ConstantBinding
 	{
 		bool active;
-		Ptr<CoreGraphics::ShaderVariableInstance> var;
-		Ptr<CoreGraphics::ShaderInstance> shd;
+		Ptr<CoreGraphics::ShaderVariable> var;
+		Ptr<CoreGraphics::ShaderState> shd;
 	};
 	/// constructor
 	SurfaceConstant();
@@ -69,9 +69,12 @@ protected:
     friend class Surface;
 
     /// setup constant, which initializes its name and bindings to its implementing shaders
-	void Setup(const Util::StringAtom& name, const Util::Array<Material::MaterialPass>& passes, const Util::Array<Ptr<CoreGraphics::ShaderInstance>>& shaders);
+	void Setup(const Util::StringAtom& name, const Util::Array<Material::MaterialPass>& passes, const Util::Array<Ptr<CoreGraphics::ShaderState>>& shaders);
     /// discard constant
     void Discard();
+
+	/// set shader variable using variant
+	void ApplyToShaderVariable(const Util::Variant& value, const Ptr<CoreGraphics::ShaderVariable>& var);
 
     bool system;
     Util::StringAtom name;

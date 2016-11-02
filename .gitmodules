@@ -43,6 +43,7 @@
 	branch = master
 [submodule "code/extlibs/anyfx"]
 	path = code/extlibs/anyfx
+	branch = v2
 	url = https://github.com/Duttenheim/AnyFX.git
 [submodule "code/extlibs/cjson/cJSON"]
 	path = code/extlibs/cjson/cJSON

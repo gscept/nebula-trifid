@@ -20,6 +20,11 @@ namespace CoreGraphics
 {
 __ImplementClass(CoreGraphics::MultipleRenderTarget, 'MRTG', OpenGL4::OGL4MultipleRenderTarget);
 }
+#elif __VULKAN__
+namespace CoreGraphics
+{
+__ImplementClass(CoreGraphics::MultipleRenderTarget, 'MRTG', Vulkan::VkMultipleRenderTarget);
+}
 #else
 #error "MultipleRenderTarget class not implemented on this platform!"
 #endif

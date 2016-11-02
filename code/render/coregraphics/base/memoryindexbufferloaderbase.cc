@@ -22,7 +22,7 @@ MemoryIndexBufferLoaderBase::MemoryIndexBufferLoaderBase() :
     indexDataSize(0),
     usage(IndexBuffer::UsageImmutable),
     access(IndexBuffer::AccessNone),
-	syncing(IndexBuffer::SyncingSimple)
+	syncing(IndexBuffer::SyncingFlush)
 {
 	
     // empty

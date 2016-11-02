@@ -14,6 +14,12 @@
 #include "graphics/abstractlightentity.h"
 
 //------------------------------------------------------------------------------
+namespace CoreGraphics
+{
+	class ShaderState;
+	class ShaderVariable;
+};
+
 namespace Graphics
 {
 class SpotLightEntity : public AbstractLightEntity
@@ -38,6 +44,7 @@ protected:
     /// called to render a debug visualization of the entity
     virtual void OnRenderDebug();
 };
+
 
 } // namespace Graphics
 //------------------------------------------------------------------------------

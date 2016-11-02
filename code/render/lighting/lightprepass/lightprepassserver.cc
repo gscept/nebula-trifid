@@ -11,6 +11,7 @@
 #include "coregraphics/transformdevice.h"
 #include "coregraphics/renderdevice.h"
 #include "coregraphics/texture.h"
+#include "coregraphics/config.h"
 #include "lighting/shadowserver.h"
 
 namespace Lighting
@@ -80,7 +81,7 @@ LightPrePassServer::Open()
 
 
     // setup shader stuff
-	this->lightShader                    = shdServer->GetShader("shd:lightsources");
+	this->lightShader						 = shdServer->CreateShaderState("shd:lightsources", { NEBULAT_DEFAULT_GROUP });
 	this->pointLightFeatureBits[NoShadows]   = shdServer->FeatureStringToMask("PointLight");    
 	this->pointLightFeatureBits[CastShadows] = shdServer->FeatureStringToMask("PointLightShadows");    
 	this->spotLightFeatureBits[NoShadows]    = shdServer->FeatureStringToMask("SpotLight"); 
@@ -98,7 +99,7 @@ LightPrePassServer::Open()
 	this->shadowOffsetScaleVar    = this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_SHADOWOFFSETSCALE);
 	this->shadowFadeVar           = this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_SHADOWINTENSITY);
 
-    const Ptr<Shader>& sharedShader = shdServer->GetSharedShader();
+    const Ptr<ShaderState>& sharedShader = shdServer->GetSharedShader();
 	this->lightProjMapVar         = sharedShader->GetVariableByName(NEBULA3_SEMANTIC_LIGHTPROJMAP); 
 	this->normalBufferVar         = sharedShader->GetVariableByName(NEBULA3_SEMANTIC_NORMALBUFFER);
 	this->dsfObjectDepthBufferVar = sharedShader->GetVariableByName(NEBULA3_SEMANTIC_DEPTHBUFFER);
@@ -260,7 +261,7 @@ LightPrePassServer::RenderLights()
     }
 
     // general preparations
-    shdServer->SetActiveShader(this->lightShader);
+    shdServer->SetActiveShader(this->lightShader->GetShader());
     
     // render the global light
     this->RenderGlobalLight();
@@ -279,7 +280,6 @@ LightPrePassServer::RenderLights()
 
     // render spot lights
     this->RenderSpotLights();
-
 }
 
 //------------------------------------------------------------------------------
@@ -299,13 +299,13 @@ LightPrePassServer::RenderGlobalLight()
 
         this->lightShader->SelectActiveVariation(this->globalLightFeatureBits);
         this->lightShader->Apply();
-        this->lightShader->BeginUpdate();
+        this->lightShader->BeginUpdateSync();
         this->globalLightDir->SetFloat4(viewSpaceLightDir);
         this->globalLightColor->SetFloat4(this->globalLightEntity->GetColor());
         this->globalBackLightColor->SetFloat4(this->globalLightEntity->GetBackLightColor());
         this->globalAmbientLightColor->SetFloat4(this->globalLightEntity->GetAmbientLightColor());
         this->globalBackLightOffset->SetFloat(this->globalLightEntity->GetBackLightOffset());
-        this->lightShader->EndUpdate();
+		this->lightShader->EndUpdateSync();
         this->lightShader->Commit();
         this->fullScreenQuadRenderer.Draw();
     }
@@ -346,7 +346,7 @@ LightPrePassServer::RenderPointLights()
                     float4 posAndRange = matrix44::transform(lightTransform.get_position(), viewTransform);
                     posAndRange.w() = 1.0f / lightTransform.get_zaxis().length();
 
-                    this->lightShader->BeginUpdate();
+                    this->lightShader->BeginUpdateSync();
                     this->lightPosRange->SetFloat4(posAndRange);
                     this->lightColor->SetFloat4(curLight->GetColor());
 
@@ -370,7 +370,7 @@ LightPrePassServer::RenderPointLights()
 
                     // update shader variables
                     tformDevice->ApplyModelTransforms(this->lightShader);
-                    this->lightShader->EndUpdate();
+					this->lightShader->EndUpdateSync();
 
                     // commit and draw
                     this->lightShader->Commit();
@@ -419,7 +419,7 @@ LightPrePassServer::RenderSpotLights()
                     float4 posAndRange = matrix44::transform(lightTransform.get_position(), viewTransform);
                     posAndRange.w() = 1.0f / lightTransform.get_zaxis().length();
 
-                    this->lightShader->BeginUpdate();
+					this->lightShader->BeginUpdateSync();
                     this->lightPosRange->SetFloat4(posAndRange);
                     this->lightColor->SetFloat4(curLight->GetColor());
 
@@ -445,7 +445,7 @@ LightPrePassServer::RenderSpotLights()
                     
                     // update shader variables
                     tformDevice->ApplyModelTransforms(this->lightShader);
-                    this->lightShader->EndUpdate();
+                    this->lightShader->EndUpdateSync();
 
                     // commit and draw
                     this->lightShader->Commit();

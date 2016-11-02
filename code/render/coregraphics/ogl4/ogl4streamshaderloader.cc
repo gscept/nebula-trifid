@@ -165,6 +165,7 @@ OGL4StreamShaderLoader::SetupResourceFromStream(const Ptr<Stream>& stream)
                     const AnyFX::VarblockVariableBinding& binding = variableBinds[j];
                     const Ptr<ShaderVariable>& var = res->variablesByName[binding.name.c_str()];
                     var->BindToUniformBuffer(res->globalBlockBuffer, binding.offset, binding.size, binding.value);
+					delete[] binding.value;	// delete value created as a copy from AnyFX
                 }
 				res->globalBlockBuffer->EndUpdateSync();
 				res->globalBlockBufferVar = res->variablesByName["GlobalBlock"];

@@ -16,6 +16,11 @@ namespace CoreGraphics
 {
 __ImplementClass(CoreGraphics::MemoryVertexBufferLoader, 'MVBL', OpenGL4::OGL4MemoryVertexBufferLoader);
 }
+#elif __VULKAN__
+namespace CoreGraphics
+{
+__ImplementClass(CoreGraphics::MemoryVertexBufferLoader, 'MVBL', Vulkan::VkMemoryVertexBufferLoader);
+}
 #elif __DX9__
 namespace CoreGraphics
 {

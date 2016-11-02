@@ -108,11 +108,11 @@ ParticleServer::Open()
 	group.SetBaseVertex(0);
 	group.SetNumIndices(1);
 	group.SetNumVertices(1);
-	group.SetPrimitiveTopology(PrimitiveTopology::PointList);
 	Util::Array<PrimitiveGroup> groups;
 	groups.Append(group);
 
 	// setup mesh
+	this->defaultEmitterMesh->SetTopology(PrimitiveTopology::PointList);
 	this->defaultEmitterMesh->SetVertexBuffer(vb);
 	this->defaultEmitterMesh->SetIndexBuffer(ib);
 	this->defaultEmitterMesh->SetPrimitiveGroups(groups);

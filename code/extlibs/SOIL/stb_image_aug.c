@@ -441,9 +441,10 @@ static uint32 get32le(stbi *s)
 
 static void getn(stbi *s, stbi_uc *buffer, int n)
 {
+    int result;
 #ifndef STBI_NO_STDIO
    if (s->img_file) {
-      fread(buffer, 1, n, s->img_file);
+      result = fread(buffer, 1, n, s->img_file);
       return;
    }
 #endif

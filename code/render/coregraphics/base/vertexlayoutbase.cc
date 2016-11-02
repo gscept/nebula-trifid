@@ -19,9 +19,10 @@ using namespace Util;
 /**
 */
 VertexLayoutBase::VertexLayoutBase() :
-    vertexByteSize(0)
+    vertexByteSize(0),
+	numUsedStreams(0)
 {
-    // empty
+	memset(this->usedStreams, 0, sizeof(this->usedStreams));
 }
 
 //------------------------------------------------------------------------------
@@ -79,6 +80,7 @@ VertexLayoutBase::Setup(const Array<VertexComponent>& comps)
         // update the components byte offset while we're at it
         this->components[i].SetByteOffset(this->vertexByteSize);
         this->vertexByteSize += comps[i].GetByteSize();
+		this->usedStreams[this->components[i].streamIndex] = true;
     }
 }
 

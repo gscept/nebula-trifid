@@ -16,6 +16,11 @@ namespace CoreGraphics
 {
 __ImplementClass(CoreGraphics::ShaderVariableInstance, 'SDVI', OpenGL4::OGL4ShaderVariableInstance);
 }
+#elif __VULKAN__
+namespace CoreGraphics
+{
+__ImplementClass(CoreGraphics::ShaderVariableInstance, 'SDVI', Vulkan::VkShaderVariableInstance);
+}
 #else
 #error "ShaderVariableInstance class not implemented on this platform!"
 #endif

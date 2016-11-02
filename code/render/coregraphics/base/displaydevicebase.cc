@@ -79,6 +79,24 @@ DisplayDeviceBase::Reopen()
 
 //------------------------------------------------------------------------------
 /**
+*/
+void 
+DisplayDeviceBase::EnableCallbacks()
+{
+    // implement in subclass
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void 
+DisplayDeviceBase::DisableCallbacks()
+{
+    // implement in subclass
+}
+
+//------------------------------------------------------------------------------
+/**
     Attach an event handler to the display device.
 */
 void

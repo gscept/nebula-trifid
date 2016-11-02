@@ -12,7 +12,6 @@
 #include "threading/thread.h"
 #include "input/glfw/glfwinputdisplayeventhandler.h"
 
-
 //------------------------------------------------------------------------------
 namespace OpenGL4
 {

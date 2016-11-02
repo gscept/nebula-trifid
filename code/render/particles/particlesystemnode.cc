@@ -9,6 +9,7 @@
 #include "resources/resourcemanager.h"
 #include "models/modelnode.h"
 #include "models/model.h"
+#include "particles/particlerenderer.h"
 
 namespace Particles
 {
@@ -349,6 +350,20 @@ void
 ParticleSystemNode::AddTexture(const Util::StringAtom & name, const Util::String & val)
 {
 	this->shaderParams.Append(KeyValuePair<StringAtom,Variant>(name, Variant(val)));
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ParticleSystemNode::ApplySharedState(IndexT frameIndex)
+{
+	// apply base class shared state
+	StateNode::ApplySharedState(frameIndex);
+
+	// bind particle mesh
+	ParticleRenderer::Instance()->ApplyParticleMesh();
+	
 }
 
 } // namespace Particles

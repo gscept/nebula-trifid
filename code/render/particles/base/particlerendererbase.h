@@ -41,8 +41,10 @@ public:
     virtual void EndAttach();
 
     /// render particles of previously attached particle system
-    void RenderParticleSystem(const Ptr<Particles::ParticleSystemInstance>& particleSystemInstance);
-
+    void RenderParticleSystem(const Ptr<Particles::ParticleSystemInstance> &particleSystemInstance);
+	/// apply mesh
+	void ApplyParticleMesh();
+    
 protected:
     bool isValid;
     bool inAttach;

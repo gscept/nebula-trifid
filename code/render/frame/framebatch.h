@@ -11,7 +11,7 @@
 */
 #include "core/refcounted.h"
 #include "materials/materialinstance.h"
-#include "coregraphics/shaderinstance.h"
+#include "coregraphics/shaderstate.h"
 #include "coregraphics/shadervariableinstance.h"
 #include "coregraphics/framebatchtype.h"
 #include "coregraphics/shaderfeature.h"

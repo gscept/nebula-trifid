@@ -222,7 +222,7 @@ ResourceManager::CreateManagedResource(const Core::Rtti& resType, const Resource
     {
         // managed resource doesn't exist yet, ask the right resource mapper to create a new one
         n_assert(this->HasMapper(resType));
-        Ptr<ManagedResource> managedResource = this->mappers[&resType]->OnCreateManagedResource(resType, hackId, optResourceLoader, forceSync);
+		Ptr<ManagedResource> managedResource = this->mappers[&resType]->OnCreateManagedResource(resType, hackId, optResourceLoader, forceSync);
         n_assert(managedResource.isvalid());
 		//managedResource->IncrClientCount();
         this->managedResources.Add(hackId, managedResource);

@@ -4,7 +4,7 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "toolkitconsolehandler.h"
-#include "threading\thread.h"
+#include "threading/thread.h"
 #include "io/memorystream.h"
 #include "io/xmlwriter.h"
 #include "io/xmlreader.h"

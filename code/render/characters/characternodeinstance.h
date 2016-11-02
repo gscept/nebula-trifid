@@ -26,6 +26,8 @@ public:
 
     /// called from ModelEntity::OnNotifyCullingVisible
     void OnNotifyCullingVisible(IndexT frameIndex, Timing::Time time);
+	/// called during visibility resolve
+	void OnVisibilityResolve(IndexT frameIndex, IndexT resolveIndex, float distanceToViewer);
     /// get the node's character instance object
     const Ptr<CharacterInstance>& GetCharacterInstance() const;
 
@@ -38,6 +40,9 @@ protected:
     virtual void RenderDebug();
 
     Ptr<CharacterInstance> charInstance;
+	IndexT updateFrame;
+	int diagonalSize;
+	bool updateThisFrame;
 };
 
 //------------------------------------------------------------------------------

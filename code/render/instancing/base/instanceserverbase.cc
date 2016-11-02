@@ -8,10 +8,10 @@
 #include "frame/batchgroup.h"
 
 using namespace Models;
-namespace Instancing
+namespace Base
 {
-__ImplementSingleton(Instancing::InstanceServerBase);
-__ImplementClass(Instancing::InstanceServerBase, 'INSB', Core::RefCounted);
+__ImplementSingleton(Base::InstanceServerBase);
+__ImplementClass(Base::InstanceServerBase, 'INSB', Core::RefCounted);
 //------------------------------------------------------------------------------
 /**
 */

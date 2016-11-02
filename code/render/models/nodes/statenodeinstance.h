@@ -29,7 +29,7 @@ public:
     virtual ~StateNodeInstance();
 
 	/// apply per-instance state for a shader prior to rendering
-	virtual void ApplyState(IndexT frameIndex, const IndexT& pass, const Ptr<CoreGraphics::Shader>& shader);
+	virtual void ApplyState(IndexT frameIndex, const IndexT& pass);
 
     /// set surface material on node, be careful to clear up any references to SurfaceConstantInstances if this is done
     virtual void SetSurfaceInstance(const Ptr<Materials::SurfaceInstance>& material);
@@ -46,14 +46,12 @@ protected:
 	virtual void ApplySharedVariables();
 
 #if SHADER_MODEL_5
-    Ptr<CoreGraphics::Shader> sharedShader;
-    Ptr<CoreGraphics::ConstantBuffer> objectBuffer;
+    Ptr<CoreGraphics::ShaderState> sharedShader;
     Ptr<CoreGraphics::ShaderVariable> modelShaderVar;
     Ptr<CoreGraphics::ShaderVariable> invModelShaderVar;
     Ptr<CoreGraphics::ShaderVariable> modelViewProjShaderVar;
     Ptr<CoreGraphics::ShaderVariable> modelViewShaderVar;
     Ptr<CoreGraphics::ShaderVariable> objectIdShaderVar;
-    Ptr<CoreGraphics::ShaderVariable> objectBlockShaderVar;
     IndexT objectBufferUpdateIndex;
 #endif
 

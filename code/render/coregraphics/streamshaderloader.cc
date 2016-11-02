@@ -16,6 +16,11 @@ namespace CoreGraphics
 {
 __ImplementClass(CoreGraphics::StreamShaderLoader, 'SSDL', OpenGL4::OGL4StreamShaderLoader);
 }
+#elif __VULKAN__
+namespace CoreGraphics
+{
+__ImplementClass(CoreGraphics::StreamShaderLoader, 'SSDL', Vulkan::VkStreamShaderLoader);
+}
 #elif __DX9__
 namespace CoreGraphics
 {

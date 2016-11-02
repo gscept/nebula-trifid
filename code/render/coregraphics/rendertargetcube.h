@@ -28,6 +28,15 @@ class RenderTargetCube : public OpenGL4::OGL4RenderTargetCube
 	__DeclareClass(RenderTargetCube);
 };
 }
+#elif __VULKAN__
+#include "coregraphics/vk/vkrendertargetcube.h"
+namespace CoreGraphics
+{
+class RenderTargetCube : public Vulkan::VkRenderTargetCube
+{
+	__DeclareClass(RenderTargetCube);
+};
+}
 #elif __DX9__
 #include "coregraphics/d3d9/d3d9rendertargetcube.h"
 namespace CoreGraphics

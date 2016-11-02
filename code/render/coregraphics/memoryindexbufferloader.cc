@@ -16,6 +16,11 @@ namespace CoreGraphics
 {
 __ImplementClass(CoreGraphics::MemoryIndexBufferLoader, 'MIBL', OpenGL4::OGL4MemoryIndexBufferLoader);
 }
+#elif __VULKAN__
+namespace CoreGraphics
+{
+__ImplementClass(CoreGraphics::MemoryIndexBufferLoader, 'MIBL', Vulkan::VkMemoryIndexBufferLoader);
+}
 #elif __DX9__
 namespace CoreGraphics
 {

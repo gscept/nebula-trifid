@@ -10,8 +10,9 @@
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
 #include "math/matrix44.h"
-#include "coregraphics/shaderinstance.h"
-namespace Instancing
+#include "coregraphics/shaderstate.h"
+#include "coregraphics/shader.h"
+namespace Base
 {
 class InstanceRendererBase : public Core::RefCounted
 {

@@ -11,6 +11,7 @@
 #include "Rocket/Core.h"
 #include "core/refcounted.h"
 #include "coregraphics/primitivegroup.h"
+#include "coregraphics/renderdevice.h"
 #include "coregraphics/shadervariable.h"
 #include "math/float4.h"
 #include "math/rectangle.h"
@@ -18,7 +19,7 @@
 namespace CoreGraphics
 {
 class RenderDevice;
-class ShaderInstance;
+class ShaderState;
 class ShaderVariation;
 class VertexBuffer;
 class IndexBuffer;
@@ -70,7 +71,7 @@ public:
 private:
 
 	Ptr<CoreGraphics::RenderDevice> renderDevice;
-	Ptr<CoreGraphics::Shader> shader;
+	Ptr<CoreGraphics::ShaderState> shader;
 	
 	Ptr<CoreGraphics::ShaderVariable> diffMap;
 	Ptr<CoreGraphics::ShaderVariable> modelVar;

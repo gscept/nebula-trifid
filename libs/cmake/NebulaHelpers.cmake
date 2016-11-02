@@ -315,7 +315,7 @@ MACRO(N_SET_COMPILER_DEFAULTS)
                 IF(CMAKE_CL_64)
                 # C++ compiler
                         SET(CMAKE_CXX_FLAGS 
-                                "/D__WIN32__ /DWIN32 /DWIN64 /D__WIN64__ /D_HAS_EXCEPTIONS=0 /GF /fp:fast /W3 /WX /nologo /errorReport:prompt /wd4091" 
+                                "/D__WIN32__ /DWIN32 /DWIN64 /D__WIN64__ /D_HAS_EXCEPTIONS=0 /GF /fp:fast /W3 /WX /MP /Oi /arch:SSE /nologo /errorReport:prompt /wd4091 /wd4267" 
                                 CACHE STRING "Flags used by the compiler during all build types." FORCE)
                         SET(CMAKE_CXX_FLAGS_DEBUG
                                 "/D_DEBUG /Od /Gm /RTC1 /${N_RT_TYPE}d /Gy /Zi"
@@ -328,7 +328,7 @@ MACRO(N_SET_COMPILER_DEFAULTS)
                                 CACHE STRING "Flags used by the compiler during release builds." FORCE)
                         # C compiler (force compilation of .c files using C++ compiler)
                         SET(CMAKE_C_FLAGS 
-                                "/D__WIN32__ /DWIN32 /DWIN64 /D__WIN64__ /D_HAS_EXCEPTIONS=0 /GF /fp:fast /W3 /WX /nologo /errorReport:prompt /wd4091" 
+                                "/D__WIN32__ /DWIN32 /DWIN64 /D__WIN64__ /D_HAS_EXCEPTIONS=0 /GF /fp:fast /W3 /WX /MP /Oi /arch:SSE /nologo /errorReport:prompt /wd4091 /wd4267" 
                                 CACHE STRING "Flags used by the compiler during all build types." FORCE)
                         SET(CMAKE_C_FLAGS_DEBUG
                                 "/D_DEBUG /Od /Gm /RTC1 /${N_RT_TYPE}d /Gy /Zi"
@@ -377,7 +377,7 @@ MACRO(N_SET_COMPILER_DEFAULTS)
         
                 # C++ compiler
                 # remove multichar warning spewage
-                SET(CMAKE_CXX_FLAGS "-Wno-multichar -fpermissive -std=gnu++0x -msse4.2 -march=sandybridge -ffast-math -fno-trapping-math -funsafe-math-optimizations -ffinite-math-only -mrecip=all")
+                SET(CMAKE_CXX_FLAGS "-Wno-multichar -Wno-switch-bool -fpermissive -std=gnu++0x -msse4.2 -march=sandybridge -ffast-math -fno-trapping-math -funsafe-math-optimizations -ffinite-math-only -mrecip=all")
                 SET(CMAKE_CXX_FLAGS_DEBUG "-g -D_DEBUG")
                 SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O2 -Og -D_DEBUG")
                 SET(CMAKE_CXX_FLAGS_RELEASE " -O2 -Og -g")

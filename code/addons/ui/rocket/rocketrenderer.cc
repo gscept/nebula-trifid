@@ -14,6 +14,7 @@
 #include "coregraphics/shaderserver.h"
 #include "coregraphics/streamtextureloader.h"
 #include "coregraphics/vertexlayoutserver.h"
+#include "coregraphics/config.h"
 #include "rocketserver.h"
 #include "SOIL/SOIL.h"
 #include "rocketrenderer.h"
@@ -36,7 +37,7 @@ RocketRenderer::RocketRenderer()
 	this->renderDevice = RenderDevice::Instance();
 
 	// get shader and create instance
-    this->shader = shaderServer->GetShader("shd:gui");
+	this->shader = shaderServer->CreateShaderState("shd:gui", { NEBULAT_DEFAULT_GROUP });
 
 	// get texture
 	this->diffMap = this->shader->GetVariableByName("Texture");	
@@ -56,6 +57,7 @@ RocketRenderer::RocketRenderer()
 RocketRenderer::~RocketRenderer()
 {
 	this->renderDevice = 0;
+	this->shader->Discard();
 	this->shader = 0;
 	this->diffMap = 0;
 }
@@ -124,7 +126,6 @@ RocketRenderer::CompileGeometry(Rocket::Core::Vertex* vertices,
 	geometry->primGroup.SetNumVertices(num_vertices);
 	geometry->primGroup.SetBaseVertex(0);
 	geometry->primGroup.SetNumIndices(num_indices);
-	geometry->primGroup.SetPrimitiveTopology(PrimitiveTopology::TriangleList);
 	
 	return reinterpret_cast<Rocket::Core::CompiledGeometryHandle>(geometry);
 }
@@ -167,7 +168,7 @@ RocketRenderer::RenderCompiledGeometry(Rocket::Core::CompiledGeometryHandle geom
 		}
 
         // apply shader
-        shaderServer->SetActiveShader(this->shader);
+        shaderServer->SetActiveShader(this->shader->GetShader());
         this->shader->Apply();
 
 		// get dimensions
@@ -180,17 +181,18 @@ RocketRenderer::RenderCompiledGeometry(Rocket::Core::CompiledGeometryHandle geom
 
 		// combine matrices and set in shader
 		world = matrix44::multiply(matrix44::multiply(world, scale), trans);
-        this->shader->BeginUpdate();
+        this->shader->BeginUpdateSync();
 		this->modelVar->SetMatrix(world);
-        this->shader->EndUpdate();
+		this->shader->EndUpdateSync();
   
 		// commit shader
 		this->shader->Commit();
 
 		// setup render device and draw
 		device->SetVertexLayout(nebGeometry->vb->GetVertexLayout());
+		device->SetPrimitiveTopology(PrimitiveTopology::TriangleList);
 		device->SetIndexBuffer(nebGeometry->ib);
-		device->SetStreamSource(0, nebGeometry->vb, 0);
+		device->SetStreamVertexBuffer(0, nebGeometry->vb, 0);
 		device->SetPrimitiveGroup(nebGeometry->primGroup);
 		device->Draw();
 	}
@@ -199,8 +201,8 @@ RocketRenderer::RenderCompiledGeometry(Rocket::Core::CompiledGeometryHandle geom
 //------------------------------------------------------------------------------
 /**
 */
-void 
-RocketRenderer::ReleaseCompiledGeometry( Rocket::Core::CompiledGeometryHandle geometry )
+void
+RocketRenderer::ReleaseCompiledGeometry(Rocket::Core::CompiledGeometryHandle geometry)
 {	
 	NebulaCompiledGeometry* nebGeometry = (NebulaCompiledGeometry*)geometry;			
 	nebGeometry->ib->Unload();
@@ -215,8 +217,8 @@ RocketRenderer::ReleaseCompiledGeometry( Rocket::Core::CompiledGeometryHandle ge
 //------------------------------------------------------------------------------
 /**
 */
-void 
-RocketRenderer::EnableScissorRegion( bool enable )
+void
+RocketRenderer::EnableScissorRegion(bool enable)
 {
 	if (enable)
 	{
@@ -231,8 +233,8 @@ RocketRenderer::EnableScissorRegion( bool enable )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-RocketRenderer::SetScissorRegion( int x, int y, int width, int height )
+void
+RocketRenderer::SetScissorRegion(int x, int y, int width, int height)
 {
 	Ptr<RenderDevice> device = RenderDevice::Instance();
 	this->scissor.set(x, y, x + width, y + height);
@@ -244,8 +246,8 @@ RocketRenderer::SetScissorRegion( int x, int y, int width, int height )
 //------------------------------------------------------------------------------
 /**
 */
-bool 
-RocketRenderer::LoadTexture( Rocket::Core::TextureHandle& texture_handle, Rocket::Core::Vector2i& texture_dimensions, const Rocket::Core::String& source )
+bool
+RocketRenderer::LoadTexture(Rocket::Core::TextureHandle& texture_handle, Rocket::Core::Vector2i& texture_dimensions, const Rocket::Core::String& source)
 {
 	Util::String nsource = source.CString();
 	// check for special loaders

@@ -28,6 +28,15 @@ class RenderTarget : public OpenGL4::OGL4RenderTarget
 	__DeclareClass(RenderTarget);
 };
 }
+#elif __VULKAN__
+#include "coregraphics/vk/vkrendertarget.h"
+namespace CoreGraphics
+{
+class RenderTarget : public Vulkan::VkRenderTarget
+{
+	__DeclareClass(RenderTarget);
+};
+}
 #elif __DX9__
 #include "coregraphics/d3d9/d3d9rendertarget.h"
 namespace CoreGraphics

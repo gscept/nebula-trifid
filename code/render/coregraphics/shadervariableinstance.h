@@ -32,6 +32,15 @@ class ShaderVariableInstance : public OpenGL4::OGL4ShaderVariableInstance
     __DeclareClass(ShaderVariableInstance);
 };
 }
+#elif __VULKAN__
+#include "coregraphics/vk/vkshadervariableinstance.h"
+namespace CoreGraphics
+{
+class ShaderVariableInstance : public Vulkan::VkShaderVariableInstance
+{
+    __DeclareClass(ShaderVariableInstance);
+};
+}
 #else
 #error "ShaderVariableInstance class not implemented on this platform!"
 #endif

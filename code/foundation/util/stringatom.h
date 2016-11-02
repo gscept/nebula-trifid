@@ -340,7 +340,7 @@ StringAtom::AsString() const
 inline IndexT
 StringAtom::HashCode() const
 {
-	return (IndexT)this->content;
+	return (IndexT)reinterpret_cast<PtrT>(this->content);
 }
 
 } // namespace Util

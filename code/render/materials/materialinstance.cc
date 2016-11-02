@@ -59,7 +59,7 @@ MaterialInstance::Setup( const Ptr<Material>& origMaterial )
 		const Ptr<Shader>& shader = this->originalMaterial->GetShaderInstance(code);
 
 		// create an instance of the shader for the material
-		const Ptr<ShaderInstance>& shdInst = shader->CreateShaderInstance();
+		const Ptr<ShaderState>& shdInst = shader->CreateState();
 
 		// go through our material parameters
 		IndexT j;
@@ -173,8 +173,8 @@ MaterialInstance::GetVariableByName(const MaterialVariable::Name& n) const
 //------------------------------------------------------------------------------
 /**
 */
-const Ptr<CoreGraphics::ShaderInstance>& 
-MaterialInstance::GetShaderInstanceByIndex( IndexT i ) const
+const Ptr<CoreGraphics::ShaderState>&
+MaterialInstance::GetShaderStateByIndex(IndexT i) const
 {
 	n_assert(this->shaderInstances.Size() > i);
 	return this->shaderInstances[i];
@@ -183,8 +183,8 @@ MaterialInstance::GetShaderInstanceByIndex( IndexT i ) const
 //------------------------------------------------------------------------------
 /**
 */
-const Ptr<CoreGraphics::ShaderInstance>& 
-MaterialInstance::GetShaderInstanceByCode( const Models::BatchType::Code& code )
+const Ptr<CoreGraphics::ShaderState>&
+MaterialInstance::GetShaderStateByCode(const Models::BatchType::Code& code)
 {
 	n_assert(this->shaderInstancesByCode.Contains(code));
 	return this->shaderInstancesByCode[code];

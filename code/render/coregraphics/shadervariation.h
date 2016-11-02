@@ -27,6 +27,15 @@ class ShaderVariation : public OpenGL4::OGL4ShaderProgram
 	__DeclareClass(ShaderVariation);
 };
 }
+#elif __VULKAN__
+#include "coregraphics/vk/vkshaderprogram.h"
+namespace CoreGraphics
+{
+class ShaderVariation : public Vulkan::VkShaderProgram
+{
+	__DeclareClass(ShaderVariation);
+};
+}
 #elif __DX9__
 #include "coregraphics/d3d9/d3d9shadervariation.h"
 namespace CoreGraphics

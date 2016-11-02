@@ -5,7 +5,7 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "coregraphics/mesh.h"
-#if (__DX11__ || __DX9__ || __OGL4__)
+#if (__DX11__ || __DX9__ || __OGL4__ || __VULKAN__)
 namespace CoreGraphics
 {
 __ImplementClass(CoreGraphics::Mesh, 'MESH', Base::MeshBase);
