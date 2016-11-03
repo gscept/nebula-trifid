@@ -77,7 +77,7 @@ TARGET_INCLUDE_DIRECTORIES(navigation PUBLIC ${Nebula3_SOURCE_DIR}/code/addons/n
 TARGET_INCLUDE_DIRECTORIES(navigation PRIVATE ${Nebula3_SOURCE_DIR}/code/application)
 ADD_DEPENDENCIES(navigation application)
 
-N_SET_COMPILER_DEFAULTS()
+N_SET_COMPILER_DEFAULTS(navigation)
 IF(N_USE_PRECOMPILED_HEADERS)
     N_SET_PCH(navigation stdneb.h stdneb.cc ../)
 ENDIF()

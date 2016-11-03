@@ -22,8 +22,8 @@
     (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "game/featureunit.h"
-#include "physics/physicsserver.h"
-#include "physics/physicsobject.h"
+#include "physicsserver.h"
+#include "physicsobject.h"
 #include "debug/debugtimer.h"
 
 //------------------------------------------------------------------------------

@@ -63,7 +63,7 @@ add_library( forest STATIC ${SOURCES_SRCS})
 SET_TARGET_PROPERTIES(forest PROPERTIES FOLDER "N3SDK/addons")
 TARGET_LINK_LIBRARIES(forest application)
 
-N_SET_COMPILER_DEFAULTS()
+N_SET_COMPILER_DEFAULTS(forest)
 IF(N_USE_PRECOMPILED_HEADERS)
     N_SET_PCH(forest stdneb.h stdneb.cc ../)
 ENDIF()

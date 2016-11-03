@@ -1,3 +1,4 @@
-N_SET_COMPILER_DEFAULTS()
-
 add_subdirectory(bullet/src)
+N_SET_COMPILER_DEFAULTS(BulletDynamics)
+N_SET_COMPILER_DEFAULTS(BulletSoftBody)
+N_SET_COMPILER_DEFAULTS(LinearMath)

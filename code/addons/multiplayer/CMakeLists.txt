@@ -53,7 +53,8 @@ TARGET_INCLUDE_DIRECTORIES(multiplayer PUBLIC ${Nebula3_SOURCE_DIR}/code/addons/
 ADD_DEPENDENCIES(multiplayer application RakNetLibStatic )
 
 
-N_SET_COMPILER_DEFAULTS()
+N_SET_COMPILER_DEFAULTS(multiplayer)
+N_SET_COMPILER_DEFAULTS(multiplayer_NIDLS)
 IF(N_USE_PRECOMPILED_HEADERS)
     N_SET_PCH(multiplayer stdneb.h stdneb.cc ../)
 ENDIF()

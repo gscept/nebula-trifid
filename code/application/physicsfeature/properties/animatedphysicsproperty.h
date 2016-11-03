@@ -10,7 +10,7 @@
     (C) 2012 Johannes Hirche
 */
 #include "properties/transformableproperty.h"
-#include "physics/physicsbody.h"
+#include "physicsbody.h"
 #include "physicsfeature/physicsattr/physicsattributes.h"
 #include "graphics/modelentity.h"
 

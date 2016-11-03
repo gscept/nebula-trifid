@@ -6,9 +6,9 @@
 #include "stdneb.h"
 #include "physicsfeature/properties/staticphysicsproperty.h"
 #include "game/entity.h"
-#include "physics/physicsserver.h"
-#include "physics/scene.h"
-#include "physics/physicsbody.h"
+#include "physicsserver.h"
+#include "scene.h"
+#include "physicsbody.h"
 #include "physicsfeature/physicsattr/physicsattributes.h"
 #include "core/factory.h"
 #include "basegamefeature/basegameprotocol.h"
@@ -18,7 +18,7 @@
 #include "io/xmlreader.h"
 #include "resources/resourcemanager.h"
 #include "graphicsfeature/graphicsattr/graphicsattributes.h"
-#include "physics/resource/managedphysicsmodel.h"
+#include "resource/managedphysicsmodel.h"
 #include "multiplayer/multiplayerfeatureunit.h"
 
 namespace PhysicsFeature

@@ -30,7 +30,7 @@ add_library( silhouette STATIC ${SOURCES_SRCS} )
 TARGET_LINK_LIBRARIES(silhouette render)
 
 SET_TARGET_PROPERTIES(silhouette PROPERTIES FOLDER "N3SDK/addons")
-N_SET_COMPILER_DEFAULTS()
+N_SET_COMPILER_DEFAULTS(silhouette)
 IF(N_USE_PRECOMPILED_HEADERS)
     N_SET_PCH(silhouette stdneb.h stdneb.cc ../)
 ENDIF()

@@ -6,7 +6,7 @@
     (C) 2016 Individual contributors, see AUTHORS file
 */
 #include "basegamefeature/properties/transformableproperty.h"
-#include "physics/staticobject.h"
+#include "staticobject.h"
 #include "physicsfeature/physicsattr/physicsattributes.h"
 
 //------------------------------------------------------------------------------

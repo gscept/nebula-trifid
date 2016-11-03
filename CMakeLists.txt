@@ -3,8 +3,6 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.4.0)
 
 PROJECT(Nebula3)
 
-include(CMakeDependentOption)
-
 SET(N3ROOT ${Nebula3_SOURCE_DIR})
 
 # for makefile based builds default to release builds
@@ -42,58 +40,28 @@ ELSE()
 	OPTION(N_USE_AVX "Use AVX instructionset" OFF)		
 ENDIF()
 
-SET(N_QT4 OFF)
-SET(N_QT5 OFF)
-SET(DEFQT "N_QT4")
-SET(N_QT ${DEFQT} CACHE STRING "Qt Version")
-SET_PROPERTY(CACHE N_QT PROPERTY STRINGS "N_QT4" "N_QT5")
-SET(${N_QT} ON)
-
-IF(N_QT5)
-	ADD_DEFINITIONS(-D__USE_QT5)
-ELSE()
-	ADD_DEFINITIONS(-D__USE_QT4)
-ENDIF()
-CMAKE_DEPENDENT_OPTION(N_QT5_STATIC "Use static linking for Qt5" ON "N_QT5" OFF)
-
 OPTION(N_BUILD_OLD "Build old mostly obsolete things (some probably broken)." OFF)
-OPTION(N_BUILD_TESTS "Build Tests." OFF)
-OPTION(N_BUILD_TOOLKIT "Build Toolkit." ON)
-OPTION(N_BUILD_BENCHMARKS "Build Benchmarks (probably broken)." OFF)
-OPTION(N_BUILD_PLUGIN "Build Plugin." OFF)
-OPTION(N_BUILD_QT "Build QT based toolkit programs." ON)
-OPTION(N_BUILD_NVTT "Build nVidia texture tools and use as texture exporter." ON) 
-OPTION(N_BUILD_FIRSTTIME "Build Nebula without foundation nidls (required for first-time compilation of idlcompiler)." OFF)
 OPTION(N_BUILD_PUBLIC_AS_RELEASE "Instead of outputting release build as name.public.exe they are called name.exe." OFF)
-CMAKE_DEPENDENT_OPTION(N_QT_NEB_SUPPORT "Add support for Qt features within Nebula" ON "N_BUILD_QT" OFF)
 OPTION(N_BUILD_EXTERNAL_PROJECTS "Include projects included in the projects folder" ON)
 OPTION(N_VULKAN_EXPERIMENTAL "Build NebulaT using an experimental (non-release) version of Vulkan" OFF)
-
-IF(!MSVC) 
-	SET(N_BUILD_NVTT ON)
-ENDIF()
 
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${N3ROOT}/libs/cmake)
 INCLUDE(NebulaHelpers)
 
 # select render api
-
-SET(N_BUILD_DX11 OFF)
 SET(N_BUILD_OGL4 OFF)
 SET(N_BUILD_VULKAN OFF)
-SET(N_BUILD_DX9 OFF)
 
 SET(DEFAULTRENDERER "N_BUILD_VULKAN")
 
 SET(N_RENDERER ${DEFAULTRENDERER} CACHE STRING "Renderer chosen by CMake based on operating system")
-SET_PROPERTY(CACHE N_RENDERER PROPERTY STRINGS "N_BUILD_DX11" "N_BUILD_OGL4" "N_BUILD_VULKAN" "N_BUILD_DX9")
+SET_PROPERTY(CACHE N_RENDERER PROPERTY STRINGS "N_BUILD_OGL4" "N_BUILD_VULKAN")
 SET(${N_RENDERER} ON)
 # these are required for all extlibs packages that use precompiled headers from nebula
 SET_PROPERTY(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS  
 	$<$<BOOL:${N_BUILD_OGL4}>:__OGL4__ GLEW_STATIC __ANYFX__ IL_STATIC_LIB> 
-	$<$<BOOL:${N_BUILD_VULKAN}>:__VULKAN__ __ANYFX__ IL_STATIC_LIB> 
-	$<$<BOOL:${N_BUILD_DX11}>:__DX11__> 
-	$<$<BOOL:${N_BUILD_DX9}>:__DX9__>)
+	$<$<BOOL:${N_BUILD_VULKAN}>:__VULKAN__ __ANYFX__ IL_STATIC_LIB> 	
+	)
 	
 IF(${N_BUILD_VULKAN})
 	IF (${N_VULKAN_EXPERIMENTAL})
@@ -119,22 +87,18 @@ INCLUDE_DIRECTORIES($<$<BOOL:${N_BUILD_OGL4}>:${Nebula3_SOURCE_DIR}/code/extlibs
 												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/compiler/code
 												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/exts/eastl/include
 												${Nebula3_SOURCE_DIR}/code/extlibs/glfw/include>
-					$<$<BOOL:${N_BUILD_DX11}>:$ENV{DXSDK_DIR}/include ${Nebula3_SOURCE_DIR}/code/extlibs/Effects11> $<$<BOOL:${N_BUILD_DX9}>:$ENV{DXSDK_DIR}/include>)
+					)
 
 
 # select physics implementation
 SET(N_BUILD_BULLET OFF)
-SET(N_BUILD_HAVOK OFF)
 SET(N_BUILD_PHYSX OFF)
 SET(N_DEFAULT_PHYSICS "N_BUILD_BULLET")
 SET(N_PHYSICS ${N_DEFAULT_PHYSICS} CACHE STRING "Physics engine chosen by CMake")
-SET_PROPERTY(CACHE N_PHYSICS PROPERTY STRINGS "N_BUILD_BULLET" "N_BUILD_HAVOK" "N_BUILD_PHYSX")
+SET_PROPERTY(CACHE N_PHYSICS PROPERTY STRINGS "N_BUILD_BULLET" "N_BUILD_PHYSX")
 SET(${N_PHYSICS} ON)
 												
-SET_PROPERTY(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS  $<$<BOOL:${N_BUILD_HAVOK}>:__USE_HAVOK__> $<$<BOOL:${N_BUILD_BULLET}>:__USE_BULLET__> $<$<BOOL:${N_BUILD_PHYSX}>:__USE_PHYSX__>)
-
-INCLUDE_DIRECTORIES(${Nebula3_SOURCE_DIR}/code/extlibs/raknet/source)
-
+SET_PROPERTY(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS  $<$<BOOL:${N_BUILD_BULLET}>:__USE_BULLET__> $<$<BOOL:${N_BUILD_PHYSX}>:__USE_PHYSX__>)
 
 IF(WIN32)
 		
@@ -167,22 +131,6 @@ ELSEIF(UNIX)
     # Linux specific code
 		SET(LINUX true)
 	ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")		
-ENDIF()
-
-
-IF(N_BUILD_QT AND NOT N_BUILD_FIRSTTIME)
-	IF(N_QT4)
-		FIND_PACKAGE(Qt4 REQUIRED QtCore QtGui QtXml QtNetwork)
-		INCLUDE(${QT_USE_FILE})
-		ADD_DEFINITIONS(${QT_DEFINITIONS})
-	ELSE()
-		FIND_PACKAGE(Qt5Core REQUIRED)
-		FIND_PACKAGE(Qt5Widgets REQUIRED)
-		FIND_PACKAGE(Qt5Network REQUIRED)
-	ENDIF()
-	IF(N_QT_NEB_SUPPORT)
-		ADD_DEFINITIONS(-D_QT_NEB_SUPPORT)		
-	ENDIF()
 ENDIF()
 
 # help find the nidl files that live in the binary directory now

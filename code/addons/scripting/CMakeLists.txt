@@ -61,7 +61,7 @@ TARGET_INCLUDE_DIRECTORIES(scripting PUBLIC ${Nebula3_SOURCE_DIR}/code/extlibs $
 add_dependencies(scripting lua)
 SET_TARGET_PROPERTIES(scripting PROPERTIES FOLDER "N3SDK/addons")
 
-N_SET_COMPILER_DEFAULTS()
+N_SET_COMPILER_DEFAULTS(scripting)
 IF(N_USE_PRECOMPILED_HEADERS)
 	N_SET_PCH(scripting stdneb.h stdneb.cc ../)
 ENDIF()

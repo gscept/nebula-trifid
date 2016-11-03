@@ -36,7 +36,7 @@ TARGET_INCLUDE_DIRECTORIES(scriptingfeature PUBLIC ${Nebula3_SOURCE_DIR}/code/ap
 TARGET_LINK_LIBRARIES(scriptingfeature PUBLIC application scripting graphicsfeature)
 ADD_DEPENDENCIES(scriptingfeature application physicsfeature)
 
-N_SET_COMPILER_DEFAULTS()
+N_SET_COMPILER_DEFAULTS(scriptingfeature)
 IF(N_USE_PRECOMPILED_HEADERS)
     N_SET_PCH(scriptingfeature stdneb.h stdneb.cc ../)
 ENDIF()

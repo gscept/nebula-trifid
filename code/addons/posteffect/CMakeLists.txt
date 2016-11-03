@@ -84,7 +84,7 @@ TARGET_LINK_LIBRARIES(posteffect PUBLIC foundation render clouds)
 TARGET_INCLUDE_DIRECTORIES(posteffect PUBLIC ${Nebula3_SOURCE_DIR}/code/addons/posteffect ${Nebula3_SOURCE_DIR}/code/application ${Nebula3_SOURCE_DIR}/code/application/basegamefeature)
 
 ADD_DEPENDENCIES(posteffect clouds)
-N_SET_COMPILER_DEFAULTS()
+N_SET_COMPILER_DEFAULTS(posteffect)
 IF(N_USE_PRECOMPILED_HEADERS)
     N_SET_PCH(posteffect stdneb.h stdneb.cc ../)
 ENDIF()

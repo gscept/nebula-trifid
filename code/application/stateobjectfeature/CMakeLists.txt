@@ -40,7 +40,7 @@ TARGET_INCLUDE_DIRECTORIES(stateobjectfeature PUBLIC ${Nebula3_SOURCE_DIR}/code/
 TARGET_LINK_LIBRARIES(stateobjectfeature PUBLIC application graphicsfeature)
 ADD_DEPENDENCIES(stateobjectfeature application graphicsfeature)
 
-N_SET_COMPILER_DEFAULTS()
+N_SET_COMPILER_DEFAULTS(stateobjectfeature)
 IF(N_USE_PRECOMPILED_HEADERS)
     N_SET_PCH(stateobjectfeature stdneb.h stdneb.cc ../)
 ENDIF()

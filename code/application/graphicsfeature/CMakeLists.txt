@@ -125,7 +125,7 @@ TARGET_INCLUDE_DIRECTORIES(graphicsfeature PUBLIC ${Nebula3_SOURCE_DIR}/code/app
 TARGET_LINK_LIBRARIES(graphicsfeature PUBLIC application render posteffect effects physics)
 ADD_DEPENDENCIES(graphicsfeature application_NIDLS render_NIDLS posteffect)
 
-N_SET_COMPILER_DEFAULTS()
+N_SET_COMPILER_DEFAULTS(graphicsfeature)
 IF(N_USE_PRECOMPILED_HEADERS)
     N_SET_PCH(graphicsfeature stdneb.h stdneb.cc ../)
 ENDIF()

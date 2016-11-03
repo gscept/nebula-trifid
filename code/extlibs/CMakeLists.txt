@@ -3,20 +3,11 @@
 #-------------------------------------------------------------------------------
 
 
-IF(NOT N_BUILD_FIRSTTIME)
-
-	N_SET_COMPILER_DEFAULTS()
-
-    IF(MSVC)
-		add_subdirectory(stackwalker)
-		
+	IF(MSVC)
+		add_subdirectory(stackwalker)		
 		add_subdirectory(libfreetype) 
     ENDIF()
-	
-	IF(N_BUILD_NVTT)
-		add_subdirectory(nvidia-texture-tools)
-	ENDIF()
-
+		
     add_subdirectory(lua) 
 	
     add_subdirectory(recastnavigation/cmake)	
@@ -32,8 +23,7 @@ IF(NOT N_BUILD_FIRSTTIME)
     add_subdirectory(zlib) 
     add_subdirectory(imgui)
     add_subdirectory(libjpeg)
-    add_subdirectory(libpng) 	
-    add_subdirectory(CubeMapGen)
+    add_subdirectory(libpng) 	    
 	add_subdirectory(ogg)
 		SET_TARGET_PROPERTIES(ogg PROPERTIES FOLDER "extlibs")
 	add_subdirectory(theora)
@@ -61,10 +51,6 @@ IF(NOT N_BUILD_FIRSTTIME)
 	
     add_subdirectory(librocket)    
 
-    IF(N_BUILD_QT)
-        add_subdirectory(libqimg)		
-    ENDIF()
-
     IF(N_BUILD_OGL4)			
         add_subdirectory(glew)		
 			SET_TARGET_PROPERTIES(glew PROPERTIES FOLDER "extlibs/glew")
@@ -82,6 +68,8 @@ IF(NOT N_BUILD_FIRSTTIME)
 			SET_TARGET_PROPERTIES(api PROPERTIES FOLDER "extlibs/anyfx")
 			SET_TARGET_PROPERTIES(util PROPERTIES FOLDER "extlibs/anyfx")
 			SET_TARGET_PROPERTIES(EASTL PROPERTIES FOLDER "extlibs/anyfx")
+			
+		N_SET_COMPILER_DEFAULTS(compiler)
 		
 		set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "Build the GLFW example programs")
 		set(GLFW_BUILD_TESTS OFF CACHE BOOL "Build the GLFW test programs")
@@ -89,14 +77,14 @@ IF(NOT N_BUILD_FIRSTTIME)
 		set(GLFW_INSTALL OFF CACHE BOOL "Generate installation target")		        
 		add_subdirectory(glfw)	
 			SET_TARGET_PROPERTIES(glfw PROPERTIES FOLDER "extlibs/glfw")
-    ELSEIF(N_BUILD_DX11)
-        add_subdirectory(Effects11)
 	ELSEIF(N_BUILD_VULKAN)		
 		SET(ANYFX_FOLDER "extlibs/anyfx")
 			SET(ANYFX_VULKAN_FOLDER ${VULKAN_INCLUDE_DIR})
 			SET(ANYFX_FOLDER "extlibs/anyfx")
 			add_subdirectory(anyfx)
-			
+			N_SET_COMPILER_DEFAULTS(compiler)
+			N_SET_COMPILER_DEFAULTS(api)
+			N_SET_COMPILER_DEFAULTS(EASTL)
 			add_subdirectory(SOIL) #still need the stb image stuff in SOIL
 			
 			#SET_TARGET_PROPERTIES(compiler PROPERTIES FOLDER "extlibs/anyfx")
@@ -105,17 +93,12 @@ IF(NOT N_BUILD_FIRSTTIME)
 			#SET_TARGET_PROPERTIES(api PROPERTIES FOLDER "extlibs/anyfx")
 			#SET_TARGET_PROPERTIES(util PROPERTIES FOLDER "extlibs/anyfx")
 			#SET_TARGET_PROPERTIES(EASTL PROPERTIES FOLDER "extlibs/anyfx")
-		
+		set_property(TARGET glslang-default-resource-limits PROPERTY FOLDER "extlibs/anyfx/glslang")
 		set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "Build the GLFW example programs")
 		set(GLFW_BUILD_TESTS OFF CACHE BOOL "Build the GLFW test programs")
 		set(GLFW_BUILD_DOCS OFF CACHE BOOL "Build the GLFW documentation")
 		set(GLFW_INSTALL OFF CACHE BOOL "Generate installation target")		        
 		add_subdirectory(glfw)	
 			SET_TARGET_PROPERTIES(glfw PROPERTIES FOLDER "extlibs/glfw")
+		N_SET_COMPILER_DEFAULTS(glfw)
     ENDIF()
-
-ELSE()
-    add_subdirectory(tinyxml) 
-    add_subdirectory(zlib)
-    add_subdirectory(base64)
-ENDIF()

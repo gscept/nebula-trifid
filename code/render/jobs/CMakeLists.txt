@@ -57,7 +57,13 @@ SET_TARGET_PROPERTIES(render_visibilityquadtreejob PROPERTIES FOLDER "N3SDK/N3/J
 
 
 
-N_SET_COMPILER_DEFAULTS()
+N_SET_COMPILER_DEFAULTS(render_animjobsamplemix)
+N_SET_COMPILER_DEFAULTS(render_animjobsample)
+N_SET_COMPILER_DEFAULTS(render_charevalskeletonjob)
+N_SET_COMPILER_DEFAULTS(render_particlejob)
+N_SET_COMPILER_DEFAULTS(render_visibilityboxsystemjob)
+N_SET_COMPILER_DEFAULTS(render_visibilityquadtreejob)
+
 # dont use precompiled headers for these (if you do, make sure to add the right precompiled header to the files as well)
 #IF(N_USE_PRECOMPILED_HEADERS)
 #    IF(NOT MSVC)

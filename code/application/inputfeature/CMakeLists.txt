@@ -27,7 +27,7 @@ TARGET_INCLUDE_DIRECTORIES(inputfeature PUBLIC ${Nebula3_SOURCE_DIR}/code/applic
 TARGET_LINK_LIBRARIES(inputfeature PUBLIC application render)
 ADD_DEPENDENCIES(inputfeature application_NIDLS render_NIDLS)
 
-N_SET_COMPILER_DEFAULTS()
+N_SET_COMPILER_DEFAULTS(inputfeature)
 IF(N_USE_PRECOMPILED_HEADERS)
     N_SET_PCH(inputfeature stdneb.h stdneb.cc ../)
 ENDIF()

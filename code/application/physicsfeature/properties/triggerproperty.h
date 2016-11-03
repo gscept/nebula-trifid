@@ -10,7 +10,7 @@
     (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "properties/transformableproperty.h"
-#include "physics/physicsprobe.h"
+#include "physicsprobe.h"
 #include "math/vector.h"
 #include "timing/time.h"
 

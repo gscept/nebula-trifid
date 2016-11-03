@@ -12,7 +12,7 @@
 #include "game/manager.h"
 #include "game/entity.h"
 #include "physics/filterset.h"
-#include "physics/materialtable.h"
+#include "materialtable.h"
 #include "math/point.h"
 #include "math/vector.h"
 #include "math/line.h"

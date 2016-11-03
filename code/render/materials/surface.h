@@ -29,7 +29,6 @@
 //------------------------------------------------------------------------------
 #include "resources/resource.h"
 #include "material.h"
-#include "physics/materialtable.h"
 #include "materials/materialtype.h"
 #include "surfaceconstant.h"
 #include "surfacename.h"

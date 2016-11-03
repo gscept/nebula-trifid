@@ -17,7 +17,7 @@
     (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "basegamefeature/properties/transformableproperty.h"
-#include "physics/physicsbody.h"
+#include "physicsbody.h"
 #include "physicsfeature/physicsattr/physicsattributes.h"
 
 //------------------------------------------------------------------------------

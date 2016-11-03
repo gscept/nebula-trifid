@@ -51,7 +51,7 @@ add_dependencies(framecapture render)
 TARGET_LINK_LIBRARIES(framecapture render)
 SET_TARGET_PROPERTIES(framecapture PROPERTIES FOLDER "N3SDK/addons")
 
-N_SET_COMPILER_DEFAULTS()
+N_SET_COMPILER_DEFAULTS(framecapture)
 IF(N_USE_PRECOMPILED_HEADERS)
     N_SET_PCH(framecapture stdneb.h stdneb.cc ../)
 ENDIF()

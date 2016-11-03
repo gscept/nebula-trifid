@@ -1662,9 +1662,8 @@ TARGET_LINK_LIBRARIES(render PUBLIC render_animjobsample render_animjobsamplemix
 
 TARGET_LINK_LIBRARIES(render PUBLIC $<$<BOOL:${N_BUILD_OGL4}>: DevIL ILU ILUT> )
 
-add_subdirectory(physics)
-
-N_SET_COMPILER_DEFAULTS()
+N_SET_COMPILER_DEFAULTS(render)
+N_SET_COMPILER_DEFAULTS(render_NIDLS)
 IF(N_USE_PRECOMPILED_HEADERS)
     N_SET_PCH(render stdneb.h stdneb.cc)
 ENDIF()

@@ -112,7 +112,6 @@
 			<File name="code/addons/navigation/navigationattributes.nidl"/>
 			<File name="code/application/scriptingfeature/scriptingprotocol.nidl"/>			
 			<File name="code/application/stateobjectfeature/stateobjectprotocol.nidl"/>
-			<File name="code/qttoolkit/leveleditor2/leveleditor2protocol.nidl"/>
 			<File name="code/addons/effects/effectsattributes.nidl"/>
 			<File name="code/addons/faudio/audioprotocol.nidl"/>
 			<File name="code/addons/ui/uiattrs/uiattributes.nidl"/>

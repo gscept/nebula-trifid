@@ -168,7 +168,7 @@ TARGET_INCLUDE_DIRECTORIES(scriptfeature PUBLIC ${Nebula3_SOURCE_DIR}/code/appli
 TARGET_LINK_LIBRARIES(scriptfeature PUBLIC application)
 ADD_DEPENDENCIES(scriptfeature application_NIDLS)
 
-N_SET_COMPILER_DEFAULTS()
+N_SET_COMPILER_DEFAULTS(scriptfeature)
 IF(N_USE_PRECOMPILED_HEADERS)
     N_SET_PCH(scriptfeature stdneb.h stdneb.cc ../)
 ENDIF()

@@ -8,7 +8,7 @@
     (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "util/array.h"
-#include "physics/filterset.h"
+#include "filterset.h"
 
 //------------------------------------------------------------------------------
 namespace PhysicsFeature

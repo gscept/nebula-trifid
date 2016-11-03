@@ -56,7 +56,7 @@ TARGET_INCLUDE_DIRECTORIES(physicsfeature PUBLIC ${Nebula3_SOURCE_DIR}/code/appl
 TARGET_LINK_LIBRARIES(physicsfeature PUBLIC application render physics navigation)
 ADD_DEPENDENCIES(physicsfeature application_NIDLS)
 
-N_SET_COMPILER_DEFAULTS()
+N_SET_COMPILER_DEFAULTS(physicsfeature)
 IF(N_USE_PRECOMPILED_HEADERS)
     N_SET_PCH(physicsfeature stdneb.h stdneb.cc ../)
 ENDIF()

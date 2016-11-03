@@ -10,7 +10,7 @@
     (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "graphicsfeature/properties/inputproperty.h"
-#include "physics/util/mousegripper.h"
+#include "util/mousegripper.h"
 
 //------------------------------------------------------------------------------
 namespace PhysicsFeature
