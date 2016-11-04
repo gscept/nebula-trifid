@@ -101,7 +101,7 @@ set(SOURCES_SRCS
 
 N_CREATE_FEATURE(effects SOURCES_SRCS P_NIDL_FILES)
 
-TARGET_LINK_LIBRARIES(effects ${FMOD_LIBRARIES} application graphicsfeature)
+TARGET_LINK_LIBRARIES(effects PUBLIC ${FMOD_LIBRARIES} application graphicsfeature)
 ADD_DEPENDENCIES(effects application)
 
 N_SET_COMPILER_DEFAULTS(effects)

@@ -27,7 +27,7 @@ set(SOURCES_SRCS
 )
 
 add_library( silhouette STATIC ${SOURCES_SRCS} )
-TARGET_LINK_LIBRARIES(silhouette render)
+TARGET_LINK_LIBRARIES(silhouette PUBLIC render)
 
 SET_TARGET_PROPERTIES(silhouette PROPERTIES FOLDER "N3SDK/addons")
 N_SET_COMPILER_DEFAULTS(silhouette)

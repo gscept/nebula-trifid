@@ -1,9 +1,11 @@
 set_property(GLOBAL PROPERTY USE_FOLDERS On)
 CMAKE_MINIMUM_REQUIRED(VERSION 3.4.0)
+cmake_policy(SET CMP0022 NEW)
 
-PROJECT(NebulaTrifid)
+PROJECT(Nebula3)
 
 SET(N3ROOT ${Nebula3_SOURCE_DIR})
+SET(N3ROOT ${Nebula3_SOURCE_DIR} PARENT_SCOPE)
 
 # for makefile based builds default to release builds
 IF(NOT CMAKE_BUILD_TYPE)
@@ -49,14 +51,15 @@ SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${N3ROOT}/libs/cmake)
 INCLUDE(NebulaHelpers)
 
 # select render api
-SET(N_BUILD_OGL4 OFF)
-SET(N_BUILD_VULKAN OFF)
+SET(N_BUILD_OGL4 OFF PARENT_SCOPE)
+SET(N_BUILD_VULKAN OFF PARENT_SCOPE)
 
 SET(DEFAULTRENDERER "N_BUILD_VULKAN")
 
 SET(N_RENDERER ${DEFAULTRENDERER} CACHE STRING "Renderer chosen by CMake based on operating system")
 SET_PROPERTY(CACHE N_RENDERER PROPERTY STRINGS "N_BUILD_OGL4" "N_BUILD_VULKAN")
-SET(${N_RENDERER} ON)
+SET(${N_RENDERER} ON )
+SET(${N_RENDERER} ON PARENT_SCOPE)
 # these are required for all extlibs packages that use precompiled headers from nebula
 SET_PROPERTY(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS  
 	$<$<BOOL:${N_BUILD_OGL4}>:__OGL4__ GLEW_STATIC __ANYFX__ IL_STATIC_LIB> 
@@ -96,6 +99,7 @@ SET(N_BUILD_PHYSX OFF)
 SET(N_DEFAULT_PHYSICS "N_BUILD_BULLET")
 SET(N_PHYSICS ${N_DEFAULT_PHYSICS} CACHE STRING "Physics engine chosen by CMake")
 SET_PROPERTY(CACHE N_PHYSICS PROPERTY STRINGS "N_BUILD_BULLET" "N_BUILD_PHYSX")
+SET(${N_PHYSICS} ON PARENT_SCOPE)
 SET(${N_PHYSICS} ON)
 												
 SET_PROPERTY(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS  $<$<BOOL:${N_BUILD_BULLET}>:__USE_BULLET__> $<$<BOOL:${N_BUILD_PHYSX}>:__USE_PHYSX__>)
@@ -138,4 +142,33 @@ INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}/nidl/)
 
 SET(CMAKE_INCLUDE_CURRENT_DIR_IN_INTERFACE ON)
 
+ADD_LIBRARY(NebulaConfig INTERFACE)
+TARGET_COMPILE_DEFINITIONS(NebulaConfig INTERFACE 
+			$<$<BOOL:${N_BUILD_BULLET}>:__USE_BULLET__> $<$<BOOL:${N_BUILD_PHYSX}>:__USE_PHYSX__>
+			$<$<BOOL:${N_BUILD_OGL4}>:__OGL4__ GLEW_STATIC __ANYFX__ IL_STATIC_LIB> 
+			$<$<BOOL:${N_BUILD_VULKAN}>:__VULKAN__ __ANYFX__ IL_STATIC_LIB> 	
+			$<$<BOOL:${N_MATH}>:D__USE_XNA> $<$<BOOL:${N_MATH_VECMATH}>:__USE_VECMATH>
+)
+TARGET_INCLUDE_DIRECTORIES(NebulaConfig INTERFACE 	${CMAKE_BINARY_DIR}/nidl/
+					$<$<BOOL:${N_MATH_VECMATH}>:${Nebula3_SOURCE_DIR}/code/extlibs/bullet/bullet/src>
+					$<$<BOOL:${N_BUILD_OGL4}>:${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/api/code
+												${Nebula3_SOURCE_DIR}/code/extlibs/glew/include
+												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/api/code
+												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/util/code
+												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/compiler/code
+												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/exts/eastl/include
+												${Nebula3_SOURCE_DIR}/code/extlibs/glfw/include>
+					$<$<BOOL:${N_BUILD_VULKAN}>:${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/api/lowlevel
+												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/api
+												${Nebula3_SOURCE_DIR}/code/extlibs/glew/include
+												${VULKAN_INCLUDE_DIR}
+												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/util/code
+												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/compiler/code
+												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/exts/eastl/include
+												${Nebula3_SOURCE_DIR}/code/extlibs/glfw/include>
+
+)
+
 ADD_SUBDIRECTORY(code)
+
+

@@ -108,17 +108,17 @@ SurfaceConstant::SetValue(const Util::Variant& value)
 		for (i = 0; i < this->bindingsByIndex.Size(); i++)
 		{
 			const ConstantBinding& binding = this->bindingsByIndex[i];
-			if (binding.active)
-			{
-				if (binding.var->IsActive()) this->ApplyToShaderVariable(value, binding.var);
+            if (binding.active)
+            {
+                if (binding.var->IsActive()) this->ApplyToShaderVariable(value, binding.var);
 
-#ifndef PUBLIC_BUILD
-				/*
-				if (binding.var->GetType() != this->value.GetType()) n_warning("[WARNING]: Surface constant '%s' is type '%s' but is provided with a '%s'. Behaviour is undefined (crash/corruption).\n",
-				this->name.Value(),
-				ShaderVariable::TypeToString(binding.var->GetType()),
-				Variant::TypeToString(this->value.GetType()));
+#ifndef PUBLIC_BUILD				
+                if (binding.var->GetType() != this->value.GetType()) n_warning("[WARNING]: Surface constant '%s' is type '%s' but is provided with a '%s'. Behaviour is undefined (crash/corruption).\n",
+                    this->name.Value(),
+                    ShaderVariable::TypeToString(binding.var->GetType()),
+                    Variant::TypeToString(this->value.GetType()));
 #endif
+            }
 		}
 
 	}

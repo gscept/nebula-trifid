@@ -48,7 +48,7 @@ N_WRAP_ADD_PROJ_NIDL_FILES(framecapture SOURCES_SRCS ${P_NIDL_FILES})
 
 add_library( framecapture STATIC ${SOURCES_SRCS} )
 add_dependencies(framecapture render)
-TARGET_LINK_LIBRARIES(framecapture render)
+TARGET_LINK_LIBRARIES(framecapture PUBLIC render)
 SET_TARGET_PROPERTIES(framecapture PROPERTIES FOLDER "N3SDK/addons")
 
 N_SET_COMPILER_DEFAULTS(framecapture)

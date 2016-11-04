@@ -11,7 +11,7 @@ IF(CMAKE_COMPILER_IS_GNUCC)
 add_compile_options("-fno-fast-math")
 ENDIF()
 ADD_LIBRARY(sqlite STATIC ${extlibs_sqlite_SRCS})
-TARGET_LINK_LIBRARIES(sqlite foundation)
+TARGET_LINK_LIBRARIES(sqlite PUBLIC foundation)
 TARGET_INCLUDE_DIRECTORIES(sqlite PUBLIC ${Nebula3_SOURCE_DIR}/code/extlibs/sqlite3)
 SET_TARGET_PROPERTIES(sqlite PROPERTIES FOLDER "extlibs")
 

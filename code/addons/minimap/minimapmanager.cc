@@ -271,7 +271,7 @@ MinimapManager::OnBeginFrame()
 {
 	const Ptr<CoreGraphics::RenderDevice>& renderDev = CoreGraphics::RenderDevice::Instance();
 	renderDev->BeginFrame(InvalidIndex);
-	renderDev->BeginPass(this->minimapTarget, this->minimapShader);
+    renderDev->BeginPass(this->minimapTarget);// , this->minimapShader);
 	// render background	
 	if(this->backgroundTexture.isvalid())
 	{
@@ -279,14 +279,14 @@ MinimapManager::OnBeginFrame()
 		trans.translate(float4(-0.5f, -0.5f, 0.0f, 0.0f));
 		trans.scale(float4(2.0f, 2.0f, 1.0f, 1.0f));
 		this->transforms[0] = trans;
-		ShaderServer::Instance()->SetActiveShader(this->minimapShader);
+		ShaderServer::Instance()->SetActiveShader(this->minimapShader->GetShader());
 		this->minimapShader->Apply();
 		// update variables
-		this->minimapShader->BeginUpdate();
+		this->minimapShader->BeginUpdateSync();
 		this->transformsVar->SetMatrixArray(&this->transforms[0], 1);
 		this->colorsVar->SetFloat4Array(&this->colors[0], 1);
 		this->portraitVar->SetTexture(this->backgroundTexture->GetTexture());
-		this->minimapShader->EndUpdate();
+		this->minimapShader->EndUpdateSync();
 		this->minimapShader->Commit();
 
 		// start batch		
@@ -360,14 +360,14 @@ MinimapManager::OnBeginFrame()
             }
             if (numBatchEntities)
             {
-                ShaderServer::Instance()->SetActiveShader(this->minimapShader);
+                ShaderServer::Instance()->SetActiveShader(this->minimapShader->GetShader());
                 this->minimapShader->Apply();
                 // update variables
-                this->minimapShader->BeginUpdate();
+                this->minimapShader->BeginUpdateSync();
                 this->transformsVar->SetMatrixArray(&this->transforms[0], numBatchEntities);
                 this->colorsVar->SetFloat4Array(&this->colors[0], numBatchEntities);
                 this->portraitVar->SetTexture(tex);
-                this->minimapShader->EndUpdate();
+                this->minimapShader->EndUpdateSync();
                 this->minimapShader->Commit();
 
                 // setup primitive
@@ -375,6 +375,7 @@ MinimapManager::OnBeginFrame()
                 renderDev->SetStreamSource(0, this->quadVb, 0);
                 renderDev->SetIndexBuffer(this->quadIb);
                 renderDev->SetPrimitiveGroup(this->quadPrim);
+            }
 
             // start batch
             renderDev->BeginFrame(InvalidIndex);

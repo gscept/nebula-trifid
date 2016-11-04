@@ -56,7 +56,7 @@ set(SOURCES_SRCS
 N_WRAP_ADD_PROJ_NIDL_FILES(scripting SOURCES_SRCS ${P_NIDL_FILES})
 
 add_library(scripting STATIC ${SOURCES_SRCS} )
-TARGET_LINK_LIBRARIES(scripting lua foundation)
+TARGET_LINK_LIBRARIES(scripting PUBLIC lua foundation)
 TARGET_INCLUDE_DIRECTORIES(scripting PUBLIC ${Nebula3_SOURCE_DIR}/code/extlibs ${Nebula3_SOURCE_DIR}/code/foundation ${Nebula3_SOURCE_DIR}/code/addons)
 add_dependencies(scripting lua)
 SET_TARGET_PROPERTIES(scripting PROPERTIES FOLDER "N3SDK/addons")

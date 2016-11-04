@@ -290,13 +290,17 @@ MACRO(N_SET_COMPILER_DEFAULTS Target)
 		ENDIF()
 		
 		TARGET_COMPILE_DEFINITIONS(${Target} PRIVATE __WIN32__ WIN32 _HAS_EXCEPTIONS=0 $<$<CONFIG:Debug>:_DEBUG> $<$<CONFIG:Release>:NDEBUG PUBLIC_BUILD> $<$<CONFIG:RelWithDebInfo>:NDEBUG> 
-													 $<$<BOOL:${CMAKE_CL_64}>:WIN64 __WIN64__>
+													 $<$<BOOL:${CMAKE_CL_64}>:WIN64 __WIN64__>													 
 													 ${N_DEFINITIONS}
 		)
 		
-		TARGET_COMPILE_OPTIONS(${Target} PRIVATE /GF /W3 /fp:fast /WX /MP /Oi /arch:SSE /arch:SSE2 /nologo /errorReport:prompt)
-		TARGET_COMPILE_OPTIONS(${Target} PRIVATE $<$<CONFIG:Debug>:/Od /Gm /RTC1 /${N_RT_TYPE}d /Gy /Zi> $<$<CONFIG:Release>:/Ob2 /Oi /Ot /Oy ${N_GL} /FD /${N_RT_TYPE} /GS->)
-		TARGET_COMPILE_OPTIONS(${Target} PRIVATE $<$<CONFIG:RelWithDebInfo>:/Ob2 /Oi /Ot /Oy- ${N_GL} /FD /${N_RT_TYPE} /GS- /Zi>)
+		TARGET_COMPILE_OPTIONS(${Target} PRIVATE /GF /W3 /fp:fast /WX /Oi /arch:SSE /arch:SSE2 /nologo /errorReport:prompt  /wd4091 /wd4267 /wd4996 /wd4018)
+		TARGET_COMPILE_OPTIONS(${Target} PRIVATE $<$<CONFIG:Debug>:/Od /Gm /RTC1 /${N_RT_TYPE}d /Gy /Zi> $<$<CONFIG:Release>:/Ob2 /Oi /Ot /Oy /MP ${N_GL} /FD /${N_RT_TYPE} /GS->)
+		TARGET_COMPILE_OPTIONS(${Target} PRIVATE $<$<CONFIG:RelWithDebInfo>:/Ob2 /Oi /Ot /Oy- /MP ${N_GL} /FD /${N_RT_TYPE} /GS- /Zi>)		
+		if(${ARGC} EQUAL 1)		
+			TARGET_LINK_LIBRARIES(${Target} PUBLIC NebulaConfig)		
+		endif()
+			
 
 		SET(CMAKE_EXE_LINKER_FLAGS "/ignore:4099")
     ELSEIF(UNIX)

@@ -69,7 +69,7 @@
 			SET_TARGET_PROPERTIES(util PROPERTIES FOLDER "extlibs/anyfx")
 			SET_TARGET_PROPERTIES(EASTL PROPERTIES FOLDER "extlibs/anyfx")
 			
-		N_SET_COMPILER_DEFAULTS(compiler)
+		N_SET_COMPILER_DEFAULTS(compiler false)
 		
 		set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "Build the GLFW example programs")
 		set(GLFW_BUILD_TESTS OFF CACHE BOOL "Build the GLFW test programs")
@@ -82,9 +82,9 @@
 			SET(ANYFX_VULKAN_FOLDER ${VULKAN_INCLUDE_DIR})
 			SET(ANYFX_FOLDER "extlibs/anyfx")
 			add_subdirectory(anyfx)
-			N_SET_COMPILER_DEFAULTS(compiler)
-			N_SET_COMPILER_DEFAULTS(api)
-			N_SET_COMPILER_DEFAULTS(EASTL)
+			N_SET_COMPILER_DEFAULTS(compiler false)
+			N_SET_COMPILER_DEFAULTS(api false)
+			N_SET_COMPILER_DEFAULTS(EASTL false)
 			add_subdirectory(SOIL) #still need the stb image stuff in SOIL
 			
 			#SET_TARGET_PROPERTIES(compiler PROPERTIES FOLDER "extlibs/anyfx")
@@ -100,5 +100,5 @@
 		set(GLFW_INSTALL OFF CACHE BOOL "Generate installation target")		        
 		add_subdirectory(glfw)	
 			SET_TARGET_PROPERTIES(glfw PROPERTIES FOLDER "extlibs/glfw")
-		N_SET_COMPILER_DEFAULTS(glfw)
+		N_SET_COMPILER_DEFAULTS(glfw false)
     ENDIF()

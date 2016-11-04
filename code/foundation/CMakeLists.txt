@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------------------
+
 # Foundation
 #-------------------------------------------------------------------------------
 
@@ -701,7 +701,7 @@ N_SET_COMPILER_DEFAULTS(foundation_NIDLS)
 IF(N_USE_PRECOMPILED_HEADERS)
     N_SET_PCH(foundation stdneb.h stdneb.cc)
 ENDIF()
-
+TARGET_LINK_LIBRARIES(foundation PUBLIC NebulaConfig)
 IF(N_BUILD_OGL4)
 	
 	TARGET_INCLUDE_DIRECTORIES(foundation PUBLIC
@@ -729,6 +729,7 @@ ELSEIF(N_BUILD_VULKAN)
 												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/util/code
 												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/compiler/code
 												${Nebula3_SOURCE_DIR}/code/extlibs/anyfx/exts/eastl/include
+												${VULKAN_INCLUDE_DIR}
 												${Nebula3_SOURCE_DIR}/code/extlibs/glfw/include)
         IF(N_BUILD_FIRSTTIME)
             TARGET_LINK_LIBRARIES(foundation PUBLIC $<$<PLATFORM_ID:Linux>:pthread>)

@@ -11,7 +11,6 @@
 #include "coregraphics/primitivegroup.h"
 #include "navigation/navigationattributes.h"
 #include "physicsfeature/physicsattr/physicsattributes.h"
-#include "toolkit/toolkitutil/modelutil/modelphysics.h"
 
 using namespace Math;
 using namespace Util;
