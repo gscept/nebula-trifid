@@ -164,6 +164,45 @@ RenderTextureBase::Resize()
 /**
 */
 void
+RenderTextureBase::GenerateMipChain()
+{
+	// empty, implement in subclass
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+RenderTextureBase::GenerateMipChain(IndexT from)
+{
+	n_assert(this->texture->numMipLevels > from);
+	// empty, implement in subclass
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+RenderTextureBase::GenerateMipChain(IndexT from, IndexT to)
+{
+	n_assert(this->texture->numMipLevels > from && this->texture->numMipLevels > to);
+	// empty, implement in subclass
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+RenderTextureBase::GenerateMip(IndexT from, IndexT to)
+{
+	n_assert(this->texture->numMipLevels > from && this->texture->numMipLevels > to);
+	// empty, implement in subclass
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 RenderTextureBase::SwapBuffers()
 {
 	n_assert(this->windowTexture);

@@ -373,7 +373,7 @@ VkLightServer::RenderLights()
 	this->RenderSpotLights();
 	
 	// render point lights
-	this->RenderPointLights();
+	//this->RenderPointLights();
 }
 
 //------------------------------------------------------------------------------

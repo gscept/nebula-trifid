@@ -22,6 +22,15 @@ public:
 	void Setup();
 	/// resize render texture, retaining the same texture object
 	void Resize();
+	
+	/// generate mip chain (from 0 to number of mips)
+	void GenerateMipChain();
+	/// generate mip chain from offset (from N to number of mips)
+	void GenerateMipChain(IndexT from);
+	/// generate segment of mip chain
+	void GenerateMipChain(IndexT from, IndexT to);
+	/// generate mip from one mip level to another
+	void GenerateMip(IndexT from, IndexT to);
 
 	/// swap buffers, only valid if this is a window texture
 	void SwapBuffers();
@@ -33,6 +42,9 @@ public:
 	/// get memory
 	const VkDeviceMemory& GetVkMemory() const;
 private:
+	
+	/// generate mip maps internally from index to another
+	void GenerateMipHelper(IndexT from, IndexT to);
 	VkImage img;
 	VkImageView view;
 	VkDeviceMemory mem;
