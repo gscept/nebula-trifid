@@ -20,30 +20,20 @@ int NumYTiles = 1;
 
 shared varblock MLPTextures
 {
-textureHandle AlbedoMap2;
-textureHandle AlbedoMap3;
-textureHandle SpecularMap2;
-textureHandle SpecularMap3;
-textureHandle EmissiveMap2;
-textureHandle EmissiveMap3;
-textureHandle NormalMap2;
-textureHandle NormalMap3;
-textureHandle RoughnessMap2;
-textureHandle RoughnessMap3;
+	textureHandle AlbedoMap2;
+	textureHandle AlbedoMap3;
+	textureHandle SpecularMap2;
+	textureHandle SpecularMap3;
+	textureHandle EmissiveMap2;
+	textureHandle EmissiveMap3;
+	textureHandle NormalMap2;
+	textureHandle NormalMap3;
+	textureHandle RoughnessMap2;
+	textureHandle RoughnessMap3;
 
-textureHandle DisplacementMap2;
-textureHandle DisplacementMap3;
+	textureHandle DisplacementMap2;
+	textureHandle DisplacementMap3;
 };
-
-/*
-samplerstate Basic2DSampler
-{
-	AddressU = Wrap;
-	AddressV = Wrap;
-	Filter = Point;
-//	Filter = MinMagMipLinear;
-};
-*/
 
 state MLPState
 {
@@ -304,7 +294,7 @@ psMultilayered(in vec3 ViewSpacePos,
 	vec4 emissive = vec4((env[0] * albedo.rgb + env[1]), -1);
 
 	Specular = spec;
-	Albedo = diffColor;
+	Albedo = albedo;
 	Emissive = emissive;
 	Depth = calcDepth(ViewSpacePos);
 	Normals = PackViewSpaceNormal(bumpNormal);

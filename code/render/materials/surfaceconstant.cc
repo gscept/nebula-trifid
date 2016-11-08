@@ -92,7 +92,12 @@ SurfaceConstant::Discard()
 void
 SurfaceConstant::Apply(const IndexT passIndex)
 {
-	// do nothing?
+    /*
+	if (this->bindingsByIndex[passIndex].active)
+	{
+		this->ApplyToShaderVariable(this->value, this->bindingsByIndex[passIndex].var);
+	}
+     */
 }
 
 //------------------------------------------------------------------------------

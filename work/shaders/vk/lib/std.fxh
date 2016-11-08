@@ -15,11 +15,10 @@
 */
 #define TICK_GROUP 0
 #define FRAME_GROUP 1
-#define LIGHT_GROUP 2
-#define PASS_GROUP 3
-#define OBJECT_GROUP 4
-#define SYSTEM_GROUP 5
-#define DEFAULT_GROUP 6
+#define PASS_GROUP 2
+#define OBJECT_GROUP 3
+#define SYSTEM_GROUP 4
+#define DEFAULT_GROUP 5
 
 /// define global macros
 #if GLSL

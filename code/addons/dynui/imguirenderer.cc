@@ -155,6 +155,7 @@ VkDraw(const Ptr<Dynui::ImguiRenderer>& renderer, ImDrawData* data)
 
 	// set in shader
 	params.projVar->SetMatrix(proj);
+    params.testVar->SetInt(18);
 
 	// setup primitive group
 	CoreGraphics::PrimitiveGroup primitive;
@@ -287,9 +288,10 @@ void
 ImguiRenderer::Setup()
 {
 	// allocate imgui shader
-	this->uiShader = ShaderServer::Instance()->CreateShaderState("shd:imgui", { NEBULAT_SYSTEM_GROUP });
+	this->uiShader = ShaderServer::Instance()->CreateShaderState("shd:imgui", { NEBULAT_SYSTEM_GROUP, NEBULAT_DEFAULT_GROUP });
 	this->params.projVar = this->uiShader->GetVariableByName("TextProjectionModel");
 	this->params.fontVar = this->uiShader->GetVariableByName("Texture");
+    this->params.testVar = this->uiShader->GetVariableByName("AlbedoMap");
 
 	// create vertex buffer
 	Util::Array<CoreGraphics::VertexComponent> components;

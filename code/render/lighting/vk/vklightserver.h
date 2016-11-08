@@ -89,16 +89,14 @@ protected:
 	CoreGraphics::ShaderFeature::Mask lightProbeFeatureBits[Graphics::LightProbeEntity::NumProbeShapeTypes + 2];
 	RenderUtil::DrawFullScreenQuad fullScreenQuadRenderer;          // fs quad renderer
 
-	Ptr<Frame::FrameShader> godRayFrameShader;
-
-	Ptr<CoreGraphics::ShaderState> lightShader;
+	Ptr<CoreGraphics::ShaderState> globalLightShader;
+	Ptr<CoreGraphics::ShaderState> localLightShader;
 	Ptr<CoreGraphics::ShaderState> lightProbeShader;
-	Ptr<Resources::ManagedTexture> lightProjMap; 
+	Ptr<Resources::ManagedTexture> lightProjMap;
 
 	/// global light variables
-    Ptr<CoreGraphics::ConstantBuffer> globalLightBuffer;
-    Ptr<CoreGraphics::ShaderVariable> globalLightBlockVar;
-	Ptr<CoreGraphics::ShaderVariable> globalLightFocalLength;
+    Ptr<CoreGraphics::ConstantBuffer> lightServerUniformBuffer;
+    Ptr<CoreGraphics::ShaderVariable> lightServerUniformBufferVar;
 	Ptr<CoreGraphics::ShaderVariable> globalLightDir;
 	Ptr<CoreGraphics::ShaderVariable> globalLightColor;
 	Ptr<CoreGraphics::ShaderVariable> globalBackLightColor;
@@ -106,20 +104,13 @@ protected:
 	Ptr<CoreGraphics::ShaderVariable> globalBackLightOffset;
     Ptr<CoreGraphics::ShaderVariable> globalLightShadowMatrixVar;
 
-	Ptr<CoreGraphics::ConstantBuffer> globalLightShadowBuffer;
-	Ptr<CoreGraphics::ShaderVariable> globalLightShadowBlockVar;
 	Ptr<CoreGraphics::ShaderVariable> globalLightCascadeOffset;
 	Ptr<CoreGraphics::ShaderVariable> globalLightCascadeScale;
 	Ptr<CoreGraphics::ShaderVariable> globalLightMinBorderPadding;
 	Ptr<CoreGraphics::ShaderVariable> globalLightMaxBorderPadding;
-	Ptr<CoreGraphics::ShaderVariable> globalLightShadowBias;
+
 	Ptr<CoreGraphics::ShaderVariable> globalLightPartitionSize;
 	Ptr<CoreGraphics::ShaderVariable> globalLightShadowMap;
-
-	/// render targets
-	Ptr<CoreGraphics::ShaderVariable> normalBufferVar;
-	Ptr<CoreGraphics::ShaderVariable> depthBufferVar;
-	Ptr<CoreGraphics::ShaderVariable> lightBufferVar;       
 
 	/// local light variables
 	Ptr<CoreGraphics::ShaderVariable> lightProjMapVar;
@@ -131,7 +122,6 @@ protected:
 	Ptr<CoreGraphics::ShaderVariable> lightPosRange;
 	Ptr<CoreGraphics::ShaderVariable> lightColor;
 	Ptr<CoreGraphics::ShaderVariable> lightProjTransform;
-	Ptr<CoreGraphics::ShaderVariable> lightShadowBias;
 	Ptr<CoreGraphics::ShaderVariable> lightTransform;
 	Ptr<CoreGraphics::ConstantBuffer> localLightBuffer;
 	Ptr<CoreGraphics::ShaderVariable> localLightBlockVar;
@@ -139,7 +129,6 @@ protected:
 	Util::Dictionary<Ptr<Graphics::AbstractLightEntity>, Util::Array<uint32_t>> lightToOffsetMap;
 
 	/// shadow variables
-	Ptr<CoreGraphics::ShaderVariable> shadowConstants;
 	Ptr<CoreGraphics::ShaderVariable> shadowIntensityVar;
 	Ptr<CoreGraphics::ShaderVariable> shadowProjTransform;
 	Ptr<CoreGraphics::ShaderVariable> shadowOffsetScaleVar;

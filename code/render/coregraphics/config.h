@@ -41,11 +41,10 @@
 	// define the same descriptor set slots as we do in the shaders
 	#define NEBULAT_TICK_GROUP 0
 	#define NEBULAT_FRAME_GROUP 1
-	#define NEBULAT_LIGHT_GROUP 2
-	#define NEBULAT_PASS_GROUP 3
-	#define NEBULAT_OBJECT_GROUP 4
-	#define NEBULAT_SYSTEM_GROUP 5
-	#define NEBULAT_DEFAULT_GROUP 6
+	#define NEBULAT_PASS_GROUP 2
+	#define NEBULAT_OBJECT_GROUP 3
+	#define NEBULAT_SYSTEM_GROUP 4
+	#define NEBULAT_DEFAULT_GROUP 5
 
 	#define MAX_INPUT_ATTACHMENTS 32
 

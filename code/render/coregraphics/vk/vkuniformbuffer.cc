@@ -81,7 +81,7 @@ VkUniformBuffer::SetupFromBlockInShader(const Ptr<CoreGraphics::ShaderState>& sh
 
 	// setup buffer from other buffer
 	this->binding = varblock->binding;
-	this->size = varblock->byteSize;
+	this->size = varblock->alignedSize;
 	this->Setup(numBackingBuffers);
 
 	// set our buffer to be non-expandable
