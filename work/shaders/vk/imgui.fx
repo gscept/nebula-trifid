@@ -9,6 +9,7 @@
 #include "lib/std.fxh"
 #include "lib/techniques.fxh" 
 #include "lib/shared.fxh"
+#include "lib/defaultsamplers.fxh"
 
 // put variables in push-constant block
 group(SYSTEM_GROUP) push varblock ImGUI
@@ -20,7 +21,7 @@ group(SYSTEM_GROUP) push varblock ImGUI
 group(SYSTEM_GROUP) samplerstate TextureSampler
 {
 	Filter = Point;
-}; 
+};
 
 state TextState
 {

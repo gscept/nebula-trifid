@@ -174,7 +174,7 @@ VkShadowServer::UpdateShadowBuffers()
 	// simply run the script, it will call UpdateSpotLightShadowBuffers, UpdatePointLightShadowBuffers and UpdateGlobalLightBuffers
 	const Ptr<FrameSyncTimer>& timer = FrameSyncTimer::Instance();
 	IndexT frameIndex = timer->GetFrameIndex();
-	this->script->Run(frameIndex);
+	//this->script->Run(frameIndex);
 }
 
 //------------------------------------------------------------------------------

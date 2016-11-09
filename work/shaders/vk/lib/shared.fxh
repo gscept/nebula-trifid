@@ -55,7 +55,7 @@ group(TICK_GROUP) shared varblock WindParams [ bool System = true; ]
 
 
 // contains the state of the camera (and time)
-group(FRAME_GROUP) shared varblock CameraBlock
+group(FRAME_GROUP) shared varblock FrameBlock
 {
 	mat4 View;
 	mat4 InvView;
@@ -68,10 +68,7 @@ group(FRAME_GROUP) shared varblock CameraBlock
 	vec4 TimeAndRandom;
 	
 	mat4 ViewMatrixArray[6];
-};
 
-group(FRAME_GROUP) shared varblock RenderTargetBlock
-{
 	textureHandle NormalBuffer;
 	textureHandle DepthBuffer;
 	textureHandle SpecularBuffer;
@@ -80,9 +77,23 @@ group(FRAME_GROUP) shared varblock RenderTargetBlock
 	textureHandle LightBuffer;
 };
 
-// constains the state of a global light
-group(LIGHT_GROUP) shared varblock GlobalLightBlock [ bool System = true; ]
+#define FLT_MAX     3.40282347E+38F
+#define FLT_MIN     -3.40282347E+38F
+
+#define MAX_NUM_LIGHTS 16
+
+// The number of CSM cascades 
+#ifndef CASCADE_COUNT_FLAG
+#define CASCADE_COUNT_FLAG 4
+#endif
+
+group(FRAME_GROUP) sampler2D LightShadowTexture;
+group(FRAME_GROUP) sampler2D ShadowProjMap;            
+
+// contains the global light state
+group(FRAME_GROUP) shared varblock LightServerBlock [ bool System = true; ]
 {
+	// global light stuff
 	vec4 GlobalLightDir;
 	vec4 GlobalLightColor;
 	vec4 GlobalBackLightColor;
@@ -90,17 +101,9 @@ group(LIGHT_GROUP) shared varblock GlobalLightBlock [ bool System = true; ]
 	float GlobalBackLightOffset;
 	mat4 CSMShadowMatrix;
 	textureHandle GlobalLightShadowBuffer;
-};
 
-#define FLT_MAX     3.40282347E+38F
-#define FLT_MIN     -3.40282347E+38F
-
-#define MAX_NUM_LIGHTS 16
-
-// contains the state of all the lights used for forward shading
-group(LIGHT_GROUP) shared varblock LightForwardBlock [ bool System = true; ]
-{
-	int			NumActiveLights = 0;
+	// forward lighting
+	int		NumActiveLights = 0;
 	vec4		LightPositionsArray[MAX_NUM_LIGHTS];
 	mat4		LightProjTransformArray[MAX_NUM_LIGHTS];
 	vec4		LightColorArray[MAX_NUM_LIGHTS];
@@ -108,17 +111,10 @@ group(LIGHT_GROUP) shared varblock LightForwardBlock [ bool System = true; ]
 	vec4		LightShadowMapOffsetArray[MAX_NUM_LIGHTS];
 	vec4		LightShadowSizeArray[MAX_NUM_LIGHTS];
 	float		LightInvRangeArray[MAX_NUM_LIGHTS];
-	int			LightTypeArray[MAX_NUM_LIGHTS];
+	int		LightTypeArray[MAX_NUM_LIGHTS];
 	bool		LightCastsShadowsArray[MAX_NUM_LIGHTS];
-};
 
-// The number of CSM cascades 
-#ifndef CASCADE_COUNT_FLAG
-#define CASCADE_COUNT_FLAG 4
-#endif
-
-group(LIGHT_GROUP) shared varblock CSMParamBlock [ bool System = true; ]
-{
+	// CSM params
 	vec4 CascadeOffset[CASCADE_COUNT_FLAG];
 	vec4 CascadeScale[CASCADE_COUNT_FLAG];
 	float MinBorderPadding;     
@@ -126,9 +122,6 @@ group(LIGHT_GROUP) shared varblock CSMParamBlock [ bool System = true; ]
 	float ShadowPartitionSize; 
 	float GlobalLightShadowBias = 0.0f;
 };
-
-group(LIGHT_GROUP) sampler2D LightShadowTexture;
-group(LIGHT_GROUP) sampler2D ShadowProjMap;            
 
 // contains variables which are guaranteed to be unique per object.
 group(OBJECT_GROUP) shared varblock ObjectBlock

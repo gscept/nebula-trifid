@@ -57,7 +57,6 @@ VkTransformDevice::Open()
 	this->eyePosVar = this->sharedShader->GetVariableByName(NEBULA3_SEMANTIC_EYEPOS);
 	this->focalLengthVar = this->sharedShader->GetVariableByName(NEBULA3_SEMANTIC_FOCALLENGTH);
 	this->timeAndRandomVar = this->sharedShader->GetVariableByName(NEBULA3_SEMANTIC_TIMEANDRANDOM);
-	this->cameraBlockVar = this->sharedShader->GetVariableByName("CameraBlock");
 
 	// setup shadow block, make it synced so that we can update shadow maps without massive frame drops
 	this->viewMatricesVar = this->sharedShader->GetVariableByName(NEBULA3_SEMANTIC_VIEWMATRIXARRAY);

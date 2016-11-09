@@ -202,6 +202,62 @@ VkRenderTexture::Resize()
 /**
 */
 void
+VkRenderTexture::GenerateMipChain()
+{
+	Base::RenderTextureBase::GenerateMipChain();
+	uint32_t numMips = this->texture->GetNumMipLevels();
+	this->GenerateMipHelper(0, numMips);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderTexture::GenerateMipChain(IndexT from)
+{
+	Base::RenderTextureBase::GenerateMipChain(from);
+	uint32_t numMips = this->texture->GetNumMipLevels();
+	this->GenerateMipHelper(from, numMips);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderTexture::GenerateMipChain(IndexT from, IndexT to)
+{
+	Base::RenderTextureBase::GenerateMipChain(from, to);
+	this->GenerateMipHelper(from, to);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderTexture::GenerateMip(IndexT from, IndexT to)
+{
+	Base::RenderTextureBase::GenerateMip(from, to);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderTexture::GenerateMipHelper(IndexT from, IndexT to)
+{
+	VkRenderDevice* dev = VkRenderDevice::Instance();
+	IndexT i;
+	for (i = from; i < to; i++)
+	{
+		VkImageBlit blit;
+		
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 VkRenderTexture::SwapBuffers()
 {
 	RenderTextureBase::SwapBuffers();

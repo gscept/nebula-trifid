@@ -102,6 +102,16 @@ VkShader::Setup(AnyFX::ShaderEffect* effect)
 	const eastl::vector<AnyFX::VariableBase*>& variables = effect->GetVariables();
 	const eastl::vector<AnyFX::SamplerBase*>& samplers = effect->GetSamplers();
 
+    // assert we are not over-stepping any uniform buffer limit we are using, perStage is used for ALL_STAGES
+    uint32_t maxUniformBuffers = VkRenderDevice::Instance()->deviceProps.limits.maxDescriptorSetUniformBuffersDynamic;
+    n_assert(maxUniformBuffers >= varblocks.size());
+    uint32_t maxPerStageUniformBuffers = VkRenderDevice::Instance()->deviceProps.limits.maxPerStageDescriptorUniformBuffers;
+    n_assert(maxPerStageUniformBuffers >= varblocks.size());
+
+    uint32_t maxTextures = VkRenderDevice::Instance()->deviceProps.limits.maxDescriptorSetSampledImages;
+    uint32_t remainingTextures = maxTextures;
+
+
 	// always create push constant range in layout, making all shaders using push constants compatible
 	this->constantRange.size = VkRenderDevice::Instance()->deviceProps.limits.maxPushConstantsSize;
 	this->constantRange.offset = 0;
@@ -267,6 +277,11 @@ VkShader::Setup(AnyFX::ShaderEffect* effect)
 		AnyFX::VkVariable* variable = static_cast<AnyFX::VkVariable*>(variables[i]);
 		if (variable->type >= AnyFX::Sampler1D && variable->type <= AnyFX::TextureCubeArray)
 		{
+            if (remainingTextures < variable->arraySize) n_error("Too many textures in shader!");
+            else
+            {
+                remainingTextures -= variable->arraySize;
+            }
 			if (variable->bindingLayout.pImmutableSamplers == NULL && 
 				variable->bindingLayout.descriptorType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
 			{
@@ -460,6 +475,7 @@ VkShader::Setup(AnyFX::ShaderEffect* effect)
     }
 
 	// setup varblock backing
+	bufs.Reserve(varblocks.size());
 	for (i = 0; i < varblocks.size(); i++)
 	{
 		// get block

@@ -21,6 +21,7 @@ struct ImguiRendererParams
 {
 	Ptr<CoreGraphics::ShaderVariable> projVar;
 	Ptr<CoreGraphics::ShaderVariable> fontVar;
+    Ptr<CoreGraphics::ShaderVariable> testVar;
 };
 
 class ImguiRenderer : public Core::RefCounted

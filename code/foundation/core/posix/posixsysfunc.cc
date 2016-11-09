@@ -131,7 +131,6 @@ Posix::SysFunc::MessageBox(const char* msg)
     fprintf(stdout, msg);
 }
 
-
 //------------------------------------------------------------------------------
 /**
     Sleep for a specified amount of seconds, give up time slice.
@@ -142,7 +141,6 @@ SysFunc::Sleep(double sec)
     int milliSecs = int(sec * 1000.0);
     usleep(milliSecs);
 }
-
 
 //------------------------------------------------------------------------------
 /**

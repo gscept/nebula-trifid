@@ -55,7 +55,6 @@ private:
 	Ptr<CoreGraphics::ShaderVariable> focalLengthVar;
 	Ptr<CoreGraphics::ShaderVariable> viewMatricesVar;
 	Ptr<CoreGraphics::ShaderVariable> timeAndRandomVar;
-	Ptr<CoreGraphics::ShaderVariable> cameraBlockVar;
 
 	Ptr<CoreGraphics::ShaderVariable> shadowCameraBlockVar;
 	Ptr<CoreGraphics::ShaderState> sharedShader;
