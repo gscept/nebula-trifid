@@ -7,6 +7,7 @@
 #include "vkrenderdevice.h"
 #include "coregraphics/constantbuffer.h"
 #include "coregraphics/config.h"
+#include "vkutilities.h"
 
 namespace Vulkan
 {
@@ -54,7 +55,7 @@ VkUniformBuffer::Setup(const SizeT numBackingBuffers)
 	n_assert(res == VK_SUCCESS);
 
 	uint32_t alignedSize;
-	VkRenderDevice::Instance()->AllocateBufferMemory(this->buf, this->mem, VkMemoryPropertyFlagBits(VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT), alignedSize);
+	VkUtilities::AllocateBufferMemory(this->buf, this->mem, VkMemoryPropertyFlagBits(VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT), alignedSize);
 	
 	// bind to buffer
 	res = vkBindBufferMemory(VkRenderDevice::dev, this->buf, this->mem, 0);
@@ -159,7 +160,7 @@ VkUniformBuffer::Grow(SizeT oldCapacity, SizeT growBy)
 	// allocate new instance memory, alignedSize is the aligned size of a single buffer
 	VkDeviceMemory newMem;
 	uint32_t alignedSize;
-	VkRenderDevice::Instance()->AllocateBufferMemory(newBuf, newMem, VkMemoryPropertyFlagBits(VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT), alignedSize);
+	VkUtilities::AllocateBufferMemory(newBuf, newMem, VkMemoryPropertyFlagBits(VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT), alignedSize);
 
 	// bind to buffer, this is the reason why we must destroy and create the buffer again
 	res = vkBindBufferMemory(VkRenderDevice::dev, newBuf, newMem, 0);

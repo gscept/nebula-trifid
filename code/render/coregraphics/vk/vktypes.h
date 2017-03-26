@@ -13,8 +13,10 @@
 #include "coregraphics/antialiasquality.h"
 #include "coregraphics/imagefileformat.h"
 #include "coregraphics/indextype.h"
+#include "coregraphics/barrier.h"
 #include "coregraphics/base/resourcebase.h"
 #include "IL/il.h"
+
 namespace Vulkan
 {
 class VkTypes
@@ -32,6 +34,10 @@ public:
 	static VkFormat AsVkFormat(CoreGraphics::PixelFormat::Code p);
 	/// convert DevIL pixel format to Vulkan format
 	static VkFormat AsVkFormat(ILenum p);
+	/// convert VkFormat pixel format to DevIL format
+	static ILenum AsILDXTFormat(VkFormat p);
+	/// returns true if format is compressed
+	static bool IsCompressedFormat(VkFormat p);
 	/// convert pixel format to block size
 	static VkBlockDimensions AsVkBlockSize(CoreGraphics::PixelFormat::Code p);
 	/// convert pixel format to block size
@@ -48,6 +54,10 @@ public:
 	static CoreGraphics::PixelFormat::Code AsNebulaPixelFormat(VkFormat f);
 	/// convert pixel format to Vulkan component mapping
 	static VkComponentMapping AsVkMapping(CoreGraphics::PixelFormat::Code p);
+	/// convert dependency flags to vulkan
+	static VkPipelineStageFlags AsVkPipelineFlags(const CoreGraphics::Barrier::Dependency dep);
+	/// convert dependency flags to vulkan
+	static VkPipelineStageFlags AsVkResourceAccessFlags(const CoreGraphics::Barrier::Access access);
 
 #pragma endregion
 

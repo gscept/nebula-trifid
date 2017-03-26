@@ -557,7 +557,7 @@ RenderDeviceBase::BuildRenderPipeline()
 /**
 */
 void
-RenderDeviceBase::InsertBarrier(const CoreGraphics::Barrier& barrier)
+RenderDeviceBase::InsertBarrier(const Ptr<CoreGraphics::Barrier>& barrier)
 {
 	// empty, override in subclass
 }
@@ -744,10 +744,21 @@ RenderDeviceBase::Copy(const Ptr<CoreGraphics::Texture>& from, Math::rectangle<S
 /**
 */
 void
-RenderDeviceBase::Blit(const Ptr<CoreGraphics::RenderTexture>& from, Math::rectangle<SizeT> fromRegion, const Ptr<CoreGraphics::RenderTexture>& to, Math::rectangle<SizeT> toRegion)
+RenderDeviceBase::Blit(const Ptr<CoreGraphics::RenderTexture>& from, Math::rectangle<SizeT> fromRegion, IndexT fromMip, const Ptr<CoreGraphics::RenderTexture>& to, Math::rectangle<SizeT> toRegion, IndexT toMip)
 {
 	n_assert(from.isvalid() && to.isvalid());
 	
+	// implement in subclass
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+RenderDeviceBase::Blit(const Ptr<CoreGraphics::Texture>& from, Math::rectangle<SizeT> fromRegion, IndexT fromMip, const Ptr<CoreGraphics::Texture>& to, Math::rectangle<SizeT> toRegion, IndexT toMip)
+{
+	n_assert(from.isvalid() && to.isvalid());
+
 	// implement in subclass
 }
 

@@ -197,7 +197,7 @@ GraphicsPageHandler::HandleRequest(const Ptr<HttpRequest>& request)
                         htmlWriter->Element(HtmlElement::Anchor, "screen");
                     }
                     htmlWriter->End(HtmlElement::TableData);
-                    if (view->GetFrameShader().isvalid()) htmlWriter->Element(HtmlElement::TableData, view->GetFrameShader()->GetName().Value());
+                    if (view->GetFrameScript().isvalid()) htmlWriter->Element(HtmlElement::TableData, view->GetFrameScript()->GetResourceId().Value());
                 htmlWriter->End(HtmlElement::TableRow);
             }
         htmlWriter->End(HtmlElement::Table);

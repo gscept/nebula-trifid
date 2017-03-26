@@ -36,8 +36,6 @@ public:
 	void ApplyViewSettings();
 	/// apply any model transform needed, implementation is platform dependent
 	void ApplyModelTransforms(const Ptr<CoreGraphics::ShaderState>& shdInst);
-	/// set view matrix array
-	void ApplyViewMatrixArray(const Math::matrix44* matrices, SizeT num);
 
 	/// bind descriptors for view
 	void BindCameraDescriptorSets();

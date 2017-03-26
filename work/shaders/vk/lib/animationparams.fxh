@@ -8,7 +8,7 @@
 #include "std.fxh"
 
 // material properties
-group(DEFAULT_GROUP) shared varblock AnimationParams
+group(DEFAULT_GROUP) shared varblock AnimationParams [ bool DynamicOffset = true; ]
 {
 	vec2 AnimationDirection;
 	float AnimationAngle;

@@ -45,14 +45,7 @@ void
 FrameServer::Close()
 {
 	n_assert(this->isOpen);
-	/*
-	IndexT i;
-	for (i = 0; i < this->frameScripts.Size(); i++)
-	{
-		this->frameScripts.ValueAtIndex(i)->Discard();
-	}
-	*/
-	this->frameScripts.Clear();
+	n_assert(this->frameScripts.IsEmpty());
 }
 
 //------------------------------------------------------------------------------

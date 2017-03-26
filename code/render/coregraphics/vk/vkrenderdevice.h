@@ -11,6 +11,7 @@
 #include "vkcpugpuinterlockthread.h"
 #include "vkdeferredcommand.h"
 #include "vkpipelinedatabase.h"
+#include "vkscheduler.h"
 
 namespace Lighting
 {
@@ -24,33 +25,7 @@ class VkRenderDevice : public Base::RenderDeviceBase
 	__DeclareSingleton(VkRenderDevice);
 public:
 
-	enum CommandPass
-	{
-		OnBeginFrame,
-		OnEndFrame,
-		OnBeginPass,
-		OnNextSubpass,
-		OnEndPass,
-		OnMainTransferSubmitted,
-		OnMainDrawSubmitted,
-		OnMainComputeSubmitted,
-		OnBeginTransferThread,
-		OnBeginDrawThread,
-		OnBeginComputeThread,
-		OnTransferThreadsSubmitted,
-		OnDrawThreadsSubmitted,
-		OnComputeThreadsSubmitted,
 
-		OnHandleTransferFences,
-		OnHandleDrawFences,
-		OnHandleComputeFences,
-		OnHandleFences,
-
-		OnBindGraphicsPipeline,
-		OnBindComputePipeline,
-
-		NumCommandPasses
-	};
 
 	/// constructor
 	VkRenderDevice();
@@ -91,7 +66,7 @@ public:
 	/// bake the current state of the render device (only used on DX12 and Vulkan renderers where pipeline creation is required)
 	void BuildRenderPipeline();
 	/// insert execution barrier
-	void InsertBarrier(const CoreGraphics::Barrier& barrier);
+	void InsertBarrier(const Ptr<CoreGraphics::Barrier>& barrier);
 	/// draw current primitives
 	void Draw();
 	/// draw indexed, instanced primitives (see method header for details)
@@ -118,7 +93,9 @@ public:
 	/// copy data between textures
 	void Copy(const Ptr<CoreGraphics::Texture>& from, Math::rectangle<SizeT> fromRegion, const Ptr<CoreGraphics::Texture>& to, Math::rectangle<SizeT> toRegion);
 	/// blit between render textures
-	void Blit(const Ptr<CoreGraphics::RenderTexture>& from, Math::rectangle<SizeT> fromRegion, const Ptr<CoreGraphics::RenderTexture>& to, Math::rectangle<SizeT> toRegion);
+	void Blit(const Ptr<CoreGraphics::RenderTexture>& from, Math::rectangle<SizeT> fromRegion, IndexT fromMip, const Ptr<CoreGraphics::RenderTexture>& to, Math::rectangle<SizeT> toRegion, IndexT toMip);
+	/// blit between textures
+	void Blit(const Ptr<CoreGraphics::Texture>& from, Math::rectangle<SizeT> fromRegion, IndexT fromMip, const Ptr<CoreGraphics::Texture>& to, Math::rectangle<SizeT> toRegion, IndexT toMip);
 
 	/// save a screenshot to the provided stream
 	CoreGraphics::ImageFileFormat::Code SaveScreenshot(CoreGraphics::ImageFileFormat::Code fmt, const Ptr<IO::Stream>& outStream);
@@ -166,6 +143,8 @@ private:
 	friend class VkRenderTexture;
 	friend class VkPipelineDatabase;
 	friend class Lighting::VkLightServer;
+	friend class VkScheduler;
+	friend class VkUtilities;
 	friend struct VkDeferredCommand;
 
 	friend VKAPI_ATTR void VKAPI_CALL NebulaVkAllocCallback(void* userData, uint32_t size, VkInternalAllocationType type, VkSystemAllocationScope scope);
@@ -206,7 +185,7 @@ private:
 	void SyncGPU();
 
 	/// sets the current shader pipeline information
-	void SetShaderPipelineInfo(const VkGraphicsPipelineCreateInfo& shader, const Ptr<VkShaderProgram>& program);
+	void BindGraphicsPipelineInfo(const VkGraphicsPipelineCreateInfo& shader, const Ptr<VkShaderProgram>& program);
 	/// sets the current vertex layout information
 	void SetVertexLayoutPipelineInfo(VkPipelineVertexInputStateCreateInfo* vertexLayout);
 	/// sets the current framebuffer layout information
@@ -217,6 +196,8 @@ private:
 	void CreateAndBindGraphicsPipeline();
 	/// bind compute pipeline
 	void BindComputePipeline(const VkPipeline& pipeline, const VkPipelineLayout& layout);
+	/// bind no pipeline (effectively making all descriptor binds happen on both graphics and compute)
+	void UnbindPipeline();
 
 	/// update descriptors
 	void BindDescriptorsGraphics(const VkDescriptorSet* descriptors, const VkPipelineLayout& layout, uint32_t baseSet, uint32_t setCount, const uint32_t* offsets, uint32_t offsetCount, bool shared = false);
@@ -227,68 +208,6 @@ private:
 
 	/// setup queue from display
 	void SetupQueue(uint32_t queueFamily, uint32_t queueIndex);
-	/// figure out which memory type fits given memory bits and required properties
-	VkResult GetMemoryType(uint32_t bits, VkMemoryPropertyFlags flags, uint32_t& index);
-
-	/// allocate a buffer memory storage, num is a multiplier for how many times the size needs to be duplicated
-	void AllocateBufferMemory(const VkBuffer& buf, VkDeviceMemory& bufmem, VkMemoryPropertyFlagBits flags, uint32_t& bufsize);
-	/// allocate an image memory storage, num is a multiplier for how many times the size needs to be duplicated
-	void AllocateImageMemory(const VkImage& img, VkDeviceMemory& imgmem, VkMemoryPropertyFlagBits flags, uint32_t& imgsize);
-
-	/// update buffer memory from CPU
-	void BufferUpdate(const VkBuffer& buf, VkDeviceSize offset, VkDeviceSize size, const void* data);
-	/// update buffer memory from CPU
-	void BufferUpdate(VkCommandBuffer cmd, const VkBuffer& buf, VkDeviceSize offset, VkDeviceSize size, const void* data);
-	/// update image memory from CPU
-	void ImageUpdate(const VkImage& img, const VkImageCreateInfo& info, uint32_t mip, uint32_t face, VkDeviceSize size, uint32_t* data);
-	/// setup staging image update for later execution
-	void PushImageUpdate(const VkImage& img, const VkImageCreateInfo& info, uint32_t mip, uint32_t face, VkDeviceSize size, uint32_t* data);
-	/// perform image read-back, and saves to buffer (SLOW!)
-	void ReadImage(const Ptr<VkTexture>& tex, VkImageCopy copy, uint32_t& outMemSize, VkDeviceMemory& outMem, VkBuffer& outBuffer);
-	/// perform image write-back, transitions data from buffer to image (SLOW!)
-	void WriteImage(const VkBuffer& srcImg, const VkImage& dstImg, VkImageCopy copy);
-	/// helper to begin immediate transfer
-	VkCommandBuffer BeginImmediateTransfer();
-	/// helper to end immediate transfer
-	void EndImmediateTransfer(VkCommandBuffer cmdBuf);
-	/// helper to begin an interlocked transfer
-	VkCommandBuffer BeginInterlockedTransfer();
-	/// helper to end interlocked transfer
-	void EndInterlockedTransfer(VkCommandBuffer cmdBuf);
-	/// push command to specific sync point
-	void PushCommandPass(const VkDeferredCommand& del, const CommandPass pass);
-	/// execute commands specific to sync point
-	void RunCommandPass(const CommandPass pass);
-
-	/// push image layout change
-	void PushImageLayoutTransition(VkDeferredCommand::CommandQueueType queue, VkImageMemoryBarrier barrier);
-	/// perform image layout transition immediately
-	void ImageLayoutTransition(VkDeferredCommand::CommandQueueType queue, VkImageMemoryBarrier barrier);
-	/// perform image layout transition immediately
-	void ImageLayoutTransition(VkCommandBuffer buf, VkImageMemoryBarrier barrier);
-	/// create image memory barrier
-	static VkImageMemoryBarrier ImageMemoryBarrier(const VkImage& img, VkImageSubresourceRange subres, VkImageLayout oldLayout, VkImageLayout newLayout);
-	/// create image ownership change
-	static VkImageMemoryBarrier ImageMemoryBarrier(const VkImage& img, VkImageSubresourceRange subres, VkDeferredCommand::CommandQueueType fromQueue, VkDeferredCommand::CommandQueueType toQueue, VkImageLayout layout);
-	/// create buffer memory barrier
-	static VkBufferMemoryBarrier BufferMemoryBarrier(const VkBuffer& buf, VkDeviceSize offset, VkDeviceSize size, VkAccessFlags srcAccess, VkAccessFlags dstAccess);
-	/// transition image between layouts
-	void ChangeImageLayout(const VkImageMemoryBarrier& barrier, const VkDeferredCommand::CommandQueueType& type);
-	/// push transition image ownership transition
-	void PushImageOwnershipChange(VkDeferredCommand::CommandQueueType queue, VkImageMemoryBarrier barrier);
-	/// transition image ownership
-	void ImageOwnershipChange(VkDeferredCommand::CommandQueueType queue, VkImageMemoryBarrier barrier);
-
-	/// push image color clear
-	void PushImageColorClear(const VkImage& image, const VkDeferredCommand::CommandQueueType& queue, VkImageLayout layout, VkClearColorValue clearValue, VkImageSubresourceRange subres);
-	/// perform image color clear
-	void ImageColorClear(const VkImage& image, const VkDeferredCommand::CommandQueueType& queue, VkImageLayout layout, VkClearColorValue clearValue, VkImageSubresourceRange subres);
-	/// push image depth stencil clear
-	void PushImageDepthStencilClear(const VkImage& image, const VkDeferredCommand::CommandQueueType& queue, VkImageLayout layout, VkClearDepthStencilValue clearValue, VkImageSubresourceRange subres);
-	/// perform image depth stencil clear
-	void ImageDepthStencilClear(const VkImage& image, const VkDeferredCommand::CommandQueueType& queue, VkImageLayout layout, VkClearDepthStencilValue clearValue, VkImageSubresourceRange subres);
-	/// perform attachment clear
-	void AttachmentClear(const VkClearAttachment* attachments, uint32_t numAttachments, const VkClearRect* regions, uint32_t numRegions);
 
 	/// helper function to submit a command buffer
 	void SubmitToQueue(VkQueue queue, VkPipelineStageFlags flags, uint32_t numBuffers, VkCommandBuffer* buffers);
@@ -315,8 +234,6 @@ private:
 	void BeginCmdThreads(const Ptr<Vulkan::VkCmdBufferThread>* threads, VkCommandPool* commandBufferPools, IndexT firstThread, SizeT numThreads, VkCommandBuffer* buffers);
 	/// end command threads
 	void EndCmdThreads(const Ptr<Vulkan::VkCmdBufferThread>* threads, IndexT firstThread, SizeT numThreads, Threading::Event* completionEvents);
-	/// completes thread-constructed buffers by executing the comands gathered in the threads on the main buffer, syncPoint must be a pass which handles fences
-	void FinishCmdThreads(VkCommandBuffer mainBuffer, IndexT firstThread, SizeT numThreads, VkCommandBuffer* threadBuffers, VkCommandPool* commandBufferPools, CommandPass syncPoint);
 
 	/// start up new draw thread
 	void BeginDrawThread();
@@ -332,19 +249,6 @@ private:
 	void PushToThread(const VkCmdBufferThread::Command& cmd, const IndexT& index, bool allowStaging = true);
 	/// flush remaining staging thread commands
 	void FlushToThread(const IndexT& index);
-
-	/// add command to interlock thread
-	void PushToInterlockThread(const VkCpuGpuInterlockThread::Command& cmd);
-	/// tell interlock thread to wait for previous draw command to finish
-	void InterlockWaitCPU(VkPipelineStageFlags stage);
-	/// tell interlock thread to block GPU thread waiting for a buffer
-	void InterlockWaitGPU(VkPipelineStageFlags waitStage, VkPipelineStageFlags signalStage, VkBufferMemoryBarrier& buffer);
-	/// tell interlock thread to block GPU thread waiting for an image
-	void InterlockWaitGPU(VkPipelineStageFlags waitStage, VkPipelineStageFlags signalStage, VkImageMemoryBarrier& image);
-	/// tell interlock thread to block GPU thread waiting for an image
-	void InterlockWaitGPU(VkPipelineStageFlags waitStage, VkPipelineStageFlags signalStage, VkMemoryBarrier& barrier);
-	/// give interlock thread a memcpy assignment
-	void InterlockMemcpy(uint32_t size, uint32_t offset, const void* data, void* mappedData);
 
 	/// binds common descriptors
 	void BindSharedDescriptorSets();
@@ -374,13 +278,9 @@ private:
 	uint32_t drawQueueIdx;
 	uint32_t computeQueueIdx;
 	uint32_t transferQueueIdx;
-	bool putTransferFenceThisFrame;
-	bool putDrawFenceThisFrame;
-	bool putComputeFenceThisFrame;
-	Util::Dictionary<VkFence, Util::Array<VkDeferredCommand>> transferFenceCommands;
-	Util::Dictionary<VkFence, Util::Array<VkDeferredCommand>> drawFenceCommands;
-	Util::Dictionary<VkFence, Util::Array<VkDeferredCommand>> computeFenceCommands;
-	Util::FixedArray<Util::Array<VkDeferredCommand>> commands;
+
+	// scheduler used to execute commands indirectly
+	Ptr<VkScheduler> scheduler;
 
 	// stuff used for the swap chain
 	VkFormat format;
@@ -409,7 +309,11 @@ private:
 	VkFence mainCmdDrawFence;
 	VkFence mainCmdCmpFence;
 	VkFence mainCmdTransFence;
+	VkEvent mainCmdDrawEvent;
+	VkEvent mainCmdCmpEvent;
+	VkEvent mainCmdTransEvent;
 	Ptr<VkPipelineDatabase> database;
+	VkShaderProgram::PipelineType currentBindPoint;
 
 	StateMode currentCommandState;
 
@@ -443,8 +347,6 @@ private:
 	SizeT numActiveThreads;
 	SizeT numUsedThreads;
 
-	Ptr<VkCpuGpuInterlockThread> interlockThread;
-
 	VkCommandBufferInheritanceInfo passInfo;
 	VkPipelineInputAssemblyStateCreateInfo inputInfo;
 	VkPipelineColorBlendStateCreateInfo blendInfo;
@@ -458,8 +360,8 @@ private:
 
 	static VkAllocationCallbacks alloc;
 	
-	VkCommandPool immediateCmdDrawPool;
-	VkCommandPool immediateCmdTransPool;
+	static VkCommandPool immediateCmdDrawPool;
+	static VkCommandPool immediateCmdTransPool;
 
 	VkGraphicsPipelineCreateInfo currentPipelineInfo;
 	VkPipelineLayout currentPipelineLayout;
@@ -469,6 +371,8 @@ private:
 	VkViewport* viewports;
 	uint32_t numScissors;
 	VkRect2D* scissors;
+	bool viewportsDirty[NumDrawThreads];
+	bool scissorsDirty[NumDrawThreads];
 	
 	Ptr<VkShaderProgram> currentProgram;
 

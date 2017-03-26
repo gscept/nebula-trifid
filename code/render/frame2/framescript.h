@@ -28,6 +28,15 @@ public:
 	/// destructor
 	virtual ~FrameScript();
 
+	/// set name
+	void SetName(const Util::StringAtom& name);
+	/// get name
+	const Util::StringAtom& GetName() const;
+	/// set name
+	void SetResourceId(const Resources::ResourceId& name);
+	/// get name
+	const Resources::ResourceId& GetResourceId() const;
+
 	/// add frame operation
 	void AddOp(const Ptr<Frame2::FrameOp>& op);
 	/// add color texture
@@ -78,6 +87,8 @@ public:
 private:
 	friend class FrameScriptLoader;
 
+	Util::StringAtom name;
+	Resources::ResourceId resId;
 	Util::Array<Ptr<CoreGraphics::RenderTexture>> colorTextures;
 	Util::Dictionary<Util::StringAtom, Ptr<CoreGraphics::RenderTexture>> colorTexturesByName;
 	Util::Array<Ptr<CoreGraphics::RenderTexture>> depthStencilTextures;
@@ -94,6 +105,42 @@ private:
 	Util::Array<Ptr<CoreGraphics::ShaderState>> shaderStates;
 	Util::Dictionary<Util::StringAtom, Ptr<CoreGraphics::ShaderState>> shaderStatesByName;
 };
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+FrameScript::SetName(const Util::StringAtom& name)
+{
+	this->name = name;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Util::StringAtom&
+FrameScript::GetName() const
+{
+	return this->name;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+FrameScript::SetResourceId(const Resources::ResourceId& name)
+{
+	this->resId = name;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Resources::ResourceId&
+FrameScript::GetResourceId() const
+{
+	return this->resId;
+}
 
 //------------------------------------------------------------------------------
 /**

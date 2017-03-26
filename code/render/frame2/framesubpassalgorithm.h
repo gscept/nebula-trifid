@@ -23,14 +23,17 @@ public:
 	void SetAlgorithm(const Ptr<Algorithms::Algorithm>& alg);
 	/// add function to run
 	void SetFunction(const Util::StringAtom& func);
-
+	
+	/// setup operation
+	void Setup();
 	/// discard operation
 	void Discard();
 	/// run operation
 	void Run(const IndexT frameIndex);
 private:
-	Util::StringAtom func;
+	Util::StringAtom funcName;
 	Ptr<Algorithms::Algorithm> alg;
+	std::function<void(IndexT)> func;
 };
 
 
@@ -50,7 +53,7 @@ inline void
 FrameSubpassAlgorithm::SetFunction(const Util::StringAtom& func)
 {
 	n_assert(this->alg.isvalid());
-	n_assert(this->alg->GetFunctionType(func) != Algorithms::Algorithm::Compute);
-	this->func = func;
+	n_assert(this->alg->GetFunctionType(func) == Algorithms::Algorithm::Graphics);
+	this->funcName = func;
 }
 } // namespace Frame2

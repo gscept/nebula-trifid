@@ -7,33 +7,27 @@
 #include "lib/util.fxh"
 #include "lib/shared.fxh"
 #include "lib/techniques.fxh"
+#include "lib/shared.fxh"
 
-/// Declaring used textures
-sampler2D BloomTexture;
-sampler2D ColorTexture;
-sampler2D DepthTexture;
-sampler2D GodrayTexture;
-sampler2D ShapeTexture;
-sampler2D LuminanceTexture;
+shared varblock FinalizeBlock
+{
+	textureHandle ColorTexture;
+	textureHandle LuminanceTexture;
+	textureHandle BloomTexture;
+};
 
-float Saturation = float(1.0f);
-vec4 Balance = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-float FadeValue = float(1.0f);
-
-vec3 DoFDistances = vec3(2.0f, 100.0f, 2.0f);
-bool UseDof = true;
 
 samplerstate UpscaleSampler
 {
-	Samplers = { BloomTexture, GodrayTexture, LuminanceTexture };
+	//Samplers = { BloomTexture, GodrayTexture, LuminanceTexture };
 	AddressU = Border;
 	AddressV = Border;
 	BorderColor = {0, 0, 0, 0};
 };
 
-samplerstate DefualtSampler
+samplerstate DefaultSampler
 {
-	Samplers = { ColorTexture, DepthTexture, ShapeTexture};
+	//Samplers = { ColorTexture, DepthTexture, ShapeTexture};
 	Filter = Point;
 	AddressU = Border;
 	AddressV = Border;
@@ -95,11 +89,8 @@ vsMain(
 	Get a depth-of-field blurred sample. Set all values to 0 in order to disable DoF
 */
 vec4 
-psDepthOfField(sampler2D tex, vec2 uv)
+psDepthOfField(float depth, vec2 uv)
 {
-    // get an averaged depth value        
-    float depth = textureLod(DepthTexture, uv, 0).r;
-    
     // compute focus-blur param (0 -> no blur, 1 -> max blur)
     float focusDist = DoFDistances.x;
     float focusLength = DoFDistances.y;
@@ -109,12 +100,12 @@ psDepthOfField(sampler2D tex, vec2 uv)
     // perform a gaussian blur around uv
     vec4 sampleColor = vec4(0.0f);
     float dofWeight = 1.0f / MAXDOFSAMPLES;
-	vec2 pixelSize = GetPixelSize(tex);
+	vec2 pixelSize = RenderTargetDimensions[0].zw;
     vec2 uvMul = focus * filterRadius * pixelSize.xy;
     int i;
     for (i = 0; i < MAXDOFSAMPLES; i++)
     {
-        sampleColor += textureLod(tex, uv + (DofSamples[i] * uvMul), 0);
+        sampleColor += sample2DLod(ColorTexture, DefaultSampler, uv + (DofSamples[i] * uvMul), 0);
     }
     sampleColor *= dofWeight;
     return sampleColor;
@@ -128,16 +119,19 @@ void
 psMain(in vec2 UV,
 	[color0] out vec4 color) 
 {
+    // get an averaged depth value        
+    float depth = subpassLoad(InputAttachments[0]).r;
+	
 	vec4 c;
-	c = DecodeHDR(psDepthOfField(ColorTexture, UV));	
+	c = psDepthOfField(depth, UV);	
 	
 	// Get the calculated average luminance 
-	vec4 fLumAvg = textureLod(LuminanceTexture, vec2(0.5f, 0.5f), 0);
+	float fLumAvg = sample2DLod(LuminanceTexture, UpscaleSampler, vec2(0.5f, 0.5f), 0).r;
 	
-	c = ToneMap(c, fLumAvg);
-	vec4 bloom = DecodeHDR(textureLod(BloomTexture, UV, 0));
-	vec4 godray = textureLod(GodrayTexture, UV, 0);
-	vec4 shape = textureLod(ShapeTexture, UV, 0);
+	c = ToneMap(c, vec4(fLumAvg));
+	vec4 bloom = DecodeHDR(sample2DLod(BloomTexture, UpscaleSampler, UV, 0));
+	vec4 godray = subpassLoad(InputAttachments[1]);
+	vec4 shape = subpassLoad(InputAttachments[2]);
 	c += bloom;   
 	c.rgb += godray.rgb;
 	//c.rgb += godray.rgb;

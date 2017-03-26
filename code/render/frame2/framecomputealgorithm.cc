@@ -30,10 +30,20 @@ FrameComputeAlgorithm::~FrameComputeAlgorithm()
 /**
 */
 void
+FrameComputeAlgorithm::Setup()
+{
+	this->func = this->alg->GetFunction(this->funcName);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 FrameComputeAlgorithm::Discard()
 {
 	FrameOp::Discard();
-	this->alg->Discard();
+
+	this->func = nullptr;
 	this->alg = 0;
 }
 
@@ -43,7 +53,7 @@ FrameComputeAlgorithm::Discard()
 void
 FrameComputeAlgorithm::Run(const IndexT frameIndex)
 {
-	this->alg->Execute(this->func, frameIndex);
+	this->func(frameIndex);
 }
 
 } // namespace Frame2

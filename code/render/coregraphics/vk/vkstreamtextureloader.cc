@@ -12,6 +12,8 @@
 
 #include <vulkan/vulkan.h>
 #include "vkrenderdevice.h"
+#include "vkutilities.h"
+#include "vkscheduler.h"
 namespace Vulkan
 {
 
@@ -115,10 +117,10 @@ VkStreamTextureLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 		// allocate memory backing
 		VkDeviceMemory mem;
 		uint32_t alignedSize;
-		VkRenderDevice::Instance()->AllocateImageMemory(img, mem, VkMemoryPropertyFlagBits(0), alignedSize);
+		VkUtilities::AllocateImageMemory(img, mem, VkMemoryPropertyFlagBits(0), alignedSize);
 		vkBindImageMemory(VkRenderDevice::dev, img, mem, 0);
 
-		RenderDevice* renderDev = RenderDevice::Instance();
+		VkScheduler* scheduler = VkScheduler::Instance();
 
 		// transition into transfer mode
 		VkImageSubresourceRange subres;
@@ -127,7 +129,7 @@ VkStreamTextureLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 		subres.baseMipLevel = 0;
 		subres.layerCount = info.arrayLayers;
 		subres.levelCount = info.mipLevels;
-		renderDev->PushImageLayoutTransition(VkDeferredCommand::Transfer, VkRenderDevice::ImageMemoryBarrier(img, subres, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL));
+		scheduler->PushImageLayoutTransition(VkDeferredCommand::Transfer, VkUtilities::ImageMemoryBarrier(img, subres, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL));
 		uint32_t remainingBytes = alignedSize;
 		
 		// now load texture by walking through all images and mips
@@ -166,7 +168,7 @@ VkStreamTextureLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 					info.extent.depth = 1;
 
 					// push a deferred image update, since we may not be within a frame
-					renderDev->PushImageUpdate(img, info, j, i, size, (uint32_t*)buf);
+					scheduler->PushImageUpdate(img, info, j, i, size, (uint32_t*)buf);
 				}
 			}
 		}
@@ -187,28 +189,20 @@ VkStreamTextureLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 				int32_t mipHeight = (int32_t)Math::n_max(1.0f, Math::n_floor(height / Math::n_pow(2, (float)j)));
 				int32_t mipDepth = (int32_t)Math::n_max(1.0f, Math::n_floor(depth / Math::n_pow(2, (float)j)));
 
-				//VkImageSubresource subres = { VK_IMAGE_ASPECT_COLOR_BIT, j, 0 };
-				//VkSubresourceLayout layout;
-				//vkGetImageSubresourceLayout(VkRenderDevice::dev, img, &subres, &layout);
-
 				//memcpy((uint8_t*)mappedData + layout.offset, buf, size);
 				info.extent.width = mipWidth;
 				info.extent.height = mipHeight;
 				info.extent.depth = 1;
 
 				// push a deferred image update, since we may not be within a frame
-				renderDev->PushImageUpdate(img, info, j, 0, size, (uint32_t*)buf);
+				scheduler->PushImageUpdate(img, info, j, 0, size, (uint32_t*)buf);
 			}
 		}	
 
-		//vkUnmapMemory(VkRenderDevice::dev, mem);
-
 		// transition to something readable by shaders
 		VkClearColorValue val = { 1, 0, 0, 1 };
-		//renderDev->PushImageColorClear(img, VkDeferredCommand::Transfer, VK_IMAGE_LAYOUT_GENERAL, val, subres);
-		renderDev->PushImageLayoutTransition(VkDeferredCommand::Transfer, VkRenderDevice::ImageMemoryBarrier(img, subres, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
-		renderDev->PushImageOwnershipChange(VkDeferredCommand::Transfer, VkRenderDevice::ImageMemoryBarrier(img, subres, VkDeferredCommand::Transfer, VkDeferredCommand::Graphics, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
-		//renderDev->PushImageLayoutTransition(VkDeferredCommand::Transfer, VkRenderDevice::ImageMemoryBarrier(img, subres, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
+		scheduler->PushImageLayoutTransition(VkDeferredCommand::Transfer, VkUtilities::ImageMemoryBarrier(img, subres, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
+		scheduler->PushImageOwnershipChange(VkDeferredCommand::Transfer, VkUtilities::ImageMemoryBarrier(img, subres, VkDeferredCommand::Transfer, VkDeferredCommand::Graphics, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
 
 		ilDeleteImage(image);
 

@@ -56,7 +56,7 @@ View::~View()
     n_assert(!this->isAttachedToServer);
     n_assert(!this->stage.isvalid());
     n_assert(!this->camera.isvalid());
-    n_assert(!this->frameShader.isvalid());
+    n_assert(!this->frameScript.isvalid());
     n_assert(this->dependencies.IsEmpty());
 }
 
@@ -121,7 +121,6 @@ View::OnRemoveFromServer()
         this->camera = 0;
     }
     this->stage = 0;
-    this->frameShader = 0;
 	this->frameScript->Discard();
 	this->frameScript = 0;
     this->dependencies.Clear();

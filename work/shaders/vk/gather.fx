@@ -8,15 +8,15 @@
 #include "lib/shared.fxh"
 #include "lib/techniques.fxh"
 
-vec4 FogDistances = vec4(0.0, 2500.0, 0.0, 1.0);
-vec4 FogColor = vec4(0.5, 0.5, 0.63, 0.0);
-
-/// Declaring used textures
-textureHandle LightTexture;
-textureHandle DepthTexture;
-textureHandle EmissiveTexture;
-textureHandle SSSTexture;
-textureHandle SSAOTexture;
+varblock GatherBlock
+{
+	/// Declaring used textures
+	textureHandle LightTexture;
+	textureHandle DepthTexture;
+	textureHandle EmissiveTexture;
+	textureHandle SSSTexture;
+	textureHandle SSAOTexture;
+};
 
 samplerstate GatherSampler
 {
@@ -69,16 +69,16 @@ void
 psMain(in vec2 UV,
 	[color0] out vec4 MergedColor) 
 {
-	vec4 sssLight = DecodeHDR(texture(sampler2D(Textures2D[SSSTexture], GatherSampler), UV));
-	vec4 light = DecodeHDR(texture(sampler2D(Textures2D[LightTexture], GatherSampler), UV));
-	vec4 emissiveColor = texture(sampler2D(Textures2D[EmissiveTexture], GatherSampler), UV);
-	float ssao = texture(sampler2D(Textures2D[SSAOTexture], GatherSampler), UV).r;
+	vec4 sssLight = DecodeHDR(sample2DLod(SSSTexture, GatherSampler, UV, 0));
+	vec4 light = DecodeHDR(sample2DLod(LightTexture, GatherSampler, UV, 0));
+	vec4 emissiveColor = sample2DLod(EmissiveTexture, GatherSampler, UV, 0);
+	float ssao = sample2DLod(SSAOTexture, GatherSampler, UV, 0).r;
 	
 	// blend non-blurred light with SSS light
 	light.rgb = lerp(light.rgb + emissiveColor.rgb, sssLight.rgb, sssLight.a) * (1.0f - ssao);	
 	vec4 color = light;
 	
-	float depth = texture(sampler2D(Textures2D[DepthTexture], GatherSampler), UV).r;
+	float depth = sample2DLod(DepthTexture, GatherSampler, UV, 0).r;
 	color = psFog(depth, color);
 	MergedColor = EncodeHDR(color);
 }

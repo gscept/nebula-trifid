@@ -64,6 +64,8 @@ private:
 	void SetupAsGraphics();
 	/// create this program as a compute program (can be done immediately)
 	void SetupAsCompute();
+	/// create this program as empty
+	void SetupAsEmpty();
 
 	AnyFX::VkProgram* program;
 	uint32_t uniqueId;

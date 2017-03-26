@@ -20,19 +20,19 @@ public:
 	virtual ~FrameBarrier();
 
 	/// set barrier
-	void SetBarrier(const CoreGraphics::Barrier& barrier);
+	void SetBarrier(const Ptr<CoreGraphics::Barrier>& barrier);
 	/// run operation
 	void Run(const IndexT frameIndex);
 private:
 
-	CoreGraphics::Barrier barrier;
+	Ptr<CoreGraphics::Barrier> barrier;
 };
 
 //------------------------------------------------------------------------------
 /**
 */
 inline void
-FrameBarrier::SetBarrier(const CoreGraphics::Barrier& barrier)
+FrameBarrier::SetBarrier(const Ptr<CoreGraphics::Barrier>& barrier)
 {
 	this->barrier = barrier;
 }

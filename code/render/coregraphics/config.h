@@ -16,6 +16,7 @@
         #define SHADER_MODEL_5 (1)
     #endif
 	#define COREGRAPHICS_PIXEL_CENTER_HALF_PIXEL (1)
+	#define COREGRAPHICS_TRIANGLE_FRONT_FACE_CCW (1)
 
 	#define NEBULA3_USEDIRECT3D9 (1)
 	#define NEBULA3_USEDIRECT3D10 (0)
@@ -37,7 +38,7 @@
         #define	NEBULA3_OPENGL4_DEBUG (0)
     #endif
 #elif __VULKAN__
-
+	#define COREGRAPHICS_TRIANGLE_FRONT_FACE_CCW (1)
 	// define the same descriptor set slots as we do in the shaders
 	#define NEBULAT_TICK_GROUP 0
 	#define NEBULAT_FRAME_GROUP 1

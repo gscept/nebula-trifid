@@ -8,13 +8,16 @@
 #include "lib/shared.fxh"
 #include "lib/techniques.fxh"
 
-vec2 UVToViewA = vec2(0.0f, 0.0f);
-vec2 UVToViewB = vec2(0.0f, 0.0f);
-vec2 AOResolution = vec2(0.0f, 0.0f);
-vec2 InvAOResolution = vec2(0.0f, 0.0f);
-float TanAngleBias = 0.0f;
-float Strength = 0.0f;
-float R2 = 0.0f;
+varblock HBAOBlock
+{
+	vec2 UVToViewA = vec2(0.0f, 0.0f);
+	vec2 UVToViewB = vec2(0.0f, 0.0f);
+	vec2 AOResolution = vec2(0.0f, 0.0f);
+	vec2 InvAOResolution = vec2(0.0f, 0.0f);
+	float TanAngleBias = 0.0f;
+	float Strength = 0.0f;
+	float R2 = 0.0f;
+};
 
 // Step size in number of pixels
 #ifndef STEP_SIZE
@@ -200,7 +203,7 @@ csMainX()
         // Compute tangent vector using central differences
         vec2 T = MinDiff(P, Pr, Pl);
 
-        float ao = ComputeHBAO(P, T, centerId);
+        float ao = ComputeHBAO(P, T, centerId);		
 		imageStore(HBAO0, int2(ox, oy), vec4(ao, 0, 0, 0));
     }
 }
@@ -246,7 +249,7 @@ csMainY()
         float aoy = ComputeHBAO(P, T, centerId);
         float aox = imageLoad(HBAO0, int2(gl_WorkGroupID.y, writePos)).x;
         float ao = (aox + aoy) * 0.25f;
-
+		groupMemoryBarrier();
         ao = saturate(ao * Strength);
 		imageStore(HBAO1, int2(ox, oy), vec4(ao, P.y, 0, 0));
     }

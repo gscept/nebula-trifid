@@ -199,6 +199,8 @@ ENDIF()
     )
 
       set(Render_files_coregraphics__base
+		coregraphics/base/barrierbase.cc
+		coregraphics/base/barrierbase.h
 		coregraphics/base/bufferbase.cc
 		coregraphics/base/bufferbase.h
 		coregraphics/base/bufferlockbase.cc
@@ -488,6 +490,8 @@ ENDIF()
 			coregraphics/vk/vkdisplaydevice.h)
 	  set(Render_files_coregraphics__vk
 		${Render_files_coregraphics_displaydevice__impl}
+		coregraphics/vk/vkbarrier.cc
+		coregraphics/vk/vkbarrier.h		
 		coregraphics/vk/vkcmdbufferthread.cc
 		coregraphics/vk/vkcmdbufferthread.h
 		coregraphics/vk/vkcpugpuinterlockthread.cc
@@ -524,6 +528,8 @@ ENDIF()
         coregraphics/vk/vkrendertarget.h
 		coregraphics/vk/vkrendertexture.cc
 		coregraphics/vk/vkrendertexture.h
+		coregraphics/vk/vkscheduler.cc
+		coregraphics/vk/vkscheduler.h
         coregraphics/vk/vkshader.cc
         coregraphics/vk/vkshader.h
 		coregraphics/vk/vkshaderstoragebuffer.cc
@@ -558,8 +564,10 @@ ENDIF()
         coregraphics/vk/vktransformdevice.h
         coregraphics/vk/vktypes.cc
         coregraphics/vk/vktypes.h
-		coregraphics/vk/vkuniformbuffer.h
 		coregraphics/vk/vkuniformbuffer.cc
+		coregraphics/vk/vkuniformbuffer.h		
+		coregraphics/vk/vkutilities.cc
+		coregraphics/vk/vkutilities.h
         coregraphics/vk/vkvertexbuffer.cc
         coregraphics/vk/vkvertexbuffer.h
         coregraphics/vk/vkvertexlayoutserver.cc
@@ -624,6 +632,7 @@ ENDIF()
       coregraphics/adapterinfo.h
       coregraphics/antialiasquality.cc
       coregraphics/antialiasquality.h
+	  coregraphics/barrier.cc
 	  coregraphics/barrier.h
       coregraphics/framebatchtype.h
 	  coregraphics/bufferlock.cc
@@ -750,6 +759,13 @@ ENDIF()
 	set(Render_files_algorithm
 		algorithm/algorithm.cc
 		algorithm/algorithm.h
+		algorithm/algorithms.h
+		algorithm/bloomalgorithm.cc
+		algorithm/bloomalgorithm.h
+		algorithm/hbaoalgorithm.cc
+		algorithm/hbaoalgorithm.h
+		algorithm/tonemapalgorithm.cc
+		algorithm/tonemapalgorithm.h
 	)
 	source_group("algorithm" FILES ${Render_files_algorithm})
 
@@ -1898,7 +1914,7 @@ add_library(render STATIC ${Render_SRCS} )
 TARGET_INCLUDE_DIRECTORIES(render 	PUBLIC ${Nebula3_SOURCE_DIR}/code/render/ 
 									${Nebula3_SOURCE_DIR}/code/extlibs/DevIL/DevIL/include)
 
-TARGET_LINK_LIBRARIES(render PUBLIC foundation render_NIDLS libjpeg libpng api cjson)
+TARGET_LINK_LIBRARIES(render PUBLIC foundation render_NIDLS libjpeg libpng api cjson jzon)
 SET_TARGET_PROPERTIES(render PROPERTIES FOLDER "N3SDK/N3")
 
 ADD_DEPENDENCIES(render foundation_NIDLS render_NIDLS ${PHYSICS_DEPENDENCIES})

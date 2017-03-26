@@ -22,9 +22,9 @@ namespace CoreGraphics
 {
 	class Texture;
 }
-namespace Frame
+namespace Frame2
 {
-	class FrameShader;
+	class FrameScript;
 }
 
 namespace Picking
@@ -59,7 +59,7 @@ public:
 	Math::float4 FetchNormal(const Math::float2& position);
 private:
 	bool isOpen;
-	Ptr<Frame::FrameShader> frameShader;
+	Ptr<Frame2::FrameScript> frameShader;
 	Ptr<CoreGraphics::Texture> pickingBuffer;
 	Ptr<CoreGraphics::Texture> depthBuffer;
 	Ptr<CoreGraphics::Texture> normalBuffer;

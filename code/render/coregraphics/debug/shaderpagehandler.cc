@@ -161,6 +161,7 @@ ShaderPageHandler::HandleShaderInfoRequest(const ResourceId& resId, const Ptr<St
 
         // display shader variables
         htmlWriter->Element(HtmlElement::Heading3, "Shader Variables");
+#if __NEBULA3_HTTP__
 		const Ptr<CoreGraphics::ShaderState>& state = shd->GetDebugState();
 		if (state->GetNumVariables() > 0)
         {
@@ -173,6 +174,7 @@ ShaderPageHandler::HandleShaderInfoRequest(const ResourceId& resId, const Ptr<St
             this->WriteShaderVariableTable(htmlWriter, variables);
         }
         else
+#endif
         {
             htmlWriter->Text("No Shader Variables.");
             htmlWriter->LineBreak();

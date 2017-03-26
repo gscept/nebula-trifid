@@ -158,9 +158,6 @@ private:
     /// holds all of the parameter sets
     Util::FixedArray<ParameterSet> postEffects;
 
-    /// handle to frame shader
-    Ptr<Frame::FrameShader> frameShader;
-
     /// shader variable handles
     Ptr<CoreGraphics::ShaderVariable> fadeShaderVariable;
     Ptr<CoreGraphics::ShaderVariable> saturationShaderVariable;

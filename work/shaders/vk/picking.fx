@@ -7,7 +7,6 @@
 #include "lib/shared.fxh"
 #include "lib/skinning.fxh"
 #include "lib/techniques.fxh"
-#include "lib/instancingparams.fxh"
 
 state PickingState
 {

@@ -34,7 +34,6 @@ FrameGlobalState::AddVariableInstance(const Ptr<CoreGraphics::ShaderVariableInst
 	this->variableInstances.Append(var);
 }
 
-
 //------------------------------------------------------------------------------
 /**
 */
@@ -64,6 +63,7 @@ FrameGlobalState::Run(const IndexT frameIndex)
 	}
 
 	// then commit
+	this->state->Apply();
 	this->state->Commit();
 }
 

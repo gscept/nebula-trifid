@@ -10,6 +10,8 @@
 #include "vkdisplaydevice.h"
 #include "vkshaderserver.h"
 #include "coregraphics/displaydevice.h"
+#include "vkutilities.h"
+#include "vkscheduler.h"
 
 namespace Vulkan
 {
@@ -47,6 +49,7 @@ VkRenderTarget::Setup()
 {
 	// call parent class
 	RenderTargetBase::Setup();
+	VkScheduler* scheduler = VkScheduler::Instance();
 
 	this->viewportInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
 	this->viewportInfo.pNext = NULL;
@@ -179,9 +182,9 @@ VkRenderTarget::Setup()
 
 		for (i = 0; i < this->swapimages.Size(); i++)
 		{
-			VkRenderDevice::Instance()->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->swapimages[i], subres, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL));
-			VkRenderDevice::Instance()->PushImageColorClear(this->swapimages[i], VkDeferredCommand::Graphics, VK_IMAGE_LAYOUT_GENERAL, clear, subres);
-			VkRenderDevice::Instance()->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->swapimages[i], subres, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL));
+			scheduler->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkUtilities::ImageMemoryBarrier(this->swapimages[i], subres, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL));
+			scheduler->PushImageColorClear(this->swapimages[i], VkDeferredCommand::Graphics, VK_IMAGE_LAYOUT_GENERAL, clear, subres);
+			scheduler->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkUtilities::ImageMemoryBarrier(this->swapimages[i], subres, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL));
 		}
 
 		// setup info
@@ -269,7 +272,7 @@ VkRenderTarget::Setup()
 
 		// allocate buffer backing and bind to image
 		uint32_t size;
-		VkRenderDevice::Instance()->AllocateImageMemory(this->vkTargetImage, this->vkTargetImageMem, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, size);
+		VkUtilities::AllocateImageMemory(this->vkTargetImage, this->vkTargetImageMem, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, size);
 		vkBindImageMemory(VkRenderDevice::dev, this->vkTargetImage, this->vkTargetImageMem, 0);
 
 		VkImageSubresourceRange subres;
@@ -420,9 +423,9 @@ VkRenderTarget::Setup()
 
 		// change image layout
 		VkClearColorValue clear = { 0.5f, 0.5f, 0, 0 };
-		VkRenderDevice::Instance()->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->vkTargetImage, subres, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL));
-		VkRenderDevice::Instance()->PushImageColorClear(this->vkTargetImage, VkDeferredCommand::Graphics, VK_IMAGE_LAYOUT_GENERAL, clear, subres);
-		VkRenderDevice::Instance()->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->vkTargetImage, subres, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
+		scheduler->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkUtilities::ImageMemoryBarrier(this->vkTargetImage, subres, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL));
+		scheduler->PushImageColorClear(this->vkTargetImage, VkDeferredCommand::Graphics, VK_IMAGE_LAYOUT_GENERAL, clear, subres);
+		scheduler->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkUtilities::ImageMemoryBarrier(this->vkTargetImage, subres, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
 	}
 }
 
@@ -668,7 +671,7 @@ VkRenderTarget::SwitchToRender()
 	subres.levelCount = 1;
 
 	// transition between present and output
-	VkRenderDevice::Instance()->ImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->swapimages[this->swapbufferIdx], subres, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL));
+	VkUtilities::ImageLayoutTransition(VkDeferredCommand::Graphics, VkUtilities::ImageMemoryBarrier(this->swapimages[this->swapbufferIdx], subres, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL));
 }
 
 //------------------------------------------------------------------------------
@@ -686,7 +689,7 @@ VkRenderTarget::SwitchToPresent()
 	subres.levelCount = 1;
 
 	// transition between present and output
-	VkRenderDevice::Instance()->ImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->swapimages[this->swapbufferIdx], subres, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR));
+	VkUtilities::ImageLayoutTransition(VkDeferredCommand::Graphics, VkUtilities::ImageMemoryBarrier(this->swapimages[this->swapbufferIdx], subres, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR));
 }
 
 //------------------------------------------------------------------------------
@@ -701,17 +704,18 @@ VkRenderTarget::Clear(uint flags)
 	subres.baseMipLevel = 0;
 	subres.layerCount = 1;
 	subres.levelCount = 1;
+	VkScheduler* scheduler = VkScheduler::Instance();
 
 	// if we are doing a deferred clear (possibly outside of command buffer recording), push a state transition, clear, and revert transition
-	VkRenderDevice::Instance()->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->vkTargetImage, subres, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL));
+	scheduler->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkUtilities::ImageMemoryBarrier(this->vkTargetImage, subres, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL));
 	if (flags != 0)
 	{
 		if (0 != (flags & ClearColor))
 		{
-			VkRenderDevice::Instance()->PushImageColorClear(this->vkTargetImage, VkDeferredCommand::Graphics, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, this->vkClearValues[0].color, subres);
+			scheduler->PushImageColorClear(this->vkTargetImage, VkDeferredCommand::Graphics, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, this->vkClearValues[0].color, subres);
 		}
 	}
-	VkRenderDevice::Instance()->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->vkTargetImage, subres, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
+	scheduler->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkUtilities::ImageMemoryBarrier(this->vkTargetImage, subres, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
 }
 
 //------------------------------------------------------------------------------

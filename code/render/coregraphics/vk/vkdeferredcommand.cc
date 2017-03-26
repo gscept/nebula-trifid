@@ -5,6 +5,7 @@
 #include "stdneb.h"
 #include "vkdeferredcommand.h"
 #include "vkrenderdevice.h"
+#include "vkutilities.h"
 
 namespace Vulkan
 {
@@ -63,25 +64,25 @@ VkDeferredCommand::RunDelegate()
 		break;
 	
 	case UpdateBuffer:
-		VkRenderDevice::Instance()->BufferUpdate(this->del.bufferUpd.buf, this->del.bufferUpd.offset, this->del.bufferUpd.size, this->del.bufferUpd.data);
+		VkUtilities::BufferUpdate(this->del.bufferUpd.buf, this->del.bufferUpd.offset, this->del.bufferUpd.size, this->del.bufferUpd.data);
 		break;
 	case UpdateImage:
-		VkRenderDevice::Instance()->ImageUpdate(this->del.imageUpd.img, this->del.imageUpd.info, this->del.imageUpd.mip, this->del.imageUpd.face, this->del.imageUpd.size, this->del.imageUpd.data);
+		VkUtilities::ImageUpdate(this->del.imageUpd.img, this->del.imageUpd.info, this->del.imageUpd.mip, this->del.imageUpd.face, this->del.imageUpd.size, this->del.imageUpd.data);
 		break;
 	case DestroyPipeline:
 		vkDestroyPipeline(this->dev, this->del.pipelineDestroy.pipeline, NULL);
 		break;
 	case ClearColorImage:
-		VkRenderDevice::Instance()->ImageColorClear(this->del.imgColorClear.img, this->del.queue, this->del.imgColorClear.layout, this->del.imgColorClear.clearValue, this->del.imgColorClear.region);
+		VkUtilities::ImageColorClear(this->del.imgColorClear.img, this->del.queue, this->del.imgColorClear.layout, this->del.imgColorClear.clearValue, this->del.imgColorClear.region);
 		break;
 	case ClearDepthStencilImage:
-		VkRenderDevice::Instance()->ImageDepthStencilClear(this->del.imgDepthStencilClear.img, this->del.queue, this->del.imgDepthStencilClear.layout, this->del.imgDepthStencilClear.clearValue, this->del.imgDepthStencilClear.region);
+		VkUtilities::ImageDepthStencilClear(this->del.imgDepthStencilClear.img, this->del.queue, this->del.imgDepthStencilClear.layout, this->del.imgDepthStencilClear.clearValue, this->del.imgDepthStencilClear.region);
 		break;
 	case ImageLayoutTransition:
-		VkRenderDevice::Instance()->ImageLayoutTransition(this->del.queue, this->del.imgBarrier.barrier);
+		VkUtilities::ImageLayoutTransition(this->del.queue, this->del.imgBarrier.barrier);
 		break;
 	case ImageOwnershipChange:
-		VkRenderDevice::Instance()->ImageOwnershipChange(this->del.queue, this->del.imgOwnerChange.barrier);
+		VkUtilities::ImageOwnershipChange(this->del.queue, this->del.imgOwnerChange.barrier);
 		break;
 	}
 }

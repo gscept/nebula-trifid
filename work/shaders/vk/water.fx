@@ -15,32 +15,38 @@
 #include "lib/techniques.fxh"
 #include "lib/CSM.fxh"
 #include "lib/tessellationparams.fxh"
+#include "lib/defaultsamplers.fxh"
 
-sampler2D ColorMap;
-sampler2D DepthMap;
-samplerCube EnvironmentMap;
-sampler2D WaveMap;
-sampler2D HeightMap;
+group(DEFAULT_GROUP) shared varblock WaterBlock [ bool DynamicOffset = true; ]
+{
 
-float DynamicTessellationFactor = 32.0f;
-float WaveSpeed = 0.0f;
-vec4 WaterColor = vec4(0.0f, 0.0f, 0.0f, 0.0f);
-vec4 WaterSpecular = vec4(1,1,1,1);
-vec4 WaterScatterColor = vec4(0.3f, 0.7f, 0.6f, 0.0f);
-vec2 WaterColorIntensity = vec2(0.1f, 0.2f);
-float FogDistance = 0.0f;
+	float DynamicTessellationFactor = 32.0f;
+	float WaveSpeed = 0.0f;
+	vec4 WaterColor = vec4(0.0f, 0.0f, 0.0f, 0.0f);
+	vec4 WaterSpecular = vec4(1,1,1,1);
+	vec4 WaterScatterColor = vec4(0.3f, 0.7f, 0.6f, 0.0f);
+	vec2 WaterColorIntensity = vec2(0.1f, 0.2f);
+	float FogDistance = 0.0f;
 
-vec4 FogBrightColor = vec4(1.0f, 1.1f, 1.4f, 0.0f);
-vec4 FogDarkColor = vec4(0.6f, 0.6f, 0.7f, 0.0f);
-float FogDensity = 1.0f;
-vec2 TileSize = vec2(512, 512);
-vec2 WaveScale = vec2(7, 7);
-vec2 WaveMicroScale = vec2(225, 225);
-float WaveHeight = 1.0f;
+	vec4 FogBrightColor = vec4(1.0f, 1.1f, 1.4f, 0.0f);
+	vec4 FogDarkColor = vec4(0.6f, 0.6f, 0.7f, 0.0f);
+	float FogDensity = 1.0f;
+	vec2 TileSize = vec2(512, 512);
+	vec2 WaveScale = vec2(7, 7);
+	vec2 WaveMicroScale = vec2(225, 225);
+	float WaveHeight = 1.0f;
+	vec2 DepthMapPixelSize;
+	vec2 HeightMapPixelSize;
+	vec2 ColorMapPixelSize;
+	
+	textureHandle ColorMap;
+	textureHandle DepthMap;
+	textureHandle WaveMap;
+	textureHandle HeightMap;
+};
 
 samplerstate ScreenSampler
 {
-	Samplers = { ColorMap, DepthMap };
 	Filter = Point;
 	AddressU = Mirror;
 	AddressV = Mirror;
@@ -48,7 +54,6 @@ samplerstate ScreenSampler
 
 samplerstate WaveSampler
 {
-	Samplers = { WaveMap, HeightMap, EnvironmentMap };
 	AddressU = Wrap;
 	AddressV = Wrap;
 };
@@ -83,16 +88,16 @@ float3 CalculateFogColor(vec3 pixel_to_light_vector, vec3 pixel_to_eye_vector)
 
 float GetRefractionDepth(vec2 position)
 {
-	return textureLod(DepthMap, position, 0).r;
+	return sample2DLod(DepthMap, GeometryTextureSampler, position, 0).r;
 }
 
 float GetConservativeRefractionDepth(vec2 position)
 {
-	vec2 pixelSize = GetPixelSize(DepthMap);
-	float result =       textureLod(DepthMap, position + 2.0 * vec2(pixelSize.x, pixelSize.y), 0).r;
-	result = min(result, textureLod(DepthMap, position + 2.0 * vec2(pixelSize.x, -pixelSize.y), 0).r);
-	result = min(result, textureLod(DepthMap, position + 2.0 * vec2(-pixelSize.x, pixelSize.y), 0).r);
-	result = min(result, textureLod(DepthMap, position + 2.0 * vec2(-pixelSize.x, -pixelSize.y), 0).r);
+	vec2 pixelSize = DepthMapPixelSize;
+	float result =       sample2DLod(DepthMap, ScreenSampler, position + 2.0 * vec2(pixelSize.x, pixelSize.y), 0).r;
+	result = min(result, sample2DLod(DepthMap, ScreenSampler, position + 2.0 * vec2(pixelSize.x, -pixelSize.y), 0).r);
+	result = min(result, sample2DLod(DepthMap, ScreenSampler, position + 2.0 * vec2(-pixelSize.x, pixelSize.y), 0).r);
+	result = min(result, sample2DLod(DepthMap, ScreenSampler, position + 2.0 * vec2(-pixelSize.x, -pixelSize.y), 0).r);
 	return result;
 }
 
@@ -124,7 +129,7 @@ vec4 CombineWaterNormal(vec3 worldPos)
 	// fetching water heightmap
 	for (float i=0; i < 5; i++)
 	{
-		norm = textureLod(WaveMap, tc * texcoord_scale + translation * 0.03f * variance, water_miplevel);
+		norm = sample2DLod(WaveMap, WaveSampler, tc * texcoord_scale + translation * 0.03f * variance, water_miplevel);
 		//disp = textureLod(HeightMap, tc * texcoord_scale + translation * 0.03f * variance, water_miplevel).a;
 		variance.x *= -1.0f;
 		water_normal.xz += (2 * norm.xy - vec2(1.0f, 1.0f)) * normal_disturbance_scale;
@@ -164,8 +169,8 @@ vsDefault(
 	ViewSpacePos = (modelView * vec4(position, 1)).xyz;
 
 	vec2 texcoord0to1 = modelSpace.xz/TileSize;
-	vec2 depthCoord = (position.xz) * GetPixelSize(HeightMap);
-	DepthScale = textureLod(HeightMap, vec2(depthCoord.x, 1 - depthCoord.y), 0).r;
+	vec2 depthCoord = (position.xz) * HeightMapPixelSize;
+	DepthScale = sample2DLod(HeightMap, WaveSampler, vec2(depthCoord.x, 1 - depthCoord.y), 0).r;
 	
 	vec2 translation = vec2(TimeAndRandom.x * 1.5f, TimeAndRandom.x * 0.75f) * WaveSpeed;
 	UV = texcoord0to1 * WaveMicroScale + translation * 0.07f;	
@@ -222,8 +227,8 @@ psDefault(
 {   	
 	vec2 translation = vec2(TimeAndRandom.x * 1.5f, TimeAndRandom.x * 0.75f) * WaveSpeed;
 	
-	vec3 tNormal = normalize(2 * texture(WaveMap, UV - translation * 0.2f).gbr - vec3(1, -8, 1));
-	tNormal += normalize(2 * texture(WaveMap, UV * 0.5f + translation * 0.05f).gbr - vec3(1, -8, 1));
+	vec3 tNormal = normalize(2 * sample2D(WaveMap, WaveSampler, UV - translation * 0.2f).gbr - vec3(1, -8, 1));
+	tNormal += normalize(2 * sample2D(WaveMap, WaveSampler, UV * 0.5f + translation * 0.05f).gbr - vec3(1, -8, 1));
 
 	// calculate bump mapping
 	mat3x3 normal_rotation_matrix;
@@ -233,7 +238,7 @@ psDefault(
 	tNormal = normal_rotation_matrix * normalize(tNormal);
 	
 	// calculate screen space UV coordinate
-	vec2 pixelSize = GetPixelSize(ColorMap);
+	vec2 pixelSize = ColorMapPixelSize;
 	vec2 screenUv = psComputeScreenCoord(gl_FragCoord.xy, pixelSize.xy);
 	
 	// calculating pixel position in light space
@@ -246,7 +251,7 @@ psDefault(
 	float shadowFactor = 1.0f;
 	
 	// calculate lighting vectors, global light position is in the direction of the light times ALOT
-	float ssDepth = textureLod(DepthMap, screenUv, 0).r;
+	float ssDepth = sample2DLod(DepthMap, ScreenSampler, screenUv, 0).r;
 	vec3 pixel_to_eye_vector = normalize(EyeVec);
 	vec3 pixel_to_light_vector = normalize(GlobalLightDir.xyz);
 	
@@ -340,9 +345,9 @@ psDefault(
 	water_depth = max(0.0f, water_depth);
 
 	// getting reflection and refraction color at disturbed texture coordinates
-	vec4 reflection_color = textureLod(EnvironmentMap, reflected_eye_to_pixel_vector + vec3(reflection_disturbance.x, 0, reflection_disturbance.y), 0); 
+	vec4 reflection_color = sampleCubeLod(EnvironmentMap, EnvironmentSampler, reflected_eye_to_pixel_vector + vec3(reflection_disturbance.x, 0, reflection_disturbance.y), 0); 
 	//vec4 reflection_color = DecodeHDR(textureLod(ReflectionMap, reflected_eye_to_pixel_vector, 0));
-	vec4 refraction_color = DecodeHDR(textureLod(ColorMap, screenUv + refraction_disturbance, 0));
+	vec4 refraction_color = DecodeHDR(sample2DLod(ColorMap, ScreenSampler, screenUv + refraction_disturbance, 0));
 
 	// calculating water surface color and applying atmospheric fog to it
 	vec4 water_color = diffuse_factor * vec4(WaterColor.rgb, 1);
@@ -507,11 +512,11 @@ dsDefault(
 	// calculate texture coordinate based on world space position
 	vec4 worldSpace = (Model * vec4(pos, 1));
 	vec2 texcoord0to1 = worldSpace.xz/TileSize;
-	vec2 depthCoord = (pos.xz) * GetPixelSize(HeightMap);
+	vec2 depthCoord = (pos.xz) * HeightMapPixelSize;
 	depthCoord.y = 1 - depthCoord.y;
 	
 	// sample from texture the amount of displacement per pixel, this is done in the space of the texture, and not using the tile size
-	DepthScale = textureLod(HeightMap, depthCoord, 0).r;
+	DepthScale = sample2DLod(HeightMap, WaveSampler, depthCoord, 0).r;
 	
 	// this will be our final vertex position
 	vec3 vertex;

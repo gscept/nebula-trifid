@@ -57,6 +57,45 @@ VkPass::Setup()
 	VkResult res = vkAllocateDescriptorSets(VkRenderDevice::dev, &descInfo, &this->passDescriptorSet);
 	n_assert(res == VK_SUCCESS);
 
+	// gather image views
+	SizeT width = 0;
+	SizeT height = 0;
+	SizeT layers = 0;
+	Util::FixedArray<VkImageView> images;
+	images.Resize(this->colorAttachments.Size() + (this->depthStencilAttachment.isvalid() ? 1 : 0));
+	this->clearValues.Resize(images.Size());
+	this->scissorRects.Resize(images.Size());
+	this->viewports.Resize(images.Size());
+
+	IndexT i;
+	for (i = 0; i < this->colorAttachments.Size(); i++)
+	{
+		images[i] = this->colorAttachments[i]->GetVkImageView();
+		width = Math::n_max(width, this->colorAttachments[i]->GetWidth());
+		height = Math::n_max(height, this->colorAttachments[i]->GetHeight());
+		layers = Math::n_max(layers, this->colorAttachments[i]->GetLayers());
+
+		VkRect2D& rect = scissorRects[i];
+		rect.offset.x = 0;
+		rect.offset.y = 0;
+		rect.extent.width = this->colorAttachments[i]->GetWidth();
+		rect.extent.height = this->colorAttachments[i]->GetHeight();
+		VkViewport& viewport = viewports[i];
+		viewport.width = (float)this->colorAttachments[i]->GetWidth();
+		viewport.height = (float)this->colorAttachments[i]->GetHeight();
+		viewport.minDepth = 0;
+		viewport.maxDepth = 1;
+		viewport.x = 0;
+		viewport.y = 0;
+
+		const Math::float4& value = this->colorAttachmentClears[i];
+		VkClearValue& clear = this->clearValues[i];
+		clear.color.float32[0] = value.x();
+		clear.color.float32[1] = value.y();
+		clear.color.float32[2] = value.z();
+		clear.color.float32[3] = value.w();
+	}
+
 	Util::FixedArray<VkSubpassDescription> subpassDescs;
 	Util::FixedArray<Util::FixedArray<VkAttachmentReference>> subpassReferences;
 	Util::FixedArray<Util::FixedArray<VkAttachmentReference>> subpassInputs;
@@ -72,8 +111,9 @@ VkPass::Setup()
 	subpassPreserves.Resize(this->subpasses.Size());
 	subpassResolves.Resize(this->subpasses.Size());
 	subpassDepthStencils.Resize(this->subpasses.Size());
+	this->subpassViewports.Resize(this->subpasses.Size());
+	this->subpassRects.Resize(this->subpasses.Size());
 
-	IndexT i;
 	for (i = 0; i < this->subpasses.Size(); i++)
 	{
 		const PassBase::Subpass& subpass = this->subpasses[i];
@@ -86,6 +126,10 @@ VkPass::Setup()
 		vksubpass.pPreserveAttachments = NULL;
 		vksubpass.pResolveAttachments = NULL;
 		vksubpass.pInputAttachments = NULL;
+
+		// resize rects
+		this->subpassViewports[i].Resize(subpass.attachments.Size());
+		this->subpassRects[i].Resize(subpass.attachments.Size());
 
 		// get references to fixed arrays
 		Util::FixedArray<VkAttachmentReference>& references = subpassReferences[i];
@@ -128,11 +172,12 @@ VkPass::Setup()
 			VkAttachmentReference& ref = references[j];
 			ref.attachment = subpass.attachments[j];
 			ref.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			subpassViewports[i][j] = this->viewports[ref.attachment];
+			subpassRects[i][j] = this->scissorRects[ref.attachment];
 			usedAttachments++;
 
 			// remove from all attachments list
 			allAttachments.EraseIndex(allAttachments.FindIndex(ref.attachment));
-
 			if (subpass.resolve) resolves[j] = ref;
 		}
 	
@@ -261,42 +306,7 @@ VkPass::Setup()
 	res = vkCreateRenderPass(VkRenderDevice::dev, &info, NULL, &this->pass);
 	n_assert(res == VK_SUCCESS);
 
-	// gather image views
-	SizeT width = 0;
-	SizeT height = 0;
-	SizeT layers = 0;
-	Util::FixedArray<VkImageView> images;
-	images.Resize(this->colorAttachments.Size() + (this->depthStencilAttachment.isvalid() ? 1 : 0));
-	this->clearValues.Resize(images.Size());
-	this->scissorRects.Resize(images.Size());
-	this->viewports.Resize(images.Size());
-	for (i = 0; i < this->colorAttachments.Size(); i++)
-	{
-		images[i] = this->colorAttachments[i]->GetVkImageView();
-		width = Math::n_max(width, this->colorAttachments[i]->GetWidth());
-		height = Math::n_max(height, this->colorAttachments[i]->GetHeight());
-		layers = Math::n_max(layers, this->colorAttachments[i]->GetLayers());
 
-		VkRect2D& rect = scissorRects[i];
-		rect.offset.x = 0;
-		rect.offset.y = 0;
-		rect.extent.width = this->colorAttachments[i]->GetWidth();
-		rect.extent.height = this->colorAttachments[i]->GetHeight();
-		VkViewport& viewport = viewports[i];
-		viewport.width = (float)this->colorAttachments[i]->GetWidth();
-		viewport.height = (float)this->colorAttachments[i]->GetHeight();
-		viewport.minDepth = 0;
-		viewport.maxDepth = 1;
-		viewport.x = 0;
-		viewport.y = 0;
-
-		const Math::float4& value = this->colorAttachmentClears[i];
-		VkClearValue& clear = this->clearValues[i];
-		clear.color.float32[0] = value.x();
-		clear.color.float32[1] = value.y();
-		clear.color.float32[2] = value.z();
-		clear.color.float32[3] = value.w();
-	}
 	if (this->depthStencilAttachment.isvalid())
 	{
 		images[i] = this->depthStencilAttachment->GetVkImageView();
@@ -343,7 +353,7 @@ VkPass::Setup()
 	write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 	write.pNext = NULL;
 	write.descriptorCount = 1;
-	write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+	write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	write.dstBinding = this->passBlockVar->binding;
 	write.dstArrayElement = 0;
 	write.dstSet = this->passDescriptorSet;
@@ -443,11 +453,7 @@ void
 VkPass::Begin()
 {
 	PassBase::Begin();
-
 	VkRenderDevice* dev = VkRenderDevice::Instance();
-
-	// commit this shader state
-	//this->shaderState->Commit();
 
 	// bind descriptor set
 	static const uint32_t offset = 0;

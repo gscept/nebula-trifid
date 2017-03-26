@@ -53,10 +53,6 @@ public:
     void SetCameraEntity(const Ptr<CameraEntity>& camera);
     /// get the CameraEntity this View looks through
     const Ptr<CameraEntity>& GetCameraEntity() const;
-    /// set the view's frame shader 
-    void SetFrameShader(const Ptr<Frame::FrameShader>& frameShader);
-    /// get the view's frame shader
-    const Ptr<Frame::FrameShader>& GetFrameShader() const;
 	/// set the view's frame script 
 	void SetFrameScript(const Ptr<Frame2::FrameScript>& frameScript);
 	/// get the view's frame script
@@ -109,7 +105,6 @@ protected:
     Util::StringAtom name;
     Ptr<Stage> stage;
     Ptr<CameraEntity> camera;
-    Ptr<Frame::FrameShader> frameShader;
 	Ptr<Frame2::FrameScript> frameScript;
     Util::Array<Ptr<View> > dependencies;
 	bool resolveRectValid;
@@ -197,24 +192,6 @@ inline const Util::Array<Ptr<View> >&
 View::GetDependencies() const
 {
     return this->dependencies;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void
-View::SetFrameShader(const Ptr<Frame::FrameShader>& shd)
-{
-    this->frameShader = shd;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline const Ptr<Frame::FrameShader>&
-View::GetFrameShader() const
-{
-    return this->frameShader;
 }
 
 //------------------------------------------------------------------------------

@@ -58,9 +58,6 @@ VkTransformDevice::Open()
 	this->focalLengthVar = this->sharedShader->GetVariableByName(NEBULA3_SEMANTIC_FOCALLENGTH);
 	this->timeAndRandomVar = this->sharedShader->GetVariableByName(NEBULA3_SEMANTIC_TIMEANDRANDOM);
 
-	// setup shadow block, make it synced so that we can update shadow maps without massive frame drops
-	this->viewMatricesVar = this->sharedShader->GetVariableByName(NEBULA3_SEMANTIC_VIEWMATRIXARRAY);
-
 	return TransformDeviceBase::Open();
 }
 
@@ -113,15 +110,6 @@ VkTransformDevice::ApplyModelTransforms(const Ptr<CoreGraphics::ShaderState>& sh
 	{
 		shdInst->GetVariableByName(NEBULA3_SEMANTIC_INVMODEL)->SetMatrix(this->GetInvModelTransform());
 	}
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkTransformDevice::ApplyViewMatrixArray(const Math::matrix44* matrices, SizeT num)
-{
-	this->viewMatricesVar->SetMatrixArray(matrices, num);
 }
 
 } // namespace Vulkan

@@ -72,11 +72,8 @@ VkStreamShaderLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 
 			// get program object from shader subsystem
 			AnyFX::VkProgram* program = static_cast<AnyFX::VkProgram*>(programs[i]);
-			if (program->valid)
-			{
-				variation->Setup(program, res->pipelineLayout);
-				res->variations.Add(variation->GetFeatureMask(), variation);
-			}			
+			variation->Setup(program, res->pipelineLayout);
+			res->variations.Add(variation->GetFeatureMask(), variation);
 		}
 
 		// make sure that the shader has one variation selected

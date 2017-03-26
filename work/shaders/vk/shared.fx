@@ -20,6 +20,4 @@ psMain(){}
 
 program Empty [ string Mask = "Empty"; ]
 {
-	VertexShader = vsMain();
-	PixelShader = psMain();
 };

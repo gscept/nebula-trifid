@@ -28,6 +28,7 @@ RenderTextureBase::RenderTextureBase() :
 	widthScale(1),
 	heightScale(1),
 	depthScale(1),
+	isInPass(false),
 	msaaEnabled(false),
 	relativeSize(false),
 	dynamicSize(false),	
@@ -193,7 +194,7 @@ RenderTextureBase::GenerateMipChain(IndexT from, IndexT to)
 /**
 */
 void
-RenderTextureBase::GenerateMip(IndexT from, IndexT to)
+RenderTextureBase::Blit(IndexT from, IndexT to, const Ptr<CoreGraphics::RenderTexture>& target)
 {
 	n_assert(this->texture->numMipLevels > from && this->texture->numMipLevels > to);
 	// empty, implement in subclass

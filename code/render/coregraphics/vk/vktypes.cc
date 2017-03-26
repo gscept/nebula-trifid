@@ -103,6 +103,51 @@ VkTypes::AsVkFormat(ILenum p)
 //------------------------------------------------------------------------------
 /**
 */
+ILenum
+VkTypes::AsILDXTFormat(VkFormat p)
+{
+	switch (p)
+	{
+
+		case VK_FORMAT_BC1_RGBA_UNORM_BLOCK: 	return IL_DXT1;
+		case VK_FORMAT_BC2_UNORM_BLOCK:			return IL_DXT3;
+		case VK_FORMAT_BC3_UNORM_BLOCK:			return IL_DXT5;
+		case VK_FORMAT_BC7_UNORM_BLOCK:			return IL_BPTC;
+		case VK_FORMAT_BC1_RGBA_SRGB_BLOCK:		return IL_DXT1A_sRGB;
+		case VK_FORMAT_BC2_SRGB_BLOCK:			return IL_DXT3_sRGB;
+		case VK_FORMAT_BC3_SRGB_BLOCK:			return IL_DXT5_sRGB;
+		case VK_FORMAT_BC7_SRGB_BLOCK:			return IL_BPTC_sRGB;
+		default:
+		{
+			n_error("VkTypes::AsVkFormat(): invalid compression '%d'", p);
+			return IL_NO_COMPRESSION;
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+VkTypes::IsCompressedFormat(VkFormat p)
+{
+	switch (p)
+	{
+	case VK_FORMAT_BC1_RGBA_UNORM_BLOCK: 	return true;
+	case VK_FORMAT_BC2_UNORM_BLOCK:			return true;
+	case VK_FORMAT_BC3_UNORM_BLOCK:			return true;
+	case VK_FORMAT_BC7_UNORM_BLOCK:			return true;
+	case VK_FORMAT_BC1_RGBA_SRGB_BLOCK:		return true;
+	case VK_FORMAT_BC2_SRGB_BLOCK:			return true;
+	case VK_FORMAT_BC3_SRGB_BLOCK:			return true;
+	case VK_FORMAT_BC7_SRGB_BLOCK:			return true;
+	default:								return false;
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 VkTypes::VkBlockDimensions
 VkTypes::AsVkBlockSize(CoreGraphics::PixelFormat::Code p)
 {
@@ -317,10 +362,11 @@ VkTypes::AsVkDataFormat(CoreGraphics::PixelFormat::Code p)
 		case PixelFormat::A8R8G8B8:         return VK_FORMAT_R8G8B8A8_UINT;
 		case PixelFormat::A8B8G8R8:         return VK_FORMAT_R8G8B8A8_UINT;
 		case PixelFormat::R8G8B8:           return VK_FORMAT_R8G8B8_UINT;
-		case PixelFormat::G16R16F:          return VK_FORMAT_R16G16B16A16_SFLOAT;
+		case PixelFormat::G16R16F:          return VK_FORMAT_R16G16_SFLOAT;
 		case PixelFormat::A16B16G16R16F:    return VK_FORMAT_R16G16B16A16_SFLOAT;
 		case PixelFormat::A16B16G16R16:		return VK_FORMAT_R16G16B16A16_UINT;
 		case PixelFormat::R32F:             return VK_FORMAT_R32_SFLOAT;
+		case PixelFormat::R16F:				return VK_FORMAT_R16_SFLOAT;
 		case PixelFormat::G32R32F:          return VK_FORMAT_R32G32_SFLOAT;
 		case PixelFormat::A32B32G32R32F:    return VK_FORMAT_R32G32B32A32_SFLOAT;
 		case PixelFormat::R32G32B32F:		return VK_FORMAT_R32G32B32_SFLOAT;
@@ -349,6 +395,7 @@ VkTypes::AsNebulaPixelFormat(VkFormat f)
 	case VK_FORMAT_R8G8B8A8_UINT:					return PixelFormat::A8R8G8B8;
 	case VK_FORMAT_R8G8B8_UINT:						return PixelFormat::R8G8B8;
 	case VK_FORMAT_R8G8B8A8_UNORM:					return PixelFormat::A8R8G8B8;
+	case VK_FORMAT_B8G8R8A8_UNORM:					return PixelFormat::A8B8G8R8;
 	case VK_FORMAT_R8G8B8_UNORM:					return PixelFormat::R8G8B8;
 	case VK_FORMAT_R5G6B5_UNORM_PACK16:				return PixelFormat::R5G6B5;
 	case VK_FORMAT_R8G8B8A8_SRGB:					return PixelFormat::SRGBA8;
@@ -448,8 +495,8 @@ VkTypes::AsVkMapping(ILenum p)
 	case PF_A16B16G16R16:		
 	case PF_A16B16G16R16F:		
 	case PF_A32B32G32R32F:
-		mapping.r = VK_COMPONENT_SWIZZLE_B;
-		mapping.b = VK_COMPONENT_SWIZZLE_R;
+		mapping.r = VK_COMPONENT_SWIZZLE_R;
+		mapping.b = VK_COMPONENT_SWIZZLE_B;
 		break;
 	case PF_G16R16F:
 	case PF_G32R32F:
@@ -462,6 +509,133 @@ VkTypes::AsVkMapping(ILenum p)
 	}
 
 	return mapping;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+VkPipelineStageFlags
+VkTypes::AsVkPipelineFlags(const CoreGraphics::Barrier::Dependency dep)
+{
+	VkPipelineStageFlags flags = 0;
+	uint32_t bit;
+	for (bit = 1; dep > bit; bit *= 2)
+	{
+		if ((dep & bit) == bit) switch ((CoreGraphics::Barrier::Dependency)bit)
+		{
+		case Barrier::Dependency::VertexShader:
+			flags |= VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
+			break;
+		case Barrier::Dependency::HullShader:
+			flags |= VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT;
+			break;
+		case Barrier::Dependency::DomainShader:
+			flags |= VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT;
+			break;
+		case Barrier::Dependency::GeometryShader:
+			flags |= VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT;
+			break;
+		case Barrier::Dependency::PixelShader:
+			flags |= VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+			break;
+		case Barrier::Dependency::ComputeShader:
+			flags |= VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+			break;
+		case Barrier::Dependency::VertexInput:
+			flags |= VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
+			break;
+		case Barrier::Dependency::EarlyDepth:
+			flags |= VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+			break;
+		case Barrier::Dependency::LateDepth:
+			flags |= VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+			break;
+		case Barrier::Dependency::Transfer:
+			flags |= VK_PIPELINE_STAGE_TRANSFER_BIT;
+			break;
+		case Barrier::Dependency::Host:
+			flags |= VK_PIPELINE_STAGE_HOST_BIT;
+			break;
+		case Barrier::Dependency::PassOutput:
+			flags |= VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+			break;
+		case Barrier::Dependency::Top:
+			flags |= VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+			break;
+		case Barrier::Dependency::End:
+			flags |= VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+			break;
+		}
+	}
+	return flags;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+VkAccessFlags
+VkTypes::AsVkResourceAccessFlags(const CoreGraphics::Barrier::Access access)
+{
+	VkAccessFlags flags = 0;
+	uint32_t bit;
+	for (bit = 1; access > bit; bit *= 2)
+	{
+		if ((access & bit) == bit) switch ((CoreGraphics::Barrier::Access)bit)
+		{
+		case Barrier::Access::IndirectRead:
+			flags |= VK_ACCESS_INDIRECT_COMMAND_READ_BIT;
+			break;
+		case Barrier::Access::IndexRead:
+			flags |= VK_ACCESS_INDEX_READ_BIT;
+			break;
+		case Barrier::Access::VertexRead:
+			flags |= VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
+			break;
+		case Barrier::Access::UniformRead:
+			flags |= VK_ACCESS_UNIFORM_READ_BIT;
+			break;
+		case Barrier::Access::InputAttachmentRead:
+			flags |= VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
+			break;
+		case Barrier::Access::ShaderRead:
+			flags |= VK_ACCESS_SHADER_READ_BIT;
+			break;
+		case Barrier::Access::ShaderWrite:
+			flags |= VK_ACCESS_SHADER_WRITE_BIT;
+			break;
+		case Barrier::Access::ColorAttachmentRead:
+			flags |= VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
+			break;
+		case Barrier::Access::ColorAttachmentWrite:
+			flags |= VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+			break;
+		case Barrier::Access::DepthRead:
+			flags |= VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+			break;
+		case Barrier::Access::DepthWrite:
+			flags |= VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+			break;
+		case Barrier::Access::TransferRead:
+			flags |= VK_ACCESS_TRANSFER_READ_BIT;
+			break;
+		case Barrier::Access::TransferWrite:
+			flags |= VK_ACCESS_TRANSFER_WRITE_BIT;
+			break;
+		case Barrier::Access::HostRead:
+			flags |= VK_ACCESS_HOST_READ_BIT;
+			break;
+		case Barrier::Access::HostWrite:
+			flags |= VK_ACCESS_HOST_WRITE_BIT;
+			break;
+		case Barrier::Access::MemoryRead:
+			flags |= VK_ACCESS_MEMORY_READ_BIT;
+			break;
+		case Barrier::Access::MemoryWrite:
+			flags |= VK_ACCESS_MEMORY_WRITE_BIT;
+			break;
+		}
+	}
+	return flags;
 }
 
 //------------------------------------------------------------------------------

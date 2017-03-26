@@ -91,6 +91,7 @@ private:
 	VkBuffer mappedImg;
 	VkDeviceMemory mappedMem;
 	VkImageCopy mappedBufferLayout;
+	VkImageLayout currentLayout;
 };
 
 //------------------------------------------------------------------------------

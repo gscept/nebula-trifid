@@ -42,7 +42,6 @@ PostEffectServer::PostEffectServer():
     currentFadeValue(1.0f),
     curFadeMode(NoFade),
     postEffects(NumPostEffectTypes),
-    frameShader(0),
 	skyEntity(0),	
     skyLoaded(false)
 {
@@ -65,40 +64,29 @@ PostEffectServer::~PostEffectServer()
 void 
 PostEffectServer::Open()
 {
-    n_assert(!this->frameShader.isvalid());
-
-    // get frame shader from default view
-    this->frameShader = GraphicsServer::Instance()->GetDefaultView()->GetFrameShader();
-
-	// some variables belong in the compose shader
-	const Ptr<ShaderState>& composeShader = this->frameShader->GetFramePassBaseByName("Finalize")->GetShaderState();
-	const Ptr<ShaderState>& gatherShader = this->frameShader->GetFramePassBaseByName("Gather")->GetShaderState();
-	const Ptr<ShaderState>& vertBloom = this->frameShader->GetFramePassBaseByName("VerticalBloomBlur")->GetShaderState();
-	const Ptr<ShaderState>& horiBloom = this->frameShader->GetFramePassBaseByName("HorizontalBloomBlur")->GetShaderState();
-
-	// some variables belong in the brightpass
-	const Ptr<ShaderState>& brightPassShader = this->frameShader->GetFramePassBaseByName("BrightPass")->GetShaderState();
+    // get the shared shader state
+	const Ptr<ShaderState>& sharedState = ShaderServer::Instance()->GetSharedShader();
 
     // lookup the shared post effect fade variable
-    this->fadeShaderVariable = composeShader->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_FADEVALUE));
+    this->fadeShaderVariable = sharedState->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_FADEVALUE));
     
     // color stuff
-    this->saturationShaderVariable = composeShader->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_SATURATION));
-    this->balanceShaderVariable = composeShader->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_BALANCE));
-    this->maxLuminanceShaderVar = composeShader->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_MAXLUMINANCE));
+    this->saturationShaderVariable = sharedState->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_SATURATION));
+    this->balanceShaderVariable = sharedState->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_BALANCE));
+    this->maxLuminanceShaderVar = sharedState->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_MAXLUMINANCE));
 
 	// fog stuff
-    this->fogColorVariable = gatherShader->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_FOGCOLOR));
-    this->fogDistancesVariable = gatherShader->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_FOGDISTANCES));
+    this->fogColorVariable = sharedState->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_FOGCOLOR));
+    this->fogDistancesVariable = sharedState->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_FOGDISTANCES));
 
 	// dof stuff
-    this->dofShaderVariable = composeShader->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_DOFDISTANCES));
+    this->dofShaderVariable = sharedState->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_DOFDISTANCES));
 
     // hdr stuff
-    this->hdrColorVariable = brightPassShader->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_HDRBLOOMCOLOR));
-    this->hdrThresholdVariable = brightPassShader->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_HDRBRIGHTPASSTHRESHOLD));
-    this->hdrVerticalScaleVariable = vertBloom->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_HDRBLOOMSCALE));
-    this->hdrHorizontalScaleVariable = horiBloom->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_HDRBLOOMSCALE));
+    this->hdrColorVariable = sharedState->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_HDRBLOOMCOLOR));
+    this->hdrThresholdVariable = sharedState->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_HDRBRIGHTPASSTHRESHOLD));
+    this->hdrVerticalScaleVariable = sharedState->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_HDRBLOOMSCALE));
+    this->hdrHorizontalScaleVariable = sharedState->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_HDRBLOOMSCALE));
 
 	// setup default blends
 	this->postEffects[Color].current	= ColorParams::Create();
@@ -196,7 +184,6 @@ PostEffectServer::Close()
     this->skyBaseTexture = 0;    
     this->globalLight = 0;
     this->skyLoaded = false;
-    this->frameShader = 0;
 
     this->UnloadTextures();
 }

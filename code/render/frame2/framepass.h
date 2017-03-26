@@ -23,6 +23,8 @@ public:
 
 	/// set pass
 	void SetPass(const Ptr<CoreGraphics::Pass>& pass);
+	/// get pass
+	const Ptr<CoreGraphics::Pass>& GetPass() const;
 	/// add subpass
 	void AddSubpass(const Ptr<FrameSubpass>& subpass);
 
@@ -46,6 +48,15 @@ inline void
 FramePass::SetPass(const Ptr<CoreGraphics::Pass>& pass)
 {
 	this->pass = pass;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Ptr<CoreGraphics::Pass>&
+FramePass::GetPass() const
+{
+	return this->pass;
 }
 
 //------------------------------------------------------------------------------

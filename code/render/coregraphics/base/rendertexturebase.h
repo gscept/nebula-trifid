@@ -16,6 +16,12 @@
 #include "core/refcounted.h"
 #include "coregraphics/texture.h"
 #include "coregraphics/pixelformat.h"
+
+namespace CoreGraphics
+{
+class RenderTexture;
+}
+
 namespace Base
 {
 class RenderTextureBase : public Core::RefCounted
@@ -67,6 +73,8 @@ public:
 	void SetIsWindowTexture(const bool b);
 	/// set resource id
 	void SetResourceId(const Resources::ResourceId& resId);
+	/// set if within pass
+	void SetInPass(const bool b);
 
 	/// setup render texture
 	void Setup();
@@ -81,8 +89,8 @@ public:
 	void GenerateMipChain(IndexT from);
 	/// generate segment of mip chain
 	void GenerateMipChain(IndexT from, IndexT to);
-	/// generate mip from one mip level to another
-	void GenerateMip(IndexT from, IndexT to);
+	/// blit copy from one mip to another, with an optional target (if nullptr, blit will be between mips in the same texture)
+	void Blit(IndexT from, IndexT to, const Ptr<CoreGraphics::RenderTexture>& target = nullptr);
 
 	/// swap buffers, only valid if this is a window texture
 	void SwapBuffers();
@@ -92,12 +100,15 @@ public:
 
 	/// get texture
 	const Ptr<CoreGraphics::Texture>& GetTexture() const;
+	/// get texture resource id
+	const Resources::ResourceId& GetResourceId() const;
 protected:
 	Ptr<CoreGraphics::Texture> texture;
 	CoreGraphics::PixelFormat::Code format;
 	CoreGraphics::Texture::Type type;
 	Usage usage;
 
+	bool isInPass;
 	bool msaaEnabled;
 	bool relativeSize;
 	bool dynamicSize;
@@ -156,9 +167,9 @@ RenderTextureBase::SetUsage(const Usage& usage)
 inline void
 RenderTextureBase::SetDimensions(const float width, const float height, const float depth)
 {
-	this->width = (SizeT)width;
-	this->height = (SizeT)height;
-	this->depth = (SizeT)depth;
+	this->width = (SizeT)Math::n_max(width, 1.0f);
+	this->height = (SizeT)Math::n_max(height, 1.0f);
+	this->depth = (SizeT)Math::n_max(depth, 1.0f);
 	this->widthScale = width;
 	this->heightScale = height;
 	this->depthScale = depth;
@@ -266,10 +277,28 @@ RenderTextureBase::SetResourceId(const Resources::ResourceId& resId)
 //------------------------------------------------------------------------------
 /**
 */
+inline void
+RenderTextureBase::SetInPass(const bool b)
+{
+	this->isInPass = b;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 inline const Ptr<CoreGraphics::Texture>&
 RenderTextureBase::GetTexture() const
 {
 	return this->texture;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Resources::ResourceId&
+RenderTextureBase::GetResourceId() const
+{
+	return this->resourceId;
 }
 
 } // namespace Base

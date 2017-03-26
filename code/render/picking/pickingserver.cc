@@ -4,7 +4,7 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "pickingserver.h"
-#include "frame/frameserver.h"
+#include "frame2/frameserver.h"
 #include "graphics/cameraentity.h"
 #include "coregraphics/texture.h"
 #include "coregraphics/base/texturebase.h"
@@ -15,7 +15,7 @@
 
 using namespace Base;
 using namespace CoreGraphics;
-using namespace Frame;
+using namespace Frame2;
 namespace Picking
 {
 __ImplementClass(Picking::PickingServer, 'PISR', Core::RefCounted);
@@ -61,10 +61,10 @@ PickingServer::Open()
 	this->pickingCamera = Graphics::CameraEntity::Create();
 	stage->AttachEntity(this->pickingCamera.upcast<Graphics::GraphicsEntity>());
 	
-	this->frameShader = FrameServer::Instance()->LookupFrameShader("picking");
+	this->frameShader = FrameServer::Instance()->LoadFrameScript("picking", "frame:picking.json");
 	this->pickingView = Graphics::GraphicsServer::Instance()->CreateView(Graphics::View::RTTI, "PickingView", false, false);
 	this->pickingView->SetStage(stage);
-	this->pickingView->SetFrameShader(this->frameShader);
+	this->pickingView->SetFrameScript(this->frameShader);
 	this->pickingView->SetCameraEntity(this->pickingCamera);
 
 	this->pickingBuffer = Resources::ResourceManager::Instance()->LookupResource("PickingBuffer").downcast<Texture>();

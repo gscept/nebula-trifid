@@ -49,7 +49,7 @@ VkCmdEvent::Setup()
 void
 VkCmdEvent::Signal()
 {
-
+	vkCmdSetEvent(VkRenderDevice::mainCmdDrawBuffer, this->event, this->barrier->vkSrcFlags);
 }
 
 //------------------------------------------------------------------------------
@@ -58,7 +58,12 @@ VkCmdEvent::Signal()
 void
 VkCmdEvent::Wait()
 {
-
+	n_assert(this->barrier.isvalid());
+	vkCmdWaitEvents(VkRenderDevice::mainCmdDrawBuffer, 1, &this->event, 
+		this->barrier->vkSrcFlags, this->barrier->vkDstFlags, 
+		this->barrier->vkNumMemoryBarriers, this->barrier->vkMemoryBarriers, 
+		this->barrier->vkNumBufferBarriers, this->barrier->vkBufferBarriers, 
+		this->barrier->vkNumImageBarriers, this->barrier->vkImageBarriers);
 }
 
 //------------------------------------------------------------------------------
@@ -67,7 +72,7 @@ VkCmdEvent::Wait()
 void
 VkCmdEvent::Reset()
 {
-
+	vkCmdResetEvent(VkRenderDevice::mainCmdDrawBuffer, this->event, this->barrier->vkDstFlags);
 }
 
 } // namespace Vulkan

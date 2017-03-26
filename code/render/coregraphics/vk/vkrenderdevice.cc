@@ -59,6 +59,8 @@ VkPipelineCache VkRenderDevice::cache;
 VkCommandPool VkRenderDevice::mainCmdCmpPool;
 VkCommandPool VkRenderDevice::mainCmdTransPool;
 VkCommandPool VkRenderDevice::mainCmdDrawPool;
+VkCommandPool VkRenderDevice::immediateCmdDrawPool;
+VkCommandPool VkRenderDevice::immediateCmdTransPool;
 VkCommandBuffer VkRenderDevice::mainCmdDrawBuffer;
 VkCommandBuffer VkRenderDevice::mainCmdCmpBuffer;
 VkCommandBuffer VkRenderDevice::mainCmdTransBuffer;
@@ -74,8 +76,7 @@ VkRenderDevice::VkRenderDevice() :
 	currentDrawThread(NumDrawThreads-1),
 	numActiveThreads(0),
 	currentTransThread(0),
-	currentProgram(0),
-	commands(NumCommandPasses)
+	currentProgram(0)
 {
 	__ConstructSingleton;
 }
@@ -677,14 +678,6 @@ VkRenderDevice::OpenVulkanContext()
 		this->compCompletionEvents[i] = n_new(Threading::Event(true));
 	}
 
-	// create interlock thread
-	this->interlockThread = VkCpuGpuInterlockThread::Create();
-	this->interlockThread->SetPriority(Threading::Thread::Low);
-	this->interlockThread->SetCoreId(System::Cpu::RenderThreadFirstCore + NumDrawThreads + NumTransferThreads + NumComputeThreads);
-	this->interlockThread->SetName("CPU-GPU interlock thread");
-	this->interlockThread->dev = this->dev;
-	this->interlockThread->Start();
-
 	VkFenceCreateInfo fenceInfo =
 	{
 		VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
@@ -697,6 +690,19 @@ VkRenderDevice::OpenVulkanContext()
 	res = vkCreateFence(this->dev, &fenceInfo, NULL, &this->mainCmdCmpFence);
 	n_assert(res == VK_SUCCESS);
 	res = vkCreateFence(this->dev, &fenceInfo, NULL, &this->mainCmdTransFence);
+	n_assert(res == VK_SUCCESS);
+
+	VkEventCreateInfo eventInfo = 
+	{
+		VK_STRUCTURE_TYPE_EVENT_CREATE_INFO,
+		NULL,
+		0
+	};
+	res = vkCreateEvent(this->dev, &eventInfo, NULL, &this->mainCmdDrawEvent);
+	n_assert(res == VK_SUCCESS);
+	res = vkCreateEvent(this->dev, &eventInfo, NULL, &this->mainCmdCmpEvent);
+	n_assert(res == VK_SUCCESS);
+	res = vkCreateEvent(this->dev, &eventInfo, NULL, &this->mainCmdTransEvent);
 	n_assert(res == VK_SUCCESS);
 
 	this->passInfo = 
@@ -745,6 +751,9 @@ VkRenderDevice::OpenVulkanContext()
 		0
 	};
 	vkCreateSemaphore(this->dev, &semInfo, NULL, &this->displaySemaphore);
+
+	// setup scheduler
+	this->scheduler = VkScheduler::Create();
 
 	_setup_timer(DebugTimer);
 	_setup_counter(NumImageBytesAllocated);
@@ -826,9 +835,6 @@ VkRenderDevice::CloseVulkanDevice()
 
 		vkDestroyCommandPool(this->dev, this->dispatchableCmdCompBufferPool[i], NULL);
 	}
-
-	this->interlockThread->Stop();
-	this->interlockThread = 0;
 
 	// free our main buffers, our secondary buffers should be fine so the pools should be free to destroy
 	vkFreeCommandBuffers(this->dev, this->mainCmdDrawPool, 1, &this->mainCmdDrawBuffer);
@@ -924,13 +930,11 @@ VkRenderDevice::BeginFrame(IndexT frameIndex)
 	// all commands are put on the main command buffer
 	this->currentCommandState = MainState;
 
-	// handle fences
-	this->RunCommandPass(OnHandleTransferFences);
-	this->RunCommandPass(OnHandleDrawFences);
-	this->RunCommandPass(OnHandleComputeFences);
-
-	// run command pass for beginning frame
-	this->RunCommandPass(OnBeginFrame);
+	this->scheduler->Begin();
+	this->scheduler->ExecuteCommandPass(VkScheduler::OnHandleTransferFences);
+	this->scheduler->ExecuteCommandPass(VkScheduler::OnHandleDrawFences);
+	this->scheduler->ExecuteCommandPass(VkScheduler::OnHandleComputeFences);
+	this->scheduler->ExecuteCommandPass(VkScheduler::OnBeginFrame);
 
 	// reset current thread
 	this->currentDrawThread = NumDrawThreads - 1;
@@ -1042,10 +1046,9 @@ VkRenderDevice::BeginPass(const Ptr<CoreGraphics::RenderTarget>& rt)
 		clear.Size() > 0 ? clear.Begin() : VK_NULL_HANDLE
 	};
 	vkCmdBeginRenderPass(this->mainCmdDrawBuffer, &info, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
-	//this->currentPipelineBits = 0;
-
-	// run begin pass commands
-	this->RunCommandPass(OnBeginPass);
+	
+	// run this phase for scheduler
+	this->scheduler->ExecuteCommandPass(VkScheduler::OnBeginPass);
 	
 	this->blendInfo.attachmentCount = 1;
 	this->passInfo.framebuffer = rt->GetVkFramebuffer();
@@ -1061,9 +1064,6 @@ VkRenderDevice::BeginPass(const Ptr<CoreGraphics::RenderTarget>& rt)
 	const Util::FixedArray<VkViewport>& viewports = rt->GetVkViewports();
 	this->numViewports = viewports.Size();
 	this->viewports = viewports.Begin();
-
-	//this->BeginDrawThreadCluster();
-	//this->BindSharedDescriptorSets();
 }
 
 //------------------------------------------------------------------------------
@@ -1099,10 +1099,9 @@ VkRenderDevice::BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt)
 		clear.Size() > 0 ? clear.Begin() : VK_NULL_HANDLE
 	};
 	vkCmdBeginRenderPass(this->mainCmdDrawBuffer, &info, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
-	//this->currentPipelineBits = 0;
 
-	// run begin pass commands
-	this->RunCommandPass(OnBeginPass);
+	// run this phase for scheduler
+	this->scheduler->ExecuteCommandPass(VkScheduler::OnBeginPass);
 
 	this->blendInfo.attachmentCount = mrt->GetNumRendertargets();
 	this->passInfo.framebuffer = mrt->GetVkFramebuffer();
@@ -1118,9 +1117,6 @@ VkRenderDevice::BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt)
 	const Util::Array<VkViewport>& viewports = mrt->GetVkViewports();
 	this->numViewports = viewports.Size();
 	this->viewports = viewports.Begin();
-
-	//this->BeginDrawThreadCluster();
-	//this->BindSharedDescriptorSets();
 }
 
 //------------------------------------------------------------------------------
@@ -1141,9 +1137,6 @@ VkRenderDevice::BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& rtc)
 
 	VkResult res = vkResetCommandBuffer(this->mainCmdDrawBuffer, 0);
 	n_assert(res == VK_SUCCESS);
-
-	// start constructing draws
-	//this->BeginCmdThreads();
 }
 
 //------------------------------------------------------------------------------
@@ -1173,10 +1166,9 @@ VkRenderDevice::BeginPass(const Ptr<CoreGraphics::Pass>& pass)
 	};
 	vkCmdBeginRenderPass(this->mainCmdDrawBuffer, &info, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
 
-	// run begin pass commands
-	this->RunCommandPass(OnBeginPass);
+	// run this phase for scheduler
+	this->scheduler->ExecuteCommandPass(VkScheduler::OnBeginPass);
 
-	this->blendInfo.attachmentCount = pass->GetNumColorAttachments();
 	this->passInfo.framebuffer = pass->GetVkFramebuffer();
 	this->passInfo.renderPass = pass->GetVkRenderPass();
 	this->passInfo.subpass = 0;
@@ -1184,10 +1176,10 @@ VkRenderDevice::BeginPass(const Ptr<CoreGraphics::Pass>& pass)
 	this->passInfo.queryFlags = 0;
 	this->passInfo.occlusionQueryEnable = VK_FALSE;
 
-	const Util::FixedArray<VkRect2D>& scissors = pass->GetVkScissorRects();
+	const Util::FixedArray<VkRect2D>& scissors = pass->GetVkScissorRects(0);
 	this->numScissors = scissors.Size();
 	this->scissors = scissors.Begin();
-	const Util::FixedArray<VkViewport>& viewports = pass->GetVkViewports();
+	const Util::FixedArray<VkViewport>& viewports = pass->GetVkViewports(0);
 	this->numViewports = viewports.Size();
 	this->viewports = viewports.Begin();
 }
@@ -1203,8 +1195,8 @@ VkRenderDevice::SetToNextSubpass()
 	// end this batch of draw threads
 	this->EndDrawThreads();
 
-	// run end command pass before we actually end the render pass
-	this->RunCommandPass(OnNextSubpass);
+	// run this phase for scheduler
+	this->scheduler->ExecuteCommandPass(VkScheduler::OnNextSubpass);
 
 	// progress to next subpass
 	this->passInfo.subpass++;
@@ -1212,6 +1204,14 @@ VkRenderDevice::SetToNextSubpass()
 	this->currentPipelineBits &= ~PipelineBuilt; // hmm, this is really ugly, is it avoidable?
 	this->database->SetSubpass(this->passInfo.subpass);
 	vkCmdNextSubpass(this->mainCmdDrawBuffer, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+
+	// get viewports and rectangles for this subpass
+	const Util::FixedArray<VkRect2D>& scissors = pass->GetVkScissorRects(this->passInfo.subpass);
+	this->numScissors = scissors.Size();
+	this->scissors = scissors.Begin();
+	const Util::FixedArray<VkViewport>& viewports = pass->GetVkViewports(this->passInfo.subpass);
+	this->numViewports = viewports.Size();
+	this->viewports = viewports.Begin();
 }
 
 //------------------------------------------------------------------------------
@@ -1252,7 +1252,6 @@ VkRenderDevice::Draw()
 	this->PushToThread(cmd, this->currentDrawThread);
 
 	// go to next thread
-	//this->NextThread();
 	_incr_counter(RenderDeviceNumDrawCalls, 1);
 	_incr_counter(RenderDeviceNumPrimitives, this->primitiveGroup.GetNumVertices()/3);
 }
@@ -1274,7 +1273,6 @@ VkRenderDevice::DrawIndexedInstanced(SizeT numInstances, IndexT baseInstance)
 	this->PushToThread(cmd, this->currentDrawThread);
 
 	// go to next thread
-	//this->NextThread();
 	_incr_counter(RenderDeviceNumDrawCalls, 1);
 	_incr_counter(RenderDeviceNumPrimitives, this->primitiveGroup.GetNumIndices() * numInstances / 3);
 }
@@ -1327,8 +1325,8 @@ VkRenderDevice::EndPass()
 	// end draw threads, if any are remaining
 	this->EndDrawThreads();
 
-	// run end command pass before we actually end the render pass
-	this->RunCommandPass(OnEndPass);
+	// tell scheduler pass is ending
+	this->scheduler->ExecuteCommandPass(VkScheduler::OnEndPass);
 
 	// end render pass
 	vkCmdEndRenderPass(this->mainCmdDrawBuffer);
@@ -1377,47 +1375,23 @@ VkRenderDevice::EndFrame(IndexT frameIndex)
 	// submit transfer stuff
 	this->SubmitToQueue(this->transferQueue, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 1, &this->mainCmdTransBuffer);
 	this->SubmitToQueue(this->transferQueue, this->mainCmdTransFence);
-	if (this->putTransferFenceThisFrame)
-	{
-		VkFence fence;
-		VkResult res = vkCreateFence(this->dev, &info, NULL, &fence);
-		n_assert(res == VK_SUCCESS);
-		this->transferFenceCommands.Add(fence, this->commands[OnHandleTransferFences]);
-		this->commands[OnHandleTransferFences].Clear();
-		this->SubmitToQueue(this->transferQueue, fence);
-		this->putTransferFenceThisFrame = false;
-	}
-	this->RunCommandPass(OnMainTransferSubmitted);
+	
+	this->scheduler->ExecuteCommandPass(VkScheduler::OnMainTransferSubmitted);
+	this->scheduler->EndTransfers();
 
 	// submit compute stuff
 	this->SubmitToQueue(this->computeQueue, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 1, &this->mainCmdCmpBuffer);
 	this->SubmitToQueue(this->computeQueue, this->mainCmdCmpFence);	
-	if (this->putComputeFenceThisFrame)
-	{
-		VkFence fence;
-		VkResult res = vkCreateFence(this->dev, &info, NULL, &fence);
-		n_assert(res == VK_SUCCESS);
-		this->computeFenceCommands.Add(fence, this->commands[OnHandleComputeFences]);
-		this->commands[OnHandleComputeFences].Clear();
-		this->SubmitToQueue(this->computeQueue, fence);
-		this->putComputeFenceThisFrame = false;
-	}
-	this->RunCommandPass(OnMainComputeSubmitted);
+
+	this->scheduler->ExecuteCommandPass(VkScheduler::OnMainComputeSubmitted);
+	this->scheduler->EndComputes();
 	
 	// submit draw stuff
 	this->SubmitToQueue(this->drawQueue, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 1, &this->mainCmdDrawBuffer);
 	this->SubmitToQueue(this->drawQueue, this->mainCmdDrawFence);
-	if (this->putDrawFenceThisFrame)
-	{
-		VkFence fence;
-		VkResult res = vkCreateFence(this->dev, &info, NULL, &fence);
-		n_assert(res == VK_SUCCESS);
-		this->drawFenceCommands.Add(fence, this->commands[OnHandleDrawFences]);
-		this->commands[OnHandleDrawFences].Clear();
-		this->SubmitToQueue(this->drawQueue, fence);
-		this->putDrawFenceThisFrame = false;
-	}
-	this->RunCommandPass(OnMainDrawSubmitted);
+
+	this->scheduler->ExecuteCommandPass(VkScheduler::OnMainDrawSubmitted);
+	this->scheduler->EndDraws();
 
 	static VkFence fences[] = { this->mainCmdDrawFence, this->mainCmdTransFence, this->mainCmdCmpFence };
 	this->WaitForFences(fences, 3, true);
@@ -1430,7 +1404,7 @@ VkRenderDevice::EndFrame(IndexT frameIndex)
 	n_assert(res == VK_SUCCESS);
 
 	// run end-of-frame commands
-	this->RunCommandPass(OnEndFrame);
+	this->scheduler->ExecuteCommandPass(VkScheduler::OnEndFrame);
 
 	// reset state
 	this->inputInfo.topology = VK_PRIMITIVE_TOPOLOGY_MAX_ENUM;
@@ -1574,97 +1548,14 @@ VkRenderDevice::SaveScreenshot(CoreGraphics::ImageFileFormat::Code fmt, const Pt
 void
 VkRenderDevice::DisplayResized(SizeT width, SizeT height)
 {
-
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-VkResult
-VkRenderDevice::GetMemoryType(uint32_t bits, VkMemoryPropertyFlags flags, uint32_t& index)
-{
-	for (uint32_t i = 0; i < VK_MAX_MEMORY_TYPES; i++)
-	{
-		if ((bits & 1) == 1)
-		{
-			if ((this->memoryProps.memoryTypes[i].propertyFlags & flags) == flags)
-			{
-				index = i;
-				return VK_SUCCESS;
-			}
-		}
-		bits >>= 1;
-	}
-	return VK_ERROR_FEATURE_NOT_PRESENT;
+	// TODO: implement me!
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-VkRenderDevice::AllocateBufferMemory(const VkBuffer& buf, VkDeviceMemory& bufmem, VkMemoryPropertyFlagBits flags, uint32_t& bufsize)
-{
-	// now attain memory requirements so we get a properly aligned memory storage
-	VkMemoryRequirements req;
-	vkGetBufferMemoryRequirements(VkRenderDevice::dev, buf, &req);
-
-	uint32_t memtype;
-	VkResult err = this->GetMemoryType(req.memoryTypeBits, flags, memtype);
-	n_assert(err == VK_SUCCESS);
-	VkMemoryAllocateInfo meminfo =
-	{
-		VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
-		NULL,
-		req.size,
-		memtype
-	};
-
-	// now allocate memory
-	err = vkAllocateMemory(VkRenderDevice::dev, &meminfo, NULL, &bufmem);
-	if (err == VK_ERROR_OUT_OF_DEVICE_MEMORY || err == VK_ERROR_OUT_OF_HOST_MEMORY)
-	{
-		n_error("VkRenderDevice::AllocateBufferMemory(): Could not allocate '%d' bytes, out of memory\n.", req.size);
-	}
-	n_assert(err == VK_SUCCESS);
-	bufsize = (uint32_t)req.size;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkRenderDevice::AllocateImageMemory(const VkImage& img, VkDeviceMemory& imgmem, VkMemoryPropertyFlagBits flags, uint32_t& imgsize)
-{
-	// now attain memory requirements so we get a properly aligned memory storage
-	VkMemoryRequirements req;
-	vkGetImageMemoryRequirements(VkRenderDevice::dev, img, &req);
-
-	uint32_t memtype;
-	VkResult err = this->GetMemoryType(req.memoryTypeBits, flags, memtype);
-	n_assert(err == VK_SUCCESS);
-	VkMemoryAllocateInfo meminfo =
-	{
-		VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
-		NULL,
-		req.size,
-		memtype
-	};
-
-	// now allocate memory
-	err = vkAllocateMemory(VkRenderDevice::dev, &meminfo, NULL, &imgmem);
-	if (err == VK_ERROR_OUT_OF_DEVICE_MEMORY || err == VK_ERROR_OUT_OF_HOST_MEMORY)
-	{
-		n_error("VkRenderDevice::AllocateImageMemory(): Could not allocate '%d' bytes, out of memory\n.", req.size);
-	}
-	n_assert(err == VK_SUCCESS);
-	imgsize = (uint32_t)req.size;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkRenderDevice::SetShaderPipelineInfo(const VkGraphicsPipelineCreateInfo& shader, const Ptr<VkShaderProgram>& program)
+VkRenderDevice::BindGraphicsPipelineInfo(const VkGraphicsPipelineCreateInfo& shader, const Ptr<VkShaderProgram>& program)
 {
 	if (this->currentProgram != program || !(this->currentPipelineBits & ShaderInfoSet))
 	{
@@ -1740,7 +1631,7 @@ VkRenderDevice::SetInputLayoutInfo(VkPipelineInputAssemblyStateCreateInfo* input
 void
 VkRenderDevice::BindDescriptorsGraphics(const VkDescriptorSet* descriptors, const VkPipelineLayout& layout, uint32_t baseSet, uint32_t setCount, const uint32_t* offsets, uint32_t offsetCount, bool shared)
 {
-	// iif we are in the local state, push directly to thread
+	// if we are in the local state, push directly to thread
 	if (this->currentCommandState == LocalState)
 	{
 		VkCmdBufferThread::Command cmd;
@@ -1782,7 +1673,7 @@ VkRenderDevice::BindDescriptorsGraphics(const VkDescriptorSet* descriptors, cons
 			cmd.del.descSetBind.offsets = offsets;
 			cmd.del.descSetBind.type = VK_PIPELINE_BIND_POINT_GRAPHICS;
 			cmd.dev = this->dev;
-			this->PushCommandPass(cmd, OnBindGraphicsPipeline);
+			this->scheduler->PushCommand(cmd, VkScheduler::OnBindGraphicsPipeline);
 		}
 	}
 }
@@ -1809,7 +1700,7 @@ VkRenderDevice::BindDescriptorsCompute(const VkDescriptorSet* descriptors, const
 		cmd.del.descSetBind.sets = descriptors;
 		cmd.del.descSetBind.type = VK_PIPELINE_BIND_POINT_COMPUTE;
 		cmd.dev = this->dev;
-		this->PushCommandPass(cmd, OnBindComputePipeline);
+		this->scheduler->PushCommand(cmd, VkScheduler::OnBindComputePipeline);
 	}
 }
 
@@ -1830,403 +1721,6 @@ VkRenderDevice::UpdatePushRanges(const VkShaderStageFlags& stages, const VkPipel
 	cmd.pushranges.data = Memory::Alloc(Memory::ScratchHeap, size);
 	memcpy(cmd.pushranges.data, data, size);
 	this->PushToThread(cmd, this->currentDrawThread);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkRenderDevice::BufferUpdate(const VkBuffer& buf, VkDeviceSize offset, VkDeviceSize size, const void* data)
-{
-	VkDeviceSize totalSize = size;
-	VkDeviceSize totalOffset = offset;
-	while (totalSize > 0)
-	{
-		const uint8_t* ptr = (const uint8_t*)data + totalOffset;
-		VkDeviceSize uploadSize = totalSize < 65536 ? totalSize : 65536;
-		vkCmdUpdateBuffer(this->mainCmdTransBuffer, buf, totalOffset, uploadSize, (const uint32_t*)ptr);
-		totalSize -= uploadSize;
-		totalOffset += uploadSize;
-	}
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkRenderDevice::BufferUpdate(VkCommandBuffer cmd, const VkBuffer& buf, VkDeviceSize offset, VkDeviceSize size, const void* data)
-{
-	VkDeviceSize totalSize = size;
-	VkDeviceSize totalOffset = offset;
-	while (totalSize > 0)
-	{
-		const uint8_t* ptr = (const uint8_t*)data + totalOffset;
-		VkDeviceSize uploadSize = totalSize < 65536 ? totalSize : 65536;
-		/*
-		VkCmdBufferThread::Command cmd;
-		cmd.updBuffer.buf = buf;
-		cmd.updBuffer.data = (uint32_t*)data;
-		cmd.updBuffer.offset = offset;
-		cmd.updBuffer.size = size;
-		cmd.updBuffer.deleteWhenDone = false;
-		cmd.type = VkCmdBufferThread::UpdateBuffer;
-		*/
-		//this->PushToThread(cmd, this->currentDrawThread, true);
-		vkCmdUpdateBuffer(cmd, buf, totalOffset, uploadSize, (const uint32_t*)ptr);
-		totalSize -= uploadSize;
-		totalOffset += uploadSize;
-	}
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkRenderDevice::ImageUpdate(const VkImage& img, const VkImageCreateInfo& info, uint32_t mip, uint32_t face, VkDeviceSize size, uint32_t* data)
-{
-	// create transfer buffer
-	VkBufferCreateInfo bufInfo =
-	{
-		VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO, 
-		NULL, 
-		0,
-		size,
-		VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-		VK_SHARING_MODE_EXCLUSIVE,
-		1,
-		&this->transferQueueFamily
-	};
-	VkBuffer buf;
-	vkCreateBuffer(this->dev, &bufInfo, NULL, &buf);
-
-	// allocate memory
-	VkDeviceMemory bufMem;
-	uint32_t bufsize;
-	this->AllocateBufferMemory(buf, bufMem, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, bufsize);
-	vkBindBufferMemory(this->dev, buf, bufMem, 0);
-
-	// map memory
-	void* mapped;
-	VkResult res = vkMapMemory(this->dev, bufMem, 0, size, 0, &mapped);
-	n_assert(res == VK_SUCCESS);
-	memcpy(mapped, data, VK_DEVICE_SIZE_CONV(size));
-	vkUnmapMemory(this->dev, bufMem);
-
-	// perform update of buffer, and stage a copy of buffer data to image
-	VkBufferImageCopy copy;
-	copy.bufferOffset = 0;
-	copy.bufferImageHeight = 0;
-	copy.bufferRowLength = 0;
-	copy.imageExtent = info.extent;
-	copy.imageOffset = { 0, 0, 0};
-	copy.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, mip, face, 1 };
-	vkCmdCopyBufferToImage(this->mainCmdTransBuffer, buf, img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
-
-	// finally push delegates to dealloc all our staging data
-	VkDeferredCommand del;
-	del.del.type = VkDeferredCommand::FreeBuffer;
-	del.del.buffer.buf = buf;
-	del.del.buffer.mem = bufMem;
-	del.del.queue = VkDeferredCommand::Transfer;
-	del.dev = this->dev;
-	this->PushCommandPass(del, OnHandleTransferFences);
-
-	// finally push delegates to dealloc all our staging data
-	VkDeferredCommand del2;
-	del2.del.type = VkDeferredCommand::FreeMemory;
-	del2.del.memory.data = data;
-	del2.del.queue = VkDeferredCommand::Transfer;
-	del2.dev = this->dev;
-	this->PushCommandPass(del2, OnHandleTransferFences);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkRenderDevice::PushImageUpdate(const VkImage& img, const VkImageCreateInfo& info, uint32_t mip, uint32_t face, VkDeviceSize size, uint32_t* data)
-{
-	uint32_t* imgCopy = (uint32_t*)Memory::Alloc(Memory::ScratchHeap, VK_DEVICE_SIZE_CONV(size));
-	Memory::Copy(data, imgCopy, VK_DEVICE_SIZE_CONV(size));
-
-	VkDeferredCommand del;
-	del.del.type = VkDeferredCommand::UpdateImage;
-	del.del.imageUpd.img = img;
-	del.del.imageUpd.info = info;
-	del.del.imageUpd.mip = mip;
-	del.del.imageUpd.face = face;
-	del.del.imageUpd.size = size;
-	del.del.imageUpd.data = imgCopy;
-	del.del.queue = VkDeferredCommand::Transfer;
-	del.dev = this->dev;
-	this->PushCommandPass(del, OnBeginFrame);
-}
-
-//------------------------------------------------------------------------------
-/**
-	Begins an immediate command buffer for data transfers, and returns the buffer within which the image data is contained.
-*/
-void
-VkRenderDevice::ReadImage(const Ptr<VkTexture>& tex, VkImageCopy copy, uint32_t& outMemSize, VkDeviceMemory& outMem, VkBuffer& outBuffer)
-{
-	VkCommandBuffer cmdBuf = this->BeginImmediateTransfer();
-
-	VkFormat fmt = VkTypes::AsVkMappableImageFormat(VkTypes::AsVkFormat(tex->GetPixelFormat()));
-	VkTypes::VkBlockDimensions dims = VkTypes::AsVkBlockSize(tex->GetPixelFormat());
-	VkFormatProperties formatProps;
-	vkGetPhysicalDeviceFormatProperties(VkRenderDevice::physicalDev, fmt, &formatProps);
-    n_assert(formatProps.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT);
-	Texture::Type type = tex->GetType();
-	VkImageCreateInfo info =
-	{
-		VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
-		NULL,
-		0,
-		type == Texture::Texture2D ? VK_IMAGE_TYPE_2D :
-		type == Texture::Texture3D ? VK_IMAGE_TYPE_3D :
-		type == Texture::TextureCube ? VK_IMAGE_TYPE_2D : VK_IMAGE_TYPE_1D,
-		fmt,
-		copy.extent,
-		1,
-		type == Texture::TextureCube ? 6 : type == Texture::Texture3D ? tex->GetDepth() : 1,
-		VK_SAMPLE_COUNT_1_BIT,
-		VK_IMAGE_TILING_OPTIMAL,
-		VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
-		VK_SHARING_MODE_EXCLUSIVE,
-		0,
-		NULL,
-		VK_IMAGE_LAYOUT_PREINITIALIZED
-	};
-	VkImage img;
-	VkResult res = vkCreateImage(this->dev, &info, NULL, &img);
-	n_assert(res == VK_SUCCESS);
-
-	// allocate memory
-	VkDeviceMemory imgMem;
-	uint32_t memSize;
-	this->AllocateImageMemory(img, imgMem, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, memSize);
-	vkBindImageMemory(this->dev, img, imgMem, 0);
-
-	VkImageSubresourceRange srcSubres;
-	srcSubres.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-	srcSubres.baseArrayLayer = copy.srcSubresource.baseArrayLayer;
-	srcSubres.layerCount = copy.srcSubresource.layerCount;
-	srcSubres.baseMipLevel = copy.srcSubresource.mipLevel;
-	srcSubres.levelCount = 1;
-	VkImageSubresourceRange dstSubres;
-	dstSubres.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-	dstSubres.baseArrayLayer = copy.dstSubresource.baseArrayLayer;
-	dstSubres.layerCount = copy.dstSubresource.layerCount;
-	dstSubres.baseMipLevel = copy.dstSubresource.mipLevel;
-	dstSubres.levelCount = 1;
-
-	VkImageBlit blit;
-	blit.srcSubresource = copy.srcSubresource;
-	blit.srcOffsets[0] = copy.srcOffset;
-	blit.srcOffsets[1] = { (int32_t)copy.extent.width, (int32_t)copy.extent.height, (int32_t)copy.extent.depth };
-
-	blit.dstSubresource = copy.dstSubresource;
-	blit.dstOffsets[0] = copy.dstOffset;
-	blit.dstOffsets[1] = { (int32_t)copy.extent.width, (int32_t)copy.extent.height, (int32_t)copy.extent.depth };
-
-	// perform update of buffer, and stage a copy of buffer data to image
-	this->ImageLayoutTransition(cmdBuf, this->ImageMemoryBarrier(img, dstSubres, VK_IMAGE_LAYOUT_PREINITIALIZED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL));
-	this->ImageLayoutTransition(cmdBuf, this->ImageMemoryBarrier(tex->GetVkImage(), srcSubres, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL));
-	vkCmdBlitImage(cmdBuf, tex->GetVkImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_NEAREST);
-	this->ImageLayoutTransition(cmdBuf, this->ImageMemoryBarrier(tex->GetVkImage(), srcSubres, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
-	this->ImageLayoutTransition(cmdBuf, this->ImageMemoryBarrier(img, dstSubres, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL));
-
-	VkBufferCreateInfo bufInfo =
-	{
-		VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-		NULL,
-		0,
-		memSize,
-		VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-		VK_SHARING_MODE_EXCLUSIVE,
-		0,
-		NULL
-	};
-	VkBuffer buf;
-	res = vkCreateBuffer(this->dev, &bufInfo, NULL, &buf);
-	n_assert(res == VK_SUCCESS);
-
-	VkDeviceMemory bufMem;
-	uint32_t bufMemSize;
-	this->AllocateBufferMemory(buf, bufMem, VkMemoryPropertyFlagBits(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT), bufMemSize);
-	vkBindBufferMemory(this->dev, buf, bufMem, 0);
-
-	VkBufferImageCopy cp;
-	cp.bufferOffset = 0;
-	cp.bufferRowLength = 0;
-	cp.bufferImageHeight = 0;
-	cp.imageExtent = copy.extent;
-	cp.imageOffset = copy.dstOffset;
-	cp.imageSubresource = copy.dstSubresource;
-	vkCmdCopyImageToBuffer(cmdBuf, img, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, buf, 1, &cp);
-
-	// end immediate command buffer
-	this->EndImmediateTransfer(cmdBuf);
-
-	// delete image
-	vkFreeMemory(this->dev, imgMem, NULL);
-	vkDestroyImage(this->dev, img, NULL);
-
-	outBuffer = buf;
-	outMem = bufMem;
-	outMemSize = VK_DEVICE_SIZE_CONV(bufMemSize);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkRenderDevice::WriteImage(const VkBuffer& srcImg, const VkImage& dstImg, VkImageCopy copy)
-{
-	//VkCommandBuffer cmdBuf = this->BeginImmediateTransfer();
-	//vkCmdCopyBufferToImage(cmdBuf, buf, img, VK_IMAGE_LAYOUT_GENERAL, 1, &copy);
-	//this->EndImmediateTransfer(cmdBuf);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-VkCommandBuffer
-VkRenderDevice::BeginImmediateTransfer()
-{
-	// allocate command buffer we can use to execute 
-	VkCommandBufferAllocateInfo cmdAlloc =
-	{
-		VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-		NULL,
-		this->immediateCmdDrawPool,
-		VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-		1
-	};
-	VkCommandBuffer cmdBuf;
-	vkAllocateCommandBuffers(this->dev, &cmdAlloc, &cmdBuf);
-
-	// this is why this is slow, we must perform a begin-end-submit of the command buffer for this to work
-	VkCommandBufferBeginInfo begin =
-	{
-		VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-		NULL,
-		0,
-		NULL
-	};
-	vkBeginCommandBuffer(cmdBuf, &begin);
-	return cmdBuf;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkRenderDevice::EndImmediateTransfer(VkCommandBuffer cmdBuf)
-{
-	// end command
-	vkEndCommandBuffer(cmdBuf);
-
-	VkSubmitInfo submit =
-	{
-		VK_STRUCTURE_TYPE_SUBMIT_INFO,
-		NULL,
-		0, NULL, NULL,
-		1, &cmdBuf,
-		0, NULL
-	};
-
-	VkFenceCreateInfo fence =
-	{
-		VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
-		NULL,
-		0
-	};
-
-	// create a fence we can wait for, and execute this very tiny command buffer
-	VkResult res;
-	VkFence sync;
-	res = vkCreateFence(this->dev, &fence, NULL, &sync);
-	n_assert(res == VK_SUCCESS);
-	res = vkQueueSubmit(this->drawQueue, 1, &submit, sync);
-	n_assert(res == VK_SUCCESS);
-
-	// wait for fences, this waits for our commands to finish
-	res = vkWaitForFences(this->dev, 1, &sync, true, UINT_MAX);
-	n_assert(res == VK_SUCCESS);
-
-	// cleanup fence, buffer and buffer memory
-	vkDestroyFence(this->dev, sync, NULL);
-	vkFreeCommandBuffers(this->dev, this->immediateCmdDrawPool, 1, &cmdBuf);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-VkCommandBuffer
-VkRenderDevice::BeginInterlockedTransfer()
-{
-	// allocate command buffer we can use to execute 
-	VkCommandBufferAllocateInfo cmdAlloc =
-	{
-		VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-		NULL,
-		this->immediateCmdTransPool,
-		VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-		1
-	};
-	VkCommandBuffer cmdBuf;
-	vkAllocateCommandBuffers(this->dev, &cmdAlloc, &cmdBuf);
-
-	// this is why this is slow, we must perform a begin-end-submit of the command buffer for this to work
-	VkCommandBufferBeginInfo begin =
-	{
-		VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-		NULL,
-		0,
-		NULL
-	};
-	vkBeginCommandBuffer(cmdBuf, &begin);
-	return cmdBuf;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkRenderDevice::EndInterlockedTransfer(VkCommandBuffer cmdBuf)
-{
-	// end command
-	vkEndCommandBuffer(cmdBuf);
-
-	VkSubmitInfo submit =
-	{
-		VK_STRUCTURE_TYPE_SUBMIT_INFO,
-		NULL,
-		0, NULL, NULL,
-		1, &cmdBuf,
-		0, NULL
-	};
-
-	VkFenceCreateInfo fence =
-	{
-		VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
-		NULL,
-		0
-	};
-
-	// create a fence we can wait for, and execute this very tiny command buffer
-	VkResult res;
-	res = vkQueueSubmit(this->transferQueue, 1, &submit, VK_NULL_HANDLE);
-	n_assert(res == VK_SUCCESS);
-
-	// add delegate to delete command buffer
-	VkDeferredCommand cmd;
-	cmd.del.cmdbufferfree.buffers[0] = cmdBuf;
-	cmd.del.cmdbufferfree.numBuffers = 1;
-	cmd.del.cmdbufferfree.pool = this->immediateCmdTransPool;
-	cmd.dev = this->dev;
-	this->PushCommandPass(cmd, OnHandleTransferFences);
 }
 
 //------------------------------------------------------------------------------
@@ -2279,10 +1773,27 @@ void
 VkRenderDevice::BindComputePipeline(const VkPipeline& pipeline, const VkPipelineLayout& layout)
 {
 	// bind compute pipeline
+	this->currentBindPoint = VkShaderProgram::Compute;
+
+	// bind shared descriptors
+	VkShaderServer::Instance()->BindTextureDescriptorSets();
+	VkTransformDevice::Instance()->BindCameraDescriptorSets();
+
+	// bind pipeline
 	vkCmdBindPipeline(this->mainCmdDrawBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
 
 	// run command pass
-	this->RunCommandPass(OnBindComputePipeline);
+	this->scheduler->ExecuteCommandPass(VkScheduler::OnBindComputePipeline);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::UnbindPipeline()
+{
+	this->currentBindPoint = VkShaderProgram::InvalidType;
+	this->currentPipelineBits &= ~ShaderInfoSet;
 }
 
 //------------------------------------------------------------------------------
@@ -2321,7 +1832,7 @@ VkRenderDevice::CreateAndBindGraphicsPipeline()
 		cmd.scissorRect.index = i;
 		this->PushToThread(cmd, this->currentDrawThread);
 	}
-
+	
 	for (i = 0; i < this->numViewports; i++)
 	{
 		cmd.type = VkCmdBufferThread::Viewport;
@@ -2329,30 +1840,8 @@ VkRenderDevice::CreateAndBindGraphicsPipeline()
 		cmd.viewport.index = i;
 		this->PushToThread(cmd, this->currentDrawThread);
 	}
-	/*
-	// push scissors
-	cmd.type = VkCmdBufferThread::ScissorRectArray;
-	cmd.scissorRectArray.first = 0;
-	cmd.scissorRectArray.num = this->numScissors;
-	cmd.scissorRectArray.scs = this->scissors;
-	this->PushToThread(cmd, this->currentDrawThread);
-
-	// push viewports
-	cmd.type = VkCmdBufferThread::ViewportArray;
-	cmd.viewportArray.first = 0;
-	cmd.viewportArray.num = this->numViewports;
-	cmd.viewportArray.vps = this->viewports;
-	this->PushToThread(cmd, this->currentDrawThread);
-	*/
-
-	VkDeferredCommand del;
-	del.del.type = VkDeferredCommand::DestroyPipeline;
-	del.del.pipelineDestroy.pipeline = pipeline;
-	del.dev = this->dev;
-	//this->PushCommandPass(del, OnEndFrame);
-
-	// run command pass
-	this->RunCommandPass(OnBindGraphicsPipeline);
+	this->viewportsDirty[this->currentDrawThread] = false;
+	this->scheduler->ExecuteCommandPass(VkScheduler::OnBindGraphicsPipeline);
 }
 
 //------------------------------------------------------------------------------
@@ -2363,6 +1852,7 @@ VkRenderDevice::BuildRenderPipeline()
 {
 	n_assert((this->currentPipelineBits & AllInfoSet) != 0);
 	n_assert(this->inBeginBatch);
+	this->currentBindPoint = VkShaderProgram::Graphics;
 	if ((this->currentPipelineBits & PipelineBuilt) == 0)
 	{
 		this->CreateAndBindGraphicsPipeline();
@@ -2374,332 +1864,33 @@ VkRenderDevice::BuildRenderPipeline()
 /**
 */
 void
-VkRenderDevice::InsertBarrier(const CoreGraphics::Barrier& barrier)
+VkRenderDevice::InsertBarrier(const Ptr<CoreGraphics::Barrier>& barrier)
 {
-	VkPipelineStageFlags srcFlags;
-	VkPipelineStageFlags dstFlags;
-	VkDependencyFlags dep;
-	const Barrier::BarrierUsage usage = barrier.GetUsage();
-	switch (usage)
-	{
-	case Barrier::Subpass:
-		dep = VK_DEPENDENCY_BY_REGION_BIT;
-		srcFlags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-		dstFlags = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-		break;
-	case Barrier::TransformFeedback:
-		dep = 0;
-		srcFlags = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
-		dstFlags = VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
-		break;
-	case Barrier::ComputeImage:
-		dep = 0;
-		srcFlags = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
-		dstFlags = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
-		break;
-	}
-
 	if (this->numActiveThreads > 0)
 	{
 		VkCmdBufferThread::Command cmd;
 		cmd.type = VkCmdBufferThread::Barrier;
-		cmd.barrier.dep = dep;
-		cmd.barrier.srcMask = srcFlags;
-		cmd.barrier.dstMask = dstFlags;
-		cmd.barrier.bufferBarrierCount = 0;
-		cmd.barrier.bufferBarriers = NULL;
-		cmd.barrier.imageBarrierCount = 0;
-		cmd.barrier.imageBarriers = NULL;
-		cmd.barrier.memoryBarrierCount = 0;
-		cmd.barrier.memoryBarriers = NULL;
+		cmd.barrier.dep = barrier->vkDep;
+		cmd.barrier.srcMask = barrier->vkSrcFlags;
+		cmd.barrier.dstMask = barrier->vkDstFlags;
+		cmd.barrier.memoryBarrierCount = barrier->vkNumMemoryBarriers;
+		cmd.barrier.memoryBarriers = barrier->vkMemoryBarriers;
+		cmd.barrier.bufferBarrierCount = barrier->vkNumBufferBarriers;
+		cmd.barrier.bufferBarriers = barrier->vkBufferBarriers;
+		cmd.barrier.imageBarrierCount = barrier->vkNumImageBarriers;
+		cmd.barrier.imageBarriers = barrier->vkImageBarriers;
+		this->PushToThread(cmd, currentDrawThread);
 	}
 	else
 	{
-		vkCmdPipelineBarrier(this->mainCmdDrawBuffer, srcFlags, dstFlags, dep, 0, NULL, 0, NULL, 0, NULL);
+		vkCmdPipelineBarrier(this->mainCmdDrawBuffer, 
+			barrier->vkSrcFlags, 
+			barrier->vkDstFlags, 
+			barrier->vkDep,
+			barrier->vkNumMemoryBarriers, barrier->vkMemoryBarriers,
+			barrier->vkNumBufferBarriers, barrier->vkBufferBarriers,
+			barrier->vkNumImageBarriers, barrier->vkImageBarriers);
 	}
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkRenderDevice::PushImageLayoutTransition(VkDeferredCommand::CommandQueueType queue, VkImageMemoryBarrier barrier)
-{
-	VkDeferredCommand del;
-	del.del.type = VkDeferredCommand::ImageLayoutTransition;
-	del.del.imgBarrier.barrier = barrier;
-	del.del.queue = queue;
-	del.dev = this->dev;
-	this->PushCommandPass(del, OnBeginFrame);	
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkRenderDevice::ImageLayoutTransition(VkDeferredCommand::CommandQueueType queue, VkImageMemoryBarrier barrier)
-{
-	VkCommandBuffer buf;
-	VkPipelineStageFlags flags;
-	switch (queue)
-	{
-	case VkDeferredCommand::Graphics: buf = this->mainCmdDrawBuffer; flags = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT; break;
-	case VkDeferredCommand::Transfer: buf = this->mainCmdTransBuffer; flags = VK_PIPELINE_STAGE_TRANSFER_BIT; break;
-	case VkDeferredCommand::Compute: buf = this->mainCmdCmpBuffer; flags = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT; break;
-	}
-
-	// execute command
-	vkCmdPipelineBarrier(buf, 
-		VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 
-		0,
-		0, VK_NULL_HANDLE,
-		0, VK_NULL_HANDLE,
-		1, &barrier);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkRenderDevice::ImageLayoutTransition(VkCommandBuffer buf, VkImageMemoryBarrier barrier)
-{
-	// execute command
-	vkCmdPipelineBarrier(buf,
-		VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-		0,
-		0, VK_NULL_HANDLE,
-		0, VK_NULL_HANDLE,
-		1, &barrier);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-VkImageMemoryBarrier
-VkRenderDevice::ImageMemoryBarrier(const VkImage& img, VkImageSubresourceRange subres, VkImageLayout oldLayout, VkImageLayout newLayout)
-{
-	VkImageMemoryBarrier barrier;
-	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-	barrier.pNext = NULL;
-	barrier.image = img;
-	barrier.oldLayout = oldLayout;
-	barrier.newLayout = newLayout;
-	barrier.srcAccessMask = 0;
-	barrier.dstAccessMask = 0;
-	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-	barrier.subresourceRange = subres;
-	switch (oldLayout)
-	{
-	case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
-	case VK_IMAGE_LAYOUT_UNDEFINED:
-	case VK_IMAGE_LAYOUT_PREINITIALIZED:
-		barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT | VK_ACCESS_HOST_WRITE_BIT;
-		break;
-	case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
-		barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-		break;
-	case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
-		barrier.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-		break;
-	case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
-		barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-		break;
-	case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
-		barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
-		break;
-    case VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL:
-        barrier.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-        break;
-	}
-
-	switch (newLayout)
-	{
-	case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
-		barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
-		break;
-	case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
-		barrier.srcAccessMask = barrier.srcAccessMask | VK_ACCESS_TRANSFER_READ_BIT;
-		barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
-		break;
-	case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
-		barrier.srcAccessMask = barrier.srcAccessMask | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-		barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
-		break;
-	case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
-		barrier.dstAccessMask = barrier.dstAccessMask | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
-		break;
-	case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
-		barrier.srcAccessMask = barrier.srcAccessMask | VK_ACCESS_TRANSFER_WRITE_BIT | VK_ACCESS_HOST_WRITE_BIT;
-		barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-		break;
-	case VK_IMAGE_LAYOUT_PREINITIALIZED:
-		barrier.dstAccessMask = VK_ACCESS_HOST_WRITE_BIT;
-		break;
-    case VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL:
-        barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
-        break;
-	}
-	return barrier;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-VkBufferMemoryBarrier
-VkRenderDevice::BufferMemoryBarrier(const VkBuffer& buf, VkDeviceSize offset, VkDeviceSize size, VkAccessFlags srcAccess, VkAccessFlags dstAccess)
-{
-	VkBufferMemoryBarrier barrier;
-	barrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
-	barrier.pNext = NULL;
-	barrier.buffer = buf;
-	barrier.dstAccessMask = dstAccess;
-	barrier.srcAccessMask = srcAccess;
-	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-	barrier.size = size;
-	barrier.offset = offset;
-	return barrier;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-VkImageMemoryBarrier
-VkRenderDevice::ImageMemoryBarrier(const VkImage& img, VkImageSubresourceRange subres, VkDeferredCommand::CommandQueueType fromQueue, VkDeferredCommand::CommandQueueType toQueue, VkImageLayout layout)
-{
-	uint32_t from;
-	switch (fromQueue)
-	{
-	case VkDeferredCommand::Graphics: from = VkRenderDevice::Instance()->drawQueueFamily; break;
-	case VkDeferredCommand::Compute: from = VkRenderDevice::Instance()->computeQueueFamily; break;
-	case VkDeferredCommand::Transfer: from = VkRenderDevice::Instance()->transferQueueFamily; break;
-	}
-
-	uint32_t to;
-	switch (toQueue)
-	{
-	case VkDeferredCommand::Graphics: to = VkRenderDevice::Instance()->drawQueueFamily; break;
-	case VkDeferredCommand::Compute: to = VkRenderDevice::Instance()->computeQueueFamily; break;
-	case VkDeferredCommand::Transfer: to = VkRenderDevice::Instance()->transferQueueFamily; break;
-	}
-
-	VkImageMemoryBarrier barrier;
-	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-	barrier.pNext = NULL;
-	barrier.image = img;
-	barrier.oldLayout = layout;
-	barrier.newLayout = layout;
-	barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
-	barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-	barrier.srcQueueFamilyIndex = from;
-	barrier.dstQueueFamilyIndex = to;
-	barrier.subresourceRange = subres;
-	return barrier;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkRenderDevice::PushImageOwnershipChange(VkDeferredCommand::CommandQueueType queue, VkImageMemoryBarrier barrier)
-{
-	VkDeferredCommand del;
-	del.del.type = VkDeferredCommand::ImageOwnershipChange;
-	del.del.imgOwnerChange.barrier = barrier;
-	del.del.queue = queue;
-	del.dev = this->dev;
-	this->PushCommandPass(del, OnBeginFrame);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkRenderDevice::ImageOwnershipChange(VkDeferredCommand::CommandQueueType queue, VkImageMemoryBarrier barrier)
-{
-	VkCommandBuffer buf;
-	VkPipelineStageFlags flags;
-	switch (queue)
-	{
-	case VkDeferredCommand::Graphics: buf = this->mainCmdDrawBuffer; flags = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT; break;
-	case VkDeferredCommand::Transfer: buf = this->mainCmdTransBuffer; flags = VK_PIPELINE_STAGE_TRANSFER_BIT; break;
-	case VkDeferredCommand::Compute: buf = this->mainCmdCmpBuffer; flags = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT; break;
-	}
-
-	// execute command
-	vkCmdPipelineBarrier(buf,
-		VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-		0,
-		0, VK_NULL_HANDLE,
-		0, VK_NULL_HANDLE,
-		1, &barrier);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkRenderDevice::PushImageColorClear(const VkImage& image, const VkDeferredCommand::CommandQueueType& queue, VkImageLayout layout, VkClearColorValue clearValue, VkImageSubresourceRange subres)
-{
-	VkDeferredCommand del;
-	del.del.type = VkDeferredCommand::ClearColorImage;
-	del.del.imgColorClear.clearValue = clearValue;
-	del.del.imgColorClear.img = image;
-	del.del.imgColorClear.layout = layout;
-	del.del.imgColorClear.region = subres;
-	del.del.queue = queue;
-	del.dev = this->dev;
-	this->PushCommandPass(del, OnBeginFrame);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkRenderDevice::ImageColorClear(const VkImage& image, const VkDeferredCommand::CommandQueueType& queue, VkImageLayout layout, VkClearColorValue clearValue, VkImageSubresourceRange subres)
-{
-	VkCommandBuffer buf;
-	switch (queue)
-	{
-	case VkDeferredCommand::Graphics: buf = this->mainCmdDrawBuffer; break;
-	case VkDeferredCommand::Transfer: buf = this->mainCmdTransBuffer; break;
-	case VkDeferredCommand::Compute: buf = this->mainCmdCmpBuffer; break;
-	}
-	vkCmdClearColorImage(buf, image, layout, &clearValue, 1, &subres);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkRenderDevice::PushImageDepthStencilClear(const VkImage& image, const VkDeferredCommand::CommandQueueType& queue, VkImageLayout layout, VkClearDepthStencilValue clearValue, VkImageSubresourceRange subres)
-{
-	VkDeferredCommand del;
-	del.del.type = VkDeferredCommand::ClearDepthStencilImage;
-	del.del.imgDepthStencilClear.clearValue = clearValue;
-	del.del.imgDepthStencilClear.img = image;
-	del.del.imgDepthStencilClear.layout = layout;
-	del.del.imgDepthStencilClear.region = subres;
-	del.del.queue = queue;
-	del.dev = this->dev;
-	this->PushCommandPass(del, OnBeginFrame);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkRenderDevice::ImageDepthStencilClear(const VkImage& image, const VkDeferredCommand::CommandQueueType& queue, VkImageLayout layout, VkClearDepthStencilValue clearValue, VkImageSubresourceRange subres)
-{
-	VkCommandBuffer buf;
-	switch (queue)
-	{
-	case VkDeferredCommand::Graphics: buf = this->mainCmdDrawBuffer; break;
-	case VkDeferredCommand::Transfer: buf = this->mainCmdTransBuffer; break;
-	case VkDeferredCommand::Compute: buf = this->mainCmdCmpBuffer; break;
-	}
-	vkCmdClearDepthStencilImage(buf, image, layout, &clearValue, 1, &subres);
 }
 
 //------------------------------------------------------------------------------
@@ -2727,96 +1918,6 @@ VkRenderDevice::BindSharedDescriptorSets()
 	for (i = 0; i < this->sharedDescriptorSets.Size(); i++)
 	{
 		this->PushToThread(this->sharedDescriptorSets[i], this->currentDrawThread);
-	}
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkRenderDevice::PushCommandPass(const VkDeferredCommand& del, const CommandPass pass)
-{
-	if (pass == OnHandleDrawFences)				this->putDrawFenceThisFrame = true;
-	else if (pass == OnHandleComputeFences)		this->putComputeFenceThisFrame = true;	
-	else if (pass == OnHandleTransferFences)	this->putTransferFenceThisFrame = true;
-	this->commands[pass].Append(del);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkRenderDevice::RunCommandPass(const CommandPass pass)
-{
-	if (pass == OnHandleDrawFences)
-	{
-		IndexT i;
-		for (i = 0; i < this->drawFenceCommands.Size(); i++)
-		{
-			const VkFence& fence = this->drawFenceCommands.KeyAtIndex(i);
-			VkResult res = vkGetFenceStatus(this->dev, fence);
-			if (res == VK_SUCCESS)
-			{
-				const Util::Array<VkDeferredCommand>& cmds = this->drawFenceCommands.ValueAtIndex(i);
-				IndexT j;
-				for (j = 0; j < cmds.Size(); j++)
-				{
-					cmds[j].RunDelegate();
-				}
-				vkDestroyFence(this->dev, fence, NULL);
-				this->drawFenceCommands.EraseAtIndex(i--);
-			}
-		}
-	}
-	else if (pass == OnHandleComputeFences)
-	{
-		IndexT i;
-		for (i = 0; i < this->computeFenceCommands.Size(); i++)
-		{
-			const VkFence& fence = this->computeFenceCommands.KeyAtIndex(i);
-			VkResult res = vkGetFenceStatus(this->dev, fence);
-			if (res == VK_SUCCESS)
-			{
-				const Util::Array<VkDeferredCommand>& cmds = this->computeFenceCommands.ValueAtIndex(i);
-				IndexT j;
-				for (j = 0; j < cmds.Size(); j++)
-				{
-					cmds[j].RunDelegate();
-				}
-				vkDestroyFence(this->dev, fence, NULL);
-				this->computeFenceCommands.EraseAtIndex(i--);
-			}
-		}
-	}
-	else if (pass == OnHandleTransferFences)
-	{
-		IndexT i;
-		for (i = 0; i < this->transferFenceCommands.Size(); i++)
-		{
-			const VkFence& fence = this->transferFenceCommands.KeyAtIndex(i);
-			VkResult res = vkGetFenceStatus(this->dev, fence);
-			if (res == VK_SUCCESS)
-			{
-				const Util::Array<VkDeferredCommand>& cmds = this->transferFenceCommands.ValueAtIndex(i);
-				IndexT j;
-				for (j = 0; j < cmds.Size(); j++)
-				{
-					cmds[j].RunDelegate();
-				}
-				vkDestroyFence(this->dev, fence, NULL);
-				this->transferFenceCommands.EraseAtIndex(i--);
-			}
-		}
-	}
-	else
-	{
-		const Util::Array<VkDeferredCommand>& cmds = this->commands[pass];
-		IndexT i;
-		for (i = 0; i < cmds.Size(); i++)
-		{
-			cmds[i].RunDelegate();
-		}
-		this->commands[pass].Clear();
 	}
 }
 
@@ -2855,50 +1956,8 @@ VkRenderDevice::BeginDrawThread()
 	this->PushToThread(cmd, this->currentDrawThread);
 
 	// run begin command buffer pass
-	this->RunCommandPass(OnBeginDrawThread);
+	this->scheduler->ExecuteCommandPass(VkScheduler::OnBeginDrawThread);
 	this->numActiveThreads++;
-}
-
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkRenderDevice::BeginDrawThreadCluster()
-{
-	n_assert(this->numActiveThreads == 0);
-	IndexT i;
-	for (i = 0; i < NumDrawThreads; i++)
-	{
-		// allocate command buffer
-		VkCommandBufferAllocateInfo info =
-		{
-			VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-			NULL,
-			this->dispatchableCmdDrawBufferPool[i],
-			VK_COMMAND_BUFFER_LEVEL_SECONDARY,
-			1
-		};
-		vkAllocateCommandBuffers(this->dev, &info, &this->dispatchableDrawCmdBuffers[i]);
-
-		// tell thread to begin command buffer recording
-		VkCommandBufferBeginInfo begin =
-		{
-			VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-			NULL,
-			VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT,
-			&this->passInfo
-		};
-		VkCmdBufferThread::Command cmd;
-		cmd.type = VkCmdBufferThread::BeginCommand;
-		cmd.bgCmd.buf = this->dispatchableDrawCmdBuffers[i];
-		cmd.bgCmd.info = begin;
-
-		this->PushToThread(cmd, i);
-	}
-	this->currentDrawThread = 0;
-	this->numActiveThreads = NumDrawThreads;
-	this->numUsedThreads = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -2928,7 +1987,7 @@ VkRenderDevice::EndDrawThreads()
 		}
 
 		// run end-of-threads pass
-		this->RunCommandPass(OnDrawThreadsSubmitted);
+		this->scheduler->ExecuteCommandPass(VkScheduler::OnDrawThreadsSubmitted);
 
 		// execute commands
 		vkCmdExecuteCommands(this->mainCmdDrawBuffer, this->numActiveThreads, this->dispatchableDrawCmdBuffers);
@@ -2942,61 +2001,11 @@ VkRenderDevice::EndDrawThreads()
 			cmd.del.cmdbufferfree.numBuffers = 1;
 			cmd.del.cmdbufferfree.pool = this->dispatchableCmdDrawBufferPool[i];
 			cmd.dev = this->dev;
-			this->PushCommandPass(cmd, OnHandleDrawFences);
+			this->scheduler->PushCommand(cmd, VkScheduler::OnHandleDrawFences);
 		}
 		this->currentDrawThread = NumDrawThreads-1;
 		this->numActiveThreads = 0;
 	}
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkRenderDevice::EndDrawThreadCluster()
-{
-	IndexT i;
-	for (i = 0; i < NumDrawThreads; i++)
-	{
-		VkCmdBufferThread::Command cmd;
-		cmd.type = VkCmdBufferThread::EndCommand;
-		this->PushToThread(cmd, i);
-		//this->drawThreads[i]->PushCommand(cmd);
-
-		cmd.type = VkCmdBufferThread::Sync;
-		cmd.syncEvent = this->drawCompletionEvents[i];
-		this->PushToThread(cmd, i);
-		//this->drawThreads[i]->PushCommand(cmd);
-		//this->drawCompletionEvents[i].Wait();
-		//this->drawCompletionEvents[i].Reset();
-
-		// actually push to thread
-		//this->drawThreads[i]->PushCommands(this->threadCmds[i]);
-		//this->threadCmds[i].Clear();
-
-		// wait for threads to finish, but this is retarded, we can't do any work
-		this->drawCompletionEvents[i]->Wait();
-		this->drawCompletionEvents[i]->Reset();
-	}
-
-	// run end-of-threads pass
-	this->RunCommandPass(OnDrawThreadsSubmitted);
-
-	// execute commands
-	vkCmdExecuteCommands(this->mainCmdDrawBuffer, this->numUsedThreads, this->dispatchableDrawCmdBuffers);
-
-	// destroy command buffers
-	for (i = 0; i < NumDrawThreads; i++)
-	{
-		VkDeferredCommand cmd;
-		cmd.del.type = VkDeferredCommand::FreeCmdBuffers;
-		cmd.del.cmdbufferfree.buffers[0] = this->dispatchableDrawCmdBuffers[i];
-		cmd.del.cmdbufferfree.numBuffers = 1;
-		cmd.del.cmdbufferfree.pool = this->dispatchableCmdDrawBufferPool[i];
-		cmd.dev = this->dev;
-		this->PushCommandPass(cmd, OnHandleDrawFences);
-	}
-	this->numActiveThreads = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -3066,178 +2075,6 @@ VkRenderDevice::AsyncComputeSupported()
 /**
 */
 void
-VkRenderDevice::PushToInterlockThread(const VkCpuGpuInterlockThread::Command& cmd)
-{
-	n_assert(this->interlockThread.isvalid());
-	this->interlockThread->PushCommand(cmd);
-}
-
-//------------------------------------------------------------------------------
-/**
-	Have the GPU wait for the interlock thread, do this on the 'right' side.
-*/
-void
-VkRenderDevice::InterlockWaitGPU(VkPipelineStageFlags waitStage, VkPipelineStageFlags signalStage, VkBufferMemoryBarrier& buffer)
-{
-	// wait for GPU event to trigger
-	VkCpuGpuInterlockThread::Command cpuCmd;
-	cpuCmd.type = VkCpuGpuInterlockThread::WaitEvent;
-	cpuCmd.waitEvent.usage = VkCpuGpuInterlockThread::GPUEvent;
-	this->PushToInterlockThread(cpuCmd);
-
-	// have GPU signal the event
-	VkCmdBufferThread::Command gpuCmd;
-	gpuCmd.type = VkCmdBufferThread::SetEvent;
-	gpuCmd.setEvent.stages = signalStage;
-	gpuCmd.setEvent.event = this->interlockThread->event[VkCpuGpuInterlockThread::GPUEvent];
-	this->PushToThread(gpuCmd, this->currentDrawThread);
-
-	// GPU will stall just after signaling event
-	gpuCmd.type = VkCmdBufferThread::WaitForEvent;
-	gpuCmd.waitEvent.numEvents = 1;
-	gpuCmd.waitEvent.events = &this->interlockThread->event[VkCpuGpuInterlockThread::CPUEvent];
-	gpuCmd.waitEvent.bufferBarrierCount = 1;
-	gpuCmd.waitEvent.bufferBarriers = &buffer;
-	gpuCmd.waitEvent.memoryBarrierCount = 0;
-	gpuCmd.waitEvent.memoryBarriers = NULL;
-	gpuCmd.waitEvent.imageBarrierCount = 0;
-	gpuCmd.waitEvent.imageBarriers = NULL;
-	gpuCmd.waitEvent.waitingStage = waitStage;
-	gpuCmd.waitEvent.signalingStage = signalStage;
-	this->PushToThread(gpuCmd, this->currentDrawThread);
-
-	// thread can reset GPU event
-	cpuCmd.type = VkCpuGpuInterlockThread::ResetEvent;
-	cpuCmd.resetEvent.usage = VkCpuGpuInterlockThread::GPUEvent;
-	this->PushToInterlockThread(cpuCmd);
-
-	// GPU is locked now
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkRenderDevice::InterlockWaitGPU(VkPipelineStageFlags waitStage, VkPipelineStageFlags signalStage, VkImageMemoryBarrier& image)
-{
-	// wait for GPU event to trigger
-	VkCpuGpuInterlockThread::Command cpuCmd;
-	cpuCmd.type = VkCpuGpuInterlockThread::WaitEvent;
-	cpuCmd.waitEvent.usage = VkCpuGpuInterlockThread::GPUEvent;
-	this->PushToInterlockThread(cpuCmd);
-
-	// have GPU signal the event
-	VkCmdBufferThread::Command gpuCmd;
-	gpuCmd.type = VkCmdBufferThread::SetEvent;
-	gpuCmd.setEvent.stages = signalStage;
-	gpuCmd.setEvent.event = this->interlockThread->event[VkCpuGpuInterlockThread::GPUEvent];
-	this->PushToThread(gpuCmd, this->currentDrawThread);
-
-	// GPU will stall just after signaling event
-	gpuCmd.type = VkCmdBufferThread::WaitForEvent;
-	gpuCmd.waitEvent.numEvents = 1;
-	gpuCmd.waitEvent.events = &this->interlockThread->event[VkCpuGpuInterlockThread::CPUEvent];
-	gpuCmd.waitEvent.bufferBarrierCount = 0;
-	gpuCmd.waitEvent.bufferBarriers = NULL;
-	gpuCmd.waitEvent.memoryBarrierCount = 0;
-	gpuCmd.waitEvent.memoryBarriers = NULL;
-	gpuCmd.waitEvent.imageBarrierCount = 1;
-	gpuCmd.waitEvent.imageBarriers = &image;
-	gpuCmd.waitEvent.waitingStage = waitStage;
-	gpuCmd.waitEvent.signalingStage = signalStage;
-	this->PushToThread(gpuCmd, this->currentDrawThread);
-
-	// thread can reset GPU event
-	cpuCmd.type = VkCpuGpuInterlockThread::ResetEvent;
-	cpuCmd.resetEvent.usage = VkCpuGpuInterlockThread::GPUEvent;
-	this->PushToInterlockThread(cpuCmd);
-
-	// GPU is locked now
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkRenderDevice::InterlockWaitGPU(VkPipelineStageFlags waitStage, VkPipelineStageFlags signalStage, VkMemoryBarrier& barrier)
-{
-	// wait for GPU event to trigger
-	VkCpuGpuInterlockThread::Command cpuCmd;
-	cpuCmd.type = VkCpuGpuInterlockThread::WaitEvent;
-	cpuCmd.waitEvent.usage = VkCpuGpuInterlockThread::GPUEvent;
-	this->PushToInterlockThread(cpuCmd);
-
-	// have GPU signal the event
-	VkCmdBufferThread::Command gpuCmd;
-	gpuCmd.type = VkCmdBufferThread::SetEvent;
-	gpuCmd.setEvent.stages = signalStage;
-	gpuCmd.setEvent.event = this->interlockThread->event[VkCpuGpuInterlockThread::GPUEvent];
-	this->PushToThread(gpuCmd, this->currentDrawThread);
-
-	// GPU will stall just after signaling event
-	gpuCmd.type = VkCmdBufferThread::WaitForEvent;
-	gpuCmd.waitEvent.numEvents = 1;
-	gpuCmd.waitEvent.events = &this->interlockThread->event[VkCpuGpuInterlockThread::CPUEvent];
-	gpuCmd.waitEvent.bufferBarrierCount = 0;
-	gpuCmd.waitEvent.bufferBarriers = NULL;
-	gpuCmd.waitEvent.memoryBarrierCount = 1;
-	gpuCmd.waitEvent.memoryBarriers = &barrier;
-	gpuCmd.waitEvent.imageBarrierCount = 0;
-	gpuCmd.waitEvent.imageBarriers = NULL;
-	gpuCmd.waitEvent.waitingStage = waitStage;
-	gpuCmd.waitEvent.signalingStage = signalStage;
-	this->PushToThread(gpuCmd, this->currentDrawThread);
-
-	// thread can reset GPU event
-	cpuCmd.type = VkCpuGpuInterlockThread::ResetEvent;
-	cpuCmd.resetEvent.usage = VkCpuGpuInterlockThread::GPUEvent;
-	this->PushToInterlockThread(cpuCmd);
-
-	// GPU is locked now
-}
-
-//------------------------------------------------------------------------------
-/**
-	Have interlock thread wait for GPU, do this on the 'left' side of a synchronized operation
-*/
-void
-VkRenderDevice::InterlockWaitCPU(VkPipelineStageFlags stage)
-{
-	// release GPU by signaling event
-	VkCpuGpuInterlockThread::Command cpuCmd;
-	cpuCmd.type = VkCpuGpuInterlockThread::SignalEvent;
-	cpuCmd.waitEvent.usage = VkCpuGpuInterlockThread::CPUEvent;
-	this->PushToInterlockThread(cpuCmd);
-
-	// have GPU reset CPU event
-	VkCmdBufferThread::Command gpuCmd;
-	gpuCmd.type = VkCmdBufferThread::ResetEvent;
-	gpuCmd.resetEvent.event = this->interlockThread->event[VkCpuGpuInterlockThread::CPUEvent];
-	gpuCmd.resetEvent.stages = stage;
-	this->PushToThread(gpuCmd, this->currentDrawThread);
-
-	// GPU is now unlocked
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkRenderDevice::InterlockMemcpy(uint32_t size, uint32_t offset, const void* data, void* mappedData)
-{
-	VkCpuGpuInterlockThread::Command cmd;
-	cmd.type = VkCpuGpuInterlockThread::Memcpy;
-	cmd.memCpy.data = data;
-	cmd.memCpy.size = size;
-	cmd.memCpy.offset = offset;
-	cmd.memCpy.mappedData = mappedData;
-	//this->PushToInterlockThread(cmd);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
 VkRenderDevice::Copy(const Ptr<CoreGraphics::Texture>& from, Math::rectangle<SizeT> fromRegion, const Ptr<CoreGraphics::Texture>& to, Math::rectangle<SizeT> toRegion)
 {
 	RenderDeviceBase::Copy(from, fromRegion, to, toRegion);
@@ -3255,21 +2092,26 @@ VkRenderDevice::Copy(const Ptr<CoreGraphics::Texture>& from, Math::rectangle<Siz
 /**
 */
 void
-VkRenderDevice::Blit(const Ptr<CoreGraphics::RenderTexture>& from, Math::rectangle<SizeT> fromRegion, const Ptr<CoreGraphics::RenderTexture>& to, Math::rectangle<SizeT> toRegion)
+VkRenderDevice::Blit(const Ptr<CoreGraphics::RenderTexture>& from, Math::rectangle<SizeT> fromRegion, IndexT fromMip, const Ptr<CoreGraphics::RenderTexture>& to, Math::rectangle<SizeT> toRegion, IndexT toMip)
+{
+	this->Blit(from->GetTexture(), fromRegion, fromMip, to->GetTexture(), toRegion, toMip);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderDevice::Blit(const Ptr<CoreGraphics::Texture>& from, Math::rectangle<SizeT> fromRegion, IndexT fromMip, const Ptr<CoreGraphics::Texture>& to, Math::rectangle<SizeT> toRegion, IndexT toMip)
 {
 	n_assert(!this->inBeginPass);
 	VkImageBlit blit;
-	blit.dstOffsets[0] = { fromRegion.left, fromRegion.top, 0 };
-	blit.dstOffsets[1] = { fromRegion.right, fromRegion.bottom, 1 };
-	blit.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-	blit.srcOffsets[0] = { toRegion.left, toRegion.top, 0 };
-	blit.srcOffsets[1] = { toRegion.right, toRegion.bottom, 1 };
-	blit.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-
-	//this->ImageLayoutTransition(this->mainCmdDrawBuffer, this->ImageMemoryBarrier(from->GetVkImage(), blit.srcSubresource, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL));
-	//this->ImageLayoutTransition(this->mainCmdDrawBuffer, this->ImageMemoryBarrier(to->GetVkImage(), blit.dstSubresource, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL));
-
-	vkCmdBlitImage(this->mainCmdDrawBuffer, from->GetVkImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, to->GetVkImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_NEAREST);
+	blit.srcOffsets[0] = { fromRegion.left, fromRegion.top, 0 };
+	blit.srcOffsets[1] = { fromRegion.right, fromRegion.bottom, 1 };
+	blit.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, (uint32_t)fromMip, 0, 1 };
+	blit.dstOffsets[0] = { toRegion.left, toRegion.top, 0 };
+	blit.dstOffsets[1] = { toRegion.right, toRegion.bottom, 1 };
+	blit.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, (uint32_t)toMip, 0, 1 };
+	vkCmdBlitImage(this->mainCmdDrawBuffer, from->GetVkImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, to->GetVkImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_LINEAR);
 }
 
 } // namespace Vulkan

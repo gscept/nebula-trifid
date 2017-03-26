@@ -30,11 +30,20 @@ FrameSubpassAlgorithm::~FrameSubpassAlgorithm()
 /**
 */
 void
+FrameSubpassAlgorithm::Setup()
+{
+	this->func = this->alg->GetFunction(this->funcName);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 FrameSubpassAlgorithm::Discard()
 {
 	FrameOp::Discard();
 
-	this->alg->Discard();
+	this->func = nullptr;
 	this->alg = 0;
 }
 
@@ -44,7 +53,7 @@ FrameSubpassAlgorithm::Discard()
 void
 FrameSubpassAlgorithm::Run(const IndexT frameIndex)
 {
-	this->alg->Execute(this->func, frameIndex);
+	this->func(frameIndex);
 }
 
 } // namespace Frame2

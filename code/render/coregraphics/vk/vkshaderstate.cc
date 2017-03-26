@@ -53,7 +53,7 @@ VkShaderState::Setup(const Ptr<CoreGraphics::Shader>& origShader, const Util::Ar
 	this->sets.Resize(groups.Size());
 	this->setBindnings.Resize(groups.Size());
 	this->setOffsets.Resize(groups.Size());
-	this->setBindingIndexMap.Resize(groups.Size());
+	this->setBufferMapping.Resize(groups.Size());
 	IndexT i;
 	for (i = 0; i < groups.Size(); i++)
 	{
@@ -125,6 +125,7 @@ VkShaderState::Apply()
 {
 	this->shader->Apply();
 	ShaderStateBase::Apply();
+
 }
 
 //------------------------------------------------------------------------------
@@ -133,15 +134,16 @@ VkShaderState::Apply()
 void
 VkShaderState::Commit()
 {
-	if (this->setsDirty) this->UpdateDescriptorSets();
+	if (this->setsDirty)
+		this->UpdateDescriptorSets();
 
 	// get render device to apply state
 	VkRenderDevice* dev = VkRenderDevice::Instance();
 
 	// now go through and make sure the shader can bind the sets updated
-	if (this->shader->activeVariation.isvalid())
+	if (this->shader->activeVariation.isvalid() && dev->currentBindPoint != VkShaderProgram::InvalidType)
 	{
-		const VkShaderProgram::PipelineType type = this->shader->activeVariation->GetPipelineType();
+		const VkShaderProgram::PipelineType type = dev->currentBindPoint;
 		n_assert(type != VkShaderProgram::InvalidType);
 		if (type == VkShaderProgram::Graphics)
 		{
@@ -151,7 +153,7 @@ VkShaderState::Commit()
 			{
 				const DescriptorSetBinding& binding = this->setBindnings[i];
 				const Util::Array<uint32_t>& offsets = this->setOffsets[i];
-				dev->BindDescriptorsGraphics(&binding.set, binding.layout, binding.slot, 1, offsets.IsEmpty() ? NULL : offsets.Begin(), offsets.Size(), this->applyShared);
+				dev->BindDescriptorsGraphics(&binding.set, binding.layout, binding.slot, 1, offsets.Begin(), offsets.Size(), this->applyShared);
 			}
 
 			// update push ranges
@@ -168,7 +170,7 @@ VkShaderState::Commit()
 			{
 				const DescriptorSetBinding& binding = this->setBindnings[i];
 				const Util::Array<uint32_t>& offsets = this->setOffsets[i];
-				dev->BindDescriptorsCompute(&binding.set, binding.layout, binding.slot, 1, offsets.IsEmpty() ? NULL : offsets.Begin(), offsets.Size());
+				dev->BindDescriptorsCompute(&binding.set, binding.layout, binding.slot, 1, offsets.Begin(), offsets.Size());
 			}
 
 			// update push ranges
@@ -186,8 +188,8 @@ VkShaderState::Commit()
 		{
 			const DescriptorSetBinding& binding = this->setBindnings[i];
 			const Util::Array<uint32_t>& offsets = this->setOffsets[i];
-			dev->BindDescriptorsGraphics(&binding.set, binding.layout, binding.slot, 1, offsets.IsEmpty() ? NULL : offsets.Begin(), offsets.Size(), this->applyShared);
-			dev->BindDescriptorsCompute(&binding.set, binding.layout, binding.slot, 1, offsets.IsEmpty() ? NULL : offsets.Begin(), offsets.Size());
+			dev->BindDescriptorsGraphics(&binding.set, binding.layout, binding.slot, 1, offsets.Begin(), offsets.Size(), this->applyShared);
+			dev->BindDescriptorsCompute(&binding.set, binding.layout, binding.slot, 1, offsets.Begin(), offsets.Size());
 		}
 
 		// push to both compute and graphics
@@ -268,7 +270,7 @@ VkShaderState::SetupVariables(const Util::Array<IndexT>& groups)
 		{
 			// get AnyFX variable
 			AnyFX::VkVarblock* block = static_cast<AnyFX::VkVarblock*>(varblocks[j]);
-			if (block->variables.empty() || block->push) continue;
+			if (block->variables.empty() || AnyFX::HasFlags(block->qualifiers, AnyFX::Qualifiers::Push)) continue;
 
 			// create new variable
 			Ptr<ShaderVariable> var = ShaderVariable::Create();
@@ -308,7 +310,8 @@ VkShaderState::SetupUniformBuffers(const Util::Array<IndexT>& groups)
 		// get varblocks by group
 		const eastl::vector<AnyFX::VarblockBase*>& varblocks = this->effect->GetVarblocks(groups[i]);
 		Util::Array<uint32_t> offsets;
-		Util::Dictionary<uint32_t, uint32_t> bindingToOffsetIndex;
+		Util::Dictionary<uint32_t, BufferMapping> bufferMappings;
+		uint32_t dynindex = 0;
 		for (uint j = 0; j < varblocks.size(); j++)
 		{
 			AnyFX::VarblockBase* block = varblocks[j];
@@ -323,18 +326,24 @@ VkShaderState::SetupUniformBuffers(const Util::Array<IndexT>& groups)
 				Util::String name = block->name.c_str();
 
 				// if we have an ordinary uniform buffer, allocate space for it
-				if (!block->push)
+				if (!AnyFX::HasFlags(block->qualifiers, AnyFX::Qualifiers::Push))
 				{
 					n_assert(this->shader->buffers.Contains(name));
 					Ptr<CoreGraphics::ConstantBuffer> uniformBuffer = this->shader->buffers[name];
 					const Ptr<CoreGraphics::ShaderVariable>& bufferVar = this->GetVariableByName(name);
 
-					// allocate single instance within uniform buffer and get offset
-					uint32_t instanceOffset = uniformBuffer->AllocateInstance();
-					offsets.Append(instanceOffset);
+					// allocate an instance if buffer is marked for sub-buffer offsetting
+					uint32_t instanceOffset = 0;
+					if (block->Flag("DynamicOffset"))
+					{
+						// allocate single instance within uniform buffer and get offset
+						instanceOffset = uniformBuffer->AllocateInstance();
+						offsets.Append(instanceOffset);
+						bufferMappings.Add(block->binding, BufferMapping{j, dynindex++});
 
-					// add to dictionary so we can dealloc later
-					this->instances.Add(uniformBuffer, instanceOffset);
+						// add to dictionary so we can dealloc later
+						this->instances.Add(uniformBuffer, instanceOffset);
+					}					
 
 					// update buffer
 					for (uint k = 0; k < block->variables.size(); k++)
@@ -371,14 +380,14 @@ VkShaderState::SetupUniformBuffers(const Util::Array<IndexT>& groups)
 					}
 				}
 			}
-			else if (!block->push)
+			else if (block->Flag("DynamicOffset"))
 			{
 				offsets.Append(0);
-				bindingToOffsetIndex.Add(block->binding, j);
+				bufferMappings.Add(block->binding, BufferMapping{ j, dynindex++ });
 			}
 		}
 		this->setOffsets[this->groupIndexMap[groups[i]]] = offsets;
-		this->setBindingIndexMap[this->groupIndexMap[groups[i]]] = bindingToOffsetIndex;
+		this->setBufferMapping[this->groupIndexMap[groups[i]]] = bufferMappings;
 	}
 
 	// perform descriptor set update, since our buffers might grow, we might have pending updates, and since the old buffer is destroyed, we want to flush all updates here.
@@ -388,7 +397,7 @@ VkShaderState::SetupUniformBuffers(const Util::Array<IndexT>& groups)
 //------------------------------------------------------------------------------
 /**
 */
-__forceinline void
+void
 VkShaderState::UpdateDescriptorSets()
 {
 	// first ensure descriptor sets are up to date with whatever the variable values has been set to
@@ -440,10 +449,10 @@ VkShaderState::CreateOffsetArray(Util::Array<uint32_t>& outOffsets, const IndexT
 //------------------------------------------------------------------------------
 /**
 */
-IndexT
-VkShaderState::GetOffsetBinding(const IndexT& group, const IndexT& binding)
+VkShaderState::BufferMapping
+VkShaderState::GetBufferMapping(const IndexT& group, const IndexT& binding)
 {
-	return this->setBindingIndexMap[this->groupIndexMap[group]][binding];
+	return this->setBufferMapping[this->groupIndexMap[group]][binding];
 }
 
 //------------------------------------------------------------------------------
@@ -457,7 +466,15 @@ VkShaderState::CreateDerivative(const IndexT group)
 	state->set = this->sets[index];
 	state->group = group;
 	state->layout = this->shader->pipelineLayout;
-	state->buffers = this->shader->buffersByGroup[group];
+	state->parent = this;
+
+	// get varblocks by group, only add dynamically offset buffers
+	const eastl::vector<AnyFX::VarblockBase*>& varblocks = this->effect->GetVarblocks(group);
+	for (uint32_t i = 0; i < varblocks.size(); i++)
+	{
+		const AnyFX::VarblockBase* block = varblocks[i];
+		if (block->Flag("DynamicOffset")) state->buffers.Append(this->shader->buffersByGroup[group][i]);
+	}
 	return state;
 }
 
@@ -482,6 +499,7 @@ void
 VkShaderState::VkDerivativeState::Commit()
 {
 	VkRenderDevice* dev = VkRenderDevice::Instance();
+	if (this->parent->setsDirty) this->parent->UpdateDescriptorSets();
 	switch (this->bindPoint)
 	{
 	case VK_PIPELINE_BIND_POINT_GRAPHICS:

@@ -75,6 +75,7 @@ public:
 		VkDescriptorSet set;
 		uint32_t group;
 		VkPipelineLayout layout;
+		VkShaderState* parent;
 
 	public:
 		Util::Array<Ptr<CoreGraphics::ConstantBuffer>> buffers;
@@ -94,6 +95,8 @@ private:
 	friend class Base::ShaderBase;
 	friend class VkShader;
 	friend class Lighting::VkLightServer;
+	friend class VkRenderDevice;
+	struct BufferMapping;
 
 	/// setup the shader instance from its original shader object
 	void Setup(const Ptr<CoreGraphics::Shader>& origShader, const Util::Array<IndexT>& groups, bool createResourceSet);
@@ -109,7 +112,7 @@ private:
 	/// create array of offsets
 	void CreateOffsetArray(Util::Array<uint32_t>& outOffsets, const IndexT group);
 	/// get index in offset array based on binding
-	IndexT GetOffsetBinding(const IndexT& group, const IndexT& binding);
+	BufferMapping GetBufferMapping(const IndexT& group, const IndexT& binding);
 
 	struct DeferredVariableToBufferBind
 	{
@@ -123,25 +126,33 @@ private:
 	typedef Util::KeyValuePair<Ptr<CoreGraphics::ShaderVariable>, Ptr<CoreGraphics::ConstantBuffer>> BlockBufferBinding;
 	Util::Array<BlockBufferBinding> blockToBufferBindings;
 
+#pragma pack(push, 16)
 	struct DescriptorSetBinding
 	{
 		VkDescriptorSet set;
 		VkPipelineLayout layout;
 		IndexT slot;
 	};
+
+	struct BufferMapping
+	{
+		uint32_t index;
+		uint32_t offset;
+	};
+#pragma pack(pop)
 	Util::FixedArray<VkDescriptorSet> sets;
 	Util::FixedArray<DescriptorSetBinding> setBindnings;
 	Util::FixedArray<Util::Array<uint32_t>> setOffsets;
-	Util::FixedArray<Util::Dictionary<uint32_t, uint32_t>> setBindingIndexMap;
+	Util::FixedArray<Util::Dictionary<uint32_t, BufferMapping>> setBufferMapping;
 
 	Util::Array<VkWriteDescriptorSet> pendingSetWrites;
-	bool setsDirty;
 	Util::Dictionary<uint32_t, uint32_t> groupIndexMap;
 
 	Util::Array<uint32_t> offsets;
 	Util::Dictionary<Util::String, uint32_t> offsetsByName;
 	Util::Dictionary<Ptr<CoreGraphics::ConstantBuffer>, uint32_t> instances;
 
+	bool setsDirty;
 	uint8_t* pushData;
 	uint32_t pushSize;
 	VkPipelineLayout pushLayout;

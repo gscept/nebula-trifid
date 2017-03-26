@@ -29,6 +29,7 @@ public:
 	/// reset event
 	void Reset();
 private:
+
 	VkEvent event;
 };
 } // namespace Vulkan

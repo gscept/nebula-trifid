@@ -14,41 +14,8 @@
 
 //#define PN_TRIANGLES
 
-// textures
-int NumEnvMips = 9;
-textureHandle EnvironmentMap;
-textureHandle IrradianceMap;
 
-// samplers
-samplerstate GeometryTextureSampler
-{
-	// Samplers = { SpecularMap, EmissiveMap, NormalMap, AlbedoMap, DisplacementMap, RoughnessMap, CavityMap };
-	//Filter = MinMagMipLinear;
-	//AddressU = Wrap;
-	//AddressV = Wrap;
-};
 
-samplerstate MaterialSampler
-{
-
-};
-
-samplerstate CubeSampler
-{
-	Filter = MinMagMipLinear;
-	AddressU = Wrap;
-	AddressV = Wrap;
-	AddressW = Wrap;
-};
-
-samplerstate EnvironmentSampler
-{
-	//Samplers = { EnvironmentMap, IrradianceMap };
-	Filter = MinMagMipLinear;
-	AddressU = Wrap;
-	AddressV = Wrap;
-	AddressW = Wrap;
-};
 
 
 state StandardState

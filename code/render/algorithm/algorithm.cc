@@ -29,21 +29,9 @@ Algorithm::~Algorithm()
 /**
 */
 void
-Algorithm::Execute(const Util::StringAtom& str, const IndexT& frameIndex)
+Algorithm::Setup()
 {
-	// get function and run
-	std::function<void(Algorithm* alg)> func = this->functions[str];
-	func(this);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-Algorithm::AddFunction(const Util::StringAtom& name, const FunctionType type, const std::function<void(Algorithm*)>& func)
-{
-	this->nameToType.Add(name, type);
-	this->functions.Add(name, func);
+	// empty
 }
 
 //------------------------------------------------------------------------------
@@ -55,6 +43,26 @@ Algorithm::Discard()
 	this->nameToType.Clear();
 	this->functions.Clear();
 	// override in subclass for any special discard behavior
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+const std::function<void(IndexT)>
+Algorithm::GetFunction(const Util::StringAtom& str)
+{
+	std::function<void(IndexT)> func = this->functions[str];
+	return func;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+Algorithm::AddFunction(const Util::StringAtom& name, const FunctionType type, const std::function<void(IndexT)>& func)
+{
+	this->nameToType.Add(name, type);
+	this->functions.Add(name, func);
 }
 
 } // namespace Base

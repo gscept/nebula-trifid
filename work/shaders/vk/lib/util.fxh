@@ -563,11 +563,15 @@ float log_conv ( float x0, float x, float y0, float y )
 vec2
 GetPixelSize(in sampler2D tex)
 {
-	vec2 size = TEXTURE_SIZE(tex, 0);	
+	vec2 size = textureSize(tex, 0);	
 	size = vec2(1.0f) / size;
 	return size;
 }
 
+//-------------------------------------------------------------------------------------------------------------
+/**
+    Compute pixel size.
+*/
 vec2
 GetScaledUVs(in vec2 uvs, in sampler2D tex, in vec2 dimensions)
 {
@@ -583,7 +587,7 @@ GetScaledUVs(in vec2 uvs, in sampler2D tex, in vec2 dimensions)
 vec2
 GetUV(in ivec2 pixel, in sampler2D tex)
 {
-	vec2 size = TEXTURE_SIZE(tex, 0);
+	vec2 size = textureSize(tex, 0);
 	size = pixel / size;
 	return size;
 }
@@ -595,7 +599,7 @@ GetUV(in ivec2 pixel, in sampler2D tex)
 ivec2
 GetPixel(in vec2 uv, in sampler2D tex)
 {
-	ivec2 size = TEXTURE_SIZE(tex, 0);
+	ivec2 size = textureSize(tex, 0);
 	size = ivec2(uv * size);
 	return size;
 }
@@ -607,7 +611,7 @@ GetPixel(in vec2 uv, in sampler2D tex)
 vec2
 GetTextureRatio(in sampler2D tex, vec2 pixelSize)
 {
-	ivec2 size = TEXTURE_SIZE(tex, 0);	 
+	ivec2 size = textureSize(tex, 0);	 
 	vec2 currentTextureSize = vec2(1.0f) / size;
 	return size / currentTextureSize;
 }

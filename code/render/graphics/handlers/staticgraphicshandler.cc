@@ -11,7 +11,7 @@
 #include "coregraphics/shaderserver.h"
 #include "graphics/graphicsserver.h"
 #include "graphics/view.h"
-#include "frame/frameserver.h"
+#include "frame2/frameserver.h"
 #include "animation/animeventserver.h"
 #include "coregraphics/mouserenderdevice.h"
 #include "framesync/framesynctimer.h"
@@ -36,7 +36,7 @@ using namespace CoreGraphics;
 using namespace Graphics;
 using namespace Graphics;
 using namespace Resources;
-using namespace Frame;
+using namespace Frame2;
 using namespace Lighting;
 using namespace Models;
 using namespace Materials;
@@ -335,7 +335,7 @@ __StaticHandler(CreateGraphicsView)
     const ResourceId& frameShaderName = msg->GetFrameShaderName();
     bool isDefaultView = msg->GetDefaultView();
 
-    Ptr<FrameShader> frameShader = FrameServer::Instance()->LookupFrameShader(frameShaderName);
+    Ptr<FrameScript> frameShader = FrameServer::Instance()->LoadFrameScript(viewName, String::Sprintf("frame:%s.json", frameShaderName.Value()));
     const Ptr<Stage>& stage = GraphicsServer::Instance()->GetStageByName(stageName);
     Ptr<View> view = GraphicsServer::Instance()->CreateView(*viewClass, viewName, isDefaultView);
 	if (msg->GetUseResolveRect())
@@ -343,7 +343,7 @@ __StaticHandler(CreateGraphicsView)
 		view->SetResolveRect(msg->GetResolveRect());
 	}
     view->SetStage(stage);
-    view->SetFrameShader(frameShader);
+    view->SetFrameScript(frameShader);
 
     msg->GetObjectRef()->Validate<View>(view.get());
 }

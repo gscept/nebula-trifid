@@ -6,10 +6,10 @@ if (WIN32)
 		
     if (CMAKE_SIZEOF_VOID_P EQUAL 8)
         find_library(VULKAN_LIBRARY NAMES vulkan-1 PATHS
-            "$ENV{VULKAN_SDK}/Bin" NO_DEFAULT_PATH)
+            "$ENV{VULKAN_SDK}/Lib" NO_DEFAULT_PATH)
     else()
         find_library(VULKAN_LIBRARY NAMES vulkan-1 PATHS
-            "$ENV{VULKAN_SDK}/Bin32" NO_DEFAULT_PATH)
+            "$ENV{VULKAN_SDK}/Lib32" NO_DEFAULT_PATH)
     endif()
 else()
     find_path(VULKAN_INCLUDE_DIR NAMES vulkan/vulkan.h PATHS

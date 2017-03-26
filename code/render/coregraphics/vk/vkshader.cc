@@ -103,14 +103,38 @@ VkShader::Setup(AnyFX::ShaderEffect* effect)
 	const eastl::vector<AnyFX::SamplerBase*>& samplers = effect->GetSamplers();
 
     // assert we are not over-stepping any uniform buffer limit we are using, perStage is used for ALL_STAGES
-    uint32_t maxUniformBuffers = VkRenderDevice::Instance()->deviceProps.limits.maxDescriptorSetUniformBuffersDynamic;
-    n_assert(maxUniformBuffers >= varblocks.size());
+    uint32_t maxUniformBuffersDyn = VkRenderDevice::Instance()->deviceProps.limits.maxDescriptorSetUniformBuffersDynamic;
+	uint32_t maxUniformBuffers = VkRenderDevice::Instance()->deviceProps.limits.maxDescriptorSetUniformBuffers;
+	uint32_t numUniformDyn = 0;
+	uint32_t numUniform = 0;
+	uint i;
+	for (i = 0; i < varblocks.size(); i++) 
+	{ 
+		if (varblocks[i]->Flag("DynamicOffset")) numUniformDyn++;
+		else									 numUniform++;
+	}
+    n_assert(maxUniformBuffersDyn >= numUniformDyn);
+	n_assert(maxUniformBuffers >= numUniform);
     uint32_t maxPerStageUniformBuffers = VkRenderDevice::Instance()->deviceProps.limits.maxPerStageDescriptorUniformBuffers;
     n_assert(maxPerStageUniformBuffers >= varblocks.size());
 
+	// do the same for storage buffers
+	uint32_t maxStorageBuffersDyn = VkRenderDevice::Instance()->deviceProps.limits.maxDescriptorSetStorageBuffersDynamic;
+	uint32_t maxStorageBuffers = VkRenderDevice::Instance()->deviceProps.limits.maxDescriptorSetStorageBuffers;
+	uint32_t numStorageDyn = 0;
+	uint32_t numStorage = 0;
+	for (i = 0; i < varbuffers.size(); i++)
+	{
+		if (varbuffers[i]->Flag("DynamicOffset")) maxStorageBuffersDyn++;
+		else												   maxStorageBuffers++;
+	}
+	n_assert(maxStorageBuffersDyn >= maxStorageBuffersDyn);
+	n_assert(maxStorageBuffers >= maxStorageBuffers);
+	uint32_t maxPerStageStorageBuffers = VkRenderDevice::Instance()->deviceProps.limits.maxPerStageDescriptorStorageBuffers;
+	n_assert(maxPerStageStorageBuffers >= varbuffers.size());
+
     uint32_t maxTextures = VkRenderDevice::Instance()->deviceProps.limits.maxDescriptorSetSampledImages;
     uint32_t remainingTextures = maxTextures;
-
 
 	// always create push constant range in layout, making all shaders using push constants compatible
 	this->constantRange.size = VkRenderDevice::Instance()->deviceProps.limits.maxPushConstantsSize;
@@ -129,12 +153,14 @@ VkShader::Setup(AnyFX::ShaderEffect* effect)
 #define uint_max(a, b) (a > b ? a : b)
 
 	// setup varblocks
-	uint i;
 	for (i = 0; i < varblocks.size(); i++)
 	{
 		AnyFX::VkVarblock* block = static_cast<AnyFX::VkVarblock*>(varblocks[i]);
+		VkDescriptorSetLayoutBinding binding = block->bindingLayout;
+		if (block->Flag("DynamicOffset")) binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+		else							  binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		if (block->variables.empty()) continue;
-		if (block->push)
+		if (AnyFX::HasFlags(block->qualifiers, AnyFX::Qualifiers::Push))
 		{
 			// can only have one push constant block
 			n_assert(usePushConstants == false);
@@ -147,9 +173,9 @@ VkShader::Setup(AnyFX::ShaderEffect* effect)
 			if (index == InvalidIndex)
 			{
 				Util::Array<VkDescriptorSetLayoutBinding> arr;
-				arr.Append(block->bindingLayout);
+				arr.Append(binding);
 				this->setBindings.Add(block->set, arr);
-				signatures.Add(block->set, CreateSignature(block->bindingLayout));
+				signatures.Add(block->set, CreateSignature(binding));
 #if AMD_DESC_SETS
 				numsets = uint_max(numsets, block->set + 1);
 #else
@@ -159,8 +185,8 @@ VkShader::Setup(AnyFX::ShaderEffect* effect)
 			}
 			else
 			{
-				this->setBindings.ValueAtIndex(index).Append(block->bindingLayout);
-				signatures.ValueAtIndex(index).Append(CreateSignature(block->bindingLayout));
+				this->setBindings.ValueAtIndex(index).Append(binding);
+				signatures.ValueAtIndex(index).Append(CreateSignature(binding));
 			}
 		}
 	}
@@ -169,14 +195,16 @@ VkShader::Setup(AnyFX::ShaderEffect* effect)
 	for (i = 0; i < varbuffers.size(); i++)
 	{
 		AnyFX::VkVarbuffer* buffer = static_cast<AnyFX::VkVarbuffer*>(varbuffers[i]);
-
+		VkDescriptorSetLayoutBinding binding = buffer->bindingLayout;
+		if (buffer->Flag("DynamicOffset")) binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
+		else							   binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 		IndexT index = this->setBindings.FindIndex(buffer->set);
 		if (index == InvalidIndex)
 		{
 			Util::Array<VkDescriptorSetLayoutBinding> arr;
-			arr.Append(buffer->bindingLayout);
+			arr.Append(binding);
 			this->setBindings.Add(buffer->set, arr);
-			signatures.Add(buffer->set, CreateSignature(buffer->bindingLayout));
+			signatures.Add(buffer->set, CreateSignature(binding));
 #if AMD_DESC_SETS
 			numsets = uint_max(numsets, buffer->set + 1);
 #else
@@ -185,8 +213,8 @@ VkShader::Setup(AnyFX::ShaderEffect* effect)
 		}
 		else
 		{
-			this->setBindings.ValueAtIndex(index).Append(buffer->bindingLayout);
-			signatures.ValueAtIndex(index).Append(CreateSignature(buffer->bindingLayout));
+			this->setBindings.ValueAtIndex(index).Append(binding);
+			signatures.ValueAtIndex(index).Append(CreateSignature(binding));
 		}
 	}
 
@@ -275,9 +303,11 @@ VkShader::Setup(AnyFX::ShaderEffect* effect)
 	for (i = 0; i < variables.size(); i++)
 	{
 		AnyFX::VkVariable* variable = static_cast<AnyFX::VkVariable*>(variables[i]);
+
+		// handle samplers, images and textures
 		if (variable->type >= AnyFX::Sampler1D && variable->type <= AnyFX::TextureCubeArray)
 		{
-            if (remainingTextures < variable->arraySize) n_error("Too many textures in shader!");
+            if (remainingTextures < (uint32_t)variable->arraySize) n_error("Too many textures in shader!");
             else
             {
                 remainingTextures -= variable->arraySize;
@@ -418,24 +448,6 @@ VkShader::Setup(AnyFX::ShaderEffect* effect)
 		this->pipelineLayout = VkShader::ShaderPipelineCache.ValueAtIndex(idx);
 	}
 
-	/*
-	// setup descriptor sets
-	if (!this->setLayouts.IsEmpty())
-	{
-		// allocate descriptor sets
-		VkDescriptorSetAllocateInfo info =
-		{
-			VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
-			NULL,
-			VkRenderDevice::descPool,
-			this->setLayouts.Size(),
-			&this->setLayouts[0]
-		};
-		this->sets.Resize(this->setLayouts.Size());
-		res = vkAllocateDescriptorSets(VkRenderDevice::dev, &info, &this->sets[0]);
-		n_assert(res == VK_SUCCESS);
-	}
-	*/
     this->sets.Resize(this->setLayouts.Size());
     this->sets.Fill(VK_NULL_HANDLE);
     for (IndexT i = 0; i < this->setLayouts.Size(); i++)
@@ -486,7 +498,7 @@ VkShader::Setup(AnyFX::ShaderEffect* effect)
 
 		Ptr<CoreGraphics::ConstantBuffer> uniformBuffer = NULL;
 		// only create buffer if block is not handled by system
-		if (!usedBySystem && block->alignedSize > 0 && !block->push)
+		if (!usedBySystem && block->alignedSize > 0 && !AnyFX::HasFlags(block->qualifiers, AnyFX::Qualifiers::Push))
 		{
 			// create uniform buffer, with single backing
 			uniformBuffer = CoreGraphics::ConstantBuffer::Create();
@@ -513,7 +525,8 @@ VkShader::Setup(AnyFX::ShaderEffect* effect)
 			write.dstSet = this->sets[this->setToIndexMap[block->set]];
 #endif
 			write.descriptorCount = 1;
-			write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+			if (block->Flag("DynamicOffset")) write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+			else							  write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 			write.dstArrayElement = 0;
 			write.pTexelBufferView = NULL;
 			write.pImageInfo = NULL;
@@ -524,7 +537,7 @@ VkShader::Setup(AnyFX::ShaderEffect* effect)
 			this->buffers.Add(name, uniformBuffer);
 		}
 
-		if (!block->push)
+		if (!AnyFX::HasFlags(block->qualifiers, AnyFX::Qualifiers::Push))
 		{
 			if (!this->buffersByGroup.Contains(block->set)) this->buffersByGroup.Add(block->set, Util::Array<Ptr<CoreGraphics::ConstantBuffer>>());
 			this->buffersByGroup[block->set].Append(uniformBuffer);

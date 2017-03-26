@@ -10,6 +10,7 @@
 #include "coregraphics/renderdevice.h"
 #include "coregraphics/config.h"
 #include "vkshaderserver.h"
+#include "vkutilities.h"
 
 namespace Vulkan
 {
@@ -70,7 +71,7 @@ VkTexture::Map(IndexT mipLevel, MapType mapType, MapInfo& outMapInfo)
 		this->mappedBufferLayout.srcOffset = { 0, 0, 0 };
 		this->mappedBufferLayout.extent = { mipWidth, mipHeight, 1 };
 		uint32_t memSize;
-		CoreGraphics::RenderDevice::Instance()->ReadImage(this, this->mappedBufferLayout, memSize, this->mappedMem, this->mappedImg);
+		VkUtilities::ReadImage(this, this->mappedBufferLayout, memSize, this->mappedMem, this->mappedImg);
 
 		// the row pitch must be the size of one pixel times the number of pixels in width
 		outMapInfo.mipWidth = mipWidth;
@@ -100,7 +101,7 @@ VkTexture::Map(IndexT mipLevel, MapType mapType, MapInfo& outMapInfo)
 		this->mappedBufferLayout.srcOffset = { 0, 0, 0 };
 		this->mappedBufferLayout.extent = { mipWidth, mipHeight, mipDepth };
 		uint32_t memSize;
-		CoreGraphics::RenderDevice::Instance()->ReadImage(this, this->mappedBufferLayout, memSize, this->mappedMem, this->mappedImg);
+		VkUtilities::ReadImage(this, this->mappedBufferLayout, memSize, this->mappedMem, this->mappedImg);
 
 		// the row pitch must be the size of one pixel times the number of pixels in width
 		outMapInfo.mipWidth = mipWidth;
@@ -127,7 +128,7 @@ VkTexture::Unmap(IndexT mipLevel)
 
 	// unmap and dealloc
 	vkUnmapMemory(VkRenderDevice::dev, this->mappedMem);
-	VkRenderDevice::Instance()->WriteImage(this->mappedImg, this->img, this->mappedBufferLayout);
+	VkUtilities::WriteImage(this->mappedImg, this->img, this->mappedBufferLayout);
 	this->mapCount--;
 
 	if (this->mapCount == 0)
@@ -163,7 +164,7 @@ VkTexture::MapCubeFace(CubeFace face, IndexT mipLevel, MapType mapType, MapInfo&
 	this->mappedBufferLayout.srcOffset = { 0, 0, 0 };
 	this->mappedBufferLayout.extent = { mipWidth, mipHeight, 1 };
 	uint32_t memSize;
-	CoreGraphics::RenderDevice::Instance()->ReadImage(this, this->mappedBufferLayout, memSize, this->mappedMem, this->mappedImg);
+	VkUtilities::ReadImage(this, this->mappedBufferLayout, memSize, this->mappedMem, this->mappedImg);
 
 	// the row pitch must be the size of one pixel times the number of pixels in width
 	outMapInfo.mipWidth = mipWidth;
@@ -189,7 +190,7 @@ VkTexture::UnmapCubeFace(CubeFace face, IndexT mipLevel)
 	n_assert(this->mapCount > 0);
 	// unmap and dealloc
 	vkUnmapMemory(VkRenderDevice::dev, this->mappedMem);
-	VkRenderDevice::Instance()->WriteImage(this->mappedImg, this->img, this->mappedBufferLayout);
+	VkUtilities::WriteImage(this->mappedImg, this->img, this->mappedBufferLayout);
 	this->mapCount--;
 
 	if (this->mapCount == 0)
@@ -482,9 +483,9 @@ VkTexture::Copy(const Ptr<CoreGraphics::Texture>& from, const Ptr<CoreGraphics::
 	copy.extent = { width, height, depth };
 
 	// begin immediate action, this might actually be delayed but we can't really know from here
-	VkCommandBuffer cmdBuf = VkRenderDevice::Instance()->BeginImmediateTransfer();
+	VkCommandBuffer cmdBuf = VkUtilities::BeginImmediateTransfer();
 	vkCmdCopyImage(cmdBuf, from->GetVkImage(), VK_IMAGE_LAYOUT_GENERAL, to->GetVkImage(), VK_IMAGE_LAYOUT_GENERAL, 1, &copy);
-	VkRenderDevice::Instance()->EndImmediateTransfer(cmdBuf);
+	VkUtilities::EndImmediateTransfer(cmdBuf);
 }
 
 } // namespace Vulkan

@@ -9,10 +9,14 @@
 
 #include "lib/defaultsamplers.fxh"
 
+group(SYSTEM_GROUP) shared varblock ShadowMatrixBlock [ bool DynamicOffset = true; ]
+{
+	mat4 ViewMatrixArray[6];
+};
+
 const float DepthScaling = 5.0f;
 const float DarkeningFactor = 1.0f;
 const float ShadowConstant = 100.0f;
-vec4 LightCenter;
 
 samplerstate ShadowSampler
 {
@@ -46,10 +50,7 @@ shader
 void
 vsStatic(
 	[slot=0] in vec3 position,
-	[slot=1] in vec3 normal,
 	[slot=2] in vec2 uv,
-	[slot=3] in vec3 tangent,
-	[slot=4] in vec3 binormal,
 	out vec2 UV,
 	out vec4 ProjPos) 
 {
@@ -65,10 +66,7 @@ shader
 void
 vsSkinned(
 	[slot=0] in vec3 position,
-	[slot=1] in vec3 normal,
 	[slot=2] in vec2 uv,
-	[slot=3] in vec3 tangent,
-	[slot=4] in vec3 binormal,
 	[slot=7] in vec4 weights,
 	[slot=8] in uvec4 indices,
 	out vec2 UV,
@@ -87,10 +85,7 @@ shader
 void
 vsStaticInst(
 	[slot=0] in vec3 position,
-	[slot=1] in vec3 normal,
 	[slot=2] in vec2 uv,
-	[slot=3] in vec3 tangent,
-	[slot=4] in vec3 binormal,
 	out vec2 UV,
 	out vec4 ProjPos) 
 {
@@ -106,10 +101,7 @@ shader
 void
 vsStaticCSM(
 	[slot=0] in vec3 position,
-	[slot=1] in vec3 normal,
 	[slot=2] in vec2 uv,
-	[slot=3] in vec3 tangent,
-	[slot=4] in vec3 binormal,
 	out vec2 UV,
 	out vec4 ProjPos,
 	out int Instance) 
@@ -126,10 +118,7 @@ shader
 void
 vsSkinnedCSM(
 	[slot=0] in vec3 position,
-	[slot=1] in vec3 normal,
 	[slot=2] in vec2 uv,
-	[slot=3] in vec3 tangent,
-	[slot=4] in vec3 binormal,
 	[slot=7] in vec4 weights,
 	[slot=8] in uvec4 indices,
 	out vec2 UV,
@@ -149,10 +138,7 @@ shader
 void
 vsStaticInstCSM(
 	[slot=0] in vec3 position,
-	[slot=1] in vec3 normal,
 	[slot=2] in vec2 uv,
-	[slot=3] in vec3 tangent,
-	[slot=4] in vec3 binormal,
 	out vec2 UV,
 	out vec4 ProjPos,
 	out int Instance) 
@@ -170,10 +156,7 @@ shader
 void
 vsStaticPoint(
 	[slot=0] in vec3 position,
-	[slot=1] in vec3 normal,
 	[slot=2] in vec2 uv,
-	[slot=3] in vec3 tangent,
-	[slot=4] in vec3 binormal,
 	out vec2 UV,
 	out vec4 ProjPos,
 	out int Instance) 
@@ -190,10 +173,7 @@ shader
 void
 vsSkinnedPoint(
 	[slot=0] in vec3 position,
-	[slot=1] in vec3 normal,
 	[slot=2] in vec2 uv,
-	[slot=3] in vec3 tangent,
-	[slot=4] in vec3 binormal,
 	[slot=7] in vec4 weights,
 	[slot=8] in uvec4 indices,
 	out vec2 UV,
@@ -213,10 +193,7 @@ shader
 void
 vsStaticInstPoint(
 	[slot=0] in vec3 position,
-	[slot=1] in vec3 normal,
 	[slot=2] in vec2 uv,
-	[slot=3] in vec3 tangent,
-	[slot=4] in vec3 binormal,
 	out vec2 UV,
 	out vec4 ProjPos,
 	out int Instance) 

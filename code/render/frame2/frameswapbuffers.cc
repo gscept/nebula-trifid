@@ -42,7 +42,7 @@ FrameSwapbuffers::Discard()
 void
 FrameSwapbuffers::Run(const IndexT frameIndex)
 {
-	tex->SwapBuffers();
+	this->tex->SwapBuffers();
 }
 
 } // namespace Frame2

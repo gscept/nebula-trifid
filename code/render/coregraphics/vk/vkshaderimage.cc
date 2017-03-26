@@ -6,6 +6,8 @@
 #include "vkshaderimage.h"
 #include "vkrenderdevice.h"
 #include "vktypes.h"
+#include "vkutilities.h"
+#include "vkscheduler.h"
 
 namespace Vulkan
 {
@@ -67,7 +69,7 @@ VkShaderImage::Setup(const SizeT width, const SizeT height, const CoreGraphics::
 
 	// allocate memory backing
 	uint32_t alignedSize;
-	VkRenderDevice::Instance()->AllocateImageMemory(this->img, this->mem, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, alignedSize);
+	VkUtilities::AllocateImageMemory(this->img, this->mem, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, alignedSize);
 	vkBindImageMemory(VkRenderDevice::dev, this->img, this->mem, 0);
 
 	VkImageSubresourceRange viewRange;
@@ -91,7 +93,7 @@ VkShaderImage::Setup(const SizeT width, const SizeT height, const CoreGraphics::
 	n_assert(stat == VK_SUCCESS);
 
 	// transition to a useable state
-	VkRenderDevice::Instance()->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->img, viewRange, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL));
+	VkScheduler::Instance()->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkUtilities::ImageMemoryBarrier(this->img, viewRange, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL));
 
 	// setup texture resource
 	this->texture->SetupFromVkTexture(this->img, this->mem, this->view, width, height, format);
@@ -124,7 +126,7 @@ VkShaderImage::Clear(const Math::float4& clearColor)
 	viewRange.levelCount = 1;
 	viewRange.baseArrayLayer = 0;
 	viewRange.layerCount = 1;
-	VkRenderDevice::Instance()->ImageColorClear(this->img, VkDeferredCommand::Graphics, VK_IMAGE_LAYOUT_GENERAL, clear, viewRange);
+	VkUtilities::ImageColorClear(this->img, VkDeferredCommand::Graphics, VK_IMAGE_LAYOUT_GENERAL, clear, viewRange);
 }
 
 } // namespace Vulkan

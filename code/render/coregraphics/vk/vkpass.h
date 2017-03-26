@@ -46,6 +46,10 @@ public:
 	const Util::FixedArray<VkRect2D>& GetVkScissorRects() const;
 	/// get viewports
 	const Util::FixedArray<VkViewport>& GetVkViewports() const;
+	/// get scissor rects for subpass
+	const Util::FixedArray<VkRect2D>& GetVkScissorRects(IndexT i) const;
+	/// get viewports for subpass
+	const Util::FixedArray<VkViewport>& GetVkViewports(IndexT i) const;
 
 private:
 	friend class VkPipelineDatabase;
@@ -65,6 +69,9 @@ private:
 
 	Util::FixedArray<VkRect2D> scissorRects;
 	Util::FixedArray<VkViewport> viewports;
+
+	Util::FixedArray<Util::FixedArray<VkRect2D>> subpassRects;
+	Util::FixedArray<Util::FixedArray<VkViewport>> subpassViewports;
 };
 
 //------------------------------------------------------------------------------
@@ -128,6 +135,24 @@ inline const Util::FixedArray<VkViewport>&
 VkPass::GetVkViewports() const
 {
 	return this->viewports;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Util::FixedArray<VkRect2D>&
+VkPass::GetVkScissorRects(IndexT i) const
+{
+	return this->subpassRects[i];
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Util::FixedArray<VkViewport>&
+VkPass::GetVkViewports(IndexT i) const
+{
+	return this->subpassViewports[i];
 }
 
 } // namespace Vulkan

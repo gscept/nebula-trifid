@@ -58,7 +58,7 @@ FrameBlit::Run(const IndexT frameIndex)
 	toRegion.top = 0;
 	toRegion.right = this->to->GetWidth();
 	toRegion.bottom = this->to->GetHeight();
-	renderDev->Blit(this->from, fromRegion, this->to, toRegion);
+	renderDev->Blit(this->from, fromRegion, 0, this->to, toRegion, 0);
 }
 
 } // namespace Frame2

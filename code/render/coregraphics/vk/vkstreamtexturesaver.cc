@@ -8,6 +8,7 @@
 #include "coregraphics/renderdevice.h"
 #include <IL/il.h>
 #include <IL/ilu.h>
+#include "vktypes.h"
 
 using namespace CoreGraphics;
 namespace Vulkan
@@ -82,15 +83,33 @@ VkStreamTextureSaver::SaveTexture2D(const Ptr<CoreGraphics::Texture>& tex, ILenu
 	ILuint channels;
 	ILuint format;
 	ILuint type;
-	channels = PixelFormat::ToChannels(tex->GetPixelFormat());
-	format = PixelFormat::ToILComponents(tex->GetPixelFormat());
-	type = PixelFormat::ToILType(tex->GetPixelFormat());
+	VkFormat fmt = VkTypes::AsVkFormat(tex->GetPixelFormat());
+	PixelFormat::Code pfmt = VkTypes::AsNebulaPixelFormat(fmt);
+	channels = PixelFormat::ToChannels(pfmt);
+	format = PixelFormat::ToILComponents(pfmt);
+	type = PixelFormat::ToILType(pfmt);
 
 	Texture::MapInfo mapInfo;
 	tex->Map(mipLevelToSave, Texture::MapRead, mapInfo);
 
 	// create image
-	ILboolean result = ilTexImage(mapInfo.mipWidth, mapInfo.mipHeight, 1, channels, format, type, (ILubyte*)mapInfo.data);
+	ILboolean result;
+	
+	if (VkTypes::IsCompressedFormat(fmt))
+	{
+		result = ilTexImageDxtc(mapInfo.mipWidth, mapInfo.mipHeight, 1, VkTypes::AsILDXTFormat(fmt), (ILubyte*)mapInfo.data);
+
+		// decompress
+		ilSetInteger(IL_DXTC_NO_DECOMPRESS, IL_FALSE);
+		ilDxtcDataToImage();
+	}
+	else
+	{
+		// image is directly mappable to a display-capable format
+		result = ilTexImage(mapInfo.mipWidth, mapInfo.mipHeight, 1, channels, format, type, (ILubyte*)mapInfo.data);
+	}
+	
+	
 	n_assert(result == IL_TRUE);
 
 	// now save as PNG (will support proper alpha)
@@ -139,10 +158,12 @@ VkStreamTextureSaver::SaveCubemap(const Ptr<CoreGraphics::Texture>& tex, ILenum 
 	ILuint channels;
 	ILuint format;
 	ILuint type;
-	channels = PixelFormat::ToChannels(tex->GetPixelFormat());
-	format = PixelFormat::ToILComponents(tex->GetPixelFormat());
-	type = PixelFormat::ToILType(tex->GetPixelFormat());
-	uint32_t pixelSize = PixelFormat::ToSize(tex->GetPixelFormat());
+	VkFormat fmt = VkTypes::AsVkMappableImageFormat(VkTypes::AsVkFormat(tex->GetPixelFormat()));
+	PixelFormat::Code pfmt = VkTypes::AsNebulaPixelFormat(fmt);
+	channels = PixelFormat::ToChannels(pfmt);
+	format = PixelFormat::ToILComponents(pfmt);
+	type = PixelFormat::ToILType(pfmt);
+	uint32_t pixelSize = PixelFormat::ToSize(pfmt);
 
 	int32_t mipWidth = (int32_t)Math::n_max(1.0f, Math::n_floor(tex->GetWidth() / Math::n_pow(2, (float)mipLevel)));
 	int32_t mipHeight = (int32_t)Math::n_max(1.0f, Math::n_floor(tex->GetHeight() / Math::n_pow(2, (float)mipLevel)));

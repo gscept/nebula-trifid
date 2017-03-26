@@ -51,6 +51,10 @@ public:
 
 	/// get underlying texture
 	const Ptr<CoreGraphics::Texture>& GetTexture() const;
+	/// get width
+	const SizeT GetWidth() const;
+	/// get height
+	const SizeT GetHeight() const;
 
 protected:
 	bool useRelativeSize;
@@ -70,4 +74,21 @@ ShaderReadWriteTextureBase::GetTexture() const
 	return this->texture;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+inline const SizeT
+ShaderReadWriteTextureBase::GetWidth() const
+{
+	return this->width;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const SizeT
+ShaderReadWriteTextureBase::GetHeight() const
+{
+	return this->height;
+}
 } // namespace Base

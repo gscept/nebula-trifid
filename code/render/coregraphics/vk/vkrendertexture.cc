@@ -6,6 +6,8 @@
 #include "vkrendertexture.h"
 #include "vktypes.h"
 #include "vkrenderdevice.h"
+#include "vkutilities.h"
+#include "vkscheduler.h"
 
 using namespace CoreGraphics;
 namespace Vulkan
@@ -38,6 +40,7 @@ void
 VkRenderTexture::Setup()
 {
 	RenderTextureBase::Setup();
+	VkScheduler* scheduler = VkScheduler::Instance();
 
 	// if this is a window texture, get the backbuffers from the render device
 	if (this->windowTexture)
@@ -56,9 +59,9 @@ VkRenderTexture::Setup()
 		IndexT i;
 		for (i = 0; i < this->swapimages.Size(); i++)
 		{
-			VkRenderDevice::Instance()->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->swapimages[i], subres, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL));
-			VkRenderDevice::Instance()->PushImageColorClear(this->swapimages[i], VkDeferredCommand::Graphics, VK_IMAGE_LAYOUT_GENERAL, clear, subres);
-			VkRenderDevice::Instance()->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->swapimages[i], subres, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL));
+			scheduler->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkUtilities::ImageMemoryBarrier(this->swapimages[i], subres, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL));
+			scheduler->PushImageColorClear(this->swapimages[i], VkDeferredCommand::Graphics, VK_IMAGE_LAYOUT_GENERAL, clear, subres);
+			scheduler->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkUtilities::ImageMemoryBarrier(this->swapimages[i], subres, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL));
 		}
 
 		// setup texture
@@ -112,7 +115,7 @@ VkRenderTexture::Setup()
 			this->layers,
 			sampleCount,
 			VK_IMAGE_TILING_OPTIMAL,
-			usageFlags | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT,
+			usageFlags | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT,
 			VK_SHARING_MODE_EXCLUSIVE,
 			0,
 			NULL,
@@ -125,7 +128,7 @@ VkRenderTexture::Setup()
 
 		// allocate buffer backing and bind to image
 		uint32_t size;
-		VkRenderDevice::Instance()->AllocateImageMemory(this->img, this->mem, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, size);
+		VkUtilities::AllocateImageMemory(this->img, this->mem, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, size);
 		vkBindImageMemory(VkRenderDevice::dev, this->img, this->mem, 0);
 
 		VkImageAspectFlags aspect = this->usage == ColorAttachment ? VK_IMAGE_ASPECT_COLOR_BIT : VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
@@ -164,17 +167,17 @@ VkRenderTexture::Setup()
 
 			// clear image and transition layout
 			VkClearColorValue clear = { 0, 0, 0, 0 };
-			VkRenderDevice::Instance()->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->img, subres, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL));
-			VkRenderDevice::Instance()->PushImageColorClear(this->img, VkDeferredCommand::Graphics, VK_IMAGE_LAYOUT_GENERAL, clear, subres);
-			VkRenderDevice::Instance()->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->img, subres, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
+			scheduler->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkUtilities::ImageMemoryBarrier(this->img, subres, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL));
+			scheduler->PushImageColorClear(this->img, VkDeferredCommand::Graphics, VK_IMAGE_LAYOUT_GENERAL, clear, subres);
+			scheduler->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkUtilities::ImageMemoryBarrier(this->img, subres, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
 		}
 		else
 		{
 			// clear image and transition layout
 			VkClearDepthStencilValue clear = { 1, 0 };
-			VkRenderDevice::Instance()->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->img, subres, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL));
-			VkRenderDevice::Instance()->PushImageDepthStencilClear(this->img, VkDeferredCommand::Graphics, VK_IMAGE_LAYOUT_GENERAL, clear, subres);
-			VkRenderDevice::Instance()->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkRenderDevice::ImageMemoryBarrier(this->img, subres, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL));
+			scheduler->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkUtilities::ImageMemoryBarrier(this->img, subres, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL));
+			scheduler->PushImageDepthStencilClear(this->img, VkDeferredCommand::Graphics, VK_IMAGE_LAYOUT_GENERAL, clear, subres);
+			scheduler->PushImageLayoutTransition(VkDeferredCommand::Graphics, VkUtilities::ImageMemoryBarrier(this->img, subres, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL));
 
 			// setup actual texture
 			if (sampleCount > 1)
@@ -206,7 +209,11 @@ VkRenderTexture::GenerateMipChain()
 {
 	Base::RenderTextureBase::GenerateMipChain();
 	uint32_t numMips = this->texture->GetNumMipLevels();
-	this->GenerateMipHelper(0, numMips);
+	uint32_t i;
+	for (i = 1; i < numMips; i++)
+	{
+		this->GenerateMipHelper(0, i, this);
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -216,8 +223,12 @@ void
 VkRenderTexture::GenerateMipChain(IndexT from)
 {
 	Base::RenderTextureBase::GenerateMipChain(from);
-	uint32_t numMips = this->texture->GetNumMipLevels();
-	this->GenerateMipHelper(from, numMips);
+	uint32_t numMips = this->texture->GetNumMipLevels() - from;
+	uint32_t i;
+	for (i = from + 1; i < numMips; i++)
+	{
+		this->GenerateMipHelper(from, i, this);
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -227,31 +238,78 @@ void
 VkRenderTexture::GenerateMipChain(IndexT from, IndexT to)
 {
 	Base::RenderTextureBase::GenerateMipChain(from, to);
-	this->GenerateMipHelper(from, to);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkRenderTexture::GenerateMip(IndexT from, IndexT to)
-{
-	Base::RenderTextureBase::GenerateMip(from, to);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkRenderTexture::GenerateMipHelper(IndexT from, IndexT to)
-{
-	VkRenderDevice* dev = VkRenderDevice::Instance();
 	IndexT i;
-	for (i = from; i < to; i++)
+	for (i = from+1; i < to; i++)
 	{
-		VkImageBlit blit;
-		
-	}
+		this->GenerateMipHelper(from, i, this);
+	}	
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkRenderTexture::Blit(IndexT fromMip, IndexT toMip, const Ptr<CoreGraphics::RenderTexture>& target)
+{
+	Base::RenderTextureBase::Blit(fromMip, toMip);
+	this->GenerateMipHelper(fromMip, toMip, target == nullptr ? this : target);
+}
+
+//------------------------------------------------------------------------------
+/**
+	Internal helper function to generate mips, will assert that the texture is not within a pass
+*/
+void
+VkRenderTexture::GenerateMipHelper(IndexT from, IndexT to, const Ptr<VkRenderTexture>& target)
+{
+	n_assert(!this->isInPass);
+	n_assert(this->format == target->format);
+	VkRenderDevice* dev = VkRenderDevice::Instance();
+
+	// setup from-region
+	int32_t fromMipWidth = (int32_t)Math::n_max(1.0f, Math::n_floor(this->width / Math::n_pow(2, (float)from)));
+	int32_t fromMipHeight = (int32_t)Math::n_max(1.0f, Math::n_floor(this->height / Math::n_pow(2, (float)from)));
+	Math::rectangle<int> fromRegion;
+	fromRegion.left = 0;
+	fromRegion.top = 0;
+	fromRegion.right = fromMipWidth;
+	fromRegion.bottom = fromMipHeight;
+
+	VkImageSubresourceRange fromSubres;
+	fromSubres.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	fromSubres.baseArrayLayer = 0;
+	fromSubres.baseMipLevel = from;
+	fromSubres.layerCount = 1;
+	fromSubres.levelCount = 1;
+
+	// transition source to blit source
+	VkUtilities::ImageLayoutTransition(VkDeferredCommand::Graphics, VkUtilities::ImageMemoryBarrier(this->img, fromSubres, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL));
+
+	VkImageSubresourceRange toSubres;
+	toSubres.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	toSubres.baseArrayLayer = 0;
+	toSubres.baseMipLevel = to;
+	toSubres.layerCount = 1;
+	toSubres.levelCount = 1;
+
+	int32_t toMipWidth = (int32_t)Math::n_max(1.0f, Math::n_floor(target->width / Math::n_pow(2, (float)to)));
+	int32_t toMipHeight = (int32_t)Math::n_max(1.0f, Math::n_floor(target->height / Math::n_pow(2, (float)to)));
+	Math::rectangle<int> toRegion;
+	toRegion.left = 0;
+	toRegion.top = 0;
+	toRegion.right = toMipWidth;
+	toRegion.bottom = toMipHeight;
+	
+	// create smart pointer to self
+	Ptr<CoreGraphics::RenderTexture> ptr = Ptr<VkRenderTexture>(this).downcast<CoreGraphics::RenderTexture>();
+
+	// transition the texture to destination, blit, and transition it back
+	VkUtilities::ImageLayoutTransition(VkDeferredCommand::Graphics, VkUtilities::ImageMemoryBarrier(target->img, toSubres, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL));
+	dev->Blit(ptr, fromRegion, from, target.downcast<CoreGraphics::RenderTexture>(), toRegion, to);
+	VkUtilities::ImageLayoutTransition(VkDeferredCommand::Graphics, VkUtilities::ImageMemoryBarrier(target->img, toSubres, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
+
+	// transition source out from being blit source
+	VkUtilities::ImageLayoutTransition(VkDeferredCommand::Graphics, VkUtilities::ImageMemoryBarrier(this->img, fromSubres, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
 }
 
 //------------------------------------------------------------------------------

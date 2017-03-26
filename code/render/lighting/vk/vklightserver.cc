@@ -87,9 +87,9 @@ VkLightServer::Open()
 	this->lightProjMap = ResourceManager::Instance()->CreateManagedResource(Texture::RTTI, ResourceId(lightTexPath)).downcast<ManagedTexture>();
 
 	// light group is for shared variables, default is for shader local variables
-	this->globalLightShader						= shdServer->CreateShaderState("shd:lights", { NEBULAT_FRAME_GROUP });
+	this->globalLightShader						= shdServer->CreateSharedShaderState("shd:lights", { NEBULAT_TICK_GROUP });
     this->globalLightShader->SetApplyShared(true);
-	this->localLightShader						= shdServer->CreateShaderState("shd:lights", { NEBULAT_DEFAULT_GROUP });
+	this->localLightShader						= shdServer->CreateShaderState("shd:lights", { NEBULAT_SYSTEM_GROUP });
 	this->lightProbeShader						= shdServer->CreateShaderState("shd:reflectionprojector", { NEBULAT_DEFAULT_GROUP });
 
 	this->globalLightFeatureBits[NoShadows]		= shdServer->FeatureStringToMask("Global");
@@ -105,27 +105,21 @@ VkLightServer::Open()
 	this->lightProbeFeatureBits[LightProbeEntity::Box + 2] = shdServer->FeatureStringToMask("Alt0|Alt2");
 	this->lightProbeFeatureBits[LightProbeEntity::Sphere + 2] = shdServer->FeatureStringToMask("Alt1|Alt2");
 
-	// create uniform buffer used for per-frame light parameters
-    this->lightServerUniformBuffer              = ConstantBuffer::Create();
-    this->lightServerUniformBuffer->SetupFromBlockInShader(this->globalLightShader, "LightServerBlock");
-    this->lightServerUniformBufferVar           = this->globalLightShader->GetVariableByName("LightServerBlock");
-    this->lightServerUniformBufferVar->SetConstantBuffer(this->lightServerUniformBuffer);
-
 	// global light variables used for shadowing
-	this->globalLightCascadeOffset				= this->lightServerUniformBuffer->GetVariableByName(NEBULA3_SEMANTIC_CASCADEOFFSET);
-	this->globalLightCascadeScale				= this->lightServerUniformBuffer->GetVariableByName(NEBULA3_SEMANTIC_CASCADESCALE);
-	this->globalLightMinBorderPadding			= this->lightServerUniformBuffer->GetVariableByName(NEBULA3_SEMANTIC_MINBORDERPADDING);
-	this->globalLightMaxBorderPadding			= this->lightServerUniformBuffer->GetVariableByName(NEBULA3_SEMANTIC_MAXBORDERPADDING);
-	this->globalLightPartitionSize				= this->lightServerUniformBuffer->GetVariableByName(NEBULA3_SEMANTIC_SHADOWPARTITIONSIZE);
+	this->globalLightCascadeOffset				= this->globalLightShader->GetVariableByName(NEBULA3_SEMANTIC_CASCADEOFFSET);
+	this->globalLightCascadeScale				= this->globalLightShader->GetVariableByName(NEBULA3_SEMANTIC_CASCADESCALE);
+	this->globalLightMinBorderPadding			= this->globalLightShader->GetVariableByName(NEBULA3_SEMANTIC_MINBORDERPADDING);
+	this->globalLightMaxBorderPadding			= this->globalLightShader->GetVariableByName(NEBULA3_SEMANTIC_MAXBORDERPADDING);
+	this->globalLightPartitionSize				= this->globalLightShader->GetVariableByName(NEBULA3_SEMANTIC_SHADOWPARTITIONSIZE);
 
     // setup block for global light, this will only be updated once per iteration and is shared across all shaders
-    this->globalLightDir                        = this->lightServerUniformBuffer->GetVariableByName(NEBULA3_SEMANTIC_GLOBALLIGHTDIR);
-    this->globalLightColor                      = this->lightServerUniformBuffer->GetVariableByName(NEBULA3_SEMANTIC_GLOBALLIGHTCOLOR);
-    this->globalBackLightColor                  = this->lightServerUniformBuffer->GetVariableByName(NEBULA3_SEMANTIC_GLOBALBACKLIGHTCOLOR);
-    this->globalAmbientLightColor               = this->lightServerUniformBuffer->GetVariableByName(NEBULA3_SEMANTIC_GLOBALAMBIENTLIGHTCOLOR);
-    this->globalBackLightOffset                 = this->lightServerUniformBuffer->GetVariableByName(NEBULA3_SEMANTIC_GLOBALBACKLIGHTOFFSET);
-    this->globalLightShadowMatrixVar            = this->lightServerUniformBuffer->GetVariableByName(NEBULA3_SEMANTIC_CSMSHADOWMATRIX);
-	this->globalLightShadowMap					= this->lightServerUniformBuffer->GetVariableByName("GlobalLightShadowBuffer");
+    this->globalLightDir                        = this->globalLightShader->GetVariableByName(NEBULA3_SEMANTIC_GLOBALLIGHTDIR);
+    this->globalLightColor                      = this->globalLightShader->GetVariableByName(NEBULA3_SEMANTIC_GLOBALLIGHTCOLOR);
+    this->globalBackLightColor                  = this->globalLightShader->GetVariableByName(NEBULA3_SEMANTIC_GLOBALBACKLIGHTCOLOR);
+    this->globalAmbientLightColor               = this->globalLightShader->GetVariableByName(NEBULA3_SEMANTIC_GLOBALAMBIENTLIGHTCOLOR);
+    this->globalBackLightOffset                 = this->globalLightShader->GetVariableByName(NEBULA3_SEMANTIC_GLOBALBACKLIGHTOFFSET);
+    this->globalLightShadowMatrixVar            = this->globalLightShader->GetVariableByName(NEBULA3_SEMANTIC_CSMSHADOWMATRIX);
+	this->globalLightShadowMap					= this->globalLightShader->GetVariableByName("GlobalLightShadowBuffer");
 
 	// create buffer for local lights
 	this->localLightBuffer						= ConstantBuffer::Create();
@@ -137,29 +131,34 @@ VkLightServer::Open()
 	this->lightProjTransform					= this->localLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_LIGHTPROJTRANSFORM);
 	this->lightTransform						= this->localLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_LIGHTTRANSFORM);
 	this->lightProjMapVar						= this->localLightBuffer->GetVariableByName("SpotLightProjectionTexture");
-	this->lightProjCubeVar						= this->localLightBuffer->GetVariableByName("PointLightProjectionTexture");
 	this->shadowProjMapVar						= this->localLightBuffer->GetVariableByName("SpotLightShadowAtlas");
+	this->lightProjCubeVar						= this->localLightBuffer->GetVariableByName("PointLightProjectionTexture");	
 	this->shadowProjCubeVar						= this->localLightBuffer->GetVariableByName("PointLightShadowCube");
 	this->shadowProjTransform					= this->localLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_SHADOWPROJTRANSFORM);
 	this->shadowOffsetScaleVar					= this->localLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_SHADOWOFFSETSCALE);
 	this->shadowIntensityVar					= this->localLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_SHADOWINTENSITY);
+
+	// setup default projection textures
+	this->lightProjMapVar->SetTexture(this->lightProjMap->GetTexture());
+	//this->lightProjCubeVar->SetTexture()
 
 	// bind our light buffer to the binding slot
 	this->localLightBlockVar = this->localLightShader->GetVariableByName("LocalLightBlock");
 	this->localLightBlockVar->SetConstantBuffer(this->localLightBuffer);
 
 	// setup derivative state to let us provide offsets for the lights
-	this->offsetIndex = this->localLightShader->GetOffsetBinding(NEBULAT_DEFAULT_GROUP, this->localLightBuffer->GetBinding());
-	this->derivativeState = this->localLightShader->CreateDerivative(NEBULAT_DEFAULT_GROUP);
+	VkShaderState::BufferMapping mapping = this->localLightShader->GetBufferMapping(NEBULAT_SYSTEM_GROUP, this->localLightBuffer->GetBinding());
+	this->offsetIndex = mapping.offset;
+	this->derivativeState = this->localLightShader->CreateDerivative(NEBULAT_SYSTEM_GROUP);
 	this->derivativeState->bindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 	this->derivativeState->bindShared = false;
-	this->derivativeState->buffers[this->offsetIndex] = this->localLightBuffer;
+	this->derivativeState->buffers[mapping.offset] = this->localLightBuffer;
 
 	this->offsetPool.Resize(1024);
 	IndexT i;
 	for (i = 0; i < this->offsetPool.Size(); i++)
 	{
-		this->localLightShader->CreateOffsetArray(this->offsetPool.Alloc(), NEBULAT_DEFAULT_GROUP);
+		this->localLightShader->CreateOffsetArray(this->offsetPool.Alloc(), NEBULAT_SYSTEM_GROUP);
 	}
 	this->offsetPool.Reset();
 	//this->shadowConstants->SetFloat4(float4(100.0f, 100.0f, 0.003f, 1024.0f));
@@ -201,7 +200,6 @@ VkLightServer::Close()
 	this->shadowProjTransform = 0;
 	this->shadowOffsetScaleVar = 0;
 	this->shadowProjMapVar = 0;
-
 
 	this->globalAmbientLightColor = 0;
 	this->globalBackLightColor = 0;
@@ -361,7 +359,7 @@ VkLightServer::RenderLights()
 	// render the global light
 	this->globalLightShadowMap->SetTexture(shadowServer->GetGlobalLightShadowBufferTexture());
 	this->derivativeState->Reset();
-	this->lightShader->SetApplyShared(true);
+	this->globalLightShader->SetApplyShared(true);
 	this->RenderGlobalLight();
 
 	if (this->spotLights[CastShadows].Size() > 0)
@@ -371,11 +369,11 @@ VkLightServer::RenderLights()
 	}	
 
 	// render spot lights
-	this->lightShader->SetApplyShared(false);
+	this->localLightShader->SetApplyShared(false);
 	this->RenderSpotLights();
 	
 	// render point lights
-	//this->RenderPointLights();
+	this->RenderPointLights();
 }
 
 //------------------------------------------------------------------------------
@@ -518,8 +516,7 @@ VkLightServer::RenderPointLights()
 					this->lightColor->SetFloat4(curLight->GetColor());
 					this->lightTransform->SetMatrix(lightTransform);
 
-					if (CastShadows == (ShadowFlag)shadowIdx
-						&& curLight->GetCastShadowsThisFrame())
+					if (CastShadows == (ShadowFlag)shadowIdx && curLight->GetCastShadowsThisFrame())
 					{   
                         // set shadow cube if valid
                         if (curLight->GetShadowCube().isvalid())
@@ -607,8 +604,7 @@ VkLightServer::RenderSpotLights()
 					matrix44 fromViewToLightProj = matrix44::multiply(invViewTransform, curLight->GetInvLightProjTransform());            
 					this->lightProjTransform->SetMatrix(fromViewToLightProj);
 
-					if (CastShadows == (ShadowFlag)shadowIdx
-						&& curLight->GetCastShadowsThisFrame())
+					if (CastShadows == (ShadowFlag)shadowIdx && curLight->GetCastShadowsThisFrame())
 					{                
 						// needed for tex coordinates to lookup correct spotlight shadowmap texel
 						matrix44 fromViewToShadowLightProj = matrix44::multiply(invViewTransform, curLight->GetShadowInvLightProjTransform());            

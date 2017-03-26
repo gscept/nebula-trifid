@@ -52,6 +52,7 @@ PassBase::Discard()
 
 //------------------------------------------------------------------------------
 /**
+	Implement in subclass, but always call base class
 */
 void
 PassBase::Begin()
@@ -59,28 +60,61 @@ PassBase::Begin()
 	n_assert(!this->inBegin);
 	this->inBegin = true;
 	this->currentSubpass = 0;
-	// override in implementation
+
+	// transition all color attachments to be within pass
+	const Subpass& subpass = this->subpasses[this->currentSubpass];
+	for (IndexT i = 0; i < subpass.attachments.Size(); i++)
+	{
+		this->colorAttachments[subpass.attachments[i]]->SetInPass(true);
+	}
 }
 
 //------------------------------------------------------------------------------
 /**
+	Implement in subclass, but always call base class
 */
 void
 PassBase::NextSubpass()
 {
 	n_assert(this->inBegin);
+
+	// transition previous attachments out of pass
+	const Subpass& subpass = this->subpasses[this->currentSubpass];
+	for (IndexT i = 0; i < subpass.attachments.Size(); i++)
+	{
+		this->colorAttachments[subpass.attachments[i]]->SetInPass(false);
+	}
+
+	// go to next pass
 	this->currentSubpass++;
+
+	// transition new subpass attachments into pass
+	if (this->currentSubpass < (uint)this->subpasses.Size())
+	{
+		const Subpass& subpass = this->subpasses[this->currentSubpass];
+		for (IndexT i = 0; i < subpass.attachments.Size(); i++)
+		{
+			this->colorAttachments[subpass.attachments[i]]->SetInPass(true);
+		}
+	}	
 }
 
 //------------------------------------------------------------------------------
 /**
+	Implement in subclass, but always call base class
 */
 void
 PassBase::End()
 {
 	n_assert(this->inBegin);
 	this->inBegin = false;
-	// override in implementation
+
+	// transition all color attachments to be within pass
+	const Subpass& subpass = this->subpasses[this->currentSubpass];
+	for (IndexT i = 0; i < subpass.attachments.Size(); i++)
+	{
+		this->colorAttachments[subpass.attachments[i]]->SetInPass(false);
+	}
 }
 
 //------------------------------------------------------------------------------

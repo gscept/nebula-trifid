@@ -48,8 +48,9 @@ VkShaderProgram::Apply()
 	n_assert(this->program);
 
 	// if we are compute, we can set the pipeline straight away, otherwise we have to accumulate the infos
-	if (this->pipelineType == Compute)	VkRenderDevice::Instance()->BindComputePipeline(this->computePipeline, this->pipelineLayout);
-	else								VkRenderDevice::Instance()->SetShaderPipelineInfo(this->shaderPipelineInfo, this);
+	if (this->pipelineType == Compute)			VkRenderDevice::Instance()->BindComputePipeline(this->computePipeline, this->pipelineLayout);
+	else if (this->pipelineType == Graphics)	VkRenderDevice::Instance()->BindGraphicsPipelineInfo(this->shaderPipelineInfo, this);
+	else										VkRenderDevice::Instance()->UnbindPipeline();
 }
 
 //------------------------------------------------------------------------------
@@ -81,8 +82,9 @@ VkShaderProgram::Setup(AnyFX::VkProgram* program, const VkPipelineLayout& layout
 	this->CreateShader(&this->cs, program->shaderBlock.csBinarySize, program->shaderBlock.csBinary);
 
 	// if we have a compute shader, it will be the one we use, otherwise use the graphics one
-	if (this->cs) this->SetupAsCompute();
-	else		  this->SetupAsGraphics();
+	if (this->cs)		this->SetupAsCompute();
+	else if (this->vs)	this->SetupAsGraphics();
+	else				this->SetupAsEmpty();
 
 	// setup feature mask and name
 	this->SetFeatureMask(CoreGraphics::ShaderServer::Instance()->FeatureStringToMask(mask));
@@ -303,13 +305,23 @@ VkShaderProgram::SetupAsCompute()
 		0,
 		shader,
 		this->pipelineLayout,
-		VK_NULL_HANDLE, -1
+		VK_NULL_HANDLE, 
+		0
 	};
 
 	// create pipeline
 	VkResult res = vkCreateComputePipelines(VkRenderDevice::dev, VkRenderDevice::cache, 1, &info, NULL, &this->computePipeline);
 	n_assert(res == VK_SUCCESS);
 	this->pipelineType = Compute;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkShaderProgram::SetupAsEmpty()
+{
+	this->pipelineType = InvalidType;
 }
 
 //------------------------------------------------------------------------------

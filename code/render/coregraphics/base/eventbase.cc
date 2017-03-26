@@ -4,7 +4,7 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "eventbase.h"
-
+#include "coregraphics/barrier.h"
 namespace Base
 {
 
@@ -13,7 +13,8 @@ __ImplementClass(Base::EventBase, 'EVBA', Core::RefCounted);
 /**
 */
 EventBase::EventBase() :
-	createSignaled(false)
+	createSignaled(false),
+	barrier(nullptr)
 {
 	// empty
 }
@@ -69,6 +70,15 @@ void
 EventBase::Discard()
 {
 	// implement in subclass
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+EventBase::SetBarrier(const Ptr<CoreGraphics::Barrier>& barrier)
+{
+	this->barrier = barrier;
 }
 
 } // namespace Base

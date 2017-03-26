@@ -19,12 +19,6 @@ sampler2D GodrayTexture;
 sampler2D ShapeTexture;
 sampler2D LuminanceTexture;
 
-float Saturation = float(1.0f);
-vec4 Balance = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-float FadeValue = float(1.0f);
-vec3 DoFDistances = vec3(2.0f, 100.0f, 2.0f);
-bool UseDof = true;
-
 samplerstate UpscaleSampler
 {
 	Samplers = { BloomTexture, GodrayTexture, LuminanceTexture };

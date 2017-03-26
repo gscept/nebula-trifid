@@ -29,6 +29,7 @@
 #include "framesubpassplugins.h"
 #include "framebarrier.h"
 #include "coregraphics/barrier.h"
+#include "algorithm/algorithms.h"
 
 using namespace CoreGraphics;
 using namespace IO;
@@ -46,21 +47,26 @@ FrameScriptLoader::LoadFrameScript(const IO::URI& path)
 	if (stream->Open())
 	{
 		void* data = stream->Map();
-		cJSON* json = cJSON_Parse((const char*)data);
-		if (json == NULL)
+		JzonParseResult result = jzon_parse((const char*)data);
+		JzonValue* json = result.output;
+		if (!result.success)
 		{
-			n_error(cJSON_GetErrorPtr());
+			const char* error = cJSON_GetErrorPtr();
+			n_error("jzon parse error around: '%.100s'\n", result.error);
 		}
 
 		// assert version is compatible
-		cJSON* node = cJSON_GetObjectItem(json, "version");
-		n_assert(node->valueint >= 2);
-		node = cJSON_GetObjectItem(json, "engine");
-		n_assert(Util::String(node->valuestring) == "NebulaTrifid");
+		JzonValue* node = jzon_get(json, "version");
+		n_assert(node->int_value >= 2);
+		node = jzon_get(json, "engine");
+		n_assert(Util::String(node->string_value) == "NebulaTrifid");
 
 		// run parser entry point
-		json = cJSON_GetObjectItem(json, "framescript");
+		json = jzon_get(json, "framescript");
 		ParseFrameScript(script, json);
+
+		// clear jzon
+		jzon_free(json);
 
 		stream->Unmap();
 		stream->Close();
@@ -77,13 +83,13 @@ FrameScriptLoader::LoadFrameScript(const IO::URI& path)
 /**
 */
 void
-FrameScriptLoader::ParseFrameScript(const Ptr<Frame2::FrameScript>& script, cJSON* node)
+FrameScriptLoader::ParseFrameScript(const Ptr<Frame2::FrameScript>& script, JzonValue* node)
 {
-	IndexT i;
-	for (i = 0; i < cJSON_GetArraySize(node); i++)
+	uint i;
+	for (i = 0; i < node->size; i++)
 	{
-		cJSON* cur = cJSON_GetArrayItem(node, i);
-		Util::String name(cur->string);
+		JzonValue* cur = node->array_values[i];
+		Util::String name(cur->key);
 		if (name == "renderTextures")			ParseColorTextureList(script, cur);
 		else if (name == "depthStencils")		ParseDepthStencilTextureList(script, cur);
 		else if (name == "readWriteTextures")	ParseImageReadWriteTextureList(script, cur);
@@ -94,6 +100,7 @@ FrameScriptLoader::ParseFrameScript(const Ptr<Frame2::FrameScript>& script, cJSO
 		else if (name == "globalState")			ParseGlobalState(script, cur);
 		else if (name == "blit")				ParseBlit(script, cur);
 		else if (name == "copy")				ParseCopy(script, cur);
+		else if (name == "event")				ParseEvent(script, cur);
 		else if (name == "compute")				ParseCompute(script, cur);
 		else if (name == "computeAlgorithm")	ParseComputeAlgorithm(script, cur);
 		else if (name == "swapbuffers")			ParseSwapbuffers(script, cur);
@@ -112,15 +119,15 @@ FrameScriptLoader::ParseFrameScript(const Ptr<Frame2::FrameScript>& script, cJSO
 /**
 */
 void
-FrameScriptLoader::ParseColorTextureList(const Ptr<Frame2::FrameScript>& script, cJSON* node)
+FrameScriptLoader::ParseColorTextureList(const Ptr<Frame2::FrameScript>& script, JzonValue* node)
 {
-	IndexT i;
-	for (i = 0; i < cJSON_GetArraySize(node); i++)
+	uint i;
+	for (i = 0; i < node->size; i++)
 	{
-		cJSON* cur = cJSON_GetArrayItem(node, i);
-		cJSON* name = cJSON_GetObjectItem(cur, "name");
-		n_assert(name != NULL);
-		if (Util::String(name->valuestring) == "__WINDOW__")
+		JzonValue* cur = node->array_values[i];
+		JzonValue* name = jzon_get(cur, "name");
+		n_assert(name != nullptr);
+		if (Util::String(name->string_value) == "__WINDOW__")
 		{
 			// code to fetch window render texture goes here
 			Ptr<CoreGraphics::RenderTexture> tex = FrameServer::Instance()->GetWindowTexture();
@@ -128,36 +135,36 @@ FrameScriptLoader::ParseColorTextureList(const Ptr<Frame2::FrameScript>& script,
 		}
 		else
 		{
-			cJSON* format = cJSON_GetObjectItem(cur, "format");
-			n_assert(format != NULL);
-			cJSON* width = cJSON_GetObjectItem(cur, "width");
-			n_assert(width != NULL);
-			cJSON* height = cJSON_GetObjectItem(cur, "height");
-			n_assert(height != NULL);
+			JzonValue* format = jzon_get(cur, "format");
+			n_assert(format != nullptr);
+			JzonValue* width = jzon_get(cur, "width");
+			n_assert(width != nullptr);
+			JzonValue* height = jzon_get(cur, "height");
+			n_assert(height != nullptr);
 
 			// get format
-			CoreGraphics::PixelFormat::Code fmt = CoreGraphics::PixelFormat::FromString(format->valuestring);
+			CoreGraphics::PixelFormat::Code fmt = CoreGraphics::PixelFormat::FromString(format->string_value);
 
 			// create texture
 			Ptr<CoreGraphics::RenderTexture> tex = CoreGraphics::RenderTexture::Create();
-			tex->SetResourceId(name->valuestring);
+			tex->SetResourceId(name->string_value);
 			tex->SetPixelFormat(fmt);
 			tex->SetUsage(RenderTexture::ColorAttachment);
 			tex->SetTextureType(Texture::Texture2D);
 
-			cJSON* layers = cJSON_GetObjectItem(cur, "layers");
-			if (layers != NULL) tex->SetLayers(layers->valueint);
+			JzonValue* layers = jzon_get(cur, "layers");
+			if (layers != nullptr) tex->SetLayers(layers->int_value);
 
 			// set relative, dynamic or msaa if defined
-			if (cJSON_HasObjectItem(cur, "relative")) tex->SetIsScreenRelative(cJSON_GetObjectItem(cur, "relative")->valueint == 1 ? true : false);
-			if (cJSON_HasObjectItem(cur, "dynamic")) tex->SetIsDynamicScaled(cJSON_GetObjectItem(cur, "dynamic")->valueint == 1 ? true : false);
-			if (cJSON_HasObjectItem(cur, "msaa")) tex->SetEnableMSAA(cJSON_GetObjectItem(cur, "msaa")->valueint == 1 ? true : false);
+			if (jzon_get(cur, "relative")) tex->SetIsScreenRelative(jzon_get(cur, "relative")->bool_value);
+			if (jzon_get(cur, "dynamic")) tex->SetIsDynamicScaled(jzon_get(cur, "dynamic")->bool_value);
+			if (jzon_get(cur, "msaa")) tex->SetEnableMSAA(jzon_get(cur, "msaa")->bool_value);
 
 			// if cube, use 6 layers
 			float depth = 1;
-			if (cJSON_HasObjectItem(cur, "cube"))
+			if (jzon_get(cur, "cube"))
 			{
-				bool isCube = cJSON_GetObjectItem(cur, "cube")->valueint == 1 ? true : false;
+				bool isCube = jzon_get(cur, "cube")->int_value == 1 ? true : false;
 				if (isCube)
 				{
 					tex->SetTextureType(Texture::TextureCube);
@@ -166,11 +173,11 @@ FrameScriptLoader::ParseColorTextureList(const Ptr<Frame2::FrameScript>& script,
 			}
 
 			// set dimension after figuring out if the texture is a cube
-			tex->SetDimensions((float)width->valuedouble, (float)height->valuedouble, depth);
+			tex->SetDimensions((float)width->float_value, (float)height->float_value, depth);
 
 			// add to script
 			tex->Setup();
-			script->AddColorTexture(name->valuestring, tex);
+			script->AddColorTexture(name->string_value, tex);
 		}		
 	}
 }
@@ -179,44 +186,44 @@ FrameScriptLoader::ParseColorTextureList(const Ptr<Frame2::FrameScript>& script,
 /**
 */
 void
-FrameScriptLoader::ParseDepthStencilTextureList(const Ptr<Frame2::FrameScript>& script, cJSON* node)
+FrameScriptLoader::ParseDepthStencilTextureList(const Ptr<Frame2::FrameScript>& script, JzonValue* node)
 {
-	IndexT i;
-	for (i = 0; i < cJSON_GetArraySize(node); i++)
+	uint i;
+	for (i = 0; i < node->size; i++)
 	{
-		cJSON* cur = cJSON_GetArrayItem(node, i);
-		cJSON* name = cJSON_GetObjectItem(cur, "name");
-		n_assert(name != NULL);
-		cJSON* format = cJSON_GetObjectItem(cur, "format");
-		n_assert(name != NULL);
-		cJSON* width = cJSON_GetObjectItem(cur, "width");
-		n_assert(width != NULL);
-		cJSON* height = cJSON_GetObjectItem(cur, "height");
-		n_assert(height != NULL);
+		JzonValue* cur = node->array_values[i];
+		JzonValue* name = jzon_get(cur, "name");
+		n_assert(name != nullptr);
+		JzonValue* format = jzon_get(cur, "format");
+		n_assert(name != nullptr);
+		JzonValue* width = jzon_get(cur, "width");
+		n_assert(width != nullptr);
+		JzonValue* height = jzon_get(cur, "height");
+		n_assert(height != nullptr);
 
 		// get format
-		CoreGraphics::PixelFormat::Code fmt = CoreGraphics::PixelFormat::FromString(format->valuestring);
+		CoreGraphics::PixelFormat::Code fmt = CoreGraphics::PixelFormat::FromString(format->string_value);
 
 		// create texture
 		Ptr<CoreGraphics::RenderTexture> tex = CoreGraphics::RenderTexture::Create();
-		tex->SetResourceId(name->valuestring);
+		tex->SetResourceId(name->string_value);
 		tex->SetPixelFormat(fmt);
 		tex->SetUsage(RenderTexture::DepthStencilAttachment);
 		tex->SetTextureType(Texture::Texture2D);
 
-		cJSON* layers = cJSON_GetObjectItem(cur, "layers");
-		if (layers != NULL) tex->SetLayers(layers->valueint);
+		JzonValue* layers = jzon_get(cur, "layers");
+		if (layers != NULL) tex->SetLayers(layers->int_value);
 
 		// set relative, dynamic or msaa if defined
-		if (cJSON_HasObjectItem(cur, "relative")) tex->SetIsScreenRelative(cJSON_GetObjectItem(cur, "relative")->valueint == 1 ? true : false);
-		if (cJSON_HasObjectItem(cur, "dynamic")) tex->SetIsDynamicScaled(cJSON_GetObjectItem(cur, "dynamic")->valueint == 1 ? true : false);
-		if (cJSON_HasObjectItem(cur, "msaa")) tex->SetEnableMSAA(cJSON_GetObjectItem(cur, "msaa")->valueint == 1 ? true : false);
+		if (jzon_get(cur, "relative")) tex->SetIsScreenRelative(jzon_get(cur, "relative")->bool_value);
+		if (jzon_get(cur, "dynamic")) tex->SetIsDynamicScaled(jzon_get(cur, "dynamic")->bool_value);
+		if (jzon_get(cur, "msaa")) tex->SetEnableMSAA(jzon_get(cur, "msaa")->bool_value);
 
 		// if cube, use 6 layers
 		float depth = 1;
-		if (cJSON_HasObjectItem(cur, "cube"))
+		if (jzon_get(cur, "cube"))
 		{
-			bool isCube = cJSON_GetObjectItem(cur, "cube")->valueint == 1 ? true : false;
+			bool isCube = jzon_get(cur, "cube")->bool_value;
 			if (isCube)
 			{
 				tex->SetTextureType(Texture::TextureCube);
@@ -225,11 +232,11 @@ FrameScriptLoader::ParseDepthStencilTextureList(const Ptr<Frame2::FrameScript>& 
 		}
 
 		// set dimension after figuring out if the texture is a cube
-		tex->SetDimensions((float)width->valuedouble, (float)height->valuedouble, depth);
+		tex->SetDimensions((float)width->float_value, (float)height->float_value, depth);
 
 		// add to script
 		tex->Setup();
-		script->AddDepthStencilTexture(name->valuestring, tex);
+		script->AddDepthStencilTexture(name->string_value, tex);
 	}
 }
 
@@ -237,42 +244,42 @@ FrameScriptLoader::ParseDepthStencilTextureList(const Ptr<Frame2::FrameScript>& 
 /**
 */
 void
-FrameScriptLoader::ParseImageReadWriteTextureList(const Ptr<Frame2::FrameScript>& script, cJSON* node)
+FrameScriptLoader::ParseImageReadWriteTextureList(const Ptr<Frame2::FrameScript>& script, JzonValue* node)
 {
-	IndexT i;
-	for (i = 0; i < cJSON_GetArraySize(node); i++)
+	uint i;
+	for (i = 0; i < node->size; i++)
 	{
-		cJSON* cur = cJSON_GetArrayItem(node, i);
-		cJSON* name = cJSON_GetObjectItem(cur, "name");
-		n_assert(name != NULL);
-		cJSON* format = cJSON_GetObjectItem(cur, "format");
-		n_assert(name != NULL);
-		cJSON* width = cJSON_GetObjectItem(cur, "width");
-		n_assert(width != NULL);
-		cJSON* height = cJSON_GetObjectItem(cur, "height");
-		n_assert(height != NULL);
+		JzonValue* cur = node->array_values[i];
+		JzonValue* name = jzon_get(cur, "name");
+		n_assert(name != nullptr);
+		JzonValue* format = jzon_get(cur, "format");
+		n_assert(name != nullptr);
+		JzonValue* width = jzon_get(cur, "width");
+		n_assert(width != nullptr);
+		JzonValue* height = jzon_get(cur, "height");
+		n_assert(height != nullptr);
 
 		// setup shader read-write texture
 		Ptr<ShaderReadWriteTexture> tex = ShaderReadWriteTexture::Create();
-		CoreGraphics::PixelFormat::Code fmt = CoreGraphics::PixelFormat::FromString(format->valuestring);
+		CoreGraphics::PixelFormat::Code fmt = CoreGraphics::PixelFormat::FromString(format->string_value);
 		
 		bool relativeSize = false;
 		bool dynamicSize = false;
 		bool msaa = false;
-		if (cJSON_HasObjectItem(cur, "relative")) relativeSize = cJSON_GetObjectItem(cur, "relative")->valueint == 1 ? true : false;
-		if (cJSON_HasObjectItem(cur, "dynamic")) dynamicSize = cJSON_GetObjectItem(cur, "dynamic")->valueint == 1 ? true : false;
-		if (cJSON_HasObjectItem(cur, "msaa")) msaa = cJSON_GetObjectItem(cur, "msaa")->valueint == 1 ? true : false;
+		if (jzon_get(cur, "relative")) relativeSize = jzon_get(cur, "relative")->bool_value;
+		if (jzon_get(cur, "dynamic")) dynamicSize = jzon_get(cur, "dynamic")->bool_value;
+		if (jzon_get(cur, "msaa")) msaa = jzon_get(cur, "msaa")->bool_value;
 		if (relativeSize)
 		{
-			tex->SetupWithRelativeSize((float)width->valuedouble, (float)height->valuedouble, fmt, name->valuestring);
+			tex->SetupWithRelativeSize((float)width->float_value, (float)height->float_value, fmt, name->string_value);
 		}
 		else
 		{
-			tex->Setup((SizeT)width->valuedouble, (SizeT)height->valuedouble, fmt, name->valuestring);
+			tex->Setup((SizeT)width->float_value, (SizeT)height->float_value, fmt, name->string_value);
 		}
 
 		// add texture
-		script->AddReadWriteTexture(name->valuestring, tex);
+		script->AddReadWriteTexture(name->string_value, tex);
 	}
 }
 
@@ -280,29 +287,29 @@ FrameScriptLoader::ParseImageReadWriteTextureList(const Ptr<Frame2::FrameScript>
 /**
 */
 void
-FrameScriptLoader::ParseImageReadWriteBufferList(const Ptr<Frame2::FrameScript>& script, cJSON* node)
+FrameScriptLoader::ParseImageReadWriteBufferList(const Ptr<Frame2::FrameScript>& script, JzonValue* node)
 {
-	IndexT i;
-	for (i = 0; i < cJSON_GetArraySize(node); i++)
+	uint i;
+	for (i = 0; i < node->size; i++)
 	{
-		cJSON* cur = cJSON_GetArrayItem(node, i);
-		cJSON* name = cJSON_GetObjectItem(cur, "name");
+		JzonValue* cur = node->array_values[i];
+		JzonValue* name = jzon_get(cur, "name");
 		n_assert(name != NULL);
-		cJSON* size = cJSON_GetObjectItem(cur, "size");
+		JzonValue* size = jzon_get(cur, "size");
 		n_assert(size != NULL);
 
 		// create shader buffer 
 		Ptr<ShaderReadWriteBuffer> buffer = ShaderReadWriteBuffer::Create();
 
 		bool relativeSize = false;
-		if (cJSON_HasObjectItem(cur, "relative")) buffer->SetIsRelativeSize(cJSON_GetObjectItem(cur, "relative")->valueint == 1 ? true : false);
+		if (jzon_get(cur, "relative")) buffer->SetIsRelativeSize(jzon_get(cur, "relative")->bool_value);
 
 		// setup buffer
-		buffer->SetSize(size->valueint);
+		buffer->SetSize(size->int_value);
 		buffer->Setup(1);
 
 		// add to script
-		script->AddReadWriteBuffer(name->valuestring, buffer);
+		script->AddReadWriteBuffer(name->string_value, buffer);
 	}
 }
 
@@ -310,22 +317,58 @@ FrameScriptLoader::ParseImageReadWriteBufferList(const Ptr<Frame2::FrameScript>&
 /**
 */
 void
-FrameScriptLoader::ParseAlgorithmList(const Ptr<Frame2::FrameScript>& script, cJSON* node)
+FrameScriptLoader::ParseAlgorithmList(const Ptr<Frame2::FrameScript>& script, JzonValue* node)
 {
-	IndexT i;
-	for (i = 0; i < cJSON_GetArraySize(node); i++)
+	uint i;
+	for (i = 0; i < node->size; i++)
 	{
-		cJSON* cur = cJSON_GetArrayItem(node, i);
+		JzonValue* cur = node->array_values[i];
 
 		// algorithm needs name and class
-		cJSON* name = cJSON_GetObjectItem(cur, "name");
+		JzonValue* name = jzon_get(cur, "name");
 		n_assert(name != NULL);
-		cJSON* clazz = cJSON_GetObjectItem(cur, "class");
+		JzonValue* clazz = jzon_get(cur, "class");
 		n_assert(clazz != NULL);
 
 		// create algorithm
-		Ptr<Core::RefCounted> alg = Core::Factory::Instance()->Create(clazz->valuestring);
-		script->AddAlgorithm(name->valuestring, alg.downcast<Algorithms::Algorithm>());
+		Ptr<Algorithms::Algorithm> alg = (Algorithms::Algorithm*)Core::Factory::Instance()->Create(clazz->string_value);
+
+		JzonValue* textures = jzon_get(cur, "renderTextures");
+		if (textures != NULL)
+		{
+			uint j;
+			for (j = 0; j < textures->size; j++)
+			{
+				JzonValue* nd = textures->array_values[j];
+				alg->AddRenderTexture(script->GetColorTexture(nd->string_value));
+			}
+		}
+
+		JzonValue* buffers = jzon_get(cur, "readWriteBuffers");
+		if (buffers != NULL)
+		{
+			uint j;
+			for (j = 0; j < buffers->size; j++)
+			{
+				JzonValue* nd = buffers->array_values[j];
+				alg->AddReadWriteBuffer(script->GetReadWriteBuffer(nd->string_value));
+			}
+		}
+
+		JzonValue* images = jzon_get(cur, "readWriteTextures");
+		if (images != NULL)
+		{
+			uint j;
+			for (j = 0; j < images->size; j++)
+			{
+				JzonValue* nd = images->array_values[j];
+				alg->AddReadWriteImage(script->GetReadWriteTexture(nd->string_value));
+			}
+		}
+
+		// add algorithm to script
+		alg->Setup();
+		script->AddAlgorithm(name->string_value, alg);
 	}
 }
 
@@ -333,22 +376,33 @@ FrameScriptLoader::ParseAlgorithmList(const Ptr<Frame2::FrameScript>& script, cJ
 /**
 */
 void
-FrameScriptLoader::ParseEventList(const Ptr<Frame2::FrameScript>& script, cJSON* node)
+FrameScriptLoader::ParseEventList(const Ptr<Frame2::FrameScript>& script, JzonValue* node)
 {
-	IndexT i;
-	for (i = 0; i < cJSON_GetArraySize(node); i++)
+	uint i;
+	for (i = 0; i < node->size; i++)
 	{
-		cJSON* cur = cJSON_GetArrayItem(node, i);
-		cJSON* name = cJSON_GetObjectItem(cur, "name");
+		JzonValue* cur = node->array_values[i];
+		JzonValue* name = jzon_get(cur, "name");
 		n_assert(name != NULL);
 
 		// create event
 		Ptr<CoreGraphics::Event> ev = CoreGraphics::Event::Create();
-		if (cJSON_HasObjectItem(cur, "signaled")) ev->SetSignaled(cJSON_GetObjectItem(cur, "signaled")->valueint == 1 ? true : false);
+		if (jzon_get(cur, "signaled")) ev->SetSignaled(jzon_get(cur, "signaled")->bool_value);
+
+		// create barrier
+		Ptr<CoreGraphics::Barrier> barrier = CoreGraphics::Barrier::Create();
+		barrier->SetDomain(Barrier::Domain::Global);
+
+		// call internal parser for barrier
+		JzonValue* bar = jzon_get(cur, "barrier");
+		n_assert(bar != nullptr);
+		ParseBarrierInternal(script, bar, barrier);
+		barrier->Setup();
+		ev->SetBarrier(barrier);
 
 		// add event
 		ev->Setup();
-		script->AddEvent(name->valuestring, ev);
+		script->AddEvent(name->string_value, ev);
 	}
 }
 
@@ -356,28 +410,28 @@ FrameScriptLoader::ParseEventList(const Ptr<Frame2::FrameScript>& script, cJSON*
 /**
 */
 void
-FrameScriptLoader::ParseShaderStateList(const Ptr<Frame2::FrameScript>& script, cJSON* node)
+FrameScriptLoader::ParseShaderStateList(const Ptr<Frame2::FrameScript>& script, JzonValue* node)
 {
-	IndexT i;
-	for (i = 0; i < cJSON_GetArraySize(node); i++)
+	uint i;
+	for (i = 0; i < node->size; i++)
 	{
-		cJSON* cur = cJSON_GetArrayItem(node, i);
-		cJSON* name = cJSON_GetObjectItem(cur, "name");
+		JzonValue* cur = node->array_values[i];
+		JzonValue* name = jzon_get(cur, "name");
 		n_assert(name != NULL);
 
 		bool createResources = false;
-		cJSON* create = cJSON_GetObjectItem(cur, "createResourceSet");
-		if (create != NULL) createResources = create->valueint == 1 ? true : false;
+		JzonValue* create = jzon_get(cur, "createResourceSet");
+		if (create != NULL) createResources = create->bool_value;
 
-		cJSON* shader = cJSON_GetObjectItem(cur, "shader");
+		JzonValue* shader = jzon_get(cur, "shader");
 		n_assert(shader != NULL);
-		Ptr<CoreGraphics::ShaderState> state = ShaderServer::Instance()->CreateShaderState(shader->valuestring, { NEBULAT_DEFAULT_GROUP }, createResources);
+		Ptr<CoreGraphics::ShaderState> state = ShaderServer::Instance()->CreateShaderState(shader->string_value, { NEBULAT_DEFAULT_GROUP }, createResources);
 
-		cJSON* vars = cJSON_GetObjectItem(cur, "variables");
+		JzonValue* vars = jzon_get(cur, "variables");
 		if (vars != NULL) ParseShaderVariables(script, state, vars);
 
 		// add state
-		script->AddShaderState(name->valuestring, state);
+		script->AddShaderState(name->string_value, state);
 	}
 }
 
@@ -385,14 +439,14 @@ FrameScriptLoader::ParseShaderStateList(const Ptr<Frame2::FrameScript>& script, 
 /**
 */
 void
-FrameScriptLoader::ParseGlobalState(const Ptr<Frame2::FrameScript>& script, cJSON* node)
+FrameScriptLoader::ParseGlobalState(const Ptr<Frame2::FrameScript>& script, JzonValue* node)
 {
 	Ptr<FrameGlobalState> op = FrameGlobalState::Create();
 
 	// set name of op
-	cJSON* name = cJSON_GetObjectItem(node, "name");
+	JzonValue* name = jzon_get(node, "name");
 	n_assert(name != NULL);
-	op->SetName(name->valuestring);
+	op->SetName(name->string_value);
 
 	// create shared state, this will be set while running the script and update the shared state
 	Ptr<CoreGraphics::ShaderState> state = ShaderServer::Instance()->CreateSharedShaderState("shd:shared", { NEBULAT_FRAME_GROUP });
@@ -400,23 +454,23 @@ FrameScriptLoader::ParseGlobalState(const Ptr<Frame2::FrameScript>& script, cJSO
 	op->SetShaderState(state);
 
 	// setup variables
-	cJSON* variables = cJSON_GetObjectItem(node, "variables");
+	JzonValue* variables = jzon_get(node, "variables");
 	if (variables != NULL)
 	{
-		IndexT i;
-		for (i = 0; i < cJSON_GetArraySize(variables); i++)
+		uint i;
+		for (i = 0; i < variables->size; i++)
 		{
-			cJSON* var = cJSON_GetArrayItem(variables, i);
+			JzonValue* var = variables->array_values[i];
 
 			// variables need to define both semantic and value
-			cJSON* sem = cJSON_GetObjectItem(var, "semantic");
+			JzonValue* sem = jzon_get(var, "semantic");
 			n_assert(sem != NULL);
-			cJSON* val = cJSON_GetObjectItem(var, "value");
+			JzonValue* val = jzon_get(var, "value");
 			n_assert(val != NULL);
-			Util::String valStr(val->valuestring);
+			Util::String valStr(val->string_value);
 
 			// get variable
-			const Ptr<ShaderVariableInstance>& variable = state->GetVariableByName(sem->valuestring)->CreateInstance();
+			const Ptr<ShaderVariableInstance>& variable = state->GetVariableByName(sem->string_value)->CreateInstance();
 			switch (variable->GetShaderVariable()->GetType())
 			{
 			case ShaderVariable::IntType:
@@ -468,22 +522,22 @@ FrameScriptLoader::ParseGlobalState(const Ptr<Frame2::FrameScript>& script, cJSO
 /**
 */
 void
-FrameScriptLoader::ParseBlit(const Ptr<Frame2::FrameScript>& script, cJSON* node)
+FrameScriptLoader::ParseBlit(const Ptr<Frame2::FrameScript>& script, JzonValue* node)
 {
 	Ptr<FrameBlit> op = FrameBlit::Create();
 
 	// set name of op
-	cJSON* name = cJSON_GetObjectItem(node, "name");
+	JzonValue* name = jzon_get(node, "name");
 	n_assert(name != NULL);
-	op->SetName(name->valuestring);
+	op->SetName(name->string_value);
 
-	cJSON* from = cJSON_GetObjectItem(node, "from");
+	JzonValue* from = jzon_get(node, "from");
 	n_assert(from != NULL);
-	const Ptr<CoreGraphics::RenderTexture>& fromTex = script->GetColorTexture(from->valuestring);
+	const Ptr<CoreGraphics::RenderTexture>& fromTex = script->GetColorTexture(from->string_value);
 
-	cJSON* to = cJSON_GetObjectItem(node, "to");
+	JzonValue* to = jzon_get(node, "to");
 	n_assert(to != NULL);
-	const Ptr<CoreGraphics::RenderTexture>& toTex = script->GetColorTexture(to->valuestring);
+	const Ptr<CoreGraphics::RenderTexture>& toTex = script->GetColorTexture(to->string_value);
 
 	// setup blit operation
 	op->SetFromTexture(fromTex);
@@ -495,22 +549,22 @@ FrameScriptLoader::ParseBlit(const Ptr<Frame2::FrameScript>& script, cJSON* node
 /**
 */
 void
-FrameScriptLoader::ParseCopy(const Ptr<Frame2::FrameScript>& script, cJSON* node)
+FrameScriptLoader::ParseCopy(const Ptr<Frame2::FrameScript>& script, JzonValue* node)
 {
 	Ptr<Frame2::FrameCopy> op = Frame2::FrameCopy::Create();
 
 	// get function and name
-	cJSON* name = cJSON_GetObjectItem(node, "name");
+	JzonValue* name = jzon_get(node, "name");
 	n_assert(name != NULL);
-	op->SetName(name->valuestring);
+	op->SetName(name->string_value);
 
-	cJSON* from = cJSON_GetObjectItem(node, "from");
+	JzonValue* from = jzon_get(node, "from");
 	n_assert(from != NULL);
-	const Ptr<CoreGraphics::RenderTexture>& fromTex = script->GetColorTexture(from->valuestring);
+	const Ptr<CoreGraphics::RenderTexture>& fromTex = script->GetColorTexture(from->string_value);
 
-	cJSON* to = cJSON_GetObjectItem(node, "to");
+	JzonValue* to = jzon_get(node, "to");
 	n_assert(to != NULL);
-	const Ptr<CoreGraphics::RenderTexture>& toTex = script->GetColorTexture(to->valuestring);
+	const Ptr<CoreGraphics::RenderTexture>& toTex = script->GetColorTexture(to->string_value);
 
 	// setup copy operation
 	op->SetFromTexture(fromTex);
@@ -522,31 +576,31 @@ FrameScriptLoader::ParseCopy(const Ptr<Frame2::FrameScript>& script, cJSON* node
 /**
 */
 void
-FrameScriptLoader::ParseCompute(const Ptr<Frame2::FrameScript>& script, cJSON* node)
+FrameScriptLoader::ParseCompute(const Ptr<Frame2::FrameScript>& script, JzonValue* node)
 {
 	Ptr<FrameCompute> op = FrameCompute::Create();
 
 	// get name of compute sequence
-	cJSON* name = cJSON_GetObjectItem(node, "name");
+	JzonValue* name = jzon_get(node, "name");
 	n_assert(name != NULL);
-	op->SetName(name->valuestring);
+	op->SetName(name->string_value);
 
 	// create shader state
-	cJSON* shader = cJSON_GetObjectItem(node, "shaderState");
+	JzonValue* shader = jzon_get(node, "shaderState");
 	n_assert(shader != NULL);
-	Ptr<ShaderState> state = script->GetShaderState(shader->valuestring);
+	Ptr<ShaderState> state = script->GetShaderState(shader->string_value);
 	op->SetShaderState(state);
 
-	cJSON* variation = cJSON_GetObjectItem(node, "variation");
+	JzonValue* variation = jzon_get(node, "variation");
 	n_assert(variation != NULL);
-	CoreGraphics::ShaderFeature::Mask mask = ShaderServer::Instance()->FeatureStringToMask(variation->valuestring);
+	CoreGraphics::ShaderFeature::Mask mask = ShaderServer::Instance()->FeatureStringToMask(variation->string_value);
 	op->SetVariation(mask);
 
-	// get dimensions, must be 3
-	cJSON* dims = cJSON_GetObjectItem(node, "dimensions");
+	// dimensions, must be 3
+	JzonValue* dims = jzon_get(node, "dimensions");
 	n_assert(dims != NULL);
-	n_assert(cJSON_GetArraySize(dims) == 3);
-	op->SetInvocations(cJSON_GetArrayItem(dims, 0)->valueint, cJSON_GetArrayItem(dims, 1)->valueint, cJSON_GetArrayItem(dims, 2)->valueint);
+	n_assert(dims->size == 3);
+	op->SetInvocations(dims->array_values[0]->int_value, dims->array_values[1]->int_value, dims->array_values[2]->int_value);
 
 	// add op to script
 	script->AddOp(op.upcast<Frame2::FrameOp>());
@@ -556,26 +610,27 @@ FrameScriptLoader::ParseCompute(const Ptr<Frame2::FrameScript>& script, cJSON* n
 /**
 */
 void
-FrameScriptLoader::ParseComputeAlgorithm(const Ptr<Frame2::FrameScript>& script, cJSON* node)
+FrameScriptLoader::ParseComputeAlgorithm(const Ptr<Frame2::FrameScript>& script, JzonValue* node)
 {
 	Ptr<FrameComputeAlgorithm> op = FrameComputeAlgorithm::Create();
 
 	// get function and name
-	cJSON* name = cJSON_GetObjectItem(node, "name");
+	JzonValue* name = jzon_get(node, "name");
 	n_assert(name != NULL);
-	op->SetName(name->valuestring);
+	op->SetName(name->string_value);
 
-	cJSON* alg = cJSON_GetObjectItem(node, "algorithm");
+	JzonValue* alg = jzon_get(node, "algorithm");
 	n_assert(alg != NULL);
-	cJSON* function = cJSON_GetObjectItem(node, "function");
+	JzonValue* function = jzon_get(node, "function");
 	n_assert(function != NULL);
 
 	// get algorithm
-	const Ptr<Algorithms::Algorithm>& algorithm = script->GetAlgorithm(alg->valuestring);
-	op->SetFunction(function->valuestring);
+	const Ptr<Algorithms::Algorithm>& algorithm = script->GetAlgorithm(alg->string_value);
+	op->SetAlgorithm(algorithm);
+	op->SetFunction(function->string_value);
 
 	// add to script
-	op->SetAlgorithm(algorithm);
+	op->Setup();
 	script->AddOp(op.upcast<Frame2::FrameOp>());
 }
 
@@ -583,18 +638,18 @@ FrameScriptLoader::ParseComputeAlgorithm(const Ptr<Frame2::FrameScript>& script,
 /**
 */
 void
-FrameScriptLoader::ParseSwapbuffers(const Ptr<Frame2::FrameScript>& script, cJSON* node)
+FrameScriptLoader::ParseSwapbuffers(const Ptr<Frame2::FrameScript>& script, JzonValue* node)
 {
 	Ptr<FrameSwapbuffers> op = FrameSwapbuffers::Create();
 
 	// get function and name
-	cJSON* name = cJSON_GetObjectItem(node, "name");
+	JzonValue* name = jzon_get(node, "name");
 	n_assert(name != NULL);
-	op->SetName(name->valuestring);
+	op->SetName(name->string_value);
 
-	cJSON* texture = cJSON_GetObjectItem(node, "texture");
+	JzonValue* texture = jzon_get(node, "texture");
 	n_assert(texture != NULL);
-	const Ptr<CoreGraphics::RenderTexture>& tex = script->GetColorTexture(texture->valuestring);
+	const Ptr<CoreGraphics::RenderTexture>& tex = script->GetColorTexture(texture->string_value);
 	op->SetTexture(tex);
 
 	// add operation
@@ -605,20 +660,20 @@ FrameScriptLoader::ParseSwapbuffers(const Ptr<Frame2::FrameScript>& script, cJSO
 /**
 */
 void
-FrameScriptLoader::ParseEvent(const Ptr<Frame2::FrameScript>& script, cJSON* node)
+FrameScriptLoader::ParseEvent(const Ptr<Frame2::FrameScript>& script, JzonValue* node)
 {
 	Ptr<FrameEvent> op = FrameEvent::Create();
-	cJSON* name = cJSON_GetObjectItem(node, "name");
+	JzonValue* name = jzon_get(node, "name");
 	n_assert(name != NULL);
-	const Ptr<Event>& event = script->GetEvent(name->valuestring);
+	const Ptr<Event>& event = script->GetEvent(name->string_value);
 
 	// go through ops
-	cJSON* ops = cJSON_GetObjectItem(node, "actions");
-	IndexT i;
-	for (i = 0; i < cJSON_GetArraySize(ops); i++)
+	JzonValue* ops = jzon_get(node, "actions");
+	uint i;
+	for (i = 0; i < ops->size; i++)
 	{
-		cJSON* action = cJSON_GetArrayItem(ops, i);
-		Util::String str(action->valuestring);
+		JzonValue* action = ops->array_values[i];
+		Util::String str(action->string_value);
 		FrameEvent::Action a;
 		if (str == "wait")			a = FrameEvent::Wait;
 		else if (str == "set")		a = FrameEvent::Set;
@@ -641,24 +696,20 @@ FrameScriptLoader::ParseEvent(const Ptr<Frame2::FrameScript>& script, cJSON* nod
 /**
 */
 void
-FrameScriptLoader::ParseBarrier(const Ptr<Frame2::FrameScript>& script, cJSON* node)
+FrameScriptLoader::ParseBarrier(const Ptr<Frame2::FrameScript>& script, JzonValue* node)
 {
 	Ptr<FrameBarrier> op = FrameBarrier::Create();
-	CoreGraphics::Barrier barrier;
-	barrier.SetUsage(Barrier::Subpass);
+	JzonValue* name = jzon_get(node, "name");
+	n_assert(name != NULL);
+	op->SetName(name->string_value);
 
-	cJSON* textures = cJSON_GetObjectItem(node, "textures");
-	if (textures != NULL)
-	{
-		IndexT i;
-		for (i = 0; i < cJSON_GetArraySize(textures); i++)
-		{
-			cJSON* tex = cJSON_GetArrayItem(textures, i);
-			Util::String str(tex->valuestring);
-			const Ptr<CoreGraphics::RenderTexture>& rt = script->GetColorTexture(str);
-			barrier.AddTexture(rt);
-		}
-	}
+	// create barrier
+	Ptr<CoreGraphics::Barrier> barrier = CoreGraphics::Barrier::Create();
+	barrier->SetDomain(Barrier::Domain::Global);
+
+	// call internal parser
+	ParseBarrierInternal(script, node, barrier);
+
 	op->SetBarrier(barrier);
 	script->AddOp(op.upcast<FrameOp>());
 }
@@ -667,68 +718,206 @@ FrameScriptLoader::ParseBarrier(const Ptr<Frame2::FrameScript>& script, cJSON* n
 /**
 */
 void
-FrameScriptLoader::ParsePass(const Ptr<Frame2::FrameScript>& script, cJSON* node)
+FrameScriptLoader::ParseBarrierInternal(const Ptr<Frame2::FrameScript>& script, JzonValue* node, const Ptr<CoreGraphics::Barrier>& barrier)
+{
+	Util::Array<Util::String> flags;
+	Barrier::Dependency dep;
+	IndexT i;
+
+	// get left side dependency flags
+	JzonValue* leftDep = jzon_get(node, "leftDependency");
+	n_assert(leftDep != nullptr);
+	flags = Util::String(leftDep->string_value).Tokenize("|");
+	dep = Barrier::Dependency::NoDependencies;
+	for (i = 0; i < flags.Size(); i++) dep |= Barrier::DependencyFromString(flags[i]);
+	barrier->SetLeftDependency(dep);
+
+	// get right side dependency flags
+	JzonValue* rightDep = jzon_get(node, "rightDependency");
+	n_assert(rightDep != nullptr);
+	flags = Util::String(rightDep->string_value).Tokenize("|");
+	dep = Barrier::Dependency::NoDependencies;
+	for (i = 0; i < flags.Size(); i++) dep |= Barrier::DependencyFromString(flags[i]);
+	barrier->SetRightDependency(dep);
+
+	JzonValue* textures = jzon_get(node, "renderTextures");
+	if (textures != NULL)
+	{
+		uint i;
+		for (i = 0; i < textures->size; i++)
+		{
+			Util::Array<Util::String> flags;
+			CoreGraphics::Barrier::Access leftAccessFlags, rightAccessFlags;
+			IndexT j;
+
+			JzonValue* nd = textures->array_values[i];
+			JzonValue* res = jzon_get(nd, "name");
+			n_assert(res != nullptr);
+
+			// get left access flags
+			JzonValue* leftAccess = jzon_get(nd, "leftAccess");
+			n_assert(leftAccess != nullptr);
+			flags = Util::String(leftAccess->string_value).Tokenize("|");
+			leftAccessFlags = Barrier::Access::NoAccess;
+			for (j = 0; j < flags.Size(); j++) leftAccessFlags |= Barrier::AccessFromString(flags[i]);
+
+			// get left access flags
+			JzonValue* rightAccess = jzon_get(nd, "rightAccess");
+			n_assert(rightAccess != nullptr);
+			flags = Util::String(rightAccess->string_value).Tokenize("|");
+			rightAccessFlags = Barrier::Access::NoAccess;
+			for (j = 0; j < flags.Size(); j++) rightAccessFlags |= Barrier::AccessFromString(flags[i]);
+
+			// set resource
+			Util::String str(res->string_value);
+			const Ptr<CoreGraphics::RenderTexture>& rt = script->GetColorTexture(str);
+			barrier->AddRenderTexture(rt, leftAccessFlags, rightAccessFlags);
+		}
+	}
+
+	JzonValue* images = jzon_get(node, "readWriteTextures");
+	if (images != NULL)
+	{
+		uint i;
+		for (i = 0; i < images->size; i++)
+		{
+			Util::Array<Util::String> flags;
+			CoreGraphics::Barrier::Access leftAccessFlags, rightAccessFlags;
+			IndexT j;
+
+			JzonValue* nd = images->array_values[i];
+			JzonValue* res = jzon_get(nd, "name");
+			n_assert(res != nullptr);
+
+			// get left access flags
+			JzonValue* leftAccess = jzon_get(nd, "leftAccess");
+			n_assert(leftAccess != nullptr);
+			flags = Util::String(leftAccess->string_value).Tokenize("|");
+			leftAccessFlags = Barrier::Access::NoAccess;
+			for (j = 0; j < flags.Size(); j++) leftAccessFlags |= Barrier::AccessFromString(flags[i]);
+
+			// get left access flags
+			JzonValue* rightAccess = jzon_get(nd, "rightAccess");
+			n_assert(rightAccess != nullptr);
+			flags = Util::String(rightAccess->string_value).Tokenize("|");
+			rightAccessFlags = Barrier::Access::NoAccess;
+			for (j = 0; j < flags.Size(); j++) rightAccessFlags |= Barrier::AccessFromString(flags[i]);
+
+			// set resource
+			Util::String str(res->string_value);
+			const Ptr<CoreGraphics::ShaderReadWriteTexture>& rt = script->GetReadWriteTexture(str);
+			barrier->AddReadWriteTexture(rt, leftAccessFlags, rightAccessFlags);
+		}
+	}
+
+	JzonValue* buffers = jzon_get(node, "readWriteBuffers");
+	if (buffers != NULL)
+	{
+		uint i;
+		for (i = 0; i < buffers->size; i++)
+		{
+			Util::Array<Util::String> flags;
+			CoreGraphics::Barrier::Access leftAccessFlags, rightAccessFlags;
+			IndexT j;
+
+			JzonValue* nd = buffers->array_values[i];
+			JzonValue* res = jzon_get(nd, "name");
+			n_assert(res != nullptr);
+
+			// get left access flags
+			JzonValue* leftAccess = jzon_get(nd, "leftAccess");
+			n_assert(leftAccess != nullptr);
+			flags = Util::String(leftAccess->string_value).Tokenize("|");
+			leftAccessFlags = Barrier::Access::NoAccess;
+			for (j = 0; j < flags.Size(); j++) leftAccessFlags |= Barrier::AccessFromString(flags[i]);
+
+			// get left access flags
+			JzonValue* rightAccess = jzon_get(nd, "rightAccess");
+			n_assert(rightAccess != nullptr);
+			flags = Util::String(rightAccess->string_value).Tokenize("|");
+			rightAccessFlags = Barrier::Access::NoAccess;
+			for (j = 0; j < flags.Size(); j++) rightAccessFlags |= Barrier::AccessFromString(flags[i]);
+
+			// set resource
+			Util::String str(res->string_value);
+			const Ptr<CoreGraphics::ShaderReadWriteBuffer>& rt = script->GetReadWriteBuffer(str);
+			barrier->AddReadWriteBuffer(rt, leftAccessFlags, rightAccessFlags);
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+FrameScriptLoader::ParsePass(const Ptr<Frame2::FrameScript>& script, JzonValue* node)
 {
 	// create pass
 	Ptr<FramePass> op = FramePass::Create();
 	Ptr<Pass> pass = Pass::Create();
-	IndexT i;
-	for (i = 0; i < cJSON_GetArraySize(node); i++)
+	op->SetPass(pass);
+
+	// get name of pass
+	JzonValue* name = jzon_get(node, "name");
+	n_assert(name != NULL);
+	op->SetName(name->string_value);
+
+	uint i;
+	for (i = 0; i < node->size; i++)
 	{
-		cJSON* cur = cJSON_GetArrayItem(node, i);
-		Util::String name(cur->string);
-		if (name == "name")					op->SetName(cur->valuestring);
+		JzonValue* cur = node->array_values[i];
+		Util::String name(cur->key);
+		if (name == "name")					op->SetName(cur->string_value);
 		else if (name == "attachments")		ParseAttachmentList(script, pass, cur);
 		else if (name == "depthStencil")
 		{
 			float clearDepth = 1;
 			uint clearStencil = 0;
 			uint depthStencilClearFlags = 0;
-			cJSON* cd = cJSON_GetObjectItem(cur, "clear");
+			JzonValue* cd = jzon_get(cur, "clear");
 			if (cd != NULL)
 			{
 				depthStencilClearFlags |= Pass::Clear;
-				clearDepth = (float)cd->valuedouble;
+				clearDepth = (float)cd->float_value;
 			}
 
-			cJSON* cs = cJSON_GetObjectItem(cur, "clearStencil");
+			JzonValue* cs = jzon_get(cur, "clearStencil");
 			if (cs != NULL)
 			{
 				depthStencilClearFlags |= Pass::ClearStencil;
-				clearStencil = cs->valueint;
+				clearStencil = cs->int_value;
 			}
 
-			cJSON* ld = cJSON_GetObjectItem(cur, "load");
-			if (ld != NULL && ld->valueint == 1)
+			JzonValue* ld = jzon_get(cur, "load");
+			if (ld != NULL && ld->int_value == 1)
 			{
-				// can't really load and store
-				n_assert(cd == NULL);
+				n_assert2(cd == NULL, "Can't load depth from previous pass AND clear.");				
 				depthStencilClearFlags |= Pass::Load;
 			}
 
-			cJSON* ls = cJSON_GetObjectItem(cur, "loadStencil");
-			if (ls != NULL && ls->valueint == 1)
+			JzonValue* ls = jzon_get(cur, "loadStencil");
+			if (ls != NULL && ls->int_value == 1)
 			{
 				// can't really load and store
-				n_assert(cs == NULL);
+				n_assert2(cs == NULL, "Can't load stenil from previous pass AND clear.");
 				depthStencilClearFlags |= Pass::LoadStencil;
 			}
 
-			cJSON* sd = cJSON_GetObjectItem(cur, "store");
-			if (sd != NULL && sd->valueint == 1)
+			JzonValue* sd = jzon_get(cur, "store");
+			if (sd != NULL && sd->int_value == 1)
 			{
 				depthStencilClearFlags |= Pass::Store;
 			}
 
-			cJSON* ss = cJSON_GetObjectItem(cur, "storeStencil");
-			if (ss != NULL && ss->valueint == 1)
+			JzonValue* ss = jzon_get(cur, "storeStencil");
+			if (ss != NULL && ss->int_value == 1)
 			{
 				depthStencilClearFlags |= Pass::StoreStencil;
 			}
 
 			// set attachment in framebuffer
-			cJSON* ds = cJSON_GetObjectItem(cur, "name");
-			pass->SetDepthStencilAttachment(script->GetDepthStencilTexture(ds->valuestring));
+			JzonValue* ds = jzon_get(cur, "name");
+			pass->SetDepthStencilAttachment(script->GetDepthStencilTexture(ds->string_value));
 			pass->SetDepthStencilClear(clearDepth, clearStencil);
 			pass->SetDepthStencilFlags((Pass::AttachmentFlagBits)depthStencilClearFlags);
 		}
@@ -741,7 +930,6 @@ FrameScriptLoader::ParsePass(const Ptr<Frame2::FrameScript>& script, cJSON* node
 
 	// setup framebuffer and bind to pass
 	pass->Setup();
-	op->SetPass(pass);
 	script->AddOp(op.upcast<Frame2::FrameOp>());
 }
 
@@ -749,42 +937,47 @@ FrameScriptLoader::ParsePass(const Ptr<Frame2::FrameScript>& script, cJSON* node
 /**
 */
 void
-FrameScriptLoader::ParseAttachmentList(const Ptr<Frame2::FrameScript>& script, const Ptr<CoreGraphics::Pass>& pass, cJSON* node)
+FrameScriptLoader::ParseAttachmentList(const Ptr<Frame2::FrameScript>& script, const Ptr<CoreGraphics::Pass>& pass, JzonValue* node)
 {
-	IndexT i;
-	for (i = 0; i < cJSON_GetArraySize(node); i++)
+	uint i;
+	for (i = 0; i < node->size; i++)
 	{
-		cJSON* cur = cJSON_GetArrayItem(node, i);
-		cJSON* name = cJSON_GetObjectItem(cur, "name");
+		JzonValue* cur = node->array_values[i];
+		JzonValue* name = jzon_get(cur, "name");
 		n_assert(name != NULL);
-		const Ptr<RenderTexture>& tex = script->GetColorTexture(name->valuestring);
+		const Ptr<RenderTexture>& tex = script->GetColorTexture(name->string_value);
 
 		// add texture to pass
 		pass->AddColorAttachment(tex);
 
 		// set clear flag if present
-		cJSON* clear = cJSON_GetObjectItem(cur, "clear");
+		JzonValue* clear = jzon_get(cur, "clear");
 		uint flags = 0;
 		if (clear != NULL)
 		{
-			Math::float4 clearValue = Util::String(clear->valuestring).AsFloat4();
+			Math::float4 clearValue;
+			n_assert(clear->size <= 4);
+			uint j;
+			for (j = 0; j < clear->size; j++)
+			{
+				clearValue[j] = clear->array_values[j]->float_value;
+			}
 			pass->SetColorAttachmentClear(i, clearValue);
 			flags |= Pass::Clear;
 		}
 
 		// set if attachment should store at the end of the pass
-		cJSON* store = cJSON_GetObjectItem(cur, "store");
-		if (store && store->valueint == 1)
+		JzonValue* store = jzon_get(cur, "store");
+		if (store && store->int_value == 1)
 		{
-			
 			flags |= Pass::Store;
 		}
 
-		cJSON* load = cJSON_GetObjectItem(cur, "load");
-		if (load && load->valueint == 1)
+		JzonValue* load = jzon_get(cur, "load");
+		if (load && load->int_value == 1)
 		{
 			// we can't really load and clear
-			n_assert(clear == NULL);
+			n_assert2(clear == NULL, "Can't load color if it's being cleared.");
 			flags |= Pass::Load;
 		}
 		pass->SetColorAttachmentFlags(i, (Pass::AttachmentFlagBits)flags);
@@ -795,23 +988,23 @@ FrameScriptLoader::ParseAttachmentList(const Ptr<Frame2::FrameScript>& script, c
 /**
 */
 void
-FrameScriptLoader::ParseSubpass(const Ptr<Frame2::FrameScript>& script, const Ptr<CoreGraphics::Pass>& pass, const Ptr<Frame2::FramePass>& framePass, cJSON* node)
+FrameScriptLoader::ParseSubpass(const Ptr<Frame2::FrameScript>& script, const Ptr<CoreGraphics::Pass>& pass, const Ptr<Frame2::FramePass>& framePass, JzonValue* node)
 {
 	Ptr<Frame2::FrameSubpass> frameSubpass = Frame2::FrameSubpass::Create();
 	Pass::Subpass subpass;
 	subpass.resolve = false;
 	subpass.bindDepth = false;
-	IndexT i;
-	for (i = 0; i < cJSON_GetArraySize(node); i++)
+	uint i;
+	for (i = 0; i < node->size; i++)
 	{
-		cJSON* cur = cJSON_GetArrayItem(node, i);
-		Util::String name(cur->string);
-		if (name == "name")						frameSubpass->SetName(cur->valuestring);
-		else if (name == "dependencies")		ParseSubpassDependencies(subpass, cur);
-		else if (name == "attachments")			ParseSubpassAttachments(subpass, cur);
-		else if (name == "inputs")				ParseSubpassInputs(subpass, cur);
-		else if (name == "depth")				subpass.bindDepth = cur->valueint == 1 ? true : false;
-		else if (name == "resolve")				subpass.resolve = cur->valueint == 1 ? true : false;
+		JzonValue* cur = node->array_values[i];
+		Util::String name(cur->key);
+		if (name == "name")						frameSubpass->SetName(cur->string_value);
+		else if (name == "dependencies")		ParseSubpassDependencies(framePass, subpass, cur);
+		else if (name == "attachments")			ParseSubpassAttachments(framePass, subpass, cur);
+		else if (name == "inputs")				ParseSubpassInputs(framePass, subpass, cur);
+		else if (name == "depth")				subpass.bindDepth = cur->bool_value;
+		else if (name == "resolve")				subpass.resolve = cur->bool_value;
 		else if (name == "viewports")			ParseSubpassViewports(script, frameSubpass, cur);
 		else if (name == "scissors")			ParseSubpassScissors(script, frameSubpass, cur);
 		else if (name == "subpassAlgorithm")	ParseSubpassAlgorithm(script, frameSubpass, cur);
@@ -835,15 +1028,60 @@ FrameScriptLoader::ParseSubpass(const Ptr<Frame2::FrameScript>& script, const Pt
 
 //------------------------------------------------------------------------------
 /**
+	Extend to use subpass names
 */
 void
-FrameScriptLoader::ParseSubpassDependencies(CoreGraphics::Pass::Subpass& subpass, cJSON* node)
+FrameScriptLoader::ParseSubpassDependencies(const Ptr<Frame2::FramePass>& pass, CoreGraphics::Pass::Subpass& subpass, JzonValue* node)
 {
-	IndexT i;
-	for (i = 0; i < cJSON_GetArraySize(node); i++)
+	uint i;
+	for (i = 0; i < node->size; i++)
 	{
-		cJSON* cur = cJSON_GetArrayItem(node, i);
-		subpass.dependencies.Append(cur->valueint);
+		JzonValue* cur = node->array_values[i];
+		if (cur->is_int)			subpass.dependencies.Append(cur->int_value);
+		else if (cur->is_string)
+		{
+			Util::String id(cur->string_value);
+			const Util::Array<Ptr<Frame2::FrameSubpass>>& subpasses = pass->GetSubpasses();
+			IndexT j;
+			for (j = 0; j < subpasses.Size(); j++)
+			{
+				if (subpasses[j]->GetName() == id)
+				{
+					subpass.dependencies.Append(j);
+					break;
+				}
+			}
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+	Extend to use attachment names
+*/
+void
+FrameScriptLoader::ParseSubpassAttachments(const Ptr<Frame2::FramePass>& pass, CoreGraphics::Pass::Subpass& subpass, JzonValue* node)
+{
+	uint i;
+	for (i = 0; i < node->size; i++)
+	{
+		JzonValue* cur = node->array_values[i];
+		if (cur->is_int)		subpass.attachments.Append(cur->int_value);
+		else if (cur->is_string)
+		{
+			Util::String id(cur->string_value);
+			const Ptr<CoreGraphics::Pass>& corepass = pass->GetPass();
+			IndexT j;
+			for (j = 0; j < corepass->GetNumColorAttachments(); j++)
+			{
+				const Ptr<CoreGraphics::RenderTexture>& tex = corepass->GetColorAttachment(j);
+				if (tex->GetResourceId() == id)
+				{
+					subpass.attachments.Append(j);
+					break;
+				}
+			}
+		}
 	}
 }
 
@@ -851,13 +1089,28 @@ FrameScriptLoader::ParseSubpassDependencies(CoreGraphics::Pass::Subpass& subpass
 /**
 */
 void
-FrameScriptLoader::ParseSubpassAttachments(CoreGraphics::Pass::Subpass& subpass, cJSON* node)
+FrameScriptLoader::ParseSubpassInputs(const Ptr<Frame2::FramePass>& pass, CoreGraphics::Pass::Subpass& subpass, JzonValue* node)
 {
-	IndexT i;
-	for (i = 0; i < cJSON_GetArraySize(node); i++)
+	uint i;
+	for (i = 0; i < node->size; i++)
 	{
-		cJSON* cur = cJSON_GetArrayItem(node, i);
-		subpass.attachments.Append(cur->valueint);
+		JzonValue* cur = node->array_values[i];
+		if (cur->is_int)	subpass.inputs.Append(cur->int_value);
+		else if (cur->is_string)
+		{
+			Util::String id(cur->string_value);
+			const Ptr<CoreGraphics::Pass>& corepass = pass->GetPass();
+			IndexT j;
+			for (j = 0; j < corepass->GetNumColorAttachments(); j++)
+			{
+				const Ptr<CoreGraphics::RenderTexture>& tex = corepass->GetColorAttachment(j);
+				if (tex->GetResourceId() == id)
+				{
+					subpass.inputs.Append(j);
+					break;
+				}
+			}
+		}
 	}
 }
 
@@ -865,28 +1118,14 @@ FrameScriptLoader::ParseSubpassAttachments(CoreGraphics::Pass::Subpass& subpass,
 /**
 */
 void
-FrameScriptLoader::ParseSubpassInputs(CoreGraphics::Pass::Subpass& subpass, cJSON* node)
+FrameScriptLoader::ParseSubpassViewports(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, JzonValue* node)
 {
-	IndexT i;
-	for (i = 0; i < cJSON_GetArraySize(node); i++)
+	uint i;
+	for (i = 0; i < node->size; i++)
 	{
-		cJSON* cur = cJSON_GetArrayItem(node, i);
-		subpass.inputs.Append(cur->valueint);
-	}
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-FrameScriptLoader::ParseSubpassViewports(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, cJSON* node)
-{
-	IndexT i;
-	for (i = 0; i < cJSON_GetArraySize(node); i++)
-	{
-		cJSON* var = cJSON_GetArrayItem(node, i);
-		Math::float4 viewport = Util::String(var->valuestring).AsFloat4();
-		Math::rectangle<int> rect((int)viewport.x(), (int)viewport.y(), (int)viewport.z(), (int)viewport.w());
+		JzonValue* var = node->array_values[i];
+		n_assert(var->size == 4);
+		Math::rectangle<int> rect(var->array_values[0]->int_value, var->array_values[1]->int_value, var->array_values[2]->int_value, var->array_values[3]->int_value);
 		subpass->AddViewport(rect);
 	}
 }
@@ -895,14 +1134,14 @@ FrameScriptLoader::ParseSubpassViewports(const Ptr<Frame2::FrameScript>& script,
 /**
 */
 void
-FrameScriptLoader::ParseSubpassScissors(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, cJSON* node)
+FrameScriptLoader::ParseSubpassScissors(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, JzonValue* node)
 {
-	IndexT i;
-	for (i = 0; i < cJSON_GetArraySize(node); i++)
+	uint i;
+	for (i = 0; i < node->size; i++)
 	{
-		cJSON* var = cJSON_GetArrayItem(node, i);
-		Math::float4 scissor = Util::String(var->valuestring).AsFloat4();
-		Math::rectangle<int> rect((int)scissor.x(), (int)scissor.y(), (int)scissor.z(), (int)scissor.w());
+		JzonValue* var = node->array_values[i];
+		n_assert(var->size == 4);
+		Math::rectangle<int> rect(var->array_values[0]->int_value, var->array_values[1]->int_value, var->array_values[2]->int_value, var->array_values[3]->int_value);
 		subpass->AddScissor(rect);
 	}
 }
@@ -911,26 +1150,27 @@ FrameScriptLoader::ParseSubpassScissors(const Ptr<Frame2::FrameScript>& script, 
 /**
 */
 void
-FrameScriptLoader::ParseSubpassAlgorithm(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, cJSON* node)
+FrameScriptLoader::ParseSubpassAlgorithm(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, JzonValue* node)
 {
 	Ptr<Frame2::FrameSubpassAlgorithm> op = Frame2::FrameSubpassAlgorithm::Create();
 
 	// get function and name
-	cJSON* name = cJSON_GetObjectItem(node, "name");
+	JzonValue* name = jzon_get(node, "name");
 	n_assert(name != NULL);
-	op->SetName(name->valuestring);
+	op->SetName(name->string_value);
 
-	cJSON* alg = cJSON_GetObjectItem(node, "algorithm");
+	JzonValue* alg = jzon_get(node, "algorithm");
 	n_assert(alg != NULL);
-	cJSON* function = cJSON_GetObjectItem(node, "function");
+	JzonValue* function = jzon_get(node, "function");
 	n_assert(function != NULL);
 
 	// get algorithm
-	const Ptr<Algorithms::Algorithm>& algorithm = script->GetAlgorithm(alg->valuestring);
-	op->SetFunction(function->valuestring);
+	const Ptr<Algorithms::Algorithm>& algorithm = script->GetAlgorithm(alg->string_value);
+	op->SetAlgorithm(algorithm);
+	op->SetFunction(function->string_value);
 
 	// add to script
-	op->SetAlgorithm(algorithm);
+	op->Setup();
 	subpass->AddOp(op.upcast<Frame2::FrameOp>());
 }
 
@@ -938,10 +1178,10 @@ FrameScriptLoader::ParseSubpassAlgorithm(const Ptr<Frame2::FrameScript>& script,
 /**
 */
 void
-FrameScriptLoader::ParseSubpassBatch(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, cJSON* node)
+FrameScriptLoader::ParseSubpassBatch(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, JzonValue* node)
 {
 	Ptr<Frame2::FrameSubpassBatch> op = Frame2::FrameSubpassBatch::Create();
-	Frame::BatchGroup::Code code = Frame::BatchGroup::FromName(node->valuestring);
+	Frame::BatchGroup::Code code = Frame::BatchGroup::FromName(node->string_value);
 	op->SetBatchCode(code);
 	subpass->AddOp(op.upcast<Frame2::FrameOp>());
 }
@@ -950,10 +1190,10 @@ FrameScriptLoader::ParseSubpassBatch(const Ptr<Frame2::FrameScript>& script, con
 /**
 */
 void
-FrameScriptLoader::ParseSubpassSortedBatch(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, cJSON* node)
+FrameScriptLoader::ParseSubpassSortedBatch(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, JzonValue* node)
 {
 	Ptr<Frame2::FrameSubpassOrderedBatch> op = Frame2::FrameSubpassOrderedBatch::Create();
-	Frame::BatchGroup::Code code = Frame::BatchGroup::FromName(node->valuestring);
+	Frame::BatchGroup::Code code = Frame::BatchGroup::FromName(node->string_value);
 	op->SetBatchCode(code);
 	subpass->AddOp(op.upcast<Frame2::FrameOp>());
 }
@@ -962,25 +1202,25 @@ FrameScriptLoader::ParseSubpassSortedBatch(const Ptr<Frame2::FrameScript>& scrip
 /**
 */
 void
-FrameScriptLoader::ParseSubpassFullscreenEffect(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, cJSON* node)
+FrameScriptLoader::ParseSubpassFullscreenEffect(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, JzonValue* node)
 {
 	Ptr<Frame2::FrameSubpassFullscreenEffect> op = Frame2::FrameSubpassFullscreenEffect::Create();
 
 	// get function and name
-	cJSON* name = cJSON_GetObjectItem(node, "name");
+	JzonValue* name = jzon_get(node, "name");
 	n_assert(name != NULL);
-	op->SetName(name->valuestring);
+	op->SetName(name->string_value);
 	
 	// create shader state
-	cJSON* shaderState = cJSON_GetObjectItem(node, "shaderState");
+	JzonValue* shaderState = jzon_get(node, "shaderState");
 	n_assert(shaderState != NULL);
-	Ptr<ShaderState> state = script->GetShaderState(shaderState->valuestring);
+	Ptr<ShaderState> state = script->GetShaderState(shaderState->string_value);
 	op->SetShaderState(state);
 
 	// get texture
-	cJSON* texture = cJSON_GetObjectItem(node, "sizeFromTexture");
+	JzonValue* texture = jzon_get(node, "sizeFromTexture");
 	n_assert(texture != NULL);
-	Ptr<CoreGraphics::RenderTexture> tex = script->GetColorTexture(texture->valuestring);
+	Ptr<CoreGraphics::RenderTexture> tex = script->GetColorTexture(texture->string_value);
 	op->SetRenderTexture(tex);
 	
 	// add op to subpass
@@ -988,25 +1228,24 @@ FrameScriptLoader::ParseSubpassFullscreenEffect(const Ptr<Frame2::FrameScript>& 
 	subpass->AddOp(op.upcast<Frame2::FrameOp>());
 }
 
-
 //------------------------------------------------------------------------------
 /**
 */
 void
-FrameScriptLoader::ParseSubpassEvent(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, cJSON* node)
+FrameScriptLoader::ParseSubpassEvent(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, JzonValue* node)
 {
 	Ptr<FrameEvent> op = FrameEvent::Create();
-	cJSON* name = cJSON_GetObjectItem(node, "name");
-	n_assert(name != NULL);
-	const Ptr<Event>& event = script->GetEvent(name->valuestring);
+	JzonValue* name = jzon_get(node, "name");
+	n_assert(name != nullptr);
+	const Ptr<Event>& event = script->GetEvent(name->string_value);
 
 	// go through ops
-	cJSON* ops = cJSON_GetObjectItem(node, "actions");
-	IndexT i;
-	for (i = 0; i < cJSON_GetArraySize(ops); i++)
+	JzonValue* ops = jzon_get(node, "actions");
+	uint i;
+	for (i = 0; i < ops->size; i++)
 	{
-		cJSON* action = cJSON_GetArrayItem(ops, i);
-		Util::String str(action->valuestring);
+		JzonValue* action = ops->array_values[i];
+		Util::String str(action->string_value);
 		FrameEvent::Action a;
 		if (str == "wait")			a = FrameEvent::Wait;
 		else if (str == "set")		a = FrameEvent::Set;
@@ -1029,24 +1268,20 @@ FrameScriptLoader::ParseSubpassEvent(const Ptr<Frame2::FrameScript>& script, con
 /**
 */
 void
-FrameScriptLoader::ParseSubpassBarrier(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, cJSON* node)
+FrameScriptLoader::ParseSubpassBarrier(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, JzonValue* node)
 {
 	Ptr<FrameBarrier> op = FrameBarrier::Create();
-	CoreGraphics::Barrier barrier;
-	barrier.SetUsage(Barrier::Subpass);
+	JzonValue* name = jzon_get(node, "name");
+	n_assert(name != NULL);
+	op->SetName(name->string_value);
 
-	cJSON* textures = cJSON_GetObjectItem(node, "textures");
-	if (textures != NULL)
-	{
-		IndexT i;
-		for (i = 0; i < cJSON_GetArraySize(textures); i++)
-		{
-			cJSON* tex = cJSON_GetArrayItem(textures, i);
-			Util::String str(tex->valuestring);
-			const Ptr<CoreGraphics::RenderTexture>& rt = script->GetColorTexture(str);
-			barrier.AddTexture(rt);
-		}
-	}
+	// setup barrier
+	Ptr<CoreGraphics::Barrier> barrier = CoreGraphics::Barrier::Create();
+	barrier->SetDomain(Barrier::Domain::Pass);
+
+	// call internal parser
+	ParseBarrierInternal(script, node, barrier);
+
 	op->SetBarrier(barrier);
 	subpass->AddOp(op.upcast<Frame2::FrameOp>());
 }
@@ -1055,11 +1290,11 @@ FrameScriptLoader::ParseSubpassBarrier(const Ptr<Frame2::FrameScript>& script, c
 /**
 */
 void
-FrameScriptLoader::ParseSubpassSystem(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, cJSON* node)
+FrameScriptLoader::ParseSubpassSystem(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, JzonValue* node)
 {
 	Ptr<Frame2::FrameSubpassSystem> op = Frame2::FrameSubpassSystem::Create();
 
-	Util::String subsystem(node->valuestring);
+	Util::String subsystem(node->string_value);
 	if (subsystem == "Lights")					op->SetSubsystem(FrameSubpassSystem::Lights);
 	else if (subsystem == "LightProbes")		op->SetSubsystem(FrameSubpassSystem::LightProbes);
 	else if (subsystem == "LocalShadowsSpot")	op->SetSubsystem(FrameSubpassSystem::LocalShadowsSpot);
@@ -1079,16 +1314,16 @@ FrameScriptLoader::ParseSubpassSystem(const Ptr<Frame2::FrameScript>& script, co
 /**
 */
 void
-FrameScriptLoader::ParseSubpassPlugins(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, cJSON* node)
+FrameScriptLoader::ParseSubpassPlugins(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, JzonValue* node)
 {
 	Ptr<Frame2::FrameSubpassPlugins> op = Frame2::FrameSubpassPlugins::Create();
-	cJSON* name = cJSON_GetObjectItem(node, "name");
+	JzonValue* name = jzon_get(node, "name");
 	n_assert(name != NULL);
-	op->SetName(name->valuestring);
+	op->SetName(name->string_value);
 
-	cJSON* filter = cJSON_GetObjectItem(node, "filter");
+	JzonValue* filter = jzon_get(node, "filter");
 	n_assert(filter != NULL);
-	op->SetPluginFilter(filter->valuestring);
+	op->SetPluginFilter(filter->string_value);
 	op->Setup();
 	subpass->AddOp(op.upcast<Frame2::FrameOp>());
 }
@@ -1097,22 +1332,22 @@ FrameScriptLoader::ParseSubpassPlugins(const Ptr<Frame2::FrameScript>& script, c
 /**
 */
 void
-FrameScriptLoader::ParseShaderVariables(const Ptr<Frame2::FrameScript>& script, const Ptr<CoreGraphics::ShaderState>& state, cJSON* node)
+FrameScriptLoader::ParseShaderVariables(const Ptr<Frame2::FrameScript>& script, const Ptr<CoreGraphics::ShaderState>& state, JzonValue* node)
 {
-	IndexT i;
-	for (i = 0; i < cJSON_GetArraySize(node); i++)
+	uint i;
+	for (i = 0; i < node->size; i++)
 	{
-		cJSON* var = cJSON_GetArrayItem(node, i);
+		JzonValue* var = node->array_values[i];
 
 		// variables need to define both semantic and value
-		cJSON* sem = cJSON_GetObjectItem(var, "semantic");
+		JzonValue* sem = jzon_get(var, "semantic");
 		n_assert(sem != NULL);
-		cJSON* val = cJSON_GetObjectItem(var, "value");
+		JzonValue* val = jzon_get(var, "value");
 		n_assert(val != NULL);
-		Util::String valStr(val->valuestring);
+		Util::String valStr(val->string_value);
 
 		// get variable
-		const Ptr<ShaderVariable>& variable = state->GetVariableByName(sem->valuestring);
+		const Ptr<ShaderVariable>& variable = state->GetVariableByName(sem->string_value);
 		switch (variable->GetType())
 		{
 		case ShaderVariable::IntType:

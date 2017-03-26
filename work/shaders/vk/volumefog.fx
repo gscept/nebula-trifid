@@ -12,8 +12,8 @@ float DepthDensity = 1.0f;
 float AlphaDensity = 0.0f;
 float LayerDistance = 0.0f;
 vec2 Velocity = vec2(0,0);
-vec2 FogDistances = vec2(0.0f, 50.0f);
-vec4 FogColor = vec4(0.5f, 0.5f, 0.63f, 0.0f);
+vec2 VolumeFogDistances = vec2(0.0f, 50.0f);
+vec4 VolumeFogColor = vec4(0.5f, 0.5f, 0.63f, 0.0f);
 
 sampler2D AlbedoMap;
 sampler2D DepthMap;
@@ -55,8 +55,8 @@ SampleTexture(in vec2 uv, in vec4 vertexColor, inout vec4 dstColor)
 vec4 
 psFog(float fogDepth, vec4 color)
 {
-    float fogIntensity = clamp((FogDistances.y - fogDepth) / (FogDistances.y - FogDistances.x), FogColor.a, 1.0);
-    return vec4(lerp(FogColor.rgb, color.rgb, fogIntensity), color.a);
+    float fogIntensity = clamp((VolumeFogDistances.y - fogDepth) / (VolumeFogDistances.y - VolumeFogDistances.x), VolumeFogColor.a, 1.0);
+    return vec4(lerp(VolumeFogColor.rgb, color.rgb, fogIntensity), color.a);
 }
 
 //------------------------------------------------------------------------------

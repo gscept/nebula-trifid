@@ -56,6 +56,7 @@ IF(NOT N_BUILD_FIRSTTIME)
 		SET_TARGET_PROPERTIES(upnpc-static PROPERTIES FOLDER "extlibs")
 	
 	add_subdirectory(cjson)
+	add_subdirectory(jzon-c)
 	add_subdirectory(base64)
 	
 	

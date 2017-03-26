@@ -131,7 +131,7 @@ public:
 	/// bake the current state of the render device (only used on DX12 and Vulkan renderers where pipeline creation is required)
 	void BuildRenderPipeline();
 	/// insert execution barrier
-	void InsertBarrier(const CoreGraphics::Barrier& barrier);
+	void InsertBarrier(const Ptr<CoreGraphics::Barrier>& barrier);
     /// draw current primitives
     void Draw();
     /// draw indexed, instanced primitives
@@ -174,7 +174,9 @@ public:
 	/// copy data between textures
 	void Copy(const Ptr<CoreGraphics::Texture>& from, Math::rectangle<SizeT> fromRegion, const Ptr<CoreGraphics::Texture>& to, Math::rectangle<SizeT> toRegion);
 	/// blit between render textures
-	void Blit(const Ptr<CoreGraphics::RenderTexture>& from, Math::rectangle<SizeT> fromRegion, const Ptr<CoreGraphics::RenderTexture>& to, Math::rectangle<SizeT> toRegion);
+	void Blit(const Ptr<CoreGraphics::RenderTexture>& from, Math::rectangle<SizeT> fromRegion, IndexT fromMip, const Ptr<CoreGraphics::RenderTexture>& to, Math::rectangle<SizeT> toRegion, IndexT toMip);
+	/// blit between textures
+	void Blit(const Ptr<CoreGraphics::Texture>& from, Math::rectangle<SizeT> fromRegion, IndexT fromMip, const Ptr<CoreGraphics::Texture>& to, Math::rectangle<SizeT> toRegion, IndexT toMip);
 
 	/// enqueue a buffer lock which will cause the render device to lock a buffer index whenever the next draw command gets executed
 	static void EnqueueBufferLockIndex(const Ptr<CoreGraphics::BufferLock>& lock, IndexT buffer);

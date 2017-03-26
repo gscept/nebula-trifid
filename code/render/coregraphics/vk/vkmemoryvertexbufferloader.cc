@@ -7,6 +7,7 @@
 #include "coregraphics/vertexlayoutserver.h"
 #include "coregraphics/vertexbuffer.h"
 #include "vkrenderdevice.h"
+#include "vkutilities.h"
 
 using namespace CoreGraphics;
 using namespace Resources;
@@ -55,8 +56,7 @@ VkMemoryVertexBufferLoader::OnLoadRequested()
 	uint32_t alignedSize;
 	uint32_t flags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
 	flags |= this->syncing == VertexBuffer::SyncingCoherent ? VK_MEMORY_PROPERTY_HOST_COHERENT_BIT : 0;
-	//flags |= this->usage == VertexBuffer::UsageDynamic ? VK_MEMORY_PROPERTY_HOST_CACHED_BIT : 0;
-	VkRenderDevice::Instance()->AllocateBufferMemory(buf, mem, VkMemoryPropertyFlagBits(flags), alignedSize);
+	VkUtilities::AllocateBufferMemory(buf, mem, VkMemoryPropertyFlagBits(flags), alignedSize);
 
 	// now bind memory to buffer
 	err = vkBindBufferMemory(VkRenderDevice::dev, buf, mem, 0);

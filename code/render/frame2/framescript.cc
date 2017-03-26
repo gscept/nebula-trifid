@@ -152,6 +152,10 @@ FrameScript::Discard()
 	this->shaderStates.Clear();
 	this->shaderStatesByName.Clear();
 
+	for (i = 0; i < this->algorithms.Size(); i++) this->algorithms[i]->Discard();
+	this->algorithms.Clear();
+	this->algorithmsByName.Clear();
+
 	for (i = 0; i < this->ops.Size(); i++) this->ops[i]->Discard();
 }
 

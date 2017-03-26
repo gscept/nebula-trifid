@@ -103,23 +103,25 @@ private:
 
 	/// update push constant buffer, the variable already knows the offset
 	template<class T> void UpdatePushRange(uint32_t size, const T& data);
-
+#pragma pack(push, 16)
 	struct BufferBinding
 	{
 		Ptr<CoreGraphics::ConstantBuffer> uniformBuffer;
 		uint32_t offset;
 		uint32_t size;
+		bool isvalid;
 		int8_t* defaultValue;
-	} *bufferBinding;
+	} bufferBinding;
 
 	struct PushRangeBinding
 	{
 		uint8_t* buffer;
 		uint32_t offset;
 		uint32_t size;
+		bool isvalid;
 		int8_t* defaultValue;
-	} *pushRangeBinding;
-
+	} pushRangeBinding;
+#pragma pack(pop)
 	union
 	{
 		AnyFX::VkVariable* var;
@@ -146,8 +148,8 @@ private:
 template<class T> void
 VkShaderVariable::UpdatePushRange(uint32_t size, const T& data)
 {
-	n_assert(this->pushRangeBinding != NULL);
-	memcpy(this->pushRangeBinding->buffer + this->pushRangeBinding->offset, &data, size);
+	n_assert(this->pushRangeBinding.isvalid);
+	memcpy(this->pushRangeBinding.buffer + this->pushRangeBinding.offset, &data, size);
 }
 
 } // namespace Vulkan

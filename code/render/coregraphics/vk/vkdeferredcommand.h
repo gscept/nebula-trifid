@@ -42,7 +42,8 @@ struct VkDeferredCommand
 	{
 		Graphics,
 		Compute,
-		Transfer
+		Transfer,
+		Sparse
 	};
 
 	struct Delegate

@@ -7,6 +7,11 @@
 */
 //------------------------------------------------------------------------------
 #include "coregraphics/base/rendertexturebase.h"
+namespace CoreGraphics
+{
+class RenderTexture;
+}
+
 namespace Vulkan
 {
 class VkRenderTexture : public Base::RenderTextureBase
@@ -30,7 +35,7 @@ public:
 	/// generate segment of mip chain
 	void GenerateMipChain(IndexT from, IndexT to);
 	/// generate mip from one mip level to another
-	void GenerateMip(IndexT from, IndexT to);
+	void Blit(IndexT from, IndexT to, const Ptr<CoreGraphics::RenderTexture>& target = nullptr);
 
 	/// swap buffers, only valid if this is a window texture
 	void SwapBuffers();
@@ -44,7 +49,7 @@ public:
 private:
 	
 	/// generate mip maps internally from index to another
-	void GenerateMipHelper(IndexT from, IndexT to);
+	void GenerateMipHelper(IndexT from, IndexT to, const Ptr<VkRenderTexture>& target);
 	VkImage img;
 	VkImageView view;
 	VkDeviceMemory mem;

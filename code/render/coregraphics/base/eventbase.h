@@ -8,6 +8,10 @@
 */
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
+namespace CoreGraphics
+{
+	class Barrier;
+}
 namespace Base
 {
 class EventBase : public Core::RefCounted
@@ -32,7 +36,11 @@ public:
 	void Wait();
 	/// reset event
 	void Reset();
+
+	/// set barrier
+	void SetBarrier(const Ptr<CoreGraphics::Barrier>& barrier);
 protected:
+	Ptr<CoreGraphics::Barrier> barrier;
 	bool createSignaled;
 };
 

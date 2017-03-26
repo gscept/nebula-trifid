@@ -9,16 +9,13 @@
 #include "lib/techniques.fxh"
 
 
-float HDRBrightPassThreshold = float(1.0f);
-vec4 HDRBloomColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-
 /// Declaring used textures
-sampler2D ColorSource;
-sampler2D LuminanceTexture;
+textureHandle ColorSource;
+textureHandle LuminanceTexture;
 
 samplerstate BrightPassSampler
 {
-	Samplers = { ColorSource, LuminanceTexture };
+	//Samplers = { ColorSource, LuminanceTexture };
 	Filter = Point;
 };
 
@@ -52,12 +49,13 @@ void
 psMain(in vec2 uv,
 	[color0] out vec4 Color) 
 {	
-	vec4 sampleColor = DecodeHDR(textureLod(ColorSource, uv, 0));
+	vec4 sampleColor = sample2DLod(ColorSource, BrightPassSampler, uv, 0);
 	
 	// Get the calculated average luminance 
-	vec4 fLumAvg = textureLod(LuminanceTexture, vec2(0.5f, 0.5f), 0);
+	float lumavg = fetch2D(LuminanceTexture, BrightPassSampler, ivec2(0, 0), 0).r;
+	//float lumavg = 1.0f;
 	
-	vec4 tonedColor = ToneMap(sampleColor, fLumAvg);
+	vec4 tonedColor = ToneMap(sampleColor, vec4(lumavg));
 	vec3 brightColor = max(tonedColor.rgb - HDRBrightPassThreshold, vec3(0.0f));
 	Color = HDRBloomColor * vec4(brightColor, sampleColor.a);
 }

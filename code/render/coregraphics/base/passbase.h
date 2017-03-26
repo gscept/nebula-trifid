@@ -21,7 +21,7 @@
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
 #include "coregraphics/rendertexture.h"
-#include "../framebatchtype.h"
+#include "coregraphics/framebatchtype.h"
 namespace Base
 {
 class PassBase : public Core::RefCounted
@@ -55,6 +55,8 @@ public:
 	void AddColorAttachment(const Ptr<CoreGraphics::RenderTexture>& colorAttachment); 
 	/// get number of color attachments
 	const SizeT GetNumColorAttachments() const;
+	/// get color attachment
+	const Ptr<CoreGraphics::RenderTexture>& GetColorAttachment(const IndexT index);
 	/// set color attachment clear
 	void SetColorAttachmentClear(const IndexT index, const Math::float4& clearValue);
 	/// set color attachment flags
@@ -155,6 +157,15 @@ inline const SizeT
 PassBase::GetNumColorAttachments() const
 {
 	return this->colorAttachments.Size();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Ptr<CoreGraphics::RenderTexture>&
+PassBase::GetColorAttachment(const IndexT index)
+{
+	return this->colorAttachments[index];
 }
 
 //------------------------------------------------------------------------------

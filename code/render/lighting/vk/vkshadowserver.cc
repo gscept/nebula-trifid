@@ -72,13 +72,14 @@ VkShadowServer::Open()
 	this->globalLightShadowBuffer = this->script->GetColorTexture("GlobalLightShadow")->GetTexture();
 	//this->globalLightShadowBuffer = this->script->GetReadWriteTexture("GlobalLightShadowFiltered")->GetTexture();
 	this->spotLightShadowBuffer = this->script->GetColorTexture("SpotLightInstance")->GetTexture();
-	this->spotLightShadowBufferAtlas = this->script->GetReadWriteTexture("SpotLightShadowFiltered")->GetTexture();
+	//this->spotLightShadowBufferAtlas = this->script->GetReadWriteTexture("SpotLightShadowFiltered")->GetTexture();
+	this->spotLightShadowBufferAtlas = this->script->GetColorTexture("SpotLightShadowAtlas")->GetTexture();
 
 	IndexT i;
 	for (i = 0; i < NumShadowCastingLights; i++)
 	{
-		this->shaderStates[i] = ShaderServer::Instance()->CreateShaderState("shd:shared", { NEBULAT_FRAME_GROUP });
-		this->shaderStates[i]->SetApplyShared(true);
+		this->shaderStates[i] = ShaderServer::Instance()->CreateShaderState("shd:shadow", { NEBULAT_SYSTEM_GROUP });
+		this->shaderStates[i]->SetApplyShared(false);
 		this->viewArrayVar[i] = this->shaderStates[i]->GetVariableByName(NEBULA3_SEMANTIC_VIEWMATRIXARRAY);
 	}
 	this->lightIndexPool.SetSetupFunc([](IndexT& val, IndexT idx) { val = idx;  });
@@ -174,7 +175,10 @@ VkShadowServer::UpdateShadowBuffers()
 	// simply run the script, it will call UpdateSpotLightShadowBuffers, UpdatePointLightShadowBuffers and UpdateGlobalLightBuffers
 	const Ptr<FrameSyncTimer>& timer = FrameSyncTimer::Instance();
 	IndexT frameIndex = timer->GetFrameIndex();
-	//this->script->Run(frameIndex);
+	if (this->spotLightEntities.Size() > 0 || this->pointLightEntities.Size() > 0 || this->globalLightEntity.isvalid())
+	{
+		this->script->Run(frameIndex);
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -340,9 +344,6 @@ VkShadowServer::UpdatePointLightShadowBuffers()
 			const IndexT lightIdx = this->lightToIndexMap[lightEntity.upcast<AbstractLightEntity>()];
 			this->viewArrayVar[lightIdx]->SetMatrixArray(views, 6);
 			this->shaderStates[lightIdx]->Commit();
-
-			// send to transform device
-			transDev->ApplyViewMatrixArray(views, 6);
 
 			// TODO: Render!
 		}

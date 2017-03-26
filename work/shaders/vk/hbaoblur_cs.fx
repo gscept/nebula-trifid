@@ -7,16 +7,19 @@
 #include "lib/util.fxh"
 #include "lib/techniques.fxh"
 
-float PowerExponent = 1.0f;
-float BlurFalloff;
-float BlurDepthThreshold;
+varblock HBAOBlur
+{
+	float PowerExponent = 1.0f;
+	float BlurFalloff;
+	float BlurDepthThreshold;
 
-sampler2D HBAOReadLinear;
-sampler2D HBAOReadPoint;
+	textureHandle HBAOX;
+	textureHandle HBAOY;
+};
 
 samplerstate LinearState
 {
-	Samplers = {HBAOReadLinear};
+	//Samplers = {HBAOReadLinear};
 	Filter = Linear;
 	AddressU = Clamp;
 	AddressV = Clamp;
@@ -24,7 +27,7 @@ samplerstate LinearState
 
 samplerstate PointState
 {
-	Samplers = {HBAOReadPoint};
+	//Samplers = {HBAOReadPoint};
 	Filter = Point;
 	AddressU = Clamp;
 	AddressV = Clamp;
@@ -60,8 +63,7 @@ void
 csMainX() 
 {
 	// get full resolution and inverse full resolution
-	ivec2 size = textureSize(HBAOReadLinear, 0);
-	vec2 inverseSize = 1 / vec2(size);
+	ivec2 size = textureSize(sampler2D(Textures2D[HBAOX], LinearState), 0);
 	
 	// calculate offsets
 	const uint         tileStart = int(gl_WorkGroupID.x) * HBAO_TILE_WIDTH;
@@ -71,8 +73,8 @@ csMainX()
 	
 	const uint x = apronStart + gl_LocalInvocationID.x;
 	const uint y = gl_WorkGroupID.y;
-	SharedMemory[gl_LocalInvocationID.x] = texelFetch(HBAOReadLinear, ivec2(x, y), 0).xy;
-	barrier();
+	SharedMemory[gl_LocalInvocationID.x] = fetch2D(HBAOX, LinearState, ivec2(x, y), 0).xy;
+	groupMemoryBarrier();
 	
 	const uint writePos = tileStart + gl_LocalInvocationID.x;
 	const uint tileEndClamped = min(tileEnd, uint(size.x));
@@ -80,7 +82,7 @@ csMainX()
 	if (writePos < tileEndClamped)
 	{
 		// Fetch (ao,z) at the kernel center
-		vec2 AoDepth = texelFetch(HBAOReadPoint, ivec2(writePos, y), 0).xy;
+		vec2 AoDepth = fetch2D(HBAOX, PointState, ivec2(writePos, y), 0).xy;
 		float ao_total = AoDepth.x;
 		float center_d = AoDepth.y;
 		float w_total = 1;
@@ -124,7 +126,7 @@ void
 csMainY() 
 {
 	// get full resolution and inverse full resolution
-	ivec2 size = textureSize(HBAOReadLinear, 0);
+	ivec2 size = textureSize(sampler2D(Textures2D[HBAOY], LinearState), 0);
 	vec2 inverseSize = 1 / vec2(size);
 	
 	// calculate offsets
@@ -135,8 +137,8 @@ csMainY()
 	
 	const uint x = gl_WorkGroupID.y;
 	const uint y = apronStart + gl_LocalInvocationID.x;
-	SharedMemory[gl_LocalInvocationID.x] = texelFetch(HBAOReadLinear, ivec2(x, y), 0).xy;
-	barrier();
+	SharedMemory[gl_LocalInvocationID.x] = fetch2D(HBAOY, LinearState, ivec2(x, y), 0).xy;
+	groupMemoryBarrier();
 	
 	const uint writePos = tileStart + gl_LocalInvocationID.x;
 	const uint tileEndClamped = min(tileEnd, uint(size.y));
@@ -144,7 +146,7 @@ csMainY()
 	if (writePos < tileEndClamped)
 	{
 		// Fetch (ao,z) at the kernel center
-		vec2 AoDepth = texelFetch(HBAOReadPoint, ivec2(x, writePos), 0).xy;
+		vec2 AoDepth = fetch2D(HBAOY, PointState, ivec2(x, writePos), 0).xy;
 		float ao_total = AoDepth.x;
 		float center_d = AoDepth.y;
 		float w_total = 1;

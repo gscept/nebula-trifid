@@ -37,6 +37,8 @@ void
 ShaderReadWriteTextureBase::Setup(const SizeT width, const SizeT height, const CoreGraphics::PixelFormat::Code& format, const Resources::ResourceId& id)
 {
 	n_assert(id.IsValid());
+	this->width = width;
+	this->height = height;
 	this->texture = CoreGraphics::Texture::Create();
 	this->texture->SetResourceId(id);
 
@@ -111,5 +113,6 @@ ShaderReadWriteTextureBase::Unlock()
 {
 	this->lockSemaphore--;
 }
+
 
 } // namespace Base
