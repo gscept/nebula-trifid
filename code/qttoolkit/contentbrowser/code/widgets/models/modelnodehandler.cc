@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  modelnodeitemhandler.cc
-//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include <QFileDialog>
@@ -305,10 +305,26 @@ ModelNodeHandler::UpdateSurfaceThumbnail()
     pixmap = pixmap.scaled(QSize(48, 48), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 	this->thumbnailWatcher.WatchFile(texFile.LocalPath());
 
+	QPixmap res(48, 48);
+	res.fill(Qt::transparent);
+	QPainter painter(&res);
+	painter.setBrush(QBrush(pixmap));
+	painter.setPen(Qt::transparent);
+	painter.setRenderHint(QPainter::Antialiasing);
+	painter.drawRoundedRect(0, 0, 48, 48, 2, 2);
+	QIcon icon(res);
+	this->ui->surfaceButton->setFixedSize(50, 50);
+	this->ui->surfaceButton->setIcon(icon);
+	this->ui->surfaceButton->setIconSize(QSize(48, 48));
+
+	/*
+	// set background color
     QPalette palette;
     palette.setBrush(this->ui->surfaceButton->backgroundRole(), QBrush(pixmap));
+	
     this->ui->surfaceButton->setPalette(palette);
     this->ui->surfaceButton->setMask(pixmap.mask());
+	*/
 }
 
 } // namespace Widgets

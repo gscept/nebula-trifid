@@ -103,7 +103,7 @@ VkShaderImage::Setup(const SizeT width, const SizeT height, const CoreGraphics::
 /**
 */
 void
-VkShaderImage::Resize(SizeT width, SizeT height)
+VkShaderImage::Resize()
 {
 	// implement me!
 }

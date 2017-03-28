@@ -5,7 +5,7 @@
     
     A model attribute is a per-model settings handler, which handles per-node shader attributes, clips, mesh flags etc.
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
@@ -21,6 +21,27 @@ class ModelAttributes : public Core::RefCounted
 {
 	__DeclareClass(ModelAttributes);
 public:
+
+	enum AppendixNodeType
+	{
+		ParticleNode
+	};
+
+	struct AppendixNode
+	{
+		Util::String name;
+		Util::String path;
+		ToolkitUtil::Transform transform;
+		AppendixNodeType type;
+
+		union
+		{
+			struct ParticleData
+			{
+				IndexT primGroup;
+			} particle;
+		} data;
+	};
 	/// constructor
 	ModelAttributes();
 	/// destructor
@@ -75,6 +96,17 @@ public:
 	/// clears list of takes
 	void ClearTakes();
 
+	/// add an appendix node
+	void AddAppendixNode(const Util::String& name, const AppendixNode& node);
+	/// remove an appendix node
+	void DeleteAppendixNode(const Util::String& name);
+	/// get appendix node
+	const ModelAttributes::AppendixNode& GetAppendixNode(const Util::String& name) const;
+	/// get appendix nodes
+	const Util::Array<ModelAttributes::AppendixNode> GetAppendixNodes() const;
+	/// returns true if appendix node with name is already attached
+	const bool HasAppendixNode(const Util::String& name);
+
 	/// set joint mask
 	void SetJointMask(const JointMask& mask);
 	/// set all joint masks
@@ -100,13 +132,14 @@ public:
 	void Load(const Ptr<IO::Stream>& stream);
 
 private:
+	Util::Dictionary<Util::String, AppendixNode> appendixNodes;
 	Util::Dictionary<Util::String, ToolkitUtil::State> nodeStateMap;
 	Util::Dictionary<Util::String, Particles::EmitterAttrs> particleAttrMap;
 	Util::Dictionary<Util::String, Util::String> particleMeshMap;
 	Util::String name;
 	Util::String checksum;
 	float scaleFactor;
-	Util::Array<Ptr<Take> > takes;
+	Util::Array<Ptr<Take>> takes;
 	Util::Array<JointMask> jointMasks;
 
 	ToolkitUtil::ExportFlags exportFlags;
@@ -218,5 +251,33 @@ ModelAttributes::GetJointMasks() const
 {
 	return this->jointMasks;
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const ModelAttributes::AppendixNode&
+ModelAttributes::GetAppendixNode(const Util::String& name) const
+{
+	return this->appendixNodes[name];
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Util::Array<ModelAttributes::AppendixNode>
+ModelAttributes::GetAppendixNodes() const
+{
+	return this->appendixNodes.ValuesAsArray();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const bool
+ModelAttributes::HasAppendixNode(const Util::String& name)
+{
+	return this->appendixNodes.Contains(name);
+}
+
 } // namespace Importer
 //------------------------------------------------------------------------------

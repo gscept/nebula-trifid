@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  attributewidgetmanager.cc
-//  (C) 2013-2014 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "attributewidgetmanager.h"
@@ -11,7 +11,7 @@
 #include "widgets/entitytreewidget.h"
 #include "actions/transformaction.h"
 #include "properties/editorproperty.h"
-#include "leveleditor2protocol.h"
+#include "leveleditor2/leveleditor2protocol.h"
 #include "editorfeatures/editorblueprintmanager.h"
 #include "matrix44controller.h"
 #include "entityutils/placementutil.h"

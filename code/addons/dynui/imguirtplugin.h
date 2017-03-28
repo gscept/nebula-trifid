@@ -5,7 +5,7 @@
 	
 	Use this class to integrate Imgui with the Nebula rendering loop.
 	
-	(C) 2012-2015 Individual contributors, see AUTHORS file
+	(C) 2012-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "rendermodules/rt/rtplugin.h"
@@ -27,12 +27,10 @@ public:
 	virtual void OnUnregister();
 
 	/// called when rendering a frame batch
-	void OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch);
-	/// called when rendering a frame batch
 	void OnRender(const Util::StringAtom& filter);
 
 	/// called if the window size has changed
-	virtual void OnWindowResized(SizeT width, SizeT height);
+	virtual void OnWindowResized(IndexT windowId, SizeT width, SizeT height);
 
 private:
 	Ptr<ImguiRenderer> renderer;

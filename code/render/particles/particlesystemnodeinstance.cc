@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  particlesystemmaterialnodeinstance.cc
-//  (C) 2011-2013 Individual contributors, see AUTHORS file
+//  (C) 2011-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "particles/particlesystemnodeinstance.h"
@@ -13,7 +13,6 @@
 #include "models/modelinstance.h"
 #include "graphics/modelentity.h"
 #include "coregraphics/shaderserver.h"
-#include "frame/frameserver.h"
 #include "particleserver.h"
 #include "resources/resourcemanager.h"
 
@@ -27,7 +26,6 @@ using namespace CoreGraphics;
 using namespace Math;
 using namespace Materials;
 using namespace Graphics;
-using namespace Frame;
 using namespace Resources;
 
 //------------------------------------------------------------------------------
@@ -325,6 +323,17 @@ ParticleSystemNodeInstance::Render()
 
 	// render particle system
     ParticleRenderer::Instance()->RenderParticleSystem(this->particleSystemInstance);
+}
+
+//------------------------------------------------------------------------------
+/**
+	Just render as normal, and assume the shader can handle the instancing
+*/
+void
+ParticleSystemNodeInstance::RenderInstanced(SizeT numInstances)
+{
+	StateNodeInstance::RenderInstanced(numInstances);
+	ParticleRenderer::Instance()->RenderParticleSystem(this->particleSystemInstance);
 }
 
 //------------------------------------------------------------------------------

@@ -1,10 +1,13 @@
 //------------------------------------------------------------------------------
-//  physicsfeatyre/gamefilterset.cc
-//  (C) 2012 Johannes Hirche
+//  physicsfeature/gamefilterset.cc
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
+#include "collider.h"
 #include "physicsfeature/gamefilterset.h"
 #include "game/entity.h"
+#include "physicsobject.h"
+
 
 using namespace Physics;
 

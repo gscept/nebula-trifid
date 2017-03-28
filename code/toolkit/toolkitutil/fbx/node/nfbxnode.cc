@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  fbxnode.h.cc
-//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "fbx/node/nfbxnode.h"
@@ -315,6 +315,15 @@ void
 NFbxNode::ExtractTransform()
 {
 	FbxMatrix localTrans = this->fbxNode->EvaluateLocalTransform();
+	this->ExtractTransform(localTrans);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+NFbxNode::ExtractTransform(const FbxMatrix& localTrans)
+{
 	FbxQuaternion rotation;
 	FbxVector4 translation;
 	FbxVector4 scale;
@@ -323,7 +332,7 @@ NFbxNode::ExtractTransform()
 
 	// decompose elements
 	localTrans.GetElements(translation, rotation, shear, scale, sign);
-	translation *= NFbxScene::Instance()->GetScale();
+	//translation *= NFbxScene::Instance()->GetScale();
 
 	// decompose matrix into rows
 	FbxVector4 xRow = localTrans.GetRow(0);
@@ -338,9 +347,12 @@ NFbxNode::ExtractTransform()
 	// construct nebula matrix from rows	
 	this->transform = matrix44(x, y, z, w);
 
+	// calculate inverse scale
+	float inverseScale = float(fbxScene->GetGlobalSettings().GetSystemUnit().GetScaleFactor());
+
 	this->rotation = quaternion((scalar)rotation[0], (scalar)rotation[1], (scalar)rotation[2], (scalar)rotation[3]);
 	this->position = float4((scalar)translation[0], (scalar)translation[1], (scalar)translation[2], 0);
-	this->scale = float4((scalar)scale[0], (scalar)scale[1], (scalar)scale[2], 0);
+	this->scale = float4((scalar)scale[0] * inverseScale, (scalar)scale[1] * inverseScale, (scalar)scale[2] * inverseScale, 0);
 }
 
 //------------------------------------------------------------------------------

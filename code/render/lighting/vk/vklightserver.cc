@@ -14,7 +14,6 @@
 #include "coregraphics/transformdevice.h"
 #include "vkshadowserver.h"
 #include "math/float4.h"
-#include "frame/frameserver.h"
 #include "graphics/graphicsserver.h"
 #include "graphics/view.h"
 #include "coregraphics/constantbuffer.h"
@@ -28,7 +27,6 @@ using namespace Vulkan;
 using namespace Graphics;
 using namespace CoreGraphics;
 using namespace Resources;
-using namespace Frame;
 using namespace Math;
 
 //------------------------------------------------------------------------------
@@ -113,6 +111,7 @@ VkLightServer::Open()
 	this->globalLightPartitionSize				= this->globalLightShader->GetVariableByName(NEBULA3_SEMANTIC_SHADOWPARTITIONSIZE);
 
     // setup block for global light, this will only be updated once per iteration and is shared across all shaders
+	this->globalLightDirWorldspace				= this->globalLightShader->GetVariableByName("GlobalLightDirWorldspace");
     this->globalLightDir                        = this->globalLightShader->GetVariableByName(NEBULA3_SEMANTIC_GLOBALLIGHTDIR);
     this->globalLightColor                      = this->globalLightShader->GetVariableByName(NEBULA3_SEMANTIC_GLOBALLIGHTCOLOR);
     this->globalBackLightColor                  = this->globalLightShader->GetVariableByName(NEBULA3_SEMANTIC_GLOBALBACKLIGHTCOLOR);
@@ -294,7 +293,6 @@ VkLightServer::AssignRenderBufferTextures()
 {
 	n_assert(!this->renderBuffersAssigned);
 	const Ptr<ResourceManager>& resManager = ResourceManager::Instance();
-	const Ptr<FrameServer> frameServer = FrameServer::Instance();
 	this->renderBuffersAssigned = true;
 
 	ResourceId lightBufferId("LightBuffer");
@@ -401,6 +399,7 @@ VkLightServer::RenderGlobalLight()
 		
 		// setup general global light stuff
 		this->globalLightDir->SetFloat4(viewSpaceLightDir);
+		this->globalLightDirWorldspace->SetFloat4(worldSpaceLightDir);
 		this->globalLightColor->SetFloat4(this->globalLightEntity->GetColor());
 		this->globalBackLightColor->SetFloat4(this->globalLightEntity->GetBackLightColor());
 		this->globalAmbientLightColor->SetFloat4(this->globalLightEntity->GetAmbientLightColor());
@@ -654,8 +653,8 @@ SortProbesLayer(const Ptr<LightProbeEntity>& lhs, const Ptr<LightProbeEntity>& r
 bool
 SortProbesType(const Ptr<LightProbeEntity>& lhs, const Ptr<LightProbeEntity>& rhs)
 {
-	int lhsPrio = lhs->GetShapeType() + lhs->GetParallaxCorrected() * 2;
-	int rhsPrio = rhs->GetShapeType() + rhs->GetParallaxCorrected() * 2;
+	int lhsPrio = lhs->GetShapeType() + lhs->GetCorrectionMode() * 2;
+	int rhsPrio = rhs->GetShapeType() + rhs->GetCorrectionMode() * 2;
 	return lhsPrio < rhsPrio;
 }
 
@@ -692,7 +691,7 @@ VkLightServer::RenderLightProbes()
 		 
 		// 0 is for box, 1 is for sphere, but this would be better to use the same shape and render them based on shape instead...
 		// 
-		shader->SelectActiveVariation(this->lightProbeFeatureBits[shapeType + (entity->GetParallaxCorrected() ? 2 : 0)]);
+		shader->SelectActiveVariation(this->lightProbeFeatureBits[shapeType + (entity->GetCorrectionMode() ? 2 : 0)]);
 
 		// apply mesh at shape type
 		entity->ApplyProbe(probe);

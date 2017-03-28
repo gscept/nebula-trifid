@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  materailstatenodeinstance.cc
-//  (C) 2011-2013 Individual contributors, see AUTHORS file
+//  (C) 2011-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "models/nodes/statenodeinstance.h"
@@ -16,7 +16,6 @@
 #include "coregraphics/shadersemantics.h"
 #include "models/modelinstance.h"
 #include "graphics/modelentity.h"
-#include "frame/frameserver.h"
 #include "lighting/lightserver.h"
 #include "lighting/shadowserver.h"
 #include "resources/resourcemanager.h"
@@ -30,7 +29,6 @@ using namespace Util;
 using namespace CoreGraphics;
 using namespace Graphics;
 using namespace Materials;
-using namespace Frame;
 using namespace Resources;
 using namespace Math;
 

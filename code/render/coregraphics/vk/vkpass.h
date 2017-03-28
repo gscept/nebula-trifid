@@ -51,6 +51,9 @@ public:
 	/// get viewports for subpass
 	const Util::FixedArray<VkViewport>& GetVkViewports(IndexT i) const;
 
+	/// handle window resizing
+	void OnWindowResized();
+
 private:
 	friend class VkPipelineDatabase;
 

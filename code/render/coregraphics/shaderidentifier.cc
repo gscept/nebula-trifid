@@ -4,7 +4,6 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "coregraphics/shaderidentifier.h"
-#include "frame/frameserver.h"
 #include "shaderserver.h"
 
 namespace CoreGraphics

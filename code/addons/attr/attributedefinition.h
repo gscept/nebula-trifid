@@ -7,7 +7,7 @@
     template class, which adds compiletime-type-safety to attribute definitions.
     
     (C) 2006 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "attr/attributedefinitionbase.h"
 
@@ -58,6 +58,10 @@ AttributeDefinition<VALUETYPE,TYPE>::AttributeDefinition(const Util::String& n, 
 #define DeclareMatrix44(NAME,FOURCC,ACCESSMODE) extern const AttributeDefinition<Attr::Matrix44TypeClass, const Math::matrix44&> NAME;
 #define DefineMatrix44(NAME,FOURCC,ACCESSMODE) const AttributeDefinition<Attr::Matrix44TypeClass, const Math::matrix44&> NAME(#NAME,FOURCC,ACCESSMODE, Math::matrix44());
 #define DefineMatrix44WithDefault(NAME,FOURCC,ACCESSMODE,DEFVAL) const AttributeDefinition<Attr::Matrix44TypeClass, const Math::matrix44&> NAME(#NAME,FOURCC,ACCESSMODE,DEFVAL);
+
+#define DeclareTransform44(NAME,FOURCC,ACCESSMODE) extern const AttributeDefinition<Attr::Transform44TypeClass, const Math::transform44&> NAME;
+#define DefineTransform44(NAME,FOURCC,ACCESSMODE) const AttributeDefinition<Attr::Transform44TypeClass, const Math::transform44&> NAME(#NAME,FOURCC,ACCESSMODE, Math::transform44());
+#define DefineTransform44WithDefault(NAME,FOURCC,ACCESSMODE,DEFVAL) const AttributeDefinition<Attr::Transform44TypeClass, const Math::transform44&> NAME(#NAME,FOURCC,ACCESSMODE,DEFVAL);
 
 #define DeclareBlob(NAME,FOURCC,ACCESSMODE) extern const AttributeDefinition<Attr::BlobTypeClass, const Util::Blob&> NAME;
 #define DefineBlob(NAME,FOURCC,ACCESSMODE) const AttributeDefinition<Attr::BlobTypeClass, const Util::Blob&> NAME(#NAME,FOURCC,ACCESSMODE, Util::Blob());

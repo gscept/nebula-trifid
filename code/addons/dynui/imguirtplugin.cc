@@ -1,9 +1,10 @@
 //------------------------------------------------------------------------------
 //  imguirtplugin.cc
-//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "imguirtplugin.h"
+#include "imguiaddon.h"
 
 namespace Dynui
 {
@@ -49,19 +50,6 @@ ImguiRTPlugin::OnUnregister()
 /**
 */
 void
-ImguiRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
-{
-	n_assert(this->renderer.isvalid());
-    if (CoreGraphics::FrameBatchType::UI == frameBatch->GetType())
-	{
-		this->renderer->Render();
-	}
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
 ImguiRTPlugin::OnRender(const Util::StringAtom& filter)
 {
 	n_assert(this->renderer.isvalid());
@@ -76,7 +64,7 @@ ImguiRTPlugin::OnRender(const Util::StringAtom& filter)
 /**
 */
 void
-ImguiRTPlugin::OnWindowResized(SizeT width, SizeT height)
+ImguiRTPlugin::OnWindowResized(IndexT windowId, SizeT width, SizeT height)
 {
 	n_assert(this->renderer.isvalid());
 	this->renderer->SetRectSize(width, height);

@@ -5,7 +5,7 @@
     
     Server responsible to handle id-based rendering.
     
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "core/singleton.h"
@@ -59,6 +59,7 @@ public:
 	Math::float4 FetchNormal(const Math::float2& position);
 private:
 	bool isOpen;
+	IndexT frameIndex;
 	Ptr<Frame2::FrameScript> frameShader;
 	Ptr<CoreGraphics::Texture> pickingBuffer;
 	Ptr<CoreGraphics::Texture> depthBuffer;

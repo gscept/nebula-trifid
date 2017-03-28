@@ -39,7 +39,7 @@ FrameOp::Run(const IndexT frameIndex)
 /**
 */
 void
-FrameOp::DisplayResized(const SizeT width, const SizeT height)
+FrameOp::OnWindowResized()
 {
 	// implement in subclass
 }

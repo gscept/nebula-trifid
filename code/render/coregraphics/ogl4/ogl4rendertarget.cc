@@ -1,6 +1,7 @@
 //------------------------------------------------------------------------------
 //  OGL4RenderDevice.cc
 //  (C) 2007 Radon Labs GmbH
+//  (C)2013 - 2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "coregraphics/config.h"
@@ -60,23 +61,25 @@ OGL4RenderTarget::Setup()
         // this assumes a render pipeline where the actual rendering goes
         // into an offscreen render target and is then resolved to the back buffer
         DisplayDevice* displayDevice = DisplayDevice::Instance();
-        this->SetWidth(displayDevice->GetDisplayMode().GetWidth());
-        this->SetHeight(displayDevice->GetDisplayMode().GetHeight());
+		const CoreGraphics::DisplayMode& mode = displayDevice->GetCurrentWindow()->GetDisplayMode();
+		this->SetWidth(mode.GetWidth());
+		this->SetHeight(mode.GetHeight());
         this->SetAntiAliasQuality(AntiAliasQuality::None);
-        this->SetColorBufferFormat(displayDevice->GetDisplayMode().GetPixelFormat());
+		this->SetColorBufferFormat(mode.GetPixelFormat());
 
 		this->resolveRect.left = 0;
 		this->resolveRect.top = 0;
-		this->resolveRect.right = displayDevice->GetDisplayMode().GetWidth();
-		this->resolveRect.bottom = displayDevice->GetDisplayMode().GetHeight();
+		this->resolveRect.right = mode.GetWidth();
+		this->resolveRect.bottom = mode.GetHeight();
 		
 		this->ogl4ResolveTexture = 0;
     }
 	else if (this->relativeSizeValid)
 	{
 		DisplayDevice* displayDevice = DisplayDevice::Instance();
-		this->SetWidth(SizeT(displayDevice->GetDisplayMode().GetWidth() * this->relWidth));
-		this->SetHeight(SizeT(displayDevice->GetDisplayMode().GetHeight() * this->relHeight));
+		const CoreGraphics::DisplayMode& mode = displayDevice->GetCurrentWindow()->GetDisplayMode();
+		this->SetWidth(Math::n_max(1, SizeT(mode.GetWidth() * this->relWidth)));
+		this->SetHeight(Math::n_max(1, SizeT(mode.GetHeight() * this->relHeight)));
 	}
 
     // setup our pixel format and multisample parameters (order important!)
@@ -276,7 +279,6 @@ OGL4RenderTarget::BeginPass()
 	Ptr<Shader> shader = RenderDevice::Instance()->GetPassShader();
     if (shader.isvalid() && shader->HasVariableByName(NEBULA3_SEMANTIC_RENDERTARGETDIMENSIONS))
 	{
-        const Ptr<DisplayDevice>& dispDev = DisplayDevice::Instance();
         Ptr<ShaderVariable> var = shader->GetVariableByName(NEBULA3_SEMANTIC_RENDERTARGETDIMENSIONS);
         uint width = this->width;
         uint height = this->height; 
@@ -344,7 +346,7 @@ OGL4RenderTarget::GenerateMipLevels()
 /**
 */
 void 
-OGL4RenderTarget::OnDisplayResized(SizeT w, SizeT h)
+OGL4RenderTarget::OnWindowResized(SizeT w, SizeT h)
 {
 	DisplayDevice* displayDevice = DisplayDevice::Instance();
 
@@ -392,11 +394,11 @@ OGL4RenderTarget::OnDisplayResized(SizeT w, SizeT h)
 
 		if (this->msCount > 1)
 		{
-			this->resolveTexture->SetupFromOGL4MultisampleTexture(this->ogl4ResolveTexture, this->colorBufferFormat);
+			this->resolveTexture->SetupFromOGL4MultisampleTexture(this->ogl4ResolveTexture, this->colorBufferFormat, 0, true, true);
 		}
 		else
 		{
-			this->resolveTexture->SetupFromOGL4Texture(this->ogl4ResolveTexture, this->colorBufferFormat);
+			this->resolveTexture->SetupFromOGL4Texture(this->ogl4ResolveTexture, this->colorBufferFormat, 0, true, true);
 		}
 	}
 	else if (this->isDefaultRenderTarget)

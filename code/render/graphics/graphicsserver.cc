@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  graphicsserver.cc
 //  (C) 2007 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "graphics/graphicsserver.h"
@@ -199,7 +199,7 @@ GraphicsServer::GetStages() const
 /**
 */
 Ptr<View>
-GraphicsServer::CreateView(const Core::Rtti& viewClass, const StringAtom& viewName, bool isDefaultView, bool updatePerFrame)
+GraphicsServer::CreateView(const Core::Rtti& viewClass, const StringAtom& viewName, const IndexT windowId, bool isDefaultView, bool updatePerFrame)
 {
     n_assert(!this->viewIndexMap.Contains(viewName));
     n_assert(viewClass.IsDerivedFrom(View::RTTI));
@@ -208,9 +208,13 @@ GraphicsServer::CreateView(const Core::Rtti& viewClass, const StringAtom& viewNa
     newView->SetName(viewName);
 	newView->SetUpdatePerFrame(updatePerFrame);
     newView->OnAttachToServer();
+	newView->SetWindowId(windowId);
 
     this->views.Append(newView);
     this->viewIndexMap.Add(viewName, this->views.Size() - 1);
+	if (!this->viewWindowMap.Contains(windowId)) this->viewWindowMap.Add(windowId, Util::Array<Ptr<View>>());
+	this->viewWindowMap[windowId].Append(newView);
+
     if (isDefaultView)
     {
         this->SetDefaultView(newView);
@@ -231,6 +235,7 @@ GraphicsServer::DiscardView(const Ptr<View>& view)
     n_assert(this->viewIndexMap.Contains(view->GetName()));
     this->rtPluginRegistry->OnDiscardView(view);
     this->views.EraseIndex(this->viewIndexMap[view->GetName()]);
+	this->viewWindowMap[view->GetWindowId()].EraseIndex(this->viewWindowMap[view->GetWindowId()].FindIndex(view));
 
     // need to rebuild viewIndexMap
     this->viewIndexMap.Clear();
@@ -263,6 +268,7 @@ GraphicsServer::DiscardAllViews()
     }
     this->views.Clear();
     this->viewIndexMap.Clear();
+	this->viewWindowMap.Clear();
     this->defaultView = 0;
 }
 
@@ -417,6 +423,7 @@ GraphicsServer::GetCurrentGlobalLightEntity() const
 
 //------------------------------------------------------------------------------
 /**
+	FIXME: Views should be rendered ordered by window, and SwapBuffers should be called once per window, at the end of that bucket
 */
 void
 GraphicsServer::OnFrame(Timing::Time curTime, Timing::Time globalTimeFactor)
@@ -430,9 +437,6 @@ GraphicsServer::OnFrame(Timing::Time curTime, Timing::Time globalTimeFactor)
 
 	// call rt plugin registry prior to frame update
 	this->rtPluginRegistry->OnFrameBefore(frameIndex, curTime);
-
-    // process window messages
-    //displayDevice->ProcessWindowMessages();
 
     // notify render modules
     IndexT i;
@@ -451,19 +455,30 @@ GraphicsServer::OnFrame(Timing::Time curTime, Timing::Time globalTimeFactor)
 	if (this->views.Size() > 0)
 	{
 		_start_timer(GfxServerRenderViews);
-		for (i = 0; i < this->views.Size(); i++)
+		for (i = 0; i < this->viewWindowMap.Size(); i++)
 		{
-			// get view
-			Ptr<View> view = this->views[i];
+			IndexT windowId = this->viewWindowMap.KeyAtIndex(i);
+			const Util::Array<Ptr<View>>& viewsForWindow = this->viewWindowMap.ValueAtIndex(i);
 
-			// if view is tagged to update per frame update through view
-			if (view->GetUpdatePerFrame())
+			IndexT j;
+			for (j = 0; j < viewsForWindow.Size(); j++)
 			{
-				this->currentView = view;
+				// get view
+				Ptr<View> view = viewsForWindow[j];
 
-				// render frame
-				view->OnFrame(this->rtPluginRegistry, curTime, globalTimeFactor, this->renderDebug);
-			}            
+				// if view is tagged to update per frame update through view
+				if (view->GetUpdatePerFrame())
+				{
+					// set current view
+					this->currentView = view;
+
+					// render frame
+					view->OnFrame(this->rtPluginRegistry, curTime, globalTimeFactor, this->renderDebug);
+				}
+			}
+
+			// swap buffers for display
+			DisplayDevice::Instance()->GetCurrentWindow()->Present(frameIndex);		
 		}
 		_stop_timer(GfxServerRenderViews);
 
@@ -484,7 +499,7 @@ GraphicsServer::OnFrame(Timing::Time curTime, Timing::Time globalTimeFactor)
     ResourceManager::Instance()->Update(frameIndex);
 
     // if we're running in windowed mode, give up time-slice
-    if (!displayDevice->IsFullscreen())
+	if (!displayDevice->IsFullscreen())
     {
         Timing::Sleep(0.0);
     }

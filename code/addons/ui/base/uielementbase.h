@@ -6,16 +6,21 @@
     An element is a fragment of a layout. 
     An element supports all the functionality for which we apply text, get text, images etc.
     
-    (C) 2015 Individual contributors, see AUTHORS file
+    (C) 2015-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
 #include "util/stringatom.h"
+#include "util/variant.h"
 
 namespace UI
 {
 	class UiLayout;
+
+	class UiElement;
+	typedef Util::KeyValuePair<Util::String, Util::Variant> ElementAttributeEntry;
 }
+
 
 namespace Base
 {
@@ -124,6 +129,11 @@ public:
     void SetClasses(const Util::String& c);
 	/// returns all classes
 	const Util::String GetClasses() const;
+
+	/// create a new child element
+	Ptr<UI::UiElement> AddElement(const Util::String & tag, const Util::String & inst, const Util::Array<UI::ElementAttributeEntry> & attributes);
+	/// removed a child element
+	void RemoveElement(const Ptr<UI::UiElement> & elem);
 
 protected:
 	Ptr<UI::UiLayout> layout;

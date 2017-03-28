@@ -6,13 +6,12 @@
 	(C) 2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
-#include "framescript.h"
+#include "framescript.h" 
 #include "framepass.h"
 #include "framesubpass.h"
 #include "resources/resourceid.h"
 #include "io/uri.h"
 #include "jzon-c/jzon.h"
-#include "cjson/cJSON/cJSON.h"
 #include "coregraphics/shaderstate.h"
 namespace CoreGraphics
 {

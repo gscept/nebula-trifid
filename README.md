@@ -1,12 +1,16 @@
 # Nebula Trifid
 
+[![Join the chat at https://gitter.im/gscept/nebula-trifid](https://badges.gitter.im/gscept/nebula-trifid.svg)](https://gitter.im/gscept/nebula-trifid?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Nebula Trifid is a open source, free to use, free to redistribute and free to modify game engine. It's originally based on the Nebula 3 Device used by RadonLabs to produce games.
 
-Nebula Trifid features a fully capable OpenGL4 rendering system, a modular component based entity system, networking through RakNet, several physics implementations (Bullet or Havok), an FBX content pipeline which is subversion friendly, interactive audio using Fmod, game UI using LibRocket, and toolkit UI using Qt, sophisticated AI and pathfinding using Detour and Recast and finally GLFW for window and OpenGL context management. The engine is designed as a programmers tool, meaning we intend that the game development is done in a programming environment, and not entirely in-engine. The exception to this is the content creation and level editing, which is done in the tools provided.
+Nebula Trifid features a fully capable OpenGL4 rendering system, a modular component based entity system, networking through RakNet, several physics implementations (Bullet or Havok), an FBX content pipeline which is subversion friendly, interactive audio using Fmod, game UI using LibRocket, and toolkit UI using Qt, sophisticated AI and pathfinding using Detour and Recast and physics using either Bullet, PhysX or Havok and finally GLFW for window and OpenGL context management. The engine is designed as a programmers tool, meaning we intend that the game development is done in a programming environment, and not entirely in-engine. The exception to this is the content creation and level editing, which is done in the tools provided.
 
 Nebula Trifid is intended to be both an SDK as well as a programming platform to write games with. Games implemented in Nebula Trifid can either be entirely scripted, using LUA, or written in C++, where the latter allows for a greater freedom than the first.
 
 Nebula Trifid also contains a complete toolkit which allows for content management in a game project, as well as a level editor which is used to design levels and script events. It's also easy to set up, all you need is CMake. 
+
+Check out the [Changelog](https://github.com/gscept/nebula-trifid/wiki/Changelog) as well.
 
 A more detailed list of features in Nebula Trifid can be seen here:
 

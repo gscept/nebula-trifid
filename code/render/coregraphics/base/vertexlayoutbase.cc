@@ -1,10 +1,12 @@
 //------------------------------------------------------------------------------
 //  vertexlayoutbase.cc
 //  (C) 2007 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "coregraphics/base/vertexlayoutbase.h"
+#include "coregraphics/renderdevice.h"
+#include "coregraphics/vertexbuffer.h"
 
 namespace Base
 {
@@ -50,6 +52,21 @@ VertexLayoutBase::BuildSignature(const Array<VertexComponent>& comps)
 //------------------------------------------------------------------------------
 /**
 */
+SizeT
+VertexLayoutBase::CalculateByteSize(const Util::Array<CoreGraphics::VertexComponent>& c)
+{
+	SizeT ret = 0;
+	IndexT i;
+	for (i = 0; i < c.Size(); i++)
+	{
+		ret += c[i].GetByteSize();
+	}
+	return ret;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 void
 VertexLayoutBase::Setup(const Array<VertexComponent>& comps)
 {
@@ -76,6 +93,11 @@ VertexLayoutBase::Discard()
     n_assert(this->IsValid());
     this->components.Clear();
     this->vertexByteSize = 0;
+	IndexT i;
+	for (i = 0; i < VertexLayoutBase::MaxNumVertexStreams; i++)
+	{
+		this->vertexStreams[i] = NULL;
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -95,6 +117,15 @@ VertexLayoutBase::FindComponent(VertexComponent::SemanticName semName, IndexT se
     }
     // fallthrough: not found
     return InvalidIndex;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VertexLayoutBase::SetStreamBuffer(IndexT streamIndex, const Ptr<CoreGraphics::VertexBuffer>& vertexBuffer)
+{
+	this->vertexStreams[streamIndex] = vertexBuffer;
 }
 
 } // namespace Base

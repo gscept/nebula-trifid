@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  materialloader.cc
-//  (C) 2011-2013 Individual contributors, see AUTHORS file
+//  (C) 2011-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "materials/material.h"
@@ -23,15 +23,17 @@ using namespace Util;
 using namespace IO;
 using namespace Resources;
 using namespace CoreGraphics;
+
+Util::Stack<IO::URI> MaterialLoader::LoadingStack;
 //------------------------------------------------------------------------------
 /**
 */
 Ptr<MaterialPalette>
-MaterialLoader::LoadMaterialPalette( const Resources::ResourceId& name, const IO::URI& uri, bool optional )
+MaterialLoader::LoadMaterialPalette(const Resources::ResourceId& name, const IO::URI& uri, bool optional)
 {
 	Ptr<MaterialPalette> palette;
 	Ptr<Stream> stream = IoServer::Instance()->CreateStream(uri);
-	Ptr<XmlReader> xmlReader = XmlReader::Create();
+	Ptr<BXmlReader> xmlReader = BXmlReader::Create();
 	xmlReader->SetStream(stream);
 	if (xmlReader->Open())
 	{
@@ -42,11 +44,13 @@ MaterialLoader::LoadMaterialPalette( const Resources::ResourceId& name, const IO
 			return palette;
 		}
 
-		xmlReader->SetToNode("/Nebula3/Materials");
+		MaterialLoader::LoadingStack.Push(uri);
+		xmlReader->SetToNode("/Nebula3");
 		palette = MaterialPalette::Create();
 		palette->SetName(name);
 		ParsePalette(xmlReader, palette);
 		xmlReader->Close();
+		MaterialLoader::LoadingStack.Pop();
 	}
 	else if (!optional)
 	{
@@ -62,10 +66,19 @@ MaterialLoader::LoadMaterialPalette( const Resources::ResourceId& name, const IO
 //------------------------------------------------------------------------------
 /**
 */
-void 
-MaterialLoader::ParsePalette( const Ptr<IO::XmlReader>& xmlReader, const Ptr<MaterialPalette>& materialPalette )
+void
+MaterialLoader::ParsePalette(const Ptr<IO::BXmlReader>& xmlReader, const Ptr<MaterialPalette>& materialPalette)
 {
-	// parse material
+	// parse dependencies
+	if (xmlReader->SetToFirstChild("Dependency")) do
+	{
+		ParseDependency(xmlReader, materialPalette);
+	}
+	while (xmlReader->SetToNextChild("Dependency"));
+	xmlReader->SetToParent();
+	xmlReader->SetToNode("Materials");
+
+	// parse materials
 	if (xmlReader->SetToFirstChild("Material")) do 
 	{
 		ParseMaterial(xmlReader, materialPalette);
@@ -76,8 +89,8 @@ MaterialLoader::ParsePalette( const Ptr<IO::XmlReader>& xmlReader, const Ptr<Mat
 //------------------------------------------------------------------------------
 /**
 */
-void 
-MaterialLoader::ParseMaterial( const Ptr<IO::XmlReader>& xmlReader, const Ptr<MaterialPalette>& materialPalette )
+void
+MaterialLoader::ParseMaterial(const Ptr<IO::BXmlReader>& xmlReader, const Ptr<MaterialPalette>& materialPalette)
 {
 	// create the new material
 	MaterialServer* matServer = MaterialServer::Instance();
@@ -85,6 +98,7 @@ MaterialLoader::ParseMaterial( const Ptr<IO::XmlReader>& xmlReader, const Ptr<Ma
 	String name = xmlReader->GetString("name");
 	String desc = xmlReader->GetOptString("desc", "");
     String inherits = xmlReader->GetOptString("inherits", "");
+	String group = xmlReader->GetOptString("group", "Ungrouped");
 
 	n_assert2(!name.ContainsCharFromSet("|"), "Name of material may not contain character '|' since it's used to denote multiple inheritance");
 	
@@ -106,6 +120,7 @@ MaterialLoader::ParseMaterial( const Ptr<IO::XmlReader>& xmlReader, const Ptr<Ma
 	material->SetName(name);
 	material->SetVirtual(isVirtual);
 	material->SetDescription(desc);	
+	material->SetGroup(group);
 	material->SetCode(Materials::MaterialType::FromName(name));
 
     // load inherited material
@@ -145,7 +160,7 @@ MaterialLoader::ParseMaterial( const Ptr<IO::XmlReader>& xmlReader, const Ptr<Ma
 /**
 */
 void
-MaterialLoader::ParseMaterialPass(const Ptr<IO::XmlReader>& xmlReader, const Ptr<Material>& material)
+MaterialLoader::ParseMaterialPass(const Ptr<IO::BXmlReader>& xmlReader, const Ptr<Material>& material)
 {
 	n_assert(0 != material);
 
@@ -154,14 +169,12 @@ MaterialLoader::ParseMaterialPass(const Ptr<IO::XmlReader>& xmlReader, const Ptr
 	String shaderFeatures = xmlReader->GetString("variation");
 
 	// convert batch name to model node type
-    Frame::BatchGroup::Code code = Frame::BatchGroup::FromName(batchName);
+    Graphics::BatchGroup::Code code = Graphics::BatchGroup::FromName(batchName);
 
 	//get shader
 	String shaderName = xmlReader->GetString("shader");
 	ResourceId shaderResId = ResourceId("shd:" + shaderName);
-	const Dictionary<Resources::ResourceId, Ptr<CoreGraphics::Shader> >& shaders = ShaderServer::Instance()->GetAllShaders();
-	n_assert(shaders.Contains(shaderResId));
-	const Ptr<Shader>& shader = shaders[shaderResId];
+	const Ptr<Shader>& shader= ShaderServer::Instance()->GetShader(shaderResId);
 
 	// add feature mask
 	material->AddPass(code, shader, ShaderServer::Instance()->FeatureStringToMask(shaderFeatures));
@@ -171,7 +184,29 @@ MaterialLoader::ParseMaterialPass(const Ptr<IO::XmlReader>& xmlReader, const Ptr
 /**
 */
 void
-MaterialLoader::ParseParameter(const Ptr<IO::XmlReader>& xmlReader, const Ptr<Material>& material)
+MaterialLoader::ParseDependency(const Ptr<IO::BXmlReader>& xmlReader, const Ptr<MaterialPalette>& material)
+{
+	MaterialServer* matServer = MaterialServer::Instance();
+	String list = xmlReader->GetString("list");
+
+	if (LoadingStack.Contains(list))
+	{
+		n_error("Trying to load cyclic material list %s from %s", list.AsCharPtr(), material->GetName().Value());
+	}
+	else
+	{
+		if (!matServer->LookupMaterialPalette(list))
+		{
+			n_error("Could not load dependency material list %s", list.AsCharPtr());
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+MaterialLoader::ParseParameter(const Ptr<IO::BXmlReader>& xmlReader, const Ptr<Material>& material)
 {
 	Material::MaterialParameter param;
 

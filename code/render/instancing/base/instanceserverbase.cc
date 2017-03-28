@@ -5,7 +5,7 @@
 #include "stdneb.h"
 #include "instanceserverbase.h"
 #include "instancing/instancerenderer.h"
-#include "frame/batchgroup.h"
+#include "graphics/batchgroup.h"
 
 using namespace Models;
 namespace Base

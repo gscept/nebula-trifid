@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  debugshaperenderer.cc
 //  (C) 2008 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "debugrender/debugshaperenderer.h"
@@ -126,11 +126,11 @@ DebugShapeRenderer::DrawIndexedPrimitives(const matrix44& modelTransform, Primit
 //------------------------------------------------------------------------------
 /**
 */
-void 
-DebugShapeRenderer::DrawMesh( const Math::matrix44& modelTransform, const Ptr<CoreGraphics::Mesh>& mesh, const Math::float4& color, CoreGraphics::RenderShape::RenderFlag depthFlag /*= CoreGraphics::RenderShape::CheckDepth*/ )
+void
+DebugShapeRenderer::DrawMesh(const Math::matrix44& modelTransform, const Ptr<CoreGraphics::Mesh>& mesh, const IndexT& groupIndex, const Math::float4& color, CoreGraphics::RenderShape::RenderFlag depthFlag /*= CoreGraphics::RenderShape::CheckDepth*/)
 {
     RenderShape shape;
-    shape.SetupMesh(Thread::GetMyThreadId(), modelTransform, mesh, color, depthFlag);
+    shape.SetupMesh(Thread::GetMyThreadId(), modelTransform, mesh, groupIndex, color, depthFlag);
     this->shapes.Append(shape);
 }
 

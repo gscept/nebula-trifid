@@ -225,16 +225,16 @@ ENDIF()
         coregraphics/base/meshbase.h
         coregraphics/base/mouserenderdevicebase.cc
         coregraphics/base/mouserenderdevicebase.h
-        coregraphics/base/multiplerendertargetbase.cc
-        coregraphics/base/multiplerendertargetbase.h
+        #coregraphics/base/multiplerendertargetbase.cc
+        #coregraphics/base/multiplerendertargetbase.h
 		coregraphics/base/passbase.cc
 		coregraphics/base/passbase.h
         coregraphics/base/renderdevicebase.cc
         coregraphics/base/renderdevicebase.h
-		coregraphics/base/rendertargetcubebase.cc
-        coregraphics/base/rendertargetcubebase.h
-        coregraphics/base/rendertargetbase.cc
-        coregraphics/base/rendertargetbase.h
+		#coregraphics/base/rendertargetcubebase.cc
+        #coregraphics/base/rendertargetcubebase.h
+        #coregraphics/base/rendertargetbase.cc
+        #coregraphics/base/rendertargetbase.h
 		coregraphics/base/rendertexturebase.cc
 		coregraphics/base/rendertexturebase.h
         coregraphics/base/resourcebase.cc
@@ -272,6 +272,8 @@ ENDIF()
         coregraphics/base/vertexlayoutbase.h
         coregraphics/base/vertexlayoutserverbase.cc
         coregraphics/base/vertexlayoutserverbase.h
+		coregraphics/base/windowbase.cc
+        coregraphics/base/windowbase.h
       )
       source_group("coregraphics\\base" FILES ${Render_files_coregraphics__base})
 
@@ -397,7 +399,10 @@ ENDIF()
       ELSEIF(N_BUILD_OGL4)
 	  set(Render_files_coregraphics_displaydevice__impl
 			coregraphics/glfw/glfwdisplaydevice.cc
-			coregraphics/glfw/glfwdisplaydevice.h)			
+			coregraphics/glfw/glfwdisplaydevice.h
+			coregraphics/glfw/glfwwindow.cc
+			coregraphics/glfw/glfwwindow.h)
+			
       set(Render_files_coregraphics__ogl4
 		${Render_files_coregraphics_displaydevice__impl}
 		coregraphics/ogl4/ogl4bufferlock.cc
@@ -486,8 +491,11 @@ ENDIF()
 	  set(Render_files_coregraphics_displaydevice__impl
 			coregraphics/glfw/glfwdisplaydevice.cc
 			coregraphics/glfw/glfwdisplaydevice.h
-			coregraphics/vk/vkdisplaydevice.cc
-			coregraphics/vk/vkdisplaydevice.h)
+			coregraphics/glfw/glfwwindow.cc
+			coregraphics/glfw/glfwwindow.h
+			#coregraphics/vk/vkdisplaydevice.cc
+			#coregraphics/vk/vkdisplaydevice.h
+			)
 	  set(Render_files_coregraphics__vk
 		${Render_files_coregraphics_displaydevice__impl}
 		coregraphics/vk/vkbarrier.cc
@@ -518,14 +526,14 @@ ENDIF()
         coregraphics/vk/vkmemoryvertexbufferloader.h
     	coregraphics/vk/vkmemorytextureloader.cc
 		coregraphics/vk/vkmemorytextureloader.h
-		coregraphics/vk/vkmultiplerendertarget.cc
-        coregraphics/vk/vkmultiplerendertarget.h
+		#coregraphics/vk/vkmultiplerendertarget.cc
+        #coregraphics/vk/vkmultiplerendertarget.h
         coregraphics/vk/vkrenderdevice.cc
         coregraphics/vk/vkrenderdevice.h
-		coregraphics/vk/vkrendertargetcube.cc
-        coregraphics/vk/vkrendertargetcube.h
-        coregraphics/vk/vkrendertarget.cc
-        coregraphics/vk/vkrendertarget.h
+		#coregraphics/vk/vkrendertargetcube.cc
+        #coregraphics/vk/vkrendertargetcube.h
+        #coregraphics/vk/vkrendertarget.cc
+        #coregraphics/vk/vkrendertarget.h
 		coregraphics/vk/vkrendertexture.cc
 		coregraphics/vk/vkrendertexture.h
 		coregraphics/vk/vkscheduler.cc
@@ -670,8 +678,8 @@ ENDIF()
       coregraphics/mousepointer.h
       coregraphics/mouserenderdevice.cc
       coregraphics/mouserenderdevice.h
-      coregraphics/multiplerendertarget.cc
-      coregraphics/multiplerendertarget.h
+      #coregraphics/multiplerendertarget.cc
+      #coregraphics/multiplerendertarget.h
 	  coregraphics/pass.cc
 	  coregraphics/pass.h
       coregraphics/pixelformat.cc
@@ -686,10 +694,10 @@ ENDIF()
       coregraphics/rendereventhandler.h
       coregraphics/rendershape.cc
       coregraphics/rendershape.h
-	  coregraphics/rendertargetcube.cc
-      coregraphics/rendertargetcube.h
-      coregraphics/rendertarget.cc
-      coregraphics/rendertarget.h
+	  #coregraphics/rendertargetcube.cc
+      #coregraphics/rendertargetcube.h
+      #coregraphics/rendertarget.cc
+      #coregraphics/rendertarget.h
 	  coregraphics/rendertexture.cc
 	  coregraphics/rendertexture.h
       coregraphics/shader.cc
@@ -744,6 +752,8 @@ ENDIF()
       coregraphics/vertexlayout.h
       coregraphics/vertexlayoutserver.cc
       coregraphics/vertexlayoutserver.h
+	  coregraphics/window.cc
+      coregraphics/window.h
     )
     source_group("coregraphics" FILES ${Render_files_coregraphics})
 
@@ -893,7 +903,7 @@ ENDIF()
 	source_group("frame2" FILES ${Render_files_frame2})
 
     set(Render_frame
-      ${Render_files_frame}
+      #${Render_files_frame}
 	  ${Render_files_frame2}
     )
 	
@@ -922,7 +932,9 @@ ENDIF()
 
     set(Render_files_graphics
       graphics/abstractlightentity.cc
-      graphics/abstractlightentity.h	  
+      graphics/abstractlightentity.h	
+	  graphics/batchgroup.cc
+	  graphics/batchgroup.h	  
       graphics/cameraentity.cc
       graphics/cameraentity.h
 	  graphics/camerasettings.cc
@@ -946,8 +958,12 @@ ENDIF()
 	  graphics/graphicsinterface.h
 	  graphics/lightprobeentity.cc
 	  graphics/lightprobeentity.h
+	  graphics/meshentity.cc
+	  graphics/meshentity.h
       graphics/modelentity.cc
       graphics/modelentity.h
+	  graphics/reloadmodelentity.cc
+      graphics/reloadmodelentity.h	  
       graphics/mouserenderer.cc
       graphics/mouserenderer.h
       graphics/pointlightentity.cc
@@ -959,6 +975,8 @@ ENDIF()
       graphics/stagebuilders.h
       graphics/view.cc
       graphics/view.h
+	  graphics/viewdisplayhandler.cc
+	  graphics/viewdisplayhandler.h
     )
     source_group("graphics" FILES ${Render_files_graphics})
 
@@ -1202,6 +1220,10 @@ ENDIF()
         models/nodes/animkey.h
         models/nodes/animkeyarray.h
         models/nodes/animlooptype.h
+		models/nodes/meshnode.cc
+		models/nodes/meshnode.h
+		models/nodes/meshnodeinstance.cc
+		models/nodes/meshnodeinstance.h
         models/nodes/shapenode.cc
         models/nodes/shapenode.h
         models/nodes/shapenodeinstance.cc
@@ -1577,273 +1599,7 @@ ENDIF()
       ${Render_visibility__visibilitysystems}
       ${Render_files_visibility}
     )
-
-	set(SOURCES_files_physics
-
-		physics/physicsserver.cc
-		physics/physicsserver.h
-
-		physics/visualdebuggerserver.cc
-		physics/visualdebuggerserver.h
-
-		physics/scene.h
-		physics/scene.cc
-
-		physics/physicsbody.h
-		physics/physicsbody.cc
-
-		physics/physicsobject.h
-		physics/physicsobject.cc
-
-		physics/collider.h
-		physics/collider.cc
-
-		physics/contactlistener.h
-		physics/contactlistener.cc
-
-		physics/staticobject.h
-		physics/staticobject.cc
-
-		physics/filterset.h
-		physics/filterset.cc
-
-		physics/materialtable.h
-		physics/materialtable.cc
-
-		physics/contact.h
-		physics/contact.cc
-
-		physics/physicsprobe.h
-		physics/physicsprobe.cc
-
-		physics/model/templates.h
-		physics/model/templates.cc
-
-		physics/joint.h
-		physics/joint.cc
-
-		physics/character.h
-		physics/character.cc
-
-		#controller.h
-		#controller.cc
-
-		#vehicle.h
-		#vehicle.cc
-
-		#material.h
-		#material.cc
-    )
-    set(SOURCES_files_physics_util
-		physics/util/areaimpulse.h
-		physics/util/areaimpulse.cc
-
-		physics/util/explosionareaimpulse.h
-		physics/util/explosionareaimpulse.cc
-
-		physics/util/mousegripper.h
-		physics/util/mousegripper.cc
-	)
-
-    set(SOURCES_files_physics_resource
-		physics/resource/streamphysicsmeshloader.h
-		physics/resource/streamphysicsmeshloader.cc
-		physics/resource/physicsmesh.h
-		physics/resource/physicsmesh.cc
-		physics/resource/physicsmeshbase.h
-		physics/resource/physicsmeshbase.cc
-		physics/resource/managedphysicsmesh.h
-		physics/resource/managedphysicsmesh.cc
-		physics/resource/managedphysicsmodel.h
-		physics/resource/managedphysicsmodel.cc
-		physics/model/physicsmodel.h
-		physics/model/physicsmodel.cc
-		physics/resource/streamphysicsmodelloader.h
-		physics/resource/streamphysicsmodelloader.cc
-	)
-
-    set(SOURCES_files_physics_base
-    	physics/base/basescene.h
-		physics/base/basescene.cc
-		physics/base/basebody.h
-		physics/base/basebody.cc
-		physics/base/basecollider.h
-		physics/base/basecollider.cc
-		physics/base/basecontact.h
-		physics/base/basecontact.cc
-		physics/base/basecontactlistener.h
-		physics/base/basecontactlistener.cc
-		physics/base/basestatic.h
-		physics/base/basestatic.cc
-		physics/base/baseprobe.h
-		physics/base/baseprobe.cc
-		physics/base/basecharacter.h
-		physics/base/basecharacter.cc
-		#base/basecontroller.h
-		#base/basecontroller.cc
-		#base/basevehicle.h
-		#base/basevehicle.cc
-		physics/base/physicsserverbase.h
-		physics/base/physicsserverbase.cc
-		physics/base/basevisualdebuggerserver.h
-		physics/base/basevisualdebuggerserver.cc
-		#base/basematerial.h
-		#base/basematerial.cc
-    )
-
-    SET(SOURCES_files_bullet 
-		physics/bullet/bulletcharacter.h
-		physics/bullet/bulletcharacter.cc
-		physics/bullet/bulletbody.cc
-		physics/bullet/bulletbody.h
-		physics/bullet/bulletcollider.cc
-		physics/bullet/bulletcollider.h
-		physics/bullet/bulletphysicsmesh.cc
-		physics/bullet/bulletphysicsmesh.h
-		physics/bullet/bulletphysicsserver.cc
-		physics/bullet/bulletphysicsserver.h
-		physics/bullet/bulletscene.cc
-		physics/bullet/bulletscene.h
-		physics/bullet/bulletstatic.h
-		physics/bullet/bulletstatic.cc
-		physics/bullet/bulletprobe.h
-		physics/bullet/bulletprobe.cc
-		physics/bullet/bulletjoint.h
-		physics/bullet/bulletjoint.cc
-		physics/bullet/conversion.h
-		physics/bullet/nebulamotionstate.h
-		physics/bullet/debugdrawer.h
-		physics/bullet/debugdrawer.cc
-		physics/bullet/bullethinge.h
-		physics/bullet/bulletuniversaljoint.h
-    	physics/bullet/bullethinge.cc
-		physics/bullet/bulletuniversaljoint.cc
-		physics/bullet/bulletslider.h
-		physics/bullet/bulletslider.cc
-		physics/bullet/bulletpointtopoint.h
-		physics/bullet/bulletpointtopoint.cc
-		physics/bullet/raycallbacks.h
-	)
-
-	SET(SOURCES_files_havok
-		physics/havok/conversion.h
-		physics/havok/havokutil.cc
-		physics/havok/havokutil.h
-		physics/havok/havokdebugdrawer.cc
-		physics/havok/havokdebugdrawer.h
-
-		physics/havok/havokphysicsserver.cc
-		physics/havok/havokphysicsserver.h
-		physics/havok/havokvisualdebuggerserver.cc
-		physics/havok/havokvisualdebuggerserver.h
-		physics/havok/havokstatic.cc
-		physics/havok/havokstatic.h
-		physics/havok/havokscene.cc
-		physics/havok/havokscene.h
-		physics/havok/havokprobe.cc
-		physics/havok/havokprobe.h
-		physics/havok/havokbody.cc
-		physics/havok/havokbody.h
-		physics/havok/havokjoint.cc
-		physics/havok/havokjoint.h
-		physics/havok/havokcollider.cc
-		physics/havok/havokcollider.h
-		physics/havok/havokcontact.cc
-		physics/havok/havokcontact.h
-		physics/havok/havokcontactlistener.cc
-		physics/havok/havokcontactlistener.h
-		physics/havok/havokcharacterbase.cc
-		physics/havok/havokcharacterbase.h
-		physics/havok/havokcharacterphantom.cc
-		physics/havok/havokcharacterphantom.h
-		physics/havok/havokcharacterrigidbody.cc
-		physics/havok/havokcharacterrigidbody.h
-		physics/havok/havokphysicsmesh.cc
-		physics/havok/havokphysicsmesh.h
-		physics/havok/havokhinge.cc
-		physics/havok/havokhinge.h
-		physics/havok/havokpointtopoint.cc
-		physics/havok/havokpointtopoint.h
-		physics/havok/havokslider.cc
-		physics/havok/havokslider.h
-		physics/havok/havokuniversaljoint.cc
-		physics/havok/havokuniversaljoint.h
-		physics/havok/havokragdolljoint.cc
-		physics/havok/havokragdolljoint.h
-		physics/havok/havokchainjoint.cc
-		physics/havok/havokchainjoint.h
-	)
-
-    SET(SOURCES_files_physics_joints
-			physics/joints.h
-			physics/base/basejoint.h
-			physics/base/basejoint.cc
-    		physics/joints/basehinge.h
-    		physics/joints/basehinge.cc
-			physics/joints/baseuniversaljoint.h   
-			physics/joints/baseuniversaljoint.cc  
-			physics/joints/baseragdolljoint.h   
-			physics/joints/baseragdolljoint.cc  
-			physics/joints/basechainjoint.h   
-			physics/joints/basechainjoint.cc  
-			physics/joints/baseslider.h         
-			physics/joints/baseslider.cc 			
-			physics/joints/basepointtopoint.h       
-			physics/joints/basepointtopoint.cc			
-			physics/joints/sliderjoint.h
-			physics/joints/sliderjoint.cc
-			physics/joints/universaljoint.h
-			physics/joints/universaljoint.cc
-			physics/joints/ragdolljoint.h
-			physics/joints/ragdolljoint.cc
-			physics/joints/chainjoint.h         
-			physics/joints/chainjoint.cc
-			physics/joints/hingejoint.h           
-			physics/joints/hingejoint.cc 			
-			physics/joints/pointtopointjoint.h       
-			physics/joints/pointtopointjoint.cc
-
-	)
-
-
-    source_group("physics" FILES ${SOURCES_files_physics})
-    source_group("physics\\resource" FILES ${SOURCES_files_physics_resource})
-    source_group("physics\\bullet" FILES ${SOURCES_files_bullet})
-	source_group("physics\\havok" FILES ${SOURCES_files_havok})    
-    source_group("physics\\base" FILES ${SOURCES_files_physics_base})
-	source_group("physics\\util" FILES ${SOURCES_files_physics_util})
-	source_group("physics\\joints" FILES ${SOURCES_files_physics_joints})
-
-    set(SOURCES_physics_core
-      ${SOURCES_files_physics}
-      ${SOURCES_files_physics_base}
-      ${SOURCES_files_physics_resource}
-	  ${SOURCES_files_physics_util}
-	  ${SOURCES_files_physics_joints}
-    )
-
-IF(N_BUILD_BULLET)
-
-	INCLUDE_DIRECTORIES(${Nebula3_SOURCE_DIR}/code/extlibs/
-					${Nebula3_SOURCE_DIR}/code/extlibs/bullet/bullet/src
-					)
-	set(SOURCES_physics
-		${SOURCES_physics_core}
-		${SOURCES_files_bullet}
-	)
-ENDIF()
-
-IF(N_BUILD_HAVOK)					
-	set(SOURCES_physics
-		${SOURCES_physics_core}
-		${SOURCES_files_havok_source}
-		${SOURCES_files_havok}
-	)
-
-	# need to enable SIMD (2 means disabled, is the default) else there will be some linker error
-	ADD_DEFINITIONS(-DHK_CONFIG_SIMD=1)
-ENDIF()
-
+	
 	set(Render_files_picking
 		picking/pickingserver.h
 		picking/pickingserver.cc
@@ -1894,8 +1650,7 @@ ENDIF()
     ${Render_renderutil}
     ${Render_resources}
     ${Render_visibility}
-    ${Render_precompiled_src}
-	${SOURCES_physics}
+    ${Render_precompiled_src}	
   )
 
 IF(WIN32)
@@ -1914,57 +1669,18 @@ add_library(render STATIC ${Render_SRCS} )
 TARGET_INCLUDE_DIRECTORIES(render 	PUBLIC ${Nebula3_SOURCE_DIR}/code/render/ 
 									${Nebula3_SOURCE_DIR}/code/extlibs/DevIL/DevIL/include)
 
-TARGET_LINK_LIBRARIES(render PUBLIC foundation render_NIDLS libjpeg libpng api cjson jzon)
+TARGET_LINK_LIBRARIES(render PUBLIC foundation render_NIDLS libjpeg libpng api jzon)
 SET_TARGET_PROPERTIES(render PROPERTIES FOLDER "N3SDK/N3")
 
-ADD_DEPENDENCIES(render foundation_NIDLS render_NIDLS ${PHYSICS_DEPENDENCIES})
+ADD_DEPENDENCIES(render foundation_NIDLS render_NIDLS )
 
 TARGET_INCLUDE_DIRECTORIES(render_NIDLS PUBLIC $<TARGET_PROPERTY:render,INTERFACE_INCLUDE_DIRECTORIES>)
 ADD_SUBDIRECTORY(jobs)
 TARGET_LINK_LIBRARIES(render PUBLIC render_animjobsample render_animjobsamplemix render_charevalskeletonjob render_particlejob render_visibilityboxsystemjob render_visibilityquadtreejob EASTL)
 
+TARGET_LINK_LIBRARIES(render PUBLIC $<$<BOOL:${N_BUILD_OGL4} OR ${N_BUILD_VULKAN}>: DevIL ILU ILUT> )
 
-IF(N_BUILD_HAVOK)
-	
-	#FIXME fugly, need a real havok detection
-	FIND_PATH(HAVOC_DIR "Havok Limited Use License Agreement for PC XS 03-20-2013.txt"	${Nebula3_SOURCE_DIR}/libs/hk2013_1_0_r1)				
-	SET(Havok_SOURCE_DIR ${HAVOC_DIR}/Source)	
-	if(MSVC90)
-		SET(Havok_LIB_DIR ${HAVOC_DIR}/Lib/win32_net_9-0)
-	ELSEIF(MSVC10)
-		SET(Havok_LIB_DIR ${HAVOC_DIR}/Lib/win32_vs2010)
-	ELSEIF(MSVC11)
-		SET(Havok_LIB_DIR ${HAVOC_DIR}/Lib/win32_vs2012_win7)
-	ENDIF()
-
-	SET(HAVOK_LIBS hkaAnimation.lib hkaInternal.lib hkaPhysics2012Bridge.lib hkBase.lib hkcdCollide.lib hkcdInternal.lib hkCompat.lib
-					hkgBridge.lib hkgCommon.lib hkGeometryUtilities.lib hkInternal.lib hkpCollide.lib hkpConstraint.lib hkpConstraintSolver.lib
-					hkpDynamics.lib hkpInternal.lib hkpUtilities.lib hkpVehicle.lib hkSceneData.lib hkSerialize.lib hkVisualize.lib)
-	
-	SET(HAVOK_DBG_LIBS)	
-	FOREACH(CUR_LIB ${HAVOK_LIBS})
-		LIST(APPEND HAVOK_DBG_LIBS ${Havok_LIB_DIR}/debug/${CUR_LIB})
-	ENDFOREACH()
-	
-	SET(HAVOK_RELEASE_LIBS)
-	FOREACH(CUR_LIB ${HAVOK_LIBS})
-		LIST(APPEND HAVOK_RELEASE_LIBS ${Havok_LIB_DIR}/dev/${CUR_LIB})
-	ENDFOREACH()
-	SET(HAVOK_PUBLIC_LIBS)
-	FOREACH(CUR_LIB ${HAVOK_LIBS})
-		LIST(APPEND HAVOK_PUBLIC_LIBS ${Havok_LIB_DIR}/release/${CUR_LIB})
-	ENDFOREACH()
-
-	TARGET_LINK_LIBRARIES(render PUBLIC $<$<CONFIG:Debug>:${HAVOK_DBG_LIBS}> $<$<CONFIG:Release>:${HAVOK_PUBLIC_LIBS}> $<$<CONFIG:RelWithDebInfo>:${HAVOK_RELEASE_LIBS}>)
-
-ELSEIF(N_BUILD_BULLET)
-	ADD_DEPENDENCIES(render BulletDynamics BulletCollision LinearMath)
-	TARGET_LINK_LIBRARIES(render PUBLIC $<$<BOOL:${N_BUILD_BULLET}>:BulletDynamics BulletCollision LinearMath> )
-ENDIF()
-TARGET_INCLUDE_DIRECTORIES(render PUBLIC $<$<BOOL:${N_BUILD_HAVOK}>:${Havok_SOURCE_DIR}>)
-
-
-TARGET_LINK_LIBRARIES(render PUBLIC $<$<BOOL:${N_BUILD_OGL4} OR ${N_BUILD_VULKAN}>: DevIL ILU ILUT SOIL> )
+add_subdirectory(physics)
 
 N_SET_COMPILER_DEFAULTS()
 IF(N_USE_PRECOMPILED_HEADERS)

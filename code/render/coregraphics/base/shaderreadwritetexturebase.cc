@@ -61,7 +61,7 @@ ShaderReadWriteTextureBase::SetupWithRelativeSize(const Math::scalar relWidth, c
 	this->useRelativeSize = true;
 
 	// setup texture with relative size
-	CoreGraphics::DisplayMode mode = CoreGraphics::DisplayDevice::Instance()->GetDisplayMode();
+	CoreGraphics::DisplayMode mode = CoreGraphics::DisplayDevice::Instance()->GetCurrentWindow()->GetDisplayMode();
 	SizeT width = SizeT(mode.GetWidth() * this->relWidth);
 	SizeT height = SizeT(mode.GetHeight() * this->relHeight);
 	this->Setup(width, height, format, id);
@@ -82,7 +82,7 @@ ShaderReadWriteTextureBase::Discard()
 /**
 */
 void
-ShaderReadWriteTextureBase::Resize(SizeT width, SizeT height)
+ShaderReadWriteTextureBase::Resize()
 {
 	// implement in subclass
 }
@@ -114,5 +114,17 @@ ShaderReadWriteTextureBase::Unlock()
 	this->lockSemaphore--;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ShaderReadWriteTextureBase::SetDimensions(const float width, const float height, const float depth /*= 1*/)
+{
+	this->width = (SizeT)Math::n_max(width, 1.0f);
+	this->height = (SizeT)Math::n_max(height, 1.0f);
+	this->depth = (SizeT)Math::n_max(depth, 1.0f);
+	this->relWidth = width;
+	this->relHeight = height;
+}
 
 } // namespace Base

@@ -4,7 +4,7 @@
     @class PostEffect::PostEffectServer
         
     (C) 2008 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
 #include "core/singleton.h"
@@ -20,7 +20,6 @@
 #include "posteffect/rt/params/lightparams.h"
 #include "posteffect/rt/params/skyparams.h"
 #include "posteffect/rt/params/aoparams.h"
-#include "frame/frameshader.h"
 #include "util/delegate.h"
 
 // uncomment this to use the lighttransform in the posteffect presets
@@ -94,6 +93,8 @@ public:
     void StartBlending(const Ptr<ParamBase>& target, Timing::Time fadeTime, PostEffectType postEffectType);
     /// stops blending for specified effect
     void StopBlending(PostEffectType postEffectType);
+	/// stop all blending operations
+	void StopAllBlending();
 
 	/// set the sky entity
 	void SetSkyEntity(const Ptr<Graphics::ModelEntity>& entity);
@@ -170,12 +171,21 @@ private:
     Ptr<CoreGraphics::ShaderVariable> hdrColorVariable;
     Ptr<CoreGraphics::ShaderVariable> hdrThresholdVariable;
     Ptr<CoreGraphics::ShaderVariable> dofShaderVariable;
+
     Ptr<Materials::SurfaceConstant> skyContrast;
     Ptr<Materials::SurfaceConstant> skyBrightness;
     Ptr<Materials::SurfaceConstant> skyBlendFactor;
     Ptr<Materials::SurfaceConstant> skyBlendTexture;
     Ptr<Materials::SurfaceConstant> skyBaseTexture;
     Ptr<Materials::SurfaceConstant> skyRotationFactor;
+
+	Ptr<CoreGraphics::ConstantBuffer> environmentConstantBuffer;
+	Ptr<CoreGraphics::ShaderVariable> skyPreethamA;
+	Ptr<CoreGraphics::ShaderVariable> skyPreethamB;
+	Ptr<CoreGraphics::ShaderVariable> skyPreethamC;
+	Ptr<CoreGraphics::ShaderVariable> skyPreethamD;
+	Ptr<CoreGraphics::ShaderVariable> skyPreethamE;
+	Ptr<CoreGraphics::ShaderVariable> skyPreethamZ;
     bool skyLoaded; // flag is true if sky model was loaded and all shader params could be initialized
 
 	/// handle to sky entity

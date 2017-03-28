@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  ui/uifeatureunit.cc
 //  (C) 2008 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "ui/uifeatureunit.h"
@@ -11,12 +11,12 @@
 #include "uiinputhandler.h"
 #include "uirtplugin.h"
 #include "rendermodules/rt/rtpluginregistry.h"
-#include "uiattrs/uiattributes.h"
+#include "ui/uiattrs/uiattributes.h"
 #include "db/reader.h"
 #include "db/dbserver.h"
 #include "io/ioserver.h"
 #include "scripting/scriptserver.h"
-#include "audioprotocol.h"
+#include "faudio/audioprotocol.h"
 #include "basegamefeature/basegameattr/basegameattributes.h"
 
 namespace UI
@@ -54,19 +54,23 @@ UiFeatureUnit::OnActivate()
 
 	RenderModules::RTPluginRegistry::Instance()->RegisterRTPlugin(&UI::UiRTPlugin::RTTI);
 
+    for (int i = 0; i < this->plugins.Size(); i++)
+    {
+        this->plugins[i]->OnRegister();
+    }
+
     // create and attach input handler
 	this->inputHandler = UI::UiInputHandler::Create();
 	Input::InputServer::Instance()->AttachInputHandler(Input::InputPriority::Gui, this->inputHandler.cast<Input::InputHandler>());
 
     // create event hander
     this->uiEventHandler = UiEventHandler::Create();
-
-	// load default ui fonts and layouts
-	if (this->autoLoad)
-	{
-		this->LoadUITables();
-	}
-
+	
+    // load default ui fonts and layouts
+    if (this->autoLoad)
+    {
+        this->LoadUITables();
+    }
 
     FeatureUnit::OnActivate();
 }
@@ -256,7 +260,7 @@ UiFeatureUnit::FreeLayout(const Util::String& layoutId)
 /**
 */
 void
-UiFeatureUnit::SetUIEventHandler( const Ptr<UiEventHandler>& handler )
+UiFeatureUnit::SetUIEventHandler(const Ptr<UiEventHandler>& handler)
 {
 	this->uiEventHandler = handler;
 }
@@ -264,8 +268,8 @@ UiFeatureUnit::SetUIEventHandler( const Ptr<UiEventHandler>& handler )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-UiFeatureUnit::ProcessEvent( const UiEvent& event )
+void
+UiFeatureUnit::ProcessEvent(const UiEvent& event)
 {
     n_assert(this->uiEventHandler.isvalid());
     this->uiEventHandler->HandleEvent(event);
@@ -324,7 +328,8 @@ void
 UiFeatureUnit::RegisterUIRenderPlugin( const Ptr<UI::UiPlugin> & uiRt )
 {
 	this->plugins.Append(uiRt);
-	uiRt->OnRegister();
+    // we delay this in order to allow for custom eventlistenerinstancers in librocket. this should be rewritten
+	//uiRt->OnRegister();
 }
 
 //------------------------------------------------------------------------------
@@ -343,11 +348,11 @@ UiFeatureUnit::UnregisterUIRenderPlugin( const Ptr<UI::UiPlugin> & uiRt )
 /**
 */
 void 
-UiFeatureUnit::RenderPlugins( const Ptr<Frame::FrameBatch>& frameBatch )
+UiFeatureUnit::RenderPlugins(const Util::StringAtom& filter)
 {
 	for(Util::Array<Ptr<UI::UiPlugin>>::Iterator iter = this->plugins.Begin() ; iter != this->plugins.End() ; iter++)
 	{
-		(*iter)->OnRenderFrameBatch(frameBatch);
+		//(*iter)->On(frameBatch);
 	}
 }
 

@@ -3,7 +3,7 @@
 /**
 @class Multiplayer::SyncPoint
 
-(C) 2015 Individual contributors, see AUTHORS file
+(C) 2015-2016 Individual contributors, see AUTHORS file
 */
 
 #include "ReadyEvent.h"
@@ -54,23 +54,26 @@ public:
 	static void SetAllCallback(const Util::String &name, CLASS* obj);
 
 
+	///
+	static void SetupSyncPoint(RakNet::ReadyEvent *ready);
+
 protected:
 	///
 	virtual void OnEventChanged(unsigned eventid, unsigned char msg, RakNet::RakNetGUID sender);
 	///
-	static void ReadyEventChanged(IndexT name, const Util::KeyValuePair<Multiplayer::UniquePlayerId, bool>& val);
+	static void ReadyEventChanged(IndexT name, const Util::KeyValuePair<Multiplayer::UniquePlayerId, bool>& val);	
 	///
 	static void AllReadyEvent(IndexT name);
 
 private:
 	friend class MultiplayerFeature::NetworkServer;
-	///
-	static void SetupSyncPoint(RakNet::ReadyEvent *ready);
+	
 	static RakNet::ReadyEvent *readyEvent;
 
 	static Util::Dictionary<IndexT, Util::Delegate<const Util::KeyValuePair<Multiplayer::UniquePlayerId, bool>&>> DelegateSetDict;
 	static Util::Dictionary<IndexT, Util::Delegate<bool>> DelegateAllSetDict;
-		
+	///
+	virtual void OnEventAllSet(unsigned eventid);
 };
 
 #define __SetSyncEventCallback(CLASS, METHOD, OBJ, NAME) Multiplayer::SyncPoint::SetCallback<CLASS, &CLASS::METHOD>(NAME, OBJ);

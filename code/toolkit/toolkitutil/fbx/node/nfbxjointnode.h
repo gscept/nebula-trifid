@@ -5,7 +5,7 @@
     
     Wraps an FBX skeleton node as a Nebula-style node
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "fbx/node/nfbxnode.h"
@@ -21,7 +21,7 @@ public:
 	virtual ~NFbxJointNode();
 
 	/// sets up from fbx node
-	void Setup(FbxNode* node, const Ptr<NFbxScene>& scene, int index);
+	void Setup(FbxNode* node, const Ptr<NFbxScene>& scene, int index, FbxPose* bindpose);
 
 	/// returns true if joint is root
 	const bool IsRoot() const;
@@ -54,7 +54,9 @@ private:
 	IndexT						jointIndex;
 	FbxSkeleton*				joint;
 	FbxCluster*					cluster;
+	FbxMatrix					globalMatrix;
 
+	bool						matrixIsGlobal;
 	bool						isSkeletonRoot;
 }; 
 

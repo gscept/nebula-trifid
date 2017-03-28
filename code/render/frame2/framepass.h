@@ -35,7 +35,8 @@ public:
 	void Discard();
 	/// run operation
 	void Run(const IndexT frameIndex);
-
+	/// handle display resizing
+	void OnWindowResized();
 private:
 	Ptr<CoreGraphics::Pass> pass;
 	Util::Array<Ptr<FrameSubpass>> subpasses;

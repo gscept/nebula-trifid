@@ -42,9 +42,9 @@ VkDepthStencilTarget::Setup()
 	// if we have a relative size on the dept-stencil target, calculate actual size
 	if (this->useRelativeSize)
 	{
-		DisplayDevice* displayDevice = DisplayDevice::Instance();
-		this->SetWidth(SizeT(displayDevice->GetDisplayMode().GetWidth() * this->relWidth));
-		this->SetHeight(SizeT(displayDevice->GetDisplayMode().GetHeight() * this->relHeight));
+		Ptr<CoreGraphics::Window> wnd = DisplayDevice::Instance()->GetCurrentWindow();
+		this->SetWidth(SizeT(wnd->GetDisplayMode().GetWidth() * this->relWidth));
+		this->SetHeight(SizeT(wnd->GetDisplayMode().GetHeight() * this->relHeight));
 	}
 
 	VkExtent3D extents;

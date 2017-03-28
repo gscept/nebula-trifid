@@ -1,11 +1,12 @@
 //------------------------------------------------------------------------------
 //  idlcompiler.cc
 //  (C) 2006 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
-#include "idlcompiler/idlcompiler.h"
-#include "toolkitutil/idldocument/idlcodegenerator.h"
+#include "idlcompiler.h"
+#include "idldocument/idlcodegenerator.h"
+#include "io/fswrapper.h"
 
 namespace Tools
 {
@@ -37,21 +38,21 @@ IDLCompiler::Open()
         {
             n_printf("NebulaT IDL Compiler.\n"
                      "Compiles NebulaT IDL XML files into C++ source and header files\n"
-					 "Syntax: {-output folder} NIDLFile1 NIDLFile2 ...\n"
-					 "-output specifies optional output folder for the generated files");
+                     "Syntax: {-output folder} NIDLFile1 NIDLFile2 ...\n"
+                     "-output specifies optional output folder for the generated files");
             return false;
         }
 
-		// check if output directory was provided
-		int argsOffset = 0;
-		Util::String output = this->args.GetString("-output");
-		if(!output.IsEmpty())
-		{
-			this->outputDir = output;
-			// strip away the first to arguments since they are -output and the folder and not nidl files
-			argsOffset = 2;
-		}
-		
+        // check if output directory was provided
+        int argsOffset = 0;
+        Util::String output = this->args.GetString("-output");
+        if (!output.IsEmpty())
+        {
+            this->outputDir = output;
+            // strip away the first to arguments since they are -output and the folder and not nidl files
+            argsOffset = 2;
+        }
+
 
         // gather files from command line
         this->fileUris.Clear();
@@ -133,23 +134,24 @@ IDLCompiler::CompileFile(const URI& uri)
     // only compile if actually necessary
     if (needsRebuild)
     {
+        IO::URI path = IO::FSWrapper::GetCurrentDirectory();
         // first parse the file into a C++ tree
         if (!this->ParseFile(uri))
         {
-            n_printf("ERROR in file %s line %d: %s\n", uri.AsString().AsCharPtr(), this->errorLineNumber, this->error.AsCharPtr());
+            n_printf("%s/%s(%d): error: %s\n",path.LocalPath().AsCharPtr(), uri.LocalPath().AsCharPtr(), this->errorLineNumber, this->error.AsCharPtr());
             return false;
         }
         
         // generate C++ output
         codeGenerator->SetDocument(this->document);
-        if (!codeGenerator->GenerateIncludeFile())
+        if (!codeGenerator->GenerateIncludeFile() || codeGenerator->HasError())
         {
-            n_printf("ERROR building header file for %s\n", uri.AsString().AsCharPtr());
+            n_printf("%s/%s: error: Failed to build header file:\n%s\n", path.LocalPath().AsCharPtr(), uri.LocalPath().AsCharPtr(), codeGenerator->GetError().AsCharPtr());
             return false;
         }
-        if (!codeGenerator->GenerateSourceFile())
+        if (!codeGenerator->GenerateSourceFile() || codeGenerator->HasError())
         {
-            n_printf("ERROR building source file for %s\n", uri.AsString().AsCharPtr());
+            n_printf("%s/%s: error: Failed to build source file:\n%s\n", path.LocalPath().AsCharPtr(), uri.LocalPath().AsCharPtr(), codeGenerator->GetError().AsCharPtr());            
             return false;
         }
     }

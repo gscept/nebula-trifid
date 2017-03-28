@@ -1,7 +1,7 @@
 
 //  physicsfeature/properties/physicsproperty.cc
 //  (C) 2005 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "physicsfeature/properties/physicsproperty.h"
@@ -248,12 +248,16 @@ PhysicsProperty::EnablePhysics()
 		
 	}				
 
-	if (!this->IsSimulationHost())
+	if (!this->IsSimulationHost() || (this->entity->HasAttr(Attr::Kinematic) && this->entity->GetBool(Attr::Kinematic)))
 	{
 		this->GetPhysicsBody()->SetKinematic(true);
 	}
-	// apply small impulse down to earth
-	this->ApplyImpulseAtPos(vector(0,0.1,0), point::origin());							     	
+	else
+	{
+		// apply small impulse down to earth
+		this->ApplyImpulseAtPos(vector(0, 0.1, 0), point::origin());
+	}
+	
 }
 
 //------------------------------------------------------------------------------
@@ -365,7 +369,15 @@ PhysicsProperty::IsSimulationHost()
 	{
 		if (this->entity->HasAttr(Attr::_LevelEntity) && this->entity->GetBool(Attr::_LevelEntity))
 		{
-			return (MultiplayerFeature::NetworkServer::Instance()->IsHost());
+			// if we dont have a host we havent started a networked level yet and we just assume that we are the host for the time being
+			if (MultiplayerFeature::NetworkServer::Instance()->HasHost())
+			{
+				return (MultiplayerFeature::NetworkServer::Instance()->IsHost());
+			}
+			else
+			{
+				return true;
+			}
 		}
 		if (this->entity->HasAttr(Attr::IsMaster) && this->entity->GetBool(Attr::IsMaster))
 		{

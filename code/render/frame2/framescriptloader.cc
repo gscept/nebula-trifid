@@ -30,6 +30,7 @@
 #include "framebarrier.h"
 #include "coregraphics/barrier.h"
 #include "algorithm/algorithms.h"
+#include "coregraphics/displaydevice.h"
 
 using namespace CoreGraphics;
 using namespace IO;
@@ -47,11 +48,13 @@ FrameScriptLoader::LoadFrameScript(const IO::URI& path)
 	if (stream->Open())
 	{
 		void* data = stream->Map();
+
+		// make sure last byte is 0, since jzon doesn't care about input size
+		((char*)data)[stream->GetSize()] = '\0';
 		JzonParseResult result = jzon_parse((const char*)data);
 		JzonValue* json = result.output;
 		if (!result.success)
 		{
-			const char* error = cJSON_GetErrorPtr();
 			n_error("jzon parse error around: '%.100s'\n", result.error);
 		}
 
@@ -132,6 +135,9 @@ FrameScriptLoader::ParseColorTextureList(const Ptr<Frame2::FrameScript>& script,
 			// code to fetch window render texture goes here
 			Ptr<CoreGraphics::RenderTexture> tex = FrameServer::Instance()->GetWindowTexture();
 			script->AddColorTexture("__WINDOW__", tex);
+
+			// save the window used for the relative dimensions used for this framescript
+			script->window = DisplayDevice::Instance()->GetCurrentWindow();
 		}
 		else
 		{
@@ -156,15 +162,15 @@ FrameScriptLoader::ParseColorTextureList(const Ptr<Frame2::FrameScript>& script,
 			if (layers != nullptr) tex->SetLayers(layers->int_value);
 
 			// set relative, dynamic or msaa if defined
-			if (jzon_get(cur, "relative")) tex->SetIsScreenRelative(jzon_get(cur, "relative")->bool_value);
-			if (jzon_get(cur, "dynamic")) tex->SetIsDynamicScaled(jzon_get(cur, "dynamic")->bool_value);
-			if (jzon_get(cur, "msaa")) tex->SetEnableMSAA(jzon_get(cur, "msaa")->bool_value);
+			if (jzon_get(cur, "relative"))	tex->SetIsScreenRelative(jzon_get(cur, "relative")->bool_value);
+			if (jzon_get(cur, "dynamic"))	tex->SetIsDynamicScaled(jzon_get(cur, "dynamic")->bool_value);
+			if (jzon_get(cur, "msaa"))		tex->SetEnableMSAA(jzon_get(cur, "msaa")->bool_value);
 
 			// if cube, use 6 layers
 			float depth = 1;
 			if (jzon_get(cur, "cube"))
 			{
-				bool isCube = jzon_get(cur, "cube")->int_value == 1 ? true : false;
+				bool isCube = jzon_get(cur, "cube")->bool_value;
 				if (isCube)
 				{
 					tex->SetTextureType(Texture::TextureCube);
@@ -665,7 +671,7 @@ FrameScriptLoader::ParseEvent(const Ptr<Frame2::FrameScript>& script, JzonValue*
 	Ptr<FrameEvent> op = FrameEvent::Create();
 	JzonValue* name = jzon_get(node, "name");
 	n_assert(name != NULL);
-	const Ptr<Event>& event = script->GetEvent(name->string_value);
+	const Ptr<CoreGraphics::Event>& event = script->GetEvent(name->string_value);
 
 	// go through ops
 	JzonValue* ops = jzon_get(node, "actions");
@@ -1181,7 +1187,7 @@ void
 FrameScriptLoader::ParseSubpassBatch(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, JzonValue* node)
 {
 	Ptr<Frame2::FrameSubpassBatch> op = Frame2::FrameSubpassBatch::Create();
-	Frame::BatchGroup::Code code = Frame::BatchGroup::FromName(node->string_value);
+	Graphics::BatchGroup::Code code = Graphics::BatchGroup::FromName(node->string_value);
 	op->SetBatchCode(code);
 	subpass->AddOp(op.upcast<Frame2::FrameOp>());
 }
@@ -1193,7 +1199,7 @@ void
 FrameScriptLoader::ParseSubpassSortedBatch(const Ptr<Frame2::FrameScript>& script, const Ptr<Frame2::FrameSubpass>& subpass, JzonValue* node)
 {
 	Ptr<Frame2::FrameSubpassOrderedBatch> op = Frame2::FrameSubpassOrderedBatch::Create();
-	Frame::BatchGroup::Code code = Frame::BatchGroup::FromName(node->string_value);
+	Graphics::BatchGroup::Code code = Graphics::BatchGroup::FromName(node->string_value);
 	op->SetBatchCode(code);
 	subpass->AddOp(op.upcast<Frame2::FrameOp>());
 }
@@ -1237,7 +1243,7 @@ FrameScriptLoader::ParseSubpassEvent(const Ptr<Frame2::FrameScript>& script, con
 	Ptr<FrameEvent> op = FrameEvent::Create();
 	JzonValue* name = jzon_get(node, "name");
 	n_assert(name != nullptr);
-	const Ptr<Event>& event = script->GetEvent(name->string_value);
+	const Ptr<CoreGraphics::Event>& event = script->GetEvent(name->string_value);
 
 	// go through ops
 	JzonValue* ops = jzon_get(node, "actions");

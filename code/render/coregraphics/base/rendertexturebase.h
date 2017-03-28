@@ -19,7 +19,8 @@
 
 namespace CoreGraphics
 {
-class RenderTexture;
+	class RenderTexture;
+	class Window;
 }
 
 namespace Base
@@ -95,14 +96,12 @@ public:
 	/// swap buffers, only valid if this is a window texture
 	void SwapBuffers();
 
-	/// called after we change the display size
-	void OnDisplayResized(SizeT width, SizeT height);
-
 	/// get texture
 	const Ptr<CoreGraphics::Texture>& GetTexture() const;
 	/// get texture resource id
 	const Resources::ResourceId& GetResourceId() const;
 protected:
+	Ptr<CoreGraphics::Window> window;
 	Ptr<CoreGraphics::Texture> texture;
 	CoreGraphics::PixelFormat::Code format;
 	CoreGraphics::Texture::Type type;

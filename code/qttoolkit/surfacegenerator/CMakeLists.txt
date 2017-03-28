@@ -18,12 +18,15 @@ SET(PCH_files
     ../stdneb.cc
 )
 SOURCE_GROUP("Precompiled" FILES ${PCH_files})
-PCH_QT4_WRAP_CPP(surfacegenerator_HEADERS_MOC ${QTMOCFILES})
 
-INCLUDE(${QT_USE_FILE})
-ADD_DEFINITIONS(${QT_DEFINITIONS})
-QT4_WRAP_UI(surfacegenerator_FORMS_HEADERS ${FORMS})
-NONPCH_QT4_ADD_RESOURCES(surfacegenerator_RESOURCES_RCC ${RESOURCES})
+PCH_QT_WRAP_CPP(surfacegenerator_HEADERS_MOC ${QTMOCFILES})
+N_QT_WRAP_UI(surfacegenerator_FORMS_HEADERS ${FORMS})
+NONPCH_QT_ADD_RESOURCES(surfacegenerator_RESOURCES_RCC ${RESOURCES})
+
+IF(N_QT4)
+	INCLUDE(${QT_USE_FILE})
+	ADD_DEFINITIONS(${QT_DEFINITIONS})	
+ENDIF()
 
 LIST(APPEND ALLSRCS ${CODE} ${PCH_files} ${surfacegenerator_HEADERS_MOC} ${surfacegenerator_FORMS_HEADERS} ${surfacegenerator_RESOURCES_RCC})
 
@@ -33,7 +36,7 @@ N_SET_COMPILER_DEFAULTS()
 
 ADD_EXECUTABLE(surfacegenerator ${ALLSRCS})
 
-TARGET_INCLUDE_DIRECTORIES(surfacegenerator PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${Nebula3_SOURCE_DIR}/code/qttoolkit/surfacegenerator/code)
+TARGET_INCLUDE_DIRECTORIES(surfacegenerator PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${Nebula3_SOURCE_DIR}/code/qttoolkit/surfacegenerator/code ${Nebula3_SOURCE_DIR}/code/qttoolkit)
 
 
 N_SET_QT_PROPERTIES(surfacegenerator "N3SDK/QtToolkit")
@@ -47,7 +50,8 @@ ADD_DEPENDENCIES(surfacegenerator
 	foundation
 	qtfeature
 	qttools
-	toolkitutil	
+	libqimg
+	toolkitutil
 )
 
 TARGET_LINK_LIBRARIES(surfacegenerator 
@@ -55,6 +59,6 @@ TARGET_LINK_LIBRARIES(surfacegenerator
 	qtfeature
 	qttools
 	toolkitutil 
-	${QT_WIN_LIBS}	
-	${QT_LIBRARIES} ${QT_QTMAIN_LIBRARY}	
+	libqimg
+	qtsupport
 )

@@ -5,7 +5,7 @@
     
     General posteffect settings like blendtime and name
         
-    (C) 2015 Individual contributors, see AUTHORS file
+    (C) 2015-2016 Individual contributors, see AUTHORS file
 */
 #include "timing/time.h"
 #include "core/refcounted.h"

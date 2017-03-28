@@ -5,7 +5,7 @@
     
     Represents a billboard entity.
     
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "graphics/graphicsentity.h"
@@ -51,6 +51,8 @@ public:
 	void SetTexture(const Resources::ResourceId& texture);
 	/// gets billboard texture
 	const Resources::ResourceId& GetTexture() const;
+    /// sets texture directly
+    void SetTexture(const Ptr<CoreGraphics::Texture>& texture);
     /// sets billboard color
     void SetColor(const Math::float4& color);
     /// gets billboard color
@@ -130,6 +132,17 @@ BillboardEntity::SetTexture( const Resources::ResourceId& texture )
 	this->resource = texture;
 }
 
+
+//------------------------------------------------------------------------------
+/**
+
+*/
+inline void 
+BillboardEntity::SetTexture(const Ptr<CoreGraphics::Texture>& texture)
+{
+    this->textureVariable->SetTexture(texture);
+}
+
 //------------------------------------------------------------------------------
 /**
 */
@@ -138,10 +151,6 @@ BillboardEntity::GetTexture() const
 {
 	return this->resource;
 }
-
-//------------------------------------------------------------------------------
-/**
-*/
 
 //------------------------------------------------------------------------------
 /**

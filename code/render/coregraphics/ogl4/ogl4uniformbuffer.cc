@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  ogl4uniformbuffer.cc
-//  (C) 2015 Individual contributors, see AUTHORS file
+//  (C) 2015-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "ogl4uniformbuffer.h"
@@ -51,7 +51,7 @@ OGL4UniformBuffer::Setup(const SizeT numBackingBuffers)
 
     // calculate aligned size
 	this->size = (this->size + offsetAlignment - 1) - (this->size + offsetAlignment - 1) % offsetAlignment;
-	n_assert(this->size < GLuint(maxBufferSize));
+	n_assert(this->size < GLuint(maxBufferSize) * this->numBuffers);
 
     glBindBuffer(GL_UNIFORM_BUFFER, this->ogl4Buffer);
     if (!this->sync)

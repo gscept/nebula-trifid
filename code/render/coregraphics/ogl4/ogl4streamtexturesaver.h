@@ -5,11 +5,10 @@
     
     OGL4 implementation of StreamTextureSaver.
     
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "coregraphics/base/streamtexturesaverbase.h"
 #include "coregraphics/texture.h"
-#include "IL/il.h"
 
 //------------------------------------------------------------------------------
 namespace OpenGL4
@@ -24,11 +23,11 @@ public:
 
 private:
 	/// saves a standard 2D texture
-	bool SaveTexture2D(const Ptr<CoreGraphics::Texture>& tex, ILenum imageFileType);
+	bool SaveTexture2D(const Ptr<CoreGraphics::Texture>& tex, uint imageFileType);
 	/// saves a cube map
-	bool SaveCubemap(const Ptr<CoreGraphics::Texture>& tex, ILenum imageFileType);
+	bool SaveCubemap(const Ptr<CoreGraphics::Texture>& tex, uint imageFileType);
 	/// saves a 3D texture
-	bool SaveTexture3D(const Ptr<CoreGraphics::Texture>& tex, ILenum imageFileType);
+	bool SaveTexture3D(const Ptr<CoreGraphics::Texture>& tex, uint imageFileType);
 
 	/// helper function to flip image data horizontally
 	template<typename T> void* FlipImageDataHorizontal(SizeT width, SizeT height, void* buf);

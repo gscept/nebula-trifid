@@ -5,7 +5,7 @@
 
     Property for storing information related to the entity in the leveleditor.	
     
-	(C) 2012-2015 Individual contributors, see AUTHORS file
+	(C) 2012-2016 Individual contributors, see AUTHORS file
 */
 #include "game/property.h"
 #include "attr/attributedefinition.h"
@@ -23,6 +23,7 @@ namespace Attr
 	DeclareGuid(EntityGuid,'ETGU',ReadWrite);
 	DeclareGuid(ParentGuid,'PAGU',ReadWrite);
 	DeclareBool(IsSelected,'ISCT',ReadWrite);
+    DeclareBool(IsLocked, 'ISLK', ReadWrite);
 };
 
 //------------------------------------------------------------------------------

@@ -14,12 +14,7 @@
 #include "util/dictionary.h"
 #include "materials/materialvariable.h"
 #include "coregraphics/shaderstate.h"
-#include "frame/batchgroup.h"
-
-namespace Frame
-{
-	class FramePassBase;
-}
+#include "graphics/batchgroup.h"
 
 namespace Materials
 {
@@ -55,7 +50,7 @@ public:
 	/// get shader instance by index
 	const Ptr<CoreGraphics::ShaderState>& GetShaderStateByIndex(IndexT i) const;
 	/// get shader instance by name
-	const Ptr<CoreGraphics::ShaderState>& GetShaderStateByCode(const Frame::BatchGroup::Code& code);
+	const Ptr<CoreGraphics::ShaderState>& GetShaderStateByCode(const Graphics::BatchGroup::Code& code);
 	/// get number of shader instances
 	const SizeT GetNumShaderInstances() const;
 
@@ -68,7 +63,7 @@ private:
 	void Cleanup();
 	
 	Util::Array<Ptr<CoreGraphics::ShaderState> > shaderInstances;
-	Util::Dictionary<Frame::BatchGroup::Code, Ptr<CoreGraphics::ShaderState>> shaderInstancesByCode;
+	Util::Dictionary<Graphics::BatchGroup::Code, Ptr<CoreGraphics::ShaderState>> shaderInstancesByCode;
 	Util::Array<Ptr<MaterialVariable> > materialVariables;
 	Util::Dictionary<CoreGraphics::ShaderVariable::Name, Ptr<MaterialVariable>> materialVariablesByName;
 	Ptr<Material> originalMaterial;

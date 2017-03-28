@@ -1,15 +1,15 @@
 //------------------------------------------------------------------------------
 //  qtremotehandler.cc
-//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "messaging/staticmessagehandler.h"
 #include "qtremoteserver.h"
-#include "qtremoteprotocol.h"
+#include "remoteinterface/qtremoteprotocol.h"
 #include "graphics/graphicsprotocol.h"
 #include "graphics/graphicsinterface.h"
-#include "application/appgame/gameapplication.h"
-#include "application/basegamefeature/statehandlers/gamestatehandler.h"
+#include "appgame/gameapplication.h"
+#include "basegamefeature/statehandlers/gamestatehandler.h"
 
 using namespace QtRemoteInterfaceAddon;
 using namespace Graphics;
@@ -29,6 +29,15 @@ __Handler(QtRemoteServer, ReloadResource)
 /**
 */
 __Handler(QtRemoteServer, ReloadResourceIfExists)
+{
+	// quite simply just send to graphics interface
+	GraphicsInterface::Instance()->Send(msg.upcast<Messaging::Message>());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+__Handler(QtRemoteServer, ReloadModelByResource)
 {
 	// quite simply just send to graphics interface
 	GraphicsInterface::Instance()->Send(msg.upcast<Messaging::Message>());
@@ -60,6 +69,7 @@ __Dispatcher(QtRemoteServer)
 {
 	__Handle(QtRemoteServer, ReloadResource);
 	__Handle(QtRemoteServer, ReloadResourceIfExists);
+	__Handle(QtRemoteServer, ReloadModelByResource);	
 	__Handle(QtRemoteServer, LoadLevel);
 	__Handle(QtRemoteServer, KeepAlive);
 }

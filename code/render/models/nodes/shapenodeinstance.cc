@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  materialshapenodeinstance.cc
-//  (C) 2011-2013 Individual contributors, see AUTHORS file
+//  (C) 2011-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "models/nodes/shapenodeinstance.h"
@@ -38,7 +38,7 @@ ShapeNodeInstance::OnVisibilityResolve(IndexT frameIndex, IndexT resolveIndex, f
 {
     // check LOD distance and tell our model node that we are a visible instance
     const Ptr<TransformNode>& transformNode = this->modelNode.downcast<TransformNode>();
-    if (transformNode->CheckLodDistance(distanceToViewer))
+	if (transformNode->CheckLodDistance(distanceToViewer))
     {
         this->modelNode->AddVisibleNodeInstance(resolveIndex, this->surfaceInstance->GetCode(), this);
         StateNodeInstance::OnVisibilityResolve(frameIndex, resolveIndex, distanceToViewer);

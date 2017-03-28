@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1717</width>
+    <width>1774</width>
     <height>964</height>
    </rect>
   </property>
@@ -22,7 +22,7 @@
    </font>
   </property>
   <property name="mouseTracking">
-   <bool>true</bool>
+   <bool>false</bool>
   </property>
   <property name="acceptDrops">
    <bool>true</bool>
@@ -33,17 +33,14 @@
   <property name="windowOpacity">
    <double>1.000000000000000</double>
   </property>
-  <property name="styleSheet">
-   <string notr="true"/>
-  </property>
   <property name="animated">
-   <bool>true</bool>
+   <bool>false</bool>
   </property>
   <property name="tabShape">
    <enum>QTabWidget::Rounded</enum>
   </property>
-  <property name="dockOptions">
-   <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks</set>
+  <property name="dockNestingEnabled">
+   <bool>false</bool>
   </property>
   <property name="unifiedTitleAndToolBarOnMac">
    <bool>false</bool>
@@ -56,17 +53,8 @@
     </sizepolicy>
    </property>
    <layout class="QGridLayout" name="gridLayout_3">
-    <property name="leftMargin">
-     <number>2</number>
-    </property>
-    <property name="topMargin">
-     <number>5</number>
-    </property>
-    <property name="rightMargin">
-     <number>2</number>
-    </property>
-    <property name="bottomMargin">
-     <number>2</number>
+    <property name="margin">
+     <number>0</number>
     </property>
     <item row="0" column="0">
      <widget class="QFrame" name="frame">
@@ -99,6 +87,10 @@
         <width>0</width>
         <height>0</height>
        </size>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">border: 1px solid palette(dark);
+</string>
       </property>
       <layout class="QGridLayout" name="gridLayout_5">
        <property name="verticalSpacing">
@@ -139,6 +131,9 @@
          <property name="focusPolicy">
           <enum>Qt::StrongFocus</enum>
          </property>
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
          <property name="frameShape">
           <enum>QFrame::NoFrame</enum>
          </property>
@@ -167,7 +162,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#aa3c3c;&quot;&gt;Not connected with Level Editor&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#FF7272;&quot;&gt;Not connected with Level Editor&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
        </widget>
       </item>
@@ -180,7 +175,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1717</width>
+     <width>1774</width>
      <height>21</height>
     </rect>
    </property>
@@ -257,8 +252,17 @@
    <property name="windowTitle">
     <string>Controls toolbar</string>
    </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>16</width>
+     <height>16</height>
+    </size>
+   </property>
    <property name="toolButtonStyle">
-    <enum>Qt::ToolButtonTextUnderIcon</enum>
+    <enum>Qt::ToolButtonTextBesideIcon</enum>
    </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
@@ -276,6 +280,9 @@
    <addaction name="actionShow_grid"/>
   </widget>
   <widget class="QDockWidget" name="dockWidget">
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
    <property name="windowTitle">
     <string>Resource browser</string>
    </property>
@@ -283,9 +290,12 @@
     <number>1</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents">
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
     <layout class="QGridLayout" name="gridLayout_2">
      <property name="margin">
-      <number>2</number>
+      <number>0</number>
      </property>
      <item row="0" column="0">
       <widget class="ContentBrowser::LibraryTreeWidget" name="libraryTree">
@@ -303,6 +313,9 @@
        </property>
        <property name="contextMenuPolicy">
         <enum>Qt::CustomContextMenu</enum>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
        </property>
        <property name="verticalScrollBarPolicy">
         <enum>Qt::ScrollBarAsNeeded</enum>
@@ -345,8 +358,8 @@
   <widget class="QDockWidget" name="modelDockWidget">
    <property name="minimumSize">
     <size>
-     <width>80</width>
-     <height>91</height>
+     <width>84</width>
+     <height>93</height>
     </size>
    </property>
    <property name="maximumSize">
@@ -355,11 +368,17 @@
      <height>524287</height>
     </size>
    </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
    <property name="floating">
     <bool>true</bool>
    </property>
    <property name="features">
     <set>QDockWidget::AllDockWidgetFeatures</set>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
    </property>
    <property name="windowTitle">
     <string>Model</string>
@@ -374,8 +393,17 @@
      </property>
      <item row="0" column="0">
       <widget class="QScrollArea" name="modelScroll">
+       <property name="styleSheet">
+        <string notr="true">QScrollArea { margin: 0px; }</string>
+       </property>
        <property name="frameShape">
         <enum>QFrame::NoFrame</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Plain</enum>
+       </property>
+       <property name="verticalScrollBarPolicy">
+        <enum>Qt::ScrollBarAsNeeded</enum>
        </property>
        <property name="widgetResizable">
         <bool>true</bool>
@@ -386,8 +414,11 @@
           <x>0</x>
           <y>0</y>
           <width>91</width>
-          <height>102</height>
+          <height>106</height>
          </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
         </property>
         <layout class="QGridLayout" name="gridLayout">
          <property name="margin">
@@ -396,13 +427,13 @@
          <item row="0" column="0">
           <widget class="QFrame" name="modelDockFrame">
            <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
+            <enum>QFrame::NoFrame</enum>
            </property>
            <property name="frameShadow">
             <enum>QFrame::Plain</enum>
            </property>
            <property name="lineWidth">
-            <number>1</number>
+            <number>0</number>
            </property>
           </widget>
          </item>
@@ -417,7 +448,7 @@
    <property name="minimumSize">
     <size>
      <width>91</width>
-     <height>91</height>
+     <height>93</height>
     </size>
    </property>
    <property name="maximumSize">
@@ -432,6 +463,9 @@
    <property name="features">
     <set>QDockWidget::AllDockWidgetFeatures</set>
    </property>
+   <property name="allowedAreas">
+    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
+   </property>
    <property name="windowTitle">
     <string>Texture</string>
    </property>
@@ -445,6 +479,9 @@
      </property>
      <item row="0" column="0">
       <widget class="QScrollArea" name="textureScroll">
+       <property name="styleSheet">
+        <string notr="true">QScrollArea { margin: 0px; }</string>
+       </property>
        <property name="frameShape">
         <enum>QFrame::NoFrame</enum>
        </property>
@@ -457,7 +494,7 @@
           <x>0</x>
           <y>0</y>
           <width>91</width>
-          <height>102</height>
+          <height>106</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_4">
@@ -467,10 +504,13 @@
          <item row="0" column="0">
           <widget class="QFrame" name="textureDockFrame">
            <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
+            <enum>QFrame::NoFrame</enum>
            </property>
            <property name="frameShadow">
             <enum>QFrame::Plain</enum>
+           </property>
+           <property name="lineWidth">
+            <number>0</number>
            </property>
           </widget>
          </item>
@@ -484,8 +524,8 @@
   <widget class="QDockWidget" name="audioDockWidget">
    <property name="minimumSize">
     <size>
-     <width>80</width>
-     <height>91</height>
+     <width>84</width>
+     <height>93</height>
     </size>
    </property>
    <property name="maximumSize">
@@ -496,6 +536,9 @@
    </property>
    <property name="floating">
     <bool>true</bool>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
    </property>
    <property name="windowTitle">
     <string>Audio</string>
@@ -510,6 +553,9 @@
      </property>
      <item row="0" column="0">
       <widget class="QScrollArea" name="scrollArea">
+       <property name="styleSheet">
+        <string notr="true">QScrollArea { margin: 0px; }</string>
+       </property>
        <property name="frameShape">
         <enum>QFrame::NoFrame</enum>
        </property>
@@ -522,7 +568,7 @@
           <x>0</x>
           <y>0</y>
           <width>91</width>
-          <height>102</height>
+          <height>106</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_11">
@@ -535,10 +581,13 @@
             <bool>false</bool>
            </property>
            <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
+            <enum>QFrame::NoFrame</enum>
            </property>
            <property name="frameShadow">
             <enum>QFrame::Plain</enum>
+           </property>
+           <property name="lineWidth">
+            <number>0</number>
            </property>
           </widget>
          </item>
@@ -552,8 +601,8 @@
   <widget class="QDockWidget" name="uiDockWidget">
    <property name="minimumSize">
     <size>
-     <width>80</width>
-     <height>91</height>
+     <width>84</width>
+     <height>93</height>
     </size>
    </property>
    <property name="maximumSize">
@@ -565,6 +614,9 @@
    <property name="floating">
     <bool>true</bool>
    </property>
+   <property name="allowedAreas">
+    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
+   </property>
    <property name="windowTitle">
     <string>UI</string>
    </property>
@@ -572,12 +624,18 @@
     <number>2</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents_6">
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
     <layout class="QGridLayout" name="gridLayout_8">
      <property name="margin">
       <number>0</number>
      </property>
      <item row="0" column="0">
       <widget class="QScrollArea" name="scrollArea_2">
+       <property name="styleSheet">
+        <string notr="true">QScrollArea { margin: 0px; }</string>
+       </property>
        <property name="frameShape">
         <enum>QFrame::NoFrame</enum>
        </property>
@@ -590,8 +648,11 @@
           <x>0</x>
           <y>0</y>
           <width>91</width>
-          <height>102</height>
+          <height>106</height>
          </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
         </property>
         <layout class="QGridLayout" name="gridLayout_13">
          <property name="margin">
@@ -603,10 +664,13 @@
             <bool>false</bool>
            </property>
            <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
+            <enum>QFrame::NoFrame</enum>
            </property>
            <property name="frameShadow">
             <enum>QFrame::Plain</enum>
+           </property>
+           <property name="lineWidth">
+            <number>0</number>
            </property>
           </widget>
          </item>
@@ -620,8 +684,8 @@
   <widget class="QDockWidget" name="meshDockWidget">
    <property name="minimumSize">
     <size>
-     <width>80</width>
-     <height>91</height>
+     <width>84</width>
+     <height>93</height>
     </size>
    </property>
    <property name="maximumSize">
@@ -632,6 +696,9 @@
    </property>
    <property name="floating">
     <bool>true</bool>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
    </property>
    <property name="windowTitle">
     <string>Mesh</string>
@@ -646,6 +713,9 @@
      </property>
      <item row="0" column="0">
       <widget class="QScrollArea" name="scrollArea_3">
+       <property name="styleSheet">
+        <string notr="true">QScrollArea { margin: 0px; }</string>
+       </property>
        <property name="frameShape">
         <enum>QFrame::NoFrame</enum>
        </property>
@@ -658,7 +728,7 @@
           <x>0</x>
           <y>0</y>
           <width>91</width>
-          <height>102</height>
+          <height>106</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_14">
@@ -671,10 +741,13 @@
             <bool>false</bool>
            </property>
            <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
+            <enum>QFrame::NoFrame</enum>
            </property>
            <property name="frameShadow">
             <enum>QFrame::Plain</enum>
+           </property>
+           <property name="lineWidth">
+            <number>0</number>
            </property>
           </widget>
          </item>
@@ -688,8 +761,8 @@
   <widget class="QDockWidget" name="animationDockWidget">
    <property name="minimumSize">
     <size>
-     <width>80</width>
-     <height>91</height>
+     <width>84</width>
+     <height>93</height>
     </size>
    </property>
    <property name="maximumSize">
@@ -700,6 +773,9 @@
    </property>
    <property name="floating">
     <bool>true</bool>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
    </property>
    <property name="windowTitle">
     <string>Animation</string>
@@ -714,6 +790,9 @@
      </property>
      <item row="0" column="0">
       <widget class="QScrollArea" name="scrollArea_4">
+       <property name="styleSheet">
+        <string notr="true">QScrollArea { margin: 0px; }</string>
+       </property>
        <property name="frameShape">
         <enum>QFrame::NoFrame</enum>
        </property>
@@ -726,7 +805,7 @@
           <x>0</x>
           <y>0</y>
           <width>91</width>
-          <height>102</height>
+          <height>106</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_15">
@@ -739,10 +818,13 @@
             <bool>false</bool>
            </property>
            <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
+            <enum>QFrame::NoFrame</enum>
            </property>
            <property name="frameShadow">
             <enum>QFrame::Plain</enum>
+           </property>
+           <property name="lineWidth">
+            <number>0</number>
            </property>
           </widget>
          </item>
@@ -754,8 +836,14 @@
    </widget>
   </widget>
   <widget class="QDockWidget" name="materialDockWidget">
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
    <property name="floating">
     <bool>true</bool>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
    </property>
    <property name="windowTitle">
     <string>Surface</string>
@@ -773,8 +861,17 @@
      </property>
      <item row="0" column="0">
       <widget class="QScrollArea" name="scrollArea_5">
+       <property name="styleSheet">
+        <string notr="true">QScrollArea { margin: 0px; }</string>
+       </property>
        <property name="frameShape">
         <enum>QFrame::NoFrame</enum>
+       </property>
+       <property name="lineWidth">
+        <number>0</number>
+       </property>
+       <property name="verticalScrollBarPolicy">
+        <enum>Qt::ScrollBarAsNeeded</enum>
        </property>
        <property name="widgetResizable">
         <bool>true</bool>
@@ -785,7 +882,7 @@
           <x>0</x>
           <y>0</y>
           <width>91</width>
-          <height>102</height>
+          <height>103</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_17">
@@ -798,10 +895,13 @@
          <item row="0" column="0">
           <widget class="QFrame" name="materialDockFrame">
            <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
+            <enum>QFrame::NoFrame</enum>
            </property>
            <property name="frameShadow">
             <enum>QFrame::Plain</enum>
+           </property>
+           <property name="lineWidth">
+            <number>0</number>
            </property>
           </widget>
          </item>

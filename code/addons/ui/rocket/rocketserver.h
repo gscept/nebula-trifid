@@ -43,7 +43,7 @@ public:
 	/// updates context
 	void Update();
 	/// renders context
-	void Render(const Ptr<Frame::FrameBatch>& frameBatch);
+	void Render(const Util::StringAtom& filter);
 	/// load font
 	void LoadFont(const Util::String& resource, const Util::String& family, UI::FontStyle style, UI::FontWeight weight);
 	/// load font and try to autodetect information about it
@@ -71,6 +71,13 @@ public:
 	/// get rocket context
 	Rocket::Core::Context* GetContext();
 
+	/// add extra eventlistener instancer
+	void AddEventListenerInstancer(Rocket::Core::EventListenerInstancer* instancer);
+	///
+	void RemoveEventListenerInstancer(Rocket::Core::EventListenerInstancer* instancer);
+	///
+	const Util::Array<Rocket::Core::EventListenerInstancer*> & GetEventListenerInstancers();
+	
 	friend class RocketLayout;
 
 private:
@@ -79,7 +86,8 @@ private:
 	Rocket::Core::Context* context;
 	RocketInterface system;
 	RocketRenderer renderer;
-	RocketEventListenerInstancer* listenerInstancer;
+	RocketEventListenerInstancer* listenerInstancer;	
+	Util::Array<Rocket::Core::EventListenerInstancer*> extraInstancers;
 }; 
 
 
@@ -92,6 +100,14 @@ RocketServer::GetContext()
 	return this->context;
 }
 
-
+//------------------------------------------------------------------------------
+/**
+*/
+inline
+const Util::Array<Rocket::Core::EventListenerInstancer*> &
+RocketServer::GetEventListenerInstancers()
+{
+	return this->extraInstancers;
+}
 } // namespace Rocket
 //------------------------------------------------------------------------------

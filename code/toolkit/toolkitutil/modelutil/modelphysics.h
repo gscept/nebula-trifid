@@ -5,7 +5,7 @@
     
     Implements the physics counterpart of models.
     
-    (C) 2012 Johannes Hirche
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"

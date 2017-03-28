@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  managers/entitymanager.cc
 //  (C) 2007 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "game/entity.h"
@@ -779,25 +779,25 @@ EntityManager::OnEndFrame()
     }
     _stop_timer(EntityManagerOnRender);
 
-	// invoke OnHandleDeferred() on all entities
-	_start_timer(EntityManagerOnRender);
-	for (entityIndex = 0; entityIndex < this->triggeredEntities.Size(); entityIndex++)
-	{
-		if (this->triggeredEntities[entityIndex]->IsActive())
-		{
-			#if __ENTITY_STATS__
-			Core::Rtti* entityRtti =  this->triggeredEntities[entityIndex]->GetRtti();
-			this->entityProfilersByClass[entityRtti].StartAccum();
-			#endif
+    // invoke OnHandleDeferred() on all entities
+    _start_timer(EntityManagerOnRender);
+    for (entityIndex = 0; entityIndex < this->triggeredEntities.Size(); entityIndex++)
+    {
+        if (this->triggeredEntities[entityIndex]->IsActive())
+        {
+            #if __ENTITY_STATS__
+            Core::Rtti* entityRtti =  this->triggeredEntities[entityIndex]->GetRtti();
+            this->entityProfilersByClass[entityRtti].StartAccum();
+            #endif
 
-			this->triggeredEntities[entityIndex]->OnHandleDeferred();
+            this->triggeredEntities[entityIndex]->OnHandleDeferred();
 
-			#if __ENTITY_STATS__
-			this->entityProfilersByClass[entityRtti].StopAccum();
-			#endif
-		}
-	}
-	_stop_timer(EntityManagerOnRender);
+            #if __ENTITY_STATS__
+            this->entityProfilersByClass[entityRtti].StopAccum();
+            #endif
+        }
+    }
+    _stop_timer(EntityManagerOnRender);
 
     // unlock the active entities array
     n_assert(this->activeEntitiesLocked);
@@ -860,7 +860,7 @@ EntityManager::GetEntitiesByAttr(const Attribute& attr, bool onlyFirstEntity)
 
     // get all category manager instances according to the parameters
     Util::Array<CategoryManager::Entry> catEntries;
-    catEntries = catManager->GetInstancesByAttr(attr, onlyFirstEntity, false);
+    catEntries = catManager->GetInstancesByAttr(attr, false, onlyFirstEntity);
 
     // update result, and create any missing entities
     IndexT i;
@@ -896,9 +896,30 @@ EntityManager::GetEntitiesByAttrs(const Util::Array<Attribute>& attrs, bool only
     for (i = 0; i < catEntries.Size(); i++)
     {
         Ptr<Game::Entity> entity = (Game::Entity*) catEntries[i].Values()->GetRowUserData(catEntries[i].RowIndex());
-        n_assert(entity.isvalid());
-        n_assert(entity->IsA(Game::Entity::RTTI));
-        result.Append(entity);
+        // FIXME why do we assert here, and why does instance table contain invalid entities to begin with (they seem to be deleted)
+        //   n_assert(entity.isvalid());
+        //   n_assert(entity->IsA(Game::Entity::RTTI));
+        if (entity.isvalid() && entity->IsA(Game::Entity::RTTI))
+        {
+            result.Append(entity);
+        }
+    }
+    return result;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+Util::Array<Ptr<Game::Entity>>
+EntityManager::GetEntitiesByCategory(const Util::String & category)
+{
+    Util::Array<Ptr<Game::Entity>> result;
+    CategoryManager* catManager = CategoryManager::Instance();
+    Ptr<Db::ValueTable> instances = catManager->GetInstanceTable(category);
+    for (int i = 0; i < instances->GetNumRows(); i++)
+    {
+        Ptr<Game::Entity> ent = (Game::Entity*)instances->GetRowUserData(i);
+        result.Append(ent);
     }
     return result;
 }
@@ -1022,17 +1043,17 @@ EntityManager::OnSave()
 bool
 EntityManager::IsEntityInDelayedJobs(const Ptr<Game::Entity>& _entity)
 {
-	int index;
+    int index;
 
-	for(index = 0 ; index < this->delayedJobs.Size() ; index++ )
-	{
-		if(this->delayedJobs[index].entity.isvalid() && this->delayedJobs[index].entity == _entity)	
-		{
-			return true;
-		}
-	}
+    for (index = 0; index < this->delayedJobs.Size(); index++)
+    {
+        if (this->delayedJobs[index].entity.isvalid() && this->delayedJobs[index].entity == _entity)
+        {
+            return true;
+        }
+    }
 
-	return false;
+    return false;
 }
 
 } // namespace Managers

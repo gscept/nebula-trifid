@@ -177,6 +177,22 @@ __StaticHandler(ReloadResourceIfExists)
 //------------------------------------------------------------------------------
 /**
 */
+__StaticHandler(ReloadModelByResource)
+{
+	// TODO: IMPLEMENT ME!
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+__StaticHandler(ReloadShader)
+{
+	// TODO: IMPLEMENT ME!
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 __StaticHandler(ItemAtPosition)
 {
 	n_assert(PickingServer::HasInstance());
@@ -336,14 +352,18 @@ __StaticHandler(CreateGraphicsView)
     bool isDefaultView = msg->GetDefaultView();
 
     Ptr<FrameScript> frameShader = FrameServer::Instance()->LoadFrameScript(viewName, String::Sprintf("frame:%s.json", frameShaderName.Value()));
+	IndexT windowId = msg->GetWindow();
+    
     const Ptr<Stage>& stage = GraphicsServer::Instance()->GetStageByName(stageName);
-    Ptr<View> view = GraphicsServer::Instance()->CreateView(*viewClass, viewName, isDefaultView);
+    Ptr<View> view = GraphicsServer::Instance()->CreateView(*viewClass, viewName, windowId, isDefaultView);
 	if (msg->GetUseResolveRect())
 	{
 		view->SetResolveRect(msg->GetResolveRect());
 	}
     view->SetStage(stage);
     view->SetFrameScript(frameShader);
+	// set window to be current so the frame shader is relative to this window
+	if (windowId != InvalidIndex) DisplayDevice::Instance()->MakeWindowCurrent(windowId);
 
     msg->GetObjectRef()->Validate<View>(view.get());
 }
@@ -503,7 +523,10 @@ __StaticHandler(ReleaseSharedResources)
 
 __StaticHandler(ShowSystemCursor)
 {
-    Input::InputServer::Instance()->SetCursorVisible(msg->GetVisible());
+	Ptr<CoreGraphics::Window> wnd = DisplayDevice::Instance()->GetWindow(msg->GetWindow());
+	wnd->SetCursorVisible(msg->GetVisible());
+	// makes no sense, which window?
+    //Input::InputServer::Instance()->SetCursorVisible(msg->GetVisible());
 }
 
 

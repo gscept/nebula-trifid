@@ -52,6 +52,7 @@ VkDescriptorPool VkRenderDevice::descPool;
 VkQueue VkRenderDevice::drawQueue;
 VkQueue VkRenderDevice::computeQueue;
 VkQueue VkRenderDevice::transferQueue;
+Util::FixedArray<VkQueue> VkRenderDevice::queues;
 VkInstance VkRenderDevice::instance;
 VkPhysicalDevice VkRenderDevice::physicalDev;
 VkPipelineCache VkRenderDevice::cache;
@@ -214,15 +215,8 @@ VkRenderDevice::OpenVulkanContext()
 	vkGetPhysicalDeviceQueueFamilyProperties(this->physicalDev, &this->numQueues, this->queuesProps);
 	vkGetPhysicalDeviceMemoryProperties(this->physicalDev, &this->memoryProps);
 
-	// setup swap chain in display
-	VkDisplayDevice::Instance()->SetupSwapchain();
-
-	Util::FixedArray<VkBool32> canPresent(numQueues);
-	for (i = 0; i < numQueues; i++)
-	{
-		vkGetPhysicalDeviceSurfaceSupportKHR(VkRenderDevice::Instance()->physicalDev, i, VkDisplayDevice::Instance()->surface, &canPresent[i]);
-		//this->surfaceSupport();
-	}
+	// resize queues list
+	VkRenderDevice::queues.Resize(numQueues);
 
 	this->drawQueueIdx = UINT32_MAX;
 	this->computeQueueIdx = UINT32_MAX;
@@ -234,24 +228,28 @@ VkRenderDevice::OpenVulkanContext()
 	indexMap.Fill(0);
 	for (i = 0; i < numQueues; i++)
 	{
+		
 		if (this->queuesProps[i].queueFlags & VK_QUEUE_GRAPHICS_BIT && this->drawQueueIdx == UINT32_MAX)
 		{
 			if (this->queuesProps[i].queueCount == indexMap[i]) continue;
+			this->drawQueueFamily = i;
+			this->drawQueueIdx = indexMap[i]++;
+			/*
 			uint32_t j;
 			for (j = 0; j < numQueues; j++)
 			{
 				if (canPresent[i] == VK_TRUE)
 				{
-					this->drawQueueIdx = indexMap[i]++;
-					this->drawQueueFamily = i;
+					
+					
 					break;
 				}
 			}
+			*/
 		}
 
 		// compute queues may not support graphics
-		if (this->queuesProps[i].queueFlags & VK_QUEUE_COMPUTE_BIT &&
-			this->computeQueueIdx == UINT32_MAX)
+		if (this->queuesProps[i].queueFlags & VK_QUEUE_COMPUTE_BIT && this->computeQueueIdx == UINT32_MAX)
 		{
 			if (this->queuesProps[i].queueCount == indexMap[i]) continue;
 			this->computeQueueFamily = i;
@@ -333,148 +331,14 @@ VkRenderDevice::OpenVulkanContext()
 	res = vkCreateDevice(this->physicalDev, &deviceInfo, NULL, &this->dev);
 	n_assert(res == VK_SUCCESS);
 
-	// grab implementation functions for swap chain management.
+	vkGetDeviceQueue(this->dev, this->drawQueueFamily, this->drawQueueIdx, &VkRenderDevice::queues[this->drawQueueFamily]);
+	vkGetDeviceQueue(this->dev, this->computeQueueFamily, this->computeQueueIdx, &VkRenderDevice::queues[this->computeQueueFamily]);
+	vkGetDeviceQueue(this->dev, this->transferQueueFamily, this->transferQueueIdx, &VkRenderDevice::queues[this->transferQueueFamily]);
 
-	// setup display queue in render device (gfxIdx is different, because it's family doesn't have to be the displayable one)
-	vkGetDeviceQueue(VkRenderDevice::dev, this->drawQueueFamily, this->drawQueueIdx, &VkRenderDevice::drawQueue);
-	vkGetDeviceQueue(VkRenderDevice::dev, this->computeQueueFamily, this->computeQueueIdx, &VkRenderDevice::computeQueue);
-	vkGetDeviceQueue(VkRenderDevice::dev, this->transferQueueFamily, this->transferQueueIdx, &VkRenderDevice::transferQueue);
-
-	// find available surface formats
-	uint32_t numFormats;
-	res = vkGetPhysicalDeviceSurfaceFormatsKHR(VkRenderDevice::physicalDev, VkDisplayDevice::Instance()->surface, &numFormats, NULL);
-	n_assert(res == VK_SUCCESS);
-
-	Util::FixedArray<VkSurfaceFormatKHR> formats(numFormats);
-	res = vkGetPhysicalDeviceSurfaceFormatsKHR(VkRenderDevice::physicalDev, VkDisplayDevice::Instance()->surface, &numFormats, formats.Begin());
-	n_assert(res == VK_SUCCESS);
-	this->format = formats[0].format;
-	this->colorSpace = formats[0].colorSpace;
-	VkComponentMapping mapping = { VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY };
-	for (i = 0; i < numFormats; i++)
-	{
-		if (formats[i].format == VK_FORMAT_B8G8R8A8_SRGB)
-		{
-			this->format = formats[i].format;
-			this->colorSpace = formats[i].colorSpace;
-			mapping.r = VK_COMPONENT_SWIZZLE_R;
-			mapping.b = VK_COMPONENT_SWIZZLE_B;
-			break;
-		}
-	}
-
-	// get surface capabilities
-	VkSurfaceCapabilitiesKHR surfCaps;
-	res = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(this->physicalDev, VkDisplayDevice::Instance()->surface, &surfCaps);
-	n_assert(res == VK_SUCCESS);
-
-	uint32_t numPresentModes;
-	res = vkGetPhysicalDeviceSurfacePresentModesKHR(this->physicalDev, VkDisplayDevice::Instance()->surface, &numPresentModes, NULL);
-	n_assert(res == VK_SUCCESS);
-
-	// get present modes
-	Util::FixedArray<VkPresentModeKHR> presentModes(numPresentModes);
-	res = vkGetPhysicalDeviceSurfacePresentModesKHR(this->physicalDev, VkDisplayDevice::Instance()->surface, &numPresentModes, presentModes.Begin());
-	n_assert(res == VK_SUCCESS);
-
-	VkExtent2D swapchainExtent;
-	if (surfCaps.currentExtent.width == -1)
-	{
-		const DisplayMode& mode = DisplayDevice::Instance()->GetDisplayMode();
-		swapchainExtent.width = mode.GetWidth();
-		swapchainExtent.height = mode.GetHeight();
-	}
-	else
-	{
-		swapchainExtent = surfCaps.currentExtent;
-	}
-
-	// figure out the best present mode, mailo
-	VkPresentModeKHR swapchainPresentMode = VK_PRESENT_MODE_FIFO_KHR;
-	for (i = 0; i < numPresentModes; i++)
-	{
-		if (presentModes[i] == VK_PRESENT_MODE_MAILBOX_KHR)
-		{
-			swapchainPresentMode = VK_PRESENT_MODE_MAILBOX_KHR;
-			break;
-		}
-		if ((swapchainPresentMode != VK_PRESENT_MODE_MAILBOX_KHR) && (presentModes[i] == VK_PRESENT_MODE_IMMEDIATE_KHR))
-		{
-			swapchainPresentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
-		}
-	}
-
-	// get the optimal set of swap chain images, the more the better
-	uint32_t numSwapchainImages = surfCaps.minImageCount + 1;
-	if ((surfCaps.maxImageCount > 0) && (numSwapchainImages > surfCaps.maxImageCount)) numSwapchainImages = surfCaps.maxImageCount;
-
-	// create a transform
-	VkSurfaceTransformFlagBitsKHR transform;
-	if (surfCaps.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR) transform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
-	else																	  transform = surfCaps.currentTransform;
-
-	VkSwapchainCreateInfoKHR swapchainInfo =
-	{
-		VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
-		NULL,
-		0,
-		VkDisplayDevice::Instance()->surface,
-		numSwapchainImages,
-		this->format,
-		this->colorSpace,
-		swapchainExtent,
-		1,
-		VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
-		VK_SHARING_MODE_EXCLUSIVE,
-		0,
-		NULL,
-		transform,
-		VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
-		swapchainPresentMode,
-		true,
-		VK_NULL_HANDLE
-	};
-
-	// create swapchain
-	res = vkCreateSwapchainKHR(this->dev, &swapchainInfo, NULL, &this->swapchain);
-	n_assert(res == VK_SUCCESS);
-
-	// get back buffers
-	res = vkGetSwapchainImagesKHR(this->dev, this->swapchain, &this->numBackbuffers, NULL);
-	n_assert(res == VK_SUCCESS);
-
-	this->backbuffers.Resize(this->numBackbuffers);
-	this->backbufferSemaphores.Resize(this->numBackbuffers);
-	res = vkGetSwapchainImagesKHR(this->dev, this->swapchain, &this->numBackbuffers, this->backbuffers.Begin());
-
-	this->backbufferViews.Resize(this->numBackbuffers);
-	for (i = 0; i < this->numBackbuffers; i++)
-	{
-		// setup view
-		VkImageViewCreateInfo backbufferViewInfo = 
-		{
-			VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-			NULL,
-			0,
-			this->backbuffers[i],
-			VK_IMAGE_VIEW_TYPE_2D,
-			this->format,
-			mapping,
-			{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 }
-		};
-		res = vkCreateImageView(this->dev, &backbufferViewInfo, NULL, &this->backbufferViews[i]);
-		n_assert(res == VK_SUCCESS);
-
-		VkSemaphoreCreateInfo semaphoreCreateInfo =
-		{
-			VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
-			NULL,
-			0
-		};
-		res = vkCreateSemaphore(this->dev, &semaphoreCreateInfo, NULL, &this->backbufferSemaphores[i]);
-		n_assert(res == VK_SUCCESS);
-	}
-	this->currentBackbuffer = 0;
+	// grab queues
+	this->drawQueue = VkRenderDevice::queues[this->drawQueueFamily];
+	this->computeQueue = VkRenderDevice::queues[this->computeQueueFamily];
+	this->transferQueue = VkRenderDevice::queues[this->transferQueueFamily];
 
 	VkPipelineCacheCreateInfo cacheInfo =
 	{
@@ -735,22 +599,8 @@ VkRenderDevice::OpenVulkanContext()
 	this->currentPipelineInfo.pVertexInputState = NULL;
 	this->currentPipelineInfo.pInputAssemblyState = NULL;
 
-	const CoreGraphics::DisplayMode& displayMode = DisplayDevice::Instance()->GetDisplayMode();
-	this->displayRect.offset.x = 0;
-	this->displayRect.offset.y = 0;
-	this->displayRect.extent.width = displayMode.GetWidth();
-	this->displayRect.extent.height = displayMode.GetHeight();
-
 	// create pipeline database
 	this->database = VkPipelineDatabase::Create();
-
-	const VkSemaphoreCreateInfo semInfo =
-	{
-		VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
-		NULL,
-		0
-	};
-	vkCreateSemaphore(this->dev, &semInfo, NULL, &this->displaySemaphore);
 
 	// setup scheduler
 	this->scheduler = VkScheduler::Create();
@@ -849,13 +699,6 @@ VkRenderDevice::CloseVulkanDevice()
 	vkDestroyFence(this->dev, this->mainCmdCmpFence, NULL);
 	vkDestroyFence(this->dev, this->mainCmdTransFence, NULL);
 
-	for (i = 0; i < (int32_t)this->numBackbuffers; i++)
-	{
-		vkDestroyImageView(this->dev, this->backbufferViews[i], NULL);
-	}
-
-	// destroy swapchain last
-	vkDestroySwapchainKHR(this->dev, this->swapchain, NULL);
 
 	vkDestroyDevice(this->dev, NULL);
 	vkDestroyInstance(this->instance, NULL);
@@ -1011,132 +854,6 @@ VkRenderDevice::Compute(int dimX, int dimY, int dimZ, uint flag /*= NoBarrier*/)
 {
 	RenderDeviceBase::Compute(dimX, dimY, dimZ);
 	vkCmdDispatch(this->mainCmdDrawBuffer, dimX, dimY, dimZ);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkRenderDevice::BeginPass(const Ptr<CoreGraphics::RenderTarget>& rt)
-{
-	RenderDeviceBase::BeginPass(rt);
-
-	const Ptr<DepthStencilTarget>& dst = rt->GetDepthStencilTarget();
-	if (dst.isvalid()) dst->BeginPass();
-
-	// set framebuffer info
-	this->SetFramebufferLayoutInfo(rt->GetVkPipelineInfo());
-
-	VkRect2D rect;
-	rect.offset.x = 0;
-	rect.offset.y = 0;
-	rect.extent.width = rt->GetWidth();
-	rect.extent.height = rt->GetHeight();
-
-	const Util::FixedArray<VkClearValue>& clear = rt->GetVkClearValues();
-	
-	VkRenderPassBeginInfo info =
-	{
-		VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
-		NULL,
-		rt->GetVkRenderPass(),
-		rt->GetVkFramebuffer(),
-		rect,
-		clear.Size(),
-		clear.Size() > 0 ? clear.Begin() : VK_NULL_HANDLE
-	};
-	vkCmdBeginRenderPass(this->mainCmdDrawBuffer, &info, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
-	
-	// run this phase for scheduler
-	this->scheduler->ExecuteCommandPass(VkScheduler::OnBeginPass);
-	
-	this->blendInfo.attachmentCount = 1;
-	this->passInfo.framebuffer = rt->GetVkFramebuffer();
-	this->passInfo.renderPass = rt->GetVkRenderPass();
-	this->passInfo.subpass = 0;
-	this->passInfo.pipelineStatistics = 0;
-	this->passInfo.queryFlags = 0;
-	this->passInfo.occlusionQueryEnable = VK_FALSE;
-
-	const Util::FixedArray<VkRect2D>& scissors = rt->GetVkScissorRects();
-	this->numScissors = scissors.Size();
-	this->scissors = scissors.Begin();
-	const Util::FixedArray<VkViewport>& viewports = rt->GetVkViewports();
-	this->numViewports = viewports.Size();
-	this->viewports = viewports.Begin();
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-VkRenderDevice::BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt)
-{
-	RenderDeviceBase::BeginPass(mrt);
-
-	const Ptr<DepthStencilTarget>& dst = mrt->GetDepthStencilTarget();
-	if (dst.isvalid()) dst->BeginPass();
-
-	// set framebuffer info
-	this->SetFramebufferLayoutInfo(mrt->GetVkPipelineInfo());
-
-	VkRect2D rect;
-	rect.offset.x = 0;
-	rect.offset.y = 0;
-	rect.extent.width = mrt->GetRenderTarget(0)->GetWidth();
-	rect.extent.height = mrt->GetRenderTarget(0)->GetHeight();
-
-	const Util::Array<VkClearValue>& clear = mrt->GetVkClearValues();
-
-	VkRenderPassBeginInfo info =
-	{
-		VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
-		NULL,
-		mrt->GetVkRenderPass(),
-		mrt->GetVkFramebuffer(),
-		rect,
-		clear.Size(),
-		clear.Size() > 0 ? clear.Begin() : VK_NULL_HANDLE
-	};
-	vkCmdBeginRenderPass(this->mainCmdDrawBuffer, &info, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
-
-	// run this phase for scheduler
-	this->scheduler->ExecuteCommandPass(VkScheduler::OnBeginPass);
-
-	this->blendInfo.attachmentCount = mrt->GetNumRendertargets();
-	this->passInfo.framebuffer = mrt->GetVkFramebuffer();
-	this->passInfo.renderPass = mrt->GetVkRenderPass();
-	this->passInfo.subpass = 0;
-	this->passInfo.pipelineStatistics = 0;
-	this->passInfo.queryFlags = 0;
-	this->passInfo.occlusionQueryEnable = VK_FALSE;
-
-	const Util::Array<VkRect2D>& scissors = mrt->GetVkScissorRects();
-	this->numScissors = scissors.Size();
-	this->scissors = scissors.Begin();
-	const Util::Array<VkViewport>& viewports = mrt->GetVkViewports();
-	this->numViewports = viewports.Size();
-	this->viewports = viewports.Begin();
-}
-
-//------------------------------------------------------------------------------
-/**
-	FIXME!
-*/
-void
-VkRenderDevice::BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& rtc)
-{
-	RenderDeviceBase::BeginPass(rtc);
-	this->currentPipelineBits = 0;
-	this->SetFramebufferLayoutInfo(rtc->GetVkPipelineInfo());
-
-	// submit
-	this->SubmitToQueue(this->drawQueue, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, 1, &this->mainCmdDrawBuffer);
-
-	this->blendInfo.attachmentCount = 1;
-
-	VkResult res = vkResetCommandBuffer(this->mainCmdDrawBuffer, 0);
-	n_assert(res == VK_SUCCESS);
 }
 
 //------------------------------------------------------------------------------
@@ -1330,17 +1047,6 @@ VkRenderDevice::EndPass()
 
 	// end render pass
 	vkCmdEndRenderPass(this->mainCmdDrawBuffer);
-
-	if (this->passRenderTarget.isvalid())
-	{
-		const Ptr<DepthStencilTarget>& dst = this->passRenderTarget->GetDepthStencilTarget();
-		if (dst.isvalid()) dst->EndPass();
-	}
-	else if (this->passMultipleRenderTarget.isvalid())
-	{
-		const Ptr<DepthStencilTarget>& dst = this->passMultipleRenderTarget->GetDepthStencilTarget();
-		if (dst.isvalid()) dst->EndPass();
-	}
 	RenderDeviceBase::EndPass();
 }
 
@@ -1425,50 +1131,51 @@ VkRenderDevice::Present()
 {
 	this->frameId++; 
 
-	// submit a sync point
-	VkPipelineStageFlags flags = VK_PIPELINE_STAGE_TRANSFER_BIT;
-	const VkSubmitInfo submitInfo = 
-	{
-		VK_STRUCTURE_TYPE_SUBMIT_INFO,
-		NULL,
-		1,
-		&this->displaySemaphore,
-		&flags, 
-		0,
-		NULL,
-		0,
-		NULL
-	};
-	VkResult res = vkQueueSubmit(this->drawQueue, 1, &submitInfo, NULL);
-	n_assert(res == VK_SUCCESS);
-	//
-	//
-
-	// present frame
-	VkResult presentResults;
-	const VkPresentInfoKHR info =
-	{
-		VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-		NULL,
-		0,
-		NULL,
-		1,
-		&this->swapchain,
-		&this->currentBackbuffer,
-		&presentResults
-	};
-	res = vkQueuePresentKHR(this->drawQueue, &info);
-
-
-	if (res == VK_ERROR_OUT_OF_DATE_KHR)
-	{
-		// window has been resized!
-		n_printf("Window resized!");
-	}
-	else
-	{
-		n_assert(res == VK_SUCCESS);
-	}
+// 	// get active window
+// 	Ptr<CoreGraphics::Window> wnd = CoreGraphics::DisplayDevice::Instance()->GetCurrentWindow();
+// 
+// 	// submit a sync point
+// 	VkPipelineStageFlags flags = VK_PIPELINE_STAGE_TRANSFER_BIT;
+// 	const VkSubmitInfo submitInfo = 
+// 	{
+// 		VK_STRUCTURE_TYPE_SUBMIT_INFO,
+// 		NULL,
+// 		1,
+// 		&wnd->displaySemaphore,
+// 		&flags, 
+// 		0,
+// 		NULL,
+// 		0,
+// 		NULL
+// 	};
+// 	VkResult res = vkQueueSubmit(this->drawQueue, 1, &submitInfo, NULL);
+// 	n_assert(res == VK_SUCCESS);
+// 
+// 	// present
+// 	VkResult presentResults;
+// 	const VkPresentInfoKHR info =
+// 	{
+// 		VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+// 		NULL,
+// 		0,
+// 		NULL,
+// 		1,
+// 		&wnd->swapchain,
+// 		&wnd->currentBackbuffer,
+// 		&presentResults
+// 	};
+// 	res = vkQueuePresentKHR(this->drawQueue, &info);
+// 
+// 
+// 	if (res == VK_ERROR_OUT_OF_DATE_KHR)
+// 	{
+// 		// window has been resized!
+// 		n_printf("Window resized!");
+// 	}
+// 	else
+// 	{
+// 		n_assert(res == VK_SUCCESS);
+// 	}
 
 	//res = vkQueueWaitIdle(this->drawQueue);
 	//n_assert(res == VK_SUCCESS);

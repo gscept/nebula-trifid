@@ -9,7 +9,7 @@
     CoreGraphics::DisplayDevice singleton.
     
     (C) 2006 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */    
 #include "core/refcounted.h"
 #include "core/singleton.h"
@@ -68,9 +68,6 @@ public:
     /// test if a compatible render device can be created on this machine
     static bool CanCreate();
 
-    /// set an override for the default render target (call before Open()!)
-    void SetOverrideDefaultRenderTarget(const Ptr<CoreGraphics::RenderTarget>& rt);
-
     /// open the device
     bool Open();
     /// close the device
@@ -82,22 +79,8 @@ public:
     /// remove a render event handler
     void RemoveEventHandler(const Ptr<CoreGraphics::RenderEventHandler>& h);
 
-	/// get default render texture
-	const Ptr<CoreGraphics::RenderTexture>& GetDefaultRenderTexture() const;
-
-    /// is a pass rendertarget set?
-    bool HasPassRenderTarget() const;
-    /// get current set pass render target
-    const Ptr<CoreGraphics::RenderTarget>& GetPassRenderTarget() const;
-
     /// begin complete frame
     bool BeginFrame(IndexT frameIndex);
-    /// begin rendering a frame pass
-	void BeginPass(const Ptr<CoreGraphics::RenderTarget>& rt);
-    /// begin rendering a frame pass with a multiple rendertarget
-    void BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt);
-    /// begin rendering a frame pass with a rendertarget cube
-    void BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& crt);
 	/// begin a rendering pass
 	void BeginPass(const Ptr<CoreGraphics::Pass>& pass);
 	/// progress to next subpass
@@ -190,9 +173,6 @@ public:
 	/// gets whether or not the render device should tessellate
 	bool GetUsePatches();
 
-	/// call when window gets resized
-	void DisplayResized(SizeT width, SizeT height);
-
 	/// adds a viewport
 	void SetViewport(const Math::rectangle<int>& rect, int index);
 	/// adds a scissor rect
@@ -221,17 +201,12 @@ protected:
     
 	static Util::Queue<__BufferLockData> bufferLockQueue;
     Util::Array<Ptr<CoreGraphics::RenderEventHandler> > eventHandlers;
-	Ptr<CoreGraphics::RenderTexture> defaultRenderTexture;
     Ptr<CoreGraphics::VertexBuffer> streamVertexBuffers[VertexLayoutBase::MaxNumVertexStreams];
 	IndexT streamVertexOffsets[VertexLayoutBase::MaxNumVertexStreams];
     Ptr<CoreGraphics::VertexLayout> vertexLayout;
     Ptr<CoreGraphics::IndexBuffer> indexBuffer;
 	CoreGraphics::PrimitiveTopology::Code primitiveTopology;
     CoreGraphics::PrimitiveGroup primitiveGroup;
-    Ptr<CoreGraphics::RenderTarget> passRenderTarget;
-    Ptr<CoreGraphics::MultipleRenderTarget> passMultipleRenderTarget;
-    Ptr<CoreGraphics::RenderTargetCube> passRenderTargetCube;
-	Ptr<CoreGraphics::DepthStencilTarget> passDepthStencilTarget;
 	Ptr<CoreGraphics::Pass> pass;
     bool isOpen;
     bool inNotifyEventHandlers;
@@ -267,35 +242,6 @@ inline const CoreGraphics::PrimitiveGroup&
 RenderDeviceBase::GetPrimitiveGroup() const
 {
     return this->primitiveGroup;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline const Ptr<CoreGraphics::RenderTexture>&
-RenderDeviceBase::GetDefaultRenderTexture() const
-{
-	n_assert(this->defaultRenderTexture.isvalid());
-	return this->defaultRenderTexture;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline bool 
-RenderDeviceBase::HasPassRenderTarget() const
-{
-    return this->passRenderTarget.isvalid();
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline const Ptr<CoreGraphics::RenderTarget>&
-RenderDeviceBase::GetPassRenderTarget() const
-{
-    n_assert(this->passRenderTarget.isvalid());
-    return this->passRenderTarget;
 }
 
 //------------------------------------------------------------------------------

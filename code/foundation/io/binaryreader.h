@@ -10,7 +10,7 @@
     @todo convert endianess!
     
     (C) 2006 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "io/streamreader.h"
 #if !__OSX__
@@ -59,6 +59,10 @@ public:
     int ReadInt();
     /// read a 32-bit unsigned int from the stream
     unsigned int ReadUInt();
+    /// read a 64-bit int from the stream
+	long long ReadInt64();
+    /// read a 64-bit unsigned int from the stream
+	unsigned long long ReadUInt64();
     /// read a float value from the stream
     float ReadFloat();
     /// read a compressed float value from the stream, lossy and needed to be in the range of -1.0 and +1.0

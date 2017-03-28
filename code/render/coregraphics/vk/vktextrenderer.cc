@@ -176,7 +176,8 @@ VkTextRenderer::DrawTextElements()
 	n_assert(this->IsOpen());
 
 	// get display mode
-	const DisplayMode& displayMode = DisplayDevice::Instance()->GetDisplayMode();
+	Ptr<CoreGraphics::Window> wnd = DisplayDevice::Instance()->GetCurrentWindow();
+	const DisplayMode& displayMode = wnd->GetDisplayMode();
 
 	// calculate projection matrix
 	matrix44 proj = matrix44::orthooffcenterrh(0, (float)displayMode.GetWidth(), (float)displayMode.GetHeight(), 0, -1.0f, +1.0f);
@@ -328,7 +329,8 @@ VkTextRenderer::Draw(TextElementVertex* buffer, SizeT numChars)
 	dev->SetPrimitiveGroup(this->group);
 
 	// set viewport
-	const DisplayMode& displayMode = DisplayDevice::Instance()->GetDisplayMode();
+	Ptr<CoreGraphics::Window> wnd = DisplayDevice::Instance()->GetCurrentWindow();
+	const DisplayMode& displayMode = wnd->GetDisplayMode();
 	uint screenWidth, screenHeight;
 	screenWidth = displayMode.GetWidth();
 	screenHeight = displayMode.GetHeight();

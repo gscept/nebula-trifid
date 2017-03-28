@@ -24,4 +24,5 @@ CharacterJointMask::~CharacterJointMask()
 	// empty
 }
 
+
 } // namespace Characters

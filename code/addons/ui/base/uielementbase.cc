@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  uielementbase.cc
-//  (C) 2015 Individual contributors, see AUTHORS file
+//  (C) 2015-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "ui/base/uielementbase.h"
@@ -362,6 +362,25 @@ UiElementBase::GetClasses() const
 {
 	// override in subclass
 	return "";
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+Ptr<UI::UiElement>
+UiElementBase::AddElement(const Util::String & tag, const Util::String & inst, const Util::Array<UI::ElementAttributeEntry> & attributes)
+{
+	// override in subclass
+	return Ptr<UI::UiElement>();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+UiElementBase::RemoveElement(const Ptr<UI::UiElement> & elem)
+{
+	// override in subclass
 }
 
 } // namespace Base

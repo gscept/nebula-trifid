@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  reader.cc
 //  (C) 2006 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "db/reader.h"
@@ -159,6 +159,16 @@ Reader::GetMatrix44(Attr::Matrix44AttrId attrId) const
 {
     n_assert(this->isOpen);
     return this->valueTable->GetMatrix44(attrId, this->curRowIndex);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+const Math::transform44
+Reader::GetTransform44(Attr::Transform44AttrId attrId) const
+{
+	n_assert(this->isOpen);
+	return this->valueTable->GetTransform44(attrId, this->curRowIndex);
 }
 
 //------------------------------------------------------------------------------

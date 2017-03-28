@@ -5,7 +5,7 @@
 	
 	Handles the UI which modifies a single surface material.
 	
-	(C) 2015 Individual contributors, see AUTHORS file
+	(C) 2015-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "widgets/basehandler.h"
@@ -14,14 +14,22 @@
 #include "widgets/materials/mutablesurfaceinstance.h"
 #include "materials/managedsurface.h"
 #include "resources/managedtexture.h"
+#include "models/nodes/statenodeinstance.h"
+#include "n3util/n3modeldata.h"
+#include "ui_saveresourcedialog.h"
+
 #include <QObject>
 #include <QColorDialog>
 #include <QDoubleSpinBox>
 #include <QSpinBox>
 #include <QCheckBox>
-#include "models/nodes/statenodeinstance.h"
-#include "n3util/n3modeldata.h"
-#include "ui_saveresourcedialog.h"
+#include <QMenu>
+
+namespace ContentBrowser
+{
+	class ContentBrowserWindow;
+}
+
 namespace Widgets
 {
 class MaterialHandler : public BaseHandler
@@ -67,6 +75,10 @@ public slots:
 	void NewSurface();
 
 private slots:
+	friend class ContentBrowser::ContentBrowserWindow;
+
+	/// called whenever a shader is selected
+	void ShaderSelected(QAction* action);
     /// called whenever a material is selected
     void MaterialSelected(const QString& material);
     /// called whenever the material info button is clicked
@@ -117,9 +129,9 @@ private slots:
 
 protected:
     /// sets up texture selection button and line edit based on resource
-    void SetupTextureSlotHelper(QLineEdit* textureField, QPushButton* textureButton, Util::String& resource, const Util::String& defaultResource);
+	void SetupTextureSlotHelper(QLineEdit* textureField, QToolButton* textureButton, Util::String& resource, const Util::String& defaultResource);
     /// setup material variables and textures
-    void MakeMaterialUI(QComboBox* materialBox, QPushButton* materialHelp);
+    void MakeMaterialUI(QMenu* shaderSelect, QPushButton* materialHelp);
 
     /// get material variables which are textures
     Util::Array<Materials::Material::MaterialParameter> GetTextures(const Ptr<Materials::Material>& mat);
@@ -143,7 +155,6 @@ private:
 	void UpdateThumbnail();
 
     QVBoxLayout* mainLayout;
-    QComboBox* materialBox;
     QPushButton* materialHelp;
 
     // default values
@@ -152,7 +163,7 @@ private:
 
     // texture
     QMap<QLineEdit*, uint> textureTextMap;
-    QMap<QPushButton*, uint> textureImgMap;
+	QMap<QToolButton*, uint> textureImgMap;
     QMap<QLabel*, uint> textureLabelMap;
 
     // label of variable (generic)
@@ -197,6 +208,18 @@ private:
 	bool hasChanges;
 	Util::String category;
 	Util::String file;
+
+	QMenu* saveMenu;
+	QAction* saveAction;
+	QAction* saveAsAction;
+	QIcon savedIcon;
+	QIcon unsavedIcon;
+	QIcon blankIcon;
+	QString savedStyle;
+	QString unsavedStyle;
+
+	QMenu* shaderMenu;
+	Util::Array<QAction*> shaderMenuActions;
 };
 
 //------------------------------------------------------------------------------
@@ -206,16 +229,7 @@ private:
 inline void
 MaterialHandler::SetUI(Ui::MaterialInfoWidget* ui)
 {
-    this->ui = ui;
-    this->ui->templateBox->setEnabled(false);
-    this->ui->saveButton->setEnabled(false);
-    this->ui->saveAsButton->setEnabled(false);
-
-	// hmm, this shouldn't really be done each time we open a surface...
-	connect(this->ui->saveButton, SIGNAL(clicked()), this, SLOT(Save()));
-	connect(this->ui->saveAsButton, SIGNAL(clicked()), this, SLOT(SaveAs()));
-	connect(this->ui->templateBox, SIGNAL(activated(const QString&)), this, SLOT(MaterialSelected(const QString&)));
-	connect(this->ui->materialHelp, SIGNAL(clicked()), this, SLOT(MaterialInfo()));
+	this->ui = ui;
 }
 
 //------------------------------------------------------------------------------

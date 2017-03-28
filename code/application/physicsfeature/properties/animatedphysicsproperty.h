@@ -54,7 +54,7 @@ protected:
 	virtual void DisablePhysics();
 
 	/// update the root node transform
-	virtual void UpdateTransform(const Math::matrix44 & transform){}
+	virtual void UpdateTransform(const Math::matrix44 & transform);
 
 	/// connect joints and bodies
 	virtual void AttachToJoints(const Util::Array<Util::String>& joints, const Util::Array<Util::String>& bodies);
@@ -66,6 +66,7 @@ protected:
 
 	Util::Array<Ptr<Physics::PhysicsBody>> physicsEntities;
 	Util::Array<Util::StringAtom> trackedJoints;
+	Util::Array<Ptr<Physics::PhysicsBody>> untrackedBodies;
 	Util::Dictionary<Util::StringAtom, Ptr<Physics::PhysicsBody>> bodyHash;
 	Util::Dictionary<Util::StringAtom, Ptr<Physics::PhysicsBody>> jointHash;
 	Util::Dictionary<Util::StringAtom, Math::matrix44> jointOffsets;

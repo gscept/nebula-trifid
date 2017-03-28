@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  displaydevice.cc
 //  (C) 2007 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "coregraphics/displaydevice.h"
@@ -11,11 +11,8 @@ namespace CoreGraphics
 #if __DX11__
 __ImplementClass(CoreGraphics::DisplayDevice, 'DDVC', Direct3D11::D3D11DisplayDevice);
 __ImplementSingleton(CoreGraphics::DisplayDevice);
-#elif __OGL4__
-__ImplementClass(CoreGraphics::DisplayDevice, 'DDVC', OpenGL4::GLFWDisplayDevice);
-__ImplementSingleton(CoreGraphics::DisplayDevice);
-#elif __VULKAN__
-__ImplementClass(CoreGraphics::DisplayDevice, 'DDVC', Vulkan::VkDisplayDevice);
+#elif __OGL4__ ||  __VULKAN__
+__ImplementClass(CoreGraphics::DisplayDevice, 'DDVC', GLFW::GLFWDisplayDevice);
 __ImplementSingleton(CoreGraphics::DisplayDevice);
 #elif __DX9__
 __ImplementClass(CoreGraphics::DisplayDevice, 'DDVC', Direct3D9::D3D9DisplayDevice);

@@ -89,7 +89,7 @@ RocketServer::Setup()
 	Rocket::Controls::Initialise();
 
 	Ptr<DisplayDevice> display = DisplayDevice::Instance();
-	DisplayMode mode = display->GetDisplayMode();
+	DisplayMode mode = display->GetWindow(0)->GetDisplayMode();
 	Rocket::Core::Vector2i dimensions(mode.GetWidth(), mode.GetHeight());
 	this->context = Rocket::Core::CreateContext("main", dimensions);
 
@@ -149,7 +149,7 @@ RocketServer::Update()
 /**
 */
 void 
-RocketServer::Render( const Ptr<Frame::FrameBatch>& frameBatch )
+RocketServer::Render(const Util::StringAtom& filter)
 {
 	n_assert(this->context);
 	
@@ -299,6 +299,29 @@ RocketServer::SetRenderDebug( bool b )
 {
 	Rocket::Debugger::SetVisible(b);
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+RocketServer::AddEventListenerInstancer(Rocket::Core::EventListenerInstancer* instancer)
+{
+	this->extraInstancers.Append(instancer);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+RocketServer::RemoveEventListenerInstancer(Rocket::Core::EventListenerInstancer* instancer)
+{
+	IndexT idx = this->extraInstancers.FindIndex(instancer);
+	if (idx != InvalidIndex)
+	{
+		this->extraInstancers.EraseIndex(idx);
+	}
+}
+
 #endif
 
 } // namespace Rocket

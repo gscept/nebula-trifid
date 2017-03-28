@@ -10,7 +10,7 @@
     a lot of the work is done here (dont call it too often).
 
     (C) 2006 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "scriptfeature/actions/action.h"
 #include "scriptfeature/conditions/condition.h"

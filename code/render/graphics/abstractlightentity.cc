@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  abstractlightentity.cc
 //  (C) 2007 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "graphics/abstractlightentity.h" 
@@ -38,8 +38,8 @@ AbstractLightEntity::AbstractLightEntity() :
     projMapUvOffsetAndScale(0.5f, 0.5f, 0.5f, -0.5f),
     shadowBufferUvOffsetAndScale(0.5f, 0.5f, 0.5f, -0.5f),
 	volumetric(false),
-	volumetricScale(10.0f),
-	volumetricIntensity(2.0f),
+	volumetricScale(100.0f),
+	volumetricIntensity(16.0f),
     castShadows(false),
     castShadowsThisFrame(false),
 	shadowCastingFrequency(1),
@@ -98,8 +98,8 @@ AbstractLightEntity::TouchProjectionTexture()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-AbstractLightEntity::SetVolumetric( bool b )
+void
+AbstractLightEntity::SetVolumetric(bool b)
 {
 	this->volumetric = b;
 	if (b)

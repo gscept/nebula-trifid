@@ -4,26 +4,26 @@ framescript:
 {
 	renderTextures:
 	[
-		{ name: "NormalBuffer", 	format: "A8R8G8B8", 		relative: true,  width: 1.0, height: 1.0 },
+		{ name: "NormalBuffer", 	format: "R8G8B8A8", 		relative: true,  width: 1.0, height: 1.0 },
 		{ name: "DepthBuffer", 		format: "R32F", 			relative: true,  width: 1.0, height: 1.0 },
-		{ name: "AlbedoBuffer", 	format: "A8R8G8B8", 		relative: true,  width: 1.0, height: 1.0 },
-		{ name: "SpecularBuffer", 	format: "A8R8G8B8", 		relative: true,  width: 1.0, height: 1.0 },
-		{ name: "EmissiveBuffer", 	format: "A16B16G16R16F", 	relative: true,  width: 1.0, height: 1.0 },
-		{ name: "LightBuffer", 		format: "A16B16G16R16F", 	relative: true,  width: 1.0, height: 1.0 },
-		{ name: "ColorBuffer", 		format: "A8B8G8R8", 		relative: true,  width: 1.0, height: 1.0 },
-		{ name: "ScreenBuffer", 	format: "A8B8G8R8", 		relative: true,  width: 1.0, height: 1.0 },
-		{ name: "BloomBuffer", 		format: "A16B16G16R16F", 	relative: true,  width: 0.5, height: 0.5 },
-		{ name: "GodrayBuffer", 	format: "A8B8G8R8", 		relative: true,  width: 0.5, height: 0.5 },
-		{ name: "ShapeBuffer", 		format: "A8B8G8R8", 		relative: true,  width: 1.0, height: 1.0 },
+		{ name: "AlbedoBuffer", 	format: "R8G8B8A8", 		relative: true,  width: 1.0, height: 1.0 },
+		{ name: "SpecularBuffer", 	format: "R8G8B8A8", 		relative: true,  width: 1.0, height: 1.0 },
+		{ name: "EmissiveBuffer", 	format: "R16G16B16A16F", 	relative: true,  width: 1.0, height: 1.0 },
+		{ name: "LightBuffer", 		format: "R16G16B16A16F", 	relative: true,  width: 1.0, height: 1.0 },
+		{ name: "ColorBuffer", 		format: "R8G8B8A8", 		relative: true,  width: 1.0, height: 1.0 },
+		{ name: "ScreenBuffer", 	format: "R8G8B8A8", 		relative: true,  width: 1.0, height: 1.0 },
+		{ name: "BloomBuffer", 		format: "R16G16B16A16F", 	relative: true,  width: 0.5, height: 0.5 },
+		{ name: "GodrayBuffer", 	format: "R8G8B8A8", 		relative: true,  width: 0.5, height: 0.5 },
+		{ name: "ShapeBuffer", 		format: "R8G8B8A8", 		relative: true,  width: 1.0, height: 1.0 },
 		{ name: "AverageLumBuffer", format: "R16F", 			relative: false, width: 1.0, height: 1.0 },
-		{ name: "SSSBuffer", 		format: "A16B16G16R16F", 	relative: true,  width: 1.0, height: 1.0 },
+		{ name: "SSSBuffer", 		format: "R16G16B16A16F", 	relative: true,  width: 1.0, height: 1.0 },
 		{ name: "__WINDOW__" }
 	],
 	
 	readWriteTextures:
 	[
 		{ name: "HBAOBuffer", 			format: "R16F", 			relative: true, width: 1.0, height: 1.0 },
-		{ name: "BloomBufferBlurred"	format: "A16B16G16R16F", 	relative: true, width: 0.2, height: 0.2 }
+		{ name: "BloomBufferBlurred"	format: "R16G16B16A16F", 	relative: true, width: 0.2, height: 0.2 }
 	],
 	
 	depthStencils:
@@ -175,7 +175,8 @@ framescript:
 			attachments: [0, 1, 2, 3, 4],
 			depth: true,
 			batch: "FlatGeometryLit", 
-			batch: "TesselatedGeometryLit"
+			batch: "TesselatedGeometryLit",
+			batch: "Background"
 		},
 		subpass:
 		{
@@ -278,7 +279,7 @@ framescript:
 		attachments:
 		[
 			{ name: "DepthBuffer",  		load: true },
-			{ name: "GodrayBuffer", 		clear: [-1000, 0, 0, 0] },
+			{ name: "GodrayBuffer", 		clear: [0, 0, 0, 0] },
 			{ name: "ShapeBuffer", 			clear: [-1000, 0, 0, 0] },
 			{ name: "ScreenBuffer", 		store: true}
 		],
@@ -292,6 +293,7 @@ framescript:
 			depth: true,
 			batch: "Unlit",
 			batch: "ParticleUnlit",
+			batch: "DirectToColor",
 			system: "Shapes"
 		},
 		subpass:

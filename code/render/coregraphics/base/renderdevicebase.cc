@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  renderdevicebase.cc
 //  (C) 2007 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "coregraphics/base/renderdevicebase.h"
@@ -13,7 +13,6 @@
 #include "coregraphics/shaderstate.h"
 #include "coregraphics/bufferlock.h"
 #include "coregraphics/pass.h"
-#include "frame/frameserver.h"
 #include "coregraphics/displaydevice.h"
 #include "math/scalar.h"
 #include "graphics/graphicsserver.h"
@@ -82,18 +81,6 @@ RenderDeviceBase::CanCreate()
 
 //------------------------------------------------------------------------------
 /**
-    Override the default render target (which is normally created in Open())
-    with a render target provided by the application, this is normally only
-    useful for debugging and testing purposes.
-*/
-void
-RenderDeviceBase::SetOverrideDefaultRenderTarget(const Ptr<CoreGraphics::RenderTarget>& rt)
-{
-    n_assert(!this->isOpen);
-}
-
-//------------------------------------------------------------------------------
-/**
 */
 bool
 RenderDeviceBase::Open()
@@ -107,14 +94,6 @@ RenderDeviceBase::Open()
     // notify event handlers
     RenderEvent openEvent(RenderEvent::DeviceOpen);
     this->NotifyEventHandlers(openEvent);
-
-	// setup default render texture
-	if (!this->defaultRenderTexture.isvalid())
-	{
-		this->defaultRenderTexture = RenderTexture::Create();
-		this->defaultRenderTexture->SetIsWindowTexture(true);
-		this->defaultRenderTexture->Setup();
-	}
 
     return true;
 }
@@ -314,54 +293,6 @@ RenderDeviceBase::BeginFrame(IndexT frameIndex)
 /**
 */
 void
-RenderDeviceBase::BeginPass(const Ptr<RenderTarget>& rt)
-{
-    n_assert(this->inBeginFrame);
-    n_assert(!this->inBeginPass);
-    n_assert(!this->inBeginBatch);
-    this->inBeginPass = true;
-
-	// notify render targets
-    this->passRenderTarget = rt;
-    this->passRenderTarget->BeginPass();    
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-RenderDeviceBase::BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt)
-{
-    n_assert(this->inBeginFrame);
-    n_assert(!this->inBeginPass);
-    n_assert(!this->inBeginBatch);
-    this->inBeginPass = true;
-
-    // notify render targets
-    this->passMultipleRenderTarget = mrt;
-    this->passMultipleRenderTarget->BeginPass();    
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-RenderDeviceBase::BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& crt)
-{
-    n_assert(this->inBeginFrame);
-    n_assert(!this->inBeginPass);
-    n_assert(!this->inBeginBatch);
-    this->inBeginPass = true;
-
-    // notify render targets
-    this->passRenderTargetCube = crt;
-    this->passRenderTargetCube->BeginPass();    
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
 RenderDeviceBase::BeginPass(const Ptr<CoreGraphics::Pass>& pass)
 {
 	n_assert(this->inBeginFrame);
@@ -405,27 +336,10 @@ RenderDeviceBase::BeginBatch(FrameBatchType::Code batchType)
 {
     n_assert(this->inBeginPass);
     n_assert(!this->inBeginBatch);
-    n_assert(this->passRenderTarget.isvalid() || this->passMultipleRenderTarget.isvalid() || this->passRenderTargetCube.isvalid() || this->pass.isvalid());
-    this->inBeginBatch = true;
+    n_assert(this->pass.isvalid());
 
-    if (this->passRenderTarget.isvalid())
-    {
-        // notify render target
-        this->passRenderTarget->BeginBatch(batchType);    
-    }
-    else if (this->passMultipleRenderTarget.isvalid())
-    {
-        // notify multiple render target
-        this->passMultipleRenderTarget->BeginBatch(batchType);    
-    }
-    else if (this->passRenderTargetCube.isvalid())
-    {
-        this->passRenderTargetCube->BeginBatch(batchType);
-    }
-	else if (this->pass.isvalid())
-	{
-		this->pass->BeginBatch(batchType);
-	}
+	this->inBeginBatch = true;
+	this->pass->BeginBatch(batchType);
 }
 
 //------------------------------------------------------------------------------
@@ -435,26 +349,10 @@ void
 RenderDeviceBase::EndBatch()
 {
     n_assert(this->inBeginBatch);
-	n_assert(this->passRenderTarget.isvalid() || this->passMultipleRenderTarget.isvalid() || this->passRenderTargetCube.isvalid() || this->pass.isvalid());
-    this->inBeginBatch = false;
+	n_assert(this->pass.isvalid());
 
-    // notify render targets
-    if (this->passRenderTarget.isvalid())
-    {
-        this->passRenderTarget->EndBatch();
-    }
-    else if (this->passMultipleRenderTarget.isvalid())
-    {
-        this->passMultipleRenderTarget->EndBatch();
-    }
-    else if (this->passRenderTargetCube.isvalid())
-    {
-        this->passRenderTargetCube->EndBatch();
-    }
-	else if (this->pass.isvalid())
-	{
-		this->pass->EndBatch();
-	}
+    this->inBeginBatch = false;
+	this->pass->EndBatch();
 }
 
 //------------------------------------------------------------------------------
@@ -464,37 +362,10 @@ void
 RenderDeviceBase::EndPass()
 {
     n_assert(this->inBeginPass);
-    n_assert(this->passRenderTarget.isvalid() || this->passMultipleRenderTarget.isvalid() || this->passRenderTargetCube.isvalid() || this->pass.isvalid());
+    n_assert(this->pass.isvalid());
 
-	// finish rendering to depth-stencil
-	if (this->passDepthStencilTarget.isvalid())
-	{
-		this->passDepthStencilTarget->EndPass();
-		this->passDepthStencilTarget = 0;
-	}
-
-    // finish rendering to render target
-    if (this->passRenderTarget.isvalid())
-    {        
-        this->passRenderTarget->EndPass();
-        this->passRenderTarget = 0;
-    }
-    else if (this->passMultipleRenderTarget.isvalid())
-    {
-        this->passMultipleRenderTarget->EndPass();
-        this->passMultipleRenderTarget = 0;
-    }
-    else if (this->passRenderTargetCube.isvalid())
-    {
-        this->passRenderTargetCube->EndPass();
-        this->passRenderTargetCube = 0;
-    }
-	else if (this->pass.isvalid())
-	{
-		this->pass->End();
-		this->pass = 0;
-	}
-
+	this->pass->End();
+	this->pass = 0;
     this->inBeginPass = false;
 }
 
@@ -654,27 +525,6 @@ RenderDeviceBase::SaveScreenshot(CoreGraphics::ImageFileFormat::Code fmt, const 
 {
 	// override in subclass!
 	return fmt;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-RenderDeviceBase::DisplayResized(SizeT width, SizeT height)
-{
-    n_assert(this->IsOpen());
-
-	// update frame server
-	Frame::FrameServer::Instance()->DisplayResized(width, height);
-
-	// update main camera
-	GraphicsServer::Instance()->GetDefaultView()->GetCameraEntity()->OnDisplayResized();
-
-    // notify rt plugins that the display has been resized
-    RenderModules::RTPluginRegistry::Instance()->OnWindowResized(width, height);
-
-	// also update the default render target
-	this->defaultRenderTexture->OnDisplayResized(width, height);
 }
 
 //------------------------------------------------------------------------------

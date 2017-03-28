@@ -6,7 +6,7 @@
     Provides simple atomic operations on shared variables.
     
     (C) 2006 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/types.h"
 #include <windows.h>

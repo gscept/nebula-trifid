@@ -9,14 +9,14 @@
     however, has its own local state which can be muted. However, the surface this uses
     will still use the same shaders
 	
-	(C) 2015 Individual contributors, see AUTHORS file
+	(C) 2015-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
 #include "surfaceconstant.h"
 #include "util/stringatom.h"
 #include "surfacename.h"
-#include "frame/batchgroup.h"
+#include "graphics/batchgroup.h"
 namespace Materials
 {
 class Surface;

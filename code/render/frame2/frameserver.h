@@ -29,6 +29,8 @@ public:
 
 	/// open server
 	void Open();
+	/// returns true if open
+	bool IsOpen() const;
 	/// close server, discards all remaining scripts
 	void Close();
 
@@ -36,6 +38,8 @@ public:
 	Ptr<FrameScript> LoadFrameScript(const Resources::ResourceId& name, const IO::URI& path);
 	/// get script by name
 	const Ptr<FrameScript>& GetFrameScript(const Util::StringAtom& name);
+	/// unload frame script
+	void UnloadFrameScript(const Resources::ResourceId& name);
 
 	/// set texture to be used for future loads of frame scripts
 	void SetWindowTexture(const Ptr<CoreGraphics::RenderTexture>& tex);
@@ -72,6 +76,15 @@ inline const Ptr<Frame2::FrameScript>&
 FrameServer::GetFrameScript(const Util::StringAtom& name)
 {
 	return this->frameScripts[name];
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline bool
+FrameServer::IsOpen() const
+{
+	return this->isOpen;
 }
 
 } // namespace Frame2

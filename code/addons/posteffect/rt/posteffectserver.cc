@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  posteffectserver.cc
 //  (C) 2008 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "posteffect/rt/posteffectserver.h"
@@ -15,9 +15,9 @@
 #include "resources/managedtexture.h"
 #include "resources/resourcemanager.h"
 #include "coregraphics/shadersemantics.h"
-#include "frame/frameserver.h"
 #include "graphics/graphicsinterface.h"
 #include "algorithm/algorithmprotocol.h"
+#include "preethamutil.h"
 
 
 
@@ -66,6 +66,13 @@ PostEffectServer::Open()
 {
     // get the shared shader state
 	const Ptr<ShaderState>& sharedState = ShaderServer::Instance()->GetSharedShader();
+
+	this->skyPreethamA = this->environmentConstantBuffer->GetVariableByName(ShaderVariable::Name("A"));
+	this->skyPreethamB = this->environmentConstantBuffer->GetVariableByName(ShaderVariable::Name("B"));
+	this->skyPreethamC = this->environmentConstantBuffer->GetVariableByName(ShaderVariable::Name("C"));
+	this->skyPreethamD = this->environmentConstantBuffer->GetVariableByName(ShaderVariable::Name("D"));
+	this->skyPreethamE = this->environmentConstantBuffer->GetVariableByName(ShaderVariable::Name("E"));
+	this->skyPreethamZ = this->environmentConstantBuffer->GetVariableByName(ShaderVariable::Name("Z"));
 
     // lookup the shared post effect fade variable
     this->fadeShaderVariable = sharedState->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_FADEVALUE));
@@ -134,7 +141,8 @@ PostEffectServer::FindCurrentSkyEntities()
                     this->skyBlendFactor = surface->GetConstant(ShaderVariable::Name(NEBULA3_SEMANTIC_SKYBLENDFACTOR));
                     this->skyBrightness = surface->GetConstant(ShaderVariable::Name(NEBULA3_SEMANTIC_BRIGHTNESS));
                     this->skyContrast = surface->GetConstant(ShaderVariable::Name(NEBULA3_SEMANTIC_CONTRAST));
-                    this->skyRotationFactor = surface->GetConstant(ShaderVariable::Name(NEBULA3_SEMANTIC_SKYROTATIONFACTOR));;
+                    this->skyRotationFactor = surface->GetConstant(ShaderVariable::Name(NEBULA3_SEMANTIC_SKYROTATIONFACTOR));
+
 
 					// set base texture
 					this->skyBaseTexture->SetTexture(this->FindTexture("tex:system/sky")->GetTexture());
@@ -242,7 +250,7 @@ PostEffectServer::OnFrame(Timing::Time time)
     IndexT index;
     for(index = 0; index < NumPostEffectTypes; index++)
     {
-        if(this->ComputeBlending((PostEffectType)index))
+        if (this->ComputeBlending((PostEffectType)index))
         {
             this->ApplyParameters((PostEffectType)index);
         }
@@ -258,7 +266,7 @@ PostEffectServer::ComputeBlending(PostEffectType type)
     const Ptr<ParamBase>& target = this->postEffects[(int)type].target;
     const Ptr<ParamBase>& current = this->postEffects[(int)type].current;
     
-    if(target.isvalid())
+    if (target.isvalid())
     { 
 		n_assert(current.isvalid());
         if (!current->Equals(target, TINY))
@@ -285,6 +293,7 @@ PostEffectServer::ComputeBlending(PostEffectType type)
             return true;
 		}
     }
+	else if (type == Sky) return true;
     return false;
 }
 
@@ -416,31 +425,51 @@ PostEffectServer::ApplyAOParameters()
 void
 PostEffectServer::ApplySkyParameters()
 {
-    // if sky isn't loaded yet, do nothing     
+	// get params
+	const Ptr<SkyParams>& targetPara = this->postEffects[Sky].target.cast<SkyParams>();
+	const Ptr<SkyParams>& currentPara = this->postEffects[Sky].current.cast<SkyParams>();
+
+	// calculate Preetham sky parameters, can still be used by other shaders
+	Ptr<CameraEntity> camera = GraphicsServer::Instance()->GetCurrentView()->GetCameraEntity();
+	Math::vector cameraVec = float4::normalize(camera->GetTransform().get_position());
+	float turbidity = currentPara->GetSkyTurbidity();
+	Math::vector A, B, C, D, E, Z;
+	float4 worldSpaceLightDir = this->globalLight->GetLightDirection();
+
+	PreethamUtil::Calculate(turbidity, worldSpaceLightDir, cameraVec, A, B, C, D, E, Z);
+	this->environmentConstantBuffer->CycleBuffers();
+	this->environmentConstantBuffer->BeginUpdateSync();
+	this->skyPreethamA->SetFloat4(A);
+	this->skyPreethamB->SetFloat4(B);
+	this->skyPreethamC->SetFloat4(C);
+	this->skyPreethamD->SetFloat4(D);
+	this->skyPreethamE->SetFloat4(E);
+	this->skyPreethamZ->SetFloat4(Z);
+	this->environmentConstantBuffer->EndUpdateSync();
+
+    // if sky isn't loaded yet, ignore skybox transitions and such
     if (!this->skyLoaded || !this->skyEntity->GetModelInstance().isvalid())
     {
 		// return
         return;
     }
 
-    // get textures
-    const Ptr<SkyParams>& targetPara = this->postEffects[Sky].target.cast<SkyParams>();
-    const Ptr<SkyParams>& currentPara = this->postEffects[Sky].current.cast<SkyParams>();
-
 	// preload textures
-	this->PreloadTexture(targetPara->GetSkyTexturePath());
+	if (targetPara.isvalid()) this->PreloadTexture(targetPara->GetSkyTexturePath());
 	this->PreloadTexture(currentPara->GetSkyTexturePath());
 
     this->skyBrightness->SetValue(currentPara->GetSkyBrightness());
     this->skyContrast->SetValue(currentPara->GetSkyContrast());
     this->skyRotationFactor->SetValue(currentPara->GetSkyRotationFactor());    
-    
+
     // if blending finished, apply blend texture as current
-    if(1.0f - currentPara->GetTextureBlendFactor() <= N_TINY || targetPara == currentPara)
+	if (1.0f - currentPara->GetTextureBlendFactor() <= N_TINY || targetPara == currentPara)
     {        
         // set current as target, reset blend factor and delete target
         currentPara->ResetTextureBlendFactor();
         currentPara->SetSkyTexturePath(targetPara->GetSkyTexturePath());
+        currentPara->SetIrradianceTexturePath(targetPara->GetIrradianceTexturePath());
+        currentPara->SetReflectanceTexturePath(targetPara->GetReflectanceTexturePath());
         this->StopBlending(Sky);
 
 		// set texture
@@ -448,11 +477,15 @@ PostEffectServer::ApplySkyParameters()
 
         // set base texture, other one is not needed
         this->skyBlendFactor->SetValue(currentPara->GetTextureBlendFactor());
+
+        // apply reflectance and irradiance
+        Lighting::EnvironmentProbe::DefaultEnvironmentProbe->AssignReflectionMap(currentPara->GetReflectanceTexturePath() + NEBULA3_TEXTURE_EXTENSION);
+        Lighting::EnvironmentProbe::DefaultEnvironmentProbe->AssignIrradianceMap(currentPara->GetIrradianceTexturePath() + NEBULA3_TEXTURE_EXTENSION);
     }
-    else
+	else if (targetPara.isvalid())
     {
 		// set blend texture
-		this->skyBlendTexture->SetTexture(this->FindTexture(targetPara->GetSkyTexturePath())->GetTexture());
+		this->skyBlendTexture->SetTexture(this->FindTexture(targetPara->GetSkyTexturePath())->GetTexture());       
 
 	    // set base and blend texture
         this->skyBlendFactor->SetValue(currentPara->GetTextureBlendFactor());
@@ -592,8 +625,8 @@ PostEffectServer::ComputeFadeValue(Timing::Time frameTime)
 //------------------------------------------------------------------------------
 /**
 */
-void 
-PostEffectServer::SetSkyEntity( const Ptr<Graphics::ModelEntity>& entity )
+void
+PostEffectServer::SetSkyEntity(const Ptr<Graphics::ModelEntity>& entity)
 {
 	n_assert(entity.isvalid());
 
@@ -613,5 +646,16 @@ PostEffectServer::SetSkyEntity( const Ptr<Graphics::ModelEntity>& entity )
 	this->skyEntity->SetAlwaysVisible(true);
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PostEffectServer::StopAllBlending()
+{
+	for (int i = 0; i < this->postEffects.Size(); i++)
+	{
+		this->postEffects[i].target = 0;
+	}
+}
 
 } // namespace PostEffect

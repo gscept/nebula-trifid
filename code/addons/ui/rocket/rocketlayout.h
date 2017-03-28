@@ -42,7 +42,7 @@ public:
 	/// updates
 	void Update();
 	/// renders
-	void Render(const Ptr<Frame::FrameBatch>& frameBatch);
+	void Render(const Util::StringAtom& filter);
 	/// discards layout
 	void Discard();
 	/// returns true if layout is valid

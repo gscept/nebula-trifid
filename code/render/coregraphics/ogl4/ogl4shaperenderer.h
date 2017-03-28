@@ -6,6 +6,7 @@
     OGL4 implementation of ShapeRenderer.
     
     (C) 2007 Radon Labs GmbH
+	(C) 2013-2016 Individual contributors, see AUTHORS file
 */    
 #include "coregraphics/base/shaperendererbase.h"
 #include "coregraphics/vertexlayout.h"
@@ -55,7 +56,7 @@ private:
     /// draw a shape
     void DrawSimpleShape(const Math::matrix44& modelTransform, CoreGraphics::RenderShape::Type shapeType, const Math::float4& color);
 	/// draw debug mesh
-	void DrawMesh(const Math::matrix44& modelTransform, const Ptr<CoreGraphics::Mesh>& mesh, const Math::float4& color);
+	void DrawMesh(const Math::matrix44& modelTransform, const Ptr<CoreGraphics::Mesh>& mesh, const IndexT& groupIndex, const Math::float4& color);
     /// draw primitives
     void DrawPrimitives(const Math::matrix44& modelTransform, CoreGraphics::PrimitiveTopology::Code topology, SizeT numPrimitives, const void* vertices, SizeT vertexWidth, const Math::float4& color);
     /// draw indexed primitives

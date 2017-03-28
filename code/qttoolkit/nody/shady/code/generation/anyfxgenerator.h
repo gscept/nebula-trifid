@@ -5,7 +5,7 @@
     
     Generates and validates AnyFX compliant code.
     
-    (C) 2015 Individual contributors, see AUTHORS file
+    (C) 2015-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
@@ -36,7 +36,7 @@ public:
     void GenerateToBuffer(const Ptr<Nody::NodeScene>& scene, Util::Blob& output);
 
     /// validate generated buffer
-    void Validate(const Util::Blob& buffer);
+	void Validate(const Ptr<Nody::NodeScene>& scene, const Util::String& language);
 
 protected:
     /// handle single node

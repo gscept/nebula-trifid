@@ -6,7 +6,7 @@
     Base class for platform-specific particle renders.
     
     (C) 2008 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
 #include "core/singleton.h"
@@ -34,7 +34,7 @@ public:
     /// begin adding visible particle systems
     virtual void BeginAttach();
     /// attach a visible particle system instance
-    void AddVisibleParticleSystem(const Ptr<Particles::ParticleSystemInstance> &particleSystemInstance);
+    void AddVisibleParticleSystem(const Ptr<Particles::ParticleSystemInstance>& particleSystemInstance);
     /// is renderer in attach?
     bool IsInAttach() const;
     /// finish adding visible particle sytems

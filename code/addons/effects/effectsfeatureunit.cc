@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  effectsfeatureunit.cc
 //  (C) 2009 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "effectsfeatureunit.h"
@@ -59,6 +59,7 @@ EffectsFeatureUnit::OnActivate()
 void
 EffectsFeatureUnit::OnDeactivate()
 {
+	this->FlushAll();
 	// discard registry
 	this->animRegistry->Discard();
 	this->animRegistry = 0;
@@ -248,6 +249,15 @@ EffectsFeatureUnit::AttachEffect(const Ptr<EffectsFeature::Effect> & effect)
 	// add affect
 	effect->OnActivate(this->curTime);
 	this->activeEffects.Append(effect);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+EffectsFeatureUnit::OnBeforeCleanup()
+{
+	this->FlushAll();
 }
 
 //------------------------------------------------------------------------------

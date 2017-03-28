@@ -5,7 +5,7 @@
     
     Stores information for a Shady project.
     
-    (C) 2015 Individual contributors, see AUTHORS file
+    (C) 2015-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
@@ -31,10 +31,17 @@ public:
 private:
 
     friend class ShadyWindow;
+	friend class ShadyProjectLoader;
+	friend class ShadyProjectSaver;
     struct Settings
     {
 
     } settings;
+
+	struct Material
+	{
+		Util::Array<Util::String> batches;
+	} material;
 }; 
 } // namespace Shady
 //------------------------------------------------------------------------------

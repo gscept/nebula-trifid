@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  characternodehandler.cc
-//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "characternodehandler.h"
@@ -11,8 +11,13 @@
 #include "imgui.h"
 #include "graphics/modelentity.h"
 #include "characters/character.h"
+#include "characters/characterskeleton.h"
+#include "characters/characterjointmask.h"
 
 #include <QDoubleSpinBox>
+#include "mutablecharacterskeleton.h"
+#include "graphicsfeatureunit.h"
+
 using namespace Graphics;
 using namespace Util;
 namespace Widgets
@@ -27,6 +32,7 @@ CharacterNodeHandler::CharacterNodeHandler() :
 	selectedMask(-1),
 	numFrames(0),
 	currentFrame(0),
+	currentMask(0),
 	paused(false)
 {
 	// empty
@@ -50,6 +56,8 @@ CharacterNodeHandler::Setup()
 	this->model = ContentBrowser::ContentBrowserApp::Instance()->GetPreviewState()->GetModel();
 	this->ui->maskBox->clear();
 	this->ui->maskName->setText("");
+	this->ui->maskBox->setEnabled(false);
+	this->ui->maskName->setEnabled(false);
 
 	// now fetch skins
 	Ptr<FetchSkinList> skinMsg = FetchSkinList::Create();
@@ -64,7 +72,7 @@ CharacterNodeHandler::Setup()
 	// connect UI used for joint mask management
 	connect(this->ui->newMaskButton, SIGNAL(clicked()), this, SLOT(OnNewMask()));
 	connect(this->ui->deleteMaskButton, SIGNAL(clicked()), this, SLOT(OnDeleteMask()));
-	connect(this->ui->maskName, SIGNAL(textEdited(const QString&)), this, SLOT(OnMaskNameChanged(const QString&)));
+	connect(this->ui->maskName, SIGNAL(editingFinished()), this, SLOT(OnMaskNameChanged()));
 	connect(this->ui->maskBox, SIGNAL(currentIndexChanged(int)), this, SLOT(OnMaskSelected(int)));
 
 	// connect handler for joint tree
@@ -92,6 +100,13 @@ CharacterNodeHandler::Discard()
 	this->joints.Clear();
 	this->masks.Clear();
 	this->characterJointMasks.Clear();
+
+	disconnect(this->ui->newMaskButton, SIGNAL(clicked()));
+	disconnect(this->ui->deleteMaskButton, SIGNAL(clicked()));
+	disconnect(this->ui->maskName, SIGNAL(editingFinished()));
+	disconnect(this->ui->maskBox, SIGNAL(currentIndexChanged()));
+	disconnect(this->ui->jointTree, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)));
+	disconnect(this->ui->jointTree, SIGNAL(customContextMenuRequested(const QPoint&)));
 
 	// make sure this object doesn't get called if the handler has been destroyed
 	__AbortSingleFireCallbacks(CharacterNodeHandler, this);
@@ -123,30 +138,35 @@ CharacterNodeHandler::OnFetchedSkinList(const Ptr<Messaging::Message>& msg)
 	this->skinVisible[0] = true;
 
 	// get joints
-	const Characters::CharacterSkeleton& skeleton = this->model->GetCharacter()->Skeleton();
-	this->joints.Resize(skeleton.GetNumJoints());
+	this->skeleton = &this->model->GetCharacter()->Skeleton();
+	this->joints.Resize(this->skeleton->GetNumJoints());
 	IndexT i;
 	for (i = 0; i < this->joints.Size(); i++)
 	{
-		this->joints[i] = skeleton.GetJoint(i);
+		this->joints[i] = this->skeleton->GetJoint(i);
 	}
 	this->SetupJointHierarchy();
 
 	// get masks from character
 	SizeT numMasks = this->model->GetCharacter()->Skeleton().GetNumMasks();
-	for (i = 0; i < numMasks; i++)
+	if (numMasks > 0)
 	{
-		Characters::CharacterJointMask* mask = this->model->GetCharacter()->Skeleton().GetMask(i);
-		this->characterJointMasks.Append(mask);
+		this->ui->maskBox->setEnabled(true);
+		this->ui->maskName->setEnabled(true);
+		for (i = 0; i < numMasks; i++)
+		{
+			Characters::CharacterJointMask* mask = this->model->GetCharacter()->Skeleton().GetMask(i);
+			this->characterJointMasks.Append(mask);
 
-		// create toolkit counterpart
-		ToolkitUtil::JointMask toolkitMask;
-		toolkitMask.name = mask->GetName().AsString();
-		toolkitMask.weights = mask->GetWeights();
-		this->masks.Append(toolkitMask);
+			// create toolkit counterpart
+			ToolkitUtil::JointMask toolkitMask;
+			toolkitMask.name = mask->GetName().AsString();
+			toolkitMask.weights = mask->GetWeights();
+			this->masks.Append(toolkitMask);
 
-		// add to UI
-		this->ui->maskBox->addItem(toolkitMask.name.AsCharPtr());
+			// add to UI
+			this->ui->maskBox->addItem(toolkitMask.name.AsCharPtr());
+		}
 	}
 }
 
@@ -177,37 +197,64 @@ CharacterNodeHandler::OnFetchedClipList(const Ptr<Messaging::Message>& msg)
 
 //------------------------------------------------------------------------------
 /**
+	After this function is executed, this instance of the node handler is destroyed
 */
 void
 CharacterNodeHandler::OnNewMask()
 {
+	Util::String maskName = "<new mask>";
+	IndexT i = 0;
+	while (this->skeleton->GetMaskIndexByName(maskName) != InvalidIndex) maskName = maskName + Util::String::FromInt(i++);
+
 	ToolkitUtil::JointMask newMask;
 	newMask.weights.Resize(this->joints.Size());
 	newMask.weights.Fill(1);
-	newMask.name = "<new mask>";
-	this->masks.Append(newMask);
-	if (this->masks.Size() == 1)
-	{
-		this->currentMask = &this->masks[0];
-		this->ui->maskName->setEnabled(true);
-	}
+	newMask.name = maskName;
 
-	this->ui->maskBox->addItem(newMask.name.AsCharPtr());
-	this->ui->maskBox->setCurrentIndex(this->ui->maskBox->count() - 1);
-	this->ui->maskName->setText(newMask.name.AsCharPtr());
+	Characters::CharacterJointMask gfxMask;
+	gfxMask.SetName(maskName);
+	gfxMask.SetWeights(newMask.weights);
+
+	// add both the resource and directly to the graphics system
+	this->skeleton->AddJointMask(gfxMask);
+	this->masks.Append(newMask);
+	this->characterJointMasks.Append(this->skeleton->GetMask(this->masks.Size() - 1));
 
 	// tell model we have a change
 	this->itemHandler->GetAttributes()->SetJointMasks(this->masks);
 	this->itemHandler->OnModelModified();
+
+	
+	this->ui->maskBox->addItem(newMask.name.AsCharPtr());
+	this->ui->maskName->setText(newMask.name.AsCharPtr());
+	this->ui->maskBox->setCurrentIndex(this->ui->maskBox->count() - 1);
 }
 
 //------------------------------------------------------------------------------
 /**
+	After this function is executed, this instance of the node handler is destroyed
 */
 void
 CharacterNodeHandler::OnDeleteMask()
 {
+	// disable joint mask if it is the one we have removed
+	IndexT i;
+	for (i = 0; i < this->clips.Size(); i++)
+	{
+		if (this->clipsMask[i] == this->ui->maskBox->currentIndex() + 1)
+		{
+			Ptr<AnimSetJointMask> msg = AnimSetJointMask::Create();
+			msg->SetJointMask("");
+			msg->SetTrackIndex(i);
+			__Send(this->model, msg);
+			this->clipsMask[i] = 0;
+		}
+	}
+
+	// remove from lists
+	static_cast<MutableCharacterSkeleton*>(this->skeleton)->EraseMask(this->characterJointMasks[this->ui->maskBox->currentIndex()]);
 	this->masks.EraseIndex(this->ui->maskBox->currentIndex());
+	this->characterJointMasks.EraseIndex(this->ui->maskBox->currentIndex());
 	this->ui->maskBox->removeItem(this->ui->maskBox->currentIndex());
 
 	// tell model we have a change
@@ -219,11 +266,14 @@ CharacterNodeHandler::OnDeleteMask()
 /**
 */
 void
-CharacterNodeHandler::OnMaskNameChanged(const QString& value)
+CharacterNodeHandler::OnMaskNameChanged()
 {
-	this->currentMask->name = value.toUtf8().constBegin();
-	this->ui->maskBox->setItemText(this->ui->maskBox->currentIndex(), value);
-
+	const QString& text = this->ui->maskName->text();
+	this->ui->maskBox->setItemText(this->ui->maskBox->currentIndex(), text);
+	this->masks[this->ui->maskBox->currentIndex()].name = text.toUtf8().constData();
+	Characters::CharacterJointMask* mask = this->characterJointMasks[this->ui->maskBox->currentIndex()];
+	static_cast<MutableCharacterSkeleton*>(this->skeleton)->RenameMask(mask->GetName(), text.toUtf8().constData(), mask);
+	
 	// tell model we have a change
 	this->itemHandler->GetAttributes()->SetJointMasks(this->masks);
 	this->itemHandler->OnModelModified();
@@ -242,16 +292,20 @@ CharacterNodeHandler::OnMaskSelected(int selected)
 		this->currentMask = &this->masks[selected];
 		this->ui->maskName->setText(this->currentMask->name.AsCharPtr());
 		this->ui->maskName->setEnabled(true);
+		this->ui->maskBox->setEnabled(true);
 		this->SetupJointWeights();
 	}	
 	else
 	{
 		this->currentMask = 0;
 		this->ui->maskName->setEnabled(false);
+		this->ui->maskBox->setEnabled(false);
 		this->ui->maskName->setText("");
+		this->SetupJointHierarchy();
 	}
 }
 
+static int jointidx = 0;
 //------------------------------------------------------------------------------
 /**
 */
@@ -290,6 +344,33 @@ CharacterNodeHandler::OnFrame()
 	}	
 	if (ImGui::TreeNode("Animations"))
 	{
+		int prevJointIdx = jointidx;
+		ImGui::InputInt("Test joint index", &jointidx);
+		if (ImGui::Button("Test Mix anim"))
+		{
+			Ptr<Graphics::SetSkeletonEvalMode> eval = Graphics::SetSkeletonEvalMode::Create();
+			eval->SetMode(Characters::CharacterSkeletonInstance::Mix);
+			__Send(this->model, eval);
+		}
+
+		if (prevJointIdx != jointidx)
+		{
+			Ptr<Graphics::SetSkeletonJointMatrix> joint = Graphics::SetSkeletonJointMatrix::Create();
+			joint->SetIndex(prevJointIdx);
+			joint->SetTransform(Math::matrix44::identity());
+			__Send(this->model, joint);
+		}
+		{
+			Ptr<Graphics::SetSkeletonJointMatrix> joint = Graphics::SetSkeletonJointMatrix::Create();
+			Math::float4 pos = this->joints[jointidx].GetPoseMatrix().get_position();
+			Math::float4 at = GraphicsFeature::GraphicsFeatureUnit::Instance()->GetDefaultView()->GetCameraEntity()->GetTransform().get_position();
+			Math::matrix44 trans = Math::matrix44::lookatrh(pos, at, Math::vector::upvec());
+			trans.set_position(Math::point(0));
+			joint->SetTransform(trans);
+			joint->SetIndex(jointidx);
+			__Send(this->model, joint);
+		}
+
 		bool isFirstClipPlaying = true;
 		IndexT i;
 		for (i = 0; i < this->clips.Size(); i++)

@@ -80,6 +80,9 @@ public:
 	/// ends pass
 	void End();
 
+	/// handle window resizing
+	void OnWindowResized();
+
 	/// get subpasses
 	const Util::Array<Subpass>& GetSubpasses() const;
 

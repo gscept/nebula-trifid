@@ -4,8 +4,8 @@
     @class OpenGL4::OGL4RenderDevice
   
     Implements a RenderDevice on top of OpenGL4.
-    
-    (C) 2013 Radon Labs GmbH
+        
+	(C) 2013-2016 Individual contributors, see AUTHORS file
 */    
 #include "coregraphics/base/renderdevicebase.h"
 #include "coregraphics/pixelformat.h"
@@ -102,9 +102,6 @@ public:
     void SetUsePatches(bool state);
     /// gets whether or not the render device should tessellate
     bool GetUsePatches();
-
-	/// call when window gets resized
-	void DisplayResized(SizeT width, SizeT height);
 
     static const short MaxNumRenderTargets = 8;
     static const short MaxNumViewports = 16;

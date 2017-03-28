@@ -3,7 +3,7 @@
 /**
 	Physics::Character
 
-	(C) 2013-2015 Individual contributors, see AUTHORS file
+	(C) 2013-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #if (__USE_BULLET__)
@@ -11,6 +11,15 @@
 namespace Physics
 {
 class Character : public Bullet::BulletCharacter
+{
+	__DeclareClass(Character);
+};
+}
+#elif(__USE_PHYSX__)
+#include "physics/physx/physxcharacter.h"
+namespace Physics
+{
+class Character : public PhysX::PhysXCharacter
 {
 	__DeclareClass(Character);
 };

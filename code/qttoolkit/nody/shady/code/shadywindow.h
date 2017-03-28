@@ -20,6 +20,7 @@
 #include "project/shadyproject.h"
 #include "shadydefs.h"
 #include "codehighlighter.h"
+#include "rendering/materialwindow.h"
 
 
 #define SHADY_MESSAGE(x) ShadyWindow::ConsoleMessage(x);
@@ -57,6 +58,8 @@ public:
 
 	/// setup variation tree
 	void SetupVariationTree();
+	/// get access to scene
+	const Ptr<Nody::NodeScene>& GetScene() const;
 
     /// handle on-show actions
     void showEvent(QShowEvent* e);
@@ -118,7 +121,18 @@ private:
     Ptr<Shady::ShadyNode> mainNode;
     Ptr<Nody::Node> currentNode;
     Ptr<Shady::ShadyProject> project;
+	Ptr<Shady::MaterialWindow> materialEditor;
     Highlighter* highlighter;
 }; 
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Ptr<Nody::NodeScene>&
+ShadyWindow::GetScene() const
+{
+	return this->nodeScene;
+}
+
 } // namespace Shady
 //------------------------------------------------------------------------------

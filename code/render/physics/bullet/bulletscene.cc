@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  bulletscene.cc
-//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "btBulletCollisionCommon.h"
@@ -172,6 +172,7 @@ struct ContactCallback : public btCollisionWorld::ContactResultCallback {
 	
 	btCollisionObject & testShape;
 	Util::Array<Ptr<PhysicsObject> >& results;
+	Util::Array<PhysicsObject::Id> resultIds;
 	const FilterSet & filter;
 		
 	//! Called with each contact for your own processing (e.g. test if contacts fall in within sensor parameters)
@@ -189,8 +190,13 @@ struct ContactCallback : public btCollisionWorld::ContactResultCallback {
 		PhysicsObject * body = (PhysicsObject*)foo->getUserPointer();
 		if(body)
 		{
-			Ptr<PhysicsObject> ent(body);
-			results.Append(ent);
+			if (InvalidIndex == resultIds.BinarySearchIndex(body->GetUniqueId()))
+			{
+				Ptr<PhysicsObject> ent(body);
+				results.Append(ent);
+				resultIds.InsertSorted(body->GetUniqueId());
+			}
+			
 		}
 		// do stuff with the collision point
 		return 0; // not actually sure if return value is used for anything...?
@@ -242,26 +248,26 @@ struct ContactCallback : public btCollisionWorld::ContactResultCallback {
     @return             number of entities touching the box
 */
 int 
-BulletScene::GetObjectsInBox(const Math::vector& scale, const Math::matrix44& m, const Physics::FilterSet& excludeSet, Util::Array<Ptr<Physics::PhysicsObject> >& result)
+BulletScene::GetObjectsInBox(const Math::matrix44& transform, const Math::vector& halfWidth, const Physics::FilterSet& excludeSet, Util::Array<Ptr<Physics::PhysicsObject>>& result)
 {
-	// first remove scaling from transformation matrix	
-	matrix44 pure = matrix44::identity();
-	pure.set_position(m.get_position());
-	pure.set_xaxis(float4::normalize(m.get_xaxis()));
-	pure.set_yaxis(float4::normalize(m.get_yaxis()));
-	pure.set_zaxis(float4::normalize(m.get_zaxis()));
-	
-	btCollisionObject * coll = n_new(btCollisionObject);
+    // first remove scaling from transformation matrix	
+    matrix44 pure = matrix44::identity();
+    pure.set_position(transform.get_position());
+    pure.set_xaxis(float4::normalize(transform.get_xaxis()));
+    pure.set_yaxis(float4::normalize(transform.get_yaxis()));
+    pure.set_zaxis(float4::normalize(transform.get_zaxis()));
 
-	coll->setWorldTransform(Neb2BtM44Transform(m));	
-	btCollisionShape * shape = n_new(btBoxShape(Neb2BtVector(scale)));
-	coll->setCollisionShape(shape);
+	btPairCachingGhostObject * ghostObject = n_new(btPairCachingGhostObject);
 
-	GetEntitiesInShape(coll,excludeSet,result);
+	ghostObject->setWorldTransform(Neb2BtM44Transform(transform));
+	btCollisionShape * collisionShape = n_new(btBoxShape(Neb2BtVector(halfWidth)));
+	ghostObject->setCollisionShape(collisionShape);
 
-	n_delete(shape);
-	n_delete(coll);
-	return result.Size();
+	GetEntitiesInShape(ghostObject, excludeSet, result);
+
+	n_delete(collisionShape);
+	n_delete(ghostObject);
+    return result.Size();
 }
 
 //------------------------------------------------------------------------------
@@ -288,16 +294,19 @@ BulletScene::GetObjectsInSphere(const Math::vector& pos, float radius, const Phy
 	// create a sphere shape and perform collision check
 	Math::matrix44 m = Math::matrix44::identity();
 	m.translate(pos);
-	btCollisionObject * coll = n_new(btCollisionObject);
 
-	coll->setWorldTransform(Neb2BtM44Transform(m));	
-	btCollisionShape * shape = n_new(btSphereShape(radius));
-	coll->setCollisionShape(shape);
+	btCollisionShape * collisionShape = n_new(btSphereShape(radius));
+
+	btPairCachingGhostObject * ghostObject = n_new(btPairCachingGhostObject);
+
+	ghostObject->setWorldTransform(Neb2BtM44Transform(m));
+	ghostObject->setCollisionShape(collisionShape);
 	
-	GetEntitiesInShape(coll,excludeSet,result);
+	GetEntitiesInShape(ghostObject, excludeSet, result);
 
-	n_delete(shape);
-	n_delete(coll);
+	n_delete(collisionShape);
+	n_delete(ghostObject);
+
 	return result.Size();
 }
 
@@ -305,15 +314,28 @@ BulletScene::GetObjectsInSphere(const Math::vector& pos, float radius, const Phy
 /**
 */
 int
-BulletScene::GetEntitiesInShape(btCollisionObject * shape, const FilterSet& excludeSet, Util::Array<Ptr<PhysicsObject> >& result )
+BulletScene::GetEntitiesInShape(btPairCachingGhostObject * shape, const FilterSet& excludeSet, Util::Array<Ptr<PhysicsObject> >& result)
 {	
-	ContactCallback results(*shape,result,excludeSet);
 	// setup filter
 	short int filter = btBroadphaseProxy::AllFilter;
 	short int excludes = excludeSet.GetCollideBits();
 	filter &= ~excludes;
-	results.m_collisionFilterMask = filter;
-	GetWorld()->contactTest(shape,results);
+	
+	shape->setCollisionFlags(filter);
+
+	GetWorld()->addCollisionObject(shape);
+
+	for (int i = 0; i < shape->getNumOverlappingObjects(); i++)
+	{
+		btCollisionObject* collisionObject = shape->getOverlappingObject(i);
+		PhysicsObject* physicsObject = static_cast<PhysicsObject*>(collisionObject->getUserPointer());
+
+		if (physicsObject)
+			result.Append(physicsObject);
+	}
+
+	GetWorld()->removeCollisionObject(shape);
+
 	return result.Size();
 }
 

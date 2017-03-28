@@ -6,7 +6,7 @@
     Memory subsystem features which are identical on Win32 and Xbox360.
     
     (C) 2008 Radon Labs GmbH
-    (C) 2013-2014 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/config.h"
 #include "core/debug.h"
@@ -17,6 +17,7 @@
 #elif __XBOX360__
 #include "memory/xbox360/xbox360memory.h"
 #endif
+#pragma warning (disable : 4595)
 
 namespace Memory
 {

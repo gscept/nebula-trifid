@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  imguiconsole.cc
-//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "imguiconsole.h"
@@ -213,9 +213,9 @@ ImguiConsole::Render()
 		}
 	ImGui::EndChild();
 
-	if (ImGui::InputText("input", this->command, sizeof(this->command), ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory, TextEditCallback, (void*)this))
+	if (ImGui::InputText("console_input", this->command, sizeof(this->command), ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory | ImGuiInputTextFlags_CallbackCompletion, TextEditCallback, (void*)this))
 	{
-		ImGui::SetKeyboardFocusHere();
+		//ImGui::SetKeyboardFocusHere();
 		moveScroll = true;
 		if (this->command[0] != '\0')
 		{

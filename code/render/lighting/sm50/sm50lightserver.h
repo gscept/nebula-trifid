@@ -5,7 +5,7 @@
     
     A newer version of the light prepass server, used for deferred lighting
     
-    (C) 2011-2013 Individual contributors, see AUTHORS file
+    (C) 2011-2016 Individual contributors, see AUTHORS file
 */
 #include "lighting/base/lightserverbase.h"
 #include "graphics/pointlightentity.h"
@@ -46,7 +46,7 @@ public:
 	void RenderLights();
 	/// render light probes
 	void RenderLightProbes();
-	
+
 protected:
 
 	/// render the global light
@@ -72,6 +72,8 @@ protected:
 		Sphere,
 		BoxParallax,
 		SphereParallax,
+		BoxDepth,
+		SphereDepth,
 
 		NumProbeFlags
 	};
@@ -82,7 +84,7 @@ protected:
 	CoreGraphics::ShaderFeature::Mask pointLightFeatureBits[NumShadowFlags];
 	CoreGraphics::ShaderFeature::Mask spotLightFeatureBits[NumShadowFlags];
 	CoreGraphics::ShaderFeature::Mask globalLightFeatureBits[NumShadowFlags];
-	CoreGraphics::ShaderFeature::Mask lightProbeFeatureBits[Graphics::LightProbeEntity::NumProbeShapeTypes + 2];
+	CoreGraphics::ShaderFeature::Mask lightProbeFeatureBits[Graphics::LightProbeEntity::NumProbeShapeTypes * Graphics::LightProbeEntity::NumCorrectionMethods];
 	RenderUtil::DrawFullScreenQuad fullScreenQuadRenderer;          // fs quad renderer
 
 	Ptr<Frame::FrameShader> godRayFrameShader;
@@ -95,6 +97,7 @@ protected:
     Ptr<CoreGraphics::ConstantBuffer> globalLightBuffer;
     Ptr<CoreGraphics::ShaderVariable> globalLightBlockVar;
 	Ptr<CoreGraphics::ShaderVariable> globalLightFocalLength;
+	Ptr<CoreGraphics::ShaderVariable> globalLightDirWorldspace;
 	Ptr<CoreGraphics::ShaderVariable> globalLightDir;
 	Ptr<CoreGraphics::ShaderVariable> globalLightColor;
 	Ptr<CoreGraphics::ShaderVariable> globalBackLightColor;

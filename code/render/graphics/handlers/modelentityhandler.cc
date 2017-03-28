@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  modelentityhandler.cc
 //  (C) 2010 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "graphics/graphicsprotocol.h"
@@ -511,10 +511,13 @@ __Handler(ModelEntity, FetchSkinList)
 		Characters::CharacterSkinLibrary& skinLib = obj->GetCharacter()->SkinLibrary();
 		int skinCount = skinLib.GetNumSkins();
 		Util::Array<Util::StringAtom> skinList;
-		skinList.Reserve(skinCount);
-		for (int skinIndex = 0; skinIndex < skinCount; skinIndex++)
+		if (skinCount > 0)
 		{
-			skinList.Append(skinLib.GetSkin(skinIndex).GetName());
+			skinList.Reserve(skinCount);
+			for (int skinIndex = 0; skinIndex < skinCount; skinIndex++)
+			{
+				skinList.Append(skinLib.GetSkin(skinIndex).GetName());
+			}
 		}
 		msg->SetSkins(skinList);
 	}
@@ -569,6 +572,38 @@ __Handler(ModelEntity, SetVariation)
         n_assert(obj->HasCharacter());
         obj->GetCharacterInstance()->SetVariationSetName(msg->GetVariationName());
     }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+__Handler(ModelEntity, SetSkeletonEvalMode)
+{
+	if (!obj->IsValid())
+	{
+		obj->AddDeferredMessage(msg.cast<Message>());
+	}
+	else
+	{
+		n_assert(obj->HasCharacter());
+		obj->GetCharacterInstance()->SetCharacterEvalMode(msg->GetMode());
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+__Handler(ModelEntity, SetSkeletonJointMatrix)
+{
+	if (!obj->IsValid())
+	{
+		obj->AddDeferredMessage(msg.cast<Message>());
+	}
+	else
+	{
+		n_assert(obj->HasCharacter());
+		obj->GetCharacterInstance()->Skeleton().GetMixMatrix(msg->GetIndex()) = msg->GetTransform();
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -666,6 +701,8 @@ __Dispatcher(ModelEntity)
     __Handle(ModelEntity, AddTrackedCharJoint);
     __Handle(ModelEntity, SetVariation);
 	__Handle(ModelEntity, SetParticleSystemPlaying);
+	__Handle(ModelEntity, SetSkeletonEvalMode);
+	__Handle(ModelEntity, SetSkeletonJointMatrix);
     __HandleUnknown(GraphicsEntity);
 }
 

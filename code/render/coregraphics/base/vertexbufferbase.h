@@ -6,7 +6,7 @@
     A resource which holds an array of vertices.
     
     (C) 2006 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
 #include "coregraphics/vertexlayout.h"
@@ -40,10 +40,15 @@ public:
     void SetNumVertices(SizeT numVertices);
     /// get number of vertices in the buffer
     SizeT GetNumVertices() const;
+	/// set the vertex byte size
+	void SetVertexByteSize(SizeT size);
+	/// get the vertex byte size
+	SizeT GetVertexByteSize() const;
 
 protected:
     Ptr<CoreGraphics::VertexLayout> vertexLayout;
-    SizeT numVertices;
+	SizeT numVertices;
+	SizeT vertexByteSize;
 };
 
 //------------------------------------------------------------------------------
@@ -81,6 +86,24 @@ inline SizeT
 VertexBufferBase::GetNumVertices() const
 {
     return this->numVertices;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+VertexBufferBase::SetVertexByteSize(SizeT size)
+{
+	this->vertexByteSize = size;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline SizeT
+VertexBufferBase::GetVertexByteSize() const
+{
+	return this->vertexByteSize;
 }
 
 } // namespace Base

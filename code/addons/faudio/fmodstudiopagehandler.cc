@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  fmodstudiopagehandler.cc
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "faudio/fmodstudiopagehandler.h"
@@ -100,7 +100,7 @@ FmodStudioPageHandler::HandleRequest(const Ptr<HttpRequest>& request)
                 htmlWriter->Element(HtmlElement::TableHeader, "Count");
             htmlWriter->End(HtmlElement::TableRow);                
 
-            int tmp;
+            int tmp = 0;
 			system->getBankCount(&tmp);
             htmlWriter->Begin(HtmlElement::TableRow);
                 htmlWriter->Begin(HtmlElement::TableData);

@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  visresolver.cc
 //  (C) 2007 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "models/visresolver.h"
@@ -62,6 +62,7 @@ VisResolver::Close()
 {
     n_assert(this->isOpen);
     n_assert(!this->inResolve);
+	n_assert(this->states.IsEmpty());
     this->visibleModels.Reset();
     this->isOpen = false;
 }
@@ -135,6 +136,24 @@ const Array<Ptr<ModelNodeInstance> >&
 VisResolver::GetVisibleModelNodeInstances(const Materials::SurfaceName::Code& surfaceName, const Ptr<ModelNode>& modelNode) const
 {
     return modelNode->GetVisibleModelNodeInstances(surfaceName);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VisResolver::PushResolve()
+{
+	this->states.Push(this->visibleModels);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VisResolver::PopResolve()
+{
+	this->visibleModels = this->states.Pop();
 }
 
 } // namespace Models

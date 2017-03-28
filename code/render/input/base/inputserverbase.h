@@ -8,7 +8,7 @@
     incoming input events.
     
     (C) 2007 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
 #include "input/inputpriority.h"
@@ -63,6 +63,8 @@ public:
     void AttachInputHandler(Input::InputPriority::Code pri, const Ptr<Input::InputHandler>& inputHandler);
     /// remove an input handler
     void RemoveInputHandler(const Ptr<Input::InputHandler>& inputHandler);
+    ///
+    void AddGamePad(const Ptr<Input::GamePad> pad, IndexT playerIndex);
 
     /// call before processing window events
     virtual void BeginFrame();

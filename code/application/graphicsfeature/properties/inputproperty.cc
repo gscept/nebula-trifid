@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  properties/inputproperty.cc
 //  (C) 2007 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "properties/inputproperty.h"
@@ -186,17 +186,17 @@ InputProperty::OnBeginFrame()
 
         bool movement = false;
         vector moveVec(0.0f, 0.0f, 0.0f);
-        if (kbd->KeyPressed(Input::Key::W) || kbd->KeyPressed(Input::Key::Up))
+		if (kbd->KeyPressed(Input::Key::W) || kbd->KeyPressed(Input::Key::Up))
         {
             moveVec += vector(0.0f, 0.0f, -1.0f);
             movement = true;
         }
-        if (kbd->KeyPressed(Input::Key::S) || kbd->KeyPressed(Input::Key::Down))
+		if (kbd->KeyPressed(Input::Key::S) || kbd->KeyPressed(Input::Key::Down))
         {
             moveVec += vector(0.0f, 0.0f, 1.0f);
             movement = true;
         }
-        if (kbd->KeyPressed(Input::Key::A) || kbd->KeyPressed(Input::Key::Left))
+		if (kbd->KeyPressed(Input::Key::A) || kbd->KeyPressed(Input::Key::Left))
         {
             moveVec += vector(-1.0f, 0.0f, 0.0f);
             movement = true;
@@ -204,6 +204,16 @@ InputProperty::OnBeginFrame()
 		if (kbd->KeyPressed(Input::Key::D) || kbd->KeyPressed(Input::Key::Right))
 		{
 			moveVec += vector(1.0f, 0.0f, 0.0f);
+			movement = true;
+		}
+		if (kbd->KeyPressed(Input::Key::Z))
+		{
+			moveVec += vector(0.0f, -1.0f, 0.0f);
+			movement = true;
+		}
+		if (kbd->KeyPressed(Input::Key::Q))
+		{
+			moveVec += vector(0.0f, 1.0f, 0.0f);
 			movement = true;
 		}
 		if(kbd->KeyPressed(Input::Key::E))
@@ -230,7 +240,7 @@ InputProperty::OnBeginFrame()
             msg->SetEnable(false);
             __SendSync(this->entity,msg);
         }
-        if (gpad->IsConnected())
+        if (gpad.isvalid() && gpad->IsConnected())
         {
             if (gpad->ButtonDown(GamePad::StartButton))
             {
@@ -265,8 +275,8 @@ InputProperty::OnBeginFrame()
         if (movement)
         {
             Ptr<MoveDirection> msg = MoveDirection::Create();
-            msg->SetDirection(float4::normalize(moveVec));
-            msg->SetCameraRelative(true);
+            msg->SetDirection(float4::normalize(moveVec));			
+            msg->SetCameraRelative(this->entity->GetBool(Attr::CameraRelativeMove));
             this->entity->SendSync(msg.cast<Messaging::Message>());   
 
             this->lastFrameSendMovement = true;

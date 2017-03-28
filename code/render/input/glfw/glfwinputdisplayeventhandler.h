@@ -7,12 +7,12 @@
     Translates DisplayEvents that are relevant for the input system
     into InputEvents.
         
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */    
 #include "coregraphics/displayeventhandler.h"
 
 //------------------------------------------------------------------------------
-namespace OpenGL4
+namespace GLFW
 {
 class GLFWInputDisplayEventHandler : public CoreGraphics::DisplayEventHandler
 {
@@ -22,5 +22,5 @@ public:
     virtual bool HandleEvent(const CoreGraphics::DisplayEvent& event);
 };
 
-} // namespace OpenGL4
+} // namespace GLFW
 //------------------------------------------------------------------------------

@@ -22,11 +22,6 @@ class Element;
 }
 }
 
-namespace UI
-{
-	class UiElement;
-	typedef Util::KeyValuePair<Util::String, Util::Variant> ElementAttributeEntry;
-}
 
 namespace LibRocket
 {

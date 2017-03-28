@@ -5,7 +5,7 @@
   
     Provides read/write access to an attribute container 
         
-    (C) 2015 Individual contributors, see AUTHORS file
+    (C) 2015-2016 Individual contributors, see AUTHORS file
 */    
 #include "core/refcounted.h"
 #include "util/guid.h"
@@ -58,6 +58,10 @@ public:
     void SetMatrix44(const Attr::Matrix44AttrId& attrId, const Math::matrix44& value);
     /// get a global matrix44 attribute
     const Math::matrix44 GetMatrix44(const Attr::Matrix44AttrId& attrId) const;
+	/// set a global transform44 attribute
+	void SetTransform44(const Attr::Transform44AttrId& attrId, const Math::transform44& value);
+	/// get a global transform44 attribute
+	const Math::transform44 GetTransform44(const Attr::Transform44AttrId& attrId) const;
     /// set a global guid attribute
     void SetGuid(const Attr::GuidAttrId& attrId, const Util::Guid& guid);
     /// get a global guid attribute
@@ -188,6 +192,23 @@ AttrContainerStorageBase::GetMatrix44(const Attr::Matrix44AttrId& attrId) const
     return this->attrs.GetAttr(attrId).GetMatrix44();
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+AttrContainerStorageBase::SetTransform44(const Attr::Transform44AttrId& attrId, const Math::transform44& val)
+{
+	this->attrs.SetAttr(Attr::Attribute(attrId, val));
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Math::transform44
+AttrContainerStorageBase::GetTransform44(const Attr::Transform44AttrId& attrId) const
+{
+	return this->attrs.GetAttr(attrId).GetTransform44();
+}
 //------------------------------------------------------------------------------
 /**
 */

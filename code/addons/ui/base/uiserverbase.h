@@ -6,7 +6,7 @@
     Central UI server on the render-thread-side.
 
     (C) 2009 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
 #include "core/singleton.h"
@@ -16,7 +16,6 @@
 #include "ui/uievent.h"
 #include "input/inputevent.h"
 #include "timing/timer.h"
-#include "frame/framebatch.h"
 #include "threading/safequeue.h"
 
 namespace UI
@@ -72,7 +71,7 @@ public:
     /// update the UI system, called exactly once per frame
     void Update();
     /// render UI system, may be called several times per frame
-    void Render(const Ptr<Frame::FrameBatch>& frameBatch);
+    void Render(const Util::StringAtom& filter);
     /// get current UI time
     Timing::Time GetTime() const;
     /// get current UI time ticks

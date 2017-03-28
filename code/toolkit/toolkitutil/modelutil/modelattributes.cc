@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  modelattributes.cc
-//  (C) 2012-2014 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "modelattributes.h"
@@ -839,6 +839,42 @@ ModelAttributes::Save(const Ptr<IO::Stream>& stream)
 			writer->EndNode();
 		}
 
+		if (this->appendixNodes.Size() > 0)
+		{
+			// begin appendix part
+			writer->BeginNode("AppendixNodes");
+
+			IndexT j;
+			for (j = 0; j < this->appendixNodes.Size(); j++)
+			{
+				const AppendixNode& node = this->appendixNodes.ValueAtIndex(j);
+				writer->BeginNode("AppendixNode");
+				writer->SetString("name", node.name);
+				writer->SetString("path", node.path);
+				writer->SetInt("type", node.type);
+
+				// set transform
+				writer->SetFloat4("position", node.transform.position);
+				writer->SetFloat4("rotation", Math::float4(
+					node.transform.rotation.x(),
+					node.transform.rotation.y(),
+					node.transform.rotation.z(),
+					node.transform.rotation.w()));
+				writer->SetFloat4("scale", node.transform.scale);
+
+				switch (node.type)
+				{
+				case ModelAttributes::ParticleNode:
+					writer->SetInt("primgroup", node.data.particle.primGroup);
+				}
+
+				writer->EndNode();
+			}
+
+			// end appendix part
+			writer->EndNode();
+		}
+
 		// end Nebula 3 node
 		writer->EndNode();
 
@@ -1483,6 +1519,35 @@ ModelAttributes::Load(const Ptr<IO::Stream>& stream)
 			reader->SetToParent();
 		}
 
+		// begin appendix nodes
+		if (reader->SetToFirstChild("AppendixNodes"))
+		{
+			if (reader->SetToFirstChild("AppendixNode")) do
+			{
+				AppendixNode node;
+				node.name = reader->GetString("name");
+				node.path = reader->GetString("path");
+				node.type = (AppendixNodeType)reader->GetInt("type");
+
+				// get transform
+				node.transform.position = reader->GetFloat4("position");
+				node.transform.rotation = reader->GetFloat4("rotation");
+				node.transform.scale = reader->GetFloat4("scale");
+
+				switch (node.type)
+				{
+				case ModelAttributes::ParticleNode:
+					node.data.particle.primGroup = reader->GetInt("primgroup");
+				}
+				
+
+				this->appendixNodes.Add(node.name, node);
+			}
+			while (reader->SetToNextChild("AppendixNode"));
+
+			reader->SetToParent();
+		}
+
 		// finish writing
 		reader->Close();
 		stream->Close();
@@ -1495,6 +1560,7 @@ ModelAttributes::Load(const Ptr<IO::Stream>& stream)
 void 
 ModelAttributes::Clear()
 {
+	this->appendixNodes.Clear();
 	this->particleAttrMap.Clear();
     this->particleMeshMap.Clear();
 	this->nodeStateMap.Clear();
@@ -1520,6 +1586,25 @@ ModelAttributes::ClearTakes()
     this->takes.Clear();
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ModelAttributes::AddAppendixNode(const Util::String& name, const AppendixNode& node)
+{
+	n_assert(!this->appendixNodes.Contains(name));
+	this->appendixNodes.Add(name, node);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ModelAttributes::DeleteAppendixNode(const Util::String& name)
+{
+	n_assert(this->appendixNodes.Contains(name));
+	this->appendixNodes.Erase(name);
+}
 
 
 } // namespace Importer

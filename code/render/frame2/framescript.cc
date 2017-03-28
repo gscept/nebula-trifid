@@ -4,6 +4,8 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "framescript.h"
+#include "frameserver.h"
+#include "coregraphics\displaydevice.h"
 
 
 namespace Frame2
@@ -13,7 +15,8 @@ __ImplementClass(Frame2::FrameScript, 'FRSC', Core::RefCounted);
 //------------------------------------------------------------------------------
 /**
 */
-FrameScript::FrameScript()
+FrameScript::FrameScript() :
+	window(nullptr)
 {
 	// empty
 }
@@ -127,36 +130,8 @@ FrameScript::Setup()
 void
 FrameScript::Discard()
 {
-	IndexT i;
-	for (i = 0; i < this->colorTextures.Size(); i++) this->colorTextures[i]->Discard();
-	this->colorTextures.Clear();
-	this->colorTexturesByName.Clear();
-
-	for (i = 0; i < this->depthStencilTextures.Size(); i++) this->depthStencilTextures[i]->Discard();
-	this->depthStencilTextures.Clear();
-	this->depthStencilTexturesByName.Clear();
-
-	for (i = 0; i < this->readWriteTextures.Size(); i++) this->readWriteTextures[i]->Discard();
-	this->readWriteTextures.Clear();
-	this->readWriteTexturesByName.Clear();
-
-	for (i = 0; i < this->readWriteBuffers.Size(); i++) this->readWriteBuffers[i]->Discard();
-	this->readWriteBuffers.Clear();
-	this->readWriteBuffersByName.Clear();
-
-	for (i = 0; i < this->events.Size(); i++) this->events[i]->Discard();
-	this->events.Clear();
-	this->eventsByName.Clear();
-
-	for (i = 0; i < this->shaderStates.Size(); i++) this->shaderStates[i]->Discard();
-	this->shaderStates.Clear();
-	this->shaderStatesByName.Clear();
-
-	for (i = 0; i < this->algorithms.Size(); i++) this->algorithms[i]->Discard();
-	this->algorithms.Clear();
-	this->algorithmsByName.Clear();
-
-	for (i = 0; i < this->ops.Size(); i++) this->ops[i]->Discard();
+	// unload ourselves, this is only for convenience
+	FrameServer::Instance()->UnloadFrameScript(this->resId);
 }
 
 //------------------------------------------------------------------------------
@@ -252,6 +227,71 @@ FrameScript::GetOps(const FrameOp::ExecutionMask mask, Ptr<FrameOp>& startOp, Pt
 	IndexT end = (mask & 0x0000FF00) >> 8;
 	startOp = this->ops[start];
 	endOp = this->ops[end];
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+FrameScript::Cleanup()
+{
+	IndexT i;
+	for (i = 0; i < this->colorTextures.Size(); i++) this->colorTextures[i]->Discard();
+	this->colorTextures.Clear();
+	this->colorTexturesByName.Clear();
+
+	for (i = 0; i < this->depthStencilTextures.Size(); i++) this->depthStencilTextures[i]->Discard();
+	this->depthStencilTextures.Clear();
+	this->depthStencilTexturesByName.Clear();
+
+	for (i = 0; i < this->readWriteTextures.Size(); i++) this->readWriteTextures[i]->Discard();
+	this->readWriteTextures.Clear();
+	this->readWriteTexturesByName.Clear();
+
+	for (i = 0; i < this->readWriteBuffers.Size(); i++) this->readWriteBuffers[i]->Discard();
+	this->readWriteBuffers.Clear();
+	this->readWriteBuffersByName.Clear();
+
+	for (i = 0; i < this->events.Size(); i++) this->events[i]->Discard();
+	this->events.Clear();
+	this->eventsByName.Clear();
+
+	for (i = 0; i < this->shaderStates.Size(); i++) this->shaderStates[i]->Discard();
+	this->shaderStates.Clear();
+	this->shaderStatesByName.Clear();
+
+	for (i = 0; i < this->algorithms.Size(); i++) this->algorithms[i]->Discard();
+	this->algorithms.Clear();
+	this->algorithmsByName.Clear();
+
+	for (i = 0; i < this->ops.Size(); i++) this->ops[i]->Discard();
+	this->ops.Clear();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+FrameScript::OnWindowResized()
+{
+	// only do this if we actually use the window
+	if (this->window.isvalid())
+	{
+		Ptr<CoreGraphics::Window> prev = CoreGraphics::DisplayDevice::Instance()->GetCurrentWindow();
+
+		// make this window the current one
+		this->window->MakeCurrent();
+
+		IndexT i;
+		for (i = 0; i < this->colorTextures.Size(); i++)		this->colorTextures[i]->Resize();
+		for (i = 0; i < this->readWriteTextures.Size(); i++)	this->readWriteTextures[i]->Resize();
+		for (i = 0; i < this->algorithms.Size(); i++)			this->algorithms[i]->Resize();
+		for (i = 0; i < this->ops.Size(); i++)					this->ops[i]->OnWindowResized();
+
+		// reset old window
+		prev->MakeCurrent();
+	}
+
 }
 
 } // namespace Frame2

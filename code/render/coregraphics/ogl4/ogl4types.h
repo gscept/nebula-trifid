@@ -6,7 +6,7 @@
     Provides static helper functions to convert from and to Direct3D
     data types and enumerations.
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 #include "core/types.h"
 #include "coregraphics/pixelformat.h"
@@ -45,7 +45,7 @@ public:
     /// convert vertex component semantic name as OGL4 declaration usage
     static GLenum AsOGL4VertexDeclarationUsage(CoreGraphics::VertexComponent::SemanticName n);
 	/// convert the format to it's size
-	static GLuint AsByteSize( GLuint semantic );
+	static GLuint AsByteSize(GLuint semantic);
     /// convert primitive topology to D3D
     static GLenum AsOGL4PrimitiveType(CoreGraphics::PrimitiveTopology::Code t);
     /// convert antialias quality to D3D multisample type

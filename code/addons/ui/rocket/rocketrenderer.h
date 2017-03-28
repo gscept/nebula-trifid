@@ -63,6 +63,11 @@ public:
 	/// called by Rocket when a texture gets released
 	void ReleaseTexture(Rocket::Core::TextureHandle texture);
 
+	struct NebulaTexture
+	{
+		Ptr<CoreGraphics::Texture> tex;
+	};
+
 private:
 
 	Ptr<CoreGraphics::RenderDevice> renderDevice;
@@ -77,18 +82,14 @@ private:
 	CoreGraphics::ShaderFeature::Mask defaultVariation;
 	CoreGraphics::ShaderFeature::Mask scissorVariation;
 
+
 	struct NebulaCompiledGeometry
 	{
 		Ptr<CoreGraphics::VertexBuffer> vb;
 		Ptr<CoreGraphics::IndexBuffer> ib;
 		Ptr<CoreGraphics::Texture> texture;
 		CoreGraphics::PrimitiveGroup primGroup;
-	};
-
-	struct NebulaTexture
-	{
-		Ptr<CoreGraphics::Texture> tex;
-	};
+	};	
 
 	struct NebulaVertex
 	{
@@ -97,5 +98,6 @@ private:
 		float r, g, b, a;
 	};	
 }; 
+
 } // namespace Rocket
 //------------------------------------------------------------------------------

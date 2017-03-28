@@ -18,6 +18,7 @@
 #include "rocketserver.h"
 #include "SOIL/SOIL.h"
 #include "rocketrenderer.h"
+#include "IL/il.h"
 
 using namespace Math;
 using namespace CoreGraphics;
@@ -249,18 +250,43 @@ RocketRenderer::SetScissorRegion(int x, int y, int width, int height)
 bool
 RocketRenderer::LoadTexture(Rocket::Core::TextureHandle& texture_handle, Rocket::Core::Vector2i& texture_dimensions, const Rocket::Core::String& source)
 {
-	int width, height, channels;
-	unsigned char* data = SOIL_load_image(source.CString(), &width, &height, &channels, SOIL_LOAD_RGBA);
-    if (data == NULL)
-    {
-        return false;
-    }
-	texture_dimensions.x = width;
-	texture_dimensions.y = height;
+	Util::String nsource = source.CString();
+	// check for special loaders
+	if (source[0] == '?')
+	{
+		Util::String ntex = source.CString();
+		ntex.TrimLeft("?");
+		Ptr<Texture> texture = ResourceManager::Instance()->CreateUnmanagedResource(ntex, Texture::RTTI).downcast<Texture>();
+		// create intermediate texture
+		NebulaTexture* tex = new NebulaTexture;
+		tex->tex = texture;
+		texture_dimensions.x = texture->GetWidth();
+		texture_dimensions.y = texture->GetHeight();
+		texture_handle = reinterpret_cast<Rocket::Core::TextureHandle>(tex);
+		return true;
+	}	
+	else
+	{
+		ILint image = ilGenImage();
+		ilBindImage(image);
+		ILboolean res = ilLoad(IL_TYPE_UNKNOWN, source.CString());
+		if (res == IL_NO_ERROR)
+		{
+			ILint width = ilGetInteger(IL_IMAGE_WIDTH);
+			ILint height = ilGetInteger(IL_IMAGE_HEIGHT);
+			ilConvertImage(IL_UNSIGNED_BYTE, IL_RGBA);
 
-	// generate texture from image
-	this->GenerateTexture(texture_handle, (const ubyte*)data, texture_dimensions);
-	return true;
+			texture_dimensions.x = width;
+			texture_dimensions.y = height;
+
+			ILubyte* data = ilGetData();
+
+			// generate texture from image
+			this->GenerateTexture(texture_handle, data, texture_dimensions);
+			return true;
+		}
+		return false;		
+	}
 }
 
 //------------------------------------------------------------------------------

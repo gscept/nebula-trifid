@@ -16,6 +16,7 @@
 #if __ANYFX__
 #include "afxcompiler.h"
 #endif
+#include "converters/binaryxmlconverter.h"
 
 using namespace Util;
 using namespace IO;
@@ -162,7 +163,7 @@ ShaderCompiler::CompileFrameShaders()
 		String dstPath;
 		dstPath.Format("%s/%s", this->dstFrameShaderDir.AsCharPtr(), srcFiles[i].AsCharPtr());
 		success &= ioServer->CopyFile(srcPath, dstPath);
-		n_printf("Copied base frame shader: %s ---> %s \n", srcPath.AsCharPtr(), dstPath.AsCharPtr());
+		n_printf("Copied base frame script: %s ---> %s \n", srcPath.AsCharPtr(), dstPath.AsCharPtr());
 	}
 
     if (this->srcFrameShaderCustomDir.IsValid())
@@ -176,8 +177,8 @@ ShaderCompiler::CompileFrameShaders()
             srcPath.Format("%s/%s", this->srcFrameShaderCustomDir.AsCharPtr(), srcFiles[i].AsCharPtr());
             String dstPath;
             dstPath.Format("%s/%s", this->dstFrameShaderDir.AsCharPtr(), srcFiles[i].AsCharPtr());
-            ioServer->CopyFile(srcPath, dstPath);
-            n_printf("Copied custom frame shader: %s ---> %s \n", srcPath.AsCharPtr(), dstPath.AsCharPtr());
+			success &= ioServer->CopyFile(srcPath, dstPath);
+            n_printf("Copied custom frame script: %s ---> %s \n", srcPath.AsCharPtr(), dstPath.AsCharPtr());
         }
     }
     
@@ -206,6 +207,11 @@ ShaderCompiler::CompileMaterials()
     Util::String customMaterialTemplateSrcDir = this->srcMaterialCustomDir;
     Util::String materialTemplateDstDir = this->dstMaterialDir;
 
+	// create converter
+	BinaryXmlConverter converter;
+	ToolkitUtil::Logger logger;
+	converter.SetPlatform(Platform::Win32);
+
     // remove old directories
     ioServer->DeleteDirectory(materialTemplateDstDir);
 
@@ -223,7 +229,9 @@ ShaderCompiler::CompileMaterials()
         srcPath.Format("%s/%s", baseMaterialTemplateSrcDir.AsCharPtr(), srcFiles[i].AsCharPtr());
 		String dstPath;
         dstPath.Format("%s/%s", materialTemplateDstDir.AsCharPtr(), srcFiles[i].AsCharPtr());
-		success &= ioServer->CopyFile(srcPath, dstPath);
+
+		// convert to binary xml
+		success &= converter.ConvertFile(srcPath, dstPath, logger);
 		n_printf("Copied base material template table: %s ---> %s \n", srcPath.AsCharPtr(), dstPath.AsCharPtr());
 	}
 
@@ -244,7 +252,7 @@ ShaderCompiler::CompileMaterials()
             dstPath.Format("%s/%s_custom.xml", materialTemplateDstDir.AsCharPtr(), file.AsCharPtr());
 
             // copy file
-            ioServer->CopyFile(srcPath, dstPath);
+			success &= converter.ConvertFile(srcPath, dstPath, logger);
             n_printf("Copied custom material table: %s ---> %s \n", srcPath.AsCharPtr(), dstPath.AsCharPtr());
         }
     }

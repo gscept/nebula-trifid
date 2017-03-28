@@ -22,6 +22,14 @@ using namespace Instancing;
 using namespace Visibility;
 using namespace Models;
 using namespace Util;
+
+#define NEBULA3_FRAME_LOG_ENABLED   (0)
+#if NEBULA3_FRAME_LOG_ENABLED
+#define FRAME_LOG(...) n_printf(__VA_ARGS__); n_printf("\n")
+#else
+#define FRAME_LOG(...)
+#endif
+
 namespace Frame2
 {
 

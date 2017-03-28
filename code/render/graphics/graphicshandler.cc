@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  graphicshandler.cc
 //  (C) 2008 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "graphics/graphicshandler.h"
@@ -47,7 +47,6 @@ using namespace Math;
 using namespace Models;
 using namespace Graphics;
 using namespace Lighting;
-using namespace Frame;
 using namespace Interface;
 using namespace Util;
 using namespace Debug;
@@ -145,7 +144,6 @@ GraphicsHandler::Open()
     this->lightServer = LightServer::Create();
     this->shadowServer = ShadowServer::Create();
 	this->instanceServer = InstanceServer::Create();
-    this->frameServer = FrameServer::Create();
 	this->frame2Server = Frame2::FrameServer::Create();
 	this->materialServer = MaterialServer::Create();
     this->animEventServer = Animation::AnimEventServer::Create();
@@ -178,7 +176,6 @@ GraphicsHandler::Close()
     this->particleServer = 0;
     this->mouseRenderDevice = 0;
     this->characterServer = 0;
-    this->frameServer = 0;
 	this->frame2Server = 0;
 	this->materialServer = 0;
     this->shadowServer = 0;
@@ -231,7 +228,7 @@ GraphicsHandler::SetupGraphicsRuntime(const Ptr<SetupGraphics>& msg)
     n_assert(!this->graphicsServer->IsOpen());
     n_assert(!this->lightServer->IsOpen());
     n_assert(!this->shadowServer->IsOpen());
-    n_assert(!this->frameServer->IsOpen());
+    n_assert(!this->frame2Server->IsOpen());
 	n_assert(!this->instanceServer->IsOpen());
 	n_assert(!this->materialServer->IsOpen());
     n_assert(!this->characterServer->IsValid());
@@ -270,7 +267,6 @@ GraphicsHandler::SetupGraphicsRuntime(const Ptr<SetupGraphics>& msg)
     this->lightServer->Open();
     this->shadowServer->Open();    
     this->particleServer->Open();    
-	this->frameServer->Open();	
 	this->frame2Server->Open();
 	this->instanceServer->Open();
 
@@ -306,7 +302,6 @@ GraphicsHandler::ShutdownGraphicsRuntime()
     this->modelServer->Close();
 	this->materialServer->Close();
 	this->shapeRenderer->Close();
-    this->frameServer->Close();	
 	this->frame2Server->Close();
 	this->resourceManager->Close();
 	this->instanceServer->Close();
@@ -337,9 +332,14 @@ GraphicsHandler::HandleMessage(const Ptr<Message>& msg)
         this->OnSetupGraphics(msg.cast<SetupGraphics>());
         return true;
     }
-	else if (msg->CheckId(UpdateDisplay::Id))
+	else if (msg->CheckId(SetupWindow::Id))
 	{
-		this->OnUpdateDisplay(msg.cast<UpdateDisplay>());
+		this->OnSetupWindow(msg.cast<SetupWindow>());
+		return true;
+	}
+	else if (msg->CheckId(UpdateWindow::Id))
+	{
+		this->OnUpdateWindow(msg.cast<UpdateWindow>());
 		return true;
 	}
 
@@ -362,6 +362,8 @@ GraphicsHandler::HandleMessage(const Ptr<Message>& msg)
 	__StaticHandle(EnableResourcesAsync);
 	__StaticHandle(ReloadResource);
 	__StaticHandle(ReloadResourceIfExists);
+	__StaticHandle(ReloadModelByResource);
+	__StaticHandle(ReloadShader);
 	__StaticHandle(EnableWireframe);
 	__StaticHandle(ItemAtPosition);
 	__StaticHandle(ItemsAtPosition);
@@ -429,6 +431,7 @@ GraphicsHandler::DoWork()
 
 //------------------------------------------------------------------------------
 /**
+	Setup graphics by creating a default window, which is responsible for creating a context.
 */
 void
 GraphicsHandler::OnSetupGraphics(const Ptr<SetupGraphics>& msg)
@@ -438,50 +441,94 @@ GraphicsHandler::OnSetupGraphics(const Ptr<SetupGraphics>& msg)
     // configure the display device and setup the graphics runtime
     DisplayDevice* disp = this->displayDevice;
     disp->SetAdapter(msg->GetAdapter());
-    disp->SetDisplayMode(msg->GetDisplayMode());
-    disp->SetAntiAliasQuality(msg->GetAntiAliasQuality());
-    disp->SetFullscreen(msg->GetFullscreen());
-    disp->SetDisplayModeSwitchEnabled(msg->GetDisplayModeSwitchEnabled());
-    disp->SetTripleBufferingEnabled(msg->GetTripleBufferingEnabled());
-    disp->SetAlwaysOnTop(msg->GetAlwaysOnTop());
-    disp->SetVerticalSyncEnabled(msg->GetVerticalSyncEnabled());
-    disp->SetIconName(msg->GetIconName());
-    disp->SetWindowTitle(msg->GetWindowTitle());
-    disp->SetWindowData(msg->GetWindowData());
-	disp->SetEmbedded(msg->GetEmbedded());
-    disp->SetDecorated(msg->GetDecorated());
-    disp->SetResizable(msg->GetResizable());
-    this->SetupGraphicsRuntime(msg);
+	const Util::Blob& windowData = msg->GetWindowData();
 
-    msg->SetActualDisplayMode(disp->GetDisplayMode());
-    msg->SetActualAdapter(disp->GetAdapter());
-    msg->SetActualFullscreen(disp->IsFullscreen());
+#if __VULKAN__
+	// if Vulkan, we need to setup graphics first, then window
+	this->SetupGraphicsRuntime(msg);
+#endif
+	if (windowData.IsValid())
+	{
+		Ptr<Window> window = disp->EmbedWindow(windowData);
+
+		msg->SetActualDisplayMode(window->GetDisplayMode());
+		msg->SetActualAdapter(disp->GetAdapter());
+		msg->SetActualFullscreen(window->IsFullscreen());
+	}
+	else
+	{
+		Ptr<Window> window = disp->SetupWindow(msg->GetWindowTitle(), msg->GetIconName(), msg->GetDisplayMode());
+		window->SetAntiAliasQuality(msg->GetAntiAliasQuality());
+		window->SetFullscreen(msg->GetFullscreen(), msg->GetMonitor());
+		window->SetDisplayModeSwitchEnabled(msg->GetDisplayModeSwitchEnabled());
+		window->SetTripleBufferingEnabled(msg->GetTripleBufferingEnabled());
+		window->SetAlwaysOnTop(msg->GetAlwaysOnTop());
+		window->SetEmbedded(msg->GetEmbedded());
+		window->SetDecorated(msg->GetDecorated());
+		window->SetResizable(msg->GetResizable());
+
+		msg->SetActualDisplayMode(window->GetDisplayMode());
+		msg->SetActualAdapter(disp->GetAdapter());
+		msg->SetActualFullscreen(window->IsFullscreen());
+	}	
+#if __OGL4__
+	// in OpenGL, context comes from window, so at least one window needs to be setup first
+	this->SetupGraphicsRuntime(msg);
+#endif
 }
 
 //------------------------------------------------------------------------------
 /**
 */
-void 
-GraphicsHandler::OnUpdateDisplay( const Ptr<Graphics::UpdateDisplay>& msg )
+void
+GraphicsHandler::OnSetupWindow(const Ptr<Graphics::SetupWindow>& msg)
 {
 	n_assert(this->isGraphicsRuntimeValid);
 
 	// configure the display device and setup the graphics runtime
 	DisplayDevice* disp = this->displayDevice;
+	disp->SetAdapter(msg->GetAdapter());
+	const Util::Blob& windowData = msg->GetWindowData();
+	Ptr<Window> window;
+	if (windowData.IsValid())
+	{
+		window = disp->EmbedWindow(windowData);
+	}
+	else
+	{
+		window = disp->SetupWindow(msg->GetWindowTitle(), msg->GetIconName(), msg->GetDisplayMode());
+		window->SetAntiAliasQuality(msg->GetAntiAliasQuality());
+		window->SetFullscreen(msg->GetFullscreen(), msg->GetMonitor());
+		window->SetDisplayModeSwitchEnabled(msg->GetDisplayModeSwitchEnabled());
+		window->SetTripleBufferingEnabled(msg->GetTripleBufferingEnabled());
+		window->SetAlwaysOnTop(msg->GetAlwaysOnTop());
+		window->SetEmbedded(msg->GetEmbedded());
+		window->SetDecorated(msg->GetDecorated());
+		window->SetResizable(msg->GetResizable());
+	}
+	msg->SetWindowId(window->GetWindowId());
+}
 
-	disp->SetDisplayMode(msg->GetDisplayMode());
-	disp->SetAntiAliasQuality(msg->GetAntiAliasQuality());
-	disp->SetFullscreen(msg->GetFullscreen());
-    if(msg->GetWindowData().Size() > 0)
-    {
-	    disp->SetWindowData(msg->GetWindowData());
-    }
-	disp->SetTripleBufferingEnabled(msg->GetTripleBufferingEnabled());
+//------------------------------------------------------------------------------
+/**
+	Updates the display settings on the default window.
+*/
+void
+GraphicsHandler::OnUpdateWindow(const Ptr<Graphics::UpdateWindow>& msg)
+{
+	n_assert(this->isGraphicsRuntimeValid);
+
+	// get the default window and apply settings
+	DisplayDevice* disp = this->displayDevice;
+	const Ptr<Window>& wnd = disp->GetWindow(msg->GetWindow());
+	
+	wnd->SetDisplayMode(msg->GetDisplayMode());
+	wnd->SetAntiAliasQuality(msg->GetAntiAliasQuality());
+	wnd->SetFullscreen(msg->GetFullscreen(), msg->GetMonitor());
+	wnd->SetTripleBufferingEnabled(msg->GetTripleBufferingEnabled());
 
 	// reopen display
-    disp->DisableCallbacks();
-	disp->Reopen();
-    disp->EnableCallbacks();
+	wnd->Reopen();
 }
 
 } // namespace Graphics

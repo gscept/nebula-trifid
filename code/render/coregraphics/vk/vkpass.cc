@@ -482,4 +482,84 @@ VkPass::End()
 	PassBase::End();
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VkPass::OnWindowResized()
+{
+	n_assert(this->renderTargetDimensionsVar.isvalid());
+
+	// gather image views
+	SizeT width = 0;
+	SizeT height = 0;
+	SizeT layers = 0;
+	Util::FixedArray<VkImageView> images;
+	images.Resize(this->colorAttachments.Size() + (this->depthStencilAttachment.isvalid() ? 1 : 0));
+
+	IndexT i;
+	for (i = 0; i < this->colorAttachments.Size(); i++)
+	{
+		images[i] = this->colorAttachments[i]->GetVkImageView();
+		width = Math::n_max(width, this->colorAttachments[i]->GetWidth());
+		height = Math::n_max(height, this->colorAttachments[i]->GetHeight());
+		layers = Math::n_max(layers, this->colorAttachments[i]->GetLayers());
+
+		VkRect2D& rect = scissorRects[i];
+		rect.offset.x = 0;
+		rect.offset.y = 0;
+		rect.extent.width = this->colorAttachments[i]->GetWidth();
+		rect.extent.height = this->colorAttachments[i]->GetHeight();
+		VkViewport& viewport = viewports[i];
+		viewport.width = (float)this->colorAttachments[i]->GetWidth();
+		viewport.height = (float)this->colorAttachments[i]->GetHeight();
+		viewport.minDepth = 0;
+		viewport.maxDepth = 1;
+		viewport.x = 0;
+		viewport.y = 0;
+
+		const Math::float4& value = this->colorAttachmentClears[i];
+		VkClearValue& clear = this->clearValues[i];
+		clear.color.float32[0] = value.x();
+		clear.color.float32[1] = value.y();
+		clear.color.float32[2] = value.z();
+		clear.color.float32[3] = value.w();
+	}
+
+	// destroy old framebuffer
+	vkDestroyFramebuffer(VkRenderDevice::dev, this->framebuffer, nullptr);
+
+	// create framebuffer
+	VkFramebufferCreateInfo fbInfo =
+	{
+		VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
+		NULL,
+		0,
+		this->pass,
+		images.Size(),
+		images.Begin(),
+		width,
+		height,
+		layers
+	};
+
+	// we need to recreate the framebuffer object because the image handles might have changed, and the dimensions to render to is different
+	VkResult res;
+	res = vkCreateFramebuffer(VkRenderDevice::dev, &fbInfo, nullptr, &this->framebuffer);
+	n_assert(res == VK_SUCCESS);
+
+	// setup input attachments
+	Util::FixedArray<Math::float4> dimensions(this->colorAttachments.Size());
+	for (i = 0; i < this->colorAttachments.Size(); i++)
+	{
+		// create dimensions float4
+		Math::float4& dims = dimensions[i];
+		dims.x() = (Math::scalar)this->colorAttachments[i]->GetWidth();
+		dims.y() = (Math::scalar)this->colorAttachments[i]->GetHeight();
+		dims.z() = 1 / dims.x();
+		dims.w() = 1 / dims.y();
+	}
+	this->renderTargetDimensionsVar->SetFloat4Array(dimensions.Begin(), dimensions.Size());
+}
+
 } // namespace Vulkan

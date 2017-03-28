@@ -79,4 +79,15 @@ FramePass::Run(const IndexT frameIndex)
 	renderDev->EndPass();
 }
 
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+FramePass::OnWindowResized()
+{
+	// resize pass
+	this->pass->OnWindowResized();
+}
+
 } // namespace Frame2

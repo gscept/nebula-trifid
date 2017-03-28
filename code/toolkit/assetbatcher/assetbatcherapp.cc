@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  fbxbatcher3app.cc
-//  (C) 2011-2013 Individual contributors, see AUTHORS file
+//  (C) 2011-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "toolkitutil/fbx/nfbxexporter.h"
@@ -198,7 +198,7 @@ void
 AssetBatcherApp::ShowHelp()
 {
 	n_printf("NebulaT asset batcher.\n"
-		"(C) 2015 Individual contributors, see AUTHORS file.\n");
+		"(C) 2016 Individual contributors, see AUTHORS file.\n");
 	n_printf("-help         --display this help\n"
 			 "-force        --ignores time stamps\n"
 			 "-dir          --category name\n"

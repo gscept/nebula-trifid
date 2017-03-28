@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  gridrtplugin.cc
-//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "silhouettertplugin.h"
@@ -16,7 +16,6 @@
 #include "models/nodes/shapenodeinstance.h"
 #include "characters/characterskinnodeinstance.h"
 #include "particles/particlesystemnodeinstance.h"
-#include "frame/frameserver.h"
 #include "framesync/framesynctimer.h"
 #include "coregraphics/config.h"
 
@@ -74,15 +73,17 @@ SilhouetteRTPlugin::OnUnregister()
 /**
 */
 void
-SilhouetteRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
+SilhouetteRTPlugin::OnRender(const Util::StringAtom& filter)
 {
 #if __OGL4__
+	// fix this in shader
 	glLineWidth(5.0f);
 #endif
     // get current frame index from graphics server
     IndexT frameIndex = FrameSync::FrameSyncTimer::Instance()->GetFrameIndex();
 
-    if (frameBatch->GetType() == FrameBatchType::Shapes)
+	static const Util::StringAtom identifier = "Silhouette";
+    if (filter == identifier)
 	{
 		const Ptr<ShaderServer>& shaderServer = ShaderServer::Instance();
 		shaderServer->SetActiveShader(this->shader->GetShader());
@@ -146,6 +147,9 @@ SilhouetteRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
 			}
 		}
 	}
+#if __OGL4__
+	glLineWidth(1.0f);
+#endif
 }
 
 //------------------------------------------------------------------------------

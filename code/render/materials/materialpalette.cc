@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  materialpalette.cc
-//  (C) 2011-2013 Individual contributors, see AUTHORS file
+//  (C) 2011-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "materials/materialpalette.h"
@@ -36,7 +36,7 @@ MaterialPalette::Discard()
 		this->materials[i]->Discard();
 	}
 	this->materials.Clear();
-	this->materialsByShader.Clear();
+	this->materialsByName.Clear();
 }
 
 } // namespace Materials

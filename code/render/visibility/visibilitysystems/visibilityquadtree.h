@@ -7,7 +7,7 @@
     Entities are automatically sorted into quadtree.
        
     (C) 2010 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "visibility/visibilitysystems/visibilitysystembase.h"
 #include "visibility/visibilitysystems/visibilitycell.h"
@@ -55,6 +55,8 @@ public:
 
 	/// resizes quadtree
 	virtual void OnWorldChanged(const Math::bbox& box);
+	/// update cell sizes
+	virtual void ResizeVisibilityCells(const Ptr<VisibilityCell>& cell, uchar curLevel, ushort curCol, ushort curRow);
                 
     /// attach visibility job to port
     virtual Ptr<Jobs::Job> CreateVisibilityJob(IndexT frameId, const Ptr<ObserverContext>& observer, Util::FixedArray<Ptr<VisibilityContext> >& outEntitiyArray, uint& entityMask);

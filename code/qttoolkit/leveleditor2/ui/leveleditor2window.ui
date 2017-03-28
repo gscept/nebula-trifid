@@ -38,17 +38,8 @@
     <enum>Qt::StrongFocus</enum>
    </property>
    <layout class="QGridLayout" name="gridLayout_4">
-    <property name="leftMargin">
-     <number>2</number>
-    </property>
-    <property name="topMargin">
-     <number>5</number>
-    </property>
-    <property name="rightMargin">
-     <number>2</number>
-    </property>
-    <property name="bottomMargin">
-     <number>5</number>
+    <property name="margin">
+     <number>0</number>
     </property>
     <item row="0" column="0">
      <widget class="QFrame" name="frame">
@@ -78,6 +69,9 @@
       </property>
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
+      </property>
+      <property name="lineWidth">
+       <number>0</number>
       </property>
       <layout class="QGridLayout" name="gridLayout_3">
        <property name="verticalSpacing">
@@ -121,6 +115,9 @@
          <property name="frameShadow">
           <enum>QFrame::Plain</enum>
          </property>
+         <property name="lineWidth">
+          <number>0</number>
+         </property>
         </widget>
        </item>
       </layout>
@@ -158,11 +155,15 @@
     <addaction name="actionNew"/>
     <addaction name="separator"/>
     <addaction name="actionLoad"/>
+    <addaction name="actionImport_Level"/>
+    <addaction name="actionExport_Selection_as_Level"/>
+    <addaction name="actionAdd_Level_Reference"/>
     <addaction name="separator"/>
     <addaction name="actionSave"/>
     <addaction name="actionSave_As"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
+    <addaction name="actionBatch_on_save"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -180,6 +181,9 @@
     <addaction name="separator"/>
     <addaction name="actionNew_layer"/>
     <addaction name="actionMoveEntityToSelectedLayer"/>
+    <addaction name="separator"/>
+    <addaction name="actionExport_Selection"/>
+    <addaction name="actionImport"/>
    </widget>
    <widget class="QMenu" name="menuWindow">
     <property name="title">
@@ -231,11 +235,10 @@
     <addaction name="separator"/>
     <addaction name="actionBatch_game_data"/>
    </widget>
-   <widget class="QMenu" name="menuWindow_2">
+   <widget class="QMenu" name="menu_Scripts">
     <property name="title">
-     <string>Window</string>
+     <string> Scripts</string>
     </property>
-    <addaction name="actionShow_global_light_probe"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -244,8 +247,8 @@
    <addaction name="menuNavigation"/>
    <addaction name="menuWindow"/>
    <addaction name="menuDisplay"/>
+   <addaction name="menu_Scripts"/>
    <addaction name="menuTest_Level"/>
-   <addaction name="menuWindow_2"/>
    <addaction name="menuAbout"/>
   </widget>
   <widget class="QToolBar" name="toolBar">
@@ -301,7 +304,7 @@
     </property>
     <layout class="QGridLayout" name="gridLayout_2">
      <property name="margin">
-      <number>2</number>
+      <number>0</number>
      </property>
      <item row="0" column="0">
       <widget class="LevelEditor2::EntityTreeWidget" name="treeWidget">
@@ -326,6 +329,9 @@
        <property name="frameShadow">
         <enum>QFrame::Plain</enum>
        </property>
+       <property name="lineWidth">
+        <number>0</number>
+       </property>
        <property name="autoScrollMargin">
         <number>16</number>
        </property>
@@ -335,8 +341,23 @@
        <property name="indentation">
         <number>20</number>
        </property>
-       <attribute name="headerVisible">
+       <property name="rootIsDecorated">
+        <bool>true</bool>
+       </property>
+       <property name="uniformRowHeights">
+        <bool>true</bool>
+       </property>
+       <property name="sortingEnabled">
         <bool>false</bool>
+       </property>
+       <property name="headerHidden">
+        <bool>false</bool>
+       </property>
+       <property name="columnCount">
+        <number>2</number>
+       </property>
+       <attribute name="headerVisible">
+        <bool>true</bool>
        </attribute>
        <attribute name="headerCascadingSectionResizes">
         <bool>false</bool>
@@ -345,14 +366,22 @@
         <number>100</number>
        </attribute>
        <attribute name="headerMinimumSectionSize">
-        <number>27</number>
+        <number>50</number>
+       </attribute>
+       <attribute name="headerShowSortIndicator" stdset="0">
+        <bool>false</bool>
        </attribute>
        <attribute name="headerStretchLastSection">
         <bool>true</bool>
        </attribute>
        <column>
         <property name="text">
-         <string notr="true">1</string>
+         <string notr="true">Name</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Type</string>
         </property>
        </column>
       </widget>
@@ -366,6 +395,12 @@
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>180</width>
+     <height>91</height>
+    </size>
    </property>
    <property name="windowTitle">
     <string>Attributes</string>
@@ -381,7 +416,7 @@
     </property>
     <layout class="QGridLayout" name="gridLayout_5">
      <property name="margin">
-      <number>2</number>
+      <number>0</number>
      </property>
      <item row="0" column="0">
       <widget class="QScrollArea" name="scrollArea">
@@ -412,6 +447,9 @@
        <property name="frameShadow">
         <enum>QFrame::Plain</enum>
        </property>
+       <property name="lineWidth">
+        <number>0</number>
+       </property>
        <property name="widgetResizable">
         <bool>true</bool>
        </property>
@@ -421,7 +459,7 @@
           <x>0</x>
           <y>0</y>
           <width>259</width>
-          <height>222</height>
+          <height>215</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -451,7 +489,7 @@
     </property>
     <layout class="QGridLayout" name="gridLayout_6">
      <property name="margin">
-      <number>2</number>
+      <number>0</number>
      </property>
      <item row="1" column="2">
       <widget class="QToolButton" name="newLayerButton">
@@ -516,6 +554,9 @@
        <property name="frameShadow">
         <enum>QFrame::Plain</enum>
        </property>
+       <property name="lineWidth">
+        <number>0</number>
+       </property>
        <property name="widgetResizable">
         <bool>true</bool>
        </property>
@@ -525,7 +566,7 @@
           <x>0</x>
           <y>0</y>
           <width>259</width>
-          <height>585</height>
+          <height>580</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout">
@@ -553,6 +594,9 @@
            </property>
            <property name="frameShape">
             <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="lineWidth">
+            <number>0</number>
            </property>
            <property name="editTriggers">
             <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
@@ -631,6 +675,7 @@
     </layout>
    </widget>
   </widget>
+  <widget class="QStatusBar" name="statusBar"/>
   <action name="actionNew">
    <property name="text">
     <string>New</string>
@@ -1031,6 +1076,42 @@
    </property>
    <property name="text">
     <string>Center Group Pivot</string>
+   </property>
+  </action>
+  <action name="actionExport_Selection">
+   <property name="text">
+    <string>Export Selection as Fragment</string>
+   </property>
+  </action>
+  <action name="actionImport">
+   <property name="text">
+    <string>Import Fragment</string>
+   </property>
+  </action>
+  <action name="actionImport_Level">
+   <property name="text">
+    <string>Import Level</string>
+   </property>
+  </action>
+  <action name="actionExport_Selection_as_Level">
+   <property name="text">
+    <string>Export Selection as Level</string>
+   </property>
+  </action>
+  <action name="actionAdd_Level_Reference">
+   <property name="text">
+    <string>Add Level Reference</string>
+   </property>
+  </action>
+  <action name="actionBatch_on_save">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Batch on save</string>
    </property>
   </action>
  </widget>

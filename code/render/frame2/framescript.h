@@ -17,6 +17,10 @@
 #include "algorithm/algorithm.h"
 #include "frame2/frameop.h"
 #include "frame2/framepass.h"
+namespace Graphics
+{
+	class View;
+}
 namespace Frame2
 {
 class FrameScript : public Core::RefCounted
@@ -28,10 +32,6 @@ public:
 	/// destructor
 	virtual ~FrameScript();
 
-	/// set name
-	void SetName(const Util::StringAtom& name);
-	/// get name
-	const Util::StringAtom& GetName() const;
 	/// set name
 	void SetResourceId(const Resources::ResourceId& name);
 	/// get name
@@ -86,8 +86,16 @@ public:
 
 private:
 	friend class FrameScriptLoader;
+	friend class FrameServer;
+	friend class Graphics::View;
 
-	Util::StringAtom name;
+	/// cleanup script internally
+	void Cleanup();
+	/// handle resizing
+	void OnWindowResized();
+
+	Ptr<CoreGraphics::Window> window;
+
 	Resources::ResourceId resId;
 	Util::Array<Ptr<CoreGraphics::RenderTexture>> colorTextures;
 	Util::Dictionary<Util::StringAtom, Ptr<CoreGraphics::RenderTexture>> colorTexturesByName;
@@ -105,24 +113,6 @@ private:
 	Util::Array<Ptr<CoreGraphics::ShaderState>> shaderStates;
 	Util::Dictionary<Util::StringAtom, Ptr<CoreGraphics::ShaderState>> shaderStatesByName;
 };
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline void
-FrameScript::SetName(const Util::StringAtom& name)
-{
-	this->name = name;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline const Util::StringAtom&
-FrameScript::GetName() const
-{
-	return this->name;
-}
 
 //------------------------------------------------------------------------------
 /**

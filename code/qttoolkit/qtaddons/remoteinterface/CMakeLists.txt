@@ -17,16 +17,16 @@ SET(PCH_files
     ../../stdneb.cc
 )
 SOURCE_GROUP("Precompiled" FILES ${PCH_files})
-PCH_QT4_WRAP_CPP(remoteinterface_HEADERS_MOC ${QTMOCFILES})
+PCH_QT_WRAP_CPP(remoteinterface_HEADERS_MOC ${QTMOCFILES})
 
 SET(qttoolkitutil_NIDLS
 	qtremoteprotocol.nidl
 )
-N_WRAP_ADD_NIDL_FILES(CODE ${qttoolkitutil_NIDLS})
+N_WRAP_ADD_PROJ_NIDL_FILES(remoteinterface CODE ${qttoolkitutil_NIDLS})
 
 LIST(APPEND ALLSRCS ${CODE} ${PCH_files} ${remoteinterface_HEADERS_MOC})
 ADD_LIBRARY(remoteinterface STATIC ${ALLSRCS})
-TARGET_LINK_LIBRARIES(remoteinterface PUBLIC application toolkitutil ${QT_WIN_LIBS}	${QT_LIBRARIES} ${QT_QTMAIN_LIBRARY} )
+TARGET_LINK_LIBRARIES(remoteinterface PUBLIC application toolkitutil qtsupport )
 TARGET_INCLUDE_DIRECTORIES(remoteinterface PUBLIC ${Nebula3_SOURCE_DIR}/code/qttoolkit/qtaddons/ PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 SET_TARGET_PROPERTIES(remoteinterface PROPERTIES FOLDER "N3SDK/QtAddons")
 N_SET_COMPILER_DEFAULTS()		

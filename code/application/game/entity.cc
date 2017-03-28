@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  game/entity.cc
 //  (C) 2003 RadonLabs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "attr/attributedefinition.h"
@@ -700,6 +700,17 @@ Entity::AddMatrix44(const Attr::Matrix44AttrId& attrId)
 /**
 */
 void
+Entity::AddTransform44(const Attr::Transform44AttrId& attrId)
+{
+    if (!this->attrTable->HasColumn(attrId))
+    {
+        CategoryManager::Instance()->AddCategoryAttr(attrId, false);
+    }
+}
+//------------------------------------------------------------------------------
+/**
+*/
+void
 Entity::AddGuid(const Attr::GuidAttrId& attrId)
 {
     if (!this->attrTable->HasColumn(attrId))
@@ -796,6 +807,9 @@ Entity::SetAttr(const Attr::Attribute& attr)
         case Attr::Matrix44Type:
             this->SetMatrix44(attr.GetAttrId(), attr.GetMatrix44());
             break;
+        case Attr::Transform44Type:
+            this->SetTransform44(attr.GetAttrId(), attr.GetTransform44());
+            break;
         case Attr::BlobType:
             this->SetBlob(attr.GetAttrId(), attr.GetBlob());
             break;
@@ -830,6 +844,8 @@ Entity::GetAttr(const Attr::AttrId& attrId) const
             return Attr::Attribute(attrId, this->GetString(attrId));
         case Attr::Matrix44Type:
             return Attr::Attribute(attrId, this->GetMatrix44(attrId));
+        case Attr::Transform44Type:
+            return Attr::Attribute(attrId, this->GetTransform44(attrId));
         case Attr::BlobType:
             return Attr::Attribute(attrId, this->GetBlob(attrId));
         case Attr::GuidType:

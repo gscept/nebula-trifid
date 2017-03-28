@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  fbxnoderegistry.cc
-//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "nfbxscene.h"
@@ -95,8 +95,8 @@ NFbxScene::Setup( FbxScene* scene, const ExportFlags& exportFlags, const ExportM
 	// Okay so we want to do this, we really do, but if we do, 
 	// the GetSrcObjectCount will give us an INCORRECT amount of meshes, 
 	// and getting the mesh will give us invalid meshes...
-	//converter->SplitMeshesPerMaterial(scene, true);
-	delete converter;
+	//bool foo = converter->SplitMeshesPerMaterial(scene, true);
+	//delete converter;
 		
 	// split meshes by materials
 	int meshCount = scene->GetSrcObjectCount<FbxMesh>();
@@ -109,13 +109,26 @@ NFbxScene::Setup( FbxScene* scene, const ExportFlags& exportFlags, const ExportM
 	int nodeCount = scene->GetSrcObjectCount<FbxNode>();
 	this->nodes.Reserve(nodeCount);
 
+
+	FbxPose * bindpose = 0;
+	int poses = scene->GetPoseCount();
+	for (int i = 0; i < poses; i++)
+	{
+		FbxPose * pose = scene->GetPose(i);
+		if (pose->IsBindPose())
+		{
+			bindpose = pose;
+			break;
+		}
+	}
+
 	// gather all joints
 	for (int jointIndex = 0; jointIndex < jointCount; jointIndex++)
 	{
 		Ptr<NFbxJointNode> jointNode = NFbxJointNode::Create();
 		jointNode->fbxScene = this->scene;
 		FbxNode* fbxJointNode = scene->GetSrcObject<FbxSkeleton>(jointIndex)->GetNode();
-		jointNode->Setup(fbxJointNode, this, jointIndex);
+		jointNode->Setup(fbxJointNode, this, jointIndex, bindpose);
 
 		this->jointNodes.Add(fbxJointNode, jointNode);
 		this->nodes.Add(fbxJointNode, jointNode.upcast<NFbxNode>());
@@ -138,8 +151,9 @@ NFbxScene::Setup( FbxScene* scene, const ExportFlags& exportFlags, const ExportM
 	for (int meshIndex = 0; meshIndex < meshCount; meshIndex++)
 	{
 		Ptr<NFbxMeshNode> meshNode = NFbxMeshNode::Create();
-		meshNode->fbxScene = this->scene;
+		meshNode->fbxScene = this->scene;		
 		FbxNode* fbxMeshNode = scene->GetSrcObject<FbxMesh>(meshIndex)->GetNode();
+		n_assert_fmt(fbxMeshNode, "Mesh lacks connection to node (possibly corrupt file?)\nfile: %s\n", this->name.AsCharPtr());
 
 		// set export flags before setup, since setup will extract the mesh information
 		meshNode->SetExportFlags(exportFlags);

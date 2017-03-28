@@ -7,8 +7,8 @@
 #include "tiledgraphicsitem.h"
 #include <QScrollBar>
 
-#define VIEW_PADDING 16
-#define ITEM_SPACING 12
+#define VIEW_PADDING 12
+#define ITEM_SPACING 8
 
 
 
@@ -46,7 +46,12 @@ TiledGraphicsView::TiledGraphicsView(QWidget* parent) :
 {
 	this->scene = new QGraphicsScene;
 	this->setScene(this->scene);
-	this->itemSize = QSize(104, 140);
+	this->itemSize = QSize(55, 76);
+	this->setRenderHint(QPainter::Antialiasing, false);
+	this->setRenderHint(QPainter::SmoothPixmapTransform, false);
+	this->setRenderHint(QPainter::HighQualityAntialiasing, false);
+	this->setRenderHint(QPainter::TextAntialiasing, false);
+	this->setRenderHint(QPainter::NonCosmeticDefaultPen, true);
 }
 
 //------------------------------------------------------------------------------

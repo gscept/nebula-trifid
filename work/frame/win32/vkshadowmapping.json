@@ -5,17 +5,17 @@ framescript:
 {
 	renderTextures:
 	[
-		{ name: "SpotLightShadowAtlas", 		format: "G32R32F", width: 2048, height: 2048 },
-		{ name: "SpotLightShadowAtlasBlur", 	format: "G32R32F", width: 2048, height: 2048 },
-		{ name: "SpotLightInstance", 			format: "G32R32F", width: 512, 	height: 512 },
-		{ name: "SpotLightInstanceBlur", 		format: "G32R32F", width: 512, 	height: 512 },
-		{ name: "GlobalLightShadow",			format: "G32R32F", width: 2048, height: 2048 }
+		{ name: "SpotLightShadowAtlas", 		format: "R32G32F", width: 2048, height: 2048 },
+		{ name: "SpotLightShadowAtlasBlur", 	format: "R32G32F", width: 2048, height: 2048 },
+		{ name: "SpotLightInstance", 			format: "R32G32F", width: 512, 	height: 512 },
+		{ name: "SpotLightInstanceBlur", 		format: "R32G32F", width: 512, 	height: 512 },
+		{ name: "GlobalLightShadow",			format: "R32G32F", width: 2048, height: 2048 }
 	],
 	
 	readWriteTextures:
 	[
-		{ name: "GlobalLightShadowFiltered", 	format: "G32R32F", width: 2048, height: 2048 },
-		{ name: "SpotLightShadowFiltered", 		format: "G32R32F", width: 2048, height: 2048 }
+		{ name: "GlobalLightShadowFiltered", 	format: "R32G32F", width: 2048, height: 2048 },
+		{ name: "SpotLightShadowFiltered", 		format: "R32G32F", width: 2048, height: 2048 }
 	],
 	
 	depthStencils:

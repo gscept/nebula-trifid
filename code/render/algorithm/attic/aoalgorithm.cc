@@ -56,7 +56,7 @@ AOAlgorithm::Setup()
 
 #if HBAO_COMPUTE
 	// setup output
-	DisplayMode mode = DisplayDevice::Instance()->GetDisplayMode();
+	DisplayMode mode = DisplayDevice::Instance()->GetCurrentWindow()->GetDisplayMode();
 	this->output = ShaderReadWriteTexture::Create();
 	this->output->Setup(mode.GetWidth(), mode.GetHeight(), PixelFormat::R16F, this->outputNames[0]);
 #else
@@ -240,7 +240,7 @@ AOAlgorithm::Setup()
 	// setup random texture
 	this->randomTexture = CoreGraphics::Texture::Create();
 	Ptr<MemoryTextureLoader> loader = MemoryTextureLoader::Create();
-	loader->SetImageBuffer(data, RANDOM_TEXTURE_WIDTH, RANDOM_TEXTURE_WIDTH, PixelFormat::A16B16G16R16);
+	loader->SetImageBuffer(data, RANDOM_TEXTURE_WIDTH, RANDOM_TEXTURE_WIDTH, PixelFormat::R16G16B16A16);
 	this->randomTexture->SetLoader(loader.upcast<Resources::ResourceLoader>());
 	this->randomTexture->SetResourceId("HBAORandomTexture");
 	this->randomTexture->SetAsyncEnabled(false);
@@ -576,7 +576,7 @@ void
 AOAlgorithm::Disable()
 {
     // clear output
-    //this->output->Clear(RenderTarget::ClearColor);
+    this->output->Clear(Math::float4(0));
 }
 
 } // namespace Algorithm

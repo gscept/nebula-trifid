@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  previewstate.cc
-//  (C) 2012-2014 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 
 #include "stdneb.h"
@@ -31,6 +31,7 @@
 #include "dynui/imguiaddon.h"
 #include "imgui/imgui.h"
 #include "debug/debugserver.h"
+#include "managers/attributewidgetmanager.h"
 
 using namespace Util;
 using namespace Graphics;
@@ -72,8 +73,9 @@ LevelEditorState::~LevelEditorState()
 Util::String 
 LevelEditorState::OnFrame()
 {
-	Dynui::ImguiAddon::BeginFrame();
 	this->HandleInput();
+	Dynui::ImguiAddon::BeginFrame();
+	Picking::PickingServer::Instance()->Render();
 	this->console->Render();
 	this->selectionUtil->Render();
 	this->placementUtil->Render();
@@ -139,6 +141,7 @@ LevelEditorState::OnFrame()
 
 	Navigation::NavigationServer::Instance()->RenderDebug();
 	Dynui::ImguiAddon::EndFrame();
+	
 	return GameStateHandler::OnFrame();
 }
 
@@ -176,8 +179,8 @@ LevelEditorState::HandleInput()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-LevelEditorState::OnStateEnter( const Util::String& prevState )
+void
+LevelEditorState::OnStateEnter(const Util::String& prevState)
 {
 	GameStateHandler::OnStateEnter(prevState);
 
@@ -193,6 +196,11 @@ LevelEditorState::OnStateEnter( const Util::String& prevState )
 	this->defaultCam->SetMatrix44(Attr::Transform, camTrans);
 	this->defaultCam->SetFloat4(Attr::MayaCameraCenterOfInterest, Math::float4(0, 0, 0, 1));	
 	BaseGameFeature::EntityManager::Instance()->AttachEntity(defaultCam);
+	this->fpsCam = BaseGameFeature::FactoryManager::Instance()->CreateEntityByTemplate("FreeCamera", "FreeCamera");
+	this->fpsCam->SetBool(Attr::CameraFocus, false);
+	this->fpsCam->SetBool(Attr::InputFocus, false);
+	BaseGameFeature::EntityManager::Instance()->AttachEntity(fpsCam);
+	
 
 	// create selection and placement utility
 	this->selectionUtil = SelectionUtil::Create();
@@ -251,6 +259,8 @@ LevelEditorState::OnStateLeave( const Util::String& nextState )
 	// cleanup scene before quitting application
 	this->selectionUtil->ClearSelection();
 	this->selectionUtil = 0;
+	
+	this->placementUtil->Discard();
 	this->placementUtil = 0;
 
 	// save settings
@@ -317,7 +327,7 @@ LevelEditorState::ClearSelection()
 	SelectionUtil::Instance()->ClearSelection();
 	PlacementUtil::Instance()->ClearSelection();
 	LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->clearSelection();
-	
+    AttributeWidgetManager::Instance()->ClearAttributeControllers();
 }
 
 //------------------------------------------------------------------------------

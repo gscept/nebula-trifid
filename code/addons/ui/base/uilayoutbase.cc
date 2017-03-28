@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  uilayoutbase.cc
 //  (C) 2009 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "ui/base/uilayoutbase.h"
@@ -242,8 +242,8 @@ UiLayoutBase::ProcessInputEvents(const Array<InputEvent>& inputEvents)
 //------------------------------------------------------------------------------
 /**
 */
-void 
-UiLayoutBase::HandleInput( const Input::InputEvent& event )
+void
+UiLayoutBase::HandleInput(const Input::InputEvent& event)
 {
     // override in subclass
 }
@@ -269,7 +269,7 @@ UiLayoutBase::Update()
     to render itself.
 */
 void
-UiLayoutBase::Render(const Ptr<Frame::FrameBatch>& frameBatch)
+UiLayoutBase::Render(const Util::StringAtom& filter)
 {
     // override in subclass!
 }

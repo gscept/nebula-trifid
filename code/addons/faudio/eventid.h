@@ -5,7 +5,7 @@
 
     event path 
     
-    (C) 2014-2015 Individual contributors, see AUTHORS file
+    (C) 2014-2016 Individual contributors, see AUTHORS file
 */
 #include "faudio/busid.h"
 

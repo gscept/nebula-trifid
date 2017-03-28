@@ -29,7 +29,7 @@ namespace BaseGameFeature
 {
 class EntityManager : public Game::Manager
 {
-	__DeclareClass(EntityManager);
+    __DeclareClass(EntityManager);
     __DeclareSingleton(EntityManager);
 public:
     /// constructor
@@ -86,15 +86,17 @@ public:
     Util::Array<Ptr<Game::Entity> > GetEntitiesByAttr(const Attr::Attribute& attr, bool onlyFirstEntity = false);
     /// get the entities by multiple matching attributes 
     Util::Array<Ptr<Game::Entity> > GetEntitiesByAttrs(const Util::Array<Attr::Attribute>& attr, bool onlyFirstEntity = false);
+    /// get entities by category
+    Util::Array<Ptr<Game::Entity>> GetEntitiesByCategory(const Util::String & category);
     /// get a single entity by a single attribute 
     Ptr<Game::Entity> GetEntityByAttr(const Attr::Attribute& attr, bool failOnError = true);
     /// get a single entity by multiple matching attributes 
     Ptr<Game::Entity> GetEntityByAttrs(const Util::Array<Attr::Attribute>& attr, bool failOnError = true);
-	
+
     /// fill provided array with all entities inside the activity bubble
     void GetEntitiesInActivityBubble(Util::Array<Ptr<Game::Entity> >& outEntities);
-	/// returns true if entity is in delayed jobs for delete or remove
-	bool IsEntityInDelayedJobs(const Ptr<Game::Entity>& entity);
+    /// returns true if entity is in delayed jobs for delete or remove
+    bool IsEntityInDelayedJobs(const Ptr<Game::Entity>& entity);
 
 protected:
     friend class Game::Entity;

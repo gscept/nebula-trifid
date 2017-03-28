@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  materialhandler.cc
-//  (C) 2015 Individual contributors, see AUTHORS file
+//  (C) 2015-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "materialhandler.h"
@@ -19,6 +19,7 @@
 #include "logger.h"
 #include "mutablesurface.h"
 #include "messaging/staticmessagehandler.h"
+#include "style/stylewidgets.h"
 
 #include <QDialog>
 #include <QGroupBox>
@@ -56,10 +57,7 @@ MaterialHandler::MaterialHandler() :
 */
 MaterialHandler::~MaterialHandler()
 {
-	disconnect(this->ui->saveButton, SIGNAL(clicked()), this, SLOT(Save()));
-	disconnect(this->ui->saveAsButton, SIGNAL(clicked()), this, SLOT(SaveAs()));
-	disconnect(this->ui->templateBox, SIGNAL(activated(const QString&)), this, SLOT(MaterialSelected(const QString&)));
-	disconnect(this->ui->materialHelp, SIGNAL(clicked()), this, SLOT(MaterialInfo()));
+
 }
 
 //------------------------------------------------------------------------------
@@ -87,7 +85,48 @@ MaterialHandler::Setup(const QString& resource)
     this->lowerLimitIntMap.clear();
     this->upperLimitIntMap.clear();
 
+	// setup file save menu
+	this->saveMenu = new QMenu();
+	this->saveAction = this->saveMenu->addAction("Save surface");
+	this->saveAsAction = this->saveMenu->addAction("Save surface as...");
+	ui->fileMenu->setMenu(this->saveMenu);
+	this->savedStyle = ui->fileMenu->styleSheet();
+	this->unsavedStyle = this->savedStyle + "QToolButton{ background-color: rgb(200, 4, 0); color: white; }";
 
+	// setup shader menu
+	this->shaderMenu = new QMenu();
+	this->ui->shaderSelect->setMenu(this->shaderMenu);
+	
+	this->ui = ui;
+	this->shaderMenu->setEnabled(false);
+	this->saveAction->setEnabled(false);
+	this->saveAsAction->setEnabled(false);
+
+	// hmm, this shouldn't really be done each time we open a surface...
+	connect(this->saveAction, SIGNAL(triggered()), this, SLOT(Save()));
+	connect(this->saveAsAction, SIGNAL(triggered()), this, SLOT(SaveAs()));
+	connect(this->shaderMenu, SIGNAL(triggered(QAction*)), this, SLOT(ShaderSelected(QAction*)));
+	connect(this->ui->materialHelp, SIGNAL(clicked()), this, SLOT(MaterialInfo()));
+
+	QPixmap image(64, 64);
+	QRect box(0, 0, 64, 64);
+	image.fill(Qt::transparent);
+	QPainter painter(&image);
+	painter.setRenderHint(QPainter::TextAntialiasing, false);
+	painter.setFont(QFont("Segoe UI", 32, QFont::Bold));
+	painter.setPen(QPen(Qt::green));
+	painter.drawText(box, Qt::AlignCenter, "OK");
+	//painter.drawEllipse(16, 16, 32, 32);
+	this->savedIcon = QIcon(image);
+
+	image.fill(Qt::transparent);
+	painter.setPen(QPen(qRgb(255, 64, 64)));
+	painter.drawText(box, Qt::AlignCenter, "!");
+	//painter.drawEllipse(16, 16, 32, 32);
+	this->unsavedIcon = QIcon(image);
+	
+	// also save reference to blank icon
+	this->blankIcon = QIcon(":/icons/icons/blank.png");
 
 	// get components of resource
 	String res = resource.toUtf8().constData();
@@ -116,13 +155,15 @@ MaterialHandler::Setup(const QString& resource)
 	if (this->category != "system")
 	{
 		// enable the elements which are only viable if we are working on a surface
-		this->ui->templateBox->setEnabled(true);
-		this->ui->saveButton->setEnabled(true);
-		this->ui->saveAsButton->setEnabled(true);
+		this->shaderMenu->setEnabled(true);
+		this->saveAction->setEnabled(true);
+		this->saveAsAction->setEnabled(true);
 
 		// setup UI
-		this->MakeMaterialUI(this->ui->templateBox, this->ui->materialHelp);
-		this->ui->saveButton->setStyleSheet("background-color: rgb(4, 200, 0); color: white");
+		this->MakeMaterialUI(this->shaderMenu, this->ui->materialHelp);
+		this->saveAction->setIcon(this->savedIcon);
+		this->ui->fileMenu->setStyleSheet(this->savedStyle);
+		//this->saveAction-> setst("background-color: rgb(4, 200, 0); color: white");
 		this->hasChanges = false;
 	}
 }
@@ -189,6 +230,17 @@ MaterialHandler::Discard()
 	
 	// clear our frame
 	this->ClearFrame(this->mainLayout);
+
+	disconnect(this->saveAction, SIGNAL(triggered()), this, SLOT(Save()));
+	disconnect(this->saveAsAction, SIGNAL(triggered()), this, SLOT(Save()));
+	disconnect(this->shaderMenu, SIGNAL(triggered(QAction*)), this, SLOT(ShaderSelected(QAction*)));
+	disconnect(this->ui->materialHelp, SIGNAL(clicked()), this, SLOT(MaterialInfo()));
+	delete this->saveMenu;
+	this->saveAction = 0;
+	this->saveAsAction = 0;
+
+	delete this->shaderMenu;
+	this->shaderMenuActions.Clear();
 
 	return BaseHandler::Discard();
 }
@@ -268,7 +320,7 @@ MaterialHandler::TextureChanged(uint i)
     QLabel* label = this->textureLabelMap.key(i);
 
     // get image button
-    QPushButton* img = this->textureImgMap.key(i);
+	QToolButton* img = this->textureImgMap.key(i);
 
     // convert to nebula texture
     String valueText = item->text().toUtf8().constData();
@@ -304,9 +356,9 @@ MaterialHandler::NewSurface()
 		BaseHandler::Setup();
 
 		// enable UI controls
-		this->ui->templateBox->setEnabled(true);
-		this->ui->saveButton->setEnabled(true);
-		this->ui->saveAsButton->setEnabled(true);
+		this->shaderMenu->setEnabled(true);
+		this->saveAction->setEnabled(true);
+		this->saveAsAction->setEnabled(true);
 
 		// clear names
 		this->category.Clear();
@@ -336,6 +388,46 @@ MaterialHandler::NewSurface()
 /**
 */
 void
+MaterialHandler::ShaderSelected(QAction* action)
+{
+	// avoid discarding changes if the user doesn't want to
+	if (this->hasChanges)
+	{
+		QMessageBox::StandardButton button = QMessageBox::warning(NULL, "Pending changes", "Switching material templates will effectively discard all changes, are you sure you want to do this?", QMessageBox::Yes | QMessageBox::Cancel);
+		if (button == QMessageBox::Cancel)
+		{
+			return;
+		}
+		else
+		{
+			this->OnModified();
+		}
+	}
+
+	// discard textures managed by this handler
+	IndexT i;
+	for (i = 0; i < this->textureResources.Size(); i++)
+	{
+		Resources::ResourceManager::Instance()->DiscardManagedResource(this->textureResources.ValueAtIndex(i).upcast<Resources::ManagedResource>());
+	}
+	this->textureResources.Clear();
+	this->textureVariables.Clear();
+	this->scalarVariables.Clear();
+
+	// update material
+	Ptr<Material> mat = MaterialServer::Instance()->GetMaterialByName(action->text().toUtf8().constData());
+	this->surface->SetMaterialTemplate(mat);
+	this->ui->shaderSelect->setText(action->text());
+
+	// rebuild the UI
+	this->OnModified();
+	this->ResetUI();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
 MaterialHandler::TextureTextChanged()
 {
     // get sender
@@ -348,7 +440,7 @@ MaterialHandler::TextureTextChanged()
     if (!lineEdit->isModified()) return;
 
     // get image button
-    QPushButton* img = this->textureImgMap.key(this->textureTextMap[lineEdit]);
+	QToolButton* img = this->textureImgMap.key(this->textureTextMap[lineEdit]);
 
     // get index and invoke actual function
     uint index = this->textureTextMap[lineEdit];
@@ -628,7 +720,7 @@ MaterialHandler::Browse()
     QObject* sender = this->sender();
 
     // must be a button
-    QPushButton* button = static_cast<QPushButton*>(sender);
+	QToolButton* button = static_cast<QToolButton*>(sender);
 
     // get line edit
     QLineEdit* text = this->textureTextMap.key(this->textureImgMap[button]);
@@ -727,7 +819,9 @@ MaterialHandler::ColorPickerChanged(const QColor& currentColor)
 
 	// update button
 	diaColor.setAlpha(255);
-	button->setPalette(QPalette(diaColor));
+	QPalette palette;
+	palette.setBrush(button->backgroundRole(), diaColor);
+	button->setPalette(palette);
 
 	this->Float4VariableChanged(i);
 }
@@ -765,7 +859,9 @@ MaterialHandler::ColorPickerClosed(int result)
 
 		// update button
 		diaColor.setAlpha(255);
-		button->setPalette(QPalette(diaColor));
+		QPalette palette;
+		palette.setBrush(button->backgroundRole(), diaColor);
+		button->setPalette(palette);
 
 		this->Float4VariableChanged(i);
 	}
@@ -849,7 +945,9 @@ MaterialHandler::Save()
 	QtRemoteInterfaceAddon::QtRemoteClient::GetClient("editor")->Send(msg.upcast<Messaging::Message>());
 
 	// mark save button and flip changed bool
-	this->ui->saveButton->setStyleSheet("background-color: rgb(4, 200, 0); color: white");
+	this->saveAction->setIcon(this->savedIcon);
+	this->ui->fileMenu->setStyleSheet(this->savedStyle);
+	//this->ui->saveButton->setStyleSheet("background-color: rgb(4, 200, 0); color: white");
 	this->hasChanges = false;
 
 	// update thumbnail
@@ -930,7 +1028,9 @@ MaterialHandler::SaveAs()
 		resName = String::Sprintf("src:assets/%s/%s_sur.thumb", this->category.AsCharPtr(), this->file.AsCharPtr());
 
 		// mark save button and flip changed bool
-		this->ui->saveButton->setStyleSheet("background-color: rgb(4, 200, 0); color: white");
+		this->saveAction->setIcon(this->savedIcon);
+		this->ui->fileMenu->setStyleSheet(this->savedStyle);
+		//this->ui->saveButton->setStyleSheet("background-color: rgb(4, 200, 0); color: white");
 		this->hasChanges = false;
 
 		// update thumbnail
@@ -1144,7 +1244,7 @@ MaterialHandler::IntLimitChanged(uint i)
 /**
 */
 void
-MaterialHandler::SetupTextureSlotHelper(QLineEdit* textureField, QPushButton* textureButton, Util::String& resource, const Util::String& defaultResource)
+MaterialHandler::SetupTextureSlotHelper(QLineEdit* textureField, QToolButton* textureButton, Util::String& resource, const Util::String& defaultResource)
 {
     n_assert(0 != textureField);
     n_assert(0 != textureButton);
@@ -1168,7 +1268,7 @@ MaterialHandler::SetupTextureSlotHelper(QLineEdit* textureField, QPushButton* te
                 pixmap.load(texFile.LocalPath().AsCharPtr());
                 int width = n_min(pixmap.width(), 512);
                 int height = n_min(pixmap.height(), 512);
-                pixmap = pixmap.scaled(QSize(24, 24), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+				pixmap = pixmap.scaled(QSize(18, 18), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
                 textureButton->setToolTip("<html><img height=" + QString::number(height) + " width=" + QString::number(width) + " src=\"" + QString(texFile.LocalPath().AsCharPtr()) + "\"/></html>");
 
 				// remove file extension
@@ -1184,7 +1284,7 @@ MaterialHandler::SetupTextureSlotHelper(QLineEdit* textureField, QPushButton* te
             pixmap.load(texFile.LocalPath().AsCharPtr());
             int width = n_min(pixmap.width(), 512);
             int height = n_min(pixmap.height(), 512);
-            pixmap = pixmap.scaled(QSize(24, 24), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+			pixmap = pixmap.scaled(QSize(18, 18), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
             textureButton->setToolTip("<html><img height=" + QString::number(height) + " width=" + QString::number(width) + " src=\"" + QString(texFile.LocalPath().AsCharPtr()) + "\"/></html>");
 
             QPalette pal;
@@ -1207,7 +1307,7 @@ MaterialHandler::SetupTextureSlotHelper(QLineEdit* textureField, QPushButton* te
         pixmap.load(texFile.LocalPath().AsCharPtr());
         int width = n_min(pixmap.width(), 512);
         int height = n_min(pixmap.height(), 512);
-        pixmap = pixmap.scaled(QSize(24, 24), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+		pixmap = pixmap.scaled(QSize(18, 18), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
         textureButton->setToolTip("<html><img height=" + QString::number(height) + " width=" + QString::number(width) + " src=\"" + QString(texFile.LocalPath().AsCharPtr()) + "\"/></html>");
 
 		// remove file extension
@@ -1217,48 +1317,75 @@ MaterialHandler::SetupTextureSlotHelper(QLineEdit* textureField, QPushButton* te
 		textureField->blockSignals(false);
     }
 
+	QPixmap res(18, 18);
+	res.fill(Qt::transparent);
+	QPainter painter(&res);
+	painter.setBrush(QBrush(pixmap));
+	painter.setPen(Qt::transparent);
+	painter.setRenderHint(QPainter::Antialiasing);
+	painter.drawRoundedRect(0, 0, 18, 18, 2, 2);
+	QIcon icon(res);
+	textureButton->setFixedSize(QSize(20, 20));
+	textureButton->setIcon(icon);
+	textureButton->setIconSize(QSize(18, 18));
+
+	/*
     QPalette palette;
     palette.setBrush(textureButton->backgroundRole(), QBrush(pixmap));
     textureButton->setPalette(palette);
-    textureButton->setFixedSize(QSize(24, 24));
+    
     textureButton->setMask(pixmap.mask());
+	*/
 }
 
 //------------------------------------------------------------------------------
 /**
 */
 void
-MaterialHandler::MakeMaterialUI(QComboBox* materialBox, QPushButton* materialHelp)
+MaterialHandler::MakeMaterialUI(QMenu* shaderSelect, QPushButton* materialHelp)
 {
     // we need to do this, because we might use different layouts
-    this->materialBox = materialBox;
     this->materialHelp = materialHelp;
 
     // clear material list
-    materialBox->clear();
-
-    // connect changes to material box to be passed onto this
-    connect(materialBox, SIGNAL(activated(const QString&)), this, SLOT(MaterialSelected(const QString&)));
-    connect(materialHelp, SIGNAL(clicked()), this, SLOT(MaterialInfo()));
+	this->shaderMenu = shaderSelect;
+	this->shaderMenu->clear();
+	this->shaderMenuActions.Clear();
 
     // format combo box
+	Dictionary<Util::StringAtom, QMenu*> submenus;
     const Array<String> materials = ContentBrowser::MaterialDatabase::Instance()->GetMaterialList();
     IndexT i;
     for (i = 0; i < materials.Size(); i++)
     {
         const Ptr<Materials::Material>& mat = ContentBrowser::MaterialDatabase::Instance()->GetMaterial(materials[i]);
-        materialBox->addItem(mat->GetName().AsString().AsCharPtr());
+		Util::StringAtom group = mat->GetGroup();
+		QMenu* menu = NULL;
+		if (!submenus.Contains(group))
+		{
+			menu = this->shaderMenu->addMenu(group.Value());
+			submenus.Add(group.Value(), menu);
+		}
+		else
+		{
+			menu = submenus[group.Value()];
+		}
+		QAction* action = menu->addAction(mat->GetName().Value());
+		action->setToolTip(mat->GetDescription().AsCharPtr());
+		this->shaderMenuActions.Append(action);
     }
 
     // now find our material and set index
-    int index = materialBox->findText(this->surface->GetMaterialTemplate()->GetName().AsString().AsCharPtr());
-    materialBox->setCurrentIndex(index);
+	this->ui->shaderSelect->setText(this->surface->GetMaterialTemplate()->GetName().Value());
 
 	// update thumbnail
 	this->UpdateThumbnail();
 
     // get material
     Ptr<Material> mat = this->surface->GetMaterialTemplate();
+
+	// setup font
+	QFont font = QFont();
 
     // add textures
     Array<Material::MaterialParameter> textures = this->GetTextures(mat);
@@ -1286,12 +1413,9 @@ MaterialHandler::MakeMaterialUI(QComboBox* materialBox, QPushButton* materialHel
 
         // create items
         QLabel* texName = new QLabel(name.AsCharPtr());
-        QFont font = texName->font();
-        font.setBold(true);
         texName->setFont(font);
-        QPushButton* texImg = new QPushButton();
+        QToolButton* texImg = new QtToolkitUtil::TextureToolButton();
         QLineEdit* texRes = new QLineEdit();
-        this->SetupTextureSlotHelper(texRes, texImg, res, textureObject->GetResourceId().AsString());
 
         // add both elements to dictionaries
         this->textureTextMap[texRes] = i;
@@ -1306,14 +1430,18 @@ MaterialHandler::MakeMaterialUI(QComboBox* materialBox, QPushButton* materialHel
         varLayout->addWidget(texName);
 
         // space coming items
-        varLayout->addStretch(100);
-        texRes->setFixedWidth(150);
+		varLayout->addStretch(1);
+		texRes->setMinimumWidth(150);
+        //texRes->setFixedWidth(250);
 
         varLayout->addWidget(texRes);
         varLayout->addWidget(texImg);
 
         // add layout to base layout
         this->mainLayout->addLayout(varLayout);
+
+		// setup texture
+		this->SetupTextureSlotHelper(texRes, texImg, res, textureObject->GetResourceId().AsString());
     }
 
     // add variables
@@ -1333,8 +1461,7 @@ MaterialHandler::MakeMaterialUI(QComboBox* materialBox, QPushButton* materialHel
 
         // setup label
         QLabel* varName = new QLabel(name.AsCharPtr());
-        QFont font = varName->font();
-        font.setBold(true);
+
         varName->setFont(font);
 
         // create material instance
@@ -1353,6 +1480,10 @@ MaterialHandler::MakeMaterialUI(QComboBox* materialBox, QPushButton* materialHel
             QDoubleSpinBox* box2 = new QDoubleSpinBox;
             QDoubleSpinBox* box3 = new QDoubleSpinBox;
             QDoubleSpinBox* box4 = new QDoubleSpinBox;
+			box1->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			box2->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			box3->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			box4->setButtonSymbols(QAbstractSpinBox::NoButtons);
 
             // get float
             float4 val = var.GetFloat4();
@@ -1404,10 +1535,14 @@ MaterialHandler::MakeMaterialUI(QComboBox* materialBox, QPushButton* materialHel
 
             // add boxes to layout
 			varLayout->addWidget(varName);
-			varLayout->addStretch(100);
+			varLayout->addStretch(1);
+			varLayout->addWidget(new QLabel("X"));
             varLayout->addWidget(box1);
+			varLayout->addWidget(new QLabel("Y"));
             varLayout->addWidget(box2);
+			varLayout->addWidget(new QLabel("Z"));
             varLayout->addWidget(box3);
+			varLayout->addWidget(new QLabel("W"));
             varLayout->addWidget(box4);
 
             // add to layout
@@ -1420,10 +1555,11 @@ MaterialHandler::MakeMaterialUI(QComboBox* materialBox, QPushButton* materialHel
             if (param.editType == Material::MaterialParameter::EditColor)
             {
                 // create button with color
-                QPushButton* colorChooserButton = new QPushButton;
-                colorChooserButton->setText("Change...");
+				QPushButton* colorChooserButton = new QtToolkitUtil::ColorPushButton;
+                colorChooserButton->setText("Set...");
                 val = float4::clamp(val, float4(0), float4(1));
-                QPalette palette(QColor(val.x() * 255, val.y() * 255, val.z() * 255));
+				QPalette palette;
+				palette.setBrush(colorChooserButton->backgroundRole(), QColor(val.x() * 255, val.y() * 255, val.z() * 255));
                 colorChooserButton->setPalette(palette);
 
 				varLayout->addWidget(colorChooserButton);
@@ -1443,6 +1579,8 @@ MaterialHandler::MakeMaterialUI(QComboBox* materialBox, QPushButton* materialHel
             // create ui
             QDoubleSpinBox* box1 = new QDoubleSpinBox;
             QDoubleSpinBox* box2 = new QDoubleSpinBox;
+			box1->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			box2->setButtonSymbols(QAbstractSpinBox::NoButtons);
 
             // get float
             float2 val = var.GetFloat2();
@@ -1478,7 +1616,7 @@ MaterialHandler::MakeMaterialUI(QComboBox* materialBox, QPushButton* materialHel
 
             // add boxes to layout
 			varLayout->addWidget(varName);
-			varLayout->addStretch(100);
+			varLayout->addStretch(10);
             varLayout->addWidget(box1);
             varLayout->addWidget(box2);
 
@@ -1493,7 +1631,7 @@ MaterialHandler::MakeMaterialUI(QComboBox* materialBox, QPushButton* materialHel
             // create two layouts, one for the variable and one for the label
             QHBoxLayout* varLayout = new QHBoxLayout;
 			varLayout->addWidget(varName);
-			varLayout->addStretch(100);
+			varLayout->addStretch(10);
 
             // create limits
             QDoubleSpinBox* lowerLimit = new QDoubleSpinBox;
@@ -1593,7 +1731,7 @@ MaterialHandler::MakeMaterialUI(QComboBox* materialBox, QPushButton* materialHel
 
 			// setup variable layout
 			varLayout->addWidget(varName);
-			varLayout->addStretch(100);
+			varLayout->addStretch(10);
             varLayout->addWidget(box);
 
             // add UI elements to lists
@@ -1627,7 +1765,7 @@ MaterialHandler::MakeMaterialUI(QComboBox* materialBox, QPushButton* materialHel
 
             // add label and box to layout
             varLayout->addWidget(varName);
-			varLayout->addStretch(100);
+			varLayout->addStretch(10);
             varLayout->addWidget(box);
 
             // add to group
@@ -1703,9 +1841,6 @@ MaterialHandler::GetVariables(const Ptr<Materials::Material>& mat)
 void
 MaterialHandler::ClearFrame(QLayout* layout)
 {
-	disconnect(this->ui->templateBox, SIGNAL(activated(const QString&)), this, SLOT(MaterialSelected(const QString&)));
-	disconnect(this->ui->materialHelp, SIGNAL(clicked()), this, SLOT(MaterialInfo()));
-
     if (layout)
     {
         QLayoutItem* item;
@@ -1777,7 +1912,7 @@ MaterialHandler::ResetUI()
 	this->mainLayout = static_cast<QVBoxLayout*>(this->ui->variableFrame->layout());
 
 	this->ClearFrame(this->mainLayout);
-	this->MakeMaterialUI(this->ui->templateBox, this->ui->materialHelp);
+	this->MakeMaterialUI(this->shaderMenu, this->ui->materialHelp);
 }
 
 //------------------------------------------------------------------------------
@@ -1787,7 +1922,10 @@ void
 MaterialHandler::OnModified()
 {
 	// mark save button
-	this->ui->saveButton->setStyleSheet("background-color: rgb(200, 4, 0); color: white");
+	this->saveAction->setIcon(this->unsavedIcon);
+	
+	//this->ui->fileMenu->setIcon(this->unsavedIcon);
+	this->ui->fileMenu->setStyleSheet(this->unsavedStyle);
 	this->hasChanges = true;
 }
 
@@ -1802,8 +1940,17 @@ MaterialHandler::UpdateThumbnail()
 	QPixmap pixmap;
 	IO::URI texFile = thumbnail;
 	pixmap.load(texFile.LocalPath().AsCharPtr());
-	pixmap = pixmap.scaled(QSize(67, 67), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-	this->ui->surfaceThumbnail->setPixmap(pixmap);
+	pixmap = pixmap.scaled(QSize(48, 48), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+
+	QPixmap res(48, 48);
+	res.fill(Qt::transparent);
+	QPainter painter(&res);
+	painter.setBrush(QBrush(pixmap));
+	painter.setPen(Qt::transparent);
+	painter.setRenderHint(QPainter::Antialiasing);
+	painter.drawRoundedRect(0, 0, 48, 48, 5, 5);
+	this->ui->surfaceThumbnail->setFixedSize(50, 50);
+	this->ui->surfaceThumbnail->setPixmap(res);
 }
 
 } // namespace Widgets

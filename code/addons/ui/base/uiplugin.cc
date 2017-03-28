@@ -44,13 +44,5 @@ UiPlugin::OnUnregister()
 	// empty
 }
 
-//------------------------------------------------------------------------------
-/**
-*/
-void
-UiPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
-{
-	// empty
-}
 }
 

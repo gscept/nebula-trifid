@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  displaydevicebase.cc
 //  (C) 2007 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "coregraphics/base/displaydevicebase.h"
@@ -19,20 +19,8 @@ using namespace CoreGraphics;
 */
 DisplayDeviceBase::DisplayDeviceBase() :
     adapter(Adapter::Primary),
-    displayMode(0, 0, 1024, 768, PixelFormat::X8R8G8B8),
-    antiAliasQuality(AntiAliasQuality::None),
-    fullscreen(false),
-    modeSwitchEnabled(true),
-    tripleBufferingEnabled(false),
-    alwaysOnTop(false),
     verticalSync(true),
-    isOpen(false),
-    windowTitle("Nebula3 Application Window"),
-    iconName("NebulaIcon"),
-    windowData(0),
-	embedded(false),
-    resizable(true),
-    decorated(true)
+    isOpen(false)
 {
     __ConstructSingleton;
 }
@@ -48,29 +36,12 @@ DisplayDeviceBase::~DisplayDeviceBase()
 
 //------------------------------------------------------------------------------
 /**
-    Set the window title. An application should be able to change the
-    window title at any time, that's why this is a virtual method, so that
-    a subclass may override it.
-*/
-void
-DisplayDeviceBase::SetWindowTitle(const Util::String& str)
-{
-    this->windowTitle = str;
-}
-
-//------------------------------------------------------------------------------
-/**
     Open the display.
 */
 bool
 DisplayDeviceBase::Open()
 {
     n_assert(!this->IsOpen());
-
-    // notify all event handlers
-    DisplayEvent openEvent(DisplayEvent::DisplayOpen);
-    this->NotifyEventHandlers(openEvent);
-
     this->isOpen = true;
     return true;
 }
@@ -83,12 +54,14 @@ void
 DisplayDeviceBase::Close()
 {
     n_assert(this->IsOpen());
-
-    // notify all event handlers
-    DisplayEvent closeEvent(DisplayEvent::DisplayClose);
-    this->NotifyEventHandlers(closeEvent);
-
     this->isOpen = false;
+
+	IndexT i;
+	for (i = 0; i < this->windows.Size(); i++)
+	{
+		this->windows[i]->Close();
+	}
+	this->windows.Clear();
 }
 
 //------------------------------------------------------------------------------
@@ -99,34 +72,9 @@ DisplayDeviceBase::Reopen()
 {
 	n_assert(this->IsOpen());
 
-	if (this->displayMode.GetWidth() != 0 && 
-		this->displayMode.GetHeight() != 0)
-	{
-		// notify render device that our size has changed
-		CoreGraphics::RenderDevice::Instance()->DisplayResized(this->displayMode.GetWidth(), this->displayMode.GetHeight());
-	}	
-
 	// notify all event handlers
-	DisplayEvent closeEvent(DisplayEvent::DisplayReopen);
+	DisplayEvent closeEvent(DisplayEvent::WindowReopen);
 	this->NotifyEventHandlers(closeEvent);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-DisplayDeviceBase::EnableCallbacks()
-{
-    // implement in subclass
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-DisplayDeviceBase::DisableCallbacks()
-{
-    // implement in subclass
 }
 
 //------------------------------------------------------------------------------
@@ -239,5 +187,57 @@ DisplayDeviceBase::GetAdapterInfo(Adapter::Code adapter)
     return emptyAdapterInfo;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+Ptr<CoreGraphics::Window>
+DisplayDeviceBase::SetupWindow(const Util::String& title, const Util::String& icon, const CoreGraphics::DisplayMode& displayMode, const CoreGraphics::AntiAliasQuality::Code aa)
+{
+	Ptr<CoreGraphics::Window> wnd = CoreGraphics::Window::Create();
+	wnd->SetDisplayMode(displayMode);
+	wnd->SetAntiAliasQuality(aa);
+
+	// add to list, and set to current if this is the first
+	if (this->windows.IsEmpty()) this->currentWindow = wnd;
+	this->windows.Append(wnd);
+
+	// finally open window
+	wnd->Open();
+    wnd->SetTitle(title);
+    wnd->SetIconName(icon);
+	return wnd;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+Ptr<CoreGraphics::Window>
+DisplayDeviceBase::EmbedWindow(const Util::Blob& windowData)
+{
+	Ptr<CoreGraphics::Window> wnd = CoreGraphics::Window::Create();
+	wnd->SetWindowData(windowData);
+
+	// add to list, and set to current if this is the first
+	if (this->windows.IsEmpty()) this->currentWindow = wnd;
+	this->windows.Append(wnd);
+
+	// finally open window
+	wnd->Open();
+	return wnd;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+DisplayDeviceBase::MakeWindowCurrent(const IndexT index)
+{
+	n_assert(this->windows.Size() > index && index != InvalidIndex);
+	if (this->currentWindow != this->windows[index])
+	{
+		this->currentWindow = this->windows[index];
+		this->currentWindow->MakeCurrent();
+	}	
+}
 
 } // namespace DisplayDevice

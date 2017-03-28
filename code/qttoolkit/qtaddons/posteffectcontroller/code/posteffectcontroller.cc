@@ -11,11 +11,12 @@
 #include "math/float4.h"
 #include "io/ioserver.h"
 #include "graphics/graphicsinterface.h"
-#include "posteffectprotocol.h"
+#include "posteffect/posteffectprotocol.h"
 #include "posteffect/posteffectmanager.h"
 #include "posteffect/posteffectparser.h"
 #include "posteffect/posteffectregistry.h"
 #include <QMessageBox>
+#include "environmentprobewindow.h"
 
 using namespace IO;
 using namespace Util;
@@ -62,6 +63,7 @@ PostEffectController::PostEffectController() :
     connect(this->ui->skyRotation, SIGNAL(valueChanged(double)), this, SLOT(OnSkyChanged()));
 	connect(this->ui->skyTexture, SIGNAL(editingFinished()), this, SLOT(OnSkyChanged()));
 	connect(this->ui->browseSky, SIGNAL(pressed()), this, SLOT(OnSkyTextureBrowse()));
+    connect(this->ui->lightProbeButton, SIGNAL(pressed()), this, SLOT(OnBrowseLightProbe()));
 	connect(this->ui->blendSpeed, SIGNAL(valueChanged(double)), this, SLOT(OnBlendChanged()));
 	connect(this->ui->lightAmbient, SIGNAL(pressed()), this, SLOT(OnSelectAmbient()));
 	connect(this->ui->lightDiffuse, SIGNAL(pressed()), this, SLOT(OnSelectDiffuse()));
@@ -80,6 +82,8 @@ PostEffectController::PostEffectController() :
 	connect(this->ui->resetButton, SIGNAL(pressed()), this, SLOT(OnReset()));
 	connect(this->ui->deleteButton, SIGNAL(pressed()), this, SLOT(OnDelete()));
 	connect(this->ui->presetCombo, SIGNAL(currentIndexChanged(const QString &)), this, SLOT(OnPresetChanged(const QString&)));	
+    connect(&this->probeWindow, SIGNAL(accepted()), this, SLOT(OnProbeAccepted()));
+    connect(&this->probeWindow, SIGNAL(rejected()), this, SLOT(OnProbeRejected()));
 }
 
 //------------------------------------------------------------------------------
@@ -514,6 +518,44 @@ PostEffectController::OnSelectHDRColor()
 //------------------------------------------------------------------------------
 /**
 */
+void
+PostEffectController::OnBrowseLightProbe()
+{
+     
+    probeWindow.SetIrradianceMap(this->postEffectEntity->Params().sky->GetIrradianceTexturePath());
+    probeWindow.SetReflectionMap(this->postEffectEntity->Params().sky->GetReflectanceTexturePath());
+    probeWindow.show();
+    probeWindow.raise();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PostEffectController::OnProbeAccepted()
+{
+    Util::String tex = Lighting::EnvironmentProbe::DefaultEnvironmentProbe->GetIrradianceMap()->GetTexture()->GetResourceId().AsString();
+    tex.StripFileExtension();
+    this->postEffectEntity->Params().sky->SetIrradianceTexturePath(tex);
+    tex = Lighting::EnvironmentProbe::DefaultEnvironmentProbe->GetReflectionMap()->GetTexture()->GetResourceId().AsString();
+    tex.StripFileExtension();
+    this->postEffectEntity->Params().sky->SetReflectanceTexturePath(tex);
+    this->SetModified();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PostEffectController::OnProbeRejected()
+{
+    Lighting::EnvironmentProbe::DefaultEnvironmentProbe->AssignIrradianceMap(this->postEffectEntity->Params().sky->GetIrradianceTexturePath());
+    Lighting::EnvironmentProbe::DefaultEnvironmentProbe->AssignReflectionMap(this->postEffectEntity->Params().sky->GetReflectanceTexturePath());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 void 
 PostEffectController::OnBlendChanged()
 {
@@ -677,7 +719,7 @@ PostEffectController::OnShadowChanged()
 	Ptr<LightParams> params = this->postEffectEntity->Params().light;
 
 	// get values
-	float shadowIntensity = this->ui->lightShadowIntensity->value() / 100.0f;
+	float shadowIntensity = this->ui->lightShadowIntensity->value() / 10.0f;
 	float shadowBias = this->ui->lightShadowBias->value() / 10000.0f;
 	bool castShadows = this->ui->lightCastShadows->isChecked();
 

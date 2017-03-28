@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>468</width>
-    <height>96</height>
+    <width>665</width>
+    <height>98</height>
    </rect>
   </property>
   <property name="font">
@@ -210,7 +210,7 @@
      </property>
      <property name="maximumSize">
       <size>
-       <width>200</width>
+       <width>16777215</width>
        <height>150</height>
       </size>
      </property>
@@ -219,6 +219,9 @@
        <width>0</width>
        <height>0</height>
       </size>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: 1px solid palette(dark);</string>
      </property>
      <property name="frameShape">
       <enum>QFrame::Box</enum>

@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  uiserverbase.cc
 //  (C) 2009 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "ui/base/uiserverbase.h"
@@ -198,7 +198,7 @@ UiServerBase::Update()
     wants to render something!
 */
 void
-UiServerBase::Render(const Ptr<Frame::FrameBatch>& frameBatch)
+UiServerBase::Render(const Util::StringAtom& filter)
 {
     IndexT i;
     for (i = 0; i < this->layouts.Size(); i++)
@@ -206,7 +206,7 @@ UiServerBase::Render(const Ptr<Frame::FrameBatch>& frameBatch)
         const Ptr<UI::UiLayout>& layout = this->layouts.ValueAtIndex(i);
         if (layout->IsShown())
         {
-            layout->Render(frameBatch);
+            layout->Render(filter);
         }
     }
 }

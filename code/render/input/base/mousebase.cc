@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  mousebase.cc
 //  (C) 2007 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "input/base/mousebase.h"
@@ -83,28 +83,28 @@ MouseBase::OnBeginFrame()
 {
     InputHandler::OnBeginFrame();
 
-    // reset button up/down/doubleclick flags, but retain the pressed state
-    IndexT i;
-    for (i = 0; i < this->buttonStates.Size(); i++)
-    {
-        ButtonState& state = this->buttonStates[i];
+	// reset button up/down/doubleclick flags, but retain the pressed state
+	IndexT i;
+	for (i = 0; i < this->buttonStates.Size(); i++)
+	{
+		ButtonState& state = this->buttonStates[i];
 
-        // NOTE: if the button was released in the previous frame,
-        // clear the pressed state (see the ButtonUp-handling
-        // code in OnEvent for details why this is a good thing)
-        if (state.up)
-        {
-            state.pressed = false;
-        }
-        state.down = false;
-        state.up = false;
-        state.doubleClicked = false;
-    }
-    this->beginFramePixelPosition = this->pixelPosition;
-    this->beginFrameScreenPosition = this->screenPosition;
-    this->movement.set(0.0f, 0.0f);
-    this->wheelForward = false;
-    this->wheelBackward = false;
+		// NOTE: if the button was released in the previous frame,
+		// clear the pressed state (see the ButtonUp-handling
+		// code in OnEvent for details why this is a good thing)
+		if (state.up)
+		{
+			state.pressed = false;
+		}
+		state.down = false;
+		state.up = false;
+		state.doubleClicked = false;
+	}
+	this->wheelForward = false;
+	this->wheelBackward = false;
+	this->beginFramePixelPosition = this->pixelPosition;
+	this->beginFrameScreenPosition = this->screenPosition;
+	this->movement.set(0.0f, 0.0f);
 }
 
 //------------------------------------------------------------------------------

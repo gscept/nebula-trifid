@@ -36,7 +36,7 @@ public:
 	/// run segment
 	virtual void RunSegment(const FrameOp::ExecutionMask mask, const IndexT frameIndex);
 	/// handle display resizing
-	virtual void DisplayResized(const SizeT width, const SizeT height);
+	virtual void OnWindowResized();
 protected:
 	Util::StringAtom name;
 };

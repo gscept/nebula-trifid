@@ -1,13 +1,11 @@
 //------------------------------------------------------------------------------
 //  lightprobe.cc
-//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "environmentprobecapturer.h"
 #include "graphics/graphicsserver.h"
 #include "graphics/view.h"
-#include "frame/frameserver.h"
-#include "frame/frameposteffect.h"
 #include "graphics/graphicsinterface.h"
 #include "coregraphics/streamtexturesaver.h"
 #include "io/ioserver.h"
@@ -16,7 +14,7 @@
 #include "texutil/cubefilterer.h"
 #include <QPlainTextEdit>
 #include "level.h"
-#include "leveleditor2protocol.h"
+#include "leveleditor2/leveleditor2protocol.h"
 #include "basegamefeature/basegameprotocol.h"
 #include "graphicsfeature/graphicsfeatureprotocol.h"
 
@@ -36,7 +34,8 @@ EnvironmentProbeCapturer::EnvironmentProbeCapturer() :
 	resolutionY(256),
 	generateMipmaps(true),
 	calculateIrradiance(true),
-	calculateReflections(true)
+	calculateReflections(true),
+	captureDepth(true)
 {
 	// empty
 }
@@ -126,35 +125,53 @@ EnvironmentProbeCapturer::Render(QPlainTextEdit* progressBar)
 	Ptr<CameraEntity> cam = view->GetCameraEntity();
 	
 	// create frame shader which uses a simplified path compared to the standard one, then resize to fit our resolution
-	Ptr<Frame::FrameShader> frameShader = LightProbeManager::Instance()->GetReflectionFrameShader();
-	frameShader->OnDisplayResized(this->resolutionX, this->resolutionY);
+	Ptr<Frame2::FrameScript> frameShader = LightProbeManager::Instance()->GetReflectionFrameScript();
+
+	// hmm, resize frame script to use the resolution provided by the probe!
+	//frameShader->OnWindowResized
 
 	// create render target cube
-	this->probeMap = RenderTargetCube::Create();
-	this->probeMap->SetColorBufferFormat(CoreGraphics::PixelFormat::A16B16G16R16F);
-	this->probeMap->SetResolveTextureResourceId("LightProbeReflection");
-	this->probeMap->SetWidth(this->resolutionX);
-	this->probeMap->SetHeight(this->resolutionY);
-	this->probeMap->Setup();
+	Util::FixedArray<Ptr<RenderTexture>> colorFaceTargets;
+	Util::FixedArray<Ptr<Texture>> colorFaceTextures;
+	colorFaceTargets.Resize(6);
+	colorFaceTextures.Resize(6);
+	IndexT i;
+	for (i = 0; i < 6; i++)
+	{
+		colorFaceTargets[i] = RenderTexture::Create();
+		colorFaceTargets[i]->SetPixelFormat(CoreGraphics::PixelFormat::R16G16B16A16F);
+		colorFaceTargets[i]->SetResourceId(Util::String::Sprintf("LightProbeReflection%d", i));
+		colorFaceTargets[i]->SetDimensions(this->resolutionX, this->resolutionY);
+		colorFaceTargets[i]->Setup();
+		colorFaceTextures[i] = colorFaceTargets[i]->GetTexture();
+	}
+	
+	Util::FixedArray<Ptr<RenderTexture>> depthFaceTargets;
+	Util::FixedArray<Ptr<Texture>> depthFaceTextures;
+	depthFaceTargets.Resize(6);
+	depthFaceTextures.Resize(6);
+	for (i = 0; i < 6; i++)
+	{
+		depthFaceTargets[i] = RenderTexture::Create();
+		depthFaceTargets[i]->SetPixelFormat(CoreGraphics::PixelFormat::R32F);
+		depthFaceTargets[i]->SetResourceId(Util::String::Sprintf("LightProbeDepthFace%d", i));
+		depthFaceTargets[i]->SetDimensions(this->resolutionX, this->resolutionY);
+		depthFaceTargets[i]->Setup();
+		depthFaceTextures[i] = depthFaceTargets[i]->GetTexture();
+	}
 
 	// setup the view
-	view->SetFrameShader(frameShader);
+	view->SetFrameScript(frameShader);
 
 	// get last pass and set render target, remove previous render targets
-	const Ptr<Frame::FramePassBase>& pass = frameShader->GetAllFramePassBases().Back();
-	Ptr<Frame::FramePostEffect> lastPass = pass.downcast<Frame::FramePostEffect>();
-	Ptr<RenderTarget> originalRt = lastPass->GetRenderTarget();
-
-	// save reference to original object
-	lastPass->SetRenderTargetCube(this->probeMap);
-	lastPass->SetRenderTarget(NULL);
+	Ptr<RenderTexture> originalRt = frameShader->GetColorTexture("ReflectionOutput");
+	Ptr<RenderTexture> depthBuffer = frameShader->GetColorTexture("ZDepth");
 
 	// create base transform for camera
 	matrix44 cameraTransform = matrix44::translation(this->position);
 
 	// create list of visibilities for the models we are going to hide, then hide the linked objects
 	Util::Array<bool> hideList;
-	IndexT i;
 	for (i = 0; i < this->hideLinks.Size(); i++)
 	{
 		hideList.Append(this->hideLinks[i]->IsVisible());
@@ -178,9 +195,6 @@ EnvironmentProbeCapturer::Render(QPlainTextEdit* progressBar)
 	IndexT frameIndex;
 	for (frameIndex = 0; frameIndex < 6; frameIndex++)
 	{
-		// set cube face to render to
-		this->probeMap->SetDrawFace(Texture::CubeFace(Texture::PosX + frameIndex));
-
 		// setup camera settings
 		settings.SetupPerspectiveFov(n_deg2rad(90.0f), this->resolutionX / this->resolutionY, 0.1f, 1000);
 		cam->SetCameraSettings(settings);
@@ -191,21 +205,21 @@ EnvironmentProbeCapturer::Render(QPlainTextEdit* progressBar)
 		cam->SetTransform(rotation);
 
 		// now render like we normally would
-		GraphicsInterface::Instance()->OnFrame();
-	}
+		view->OnFrame(NULL, 0, 0, false);
+		//GraphicsInterface::Instance()->OnFrame();
 
-	// reset frame shader
-	lastPass->SetRenderTargetCube(NULL);
-	lastPass->SetRenderTarget(originalRt);
+		if (captureDepth)
+		{
+			const Ptr<CoreGraphics::RenderTexture>& depthFace = depthFaceTargets[frameIndex];
+			depthBuffer->Blit(0, 0, depthFace);
+		}
+	}
 
 	// show entities which were previously visible again
 	for (i = 0; i < this->hideLinks.Size(); i++)
 	{
 		this->hideLinks[i]->SetVisible(hideList[i]);
 	}
-
-	// get texture
-	const Ptr<Texture>& tex = this->probeMap->GetResolveTexture();
 
 	// create assigns for work and export
 	Util::String levelName = Level::Instance()->GetName().AsCharPtr();
@@ -224,7 +238,7 @@ EnvironmentProbeCapturer::Render(QPlainTextEdit* progressBar)
 
 	// create cube filterer
 	Ptr<CubeFilterer> filterer = CubeFilterer::Create();
-	filterer->SetCubemap(tex);
+	filterer->SetCubeFaces(colorFaceTextures);
 	filterer->SetOutputSize(this->resolutionX);
 	filterer->SetSpecularPower(2048);
 
@@ -252,7 +266,7 @@ EnvironmentProbeCapturer::Render(QPlainTextEdit* progressBar)
 		this->reflectionMapName.SubstituteString("#NAME#", this->name.AsCharPtr());
 		this->reflectionMapName.SubstituteString("#LEVEL#", levelName.AsCharPtr());
 		this->reflectionMapName.SubstituteString("#TYPE#", "reflection");
-		workFile.Format("%s/%s.dds", workFolder.AsCharPtr(), name.AsCharPtr());
+		workFile.Format("%s/%s.dds", workFolder.AsCharPtr(), this->reflectionMapName.AsCharPtr());
 		exportFile.Format("%s/%s.dds", exportFolder.AsCharPtr(), this->reflectionMapName.AsCharPtr());
 
 		filterer->SetOutputFile(workFile);
@@ -263,9 +277,33 @@ EnvironmentProbeCapturer::Render(QPlainTextEdit* progressBar)
 		IoServer::Instance()->CopyFile(workFile, exportFile);
 	}
 
-	// cleanup the mess
-	this->probeMap->Discard();
-	this->probeMap = 0;
+	if (this->captureDepth)
+	{
+		this->depthMapName = this->outputName;
+		this->depthMapName.SubstituteString("#NAME#", this->name.AsCharPtr());
+		this->depthMapName.SubstituteString("#LEVEL#", levelName.AsCharPtr());
+		this->depthMapName.SubstituteString("#TYPE#", "depth");
+		workFile.Format("%s/%s.dds", workFolder.AsCharPtr(), this->depthMapName.AsCharPtr());
+		exportFile.Format("%s/%s.dds", exportFolder.AsCharPtr(), this->depthMapName.AsCharPtr());
+
+		filterer->SetCubeFaces(depthFaceTextures);
+		filterer->SetOutputFile(workFile);
+		filterer->DepthCube(false, progressBar, ProgressBarStatusHandler);
+
+		// copy from work to export
+		IoServer::Instance()->CopyFile(workFile, exportFile);
+	}
+
+	for (i = 0; i < 6; i++)
+	{
+		colorFaceTextures[i] = 0;
+		colorFaceTargets[i]->Discard();
+		colorFaceTargets[i] = 0;
+
+		depthFaceTextures[i] = 0;
+		depthFaceTargets[i]->Discard();
+		depthFaceTargets[i] = 0;
+	}
 
 	// end probe update
 	LightProbeManager::Instance()->EndProbeUpdate();
@@ -301,7 +339,40 @@ EnvironmentProbeCapturer::Render(QPlainTextEdit* progressBar)
 			reload->SetResourceName("tex:" + exportFolder + "/" + this->irradianceMapName + ".dds");
 			__StaticSend(GraphicsInterface, reload);
 		}		
+
+		if (this->captureDepth)
+		{
+			// update depth
+			Ptr<BaseGameFeature::SetAttribute> msg = BaseGameFeature::SetAttribute::Create();
+			msg->SetAttr(Attr::Attribute(Attr::ProbeDepthMap, exportFolder + "/" + this->depthMapName));
+			__SendSync(this->entity, msg);
+
+			// reload irradiance
+			Ptr<ReloadResourceIfExists> reload = ReloadResourceIfExists::Create();
+			reload->SetResourceName("tex:" + exportFolder + "/" + this->depthMapName + ".dds");
+			__StaticSend(GraphicsInterface, reload);
+		}
 	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+EnvironmentProbeCapturer::BeforeRender()
+{
+	Ptr<LevelEditor2::BeginProbeBuild> msg = LevelEditor2::BeginProbeBuild::Create();
+	__SendSync(this->entity, msg);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+EnvironmentProbeCapturer::AfterRender()
+{
+	Ptr<LevelEditor2::EndProbeBuild> msg = LevelEditor2::EndProbeBuild::Create();
+	__SendSync(this->entity, msg);
 }
 
 } // namespace LevelEditor2

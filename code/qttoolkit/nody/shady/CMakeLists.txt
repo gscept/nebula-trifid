@@ -12,6 +12,7 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}
                     ${Nebula3_SOURCE_DIR}/code/extlibs		
                     ${Nebula3_SOURCE_DIR}/code/addons
                     ${Nebula3_SOURCE_DIR}/code/toolkit
+					${Nebula3_SOURCE_DIR}/code/render
 					code)
 					
 LINK_DIRECTORIES(${N_LIBDIRS})
@@ -58,27 +59,32 @@ FILE(GLOB HEAD "code/simulation/*.h")
 SOURCE_GROUP("shady\\simulation" FILES ${SRC} ${HEAD})
 LIST(APPEND CODE ${SRC} ${HEAD})
 
+FILE(GLOB SRC "code/rendering/*.cc") 
+FILE(GLOB HEAD "code/rendering/*.h")
+SOURCE_GROUP("shady\\rendering" FILES ${SRC} ${HEAD})
+LIST(APPEND CODE ${SRC} ${HEAD})
+
 FILE(GLOB FORMS "ui/*.ui")
 FILE(GLOB RESOURCES ${QTTOOLS}/ui/*.qrc)
 
 SET(QTMOCFILES  
     "code/node/graphics/shadynodegraphics.h"
-	"code/shadywindow.h")
+	"code/shadywindow.h"
+	"code/rendering/materialwindow.h"
+	"code/rendering/frameshaderviz.h")
 
 SET(PCH_files	
     ../stdneb.cc
 )
 SOURCE_GROUP("Precompiled" FILES ${PCH_files})
 
-N_WRAP_NIDL_FILES(shady_NIDLS code/simulation/simulationcommands.nidl)
+N_WRAP_ADD_PROJ_NIDL_FILES(shady CODE code/simulation/simulationcommands.nidl)
 
-PCH_QT4_WRAP_CPP(shady_HEADERS_MOC ${QTMOCFILES})
+PCH_QT_WRAP_CPP(shady_HEADERS_MOC ${QTMOCFILES})
 SOURCE_GROUP("MOC" FILES ${shady_HEADERS_MOC})
 
-INCLUDE(${QT_USE_FILE})
-ADD_DEFINITIONS(${QT_DEFINITIONS})
-QT4_WRAP_UI(shady_FORMS_HEADERS ${FORMS})
-NONPCH_QT4_ADD_RESOURCES(shady_RESOURCES_RCC ${RESOURCES})
+N_QT_WRAP_UI(shady_FORMS_HEADERS ${FORMS})
+NONPCH_QT_ADD_RESOURCES(shady_RESOURCES_RCC ${RESOURCES})
 
 
 LIST(APPEND ALLSRCS ${CODE} ${PCH_files} ${shady_HEADERS_MOC} ${shady_FORMS_HEADERS} ${shady_RESOURCES_RCC})
@@ -90,19 +96,18 @@ IF(SHADY_APPLICATION)
     N_SET_EXE_LINKER_DEFAULTS(shady)
     N_SET_EXE_SUBSYSTEM(shady Windows)
 
-    ADD_DEPENDENCIES(shady
-        shady_NIDLS
+    ADD_DEPENDENCIES(shady        
         libqimg
+		compiler
 	    nody
 	    toolkitutil
     )
-    TARGET_LINK_LIBRARIES(shady
-        shady_NIDLS
+    TARGET_LINK_LIBRARIES(shady        
         libqimg
+		compiler
 	    nody 
 	    toolkitutil
-	    ${QT_WIN_LIBS}
-	    ${QT_LIBRARIES} ${QT_QTMAIN_LIBRARY}
+	    qtsupport
 	    d3dx11.lib 
 	    d3dcompiler.lib 
 	    opengl32.lib

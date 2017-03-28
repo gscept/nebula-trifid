@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  viewerapplication.cc
 //  (C) 2007 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "apprender/viewerapplication.h"
@@ -78,9 +78,10 @@ ViewerApplication::Open()
         // FIXME: sucks that I have to use Graphics here!
         this->view = this->graphicsServer->CreateView(Graphics::View::RTTI,
                                                       defaultViewName,
+													  0,
                                                       true);
 
-		Frame2::FrameServer::Instance()->SetWindowTexture(CoreGraphics::RenderDevice::Instance()->GetDefaultRenderTexture());
+		Frame2::FrameServer::Instance()->SetWindowTexture(CoreGraphics::DisplayDevice::Instance()->GetCurrentWindow()->GetRenderTexture());
 		Ptr<Frame2::FrameScript> frameScript = Frame2::FrameServer::Instance()->LoadFrameScript("test", "frame:vkdebug.json");
 
 		// set stage

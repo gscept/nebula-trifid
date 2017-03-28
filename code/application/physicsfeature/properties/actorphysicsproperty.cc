@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  properties/actorphysicsproperty.cc
 //  (C) 2005 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "properties/actorphysicsproperty.h"
@@ -180,7 +180,16 @@ ActorPhysicsProperty::EnablePhysics()
 		//{
 		//    this->charPhysicsEntity->SetOverwriteMaterialType(physicsMaterial);
 		//}
-
+		if (this->GetEntity()->HasAttr(Attr::Mass))
+		{
+			float mass = this->GetEntity()->GetFloat(Attr::Mass);
+			n_assert_fmt(mass > 0.0f, "Character mass cant be 0!\nEntity Id: %s\n", this->entity->GetString(Attr::Id).AsCharPtr());
+			this->charPhysicsEntity->SetWeight(mass);
+		}
+		else
+		{
+			this->charPhysicsEntity->SetWeight(1.0f);
+		}
 		if (this->GetEntity()->HasAttr(Attr::CapsuleRadius))
 		{
 			this->charPhysicsEntity->SetRadius(this->GetEntity()->GetFloat(Attr::CapsuleRadius));
@@ -188,6 +197,7 @@ ActorPhysicsProperty::EnablePhysics()
 		if (this->GetEntity()->HasAttr(Attr::CapsuleHeight))
 		{
 			this->charPhysicsEntity->SetHeight(this->GetEntity()->GetFloat(Attr::CapsuleHeight));
+			n_assert_fmt(this->charPhysicsEntity->GetHeight() > 0.0f, "Character height cant be 0!\nEntity Id: %s\n", this->entity->GetString(Attr::Id).AsCharPtr());
 		}
 		if (this->GetEntity()->HasAttr(Attr::CrouchingCapsuleHeight))
 		{
@@ -233,9 +243,12 @@ ActorPhysicsProperty::EnablePhysics()
 		// attach physics entity to physics level
 		const Ptr<Physics::Scene>& physicsLevel = Physics::PhysicsServer::Instance()->GetScene();
 		n_assert(physicsLevel);
-		physicsLevel->Attach(this->charPhysicsEntity.upcast<Physics::PhysicsObject>());
 
 		this->charPhysicsEntity->SetMaxJumpHeight(this->GetEntity()->GetFloat(Attr::JumpHeight));
+
+		physicsLevel->Attach(this->charPhysicsEntity.upcast<Physics::PhysicsObject>());
+
+		
 		this->charPhysicsEntity->SetJumpSpeed(this->GetEntity()->GetFloat(Attr::JumpSpeed));
 
 		this->charPhysicsEntity->SetMovementSpeed(this->GetEntity()->GetFloat(Attr::MaxVelocity));
@@ -274,7 +287,12 @@ ActorPhysicsProperty::EnablePhysics()
 		float radius = this->GetEntity()->GetFloat(Attr::CapsuleRadius);
 		float height = this->GetEntity()->GetFloat(Attr::CapsuleHeight);
 		offset.translate(Math::vector(0, height*0.5f + 2.0f* radius, 0));
-		coll->AddCapsule(radius, height, offset);
+		Physics::ColliderDescription desc;
+		desc.type = Physics::ColliderCapsule;
+		desc.capsule.radius = radius;
+		desc.capsule.height = height;
+		desc.transform = offset;
+		coll->AddFromDescription(desc);
 		Physics::PhysicsCommon common;
 		common.bodyFlags = Physics::Kinematic;
 		common.collider = coll;

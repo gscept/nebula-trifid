@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  definition.cc
 //  (C) 2006 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "attr/attributedefinitionbase.h"
@@ -112,6 +112,19 @@ AttributeDefinitionBase::AttributeDefinitionBase(const Util::String& n, const Ut
     defaultValue(defVal)
 {
     this->Register();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+AttributeDefinitionBase::AttributeDefinitionBase(const Util::String& n, const Util::FourCC& fcc, AccessMode m, const Math::transform44& defVal, bool dyn) :
+	isDynamic(dyn),
+	name(n),
+	fourCC(fcc),
+	accessMode(m),
+	defaultValue(defVal)
+{
+	this->Register();
 }
 
 //------------------------------------------------------------------------------
@@ -304,6 +317,14 @@ AttributeDefinitionBase::RegisterDynamicAttribute(const Util::String &name, cons
                 break;
             }
             break;
+
+		case Transform44Type:
+			{
+				const static Math::transform44 identity;
+				dynAttr = n_new(AttributeDefinitionBase(name, fourCC, accessMode, identity, true));
+				break;
+			}
+			break;
 
         case BlobType:
             {

@@ -6,6 +6,7 @@
     OGL4 implementation of ShaderServer.
     
     (C) 2007 Radon Labs GmbH
+	(C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "coregraphics/base/shaderserverbase.h"
 #include "coregraphics/ogl4/ogl4shader.h"
@@ -28,11 +29,6 @@ public:
     bool Open();
     /// close the shader server
     void Close();
-
-	/// reloads a shader
-	void ReloadShader(Ptr<CoreGraphics::Shader> shader);
-	/// explicitly loads a shader by resource id
-	void LoadShader(const Resources::ResourceId& shdName);
 
 private:
 	AnyFX::EffectFactory* factory;

@@ -5,14 +5,14 @@
     
     glfw-specific InputServer (provides a default Keyboard and Mouse).
         
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/singleton.h"
 #include "input/base/inputserverbase.h"
 #include "input/glfw/glfwinputdisplayeventhandler.h"
 
 //------------------------------------------------------------------------------
-namespace OpenGL4
+namespace GLFW
 {
 class GLFWInputServer : public Base::InputServerBase
 {
@@ -30,16 +30,8 @@ public:
     void Close();
     /// call after processing window events 
     void OnFrame();
-    /// set visibility of system cursor
-    void SetCursorVisible(bool enable);
-	/// lock cursor and hide it
-	void SetCursorLocked(bool enable);
-
-protected:    
-
-    Ptr<GLFWInputDisplayEventHandler> eventHandler;
 };
 
 
-} // namespace OpenGL4
+} // namespace GLFW
 //------------------------------------------------------------------------------

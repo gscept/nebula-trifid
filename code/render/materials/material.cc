@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  material.cc
-//  (C) 2011-2013 Individual contributors, see AUTHORS file
+//  (C) 2011-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "materials/material.h"
@@ -53,7 +53,7 @@ Material::LoadInherited(const Ptr<Material>& material)
 	{
 		const MaterialPass& pass = material->passesByIndex[i];
 		MaterialPass newPass{ pass.code, pass.shader, pass.featureMask };
-		const Frame::BatchGroup::Code& key = pass.code;
+		const Graphics::BatchGroup::Code& key = pass.code;
 		const Ptr<CoreGraphics::Shader>& value = pass.shader;
 		IndexT i = this->passesByIndex.FindIndex(newPass);
 		if (i == InvalidIndex)
@@ -108,7 +108,7 @@ Material::Discard()
 /**
 */
 void 
-Material::AddPass(const Frame::BatchGroup::Code& code, const Ptr<CoreGraphics::Shader>& shader, const CoreGraphics::ShaderFeature::Mask& mask)
+Material::AddPass(const Graphics::BatchGroup::Code& code, const Ptr<CoreGraphics::Shader>& shader, const CoreGraphics::ShaderFeature::Mask& mask)
 {
 	n_assert(shader.isvalid());
 
@@ -208,9 +208,43 @@ Material::GetPassByIndex(const IndexT index) const
 /**
 */
 const Util::Array<Material::MaterialPass>&
-Material::GetPassesByCode(const Frame::BatchGroup::Code& code)
+Material::GetPassesByCode(const Graphics::BatchGroup::Code& code)
 {
 	return this->passesByBatchGroup[code];
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+Material::Reload()
+{
+	// IMPLEMENT ME, should reload all passes and variables, then do the same for the surfaces.
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+Material::Reload(const Ptr<CoreGraphics::Shader>& shader)
+{
+	IndexT i;
+	for (i = 0; i < this->passesByIndex.Size(); i++)
+	{
+		MaterialPass& pass = this->passesByIndex[i];
+		if (pass.shader->GetResourceId() == shader->GetResourceId())
+		{
+			pass.shader = shader;
+		}
+	}
+
+	// go through and reload all surfaces
+	for (i = 0; i < this->surfaces.Size(); i++)
+	{
+		this->surfaces[i]->Reload();
+	}
+}
+
+
 
 } // namespace Materials

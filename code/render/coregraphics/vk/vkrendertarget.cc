@@ -640,9 +640,9 @@ void
 VkRenderTarget::SwapBuffers()
 {
 	n_assert(this->isDefaultRenderTarget);
-
+	Ptr<CoreGraphics::Window> wnd = CoreGraphics::DisplayDevice::Instance()->GetCurrentWindow();
 	VkRenderDevice* dev = VkRenderDevice::Instance();
-	VkResult res = vkAcquireNextImageKHR(dev->dev, dev->swapchain, UINT64_MAX, dev->displaySemaphore, VK_NULL_HANDLE, &dev->currentBackbuffer);
+	VkResult res = vkAcquireNextImageKHR(dev->dev, wnd->swapchain, UINT64_MAX, wnd->displaySemaphore, VK_NULL_HANDLE, &wnd->currentBackbuffer);
 	if (res == VK_ERROR_OUT_OF_DATE_KHR)
 	{
 		// this means our swapchain needs a resize!
@@ -652,8 +652,8 @@ VkRenderTarget::SwapBuffers()
 		n_assert(res == VK_SUCCESS);
 	}
 
-	this->vkFramebuffer = this->swapbuffers[dev->currentBackbuffer];
-	this->swapbufferIdx = dev->currentBackbuffer;
+	this->vkFramebuffer = this->swapbuffers[wnd->currentBackbuffer];
+	this->swapbufferIdx = wnd->currentBackbuffer;
 }
 
 //------------------------------------------------------------------------------

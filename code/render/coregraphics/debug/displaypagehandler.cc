@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  displaypagehandler.cc
 //  (C) 2007 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "coregraphics/debug/displaypagehandler.h"
@@ -89,48 +89,58 @@ DisplayPageHandler::HandleRequest(const Ptr<Http::HttpRequest>& request)
             htmlWriter->Begin(HtmlElement::TableRow);
                 htmlWriter->Element(HtmlElement::TableData, "Adapter:");
                 htmlWriter->Element(HtmlElement::TableData, Adapter::ToString(disp->GetAdapter()));
-            htmlWriter->End(HtmlElement::TableRow);
-            htmlWriter->Begin(HtmlElement::TableRow);
-                htmlWriter->Element(HtmlElement::TableData, "Size:");
-                str.Format("%d x %d", disp->GetDisplayMode().GetWidth(), disp->GetDisplayMode().GetHeight());
-                htmlWriter->Element(HtmlElement::TableData, str);
-            htmlWriter->End(HtmlElement::TableRow);
-            htmlWriter->Begin(HtmlElement::TableRow);
-                htmlWriter->Element(HtmlElement::TableData, "Pixel Format:");
-                htmlWriter->Element(HtmlElement::TableData, PixelFormat::ToString(disp->GetDisplayMode().GetPixelFormat()));
-            htmlWriter->End(HtmlElement::TableRow);
-            htmlWriter->Begin(HtmlElement::TableRow);
-                htmlWriter->Element(HtmlElement::TableData, "AA Mode:");
-                htmlWriter->Element(HtmlElement::TableData, AntiAliasQuality::ToString(disp->GetAntiAliasQuality()));
-            htmlWriter->End(HtmlElement::TableRow);
-            htmlWriter->Begin(HtmlElement::TableRow);
-                htmlWriter->Element(HtmlElement::TableData, "Fullscreen:");
-                htmlWriter->Element(HtmlElement::TableData, disp->IsFullscreen() ? "Yes" : "No");
-            htmlWriter->End(HtmlElement::TableRow);
-            htmlWriter->Begin(HtmlElement::TableRow);
-                htmlWriter->Element(HtmlElement::TableData, "Mode Switch Enabled:");
-                htmlWriter->Element(HtmlElement::TableData, disp->IsDisplayModeSwitchEnabled() ? "Yes" : "No");
-            htmlWriter->End(HtmlElement::TableRow);
-            htmlWriter->Begin(HtmlElement::TableRow);
-                htmlWriter->Element(HtmlElement::TableData, "Triple Buffering Enabled:");
-                htmlWriter->Element(HtmlElement::TableData, disp->IsTripleBufferingEnabled() ? "Yes" : "No");
-            htmlWriter->End(HtmlElement::TableRow);
-            htmlWriter->Begin(HtmlElement::TableRow);
-                htmlWriter->Element(HtmlElement::TableData, "Always On Top:");
-                htmlWriter->Element(HtmlElement::TableData, disp->IsAlwaysOnTop() ? "Yes" : "No");
-            htmlWriter->End(HtmlElement::TableRow);
-            htmlWriter->Begin(HtmlElement::TableRow);
-                htmlWriter->Element(HtmlElement::TableData, "Vertical Sync:");
-                htmlWriter->Element(HtmlElement::TableData, disp->IsVerticalSyncEnabled() ? "Yes" : "No");
-            htmlWriter->End(HtmlElement::TableRow);
-            htmlWriter->Begin(HtmlElement::TableRow);
-                htmlWriter->Element(HtmlElement::TableData, "Icon Name:");
-                htmlWriter->Element(HtmlElement::TableData, disp->GetIconName());
-            htmlWriter->End(HtmlElement::TableRow);
-            htmlWriter->Begin(HtmlElement::TableRow);
-                htmlWriter->Element(HtmlElement::TableData, "Window Title:");
-                htmlWriter->Element(HtmlElement::TableData, disp->GetWindowTitle());
-            htmlWriter->End(HtmlElement::TableRow);
+			htmlWriter->End(HtmlElement::TableRow);
+			htmlWriter->Begin(HtmlElement::TableRow);
+				htmlWriter->Element(HtmlElement::TableData, "Vertical Sync:");
+				htmlWriter->Element(HtmlElement::TableData, disp->IsVerticalSyncEnabled() ? "Yes" : "No");
+			htmlWriter->End(HtmlElement::TableRow);
+		htmlWriter->End(HtmlElement::Table);
+		
+		const Util::Array<Ptr<Window>>& windows = disp->GetWindows();
+		htmlWriter->Element(HtmlElement::Heading3, "Windows");        
+		htmlWriter->Begin(HtmlElement::Table);
+		IndexT i;
+		for (i = 0; i < windows.Size(); i++)
+		{
+			const Ptr<Window>& window = windows[i];
+			htmlWriter->Begin(HtmlElement::TableRow);
+				htmlWriter->Element(HtmlElement::TableData, "Size:");
+				str.Format("%d x %d", window->GetDisplayMode().GetWidth(), window->GetDisplayMode().GetHeight());
+				htmlWriter->Element(HtmlElement::TableData, str);
+			htmlWriter->End(HtmlElement::TableRow);
+			htmlWriter->Begin(HtmlElement::TableRow);
+				htmlWriter->Element(HtmlElement::TableData, "Pixel Format:");
+				htmlWriter->Element(HtmlElement::TableData, PixelFormat::ToString(window->GetDisplayMode().GetPixelFormat()));
+			htmlWriter->End(HtmlElement::TableRow);
+			htmlWriter->Begin(HtmlElement::TableRow);
+				htmlWriter->Element(HtmlElement::TableData, "AA Mode:");
+				htmlWriter->Element(HtmlElement::TableData, AntiAliasQuality::ToString(window->GetAntiAliasQuality()));
+			htmlWriter->End(HtmlElement::TableRow);
+			htmlWriter->Begin(HtmlElement::TableRow);
+				htmlWriter->Element(HtmlElement::TableData, "Fullscreen:");
+				htmlWriter->Element(HtmlElement::TableData, window->IsFullscreen() ? "Yes" : "No");
+			htmlWriter->End(HtmlElement::TableRow);
+			htmlWriter->Begin(HtmlElement::TableRow);
+				htmlWriter->Element(HtmlElement::TableData, "Mode Switch Enabled:");
+				htmlWriter->Element(HtmlElement::TableData, window->IsDisplayModeSwitchEnabled() ? "Yes" : "No");
+			htmlWriter->End(HtmlElement::TableRow);
+			htmlWriter->Begin(HtmlElement::TableRow);
+				htmlWriter->Element(HtmlElement::TableData, "Triple Buffering Enabled:");
+				htmlWriter->Element(HtmlElement::TableData, window->IsTripleBufferingEnabled() ? "Yes" : "No");
+			htmlWriter->End(HtmlElement::TableRow);
+			htmlWriter->Begin(HtmlElement::TableRow);
+				htmlWriter->Element(HtmlElement::TableData, "Always On Top:");
+				htmlWriter->Element(HtmlElement::TableData, window->IsAlwaysOnTop() ? "Yes" : "No");
+			htmlWriter->End(HtmlElement::TableRow);
+			htmlWriter->Begin(HtmlElement::TableRow);
+				htmlWriter->Element(HtmlElement::TableData, "Icon Name:");
+				htmlWriter->Element(HtmlElement::TableData, window->GetIconName());
+			htmlWriter->End(HtmlElement::TableRow);
+			htmlWriter->Begin(HtmlElement::TableRow);
+				htmlWriter->Element(HtmlElement::TableData, "Window Title:");
+				htmlWriter->Element(HtmlElement::TableData, window->GetTitle());
+			htmlWriter->End(HtmlElement::TableRow);
+		}           
         htmlWriter->End(HtmlElement::Table);        
 
         this->WriteAdapterInfo(Adapter::Primary, htmlWriter);

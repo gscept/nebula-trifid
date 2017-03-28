@@ -6,7 +6,7 @@
     An input handler which represents a mouse for polling.
     
     (C) 2007 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "input/inputhandler.h"
 #include "input/mousebutton.h"
@@ -30,9 +30,9 @@ public:
 
     /// return true if button is currently pressed
     bool ButtonPressed(Input::MouseButton::Code btn) const;
-    /// return true if button was down at least once in current frame
+    /// return true if button was pushed down at least once in current frame
     bool ButtonDown(Input::MouseButton::Code btn) const;
-    /// return true if button was up at least once in current frame
+    /// return true if button was released at least once in current frame
     bool ButtonUp(Input::MouseButton::Code btn) const;
     /// return true if a button has been double clicked
     bool ButtonDoubleClicked(Input::MouseButton::Code btn) const;

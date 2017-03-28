@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  contentbrowser.cc
-//  (C) 2012-2014 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "contentbrowserwindow.h"
@@ -94,6 +94,8 @@ ContentBrowserWindow::ContentBrowserWindow() :
 	AssignRegistry::Instance()->SetAssign(Assign("intsur", "root:intermediate/surfaces"));
 	AssignRegistry::Instance()->SetAssign(Assign("intmdl", "root:intermediate/models"));
 	AssignRegistry::Instance()->SetAssign(Assign("inttex", "root:intermediate/textures"));
+
+	this->setContentsMargins(2, 2, 2, 2);
 
 	// setup model info
 	this->modelInfoWindow = this->ui.modelDockWidget;
@@ -2179,8 +2181,8 @@ ContentBrowserWindow::OnShowGrid()
 void
 ContentBrowserWindow::OnSaveAll()
 {
-	if (this->materialHandler->IsSetup()) this->materialHandler->GetUI()->saveButton->click();
-	if (this->modelHandler->IsSetup()) this->modelHandler->GetUI()->saveButton->click();
+	if (this->materialHandler->IsSetup()) this->materialHandler->Save();
+	if (this->modelHandler->IsSetup()) this->modelHandler->OnSave();
 }
 
 //------------------------------------------------------------------------------
@@ -2256,14 +2258,14 @@ ContentBrowserWindow::OnCreateParticleEffect()
 		emitterMesh.SubstituteString("msh:", "parmsh:");
 
 		// we should now have an empty particle effect, so now we need a node
-		ModelConstants::ParticleNode node;
+		ModelAttributes::AppendixNode node;
 		node.name = "node_0";
-		node.type = "particle";
+		node.type = ModelAttributes::ParticleNode;
 		node.path = "root/" + node.name;
-		node.primitiveGroupIndex = 0;
+		node.data.particle.primGroup = 0;
 
 		// now add particle node to constants
-		consts->AddParticleNode(node.name, node);
+		attrs->AddAppendixNode(node.name, node);
 
 		// create state
 		State state;
@@ -2280,8 +2282,8 @@ ContentBrowserWindow::OnCreateParticleEffect()
 		emitterAttrs.SetFloat(EmitterAttrs::EmissionDuration, 25.0f);
 		emitterAttrs.SetFloat(EmitterAttrs::Gravity, -9.82f);
 		emitterAttrs.SetFloat(EmitterAttrs::ActivityDistance, 100.0f);
-		emitterAttrs.SetFloat(EmitterAttrs::StartRotationMin, 20.0f);
-		emitterAttrs.SetFloat(EmitterAttrs::StartRotationMax, 60.0f);
+		emitterAttrs.SetFloat(EmitterAttrs::StartRotationMin, 0.0f);
+		emitterAttrs.SetFloat(EmitterAttrs::StartRotationMax, 180.0f);
 		emitterAttrs.SetInt(EmitterAttrs::AnimPhases, 1);
 		EnvelopeCurve lifeTime;
 		lifeTime.Setup(1, 1, 1, 1, 0.33f, 0.66f, 0, 0, EnvelopeCurve::Sine);
@@ -2292,11 +2294,17 @@ ContentBrowserWindow::OnCreateParticleEffect()
 		alpha.Setup(0, 0.5f, 0.5f, 0, 0.33f, 0.66f, 1, 0, EnvelopeCurve::Sine);
 		EnvelopeCurve size;
 		size.Setup(0, 0.5f, 0.5f, 0.0f, 0.33f, 0.66f, 1, 1, EnvelopeCurve::Sine);
+		EnvelopeCurve color;
+		color.Setup(1, 1, 1, 1, 0.33f, 0.66f, 0, 0, EnvelopeCurve::Sine);
 		emitterAttrs.SetEnvelope(EmitterAttrs::LifeTime, lifeTime);
 		emitterAttrs.SetEnvelope(EmitterAttrs::VelocityFactor, lifeTime);
 		emitterAttrs.SetEnvelope(EmitterAttrs::EmissionFrequency, emissionFrequency);
 		emitterAttrs.SetEnvelope(EmitterAttrs::Alpha, alpha);
 		emitterAttrs.SetEnvelope(EmitterAttrs::Size, size);
+		emitterAttrs.SetEnvelope(EmitterAttrs::Alpha, color);
+		emitterAttrs.SetEnvelope(EmitterAttrs::Red, color);
+		emitterAttrs.SetEnvelope(EmitterAttrs::Green, color);
+		emitterAttrs.SetEnvelope(EmitterAttrs::Blue, color);
 
 		// set attributes
 		attrs->SetEmitterAttrs(node.path, emitterAttrs);
@@ -2395,7 +2403,7 @@ ContentBrowserWindow::OnConnectToLevelEditor()
 void 
 ContentBrowserWindow::OnDisconnectFromLevelEditor()
 {
-	this->ui.connectionStatus->setText("<b><span style=\"color:#aa3c3c\">Not connected with Level Editor</span><\b>");
+	this->ui.connectionStatus->setText("<b><span style=\"color:#FF7272\">Not connected with Level Editor</span><\b>");
 }
 
 //------------------------------------------------------------------------------

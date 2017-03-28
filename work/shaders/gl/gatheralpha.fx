@@ -54,9 +54,9 @@ psMain(in vec2 UV,
 {	
 	vec4 light = DecodeHDR(textureLod(AlphaLightTexture, UV, 0));
 	vec4 albedoColor = textureLod(AlphaAlbedoTexture, UV, 0);
-	vec4 emissiveColor = DecodeHDR(texture(AlphaEmissiveTexture, UV));
+	vec4 emissiveColor = DecodeHDR(textureLod(AlphaEmissiveTexture, UV, 0));
 	
-	vec4 color = light + emissiveColor;
+	vec4 color = vec4((light.rgb + emissiveColor.rgb * light.a), 1.0f);
 	
 	color.a = albedoColor.a;
 	MergedColor = EncodeHDR(color);

@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  modelentity.cc
 //  (C) 2007 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "graphics/modelentity.h"
@@ -401,7 +401,7 @@ ModelEntity::OnRenderBefore(IndexT frameIndex)
 	if (this->renderBeforeFrameIndex != frameIndex)
 	{
 		// update character if valid
-		if (this->charInst.isvalid())
+		if (this->charInst.isvalid() && this->charInst->IsValid())
 		{
 			this->charInst->WaitUpdateDone();
 			this->HandleCharacterAnimDrivenMotion();

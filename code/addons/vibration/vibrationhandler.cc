@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  vibrationhandler.cc
 //  (C) 2009 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "vibration/vibrationhandler.h"
@@ -121,8 +121,11 @@ VibrationHandler::ApplyValues()
     for (playerIdx = 0; playerIdx < NEBULA3_MAX_LOCAL_PLAYERS; playerIdx++)
     {
         const Ptr<Input::GamePad>& gamePad = inputServer->GetDefaultGamePad(playerIdx);
-        gamePad->SetLowFrequencyVibrator(this->curLowFreqValues[playerIdx]);
-        gamePad->SetHighFrequencyVibrator(this->curHiFreqValues[playerIdx]);
+		if (gamePad.isvalid())
+		{
+			gamePad->SetLowFrequencyVibrator(this->curLowFreqValues[playerIdx]);
+			gamePad->SetHighFrequencyVibrator(this->curHiFreqValues[playerIdx]);
+		}
     }
 }
 

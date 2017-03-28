@@ -5,7 +5,7 @@
     
     Handles shadowing using SM 5.0
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 #include "lighting/base/shadowserverbase.h"
 #include "frame/frameshader.h"
@@ -94,9 +94,9 @@ private:
 
 	// global light
 	Ptr<Frame::FramePass> globalLightHotPass;
-	Ptr<Frame::FramePostEffect> globalLightBlurPass;
 	Ptr<Frame::FrameBatch> globalLightShadowBatch;
 	Ptr<CoreGraphics::RenderTarget> globalLightShadowBuffer;
+	Ptr<CoreGraphics::DepthStencilTarget> globalLightDepthBuffer;
 	Ptr<CoreGraphics::RenderTarget> globalLightShadowBufferFinal;
 
 	// generic stuff
@@ -125,7 +125,7 @@ SM50ShadowServer::GetSpotLightShadowBufferTexture() const
 inline const Ptr<CoreGraphics::Texture>& 
 SM50ShadowServer::GetGlobalLightShadowBufferTexture() const
 {
-	return this->globalLightShadowBufferFinal->GetResolveTexture();
+	return this->globalLightShadowBuffer->GetResolveTexture();
 }
 
 //------------------------------------------------------------------------------

@@ -19,7 +19,7 @@
 	any variable is applied to it. 
     
     (C) 2007 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
 #include "core/singleton.h"
@@ -92,6 +92,11 @@ public:
     /// get the shared shader
 	const Ptr<CoreGraphics::ShaderState>& GetSharedShader();
 
+	/// reloads a shader
+	void ReloadShader(Ptr<CoreGraphics::Shader> shader);
+	/// explicitly loads a shader by resource id
+	void LoadShader(const Resources::ResourceId& shdName);
+
 protected:
     friend class CoreGraphics::ShaderIdentifier;
     friend class ShaderBase;
@@ -137,8 +142,8 @@ ShaderServerBase::GetAllShaders() const
 //------------------------------------------------------------------------------
 /**
 */
-inline const Ptr<CoreGraphics::Shader>& 
-ShaderServerBase::GetShader( Resources::ResourceId resId ) const
+inline const Ptr<CoreGraphics::Shader>&
+ShaderServerBase::GetShader(Resources::ResourceId resId) const
 {
 	return this->shaders[resId];
 }

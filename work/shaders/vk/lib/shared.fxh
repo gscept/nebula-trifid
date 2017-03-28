@@ -61,6 +61,7 @@ group(TICK_GROUP) shared varblock PerTickParams
 
 	
 	// global light stuff
+	vec4 GlobalLightDirWorldspace;
 	vec4 GlobalLightDir;
 	vec4 GlobalLightColor;
 	vec4 GlobalBackLightColor;
@@ -68,6 +69,14 @@ group(TICK_GROUP) shared varblock PerTickParams
 	float GlobalBackLightOffset;
 	mat4 CSMShadowMatrix;
 	textureHandle GlobalLightShadowBuffer;
+	
+	// these params are for the Preetham sky model
+	vec4 A;
+	vec4 B;
+	vec4 C;
+	vec4 D;
+	vec4 E;
+	vec4 Z;
 
 	// forward lighting
 	int		NumActiveLights = 0;

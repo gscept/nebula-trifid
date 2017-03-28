@@ -7,7 +7,7 @@
     and processes messages to the graphics thread.
 
     (C) 2008 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file	
+    (C) 2013-2016 Individual contributors, see AUTHORS file	
 */
 #include "interface/interfacehandlerbase.h"
 #include "messaging/message.h"
@@ -26,7 +26,6 @@
 #include "graphics/graphicsserver.h"
 #include "lighting/lightserver.h"
 #include "lighting/shadowserver.h"
-#include "frame/frameserver.h"
 #include "frame2/frameserver.h"
 #include "threading/safeflag.h"
 #include "animation/animeventserver.h"
@@ -77,8 +76,10 @@ private:
     void ShutdownGraphicsRuntime();
     /// handle SetupGraphics message
     void OnSetupGraphics(const Ptr<Graphics::SetupGraphics>& msg);
+	/// handle SetupWindow message
+	void OnSetupWindow(const Ptr<Graphics::SetupWindow>& msg);
 	/// handle UpdateDisplay message
-	void OnUpdateDisplay(const Ptr<Graphics::UpdateDisplay>& msg);
+	void OnUpdateWindow(const Ptr<Graphics::UpdateWindow>& msg);
     /// handle AdapterExists message
     void OnAdapterExists(const Ptr<Graphics::AdapterExists>& msg);
     /// handle GetAvailableDisplayModes message
@@ -145,7 +146,6 @@ private:
     Ptr<Lighting::LightServer> lightServer;
     Ptr<Lighting::ShadowServer> shadowServer;
 	Ptr<Instancing::InstanceServer> instanceServer;
-    Ptr<Frame::FrameServer> frameServer;
 	Ptr<Frame2::FrameServer> frame2Server;
 	Ptr<Materials::MaterialServer> materialServer;
     Ptr<Animation::AnimEventServer> animEventServer;

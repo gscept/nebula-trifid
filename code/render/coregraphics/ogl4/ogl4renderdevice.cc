@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  ogl4renderdevice.cc
-//  (C) 2012 Johannes Hirche, Gustav Sterbrant
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "coregraphics/config.h"
@@ -196,16 +196,16 @@ OGL4RenderDevice::SetupBufferFormats()
 
 //------------------------------------------------------------------------------
 /**
-    Initialize the Direct3D device with initial device state.
+    Initialize the OpenGL4 device with initial device state.
 */
 void
 OGL4RenderDevice::SetInitialDeviceState()
 {
 	DisplayDevice* displayDevice = DisplayDevice::Instance();
-	this->ogl4DefaultViewport.x = displayDevice->GetDisplayMode().GetXPos();
-	this->ogl4DefaultViewport.y = displayDevice->GetDisplayMode().GetYPos();
-	this->ogl4DefaultViewport.width = displayDevice->GetDisplayMode().GetWidth();
-	this->ogl4DefaultViewport.height = displayDevice->GetDisplayMode().GetHeight();
+	this->ogl4DefaultViewport.x = displayDevice->GetCurrentWindow()->GetDisplayMode().GetXPos();
+	this->ogl4DefaultViewport.y = displayDevice->GetCurrentWindow()->GetDisplayMode().GetYPos();
+	this->ogl4DefaultViewport.width = displayDevice->GetCurrentWindow()->GetDisplayMode().GetWidth();
+	this->ogl4DefaultViewport.height = displayDevice->GetCurrentWindow()->GetDisplayMode().GetHeight();
 
 	IndexT i;
 	for (i = 0; i < MaxNumViewports; i++)
@@ -232,11 +232,11 @@ OGL4RenderDevice::OpenOpenGL4Context()
     this->SetupAdapter();
 
 #if __WIN32__
-	glfwMakeContextCurrent(displayDevice->window);
-	this->context = glfwGetWGLContext(displayDevice->window);
+	glfwMakeContextCurrent(displayDevice->currentWindow->window);
+	this->context = glfwGetWGLContext(displayDevice->currentWindow->window);
 #else
-	glfwMakeContextCurrent(displayDevice->window);
-    this->context = glfwGetGLXContext(displayDevice->window);
+	glfwMakeContextCurrent(displayDevice->currentWindow->window);
+	this->context = glfwGetGLXContext(displayDevice->currentWindow->window);
 #endif
 
 	GLenum status = glewInit();
@@ -269,6 +269,7 @@ OGL4RenderDevice::OpenOpenGL4Context()
 	glEnable(GL_LINE_SMOOTH);
     //glHint(GL_TEXTURE_COMPRESSION_HINT, GL_FASTEST);
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+	//glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE);
     //glHint(GL_POLYGON_SMOOTH_HINT, GL_FASTEST);
 
 	// setup vsync
@@ -387,7 +388,7 @@ void
 OGL4RenderDevice::SetIndexBuffer(const Ptr<IndexBuffer>& ib)
 {
 	// only apply if the currently bound index buffer is not equal to the one being passed
-	if (this->indexBuffer != ib)
+	//if (this->indexBuffer != ib)
 	{
 		if (!ib.isvalid())
 		{
@@ -618,9 +619,8 @@ OGL4RenderDevice::Present()
     // we need this in order to ensure this frame is done before we start working on the next one
     this->frameId++;
 	
-	// swap buffers
-	DisplayDevice* displayDevice = DisplayDevice::Instance();
-	displayDevice->SwapBuffers();
+	// swap buffers on main window
+	
 }
 
 //------------------------------------------------------------------------------
@@ -681,7 +681,7 @@ OGL4RenderDevice::Draw()
 				primType,															// primitive type
 				this->primitiveGroup.GetNumIndices(),								// number of primitives
 				indexType,															// type of index				
-				(GLvoid*)(this->primitiveGroup.GetBaseIndex() * indexSize),			// pointer to indices (NULL since we use VAOs or IBOs)
+				(GLvoid*)(this->primitiveGroup.GetBaseIndex() * indexSize),			// offset into index buffer
 				this->primitiveGroup.GetBaseVertex()								// vertex offset
 			);				
 		}
@@ -861,19 +861,23 @@ OGL4RenderDevice::SaveScreenshot(ImageFileFormat::Code fmt, const Ptr<IO::Stream
 	n_assert(!this->inBeginFrame);
     n_assert(0 != this->context);
 
-	DisplayMode mode = DisplayDevice::Instance()->GetDisplayMode();
+	DisplayMode mode = DisplayDevice::Instance()->GetCurrentWindow()->GetDisplayMode();
 	GLuint size = mode.GetWidth() * mode.GetHeight() * 4;
+
+	// set a proper byte alignment for the read-back
+	GLuint pixelAlignment = OGL4Types::AsOGL4PixelByteAlignment(PixelFormat::SRGBA8);
+	glPixelStorei(GL_PACK_ALIGNMENT, pixelAlignment);
 
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 	glReadBuffer(GL_COLOR_ATTACHMENT0);
 	GLubyte* data = n_new_array(GLubyte, size);
-	glReadPixels(0, 0, mode.GetWidth(), mode.GetHeight(), GL_RGB, GL_UNSIGNED_BYTE, data);	
+	glReadPixels(0, 0, mode.GetWidth(), mode.GetHeight(), GL_RGBA, GL_UNSIGNED_BYTE, data);	
 
 	ILint image = ilGenImage();
 	ilBindImage(image);
 
 	ILboolean result;
-	result = ilTexImage(mode.GetWidth(), mode.GetHeight(), 1, 3, IL_RGB, IL_UNSIGNED_BYTE, data);
+	result = ilTexImage(mode.GetWidth(), mode.GetHeight(), 1, 4, IL_RGBA, IL_UNSIGNED_BYTE, data);
 	iluImageParameter(ILU_PLACEMENT, ILU_UPPER_LEFT);
 	ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);
 
@@ -887,7 +891,9 @@ OGL4RenderDevice::SaveScreenshot(ImageFileFormat::Code fmt, const Ptr<IO::Stream
         outStream->Close();
         outStream->SetMediaType(ImageFileFormat::ToMediaType(ImageFileFormat::PNG));
     }
-	
+
+	glPixelStorei(GL_PACK_ALIGNMENT, 4);
+
 	// cleanup image
 	ilDeleteImage(image);
 	n_delete_array(data);
@@ -904,19 +910,23 @@ OGL4RenderDevice::SaveScreenshot(CoreGraphics::ImageFileFormat::Code fmt, const 
 	n_assert(!this->inBeginFrame);
 	n_assert(0 != this->context);
 
-	DisplayMode mode = DisplayDevice::Instance()->GetDisplayMode();
+	DisplayMode mode = DisplayDevice::Instance()->GetCurrentWindow()->GetDisplayMode();
 	GLuint size = mode.GetWidth() * mode.GetHeight() * 3;
+
+	// set a proper byte alignment for the read-back
+	GLuint pixelAlignment = OGL4Types::AsOGL4PixelByteAlignment(PixelFormat::SRGBA8);
+	glPixelStorei(GL_PACK_ALIGNMENT, pixelAlignment);
 
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 	glReadBuffer(GL_COLOR_ATTACHMENT0);
 	GLubyte* data = n_new_array(GLubyte, size);
-	glReadPixels(rect.left, rect.top, rect.width(), rect.height(), GL_RGB, GL_UNSIGNED_BYTE, data);
+	glReadPixels(rect.left, rect.top, rect.width(), rect.height(), GL_RGBA, GL_UNSIGNED_BYTE, data);
 
 	ILint image = ilGenImage();
 	ilBindImage(image);
 
 	ILboolean result;
-	result = ilTexImage(rect.width(), rect.height(), 1, 3, IL_RGB, IL_UNSIGNED_BYTE, data);
+	result = ilTexImage(rect.width(), rect.height(), 1, 4, IL_RGBA, IL_UNSIGNED_BYTE, data);
 	iluImageParameter(ILU_PLACEMENT, ILU_UPPER_LEFT);
 	ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);
 	result = iluScale(x, y, 1);
@@ -931,6 +941,8 @@ OGL4RenderDevice::SaveScreenshot(CoreGraphics::ImageFileFormat::Code fmt, const 
 		outStream->Close();
 		outStream->SetMediaType(ImageFileFormat::ToMediaType(ImageFileFormat::PNG));
 	}
+
+	glPixelStorei(GL_PACK_ALIGNMENT, 4);
 
 	// cleanup image
 	ilDeleteImage(image);
@@ -974,12 +986,12 @@ OGL4RenderDevice::SyncGPU()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-OGL4RenderDevice::SetScissorRect( const Math::rectangle<int>& rect, int index )
+void
+OGL4RenderDevice::SetScissorRect(const Math::rectangle<int>& rect, int index)
 {
 	// Hmm, a bit iffy, the scissor rect is only defined for the back buffer since we use the display as a basis for our offsets
-	DisplayDevice* disp = DisplayDevice::Instance();
-	int bottom = disp->GetDisplayMode().GetHeight() - rect.bottom;
+	Window* wnd = DisplayDevice::Instance()->GetCurrentWindow();
+	int bottom = wnd->GetDisplayMode().GetHeight() - rect.bottom;
 	glScissorIndexed(index, rect.left, bottom, rect.width(), rect.height());	
 }
 
@@ -990,16 +1002,6 @@ void
 OGL4RenderDevice::SetViewport(const Math::rectangle<int>& rect, int index)
 {
 	glViewportIndexedf(index, (float)rect.left, (float)rect.top, (float)rect.width(), (float)rect.height());
-}
-
-//------------------------------------------------------------------------------
-/**
-	This function basically tries to flush ALL pending commands in the GL command queue so that we can resize the render targets.
-*/
-void
-OGL4RenderDevice::DisplayResized(SizeT width, SizeT height)
-{
-	Base::RenderDeviceBase::DisplayResized(width, height);
 }
 
 } // namespace CoreGraphics

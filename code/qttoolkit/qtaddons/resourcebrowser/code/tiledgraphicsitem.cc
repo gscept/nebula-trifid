@@ -111,7 +111,7 @@ TiledGraphicsItem::OnPreviewLoaded()
 		this->background->boundingRect().width() / 2 - this->loader->texture->height() / 2 - GRAPHICS_TILE_BORDER_WIDTH / 2);
 
 	// move label too
-	this->label->setPos(this->label->pos().x(), this->loader->texture->height() + 4);
+	this->label->setPos(this->label->pos().x(), this->loader->texture->height() + 1);
 }
 
 //------------------------------------------------------------------------------

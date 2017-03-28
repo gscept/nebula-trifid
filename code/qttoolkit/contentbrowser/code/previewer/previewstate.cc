@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  previewstate.cc
-//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "previewstate.h"
@@ -201,8 +201,8 @@ PreviewState::OnFrame()
 			if (node->IsA(Models::ShapeNode::RTTI))
 			{
 				const Ptr<Models::ShapeNode>& shapeNode = node.downcast<Models::ShapeNode>();
-				Debug::DebugShapeRenderer::Instance()->DrawMesh(matrix44::identity(), shapeNode->GetManagedMesh()->GetMesh(), float4(0, 0, 0.75f, 0.8f), CoreGraphics::RenderShape::Wireframe);
-
+				Math::matrix44 trans = Math::matrix44::transformation(shapeNode->GetScalePivot(), shapeNode->GetRotation(), shapeNode->GetScale(), shapeNode->GetRotatePivot(), shapeNode->GetRotation(), shapeNode->GetPosition());
+				Debug::DebugShapeRenderer::Instance()->DrawMesh(trans, shapeNode->GetManagedMesh()->GetMesh(), shapeNode->GetPrimitiveGroupIndex(), float4(0, 0, 0.75f, 0.8f), CoreGraphics::RenderShape::Wireframe);
 			}
 		}
 	}
@@ -275,7 +275,7 @@ PreviewState::OnStateEnter(const Util::String& prevState)
 	Util::Array<Ptr<Visibility::VisibilitySystemBase> > visSystems;
 	visSystems.Append(visSystem.cast<Visibility::VisibilitySystemBase>());
 	this->surfaceStage = Graphics::GraphicsServer::Instance()->CreateStage("SurfacePreviewStage", visSystems);
-	this->surfaceView = Graphics::GraphicsServer::Instance()->CreateView(Graphics::View::RTTI, "SurfacePreviewView", false, false);
+	this->surfaceView = Graphics::GraphicsServer::Instance()->CreateView(Graphics::View::RTTI, "SurfacePreviewView", InvalidIndex, false, false);
 	this->surfaceView->SetStage(this->surfaceStage);
 	this->surfaceView->SetFrameShader(frameShader);
 	Math::rectangle<int> viewport;
@@ -480,7 +480,7 @@ PreviewState::SaveThumbnail(const Util::String& path, bool swapStage)
 	// render a single frame
 	if (swapStage)
 	{
-		CoreGraphics::DisplayMode mode = CoreGraphics::DisplayDevice::Instance()->GetDisplayMode();
+		CoreGraphics::DisplayMode mode = CoreGraphics::DisplayDevice::Instance()->GetWindow(0)->GetDisplayMode();
 		Graphics::CameraSettings settings;
 		settings.SetupPerspectiveFov(n_deg2rad(60.0f), 1, 0.1f, 1000);
 

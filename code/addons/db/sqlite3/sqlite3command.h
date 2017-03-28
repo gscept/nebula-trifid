@@ -8,7 +8,7 @@
     SQLite3 implementation of Db::Command.
     
     (C) 2006 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "db/command.h"
 #include "sqlite3.h"
@@ -51,6 +51,8 @@ public:
     virtual void BindString(IndexT index, const Util::String& val);
     /// bind a Math::matrix44 by placeholder index
     virtual void BindMatrix44(IndexT index, const Math::matrix44& val);
+	/// bind a Math::transform44 by placeholder index
+	virtual void BindTransform44(IndexT index, const Math::transform44& val);
     /// bind a blob by placeholder index
     virtual void BindBlob(IndexT index, const Util::Blob& val);
     /// bind a guid by placeholder index
@@ -68,6 +70,8 @@ public:
     virtual void BindString(const Util::String& name, const Util::String& val);
     /// bind a Math::matrix44 by placeholder name
     virtual void BindMatrix44(const Util::String& name, const Math::matrix44& val);
+	/// bind a Math::transform44 by placeholder name
+	virtual void BindTransform44(const Util::String& name, const Math::transform44& val);
     /// bind a blob by placeholder name
     virtual void BindBlob(const Util::String& name, const Util::Blob& val);
     /// bind a guid by placeholder name

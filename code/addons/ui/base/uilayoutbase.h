@@ -6,7 +6,7 @@
     Base class for UI layouts.
 
     (C) 2009 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
 #include "ui/uievent.h"
@@ -14,7 +14,6 @@
 #include "resources/resource.h"
 #include "input/inputevent.h"
 #include "timing/time.h"
-#include "frame/framebatch.h"
 #include "threading/objectref.h"
 #include "ui/uielement.h"
 
@@ -75,7 +74,7 @@ public:
     /// update the layout (animation, etc...)
     void Update();
     /// render the layout
-    void Render(const Ptr<Frame::FrameBatch>& frameBatch);
+	void Render(const Util::StringAtom& filter);
 
 protected:
 	Util::Dictionary<Util::StringAtom, Ptr<UI::UiElement>> elements;

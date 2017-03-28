@@ -16,7 +16,7 @@
         Views should be attached to displays.
     
     (C) 2007 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */    
 #include "core/refcounted.h"
 #include "util/stringatom.h"
@@ -25,7 +25,6 @@
 #include "coregraphics/texture.h"
 #include "coregraphics/rendertarget.h"
 #include "rendermodules/rt/rtpluginregistry.h"
-#include "frame/frameshader.h"
 #include "frame2/framescript.h"
 #include "debug/debugtimer.h"
 
@@ -45,8 +44,10 @@ public:
     bool IsAttachedToServer() const;
     /// get human-readable name
     const Util::StringAtom& GetName() const;
-    /// set the stage this View is associated with
-    void SetStage(const Ptr<Stage>& stage);
+	/// get window id used for this view, -1 if not rendering to a window
+	const IndexT GetWindowId() const;
+	/// set the stage this View is associated with
+	void SetStage(const Ptr<Stage>& stage);
     /// get the stage this View is associated with
     const Ptr<Stage>& GetStage() const;
     /// set the CameraEntity this View looks through
@@ -76,19 +77,22 @@ public:
     /// update the visibility links for this view 
     virtual void UpdateVisibilityLinks();
     /// apply camera settings
-    void ApplyCameraSettings();
+    virtual void ApplyCameraSettings();
     /// render the view into its render target
     virtual void Render(IndexT frameIndex);
     /// render a debug view of the world
     virtual void RenderDebug();
 	/// handle on frame callback from main rendering pipeline
-	virtual void OnFrame(const Ptr<RenderModules::RTPluginRegistry>& pluginRegistry, Timing::Time curTime, Timing::Time globalTimeFactor, bool renderDebug);
+	virtual void OnFrame(const Ptr<RenderModules::RTPluginRegistry>& pluginRegistry, Timing::Time curTime, Timing::Time globalTimeFactor, bool renderDebug, bool updateCamera = true);
 
 protected:
     friend class GraphicsServer;
+	friend class ViewDisplayHandler;
 
     /// set a human-readable name of the view
     void SetName(const Util::StringAtom& name);
+	/// set window id used by view
+	void SetWindowId(const IndexT index);
     /// called when attached to graphics server
     virtual void OnAttachToServer();
     /// called when detached from graphics server
@@ -100,6 +104,10 @@ protected:
 	/// resolve visibility for shadow casting entities
 	void ResolveVisibleShadowCasters(IndexT frameIndex);
 
+	/// handle window resizing
+	virtual void OnWindowResized(IndexT windowId) const;
+
+	IndexT windowId;
 	bool shouldUpdatePerFrame;
     bool isAttachedToServer;
     Util::StringAtom name;
@@ -109,6 +117,7 @@ protected:
     Util::Array<Ptr<View> > dependencies;
 	bool resolveRectValid;
 	Math::rectangle<int> resolveRect;
+	Ptr<ViewDisplayHandler> displayHandler;
     
 	_declare_timer(resolveVisibleShadowCasters);
     _declare_timer(resolveVisibleModelNodeInstances);
@@ -147,6 +156,24 @@ inline const Util::StringAtom&
 View::GetName() const
 {
     return this->name;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+View::SetWindowId(const IndexT index)
+{
+	this->windowId = index;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const IndexT
+View::GetWindowId() const
+{
+	return this->windowId;
 }
 
 //------------------------------------------------------------------------------

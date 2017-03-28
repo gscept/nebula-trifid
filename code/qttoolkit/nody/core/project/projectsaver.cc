@@ -53,22 +53,21 @@ ProjectSaver::Save(const Ptr<Project>& project, const IO::URI& path)
         // mark start of file
         writer->WriteUInt('NODY');
 
-        // mark start of global state
-        writer->WriteUInt('GLOB');
-
-        // write global state
+		// write global state
+        writer->WriteUInt('GLOB');        
         this->WriteGlobalState(writer, project);
 
-        // mark start of nodes
-        writer->WriteUInt('NODE');
-        
-        // write nodes
+		// write implementation
+		writer->WriteUInt('>IMP');
+		this->WriteImplementation(writer, project);
+		writer->WriteUInt('<IMP');
+
+		// write nodes
+        writer->WriteUInt('NODE');        
         this->WriteNodes(writer, project);
        
-        // mark start of links
+		// write links
         writer->WriteUInt('LINK');
-
-        // write links
         this->WriteLinks(writer, project);
 
         // close stream
@@ -186,4 +185,14 @@ ProjectSaver::WriteLinks( const Ptr<IO::BinaryWriter>& writer, const Ptr<Project
         writer->WriteString(link.toName);
     }
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ProjectSaver::WriteImplementation(const Ptr<IO::BinaryWriter>& writer, const Ptr<Project>& project)
+{
+	// override in subclass
+}
+
 } // namespace Nody

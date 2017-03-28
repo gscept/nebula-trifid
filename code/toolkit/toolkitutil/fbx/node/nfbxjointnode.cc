@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  fbxjointnode.cc
-//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "fbx/node/nfbxjointnode.h"
@@ -18,7 +18,8 @@ __ImplementClass(ToolkitUtil::NFbxJointNode, 'FBJN', ToolkitUtil::NFbxNode);
 */
 NFbxJointNode::NFbxJointNode() : 
 	parentIndex(-1),
-	cluster(0)
+	cluster(0),
+	matrixIsGlobal(false)
 {
 	this->type = NFbxNode::Joint;
 }
@@ -35,13 +36,24 @@ NFbxJointNode::~NFbxJointNode()
 /**
 */
 void 
-NFbxJointNode::Setup( FbxNode* node, const Ptr<NFbxScene>& scene, int index )
+NFbxJointNode::Setup(FbxNode* node, const Ptr<NFbxScene>& scene, int index, FbxPose* bindpose)
 {
 	n_assert(node->GetSkeleton());
 	this->joint = node->GetSkeleton();
 	this->isSkeletonRoot = this->joint->IsSkeletonRoot();
 	this->jointIndex = index;
-	NFbxNode::Setup(node, scene);
+		
+	if (bindpose)
+	{
+		int idx = bindpose->Find(node->GetName());
+		NFbxNode::Setup(node, scene);
+		this->globalMatrix = bindpose->GetMatrix(idx);		
+		this->matrixIsGlobal = true;
+	}
+	else
+	{
+		NFbxNode::Setup(node, scene);
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -150,6 +162,13 @@ NFbxJointNode::RecursiveConvertToLocal( const Ptr<NFbxJointNode>& parent )
 		this->scale = float4((scalar)scale[0], (scalar)scale[1], (scalar)scale[2], (scalar)scale[3]);
 	}	
 
+	// we have a global matrix retrieved from the bindpose, apply inverse parent
+	if (this->matrixIsGlobal && this != parent && parent.isvalid())
+	{
+		FbxMatrix parentMatrix = parent->globalMatrix;
+		FbxMatrix localMatrix = parentMatrix.Inverse() * this->globalMatrix;
+		this->ExtractTransform(localMatrix);
+	}
 	// go through children and do the same
 	IndexT childIndex;
 	for (childIndex = 0; childIndex < this->children.Size(); childIndex++)

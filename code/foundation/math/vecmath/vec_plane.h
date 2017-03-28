@@ -6,7 +6,7 @@
     A plane class on top of VectorMath functions.
 
     (C) 2007 Radon Labs GmbH
-    (C) 2013 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/types.h"
 #include "math/scalar.h"
@@ -90,6 +90,8 @@ public:
     scalar dot(const float4& v) const;
     /// find intersection with line
     bool intersectline(const float4& startPoint, const float4& endPoint, float4& outIntersectPoint) const;
+	/// find intersection with plane
+	bool intersectplane(const plane& p2, line& outLine) const;
     /// clip line against this plane
     ClipStatus::Type clip(const line& l, line& outClippedLine) const;
     /// normalize plane components a,b,c
@@ -306,6 +308,34 @@ plane::intersectline(const float4& startPoint, const float4& endPoint, float4& o
 	outIntersectPoint = p;
 
 	return true;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline bool
+plane::intersectplane(const plane& p2, line& outLine) const
+{
+	vector n0 = this->get_normal();
+	vector n1 = p2.get_normal();
+	float n00 = vector::dot3(n0, n0);
+	float n01 = vector::dot3(n0, n1);
+	float n11 = vector::dot3(n1, n1);
+	float det = n00 * n11 - n01 * n01;
+	const float tol = N_TINY;
+	if (fabs(det) < tol)
+	{
+		return false;
+	}
+	else
+	{
+		float inv_det = 1.0f / det;
+		float c0 = (n11 * this->d() - n01 * p2.d())* inv_det;
+		float c1 = (n00 * p2.d() - n01 * this->d())* inv_det;
+		outLine.m = vector::cross3(n0, n1);
+		outLine.b = n0 * c0 + n1 * c1;
+		return true;
+	}
 }
 
 //------------------------------------------------------------------------------

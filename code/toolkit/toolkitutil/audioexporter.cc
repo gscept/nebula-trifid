@@ -1,13 +1,14 @@
 //------------------------------------------------------------------------------
 //  audioexporter.cc
 //  (C) 2008 Radon Labs GmbH
-//  (C) 2013-2014 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "audioexporter.h"
 #include "io/ioserver.h"
 #include "io/uri.h"
 #include "toolkitutil/applauncher.h"
+#include "io/memorystream.h"
 
 namespace ToolkitUtil
 {
@@ -285,6 +286,9 @@ AudioExporter::ExportFmod()
 	appLauncher.SetExecutable(executable);
 	appLauncher.SetWorkingDirectory(resolvedDstPath);
 	appLauncher.SetArguments(args);
+	Ptr<IO::MemoryStream> ss = IO::MemoryStream::Create();
+	appLauncher.SetStderrCaptureStream(ss.cast<IO::Stream>());
+
 	if (!appLauncher.LaunchWait())
 	{
 		n_printf("WARNING: failed to launch audio tool '%s'!\n", executable.AsCharPtr());
@@ -300,8 +304,7 @@ AudioExporter::ExportFmod()
 	}
 
 	//////////////////////////////////////
-	// FIXME: delete files we done need anymore (.cache Build)
-	
+	// FIXME: delete files we done need anymore (.cache Build)	
 	return true;
 }
 

@@ -1,13 +1,13 @@
 #pragma once
 //------------------------------------------------------------------------------
 /**
-@class CoreGraphics::DisplayDevice
+	@class CoreGraphics::DisplayDevice
 
-A DisplayDevice object represents the display where the RenderDevice
-presents the rendered frame. 
+	A DisplayDevice object represents the display where the RenderDevice
+	presents the rendered frame. 
 
-(C) 2007 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+	(C) 2007 Radon Labs GmbH
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #if __DX11__
 #include "coregraphics/d3d11/d3d11displaydevice.h"
@@ -24,26 +24,11 @@ public:
 	virtual ~DisplayDevice();
 };
 } // namespace CoreGraphics
-#elif __OGL4__
+#elif __OGL4__ ||  __VULKAN__
 #include "coregraphics/glfw/glfwdisplaydevice.h"
 namespace CoreGraphics
 {
-class DisplayDevice : public OpenGL4::GLFWDisplayDevice
-{
-	__DeclareClass(DisplayDevice);
-	__DeclareSingleton(DisplayDevice);
-public:
-	/// constructor
-	DisplayDevice();
-	/// destructor
-	virtual ~DisplayDevice();
-};
-} // namespace CoreGraphics
-#elif __VULKAN__
-#include "coregraphics/vk/vkdisplaydevice.h"
-namespace CoreGraphics
-{
-class DisplayDevice : public Vulkan::VkDisplayDevice
+class DisplayDevice : public GLFW::GLFWDisplayDevice
 {
 	__DeclareClass(DisplayDevice);
 	__DeclareSingleton(DisplayDevice);

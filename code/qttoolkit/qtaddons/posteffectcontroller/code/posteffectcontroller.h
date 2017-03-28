@@ -9,7 +9,8 @@
 */
 //------------------------------------------------------------------------------
 #include <QDialog>
-#include "addons/posteffect/posteffectentity.h"
+#include "posteffect/posteffectentity.h"
+#include "environmentprobewindow.h"
 
 namespace Ui
 {
@@ -78,6 +79,13 @@ private slots:
 	void OnSkyTextureBrowse();
 	/// selects hdr color
 	void OnSelectHDRColor();
+    ///
+    void OnBrowseLightProbe();
+    ///
+    void OnProbeAccepted();
+    ///
+    void OnProbeRejected();
+
 
 	/// save preset button is pressed
 	void OnSave();
@@ -106,7 +114,8 @@ private:
 	Math::float4 lightOppositeColor;
 	float lightIntensity;
 	Ui::PostEffectWindow* ui;
-	Ptr<PostEffect::PostEffectEntity> postEffectEntity;
+	Ptr<PostEffect::PostEffectEntity> postEffectEntity;    
+    Lighting::EnvironmentProbeWindow probeWindow;
 	bool modified;
 }; 
 

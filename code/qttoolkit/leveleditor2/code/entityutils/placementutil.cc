@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  placementutil.cc
-//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 
 #include "stdneb.h"
@@ -108,9 +108,9 @@ void
 PlacementUtil::ResetSelection()
 {
      IndexT i;
-     for (i=0; i<this->selectedMatrices.Size(); i++)
+	 for (i = 0; i < this->selectedMatrices.Size(); i++)
      {
-         if(i<this->selectedInitialMatrices.Size())
+		 if (i < this->selectedInitialMatrices.Size())
          {
              this->selectedMatrices[i] = this->selectedInitialMatrices[i];
          }
@@ -192,7 +192,8 @@ PlacementUtil::ToggleTransformMode(PlacementUtil::TransformMode mode)
 
     if (NONE == mode)
     {
-        this->currentTransformMode = mode;
+		this->currentTransformMode = NONE;
+		if (this->currentTransformFeature.isvalid()) this->currentTransformFeature->OnLoseFocus();
         this->currentTransformFeature = 0;
     }
     else if (TRANSLATE == mode)
@@ -204,7 +205,9 @@ PlacementUtil::ToggleTransformMode(PlacementUtil::TransformMode mode)
             this->currentTransformMode = TRANSLATE;
 
             // set current feature            
+			if (this->currentTransformFeature.isvalid()) this->currentTransformFeature->OnLoseFocus();
             this->currentTransformFeature = this->translateFeature;
+			this->currentTransformFeature->OnGainFocus();
 
             // updates new feature initial matrix
             this->UpdateCurrentFeature();
@@ -227,7 +230,9 @@ PlacementUtil::ToggleTransformMode(PlacementUtil::TransformMode mode)
             this->currentTransformMode = SCALE;
 
             //set current feature            
+			if (this->currentTransformFeature.isvalid()) this->currentTransformFeature->OnLoseFocus();
             this->currentTransformFeature = this->scaleFeature;
+			this->currentTransformFeature->OnGainFocus();
 
             // updates new feature initial matrix
             this->UpdateCurrentFeature();
@@ -250,7 +255,9 @@ PlacementUtil::ToggleTransformMode(PlacementUtil::TransformMode mode)
             this->currentTransformMode = ROTATE;
 
             //set current feature           
+			if (this->currentTransformFeature.isvalid()) this->currentTransformFeature->OnLoseFocus();
             this->currentTransformFeature = this->rotationFeature;
+			this->currentTransformFeature->OnGainFocus();
 
             // updates new feature initial matrix
             this->UpdateCurrentFeature();
@@ -369,6 +376,7 @@ PlacementUtil::UpdateCurrentFeature()
 		IndexT i;
 		if (!this->selectedMatrices.IsEmpty())
 		{
+			this->currentTransformFeature->OnGainFocus();
 			this->currentTransformFeature->SetInitialMatrix(this->selectedMatrices[0]);
 			for (i = 0; i < this->selectedMatrices.Size(); i++)
 			{
@@ -378,6 +386,10 @@ PlacementUtil::UpdateCurrentFeature()
 				}
 			}
 		}		
+		else
+		{
+			this->currentTransformFeature->OnLoseFocus();
+		}
     }
 }
 
@@ -462,8 +474,26 @@ void
 PlacementUtil::Setup()
 {
 	this->rotationFeature = RotationFeature::Create();
+	this->rotationFeature->Setup();
 	this->translateFeature = TranslateFeature::Create();
+	this->translateFeature->Setup();
 	this->scaleFeature = ScaleFeature::Create();
+	this->scaleFeature->Setup();
+}
+
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PlacementUtil::Discard()
+{
+	this->rotationFeature->Discard();
+	this->rotationFeature = 0;
+	this->translateFeature->Discard();
+	this->translateFeature = 0;
+	this->scaleFeature->Discard();
+	this->scaleFeature = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -497,5 +527,7 @@ PlacementUtil::CenterPivot()
 		}
 	}
 }
+
+
 } // namespace LevelEditor2
 

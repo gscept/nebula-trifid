@@ -3,11 +3,10 @@
 /**
     @class UI::RTPlugin
     
-    (C) 2015 Individual contributors, see AUTHORS file
+    (C) 2015-2016 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
 #include "timing/time.h"
-#include "frame/framebatch.h"
 #include "rendermodules/rt/rtplugin.h"
 
 //------------------------------------------------------------------------------
@@ -28,10 +27,10 @@ public:
 	virtual void OnUnregister();
 
     /// called when rendering a frame batch
-    virtual void OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch);
+    virtual void OnRender(const Util::StringAtom& filter);
 
 	/// called if the window size has changed
-	virtual void OnWindowResized(SizeT width, SizeT height);
+	virtual void OnWindowResized(IndexT windowId, SizeT width, SizeT height);
 
 private:
 	Ptr<UiServer> uiServer;

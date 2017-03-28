@@ -6,7 +6,7 @@
     A simple container for attributes.
     
     (C) 2007 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "util/dictionary.h"
 #include "attr/attribute.h"
@@ -71,6 +71,12 @@ public:
     const Math::matrix44& GetMatrix44(const Matrix44AttrId& attrId) const;
     /// get matrix44 value with default if not exists
     const Math::matrix44& GetMatrix44(const Matrix44AttrId& attrId, const Math::matrix44& defaultValue) const;
+	/// set transform44 value
+	void SetTransform44(const Transform44AttrId& attrId, const Math::transform44& val);
+	/// get transform44 value
+	const Math::transform44& GetTransform44(const Transform44AttrId& attrId) const;
+	/// get transform44 value with default if not exists
+	const Math::transform44& GetTransform44(const Transform44AttrId& attrId, const Math::transform44& defaultValue) const;
     /// set guid value
     void SetGuid(const GuidAttrId& attrId, const Util::Guid& guid);
     /// get guid value
@@ -299,6 +305,41 @@ AttributeContainer::GetMatrix44(const Matrix44AttrId& attrId, const Math::matrix
     {
         return defaultValue;
     }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+AttributeContainer::SetTransform44(const Transform44AttrId& attrId, const Math::transform44& val)
+{
+	this->SetAttr(Attribute(attrId, val));
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Math::transform44&
+AttributeContainer::GetTransform44(const Transform44AttrId& attrId) const
+{
+	n_assert(this->attrs.Contains(attrId));
+	return this->attrs[attrId].GetTransform44();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Math::transform44&
+AttributeContainer::GetTransform44(const Transform44AttrId& attrId, const Math::transform44& defaultValue) const
+{
+	if (this->HasAttr(attrId))
+	{
+		return this->GetTransform44(attrId);
+	}
+	else
+	{
+		return defaultValue;
+	}
 }
 
 //------------------------------------------------------------------------------

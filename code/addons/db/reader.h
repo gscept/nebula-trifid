@@ -7,7 +7,7 @@
     Wrapper to bulk-read the contents of a database table.
 
     (C) 2006 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
 #include "attr/attribute.h"
@@ -64,6 +64,8 @@ public:
     const Math::float4 GetFloat4(Attr::Float4AttrId attrId) const;
     /// return matrix44 attribute value
     const Math::matrix44 GetMatrix44(Attr::Matrix44AttrId attrId) const;
+	/// return transform44 attribute value
+	const Math::transform44 GetTransform44(Attr::Transform44AttrId attrId) const;
     /// return guid attribute value
     const Util::Guid& GetGuid(Attr::GuidAttrId attrId) const;
     /// return blob attribute value

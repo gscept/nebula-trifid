@@ -38,9 +38,11 @@ public:
 	void SetupWithRelativeSize(const Math::scalar relWidth, const Math::scalar relHeight, const CoreGraphics::PixelFormat::Code& format, const Resources::ResourceId& id);
 	/// discard texture
 	void Discard();
+	/// set dimensions
+	void SetDimensions(const float width, const float height, const float depth = 1);
 
 	/// resize texture
-	void Resize(SizeT width, SizeT height);
+	void Resize();
 	/// clear texture
 	void Clear(const Math::float4& clearColor);
 
@@ -61,7 +63,7 @@ protected:
 	uint lockSemaphore;
 	Math::scalar relWidth, relHeight;
 	Ptr<CoreGraphics::Texture> texture;
-	SizeT width, height;	
+	SizeT width, height, depth;	
 	CoreGraphics::PixelFormat pixelFormat;
 };
 

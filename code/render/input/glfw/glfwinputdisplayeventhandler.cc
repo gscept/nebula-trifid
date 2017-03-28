@@ -1,15 +1,15 @@
 //------------------------------------------------------------------------------
 //  glfwinputdisplayeventhandler.cc
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "input/glfw/glfwinputdisplayeventhandler.h"
 #include "input/inputserver.h"
 #include "input/inputevent.h"
 
-namespace OpenGL4
+namespace GLFW
 {
-__ImplementClass(OpenGL4::GLFWInputDisplayEventHandler, 'WIEH', CoreGraphics::DisplayEventHandler);
+__ImplementClass(GLFW::GLFWInputDisplayEventHandler, 'WIEH', CoreGraphics::DisplayEventHandler);
 
 using namespace Input;
 using namespace CoreGraphics;
@@ -28,13 +28,13 @@ GLFWInputDisplayEventHandler::HandleEvent(const DisplayEvent& displayEvent)
             inputServer->SetQuitRequested(true);
             break;
 
-        case DisplayEvent::DisplayMinimized:
+        case DisplayEvent::WindowMinimized:
         case DisplayEvent::KillFocus:
             inputEvent.SetType(InputEvent::AppLoseFocus);
             inputServer->PutEvent(inputEvent);            
             return true;
 
-        case DisplayEvent::DisplayRestored:
+        case DisplayEvent::WindowRestored:
         case DisplayEvent::SetFocus:
             inputEvent.SetType(InputEvent::AppObtainFocus);
             inputServer->PutEvent(inputEvent);            
@@ -102,4 +102,4 @@ GLFWInputDisplayEventHandler::HandleEvent(const DisplayEvent& displayEvent)
     return false;
 }
     
-} // namespace Win32
+} // namespace GLFW

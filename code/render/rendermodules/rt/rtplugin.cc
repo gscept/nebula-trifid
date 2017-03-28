@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  rtplugin.cc
 //  (C) 2009 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "rendermodules/rt/rtplugin.h"
@@ -140,15 +140,6 @@ RTPlugin::OnRenderAfter(IndexT frameId, Timing::Time time)
 /**
 */
 void
-RTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
-{
-    // empty
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
 RTPlugin::OnRender(const Util::StringAtom& filter)
 {
 	// empty
@@ -194,7 +185,7 @@ RTPlugin::OnRenderWithoutView(IndexT frameId, Timing::Time time)
 /**
 */
 void 
-RTPlugin::OnWindowResized( SizeT width, SizeT height )
+RTPlugin::OnWindowResized(IndexT windowId, SizeT width, SizeT height)
 {
 	// empty
 }

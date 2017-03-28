@@ -3,7 +3,7 @@
 /**
 	@class Bullet::BulletCollider
 
-	(C) 2012-2015 Individual contributors, see AUTHORS file
+	(C) 2012-2016 Individual contributors, see AUTHORS file
 */
 #include "util/array.h"
 #include "math/plane.h"
@@ -26,7 +26,7 @@ public:
 	~BulletCollider();
 
 	/// render debug shapes of colliders
-	virtual void RenderDebug(const Math::matrix44& t);
+	void RenderDebug(const Math::matrix44& t);
 	/// add plane collision object
 	void AddPlane( const Math::plane &plane, const Math::matrix44 &localTransform );
 
@@ -45,11 +45,13 @@ public:
 	void AddCylinder(float radius, float height, const Math::matrix44  &localTransform );
 
 	/// Add a capsule to the collision shape.
-	virtual void AddCapsule(const Math::vector& pointA, const Math::vector& pointB, float radius, const Math::matrix44 &localTransform);
+	void AddCapsule(const Math::vector& pointA, const Math::vector& pointB, float radius, const Math::matrix44 &localTransform);
 
 	/// Add a triangle mesh to the collision shape.
 	void AddPhysicsMesh(Ptr<Physics::ManagedPhysicsMesh> colliderMesh, const Math::matrix44 & localTransform, Physics::MeshTopologyType meshType, int primGroup);
 
+	///
+	virtual void AddFromDescription(const Physics::ColliderDescription & description);
 	/// creates a new collider with a scaled collision shape
 	Ptr<BulletCollider> GetScaledCopy(const Math::vector &scale);
 	

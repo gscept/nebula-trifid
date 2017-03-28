@@ -1,5 +1,5 @@
 //  navigation/recast/recastutil.cc
-//  (C) 2014 Johannes Hirche
+//  (C) 2014-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "Recast.h"
@@ -9,7 +9,7 @@
 #include "coregraphics/legacy/nvx2streamreader.h"
 #include "io/ioserver.h"
 #include "coregraphics/primitivegroup.h"
-#include "navigationattributes.h"
+#include "navigation/navigationattributes.h"
 #include "physicsfeature/physicsattr/physicsattributes.h"
 #include "toolkit/toolkitutil/modelutil/modelphysics.h"
 
@@ -388,31 +388,30 @@ RecastUtil::GenerateNavMeshData()
 //------------------------------------------------------------------------------
 /**
 */
-bool
-RecastUtil::LoadNavMeshGenerationData(const Ptr<Db::Reader>& reader)
+bool 
+RecastUtil::LoadNavMeshGenerationData(const Ptr<Db::ValueTable>& reader, IndexT row)
 {
-    n_assert(reader->IsOpen());
-    this->agentRadius = reader->GetFloat(Attr::AgentRadius);
-    this->agentHeight = reader->GetFloat(Attr::AgentHeight);
-    this->maxEdgeError = reader->GetFloat(Attr::MaxEdgeError);
-    this->detailSampleDist = reader->GetFloat(Attr::DetailSampleDist);
-    this->maxSlope = reader->GetFloat(Attr::MaxSlope);
-    this->cellHeight = reader->GetFloat(Attr::CellHeight);
-    this->cellSize = reader->GetFloat(Attr::CellSize);
-    this->agentMaxClimb = reader->GetFloat(Attr::AgentMaxClimb);
-    this->detailSampleMaxError = reader->GetFloat(Attr::DetailSampleMaxError);
-    this->maxEdgeLength = reader->GetInt(Attr::MaxEdgeLength);
-    this->regionMinSize = reader->GetInt(Attr::RegionMinSize);
-    this->regionMergeSize = reader->GetInt(Attr::RegionMergeSize);
-	this->id = reader->GetString(Attr::Id);
+    this->agentRadius = reader->GetFloat(Attr::AgentRadius, row);
+    this->agentHeight = reader->GetFloat(Attr::AgentHeight, row);
+    this->maxEdgeError = reader->GetFloat(Attr::MaxEdgeError, row);
+    this->detailSampleDist = reader->GetFloat(Attr::DetailSampleDist, row);
+    this->maxSlope = reader->GetFloat(Attr::MaxSlope, row);
+    this->cellHeight = reader->GetFloat(Attr::CellHeight, row);
+    this->cellSize = reader->GetFloat(Attr::CellSize, row);
+    this->agentMaxClimb = reader->GetFloat(Attr::AgentMaxClimb, row);
+    this->detailSampleMaxError = reader->GetFloat(Attr::DetailSampleMaxError, row);
+    this->maxEdgeLength = reader->GetInt(Attr::MaxEdgeLength, row);
+    this->regionMinSize = reader->GetInt(Attr::RegionMinSize, row);
+    this->regionMergeSize = reader->GetInt(Attr::RegionMergeSize, row);
+    this->id = reader->GetString(Attr::Id, row);
 
-	Math::point center = reader->GetFloat4(Attr::NavMeshCenter);
-	Math::vector extends = reader->GetFloat4(Attr::NavMeshExtends);
+    Math::point center = reader->GetFloat4(Attr::NavMeshCenter, row);
+    Math::vector extends = reader->GetFloat4(Attr::NavMeshExtends, row);
 	
 	this->boundingBox.set(center, extends);
 
-    String meshString = reader->GetString(Attr::NavMeshMeshString);
-    Dictionary<String,String> pairs = String::ParseKeyValuePairs(meshString);
+    String meshString = reader->GetString(Attr::NavMeshMeshString, row);
+    Dictionary<String, String> pairs = String::ParseKeyValuePairs(meshString);
 
     for(int i = 0 ; i < pairs.Size() ; i++)
     {        

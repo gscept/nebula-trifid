@@ -14,7 +14,7 @@
     vertex/index data copy.
     
     (C) 2008 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "math/matrix44.h"
 #include "math/float4.h"
@@ -94,7 +94,7 @@ public:
         RenderFlag depthFlag);
 
 	/// setup mesh
-	void SetupMesh(Threading::ThreadId threadId, const Math::matrix44& modelTransform, const Ptr<Mesh>& mesh, const Math::float4& color, RenderFlag depthFlag);
+	void SetupMesh(Threading::ThreadId threadId, const Math::matrix44& modelTransform, const Ptr<Mesh>& mesh, const IndexT groupIndex, const Math::float4& color, RenderFlag depthFlag);
 
     /// get the thread id of this shape
     Threading::ThreadId GetThreadId() const;
@@ -122,8 +122,10 @@ public:
     const Math::float4& GetColor() const;
     /// get vertex layout, returns NULL if none exist
     const Ptr<VertexLayout>& GetVertexLayout() const;
-	// get mesh
+	/// get mesh
 	const Ptr<Mesh>& GetMesh() const;
+	/// get primitive group
+	const IndexT& GetPrimitiveGroupIndex() const;
 
 private:
     Threading::ThreadId threadId;
@@ -137,6 +139,8 @@ private:
     IndexType::Code indexType;
     Math::float4 color;
     IndexT vertexDataOffset;
+
+	IndexT groupIndex;
 	Ptr<Mesh> mesh;
     Ptr<VertexLayout> vertexLayout;
     Ptr<IO::MemoryStream> dataStream;       // contains vertex/index data
@@ -285,6 +289,16 @@ RenderShape::GetMesh() const
 {
 	return this->mesh;
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const IndexT&
+RenderShape::GetPrimitiveGroupIndex() const
+{
+	return this->groupIndex;
+}
+
 } // namespace CoreGraphics
 //------------------------------------------------------------------------------
 

@@ -7,7 +7,7 @@
     event handlers.
     
     (C) 2007 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/types.h"
 #include "input/key.h"
@@ -25,14 +25,14 @@ public:
     enum Code
     {
         InvalidCode,
-        DisplayOpen,
-        DisplayClose,
-		DisplayReopen,
+        WindowOpen,
+        WindowClose,
+		WindowReopen,
         CloseRequested,
-        DisplayMinimized,
-        DisplayRestored,
+        WindowMinimized,
+        WindowRestored,
         ToggleFullscreenWindowed,
-		DisplayResized,
+		WindowResized,
         SetCursor,
         Paint,
         SetFocus,
@@ -52,6 +52,8 @@ public:
     DisplayEvent();
     /// constructor with event code
     DisplayEvent(Code c);
+	/// constructor with event code and window id
+	DisplayEvent(Code c, IndexT wnd);
     /// constructor with event code and mouse pos
     DisplayEvent(Code c, const Math::float2& absPos, const Math::float2& normPos);
     /// constructor with key code
@@ -63,6 +65,8 @@ public:
 
     /// get event code
     Code GetEventCode() const;
+	/// get window id
+	IndexT GetWindowId() const;
     /// get absolute mouse pos (in pixels)
     const Math::float2& GetAbsMousePos() const;
     /// get normalized mouse pos (from 0.0 to 1.0)
@@ -75,6 +79,7 @@ public:
     Input::MouseButton::Code GetMouseButton() const;
 
 private:
+	IndexT windowId;
     Code code;
     Math::float2 absMousePos;
     Math::float2 normMousePos;
@@ -104,6 +109,7 @@ DisplayEvent::DisplayEvent() :
 inline
 DisplayEvent::DisplayEvent(Code c) :
     code(c),
+	windowId(InvalidIndex),
     absMousePos(0.0f, 0.0f),
     normMousePos(0.0f, 0.0f),
     keyCode(Input::Key::InvalidKey),
@@ -113,12 +119,30 @@ DisplayEvent::DisplayEvent(Code c) :
     // empty
 }
 
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline
+DisplayEvent::DisplayEvent(Code c, IndexT wnd) :
+	code(c),
+	windowId(wnd),
+	absMousePos(0.0f, 0.0f),
+	normMousePos(0.0f, 0.0f),
+	keyCode(Input::Key::InvalidKey),
+	charCode(0),
+	mouseButtonCode(Input::MouseButton::InvalidMouseButton)
+{
+	// empty
+}
+
 //------------------------------------------------------------------------------
 /**
 */
 inline
 DisplayEvent::DisplayEvent(Code c, const Math::float2& absPos, const Math::float2& normPos) :
     code(c),
+	windowId(InvalidIndex),
     absMousePos(absPos),
     normMousePos(normPos),
     keyCode(Input::Key::InvalidKey),
@@ -134,6 +158,7 @@ DisplayEvent::DisplayEvent(Code c, const Math::float2& absPos, const Math::float
 inline
 DisplayEvent::DisplayEvent(Code c, Input::Key::Code k) :
     code(c),
+	windowId(InvalidIndex),
     absMousePos(0.0f, 0.0f),
     normMousePos(0.0f, 0.0f),
     keyCode(k),
@@ -149,6 +174,7 @@ DisplayEvent::DisplayEvent(Code c, Input::Key::Code k) :
 inline
 DisplayEvent::DisplayEvent(Code c, Input::Char chr) :
     code(c),
+	windowId(InvalidIndex),
     absMousePos(0.0f, 0.0f),
     normMousePos(0.0f, 0.0f),
     keyCode(Input::Key::InvalidKey),
@@ -164,6 +190,7 @@ DisplayEvent::DisplayEvent(Code c, Input::Char chr) :
 inline
 DisplayEvent::DisplayEvent(Code c, Input::MouseButton::Code b, const Math::float2& absPos, const Math::float2& normPos) :
     code(c),
+	windowId(InvalidIndex),
     absMousePos(absPos),
     normMousePos(normPos),
     keyCode(Input::Key::InvalidKey),
@@ -180,6 +207,15 @@ inline DisplayEvent::Code
 DisplayEvent::GetEventCode() const
 {
     return this->code;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline IndexT
+DisplayEvent::GetWindowId() const
+{
+	return this->windowId;
 }
 
 //------------------------------------------------------------------------------

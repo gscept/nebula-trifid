@@ -6,6 +6,7 @@
     OGL4 version of TransformDevice.
     
     (C) 2007 Radon Labs GmbH
+	(C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "coregraphics/base/transformdevicebase.h"
 #include "coregraphics/shadervariable.h"
@@ -55,7 +56,7 @@ private:
     Ptr<CoreGraphics::ShaderVariable> cameraBlockVar;
 
     Ptr<CoreGraphics::ShaderVariable> shadowCameraBlockVar;
-
+	Ptr<CoreGraphics::Shader> sharedShader;
     Ptr<CoreGraphics::ConstantBuffer> cameraBuffer;
     Ptr<CoreGraphics::ConstantBuffer> shadowCameraBuffer;
 };

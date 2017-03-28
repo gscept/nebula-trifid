@@ -47,10 +47,10 @@
 #define TextureCube samplerCube
 #define TextureCubeArray samplerCubeArray
 
-void sincos(float angle, out float sinus, out float cosinus)
+void sincos(float angle, out float sine, out float cosine)
 {
-	sinus = sin(angle);
-	cosinus = cos(angle);
+	sine = sin(angle);
+	cosine = cos(angle);
 }
 
 #define ddx dFdx
@@ -61,6 +61,7 @@ void sincos(float angle, out float sinus, out float cosinus)
 #define fmod mod
 #define saturate(x) clamp(x, 0.0f, 1.0f)
 #define mul(x, y) y * x
+#define mad(x, y, z) x * y + z
 
 #elif HLSL
 int2 NPixelSize(Texture2D tex, int lod)

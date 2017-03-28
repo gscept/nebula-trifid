@@ -9,15 +9,16 @@
     the VertexLayoutServer (this is more efficient on some platforms).
     
     (C) 2007 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
 #include "coregraphics/vertexcomponent.h"
-#include "../indexbuffer.h"
+#include "coregraphics/indexbuffer.h"
 
 namespace CoreGraphics
 {
 class VertexLayoutServer;
+class VertexBuffer;
 }
 
 //------------------------------------------------------------------------------
@@ -42,6 +43,9 @@ public:
     /// return true if valid has been setup
     bool IsValid() const;
 
+	/// set the vertex buffer associated with the stream index
+	void SetStreamBuffer(IndexT streamIndex, const Ptr<CoreGraphics::VertexBuffer>& vertexBuffer);
+
     /// get number of components
     SizeT GetNumComponents() const;
     /// get vertex component at index
@@ -55,12 +59,15 @@ public:
     /// get vertex components
     const Util::Array<CoreGraphics::VertexComponent>& GetVertexComponents() const;    
         
+	/// calculate byte size from component list
+	static SizeT CalculateByteSize(const Util::Array<CoreGraphics::VertexComponent>& c);
 protected:
     friend class VertexLayoutServerBase;
 
     /// get sharing signature for a set of vertex components
     static Util::String BuildSignature(const Util::Array<CoreGraphics::VertexComponent>& c);
 
+	Ptr<CoreGraphics::VertexBuffer> vertexStreams[2];
     Util::Array<CoreGraphics::VertexComponent> components;
     SizeT vertexByteSize;
 	SizeT numUsedStreams;

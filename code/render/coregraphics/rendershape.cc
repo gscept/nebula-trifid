@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  rendershape.cc
 //  (C) 2008 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "coregraphics/rendershape.h"
@@ -136,7 +136,7 @@ RenderShape::SetupIndexedPrimitives(ThreadId threadId_, const Math::matrix44& mo
 /**
 */
 void 
-RenderShape::SetupMesh(Threading::ThreadId threadId, const Math::matrix44& modelTransform, const Ptr<Mesh>& mesh, const Math::float4& color, RenderFlag depthFlag)
+RenderShape::SetupMesh(Threading::ThreadId threadId, const Math::matrix44& modelTransform, const Ptr<Mesh>& mesh, const IndexT groupIndex, const Math::float4& color, RenderFlag depthFlag)
 {
 	n_assert(!this->IsValid());
 	n_assert(mesh.isvalid());
@@ -147,6 +147,7 @@ RenderShape::SetupMesh(Threading::ThreadId threadId, const Math::matrix44& model
 	this->modelTransform = modelTransform;
 	this->color          = color;
 	this->mesh			 = mesh;
+	this->groupIndex	 = groupIndex;
 }
 
 } // namespace CoreGraphics

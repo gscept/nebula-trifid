@@ -39,10 +39,7 @@ vsMain(in vec3 position,
 	UV = uv;
 }
 
-//------------------------------------------------------------------------------
-/**
-	Performs a 2x2 kernel downscale, will only render 1 pixel
-*/
+
 shader
 void
 psMain(in vec2 UV,

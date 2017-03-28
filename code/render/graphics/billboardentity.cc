@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  billboardentity.cc
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "billboardentity.h"
@@ -34,7 +34,8 @@ BillboardEntity::BillboardEntity() :
 	texture(0),
     color(1,1,1,1),
 	modelInstance(0),
-	viewAligned(false)
+	viewAligned(false),
+    resource("tex:system/placeholder")
 {
 	this->SetType(GraphicsEntityType::Model);
 }

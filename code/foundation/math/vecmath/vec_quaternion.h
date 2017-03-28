@@ -100,6 +100,8 @@ public:
     scalar z() const;
     /// read-only access to w component
     scalar w() const;
+    ///
+    __m128 m128() const;
 
     /// return true if quaternion is identity
     bool isidentity() const;
@@ -142,7 +144,8 @@ public:
     static quaternion squad(const quaternion& q1, const quaternion& a, const quaternion& b, const quaternion& c, scalar t);
     /// convert quaternion to axis and angle
     static void to_axisangle(const quaternion& q, float4& outAxis, scalar& outAngle);
-
+	/// convert to euler angles
+	static void to_euler(const quaternion& q, float4& outangles);
 private:
     friend class matrix44;
 
@@ -409,6 +412,15 @@ __forceinline scalar
 quaternion::w() const
 {
     return this->vec.getW();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+__forceinline __m128
+quaternion::m128() const
+{
+    return this->vec.get128();
 }
 
 //------------------------------------------------------------------------------

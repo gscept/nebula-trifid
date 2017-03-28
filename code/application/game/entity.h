@@ -16,7 +16,7 @@
     states etc. is stored in the attributeTable.
 
     (C) 2007 RadonLabs GmbH
-	(C) 2013-2015 Individual contributors, see AUTHORS file
+	(C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
 #include "core/ptr.h"
@@ -37,8 +37,12 @@ namespace Messaging
 namespace BaseGameFeature
 {
     class FactoryManager;	
-    class EntityManager;
-    class EnvEntityManager;
+    class EntityManager;    
+}
+
+namespace GraphicsFeature
+{
+	class EnvEntityManager;
 }
 
 // sends message to game entity
@@ -148,6 +152,10 @@ public:
     void SetMatrix44(const Attr::Matrix44AttrId& attrId, const Math::matrix44& m);
     /// get matrix44 attribute from the entity
     const Math::matrix44 GetMatrix44(const Attr::Matrix44AttrId& attrid) const;
+    /// set transform44 attribute on the entity
+    void SetTransform44(const Attr::Transform44AttrId& attrId, const Math::transform44& m);
+    /// get transform44 attribute from the entity
+    const Math::transform44 GetTransform44(const Attr::Transform44AttrId& attrid) const;
     /// set guid attribute on the entity
     void SetGuid(const Attr::GuidAttrId& attrId, const Util::Guid& guid);
     /// get guid attribute on the entity
@@ -169,6 +177,8 @@ public:
     void AddFloat4(const Attr::Float4AttrId& attrId);
     /// add matrix44 attribute if not exists
     void AddMatrix44(const Attr::Matrix44AttrId& attrId);
+    /// add transform44 attribute if not exists
+    void AddTransform44(const Attr::Transform44AttrId& attrId);
     /// add guid attribute if not exists
     void AddGuid(const Attr::GuidAttrId& attrId);
     /// add blob attribute if not exists
@@ -184,7 +194,7 @@ public:
 private:
     friend class BaseGameFeature::FactoryManager;		
     friend class BaseGameFeature::EntityManager;    
-    friend class BaseGameFeature::EnvEntityManager;
+    friend class GraphicsFeature::EnvEntityManager;
 
     /// set entity category
     void SetCategory(const Util::String& cat);    
@@ -411,6 +421,24 @@ inline const Math::matrix44
 Entity::GetMatrix44(const Attr::Matrix44AttrId& attrId) const
 {
     return this->attrTable->GetMatrix44(attrId, this->attrTableRowIndex);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+Entity::SetTransform44(const Attr::Transform44AttrId& attrId, const Math::transform44& m)
+{
+    this->attrTable->SetTransform44(attrId, this->attrTableRowIndex, m);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Math::transform44
+Entity::GetTransform44(const Attr::Transform44AttrId& attrId) const
+{
+    return this->attrTable->GetTransform44(attrId, this->attrTableRowIndex);
 }
 
 //------------------------------------------------------------------------------

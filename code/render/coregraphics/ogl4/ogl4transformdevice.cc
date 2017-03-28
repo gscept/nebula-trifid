@@ -1,6 +1,7 @@
 //------------------------------------------------------------------------------
 //  ogl4transformdevice.cc
 //  (C) 2007 Radon Labs GmbH
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "coregraphics/ogl4/ogl4transformdevice.h"
@@ -46,11 +47,11 @@ bool
 OGL4TransformDevice::Open()
 {
     ShaderServer* shdServer = ShaderServer::Instance();
-    const Ptr<Shader>& shdInst = shdServer->GetSharedShader();
+    this->sharedShader = shdServer->GetSharedShader();
 
     // setup camera block, update once per frame - no need to sync
     this->cameraBuffer = ConstantBuffer::Create();
-    this->cameraBuffer->SetupFromBlockInShader(shdInst, "CameraBlock");
+	this->cameraBuffer->SetupFromBlockInShader(this->sharedShader, "CameraBlock");
     this->viewVar = this->cameraBuffer->GetVariableByName(NEBULA3_SEMANTIC_VIEW);
     this->invViewVar = this->cameraBuffer->GetVariableByName(NEBULA3_SEMANTIC_INVVIEW);
     this->viewProjVar = this->cameraBuffer->GetVariableByName(NEBULA3_SEMANTIC_VIEWPROJECTION);
@@ -60,15 +61,15 @@ OGL4TransformDevice::Open()
     this->eyePosVar = this->cameraBuffer->GetVariableByName(NEBULA3_SEMANTIC_EYEPOS);
     this->focalLengthVar = this->cameraBuffer->GetVariableByName(NEBULA3_SEMANTIC_FOCALLENGTH);
     this->timeAndRandomVar = this->cameraBuffer->GetVariableByName(NEBULA3_SEMANTIC_TIMEANDRANDOM);
-    this->cameraBlockVar = shdInst->GetVariableByName("CameraBlock");
+    this->cameraBlockVar = this->sharedShader->GetVariableByName("CameraBlock");
     this->cameraBlockVar->SetBufferHandle(this->cameraBuffer->GetHandle());
 
     // setup shadow block, make it synced so that we can update shadow maps without massive frame drops
     this->shadowCameraBuffer = ConstantBuffer::Create();
 	this->shadowCameraBuffer->SetSync(true);
-    this->shadowCameraBuffer->SetupFromBlockInShader(shdInst, "ShadowCameraBlock");
+    this->shadowCameraBuffer->SetupFromBlockInShader(this->sharedShader, "ShadowCameraBlock");
     this->viewMatricesVar = this->shadowCameraBuffer->GetVariableByName(NEBULA3_SEMANTIC_VIEWMATRIXARRAY);
-    this->shadowCameraBlockVar = shdInst->GetVariableByName("ShadowCameraBlock");
+	this->shadowCameraBlockVar = this->sharedShader->GetVariableByName("ShadowCameraBlock");
     this->shadowCameraBlockVar->SetBufferHandle(this->shadowCameraBuffer->GetHandle());
 
     return TransformDeviceBase::Open();
@@ -98,6 +99,7 @@ OGL4TransformDevice::Close()
     this->invProjVar = 0;
     this->eyePosVar = 0;
     this->focalLengthVar = 0;
+	this->sharedShader = 0;
 
     TransformDeviceBase::Close();
 }

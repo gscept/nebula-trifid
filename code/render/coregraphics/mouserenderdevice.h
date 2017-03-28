@@ -6,7 +6,7 @@
     Platform-wrapper for mouse pointer rendering.
     
     (C) 2009 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #if (__DX11__ || __DX9__ || __OGL4__  || __VULKAN__)
 #include "coregraphics/base/mouserenderdevicebase.h"

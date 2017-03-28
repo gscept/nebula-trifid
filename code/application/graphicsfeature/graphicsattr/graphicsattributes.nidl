@@ -5,7 +5,7 @@
     <Attribute name="LoadSynced" fourcc="GRLS" accessMode="ReadWrite" type="Bool" default="false" displayName="Load synchronized"/>
     <Attribute name="AnimSet" fourcc="ANMS" accessMode="ReadWrite" type="String" system="1" displayName="OBSOLETE"/>
 	  <Attribute name="CharacterSet" fourcc="CHRS" accessMode="ReadWrite" type="String" system="1" displayName="This seems to be the starting skinlist, currently not really useful"/>
-	  <Attribute name="StartAnimation" fourcc="STAM" accessMode="ReadWrite" type="String" editType="animclip" displayName="Starting animation" />
+	  <Attribute name="StartAnimation" fourcc="STAM" accessMode="ReadWrite" type="String" editType="animclip" displayName="Starting animation" permitEmpty="true" />
 	  <Attribute name="IdleAnim" fourcc="IDAN" accessMode="ReadWrite" type="String" editType="animclip" displayName="Idle animation"/>
 	  <Attribute name="WalkAnim" fourcc="WAAN" accessMode="ReadWrite" type="String" editType="animclip" displayName="Walking animation"/>
     <Attribute name="BackAnim" fourcc="BAAN" accessMode="ReadWrite" type="String" editType="animclip" displayName="Backwards animation"/>
@@ -37,7 +37,7 @@
     <Attribute name="LightShadowIntensity" fourcc="LSHI" accessMode="ReadWrite" type="Float" default="1.0f" />
     <Attribute name="LightShadowBias" fourcc="LSHB" accessMode="ReadWrite" type="Float" default="0.0001f" />
     <Attribute name="LightFlickerEnable" fourcc="LFLE" accessMode="ReadWrite" type="Bool" default="false" advanced="true"/>
-	  <Attribute name="LightProjectionMap" fourcc="LPRM" accessMode="ReadWrite" type="String" editType="resource" resourceBase="tex" fileSuffix="dds" advanced="true"/>
+	  <Attribute name="LightProjectionMap" fourcc="LPRM" accessMode="ReadWrite" type="String" editType="resource" resourceBase="tex" fileSuffix="dds" advanced="true" fullName="true"/>
 	  <Attribute name="LightVolumetric" fourcc="LIVO" accessMode="ReadWrite" type="Bool" default="false" advanced="true" system="1"/>
 	  <Attribute name="LightVolumetricScale" fourcc="LIVS" accessMode="ReadWrite" type="Float" default="1.0f" advanced="true" system="1"/>
 	  <Attribute name="LightVolumetricIntensity" fourcc="LIVI" accessMode="ReadWrite" type="Float" default="1.5f" advanced="true" system="1"/>
@@ -64,6 +64,14 @@
     <Attribute name="CameraAngularGain" fourcc="CAGE" accessMode="ReadWrite" type="Float" default="-50.0" displayName="Camera rotation acceleration"/>
     <Attribute name="CameraDefaultTheta" fourcc="CTHE" accessMode="ReadWrite" type="Float" default="-0.35" displayName="Camera default vertical angle"/>
     <Attribute name="CameraDefaultRho" fourcc="CRHO" accessMode="ReadWrite" type="Float" default="0.175" displayName="Camera default horizontal angle"/>
+    <Attribute name="CameraFov" fourcc="CFOV" accessMode="ReadWrite" type="Float" default="90.0" displayName="Camera FOV"/>  
+    <Attribute name="CameraSensitivity" fourcc="CSEN" accessMode="ReadWrite" type="Float" default="3.0f" displayName="Camera Sensitivity" minValue="0.1"/>
+    <Attribute name="FreeMoveSpeed" fourcc="FRMS" accessMode="ReadWrite" type="Float" default="0.5f" displayName="Free move speed factor" minValue="0.001"/>
+    <Attribute name="CameraRelativeMove" fourcc="CMRL" accessMode="ReadWrite" type="Bool" default="true" />
+    <Attribute name="CameraJoint" fourcc="CMJN" accessMode="ReadWrite" type="String" displayName="Joint to track for camera movements"/>
+    <Attribute name="CharacterSkin" fourcc="CSKN" accessMode="ReadWrite" type="String" displayName="Skin that gets hidden when in entity has focus"/>
+    <Attribute name="CameraTrackPosition" fourcc="CTPN" accessMode="ReadWrite" type="Bool" displayName="Only apply position of joint to camera, not orientation"/>
+
     <Attribute name="InputMouseGrab" fourcc="IPGM" accessMode="ReadWrite" type="Bool" default="false" displayName="Grab mouse"/>
     <Attribute name="MayaCameraCenterOfInterest" fourcc="MCCI" accessMode="ReadWrite" type="Float4" />
     <Attribute name="MayaCameraDefaultUpVec" fourcc="MCDU" accessMode="ReadWrite" type="Float4" default="0.0,1.0,0.0,1.0"/>
@@ -71,20 +79,23 @@
 
     <Attribute name="ProbeReflectionMap" fourcc="PRFM" accessMode="ReadWrite" type="String" editType="resource" resourceBase="tex" fileSuffix="dds" default="system/sky"/>
     <Attribute name="ProbeIrradianceMap" fourcc="PIRM" accessMode="ReadWrite" type="String" editType="resource" resourceBase="tex" fileSuffix="dds" default="system/sky_irr"/>
+    <Attribute name="ProbeDepthMap" fourcc="PRDM" accessMode="ReadWrite" type="String" editType="resource" resourceBase="tex" fileSuffix="dds" default="system/black"/>
     <Attribute name="ProbeInfluenceShapeType" fourcc="PIST" accessMode="ReadWrite" type="String" editType="list" default="sphere" listValues="sphere;box"/>
     <Attribute name="ProbeInfluenceLayer" fourcc="PINP" accessMode="ReadWrite" type="Int"/>
     <Attribute name="ProbeInfluenceFalloff" fourcc="PIFF" accessMode="ReadWrite" type="Float" minValue="0.01f" maxValue="1.0f" default="0.2f"/>
-    <Attribute name="ProbeInfluencePower" fourcc="PIFP" accessMode="ReadWrite" type="Float" minValue="1.0" maxValue="256.0f" default="16.0f"/>
+    <Attribute name="ProbeInfluencePower" fourcc="PIFP" accessMode="ReadWrite" type="Float" minValue="1.0" maxValue="16.0f" default="1.0f"/>
 
-    <Attribute name="ProbeParallaxCorrected" fourcc="PRPC" accessMode="ReadWrite" type="Bool" default="false"/>
-    <Attribute name="ProbeBBExtents" fourcc="PRMN" accessMode="ReadWrite" type="Float4" default="1,1,1,0"/>
+    <Attribute name="ProbeCorrectionMethod" fourcc="PRCM" accessMode="ReadWrite" type="String" editType="list" default="none" listValues="none;parallax;depth"/>
+    <Attribute name="ProbeDebugRender" fourcc="PRDR" accessMode="ReadWrite" type="Bool" default="false" displayName="Debug render probe"/>
+    <Attribute name="ProbeParallaxBox" fourcc="PRMN" accessMode="ReadWrite" type="Float4" default="1,1,1,0"/>
     
     <Attribute name="ProbeName" fourcc="PRNA" accessMode="ReadWrite" type="String"/>
     <Attribute name="ProbeResolutionWidth" fourcc="PRRW" accessMode="ReadWrite" type="Int" default="256"/>
     <Attribute name="ProbeResolutionHeight" fourcc="PRRH" accessMode="ReadWrite" type="Int" default="256"/>
 
     <Attribute name="ProbeBuildReflections" fourcc="PRBR" accessMode="ReadWrite" type="Bool" default="true"/>
-    <Attribute name="ProbeBuildIrradiance" fourcc="PRBI" accessMode="ReadWrite" type="Bool" default="true"/>    
+    <Attribute name="ProbeBuildIrradiance" fourcc="PRBI" accessMode="ReadWrite" type="Bool" default="true"/>
+    <Attribute name="ProbeBuildDepth" fourcc="PRBD" accessMode="ReadWrite" type="Bool" default="true"/>
     <Attribute name="ProbeGenerateMipmaps" fourcc="PRGM" accessMode="ReadWrite" type="Bool" default="true"/>    
     
     <Attribute name="ProbeOutputFolder" fourcc="PROF" accessMode="ReadWrite" type="String" default="#LEVEL#"/>
@@ -122,7 +133,7 @@
     <Attribute name="SkyContrast" fourcc="SKYC" accessMode="ReadWrite" type="Float" default="1"/>
     <Attribute name="SkyRotationFactor" fourcc="SKYR" accessMode="ReadWrite" type="Float" default="0.03"/>
     <Attribute name="SkyBrightness" fourcc="SKYB" accessMode="ReadWrite" type="Float" default="1"/>
-    <Attribute name="SkyTexture" fourcc="SKYT" accessMode="ReadWrite" type="String" default="tex:system/sky" editType="resource" resourceBase="tex" fileSuffix="dds" />
+    <Attribute name="SkyTexture" fourcc="SKYT" accessMode="ReadWrite" type="String" default="tex:system/sky" editType="resource" resourceBase="tex" fileSuffix="dds" fullName="true"/>
     <Attribute name="SkyModel" fourcc="SKYM" accessMode="ReadWrite" type="String" default="system/skybox" />
     <Attribute name="BackLightFactor" fourcc="BLFA" accessMode="ReadWrite" type="Float"/>
     <Attribute name="WorldCenter" fourcc="WOCE" accessMode="ReadOnly" type="Float4" default="0,0,0,0"/>
@@ -182,17 +193,30 @@
   <Property name="GraphicsFeature::LightProbeProperty" header="graphicsfeature/properties/lightprobeproperty.h">
     <Attribute name="ProbeReflectionMap"/>
     <Attribute name="ProbeIrradianceMap"/>
+    <Attribute name="ProbeDepthMap"/>
     <Attribute name="ProbeInfluenceShapeType"/>
     <Attribute name="ProbeInfluenceLayer"/>
     <Attribute name="ProbeInfluenceFalloff"/>
     <Attribute name="ProbeInfluencePower"/>
-    <Attribute name="ProbeBBExtents"/>
+    <Attribute name="ProbeParallaxBox"/>
+    <Attribute name="ProbeDebugRender"/>
     <Attribute name="ProbeInfluencePower"/>
-    <Attribute name="ProbeParallaxCorrected"/>    
+    <Attribute name="ProbeCorrectionMethod"/>    
   </Property>
   <Property name="GraphicsFeature::CameraProperty" header="graphicsfeature/properties/cameraproperty.h">
     <Attribute name="CameraFocus" />
     <Attribute name="Transform" />
+  </Property>
+  <Property name="GraphicsFeature::FpsCameraProperty" derivedFrom="GraphicsFeature::CameraProperty" header="graphicsfeature/properties/fpscameraproperty.h">    
+    <Attribute name="CameraMinDistance"/>
+    <Attribute name="CameraMaxDistance"/>    
+    <Attribute name="CameraJoint"/>
+    <Attribute name="CameraTrackPosition"/>
+    <Attribute name="CameraSensitivity"/>
+    <Attribute name="CharacterSkin"/>
+    <Attribute name="CameraFov"/>
+    <Attribute name="CameraHighStop"/>
+    <Attribute name="InputFocus"/>
   </Property>
   <Property name="GraphicsFeature::ChaseCameraProperty" derivedFrom="GraphicsFeature::CameraProperty" header="graphicsfeature/properties/chasecameraproperty.h">
     <Attribute name="CameraDistance"/>
@@ -244,5 +268,9 @@
   <Property name="GraphicsFeature::InputProperty" header="graphicsfeature/properties/inputproperty.h">
     <Attribute name="InputFocus"/>
     <Attribute name="InputMouseGrab" />
+    <Attribute name="CameraRelativeMove"/>
+  </Property>
+  <Property name="GraphicsFeature::FreeMoveProperty" derivedFrom="BaseGameFeature::TransformableProperty" header="graphicsfeature/properties/freemoveproperty.h">
+    <Attribute name="FreeMoveSpeed" />
   </Property>
 </Nebula3>		

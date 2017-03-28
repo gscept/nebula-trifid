@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  gamepadbase.cc
 //  (C) 2007 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "input/base/gamepadbase.h"
@@ -17,8 +17,9 @@ using namespace Util;
 /**
 */
 GamePadBase::GamePadBase() :
-    playerIndex(0),
+    index(0),
     isConnected(false),
+	hasTransform(false),
     buttonStates(NumButtons),
     axisValues(NumAxes, 0.0f),
     vibratorsDirty(false),

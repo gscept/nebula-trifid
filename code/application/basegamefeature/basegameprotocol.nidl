@@ -7,6 +7,7 @@
     <Dependency header="math/vector.h"/>
     <Dependency header="basegamefeature/basegameattr/basegameattributes.h"/>
     <Dependency header="math/quaternion.h"/>
+    <Dependency header="managers/trackermanager.h"/>
 
     <Message name="MoveDirection" fourcc="MOVD" scripted="true">
       <InArg name="Direction" type="Math::vector" default="1.0f, 0.0f, 0.0f"/>
@@ -104,7 +105,11 @@
     <Message name="GetAttribute" fourcc="GTTR">
       <InArg name="AttributeId" type="Attr::AttrId"/>
       <OutArg name="Attr" type="Attr::Attribute"/>
-    </Message>    
+    </Message>
+    <!-- Trackermanager mode changes -->
+    <Message name="SetTrackingMode" fourcc="ENTR">
+      <InArg name="Mode" type="Tracking::TrackingMode"/>
+    </Message>
   </Protocol>
 
 </Nebula3>

@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  csmutil.cc
-//  (C) 2012-2014 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "lighting/csmutil.h"
@@ -25,16 +25,16 @@ namespace Lighting
 /**
 */
 CSMUtil::CSMUtil() :
-	cascadeMaxDistance(100),
+	cascadeMaxDistance(300),
 	fittingMethod(Scene),
 	clampingMethod(SceneAABB),
 	blurSize(1),
 	floorTexels(true)
 {
 	this->cascadeDistances[0] = 5;
-	this->cascadeDistances[1] = 15;
-	this->cascadeDistances[2] = 60;
-	this->cascadeDistances[3] = 100;
+	this->cascadeDistances[1] = 50;
+	this->cascadeDistances[2] = 120;
+	this->cascadeDistances[3] = 300;
 }
 
 //------------------------------------------------------------------------------
@@ -467,7 +467,7 @@ CSMUtil::Compute()
 			// fit zero-one
 		}
 
-		// okay, so making this matrix an LH matrix apparently works, instead of swapping the near and far plane...
+		// okay, so making this matrix an LH matrix apparently works, algorithm assumes a DX handed mode
 		matrix44 cascadeProjectionMatrix = matrix44::orthooffcenterlh(lightCameraOrthographicMin.x(),
 																	  lightCameraOrthographicMax.x(),
 																	  lightCameraOrthographicMin.y(),
@@ -484,15 +484,15 @@ CSMUtil::Compute()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-CSMUtil::ComputeAABB( float4* lightAABBPoints, const float4& sceneCenter, const float4& sceneExtents )
+void
+CSMUtil::ComputeAABB(float4* lightAABBPoints, const float4& sceneCenter, const float4& sceneExtents)
 {
 	static const float4 extentsMap[] = 
 	{ 
 		float4(1.0f, 1.0f, -1.0f, 1.0f), 
-		float4(-1.0f, 1.0f, -1.0f, 1.0f), 
-		float4(1.0f, -1.0f, -1.0f, 1.0f), 
-		float4(-1.0f, -1.0f, -1.0f, 1.0f), 
+		float4(-1.0f, 1.0f, -1.0f, 1.0f),
+		float4(1.0f, -1.0f, -1.0f, 1.0f),
+		float4(-1.0f, -1.0f, -1.0f, 1.0f),
 		float4(1.0f, 1.0f, 1.0f, 1.0f), 
 		float4(-1.0f, 1.0f, 1.0f, 1.0f), 
 		float4(1.0f, -1.0f, 1.0f, 1.0f), 

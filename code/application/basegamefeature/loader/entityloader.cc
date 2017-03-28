@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  loader/entityloader.cc
 //  (C) 2007 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "loader/entityloader.h"
@@ -13,6 +13,7 @@
 #include "graphicsfeature/graphicsattr/graphicsattributes.h"
 #include "loader/loaderserver.h"
 #include "multiplayer/networkserver.h"
+#include "multiplayerfeatureunit.h"
 
 namespace BaseGameFeature
 {
@@ -28,14 +29,12 @@ EntityLoader::Load(const Util::Array<Util::String>& activeLayers)
 {
     CategoryManager* categoryManager = CategoryManager::Instance();
     FactoryManager* factoryManager = FactoryManager::Instance();
-    const Util::String treeCategory("Tree");
-    const Util::String envCategory("_Environment");
-
+   
 	// if we are singleplayer we are always master, in case of multiplayer check who is the host
 	bool master = true;
-	if (MultiplayerFeature::NetworkServer::HasInstance())
+	if (MultiplayerFeature::MultiplayerFeatureUnit::HasInstance())
 	{
-		master = MultiplayerFeature::NetworkServer::Instance()->IsHost();
+		master = MultiplayerFeature::MultiplayerFeatureUnit::Instance()->GetServer()->IsHost();
 	}
 
     // flag that we are loading
@@ -48,35 +47,31 @@ EntityLoader::Load(const Util::Array<Util::String>& activeLayers)
     for (catIndex = 0; catIndex < numCategories; catIndex++)
     {
         const CategoryManager::Category& category = categoryManager->GetCategoryByIndex(catIndex);
-        if (category.HasInstanceDataset())
+        if (!category.IsSpecial() && category.HasInstanceDataset())
         {
-            // check for special categories that are handled by other loaders
-            if ((category.GetName() != treeCategory) && (category.GetName() != envCategory))
+            // get the instance table
+            Db::ValueTable* table = category.GetInstanceDataset()->Values();
+            IndexT rowIndex;
+            SizeT numRows = table->GetNumRows();
+            for (rowIndex = 0; rowIndex < numRows; rowIndex++)
             {
-                // get the instance table
-                Db::ValueTable* table = category.GetInstanceDataset()->Values();
-                IndexT rowIndex;
-                SizeT numRows = table->GetNumRows();
-                for (rowIndex = 0; rowIndex < numRows; rowIndex++)
+                // only load entity if part of an active layer
+                if (this->EntityIsInActiveLayer(table, rowIndex, activeLayers))
                 {
-                    // only load entity if part of an active layer
-                    if (this->EntityIsInActiveLayer(table, rowIndex, activeLayers))
+                    // create entity through factory manager
+                    Ptr<Entity> gameEntity = factoryManager->CreateEntityByCategory(category.GetName(), table, rowIndex, master);
+
+                    // set levelentity attribute
+                    if (gameEntity->HasAttr(Attr::_LevelEntity))
                     {
-                        // create entity through factory manager
-                        Ptr<Entity> gameEntity = factoryManager->CreateEntityByCategory(category.GetName(), table, rowIndex, master);
-
-						// set levelentity attribute
-						if (gameEntity->HasAttr(Attr::_LevelEntity))
-						{
-							gameEntity->SetBool(Attr::_LevelEntity, true);
-						}
-						
-                        // update progress indicator
-                        this->UpdateProgressIndicator(gameEntity);
-
-                        // attach the entity to the world
-                        EntityManager::Instance()->AttachEntity(gameEntity); 
+                        gameEntity->SetBool(Attr::_LevelEntity, true);
                     }
+
+                    // update progress indicator
+                    this->UpdateProgressIndicator(gameEntity);
+
+                    // attach the entity to the world
+                    EntityManager::Instance()->AttachEntity(gameEntity);
                 }
             }
         }

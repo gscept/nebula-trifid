@@ -667,6 +667,26 @@ String::AsMatrix44() const
                      Math::float4(tokens[12].AsFloat(), tokens[13].AsFloat(), tokens[14].AsFloat(), tokens[15].AsFloat()));
     return m;
 }
+
+//------------------------------------------------------------------------------
+/**
+
+*/
+Math::transform44
+String::AsTransform44() const
+{
+	Array<String> tokens(6, 0);
+	this->Tokenize("|", tokens);
+	n_assert(tokens.Size() == 6);
+	Math::transform44 t;
+	t.setposition(tokens[0].AsFloat4());
+	t.setrotate(tokens[1].AsFloat4());
+	t.setscale(tokens[2].AsFloat());
+	t.setrotatepivot(tokens[3].AsFloat4());
+	t.setscalepivot(tokens[4].AsFloat4());
+	t.setoffset(tokens[5].AsMatrix44());
+	return t;
+}
 #endif
     
 //------------------------------------------------------------------------------

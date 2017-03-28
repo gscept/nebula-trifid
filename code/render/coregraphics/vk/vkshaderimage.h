@@ -23,7 +23,7 @@ public:
 	void Setup(const SizeT width, const SizeT height, const CoreGraphics::PixelFormat::Code& format, const Resources::ResourceId& id);
 
 	/// resize texture
-	void Resize(SizeT width, SizeT height);
+	void Resize();
 	/// clear texture
 	void Clear(const Math::float4& clearColor);
 

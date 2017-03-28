@@ -10,7 +10,7 @@
 	As such, we can effectively instantiate a material, apply a variable, 
 	and the variable will be activated for that entity when the material is applied.
     
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 
@@ -21,7 +21,7 @@
 #include "util/variant.h"
 #include "util/stringatom.h"
 #include "materials/materialtype.h"
-#include "frame/batchgroup.h"
+#include "graphics/batchgroup.h"
 #include "materialfeature.h"
 
 namespace Materials
@@ -61,7 +61,7 @@ public:
 
 	struct MaterialPass
 	{
-		Frame::BatchGroup::Code code;
+		Graphics::BatchGroup::Code code;
 		Ptr<CoreGraphics::Shader> shader;
 		CoreGraphics::ShaderFeature::Mask featureMask;
 		IndexT index;
@@ -81,6 +81,10 @@ public:
 	void SetName(const Util::StringAtom& name);
 	/// gets the name for the material
 	const Util::StringAtom& GetName() const;
+	/// set the group this material belongs to
+	void SetGroup(const Util::StringAtom& group);
+	/// get the group this material belongs to
+	const Util::StringAtom& GetGroup() const;
 	/// set description
 	void SetDescription(const Util::String& description);
 	/// get description
@@ -104,13 +108,17 @@ public:
 	void Unload();	
 	/// discards the material and all its instances
 	void Discard();
+	/// reloads entire material
+	void Reload();
+	/// reloads material passes related to shader
+	void Reload(const Ptr<CoreGraphics::Shader>& shader);
 
 	/// add a shader to the material
-	void AddPass(const Frame::BatchGroup::Code& code, const Ptr<CoreGraphics::Shader>& shader, const CoreGraphics::ShaderFeature::Mask& mask);
+	void AddPass(const Graphics::BatchGroup::Code& code, const Ptr<CoreGraphics::Shader>& shader, const CoreGraphics::ShaderFeature::Mask& mask);
 	/// get pass by index
 	const MaterialPass& GetPassByIndex(const IndexT index) const;
 	/// get pass list by code
-	const Util::Array<MaterialPass>& GetPassesByCode(const Frame::BatchGroup::Code& code);
+	const Util::Array<MaterialPass>& GetPassesByCode(const Graphics::BatchGroup::Code& code);
 	/// get the amount of passes used by this material
 	SizeT GetNumPasses();
 
@@ -139,12 +147,13 @@ private:
 	bool isVirtual;
 	Util::Array<Ptr<Material>> inheritedMaterials;
 	Util::StringAtom name;
+	Util::StringAtom group;
 	Util::String description;
 	MaterialFeature::Mask type;
     Materials::MaterialType::Code code;
 	Util::Dictionary<Util::StringAtom, MaterialParameter> parametersByName;
 	Util::Array<MaterialPass> passesByIndex;
-	Util::Dictionary<Frame::BatchGroup::Code, Util::Array<MaterialPass>> passesByBatchGroup;
+	Util::Dictionary<Graphics::BatchGroup::Code, Util::Array<MaterialPass>> passesByBatchGroup;
     Util::Array<Ptr<Surface>> surfaces;
 	Util::Dictionary<Util::StringAtom, Ptr<Surface>> surfacesByName;
 }; 
@@ -165,6 +174,24 @@ inline const Util::StringAtom&
 Material::GetName() const
 {
 	return this->name;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+Material::SetGroup(const Util::StringAtom& group)
+{
+	this->group = group;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline const Util::StringAtom&
+Material::GetGroup() const
+{
+	return this->group;
 }
 
 //------------------------------------------------------------------------------

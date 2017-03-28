@@ -17,7 +17,8 @@ __ImplementClass(Base::RenderTextureBase, 'RTEB', Core::RefCounted);
 /**
 */
 RenderTextureBase::RenderTextureBase() :
-	texture(NULL),
+	window(nullptr),
+	texture(nullptr),
 	format(PixelFormat::InvalidPixelFormat),
 	type(Texture::InvalidType),
 	usage(InvalidAttachment),
@@ -53,7 +54,8 @@ RenderTextureBase::Setup()
 {
 	if (this->windowTexture)
 	{
-		const DisplayMode& mode = DisplayDevice::Instance()->GetDisplayMode();
+		this->window = DisplayDevice::Instance()->GetCurrentWindow();
+		const DisplayMode& mode = this->window->GetDisplayMode();
 		this->width = mode.GetWidth();
 		this->height = mode.GetHeight();
 		this->depth = 1;
@@ -64,7 +66,7 @@ RenderTextureBase::Setup()
 
 		// just create a texture natively without managing it
 		this->texture = CoreGraphics::Texture::Create();
-		this->texture->SetPixelFormat(DisplayDevice::Instance()->GetDisplayMode().GetPixelFormat());
+		this->texture->SetPixelFormat(this->window->GetDisplayMode().GetPixelFormat());
 		this->texture->SetWidth(this->width);
 		this->texture->SetHeight(this->height);
 	}
@@ -73,9 +75,10 @@ RenderTextureBase::Setup()
 		n_assert(this->width > 0 && this->height > 0 && this->depth > 0);
 		n_assert(this->type == Texture::Texture2D || this->type == Texture::TextureCube || this->type == Texture::Texture2DArray || this->type == Texture::TextureCubeArray);
 		n_assert(this->usage != InvalidAttachment);
+		Ptr<CoreGraphics::Window> wnd = DisplayDevice::Instance()->GetCurrentWindow();
 		if (this->relativeSize)
 		{
-			const DisplayMode& mode = DisplayDevice::Instance()->GetDisplayMode();
+			const DisplayMode& mode = wnd->GetDisplayMode();
 			this->width = SizeT(mode.GetWidth() * this->widthScale);
 			this->height = SizeT(mode.GetHeight() * this->heightScale);
 			this->depth = 1;
@@ -83,7 +86,7 @@ RenderTextureBase::Setup()
 		else if (this->dynamicSize)
 		{
 			// add scale factor here
-			const DisplayMode& mode = DisplayDevice::Instance()->GetDisplayMode();
+			const DisplayMode& mode = wnd->GetDisplayMode();
 			this->width = SizeT(mode.GetWidth() * this->widthScale);
 			this->height = SizeT(mode.GetHeight() * this->heightScale);
 			this->depth = 1;
@@ -134,9 +137,10 @@ RenderTextureBase::Resize()
 	n_assert(this->width > 0 && this->height > 0 && this->depth > 0);
 	n_assert(this->type == Texture::Texture2D || this->type == Texture::TextureCube);
 	n_assert(this->usage != InvalidAttachment);
+	Ptr<CoreGraphics::Window> wnd = DisplayDevice::Instance()->GetCurrentWindow();
 	if (this->relativeSize)
 	{
-		const DisplayMode& mode = DisplayDevice::Instance()->GetDisplayMode();
+		const DisplayMode& mode = wnd->GetDisplayMode();
 		this->width = SizeT(mode.GetWidth() * this->widthScale);
 		this->height = SizeT(mode.GetHeight() * this->heightScale);
 		this->depth = 1;
@@ -144,21 +148,15 @@ RenderTextureBase::Resize()
 	else if (this->dynamicSize)
 	{
 		// add scale factor here
-		const DisplayMode& mode = DisplayDevice::Instance()->GetDisplayMode();
+		const DisplayMode& mode = wnd->GetDisplayMode();
 		this->width = SizeT(mode.GetWidth() * this->widthScale);
 		this->height = SizeT(mode.GetHeight() * this->heightScale);
 		this->depth = 1;
 	}
 
-	// update texture
-	this->texture->type = this->type;
-	this->texture->pixelFormat = this->format;
-	this->texture->width = this->width;
-	this->texture->height = this->height;
-	this->texture->depth = this->depth;
-	this->texture->numMipLevels = 1;
-	this->texture->skippedMips = 0;
-	this->texture->isRenderTargetAttachment = true;
+	this->texture->SetWidth(this->width);
+	this->texture->SetHeight(this->height);
+	this->texture->SetDepth(this->depth);
 }
 
 //------------------------------------------------------------------------------
@@ -210,14 +208,5 @@ RenderTextureBase::SwapBuffers()
 	// implement in subclass
 }
 
-//------------------------------------------------------------------------------
-/**
-*/
-void
-RenderTextureBase::OnDisplayResized(SizeT width, SizeT height)
-{
-	n_assert(width > 0 && height > 0);
-	// implement in subclass
-}
 
 } // namespace Base

@@ -5,7 +5,7 @@
     
     Loads a Shady project from binary file.
     
-    (C) 2015 Individual contributors, see AUTHORS file
+    (C) 2015-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
@@ -25,6 +25,8 @@ public:
 private:
     /// helper function for reading global state
     void ReadGlobalState(const Ptr<IO::BinaryReader>& reader, const Ptr<Nody::Project>& project);
+	/// helper function for reading implementation specific information
+	void ReadImplementation(const Ptr<IO::BinaryReader>& reader, const Ptr<Nody::Project>& project);
 }; 
 } // namespace Shady
 //------------------------------------------------------------------------------

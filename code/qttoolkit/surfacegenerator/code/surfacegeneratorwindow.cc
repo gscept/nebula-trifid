@@ -1,10 +1,10 @@
 //------------------------------------------------------------------------------
 // surfacegeneratorwindow.cc
-// (C) 2015 Individual contributors, see AUTHORS file
+// (C) 2015-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "surfacegeneratorwindow.h"
-#include "qttoolkit/qttools/code/style/graypalette.h"
+#include "qttools/code/style/nebulastyletool.h"
 #include "core/coreserver.h"
 #include "io/fswrapper.h"
 #include "io/ioserver.h"
@@ -24,7 +24,7 @@ SurfaceGeneratorWindow::SurfaceGeneratorWindow()
 	this->ui.setupUi(this);
 	this->ui.searchbar->setVisible(false);
 
-	QtToolkitUtil::GrayPalette palette;
+	QtToolkitUtil::NebulaStyleTool palette;
 	QApplication::setPalette(palette);
 	connect(this->ui.scanButton, SIGNAL(pressed()), this, SLOT(OnScanClicked()));
 }

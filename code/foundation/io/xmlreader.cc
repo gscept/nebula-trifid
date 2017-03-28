@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  xmlreader.cc
 //  (C) 2006 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "io/xmlreader.h"
@@ -486,6 +486,17 @@ XmlReader::GetMatrix44(const char* name) const
 {
     return this->GetString(name).AsMatrix44();
 }
+
+//------------------------------------------------------------------------------
+/**
+Return the provided attribute as transform44. If the attribute does not exist
+the method will fail hard (use HasAttr() to check for its existance).
+*/
+transform44
+XmlReader::GetTransform44(const char* name) const
+{
+	return this->GetString(name).AsTransform44();
+}
 #endif
     
 //------------------------------------------------------------------------------
@@ -613,6 +624,24 @@ XmlReader::GetOptMatrix44(const char* name, const matrix44& defaultValue) const
     {
         return defaultValue;
     }
+}
+
+//------------------------------------------------------------------------------
+/**
+Return the provided optional attribute as transform44. If the attribute doesn't
+exist, the default value will be returned.
+*/
+transform44
+XmlReader::GetOptTransform44(const char* name, const transform44& defaultValue) const
+{
+	if (this->HasAttr(name))
+	{
+		return this->GetTransform44(name);
+	}
+	else
+	{
+		return defaultValue;
+	}
 }
 #endif
     

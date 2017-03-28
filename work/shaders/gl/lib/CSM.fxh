@@ -19,6 +19,7 @@
 	float MaxBorderPadding;
 	float ShadowPartitionSize; 
 	float GlobalLightShadowBias = 0.0f;
+	
 //};
 	
 const int SplitsPerRow = 2;
@@ -45,7 +46,7 @@ samplerstate ShadowProjMapSampler
 	AddressU = Border;
 	AddressV = Border;
 	//MaxAnisotropic = 16;
-	//BorderColor = { 1,1,1,1 };
+	BorderColor = { 1,1,1,1 };
 };
 
 const float CascadeBlendArea = 0.2f;
@@ -83,6 +84,22 @@ const vec2 sampleOffsets[] = {
 	vec2(-.792,-.598)
 };
 
+const float MomentBiases[] =
+{
+	2e-5f,
+	3e-5f,
+	4e-4f,
+	4e-4f
+};
+
+const float DepthBiases[] = 
+{
+	2e-5f,
+	3e-5f,
+	4e-4f,
+	4e-4f
+};
+
 //------------------------------------------------------------------------------
 /**
 */
@@ -113,17 +130,12 @@ CSMPS(in vec4 TexShadow,
     float fPercentLit = 1.0f;
 	bool cascadeFound = false;
 	float bias = GlobalLightShadowBias;
-    
-    // This for loop is not necessary when the frustum is uniformly divided and interval based selection is used.
-    // In this case fCurrentPixelDepth could be used as an array lookup into the correct frustum. 
-    vec4 texCoordViewspace = TexShadow / TexShadow.wwww;
+    vec4 texCoordViewspace = TexShadow;// / TexShadow.wwww;
 	
 	int cascadeIndex;
 	for( cascadeIndex = 0; cascadeIndex < CASCADE_COUNT_FLAG; ++cascadeIndex) 
 	{
-		texCoordShadow = texCoordViewspace * CascadeScale[cascadeIndex];
-		texCoordShadow += CascadeOffset[cascadeIndex];
-
+		texCoordShadow = texCoordViewspace * CascadeScale[cascadeIndex] + CascadeOffset[cascadeIndex];
 		if ( min( texCoordShadow.x, texCoordShadow.y ) > MinBorderPadding
 		  && max( texCoordShadow.x, texCoordShadow.y ) < MaxBorderPadding )
 		{ 
@@ -139,12 +151,12 @@ CSMPS(in vec4 TexShadow,
 	// if we have no matching cascade, return with a fully lit pixel
 	if (!cascadeFound)
 	{
-		return 1.0f;
+		return 0.0f;
 	}		
 	
 	// calculate texture coordinate in shadow space
-	vec2 texCoord = texCoordShadow.xy;
-	float depth = texCoordShadow.z;
+	vec2 texCoord = texCoordShadow.xy / texCoordShadow.w;
+	float depth = texCoordShadow.z / texCoordShadow.w;
 
 	vec2 sampleCoord = texCoord;
 	sampleCoord.xy *= ShadowPartitionSize;
@@ -167,12 +179,16 @@ CSMPS(in vec4 TexShadow,
 	mapDepth /= 13.0f;
 	*/
 	
-	vec2 mapDepth = textureLod(ShadowProjMap, sampleCoord, 0).rg;
-	float occlusion = ChebyshevUpperBound(mapDepth, depth, 0.0000001f);
+	//vec2 mapDepth = textureLod(ShadowProjMap, sampleCoord, 0).rg;
+	//float occlusion = ChebyshevUpperBound(mapDepth, depth, 0.0000001f);
+	
+	// get pixel size of shadow projection texture
+	vec4 mapDepth = textureLod(ShadowProjMap, sampleCoord, 0);
+	float occlusion = MSMShadowSample(mapDepth, 4e-5f, depth, 5e-5f);
 	//float occlusion = ExponentialShadowSample(mapDepth, depth, 0.0f);
 		
 	int nextCascade = cascadeIndex + 1; 
-	float occlusionBlend = 1.0f;
+	float occlusionBlend = 0.0f;
 	if (blendBandLocation < CascadeBlendArea)
 	{
 		if (nextCascade < CASCADE_COUNT_FLAG)
@@ -181,15 +197,15 @@ CSMPS(in vec4 TexShadow,
 			texCoordShadow += CascadeOffset[nextCascade];
 			
 			texCoord = texCoordShadow.xy;
-			depth = texCoordShadow.z;
+			depth = texCoordShadow.z / texCoordShadow.w;
 			
 			sampleCoord = texCoord;			
 			sampleCoord.xy *= ShadowPartitionSize;
 			sampleCoord.xy += vec2((nextCascade % SplitsPerRow) * ShadowPartitionSize, (nextCascade / SplitsPerColumn) * ShadowPartitionSize);
 			uvSample = sampleCoord.xy;
 					
-			mapDepth = textureLod(ShadowProjMap, uvSample, 0).rg;
-			occlusionBlend = ChebyshevUpperBound(mapDepth, depth, 0.0000001f);		
+			mapDepth = textureLod(ShadowProjMap, uvSample, 0);
+			occlusionBlend = MSMShadowSample(mapDepth, 4e-5f, depth, 5e-5f);
 		}
 		
 		// blend next cascade onto previous
@@ -201,8 +217,10 @@ CSMPS(in vec4 TexShadow,
 	
 	// finally clamp all shadow values 0.5, this avoids any weird color differences when blending between cascades
 	Debug = DebugColors[cascadeIndex];
-	//return smoothstep(0.5f, 1.0f, occlusion);
+	//Debug = mapDepth;
+	//return 1 - smoothstep(0.7f, 1.0f, occlusion);
 	return occlusion;
+	//return occlusion;
 }
 
 #endif

@@ -9,7 +9,7 @@
     A ModelInstance is roughly comparable to a Nebula2 nRenderContext.
     
     (C) 2007 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
 #include "timing/time.h"
@@ -20,6 +20,7 @@ namespace Graphics
 {
     class ModelEntity;
 	class BillboardEntity;
+	class MeshEntity;
 }
 
 namespace Physics
@@ -90,6 +91,7 @@ protected:
     friend class VisResolver;
     friend class Graphics::ModelEntity;
 	friend class Graphics::BillboardEntity;
+	friend class Graphics::MeshEntity;
 
     /// setup the ModelInstance from a root model node
     void Setup(const Ptr<Model>& model, const Ptr<ModelNode>& rootModelNode);

@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  fbxmeshnode.cc
-//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "fbx/node/nfbxmeshnode.h"
@@ -141,7 +141,7 @@ NFbxMeshNode::ExtractMesh()
     }    
 
 	// get scale
-	float scaleFactor = NFbxScene::Instance()->GetScale();
+	float scaleFactor = NFbxScene::Instance()->GetScale() * 1 / float(fbxScene->GetGlobalSettings().GetSystemUnit().GetScaleFactor());
 
 	// reserve mesh
 	this->mesh->Reserve(vertexCount, polyCount);

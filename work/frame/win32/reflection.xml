@@ -9,19 +9,19 @@
   <DeclareRenderTarget format="R32F" relHeight="1" msaa="false" relWidth="1" name="ReflDepthBuffer"/>  
   <DeclareRenderTarget format="A8R8G8B8" depthTarget="ReflDefaultDepthBuffer" relHeight="1" msaa="true" relWidth="1" name="ReflAlbedoBuffer"/>
   <DeclareRenderTarget format="A8R8G8B8" relHeight="1" msaa="true" relWidth="1" name="ReflSpecularBuffer"/>
-  <DeclareRenderTarget format="A16B16G16R16F" relHeight="1" msaa="true" relWidth="1" name="ReflEmissiveBuffer"/>
-  <DeclareRenderTarget format="A16B16G16R16F" depthTarget="ReflDefaultDepthBuffer" relHeight="1" msaa="false" relWidth="1" name="ReflLightBuffer"/>  
+  <DeclareRenderTarget format="R16G16B16A16F" relHeight="1" msaa="true" relWidth="1" name="ReflEmissiveBuffer"/>
+  <DeclareRenderTarget format="R16G16B16A16F" depthTarget="ReflDefaultDepthBuffer" relHeight="1" msaa="false" relWidth="1" name="ReflLightBuffer"/>  
   
   <!-- buffer used for god ray projection -->
-  <DeclareRenderTarget format="A16B16G16R16F" depthTarget="ReflDefaultDepthBuffer" relHeight="1" msaa="false" relWidth="1" name="ReflUnshadedBuffer"/>
+  <DeclareRenderTarget format="R16G16B16A16F" depthTarget="ReflDefaultDepthBuffer" relHeight="1" msaa="false" relWidth="1" name="ReflUnshadedBuffer"/>
   
   <!-- deferred geometry for alpha geometry -->
   <DeclareRenderTarget format="A8R8G8B8" relHeight="1" msaa="false" relWidth="1" name="ReflAlphaNormalBuffer"/>
   <DeclareRenderTarget format="R32F" relHeight="1" msaa="false" relWidth="1" name="ReflAlphaDepthBuffer"/>  
   <DeclareRenderTarget format="A8R8G8B8" relHeight="1" msaa="false" relWidth="1" name="ReflAlphaAlbedoBuffer"/>
   <DeclareRenderTarget format="A8R8G8B8" relHeight="1" msaa="false" relWidth="1" name="ReflAlphaSpecularBuffer"/>  
-  <DeclareRenderTarget format="A16B16G16R16F" relHeight="1" msaa="false" relWidth="1" name="ReflAlphaEmissiveBuffer"/>
-  <DeclareRenderTarget format="A16B16G16R16F" relHeight="1" msaa="false" relWidth="1" name="ReflAlphaLightBuffer"/>
+  <DeclareRenderTarget format="R16G16B16A16F" relHeight="1" msaa="false" relWidth="1" name="ReflAlphaEmissiveBuffer"/>
+  <DeclareRenderTarget format="R16G16B16A16F" relHeight="1" msaa="false" relWidth="1" name="ReflAlphaLightBuffer"/>
   
   <!-- SSS textures, maybe move to its own server? -->
   <DeclareRenderTarget format="A8R8G8B8" relHeight="1" msaa="false" relWidth="1" name="ReflSSSBuffer1"/>  
@@ -31,8 +31,11 @@
   <DeclareRenderTarget format="A8R8G8B8" relHeight="1" msaa="false" relWidth="1" name="ReflSSSMask"/>
   
   <!-- special buffers, background for skybox, color buffer for composed color, shape buffer for depth-checked shapes -->
-  <DeclareRenderTarget format="A16B16G16R16F" relHeight="1" msaa="false" relWidth="1" name="ReflColorBuffer"/>
-  <DeclareRenderTarget format="A16B16G16R16F" relHeight="1" msaa="false" relWidth="1" name="ReflColorBufferCopy"/>
+  <DeclareRenderTarget format="R16G16B16A16F" relHeight="1" msaa="false" relWidth="1" name="ReflColorBuffer"/>
+  <DeclareRenderTarget format="R16G16B16A16F" relHeight="1" msaa="false" relWidth="1" name="ReflColorBufferCopy"/>
+  
+  <!-- special buffer for reflection to change depth to not be in view-space position -->
+  <DeclareRenderTarget format="R32F" relHeight="1" msaa="false" relWidth="1" name="ZDepth"/>  
     
   <!-- MRT for opaque geometry -->
   <DeclareMRT name="ReflGeometryBuffer">
@@ -186,6 +189,10 @@
 		<ApplyShaderVariable sem="ColorMap" value="ReflColorBufferCopy"/>
 	</Batch>
   </Pass>
+  
+  <PostEffect shader="vsdepthtoz" name="ReflViewspaceDepthToZ" renderTarget="ZDepth">
+	<ApplyShaderVariable sem="DepthBuffer" value="ReflDepthBuffer"/>
+  </PostEffect>
     
   <!-- apply last touches before presenting frame -->
   <PostEffect shader="finalize_simple" name="ReflFinalize">

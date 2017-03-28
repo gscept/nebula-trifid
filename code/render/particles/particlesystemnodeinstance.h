@@ -5,7 +5,7 @@
     
     Wraps a ParticleSystemInstance into a ModelNodeInstance using materials.
     
-    (C) 2011-2013 Individual contributors, see AUTHORS file
+    (C) 2011-2016 Individual contributors, see AUTHORS file
 */
 #include "models/nodes/statenodeinstance.h"
 #include "particles/particlesysteminstance.h"
@@ -33,6 +33,8 @@ public:
 	virtual void ApplyState(IndexT frameIndex, const IndexT& pass);
     /// perform rendering
     virtual void Render();
+	/// perform instanced rendering
+	virtual void RenderInstanced(SizeT numInstances);
 
 	/// set surface instance
 	virtual void SetSurfaceInstance(const Ptr<Materials::SurfaceInstance>& material);

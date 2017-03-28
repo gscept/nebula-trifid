@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  visibilityserver.cc
 //  (C) 2010 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "visibility/visibilitysystems/visibilityquadtree.h"
@@ -115,11 +115,37 @@ VisibilityQuadtree::UpdateVisibilityContext(const Ptr<VisibilityContext>& contex
 //------------------------------------------------------------------------------
 /**
 */
-void 
-VisibilityQuadtree::OnWorldChanged( const Math::bbox& box )
+void
+VisibilityQuadtree::OnWorldChanged(const Math::bbox& box)
 {
 	this->quadTreeBox = box;
 	this->quadTree.Setup(this->quadTreeBox, this->quadTreeDepth);
+	this->ResizeVisibilityCells(this->rootCell, 0, 0, 0);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+VisibilityQuadtree::ResizeVisibilityCells(const Ptr<VisibilityCell>& cell, uchar curLevel, ushort curCol, ushort curRow)
+{
+	int nodeIndex = this->quadTree.GetNodeIndex(curLevel, curCol, curRow);
+	const QuadTree<CellInfo>::Node& node = this->quadTree.GetNodeByIndex(nodeIndex);
+	cell->SetBoundingBox(node.GetBoundingBox());
+
+	// create child cells
+	uchar childLevel = curLevel + 1;
+	if (childLevel < this->quadTree.GetDepth())
+	{
+		const Util::Array<Ptr<VisibilityCell>>& cells = cell->GetChildCells();
+		ushort i;
+		for (i = 0; i < cells.Size(); i++)
+		{
+			ushort childCol = 2 * curCol + (i & 1);
+			ushort childRow = 2 * curRow + ((i & 2) >> 1);
+			this->ResizeVisibilityCells(cells[i], childLevel, childCol, childRow);
+		}
+	}
 }
 
 //------------------------------------------------------------------------------

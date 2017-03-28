@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  luaserver.cc
 //  (C) 2006 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "scripting/lua/luaserver.h"
@@ -101,7 +101,7 @@ LuaServer::LuaStringReader(lua_State* /*s*/, LuaStringReaderData* data, size_t* 
 /**
 */
 void
-LuaServer::AddLuaPath(const IO::URI & path)
+LuaServer::AddPath(const IO::URI & path)
 {	
 	lua_getglobal(this->luaState, "package");
 	lua_getfield(this->luaState, -1, "path"); // get field "path" from table at top of stack (-1)
@@ -178,8 +178,20 @@ LuaServer::LuaFunctionCallback(lua_State* s)
 					break;
 				case Arg::Matrix44:
 					{
-						Util::String matString = lua_tostring(luaServer->luaState, argIndex + 1);
-						curArg.SetMatrix44(matString.AsMatrix44());
+						Math::matrix44 m;
+						int count = 1;
+						for (int x = 0; x < 4 ; x++)
+						{
+							Math::float4 &row = m.row(x);
+							for (int y = 0; y < 4; y++)
+							{
+								lua_pushinteger(luaServer->luaState, count++);
+								lua_gettable(luaServer->luaState, argIndex + 1);
+								row[y] = (float)lua_tonumber(luaServer->luaState, -1);
+							}
+						}
+						//Util::String matString = lua_tostring(luaServer->luaState, argIndex + 1);
+						curArg.SetMatrix44(m);//matString.AsMatrix44());
 					}
 					break;
                 default:
@@ -291,9 +303,24 @@ LuaServer::LuaFunctionCallback(lua_State* s)
 
 				case Arg::Matrix44:
 					{
+						 Math::matrix44 m = curArg.GetMatrix44();
+						lua_newtable(luaServer->luaState);
+						int tableIndex = lua_gettop(luaServer->luaState);
+						int count = 1;
+						IndexT i;
+						for (i = 0; i < 4;i++)
+						{
+							Math::float4 row = m.row(i);
+							for (int j = 0; j < 4;j++)
+							{
+								lua_pushnumber(luaServer->luaState, count++);
+								lua_pushnumber(luaServer->luaState, row[j]);
+								lua_settable(luaServer->luaState, tableIndex);
+							}							
+						}
 						/// treat as opaque string
-						Util::String mat = Util::String::FromMatrix44(curArg.GetMatrix44());
-						lua_pushstring(luaServer->luaState, mat.AsCharPtr());
+						//Util::String mat = Util::String::FromMatrix44(curArg.GetMatrix44());
+						//lua_pushstring(luaServer->luaState, mat.AsCharPtr());
 					}
 					break;
 
@@ -330,8 +357,8 @@ LuaServer::Open()
 
         // provide access to some standard libraries
 		luaL_openlibs(this->luaState);        		
-		this->AddLuaPath("scr:/?/init.lua");
-		this->AddLuaPath("scr:/?.lua");
+		this->AddPath("scr:/?/init.lua");
+		this->AddPath("scr:/?.lua");
         return true;
     }
     return false;

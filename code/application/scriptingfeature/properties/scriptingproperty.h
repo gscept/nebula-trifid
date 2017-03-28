@@ -5,7 +5,7 @@
 
     Entites with this property can register scripts that can be run on different occasions
   
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 
 #include "game/property.h"

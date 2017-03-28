@@ -9,6 +9,7 @@
 #include "lib/util.fxh"
 #include "lib/techniques.fxh"
 #include "lib/defaultsamplers.fxh"
+#include "lib/shadowbase.fxh"
 
 sampler2D DepthBuffer;
 float LightMapIntensity;
@@ -44,6 +45,18 @@ state LitParticleState
 	BlendEnabled[0] = true;
 	SrcBlend[0] = SrcAlpha;
 	DstBlend[0] = OneMinusSrcAlpha;
+	CullMode = None;
+	DepthEnabled = true;
+	DepthWrite = false;
+	DepthFunc = Less;
+};
+
+state ParticleShadowState
+{
+	DepthClamp = false;
+	BlendEnabled[0] = true;
+	SrcBlend[0] = One;
+	DstBlend[0] = One;
 	CullMode = None;
 	DepthEnabled = true;
 	DepthWrite = false;
@@ -174,6 +187,60 @@ vsLit(in vec2 corner,
 */
 shader
 void
+vsShadow(in vec2 corner,
+	in vec4 position,
+	in vec4 stretchPos,
+	in vec4 color,
+	in vec4 uvMinMax,
+	in vec4 rotSize,
+	out vec2 UV,
+	out vec4 ProjPos)
+{
+	CornerVertex cornerVert = ComputeCornerVertex(false,
+										corner,
+										position,
+										stretchPos,
+										uvMinMax,
+										rotSize.x,
+										rotSize.y);
+										
+	UV = cornerVert.UV;
+	ProjPos = ViewMatrixArray[0] * cornerVert.worldPos;
+	gl_Position = ProjPos; 
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+shader
+void
+vsShadowCSM(in vec2 corner,
+	in vec4 position,
+	in vec4 stretchPos,
+	in vec4 color,
+	in vec4 uvMinMax,
+	in vec4 rotSize,
+	out vec2 UV,
+	out vec4 ProjPos)
+{
+	CornerVertex cornerVert = ComputeCornerVertex(false,
+										corner,
+										position,
+										stretchPos,
+										uvMinMax,
+										rotSize.x,
+										rotSize.y);
+										 
+	UV = cornerVert.UV;
+	ProjPos = cornerVert.worldPos;
+	gl_Position = ProjPos; 
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+shader
+void
 psUnlit(in vec4 ViewSpacePosition,
 	in vec4 Color,
 	in vec2 UV,
@@ -193,7 +260,7 @@ psUnlit(in vec4 ViewSpacePosition,
 
 //------------------------------------------------------------------------------
 /**
-*/
+*/ 
 shader
 void
 psUnlit2Layers(in vec4 ViewSpacePosition,
@@ -232,7 +299,7 @@ psUnlit3Layers(in vec4 ViewSpacePosition,
 	vec4 layer2 = texture(Layer2, UV + UVAnim2 * TimeAndRandom.x);
 	vec4 layer3 = texture(Layer3, UV + UVAnim3 * TimeAndRandom.x);
 	
-	vec4 color = ((layer1 * layer2 * 2) * layer3 * 2);
+	vec4 color = layer1 * layer2 * 2 * layer3 * 2;
 	float depth = textureLod(DepthBuffer, screenUV, 0).r;
 	float particleDepth = length(ViewSpacePosition);
 	float AlphaMod = saturate(abs(depth - particleDepth));
@@ -259,7 +326,7 @@ psUnlit4Layers(in vec4 ViewSpacePosition,
 	vec4 layer3 = texture(Layer3, UV + UVAnim3 * TimeAndRandom.x);
 	vec4 layer4 = texture(Layer4, UV + UVAnim4 * TimeAndRandom.x);
 	
-	vec4 color = ((layer1 * layer2 * 2) * layer3 * 2) * layer4;
+	vec4 color = layer1 * layer2 * 2 * layer3 * 2 * layer4;
 	float depth = textureLod(DepthBuffer, screenUV, 0).r;
 	float particleDepth = length(ViewSpacePosition);
 	float AlphaMod = saturate(abs(depth - particleDepth));
@@ -309,7 +376,7 @@ psLit(in vec4 ViewSpacePosition,
 	float particleDepth = length(ViewSpacePosition);
 	float alphaMod = saturate(abs(depth - particleDepth));
 	Albedo.a = diffColor.a * Color.a;
-}
+} 
 
 //------------------------------------------------------------------------------
 /**
@@ -321,3 +388,5 @@ SimpleTechnique(UnlitBlendAdd2Layers, "Unlit|Alt2", vsUnlit(), psUnlit2Layers(),
 SimpleTechnique(UnlitBlendAdd3Layers, "Unlit|Alt3", vsUnlit(), psUnlit3Layers(), UnlitParticleStateBlendAdd);
 SimpleTechnique(UnlitBlendAdd4Layers, "Unlit|Alt4", vsUnlit(), psUnlit4Layers(), UnlitParticleStateBlendAdd);
 SimpleTechnique(Lit, "Static", vsLit(), psLit(), LitParticleState);
+GLOBALLIGHT_SHADOW_INST_ALPHA(vsShadowCSM(), ParticleShadowState);
+//SimpleTechnique(LitShadow, "Global|Alpha", vsLit(), psLit(), LitParticleState);

@@ -6,12 +6,11 @@
     The central registry for render thread plugins.
 
     (C) 2009 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
 #include "core/singleton.h"
 #include "rendermodules/rt/rtplugin.h"
-#include "frame/framebatch.h"
 
 //------------------------------------------------------------------------------
 namespace RenderModules
@@ -60,8 +59,6 @@ public:
     virtual void OnRenderBefore(IndexT frameId, Timing::Time time);
     /// called after rendering entities
     virtual void OnRenderAfter(IndexT frameId, Timing::Time time);
-    /// called from when rendering a frame batch
-    virtual void OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch);
 	/// called from a frame script
 	virtual void OnRender(const Util::StringAtom& filter);
 	/// called at the beginning of frame
@@ -73,7 +70,7 @@ public:
     /// called if no view exists, and no default camera is set in view
     virtual void OnRenderWithoutView(IndexT frameId, Timing::Time time);
 	/// called if the window has been resized
-	virtual void OnWindowResized(SizeT width, SizeT height);
+	virtual void OnWindowResized(IndexT windowId, SizeT width, SizeT height);
 
 	/// find plugin index by rtti
 	IndexT FindPlugin(const Core::Rtti* rtti) const;

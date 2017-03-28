@@ -1653,7 +1653,7 @@ unsigned int SOIL_direct_load_DDS_from_memory(
 	(*ogl_internal_format) = GL_RGBA8;	/* internal format, this can be any sized format according to OpenGL, default is the simple RGBA */
 	ogl_format = GL_RGBA;				/* OpenGL format, default is set to RGBA */
 	block_size = 4;						/* size of pixel or compressed block, default is integer, so 4 bits */
-	swapredblue = 1;					/* swap if texture is float */
+	swapredblue = 0;					/* swap if texture is bgr */
 
 	/* check the format of the DDS */
 	if ( header.sPixelFormat.dwFlags & DDPF_FOURCC )
@@ -1677,26 +1677,27 @@ unsigned int SOIL_direct_load_DDS_from_memory(
 			else if (extHeader.dwDxgiFormat == 3)				{ (*ogl_internal_format) = GL_RGBA32UI;								(*bpp) = 4; (*data_type) = GL_UNSIGNED_INT;			block_size = 16; } // RGBA32 UINT
 			else if (extHeader.dwDxgiFormat == 4)				{ (*ogl_internal_format) = GL_RGBA32I;								(*bpp) = 4; (*data_type) = GL_INT;					block_size = 16; } // RGBA32 INT
 			else if (extHeader.dwDxgiFormat == 10)				{ (*ogl_internal_format) = GL_RGBA16F;								(*bpp) = 2; (*data_type) = GL_HALF_FLOAT;			block_size = 8;	 } // RGBA16 FLOAT
+			else if (extHeader.dwDxgiFormat == 11)				{ (*ogl_internal_format) = GL_RGBA16;								(*bpp) = 2; (*data_type) = GL_UNSIGNED_SHORT;		block_size = 8; }  // RGBA16 UNORM
 			else if (extHeader.dwDxgiFormat == 12)				{ (*ogl_internal_format) = GL_RGBA16UI;								(*bpp) = 2; (*data_type) = GL_UNSIGNED_SHORT;		block_size = 8;	 } // RGBA16 UINT
 			else if (extHeader.dwDxgiFormat == 14)				{ (*ogl_internal_format) = GL_RGBA16I;								(*bpp) = 2; (*data_type) = GL_SHORT;				block_size = 8;	 } // RGBA16 INT
-			else if (extHeader.dwDxgiFormat == 16)				{ (*ogl_internal_format) = GL_RG32F;								(*bpp) = 4; (*data_type) = GL_FLOAT;				block_size = 8;	 } // RG32 FLOAT
-			else if (extHeader.dwDxgiFormat == 17)				{ (*ogl_internal_format) = GL_RG32UI;								(*bpp) = 4; (*data_type) = GL_UNSIGNED_INT;			block_size = 8;	 } // RG32 UINT
+			else if (extHeader.dwDxgiFormat == 16)				{ (*ogl_internal_format) = GL_RG32F;								(*bpp) = 4; (*data_type) = GL_FLOAT;				block_size = 8; ogl_format = GL_RG; } // RG32 FLOAT
+			else if (extHeader.dwDxgiFormat == 17)				{ (*ogl_internal_format) = GL_RG32UI;								(*bpp) = 4; (*data_type) = GL_UNSIGNED_INT;			block_size = 8; ogl_format = GL_RG; } // RG32 UINT
 			else if (extHeader.dwDxgiFormat == 30)				{ (*ogl_internal_format) = GL_RGBA8UI;								(*bpp) = 1; (*data_type) = GL_UNSIGNED_BYTE;		block_size = 4;	 } // RGBA8 UINT
 			else if (extHeader.dwDxgiFormat == 32)				{ (*ogl_internal_format) = GL_RGBA8I;								(*bpp) = 1; (*data_type) = GL_BYTE;					block_size = 4;	 } // RGBA8 INT
-			else if (extHeader.dwDxgiFormat == 18)				{ (*ogl_internal_format) = GL_RG32I;								(*bpp) = 4; (*data_type) = GL_INT;					block_size = 8;	 } // RG32 INT
-			else if (extHeader.dwDxgiFormat == 34)				{ (*ogl_internal_format) = GL_RG16F;								(*bpp) = 2; (*data_type) = GL_HALF_FLOAT;			block_size = 4;	 } // RG16 FLOAT
-			else if (extHeader.dwDxgiFormat == 36)				{ (*ogl_internal_format) = GL_RG16UI;								(*bpp) = 2; (*data_type) = GL_UNSIGNED_SHORT;		block_size = 4;	 } // RG16 UINT
-			else if (extHeader.dwDxgiFormat == 38)				{ (*ogl_internal_format) = GL_RG16I;								(*bpp) = 2; (*data_type) = GL_SHORT;				block_size = 4;	 } // RG16 INT
-			else if (extHeader.dwDxgiFormat == 50)				{ (*ogl_internal_format) = GL_RG8I;									(*bpp) = 1; (*data_type) = GL_BYTE;					block_size = 2;	 } // RG8 INT
-			else if (extHeader.dwDxgiFormat == 52)				{ (*ogl_internal_format) = GL_RG8UI;								(*bpp) = 1; (*data_type) = GL_UNSIGNED_BYTE;		block_size = 2;	 } // RG8 UINT
-			else if (extHeader.dwDxgiFormat == 41)				{ (*ogl_internal_format) = GL_R32F;									(*bpp) = 4; (*data_type) = GL_FLOAT;				block_size = 4;	 } // R32 FLOAT
-			else if (extHeader.dwDxgiFormat == 42)				{ (*ogl_internal_format) = GL_R32UI;								(*bpp) = 4; (*data_type) = GL_UNSIGNED_INT;			block_size = 4;	 } // R32 UINT
-			else if (extHeader.dwDxgiFormat == 43)				{ (*ogl_internal_format) = GL_R32I;									(*bpp) = 4; (*data_type) = GL_INT;					block_size = 4;	 } // R32 INT			
-			else if (extHeader.dwDxgiFormat == 54)				{ (*ogl_internal_format) = GL_R16F;									(*bpp) = 2; (*data_type) = GL_HALF_FLOAT;			block_size = 2;	 } // R16 FLOAT
-			else if (extHeader.dwDxgiFormat == 57)				{ (*ogl_internal_format) = GL_R16UI;								(*bpp) = 2; (*data_type) = GL_UNSIGNED_SHORT;		block_size = 2;	 } // R16 UINT
-			else if (extHeader.dwDxgiFormat == 59)				{ (*ogl_internal_format) = GL_R16I;									(*bpp) = 2; (*data_type) = GL_SHORT;				block_size = 2;	 } // R16 INT			
-			else if (extHeader.dwDxgiFormat == 57)				{ (*ogl_internal_format) = GL_R8UI;									(*bpp) = 1; (*data_type) = GL_UNSIGNED_BYTE;		block_size = 1;	 } // R8 UINT
-			else if (extHeader.dwDxgiFormat == 59)				{ (*ogl_internal_format) = GL_R8I;									(*bpp) = 1; (*data_type) = GL_BYTE;					block_size = 1;	 } // R8 INT
+			else if (extHeader.dwDxgiFormat == 18)				{ (*ogl_internal_format) = GL_RG32I;								(*bpp) = 4; (*data_type) = GL_INT;					block_size = 8; ogl_format = GL_RG; } // RG32 INT
+			else if (extHeader.dwDxgiFormat == 34)				{ (*ogl_internal_format) = GL_RG16F;								(*bpp) = 2; (*data_type) = GL_HALF_FLOAT;			block_size = 4; ogl_format = GL_RG; } // RG16 FLOAT
+			else if (extHeader.dwDxgiFormat == 36)				{ (*ogl_internal_format) = GL_RG16UI;								(*bpp) = 2; (*data_type) = GL_UNSIGNED_SHORT;		block_size = 4; ogl_format = GL_RG; } // RG16 UINT
+			else if (extHeader.dwDxgiFormat == 38)				{ (*ogl_internal_format) = GL_RG16I;								(*bpp) = 2; (*data_type) = GL_SHORT;				block_size = 4; ogl_format = GL_RG; } // RG16 INT
+			else if (extHeader.dwDxgiFormat == 50)				{ (*ogl_internal_format) = GL_RG8I;									(*bpp) = 1; (*data_type) = GL_BYTE;					block_size = 2; ogl_format = GL_RG; } // RG8 INT
+			else if (extHeader.dwDxgiFormat == 52)				{ (*ogl_internal_format) = GL_RG8UI;								(*bpp) = 1; (*data_type) = GL_UNSIGNED_BYTE;		block_size = 2; ogl_format = GL_RG; } // RG8 UINT
+			else if (extHeader.dwDxgiFormat == 41)				{ (*ogl_internal_format) = GL_R32F;									(*bpp) = 4; (*data_type) = GL_FLOAT;				block_size = 4;	ogl_format = GL_RED; } // R32 FLOAT
+			else if (extHeader.dwDxgiFormat == 42)				{ (*ogl_internal_format) = GL_R32UI;								(*bpp) = 4; (*data_type) = GL_UNSIGNED_INT;			block_size = 4;	ogl_format = GL_RED; } // R32 UINT
+			else if (extHeader.dwDxgiFormat == 43)				{ (*ogl_internal_format) = GL_R32I;									(*bpp) = 4; (*data_type) = GL_INT;					block_size = 4;	ogl_format = GL_RED; } // R32 INT			
+			else if (extHeader.dwDxgiFormat == 54)				{ (*ogl_internal_format) = GL_R16F;									(*bpp) = 2; (*data_type) = GL_HALF_FLOAT;			block_size = 2;	ogl_format = GL_RED; } // R16 FLOAT
+			else if (extHeader.dwDxgiFormat == 57)				{ (*ogl_internal_format) = GL_R16UI;								(*bpp) = 2; (*data_type) = GL_UNSIGNED_SHORT;		block_size = 2;	ogl_format = GL_RED; } // R16 UINT
+			else if (extHeader.dwDxgiFormat == 59)				{ (*ogl_internal_format) = GL_R16I;									(*bpp) = 2; (*data_type) = GL_SHORT;				block_size = 2;	ogl_format = GL_RED; } // R16 INT			
+			else if (extHeader.dwDxgiFormat == 57)				{ (*ogl_internal_format) = GL_R8UI;									(*bpp) = 1; (*data_type) = GL_UNSIGNED_BYTE;		block_size = 1;	ogl_format = GL_RED; } // R8 UINT
+			else if (extHeader.dwDxgiFormat == 59)				{ (*ogl_internal_format) = GL_R8I;									(*bpp) = 1; (*data_type) = GL_BYTE;					block_size = 1;	ogl_format = GL_RED; } // R8 INT
 
 			// TODO: add the rest of the DX10 formats here...
 		}
@@ -1722,7 +1723,11 @@ unsigned int SOIL_direct_load_DDS_from_memory(
 		if (!(header.sPixelFormat.dwFlags & DDPF_ALPHAPIXELS))
 		{
 			block_size = 3;
-			ogl_format = GL_RGB;
+			ogl_format = GL_BGR;
+		}
+		else
+		{
+			ogl_format = GL_BGRA;
 		}
 	}
 

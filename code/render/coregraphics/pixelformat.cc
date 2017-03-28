@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  pixelformat.cc
 //  (C) 2007 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "coregraphics/pixelformat.h"
@@ -17,13 +17,13 @@ namespace CoreGraphics
 PixelFormat::Code
 PixelFormat::FromString(const Util::String& str)
 {
-    if (str == "X8R8G8B8") return X8R8G8B8;
+    if (str == "R8G8B8X8") return R8G8B8X8;
     else if (str == "R8G8B8") return R8G8B8;
-    else if (str == "A8R8G8B8") return A8R8G8B8;
+    else if (str == "R8G8B8A8") return R8G8B8A8;
     else if (str == "R5G6B5") return R5G6B5;
 	else if (str == "SRGBA8") return SRGBA8;
-    else if (str == "A1R5G5B5") return A1R5G5B5;
-    else if (str == "A4R4G4B4") return A4R4G4B4;
+    else if (str == "R5G5B5A1") return R5G5B5A1;
+    else if (str == "R4G4B4A4") return R4G4B4A4;
     else if (str == "DXT1") return DXT1;
 	else if (str == "DXT1 sRGB") return DXT1sRGB;
 	else if (str == "DXT1A") return DXT1A;
@@ -35,18 +35,18 @@ PixelFormat::FromString(const Util::String& str)
 	else if (str == "BC7") return BC7;
 	else if (str == "BC7 sRGB") return BC7sRGB;
     else if (str == "R16F") return R16F;
-    else if (str == "G16R16F") return G16R16F;
-    else if (str == "A16B16G16R16F") return A16B16G16R16F;
-	else if (str == "A16B16G16R16") return A16B16G16R16;
+    else if (str == "R16G16F") return R16G16F;
+    else if (str == "R16G16B16A16F") return R16G16B16A16F;
+	else if (str == "R16G16B16A16") return R16G16B16A16;
     else if (str == "R32F") return R32F;         
-    else if (str == "G32R32F") return G32R32F;      
-    else if (str == "A32B32G32R32F") return A32B32G32R32F;
+    else if (str == "R32G32F") return R32G32F;      
+    else if (str == "R32G32B32A32F") return R32G32B32A32F;
 	else if (str == "R32G32B32F") return R32G32B32F;
 	else if (str == "R11G11B10F") return R11G11B10F;
     else if (str == "A8") return A8;
-    else if (str == "X2R10G10B10") return X2R10G10B10;
-    else if (str == "A2R10G10B10") return A2R10G10B10;
-    else if (str == "G16R16") return G16R16;
+    else if (str == "R10G10B10X2") return R10G10B10X2;
+    else if (str == "R10G10B10A2") return R10G10B10A2;
+    else if (str == "R16G16") return R16G16;
     else if (str == "D24S8") return D24S8;
     else if (str == "D24X8") return D24X8;
 	else if (str == "D32S8") return D32S8;
@@ -123,14 +123,14 @@ PixelFormat::ToString(PixelFormat::Code code)
 {
     switch (code)
     {
-        case X8R8G8B8:      return "X8R8G8B8";
+        case R8G8B8X8:      return "R8G8B8X8";
         case R8G8B8:        return "R8G8B8";
-        case A8R8G8B8:      return "A8R8G8B8";
+        case R8G8B8A8:      return "R8G8B8A8";
 		case SRGBA8:		return "SRGBA8";
 		case R11G11B10F:	return "R11G11B10F";
         case R5G6B5:        return "R5G6B5";
-        case A1R5G5B5:      return "A1R5G5B5";
-        case A4R4G4B4:      return "A4R4G4B4";
+        case R5G5B5A1:      return "R5G5B5A1";
+        case R4G4B4A4:      return "R4G4B4A4";
         case DXT1:          return "DXT1";
 		case DXT1sRGB:		return "DXT1 sRGB";
 		case DXT1A:         return "DXT1A";
@@ -142,17 +142,17 @@ PixelFormat::ToString(PixelFormat::Code code)
 		case BC7:			return "BC7";
 		case BC7sRGB:		return "BC7 sRGB";
         case R16F:          return "R16F";
-        case G16R16F:       return "G16R16F";
-        case A16B16G16R16F: return "A16B16G16R16F";
-		case A16B16G16R16:	return "A16B16G16R16";
+        case R16G16F:       return "R16G16F";
+        case R16G16B16A16F: return "R16G16B16A16F";
+		case R16G16B16A16:	return "R16G16B16A16";
         case R32F:          return "R32F";
-        case G32R32F:       return "G32R32F";
-        case A32B32G32R32F: return "A32B32G32R32F";
+        case R32G32F:       return "R32G32F";
+        case R32G32B32A32F: return "R32G32B32A32F";
 		case R32G32B32F:	return "R32G32B32F";
         case A8:            return "A8";
-        case X2R10G10B10:   return "X2R10G10B10";
-        case A2R10G10B10:   return "A2R10G10B10";
-        case G16R16:        return "G16R16";
+        case R10G10B10X2:   return "R10G10B10X2";
+        case R10G10B10A2:   return "R10G10B10A2";
+        case R16G16:        return "G16R16";
 		case D16S8:         return "D16S8";
         case D24X8:         return "D24X8";
         case D24S8:         return "D24S8";
@@ -230,14 +230,14 @@ PixelFormat::ToSize(Code code)
 {
 	switch (code)
 	{
-	case X8R8G8B8:      return 4;
+	case R8G8B8X8:      return 4;
 	case R8G8B8:        return 3;
-	case A8R8G8B8:      return 4;
+	case R8G8B8A8:      return 4;
 	case A8B8G8R8:      return 4;
 	case SRGBA8:		return 4;
 	case R5G6B5:        return 2;
-	case A1R5G5B5:      return 2;
-	case A4R4G4B4:      return 2;
+	case R5G5B5A1:      return 2;
+	case R4G4B4A4:      return 2;
 	case DXT1:          return 3;
 	case DXT1sRGB:      return 3;
 	case DXT1A:         return 4;
@@ -249,17 +249,17 @@ PixelFormat::ToSize(Code code)
 	case BC7:			return 4;
 	case BC7sRGB:		return 4;
 	case R16F:          return 4;	// this is weird, but 1 channel - 16 bits (2 bytes) and format HALF_FLOAT doesn't work with glGetTexImage!?!?!?!?! Therefore, we select 3 bytes to make a buffer with bigger size...
-	case G16R16F:       return 4;
-	case A16B16G16R16F: return 8;
-	case A16B16G16R16:	return 8;
+	case R16G16F:       return 4;
+	case R16G16B16A16F: return 8;
+	case R16G16B16A16:	return 8;
 	case R32F:          return 4;
-	case G32R32F:       return 8;
-	case A32B32G32R32F: return 16;
+	case R32G32F:       return 8;
+	case R32G32B32A32F: return 16;
 	case A8:            return 1;
 	case R8:			return 1;
-	case X2R10G10B10:   return 4;
-	case A2R10G10B10:   return 4;
-	case G16R16:        return 4;
+	case R10G10B10X2:   return 4;
+	case R10G10B10A2:   return 4;
+	case R16G16:        return 4;
 	case D24X8:         return 4;
 	case D24S8:         return 4;
 	case D32S8:			return 5;
@@ -278,15 +278,15 @@ PixelFormat::ToChannels(Code code)
 {
 	switch (code)
 	{
-	case X8R8G8B8:      return 4;
-	case A8R8G8B8:      return 4;
+	case R8G8B8X8:      return 4;
+	case R8G8B8A8:      return 4;
 	case SRGBA8:		return 4;
 	case R11G11B10F:	return 3;
 	case R8G8B8:        return 3;
 	case A8B8G8R8:      return 4;
 	case R5G6B5:        return 3;
-	case A1R5G5B5:      return 4;
-	case A4R4G4B4:      return 4;
+	case R5G5B5A1:      return 4;
+	case R4G4B4A4:      return 4;
 	case DXT1:          return 3;
 	case DXT1sRGB:		return 3;
 	case DXT1A:			return 4;
@@ -298,17 +298,17 @@ PixelFormat::ToChannels(Code code)
 	case BC7:			return 4;
 	case BC7sRGB:		return 4;
 	case R16F:          return 1;
-	case G16R16F:       return 2;
-	case A16B16G16R16F: return 4;
-	case A16B16G16R16:	return 4;
+	case R16G16F:       return 2;
+	case R16G16B16A16F: return 4;
+	case R16G16B16A16:	return 4;
 	case R32F:          return 1;
-	case G32R32F:       return 2;
-	case A32B32G32R32F: return 4;
+	case R32G32F:       return 2;
+	case R32G32B32A32F: return 4;
 	case A8:            return 1;
 	case R8:			return 1;
-	case X2R10G10B10:   return 4;
-	case A2R10G10B10:   return 4;
-	case G16R16:        return 2;
+	case R10G10B10X2:   return 4;
+	case R10G10B10A2:   return 4;
+	case R16G16:        return 2;
 	case D24X8:         return 2;
 	case D24S8:         return 2;
 	case D32S8:			return 2;
@@ -327,13 +327,13 @@ PixelFormat::ToILComponents(Code code)
 {
 	switch (code)
 	{
-	case PixelFormat::X8R8G8B8:         return IL_RGBA;
-	case PixelFormat::A8R8G8B8:         return IL_RGBA;							
+	case PixelFormat::R8G8B8X8:         return IL_RGBA;
+	case PixelFormat::R8G8B8A8:         return IL_RGBA;							
 	case PixelFormat::A8B8G8R8:         return IL_BGRA;
 	case PixelFormat::R5G6B5:           return IL_RGB;
 	case PixelFormat::SRGBA8:			return IL_RGBA;
-	case PixelFormat::A1R5G5B5:         return IL_RGBA;						
-	case PixelFormat::A4R4G4B4:         return IL_RGBA;
+	case PixelFormat::R5G5B5A1:         return IL_RGBA;						
+	case PixelFormat::R4G4B4A4:         return IL_RGBA;
 	case PixelFormat::DXT1:             return IL_RGB;
 	case PixelFormat::DXT1sRGB:         return IL_RGB;
 	case PixelFormat::DXT1A:            return IL_RGBA;
@@ -345,18 +345,18 @@ PixelFormat::ToILComponents(Code code)
 	case PixelFormat::BC7:		        return IL_RGBA;
 	case PixelFormat::BC7sRGB:          return IL_RGBA;
 	case PixelFormat::R16F:             return IL_RED;
-	case PixelFormat::G16R16:			return IL_RG;
-	case PixelFormat::G16R16F:          return IL_RG;
-	case PixelFormat::A16B16G16R16F:    return IL_BGRA;
-	case PixelFormat::A16B16G16R16:		return IL_BGRA;
+	case PixelFormat::R16G16:			return IL_RG;
+	case PixelFormat::R16G16F:          return IL_RG;
+	case PixelFormat::R16G16B16A16F:    return IL_RGBA;
+	case PixelFormat::R16G16B16A16:		return IL_RGBA;
 	case PixelFormat::R11G11B10F:		return IL_RGB;
 	case PixelFormat::R32F:             return IL_RED;
-	case PixelFormat::G32R32F:          return IL_RG;
-	case PixelFormat::A32B32G32R32F:    return IL_BGRA;
+	case PixelFormat::R32G32F:          return IL_RG;
+	case PixelFormat::R32G32B32A32F:    return IL_RGBA;
 	case PixelFormat::R32G32B32F:		return IL_RGB;							
 	case PixelFormat::A8:               return IL_ALPHA;	
 	case PixelFormat::R8:				return IL_RED;
-	case PixelFormat::A2R10G10B10:      return IL_RGBA;						     
+	case PixelFormat::R10G10B10A2:      return IL_RGBA;						     
 	case PixelFormat::D24X8:            
 	case PixelFormat::D24S8:            return IL_RG;
 	case PixelFormat::D32S8:            return IL_RG;
@@ -377,13 +377,13 @@ PixelFormat::ToILType(Code code)
 {
 	switch (code)
 	{
-	case PixelFormat::X8R8G8B8:         return IL_UNSIGNED_BYTE;
-	case PixelFormat::A8R8G8B8:         return IL_UNSIGNED_BYTE;							
+	case PixelFormat::R8G8B8X8:         return IL_UNSIGNED_BYTE;
+	case PixelFormat::R8G8B8A8:         return IL_UNSIGNED_BYTE;							
 	case PixelFormat::A8B8G8R8:         return IL_UNSIGNED_BYTE;
 	case PixelFormat::R5G6B5:           return IL_UNSIGNED_BYTE;
 	case PixelFormat::SRGBA8:			return IL_UNSIGNED_BYTE;
-	case PixelFormat::A1R5G5B5:         return IL_UNSIGNED_BYTE;						
-	case PixelFormat::A4R4G4B4:         return IL_UNSIGNED_BYTE;
+	case PixelFormat::R5G5B5A1:         return IL_UNSIGNED_BYTE;						
+	case PixelFormat::R4G4B4A4:         return IL_UNSIGNED_BYTE;
 	case PixelFormat::DXT1:             return IL_UNSIGNED_BYTE;
 	case PixelFormat::DXT1sRGB:         return IL_UNSIGNED_BYTE;
 	case PixelFormat::DXT1A:            return IL_UNSIGNED_BYTE;
@@ -395,18 +395,18 @@ PixelFormat::ToILType(Code code)
 	case PixelFormat::BC7:              return IL_UNSIGNED_BYTE;
 	case PixelFormat::BC7sRGB:          return IL_UNSIGNED_BYTE;
 	case PixelFormat::R16F:             return IL_HALF;
-	case PixelFormat::G16R16:			return IL_SHORT;
-	case PixelFormat::G16R16F:          return IL_HALF;
-	case PixelFormat::A16B16G16R16F:    return IL_HALF;
-	case PixelFormat::A16B16G16R16:		return IL_SHORT;
+	case PixelFormat::R16G16:			return IL_SHORT;
+	case PixelFormat::R16G16F:          return IL_HALF;
+	case PixelFormat::R16G16B16A16F:    return IL_HALF;
+	case PixelFormat::R16G16B16A16:		return IL_SHORT;
 	case PixelFormat::R11G11B10F:		return IL_FLOAT;
 	case PixelFormat::R32F:             return IL_FLOAT;
-	case PixelFormat::G32R32F:          return IL_FLOAT;							
-	case PixelFormat::A32B32G32R32F:    return IL_FLOAT;
+	case PixelFormat::R32G32F:          return IL_FLOAT;							
+	case PixelFormat::R32G32B32A32F:    return IL_FLOAT;
 	case PixelFormat::R32G32B32F:		return IL_FLOAT;							
 	case PixelFormat::A8:               return IL_UNSIGNED_BYTE;	
 	case PixelFormat::R8:				return IL_UNSIGNED_BYTE;
-	case PixelFormat::A2R10G10B10:      return IL_UNSIGNED_BYTE;
+	case PixelFormat::R10G10B10A2:      return IL_UNSIGNED_BYTE;
 	case PixelFormat::D24X8:            
 	case PixelFormat::D24S8:            return IL_FLOAT;
 	case PixelFormat::D32S8:			return IL_FLOAT;

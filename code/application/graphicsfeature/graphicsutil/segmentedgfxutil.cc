@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  util/segmentedgfxutil.cc
 //  (C) 2007 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "graphicsutil/segmentedgfxutil.h"
@@ -30,8 +30,7 @@ SegmentedGfxUtil::SegmentedGfxUtil()
 //------------------------------------------------------------------------------
 /**
 */
-Util::Array<Ptr<Graphics::ModelEntity> >
-SegmentedGfxUtil::CreateAndSetupGraphicsEntities(const Util::String& resName, const Math::matrix44& worldMatrix, IndexT pickingId, const Ptr<Graphics::Stage> stage, bool instanced, bool castShadows)
+Util::Array<Ptr<Graphics::ModelEntity> > SegmentedGfxUtil::CreateAndSetupGraphicsEntities(const Util::String& resName, const Math::matrix44& worldMatrix, IndexT pickingId, const Ptr<Graphics::Stage> stage /*= 0*/, bool instanced /*= false*/, bool castShadows /*= true*/, bool loadSynced /*= false*/)
 {
     Util::Array<Ptr<Graphics::ModelEntity> > graphicsEntities;
 
@@ -103,6 +102,7 @@ SegmentedGfxUtil::CreateAndSetupGraphicsEntities(const Util::String& resName, co
     ge->SetTransform(worldMatrix);
 	ge->SetPickingId(pickingId);
 	ge->SetCastsShadows(castShadows);
+	ge->SetLoadSynced(loadSynced);
     if (stage.isvalid())
     {
         stage->AttachEntity(ge.upcast<Graphics::GraphicsEntity>());

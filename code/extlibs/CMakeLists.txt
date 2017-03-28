@@ -54,34 +54,35 @@ IF(NOT N_BUILD_FIRSTTIME)
 	
 	add_subdirectory(miniupnp/miniupnpc)
 		SET_TARGET_PROPERTIES(upnpc-static PROPERTIES FOLDER "extlibs")
-	
+		
+	add_subdirectory(base64)
 	add_subdirectory(cjson)
 	add_subdirectory(jzon-c)
-	add_subdirectory(base64)
 	
 	
     add_subdirectory(librocket)    
 
     IF(N_BUILD_QT)
-        add_subdirectory(libqimg)
+        add_subdirectory(libqimg)		
     ENDIF()
 
     IF(N_BUILD_OGL4)			
         add_subdirectory(glew)		
 			SET_TARGET_PROPERTIES(glew PROPERTIES FOLDER "extlibs/glew")
         add_subdirectory(SOIL)
-		
+		IF(MSVC)
+				SET(BISON_EXECUTABLE "${CMAKE_CURRENT_SOURCE_DIR}/anyfx/exts/glslang/tools/bison.exe")
+			ENDIF()
 		SET(ANYFX_FOLDER "extlibs/anyfx")
-			SET(ANYFX_GLEW_FOLDER ${CMAKE_CURRENT_SOURCE_DIR}/extlibs/glew)
-			SET(ANYFX_FOLDER "extlibs/anyfx")
+		SET(ANYFX_GLEW_FOLDER ${CMAKE_CURRENT_SOURCE_DIR}/extlibs/glew)
 			add_subdirectory(anyfx)
 			
-			#SET_TARGET_PROPERTIES(compiler PROPERTIES FOLDER "extlibs/anyfx")
-			#SET_TARGET_PROPERTIES(mcpp PROPERTIES FOLDER "extlibs/anyfx")
-			#SET_TARGET_PROPERTIES(antlr PROPERTIES FOLDER "extlibs/anyfx")
-			#SET_TARGET_PROPERTIES(api PROPERTIES FOLDER "extlibs/anyfx")
-			#SET_TARGET_PROPERTIES(util PROPERTIES FOLDER "extlibs/anyfx")
-			#SET_TARGET_PROPERTIES(EASTL PROPERTIES FOLDER "extlibs/anyfx")
+			SET_TARGET_PROPERTIES(compiler PROPERTIES FOLDER "extlibs/anyfx")
+			SET_TARGET_PROPERTIES(mcpp PROPERTIES FOLDER "extlibs/anyfx")
+			SET_TARGET_PROPERTIES(antlr PROPERTIES FOLDER "extlibs/anyfx")
+			SET_TARGET_PROPERTIES(api PROPERTIES FOLDER "extlibs/anyfx")
+			SET_TARGET_PROPERTIES(util PROPERTIES FOLDER "extlibs/anyfx")
+			SET_TARGET_PROPERTIES(EASTL PROPERTIES FOLDER "extlibs/anyfx")
 		
 		set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "Build the GLFW example programs")
 		set(GLFW_BUILD_TESTS OFF CACHE BOOL "Build the GLFW test programs")

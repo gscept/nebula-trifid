@@ -1,11 +1,14 @@
 //------------------------------------------------------------------------------
 //  posteffect/posteffectfeatureunit.cc
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "posteffectfeatureunit.h"
 #include "graphicsfeature/graphicsfeatureunit.h"
 #include "graphics/modelentity.h"
+#include "basegamefeatureunit.h"
+#include "graphicsfeature/graphicsattr/graphicsattributes.h"
+#include "managers/levelattrsmanager.h"
 
 
 namespace PostEffect
@@ -53,6 +56,10 @@ PostEffectFeatureUnit::OnActivate()
 	this->postEffectManager->ResetPostEffectSystem();
 	this->postEffectManager->AttachEntity(this->defaultPostEffect);
 
+	// create clouds addon
+	this->cloudsAddon = Clouds::CloudsAddon::Create();
+	this->cloudsAddon->Setup();
+
 	// set name to default until something else is applied
 	this->lastPreset = "Default";
 }
@@ -63,6 +70,9 @@ PostEffectFeatureUnit::OnActivate()
 void
 PostEffectFeatureUnit::OnDeactivate()
 {	
+	this->cloudsAddon->Discard();
+	this->cloudsAddon = 0;
+
 	this->postEffectManager->RemoveEntity(this->defaultPostEffect);
 	this->defaultPostEffect = 0;
 	// remove post effect manager
@@ -123,6 +133,7 @@ PostEffectFeatureUnit::SetupDefaultWorld()
 void
 PostEffectFeatureUnit::CleanupDefaultWorld()
 {	
+	PostEffect::PostEffectServer::Instance()->StopAllBlending();
 	Ptr<Graphics::Stage> stage = GraphicsFeature::GraphicsFeatureUnit::Instance()->GetDefaultStage();
 	if (stage.isvalid())
 	{
@@ -131,4 +142,36 @@ PostEffectFeatureUnit::CleanupDefaultWorld()
 	this->skyEntity = 0;
 	PostEffect::PostEffectServer::Instance()->SetGlobalLightEntity(0);
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PostEffectFeatureUnit::OnLoad()
+{
+    if (BaseGameFeature::LevelAttrsManager::HasInstance())
+    {
+        Util::String preset = BaseGameFeature::LevelAttrsManager::Instance()->GetString(Attr::PostEffectPreset);
+        this->ApplyPreset(preset);
+    }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PostEffectFeatureUnit::OnBeforeLoad()
+{
+	this->SetupDefaultWorld();
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PostEffectFeatureUnit::OnBeforeCleanup()
+{
+	this->CleanupDefaultWorld();
+}
+
 };

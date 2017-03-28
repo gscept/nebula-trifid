@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  qtserver.cc
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "addons/qtfeature/qtserver.h"
@@ -39,8 +39,10 @@ QtServer::Open()
 {
 	n_assert(this->application == NULL);
 
+#ifdef __USE_QT4
     // use software rasterizer
     QApplication::setGraphicsSystem("raster");
+#endif
 
     const Util::CommandLineArgs& args = App::Application::Instance()->GetCmdLineArgs();
 	if (args.IsEmpty())

@@ -18,7 +18,7 @@
     MoveRotate
     
     (C) 2008 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file	
+    (C) 2013-2016 Individual contributors, see AUTHORS file	
 */
 #include "physicsfeature/properties/physicsproperty.h"
 #include "physicsfeature/physicsprotocol.h"
@@ -49,7 +49,7 @@ public:
     virtual void OnActivate();
     /// called from Entity::DeactivateProperties()
     virtual void OnDeactivate();
-
+	
     /// called before movement has happened
     virtual void OnMoveBefore();
     /// called after movement has happened

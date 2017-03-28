@@ -5,7 +5,7 @@
     
     Level editor entry point
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 #include "application/appgame/gameapplication.h"
 #include "graphicsfeature/graphicsfeatureunit.h"
@@ -32,6 +32,8 @@
 #include "silhouette/silhouetteaddon.h"
 #include "posteffect/posteffectfeatureunit.h"
 #include "logger.h"
+#include "navigationfeatureunit.h"
+#include "inputfeature/inputfeatureunit.h"
 
 
 //------------------------------------------------------------------------------
@@ -76,6 +78,8 @@ public:
 	///
 	void RegisterPropertyCallback(const Util::String & propertyClass, const Util::String & displayName, const Util::String & scriptFunc);
 	///
+	void RegisterScript(const Util::String & displayName, const Util::String & scriptFunc);
+	///
 	const Util::Array<PropertyCallbackEntry> & GetPropertyCallbacks(const Util::String& propertyClass);
 	///
 	bool HasPropertyCallbacks(const Util::String& propertyClass);
@@ -110,6 +114,9 @@ public slots:
     /// access to global attributes container
     const Ptr<Attr::AttrContainerXMLStorage> & GetGlobalAttrs() const;	
 
+	///
+	void ScriptAction(QAction*);
+
 private:
     /// setup application state handlers
     void SetupStateHandlers();
@@ -120,7 +127,7 @@ private:
     /// cleanup game features
     void CleanupGameFeatures();    
 	///
-	void ScanPropertyScripts();
+	void ScanScripts();
 	
     Ptr<QtRemoteInterfaceAddon::QtRemoteServer> remoteServer;
     Ptr<QtRemoteInterfaceAddon::QtRemoteClient> remoteClient;
@@ -140,6 +147,8 @@ private:
     Ptr<ScriptingFeature::ScriptingFeatureUnit> scriptingFeature;
     Ptr<PostEffect::PostEffectEntity> postEffectEntity;
 	Ptr<PostEffect::PostEffectFeatureUnit> postEffectFeature;
+    Ptr<Navigation::NavigationFeatureUnit> navigationFeature;
+	Ptr<InputFeature::InputFeatureUnit> inputFeature;
     Ptr<LevelEditor2::Level> level;
     LevelEditor2Window* editorWindow;
     Ptr<Navigation::NavigationServer> navigation;
@@ -147,6 +156,7 @@ private:
     Ptr<Attr::AttrContainerXMLStorage> globalAttrs;
 	ToolkitUtil::Logger logger;
 	Util::HashTable < Util::String, Util::Array<PropertyCallbackEntry>> propertyCallbacks;
+	Util::Dictionary<QAction*, Util::String> scriptCallbacks;
 }; 
 
 //------------------------------------------------------------------------------

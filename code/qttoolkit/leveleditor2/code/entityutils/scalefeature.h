@@ -7,7 +7,7 @@
     Provides handles for scale in 3 axis seperate or simultaneous.
 
     (C) 2009 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 
 #include "transformfeature.h"
@@ -17,14 +17,16 @@ namespace LevelEditor2
 {
 class ScaleFeature : public TransformFeature
 {
-__DeclareClass(ScaleFeature);
-//------------------------------------------------------------------------------
+	__DeclareClass(ScaleFeature);
 public:
 
     /// Constructor
     ScaleFeature();
     /// Destructor
     ~ScaleFeature();
+
+	/// setup transform feature
+	virtual void Setup();
 
     /// Checks the screen position of the mouse and tries to lock mouse input to feature
     void StartDrag();
@@ -45,19 +47,27 @@ public:
 
 
 private:
-        
-    /// returns true, if mouse is pointing on a handle
-	bool IsMouseOverHandle(DragMode handle, const Math::line& worldMouseRay);
-	/// returns the handle above which the mouse is currently over
-	DragMode GetMouseHandle(const Math::line& worldMouseRay);
 
     /// checks current initial matrix and feature scale to compute handle positions in space.
     void UpdateHandlePositions();
 
-	Math::point xAxis;
-	Math::point yAxis;
-	Math::point zAxis;
-	Math::point origin;
+	struct MeshBundle
+	{
+		Ptr<CoreGraphics::VertexBuffer> vbo;
+		Ptr<CoreGraphics::IndexBuffer> ibo;
+		Math::bbox box;
+	};
+
+	/// create box with line handle
+	MeshBundle CreateHandle(const Util::Array<CoreGraphics::VertexComponent>& comps);
+	/// create box
+	MeshBundle CreateBox(const Util::Array<CoreGraphics::VertexComponent>& comps);
+
+	struct SurfaceBundle
+	{
+		Ptr<Materials::SurfaceInstance> box;
+	};
+	Util::FixedArray<SurfaceBundle> handleSurfaces;
 
     float handleScale;
 

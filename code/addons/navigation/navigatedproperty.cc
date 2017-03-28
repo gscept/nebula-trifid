@@ -1,11 +1,11 @@
 //------------------------------------------------------------------------------
 //  navigatedproperty.cc
-//  (C) 2015 Individual contributors, see AUTHORS file
+//  (C) 2015-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "navigatedproperty.h"
 #include "game/entity.h"
-#include "navigationattributes.h"
+#include "navigation/navigationattributes.h"
 #include "physicsfeature/physicsattr/physicsattributes.h"
 #include "crowdmanager.h"
 #include "messaging/staticmessagehandler.h"
@@ -113,8 +113,11 @@ void
 NavigatedProperty::OnStart()
 {
 	Property::OnStart();
-	this->EnableCrowdManagement(true);
-    CrowdManager::Instance()->UpdateAgentTarget(this->entity, this->entity->GetFloat4(Attr::TargetPos));    
+    if (this->entity->GetBool(Attr::EnableAgentOnStart))
+    {
+        this->EnableCrowdManagement(true);
+        CrowdManager::Instance()->UpdateAgentTarget(this->entity, this->entity->GetFloat4(Attr::TargetPos));
+    }	    
 }
 
 //------------------------------------------------------------------------------

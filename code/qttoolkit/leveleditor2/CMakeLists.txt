@@ -52,7 +52,7 @@ SET(P_NIDL_FILES
 	leveleditor2protocol.nidl
 )
 
-		
+
 
 FILE(GLOB FORMS "ui/*.ui")
 
@@ -63,6 +63,7 @@ SET(QTMOCFILES	"code/widgets/leveleditor2window.h"
 				"code/widgets/createentitydialoghandler.h"
 				"code/widgets/blueprinthandler.h"
 				"code/widgets/entityhandler.h"
+				"code/widgets/entitytreewidget.h"
 				"code/widgets/levelpropertieshandler.h"
 				"code/widgets/audiodialoghandler.h"
 				"code/widgets/uidialoghandler.h"
@@ -73,12 +74,10 @@ SET(PCH_files
     ../stdneb.cc
 )
 SOURCE_GROUP("Precompiled" FILES ${PCH_files})
-PCH_QT4_WRAP_CPP(leveleditor2_HEADERS_MOC ${QTMOCFILES})
+PCH_QT_WRAP_CPP(leveleditor2_HEADERS_MOC ${QTMOCFILES})
 
-INCLUDE(${QT_USE_FILE})
-ADD_DEFINITIONS(${QT_DEFINITIONS})
-QT4_WRAP_UI(leveleditor2_FORMS_HEADERS ${FORMS})
-NONPCH_QT4_ADD_RESOURCES(leveleditor2_RESOURCES_RCC ${RESOURCES})
+N_QT_WRAP_UI(leveleditor2_FORMS_HEADERS ${FORMS})
+NONPCH_QT_ADD_RESOURCES(leveleditor2_RESOURCES_RCC ${RESOURCES})
 
 foreach (it ${leveleditor2_RESOURCES_RCC})
 #Message(${it})
@@ -87,7 +86,7 @@ endforeach()
 
 LIST(APPEND ALLSRCS ${CODE} ${PCH_files} ${leveleditor2_HEADERS_MOC} ${leveleditor2_FORMS_HEADERS} ${leveleditor2_RESOURCES_RCC} code/leveleditor.rc)
 
-N_WRAP_ADD_NIDL_FILES(ALLSRCS ${P_NIDL_FILES})
+N_WRAP_ADD_PROJ_NIDL_FILES(leveleditor2 ALLSRCS ${P_NIDL_FILES})
 
 #STRING(REPLACE "/MTd" "/MDd" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
 #STRING(REPLACE "/MT" "/MD" CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
@@ -119,11 +118,13 @@ ADD_DEPENDENCIES(leveleditor2
 	editorfeatures
 	remoteinterface	
 	qttools
+	qtfeature
 	posteffectcontroller
 	physicsmaterialeditor
 	globalprobecontroller
 	splash
 	dynui
+	inputfeature graphicsfeature physicsfeature scriptingfeature ui
 	navigation	
 )
 
@@ -145,6 +146,6 @@ TARGET_LINK_LIBRARIES(leveleditor2
 	splash	
 	navigation	
 	dynui
-	${QT_WIN_LIBS}	
-	${QT_LIBRARIES} ${QT_QTMAIN_LIBRARY}	
+	inputfeature graphicsfeature physicsfeature scriptingfeature ui
+	qtsupport
 )

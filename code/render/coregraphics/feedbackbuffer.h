@@ -5,7 +5,7 @@
   
     A resource which holds elements (vertices) fed back from a transform feedback/stream output process
     
-    (C) 2015 Individual contributors, see AUTHORS file
+    (C) 2015-2016 Individual contributors, see AUTHORS file
 */    
 #if __OGL4__
 #include "coregraphics/ogl4/ogl4feedbackbuffer.h"

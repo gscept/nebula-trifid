@@ -141,4 +141,13 @@ PassBase::EndBatch()
 	this->batchType = CoreGraphics::FrameBatchType::InvalidBatchType;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+PassBase::OnWindowResized()
+{
+
+}
+
 } // namespace Base

@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  properties/chasecameraproperty.cc
 //  (C) 2005 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "properties/chasecameraproperty.h"
@@ -71,7 +71,7 @@ ChaseCameraProperty::OnActivate()
     this->collideExcludeSet.AddMaterialType(Physics::MaterialTable::StringToMaterialType("Probe"));
     this->collideExcludeSet.AddMaterialType(Physics::MaterialTable::StringToMaterialType("Character"));
 #endif
-
+    this->collideExcludeSet.SetCollideBits(Physics::Characters | Physics::SensorTrigger);
     // reset the camera
     this->HandleCameraReset();
 }

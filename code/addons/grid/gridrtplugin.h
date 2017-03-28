@@ -5,7 +5,7 @@
 	
 	The GridRTPlugin injects itself into the main frameshader and renders the grid in the shape-pass.
 	
-	(C) 2012-2015 Individual contributors, see AUTHORS file
+	(C) 2012-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "rendermodules/rt/rtplugin.h"
@@ -30,8 +30,6 @@ public:
 	/// called when plugin is unregistered on the render-thread side
 	virtual void OnUnregister();
 
-	/// called when rendering a frame batch
-	void OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch);
 	/// called when rendering a frame batch
 	void OnRender(const Util::StringAtom& filter);
 

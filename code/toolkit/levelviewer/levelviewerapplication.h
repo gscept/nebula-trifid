@@ -9,8 +9,8 @@
 #include "basegamefeatureunit.h"
 #include "appgame/gameapplication.h"
 #include "scriptingfeature/scriptingfeature.h"
-#include "qttoolkit/qtaddons/remoteinterface/qtremoteserver.h"
-#include "qttoolkit/qtaddons/remoteinterface/qtremoteclient.h"
+#include "remoteinterface/qtremoteserver.h"
+#include "remoteinterface/qtremoteclient.h"
 #include "effects/effectsfeatureunit.h"
 #include "ui/uifeatureunit.h"
 #include "posteffect/posteffectfeatureunit.h"
@@ -19,6 +19,8 @@
 #include "dynui/console/imguiconsolehandler.h"
 #include "levelviewerfactorymanager.h"
 #include "gamestates/viewergamestate.h"
+#include "navigationfeatureunit.h"
+#include "inputfeature/inputfeatureunit.h"
 
 //------------------------------------------------------------------------------
 /**
@@ -26,7 +28,7 @@
     
     Nebula3 level viewer application
 
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 namespace  Tools
 {
@@ -64,6 +66,8 @@ private:
 	Ptr<EffectsFeature::EffectsFeatureUnit> effectFeature;
 	Ptr<UI::UiFeatureUnit> uiFeature;
 	Ptr<PostEffect::PostEffectFeatureUnit> postEffectFeature;
+	Ptr<Navigation::NavigationFeatureUnit> navigationFeature;
+    Ptr<InputFeature::InputFeatureUnit> inputFeature;
 
 	Ptr<Tools::LevelViewerGameState> viewerState;
 

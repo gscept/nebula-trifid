@@ -7,7 +7,7 @@
     cameras can be attached to a stage.
     
     (C) 2007 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */    
 #include "graphics/graphicsentity.h"
 #include "graphics/camerasettings.h"
@@ -37,7 +37,7 @@ public:
     const CameraSettings& GetCameraSettings() const;
 
 	/// update camera if the display has been resized
-	void OnDisplayResized();
+	void OnWindowResized(float aspect);
 
     /// get projection matrix
     const Math::matrix44& GetProjTransform() const;
@@ -50,6 +50,8 @@ public:
 
 	/// calculate position as a screen space coordinate
 	Math::float2 CalculateScreenSpacePosition(const Math::float4& pos);
+	/// calculate position in word using screen space coordinate
+	Math::float4 CalculateWorldSpacePosition(const Math::float2& pos);
 
     /// handle a message
     virtual void HandleMessage(const Ptr<Messaging::Message>& msg);

@@ -5,7 +5,7 @@
     
     Encapsulates an FBX node as a Nebula-friendly object
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
 #include "math/quaternion.h"
@@ -58,6 +58,8 @@ public:
 
 	/// extracts rotation, translation and scaling
 	virtual void ExtractTransform();
+	/// extracts rotation, translation and scaling
+	virtual void ExtractTransform(const FbxMatrix& transform);
 
 	/// sets the initial rotation (overrides extracted data)
 	void SetInitialRotation(const Math::quaternion& rot);

@@ -4,7 +4,7 @@
 	@class QTFeature::QTFeatureUnit
     
     The FeatureUnit initializes QT and runs a qt eventloop
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 #include <QKeyEvent>
 #include "game/featureunit.h"
@@ -33,7 +33,7 @@ public:
     virtual void OnDeactivate();
     
     /// called in the middle of the feature trigger cycle
-    virtual void OnFrame();
+	virtual void OnBeginFrame();
 
     /// called when game debug visualization is on
     virtual void OnRenderDebug();

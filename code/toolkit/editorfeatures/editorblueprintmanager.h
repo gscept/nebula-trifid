@@ -6,12 +6,12 @@
     Based on normal factory manager but allows handling of blueprint files
 	and access to them
 
-    (C) 2012 Johannes Hirche
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 
 #include "basegamefeature/managers/factorymanager.h"
-#include "toolkitutil/idldocument/idlattribute.h"
-#include "toolkitutil/idldocument/idlproperty.h"
+#include "idldocument/idlattribute.h"
+#include "idldocument/idlproperty.h"
 #include "attr/attributecontainer.h"
 #include "toolkitutil/logger.h"
 
@@ -130,7 +130,7 @@ public:
     ///
     static void CreateColumn(const Ptr<Db::Table>& table, Db::Column::Type type, Attr::AttrId attributeId);
     /// create both static and instance databases
-    void CreateDatabases(const Util::String & folder);    
+    bool CreateDatabases(const Util::String & folder);    
 protected:
 
     /// 
@@ -286,4 +286,4 @@ EditorBlueprintManager::SetLogger(ToolkitUtil::Logger * log)
 {
 	this->logger = log;
 }
-}
+}	

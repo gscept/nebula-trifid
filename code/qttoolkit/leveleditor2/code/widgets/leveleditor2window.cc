@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  leveleditor2window.cc
-//  (C) 2012-2014 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "leveleditor2window.h"
@@ -22,7 +22,7 @@
 #include "applauncher.h"
 #include "qmessagebox.h"
 #include "remoteinterface/qtremoteclient.h"
-#include "qtremoteprotocol.h"
+#include "remoteinterface/qtremoteprotocol.h"
 #include "toolkitversion.h"
 #include "qurl.h"
 #include "scripteditor.h"
@@ -31,7 +31,7 @@
 #include "qcolordialog.h"
 #include "uidialoghandler.h"
 #include "properties/editorproperty.h"
-#include "leveleditor2protocol.h"
+#include "leveleditor2/leveleditor2protocol.h"
 #include "game/templateexporter.h"
 #include "db/dbfactory.h"
 #include "game/gameexporter.h"
@@ -129,6 +129,15 @@ LevelEditor2Window::LevelEditor2Window():
 	connect(this->ui.actionBatch_game_data, SIGNAL(triggered()), this, SLOT(OnBatchGame()));
 	connect(this->ui.actionCenter_Group_Pivot, SIGNAL(triggered()), this, SLOT(OnCenterPivot()));
 
+	connect(this->ui.actionExport_Selection, SIGNAL(triggered()), this, SLOT(OnExportSelection()));
+	connect(this->ui.actionImport, SIGNAL(triggered()), this, SLOT(OnImport()));
+	connect(this->ui.actionImport_Level, SIGNAL(triggered()), this, SLOT(OnImportLevel()));
+	connect(this->ui.actionExport_Selection_as_Level, SIGNAL(triggered()), this, SLOT(OnExportSelectionLevel()));
+    connect(this->ui.actionAdd_Level_Reference, SIGNAL(triggered()), this, SLOT(OnAddReference()));
+    connect(this->ui.actionBatch_on_save, SIGNAL(toggled(bool)), this, SLOT(OnBatchToggle(bool)));
+
+    
+
     this->addAction(this->ui.actionDuplicate);
     this->addAction(this->ui.actionGroup);
     this->addAction(this->ui.actionTranslate);
@@ -141,6 +150,12 @@ LevelEditor2Window::LevelEditor2Window():
 
     this->ui.centralwidget->update();
     this->SetWindowTitle("Untitled");
+
+    this->progressBar = new QProgressBar();
+    this->progressBar->setFixedSize(300, 15);    
+    this->statusBar()->addPermanentWidget(this->progressBar);
+
+	connect(this->ui.menu_Scripts, SIGNAL(triggered(QAction*)), LevelEditor2App::Instance(), SLOT(ScriptAction(QAction*)));
 
 }
 
@@ -232,16 +247,9 @@ LevelEditor2Window::OnSave()
 void 
 LevelEditor2Window::OnSaveAs()
 {
-	QFileDialog fileDialog(this, "Save Level As", IO::URI("root:work/levels").GetHostAndLocalPath().AsCharPtr(), "*.xml");
-	fileDialog.setAcceptMode(QFileDialog::AcceptSave);
-	fileDialog.setOptions(QFileDialog::HideNameFilterDetails);
-	fileDialog.setNameFilterDetailsVisible(false);
-	fileDialog.setDefaultSuffix("xml");
-
-	if (fileDialog.exec() == QDialog::Accepted)
+	IO::URI path;
+	if (this->PickLevelFile("Save Level as", "work:levels", path, true))
 	{
-		QString fullPath = fileDialog.selectedFiles()[0];
-		IO::URI path(fullPath.toUtf8().constData());
 		Util::String full = path.GetTail().ExtractFileName();
 		
 		full.StripFileExtension();
@@ -250,6 +258,23 @@ LevelEditor2Window::OnSaveAs()
 		this->ui.actionSave->setEnabled(true);
 		this->SetWindowTitle(full);
 	}		
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+LevelEditor2Window::OnExportSelectionLevel()
+{
+	IO::URI path;
+	if (this->PickLevelFile("Export Selection as", "work:levels", path, true))
+	{		
+		Util::String full = path.GetTail().ExtractFileName();
+
+		full.StripFileExtension();
+
+		Level::Instance()->SaveSelection(full);		
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -276,6 +301,38 @@ LevelEditor2Window::OnNew()
 	this->postEffectController.ActivatePrefix("Default");
 	this->SetWindowTitle("Untitled");
 	this->layerHandler->Setup();
+	Level::Instance()->Clear();
+    LevelEditor2App::Instance()->GetWindow()->GetEntityTreeWidget()->ClearReferences();
+
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+LevelEditor2Window::PickLevelFile(const Util::String & title, const Util::String & folder, IO::URI & file, bool save)
+{
+	
+	QFileDialog fileDialog(this, title.AsCharPtr(), IO::URI(folder).GetHostAndLocalPath().AsCharPtr(), "*.xml");
+	if (save)
+	{
+		fileDialog.setAcceptMode(QFileDialog::AcceptSave);
+		fileDialog.setOptions(QFileDialog::HideNameFilterDetails);
+	}
+	else
+	{
+		fileDialog.setAcceptMode(QFileDialog::AcceptOpen);
+		fileDialog.setOptions(QFileDialog::HideNameFilterDetails | QFileDialog::ReadOnly);
+	}
+	fileDialog.setNameFilterDetailsVisible(false);
+	fileDialog.setDefaultSuffix("xml");
+	if (fileDialog.exec() == QDialog::Accepted)
+	{
+		QString fullPath = fileDialog.selectedFiles()[0];
+		file.Set(fullPath.toUtf8().constData());
+		return true;
+	}
+	return false;
 }
 
 //------------------------------------------------------------------------------
@@ -284,23 +341,73 @@ LevelEditor2Window::OnNew()
 void 
 LevelEditor2Window::OnLoad()
 {
-	QFileDialog fileDialog(this, "Load Level", IO::URI("root:work/levels").GetHostAndLocalPath().AsCharPtr(), "*.xml");
-	fileDialog.setAcceptMode(QFileDialog::AcceptOpen);
-	fileDialog.setOptions(QFileDialog::HideNameFilterDetails|QFileDialog::ReadOnly);
-	fileDialog.setNameFilterDetailsVisible(false);
-	fileDialog.setDefaultSuffix("xml");
-	if (fileDialog.exec() == QDialog::Accepted)
+	IO::URI path;
+	if(this->PickLevelFile("Load Level", "work:levels", path, false))
 	{
-		QString fullPath = fileDialog.selectedFiles()[0];
-		IO::URI path(fullPath.toUtf8().constData());
 		Util::String full = path.GetTail().ExtractFileName();
 		full.StripFileExtension();
 
-		Level::Instance()->LoadLevel(full);		
+		LevelEditor2EntityManager::Instance()->LoadLevel(full, Level::Replace);		
 		this->ui.actionSave->setEnabled(true);
 		this->SetWindowTitle(full);
 		ActionManager::Instance()->ClearStack();
 	}	
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+LevelEditor2Window::OnImportLevel()
+{
+	IO::URI path;
+	if (this->PickLevelFile("Import Level", "work:level", path, false))
+	{
+		Util::String full = path.GetTail().ExtractFileName();
+		full.StripFileExtension();
+
+		Level::Instance()->LoadLevel(full, Level::Merge);
+		this->ui.actionSave->setEnabled(true);		
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+LevelEditor2Window::OnAddReference()
+{
+    IO::URI path;
+    if (this->PickLevelFile("Import Level", "work:levels", path, false))
+    {
+        Util::String full = path.GetTail().ExtractFileName();
+        full.StripFileExtension();
+
+        Level::Instance()->LoadLevel(full, Level::Reference);
+        this->ui.actionSave->setEnabled(true);        
+    }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+LevelEditor2Window::OnBatchToggle(bool batch)
+{
+    Level::Instance()->SetAutoBatch(batch);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+LevelEditor2Window::OnImport()
+{
+	IO::URI path;
+	if (this->PickLevelFile("Import Fragment", "work:levelfragments", path, false))
+	{
+		Level::Instance()->LoadEntities(path);
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -363,6 +470,23 @@ LevelEditor2Window::dropEvent(QDropEvent* e)
 		Util::String errorMsg;
 		ActionManager::Instance()->CreateEntity(Environment, toks[0], toks[1], guid, errorMsg);
 	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+LevelEditor2Window::OnExportSelection()
+{
+	Ptr<IO::IoServer> ioServer = IO::IoServer::Instance();
+	// make sure the directory exists
+	ioServer->CreateDirectory("work:levelfragments");
+	IO::URI path;
+	if(this->PickLevelFile("Export Fragment as", "work:levelfragments", path, true))
+	{				
+		Util::Array<Ptr<Game::Entity>> selected = SelectionUtil::Instance()->GetSelectedEntities();
+		Level::Instance()->SaveEntityArray(selected, path);
+	}	
 }
 
 //------------------------------------------------------------------------------
@@ -769,6 +893,21 @@ LevelEditor2Window::OnBatchGame()
 	exporter->Open();
 	exporter->ExportAll();
 	exporter->Close();	
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+n_status(const char *fmt, ...)
+{
+    va_list argList;
+    va_start(argList, fmt);
+    Util::String str;
+    str.FormatArgList(fmt, argList);
+    n_printf(str.AsCharPtr());
+    LevelEditor2App::Instance()->GetWindow()->statusBar()->showMessage(str.AsCharPtr(), 5000);
+    va_end(argList);
 }
 
 } // namespace LevelEditor2

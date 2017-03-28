@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  shadywindow.cc
-//  (C) 2012 gscept
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "nody_config.h"
@@ -24,6 +24,8 @@
 #include <QScrollBar>
 #include <QDoubleValidator>
 #include <QIntValidator>
+#include "io/ioserver.h"
+#include "graphics/graphicsinterface.h"
 
 using namespace Util;
 using namespace Nody;
@@ -65,6 +67,10 @@ ShadyWindow::Setup()
     // setup project
     this->project = Shady::ShadyProject::Create();
 
+	// setup material editor
+	this->materialEditor = Shady::MaterialWindow::Create();
+	this->materialEditor->Setup();
+
 	// create variation loader
 	Ptr<ShadyVariationLoader> variationLoader = ShadyVariationLoader::Create();
 	this->variationDatabase->SetVariationLoader(variationLoader.upcast<Nody::VariationLoader>());
@@ -92,9 +98,6 @@ ShadyWindow::Setup()
     // get default super variation
     this->superVariation = this->variationDatabase->GetSuperVariationByName("Default");
 
-    // setup new scene
-    this->SetupNewScene();
-
     // setup dialogs
     this->buildSettingsUi = new Ui::BuildSettings;
     this->validationUi = new Ui::Validation;
@@ -117,6 +120,9 @@ ShadyWindow::Setup()
 
     // connect signals related to building
     QObject::connect(ShadyWindow::ui->actionBuild,       SIGNAL(triggered()), this, SLOT(OnBuild()));
+	
+	// connect signals related to materials
+	QObject::connect(ShadyWindow::ui->actionOpen_material_editor, SIGNAL(triggered()), this->materialEditor, SLOT(show()));
 
     // connect signals related to the scene
     QObject::connect(this->nodeScene->GetNodeSceneGraphics(), SIGNAL(NodeFocused(const Ptr<Nody::Node>&)), this, SLOT(OnNodeClicked(const Ptr<Nody::Node>&)));
@@ -197,6 +203,9 @@ void
 ShadyWindow::showEvent(QShowEvent* e)
 {
     this->nodeScene->GetNodeSceneGraphics()->SetInteractiveMode(true);
+
+	// setup new scene first time we show the window
+	this->SetupNewScene();
 }
 
 //------------------------------------------------------------------------------
@@ -206,6 +215,10 @@ void
 ShadyWindow::closeEvent(QCloseEvent* e)
 {
     this->nodeScene->GetNodeSceneGraphics()->SetInteractiveMode(false);
+
+	// discard main node
+	this->nodeScene->Clear();
+	this->mainNode = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -260,6 +273,10 @@ ShadyWindow::OnSave()
         proj->Store(this->nodeScene);
         saver->Save(proj.upcast<Nody::Project>(), proj->GetPath());
 
+		// set title
+		String title = String::Sprintf("Shady - %s", proj->GetPath().LocalPath().ExtractFileName().AsCharPtr());
+		this->setWindowTitle(title.AsCharPtr());
+
         SHADY_MESSAGE_FORMAT("Saved project '%s'", proj->GetPath().LocalPath().AsCharPtr());
     }
 }
@@ -274,6 +291,7 @@ ShadyWindow::OnSaveAs()
     IO::URI path;
     if (this->currentPath.IsEmpty())    path = IO::URI("root:work/shady/projects");
     else                                path = this->currentPath;
+	IO::IoServer::Instance()->CreateDirectory(path);
     this->currentPath = path;
     QString file = QFileDialog::getSaveFileName(NULL, "Save Shady project as", path.LocalPath().AsCharPtr(), "*.ndp");
     if (!file.isEmpty())
@@ -283,6 +301,10 @@ ShadyWindow::OnSaveAs()
         proj->SetPath(fullPath);
         proj->Store(this->nodeScene);
         saver->Save(proj.upcast<Nody::Project>(), fullPath);
+
+		// set title
+		String title = String::Sprintf("Shady - %s", fullPath.ExtractFileName().AsCharPtr());
+		this->setWindowTitle(title.AsCharPtr());
 
         SHADY_MESSAGE_FORMAT("Saved project '%s'", fullPath.AsCharPtr());
     }
@@ -320,6 +342,10 @@ ShadyWindow::OnOpen()
         // set main node from scene
         this->mainNode = this->nodeScene->GetSuperNode().downcast<ShadyNode>();
         this->ui->NodeView->ResetCenter();
+
+		// make title
+		String title = String::Sprintf("Shady - %s", fullPath.ExtractFileName().AsCharPtr());
+		this->setWindowTitle(title.AsCharPtr());
 
         SHADY_MESSAGE_FORMAT("Opened project '%s'", fullPath.AsCharPtr());
     }
@@ -372,15 +398,43 @@ ShadyWindow::OnBuild()
             Ptr<AnyFXGenerator> generator = AnyFXGenerator::Create();
 			generator->SetVisualize(this->ui->actionDebug_code_generation->isChecked(), 500);
             generator->GenerateToBuffer(this->nodeScene, result);
+			Ptr<IO::Stream> stream = IO::IoServer::Instance()->CreateStream("int:anyfx/shader.fx");
+			IO::IoServer::Instance()->CreateDirectory("int:anyfx");
+			stream->SetAccessMode(IO::Stream::WriteAccess);
+			if (stream->Open())
+			{
+				stream->Write(result.GetPtr(), result.Size());
+				stream->Close();
+				generator->Validate(this->nodeScene, "GLSL");
+			}		
 
             // run generation, if successful, also stop timer
             success = generator->GetStatus();
             if (success)
             {
-                timer.Stop();
                 SHADY_MESSAGE_FORMAT("Build done! Build took %f s", timer.GetTime());
                 emit this->OnBuildDone(result);
+
+				String filename = this->project->GetPath().AsString().ExtractFileName();
+				filename.ChangeFileExtension("fx");
+				IO::IoServer::Instance()->CreateDirectory("proj:work/shaders/gl");
+				stream = IO::IoServer::Instance()->CreateStream(String::Sprintf("proj:work/shaders/gl/%s", filename.AsCharPtr()));
+				stream->SetAccessMode(IO::Stream::WriteAccess);
+				if (stream->Open())
+				{
+					stream->Write(result.GetPtr(), result.Size());
+					stream->Close();
+				}
+				else
+				{
+					SHADY_ERROR_FORMAT("Could not write shader to %s", stream->GetURI().LocalPath().AsCharPtr());
+				}
+
+				Ptr<Graphics::ReloadShader> msg = Graphics::ReloadShader::Create();
+				msg->SetShaderName(Util::String::Sprintf("shd:%s", filename.AsCharPtr()));
+				__StaticSend(Graphics::GraphicsInterface, msg);
             }
+			timer.Stop();
             
             break;
         }
@@ -406,7 +460,7 @@ ShadyWindow::OnBuild()
         }
     }
 
-    if (success)
+    if (result.IsValid())
     {
         // when done, put output buffer in text field
         int value = this->ui->codeOutput->verticalScrollBar()->value();
@@ -428,8 +482,8 @@ Q_DECLARE_METATYPE(Shady::NodeAttributeGroup)
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ShadyWindow::OnNodeClicked( const Ptr<Nody::Node>& node )
+void
+ShadyWindow::OnNodeClicked(const Ptr<Nody::Node>& node)
 {
     // clear properties
     this->ui->propertiesTable->clearContents();
@@ -522,8 +576,8 @@ ShadyWindow::OnNodeValueChanged()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ShadyWindow::ConsoleMessage( const char* format, ... )
+void
+ShadyWindow::ConsoleMessage(const char* format, ...)
 {
     va_list arg;
     va_start(arg, format);
@@ -539,8 +593,8 @@ ShadyWindow::ConsoleMessage( const char* format, ... )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ShadyWindow::ConsoleError( const char* format, ... )
+void
+ShadyWindow::ConsoleError(const char* format, ...)
 {
     va_list arg;
     va_start(arg, format);
@@ -556,8 +610,8 @@ ShadyWindow::ConsoleError( const char* format, ... )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ShadyWindow::ConsoleWarning( const char* format, ... )
+void
+ShadyWindow::ConsoleWarning(const char* format, ...)
 {
     va_list arg;
     va_start(arg, format);

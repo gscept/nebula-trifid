@@ -5,7 +5,7 @@
   
     Central class of the fmod core audio subsystem. It implements the fmod Environment.    
         
-    (C) 2014 Individual contributors, see AUTHORS file
+    (C) 2014-2016 Individual contributors, see AUTHORS file
 */
 
 #include "core/refcounted.h"
@@ -162,8 +162,10 @@ inline
 FMOD::Studio::Bank * 
 AudioDevice::GetBank(const Util::String & bankFile)
 {
+	if (!this->hasSoundDevice) return 0;
+	
 	n_assert(this->banks.Contains(bankFile));
-	return this->banks[bankFile];
+	return this->banks[bankFile];	
 }
 
 //------------------------------------------------------------------------------

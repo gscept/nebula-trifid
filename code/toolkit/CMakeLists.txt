@@ -47,4 +47,5 @@ add_subdirectory(shaderbatcher)
 ENDIF()
 
 add_subdirectory(toolkitutil)
+add_subdirectory(idldocument)
 add_subdirectory(idlcompiler)

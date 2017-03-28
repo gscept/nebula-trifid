@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  renderapplication.cc
 //  (C) 2008 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "render_classregistry.h"
@@ -176,14 +176,14 @@ RenderApplication::Open()
 		// get resource manager
 		this->resManager = Resources::ResourceManager::Instance();
 
+		// setup input subsystem
+		this->inputServer = InputServer::Create();
+		this->inputServer->Open();
+
         this->display = Display::Create();
         this->OnConfigureDisplay();
         this->OnSetupResourceMappers();
         this->display->Open();
-
-        // setup input subsystem
-        this->inputServer = InputServer::Create();
-        this->inputServer->Open();
 
         // setup debug timers and counters
         _setup_timer(MainThreadFrameTimeAll);
@@ -232,7 +232,7 @@ RenderApplication::OnConfigureDisplay()
     {
         displayMode.SetHeight(this->args.GetInt("-h"));
     }
-    displayMode.SetAspectRatio(float(displayMode.GetWidth()) / float(displayMode.GetHeight()));
+    displayMode.SetAspectRatio(displayMode.GetWidth() / float(displayMode.GetHeight()));
     this->display->Settings().DisplayMode() = displayMode;
     this->display->Settings().SetFullscreen(this->args.GetBoolFlag("-fullscreen"));
     this->display->Settings().SetAlwaysOnTop(this->args.GetBoolFlag("-alwaysontop"));
@@ -298,9 +298,6 @@ RenderApplication::Close()
     _discard_timer(MainThreadFrameTimeAll);
     _discard_timer(MainThreadWaitForGraphicsFrame);
 
-    this->inputServer->Close();
-    this->inputServer = 0;
-
     this->display->Close();
     this->display = 0;
 
@@ -308,6 +305,9 @@ RenderApplication::Close()
 
     this->graphicsInterface->Close();
     this->graphicsInterface = 0;	
+
+	this->inputServer->Close();
+	this->inputServer = 0;
      
     this->ioInterface->Close();
     this->ioInterface = 0;

@@ -6,7 +6,7 @@
     A stream to which offers read/write access to filesystem files.
     
     (C) 2006 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "io/stream.h"
 #include "util/string.h"
@@ -55,7 +55,7 @@ public:
     /// unmap stream
     virtual void Unmap();
 
-private:
+protected:
     FSWrapper::Handle handle;
     void* mappedContent;
 };

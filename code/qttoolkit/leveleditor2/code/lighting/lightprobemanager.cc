@@ -1,14 +1,16 @@
 //------------------------------------------------------------------------------
 //  lightprobemanager.cc
-//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "lightprobemanager.h"
 #include "leveleditor2entitymanager.h"
-#include "frame/frameserver.h"
 #include "graphics/graphicsserver.h"
 #include "resources/resourcemanager.h"
 #include "coregraphics/texture.h"
+#include "algorithm/algorithmprotocol.h"
+#include "messaging/staticmessagehandler.h"
+#include "graphics/graphicsinterface.h"
 
 using namespace Graphics;
 namespace LevelEditor2
@@ -57,13 +59,13 @@ LightProbeManager::Open()
 	n_assert(!this->isOpen);
 
 	// create frame shader
-	this->lightProbeFrameShader = Frame::FrameServer::Instance()->LookupFrameShader("reflection");
+	this->lightProbeFrameShader = Frame2::FrameServer::Instance()->LoadFrameScript("reflection", "frame:vkreflection.json");
 	
 	this->reflectionCamera = CameraEntity::Create();
 	Ptr<Stage> stage = GraphicsServer::Instance()->GetStageByName("DefaultStage");
 	stage->AttachEntity(this->reflectionCamera.cast<GraphicsEntity>());
 
-	this->reflectionView = GraphicsServer::Instance()->CreateView(Graphics::View::RTTI, "Reflection");
+	this->reflectionView = GraphicsServer::Instance()->CreateView(Graphics::View::RTTI, "Reflection", InvalidIndex);
 	this->reflectionView->SetStage(stage);
 	this->isOpen = true;
 }
@@ -195,16 +197,24 @@ LightProbeManager::Build()
 
 	Ptr<Resources::ManagedTexture> origReflection = Lighting::EnvironmentProbe::DefaultEnvironmentProbe->GetReflectionMap();
 	Ptr<Resources::ManagedTexture> origIrradiance = Lighting::EnvironmentProbe::DefaultEnvironmentProbe->GetIrradianceMap();
-	Ptr<Resources::ManagedTexture> black = Resources::ResourceManager::Instance()->CreateManagedResource(CoreGraphics::Texture::RTTI, "tex:system/black.dds", NULL, true).downcast<Resources::ManagedTexture>();
+	Ptr<Resources::ManagedTexture> black = Resources::ResourceManager::Instance()->CreateManagedResource(CoreGraphics::Texture::RTTI, "tex:system/blackcube.dds", NULL, true).downcast<Resources::ManagedTexture>();
 
 	// first, unset the default probe
 	Lighting::EnvironmentProbe::DefaultEnvironmentProbe->AssignReflectionMap(black);
 	Lighting::EnvironmentProbe::DefaultEnvironmentProbe->AssignIrradianceMap(black);
 
+	Ptr<Algorithm::EnableAmbientOcclusion> msg = Algorithm::EnableAmbientOcclusion::Create();
+	msg->SetEnabled(false);
+	__StaticSend(GraphicsInterface, msg);
+
 	this->ui.lightBuildProgress->setMaximum(this->lightProbes.Size());
 	this->ui.lightBuildProgress->setValue(0);
 
 	this->ui.lightBuildStatusField->setVisible(true);
+	for (i = 0; i < this->lightProbes.Size(); i++)
+	{
+		this->lightProbes[i]->BeforeRender();
+	}
 	for (i = 0; i < this->lightProbes.Size(); i++)
 	{
 		const Ptr<EnvironmentProbeCapturer>& probe = this->lightProbes[i];
@@ -222,6 +232,14 @@ LightProbeManager::Build()
 		this->ui.lightBuildProgress->setValue(this->ui.lightBuildProgress->value() + 1);
 		QApplication::processEvents();
 	}
+	for (i = 0; i < this->lightProbes.Size(); i++)
+	{
+		this->lightProbes[i]->AfterRender();
+	}
+
+	msg = Algorithm::EnableAmbientOcclusion::Create();
+	msg->SetEnabled(true);
+	__StaticSend(GraphicsInterface, msg);
 
 	// this will show the status as a 100% before closing
 	this->ui.lightBuildProgress->setValue(this->ui.lightBuildProgress->value() + 1);

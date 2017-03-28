@@ -6,7 +6,7 @@
     Wraps camera settings into an object.
     
     (C) 2009 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "math/matrix44.h"
 #include "math/float2.h"
@@ -25,6 +25,8 @@ public:
     void SetupPerspectiveFov(float fov, float aspect, float zNear, float zFar);
     /// setup an orthogonal projection transform
     void SetupOrthogonal(float w, float h, float zNear, float zFar);
+    /// setup a custom projection matrix. zNear and zFar are only used as info.
+    void SetProjectionMatrix(const Math::matrix44 & proj, float fov, float aspect, float zNear, float zFar);
     /// update view matrix
     void UpdateViewMatrix(const Math::matrix44& m);
 

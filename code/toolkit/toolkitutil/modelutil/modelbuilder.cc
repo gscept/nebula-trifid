@@ -85,6 +85,9 @@ ModelBuilder::SaveN3( const IO::URI& uri, Platform::Code platform )
 			// write particles
 			this->WriteParticles(n3Writer);
 
+			// write appendix nodes
+			this->WriteAppendix(n3Writer);
+
 			// end root
 			n3Writer->EndRoot();
 		}		
@@ -200,6 +203,8 @@ ModelBuilder::WritePhysics( const Ptr<N3Writer>& writer )
 	switch(this->physics->GetExportMode())
 	{
 		case UseBoundingBox:
+		case UseBoundingSphere:
+		case UseBoundingCapsule:
 			{
 				Array<Physics::ColliderDescription> colls;
 				const Array<ModelConstants::ShapeNode> & nodes = this->constants->GetShapeNodes();
@@ -224,8 +229,30 @@ ModelBuilder::WritePhysics( const Ptr<N3Writer>& writer )
 					Physics::ColliderDescription col;
 					col.name = iter->name;
 					col.transform = nodetrans;
-					col.type = Physics::ColliderCube;
-					col.box.halfWidth = colBox.extents();
+					switch (this->physics->GetExportMode())
+					{
+					case UseBoundingBox:
+						col.type = Physics::ColliderCube;
+						col.box.halfWidth = colBox.extents();
+						break;
+					case UseBoundingSphere:
+					{
+						col.type = Physics::ColliderSphere;
+						Math::vector v = colBox.size();
+						col.sphere.radius = 0.5f * Math::n_min(v.x(), Math::n_min(v.y(), v.z()));
+					}
+					break;
+					case UseBoundingCapsule:
+					{
+						col.type = Physics::ColliderCapsule;
+						Math::vector v = colBox.size();
+						col.capsule.height = v.y();
+						col.capsule.radius = Math::n_min(v.z(), v.x());						
+					}
+					break;
+					default:
+						break;
+					}
 					colls.Append(col);
 				}
 				const Array<ModelConstants::ParticleNode> & particleNodes = this->constants->GetParticleNodes();
@@ -452,8 +479,8 @@ ModelBuilder::WriteSkins(const Ptr<N3Writer>& writer)
 //------------------------------------------------------------------------------
 /**
 */
-void 
-ModelBuilder::WriteParticles( const Ptr<N3Writer>& writer )
+void
+ModelBuilder::WriteParticles(const Ptr<N3Writer>& writer)
 {
 	// get list of particles
 	const Array<ModelConstants::ParticleNode>& particlesNodes = this->constants->GetParticleNodes();
@@ -481,6 +508,7 @@ ModelBuilder::WriteParticles( const Ptr<N3Writer>& writer )
 		writer->BeginParticleModel(name, 
 										   particleNode.transform,
 										   emitterMesh,
+										   particleNode.primitiveGroupIndex,
 										   state,
 										   state.material,
 										   attrs);
@@ -489,4 +517,47 @@ ModelBuilder::WriteParticles( const Ptr<N3Writer>& writer )
 
 	}
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ModelBuilder::WriteAppendix(const Ptr<N3Writer>& writer)
+{
+	const Array<ModelAttributes::AppendixNode>& appendices = this->attributes->GetAppendixNodes();
+
+	IndexT i;
+	for (i = 0; i < appendices.Size(); i++)
+	{
+		// get particle node
+		const ModelAttributes::AppendixNode& node = appendices[i];
+
+		// get name of particle
+		const String& name = node.name;
+
+		// get state of particle
+		const State& state = this->attributes->GetState(node.path);
+
+		if (node.type == ModelAttributes::ParticleNode)
+		{
+			// get attributes
+			const EmitterAttrs& attrs = this->attributes->GetEmitterAttrs(node.path);
+
+			// get emitter mesh
+			const String& emitterMesh = this->attributes->GetEmitterMesh(node.path);
+
+			// begin and close particle (modelnode)
+			writer->BeginParticleModel(name,
+				node.transform,
+				emitterMesh,
+				node.data.particle.primGroup,
+				state,
+				state.material,
+				attrs);
+
+			writer->EndModelNode();
+		}
+	}
+}
+
 } // namespace ToolkitUtil

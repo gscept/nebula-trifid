@@ -1,10 +1,9 @@
 //------------------------------------------------------------------------------
 //  materialserver.cc
-//  (C) 2011-2013 Individual contributors, see AUTHORS file
+//  (C) 2011-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "coregraphics/shader.h"
-#include "frame/frameserver.h"
 #include "materials/materialserver.h"
 #include "materials/materialloader.h"
 #include "models/nodes/statenode.h"
@@ -12,7 +11,7 @@
 #include "util/keyvaluepair.h"
 #include "util/string.h"
 #include "util/array.h"
-#include "frame/batchgroup.h"
+#include "graphics/batchgroup.h"
 #include "io/ioserver.h"
 #include "resources/resourcemanager.h"
 #include "streamsurfaceloader.h"
@@ -25,7 +24,6 @@ __ImplementSingleton(Materials::MaterialServer);
 using namespace Resources;
 using namespace Util;
 using namespace CoreGraphics;
-using namespace Frame;
 
 //------------------------------------------------------------------------------
 /**
@@ -61,7 +59,8 @@ MaterialServer::Open()
     this->LoadMaterialPalette("base.xml");
 
     // get materials folder and load all
-    Util::Array<Util::String> files = IO::IoServer::Instance()->ListFiles("mat:", "*_custom.xml");
+    Util::Array<Util::String> files = IO::IoServer::Instance()->ListFiles("mat:", "*.xml");
+	files.EraseIndex(files.FindIndex("base.xml"));
 
     // load other materials
     IndexT i;
@@ -136,22 +135,9 @@ MaterialServer::AddMaterial(const Ptr<Material>& material)
 
 //------------------------------------------------------------------------------
 /**
-    Hmm, doesn't maintain material instance parameters...
 */
-void 
-MaterialServer::ReloadRenderMaterials()
-{
-	Ptr<MaterialPalette> renderMaterials = this->materialPalettes["rendermaterials"];
-	renderMaterials->Discard();
-	this->materialPalettes.Erase("rendermaterials");
-	this->LoadMaterialPalette("rendermaterials");
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-Ptr<MaterialPalette> 
-MaterialServer::LookupMaterialPalette( const Resources::ResourceId& name )
+const Ptr<MaterialPalette>&
+MaterialServer::LookupMaterialPalette(const Resources::ResourceId& name)
 {
 	if (!this->materialPalettes.Contains(name))
 	{
@@ -163,8 +149,8 @@ MaterialServer::LookupMaterialPalette( const Resources::ResourceId& name )
 //------------------------------------------------------------------------------
 /**
 */
-void 
-MaterialServer::LoadMaterialPalette( const Resources::ResourceId& name )
+void
+MaterialServer::LoadMaterialPalette(const Resources::ResourceId& name)
 {
 	n_assert(!this->materialPalettes.Contains(name));
 	Util::String path("mat:");
@@ -176,8 +162,8 @@ MaterialServer::LoadMaterialPalette( const Resources::ResourceId& name )
 //------------------------------------------------------------------------------
 /**
 */
-Materials::MaterialFeature::Mask 
-MaterialServer::FeatureStringToMask( const Util::String& str )
+Materials::MaterialFeature::Mask
+MaterialServer::FeatureStringToMask(const Util::String& str)
 {
 	return this->materialFeature.StringToMask(str);
 }

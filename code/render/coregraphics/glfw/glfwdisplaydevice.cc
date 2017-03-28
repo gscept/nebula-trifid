@@ -1,6 +1,6 @@
 ﻿//------------------------------------------------------------------------------
 //	glfwdisplaydevice.cc
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 
 #include "stdneb.h"
@@ -20,6 +20,7 @@
 static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 #endif
+#include "graphics/display.h"
 
 
 #if NEBULA3_OPENGL4_DEBUG
@@ -35,21 +36,19 @@ NebulaGLFWErrorCallback(int errcode, const char* msg)
 #endif
 
 
-namespace OpenGL4
+namespace GLFW
 {
-__ImplementClass(OpenGL4::GLFWDisplayDevice, 'O4WD', Base::DisplayDeviceBase);
-__ImplementSingleton(OpenGL4::GLFWDisplayDevice);
+__ImplementClass(GLFW::GLFWDisplayDevice, 'O4WD', Base::DisplayDeviceBase);
+__ImplementSingleton(GLFW::GLFWDisplayDevice);
 
 using namespace Util;
 using namespace Math;
 using namespace CoreGraphics;
-using namespace OpenGL4;
 
 //------------------------------------------------------------------------------
 /**
 */
-GLFWDisplayDevice::GLFWDisplayDevice() 	: 
-	window(NULL)
+GLFWDisplayDevice::GLFWDisplayDevice()
 {
     __ConstructSingleton;
 	glfwInit();	
@@ -66,22 +65,6 @@ GLFWDisplayDevice::~GLFWDisplayDevice()
 
 //------------------------------------------------------------------------------
 /**
-    Set the window title. An application should be able to change the
-    window title at any time, that's why this is a virtual method, so that
-    a subclass may override it.
-*/
-void
-GLFWDisplayDevice::SetWindowTitle(const Util::String& str)
-{	
-    this->windowTitle = str;
-	if(this->window)
-	{
-		glfwSetWindowTitle(this->window, str.AsCharPtr());
-	}	
-}
-
-//------------------------------------------------------------------------------
-/**
     Open the display.
 */
 bool
@@ -91,22 +74,11 @@ GLFWDisplayDevice::Open()
 
 	if (DisplayDeviceBase::Open())
 	{
-		bool success;
-		if (this->embedded)
-		{
-			success = this->EmbedWindow();
-		}
-		else
-		{
-			success = this->OpenWindow();
-		}
+		// setup event handler for input when we created the display
+		this->eventHandler = GLFWInputDisplayEventHandler::Create();
+		this->AttachEventHandler(this->eventHandler.upcast<DisplayEventHandler>());
 
-		if(success)
-		{
-			this->EnableCallbacks();
-		}
-
-		return success;
+		return true;
 	}
 	return false;
 }
@@ -119,48 +91,9 @@ void
 GLFWDisplayDevice::Close()
 {
 	n_assert(this->IsOpen());
-
-	glfwDestroyWindow(this->window);
-	this->window = NULL;
+	this->RemoveEventHandler(this->eventHandler.upcast<DisplayEventHandler>());
+	this->eventHandler = 0;
 	DisplayDeviceBase::Close();
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-GLFWDisplayDevice::Reopen()
-{
-	n_assert(this->IsOpen());
-
-    // just ignore full screen if this window is embedded
-    if (!this->embedded)
-    {
-		// if we toggle full screen, select monitor (just selects primary for the moment) and apply full screen
-		if (this->fullscreen)
-		{
-			GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-			const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-			glfwSetWindowMonitor(this->window, monitor, 0, 0, mode->width, mode->height, 60);
-			this->displayMode.SetWidth(mode->width);
-			this->displayMode.SetHeight(mode->height);
-		}
-		else
-		{
-			// if not, set the window state and detach from the monitor
-			glfwSetWindowMonitor(this->window, NULL, 0, 0, this->displayMode.GetWidth(), this->displayMode.GetHeight(), 60);
-		}
-    }    
-
-    // only move window if not fullscreen
-    if (!this->fullscreen)
-    {
-	    // update window with new size and position
-	    glfwSetWindowPos(this->window, this->displayMode.GetXPos(), this->displayMode.GetYPos());
-		glfwSetWindowSize(this->window, this->displayMode.GetWidth(), this->displayMode.GetHeight());
-    }	
-		
-	DisplayDeviceBase::Reopen();	
 }
 
 //------------------------------------------------------------------------------
@@ -176,17 +109,27 @@ GLFWDisplayDevice::ProcessWindowMessages()
 //------------------------------------------------------------------------------
 /**
 */
+void
+GLFWDisplayDevice::SetVerticalSyncEnabled(bool b)
+{
+	DisplayDeviceBase::SetVerticalSyncEnabled(b);
+	glfwSwapInterval(b ? 1 : 0);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
 bool
 MatchPixelFormat(PixelFormat::Code format, const GLFWvidmode & mode)
 {
 	//FIXME this is just a subset
 	switch(format)
 	{
-		case PixelFormat::X8R8G8B8:
-		case PixelFormat::A8R8G8B8:
+		case PixelFormat::R8G8B8X8:
+		case PixelFormat::R8G8B8A8:
 		case PixelFormat::SRGBA8:
 		case PixelFormat::R8G8B8:
-			return (mode.blueBits == 8 ) && (mode.redBits == 8 ) && (mode.greenBits == 8);
+			return (mode.blueBits == 8) && (mode.redBits == 8) && (mode.greenBits == 8);
 		break;
 		case PixelFormat::R5G6B5:
 			return (mode.blueBits == 5) && (mode.redBits == 5) && (mode.greenBits == 6);
@@ -204,15 +147,15 @@ Util::Array<DisplayMode>
 GLFWDisplayDevice::GetAvailableDisplayModes(Adapter::Code adapter, PixelFormat::Code pixelFormat)
 {    
     Util::Array<DisplayMode> ret;
-	GLFWmonitor * monitor = GetMonitor(adapter);
+	GLFWmonitor* monitor = GetMonitor(adapter);
 	
-	if(monitor)
+	if (monitor)
 	{
 		int count;
-		const GLFWvidmode * modes = glfwGetVideoModes(monitor, &count);
-		for(int i = 0 ; i < count ; i++)
+		const GLFWvidmode* modes = glfwGetVideoModes(monitor, &count);
+		for (int i = 0; i < count; i++)
 		{
-			if(MatchPixelFormat(pixelFormat, modes[i]))
+			if (MatchPixelFormat(pixelFormat, modes[i]))
 			{
 				DisplayMode mode(modes->width, modes->height, pixelFormat);
 				ret.Append(mode);
@@ -233,9 +176,9 @@ GLFWDisplayDevice::SupportsDisplayMode(Adapter::Code adapter, const DisplayMode&
 {	
 	//FIXME only checks for width/height
 	Util::Array<DisplayMode> modes = GetAvailableDisplayModes(adapter, requestedMode.GetPixelFormat());
-	for(Util::Array<DisplayMode>::Iterator iter = modes.Begin();iter != modes.End();iter++)
+	for (Util::Array<DisplayMode>::Iterator iter = modes.Begin(); iter != modes.End(); iter++)
 	{
-		if((requestedMode.GetHeight() == iter->GetHeight()) && (requestedMode.GetWidth() == iter->GetWidth()))
+		if ((requestedMode.GetHeight() == iter->GetHeight()) && (requestedMode.GetWidth() == iter->GetWidth()))
 			return true;
 	}
 	return false;
@@ -245,14 +188,13 @@ GLFWDisplayDevice::SupportsDisplayMode(Adapter::Code adapter, const DisplayMode&
 //------------------------------------------------------------------------------
 /**
 */
-GLFWmonitor *
-GLFWDisplayDevice::GetMonitor(Adapter::Code adapter)
+GLFWmonitor*
+GLFWDisplayDevice::GetMonitor(int index)
 {
-	GLFWmonitor * monitor = NULL;
-
+	GLFWmonitor* monitor = NULL;
     switch(adapter)
 	{
-		case Adapter::Primary:
+		case -1:
 			{
 				return glfwGetPrimaryMonitor();
 			}
@@ -264,7 +206,7 @@ GLFWDisplayDevice::GetMonitor(Adapter::Code adapter)
 				GLFWmonitor** monitors = glfwGetMonitors(&count);
 				n_assert(count > 1);
 				// glfw stores primary in first element
-				monitor = monitors[1];
+				monitor = monitors[index];
 			}			
 		break;
 	}
@@ -279,12 +221,12 @@ GLFWDisplayDevice::GetMonitor(Adapter::Code adapter)
 DisplayMode
 GLFWDisplayDevice::GetCurrentAdapterDisplayMode(Adapter::Code adapter)
 {
-    GLFWmonitor * monitor = GetMonitor(adapter);
+    GLFWmonitor* monitor = GetMonitor(adapter);
 	n_assert(monitor);
 	const GLFWvidmode * mode = glfwGetVideoMode(monitor);
 	PixelFormat::Code format;
 	//FIXME
-	if((mode->greenBits == 8 ) && ( mode->blueBits == 8 ) && (mode->redBits == 8))
+	if ((mode->greenBits == 8) && (mode->blueBits == 8) && (mode->redBits == 8))
 	{
 		format = PixelFormat::A8B8G8R8;
 	}
@@ -321,95 +263,10 @@ GLFWDisplayDevice::GetAdapterInfo(Adapter::Code adapter)
 
 //------------------------------------------------------------------------------
 /**
-    Opens a window
-*/
-bool
-GLFWDisplayDevice::OpenWindow()
-{	
-#if NEBULA3_OPENGL4_DEBUG
-	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
-	glfwSetErrorCallback(NebulaGLFWErrorCallback);    
-    n_printf("Creating OpenGL debug context\n");
-#elseif __OGL4__
-    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_FALSE);
-	glDisable(GL_DEBUG_OUTPUT);
-#endif
-	glfwWindowHint(GLFW_RED_BITS, 8);
-	glfwWindowHint(GLFW_GREEN_BITS, 8);
-	glfwWindowHint(GLFW_BLUE_BITS, 8);
-    glfwWindowHint(GLFW_RESIZABLE, this->resizable ? GL_TRUE : GL_FALSE);
-    glfwWindowHint(GLFW_DECORATED, this->decorated ? GL_TRUE : GL_FALSE);
-	glfwWindowHint(GLFW_SRGB_CAPABLE, GL_TRUE);
-
-	// create window
-	this->window = glfwCreateWindow(this->displayMode.GetWidth(), this->displayMode.GetHeight(), this->windowTitle.AsCharPtr(), this->fullscreen ? glfwGetPrimaryMonitor() : NULL, NULL);
-	if (!this->fullscreen) glfwSetWindowPos(this->window, this->displayMode.GetXPos(), this->displayMode.GetYPos());
-	glfwMakeContextCurrent(this->window);
-
-    if (this->verticalSync)
-    {
-        glfwSwapInterval(1);
-    }
-	else
-	{
-		glfwSwapInterval(0);
-	}
-
-	return true;
-}
-
-//------------------------------------------------------------------------------
-/**
-    Embed a window from some other source (for example Qt)
-*/
-bool
-GLFWDisplayDevice::EmbedWindow()
-{
-    n_assert(0 != this->windowData.GetPtr());
-#if NEBULA3_OPENGL4_DEBUG
-	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
-	glfwSetErrorCallback(NebulaGLFWErrorCallback);
-	n_printf("Creating OpenGL debug context\n");
-	#elseif __OGL4__
-    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_FALSE);
-	glDisable(GL_DEBUG_OUTPUT);
-#endif
-	glfwWindowHint(GLFW_RED_BITS, 8);
-	glfwWindowHint(GLFW_GREEN_BITS, 8);
-	glfwWindowHint(GLFW_BLUE_BITS, 8);
-	glfwWindowHint(GLFW_SRGB_CAPABLE, GL_TRUE);
-
-	// create window using our Qt window as child
-	this->window = glfwCreateWindowFromAlien(this->windowData.GetPtr(), NULL);
-	glfwMakeContextCurrent(this->window);
-
-    // get actual window size
-    int height, width;
-    glfwGetWindowSize(this->window, &width, &height);
-
-    // update display mode
-    this->displayMode.SetWidth(width);
-    this->displayMode.SetHeight(height);
-	this->displayMode.SetAspectRatio(width / float(height));
-
-    if (this->verticalSync)
-    {
-        glfwSwapInterval(1);
-    }
-	else
-	{
-		glfwSwapInterval(0);
-	}
-
-	return true;
-}
-
-//------------------------------------------------------------------------------
-/**
     translate keycode
 */
 Input::Key::Code 
-GLFWDisplayDevice::TranslateKeyCode(int inkey) const
+GLFWDisplayDevice::TranslateKeyCode(int inkey)
 {
 	switch (inkey)
 	{
@@ -524,263 +381,5 @@ GLFWDisplayDevice::TranslateKeyCode(int inkey) const
 }
 
 
-//------------------------------------------------------------------------------
-/**
-    callback for key events
-*/
-void
-staticKeyFunc(GLFWwindow *window, int key, int scancode, int action, int mods)
-{
-    GLFWDisplayDevice::Instance()->KeyFunc(window, key, scancode, action, mods);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-GLFWDisplayDevice::KeyFunc(GLFWwindow *window, int key, int scancode, int action, int mods)
-{
-	Input::Key::Code keyCode = TranslateKeyCode(key);
-	DisplayEvent::Code evtype;
-	switch(action)
-	{
-    case GLFW_REPEAT:
-	case GLFW_PRESS:
-		evtype = DisplayEvent::KeyDown;
-		break;
-	case GLFW_RELEASE:
-		evtype = DisplayEvent::KeyUp;
-		break;
-	default:
-		return;
-	}
-	if (Input::Key::InvalidKey != keyCode)
-	{
-		this->NotifyEventHandlers(DisplayEvent(evtype, keyCode));
-	}
-}
-
-
-//------------------------------------------------------------------------------
-/**
-    callbacks for character input
-*/
-void
-staticCharFunc(GLFWwindow *window, unsigned int key)
-{
-    GLFWDisplayDevice::Instance()->CharFunc(window, key);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-GLFWDisplayDevice::CharFunc(GLFWwindow *window, unsigned int key)
-{
-	this->NotifyEventHandlers(DisplayEvent(DisplayEvent::Character, key));
-}
-
-//------------------------------------------------------------------------------
-/**
-    callbacks for mouse buttons
-*/
-void 
-GLFWDisplayDevice::MouseButtonFunc(GLFWwindow *window, int button, int action, int mods)
-{
-	DisplayEvent::Code act = action == GLFW_PRESS ? DisplayEvent::MouseButtonDown : DisplayEvent::MouseButtonUp;
-	Input::MouseButton::Code but;
-	switch (button)
-	{
-	case GLFW_MOUSE_BUTTON_LEFT:
-		but = Input::MouseButton::LeftButton;
-		break;
-	case GLFW_MOUSE_BUTTON_RIGHT:
-		but = Input::MouseButton::RightButton;
-		break;
-	case GLFW_MOUSE_BUTTON_MIDDLE:
-		but = Input::MouseButton::MiddleButton;
-		break;
-	default:
-		return;
-	}
-	double x,y;
-    glfwGetCursorPos(this->window, &x, &y);
-
-	float2 pos;
-	pos.set((float)x / float(this->displayMode.GetWidth()), (float)y / float(this->displayMode.GetHeight()));
-    this->NotifyEventHandlers(DisplayEvent(act, but, float2((float)x, (float)y), pos));
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-staticMouseButtonFunc(GLFWwindow *window, int button, int action, int mods)
-{
-    GLFWDisplayDevice::Instance()->MouseButtonFunc(window, button, action, mods);
-}
-
-//------------------------------------------------------------------------------
-/**
-    callbacks for mouse position
-*/
-void
-staticMouseFunc(GLFWwindow *window, double xpos, double ypos)
-{
-    GLFWDisplayDevice::Instance()->MouseFunc(window, xpos, ypos);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-GLFWDisplayDevice::MouseFunc(GLFWwindow *window, double xpos, double ypos)
-{
-	float2 absMousePos((float)xpos,(float)ypos);
-	float2 pos;
-	pos.set((float)xpos / float(this->displayMode.GetWidth()), (float)ypos / float(this->displayMode.GetHeight()));
-	this->NotifyEventHandlers(DisplayEvent(DisplayEvent::MouseMove, absMousePos, pos));
-}
-
-//------------------------------------------------------------------------------
-/**
-    callbacks for scroll event
-*/
-void
-staticScrollFunc(GLFWwindow *window, double xs, double ys)
-{
-    GLFWDisplayDevice::Instance()->ScrollFunc(window, xs, ys);
-}
-
-//------------------------------------------------------------------------------
-/**
-    callback for scroll events. only vertical scrolling is supported 
-    and no scroll amounts are used, just single steps
-*/
-void 
-GLFWDisplayDevice::ScrollFunc(GLFWwindow *window, double xs, double ys)
-{
-	if(ys != 0.0)
-    {
-	    this->NotifyEventHandlers(DisplayEvent(ys > 0.0f ? DisplayEvent::MouseWheelForward : DisplayEvent::MouseWheelBackward));
-    }
-}
-
-//------------------------------------------------------------------------------
-/**
-    callback for close requested
-*/
-void
-staticCloseFunc(GLFWwindow * window)
-{
-	GLFWDisplayDevice::Instance()->CloseFunc(window);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-GLFWDisplayDevice::CloseFunc(GLFWwindow* window)
-{
-	this->NotifyEventHandlers(DisplayEvent(DisplayEvent::CloseRequested));
-}
-
-//------------------------------------------------------------------------------
-/**
-    callback for focus
-*/
-void
-staticFocusFunc(GLFWwindow * window, int focus)
-{
-    GLFWDisplayDevice::Instance()->FocusFunc(window, focus);;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-GLFWDisplayDevice::FocusFunc(GLFWwindow* window, int focus)
-{
-	if(focus)
-	{
-		this->NotifyEventHandlers(DisplayEvent(DisplayEvent::SetFocus));
-	}
-	else
-	{
-		this->NotifyEventHandlers(DisplayEvent(DisplayEvent::KillFocus));
-	}
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-staticSizeFunc(GLFWwindow* window, int width, int height)
-{
-	GLFWDisplayDevice::Instance()->ResizeFunc(window, width, height);
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void 
-GLFWDisplayDevice::ResizeFunc( GLFWwindow* window, int width, int height )
-{
-	// only resize if size is not 0
-	if (width != 0 && height != 0)
-	{
-		this->displayMode.SetWidth(width);
-		this->displayMode.SetHeight(height);
-		this->displayMode.SetAspectRatio(width / float(height));
-
-		// resize render targets and such
-		DisplayDeviceBase::Reopen();
-	}	
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-staticDropFunc(GLFWwindow* window, int files, const char** args)
-{
-	// empty for now
-}
-
-//------------------------------------------------------------------------------
-/**
-    Enables callbacks through glfw
-*/
-void 
-GLFWDisplayDevice::EnableCallbacks()
-{
-    glfwSetKeyCallback(this->window, staticKeyFunc);
-    glfwSetMouseButtonCallback(this->window, staticMouseButtonFunc);
-    glfwSetCursorPosCallback(this->window, staticMouseFunc);
-    glfwSetWindowCloseCallback(this->window, staticCloseFunc);
-    glfwSetWindowFocusCallback(this->window, staticFocusFunc);
-    glfwSetWindowSizeCallback(this->window, staticSizeFunc);
-    glfwSetScrollCallback(this->window, staticScrollFunc);
-	glfwSetCharCallback(this->window, staticCharFunc);
-	glfwSetDropCallback(this->window, staticDropFunc);
-}
-
-//------------------------------------------------------------------------------
-/**
-    Disables callbacks through glfw
-*/
-void 
-GLFWDisplayDevice::DisableCallbacks()
-{
-    glfwSetKeyCallback(this->window, NULL);
-    glfwSetMouseButtonCallback(this->window, NULL);
-    glfwSetCursorPosCallback(this->window, NULL);
-    glfwSetWindowCloseCallback(this->window, NULL);
-    glfwSetWindowFocusCallback(this->window, NULL);
-    glfwSetWindowSizeCallback(this->window, NULL);
-    glfwSetScrollCallback(this->window, NULL);
-	glfwSetCharCallback(this->window, NULL);
-}
-
-} // namespace CoreGraphics
+} // namespace GLFW
 

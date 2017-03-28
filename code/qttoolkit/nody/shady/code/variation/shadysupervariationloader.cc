@@ -118,6 +118,7 @@ ShadySuperVariationLoader::ParseSource( const Ptr<XmlReader>& reader, const Ptr<
     String language = reader->GetString("type");
     String path = reader->GetString("template");
     String header = reader->GetString("header");
+	String target = reader->GetString("target");
 
     if (language == "GLSL")         { variation->SetTemplate(path, GLSL); variation->SetHeader(header, GLSL); }
     else if (language == "HLSL")    { variation->SetTemplate(path, HLSL); variation->SetHeader(header, HLSL); }
@@ -126,7 +127,24 @@ ShadySuperVariationLoader::ParseSource( const Ptr<XmlReader>& reader, const Ptr<
     else if (language == "LUA")     { variation->SetTemplate(path, LUA); variation->SetHeader(header, LUA); }
     else if (language == "JS")      { variation->SetTemplate(path, JS); variation->SetHeader(header, JS); }
     else                            n_error("Unknown source language '%s'!", language.AsCharPtr());
+	variation->SetTarget(target);
+
+	// go through includes
+	if (reader->SetToFirstChild("Include")) do
+	{
+		this->ParseInclude(reader, language, variation);
+	}
+	while (reader->SetToNextChild("Include"));
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ShadySuperVariationLoader::ParseInclude(const Ptr<IO::XmlReader>& reader, const Util::String& language, const Ptr<ShadySuperVariation>& variation)
+{
+	IO::URI path = reader->GetString("path");
+	variation->AddInclude(language, path);
+}
 
 } // namespace Shady

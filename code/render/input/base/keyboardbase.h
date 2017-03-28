@@ -6,7 +6,7 @@
     An input handler which represents a keyboard for polling.
 
     (C) 2007 Radon Labs GmbH	
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "input/inputhandler.h"
 #include "input/key.h"
@@ -35,9 +35,9 @@ public:
 
     /// return true if a key is currently pressed
     bool KeyPressed(Input::Key::Code keyCode) const;
-    /// return true if key was down at least once in current frame
+    /// return true if key was pushed down at least once in current frame
     bool KeyDown(Input::Key::Code keyCode) const;
-    /// return true if key was up at least once in current frame
+    /// return true if key was released at least once in current frame
     bool KeyUp(Input::Key::Code keyCode) const;
     /// get character input in current frame
     const Util::String& GetCharInput() const;
@@ -79,7 +79,7 @@ private:
 inline void
 KeyboardBase::SetKeyDown(Input::Key::Code keyCode)
 {
-	KeyState& keyState = this->nextKeyStates[keyCode];
+	KeyState& keyState = this->keyStates[keyCode];
 	if (!keyState.pressed)
 	{
 		keyState.down = true;
@@ -93,7 +93,7 @@ KeyboardBase::SetKeyDown(Input::Key::Code keyCode)
 inline void
 KeyboardBase::SetKeyUp(Input::Key::Code keyCode)
 {
-	this->nextKeyStates[keyCode].up = true;
+	this->keyStates[keyCode].up = true;
 }
 
 //------------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  entityseletionutil.cc
 //  (C) 2009 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 
 #include "stdneb.h"
@@ -25,7 +25,7 @@
 #include "physicsfeature/physicsprotocol.h"
 #include "physicsfeatureunit.h"
 #include "coregraphics/rendershape.h"
-#include "leveleditor2protocol.h"
+#include "leveleditor2/leveleditor2protocol.h"
 #include "leveleditor2app.h"
 #include "managers/attributewidgetmanager.h"
 #include "graphics/graphicsprotocol.h"
@@ -35,7 +35,7 @@
 #include "properties/editorproperty.h"
 #include "imgui.h"
 
-
+static const int MarqueeSize = 16;
 using namespace Util;
 using namespace BaseGameFeature;
 using namespace Input;
@@ -55,6 +55,7 @@ __ImplementSingleton(LevelEditor2::SelectionUtil);
 SelectionUtil::SelectionUtil() :
     hasSelectionChanged(false),	
 	mouseDrag(false),
+	marqueeSelecting(false),
 	keyMultiSelection(Input::Key::Shift),
 	keyMultiSelectionRemove(Input::Key::LeftControl),
 	selectInside(true)
@@ -97,28 +98,30 @@ SelectionUtil::HandleInput()
         }		
     }
 
+	ImGuiIO& io = ImGui::GetIO();
+	io.WantCaptureMouse = false;
+	io.WantCaptureKeyboard = false;
+
     // Handle mouse input, if a valid handler is available
     if (mouse.isvalid())
     {
+		Math::float2 curPos = mouse->GetPixelPosition();
         if (mouse->ButtonDown(Input::MouseButton::LeftButton))
         {
 			this->mouseDrag = true;
-			this->clickPos = mouse->GetPixelPosition();			
-			ImGuiIO& io = ImGui::GetIO();
-			io.WantCaptureMouse = false;
-			io.WantCaptureKeyboard = false;
-			return true;
+			this->clickPos = curPos;			
         }
+		if (mouse->ButtonPressed(Input::MouseButton::LeftButton))
+		{
+			this->marqueeSelecting = ((curPos - this->clickPos).lengthsq() > MarqueeSize);
+		}
 		if (mouse->ButtonUp(Input::MouseButton::LeftButton))
 		{
 			if (this->mouseDrag)
 			{
 				ImGuiIO& io = ImGui::GetIO();
-				io.WantCaptureMouse = true;
-				io.WantCaptureKeyboard = true;
 				this->mouseDrag = false;
-				Math::float2 curPos = mouse->GetPixelPosition();				
-				if ((curPos - this->clickPos).lengthsq() < 9)
+				if (!this->marqueeSelecting)
 				{
 					this->GetEntityUnderMouse();
 				}
@@ -142,7 +145,7 @@ SelectionUtil::HandleInput()
 					__StaticSend(Graphics::GraphicsInterface, msg);
 					__SingleFireCallback(SelectionUtil, OnEntitiesClicked, this, msg.upcast<Messaging::Message>());
 				}
-
+				this->marqueeSelecting = false;
 			}
 		}
     }
@@ -163,7 +166,10 @@ SelectionUtil::OnEntityClicked(const Ptr<Messaging::Message>& msg)
 		{
 			return;
 		}
-
+        if (entity->GetBool(Attr::IsLocked))
+        {
+            return;
+        }
 		int entityIndexInSelectedList = this->selectedEntities.FindIndex(entity->GetGuid(Attr::EntityGuid));
 		if(entityIndexInSelectedList!=InvalidIndex)
 		{	
@@ -239,7 +245,13 @@ SelectionUtil::OnEntitiesClicked(const Ptr<Messaging::Message>& msg)
 					{
 						if (!this->selectInside || (this->selectInside && InvalidIndex == edgeIds.BinarySearchIndex(ids[i])))
 						{
-							EntityGuid guid = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(ids[i])->GetGuid(Attr::EntityGuid);
+                            Ptr<Game::Entity> ent = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(ids[i]);
+                            if (ent->GetBool(Attr::IsLocked) || LevelEditor2App::Instance()->GetWindow()->GetLayerHandler()->IsEntityInLockedLayer(ent))
+                            {
+                                continue;
+                            }
+							EntityGuid guid = ent->GetGuid(Attr::EntityGuid);
+                            
 							if (current.BinarySearchIndex(guid) == InvalidIndex)
 							{
 								entities.Append(guid);
@@ -283,6 +295,11 @@ SelectionUtil::OnEntitiesClicked(const Ptr<Messaging::Message>& msg)
 			{
 				if (BaseGameFeature::EntityManager::Instance()->ExistsEntityByUniqueId(ids[i]))
 				{
+                    Ptr<Game::Entity> ent = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(ids[i]);
+                    if (ent->GetBool(Attr::IsLocked) || LevelEditor2App::Instance()->GetWindow()->GetLayerHandler()->IsEntityInLockedLayer(ent))
+                    {
+                        continue;
+                    }
 					if (!this->selectInside || (this->selectInside && InvalidIndex == edgeIds.BinarySearchIndex(ids[i])))
 					{
 						entities.Append(BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(ids[i])->GetGuid(Attr::EntityGuid));
@@ -313,7 +330,7 @@ SelectionUtil::HasSelectionChanged()
     Returns an array of entities that were selected by the last input
     of the user.
 */
-Util::Array<Ptr<Game::Entity> >
+Util::Array<Ptr<Game::Entity>>
 SelectionUtil::GetSelectedEntities(bool withChildren)
 {    
     if (withChildren)
@@ -452,23 +469,31 @@ SelectionUtil::GetEntityUnderMouse()
 void
 SelectionUtil::Render()
 {
-  
+#define swap(x, y) { float c = x; x = y; y = c; }
 	// if dragging mouse draw a rectangle
 	if (this->mouseDrag)
 	{
 		Math::float2 curPos = InputServer::Instance()->GetDefaultMouse()->GetPixelPosition();
-		float2 top = float2::minimize(curPos, this->clickPos);
-		float2 bottom = float2::maximize(curPos, this->clickPos);
-		float2 size = bottom - top;
+		float top = n_min(curPos.y(), this->clickPos.y());
+		float bottom = n_max(curPos.y(), this->clickPos.y());
+		float left = n_min(curPos.x(), this->clickPos.x());
+		float right = n_max(curPos.x(), this->clickPos.x());
+		float width = abs(left - right);
+		float height = abs(bottom - top);
 
-		if (size.lengthsq() > 9)
+		Math::float4 selectionColor = LevelEditor2App::Instance()->GetWindow()->GetSelectionColour();
+		if (this->marqueeSelecting)
 		{			
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0);
-			ImGui::SetNextWindowPos(ImVec2(top.x(), top.y()));
-			ImGui::SetNextWindowSize(ImVec2(size.x(), size.y()));
-			ImGui::Begin("_selection", NULL, ImVec2(size.x(), size.y()), -1.0f, ImGuiWindowFlags_NoInputs| ImGuiWindowFlags_NoTitleBar);
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(0, 0));
+			ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(selectionColor.x(), selectionColor.y(), selectionColor.z(), 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(selectionColor.x(), selectionColor.y(), selectionColor.z(), 0.5f));
+			ImGui::SetNextWindowPos(ImVec2(left, top));
+			ImGui::SetNextWindowSize(ImVec2(width, height));
+			ImGui::Begin("_selection", NULL, ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_ShowBorders);
 			ImGui::End();
-			ImGui::PopStyleVar();
+			ImGui::PopStyleColor(2);
+			ImGui::PopStyleVar(2);
 		}						
 	}
 }
@@ -479,7 +504,6 @@ SelectionUtil::Render()
 void
 SelectionUtil::RenderBBox(const bbox & origBox)
 {
-
     const int linecount = 24;
     CoreGraphics::RenderShape::RenderShapeVertex lines[linecount * 2];
     vector corner;

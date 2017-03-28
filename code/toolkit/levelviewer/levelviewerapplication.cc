@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  levelviewerapplication.cc
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "levelviewerapplication.h"
@@ -17,11 +17,11 @@
 #include "basegamefeature/basegameprotocol.h"
 #include "scriptingfeature/scriptingcommands.h"
 #include "gamestates/reloadstate.h"
-#include "effectscommands.h"
-#include "audioprotocol.h"
-#include "uicommands.h"
-#include "nidl/levelviewercommands.h"
-#include "posteffectprotocol.h"
+#include "effects/effectscommands.h"
+#include "faudio/audioprotocol.h"
+#include "ui/uicommands.h"
+#include "levelviewer/NIDL/levelviewercommands.h"
+#include "posteffect/posteffectprotocol.h"
 
 
 namespace Tools
@@ -119,6 +119,9 @@ LevelViewerGameStateApplication::SetupGameFeatures()
 {
 	GameApplication::SetupGameFeatures();
 
+    // setup input feature
+    this->inputFeature = InputFeature::InputFeatureUnit::Create();
+    this->gameServer->AttachGameFeature(this->inputFeature.upcast<Game::FeatureUnit>());
 	// setup remote server
 	this->remoteServer = QtRemoteServer::Create();
 	this->remoteServer->SetPort(2104);
@@ -155,12 +158,15 @@ LevelViewerGameStateApplication::SetupGameFeatures()
 	// create post effect
 	this->postEffectFeature = PostEffect::PostEffectFeatureUnit::Create();
 
-    // attach features
-    this->gameServer->AttachGameFeature(this->graphicsFeature.cast<Game::FeatureUnit>());	
-    this->gameServer->AttachGameFeature(this->baseGameFeature.upcast<Game::FeatureUnit>());
+	this->navigationFeature = Navigation::NavigationFeatureUnit::Create();
+
+    // attach features	
+	this->gameServer->AttachGameFeature(this->baseGameFeature.upcast<Game::FeatureUnit>());    
+	this->gameServer->AttachGameFeature(this->effectFeature.cast<Game::FeatureUnit>());
+	this->gameServer->AttachGameFeature(this->graphicsFeature.cast<Game::FeatureUnit>());
 	this->gameServer->AttachGameFeature(this->scriptingFeature.upcast<Game::FeatureUnit>());
-    this->gameServer->AttachGameFeature(this->physicsFeature.upcast<Game::FeatureUnit>());    
-    this->gameServer->AttachGameFeature(this->effectFeature.cast<Game::FeatureUnit>());
+    this->gameServer->AttachGameFeature(this->physicsFeature.upcast<Game::FeatureUnit>());        
+	this->gameServer->AttachGameFeature(this->navigationFeature.cast<Game::FeatureUnit>());
 	
 	// setup intermediate gui
 	this->imgui = Dynui::ImguiAddon::Create();
@@ -185,6 +191,7 @@ LevelViewerGameStateApplication::SetupGameFeatures()
 	this->consoleHandler = Dynui::ImguiConsoleHandler::Create();
 	this->consoleHandler->Setup();
 
+	this->uiFeature->LoadAllFonts("bin:../../data/");
 	if (IO::IoServer::Instance()->FileExists("bin:../../data/levelviewer/levellist.rml"))
 	{
 		this->uiFeature->CreateLayout("_levellist", "bin:../../data/levelviewer/levellist.rml");
@@ -231,6 +238,8 @@ LevelViewerGameStateApplication::CleanupGameFeatures()
 	this->imgui = 0;
 
 	this->remoteClient = 0;
+	this->gameServer->RemoveGameFeature(this->navigationFeature.upcast<Game::FeatureUnit>());
+	this->navigationFeature = 0;
 	this->gameServer->RemoveGameFeature(this->postEffectFeature.upcast<Game::FeatureUnit>());
 	this->postEffectFeature = 0;
 	this->gameServer->RemoveGameFeature(this->uiFeature.upcast<Game::FeatureUnit>());
@@ -245,6 +254,8 @@ LevelViewerGameStateApplication::CleanupGameFeatures()
 	this->graphicsFeature = 0;
 	this->gameServer->RemoveGameFeature(this->baseGameFeature.upcast<Game::FeatureUnit>());
 	this->baseGameFeature = 0;
+    this->gameServer->RemoveGameFeature(this->inputFeature.upcast<Game::FeatureUnit>());
+    this->inputFeature = 0;
 
 	GameApplication::CleanupGameFeatures();
 }

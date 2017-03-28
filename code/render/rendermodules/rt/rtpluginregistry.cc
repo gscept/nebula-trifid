@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  renderthreadpluginregistry.cc
 //  (C) 2009 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "rendermodules/rt/rtpluginregistry.h"
@@ -258,20 +258,6 @@ RTPluginRegistry::OnRenderAfter(IndexT frameId, Timing::Time time)
 /**
 */
 void
-RTPluginRegistry::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
-{
-    n_assert(this->IsValid());
-    IndexT i;
-    for (i = 0; i < this->plugins.Size(); i++)
-    {
-        this->plugins[i]->OnRenderFrameBatch(frameBatch);
-    }
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
 RTPluginRegistry::OnRender(const Util::StringAtom& filter)
 {
 	n_assert(this->IsValid());
@@ -306,7 +292,7 @@ RTPluginRegistry::OnFrameAfter(IndexT frameId, Timing::Time time)
 	IndexT i;
 	for (i = 0; i < this->plugins.Size(); i++)
 	{
-		this->plugins[i]->OnFrameBefore(frameId, time);
+		this->plugins[i]->OnFrameAfter(frameId, time);
 	}
 }
 
@@ -341,13 +327,13 @@ RTPluginRegistry::OnRenderWithoutView(IndexT frameId, Timing::Time time)
 /**
 */
 void 
-RTPluginRegistry::OnWindowResized(SizeT width, SizeT height)
+RTPluginRegistry::OnWindowResized(IndexT windowId, SizeT width, SizeT height)
 {
 	n_assert(this->IsValid());
 	IndexT i;
 	for (i = 0; i < this->plugins.Size(); i++)
 	{
-		this->plugins[i]->OnWindowResized(width, height);
+		this->plugins[i]->OnWindowResized(windowId, width, height);
 	}
 }
 

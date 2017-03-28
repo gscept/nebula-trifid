@@ -1,11 +1,10 @@
 //------------------------------------------------------------------------------
 //  uirtplugin.cc
-//  (C) 2015 Individual contributors, see AUTHORS file
+//  (C) 2015-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "uiserver.h"
 #include "uirtplugin.h"
-#include "frame/framebatch.h"
 #include "uifeatureunit.h"
 
 
@@ -53,13 +52,13 @@ UiRTPlugin::OnUnregister()
 /**
 */
 void
-UiRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
+UiRTPlugin::OnRender(const Util::StringAtom& filter)
 {
 	n_assert(this->uiServer.isvalid());
-	if (CoreGraphics::FrameBatchType::UI == frameBatch->GetType())
+	if (filter == "UI")
 	{				
-		this->uiServer->Render(frameBatch);	
-		UiFeatureUnit::Instance()->RenderPlugins(frameBatch);
+		this->uiServer->Render(filter);	
+		UiFeatureUnit::Instance()->RenderPlugins(filter);
 	}
 }
 
@@ -67,7 +66,7 @@ UiRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
 /**
 */
 void 
-UiRTPlugin::OnWindowResized( SizeT width, SizeT height )
+UiRTPlugin::OnWindowResized(IndexT windowId, SizeT width, SizeT height)
 {
 	n_assert(this->uiServer.isvalid());
 	this->uiServer->Resize(width, height);	

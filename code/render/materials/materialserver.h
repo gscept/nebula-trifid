@@ -6,7 +6,7 @@
 	Server object for the material subsystem. Factory for Materials.
     
     (C) 2007 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
 #include "core/singleton.h"
@@ -14,7 +14,6 @@
 #include "materials/materialpalette.h"
 #include "materials/material.h"
 #include "materials/surfacename.h"
-#include "frame/frameshader.h"
 #include "util/dictionary.h"
 #include "util/array.h"
 #include "resources/simpleresourcemapper.h"
@@ -47,9 +46,9 @@ public:
     /// get all materials, creates new array with materials
     Util::Array<Ptr<Material>> GetMaterials() const;
 	/// get material codes by type
-	const Util::Array<Ptr<Material> >& GetMaterialsByBatchGroup(const Frame::BatchGroup::Code& type);
+	const Util::Array<Ptr<Material> >& GetMaterialsByBatchGroup(const Graphics::BatchGroup::Code& type);
 	/// returns true if we have any materials by type
-    const bool HasMaterialsByBatchGroup(const Frame::BatchGroup::Code& type);
+    const bool HasMaterialsByBatchGroup(const Graphics::BatchGroup::Code& type);
 	/// add a material to the server
 	void AddMaterial(const Ptr<Material>& material);
 
@@ -58,11 +57,8 @@ public:
 	/// convert shader feature bit mask into string
 	Util::String FeatureMaskToString(Materials::MaterialFeature::Mask mask);
 
-	/// reloads the render materials palette
-	void ReloadRenderMaterials();
-
 	/// gain access to a material palette by name, will be loaded if it isn't already
-	Ptr<MaterialPalette> LookupMaterialPalette(const Resources::ResourceId& name);
+	const Ptr<MaterialPalette>& LookupMaterialPalette(const Resources::ResourceId& name);
 	
 private:
     friend class MaterialType;
@@ -75,7 +71,7 @@ private:
     SurfaceName surfaceNameRegistry;
 	MaterialFeature materialFeature;
 	Util::Dictionary<Resources::ResourceId, Ptr<Material>> materials;
-	Util::Dictionary<Frame::BatchGroup::Code, Util::Array<Ptr<Material>>> materialsByBatchGroup;
+	Util::Dictionary<Graphics::BatchGroup::Code, Util::Array<Ptr<Material>>> materialsByBatchGroup;
 	Util::Dictionary<Resources::ResourceId, Ptr<MaterialPalette>> materialPalettes;
 	bool isOpen;
 };
@@ -112,7 +108,7 @@ MaterialServer::GetMaterials() const
 /**
 */
 inline const Util::Array<Ptr<Material> >& 
-MaterialServer::GetMaterialsByBatchGroup(const Frame::BatchGroup::Code& type)
+MaterialServer::GetMaterialsByBatchGroup(const Graphics::BatchGroup::Code& type)
 {
 	n_assert(this->materialsByBatchGroup.Contains(type));
 	return this->materialsByBatchGroup[type];
@@ -122,7 +118,7 @@ MaterialServer::GetMaterialsByBatchGroup(const Frame::BatchGroup::Code& type)
 /**
 */
 inline const bool 
-MaterialServer::HasMaterialsByBatchGroup(const Frame::BatchGroup::Code& type)
+MaterialServer::HasMaterialsByBatchGroup(const Graphics::BatchGroup::Code& type)
 {
 	return this->materialsByBatchGroup.Contains(type);
 }

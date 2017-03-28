@@ -1,6 +1,7 @@
 //------------------------------------------------------------------------------
 //  ogl4memoryvertexbufferloader.cc
 //  (C) 2007 Radon Labs GmbH
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "coregraphics/vertexlayoutserver.h"
@@ -29,6 +30,8 @@ OGL4MemoryVertexBufferLoader::OnLoadRequested()
     n_assert(this->resource.isvalid());
     n_assert(!this->resource->IsAsyncEnabled());
     n_assert(this->numVertices > 0);
+	const Ptr<VertexBuffer>& res = this->resource.downcast<VertexBuffer>();
+
     if (VertexBuffer::UsageImmutable == this->usage)
     {
         n_assert(0 != this->vertexDataPtr);
@@ -44,25 +47,29 @@ OGL4MemoryVertexBufferLoader::OnLoadRequested()
 	if (this->syncing == VertexBuffer::SyncingFlush)	glBufferData(GL_ARRAY_BUFFER, this->numVertices * vertexSize, this->vertexDataPtr, usage | sync);
 	else												glBufferStorage(GL_ARRAY_BUFFER, this->numVertices * vertexSize, this->vertexDataPtr, GL_MAP_WRITE_BIT | GL_MAP_READ_BIT | sync);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	res->SetOGL4VertexBuffer(ogl4VertexBuffer);
+	res->SetVertexByteSize(VertexLayout::CalculateByteSize(this->vertexComponents));
 
-	// setup vertex layout
-	Ptr<VertexLayout> vertexLayout = VertexLayout::Create();
-	vertexLayout->SetStreamBuffer(0, ogl4VertexBuffer);
-	vertexLayout->Setup(this->vertexComponents);
-	if (0 != this->vertexDataPtr)
+	if (this->createLayout)
 	{
-		n_assert((this->numVertices * vertexLayout->GetVertexByteSize()) == this->vertexDataSize);
-	}
-	
-	n_assert(GLSUCCESS);
+		// setup vertex layout
+		Ptr<VertexLayout> vertexLayout = VertexLayout::Create();
+		vertexLayout->SetStreamBuffer(0, res);
+		vertexLayout->Setup(this->vertexComponents);
+		if (0 != this->vertexDataPtr)
+		{
+			n_assert((this->numVertices * vertexLayout->GetVertexByteSize()) == this->vertexDataSize);
+		}
+
+		n_assert(GLSUCCESS);
+		res->SetVertexLayout(vertexLayout);
+	}	
 
     // setup our resource object
-    const Ptr<VertexBuffer>& res = this->resource.downcast<VertexBuffer>();
     n_assert(!res->IsLoaded());
 	res->SetUsage(this->usage);
 	res->SetAccess(this->access);
 	res->SetSyncing(this->syncing);
-    res->SetVertexLayout(vertexLayout);
     res->SetNumVertices(this->numVertices);
 	res->SetByteSize(this->vertexDataSize);
     res->SetOGL4VertexBuffer(ogl4VertexBuffer);

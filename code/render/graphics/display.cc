@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  display.cc
 //  (C) 2008 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "graphics/display.h"
@@ -43,6 +43,7 @@ Display::Open()
 {
     n_assert(!this->isOpen);
     n_assert(!this->resourceMappers.IsEmpty());
+	this->isOpen = true;
 
     Ptr<Graphics::SetupGraphics> msg = Graphics::SetupGraphics::Create();
     msg->SetAdapter(this->settings.GetAdapter());
@@ -73,7 +74,6 @@ Display::Open()
     this->settings.SetFullscreen(msg->GetActualFullscreen());
     this->settings.SetAdapter(msg->GetActualAdapter());
     
-    this->isOpen = true;
 }
 
 //------------------------------------------------------------------------------
@@ -95,12 +95,13 @@ Display::Close()
 void 
 Display::Reopen()
 {
-	Ptr<Graphics::UpdateDisplay> updDisp = Graphics::UpdateDisplay::Create();
+	Ptr<Graphics::UpdateWindow> updDisp = Graphics::UpdateWindow::Create();
 	updDisp->SetAntiAliasQuality(this->settings.GetAntiAliasQuality());
 	updDisp->SetDisplayMode(this->settings.DisplayMode());
 	updDisp->SetFullscreen(this->settings.IsFullscreen());
 	updDisp->SetWindowData(this->windowData);
 	updDisp->SetTripleBufferingEnabled(this->settings.IsTripleBufferingEnabled());
+	updDisp->SetWindow(0);	// always set default window
 	__StaticSend(GraphicsInterface, updDisp);	
 }
 

@@ -213,6 +213,8 @@ SET(foundation_io_src
 	io/excelxmlreader.h
 	io/filestream.cc
 	io/filestream.h
+	io/safefilestream.cc
+	io/safefilestream.h	
 	io/filetime.h
 	io/fswrapper.h
 	io/gamecontentserver.cc

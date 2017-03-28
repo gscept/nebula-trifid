@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  inputserver.cc
 //  (C) 2007 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "input/inputserver.h"
@@ -12,7 +12,7 @@ namespace Input
 __ImplementClass(Input::InputServer, 'INPS', Win32::Win32InputServer);
 __ImplementInterfaceSingleton(Input::InputServer);
 #elif (__OGL4__ || __VULKAN__)
-__ImplementClass(Input::InputServer, 'INPS', OpenGL4::GLFWInputServer);
+__ImplementClass(Input::InputServer, 'INPS', GLFW::GLFWInputServer);
 __ImplementInterfaceSingleton(Input::InputServer);
 #else
 #error "InputServer class not implemented on this platform!"

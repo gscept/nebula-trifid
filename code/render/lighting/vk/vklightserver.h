@@ -15,7 +15,6 @@
 #include "resources/managedtexture.h"
 #include "renderutil/drawfullscreenquad.h"
 #include "coregraphics/rendertarget.h"
-#include "frame/frameserver.h"
 #include "renderutil/drawquad.h"
 #include "graphics/modelentity.h"
 #include "util/fixedpool.h"
@@ -97,6 +96,7 @@ protected:
 	/// global light variables
     Ptr<CoreGraphics::ConstantBuffer> lightServerUniformBuffer;
     Ptr<CoreGraphics::ShaderVariable> lightServerUniformBufferVar;
+	Ptr<CoreGraphics::ShaderVariable> globalLightDirWorldspace;
 	Ptr<CoreGraphics::ShaderVariable> globalLightDir;
 	Ptr<CoreGraphics::ShaderVariable> globalLightColor;
 	Ptr<CoreGraphics::ShaderVariable> globalBackLightColor;

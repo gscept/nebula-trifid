@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  sm50shadowserver.cc
-//  (C) 2011-2013 Individual contributors, see AUTHORS file
+//  (C) 2011-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "lighting/sm50/sm50shadowserver.h"
@@ -75,14 +75,15 @@ SM50ShadowServer::Open()
 	SizeT rtHeight = 512;
 	SizeT resolveWidth = rtWidth * ShadowLightsPerColumn;
 	SizeT resolveHeight = rtHeight * ShadowLightsPerRow;
-	PixelFormat::Code pixelFormat = PixelFormat::G32R32F;	// VSM shadow mapping uses two channels
+	PixelFormat::Code VSMPixelFormat = PixelFormat::G32R32F;	// MSM shadow mapping uses four channels
+	PixelFormat::Code MSMPixelFormat = PixelFormat::R16G16B16A16;
 
 	// create a shadow buffer for up to MaxNumShadowLights local light sources
 	this->spotLightShadowBufferAtlas = RenderTarget::Create();
 	this->spotLightShadowBufferAtlas->SetWidth(rtWidth);
 	this->spotLightShadowBufferAtlas->SetHeight(rtHeight);
 	this->spotLightShadowBufferAtlas->SetAntiAliasQuality(AntiAliasQuality::None);
-	this->spotLightShadowBufferAtlas->SetColorBufferFormat(pixelFormat);
+	this->spotLightShadowBufferAtlas->SetColorBufferFormat(VSMPixelFormat);
 	this->spotLightShadowBufferAtlas->SetResolveTextureResourceId(ResourceId("SpotLightShadowBufferAtlas"));
 	this->spotLightShadowBufferAtlas->SetResolveTextureWidth(resolveWidth);
 	this->spotLightShadowBufferAtlas->SetResolveTextureHeight(resolveHeight);
@@ -93,7 +94,7 @@ SM50ShadowServer::Open()
 	this->spotLightShadowMap1->SetWidth(rtWidth);
 	this->spotLightShadowMap1->SetHeight(rtHeight);
 	this->spotLightShadowMap1->SetAntiAliasQuality(AntiAliasQuality::None);
-	this->spotLightShadowMap1->SetColorBufferFormat(pixelFormat);
+	this->spotLightShadowMap1->SetColorBufferFormat(VSMPixelFormat);
 	this->spotLightShadowMap1->SetResolveTextureResourceId(ResourceId("SpotLightShadowMap1"));
 	this->spotLightShadowMap1->Setup();
 
@@ -102,7 +103,7 @@ SM50ShadowServer::Open()
 	this->spotLightShadowMap2->SetWidth(rtWidth);
 	this->spotLightShadowMap2->SetHeight(rtHeight);
 	this->spotLightShadowMap2->SetAntiAliasQuality(AntiAliasQuality::None);
-	this->spotLightShadowMap2->SetColorBufferFormat(pixelFormat);
+	this->spotLightShadowMap2->SetColorBufferFormat(VSMPixelFormat);
 	this->spotLightShadowMap2->SetResolveTextureResourceId(ResourceId("SpotLightShadowMap2"));
 	this->spotLightShadowMap2->Setup();
 
@@ -163,7 +164,7 @@ SM50ShadowServer::Open()
         this->pointLightShadowCubes[i] = RenderTargetCube::Create();
         this->pointLightShadowCubes[i]->SetWidth(rtWidth);
         this->pointLightShadowCubes[i]->SetHeight(rtHeight);
-        this->pointLightShadowCubes[i]->SetColorBufferFormat(pixelFormat);
+		this->pointLightShadowCubes[i]->SetColorBufferFormat(MSMPixelFormat);
         this->pointLightShadowCubes[i]->SetResolveTextureResourceId(ResourceId("PointLightShadowCube" + String::FromInt(i)));
 		this->pointLightShadowCubes[i]->SetLayered(true);
         this->pointLightShadowCubes[i]->Setup();
@@ -172,7 +173,7 @@ SM50ShadowServer::Open()
 	this->pointLightShadowFilterCube = RenderTargetCube::Create();
 	this->pointLightShadowFilterCube->SetWidth(rtWidth);
 	this->pointLightShadowFilterCube->SetHeight(rtHeight);
-	this->pointLightShadowFilterCube->SetColorBufferFormat(pixelFormat);
+	this->pointLightShadowFilterCube->SetColorBufferFormat(MSMPixelFormat);
 	this->pointLightShadowFilterCube->SetResolveTextureResourceId(ResourceId("PointLightShadowCubeFilter"));
 	this->pointLightShadowFilterCube->SetLayered(true);
 	this->pointLightShadowFilterCube->Setup();
@@ -187,17 +188,15 @@ SM50ShadowServer::Open()
     this->pointLightPass = FramePass::Create();
 	this->pointLightPass->SetClearFlags(RenderTarget::ClearColor);
     this->pointLightPass->SetName("PointLightShadowPass");
-	this->pointLightPass->SetClearColor(float4(1000, 1000, 0, 0));
+	this->pointLightPass->SetClearColor(float4(FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX));
     this->pointLightPass->AddBatch(this->pointLightBatch);
 	this->shadowShader = ShaderServer::Instance()->GetShader("shd:shadow")->CreateState({ NEBULAT_DEFAULT_GROUP });
 	this->pointLightPosVar = this->shadowShader->GetVariableByName("LightCenter");
 
 	// load shaders for point light blur
-	this->pointLightBlur = ShaderServer::Instance()->GetShader("shd:blur_cube_rg32f_cs")->CreateState({ NEBULAT_DEFAULT_GROUP });
+	this->pointLightBlur = ShaderServer::Instance()->GetShader("shd:blur_cube_rgba16_cs")->CreateState({ NEBULAT_DEFAULT_GROUP });
 	this->xBlurMask = ShaderServer::Instance()->FeatureStringToMask("Alt0");
 	this->yBlurMask = ShaderServer::Instance()->FeatureStringToMask("Alt1");
-	//this->pointLightBlurReadLinear = this->pointLightBlur->GetVariableByName("ReadImageLinear");
-	//this->pointLightBlurReadPoint = this->pointLightBlur->GetVariableByName("ReadImagePoint");
 	this->pointLightBlurWrite = this->pointLightBlur->GetVariableByName("WriteImage");
 
 #if NEBULA3_ENABLE_PROFILING
@@ -223,16 +222,25 @@ SM50ShadowServer::Open()
 	this->globalLightShadowBuffer->SetWidth(csmWidth);
 	this->globalLightShadowBuffer->SetHeight(csmHeight);
 	this->globalLightShadowBuffer->SetAntiAliasQuality(AntiAliasQuality::None);
-	this->globalLightShadowBuffer->SetColorBufferFormat(pixelFormat);
+	this->globalLightShadowBuffer->SetColorBufferFormat(MSMPixelFormat);
 	this->globalLightShadowBuffer->SetResolveTextureResourceId(ResourceId("GlobalLightShadowBuffer"));
-	this->globalLightShadowBuffer->Setup();	
+	
+
+	this->globalLightDepthBuffer = DepthStencilTarget::Create();
+	this->globalLightDepthBuffer->SetWidth(csmWidth);
+	this->globalLightDepthBuffer->SetHeight(csmHeight);
+	this->globalLightDepthBuffer->SetDepthStencilBufferFormat(PixelFormat::D24S8);
+	this->globalLightDepthBuffer->Setup();
+
+	this->globalLightShadowBuffer->SetDepthStencilTarget(this->globalLightDepthBuffer);
+	this->globalLightShadowBuffer->Setup();
 
 	// setup other buffer
 	this->globalLightShadowBufferFinal = RenderTarget::Create();
 	this->globalLightShadowBufferFinal->SetWidth(csmWidth);
 	this->globalLightShadowBufferFinal->SetHeight(csmHeight);
 	this->globalLightShadowBufferFinal->SetAntiAliasQuality(AntiAliasQuality::None);
-	this->globalLightShadowBufferFinal->SetColorBufferFormat(pixelFormat);
+	this->globalLightShadowBufferFinal->SetColorBufferFormat(MSMPixelFormat);
 	this->globalLightShadowBufferFinal->SetResolveTextureResourceId(ResourceId("GlobalLightShadowBufferFinal"));
 	this->globalLightShadowBufferFinal->Setup();	
 
@@ -245,8 +253,9 @@ SM50ShadowServer::Open()
 	// create pass
 	this->globalLightHotPass = FramePass::Create();
 	this->globalLightHotPass->SetRenderTarget(this->globalLightShadowBuffer);
-	this->globalLightHotPass->SetClearColor(float4(1000, 1000, 0, 0));
-	this->globalLightHotPass->SetClearFlags(RenderTarget::ClearColor);
+	this->globalLightHotPass->SetClearColor(float4(0.999991, 0.997559, 0.893437, 0));
+	this->globalLightHotPass->SetClearDepth(1);
+	this->globalLightHotPass->SetClearFlags(RenderTarget::ClearColor | DepthStencilTarget::ClearDepth);
 	this->globalLightHotPass->SetName("GlobalLightHotPass");
 	this->globalLightHotPass->AddBatch(this->globalLightShadowBatch);
 
@@ -271,10 +280,6 @@ SM50ShadowServer::Open()
 		// add debug timer for hot pass
 		name.Format("GlobalLightShadowHotPass");
 		this->globalLightHotPass->SetFramePassDebugTimer(name);
-
-        // add debug timer for blur
-        name.Format("GlobalLightShadowBlur");
-        this->globalLightBlurPass->SetFramePostEffectDebugTimer(name);
 	}	
 #endif
 
@@ -298,7 +303,7 @@ SM50ShadowServer::Open()
 	this->globalLightShadowBuffer->SetResolveRectArray(rectArray);
 
 	this->csmUtil.SetTextureWidth(csmWidth / SplitsPerRow);
-	this->csmUtil.SetClampingMethod(CSMUtil::AABB);
+	this->csmUtil.SetClampingMethod(CSMUtil::SceneAABB);
 	this->csmUtil.SetFittingMethod(CSMUtil::Scene);
 
 #if NEBULA3_ENABLE_PROFILING
@@ -365,12 +370,10 @@ SM50ShadowServer::Close()
 
 	this->globalLightHotPass->Discard();
 	this->globalLightHotPass = 0;
-	this->globalLightBlurPass->Discard();
-	this->globalLightBlurPass = 0;
 	this->globalLightShadowBatch = 0;				// we dont need to discard the batch, the pass does this for us
-	this->blurShader = 0;
+	this->csmBlurShader = 0;
 
-    this->blurShader = 0;
+    this->csmBlurShader = 0;
 
     // call parent class
     ShadowServerBase::Close();
@@ -389,6 +392,8 @@ SM50ShadowServer::UpdateShadowBuffers()
 {
 	n_assert(this->inBeginFrame);
 	n_assert(!this->inBeginAttach);
+	const Ptr<VisResolver>& visResolver = VisResolver::Instance();
+	visResolver->PushResolve();
 
 	// update local lights shadow buffer
 	_start_timer(spotLightShadow);
@@ -414,6 +419,8 @@ SM50ShadowServer::UpdateShadowBuffers()
 		this->UpdateHotGlobalShadowBuffer();
 	}
 	_stop_timer(globalShadow);
+
+	visResolver->PopResolve();
 }
 
 //------------------------------------------------------------------------------
@@ -441,10 +448,10 @@ SM50ShadowServer::UpdateSpotLightShadowBuffers()
 		// render shadow casters in current light volume to shadow buffer
 		const Ptr<SpotLightEntity>& lightEntity = this->spotLightEntities[lightIndex];
 
-		// perform visibility resolve for current light
-		visResolver->BeginResolve(lightEntity->GetTransform());
+		// perform visibility resolve for current light		
 		const Array<Ptr<GraphicsEntity> >& visLinks = lightEntity->GetLinks(GraphicsEntity::LightLink);
 		if (visLinks.Size() == 0) continue;
+		visResolver->BeginResolve(lightEntity->GetTransform());
 		IndexT linkIndex;
 		for (linkIndex = 0; linkIndex < visLinks.Size(); linkIndex++)
 		{
@@ -580,7 +587,6 @@ SM50ShadowServer::UpdatePointLightShadowBuffers()
 		this->pointLightPass->SetRenderTargetCube(cube);
 		this->pointLightPass->Render(frameIndex);
 
-		// blur
 #define TILE_WIDTH 320
 
 		// calculate execution dimensions
@@ -627,11 +633,12 @@ SM50ShadowServer::PrepareGlobalShadowBuffer()
 	this->csmUtil.SetGlobalLight(this->globalLightEntity);
 	Math::bbox box = GraphicsServer::Instance()->GetDefaultView()->GetStage()->GetGlobalBoundingBox();
 
-	// add extension to bounding box, this ensures our ENTIRE level gets into a cascade (hopefully), but clamp the box to not be bigger than 1000, 1000, 1000
-	vector extents = box.extents() + vector(10, 10, 10);
-	extents = float4::clamp(extents, vector(-500), vector(500));
-
-	box.set(point(0), extents);
+	// clamp box to ensure we only capture a limited area, keep Z inifinitely big
+	//box.pmin = float4::maximize(box.pmin, vector(-50, -50, -FLT_MAX));
+	//box.pmax = float4::minimize(box.pmax, vector(50, 50, FLT_MAX));
+	
+	// add a small region so that we are guaranteed to fully envelope what is within the clamped
+	box.set(box.center(), box.extents() + vector(10, 10, 10));
 	this->csmUtil.SetShadowBox(box);
 	this->csmUtil.Compute();
 
@@ -660,6 +667,7 @@ SM50ShadowServer::UpdateHotGlobalShadowBuffer()
     n_assert(this->globalLightEntity.isvalid());
 	const Ptr<VisResolver>& visResolver = VisResolver::Instance();
 	const Ptr<FrameSyncTimer>& timer = FrameSyncTimer::Instance();
+	const Ptr<RenderDevice>& renderDev = RenderDevice::Instance();
     IndexT frameIndex = timer->GetFrameIndex();
 
 	// get the first view projection matrix which will resolve all visible shadow casting entities
@@ -684,10 +692,33 @@ SM50ShadowServer::UpdateHotGlobalShadowBuffer()
 	visResolver->EndResolve();
 
 	// render batch
-    this->globalLightHotPass->Render(frameIndex);
+	this->globalLightHotPass->Render(frameIndex);
 
-	// render blur
-    this->globalLightBlurPass->Render(frameIndex);
+#define TILE_WIDTH 320
+	// calculate execution dimensions
+	uint numGroupsX1 = DivAndRoundUp(2048, TILE_WIDTH);
+	uint numGroupsX2 = 2048;
+	uint numGroupsY1 = DivAndRoundUp(2048, TILE_WIDTH);
+	uint numGroupsY2 = 2048;
+
+	// blur in X, also commit prior to this call
+	this->csmBlurShader->SelectActiveVariation(this->xBlurMask);
+	this->csmBlurShader->Apply();
+
+	// update shader for first pass
+	this->csmBlurWrite->SetTexture(this->globalLightShadowBuffer->GetResolveTexture());
+
+	// commit and compute
+	this->csmBlurShader->Commit();
+	renderDev->Compute(numGroupsX1, numGroupsY2, 1, RenderDevice::ImageAccessBarrier);
+
+	// blur in Y
+	this->csmBlurShader->SelectActiveVariation(this->yBlurMask);
+	this->csmBlurShader->Apply();
+
+	// commit and compute
+	this->csmBlurShader->Commit();
+	renderDev->Compute(numGroupsY1, numGroupsX2, 1, RenderDevice::ImageAccessBarrier);
 }
 
 //------------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  physicsmesh.cc
-//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "physics/resource/physicsmesh.h"
@@ -10,7 +10,7 @@ namespace Physics
 #if (__USE_BULLET__)
 	__ImplementClass(Physics::PhysicsMesh, 'PHME', Bullet::BulletPhysicsMesh);
 #elif(__USE_PHYSX__)
-	__ImplementClass(Physics::PhysicsMesh, 'PHME', PhysX::PhysXMesh);
+	__ImplementClass(Physics::PhysicsMesh, 'PHME', PhysX::PhysXPhysicsMesh);
 #elif(__USE_HAVOK__)
 	__ImplementClass(Physics::PhysicsMesh, 'PHME', Havok::HavokPhysicsMesh);
 #else

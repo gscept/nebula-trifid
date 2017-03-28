@@ -30,7 +30,7 @@
 
 #include <Rocket/Core/Debug.h>
 #include <stdlib.h>
-#include "foundation/memory/memory.h"
+#include "memory/memory.h"
 namespace Rocket {
 namespace Core {
 

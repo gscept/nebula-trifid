@@ -137,11 +137,11 @@ RocketLayout::Update()
 /**
 */
 void 
-RocketLayout::Render( const Ptr<Frame::FrameBatch>& frameBatch )
+RocketLayout::Render(const Util::StringAtom& filter)
 {
 	n_assert(this->layout);
 	this->layout->Render();
-	UiLayoutBase::Render(frameBatch);
+	UiLayoutBase::Render(filter);
 }
 
 } // namespace Rocket

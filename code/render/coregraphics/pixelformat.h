@@ -8,7 +8,7 @@
     FIXME: use DX10 notations (more flexible but less readable...)
 
     (C) 2006 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/types.h"
 #include "util/string.h"
@@ -22,12 +22,12 @@ public:
     /// enums
     enum Code
     {
-        X8R8G8B8 = 0,
+        R8G8B8X8 = 0,
         R8G8B8,
-        A8R8G8B8,
+        R8G8B8A8,
         R5G6B5,
-        A1R5G5B5,
-        A4R4G4B4,
+        R5G5B5A1,
+        R4G4B4A4,
         DXT1,
 		DXT1A,
         DXT3,
@@ -39,19 +39,19 @@ public:
 		BC7,
 		BC7sRGB,
         R16F,                       // 16 bit float, red only
-        G16R16F,                    // 32 bit float, 16 bit red, 16 bit green
-        A16B16G16R16F,              // 64 bit float, 16 bit rgba each
-		A16B16G16R16,				// 64 bit int, 16 bit rgba each
+        R16G16F,                    // 32 bit float, 16 bit red, 16 bit green
+        R16G16B16A16F,              // 64 bit float, 16 bit rgba each
+		R16G16B16A16,				// 64 bit int, 16 bit rgba each
         R32F,                       // 32 bit float, red only
-        G32R32F,                    // 64 bit float, 32 bit red, 32 bit green
-        A32B32G32R32F,              // 128 bit float, 32 bit rgba each
+        R32G32F,                    // 64 bit float, 32 bit red, 32 bit green
+        R32G32B32A32F,              // 128 bit float, 32 bit rgba each
 		R32G32B32F,					// 96 bit float, 32 bit rgb each
 		R11G11B10F,					// 32 bit float, 11 bits red and green, 10 bit blue
         A8,
 		SRGBA8,
-        X2R10G10B10,
-        A2R10G10B10,
-        G16R16,
+        R10G10B10X2,
+        R10G10B10A2,
+        R16G16,
         D24X8,
         D24S8,
 

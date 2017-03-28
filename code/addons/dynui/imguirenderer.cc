@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  imguirenderer.cc
-//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "imguirenderer.h"
@@ -333,7 +333,7 @@ ImguiRenderer::Setup()
 
 	// get display mode, this will be our default size
 	Ptr<DisplayDevice> display = DisplayDevice::Instance();
-	DisplayMode mode = display->GetDisplayMode();
+	DisplayMode mode = display->GetCurrentWindow()->GetDisplayMode();
 
 	// setup Imgui
 	ImGuiIO& io = ImGui::GetIO();
@@ -439,7 +439,7 @@ ImguiRenderer::Setup()
 	// setup texture
 	this->fontTexture = ResourceManager::Instance()->CreateUnmanagedResource("ImguiFontTexture", Texture::RTTI).downcast<Texture>();
 	Ptr<MemoryTextureLoader> texLoader = MemoryTextureLoader::Create();
-	texLoader->SetImageBuffer(buffer, width, height, PixelFormat::A8R8G8B8);
+	texLoader->SetImageBuffer(buffer, width, height, PixelFormat::R8G8B8A8);
 	this->fontTexture->SetLoader(texLoader.upcast<ResourceLoader>());
 	this->fontTexture->SetAsyncEnabled(false);
 	this->fontTexture->Load();
@@ -514,14 +514,17 @@ ImguiRenderer::HandleInput(const Input::InputEvent& event)
 		// ignore backspace as a character
 		if (c > 0 && c < 0x10000)
 		{
-			io.AddInputCharacter((unsigned short)c);
+			const char chars[] = { c, '\0' };
+			io.AddInputCharactersUTF8(chars);
 		}
-		return io.WantCaptureKeyboard;
+		return io.WantTextInput;
 	}
 	case InputEvent::MouseMove:
 		io.MousePos = ImVec2(event.GetAbsMousePos().x(), event.GetAbsMousePos().y());
 		return io.WantCaptureMouse;
 	case InputEvent::MouseButtonDoubleClick:
+		io.MouseDoubleClicked[event.GetMouseButton()] = true;
+		return io.WantCaptureMouse;
 	case InputEvent::MouseButtonDown:
 		io.MouseDown[event.GetMouseButton()] = true;
 		return io.WantCaptureMouse;

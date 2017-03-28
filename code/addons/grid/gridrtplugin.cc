@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  gridrtplugin.cc
-//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "gridrtplugin.h"
@@ -82,7 +82,6 @@ GridRTPlugin::OnRegister()
 	this->primitive.SetNumVertices(4);
 	this->primitive.SetBaseIndex(0);
 	this->primitive.SetNumIndices(6);
-	this->primitive.SetPrimitiveTopology(PrimitiveTopology::TriangleList);
 }
 
 //------------------------------------------------------------------------------
@@ -91,6 +90,7 @@ GridRTPlugin::OnRegister()
 void
 GridRTPlugin::OnUnregister()
 {
+	ResourceManager::Instance()->DiscardManagedResource(this->tex.upcast<ManagedResource>());
 	this->tex = 0;
 	this->ibo->Unload();
 	this->ibo = 0;
@@ -100,35 +100,6 @@ GridRTPlugin::OnUnregister()
 	this->gridSizeVar = 0;
 	this->gridTexVar = 0;
 	this->shader = 0;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-void
-GridRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
-{
-	if (FrameBatchType::Shapes == frameBatch->GetType() && this->visible)
-	{
-		Ptr<RenderDevice> device = RenderDevice::Instance();
-		Ptr<TransformDevice> trans = TransformDevice::Instance();
-
-		// start pass
-        this->shader->Apply();
-
-		// set variables
-        //this->shader->BeginUpdate();
-		this->gridSizeVar->SetFloat(this->gridSize);
-		this->gridTexVar->SetTexture(this->tex->GetTexture());
-        //this->shader->EndUpdate();
-		this->shader->Commit();
-
-		device->SetStreamVertexBuffer(0, this->vbo, 0);
-		device->SetVertexLayout(this->vbo->GetVertexLayout());
-		device->SetIndexBuffer(this->ibo);
-		device->SetPrimitiveGroup(this->primitive);
-		device->Draw();
-	}
 }
 
 //------------------------------------------------------------------------------
@@ -153,10 +124,11 @@ GridRTPlugin::OnRender(const Util::StringAtom& filter)
 //		this->shader->EndUpdate();
 		this->shader->Commit();
 
-		device->SetStreamVertexBuffer(0, this->vbo, 0);
 		device->SetVertexLayout(this->vbo->GetVertexLayout());
-		device->SetIndexBuffer(this->ibo);
 		device->SetPrimitiveGroup(this->primitive);
+		device->SetPrimitiveTopology(PrimitiveTopology::TriangleList);
+		device->SetStreamVertexBuffer(0, this->vbo, 0);
+		device->SetIndexBuffer(this->ibo);
 		device->Draw();
 	}
 }

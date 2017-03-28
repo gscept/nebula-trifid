@@ -18,14 +18,11 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}
 FILE(GLOB_RECURSE SRC "code/*.cc") 
 FILE(GLOB_RECURSE HEAD "code/*.h")
 
-SET(QTMOCS "code/tools/progressnotifier.h" )
+SET(QTMOCS "code/tools/progressnotifier.h" "code/style/stylewidgets.h" )
 
-PCH_QT4_WRAP_CPP(qttools_HEADERS_MOC ${QTMOCS})
+PCH_QT_WRAP_CPP(qttools_HEADERS_MOC ${QTMOCS})
+
 LIST(APPEND SRCS ${SRC} ${HEAD} ${qttools_FORMS_HEADERS})
-
-INCLUDE(${QT_USE_FILE})
-ADD_DEFINITIONS(${QT_DEFINITIONS})
-
 SOURCE_GROUP("qttools" FILES ${SRCS})
 
 set(PCH_files	
@@ -42,7 +39,8 @@ LIST(APPEND ALLSRCS ${SRCS} ${qttools_HEADERS_MOC} ${PCH_files})
 ADD_LIBRARY(qttools STATIC ${ALLSRCS})
 SET_TARGET_PROPERTIES(qttools PROPERTIES FOLDER "N3SDK/QtToolkit")
 TARGET_INCLUDE_DIRECTORIES(qttools PUBLIC ${Nebula3_SOURCE_DIR}/code/qttoolkit/qttools/code PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
-TARGET_LINK_LIBRARIES(qttools application toolkitutil)
+
+TARGET_LINK_LIBRARIES(qttools application toolkitutil qtsupport)
 
 N_SET_COMPILER_DEFAULTS()
 IF(N_USE_PRECOMPILED_HEADERS)

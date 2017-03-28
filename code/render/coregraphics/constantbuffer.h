@@ -6,7 +6,7 @@
     A constant buffer is a buffer object which can be bound to 
     a shader in order to swap a chunk of shader variables.
 
-    (C) 2015 Individual contributors, see AUTHORS file
+    (C) 2015-2016 Individual contributors, see AUTHORS file
 */
 #if __OGL4__
 #include "coregraphics/ogl4/ogl4uniformbuffer.h"

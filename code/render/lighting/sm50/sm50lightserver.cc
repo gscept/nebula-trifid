@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  sm50lightserver.cc
-//  (C) 2011-2013 Individual contributors, see AUTHORS file
+//  (C) 2011-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "lighting/sm50/sm50lightserver.h"
@@ -97,10 +97,12 @@ SM50LightServer::Open()
 	this->spotLightFeatureBits[CastShadows]		= shdServer->FeatureStringToMask("Spot|Alt0");
 
 	// todo: rename variations in shader...
-	this->lightProbeFeatureBits[LightProbeEntity::Box] = shdServer->FeatureStringToMask("Alt0");
 	this->lightProbeFeatureBits[LightProbeEntity::Sphere] = shdServer->FeatureStringToMask("Alt1");
-	this->lightProbeFeatureBits[LightProbeEntity::Box + 2] = shdServer->FeatureStringToMask("Alt0|Alt2");
+	this->lightProbeFeatureBits[LightProbeEntity::Box] = shdServer->FeatureStringToMask("Alt0");
 	this->lightProbeFeatureBits[LightProbeEntity::Sphere + 2] = shdServer->FeatureStringToMask("Alt1|Alt2");
+	this->lightProbeFeatureBits[LightProbeEntity::Box + 2] = shdServer->FeatureStringToMask("Alt0|Alt2");
+	this->lightProbeFeatureBits[LightProbeEntity::Sphere + 4] = shdServer->FeatureStringToMask("Alt1|Alt3");
+	this->lightProbeFeatureBits[LightProbeEntity::Box + 4] = shdServer->FeatureStringToMask("Alt0|Alt3");	
 
 	// global light variables used for shadowing
 	this->globalLightCascadeOffset				= this->lightShader->GetVariableByName(NEBULA3_SEMANTIC_CASCADEOFFSET);
@@ -113,6 +115,7 @@ SM50LightServer::Open()
     this->globalLightBuffer                     = ConstantBuffer::Create();
     this->globalLightBuffer->SetupFromBlockInShader(this->lightShader, "GlobalLightBlock");
     this->globalLightDir                        = this->globalLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_GLOBALLIGHTDIR);
+	this->globalLightDirWorldspace				= this->globalLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_GLOBALLIGHTDIRWORLDSPACE);
     this->globalLightColor                      = this->globalLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_GLOBALLIGHTCOLOR);
     this->globalBackLightColor                  = this->globalLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_GLOBALBACKLIGHTCOLOR);
     this->globalAmbientLightColor               = this->globalLightBuffer->GetVariableByName(NEBULA3_SEMANTIC_GLOBALAMBIENTLIGHTCOLOR);
@@ -179,6 +182,7 @@ SM50LightServer::Close()
 	this->globalBackLightOffset = 0;
 	this->globalLightColor = 0;
 	this->globalLightDir = 0;
+	this->globalLightDirWorldspace = 0;
 	this->globalLightColor = 0;
 	this->globalLightCascadeOffset = 0;
 	this->globalLightCascadeScale = 0;				
@@ -331,6 +335,7 @@ SM50LightServer::RenderGlobalLight()
 		this->globalLightBuffer->CycleBuffers();
 		this->globalLightBuffer->BeginUpdateSync();
 		this->globalLightDir->SetFloat4(viewSpaceLightDir);
+		this->globalLightDirWorldspace->SetFloat4(worldSpaceLightDir);
 		this->globalLightColor->SetFloat4(this->globalLightEntity->GetColor());
 		this->globalBackLightColor->SetFloat4(this->globalLightEntity->GetBackLightColor());
 		this->globalAmbientLightColor->SetFloat4(this->globalLightEntity->GetAmbientLightColor());
@@ -570,8 +575,8 @@ SortProbesLayer(const Ptr<LightProbeEntity>& lhs, const Ptr<LightProbeEntity>& r
 bool
 SortProbesType(const Ptr<LightProbeEntity>& lhs, const Ptr<LightProbeEntity>& rhs)
 {
-	int lhsPrio = lhs->GetShapeType() + lhs->GetParallaxCorrected() * 2;
-	int rhsPrio = rhs->GetShapeType() + rhs->GetParallaxCorrected() * 2;
+	int lhsPrio = lhs->GetShapeType() + lhs->GetCorrectionMode() * LightProbeEntity::NumProbeShapeTypes;
+	int rhsPrio = rhs->GetShapeType() + rhs->GetCorrectionMode() * LightProbeEntity::NumProbeShapeTypes;
 	return lhsPrio < rhsPrio;
 }
 
@@ -608,7 +613,7 @@ SM50LightServer::RenderLightProbes()
 		 
 		// 0 is for box, 1 is for sphere, but this would be better to use the same shape and render them based on shape instead...
 		// 
-		shader->SelectActiveVariation(this->lightProbeFeatureBits[shapeType + (entity->GetParallaxCorrected() ? 2 : 0)]);
+		shader->SelectActiveVariation(this->lightProbeFeatureBits[shapeType + entity->GetCorrectionMode() * LightProbeEntity::NumProbeShapeTypes]);
 
 		// apply mesh at shape type
 		entity->ApplyProbe(probe);

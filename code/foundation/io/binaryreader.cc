@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  binaryreader.cc
 //  (C) 2006 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "io/binaryreader.h"
@@ -193,6 +193,48 @@ BinaryReader::ReadUInt()
         this->stream->Read(&val, sizeof(val));
     }
     return this->byteOrder.Convert<uint>(val);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+long long
+BinaryReader::ReadInt64()
+{
+	long long val;
+    if (this->isMapped)
+    {
+        // note: the memory copy is necessary to circumvent alignment problem on some CPUs
+		n_assert((this->mapCursor + sizeof(long long)) <= this->mapEnd);
+        Memory::Copy(this->mapCursor, &val, sizeof(val));
+        this->mapCursor += sizeof(val);
+    }
+    else
+    {
+        this->stream->Read(&val, sizeof(val));
+    }
+	return this->byteOrder.Convert<long long>(val);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+unsigned long long
+BinaryReader::ReadUInt64()
+{
+	unsigned long long val;
+    if (this->isMapped)
+    {
+        // note: the memory copy is necessary to circumvent alignment problem on some CPUs
+		n_assert((this->mapCursor + sizeof(unsigned long long)) <= this->mapEnd);
+        Memory::Copy(this->mapCursor, &val, sizeof(val));
+        this->mapCursor += sizeof(val);
+    }
+    else
+    {
+        this->stream->Read(&val, sizeof(val));
+    }
+	return this->byteOrder.Convert<unsigned long long>(val);
 }
 
 //------------------------------------------------------------------------------

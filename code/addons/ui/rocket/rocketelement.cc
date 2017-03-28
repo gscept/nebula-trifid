@@ -35,8 +35,8 @@ RocketElement::~RocketElement()
 //------------------------------------------------------------------------------
 /**
 */
-void 
-RocketElement::Setup( const Ptr<UI::UiLayout>& layout )
+void
+RocketElement::Setup(const Ptr<UI::UiLayout>& layout)
 {
 	n_assert(0 == this->element);
 	Base::UiElementBase::Setup(layout);

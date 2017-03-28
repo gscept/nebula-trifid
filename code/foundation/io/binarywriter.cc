@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  binarywriter.cc
 //  (C) 2006 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "io/binarywriter.h"
@@ -178,6 +178,46 @@ void
 BinaryWriter::WriteUInt(unsigned int i)
 {
     i = this->byteOrder.Convert<uint>(i);
+    if (this->isMapped)
+    {
+        // note: the memory copy is necessary to circumvent alignment problem on some CPUs
+        n_assert((this->mapCursor + sizeof(i)) <= this->mapEnd);
+        Memory::Copy(&i, this->mapCursor, sizeof(i));
+        this->mapCursor += sizeof(i);
+    }
+    else
+    {
+        this->stream->Write(&i, sizeof(i));
+    }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+BinaryWriter::WriteInt64(long long i)
+{
+	i = this->byteOrder.Convert<long long>(i);
+    if (this->isMapped)
+    {
+        // note: the memory copy is necessary to circumvent alignment problem on some CPUs
+        n_assert((this->mapCursor + sizeof(i)) <= this->mapEnd);
+        Memory::Copy(&i, this->mapCursor, sizeof(i));
+        this->mapCursor += sizeof(i);
+    }
+    else
+    {
+        this->stream->Write(&i, sizeof(i));
+    }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+BinaryWriter::WriteUInt64(unsigned long long i)
+{
+	i = this->byteOrder.Convert<unsigned long long>(i);
     if (this->isMapped)
     {
         // note: the memory copy is necessary to circumvent alignment problem on some CPUs

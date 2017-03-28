@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  importerwindow.cc
-//  (C) 2012-2015 Individual contributors, see AUTHORS file
+//  (C) 2012-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "modelimporterwindow.h"
@@ -338,6 +338,11 @@ ModelImporterWindow::Import()
 	Ptr<ReloadResourceIfExists> modelMsg = ReloadResourceIfExists::Create();
 	modelMsg->SetResourceName(model);
 	GraphicsInterface::Instance()->Send(modelMsg.upcast<Messaging::Message>());
+
+	Ptr<ReloadModelByResource> rmMsg = ReloadModelByResource::Create();
+	rmMsg->SetResourceName(model);
+	GraphicsInterface::Instance()->Send(rmMsg.upcast<Messaging::Message>());
+	QtRemoteInterfaceAddon::QtRemoteClient::GetClient("editor")->Send(rmMsg.upcast<Messaging::Message>());
 
 	// now copy to intermediate if it exists
 	String tempModel;

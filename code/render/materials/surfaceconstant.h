@@ -16,7 +16,7 @@
     SurfaceConstant needs a shader instance to apply to, so as to not apply to all
     shaders when only one is required.
 	
-	(C) 2015 Individual contributors, see AUTHORS file
+	(C) 2015-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
@@ -24,7 +24,7 @@
 #include "util/variant.h"
 #include "coregraphics/texture.h"
 #include "resources/managedtexture.h"
-#include "frame/batchgroup.h"
+#include "graphics/batchgroup.h"
 #include "material.h"
 
 namespace CoreGraphics

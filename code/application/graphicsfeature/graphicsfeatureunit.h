@@ -14,7 +14,7 @@
     the input server.
 
     (C) 2007 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file	
+    (C) 2013-2016 Individual contributors, see AUTHORS file	
 */
 #include "game/featureunit.h"
 #include "graphics/graphicsinterface.h"
@@ -34,7 +34,7 @@
 #include "resources/resourcemanager.h"
 #include "util/blob.h"
 #include "graphicsutil/animutil.h"
-#include "posteffect/posteffectmanager.h"
+//#include "posteffect/posteffectmanager.h"
 #include "gameanimeventhandler.h"
 #include "resources/simpleresourcemapper.h"
 
@@ -57,10 +57,12 @@ public:
     virtual void OnActivate();
     /// called from GameServer::DeactivateProperties()
     virtual void OnDeactivate();           
-    /// called from within GameServer::OnStart() after OnLoad when the complete world exist
-    virtual void OnStart();      
-    /// called on begin of frame
-    virtual void OnBeginFrame();
+	/// called from within GameServer::NotifySetupDefault() before the database is loaded
+	virtual void OnBeforeLoad();
+	/// called from within GameServer::NotifyCleanup() before shutting down a level
+	virtual void OnBeforeCleanup();
+	/// called from within GameServer::Load() after attributes are loaded
+	virtual void OnLoad();
     /// called in the middle of the feature trigger cycle
     virtual void OnFrame();        
     /// called at the end of the feature trigger cycle
@@ -90,14 +92,14 @@ public:
 	/// get global light entity
 	const Ptr<Graphics::GlobalLightEntity>& GetGlobalLightEntity() const;
 	/// get world bounding box
-	const Math::bbox& GetWorldBoundingBox() const;
-    /// on entities loaded
-    void OnEntitiesLoaded();       
+	const Math::bbox& GetWorldBoundingBox() const;    
     /// on setup resource mappers
     void OnSetupResourceMappers();
 
 	/// set main frame shader, only viable before running SetupDefaultGraphicsWorld()
 	void SetFrameShader(const Resources::ResourceId& frameShader);
+	/// set type of view to be used
+	void SetViewClass(const Core::Rtti& type);
 	/// sets display to render in full screen
 	void SetFullscreen(bool b);
 	/// gets fullscreen
@@ -117,6 +119,9 @@ public:
 	/// get reference to current display mode object
 	CoreGraphics::DisplayMode& DisplayMode();
 
+	/// create a new window and view
+	Ptr<Graphics::View> CreateWindowAndView(const Util::StringAtom& viewName, const Util::StringAtom& frameShader, const Util::Blob& optWindowData = 0);
+	
 protected:
     /// called to configure display device
     virtual void OnConfigureDisplay();
@@ -129,7 +134,6 @@ protected:
     Util::Blob windowData;
     Ptr<Graphics::GraphicsServer> graphicsServer;
     Ptr<Graphics::CameraEntity> defaultCamera;	
-    Ptr<Input::InputServer> inputServer;
     Ptr<Graphics::Stage> defaultStage;
     Ptr<Graphics::View> defaultView;
 	Ptr<Graphics::GlobalLightEntity> globalLight;
@@ -138,7 +142,10 @@ protected:
 	Math::bbox worldBoundingBox;	  
     Ptr<GraphicsFeature::AttachmentManager> attachmentManager;
     Ptr<GraphicsFeature::GameAnimEventHandler> animEventHandler;
+	Ptr<EnvEntityManager> envEntityManager;
 	Ptr<Resources::SimpleResourceMapper> animPathMapper;
+
+	Core::Rtti & viewClass;
 
     bool decorated;
     bool resizable;
@@ -193,11 +200,21 @@ GraphicsFeatureUnit::GetDefaultAnimEventHandler() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-GraphicsFeatureUnit::SetFrameShader( const Resources::ResourceId& frameShader )
+inline void
+GraphicsFeatureUnit::SetFrameShader(const Resources::ResourceId& frameShader)
 {
 	n_assert(frameShader.IsValid());
 	this->frameShader = frameShader;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline void
+GraphicsFeatureUnit::SetViewClass(const Core::Rtti& type)
+{
+	n_assert(type.IsDerivedFrom(Graphics::View::RTTI));
+	this->viewClass = type;
 }
 
 //------------------------------------------------------------------------------
@@ -230,8 +247,8 @@ GraphicsFeatureUnit::GetWorldBoundingBox() const
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-GraphicsFeatureUnit::SetResizeable( bool b )
+inline void
+GraphicsFeatureUnit::SetResizeable(bool b)
 {
     this->resizable = b;
     if(this->display.isvalid())
@@ -243,8 +260,8 @@ GraphicsFeatureUnit::SetResizeable( bool b )
 //------------------------------------------------------------------------------
 /**
 */
-inline void 
-GraphicsFeatureUnit::SetDecorated( bool b )
+inline void
+GraphicsFeatureUnit::SetDecorated(bool b)
 {
     this->decorated = b;
     if(this->display.isvalid())

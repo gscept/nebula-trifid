@@ -5,7 +5,7 @@
     
     A widget which represents a resource string with browse and optional edit
     
-    (C) 2013-2014 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include <QWidget>
 #include "util/string.h"
@@ -53,6 +53,8 @@ protected slots:
 	void OnBrowse();
 	/// edit button clicked
 	void OnEdit();
+	/// line edit updated
+	void OnLineEdit();
 
 private:
 	Ui::ResourceStringController* ui;
@@ -60,5 +62,6 @@ private:
 	Util::String resourceType;
 	Util::String fileSuffix;
 	bool editable;
+	bool fullName;
 };
 }

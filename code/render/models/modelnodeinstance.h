@@ -7,7 +7,7 @@
     does most of the actually interesting Model rendering stuff.
     
     (C) 2007 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
 #include "util/stringatom.h"
@@ -15,7 +15,7 @@
 #include "timing/time.h"
 #include "math/bbox.h"
 #include "debug/debugtimer.h"
-#include "frame/batchgroup.h"
+#include "graphics/batchgroup.h"
 
 //------------------------------------------------------------------------------
 namespace Models

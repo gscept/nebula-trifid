@@ -5,7 +5,7 @@
 
     information about the state of an fmod-event
     
-    (C) 2015 Individual contributors, see AUTHORS file
+    (C) 2015-2016 Individual contributors, see AUTHORS file
 */
 
 //------------------------------------------------------------------------------

@@ -14,7 +14,6 @@
 #include "characters/characterskinnode.h"
 #include "models/nodes/animatornodeinstance.h"
 #include "particles/particlesystemnode.h"
-#include "frame/framepass.h"
 
 #if __WII__
 #include "frame/wii/wiifsaaframepass.h"
@@ -35,11 +34,6 @@ namespace Characters
 namespace Particles
 {
     __RegisterClass(ParticleSystemNode);
-}
-
-namespace Frame
-{
-    __RegisterClass(FramePass);
 }
 
 #if __WII__

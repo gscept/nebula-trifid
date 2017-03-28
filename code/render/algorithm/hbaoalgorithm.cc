@@ -44,10 +44,10 @@ HBAOAlgorithm::Setup()
 	n_assert(this->readWriteTextures.Size() == 1);
 
 	this->internalTargets[0] = ShaderReadWriteTexture::Create();
-	this->internalTargets[0]->SetupWithRelativeSize(1.0f, 1.0f, PixelFormat::G16R16F, "HBAO-Internal0");
+	this->internalTargets[0]->SetupWithRelativeSize(1.0f, 1.0f, PixelFormat::R16G16F, "HBAO-Internal0");
 
 	this->internalTargets[1] = ShaderReadWriteTexture::Create();
-	this->internalTargets[1]->SetupWithRelativeSize(1.0f, 1.0f, PixelFormat::G16R16F, "HBAO-Internal1");
+	this->internalTargets[1]->SetupWithRelativeSize(1.0f, 1.0f, PixelFormat::R16G16F, "HBAO-Internal1");
 
 	this->barriers[0] = Barrier::Create();
 	this->barriers[0]->SetLeftDependency(Barrier::Dependency::ComputeShader);

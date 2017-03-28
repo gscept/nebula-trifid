@@ -6,7 +6,7 @@
     Abstract class for undoable actions. Note that Perform() and Revert() must
 	only be called by the ActionManager via the method PerformAction().
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
 

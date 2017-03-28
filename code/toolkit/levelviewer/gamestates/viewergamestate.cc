@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  levelviewergamestate.cc
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "viewergamestate.h"
@@ -19,7 +19,7 @@
 #include "input/keyboard.h"
 #include "scriptingfeature/properties/scriptingproperty.h"
 #include "scriptingfeature/scriptingprotocol.h"
-#include "qttoolkit/qtaddons/remoteinterface/qtremoteserver.h"
+#include "remoteinterface/qtremoteserver.h"
 #include "basegamefeature/basegameprotocol.h"
 #include "../levelviewerapplication.h"
 #include "basegametiming/gametimesource.h"
@@ -99,20 +99,21 @@ LevelViewerGameState::OnStateLeave( const Util::String& nextState )
 Util::String 
 LevelViewerGameState::OnFrame()
 {
-	Dynui::ImguiAddon::BeginFrame();
-	Dynui::ImguiConsole::Instance()->Render();	
-
 	//handle all user input
 	if (Input::InputServer::HasInstance() && this->entitiesLoaded)
 	{
 		this->HandleInput();
 	}
 
+	Dynui::ImguiAddon::BeginFrame();
+	Dynui::ImguiConsole::Instance()->Render();	
+
 	// test text rendering
-	Timing::Time frameTime = (float)BaseGameFeature::GameTimeSource::Instance()->GetFrameTime();
+	/*Timing::Time frameTime = (float)BaseGameFeature::GameTimeSource::Instance()->GetFrameTime();
 	Util::String fpsTxt;
 	fpsTxt.Format("Game FPS: %.2f", 1/frameTime);
 	_debug_text(fpsTxt, Math::float2(0.0,0.0), Math::float4(1,1,1,1));
+	*/
 
 	QtRemoteInterfaceAddon::QtRemoteServer::Instance()->OnFrame();
 	Dynui::ImguiAddon::EndFrame();
@@ -154,7 +155,7 @@ LevelViewerGameState::HandleInput()
 		}
 		this->ReloadLevel(applyTrans);
 		const Ptr<BaseGameFeature::GameStateHandler>& state = App::GameApplication::Instance()->FindStateHandlerByName("Reload").cast<BaseGameFeature::GameStateHandler>();
-		state->SetLevelName(BaseGameFeature::BaseGameFeatureUnit::Instance()->GetCurrentLevel());
+		state->SetLevelName(BaseGameFeature::BaseGameFeatureUnit::GetCurrentLevel());
 		LevelViewerGameStateApplication::Instance()->RequestState("Reload");
 	}
 	if (kbd->KeyDown(Input::Key::F10))
@@ -191,7 +192,7 @@ LevelViewerGameState::LoadLevel(const Util::String &level, bool applyTransform)
 void
 LevelViewerGameState::ReloadLevel(bool keepTransform)
 {
-	this->LoadLevel(BaseGameFeature::BaseGameFeatureUnit::Instance()->GetCurrentLevel(), keepTransform);
+	this->LoadLevel(BaseGameFeature::BaseGameFeatureUnit::GetCurrentLevel(), keepTransform);
 }
 
 } // namespace Tools

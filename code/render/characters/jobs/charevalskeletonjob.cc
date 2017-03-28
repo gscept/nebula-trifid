@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  charevalskeletonjob.cc
 //  (C) 2009 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "jobs/stdjob.h"
 #include "math/float4.h"
@@ -43,6 +43,7 @@ CharEvalSkeletonJobFunc(const JobFuncContext& ctx)
     matrix44* scaledMatrixBase = (matrix44*) ctx.outputs[0];
     matrix44* skinMatrixBase = (matrix44*) ctx.outputs[1];
     matrix44* invPoseMatrixBase = (matrix44*) ctx.uniforms[0];
+	matrix44* mixPoseMatrixBase = (matrix44*) ctx.uniforms[1];
     matrix44* unscaledMatrixBase = (matrix44*) ctx.scratch;
 
     // input samples may optionally include velocity samples which we need to skip...
@@ -72,9 +73,13 @@ CharEvalSkeletonJobFunc(const JobFuncContext& ctx)
         // update unscaled matrix
         // animation rotation
         unscaledMatrix = matrix44::rotationquaternion(rotate);   
+
         // load variation translation
         variationTranslation.load(&comps.varTranslationX);                  
         unscaledMatrix.translate(translate + variationTranslation);
+
+		// add mix pose if the pointer is set
+		if (mixPoseMatrixBase)	unscaledMatrix = matrix44::multiply(unscaledMatrix, mixPoseMatrixBase[jointIndex]);
 
         // update scaled matrix
         // scale after rotation
@@ -104,11 +109,10 @@ CharEvalSkeletonJobFunc(const JobFuncContext& ctx)
 
             // apply rotation and relative animation translation of parent 
             const matrix44& parentUnscaledMatrix = unscaledMatrixBase[comps.parentJointIndex];
-            unscaledMatrix = matrix44::multiply(unscaledMatrix, parentUnscaledMatrix);
-            scaledMatrix = matrix44::multiply(scaledMatrix, parentUnscaledMatrix);
+			unscaledMatrix = matrix44::multiply(unscaledMatrix, parentUnscaledMatrix);
+			scaledMatrix = matrix44::multiply(scaledMatrix, parentUnscaledMatrix);
         }    
-        
-        skinMatrixBase[jointIndex] = matrix44::multiply(invPoseMatrixBase[jointIndex], scaledMatrix);
+		skinMatrixBase[jointIndex] = matrix44::multiply(invPoseMatrixBase[jointIndex], scaledMatrix);
     }
 
     #if __XBOX360__

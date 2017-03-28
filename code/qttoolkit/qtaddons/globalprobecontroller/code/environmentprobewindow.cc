@@ -28,13 +28,12 @@ EnvironmentProbeWindow::EnvironmentProbeWindow()
 	connect(this->ui.reflectionMapButton, SIGNAL(pressed()), this, SLOT(OnBrowseReflection()));
 	connect(this->ui.irradianceMapButton, SIGNAL(pressed()), this, SLOT(OnBrowseIrradiance()));
 
-	// setup text fields
-	this->ui.reflectionMapEdit->setText("system/sky_refl");
-	this->ui.irradianceMapEdit->setText("system/sky_irr");
+	
 
-	// setup images
-	this->OnReflectionChanged();
-	this->OnIrradianceChanged();
+    connect(this->ui.buttonBox, SIGNAL(accepted()), this, SLOT(OnAccepted()));
+    connect(this->ui.buttonBox, SIGNAL(rejected()), this, SLOT(OnRejected()));
+
+	
 }
 
 //------------------------------------------------------------------------------
@@ -43,6 +42,38 @@ EnvironmentProbeWindow::EnvironmentProbeWindow()
 EnvironmentProbeWindow::~EnvironmentProbeWindow()
 {
 	// empty
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+EnvironmentProbeWindow::SetReflectionMap(const Util::String & refl)
+{
+    this->ui.reflectionMapEdit->setText(refl.AsCharPtr());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+EnvironmentProbeWindow::SetIrradianceMap(const Util::String & irr)
+{
+    this->ui.irradianceMapEdit->setText(irr.AsCharPtr());
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+EnvironmentProbeWindow::showEvent(QShowEvent * event)
+{
+    QDialog::showEvent(event);
+    // setup text fields    
+    this->ui.reflectionMapEdit->setText(Lighting::EnvironmentProbe::DefaultEnvironmentProbe->GetReflectionMap()->GetTexture()->GetResourceId().AsString().AsCharPtr());    
+    this->ui.irradianceMapEdit->setText(Lighting::EnvironmentProbe::DefaultEnvironmentProbe->GetIrradianceMap()->GetTexture()->GetResourceId().AsString().AsCharPtr());    
+    this->OnReflectionChanged();
+    this->OnIrradianceChanged();
 }
 
 //------------------------------------------------------------------------------
@@ -149,6 +180,24 @@ EnvironmentProbeWindow::OnBrowseIrradiance()
 		this->ui.irradianceMapEdit->setText(file.AsCharPtr());
 		this->OnIrradianceChanged();
 	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+EnvironmentProbeWindow::OnAccepted()
+{
+
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+EnvironmentProbeWindow::OnRejected()
+{
+
 }
 
 } // namespace Lighting

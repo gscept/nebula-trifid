@@ -6,7 +6,7 @@
     The MultiplayerFeatureUnit sets up the multiplayer thread and deliveres the
     stuff to host games, join games and all needed functionality behind the scenes
 
-    (C) 2015 Individual contributors, see AUTHORS file	
+    (C) 2015-2016 Individual contributors, see AUTHORS file	
 */
 #include "game/featureunit.h"
 #include "networkserver.h"
@@ -22,6 +22,11 @@ class MultiplayerFeatureUnit : public Game::FeatureUnit
     __DeclareInterfaceSingleton(MultiplayerFeatureUnit);   
 
 public:
+	enum ServerType
+	{
+		NATPunchFCM,
+		LAN
+	};
     /// constructor
     MultiplayerFeatureUnit();
     /// destructor
@@ -31,7 +36,9 @@ public:
     virtual void OnActivate();
     /// called from GameServer::DeactivateProperties()
     virtual void OnDeactivate();
-    
+	
+	/// called from within GameServer::NotifyBeforeCleanup() before shutting down a level
+	virtual void OnBeforeCleanup();
     /// called in the middle of the feature trigger cycle
     virtual void OnFrame();
     /// flush all messages
@@ -41,6 +48,9 @@ public:
 
 	/// called when game debug visualization is on
 	virtual void OnRenderDebug();
+
+	/// create server object
+	void Setup(ServerType mode);
 
 	/// set application port
 	void SetApplicationPort(ushort val);
@@ -58,11 +68,14 @@ public:
 	/// get local player instance
 	Ptr<MultiplayerFeature::NetworkPlayer> & GetPlayer();
 
+	/// access to server
+	Ptr<MultiplayerFeature::NetworkServer> & GetServer();
+
 	/// get our unique id
 	const Multiplayer::UniquePlayerId & GetUniqueId() const;
 
 	/// restart network
-	void RestartNetwork();
+	void RestartNetwork();	
 
 protected:
 	Ptr<MultiplayerFeature::NetworkServer> server;
@@ -125,6 +138,16 @@ Ptr<MultiplayerFeature::NetworkPlayer> &
 MultiplayerFeatureUnit::GetPlayer()
 {
 	return this->player;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline
+Ptr<MultiplayerFeature::NetworkServer> &
+MultiplayerFeatureUnit::GetServer()
+{
+	return this->server;
 }
 }; // namespace Multiplayer
 //------------------------------------------------------------------------------

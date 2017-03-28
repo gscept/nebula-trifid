@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  factory.cc
 //  (C) 2006 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "core/factory.h"
@@ -101,10 +101,12 @@ Factory::Register(const Rtti* rtti, const String& className, const FourCC& class
     {
         // NOTE: can't use n_error() here, because Console is not setup yet
         // when this method Register() is called!
+		String previous = this->fourccTable[classFourCC]->GetName();
         String errorMsg;
-        errorMsg.Format("Class fourcc '%s' (name: %s) has already been registered!", 
+        errorMsg.Format("Class fourcc '%s' (name: %s) has already been registered by '%s'!", 
             classFourCC.AsString().AsCharPtr(),
-            className.AsCharPtr());
+            className.AsCharPtr(),
+			previous.AsCharPtr());
         SysFunc::Error(errorMsg.AsCharPtr());
         return;
     }

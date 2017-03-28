@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  camerasettings.cc
 //  (C) 2009 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "graphics/camerasettings.h"
@@ -20,7 +20,7 @@ CameraSettings::CameraSettings() :
     viewMatrix(matrix44::identity()),
     viewProjMatrix(matrix44::identity())
 {
-	DisplayMode mode = DisplayDevice::Instance()->GetDisplayMode();
+	DisplayMode mode = DisplayDevice::Instance()->GetCurrentWindow()->GetDisplayMode();
     this->SetupPerspectiveFov(n_deg2rad(60.0f), mode.GetHeight() / (float)mode.GetWidth(), 0.1f, 2500.0f);
 }
 
@@ -89,6 +89,34 @@ CameraSettings::UpdateViewProjMatrix() const
     n_assert(this->viewProjDirty);
     this->viewProjDirty = false;
     this->viewProjMatrix = matrix44::multiply(this->viewMatrix, this->projMatrix);
+}
+
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+CameraSettings::SetProjectionMatrix(const Math::matrix44 & proj, float fov, float aspect, float zNear, float zFar)
+{    
+    this->viewProjDirty = true;
+    this->zFar = zFar;
+    this->zNear = zNear;
+    this->projMatrix = proj;
+    this->aspect = aspect;
+    this->fov = fov;
+    this->isPersp = true;
+    this->invProjMatrix = matrix44::inverse(this->projMatrix);
+
+
+    this->nearWidth = 2.0f * this->zNear / this->projMatrix.getrow0().x();
+    this->nearHeight = 2.0f * this->zNear / this->projMatrix.getrow1().y();
+    this->farWidth = (this->nearWidth / this->zNear) * this->zFar;
+    this->farHeight = (this->nearHeight / this->zNear) * this->zFar;
+    float yLen = Math::n_tan(0.5f * this->fov);
+    float xLen = yLen * this->aspect;
+    this->focalLength.set(xLen, yLen);
+
+    this->viewProjDirty = true;
 }
 
 //------------------------------------------------------------------------------

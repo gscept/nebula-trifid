@@ -8,7 +8,7 @@
     incoming input events.
 
     (C) 2007 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/singleton.h"
 #if (__DX11__ || __DX9__ )
@@ -30,7 +30,7 @@ public:
 #include "input/glfw/glfwinputserver.h"
 namespace Input
 {
-class InputServer : public OpenGL4::GLFWInputServer
+class InputServer : public GLFW::GLFWInputServer
 {
     __DeclareClass(InputServer);
     __DeclareInterfaceSingleton(InputServer);

@@ -65,4 +65,15 @@ Algorithm::AddFunction(const Util::StringAtom& name, const FunctionType type, co
 	this->functions.Add(name, func);
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+Algorithm::Resize()
+{
+	IndexT i;
+	for (i = 0; i < this->renderTextures.Size(); i++)		this->renderTextures[i]->Resize();
+	for (i = 0; i < this->readWriteTextures.Size(); i++)	this->readWriteTextures[i]->Resize();
+}
+
 } // namespace Base

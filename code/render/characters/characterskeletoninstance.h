@@ -6,7 +6,7 @@
     Contains the per-instance skeleton data of a character.
     
     (C) 2008 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/types.h"
 #include "characters/characterskeleton.h"
@@ -24,6 +24,12 @@ public:
     CharacterSkeletonInstance();
     /// destructor
     ~CharacterSkeletonInstance();
+
+	enum SkeletonEvalMode
+	{
+		BindPose,			// use bind pose from resource
+		Mix					// mix bind pose and direct matrices
+	};
     
     /// setup from CharacterSkeleton
     void Setup(const CharacterSkeleton& skeleton);
@@ -42,6 +48,8 @@ public:
     /// get a joint matrix by joint index
     // FIXME: synchronization problems -> updated in asynchronous job!
     const Math::matrix44& GetJointMatrix(IndexT i) const;
+	/// get base matrix, which is modifiable 
+	Math::matrix44& GetMixMatrix(IndexT i) const;
     /// apply joint components
     void ApplyJointComponents(const Util::FixedArray<CharJointComponents>& set);
 
@@ -53,13 +61,14 @@ private:
     /// setup a single joint
     void SetupJoint(const CharacterSkeleton& skeleton, IndexT jointIndex);
     /// evaluate the joints (computes new skin matrices)
-    void EvaluateAsync(const Ptr<Jobs::JobPort>& jobPort, const Math::float4* sampleBuffer, SizeT numSamples, void* jointTextureRowPtr, SizeT jointTextureRowSize, bool waitAnimJobsDone);
+	void EvaluateAsync(const Ptr<Jobs::JobPort>& jobPort, const Math::float4* sampleBuffer, SizeT numSamples, void* jointTextureRowPtr, SizeT jointTextureRowSize, bool waitAnimJobsDone, SkeletonEvalMode mode = BindPose);
 
-    
     Util::FixedArray<CharJointComponents> startJointComponentsArray;                 
     Util::FixedArray<Math::matrix44> scaledMatrixArray;
     Util::FixedArray<Math::matrix44> skinMatrixArray;
+	Util::FixedArray<Math::matrix44> mixMatrixArray;
 	Util::FixedArray<CharJointComponents>* jointComponentsArrayPtr;  
+	Util::FixedArray<Math::matrix44> bindPoseMatrixArray;
 
 	const CharacterSkeleton* skeletonPtr;
 	Ptr<Jobs::Job> evalJob;
@@ -74,6 +83,15 @@ inline const Math::matrix44&
 CharacterSkeletonInstance::GetJointMatrix(IndexT i) const
 {
     return this->scaledMatrixArray[i];
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline Math::matrix44&
+CharacterSkeletonInstance::GetMixMatrix(IndexT i) const
+{
+	return this->mixMatrixArray[i];
 }
 
 //------------------------------------------------------------------------------

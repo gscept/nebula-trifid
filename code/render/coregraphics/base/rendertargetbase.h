@@ -9,7 +9,7 @@
     surface.
     
     (C) 2007 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
 #include "coregraphics/antialiasquality.h"
@@ -139,7 +139,7 @@ public:
 	void ResetResolveRects();
 
 	/// called after we change the display size
-	void OnDisplayResized(SizeT width, SizeT height);
+	void OnWindowResized(SizeT width, SizeT height);
 
     /// setup the render target object
     void Setup();

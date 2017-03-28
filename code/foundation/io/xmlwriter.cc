@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  xmlwriter.cc
 //  (C) 2006 Radon Labs GmbH
-//  (C) 2013-2014 Individual contributors, see AUTHORS file
+//  (C) 2013-2018 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "io/xmlwriter.h"
@@ -237,6 +237,19 @@ XmlWriter::SetMatrix44(const String& name, const matrix44& value)
     String s;
     s.SetMatrix44(value);
     this->SetString(name, s);
+}
+
+//------------------------------------------------------------------------------
+/**
+Set the provided attribute to a transform44 value.  The stream must be
+in Write or ReadWrite mode for this.
+*/
+void
+XmlWriter::SetTransform44(const String& name, const transform44& value)
+{
+	String s;
+	s.SetTransform44(value);
+	this->SetString(name, s);
 }
 
 //------------------------------------------------------------------------------

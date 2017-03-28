@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  attributetable.cc
 //  (C) 2006 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "attr/attributetable.h"
@@ -350,14 +350,15 @@ AttributeTable::GetValueTypeSize(ValueType type) const
 {
     switch (type)
     {
-        case IntType:       return sizeof(int);
-        case BoolType:      return sizeof(int);     // not a bug!
-        case FloatType:     return sizeof(float);
-        case Float4Type:    return sizeof(float4);
-        case Matrix44Type:  return sizeof(matrix44);
-        case StringType:    return sizeof(Util::String*);
-        case GuidType:      return sizeof(Util::Guid*);
-        case BlobType:      return sizeof(Util::Blob*);
+        case IntType:           return sizeof(int);
+        case BoolType:          return sizeof(int);     // not a bug!
+        case FloatType:         return sizeof(float);
+        case Float4Type:        return sizeof(float4);
+        case Matrix44Type:      return sizeof(matrix44);
+        case Transform44Type:   return sizeof(transform44) - sizeof(matrix44);
+        case StringType:        return sizeof(Util::String*);
+        case GuidType:          return sizeof(Util::Guid*);
+        case BlobType:          return sizeof(Util::Blob*);
         default:
             n_error("GetValueTypeSize(): invalid type!\n");
             break;
@@ -526,8 +527,10 @@ AttributeTable::DeleteRow(IndexT rowIndex)
         this->isModified = true;
     }
     this->userData[rowIndex] = 0;
-    // free memory for unused celldata
-    this->DeleteRowData(rowIndex);
+	// FIXME this causes delete command on the database to fail as the primary key (usually a guid) used to match rows with is gone
+	// its a (minor) memleak that should get cleaned up after the table is removed
+    // // free memory for unused celldata
+    // this->DeleteRowData(rowIndex);
 }
 
 //------------------------------------------------------------------------------
@@ -1041,14 +1044,15 @@ AttributeTable::SetRowToDefaultValues(IndexT rowIndex)
         const AttrId& colAttrId = this->GetColumnId(colIndex);
         switch (colAttrId.GetValueType())
         {
-            case IntType:       this->SetInt(colIndex, rowIndex, colAttrId.GetIntDefValue()); break;
-            case FloatType:     this->SetFloat(colIndex, rowIndex, colAttrId.GetFloatDefValue()); break;
-            case BoolType:      this->SetBool(colIndex, rowIndex, colAttrId.GetBoolDefValue()); break;
-            case Float4Type:    this->SetFloat4(colIndex, rowIndex, colAttrId.GetFloat4DefValue()); break;
-            case StringType:    this->SetString(colIndex, rowIndex, colAttrId.GetStringDefValue()); break;
-            case Matrix44Type:  this->SetMatrix44(colIndex, rowIndex, colAttrId.GetMatrix44DefValue()); break;
-            case BlobType:      this->SetBlob(colIndex, rowIndex, colAttrId.GetBlobDefValue()); break;
-            case GuidType:      this->SetGuid(colIndex, rowIndex, colAttrId.GetGuidDefValue()); break;
+            case IntType:           this->SetInt(colIndex, rowIndex, colAttrId.GetIntDefValue()); break;
+            case FloatType:         this->SetFloat(colIndex, rowIndex, colAttrId.GetFloatDefValue()); break;
+            case BoolType:          this->SetBool(colIndex, rowIndex, colAttrId.GetBoolDefValue()); break;
+            case Float4Type:        this->SetFloat4(colIndex, rowIndex, colAttrId.GetFloat4DefValue()); break;
+            case StringType:        this->SetString(colIndex, rowIndex, colAttrId.GetStringDefValue()); break;
+            case Matrix44Type:      this->SetMatrix44(colIndex, rowIndex, colAttrId.GetMatrix44DefValue()); break;
+            case Transform44Type:   this->SetTransform44(colIndex, rowIndex, colAttrId.GetTransform44DefValue()); break;
+            case BlobType:          this->SetBlob(colIndex, rowIndex, colAttrId.GetBlobDefValue()); break;
+            case GuidType:          this->SetGuid(colIndex, rowIndex, colAttrId.GetGuidDefValue()); break;
             default:
                 n_error("Invalid column attribute type!");
                 break;
@@ -1116,6 +1120,16 @@ AttributeTable::SetColumnToDefaultValues(IndexT colIndex)
                 }
             }
             break;
+
+        case Transform44Type:
+            {
+                const transform44& def = colAttrId.GetTransform44DefValue();
+                for (rowIndex = 0; rowIndex < this->GetNumRows(); rowIndex++)
+                {
+                    this->SetTransform44(colIndex, rowIndex, def);
+                }
+            }
+        break;
 
         case StringType:
             {

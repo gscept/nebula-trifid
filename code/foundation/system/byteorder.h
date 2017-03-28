@@ -17,7 +17,7 @@
     so that the console doesn't waste loading time with byte conversions!
     
     (C) 2007 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/types.h"
 #if !__OSX__
@@ -479,6 +479,70 @@ ByteOrder::Convert<double>(Type fromByteOrder, Type toByteOrder, double val)
         pun.d = val;
         pun.u = _byteswap_uint64(pun.u);
         return pun.d;
+    }
+    else
+    {
+        return val;
+    }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+template<> __forceinline uint64_t
+ByteOrder::Convert<uint64_t>(Type fromByteOrder, Type toByteOrder, uint64_t val)
+{
+    if (fromByteOrder != toByteOrder)
+    {        
+        return  _byteswap_uint64(val);     
+    }
+    else
+    {
+        return val;
+    }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+template<> __forceinline int64_t
+ByteOrder::Convert<int64_t>(Type fromByteOrder, Type toByteOrder, int64_t val)
+{
+    if (fromByteOrder != toByteOrder)
+    {
+        return  _byteswap_uint64(val);
+    }
+    else
+    {
+        return val;
+    }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+template<> __forceinline int64_t
+ByteOrder::Convert<int64_t>(int64_t val) const
+{
+    if (this->from != this->to)
+    {
+        return  _byteswap_uint64(val);
+    }
+    else
+    {
+        return val;
+    }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+template<> __forceinline uint64_t
+ByteOrder::Convert<uint64_t>(uint64_t val) const
+{
+    if (this->from != this->to)
+    {
+        return  _byteswap_uint64(val);
     }
     else
     {

@@ -5,7 +5,7 @@
     
     Handles model items.
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "widgets/basehandler.h"
@@ -20,6 +20,11 @@
 #include "ui_modelinfowidget.h"
 #include "messaging/message.h"
 #include "code/filewatcher.h"
+
+namespace ContentBrowser
+{
+	class ContentBrowserWindow;
+}
 
 namespace Widgets
 {
@@ -98,6 +103,8 @@ public slots:
 	void RemoveParticleNode(const Util::String path, const Util::String node);
 
 private slots:
+	friend class ContentBrowser::ContentBrowserWindow;
+
 	/// add new particle node to model
 	void OnAddParticleNode();
 	/// saves changes 
@@ -126,6 +133,17 @@ private:
 	Ptr<ToolkitUtil::ModelConstants> constants;
 	Ptr<ToolkitUtil::ModelPhysics> physics;
 	ResourceBrowser::FileWatcher thumbnailWatcher;
+
+	QMenu* saveMenu;
+	QAction* saveAction;
+	QAction* saveAsAction;
+	QAction* reconfigAction;
+	QAction* particleNodeAction;
+	QIcon savedIcon;
+	QIcon unsavedIcon;
+	QIcon blankIcon;
+	QString savedStyle;
+	QString unsavedStyle;
 }; 
 
 //------------------------------------------------------------------------------

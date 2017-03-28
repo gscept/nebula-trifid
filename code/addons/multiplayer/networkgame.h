@@ -8,7 +8,7 @@
 	If you derive your own class make sure to implement the serialization
 	functions and add the variables you want to get synced.
 
-(C) 2015 Individual contributors, see AUTHORS file
+(C) 2015-2016 Individual contributors, see AUTHORS file
 */
 
 #include "util/dictionary.h"
@@ -73,19 +73,14 @@ public:
 	/// trigger refresh of available rooms on master
 	virtual void UpdateRoomList();
 	/// join a server returned by the master server
-	void JoinRoom(const Util::String & guid);
+    void JoinRoom(const Util::String & guid, bool isIp=false);
 	/// create lobby and publish to master server (if enabled)
 	void CreateRoom();
 	/// unpublishes and resets network
 	void CancelRoom();
 	/// get master server list
 	const Ptr<Attr::AttributeTable>& GetMasterList() const;
-	/// post to master server
-	void PublishToMaster();
-	/// remove from master
-	void UnpublishFromMaster();
-	/// has game been published to master server
-	const bool IsPublished() const;
+	
 	/// start game (if host)
 	void StartGame();
 		
@@ -136,6 +131,9 @@ public:
 	/// whenever joining a room this is called if the game is started
 	virtual bool CanJoinInGame();
 
+	/// set the master server list
+	void ReceiveMasterList(Ptr<Attr::AttributeTable> & masterList);
+
 protected:
 	/// 
 	virtual void OnAllReady(bool dummy);
@@ -144,6 +142,8 @@ private:
 	///
 	void OnReadyChanged(const Util::KeyValuePair<Multiplayer::UniquePlayerId, bool>& change);
 	
+	/// loaded syncpoint has been reached
+	void OnLoaded(bool dummy);
 
 	/// raknet sync stuff below many of these dont need to be overloaded in this case but are pure virtual
 	///
@@ -196,9 +196,6 @@ private:
 	/// handle message
 	virtual void HandleMessage(const Ptr<Messaging::Message> &msg);
 
-
-	/// set the master server list
-	void ReceiveMasterList(Ptr<Attr::AttributeTable> & masterList);	
 	/// get in game
 	void StartInGame();
 
@@ -207,15 +204,13 @@ private:
 	bool canJoin;
 	bool inLobby;	
 
-	bool updateMaster;
-	int masterServerRow;	
+	bool updateMaster;	
 	int currentPlayers;
 	int maxPlayers;
 
 
 	/// these are local
-	bool creator;
-	bool delayedMaster;
+	bool creator;	
 	RakNet::Time nextMasterServerUpdate;	
 	Util::Dictionary<uint64_t, Ptr<MultiplayerFeature::NetworkPlayer>> players;
 	Ptr<Attr::AttributeTable> serverList;
@@ -232,16 +227,6 @@ const bool
 NetworkGame::IsCreator() const
 {
 	return this->creator;
-}
-
-//------------------------------------------------------------------------------
-/**
-*/
-inline 
-const bool
-NetworkGame::IsPublished() const
-{
-	return this->masterServerRow >= 0;
 }
 
 //------------------------------------------------------------------------------

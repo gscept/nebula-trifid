@@ -113,7 +113,7 @@ VolumetricLightAlgorithm::Setup()
     this->volumeLightBuffer1->SetRelativeWidth(1.0f);
     this->volumeLightBuffer1->SetRelativeHeight(1.0f);
 	this->volumeLightBuffer1->SetAntiAliasQuality(AntiAliasQuality::None);
-	this->volumeLightBuffer1->SetColorBufferFormat(PixelFormat::A16B16G16R16F);
+	this->volumeLightBuffer1->SetColorBufferFormat(PixelFormat::R16G16B16A16F);
 
     // set depth-stencil in  buffer
 	this->volumeLightBuffer1->SetDepthStencilTarget(this->albedoRenderTarget->GetDepthStencilTarget());
@@ -125,7 +125,7 @@ VolumetricLightAlgorithm::Setup()
     this->volumeLightBuffer2->SetRelativeWidth(1.0f);
     this->volumeLightBuffer2->SetRelativeHeight(1.0f);
 	this->volumeLightBuffer2->SetAntiAliasQuality(AntiAliasQuality::None);
-	this->volumeLightBuffer2->SetColorBufferFormat(PixelFormat::A16B16G16R16F);
+	this->volumeLightBuffer2->SetColorBufferFormat(PixelFormat::R16G16B16A16F);
 	this->volumeLightBuffer2->Setup();
 
 	// setup output
@@ -134,7 +134,7 @@ VolumetricLightAlgorithm::Setup()
     this->output->SetRelativeWidth(1.0f);
     this->output->SetRelativeHeight(1.0f);
 	this->output->SetAntiAliasQuality(AntiAliasQuality::None);
-	this->output->SetColorBufferFormat(PixelFormat::A16B16G16R16F);
+	this->output->SetColorBufferFormat(PixelFormat::R16G16B16A16F);
 	this->output->Setup();
 
 	// setup fsq
@@ -247,8 +247,8 @@ VolumetricLightAlgorithm::Render()
 //------------------------------------------------------------------------------
 /**
 */
-bool 
-VolumetricLightAlgorithm::HandleMessage( const Ptr<Messaging::Message>& msg )
+bool
+VolumetricLightAlgorithm::HandleMessage(const Ptr<Messaging::Message>& msg)
 {
 	if (msg->CheckId(EnableVolumetricLighting::Id))
 	{
@@ -282,7 +282,7 @@ VolumetricLightAlgorithm::HandleMessage( const Ptr<Messaging::Message>& msg )
 
 		if (light->IsA(GlobalLightEntity::RTTI))
 		{
-			this->globalLight = 0;
+			if (this->globalLight == light)	this->globalLight = 0;
 		}
 		else if (light->IsA(SpotLightEntity::RTTI))
 		{
@@ -328,7 +328,7 @@ VolumetricLightAlgorithm::RenderGlobalLight()
 		else				this->lightProjMapVar->SetTexture(this->whiteMap->GetTexture());
 
 		// calculate position
-		float4 pos = curLight->GetLightDirection() * 10 + camTrans.get_position();
+		float4 pos = curLight->GetLightDirection() * 50 + camTrans.get_position();
 		pos.w() = 1.0f;
 
 		// calculate screen position
@@ -423,9 +423,9 @@ VolumetricLightAlgorithm::OnDisplayResized(SizeT width, SizeT height)
 	n_assert(this->volumeLightBuffer2.isvalid());
 
 	// resize rendertargets
-	this->volumeLightBuffer1->OnDisplayResized(width, height);
-	this->volumeLightBuffer2->OnDisplayResized(width, height);
-	this->output->OnDisplayResized(width, height);
+	this->volumeLightBuffer1->OnWindowResized(width, height);
+	this->volumeLightBuffer2->OnWindowResized(width, height);
+	this->output->OnWindowResized(width, height);
 
 	// set light scatter texture again
 	this->lightScatterUnshadedTextureVar->SetTexture(this->volumeLightBuffer1->GetResolveTexture());

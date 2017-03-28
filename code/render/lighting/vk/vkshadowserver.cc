@@ -4,7 +4,6 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "lighting/vk/vkshadowserver.h"
-#include "frame/frameserver.h"
 #include "coregraphics/transformdevice.h"
 #include "models/visresolver.h"
 #include "graphics/modelentity.h"
@@ -31,7 +30,6 @@ __ImplementClass(Lighting::VkShadowServer, 'SM5S', ShadowServerBase);
 
 using namespace Math;
 using namespace Util;
-using namespace Frame;
 using namespace Resources;
 using namespace CoreGraphics;
 using namespace Graphics;
@@ -66,13 +64,10 @@ VkShadowServer::Open()
 	ShadowServerBase::Open();
 
 	// load the ShadowBuffer frame shader
-	const Ptr<FrameServer>& frameServer = FrameServer::Instance();
 	const Ptr<MaterialServer> materialServer = MaterialServer::Instance();
 	this->script = Frame2::FrameServer::Instance()->LoadFrameScript("shadowmapping", "frame:vkshadowmapping.json");
 	this->globalLightShadowBuffer = this->script->GetColorTexture("GlobalLightShadow")->GetTexture();
-	//this->globalLightShadowBuffer = this->script->GetReadWriteTexture("GlobalLightShadowFiltered")->GetTexture();
 	this->spotLightShadowBuffer = this->script->GetColorTexture("SpotLightInstance")->GetTexture();
-	//this->spotLightShadowBufferAtlas = this->script->GetReadWriteTexture("SpotLightShadowFiltered")->GetTexture();
 	this->spotLightShadowBufferAtlas = this->script->GetColorTexture("SpotLightShadowAtlas")->GetTexture();
 
 	IndexT i;
@@ -86,11 +81,11 @@ VkShadowServer::Open()
 	this->lightIndexPool.Resize(NumShadowCastingLights);
 
 	this->globalLightBatch = Frame2::FrameSubpassBatch::Create();
-	this->globalLightBatch->SetBatchCode(Frame::BatchGroup::FromName("GlobalShadow"));
+	this->globalLightBatch->SetBatchCode(Graphics::BatchGroup::FromName("GlobalShadow"));
 	this->spotLightBatch = Frame2::FrameSubpassBatch::Create();
-	this->spotLightBatch->SetBatchCode(Frame::BatchGroup::FromName("SpotLightShadow"));
+	this->spotLightBatch->SetBatchCode(Graphics::BatchGroup::FromName("SpotLightShadow"));
 	this->pointLightBatch = Frame2::FrameSubpassBatch::Create();
-	this->pointLightBatch->SetBatchCode(Frame::BatchGroup::FromName("PointLightShadow"));
+	this->pointLightBatch->SetBatchCode(Graphics::BatchGroup::FromName("PointLightShadow"));
 
 	this->csmUtil.SetTextureWidth(this->globalLightShadowBuffer->GetWidth() / SplitsPerRow);
 	this->csmUtil.SetClampingMethod(CSMUtil::AABB);

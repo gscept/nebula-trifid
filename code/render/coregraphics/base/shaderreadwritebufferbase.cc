@@ -46,7 +46,8 @@ ShaderReadWriteBufferBase::Setup(const SizeT numBackingBuffers)
 	if (this->relativeSize)
 	{
 		// get display mode
-		const CoreGraphics::DisplayMode& mode = CoreGraphics::DisplayDevice::Instance()->GetDisplayMode();
+		Ptr<CoreGraphics::Window> wnd = CoreGraphics::DisplayDevice::Instance()->GetCurrentWindow();
+		const CoreGraphics::DisplayMode& mode = wnd->GetDisplayMode();
 		this->byteSize = this->size * mode.GetWidth() * mode.GetHeight();
 	}
 	else

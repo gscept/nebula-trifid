@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  particlesysteminstancebase.cc
 //  (C) 2008 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "particles/base/particlesysteminstancebase.h"
@@ -437,8 +437,8 @@ ParticleSystemInstanceBase::EmitParticle(IndexT emissionSampleIndex, float initi
 
 	float4 dummy, dummy2;
 	quaternion qrot;
-	this->transform.decompose(dummy,qrot,dummy2);
-	emNormal = matrix44::transform(emNormal,matrix44::rotationquaternion(qrot));
+	this->transform.decompose(dummy, qrot, dummy2);
+	emNormal = matrix44::transform(emNormal, matrix44::rotationquaternion(qrot));
     // compute start velocity
     float velocityVariation = 1.0f - (n_rand() * emAttrs.GetFloat(EmitterAttrs::VelocityRandomize));
     float startVelocity = emissionEnvSamples[EmitterAttrs::StartVelocity] * velocityVariation;
@@ -461,7 +461,7 @@ ParticleSystemInstanceBase::EmitParticle(IndexT emissionSampleIndex, float initi
     // setup rotation and rotationVariation
     float startRotMin = emAttrs.GetFloat(EmitterAttrs::StartRotationMin);
     float startRotMax = emAttrs.GetFloat(EmitterAttrs::StartRotationMax);
-	particle.rotation = n_clamp(n_rand(), startRotMin, startRotMax);
+	particle.rotation = n_clamp(n_rand(), startRotMin, startRotMax);			// this causes the rotation to be clamped between min and max instead of being interpolated between them (old code)
     float rotVar = 1.0f - (n_rand() * emAttrs.GetFloat(EmitterAttrs::RotationRandomize));
     if (emAttrs.GetBool(EmitterAttrs::RandomizeRotation) && (n_rand() < 0.5f))
     {
@@ -735,7 +735,7 @@ ParticleSystemInstanceBase::RenderDebug()
 
     // render debug
     RenderShape emitterShape;
-    emitterShape.SetupMesh(Threading::Thread::GetMyThreadId(), this->transform, this->emitterMesh, float4(0, 1, 0, 0.75f), RenderShape::CheckDepth);
+    emitterShape.SetupMesh(Threading::Thread::GetMyThreadId(), this->transform, this->emitterMesh, this->primGroupIndex, float4(0, 1, 0, 0.75f), RenderShape::CheckDepth);
     ShapeRenderer::Instance()->AddShape(emitterShape);
 }
 

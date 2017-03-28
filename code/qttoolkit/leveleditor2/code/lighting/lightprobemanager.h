@@ -5,13 +5,13 @@
 	
 	Keeps track of all lightprobes in the scene, configures how they are supposed to be output, and to where the output is to be generated.
 	
-	(C) 2012-2015 Individual contributors, see AUTHORS file
+	(C) 2012-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
 #include "core/singleton.h"
 #include "ui_lightprobedialog.h"
-#include "frame/frameshader.h"
+#include "frame2/framescript.h"
 #include "graphics/view.h"
 #include "environmentprobecapturer.h"
 #include <QDialog>
@@ -53,7 +53,7 @@ public:
 	void UnregisterProbe(const Ptr<EnvironmentProbeCapturer>& probe);
 
 	/// get frame shader which should be used when calculating the reflection
-	const Ptr<Frame::FrameShader>& GetReflectionFrameShader() const;
+	const Ptr<Frame2::FrameScript>& GetReflectionFrameScript() const;
 	/// get view which should be used when rendering from the probes point of view
 	const Ptr<Graphics::View>& GetReflectionView() const;
 
@@ -77,7 +77,7 @@ private:
 	Ui::LightProbeWindow ui;
 	QDialog dialog;
 
-	Ptr<Frame::FrameShader> lightProbeFrameShader;
+	Ptr<Frame2::FrameScript> lightProbeFrameShader;
 	Ptr<Graphics::View> reflectionView;
 	Ptr<Graphics::CameraEntity> reflectionCamera;
 	bool inBeginUpdate;
@@ -86,8 +86,8 @@ private:
 //------------------------------------------------------------------------------
 /**
 */
-inline const Ptr<Frame::FrameShader>&
-LightProbeManager::GetReflectionFrameShader() const
+inline const Ptr<Frame2::FrameScript>&
+LightProbeManager::GetReflectionFrameScript() const
 {
 	return this->lightProbeFrameShader;
 }

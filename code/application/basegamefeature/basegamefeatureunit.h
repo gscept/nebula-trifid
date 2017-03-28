@@ -14,7 +14,7 @@
     and overwrite OnActivate() OnDeactivate().
 
     (C) 2007 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "game/featureunit.h"
 #include "math/bbox.h"
@@ -25,18 +25,18 @@
 #include "managers/categorymanager.h"
 #include "managers/globalattrsmanager.h"
 #include "managers/audiomanager.h"
-#include "addons/db/dbserver.h"
+#include "db/dbserver.h"
 #include "loader/loaderserver.h"
-#include "managers/enventitymanager.h"
 #include "http/httprequesthandler.h"
 #include "vibration/vibrationinterface.h"
 #include "faudio/audioserver.h"
 #include "managers/envquerymanager.h"
-#include "navigation/crowdmanager.h"
 
 //------------------------------------------------------------------------------
 namespace BaseGameFeature
 {
+
+class LevelAttrsManager;
 
 class BaseGameFeatureUnit : public Game::FeatureUnit    
 {
@@ -85,9 +85,9 @@ public:
 	void SetAutosaveEnabled(bool b);
 
     /// set current level name
-    void SetCurrentLevel(const Util::String& n);
+    static void SetCurrentLevel(const Util::String& n);
     /// get current level name
-    Util::String GetCurrentLevel() const;
+    static Util::String GetCurrentLevel();
     /// set optional world dimensions
     void SetWorldDimensions(const Math::bbox& box);
     /// get world dimensions
@@ -115,13 +115,12 @@ protected:
     Ptr<FocusManager> focusManager;
     Ptr<EntityManager> entityManager;
     Ptr<GlobalAttrsManager> globalAttrManager;
+	Ptr<LevelAttrsManager> levelAttrManager;
     Ptr<CategoryManager> categoryManager;
     Ptr<TimeManager> timeManager;
     Ptr<BaseGameFeature::LoaderServer> loaderServer;
-    Ptr<Db::DbServer> dbServer;
-    Ptr<EnvEntityManager> envEntityManager;    
-    Ptr<Vibration::VibrationInterface> vibInterface;
-    Ptr<Navigation::CrowdManager> crowdManager;
+    Ptr<Db::DbServer> dbServer;    
+    Ptr<Vibration::VibrationInterface> vibInterface;    
     Ptr<EnvQueryManager> envQueryManager;
     Ptr<AudioManager> audioManager;
     Util::Array<Util::String> activeLayers;

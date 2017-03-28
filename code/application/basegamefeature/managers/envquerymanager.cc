@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  managers/envquerymanager.cc
 //  (C) 2005 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "managers/envquerymanager.h"
@@ -191,7 +191,7 @@ EnvQueryManager::GetEntitiesInBox(const vector& scale, const matrix44& m)
 
     Physics::FilterSet excludeSet;
     Util::Array<Ptr<Physics::PhysicsObject> > physicsEntities;
-    Physics::PhysicsServer::Instance()->GetScene()->GetObjectsInBox(scale, m, excludeSet, physicsEntities);
+    Physics::PhysicsServer::Instance()->GetScene()->GetObjectsInBox(m, scale, excludeSet, physicsEntities);
     
     // convert physics entities back into game entities
     EntityManager* entityManager = EntityManager::Instance();

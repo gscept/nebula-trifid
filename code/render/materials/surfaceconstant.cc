@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  surfaceconstant.cc
-//  (C) 2015 Individual contributors, see AUTHORS file
+//  (C) 2015-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "surfaceconstant.h"
@@ -118,15 +118,14 @@ SurfaceConstant::SetValue(const Util::Variant& value)
 				if (binding.var->IsActive()) this->ApplyToShaderVariable(value, binding.var);
 
 #ifndef PUBLIC_BUILD
-				/*
 				if (binding.var->GetType() != this->value.GetType()) n_warning("[WARNING]: Surface constant '%s' is type '%s' but is provided with a '%s'. Behaviour is undefined (crash/corruption).\n",
-				this->name.Value(),
-				ShaderVariable::TypeToString(binding.var->GetType()),
-				Variant::TypeToString(this->value.GetType()));
-				*/
+					this->name.Value(),
+					ShaderVariable::TypeToString(binding.var->GetType()),
+					Variant::TypeToString(this->value.GetType()));
 #endif
 			}
 		}
+
 	}
 }
 

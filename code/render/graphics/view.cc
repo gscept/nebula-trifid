@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  view.cc
 //  (C) 2007 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "graphics/view.h"
@@ -20,6 +20,7 @@
 #include "coregraphics/displaydevice.h"
 #include "characters/characterserver.h"
 #include "framesync/framesynctimer.h"
+#include "viewdisplayhandler.h"
 
 namespace Graphics
 {
@@ -42,7 +43,8 @@ using namespace FrameSync;
 View::View() :
     isAttachedToServer(false),
 	resolveRectValid(false),
-	shouldUpdatePerFrame(true)
+	shouldUpdatePerFrame(true),
+	windowId(InvalidIndex)
 {
     // empty
 }
@@ -68,6 +70,11 @@ View::OnAttachToServer()
 {
     n_assert(!this->IsAttachedToServer());
     this->isAttachedToServer = true;
+
+	// attach event handler for window events
+	this->displayHandler = ViewDisplayHandler::Create();
+	this->displayHandler->SetView(this);
+	DisplayDevice::Instance()->AttachEventHandler(this->displayHandler.upcast<DisplayEventHandler>());
 
 #if NEBULA3_ENABLE_PROFILING
 	this->resolveVisibleShadowCasters = Debug::DebugTimer::Create();
@@ -125,6 +132,9 @@ View::OnRemoveFromServer()
 	this->frameScript = 0;
     this->dependencies.Clear();
     this->isAttachedToServer = false;
+
+	DisplayDevice::Instance()->RemoveEventHandler(this->displayHandler.upcast<DisplayEventHandler>());
+	this->displayHandler = 0;
 
 	_discard_timer(resolveVisibleShadowCasters);
     _discard_timer(resolveVisibleModelNodeInstances);
@@ -262,10 +272,10 @@ void
 View::ApplyCameraSettings()
 {
     TransformDevice* transformDevice = TransformDevice::Instance();
-    transformDevice->SetProjTransform(this->camera->GetProjTransform());
-    transformDevice->SetViewTransform(this->camera->GetViewTransform());  
-    transformDevice->SetFocalLength(this->camera->GetCameraSettings().GetFocalLength());
-    transformDevice->ApplyViewSettings();
+	transformDevice->SetProjTransform(this->camera->GetProjTransform());
+	transformDevice->SetViewTransform(this->camera->GetViewTransform());
+	transformDevice->SetFocalLength(this->camera->GetCameraSettings().GetFocalLength());
+	transformDevice->ApplyViewSettings();
 }
 
 //------------------------------------------------------------------------------
@@ -290,25 +300,22 @@ View::Render(IndexT frameIndex)
 
 	Particles::ParticleRenderer::Instance()->BeginAttach();
 
-	_start_timer(resolveVisibleShadowCasters);
 	// resolve visible light source
+	_start_timer(resolveVisibleShadowCasters);
 	this->ResolveVisibleLights(frameIndex);
-
-	// resolve visible shadow casters for global light
-	//this->ResolveVisibleShadowCasters(frameIndex);
 	_stop_timer(resolveVisibleShadowCasters);
+
+	// resolve visible ModelNodeInstances
+	_start_timer(resolveVisibleModelNodeInstances);
+	this->ResolveVisibleModelNodeInstances(frameIndex);
+	_stop_timer(resolveVisibleModelNodeInstances);
+
+    Particles::ParticleRenderer::Instance()->EndAttach();
 
 	_start_timer(updateShadowBuffers);
 	// update local shadows
 	shadowServer->UpdateShadowBuffers();
 	_stop_timer(updateShadowBuffers);
-
-	_start_timer(resolveVisibleModelNodeInstances);
-	// resolve visible ModelNodeInstances
-	this->ResolveVisibleModelNodeInstances(frameIndex);
-	_stop_timer(resolveVisibleModelNodeInstances);
-
-    Particles::ParticleRenderer::Instance()->EndAttach();
 
     // render the world...
 	_start_timer(render);
@@ -353,11 +360,14 @@ View::RenderDebug()
 /**
 */
 void
-View::OnFrame(const Ptr<RenderModules::RTPluginRegistry>& pluginRegistry, Timing::Time curTime, Timing::Time globalTimeFactor, bool renderDebug)
+View::OnFrame(const Ptr<RenderModules::RTPluginRegistry>& pluginRegistry, Timing::Time curTime, Timing::Time globalTimeFactor, bool renderDebug, bool updateCamera)
 {
 	RenderDevice* renderDevice = RenderDevice::Instance();
 	DisplayDevice* displayDevice = DisplayDevice::Instance();
 	IndexT frameIndex = FrameSyncTimer::Instance()->GetFrameIndex();
+
+	// make view window current
+	if (this->windowId != InvalidIndex) displayDevice->MakeWindowCurrent(this->windowId);
 
 	// start rendering
 	if (this->GetCameraEntity().isvalid() && renderDevice->BeginFrame(frameIndex))
@@ -368,7 +378,7 @@ View::OnFrame(const Ptr<RenderModules::RTPluginRegistry>& pluginRegistry, Timing
 		charServer->BeginFrame(frameIndex);
 
 		// update transform device with camera transforms for this frame
-		this->ApplyCameraSettings();
+		if (updateCamera) this->ApplyCameraSettings();
 
 		// begin gathering skins
 		charServer->BeginGather();
@@ -465,6 +475,25 @@ View::SetCameraEntity(const Ptr<CameraEntity>& newCameraEntity)
         this->camera = newCameraEntity;
         this->camera->OnAttachToView(this);
     }
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+View::OnWindowResized(IndexT windowId) const
+{
+	if (this->windowId == windowId)
+	{
+		const Ptr<CoreGraphics::Window>& window = CoreGraphics::DisplayDevice::Instance()->GetWindow(windowId);
+		const CoreGraphics::DisplayMode& mode = window->GetDisplayMode();
+
+		// resize frame shader for this view
+		this->frameScript->OnWindowResized();
+
+		// notify camera the aspect may have changed
+		this->camera->OnWindowResized(mode.GetAspectRatio());		
+	}
 }
 
 } // namespace Graphics

@@ -10,7 +10,7 @@
 #include "coregraphics/glfw/glfwdisplaydevice.h"
 namespace Vulkan
 {
-class VkDisplayDevice : public OpenGL4::GLFWDisplayDevice
+class VkDisplayDevice : public GLFW::GLFWDisplayDevice
 {
 	__DeclareClass(VkDisplayDevice);
 	__DeclareSingleton(VkDisplayDevice);

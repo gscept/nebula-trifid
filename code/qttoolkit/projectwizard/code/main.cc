@@ -8,7 +8,7 @@
 #endif
 #include "system/nebulasettings.h"
 
-#include "tools/style.h"
+#include "style/nebulastyletool.h"
 #include "qfiledialog.h"
 #include "qinputdialog.h"
 #include "qmessagebox.h"
@@ -19,7 +19,7 @@
 
 #include "../toolkit/toolkitutil/applauncher.h"
 
-using namespace QtTools;
+
 
 //------------------------------------------------------------------------------
 /**

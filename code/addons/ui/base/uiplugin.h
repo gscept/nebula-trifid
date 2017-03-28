@@ -7,7 +7,6 @@
 */
 #include "core/refcounted.h"
 #include "timing/time.h"
-#include "frame/framebatch.h"
 
 //------------------------------------------------------------------------------
 namespace UI
@@ -25,8 +24,6 @@ public:
     virtual void OnRegister();
     /// called when plugin is unregistered
     virtual void OnUnregister();
-	///
-	virtual void OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch);
 };
 
 } // namespace UI

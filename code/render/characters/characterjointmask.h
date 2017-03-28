@@ -35,6 +35,9 @@ public:
 	/// get single weight
 	const float GetWeight(const IndexT i) const;
 
+	/// handle finding character joint masks
+	bool operator==(const CharacterJointMask& rhs) const;
+
 private:
 	Util::StringAtom name;
 	Util::FixedArray<Math::scalar> weights;
@@ -101,6 +104,15 @@ inline const float
 CharacterJointMask::GetWeight(const IndexT i) const
 {
 	return this->weights[i];
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+inline bool
+CharacterJointMask::operator==(const CharacterJointMask& rhs) const
+{
+	return this->name == rhs.name;
 }
 
 } // namespace Characters

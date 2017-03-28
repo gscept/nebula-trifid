@@ -8,7 +8,7 @@
     the stages.
     
     (C) 2007 Radon Labs GmbH
-    (C) 2013-2015 Individual contributors, see AUTHORS file
+    (C) 2013-2016 Individual contributors, see AUTHORS file
 */
 #include "core/refcounted.h"
 #include "core/singleton.h"
@@ -24,6 +24,7 @@
 #include "debug/debugtimer.h"
 #include "visibility/visibilitysystems/visibilitysystembase.h"
 #include "globallightentity.h"
+#include "batchgroup.h"
 
 //------------------------------------------------------------------------------
 namespace Graphics
@@ -64,7 +65,7 @@ public:
     const Util::Array<Ptr<Stage> >& GetStages() const;
 
     /// create a view object
-    Ptr<View> CreateView(const Core::Rtti& viewClass, const Util::StringAtom& name, bool isDefaultView=false, bool updatePerFrame=true);    
+    Ptr<View> CreateView(const Core::Rtti& viewClass, const Util::StringAtom& name, const IndexT windowId, bool isDefaultView=false, bool updatePerFrame=true);    
     /// discard a view object
     void DiscardView(const Ptr<View>& view);
     /// discard all view objects
@@ -108,6 +109,7 @@ public:
 
 private:
     friend class GraphicsEntity;
+	friend class BatchGroup;
 
     /// register a graphics entity
     void RegisterEntity(const Ptr<GraphicsEntity>& entity);
@@ -121,10 +123,12 @@ private:
     Util::Array<Ptr<Stage> > stages;                         
     Util::Dictionary<Util::StringAtom, IndexT> stageIndexMap; 
     Util::Array<Ptr<View> > views;
+	Util::Dictionary<IndexT, Util::Array<Ptr<View>>> viewWindowMap;
     Util::Dictionary<Util::StringAtom, IndexT> viewIndexMap;
     Ptr<View> defaultView;
     Ptr<View> currentView;
     Ptr<CoreGraphics::ShaderVariable> timeShaderVar;
+	Graphics::BatchGroup batchGroupRegistry;
     bool isOpen;
     bool renderDebug;
 	_declare_timer(GfxServerRenderViews);

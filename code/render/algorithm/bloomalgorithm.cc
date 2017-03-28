@@ -45,7 +45,7 @@ BloomAlgorithm::Setup()
 	this->blurShader = CoreGraphics::ShaderServer::Instance()->CreateShaderState("shd:blur_2d_rgb16f_cs", { NEBULAT_DEFAULT_GROUP });
 
 	this->internalTargets[0] = CoreGraphics::ShaderReadWriteTexture::Create();
-	this->internalTargets[0]->Setup(this->readWriteTextures[0]->GetWidth(), this->readWriteTextures[0]->GetHeight(), CoreGraphics::PixelFormat::A16B16G16R16F, "Bloom-Internal0");
+	this->internalTargets[0]->Setup(this->readWriteTextures[0]->GetWidth(), this->readWriteTextures[0]->GetHeight(), CoreGraphics::PixelFormat::R16G16B16A16F, "Bloom-Internal0");
 
 	this->barriers[0] = CoreGraphics::Barrier::Create();
 	this->barriers[0]->SetLeftDependency(CoreGraphics::Barrier::Dependency::ComputeShader);

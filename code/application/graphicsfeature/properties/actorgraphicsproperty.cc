@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  actorgraphicsproperty.cc
 //  (C) 2008 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "properties/actorgraphicsproperty.h"
@@ -32,7 +32,8 @@ ActorGraphicsProperty::SetupAcceptedMessages()
     this->RegisterMessage(Graphics::AnimModifyTimeFactor::Id);
     this->RegisterMessage(Graphics::ApplySkinList::Id);
     this->RegisterMessage(Graphics::ShowSkin::Id);
-    this->RegisterMessage(Graphics::HideSkin::Id);	
+    this->RegisterMessage(Graphics::HideSkin::Id);
+	this->RegisterMessage(SetSkinVisible::Id);
 }
 
 //------------------------------------------------------------------------------
@@ -70,7 +71,7 @@ ActorGraphicsProperty::SetupGraphics()
     this->modelEntity = ModelEntity::Create();
     this->modelEntity->SetResourceId(resId);
     this->modelEntity->SetTransform(worldMatrix);
-    this->modelEntity->SetLoadSynced(this->loadSync);
+	this->modelEntity->SetLoadSynced(this->entity->GetBool(Attr::LoadSynced));
 	this->modelEntity->SetPickingId(this->GetEntity()->GetUniqueId());
     stage->AttachEntity(this->modelEntity.upcast<GraphicsEntity>());
     

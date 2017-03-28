@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  streamsurfaceloader.cc
-//  (C) 2015 Individual contributors, see AUTHORS file
+//  (C) 2015-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "streamsurfaceloader.h"
@@ -213,7 +213,8 @@ StreamSurfaceLoader::SetupMaterialFromStream(const Ptr<IO::Stream>& stream)
 
             // add to the static values in the surface
             surface->staticValues.Add(paramName, obj);
-		} while (reader->SetToNextChild("Param"));
+		}
+		while (reader->SetToNextChild("Param"));
 
         surface->Setup(material);
     }

@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  visibilityserver.cc
 //  (C) 2010 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "visibility/visibilitychecker.h"     
@@ -96,8 +96,8 @@ VisibilityChecker::RemoveVisibilitySystem(const Ptr<VisibilitySystemBase>& syste
 //------------------------------------------------------------------------------
 /**
 */
-void 
-VisibilityChecker::WorldChanged( const Math::bbox& worldBox )
+void
+VisibilityChecker::WorldChanged(const Math::bbox& worldBox)
 {
 	n_assert(this->isOpen);    
 	IndexT i;

@@ -72,6 +72,9 @@ ProjectLoader::Load(const Ptr<Project>& project, const IO::URI& path)
             case 'LINK':
                 this->ReadLinks(reader, project);
                 break;
+			case '>IMP':
+				this->ReadImplementation(reader, project);
+				break;
             }
         }
     }
@@ -195,4 +198,14 @@ ProjectLoader::ReadLinks(const Ptr<IO::BinaryReader>& reader, const Ptr<Project>
         project->links.Append(state);
     }    
 }
+
+//------------------------------------------------------------------------------
+/**
+*/
+void
+ProjectLoader::ReadImplementation(const Ptr<IO::BinaryReader>& reader, const Ptr<Project>& project)
+{
+	// override in subclass
+}
+
 } // namespace Nody

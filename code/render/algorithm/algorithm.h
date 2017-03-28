@@ -44,6 +44,8 @@ public:
 	virtual void Setup();
 	/// discard operation
 	virtual void Discard();
+	/// handle window resizing
+	void Resize();
 	/// get type of function name
 	const FunctionType& GetFunctionType(const Util::StringAtom& str);
 	/// get function

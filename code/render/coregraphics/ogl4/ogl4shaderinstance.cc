@@ -106,11 +106,62 @@ OGL4ShaderInstance::Setup(const Ptr<CoreGraphics::Shader>& origShader)
 //------------------------------------------------------------------------------
 /**
 */
-void 
-OGL4ShaderInstance::Reload( const Ptr<CoreGraphics::Shader>& origShader )
+void
+OGL4ShaderInstance::Reload(const Ptr<CoreGraphics::Shader>& origShader)
 {
 	n_assert(origShader.isvalid());
-	// FIXME!!
+	const Ptr<OGL4Shader>& ogl4Shader = origShader.upcast<OGL4Shader>();
+
+	// call parent class
+	ShaderInstanceBase::Setup(origShader);
+
+	// copy effect pointer
+	this->effect = origShader->GetOGL4Effect();
+	this->uniformVariableBinds.Clear();
+
+	int varblockCount = this->effect->GetNumVarblocks();
+	for (int i = 0; i < varblockCount; i++)
+	{
+		// get varblock
+		AnyFX::EffectVarblock* effectBlock = effect->GetVarblockByIndex(i);
+
+		bool usedBySystem = false;
+		if (effectBlock->HasAnnotation("System")) usedBySystem = effectBlock->GetAnnotationBool("System");
+
+		// only create buffer if it's not using a reserved block
+		if (!usedBySystem && effectBlock->IsActive())
+		{
+			// get bindings, and skip creating this buffer if the block is empty
+			eastl::vector<AnyFX::VarblockVariableBinding> variableBinds = effectBlock->GetVariables();
+			if (variableBinds.empty()) continue;
+
+			// generate a name which we know will be unique
+			Util::String name = effectBlock->GetName().c_str();
+			n_assert(!this->uniformBuffersByName.Contains(name));
+
+			// get variable corresponding to this block
+			const Ptr<ShaderVariable>& blockVar = origShader->GetVariableByName(name);
+
+			// create a new buffer that will serve as this shaders backing storage
+			Ptr<CoreGraphics::ConstantBuffer> uniformBuffer = this->uniformBuffersByName[name];
+
+			// setup block again, with new size
+			uniformBuffer->Discard();
+			uniformBuffer->SetSize(effectBlock->GetSize());
+			uniformBuffer->Setup(1);
+
+			uniformBuffer->BeginUpdateSync();
+			for (unsigned j = 0; j < variableBinds.size(); j++)
+			{
+				// find the shader variable and bind the constant buffer we just created to said variable
+				const AnyFX::VarblockVariableBinding& binding = variableBinds[j];
+				Util::String name = binding.name.c_str();
+				uniformBuffer->UpdateArray(binding.value, binding.offset, binding.size, 1);
+				this->uniformVariableBinds.Add(name, VariableBufferBinding(DeferredVariableToBufferBind{ binding.offset, binding.size, binding.arraySize }, uniformBuffer));
+			}
+			uniformBuffer->EndUpdateSync();
+		}
+	}
 }
 
 //------------------------------------------------------------------------------

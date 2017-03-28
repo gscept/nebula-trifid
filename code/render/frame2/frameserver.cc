@@ -56,9 +56,20 @@ FrameServer::LoadFrameScript(const Resources::ResourceId& name, const IO::URI& p
 {
 	n_assert(!this->frameScripts.Contains(name));
 	Ptr<Frame2::FrameScript> script = FrameScriptLoader::LoadFrameScript(path);
+	script->SetResourceId(name);
 	this->frameScripts.Add(name, script);
 	return script;
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void
+FrameServer::UnloadFrameScript(const Resources::ResourceId& name)
+{
+	n_assert(this->frameScripts.Contains(name));
+	this->frameScripts[name]->Cleanup();
+	this->frameScripts.Erase(name);
+}
 
 } // namespace Frame2

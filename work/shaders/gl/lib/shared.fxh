@@ -11,6 +11,7 @@
 
 // define how many objects we can render simultaneously 
 #define MAX_BATCH_SIZE 256
+#define INFINITE_DEPTH -1000
 
 // instancing transforms
 shared varblock InstanceBlock [bool System = true; bool Instancing = true;]
@@ -18,7 +19,7 @@ shared varblock InstanceBlock [bool System = true; bool Instancing = true;]
 	mat4 ModelArray[MAX_BATCH_SIZE];
 	mat4 ModelViewArray[MAX_BATCH_SIZE];
 	mat4 ModelViewProjectionArray[MAX_BATCH_SIZE];
-	int IdArray[MAX_BATCH_SIZE];
+	uint IdArray[MAX_BATCH_SIZE];
 };
 
 // contains the state of the camera (and time)
@@ -38,12 +39,27 @@ group(1) shared varblock CameraBlock [bool System = true;]
 // constains the state of a global light
 shared varblock GlobalLightBlock [bool System = true;]
 {
+	vec4 GlobalLightDirWorldspace;
 	vec4 GlobalLightDir;
 	vec4 GlobalLightColor;
 	vec4 GlobalBackLightColor;
 	vec4 GlobalAmbientLightColor;
 	float GlobalBackLightOffset;
 	mat4 CSMShadowMatrix;
+};
+
+// contains the environmental state
+shared varblock EnvironmentParamBlock [bool System = true;]
+{
+	vec4 GlobalWindDirection;
+	
+	// these params are for the Preetham sky model
+	vec4 A;
+	vec4 B;
+	vec4 C;
+	vec4 D;
+	vec4 E;
+	vec4 Z;
 };
 
 // contains the state of either a point light shadow caster (6 view matrices) or the 4 CSM projection matrices
@@ -72,7 +88,9 @@ shared varblock LightBlock [bool System = true;]
 	bool		LightCastsShadowsArray[MAX_NUM_LIGHTS];
 };
 
-sampler2D	LightShadowTexture;
+// shadow map for spotlights is a single atlas, point lights have separate cubes
+sampler2D	SpotlightShadowAtlas;
+samplerCubeArray PointLightCubeArray;
 
 // contains variables which are guaranteed to be unique per object.
 shared varblock ObjectBlock [bool System = true;]

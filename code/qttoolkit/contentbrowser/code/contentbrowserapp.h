@@ -5,7 +5,7 @@
     
     Content browser entry point
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "application/appgame/gameapplication.h"
@@ -29,6 +29,7 @@
 #include "scriptingfeature/scriptingfeature.h"
 #include "addons/dynui/imguiaddon.h"
 #include "grid/gridaddon.h"
+#include "inputfeature/inputfeatureunit.h"
 
 namespace ContentBrowser
 {
@@ -83,6 +84,7 @@ private:
 	Ptr<PostEffect::PostEffectEntity> postEffectEntity;
 	Ptr<EffectsFeature::EffectsFeatureUnit> effectsFeature;
 	Ptr<ScriptingFeature::ScriptingFeatureUnit> scriptFeature;
+	Ptr<InputFeature::InputFeatureUnit> inputFeature;
 	Ptr<Dynui::ImguiAddon> imgui;
 	Ptr<Grid::GridAddon> grid;
 	ContentBrowserWindow* browserWindow;

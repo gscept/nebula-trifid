@@ -35,6 +35,7 @@
         <Dependency header="models/modelnode.h"/>
         <Dependency header="resources/resourceid.h"/>
         <Dependency header="particles/emitterattrs.h"/>
+        <Dependency header="characters/characterskeletoninstance.h"/>
         
         <!-- register a render-thread plugin -->
         <Message name="RegisterRTPlugin" fourcc="RRTP">
@@ -46,12 +47,13 @@
             <InArg name="Type" type="const Core::Rtti*"/>
         </Message>
         
-        <!-- setup the asynchronous graphics runtime -->
+        <!-- setup the asynchronous graphics runtime, also opens a default window -->
         <Message name="SetupGraphics" fourcc="SUPG">
             <InArg name="Adapter" type="CoreGraphics::Adapter::Code"/>
             <InArg name="DisplayMode" type="CoreGraphics::DisplayMode"/>
             <InArg name="AntiAliasQuality" type="CoreGraphics::AntiAliasQuality::Code"/>
             <InArg name="Fullscreen" type="bool"/>
+            <InArg name="Monitor" type="IndexT" default="0"/>
             <InArg name="DisplayModeSwitchEnabled" type="bool"/>
             <InArg name="TripleBufferingEnabled" type="bool"/>
             <InArg name="AlwaysOnTop" type="bool"/>
@@ -69,12 +71,32 @@
             <OutArg name="ActualFullscreen" type="bool"/>
             <OutArg name="ActualAdapter" type="CoreGraphics::Adapter::Code"/>
         </Message>
+
+        <Message name="SetupWindow" fourcc="SUWN">
+          <InArg name="Adapter" type="CoreGraphics::Adapter::Code"/>
+          <InArg name="DisplayMode" type="CoreGraphics::DisplayMode"/>
+          <InArg name="AntiAliasQuality" type="CoreGraphics::AntiAliasQuality::Code"/>
+          <InArg name="Fullscreen" type="bool"/>
+          <InArg name="Monitor" type="IndexT" default="0"/>
+          <InArg name="DisplayModeSwitchEnabled" type="bool"/>
+          <InArg name="TripleBufferingEnabled" type="bool"/>
+          <InArg name="AlwaysOnTop" type="bool"/>
+          <InArg name="IconName" type="Util::String"/>
+          <InArg name="WindowTitle" type="Util::String"/>
+          <InArg name="WindowData" type="Util::Blob"/>
+          <InArg name="Embedded" type="bool"/>
+          <InArg name="Decorated" type="bool"/>
+          <InArg name="Resizable" type="bool"/>
+          <OutArg name="WindowId" type="int"/>
+        </Message>
       
         <!-- updates display, which enables resolution changing and fullscreen-to-windowed switching -->
-        <Message name="UpdateDisplay" fourcc="INDS">
+        <Message name="UpdateWindow" fourcc="INDS">
           <InArg name="DisplayMode" type="CoreGraphics::DisplayMode"/>
           <InArg name="AntiAliasQuality" type="CoreGraphics::AntiAliasQuality::Code" default="CoreGraphics::AntiAliasQuality::None"/>
           <InArg name="Fullscreen" type="bool"/>
+          <InArg name="Window" type="int" default="0"/>
+          <InArg name="Monitor" type="IndexT" default="0"/>
           <InArg name="WindowData" type="Util::Blob" default="0"/>
           <InArg name="TripleBufferingEnabled" type="bool"/>
           <OutArg name="Success" type="bool"/>
@@ -93,6 +115,16 @@
         <!-- same as above but doesn't assert if resource isn't in use yet -->
         <Message name="ReloadResourceIfExists" fourcc="RRIE">
           <InArg name="ResourceName" type="Util::String" serialize="true"/>    
+        </Message>
+      
+        <!-- Invalidates all existing models that use a resource (slow) -->
+        <Message name="ReloadModelByResource" fourcc="RMBR">
+          <InArg name="ResourceName" type="Util::String" serialize="true"/>
+        </Message>
+      
+        <!-- Reloads shader and materials using shader -->
+        <Message name="ReloadShader" fourcc="RLSH">
+          <InArg name="ShaderName" type="Util::String" serialize="true"/>
         </Message>
 
         <!-- Attach/Detach all environment modules -->
@@ -225,6 +257,7 @@
             <InArg name="UseResolveRect" type="bool" default="false"/>
             <InArg name="ResolveRect" type="Math::rectangle<int>" />
             <InArg name="ObjectRef" type="Ptr<Threading::ObjectRef>"/>
+            <InArg name="Window" type="IndexT" default="0"/>
         </Message>
         
         <!-- discard a graphics view -->
@@ -563,6 +596,17 @@
         <Message name="SetVariation" fourcc="SEVA" derivedFrom="GraphicsEntityMessage">
             <InArg name="VariationName" type="Util::StringAtom"/>
         </Message>
+      
+        <!-- set a character skeleton eval mode -->
+        <Message name="SetSkeletonEvalMode" fourcc="SSEM" derivedFrom="GraphicsEntityMessage">
+            <InArg name="Mode" type="Characters::CharacterSkeletonInstance::SkeletonEvalMode"/>
+        </Message>
+      
+        <!-- set a character skeleton joint direct transform -->
+        <Message name="SetSkeletonJointMatrix" fourcc="SSJM" derivedFrom="GraphicsEntityMessage">
+            <InArg name="Index" type="IndexT"/>
+            <InArg name="Transform" type="Math::matrix44"/>
+        </Message>
 
         <!-- set timing factor -->
         <Message name="SetTimeFactor" fourcc="STIF">
@@ -627,6 +671,7 @@
       
         <Message name="ShowSystemCursor" fourcc="SSCU">
           <InArg name="Visible" type="bool"/>
+          <InArg name="Window" type="IndexT"/>
         </Message>
       </Protocol>    
 </Nebula3>

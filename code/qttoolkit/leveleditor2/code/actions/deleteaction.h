@@ -5,11 +5,11 @@
     
     An undoable action which deletes one or more objects.
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 #include "action.h"
 #include "game/entity.h"
-#include "leveleditor2protocol.h"
+#include "leveleditor2/leveleditor2protocol.h"
 
 //-----------------------------------------------
 namespace LevelEditor2

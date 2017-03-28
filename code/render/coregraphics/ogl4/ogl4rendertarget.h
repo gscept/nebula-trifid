@@ -6,6 +6,7 @@
     OGL4 implementation of RenderTarget.
     
     (C) 2007 Radon Labs GmbH
+	(C) 2013-2016 Individual contributors, see AUTHORS file
 */    
 #include "coregraphics/base/rendertargetbase.h"
 #include "coregraphics/shadervariable.h"
@@ -46,7 +47,7 @@ public:
     void Reload();
 
 	/// called after we change the display size
-	void OnDisplayResized(SizeT width, SizeT height);
+	void OnWindowResized(SizeT width, SizeT height);
 
 	/// return viewport
 	const Viewport& GetViewport() const;

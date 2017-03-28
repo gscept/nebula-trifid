@@ -64,6 +64,8 @@
 #include <stdarg.h>
 #include <algorithm>
 
+#include <stdint.h>
+
 // DirectX headers
 #if _DEBUG
 #define D3D_DEBUG_INFO (1)

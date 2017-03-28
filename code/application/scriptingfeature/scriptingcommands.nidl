@@ -16,6 +16,7 @@
     <Dependency header="graphicsfeature/graphicsfeatureunit.h"/>
     <Dependency header="graphics/graphicsprotocol.h"/>
     <Dependency header="graphics/modelentity.h"/>
+    <Dependency header="coregraphics/displaydevice.h"/>
     <Dependency header="effects/effectsfeatureunit.h"/>
     <Dependency header="coregraphics/displaydevice.h"/>
     <Command name="SetAttribute" fourcc="SETA" desc="Sets an attribute on an entity by name">
@@ -51,6 +52,18 @@
         Math::matrix44 m = ents->GetMatrix44(Attr::Transform);
         return m;
       </Code>
+    </Command>
+    <Command name="Transform" fourcc="SETT" desc="Sets an entities transform matrix">
+      <InArg name="entityid" type="uint"/>
+      <InArg name="Position" type="matrix44"/>
+      <Code>
+        <![CDATA[ 
+        Ptr<Game::Entity> ents = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(entityid);
+        Ptr<BaseGameFeature::SetTransform> msg = BaseGameFeature::SetTransform::Create();
+        msg->SetMatrix(Position);
+        __SendSync(ents,msg);
+        ]]>
+    </Code>
     </Command>
     <Command name="createentitybytemplate" fourcc="CEBT" desc="Creates an entity by category and template">
       <InArg name="category" type="string"/>
@@ -323,9 +336,10 @@
     </Command>
     <Command name="showsystemcursor" fourcc="SSMC" desc="sets visibility of the system mouse pointer">
       <InArg name="visible" type="bool"/>
+      <InArg name="window" type="int"/>
       <Code>
         <![CDATA[         
-          Input::InputServer::Instance()->SetCursorVisible(visible);          
+          CoreGraphics::DisplayDevice::Instance()->GetWindow(window)->SetCursorVisible(visible);
           ]]>
       </Code>
     </Command>
@@ -360,6 +374,23 @@
               msg->SetMatrix(mat);
               __SendSync(ents,msg);
             }
+          ]]>
+      </Code>
+    </Command>
+    <Command name="GetOrientation" fourcc="GTRI" desc="Retrieve euler angles">
+      <InArg name="EntityID" type="uint"/>
+      <OutArg name="angles" type="float4"/>
+      <Code>
+        <![CDATA[
+            Ptr<Game::Entity> ents = BaseGameFeature::EntityManager::Instance()->GetEntityByUniqueId(EntityID);
+            Math::float4 r;
+            if(ents.isvalid())
+            {
+              Math::matrix44 mat = ents->GetMatrix44(Attr::Transform);
+              Math::quaternion q = Math::matrix44::rotationmatrix(mat);              
+              Math::quaternion::to_euler(q,r);              
+            }
+            return r;
           ]]>
       </Code>
     </Command>
@@ -507,6 +538,21 @@
         <![CDATA[          
           return BaseGameFeature::BaseGameFeatureUnit::Instance()->GetCurrentLevel();
         ]]>
+      </Code>
+    </Command>
+    <Command name="printconsole" fourcc="prts" desc="Prints message to the console">
+      <InArg name="msg" type="string"/>
+      <Code>
+        <![CDATA[ 
+          n_printf("%s\n",msg.AsCharPtr());
+        ]]>
+      </Code>
+    </Command>
+    <Command name="uri" fourcc="urir" desc="Resolves a URI in a script to a full path">
+      <InArg name="path" type="string"/>
+      <OutArg name="uri" type="string"/>
+      <Code>
+        return IO::URI(path).GetHostAndLocalPath();
       </Code>
     </Command>
   </Library>  

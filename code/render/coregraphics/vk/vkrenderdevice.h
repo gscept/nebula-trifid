@@ -17,6 +17,10 @@ namespace Lighting
 {
 	class VkLightServer;
 }
+namespace GLFW
+{
+	class GLFWWindow;
+}
 namespace Vulkan
 {
 class VkRenderDevice : public Base::RenderDeviceBase
@@ -24,8 +28,6 @@ class VkRenderDevice : public Base::RenderDeviceBase
 	__DeclareClass(VkRenderDevice);
 	__DeclareSingleton(VkRenderDevice);
 public:
-
-
 
 	/// constructor
 	VkRenderDevice();
@@ -49,12 +51,6 @@ public:
 	void SetPrimitiveTopology(const CoreGraphics::PrimitiveTopology::Code& topo);
 	/// perform computation
 	void Compute(int dimX, int dimY, int dimZ, uint flag = NoBarrierBit); // use MemoryBarrierFlag
-	/// begins pass with single rendertarget
-	void BeginPass(const Ptr<CoreGraphics::RenderTarget>& rt);
-	/// begins pass with multiple rendertarget
-	void BeginPass(const Ptr<CoreGraphics::MultipleRenderTarget>& mrt);
-	/// begins pass with rendertarget cube
-	void BeginPass(const Ptr<CoreGraphics::RenderTargetCube>& rtc);
 	/// begin a rendering pass
 	void BeginPass(const Ptr<CoreGraphics::Pass>& pass);
 	/// progress to next subpass
@@ -145,6 +141,7 @@ private:
 	friend class Lighting::VkLightServer;
 	friend class VkScheduler;
 	friend class VkUtilities;
+	friend class GLFW::GLFWWindow;
 	friend struct VkDeferredCommand;
 
 	friend VKAPI_ATTR void VKAPI_CALL NebulaVkAllocCallback(void* userData, uint32_t size, VkInternalAllocationType type, VkSystemAllocationScope scope);
@@ -282,24 +279,12 @@ private:
 	// scheduler used to execute commands indirectly
 	Ptr<VkScheduler> scheduler;
 
-	// stuff used for the swap chain
-	VkFormat format;
-	VkColorSpaceKHR colorSpace;
-	VkSwapchainKHR swapchain;
-	VkSemaphore displaySemaphore;
-
-	uint32_t currentBackbuffer;
-	Util::FixedArray<VkImage> backbuffers;
-	Util::FixedArray<VkImageView> backbufferViews;
-	Util::FixedArray<VkSemaphore> backbufferSemaphores;
-	uint32_t numBackbuffers;
-	VkRect2D displayRect;
-
 	static VkDevice dev;
 	static VkDescriptorPool descPool;
 	static VkQueue drawQueue;
 	static VkQueue computeQueue;
 	static VkQueue transferQueue;
+	static Util::FixedArray<VkQueue> queues;
 	static VkInstance instance;
 	static VkPhysicalDevice physicalDev;
 	static VkPipelineCache cache;

@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  resourcedictionaryreader.cc
 //  (C) 2010 Radon Labs GmbH
-//  (C) 2013-2015 Individual contributors, see AUTHORS file
+//  (C) 2013-2016 Individual contributors, see AUTHORS file
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "resourcedictionaryreader.h"
@@ -94,7 +94,7 @@ ResourceDictionaryReader::CreateResourceDictionary(const URI& dstPath, Dictionar
             if (newInfo->GetPixelFormat() == CoreGraphics::PixelFormat::R8G8B8)
             {
                 n_error("R8G8B8 is 24bit and should not be used. Convert to A8R8G8B8 or other valid format");
-                newInfo->SetPixelFormat(CoreGraphics::PixelFormat::A8R8G8B8);
+                newInfo->SetPixelFormat(CoreGraphics::PixelFormat::R8G8B8A8);
             }
             newInfo->SetSize(reader->ReadUInt());
             reader->ReadRawData(buffer, sizeof(buffer));

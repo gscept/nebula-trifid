@@ -5,7 +5,7 @@
     
     Handles a specific character node.
     
-    (C) 2012-2015 Individual contributors, see AUTHORS file
+    (C) 2012-2016 Individual contributors, see AUTHORS file
 */
 //------------------------------------------------------------------------------
 #include "core/refcounted.h"
@@ -72,7 +72,7 @@ private slots:
 	/// deletes the mask currently selected
 	void OnDeleteMask();
 	/// called whenever the mask name is changed, this will change the name of the current mask
-	void OnMaskNameChanged(const QString& value);
+	void OnMaskNameChanged();
 	/// handle a mask getting selected
 	void OnMaskSelected(int index);
 
@@ -107,6 +107,7 @@ private:
 	Util::FixedArray<int> clipsMask;
 	Util::FixedArray<float> clipWeights;
 	Util::FixedArray<Characters::CharacterJoint> joints;
+	Characters::CharacterSkeleton* skeleton;
 	int selectedJoint;
 	int numFrames;
 	int currentFrame;
