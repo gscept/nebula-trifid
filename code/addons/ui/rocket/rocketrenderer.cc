@@ -192,8 +192,8 @@ RocketRenderer::RenderCompiledGeometry(Rocket::Core::CompiledGeometryHandle geom
 		// setup render device and draw
 		device->SetVertexLayout(nebGeometry->vb->GetVertexLayout());
 		device->SetPrimitiveTopology(PrimitiveTopology::TriangleList);
-		device->SetIndexBuffer(nebGeometry->ib);
 		device->SetStreamVertexBuffer(0, nebGeometry->vb, 0);
+		device->SetIndexBuffer(nebGeometry->ib);
 		device->SetPrimitiveGroup(nebGeometry->primGroup);
 		device->Draw();
 	}
