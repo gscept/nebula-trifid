@@ -12,6 +12,7 @@
 #include <fnmatch.h>
 #include <sys/param.h>
 #include <sys/stat.h>
+#include <sys/file.h>
 
 #ifdef __APPLE__
 namespace CoreFoundation {
@@ -240,6 +241,21 @@ PosixFSWrapper::IsReadOnly(const String& path)
 
 //------------------------------------------------------------------------------
 /**
+	try to check for a lock by trying to lock the file. inherently racey, but
+	good enough in some situations
+*/
+bool
+PosixFSWrapper::IsLocked(const Util::String& path)
+{
+    n_assert(path.IsValid());
+    int h = open(path.AsCharPtr(), O_RDWR);
+    bool locked = 0 == flock(h, LOCK_EX);
+    close(h);
+    return locked;
+}
+
+//------------------------------------------------------------------------------
+/**
     Deletes a file. Returns true if the operation was successful. The delete
     will fail if the fail doesn't exist or the file is read-only.
 */
@@ -248,6 +264,17 @@ PosixFSWrapper::DeleteFile(const String& path)
 {
     n_assert(path.IsValid());
     return (0 == unlink(path.AsCharPtr()));    
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+bool
+PosixFSWrapper::ReplaceFile(const Util::String& source, const Util::String& target)
+{
+    ushort wideSourcePath[1024];
+    ushort wideTargetPath[1024];
+    return (0 == rename(source.AsCharPtr(), target.AsCharPtr()));
 }
 
 //------------------------------------------------------------------------------
@@ -333,6 +360,20 @@ PosixFSWrapper::CreateDirectory(const String& path)
 {
     n_assert(path.IsValid());
     return (0 == mkdir(path.AsCharPtr(),0700));
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+Util::String
+PosixFSWrapper::CreateTemporaryFilename(const Util::String& path)
+{
+    n_assert(path.IsValid());
+    const String& nativePath = path;
+    char buf[1024];
+    snprintf(buf, 1024, "NEB%s.XXXXXX", path.AsCharPtr());
+    String res(mkdtemp(buf));
+    return res;
 }
 
 //------------------------------------------------------------------------------

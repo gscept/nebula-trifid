@@ -2,6 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#if !_MSC_VER
+#define __forceinline
+#endif
+
 
 // String helpers
 

@@ -312,13 +312,13 @@ VkRenderDevice::OpenVulkanContext()
 
 	VkPhysicalDeviceProperties props;
 	vkGetPhysicalDeviceProperties(this->physicalDev, &props);
-
+	
 	VkDeviceCreateInfo deviceInfo =
 	{
 		VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
 		NULL,
 		0,
-		queueInfos.Size(),
+		(uint32_t)queueInfos.Size(),
 		&queueInfos[0],
 		numLayers,
 		layers,
@@ -838,9 +838,10 @@ VkRenderDevice::SetIndexBuffer(const Ptr<CoreGraphics::IndexBuffer>& ib)
 void
 VkRenderDevice::SetPrimitiveTopology(const CoreGraphics::PrimitiveTopology::Code& topo)
 {
-	if (this->inputInfo.topology != topo)
+	VkPrimitiveTopology comp = VkTypes::AsVkPrimitiveType(topo);
+	if (this->inputInfo.topology != comp)
 	{
-		this->inputInfo.topology = VkTypes::AsVkPrimitiveType(topo);
+		this->inputInfo.topology = comp;
 		this->inputInfo.primitiveRestartEnable = VK_FALSE;
 		this->SetInputLayoutInfo(&this->inputInfo);
 	}	
@@ -878,7 +879,7 @@ VkRenderDevice::BeginPass(const Ptr<CoreGraphics::Pass>& pass)
 		pass->GetVkRenderPass(),
 		pass->GetVkFramebuffer(),
 		pass->GetVkRenderArea(),
-		clearValues.Size(),
+		(uint32_t)clearValues.Size(),
 		clearValues.Size() > 0 ? clearValues.Begin() : NULL
 	};
 	vkCmdBeginRenderPass(this->mainCmdDrawBuffer, &info, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);

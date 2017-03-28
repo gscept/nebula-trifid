@@ -58,9 +58,9 @@ VkPass::Setup()
 	n_assert(res == VK_SUCCESS);
 
 	// gather image views
-	SizeT width = 0;
-	SizeT height = 0;
-	SizeT layers = 0;
+	uint32_t width = 0;
+	uint32_t height = 0;
+	uint32_t layers = 0;
 	Util::FixedArray<VkImageView> images;
 	images.Resize(this->colorAttachments.Size() + (this->depthStencilAttachment.isvalid() ? 1 : 0));
 	this->clearValues.Resize(images.Size());
@@ -250,7 +250,7 @@ VkPass::Setup()
 		VK_ATTACHMENT_STORE_OP_STORE,
 	};
 
-	SizeT numUsedAttachments = this->colorAttachments.Size();
+	uint32_t numUsedAttachments = (uint32_t)this->colorAttachments.Size();
 	Util::FixedArray<VkAttachmentDescription> attachments;
 	attachments.Resize(this->colorAttachments.Size() + 1);
 	for (i = 0; i < this->colorAttachments.Size(); i++)
@@ -298,9 +298,9 @@ VkPass::Setup()
 		0,
 		numUsedAttachments,
 		numUsedAttachments == 0 ? NULL : attachments.Begin(),
-		subpassDescs.Size(),
+		(uint32_t)subpassDescs.Size(),
 		subpassDescs.IsEmpty() ? NULL : subpassDescs.Begin(),
-		subpassDeps.Size(),
+		(uint32_t)subpassDeps.Size(),
 		subpassDeps.IsEmpty() ? NULL : subpassDeps.Begin()
 	};
 	res = vkCreateRenderPass(VkRenderDevice::dev, &info, NULL, &this->pass);
@@ -412,7 +412,7 @@ VkPass::Setup()
 		NULL,
 		0,
 		this->pass,
-		images.Size(),
+		(uint32_t)images.Size(),
 		images.Begin(),
 		width,
 		height,
@@ -491,9 +491,9 @@ VkPass::OnWindowResized()
 	n_assert(this->renderTargetDimensionsVar.isvalid());
 
 	// gather image views
-	SizeT width = 0;
-	SizeT height = 0;
-	SizeT layers = 0;
+	uint32_t width = 0;
+	uint32_t height = 0;
+	uint32_t layers = 0;
 	Util::FixedArray<VkImageView> images;
 	images.Resize(this->colorAttachments.Size() + (this->depthStencilAttachment.isvalid() ? 1 : 0));
 
@@ -536,7 +536,7 @@ VkPass::OnWindowResized()
 		NULL,
 		0,
 		this->pass,
-		images.Size(),
+		(uint32_t)images.Size(),
 		images.Begin(),
 		width,
 		height,

@@ -27,6 +27,7 @@
 #include "rendermodules/rt/rtpluginregistry.h"
 #include "frame2/framescript.h"
 #include "debug/debugtimer.h"
+#include "viewdisplayhandler.h"
 
 //------------------------------------------------------------------------------
 namespace Graphics

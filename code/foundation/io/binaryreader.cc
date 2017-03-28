@@ -213,7 +213,7 @@ BinaryReader::ReadInt64()
     {
         this->stream->Read(&val, sizeof(val));
     }
-	return this->byteOrder.Convert<long long>(val);
+	return this->byteOrder.Convert<int64_t>(val);
 }
 
 //------------------------------------------------------------------------------
@@ -234,7 +234,7 @@ BinaryReader::ReadUInt64()
     {
         this->stream->Read(&val, sizeof(val));
     }
-	return this->byteOrder.Convert<unsigned long long>(val);
+	return this->byteOrder.Convert<uint64_t>(val);
 }
 
 //------------------------------------------------------------------------------

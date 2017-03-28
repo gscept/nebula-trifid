@@ -284,7 +284,11 @@ VkUtilities::AllocateBufferMemory(const VkBuffer& buf, VkDeviceMemory& bufmem, V
 	err = vkAllocateMemory(VkRenderDevice::dev, &meminfo, NULL, &bufmem);
 	if (err == VK_ERROR_OUT_OF_DEVICE_MEMORY || err == VK_ERROR_OUT_OF_HOST_MEMORY)
 	{
+		#if __X64__
+		n_error("VkRenderDevice::AllocateBufferMemory(): Could not allocate '%lld' bytes, out of memory\n.", req.size);
+		#else
 		n_error("VkRenderDevice::AllocateBufferMemory(): Could not allocate '%d' bytes, out of memory\n.", req.size);
+		#endif
 	}
 	n_assert(err == VK_SUCCESS);
 	bufsize = (uint32_t)req.size;
@@ -315,7 +319,11 @@ VkUtilities::AllocateImageMemory(const VkImage& img, VkDeviceMemory& imgmem, VkM
 	err = vkAllocateMemory(VkRenderDevice::dev, &meminfo, NULL, &imgmem);
 	if (err == VK_ERROR_OUT_OF_DEVICE_MEMORY || err == VK_ERROR_OUT_OF_HOST_MEMORY)
 	{
+		#if __X64__
+		n_error("VkRenderDevice::AllocateImageMemory(): Could not allocate '%lld' bytes, out of memory\n.", req.size);
+		#else
 		n_error("VkRenderDevice::AllocateImageMemory(): Could not allocate '%d' bytes, out of memory\n.", req.size);
+		#endif
 	}
 	n_assert(err == VK_SUCCESS);
 	imgsize = (uint32_t)req.size;
@@ -471,7 +479,7 @@ VkUtilities::ReadImage(const Ptr<VkTexture>& tex, VkImageCopy copy, uint32_t& ou
 		fmt,
 		dstExtent,
 		1,
-		type == CoreGraphics::Texture::TextureCube ? 6 : type == CoreGraphics::Texture::Texture3D ? tex->GetDepth() : 1,
+		type == CoreGraphics::Texture::TextureCube ? 6u : type == CoreGraphics::Texture::Texture3D ? (uint32_t)tex->GetDepth() : 1u,
 		VK_SAMPLE_COUNT_1_BIT,
 		VK_IMAGE_TILING_OPTIMAL,
 		VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,

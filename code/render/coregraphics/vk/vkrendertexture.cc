@@ -8,8 +8,8 @@
 #include "vkrenderdevice.h"
 #include "vkutilities.h"
 #include "vkscheduler.h"
-#include "..\window.h"
-#include "..\displaydevice.h"
+#include "coregraphics/window.h"
+#include "coregraphics/displaydevice.h"
 
 using namespace CoreGraphics;
 namespace Vulkan
@@ -114,7 +114,7 @@ VkRenderTexture::Setup()
 			fmt,
 			extents,
 			1,
-			this->layers,
+			(uint32_t)this->layers,
 			sampleCount,
 			VK_IMAGE_TILING_OPTIMAL,
 			usageFlags | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT,
@@ -243,7 +243,7 @@ VkRenderTexture::Resize()
 			fmt,
 			extents,
 			1,
-			this->layers,
+			(uint32_t)this->layers,
 			sampleCount,
 			VK_IMAGE_TILING_OPTIMAL,
 			usageFlags | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT,

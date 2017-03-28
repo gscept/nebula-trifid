@@ -101,7 +101,7 @@ VkStreamTextureLoader::SetupResourceFromStream(const Ptr<IO::Stream>& stream)
 			vkformat,
 			extents,
 			mips,
-			cube ? numFaces : numImages,
+			cube ? (uint32_t)numFaces : (uint32_t)numImages,
 			VK_SAMPLE_COUNT_1_BIT,
 			forceLinear ? VK_IMAGE_TILING_LINEAR : VK_IMAGE_TILING_OPTIMAL,
 			VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,

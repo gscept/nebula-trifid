@@ -194,7 +194,7 @@ GLFWDisplayDevice::GetMonitor(int index)
 	GLFWmonitor* monitor = NULL;
     switch(adapter)
 	{
-		case -1:
+		case CoreGraphics::Adapter::Primary:
 			{
 				return glfwGetPrimaryMonitor();
 			}

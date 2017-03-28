@@ -212,7 +212,7 @@ MACRO(N_SET_PCH TargetName HeaderName SourceName)
         LIST(APPEND _compiler_FLAGS ${_directory_flags})
     
         SEPARATE_ARGUMENTS(_compiler_FLAGS)
-        #MESSAGE("${CMAKE_CXX_COMPILER} -DPCHCOMPILE ${_compiler_FLAGS} -x c++-header -o {_output} ${_source}")
+        MESSAGE("${CMAKE_CXX_COMPILER} -DPCHCOMPILE ${_compiler_FLAGS} -x c++-header -o {_output} ${_source}")
         ADD_CUSTOM_COMMAND(
         OUTPUT ${_output}
         COMMAND ${CMAKE_CXX_COMPILER} ${_compiler_FLAGS} -x c++-header -o ${_output} ${_source}
@@ -537,7 +537,7 @@ ELSEIF(UNIX)
 			QT4_MAKE_OUTPUT_FILE(${it} moc_ cxx outfile)
 			set (moc_flags_append "-fstdneb.h" "-f${it}") # pch hack.
 			QT4_CREATE_MOC_COMMAND(${it} ${outfile} "${moc_flags}" "${moc_options};${moc_flags_append}" "${moc_target}")
-			set(${outfiles} ${${outfiles}} ${outfile})
+		set(${outfiles} ${${outfiles}} ${outfile})
 		endforeach()
 	endmacro ()
 	

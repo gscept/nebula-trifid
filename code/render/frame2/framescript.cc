@@ -5,7 +5,7 @@
 #include "stdneb.h"
 #include "framescript.h"
 #include "frameserver.h"
-#include "coregraphics\displaydevice.h"
+#include "coregraphics/displaydevice.h"
 
 
 namespace Frame2

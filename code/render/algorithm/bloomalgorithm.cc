@@ -4,11 +4,11 @@
 //------------------------------------------------------------------------------
 #include "stdneb.h"
 #include "bloomalgorithm.h"
-#include "coregraphics\shaderserver.h"
-#include "coregraphics\renderdevice.h"
-#include "coregraphics\framebatchtype.h"
-#include "coregraphics\shaderreadwritetexture.h"
-#include "coregraphics\barrier.h"
+#include "coregraphics/shaderserver.h"
+#include "coregraphics/renderdevice.h"
+#include "coregraphics/framebatchtype.h"
+#include "coregraphics/shaderreadwritetexture.h"
+#include "coregraphics/barrier.h"
 
 namespace Algorithms
 {
