@@ -38,11 +38,11 @@ RocketRenderer::RocketRenderer()
 	this->renderDevice = RenderDevice::Instance();
 
 	// get shader and create instance
-	this->shader = shaderServer->CreateShaderState("shd:gui", { NEBULAT_DEFAULT_GROUP });
+	this->shader = shaderServer->CreateShaderState("shd:gui", { NEBULAT_SYSTEM_GROUP });
 
 	// get texture
 	this->diffMap = this->shader->GetVariableByName("Texture");	
-	this->modelVar = this->shader->GetVariableByName("Model");
+	this->modelVar = this->shader->GetVariableByName("Transform");
 
 	// we get the white texture for when we don't have a diffuse map, this will be then be our default
 	this->whiteTexture = ResourceManager::Instance()->CreateManagedResource(Texture::RTTI, "tex:system/white.dds").downcast<ManagedTexture>();
@@ -50,6 +50,9 @@ RocketRenderer::RocketRenderer()
 	// get variations
 	this->defaultVariation = shaderServer->FeatureStringToMask("Static");
 	this->scissorVariation = shaderServer->FeatureStringToMask("Static|Alt0");
+
+	// setup il
+	ilInit();
 }
 
 //------------------------------------------------------------------------------
