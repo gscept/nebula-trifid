@@ -54,10 +54,21 @@ VkShaderState::Setup(const Ptr<CoreGraphics::Shader>& origShader, const Util::Ar
 	this->setBindnings.Resize(groups.Size());
 	this->setOffsets.Resize(groups.Size());
 	this->setBufferMapping.Resize(groups.Size());
+	Util::FixedArray<bool> isActive(groups.Size());
 	IndexT i;
 	for (i = 0; i < groups.Size(); i++)
 	{
-		this->sets[i] = this->shader->sets[groups[i]];
+		bool hasSet = this->shader->sets.Size() > groups[i];
+		if (hasSet)
+		{
+			this->sets[i] = this->shader->sets[groups[i]];
+			isActive[i] = true;
+		}	
+		else
+		{
+			isActive[i] = false;
+			this->sets[i] = VK_NULL_HANDLE;
+		}
 	}
 
 	// if we want to create our own resource set
@@ -65,19 +76,22 @@ VkShaderState::Setup(const Ptr<CoreGraphics::Shader>& origShader, const Util::Ar
 	{
 		for (i = 0; i < groups.Size(); i++)
 		{	
-			VkDescriptorSetLayout layout = this->shader->setLayouts[groups[i]];
-
-			// allocate descriptor sets
-			VkDescriptorSetAllocateInfo info =
+			if (isActive[i])
 			{
-				VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
-				NULL,
-				VkRenderDevice::descPool,
-				1,
-				&layout
-			};
-			VkResult res = vkAllocateDescriptorSets(VkRenderDevice::dev, &info, &this->sets[i]);
-			n_assert(res == VK_SUCCESS);
+				VkDescriptorSetLayout layout = this->shader->setLayouts[groups[i]];
+
+				// allocate descriptor sets
+				VkDescriptorSetAllocateInfo info =
+				{
+					VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+					NULL,
+					VkRenderDevice::descPool,
+					1,
+					&layout
+				};
+				VkResult res = vkAllocateDescriptorSets(VkRenderDevice::dev, &info, &this->sets[i]);
+				n_assert(res == VK_SUCCESS);
+			}			
 		}
 	}
 

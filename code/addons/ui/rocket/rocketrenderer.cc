@@ -50,6 +50,7 @@ RocketRenderer::RocketRenderer()
 	// get variations
 	this->defaultVariation = shaderServer->FeatureStringToMask("Static");
 	this->scissorVariation = shaderServer->FeatureStringToMask("Static|Alt0");
+	this->currentVariation = this->defaultVariation;
 
 	// setup il
 	ilInit();
@@ -86,6 +87,14 @@ RocketRenderer::CompileGeometry(Rocket::Core::Vertex* vertices,
 	{
 		geometry->texture = nebTex->tex;
 	}	
+
+	// create shader instance
+	geometry->state = ShaderServer::Instance()->CreateShaderState("shd:gui", { NEBULAT_SYSTEM_GROUP });
+
+	// get texture
+	geometry->colorVar = geometry->state->GetVariableByName("Texture");
+	geometry->transformVar = geometry->state->GetVariableByName("Transform");
+
 
 	// create vertex buffer
 	geometry->vb = VertexBuffer::Create();
@@ -164,16 +173,17 @@ RocketRenderer::RenderCompiledGeometry(Rocket::Core::CompiledGeometryHandle geom
        	if (nebGeometry->texture.isvalid())
 		{
 			// set texture
-			this->diffMap->SetTexture((Texture*)nebGeometry->texture);
+			nebGeometry->colorVar->SetTexture((Texture*)nebGeometry->texture);
 		}
 		else
 		{
-			this->diffMap->SetTexture(this->whiteTexture->GetTexture());
+			nebGeometry->colorVar->SetTexture(this->whiteTexture->GetTexture());
 		}
 
         // apply shader
-        shaderServer->SetActiveShader(this->shader->GetShader());
-        this->shader->Apply();
+		nebGeometry->state->SelectActiveVariation(this->currentVariation);
+        shaderServer->SetActiveShader(nebGeometry->state->GetShader());
+		nebGeometry->state->Apply();
 
 		// get dimensions
 		Rocket::Core::Vector2i dimensions = RocketServer::Instance()->GetContext()->GetDimensions();
@@ -185,12 +195,10 @@ RocketRenderer::RenderCompiledGeometry(Rocket::Core::CompiledGeometryHandle geom
 
 		// combine matrices and set in shader
 		world = matrix44::multiply(matrix44::multiply(world, scale), trans);
-        this->shader->BeginUpdateSync();
-		this->modelVar->SetMatrix(world);
-		this->shader->EndUpdateSync();
+		nebGeometry->transformVar->SetMatrix(world);
   
 		// commit shader
-		this->shader->Commit();
+		nebGeometry->state->Commit();
 
 		// setup render device and draw
 		device->SetVertexLayout(nebGeometry->vb->GetVertexLayout());
@@ -214,6 +222,10 @@ RocketRenderer::ReleaseCompiledGeometry(Rocket::Core::CompiledGeometryHandle geo
 	nebGeometry->vb->Unload();
 	nebGeometry->vb = 0;
 	nebGeometry->texture = 0;
+	nebGeometry->colorVar = nullptr;
+	nebGeometry->transformVar = nullptr;
+	nebGeometry->state->Discard();
+	nebGeometry->state = nullptr;
 	
 	Memory::Free(Memory::RocketHeap, nebGeometry);
 }
@@ -226,11 +238,11 @@ RocketRenderer::EnableScissorRegion(bool enable)
 {
 	if (enable)
 	{
-		this->shader->SelectActiveVariation(this->scissorVariation);
+		currentVariation = this->scissorVariation;
 	}
 	else
 	{
-		this->shader->SelectActiveVariation(this->defaultVariation);
+		currentVariation = this->defaultVariation;
 	}
 }
 

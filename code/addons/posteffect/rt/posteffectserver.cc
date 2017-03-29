@@ -65,14 +65,14 @@ void
 PostEffectServer::Open()
 {
     // get the shared shader state
-	const Ptr<ShaderState>& sharedState = ShaderServer::Instance()->GetSharedShader();
+	const Ptr<ShaderState>& sharedState = ShaderServer::Instance()->CreateSharedShaderState("shd:shared", { NEBULAT_TICK_GROUP });
 
-	this->skyPreethamA = this->environmentConstantBuffer->GetVariableByName(ShaderVariable::Name("A"));
-	this->skyPreethamB = this->environmentConstantBuffer->GetVariableByName(ShaderVariable::Name("B"));
-	this->skyPreethamC = this->environmentConstantBuffer->GetVariableByName(ShaderVariable::Name("C"));
-	this->skyPreethamD = this->environmentConstantBuffer->GetVariableByName(ShaderVariable::Name("D"));
-	this->skyPreethamE = this->environmentConstantBuffer->GetVariableByName(ShaderVariable::Name("E"));
-	this->skyPreethamZ = this->environmentConstantBuffer->GetVariableByName(ShaderVariable::Name("Z"));
+	this->skyPreethamA = sharedState->GetVariableByName(ShaderVariable::Name("A"));
+	this->skyPreethamB = sharedState->GetVariableByName(ShaderVariable::Name("B"));
+	this->skyPreethamC = sharedState->GetVariableByName(ShaderVariable::Name("C"));
+	this->skyPreethamD = sharedState->GetVariableByName(ShaderVariable::Name("D"));
+	this->skyPreethamE = sharedState->GetVariableByName(ShaderVariable::Name("E"));
+	this->skyPreethamZ = sharedState->GetVariableByName(ShaderVariable::Name("Z"));
 
     // lookup the shared post effect fade variable
     this->fadeShaderVariable = sharedState->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_FADEVALUE));
@@ -92,8 +92,8 @@ PostEffectServer::Open()
     // hdr stuff
     this->hdrColorVariable = sharedState->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_HDRBLOOMCOLOR));
     this->hdrThresholdVariable = sharedState->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_HDRBRIGHTPASSTHRESHOLD));
-    this->hdrVerticalScaleVariable = sharedState->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_HDRBLOOMSCALE));
-    this->hdrHorizontalScaleVariable = sharedState->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_HDRBLOOMSCALE));
+    //this->hdrVerticalScaleVariable = sharedState->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_HDRBLOOMSCALE));
+    //this->hdrHorizontalScaleVariable = sharedState->GetVariableByName(ShaderVariable::Name(NEBULA3_SEMANTIC_HDRBLOOMSCALE));
 
 	// setup default blends
 	this->postEffects[Color].current	= ColorParams::Create();
@@ -379,8 +379,8 @@ PostEffectServer::ApplyHdrParameters()
 {
     this->hdrColorVariable->SetFloat4(this->postEffects[Hdr].current.cast<HdrParams>()->GetHdrBloomColor());
 	this->hdrVerticalScaleVariable->SetFloat(this->postEffects[Hdr].current.cast<HdrParams>()->GetHdrBloomIntensity());
-	this->hdrHorizontalScaleVariable->SetFloat(this->postEffects[Hdr].current.cast<HdrParams>()->GetHdrBloomIntensity());
-    this->hdrThresholdVariable->SetFloat(this->postEffects[Hdr].current.cast<HdrParams>()->GetHdrBloomThreshold());
+	//this->hdrHorizontalScaleVariable->SetFloat(this->postEffects[Hdr].current.cast<HdrParams>()->GetHdrBloomIntensity());
+    //this->hdrThresholdVariable->SetFloat(this->postEffects[Hdr].current.cast<HdrParams>()->GetHdrBloomThreshold());
 }
 
 //------------------------------------------------------------------------------

@@ -50,6 +50,7 @@ group(TICK_GROUP) shared varblock PerTickParams
 	float WindForce = 0.0f;
 	
 	float Saturation = float(1.0f);
+	float MaxLuminance = 1.0f;
 	vec4 Balance = vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	float FadeValue = float(1.0f);
 	vec3 DoFDistances = vec3(0,0,0);
@@ -58,6 +59,7 @@ group(TICK_GROUP) shared varblock PerTickParams
 	vec4 HDRBloomColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	vec4 FogDistances = vec4(0.0, 2500.0, 0.0, 1.0);
 	vec4 FogColor = vec4(0.5, 0.5, 0.63, 0.0);
+	
 
 	
 	// global light stuff
