@@ -1662,9 +1662,7 @@ ENDIF()
 N_WRAP_NIDL_FILES(render_NIDLS ${Render_NIDLS})
 
 	
-add_library(render STATIC ${Render_SRCS} )
-
-
+ADD_LIBRARY(render STATIC ${Render_SRCS} )
 
 TARGET_INCLUDE_DIRECTORIES(render 	PUBLIC ${Nebula3_SOURCE_DIR}/code/render/ 
 									${Nebula3_SOURCE_DIR}/code/extlibs/DevIL/DevIL/include)
@@ -1675,12 +1673,13 @@ SET_TARGET_PROPERTIES(render PROPERTIES FOLDER "N3SDK/N3")
 ADD_DEPENDENCIES(render foundation_NIDLS render_NIDLS )
 
 TARGET_INCLUDE_DIRECTORIES(render_NIDLS PUBLIC $<TARGET_PROPERTY:render,INTERFACE_INCLUDE_DIRECTORIES>)
+TARGET_LINK_LIBRARIES(render_NIDLS PUBLIC foundation render)
 ADD_SUBDIRECTORY(jobs)
 TARGET_LINK_LIBRARIES(render PUBLIC render_animjobsample render_animjobsamplemix render_charevalskeletonjob render_particlejob render_visibilityboxsystemjob render_visibilityquadtreejob EASTL)
 
-TARGET_LINK_LIBRARIES(render PUBLIC $<$<BOOL:${N_BUILD_OGL4} OR ${N_BUILD_VULKAN}>: DevIL ILU ILUT> )
+TARGET_LINK_LIBRARIES(render PUBLIC $<$<BOOL:${N_BUILD_OGL4} OR ${N_BUILD_VULKAN}>: DevIL ILU ILUT GL> )
 
-add_subdirectory(physics)
+ADD_SUBDIRECTORY(physics)
 
 N_SET_COMPILER_DEFAULTS()
 IF(N_USE_PRECOMPILED_HEADERS)

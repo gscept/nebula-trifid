@@ -195,9 +195,9 @@ BinaryWriter::WriteUInt(unsigned int i)
 /**
 */
 void
-BinaryWriter::WriteInt64(long long i)
+BinaryWriter::WriteInt64(int64_t i)
 {
-	i = this->byteOrder.Convert<long long>(i);
+	i = this->byteOrder.Convert<int64_t>(i);
     if (this->isMapped)
     {
         // note: the memory copy is necessary to circumvent alignment problem on some CPUs
@@ -215,9 +215,9 @@ BinaryWriter::WriteInt64(long long i)
 /**
 */
 void
-BinaryWriter::WriteUInt64(unsigned long long i)
+BinaryWriter::WriteUInt64(uint64_t i)
 {
-	i = this->byteOrder.Convert<unsigned long long>(i);
+	i = this->byteOrder.Convert<uint64_t>(i);
     if (this->isMapped)
     {
         // note: the memory copy is necessary to circumvent alignment problem on some CPUs

@@ -26,7 +26,7 @@
 #include "syncpoint.h"
 #include "networkentity.h"
 #include "bitreader.h"
-#include "cjson/cJSON.h"
+#include "cJSON/cJSON.h"
 
 namespace MultiplayerFeature
 {

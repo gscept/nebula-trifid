@@ -48,7 +48,7 @@ INCLUDE_DIRECTORIES(${Nebula3_SOURCE_DIR}/code
 	N_CREATE_FEATURE(multiplayer multplayer_sources "")
 
 TARGET_LINK_LIBRARIES(multiplayer multiplayer_NIDLS application RakNetLibStatic upnpc-static cjson)
-TARGET_INCLUDE_DIRECTORIES(multiplayer PUBLIC ${Nebula3_SOURCE_DIR}/code/addons/multiplayer ${Nebula3_SOURCE_DIR}/code/extlibs/raknet/Source)
+TARGET_INCLUDE_DIRECTORIES(multiplayer PUBLIC ${Nebula3_SOURCE_DIR}/code/addons/multiplayer ${Nebula3_SOURCE_DIR}/code/extlibs/raknet/Source ${Nebula3_SOURCE_DIR}/code/extlibs/cjson)
 
 ADD_DEPENDENCIES(multiplayer application RakNetLibStatic )
 

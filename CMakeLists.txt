@@ -159,7 +159,6 @@ IF(WIN32)
 	ENDIF()
 	SET(PROJECTBINDIR ${N3ROOT}/bin/win32)	        
 ELSEIF(UNIX)
-	OPTION(N_BUILD_OGL4 "Build using OpenGL 4 renderer" ON)
 	
 	FIND_LIBRARY(UUID NAMES libuuid.so) #uuid lib
 	FIND_LIBRARY(LIBC NAMES libc.so) #libc
