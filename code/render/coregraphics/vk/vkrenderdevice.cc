@@ -331,9 +331,9 @@ VkRenderDevice::OpenVulkanContext()
 	res = vkCreateDevice(this->physicalDev, &deviceInfo, NULL, &this->dev);
 	n_assert(res == VK_SUCCESS);
 
-	vkGetDeviceQueue(this->dev, this->drawQueueFamily, this->drawQueueIdx, &VkRenderDevice::queues[this->drawQueueFamily]);
-	vkGetDeviceQueue(this->dev, this->computeQueueFamily, this->computeQueueIdx, &VkRenderDevice::queues[this->computeQueueFamily]);
-	vkGetDeviceQueue(this->dev, this->transferQueueFamily, this->transferQueueIdx, &VkRenderDevice::queues[this->transferQueueFamily]);
+	vkGetDeviceQueue(this->dev, this->drawQueueFamily, this->drawQueueIdx, &VkRenderDevice::queues[this->drawQueueFamily + this->drawQueueIdx]);
+	vkGetDeviceQueue(this->dev, this->computeQueueFamily, this->computeQueueIdx, &VkRenderDevice::queues[this->computeQueueFamily + this->computeQueueIdx]);
+	vkGetDeviceQueue(this->dev, this->transferQueueFamily, this->transferQueueIdx, &VkRenderDevice::queues[this->transferQueueFamily + this->transferQueueIdx]);
 
 	// grab queues
 	this->drawQueue = VkRenderDevice::queues[this->drawQueueFamily];

@@ -562,7 +562,7 @@ VkTypes::AsVkPipelineFlags(const CoreGraphics::Barrier::Dependency dep)
 		case Barrier::Dependency::Top:
 			flags |= VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 			break;
-		case Barrier::Dependency::End:
+		case Barrier::Dependency::Bottom:
 			flags |= VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
 			break;
 		}

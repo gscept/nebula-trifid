@@ -54,7 +54,7 @@ GLFWWindow::Open()
 	glfwWindowHint(GLFW_BLUE_BITS, 8);
 	glfwWindowHint(GLFW_SRGB_CAPABLE, GL_TRUE);
 
-	// get original window, this is so we don't have to create more contexts
+	// get original window, if this is the first window, then the parent window will simply be nullptr
 	GLFWwindow* wnd = NULL;
 	const Ptr<CoreGraphics::Window>& origWindow = CoreGraphics::DisplayDevice::Instance()->GetMainWindow();	
 	if (origWindow.isvalid()) wnd = origWindow->window;

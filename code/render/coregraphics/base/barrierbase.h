@@ -47,7 +47,7 @@ public:
 		PassOutput		= (1 << 12),	// blocks outputs from render texture attachments		
 
 		Top				= (1 << 13),	// blocks start of pipeline
-		End				= (1 << 14)		// blocks end of pipeline
+		Bottom			= (1 << 14)		// blocks end of pipeline
 	};
 
 	enum class Access
@@ -226,8 +226,8 @@ BarrierBase::DependencyFromString(const Util::String& str)
 	else if (str == "Transfer")			return BarrierBase::Dependency::Transfer;
 	else if (str == "Host")				return BarrierBase::Dependency::Host;
 	else if (str == "PassOutput")		return BarrierBase::Dependency::PassOutput;
-	else if (str == "LateDepth")		return BarrierBase::Dependency::LateDepth;
-	else if (str == "LateDepth")		return BarrierBase::Dependency::LateDepth;
+	else if (str == "Top")				return BarrierBase::Dependency::Top;
+	else if (str == "Bottom")			return BarrierBase::Dependency::Bottom;
 	else
 	{
 		n_error("Invalid dependency string '%s'\n", str.AsCharPtr());

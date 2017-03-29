@@ -1677,7 +1677,7 @@ TARGET_LINK_LIBRARIES(render_NIDLS PUBLIC foundation render)
 ADD_SUBDIRECTORY(jobs)
 TARGET_LINK_LIBRARIES(render PUBLIC render_animjobsample render_animjobsamplemix render_charevalskeletonjob render_particlejob render_visibilityboxsystemjob render_visibilityquadtreejob EASTL)
 
-TARGET_LINK_LIBRARIES(render PUBLIC $<$<BOOL:${N_BUILD_OGL4} OR ${N_BUILD_VULKAN}>: DevIL ILU ILUT GL> )
+TARGET_LINK_LIBRARIES(render PUBLIC $<$<BOOL:${N_BUILD_OGL4} OR ${N_BUILD_VULKAN}>: DevIL ILU ILUT> )
 
 ADD_SUBDIRECTORY(physics)
 

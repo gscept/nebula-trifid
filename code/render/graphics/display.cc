@@ -73,7 +73,6 @@ Display::Open()
     this->settings.DisplayMode() = msg->GetActualDisplayMode();
     this->settings.SetFullscreen(msg->GetActualFullscreen());
     this->settings.SetAdapter(msg->GetActualAdapter());
-    
 }
 
 //------------------------------------------------------------------------------

@@ -55,6 +55,7 @@ extern "C" {
 
 #if defined(HAVE_STBIMAGE)
 #   define STBI_NO_STDIO
+#	define STB_IMAGE_IMPLEMENTATION
 #   include <stb_image.h>
 #endif
 #include "DirectDrawSurface.h"
