@@ -128,7 +128,7 @@ psMain(in vec2 UV,
 	// Get the calculated average luminance 
 	float fLumAvg = sample2DLod(LuminanceTexture, UpscaleSampler, vec2(0.5f, 0.5f), 0).r;
 	
-	c = ToneMap(c, vec4(fLumAvg));
+	c = ToneMap(c, vec4(fLumAvg), MaxLuminance);
 	vec4 bloom = DecodeHDR(sample2DLod(BloomTexture, UpscaleSampler, UV, 0));
 	vec4 godray = subpassLoad(InputAttachments[1]);
 	vec4 shape = subpassLoad(InputAttachments[2]);

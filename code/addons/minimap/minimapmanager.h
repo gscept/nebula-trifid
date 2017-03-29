@@ -58,7 +58,7 @@ private:
 
 	friend Minimap::MinimapPlugin;
     // shading related variables
-	Ptr<CoreGraphics::RenderTarget> minimapTarget;
+	Ptr<CoreGraphics::RenderTexture> minimapTarget;
 	Ptr<CoreGraphics::ShaderState> minimapShader;
 	Ptr<CoreGraphics::ShaderVariable> transformsVar;
     Ptr<CoreGraphics::ShaderVariable> portraitVar;
@@ -70,6 +70,8 @@ private:
 	Ptr<CoreGraphics::IndexBuffer> quadIb;
     Ptr<CoreGraphics::VertexLayout> vertexLayout;
 	CoreGraphics::PrimitiveGroup quadPrim;
+
+	Ptr<CoreGraphics::Pass> pass;
 
     Util::FixedArray<Math::float4> colors;
     Util::FixedArray<Math::float2> iconSizes;

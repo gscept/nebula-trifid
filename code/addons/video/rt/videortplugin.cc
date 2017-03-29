@@ -80,9 +80,9 @@ VideoRTPlugin::OnRenderBefore(IndexT frameId, Timing::Time time)
 /**
 */
 void
-VideoRTPlugin::OnRenderFrameBatch(const Ptr<Frame::FrameBatch>& frameBatch)
+VideoRTPlugin::OnRender(const Util::StringAtom& filter)
 {
-    if (frameBatch->GetType() == CoreGraphics::FrameBatchType::UI)
+    if (filter == "UI")
 	{
 		this->videoServer->RenderBatch();
 	}

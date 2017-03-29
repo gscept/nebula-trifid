@@ -81,6 +81,7 @@ private:
 
 	CoreGraphics::ShaderFeature::Mask defaultVariation;
 	CoreGraphics::ShaderFeature::Mask scissorVariation;
+	CoreGraphics::ShaderFeature::Mask currentVariation;
 
 
 	struct NebulaCompiledGeometry
@@ -88,6 +89,8 @@ private:
 		Ptr<CoreGraphics::VertexBuffer> vb;
 		Ptr<CoreGraphics::IndexBuffer> ib;
 		Ptr<CoreGraphics::Texture> texture;
+		Ptr<CoreGraphics::ShaderState> state;
+		Ptr<CoreGraphics::ShaderVariable> colorVar, transformVar;
 		CoreGraphics::PrimitiveGroup primGroup;
 	};	
 

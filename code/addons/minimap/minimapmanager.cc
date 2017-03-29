@@ -75,9 +75,9 @@ void Initialise()
 		initialised = true;
 	}
 }
-}
-}
- 
+
+}} // namespace Rocket::Minimap
+
 namespace Minimap
 {
 __ImplementClass(Minimap::MinimapManager, 'MMPR', Game::Manager);
@@ -120,20 +120,30 @@ MinimapManager::OnActivate()
 //	this->plugin = Minimap::MinimapPlugin::Create();
 
     // setup render target
-    this->minimapTarget = RenderTarget::Create();
-    this->minimapTarget->SetWidth(512);
-    this->minimapTarget->SetHeight(512);
-    this->minimapTarget->SetAntiAliasQuality(AntiAliasQuality::None);
-    this->minimapTarget->SetColorBufferFormat(PixelFormat::A8R8G8B8);
-	this->minimapTarget->SetResolveTextureResourceId("Minimap");
-	this->minimapTarget->SetClearColor(float4(0, 0, 0, 0));
-	this->minimapTarget->SetClearFlags(Base::RenderTargetBase::ClearColor);
+    this->minimapTarget = RenderTexture::Create();
+    this->minimapTarget->SetDimensions(512, 512);
+	this->minimapTarget->SetEnableMSAA(false);
+    this->minimapTarget->SetPixelFormat(PixelFormat::R8G8B8A8);
+	this->minimapTarget->SetResourceId("Minimap");
+	//this->minimapTarget->SetClearColor(float4(0, 0, 0, 0));
+	//this->minimapTarget->SetClearFlags(Base::RenderTargetBase::ClearColor);
     this->minimapTarget->Setup();
 
     // resize transforms array
     this->transforms.Resize(this->MaxNumIconsPerBatch);
     this->colors.Resize(this->MaxNumIconsPerBatch);
     this->iconSizes.Resize(this->MaxNumIconsPerBatch);
+
+	this->pass = CoreGraphics::Pass::Create();
+	this->pass->AddColorAttachment(this->minimapTarget);
+	this->pass->SetColorAttachmentClear(0, float4(0, 0, 0, 0));
+	this->pass->SetColorAttachmentFlags(0, Pass::Clear);
+
+	Pass::Subpass subpass;
+	subpass.attachments.Append(0);
+	subpass.bindDepth = false;
+	subpass.resolve = false;
+	this->pass->AddSubpass(subpass);
 
 	// create shader
 	this->minimapShader = ShaderServer::Instance()->CreateShaderState("minimap", {NEBULAT_DEFAULT_GROUP});
@@ -182,7 +192,7 @@ MinimapManager::OnActivate()
     this->quadPrim.SetNumVertices(4);
     this->quadPrim.SetBaseIndex(0);
     this->quadPrim.SetNumIndices(6);
-    this->quadPrim.SetPrimitiveTopology(PrimitiveTopology::TriangleList);
+    //this->quadPrim.SetPrimitiveTopology(PrimitiveTopology::TriangleList);
 
 	Rocket::MiniMap::Initialise();
 
@@ -269,6 +279,15 @@ MinimapManager::UnregisterEntity( const Util::String& texture, const Ptr<Game::E
 void 
 MinimapManager::OnBeginFrame()
 {
+	const Ptr<CoreGraphics::RenderDevice>& renderDev = CoreGraphics::RenderDevice::Instance();
+	renderDev->BeginFrame(InvalidIndex);
+	renderDev->BeginPass(this->pass);
+
+	// put render code here
+
+	renderDev->EndPass();
+	renderDev->EndFrame(InvalidIndex);
+	/*
 	const Ptr<CoreGraphics::RenderDevice>& renderDev = CoreGraphics::RenderDevice::Instance();
 	renderDev->BeginFrame(InvalidIndex);
 	renderDev->BeginPass(this->minimapTarget, this->minimapShader);
@@ -394,6 +413,7 @@ MinimapManager::OnBeginFrame()
 	}
 	renderDev->EndPass();
 	renderDev->EndFrame(InvalidIndex);
+	*/
 }
 
 //------------------------------------------------------------------------------

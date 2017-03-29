@@ -218,7 +218,6 @@ DecodeHDR4(in vec4 rgba)
 
 const float MiddleGrey = 0.5f; 
 const float Key = 0.3f;
-float MaxLuminance = 1.0f; 
 const vec4 Luminance = vec4(0.2126f, 0.7152f, 0.0722f, 0.0f);
 //const vec4 Luminance = vec4(0.299f, 0.587f, 0.114f, 0.0f);
 
@@ -228,7 +227,7 @@ const vec4 Luminance = vec4(0.2126f, 0.7152f, 0.0722f, 0.0f);
 	Calculates HDR tone mapping
 */
 vec4
-ToneMap(vec4 vColor, vec4 lumAvg)
+ToneMap(vec4 vColor, vec4 lumAvg, float maxLum)
 {	
 	// Calculate the luminance of the current pixel 
 	//float fLumPixel = dot(vColor.rgb, Luminance.rgb);     
@@ -246,7 +245,7 @@ ToneMap(vec4 vColor, vec4 lumAvg)
     //float luminanceSquared = (lumAvg.y + MiddleGrey * lumAvg.y) * (lumAvg.y + MiddleGrey * lumAvg.y);
     //float scalar = (lp * (1.0f + (lp / (luminanceSquared)))) / (1.0f + lp);
 	
-	vec3 color = vColor.rgb * (nL / L) * MaxLuminance;
+	vec3 color = vColor.rgb * (nL / L) * maxLum;
 	//color = color / (1 + color);
 	//color = pow(color, vec3(1/2.2f));
 
