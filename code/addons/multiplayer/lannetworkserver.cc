@@ -163,6 +163,7 @@ LanNetworkServer::HandlePacket(RakNet::Packet * packet)
 	case ID_DISCONNECTION_NOTIFICATION:
 	{
 		n_printf("ID_DISCONNECTION_NOTIFICATION from %s\n", targetName.AsCharPtr());
+		NetworkGame::Instance()->OnPlayerDisconnect(packet->guid);
 		IndexT idx = this->participants.FindIndex(packet->guid);
 		if (idx != InvalidIndex)
 		{
@@ -284,6 +285,8 @@ LanNetworkServer::HandlePacket(RakNet::Packet * packet)
 	
 
 	case ID_ADVERTISE_SYSTEM:		
+		if (this->state != IN_GAME)
+		{
 		if (rakPeer->GetSystemAddressFromGuid(packet->guid) == RakNet::UNASSIGNED_SYSTEM_ADDRESS &&
 			rakPeer->GetMyGUID() != packet->guid)
 		{
@@ -298,6 +301,7 @@ LanNetworkServer::HandlePacket(RakNet::Packet * packet)
 			//printf("Connecting to %s\n", packet->systemAddress.ToString(true));
 			//rakPeer->Connect(packet->systemAddress.ToString(false), packet->systemAddress.GetPort(), 0, 0);
 		}		
+		}
 		break;
 	case ID_READY_EVENT_ALL_SET:			
 		break;

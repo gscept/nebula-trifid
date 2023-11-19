@@ -144,7 +144,7 @@ n_modangle(scalar a)
 #else
 	static const scalar REVOLUTION = scalar(6.283185307179586476925286766559);
 	a += N_PI;
-	scalar temp = fabs(a);
+	scalar temp = fabsf(a);
 	temp = temp - floorf(temp/REVOLUTION) *  REVOLUTION;
 	temp -= N_PI;
 	temp = a<0 ? -temp:temp;	

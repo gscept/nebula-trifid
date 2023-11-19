@@ -39,7 +39,7 @@
 	url = https://github.com/xiph/ogg.git
 [submodule "projects/nebula-demo"]
 	path = projects/nebula-demo
-	url = https://github.com/gscept/nebula-demo.git
+	url = https://github.com/gscept/nebula-trifid-demo.git
 	branch = master
 [submodule "code/extlibs/anyfx"]
 	path = code/extlibs/anyfx

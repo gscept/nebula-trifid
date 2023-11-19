@@ -7,6 +7,7 @@
 */
 #include "basegamefeature/properties/transformableproperty.h"
 #include "physics/physicsbody.h"
+#include "physics/staticobject.h"
 #include "physicsfeature/physicsattr/physicsattributes.h"
 
 //------------------------------------------------------------------------------

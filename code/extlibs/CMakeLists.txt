@@ -8,9 +8,7 @@ IF(NOT N_BUILD_FIRSTTIME)
 	N_SET_COMPILER_DEFAULTS()
 
     IF(MSVC)
-		add_subdirectory(stackwalker)
-		
-		add_subdirectory(libfreetype) 
+        add_subdirectory(libfreetype) 
     ENDIF()
 	
 	IF(N_BUILD_NVTT)
@@ -97,4 +95,7 @@ ELSE()
     add_subdirectory(tinyxml) 
     add_subdirectory(zlib)
     add_subdirectory(base64)
+ENDIF()
+IF(MSVC)
+	add_subdirectory(stackwalker)
 ENDIF()

@@ -41,6 +41,7 @@
 #include <wininet.h>
 #include <winsock2.h>
 #include <rpc.h>
+#include <winnt.h>
 #if _MSC_VER == 1900
 #pragma warning ( push )
 #pragma warning ( disable : 4091)
@@ -49,6 +50,7 @@
 #if _MSC_VER == 1900
 #pragma warning (pop)
 #endif
+#include <new>
 #include <intrin.h>
 
 #if __USE_XNA
@@ -63,7 +65,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <algorithm>
-
+#include <stdint.h>
 // DirectX headers
 #if _DEBUG
 #define D3D_DEBUG_INFO (1)

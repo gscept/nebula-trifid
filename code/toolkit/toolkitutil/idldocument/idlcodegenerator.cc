@@ -227,7 +227,6 @@ IDLCodeGenerator::GetNebulaRefType(const String& type) const
     else if ("float4Array" == type)    return "const Util::Array<Math::float4>&";
     else if ("matrix44Array" == type)   return "const Util::Array<Math::matrix44>&";
     else if ("guidArray" == type)       return "const Util::Array<Util::Guid>&";
-    else if ("Ptr<Game::Entity>" == type) return "const Ptr<Game::Entity>&";
     else
     {
         n_error("IDLCodeGenerator::GetNebulaRefType(): Invalid IDL type '%s'!", type.AsCharPtr());
@@ -261,7 +260,6 @@ IDLCodeGenerator::GetNebulaType(const String& type) const
     else if ("float4Array" == type)    return "Util::Array<Math::float4>";
     else if ("matrix44Array" == type)   return "Util::Array<Math::matrix44>";
     else if ("guidArray" == type)       return "Util::Array<Util::Guid>";
-    else if ("GameEntity" == type)      return "Ptr<Game::Entity>";
     else
     {
         n_error("IDLCodeGenerator::GetNebulaType(): Invalid IDL type '%s'!", type.AsCharPtr());
@@ -437,7 +435,6 @@ IDLCodeGenerator::WriteIncludeHeader(TextWriter* writer) const
     if (!this->document->GetProtocols().IsEmpty())
     {
 		writer->WriteLine("#include \"messaging/message.h\"");   
-        writer->WriteLine("#include \"multiplayer/networkserver.h\"");
     }
 
     // write dependencies
@@ -1116,6 +1113,12 @@ IDLCodeGenerator::WriteEncodeImplementation(IDLMessage* msg, IO::TextWriter* wri
         if (inArgs[argIndex]->IsSerialized())
         {
             String type = inArgs[argIndex]->GetType();           
+            // remove possible namespace
+            IndexT namespaceIdx = type.FindCharIndex(':', 0);
+            if (InvalidIndex != namespaceIdx)
+            {
+                type = type.ExtractToEnd(namespaceIdx+2);
+            } 
 			String name = inArgs[argIndex]->GetName();			
 			this->TypeEncode(type, name, inArgs[argIndex], str);            
             writeString = true;                
@@ -1155,6 +1158,12 @@ IDLCodeGenerator::WriteDecodeImplementation(IDLMessage* msg, IO::TextWriter* wri
         if (inArgs[argIndex]->IsSerialized())
         {
             String type = inArgs[argIndex]->GetType();                        
+            // remove possible namespace
+            IndexT namespaceIdx = type.FindCharIndex(':', 0);
+            if (InvalidIndex != namespaceIdx)
+            {
+                type = type.ExtractToEnd(namespaceIdx+2);
+            }            
 			String name = inArgs[argIndex]->GetName();
 			this->TypeDecode(type, name, inArgs[argIndex], str);            
             writeString = true; 
@@ -1188,14 +1197,14 @@ IDLCodeGenerator::ConvertToCamelNotation(const Util::String& lowerCaseType) cons
     else if (lowerCaseType == "double") return "Double";
     else if (lowerCaseType == "short") return "Short";
     else if (lowerCaseType == "ushort") return "UShort";    
-    else if (lowerCaseType == "string" || lowerCaseType == "String" || lowerCaseType == "Util::String") return "String";  // class names are uppercase 
-    else if (lowerCaseType == "matrix44" || lowerCaseType == "Matrix44" || lowerCaseType == "Math::Matrix44") return "Matrix44";
-    else if (lowerCaseType == "float2" || lowerCaseType == "Float2" || lowerCaseType == "Math::Float2") return "Float2";
-    else if (lowerCaseType == "float4" || lowerCaseType == "Float4" || lowerCaseType == "Math::Float4") return "Float4";
-    else if (lowerCaseType == "point" || lowerCaseType == "Point" || lowerCaseType == "Math::Point") return "Point";
-    else if (lowerCaseType == "vector" || lowerCaseType == "Vector" || lowerCaseType == "Math::Vector") return "Vector";
-    else if (lowerCaseType == "blob" || lowerCaseType == "Blob" || lowerCaseType == "Util::Blob") return "Blob";
-    else if (lowerCaseType == "guid" || lowerCaseType == "Guid" || lowerCaseType == "Util::Guid") return "Guid";
+    else if (lowerCaseType == "string" || lowerCaseType == "String") return "String";  // class names are uppercase 
+    else if (lowerCaseType == "matrix44" || lowerCaseType == "Matrix44") return "Matrix44";  
+    else if (lowerCaseType == "float2" || lowerCaseType == "Float2") return "Float2";
+    else if (lowerCaseType == "float4" || lowerCaseType == "Float4") return "Float4";
+    else if (lowerCaseType == "point" || lowerCaseType == "Point") return "Point";
+    else if (lowerCaseType == "vector" || lowerCaseType == "Vector") return "Vector";
+    else if (lowerCaseType == "blob" || lowerCaseType == "Blob") return "Blob";
+    else if (lowerCaseType == "guid" || lowerCaseType == "Guid") return "Guid";	
 	else if (lowerCaseType == "IndexT" || lowerCaseType == "Tick") return "Int";
     else if (lowerCaseType == "int64_t") return "Int64";
     else if (lowerCaseType == "uint64_t") return "UInt64";
@@ -1216,7 +1225,7 @@ IDLCodeGenerator::TypeEncode(const Util::String & type, const Util::String & nam
 		// check valid type
 		if (!IDLArg::IsValidType(newtype))
 		{
-			n_error("IDLCodeGenerator::TypeEncode: type %s not valid for serialization!!!", newtype.AsCharPtr());
+			n_error("IDLCodeGenerator::TypeEncode: arg type %s not valid for serialization!!!", newtype.AsCharPtr());
 		}		
 		target.Append("        writer->Write" + newtype + "(this->Get" + name + "());\n");
 	}
@@ -1231,14 +1240,6 @@ IDLCodeGenerator::TypeEncode(const Util::String & type, const Util::String & nam
 		{
 			target.Append("        writer->WriteString(this->Get" + name + "().Value());\n");
 		}				
-        else if (type == "Ptr<Game::Entity>")
-        {
-            target.Append("        writer->WriteUInt64(__GetNetworkID(this->Get" + name + "()));\n");
-        }
-        else
-        {
-            n_error("IDLCodeGenerator::TypeEncode: type %s not valid for serialization!!!", type.AsCharPtr());
-        }
 	}
 }
 
@@ -1268,10 +1269,6 @@ IDLCodeGenerator::TypeDecode(const Util::String & type, const Util::String & nam
 		{
 			target.Append("        this->Set" + name + "(reader->ReadString());\n");
 		}
-        else if (type == "Ptr<Game::Entity>")
-        {            
-            target.Append("        this->Set" + name + "(MultiplayerFeature::NetworkServer::Instance()->GetEntityByNetworkID(reader->ReadUInt64()));\n");
-        }
 	}
 }
 } // namespace Tools
